@@ -248,10 +248,10 @@ begin
   P.Y:= MapYc;
   //example for units need change
   if Button = mbRight then
-    ControlList.AddUnit('User', ut_Peasant, P)
+    ControlList.AddUnit('User', ut_Serf, P)
 //    Units.Add(ut_Peasant, MapXc, MapYc)
   else if Button = mbMiddle then
-    ControlList.AddUnit('User', ut_Warrior, P)
+    ControlList.AddUnit('User', ut_WHorseScout, P)
   else if Button = mbLeft then
   begin
     if ControlList.UnitsSelectedUnit <> nil then
@@ -469,16 +469,17 @@ var
 begin
 fViewPort.XCoord:=10;
 fViewPort.YCoord:=10;
-ControlList.AddHouse(ht_Mill,Point(4,5));
-ControlList.HousesHitTest(4,5);
+ControlList.AddHouse(ht_Farm,Point(4,5));
+ControlList.AddHouse(ht_Mill,Point(8,5));
+//ControlList.HousesHitTest(4,5);
 //Houses.SelectedHouse.AddResource(rt_Corn);
-ControlList.AddHouse(ht_Bakery,Point(8,5));
-ControlList.AddHouse(ht_Store,Point(12,5));
+ControlList.AddHouse(ht_Bakery,Point(12,5));
+ControlList.AddHouse(ht_Store,Point(16,5));
 
 P.x:=random(2)+5;
 P.y:=random(8)+5;
-  ControlList.AddUnit('User', ut_Peasant, P);
-  ControlList.AddUnit('User', ut_Worker, Point(8,8));
+//  ControlList.AddUnit('User', ut_Serf, P);
+  ControlList.AddUnit('User', ut_VFarmer, Point(8,8));
 //  Units.HitTest(x, y);
 //  Units.SelectedUnit.GiveResource(rt_Corn);
 end;

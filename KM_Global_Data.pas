@@ -100,11 +100,14 @@ end;
 //21 Axe        //22 Sword      //23 Pike       //24 Hallebard
 //25 Bow        //26 Arbalet    //27 Horse      //28 FishBucket
 
-UnitSprite:array[1..42]of record
-  Act:array[1..14]of record
-    Dir:array[1..8]of record
+UnitStat:array[1..41]of record x1,Attack,AttackHorseBonus,x4,HitPoints,Speed,x7,Sight{?},x9,x10,x11:smallint; end;
+UnitSprite2:array[1..41,1..18]of smallint;
+UnitSprite:array[1..41]of packed record
+  Act:array[1..14]of packed record
+    Dir:array[1..8]of packed record
       Step:array[1..30]of smallint;
-      Count,MoveX,x3,MoveY,x5:smallint;
+      Count:smallint;
+      MoveX,MoveY:integer;
     end;
   end;
 end;

@@ -25,7 +25,7 @@ uses
 begin
   Application.Initialize;
   Application.Title := 'KaM Editor';
-  Application.HelpFile := 'KM_EDITOR.HLP';
+  Application.HelpFile := '';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);
   Application.CreateForm(TFormNewMap, FormNewMap);

@@ -46,6 +46,7 @@ type
     procedure AddHouse(aHouseType: THouseType; Position: TPoint);
     procedure RemUnit(Position: TPoint);
     procedure RemHouse(Position: TPoint);
+    function FindEmptyHouse(aHouse:THouseType): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsSelectedUnit: TKMUnit;
@@ -94,6 +95,11 @@ end;
 procedure TKMUserControlList.RemHouse(Position: TPoint);
 begin
   fHouses.Rem(Position.X, Position.Y)
+end;
+
+function TKMUserControlList.FindEmptyHouse(aHouse:THouseType): TKMHouse;
+begin
+Result:=fHouses.FindEmptyHouse(aHouse);
 end;
 
 constructor TKMUserControlList.Create();

@@ -277,10 +277,10 @@ assignfile(f,filename); reset(f,1);
 for ii:=1 to 28 do begin
 blockread(f,UnitCarry[ii],8*70);
 end;
-blockread(f,c,22);
-for ii:=1 to 40 do begin
+for ii:=1 to 41 do begin
+blockread(f,UnitStat[ii],22);
 blockread(f,UnitSprite[ii],112*70);
-blockread(f,c,58);
+blockread(f,UnitSprite2[ii],36);
 end;
 closefile(f);
 
@@ -296,9 +296,7 @@ for hh:=1 to 1 do if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then begin
   if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then write(ft,{inttostr(UnitSprite[ii].Act[kk].Dir[hh].Step[jj])+}'#');
   write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
   write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
-  write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].x3)+' ');
   write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
-  write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].x5)+' ');
   writeln(ft);
 end;
 end;

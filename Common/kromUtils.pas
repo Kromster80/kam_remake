@@ -400,12 +400,11 @@ function Pow(const Base, Exponent: integer): integer;
 begin
   if Exponent = 0 then
     Result := 1               { n**0 = 1 }
-  else if (Base = 0) and (Exponent > 0) then
-    Result := 0               { 0**n = 0, n > 0 }
-  else if Abs(Exponent) <= MaxInt then
-    Result := round(IntPower(Base, Exponent))
   else
-    Result := round(Exp(Exponent * Ln(Base)))
+  if (Base = 0) and (Exponent > 0) then
+    Result := 0               { 0**n = 0, n > 0 }
+  else
+  Result := round(IntPower(Base, Exponent))
 end;
 
 procedure Matrix2Angles(matrix09:array of single; Qty:integer; i1,i2,i3:pinteger);

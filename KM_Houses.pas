@@ -12,7 +12,7 @@ type
   ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
   ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
 
-  THouseActionType = ( hat_Idle, hat_Work );
+  THouseActionType = ( hat_Empty, hat_Idle, hat_Work );
 
   THouseActionSet = set of (
   ha_Work1=1, ha_Work2=2, ha_Work3=3, ha_Work4=4, ha_Work5=5, //Start, InProgress, .., .., Finish
@@ -44,7 +44,7 @@ type
     fCurrentAction: THouseAction;
     fResourceIn:array[1..5]of byte;
     fResourceOut:array[1..5]of byte;
-    fPosition: TPos;
+    fPosition: TPoint;
     fLastUpdateTime: Cardinal;
     AnimStep: integer;
   public
@@ -54,6 +54,7 @@ type
     procedure SetAction(aAction: THouseAction);
     procedure AddResource(aResource:TResourceType);
     function RemResource(aResource:TResourceType):boolean;
+    property GetPosition:TPoint read fPosition;
     procedure UpdateState;
     procedure Paint();// virtual; abstract;
   end;
@@ -97,6 +98,7 @@ type
     procedure Clear; override;
     procedure UpdateState;
     function HitTest(X, Y: Integer): TKMHouse;
+    function FindEmptyHouse(aHouse:THouseType): TKMHouse;
     procedure Paint();
     property SelectedHouse: TKMHouse read fSelectedHouse; 
   end;
@@ -136,7 +138,10 @@ end;
 procedure TKMHouse.AddResource(aResource:TResourceType);
 begin
 if aResource=rt_None then exit;
-inc(fResourceIn[1]);
+if fHouseType=ht_Farm then
+  inc(fResourceOut[1])
+else
+  inc(fResourceIn[1]);
 end;
 
 function TKMHouse.RemResource(aResource:TResourceType):boolean;
@@ -220,6 +225,7 @@ constructor THouseAction.Create(aActionType: THouseActionType);
 begin
   Inherited Create;
   fActionType:= aActionType;
+  ActionSet(aActionType);
 end;
 
 procedure THouseAction.ActionSet(aActionType: THouseActionType);
@@ -230,6 +236,9 @@ fActionType:=aActionType;
     SubActionAdd([ha_Idle]);
   end;
   if aActionType=hat_Work then begin
+    SubActionRem([ha_Idle]);
+  end;
+  if aActionType=hat_Empty then begin
     SubActionRem([ha_Idle]);
   end;
 end;
@@ -333,6 +342,19 @@ begin
       Break;
     end;
   fSelectedHouse:= Result;
+end;
+
+function TKMHousesCollection.FindEmptyHouse(aHouse:THouseType): TKMHouse;
+var
+  I: Integer;
+begin
+  Result:= nil;
+  for I := 0 to Count - 1 do
+    if TKMHouse(Items[I]).fHouseType=aHouse then
+    begin
+      Result:= TKMHouse(Items[I]);
+      Break;
+    end;
 end;
 
 procedure TKMHousesCollection.Paint();
