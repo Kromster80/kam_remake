@@ -1,0 +1,20 @@
+1. Алгоритм поиска пути А->В (А*)
+
+	1.1 Обращение к данным TTerrain.Passability
+
+	1.2 Построение кратчайшего пути
+
+	1.3 Следование по пути
+	
+	1.4 Обход новых препятствий на пути
+
+
+1. Алгоритм обхода препятсятвий
+
+     1.1. Add link to units to Map
+
+     1.2. Add function TMap.IsEmptyPoint
+
+     1.3. Realize Algorithm
+
+2. Realize Attack action
