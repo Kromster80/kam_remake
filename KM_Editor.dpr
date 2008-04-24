@@ -18,7 +18,8 @@ uses
   KM_Units in 'KM_Units.pas',
   KM_Users in 'KM_Users.pas',
   KM_Houses in 'KM_Houses.pas',
-  KM_Log in 'KM_Log.pas';
+  KM_Log in 'KM_Log.pas',
+  KM_DeliverQueue in 'KM_DeliverQueue.pas';
 
 {$R *.RES}
 

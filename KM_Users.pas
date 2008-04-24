@@ -2,7 +2,7 @@ unit KM_Users;
 
 interface
 uses
-  classes, KM_Classes, KM_Units, KM_Houses, windows;
+  classes, KM_Classes, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, windows;
 type
   TUserControlType = (uct_User, uct_Computer);
 
@@ -34,6 +34,7 @@ type
   private
     fUnits: TKMUnitsCollection;
     fHouses: TKMHousesCollection;
+    fJobList: TKMDeliverQueue;
     function GetCtrl(Index: Integer): TKMUserControl;
     function UserByName(const aName: string): TKMUser;
   public
@@ -44,6 +45,7 @@ type
   public
     function AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TPoint): Boolean;
     procedure AddHouse(aHouseType: THouseType; Position: TPoint);
+    procedure AddJob(aLoc1,aLoc2:TPoint; aResource:TResourceType);
     procedure RemUnit(Position: TPoint);
     procedure RemHouse(Position: TPoint);
     function FindEmptyHouse(aHouse:THouseType): TKMHouse;
@@ -87,6 +89,11 @@ begin
   fHouses.Add(aHouseType, Position.X, Position.Y)
 end;
 
+procedure TKMUserControlList.AddJob(aLoc1,aLoc2:TPoint; aResource:TResourceType);
+begin
+  fJobList.AddJob(aLoc1,aLoc2,aResource);
+end;
+
 procedure TKMUserControlList.RemUnit(Position: TPoint);
 begin
   fUnits.Rem(Position.X, Position.Y)
@@ -106,6 +113,7 @@ constructor TKMUserControlList.Create();
 begin
   fUnits:= TKMUnitsCollection.Create;
   fHouses:= TKMHousesCollection.Create;
+  fJobList:= TKMDeliverQueue.Create;
 end;
 
 destructor TKMUserControlList.Destroy;

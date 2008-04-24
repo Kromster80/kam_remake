@@ -104,6 +104,7 @@ type
   end;
 
 implementation
+uses KM_DeliverQueue, KM_Unit1;
 
 { TKMHouse }
 
@@ -139,7 +140,10 @@ procedure TKMHouse.AddResource(aResource:TResourceType);
 begin
 if aResource=rt_None then exit;
 if fHouseType=ht_Farm then
-  inc(fResourceOut[1])
+  begin
+    inc(fResourceOut[1]);
+//    ControlList.AddJob(fPosition,);
+  end
 else
   inc(fResourceIn[1]);
 end;
@@ -262,14 +266,7 @@ end;
 procedure THouseAction.Execute(KMHouse: TKMHouse; TimeDelta: single; out DoEnd: Boolean);
 begin
   DoEnd:= False;
-
   inc(KMHouse.AnimStep);
-
-{  if (KMHouse.AnimStep>10) and (KMHouse.fCurrentAction=nil)
-  then KMHouse.SetAction(THouseAction.Add(ha_Smoke));
-  if (KMHouse.AnimStep>20)// and (KMHouse.fCurrentAction=nil)
-  then KMHouse.SetAction(THouseAction.Add(ha_Smoke));  }
-//  TMoveUnitAction.Create
 
 //  DoEnd:= True;
 end;

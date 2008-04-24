@@ -249,7 +249,6 @@ begin
   //example for units need change
   if Button = mbRight then
     ControlList.AddUnit('User', ut_Serf, P)
-//    Units.Add(ut_Peasant, MapXc, MapYc)
   else if Button = mbMiddle then
     ControlList.AddUnit('User', ut_WHorseScout, P)
   else if Button = mbLeft then
