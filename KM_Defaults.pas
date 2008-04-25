@@ -1,14 +1,28 @@
 unit KM_Defaults;
 interface
 
-type bmBrushMode = (bmNone,bmHouses);
-
-type TPos = record X,Y:word; end;
-     TPosF= record X,Y:single; end;
+type bmBrushMode = (bm_None,bm_Houses);
 
   TMouseButton2 = (mb2None, mb2Left, mb2Right);
-  
-  TResourceType = (rt_None=0, rt_Trunk=1, rt_Corn=10, rt_Flour=12);
+
+  THouseType = (
+    ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
+    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutter=10,
+    ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
+    ht_Metallurgist=16,  ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
+    ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
+    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
+
+  TResourceType = (rt_None=0, rt_All=30,
+    rt_Trunk     =1  , rt_Stone      =2 , rt_Wood       =3 , rt_IronOre     =4 ,
+    rt_GoldOre   =5  , rt_Coal       =6 , rt_Steel      =7 , rt_Gold        =8 ,
+    rt_Wine      =9  , rt_Corn       =10, rt_Bread      =11, rt_Flour       =12,
+    rt_Leather   =13 , rt_Sousages   =14, rt_Pig        =15, rt_Skin        =16,
+    rt_WoodShield=17 , rt_MetalShield=18, rt_Armor      =19, rt_MetalArmor  =20,
+    rt_Axe       =21 , rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
+    rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_FishBucket  =28);
+    
+  TResourceTypeSet = set of TResourceType;
 
 const
 MaxMapSize=176;         //Single cell size in pixels
@@ -159,6 +173,38 @@ HousePlanYX:array[1..29,1..4,1..4]of byte = (
 ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
 ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn            //363
 ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard       //378
+);
+
+HouseProduce:array[1..29,1..4] of TResourceType = (
+(rt_None,       rt_None,       rt_None,       rt_None), //Sawmill        //1
+(rt_None,       rt_None,       rt_None,       rt_None), //Iron smithy    //21
+(rt_None,       rt_None,       rt_None,       rt_None), //Weapon smithy  //244
+(rt_None,       rt_None,       rt_None,       rt_None), //Coal mine      //134
+(rt_None,       rt_None,       rt_None,       rt_None), //Iron mine      //61
+(rt_None,       rt_None,       rt_None,       rt_None), //Gold mine      //239
+(rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut     //81
+(rt_None,       rt_None,       rt_None,       rt_None), //Bakery         //101
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Farm           //124
+(rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter     //142
+(rt_None,       rt_None,       rt_None,       rt_None), //Armor smithy   //41
+(rt_None,       rt_None,       rt_None,       rt_None), //Store          //138
+(rt_None,       rt_None,       rt_None,       rt_None), //Stables        //146
+(rt_None,       rt_None,       rt_None,       rt_None), //School         //250
+(rt_Stone,      rt_None,       rt_None,       rt_None), //Quarry         //211
+(rt_None,       rt_None,       rt_None,       rt_None), //Metallurgist   //235
+(rt_None,       rt_None,       rt_None,       rt_None), //Swine          //368
+(rt_None,       rt_None,       rt_None,       rt_None), //Watch tower    //255
+(rt_None,       rt_None,       rt_None,       rt_None), //Town hall      //1657
+(rt_None,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
+(rt_None,       rt_None,       rt_None,       rt_None), //Armor workshop //663
+(rt_None,       rt_None,       rt_None,       rt_None), //Barracks       //334
+(rt_None,       rt_None,       rt_None,       rt_None), //Mill           //358
+(rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
+(rt_None,       rt_None,       rt_None,       rt_None), //Butcher        //397
+(rt_None,       rt_None,       rt_None,       rt_None), //Tannery        //668
+(rt_None,       rt_None,       rt_None,       rt_None), //N/A
+(rt_None,       rt_None,       rt_None,       rt_None), //Inn            //363
+(rt_None,       rt_None,       rt_None,       rt_None)  //Wineyard       //378
 );
 
 R:array[1..8]of integer =(255,   0,   0, 255,   0, 255, 255,   0);

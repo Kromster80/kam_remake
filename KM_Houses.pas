@@ -1,17 +1,8 @@
 unit KM_Houses;
 interface
-uses windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain, KM_Global_Data, KM_Defaults;
+uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain, KM_Global_Data, KM_Defaults;
 
-type
-
-  THouseType = (
-  ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
-  ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutter=10,
-  ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
-  ht_Metallurgist=16,  ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
-  ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-  ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
-
+type        
   THouseActionType = ( hat_Empty, hat_Idle, hat_Work );
 
   THouseActionSet = set of (
@@ -26,25 +17,28 @@ type
 
   THouseAction = class(TObject)
   private
+    TimeToAct:integer;
     fActionType: THouseActionType;
     fSubAction: THouseActionSet;
   public
-    constructor Create(aActionType: THouseActionType);
+    constructor Create(aActionType: THouseActionType; const aTime:integer=0);
     procedure ActionSet(aActionType: THouseActionType);
     procedure SubActionWork(aActionSet: THouseActionSet);
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
-    procedure Execute(KMHouse: TKMHouse; TimeDelta: single; out DoEnd: Boolean);// virtual; abstract;
+    procedure Execute(KMHouse: TKMHouse; TimeDelta: single; out DoEnd: Boolean);
     property ActionType: THouseActionType read fActionType;
   end;
 
   TKMHouse = class(TObject)
   private
     fHouseType: THouseType;
+    fAcceptResources:TResourceTypeSet;
+    fProduceResources:array[1..4] of TResourceType;
     fCurrentAction: THouseAction;
     fResourceIn:array[1..5]of byte;
     fResourceOut:array[1..5]of byte;
-    fPosition: TPoint;
+    fPosition: TKMPoint;
     fLastUpdateTime: Cardinal;
     AnimStep: integer;
   public
@@ -52,9 +46,9 @@ type
     destructor Destroy; override;
     function HitTest(X, Y: Integer): Boolean; overload;
     procedure SetAction(aAction: THouseAction);
-    procedure AddResource(aResource:TResourceType);
+    procedure AddResource(aResource:TResourceType; const aCount:integer=1);
     function RemResource(aResource:TResourceType):boolean;
-    property GetPosition:TPoint read fPosition;
+    property GetPosition:TKMPoint read fPosition;
     procedure UpdateState;
     procedure Paint();// virtual; abstract;
   end;
@@ -114,12 +108,12 @@ begin
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
   fHouseType:=aHouseType;
-  fCurrentAction:=THouseAction.Create(hat_Idle);
+  SetAction(THouseAction.Create(hat_Empty));
   fCurrentAction.SubActionAdd([ha_FlagShtok]);
   fCurrentAction.SubActionAdd([ha_Flag1]);
   fCurrentAction.SubActionAdd([ha_Flag2]);
   fCurrentAction.SubActionAdd([ha_Flag3]);
-//  fResourceIn[1]:=5;
+  fProduceResources[1]:=HouseProduce[integer(aHouseType),1];
 end;
 
 destructor TKMHouse.Destroy;
@@ -136,16 +130,16 @@ if HousePlanYX[integer(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then
   Result:=true;
 end;
 
-procedure TKMHouse.AddResource(aResource:TResourceType);
+procedure TKMHouse.AddResource(aResource:TResourceType; const aCount:integer=1);
+var i:integer;
 begin
-if aResource=rt_None then exit;
-if fHouseType=ht_Farm then
-  begin
-    inc(fResourceOut[1]);
-//    ControlList.AddJob(fPosition,);
-  end
-else
-  inc(fResourceIn[1]);
+  if aResource=rt_None then exit;
+  if aResource = fProduceResources[1] then
+    begin
+      inc(fResourceOut[1],aCount);
+      for i:=1 to aCount do
+      ControlList.JobList.AddJob(Self.fPosition,KMPoint(16,5),aResource);
+    end;
 end;
 
 function TKMHouse.RemResource(aResource:TResourceType):boolean;
@@ -159,11 +153,7 @@ end;
 procedure TKMHouse.SetAction(aAction: THouseAction);
 begin
   if aAction = nil then
-  begin
-    fCurrentAction.Free;
-    fCurrentAction:= nil;
-    Exit;
-  end;
+    exit;
   if fCurrentAction <> aAction then
   begin
     fCurrentAction.Free;
@@ -181,38 +171,40 @@ begin
 //  if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
   if DoEnd then
-    SetAction(nil);
-
-//inc(AnimStep);
-if (fCurrentAction.fActionType=hat_Idle)and(fResourceIn[1]>=1) then begin
-  dec(fResourceIn[1]);
-  AnimStep:=0;
-  fCurrentAction.ActionSet(hat_Work);
-end;
-if fCurrentAction.fActionType=hat_Work then begin
-  fCurrentAction.SubActionAdd([ha_Smoke]);
-  if AnimStep=HouseDAT[integer(fHouseType)].Anim[1].Count then
-  fCurrentAction.SubActionAdd([ha_Work1]);
-  if AnimStep>=10 then
-  fCurrentAction.SubActionAdd([ha_Work2]);
-  if AnimStep>=20 then
-  fCurrentAction.SubActionAdd([ha_Work3]);
-  if AnimStep>=30 then
-  fCurrentAction.SubActionAdd([ha_Work4]);
-  if AnimStep>=40 then
-  fCurrentAction.SubActionAdd([ha_Work5]);
-  if AnimStep>=50 then begin
-  fCurrentAction.ActionSet(hat_Idle);
-  inc(fResourceOut[1]);
-  end;
-  end;
+    begin
+      if (fCurrentAction.fActionType=hat_Idle) then
+        if (fResourceIn[1]>=1) then begin
+          dec(fResourceIn[1]);
+          AnimStep:=0;
+          fCurrentAction.ActionSet(hat_Work);
+        end
+      else
+        fCurrentAction.Create(hat_Idle,10);
+      if fCurrentAction.fActionType=hat_Work then
+        begin
+          fCurrentAction.SubActionAdd([ha_Smoke]);
+          if AnimStep=HouseDAT[integer(fHouseType)].Anim[1].Count then
+            fCurrentAction.SubActionAdd([ha_Work1]);
+          if AnimStep>=10 then
+            fCurrentAction.SubActionAdd([ha_Work2]);
+          if AnimStep>=20 then
+            fCurrentAction.SubActionAdd([ha_Work3]);
+          if AnimStep>=30 then
+            fCurrentAction.SubActionAdd([ha_Work4]);
+          if AnimStep>=40 then
+            fCurrentAction.SubActionAdd([ha_Work5]);
+          if AnimStep>=50 then
+            begin
+              fCurrentAction.ActionSet(hat_Idle);
+              fCurrentAction.Create(hat_Idle,10);
+              inc(fResourceOut[1]);
+            end;
+        end;
+    end;
 end;
 
 procedure TKMHouse.Paint;
-var Owner:integer; AnimKind:integer;
 begin
-Owner:=2;//should be inherited from =Player=
-AnimKind:=2;
 //Render base
 fRender.RenderHouse(integer(fHouseType),fPosition.X, fPosition.Y);
 //Render supplies
@@ -220,16 +212,16 @@ fRender.RenderHouseSupply(integer(fHouseType),fResourceIn,fResourceOut,fPosition
 //Render animation
 if fCurrentAction=nil then exit;
 fRender.RenderHouseWork(integer(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,1,fPosition.X, fPosition.Y);
-
 end;
 
 { THouseAction }
 
-constructor THouseAction.Create(aActionType: THouseActionType);
+constructor THouseAction.Create(aActionType: THouseActionType; const aTime:integer=0);
 begin
   Inherited Create;
   fActionType:= aActionType;
   ActionSet(aActionType);
+  TimeToAct:=aTime;
 end;
 
 procedure THouseAction.ActionSet(aActionType: THouseActionType);
@@ -267,8 +259,8 @@ procedure THouseAction.Execute(KMHouse: TKMHouse; TimeDelta: single; out DoEnd: 
 begin
   DoEnd:= False;
   inc(KMHouse.AnimStep);
-
-//  DoEnd:= True;
+  dec(TimeToAct);
+  if TimeToAct<=0 then DoEnd:= True;
 end;
 
 { TKMHousesCollection }

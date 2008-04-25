@@ -241,7 +241,7 @@ begin
 //-Houses-
 //Render house shape
 //==============================================
-if BrushMode=bmHouses then
+if BrushMode=bm_Houses then
 if (LandBrush in [0])and(not MousePressed) then
   begin
   glColor4f(1,0,0,0.2);    //Object eraser
@@ -504,6 +504,8 @@ if ID<=0 then exit;
   glColor4f(Owner/2,1,1,1);
   ShiftX:=UnitPivot[ID].x/CellSize;
   ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize-fTerrain.Land[round(pY)+1,round(pX)].Height/xh;
+  ShiftX:=ShiftX+UnitCarry[CarryID].Dir[DirID].MoveX/40;
+  ShiftY:=ShiftY+UnitCarry[CarryID].Dir[DirID].MoveY/40;
   RenderSprite(UnitTex[ID,1],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
 end;
 

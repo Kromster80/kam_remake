@@ -1,9 +1,9 @@
 unit KM_Unit1;
 interface
 uses
-  Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  KM_Defaults, Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, FileCtrl, ExtCtrls, KromUtils, OpenGL,
-  dglOpenGL, Menus, ComCtrls, Buttons, KM_Defaults, KM_Render, KM_ReadGFX1,
+  dglOpenGL, Menus, ComCtrls, Buttons, KM_Render, KM_ReadGFX1,
   ImgList, KM_Form_Loading, math, Grids, KM_Tplayer, KM_Terrain, KM_Global_Data,
   KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, JPEG;
 
@@ -88,6 +88,8 @@ type
     HousePalleteScroll: TScrollBar;
     Button1: TButton;
     PrintScreen1: TMenuItem;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -231,7 +233,7 @@ begin MiniMapMouseMove(nil,Shift,X,Y); MiniMapSpy:=false; end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-  P: TPoint;
+  P: TKMPoint;
 begin
   MousePressed:=true;
   case Button of
@@ -254,7 +256,7 @@ begin
   else if Button = mbLeft then
   begin
     if ControlList.UnitsSelectedUnit <> nil then
-      ControlList.UnitsSelectedUnit.SetAction(TMoveUnitAction.Create(P.X, P.Y));
+      ControlList.UnitsSelectedUnit.SetAction(TMoveUnitAction.Create(P));
     ControlList.UnitsHitTest(P.X, P.Y);
   end;
 end;
@@ -310,14 +312,14 @@ MapXc2:=MapXc; MapYc2:=MapYc;
 end;
 
 procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TPoint;
+var P:TKMPoint;
 begin
 MousePressed:=false;
 P.X:=MapXc;
 P.Y:=MapYc;
 
   case BrushMode of
-    bmHouses:
+    bm_Houses:
       begin
         if LandBrush = 0 then
           begin
@@ -357,7 +359,7 @@ begin //
 if ActiveTileName<>nil then
 TSpeedButton(ActiveTileName).Down:=false; //Relese last pressed button
 LandBrush:=0;
-BrushMode:=bmNone;
+BrushMode:=bm_None;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -367,9 +369,14 @@ end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
+if CheckBox1.Checked then exit;
   ControlList.UpdateState;
-  //ControlList.Paint();
-//  Units.Paint();
+if CheckBox2.Checked then begin
+  ControlList.UpdateState;
+  ControlList.UpdateState;
+  ControlList.UpdateState;
+  ControlList.UpdateState;
+end;
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -380,7 +387,7 @@ begin
 ActiveTileName:=Sender;
 s:=(TSpeedButton(Sender)).Name;
 LandBrush:=strtoint(s[3]+s[4]);
-BrushMode:=bmHouses;
+BrushMode:=bm_Houses;
 end;                     
 
 procedure TForm1.ExitClick(Sender: TObject);
@@ -463,24 +470,21 @@ ExportText(SaveDialog1.FileName);
 end; 
 
 procedure TForm1.Button1Click(Sender: TObject);
-var
-  P: TPoint;
 begin
 fViewPort.XCoord:=10;
 fViewPort.YCoord:=10;
-ControlList.AddHouse(ht_Farm,Point(4,5));
-ControlList.AddHouse(ht_Mill,Point(8,5));
-//ControlList.HousesHitTest(4,5);
-//Houses.SelectedHouse.AddResource(rt_Corn);
-ControlList.AddHouse(ht_Bakery,Point(12,5));
-ControlList.AddHouse(ht_Store,Point(16,5));
+ControlList.AddHouse(ht_Farm,KMPoint(4,5));
+ControlList.AddHouse(ht_Mill,KMPoint(8,5));
+ControlList.AddHouse(ht_Bakery,KMPoint(12,5));
+ControlList.AddHouse(ht_Store,KMPoint(16,5));
+ControlList.AddHouse(ht_Quary,KMPoint(12,8));
 
-P.x:=random(2)+5;
-P.y:=random(8)+5;
-//  ControlList.AddUnit('User', ut_Serf, P);
-  ControlList.AddUnit('User', ut_VFarmer, Point(8,8));
-//  Units.HitTest(x, y);
-//  Units.SelectedUnit.GiveResource(rt_Corn);
+ControlList.AddUnit('User', ut_VFarmer, KMPoint(8,8));
+ControlList.AddUnit('User', ut_VStoneCutter, KMPoint(9,8));
+ControlList.AddUnit('User', ut_Serf, KMPoint(5,9));
+ControlList.AddUnit('User', ut_Serf, KMPoint(6,9));
+ControlList.AddUnit('User', ut_Serf, KMPoint(7,9));
+ControlList.AddUnit('User', ut_Serf, KMPoint(8,9));
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);
@@ -512,5 +516,7 @@ jpg.SaveToFile(ExeDir+'KaM '+s+'.jpg');
 jpg.Free;
 mkbmp.Free;
 end;
+
+
 
 end.

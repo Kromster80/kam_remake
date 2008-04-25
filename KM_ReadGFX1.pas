@@ -191,7 +191,7 @@ var MyBitMap,MyBitMapA:TBitMap;
     sy,sx:integer;
     y,x:integer;
     row:integer;
-begin    {
+begin
 row:=1; //row in ObjPallete
 for ii:=1 to 29 do
 if ii<>27 then
@@ -204,7 +204,7 @@ MyBitmapA.Height:=256;
 MyBitmapA.Width:=256;
 MyBitmap.PixelFormat:=pf24bit;
 
-id:=HouseIndexGFX[ii];
+id:=ii;
 HouseID[row]:=ii;
 
 sy:=HouseSize[id,2]; if sy>256 then sy:=256;
@@ -221,17 +221,10 @@ if sy>0 then Form1.ImageList2.Add(MyBitmap,MyBitmapA);
 Form1.HousePallete.RowCount:=row;
 Form1.HousePallete.RowHeights[row-1]:=sy;
 
-Form1.Memo2.Lines.Add(inttostr(ii)+' '+
-inttostr(HousePivot[id].x3)+' '+
-inttostr(HousePivot[id].y)+' '+
-inttostr(HousePivot[id].y1)+' '+
-inttostr(HousePivot[id].y2)+' '+
-inttostr(HousePivot[id].y3));
-
 inc(row);
 end;
 Form1.HousePallete.RowCount:=row-1;
-Form1.HousePalleteScroll.Max:=row-2;  }
+Form1.HousePalleteScroll.Max:=row-2;
 Result:=true;
 end;
 
@@ -290,15 +283,17 @@ writeln(ft);
 writeln(ft);
 writeln(ft,'NewUnit'+inttostr(ii));
 for kk:=1 to 14 do
-for hh:=1 to 1 do if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then begin
-  write(ft,inttostr(kk)+'.'+#9);
-  for jj:=1 to 30 do
-  if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then write(ft,{inttostr(UnitSprite[ii].Act[kk].Dir[hh].Step[jj])+}'#');
-  write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
-  write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
-  write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
-  writeln(ft);
-end;
+for hh:=1 to 8 do
+  if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then
+    begin
+      write(ft,inttostr(kk)+'.'+inttostr(hh)+#9);
+      for jj:=1 to 30 do
+      if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then write(ft,'#');
+      write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
+      write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
+      write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
+      writeln(ft);
+    end;
 end;
 closefile(ft);
 
@@ -313,7 +308,7 @@ end;
 //Reading houses.dat data
 //=============================================
 function ReadHouseDAT(filename:string):boolean;
-var ii,kk,jj:integer;
+var ii,kk:integer;
 begin
 Result:=false;
 if fileexists(filename) then begin

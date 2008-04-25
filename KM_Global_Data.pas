@@ -8,7 +8,7 @@ uses
 const
 CellSize=40;            //Single cell size in pixels
 Overlap=0.001;          //UV position overlap
-FPSLag=33;              //lag between frames, 1000/FPSLag = max allowed FPS
+FPSLag=5;              //lag between frames, 1000/FPSLag = max allowed FPS
 FPS_INTERVAL=1000;      //time between FPS measurements, more=accurate
 zz=#10+#13;             //EndOfLine
 
@@ -111,9 +111,9 @@ UnitSprite:array[1..41]of packed record
     end;
   end;
 end;
-//1  Serf           //2  Woodcutter     //3  Stonecutter    //4  Animal breeder
+//1  Serf           //2  Woodcutter     //3  Miner          //4  Animal breeder
 //5  Farmer         //6  Lamberjack     //7  Baker          //8  Butcher
-//9  Fisherman      //10 Worker         //11 Miner          //12 Smith
+//9  Fisherman      //10 Worker         //11 StoneCutter    //12 Smith
 //13 Metallurgist   //14 Recruit
 
 //15 Militia        //16 AxeFighter     //17 Swordsman      //18 Bowman

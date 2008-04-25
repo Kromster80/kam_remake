@@ -2,7 +2,7 @@ unit KM_Users;
 
 interface
 uses
-  classes, KM_Classes, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, windows;
+  classes, KromUtils, KM_Classes, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, windows;
 type
   TUserControlType = (uct_User, uct_Computer);
 
@@ -43,15 +43,16 @@ type
     function Add(const aUserName: string; aControlType: TUserControlType): TKMUserControl;
     property Ctrl[Index: Integer]: TKMUserControl read GetCtrl;
   public
-    function AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TPoint): Boolean;
-    procedure AddHouse(aHouseType: THouseType; Position: TPoint);
-    procedure AddJob(aLoc1,aLoc2:TPoint; aResource:TResourceType);
-    procedure RemUnit(Position: TPoint);
-    procedure RemHouse(Position: TPoint);
+    function AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TKMPoint): Boolean;
+    procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
+    procedure AddJob(aLoc1,aLoc2:TKMPoint; aResource:TResourceType);
+    procedure RemUnit(Position: TKMPoint);
+    procedure RemHouse(Position: TKMPoint);
     function FindEmptyHouse(aHouse:THouseType): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsSelectedUnit: TKMUnit;
+    property JobList:TKMDeliverQueue read fJobList;
   public
     procedure UpdateState;
     procedure Paint;
@@ -78,28 +79,28 @@ begin
     Inherited Add(Result);
 end;
 
-function TKMUserControlList.AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TPoint): Boolean;
+function TKMUserControlList.AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TKMPoint): Boolean;
 begin
 //  if UserByName(aUserName).GetMoney(fUnits.GetPrice(aUnitType)) then
     fUnits.Add(aUserName, aUnitType, Position.X, Position.Y)
 end;
 
-procedure TKMUserControlList.AddHouse(aHouseType: THouseType; Position: TPoint);
+procedure TKMUserControlList.AddHouse(aHouseType: THouseType; Position: TKMPoint);
 begin
   fHouses.Add(aHouseType, Position.X, Position.Y)
 end;
 
-procedure TKMUserControlList.AddJob(aLoc1,aLoc2:TPoint; aResource:TResourceType);
+procedure TKMUserControlList.AddJob(aLoc1,aLoc2:TKMPoint; aResource:TResourceType);
 begin
   fJobList.AddJob(aLoc1,aLoc2,aResource);
 end;
 
-procedure TKMUserControlList.RemUnit(Position: TPoint);
+procedure TKMUserControlList.RemUnit(Position: TKMPoint);
 begin
   fUnits.Rem(Position.X, Position.Y)
 end;
 
-procedure TKMUserControlList.RemHouse(Position: TPoint);
+procedure TKMUserControlList.RemHouse(Position: TKMPoint);
 begin
   fHouses.Rem(Position.X, Position.Y)
 end;
@@ -120,6 +121,7 @@ destructor TKMUserControlList.Destroy;
 begin
   fUnits.Free;
   fHouses.Free;
+  fJobList.Free;
   inherited;
 end;
 

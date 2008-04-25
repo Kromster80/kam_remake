@@ -2982,6 +2982,28 @@ object Form1: TForm1
     TabOrder = 5
     OnClick = Button1Click
   end
+  object CheckBox1: TCheckBox
+    Left = 232
+    Top = 24
+    Width = 49
+    Height = 17
+    Caption = 'Pause'
+    TabOrder = 6
+  end
+  object CheckBox2: TCheckBox
+    Left = 232
+    Top = 8
+    Width = 105
+    Height = 17
+    Caption = 'CompressTime x5'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 7
+  end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
@@ -3049,7 +3071,7 @@ object Form1: TForm1
   object Timer1: TTimer
     Interval = 100
     OnTimer = Timer1Timer
-    Left = 864
+    Left = 832
     Top = 600
   end
   object ImageList2: TImageList

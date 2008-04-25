@@ -8,10 +8,15 @@ type
   PStringArray = ^TStringArray;
   TStringArray = array[1..256] of String;
 
+  TKMPoint = record X,Y:word; end;
+  TKMPointf = record X,Y:single; end;
+
 function Min(const A,B,C: integer):integer; overload
 function Min(const A,B,C: single):single; overload
 function Max(const A,B,C: integer):integer; overload
 function Max(const A,B,C: single):single; overload
+function KMPoint(X, Y: Integer): TKMPoint;
+function KMPointY1(P:TKMPoint): TKMPoint;
 function ElapsedTime(i1: pcardinal): string;
 function hextoint(st: char): integer;
 function ExtractOpenedFileName(in_s: string):string;
@@ -76,6 +81,18 @@ end;
 function Max(const A,B,C: single): single; overload
 begin if A > B then if A > C then Result := A else Result := C
                else if B > C then Result := B else Result := C;
+end;
+
+function KMPoint(X, Y: Integer): TKMPoint;
+begin
+  Result.X := X;
+  Result.Y := Y;
+end;
+
+function KMPointY1(P:TKMPoint): TKMPoint;
+begin
+  Result.X := P.X;
+  Result.Y := P.Y+1;
 end;
 
 function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
