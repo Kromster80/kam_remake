@@ -99,7 +99,7 @@ AcquireDAT();
 end;
 
 procedure AcquireDAT();
-var i,k:integer; Row:integer;
+var i:integer; Row:integer;
 begin
 for Row:=1 to length(Cmd) do begin
 if Cmd[Row].Command='!SET_MAP' then begin

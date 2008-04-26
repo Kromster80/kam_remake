@@ -27,14 +27,13 @@ function ReadGFX(text: string):boolean;
             FormLoading.Bar1.StepIt; FormLoading.Refresh;
           end;
 begin
-Result:=false;
-fLog.AppendLog('Reading pallete',ReadPallete(text+'data\gfx\pal0.bbm'));
-fLog.AppendLog('Reading objects',ReadTreesRX(text+'data\gfx\res\trees.rx'));
-fLog.AppendLog('Reading houses',ReadHousesRX(text+'data\gfx\res\houses.rx'));
-fLog.AppendLog('Reading units',ReadUnitsRX(text+'data\gfx\res\units.rx'));
-fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat'));
-fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));
-fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));
+fLog.AppendLog('Reading pallete',ReadPallete(text+'data\gfx\pal0.bbm'));            StepRefresh();
+fLog.AppendLog('Reading objects',ReadTreesRX(text+'data\gfx\res\trees.rx'));        StepRefresh();
+fLog.AppendLog('Reading houses',ReadHousesRX(text+'data\gfx\res\houses.rx'));       StepRefresh();
+fLog.AppendLog('Reading units',ReadUnitsRX(text+'data\gfx\res\units.rx'));          StepRefresh();
+fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
+fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
+fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
 
 //AddObjectsToImageList();
 //AddHousesToImageList();

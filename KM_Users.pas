@@ -48,7 +48,7 @@ type
     procedure AddJob(aLoc1,aLoc2:TKMPoint; aResource:TResourceType);
     procedure RemUnit(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint);
-    function FindEmptyHouse(aHouse:THouseType): TKMHouse;
+    function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsSelectedUnit: TKMUnit;
@@ -81,8 +81,8 @@ end;
 
 function TKMUserControlList.AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TKMPoint): Boolean;
 begin
-//  if UserByName(aUserName).GetMoney(fUnits.GetPrice(aUnitType)) then
-    fUnits.Add(aUserName, aUnitType, Position.X, Position.Y)
+    fUnits.Add(aUserName, aUnitType, Position.X, Position.Y);
+    Result:=true;
 end;
 
 procedure TKMUserControlList.AddHouse(aHouseType: THouseType; Position: TKMPoint);
@@ -105,9 +105,9 @@ begin
   fHouses.Rem(Position.X, Position.Y)
 end;
 
-function TKMUserControlList.FindEmptyHouse(aHouse:THouseType): TKMHouse;
+function TKMUserControlList.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
 begin
-Result:=fHouses.FindEmptyHouse(aHouse);
+Result:=fHouses.FindEmptyHouse(aUnitType);
 end;
 
 constructor TKMUserControlList.Create();

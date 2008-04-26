@@ -3,6 +3,9 @@ interface
 
 uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 
+const
+MaxMapSize=176;         //Single cell size in pixels
+
 type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class

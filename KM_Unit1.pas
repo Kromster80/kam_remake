@@ -252,7 +252,7 @@ begin
   if Button = mbRight then
     ControlList.AddUnit('User', ut_Serf, P)
   else if Button = mbMiddle then
-    ControlList.AddUnit('User', ut_WHorseScout, P)
+    ControlList.AddUnit('User', ut_HorseScout, P)
   else if Button = mbLeft then
   begin
     if ControlList.UnitsSelectedUnit <> nil then
@@ -485,8 +485,8 @@ ControlList.AddHouse(ht_Bakery,KMPoint(12,5));
 ControlList.AddHouse(ht_Store,KMPoint(16,5));
 ControlList.AddHouse(ht_Quary,KMPoint(12,8));
 
-ControlList.AddUnit('User', ut_VFarmer, KMPoint(8,8));
-ControlList.AddUnit('User', ut_VStoneCutter, KMPoint(9,8));
+ControlList.AddUnit('User', ut_Farmer, KMPoint(8,8));
+ControlList.AddUnit('User', ut_StoneCutter, KMPoint(9,8));
 ControlList.AddUnit('User', ut_Serf, KMPoint(5,9));
 ControlList.AddUnit('User', ut_Serf, KMPoint(6,9));
 ControlList.AddUnit('User', ut_Serf, KMPoint(7,9));

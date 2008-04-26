@@ -5,14 +5,6 @@ type bmBrushMode = (bm_None,bm_Houses);
 
   TMouseButton2 = (mb2None, mb2Left, mb2Right);
 
-  THouseType = (
-    ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
-    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutter=10,
-    ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
-    ht_Metallurgist=16,  ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
-    ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
-
   TResourceType = (rt_None=0, rt_All=30,
     rt_Trunk     =1  , rt_Stone      =2 , rt_Wood       =3 , rt_IronOre     =4 ,
     rt_GoldOre   =5  , rt_Coal       =6 , rt_Steel      =7 , rt_Gold        =8 ,
@@ -21,11 +13,85 @@ type bmBrushMode = (bm_None,bm_Houses);
     rt_WoodShield=17 , rt_MetalShield=18, rt_Armor      =19, rt_MetalArmor  =20,
     rt_Axe       =21 , rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
     rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_FishBucket  =28);
-    
+
   TResourceTypeSet = set of TResourceType;
 
+  THouseType = ( ht_None=0,
+    ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
+    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutter=10,
+    ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
+    ht_Metallurgist=16,  ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
+    ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
+    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
+
+  TUnitType = (
+    ut_Serf=1,          ut_Woodcutter=2,    ut_Miner=3,         ut_AnimalBreeder=4,
+    ut_Farmer=5,        ut_Lamberjack=6,    ut_Baker=7,         ut_Butcher=8,
+    ut_Fisherman=9,     ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
+    ut_Metallurgist=13, ut_Recruit=14,      ut_HorseScout=22);
+//15 Militia        //16 AxeFighter     //17 Swordsman      //18 Bowman
+//19 Arbaletman     //20 Pikeman        //21 Hallebardman   //22 HorseScout
+//23 Cavalry        //24 Barbarian      //25 Peasant        //26 Slingshot
+//27 MetalBarbarian //28 Horseman       //29 Catapult       //30 Arbalest
+
+//31 Wolf           //32 Fish           //33 Watersnake     //34 Seastar
+//35 Crab           //36 Waterflower    //37 Waterleaf      //38 Duck
+
+  TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,
+                     ua_Work2=6, ua_WorkEnd=7, ua_Eat=8, ua_WalkArm=9, ua_WalkTool=10,
+                     ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
+  TUnitActionTypeSet = set of TUnitActionType;
+
 const
-MaxMapSize=176;         //Single cell size in pixels
+UnitHome:array[2..14,1..3]of THouseType = (
+(ht_Woodcutter,ht_None,ht_None),        //ut_Woodcutter=2,
+(ht_CoalMine,ht_IronMine,ht_GoldMine),  //ut_Miner=3,
+(ht_None,ht_None,ht_None),              //ut_AnimalBreeder=4,
+(ht_Farm,ht_Wineyard,ht_None),          //ut_Farmer=5,
+(ht_None,ht_None,ht_None),              //ut_Lamberjack=6,
+(ht_None,ht_None,ht_None),              //ut_Baker=7,
+(ht_None,ht_None,ht_None),              //ut_Butcher=8,
+(ht_None,ht_None,ht_None),              //ut_Fisherman=9,
+(ht_None,ht_None,ht_None),              //ut_Worker=10,
+(ht_Quary,ht_None,ht_None),             //ut_StoneCutter=11,
+(ht_None,ht_None,ht_None),              //ut_Smith=12,
+(ht_None,ht_None,ht_None),              //ut_Metallurgist=13,
+(ht_None,ht_None,ht_None));             //ut_Recruit=14,
+
+UnitSpeeds:array[1..42]of smallint =(
+1,1,1,1,1,1,1,1,1,1,1,1,1,1 //
+,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
+
+UnitSupportedActions:array[1..14]of TUnitActionTypeSet = (
+[ua_Walk, ua_Die, ua_Eat],
+[],
+[],
+[],
+[ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Work2, ua_Eat..ua_WalkBooty2],
+[],
+[],
+[],
+[],
+[],
+[ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
+[],
+[],
+[]
+);
+
+//Woodcutter=2, Farmer=5, Fisherman=9, StoneCutter=11,
+UnitMiningPlan:array[2..11,1..6]of integer = (
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
+(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0)
+);
 
 //These are colors of all tiles to use in MiniMap
 const TileMMColor:array[1..256]of integer = (

@@ -27,7 +27,6 @@ public
   procedure RenderTerrainAndRoads();
   procedure RenderWires();
   procedure RenderObjects();
-  procedure RenderBuildings();
   procedure RenderUnits();
   procedure RenderCursorPosition(ActivePage:string);
   procedure RenderArrows();
@@ -143,7 +142,6 @@ glDisable(GL_LIGHTING);
 if Form1.ShowWires.Checked then fRender.RenderWires();
 
 fRender.RenderObjects();
-fRender.RenderBuildings();
 fRender.RenderUnits();
 //fRender.RenderCursorPosition(Form1.Pallete.ActivePage.Caption);
 
@@ -259,12 +257,6 @@ if LandBrush in [97..99] then
 
 glPointSize(1);
 glLineWidth(1);
-end;
-
-procedure TRender.RenderBuildings();
-var i,k:integer;
-begin
-//Houses.Paint;
 end;
 
 procedure TRender.RenderWires();
@@ -428,7 +420,7 @@ end;
 end;
 
 procedure TRender.RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
-var ShiftX,ShiftY:single; ID,AnimCount:integer; i,k:integer; Arr:array[0..24]of integer;
+var ShiftX,ShiftY:single; ID,AnimCount:integer; i:integer; Arr:array[0..24]of integer;
 begin
   if AnimType<>0 then
   begin
@@ -461,7 +453,7 @@ begin
 end;
 
 procedure TRender.RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
-var ShiftX,ShiftY:single; ID,i,k:integer;
+var ShiftX,ShiftY:single; ID,i:integer;
 begin
 for i:=1 to 4 do if (R1[i-1])>0 then begin
     ID:=HouseDAT[Index].SupplyIn[i,min(R1[i-1],5)]+1;

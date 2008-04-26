@@ -92,7 +92,7 @@ type
     procedure Clear; override;
     procedure UpdateState;
     function HitTest(X, Y: Integer): TKMHouse;
-    function FindEmptyHouse(aHouse:THouseType): TKMHouse;
+    function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
     procedure Paint();
     property SelectedHouse: TKMHouse read fSelectedHouse; 
   end;
@@ -327,17 +327,18 @@ begin
   fSelectedHouse:= Result;
 end;
 
-function TKMHousesCollection.FindEmptyHouse(aHouse:THouseType): TKMHouse;
+function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
 var
-  I: Integer;
+  i,k: integer;
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    if TKMHouse(Items[I]).fHouseType=aHouse then
-    begin
-      Result:= TKMHouse(Items[I]);
-      Break;
-    end;
+    for k := 1 to 3 do
+      if TKMHouse(Items[I]).fHouseType=UnitHome[integer(aUnitType),k] then
+      begin
+        Result:= TKMHouse(Items[I]);
+        Break;
+      end;
 end;
 
 procedure TKMHousesCollection.Paint();

@@ -1,21 +1,10 @@
 unit KM_Units;
-
 interface
-
 uses
   KM_Defaults, windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain,
   KM_Global_Data, KM_Classes, KM_Houses, KromUtils;
 
 type
-TUnitType = (ut_Serf=1, //Transports goods
-ut_VStoneCutter=11,     //Villagers
-ut_VFarmer=5,           //Villagers
-ut_WHorseScout=22);     //Warriors
-                                           //Shoot, Run
-  TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,
-                     ua_Work2=6, ua_WorkEnd=7, ua_Eat=8, ua_WalkArm=9, ua_WalkTool=10,
-                     ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
-  TUnitActionTypeSet = set of TUnitActionType;
 
   TKMUnit = class;
   TKMSerf = class;
@@ -81,14 +70,14 @@ ut_WHorseScout=22);     //Warriors
     fPosition: TKMPointF;
     fLastUpdateTime: Cardinal;
     fOwner: string;
-    fUnitType:TUnitType;
+    fUnitType: TUnitType;
     Direction: TKMDirection;
     AnimStep: integer;
     fVisible:boolean;
   public
     constructor Create(const aOwner: string; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
-    function GetSupportedActions: TUnitActionTypeSet; virtual; abstract;
+    function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer): Boolean;
     procedure SetAction(aAction: TUnitAction);
     procedure UpdateState; virtual; abstract;
@@ -99,7 +88,6 @@ ut_WHorseScout=22);     //Warriors
   public
     fHome:TKMHouse;
     MiningJob: TMiningJob;
-    function GetSupportedActions: TUnitActionTypeSet; override;
     function FindHome():boolean;
     procedure UpdateState; override;
     function InitiateMining():boolean;
@@ -110,18 +98,13 @@ ut_WHorseScout=22);     //Warriors
   public
     fHome:TKMHouse;
     MiningJob: TMiningJob;
-    function GetSupportedActions: TUnitActionTypeSet; override;
-    function FindHome():boolean;
-    procedure UpdateState; override;
     function InitiateMining():boolean;
-    procedure Paint(); override;
   end;
 
   TKMSerf = class(TKMUnit)
     DeliverJob: TDeliverJob;
     Carry: TResourceType;
   public
-    function GetSupportedActions: TUnitActionTypeSet; override;
     procedure UpdateState; override;
     procedure Paint(); override;
     function GiveResource(Res:TResourceType):boolean;
@@ -153,16 +136,11 @@ uses KM_Unit1;
 
 { TKMFarmer }
 
-function TKMFarmer.GetSupportedActions: TUnitActionTypeSet;
-begin      //1.2.4.5.6.8.9.10.11.12.13
-  Result:= [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Work2, ua_Eat..ua_WalkBooty2];
-end;
-
 function TKMFarmer.FindHome():boolean;
 var KMHouse:TKMHouse;
 begin
 Result:=false;
-KMHouse:=ControlList.FindEmptyHouse(THouseType(9));
+KMHouse:=ControlList.FindEmptyHouse(fUnitType);
 if KMHouse<>nil then begin fHome:=KMHouse; Result:=true; end;
 end;
 
@@ -198,20 +176,32 @@ var
 begin
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
+
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
-  if (DoEnd) then begin
-    if (fHome=nil) then begin
+
+  if not DoEnd then exit;
+
+//Here come unit tasks in priorities
+//Priority no.1 - find self a food
+//Priority no.2 - find self a home
+//Priority no.3 - find self a work
+{    if (Starving) then
+      if FindInn then
+        GoEat
+      else
+        StayStillAndDieSoon
+    else}
+    if (fHome=nil) then
       if FindHome then
         SetAction(TMoveUnitAction.Create(fHome.GetPosition))
       else
-        SetAction(TStayUnitAction.Create(120, ua_Walk));
-    end else
+        SetAction(TStayUnitAction.Create(120, ua_Walk))
+    else
     if (MiningJob<>nil)and(not MiningJob.Done) then
       MiningJob.Execute
     else
       InitiateMining;
-  end;
 end;
 
 function TKMFarmer.InitiateMining():boolean;
@@ -226,67 +216,6 @@ end;
 
 {TKMStoneCutter}
 
-function TKMStoneCutter.GetSupportedActions: TUnitActionTypeSet;
-begin      //1.2.4.5.6.8.9.10.11.12.13
-  Result:= [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty];
-end;
-
-function TKMStoneCutter.FindHome():boolean;
-var KMHouse:TKMHouse;
-begin
-Result:=false;
-KMHouse:=ControlList.FindEmptyHouse(THouseType(15));
-if KMHouse<>nil then begin fHome:=KMHouse; Result:=true; end;
-end;
-
-procedure TKMStoneCutter.Paint();
-var UnitType,Owner:integer; AnimAct,AnimDir:integer;
-begin
-if not fVisible then exit;
-Owner:=2;//should be inherited from =Player=
-UnitType:=integer(fUnitType);
-AnimAct:=integer(fCurrentAction.fActionType);
-AnimDir:=integer(Direction);
-
-case fCurrentAction.fActionType of
-ua_Walk:
-  begin
-    fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, Owner, fPosition.X+0.5, fPosition.Y+1);
-    fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, Owner, fPosition.X+0.5, fPosition.Y+1);
-  end;
-ua_Work..ua_Eat:
-    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, Owner, fPosition.X+0.5, fPosition.Y+1);
-ua_WalkArm .. ua_WalkBooty2:
-  begin
-    fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, Owner, fPosition.X+0.5, fPosition.Y+1);
-    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, Owner, fPosition.X+0.5, fPosition.Y+1);
-  end;
-end;
-end;
-
-procedure TKMStoneCutter.UpdateState;
-var
-  TimeDelta: Cardinal;
-  DoEnd: Boolean;
-begin
-  TimeDelta:= GetTickCount - fLastUpdateTime;
-  fLastUpdateTime:= GetTickCount;
-  if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
-  if (DoEnd) then begin
-    if (fHome=nil) then begin
-      if FindHome then
-        SetAction(TMoveUnitAction.Create(fHome.GetPosition))
-      else
-        SetAction(TStayUnitAction.Create(120, ua_Walk));
-    end else
-    if (MiningJob<>nil)and(not MiningJob.Done) then
-      MiningJob.Execute
-    else
-      InitiateMining;
-  end;
-end;
-
 function TKMStoneCutter.InitiateMining():boolean;
 var aPlace:TKMPoint;
 begin
@@ -298,11 +227,6 @@ Result:=true;
 end;
 
 { TKMSerf }
-
-function TKMSerf.GetSupportedActions: TUnitActionTypeSet;
-begin
-  Result:= [ua_Walk, ua_Die, ua_Eat];
-end;
 
 procedure TKMSerf.Paint();
 var UnitType,Owner:integer; AnimAct,AnimDir:integer;
@@ -409,6 +333,11 @@ destructor TKMUnit.Destroy;
 begin
   Inherited;
   fCurrentAction.Free;
+end;
+
+function TKMUnit.GetSupportedActions: TUnitActionTypeSet;
+begin
+  Result:= UnitSupportedActions[integer(fUnitType)];
 end;
 
 function TKMUnit.HitTest(X, Y: Integer): Boolean;
@@ -561,7 +490,7 @@ begin
   if (DX>0) and (DY<0) then KMUnit.Direction:=dir_NE;
   if (DX=0) and (DY<0) then KMUnit.Direction:=dir_N;
 
-  //Diagonal movement should take more time
+  //Diagonal movement should take sqrt(2) more time
   if (DX <> 0) and (DY <> 0) then
     Distance:=Distance / sqrt (2);
 
@@ -596,9 +525,9 @@ procedure TKMUnitsCollection.Add(aOwner: string; aUnitType: TUnitType; PosX, Pos
 begin
   case aUnitType of
     ut_Serf: Inherited Add(TKMSerf.Create(aOwner,PosX,PosY,aUnitType));
-    ut_VStoneCutter:  Inherited Add(TKMStoneCutter.Create(aOwner,PosX,PosY,aUnitType));
-    ut_VFarmer:  Inherited Add(TKMFarmer.Create(aOwner,PosX,PosY,aUnitType));
-    ut_WHorseScout: Inherited Add(TKMwarrior.Create(aOwner,PosX,PosY,aUnitType));
+    ut_StoneCutter:  Inherited Add(TKMFarmer.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Farmer:  Inherited Add(TKMFarmer.Create(aOwner,PosX,PosY,aUnitType));
+    ut_HorseScout: Inherited Add(TKMwarrior.Create(aOwner,PosX,PosY,aUnitType));
   end;
 end;
 

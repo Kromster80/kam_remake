@@ -13,7 +13,7 @@ FPS_INTERVAL=1000;      //time between FPS measurements, more=accurate
 zz=#10+#13;             //EndOfLine
 
 MaxPlayers=6;           //Maximum players per map
-MaxHouses=255;          //Maximum houses one player can own  
+MaxHouses=255;          //Maximum houses one player can own
 
 var
   fRender: TRender;
@@ -111,23 +111,6 @@ UnitSprite:array[1..41]of packed record
     end;
   end;
 end;
-//1  Serf           //2  Woodcutter     //3  Miner          //4  Animal breeder
-//5  Farmer         //6  Lamberjack     //7  Baker          //8  Butcher
-//9  Fisherman      //10 Worker         //11 StoneCutter    //12 Smith
-//13 Metallurgist   //14 Recruit
-
-//15 Militia        //16 AxeFighter     //17 Swordsman      //18 Bowman
-//19 Arbaletman     //20 Pikeman        //21 Hallebardman   //22 HorseScout
-//23 Cavalry        //24 Barbarian      //25 Peasant        //26 Slingshot
-//27 MetalBarbarian //28 Horseman       //29 Catapult       //30 Arbalest
-
-//31 Wolf           //32 Fish           //33 Watersnake     //34 Seastar
-//35 Crab           //36 Waterflower    //37 Waterleaf      //38 Duck
-
-UnitSpeeds:array[1..42]of smallint =(
-1,1,1,1,1,1,1,1,1,1,1,1,1,1 //
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-);
 
 //0  Walk
 //8  *Special (digging hole)
