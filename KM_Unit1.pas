@@ -380,7 +380,13 @@ end;
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
-begin TBZoomControl.Position:=20; end;
+//const cnCursor = 30;
+begin
+  TBZoomControl.Position:=20;
+//  Screen.Cursors[cnCursor]:=LoadCursorFromFile(PChar(ExeDir+'Resource\2.cur'));
+//  CreateCursor()
+//  Cursor:=cnCursor;
+end;
 
 procedure TForm1.BBClick(Sender: TObject);
 begin

@@ -11,6 +11,8 @@ type
   TKMPoint = record X,Y:word; end;
   TKMPointf = record X,Y:single; end;
 
+  TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
+
 function Min(const A,B,C: integer):integer; overload
 function Min(const A,B,C: single):single; overload
 function Max(const A,B,C: integer):integer; overload

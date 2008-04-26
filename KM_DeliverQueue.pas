@@ -27,7 +27,7 @@ type
   procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
   procedure AddNewDemand(aHouse:TKMHouse; aResource:TResourceType);
   procedure AddJob(aLoc1,aLoc2:TKMPoint; aResource:TResourceType);
-  function AskForJob(aLoc:TKMPointf):TDeliverJob;
+  function AskForJob(KMSerf:TKMSerf):TDeliverJob;
   procedure CloseJob(aID:integer);
   end;
 
@@ -102,7 +102,7 @@ end;
 //otherwise they likely to never get done
 //Returns JobID, so asker could close it when it's done
 //Returns
-function TKMDeliverQueue.AskForJob(aLoc:TKMPointf):TDeliverJob;
+function TKMDeliverQueue.AskForJob(KMSerf:TKMSerf):TDeliverJob;
 var i:integer;
 TDJ:TDeliverJob;
 begin
@@ -113,7 +113,7 @@ begin
   Result:=nil;
   exit;
 end;
-TDJ:=TDeliverJob.Create(fQueue[i].Loc1,fQueue[i].Loc2,fQueue[i].Resource,i);
+TDJ:=TDeliverJob.Create(KMSerf, fQueue[i].Loc1, fQueue[i].Loc2, fQueue[i].Resource, i);
 Result:=TDJ;
 //Result.fFrom:=fQueue[i].Loc1;
 //Result.fTo:=fQueue[i].Loc2;
