@@ -32,25 +32,25 @@ type
 
   TKMHouse = class(TObject)
   private
+    fPosition: TKMPoint;
     fHouseType: THouseType;
     fAcceptResources:TResourceTypeSet;
     fProduceResources:array[1..4] of TResourceType;
-    fCurrentAction: THouseAction;
     fResourceIn:array[1..5]of byte;
     fResourceOut:array[1..5]of byte;
-    fPosition: TKMPoint;
+    fCurrentAction: THouseAction;
     fLastUpdateTime: Cardinal;
     AnimStep: integer;
   public
     constructor Create(PosX,PosY:integer; aHouseType:THouseType);
     destructor Destroy; override;
     function HitTest(X, Y: Integer): Boolean; overload;
-    procedure SetAction(aAction: THouseAction);
+    procedure SetAction(aAction: THouseActionType);
     procedure AddResource(aResource:TResourceType; const aCount:integer=1);
     function RemResource(aResource:TResourceType):boolean;
     property GetPosition:TKMPoint read fPosition;
     procedure UpdateState;
-    procedure Paint();// virtual; abstract;
+    procedure Paint();
   end;
 
   TKMSawmill = class(TKMHouse) end;
@@ -108,7 +108,7 @@ begin
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
   fHouseType:=aHouseType;
-  SetAction(THouseAction.Create(hat_Empty));
+  fCurrentAction:=THouseAction.Create(hat_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok]);
   fCurrentAction.SubActionAdd([ha_Flag1]);
   fCurrentAction.SubActionAdd([ha_Flag2]);
@@ -150,15 +150,9 @@ dec(fResourceOut[1]);
 Result:=true;
 end;
 
-procedure TKMHouse.SetAction(aAction: THouseAction);
+procedure TKMHouse.SetAction(aAction: THouseActionType);
 begin
-  if aAction = nil then
-    exit;
-  if fCurrentAction <> aAction then
-  begin
-    fCurrentAction.Free;
-    fCurrentAction:= aAction;
-  end;
+  fCurrentAction.ActionSet(aAction);
 end;
 
 procedure TKMHouse.UpdateState;

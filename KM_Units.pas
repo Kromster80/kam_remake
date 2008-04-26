@@ -213,7 +213,7 @@ end;
 procedure TKMFarmer.PerformMining;
 begin
 case MiningJob.Phase of
-0: fHome.SetAction(THouseAction.Create(hat_Empty));
+0: fHome.SetAction(hat_Empty);
 1: fVisible:=true;
 2: SetAction(TMoveUnitAction.Create(KMPointY1(fHome.GetPosition)));
 3: SetAction(TMoveUnitAction.Create(MiningJob.fPlace));
@@ -223,7 +223,7 @@ case MiningJob.Phase of
 7: fVisible:=false;
 8: begin
      fHome.AddResource(rt_Corn);
-     fHome.SetAction(THouseAction.Create(hat_Idle));
+     fHome.SetAction(hat_Idle);
    end;
 end;
 inc(MiningJob.Phase);
@@ -306,7 +306,7 @@ end;
 procedure TKMStoneCutter.PerformMining;
 begin
 case MiningJob.Phase of
-0: fHome.SetAction(THouseAction.Create(hat_Empty));
+0: fHome.SetAction(hat_Empty);
 1: fVisible:=true;
 2: SetAction(TMoveUnitAction.Create(KMPointY1(fHome.GetPosition)));
 3: SetAction(TMoveUnitAction.Create(KMPointY1(MiningJob.fPlace)));
@@ -317,7 +317,7 @@ case MiningJob.Phase of
 8: fVisible:=false;
 9: begin
      fHome.AddResource(rt_Stone,3);
-     fHome.SetAction(THouseAction.Create(hat_Idle));
+     fHome.SetAction(hat_Idle);
    end;
 end;
 inc(MiningJob.Phase);
