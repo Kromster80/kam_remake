@@ -26,6 +26,17 @@ type
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
+      //This is a simple action making unit go inside/outside of house
+      TGoInUnitAction = class(TUnitAction)
+      private
+      fStep:single;
+      fDir:integer;
+      public
+        constructor Create(aAction: TUnitActionType; aDirection:integer);
+        procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+      end;
+
+      //Stay in place for set time
       TStayUnitAction = class(TUnitAction)
       private
       StayStill:boolean;
@@ -35,46 +46,61 @@ type
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
-  TDeliverJob = class
+  TUnitTask = class(TObject)
   private
   Phase:byte;
-  fSerf:TKMSerf;
-  fFrom,fTo:TKMPoint;
-  fResource:TResourceType;
-  ID:integer;
   public
-  Done:boolean;
-  constructor Create(aSerf:TKMSerf; aFrom,aTo:TKMPoint; Res:TResourceType; aID:integer);
-  procedure Execute;
+    procedure Execute(out TaskDone:boolean); virtual; abstract;
   end;
 
-  TMiningJob = class
-  private
-  Phase:byte;
-  fHome:TKMHouse;
-  fUnit:TKMUnit;
-  fPlace:TKMPoint;
-  fResource:TResourceType;
-  fCount:integer;
-  fAction1,fAction2,fAction3:TUnitActionType;
-  fTimeToWork:integer; //Number of work cycles to perform
-  public
-  Done:boolean;
-  constructor Create(aHome:TKMHouse; aUnit:TKMUnit; aPlace:TKMPoint; aRes:TResourceType; aCount:integer; aAction1,aAction2,aAction3:TUnitActionType; aCycles:integer);
-  procedure Execute;
-  end;
+    TTaskDeliver = class(TUnitTask)
+    private
+    fSerf:TKMSerf;
+    fFrom,fTo:TKMPoint;
+    fResource:TResourceType;
+    ID:integer;
+    public
+    constructor Create(aSerf:TKMSerf; aFrom,aTo:TKMPoint; Res:TResourceType; aID:integer);
+    procedure Execute(out TaskDone:boolean); override;
+    end;
+
+    TTaskGoHome = class(TUnitTask)
+    private
+    fUnit:TKMUnit;
+    fDestPos:TKMPoint;
+    public
+    constructor Create(aTo:TKMPoint; aUnit:TKMUnit);
+    procedure Execute(out TaskDone:boolean); override;
+    end;
+
+    TTaskMining = class(TUnitTask)
+    private
+    fHome:TKMHouse;
+    fUnit:TKMUnit;
+    fPlace:TKMPoint;
+    fResource:TResourceType;
+    fCount:integer;
+    fAction1,fAction2,fAction3:TUnitActionType;
+    fTimeToWork:integer; //Number of work cycles to perform
+    fTimeToIdle:integer; //Frames to idle
+    public
+    constructor Create(aHome:TKMHouse; aUnit:TKMUnit; aPlace:TKMPoint; aGatheringScript:TGatheringScript);
+    procedure Execute(out TaskDone:boolean); override;
+    end;
 
   TKMUnit = class(TObject)
   private
+    fHome:TKMHouse;
     fCurrentAction: TUnitAction;
     fPosition: TKMPointF;
     fLastUpdateTime: Cardinal;
     fOwner: string;
     fUnitType: TUnitType;
-    Direction: TKMDirection;
     AnimStep: integer;
     fVisible:boolean;
+    UnitTask:TUnitTask;
   public
+    Direction: TKMDirection;
     constructor Create(const aOwner: string; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
@@ -84,35 +110,40 @@ type
     procedure Paint; virtual; abstract;
   end;
 
-  TKMFarmer = class(TKMUnit)
+  //This is a common class for units going out of their homes for resources
+  TKMHunter = class(TKMUnit)
   public
-    fHome:TKMHouse;
-    MiningJob: TMiningJob;
     function FindHome():boolean;
     procedure UpdateState; override;
-    function InitiateMining():boolean;
+    function InitiateMining():TUnitTask; virtual; abstract;
+    procedure Paint(); override;
+  end;
+  
+  //Sorry I grouped those so tight, but really, they don't have to use all 24 lines
+  TKMFarmer = class(TKMHunter) public function InitiateMining():TUnitTask; override; end;
+  TKMStoneCutter = class(TKMHunter) public function InitiateMining():TUnitTask; override; end;
+  TKMWoodCutter = class(TKMHunter) public function InitiateMining():TUnitTask; override; end;
+//  TKMFisher = class(TKMHunter) public function InitiateMining():boolean; override; end;
+
+  //This is a common class for all those units sitting inside of houses
+  TKMHomeSitting = class(TKMUnit)
+  public
+    function FindHome():boolean;
+    procedure UpdateState; override;
     procedure Paint(); override;
   end;
 
-  TKMStoneCutter = class(TKMUnit)
-  public
-    fHome:TKMHouse;
-    MiningJob: TMiningJob;
-    function InitiateMining():boolean;
-  end;
-
   TKMSerf = class(TKMUnit)
-    DeliverJob: TDeliverJob;
     Carry: TResourceType;
   public
     procedure UpdateState; override;
     procedure Paint(); override;
     function GiveResource(Res:TResourceType):boolean;
     function TakeResource(Res:TResourceType):boolean;
-    function GetActionFromQueue():boolean;
+    function GetActionFromQueue():TUnitTask;
   end;
 
-  TKMwarrior = class(TKMUnit)
+  TKMWarrior = class(TKMUnit)
   public
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure UpdateState; override;
@@ -134,9 +165,9 @@ type
 implementation
 uses KM_Unit1;
 
-{ TKMFarmer }
+{ TKMHunter }
 
-function TKMFarmer.FindHome():boolean;
+function TKMHunter.FindHome():boolean;
 var KMHouse:TKMHouse;
 begin
 Result:=false;
@@ -144,7 +175,7 @@ KMHouse:=ControlList.FindEmptyHouse(fUnitType);
 if KMHouse<>nil then begin fHome:=KMHouse; Result:=true; end;
 end;
 
-procedure TKMFarmer.Paint();
+procedure TKMHunter.Paint();
 var UnitType,Owner:integer; AnimAct,AnimDir:integer;
 begin
 if not fVisible then exit;
@@ -169,10 +200,10 @@ ua_WalkArm .. ua_WalkBooty2:
 end;
 end;
 
-procedure TKMFarmer.UpdateState;
+procedure TKMHunter.UpdateState;
 var
   TimeDelta: Cardinal;
-  DoEnd: Boolean;
+  DoEnd,TaskDone: Boolean;
 begin
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
@@ -181,6 +212,16 @@ begin
     fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
 
   if not DoEnd then exit;
+
+  if UnitTask <> nil then
+    UnitTask.Execute(TaskDone);
+
+  if not TaskDone then exit;
+
+  if UnitTask <> nil then begin
+    UnitTask.Free;
+    UnitTask:=nil
+  end;
 
 //Here come unit tasks in priorities
 //Priority no.1 - find self a food
@@ -194,36 +235,127 @@ begin
     else}
     if (fHome=nil) then
       if FindHome then
-        SetAction(TMoveUnitAction.Create(fHome.GetPosition))
+        UnitTask:=TTaskGoHome.Create(fHome.GetPosition,Self)
       else
         SetAction(TStayUnitAction.Create(120, ua_Walk))
     else
-    if (MiningJob<>nil)and(not MiningJob.Done) then
-      MiningJob.Execute
-    else
-      InitiateMining;
+      UnitTask:=InitiateMining;
+
+if UnitTask=nil then SetAction(TStayUnitAction.Create(120, ua_Walk));
 end;
 
-function TKMFarmer.InitiateMining():boolean;
+{TKMFarmer}
+
+function TKMFarmer.InitiateMining():TUnitTask;
 var aPlace:TKMPoint;
 begin
+Result:=nil;
+if fHome.CheckResOut(rt_All)>=MaxResInHouse then exit;
+//aPlace:=fMap.FindCornField(fPosition);
 aPlace:=KMPoint(5,8);
-if MiningJob<>nil then MiningJob.Free;
-MiningJob:=TMiningJob.Create(fHome,Self,aPlace,rt_Corn,1,ua_Walk,ua_Work,ua_WalkBooty,4);
-MiningJob.Phase:=0;
-Result:=true;
+Result:=TTaskMining.Create(fHome,Self,aPlace,gs_FarmerCorn)
+//Result:=TTaskMining.Create(fHome,Self,aPlace,gs_FarmerSow);
+//Result:=TTaskMining.Create(fHome,Self,aPlace,gs_FarmerWine);
 end;
 
 {TKMStoneCutter}
 
-function TKMStoneCutter.InitiateMining():boolean;
+function TKMStoneCutter.InitiateMining():TUnitTask;
 var aPlace:TKMPoint;
 begin
-aPlace:=KMPoint(8,11);
-if MiningJob<>nil then MiningJob.Free;
-MiningJob:=TMiningJob.Create(fHome,Self,aPlace,rt_Stone,3,ua_Walk,ua_Work,ua_WalkTool,1);
-MiningJob.Phase:=0;
-Result:=true;
+Result:=nil;
+if fHome.CheckResOut(rt_All)>=MaxResInHouse then
+exit;
+//aPlace:=fMap.FindStones(fPosition);
+aPlace:=KMPoint(6,8);
+Result:=TTaskMining.Create(fHome,Self,aPlace,gs_StoneCutter);
+end;
+
+{TKMWoodCutter}
+
+function TKMWoodCutter.InitiateMining():TUnitTask;
+var aPlace:TKMPoint;
+begin
+Result:=nil;
+if fHome.CheckResOut(rt_All)>=MaxResInHouse then exit;
+//aPlace:=fMap.FindTree(fPosition);
+aPlace:=KMPoint(7,8);
+Result:=TTaskMining.Create(fHome,Self,aPlace,gs_WoodCutterCut)
+//Result:=TTaskMining.Create(fHome,Self,aPlace,gs_WoodCutterPlant)
+end;
+
+{ TKMHomeSitting }
+
+function TKMHomeSitting.FindHome():boolean;
+var KMHouse:TKMHouse;
+begin
+Result:=false;
+KMHouse:=ControlList.FindEmptyHouse(fUnitType);
+if KMHouse<>nil then
+  begin
+    fHome:=KMHouse;
+    Result:=true;
+  end;
+end;
+
+procedure TKMHomeSitting.Paint();
+var UnitType,Owner:integer; AnimAct,AnimDir:integer;
+begin
+if not fVisible then exit;
+Owner:=2;//should be inherited from =Player=
+UnitType:=integer(fUnitType);
+AnimAct:=integer(fCurrentAction.fActionType);
+AnimDir:=integer(Direction);
+
+case fCurrentAction.fActionType of
+ua_Walk:
+  begin
+    fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, Owner, fPosition.X+0.5, fPosition.Y+1);
+    fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, Owner, fPosition.X+0.5, fPosition.Y+1);
+  end;
+ua_Work..ua_Eat:
+    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, Owner, fPosition.X+0.5, fPosition.Y+1);
+end;
+end;
+
+procedure TKMHomeSitting.UpdateState;
+var
+  TimeDelta: Cardinal;
+  DoEnd,TaskDone: Boolean;
+begin
+  TimeDelta:= GetTickCount - fLastUpdateTime;
+  fLastUpdateTime:= GetTickCount;
+
+  if fCurrentAction <> nil then
+    fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
+
+  if not DoEnd then exit;
+
+  if UnitTask <> nil then
+    UnitTask.Execute(TaskDone);
+
+  if not TaskDone then exit;
+
+  if UnitTask <> nil then begin
+    UnitTask.Free;
+    UnitTask:=nil
+  end;
+
+//Here come unit tasks in priorities
+//Priority no.1 - find self a food
+//Priority no.2 - find self a home
+//Priority no.3 - find self a work
+{    if (Starving) then
+      if FindInn then
+        GoEat
+      else
+        StayStillAndDieSoon
+    else}
+    if (fHome=nil) then
+      if FindHome then
+        UnitTask:=TTaskGoHome.Create(fHome.GetPosition,Self)
+      else
+        SetAction(TStayUnitAction.Create(120, ua_Walk))
 end;
 
 { TKMSerf }
@@ -248,20 +380,29 @@ end;
 procedure TKMSerf.UpdateState;
 var
   TimeDelta: Cardinal;
-  DoEnd: Boolean;
+  DoEnd,TaskDone: Boolean;
 begin
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
+
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
-  if DoEnd then begin
-    if (DeliverJob<>nil)and(not DeliverJob.Done) then
-      DeliverJob.Execute
-    else
-    if GetActionFromQueue() then
-      else
-        SetAction(TStayUnitAction.Create(10,ua_Walk))
+
+  if not DoEnd then exit;
+
+  if UnitTask <> nil then
+    UnitTask.Execute(TaskDone);
+
+  if not TaskDone then exit;
+
+  if UnitTask <> nil then begin
+    UnitTask.Free;
+    UnitTask:=nil
   end;
+
+  UnitTask:=GetActionFromQueue;
+
+  if UnitTask=nil then SetAction(TStayUnitAction.Create(10,ua_Walk));
 end;
 
 function TKMSerf.GiveResource(Res:TResourceType):boolean;
@@ -278,11 +419,9 @@ Carry:=rt_None;
 Result:=true;
 end;
 
-function TKMSerf.GetActionFromQueue():boolean;
+function TKMSerf.GetActionFromQueue():TUnitTask;
 begin
-if DeliverJob<>nil then DeliverJob.Free;
-DeliverJob:=ControlList.JobList.AskForJob(Self);
-if DeliverJob<>nil then Result:=true else Result:=false;
+Result:=ControlList.JobList.AskForJob(Self);
 end;
 
 { TKMwarrior }
@@ -320,6 +459,7 @@ end;
 constructor TKMUnit.Create(const aOwner: string; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
+  fHome:=nil;
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
   fOwner:= aOwner;
@@ -366,8 +506,8 @@ AnimStep:=0;
   end;
 end;
 
-{ TDeliverJob }
-constructor TDeliverJob.Create(aSerf:TKMSerf; aFrom,aTo:TKMPoint; Res:TResourceType; aID:integer);
+{ TTaskDeliver }
+constructor TTaskDeliver.Create(aSerf:TKMSerf; aFrom,aTo:TKMPoint; Res:TResourceType; aID:integer);
 begin
 fSerf:=aSerf;
 fFrom:=aFrom;
@@ -375,82 +515,109 @@ fTo:=aTo;
 fResource:=Res;
 Phase:=0;
 ID:=aID;
-Done:=false;
 end;
 
-procedure TDeliverJob.Execute;
+procedure TTaskDeliver.Execute(out TaskDone:boolean);
 var KMHouse:TKMHouse;
 begin
+TaskDone:=false;
 with fSerf do
 case Phase of
 0: SetAction(TMoveUnitAction.Create(KMPointY1(fFrom)));
-1: SetAction(TMoveUnitAction.Create(fFrom));
-2: fVisible:=false;
-3: SetAction(TStayUnitAction.Create(5,ua_Walk));
-4: begin
+1: SetAction(TGoInUnitAction.Create(ua_Walk,1));
+2: SetAction(TStayUnitAction.Create(5,ua_Walk));
+3: begin
      KMHouse:=ControlList.HousesHitTest(fFrom.X,fFrom.Y);
-     if (KMHouse <> nil) and KMHouse.RemResource(fResource) then
+     if (KMHouse <> nil) and KMHouse.ResTakeFromOut(fResource) then
        GiveResource(fResource)
      else
      begin
        SetAction(nil);
-       DeliverJob.Free;
-       exit;
+       TaskDone:=true;
      end;
    end;
-5: fVisible:=true;
-6: SetAction(TMoveUnitAction.Create(KMPointY1(DeliverJob.fFrom)));
-7: SetAction(TMoveUnitAction.Create(KMPointY1(DeliverJob.fTo)));
-8: SetAction(TMoveUnitAction.Create(DeliverJob.fTo));
-9: fVisible:=false;
-10: SetAction(TStayUnitAction.Create(5,ua_Walk));
-11: begin
-     KMHouse:=ControlList.HousesHitTest(DeliverJob.fTo.X,DeliverJob.fTo.Y);
-     KMHouse.AddResource(Carry);
+4: SetAction(TGoInUnitAction.Create(ua_Walk,-1));
+5: SetAction(TMoveUnitAction.Create(KMPointY1(fTo)));
+6: SetAction(TGoInUnitAction.Create(ua_Walk,1));
+7: SetAction(TStayUnitAction.Create(5,ua_Walk));
+8: begin
+     KMHouse:=ControlList.HousesHitTest(fTo.X,fTo.Y);
+     KMHouse.ResAddToIn(Carry);
      TakeResource(Carry);
    end;
-12: fVisible:=true;
-13: SetAction(TMoveUnitAction.Create(KMPointY1(DeliverJob.fTo)));
-14: ControlList.JobList.CloseJob(DeliverJob.ID);
-15: Done:=true;
+9: SetAction(TGoInUnitAction.Create(ua_walk,-1));
+10: ControlList.JobList.CloseJob(ID);
+11: TaskDone:=true;
 end;
 inc(Phase);
 end;
 
-{ TMiningJob }
-constructor TMiningJob.Create(aHome:TKMHouse; aUnit:TKMUnit; aPlace:TKMPoint; aRes:TResourceType;
-                              aCount:integer; aAction1,aAction2,aAction3:TUnitActionType; aCycles:integer);
+{ TTaskMining }
+constructor TTaskMining.Create(aHome:TKMHouse; aUnit:TKMUnit; aPlace:TKMPoint; aGatheringScript:TGatheringScript);
 begin
 fHome:=aHome;
 fUnit:=aUnit;
 fPlace:=aPlace;
-fResource:=aRes;
-fCount:=aCount;
-fAction1:=aAction1;
-fAction2:=aAction2;
-fAction3:=aAction3;
-fTimeToWork:=aCycles*max(UnitSprite[integer(fUnit.fUnitType)].Act[integer(aAction2)].Dir[1].Count,1);
+//I don't know simple way to store various elements in array,
+//so I have to use Type(integer(Type)) conversion
+fResource:=TResourceType(UnitMiningPlan[byte(aGatheringScript),1]);
+fCount:=UnitMiningPlan[byte(aGatheringScript),2];
+fAction1:=TUnitActionType(UnitMiningPlan[byte(aGatheringScript),3]);
+fAction2:=TUnitActionType(UnitMiningPlan[byte(aGatheringScript),4]);
+fAction3:=TUnitActionType(UnitMiningPlan[byte(aGatheringScript),5]);
+fTimeToWork:=UnitMiningPlan[byte(aGatheringScript),6];
+fTimeToIdle:=UnitMiningPlan[byte(aGatheringScript),7];
 Phase:=0;
-Done:=false;
 end;
 
-procedure TMiningJob.Execute;
+procedure TTaskMining.Execute(out TaskDone:boolean);
+var Dir:integer;
 begin
+TaskDone:=false;
 with fUnit do
 case Phase of
-0: fHome.SetAction(hat_Empty);
-1: fVisible:=true;
-2: SetAction(TMoveUnitAction.Create(KMPointY1(fHome.GetPosition),fAction1));
-3: if fResource=rt_Stone then SetAction(TMoveUnitAction.Create(KMPointY1(fPlace)));
-4: SetAction(TMoveUnitAction.Create(fPlace,fAction1));
-5: SetAction(TStayUnitAction.Create(fTimeToWork, fAction2,false));
-6: SetAction(TMoveUnitAction.Create(KMPointY1(fHome.GetPosition),fAction3));
-7: SetAction(TMoveUnitAction.Create(fHome.GetPosition,fAction3));
-8: fVisible:=false;
-9: fHome.AddResource(fResource,fCount);
-10:fHome.SetAction(hat_Idle);
-11:SetAction(TStayUnitAction.Create(25,ua_Walk));
-12:Done:=true;
+0: fHome.SetState(hat_Empty);
+1: SetAction(TGoInUnitAction.Create(fAction1,-1));
+2: SetAction(TMoveUnitAction.Create(fPlace,fAction1));
+3: begin
+     Dir:=integer(fUnit.Direction);
+     if UnitSprite[integer(fUnit.fUnitType)].Act[integer(fAction2)].Dir[Dir].Count<=1 then
+       for Dir:=1 to 8 do
+         if UnitSprite[integer(fUnit.fUnitType)].Act[integer(fAction2)].Dir[Dir].Count>1 then break;
+     Dir:=min(Dir,8);
+   fUnit.Direction:=TKMDirection(Dir);
+   fTimeToWork:=fTimeToWork*max(UnitSprite[integer(fUnit.fUnitType)].Act[integer(fAction2)].Dir[Dir].Count,1);
+   end;
+4: SetAction(TStayUnitAction.Create(fTimeToWork, fAction2,false));
+5: SetAction(TMoveUnitAction.Create(KMPointY1(fHome.GetPosition),fAction3));
+6: SetAction(TGoInUnitAction.Create(fAction3,1));
+7: fHome.ResAddToOut(fResource,fCount);
+8: fHome.SetState(hat_Idle);
+9: SetAction(TStayUnitAction.Create(fTimeToIdle,ua_Walk));
+10:TaskDone:=true;
+end;
+inc(Phase);
+end;
+
+{ TTaskGoHome }
+constructor TTaskGoHome.Create(aTo:TKMPoint; aUnit:TKMUnit);
+begin
+fDestPos:=aTo;
+fUnit:=aUnit;
+Phase:=0;
+end;
+
+procedure TTaskGoHome.Execute(out TaskDone:boolean);
+begin
+TaskDone:=false;
+with fUnit do
+case Phase of
+0: SetAction(TMoveUnitAction.Create(KMPointY1(fDestPos)));
+1: SetAction(TGoInUnitAction.Create(ua_Walk,1));
+2: fHome.OwnerGoesIn;
+3: SetAction(TStayUnitAction.Create(5,ua_Walk));
+4: fHome.SetState(hat_Idle);
+5: TaskDone:=true;
 end;
 inc(Phase);
 end;
@@ -503,6 +670,39 @@ begin
     inc(KMUnit.AnimStep);
 end;
 
+constructor TGoInUnitAction.Create(aAction: TUnitActionType; aDirection:integer);
+begin
+  Inherited Create(aAction);
+  fDir:=aDirection;
+  if fDir>0 then
+    fStep:=1   //go Inside (one cell up)
+  else
+    fStep:=0; //go Outside (one cell down)
+end;
+
+procedure TGoInUnitAction.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
+var Distance:single;
+begin
+  DoEnd:= False;
+  TimeDelta:=0.1;
+  Distance:= TimeDelta * 1;//KMUnit.Speed;
+
+  if fDir>0 then
+    KMUnit.Direction:=dir_N   //go Inside (one cell up)
+  else
+    KMUnit.Direction:=dir_S; //go Outside (one cell down)
+
+  fStep := fStep - Distance * fDir;
+  KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * fDir;
+
+  KMUnit.fVisible := fStep >= 0.3;
+
+  if (fStep<=0)or(fStep>=1) then
+    DoEnd:=true
+  else
+    inc(KMUnit.AnimStep);
+end;
+
 constructor TStayUnitAction.Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true);
 begin
   Inherited Create(aActionType);
@@ -524,10 +724,16 @@ end;
 procedure TKMUnitsCollection.Add(aOwner: string; aUnitType: TUnitType; PosX, PosY:integer);
 begin
   case aUnitType of
-    ut_Serf: Inherited Add(TKMSerf.Create(aOwner,PosX,PosY,aUnitType));
-    ut_StoneCutter:  Inherited Add(TKMFarmer.Create(aOwner,PosX,PosY,aUnitType));
-    ut_Farmer:  Inherited Add(TKMFarmer.Create(aOwner,PosX,PosY,aUnitType));
-    ut_HorseScout: Inherited Add(TKMwarrior.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Serf:         Inherited Add(TKMSerf.Create(aOwner,PosX,PosY,aUnitType));
+
+    ut_StoneCutter:  Inherited Add(TKMStoneCutter.Create(aOwner,PosX,PosY,aUnitType));
+    ut_WoodCutter:   Inherited Add(TKMWoodCutter.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Farmer:       Inherited Add(TKMFarmer.Create(aOwner,PosX,PosY,aUnitType));
+
+    ut_Baker:        Inherited Add(TKMHomeSitting.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Lamberjack:   Inherited Add(TKMHomeSitting.Create(aOwner,PosX,PosY,aUnitType));
+
+    ut_HorseScout:   Inherited Add(TKMwarrior.Create(aOwner,PosX,PosY,aUnitType));
   end;
 end;
 

@@ -151,7 +151,7 @@ end;
 
 procedure TRender.RenderTerrainAndRoads();
 var
-  i,k,x0,x1,x2,y1,y2,y3:integer; ID,Rot:integer;
+  i,k,x0,x1,x2,y1,y2,y3:integer; ID,Rot,rd:integer;
 begin
 x1:=fViewport.GetClip.Left;
 x2:=fViewport.GetClip.Right;
@@ -166,23 +166,15 @@ y2:=fViewport.GetClip.Bottom;
 if Mission<>nil then
 for i:=y1 to y2 do for k:=x1 to x2 do
 with Mission do
-if Roads[k,i] then begin
-  ID:=249; Rot:=0; //default tile
-  //Straight road
-  if (Roads[k,i-1])or(Roads[k,i+1]) then begin ID:=249; Rot:=0; end;
-  if (Roads[k-1,i])or(Roads[k+1,i]) then begin ID:=249; Rot:=1; end;
-  //Corner
-  if (Roads[k+1,i])and(Roads[k,i+1]) then begin ID:=251; Rot:=0; end;
-  if (Roads[k,i+1])and(Roads[k-1,i]) then begin ID:=251; Rot:=1; end;
-  if (Roads[k-1,i])and(Roads[k,i-1]) then begin ID:=251; Rot:=2; end;
-  if (Roads[k,i-1])and(Roads[k+1,i]) then begin ID:=251; Rot:=3; end;
-  //T-crossing
-  if (Roads[k+1,i])and(Roads[k,i+1])and(Roads[k,i-1]) then begin ID:=253; Rot:=0; end;
-  if (Roads[k,i+1])and(Roads[k-1,i])and(Roads[k+1,i]) then begin ID:=253; Rot:=1; end;
-  if (Roads[k-1,i])and(Roads[k,i-1])and(Roads[k,i+1]) then begin ID:=253; Rot:=2; end;
-  if (Roads[k,i-1])and(Roads[k+1,i])and(Roads[k-1,i]) then begin ID:=253; Rot:=3; end;
-  //Roads everywhere
-  if (Roads[k,i-1])and(Roads[k,i+1])and(Roads[k-1,i])and(Roads[k+1,i]) then begin ID:=255; Rot:=0; end;
+if Roads[k,i] then
+  begin
+    rd:=0;
+    if (Roads[k                  ,max(i-1,1)         ]) then inc(rd,1);  //   1
+    if (Roads[min(k+1,MaxMapSize),i                  ]) then inc(rd,2);  //  8*2
+    if (Roads[k                  ,min(i+1,MaxMapSize)]) then inc(rd,4);  //   4
+    if (Roads[max(k-1,1)         ,i                  ]) then inc(rd,8);  //Take preset from table
+    ID:=RoadsConnectivity[rd,1];
+    Rot:=RoadsConnectivity[rd,2];
   RenderTile(ID,k,i,Rot);
   end;
 
@@ -476,6 +468,7 @@ end;
 procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
+//while UnitSprite[UnitID].Act[ActID].Dir[DirID].Count=0 do DirID:=DirID mod 8 +1;
 AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
 ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 //ID:=Index;

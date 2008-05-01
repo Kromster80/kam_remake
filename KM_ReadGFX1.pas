@@ -276,6 +276,12 @@ blockread(f,UnitSprite2[ii],36);
 end;
 closefile(f);
 
+//This is a bad idea to fix anything here, but at the time it's the simplest solution
+//Woodcutter(2) needs to shuffle actions
+//Split planting from chopping
+UnitSprite[2].Act[5].Dir[1]:=UnitSprite[2].Act[2].Dir[1];
+UnitSprite[2].Act[2].Dir[1]:=UnitSprite[2].Act[5].Dir[2];
+
 assignfile(ft,ExeDir+'Units.txt'); rewrite(ft);
 for ii:=1 to 40 do begin
 writeln(ft);
@@ -283,7 +289,7 @@ writeln(ft);
 writeln(ft,'NewUnit'+inttostr(ii));
 for kk:=1 to 14 do
 for hh:=1 to 8 do
-  if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then
+//  if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then
     begin
       write(ft,inttostr(kk)+'.'+inttostr(hh)+#9);
       for jj:=1 to 30 do
@@ -319,33 +325,22 @@ end;
 closefile(f);
 
 assignfile(ft,ExeDir+'Houses.txt'); rewrite(ft);
-  for ii:=1 to 30 do begin
-  for kk:=1 to 35 do
-  if HouseDAT1[ii,kk]+1>=1 then
-  if HouseDAT1[ii,kk]+1<=2000 then
-  write(ft,inttostr(HouseBMP[HouseDAT1[ii,kk]+1])+' ');
-//  write(ft,inttostr(HouseDAT1[ii,kk]+1)+' ');
-  writeln(ft);
-  end;
-
 for ii:=1 to 29 do begin
 writeln(ft);
 writeln(ft);
-writeln(ft,'NewHouse'+HouseName[ii]);
+writeln(ft,HouseName[ii]);
   for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
   write(ft,'#') else write(ft,' ');
   writeln(ft);
   for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
   write(ft,'#') else write(ft,' ');
   writeln(ft);
+  for kk:=1 to 19 do
+    writeln(ft,inttostr(kk)+'. '+inttostr(HouseDAT[ii].Anim[kk].Count));
+
   for kk:=1 to 135 do
   write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+' ');
   writeln(ft);
-{  for kk:=1 to 135 do
-  if HouseDAT[ii].Foot[kk]+1>=1 then
-  if HouseDAT[ii].Foot[kk]+1<=2000 then
-  write(ft,inttostr(HouseBMP[HouseDAT[ii].Foot[kk]+1])+' ');
-  writeln(ft);}
 end;
 closefile(ft);
 

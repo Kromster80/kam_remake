@@ -376,6 +376,11 @@ if CheckBox2.Checked then begin
   ControlList.UpdateState;
   ControlList.UpdateState;
   ControlList.UpdateState;
+  ControlList.UpdateState;
+  ControlList.UpdateState;
+  ControlList.UpdateState;
+  ControlList.UpdateState;
+  ControlList.UpdateState;
 end;
 end;
 
@@ -484,13 +489,19 @@ ControlList.AddHouse(ht_Mill,KMPoint(8,5));
 ControlList.AddHouse(ht_Bakery,KMPoint(12,5));
 ControlList.AddHouse(ht_Store,KMPoint(16,5));
 ControlList.AddHouse(ht_Quary,KMPoint(12,8));
+ControlList.AddHouse(ht_WoodCutter,KMPoint(12,11));
+ControlList.AddHouse(ht_SawMill,KMPoint(12,14));
 
-ControlList.AddUnit('User', ut_Farmer, KMPoint(8,8));
-ControlList.AddUnit('User', ut_StoneCutter, KMPoint(9,8));
-ControlList.AddUnit('User', ut_Serf, KMPoint(5,9));
-ControlList.AddUnit('User', ut_Serf, KMPoint(6,9));
-ControlList.AddUnit('User', ut_Serf, KMPoint(7,9));
-ControlList.AddUnit('User', ut_Serf, KMPoint(8,9));
+ControlList.AddUnit('User', ut_Farmer, KMPoint(5,9));
+ControlList.AddUnit('User', ut_StoneCutter, KMPoint(6,9));
+ControlList.AddUnit('User', ut_WoodCutter, KMPoint(7,9));
+ControlList.AddUnit('User', ut_Lamberjack, KMPoint(8,9));
+ControlList.AddUnit('User', ut_Baker, KMPoint(9,9));
+ControlList.AddUnit('User', ut_Baker, KMPoint(10,9));
+ControlList.AddUnit('User', ut_Serf, KMPoint(5,11));
+ControlList.AddUnit('User', ut_Serf, KMPoint(6,11));
+ControlList.AddUnit('User', ut_Serf, KMPoint(7,11));
+ControlList.AddUnit('User', ut_Serf, KMPoint(8,11));
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

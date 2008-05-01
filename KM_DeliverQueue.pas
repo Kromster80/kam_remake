@@ -23,11 +23,12 @@ type
     Importance:byte;
     JobStatus:TJobStatus;
   end;
+  LastQueueID:integer;
   constructor Create();
   procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
   procedure AddNewDemand(aHouse:TKMHouse; aResource:TResourceType);
-  procedure AddJob(aLoc1,aLoc2:TKMPoint; aResource:TResourceType);
-  function AskForJob(KMSerf:TKMSerf):TDeliverJob;
+  procedure AddNewJob(aHouse:TKMHouse; bHouse:TKMHouse; aResource:TResourceType);
+  function AskForJob(KMSerf:TKMSerf):TTaskDeliver;
   procedure CloseJob(aID:integer);
   end;
 
@@ -40,14 +41,8 @@ constructor TKMDeliverQueue.Create();
 var i:integer;
 begin
 for i:=1 to length(fQueue) do
-  CloseJob(i);{
-  with fQueue[i] do
-  begin
-    Loc1:=Point(0,0);
-    Loc2:=Point(0,0);
-    fResource:=rt_None;
-    Importance:=0;
-  end;      }
+  CloseJob(i);
+LastQueueID:=1;
 end;
 
 //Adds new Offer to the list. List is stored without sorting,
@@ -55,6 +50,20 @@ end;
 procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
 var i:integer;
 begin
+for i:=1 to 1024 do
+  if (fDemand[i].Resource=aResource) and (fDemand[i].House.CheckResIn(aResource)<MaxResInHouse) then
+    begin
+      AddNewJob(aHouse,fDemand[i].House,aResource);
+      exit;
+    end;
+
+for i:=1 to 1024 do
+  if fDemand[i].Resource=rt_All then
+    begin
+      AddNewJob(aHouse,fDemand[i].House,aResource);
+      exit;
+    end;
+
 i:=1;
 while (i<1024)and(fOffer[i].House<>nil) do inc(i);
 with fOffer[i] do
@@ -70,6 +79,13 @@ end;
 procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aResource:TResourceType);
 var i:integer;
 begin
+for i:=1 to 1024 do
+  if fOffer[i].Resource=aResource then
+    begin
+      AddNewJob(aHouse,fOffer[i].House,aResource);
+      exit;
+    end;
+
 i:=1;
 while (i<1024)and(fDemand[i].House<>nil) do inc(i);
 with fDemand[i] do
@@ -80,31 +96,28 @@ with fDemand[i] do
   end;
 end;
 
-//Adds new task to the list. List is stored without sorting,
-//so we just find an empty place and write there.
-procedure TKMDeliverQueue.AddJob(aLoc1,aLoc2:TKMPoint; aResource:TResourceType);
-var i:integer;
+//Find an empty place
+procedure TKMDeliverQueue.AddNewJob(aHouse:TKMHouse; bHouse:TKMHouse; aResource:TResourceType);
+//var i:integer;
 begin
-i:=1;
-while (i<1024)and(fQueue[i].Loc1.X<>0) do inc(i);
-with fQueue[i] do
+//i:=1;
+//while (i<1024)and(fQueue[i].JobStatus<>js_Done) do inc(i);
+
+with fQueue[LastQueueID] do
   begin
-    Loc1:=aLoc1;
-    Loc2:=aLoc2;
+    Loc1:=aHouse.GetPosition;
+    Loc2:=bHouse.GetPosition;
     Resource:=aResource;
     Importance:=1;
     JobStatus:=js_Open;
   end;
+
+inc(LastQueueID);
 end;
 
-//Should issue a job based on requesters location and job importance,
-//aswell increase importance of jobs located far away from requester,
-//otherwise they likely to never get done
-//Returns JobID, so asker could close it when it's done
-//Returns
-function TKMDeliverQueue.AskForJob(KMSerf:TKMSerf):TDeliverJob;
+//Should issue a job based on requesters location and job importance
+function TKMDeliverQueue.AskForJob(KMSerf:TKMSerf):TTaskDeliver;
 var i:integer;
-TDJ:TDeliverJob;
 begin
 i:=1;
 while (i<1024)and(fQueue[i].JobStatus<>js_Open) do inc(i);
@@ -113,13 +126,7 @@ begin
   Result:=nil;
   exit;
 end;
-TDJ:=TDeliverJob.Create(KMSerf, fQueue[i].Loc1, fQueue[i].Loc2, fQueue[i].Resource, i);
-Result:=TDJ;
-//Result.fFrom:=fQueue[i].Loc1;
-//Result.fTo:=fQueue[i].Loc2;
-//Result.fResource:=fQueue[i].Resource;
-//Result.Phase:=0;
-//Result.ID:=i;
+Result:=TTaskDeliver.Create(KMSerf, fQueue[i].Loc1, fQueue[i].Loc2, fQueue[i].Resource, i);
 fQueue[i].JobStatus:=js_Taken;
 end;
 

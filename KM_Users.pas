@@ -45,7 +45,6 @@ type
   public
     function AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TKMPoint): Boolean;
     procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
-    procedure AddJob(aLoc1,aLoc2:TKMPoint; aResource:TResourceType);
     procedure RemUnit(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -88,11 +87,6 @@ end;
 procedure TKMUserControlList.AddHouse(aHouseType: THouseType; Position: TKMPoint);
 begin
   fHouses.Add(aHouseType, Position.X, Position.Y)
-end;
-
-procedure TKMUserControlList.AddJob(aLoc1,aLoc2:TKMPoint; aResource:TResourceType);
-begin
-  fJobList.AddJob(aLoc1,aLoc2,aResource);
 end;
 
 procedure TKMUserControlList.RemUnit(Position: TKMPoint);

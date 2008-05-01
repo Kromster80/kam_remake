@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 319
-  Top = 108
+  Left = 212
+  Top = 100
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 659
@@ -2956,7 +2956,7 @@ object Form1: TForm1
       Height = 65
       Brush.Style = bsClear
       Enabled = False
-      Pen.Color = clLime
+      Pen.Color = clWhite
     end
   end
   object Panel5: TPanel

@@ -12,17 +12,9 @@ type bmBrushMode = (bm_None,bm_Houses);
     rt_Leather   =13 , rt_Sousages   =14, rt_Pig        =15, rt_Skin        =16,
     rt_WoodShield=17 , rt_MetalShield=18, rt_Armor      =19, rt_MetalArmor  =20,
     rt_Axe       =21 , rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
-    rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_FishBucket  =28);
+    rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
 
   TResourceTypeSet = set of TResourceType;
-
-  THouseType = ( ht_None=0,
-    ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
-    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutter=10,
-    ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
-    ht_Metallurgist=16,  ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
-    ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
 
   TUnitType = (
     ut_Serf=1,          ut_Woodcutter=2,    ut_Miner=3,         ut_AnimalBreeder=4,
@@ -42,14 +34,42 @@ type bmBrushMode = (bm_None,bm_Houses);
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
+  TGatheringScript = (
+    gs_WoodCutterCut=1, gs_WoodCutterPlant=2,
+    gs_FarmerSow=3, gs_FarmerCorn=4, gs_FarmerWine=5,
+    gs_Fisher=6, gs_StoneCutter=7);
+
+{  TProductionScript = (
+    ps_Mill=1, ps_Bakery=2);}
+
+
+  THouseType = ( ht_None=0,
+    ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
+    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutter=10,
+    ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
+    ht_Metallurgist=16,  ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
+    ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
+    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
+
+
+  THouseState = ( hat_Empty, hat_Idle, hat_Work );
+
+  THouseActionType2 = (
+  ha_Work1=1, ha_Work2=2, ha_Work3=3, ha_Work4=4, ha_Work5=5, //Start, InProgress, .., .., Finish
+  ha_Smoke=6, ha_FlagShtok=7, ha_Idle=8,
+  ha_Flag1=9, ha_Flag2=10, ha_Flag3=11,
+  ha_Fire1=12, ha_Fire2=13, ha_Fire3=14, ha_Fire4=15, ha_Fire5=16, ha_Fire6=17, ha_Fire7=18, ha_Fire8=19);
+
+  THouseActionSet2 = set of THouseActionType2;
+
 const
 UnitHome:array[2..14,1..3]of THouseType = (
 (ht_Woodcutter,ht_None,ht_None),        //ut_Woodcutter=2,
 (ht_CoalMine,ht_IronMine,ht_GoldMine),  //ut_Miner=3,
 (ht_None,ht_None,ht_None),              //ut_AnimalBreeder=4,
 (ht_Farm,ht_Wineyard,ht_None),          //ut_Farmer=5,
-(ht_None,ht_None,ht_None),              //ut_Lamberjack=6,
-(ht_None,ht_None,ht_None),              //ut_Baker=7,
+(ht_SawMill,ht_None,ht_None),           //ut_Lamberjack=6,
+(ht_Mill,ht_Bakery,ht_None),            //ut_Baker=7,
 (ht_None,ht_None,ht_None),              //ut_Butcher=8,
 (ht_None,ht_None,ht_None),              //ut_Fisherman=9,
 (ht_None,ht_None,ht_None),              //ut_Worker=10,
@@ -64,12 +84,12 @@ UnitSpeeds:array[1..42]of smallint =(
 
 UnitSupportedActions:array[1..14]of TUnitActionTypeSet = (
 [ua_Walk, ua_Die, ua_Eat],
+[ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkTool2],
 [],
 [],
-[],
-[ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Work2, ua_Eat..ua_WalkBooty2],
-[],
-[],
+[ua_Walk, ua_Work, ua_Die..ua_WalkBooty2],
+[ua_Walk, ua_Die, ua_Eat],
+[ua_Walk, ua_Work, ua_Die, ua_Eat],
 [],
 [],
 [],
@@ -79,19 +99,32 @@ UnitSupportedActions:array[1..14]of TUnitActionTypeSet = (
 []
 );
 
-//Woodcutter=2, Farmer=5, Fisherman=9, StoneCutter=11,
-UnitMiningPlan:array[2..11,1..6]of integer = (
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0),
-(integer(rt_None), 0, integer(ua_Walk), integer(ua_Walk), integer(ua_Walk),0)
+//Resource, Count, Action1, Action2, Action3, Act2Cycles, HomeIdle()
+UnitMiningPlan:array[1..7,1..7]of byte = (
+(byte(rt_Trunk), 1, byte(ua_WalkBooty), byte(ua_Work) , byte(ua_WalkTool2) ,6, 10), //Chop the tree
+(byte(rt_None) , 0, byte(ua_WalkTool) , byte(ua_Work1), byte(ua_Walk)      ,6, 10), //Plant new tree
+
+(byte(rt_None) , 0, byte(ua_Walk)     , byte(ua_Work1), byte(ua_Walk)      ,6, 10), //Seed the corn
+(byte(rt_Corn) , 1, byte(ua_WalkTool) , byte(ua_Work) , byte(ua_WalkBooty) ,6, 10), //Gather crops
+(byte(rt_Wine) , 0, byte(ua_WalkTool2), byte(ua_Work2), byte(ua_WalkBooty2),6, 50), //Gather grapes
+
+(byte(rt_Fish) , 0, byte(ua_Walk)     , byte(ua_Walk) , byte(ua_Walk)      ,6, 10), //Catch fish
+
+(byte(rt_Stone), 3, byte(ua_Walk)     , byte(ua_Work) , byte(ua_WalkTool)  ,6, 50)  //Cut stone
 );
+
+//Resource1, Count1, Resource2, Count2, Count2, Action1, Action2, Action3, Act2Count
+HouseProductionPlan:array[0..3,1..6]of integer = (
+(byte(rt_None ), 0, byte(rt_None) ,  0, byte(rt_None) , 0), //Houses with no production
+(byte(rt_Corn ), 1, byte(rt_None) ,  0, byte(rt_Flour), 1), //Mill
+(byte(rt_Flour), 1, byte(ha_Work2),  8, byte(rt_Bread), 1), //Bakery
+(byte(rt_Trunk), 1, byte(ha_Work1),  8, byte(rt_Wood) , 2)  //SawMill
+);
+
+HouseProductionPlanID:array[1..29]of byte = (
+3,0,0,0,0,0,0,2,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,1,0,0,0,0,0,0);
 
 //These are colors of all tiles to use in MiniMap
 const TileMMColor:array[1..256]of integer = (
@@ -241,17 +274,17 @@ HousePlanYX:array[1..29,1..4,1..4]of byte = (
 ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard       //378
 );
 
-HouseProduce:array[1..29,1..4] of TResourceType = (
-(rt_None,       rt_None,       rt_None,       rt_None), //Sawmill        //1
+HouseOutput:array[1..29,1..4] of TResourceType = (
+(rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill        //1
 (rt_None,       rt_None,       rt_None,       rt_None), //Iron smithy    //21
 (rt_None,       rt_None,       rt_None,       rt_None), //Weapon smithy  //244
 (rt_None,       rt_None,       rt_None,       rt_None), //Coal mine      //134
 (rt_None,       rt_None,       rt_None,       rt_None), //Iron mine      //61
 (rt_None,       rt_None,       rt_None,       rt_None), //Gold mine      //239
 (rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut     //81
-(rt_None,       rt_None,       rt_None,       rt_None), //Bakery         //101
+(rt_Bread,      rt_None,       rt_None,       rt_None), //Bakery         //101
 (rt_Corn,       rt_None,       rt_None,       rt_None), //Farm           //124
-(rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter     //142
+(rt_Trunk,      rt_None,       rt_None,       rt_None), //Woodcutter     //142
 (rt_None,       rt_None,       rt_None,       rt_None), //Armor smithy   //41
 (rt_None,       rt_None,       rt_None,       rt_None), //Store          //138
 (rt_None,       rt_None,       rt_None,       rt_None), //Stables        //146
@@ -264,7 +297,7 @@ HouseProduce:array[1..29,1..4] of TResourceType = (
 (rt_None,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
 (rt_None,       rt_None,       rt_None,       rt_None), //Armor workshop //663
 (rt_None,       rt_None,       rt_None,       rt_None), //Barracks       //334
-(rt_None,       rt_None,       rt_None,       rt_None), //Mill           //358
+(rt_Flour,      rt_None,       rt_None,       rt_None), //Mill           //358
 (rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
 (rt_None,       rt_None,       rt_None,       rt_None), //Butcher        //397
 (rt_None,       rt_None,       rt_None,       rt_None), //Tannery        //668
@@ -273,9 +306,51 @@ HouseProduce:array[1..29,1..4] of TResourceType = (
 (rt_None,       rt_None,       rt_None,       rt_None)  //Wineyard       //378
 );
 
+HouseInput:array[1..29,1..4] of TResourceType = (
+(rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill        //1
+(rt_None,       rt_None,       rt_None,       rt_None), //Iron smithy    //21
+(rt_None,       rt_None,       rt_None,       rt_None), //Weapon smithy  //244
+(rt_None,       rt_None,       rt_None,       rt_None), //Coal mine      //134
+(rt_None,       rt_None,       rt_None,       rt_None), //Iron mine      //61
+(rt_None,       rt_None,       rt_None,       rt_None), //Gold mine      //239
+(rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut     //81
+(rt_Flour,      rt_None,       rt_None,       rt_None), //Bakery         //101
+(rt_None,       rt_None,       rt_None,       rt_None), //Farm           //124
+(rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter     //142
+(rt_None,       rt_None,       rt_None,       rt_None), //Armor smithy   //41
+(rt_All,        rt_None,       rt_None,       rt_None), //Store          //138
+(rt_None,       rt_None,       rt_None,       rt_None), //Stables        //146
+(rt_None,       rt_None,       rt_None,       rt_None), //School         //250
+(rt_None,       rt_None,       rt_None,       rt_None), //Quarry         //211
+(rt_None,       rt_None,       rt_None,       rt_None), //Metallurgist   //235
+(rt_None,       rt_None,       rt_None,       rt_None), //Swine          //368
+(rt_None,       rt_None,       rt_None,       rt_None), //Watch tower    //255
+(rt_None,       rt_None,       rt_None,       rt_None), //Town hall      //1657
+(rt_None,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
+(rt_None,       rt_None,       rt_None,       rt_None), //Armor workshop //663
+(rt_None,       rt_None,       rt_None,       rt_None), //Barracks       //334
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Mill           //358
+(rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
+(rt_None,       rt_None,       rt_None,       rt_None), //Butcher        //397
+(rt_None,       rt_None,       rt_None,       rt_None), //Tannery        //668
+(rt_None,       rt_None,       rt_None,       rt_None), //N/A
+(rt_None,       rt_None,       rt_None,       rt_None), //Inn            //363
+(rt_None,       rt_None,       rt_None,       rt_None)  //Wineyard       //378
+);
+
+//   1      //Depending on surrounding tiles
+//  8*2
+//   4
+RoadsConnectivity:array [0..15,1..2]of byte = (
+(249,0),(249,0),(249,1),(251,3),
+(249,0),(249,0),(251,0),(253,0),
+(249,1),(251,2),(249,1),(253,3),
+(251,1),(253,2),(253,1),(255,0));  
+
 R:array[1..8]of integer =(255,   0,   0, 255,   0, 255, 255,   0);
 G:array[1..8]of integer =(0,   255,   0, 255, 255,   0, 255,   0);
 B:array[1..8]of integer =(0,     0, 255,   0, 255, 255, 255,   0);
+
 
 implementation
 

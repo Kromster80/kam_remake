@@ -14,6 +14,7 @@ zz=#10+#13;             //EndOfLine
 
 MaxPlayers=6;           //Maximum players per map
 MaxHouses=255;          //Maximum houses one player can own
+MaxResInHouse=3;        //Maximum resource items in house
 
 var
   fRender: TRender;
