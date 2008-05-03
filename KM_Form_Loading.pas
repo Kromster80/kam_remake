@@ -55,8 +55,10 @@ fRender.SetRenderDefaults;
 FormLoading.Hide;
 Form1.Show;
 Form1.WindowState:=wsMaximized;
-  if ExtractOpenedFileName(cmdline)='' then
-    FormNewMap.InitializeNewMap(96,96);
+
+fTerrain.OpenMapFromFile('save01.map');
+//  if ExtractOpenedFileName(cmdline)='' then
+//    FormNewMap.InitializeNewMap(96,96);
 //  if fileexists(ExeDir+'krom.dev') then
 //    Form1.OpenMap('save01.map');
 //if fileexists(ExeDir+'krom.dev') then Form1.OpenMap('test.map');

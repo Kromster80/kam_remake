@@ -7,14 +7,14 @@ type
 TKMLog = class
 private
 logfile:string;
-procedure AddLine(line:string);
+procedure AddLine(text:string);
 protected
 public
 constructor Create(path:string);
-procedure AppendLog(line:string); overload;
-procedure AppendLog(line:string; num:integer); overload;
-procedure AppendLog(num:integer; line:string); overload;
-procedure AppendLog(line:string; res:boolean); overload;
+procedure AppendLog(text:string); overload;
+procedure AppendLog(text:string; num:integer); overload;
+procedure AppendLog(num:integer; text:string); overload;
+procedure AppendLog(text:string; res:boolean); overload;
 published
 end;
 
@@ -30,34 +30,34 @@ rewrite(fl);
 closefile(fl);
 end;
 
-procedure TKMLog.AddLine(line:string);
+procedure TKMLog.AddLine(text:string);
 begin
 assignfile(fl,logfile);
 append(fl);
-writeln(fl,line);
+writeln(fl,text);
 closefile(fl);
 end;
 
-procedure TKMLog.AppendLog(line:string);
+procedure TKMLog.AppendLog(text:string);
 begin
-AddLine(line);
+AddLine(text);
 end;
 
-procedure TKMLog.AppendLog(line:string; num:integer);
+procedure TKMLog.AppendLog(text:string; num:integer);
 begin
-AddLine(line+' '+inttostr(num));
+AddLine(text+' '+inttostr(num));
 end;
 
-procedure TKMLog.AppendLog(num:integer; line:string);
+procedure TKMLog.AppendLog(num:integer; text:string);
 begin
-AddLine(inttostr(num)+' '+line);
+AddLine(inttostr(num)+' '+text);
 end;
 
-procedure TKMLog.AppendLog(line:string; res:boolean);
+procedure TKMLog.AppendLog(text:string; res:boolean);
 var s:string;
 begin
 if res then s:='done' else s:='fail';
-AddLine(line+' ... '+s);
+AddLine(text+' ... '+s);
 end;
 
 end.

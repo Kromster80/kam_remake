@@ -10,13 +10,13 @@ type
   private
     TimeToAct:integer;
     fHouseState: THouseState;
-    fSubAction: THouseActionSet2;
+    fSubAction: THouseActionSet;
   public
     constructor Create(aHouseState: THouseState; const aTime:integer=0);
     procedure SetState(aHouseState: THouseState);
-    procedure SubActionWork(aActionSet: THouseActionType2; const aTime:integer=0);
-    procedure SubActionAdd(aActionSet: THouseActionSet2);
-    procedure SubActionRem(aActionSet: THouseActionSet2);
+    procedure SubActionWork(aActionSet: THouseActionType; const aTime:integer=0);
+    procedure SubActionAdd(aActionSet: THouseActionSet);
+    procedure SubActionRem(aActionSet: THouseActionSet);
     procedure Execute(KMHouse: TKMHouse; TimeDelta: single; out DoEnd: Boolean);
     property ActionType: THouseState read fHouseState;
   end;
@@ -119,7 +119,7 @@ begin
 
   fProductionPlan:=HouseProductionPlanID[byte(aHouseType)];
 
-  fCurrentAction:=THouseAction.Create(hat_Empty);
+  fCurrentAction:=THouseAction.Create(hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
 
   fOutputTypes[1]:=HouseOutput[byte(aHouseType),1];
@@ -222,7 +222,7 @@ begin
   fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
   if not DoEnd then exit;
 
-  if fCurrentAction.fHouseState=hat_Empty then exit;
+  if fCurrentAction.fHouseState=hst_Empty then exit;
 
   if HouseTask<>nil then
   HouseTask.Execute(Self, TaskDone);
@@ -275,31 +275,31 @@ end;
 procedure THouseAction.SetState(aHouseState: THouseState);
 begin
 fHouseState:=aHouseState;
-  if aHouseState=hat_Idle then begin
+  if aHouseState=hst_Idle then begin
     SubActionRem([ha_Work1..ha_Smoke]); //remove all work attributes
     SubActionAdd([ha_Idle]);
   end;
-  if aHouseState=hat_Work then begin
+  if aHouseState=hst_Work then begin
     SubActionRem([ha_Idle]);
   end;
-  if aHouseState=hat_Empty then begin
+  if aHouseState=hst_Empty then begin
     SubActionRem([ha_Idle]);
   end;
 end;
 
-procedure THouseAction.SubActionWork(aActionSet: THouseActionType2; const aTime:integer=0);
+procedure THouseAction.SubActionWork(aActionSet: THouseActionType; const aTime:integer=0);
 begin
   SubActionRem([ha_Work1..ha_Work5]);
   fSubAction:= fSubAction + [aActionSet];
   if aTime<>0 then TimeToAct:=aTime;
 end;
 
-procedure THouseAction.SubActionAdd(aActionSet: THouseActionSet2);
+procedure THouseAction.SubActionAdd(aActionSet: THouseActionSet);
 begin
   fSubAction:= fSubAction + aActionSet;
 end;
 
-procedure THouseAction.SubActionRem(aActionSet: THouseActionSet2);
+procedure THouseAction.SubActionRem(aActionSet: THouseActionSet);
 begin
   fSubAction:= fSubAction - aActionSet;
 end;
@@ -318,9 +318,9 @@ constructor TTaskIdle.Create(KMHouse: TKMHouse; aTimeToIdle:integer);
 begin
 TimeToIdle:=aTimeToIdle;
 if KMHouse.fOwnerAtHome then
-  KMHouse.SetState(hat_Idle)
+  KMHouse.SetState(hst_Idle)
 else
-  KMHouse.SetState(hat_Empty)
+  KMHouse.SetState(hst_Empty)
 end;
 
 procedure TTaskIdle.Execute(KMHouse:TKMHouse; out TaskDone:boolean);
@@ -347,12 +347,12 @@ var t:integer;
 begin
 TaskDone:=false;
 case Phase of
-0: KMHouse.SetState(hat_Work);
+0: KMHouse.SetState(hst_Work);
 1: KMHouse.ResTakeFromIn(TResourceType(HouseProductionPlan[fPlanID,1]));
 2: KMHouse.fCurrentAction.SubActionAdd([ha_Smoke]);
 3: if HouseProductionPlan[fPlanID,4]<>0 then begin
      t:=HouseDAT[byte(KMHouse.fHouseType)].Anim[HouseProductionPlan[fPlanID,3]].Count * HouseProductionPlan[fPlanID,4];
-     KMHouse.fCurrentAction.SubActionWork(THouseActionType2(HouseProductionPlan[fPlanID,3]),t);
+     KMHouse.fCurrentAction.SubActionWork(THouseActionType(HouseProductionPlan[fPlanID,3]),t);
    end;
 //5: KMHouse.fCurrentAction.SubActionWork([ha_Work3],15);
 //6: KMHouse.fCurrentAction.SubActionWork([ha_Work4],15);
@@ -412,8 +412,7 @@ var
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    for k := 1 to 3 do
-      if (TKMHouse(Items[I]).fHouseType=UnitHome[integer(aUnitType),k])and(not TKMHouse(Items[I]).fHasOwner) then
+      if (HouseOwnerUnit[byte(TKMHouse(Items[I]).fHouseType)]=aUnitType)and(not TKMHouse(Items[I]).fHasOwner) then
       begin
         Result:= TKMHouse(Items[I]);
         TKMHouse(Items[I]).fHasOwner:=true;

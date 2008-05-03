@@ -14,12 +14,10 @@ type bmBrushMode = (bm_None,bm_Houses);
     rt_Axe       =21 , rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
     rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
 
-  TResourceTypeSet = set of TResourceType;
-
-  TUnitType = (
+  TUnitType = ( ut_None=0,
     ut_Serf=1,          ut_Woodcutter=2,    ut_Miner=3,         ut_AnimalBreeder=4,
     ut_Farmer=5,        ut_Lamberjack=6,    ut_Baker=7,         ut_Butcher=8,
-    ut_Fisherman=9,     ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
+    ut_Fisher=9,        ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
     ut_Metallurgist=13, ut_Recruit=14,      ut_HorseScout=22);
 //15 Militia        //16 AxeFighter     //17 Swordsman      //18 Bowman
 //19 Arbaletman     //20 Pikeman        //21 Hallebardman   //22 HorseScout
@@ -34,84 +32,76 @@ type bmBrushMode = (bm_None,bm_Houses);
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
-  TGatheringScript = (
-    gs_WoodCutterCut=1, gs_WoodCutterPlant=2,
-    gs_FarmerSow=3, gs_FarmerCorn=4, gs_FarmerWine=5,
-    gs_Fisher=6, gs_StoneCutter=7);
-
-{  TProductionScript = (
-    ps_Mill=1, ps_Bakery=2);}
-
-
   THouseType = ( ht_None=0,
     ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
-    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutter=10,
+    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutters=10,
     ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
-    ht_Metallurgist=16,  ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
+    ht_Metallurgists=16, ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
     ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
     ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
 
+  THouseState = ( hst_Plan, hst_Wood, hst_Stone, hst_Empty, hst_Idle, hst_Work );
 
-  THouseState = ( hat_Empty, hat_Idle, hat_Work );
-
-  THouseActionType2 = (
+  THouseActionType = (
   ha_Work1=1, ha_Work2=2, ha_Work3=3, ha_Work4=4, ha_Work5=5, //Start, InProgress, .., .., Finish
   ha_Smoke=6, ha_FlagShtok=7, ha_Idle=8,
   ha_Flag1=9, ha_Flag2=10, ha_Flag3=11,
   ha_Fire1=12, ha_Fire2=13, ha_Fire3=14, ha_Fire4=15, ha_Fire5=16, ha_Fire6=17, ha_Fire7=18, ha_Fire8=19);
 
-  THouseActionSet2 = set of THouseActionType2;
+  THouseActionSet = set of THouseActionType;
 
 const
-UnitHome:array[2..14,1..3]of THouseType = (
-(ht_Woodcutter,ht_None,ht_None),        //ut_Woodcutter=2,
-(ht_CoalMine,ht_IronMine,ht_GoldMine),  //ut_Miner=3,
-(ht_None,ht_None,ht_None),              //ut_AnimalBreeder=4,
-(ht_Farm,ht_Wineyard,ht_None),          //ut_Farmer=5,
-(ht_SawMill,ht_None,ht_None),           //ut_Lamberjack=6,
-(ht_Mill,ht_Bakery,ht_None),            //ut_Baker=7,
-(ht_None,ht_None,ht_None),              //ut_Butcher=8,
-(ht_None,ht_None,ht_None),              //ut_Fisherman=9,
-(ht_None,ht_None,ht_None),              //ut_Worker=10,
-(ht_Quary,ht_None,ht_None),             //ut_StoneCutter=11,
-(ht_None,ht_None,ht_None),              //ut_Smith=12,
-(ht_None,ht_None,ht_None),              //ut_Metallurgist=13,
-(ht_None,ht_None,ht_None));             //ut_Recruit=14,
+  HouseOwnerUnit:array[1..29]of TUnitType = (
+    ut_Lamberjack, ut_Metallurgist, ut_Smith, ut_Miner, ut_Miner,
+    ut_Miner, ut_Fisher, ut_Baker, ut_Farmer, ut_Woodcutter,
+    ut_Smith, ut_None, ut_AnimalBreeder, ut_None, ut_StoneCutter,
+    ut_Metallurgist, ut_AnimalBreeder, ut_Recruit, ut_None, ut_Lamberjack,
+    ut_Lamberjack, ut_Recruit, ut_Baker, ut_Lamberjack, ut_Butcher,
+    ut_Butcher, ut_None, ut_None, ut_Farmer);
 
-UnitSpeeds:array[1..42]of smallint =(
-1,1,1,1,1,1,1,1,1,1,1,1,1,1 //
-,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
+  UnitSpeeds:array[1..40]of single =(
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,                //Civilian units
+    1,1,1,1,1,1,1,1.5,1.5,1,1,1,1,1.5,0.5,0.5,  //Army units
+    1,1,1,1,1,1,1,1,1,1);                       //Animals
 
-UnitSupportedActions:array[1..14]of TUnitActionTypeSet = (
-[ua_Walk, ua_Die, ua_Eat],
-[ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkTool2],
-[],
-[],
-[ua_Walk, ua_Work, ua_Die..ua_WalkBooty2],
-[ua_Walk, ua_Die, ua_Eat],
-[ua_Walk, ua_Work, ua_Die, ua_Eat],
-[],
-[],
-[],
-[ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
-[],
-[],
-[]
-);
+  UnitSupportedActions:array[1..14]of TUnitActionTypeSet = (
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkTool2],
+    [],
+    [],
+    [ua_Walk, ua_Work, ua_Die..ua_WalkBooty2],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [],
+    [],
+    [],
+    [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
+    [],
+    [],
+    []
+    );
 
+type
+  TGatheringScript = (
+    gs_WoodCutterCut=1, gs_WoodCutterPlant=2,
+    gs_FarmerSow=3, gs_FarmerCorn=4, gs_FarmerWine=5,
+    gs_Fisher=6,
+    gs_StoneCutter=7);
+
+const
 //Resource, Count, Action1, Action2, Action3, Act2Cycles, HomeIdle()
-UnitMiningPlan:array[1..7,1..7]of byte = (
-(byte(rt_Trunk), 1, byte(ua_WalkBooty), byte(ua_Work) , byte(ua_WalkTool2) ,6, 10), //Chop the tree
-(byte(rt_None) , 0, byte(ua_WalkTool) , byte(ua_Work1), byte(ua_Walk)      ,6, 10), //Plant new tree
+  UnitMiningPlan:array[1..7,1..7]of byte = (
+    (byte(rt_Trunk), 1, byte(ua_WalkBooty), byte(ua_Work) , byte(ua_WalkTool2) ,6, 10), //Chop the tree
+    (byte(rt_None) , 0, byte(ua_WalkTool) , byte(ua_Work1), byte(ua_Walk)      ,6, 10), //Plant new tree
 
-(byte(rt_None) , 0, byte(ua_Walk)     , byte(ua_Work1), byte(ua_Walk)      ,6, 10), //Seed the corn
-(byte(rt_Corn) , 1, byte(ua_WalkTool) , byte(ua_Work) , byte(ua_WalkBooty) ,6, 10), //Gather crops
-(byte(rt_Wine) , 0, byte(ua_WalkTool2), byte(ua_Work2), byte(ua_WalkBooty2),6, 50), //Gather grapes
+    (byte(rt_None) , 0, byte(ua_Walk)     , byte(ua_Work1), byte(ua_Walk)      ,6, 10), //Seed the corn
+    (byte(rt_Corn) , 1, byte(ua_WalkTool) , byte(ua_Work) , byte(ua_WalkBooty) ,6, 10), //Gather crops
+    (byte(rt_Wine) , 0, byte(ua_WalkTool2), byte(ua_Work2), byte(ua_WalkBooty2),6, 50), //Gather grapes
 
-(byte(rt_Fish) , 0, byte(ua_Walk)     , byte(ua_Walk) , byte(ua_Walk)      ,6, 10), //Catch fish
+    (byte(rt_Fish) , 0, byte(ua_Walk)     , byte(ua_Walk) , byte(ua_Walk)      ,6, 10), //Catch fish
 
-(byte(rt_Stone), 3, byte(ua_Walk)     , byte(ua_Work) , byte(ua_WalkTool)  ,6, 50)  //Cut stone
-);
+    (byte(rt_Stone), 3, byte(ua_Walk)     , byte(ua_Work) , byte(ua_WalkTool)  ,6, 50)  //Cut stone
+    );
 
 //Resource1, Count1, Resource2, Count2, Count2, Action1, Action2, Action3, Act2Count
 HouseProductionPlan:array[0..3,1..6]of integer = (
@@ -193,43 +183,6 @@ const TileMMColor:array[1..256]of integer = (
 118+122*256+ 93*65536,100+130*256+125*65536,114+126*256+101*65536,106+102*256+59*65536,
 121+118*256+ 80*65536,107+102*256+61*65536,124+116*256+72*65536,112+115*256+82*65536
 );
-
-ObjIndex:array[1..90]of integer = (
-0  , 1  , 2  , 3  , 4  , 5  , 6  , 7  , 8  , 9  , //8,9 boulders, can't walk/build
-10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 ,
-20 , 21 , 22 , 23 , 24 , 30 , 58 , 59 , 60 , 61 , //61 is a non-walk tile
-62 , 68 , 69 , 70 , 71 , 72 , 73 , 88 , 89 , 90 , //80,81 red stop signs in GFX
-94 , 95 , 97 , 98 , 100, 102, 103, 104, 105, 109,
-110, 114, 118, 119, 122, 123, 124, 151, 155, 160,
-165, 170, 172, 190, 191, 192, 193, 194, 195, 196,
-200, 201, 202, 203, 204, 205, 206, 210, 211, 212, //212,213,215 palmettes can't walk on them
-213, 214, 215, 216, 217, 218, 219, 220, 249, 250  //249,250 red flowers, can't walk build on them
-{, 255}); //255 empty place, no object
-
-//Inverse for ObjectIndex
-ObjIndexInv:array[0..255]of integer = (
-   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,
-  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,
-  21,  22,  23,  24,  25,   0,   0,   0,   0,   0,
-  26,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-   0,   0,   0,   0,   0,   0,   0,   0,  27,  28,
-  29,  30,  31,   0,   0,   0,   0,   0,  32,  33,
-  34,  35,  36,  37,   0,   0,   0,   0,   0,   0,
-   0,   0,   0,   0,   0,   0,   0,   0,  38,  39,
-  40, 0, 0, 0, 41, 42, 0, 43, 44, 0, 45, 0, 46, 47, 48, 49, 0, 0, 0, 50, 51, 0, 0, 0, 52, 0, 0, 0, 53, 54, 0, 0, 55, 56, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 58, 0, 0, 0, 59, 0, 0, 0, 0, 60, 0, 0, 0, 0, 61, 0, 0, 0, 0, 62, 0, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 65, 66, 67, 68, 69, 70, 0, 0, 0, 71, 72, 73, 74, 75, 76, 77, 0, 0, 0, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 89, 90, 0, 0, 0, 0, 0);
-
-ObjIndexGFX:array[1..90]of integer = (
-34 , 18 , 19 , 21 , 20 , 35 , 36 , 40 , 23 , 22 ,
-38 , 39 , 41 , 26 , 176, 194, 238, 2  , 3  , 4  ,
-221, 5  , 12 , 13 , 14 , 195, 61 , 64 , 250, 42 , //42 is a non-walk tile
-250, 244, 245, 246, 247, 248, 249, 27 , 129, 132,
-117, 91 , 27 , 129, 28 , 27 , 129, 132, 31 , 135,
-67 , 82 , 82 , 75 , 126, 123, 94 , 222, 112, 106,
-88 , 97 , 109, 208, 150, 151, 153, 202, 152, 154,
-167, 138, 146, 159, 163, 78 , 155, 142, 143, 144,
-145, 16 , 15 , 173, 174, 171, 172, 175, 13 , 14 );
-//GFX 254,255 are stop signs.
 
 HouseName:array[1..29]of string = (
 'Sawmill','Iron smithy','Weapon smithy','Coal mine','Iron mine',
@@ -351,6 +304,7 @@ R:array[1..8]of integer =(255,   0,   0, 255,   0, 255, 255,   0);
 G:array[1..8]of integer =(0,   255,   0, 255, 255,   0, 255,   0);
 B:array[1..8]of integer =(0,     0, 255,   0, 255, 255, 255,   0);
 
+ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.25,1.5,2);
 
 implementation
 

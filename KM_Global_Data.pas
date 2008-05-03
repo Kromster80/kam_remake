@@ -12,17 +12,16 @@ FPSLag=5;              //lag between frames, 1000/FPSLag = max allowed FPS
 FPS_INTERVAL=1000;      //time between FPS measurements, more=accurate
 zz=#10+#13;             //EndOfLine
 
-MaxPlayers=6;           //Maximum players per map
+MaxPlayers=8;           //Maximum players per map
 MaxHouses=255;          //Maximum houses one player can own
-MaxResInHouse=3;        //Maximum resource items in house
+MaxResInHouse=3;        //Maximum resource items allowed to be in house (5)
 
 var
   fRender: TRender;
   fViewport: TViewport;
   fMiniMap: TMiniMap;
   fTerrain: TTerrain;
-  fLog: TKMLog;
-
+  fLog: TKMLog;  
 
   TreeTex:array[1..256,1..3]of GLuint;     //Object textures
   HouseTex:array[1..2000,1..3]of GLuint;     //Object textures
@@ -32,7 +31,6 @@ var
 
   f,f2:file;
   ft:textfile;
-  fsize,NumRead:integer;
   c:array[1..65536] of char;
   ExeDir:string;
   XH:integer=32;        //Height divider
@@ -40,8 +38,6 @@ var
   LandBrush:integer=0;  //Active brush
   s:string;
   Map: record X,Y:integer; end;
-  ResHead: packed record x1:word; Allocated,Qty1,Qty2,x5,Len17:integer; end;
-  Res:array[1..1024]of packed record X1,Y1,X2,Y2:integer; Typ:byte; end;
   MouseButton:TMouseButton2;
 
   MapX,MapY:single; //Precise cursor position on map
@@ -52,12 +48,13 @@ var
 
   Mission:TMission;
 
+Pal0:array[1..256,1..3]of byte;
+
 TreeQty:integer;
 TreePal:array[1..512] of byte;
 TreeSize:array[1..512,1..2] of word;
 TreePivot:array[1..512] of record x,y:integer; end;
 TreeData:array[1..512] of array of byte;
-Pal0:array[1..256,1..3]of byte;
 
 HouseQty:integer;
 HousePal:array[1..2000] of byte;
@@ -126,8 +123,8 @@ end;
 
 MapElemQty:integer=254; //Default qty
 MapElem:array[1..512]of packed record
-Tree:array[1..30]of smallint; //60
-animqty:word;                 //62
+Step:array[1..30]of smallint; //60
+Count:word;                   //62
 u1:array[1..16]of word;       //94
 u2:shortint;                  //95
 u3,u4:word;                   //99

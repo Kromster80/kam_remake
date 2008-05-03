@@ -117,7 +117,6 @@ type
     procedure HousePalleteScrollChange(Sender: TObject);
     procedure HousePalleteDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
-    procedure Mapsettings1Click(Sender: TObject);
     procedure ExportDATClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure UnitPalleteScrollChange(Sender: TObject);
@@ -185,7 +184,7 @@ procedure TForm1.OpenMap(filename:string);
 begin
 fTerrain.OpenMapFromFile(filename);
 fMinimap.Repaint();
-fViewport.SetZoom(10);
+fViewport.SetZoom(1);
 Form1.FormResize(nil);
 Form1.Caption:='KaM Editor - '+filename;
 end;
@@ -193,13 +192,13 @@ end;
 procedure TForm1.FormResize(Sender:TObject);
 begin
   fRender.RenderResize(Panel5.Width,Panel5.Height);
-  fViewport.SetZoom(sqr(TBZoomControl.Position/20)*10);
+  fViewport.SetZoom(ZoomLevels[TBZoomControl.Position]);
   fViewport.SetArea(Panel5.Width,Panel5.Height);
   fMiniMap.SetRect(fViewport);
 end;
 
 procedure TForm1.ConvertDATClick(Sender: TObject);
-var ii:integer;
+var ii,fsize:integer;
 begin
 if not OpenDialog1.Execute then exit;
 fsize:=GetFileSize(OpenDialog1.FileName);
@@ -214,7 +213,7 @@ end;
 
 procedure TForm1.ZoomChange(Sender: TObject);
 begin
-fViewport.SetZoom(sqr(TBZoomControl.Position/20)*10);
+fViewport.SetZoom(ZoomLevels[TBZoomControl.Position]);
 fMiniMap.SetRect(fViewport);
 end;
 
@@ -269,8 +268,8 @@ begin
   if (X>0)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
   else
     exit;
-MapX:=(fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom*10);
-MapY:=(fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom*10);
+MapX:=(fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom*100);
+MapY:=(fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom*100);
 
 MapXc:=EnsureRange(round(MapX+0.5),1,Map.X); //Cell below cursor
 MapYc:=EnsureRange(round(MapY+0.5),1,Map.Y);
@@ -371,6 +370,7 @@ procedure TForm1.Timer1Timer(Sender: TObject);
 begin
 if CheckBox1.Checked then exit;
   ControlList.UpdateState;
+  fTerrain.UpdateState;
 if CheckBox2.Checked then begin
   ControlList.UpdateState;
   ControlList.UpdateState;
@@ -387,7 +387,7 @@ end;
 procedure TForm1.ResetZoomClick(Sender: TObject);
 //const cnCursor = 30;
 begin
-  TBZoomControl.Position:=20;
+  TBZoomControl.Position:=4;
 //  Screen.Cursors[cnCursor]:=LoadCursorFromFile(PChar(ExeDir+'Resource\2.cur'));
 //  CreateCursor()
 //  Cursor:=cnCursor;
@@ -456,11 +456,6 @@ begin
 ImageList3.Draw(UnitPallete.Canvas,Rect.Left,Rect.Top,ARow);
 end;
 
-procedure TForm1.Mapsettings1Click(Sender: TObject);
-begin
-Form_MapSettings.Show;
-end;
-
 procedure TForm1.OpenDATClick(Sender: TObject);
 begin
 if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants dat (*.dat)|*.dat') then exit;
@@ -482,14 +477,14 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-fViewPort.XCoord:=10;
-fViewPort.YCoord:=10;
+fViewPort.XCoord:=11;
+fViewPort.YCoord:=11;
 ControlList.AddHouse(ht_Farm,KMPoint(4,5));
 ControlList.AddHouse(ht_Mill,KMPoint(8,5));
 ControlList.AddHouse(ht_Bakery,KMPoint(12,5));
 ControlList.AddHouse(ht_Store,KMPoint(16,5));
 ControlList.AddHouse(ht_Quary,KMPoint(12,8));
-ControlList.AddHouse(ht_WoodCutter,KMPoint(12,11));
+ControlList.AddHouse(ht_WoodCutters,KMPoint(12,11));
 ControlList.AddHouse(ht_SawMill,KMPoint(12,14));
 
 ControlList.AddUnit('User', ut_Farmer, KMPoint(5,9));
@@ -498,6 +493,7 @@ ControlList.AddUnit('User', ut_WoodCutter, KMPoint(7,9));
 ControlList.AddUnit('User', ut_Lamberjack, KMPoint(8,9));
 ControlList.AddUnit('User', ut_Baker, KMPoint(9,9));
 ControlList.AddUnit('User', ut_Baker, KMPoint(10,9));
+ControlList.AddUnit('User', ut_Serf, KMPoint(4,11));
 ControlList.AddUnit('User', ut_Serf, KMPoint(5,11));
 ControlList.AddUnit('User', ut_Serf, KMPoint(6,11));
 ControlList.AddUnit('User', ut_Serf, KMPoint(7,11));

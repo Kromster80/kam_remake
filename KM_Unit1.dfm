@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 212
-  Top = 100
+  Left = 226
+  Top = 129
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 659
@@ -1558,12 +1558,12 @@ object Form1: TForm1
     Top = 209
     Width = 141
     Height = 21
-    Max = 32
-    Min = 6
+    Max = 7
+    Min = 1
     Orientation = trHorizontal
-    PageSize = 4
-    Frequency = 10
-    Position = 20
+    PageSize = 1
+    Frequency = 1
+    Position = 4
     SelEnd = 0
     SelStart = 0
     TabOrder = 0

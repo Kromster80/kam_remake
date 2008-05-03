@@ -54,7 +54,7 @@ begin
 fTerrain.Create;
 fTerrain.MakeNewMap(96,96);
 fMinimap.Repaint();
-fViewport.SetZoom(10);
+fViewport.SetZoom(1);
 Form1.FormResize(nil);
 Form1.Caption:='KaM Editor - '+'New';
 end;

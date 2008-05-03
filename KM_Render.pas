@@ -14,7 +14,6 @@ private
   procedure RenderQuad(pX,pY:integer);
   procedure RenderWireQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
-  procedure RenderObject(Index,pX,pY:integer; Func:string);
   procedure RenderSprite(TexID:integer; pX,pY,SizeX,SizeY:single);
 protected
 public
@@ -26,10 +25,9 @@ public
   procedure Render();
   procedure RenderTerrainAndRoads();
   procedure RenderWires();
-  procedure RenderObjects();
+  procedure RenderObject(Index,AnimStep,pX,pY:integer);
   procedure RenderUnits();
   procedure RenderCursorPosition(ActivePage:string);
-  procedure RenderArrows();
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderHouse(Index,pX,pY:integer);
@@ -128,20 +126,17 @@ procedure TRender.Render();
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen
   glLoadIdentity();                // Reset The View
-  glScale(fViewport.Zoom/10,fViewport.Zoom/10,fViewport.Zoom/10);
-  glEnable(GL_LIGHTING);
+  glScale(fViewport.Zoom,fViewport.Zoom,fViewport.Zoom);
   glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
   glTranslate(-fViewport.XCoord,-fViewport.YCoord,0);
 
-  glLineWidth(fViewport.Zoom/4);
-  glPointSize(fViewport.Zoom/2);
-
-fRender.RenderTerrainAndRoads();
-glDisable(GL_LIGHTING);
+  glLineWidth(fViewport.Zoom*2);
+  glPointSize(fViewport.Zoom*5);
 
 if Form1.ShowWires.Checked then fRender.RenderWires();
 
-fRender.RenderObjects();
+fTerrain.Paint;
+
 fRender.RenderUnits();
 //fRender.RenderCursorPosition(Form1.Pallete.ActivePage.Caption);
 
@@ -153,10 +148,10 @@ procedure TRender.RenderTerrainAndRoads();
 var
   i,k,x0,x1,x2,y1,y2,y3:integer; ID,Rot,rd:integer;
 begin
-x1:=fViewport.GetClip.Left;
-x2:=fViewport.GetClip.Right;
-y1:=fViewport.GetClip.Top;
-y2:=fViewport.GetClip.Bottom;
+  glEnable(GL_LIGHTING);
+
+x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
+y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
 //i,k get clipped into map space inside RenderTile()
   for i:=y1 to y2 do
@@ -202,27 +197,7 @@ glColor4f(1,1,1,(Land[i,k].y1)/255);
 RenderQuad(k,i);
 end;  }
 glBindTexture(GL_TEXTURE_2D,0);
-end;
-
-procedure TRender.RenderObjects();
-var i,k:integer;
-begin
-for i:=1 to Map.Y do for k:=1 to Map.X do
-if fTerrain.Land[i,k].Obj<>255 then
-  begin
-  RenderObject(fTerrain.Land[i,k].Obj,k,i,'Normal');
-  if Form1.ShowObjects.Checked then
-    begin
-    glPointSize(fViewPort.Zoom/5);
-    glbegin (GL_POINTS);
-    glvertex2f(k-1, i-1-fTerrain.Land[i,k].Height/xh);
-    glend; glPointSize(1);
-    glRasterPos2f(k-1+0.05,i-1-0.05-fTerrain.Land[i,k].Height/xh);
-    glPrint(inttostr(fTerrain.Land[i,k].Obj));
-    glRasterPos2f(k-1+0.05,i-1+0.4-0.05-fTerrain.Land[i,k].Height/xh);
-    glPrint('#'+inttostr(ObjIndexGFX[ObjIndexInv[fTerrain.Land[i,k].Obj]]));
-    end;
-  end;
+glDisable(GL_LIGHTING);
 end;
 
 procedure TRender.RenderCursorPosition(ActivePage:string);
@@ -282,24 +257,9 @@ end;
 
 //
 //This piece of code should render all units on screen
-//Let's try to put render code into Units.pas instead of keeping it here
 procedure TRender.RenderUnits();
 begin
-  ControlList.Paint;      //GetUnitsCue(Index,PosX,PosY,)
-end;
-
-procedure TRender.RenderArrows();
-begin
-  glbegin (GL_LINES);
-  glColor4f(1,0,0,1);
-  glvertex2f(10,0  ); glvertex2f(0,0);
-  glvertex2f(9, 0.5); glvertex2f(10,0);
-  glvertex2f(9,-0.5); glvertex2f(10,0);
-  glColor4f(0,1,0,1);
-  glvertex2f(0,10  ); glvertex2f(0,0);
-  glvertex2f( 0.5,9); glvertex2f(0,10);
-  glvertex2f(-0.5,9); glvertex2f(0,10);
-  glEnd;
+  ControlList.Paint;
 end;
 
 procedure TRender.RenderPoint(pX,pY:integer);
@@ -336,6 +296,19 @@ end;
 glEnd;
 end;
 
+procedure TRender.RenderSprite(TexID:integer; pX,pY,SizeX,SizeY:single);
+begin
+    glColor4f(1,1,1,1);
+    glBindTexture(GL_TEXTURE_2D, TexID);
+    glBegin (GL_QUADS);
+    glTexCoord2f(0,1); glvertex2f(pX-1      ,pY-1      );
+    glTexCoord2f(1,1); glvertex2f(pX-1+SizeX,pY-1      );
+    glTexCoord2f(1,0); glvertex2f(pX-1+SizeX,pY-1-SizeY);
+    glTexCoord2f(0,0); glvertex2f(pX-1      ,pY-1-SizeY);
+    glEnd;
+    glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
 procedure TRender.RenderTile(Index,pX,pY,Rot:integer);
 var xt,k,i,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
@@ -363,48 +336,35 @@ if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]
 
 glbegin (GL_QUADS);
 with fTerrain do begin
-  glNormal3fv(@Land[i  ,k  ].Normal);
+  glNormal3fv(@Land[i,k].Normal);
   glTexCoord2fv(@TexC[TexO[1]]);
-  glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
+  glvertex2f(k-1,i-1-Land[i,k].Height/xh);
 
-  glNormal3fv(@Land[i+1,k  ].Normal);
+  glNormal3fv(@Land[i+1,k].Normal);
   glTexCoord2fv(@TexC[TexO[2]]);
-  glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
+  glvertex2f(k-1,i-Land[i+1,k].Height/xh);
 
   glNormal3fv(@Land[i+1,k+1].Normal);
   glTexCoord2fv(@TexC[TexO[3]]);
-  glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
-  
-  glNormal3fv(@Land[i  ,k+1].Normal);
+  glvertex2f(k,i-Land[i+1,k+1].Height/xh);
+
+  glNormal3fv(@Land[i,k+1].Normal);
   glTexCoord2fv(@TexC[TexO[4]]);
-  glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+  glvertex2f(k,i-1-Land[i,k+1].Height/xh);
 end;
 glEnd;
 end;
 
-procedure TRender.RenderObject(Index,pX,pY:integer; Func:string);
+procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-if ObjIndexInv[Index]=0 then
-Application.MessageBox(@('Unknown object IDinv'+inttostr(Index))[1],'Error');
-ID:=ObjIndexGFX[ObjIndexInv[Index]];
-if ID=0 then exit;
+ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
 if Index=61 then begin //Object 42 is an invisible wall
-glLineWidth(fViewPort.Zoom/2);
-glColor4f(1,0,0,0.5); glBindTexture(GL_TEXTURE_2D,0);
-glbegin (GL_LINES);
-glNormal3f(0,1,0);
-with fTerrain do begin
-glvertex2f(pX-1,pY-1-Land[pY  ,pX  ].Height/xh);
-glvertex2f(pX  ,pY-  Land[pY+1,pX+1].Height/xh);
-glvertex2f(pX  ,pY-1-Land[pY  ,pX+1].Height/xh);
-glvertex2f(pX-1,pY-  Land[pY+1,pX  ].Height/xh);
-end;
-glEnd;
-glLineWidth(1);
+glBindTexture(GL_TEXTURE_2D,0);
+glColor4f(1,0,0,0.5);
+RenderTile(0,pX,pY,0);
 end else begin
-if Func='Normal' then glColor4f(1,1,1,1);
-if Func='ToDel' then glColor4f(1,0,0,1);
+glColor4f(1,1,1,1);
 ShiftX:=TreePivot[ID].x/CellSize;
 ShiftY:=(TreePivot[ID].y+TreeSize[ID,2])/CellSize-fTerrain.Land[pY,pX].Height/xh;
 RenderSprite(TreeTex[ID,1],pX+ShiftX,pY+ShiftY,TreeTex[ID,2]/40,TreeTex[ID,3]/40);
@@ -468,10 +428,8 @@ end;
 procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
-//while UnitSprite[UnitID].Act[ActID].Dir[DirID].Count=0 do DirID:=DirID mod 8 +1;
 AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
 ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
-//ID:=Index;
 if ID<=0 then exit;
   glColor4f(Owner/2,1,1,1);
   ShiftX:=UnitPivot[ID].x/CellSize;
@@ -484,7 +442,6 @@ var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
 AnimSteps:=UnitCarry[CarryID].Dir[DirID].Count;
 ID:=UnitCarry[CarryID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
-//ID:=Index;
 if ID<=0 then exit;
   glColor4f(Owner/2,1,1,1);
   ShiftX:=UnitPivot[ID].x/CellSize;
@@ -494,18 +451,6 @@ if ID<=0 then exit;
   RenderSprite(UnitTex[ID,1],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
 end;
 
-procedure TRender.RenderSprite(TexID:integer; pX,pY,SizeX,SizeY:single);
-begin
-    glColor4f(1,1,1,1);
-    glBindTexture(GL_TEXTURE_2D, TexID);
-    glBegin (GL_QUADS);
-    glTexCoord2f(0,1); glvertex2f(pX-1      ,pY-1      );
-    glTexCoord2f(1,1); glvertex2f(pX-1+SizeX,pY-1      );
-    glTexCoord2f(1,0); glvertex2f(pX-1+SizeX,pY-1-SizeY);
-    glTexCoord2f(0,0); glvertex2f(pX-1      ,pY-1-SizeY);
-    glEnd;
-    glBindTexture(GL_TEXTURE_2D, 0);
-end;
 
 
 end.

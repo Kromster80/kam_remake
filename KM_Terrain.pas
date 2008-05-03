@@ -10,9 +10,9 @@ type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class
 private
+AnimStep:integer;
 protected
 public
-
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
     Terrain,Height,Rotation,Obj,Passability:byte;
     Normal:record X,Y,Z:single; end;
@@ -21,6 +21,8 @@ public
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
   procedure RebuildNormals(LowX,HighX,LowY,HighY:integer);
+  procedure UpdateState;
+  procedure Paint;
 published
 
 end;
@@ -32,6 +34,23 @@ uses KM_Unit1, KM_Global_Data;
 constructor TTerrain.Create;
 begin
 //Don't know what to put here yet
+end;
+
+procedure TTerrain.UpdateState;
+begin
+//  TimeDelta:= GetTickCount - fLastUpdateTime;
+//  fLastUpdateTime:= GetTickCount;
+  inc(AnimStep);
+end;
+
+procedure TTerrain.Paint;
+var i,k:integer;
+begin
+fRender.RenderTerrainAndRoads;
+
+for i:=1 to Map.Y do for k:=1 to Map.X do
+  if Land[i,k].Obj<>255 then
+    fRender.RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
 end;
 
 procedure TTerrain.MakeNewMap(Width,Height:integer);
@@ -64,7 +83,7 @@ begin
   if (Map.X>MaxMapSize)or(Map.Y>MaxMapSize) then
     begin
       closefile(f);
-  //    MessageBox(Form1.Handle,'Too big map or not a KaM map.', 'Error', MB_OK);
+      fLog.AppendLog('TTerrain.OpenMapFromFile - Can''t open the map');
       exit;
     end;
   for i:=1 to Map.Y do for k:=1 to Map.X do
@@ -79,6 +98,7 @@ begin
 
 closefile(f);
 RebuildNormals(1,Map.X,1,Map.Y);
+fMinimap.Repaint;
 Result:=true;
 end;
 

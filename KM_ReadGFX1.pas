@@ -124,9 +124,8 @@ var MyBitMap,MyBitMapA:TBitMap;
     sy,sx:integer;
     y,x:integer;
 begin
-for ii:=1 to length(ObjIndex) do
-  begin
-  //for ii:=1 to MapElemQty do begin //1..254
+  for ii:=1 to MapElemQty do //1..254
+  begin 
   MyBitMap:=TBitMap.Create;
   MyBitmap.Height:=128;
   MyBitmap.Width:=128;
@@ -135,8 +134,7 @@ for ii:=1 to length(ObjIndex) do
   MyBitmapA.Width:=128;
   MyBitmap.PixelFormat:=pf24bit;
 
-  //id:=MapElem[ii].Tree[1]+1;
-  id:=ObjIndexGFX[ii];
+  id:=ii;
 
   sy:=TreeSize[id,2]; sy:=min(sy,128);
   sx:=TreeSize[id,1]; sx:=min(sx,128);
@@ -157,19 +155,21 @@ end;
 //Reading houses data
 //=============================================
 function ReadHousesRX(filename:string):boolean;
-var ii:integer;
+var ii,NumRead,Count:integer;
 begin
 Result:=false;
+Count:=0;
 if fileexists(filename) then begin
 assignfile(f,filename); reset(f,1);
 blockread(f,HouseQty,4);
 blockread(f,HousePal,HouseQty);
 for ii:=1 to HouseQty do
 if HousePal[ii]=1 then begin //entry used
+inc(Count);
 inc(HouseBMP[0]);
 HouseBMP[ii]:=HouseBMP[0];
 blockread(f,HouseSize[ii],4);
-blockread(f,HousePivot[ii],8); 
+blockread(f,HousePivot[ii],8);
 setlength(HouseData[ii],HouseSize[ii,1]*HouseSize[ii,2]);
 blockread(f,HouseData[ii,0],HouseSize[ii,1]*HouseSize[ii,2],NumRead);
 end;
@@ -178,6 +178,7 @@ end else begin
 ShowMessage('Unable to locate ".\data\gfx\res\houses.rx" file');
 exit;
 end;
+fLog.AppendLog('House sprites 2000 -',Count);
 Result:=true;
 end;
 
@@ -231,9 +232,10 @@ end;
 //Reading units data
 //=============================================
 function ReadUnitsRX(filename:string):boolean;
-var ii:integer;
+var ii,NumRead,Count:integer;
 begin
 Result:=false;
+Count:=0;
 FormLoading.Label1.Caption:='Reading units';
 FormLoading.Bar1.StepIt; FormLoading.Refresh;
 if fileexists(filename) then begin
@@ -242,18 +244,18 @@ blockread(f,UnitQty,4);
 blockread(f,UnitPal,UnitQty);
 for ii:=1 to UnitQty do
 if UnitPal[ii]=1 then begin //entry used
+inc(Count);
 blockread(f,UnitSize[ii],4);
 blockread(f,UnitPivot[ii],8);
 setlength(UnitData[ii],UnitSize[ii,1]*UnitSize[ii,2]);
 blockread(f,UnitData[ii,0],UnitSize[ii,1]*UnitSize[ii,2],NumRead);
-if UnitSize[ii,1]*UnitSize[ii,2]<>NumRead then
-s:='0';
 end;
 closefile(f);
 end else begin
 ShowMessage('Units loading error.'+zz+'Place KaM Editor into KaM folder');
 exit;
 end;
+fLog.AppendLog('Unit sprites 9500 -',Count);
 Result:=true;
 end;
 
@@ -404,13 +406,11 @@ end;
 //Making OpenGL textures out of objects
 //=============================================
 procedure MakeObjectsGFX(Sender: TObject);
-var h,i,k,mx,my,id:integer; TD:Pointer;  by:^cardinal;
+var i,k,mx,my,id:integer; TD:Pointer;  by:^cardinal;
     DestX,DestY,Am,Rm:integer;
 begin
 Am:=0; Rm:=0;
-for h:=1 to length(ObjIndex) do begin
-id:=ObjIndexGFX[h];
-if id=0 then id:=81;
+for id:=1 to 254 do begin
 mx:=TreeSize[id,1];
 my:=TreeSize[id,2];
 DestX:=MakePOT(mx);

@@ -90,6 +90,8 @@ type
 
   TKMUnit = class(TObject)
   private
+    Speed:single;
+  private
     fHome:TKMHouse;
     fCurrentAction: TUnitAction;
     fPosition: TKMPointF;
@@ -466,6 +468,7 @@ begin
   fUnitType:=aUnitType;
   Direction:=dir_N;
   fVisible:=true;
+  Speed:=UnitSpeeds[byte(aUnitType)];
   SetAction(TStayUnitAction.Create(10,ua_Walk));
 end;
 
@@ -576,7 +579,7 @@ begin
 TaskDone:=false;
 with fUnit do
 case Phase of
-0: fHome.SetState(hat_Empty);
+0: fHome.SetState(hst_Empty);
 1: SetAction(TGoInUnitAction.Create(fAction1,-1));
 2: SetAction(TMoveUnitAction.Create(fPlace,fAction1));
 3: begin
@@ -592,7 +595,7 @@ case Phase of
 5: SetAction(TMoveUnitAction.Create(KMPointY1(fHome.GetPosition),fAction3));
 6: SetAction(TGoInUnitAction.Create(fAction3,1));
 7: fHome.ResAddToOut(fResource,fCount);
-8: fHome.SetState(hat_Idle);
+8: fHome.SetState(hst_Idle);
 9: SetAction(TStayUnitAction.Create(fTimeToIdle,ua_Walk));
 10:TaskDone:=true;
 end;
@@ -616,7 +619,7 @@ case Phase of
 1: SetAction(TGoInUnitAction.Create(ua_Walk,1));
 2: fHome.OwnerGoesIn;
 3: SetAction(TStayUnitAction.Create(5,ua_Walk));
-4: fHome.SetState(hat_Idle);
+4: fHome.SetState(hst_Idle);
 5: TaskDone:=true;
 end;
 inc(Phase);
@@ -644,7 +647,7 @@ var
 begin
   DoEnd:= False;
   TimeDelta:=0.1;
-  Distance:= TimeDelta * 1;//KMUnit.Speed;
+  Distance:= TimeDelta * KMUnit.Speed;
   DX:= fDestPos.X - KMUnit.fPosition.X;
   DY:= fDestPos.Y - KMUnit.fPosition.Y;
 
@@ -685,7 +688,7 @@ var Distance:single;
 begin
   DoEnd:= False;
   TimeDelta:=0.1;
-  Distance:= TimeDelta * 1;//KMUnit.Speed;
+  Distance:= TimeDelta * KMUnit.Speed;
 
   if fDir>0 then
     KMUnit.Direction:=dir_N   //go Inside (one cell up)

@@ -42,7 +42,7 @@ uses KM_Global_Data, KM_Defaults, KM_Terrain, KM_Unit1;
 
 constructor TViewport.Create;
 begin
-Zoom:=10;
+Zoom:=1;
 end;
 
 procedure TViewport.SetZoom(NewZoom:single);
@@ -67,7 +67,7 @@ begin
 Result.Left  :=max(round(XCoord-ViewWidth/CellSize/2/Zoom*10),1);
 Result.Right :=min(round(XCoord+ViewWidth/CellSize/2/Zoom*10)+1,Map.X-1);
 Result.Top   :=max(round(YCoord-ViewHeight/CellSize/2/Zoom*10),1);
-Result.Bottom:=min(round(YCoord+ViewHeight/CellSize/2/Zoom*10)+4,Map.Y-1); 
+Result.Bottom:=min(round(YCoord+ViewHeight/CellSize/2/Zoom*10)+4,Map.Y-1);
 end;
 
 constructor TMiniMap.Create(inShape:TShape; inMiniMap:TImage; inLabel:TLabel);
@@ -81,9 +81,9 @@ procedure TMiniMap.SetRect(Viewport:TViewport);
 begin
   with Viewport do
     begin
-      mmShape.Width:=round(ViewWidth/CellSize/Zoom*10);
-      mmShape.Height:=round(ViewHeight/CellSize/Zoom*10);
-      mmLabel.Caption:=inttostr(round(Zoom*10))+'%';
+      mmShape.Width:=round(ViewWidth/CellSize/Zoom);
+      mmShape.Height:=round(ViewHeight/CellSize/Zoom);
+      mmLabel.Caption:=inttostr(round(Zoom*100))+'%';
       mmShape.Left:=XCoord+mmMiniMap.Left-mmShape.Width  div 2;
       mmShape.Top :=YCoord+mmMiniMap.Top -mmShape.Height div 2;
       mmShape.Refresh;
