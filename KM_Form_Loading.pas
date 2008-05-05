@@ -46,12 +46,8 @@ FormLoading.Bar1.Position:=0; FormLoading.Refresh;
 fRender.SetRender(Form1.Panel5.Handle);
 fRender.SetRenderDefaults;
 
-  if ReadGFX(ExeDir) then
-  begin
-    MakeObjectsGFX(nil);
-    MakeHousesGFX(nil);
-    MakeUnitsGFX(nil);
-  end;
+ReadGFX(ExeDir);
+
 FormLoading.Hide;
 Form1.Show;
 Form1.WindowState:=wsMaximized;

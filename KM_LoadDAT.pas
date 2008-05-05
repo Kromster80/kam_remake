@@ -135,10 +135,10 @@ Mission.Player[Mission.ActivePlayer].AddHouse(Cmd[Row].Numer[1]+1,Cmd[Row].Numer
 end else
 
 begin
-if Cmd[Row].Command<>'' then Form1.Memo2.Lines.Add(Cmd[Row].Command);
-if Cmd[Row].Text<>'' then Form1.Memo2.Lines[Form1.Memo2.Lines.Count-1]:=Form1.Memo2.Lines[Form1.Memo2.Lines.Count-1]+' '+Cmd[Row].Text;
-for i:=1 to 6 do if Cmd[Row].Numer[i]<>-1 then
-Form1.Memo2.Lines[Form1.Memo2.Lines.Count-1]:=Form1.Memo2.Lines[Form1.Memo2.Lines.Count-1]+' '+inttostr(Cmd[Row].Numer[i]);
+//if Cmd[Row].Command<>'' then Form1.Memo2.Lines.Add(Cmd[Row].Command);
+//if Cmd[Row].Text<>'' then Form1.Memo2.Lines[Form1.Memo2.Lines.Count-1]:=Form1.Memo2.Lines[Form1.Memo2.Lines.Count-1]+' '+Cmd[Row].Text;
+//for i:=1 to 6 do if Cmd[Row].Numer[i]<>-1 then
+//Form1.Memo2.Lines[Form1.Memo2.Lines.Count-1]:=Form1.Memo2.Lines[Form1.Memo2.Lines.Count-1]+' '+inttostr(Cmd[Row].Numer[i]);
 end;
 //if Cmd[Row].Comment<>'' then Form1.Memo2.Lines.Add(Cmd[Row].Comment);
 end;

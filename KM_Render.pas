@@ -15,6 +15,8 @@ private
   procedure RenderWireQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderSprite(TexID:integer; pX,pY,SizeX,SizeY:single);
+  procedure RenderRectangle(TexID:integer; X,Y,SizeX,SizeY:integer);
+  procedure Render3DButton(GUITexID:integer; X,Y,SizeX,SizeY:integer);
 protected
 public
   constructor Create;
@@ -23,10 +25,10 @@ public
   procedure SetRenderDefaults();
   procedure RenderResize(Width,Height:integer);
   procedure Render();
+  procedure RenderToolBar();
   procedure RenderTerrainAndRoads();
   procedure RenderWires();
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
-  procedure RenderUnits();
   procedure RenderCursorPosition(ActivePage:string);
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
@@ -99,7 +101,7 @@ begin
   glMatrixMode(GL_PROJECTION);        // Change Matrix Mode to Projection
   glLoadIdentity();                   // Reset View
   //Half a map into each direction
-  gluOrtho2D(-Width/CellSize/2,Width/CellSize/2,Height/CellSize/2,-Height/CellSize/2);
+  gluOrtho2D(0,Width,Height,0);
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
   glLoadIdentity();                   // Reset View
 end;
@@ -126,22 +128,33 @@ procedure TRender.Render();
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen
   glLoadIdentity();                // Reset The View
-  glScale(fViewport.Zoom,fViewport.Zoom,fViewport.Zoom);
   glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
+  glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
+  glScale(fViewport.Zoom*CellSize,fViewport.Zoom*CellSize,fViewport.Zoom*CellSize);
   glTranslate(-fViewport.XCoord,-fViewport.YCoord,0);
 
   glLineWidth(fViewport.Zoom*2);
   glPointSize(fViewport.Zoom*5);
 
-if Form1.ShowWires.Checked then fRender.RenderWires();
+  fTerrain.Paint;
+  if Form1.ShowWires.Checked then fRender.RenderWires();
+  ControlList.Paint;
 
-fTerrain.Paint;
+  glLoadIdentity();                // Reset The View
+  RenderToolBar();
 
-fRender.RenderUnits();
-//fRender.RenderCursorPosition(Form1.Pallete.ActivePage.Caption);
+  SwapBuffers(h_DC);
+end;
 
-//fRender.RenderArrows();
-SwapBuffers(h_DC);
+procedure TRender.RenderToolBar();
+begin
+RenderRectangle(GUITex[407,1],0,0,GUITex[407,2],GUITex[407,3]);
+RenderRectangle(GUITex[554,1],0,200,GUITex[554,2],GUITex[554,3]);
+RenderRectangle(GUITex[404,1],0,200+168,GUITex[404,2],GUITex[404,3]);
+RenderRectangle(GUITex[404,1],0,200+168+400,GUITex[404,2],GUITex[404,3]);
+RenderRectangle(0,8,12,176,176);
+
+Render3DButton(439,12,376,40,40);
 end;
 
 procedure TRender.RenderTerrainAndRoads();
@@ -257,10 +270,7 @@ end;
 
 //
 //This piece of code should render all units on screen
-procedure TRender.RenderUnits();
-begin
-  ControlList.Paint;
-end;
+
 
 procedure TRender.RenderPoint(pX,pY:integer);
 begin
@@ -354,6 +364,35 @@ with fTerrain do begin
 end;
 glEnd;
 end;
+
+procedure TRender.RenderRectangle(TexID:integer; X,Y,SizeX,SizeY:integer);
+begin
+    glColor4f(1,1,1,1);
+    glBindTexture(GL_TEXTURE_2D, TexID);
+    glBegin (GL_QUADS);
+    glTexCoord2f(0,0); glvertex2f(X      ,Y      );
+    glTexCoord2f(1,0); glvertex2f(X+SizeX,Y      );
+    glTexCoord2f(1,1); glvertex2f(X+SizeX,Y+SizeY);
+    glTexCoord2f(0,1); glvertex2f(X      ,Y+SizeY);
+    glEnd;
+    glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+procedure TRender.Render3DButton(GUITexID:integer; X,Y,SizeX,SizeY:integer);
+begin
+    glColor4f(1,1,1,1);
+    glBindTexture(GL_TEXTURE_2D, GUITex[402,1]);
+    glBegin (GL_QUADS);
+    glTexCoord2f(0,0); glvertex2f(X      ,Y      );
+    glTexCoord2f(1,0); glvertex2f(X+SizeX,Y      );
+    glTexCoord2f(1,1); glvertex2f(X+SizeX,Y+SizeY);
+    glTexCoord2f(0,1); glvertex2f(X      ,Y+SizeY);
+    glEnd;
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    RenderRectangle(GUITex[GUITexID,1],X,Y,GUITex[GUITexID,2],GUITex[GUITexID,3]);
+end;
+
 
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer;

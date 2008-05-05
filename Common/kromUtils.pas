@@ -25,6 +25,7 @@ function ExtractOpenedFileName(in_s: string):string;
 function GetFileName(const FileName: string): string;
 function GetFileExt (const FileName: string; len:integer): string;
 function GetFileSize(const FileName: string): LongInt;
+function CheckFileExists(const FileName: string):boolean;
 procedure krintersect(x1,y1,x2,y2,x3,y3:single; SizeX,SizeY:integer; var ot:array of integer);
 function ReverseString(s1:string):string;
 function real2(c1,c2,c3,c4:char):real;
@@ -210,6 +211,16 @@ begin
   finally
     SysUtils.FindClose(SearchRec);
   end;
+end;
+
+function CheckFileExists(const FileName: string):boolean;
+begin
+if fileexists(FileName) then
+  Result:=true
+else begin
+  ShowMessage('Unable to locate '+#13+'"'+FileName+'" file');
+  Result:=false;
+end;
 end;
 
 function ReverseString(s1:string):string;

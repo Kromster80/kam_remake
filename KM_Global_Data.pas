@@ -23,9 +23,10 @@ var
   fTerrain: TTerrain;
   fLog: TKMLog;  
 
-  TreeTex:array[1..256,1..3]of GLuint;     //Object textures
-  HouseTex:array[1..2000,1..3]of GLuint;     //Object textures
-  UnitTex:array[1..9500,1..3]of GLuint;     //Units [ID,width,height]
+  TreeTex:array[1..400,1..3]of GLUint;     //Object textures
+  HouseTex:array[1..2000,1..3]of GLUint;     //Object textures
+  UnitTex:array[1..9500,1..3]of GLUint;     //Units [ID,width,height]
+  GUITex:array[1..600,1..3]of GLUint;     //Units [ID,width,height]
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
@@ -51,10 +52,10 @@ var
 Pal0:array[1..256,1..3]of byte;
 
 TreeQty:integer;
-TreePal:array[1..512] of byte;
-TreeSize:array[1..512,1..2] of word;
-TreePivot:array[1..512] of record x,y:integer; end;
-TreeData:array[1..512] of array of byte;
+TreePal:array[1..400] of byte;
+TreeSize:array[1..400,1..2] of word;
+TreePivot:array[1..400] of record x,y:integer; end;
+TreeData:array[1..400] of array of byte;
 
 HouseQty:integer;
 HousePal:array[1..2000] of byte;
@@ -70,6 +71,13 @@ UnitSize:array[1..9500,1..2] of word;
 UnitPivot:array[1..9500] of record x,y:integer; end;
 UnitData:array[1..9500] of array of byte;
 UnitID:array[1..9500] of word;
+
+GUIQty:integer;
+GUIPal:array[1..600] of byte;
+GUISize:array[1..600,1..2] of word;
+GUIPivot:array[1..600] of record x,y:integer; end;
+GUIData:array[1..600] of array of byte;
+GUIID:array[1..600] of word;
 
 HouseDAT1:array[1..30,1..35]of smallint;
 HouseDAT:array[1..30] of packed record

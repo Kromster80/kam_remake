@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 226
-  Top = 129
+  Left = 219
+  Top = 110
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 659
@@ -2814,20 +2814,6 @@ object Form1: TForm1
         TabOrder = 2
         Visible = False
         OnClick = ConvertDATClick
-      end
-    end
-    object TabSheet1: TTabSheet
-      Caption = 'Log'
-      ImageIndex = 1
-      object Memo2: TMemo
-        Left = 2
-        Top = 2
-        Width = 212
-        Height = 343
-        Lines.Strings = (
-          'Memo2')
-        ScrollBars = ssVertical
-        TabOrder = 0
       end
     end
     object TabSheet2: TTabSheet

@@ -1,12 +1,13 @@
 unit KM_Log;
 interface
 
-uses SysUtils;
+uses SysUtils, Windows;
 
 type
 TKMLog = class
 private
 logfile:string;
+PreviousTick:cardinal;
 procedure AddLine(text:string);
 protected
 public
@@ -31,10 +32,14 @@ closefile(fl);
 end;
 
 procedure TKMLog.AddLine(text:string);
+var Delta:cardinal;
 begin
+Delta:=GetTickCount - PreviousTick;
+PreviousTick:=GetTickCount;
+if Delta>100000 then Delta:=0; //ommit first usage
 assignfile(fl,logfile);
 append(fl);
-writeln(fl,text);
+writeln(fl,inttostr(Delta)+'ms'+#9+text);
 closefile(fl);
 end;
 

@@ -1,24 +1,29 @@
 unit KM_ReadGFX1;
 interface
+uses OpenGL;
+
+type
+  TByteArray2 = array of Byte;
+  TWordArray2 = array of Word;
 
     function ReadGFX(text: string):boolean;
     function ReadPallete(filename:string):boolean;
     function ReadTreesRX(filename:string):boolean;
     function ReadHousesRX(filename:string):boolean;
     function ReadUnitsRX(filename:string):boolean;
+    function ReadGUIRX(filename:string):boolean;
     function ReadUnitDAT(filename:string):boolean;
     function ReadHouseDAT(filename:string):boolean;
     function ReadMapElem(filename:string):boolean;
-    function AddObjectsToImageList():boolean;
-    function AddHousesToImageList():boolean;
-    function AddUnitsToImageList():boolean;
+    procedure ExportGUI2BMP;
     procedure MakeObjectsGFX(Sender: TObject);
     procedure MakeHousesGFX(Sender: TObject);
     procedure MakeUnitsGFX(Sender: TObject);
+    procedure MakeGUIGFX(Sender: TObject);
 
 implementation
 
-uses KromUtils, KM_Unit1, KM_Defaults, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math, OpenGL, dglOpenGL,
+uses KromUtils, KM_Unit1, KM_Defaults, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math, dglOpenGL,
      KM_Global_Data, KM_Log;
 
 function ReadGFX(text: string):boolean;
@@ -31,13 +36,17 @@ fLog.AppendLog('Reading pallete',ReadPallete(text+'data\gfx\pal0.bbm'));        
 fLog.AppendLog('Reading objects',ReadTreesRX(text+'data\gfx\res\trees.rx'));        StepRefresh();
 fLog.AppendLog('Reading houses',ReadHousesRX(text+'data\gfx\res\houses.rx'));       StepRefresh();
 fLog.AppendLog('Reading units',ReadUnitsRX(text+'data\gfx\res\units.rx'));          StepRefresh();
+fLog.AppendLog('Reading GUI',ReadGUIRX(text+'data\gfx\res\gui.rx'));                StepRefresh();
 fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
 fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
 fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
 
-//AddObjectsToImageList();
-//AddHousesToImageList();
-//AddUnitsToImageList();
+    MakeObjectsGFX(nil);
+    MakeHousesGFX(nil);
+    MakeUnitsGFX(nil);
+    MakeGUIGFX(nil);
+
+//    ExportGUI2BMP;
 
 Result:=true;
 end;
@@ -70,28 +79,21 @@ end;
 function ReadTreesRX(filename:string):boolean;
 var ii:integer;
 begin
-Result:=false;
-if fileexists(filename) then
-  begin
-    assignfile(f,filename); reset(f,1);
-    blockread(f,TreeQty,4);
-    blockread(f,TreePal,TreeQty);
-    for ii:=1 to TreeQty do
-      if TreePal[ii]=1 then
-      begin
-        blockread(f,TreeSize[ii],4);
-        blockread(f,TreePivot[ii],8);
-        setlength(TreeData[ii],TreeSize[ii,1]*TreeSize[ii,2]);
-        blockread(f,TreeData[ii,0],TreeSize[ii,1]*TreeSize[ii,2]);
-      end;
-    closefile(f);
-  end
-else
-  begin
-    ShowMessage('Unable to locate ".\data\gfx\res\trees.rx" file');
-    exit;
-  end;
-Result:=true;
+  Result:=false;
+  if not CheckFileExists(filename) then exit;
+  assignfile(f,filename); reset(f,1);
+  blockread(f,TreeQty,4);
+  blockread(f,TreePal,TreeQty);
+  for ii:=1 to TreeQty do
+    if TreePal[ii]=1 then
+    begin
+      blockread(f,TreeSize[ii],4);
+      blockread(f,TreePivot[ii],8);
+      setlength(TreeData[ii],TreeSize[ii,1]*TreeSize[ii,2]);
+      blockread(f,TreeData[ii,0],TreeSize[ii,1]*TreeSize[ii,2]);
+    end;
+  closefile(f);
+  Result:=true;
 end;
 
 //=============================================
@@ -99,67 +101,23 @@ end;
 //=============================================
 function ReadMapElem(filename:string):boolean;
 begin
-Result:=false;
-if fileexists(filename) then
-  begin
+  Result:=false;
+  if not CheckFileExists(filename) then exit;
   assignfile(f,filename); reset(f,1);
-  //for ii:=1 to 254 do
   blockread(f,MapElem[1],MapElemQty*99); //256*3
   closefile(f);
-  end
-else
-  begin
-    ShowMessage('Unable to locate ".\data\defines\mapelem.dat" file');
-    exit;
-  end;
-Result:=true;
-end;
-
-//=============================================
-//Adding all objects to ImageList in right order
-//=============================================
-function AddObjectsToImageList():boolean;
-var MyBitMap,MyBitMapA:TBitMap;
-    ii,id:integer;
-    sy,sx:integer;
-    y,x:integer;
-begin
-  for ii:=1 to MapElemQty do //1..254
-  begin 
-  MyBitMap:=TBitMap.Create;
-  MyBitmap.Height:=128;
-  MyBitmap.Width:=128;
-  MyBitMapA:=TBitMap.Create;
-  MyBitmapA.Height:=128;
-  MyBitmapA.Width:=128;
-  MyBitmap.PixelFormat:=pf24bit;
-
-  id:=ii;
-
-  sy:=TreeSize[id,2]; sy:=min(sy,128);
-  sx:=TreeSize[id,1]; sx:=min(sx,128);
-  for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-  MyBitmap.Canvas.Pixels[x,y]:=Pal0[TreeData[id,y*sx+x]+1,1]
-                              +Pal0[TreeData[id,y*sx+x]+1,2]*256
-                              +Pal0[TreeData[id,y*sx+x]+1,3]*65536;
-  if TreeData[id,y*sx+x]<>0 then
-  MyBitMapA.Canvas.Pixels[x,y]:=255 else MyBitMapA.Canvas.Pixels[x,y]:=0;
-  end;
-  if sy>0 then Form1.ImageList1.Add(MyBitmap,MyBitmapA);
-
-  end;
-Result:=true;
+  Result:=true;
 end;
 
 //=============================================
 //Reading houses data
 //=============================================
 function ReadHousesRX(filename:string):boolean;
-var ii,NumRead,Count:integer;
+var ii,Count:integer;
 begin
 Result:=false;
 Count:=0;
-if fileexists(filename) then begin
+if not CheckFileExists(filename) then exit;
 assignfile(f,filename); reset(f,1);
 blockread(f,HouseQty,4);
 blockread(f,HousePal,HouseQty);
@@ -171,60 +129,10 @@ HouseBMP[ii]:=HouseBMP[0];
 blockread(f,HouseSize[ii],4);
 blockread(f,HousePivot[ii],8);
 setlength(HouseData[ii],HouseSize[ii,1]*HouseSize[ii,2]);
-blockread(f,HouseData[ii,0],HouseSize[ii,1]*HouseSize[ii,2],NumRead);
+blockread(f,HouseData[ii,0],HouseSize[ii,1]*HouseSize[ii,2]);
 end;
 closefile(f);
-end else begin
-ShowMessage('Unable to locate ".\data\gfx\res\houses.rx" file');
-exit;
-end;
 fLog.AppendLog('House sprites 2000 -',Count);
-Result:=true;
-end;
-
-//=============================================
-//Adding all houses to ImageList in right order
-//=============================================
-function AddHousesToImageList():boolean;
-var MyBitMap,MyBitMapA:TBitMap;
-    ii,id:integer;
-    sy,sx:integer;
-    y,x:integer;
-    row:integer;
-begin
-row:=1; //row in ObjPallete
-for ii:=1 to 29 do
-if ii<>27 then
-begin
-MyBitMap:=TBitMap.Create;
-MyBitmap.Height:=256;
-MyBitmap.Width:=256;
-MyBitMapA:=TBitMap.Create;
-MyBitmapA.Height:=256;
-MyBitmapA.Width:=256;
-MyBitmap.PixelFormat:=pf24bit;
-
-id:=ii;
-HouseID[row]:=ii;
-
-sy:=HouseSize[id,2]; if sy>256 then sy:=256;
-sx:=HouseSize[id,1]; if sx>256 then sx:=256;
-for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-MyBitmap.Canvas.Pixels[x,y]:=Pal0[HouseData[id,y*HouseSize[id,1]+x]+1,1]
-                            +Pal0[HouseData[id,y*HouseSize[id,1]+x]+1,2]*256
-                            +Pal0[HouseData[id,y*HouseSize[id,1]+x]+1,3]*65536;
-if HouseData[id,y*HouseSize[id,1]+x]<>0 then
-MyBitMapA.Canvas.Pixels[x,y]:=255 else MyBitMapA.Canvas.Pixels[x,y]:=0;
-end;
-if sy>0 then Form1.ImageList2.Add(MyBitmap,MyBitmapA);
-
-Form1.HousePallete.RowCount:=row;
-Form1.HousePallete.RowHeights[row-1]:=sy;
-
-inc(row);
-end;
-Form1.HousePallete.RowCount:=row-1;
-Form1.HousePalleteScroll.Max:=row-2;
 Result:=true;
 end;
 
@@ -232,13 +140,13 @@ end;
 //Reading units data
 //=============================================
 function ReadUnitsRX(filename:string):boolean;
-var ii,NumRead,Count:integer;
+var ii,Count:integer;
 begin
 Result:=false;
 Count:=0;
 FormLoading.Label1.Caption:='Reading units';
 FormLoading.Bar1.StepIt; FormLoading.Refresh;
-if fileexists(filename) then begin
+if not CheckFileExists(filename) then exit;
 assignfile(f,filename); reset(f,1);
 blockread(f,UnitQty,4);
 blockread(f,UnitPal,UnitQty);
@@ -248,14 +156,37 @@ inc(Count);
 blockread(f,UnitSize[ii],4);
 blockread(f,UnitPivot[ii],8);
 setlength(UnitData[ii],UnitSize[ii,1]*UnitSize[ii,2]);
-blockread(f,UnitData[ii,0],UnitSize[ii,1]*UnitSize[ii,2],NumRead);
+blockread(f,UnitData[ii,0],UnitSize[ii,1]*UnitSize[ii,2]);
 end;
 closefile(f);
-end else begin
-ShowMessage('Units loading error.'+zz+'Place KaM Editor into KaM folder');
-exit;
-end;
 fLog.AppendLog('Unit sprites 9500 -',Count);
+Result:=true;
+end;
+
+//=============================================
+//Reading GUI data
+//=============================================
+function ReadGUIRX(filename:string):boolean;
+var ii,Count:integer;
+begin
+Result:=false;
+Count:=0;
+FormLoading.Label1.Caption:='Reading GUI';
+FormLoading.Bar1.StepIt; FormLoading.Refresh;
+if not CheckFileExists(filename) then exit;
+assignfile(f,filename); reset(f,1);
+blockread(f,GUIQty,4);
+blockread(f,GUIPal,GUIQty);
+for ii:=1 to GUIQty do
+if GUIPal[ii]=1 then begin //entry used
+inc(Count);
+blockread(f,GUISize[ii],4);
+blockread(f,GUIPivot[ii],8);
+setlength(GUIData[ii],GUISize[ii,1]*GUISize[ii,2]);
+blockread(f,GUIData[ii,0],GUISize[ii,1]*GUISize[ii,2]);
+end;
+closefile(f);
+fLog.AppendLog('GUI sprites 600 -',Count);
 Result:=true;
 end;
 
@@ -266,7 +197,7 @@ function ReadUnitDAT(filename:string):boolean;
 var ii,kk,jj,hh:integer;
 begin
 Result:=false;
-if fileexists(filename) then begin
+if not CheckFileExists(filename) then exit;
 assignfile(f,filename); reset(f,1);
 for ii:=1 to 28 do begin
 blockread(f,UnitCarry[ii],8*70);
@@ -304,10 +235,6 @@ for hh:=1 to 8 do
 end;
 closefile(ft);
 
-end else begin
-ShowMessage('UnitDAT loading error.'+zz+'Place KaM Editor into KaM folder');
-exit;
-end;
 Result:=true;
 end;
 
@@ -318,7 +245,7 @@ function ReadHouseDAT(filename:string):boolean;
 var ii,kk:integer;
 begin
 Result:=false;
-if fileexists(filename) then begin
+if not CheckFileExists(filename) then exit;
 assignfile(f,filename); reset(f,1);
 blockread(f,HouseDAT1,30*70);
 for ii:=1 to 29 do begin
@@ -346,96 +273,90 @@ writeln(ft,HouseName[ii]);
 end;
 closefile(ft);
 
-end else begin
-ShowMessage('HouseDAT loading error.'+zz+'Place KaM Editor into KaM folder');
-exit;
-end;
 Result:=true;
 end;
 
 //=============================================
-//Adding all units to ImageList in right order
+//Export
 //=============================================
-function AddUnitsToImageList():boolean;
-var MyBitMap,MyBitMapA:TBitMap;
-    ii,id:integer;
-    sy,sx:integer;
-    y,x:integer;
-    row:integer;
+procedure ExportGUI2BMP;
+var MyBitMap:TBitMap;
+    id:integer;
+    sy,sx,y,x:integer;
 begin
-row:=1; //row in ObjPallete
-Form1.UnitPallete.ColCount:=1;
-Form1.UnitPallete.DefaultColWidth:=128;
-for ii:=1669 to 1710 do
+CreateDir(ExeDir+'GUIrx\');
+for id:=1 to GUIQty do
 begin
 
 MyBitMap:=TBitMap.Create;
-MyBitmap.Height:=128;
-MyBitmap.Width:=128;
-MyBitMapA:=TBitMap.Create;
-MyBitmapA.Height:=128;
-MyBitmapA.Width:=128;
+MyBitmap.Width:=GUISize[id,1];
+MyBitmap.Height:=GUISize[id,2];
 MyBitmap.PixelFormat:=pf24bit;
 
-id:=ii;
-UnitID[row]:=ii;
+sx:=GUISize[id,1];
+sy:=GUISize[id,2];
+for y:=0 to sy-1 do for x:=0 to sx-1 do
+  MyBitmap.Canvas.Pixels[x,y]:=Pal0[GUIData[id,y*GUISize[id,1]+x]+1,1]
+                              +Pal0[GUIData[id,y*GUISize[id,1]+x]+1,2]*256
+                              +Pal0[GUIData[id,y*GUISize[id,1]+x]+1,3]*65536;
 
-sy:=UnitSize[id,2]; if sy>128 then sy:=128;
-sx:=UnitSize[id,1]; if sx>128 then sx:=128;
-for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-MyBitmap.Canvas.Pixels[x,y]:=Pal0[UnitData[id,y*UnitSize[id,1]+x]+1,1]
-                            +Pal0[UnitData[id,y*UnitSize[id,1]+x]+1,2]*256
-                            +Pal0[UnitData[id,y*UnitSize[id,1]+x]+1,3]*65536;
-if UnitData[id,y*UnitSize[id,1]+x]<>0 then
-MyBitMapA.Canvas.Pixels[x,y]:=255 else MyBitMapA.Canvas.Pixels[x,y]:=0;
+if sy>0 then MyBitmap.SaveToFile(ExeDir+'GUIrx\GUI_'+int2fix(id,3)+'.bmp');
 end;
-if sy>0 then Form1.ImageList3.Add(MyBitmap,MyBitmapA);
-
-Form1.UnitPallete.RowCount:=row;
-Form1.UnitPallete.RowHeights[row-1]:=sy;
-
-inc(row);
 end;
-Form1.UnitPallete.RowCount:=row-1;
-Form1.UnitPalleteScroll.Max:=row-2;
 
-Result:=true;
+//=============================================
+//Make texture
+//=============================================
+procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2);
+var
+  i,k:integer;
+  x:byte;
+  by:^cardinal;
+  DestX, DestY:integer;
+  TD:Pointer;
+begin
+
+DestX:=MakePOT(mx);
+DestY:=MakePOT(my);
+
+TD:=AllocMem(DestX*DestY*4); //GetMem+FillChar(0)
+for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
+  if (i<my)and(k<mx) then begin
+    x:=Data[i*mx+k];
+    if (x<>0) then begin
+      by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
+      by^:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000;
+    end;
+  end;
+
+glGenTextures(1, id);
+glBindTexture(GL_TEXTURE_2D, id^);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+FreeMem(TD);
 end;
 
 //=============================================
 //Making OpenGL textures out of objects
 //=============================================
 procedure MakeObjectsGFX(Sender: TObject);
-var i,k,mx,my,id:integer; TD:Pointer;  by:^cardinal;
-    DestX,DestY,Am,Rm:integer;
+var id:integer; Am,Rm:integer;
 begin
 Am:=0; Rm:=0;
-for id:=1 to 254 do begin
-mx:=TreeSize[id,1];
-my:=TreeSize[id,2];
-DestX:=MakePOT(mx);
-DestY:=MakePOT(my);
+for id:=1 to TreeQty do begin
+TreeTex[id,2]:=MakePOT(TreeSize[id,1]);
+TreeTex[id,3]:=MakePOT(TreeSize[id,2]);
 
-TD:=AllocMem(DestX*DestY*4); //GetMem+FillChar(0)
-for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
-if (i<my)and(k<mx)and(TreeData[id,i*TreeSize[id,1]+k]<>0) then begin
-by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
-by^:=Pal0[TreeData[id,i*TreeSize[id,1]+k]+1,1] //Assign color
-    +Pal0[TreeData[id,i*TreeSize[id,1]+k]+1,2] SHL 8
-    +Pal0[TreeData[id,i*TreeSize[id,1]+k]+1,3] SHL 16
-    OR $FF000000;
-end;
+if TreeSize[id,1]*TreeSize[id,2]<>0 then
+GenTexture(@TreeTex[id,1],TreeSize[id,1],TreeSize[id,2],@TreeData[id,0]);
 
-TreeTex[id,2]:=DestX;
-TreeTex[id,3]:=DestY;
-
-glGenTextures(1, @TreeTex[id,1]);
-glBindTexture(GL_TEXTURE_2D, TreeTex[id,1]);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
-FreeMem(TD);
-//setlength(TreeData[id],0);
-inc(Am,DestX*DestY*4);
+setlength(TreeData[id],0);
+inc(Am,TreeTex[id,2]*TreeTex[id,3]*4);
 inc(Rm,TreeSize[id,1]*TreeSize[id,2]*4);
 end;
 fLog.AppendLog(Am div 1024, 'Kbytes allocated for trees GFX');
@@ -446,38 +367,18 @@ end;
 //Making OpenGL textures out of houses
 //=============================================
 procedure MakeHousesGFX(Sender: TObject);
-var h,i,k,mx,my,id:integer; TD:Pointer;  by:^cardinal;
-    DestX,DestY,Am,Rm:integer;
+var id:integer; Am,Rm:integer;
 begin
 Am:=0; Rm:=0;
-for h:=1 to HouseQty do begin
+for id:=1 to HouseQty do begin
+HouseTex[id,2]:=MakePOT(HouseSize[id,1]);
+HouseTex[id,3]:=MakePOT(HouseSize[id,2]);
 
-id:=h;//HouseIndexGFX[h];
-mx:=HouseSize[id,1];
-my:=HouseSize[id,2];
-DestX:=MakePOT(mx);
-DestY:=MakePOT(my);
+if HouseSize[id,1]*HouseSize[id,2]<>0 then
+GenTexture(@HouseTex[id,1],HouseSize[id,1],HouseSize[id,2],@HouseData[id,0]);
 
-TD:=AllocMem(DestX*DestY*4); //GetMem+FillChar(0)
-for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
-if (i<my)and(k<mx)and(HouseData[id,i*HouseSize[id,1]+k]<>0) then begin
-by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
-by^:=Pal0[HouseData[id,i*HouseSize[id,1]+k]+1,1] //Assign color
-    +Pal0[HouseData[id,i*HouseSize[id,1]+k]+1,2] SHL 8
-    +Pal0[HouseData[id,i*HouseSize[id,1]+k]+1,3] SHL 16
-    OR $FF000000;
-end;
-
-HouseTex[id,2]:=DestX;
-HouseTex[id,3]:=DestY;
-
-glGenTextures(1, @HouseTex[h,1]);
-glBindTexture(GL_TEXTURE_2D, HouseTex[h,1]);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA2, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
-FreeMem(TD);
 setlength(HouseData[id],0);
-inc(Am,DestX*DestY*4);
+inc(Am,HouseTex[id,2]*HouseTex[id,3]*4);
 inc(Rm,HouseSize[id,1]*HouseSize[id,2]*4);
 end;
 fLog.AppendLog(Am div 1024, 'Kbytes allocated for houses GFX');
@@ -488,49 +389,45 @@ end;
 //Making OpenGL textures out of units
 //=============================================
 procedure MakeUnitsGFX(Sender: TObject);
-var i,k,mx,my,id:integer; TD:Pointer;  by:^cardinal;
-    DestX,DestY,Am,Rm:integer;
+var id:integer; Am,Rm:integer;
 begin
 Am:=0; Rm:=0;
-for id:=1 to UnitQty do begin
+for id:=1 to UnitQty do begin   
+UnitTex[id,2]:=MakePOT(UnitSize[id,1]);
+UnitTex[id,3]:=MakePOT(UnitSize[id,2]);
 
-mx:=UnitSize[id,1];
-my:=UnitSize[id,2];
-DestX:=MakePOT(mx);
-DestY:=MakePOT(my);
+if UnitSize[id,1]*UnitSize[id,2]<>0 then
+GenTexture(@UnitTex[id,1],UnitSize[id,1],UnitSize[id,2],@UnitData[id,0]);
 
-TD:=AllocMem(DestX*DestY*4); //GetMem+FillChar(0)
-for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
-if (i<my)and(k<mx)and(UnitData[id,i*UnitSize[id,1]+k]<>0) then begin
-by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
-by^:=Pal0[UnitData[id,i*UnitSize[id,1]+k]+1,1] //Assign color
-    +Pal0[UnitData[id,i*UnitSize[id,1]+k]+1,2] SHL 8
-    +Pal0[UnitData[id,i*UnitSize[id,1]+k]+1,3] SHL 16
-    OR $FF000000;
-end;
-
-UnitTex[id,2]:=DestX;
-UnitTex[id,3]:=DestY;
-
-glGenTextures(1, @UnitTex[id,1]);
-glBindTexture(GL_TEXTURE_2D, UnitTex[id,1]);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
-//glTexImage2D(GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT, DestX, DestY, 0, GL_COLOR_INDEX, GL_BITMAP, TD);
-FreeMem(TD);
 setlength(UnitData[id],0);
-inc(Am,DestX*DestY*4);
+inc(Am,UnitTex[id,2]*UnitTex[id,3]*4);
 inc(Rm,UnitSize[id,1]*UnitSize[id,2]*4);
 end;
 fLog.AppendLog(Am div 1024, 'Kbytes allocated for units GFX');
 fLog.AppendLog((Am-Rm) div 1024, 'Kbytes wasted for units GFX');
 end;
 
+//=============================================
+//Making OpenGL textures out of GUI
+//=============================================
+procedure MakeGUIGFX(Sender: TObject);
+var id:integer; Am,Rm:integer;
+begin
+Am:=0; Rm:=0;
+for id:=1 to GUIQty do begin
+GUITex[id,2]:=MakePOT(GUISize[id,1]);
+GUITex[id,3]:=MakePOT(GUISize[id,2]);
+
+if GUISize[id,1]*GUISize[id,2]<>0 then
+GenTexture(@GUITex[id,1],GUISize[id,1],GUISize[id,2],@GUIData[id,0]);
+
+setlength(GUIData[id],0);
+inc(Am,GUITex[id,2]*GUITex[id,3]*4);
+inc(Rm,GUISize[id,1]*GUISize[id,2]*4);
+end;
+fLog.AppendLog(Am div 1024, 'Kbytes allocated for GUIs GFX');
+fLog.AppendLog((Am-Rm) div 1024, 'Kbytes wasted for GUIs GFX');
+end;
 
 
 

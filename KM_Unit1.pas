@@ -77,8 +77,6 @@ type
     ExportDAT: TButton;
     Timer1: TTimer;
     Image1: TImage;
-    TabSheet1: TTabSheet;
-    Memo2: TMemo;
     TabSheet2: TTabSheet;
     HousePallete: TDrawGrid;
     ImageList2: TImageList;
@@ -265,11 +263,11 @@ var
   ii,Tmp:integer;
     Ycoef:array[-2..4]of single;
 begin
-  if (X>0)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
+  if (X>224)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
   else
     exit;
-MapX:=(fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom*100);
-MapY:=(fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom*100);
+MapX:=fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom;
+MapY:=fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom;
 
 MapXc:=EnsureRange(round(MapX+0.5),1,Map.X); //Cell below cursor
 MapYc:=EnsureRange(round(MapY+0.5),1,Map.Y);
@@ -283,7 +281,7 @@ end;
 for ii:=-2 to 3 do //check if cursor in a tile and adjust it there
     if (MapY>=Ycoef[ii])and(MapY<=Ycoef[ii+1]) then
     begin
-      MapY:=MapYc+ii-0.5;
+      MapY:=MapYc+ii-(Ycoef[ii+1]-MapY) / (Ycoef[ii+1]-Ycoef[ii]);
       break;
     end;
 
@@ -367,30 +365,35 @@ fRender.Destroy;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
+var i:integer;
 begin
 if CheckBox1.Checked then exit;
   ControlList.UpdateState;
   fTerrain.UpdateState;
-if CheckBox2.Checked then begin
+if CheckBox2.Checked then
+  for i:=1 to 4 do
   ControlList.UpdateState;
-  ControlList.UpdateState;
-  ControlList.UpdateState;
-  ControlList.UpdateState;
-  ControlList.UpdateState;
-  ControlList.UpdateState;
-  ControlList.UpdateState;
-  ControlList.UpdateState;
-  ControlList.UpdateState;
-end;
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
-//const cnCursor = 30;
+const crHand = 30;
+var
+bm:TBitmap;
+IconInfo:TIconInfo;
 begin
   TBZoomControl.Position:=4;
-//  Screen.Cursors[cnCursor]:=LoadCursorFromFile(PChar(ExeDir+'Resource\2.cur'));
-//  CreateCursor()
-//  Cursor:=cnCursor;
+
+  bm:=TBitmap.Create;   
+  bm.LoadFromFile(ExeDir+'Image 00033.bmp');
+
+  IconInfo.fIcon:=false;
+  IconInfo.xHotspot:=1;
+  IconInfo.yHotspot:=1;
+  IconInfo.hbmMask:=bm.Handle;
+  IconInfo.hbmColor:=bm.Handle;
+
+  Screen.Cursors[crHand]:=CreateIconIndirect(iconInfo);
+  Screen.Cursor:=crHand;
 end;
 
 procedure TForm1.BBClick(Sender: TObject);
