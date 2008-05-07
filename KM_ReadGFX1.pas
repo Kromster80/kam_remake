@@ -15,7 +15,7 @@ type
     function ReadUnitDAT(filename:string):boolean;
     function ReadHouseDAT(filename:string):boolean;
     function ReadMapElem(filename:string):boolean;
-    procedure ExportGUI2BMP;
+    procedure ExportRX2BMP(Param:string);
     procedure MakeObjectsGFX(Sender: TObject);
     procedure MakeHousesGFX(Sender: TObject);
     procedure MakeUnitsGFX(Sender: TObject);
@@ -45,8 +45,6 @@ fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));   
     MakeHousesGFX(nil);
     MakeUnitsGFX(nil);
     MakeGUIGFX(nil);
-
-//    ExportGUI2BMP;
 
 Result:=true;
 end;
@@ -279,28 +277,37 @@ end;
 //=============================================
 //Export
 //=============================================
-procedure ExportGUI2BMP;
+procedure ExportRX2BMP(Param:string);
 var MyBitMap:TBitMap;
-    id:integer;
+    id,t,Qty:integer;
     sy,sx,y,x:integer;
 begin
-CreateDir(ExeDir+'GUIrx\');
-for id:=1 to GUIQty do
+CreateDir(ExeDir+Param+'rx\');
+  MyBitMap:=TBitMap.Create;
+  MyBitmap.PixelFormat:=pf24bit;
+    if Param='Trees'  then Qty:=TreeQty;
+    if Param='Houses' then Qty:=HouseQty;
+    if Param='Units'  then Qty:=UnitQty;
+    if Param='GUI'    then Qty:=GUIQty;
+
+for id:=1 to Qty do
 begin
+  if Param='Trees'  then begin sx:=TreeSize[id,1];  sy:=TreeSize[id,2];  end;
+  if Param='Houses' then begin sx:=HouseSize[id,1]; sy:=HouseSize[id,2]; end;
+  if Param='Units'  then begin sx:=UnitSize[id,1];  sy:=UnitSize[id,2];  end;
+  if Param='GUI'    then begin sx:=GUISize[id,1];   sy:=GUISize[id,2];   end;
 
-MyBitMap:=TBitMap.Create;
-MyBitmap.Width:=GUISize[id,1];
-MyBitmap.Height:=GUISize[id,2];
-MyBitmap.PixelFormat:=pf24bit;
+  MyBitmap.Width:=sx;
+  MyBitmap.Height:=sy;
 
-sx:=GUISize[id,1];
-sy:=GUISize[id,2];
-for y:=0 to sy-1 do for x:=0 to sx-1 do
-  MyBitmap.Canvas.Pixels[x,y]:=Pal0[GUIData[id,y*GUISize[id,1]+x]+1,1]
-                              +Pal0[GUIData[id,y*GUISize[id,1]+x]+1,2]*256
-                              +Pal0[GUIData[id,y*GUISize[id,1]+x]+1,3]*65536;
-
-if sy>0 then MyBitmap.SaveToFile(ExeDir+'GUIrx\GUI_'+int2fix(id,3)+'.bmp');
+  for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+    if Param='Trees'  then t:=TreeData[id,y*sx+x]+1;
+    if Param='Houses' then t:=HouseData[id,y*sx+x]+1;
+    if Param='Units'  then t:=UnitData[id,y*sx+x]+1;
+    if Param='GUI'    then t:=GUIData[id,y*sx+x]+1;
+    MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+  end;
+  if sy>0 then MyBitmap.SaveToFile(ExeDir+Param+'rx\'+Param+'_'+int2fix(id,4)+'.bmp');
 end;
 end;
 
@@ -355,7 +362,7 @@ TreeTex[id,3]:=MakePOT(TreeSize[id,2]);
 if TreeSize[id,1]*TreeSize[id,2]<>0 then
 GenTexture(@TreeTex[id,1],TreeSize[id,1],TreeSize[id,2],@TreeData[id,0]);
 
-setlength(TreeData[id],0);
+//setlength(TreeData[id],0);
 inc(Am,TreeTex[id,2]*TreeTex[id,3]*4);
 inc(Rm,TreeSize[id,1]*TreeSize[id,2]*4);
 end;
@@ -377,7 +384,7 @@ HouseTex[id,3]:=MakePOT(HouseSize[id,2]);
 if HouseSize[id,1]*HouseSize[id,2]<>0 then
 GenTexture(@HouseTex[id,1],HouseSize[id,1],HouseSize[id,2],@HouseData[id,0]);
 
-setlength(HouseData[id],0);
+//setlength(HouseData[id],0);
 inc(Am,HouseTex[id,2]*HouseTex[id,3]*4);
 inc(Rm,HouseSize[id,1]*HouseSize[id,2]*4);
 end;
@@ -399,7 +406,7 @@ UnitTex[id,3]:=MakePOT(UnitSize[id,2]);
 if UnitSize[id,1]*UnitSize[id,2]<>0 then
 GenTexture(@UnitTex[id,1],UnitSize[id,1],UnitSize[id,2],@UnitData[id,0]);
 
-setlength(UnitData[id],0);
+//setlength(UnitData[id],0);
 inc(Am,UnitTex[id,2]*UnitTex[id,3]*4);
 inc(Rm,UnitSize[id,1]*UnitSize[id,2]*4);
 end;
@@ -421,7 +428,7 @@ GUITex[id,3]:=MakePOT(GUISize[id,2]);
 if GUISize[id,1]*GUISize[id,2]<>0 then
 GenTexture(@GUITex[id,1],GUISize[id,1],GUISize[id,2],@GUIData[id,0]);
 
-setlength(GUIData[id],0);
+//setlength(GUIData[id],0);
 inc(Am,GUITex[id,2]*GUITex[id,3]*4);
 inc(Rm,GUISize[id,1]*GUISize[id,2]*4);
 end;

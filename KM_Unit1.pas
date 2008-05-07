@@ -77,17 +77,17 @@ type
     ExportDAT: TButton;
     Timer1: TTimer;
     Image1: TImage;
-    TabSheet2: TTabSheet;
-    HousePallete: TDrawGrid;
     ImageList2: TImageList;
     ImageList3: TImageList;
-    UnitPallete: TDrawGrid;
-    UnitPalleteScroll: TScrollBar;
-    HousePalleteScroll: TScrollBar;
     Button1: TButton;
     PrintScreen1: TMenuItem;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
+    Export1: TMenuItem;
+    ExportGUIRX: TMenuItem;
+    ExportTreesRX: TMenuItem;
+    ExportHousesRX: TMenuItem;
+    ExportUnitsRX: TMenuItem;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -112,16 +112,14 @@ type
     procedure ShowWiresClick(Sender: TObject);
     procedure ShowObjectsClick(Sender: TObject);
     procedure ShowFlatTerrainClick(Sender: TObject);
-    procedure HousePalleteScrollChange(Sender: TObject);
-    procedure HousePalleteDrawCell(Sender: TObject; ACol, ARow: Integer;
-      Rect: TRect; State: TGridDrawState);
     procedure ExportDATClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure UnitPalleteScrollChange(Sender: TObject);
-    procedure UnitPalleteDrawCell(Sender: TObject; ACol, ARow: Integer;
-      Rect: TRect; State: TGridDrawState);
     procedure Button1Click(Sender: TObject);
     procedure PrintScreen1Click(Sender: TObject);
+    procedure ExportGUIRXClick(Sender: TObject);
+    procedure ExportTreesRXClick(Sender: TObject);
+    procedure ExportHousesRXClick(Sender: TObject);
+    procedure ExportUnitsRXClick(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -438,27 +436,6 @@ begin
   inherited;
 end;
 
-procedure TForm1.HousePalleteScrollChange(Sender: TObject);
-begin
-  HousePallete.TopRow:=HousePalleteScroll.Position;
-  Form1.Caption:=inttostr(HouseID[HousePalleteScroll.Position+1]);
-end;
-
-procedure TForm1.HousePalleteDrawCell(Sender: TObject; ACol, ARow: Integer;
-  Rect: TRect; State: TGridDrawState);
-begin
-ImageList2.Draw(HousePallete.Canvas,Rect.Left,Rect.Top,ARow);
-end;
-
-procedure TForm1.UnitPalleteScrollChange(Sender: TObject);
-begin UnitPallete.TopRow:=UnitPalleteScroll.Position; Form1.Caption:=inttostr(UnitID[UnitPalleteScroll.Position+1]); end;
-
-procedure TForm1.UnitPalleteDrawCell(Sender: TObject; ACol, ARow: Integer;
-  Rect: TRect; State: TGridDrawState);
-begin
-ImageList3.Draw(UnitPallete.Canvas,Rect.Left,Rect.Top,ARow);
-end;
-
 procedure TForm1.OpenDATClick(Sender: TObject);
 begin
 if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants dat (*.dat)|*.dat') then exit;
@@ -533,6 +510,9 @@ jpg.Free;
 mkbmp.Free;
 end;
 
-
+procedure TForm1.ExportGUIRXClick(Sender: TObject);   begin ExportRX2BMP('GUI');   end;
+procedure TForm1.ExportTreesRXClick(Sender: TObject); begin ExportRX2BMP('Trees'); end;
+procedure TForm1.ExportHousesRXClick(Sender: TObject);begin ExportRX2BMP('Houses');end;
+procedure TForm1.ExportUnitsRXClick(Sender: TObject); begin ExportRX2BMP('Units'); end;
 
 end.

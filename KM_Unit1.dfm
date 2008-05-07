@@ -2816,80 +2816,6 @@ object Form1: TForm1
         OnClick = ConvertDATClick
       end
     end
-    object TabSheet2: TTabSheet
-      Caption = 'Sprites'
-      ImageIndex = 2
-      object HousePallete: TDrawGrid
-        Left = -1
-        Top = 0
-        Width = 194
-        Height = 177
-        BiDiMode = bdLeftToRight
-        ColCount = 1
-        DefaultColWidth = 256
-        DefaultRowHeight = 150
-        DefaultDrawing = False
-        FixedCols = 0
-        RowCount = 1
-        FixedRows = 0
-        GridLineWidth = 0
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
-        ParentBiDiMode = False
-        ScrollBars = ssNone
-        TabOrder = 0
-        OnDrawCell = HousePalleteDrawCell
-      end
-      object UnitPallete: TDrawGrid
-        Left = 0
-        Top = 178
-        Width = 193
-        Height = 177
-        BiDiMode = bdLeftToRight
-        ColCount = 1
-        DefaultColWidth = 256
-        DefaultRowHeight = 150
-        DefaultDrawing = False
-        FixedCols = 0
-        RowCount = 1
-        FixedRows = 0
-        GridLineWidth = 0
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
-        ParentBiDiMode = False
-        ScrollBars = ssNone
-        TabOrder = 1
-        OnDrawCell = UnitPalleteDrawCell
-      end
-      object UnitPalleteScroll: TScrollBar
-        Left = 194
-        Top = 178
-        Width = 16
-        Height = 177
-        Ctl3D = False
-        Kind = sbVertical
-        LargeChange = 2
-        Max = 1
-        PageSize = 0
-        ParentCtl3D = False
-        TabOrder = 2
-        TabStop = False
-        OnChange = UnitPalleteScrollChange
-      end
-      object HousePalleteScroll: TScrollBar
-        Left = 194
-        Top = 0
-        Width = 16
-        Height = 177
-        Ctl3D = False
-        Kind = sbVertical
-        LargeChange = 2
-        Max = 1
-        PageSize = 0
-        ParentCtl3D = False
-        TabOrder = 3
-        TabStop = False
-        OnChange = HousePalleteScrollChange
-      end
-    end
   end
   object StatusBar1: TStatusBar
     Left = 0
@@ -3047,6 +2973,25 @@ object Form1: TForm1
       object PrintScreen1: TMenuItem
         Caption = 'PrintScreen'
         OnClick = PrintScreen1Click
+      end
+    end
+    object Export1: TMenuItem
+      Caption = 'Export'
+      object ExportTreesRX: TMenuItem
+        Caption = 'Trees'
+        OnClick = ExportTreesRXClick
+      end
+      object ExportHousesRX: TMenuItem
+        Caption = 'Houses'
+        OnClick = ExportHousesRXClick
+      end
+      object ExportUnitsRX: TMenuItem
+        Caption = 'Units'
+        OnClick = ExportUnitsRXClick
+      end
+      object ExportGUIRX: TMenuItem
+        Caption = 'GUI'
+        OnClick = ExportGUIRXClick
       end
     end
     object About1: TMenuItem
