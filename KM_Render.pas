@@ -15,7 +15,7 @@ private
   procedure RenderWireQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderSprite(TexID:integer; pX,pY,SizeX,SizeY:single);
-  procedure RenderRectangle(TexID:integer; X,Y,SizeX,SizeY:integer);
+  procedure RenderRectangle(ElementID:integer; X,Y,SizeX,SizeY:integer);
   procedure Render3DButton(GUITexID:integer; X,Y,SizeX,SizeY:integer);
 protected
 public
@@ -148,13 +148,18 @@ end;
 
 procedure TRender.RenderToolBar();
 begin
-RenderRectangle(GUITex[407,1],0,0,GUITex[407,2],GUITex[407,3]);
-RenderRectangle(GUITex[554,1],0,200,GUITex[554,2],GUITex[554,3]);
-RenderRectangle(GUITex[404,1],0,200+168,GUITex[404,2],GUITex[404,3]);
-RenderRectangle(GUITex[404,1],0,200+168+400,GUITex[404,2],GUITex[404,3]);
+RenderRectangle(407,0,0,GUISize[407,1],GUISize[407,2]);
+RenderRectangle(554,0,200,GUISize[554,1],GUISize[554,2]);
+RenderRectangle(404,0,200+168,GUISize[404,1],GUISize[404,2]);
+RenderRectangle(404,0,200+168+400,GUISize[404,1],GUISize[404,2]);
 RenderRectangle(0,8,12,176,176);
 
-Render3DButton(439,12,376,40,40);
+Render3DButton(439,12,376,36,36);
+Render3DButton(440,58,376,36,36);
+Render3DButton(441,104,376,36,36);
+Render3DButton(442,150,376,36,36);
+
+Render3DButton(42,68,430,64,40);
 end;
 
 procedure TRender.RenderTerrainAndRoads();
@@ -365,32 +370,50 @@ end;
 glEnd;
 end;
 
-procedure TRender.RenderRectangle(TexID:integer; X,Y,SizeX,SizeY:integer);
+procedure TRender.RenderRectangle(ElementID:integer; X,Y,SizeX,SizeY:integer);
+var a,b:TKMPointF;
 begin
+if ElementID=0 then exit;
+    a.x:=GUITexUV[ElementID].Left/GUITex[ElementID].TexW;
+    a.y:=GUITexUV[ElementID].Top/GUITex[ElementID].TexH;   //texture is flipped upside-down
+    b.x:=GUITexUV[ElementID].Right/GUITex[ElementID].TexW;
+    b.y:=GUITexUV[ElementID].Bottom/GUITex[ElementID].TexH;
+
     glColor4f(1,1,1,1);
-    glBindTexture(GL_TEXTURE_2D, TexID);
+    glBindTexture(GL_TEXTURE_2D, GUITex[ElementID].TexID);
     glBegin (GL_QUADS);
-    glTexCoord2f(0,0); glvertex2f(X      ,Y      );
-    glTexCoord2f(1,0); glvertex2f(X+SizeX,Y      );
-    glTexCoord2f(1,1); glvertex2f(X+SizeX,Y+SizeY);
-    glTexCoord2f(0,1); glvertex2f(X      ,Y+SizeY);
+    glTexCoord2f(a.x,a.y); glvertex2f(X      ,Y      );
+    glTexCoord2f(b.x,a.y); glvertex2f(X+SizeX,Y      );
+    glTexCoord2f(b.x,b.y); glvertex2f(X+SizeX,Y+SizeY);
+    glTexCoord2f(a.x,b.y); glvertex2f(X      ,Y+SizeY);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 procedure TRender.Render3DButton(GUITexID:integer; X,Y,SizeX,SizeY:integer);
+var a,b:TKMPointF; Inset,InsetU,InsetV:single;
 begin
+//402 is a stone background
+    a.x:=GUITexUV[402].Left/GUITex[402].TexW;
+    a.y:=GUITexUV[402].Top/GUITex[402].TexH;   //texture is flipped upside-down
+    b.x:=GUITexUV[402].Right/GUITex[402].TexW;
+    b.y:=GUITexUV[402].Bottom/GUITex[402].TexH;
+
+    Inset:=8;
+    InsetU:=8/GUITex[402].TexW;
+    InsetV:=8/GUITex[402].TexH;
+
     glColor4f(1,1,1,1);
-    glBindTexture(GL_TEXTURE_2D, GUITex[402,1]);
+    glBindTexture(GL_TEXTURE_2D, GUITex[402].TexID);
     glBegin (GL_QUADS);
-    glTexCoord2f(0,0); glvertex2f(X      ,Y      );
-    glTexCoord2f(1,0); glvertex2f(X+SizeX,Y      );
-    glTexCoord2f(1,1); glvertex2f(X+SizeX,Y+SizeY);
-    glTexCoord2f(0,1); glvertex2f(X      ,Y+SizeY);
+    glTexCoord2f(a.x,a.y); glvertex2f(X      ,Y      );
+    glTexCoord2f(b.x,a.y); glvertex2f(X+SizeX,Y      );
+    glTexCoord2f(b.x,b.y); glvertex2f(X+SizeX,Y+SizeY);
+    glTexCoord2f(a.x,b.y); glvertex2f(X      ,Y+SizeY);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    RenderRectangle(GUITex[GUITexID,1],X,Y,GUITex[GUITexID,2],GUITex[GUITexID,3]);
+    RenderRectangle(GUITexID,round(X+(SizeX-GUISize[GUITexID,1])/2),round(Y+(SizeY-GUISize[GUITexID,2])/2),GUISize[GUITexID,1],GUISize[GUITexID,2]);
 end;
 
 

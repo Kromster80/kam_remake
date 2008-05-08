@@ -32,11 +32,11 @@ function ReadGFX(text: string):boolean;
             FormLoading.Bar1.StepIt; FormLoading.Refresh;
           end;
 begin
-fLog.AppendLog('Reading pallete',ReadPallete(text+'data\gfx\pal0.bbm'));            StepRefresh();
-fLog.AppendLog('Reading objects',ReadTreesRX(text+'data\gfx\res\trees.rx'));        StepRefresh();
-fLog.AppendLog('Reading houses',ReadHousesRX(text+'data\gfx\res\houses.rx'));       StepRefresh();
-fLog.AppendLog('Reading units',ReadUnitsRX(text+'data\gfx\res\units.rx'));          StepRefresh();
-fLog.AppendLog('Reading GUI',ReadGUIRX(text+'data\gfx\res\gui.rx'));                StepRefresh();
+fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm'));           StepRefresh();
+fLog.AppendLog('Reading trees.rx',ReadTreesRX(text+'data\gfx\res\trees.rx'));       StepRefresh();
+fLog.AppendLog('Reading houses.rx',ReadHousesRX(text+'data\gfx\res\houses.rx'));    StepRefresh();
+fLog.AppendLog('Reading units.rx',ReadUnitsRX(text+'data\gfx\res\units.rx'));       StepRefresh();
+fLog.AppendLog('Reading gui.rx',ReadGUIRX(text+'data\gfx\res\gui.rx'));             StepRefresh();
 fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
 fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
 fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
@@ -55,19 +55,12 @@ end;
 function ReadPallete(filename:string):boolean;
 begin
 Result:=false;
-if fileexists(filename) then
-  begin
-    assignfile(f,filename);
-    reset(f,1);
-    blockread(f,c,48);
-    blockread(f,Pal0,768); //256*3
-    closefile(f);
-  end
-else
-  begin
-    ShowMessage('Unable to locate ".\data\gfx\pal0.bbm" file');
-    exit;
-  end;
+if not CheckFileExists(filename) then exit;
+  assignfile(f,filename);
+  reset(f,1);
+  blockread(f,c,48);
+  blockread(f,Pal0,768); //256*3
+  closefile(f);
 Result:=true;
 end;
 
@@ -290,6 +283,11 @@ CreateDir(ExeDir+Param+'rx\');
     if Param='Units'  then Qty:=UnitQty;
     if Param='GUI'    then Qty:=GUIQty;
 
+    if Param='Trees'  then ReadTreesRX(ExeDir+'data\gfx\res\trees.rx');
+    if Param='Houses' then ReadHousesRX(ExeDir+'data\gfx\res\houses.rx');
+    if Param='Units'  then ReadUnitsRX(ExeDir+'data\gfx\res\units.rx');
+    if Param='GUI'    then ReadGUIRX(ExeDir+'data\gfx\res\gui.rx');
+
 for id:=1 to Qty do
 begin
   if Param='Trees'  then begin sx:=TreeSize[id,1];  sy:=TreeSize[id,2];  end;
@@ -308,6 +306,11 @@ begin
     MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
   end;
   if sy>0 then MyBitmap.SaveToFile(ExeDir+Param+'rx\'+Param+'_'+int2fix(id,4)+'.bmp');
+
+  if Param='Trees'  then setlength(TreeData[id],0);
+  if Param='Houses' then setlength(HouseData[id],0);
+  if Param='Units'  then setlength(UnitData[id],0);
+  if Param='GUI'    then setlength(GUIData[id],0);
 end;
 end;
 
@@ -338,13 +341,12 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
 
 glGenTextures(1, id);
 glBindTexture(GL_TEXTURE_2D, id^);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 //gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
 FreeMem(TD);
 end;
 
@@ -362,56 +364,67 @@ TreeTex[id,3]:=MakePOT(TreeSize[id,2]);
 if TreeSize[id,1]*TreeSize[id,2]<>0 then
 GenTexture(@TreeTex[id,1],TreeSize[id,1],TreeSize[id,2],@TreeData[id,0]);
 
-//setlength(TreeData[id],0);
+setlength(TreeData[id],0);
 inc(Am,TreeTex[id,2]*TreeTex[id,3]*4);
 inc(Rm,TreeSize[id,1]*TreeSize[id,2]*4);
 end;
-fLog.AppendLog(Am div 1024, 'Kbytes allocated for trees GFX');
-fLog.AppendLog((Am-Rm) div 1024, 'Kbytes wasted for trees GFX');
+fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for trees GFX');
 end;
 
 //=============================================
 //Making OpenGL textures out of houses
 //=============================================
 procedure MakeHousesGFX(Sender: TObject);
-var id:integer; Am,Rm:integer;
+var i,id:integer; Am,Cm,Rm:integer;
 begin
-Am:=0; Rm:=0;
+Am:=0; Rm:=0; Cm:=0;
 for id:=1 to HouseQty do begin
 HouseTex[id,2]:=MakePOT(HouseSize[id,1]);
 HouseTex[id,3]:=MakePOT(HouseSize[id,2]);
 
+for i:=0 to HouseSize[id,2]*HouseSize[id,1]-1 do
+if HouseData[id,i] in [24..30] then begin
+inc(Cm,HouseTex[id,2]*HouseTex[id,3]*4);
+break;
+end;
+
 if HouseSize[id,1]*HouseSize[id,2]<>0 then
 GenTexture(@HouseTex[id,1],HouseSize[id,1],HouseSize[id,2],@HouseData[id,0]);
 
-//setlength(HouseData[id],0);
+setlength(HouseData[id],0);
 inc(Am,HouseTex[id,2]*HouseTex[id,3]*4);
 inc(Rm,HouseSize[id,1]*HouseSize[id,2]*4);
 end;
-fLog.AppendLog(Am div 1024, 'Kbytes allocated for houses GFX');
-fLog.AppendLog((Am-Rm) div 1024, 'Kbytes wasted for houses GFX');
+fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for houses GFX');
+fLog.AppendLog(inttostr(Cm div 1024)+' KBytes for team colors');
 end;
 
 //=============================================
 //Making OpenGL textures out of units
 //=============================================
 procedure MakeUnitsGFX(Sender: TObject);
-var id:integer; Am,Rm:integer;
+var i,id:integer; Am,Cm,Rm:integer;
 begin
-Am:=0; Rm:=0;
-for id:=1 to UnitQty do begin   
+Am:=0; Rm:=0; Cm:=0;
+for id:=1 to UnitQty do begin
 UnitTex[id,2]:=MakePOT(UnitSize[id,1]);
 UnitTex[id,3]:=MakePOT(UnitSize[id,2]);
+
+for i:=0 to UnitSize[id,2]*UnitSize[id,1]-1 do
+if UnitData[id,i] in [24..30] then begin
+inc(Cm,UnitTex[id,2]*UnitTex[id,3]*4);
+break;
+end;
 
 if UnitSize[id,1]*UnitSize[id,2]<>0 then
 GenTexture(@UnitTex[id,1],UnitSize[id,1],UnitSize[id,2],@UnitData[id,0]);
 
-//setlength(UnitData[id],0);
+setlength(UnitData[id],0);
 inc(Am,UnitTex[id,2]*UnitTex[id,3]*4);
 inc(Rm,UnitSize[id,1]*UnitSize[id,2]*4);
 end;
-fLog.AppendLog(Am div 1024, 'Kbytes allocated for units GFX');
-fLog.AppendLog((Am-Rm) div 1024, 'Kbytes wasted for units GFX');
+fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for units GFX');
+fLog.AppendLog(inttostr(Cm div 1024)+' KBytes for team colors');
 end;
 
 //=============================================
@@ -422,18 +435,22 @@ var id:integer; Am,Rm:integer;
 begin
 Am:=0; Rm:=0;
 for id:=1 to GUIQty do begin
-GUITex[id,2]:=MakePOT(GUISize[id,1]);
-GUITex[id,3]:=MakePOT(GUISize[id,2]);
+GUITex[id].TexW:=MakePOT(GUISize[id,1]);
+GUITex[id].TexH:=MakePOT(GUISize[id,2]);
+
+GUITexUV[id].Left:=0;
+GUITexUV[id].Right:=GUISize[id,1];
+GUITexUV[id].Top:=GUITex[id].TexH-GUISize[id,2];
+GUITexUV[id].Bottom:=GUITex[id].TexH;
 
 if GUISize[id,1]*GUISize[id,2]<>0 then
-GenTexture(@GUITex[id,1],GUISize[id,1],GUISize[id,2],@GUIData[id,0]);
+GenTexture(@GUITex[id].TexID,GUISize[id,1],GUISize[id,2],@GUIData[id,0]);
 
-//setlength(GUIData[id],0);
-inc(Am,GUITex[id,2]*GUITex[id,3]*4);
+setlength(GUIData[id],0);
+inc(Am,GUITex[id].TexW*GUITex[id].TexH*4);
 inc(Rm,GUISize[id,1]*GUISize[id,2]*4);
 end;
-fLog.AppendLog(Am div 1024, 'Kbytes allocated for GUIs GFX');
-fLog.AppendLog((Am-Rm) div 1024, 'Kbytes wasted for GUIs GFX');
+fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for GUIs GFX');
 end;
 
 

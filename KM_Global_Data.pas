@@ -15,18 +15,22 @@ zz=#10+#13;             //EndOfLine
 MaxPlayers=8;           //Maximum players per map
 MaxHouses=255;          //Maximum houses one player can own
 MaxResInHouse=3;        //Maximum resource items allowed to be in house (5)
+MaxTexRes=1024;         //Maximum texture resolution client can handle
 
 var
   fRender: TRender;
   fViewport: TViewport;
   fMiniMap: TMiniMap;
   fTerrain: TTerrain;
-  fLog: TKMLog;  
+  fLog: TKMLog;
 
-  TreeTex:array[1..400,1..3]of GLUint;     //Object textures
-  HouseTex:array[1..2000,1..3]of GLUint;     //Object textures
-  UnitTex:array[1..9500,1..3]of GLUint;     //Units [ID,width,height]
-  GUITex:array[1..600,1..3]of GLUint;     //Units [ID,width,height]
+  TreeTex:array[1..400,1..3]of GLUint;  //[ID,width,height]
+  HouseTex:array[1..2000,1..3]of GLUint;//[ID,width,height]
+  UnitTex:array[1..9500,1..3]of GLUint; //[ID,width,height]
+  GUITex:array[1..600] of record
+    TexID,TexW,TexH:GLUint;
+  end;
+  GUITexUV:array[1..600] of TRect;
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
@@ -63,21 +67,18 @@ HouseBMP:array[0..2000] of word;
 HouseSize:array[1..2000,1..2] of word;
 HousePivot:array[1..2000] of record x,y:integer; end;
 HouseData:array[1..2000] of array of byte;
-HouseID:array[1..2000] of word;
 
 UnitQty:integer;
 UnitPal:array[1..9500] of byte;
 UnitSize:array[1..9500,1..2] of word;
 UnitPivot:array[1..9500] of record x,y:integer; end;
 UnitData:array[1..9500] of array of byte;
-UnitID:array[1..9500] of word;
 
 GUIQty:integer;
 GUIPal:array[1..600] of byte;
 GUISize:array[1..600,1..2] of word;
 GUIPivot:array[1..600] of record x,y:integer; end;
 GUIData:array[1..600] of array of byte;
-GUIID:array[1..600] of word;
 
 HouseDAT1:array[1..30,1..35]of smallint;
 HouseDAT:array[1..30] of packed record
