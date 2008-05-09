@@ -51,7 +51,6 @@ type
     Panel2: TPanel;
     MiniMap: TImage;
     Shape1: TShape;
-    ImageList1: TImageList;
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     OpenMapMenu: TMenuItem;
@@ -69,8 +68,6 @@ type
     Label1: TLabel;
     Timer1: TTimer;
     Image1: TImage;
-    ImageList2: TImageList;
-    ImageList3: TImageList;
     Button1: TButton;
     PrintScreen1: TMenuItem;
     CheckBox1: TCheckBox;
@@ -364,8 +361,10 @@ IconInfo:TIconInfo;
 begin
   TBZoomControl.Position:=4;
 
-  bm:=TBitmap.Create;   
+  bm:=TBitmap.Create;
   bm.LoadFromFile(ExeDir+'Image 00033.bmp');
+
+  Pallete.Canvas.StretchDraw(Pallete.ClientRect,bm);
 
   IconInfo.fIcon:=false;
   IconInfo.xHotspot:=1;

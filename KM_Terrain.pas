@@ -16,11 +16,13 @@ public
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
     Terrain,Height,Rotation,Obj,Passability:byte;
     Normal:record X,Y,Z:single; end;
+    Light:single;
   end;
   constructor Create;
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
   procedure RebuildNormals(LowX,HighX,LowY,HighY:integer);
+  procedure RebuildLightning(LowX,HighX,LowY,HighY:integer);
   function ConvertSquareToMapCoord(inX,inY:single):single;
   procedure UpdateState;
   procedure Paint;
@@ -45,11 +47,14 @@ begin
 end;
 
 procedure TTerrain.Paint;
-var i,k:integer;
+var i,k:integer; x1,x2,y1,y2:integer;
 begin
-fRender.RenderTerrainAndRoads;
+x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
+y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
-for i:=1 to Map.Y do for k:=1 to Map.X do
+fRender.RenderTerrainAndRoads(x1,x2,y1,y2);
+
+for i:=y1 to y2 do for k:=x1 to x2 do
   if Land[i,k].Obj<>255 then
     fRender.RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
 end;
@@ -99,6 +104,7 @@ begin
 
 closefile(f);
 RebuildNormals(1,Map.X,1,Map.Y);
+RebuildLightning(1,Map.X,1,Map.Y);
 fMinimap.Repaint;
 Result:=true;
 end;
@@ -124,6 +130,20 @@ for i:=LowY to HighY do for k:=LowX to HighX do
       Normal.Y:=(Land[y0,k ].Height-Land[y2,k ].Height)/32; //-100..100 / 3
       Normal.Z:=1;
     end;
+  end;
+end;
+
+procedure TTerrain.RebuildLightning(LowX,HighX,LowY,HighY:integer);
+var i,k:integer; x0,y2:integer;
+begin
+for i:=LowY to HighY do for k:=LowX to HighX do
+  with Land[i,k] do begin
+    x0:=EnsureRange(k-1,0,Map.X+1);
+    y2:=EnsureRange(i+1,0,Map.Y+1);
+    if (x0=0)or(y2=Map.Y+1) then
+      Light:=0
+    else
+      Light:=min(max(Land[i,k].Height-Land[y2,x0].Height,0)/35,0.98)
   end;
 end;
 

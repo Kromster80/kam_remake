@@ -9,7 +9,7 @@ private
   h_DC: HDC;
   h_RC: HGLRC;
   LightPos,LightDiff:array[1..4] of GLfloat;
-  Text0,Text1,Text2,Text3,TextG:GLuint;
+  Text0,Text1,Text2,Text3,TextG,Text512:GLuint;
   procedure RenderPoint(pX,pY:integer);
   procedure RenderQuad(pX,pY:integer);
   procedure RenderWireQuad(pX,pY:integer);
@@ -27,7 +27,7 @@ public
   procedure RenderResize(Width,Height:integer);
   procedure Render();
   procedure RenderToolBar();
-  procedure RenderTerrainAndRoads();
+  procedure RenderTerrainAndRoads(x1,x2,y1,y2:integer);
   procedure RenderWires();
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
   procedure RenderCursorPosition(ActivePage:string);
@@ -89,6 +89,7 @@ begin
   LoadTexture(ExeDir+'Resource\text2.tga', Text2);    // Load the Textures
   LoadTexture(ExeDir+'Resource\text3.tga', Text3);    // Load the Textures
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG);    // Load the Textures
+  LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512);    // Load the Textures
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glPolygonMode(GL_FRONT,GL_FILL);
   BuildFont(h_DC,16);
@@ -163,20 +164,51 @@ Render3DButton(442,150,376,36,36);
 Render3DButton(42,68,430,64,40);
 end;
 
-procedure TRender.RenderTerrainAndRoads();
+procedure TRender.RenderTerrainAndRoads(x1,x2,y1,y2:integer);
 var
-  i,k,x0,x1,x2,y1,y2,y3:integer; ID,Rot,rd:integer;
+  i,k:integer; ID,Rot,rd:integer;
+  ax,ay:single; xt,a:integer;
+  TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
+  TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
-  glEnable(GL_LIGHTING);
+glEnable(GL_LIGHTING);
+glColor4f(1,1,1,1);
+glBindTexture(GL_TEXTURE_2D, Text512);
+glbegin (GL_QUADS);
+  with fTerrain do
+    for i:=y1 to y2 do
+      for k:=x1 to x2 do begin
+        xt:=fTerrain.Land[i,k].Terrain;
+        ax:=((xt div 64) mod 2) /2;
+        ay:=(xt div 128) /2;
 
-x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
-y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
+        TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=1-(xt mod 64 div 8  )/16+ay-Overlap;
+        TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=1-(xt mod 64 div 8+1)/16+ay+Overlap;
+        TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=1-(xt mod 64 div 8+1)/16+ay+Overlap;
+        TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=1-(xt mod 64 div 8  )/16+ay-Overlap;
+        TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
-//i,k get clipped into map space inside RenderTile()
-  for i:=y1 to y2 do
-    for k:=x1 to x2 do
-      RenderTile(fTerrain.Land[i,k].Terrain+1,k,i,fTerrain.Land[i,k].Rotation);
+        if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
+        if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
+        glNormal3fv(@Land[i,k].Normal);
+        glTexCoord2fv(@TexC[TexO[1]]);
+        glvertex2f(k-1,i-1-Land[i,k].Height/xh);
+
+        glNormal3fv(@Land[i+1,k].Normal);
+        glTexCoord2fv(@TexC[TexO[2]]);
+        glvertex2f(k-1,i-Land[i+1,k].Height/xh);
+
+        glNormal3fv(@Land[i+1,k+1].Normal);
+        glTexCoord2fv(@TexC[TexO[3]]);
+        glvertex2f(k,i-Land[i+1,k+1].Height/xh);
+
+        glNormal3fv(@Land[i,k+1].Normal);
+        glTexCoord2fv(@TexC[TexO[4]]);
+        glvertex2f(k,i-1-Land[i,k+1].Height/xh);
+      end;
+glEnd;
+                    
 if Mission<>nil then
 for i:=y1 to y2 do for k:=x1 to x2 do
 with Mission do
@@ -196,15 +228,14 @@ glColor4f(1,1,1,1);
 glBlendFunc(GL_DST_COLOR,GL_ONE);
 glBindTexture(GL_TEXTURE_2D, TextG);
 glbegin (GL_QUADS);
+with fTerrain do
 for i:=y1 to y2 do for k:=x1 to x2 do
-  with fTerrain do
   begin
-  x0:=max(k-1,1); y3:=min(i+2,Map.Y);
   glNormal3f(0,1,0); //height difference / 35 seems to be about perfect
-  glTexCoord2f(0,min(max(Land[i  ,k  ].Height-Land[i+1,x0 ].Height,0)/35,0.98)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
-  glTexCoord2f(0,min(max(Land[i+1,k  ].Height-Land[y3 ,x0 ].Height,0)/35,0.98)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
-  glTexCoord2f(0,min(max(Land[i+1,k+1].Height-Land[y3 ,k  ].Height,0)/35,0.98)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
-  glTexCoord2f(0,min(max(Land[i  ,k+1].Height-Land[i+1,k  ].Height,0)/35,0.98)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+  glTexCoord2f(0,Land[i  ,k  ].Light); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
+  glTexCoord2f(0,Land[i+1,k  ].Light); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
+  glTexCoord2f(0,Land[i+1,k+1].Light); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
+  glTexCoord2f(0,Land[i  ,k+1].Light); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
   end;
 glEnd;
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -339,7 +370,7 @@ if TexID=0 then exit;
 end;
 
 procedure TRender.RenderTile(Index,pX,pY,Rot:integer);
-var xt,k,i,a:integer;
+var xt,k,i,a:integer; ax,ay:single;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
@@ -347,22 +378,22 @@ if (pX<1)or(pX>Map.X) then exit;
 if (pY<1)or(pY>Map.Y) then exit;
 
 glColor4f(1,1,1,1);
-case Index-1 of
-   0..63: glBindTexture(GL_TEXTURE_2D, Text0);
- 64..127: glBindTexture(GL_TEXTURE_2D, Text1);
-128..191: glBindTexture(GL_TEXTURE_2D, Text2);
-192..255: glBindTexture(GL_TEXTURE_2D, Text3); end;
+glBindTexture(GL_TEXTURE_2D, Text512);
 xt:=Index-1;
-k:=pX; i:=pY;
-TexC[1,1]:=(xt mod 8  )/8+Overlap; TexC[1,2]:=1-(xt div 8  )/8-Overlap;
-TexC[2,1]:=(xt mod 8  )/8+Overlap; TexC[2,2]:=1-(xt div 8+1)/8+Overlap;
-TexC[3,1]:=(xt mod 8+1)/8-Overlap; TexC[3,2]:=1-(xt div 8+1)/8+Overlap;
-TexC[4,1]:=(xt mod 8+1)/8-Overlap; TexC[4,2]:=1-(xt div 8  )/8-Overlap;
+
+ax:=((xt div 64) mod 2) /2;
+ay:=(xt div 128) /2;
+
+TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=1-(xt mod 64 div 8  )/16+ay-Overlap;
+TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=1-(xt mod 64 div 8+1)/16+ay+Overlap;
+TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=1-(xt mod 64 div 8+1)/16+ay+Overlap;
+TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=1-(xt mod 64 div 8  )/16+ay-Overlap;
 TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
 if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
 if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
+k:=pX; i:=pY;
 glbegin (GL_QUADS);
 with fTerrain do begin
   glNormal3fv(@Land[i,k].Normal);
@@ -382,6 +413,7 @@ with fTerrain do begin
   glvertex2f(k,i-1-Land[i,k+1].Height/xh);
 end;
 glEnd;
+glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 procedure TRender.RenderRectangle(ElementID:integer; X,Y,SizeX,SizeY:integer);
@@ -436,14 +468,14 @@ var ShiftX,ShiftY:single; ID:integer;
 begin
 ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
 if Index=61 then begin //Object 42 is an invisible wall
-glBindTexture(GL_TEXTURE_2D,0);
-glColor4f(1,0,0,0.5);
-RenderTile(0,pX,pY,0);
+  glBindTexture(GL_TEXTURE_2D,0);
+  glColor4f(1,0,0,0.5);
+  RenderTile(0,pX,pY,0);
 end else begin
-glColor4f(1,1,1,1);
-ShiftX:=TreePivot[ID].x/CellSize;
-ShiftY:=(TreePivot[ID].y+TreeSize[ID,2])/CellSize-fTerrain.Land[pY,pX].Height/xh;
-RenderSprite(TreeTex[ID,1],pX+ShiftX,pY+ShiftY,TreeTex[ID,2]/40,TreeTex[ID,3]/40);
+  glColor4f(1,1,1,1);
+  ShiftX:=TreePivot[ID].x/CellSize;
+  ShiftY:=(TreePivot[ID].y+TreeSize[ID,2])/CellSize-fTerrain.Land[pY,pX].Height/xh;
+  RenderSprite(TreeTex[ID,1],pX+ShiftX,pY+ShiftY,TreeTex[ID,2]/40,TreeTex[ID,3]/40);
 end;
 end;
 

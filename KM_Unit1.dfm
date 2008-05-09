@@ -114,8 +114,8 @@ object Form1: TForm1
   object Image1: TImage
     Left = 0
     Top = 0
-    Width = 225
-    Height = 201
+    Width = 224
+    Height = 200
     Picture.Data = {
       07544269746D617036B30000424D36B30000000000003604000028000000E000
       0000C8000000010008000000000000AF00000000000000000000000100000000
@@ -1554,7 +1554,7 @@ object Form1: TForm1
       0303}
   end
   object Pl1: TSpeedButton
-    Left = 148
+    Left = 132
     Top = 232
     Width = 22
     Height = 22
@@ -1567,7 +1567,7 @@ object Form1: TForm1
     OnClick = Pl1Click
   end
   object Pl4: TSpeedButton
-    Left = 148
+    Left = 132
     Top = 254
     Width = 22
     Height = 22
@@ -1577,7 +1577,7 @@ object Form1: TForm1
     OnClick = Pl1Click
   end
   object Pl5: TSpeedButton
-    Left = 170
+    Left = 154
     Top = 254
     Width = 22
     Height = 22
@@ -1587,7 +1587,7 @@ object Form1: TForm1
     OnClick = Pl1Click
   end
   object Pl2: TSpeedButton
-    Left = 170
+    Left = 154
     Top = 232
     Width = 22
     Height = 22
@@ -1597,7 +1597,7 @@ object Form1: TForm1
     OnClick = Pl1Click
   end
   object Pl3: TSpeedButton
-    Left = 192
+    Left = 176
     Top = 232
     Width = 22
     Height = 22
@@ -1607,7 +1607,7 @@ object Form1: TForm1
     OnClick = Pl1Click
   end
   object Pl6: TSpeedButton
-    Left = 192
+    Left = 176
     Top = 254
     Width = 22
     Height = 22
@@ -1636,10 +1636,10 @@ object Form1: TForm1
     OnChange = ZoomChange
   end
   object Pallete: TPageControl
-    Left = 4
-    Top = 308
-    Width = 197
-    Height = 325
+    Left = 16
+    Top = 284
+    Width = 185
+    Height = 319
     ActivePage = TabSheet3
     Anchors = [akLeft, akTop, akBottom]
     Style = tsButtons
@@ -3050,13 +3050,6 @@ object Form1: TForm1
     Left = 800
     Top = 600
   end
-  object ImageList1: TImageList
-    DrawingStyle = dsTransparent
-    Height = 128
-    Width = 128
-    Left = 736
-    Top = 568
-  end
   object MainMenu1: TMainMenu
     Left = 736
     Top = 600
@@ -3141,19 +3134,5 @@ object Form1: TForm1
     OnTimer = Timer1Timer
     Left = 832
     Top = 600
-  end
-  object ImageList2: TImageList
-    DrawingStyle = dsTransparent
-    Height = 256
-    Width = 256
-    Left = 768
-    Top = 568
-  end
-  object ImageList3: TImageList
-    DrawingStyle = dsTransparent
-    Height = 128
-    Width = 128
-    Left = 800
-    Top = 568
   end
 end
