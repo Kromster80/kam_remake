@@ -49,6 +49,8 @@ type
   private
     fPosition: TKMPoint;
     fHouseType: THouseType;
+    fOwnerID: byte;
+
     fHasOwner: boolean;
     fOwnerAtHome: boolean;
 
@@ -114,6 +116,7 @@ begin
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
   fHouseType:=aHouseType;
+  fOwnerID:=1;
   fHasOwner:=false;
   fOwnerAtHome:=false;
 
@@ -126,7 +129,7 @@ begin
   fInputTypes[1]:=HouseInput[byte(aHouseType),1];
   for i:=1 to 1 do
     if fInputTypes[i]<>rt_None then
-      ControlList.JobList.AddNewDemand(Self,fInputTypes[i]);
+      ControlList.JobList.AddNewDemand(Self.fPosition,fInputTypes[i]);
 end;
 
 destructor TKMHouse.Destroy;
@@ -253,16 +256,14 @@ fOwnerAtHome:=false;
 end;               
 
 procedure TKMHouse.Paint;
-var Owner:byte;
 begin
-Owner:=1;
 //Render base
 fRender.RenderHouse(integer(fHouseType),fPosition.X, fPosition.Y);
 //Render supplies
 fRender.RenderHouseSupply(integer(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
 //Render animation
 if fCurrentAction=nil then exit;
-fRender.RenderHouseWork(integer(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,Owner,fPosition.X, fPosition.Y);
+fRender.RenderHouseWork(integer(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,fOwnerID,fPosition.X, fPosition.Y);
 end;
 
 { THouseAction }

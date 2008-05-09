@@ -32,6 +32,8 @@ type bmBrushMode = (bm_None,bm_Houses);
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
+  TGoInDirection = (gid_In=1, gid_Out=-1);
+
   THouseType = ( ht_None=0,
     ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
     ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutters=10,
@@ -74,7 +76,7 @@ const
     [ua_Walk, ua_Work, ua_Die, ua_Eat],
     [],
     [],
-    [],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat, ua_Work1, ua_Work2],
     [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
     [],
     [],

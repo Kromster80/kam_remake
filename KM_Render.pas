@@ -208,6 +208,13 @@ glbegin (GL_QUADS);
         glvertex2f(k,i-1-Land[i,k+1].Height/xh);
       end;
 glEnd;
+
+for i:=y1 to y2 do for k:=x1 to x2 do
+if fTerrain.Land[i,k].RoadState<>0 then
+  begin
+  RenderTile(248+fTerrain.Land[i,k].RoadState*2,k,i,0);
+  end;
+
                     
 if Mission<>nil then
 for i:=y1 to y2 do for k:=x1 to x2 do
@@ -542,7 +549,7 @@ AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
 ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
   ShiftX:=UnitPivot[ID].x/CellSize;
-  ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize-fTerrain.Land[round(pY)+1,round(pX)].Height/xh;
+  ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize-fTerrain.Land[round(pY)+1,round(pX)].Height/xh-0.25;
   RenderSprite(UnitTex[ID,1],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
   glColor4ubv(@TeamColors[Owner]);
   RenderSprite2(UnitTex[ID,4],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
@@ -555,7 +562,7 @@ AnimSteps:=UnitCarry[CarryID].Dir[DirID].Count;
 ID:=UnitCarry[CarryID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
   ShiftX:=UnitPivot[ID].x/CellSize;
-  ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize-fTerrain.Land[round(pY)+1,round(pX)].Height/xh;
+  ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize-fTerrain.Land[round(pY)+1,round(pX)].Height/xh-0.25;
   ShiftX:=ShiftX+UnitCarry[CarryID].Dir[DirID].MoveX/40;
   ShiftY:=ShiftY+UnitCarry[CarryID].Dir[DirID].MoveY/40;
   RenderSprite(UnitTex[ID,1],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);

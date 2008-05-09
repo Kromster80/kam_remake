@@ -1,0 +1,14 @@
+
+Performing living village cycle
+
+	citizens
+
+	mining / resource generation
+
+	resource transportation
+
+	goods creation
+
+	building
+
+	etc..

@@ -13,8 +13,10 @@ type
   fOffer,fDemand:array[1..1024]of
   record
     House:TKMHouse;
+    Loc:TKMPoint;
     Resource:TResourceType;
     Importance:byte;
+    Status:TJobStatus;
   end;
   fQueue:array[1..1024]of
   record
@@ -26,8 +28,8 @@ type
   LastQueueID:integer;
   constructor Create();
   procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
-  procedure AddNewDemand(aHouse:TKMHouse; aResource:TResourceType);
-  procedure AddNewJob(aHouse:TKMHouse; bHouse:TKMHouse; aResource:TResourceType);
+  procedure AddNewDemand(aLoc:TKMPoint; aResource:TResourceType);
+  procedure AddNewJob(aHouse:TKMHouse; bLoc:TKMPoint; aResource:TResourceType);
   function AskForJob(KMSerf:TKMSerf):TTaskDeliver;
   procedure CloseJob(aID:integer);
   end;
@@ -51,16 +53,17 @@ procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
 var i:integer;
 begin
 for i:=1 to 1024 do
-  if (fDemand[i].Resource=aResource) and (fDemand[i].House.CheckResIn(aResource)<MaxResInHouse) then
+  if (fDemand[i].Resource=aResource) and (fDemand[i].Status=js_Open) and ((fDemand[i].House=nil) or (fDemand[i].House.CheckResIn(aResource)<MaxResInHouse)) then
     begin
-      AddNewJob(aHouse,fDemand[i].House,aResource);
+      fDemand[i].Status:=js_Taken;
+      AddNewJob(aHouse,fDemand[i].Loc,aResource);
       exit;
     end;
 
 for i:=1 to 1024 do
   if fDemand[i].Resource=rt_All then
     begin
-      AddNewJob(aHouse,fDemand[i].House,aResource);
+      AddNewJob(aHouse,fDemand[i].Loc,aResource);
       exit;
     end;
 
@@ -69,6 +72,7 @@ while (i<1024)and(fOffer[i].House<>nil) do inc(i);
 with fOffer[i] do
   begin
     House:=aHouse;
+    Loc:=House.GetPosition;
     Resource:=aResource;
     Importance:=1;
   end;
@@ -76,28 +80,30 @@ end;
 
 //Adds new Demand to the list. List is stored without sorting,
 //so we just find an empty place and write there.
-procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aResource:TResourceType);
+procedure TKMDeliverQueue.AddNewDemand(aLoc:TKMPoint; aResource:TResourceType);
 var i:integer;
 begin
 for i:=1 to 1024 do
   if fOffer[i].Resource=aResource then
     begin
-      AddNewJob(aHouse,fOffer[i].House,aResource);
+      AddNewJob(fOffer[i].House,aLoc,aResource);
       exit;
     end;
 
 i:=1;
-while (i<1024)and(fDemand[i].House<>nil) do inc(i);
+while (i<1024)and(fDemand[i].Resource<>rt_None) do inc(i);
 with fDemand[i] do
   begin
-    House:=aHouse;
+    House:=ControlList.HousesHitTest(aLoc.X,aLoc.Y);
+    Loc:=aLoc;
     Resource:=aResource;
     Importance:=1;
+    Status:=js_Open;
   end;
 end;
 
 //Find an empty place
-procedure TKMDeliverQueue.AddNewJob(aHouse:TKMHouse; bHouse:TKMHouse; aResource:TResourceType);
+procedure TKMDeliverQueue.AddNewJob(aHouse:TKMHouse; bLoc:TKMPoint; aResource:TResourceType);
 //var i:integer;
 begin
 //i:=1;
@@ -106,7 +112,7 @@ begin
 with fQueue[LastQueueID] do
   begin
     Loc1:=aHouse.GetPosition;
-    Loc2:=bHouse.GetPosition;
+    Loc2:=bLoc;
     Resource:=aResource;
     Importance:=1;
     JobStatus:=js_Open;

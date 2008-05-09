@@ -6,6 +6,8 @@ uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 const
 MaxMapSize=176;         //Single cell size in pixels
 
+//type TRoadBuildState = (rbs_1=1,)
+
 type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class
@@ -14,9 +16,11 @@ AnimStep:integer;
 protected
 public
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
-    Terrain,Height,Rotation,Obj,Passability:byte;
+    Terrain,Height,Rotation,Obj:byte;
     Normal:record X,Y,Z:single; end;
     Light:single;
+    Passability:byte;
+    RoadState:byte;
   end;
   constructor Create;
   procedure MakeNewMap(Width,Height:integer);
@@ -24,6 +28,7 @@ public
   procedure RebuildNormals(LowX,HighX,LowY,HighY:integer);
   procedure RebuildLightning(LowX,HighX,LowY,HighY:integer);
   function ConvertSquareToMapCoord(inX,inY:single):single;
+  procedure IncRoadState(Loc:TKMPoint);
   procedure UpdateState;
   procedure Paint;
 published
@@ -74,6 +79,7 @@ Height:=random(4); //small variation in height
 Rotation:=0;
 Obj:=255; //none
 Passability:=255; //allow anything
+RoadState:=0; //no roads
 end;
 RebuildNormals(1,Map.X,1,Map.Y);
 end;
@@ -99,8 +105,9 @@ begin
       Land[i,k].Height:=c[3];
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
-      Land[i,k].Passability:=c[7];
-    end; 
+      Land[i,k].Passability:=255;
+      Land[i,k].RoadState:=0;
+    end;
 
 closefile(f);
 RebuildNormals(1,Map.X,1,Map.Y);
@@ -145,6 +152,11 @@ for i:=LowY to HighY do for k:=LowX to HighX do
     else
       Light:=min(max(Land[i,k].Height-Land[y2,x0].Height,0)/35,0.98)
   end;
+end;
+
+procedure TTerrain.IncRoadState(Loc:TKMPoint);
+begin
+Land[Loc.Y,Loc.X].RoadState:=min(Land[Loc.Y,Loc.X].RoadState+1,4);
 end;
 
 function TTerrain.ConvertSquareToMapCoord(inX,inY:single):single;
