@@ -21,6 +21,7 @@ public
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
   procedure RebuildNormals(LowX,HighX,LowY,HighY:integer);
+  function ConvertSquareToMapCoord(inX,inY:single):single;
   procedure UpdateState;
   procedure Paint;
 published
@@ -124,8 +125,26 @@ for i:=LowY to HighY do for k:=LowX to HighX do
       Normal.Z:=1;
     end;
   end;
-
 end;
 
+function TTerrain.ConvertSquareToMapCoord(inX,inY:single):single;
+var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
+begin
+  Xc:=EnsureRange(round(inX+0.5),1,Map.X); //Cell below cursor
+  Yc:=EnsureRange(round(inY+0.5),1,Map.Y);
+
+  for ii:=-2 to 4 do
+  begin//make an array of tile heights above and below cursor (-2..4)
+    Tmp:=EnsureRange(Yc+ii,1,Map.Y);
+    Ycoef[ii]:=(Yc-1)+ii-(fTerrain.Land[Tmp,Xc].Height*(1-frac(InX))+fTerrain.Land[Tmp,Xc+1].Height*frac(InX))/xh;
+  end;
+
+for ii:=-2 to 3 do //check if cursor in a tile and adjust it there
+  if (InY>=Ycoef[ii])and(InY<=Ycoef[ii+1]) then
+    begin
+      Result:=Yc+ii-(Ycoef[ii+1]-InY) / (Ycoef[ii+1]-Ycoef[ii]);
+      break;
+    end;
+end;
 
 end.

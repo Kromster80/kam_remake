@@ -15,6 +15,7 @@ private
   procedure RenderWireQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderSprite(TexID:integer; pX,pY,SizeX,SizeY:single);
+  procedure RenderSprite2(TexID:integer; pX,pY,SizeX,SizeY:single);
   procedure RenderRectangle(ElementID:integer; X,Y,SizeX,SizeY:integer);
   procedure Render3DButton(GUITexID:integer; X,Y,SizeX,SizeY:integer);
 protected
@@ -140,8 +141,8 @@ begin
   if Form1.ShowWires.Checked then fRender.RenderWires();
   ControlList.Paint;
 
-  glLoadIdentity();                // Reset The View
-  RenderToolBar();
+//  glLoadIdentity();                // Reset The View
+//  RenderToolBar();
 
   SwapBuffers(h_DC);
 end;
@@ -324,6 +325,19 @@ begin
     glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
+procedure TRender.RenderSprite2(TexID:integer; pX,pY,SizeX,SizeY:single);
+begin
+if TexID=0 then exit;
+    glBindTexture(GL_TEXTURE_2D, TexID);
+    glBegin (GL_QUADS);
+    glTexCoord2f(0,1); glvertex2f(pX-1      ,pY-1      );
+    glTexCoord2f(1,1); glvertex2f(pX-1+SizeX,pY-1      );
+    glTexCoord2f(1,0); glvertex2f(pX-1+SizeX,pY-1-SizeY);
+    glTexCoord2f(0,0); glvertex2f(pX-1      ,pY-1-SizeY);
+    glEnd;
+    glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
 procedure TRender.RenderTile(Index,pX,pY,Rot:integer);
 var xt,k,i,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
@@ -451,6 +465,8 @@ begin
           ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/40;
           ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/40;
           RenderSprite(HouseTex[ID,1],pX+ShiftX,pY+ShiftY,HouseTex[ID,2]/40,HouseTex[ID,3]/40);
+          glColor4ubv(@TeamColors[Owner]);
+          RenderSprite2(HouseTex[ID,4],pX+ShiftX,pY+ShiftY,HouseTex[ID,2]/40,HouseTex[ID,3]/40);
         end;
     end;
   end;
@@ -493,10 +509,11 @@ begin
 AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
 ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
-  glColor4f(Owner/2,1,1,1);
   ShiftX:=UnitPivot[ID].x/CellSize;
   ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize-fTerrain.Land[round(pY)+1,round(pX)].Height/xh;
   RenderSprite(UnitTex[ID,1],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
+  glColor4ubv(@TeamColors[Owner]);
+  RenderSprite2(UnitTex[ID,4],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
 end;
 
 procedure TRender.RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
@@ -505,12 +522,13 @@ begin
 AnimSteps:=UnitCarry[CarryID].Dir[DirID].Count;
 ID:=UnitCarry[CarryID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
-  glColor4f(Owner/2,1,1,1);
   ShiftX:=UnitPivot[ID].x/CellSize;
   ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize-fTerrain.Land[round(pY)+1,round(pX)].Height/xh;
   ShiftX:=ShiftX+UnitCarry[CarryID].Dir[DirID].MoveX/40;
   ShiftY:=ShiftY+UnitCarry[CarryID].Dir[DirID].MoveY/40;
   RenderSprite(UnitTex[ID,1],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
+  glColor4ubv(@TeamColors[Owner]);
+  RenderSprite2(UnitTex[ID,4],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
 end;
 
 

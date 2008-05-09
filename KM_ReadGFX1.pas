@@ -317,12 +317,13 @@ end;
 //=============================================
 //Make texture
 //=============================================
-procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2);
+procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:string);
 var
   i,k:integer;
   x:byte;
   by:^cardinal;
   DestX, DestY:integer;
+  col:cardinal;
   TD:Pointer;
 begin
 
@@ -335,7 +336,21 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
     x:=Data[i*mx+k];
     if (x<>0) then begin
       by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
-      by^:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000;
+      if Mode='Norm' then
+        if x in [24..30] then
+          col:=((x-27)*42+128)*65793 OR $FF000000 //convert to greyscale B>>>>>W
+        else
+          col:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000
+      else
+        case x of
+          24,30: col:=$70FFFFFF;   //7
+          25,29: col:=$B0FFFFFF;   //11
+          26,28: col:=$E0FFFFFF;   //14
+          27: col:=$FFFFFFFF;      //16
+        else
+          col:=0;
+        end;
+      by^:=col;
     end;
   end;
 
@@ -346,7 +361,10 @@ glBindTexture(GL_TEXTURE_2D, id^);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+  if Mode='Norm' then
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD)
+  else
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
 FreeMem(TD);
 end;
 
@@ -362,7 +380,7 @@ TreeTex[id,2]:=MakePOT(TreeSize[id,1]);
 TreeTex[id,3]:=MakePOT(TreeSize[id,2]);
 
 if TreeSize[id,1]*TreeSize[id,2]<>0 then
-GenTexture(@TreeTex[id,1],TreeSize[id,1],TreeSize[id,2],@TreeData[id,0]);
+GenTexture(@TreeTex[id,1],TreeSize[id,1],TreeSize[id,2],@TreeData[id,0],'Norm');
 
 setlength(TreeData[id],0);
 inc(Am,TreeTex[id,2]*TreeTex[id,3]*4);
@@ -378,18 +396,20 @@ procedure MakeHousesGFX(Sender: TObject);
 var i,id:integer; Am,Cm,Rm:integer;
 begin
 Am:=0; Rm:=0; Cm:=0;
-for id:=1 to HouseQty do begin
-HouseTex[id,2]:=MakePOT(HouseSize[id,1]);
-HouseTex[id,3]:=MakePOT(HouseSize[id,2]);
+for id:=1 to HouseQty do
+  if HouseSize[id,1]*HouseSize[id,2]<>0 then
+    begin
+      HouseTex[id,2]:=MakePOT(HouseSize[id,1]);
+      HouseTex[id,3]:=MakePOT(HouseSize[id,2]);
 
-for i:=0 to HouseSize[id,2]*HouseSize[id,1]-1 do
-if HouseData[id,i] in [24..30] then begin
-inc(Cm,HouseTex[id,2]*HouseTex[id,3]*4);
-break;
-end;
+      GenTexture(@HouseTex[id,1],HouseSize[id,1],HouseSize[id,2],@HouseData[id,0],'Norm');
 
-if HouseSize[id,1]*HouseSize[id,2]<>0 then
-GenTexture(@HouseTex[id,1],HouseSize[id,1],HouseSize[id,2],@HouseData[id,0]);
+      for i:=0 to HouseSize[id,2]*HouseSize[id,1]-1 do
+        if HouseData[id,i] in [24..30] then begin
+          GenTexture(@HouseTex[id,4],HouseSize[id,1],HouseSize[id,2],@HouseData[id,0],'AltID');
+          inc(Cm,HouseTex[id,2]*HouseTex[id,3]*4);
+          break;
+        end;
 
 setlength(HouseData[id],0);
 inc(Am,HouseTex[id,2]*HouseTex[id,3]*4);
@@ -406,23 +426,25 @@ procedure MakeUnitsGFX(Sender: TObject);
 var i,id:integer; Am,Cm,Rm:integer;
 begin
 Am:=0; Rm:=0; Cm:=0;
-for id:=1 to UnitQty do begin
-UnitTex[id,2]:=MakePOT(UnitSize[id,1]);
-UnitTex[id,3]:=MakePOT(UnitSize[id,2]);
+for id:=1 to UnitQty do
+  if UnitSize[id,1]*UnitSize[id,2]<>0 then
+    begin
+      UnitTex[id,2]:=MakePOT(UnitSize[id,1]);
+      UnitTex[id,3]:=MakePOT(UnitSize[id,2]);
 
-for i:=0 to UnitSize[id,2]*UnitSize[id,1]-1 do
-if UnitData[id,i] in [24..30] then begin
-inc(Cm,UnitTex[id,2]*UnitTex[id,3]*4);
-break;
-end;
+      GenTexture(@UnitTex[id,1],UnitSize[id,1],UnitSize[id,2],@UnitData[id,0],'Norm');
 
-if UnitSize[id,1]*UnitSize[id,2]<>0 then
-GenTexture(@UnitTex[id,1],UnitSize[id,1],UnitSize[id,2],@UnitData[id,0]);
+      for i:=0 to UnitSize[id,2]*UnitSize[id,1]-1 do
+        if UnitData[id,i] in [24..30] then begin
+          GenTexture(@UnitTex[id,4],UnitSize[id,1],UnitSize[id,2],@UnitData[id,0],'AltID');
+          inc(Cm,UnitTex[id,2]*UnitTex[id,3]*4);
+          break;
+        end;
 
-setlength(UnitData[id],0);
-inc(Am,UnitTex[id,2]*UnitTex[id,3]*4);
-inc(Rm,UnitSize[id,1]*UnitSize[id,2]*4);
-end;
+      setlength(UnitData[id],0);
+      inc(Am,UnitTex[id,2]*UnitTex[id,3]*4);
+      inc(Rm,UnitSize[id,1]*UnitSize[id,2]*4);
+    end;
 fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for units GFX');
 fLog.AppendLog(inttostr(Cm div 1024)+' KBytes for team colors');
 end;
@@ -444,7 +466,7 @@ GUITexUV[id].Top:=GUITex[id].TexH-GUISize[id,2];
 GUITexUV[id].Bottom:=GUITex[id].TexH;
 
 if GUISize[id,1]*GUISize[id,2]<>0 then
-GenTexture(@GUITex[id].TexID,GUISize[id,1],GUISize[id,2],@GUIData[id,0]);
+GenTexture(@GUITex[id].TexID,GUISize[id,1],GUISize[id,2],@GUIData[id,0],'Norm');
 
 setlength(GUIData[id],0);
 inc(Am,GUITex[id].TexW*GUITex[id].TexH*4);

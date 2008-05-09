@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 219
-  Top = 110
+  Left = 220
+  Top = 89
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 659
@@ -1553,6 +1553,69 @@ object Form1: TForm1
       59030303D00350595003D05003D25B5B5ED2D2D2D2D2D2D2D2FB06D2FB5BFB03
       0303}
   end
+  object Pl1: TSpeedButton
+    Left = 148
+    Top = 232
+    Width = 22
+    Height = 22
+    GroupIndex = 100
+    Down = True
+    Caption = '1'
+    Flat = True
+    Spacing = 2
+    Transparent = False
+    OnClick = Pl1Click
+  end
+  object Pl4: TSpeedButton
+    Left = 148
+    Top = 254
+    Width = 22
+    Height = 22
+    GroupIndex = 100
+    Caption = '4'
+    Flat = True
+    OnClick = Pl1Click
+  end
+  object Pl5: TSpeedButton
+    Left = 170
+    Top = 254
+    Width = 22
+    Height = 22
+    GroupIndex = 100
+    Caption = '5'
+    Flat = True
+    OnClick = Pl1Click
+  end
+  object Pl2: TSpeedButton
+    Left = 170
+    Top = 232
+    Width = 22
+    Height = 22
+    GroupIndex = 100
+    Caption = '2'
+    Flat = True
+    OnClick = Pl1Click
+  end
+  object Pl3: TSpeedButton
+    Left = 192
+    Top = 232
+    Width = 22
+    Height = 22
+    GroupIndex = 100
+    Caption = '3'
+    Flat = True
+    OnClick = Pl1Click
+  end
+  object Pl6: TSpeedButton
+    Left = 192
+    Top = 254
+    Width = 22
+    Height = 22
+    GroupIndex = 100
+    Caption = '6'
+    Flat = True
+    OnClick = Pl1Click
+  end
   object TBZoomControl: TTrackBar
     Left = 20
     Top = 209
@@ -1573,28 +1636,29 @@ object Form1: TForm1
     OnChange = ZoomChange
   end
   object Pallete: TPageControl
-    Left = 0
-    Top = 236
-    Width = 224
-    Height = 405
+    Left = 4
+    Top = 308
+    Width = 197
+    Height = 325
     ActivePage = TabSheet3
     Anchors = [akLeft, akTop, akBottom]
     Style = tsButtons
-    TabHeight = 40
+    TabHeight = 32
     TabIndex = 0
     TabOrder = 1
     TabWidth = 40
     OnChange = PalletePageChange
     object TabSheet3: TTabSheet
-      Caption = 'Houses'
+      Caption = 'Build'
       ImageIndex = 2
       object BB01: TSpeedButton
-        Left = 164
-        Top = 92
-        Width = 36
-        Height = 36
+        Left = 144
+        Top = 44
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           16030000424D1603000000000000B6000000280000001D000000130000000100
           08000000000060020000120B0000120B0000200000000000000000000000FFFF
@@ -1621,15 +1685,18 @@ object Form1: TForm1
           0A12121212121212121212121212121212000E0F10000A00000000090E0F000A
           1212121212121212121212121212121212000B0E0F000A000000120000001212
           1212121212121212121212121212121212120000001212000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB02: TSpeedButton
-        Left = 4
-        Top = 252
-        Width = 36
-        Height = 36
+        Left = 0
+        Top = 204
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           0E030000424D0E03000000000000B60000002800000018000000190000000100
           08000000000058020000120B0000120B0000200000000000000000000000FFFF
@@ -1656,15 +1723,18 @@ object Form1: TForm1
           08090B0A09000D111111111111000A0C0B0A0A0A0A0A0A0A0A0A0A09000D1111
           11111111111100000C0C0C0C0C0C0C0B0B0A0000111111111111111111111111
           000000000000000000001111111111111111}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB03: TSpeedButton
-        Left = 44
-        Top = 252
-        Width = 36
-        Height = 36
+        Left = 36
+        Top = 204
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           AA030000424DAA03000000000000B6000000280000001C0000001B0000000100
           080000000000F4020000120B0000120B0000200000000000000000000000FFFF
@@ -1696,15 +1766,18 @@ object Form1: TForm1
           1414141414141414141414000B0D001212141414141414141414141414141414
           14141414141414000A0B00121214141414141414141414141414141414141414
           1414140000000014141414141414}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB04: TSpeedButton
-        Left = 124
-        Top = 172
-        Width = 36
-        Height = 36
+        Left = 108
+        Top = 124
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           D6010000424DD60100000000000076000000280000001D000000160000000100
           04000000000060010000120B0000120B0000100000000000000000000000FFFF
@@ -1721,15 +1794,18 @@ object Form1: TForm1
           1111111077530AAA10001109042860AAA1111106475090AA100011029087760A
           AAA11067680920A110001110010273600AA0065620A001111000111111100336
           6006663001111111100011111111100001100001111111111000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB05: TSpeedButton
-        Left = 164
-        Top = 212
-        Width = 36
-        Height = 36
+        Left = 144
+        Top = 164
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           D6010000424DD60100000000000076000000280000001D000000160000000100
           04000000000060010000120B0000120B0000100000000000000000000000FFFF
@@ -1746,15 +1822,18 @@ object Form1: TForm1
           1111111011580444100011020793604441111106715020441000110920311604
           4441106163029041100011100109186004400656904001111000111111100886
           6006668001111111100011111111100001100001111111111000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB06: TSpeedButton
-        Left = 84
-        Top = 172
-        Width = 36
-        Height = 36
+        Left = 72
+        Top = 124
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           D6010000424DD60100000000000076000000280000001D000000160000000100
           04000000000060010000120B0000120B0000100000000000000000000000FFFF
@@ -1771,15 +1850,18 @@ object Form1: TForm1
           1111111022350999100011070486209991111102423070991000110870622209
           9991102226078091100011100108252009900232809001111000111111100552
           2002225001111111100011111111100001100001111111111000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB07: TSpeedButton
-        Left = 4
-        Top = 172
-        Width = 36
-        Height = 36
+        Left = 0
+        Top = 124
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           0E030000424D0E03000000000000B600000028000000120000001E0000000100
           08000000000058020000120B0000120B0000200000000000000000000000FFFF
@@ -1806,15 +1888,18 @@ object Form1: TForm1
           00001919191900000E0000191919191919191919000019191919190008001919
           1919191919191919000019191919190003001919191919191919191900001919
           191919000100191919191919191919190000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB08: TSpeedButton
-        Left = 84
-        Top = 132
-        Width = 36
-        Height = 36
+        Left = 72
+        Top = 84
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           B6010000424DB60100000000000076000000280000001C000000140000000100
           04000000000040010000120B0000120B0000100000000000000000000000FFFF
@@ -1830,15 +1915,18 @@ object Form1: TForm1
           0990331110540331000010527003307470003330075803110000110424500704
           4780000575503111000011105245877044745444770311110000111105454750
           0042222450311111000011111000000111000000011111110000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB09: TSpeedButton
-        Left = 4
-        Top = 132
-        Width = 36
-        Height = 36
+        Left = 0
+        Top = 84
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           36040000424D3604000000000000B6000000280000001E0000001C0000000100
           08000000000080030000120B0000120B0000200000000000000000000000FFFF
@@ -1874,15 +1962,18 @@ object Form1: TForm1
           1010101010101010101010101000000D0D00000A101010100000101010101010
           101010101010101010101010101000090B001010101010100000101010101010
           1010101010101010101010101010100000101010101010100000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB10: TSpeedButton
-        Left = 124
-        Top = 92
-        Width = 36
-        Height = 36
+        Left = 108
+        Top = 44
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           F6040000424DF60400000000000036010000280000001E0000001E0000000100
           080000000000C0030000120B0000120B0000400000000000000000000000FFFF
@@ -1924,15 +2015,18 @@ object Form1: TForm1
           000F00000F0D0F00000C001B2121212121212121212121210000212121212121
           21002121000E001B210021212121212121212121212121210000212121212121
           2121212121002121212121212121212121212121212121210000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB99: TSpeedButton
-        Left = 4
-        Top = 52
-        Width = 36
-        Height = 36
+        Left = 0
+        Top = 4
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           E6020000424DE602000000000000B6000000280000001A000000140000000100
           08000000000030020000120B0000120B0000200000000000000000000000FFFF
@@ -1958,16 +2052,19 @@ object Form1: TForm1
           0C0C0A030B0C0D0D0C0014141414141400001414141414000B0B030B0C0B0C0A
           0C0C0B000B001414141414140000141414141414000000000000000000000000
           00141414141414140000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB98: TSpeedButton
-        Left = 44
-        Top = 52
-        Width = 36
-        Height = 36
+        Left = 36
+        Top = 4
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
         Enabled = False
+        Flat = True
         Glyph.Data = {
           BA060000424DBA06000000000000360400002800000019000000170000000100
           08000000000084020000120B0000120B0000000100000000000000000000001F
@@ -2023,16 +2120,19 @@ object Form1: TForm1
           100A020E163200000000FF003232101932163232323232003232323210323232
           3200FF000000FFFFFF321932320F32FFFFFFFFFFFFFFFF320E32FFFFFFFFFF00
           0000FFFFFF003200003200FFFFFFFFFFFFFFFF003200FFFFFFFFFF000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB97: TSpeedButton
-        Left = 84
-        Top = 52
-        Width = 36
-        Height = 36
+        Left = 72
+        Top = 4
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
         Enabled = False
+        Flat = True
         Glyph.Data = {
           66060000424D660600000000000036040000280000001B000000140000000100
           08000000000030020000120B0000120B0000000100000000000000000000001F
@@ -2086,15 +2186,18 @@ object Form1: TForm1
           0A0A0A0A0D131212130A0A3600FFFFFFFF00FFFFFFFFFF360306060306060603
           0303030306040636FFFFFFFFFF00FFFFFFFFFF00363636363636363636363636
           36363600FFFFFFFFFF00}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB00: TSpeedButton
-        Left = 164
-        Top = 52
-        Width = 36
-        Height = 36
+        Left = 144
+        Top = 4
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           BE010000424DBE01000000000000420000002800000013000000130000000100
           0800000000007C010000120B0000120B00000300000000000000000000000027
@@ -2111,15 +2214,18 @@ object Form1: TForm1
           0101010000000001010100000202020202020200000101010000000001000002
           0202020202020202000001000000020000000202020202020202020202000000
           0200}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB11: TSpeedButton
-        Left = 84
-        Top = 252
-        Width = 36
-        Height = 36
+        Left = 72
+        Top = 204
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           C6010000424DC60100000000000076000000280000001A000000150000000100
           04000000000050010000120B0000120B0000100000000000000000000000FFFF
@@ -2136,15 +2242,18 @@ object Form1: TForm1
           C9ACA3A228A08000000010036B439959329BAC22CAAC01000000110043359220
           000A4923A90011000000111100B29001111008BB001111000000111111000111
           11111000111111000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB12: TSpeedButton
-        Left = 4
-        Top = 292
-        Width = 36
-        Height = 36
+        Left = 0
+        Top = 244
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           36030000424D3603000000000000B6000000280000001E000000140000000100
           08000000000080020000120B0000120B0000200000000000000000000000FFFF
@@ -2172,15 +2281,18 @@ object Form1: TForm1
           0D0D0D0D0D0D0D0D0D0D0D0D0D0D0D0D110C0F000B0B141400001414000D0F0E
           101010101010101010101010101010100E0F0D000B1414140000141414000000
           0000000000000000000000000000000000000014141414140000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB13: TSpeedButton
-        Left = 124
-        Top = 212
-        Width = 36
-        Height = 36
+        Left = 108
+        Top = 164
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           06020000424D0602000000000000760000002800000019000000190000000100
           04000000000090010000120B0000120B0000100000000000000000000000FFFF
@@ -2199,15 +2311,18 @@ object Form1: TForm1
           A4445509111110000000111110562228A4444091111110000000111111026424
           4444091111111000000011111110023654001111111110000000111111111000
           00111111111110000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB14: TSpeedButton
-        Left = 4
-        Top = 92
-        Width = 36
-        Height = 36
+        Left = 0
+        Top = 44
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           06020000424D060200000000000076000000280000001A000000190000000100
           04000000000090010000120B0000120B000010000000000000005FCBBF0073DB
@@ -2226,15 +2341,18 @@ object Form1: TForm1
           C7458861644CBB000000C9A666502CCDDCC20566644CBB000000C99502CCCDDD
           DDDCCC20544CBB000000C95CCCDDDDDDDDDDDDCCC44CBB000000CCCDDDDDDDDD
           DDDDDDDDDCCCDD000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB15: TSpeedButton
-        Left = 84
-        Top = 92
-        Width = 36
-        Height = 36
+        Left = 72
+        Top = 44
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           F6030000424DF603000000000000B6000000280000001D0000001A0000000100
           08000000000040030000120B0000120B0000200000000000000000000000FFFF
@@ -2268,15 +2386,18 @@ object Form1: TForm1
           101010101000000D0D00000A1010101010101010101010000000101010101010
           10101010101000090B000A101010101010101010101010000000101010101010
           1010101010101000001010101010101010101010101010000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB16: TSpeedButton
-        Left = 164
-        Top = 172
-        Width = 36
-        Height = 36
+        Left = 144
+        Top = 124
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           F6010000424DF601000000000000760000002800000019000000180000000100
           04000000000080010000120B0000120B0000100000000000000000000000FFFF
@@ -2294,15 +2415,18 @@ object Form1: TForm1
           135DDABA09111000000011103AD7CDDDDDD7DA709111100000001111016DC777
           7CADB309111110000000111110A2DCDDCA66B09111111000000011111100A111
           2A60011111111000000011111111000000011111111110000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB17: TSpeedButton
-        Left = 124
-        Top = 132
-        Width = 36
-        Height = 36
+        Left = 108
+        Top = 84
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           46020000424D460200000000000076000000280000001D0000001D0000000100
           040000000000D0010000120B0000120B0000100000000000000000000000FFFF
@@ -2323,15 +2447,18 @@ object Form1: TForm1
           6031111111111111100005246556556603111111111111111000106655468660
           3111111111111111100011055424650311111111111111111000111000000011
           11111111111111111000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB18: TSpeedButton
-        Left = 44
-        Top = 292
-        Width = 36
-        Height = 36
+        Left = 36
+        Top = 244
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           AE010000424DAE010000000000007600000028000000120000001A0000000100
           04000000000038010000120B0000120B0000100000000000000000000000FFFF
@@ -2347,15 +2474,18 @@ object Form1: TForm1
           887726664994900000000478887226666499900000000478887266666499A000
           00000678877266666449A00000000770057200866004A0000000075005870088
           700690000000100110001100001001000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB21: TSpeedButton
-        Left = 84
-        Top = 212
-        Width = 36
-        Height = 36
+        Left = 72
+        Top = 164
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           C6010000424DC60100000000000076000000280000001A000000150000000100
           04000000000050010000120B0000120B0000100000000000000000000000FFFF
@@ -2372,15 +2502,18 @@ object Form1: TForm1
           44445999755A5000000010083338947999975499555401000000110098884950
           0005949754001100000011110079500111100477001111000000111111000111
           11111000111111000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB19: TSpeedButton
-        Left = 164
-        Top = 252
-        Width = 36
-        Height = 36
+        Left = 144
+        Top = 204
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           76040000424D7604000000000000B6000000280000001D0000001E0000000100
           080000000000C0030000120B0000120B0000200000000000000000000000FFFF
@@ -2418,15 +2551,18 @@ object Form1: TForm1
           1010100007050204060A0C000F10101010101010101010000000101010101010
           1010101000060503060C000F1010101010101010101010000000101010101010
           1010101010000D0C0A000F101010101010101010101010000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB22: TSpeedButton
-        Left = 124
-        Top = 252
-        Width = 36
-        Height = 36
+        Left = 108
+        Top = 204
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           3A030000424D3A03000000000000B6000000280000001A000000170000000100
           08000000000084020000120B0000120B0000200000000000000000000000FFFF
@@ -2454,15 +2590,18 @@ object Form1: TForm1
           10000D0A0C0010120000000B0A0A001012000A0C0C0010000A07001012000A0A
           0A101212000012000C0012121212000C00101212000010121212000D00121212
           000012120012121212121200121212121212121212121210121212120000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB20: TSpeedButton
-        Left = 4
-        Top = 212
-        Width = 36
-        Height = 36
+        Left = 0
+        Top = 164
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           0E070000424D0E0700000000000036040000280000001B0000001A0000000100
           080000000000D8020000120B0000120B0000000100000000000000000000FFFF
@@ -2521,15 +2660,18 @@ object Form1: TForm1
           0101000907070400010101010101010101010101010101010100010101010100
           0000000001010101010101010101010101010101010001010101010101010101
           010101010101010101010101010101010100}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB23: TSpeedButton
-        Left = 44
-        Top = 132
-        Width = 36
-        Height = 36
+        Left = 36
+        Top = 84
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           56020000424D560200000000000076000000280000001E0000001E0000000100
           040000000000E0010000120B0000120B0000100000000000000000000000FFFF
@@ -2550,15 +2692,18 @@ object Form1: TForm1
           1111111110255860310010255878603111111111110255031100110286870311
           1111111111102031110011102860311111111111111101111100111102031111
           1111111111111111110011111011111111111111111111111100}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB24: TSpeedButton
-        Left = 84
-        Top = 292
-        Width = 36
-        Height = 36
+        Left = 72
+        Top = 244
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           46020000424D460200000000000076000000280000001E0000001D0000000100
           040000000000D0010000120B0000120B0000100000000000000000000000FFFF
@@ -2579,15 +2724,18 @@ object Form1: TForm1
           AAAAADDBA40811111100111111041CEBDDDDBBA140811111110011111110041C
           ABBAC14001111111110011111111100351153001111111111100111111111110
           00000111111111111100}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB25: TSpeedButton
-        Left = 164
-        Top = 132
-        Width = 36
-        Height = 36
+        Left = 144
+        Top = 84
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           16020000424D160200000000000076000000280000001B0000001A0000000100
           040000000000A0010000120B0000120B0000100000000000000000000000FFFF
@@ -2606,15 +2754,18 @@ object Form1: TForm1
           8990333330011110000011111095422788090003311111100000111111009888
           8098880311111110000011111111000000558033111111100000111111111111
           1055803111111110000011111111111110000111111111100000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB26: TSpeedButton
-        Left = 44
-        Top = 212
-        Width = 36
-        Height = 36
+        Left = 36
+        Top = 164
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           56020000424D560200000000000076000000280000001D0000001E0000000100
           040000000000E0010000120B0000120B0000100000000000000000000000FFFF
@@ -2635,27 +2786,33 @@ object Form1: TForm1
           0000345535550888100011053555000111110000555550888000104555508111
           1111111105375308800003565308111111111111105554081000105400111111
           1111111111035081100011001111111111111111111001111000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB27: TSpeedButton
-        Left = 124
-        Top = 292
-        Width = 36
-        Height = 36
+        Left = 108
+        Top = 244
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
         Caption = '27'
         Enabled = False
+        Flat = True
+        Layout = blGlyphTop
+        Spacing = -1
         Visible = False
         OnClick = BBClick
       end
       object BB28: TSpeedButton
-        Left = 44
-        Top = 92
-        Width = 36
-        Height = 36
+        Left = 36
+        Top = 44
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           56030000424D5603000000000000B600000028000000150000001C0000000100
           080000000000A0020000120B0000120B00002000000000000000773F3F00A75F
@@ -2684,15 +2841,18 @@ object Form1: TForm1
           0F06020F08101010100F06040F08080000000F070F08070F08070F0810101010
           100F03040F0808000000100F10100F10100F10101010101010100F040F081000
           000010101010101010101010101010101010100F101010000000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
       object BB29: TSpeedButton
-        Left = 44
-        Top = 172
-        Width = 36
-        Height = 36
+        Left = 36
+        Top = 124
+        Width = 32
+        Height = 32
         AllowAllUp = True
         GroupIndex = 3
+        Flat = True
         Glyph.Data = {
           56030000424D5603000000000000B600000028000000160000001C0000000100
           080000000000A0020000120B0000120B0000200000000000000000000000FFFF
@@ -2721,99 +2881,61 @@ object Form1: TForm1
           001919000D00000A09080018181919190000191919191919191919000B001800
           0909001818191919000019191919191919191900160018190008001819191919
           0000191919191919191919190019191919001919191919190000}
+        Layout = blGlyphTop
+        Spacing = -1
         OnClick = BBClick
       end
-      object Pl1: TSpeedButton
-        Left = 132
-        Top = 4
-        Width = 22
-        Height = 22
-        GroupIndex = 100
-        Down = True
-        Caption = '1'
-        Flat = True
-        Spacing = 2
-        Transparent = False
-        OnClick = Pl1Click
-      end
-      object Pl2: TSpeedButton
-        Left = 154
-        Top = 4
-        Width = 22
-        Height = 22
-        GroupIndex = 100
-        Caption = '2'
-        Flat = True
-        OnClick = Pl1Click
-      end
-      object Pl3: TSpeedButton
-        Left = 176
-        Top = 4
-        Width = 22
-        Height = 22
-        GroupIndex = 100
-        Caption = '3'
-        Flat = True
-        OnClick = Pl1Click
-      end
-      object Pl4: TSpeedButton
-        Left = 132
-        Top = 26
-        Width = 22
-        Height = 22
-        GroupIndex = 100
-        Caption = '4'
-        Flat = True
-        OnClick = Pl1Click
-      end
-      object Pl5: TSpeedButton
-        Left = 154
-        Top = 26
-        Width = 22
-        Height = 22
-        GroupIndex = 100
-        Caption = '5'
-        Flat = True
-        OnClick = Pl1Click
-      end
-      object Pl6: TSpeedButton
-        Left = 176
-        Top = 26
-        Width = 22
-        Height = 22
-        GroupIndex = 100
-        Caption = '6'
-        Flat = True
-        OnClick = Pl1Click
+    end
+    object TabSheet1: TTabSheet
+      Caption = 'Ratios'
+      ImageIndex = 1
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Stats'
+      ImageIndex = 2
+    end
+    object TabSheet4: TTabSheet
+      Caption = 'Menu'
+      ImageIndex = 3
+      object Button2: TButton
+        Left = 16
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = 'Button2'
+        TabOrder = 0
       end
       object Button3: TButton
-        Left = 4
-        Top = 4
-        Width = 61
+        Left = 16
+        Top = 40
+        Width = 75
         Height = 25
-        Caption = 'Open DAT'
-        TabOrder = 0
-        OnClick = OpenDATClick
-      end
-      object ExportDAT: TButton
-        Left = 64
-        Top = 4
-        Width = 61
-        Height = 25
-        Caption = 'Export ...'
+        Caption = 'Button2'
         TabOrder = 1
-        OnClick = ExportDATClick
       end
-      object ConvertDAT: TButton
-        Left = 4
-        Top = 28
-        Width = 121
-        Height = 17
-        Caption = 'Decode DAT ...'
-        Enabled = False
+      object Button4: TButton
+        Left = 16
+        Top = 72
+        Width = 75
+        Height = 25
+        Caption = 'Button2'
         TabOrder = 2
-        Visible = False
-        OnClick = ConvertDATClick
+      end
+      object Button5: TButton
+        Left = 16
+        Top = 104
+        Width = 75
+        Height = 25
+        Caption = 'Button2'
+        TabOrder = 3
+      end
+      object Button6: TButton
+        Left = 16
+        Top = 136
+        Width = 75
+        Height = 25
+        Caption = 'Button2'
+        TabOrder = 4
       end
     end
   end
@@ -2886,8 +3008,8 @@ object Form1: TForm1
     OnMouseUp = Panel1MouseUp
   end
   object Button1: TButton
-    Left = 136
-    Top = 240
+    Left = 8
+    Top = 232
     Width = 81
     Height = 25
     Caption = 'Start SandBox'
@@ -2954,6 +3076,21 @@ object Form1: TForm1
       object Exit1: TMenuItem
         Caption = 'Exit'
         OnClick = ExitClick
+      end
+    end
+    object Script1: TMenuItem
+      Caption = 'Script'
+      object OpenDAT: TMenuItem
+        Caption = 'Open DAT ...'
+        OnClick = OpenDATClick
+      end
+      object ExportDAT: TMenuItem
+        Caption = 'Export DAT ...'
+        OnClick = ExportDATClick
+      end
+      object DecodeDAT: TMenuItem
+        Caption = 'Decode DAT ...'
+        OnClick = DecodeDATClick
       end
     end
     object Advanced1: TMenuItem

@@ -181,7 +181,7 @@ procedure TKMHunter.Paint();
 var UnitType,Owner:integer; AnimAct,AnimDir:integer;
 begin
 if not fVisible then exit;
-Owner:=2;//should be inherited from =Player=
+Owner:=1;//should be inherited from =Player=
 UnitType:=integer(fUnitType);
 AnimAct:=integer(fCurrentAction.fActionType);
 AnimDir:=integer(Direction);
@@ -304,7 +304,7 @@ procedure TKMHomeSitting.Paint();
 var UnitType,Owner:integer; AnimAct,AnimDir:integer;
 begin
 if not fVisible then exit;
-Owner:=2;//should be inherited from =Player=
+Owner:=1;//should be inherited from =Player=
 UnitType:=integer(fUnitType);
 AnimAct:=integer(fCurrentAction.fActionType);
 AnimDir:=integer(Direction);
@@ -366,7 +366,7 @@ procedure TKMSerf.Paint();
 var UnitType,Owner:integer; AnimAct,AnimDir:integer;
 begin
   if not fVisible then exit;
-  Owner:=2;//should be inherited from =Player=
+  Owner:=1;//should be inherited from =Player=
   UnitType:=1;
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
@@ -436,7 +436,7 @@ end;
 procedure TKMwarrior.Paint();
 var UnitType,Owner:integer; AnimAct,AnimDir:integer;
 begin
-Owner:=2;//should be inherited from =Player=
+Owner:=1;//should be inherited from =Player=
 UnitType:=22;
 AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
 AnimDir:=integer(Direction);

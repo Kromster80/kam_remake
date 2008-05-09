@@ -94,12 +94,12 @@ procedure TMiniMap.Repaint();
 var i,k:integer;
 begin
 for i:=1 to Map.Y do for k:=1 to Map.X do
-mmMiniMap.Canvas.Pixels[k-1,i-1]:=TileMMColor[fTerrain.Land[i,k].Terrain+1];
+mmMiniMap.Canvas.Pixels[k-1,i-1]:=0;//TileMMColor[fTerrain.Land[i,k].Terrain+1];
 
-if Mission<>nil then
-for i:=1 to Map.Y do for k:=1 to Map.X do
-if Mission.Roads[k,i] then
-mmMiniMap.Canvas.Pixels[k-1,i-1]:=R[Mission.Owner[k,i]]+G[Mission.Owner[k,i]]*256+B[Mission.Owner[k,i]]*65536;
+//if Mission<>nil then
+//for i:=1 to Map.Y do for k:=1 to Map.X do
+//if Mission.Roads[k,i] then
+//mmMiniMap.Canvas.Pixels[k-1,i-1]:=R[Mission.Owner[k,i]]+G[Mission.Owner[k,i]]*256+B[Mission.Owner[k,i]]*65536;
 
 mmMiniMap.Left:=(MaxMapSize-Map.X) div 2;
 mmMiniMap.Top:=(MaxMapSize-Map.Y) div 2;

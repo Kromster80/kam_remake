@@ -25,8 +25,8 @@ var
   fLog: TKMLog;
 
   TreeTex:array[1..400,1..3]of GLUint;  //[ID,width,height]
-  HouseTex:array[1..2000,1..3]of GLUint;//[ID,width,height]
-  UnitTex:array[1..9500,1..3]of GLUint; //[ID,width,height]
+  HouseTex:array[1..2000,1..4]of GLUint;//[ID,width,height]
+  UnitTex:array[1..9500,1..4]of GLUint; //[ID,width,height,altID]
   GUITex:array[1..600] of record
     TexID,TexW,TexH:GLUint;
   end;

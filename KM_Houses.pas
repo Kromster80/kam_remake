@@ -253,14 +253,16 @@ fOwnerAtHome:=false;
 end;               
 
 procedure TKMHouse.Paint;
+var Owner:byte;
 begin
+Owner:=1;
 //Render base
 fRender.RenderHouse(integer(fHouseType),fPosition.X, fPosition.Y);
 //Render supplies
 fRender.RenderHouseSupply(integer(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
 //Render animation
 if fCurrentAction=nil then exit;
-fRender.RenderHouseWork(integer(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,1,fPosition.X, fPosition.Y);
+fRender.RenderHouseWork(integer(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,Owner,fPosition.X, fPosition.Y);
 end;
 
 { THouseAction }

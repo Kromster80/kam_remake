@@ -52,12 +52,6 @@ type
     MiniMap: TImage;
     Shape1: TShape;
     ImageList1: TImageList;
-    Pl1: TSpeedButton;
-    Pl2: TSpeedButton;
-    Pl3: TSpeedButton;
-    Pl4: TSpeedButton;
-    Pl5: TSpeedButton;
-    Pl6: TSpeedButton;
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     OpenMapMenu: TMenuItem;
@@ -70,11 +64,9 @@ type
     ShowObjects: TMenuItem;
     ShowFlatTerrain: TMenuItem;
     Panel5: TPanel;
-    Button3: TButton;
     Image3: TImage;
     Image4: TImage;
     Label1: TLabel;
-    ExportDAT: TButton;
     Timer1: TTimer;
     Image1: TImage;
     ImageList2: TImageList;
@@ -88,11 +80,29 @@ type
     ExportTreesRX: TMenuItem;
     ExportHousesRX: TMenuItem;
     ExportUnitsRX: TMenuItem;
+    Script1: TMenuItem;
+    OpenDAT: TMenuItem;
+    ExportDAT: TMenuItem;
+    DecodeDAT: TMenuItem;
+    Pl1: TSpeedButton;
+    Pl4: TSpeedButton;
+    Pl5: TSpeedButton;
+    Pl2: TSpeedButton;
+    Pl3: TSpeedButton;
+    Pl6: TSpeedButton;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet4: TTabSheet;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
-    procedure ConvertDATClick(Sender: TObject);
+    procedure DecodeDATClick(Sender: TObject);
     procedure OpenMapClick(Sender: TObject);
     procedure ZoomChange(Sender: TObject);
     procedure MiniMapMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -193,7 +203,7 @@ begin
   fMiniMap.SetRect(fViewport);
 end;
 
-procedure TForm1.ConvertDATClick(Sender: TObject);
+procedure TForm1.DecodeDATClick(Sender: TObject);
 var ii,fsize:integer;
 begin
 if not OpenDialog1.Execute then exit;
@@ -257,31 +267,14 @@ begin
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-var
-  ii,Tmp:integer;
-    Ycoef:array[-2..4]of single;
 begin
-  if (X>224)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
+  if (X>0)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
   else
     exit;
 MapX:=fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom;
 MapY:=fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom;
 
-MapXc:=EnsureRange(round(MapX+0.5),1,Map.X); //Cell below cursor
-MapYc:=EnsureRange(round(MapY+0.5),1,Map.Y);
-
-  for ii:=-2 to 4 do
-  begin//make an array of tile heights above and below cursor (-2..4)
-Tmp:=EnsureRange(MapYc+ii,1,Map.Y);
-Ycoef[ii]:=(MapYc-1)+ii-(fTerrain.Land[Tmp,MapXc].Height*(1-frac(MapX))+fTerrain.Land[Tmp,MapXc+1].Height*frac(MapX))/xh;
-end;
-
-for ii:=-2 to 3 do //check if cursor in a tile and adjust it there
-    if (MapY>=Ycoef[ii])and(MapY<=Ycoef[ii+1]) then
-    begin
-      MapY:=MapYc+ii-(Ycoef[ii+1]-MapY) / (Ycoef[ii+1]-Ycoef[ii]);
-      break;
-    end;
+MapY:=fTerrain.ConvertSquareToMapCoord(MapX,MapY);
 
 MapXc:=EnsureRange(round(MapX+0.5),1,Map.X); //Cell below cursor
 MapYc:=EnsureRange(round(MapY+0.5),1,Map.Y);
@@ -290,17 +283,7 @@ MapYn:=EnsureRange(round(MapY+1),1,Map.Y);
 
 StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(MapX*10)/10)+' '+floattostr(round(MapY*10)/10);
 
-  if not MousePressed then
-    exit;
-                  {
-if BrushMode=bmHouses then
-    if (MapXc in [2..Map.X-1])and(MapYc in [2..Map.Y-1]) then
-    begin
-      if LandBrush=99 then
-        Mission.AddRoad(MapXc,MapYc,Mission.ActivePlayer);
-      if LandBrush=00 then
-        Mission.RemRoad(MapXc,MapYc);
-end;                       }
+if not MousePressed then exit;
 
 MapXn2:=MapXn; MapYn2:=MapYn;
 MapXc2:=MapXc; MapYc2:=MapYc;
@@ -477,7 +460,7 @@ ControlList.AddUnit('User', ut_Serf, KMPoint(4,11));
 ControlList.AddUnit('User', ut_Serf, KMPoint(5,11));
 ControlList.AddUnit('User', ut_Serf, KMPoint(6,11));
 ControlList.AddUnit('User', ut_Serf, KMPoint(7,11));
-ControlList.AddUnit('User', ut_Serf, KMPoint(8,11));
+ControlList.AddUnit('User', ut_Worker, KMPoint(8,11));
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);
