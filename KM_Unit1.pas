@@ -460,6 +460,14 @@ ControlList.AddUnit('User', ut_Serf, KMPoint(5,11));
 ControlList.AddUnit('User', ut_Serf, KMPoint(6,11));
 ControlList.AddUnit('User', ut_Serf, KMPoint(7,11));
 ControlList.AddUnit('User', ut_Worker, KMPoint(8,11));
+ControlList.AddUnit('User', ut_Worker, KMPoint(9,11));
+
+ControlList.BuildList.AddNewRoadToBuild(KMPoint(5,12));
+ControlList.BuildList.AddNewRoadToBuild(KMPoint(6,12));
+ControlList.BuildList.AddNewRoadToBuild(KMPoint(7,13));
+ControlList.BuildList.AddNewRoadToBuild(KMPoint(7,14));
+ControlList.BuildList.AddNewRoadToBuild(KMPoint(7,15));
+ControlList.BuildList.AddNewRoadToBuild(KMPoint(7,12));
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

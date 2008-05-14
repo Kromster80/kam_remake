@@ -34,7 +34,8 @@ type
   private
     fUnits: TKMUnitsCollection;
     fHouses: TKMHousesCollection;
-    fJobList: TKMDeliverQueue;
+    fDeliverList: TKMDeliverQueue;
+    fBuildList: TKMBuildingQueue;
     function GetCtrl(Index: Integer): TKMUserControl;
     function UserByName(const aName: string): TKMUser;
   public
@@ -51,7 +52,8 @@ type
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsSelectedUnit: TKMUnit;
-    property JobList:TKMDeliverQueue read fJobList;
+    property DeliverList:TKMDeliverQueue read fDeliverList;
+    property BuildList:TKMBuildingQueue read fBuildList;
   public
     procedure UpdateState;
     procedure Paint;
@@ -108,14 +110,16 @@ constructor TKMUserControlList.Create();
 begin
   fUnits:= TKMUnitsCollection.Create;
   fHouses:= TKMHousesCollection.Create;
-  fJobList:= TKMDeliverQueue.Create;
+  fDeliverList:= TKMDeliverQueue.Create;
+  fBuildList:= TKMbuildingQueue.Create;
 end;
 
 destructor TKMUserControlList.Destroy;
 begin
   fUnits.Free;
   fHouses.Free;
-  fJobList.Free;
+  fDeliverList.Free;
+  fBuildList.Free;
   inherited;
 end;
 

@@ -129,7 +129,7 @@ begin
   fInputTypes[1]:=HouseInput[byte(aHouseType),1];
   for i:=1 to 1 do
     if fInputTypes[i]<>rt_None then
-      ControlList.JobList.AddNewDemand(Self.fPosition,fInputTypes[i]);
+      ControlList.DeliverList.AddNewDemand(Self.fPosition,fInputTypes[i]);
 end;
 
 destructor TKMHouse.Destroy;
@@ -173,7 +173,7 @@ begin
     begin
       inc(fResourceOut[i],aCount);
       for k:=1 to aCount do
-      ControlList.JobList.AddNewOffer(Self,aResource);
+      ControlList.DeliverList.AddNewOffer(Self,aResource);
     end;
 end;
 

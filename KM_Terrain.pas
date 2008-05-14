@@ -29,6 +29,7 @@ public
   procedure RebuildLightning(LowX,HighX,LowY,HighY:integer);
   function ConvertSquareToMapCoord(inX,inY:single):single;
   procedure IncRoadState(Loc:TKMPoint);
+  procedure RebuildRoadState(Loc:TKMPoint);
   procedure UpdateState;
   procedure Paint;
 published
@@ -79,7 +80,7 @@ Height:=random(4); //small variation in height
 Rotation:=0;
 Obj:=255; //none
 Passability:=255; //allow anything
-RoadState:=0; //no roads
+RoadState:=255; //no roads
 end;
 RebuildNormals(1,Map.X,1,Map.Y);
 end;
@@ -106,7 +107,7 @@ begin
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
       Land[i,k].Passability:=255;
-      Land[i,k].RoadState:=0;
+      Land[i,k].RoadState:=255;
     end;
 
 closefile(f);
@@ -156,7 +157,31 @@ end;
 
 procedure TTerrain.IncRoadState(Loc:TKMPoint);
 begin
-Land[Loc.Y,Loc.X].RoadState:=min(Land[Loc.Y,Loc.X].RoadState+1,4);
+if Land[Loc.Y,Loc.X].RoadState=255 then Land[Loc.Y,Loc.X].RoadState:=0;
+Land[Loc.Y,Loc.X].RoadState:=min(Land[Loc.Y,Loc.X].RoadState+16,16*5);
+
+//New piece of road has been built
+if Land[Loc.Y,Loc.X].RoadState>=16*5 then
+  begin
+    Land[Loc.Y,Loc.X].RoadState:=0;
+    RebuildRoadState(Loc);
+    RebuildRoadState(KMPoint(Loc.X+1,Loc.Y));
+    RebuildRoadState(KMPoint(Loc.X,Loc.Y+1));
+    RebuildRoadState(KMPoint(Loc.X-1,Loc.Y));
+    RebuildRoadState(KMPoint(Loc.X,Loc.Y-1));
+  end;
+end;
+
+procedure TTerrain.RebuildRoadState(Loc:TKMPoint);
+var rd:byte;
+begin
+  if Land[Loc.Y,Loc.X].RoadState>15 then exit; //no road
+  rd:=0;
+  if Land[max(Loc.Y-1,1),Loc.X                  ].RoadState in [0..15] then inc(rd,1);  //   1
+  if Land[Loc.Y         ,min(Loc.X+1,MaxMapSize)].RoadState in [0..15] then inc(rd,2);  //   2
+  if Land[max(Loc.Y+1,1),Loc.X                  ].RoadState in [0..15] then inc(rd,4);  //   4
+  if Land[Loc.Y         ,min(Loc.X-1,MaxMapSize)].RoadState in [0..15] then inc(rd,8);  //   8
+  Land[Loc.Y,Loc.X].RoadState:=rd;
 end;
 
 function TTerrain.ConvertSquareToMapCoord(inX,inY:single):single;
@@ -168,7 +193,8 @@ begin
   for ii:=-2 to 4 do
   begin//make an array of tile heights above and below cursor (-2..4)
     Tmp:=EnsureRange(Yc+ii,1,Map.Y);
-    Ycoef[ii]:=(Yc-1)+ii-(fTerrain.Land[Tmp,Xc].Height*(1-frac(InX))+fTerrain.Land[Tmp,Xc+1].Height*frac(InX))/xh;
+    Ycoef[ii]:=(Yc-1)+ii-(fTerrain.Land[Tmp,Xc].Height*(1-frac(InX))
+                         +fTerrain.Land[Tmp,Xc+1].Height*frac(InX))/xh;
   end;
 
 for ii:=-2 to 3 do //check if cursor in a tile and adjust it there

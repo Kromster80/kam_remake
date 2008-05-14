@@ -210,26 +210,32 @@ glbegin (GL_QUADS);
 glEnd;
 
 for i:=y1 to y2 do for k:=x1 to x2 do
-if fTerrain.Land[i,k].RoadState<>0 then
+if fTerrain.Land[i,k].RoadState <> 255 then
+if fTerrain.Land[i,k].RoadState div 16 in [1..4] then
+  RenderTile(248+(fTerrain.Land[i,k].RoadState div 16)*2,k,i,0)
+else
   begin
-  RenderTile(248+fTerrain.Land[i,k].RoadState*2,k,i,0);
+    rd:=fTerrain.Land[i,k].RoadState;
+    ID:=RoadsConnectivity[rd,1];
+    Rot:=RoadsConnectivity[rd,2];
+    RenderTile(ID,k,i,Rot);
   end;
 
-                    
+      {
 if Mission<>nil then
 for i:=y1 to y2 do for k:=x1 to x2 do
 with Mission do
 if Roads[k,i] then
   begin
     rd:=0;
-    if (Roads[k                  ,max(i-1,1)         ]) then inc(rd,1);  //   1
-    if (Roads[min(k+1,MaxMapSize),i                  ]) then inc(rd,2);  //  8*2
-    if (Roads[k                  ,min(i+1,MaxMapSize)]) then inc(rd,4);  //   4
-    if (Roads[max(k-1,1)         ,i                  ]) then inc(rd,8);  //Take preset from table
+    if Roads[k                  ,max(i-1,1)         ] then inc(rd,1);  //   1
+    if Roads[min(k+1,MaxMapSize),i                  ] then inc(rd,2);  //  8*2
+    if Roads[k                  ,min(i+1,MaxMapSize)] then inc(rd,4);  //   4
+    if Roads[max(k-1,1)         ,i                  ] then inc(rd,8);  //Take preset from table
     ID:=RoadsConnectivity[rd,1];
     Rot:=RoadsConnectivity[rd,2];
   RenderTile(ID,k,i,Rot);
-  end;
+  end;              }
 
 glColor4f(1,1,1,1);
 glBlendFunc(GL_DST_COLOR,GL_ONE);

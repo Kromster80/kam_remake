@@ -69,8 +69,9 @@ type
     private
     fWorker:TKMWorker;
     fLoc:TKMPoint;
+    ID:integer;
     public
-    constructor Create(aWorker:TKMWorker; aLoc:TKMPoint);
+    constructor Create(aWorker:TKMWorker; aLoc:TKMPoint; aID:integer);
     procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -441,7 +442,7 @@ end;
 
 function TKMSerf.GetActionFromQueue():TUnitTask;
 begin
-Result:=ControlList.JobList.AskForJob(Self);
+Result:=ControlList.DeliverList.AskForDelivery(Self);
 end;
 
 { TKMWorker }
@@ -487,7 +488,7 @@ end;
 
 function TKMWorker.GetActionFromQueue():TUnitTask;
 begin
-Result:=TTaskBuildRoad.Create(Self,KMPoint(9,12));
+Result:=ControlList.BuildList.AskForRoadToBuild(Self,KMPoint(1,1));
 end;
 
 { TKMwarrior }
@@ -617,27 +618,31 @@ case Phase of
      TakeResource(Carry);
    end;
 9: SetAction(TGoInUnitAction.Create(ua_walk,gid_Out));
-10: ControlList.JobList.CloseJob(ID);
+10: ControlList.DeliverList.CloseDelivery(ID);
 11: TaskDone:=true;
 end;
 if ControlList.HousesHitTest(fTo.X,fTo.Y)=nil then
 with fSerf do
 case Phase of
 6: TakeResource(Carry);
-7: inc(ControlList.UnitsHitTest(fTo.X,fTo.Y).UnitTask.Phase);
-8: ControlList.UnitsHitTest(fTo.X,fTo.Y).SetAction(TStayUnitAction.Create(0,ua_Work1));
-9: ControlList.JobList.CloseJob(ID);
-10: TaskDone:=true;
+7: if ControlList.UnitsHitTest(fTo.X,fTo.Y)<>nil then
+     begin
+       inc(ControlList.UnitsHitTest(fTo.X,fTo.Y).UnitTask.Phase);
+       ControlList.UnitsHitTest(fTo.X,fTo.Y).SetAction(TStayUnitAction.Create(0,ua_Work1));
+     end;
+8: ControlList.DeliverList.CloseDelivery(ID);
+9: TaskDone:=true;
 end;
 inc(Phase);
 end;
 
 { TTaskBuildRoad }
-constructor TTaskBuildRoad.Create(aWorker:TKMWorker; aLoc:TKMPoint);
+constructor TTaskBuildRoad.Create(aWorker:TKMWorker; aLoc:TKMPoint; aID:integer);
 begin
 fWorker:=aWorker;
 fLoc:=aLoc;
 Phase:=0;
+ID:=aID;
 end;
 
 procedure TTaskBuildRoad.Execute(out TaskDone:boolean);
@@ -653,19 +658,20 @@ case Phase of
 4: fTerrain.IncRoadState(fLoc);
 5: SetAction(TStayUnitAction.Create(22,ua_Work1,false));
 
-6: ControlList.JobList.AddNewDemand(fLoc,rt_Stone);
+6: ControlList.DeliverList.AddNewDemand(fLoc,rt_Stone);
 
 7: SetAction(TStayUnitAction.Create(30,ua_Work1));
 
-8: SetAction(TStayUnitAction.Create(22,ua_Work1,false));
+8: SetAction(TStayUnitAction.Create(22,ua_Work2,false));
 9: fTerrain.IncRoadState(fLoc);
-10: SetAction(TStayUnitAction.Create(22,ua_Work1,false));
-11: fTerrain.IncRoadState(fLoc);
-12:SetAction(TStayUnitAction.Create(22,ua_Work1,false));
+10:SetAction(TStayUnitAction.Create(22,ua_Work2,false));
+11:fTerrain.IncRoadState(fLoc);
+12:SetAction(TStayUnitAction.Create(22,ua_Work2,false));
 13:fTerrain.IncRoadState(fLoc);
-//15:TaskDone:=true;
+14:ControlList.BuildList.CloseRoadToBuild(ID);
+15:TaskDone:=true;
 end;
-if (Phase<>7)and(Phase<>13) then inc(Phase);
+if Phase<>7 then inc(Phase); //Phase=7 is when worker waits for rt_Stone
 end;
 
 { TTaskMining }
