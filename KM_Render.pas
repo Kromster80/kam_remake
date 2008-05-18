@@ -210,41 +210,27 @@ glbegin (GL_QUADS);
 glEnd;
 
 for i:=y1 to y2 do for k:=x1 to x2 do
-if fTerrain.Land[i,k].RoadState <> 255 then
 if fTerrain.Land[i,k].RoadState div 16 in [1..4] then
   RenderTile(248+(fTerrain.Land[i,k].RoadState div 16)*2,k,i,0)
 else
+  if fTerrain.Land[i,k].Road<>0 then
   begin
-    rd:=fTerrain.Land[i,k].RoadState;
+    rd:=fTerrain.Land[i,k].RoadState mod 16;
     ID:=RoadsConnectivity[rd,1];
     Rot:=RoadsConnectivity[rd,2];
     RenderTile(ID,k,i,Rot);
   end;
 
-      {
-if Mission<>nil then
-for i:=y1 to y2 do for k:=x1 to x2 do
-with Mission do
-if Roads[k,i] then
-  begin
-    rd:=0;
-    if Roads[k                  ,max(i-1,1)         ] then inc(rd,1);  //   1
-    if Roads[min(k+1,MaxMapSize),i                  ] then inc(rd,2);  //  8*2
-    if Roads[k                  ,min(i+1,MaxMapSize)] then inc(rd,4);  //   4
-    if Roads[max(k-1,1)         ,i                  ] then inc(rd,8);  //Take preset from table
-    ID:=RoadsConnectivity[rd,1];
-    Rot:=RoadsConnectivity[rd,2];
-  RenderTile(ID,k,i,Rot);
-  end;              }
+glDisable(GL_LIGHTING);
 
 glColor4f(1,1,1,1);
 glBlendFunc(GL_DST_COLOR,GL_ONE);
 glBindTexture(GL_TEXTURE_2D, TextG);
 glbegin (GL_QUADS);
+glNormal3f(0,1,0);
 with fTerrain do
 for i:=y1 to y2 do for k:=x1 to x2 do
   begin
-  glNormal3f(0,1,0); //height difference / 35 seems to be about perfect
   glTexCoord2f(0,Land[i  ,k  ].Light); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
   glTexCoord2f(0,Land[i+1,k  ].Light); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
   glTexCoord2f(0,Land[i+1,k+1].Light); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
@@ -252,15 +238,9 @@ for i:=y1 to y2 do for k:=x1 to x2 do
   end;
 glEnd;
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//Need to add shadow overdraw yet
+//Need to add shadow overdraw later
 
-{if Form1.CB1.Checked then
-for i:=y1 to y2 do for k:=x1 to x2 do begin
-glColor4f(1,1,1,(Land[i,k].y1)/255);
-RenderQuad(k,i);
-end;  }
 glBindTexture(GL_TEXTURE_2D,0);
-glDisable(GL_LIGHTING);
 end;
 
 procedure TRender.RenderCursorPosition(ActivePage:string);

@@ -6,7 +6,7 @@ uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 const
 MaxMapSize=176;         //Single cell size in pixels
 
-//type TRoadBuildState = (rbs_1=1,)
+type TRoadType = (rdt_Road=1, rdt_Field=2, rdt_Wine=3);
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -20,6 +20,7 @@ public
     Normal:record X,Y,Z:single; end;
     Light:single;
     Passability:byte;
+    Road:byte; //Owner 0..15, Type 16..63
     RoadState:byte;
   end;
   constructor Create;
@@ -29,6 +30,7 @@ public
   procedure RebuildLightning(LowX,HighX,LowY,HighY:integer);
   function ConvertSquareToMapCoord(inX,inY:single):single;
   procedure IncRoadState(Loc:TKMPoint);
+  procedure SetRoad(Loc:TKMPoint; aOwner:integer; aRoadType:TRoadType);
   procedure RebuildRoadState(Loc:TKMPoint);
   procedure UpdateState;
   procedure Paint;
@@ -80,7 +82,8 @@ Height:=random(4); //small variation in height
 Rotation:=0;
 Obj:=255; //none
 Passability:=255; //allow anything
-RoadState:=255; //no roads
+Road:=0; //no roads
+RoadState:=0; //no roads
 end;
 RebuildNormals(1,Map.X,1,Map.Y);
 end;
@@ -107,13 +110,14 @@ begin
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
       Land[i,k].Passability:=255;
-      Land[i,k].RoadState:=255;
+      Land[i,k].Road:=0; //no roads
+      Land[i,k].RoadState:=0;
     end;
 
 closefile(f);
 RebuildNormals(1,Map.X,1,Map.Y);
 RebuildLightning(1,Map.X,1,Map.Y);
-fMinimap.Repaint;
+fMiniMap.ReSize(Map.X,Map.Y);
 Result:=true;
 end;
 
@@ -157,12 +161,14 @@ end;
 
 procedure TTerrain.IncRoadState(Loc:TKMPoint);
 begin
-if Land[Loc.Y,Loc.X].RoadState=255 then Land[Loc.Y,Loc.X].RoadState:=0;
 Land[Loc.Y,Loc.X].RoadState:=min(Land[Loc.Y,Loc.X].RoadState+16,16*5);
+end;
 
-//New piece of road has been built
+procedure TTerrain.SetRoad(Loc:TKMPoint; aOwner:integer; aRoadType:TRoadType);
+begin
 if Land[Loc.Y,Loc.X].RoadState>=16*5 then
   begin
+    Land[Loc.Y,Loc.X].Road:=aOwner+byte(aRoadType)*16;
     Land[Loc.Y,Loc.X].RoadState:=0;
     RebuildRoadState(Loc);
     RebuildRoadState(KMPoint(Loc.X+1,Loc.Y));
@@ -173,14 +179,15 @@ if Land[Loc.Y,Loc.X].RoadState>=16*5 then
 end;
 
 procedure TTerrain.RebuildRoadState(Loc:TKMPoint);
-var rd:byte;
+var rd,tmp:byte;
 begin
-  if Land[Loc.Y,Loc.X].RoadState>15 then exit; //no road
+  tmp:=Land[Loc.Y,Loc.X].Road div 16;
+  if tmp=0 then exit; //no road yet
   rd:=0;
-  if Land[max(Loc.Y-1,1),Loc.X                  ].RoadState in [0..15] then inc(rd,1);  //   1
-  if Land[Loc.Y         ,min(Loc.X+1,MaxMapSize)].RoadState in [0..15] then inc(rd,2);  //   2
-  if Land[max(Loc.Y+1,1),Loc.X                  ].RoadState in [0..15] then inc(rd,4);  //   4
-  if Land[Loc.Y         ,min(Loc.X-1,MaxMapSize)].RoadState in [0..15] then inc(rd,8);  //   8
+  if Land[max(Loc.Y-1,1),Loc.X                  ].Road div 16 = tmp then inc(rd,1);  //   1
+  if Land[Loc.Y         ,min(Loc.X+1,MaxMapSize)].Road div 16 = tmp then inc(rd,2);  //   2
+  if Land[max(Loc.Y+1,1),Loc.X                  ].Road div 16 = tmp then inc(rd,4);  //   4
+  if Land[Loc.Y         ,min(Loc.X-1,MaxMapSize)].Road div 16 = tmp then inc(rd,8);  //   8
   Land[Loc.Y,Loc.X].RoadState:=rd;
 end;
 

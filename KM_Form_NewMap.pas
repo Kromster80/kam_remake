@@ -53,7 +53,7 @@ procedure TFormNewMap.InitializeNewMap(MapX,MapY:integer);
 begin
 fTerrain.Create;
 fTerrain.MakeNewMap(96,96);
-fMinimap.Repaint();
+fMiniMap.ReSize(Map.X,Map.Y);
 fViewport.SetZoom(1);
 Form1.FormResize(nil);
 Form1.Caption:='KaM Editor - '+'New';

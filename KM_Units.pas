@@ -668,8 +668,9 @@ case Phase of
 11:fTerrain.IncRoadState(fLoc);
 12:SetAction(TStayUnitAction.Create(22,ua_Work2,false));
 13:fTerrain.IncRoadState(fLoc);
-14:ControlList.BuildList.CloseRoadToBuild(ID);
-15:TaskDone:=true;
+14:fTerrain.SetRoad(fLoc,fOwnerID,rdt_Road);
+15:ControlList.BuildList.CloseRoadToBuild(ID);
+16:TaskDone:=true;
 end;
 if Phase<>7 then inc(Phase); //Phase=7 is when worker waits for rt_Stone
 end;

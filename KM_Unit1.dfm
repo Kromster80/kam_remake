@@ -24,7 +24,7 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object Image3: TImage
-    Left = 162
+    Left = 106
     Top = 205
     Width = 19
     Height = 21
@@ -104,7 +104,7 @@ object Form1: TForm1
     Transparent = True
   end
   object Label1: TLabel
-    Left = 185
+    Left = 129
     Top = 210
     Width = 26
     Height = 13
@@ -1619,7 +1619,7 @@ object Form1: TForm1
   object TBZoomControl: TTrackBar
     Left = 20
     Top = 209
-    Width = 141
+    Width = 85
     Height = 21
     Max = 7
     Min = 1
@@ -3016,27 +3016,28 @@ object Form1: TForm1
     TabOrder = 5
     OnClick = Button1Click
   end
-  object CheckBox1: TCheckBox
-    Left = 232
-    Top = 24
-    Width = 49
-    Height = 17
-    Caption = 'Pause'
+  object GroupBox1: TGroupBox
+    Left = 224
+    Top = 4
+    Width = 161
+    Height = 57
+    Caption = ' Speed 0-20x  '
     TabOrder = 6
-  end
-  object CheckBox2: TCheckBox
-    Left = 232
-    Top = 8
-    Width = 105
-    Height = 17
-    Caption = 'CompressTime x5'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 7
+    object TrackBar1: TTrackBar
+      Left = 4
+      Top = 16
+      Width = 150
+      Height = 33
+      Max = 20
+      Orientation = trHorizontal
+      Frequency = 1
+      Position = 0
+      SelEnd = 0
+      SelStart = 0
+      TabOrder = 0
+      TickMarks = tmBottomRight
+      TickStyle = tsAuto
+    end
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
@@ -3129,10 +3130,15 @@ object Form1: TForm1
       OnClick = AboutClick
     end
   end
-  object Timer1: TTimer
+  object Timer100ms: TTimer
     Interval = 100
-    OnTimer = Timer1Timer
+    OnTimer = Timer100msTimer
     Left = 832
+    Top = 600
+  end
+  object Timer1sec: TTimer
+    OnTimer = Timer1secTimer
+    Left = 864
     Top = 600
   end
 end

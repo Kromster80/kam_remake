@@ -95,7 +95,8 @@ end;
 UnitCarry:array[1..28] of record
   Dir:array[1..8]of record
     Step:array[1..30]of smallint;
-    Count,MoveX,x3,MoveY,x5:smallint;
+    Count:smallint;
+    MoveX,MoveY:integer;
   end;
 end;
 

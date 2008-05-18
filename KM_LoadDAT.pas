@@ -144,7 +144,6 @@ end;
 end;
 
 Mission.ActivePlayer:=1;
-fMiniMap.Repaint;
 end;
 
 procedure ExportText(filename:string);

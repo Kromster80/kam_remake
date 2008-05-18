@@ -66,12 +66,10 @@ type
     Image3: TImage;
     Image4: TImage;
     Label1: TLabel;
-    Timer1: TTimer;
+    Timer100ms: TTimer;
     Image1: TImage;
     Button1: TButton;
     PrintScreen1: TMenuItem;
-    CheckBox1: TCheckBox;
-    CheckBox2: TCheckBox;
     Export1: TMenuItem;
     ExportGUIRX: TMenuItem;
     ExportTreesRX: TMenuItem;
@@ -95,6 +93,9 @@ type
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
+    Timer1sec: TTimer;
+    GroupBox1: TGroupBox;
+    TrackBar1: TTrackBar;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -120,13 +121,14 @@ type
     procedure ShowObjectsClick(Sender: TObject);
     procedure ShowFlatTerrainClick(Sender: TObject);
     procedure ExportDATClick(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
+    procedure Timer100msTimer(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure PrintScreen1Click(Sender: TObject);
     procedure ExportGUIRXClick(Sender: TObject);
     procedure ExportTreesRXClick(Sender: TObject);
     procedure ExportHousesRXClick(Sender: TObject);
     procedure ExportUnitsRXClick(Sender: TObject);
+    procedure Timer1secTimer(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -186,7 +188,7 @@ end;
 procedure TForm1.OpenMap(filename:string);
 begin
 fTerrain.OpenMapFromFile(filename);
-fMinimap.Repaint();
+fMinimap.ReSize(Map.X,Map.Y);
 fViewport.SetZoom(1);
 Form1.FormResize(nil);
 Form1.Caption:='KaM Editor - '+filename;
@@ -309,7 +311,6 @@ P.Y:=MapYc;
       end;
   end;
 MouseButton:=mb2None;
-fMiniMap.Repaint;
 end;
 
 procedure TForm1.Pl1Click(Sender: TObject);
@@ -342,14 +343,12 @@ begin
 fRender.Destroy;
 end;
 
-procedure TForm1.Timer1Timer(Sender: TObject);
+procedure TForm1.Timer100msTimer(Sender: TObject);
 var i:integer;
 begin
-if CheckBox1.Checked then exit;
-  ControlList.UpdateState;
+if TrackBar1.Position <> 0 then
   fTerrain.UpdateState;
-if CheckBox2.Checked then
-  for i:=1 to 4 do
+for i:=1 to TrackBar1.Position do
   ControlList.UpdateState;
 end;
 
@@ -504,5 +503,10 @@ procedure TForm1.ExportGUIRXClick(Sender: TObject);   begin ExportRX2BMP('GUI');
 procedure TForm1.ExportTreesRXClick(Sender: TObject); begin ExportRX2BMP('Trees'); end;
 procedure TForm1.ExportHousesRXClick(Sender: TObject);begin ExportRX2BMP('Houses');end;
 procedure TForm1.ExportUnitsRXClick(Sender: TObject); begin ExportRX2BMP('Units'); end;
+
+procedure TForm1.Timer1secTimer(Sender: TObject);
+begin
+fMiniMap.Repaint;
+end;
 
 end.

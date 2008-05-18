@@ -1,7 +1,7 @@
 unit KM_Viewport;
 interface
 
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types;
+uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics;
 
 type
 
@@ -32,6 +32,7 @@ protected
 public
   constructor Create(inShape:TShape; inMiniMap:TImage; inLabel:TLabel); //Provide three key elements
   procedure SetRect(Viewport:TViewport); //Update view area position and size, use TViewport info
+  procedure ReSize(X,Y:integer);
   procedure Repaint(); //Repaint minimap
 published
 end;
@@ -64,10 +65,10 @@ end;
 
 function TViewport.GetClip():TRect;
 begin
-Result.Left  :=max(round(XCoord-ViewWidth/CellSize/2/Zoom*10),1);
-Result.Right :=min(round(XCoord+ViewWidth/CellSize/2/Zoom*10)+1,Map.X-1);
-Result.Top   :=max(round(YCoord-ViewHeight/CellSize/2/Zoom*10),1);
-Result.Bottom:=min(round(YCoord+ViewHeight/CellSize/2/Zoom*10)+4,Map.Y-1);
+Result.Left  :=max(round(XCoord-ViewWidth/CellSize/2/Zoom),1);
+Result.Right :=min(round(XCoord+ViewWidth/CellSize/2/Zoom)+1,Map.X-1);
+Result.Top   :=max(round(YCoord-ViewHeight/CellSize/2/Zoom),1);
+Result.Bottom:=min(round(YCoord+ViewHeight/CellSize/2/Zoom)+4,Map.Y-1);
 end;
 
 constructor TMiniMap.Create(inShape:TShape; inMiniMap:TImage; inLabel:TLabel);
@@ -91,20 +92,27 @@ begin
 end;
 
 procedure TMiniMap.Repaint();
-var i,k:integer;
+var i,k:integer; bm:TBitmap;
 begin
+bm:=TBitmap.Create;
+bm.Width:=mmMiniMap.Width;
+bm.Height:=mmMiniMap.Height;
 for i:=1 to Map.Y do for k:=1 to Map.X do
-mmMiniMap.Canvas.Pixels[k-1,i-1]:=0;//TileMMColor[fTerrain.Land[i,k].Terrain+1];
+  if fTerrain.Land[i,k].Road=0 then
+    bm.Canvas.Pixels[k-1,i-1]:=TileMMColor[fTerrain.Land[i,k].Terrain+1]
+  else
+    bm.Canvas.Pixels[k-1,i-1]:=TeamColors[fTerrain.Land[i,k].Road mod 16,1]+
+                               TeamColors[fTerrain.Land[i,k].Road mod 16,1]*256+
+                               TeamColors[fTerrain.Land[i,k].Road mod 16,1]*65536;
+mmMiniMap.Canvas.StretchDraw(mmMiniMap.ClientRect,bm);
+end;
 
-//if Mission<>nil then
-//for i:=1 to Map.Y do for k:=1 to Map.X do
-//if Mission.Roads[k,i] then
-//mmMiniMap.Canvas.Pixels[k-1,i-1]:=R[Mission.Owner[k,i]]+G[Mission.Owner[k,i]]*256+B[Mission.Owner[k,i]]*65536;
-
-mmMiniMap.Left:=(MaxMapSize-Map.X) div 2;
-mmMiniMap.Top:=(MaxMapSize-Map.Y) div 2;
-mmMiniMap.Width:=Map.X;
-mmMiniMap.Height:=Map.Y;
+procedure TMiniMap.ReSize(X,Y:integer);
+begin
+mmMiniMap.Left:=(MaxMapSize-X) div 2;
+mmMiniMap.Top:=(MaxMapSize-Y) div 2;
+mmMiniMap.Width:=X;
+mmMiniMap.Height:=Y;
 end;
 
 end.
