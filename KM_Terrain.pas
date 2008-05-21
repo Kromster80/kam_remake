@@ -29,7 +29,8 @@ public
   function OpenMapFromFile(filename:string):boolean;
   procedure RebuildNormals(LowX,HighX,LowY,HighY:integer);
   procedure RebuildLightning(LowX,HighX,LowY,HighY:integer);
-  function ConvertSquareToMapCoord(inX,inY:single):single;
+  function ConvertCursorToMapCoord(inX,inY:single):single;
+  function InterpolateMapCoord(inX,inY:single):single;
 public
   procedure IncRoadState(Loc:TKMPoint);
   procedure SetRoad(Loc:TKMPoint; aOwner:integer; aRoadType:TRoadType);
@@ -91,11 +92,11 @@ Map.Y:=Height;
 
 for i:=1 to Height do for k:=1 to Width do with Land[i,k] do begin
 Terrain:=0;
-Height:=random(4); //small variation in height
+Height:=random(12); //variation in height
 Rotation:=0;
 Obj:=255; //none
 Passability:=255; //allow anything
-TileOwner:=0; //no roads
+TileOwner:=0;
 RoadType:=rdt_None;
 RoadState:=0;
 RoadSurr:=0;
@@ -226,12 +227,9 @@ procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType);
 var i,k:integer;
 begin
 
-for i:=1 to 4 do for k:=1 to 4 do begin
+for i:=1 to 4 do for k:=1 to 4 do
   if HousePlanYX[byte(aHouseType),i,k]<>0 then
     Land[Loc.Y+i-1,Loc.X+k-1].RoadType:=rdt_HousePlan;
-//  if HousePlanYX[byte(aHouseType),i,k]=2 then
-//    Land[Loc.Y+i-1,Loc.X+k-1].RoadType:=rdt_HousePlan;
-end;
 
 for i:=1 to 4 do for k:=1 to 4 do
   if HousePlanYX[byte(aHouseType),i,k]<>0 then
@@ -239,7 +237,7 @@ for i:=1 to 4 do for k:=1 to 4 do
 
 end;
 
-function TTerrain.ConvertSquareToMapCoord(inX,inY:single):single;
+function TTerrain.ConvertCursorToMapCoord(inX,inY:single):single;
 var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
 begin
   Xc:=EnsureRange(round(inX+0.5),1,Map.X); //Cell below cursor
@@ -258,6 +256,15 @@ for ii:=-2 to 3 do //check if cursor in a tile and adjust it there
       Result:=Yc+ii-(Ycoef[ii+1]-InY) / (Ycoef[ii+1]-Ycoef[ii]);
       break;
     end;
+end;
+
+function TTerrain.InterpolateMapCoord(inX,inY:single):single;
+var ii:integer; Xc,Yc:integer; Tmp:integer; y1,y2:single;
+begin
+{Xc:=trunc(inX);
+y1:=
+Result:=fTerrain.Land[inY,inX].Height*(1-frac(InX)
+       +fTerrain.Land[inY,inX+1].Height*frac(InX);}
 end;
 
 end.

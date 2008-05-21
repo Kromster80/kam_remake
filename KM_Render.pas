@@ -36,6 +36,7 @@ public
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderHouse(Index,pX,pY:integer);
+  procedure RenderHouseBuild(Index,Mode,Step,pX,pY:integer);
   procedure RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
   procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
 published
@@ -287,6 +288,7 @@ end;
 glEnd;
 end;
 
+glPointSize(3);
 glbegin (GL_POINTS);
 for i:=max(MapYc-10,1) to min(MapYc+10,Map.Y) do
 for k:=max(MapXc-10,1) to min(MapXc+10,Map.X) do begin
@@ -492,10 +494,10 @@ end;
     b.x:=GUITexUV[ID].Right/GUITex[ID].TexW;
     b.y:=GUITexUV[ID].Top/GUITex[ID].TexH;
   glBegin(GL_QUADS);
-    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY+1,pX].Height/xh);
-    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY+1,pX].Height/xh-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY,pX+1].Height/xh-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY,pX+1].Height/xh);
+    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/xh);
+    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/xh-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/xh-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/xh);
 
     glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/xh);
     glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/xh-0.25);
@@ -595,6 +597,17 @@ begin
     ShiftX:=HousePivot[ID].x/CellSize;
     ShiftY:=(HousePivot[ID].y+HouseSize[ID,2])/CellSize-fTerrain.Land[pY+1,pX].Height/xh;
     RenderSprite(HouseTex[ID,1],pX+ShiftX,pY+ShiftY,HouseTex[ID,2]/40,HouseTex[ID,3]/40);
+end;
+
+procedure TRender.RenderHouseBuild(Index,Mode,Step,pX,pY:integer);
+var ShiftX,ShiftY:single; ID:integer;
+begin
+if Mode=1 then begin
+    ID:=Index+250;
+    ShiftX:=GUIPivot[ID].x/CellSize;
+    ShiftY:=(GUIPivot[ID].y+GUISize[ID,2])/CellSize-fTerrain.Land[pY+1,pX].Height/xh;
+    RenderSprite(GUITex[ID].TexID,pX+ShiftX,pY+ShiftY,GUITex[ID].TexW/40,GUITex[ID].TexH/40);
+end;
 end;
 
 procedure TRender.RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);

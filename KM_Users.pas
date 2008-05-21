@@ -101,6 +101,7 @@ end;
 
 procedure TKMUserControlList.AddHousePlan(aLoc: TKMPoint; aHouseType: THouseType);
 begin
+  fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y);
   fTerrain.SetHousePlan(aLoc, aHouseType);
   BuildList.AddNewHouseToBuild(aLoc, aHouseType);
 end;

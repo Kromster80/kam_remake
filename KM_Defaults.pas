@@ -42,7 +42,9 @@ type bmBrushMode = (bm_None,bm_Houses);
     ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
     ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
 
-  THouseState = ( hst_Plan, hst_Wood, hst_Stone, hst_Empty, hst_Idle, hst_Work );
+  THouseState = ( hst_Empty, hst_Idle, hst_Work );
+
+  THouseBuildState = (hbs_Glyph, hbs_Wood, hbs_Stone, hbs_Done);
 
   THouseActionType = (
   ha_Work1=1, ha_Work2=2, ha_Work3=3, ha_Work4=4, ha_Work5=5, //Start, InProgress, .., .., Finish

@@ -96,6 +96,7 @@ type
     Timer1sec: TTimer;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
+    CheckBox3: TCheckBox;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -273,7 +274,7 @@ begin
 MapX:=fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom;
 MapY:=fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom;
 
-MapY:=fTerrain.ConvertSquareToMapCoord(MapX,MapY);
+MapY:=fTerrain.ConvertCursorToMapCoord(MapX,MapY);
 
 MapXc:=EnsureRange(round(MapX+0.5),1,Map.X); //Cell below cursor
 MapYc:=EnsureRange(round(MapY+0.5),1,Map.Y);
@@ -470,7 +471,7 @@ ControlList.AddRoadPlan(KMPoint(7,14),rdt_Road);
 ControlList.AddRoadPlan(KMPoint(7,15),rdt_Road);
 ControlList.AddRoadPlan(KMPoint(7,12),rdt_Road);
 
-ControlList.AddHousePlan(KMPoint(7,16), ht_SawMill);
+ControlList.AddHousePlan(KMPoint(7,16), ht_Inn);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

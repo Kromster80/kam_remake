@@ -3029,8 +3029,17 @@ object Form1: TForm1
     Top = 8
     Width = 97
     Height = 17
-    Caption = 'Pause'
+    Caption = 'Speedup x10'
     TabOrder = 7
+  end
+  object CheckBox3: TCheckBox
+    Left = 224
+    Top = 40
+    Width = 97
+    Height = 17
+    Caption = 'Wires'
+    TabOrder = 8
+    OnClick = ShowWiresClick
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'

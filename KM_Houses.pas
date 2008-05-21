@@ -49,6 +49,7 @@ type
   private
     fPosition: TKMPoint;
     fHouseType: THouseType;
+    fBuildState:THouseBuildState;
     fOwnerID: byte;
 
     fHasOwner: boolean;
@@ -66,8 +67,9 @@ type
     fLastUpdateTime: Cardinal;
     AnimStep: integer;
   public
-    constructor Create(PosX,PosY:integer; aHouseType:THouseType);
+    constructor Create(PosX,PosY:integer; aHouseType:THouseType; aBuildState:THouseBuildState);
     destructor Destroy; override;
+    procedure Activate;
     function HitTest(X, Y: Integer): Boolean; overload;
     procedure SetState(aState: THouseState);
     procedure OwnerGoesIn;
@@ -84,17 +86,12 @@ type
     procedure Paint();
   end;
 
-{ TKMStore = class(TKMHouse) end;
-  TKMWatchTower = class(TKMHouse) end;
-  TKMTownHall = class(TKMHouse) end;
-  TKMBarracks = class(TKMHouse) end;
-  TKMInn = class(TKMHouse) end;}
-
   TKMHousesCollection = class(TList)
   private
     fSelectedHouse: TKMHouse;
   public
     procedure Add(aHouseType: THouseType; PosX,PosY:integer);
+    procedure AddPlan(aHouseType: THouseType; PosX,PosY:integer);
     procedure Rem(PosX,PosY:integer);
     procedure Clear; override;
     procedure UpdateState;
@@ -107,35 +104,41 @@ type
 implementation
 uses KM_DeliverQueue, KM_Unit1;
 
+
 { TKMHouse }
 
-constructor TKMHouse.Create(PosX,PosY:integer; aHouseType:THouseType);
-var i:integer;
+constructor TKMHouse.Create(PosX,PosY:integer; aHouseType:THouseType; aBuildState:THouseBuildState);
 begin
   Inherited Create;
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
   fHouseType:=aHouseType;
+  fBuildState:=aBuildState;
   fOwnerID:=1;
   fHasOwner:=false;
   fOwnerAtHome:=false;
-
-  fProductionPlan:=HouseProductionPlanID[byte(aHouseType)];
-
-  fCurrentAction:=THouseAction.Create(hst_Empty);
-  fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
-
-  fOutputTypes[1]:=HouseOutput[byte(aHouseType),1];
-  fInputTypes[1]:=HouseInput[byte(aHouseType),1];
-  for i:=1 to 1 do
-    if fInputTypes[i]<>rt_None then
-      ControlList.DeliverList.AddNewDemand(Self.fPosition,fInputTypes[i]);
+  if aBuildState=hbs_Done then Self.Activate;
 end;
 
 destructor TKMHouse.Destroy;
 begin
   Inherited;
   fCurrentAction.Free;
+end;
+
+procedure TKMHouse.Activate;
+var i:integer;
+begin
+  fProductionPlan:=HouseProductionPlanID[byte(fHouseType)];
+
+  fCurrentAction:=THouseAction.Create(hst_Empty);
+  fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
+
+  fOutputTypes[1]:=HouseOutput[byte(fHouseType),1];
+  fInputTypes[1]:=HouseInput[byte(fHouseType),1];
+  for i:=1 to 1 do
+    if fInputTypes[i]<>rt_None then
+      ControlList.DeliverList.AddNewDemand(Self.fPosition,fInputTypes[i]);
 end;
 
 function TKMHouse.HitTest(X, Y: Integer): Boolean;
@@ -220,6 +223,7 @@ var
   TimeDelta: Cardinal;
   DoEnd,TaskDone: Boolean;
 begin
+if fBuildState<>hbs_Done then exit;
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
   fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
@@ -257,13 +261,19 @@ end;
 
 procedure TKMHouse.Paint;
 begin
+case fBuildState of
+hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),1,1,fPosition.X, fPosition.Y);
+//hbs_Wood: fRender.RenderHouse(byte(fHouseType),fPosition.X, fPosition.Y);
+else begin
 //Render base
-fRender.RenderHouse(integer(fHouseType),fPosition.X, fPosition.Y);
+fRender.RenderHouse(byte(fHouseType),fPosition.X, fPosition.Y);
 //Render supplies
-fRender.RenderHouseSupply(integer(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
+fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
 //Render animation
 if fCurrentAction=nil then exit;
-fRender.RenderHouseWork(integer(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,fOwnerID,fPosition.X, fPosition.Y);
+fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,fOwnerID,fPosition.X, fPosition.Y);
+end;
+end;
 end;
 
 { THouseAction }
@@ -372,13 +382,14 @@ procedure TKMHousesCollection.Add(aHouseType: THouseType; PosX,PosY:integer);
 var i,k:integer; xo:integer;
 begin
 xo:=HouseXOffset[integer(aHouseType)];
+Inherited Add(TKMHouse.Create(PosX+xo,PosY,aHouseType,hbs_Done));
+end;
 
-Inherited Add(TKMHouse.Create(PosX+xo,PosY,aHouseType));
-
-//for i:=0 to 3 do for k:=0 to 3 do
-//  if HousePlanYX[integer(aHouseType),i,k]<>0 then HitTest(PosX,PosY)
-//  case aHouseType of
-//    ht_Sawmill:         Inherited Add( TKMSawmill.Create(PosX+xo,PosY,aHouseType));
+procedure TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer);
+var xo:integer;
+begin
+xo:=HouseXOffset[integer(aHouseType)];
+Inherited Add(TKMHouse.Create(PosX+xo,PosY,aHouseType,hbs_Glyph));
 end;
 
 procedure TKMHousesCollection.Rem(PosX,PosY:integer);
