@@ -47,6 +47,7 @@ type
     function AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TKMPoint): Boolean;
     procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
     procedure AddRoadPlan(aLoc: TKMPoint; aRoadType:TRoadType);
+    procedure AddHousePlan(aLoc: TKMPoint; aHouseType: THouseType);
     procedure RemUnit(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -96,6 +97,12 @@ procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aRoadType:TRoadType);
 begin
   fTerrain.SetRoadPlan(aLoc, aRoadType);
   BuildList.AddNewRoadToBuild(aLoc);
+end;
+
+procedure TKMUserControlList.AddHousePlan(aLoc: TKMPoint; aHouseType: THouseType);
+begin
+  fTerrain.SetHousePlan(aLoc, aHouseType);
+  BuildList.AddNewHouseToBuild(aLoc, aHouseType);
 end;
 
 procedure TKMUserControlList.RemUnit(Position: TKMPoint);

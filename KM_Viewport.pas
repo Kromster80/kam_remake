@@ -98,12 +98,12 @@ bm:=TBitmap.Create;
 bm.Width:=mmMiniMap.Width;
 bm.Height:=mmMiniMap.Height;
 for i:=1 to Map.Y do for k:=1 to Map.X do
-  if fTerrain.Land[i,k].RoadOwner=0 then
+  if fTerrain.Land[i,k].TileOwner=0 then
     bm.Canvas.Pixels[k-1,i-1]:=TileMMColor[fTerrain.Land[i,k].Terrain+1]
   else
-    bm.Canvas.Pixels[k-1,i-1]:=TeamColors[fTerrain.Land[i,k].RoadOwner,1]+
-                               TeamColors[fTerrain.Land[i,k].RoadOwner,1]*256+
-                               TeamColors[fTerrain.Land[i,k].RoadOwner,1]*65536;
+    bm.Canvas.Pixels[k-1,i-1]:=TeamColors[fTerrain.Land[i,k].TileOwner,1]+
+                               TeamColors[fTerrain.Land[i,k].TileOwner,1]*256+
+                               TeamColors[fTerrain.Land[i,k].TileOwner,1]*65536;
 mmMiniMap.Canvas.StretchDraw(mmMiniMap.ClientRect,bm);
 end;
 

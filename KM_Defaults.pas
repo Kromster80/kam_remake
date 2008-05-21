@@ -118,7 +118,10 @@ HouseProductionPlanID:array[1..29]of byte = (
 0,0,0,0,0,0,0,0,0,0,
 0,0,1,0,0,0,0,0,0);
 
-type TRoadType = (rdt_None=0, rdt_Road=1, rdt_Field=2, rdt_Wine=3, rdt_RoadPlan=4, rdt_FieldPlan=5, rdt_WinePlan=6);
+type
+  TRoadType = (rdt_None=0, rdt_Road=1, rdt_Field=2, rdt_Wine=3,
+               rdt_RoadPlan=4, rdt_FieldPlan=5, rdt_WinePlan=6,
+               rdt_HousePlan=7, rdt_House=8);
 
 //These are colors of all tiles to use in MiniMap
 const TileMMColor:array[1..256]of integer = (
@@ -305,7 +308,7 @@ RoadsConnectivity:array [0..15,1..2]of byte = (
 (251,1),(253,2),(253,1),(255,0));
 
 TeamColors:array[1..4,1..4]of byte =
-((255,80,00,255),(255,192,0,255),(70,160,220,255),(60,40,20,255));
+((255,60,45,255),(255,192,0,255),(70,160,220,255),(60,40,20,255));
 
 ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.25,1.5,2);
 

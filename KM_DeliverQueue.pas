@@ -44,6 +44,7 @@ type
   end;
   constructor Create();
   procedure AddNewRoadToBuild(aLoc:TKMPoint);
+  procedure AddNewHouseToBuild(aLoc:TKMPoint; aHouseType: THouseType);
   function  AskForRoadToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TTaskBuildRoad;
   procedure CloseRoadToBuild(aID:integer);
   end;
@@ -178,6 +179,11 @@ while fRoadsQueue[i].Loc.X<>0 do inc(i);
 fRoadsQueue[i].Loc:=aLoc;
 fRoadsQueue[i].Importance:=1;
 fRoadsQueue[i].JobStatus:=js_Open;
+end;
+
+procedure TKMBuildingQueue.AddNewHouseToBuild(aLoc:TKMPoint; aHouseType: THouseType);
+begin
+//
 end;
 
 function  TKMBuildingQueue.AskForRoadToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TTaskBuildRoad;

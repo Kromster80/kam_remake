@@ -19,8 +19,9 @@ public
     Normal:record X,Y,Z:single; end;
     Light:single;
     Passability:byte;
-    RoadOwner:byte;
+    TileOwner:byte;
     RoadType:TRoadType;
+    RoadSurr:byte;
     RoadState:byte;
   end;
   constructor Create;
@@ -29,11 +30,15 @@ public
   procedure RebuildNormals(LowX,HighX,LowY,HighY:integer);
   procedure RebuildLightning(LowX,HighX,LowY,HighY:integer);
   function ConvertSquareToMapCoord(inX,inY:single):single;
+public
   procedure IncRoadState(Loc:TKMPoint);
   procedure SetRoad(Loc:TKMPoint; aOwner:integer; aRoadType:TRoadType);
   procedure SetRoadPlan(Loc:TKMPoint; aRoadType:TRoadType);
   procedure RemRoadPlan(Loc:TKMPoint);
-  procedure RebuildRoadState(Loc:TKMPoint);
+  procedure RebuildRoadSurr(Loc:TKMPoint);
+public
+  procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType);
+public
   procedure UpdateState;
   procedure Paint;
 published
@@ -70,6 +75,8 @@ for i:=y1 to y2 do for k:=x1 to x2 do
       fRender.RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
     if Land[i,k].RoadType in [rdt_RoadPlan..rdt_WinePlan] then
       fRender.RenderMarkup(byte(Land[i,k].RoadType)-3,k,i); //Input in range 1..3
+    if Land[i,k].RoadType in [rdt_HousePlan,rdt_House] then
+      fRender.RenderBorder(byte(Land[i,k].RoadType),Land[i,k].RoadSurr,k,i); //Input in range 1..3 , 7
   end;
 end;
 
@@ -88,9 +95,10 @@ Height:=random(4); //small variation in height
 Rotation:=0;
 Obj:=255; //none
 Passability:=255; //allow anything
-RoadOwner:=0; //no roads
+TileOwner:=0; //no roads
 RoadType:=rdt_None;
 RoadState:=0;
+RoadSurr:=0;
 end;
 RebuildNormals(1,Map.X,1,Map.Y);
 end;
@@ -117,9 +125,10 @@ begin
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
       Land[i,k].Passability:=255;
-      Land[i,k].RoadOwner:=0; //no roads
+      Land[i,k].TileOwner:=0; //no roads
       Land[i,k].RoadType:=rdt_None;
       Land[i,k].RoadState:=0;
+      Land[i,k].RoadSurr:=0;
     end;
 
 closefile(f);
@@ -189,27 +198,45 @@ end;
 
 procedure TTerrain.SetRoad(Loc:TKMPoint; aOwner:integer; aRoadType:TRoadType);
 begin
-  Land[Loc.Y,Loc.X].RoadOwner:=aOwner;
+  Land[Loc.Y,Loc.X].TileOwner:=aOwner;
   Land[Loc.Y,Loc.X].RoadType:=aRoadType;
   Land[Loc.Y,Loc.X].RoadState:=0;
-  RebuildRoadState(Loc);
-  RebuildRoadState(KMPoint(Loc.X+1,Loc.Y));
-  RebuildRoadState(KMPoint(Loc.X,Loc.Y+1));
-  RebuildRoadState(KMPoint(Loc.X-1,Loc.Y));
-  RebuildRoadState(KMPoint(Loc.X,Loc.Y-1));
+  RebuildRoadSurr(Loc);
+  RebuildRoadSurr(KMPoint(Loc.X+1,Loc.Y));
+  RebuildRoadSurr(KMPoint(Loc.X,Loc.Y+1));
+  RebuildRoadSurr(KMPoint(Loc.X-1,Loc.Y));
+  RebuildRoadSurr(KMPoint(Loc.X,Loc.Y-1));
 end;
 
-procedure TTerrain.RebuildRoadState(Loc:TKMPoint);
+procedure TTerrain.RebuildRoadSurr(Loc:TKMPoint);
 var rd:byte; tmp:TRoadType;
 begin
+  Land[Loc.Y,Loc.X].RoadSurr:=0;
   tmp:=Land[Loc.Y,Loc.X].RoadType;
-  if tmp in [rdt_Road..rdt_Wine] then else exit; //no road yet
+  if tmp =rdt_None then exit; //no road yet
   rd:=0;
   if Land[max(Loc.Y-1,1),Loc.X                  ].RoadType = tmp then inc(rd,1);  //   1
   if Land[Loc.Y         ,min(Loc.X+1,MaxMapSize)].RoadType = tmp then inc(rd,2);  //   2
   if Land[max(Loc.Y+1,1),Loc.X                  ].RoadType = tmp then inc(rd,4);  //   4
   if Land[Loc.Y         ,min(Loc.X-1,MaxMapSize)].RoadType = tmp then inc(rd,8);  //   8
-  Land[Loc.Y,Loc.X].RoadState:=rd;
+  Land[Loc.Y,Loc.X].RoadSurr:=rd;
+end;
+
+procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType);
+var i,k:integer;
+begin
+
+for i:=1 to 4 do for k:=1 to 4 do begin
+  if HousePlanYX[byte(aHouseType),i,k]<>0 then
+    Land[Loc.Y+i-1,Loc.X+k-1].RoadType:=rdt_HousePlan;
+//  if HousePlanYX[byte(aHouseType),i,k]=2 then
+//    Land[Loc.Y+i-1,Loc.X+k-1].RoadType:=rdt_HousePlan;
+end;
+
+for i:=1 to 4 do for k:=1 to 4 do
+  if HousePlanYX[byte(aHouseType),i,k]<>0 then
+    RebuildRoadSurr(KMPoint(Loc.X+k-1,Loc.Y+i-1));
+
 end;
 
 function TTerrain.ConvertSquareToMapCoord(inX,inY:single):single;

@@ -469,6 +469,8 @@ ControlList.AddRoadPlan(KMPoint(7,13),rdt_Road);
 ControlList.AddRoadPlan(KMPoint(7,14),rdt_Road);
 ControlList.AddRoadPlan(KMPoint(7,15),rdt_Road);
 ControlList.AddRoadPlan(KMPoint(7,12),rdt_Road);
+
+ControlList.AddHousePlan(KMPoint(7,16), ht_SawMill);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);
