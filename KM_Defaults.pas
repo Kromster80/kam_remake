@@ -118,6 +118,8 @@ HouseProductionPlanID:array[1..29]of byte = (
 0,0,0,0,0,0,0,0,0,0,
 0,0,1,0,0,0,0,0,0);
 
+type TRoadType = (rdt_None=0, rdt_Road=1, rdt_Field=2, rdt_Wine=3, rdt_RoadPlan=4, rdt_FieldPlan=5, rdt_WinePlan=6);
+
 //These are colors of all tiles to use in MiniMap
 const TileMMColor:array[1..256]of integer = (
 131+149*256+ 25*65536,125+140*256+24*65536,133+150*256+41*65536,138+155*256+20*65536,

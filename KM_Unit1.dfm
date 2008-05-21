@@ -3016,28 +3016,21 @@ object Form1: TForm1
     TabOrder = 5
     OnClick = Button1Click
   end
-  object GroupBox1: TGroupBox
+  object CheckBox1: TCheckBox
     Left = 224
-    Top = 4
-    Width = 161
-    Height = 57
-    Caption = ' Speed 0-20x  '
+    Top = 24
+    Width = 97
+    Height = 17
+    Caption = 'Pause'
     TabOrder = 6
-    object TrackBar1: TTrackBar
-      Left = 4
-      Top = 16
-      Width = 150
-      Height = 33
-      Max = 20
-      Orientation = trHorizontal
-      Frequency = 1
-      Position = 0
-      SelEnd = 0
-      SelStart = 0
-      TabOrder = 0
-      TickMarks = tmBottomRight
-      TickStyle = tsAuto
-    end
+  end
+  object CheckBox2: TCheckBox
+    Left = 224
+    Top = 8
+    Width = 97
+    Height = 17
+    Caption = 'Pause'
+    TabOrder = 7
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'

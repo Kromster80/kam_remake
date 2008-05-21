@@ -94,8 +94,8 @@ type
     Button5: TButton;
     Button6: TButton;
     Timer1sec: TTimer;
-    GroupBox1: TGroupBox;
-    TrackBar1: TTrackBar;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -346,9 +346,11 @@ end;
 procedure TForm1.Timer100msTimer(Sender: TObject);
 var i:integer;
 begin
-if TrackBar1.Position <> 0 then
-  fTerrain.UpdateState;
-for i:=1 to TrackBar1.Position do
+if CheckBox1.Checked then exit;
+ControlList.UpdateState;
+fTerrain.UpdateState;
+if CheckBox2.Checked then
+for i:=1 to 9 do
   ControlList.UpdateState;
 end;
 
@@ -461,12 +463,12 @@ ControlList.AddUnit('User', ut_Serf, KMPoint(7,11));
 ControlList.AddUnit('User', ut_Worker, KMPoint(8,11));
 ControlList.AddUnit('User', ut_Worker, KMPoint(9,11));
 
-ControlList.BuildList.AddNewRoadToBuild(KMPoint(5,12));
-ControlList.BuildList.AddNewRoadToBuild(KMPoint(6,12));
-ControlList.BuildList.AddNewRoadToBuild(KMPoint(7,13));
-ControlList.BuildList.AddNewRoadToBuild(KMPoint(7,14));
-ControlList.BuildList.AddNewRoadToBuild(KMPoint(7,15));
-ControlList.BuildList.AddNewRoadToBuild(KMPoint(7,12));
+ControlList.AddRoadPlan(KMPoint(5,12),rdt_Road);
+ControlList.AddRoadPlan(KMPoint(6,12),rdt_Road);
+ControlList.AddRoadPlan(KMPoint(7,13),rdt_Road);
+ControlList.AddRoadPlan(KMPoint(7,14),rdt_Road);
+ControlList.AddRoadPlan(KMPoint(7,15),rdt_Road);
+ControlList.AddRoadPlan(KMPoint(7,12),rdt_Road);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

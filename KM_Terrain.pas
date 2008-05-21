@@ -6,7 +6,6 @@ uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 const
 MaxMapSize=176;         //Single cell size in pixels
 
-type TRoadType = (rdt_Road=1, rdt_Field=2, rdt_Wine=3);
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -20,7 +19,8 @@ public
     Normal:record X,Y,Z:single; end;
     Light:single;
     Passability:byte;
-    Road:byte; //Owner 0..15, Type 16..63
+    RoadOwner:byte;
+    RoadType:TRoadType;
     RoadState:byte;
   end;
   constructor Create;
@@ -31,6 +31,8 @@ public
   function ConvertSquareToMapCoord(inX,inY:single):single;
   procedure IncRoadState(Loc:TKMPoint);
   procedure SetRoad(Loc:TKMPoint; aOwner:integer; aRoadType:TRoadType);
+  procedure SetRoadPlan(Loc:TKMPoint; aRoadType:TRoadType);
+  procedure RemRoadPlan(Loc:TKMPoint);
   procedure RebuildRoadState(Loc:TKMPoint);
   procedure UpdateState;
   procedure Paint;
@@ -63,8 +65,12 @@ y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 fRender.RenderTerrainAndRoads(x1,x2,y1,y2);
 
 for i:=y1 to y2 do for k:=x1 to x2 do
-  if Land[i,k].Obj<>255 then
-    fRender.RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
+  begin
+    if Land[i,k].Obj<>255 then
+      fRender.RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
+    if Land[i,k].RoadType in [rdt_RoadPlan..rdt_WinePlan] then
+      fRender.RenderMarkup(byte(Land[i,k].RoadType)-3,k,i); //Input in range 1..3
+  end;
 end;
 
 procedure TTerrain.MakeNewMap(Width,Height:integer);
@@ -82,8 +88,9 @@ Height:=random(4); //small variation in height
 Rotation:=0;
 Obj:=255; //none
 Passability:=255; //allow anything
-Road:=0; //no roads
-RoadState:=0; //no roads
+RoadOwner:=0; //no roads
+RoadType:=rdt_None;
+RoadState:=0;
 end;
 RebuildNormals(1,Map.X,1,Map.Y);
 end;
@@ -110,7 +117,8 @@ begin
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
       Land[i,k].Passability:=255;
-      Land[i,k].Road:=0; //no roads
+      Land[i,k].RoadOwner:=0; //no roads
+      Land[i,k].RoadType:=rdt_None;
       Land[i,k].RoadState:=0;
     end;
 
@@ -159,35 +167,48 @@ for i:=LowY to HighY do for k:=LowX to HighX do
   end;
 end;
 
+procedure TTerrain.SetRoadPlan(Loc:TKMPoint; aRoadType:TRoadType);
+begin
+case aRoadType of
+rdt_Road: Land[Loc.Y,Loc.X].RoadType:=rdt_RoadPlan;
+rdt_Field: Land[Loc.Y,Loc.X].RoadType:=rdt_FieldPlan;
+rdt_Wine: Land[Loc.Y,Loc.X].RoadType:=rdt_WinePlan;
+else Land[Loc.Y,Loc.X].RoadType:=aRoadType;
+end;
+end;
+
+procedure TTerrain.RemRoadPlan(Loc:TKMPoint);
+begin
+Land[Loc.Y,Loc.X].RoadType:=rdt_None;
+end;
+
 procedure TTerrain.IncRoadState(Loc:TKMPoint);
 begin
-Land[Loc.Y,Loc.X].RoadState:=min(Land[Loc.Y,Loc.X].RoadState+16,16*5);
+  Land[Loc.Y,Loc.X].RoadState:=min(Land[Loc.Y,Loc.X].RoadState+1,4);
 end;
 
 procedure TTerrain.SetRoad(Loc:TKMPoint; aOwner:integer; aRoadType:TRoadType);
 begin
-if Land[Loc.Y,Loc.X].RoadState>=16*5 then
-  begin
-    Land[Loc.Y,Loc.X].Road:=aOwner+byte(aRoadType)*16;
-    Land[Loc.Y,Loc.X].RoadState:=0;
-    RebuildRoadState(Loc);
-    RebuildRoadState(KMPoint(Loc.X+1,Loc.Y));
-    RebuildRoadState(KMPoint(Loc.X,Loc.Y+1));
-    RebuildRoadState(KMPoint(Loc.X-1,Loc.Y));
-    RebuildRoadState(KMPoint(Loc.X,Loc.Y-1));
-  end;
+  Land[Loc.Y,Loc.X].RoadOwner:=aOwner;
+  Land[Loc.Y,Loc.X].RoadType:=aRoadType;
+  Land[Loc.Y,Loc.X].RoadState:=0;
+  RebuildRoadState(Loc);
+  RebuildRoadState(KMPoint(Loc.X+1,Loc.Y));
+  RebuildRoadState(KMPoint(Loc.X,Loc.Y+1));
+  RebuildRoadState(KMPoint(Loc.X-1,Loc.Y));
+  RebuildRoadState(KMPoint(Loc.X,Loc.Y-1));
 end;
 
 procedure TTerrain.RebuildRoadState(Loc:TKMPoint);
-var rd,tmp:byte;
+var rd:byte; tmp:TRoadType;
 begin
-  tmp:=Land[Loc.Y,Loc.X].Road div 16;
-  if tmp=0 then exit; //no road yet
+  tmp:=Land[Loc.Y,Loc.X].RoadType;
+  if tmp in [rdt_Road..rdt_Wine] then else exit; //no road yet
   rd:=0;
-  if Land[max(Loc.Y-1,1),Loc.X                  ].Road div 16 = tmp then inc(rd,1);  //   1
-  if Land[Loc.Y         ,min(Loc.X+1,MaxMapSize)].Road div 16 = tmp then inc(rd,2);  //   2
-  if Land[max(Loc.Y+1,1),Loc.X                  ].Road div 16 = tmp then inc(rd,4);  //   4
-  if Land[Loc.Y         ,min(Loc.X-1,MaxMapSize)].Road div 16 = tmp then inc(rd,8);  //   8
+  if Land[max(Loc.Y-1,1),Loc.X                  ].RoadType = tmp then inc(rd,1);  //   1
+  if Land[Loc.Y         ,min(Loc.X+1,MaxMapSize)].RoadType = tmp then inc(rd,2);  //   2
+  if Land[max(Loc.Y+1,1),Loc.X                  ].RoadType = tmp then inc(rd,4);  //   4
+  if Land[Loc.Y         ,min(Loc.X-1,MaxMapSize)].RoadType = tmp then inc(rd,8);  //   8
   Land[Loc.Y,Loc.X].RoadState:=rd;
 end;
 

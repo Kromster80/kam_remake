@@ -25,7 +25,6 @@ type
     procedure ButtonHelpClick(Sender: TObject);
   private
     { Private declarations }
-//    fOpt: TTerrainOpt;
   public
     { Public declarations }
   end;

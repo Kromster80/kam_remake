@@ -646,33 +646,34 @@ ID:=aID;
 end;
 
 procedure TTaskBuildRoad.Execute(out TaskDone:boolean);
+const Cycle=11;
 var KMHouse:TKMHouse;
 begin
 TaskDone:=false;
 with fWorker do
 case Phase of
 0: SetAction(TMoveUnitAction.Create(fLoc));
-1: SetAction(TStayUnitAction.Create(22,ua_Work1,false));
-2: fTerrain.IncRoadState(fLoc);
-3: SetAction(TStayUnitAction.Create(22,ua_Work1,false));
-4: fTerrain.IncRoadState(fLoc);
-5: SetAction(TStayUnitAction.Create(22,ua_Work1,false));
+1: fTerrain.RemRoadPlan(fLoc);
+2: SetAction(TStayUnitAction.Create(11,ua_Work1,false));
+3: fTerrain.IncRoadState(fLoc);
+4: SetAction(TStayUnitAction.Create(11,ua_Work1,false));
+5: fTerrain.IncRoadState(fLoc);
+6: SetAction(TStayUnitAction.Create(11,ua_Work1,false));
+7: ControlList.DeliverList.AddNewDemand(fLoc,rt_Stone);
 
-6: ControlList.DeliverList.AddNewDemand(fLoc,rt_Stone);
+8: SetAction(TStayUnitAction.Create(30,ua_Work1));
 
-7: SetAction(TStayUnitAction.Create(30,ua_Work1));
-
-8: SetAction(TStayUnitAction.Create(22,ua_Work2,false));
-9: fTerrain.IncRoadState(fLoc);
-10:SetAction(TStayUnitAction.Create(22,ua_Work2,false));
+9: ControlList.BuildList.CloseRoadToBuild(ID);
+10: SetAction(TStayUnitAction.Create(11,ua_Work2,false));
 11:fTerrain.IncRoadState(fLoc);
-12:SetAction(TStayUnitAction.Create(22,ua_Work2,false));
+12:SetAction(TStayUnitAction.Create(11,ua_Work2,false));
 13:fTerrain.IncRoadState(fLoc);
-14:fTerrain.SetRoad(fLoc,fOwnerID,rdt_Road);
-15:ControlList.BuildList.CloseRoadToBuild(ID);
-16:TaskDone:=true;
+14:SetAction(TStayUnitAction.Create(11,ua_Work2,false));
+15:fTerrain.SetRoad(fLoc,fOwnerID,rdt_Road);
+16:SetAction(TStayUnitAction.Create(5,ua_Work2));
+17:TaskDone:=true;
 end;
-if Phase<>7 then inc(Phase); //Phase=7 is when worker waits for rt_Stone
+if Phase<>8 then inc(Phase); //Phase=8 is when worker waits for rt_Stone
 end;
 
 { TTaskMining }

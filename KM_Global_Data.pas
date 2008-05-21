@@ -92,8 +92,8 @@ HouseDAT:array[1..30] of packed record
   Foot:array[1..135]of smallint;
 end;
 
-UnitCarry:array[1..28] of record
-  Dir:array[1..8]of record
+UnitCarry:array[1..28] of packed record
+  Dir:array[1..8]of packed record
     Step:array[1..30]of smallint;
     Count:smallint;
     MoveX,MoveY:integer;

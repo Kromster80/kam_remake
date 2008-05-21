@@ -30,6 +30,7 @@ public
   procedure RenderTerrainAndRoads(x1,x2,y1,y2:integer);
   procedure RenderWires();
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
+  procedure RenderMarkup(Index:integer; pX,pY:integer);
   procedure RenderCursorPosition(ActivePage:string);
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
@@ -210,16 +211,19 @@ glbegin (GL_QUADS);
 glEnd;
 
 for i:=y1 to y2 do for k:=x1 to x2 do
-if fTerrain.Land[i,k].RoadState div 16 in [1..4] then
-  RenderTile(248+(fTerrain.Land[i,k].RoadState div 16)*2,k,i,0)
-else
-  if fTerrain.Land[i,k].Road<>0 then
-  begin
-    rd:=fTerrain.Land[i,k].RoadState mod 16;
-    ID:=RoadsConnectivity[rd,1];
-    Rot:=RoadsConnectivity[rd,2];
-    RenderTile(ID,k,i,Rot);
-  end;
+begin
+  if (fTerrain.Land[i,k].RoadOwner = 0)
+    and(fTerrain.Land[i,k].RoadState in [1..4]) then
+      RenderTile(248+fTerrain.Land[i,k].RoadState*2,k,i,0);
+  if (fTerrain.Land[i,k].RoadType in [rdt_Road..rdt_Wine])
+    and(fTerrain.Land[i,k].RoadOwner <> 0)  then
+    begin
+      rd:=fTerrain.Land[i,k].RoadState;
+      ID:=RoadsConnectivity[rd,1];
+      Rot:=RoadsConnectivity[rd,2];
+      RenderTile(ID,k,i,Rot);
+    end;
+end;
 
 glDisable(GL_LIGHTING);
 
@@ -470,6 +474,34 @@ end else begin
   ShiftY:=(TreePivot[ID].y+TreeSize[ID,2])/CellSize-fTerrain.Land[pY,pX].Height/xh;
   RenderSprite(TreeTex[ID,1],pX+ShiftX,pY+ShiftY,TreeTex[ID,2]/40,TreeTex[ID,3]/40);
 end;
+end;
+
+procedure TRender.RenderMarkup(Index:integer; pX,pY:integer);
+var a,b:TKMPointF; ID:integer;
+begin
+case Index of
+1: ID:=105; //Road
+2: ID:=107; //Field
+3: ID:=108; //Wine
+end;
+  glColor4f(1,1,1,1);
+  glBindTexture(GL_TEXTURE_2D,GUITex[ID].TexID);
+    a.x:=GUITexUV[ID].Left/GUITex[ID].TexW;
+    a.y:=GUITexUV[ID].Bottom/GUITex[ID].TexH;
+    b.x:=GUITexUV[ID].Right/GUITex[ID].TexW;
+    b.y:=GUITexUV[ID].Top/GUITex[ID].TexH;
+  glBegin(GL_QUADS);
+    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY+1,pX].Height/xh);
+    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY+1,pX].Height/xh-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY,pX+1].Height/xh-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY,pX+1].Height/xh);
+
+    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/xh);
+    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/xh-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/xh-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/xh);
+  glEnd;
+  glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 procedure TRender.RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);

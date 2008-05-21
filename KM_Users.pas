@@ -2,7 +2,7 @@ unit KM_Users;
 
 interface
 uses
-  classes, KromUtils, KM_Classes, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, windows;
+  classes, KromUtils, KM_Global_Data, KM_Classes, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, windows;
 type
   TUserControlType = (uct_User, uct_Computer);
 
@@ -46,6 +46,7 @@ type
   public
     function AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TKMPoint): Boolean;
     procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
+    procedure AddRoadPlan(aLoc: TKMPoint; aRoadType:TRoadType);
     procedure RemUnit(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -89,6 +90,12 @@ end;
 procedure TKMUserControlList.AddHouse(aHouseType: THouseType; Position: TKMPoint);
 begin
   fHouses.Add(aHouseType, Position.X, Position.Y)
+end;
+
+procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aRoadType:TRoadType);
+begin
+  fTerrain.SetRoadPlan(aLoc, aRoadType);
+  BuildList.AddNewRoadToBuild(aLoc);
 end;
 
 procedure TKMUserControlList.RemUnit(Position: TKMPoint);
