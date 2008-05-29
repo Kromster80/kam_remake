@@ -80,6 +80,12 @@ GUISize:array[1..600,1..2] of word;
 GUIPivot:array[1..600] of record x,y:integer; end;
 GUIData:array[1..600] of array of byte;
 
+GUIMQty:integer;
+GUIMPal:array[1..600] of byte;
+GUIMSize:array[1..600,1..2] of word;
+GUIMPivot:array[1..600] of record x,y:integer; end;
+GUIMData:array[1..600] of array of byte;
+
 HouseDAT1:array[1..30,1..35]of smallint;
 HouseDAT:array[1..30] of packed record
   Stone,Wood,WoodPal,StonePal:smallint;

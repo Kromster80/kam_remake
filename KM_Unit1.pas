@@ -97,6 +97,7 @@ type
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
+    ExportGUIMainRX: TMenuItem;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -130,6 +131,7 @@ type
     procedure ExportHousesRXClick(Sender: TObject);
     procedure ExportUnitsRXClick(Sender: TObject);
     procedure Timer1secTimer(Sender: TObject);
+    procedure ExportGUIMainRXClick(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -504,10 +506,11 @@ jpg.Free;
 mkbmp.Free;
 end;
 
-procedure TForm1.ExportGUIRXClick(Sender: TObject);   begin ExportRX2BMP('GUI');   end;
-procedure TForm1.ExportTreesRXClick(Sender: TObject); begin ExportRX2BMP('Trees'); end;
-procedure TForm1.ExportHousesRXClick(Sender: TObject);begin ExportRX2BMP('Houses');end;
-procedure TForm1.ExportUnitsRXClick(Sender: TObject); begin ExportRX2BMP('Units'); end;
+procedure TForm1.ExportGUIRXClick(Sender: TObject);    begin ExportRX2BMP('GUI');    end;
+procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP('GUIMain');end;
+procedure TForm1.ExportTreesRXClick(Sender: TObject);  begin ExportRX2BMP('Trees');  end;
+procedure TForm1.ExportHousesRXClick(Sender: TObject); begin ExportRX2BMP('Houses'); end;
+procedure TForm1.ExportUnitsRXClick(Sender: TObject);  begin ExportRX2BMP('Units');  end;
 
 procedure TForm1.Timer1secTimer(Sender: TObject);
 begin

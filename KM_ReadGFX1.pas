@@ -12,6 +12,7 @@ type
     function ReadHousesRX(filename:string):boolean;
     function ReadUnitsRX(filename:string):boolean;
     function ReadGUIRX(filename:string):boolean;
+    function ReadGUIMainRX(filename:string):boolean;
     function ReadUnitDAT(filename:string):boolean;
     function ReadHouseDAT(filename:string):boolean;
     function ReadMapElem(filename:string):boolean;
@@ -37,6 +38,7 @@ fLog.AppendLog('Reading trees.rx',ReadTreesRX(text+'data\gfx\res\trees.rx'));   
 fLog.AppendLog('Reading houses.rx',ReadHousesRX(text+'data\gfx\res\houses.rx'));    StepRefresh();
 fLog.AppendLog('Reading units.rx',ReadUnitsRX(text+'data\gfx\res\units.rx'));       StepRefresh();
 fLog.AppendLog('Reading gui.rx',ReadGUIRX(text+'data\gfx\res\gui.rx'));             StepRefresh();
+fLog.AppendLog('Reading guimain.rx',ReadGUIMainRX(text+'data\gfx\res\guimain.rx'));     StepRefresh();
 fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
 fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
 fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
@@ -182,6 +184,33 @@ Result:=true;
 end;
 
 //=============================================
+//Reading GUIMain data
+//=============================================
+function ReadGUIMainRX(filename:string):boolean;
+var ii,Count:integer;
+begin
+Result:=false;
+Count:=0;
+FormLoading.Label1.Caption:='Reading GUIMain';
+FormLoading.Bar1.StepIt; FormLoading.Refresh;
+if not CheckFileExists(filename) then exit;
+assignfile(f,filename); reset(f,1);
+blockread(f,GUIMQty,4);
+blockread(f,GUIMPal,GUIMQty);
+for ii:=1 to GUIMQty do
+if GUIMPal[ii]=1 then begin //entry used
+inc(Count);
+blockread(f,GUIMSize[ii],4);
+blockread(f,GUIMPivot[ii],8);
+setlength(GUIMData[ii],GUIMSize[ii,1]*GUIMSize[ii,2]);
+blockread(f,GUIMData[ii,0],GUIMSize[ii,1]*GUIMSize[ii,2]);
+end;
+closefile(f);
+fLog.AppendLog('GUIMain sprites -',Count);
+Result:=true;
+end;
+
+//=============================================
 //Reading unit.dat data
 //=============================================
 function ReadUnitDAT(filename:string):boolean;
@@ -282,11 +311,13 @@ CreateDir(ExeDir+Param+'rx\');
     if Param='Houses' then Qty:=HouseQty;
     if Param='Units'  then Qty:=UnitQty;
     if Param='GUI'    then Qty:=GUIQty;
+    if Param='GUIMain'then Qty:=GUIMQty;
 
     if Param='Trees'  then ReadTreesRX(ExeDir+'data\gfx\res\trees.rx');
     if Param='Houses' then ReadHousesRX(ExeDir+'data\gfx\res\houses.rx');
     if Param='Units'  then ReadUnitsRX(ExeDir+'data\gfx\res\units.rx');
     if Param='GUI'    then ReadGUIRX(ExeDir+'data\gfx\res\gui.rx');
+    if Param='GUIMain'then ReadGUIMainRX(ExeDir+'data\gfx\res\guimain.rx');
 
 for id:=1 to Qty do
 begin
@@ -294,6 +325,7 @@ begin
   if Param='Houses' then begin sx:=HouseSize[id,1]; sy:=HouseSize[id,2]; end;
   if Param='Units'  then begin sx:=UnitSize[id,1];  sy:=UnitSize[id,2];  end;
   if Param='GUI'    then begin sx:=GUISize[id,1];   sy:=GUISize[id,2];   end;
+  if Param='GUIMain'then begin sx:=GUIMSize[id,1];  sy:=GUIMSize[id,2];  end;
 
   MyBitmap.Width:=sx;
   MyBitmap.Height:=sy;
@@ -303,6 +335,7 @@ begin
     if Param='Houses' then t:=HouseData[id,y*sx+x]+1;
     if Param='Units'  then t:=UnitData[id,y*sx+x]+1;
     if Param='GUI'    then t:=GUIData[id,y*sx+x]+1;
+    if Param='GUIMain'then t:=GUIMData[id,y*sx+x]+1;
     MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
   end;
   if sy>0 then MyBitmap.SaveToFile(ExeDir+Param+'rx\'+Param+'_'+int2fix(id,4)+'.bmp');
@@ -311,6 +344,7 @@ begin
   if Param='Houses' then setlength(HouseData[id],0);
   if Param='Units'  then setlength(UnitData[id],0);
   if Param='GUI'    then setlength(GUIData[id],0);
+  if Param='GUIMain'then setlength(GUIMData[id],0);
 end;
 end;
 

@@ -3126,6 +3126,10 @@ object Form1: TForm1
         Caption = 'GUI'
         OnClick = ExportGUIRXClick
       end
+      object ExportGUIMainRX: TMenuItem
+        Caption = 'GUI Main'
+        OnClick = ExportGUIMainRXClick
+      end
     end
     object About1: TMenuItem
       Caption = 'About..'
