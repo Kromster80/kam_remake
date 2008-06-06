@@ -11,6 +11,7 @@ procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; Sh
 procedure BuildFont(h_DC:HDC;FontSize:integer);
 procedure glPrint(text: string);
 function ReadClick(X, Y: word): Vector;
+procedure glkScale(x:single);
 procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
 procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
 
@@ -141,6 +142,11 @@ procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:inte
 begin
 IndexNum:=pword(integer(RGBColor))^+((pbyte(integer(RGBColor)+2)^)mod 8)*65536;
 TypeOfValue:=KCode((pbyte(integer(RGBColor)+2)^)div 8);
+end;
+
+procedure glkScale(x:single);
+begin
+glScale(x,x,x);
 end;
 
 

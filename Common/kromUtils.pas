@@ -1,3 +1,4 @@
+//some new lines
 unit KromUtils;
 interface
 uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs;
@@ -13,14 +14,9 @@ type
 
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 
-function Min(const A,B,C: integer):integer; overload
-function Min(const A,B,C: single):single; overload
-function Max(const A,B,C: integer):integer; overload
-function Max(const A,B,C: single):single; overload
 function KMPoint(X, Y: Integer): TKMPoint;
 function KMPointY1(P:TKMPoint): TKMPoint;
 function ElapsedTime(i1: pcardinal): string;
-function hextoint(st: char): integer;
 function ExtractOpenedFileName(in_s: string):string;
 function GetFileName(const FileName: string): string;
 function GetFileExt (const FileName: string; len:integer): string;
@@ -30,30 +26,39 @@ procedure krintersect(x1,y1,x2,y2,x3,y3:single; SizeX,SizeY:integer; var ot:arra
 function ReverseString(s1:string):string;
 function real2(c1,c2,c3,c4:char):real;
 function unreal2(x:real):string;
+function hextoint(st: char): integer;
 function int2fix(Number,Len:integer):string;
 function float2fix(Number:single; Digits:integer):string;
 function int2(c1,c2:char):integer; overload;
 function int2(c1,c2,c3,c4:char):integer; overload;
 function chr2(x,len:integer):string; overload;
 function chr2(t:string; len:integer):string; overload;
+function Min(const A,B,C: integer):integer; overload
+function Min(const A,B,C: single):single; overload
+function Max(const A,B,C: integer):integer; overload
+function Max(const A,B,C: single):single; overload
 function Ceil(const X: Extended):Integer;
 function ArcCos(const X: Extended): Extended;
 function ArcSin(const X: Extended): Extended;
 function ArcTan2(const Y, X: Extended): Extended;
 function Pow(const Base, Exponent: integer): integer;
-function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
-procedure Matrix2Angles(matrix09:array of single; Qty:integer; i1,i2,i3:pinteger);
 function GetLength(ix,iy,iz:single): single; overload
 function GetLength(ix,iy:single): single; overload
 procedure Normalize(ix,iy,iz:single; nx,ny,nz:psingle); overload
 procedure Normalize(var ix,iy,iz:single); overload
 procedure Normalize(var ix,iy:single); overload
+
+  procedure Matrix2Angles(matrix09:array of single; Qty:integer; i1,i2,i3:pinteger);
+  procedure Angles2Matrix(ax,ay,az:single; matrix:pointer; Qty:integer);
+
+  procedure Angles2Vector(ix,iy,iz:single; out nx,ny,nz:single);
+
 function DotProduct(x1,y1,z1,x2,y2,z2:single):single;
 procedure Normal2Poly(v1,v2,v3:array of single; nx,ny,nz:psingle);
-procedure Angles2Matrix(ax,ay,az:single; matrix:pointer; Qty:integer);
 procedure decs(var AText:string; const Len:integer=1); overload;
 function  decs(AText:string; Len,RunAsFunction:integer):string; overload;
 procedure ConvertSetToArray(iSet:integer; Ar:pointer);
+function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
 function MakePOT(num:integer):integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
 function RandomS(Range_Both_Directions:integer):integer; overload
@@ -197,7 +202,7 @@ repeat
 inc(k); //thats correct
 s:=s+FileName[length(FileName)-len+k];
 until(len=k);
-GetFileExt:=uppercase(s);
+Result:=uppercase(s);
 end;
 
 function GetFileSize(const FileName: string): LongInt;
@@ -437,6 +442,35 @@ begin
   Result := round(IntPower(Base, Exponent))
 end;
 
+procedure Angles2Matrix(ax,ay,az:single; matrix:pointer; qty:integer);
+var a,b,c,d,e,f:single;  A1:^single; N:integer;
+begin
+N:=0;
+ax:=ax/180*pi;
+ay:=ay/180*pi;
+az:=az/180*pi;
+a:=cos(ax);
+b:=sin(ax);
+c:=cos(ay);
+d:=sin(ay);
+e:=cos(az);//1
+f:=sin(az);//0
+A1:=pointer(integer(matrix)+N*4); A1^:=C*E;         inc(N);
+A1:=pointer(integer(matrix)+N*4); A1^:=-C*F;        inc(N);
+A1:=pointer(integer(matrix)+N*4); A1^:=D;           inc(N);
+if qty=16 then inc(N);
+A1:=pointer(integer(matrix)+N*4); A1^:=B*D*E+A*F;   inc(N);
+A1:=pointer(integer(matrix)+N*4); A1^:=-B*D*F+A*E;  inc(N);
+A1:=pointer(integer(matrix)+N*4); A1^:=-B*C;        inc(N);
+if qty=16 then inc(N);
+A1:=pointer(integer(matrix)+N*4); A1^:=-A*D*E+B*F;  inc(N);
+A1:=pointer(integer(matrix)+N*4); A1^:=A*D*F+B*E;   inc(N);
+A1:=pointer(integer(matrix)+N*4); A1^:=A*C;
+{        |  CE      -CF       D  |              //  C   0   D      D -BC AC
+    M  = |  BDE+AF  -BDF+AE  -BC |              //  BD  A  -BC     0  A  B
+         | -ADE+BF   ADF+BE   AC |}             // -AD  B   AC     C BD -AD
+end;
+
 procedure Matrix2Angles(matrix09:array of single; Qty:integer; i1,i2,i3:pinteger);
 var Ax,Ay,Az:single; Num:byte; a1,a2,a3:integer; m:array[1..9] of single;
 begin
@@ -468,6 +502,13 @@ i2^:=a2;
 i3^:=a3;
 end;
 
+procedure Angles2Vector(ix,iy,iz:single; out nx,ny,nz:single);
+begin
+  nx:=sin(ix/180*pi) * cos(iy/180*pi);
+  ny:=sin(iy/180*pi);
+  nz:=cos(ix/180*pi) * cos(iy/180*pi);
+end;
+
 procedure ConvertSetToArray(iSet:integer; Ar:pointer);
 var i,k:integer; A:^integer;
 begin
@@ -489,35 +530,6 @@ begin
 t:=num; i:=1;
 while t>2 do begin t:=t / 2; inc(i); end;
 Result:=pow(2,i);
-end;
-
-procedure Angles2Matrix(ax,ay,az:single; matrix:pointer; qty:integer);
-var a,b,c,d,e,f:single;  A1:^single; N:integer;
-begin
-N:=0;
-ax:=ax/180*pi;
-ay:=ay/180*pi;
-az:=az/180*pi;
-a:=cos(ax);
-b:=sin(ax);
-c:=cos(ay);
-d:=sin(ay);
-e:=cos(az);//1
-f:=sin(az);//0
-A1:=pointer(integer(matrix)+N*4); A1^:=C*E;         inc(N);
-A1:=pointer(integer(matrix)+N*4); A1^:=-C*F;        inc(N);
-A1:=pointer(integer(matrix)+N*4); A1^:=D;           inc(N);
-if qty=16 then inc(N);
-A1:=pointer(integer(matrix)+N*4); A1^:=B*D*E+A*F;   inc(N);
-A1:=pointer(integer(matrix)+N*4); A1^:=-B*D*F+A*E;  inc(N);
-A1:=pointer(integer(matrix)+N*4); A1^:=-B*C;        inc(N);
-if qty=16 then inc(N);
-A1:=pointer(integer(matrix)+N*4); A1^:=-A*D*E+B*F;  inc(N);
-A1:=pointer(integer(matrix)+N*4); A1^:=A*D*F+B*E;   inc(N);
-A1:=pointer(integer(matrix)+N*4); A1^:=A*C;
-{        |  CE      -CF       D  |              //  C   0   D      D -BC AC
-    M  = |  BDE+AF  -BDF+AE  -BC |              //  BD  A  -BC     0  A  B
-         | -ADE+BF   ADF+BE   AC |}             // -AD  B   AC     C BD -AD
 end;
 
 function GetLength(ix,iy,iz:single): single; overload
