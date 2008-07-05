@@ -38,7 +38,7 @@ fLog.AppendLog('Reading trees.rx',ReadTreesRX(text+'data\gfx\res\trees.rx'));   
 fLog.AppendLog('Reading houses.rx',ReadHousesRX(text+'data\gfx\res\houses.rx'));    StepRefresh();
 fLog.AppendLog('Reading units.rx',ReadUnitsRX(text+'data\gfx\res\units.rx'));       StepRefresh();
 fLog.AppendLog('Reading gui.rx',ReadGUIRX(text+'data\gfx\res\gui.rx'));             StepRefresh();
-fLog.AppendLog('Reading guimain.rx',ReadGUIMainRX(text+'data\gfx\res\guimain.rx'));     StepRefresh();
+fLog.AppendLog('Reading guimain.rx',ReadGUIMainRX(text+'data\gfx\res\guimain.rx')); StepRefresh();
 fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
 fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
 fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
@@ -47,6 +47,8 @@ fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));   
     MakeHousesGFX(nil);
     MakeUnitsGFX(nil);
     MakeGUIGFX(nil);
+
+fLog.AppendLog('ReadGFX is done');
 
 Result:=true;
 end;
@@ -389,6 +391,8 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
   end;
 
 glGenTextures(1, id);
+//if id^<=16000 then
+begin
 glBindTexture(GL_TEXTURE_2D, id^);
 //gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -399,6 +403,7 @@ glBindTexture(GL_TEXTURE_2D, id^);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD)
   else
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+end;
 FreeMem(TD);
 end;
 

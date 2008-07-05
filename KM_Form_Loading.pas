@@ -29,7 +29,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Render, KM_ReadGFX1, KM_Form_NewMap, KM_LoadDAT, KM_Global_Data, KM_Log;
+uses KM_Unit1, KM_Render, KM_ReadGFX1, KM_LoadDAT, KM_Global_Data, KM_Log;
 
 {$R *.dfm}
 
@@ -48,18 +48,26 @@ fRender.SetRenderDefaults;
 
 ReadGFX(ExeDir);
 
-FormLoading.Hide;
 Form1.Show;
 Form1.WindowState:=wsMaximized;
+FormLoading.Hide;
 
 //fTerrain.OpenMapFromFile('save01.map');
 //  if ExtractOpenedFileName(cmdline)='' then
-    FormNewMap.InitializeNewMap(96,96);
+fTerrain.Create;
+fTerrain.MakeNewMap(96,96);
+fMiniMap.ReSize(Map.X,Map.Y);
+fViewport.SetZoom(1);
+Form1.FormResize(nil);
+Form1.Caption:='KaM Editor - '+'New';
+//    FormNewMap.InitializeNewMap(96,96);
 //  if fileexists(ExeDir+'krom.dev') then
 //    Form1.OpenMap('save01.map');
 //if fileexists(ExeDir+'krom.dev') then Form1.OpenMap('test.map');
 //  if fileexists(ExeDir+'krom.dev') then
 //    LoadDAT('mission1.dat');
+
+fLog.AppendLog('Form create is done');
 end;
 
 end.

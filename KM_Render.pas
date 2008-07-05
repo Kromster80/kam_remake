@@ -305,9 +305,6 @@ glEnd;
 glLineWidth(fViewPort.Zoom/4);
 end;
 
-//
-//This piece of code should render all units on screen
-
 
 procedure TRender.RenderPoint(pX,pY:integer);
 begin
@@ -332,15 +329,15 @@ end;
 
 procedure TRender.RenderWireQuad(pX,pY:integer);
 begin
-glbegin (GL_LINE_LOOP);
-glNormal3f(0,1,0);
-with fTerrain do begin
-  glvertex2f(pX-1,pY-1-Land[pY  ,pX  ].Height/xh);
-  glvertex2f(pX  ,pY-1-Land[pY  ,pX+1].Height/xh);
-  glvertex2f(pX  ,pY-  Land[pY+1,pX+1].Height/xh);
-  glvertex2f(pX-1,pY-  Land[pY+1,pX  ].Height/xh);
-end;
-glEnd;
+  glbegin (GL_LINE_LOOP);
+  glNormal3f(0,1,0);
+  with fTerrain do begin
+    glvertex2f(pX-1,pY-1-Land[pY  ,pX  ].Height/xh);
+    glvertex2f(pX  ,pY-1-Land[pY  ,pX+1].Height/xh);
+    glvertex2f(pX  ,pY-  Land[pY+1,pX+1].Height/xh);
+    glvertex2f(pX-1,pY-  Land[pY+1,pX  ].Height/xh);
+  end;
+  glEnd;
 end;
 
 procedure TRender.RenderSprite(TexID:integer; pX,pY,SizeX,SizeY:single);
@@ -358,7 +355,7 @@ end;
 
 procedure TRender.RenderSprite2(TexID:integer; pX,pY,SizeX,SizeY:single);
 begin
-if TexID=0 then exit;
+//if TexID=0 then exit;
     glBindTexture(GL_TEXTURE_2D, TexID);
     glBegin (GL_QUADS);
     glTexCoord2f(0,1); glvertex2f(pX-1      ,pY-1      );
@@ -638,10 +635,17 @@ AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
 ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
   ShiftX:=UnitPivot[ID].x/CellSize;
-  ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize-fTerrain.Land[round(pY)+1,round(pX)].Height/xh-0.25;
+  ShiftY:=(UnitPivot[ID].y+UnitSize[ID,2])/CellSize;//-fTerrain.Land[round(pY)+1,round(pX)].Height/xh-0.25;
+
+  ShiftY:=ShiftY-fTerrain.InterpolateMapCoord(pX,pY)/xh;
+
   RenderSprite(UnitTex[ID,1],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
   glColor4ubv(@TeamColors[Owner]);
   RenderSprite2(UnitTex[ID,4],pX+ShiftX,pY+ShiftY,UnitTex[ID,2]/40,UnitTex[ID,3]/40);
+
+  glColor3ubv(@TeamColors[Owner]);
+  RenderSprite2(0,pX,pY-fTerrain.InterpolateMapCoord(pX,pY)/xh,5/40,5/40);
+
 end;
 
 procedure TRender.RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);

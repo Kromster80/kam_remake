@@ -3060,7 +3060,6 @@ object Form1: TForm1
       Caption = 'File'
       object NewMapMenu: TMenuItem
         Caption = 'New map...'
-        OnClick = NewMapClick
       end
       object OpenMapMenu: TMenuItem
         Caption = 'Open map...'

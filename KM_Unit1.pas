@@ -113,7 +113,6 @@ type
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Pl1Click(Sender: TObject);
     procedure AboutClick(Sender: TObject);
-    procedure NewMapClick(Sender: TObject);
     procedure PalletePageChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ResetZoomClick(Sender: TObject);
@@ -146,7 +145,7 @@ var
 
 implementation  {$R *.DFM}
 
-uses KM_Form_NewMap, KM_LoadDAT, KM_MapSettings;
+uses KM_LoadDAT, KM_MapSettings;
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
 var
@@ -328,11 +327,6 @@ begin
   FormLoading.Show;
 end;
 
-procedure TForm1.NewMapClick(Sender: TObject);
-begin
-  FormNewMap.Show;
-end;
-
 procedure TForm1.PalletePageChange(Sender: TObject);
 begin //
 if ActiveTileName<>nil then
@@ -353,8 +347,8 @@ if CheckBox1.Checked then exit;
 ControlList.UpdateState;
 fTerrain.UpdateState;
 if CheckBox2.Checked then
-for i:=1 to 9 do
-  ControlList.UpdateState;
+  for i:=1 to 9 do
+    ControlList.UpdateState;
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -453,7 +447,7 @@ ControlList.AddHouse(ht_Quary,KMPoint(12,8));
 ControlList.AddHouse(ht_WoodCutters,KMPoint(12,11));
 ControlList.AddHouse(ht_SawMill,KMPoint(12,14));
 
-ControlList.AddUnit('User', ut_Farmer, KMPoint(5,9));
+ControlList.AddUnit('User', ut_Farmer, KMPoint(15,9));
 ControlList.AddUnit('User', ut_StoneCutter, KMPoint(6,9));
 ControlList.AddUnit('User', ut_WoodCutter, KMPoint(7,9));
 ControlList.AddUnit('User', ut_Lamberjack, KMPoint(8,9));

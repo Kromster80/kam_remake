@@ -647,7 +647,6 @@ end;
 
 procedure TTaskBuildRoad.Execute(out TaskDone:boolean);
 const Cycle=11;
-var KMHouse:TKMHouse;
 begin
 TaskDone:=false;
 with fWorker do

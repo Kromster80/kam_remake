@@ -379,7 +379,7 @@ end;
 { TKMHousesCollection }
 
 procedure TKMHousesCollection.Add(aHouseType: THouseType; PosX,PosY:integer);
-var i,k:integer; xo:integer;
+var xo:integer;
 begin
 xo:=HouseXOffset[integer(aHouseType)];
 Inherited Add(TKMHouse.Create(PosX+xo,PosY,aHouseType,hbs_Done));
@@ -422,7 +422,7 @@ end;
 
 function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
 var
-  i,k: integer;
+  i: integer;
 begin
   Result:= nil;
   for I := 0 to Count - 1 do

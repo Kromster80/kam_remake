@@ -250,21 +250,24 @@ begin
                          +fTerrain.Land[Tmp,Xc+1].Height*frac(InX))/xh;
   end;
 
-for ii:=-2 to 3 do //check if cursor in a tile and adjust it there
-  if (InY>=Ycoef[ii])and(InY<=Ycoef[ii+1]) then
-    begin
-      Result:=Yc+ii-(Ycoef[ii+1]-InY) / (Ycoef[ii+1]-Ycoef[ii]);
-      break;
-    end;
+  Result:=Yc; //Assign something incase following code returns nothing 
+
+  for ii:=-2 to 3 do //check if cursor in a tile and adjust it there
+    if (InY>=Ycoef[ii])and(InY<=Ycoef[ii+1]) then
+      begin
+        Result:=Yc+ii-(Ycoef[ii+1]-InY) / (Ycoef[ii+1]-Ycoef[ii]);
+        break;
+      end;
 end;
 
 function TTerrain.InterpolateMapCoord(inX,inY:single):single;
-var ii:integer; Xc,Yc:integer; Tmp:integer; y1,y2:single;
+var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
-{Xc:=trunc(inX);
-y1:=
-Result:=fTerrain.Land[inY,inX].Height*(1-frac(InX)
-       +fTerrain.Land[inY,inX+1].Height*frac(InX);}
+Xc:=trunc(inX);
+Yc:=trunc(inY);
+Tmp1:=fTerrain.Land[Yc,Xc].Height*(1-frac(InX))+fTerrain.Land[Yc,Xc+1].Height*frac(InX);
+Tmp2:=fTerrain.Land[Yc+1,Xc].Height*(1-frac(InX))+fTerrain.Land[Yc+1,Xc+1].Height*frac(InX);
+Result:=Tmp1*(1-frac(InY)) + Tmp2*frac(InY);
 end;
 
 end.
