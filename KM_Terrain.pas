@@ -16,7 +16,8 @@ private
 public
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
     Terrain,Height,Rotation,Obj:byte;
-    Normal:record X,Y,Z:single; end;
+
+    //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
     Light:single;
 
     //Meant to be set of allowed actions on the tile
@@ -54,8 +55,7 @@ public
   constructor Create;
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
-  procedure RebuildNormals(LowX,HighX,LowY,HighY:integer);
-  procedure RebuildLightning(LowX,HighX,LowY,HighY:integer);
+  procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateMapCoord(inX,inY:single):single;
 public
@@ -183,7 +183,7 @@ MapY:=Height;
 
 for i:=1 to Height do for k:=1 to Width do with Land[i,k] do begin
 Terrain:=0;
-Height:=random(15); //variation in height
+Height:=random(7); //variation in height
 Rotation:=0;
 Obj:=255; //none
 FieldSpecial:=fs_None;
@@ -196,8 +196,7 @@ TreeAge:=0;
 BorderX:=bt_None;
 BorderY:=bt_None;
 end;
-RebuildNormals(1,MapX,1,MapY);
-RebuildLightning(1,MapX,1,MapY);
+RebuildLighting(1,MapX,1,MapY);
 end;
 
 function TTerrain.OpenMapFromFile(filename:string):boolean;
@@ -229,58 +228,36 @@ begin
       Land[i,k].TreeAge:=0;
     end;
 closefile(f);
-RebuildNormals(1,MapX,1,MapY);
-RebuildLightning(1,MapX,1,MapY);
+RebuildLighting(1,MapX,1,MapY);
 fMiniMap.ReSize(MapX,MapY);
 Result:=true;
 end;
 
-procedure TTerrain.RebuildNormals(LowX,HighX,LowY,HighY:integer);
-var i,k:integer; x0,x2,y0,y2:integer;
-begin
-for i:=LowY to HighY do for k:=LowX to HighX do
-  with Land[i,k] do begin
-    x0:=EnsureRange(k-1,0,MapX+1);
-    x2:=EnsureRange(k+1,0,MapX+1);
-    y0:=EnsureRange(i-1,0,MapY+1);
-    y2:=EnsureRange(i+1,0,MapY+1);
-    if (x0=0)or(y0=0)or(x2=MapX+1)or(y2=MapY+1) then
-    begin
-      Normal.X:=0;
-      Normal.Y:=0;
-      Normal.Z:=-1;
-    end
-    else
-    begin
-      Normal.X:=(Land[i ,x0].Height-Land[i ,x2].Height)/32; //-100..100 / 3
-      Normal.Y:=(Land[y0,k ].Height-Land[y2,k ].Height)/32; //-100..100 / 3
-      Normal.Z:=1;
-    end;
-  end;
-end;
 
-procedure TTerrain.RebuildLightning(LowX,HighX,LowY,HighY:integer);
+{ Rebuilds lighting values for given bounds.
+These values are used to draw highlights/shadows on terrain.}
+procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
 var i,k:integer; x0,y2:integer;
 begin
-for i:=LowY to HighY do for k:=LowX to HighX do
-  with Land[i,k] do begin
-    x0:=EnsureRange(k-1,0,MapX+1);
-    y2:=EnsureRange(i+1,0,MapY+1);
-    if (x0=0)or(y2=MapY+1) then
-      Light:=0
-    else
-      Light:=EnsureRange((Land[i,k].Height-Land[y2,x0].Height)/35,-0.98,0.98);
-  end;
+  for i:=LowY to HighY do for k:=LowX to HighX do begin
+    x0:=EnsureRange(k-1,1,MapX);
+    y2:=EnsureRange(i+1,1,MapY);
+    Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1)*(1-Overlap); //  1.33*16 ~=22
+    if (i=1)or(i=MapY)or(k=1)or(k=MapX) then
+      Land[i,k].Light:=-1+Overlap;
+  end
 end;
+
 
 procedure TTerrain.SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
 begin
-Land[Loc.Y,Loc.X].Markup:=aMarkup;
+  Land[Loc.Y,Loc.X].Markup:=aMarkup;
 end;
+
 
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
-Land[Loc.Y,Loc.X].Markup:=mu_None;
+  Land[Loc.Y,Loc.X].Markup:=mu_None;
 end;
 
 procedure TTerrain.IncFieldState(Loc:TKMPoint);
@@ -417,8 +394,7 @@ begin
   Land[Loc.Y+1,Loc.X].Height:=mix(Land[Loc.Y+1,Loc.X].Height,TempH,0.5);
   Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
   Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
-  RebuildNormals(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
-  RebuildLightning(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
+  RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
 end;
 
 procedure TTerrain.AddTree(Loc:TKMPoint; ID:integer);

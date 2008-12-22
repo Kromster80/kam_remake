@@ -7,7 +7,6 @@ TRender = class
 private
   h_DC: HDC;
   h_RC: HGLRC;
-  LightPos,LightDiff:array[1..4] of GLfloat;
   TextG,Text512:GLuint;
   procedure RenderQuad(pX,pY:integer);
   procedure RenderWireQuad(pX,pY:integer);
@@ -78,10 +77,7 @@ begin
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, @LightDiff);
+  glDisable(GL_LIGHTING);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG);    // Load the Textures
@@ -106,14 +102,14 @@ end;
 
 constructor TRender.Create;
 begin
-  LightPos[1]:=-20;
+{  LightPos[1]:=-20;
   LightPos[2]:= 40;
   LightPos[3]:= 40;
   LightPos[4]:=  0;
   LightDiff[1]:=   1;
   LightDiff[2]:=   1;
   LightDiff[3]:=0.97;
-  LightDiff[4]:=   1;
+  LightDiff[4]:=   1;}
 end;
 
 destructor TRender.Destroy;
@@ -126,7 +122,6 @@ procedure TRender.Render();
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen
   glLoadIdentity();                // Reset The View
-  glLightfv(GL_LIGHT0, GL_POSITION, @LightPos);
   glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
   glScale(fViewport.Zoom*CellSize,fViewport.Zoom*CellSize,fViewport.Zoom*CellSize);
   glTranslate(-fViewport.XCoord,-fViewport.YCoord,0);
@@ -152,7 +147,6 @@ var
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
-glEnable(GL_LIGHTING);
 glColor4f(1,1,1,1);
 glBindTexture(GL_TEXTURE_2D, Text512);
 glbegin (GL_QUADS);
@@ -172,19 +166,15 @@ glbegin (GL_QUADS);
         if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
         if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
-        glNormal3fv(@Land[i,k].Normal);
         glTexCoord2fv(@TexC[TexO[1]]);
         glvertex2f(k-1,i-1-Land[i,k].Height/xh);
 
-        glNormal3fv(@Land[i+1,k].Normal);
         glTexCoord2fv(@TexC[TexO[2]]);
         glvertex2f(k-1,i-Land[i+1,k].Height/xh);
 
-        glNormal3fv(@Land[i+1,k+1].Normal);
         glTexCoord2fv(@TexC[TexO[3]]);
         glvertex2f(k,i-Land[i+1,k+1].Height/xh);
 
-        glNormal3fv(@Land[i,k+1].Normal);
         glTexCoord2fv(@TexC[TexO[4]]);
         glvertex2f(k,i-1-Land[i,k+1].Height/xh);
       end;
@@ -211,26 +201,34 @@ glbegin (GL_QUADS);
           end;
       end;
 
-//  end;
-
-  glDisable(GL_LIGHTING);
-
   glColor4f(1,1,1,1);
   glBlendFunc(GL_DST_COLOR,GL_ONE);
   glBindTexture(GL_TEXTURE_2D, TextG);
   glbegin (GL_QUADS);
-  glNormal3f(0,1,0);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     begin
-      glTexCoord2f(0,max(Land[i  ,k  ].Light,0.02)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
-      glTexCoord2f(0,max(Land[i+1,k  ].Light,0.02)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
-      glTexCoord2f(0,max(Land[i+1,k+1].Light,0.02)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
-      glTexCoord2f(0,max(Land[i  ,k+1].Light,0.02)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+      glTexCoord2f(0,max(0,Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
+      glTexCoord2f(0,max(0,Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
+      glTexCoord2f(0,max(0,Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
+      glTexCoord2f(0,max(0,Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
     end;
   glEnd;
+
+  glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
+  glBindTexture(GL_TEXTURE_2D, TextG);
+  glbegin (GL_QUADS);
+  with fTerrain do
+  for i:=y1 to y2 do for k:=x1 to x2 do
+    begin
+    glTexCoord2f(0,max(0,-Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
+    glTexCoord2f(0,max(0,-Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
+    glTexCoord2f(0,max(0,-Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
+    glTexCoord2f(0,max(0,-Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+    end;
+  glEnd;
+
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //Need to add shadow overdraw later
 
   glBindTexture(GL_TEXTURE_2D,0);
 end;
@@ -299,7 +297,6 @@ end;
 procedure TRender.RenderQuad(pX,pY:integer);
 begin
 glbegin (GL_QUADS);
-glNormal3f(0,1,0);
 with fTerrain do begin
   glvertex2f(pX-1,pY-1-Land[pY  ,pX  ].Height/xh);
   glvertex2f(pX  ,pY-1-Land[pY  ,pX+1].Height/xh);
@@ -313,7 +310,6 @@ end;
 procedure TRender.RenderWireQuad(pX,pY:integer);
 begin
   glbegin (GL_LINE_LOOP);
-  glNormal3f(0,1,0);
   with fTerrain do begin
     glvertex2f(pX-1,pY-1-Land[pY  ,pX  ].Height/xh);
     glvertex2f(pX  ,pY-1-Land[pY  ,pX+1].Height/xh);
@@ -399,19 +395,15 @@ if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]
 k:=pX; i:=pY;
 glbegin (GL_QUADS);
 with fTerrain do begin
-  glNormal3fv(@Land[i,k].Normal);
   glTexCoord2fv(@TexC[TexO[1]]);
   glvertex2f(k-1,i-1-Land[i,k].Height/xh);
 
-  glNormal3fv(@Land[i+1,k].Normal);
   glTexCoord2fv(@TexC[TexO[2]]);
   glvertex2f(k-1,i-Land[i+1,k].Height/xh);
 
-  glNormal3fv(@Land[i+1,k+1].Normal);
   glTexCoord2fv(@TexC[TexO[3]]);
   glvertex2f(k,i-Land[i+1,k+1].Height/xh);
 
-  glNormal3fv(@Land[i,k+1].Normal);
   glTexCoord2fv(@TexC[TexO[4]]);
   glvertex2f(k,i-1-Land[i,k+1].Height/xh);
 end;
