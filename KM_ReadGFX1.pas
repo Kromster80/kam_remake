@@ -1,57 +1,74 @@
 unit KM_ReadGFX1;
 interface
-uses OpenGL;
+uses OpenGL, Windows, Forms, Controls, KM_Defaults;
 
 type
   TByteArray2 = array of Byte;
   TWordArray2 = array of Word;
 
     function ReadGFX(text: string):boolean;
-    function ReadPallete(filename:string):boolean;
-    function ReadTreesRX(filename:string):boolean;
-    function ReadHousesRX(filename:string):boolean;
-    function ReadUnitsRX(filename:string):boolean;
-    function ReadGUIRX(filename:string):boolean;
-    function ReadGUIMainRX(filename:string):boolean;
-    function ReadUnitDAT(filename:string):boolean;
-    function ReadHouseDAT(filename:string):boolean;
-    function ReadMapElem(filename:string):boolean;
-    procedure ExportRX2BMP(Param:string);
-    procedure MakeObjectsGFX(Sender: TObject);
-    procedure MakeHousesGFX(Sender: TObject);
-    procedure MakeUnitsGFX(Sender: TObject);
-    procedure MakeGUIGFX(Sender: TObject);
+
+      function ReadPallete(filename:string):boolean;
+      function ReadMapElem(filename:string):boolean;
+      function ReadHouseDAT(filename:string):boolean;
+      function ReadUnitDAT(filename:string):boolean;
+
+      function ReadFont(filename:string; aFont:TKMFont):boolean;
+
+      function ReadRX(filename:string; ID:integer):boolean;
+      procedure MakeGFX(Sender: TObject; RXid:integer);
+
+    procedure ExportRX2BMP(RXid:integer);
+
+    function MakeMiniMapColors(filename:string):boolean;
+    function MakeCursors(RXid:integer):boolean;
+    function MakeResourceIcons(RXid:integer):boolean;
 
 implementation
 
-uses KromUtils, KM_Unit1, KM_Defaults, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math, dglOpenGL,
+uses KromUtils, KM_Unit1, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math, dglOpenGL,
      KM_Global_Data, KM_Log;
 
 function ReadGFX(text: string):boolean;
-        procedure StepRefresh();
-          begin
-            FormLoading.Bar1.StepIt; FormLoading.Refresh;
-          end;
+var i:integer;
+  procedure StepRefresh();
+    begin
+      FormLoading.Bar1.StepIt; FormLoading.Refresh;
+    end;
 begin
 fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm'));           StepRefresh();
-fLog.AppendLog('Reading trees.rx',ReadTreesRX(text+'data\gfx\res\trees.rx'));       StepRefresh();
-fLog.AppendLog('Reading houses.rx',ReadHousesRX(text+'data\gfx\res\houses.rx'));    StepRefresh();
-fLog.AppendLog('Reading units.rx',ReadUnitsRX(text+'data\gfx\res\units.rx'));       StepRefresh();
-fLog.AppendLog('Reading gui.rx',ReadGUIRX(text+'data\gfx\res\gui.rx'));             StepRefresh();
-fLog.AppendLog('Reading guimain.rx',ReadGUIMainRX(text+'data\gfx\res\guimain.rx')); StepRefresh();
 fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
 fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
 fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
 
-    MakeObjectsGFX(nil);
-    MakeHousesGFX(nil);
-    MakeUnitsGFX(nil);
-    MakeGUIGFX(nil);
+fLog.AppendLog('Reading game.fnt',ReadFont(text+'data\gfx\fonts\game.fnt',fnt_Game));       StepRefresh();
+                                
+RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
+RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
+RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
+RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=false;
+RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
+
+for i:=1 to 5 do begin
+  fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
+
+  if RXData[i].Title='GUI' then begin
+    MakeCursors(i);
+    MakeResourceIcons(i);
+  end;
+  
+  MakeGFX(nil,i);
+  StepRefresh();
+end;
+
+fLog.AppendLog('Preparing MiniMap colors',MakeMiniMapColors('')); StepRefresh();
+
 
 fLog.AppendLog('ReadGFX is done');
 
 Result:=true;
 end;
+
 
 //=============================================
 //Reading pallete for trees/objects
@@ -68,147 +85,76 @@ if not CheckFileExists(filename) then exit;
 Result:=true;
 end;
 
-//=============================================
-//Reading trees/objects data
-//=============================================
-function ReadTreesRX(filename:string):boolean;
-var ii:integer;
-begin
-  Result:=false;
-  if not CheckFileExists(filename) then exit;
-  assignfile(f,filename); reset(f,1);
-  blockread(f,TreeQty,4);
-  blockread(f,TreePal,TreeQty);
-  for ii:=1 to TreeQty do
-    if TreePal[ii]=1 then
-    begin
-      blockread(f,TreeSize[ii],4);
-      blockread(f,TreePivot[ii],8);
-      setlength(TreeData[ii],TreeSize[ii,1]*TreeSize[ii,2]);
-      blockread(f,TreeData[ii,0],TreeSize[ii,1]*TreeSize[ii,2]);
-    end;
-  closefile(f);
-  Result:=true;
-end;
 
 //=============================================
 //Reading map elements (has animation data)
 //=============================================
 function ReadMapElem(filename:string):boolean;
+var ii,kk:integer;
 begin
   Result:=false;
   if not CheckFileExists(filename) then exit;
   assignfile(f,filename); reset(f,1);
   blockread(f,MapElem[1],MapElemQty*99); //256*3
   closefile(f);
+
+  assignfile(ft,ExeDir+'Trees.txt'); rewrite(ft);
+  for ii:=1 to MapElemQty do begin
+  writeln(ft);
+  writeln(ft);
+  writeln(ft,ii);
+    for kk:=1 to 30 do if MapElem[ii].Step[kk]>0 then
+    write(ft,MapElem[ii].Step[kk],' ') else write(ft,'- ');
+
+    writeln(ft);
+    for kk:=1 to 16 do
+    write(ft,MapElem[ii].u1[kk],' ');
+    write(ft,' =',MapElem[ii].u2);
+    write(ft,' =',MapElem[ii].u3);
+    write(ft,' =',MapElem[ii].u4);
+    writeln(ft);
+  end;
+  closefile(ft);
+
   Result:=true;
 end;
 
-//=============================================
-//Reading houses data
-//=============================================
-function ReadHousesRX(filename:string):boolean;
-var ii,Count:integer;
-begin
-Result:=false;
-Count:=0;
-if not CheckFileExists(filename) then exit;
-assignfile(f,filename); reset(f,1);
-blockread(f,HouseQty,4);
-blockread(f,HousePal,HouseQty);
-for ii:=1 to HouseQty do
-if HousePal[ii]=1 then begin //entry used
-inc(Count);
-inc(HouseBMP[0]);
-HouseBMP[ii]:=HouseBMP[0];
-blockread(f,HouseSize[ii],4);
-blockread(f,HousePivot[ii],8);
-setlength(HouseData[ii],HouseSize[ii,1]*HouseSize[ii,2]);
-blockread(f,HouseData[ii,0],HouseSize[ii,1]*HouseSize[ii,2]);
-end;
-closefile(f);
-fLog.AppendLog('House sprites 2000 -',Count);
-Result:=true;
-end;
 
 //=============================================
-//Reading units data
+//Reading houses.dat data
 //=============================================
-function ReadUnitsRX(filename:string):boolean;
-var ii,Count:integer;
+function ReadHouseDAT(filename:string):boolean;
+var ii,kk:integer;
 begin
 Result:=false;
-Count:=0;
-FormLoading.Label1.Caption:='Reading units';
-FormLoading.Bar1.StepIt; FormLoading.Refresh;
 if not CheckFileExists(filename) then exit;
 assignfile(f,filename); reset(f,1);
-blockread(f,UnitQty,4);
-blockread(f,UnitPal,UnitQty);
-for ii:=1 to UnitQty do
-if UnitPal[ii]=1 then begin //entry used
-inc(Count);
-blockread(f,UnitSize[ii],4);
-blockread(f,UnitPivot[ii],8);
-setlength(UnitData[ii],UnitSize[ii,1]*UnitSize[ii,2]);
-blockread(f,UnitData[ii,0],UnitSize[ii,1]*UnitSize[ii,2]);
+blockread(f,HouseDAT1,30*70);
+for ii:=1 to 29 do begin
+blockread(f,HouseDAT[ii],88+19*70+270);
 end;
 closefile(f);
-fLog.AppendLog('Unit sprites 9500 -',Count);
-Result:=true;
-end;
 
-//=============================================
-//Reading GUI data
-//=============================================
-function ReadGUIRX(filename:string):boolean;
-var ii,Count:integer;
-begin
-Result:=false;
-Count:=0;
-FormLoading.Label1.Caption:='Reading GUI';
-FormLoading.Bar1.StepIt; FormLoading.Refresh;
-if not CheckFileExists(filename) then exit;
-assignfile(f,filename); reset(f,1);
-blockread(f,GUIQty,4);
-blockread(f,GUIPal,GUIQty);
-for ii:=1 to GUIQty do
-if GUIPal[ii]=1 then begin //entry used
-inc(Count);
-blockread(f,GUISize[ii],4);
-blockread(f,GUIPivot[ii],8);
-setlength(GUIData[ii],GUISize[ii,1]*GUISize[ii,2]);
-blockread(f,GUIData[ii,0],GUISize[ii,1]*GUISize[ii,2]);
-end;
-closefile(f);
-fLog.AppendLog('GUI sprites 600 -',Count);
-Result:=true;
-end;
+assignfile(ft,ExeDir+'Houses.txt'); rewrite(ft);
+for ii:=1 to 29 do begin
+writeln(ft);
+writeln(ft);
+writeln(ft,HouseName[ii]);
+  for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
+  write(ft,'#') else write(ft,' ');
+  writeln(ft);
+  for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
+  write(ft,'#') else write(ft,' ');
+  writeln(ft);
+  for kk:=1 to 19 do
+    writeln(ft,inttostr(kk)+'. '+inttostr(HouseDAT[ii].Anim[kk].Count));
 
-//=============================================
-//Reading GUIMain data
-//=============================================
-function ReadGUIMainRX(filename:string):boolean;
-var ii,Count:integer;
-begin
-Result:=false;
-Count:=0;
-FormLoading.Label1.Caption:='Reading GUIMain';
-FormLoading.Bar1.StepIt; FormLoading.Refresh;
-if not CheckFileExists(filename) then exit;
-assignfile(f,filename); reset(f,1);
-blockread(f,GUIMQty,4);
-blockread(f,GUIMPal,GUIMQty);
-for ii:=1 to GUIMQty do
-if GUIMPal[ii]=1 then begin //entry used
-inc(Count);
-blockread(f,GUIMSize[ii],4);
-blockread(f,GUIMPivot[ii],8);
-setlength(GUIMData[ii],GUIMSize[ii,1]*GUIMSize[ii,2]);
-blockread(f,GUIMData[ii,0],GUIMSize[ii,1]*GUIMSize[ii,2]);
+  for kk:=1 to 135 do
+  write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+' ');
+  writeln(ft);
 end;
-closefile(f);
-fLog.AppendLog('GUIMain sprites -',Count);
+closefile(ft);
+
 Result:=true;
 end;
 
@@ -256,99 +202,36 @@ for hh:=1 to 8 do
     end;
 end;
 closefile(ft);
-
 Result:=true;
 end;
 
 //=============================================
-//Reading houses.dat data
+//Reading RX Data
 //=============================================
-function ReadHouseDAT(filename:string):boolean;
-var ii,kk:integer;
+function ReadRX(filename:string; ID:integer):boolean;
+  var i:integer;
 begin
-Result:=false;
-if not CheckFileExists(filename) then exit;
-assignfile(f,filename); reset(f,1);
-blockread(f,HouseDAT1,30*70);
-for ii:=1 to 29 do begin
-blockread(f,HouseDAT[ii],88+19*70+270);
-end;
-closefile(f);
+  Result:=false;
+  if not CheckFileExists(filename) then exit;
 
-assignfile(ft,ExeDir+'Houses.txt'); rewrite(ft);
-for ii:=1 to 29 do begin
-writeln(ft);
-writeln(ft);
-writeln(ft,HouseName[ii]);
-  for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
-  write(ft,'#') else write(ft,' ');
-  writeln(ft);
-  for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
-  write(ft,'#') else write(ft,' ');
-  writeln(ft);
-  for kk:=1 to 19 do
-    writeln(ft,inttostr(kk)+'. '+inttostr(HouseDAT[ii].Anim[kk].Count));
+  assignfile(f,filename); reset(f,1);
+  blockread(f, RXData[ID].Qty, 4);
+  blockread(f, RXData[ID].Pal, RXData[ID].Qty);
 
-  for kk:=1 to 135 do
-  write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+' ');
-  writeln(ft);
-end;
-closefile(ft);
+  for i:=1 to RXData[ID].Qty do
+    if RXData[ID].Pal[i] = 1 then
+    begin
+      blockread(f, RXData[ID].Size[i,1], 4);
+      blockread(f, RXData[ID].Pivot[i].x, 8);
+      setlength(RXData[ID].Data[i], RXData[ID].Size[i,1] * RXData[ID].Size[i,2] );
+      blockread(f, RXData[ID].Data[i,0], RXData[ID].Size[i,1] * RXData[ID].Size[i,2] );
+    end;
 
-Result:=true;
+  closefile(f);
+  fLog.AppendLog(RXData[ID].Title+' -',RXData[ID].Qty);
+  Result:=true;
 end;
 
-//=============================================
-//Export
-//=============================================
-procedure ExportRX2BMP(Param:string);
-var MyBitMap:TBitMap;
-    id,t,Qty:integer;
-    sy,sx,y,x:integer;
-begin
-CreateDir(ExeDir+Param+'rx\');
-  MyBitMap:=TBitMap.Create;
-  MyBitmap.PixelFormat:=pf24bit;
-    if Param='Trees'  then Qty:=TreeQty;
-    if Param='Houses' then Qty:=HouseQty;
-    if Param='Units'  then Qty:=UnitQty;
-    if Param='GUI'    then Qty:=GUIQty;
-    if Param='GUIMain'then Qty:=GUIMQty;
-
-    if Param='Trees'  then ReadTreesRX(ExeDir+'data\gfx\res\trees.rx');
-    if Param='Houses' then ReadHousesRX(ExeDir+'data\gfx\res\houses.rx');
-    if Param='Units'  then ReadUnitsRX(ExeDir+'data\gfx\res\units.rx');
-    if Param='GUI'    then ReadGUIRX(ExeDir+'data\gfx\res\gui.rx');
-    if Param='GUIMain'then ReadGUIMainRX(ExeDir+'data\gfx\res\guimain.rx');
-
-for id:=1 to Qty do
-begin
-  if Param='Trees'  then begin sx:=TreeSize[id,1];  sy:=TreeSize[id,2];  end;
-  if Param='Houses' then begin sx:=HouseSize[id,1]; sy:=HouseSize[id,2]; end;
-  if Param='Units'  then begin sx:=UnitSize[id,1];  sy:=UnitSize[id,2];  end;
-  if Param='GUI'    then begin sx:=GUISize[id,1];   sy:=GUISize[id,2];   end;
-  if Param='GUIMain'then begin sx:=GUIMSize[id,1];  sy:=GUIMSize[id,2];  end;
-
-  MyBitmap.Width:=sx;
-  MyBitmap.Height:=sy;
-
-  for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-    if Param='Trees'  then t:=TreeData[id,y*sx+x]+1;
-    if Param='Houses' then t:=HouseData[id,y*sx+x]+1;
-    if Param='Units'  then t:=UnitData[id,y*sx+x]+1;
-    if Param='GUI'    then t:=GUIData[id,y*sx+x]+1;
-    if Param='GUIMain'then t:=GUIMData[id,y*sx+x]+1;
-    MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
-  end;
-  if sy>0 then MyBitmap.SaveToFile(ExeDir+Param+'rx\'+Param+'_'+int2fix(id,4)+'.bmp');
-
-  if Param='Trees'  then setlength(TreeData[id],0);
-  if Param='Houses' then setlength(HouseData[id],0);
-  if Param='Units'  then setlength(UnitData[id],0);
-  if Param='GUI'    then setlength(GUIData[id],0);
-  if Param='GUIMain'then setlength(GUIMData[id],0);
-end;
-end;
 
 //=============================================
 //Make texture
@@ -366,18 +249,25 @@ begin
 DestX:=MakePOT(mx);
 DestY:=MakePOT(my);
 
-TD:=AllocMem(DestX*DestY*4); //GetMem+FillChar(0)
+TD:=AllocMem(DestX*DestY*4); //same as GetMem+FillChar(0)
 for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
   if (i<my)and(k<mx) then begin
     x:=Data[i*mx+k];
     if (x<>0) then begin
       by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
+
       if Mode='Norm' then
         if x in [24..30] then
           col:=((x-27)*42+128)*65793 OR $FF000000 //convert to greyscale B>>>>>W
         else
           col:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000
       else
+
+      if Mode='NoCol' then
+          col:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000
+      else
+
+      if Mode='AltID' then
         case x of
           24,30: col:=$70FFFFFF;   //7
           25,29: col:=$B0FFFFFF;   //11
@@ -385,13 +275,16 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
           27: col:=$FFFFFFFF;      //16
         else
           col:=0;
-        end;
+        end
+
+      else
+        Assert(false,'Team color generation error');
+
       by^:=col;
     end;
   end;
 
 glGenTextures(1, id);
-//if id^<=16000 then
 begin
 glBindTexture(GL_TEXTURE_2D, id^);
 //gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
@@ -402,118 +295,308 @@ glBindTexture(GL_TEXTURE_2D, id^);
   if Mode='Norm' then
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD)
   else
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+  if Mode='NoCol' then
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD)
+  else
+  if Mode='AltID' then
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD)
+  else
+    Assert(false,'Team color generation error');
 end;
 FreeMem(TD);
 end;
 
+
 //=============================================
-//Making OpenGL textures out of objects
+//Making OpenGL textures
 //=============================================
-procedure MakeObjectsGFX(Sender: TObject);
-var id:integer; Am,Rm:integer;
+procedure MakeGFX(Sender: TObject; RXid:integer);
+var
+  ci,ad,j,i,k,id,TexCount:integer;
+  Am,Cm,Rm:integer;
+  WidthPOT,HeightPOT:integer;
+  TD:array of byte;
 begin
-Am:=0; Rm:=0;
-for id:=1 to TreeQty do begin
-TreeTex[id,2]:=MakePOT(TreeSize[id,1]);
-TreeTex[id,3]:=MakePOT(TreeSize[id,2]);
+id:=0; Am:=0; Rm:=0; Cm:=0; TexCount:=0;
+repeat
+  inc(id);
+  WidthPOT:=RXData[RXid].Size[id,1];
+  HeightPOT:=MakePOT(RXData[RXid].Size[id,2]);
+  ad:=1;
 
-if TreeSize[id,1]*TreeSize[id,2]<>0 then
-GenTexture(@TreeTex[id,1],TreeSize[id,1],TreeSize[id,2],@TreeData[id,0],'Norm');
+  while((id+ad<RXData[RXid].Qty)and
+        (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2]))and
+        (WidthPOT+RXData[RXid].Size[id+ad,1]<=1024)) do begin
+    inc(WidthPOT,RXData[RXid].Size[id+ad,1]);    
+    inc(ad);
+  end;
 
-setlength(TreeData[id],0);
-inc(Am,TreeTex[id,2]*TreeTex[id,3]*4);
-inc(Rm,TreeSize[id,1]*TreeSize[id,2]*4);
-end;
-fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for trees GFX');
-end;
+  WidthPOT:=MakePOT(WidthPOT);
 
-//=============================================
-//Making OpenGL textures out of houses
-//=============================================
-procedure MakeHousesGFX(Sender: TObject);
-var i,id:integer; Am,Cm,Rm:integer;
-begin
-Am:=0; Rm:=0; Cm:=0;
-for id:=1 to HouseQty do
-  if HouseSize[id,1]*HouseSize[id,2]<>0 then
-    begin
-      HouseTex[id,2]:=MakePOT(HouseSize[id,1]);
-      HouseTex[id,3]:=MakePOT(HouseSize[id,2]);
+  setlength(TD,WidthPOT*HeightPOT+1);
 
-      GenTexture(@HouseTex[id,1],HouseSize[id,1],HouseSize[id,2],@HouseData[id,0],'Norm');
+  for i:=1 to HeightPOT do begin
+    ci:=0;
+    for j:=id to id+ad-1 do
+      for k:=1 to RXData[RXid].Size[j,1] do begin
+        inc(ci);
+        if i<=RXData[RXid].Size[j,2] then
+          TD[(i-1)*WidthPOT+ci-1]:=RXData[RXid].Data[j,(i-1)*RXData[RXid].Size[j,1]+k-1]
+        else
+          TD[(i-1)*WidthPOT+ci-1]:=0;
+      end;
+  end;
 
-      for i:=0 to HouseSize[id,2]*HouseSize[id,1]-1 do
-        if HouseData[id,i] in [24..30] then begin
-          GenTexture(@HouseTex[id,4],HouseSize[id,1],HouseSize[id,2],@HouseData[id,0],'AltID');
-          inc(Cm,HouseTex[id,2]*HouseTex[id,3]*4);
-          break;
-        end;
+  if RXData[RXid].NeedTeamColors then
+    GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],'Norm')
+  else
+    GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],'NoCol');
 
-setlength(HouseData[id],0);
-inc(Am,HouseTex[id,2]*HouseTex[id,3]*4);
-inc(Rm,HouseSize[id,1]*HouseSize[id,2]*4);
-end;
-fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for houses GFX');
-fLog.AppendLog(inttostr(Cm div 1024)+' KBytes for team colors');
-end;
-
-//=============================================
-//Making OpenGL textures out of units
-//=============================================
-procedure MakeUnitsGFX(Sender: TObject);
-var i,id:integer; Am,Cm,Rm:integer;
-begin
-Am:=0; Rm:=0; Cm:=0;
-for id:=1 to UnitQty do
-  if UnitSize[id,1]*UnitSize[id,2]<>0 then
-    begin
-      UnitTex[id,2]:=MakePOT(UnitSize[id,1]);
-      UnitTex[id,3]:=MakePOT(UnitSize[id,2]);
-
-      GenTexture(@UnitTex[id,1],UnitSize[id,1],UnitSize[id,2],@UnitData[id,0],'Norm');
-
-      for i:=0 to UnitSize[id,2]*UnitSize[id,1]-1 do
-        if UnitData[id,i] in [24..30] then begin
-          GenTexture(@UnitTex[id,4],UnitSize[id,1],UnitSize[id,2],@UnitData[id,0],'AltID');
-          inc(Cm,UnitTex[id,2]*UnitTex[id,3]*4);
-          break;
-        end;
-
-      setlength(UnitData[id],0);
-      inc(Am,UnitTex[id,2]*UnitTex[id,3]*4);
-      inc(Rm,UnitSize[id,1]*UnitSize[id,2]*4);
+  if MakeTeamColors and RXData[RXid].NeedTeamColors then
+  for i:=0 to length(TD)-1 do
+    if TD[i] in [24..30] then begin
+      GenTexture(@GFXData[RXid,id].AltID,WidthPOT,HeightPOT,@TD[0],'AltID');
+      inc(Cm,WidthPOT*HeightPOT*4);
+      break;
     end;
-fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for units GFX');
-fLog.AppendLog(inttostr(Cm div 1024)+' KBytes for team colors');
+
+  setlength(TD,0);
+
+  k:=0;
+  for j:=id to id+ad-1 do begin
+    GFXData[RXid,j].TexID:=GFXData[RXid,id].TexID;
+    GFXData[RXid,j].AltID:=GFXData[RXid,id].AltID;
+    GFXData[RXid,j].u1:=k/WidthPOT;
+    GFXData[RXid,j].v1:=0;
+    inc(k,RXData[RXid].Size[j,1]);
+    GFXData[RXid,j].u2:=k/WidthPOT;
+    GFXData[RXid,j].v2:=RXData[RXid].Size[j,2]/HeightPOT;
+    GFXData[RXid,j].PxWidth:=RXData[RXid].Size[j,1];
+    GFXData[RXid,j].PxHeight:=RXData[RXid].Size[j,2];
+
+    setlength(RXData[RXid].Data[j],0);
+    inc(Rm,RXData[RXid].Size[j,1]*RXData[RXid].Size[j,2]*4);
+  end;
+
+  inc(Am,WidthPOT*HeightPOT*4);
+  inc(id,ad-1);
+  inc(TexCount);
+
+until(id=RXData[RXid].Qty);
+
+fLog.AppendLog(inttostr(TexCount)+' Textures created');
+fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
+fLog.AppendLog(inttostr(Cm div 1024)+' KBytes for team colors'+eol);
 end;
 
 //=============================================
-//Making OpenGL textures out of GUI
+//Export RX to Bitmaps
 //=============================================
-procedure MakeGUIGFX(Sender: TObject);
-var id:integer; Am,Rm:integer;
+procedure ExportRX2BMP(RXid:integer);
+var MyBitMap:TBitMap;
+    id,t:integer;
+    sy,sx,y,x:integer;
 begin
-Am:=0; Rm:=0;
-for id:=1 to GUIQty do begin
-GUITex[id].TexW:=MakePOT(GUISize[id,1]);
-GUITex[id].TexH:=MakePOT(GUISize[id,2]);
+  CreateDir(ExeDir+RXData[RXid].Title+'rx\');
+  MyBitMap:=TBitMap.Create;
+  MyBitmap.PixelFormat:=pf24bit;
 
-GUITexUV[id].Left:=0;
-GUITexUV[id].Right:=GUISize[id,1];
-GUITexUV[id].Top:=GUITex[id].TexH-GUISize[id,2];
-GUITexUV[id].Bottom:=GUITex[id].TexH;
+  ReadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
 
-if GUISize[id,1]*GUISize[id,2]<>0 then
-GenTexture(@GUITex[id].TexID,GUISize[id,1],GUISize[id,2],@GUIData[id,0],'Norm');
+  for id:=1 to RXData[RXid].Qty do begin
 
-setlength(GUIData[id],0);
-inc(Am,GUITex[id].TexW*GUITex[id].TexH*4);
-inc(Rm,GUISize[id,1]*GUISize[id,2]*4);
+    sx:=RXData[RXid].Size[id,1];
+    sy:=RXData[RXid].Size[id,2];
+    MyBitmap.Width:=sx;
+    MyBitmap.Height:=sy;
+
+    for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+      t:=RXData[RXid].Data[id,y*sx+x]+1;
+      MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+    end;
+    if sy>0 then MyBitmap.SaveToFile(ExeDir+RXData[RXid].Title+'rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
+
+    setlength(RXData[RXid].Data[id],0);
+  end;
 end;
-fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for GUIs GFX');
+
+
+function MakeMiniMapColors(filename:string):boolean;
+var ii,kk,h,j:integer; c:array of byte; R,G,B:integer;
+begin
+Result:=false;
+assignfile(f,ExeDir+'Resource\Tiles512.tga');
+FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
+
+setlength(c,512*512*4+1);
+blockread(f,c[1],18);
+blockread(f,c[1],512*512*4);
+closefile(f);
+
+for ii:=0 to 15 do for kk:=0 to 15 do begin
+
+  R:=0; G:=0; B:=0;
+
+  for j:=0 to 15 do
+  for h:=0 to 15 do begin
+    inc(B, c[((ii+j)*512+kk*16+h)*4+1]);
+    inc(G, c[((ii+j)*512+kk*16+h)*4+2]);
+    inc(R, c[((ii+j)*512+kk*16+h)*4+3]);
+  end;
+
+  TileMMColor[ii*16+kk+1].R:=round (R / 256);
+  TileMMColor[ii*16+kk+1].G:=round (G / 256);
+  TileMMColor[ii*16+kk+1].B:=round (B / 256);
+
 end;
 
+setlength(c,0);
+Result:=true;
+end;
+
+function MakeCursors(RXid:integer):boolean;
+var
+  i,sx,sy,x,y,t:integer;
+  bm,bm2:TBitmap;
+  IconInfo:TIconInfo;
+begin
+  bm:=TBitmap.Create;  bm.PixelFormat:=pf24bit;
+  bm2:=TBitmap.Create; bm2.PixelFormat:=pf24bit;
+
+  for i:=1 to length(Cursors) do begin
+
+    sx:=RXData[RXid].Size[Cursors[i],1];
+    sy:=RXData[RXid].Size[Cursors[i],2];
+    bm.Width:=sx; bm.Height:=sy;
+    bm2.Width:=sx; bm2.Height:=sy;
+
+    for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+      t:=RXData[RXid].Data[Cursors[i],y*sx+x]+1;
+      bm.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+      if t=1 then
+        bm2.Canvas.Pixels[x,y]:=$FFFFFF
+      else
+        bm2.Canvas.Pixels[x,y]:=$000000;
+    end;
+
+  IconInfo.fIcon:=false;
+  IconInfo.xHotspot:=1;
+  IconInfo.yHotspot:=1;
+  IconInfo.hbmMask:=bm2.Handle;
+  IconInfo.hbmColor:=bm.Handle;
+
+  Screen.Cursors[Cursors[i]]:=CreateIconIndirect(iconInfo);
+  end;
+
+  Screen.Cursor:=c_Default;
+end;
+
+function MakeResourceIcons(RXid:integer):boolean;
+var
+  i,sx,sy,x,y,t:integer;
+  bm,bm2:TBitmap;
+begin
+  bm:=TBitmap.Create;  bm.PixelFormat:=pf24bit;
+  bm2:=TBitmap.Create; bm2.PixelFormat:=pf24bit;
+
+  for i:=351 to 378 do begin
+
+    sx:=RXData[RXid].Size[i,1];
+    sy:=RXData[RXid].Size[i,2];
+
+    bm.Width:=20; bm.Height:=20;
+    bm2.Width:=20; bm2.Height:=20;
+
+    for y:=0 to 20-1 do for x:=0 to 20-1 do begin
+
+      if (y>sy-1)or(x>sx-1) then t:=1 else t:=RXData[RXid].Data[i,y*sx+x]+1;
+      bm.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+      if t=1 then
+        bm2.Canvas.Pixels[x,y]:=$FFFFFF
+      else
+        bm2.Canvas.Pixels[x,y]:=$000000;
+    end;
+
+  Form1.IL_ResourceIcons.Add(bm,bm2);
+  end;
+
+end;
+
+
+
+function ReadFont(filename:string; aFont:TKMFont):boolean;
+const
+  TexWidth=256; //Connected to TexData, don't change
+var
+  t:byte;
+  a,b,c,d:word;
+  i,ci,ck:integer;
+  MaxHeight:integer;
+  AdvX,AdvY:integer;
+  TD:array of byte;
+  MyBitMap:TBitMap;
+begin
+Result:=false;
+MaxHeight:=0;
+if not CheckFileExists(filename) then exit;
+assignfile(f,filename); reset(f,1);
+blockread(f,a,2); blockread(f,b,2);
+blockread(f,c,2); blockread(f,d,2);
+blockread(f,FontData[byte(aFont)].Pal[0],256);
+
+//Read font data
+for i:=0 to 255 do
+  if FontData[byte(aFont)].Pal[i]<>0 then
+    with FontData[byte(aFont)].Letters[i] do begin
+      blockread(f,Width,4);
+      blockread(f,Add,8);
+      MaxHeight:=max(MaxHeight,Height);
+      blockread(f,Data[1],Width*Height);
+    end;
+
+closefile(f);
+
+//Compile texture
+ci:=0; ck:=0; AdvX:=0; AdvY:=0;
+setlength(TD,256*256+1);
+
+for i:=0 to 255 do
+  if FontData[byte(aFont)].Pal[i]<>0 then
+    with FontData[byte(aFont)].Letters[i] do begin
+      if AdvX+Width+2>TexWidth then begin
+        AdvX:=0;
+        inc(AdvY,MaxHeight);
+      end;
+
+      for ci:=1 to Height do for ck:=1 to Width do
+        TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=Data[(ci-1)*Width+ck];
+
+      u1:=(AdvX+1)/TexWidth;
+      v1:=AdvY/TexWidth;
+      u2:=(AdvX+1+Width)/TexWidth;
+      v2:=(AdvY+Height)/TexWidth;
+
+      inc(AdvX,1+Width+1);
+    end;
+
+  GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],'Norm');
+
+
+MyBitMap:=TBitMap.Create;
+MyBitmap.PixelFormat:=pf24bit;
+MyBitmap.Width:=256;
+MyBitmap.Height:=256;
+
+for ci:=0 to 255 do for ck:=0 to 255 do begin
+  t:=TD[ci*256+ck]+1;
+  MyBitmap.Canvas.Pixels[ck,ci]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+end;
+
+MyBitmap.SaveToFile(ExeDir+'font5.bmp');
+
+setlength(TD,0);
+Result:=true;
+end;
 
 
 end.

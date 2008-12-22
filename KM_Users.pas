@@ -8,17 +8,16 @@ type
 
   TKMUser = class(TObject)
   private
-    fUserName: string;
+    fUserName: TPlayerID;
   public
-    constructor Create(const aUserName: string);
-//    function GetMoney(aPrice: TMoney): Boolean;
+    constructor Create(const aOwner:TPlayerID);
   end;
 
   TKMUserControl = class(TObject)
   private
     fUser: TKMUser;
   public
-    constructor Create(const aUserName: string);
+    constructor Create(const aOwner:TPlayerID);
     destructor Destroy; override;
   end;
 
@@ -37,21 +36,21 @@ type
     fDeliverList: TKMDeliverQueue;
     fBuildList: TKMBuildingQueue;
     function GetCtrl(Index: Integer): TKMUserControl;
-    function UserByName(const aName: string): TKMUser;
+    function UserByName(const aOwner:TPlayerID): TKMUser;
   public
     constructor Create();
     destructor Destroy; override;
-    function Add(const aUserName: string; aControlType: TUserControlType): TKMUserControl;
+    function Add(const aOwner:TPlayerID; aControlType: TUserControlType): TKMUserControl;
     property Ctrl[Index: Integer]: TKMUserControl read GetCtrl;
   public
-    function AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TKMPoint): Boolean;
+    function AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): Boolean;
     procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
-    procedure AddRoadPlan(aLoc: TKMPoint; aRoadType:TRoadType);
+    procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
     procedure AddHousePlan(aLoc: TKMPoint; aHouseType: THouseType);
     procedure RemUnit(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
-    function UnitsHitTest(X, Y: Integer): TKMUnit;
+    function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsSelectedUnit: TKMUnit;
     property DeliverList:TKMDeliverQueue read fDeliverList;
@@ -68,13 +67,13 @@ uses
 
 { TKMUserList }
 
-function TKMUserControlList.Add(const aUserName: string; aControlType: TUserControlType): TKMUserControl;
+function TKMUserControlList.Add(const aOwner:TPlayerID; aControlType: TUserControlType): TKMUserControl;
 begin
   case aControlType of
     uct_User:
-      Result:= TKMUserUserControl.Create(aUserName);
+      Result:= TKMUserUserControl.Create(aOwner);
     uct_Computer:
-      Result:= TKMUserComputerControl.Create(aUserName);
+      Result:= TKMUserComputerControl.Create(aOwner);
   else
     Result:= nil;
   end;
@@ -82,38 +81,49 @@ begin
     Inherited Add(Result);
 end;
 
-function TKMUserControlList.AddUnit(const aUserName: string; aUnitType: TUnitType; Position: TKMPoint): Boolean;
+function TKMUserControlList.AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): Boolean;
 begin
-    fUnits.Add(aUserName, aUnitType, Position.X, Position.Y);
+    fUnits.Add(aOwner, aUnitType, Position.X, Position.Y);
     Result:=true;
 end;
 
 procedure TKMUserControlList.AddHouse(aHouseType: THouseType; Position: TKMPoint);
+var xo:integer;
 begin
-  fHouses.Add(aHouseType, Position.X, Position.Y)
+  xo:=HouseXOffset[integer(aHouseType)];
+  fHouses.Add(aHouseType, Position.X+xo, Position.Y)
 end;
 
-procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aRoadType:TRoadType);
+procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
 begin
-  fTerrain.SetRoadPlan(aLoc, aRoadType);
-  BuildList.AddNewRoadToBuild(aLoc);
+  fTerrain.SetMarkup(aLoc, aMarkup);
+  case aMarkup of
+  mu_RoadPlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Road);
+  mu_FieldPlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Field);
+  mu_WinePlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Wine);
+  else Assert(false,'Wrong markup');
+  end;
 end;
 
 procedure TKMUserControlList.AddHousePlan(aLoc: TKMPoint; aHouseType: THouseType);
+var xo:integer;
 begin
+  xo:=HouseXOffset[integer(aHouseType)];
+  aLoc.X:=aLoc.X+xo;
   fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y);
-  fTerrain.SetHousePlan(aLoc, aHouseType);
+  fTerrain.SetHousePlan(aLoc, aHouseType, bt_HousePlan);
+  fTerrain.SetTileOwnership(aLoc,aHouseType, play_1);
   BuildList.AddNewHouseToBuild(aLoc, aHouseType);
 end;
 
 procedure TKMUserControlList.RemUnit(Position: TKMPoint);
 begin
-  fUnits.Rem(Position.X, Position.Y)
+  fUnits.Rem(Position.X, Position.Y);
 end;
 
 procedure TKMUserControlList.RemHouse(Position: TKMPoint);
 begin
-  fHouses.Rem(Position.X, Position.Y)
+  fHouses.Rem(Position.X, Position.Y);
 end;
 
 function TKMUserControlList.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -149,9 +159,9 @@ begin
   fHouses.Paint;
 end;
 
-function TKMUserControlList.UnitsHitTest(X, Y: Integer): TKMUnit;
+function TKMUserControlList.UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 begin
-  Result:= fUnits.HitTest(X, Y);
+  Result:= fUnits.HitTest(X, Y, UT);
 end;
 
 function TKMUserControlList.HousesHitTest(X, Y: Integer): TKMHouse;
@@ -170,41 +180,34 @@ begin
   fHouses.UpdateState;
 end;
 
-function TKMUserControlList.UserByName(const aName: string): TKMUser;
+function TKMUserControlList.UserByName(const aOwner:TPlayerID): TKMUser;
 var
   I: Integer;
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    if SameText(Ctrl[I].fUser.fUserName, aName) then
+    if (Ctrl[I].fUser.fUserName=aOwner) then
     begin
       Result:= Ctrl[I].fUser;
       Exit;
-    end;    
+    end;
 end;
 
 { TKMUser }
 
-constructor TKMUser.Create(const aUserName: string);
+constructor TKMUser.Create(const aOwner:TPlayerID);
 begin
   Inherited Create;
-  fUserName:= aUserName;
-//  fMoney.Gold:= 1000;
+  fUserName:= aOwner;
 end;
 
-{function TKMUser.GetMoney(aPrice: TMoney): Boolean;
-begin
-  Result:= fMoney.Gold >= aPrice.Gold;
-  if Result then
-    fMoney.Gold:= fMoney.Gold - aPrice.Gold;
-end;}
 
 { TKMUserControl }
 
-constructor TKMUserControl.Create(const aUserName: string);
+constructor TKMUserControl.Create(const aOwner:TPlayerID);
 begin
   Inherited Create;
-  fUser:= TKMUser.Create(aUserName);
+  fUser:= TKMUser.Create(aOwner);
 end;
 
 destructor TKMUserControl.Destroy;

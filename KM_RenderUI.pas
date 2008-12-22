@@ -1,0 +1,150 @@
+unit KM_RenderUI;
+interface
+uses dglOpenGL, OpenGL, KromUtils, KromOGLUtils, SysUtils;
+
+type
+TRenderUI = class
+  private
+  protected
+  public
+    constructor Create;
+    procedure Render;
+    procedure WriteToolbar;
+    procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer);
+    procedure WritePic(ID,PosX,PosY:integer);
+    procedure WriteText(PosX,PosY:integer; Align:KAlign; Text:string);
+  end;
+
+implementation
+uses KM_Unit1, KM_Global_Data, KM_Defaults;
+
+constructor TRenderUI.Create;
+begin
+//
+end;
+
+procedure TRenderUI.Render;
+begin
+WriteToolbar();
+WriteText(50,400,kaLeft,'qwertyuiopasdfghjkl;zxcvbnm,./1248-0=');
+end;
+
+procedure TRenderUI.WriteToolbar;
+begin
+  WritePic(407,0,0);
+  WritePic(554,0,200);
+  WritePic(404,0,200+168);
+  WritePic(404,0,200+168+400);
+  Write3DButton(42,100,50,75,45);
+  Write3DButton(36,25,60,60,30);
+end;
+
+
+procedure TRenderUI.Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer);
+var a,b:TKMPointF; InsetX,InsetY:single;
+begin
+//402 is a stone background
+with GFXData[4,402] do begin
+  a.x := u1 + (u2-u1) * (PosX/PxWidth) ;
+  b.x := u1 + (u2-u1) * ((PosX+SizeX)/PxWidth) ;
+  a.y := v1 + (v2-v1) * (PosY/PxHeight) ;
+  b.y := v1 + (v2-v1) * ((PosY+SizeY)/PxHeight) ;
+end;
+  InsetX:=4/SizeX; //4px
+  InsetY:=4/SizeY; //4px
+
+  glPushMatrix;
+    glTranslate(PosX,PosY,0);
+    glScale(SizeX,SizeY,0);
+    glColor4f(1,1,1,1);
+    glBindTexture(GL_TEXTURE_2D, GFXData[4,402].TexID);
+    glBegin (GL_QUADS);
+      glTexCoord2f(a.x,a.y); glvertex2f(0,0);
+      glTexCoord2f(b.x,a.y); glvertex2f(1,0);
+      glTexCoord2f(b.x,b.y); glvertex2f(1,1);
+      glTexCoord2f(a.x,b.y); glvertex2f(0,1);
+    glEnd;
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBegin (GL_QUADS);
+      glColor4f(1,1,1,0.75);
+      glvertex2f(0,0);
+      glvertex2f(1,0);
+      glvertex2f(1-InsetX,0+InsetY);
+      glvertex2f(0+InsetX,0+InsetY);
+      glColor4f(1,1,1,0.65);
+      glvertex2f(0,0);
+      glvertex2f(0+InsetX,0+InsetY);
+      glvertex2f(0+InsetX,1-InsetY);
+      glvertex2f(0,1);
+      glColor4f(0,0,0,0.55);
+      glvertex2f(1,0);
+      glvertex2f(1,1);
+      glvertex2f(1-InsetX,1-InsetY);
+      glvertex2f(1-InsetX,0+InsetY);
+      glColor4f(0,0,0,0.45);
+      glvertex2f(0,1);
+      glvertex2f(0+InsetX,1-InsetY);
+      glvertex2f(1-InsetX,1-InsetY);
+      glvertex2f(1,1);
+    glEnd;
+  glPopMatrix;
+
+  WritePic(ID,round(PosX+(SizeX-GFXData[4,ID].PxWidth)/2),
+              round(PosY+(SizeY-GFXData[4,ID].PxHeight)/2));
+end;
+
+
+procedure TRenderUI.WritePic(ID,PosX,PosY:integer);
+begin                          
+  glColor4f(1,1,1,1);
+  if ID<>0 then with GFXData[4,ID] do begin
+    glBindTexture(GL_TEXTURE_2D,TexID);
+    glPushMatrix;
+    glTranslate(PosX,PosY,0);
+    glBegin(GL_QUADS);
+      glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
+      glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );
+      glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
+      glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
+    glEnd;
+    glPopMatrix;
+  end;
+  glBindTexture(GL_TEXTURE_2D,0);
+end;
+
+procedure TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string);
+var i,Num:integer; TextWidth:single;
+begin
+  TextWidth:=0;
+  for i:=1 to length(Text) do
+    if Text[i] in [' '..'z'] then
+    TextWidth:=TextWidth+FontData[byte(fnt_Game)].Letters[ord(Text[i])].Width+1.5;
+
+  glColor4f(1,1,1,1);
+
+  glPushMatrix;
+  if Align=kaLeft   then glTranslate(PosX,PosY,0);
+  if Align=kaCenter then glTranslate(PosX-TextWidth/2,PosY,0);
+  if Align=kaRight  then glTranslate(PosX-TextWidth,PosY,0);
+
+  //glkScale(2);
+  for i:=1 to length(Text) do begin
+    Num:=ord(Text[i]);
+    glBindTexture(GL_TEXTURE_2D,FontData[byte(fnt_Game)].TexID);
+    glBegin(GL_QUADS);
+      with FontData[byte(fnt_Game)].Letters[Num] do begin
+        glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
+        glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
+        glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);
+        glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
+      end;
+    glEnd;
+    //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
+    glTranslate(FontData[byte(fnt_Game)].Letters[Num].Width+1,0,0);
+  end;
+  glBindTexture(GL_TEXTURE_2D,0);
+  glPopMatrix;
+end;
+
+end.
+ 

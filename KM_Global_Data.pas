@@ -3,34 +3,31 @@ unit KM_Global_Data;
 interface
 
 uses
-  KM_Terrain, windows, dglOpenGL, KM_Defaults, KM_Tplayer, KM_Render, KM_Viewport, KM_Log;
+  KM_Terrain, windows, dglOpenGL, KM_Defaults, KM_Tplayer, KM_Render, KM_RenderUI, KM_Viewport, KM_Log, KM_Controls;
 
 const
-CellSize=40;            //Single cell size in pixels
-Overlap=0.001;          //UV position overlap
-FPSLag=5;              //lag between frames, 1000/FPSLag = max allowed FPS
-FPS_INTERVAL=1000;      //time between FPS measurements, more=accurate
-zz=#10+#13;             //EndOfLine
+  CellSize=40;          //Single cell size in pixels (width)
+  Overlap=0.001;        //UV position overlap (to avoid edge artefacts in render)
+  FPSLag=5;             //lag between frames, 1000/FPSLag = max allowed FPS
+  FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
 
-MaxPlayers=8;           //Maximum players per map
-MaxHouses=255;          //Maximum houses one player can own
-MaxResInHouse=3;        //Maximum resource items allowed to be in house (5)
-MaxTexRes=1024;         //Maximum texture resolution client can handle
+  MakeTeamColors=false; //Whenever to make team colors or not, saves RAM for debug
+  MaxPlayers=8;         //Maximum players per map
+  MaxHouses=255;        //Maximum houses one player can own
+  MaxResInHouse=5;      //Maximum resource items allowed to be in house (it's 5, but I use 3 for testing)
+  MaxTexRes=1024;       //Maximum texture resolution client can handle (should be used for packing sprites)
 
 var
+  XH:integer=32;        //Height divider
+  GlobalTickCount:integer=0;
+
   fRender: TRender;
+  fControls: TKMControlsCollection;
+  //fRenderUI: TRenderUI;
   fViewport: TViewport;
   fMiniMap: TMiniMap;
   fTerrain: TTerrain;
   fLog: TKMLog;
-
-  TreeTex:array[1..400,1..3]of GLUint;  //[ID,width,height]
-  HouseTex:array[1..2000,1..4]of GLUint;//[ID,width,height]
-  UnitTex:array[1..9500,1..4]of GLUint; //[ID,width,height,altID]
-  GUITex:array[1..600] of record
-    TexID,TexW,TexH:GLUint;
-  end;
-  GUITexUV:array[1..600] of TRect;
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
@@ -38,11 +35,10 @@ var
   ft:textfile;
   c:array[1..65536] of char;
   ExeDir:string;
-  XH:integer=32;        //Height divider
-  BrushMode:bmBrushMode;
+
+  CursorMode:cmCursorMode;
   LandBrush:integer=0;  //Active brush
   s:string;
-  Map: record X,Y:integer; end;
   MouseButton:TMouseButton2;
 
   MapX,MapY:single; //Precise cursor position on map
@@ -53,38 +49,35 @@ var
 
   Mission:TMission;
 
-Pal0:array[1..256,1..3]of byte;
+  Pal0:array[1..256,1..3]of byte;
 
-TreeQty:integer;
-TreePal:array[1..400] of byte;
-TreeSize:array[1..400,1..2] of word;
-TreePivot:array[1..400] of record x,y:integer; end;
-TreeData:array[1..400] of array of byte;
+  RXData:array [1..5]of record
+    Title:string;
+    Qty:integer;
+    Pal:array[1..9500] of byte;
+    Size:array[1..9500,1..2] of word;
+    Pivot:array[1..9500] of record x,y:integer; end;
+    Data:array[1..9500] of array of byte;
+    NeedTeamColors:boolean;
+  end;
 
-HouseQty:integer;
-HousePal:array[1..2000] of byte;
-HouseBMP:array[0..2000] of word;
-HouseSize:array[1..2000,1..2] of word;
-HousePivot:array[1..2000] of record x,y:integer; end;
-HouseData:array[1..2000] of array of byte;
+  GFXData: array [1..5,1..9500] of record
+    TexID,AltID: GLUint; //AltID used for team colors
+    u1,v1,u2,v2: single;
+    PxWidth,PxHeight:word;
+  end;
 
-UnitQty:integer;
-UnitPal:array[1..9500] of byte;
-UnitSize:array[1..9500,1..2] of word;
-UnitPivot:array[1..9500] of record x,y:integer; end;
-UnitData:array[1..9500] of array of byte;
-
-GUIQty:integer;
-GUIPal:array[1..600] of byte;
-GUISize:array[1..600,1..2] of word;
-GUIPivot:array[1..600] of record x,y:integer; end;
-GUIData:array[1..600] of array of byte;
-
-GUIMQty:integer;
-GUIMPal:array[1..600] of byte;
-GUIMSize:array[1..600,1..2] of word;
-GUIMPivot:array[1..600] of record x,y:integer; end;
-GUIMData:array[1..600] of array of byte;
+  FontData:array[1..32]of record
+    Title:TKMFont;
+    TexID:GLUint;
+    Pal:array[0..255]of byte;
+    Letters:array[0..255]of record
+      Width,Height:word;
+      Add:array[1..4]of word;
+      Data:array[1..256] of byte;
+      u1,v1,u2,v2:single;
+    end;
+  end;
 
 HouseDAT1:array[1..30,1..35]of smallint;
 HouseDAT:array[1..30] of packed record
@@ -93,7 +86,8 @@ HouseDAT:array[1..30] of packed record
   SupplyOut:array[1..4,1..5]of smallint;
   Anim:array[1..19] of record
     Step:array[1..30]of smallint;
-    Count,MoveX,x3,MoveY,x5:smallint;
+    Count:smallint;
+    MoveX,MoveY:integer;
   end;
   Foot:array[1..135]of smallint;
 end;
@@ -105,14 +99,6 @@ UnitCarry:array[1..28] of packed record
     MoveX,MoveY:integer;
   end;
 end;
-
-//1  Trunk      //2  Stone      //3  Wood       //4  IronOre
-//5  GoldOre    //6  Coal       //7  Steel      //8  Gold
-//9  Wine       //10 Corn       //11 Bread      //12 Flour
-//13 Leather    //14 Sousages   //15 Pig        //16 Skin
-//17 WoodShield //18 MetalShield//19 Armor      //20 MetalArmor
-//21 Axe        //22 Sword      //23 Pike       //24 Hallebard
-//25 Bow        //26 Arbalet    //27 Horse      //28 FishBucket
 
 UnitStat:array[1..41]of record x1,Attack,AttackHorseBonus,x4,HitPoints,Speed,x7,Sight{?},x9,x10,x11:smallint; end;
 UnitSprite2:array[1..41,1..18]of smallint;
@@ -126,29 +112,20 @@ UnitSprite:array[1..41]of packed record
   end;
 end;
 
-//0  Walk
-//8  *Special (digging hole)
-//16
-//24 Death
-//32
-//40
-//48
-//56 Eating (food types)
-//64 ??
-//72 *Special (carrying plant)
-
-MapElemQty:integer=254; //Default qty
-MapElem:array[1..512]of packed record
-Step:array[1..30]of smallint; //60
-Count:word;                   //62
-u1:array[1..16]of word;       //94
-u2:shortint;                  //95
-u3,u4:word;                   //99
-end;
+  MapElemQty:integer=254; //Default qty
+  MapElem:array[1..512]of packed record
+    Step:array[1..30]of smallint; //60
+    Count:word;                   //62
+    u1:array[1..16]of word;       //94
+    u2:shortint;                  //95
+    u3,u4:word;                   //99
+  end;
 
   ActiveTileName:TObject; //Object (Brush) that was pressed last, should be released on tab change
   MiniMapSpy:boolean=false;
   MousePressed:boolean=false;
+
+  TileMMColor:array[1..256]of record R,G,B:byte; end;
 
 implementation
 

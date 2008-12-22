@@ -142,7 +142,7 @@ function TMission.GetAllRoadStrings(_Owner:integer):string;
 var i,k,Num:integer;
 begin
 Result:=''; Num:=0;
-for i:=1 to Map.Y do for k:=1 to Map.X do
+for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do
 if (Roads[k,i])and(Owner[k,i]=_Owner) then begin
 Result:=Result+'!SET_STREET '+inttostr(k-1)+' '+inttostr(i-1);
 inc(Num);

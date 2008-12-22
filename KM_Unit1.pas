@@ -3,9 +3,9 @@ interface
 uses
   KM_Defaults, Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, FileCtrl, ExtCtrls, KromUtils, OpenGL,
-  dglOpenGL, Menus, ComCtrls, Buttons, KM_Render, KM_ReadGFX1,
+  dglOpenGL, Menus, ComCtrls, Buttons, KM_Render, KM_RenderUI, KM_ReadGFX1,
   ImgList, KM_Form_Loading, math, Grids, KM_Tplayer, KM_Terrain, KM_Global_Data,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, JPEG;
+  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, JPEG, KM_GamePlayInterface, KM_Controls;
 
 type
   TForm1 = class(TForm)
@@ -24,9 +24,9 @@ type
     BB08: TSpeedButton;
     BB09: TSpeedButton;
     BB10: TSpeedButton;
+    BB97: TSpeedButton;
     BB99: TSpeedButton;
     BB98: TSpeedButton;
-    BB97: TSpeedButton;
     BB00: TSpeedButton;
     BB11: TSpeedButton;
     BB12: TSpeedButton;
@@ -67,7 +67,6 @@ type
     Image4: TImage;
     Label1: TLabel;
     Timer100ms: TTimer;
-    Image1: TImage;
     Button1: TButton;
     PrintScreen1: TMenuItem;
     Export1: TMenuItem;
@@ -98,6 +97,13 @@ type
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     ExportGUIMainRX: TMenuItem;
+    TabSheet5: TTabSheet;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label6: TLabel;
+    IL_ResourceIcons: TImageList;
+    Image2: TImage;
+    Image5: TImage;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -142,10 +148,12 @@ type
 var
   Form1: TForm1;
   ControlList: TKMUserControlList;
+    eol:string = #13+#10;
+
 
 implementation  {$R *.DFM}
 
-uses KM_LoadDAT, KM_MapSettings;
+uses KM_LoadDAT;
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
 var
@@ -166,6 +174,7 @@ begin
   StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPSLag)+')';
   OldFrameTimes:=0;
   FrameCount:=0;
+  fLog.AppendLog('First sec frame done');
 end; //FPS calculation complete
 
 fRender.Render;
@@ -175,6 +184,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   fRender:= TRender.Create;
+  fControls:= TKMControlsCollection.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
   fMiniMap:= TMiniMap.Create(Shape1,MiniMap,Label1);
@@ -190,7 +200,7 @@ end;
 procedure TForm1.OpenMap(filename:string);
 begin
 fTerrain.OpenMapFromFile(filename);
-fMinimap.ReSize(Map.X,Map.Y);
+fMinimap.ReSize(fTerrain.MapX,fTerrain.MapY);
 fViewport.SetZoom(1);
 Form1.FormResize(nil);
 Form1.Caption:='KaM Editor - '+filename;
@@ -254,35 +264,43 @@ begin
 
   P.X:= MapXc;
   P.Y:= MapYc;
+
   //example for units need change
   if Button = mbRight then
-    ControlList.AddUnit('User', ut_Serf, P)
+    ControlList.AddUnit(play_1, ut_Serf, P)
   else if Button = mbMiddle then
-    ControlList.AddUnit('User', ut_HorseScout, P)
+    ControlList.AddUnit(play_1, ut_HorseScout, P)
   else if Button = mbLeft then
   begin
-    if ControlList.UnitsSelectedUnit <> nil then
-      ControlList.UnitsSelectedUnit.SetAction(TMoveUnitAction.Create(P));
-    ControlList.UnitsHitTest(P.X, P.Y);
+    //if ControlList.UnitsSelectedUnit <> nil then
+    //  ControlList.UnitsSelectedUnit.SetAction(TMoveUnitAction.Create(P));
+    //ControlList.UnitsHitTest(P.X, P.Y);
   end;
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
   if (X>0)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
-  else
-    exit;
+  else exit;
 MapX:=fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom;
 MapY:=fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom;
 
 MapY:=fTerrain.ConvertCursorToMapCoord(MapX,MapY);
 
-MapXc:=EnsureRange(round(MapX+0.5),1,Map.X); //Cell below cursor
-MapYc:=EnsureRange(round(MapY+0.5),1,Map.Y);
-MapXn:=EnsureRange(round(MapX+1),1,Map.X); //Node below cursor
-MapYn:=EnsureRange(round(MapY+1),1,Map.Y);
+MapXc:=EnsureRange(round(MapX+0.5),1,fTerrain.MapX); //Cell below cursor
+MapYc:=EnsureRange(round(MapY+0.5),1,fTerrain.MapY);
+MapXn:=EnsureRange(round(MapX+1),1,fTerrain.MapX); //Node below cursor
+MapYn:=EnsureRange(round(MapY+1),1,fTerrain.MapY);
 
-StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(MapX*10)/10)+' '+floattostr(round(MapY*10)/10);
+StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(MapX*10)/10)+' '+floattostr(round(MapY*10)/10)
++' | '+inttostr(MapXc)+' '+inttostr(MapYc);
+
+if CursorMode=cm_None then
+if (ControlList.HousesHitTest(MapXc, MapYc)<>nil)or
+   (ControlList.UnitsHitTest(MapXc, MapYc)<>nil) then
+  Screen.Cursor:=c_Info
+else
+  Screen.Cursor:=c_Default;
 
 if not MousePressed then exit;
 
@@ -291,27 +309,34 @@ MapXc2:=MapXc; MapYc2:=MapYc;
 end;
 
 procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint;
+  var
+    P:TKMPoint;
 begin
-MousePressed:=false;
-P.X:=MapXc;
-P.Y:=MapYc;
+  MousePressed:=false;
+  P.X:=MapXc;
+  P.Y:=MapYc;
 
-  case BrushMode of
-    bm_Houses:
+  case CursorMode of
+    cm_None:
       begin
-        if LandBrush = 0 then
-          begin
-//            Mission.RemRoad(MapXc,MapYc);
-            ControlList.RemHouse(P);
-          end
-        else
-        if LandBrush in [1..29] then
-        ControlList.AddHouse(THouseType(LandBrush),P)
-        else
-//          if LandBrush = 99 then Mission.AddRoad(MapXc,MapYc,Mission.ActivePlayer);
+        if ControlList.HousesHitTest(MapXc, MapYc)<>nil then
+          ShowHouseInfo(ControlList.HousesHitTest(MapXc, MapYc));
       end;
-  end;
+    cm_Roads:
+      begin
+        if LandBrush=1 then ControlList.AddRoadPlan(P,mu_RoadPlan);
+        if LandBrush=2 then ControlList.AddRoadPlan(P,mu_FieldPlan);
+        if LandBrush=3 then ControlList.AddRoadPlan(P,mu_WinePlan);
+      end;
+    cm_Erase:
+      begin
+        Mission.RemRoad(MapXc,MapYc);
+        ControlList.RemHouse(P);
+      end;
+    cm_Houses:
+      if LandBrush in [1..29] then
+        ControlList.AddHousePlan(P,THouseType(LandBrush))
+    end;
 MouseButton:=mb2None;
 end;
 
@@ -328,11 +353,11 @@ begin
 end;
 
 procedure TForm1.PalletePageChange(Sender: TObject);
-begin //
+begin
 if ActiveTileName<>nil then
 TSpeedButton(ActiveTileName).Down:=false; //Relese last pressed button
 LandBrush:=0;
-BrushMode:=bm_None;
+CursorMode:=cm_None;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -345,33 +370,18 @@ var i:integer;
 begin
 if CheckBox1.Checked then exit;
 ControlList.UpdateState;
-fTerrain.UpdateState;
+
+inc(GlobalTickCount);
+if GlobalTickCount mod 3 = 0 then fTerrain.UpdateState; //Update every third tick
+
 if CheckBox2.Checked then
-  for i:=1 to 9 do
+  for i:=1 to 50 do
     ControlList.UpdateState;
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
-const crHand = 30;
-var
-bm:TBitmap;
-IconInfo:TIconInfo;
 begin
   TBZoomControl.Position:=4;
-
-  bm:=TBitmap.Create;
-  bm.LoadFromFile(ExeDir+'Image 00033.bmp');
-
-  Pallete.Canvas.StretchDraw(Pallete.ClientRect,bm);
-
-  IconInfo.fIcon:=false;
-  IconInfo.xHotspot:=1;
-  IconInfo.yHotspot:=1;
-  IconInfo.hbmMask:=bm.Handle;
-  IconInfo.hbmColor:=bm.Handle;
-
-  Screen.Cursors[crHand]:=CreateIconIndirect(iconInfo);
-  Screen.Cursor:=crHand;
 end;
 
 procedure TForm1.BBClick(Sender: TObject);
@@ -379,8 +389,13 @@ begin
 ActiveTileName:=Sender;
 s:=(TSpeedButton(Sender)).Name;
 LandBrush:=strtoint(s[3]+s[4]);
-BrushMode:=bm_Houses;
-end;                     
+case LandBrush of
+  0:      CursorMode:=cm_Erase;
+  1..29:  CursorMode:=cm_Houses;
+  97..99: begin CursorMode:=cm_Roads; dec(LandBrush,96); end; //Brush in 1..3
+  else    CursorMode:=cm_None;
+end;
+end;
 
 procedure TForm1.ExitClick(Sender: TObject);
 begin
@@ -407,7 +422,7 @@ constructor TForm1.Create(AOwner: TComponent);
 begin
   Inherited Create(AOwner);
   ControlList:= TKMUserControlList.Create();
-  ControlList.Add('User', uct_User);
+  ControlList.Add(play_1, uct_User);
 end;
 
 destructor TForm1.Destroy;
@@ -433,9 +448,10 @@ ExportDAT.Enabled:=false;
   if not RunSaveDialog(SaveDialog1,'Mission.txt','','Mission text (*.txt)|*.txt') then
     exit;
 ExportText(SaveDialog1.FileName);
-end; 
+end;
 
 procedure TForm1.Button1Click(Sender: TObject);
+var ii,kk:integer;
 begin
 fViewPort.XCoord:=11;
 fViewPort.YCoord:=11;
@@ -447,27 +463,39 @@ ControlList.AddHouse(ht_Quary,KMPoint(12,8));
 ControlList.AddHouse(ht_WoodCutters,KMPoint(12,11));
 ControlList.AddHouse(ht_SawMill,KMPoint(12,14));
 
-ControlList.AddUnit('User', ut_Farmer, KMPoint(15,9));
-ControlList.AddUnit('User', ut_StoneCutter, KMPoint(6,9));
-ControlList.AddUnit('User', ut_WoodCutter, KMPoint(7,9));
-ControlList.AddUnit('User', ut_Lamberjack, KMPoint(8,9));
-ControlList.AddUnit('User', ut_Baker, KMPoint(9,9));
-ControlList.AddUnit('User', ut_Baker, KMPoint(10,9));
-ControlList.AddUnit('User', ut_Serf, KMPoint(4,11));
-ControlList.AddUnit('User', ut_Serf, KMPoint(5,11));
-ControlList.AddUnit('User', ut_Serf, KMPoint(6,11));
-ControlList.AddUnit('User', ut_Serf, KMPoint(7,11));
-ControlList.AddUnit('User', ut_Worker, KMPoint(8,11));
-ControlList.AddUnit('User', ut_Worker, KMPoint(9,11));
+ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
+ControlList.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
+ControlList.AddUnit(play_1, ut_WoodCutter, KMPoint(7,9));
+ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,9));
+ControlList.AddUnit(play_1, ut_Baker, KMPoint(9,9));
+ControlList.AddUnit(play_1, ut_Baker, KMPoint(10,9));
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(4,11));
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(5,11));
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(6,11));
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));
+ControlList.AddUnit(play_1, ut_Worker, KMPoint(8,11));
+ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
-ControlList.AddRoadPlan(KMPoint(5,12),rdt_Road);
-ControlList.AddRoadPlan(KMPoint(6,12),rdt_Road);
-ControlList.AddRoadPlan(KMPoint(7,13),rdt_Road);
-ControlList.AddRoadPlan(KMPoint(7,14),rdt_Road);
-ControlList.AddRoadPlan(KMPoint(7,15),rdt_Road);
-ControlList.AddRoadPlan(KMPoint(7,12),rdt_Road);
+ControlList.AddRoadPlan(KMPoint(5,13),mu_FieldPlan);
+ControlList.AddRoadPlan(KMPoint(6,13),mu_FieldPlan);
+ControlList.AddRoadPlan(KMPoint(7,13),mu_FieldPlan);
+ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(6,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(7,14),mu_WinePlan);
 
-ControlList.AddHousePlan(KMPoint(7,16), ht_Inn);
+ControlList.AddRoadPlan(KMPoint(5,12),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(6,12),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(7,12),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(8,12),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(8,13),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);
+
+fControls.Add(50,50,100,100,36);
+
+for ii:=0 to 15 do for kk:=0 to 15 do
+fTerrain.AddTree(KMPoint(20+ii*2,20+kk*2),ii*16+kk);
+
+ControlList.AddHousePlan(KMPoint(9,18), ht_Inn);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);
@@ -500,15 +528,15 @@ jpg.Free;
 mkbmp.Free;
 end;
 
-procedure TForm1.ExportGUIRXClick(Sender: TObject);    begin ExportRX2BMP('GUI');    end;
-procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP('GUIMain');end;
-procedure TForm1.ExportTreesRXClick(Sender: TObject);  begin ExportRX2BMP('Trees');  end;
-procedure TForm1.ExportHousesRXClick(Sender: TObject); begin ExportRX2BMP('Houses'); end;
-procedure TForm1.ExportUnitsRXClick(Sender: TObject);  begin ExportRX2BMP('Units');  end;
+procedure TForm1.ExportTreesRXClick(Sender: TObject);  begin ExportRX2BMP(1); end;
+procedure TForm1.ExportHousesRXClick(Sender: TObject); begin ExportRX2BMP(2); end;
+procedure TForm1.ExportUnitsRXClick(Sender: TObject);  begin ExportRX2BMP(3); end;
+procedure TForm1.ExportGUIRXClick(Sender: TObject);    begin ExportRX2BMP(4); end;
+procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP(5); end;
 
 procedure TForm1.Timer1secTimer(Sender: TObject);
 begin
-fMiniMap.Repaint;
+fMiniMap.Repaint; //No need to repaint it more often
 end;
 
 end.

@@ -1,5 +1,4 @@
 unit KM_DeliverQueue;
-
 interface
 
 uses
@@ -10,42 +9,61 @@ uses
 type
   TKMDeliverQueue = class
   public
-  fOffer,fDemand:array[1..1024]of
+  fOffer:array[1..1024]of
   record
-    House:TKMHouse;
-    Loc:TKMPoint;
+    Loc_House:TKMHouse;
+    Resource:TResourceType;
+    Status:TJobStatus;
+  end;
+  fDemand:array[1..1024]of
+  record
+    Loc_House:TKMHouse;
+    Loc_Unit:TKMUnit;
+    DemandType:TDemandType;
     Resource:TResourceType;
     Importance:byte;
     Status:TJobStatus;
   end;
   fQueue:array[1..1024]of
   record
-    Loc1,Loc2:TKMPoint;
+    Loc1:TKMPoint;
+    Loc2_House:TKMHouse;
+    Loc2_Unit:TKMUnit;
     Resource:TResourceType;
     Importance:byte;
     JobStatus:TJobStatus;
   end;
-  LastQueueID:integer;
   constructor Create();
   procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
-  procedure AddNewDemand(aLoc:TKMPoint; aResource:TResourceType);
-  procedure AddNewDelivery(aHouse:TKMHouse; bLoc:TKMPoint; aResource:TResourceType);
+  procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
+  procedure AddNewDelivery(aHouse:TKMHouse; bLoc_House:TKMHouse; bLoc_Unit:TKMUnit; aResource:TResourceType);
+  function WriteToText():string;
   function  AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
   procedure CloseDelivery(aID:integer);
   end;
 
   TKMBuildingQueue = class
   public
-  fRoadsQueue:array[1..1024]of
+  fFieldsQueue:array[1..1024]of
   record
     Loc:TKMPoint;
+    FieldType:TFieldType;
+    Importance:byte;
+    JobStatus:TJobStatus;
+  end;
+  fHousesQueue:array[1..1024]of
+  record
+    Loc:TKMPoint;
+    HouseType:THouseType;
     Importance:byte;
     JobStatus:TJobStatus;
   end;
   constructor Create();
-  procedure AddNewRoadToBuild(aLoc:TKMPoint);
+  procedure AddNewRoadToBuild(aLoc:TKMPoint; aFieldType:TFieldType);
   procedure AddNewHouseToBuild(aLoc:TKMPoint; aHouseType: THouseType);
-  function  AskForRoadToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TTaskBuildRoad;
+  procedure CloseHouseToBuild(aID:integer);
+  function  AskForHouseToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+  function  AskForRoadToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
   procedure CloseRoadToBuild(aID:integer);
   end;
 
@@ -59,7 +77,6 @@ var i:integer;
 begin
 for i:=1 to length(fQueue) do
   CloseDelivery(i);
-LastQueueID:=1;
 end;
 
 //Adds new Offer to the list. List is stored without sorting,
@@ -67,41 +84,52 @@ end;
 procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
 var i:integer;
 begin
+//Check if new offer meets any of existing demands
 for i:=1 to 1024 do
-  if (fDemand[i].Resource=aResource) and (fDemand[i].Status=js_Open) and ((fDemand[i].House=nil) or (fDemand[i].House.CheckResIn(aResource)<MaxResInHouse)) then
+  if (fDemand[i].Resource=aResource) and (fDemand[i].Status=js_Open) then begin
+    if fDemand[i].Loc_House<>nil then
     begin
       fDemand[i].Status:=js_Taken;
-      AddNewDelivery(aHouse,fDemand[i].Loc,aResource);
-      exit;
+      AddNewDelivery(aHouse,fDemand[i].Loc_House,nil,aResource);
+    end else
+
+    if fDemand[i].Loc_Unit<>nil then
+    begin
+      fDemand[i].Status:=js_Taken;
+      AddNewDelivery(aHouse,nil,fDemand[i].Loc_Unit,aResource);
     end;
+    exit;
+  end;
 
 for i:=1 to 1024 do
   if fDemand[i].Resource=rt_All then
+    if fDemand[i].Loc_House<>nil then
     begin
-      AddNewDelivery(aHouse,fDemand[i].Loc,aResource);
+      AddNewDelivery(aHouse,fDemand[i].Loc_House,nil,aResource);
       exit;
-    end;
+    end else Assert(false);
 
 i:=1;
-while (i<1024)and(fOffer[i].House<>nil) do inc(i);
+while (i<1024)and(fOffer[i].Loc_House<>nil) do inc(i);
 with fOffer[i] do
   begin
-    House:=aHouse;
-    Loc:=House.GetPosition;
+    Loc_House:=aHouse;
     Resource:=aResource;
-    Importance:=1;
   end;
 end;
 
 //Adds new Demand to the list. List is stored without sorting,
 //so we just find an empty place and write there.
-procedure TKMDeliverQueue.AddNewDemand(aLoc:TKMPoint; aResource:TResourceType);
+procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
 var i:integer;
 begin
 for i:=1 to 1024 do
   if fOffer[i].Resource=aResource then
     begin
-      AddNewDelivery(fOffer[i].House,aLoc,aResource);
+      if aHouse<>nil then AddNewDelivery(fOffer[i].Loc_House,aHouse,nil,aResource)
+      else
+      if aUnit<>nil then AddNewDelivery(fOffer[i].Loc_House,nil,aUnit,aResource)
+      else Assert(false);
       exit;
     end;
 
@@ -109,8 +137,9 @@ i:=1;
 while (i<1024)and(fDemand[i].Resource<>rt_None) do inc(i);
 with fDemand[i] do
   begin
-    House:=ControlList.HousesHitTest(aLoc.X,aLoc.Y);
-    Loc:=aLoc;
+    Loc_House:=aHouse;
+    Loc_Unit:=aUnit;
+    DemandType:=aDemandType;
     Resource:=aResource;
     Importance:=1;
     Status:=js_Open;
@@ -118,23 +147,44 @@ with fDemand[i] do
 end;
 
 //Find an empty place
-procedure TKMDeliverQueue.AddNewDelivery(aHouse:TKMHouse; bLoc:TKMPoint; aResource:TResourceType);
-//var i:integer;
+procedure TKMDeliverQueue.AddNewDelivery(aHouse:TKMHouse; bLoc_House:TKMHouse; bLoc_Unit:TKMUnit; aResource:TResourceType);
+var i:integer;
 begin
-//i:=1;
-//while (i<1024)and(fQueue[i].JobStatus<>js_Done) do inc(i);
+i:=1;
+while (i<1024)and(fQueue[i].JobStatus<>js_Done) do inc(i);
 
-with fQueue[LastQueueID] do
+with fQueue[i] do
   begin
     Loc1:=aHouse.GetPosition;
-    Loc2:=bLoc;
+    //Loc2 should be either house or unit
+    if bLoc_House<>nil then begin
+      Loc2_House:=bLoc_House;
+      Loc2_Unit:=nil;
+    end else
+    if bLoc_Unit<>nil then begin
+      Loc2_House:=nil;
+      Loc2_Unit:=bLoc_Unit;
+    end else
+      exit; //Do not take this task for it has no destination unit nor house
     Resource:=aResource;
     Importance:=1;
     JobStatus:=js_Open;
   end;
 
-inc(LastQueueID);
 end;
+
+function TKMDeliverQueue.WriteToText():string;
+var i:integer;
+begin
+Result:='Offer:'+eol+'---------------------------------';
+for i:=1 to 1024 do begin
+  if fDemand[i].Loc_House<>nil then Result:=Result+'H-'+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9;
+  if fDemand[i].Loc_Unit<>nil then Result:=Result+'U-'+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9;
+//  Result:=Result+'U-'+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9;
+  Result:=Result+eol;
+end;
+end;
+
 
 //Should issue a job based on requesters location and job importance
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
@@ -147,7 +197,7 @@ begin
   Result:=nil;
   exit;
 end;
-Result:=TTaskDeliver.Create(KMSerf, fQueue[i].Loc1, fQueue[i].Loc2, fQueue[i].Resource, i);
+Result:=TTaskDeliver.Create(KMSerf, fQueue[i].Loc1, fQueue[i].Loc2_House, fQueue[i].Loc2_Unit, fQueue[i].Resource, i);
 fQueue[i].JobStatus:=js_Taken;
 end;
 
@@ -157,7 +207,8 @@ begin
 with fQueue[aID] do
   begin
     Loc1:=KMPoint(0,0);
-    Loc2:=KMPoint(0,0);
+    Loc2_House:=nil;
+    Loc2_Unit:=nil;
     Resource:=rt_None;
     Importance:=0;
     JobStatus:=js_Done;
@@ -167,44 +218,82 @@ end;
 constructor TKMBuildingQueue.Create();
 var i:integer;
 begin
-for i:=1 to length(fRoadsQueue) do fRoadsQueue[i].JobStatus:=js_Done;
+for i:=1 to length(fFieldsQueue) do CloseRoadToBuild(i);
+for i:=1 to length(fHousesQueue) do CloseHouseToBuild(i);
 end;
 
-procedure TKMBuildingQueue.AddNewRoadToBuild(aLoc:TKMPoint);
+procedure TKMBuildingQueue.AddNewRoadToBuild(aLoc:TKMPoint; aFieldType:TFieldType);
 var i:integer;
 begin
 i:=1;
-while fRoadsQueue[i].Loc.X<>0 do inc(i);
+while fFieldsQueue[i].Loc.X<>0 do inc(i);
 
-fRoadsQueue[i].Loc:=aLoc;
-fRoadsQueue[i].Importance:=1;
-fRoadsQueue[i].JobStatus:=js_Open;
+fFieldsQueue[i].Loc:=aLoc;
+fFieldsQueue[i].FieldType:=aFieldType;
+fFieldsQueue[i].Importance:=1;
+fFieldsQueue[i].JobStatus:=js_Open;
 end;
 
 procedure TKMBuildingQueue.AddNewHouseToBuild(aLoc:TKMPoint; aHouseType: THouseType);
-begin
-//
-end;
-
-function  TKMBuildingQueue.AskForRoadToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TTaskBuildRoad;
 var i:integer;
 begin
 i:=1;
-while (i<1024)and(fRoadsQueue[i].JobStatus<>js_Open) do inc(i);
+while fHousesQueue[i].Loc.X<>0 do inc(i);
+
+fHousesQueue[i].Loc:=aLoc;
+fHousesQueue[i].HouseType:=aHouseType;
+fHousesQueue[i].Importance:=1;
+fHousesQueue[i].JobStatus:=js_Open;
+end;
+
+procedure TKMBuildingQueue.CloseHouseToBuild(aID:integer);
+begin
+fHousesQueue[aID].Loc:=KMPoint(0,0);
+fHousesQueue[aID].HouseType:=ht_None;
+fHousesQueue[aID].Importance:=0;
+fHousesQueue[aID].JobStatus:=js_Done;
+end;
+
+function  TKMBuildingQueue.AskForHouseToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+var i:integer;
+begin
+Result:=nil;
+i:=1;
+while (i<1024)and(fHousesQueue[i].JobStatus<>js_Open) do inc(i);
 if i=1024 then
 begin
   Result:=nil;
   exit;
 end;
-Result:=TTaskBuildRoad.Create(KMWorker, fRoadsQueue[i].Loc, i);
-fRoadsQueue[i].JobStatus:=js_Taken;
+if fHousesQueue[i].JobStatus=js_Open then
+  Result:=TTaskBuildHouseArea.Create(KMWorker, fHousesQueue[i].Loc, fHousesQueue[i].HouseType, i);
+fHousesQueue[i].JobStatus:=js_Taken;
+end;
+
+
+function  TKMBuildingQueue.AskForRoadToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+var i:integer;
+begin
+Result:=nil;
+i:=1;
+while (i<1024)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
+if i=1024 then
+begin
+  Result:=nil;
+  exit;
+end;
+if fFieldsQueue[i].FieldType=fdt_Road then  Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
+if fFieldsQueue[i].FieldType=fdt_Field then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
+if fFieldsQueue[i].FieldType=fdt_Wine then  Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
+fFieldsQueue[i].JobStatus:=js_Taken;
 end;
 
 procedure TKMBuildingQueue.CloseRoadToBuild(aID:integer);
 begin
-fRoadsQueue[aID].Loc:=KMPoint(0,0);
-fRoadsQueue[aID].Importance:=0;
-fRoadsQueue[aID].JobStatus:=js_Done;
+fFieldsQueue[aID].Loc:=KMPoint(0,0);
+fFieldsQueue[aID].FieldType:=fdt_None;
+fFieldsQueue[aID].Importance:=0;
+fFieldsQueue[aID].JobStatus:=js_Done;
 end;
 
 

@@ -59,16 +59,16 @@ end;
 
 procedure TViewport.SetCenter(NewX,NewY:integer);
 begin
-XCoord:=EnsureRange(NewX,1,Map.X);
-YCoord:=EnsureRange(NewY,1,Map.Y);
+XCoord:=EnsureRange(NewX,1,fTerrain.MapX);
+YCoord:=EnsureRange(NewY,1,fTerrain.MapY);
 end;
 
 function TViewport.GetClip():TRect;
 begin
 Result.Left  :=max(round(XCoord-ViewWidth/CellSize/2/Zoom),1);
-Result.Right :=min(round(XCoord+ViewWidth/CellSize/2/Zoom)+1,Map.X-1);
+Result.Right :=min(round(XCoord+ViewWidth/CellSize/2/Zoom)+1,fTerrain.MapX-1);
 Result.Top   :=max(round(YCoord-ViewHeight/CellSize/2/Zoom),1);
-Result.Bottom:=min(round(YCoord+ViewHeight/CellSize/2/Zoom)+4,Map.Y-1);
+Result.Bottom:=min(round(YCoord+ViewHeight/CellSize/2/Zoom)+4,fTerrain.MapY-1);
 end;
 
 constructor TMiniMap.Create(inShape:TShape; inMiniMap:TImage; inLabel:TLabel);
@@ -92,18 +92,24 @@ begin
 end;
 
 procedure TMiniMap.Repaint();
-var i,k:integer; bm:TBitmap;
+var i,k:integer; bm:TBitmap; ID,Light,Team:integer;
 begin
 bm:=TBitmap.Create;
 bm.Width:=mmMiniMap.Width;
 bm.Height:=mmMiniMap.Height;
-for i:=1 to Map.Y do for k:=1 to Map.X do
-  if fTerrain.Land[i,k].TileOwner=0 then
-    bm.Canvas.Pixels[k-1,i-1]:=TileMMColor[fTerrain.Land[i,k].Terrain+1]
+for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
+  ID:=fTerrain.Land[i,k].Terrain+1;
+  Light:=round(fTerrain.Land[i,k].Light*64);
+  Team:=byte(fTerrain.Land[i,k].TileOwner);
+  if fTerrain.Land[i,k].TileOwner=play_none then
+    bm.Canvas.Pixels[k-1,i-1]:=EnsureRange(Light+TileMMColor[ID].R,0,255)+
+                               EnsureRange(Light+TileMMColor[ID].G,0,255)*256+
+                               EnsureRange(Light+TileMMColor[ID].B,0,255)*65536
   else
-    bm.Canvas.Pixels[k-1,i-1]:=TeamColors[fTerrain.Land[i,k].TileOwner,1]+
-                               TeamColors[fTerrain.Land[i,k].TileOwner,1]*256+
-                               TeamColors[fTerrain.Land[i,k].TileOwner,1]*65536;
+    bm.Canvas.Pixels[k-1,i-1]:=TeamColors[Team,1]+
+                               TeamColors[Team,2]*256+
+                               TeamColors[Team,3]*65536;
+  end;
 mmMiniMap.Canvas.StretchDraw(mmMiniMap.ClientRect,bm);
 end;
 
@@ -116,3 +122,4 @@ mmMiniMap.Height:=Y;
 end;
 
 end.
+

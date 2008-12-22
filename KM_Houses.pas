@@ -81,6 +81,7 @@ type
     function ResTakeFromIn(aResource:TResourceType):boolean;
     function ResTakeFromOut(aResource:TResourceType):boolean;
     property GetPosition:TKMPoint read fPosition;
+    property GetHouseType:THouseType read fHouseType;
     function GetProductionTask():THouseTask;
     procedure UpdateState;
     procedure Paint();
@@ -118,6 +119,8 @@ begin
   fHasOwner:=false;
   fOwnerAtHome:=false;
   if aBuildState=hbs_Done then Self.Activate;
+  fTerrain.SetHousePlan(fPosition,fHouseType,bt_None); //Sets passability
+  fTerrain.SetTileOwnership(fPosition,fHouseType,play_1); //Sets passability
 end;
 
 destructor TKMHouse.Destroy;
@@ -127,7 +130,7 @@ begin
 end;
 
 procedure TKMHouse.Activate;
-var i:integer;
+var i,k:integer;
 begin
   fProductionPlan:=HouseProductionPlanID[byte(fHouseType)];
 
@@ -136,9 +139,15 @@ begin
 
   fOutputTypes[1]:=HouseOutput[byte(fHouseType),1];
   fInputTypes[1]:=HouseInput[byte(fHouseType),1];
-  for i:=1 to 1 do
-    if fInputTypes[i]<>rt_None then
-      ControlList.DeliverList.AddNewDemand(Self.fPosition,fInputTypes[i]);
+  for i:=1 to 4 do
+    case fInputTypes[i] of
+      rt_None:    ;
+      rt_Warfare: ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Constant);
+      rt_All:     ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Constant);
+      else for k:=1 to 5 do //Every new house needs 5 resourceunits
+          ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Once);
+    end;
+
 end;
 
 function TKMHouse.HitTest(X, Y: Integer): Boolean;
@@ -176,7 +185,7 @@ begin
     begin
       inc(fResourceOut[i],aCount);
       for k:=1 to aCount do
-      ControlList.DeliverList.AddNewOffer(Self,aResource);
+        ControlList.DeliverList.AddNewOffer(Self,aResource);
     end;
 end;
 
@@ -197,6 +206,7 @@ if aResource=rt_None then exit;
   for i:=1 to 3 do
   if aResource = fInputTypes[i] then begin
     dec(fResourceIn[i]);
+    ControlList.DeliverList.AddNewDemand(Self,nil,aResource,dt_Once);
     Result:=true;
   end;
 end;
@@ -338,7 +348,7 @@ end;
 
 procedure TTaskIdle.Execute(KMHouse:TKMHouse; out TaskDone:boolean);
 var
-  TimeDelta: Cardinal;
+  TimeDelta: integer;
 begin
 TaskDone:=false;
 TimeDelta:=1;
@@ -370,8 +380,8 @@ case Phase of
 //5: KMHouse.fCurrentAction.SubActionWork([ha_Work3],15);
 //6: KMHouse.fCurrentAction.SubActionWork([ha_Work4],15);
 //7: KMHouse.fCurrentAction.SubActionWork([ha_Work5],15);
-24: KMHouse.ResAddToOut(TResourceType(HouseProductionPlan[fPlanID,5]),HouseProductionPlan[fPlanID,6]);
-25: TaskDone:=true;
+8: KMHouse.ResAddToOut(TResourceType(HouseProductionPlan[fPlanID,5]),HouseProductionPlan[fPlanID,6]);
+9: TaskDone:=true;
 end;
 inc(Phase);
 end;
@@ -379,17 +389,13 @@ end;
 { TKMHousesCollection }
 
 procedure TKMHousesCollection.Add(aHouseType: THouseType; PosX,PosY:integer);
-var xo:integer;
 begin
-xo:=HouseXOffset[integer(aHouseType)];
-Inherited Add(TKMHouse.Create(PosX+xo,PosY,aHouseType,hbs_Done));
+Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,hbs_Done));
 end;
 
 procedure TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer);
-var xo:integer;
 begin
-xo:=HouseXOffset[integer(aHouseType)];
-Inherited Add(TKMHouse.Create(PosX+xo,PosY,aHouseType,hbs_Glyph));
+Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,hbs_Glyph));
 end;
 
 procedure TKMHousesCollection.Rem(PosX,PosY:integer);
