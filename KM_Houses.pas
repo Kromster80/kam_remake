@@ -50,7 +50,7 @@ type
     fPosition: TKMPoint;
     fHouseType: THouseType;
     fBuildState:THouseBuildState;
-    fOwnerID: byte;
+    fOwnerID: TPlayerID;
 
     fHasOwner: boolean;
     fOwnerAtHome: boolean;
@@ -67,7 +67,7 @@ type
     fLastUpdateTime: Cardinal;
     AnimStep: integer;
   public
-    constructor Create(PosX,PosY:integer; aHouseType:THouseType; aBuildState:THouseBuildState);
+    constructor Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
     procedure Activate;
     function HitTest(X, Y: Integer): Boolean; overload;
@@ -91,8 +91,8 @@ type
   private
     fSelectedHouse: TKMHouse;
   public
-    procedure Add(aHouseType: THouseType; PosX,PosY:integer);
-    procedure AddPlan(aHouseType: THouseType; PosX,PosY:integer);
+    procedure Add(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
+    procedure AddPlan(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
     procedure Rem(PosX,PosY:integer);
     procedure Clear; override;
     procedure UpdateState;
@@ -108,14 +108,14 @@ uses KM_DeliverQueue, KM_Unit1;
 
 { TKMHouse }
 
-constructor TKMHouse.Create(PosX,PosY:integer; aHouseType:THouseType; aBuildState:THouseBuildState);
+constructor TKMHouse.Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
 begin
   Inherited Create;
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
   fHouseType:=aHouseType;
   fBuildState:=aBuildState;
-  fOwnerID:=1;
+  fOwnerID:=aOwner;
   fHasOwner:=false;
   fOwnerAtHome:=false;
   if aBuildState=hbs_Done then Self.Activate;
@@ -281,7 +281,7 @@ fRender.RenderHouse(byte(fHouseType),fPosition.X, fPosition.Y);
 fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
 //Render animation
 if fCurrentAction=nil then exit;
-fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,fOwnerID,fPosition.X, fPosition.Y);
+fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,integer(fOwnerID),fPosition.X, fPosition.Y);
 end;
 end;
 end;
@@ -388,14 +388,14 @@ end;
 
 { TKMHousesCollection }
 
-procedure TKMHousesCollection.Add(aHouseType: THouseType; PosX,PosY:integer);
+procedure TKMHousesCollection.Add(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
 begin
-Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,hbs_Done));
+Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,aOwner,hbs_Done));
 end;
 
-procedure TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer);
+procedure TKMHousesCollection.AddPlan(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
 begin
-Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,hbs_Glyph));
+Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,aOwner, hbs_Glyph));
 end;
 
 procedure TKMHousesCollection.Rem(PosX,PosY:integer);

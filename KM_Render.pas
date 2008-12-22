@@ -12,8 +12,7 @@ private
   procedure RenderWireQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderDot(pX,pY:single);
-  procedure RenderSprite(RX,ID:integer; pX,pY:single);
-  procedure RenderSprite2(RX,ID:integer; pX,pY:single);
+  procedure RenderSprite(RX,ID:integer; pX,pY:single; const Color:integer=$FF);
 protected
 public
   constructor Create;
@@ -90,11 +89,10 @@ end;
 procedure TRender.RenderResize(Width,Height:integer);
 begin
   if Height=0 then Height:=1;
-  if Width=0  then Width :=1;        // Panel1.Height/Panel1.Width
+  if Width=0  then Width :=1;
   glViewport(0, 0, Width, Height);
   glMatrixMode(GL_PROJECTION);        // Change Matrix Mode to Projection
   glLoadIdentity();                   // Reset View
-  //Half a map into each direction
   gluOrtho2D(0,Width,Height,0);
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
   glLoadIdentity();                   // Reset View
@@ -102,14 +100,7 @@ end;
 
 constructor TRender.Create;
 begin
-{  LightPos[1]:=-20;
-  LightPos[2]:= 40;
-  LightPos[3]:= 40;
-  LightPos[4]:=  0;
-  LightDiff[1]:=   1;
-  LightDiff[2]:=   1;
-  LightDiff[3]:=0.97;
-  LightDiff[4]:=   1;}
+  // Nothing here yet
 end;
 
 destructor TRender.Destroy;
@@ -123,7 +114,7 @@ begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen
   glLoadIdentity();                // Reset The View
   glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
-  glScale(fViewport.Zoom*CellSize,fViewport.Zoom*CellSize,fViewport.Zoom*CellSize);
+  glkScale(fViewport.Zoom*CellSize);
   glTranslate(-fViewport.XCoord,-fViewport.YCoord,0);
 
   glLineWidth(fViewport.Zoom*2);
@@ -330,11 +321,22 @@ begin
   glEnd;
 end;
 
-procedure TRender.RenderSprite(RX,ID:integer; pX,pY:single);
+procedure TRender.RenderSprite(RX,ID:integer; pX,pY:single; const Color:integer=$FF);
+var h:integer;
 begin
+for h:=1 to 2 do
   with GFXData[RX,ID] do begin
-    glColor4f(1,1,1,1);
-    glBindTexture(GL_TEXTURE_2D, TexID);
+    if h=1 then begin
+      glColor3f(1,1,1);
+      glBindTexture(GL_TEXTURE_2D, TexID);
+    end else
+      if (h=2) and (RXData[RX].NeedTeamColors) and (AltID<>0) then begin
+        glColor4ubv(@Color);
+        glBindTexture(GL_TEXTURE_2D, AltID);
+        //glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR);
+      end else
+        exit;
+
     glBegin (GL_QUADS);
     glTexCoord2f(u1,v2); glvertex2f(pX-1                 ,pY-1         );
     glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CellSize,pY-1         );
@@ -342,6 +344,7 @@ begin
     glTexCoord2f(u1,v1); glvertex2f(pX-1                 ,pY-1-pxHeight/CellSize);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     {glLineWidth(1);
     glBegin (GL_LINE_LOOP);
     glvertex2f(pX-1                 ,pY-1         );
@@ -349,20 +352,6 @@ begin
     glvertex2f(pX-1+pxWidth/CellSize,pY-1-pxHeight/CellSize);
     glvertex2f(pX-1                 ,pY-1-pxHeight/CellSize);
     glEnd;}
-  end;
-end;
-
-procedure TRender.RenderSprite2(RX,ID:integer; pX,pY:single);
-begin
-  with GFXData[RX,ID] do begin
-    glBindTexture(GL_TEXTURE_2D, AltID);
-    glBegin (GL_QUADS);
-    glTexCoord2f(u1,v2); glvertex2f(pX-1                 ,pY-1         );
-    glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CellSize,pY-1         );
-    glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CellSize,pY-1-pxHeight/CellSize);
-    glTexCoord2f(u1,v1); glvertex2f(pX-1                 ,pY-1-pxHeight/CellSize);
-    glEnd;
-    glBindTexture(GL_TEXTURE_2D, 0);
   end;
 end;
 
@@ -551,12 +540,9 @@ begin
           ID:=HouseDAT[Index].Anim[AnimType].Step[AnimStep mod AnimCount + 1]+1;
           ShiftX:=RXData[2].Pivot[ID].x/CellSize;
           ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CellSize-fTerrain.Land[pY+1,pX].Height/xh;
-          ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/40;
-          ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/40;
-          RenderSprite(2,ID,pX+ShiftX,pY+ShiftY);
-          glColor4ubv(@TeamColors[Owner]);
-          if GFXData[2,ID].AltID<>0 then //Mill rotor, etc
-          RenderSprite2(2,ID,pX+ShiftX,pY+ShiftY);
+          ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/CellSize;
+          ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/CellSize;
+          RenderSprite(2,ID,pX+ShiftX,pY+ShiftY,integer(TeamColors[Owner]));
         end;
     end;
   end;
@@ -614,11 +600,7 @@ if ID<=0 then exit;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CellSize;
 
   ShiftY:=ShiftY-fTerrain.InterpolateMapCoord(pX,pY)/xh-0.4;
-
-  RenderSprite(3,ID,pX+ShiftX,pY+ShiftY);
-  glColor4ubv(@TeamColors[Owner]);
-  if GFXData[3,ID].AltID<>0 then
-  RenderSprite2(3,ID,pX+ShiftX,pY+ShiftY);
+  RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,integer(TeamColors[Owner]));
 
   glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
   RenderDot(pX,pY-fTerrain.InterpolateMapCoord(pX,pY)/xh);
@@ -633,12 +615,9 @@ if ID<=0 then exit;
   ShiftX:=RXData[3].Pivot[ID].x/CellSize;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CellSize;
   ShiftY:=ShiftY-fTerrain.InterpolateMapCoord(pX,pY)/xh-0.4;
-  ShiftX:=ShiftX+UnitCarry[CarryID].Dir[DirID].MoveX/40;
-  ShiftY:=ShiftY+UnitCarry[CarryID].Dir[DirID].MoveY/40;
-  RenderSprite(3,ID,pX+ShiftX,pY+ShiftY);
-  glColor4ubv(@TeamColors[Owner]);
-  if GFXData[3,ID].AltID<>0 then
-  RenderSprite2(3,ID,pX+ShiftX,pY+ShiftY);
+  ShiftX:=ShiftX+UnitCarry[CarryID].Dir[DirID].MoveX/CellSize;
+  ShiftY:=ShiftY+UnitCarry[CarryID].Dir[DirID].MoveY/CellSize;
+  RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,integer(TeamColors[Owner]));
 end;
 
 

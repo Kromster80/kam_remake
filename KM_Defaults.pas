@@ -18,7 +18,7 @@ const
 type
   TMouseButton2 = (mb2None, mb2Left, mb2Right);
 
-  TPlayerID = (play_none, play_1, play_2, play_3, play_4, play_5, play_6);
+  TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);
 
   TResourceType = (rt_None=0, rt_All=30, rt_Warfare=31,
     rt_Trunk     =1  , rt_Stone      =2 , rt_Wood       =3 , rt_IronOre     =4 ,
@@ -305,7 +305,8 @@ RoadsConnectivity:array [0..15,1..2]of byte = (
 
 //Players colors, is not a true constant
 TeamColors:array[1..4,1..4]of byte =
-((255,60,45,255),(255,192,0,255),(70,160,220,255),(60,40,20,255));
+((255,60,45,255),(255,192,0,255),(60,200,40,255),(60,40,20,255));
+
 
 //Render scale
 ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.25,1.5,2);

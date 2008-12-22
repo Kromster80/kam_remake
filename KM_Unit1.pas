@@ -335,7 +335,7 @@ begin
       end;
     cm_Houses:
       if LandBrush in [1..29] then
-        ControlList.AddHousePlan(P,THouseType(LandBrush))
+        ControlList.AddHousePlan(P,THouseType(LandBrush),play_1)
     end;
 MouseButton:=mb2None;
 end;
@@ -455,13 +455,13 @@ var ii,kk:integer;
 begin
 fViewPort.XCoord:=11;
 fViewPort.YCoord:=11;
-ControlList.AddHouse(ht_Farm,KMPoint(4,5));
-ControlList.AddHouse(ht_Mill,KMPoint(8,5));
-ControlList.AddHouse(ht_Bakery,KMPoint(12,5));
-ControlList.AddHouse(ht_Store,KMPoint(16,5));
-ControlList.AddHouse(ht_Quary,KMPoint(12,8));
-ControlList.AddHouse(ht_WoodCutters,KMPoint(12,11));
-ControlList.AddHouse(ht_SawMill,KMPoint(12,14));
+ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));
+ControlList.AddHouse(play_1, ht_Mill,KMPoint(8,5));
+ControlList.AddHouse(play_1, ht_Bakery,KMPoint(12,5));
+ControlList.AddHouse(play_1, ht_Store,KMPoint(16,5));
+ControlList.AddHouse(play_1, ht_Quary,KMPoint(12,8));
+ControlList.AddHouse(play_1, ht_WoodCutters,KMPoint(12,11));
+ControlList.AddHouse(play_1, ht_SawMill,KMPoint(12,14));
 
 ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
 ControlList.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
@@ -495,7 +495,7 @@ fControls.Add(50,50,100,100,36);
 for ii:=0 to 15 do for kk:=0 to 15 do
 fTerrain.AddTree(KMPoint(20+ii*2,20+kk*2),ii*16+kk);
 
-ControlList.AddHousePlan(KMPoint(9,18), ht_Inn);
+ControlList.AddHousePlan(KMPoint(9,18), ht_Inn, play_1);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

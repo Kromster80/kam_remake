@@ -269,8 +269,8 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
 
       if Mode='AltID' then
         case x of
-          24,30: col:=$70FFFFFF;   //7
-          25,29: col:=$B0FFFFFF;   //11
+          24,30: col:=$68FFFFFF;   //7
+          25,29: col:=$98FFFFFF;   //11
           26,28: col:=$E0FFFFFF;   //14
           27: col:=$FFFFFFFF;      //16
         else
