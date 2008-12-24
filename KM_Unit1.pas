@@ -538,7 +538,7 @@ end;
 
 procedure TForm1.Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-  Color2RGB(Shape267.Brush.Color,TeamColors[3,1],TeamColors[3,2],TeamColors[3,3]);
+  TeamColors[3]:=Shape267.Brush.Color;
   fRender.Render;
 end;
 

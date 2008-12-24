@@ -51,6 +51,7 @@ type
     procedure RemHouse(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+    procedure GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsSelectedUnit: TKMUnit;
     property DeliverList:TKMDeliverQueue read fDeliverList;
@@ -162,6 +163,11 @@ end;
 function TKMUserControlList.UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 begin
   Result:= fUnits.HitTest(X, Y, UT);
+end;
+
+procedure TKMUserControlList.GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+begin
+  fUnits.GetLocations(aOwner,Loc);
 end;
 
 function TKMUserControlList.HousesHitTest(X, Y: Integer): TKMHouse;

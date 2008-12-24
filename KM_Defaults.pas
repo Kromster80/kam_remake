@@ -2,6 +2,15 @@ unit KM_Defaults;
 interface
 uses KromUtils;
 
+type TKMPointList = class
+  public
+    Count:integer;
+    List:array of TKMPoint;
+    constructor Create;
+    procedure Clearup;
+    procedure AddEntry(aLoc:TKMPoint);
+  end;
+
 type cmCursorMode = (cm_None, cm_Erase, cm_Roads, cm_Houses);
 
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
@@ -308,8 +317,15 @@ ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 
 var
 //Players colors
-TeamColors:array[1..4,1..4]of byte =
-((255,60,45,255),(255,192,0,255),(60,200,40,255),(60,40,20,255));
+TeamColors:array[1..8]of cardinal = (
+255 +  60 shr 8 +  45 shr 16,
+255 + 192 shr 8 +   0 shr 16,
+ 60 + 200 shr 8 +  40 shr 16,
+255 +  60 shr 8 +  45 shr 16,
+255 + 192 shr 8 +   0 shr 16,
+ 60 + 200 shr 8 +  40 shr 16,
+255 +  60 shr 8 +  45 shr 16,
+255 + 192 shr 8 +   0 shr 16);
 
 function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload
@@ -342,5 +358,22 @@ function TypeToString(t:TUnitType):string;
 begin
 Result:='??????????';
 end;
+
+constructor TKMPointList.Create;
+begin end;
+
+procedure TKMPointList.Clearup;
+begin
+  Count:=0;
+  setlength(List,0);
+end;
+
+procedure TKMPointList.AddEntry(aLoc:TKMPoint);
+begin
+  inc(Count);
+  if Count>length(List)-1 then setlength(List,Count+10);
+  List[Count]:=aLoc;
+end;
+
 
 end.

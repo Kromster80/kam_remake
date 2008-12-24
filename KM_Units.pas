@@ -219,6 +219,7 @@ type
     procedure Rem(PosX,PosY:integer);
     procedure UpdateState;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+    procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     procedure Paint();
     property SelectedUnit: TKMUnit read fSelectedUnit;
   end;
@@ -1069,6 +1070,16 @@ begin
       Break;
     end;
   fSelectedUnit:= Result;
+end;
+
+procedure TKMUnitsCollection.GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+var
+  i:integer;
+begin
+  Loc.Clearup;
+  for I := 0 to Count - 1 do
+    if TKMUnit(Items[I]).fOwner=aOwner then
+      Loc.AddEntry(KMPointRound(TKMUnit(Items[I]).fPosition));
 end;
 
 procedure TKMUnitsCollection.Paint();

@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, KM_Classes, KM_RenderUI;
+uses Controls, KM_Classes, KM_RenderUI, KromUtils, Math;
 
 type
 TKMControl = class
@@ -11,6 +11,7 @@ TKMControl = class
     Height: Integer;
   constructor Create();
   procedure Paint(); virtual; abstract;
+  procedure OnMouseDown(); virtual; abstract;
 end;
 
 
@@ -21,12 +22,20 @@ TKMPanel = class(TKMControl)
   procedure Paint(); override;
 end;
 
+
 TKMButton = class(TKMControl)
   public
     TexID: integer;
   constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
   procedure Paint(); override;
 end;
+           {
+TButton = class(TControl)
+  public
+    TexID: integer;
+//  constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+//  procedure Paint(); override;
+end;           }
 
 
 TKMControlsCollection = class(TKMList)
@@ -35,6 +44,7 @@ TKMControlsCollection = class(TKMList)
   public
     constructor Create;
     procedure Add(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+    procedure OnMouseDown(X,Y:integer);
     procedure Paint();
 end;
 
@@ -77,6 +87,15 @@ end;
 procedure TKMControlsCollection.Add(aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
   Inherited Add(TKMButton.Create(aLeft,aTop,aWidth,aHeight,aTexID));
+end;
+
+procedure TKMControlsCollection.OnMouseDown(X,Y:integer);
+var i:integer;
+begin
+  for i:=0 to Count-1 do
+    if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
+       InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Left+TKMControl(Items[I]).Height) then
+    TKMControl(Items[I]).OnMouseDown;
 end;
 
 procedure TKMControlsCollection.Paint();

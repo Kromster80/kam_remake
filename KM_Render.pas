@@ -325,7 +325,7 @@ for h:=1 to 2 do
       glBindTexture(GL_TEXTURE_2D, TexID);
     end else
       if (h=2) and (RXData[RX].NeedTeamColors) and (AltID<>0) then begin
-        glColor4ubv(@Color);
+        glColor3ubv(@Color);
         glBindTexture(GL_TEXTURE_2D, AltID);
         //glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR);
       end else
@@ -529,7 +529,7 @@ begin
           ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CellSize-fTerrain.Land[pY+1,pX].Height/xh;
           ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/CellSize;
           ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/CellSize;
-          RenderSprite(2,ID,pX+ShiftX,pY+ShiftY,integer(TeamColors[Owner]));
+          RenderSprite(2,ID,pX+ShiftX,pY+ShiftY,TeamColors[Owner]);
         end;
     end;
   end;
@@ -587,7 +587,7 @@ if ID<=0 then exit;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CellSize;
 
   ShiftY:=ShiftY-fTerrain.InterpolateMapCoord(pX,pY)/xh-0.4;
-  RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,integer(TeamColors[Owner]));
+  RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,TeamColors[Owner]);
 
   glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
   RenderDot(pX,pY-fTerrain.InterpolateMapCoord(pX,pY)/xh);
@@ -604,7 +604,7 @@ if ID<=0 then exit;
   ShiftY:=ShiftY-fTerrain.InterpolateMapCoord(pX,pY)/xh-0.4;
   ShiftX:=ShiftX+UnitCarry[CarryID].Dir[DirID].MoveX/CellSize;
   ShiftY:=ShiftY+UnitCarry[CarryID].Dir[DirID].MoveY/CellSize;
-  RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,integer(TeamColors[Owner]));
+  RenderSprite(3,ID,pX+ShiftX,pY+ShiftY,TeamColors[Owner]);
 end;
 
 

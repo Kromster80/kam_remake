@@ -93,7 +93,7 @@ begin
 end;
 
 procedure TMiniMap.Repaint();
-var i,k:integer; bm:TBitmap; ID,Light,Team:integer;
+var i,k:integer; bm:TBitmap; ID,Light,Team:integer; Loc:TKMPointList;
 begin
 bm:=TBitmap.Create;
 bm.Width:=mmMiniMap.Width;
@@ -107,10 +107,16 @@ for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
                                EnsureRange(TileMMColor[ID].G+Light,0,255)*256+
                                EnsureRange(TileMMColor[ID].B+Light,0,255)*65536
   else
-    bm.Canvas.Pixels[k-1,i-1]:=TeamColors[Team,1]+
-                               TeamColors[Team,2]*256+
-                               TeamColors[Team,3]*65536;
+    bm.Canvas.Pixels[k-1,i-1]:=TeamColors[Team];
   end;
+
+  Loc:=TKMPointList.Create;
+  for i:=1 to MaxPlayers do begin
+    ControlList.GetUnitLocations(TPlayerID(i),Loc);
+    for k:=1 to Loc.Count do
+      bm.Canvas.Pixels[Loc.List[k].X-1,Loc.List[k].Y-1]:=TeamColors[i];
+  end;
+
 mmMiniMap.Canvas.StretchDraw(mmMiniMap.ClientRect,bm);
 end;
 
