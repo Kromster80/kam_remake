@@ -42,6 +42,7 @@ function int2(c1,c2:char):integer; overload;
 function int2(c1,c2,c3,c4:char):integer; overload;
 function chr2(x,len:integer):string; overload;
 function chr2(t:string; len:integer):string; overload;
+procedure Color2RGB(Col:integer; out R,G,B:byte);
 
 function Vectorize(A,B:single):Vector2f; overload;
 function Vectorize(A,B,C:single):Vector3f; overload;
@@ -468,6 +469,13 @@ var i:integer; begin
 for i:=length(t) to len-1 do t:=t+#0;
 setlength(t,len);
 chr2:=t;
+end;
+
+procedure Color2RGB(Col:integer; out R,G,B:byte);
+begin
+R:=Col AND $FF;
+G:=Col AND $FF00 SHR 8;
+B:=Col AND $FF0000 SHR 16;
 end;
 
 function Ceil(const X: Extended): Integer;

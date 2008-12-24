@@ -1,4 +1,4 @@
-object Form2: TForm2
+object Form_ColorPicker: TForm_ColorPicker
   Left = 412
   Top = 148
   BorderStyle = bsDialog

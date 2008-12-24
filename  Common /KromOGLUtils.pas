@@ -6,6 +6,8 @@ type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
 kPoly=5,kSurface=6,kObject=7,kButton=8);  //1..31 are ok
 type Vector = record x,y,z:single; end;
 
+KAlign = (kaLeft, kaCenter, kaRight);
+
 function SetDCPixelFormat(h_DC:HDC):boolean;
 procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
 procedure BuildFont(h_DC:HDC;FontSize:integer);

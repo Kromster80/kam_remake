@@ -7,7 +7,7 @@ uses
   FloatSpinEdit;
 
 type
-  TForm2 = class(TForm)
+  TForm_ColorPicker = class(TForm)
     Shape2: TShape;
     HSImage: TImage;
     BriImage: TImage;
@@ -53,10 +53,12 @@ type
     { Public declarations }
   end;
 
-procedure DefineInputColor(R,G,B:integer; Sender:TObject);
+procedure DefineInputColor(R,G,B:byte; Sender:TObject); overload;
+procedure DefineInputColor(RGB:TColor; Sender:TObject); overload;
+procedure DefineInputColorRGB(R,G,B:byte; Sender:TObject);
 
 var
-  Form2: TForm2;
+  Form_ColorPicker: TForm_ColorPicker;
   SenderShape:TShape;
   BitmapHueSat,BitmapBri:Tbitmap;
   SpyMouseH:boolean=false;
@@ -72,7 +74,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TForm2.FormShow(Sender: TObject);
+procedure TForm_ColorPicker.FormShow(Sender: TObject);
 begin
 BitmapHueSat:=Tbitmap.Create;
 BitmapHueSat.PixelFormat:=pf24bit;
@@ -82,23 +84,36 @@ BitmapBri:=Tbitmap.Create;
 BitmapBri.PixelFormat:=pf24bit;
 BitmapBri.Width:=1;
 BitmapBri.Height:=BriImage.Height;
+end;   
+
+//This is wrap to acquire data in different formats and convert them to internal R,G,B
+//Required since we can't make a call to overloaded procedure itself
+procedure DefineInputColor(R,G,B:byte; Sender:TObject); overload;
+begin
+DefineInputColorRGB(R,G,B, Sender);
 end;
 
-procedure DefineInputColor(R,G,B:integer; Sender:TObject);
+//This is wrap for TColor
+procedure DefineInputColor(RGB:TColor; Sender:TObject); overload;
+begin
+DefineInputColorRGB(RGB AND $FF, RGB AND $FF00 SHR 8, RGB AND $FF0000 SHR 16, Sender);
+end;
+
+procedure DefineInputColorRGB(R,G,B:byte; Sender:TObject);
 begin
 if Sender<>nil then SenderShape:=(Sender as TShape);
-with Form2 do begin
-if Sender<>nil then Show;
-InputR:=R; InputG:=G; InputB:=B;//Keep input RGB incase user wants to cancel
-ConvertRGB2HSB(R,G,B,Hue,Sat,Bri);
-PositionHSBCursors();
-DrawHueSatQuad();
-DrawBriRow();
-DisplayResultColor('Both');
+with Form_ColorPicker do begin
+  if Sender<>nil then Show;
+  InputR:=R; InputG:=G; InputB:=B;//Keep input RGB incase user wants to cancel
+  ConvertRGB2HSB(R,G,B,Hue,Sat,Bri);
+  PositionHSBCursors();
+  DrawHueSatQuad();
+  DrawBriRow();
+  DisplayResultColor('Both');
 end;
 end;
 
-procedure TForm2.DrawHueSatQuad();
+procedure TForm_ColorPicker.DrawHueSatQuad();
 var P : PByteArray; R,G,B:integer; ii,kk:integer;
 begin //Fill area with Hue and Saturation data respecting Brightness
 for ii:=0 to 255 do begin
@@ -115,7 +130,7 @@ end;
 HSImage.Canvas.Draw(0,0,BitmapHueSat);
 end;
 
-procedure TForm2.DrawBriRow();
+procedure TForm_ColorPicker.DrawBriRow();
 var R,G,B,Rt,Gt,Bt:integer; i:integer;
 begin
 Hue:=Shape1.Left-HSImage.Left+Shape1.Width div 2; //restore after cycle
@@ -130,7 +145,7 @@ Bri:=Ticker.Top-BriImage.Top+(Ticker.Height div 2);
 BriImage.Canvas.StretchDraw(BriImage.Canvas.ClipRect,BitmapBri);
 end;
 
-procedure TForm2.ApplyHue2RGB(InHue:integer; var R,G,B:integer);
+procedure TForm_ColorPicker.ApplyHue2RGB(InHue:integer; var R,G,B:integer);
 var V:single;
 begin V:=255/(360 div 6);
 EnsureRange(InHue,0,359);
@@ -144,14 +159,14 @@ case InHue of
 end;
 end;
 
-procedure TForm2.ApplySat2RGB(InSat:integer; var R,G,B:integer);
+procedure TForm_ColorPicker.ApplySat2RGB(InSat:integer; var R,G,B:integer);
 begin
 R:=round((R*(255-InSat)+127*(InSat))/255);
 G:=round((G*(255-InSat)+127*(InSat))/255);
 B:=round((B*(255-InSat)+127*(InSat))/255);
 end;
 
-procedure TForm2.ApplyBri2RGB(inR,inG,inB,InBri:integer; var R,G,B:integer);
+procedure TForm_ColorPicker.ApplyBri2RGB(inR,inG,inB,InBri:integer; var R,G,B:integer);
 begin
 if InBri<127 then begin
 R:=round((inR*InBri+255*(127-InBri))/127);
@@ -165,7 +180,7 @@ B:=round((inB*(255-InBri)+0*(InBri-127))/127);
 end else
 end;
 
-procedure TForm2.ConvertRGB2HSB(Rin,Gin,Bin:integer; var Hout,Sout,Bout:integer);
+procedure TForm_ColorPicker.ConvertRGB2HSB(Rin,Gin,Bin:integer; var Hout,Sout,Bout:integer);
 var Rdel,Gdel,Bdel,Vmin,Vmax,Vdel,xp:integer;
 begin
 Vmin:=min(Rin,Gin,Bin);
@@ -188,14 +203,14 @@ Hout:=xp;
 end;
 end;
 
-procedure TForm2.ConvertHSB2RGB(H_in,S_in,B_in:integer; var R,G,B:integer);
+procedure TForm_ColorPicker.ConvertHSB2RGB(H_in,S_in,B_in:integer; var R,G,B:integer);
 begin
 ApplyHue2RGB(H_in, R,G,B);
 ApplySat2RGB(S_in, R,G,B);
 ApplyBri2RGB(R,G,B,B_in,R,G,B);
 end;
 
-procedure TForm2.DisplayResultColor(Sender:string);
+procedure TForm_ColorPicker.DisplayResultColor(Sender:string);
 var R,G,B,Ht,St,Bt:integer;
 begin
 RGBRefresh:=true;
@@ -231,12 +246,12 @@ RGBRefresh:=false;
 HSBRefresh:=false;
 end;
 
-procedure TForm2.HSImageMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); begin
+procedure TForm_ColorPicker.HSImageMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); begin
 SpyMouseH:=true;
 HSImageMouseMove(nil,Shift,X,Y);
 end;
 
-procedure TForm2.HSImageMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+procedure TForm_ColorPicker.HSImageMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
 if not SpyMouseH then exit;
 Hue:=EnsureRange(X,0,359);
@@ -247,28 +262,28 @@ DrawBriRow();
 DisplayResultColor('Both');
 end;
 
-procedure TForm2.HSImageMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); begin
+procedure TForm_ColorPicker.HSImageMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); begin
 SpyMouseH:=false;
 end;
 
-procedure TForm2.BriImageMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); begin
+procedure TForm_ColorPicker.BriImageMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); begin
 SpyMouseB:=true;
 BriImageMouseMove(nil,Shift,X,Y);
 end;
 
-procedure TForm2.BriImageMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer); begin
+procedure TForm_ColorPicker.BriImageMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer); begin
 if not SpyMouseB then exit;
 Bri:=EnsureRange(Y,0,BriImage.Height-1);
 Ticker.Top:=BriImage.Top+Bri-(Ticker.Height div 2);
 DisplayResultColor('Both');
 end;
 
-procedure TForm2.BriImageMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); begin
+procedure TForm_ColorPicker.BriImageMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer); begin
 SpyMouseB:=false;
 DrawHueSatQuad();
 end;
 
-procedure TForm2.SpinRGBChange(Sender: TObject);
+procedure TForm_ColorPicker.SpinRGBChange(Sender: TObject);
 var R,G,B:integer;
 begin
 if RGBRefresh then exit;
@@ -284,17 +299,17 @@ DrawBriRow();
 DisplayResultColor('RGB');
 end;
 
-procedure TForm2.Button1Click(Sender: TObject);
+procedure TForm_ColorPicker.Button1Click(Sender: TObject);
 begin DefineInputColor(InputR,InputG,InputB,nil); end;
 
-procedure TForm2.PositionHSBCursors();
+procedure TForm_ColorPicker.PositionHSBCursors();
 begin
 Shape1.Left:=HSImage.Left+Hue-Shape1.Width div 2;// - Shape1.Width mod 2;
 Shape1.Top:=HSImage.Top+Sat-Shape1.Height div 2;// - Shape1.Width mod 2;
 Ticker.Top:=BriImage.Top+Bri-(Ticker.Height div 2);
 end;
 
-procedure TForm2.SpinHSBChange(Sender: TObject);
+procedure TForm_ColorPicker.SpinHSBChange(Sender: TObject);
 var R,G,B:integer;
 begin
 if HSBRefresh then exit;
@@ -310,9 +325,9 @@ DrawBriRow();
 DisplayResultColor('HSB');
 end;
 
-procedure TForm2.Button2Click(Sender: TObject);
+procedure TForm_ColorPicker.Button2Click(Sender: TObject);
 begin
-Form2.Close;
+Form_ColorPicker.Close;
 end;
 
 end.
