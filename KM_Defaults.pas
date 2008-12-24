@@ -151,10 +151,9 @@ type
 
   TMarkup = (mu_None, mu_RoadPlan, mu_FieldPlan, mu_WinePlan);
 
-type
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
 
-type TDemandType = (dt_Once, dt_Constant); //Is this one-time demand like usual, or constant (storehouse, barracks)
+  TDemandType = (dt_Once, dt_Constant); //Is this one-time demand like usual, or constant (storehouse, barracks)
 
 const
   HouseName:array[1..29]of string = (
@@ -296,7 +295,7 @@ HouseInput:array[1..29,1..4] of TResourceType = (
 
 //   1      //Select road tile and rotation
 //  8*2     //depending on surrounding tiles
-//   4
+//   4      //Bitfield
 RoadsConnectivity:array [0..15,1..2]of byte = (
 (249,0),(249,0),(249,1),(251,3),
 (249,0),(249,0),(251,0),(253,0),
@@ -308,7 +307,7 @@ RoadsConnectivity:array [0..15,1..2]of byte = (
 ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 
 var
-//Players colors, is not a true constant
+//Players colors
 TeamColors:array[1..4,1..4]of byte =
 ((255,60,45,255),(255,192,0,255),(60,200,40,255),(60,40,20,255));
 

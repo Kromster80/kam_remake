@@ -142,57 +142,50 @@ glColor4f(1,1,1,1);
 glBindTexture(GL_TEXTURE_2D, Text512);
 glbegin (GL_QUADS);
   with fTerrain do
-    for i:=y1 to y2 do
-      for k:=x1 to x2 do begin
-        xt:=fTerrain.Land[i,k].Terrain;
-        ax:=((xt div 64) mod 2) /2;
-        ay:=(xt div 128) /2;
+  for i:=y1 to y2 do for k:=x1 to x2 do begin
+    xt:=fTerrain.Land[i,k].Terrain;
+    ax:=((xt div 64) mod 2) /2;
+    ay:=(xt div 128) /2;
 
-        TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=(xt mod 64 div 8  )/16+ay-Overlap;
-        TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay+Overlap;
-        TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay+Overlap;
-        TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay-Overlap;
-        TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
+    TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
+    TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
+    TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
+    TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
+    TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
-        if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
-        if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
+    if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
+    if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
-        glTexCoord2fv(@TexC[TexO[1]]);
-        glvertex2f(k-1,i-1-Land[i,k].Height/xh);
+    glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/xh);
+    glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i-Land[i+1,k].Height/xh);
+    glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k,i-Land[i+1,k+1].Height/xh);
+    glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k,i-1-Land[i,k+1].Height/xh);
+  end;
+glEnd;
 
-        glTexCoord2fv(@TexC[TexO[2]]);
-        glvertex2f(k-1,i-Land[i+1,k].Height/xh);
+for i:=y1 to y2 do for k:=x1 to x2 do
+begin
+  case fTerrain.Land[i,k].FieldSpecial of
+    fs_Dig1: RenderTile(250,k,i,0);
+    fs_Dig2: RenderTile(252,k,i,0);
+    fs_Dig3: RenderTile(254,k,i,0);
+    fs_Dig4: RenderTile(256,k,i,0);
+  end;
 
-        glTexCoord2fv(@TexC[TexO[3]]);
-        glvertex2f(k,i-Land[i+1,k+1].Height/xh);
-
-        glTexCoord2fv(@TexC[TexO[4]]);
-        glvertex2f(k,i-1-Land[i,k+1].Height/xh);
-      end;
-      glEnd;
-
-      for i:=y1 to y2 do for k:=x1 to x2 do
-      begin
-        case fTerrain.Land[i,k].FieldSpecial of
-          fs_Dig1: RenderTile(250,k,i,0);
-          fs_Dig2: RenderTile(252,k,i,0);
-          fs_Dig3: RenderTile(254,k,i,0);
-          fs_Dig4: RenderTile(256,k,i,0);
-        end;
-
-        if fTerrain.Land[i,k].FieldType = fdt_Road then
-          begin
-            rd:=byte(fTerrain.Land[max(i-1,1),k                  ].FieldType = fdt_Road)*1 +
-                byte(fTerrain.Land[i         ,min(k+1,MaxMapSize)].FieldType = fdt_Road)*2 +
-                byte(fTerrain.Land[max(i+1,1),k                  ].FieldType = fdt_Road)*4 +
-                byte(fTerrain.Land[i         ,min(k-1,MaxMapSize)].FieldType = fdt_Road)*8;
-            ID:=RoadsConnectivity[rd,1];
-            Rot:=RoadsConnectivity[rd,2];
-            RenderTile(ID,k,i,Rot);
-          end;
-      end;
+  if fTerrain.Land[i,k].FieldType = fdt_Road then
+    begin
+      rd:=byte(fTerrain.Land[max(i-1,1),k                  ].FieldType = fdt_Road)*1 +
+          byte(fTerrain.Land[i         ,min(k+1,MaxMapSize)].FieldType = fdt_Road)*2 +
+          byte(fTerrain.Land[max(i+1,1),k                  ].FieldType = fdt_Road)*4 +
+          byte(fTerrain.Land[i         ,min(k-1,MaxMapSize)].FieldType = fdt_Road)*8;
+      ID:=RoadsConnectivity[rd,1];
+      Rot:=RoadsConnectivity[rd,2];
+      RenderTile(ID,k,i,Rot);
+    end;
+end;
 
   glColor4f(1,1,1,1);
+  //Render highlights
   glBlendFunc(GL_DST_COLOR,GL_ONE);
   glBindTexture(GL_TEXTURE_2D, TextG);
   glbegin (GL_QUADS);
@@ -206,6 +199,7 @@ glbegin (GL_QUADS);
     end;
   glEnd;                  
 
+  //Render shadows
   glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, TextG);
   glbegin (GL_QUADS);
@@ -372,10 +366,10 @@ xt:=Index-1;
 ax:=((xt div 64) mod 2) /2;
 ay:=(xt div 128) /2;
 
-TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=(xt mod 64 div 8  )/16+ay-Overlap;
-TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay+Overlap;
-TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay+Overlap;
-TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay-Overlap;
+TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
+TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
+TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
+TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
 TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
 if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
@@ -384,17 +378,10 @@ if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]
 k:=pX; i:=pY;
 glbegin (GL_QUADS);
 with fTerrain do begin
-  glTexCoord2fv(@TexC[TexO[1]]);
-  glvertex2f(k-1,i-1-Land[i,k].Height/xh);
-
-  glTexCoord2fv(@TexC[TexO[2]]);
-  glvertex2f(k-1,i-Land[i+1,k].Height/xh);
-
-  glTexCoord2fv(@TexC[TexO[3]]);
-  glvertex2f(k,i-Land[i+1,k+1].Height/xh);
-
-  glTexCoord2fv(@TexC[TexO[4]]);
-  glvertex2f(k,i-1-Land[i,k+1].Height/xh);
+  glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/xh);
+  glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i-Land[i+1,k].Height/xh);
+  glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k,i-Land[i+1,k+1].Height/xh);
+  glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k,i-1-Land[i,k+1].Height/xh);
 end;
 glEnd;
 glBindTexture(GL_TEXTURE_2D, 0);
