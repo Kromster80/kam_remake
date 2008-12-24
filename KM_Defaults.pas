@@ -303,13 +303,14 @@ RoadsConnectivity:array [0..15,1..2]of byte = (
 (249,1),(251,2),(249,1),(253,3),
 (251,1),(253,2),(253,1),(255,0));
 
-//Players colors, is not a true constant
-TeamColors:array[1..4,1..4]of byte =
-((255,60,45,255),(255,192,0,255),(60,200,40,255),(60,40,20,255));
-
 
 //Render scale
 ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.25,1.5,2);
+
+var
+//Players colors, is not a true constant
+TeamColors:array[1..4,1..4]of byte =
+((255,60,45,255),(255,192,0,255),(60,200,40,255),(60,40,20,255));
 
 function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload

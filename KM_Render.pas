@@ -234,7 +234,7 @@ if CursorMode=cm_Houses then
 if (LandBrush in [0])and(not MousePressed) then
   begin
   glColor4f(1,0,0,0.2);    //Object eraser
-  RenderQuad(MapXc,MapYc);
+  RenderQuad(CursorXc,CursorYc);
   end else
 if LandBrush in [1..29] then
   begin
@@ -242,7 +242,7 @@ if LandBrush in [1..29] then
   end else
 if LandBrush in [97..99] then
   begin
-  RenderTile(255,MapXc,MapYc,0);
+  RenderTile(255,CursorXc,CursorYc,0);
   glBindTexture(GL_TEXTURE_2D, 0);
   end;
 
@@ -253,14 +253,14 @@ end;
 procedure TRender.RenderWires();
 var i,k:integer; x1,x2,y1,y2:integer;
 begin
-x1:=max(MapXc-11,1); x2:=min(MapXc+11,fTerrain.MapX);
-y1:=max(MapYc-10,1); y2:=min(MapYc+10,fTerrain.MapY);
+x1:=max(CursorXc-11,1); x2:=min(CursorXc+11,fTerrain.MapX);
+y1:=max(CursorYc-10,1); y2:=min(CursorYc+10,fTerrain.MapY);
 
 glLineWidth(1);
 for i:=y1 to y2 do begin
   glbegin (GL_LINE_STRIP);
   for k:=x1 to x2 do begin
-    glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10); //Smooth circle gradient blending
+    glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-CursorYc)+sqr(k-CursorXc))/10); //Smooth circle gradient blending
     glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/xh);
   end;
   glEnd;

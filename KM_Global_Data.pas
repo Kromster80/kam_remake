@@ -31,9 +31,6 @@ var
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
-  f,f2:file;
-  ft:textfile;
-  c:array[1..65536] of char;
   ExeDir:string;
 
   CursorMode:cmCursorMode;
@@ -41,14 +38,15 @@ var
   s:string;
   MouseButton:TMouseButton2;
 
-  MapX,MapY:single; //Precise cursor position on map
-  MapXn,MapYn:integer; //Cursor position node
-  MapXc,MapYc:integer; //Cursor position cell
-  MapXn2,MapYn2:integer; //keeps previous node position
-  MapXc2,MapYc2:integer; //keeps previous cell position
+  CursorX,CursorY:single;    //Precise cursor position on map
+  CursorXn,CursorYn:integer; //Cursor position node
+  CursorXc,CursorYc:integer; //Cursor position cell
+  CursorXn2,CursorYn2:integer;     //keeps previous node position
+  CursorXc2,CursorYc2:integer;     //keeps previous cell position
 
   Mission:TMission;
 
+  //Pallete for RX bitmaps
   Pal0:array[1..256,1..3]of byte;
 
   RXData:array [1..5]of record

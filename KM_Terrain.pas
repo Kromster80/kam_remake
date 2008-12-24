@@ -3,7 +3,7 @@ interface
 uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 
 const
-MaxMapSize=176;
+MaxMapSize=176; //Just some number
 
 type TPassability = (CanWalk, CanBuild, CanPlantTrees, CanMakeFields, CanFish);
 
@@ -23,7 +23,7 @@ public
     //Meant to be set of allowed actions on the tile
     Passability:set of TPassability; //pass_CanWalk, pass_CanBuild, pass_CanPlantTrees, pass_CanField
 
-    //Name says it all
+    //Name says it all, should simplify player related issues
     TileOwner:TPlayerID; //Players 1..8
 
     //Markup (ropes) used on-top of tiles for roads/fields/wine
@@ -172,48 +172,53 @@ for i:=y1 to y2 do for k:=x1 to x2 do
   end;
 end;
 
+//Reset whole map with default values
 procedure TTerrain.MakeNewMap(Width,Height:integer);
 var i,k:integer;
 begin
-Width:=min(Width,MaxMapSize);
-Height:=min(Height,MaxMapSize);
+  MapX:=min(Width,MaxMapSize);
+  MapY:=min(Height,MaxMapSize);
 
-MapX:=Width;
-MapY:=Height;
+  for i:=1 to MapY do for k:=1 to MapX do with Land[i,k] do begin
+    Terrain:=0;
+    Height:=random(7);    //variation in height
+    Rotation:=random(4);  //Make it random
+    Obj:=255;             //none
+    FieldSpecial:=fs_None;
+    Markup:=mu_None;
+    Passability:=[CanWalk, CanBuild, CanPlantTrees, CanMakeFields]; //allow anything
+    TileOwner:=play_none;
+    FieldType:=fdt_None;
+    FieldAge:=0;
+    TreeAge:=0;
+    BorderX:=bt_None;
+    BorderY:=bt_None;
+  end;
 
-for i:=1 to Height do for k:=1 to Width do with Land[i,k] do begin
-Terrain:=0;
-Height:=random(7); //variation in height
-Rotation:=0;
-Obj:=255; //none
-FieldSpecial:=fs_None;
-Markup:=mu_None;
-Passability:=[CanWalk, CanBuild, CanPlantTrees, CanMakeFields]; //allow anything
-TileOwner:=play_none;
-FieldType:=fdt_None;
-FieldAge:=0;
-TreeAge:=0;
-BorderX:=bt_None;
-BorderY:=bt_None;
-end;
-RebuildLighting(1,MapX,1,MapY);
+  RebuildLighting(1,MapX,1,MapY);
+  fMiniMap.ReSize(MapX,MapY);
 end;
 
 function TTerrain.OpenMapFromFile(filename:string):boolean;
 var
   i,k:integer;
   c:array[1..23]of byte;
+  f:file;
 begin
   Result:=false;
   assignfile(f,filename); reset(f,1);
-  blockread(f,MapX,4);
-  blockread(f,MapY,4);
-  if (MapX>MaxMapSize)or(MapY>MaxMapSize) then
+  blockread(f,k,4);
+  blockread(f,i,4);
+  if (k>MaxMapSize)or(i>MaxMapSize) then
     begin
       closefile(f);
-      fLog.AppendLog('TTerrain.OpenMapFromFile - Can''t open the map');
+      fLog.AppendLog('TTerrain.OpenMapFromFile - Can''t open the map cos it''s too big.');
       exit;
+    end else begin
+      MapX:=k;
+      MapY:=i;
     end;
+  MakeNewMap(MapX,MapY); //Reset whole map to default
   for i:=1 to MapY do for k:=1 to MapX do
     begin
       blockread(f,c,23);
@@ -221,11 +226,9 @@ begin
       Land[i,k].Height:=c[3];
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
-      Land[i,k].Passability:=[CanWalk, CanBuild, CanPlantTrees, CanMakeFields];
-      Land[i,k].TileOwner:=play_none; //no roads
-      Land[i,k].FieldType:=fdt_None;
-      Land[i,k].FieldAge:=0;
-      Land[i,k].TreeAge:=0;
+      //Everything else is default
+      //Land[i,k].Passability:=[CanWalk, CanBuild, CanPlantTrees, CanMakeFields];
+      //Land[i,k].TileOwner:=play_none; //no roads
     end;
 closefile(f);
 RebuildLighting(1,MapX,1,MapY);
@@ -243,18 +246,19 @@ begin
     x0:=EnsureRange(k-1,1,MapX);
     y2:=EnsureRange(i+1,1,MapY);
     Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1)*(1-Overlap); //  1.33*16 ~=22
+    //Map borders fade to black
     if (i=1)or(i=MapY)or(k=1)or(k=MapX) then
       Land[i,k].Light:=-1+Overlap;
   end
 end;
 
-
+{Place markup on tile, any new markup replaces old one, thats okay}
 procedure TTerrain.SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
 begin
   Land[Loc.Y,Loc.X].Markup:=aMarkup;
 end;
 
-
+{Remove markup from tile}
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
@@ -283,6 +287,8 @@ begin
   if aFieldType=fdt_Wine  then Land[Loc.Y,Loc.X].Terrain:=55;
 end;
 
+{ Should find closest wine field around.
+Perhaps this could be merged with FindCorn? }
 function TTerrain.FindGrapes(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 var i,k:integer;
 begin
@@ -332,6 +338,8 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
 end;
 
 
+{Find suitable place for planting a tree.
+Prefer ex-trees locations}
 function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 var h,i,k,ci,ck:integer; List1,List2:array of TKMPoint; FoundExTree:boolean;
 begin
@@ -345,6 +353,8 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
 
         FoundExTree:=false;
 
+        //If there's an object, check if it is ex-tree
+        if Land[i,k].Obj<>255 then
         for h:=1 to length(ChopableTrees) do
           if Land[i,k].Obj=ChopableTrees[h,6] then
             FoundExTree:=true;
@@ -358,8 +368,8 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
             inc(ck);
           end;
 
-        if ci>=length(List1) then Assert(false,'Can''t make a list for tree placement');
-        if ck>=length(List2) then Assert(false,'Can''t make a list for tree placement');
+        Assert(ci<length(List1),'Can''t make a list for tree placement');
+        Assert(ck<length(List2),'Can''t make a list for tree placement');
 
       end;
 if ci<>0 then
@@ -381,6 +391,7 @@ begin
   Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
 end;
 
+{Take 4 neighbour heights and approach it}
 procedure TTerrain.FlattenTerrain(Loc:TKMPoint);
 var TempH:byte;
 begin
@@ -397,22 +408,24 @@ begin
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
 end;
 
+
 procedure TTerrain.AddTree(Loc:TKMPoint; ID:integer);
 begin
-Land[Loc.Y,Loc.X].Obj:=ID;
-Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability-[CanPlantTrees,CanBuild];
-Land[Loc.Y,Loc.X].TreeAge:=1;
+  Land[Loc.Y,Loc.X].Obj:=ID;
+  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability-[CanPlantTrees,CanBuild];
+  Land[Loc.Y,Loc.X].TreeAge:=1;
 end;
 
+{}
 procedure TTerrain.ChopTree(Loc:TKMPoint);
 var h:integer;
 begin
-for h:=1 to length(ChopableTrees) do
-  if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
-    Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
+  for h:=1 to length(ChopableTrees) do
+    if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
+      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
 
-Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability+[CanPlantTrees,CanBuild];
-Land[Loc.Y,Loc.X].TreeAge:=0;
+  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability+[CanPlantTrees,CanBuild];
+  Land[Loc.Y,Loc.X].TreeAge:=0;
 end;
 
 procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; bt:TBorderType);
@@ -442,11 +455,11 @@ begin
       if HousePlanYX[byte(aHouseType),i,k]<>0 then
         Land[Loc.Y+i-4,Loc.X+k-3].TileOwner:=aOwner;
     end;
-  if aHouseType=ht_None then begin
+  if aHouseType=ht_None then
     Land[Loc.Y,Loc.X].TileOwner:=aOwner;
-  end;
 end;
 
+{Check 4 surrounding tiles, and if they are different place a border}
 procedure TTerrain.UpdateBorders(Loc:TKMPoint);
   function GetBorder(a,b:TFieldType):TBorderType;
   begin
@@ -471,10 +484,11 @@ begin
 
 end;
 
+{Cursor position should be converted to tile-coords respecting tile heights}
 function TTerrain.ConvertCursorToMapCoord(inX,inY:single):single;
 var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
 begin
-  Xc:=EnsureRange(round(inX+0.5),1,MapX); //Cell below cursor
+  Xc:=EnsureRange(round(inX+0.5),1,MapX); //Cell below cursor without height check
   Yc:=EnsureRange(round(inY+0.5),1,MapY);
 
   for ii:=-2 to 4 do
@@ -492,16 +506,18 @@ begin
         Result:=Yc+ii-(Ycoef[ii+1]-InY) / (Ycoef[ii+1]-Ycoef[ii]);
         break;
       end;
+  //Assert(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
 end;
 
+{Return height within cell interpolating node heights}
 function TTerrain.InterpolateMapCoord(inX,inY:single):single;
 var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
-Xc:=trunc(inX);
-Yc:=trunc(inY);
-Tmp1:=fTerrain.Land[Yc,Xc].Height*(1-frac(InX))+fTerrain.Land[Yc,Xc+1].Height*frac(InX);
-Tmp2:=fTerrain.Land[Yc+1,Xc].Height*(1-frac(InX))+fTerrain.Land[Yc+1,Xc+1].Height*frac(InX);
-Result:=Tmp1*(1-frac(InY)) + Tmp2*frac(InY);
+  Xc:=trunc(inX);
+  Yc:=trunc(inY);
+  Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
+  Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
+  Result:=mix(Tmp2, Tmp1, frac(InY));
 end;
 
 end.

@@ -3,6 +3,7 @@ interface
 uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain, KM_Global_Data,
   KM_Defaults;
 
+  {Everything related to houses is here}
 type        
   TKMHouse = class;
 
@@ -52,7 +53,7 @@ type
     fBuildState:THouseBuildState;
     fOwnerID: TPlayerID;
 
-    fHasOwner: boolean;
+    fHasOwner: boolean; //which is some TKMUnit
     fOwnerAtHome: boolean;
 
     fOutputTypes:array[1..4]of TResourceType;

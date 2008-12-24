@@ -1,8 +1,6 @@
 unit KM_DeliverQueue;
 interface
-
-uses
-  windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
+uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
 
   type TJobStatus = (js_Open, js_Taken, js_Done);
 

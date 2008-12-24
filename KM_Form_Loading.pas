@@ -58,7 +58,6 @@ Screen.Cursor:=c_Default;
 //  if ExtractOpenedFileName(cmdline)='' then
 fTerrain.Create;
 fTerrain.MakeNewMap(96,96);
-fMiniMap.ReSize(fTerrain.MapX,fTerrain.MapY);
 fViewport.SetZoom(1);
 Form1.FormResize(nil);
 Form1.Caption:='KaM Editor - '+'New';

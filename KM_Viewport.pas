@@ -63,6 +63,7 @@ XCoord:=EnsureRange(NewX,1,fTerrain.MapX);
 YCoord:=EnsureRange(NewY,1,fTerrain.MapY);
 end;
 
+//Acquire boundaries of area visible to user
 function TViewport.GetClip():TRect;
 begin
 Result.Left  :=max(round(XCoord-ViewWidth/CellSize/2/Zoom),1);
@@ -99,12 +100,12 @@ bm.Width:=mmMiniMap.Width;
 bm.Height:=mmMiniMap.Height;
 for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
   ID:=fTerrain.Land[i,k].Terrain+1;
-  Light:=round(fTerrain.Land[i,k].Light*64);
+  Light:=round(fTerrain.Land[i,k].Light*64); //Originally it's -1..1 range
   Team:=byte(fTerrain.Land[i,k].TileOwner);
   if fTerrain.Land[i,k].TileOwner=play_none then
-    bm.Canvas.Pixels[k-1,i-1]:=EnsureRange(Light+TileMMColor[ID].R,0,255)+
-                               EnsureRange(Light+TileMMColor[ID].G,0,255)*256+
-                               EnsureRange(Light+TileMMColor[ID].B,0,255)*65536
+    bm.Canvas.Pixels[k-1,i-1]:=EnsureRange(TileMMColor[ID].R+Light,0,255)+
+                               EnsureRange(TileMMColor[ID].G+Light,0,255)*256+
+                               EnsureRange(TileMMColor[ID].B+Light,0,255)*65536
   else
     bm.Canvas.Pixels[k-1,i-1]:=TeamColors[Team,1]+
                                TeamColors[Team,2]*256+

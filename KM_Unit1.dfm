@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 184
-  Top = 112
+  Left = 190
+  Top = 105
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 659
@@ -25,7 +25,7 @@ object Form1: TForm1
   TextHeight = 13
   object Image3: TImage
     Left = 82
-    Top = 205
+    Top = 189
     Width = 19
     Height = 21
     AutoSize = True
@@ -76,7 +76,7 @@ object Form1: TForm1
   end
   object Image4: TImage
     Left = 6
-    Top = 210
+    Top = 194
     Width = 13
     Height = 14
     AutoSize = True
@@ -105,7 +105,7 @@ object Form1: TForm1
   end
   object Label1: TLabel
     Left = 105
-    Top = 210
+    Top = 194
     Width = 26
     Height = 13
     Caption = '100%'
@@ -113,7 +113,7 @@ object Form1: TForm1
   end
   object Pl1: TSpeedButton
     Left = 132
-    Top = 208
+    Top = 192
     Width = 22
     Height = 22
     GroupIndex = 100
@@ -126,7 +126,7 @@ object Form1: TForm1
   end
   object Pl4: TSpeedButton
     Left = 132
-    Top = 230
+    Top = 214
     Width = 22
     Height = 22
     GroupIndex = 100
@@ -136,7 +136,7 @@ object Form1: TForm1
   end
   object Pl5: TSpeedButton
     Left = 154
-    Top = 230
+    Top = 214
     Width = 22
     Height = 22
     GroupIndex = 100
@@ -146,7 +146,7 @@ object Form1: TForm1
   end
   object Pl2: TSpeedButton
     Left = 154
-    Top = 208
+    Top = 192
     Width = 22
     Height = 22
     GroupIndex = 100
@@ -156,7 +156,7 @@ object Form1: TForm1
   end
   object Pl3: TSpeedButton
     Left = 176
-    Top = 208
+    Top = 192
     Width = 22
     Height = 22
     GroupIndex = 100
@@ -166,7 +166,7 @@ object Form1: TForm1
   end
   object Pl6: TSpeedButton
     Left = 176
-    Top = 230
+    Top = 214
     Width = 22
     Height = 22
     GroupIndex = 100
@@ -174,9 +174,17 @@ object Form1: TForm1
     Flat = True
     OnClick = Pl1Click
   end
+  object Shape267: TShape
+    Left = 132
+    Top = 238
+    Width = 65
+    Height = 17
+    OnDragDrop = Shape267DragDrop
+    OnMouseUp = Shape267MouseUp
+  end
   object TBZoomControl: TTrackBar
     Left = 20
-    Top = 209
+    Top = 193
     Width = 61
     Height = 21
     Max = 7
@@ -1596,7 +1604,7 @@ object Form1: TForm1
       OnMouseMove = MiniMapMouseMove
       OnMouseUp = MiniMapMouseUp
     end
-    object Shape1: TShape
+    object ShapeFOV: TShape
       Left = 24
       Top = 24
       Width = 65
@@ -1622,7 +1630,7 @@ object Form1: TForm1
   end
   object Button1: TButton
     Left = 8
-    Top = 232
+    Top = 216
     Width = 97
     Height = 25
     Caption = 'Start SandBox'
@@ -1694,7 +1702,6 @@ object Form1: TForm1
       end
       object ExportDAT: TMenuItem
         Caption = 'Export DAT ...'
-        OnClick = ExportDATClick
       end
       object DecodeDAT: TMenuItem
         Caption = 'Decode DAT ...'

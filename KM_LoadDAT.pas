@@ -2,9 +2,9 @@ unit KM_LoadDAT;
 interface
 uses KM_Unit1, KM_Defaults, KromUtils, SysUtils, KM_TPlayer, Dialogs, Math;
 
+{Should be transformed to KM_Scripting?}
 procedure LoadDAT(filename:string);
 procedure AcquireDAT();
-procedure ExportText(filename:string);
 
 var
     Cmd:array[1..2000]of record
@@ -23,6 +23,8 @@ var FileSize:integer;
     st:string;         //Decoded file data
     i,k:integer;
     Row:integer;
+    f:file;
+    c:array[1..1024000] of char;
 begin
 FileSize:=GetFileSize(filename);
 assignfile(f,filename); reset(f,1);
@@ -144,23 +146,6 @@ end;
 end;
 
 Mission.ActivePlayer:=1;
-end;
-
-procedure ExportText(filename:string);
-var i:integer;
-begin
-assignfile(ft,filename); rewrite(ft);
-writeln(ft,'KaM Editor exported scripts for houses and roads');
-writeln(ft,'------------------------------------------------');
-writeln(ft);
-for i:=1 to 6 do begin
-writeln(ft,'Player #'+inttostr(i));
-writeln(ft,Mission.Player[i].GetAllHouseStrings);
-writeln(ft,Mission.GetAllRoadStrings(i));
-writeln(ft);
-writeln(ft);
-end;
-closefile(ft);
 end;
 
 end.

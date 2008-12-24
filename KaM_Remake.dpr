@@ -1,4 +1,4 @@
-program KM_Editor;
+program KaM_Remake;
 
 uses
   Forms,
@@ -19,7 +19,8 @@ uses
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
   KM_GamePlayInterface in 'KM_GamePlayInterface.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
-  KM_Controls in 'KM_Controls.pas';
+  KM_Controls in 'KM_Controls.pas',
+  ColorPicker in '..\ Common \ColorPicker.pas' {Form_ColorPicker};
 
 {$R *.RES}
 
@@ -29,5 +30,6 @@ begin
   Application.HelpFile := '';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);
+  Application.CreateForm(TForm_ColorPicker, Form_ColorPicker);
   Application.Run;
 end.

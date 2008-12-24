@@ -3,66 +3,71 @@ interface
 
 uses SysUtils, Windows;
 
+{This is custom logging system}
 type
 TKMLog = class
 private
-logfile:string;
-PreviousTick:cardinal;
-procedure AddLine(text:string);
-protected
+  fl:textfile;
+  logfile:string;
+  PreviousTick:cardinal;
+  procedure AddLine(text:string);
 public
-constructor Create(path:string);
-procedure AppendLog(text:string); overload;
-procedure AppendLog(text:string; num:integer); overload;
-procedure AppendLog(num:integer; text:string); overload;
-procedure AppendLog(text:string; res:boolean); overload;
+  constructor Create(path:string);
+  //Various kinds of entries
+  procedure AppendLog(text:string); overload;
+  procedure AppendLog(text:string; num:integer); overload;
+  procedure AppendLog(num:integer; text:string); overload;
+  procedure AppendLog(text:string; Res:boolean); overload;
 published
 end;
 
-var fl: textfile;
+
 
 implementation
 
+{Reset log file}
 constructor TKMLog.Create(path:string);
 begin
-logfile:=path;
-assignfile(fl,logfile);
-rewrite(fl);
-closefile(fl);
+  logfile:=path;
+  assignfile(fl,logfile);
+  rewrite(fl);
+  closefile(fl);
 end;
 
+{Lines are timestamped, each line invokes file open/close for writing,
+meaning no lines will be lost if Remake crashes}
 procedure TKMLog.AddLine(text:string);
 var Delta:cardinal;
 begin
-Delta:=GetTickCount - PreviousTick;
-PreviousTick:=GetTickCount;
-if Delta>100000 then Delta:=0; //ommit first usage
-assignfile(fl,logfile);
-append(fl);
-writeln(fl,inttostr(Delta)+'ms'+#9+text);
-closefile(fl);
+  Delta:=GetTickCount - PreviousTick;
+  PreviousTick:=GetTickCount;
+  if Delta>100000 then Delta:=0; //ommit first usage
+  assignfile(fl,logfile);
+  append(fl);
+  writeln(fl,inttostr(Delta)+'ms'+#9+text);
+  closefile(fl);
 end;
 
 procedure TKMLog.AppendLog(text:string);
 begin
-AddLine(text);
+  AddLine(text);
 end;
 
 procedure TKMLog.AppendLog(text:string; num:integer);
 begin
-AddLine(text+' '+inttostr(num));
+  AddLine(text+' '+inttostr(num));
 end;
 
 procedure TKMLog.AppendLog(num:integer; text:string);
 begin
-AddLine(inttostr(num)+' '+text);
+  AddLine(inttostr(num)+' '+text);
 end;
 
-procedure TKMLog.AppendLog(text:string; res:boolean);
+procedure TKMLog.AppendLog(text:string; Res:boolean);
 var s:string;
 begin
-if res then s:='done' else s:='fail';
-AddLine(text+' ... '+s);
+  if Res then s:='done' else s:='fail';
+  AddLine(text+' ... '+s);
 end;
 
 end.

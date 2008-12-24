@@ -5,7 +5,8 @@ uses
   StdCtrls, FileCtrl, ExtCtrls, KromUtils, OpenGL,
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Render, KM_RenderUI, KM_ReadGFX1,
   ImgList, KM_Form_Loading, math, Grids, KM_Tplayer, KM_Terrain, KM_Global_Data,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, JPEG, KM_GamePlayInterface, KM_Controls;
+  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, JPEG, KM_GamePlayInterface, KM_Controls,
+  ColorPicker;
 
 type
   TForm1 = class(TForm)
@@ -50,7 +51,7 @@ type
     StatusBar1: TStatusBar;
     Panel2: TPanel;
     MiniMap: TImage;
-    Shape1: TShape;
+    ShapeFOV: TShape;
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     OpenMapMenu: TMenuItem;
@@ -104,6 +105,7 @@ type
     IL_ResourceIcons: TImageList;
     Image2: TImage;
     Image5: TImage;
+    Shape267: TShape;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -127,7 +129,6 @@ type
     procedure ShowWiresClick(Sender: TObject);
     procedure ShowObjectsClick(Sender: TObject);
     procedure ShowFlatTerrainClick(Sender: TObject);
-    procedure ExportDATClick(Sender: TObject);
     procedure Timer100msTimer(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure PrintScreen1Click(Sender: TObject);
@@ -137,6 +138,9 @@ type
     procedure ExportUnitsRXClick(Sender: TObject);
     procedure Timer1secTimer(Sender: TObject);
     procedure ExportGUIMainRXClick(Sender: TObject);
+    procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -187,7 +191,7 @@ begin
   fControls:= TKMControlsCollection.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
-  fMiniMap:= TMiniMap.Create(Shape1,MiniMap,Label1);
+  fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   Application.OnIdle:=Form1.OnIdle;
 end;
 
@@ -215,7 +219,7 @@ begin
 end;
 
 procedure TForm1.DecodeDATClick(Sender: TObject);
-var ii,fsize:integer;
+var ii,fsize:integer; f:file; c:array[1..65536] of char;
 begin
 if not OpenDialog1.Execute then exit;
 fsize:=GetFileSize(OpenDialog1.FileName);
@@ -262,8 +266,8 @@ begin
   end;
   Panel1MouseMove(Panel5,Shift,X,Y);
 
-  P.X:= MapXc;
-  P.Y:= MapYc;
+  P.X:= CursorXc;
+  P.Y:= CursorYc;
 
   //example for units need change
   if Button = mbRight then
@@ -282,30 +286,30 @@ procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integ
 begin
   if (X>0)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
   else exit;
-MapX:=fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom;
-MapY:=fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom;
+CursorX:=fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom;
+CursorY:=fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom;
 
-MapY:=fTerrain.ConvertCursorToMapCoord(MapX,MapY);
+CursorY:=fTerrain.ConvertCursorToMapCoord(CursorX,CursorY);
 
-MapXc:=EnsureRange(round(MapX+0.5),1,fTerrain.MapX); //Cell below cursor
-MapYc:=EnsureRange(round(MapY+0.5),1,fTerrain.MapY);
-MapXn:=EnsureRange(round(MapX+1),1,fTerrain.MapX); //Node below cursor
-MapYn:=EnsureRange(round(MapY+1),1,fTerrain.MapY);
+CursorXc:=EnsureRange(round(CursorX+0.5),1,fTerrain.MapX); //Cell below cursor
+CursorYc:=EnsureRange(round(CursorY+0.5),1,fTerrain.MapY);
+CursorXn:=EnsureRange(round(CursorX+1),1,fTerrain.MapX); //Node below cursor
+CursorYn:=EnsureRange(round(CursorY+1),1,fTerrain.MapY);
 
-StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(MapX*10)/10)+' '+floattostr(round(MapY*10)/10)
-+' | '+inttostr(MapXc)+' '+inttostr(MapYc);
+StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '+floattostr(round(CursorY*10)/10)
++' | '+inttostr(CursorXc)+' '+inttostr(CursorYc);
 
 if CursorMode=cm_None then
-if (ControlList.HousesHitTest(MapXc, MapYc)<>nil)or
-   (ControlList.UnitsHitTest(MapXc, MapYc)<>nil) then
+if (ControlList.HousesHitTest(CursorXc, CursorYc)<>nil)or
+   (ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil) then
   Screen.Cursor:=c_Info
 else
   Screen.Cursor:=c_Default;
 
 if not MousePressed then exit;
 
-MapXn2:=MapXn; MapYn2:=MapYn;
-MapXc2:=MapXc; MapYc2:=MapYc;
+CursorXn2:=CursorXn; CursorYn2:=CursorYn;
+CursorXc2:=CursorXc; CursorYc2:=CursorYc;
 end;
 
 procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -313,14 +317,14 @@ procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TSh
     P:TKMPoint;
 begin
   MousePressed:=false;
-  P.X:=MapXc;
-  P.Y:=MapYc;
+  P.X:=CursorXc;
+  P.Y:=CursorYc;
 
   case CursorMode of
     cm_None:
       begin
-        if ControlList.HousesHitTest(MapXc, MapYc)<>nil then
-          ShowHouseInfo(ControlList.HousesHitTest(MapXc, MapYc));
+        if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then
+          ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc));
       end;
     cm_Roads:
       begin
@@ -330,7 +334,7 @@ begin
       end;
     cm_Erase:
       begin
-        Mission.RemRoad(MapXc,MapYc);
+        Mission.RemRoad(CursorXc,CursorYc);
         ControlList.RemHouse(P);
       end;
     cm_Houses:
@@ -438,18 +442,6 @@ LoadDAT(OpenDialog1.FileName);
 ExportDAT.Enabled:=true;
 end;
 
-procedure TForm1.ExportDATClick(Sender: TObject);
-begin
-  if Mission=nil then
-  begin
-ExportDAT.Enabled:=false;
-    exit;
-  end;
-  if not RunSaveDialog(SaveDialog1,'Mission.txt','','Mission text (*.txt)|*.txt') then
-    exit;
-ExportText(SaveDialog1.FileName);
-end;
-
 procedure TForm1.Button1Click(Sender: TObject);
 var ii,kk:integer;
 begin
@@ -537,6 +529,17 @@ procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP(5); en
 procedure TForm1.Timer1secTimer(Sender: TObject);
 begin
 fMiniMap.Repaint; //No need to repaint it more often
+end;
+
+procedure TForm1.Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  DefineInputColor((Sender as TShape).Brush.Color,Sender);
+end;
+
+procedure TForm1.Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
+begin
+  Color2RGB(Shape267.Brush.Color,TeamColors[3,1],TeamColors[3,2],TeamColors[3,3]);
+  fRender.Render;
 end;
 
 end.

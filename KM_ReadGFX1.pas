@@ -74,12 +74,13 @@ end;
 //Reading pallete for trees/objects
 //=============================================
 function ReadPallete(filename:string):boolean;
+var f:file;
 begin
 Result:=false;
 if not CheckFileExists(filename) then exit;
   assignfile(f,filename);
   reset(f,1);
-  blockread(f,c,48);
+  blockread(f,Pal0,48); //Unknown and/or unimportant 
   blockread(f,Pal0,768); //256*3
   closefile(f);
 Result:=true;
@@ -90,7 +91,7 @@ end;
 //Reading map elements (has animation data)
 //=============================================
 function ReadMapElem(filename:string):boolean;
-var ii,kk:integer;
+var ii,kk:integer; ft:textfile; f:file;
 begin
   Result:=false;
   if not CheckFileExists(filename) then exit;
@@ -124,7 +125,7 @@ end;
 //Reading houses.dat data
 //=============================================
 function ReadHouseDAT(filename:string):boolean;
-var ii,kk:integer;
+var ii,kk:integer; ft:textfile; f:file;
 begin
 Result:=false;
 if not CheckFileExists(filename) then exit;
@@ -162,7 +163,7 @@ end;
 //Reading unit.dat data
 //=============================================
 function ReadUnitDAT(filename:string):boolean;
-var ii,kk,jj,hh:integer;
+var ii,kk,jj,hh:integer; ft:textfile; f:file;
 begin
 Result:=false;
 if not CheckFileExists(filename) then exit;
@@ -209,7 +210,7 @@ end;
 //Reading RX Data
 //=============================================
 function ReadRX(filename:string; ID:integer):boolean;
-  var i:integer;
+  var i:integer; f:file;
 begin
   Result:=false;
   if not CheckFileExists(filename) then exit;
@@ -310,6 +311,9 @@ end;
 //=============================================
 //Making OpenGL textures
 //=============================================
+{Take RX data and make nice textures out of it.
+Textures should be POT to improve performance and avoid drivers bugs
+In result we have GFXData filled.}
 procedure MakeGFX(Sender: TObject; RXid:integer);
 var
   ci,ad,j,i,k,id,TexCount:integer;
@@ -324,6 +328,8 @@ repeat
   HeightPOT:=MakePOT(RXData[RXid].Size[id,2]);
   ad:=1;
 
+  //Pack textures with same POT height into rows to save memory
+  //This also means fewer textures for GPU RAM == better performance
   while((id+ad<RXData[RXid].Qty)and
         (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2]))and
         (WidthPOT+RXData[RXid].Size[id+ad,1]<=1024)) do begin
@@ -347,11 +353,13 @@ repeat
       end;
   end;
 
+  //If we need to prepare textures for TeamColors
   if RXData[RXid].NeedTeamColors then
     GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],'Norm')
   else
     GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],'NoCol');
 
+  //TeamColors are done through alternative plain colored texture
   if MakeTeamColors and RXData[RXid].NeedTeamColors then
   for i:=0 to length(TD)-1 do
     if TD[i] in [24..30] then begin
@@ -392,6 +400,7 @@ end;
 //=============================================
 //Export RX to Bitmaps
 //=============================================
+{That is when we want to export RX to Bitmaps without need to have GraphicsEditor, alos this way we preserve image indexes}
 procedure ExportRX2BMP(RXid:integer);
 var MyBitMap:TBitMap;
     id,t:integer;
@@ -420,9 +429,10 @@ begin
   end;
 end;
 
-
+{Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
+thus it's better to spend few ms and generate minimap colors from actual data}
 function MakeMiniMapColors(filename:string):boolean;
-var ii,kk,h,j:integer; c:array of byte; R,G,B:integer;
+var ii,kk,h,j:integer; c:array of byte; R,G,B:integer; f:file;
 begin
 Result:=false;
 assignfile(f,ExeDir+'Resource\Tiles512.tga');
@@ -437,22 +447,23 @@ for ii:=0 to 15 do for kk:=0 to 15 do begin
 
   R:=0; G:=0; B:=0;
 
-  for j:=0 to 15 do
-  for h:=0 to 15 do begin
-    inc(B, c[((ii+j)*512+kk*16+h)*4+1]);
-    inc(G, c[((ii+j)*512+kk*16+h)*4+2]);
-    inc(R, c[((ii+j)*512+kk*16+h)*4+3]);
+  for j:=0 to 31 do
+  for h:=0 to 31 do begin
+    inc(B, c[((ii+j)*512+kk*32+h)*4+1]);
+    inc(G, c[((ii+j)*512+kk*32+h)*4+2]);
+    inc(R, c[((ii+j)*512+kk*32+h)*4+3]);
   end;
 
-  TileMMColor[ii*16+kk+1].R:=round (R / 256);
-  TileMMColor[ii*16+kk+1].G:=round (G / 256);
-  TileMMColor[ii*16+kk+1].B:=round (B / 256);
+  TileMMColor[ii*16+kk+1].R:=round (R / 1024); //each tile is 32x32 px
+  TileMMColor[ii*16+kk+1].G:=round (G / 1024);
+  TileMMColor[ii*16+kk+1].B:=round (B / 1024);
 
 end;
 
 setlength(c,0);
 Result:=true;
 end;
+
 
 function MakeCursors(RXid:integer):boolean;
 var
@@ -491,6 +502,7 @@ begin
   Screen.Cursor:=c_Default;
 end;
 
+
 function MakeResourceIcons(RXid:integer):boolean;
 var
   i,sx,sy,x,y,t:integer;
@@ -523,11 +535,11 @@ begin
 end;
 
 
-
 function ReadFont(filename:string; aFont:TKMFont):boolean;
 const
   TexWidth=256; //Connected to TexData, don't change
 var
+  f:file;
   t:byte;
   a,b,c,d:word;
   i,ci,ck:integer;
@@ -557,7 +569,7 @@ for i:=0 to 255 do
 closefile(f);
 
 //Compile texture
-ci:=0; ck:=0; AdvX:=0; AdvY:=0;
+AdvX:=0; AdvY:=0;
 setlength(TD,256*256+1);
 
 for i:=0 to 255 do
