@@ -58,6 +58,7 @@ type
   end;
   constructor Create();
   procedure AddNewRoadToBuild(aLoc:TKMPoint; aFieldType:TFieldType);
+  function RemRoadToBuild(aLoc:TKMPoint):boolean;
   procedure AddNewHouseToBuild(aLoc:TKMPoint; aHouseType: THouseType);
   procedure CloseHouseToBuild(aID:integer);
   function  AskForHouseToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
@@ -230,6 +231,19 @@ fFieldsQueue[i].Loc:=aLoc;
 fFieldsQueue[i].FieldType:=aFieldType;
 fFieldsQueue[i].Importance:=1;
 fFieldsQueue[i].JobStatus:=js_Open;
+end;
+
+function TKMBuildingQueue.RemRoadToBuild(aLoc:TKMPoint):boolean;
+var i:integer;
+begin
+Result:=false;
+for i:=1 to length(fFieldsQueue) do
+  with fFieldsQueue[i] do
+  if (JobStatus<>js_Taken)and(Loc.X=aLoc.X)and(Loc.Y=aLoc.Y) then begin
+    CloseRoadToBuild(i);
+    Result:=true;
+    break;
+  end;
 end;
 
 procedure TKMBuildingQueue.AddNewHouseToBuild(aLoc:TKMPoint; aHouseType: THouseType);

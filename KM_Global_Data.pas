@@ -1,9 +1,6 @@
 unit KM_Global_Data;
-
 interface
-
-uses
-  KM_Terrain, windows, dglOpenGL, KM_Defaults, KM_Tplayer, KM_Render, KM_RenderUI, KM_Viewport, KM_Log, KM_Controls;
+uses KM_Terrain, windows, dglOpenGL, KM_Defaults, KM_Tplayer, KM_Render, KM_RenderUI, KM_Viewport, KM_Log, KM_Controls;
 
 const
   CellSize=40;          //Single cell size in pixels (width)

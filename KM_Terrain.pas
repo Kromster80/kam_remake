@@ -52,6 +52,9 @@ public
 
   MapX,MapY:integer; //Terrain width and height
 
+  CursorMode:cmCursorMode; //Cursor that is rendered on tiles
+  CursorPos:TKMPoint;
+
   constructor Create;
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
@@ -82,6 +85,7 @@ public
   procedure UpdateBorders(Loc:TKMPoint);
 public
   procedure UpdateState;
+  procedure UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
   procedure Paint;
 published
 
@@ -144,6 +148,12 @@ for i:=1 to MapY do
   end;
 end;
 
+procedure TTerrain.UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
+begin
+  CursorMode:=aCursor;
+  CursorPos:=Loc;
+end;
+
 procedure TTerrain.Paint;
 var i,k:integer; x1,x2,y1,y2:integer;
 begin
@@ -170,6 +180,11 @@ for i:=y1 to y2 do for k:=x1 to x2 do
       fRender.RenderObjectSpecial(Land[i,k].FieldSpecial,AnimStep,k,i);
 
   end;
+
+case CursorMode of
+  cm_None:;
+  cm_Erase: fRender.RenderWireQuad(CursorPos, 255);
+end;
 end;
 
 //Reset whole map with default values

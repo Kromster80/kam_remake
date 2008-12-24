@@ -49,6 +49,7 @@ type
     procedure AddHousePlan(aLoc: TKMPoint; aHouseType: THouseType; aOwner: TPlayerID);
     procedure RemUnit(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint);
+    procedure RemPlan(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
@@ -99,10 +100,10 @@ procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
 begin
   fTerrain.SetMarkup(aLoc, aMarkup);
   case aMarkup of
-  mu_RoadPlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Road);
-  mu_FieldPlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Field);
-  mu_WinePlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Wine);
-  else Assert(false,'Wrong markup');
+    mu_RoadPlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Road);
+    mu_FieldPlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Field);
+    mu_WinePlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Wine);
+    else Assert(false,'Wrong markup');
   end;
 end;
 
@@ -125,6 +126,12 @@ end;
 procedure TKMUserControlList.RemHouse(Position: TKMPoint);
 begin
   fHouses.Rem(Position.X, Position.Y);
+end;
+
+procedure TKMUserControlList.RemPlan(Position: TKMPoint);
+begin
+  if BuildList.RemRoadToBuild(Position) then
+    fTerrain.RemMarkup(Position);
 end;
 
 function TKMUserControlList.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;

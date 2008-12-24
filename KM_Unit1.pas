@@ -300,11 +300,13 @@ StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '
 +' | '+inttostr(CursorXc)+' '+inttostr(CursorYc);
 
 if CursorMode=cm_None then
-if (ControlList.HousesHitTest(CursorXc, CursorYc)<>nil)or
-   (ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil) then
-  Screen.Cursor:=c_Info
-else
-  Screen.Cursor:=c_Default;
+  if (ControlList.HousesHitTest(CursorXc, CursorYc)<>nil)or
+     (ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil) then
+    Screen.Cursor:=c_Info
+  else
+    Screen.Cursor:=c_Default;
+
+fTerrain.UpdateCursor(CursorMode,KMPoint(CursorXc,CursorYc));
 
 if not MousePressed then exit;
 
@@ -334,7 +336,7 @@ begin
       end;
     cm_Erase:
       begin
-        Mission.RemRoad(CursorXc,CursorYc);
+        ControlList.RemPlan(P);
         ControlList.RemHouse(P);
       end;
     cm_Houses:
@@ -445,6 +447,7 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var ii,kk:integer;
 begin
+Button1.Enabled:=false;
 fViewPort.XCoord:=11;
 fViewPort.YCoord:=11;
 ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));

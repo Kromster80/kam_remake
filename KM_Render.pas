@@ -9,7 +9,6 @@ private
   h_RC: HGLRC;
   TextG,Text512:GLuint;
   procedure RenderQuad(pX,pY:integer);
-  procedure RenderWireQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderDot(pX,pY:single);
   procedure RenderSprite(RX,ID:integer; pX,pY:single; const Color:integer=$FF);
@@ -23,6 +22,7 @@ public
   procedure Render();
   procedure RenderTerrainAndFields(x1,x2,y1,y2:integer);
   procedure RenderWires();
+  procedure RenderWireQuad(P:TKMPoint; Col:cardinal);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
   procedure RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
   procedure RenderMarkup(Index:integer; pX,pY:integer);
@@ -292,14 +292,15 @@ glEnd;
 end;
 
 
-procedure TRender.RenderWireQuad(pX,pY:integer);
+procedure TRender.RenderWireQuad(P:TKMPoint; Col:cardinal);
 begin
+  glColor3ubv(@Col);
   glbegin (GL_LINE_LOOP);
   with fTerrain do begin
-    glvertex2f(pX-1,pY-1-Land[pY  ,pX  ].Height/xh);
-    glvertex2f(pX  ,pY-1-Land[pY  ,pX+1].Height/xh);
-    glvertex2f(pX  ,pY-  Land[pY+1,pX+1].Height/xh);
-    glvertex2f(pX-1,pY-  Land[pY+1,pX  ].Height/xh);
+    glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/xh);
+    glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/xh);
+    glvertex2f(p.X  ,p.Y-  Land[p.Y+1,p.X+1].Height/xh);
+    glvertex2f(p.X-1,p.Y-  Land[p.Y+1,p.X  ].Height/xh);
   end;
   glEnd;
 end;

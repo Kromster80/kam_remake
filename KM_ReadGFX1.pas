@@ -5,6 +5,7 @@ uses OpenGL, Windows, Forms, Controls, KM_Defaults;
 type
   TByteArray2 = array of Byte;
   TWordArray2 = array of Word;
+  TexMode = (tm_NoCol, tm_TexID, tm_AltID);
 
     function ReadGFX(text: string):boolean;
 
@@ -30,43 +31,37 @@ uses KromUtils, KM_Unit1, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math, d
      KM_Global_Data, KM_Log;
 
 function ReadGFX(text: string):boolean;
-var i:integer;
-  procedure StepRefresh();
-    begin
-      FormLoading.Bar1.StepIt; FormLoading.Refresh;
-    end;
+var i:integer; procedure StepRefresh(); begin FormLoading.Bar1.StepIt; FormLoading.Refresh; end;
 begin
-fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm'));           StepRefresh();
-fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
-fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
-fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
+  fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm'));           StepRefresh();
+  fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
+  fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
+  fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
 
-fLog.AppendLog('Reading game.fnt',ReadFont(text+'data\gfx\fonts\game.fnt',fnt_Game));       StepRefresh();
-                                
-RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
-RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
-RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
-RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=false;
-RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
+  fLog.AppendLog('Reading game.fnt',ReadFont(text+'data\gfx\fonts\game.fnt',fnt_Game));       StepRefresh();
 
-for i:=1 to 5 do begin
-  fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
+  RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
+  RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
+  RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
+  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=false;
+  RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
 
-  if RXData[i].Title='GUI' then begin
-    MakeCursors(i);
-    MakeResourceIcons(i);
+  for i:=1 to 5 do begin
+    fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
+
+    if RXData[i].Title='GUI' then begin
+      MakeCursors(i);
+      MakeResourceIcons(i);
+    end;
+
+    MakeGFX(nil,i);
+    StepRefresh();
   end;
-  
-  MakeGFX(nil,i);
-  StepRefresh();
-end;
 
-fLog.AppendLog('Preparing MiniMap colors',MakeMiniMapColors('')); StepRefresh();
+  fLog.AppendLog('Preparing MiniMap colors',MakeMiniMapColors('')); StepRefresh();
+  fLog.AppendLog('ReadGFX is done');
 
-
-fLog.AppendLog('ReadGFX is done');
-
-Result:=true;
+  Result:=true;
 end;
 
 
@@ -206,6 +201,7 @@ closefile(ft);
 Result:=true;
 end;
 
+
 //=============================================
 //Reading RX Data
 //=============================================
@@ -237,7 +233,7 @@ end;
 //=============================================
 //Make texture
 //=============================================
-procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:string);
+procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode);
 var
   i,k:integer;
   x:byte;
@@ -250,6 +246,7 @@ begin
 DestX:=MakePOT(mx);
 DestY:=MakePOT(my);
 
+//Convert palette bitmap data to 32bit RGBA texture data
 TD:=AllocMem(DestX*DestY*4); //same as GetMem+FillChar(0)
 for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
   if (i<my)and(k<mx) then begin
@@ -257,29 +254,25 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
     if (x<>0) then begin
       by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
 
-      if Mode='Norm' then
+      if Mode=tm_NoCol then
+          col:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000
+      else
+
+      if Mode=tm_TexID then
         if x in [24..30] then
           col:=((x-27)*42+128)*65793 OR $FF000000 //convert to greyscale B>>>>>W
         else
           col:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000
       else
 
-      if Mode='NoCol' then
-          col:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000
-      else
-
-      if Mode='AltID' then
+      if Mode=tm_AltID then
         case x of
-          24,30: col:=$68FFFFFF;   //7
-          25,29: col:=$98FFFFFF;   //11
+          24,30: col:=$70FFFFFF;   //7
+          25,29: col:=$B0FFFFFF;   //11
           26,28: col:=$E0FFFFFF;   //14
-          27: col:=$FFFFFFFF;      //16
-        else
-          col:=0;
-        end
-
-      else
-        Assert(false,'Team color generation error');
+          27:    col:=$FFFFFFFF;   //16
+          else   col:=0;
+        end;
 
       by^:=col;
     end;
@@ -293,16 +286,11 @@ glBindTexture(GL_TEXTURE_2D, id^);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  if Mode='Norm' then
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD)
-  else
-  if Mode='NoCol' then
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD)
-  else
-  if Mode='AltID' then
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD)
-  else
-    Assert(false,'Team color generation error');
+  case Mode of
+  tm_NoCol: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+  tm_TexID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+  tm_AltID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+  end;
 end;
 FreeMem(TD);
 end;
@@ -355,15 +343,15 @@ repeat
 
   //If we need to prepare textures for TeamColors
   if RXData[RXid].NeedTeamColors then
-    GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],'Norm')
+    GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_TexID)
   else
-    GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],'NoCol');
+    GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol);
 
   //TeamColors are done through alternative plain colored texture
   if MakeTeamColors and RXData[RXid].NeedTeamColors then
   for i:=0 to length(TD)-1 do
     if TD[i] in [24..30] then begin
-      GenTexture(@GFXData[RXid,id].AltID,WidthPOT,HeightPOT,@TD[0],'AltID');
+      GenTexture(@GFXData[RXid,id].AltID,WidthPOT,HeightPOT,@TD[0],tm_AltID);
       inc(Cm,WidthPOT*HeightPOT*4);
       break;
     end;
@@ -400,7 +388,7 @@ end;
 //=============================================
 //Export RX to Bitmaps
 //=============================================
-{That is when we want to export RX to Bitmaps without need to have GraphicsEditor, alos this way we preserve image indexes}
+{That is when we want to export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes}
 procedure ExportRX2BMP(RXid:integer);
 var MyBitMap:TBitMap;
     id,t:integer;
@@ -591,8 +579,7 @@ for i:=0 to 255 do
       inc(AdvX,1+Width+1);
     end;
 
-  GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],'Norm');
-
+  GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],tm_TexID);
 
 MyBitMap:=TBitMap.Create;
 MyBitmap.PixelFormat:=pf24bit;
