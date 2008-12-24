@@ -1,6 +1,6 @@
 unit KM_Render;
 interface
-uses windows, sysutils, Forms, OpenGL, dglOpenGL, KromOGLUtils, KromUtils, math, ExtCtrls, TGATexture, KM_Defaults;
+uses windows, sysutils, Forms, OpenGL, dglOpenGL, KromOGLUtils, KromUtils, math, ExtCtrls, KM_TGATexture, KM_Defaults;
 
 type
 TRender = class
@@ -79,8 +79,8 @@ begin
   glDisable(GL_LIGHTING);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
-  LoadTexture(ExeDir+'Resource\gradient.tga', TextG);    // Load the Textures
-  LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512);    // Load the Textures
+  LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);    // Load the Textures
+  LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512,0);    // Load the Textures
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glPolygonMode(GL_FRONT,GL_FILL);
   BuildFont(h_DC,16);
@@ -148,10 +148,10 @@ glbegin (GL_QUADS);
         ax:=((xt div 64) mod 2) /2;
         ay:=(xt div 128) /2;
 
-        TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=1-(xt mod 64 div 8  )/16+ay-Overlap;
-        TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=1-(xt mod 64 div 8+1)/16+ay+Overlap;
-        TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=1-(xt mod 64 div 8+1)/16+ay+Overlap;
-        TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=1-(xt mod 64 div 8  )/16+ay-Overlap;
+        TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=(xt mod 64 div 8  )/16+ay-Overlap;
+        TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay+Overlap;
+        TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay+Overlap;
+        TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay-Overlap;
         TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
         if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
@@ -199,12 +199,12 @@ glbegin (GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     begin
-      glTexCoord2f(0,max(0,Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
-      glTexCoord2f(0,max(0,Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
-      glTexCoord2f(0,max(0,Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
-      glTexCoord2f(0,max(0,Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
+      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
+      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
+      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
     end;
-  glEnd;
+  glEnd;                  
 
   glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, TextG);
@@ -212,10 +212,10 @@ glbegin (GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     begin
-    glTexCoord2f(0,max(0,-Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
-    glTexCoord2f(0,max(0,-Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
-    glTexCoord2f(0,max(0,-Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
-    glTexCoord2f(0,max(0,-Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+    glTexCoord1f(max(0,-Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
+    glTexCoord1f(max(0,-Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
+    glTexCoord1f(max(0,-Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
+    glTexCoord1f(max(0,-Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
     end;
   glEnd;
 
@@ -372,10 +372,10 @@ xt:=Index-1;
 ax:=((xt div 64) mod 2) /2;
 ay:=(xt div 128) /2;
 
-TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=1-(xt mod 64 div 8  )/16+ay-Overlap;
-TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=1-(xt mod 64 div 8+1)/16+ay+Overlap;
-TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=1-(xt mod 64 div 8+1)/16+ay+Overlap;
-TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=1-(xt mod 64 div 8  )/16+ay-Overlap;
+TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=(xt mod 64 div 8  )/16+ay-Overlap;
+TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay+Overlap;
+TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay+Overlap;
+TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay-Overlap;
 TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
 if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1

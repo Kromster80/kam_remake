@@ -305,7 +305,7 @@ RoadsConnectivity:array [0..15,1..2]of byte = (
 
 
 //Render scale
-ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.25,1.5,2);
+ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 
 var
 //Players colors, is not a true constant

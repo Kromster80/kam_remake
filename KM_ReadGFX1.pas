@@ -332,7 +332,7 @@ repeat
   //This also means fewer textures for GPU RAM == better performance
   while((id+ad<RXData[RXid].Qty)and
         (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2]))and
-        (WidthPOT+RXData[RXid].Size[id+ad,1]<=1024)) do begin
+        (WidthPOT+RXData[RXid].Size[id+ad,1]<=MaxTexRes)) do begin
     inc(WidthPOT,RXData[RXid].Size[id+ad,1]);    
     inc(ad);
   end;
