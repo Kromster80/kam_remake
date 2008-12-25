@@ -23,6 +23,9 @@ type
 function KMPoint(X, Y: Integer): TKMPoint;
 function KMPointY1(P:TKMPoint): TKMPoint; overload
 function KMPointY1(P:TKMPointF): TKMPoint; overload
+
+function KMPointRound(P:TKMPointf): TKMPoint;
+
 function ElapsedTime(i1: pcardinal): string;
 function ExtractOpenedFileName(in_s: string):string;
 function GetFileExt (const FileName: string; len:integer=3): string;
@@ -159,6 +162,12 @@ function KMPointY1(P:TKMPointF): TKMPoint; overload
 begin
   Result.X := round(P.X);
   Result.Y := round(P.Y)+1;
+end;
+
+function KMPointRound(P:TKMPointf): TKMPoint;
+begin
+  Result.X := round(P.X);
+  Result.Y := round(P.Y);
 end;
 
 function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
