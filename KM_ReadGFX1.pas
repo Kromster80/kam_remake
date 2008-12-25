@@ -21,7 +21,7 @@ type
 
     procedure ExportRX2BMP(RXid:integer);
 
-    function MakeMiniMapColors(filename:string):boolean;
+    procedure MakeMiniMapColors();
     function MakeCursors(RXid:integer):boolean;
     function MakeResourceIcons(RXid:integer):boolean;
 
@@ -58,7 +58,7 @@ begin
     StepRefresh();
   end;
 
-  fLog.AppendLog('Preparing MiniMap colors',MakeMiniMapColors('')); StepRefresh();
+  fLog.AppendLog('Preparing MiniMap colors...'); MakeMiniMapColors(); StepRefresh();
   fLog.AppendLog('ReadGFX is done');
 
   Result:=true;
@@ -419,10 +419,9 @@ end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
-function MakeMiniMapColors(filename:string):boolean;
-var ii,kk,h,j:integer; c:array of byte; R,G,B:integer; f:file;
+procedure MakeMiniMapColors();
+var ii,kk,h,j,px:integer; c:array of byte; R,G,B:integer; f:file;
 begin
-Result:=false;
 assignfile(f,ExeDir+'Resource\Tiles512.tga');
 FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
@@ -435,21 +434,23 @@ for ii:=0 to 15 do for kk:=0 to 15 do begin
 
   R:=0; G:=0; B:=0;
 
-  for j:=0 to 31 do
-  for h:=0 to 31 do begin
-    inc(B, c[((ii+j)*512+kk*32+h)*4+1]);
-    inc(G, c[((ii+j)*512+kk*32+h)*4+2]);
-    inc(R, c[((ii+j)*512+kk*32+h)*4+3]);
+  for j:=0 to 31 do for h:=0 to 31 do begin
+    px:=((511-(ii*32+j))*512+kk*32+h)*4; //TGA comes flipped upside down
+    inc(B, c[px+1]);
+    inc(G, c[px+2]);
+    inc(R, c[px+3]);
   end;
 
-  TileMMColor[ii*16+kk+1].R:=round (R / 1024); //each tile is 32x32 px
-  TileMMColor[ii*16+kk+1].G:=round (G / 1024);
-  TileMMColor[ii*16+kk+1].B:=round (B / 1024);
+  if (kk<8)and(ii<8) then px:=ii*8+kk+1;
+  if (kk>7)and(ii<8) then px:=ii*8+(kk-8)+64+1;
+  if (kk<8)and(ii>7) then px:=(ii-8)*8+kk+128+1;
+  if (kk>7)and(ii>7) then px:=(ii-8)*8+(kk-8)+192+1;
+
+  TileMMColor[px].R:=round (R / 1024); //each tile is 32x32 px
+  TileMMColor[px].G:=round (G / 1024);
+  TileMMColor[px].B:=round (B / 1024);
 
 end;
-
-setlength(c,0);
-Result:=true;
 end;
 
 

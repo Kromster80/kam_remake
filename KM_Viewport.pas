@@ -32,7 +32,7 @@ protected
 public
   constructor Create(inShape:TShape; inMiniMap:TImage; inLabel:TLabel); //Provide three key elements
   procedure SetRect(Viewport:TViewport); //Update view area position and size, use TViewport info
-  procedure ReSize(X,Y:integer);
+  procedure ReSize(X,Y:word);
   procedure Repaint(); //Repaint minimap
 published
 end;
@@ -95,19 +95,21 @@ end;
 procedure TMiniMap.Repaint();
 var i,k:integer; bm:TBitmap; ID,Light,Team:integer; Loc:TKMPointList;
 begin
-bm:=TBitmap.Create;
-bm.Width:=mmMiniMap.Width;
-bm.Height:=mmMiniMap.Height;
-for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
-  ID:=fTerrain.Land[i,k].Terrain+1;
-  Light:=round(fTerrain.Land[i,k].Light*64); //Originally it's -1..1 range
-  Team:=byte(fTerrain.Land[i,k].TileOwner);
-  if fTerrain.Land[i,k].TileOwner=play_none then
-    bm.Canvas.Pixels[k-1,i-1]:=EnsureRange(TileMMColor[ID].R+Light,0,255)+
-                               EnsureRange(TileMMColor[ID].G+Light,0,255)*256+
-                               EnsureRange(TileMMColor[ID].B+Light,0,255)*65536
-  else
-    bm.Canvas.Pixels[k-1,i-1]:=TeamColors[Team];
+  bm:=TBitmap.Create;
+  bm.Width:=fTerrain.MapX;
+  bm.Height:=fTerrain.MapY;
+
+  for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
+    ID:=fTerrain.Land[i,k].Terrain+1;
+    Light:=round(fTerrain.Land[i,k].Light*64); //Originally it's -1..1 range
+    Team:=byte(fTerrain.Land[i,k].TileOwner);
+    if fTerrain.Land[i,k].TileOwner=play_none then
+      bm.Canvas.Pixels[k-1,i-1]:=EnsureRange(TileMMColor[ID].R+Light,0,255)+
+                                 EnsureRange(TileMMColor[ID].G+Light,0,255)*256+
+                                 EnsureRange(TileMMColor[ID].B+Light,0,255)*65536
+    else
+      bm.Canvas.Pixels[k-1,i-1]:=TeamColors[Team];
+  //bm.Canvas.Pixels[k-1,i-1]:=random(16777214);
   end;
 
   Loc:=TKMPointList.Create;
@@ -117,10 +119,10 @@ for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
       bm.Canvas.Pixels[Loc.List[k].X-1,Loc.List[k].Y-1]:=TeamColors[i];
   end;
 
-mmMiniMap.Canvas.StretchDraw(mmMiniMap.ClientRect,bm);
+mmMiniMap.Canvas.StretchDraw(mmMiniMap.Canvas.ClipRect,bm);
 end;
 
-procedure TMiniMap.ReSize(X,Y:integer);
+procedure TMiniMap.ReSize(X,Y:word);
 begin
 mmMiniMap.Left:=(MaxMapSize-X) div 2;
 mmMiniMap.Top:=(MaxMapSize-Y) div 2;

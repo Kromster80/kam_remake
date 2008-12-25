@@ -27,6 +27,8 @@ const
 type
   TMouseButton2 = (mb2None, mb2Left, mb2Right);
 
+  T3DButtonState = set of (bs_Highlight, bs_Down);
+
   TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);
 
   TResourceType = (rt_None=0, rt_All=30, rt_Warfare=31,

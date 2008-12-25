@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 315
-  Top = 104
+  Left = 154
+  Top = 23
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 659
@@ -1728,7 +1728,7 @@ object Form1: TForm1
       end
     end
     object Export1: TMenuItem
-      Caption = 'Export'
+      Caption = 'Export RX'
       object ExportTreesRX: TMenuItem
         Caption = 'Trees'
         OnClick = ExportTreesRXClick

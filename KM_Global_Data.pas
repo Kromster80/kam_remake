@@ -20,7 +20,6 @@ var
 
   fRender: TRender;
   fControls: TKMControlsCollection;
-  //fRenderUI: TRenderUI;
   fViewport: TViewport;
   fMiniMap: TMiniMap;
   fTerrain: TTerrain;

@@ -14,6 +14,7 @@ procedure BuildFont(h_DC:HDC;FontSize:integer);
 procedure glPrint(text: string);
 function ReadClick(X, Y: word): Vector;
 procedure glkScale(x:single);
+procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
 procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
 procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
 
@@ -165,8 +166,17 @@ end;
 
 procedure glkScale(x:single);
 begin
-glScale(x,x,x);
+  glScale(x,x,x);
 end;
+
+procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
+begin
+  glvertex2f(Ax,Ay);
+  glvertex2f(Bx,By);
+  glvertex2f(Cx,Cy);
+  glvertex2f(Dx,Dy);
+end;
+
 
 
 end.

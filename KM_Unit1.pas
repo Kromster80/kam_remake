@@ -204,10 +204,9 @@ end;
 procedure TForm1.OpenMap(filename:string);
 begin
 fTerrain.OpenMapFromFile(filename);
-fMinimap.ReSize(fTerrain.MapX,fTerrain.MapY);
 fViewport.SetZoom(1);
 Form1.FormResize(nil);
-Form1.Caption:='KaM Editor - '+filename;
+Form1.Caption:='KaM Remake - '+filename;
 end;
 
 procedure TForm1.FormResize(Sender:TObject);
@@ -269,6 +268,8 @@ begin
   P.X:= CursorXc;
   P.Y:= CursorYc;
 
+  fControls.OnMouseDown(X,Y);
+
   //example for units need change
   if Button = mbRight then
     ControlList.AddUnit(play_1, ut_Serf, P)
@@ -307,6 +308,7 @@ if CursorMode=cm_None then
     Screen.Cursor:=c_Default;
 
 fTerrain.UpdateCursor(CursorMode,KMPoint(CursorXc,CursorYc));
+fControls.OnMouseOver(X,Y);
 
 if not MousePressed then exit;
 
@@ -321,6 +323,8 @@ begin
   MousePressed:=false;
   P.X:=CursorXc;
   P.Y:=CursorYc;
+
+  fControls.OnMouseUp(X,Y);
 
   case CursorMode of
     cm_None:
@@ -374,6 +378,7 @@ end;
 procedure TForm1.Timer100msTimer(Sender: TObject);
 var i:integer;
 begin
+if not Form1.Active then exit;
 if CheckBox1.Checked then exit;
 ControlList.UpdateState;
 
@@ -392,6 +397,11 @@ end;
 
 procedure TForm1.BBClick(Sender: TObject);
 begin
+if TSpeedButton(Sender).Down=false then begin
+  CursorMode:=cm_None;
+  ActiveTileName:=nil;
+  exit;
+end;
 ActiveTileName:=Sender;
 s:=(TSpeedButton(Sender)).Name;
 LandBrush:=strtoint(s[3]+s[4]);
@@ -445,7 +455,7 @@ ExportDAT.Enabled:=true;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
-var ii,kk:integer;
+var ii,kk:integer; B:TKMButton;
 begin
 Button1.Enabled:=false;
 fViewPort.XCoord:=11;
@@ -485,7 +495,9 @@ ControlList.AddRoadPlan(KMPoint(8,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,13),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);
 
-fControls.Add(50,50,100,100,36);
+B:=TKMButton.Create(50,50,100,100,36);
+fControls.Add(B);
+B.OnClick:=AboutClick;
 
 for ii:=0 to 15 do for kk:=0 to 15 do
 fTerrain.AddTree(KMPoint(20+ii*2,20+kk*2),ii*16+kk);
@@ -494,7 +506,7 @@ ControlList.AddHousePlan(KMPoint(9,18), ht_Inn, play_1);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);
-var sh,sw,i,k,h:integer; t:byte; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of array[1..4]of byte;
+var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
 sh:=fViewPort.ViewHeight;
 sw:=fViewPort.ViewWidth;
@@ -503,11 +515,11 @@ setlength(bmp,sw*sh+1);
 glReadPixels(0,0,sw,sh,GL_BGRA,GL_UNSIGNED_BYTE,@bmp[0]);
 
 //Mirror verticaly
-for i:=0 to (sh div 2)-1 do for k:=0 to sw-1 do for h:=1 to 4 do begin
-t:=bmp[i*sw+k,h]; bmp[i*sw+k,h]:=bmp[((sh-1)-i)*sw+k,h]; bmp[((sh-1)-i)*sw+k,h]:=t; end;
+for i:=0 to (sh div 2)-1 do for k:=0 to sw-1 do
+SwapInt(bmp[i*sw+k],bmp[((sh-1)-i)*sw+k]);
 
 mkbmp:=TBitmap.Create;
-mkbmp.Handle:=CreateBitmap(sw,sh,1,32,@bmp[0,1]);
+mkbmp.Handle:=CreateBitmap(sw,sh,1,32,@bmp[0]);
 
 jpg:=TJpegImage.Create;
 jpg.assign(mkbmp);
@@ -531,7 +543,8 @@ procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP(5); en
 
 procedure TForm1.Timer1secTimer(Sender: TObject);
 begin
-fMiniMap.Repaint; //No need to repaint it more often
+  if not Form1.Active then exit;
+  fMiniMap.Repaint; //No need to repaint it more often
 end;
 
 procedure TForm1.Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

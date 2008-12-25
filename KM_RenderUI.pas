@@ -1,6 +1,6 @@
 unit KM_RenderUI;
 interface
-uses dglOpenGL, OpenGL, KromUtils, KromOGLUtils, SysUtils;
+uses dglOpenGL, OpenGL, KromUtils, KromOGLUtils, SysUtils, KM_Defaults;
 
 type
 TRenderUI = class
@@ -10,13 +10,13 @@ TRenderUI = class
     constructor Create;
     procedure Render;
     procedure WriteToolbar;
-    procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer);
+    procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonState);
     procedure WritePic(ID,PosX,PosY:integer);
     procedure WriteText(PosX,PosY:integer; Align:KAlign; Text:string);
   end;
 
 implementation
-uses KM_Unit1, KM_Global_Data, KM_Defaults;
+uses KM_Unit1, KM_Global_Data;
 
 constructor TRenderUI.Create;
 begin
@@ -35,13 +35,13 @@ begin
   WritePic(554,0,200);
   WritePic(404,0,200+168);
   WritePic(404,0,200+168+400);
-  Write3DButton(42,100,50,75,45);
-  Write3DButton(36,25,60,60,30);
+  //Write3DButton(42,100,50,75,45);
+  //Write3DButton(36,25,60,60,30);
 end;
 
 
-procedure TRenderUI.Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer);
-var a,b:TKMPointF; InsetX,InsetY:single;
+procedure TRenderUI.Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonState);
+var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte;
 begin
 //402 is a stone background
 with GFXData[4,402] do begin
@@ -65,32 +65,31 @@ end;
       glTexCoord2f(a.x,b.y); glvertex2f(0,1);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
+    if bs_Down in State then begin
+      c1:=0; c2:=1;
+    end else begin
+      c1:=1; c2:=0;
+    end;
     glBegin (GL_QUADS);
-      glColor4f(1,1,1,0.75);
-      glvertex2f(0,0);
-      glvertex2f(1,0);
-      glvertex2f(1-InsetX,0+InsetY);
-      glvertex2f(0+InsetX,0+InsetY);
-      glColor4f(1,1,1,0.65);
-      glvertex2f(0,0);
-      glvertex2f(0+InsetX,0+InsetY);
-      glvertex2f(0+InsetX,1-InsetY);
-      glvertex2f(0,1);
-      glColor4f(0,0,0,0.55);
-      glvertex2f(1,0);
-      glvertex2f(1,1);
-      glvertex2f(1-InsetX,1-InsetY);
-      glvertex2f(1-InsetX,0+InsetY);
-      glColor4f(0,0,0,0.45);
-      glvertex2f(0,1);
-      glvertex2f(0+InsetX,1-InsetY);
-      glvertex2f(1-InsetX,1-InsetY);
-      glvertex2f(1,1);
+      glColor4f(c1,c1,c1,0.75); glkQuad(0,0, 1,0, 1-InsetX,0+InsetY, 0+InsetX,0+InsetY);
+      glColor4f(c1,c1,c1,0.65); glkQuad(0,0, 0+InsetX,0+InsetY, 0+InsetX,1-InsetY, 0,1);
+      glColor4f(c2,c2,c2,0.55); glkQuad(1,0, 1,1, 1-InsetX,1-InsetY, 1-InsetX,0+InsetY);
+      glColor4f(c2,c2,c2,0.45); glkQuad(0,1, 0+InsetX,1-InsetY, 1-InsetX,1-InsetY, 1,1);
     glEnd;
+
+  if bs_Highlight in State then begin
+    glColor4f(1,1,1,0.15);
+    glBegin (GL_QUADS);
+      glkQuad(0,0,1,0,1,1,0,1);
+    glEnd;
+  end;
+
   glPopMatrix;
 
+  glColor4f(1,1,1,1);
   WritePic(ID,round(PosX+(SizeX-GFXData[4,ID].PxWidth)/2),
               round(PosY+(SizeY-GFXData[4,ID].PxHeight)/2));
+
 end;
 
 

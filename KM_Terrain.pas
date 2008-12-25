@@ -14,6 +14,11 @@ private
   AnimStep:integer;
 
 public
+  MapX,MapY:integer; //Terrain width and height
+
+  CursorMode:cmCursorMode; //Cursor that is rendered on tiles
+  CursorPos:TKMPoint;
+
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
     Terrain,Height,Rotation,Obj:byte;
 
@@ -49,12 +54,7 @@ public
     //Another var for borders (ropes, planks, stones) Top and Left
     BorderX,BorderY:TBorderType;
   end;
-
-  MapX,MapY:integer; //Terrain width and height
-
-  CursorMode:cmCursorMode; //Cursor that is rendered on tiles
-  CursorPos:TKMPoint;
-
+  
   constructor Create;
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
@@ -183,7 +183,7 @@ for i:=y1 to y2 do for k:=x1 to x2 do
 
 case CursorMode of
   cm_None:;
-  cm_Erase: fRender.RenderWireQuad(CursorPos, 255);
+  cm_Erase: fRender.RenderWireQuad(CursorPos, $FF); //Red quad
 end;
 end;
 
