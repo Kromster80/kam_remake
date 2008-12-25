@@ -29,7 +29,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Render, KM_ReadGFX1, KM_LoadDAT, KM_Global_Data, KM_Log, KM_Defaults;
+uses KM_Unit1, KM_Render, KM_ReadGFX1, KM_LoadDAT, KM_Global_Data, KM_Log, KM_Defaults, KM_GamePlayInterface;
 
 {$R *.dfm}
 
@@ -69,6 +69,7 @@ Form1.Caption:='KaM Editor - '+'New';
 //    LoadDAT('mission1.dat');
 
 fLog.AppendLog('Form create is done');
+InitGUIControls();
 end;
 
 end.

@@ -69,7 +69,7 @@ var
     Letters:array[0..255]of record
       Width,Height:word;
       Add:array[1..4]of word;
-      Data:array[1..1024] of byte;
+      Data:array[1..4096] of byte;
       u1,v1,u2,v2:single;
     end;
   end;

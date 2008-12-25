@@ -31,14 +31,22 @@ with GFXData[4,402] do begin
   b.x := u1 + (u2-u1) * ((PosX+SizeX)/PxWidth) ;
   a.y := v1 + (v2-v1) * (PosY/PxHeight) ;
   b.y := v1 + (v2-v1) * ((PosY+SizeY)/PxHeight) ;
-  if PosX+SizeX>PxWidth  then begin a.x:=-(u2-u1); b.x:=-(u2-u1); end;
-  if PosY+SizeY>PxHeight then begin a.y:=-(v2-v1); b.y:=-(v2-v1); end;
+  if PosX+SizeX>PxWidth  then begin a.x:=a.x-(u2-u1); b.x:=b.x-(u2-u1); end;
+  if PosY+SizeY>PxHeight then begin a.y:=a.y-(v2-v1); b.y:=b.y-(v2-v1); end;
 end;
-  InsetX:=4/SizeX; //4px
-  InsetY:=4/SizeY; //4px
+  InsetX:=3/SizeX; //4px
+  InsetY:=3/SizeY; //4px
 
   glPushMatrix;
     glTranslate(PosX,PosY,0);
+
+    glPushMatrix;
+    //Thin black outline
+    glColor4f(0,0,0,0.5);
+    glBegin (GL_LINE_LOOP);
+      glkQuad(0,0,SizeX,0,SizeX,SizeY,0,SizeY);
+    glEnd;
+
     glScale(SizeX,SizeY,0);
     glColor4f(1,1,1,1);
     glBindTexture(GL_TEXTURE_2D, GFXData[4,402].TexID);
@@ -54,25 +62,36 @@ end;
     end else begin
       c1:=1; c2:=0;
     end;
-    glBegin (GL_QUADS);
+    glBegin (GL_QUADS); //Render beveled edges
       glColor4f(c1,c1,c1,0.75); glkQuad(0,0, 1,0, 1-InsetX,0+InsetY, 0+InsetX,0+InsetY);
       glColor4f(c1,c1,c1,0.65); glkQuad(0,0, 0+InsetX,0+InsetY, 0+InsetX,1-InsetY, 0,1);
       glColor4f(c2,c2,c2,0.55); glkQuad(1,0, 1,1, 1-InsetX,1-InsetY, 1-InsetX,0+InsetY);
       glColor4f(c2,c2,c2,0.45); glkQuad(0,1, 0+InsetX,1-InsetY, 1-InsetX,1-InsetY, 1,1);
     glEnd;
 
+  glPopMatrix;
+
+  if ID<>0 then begin
+    glColor4f(1,1,1,1);
+    WritePic(ID,round(+(SizeX-GFXData[4,ID].PxWidth)/2),
+                round(+(SizeY-GFXData[4,ID].PxHeight)/2));
+  end;
+
   if bs_Highlight in State then begin
     glColor4f(1,1,1,0.15);
     glBegin (GL_QUADS);
-      glkQuad(0,0,1,0,1,1,0,1);
+      glkQuad(0,0,SizeX,0,SizeX,SizeY,0,SizeY);
+    glEnd;
+  end;
+
+  if bs_Disabled in State then begin
+    glColor4f(0.5,0.5,0.5,0.5);
+    glBegin (GL_QUADS);
+      glkQuad(0,0,SizeX,0,SizeX,SizeY,0,SizeY);
     glEnd;
   end;
 
   glPopMatrix;
-
-  glColor4f(1,1,1,1);
-  WritePic(ID,round(PosX+(SizeX-GFXData[4,ID].PxWidth)/2),
-              round(PosY+(SizeY-GFXData[4,ID].PxHeight)/2));
 
 end;
 
@@ -117,7 +136,7 @@ begin
     Num:=ord(Text[i]);
     glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
     glBegin(GL_QUADS);
-      with FontData[byte(fnt_Game)].Letters[Num] do begin
+      with FontData[byte(Fnt)].Letters[Num] do begin
         glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
         glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
         glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);

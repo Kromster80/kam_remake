@@ -31,7 +31,7 @@ function ExtractOpenedFileName(in_s: string):string;
 function GetFileExt (const FileName: string; len:integer=3): string;
 function AssureFileExt(FileName,Ext:string): string;
 function GetFileSize(const FileName: string): LongInt;
-function CheckFileExists(const FileName: string):boolean;
+function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
 
 procedure krintersect(x1,y1,x2,y2,x3,y3:single; SizeX,SizeY:integer; var ot:array of integer);
 function ReverseString(s1:string):string;
@@ -289,12 +289,12 @@ begin
   end;
 end;
 
-function CheckFileExists(const FileName: string):boolean;
+function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
 begin
 if fileexists(FileName) then
   Result:=true
 else begin
-  ShowMessage('Unable to locate '+#13+'"'+FileName+'" file');
+  if not IsSilent then ShowMessage('Unable to locate '+#13+'"'+FileName+'" file');
   Result:=false;
 end;
 end;

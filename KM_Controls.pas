@@ -6,25 +6,40 @@ type TNotifyEvent = procedure(Sender: TObject) of object;
 
 {Base class for all TKM elements}
 type
-TKMControl = class
+TKMControl = class (TObject)
+  private
+    Parent: TKMControl;
+    ChildCount:word;
+    Childs: array of TKMControl;
   public
     Left: Integer;
     Top: Integer;
     Width: Integer;
     Height: Integer;
     Enabled: boolean;
+    Visible: boolean;
+    Tag:integer;
     FOnClick:TNotifyEvent;
     CursorOver:boolean;
     CursorDown:boolean;
   constructor Create(aLeft,aTop,aWidth,aHeight:integer);
-  procedure Paint(); virtual; abstract;
+  procedure Paint(); virtual;
   published
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
+    procedure ParentTo (aParent:TKMControl);
 end;
 
 
-{Panel with image on it}
+{Panel which should have child items on it}
 TKMPanel = class(TKMControl)
+  public
+  constructor Create(aLeft,aTop,aWidth,aHeight:integer);
+  procedure Paint(); override;
+end;
+
+
+{Image}
+TKMImage = class(TKMControl)
   public
     TexID: integer;
   constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
@@ -36,12 +51,16 @@ end;
 TKMButton = class(TKMControl)
   public
     TexID: integer;
-  constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+    Font: TKMFont;
+    TextAlign: KAlign;
+    Caption: string;
+  constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer); overload;
+  constructor Create(aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
   procedure Paint(); override;
 end;
 
 
-{text Label}
+{Text Label}
 TKMLabel = class(TKMControl)
   public
     Font: TKMFont;
@@ -66,6 +85,7 @@ end;
 
 var
     fRenderUI: TRenderUI;
+    TagCount:integer=1;
 
 implementation
 
@@ -76,7 +96,46 @@ begin
   Width:=aWidth;
   Height:=aHeight;
   Enabled:=true;
+  Visible:=true;
+  Tag:=TagCount;
+  inc(TagCount);
 end;
+
+{Parentize control to another control}
+{Parent control has a list of all it's child controls}
+{Also transform child according to parent position}
+procedure TKMControl.ParentTo(aParent:TKMControl);
+begin
+  inc(aParent.ChildCount);
+  setlength(aParent.Childs,aParent.ChildCount);
+  aParent.Childs[aParent.ChildCount-1]:=Self;
+  Self.Parent:=aParent;
+  Self.Top:=aParent.Top+Self.Top;
+  Self.Left:=aParent.Left+Self.Left;
+end;
+
+
+{One common thing - draw childs for self}
+procedure TKMControl.Paint();
+var i:integer;
+begin
+  for i:=1 to ChildCount do
+    Childs[i-1].Paint;
+end;
+
+
+constructor TKMPanel.Create(aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+end;
+
+
+procedure TKMPanel.Paint();
+begin
+  //fRenderUI.WritePic(1,Left,Top);
+  Inherited Paint;
+end;
+
 
 constructor TKMButton.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
@@ -84,25 +143,37 @@ begin
   TexID:=aTexID;
 end;
 
+{Different version of button, with caption on in instead of image}
+constructor TKMButton.Create(aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Caption:=aCaption;
+  Font:=aFont;
+  TextAlign:=kaCenter; //Thats default everywhere in KaM
+end;
+
 
 procedure TKMButton.Paint();
 var State:T3DButtonStateSet;
 begin
   State:=[];
-  if CursorOver then State:=State+[bs_Highlight];
+  if CursorOver and Enabled then State:=State+[bs_Highlight];
   if CursorDown then State:=State+[bs_Down];
+  if not Enabled then State:=State+[bs_Disabled];
   fRenderUI.Write3DButton(TexID,Left,Top,Width,Height,State);
+  if TexID=0 then
+    fRenderUI.WriteText(Left + Width div 2, Top + Height div 2, TextAlign, Caption, Font);
 end;
 
 
-constructor TKMPanel.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+constructor TKMImage.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   TexID:=aTexID;
 end;
 
 
-procedure TKMPanel.Paint();
+procedure TKMImage.Paint();
 begin
   fRenderUI.WritePic(TexID,Left,Top);
 end;
@@ -139,6 +210,7 @@ procedure TKMControlsCollection.OnMouseOver(X,Y:integer);
 var i:integer;
 begin
   for i:=0 to Count-1 do
+    if TKMControl(Items[I]).Visible then
     TKMControl(Items[I]).CursorOver:=
     InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
     InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height);
@@ -151,7 +223,9 @@ begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
-      TKMControl(Items[I]).CursorDown:=true;
+      if TKMControl(Items[I]).Visible then
+      if TKMControl(Items[I]).Enabled then
+        TKMControl(Items[I]).CursorDown:=true;
 end;
 
 
@@ -161,17 +235,24 @@ begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
-      if TKMControl(Items[I]).Enabled then
+      if TKMControl(Items[I]).Visible then
+      if TKMControl(Items[I]).Enabled then begin
+        TKMControl(Items[I]).CursorDown:=false;
       if Assigned(TKMControl(Items[I]).OnClick) then
         TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
+      end;
 end;
 
 
+{Paint controls}
+{Keep painting of childs to their parent control}
 procedure TKMControlsCollection.Paint();
   var i:integer;
 begin
   for i:=0 to Count-1 do
-    TKMControl(Items[I]).Paint;
+    if TKMControl(Items[I]).Parent=nil then
+      if TKMControl(Items[I]).Visible then TKMControl(Items[I]).Paint;
 end;
+
 
 end.

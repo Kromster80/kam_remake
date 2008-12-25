@@ -203,16 +203,16 @@ object Form1: TForm1
   end
   object Pallete: TPageControl
     Left = 8
-    Top = 264
+    Top = 280
     Width = 193
-    Height = 369
+    Height = 321
     ActivePage = TabSheet3
     Anchors = [akLeft, akTop, akBottom]
     Style = tsButtons
-    TabHeight = 32
+    TabHeight = 28
     TabIndex = 0
     TabOrder = 1
-    TabWidth = 32
+    TabWidth = 28
     OnChange = PalletePageChange
     object TabSheet3: TTabSheet
       Caption = 'Build'
@@ -1559,6 +1559,10 @@ object Form1: TForm1
         Transparent = True
       end
     end
+    object TabSheet6: TTabSheet
+      Caption = 'Units'
+      ImageIndex = 5
+    end
   end
   object StatusBar1: TStatusBar
     Left = 0
@@ -1615,9 +1619,9 @@ object Form1: TForm1
     end
   end
   object Panel5: TPanel
-    Left = 208
+    Left = 200
     Top = 0
-    Width = 710
+    Width = 718
     Height = 641
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
@@ -1628,38 +1632,29 @@ object Form1: TForm1
     OnMouseMove = Panel1MouseMove
     OnMouseUp = Panel1MouseUp
   end
-  object Button1: TButton
-    Left = 8
-    Top = 216
-    Width = 97
-    Height = 25
-    Caption = 'Start SandBox'
-    TabOrder = 5
-    OnClick = Button1Click
-  end
   object CheckBox1: TCheckBox
-    Left = 224
+    Left = 208
     Top = 24
     Width = 97
     Height = 17
     Caption = 'Pause'
-    TabOrder = 6
+    TabOrder = 5
   end
   object CheckBox2: TCheckBox
-    Left = 224
+    Left = 208
     Top = 8
     Width = 97
     Height = 17
     Caption = 'Speedup x10'
-    TabOrder = 7
+    TabOrder = 6
   end
   object CheckBox3: TCheckBox
-    Left = 224
+    Left = 208
     Top = 40
     Width = 97
     Height = 17
     Caption = 'Wires'
-    TabOrder = 8
+    TabOrder = 7
     OnClick = ShowWiresClick
   end
   object Button7: TButton
@@ -1668,7 +1663,7 @@ object Form1: TForm1
     Width = 97
     Height = 25
     Caption = 'CreateMenu'
-    TabOrder = 9
+    TabOrder = 8
     OnClick = Button7Click
   end
   object OpenDialog1: TOpenDialog

@@ -33,7 +33,7 @@ uses KromUtils, KM_Unit1, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math, d
 function ReadGFX(text: string):boolean;
 var i:integer; procedure StepRefresh(); begin FormLoading.Bar1.StepIt; FormLoading.Refresh; end;
 begin
-  fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal1.bbm'));           StepRefresh();
+  fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm'));           StepRefresh();
   fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
   fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
   fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
@@ -61,9 +61,8 @@ begin
   StepRefresh();
 
   fLog.AppendLog('Reading fonts');
-  ReadFont(text+'data\gfx\fonts\game.fnt',fnt_Game);
-  ReadFont(text+'data\gfx\fonts\antiqua.fnt',fnt_Antiqua);
-  ReadFont(text+'data\gfx\fonts\won.fnt',fnt_Won);
+  for i:=1 to length(FontFiles) do
+  ReadFont(text+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i));
   StepRefresh();
 
   fLog.AppendLog('ReadGFX is done');
@@ -545,7 +544,7 @@ var
 begin
 Result:=false;
 MaxHeight:=0;
-if not CheckFileExists(filename) then exit;
+if not CheckFileExists(filename, true) then exit;
 assignfile(f,filename); reset(f,1);
 blockread(f,a,2); blockread(f,b,2);
 blockread(f,c,2); blockread(f,d,2);
@@ -558,6 +557,7 @@ for i:=0 to 255 do
       blockread(f,Width,4);
       blockread(f,Add,8);
       MaxHeight:=max(MaxHeight,Height);
+      Assert(Width*Height<>0); //Fon01.fnt seems to be damaged..
       blockread(f,Data[1],Width*Height);
     end;
 
@@ -570,6 +570,8 @@ setlength(TD,TexWidth*TexWidth+1);
 for i:=0 to 255 do
   if FontData[byte(aFont)].Pal[i]<>0 then
     with FontData[byte(aFont)].Letters[i] do begin
+
+    Assert(FontData[byte(aFont)].Pal[i]=1);
 
       if AdvX+Width+2>TexWidth then begin
         AdvX:=0;

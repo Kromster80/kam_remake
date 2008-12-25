@@ -68,7 +68,6 @@ type
     Image4: TImage;
     Label1: TLabel;
     Timer100ms: TTimer;
-    Button1: TButton;
     PrintScreen1: TMenuItem;
     Export1: TMenuItem;
     ExportGUIRX: TMenuItem;
@@ -107,6 +106,7 @@ type
     Image5: TImage;
     Shape267: TShape;
     Button7: TButton;
+    TabSheet6: TTabSheet;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -154,8 +154,6 @@ type
 var
   Form1: TForm1;
   ControlList: TKMUserControlList;
-    eol:string = #13+#10;
-
 
 implementation  {$R *.DFM}
 
@@ -189,8 +187,8 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  fRender:= TRender.Create;
   fControls:= TKMControlsCollection.Create;
+  fRender:= TRender.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
@@ -289,7 +287,7 @@ procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integ
 begin
   if (X>0)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
   else exit;
-CursorX:=fViewport.XCoord+(X-fViewport.ViewRect.Right/2)/CellSize/fViewport.Zoom;
+CursorX:=fViewport.XCoord+(X-fViewport.ViewRect.Right/2+ToolBarWidth/2)/CellSize/fViewport.Zoom;
 CursorY:=fViewport.YCoord+(Y-fViewport.ViewRect.Bottom/2)/CellSize/fViewport.Zoom;
 
 CursorY:=fTerrain.ConvertCursorToMapCoord(CursorX,CursorY);
@@ -553,22 +551,9 @@ begin
 end;
 
 procedure TForm1.Button7Click(Sender: TObject);
-var B:TKMButton; P1,P2,P3:TKMPanel; L:TKMLabel;
 begin
 Button7.Enabled:=false;
-P1:=TKMPanel.Create(0,0,224,200,407);
-fControls.Add(P1);
-P2:=TKMPanel.Create(0,200,224,168,554);
-fControls.Add(P2);
-P3:=TKMPanel.Create(0,368,224,400,404);
-fControls.Add(P3);
-
-L:=TKMLabel.Create(50,400,160,30,fnt_Game,kaLeft,'This is a test string for KaM Remake');
-fControls.Add(L);
-
-B:=TKMButton.Create(250,50,100,100,36);
-fControls.Add(B);
-B.OnClick:=Button1Click;
+InitGUIControls();
 end;
 
 end.
