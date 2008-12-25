@@ -8,11 +8,9 @@ TRenderUI = class
   protected
   public
     constructor Create;
-    procedure Render;
-    procedure WriteToolbar;
-    procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonState);
+    procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WritePic(ID,PosX,PosY:integer);
-    procedure WriteText(PosX,PosY:integer; Align:KAlign; Text:string);
+    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):integer; //Should return text width in px
   end;
 
 implementation
@@ -23,24 +21,8 @@ begin
 //
 end;
 
-procedure TRenderUI.Render;
-begin
-WriteToolbar();
-WriteText(50,400,kaLeft,'qwertyuiopasdfghjkl;zxcvbnm,./1248-0=');
-end;
 
-procedure TRenderUI.WriteToolbar;
-begin
-  WritePic(407,0,0);
-  WritePic(554,0,200);
-  WritePic(404,0,200+168);
-  WritePic(404,0,200+168+400);
-  //Write3DButton(42,100,50,75,45);
-  //Write3DButton(36,25,60,60,30);
-end;
-
-
-procedure TRenderUI.Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonState);
+procedure TRenderUI.Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
 var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte;
 begin
 //402 is a stone background
@@ -49,6 +31,8 @@ with GFXData[4,402] do begin
   b.x := u1 + (u2-u1) * ((PosX+SizeX)/PxWidth) ;
   a.y := v1 + (v2-v1) * (PosY/PxHeight) ;
   b.y := v1 + (v2-v1) * ((PosY+SizeY)/PxHeight) ;
+  if PosX+SizeX>PxWidth  then begin a.x:=-(u2-u1); b.x:=-(u2-u1); end;
+  if PosY+SizeY>PxHeight then begin a.y:=-(v2-v1); b.y:=-(v2-v1); end;
 end;
   InsetX:=4/SizeX; //4px
   InsetY:=4/SizeY; //4px
@@ -111,13 +95,15 @@ begin
   glBindTexture(GL_TEXTURE_2D,0);
 end;
 
-procedure TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string);
+{Renders a line of text and returns text width in px}
+function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):integer;
 var i,Num:integer; TextWidth:single;
 begin
   TextWidth:=0;
   for i:=1 to length(Text) do
     if Text[i] in [' '..'z'] then
-    TextWidth:=TextWidth+FontData[byte(fnt_Game)].Letters[ord(Text[i])].Width+1.5;
+    TextWidth:=TextWidth+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+1.5;
+  Result:=round(TextWidth);
 
   glColor4f(1,1,1,1);
 
@@ -129,7 +115,7 @@ begin
   //glkScale(2);
   for i:=1 to length(Text) do begin
     Num:=ord(Text[i]);
-    glBindTexture(GL_TEXTURE_2D,FontData[byte(fnt_Game)].TexID);
+    glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
     glBegin(GL_QUADS);
       with FontData[byte(fnt_Game)].Letters[Num] do begin
         glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
@@ -139,7 +125,7 @@ begin
       end;
     glEnd;
     //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
-    glTranslate(FontData[byte(fnt_Game)].Letters[Num].Width+1,0,0);
+    glTranslate(FontData[byte(Fnt)].Letters[Num].Width+1,0,0);
   end;
   glBindTexture(GL_TEXTURE_2D,0);
   glPopMatrix;

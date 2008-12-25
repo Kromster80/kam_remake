@@ -4,6 +4,7 @@ uses KM_Terrain, windows, dglOpenGL, KM_Defaults, KM_Tplayer, KM_Render, KM_Rend
 
 const
   CellSize=40;          //Single cell size in pixels (width)
+  ToolBarWidth=224;     //Toolbar width in game
   Overlap=0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   FPSLag=5;             //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
@@ -68,7 +69,7 @@ var
     Letters:array[0..255]of record
       Width,Height:word;
       Add:array[1..4]of word;
-      Data:array[1..256] of byte;
+      Data:array[1..1024] of byte;
       u1,v1,u2,v2:single;
     end;
   end;

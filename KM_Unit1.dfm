@@ -1662,6 +1662,15 @@ object Form1: TForm1
     TabOrder = 8
     OnClick = ShowWiresClick
   end
+  object Button7: TButton
+    Left = 8
+    Top = 240
+    Width = 97
+    Height = 25
+    Caption = 'CreateMenu'
+    TabOrder = 9
+    OnClick = Button7Click
+  end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]

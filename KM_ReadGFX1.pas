@@ -33,12 +33,10 @@ uses KromUtils, KM_Unit1, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math, d
 function ReadGFX(text: string):boolean;
 var i:integer; procedure StepRefresh(); begin FormLoading.Bar1.StepIt; FormLoading.Refresh; end;
 begin
-  fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm'));           StepRefresh();
+  fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal1.bbm'));           StepRefresh();
   fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
   fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
   fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
-
-  fLog.AppendLog('Reading game.fnt',ReadFont(text+'data\gfx\fonts\game.fnt',fnt_Game));       StepRefresh();
 
   RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
   RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
@@ -58,9 +56,17 @@ begin
     StepRefresh();
   end;
 
-  fLog.AppendLog('Preparing MiniMap colors...'); MakeMiniMapColors(); StepRefresh();
-  fLog.AppendLog('ReadGFX is done');
+  fLog.AppendLog('Preparing MiniMap colors...');
+  MakeMiniMapColors();
+  StepRefresh();
 
+  fLog.AppendLog('Reading fonts');
+  ReadFont(text+'data\gfx\fonts\game.fnt',fnt_Game);
+  ReadFont(text+'data\gfx\fonts\antiqua.fnt',fnt_Antiqua);
+  ReadFont(text+'data\gfx\fonts\won.fnt',fnt_Won);
+  StepRefresh();
+
+  fLog.AppendLog('ReadGFX is done');
   Result:=true;
 end;
 
@@ -559,11 +565,12 @@ closefile(f);
 
 //Compile texture
 AdvX:=0; AdvY:=0;
-setlength(TD,256*256+1);
+setlength(TD,TexWidth*TexWidth+1);
 
 for i:=0 to 255 do
   if FontData[byte(aFont)].Pal[i]<>0 then
     with FontData[byte(aFont)].Letters[i] do begin
+
       if AdvX+Width+2>TexWidth then begin
         AdvX:=0;
         inc(AdvY,MaxHeight);
@@ -584,18 +591,19 @@ for i:=0 to 255 do
 
 MyBitMap:=TBitMap.Create;
 MyBitmap.PixelFormat:=pf24bit;
-MyBitmap.Width:=256;
-MyBitmap.Height:=256;
+MyBitmap.Width:=TexWidth;
+MyBitmap.Height:=TexWidth;
 
-for ci:=0 to 255 do for ck:=0 to 255 do begin
-  t:=TD[ci*256+ck]+1;
-  MyBitmap.Canvas.Pixels[ck,ci]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
+  t:=TD[ci*TexWidth+ck]+1;
+  MyBitmap.Canvas.Pixels[ck,ci]:={t+t*256+t*65536;//}Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
 end;
 
-MyBitmap.SaveToFile(ExeDir+'font5.bmp');
+MyBitmap.SaveToFile(ExeDir+ExtractFileName(filename)+'.bmp');
 
 setlength(TD,0);
 Result:=true;
+
 end;
 
 

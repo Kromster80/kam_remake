@@ -1,9 +1,8 @@
 unit KM_Controls;
 interface
-uses Controls, KM_Classes, KM_RenderUI, KromUtils, Math, KM_Defaults;
+uses Controls, KM_Classes, KM_RenderUI, Math, KM_Defaults, KromOGLUtils;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
-
 
 {Base class for all TKM elements}
 type
@@ -13,6 +12,7 @@ TKMControl = class
     Top: Integer;
     Width: Integer;
     Height: Integer;
+    Enabled: boolean;
     FOnClick:TNotifyEvent;
     CursorOver:boolean;
     CursorDown:boolean;
@@ -41,9 +41,20 @@ TKMButton = class(TKMControl)
 end;
 
 
+{text Label}
+TKMLabel = class(TKMControl)
+  public
+    Font: TKMFont;
+    TextAlign: KAlign;
+    Caption: string;
+  constructor Create(aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
+  procedure Paint(); override;
+end;
+
+
 TKMControlsCollection = class(TKMList)
   private
-    fControl: TKMControl;
+    //fControl: TKMControl;
   public
     constructor Create;
     procedure Add(Sender:TKMControl);
@@ -64,6 +75,7 @@ begin
   Top:=aTop;
   Width:=aWidth;
   Height:=aHeight;
+  Enabled:=true;
 end;
 
 constructor TKMButton.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
@@ -74,8 +86,9 @@ end;
 
 
 procedure TKMButton.Paint();
-var State:T3DButtonState;
+var State:T3DButtonStateSet;
 begin
+  State:=[];
   if CursorOver then State:=State+[bs_Highlight];
   if CursorDown then State:=State+[bs_Down];
   fRenderUI.Write3DButton(TexID,Left,Top,Width,Height,State);
@@ -92,6 +105,21 @@ end;
 procedure TKMPanel.Paint();
 begin
   fRenderUI.WritePic(TexID,Left,Top);
+end;
+
+
+constructor TKMLabel.Create(aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Font:=aFont;
+  TextAlign:=aTextAlign;
+  Caption:=aCaption;
+end;
+
+
+procedure TKMLabel.Paint();
+begin
+  Width:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font);
 end;
 
 
@@ -113,7 +141,7 @@ begin
   for i:=0 to Count-1 do
     TKMControl(Items[I]).CursorOver:=
     InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
-    InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Left+TKMControl(Items[I]).Height);
+    InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height);
 end;
 
 
@@ -122,7 +150,7 @@ var i:integer;
 begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
-       InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Left+TKMControl(Items[I]).Height) then
+       InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
       TKMControl(Items[I]).CursorDown:=true;
 end;
 
@@ -132,8 +160,10 @@ var i:integer;
 begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
-       InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Left+TKMControl(Items[I]).Height) then
-      TKMControl(Items[I]).OnClick(nil);
+       InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
+      if TKMControl(Items[I]).Enabled then
+      if Assigned(TKMControl(Items[I]).OnClick) then
+        TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
 end;
 
 

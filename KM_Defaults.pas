@@ -15,7 +15,7 @@ type cmCursorMode = (cm_None, cm_Erase, cm_Roads, cm_Houses);
 
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 
-  TKMFont = (fnt_Game=5);
+  TKMFont = (fnt_Game=1, fnt_Antiqua, fnt_Won);
 
 const
   c_Default=1; c_Info=452;
@@ -27,7 +27,7 @@ const
 type
   TMouseButton2 = (mb2None, mb2Left, mb2Right);
 
-  T3DButtonState = set of (bs_Highlight, bs_Down);
+  T3DButtonStateSet = set of (bs_Highlight, bs_Down);
 
   TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);
 

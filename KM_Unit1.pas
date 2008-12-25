@@ -2,7 +2,7 @@ unit KM_Unit1;
 interface
 uses
   KM_Defaults, Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, FileCtrl, ExtCtrls, KromUtils, OpenGL,
+  StdCtrls, FileCtrl, ExtCtrls, KromUtils, OpenGL, KromOGLUtils,
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Render, KM_RenderUI, KM_ReadGFX1,
   ImgList, KM_Form_Loading, math, Grids, KM_Tplayer, KM_Terrain, KM_Global_Data,
   KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, JPEG, KM_GamePlayInterface, KM_Controls,
@@ -106,6 +106,7 @@ type
     Image2: TImage;
     Image5: TImage;
     Shape267: TShape;
+    Button7: TButton;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -141,6 +142,7 @@ type
     procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure Button7Click(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -212,8 +214,8 @@ end;
 procedure TForm1.FormResize(Sender:TObject);
 begin
   fRender.RenderResize(Panel5.Width,Panel5.Height);
-  fViewport.SetZoom(ZoomLevels[TBZoomControl.Position]);
   fViewport.SetArea(Panel5.Width,Panel5.Height);
+  fViewport.SetZoom(ZoomLevels[TBZoomControl.Position]);
   fMiniMap.SetRect(fViewport);
 end;
 
@@ -287,8 +289,8 @@ procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integ
 begin
   if (X>0)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
   else exit;
-CursorX:=fViewport.XCoord+(X-fViewport.ViewWidth/2)/CellSize/fViewport.Zoom;
-CursorY:=fViewport.YCoord+(Y-fViewport.ViewHeight/2)/CellSize/fViewport.Zoom;
+CursorX:=fViewport.XCoord+(X-fViewport.ViewRect.Right/2)/CellSize/fViewport.Zoom;
+CursorY:=fViewport.YCoord+(Y-fViewport.ViewRect.Bottom/2)/CellSize/fViewport.Zoom;
 
 CursorY:=fTerrain.ConvertCursorToMapCoord(CursorX,CursorY);
 
@@ -455,10 +457,9 @@ ExportDAT.Enabled:=true;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
-var ii,kk:integer; B:TKMButton;
 begin
-Button1.Enabled:=false;
-fViewPort.XCoord:=11;
+TKMControl(Sender).Enabled:=false;
+fViewPort.XCoord:=6;
 fViewPort.YCoord:=11;
 ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));
 ControlList.AddHouse(play_1, ht_Mill,KMPoint(8,5));
@@ -495,21 +496,14 @@ ControlList.AddRoadPlan(KMPoint(8,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,13),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);
 
-B:=TKMButton.Create(50,50,100,100,36);
-fControls.Add(B);
-B.OnClick:=AboutClick;
-
-for ii:=0 to 15 do for kk:=0 to 15 do
-fTerrain.AddTree(KMPoint(20+ii*2,20+kk*2),ii*16+kk);
-
 ControlList.AddHousePlan(KMPoint(9,18), ht_Inn, play_1);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);
 var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
-sh:=fViewPort.ViewHeight;
-sw:=fViewPort.ViewWidth;
+sh:=Panel5.Width;
+sw:=Panel5.Height;
 
 setlength(bmp,sw*sh+1);
 glReadPixels(0,0,sw,sh,GL_BGRA,GL_UNSIGNED_BYTE,@bmp[0]);
@@ -556,6 +550,25 @@ procedure TForm1.Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
   TeamColors[3]:=Shape267.Brush.Color;
   fRender.Render;
+end;
+
+procedure TForm1.Button7Click(Sender: TObject);
+var B:TKMButton; P1,P2,P3:TKMPanel; L:TKMLabel;
+begin
+Button7.Enabled:=false;
+P1:=TKMPanel.Create(0,0,224,200,407);
+fControls.Add(P1);
+P2:=TKMPanel.Create(0,200,224,168,554);
+fControls.Add(P2);
+P3:=TKMPanel.Create(0,368,224,400,404);
+fControls.Add(P3);
+
+L:=TKMLabel.Create(50,400,160,30,fnt_Game,kaLeft,'This is a test string for KaM Remake');
+fControls.Add(L);
+
+B:=TKMButton.Create(250,50,100,100,36);
+fControls.Add(B);
+B.OnClick:=Button1Click;
 end;
 
 end.

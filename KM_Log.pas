@@ -18,6 +18,7 @@ public
   procedure AppendLog(text:string; num:integer); overload;
   procedure AppendLog(num:integer; text:string); overload;
   procedure AppendLog(text:string; Res:boolean); overload;
+  procedure AppendLog(a,b:integer); overload;
 published
 end;
 
@@ -68,6 +69,11 @@ var s:string;
 begin
   if Res then s:='done' else s:='fail';
   AddLine(text+' ... '+s);
+end;
+
+procedure TKMLog.AppendLog(a,b:integer);
+begin
+  AddLine(inttostr(a)+' : '+inttostr(b));
 end;
 
 end.

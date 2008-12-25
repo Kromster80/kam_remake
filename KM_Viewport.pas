@@ -13,6 +13,7 @@ protected
 public
 Zoom:single;
 XCoord,YCoord:integer;
+ViewRect:TRect;
 ViewWidth,ViewHeight:integer;
   constructor Create;
   procedure SetZoom(NewZoom:single);
@@ -53,8 +54,12 @@ end;
 
 procedure TViewport.SetArea(NewWidth,NewHeight:integer);
 begin
-ViewWidth:=NewWidth;
-ViewHeight:=NewHeight;
+ViewRect.Left:=ToolBarWidth;
+ViewRect.Top:=0;
+ViewRect.Right:=NewWidth;
+ViewRect.Bottom:=NewHeight;
+ViewWidth:=ViewRect.Right-ViewRect.Left;
+ViewHeight:=ViewRect.Bottom-ViewRect.Top;
 end;
 
 procedure TViewport.SetCenter(NewX,NewY:integer);
@@ -66,8 +71,8 @@ end;
 //Acquire boundaries of area visible to user
 function TViewport.GetClip():TRect;
 begin
-Result.Left  :=max(round(XCoord-ViewWidth/CellSize/2/Zoom),1);
-Result.Right :=min(round(XCoord+ViewWidth/CellSize/2/Zoom)+1,fTerrain.MapX-1);
+Result.Left  :=max(round(XCoord-(ViewWidth/2-ViewRect.Left)/CellSize/Zoom),1);
+Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left)/CellSize/Zoom)+1,fTerrain.MapX-1);
 Result.Top   :=max(round(YCoord-ViewHeight/CellSize/2/Zoom),1);
 Result.Bottom:=min(round(YCoord+ViewHeight/CellSize/2/Zoom)+4,fTerrain.MapY-1);
 end;
@@ -86,7 +91,7 @@ begin
       mmShape.Width:=round(ViewWidth/CellSize/Zoom);
       mmShape.Height:=round(ViewHeight/CellSize/Zoom);
       mmLabel.Caption:=inttostr(round(Zoom*100))+'%';
-      mmShape.Left:=XCoord+mmMiniMap.Left-mmShape.Width  div 2;
+      mmShape.Left:=round(XCoord+mmMiniMap.Left +ViewRect.Left/CellSize/Zoom -mmShape.Width  div 2);
       mmShape.Top :=YCoord+mmMiniMap.Top -mmShape.Height div 2;
       mmShape.Refresh;
     end;
