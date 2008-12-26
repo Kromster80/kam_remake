@@ -20,12 +20,12 @@ type
     Label5: TLabel;
     Label6: TLabel;
     Button1: TButton;
-    SpinR: TFloatSpinEdit;
-    SpinG: TFloatSpinEdit;
-    SpinB: TFloatSpinEdit;
-    SpinH: TFloatSpinEdit;
-    SpinS: TFloatSpinEdit;
-    SpinBr: TFloatSpinEdit;
+    SpinR: TSpinEdit;
+    SpinG: TSpinEdit;
+    SpinB: TSpinEdit;
+    SpinS: TSpinEdit;
+    SpinH: TSpinEdit;
+    SpinBr: TSpinEdit;
     Button2: TButton;
     procedure FormShow(Sender: TObject);
     procedure ApplyHue2RGB(InHue:integer; var R,G,B:integer);

@@ -84,12 +84,14 @@ FileVersion=1.0.0.0
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=8
+Count=10
 Item0=.\ Common 
-Item1= Common 
-Item2=E:\Delphi\ Common ;..\ Common 
-Item3=E:\Delphi\ Common ;.\Common
-Item4=E:\Delphi\ Common ;\Common
-Item5=\ Common ;E:\Delphi\ Common 
-Item6=C:\Documents and Settings\Krom\Desktop\Delphi\ Common ;E:\Delphi\ Common 
-Item7=C:\Documents and Settings\Krom\Desktop\Delphi\ Common 
+Item1=\ Common \
+Item2=.\ Common \
+Item3= Common 
+Item4=E:\Delphi\ Common ;..\ Common 
+Item5=E:\Delphi\ Common ;.\Common
+Item6=E:\Delphi\ Common ;\Common
+Item7=\ Common ;E:\Delphi\ Common 
+Item8=C:\Documents and Settings\Krom\Desktop\Delphi\ Common ;E:\Delphi\ Common 
+Item9=C:\Documents and Settings\Krom\Desktop\Delphi\ Common 

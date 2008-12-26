@@ -112,70 +112,54 @@ object Form_ColorPicker: TForm_ColorPicker
     TabOrder = 0
     OnClick = Button1Click
   end
-  object SpinR: TFloatSpinEdit
+  object SpinR: TSpinEdit
     Left = 236
     Top = 268
     Width = 49
     Height = 22
-    Accuracy = 0
     Increment = 1
     MaxValue = 255
     TabOrder = 1
     OnChange = SpinRGBChange
   end
-  object SpinG: TFloatSpinEdit
+  object SpinG: TSpinEdit
     Left = 236
     Top = 294
     Width = 49
     Height = 22
-    Accuracy = 0
     Increment = 1
     MaxValue = 255
     TabOrder = 2
     OnChange = SpinRGBChange
   end
-  object SpinB: TFloatSpinEdit
+  object SpinB: TSpinEdit
     Left = 236
     Top = 320
     Width = 49
     Height = 22
-    Accuracy = 0
     Increment = 1
     MaxValue = 255
     TabOrder = 3
     OnChange = SpinRGBChange
   end
-  object SpinH: TFloatSpinEdit
-    Left = 124
-    Top = 268
-    Width = 49
-    Height = 22
-    Accuracy = 0
-    Increment = 1
-    MaxValue = 359
-    TabOrder = 4
-    OnChange = SpinHSBChange
-  end
-  object SpinS: TFloatSpinEdit
+  object SpinS: TSpinEdit
     Left = 124
     Top = 294
     Width = 49
     Height = 22
-    Accuracy = 0
     Increment = 1
     MaxValue = 255
-    TabOrder = 5
+    TabOrder = 4
     OnChange = SpinHSBChange
   end
-  object SpinBr: TFloatSpinEdit
+  object SpinBr: TSpinEdit
     Left = 124
     Top = 320
     Width = 49
     Height = 22
-    Accuracy = 0
     Increment = 1
     MaxValue = 255
-    TabOrder = 6
+    TabOrder = 5
     OnChange = SpinHSBChange
   end
   object Button2: TButton
@@ -184,7 +168,18 @@ object Form_ColorPicker: TForm_ColorPicker
     Width = 59
     Height = 25
     Caption = 'OK'
-    TabOrder = 7
+    TabOrder = 6
     OnClick = Button2Click
+  end
+  object SpinH: TSpinEdit
+    Left = 124
+    Top = 268
+    Width = 49
+    Height = 22
+    MaxValue = 359
+    MinValue = 0
+    TabOrder = 7
+    Value = 0
+    OnChange = SpinHSBChange
   end
 end
