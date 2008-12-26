@@ -15,6 +15,7 @@ procedure glPrint(text: string);
 function ReadClick(X, Y: word): Vector;
 procedure glkScale(x:single);
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
+procedure glkRect(Ax,Ay,Bx,By:single);
 procedure glkMoveAALines(DoShift:boolean);
 procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
 procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
@@ -176,6 +177,15 @@ begin
   glvertex2f(Bx,By);
   glvertex2f(Cx,Cy);
   glvertex2f(Dx,Dy);
+end;
+
+{Same as glkQuad, but requires on TopLeft and BottomRight coords}
+procedure glkRect(Ax,Ay,Bx,By:single);
+begin
+  glvertex2f(Ax,Ay);
+  glvertex2f(Bx,Ay);
+  glvertex2f(Bx,By);
+  glvertex2f(Ax,By);
 end;
 
 {Lines are drawn between pixels, thus when AA turned on they get blurred.

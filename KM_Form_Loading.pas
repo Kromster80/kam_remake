@@ -1,7 +1,5 @@
 unit KM_Form_Loading;
-
 interface
-
 uses
   Windows, Messages, SysUtils, Classes, Controls, Forms, Graphics,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, KromUtils;
@@ -28,9 +26,7 @@ var
   FormLoading: TFormLoading;
 
 implementation
-
 uses KM_Unit1, KM_Render, KM_ReadGFX1, KM_LoadDAT, KM_Global_Data, KM_Log, KM_Defaults, KM_GamePlayInterface;
-
 {$R *.dfm}
 
 procedure TFormLoading.FormCreate(Sender: TObject);
@@ -69,7 +65,7 @@ Form1.Caption:='KaM Editor - '+'New';
 //    LoadDAT('mission1.dat');
 
 fLog.AppendLog('Form create is done');
-InitGUIControls();
+
 end;
 
 end.

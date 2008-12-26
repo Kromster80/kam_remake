@@ -1,7 +1,6 @@
 unit KM_Houses;
 interface
-uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain, KM_Global_Data,
-  KM_Defaults;
+uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Global_Data, KM_Defaults;
 
   {Everything related to houses is here}
 type        
@@ -104,7 +103,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain;
 
 
 { TKMHouse }

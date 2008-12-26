@@ -1,12 +1,11 @@
 unit KM_Unit1;
 interface
 uses
-  KM_Defaults, Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, FileCtrl, ExtCtrls, KromUtils, OpenGL, KromOGLUtils,
-  dglOpenGL, Menus, ComCtrls, Buttons, KM_Render, KM_RenderUI, KM_ReadGFX1,
-  ImgList, KM_Form_Loading, math, KM_Tplayer, KM_Terrain, KM_Global_Data,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, JPEG, KM_GamePlayInterface, KM_Controls,
-  ColorPicker;
+  Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
+  Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
+  KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
+  KM_Form_Loading, KM_Tplayer, KM_Terrain, KM_Global_Data,
+  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker;
 
 type
   TForm1 = class(TForm)
@@ -90,7 +89,6 @@ type
     CheckBox3: TCheckBox;
     ExportGUIMainRX: TMenuItem;
     Shape267: TShape;
-    Button7: TButton;
     Exportfonts1: TMenuItem;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
@@ -107,7 +105,6 @@ type
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Pl1Click(Sender: TObject);
     procedure AboutClick(Sender: TObject);
-    procedure PalletePageChange(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ResetZoomClick(Sender: TObject);
     procedure BBClick(Sender: TObject);
@@ -127,7 +124,6 @@ type
     procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure Button7Click(Sender: TObject);
     procedure Exportfonts1Click(Sender: TObject);
 
   private     { Private declarations }
@@ -174,6 +170,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   fControls:= TKMControlsCollection.Create;
+  fGamePlayInterface:= TKMGamePlayInterface.Create;
   fRender:= TRender.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
@@ -260,13 +257,8 @@ begin
   if Button = mbRight then
     ControlList.AddUnit(play_1, ut_Serf, P)
   else if Button = mbMiddle then
-    ControlList.AddUnit(play_1, ut_HorseScout, P)
-  else if Button = mbLeft then
-  begin
-    //if ControlList.UnitsSelectedUnit <> nil then
-    //  ControlList.UnitsSelectedUnit.SetAction(TMoveUnitAction.Create(P));
-    //ControlList.UnitsHitTest(P.X, P.Y);
-  end;
+    ControlList.AddUnit(play_1, ut_HorseScout, P);
+
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -310,13 +302,15 @@ begin
   P.X:=CursorXc;
   P.Y:=CursorYc;
 
-  fControls.OnMouseUp(X,Y);
+  if X<=ToolBarWidth then
+    fControls.OnMouseUp(X,Y)
+  else
 
   case CursorMode of
     cm_None:
       begin
         if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then
-          ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc));
+          fGamePlayInterface.ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc).GetHouseType);
       end;
     cm_Roads:
       begin
@@ -338,6 +332,7 @@ end;
 
 procedure TForm1.Pl1Click(Sender: TObject);
 begin
+//Obsolete
 s:=(TSpeedButton(Sender)).Name;
 Mission.ActivePlayer:=strtoint(s[3]);
 end;
@@ -346,14 +341,6 @@ procedure TForm1.AboutClick(Sender: TObject);
 begin
   FormLoading.Bar1.Position:=0;
   FormLoading.Show;
-end;
-
-procedure TForm1.PalletePageChange(Sender: TObject);
-begin
-if ActiveTileName<>nil then
-TSpeedButton(ActiveTileName).Down:=false; //Relese last pressed button
-LandBrush:=0;
-CursorMode:=cm_None;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -369,7 +356,7 @@ if CheckBox1.Checked then exit;
 ControlList.UpdateState;
 
 inc(GlobalTickCount);
-if GlobalTickCount mod 3 = 0 then fTerrain.UpdateState; //Update every third tick
+if GlobalTickCount mod 2 = 0 then fTerrain.UpdateState; //Update every third tick
 
 if CheckBox2.Checked then
   for i:=1 to 50 do
@@ -519,6 +506,13 @@ procedure TForm1.ExportUnitsRXClick(Sender: TObject);  begin ExportRX2BMP(3); en
 procedure TForm1.ExportGUIRXClick(Sender: TObject);    begin ExportRX2BMP(4); end;
 procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP(5); end;
 
+procedure TForm1.Exportfonts1Click(Sender: TObject);
+var i:integer;
+begin
+  for i:=1 to length(FontFiles) do
+    ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
+end;
+
 procedure TForm1.Timer1secTimer(Sender: TObject);
 begin
   if not Form1.Active then exit;
@@ -536,17 +530,5 @@ begin
   fRender.Render;
 end;
 
-procedure TForm1.Button7Click(Sender: TObject);
-begin
-Button7.Enabled:=false;
-InitGUIControls();
-end;
-
-procedure TForm1.Exportfonts1Click(Sender: TObject);
-var i:integer;
-begin
-  for i:=1 to length(FontFiles) do
-    ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
-end;
 
 end.

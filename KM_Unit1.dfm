@@ -213,7 +213,6 @@ object Form1: TForm1
     TabIndex = 0
     TabOrder = 1
     TabWidth = 28
-    OnChange = PalletePageChange
     object TabSheet3: TTabSheet
       Caption = 'Build'
       ImageIndex = 2
@@ -1543,15 +1542,6 @@ object Form1: TForm1
     Caption = 'Wires'
     TabOrder = 7
     OnClick = ShowWiresClick
-  end
-  object Button7: TButton
-    Left = 8
-    Top = 240
-    Width = 97
-    Height = 25
-    Caption = 'CreateMenu'
-    TabOrder = 8
-    OnClick = Button7Click
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'

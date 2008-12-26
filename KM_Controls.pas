@@ -21,20 +21,21 @@ TKMControl = class (TObject)
     Tag:integer;
     FOnClick:TNotifyEvent;
     CursorOver:boolean;
-    CursorDown:boolean;
-  constructor Create(aLeft,aTop,aWidth,aHeight:integer);
-  procedure Paint(); virtual;
-  published
+    Pressed:boolean;
+    constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     procedure ParentTo (aParent:TKMControl);
+    procedure CheckCursorOver(X,Y:integer);
+    procedure Paint(); virtual;
 end;
 
 
 {Panel which should have child items on it}
 TKMPanel = class(TKMControl)
+  private
   public
-  constructor Create(aLeft,aTop,aWidth,aHeight:integer);
-  procedure Paint(); override;
+    constructor Create(aLeft,aTop,aWidth,aHeight:integer);
+    procedure Paint(); override;
 end;
 
 
@@ -118,6 +119,7 @@ end;
 {Also transform child according to parent position}
 procedure TKMControl.ParentTo(aParent:TKMControl);
 begin
+  Assert(aParent is TKMPanel,'Let''s not parent controls to anything else except TKMPanels');
   inc(aParent.ChildCount);
   setlength(aParent.Childs,aParent.ChildCount);
   aParent.Childs[aParent.ChildCount-1]:=Self;
@@ -127,12 +129,24 @@ begin
 end;
 
 
+procedure TKMControl.CheckCursorOver(X,Y:integer);
+var i:integer;
+begin
+  CursorOver:=InRange(X,Left,Left+Width) and InRange(Y,Top,Top+Height);
+  Pressed:=Pressed and CursorOver;
+  for i:=1 to ChildCount do
+    if Childs[i-1].Visible then
+      Childs[i-1].CheckCursorOver(X,Y);
+end;
+
+
 {One common thing - draw childs for self}
 procedure TKMControl.Paint();
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    Childs[i-1].Paint;
+    if Childs[i-1].Visible then
+      Childs[i-1].Paint;
 end;
 
 
@@ -142,10 +156,12 @@ begin
 end;
 
 
+{Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint();
 begin
-  //fRenderUI.WritePic(1,Left,Top);
+  fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
   Inherited Paint;
+  fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
 end;
 
 
@@ -170,7 +186,7 @@ var State:T3DButtonStateSet;
 begin
   State:=[];
   if CursorOver and Enabled then State:=State+[bs_Highlight];
-  if CursorDown then State:=State+[bs_Down];
+  if Pressed then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
   fRenderUI.Write3DButton(TexID,Left,Top,Width,Height,State);
   if TexID=0 then
@@ -191,7 +207,7 @@ var State:T3DButtonStateSet;
 begin
   State:=[];
   if CursorOver and Enabled then State:=State+[bs_Highlight];
-  if CursorDown then State:=State+[bs_Down];
+  if Pressed then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
   fRenderUI.WriteFlatButton(TexID,Left,Top,Width,Height,State);
 end;
@@ -241,10 +257,9 @@ procedure TKMControlsCollection.OnMouseOver(X,Y:integer);
 var i:integer;
 begin
   for i:=0 to Count-1 do
-    if TKMControl(Items[I]).Visible then
-    TKMControl(Items[I]).CursorOver:=
-    InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
-    InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height);
+    if TKMControl(Items[I]).Parent=nil then
+      if TKMControl(Items[I]).Visible then
+        TKMControl(Items[I]).CheckCursorOver(X,Y);
 end;
 
 
@@ -256,7 +271,7 @@ begin
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
       if TKMControl(Items[I]).Visible then
       if TKMControl(Items[I]).Enabled then
-        TKMControl(Items[I]).CursorDown:=true;
+        TKMControl(Items[I]).Pressed:=true;
 end;
 
 
@@ -268,7 +283,7 @@ begin
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
       if TKMControl(Items[I]).Visible then
       if TKMControl(Items[I]).Enabled then begin
-        TKMControl(Items[I]).CursorDown:=false;
+        TKMControl(Items[I]).Pressed:=false;
         if Assigned(TKMControl(Items[I]).OnClick) then begin
           TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
           exit; //Send OnClick only to one item
