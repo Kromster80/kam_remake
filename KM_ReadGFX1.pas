@@ -14,7 +14,7 @@ type
       function ReadHouseDAT(filename:string):boolean;
       function ReadUnitDAT(filename:string):boolean;
 
-      function ReadFont(filename:string; aFont:TKMFont):boolean;
+      function ReadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
       function ReadRX(filename:string; ID:integer):boolean;
       procedure MakeGFX(Sender: TObject; RXid:integer);
@@ -23,7 +23,6 @@ type
 
     procedure MakeMiniMapColors();
     function MakeCursors(RXid:integer):boolean;
-    function MakeResourceIcons(RXid:integer):boolean;
 
 implementation
 
@@ -45,28 +44,25 @@ begin
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
 
   for i:=1 to 5 do
-  if (i in [4..5])or(MakeGameSprites) then begin //Always make GUI
-  
+  if (i=4)or(MakeGameSprites) then begin //Always make GUI
+
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
 
-    if i=4 then begin
+    //Make GUI items
+    if i=4 then
       MakeCursors(4);
-      MakeResourceIcons(4);
-    end;
 
     MakeGFX(nil,i);
     StepRefresh();
   end;
 
-  //Make GUI items
-
-  fLog.AppendLog('Preparing MiniMap colors...');
   MakeMiniMapColors();
-  StepRefresh();
+  fLog.AppendLog('Prepared MiniMap colors...');
+  StepRefresh();       
 
-  fLog.AppendLog('Reading fonts');
   for i:=1 to length(FontFiles) do
-  ReadFont(text+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i));
+    ReadFont(text+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
+  fLog.AppendLog('Read fonts is done');
   StepRefresh();
 
   fLog.AppendLog('ReadGFX is done');
@@ -501,39 +497,7 @@ begin
 end;
 
 
-function MakeResourceIcons(RXid:integer):boolean;
-var
-  i,sx,sy,x,y,t:integer;
-  bm,bm2:TBitmap;
-begin
-  bm:=TBitmap.Create;  bm.PixelFormat:=pf24bit;
-  bm2:=TBitmap.Create; bm2.PixelFormat:=pf24bit;
-
-  for i:=351 to 378 do begin
-
-    sx:=RXData[RXid].Size[i,1];
-    sy:=RXData[RXid].Size[i,2];
-
-    bm.Width:=20; bm.Height:=20;
-    bm2.Width:=20; bm2.Height:=20;
-
-    for y:=0 to 20-1 do for x:=0 to 20-1 do begin
-
-      if (y>sy-1)or(x>sx-1) then t:=1 else t:=RXData[RXid].Data[i,y*sx+x]+1;
-      bm.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
-      if t=1 then
-        bm2.Canvas.Pixels[x,y]:=$FFFFFF
-      else
-        bm2.Canvas.Pixels[x,y]:=$000000;
-    end;
-
-  Form1.IL_ResourceIcons.Add(bm,bm2);
-  end;
-
-end;
-
-
-function ReadFont(filename:string; aFont:TKMFont):boolean;
+function ReadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 const
   TexWidth=256; //Connected to TexData, don't change
 var
@@ -595,17 +559,20 @@ for i:=0 to 255 do
 
   GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],tm_TexID);
 
-MyBitMap:=TBitMap.Create;
-MyBitmap.PixelFormat:=pf24bit;
-MyBitmap.Width:=TexWidth;
-MyBitmap.Height:=TexWidth;
+if WriteFontToBMP then begin
+  MyBitMap:=TBitMap.Create;
+  MyBitmap.PixelFormat:=pf24bit;
+  MyBitmap.Width:=TexWidth;
+  MyBitmap.Height:=TexWidth;
 
-for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-  t:=TD[ci*TexWidth+ck]+1;
-  MyBitmap.Canvas.Pixels[ck,ci]:={t+t*256+t*65536;//}Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+  for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
+    t:=TD[ci*TexWidth+ck]+1;
+    MyBitmap.Canvas.Pixels[ck,ci]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+  end;
+
+  CreateDir(ExeDir+'Fonts\');
+  MyBitmap.SaveToFile(ExeDir+'Fonts\'+ExtractFileName(filename)+'.bmp');
 end;
-
-MyBitmap.SaveToFile(ExeDir+ExtractFileName(filename)+'.bmp');
 
 setlength(TD,0);
 Result:=true;

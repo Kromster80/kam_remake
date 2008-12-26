@@ -4,7 +4,7 @@ uses
   KM_Defaults, Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, FileCtrl, ExtCtrls, KromUtils, OpenGL, KromOGLUtils,
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Render, KM_RenderUI, KM_ReadGFX1,
-  ImgList, KM_Form_Loading, math, Grids, KM_Tplayer, KM_Terrain, KM_Global_Data,
+  ImgList, KM_Form_Loading, math, KM_Tplayer, KM_Terrain, KM_Global_Data,
   KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, JPEG, KM_GamePlayInterface, KM_Controls,
   ColorPicker;
 
@@ -84,29 +84,14 @@ type
     Pl2: TSpeedButton;
     Pl3: TSpeedButton;
     Pl6: TSpeedButton;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    TabSheet4: TTabSheet;
-    Button2: TButton;
-    Button3: TButton;
-    Button4: TButton;
-    Button5: TButton;
-    Button6: TButton;
     Timer1sec: TTimer;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     ExportGUIMainRX: TMenuItem;
-    TabSheet5: TTabSheet;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label6: TLabel;
-    IL_ResourceIcons: TImageList;
-    Image2: TImage;
-    Image5: TImage;
     Shape267: TShape;
     Button7: TButton;
-    TabSheet6: TTabSheet;
+    Exportfonts1: TMenuItem;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -143,6 +128,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure Button7Click(Sender: TObject);
+    procedure Exportfonts1Click(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -554,6 +540,13 @@ procedure TForm1.Button7Click(Sender: TObject);
 begin
 Button7.Enabled:=false;
 InitGUIControls();
+end;
+
+procedure TForm1.Exportfonts1Click(Sender: TObject);
+var i:integer;
+begin
+  for i:=1 to length(FontFiles) do
+    ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
 end;
 
 end.

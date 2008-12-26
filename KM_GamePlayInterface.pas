@@ -13,13 +13,13 @@ var
   KMButtonMain:array[1..5]of TKMButton;
   KMButtonRun:TKMButton;
   KMButton:array[1..20]of TKMButton;
-  KMButtonFlat:array[1..20]of TKMButtonFlat;
+  KMButtonFlat:array[1..40]of TKMButtonFlat;
   KMLabel:array[1..20]of TKMLabel;
   KMImage:array[1..20]of TKMImage;
   KMPanel:array[1..20]of TKMPanel;
 
 procedure InitGUIControls();
-var i,Page,Button:integer;
+var i,k,Page,Button:integer;
 begin
 
 KMImage[1]:=TKMImage.Create(0,0,224,200,407);
@@ -49,8 +49,10 @@ KMButtonMain[5]:=TKMButton.Create(  8, 428+5, 42, 36, 443);
 fControls.Add(KMButtonMain[5]); @KMButtonMain[5].OnClick:=@SwitchPage;
 KMButtonMain[5].Visible:=false;
 
+{I plan to store all possible layouts on different pages which gets displayed one at a time}
+
 {Building page}
-  Page:=byte(gp_Build);
+  Page:=gp_Build;
   KMPanel[Page]:=TKMPanel.Create(0,474,224,400);
   fControls.Add(KMPanel[Page]);
   KMPanel[Page].Visible:=false;
@@ -59,37 +61,41 @@ KMButtonMain[5].Visible:=false;
   fControls.Add(KMLabel[1]);
   KMLabel[1].ParentTo(KMPanel[Page]);
 
-  Button:=byte(gb_Road);
-  KMButtonFlat[Button]:=TKMButtonFlat.Create(  8,60,32,32,335);
-  fControls.Add(KMButtonFlat[Button]);
-  KMButtonFlat[Button].ParentTo(KMPanel[Page]);
-  Button:=byte(gb_Field);
-  KMButtonFlat[Button]:=TKMButtonFlat.Create( 44,60,32,32,337);
-  fControls.Add(KMButtonFlat[Button]);
-  KMButtonFlat[Button].ParentTo(KMPanel[Page]);
-  Button:=byte(gb_Wine);
-  KMButtonFlat[Button]:=TKMButtonFlat.Create( 80,60,32,32,336);
-  fControls.Add(KMButtonFlat[Button]);
-  KMButtonFlat[Button].ParentTo(KMPanel[Page]);
-  Button:=byte(gb_Cancel);
-  KMButtonFlat[Button]:=TKMButtonFlat.Create(152,60,32,32,340);
-  fControls.Add(KMButtonFlat[Button]);
-  KMButtonFlat[Button].ParentTo(KMPanel[Page]);
+  KMButtonFlat[gb_Road]:=TKMButtonFlat.Create(  8,60,32,32,335);
+  fControls.Add(KMButtonFlat[gb_Road]);
+  KMButtonFlat[gb_Road].ParentTo(KMPanel[Page]);
+  KMButtonFlat[gb_Field]:=TKMButtonFlat.Create( 44,60,32,32,337);
+  fControls.Add(KMButtonFlat[gb_Field]);
+  KMButtonFlat[gb_Field].ParentTo(KMPanel[Page]);
+  KMButtonFlat[gb_Wine]:=TKMButtonFlat.Create( 80,60,32,32,336);
+  fControls.Add(KMButtonFlat[gb_Wine]);
+  KMButtonFlat[gb_Wine].ParentTo(KMPanel[Page]);
+  KMButtonFlat[gb_Cancel]:=TKMButtonFlat.Create(152,60,32,32,340);
+  fControls.Add(KMButtonFlat[gb_Cancel]);
+  KMButtonFlat[gb_Cancel].ParentTo(KMPanel[Page]);
+
+  for i:=0 to 4 do for k:=0 to 4 do begin
+    Button:=gb_BuildItemA+i*5+k;
+    Assert(Button<=gb_BuildItemZ,'Number of build buttons exceeded');
+    KMButtonFlat[Button]:=TKMButtonFlat.Create( 8+k*36,100+i*36,32,32,GUIBuildIcons[i*5+k+1]);
+    fControls.Add(KMButtonFlat[Button]);
+    KMButtonFlat[Button].ParentTo(KMPanel[Page]);
+  end;
 
 {Ratios page}
-  Page:=byte(gp_Ratios);
+  Page:=gp_Ratios;
   KMPanel[Page]:=TKMPanel.Create(0,474,224,400);
   fControls.Add(KMPanel[Page]);
   KMPanel[Page].Visible:=false;
 
 {Stats page}
-  Page:=byte(gp_Stats);
+  Page:=gp_Stats;
   KMPanel[Page]:=TKMPanel.Create(0,474,224,400);
   fControls.Add(KMPanel[Page]);
   KMPanel[Page].Visible:=false;
 
 {Menu page}
-  Page:=byte(gp_Menu);
+  Page:=gp_Menu;
   KMPanel[Page]:=TKMPanel.Create(0,474,224,400);
   fControls.Add(KMPanel[Page]);
   KMPanel[Page].Visible:=false;
@@ -129,25 +135,8 @@ end;
 
 
 procedure ShowHouseInfo(KMHouse:TKMHouse);
-var i:integer;
 begin
   KMLabel[1].Caption:=TypeToString(KMHouse.GetHouseType);
-  case KMHouse.GetHouseType of
-    ht_Store:
-      begin
-
-      
-
-      end;
-    ht_Barracks:;
-    ht_School:;
-  else begin
-    Form1.Label3.Caption:=TypeToString(HouseOutput[byte(KMHouse.GetHouseType),1]);
-    Form1.Image2.Canvas.FillRect(Form1.Image2.ClientRect);
-    for i:=1 to KMHouse.CheckResOut(HouseOutput[byte(KMHouse.GetHouseType),1]) do
-      Form1.IL_ResourceIcons.Draw(Form1.Image2.Canvas,4+i*20,4,byte(HouseOutput[byte(KMHouse.GetHouseType),1])-1);
-  end;
-  end;
 end;
 
 end.

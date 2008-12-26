@@ -1450,119 +1450,6 @@ object Form1: TForm1
         OnClick = BBClick
       end
     end
-    object TabSheet1: TTabSheet
-      Caption = 'Ratios'
-      ImageIndex = 1
-    end
-    object TabSheet2: TTabSheet
-      Caption = 'Stats'
-      ImageIndex = 2
-    end
-    object TabSheet4: TTabSheet
-      Caption = 'Menu'
-      ImageIndex = 3
-      object Button2: TButton
-        Left = 16
-        Top = 8
-        Width = 75
-        Height = 25
-        Caption = 'Button2'
-        TabOrder = 0
-      end
-      object Button3: TButton
-        Left = 16
-        Top = 40
-        Width = 75
-        Height = 25
-        Caption = 'Button2'
-        TabOrder = 1
-      end
-      object Button4: TButton
-        Left = 16
-        Top = 72
-        Width = 75
-        Height = 25
-        Caption = 'Button2'
-        TabOrder = 2
-      end
-      object Button5: TButton
-        Left = 16
-        Top = 104
-        Width = 75
-        Height = 25
-        Caption = 'Button2'
-        TabOrder = 3
-      end
-      object Button6: TButton
-        Left = 16
-        Top = 136
-        Width = 75
-        Height = 25
-        Caption = 'Button2'
-        TabOrder = 4
-      end
-    end
-    object TabSheet5: TTabSheet
-      Caption = 'House'
-      ImageIndex = 4
-      object Label2: TLabel
-        Left = 0
-        Top = 64
-        Width = 58
-        Height = 13
-        Caption = 'Resource In'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label3: TLabel
-        Left = 0
-        Top = 88
-        Width = 66
-        Height = 13
-        Caption = 'Resource Out'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label6: TLabel
-        Left = 64
-        Top = 8
-        Width = 20
-        Height = 13
-        Caption = 'Title'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'MS Sans Serif'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Image2: TImage
-        Left = 72
-        Top = 88
-        Width = 105
-        Height = 25
-        Transparent = True
-      end
-      object Image5: TImage
-        Left = 72
-        Top = 64
-        Width = 105
-        Height = 25
-        Transparent = True
-      end
-    end
-    object TabSheet6: TTabSheet
-      Caption = 'Units'
-      ImageIndex = 5
-    end
   end
   object StatusBar1: TStatusBar
     Left = 0
@@ -1700,6 +1587,7 @@ object Form1: TForm1
     end
     object Script1: TMenuItem
       Caption = 'Script'
+      Enabled = False
       object OpenDAT: TMenuItem
         Caption = 'Open DAT ...'
         OnClick = OpenDATClick
@@ -1732,7 +1620,7 @@ object Form1: TForm1
       end
     end
     object Export1: TMenuItem
-      Caption = 'Export RX'
+      Caption = 'Export Graphics'
       object ExportTreesRX: TMenuItem
         Caption = 'Trees'
         OnClick = ExportTreesRXClick
@@ -1753,6 +1641,10 @@ object Form1: TForm1
         Caption = 'GUI Main'
         OnClick = ExportGUIMainRXClick
       end
+      object Exportfonts1: TMenuItem
+        Caption = 'Export fonts'
+        OnClick = Exportfonts1Click
+      end
     end
     object About1: TMenuItem
       Caption = 'About..'
@@ -1769,11 +1661,5 @@ object Form1: TForm1
     OnTimer = Timer1secTimer
     Left = 864
     Top = 600
-  end
-  object IL_ResourceIcons: TImageList
-    Height = 20
-    Width = 20
-    Left = 344
-    Top = 168
   end
 end

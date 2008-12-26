@@ -36,10 +36,14 @@ type
 
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
 
-  TGUIPage = (gp_Build=1, gp_Ratios=2, gp_Stats=3, gp_Menu=4);
+const //TGUIButton = (
+  //GUI Pages
+  gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4;
+  //GUI Buttons
+  gb_Road=1;   gb_Field=2;   gb_Wine=3;   gb_Cancel=4;
+  gb_BuildItemA=5; {27pcs} gb_BuildItemZ=32;
 
-  TGUIButton = (gb_Road=1, gb_Field=2, gb_Wine=3, gb_Cancel=4);
-
+type
   TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);
 
   TResourceType = (rt_None=0, rt_All=30, rt_Warfare=31,
@@ -178,6 +182,14 @@ type
   TDemandType = (dt_Once, dt_Constant); //Is this one-time demand like usual, or constant (storehouse, barracks)
 
 const
+
+  GUIBuildIcons:array[1..25]of word = (
+  314, 328, 315, 310, 301,
+  309, 323, 308, 317, 325,
+  329, 306, 304, 316, 320,
+  326, 321, 313, 305, 302,
+  303, 311, 322, 312, 318);
+
   HouseName:array[1..29]of string = (
   'Sawmill','Iron smithy','Weapon smithy','Coal mine','Iron mine',
   'Gold mine','Fisher hut','Bakery','Farm','Woodcutter',

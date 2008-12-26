@@ -117,9 +117,10 @@ object Form_ColorPicker: TForm_ColorPicker
     Top = 268
     Width = 49
     Height = 22
-    Increment = 1
     MaxValue = 255
+    MinValue = 0
     TabOrder = 1
+    Value = 0
     OnChange = SpinRGBChange
   end
   object SpinG: TSpinEdit
@@ -127,9 +128,10 @@ object Form_ColorPicker: TForm_ColorPicker
     Top = 294
     Width = 49
     Height = 22
-    Increment = 1
     MaxValue = 255
+    MinValue = 0
     TabOrder = 2
+    Value = 0
     OnChange = SpinRGBChange
   end
   object SpinB: TSpinEdit
@@ -137,9 +139,10 @@ object Form_ColorPicker: TForm_ColorPicker
     Top = 320
     Width = 49
     Height = 22
-    Increment = 1
     MaxValue = 255
+    MinValue = 0
     TabOrder = 3
+    Value = 0
     OnChange = SpinRGBChange
   end
   object SpinS: TSpinEdit
@@ -147,9 +150,10 @@ object Form_ColorPicker: TForm_ColorPicker
     Top = 294
     Width = 49
     Height = 22
-    Increment = 1
     MaxValue = 255
+    MinValue = 0
     TabOrder = 4
+    Value = 0
     OnChange = SpinHSBChange
   end
   object SpinBr: TSpinEdit
@@ -157,9 +161,10 @@ object Form_ColorPicker: TForm_ColorPicker
     Top = 320
     Width = 49
     Height = 22
-    Increment = 1
     MaxValue = 255
+    MinValue = 0
     TabOrder = 5
+    Value = 0
     OnChange = SpinHSBChange
   end
   object Button2: TButton

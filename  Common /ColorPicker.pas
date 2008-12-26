@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Forms, Spin, StdCtrls, ExtCtrls, Controls, Math, KromUtils,
-  FloatSpinEdit;
+  {Need to remove this thing from here, it's not needed ->} FloatSpinEdit;
 
 type
   TForm_ColorPicker = class(TForm)
