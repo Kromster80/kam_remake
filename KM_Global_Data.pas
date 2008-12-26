@@ -9,6 +9,7 @@ const
   FPSLag=5;             //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
 
+  MakeGameSprites=false;//Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors=false; //Whenever to make team colors or not, saves RAM for debug
   MaxPlayers=8;         //Maximum players per map
   MaxHouses=255;        //Maximum houses one player can own

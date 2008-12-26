@@ -76,6 +76,7 @@ begin
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+  //glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST); //Does it works?
   glDisable(GL_LIGHTING);
   glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
   glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
@@ -121,12 +122,18 @@ begin
   glPointSize(fViewport.Zoom*5);
 
   fTerrain.Paint;
+  glLineWidth(1);
+  glPointSize(1);
   if Form1.ShowWires.Checked then fRender.RenderWires();
-  ControlList.Paint;
 
-  glLoadIdentity();                // Reset The View
+  ControlList.Paint;            //Units and houses
 
-  fControls.Paint;
+  glLoadIdentity();             // Reset The View
+
+  glLineWidth(1);
+  glPointSize(1);
+  glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
+  fControls.Paint;      //UserInterface
 
   SwapBuffers(h_DC);
 end;
@@ -250,7 +257,6 @@ begin
 x1:=max(CursorXc-11,1); x2:=min(CursorXc+11,fTerrain.MapX);
 y1:=max(CursorYc-10,1); y2:=min(CursorYc+10,fTerrain.MapY);
 
-glLineWidth(1);
 for i:=y1 to y2 do begin
   glbegin (GL_LINE_STRIP);
   for k:=x1 to x2 do begin
@@ -275,7 +281,6 @@ glColor4f(0.6,1,0.45,0.75);
 glPrint(inttostr(Land[i,k].Height));
 glPrint(inttostr(Land[i,k].Border));*)
 
-glLineWidth(fViewPort.Zoom/4);
 end;
 
 

@@ -44,17 +44,21 @@ begin
   RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=false;
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
 
-  for i:=1 to 5 do begin
+  for i:=1 to 5 do
+  if (i in [4..5])or(MakeGameSprites) then begin //Always make GUI
+  
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
 
-    if RXData[i].Title='GUI' then begin
-      MakeCursors(i);
-      MakeResourceIcons(i);
+    if i=4 then begin
+      MakeCursors(4);
+      MakeResourceIcons(4);
     end;
 
     MakeGFX(nil,i);
     StepRefresh();
   end;
+
+  //Make GUI items
 
   fLog.AppendLog('Preparing MiniMap colors...');
   MakeMiniMapColors();

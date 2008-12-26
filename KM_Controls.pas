@@ -60,6 +60,18 @@ TKMButton = class(TKMControl)
 end;
 
 
+{FlatButton}
+TKMButtonFlat = class(TKMControl)
+  public
+    TexID: integer;
+    Font: TKMFont;
+    TextAlign: KAlign;
+    Caption: string;
+  constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+  procedure Paint(); override;
+end;
+
+
 {Text Label}
 TKMLabel = class(TKMControl)
   public
@@ -166,6 +178,25 @@ begin
 end;
 
 
+{Simple version of button, with image and nothing more}
+constructor TKMButtonFlat.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  TexID:=aTexID;
+end;
+
+{Render}
+procedure TKMButtonFlat.Paint();
+var State:T3DButtonStateSet;
+begin
+  State:=[];
+  if CursorOver and Enabled then State:=State+[bs_Highlight];
+  if CursorDown then State:=State+[bs_Down];
+  if not Enabled then State:=State+[bs_Disabled];
+  fRenderUI.WriteFlatButton(TexID,Left,Top,Width,Height,State);
+end;
+
+
 constructor TKMImage.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -238,8 +269,10 @@ begin
       if TKMControl(Items[I]).Visible then
       if TKMControl(Items[I]).Enabled then begin
         TKMControl(Items[I]).CursorDown:=false;
-      if Assigned(TKMControl(Items[I]).OnClick) then
-        TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
+        if Assigned(TKMControl(Items[I]).OnClick) then begin
+          TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
+          exit; //Send OnClick only to one item
+        end;
       end;
 end;
 

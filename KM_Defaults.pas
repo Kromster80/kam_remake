@@ -36,7 +36,9 @@ type
 
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
 
-  TGUIPanel = (gp_Build=1, gp_Ratios=2, gp_Stats=3, gp_Menu=4);
+  TGUIPage = (gp_Build=1, gp_Ratios=2, gp_Stats=3, gp_Menu=4);
+
+  TGUIButton = (gb_Road=1, gb_Field=2, gb_Wine=3, gb_Cancel=4);
 
   TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);
 

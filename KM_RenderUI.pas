@@ -9,6 +9,7 @@ TRenderUI = class
   public
     constructor Create;
     procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+    procedure WriteFlatButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WritePic(ID,PosX,PosY:integer);
     function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):integer; //Should return text width in px
   end;
@@ -40,13 +41,14 @@ end;
   glPushMatrix;
     glTranslate(PosX,PosY,0);
 
-    glPushMatrix;
     //Thin black outline
     glColor4f(0,0,0,0.5);
     glBegin (GL_LINE_LOOP);
       glkQuad(0,0,SizeX,0,SizeX,SizeY,0,SizeY);
     glEnd;
 
+    glPushMatrix;
+    glkMoveAALines(false);
     glScale(SizeX,SizeY,0);
     glColor4f(1,1,1,1);
     glBindTexture(GL_TEXTURE_2D, GFXData[4,402].TexID);
@@ -96,12 +98,64 @@ end;
 end;
 
 
+procedure TRenderUI.WriteFlatButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+begin
+
+  glPushMatrix;
+    glTranslate(PosX,PosY,0);
+    //Background
+    glColor4f(0,0,0,0.5);
+    glBegin (GL_QUADS);
+      glkQuad(0,0,SizeX,0,SizeX,SizeY,0,SizeY);
+    glEnd;
+
+    //Thin outline rendered on top of background to avoid inset calculations
+    glBlendFunc(GL_DST_COLOR,GL_ONE);
+    glBegin (GL_LINE_STRIP);
+      glColor4f(1,1,1,1);
+      glvertex2f(SizeX,0);
+      glvertex2f(SizeX,SizeY);
+      glvertex2f(0,SizeY);
+      glColor4f(0,0,0,1);
+      glvertex2f(0,SizeY);
+      glvertex2f(0,0);
+      glvertex2f(SizeX,0);
+    glEnd;
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    if ID<>0 then begin
+      glColor4f(1,1,1,1);
+      WritePic(ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
+                  round((SizeY-GFXData[4,ID].PxHeight)/2));
+    end;
+
+    if bs_Highlight in State then begin
+      glColor4f(1,1,1,1);
+      glBegin (GL_LINE_LOOP);
+        glkQuad(0,0,SizeX,0,SizeX,SizeY,0,SizeY);
+      glEnd;
+    end;
+
+    if bs_Disabled in State then begin
+      glColor4f(0,0,0,0.5);
+      glBegin (GL_QUADS);
+        glkQuad(0,0,SizeX,0,SizeX,SizeY,0,SizeY);
+      glEnd;
+    end;
+
+  glPopMatrix;
+
+end;
+
+
 procedure TRenderUI.WritePic(ID,PosX,PosY:integer);
 begin                          
   glColor4f(1,1,1,1);
   if ID<>0 then with GFXData[4,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
     glPushMatrix;
+    glkMoveAALines(false);
     glTranslate(PosX,PosY,0);
     glBegin(GL_QUADS);
       glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
@@ -127,6 +181,7 @@ begin
   glColor4f(1,1,1,1);
 
   glPushMatrix;
+  glkMoveAALines(false);
   if Align=kaLeft   then glTranslate(PosX,PosY,0);
   if Align=kaCenter then glTranslate(PosX-TextWidth/2,PosY,0);
   if Align=kaRight  then glTranslate(PosX-TextWidth,PosY,0);

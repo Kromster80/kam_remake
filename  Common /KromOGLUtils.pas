@@ -15,6 +15,7 @@ procedure glPrint(text: string);
 function ReadClick(X, Y: word): Vector;
 procedure glkScale(x:single);
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
+procedure glkMoveAALines(DoShift:boolean);
 procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
 procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
 
@@ -175,6 +176,18 @@ begin
   glvertex2f(Bx,By);
   glvertex2f(Cx,Cy);
   glvertex2f(Dx,Dy);
+end;
+
+{Lines are drawn between pixels, thus when AA turned on they get blurred.
+We can negate this by using 0.5 offset
+Still it's unclear if that works on all GPUs the same..}
+procedure glkMoveAALines(DoShift:boolean);
+const Value=0.5;
+begin
+if DoShift then
+  glTranslate(Value,Value,0)
+else
+  glTranslate(-Value,-Value,0);
 end;
 
 

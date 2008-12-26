@@ -13,12 +13,13 @@ var
   KMButtonMain:array[1..5]of TKMButton;
   KMButtonRun:TKMButton;
   KMButton:array[1..20]of TKMButton;
+  KMButtonFlat:array[1..20]of TKMButtonFlat;
   KMLabel:array[1..20]of TKMLabel;
   KMImage:array[1..20]of TKMImage;
   KMPanel:array[1..20]of TKMPanel;
 
 procedure InitGUIControls();
-var i,Page:integer;
+var i,Page,Button:integer;
 begin
 
 KMImage[1]:=TKMImage.Create(0,0,224,200,407);
@@ -58,6 +59,23 @@ KMButtonMain[5].Visible:=false;
   fControls.Add(KMLabel[1]);
   KMLabel[1].ParentTo(KMPanel[Page]);
 
+  Button:=byte(gb_Road);
+  KMButtonFlat[Button]:=TKMButtonFlat.Create(  8,60,32,32,335);
+  fControls.Add(KMButtonFlat[Button]);
+  KMButtonFlat[Button].ParentTo(KMPanel[Page]);
+  Button:=byte(gb_Field);
+  KMButtonFlat[Button]:=TKMButtonFlat.Create( 44,60,32,32,337);
+  fControls.Add(KMButtonFlat[Button]);
+  KMButtonFlat[Button].ParentTo(KMPanel[Page]);
+  Button:=byte(gb_Wine);
+  KMButtonFlat[Button]:=TKMButtonFlat.Create( 80,60,32,32,336);
+  fControls.Add(KMButtonFlat[Button]);
+  KMButtonFlat[Button].ParentTo(KMPanel[Page]);
+  Button:=byte(gb_Cancel);
+  KMButtonFlat[Button]:=TKMButtonFlat.Create(152,60,32,32,340);
+  fControls.Add(KMButtonFlat[Button]);
+  KMButtonFlat[Button].ParentTo(KMPanel[Page]);
+
 {Ratios page}
   Page:=byte(gp_Ratios);
   KMPanel[Page]:=TKMPanel.Create(0,474,224,400);
@@ -90,7 +108,7 @@ KMButtonMain[5].Visible:=false;
   KMButton[4].ParentTo(KMPanel[Page]);
 end;
 
-
+{Switch between pages}
 procedure SwitchPage(SenderNil: TObject; Sender: TObject);
 var i:integer;
 begin
@@ -108,6 +126,7 @@ end else begin
   KMButtonMain[5].Visible:=true;
 end;
 end;
+
 
 procedure ShowHouseInfo(KMHouse:TKMHouse);
 var i:integer;
