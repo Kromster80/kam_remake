@@ -124,7 +124,8 @@ type
     procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure Exportfonts1Click(Sender: TObject);
+    procedure Exportfonts1Click(Sender: TObject);  
+    procedure DoScrolling;
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -361,6 +362,9 @@ if GlobalTickCount mod 2 = 0 then fTerrain.UpdateState; //Update every third tic
 if CheckBox2.Checked then
   for i:=1 to 50 do
     ControlList.UpdateState;
+
+  //Now check to see if we need to scroll
+  DoScrolling;
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -530,5 +534,54 @@ begin
   fRender.Render;
 end;
 
+procedure TForm1.DoScrolling;
+var
+  XCoord, YCoord: integer;
+  HaveChanged: boolean;
+begin
+  //Here we must test each edge to see if we need to scroll in that direction
+  //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
+
+  //First set X and Y to be the current values
+  XCoord := fViewport.XCoord;
+  YCoord := fViewport.YCoord;
+  HaveChanged := false;
+
+  // -----------------      LEFT       ------------------
+  if Mouse.CursorPos.X < SCROLLFLEX then
+  begin
+    //We must scroll left
+    XCoord := XCoord-SCROLLSPEED;
+    HaveChanged := true;
+  end;
+  // -----------------      TOP       ------------------
+  if Mouse.CursorPos.Y < SCROLLFLEX then
+  begin
+    //We must scroll up
+    YCoord := YCoord-SCROLLSPEED;
+    HaveChanged := true;
+  end;
+  // -----------------      RIGHT       ------------------
+  if Mouse.CursorPos.X > Screen.Width-1-SCROLLFLEX then
+  begin
+    //We must scroll right
+    XCoord := XCoord+SCROLLSPEED;
+    HaveChanged := true;
+  end;         
+  // -----------------      BOTTOM       ------------------
+  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then
+  begin
+    //We must scroll down
+    YCoord := YCoord+SCROLLSPEED;
+    HaveChanged := true;
+  end;
+
+  //Now do actual the scrolling, if needed
+  if HaveChanged then
+  begin
+    fViewport.SetCenter(XCoord,YCoord);
+    fMiniMap.SetRect(fViewport); //Update mini-map
+  end;
+end;
 
 end.
