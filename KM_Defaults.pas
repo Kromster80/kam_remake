@@ -38,10 +38,10 @@ type
 
 const //TGUIButton = (
   //GUI Pages
-  gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4;
+  gp_ToolBar=0; gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4;
   //GUI Buttons
   gb_Road=1;   gb_Field=2;   gb_Wine=3;   gb_Cancel=4;
-  gb_BuildItemA=5; {27pcs} gb_BuildItemZ=32;
+  gb_BuildItemA=5; {27pcs} gb_BuildItemZ=32; //5..32 span is used for build buttons
 
 type
   TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);

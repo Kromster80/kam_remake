@@ -6,11 +6,11 @@ type TNotifyEvent = procedure(Sender: TObject) of object;
 
 {Base class for all TKM elements}
 type
-TKMControl = class (TObject)
+TKMControl = class
   private
     Parent: TKMControl;
-    ChildCount:word;
-    Childs: array of TKMControl;
+    ChildCount:word;             //Those two are actually used only for TKMPanel
+    Childs: array of TKMControl; //No other elements needs to be parented
   public
     Left: Integer;
     Top: Integer;
@@ -22,11 +22,13 @@ TKMControl = class (TObject)
     FOnClick:TNotifyEvent;
     CursorOver:boolean;
     Pressed:boolean;
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
-    property OnClick: TNotifyEvent read FOnClick write FOnClick;
     procedure ParentTo (aParent:TKMControl);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState);
     procedure Paint(); virtual;
+  public
+    property OnClick: TNotifyEvent read FOnClick write FOnClick;
 end;
 
 
@@ -34,7 +36,8 @@ end;
 TKMPanel = class(TKMControl)
   private
   public
-    constructor Create(aLeft,aTop,aWidth,aHeight:integer);
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure Paint(); override;
 end;
 
@@ -43,8 +46,9 @@ end;
 TKMImage = class(TKMControl)
   public
     TexID: integer;
-  constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
-  procedure Paint(); override;
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+    procedure Paint(); override;
 end;
 
 
@@ -55,9 +59,10 @@ TKMButton = class(TKMControl)
     Font: TKMFont;
     TextAlign: KAlign;
     Caption: string;
-  constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer); overload;
-  constructor Create(aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
-  procedure Paint(); override;
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
+    procedure Paint(); override;
 end;
 
 
@@ -68,8 +73,9 @@ TKMButtonFlat = class(TKMControl)
     Font: TKMFont;
     TextAlign: KAlign;
     Caption: string;
-  constructor Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
-  procedure Paint(); override;
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+    procedure Paint(); override;
 end;
 
 
@@ -79,8 +85,9 @@ TKMLabel = class(TKMControl)
     Font: TKMFont;
     TextAlign: KAlign;
     Caption: string;
-  constructor Create(aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
-  procedure Paint(); override;
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
+    procedure Paint(); override;
 end;
 
 
@@ -89,7 +96,13 @@ TKMControlsCollection = class(TKMList)
     //fControl: TKMControl;
   public
     constructor Create;
-    procedure Add(Sender:TKMControl);
+    procedure AddToCollection(Sender:TKMControl);
+    function AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
+    function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton; overload;
+    function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
+    function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
+    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string):TKMLabel;
+    function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp(X,Y:integer; AButton:TMouseButton);
@@ -119,6 +132,7 @@ end;
 {Also transform child according to parent position}
 procedure TKMControl.ParentTo(aParent:TKMControl);
 begin
+  if aParent=nil then exit; //Has no parent
   Assert(aParent is TKMPanel,'Let''s not parent controls to anything else except TKMPanels');
   inc(aParent.ChildCount);
   setlength(aParent.Childs,aParent.ChildCount);
@@ -154,9 +168,10 @@ begin
 end;
 
 
-constructor TKMPanel.Create(aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
 end;
 
 
@@ -169,19 +184,21 @@ begin
 end;
 
 
-constructor TKMButton.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   TexID:=aTexID;
+  ParentTo(aParent);
 end;
 
 {Different version of button, with caption on in instead of image}
-constructor TKMButton.Create(aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
+constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   Caption:=aCaption;
   Font:=aFont;
   TextAlign:=kaCenter; //Thats default everywhere in KaM
+  ParentTo(aParent);
 end;
 
 
@@ -199,10 +216,11 @@ end;
 
 
 {Simple version of button, with image and nothing more}
-constructor TKMButtonFlat.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+constructor TKMButtonFlat.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   TexID:=aTexID;
+  ParentTo(aParent);
 end;
 
 {Render}
@@ -217,9 +235,10 @@ begin
 end;
 
 
-constructor TKMImage.Create(aLeft,aTop,aWidth,aHeight,aTexID:integer);
+constructor TKMImage.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
   TexID:=aTexID;
 end;
 
@@ -230,9 +249,10 @@ begin
 end;
 
 
-constructor TKMLabel.Create(aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
   Font:=aFont;
   TextAlign:=aTextAlign;
   Caption:=aCaption;
@@ -251,11 +271,46 @@ begin
 end;
 
 
-procedure TKMControlsCollection.Add(Sender:TKMControl);
+procedure TKMControlsCollection.AddToCollection(Sender:TKMControl);
 begin
   Inherited Add(Sender);
 end;
 
+function TKMControlsCollection.AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
+begin
+  Result:=TKMPanel.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton;
+begin
+  Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton;
+begin
+  Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
+begin
+  Result:=TKMButtonFlat.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string):TKMLabel;
+begin
+  Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
+begin
+  Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID);
+  AddToCollection(Result);
+end;
 
 procedure TKMControlsCollection.OnMouseOver(X,Y:integer; AShift:TShiftState);
 var i:integer;

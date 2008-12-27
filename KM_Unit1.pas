@@ -584,4 +584,30 @@ begin
   end;
 end;
 
+{//I want to suggest. Please don't think of me as a moroon, but I feel important to keep code tight rather than spread
+//I squeezed 48lines into 19. Since they do all fit into one screen it's much easier to read now.
+//Cursors will probably add another 12lines to it
+//Here we must test each edge to see if we need to scroll in that direction
+//We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
+procedure TForm1.DoScrolling;
+var XCoord, YCoord: integer;
+begin
+  //First set X and Y to be the current values
+  XCoord := fViewport.XCoord;
+  YCoord := fViewport.YCoord;
+
+  //Left, Top, Right, Bottom
+  if Mouse.CursorPos.X < SCROLLFLEX then XCoord := XCoord-SCROLLSPEED;
+  if Mouse.CursorPos.Y < SCROLLFLEX then YCoord := YCoord-SCROLLSPEED;
+  if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then XCoord := XCoord+SCROLLSPEED;
+  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then YCoord := YCoord+SCROLLSPEED;
+
+  //Now do actual the scrolling, if needed
+  if (XCoord<>fViewport.XCoord)or(YCoord<>fViewport.YCoord) then
+  begin
+    fViewport.SetCenter(XCoord,YCoord);
+    fMiniMap.SetRect(fViewport); //Update mini-map
+  end;
+end;}
+
 end.
