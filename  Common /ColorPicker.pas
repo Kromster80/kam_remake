@@ -3,8 +3,7 @@ unit ColorPicker;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Forms, Spin, StdCtrls, ExtCtrls, Controls, Math, KromUtils,
-  {Need to remove this thing from here, it's not needed ->} FloatSpinEdit;
+  SysUtils, Classes, Graphics, Forms, Spin, StdCtrls, ExtCtrls, Controls, Math, KromUtils;
 
 type
   TForm_ColorPicker = class(TForm)
