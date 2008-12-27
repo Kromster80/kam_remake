@@ -251,7 +251,7 @@ begin
   P.X:= CursorXc;
   P.Y:= CursorYc;
 
-  fControls.OnMouseDown(X,Y);
+  fControls.OnMouseDown(X,Y,Button);
 
   //example for units need change
   if Button = mbRight then
@@ -286,7 +286,7 @@ if CursorMode=cm_None then
     Screen.Cursor:=c_Default;
 
 fTerrain.UpdateCursor(CursorMode,KMPoint(CursorXc,CursorYc));
-fControls.OnMouseOver(X,Y);
+fControls.OnMouseOver(X,Y,Shift);
 
 if not MousePressed then exit;
 
@@ -303,7 +303,7 @@ begin
   P.Y:=CursorYc;
 
   if X<=ToolBarWidth then
-    fControls.OnMouseUp(X,Y)
+    fControls.OnMouseUp(X,Y,Button)
   else
 
   case CursorMode of

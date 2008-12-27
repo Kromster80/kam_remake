@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, KM_Classes, KM_RenderUI, Math, KM_Defaults, KromOGLUtils;
+uses Controls, KM_Classes, KM_RenderUI, Math, KM_Defaults, KromOGLUtils, Classes;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
@@ -25,7 +25,7 @@ TKMControl = class (TObject)
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     procedure ParentTo (aParent:TKMControl);
-    procedure CheckCursorOver(X,Y:integer);
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState);
     procedure Paint(); virtual;
 end;
 
@@ -90,9 +90,9 @@ TKMControlsCollection = class(TKMList)
   public
     constructor Create;
     procedure Add(Sender:TKMControl);
-    procedure OnMouseOver(X,Y:integer);
-    procedure OnMouseDown(X,Y:integer);
-    procedure OnMouseUp(X,Y:integer);
+    procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
+    procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
+    procedure OnMouseUp(X,Y:integer; AButton:TMouseButton);
     procedure Paint();
 end;
 
@@ -129,14 +129,18 @@ begin
 end;
 
 
-procedure TKMControl.CheckCursorOver(X,Y:integer);
+procedure TKMControl.CheckCursorOver(X,Y:integer; AShift:TShiftState);
 var i:integer;
 begin
   CursorOver:=InRange(X,Left,Left+Width) and InRange(Y,Top,Top+Height);
   Pressed:=Pressed and CursorOver;
+  //Now check to see if they moved their mouse back over with the left button still depressed
+  if (ssLeft in AShift) and (CursorOver) then
+    Pressed := true;
+
   for i:=1 to ChildCount do
     if Childs[i-1].Visible then
-      Childs[i-1].CheckCursorOver(X,Y);
+      Childs[i-1].CheckCursorOver(X,Y,AShift);
 end;
 
 
@@ -190,7 +194,7 @@ begin
   if not Enabled then State:=State+[bs_Disabled];
   fRenderUI.Write3DButton(TexID,Left,Top,Width,Height,State);
   if TexID=0 then
-    fRenderUI.WriteText(Left + Width div 2, Top + Height div 2, TextAlign, Caption, Font);
+    fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-6, TextAlign, Caption, Font);
 end;
 
 
@@ -253,35 +257,38 @@ begin
 end;
 
 
-procedure TKMControlsCollection.OnMouseOver(X,Y:integer);
+procedure TKMControlsCollection.OnMouseOver(X,Y:integer; AShift:TShiftState);
 var i:integer;
 begin
   for i:=0 to Count-1 do
     if TKMControl(Items[I]).Parent=nil then
       if TKMControl(Items[I]).Visible then
-        TKMControl(Items[I]).CheckCursorOver(X,Y);
+      if TKMControl(Items[I]).Enabled then
+        TKMControl(Items[I]).CheckCursorOver(X,Y,AShift);
 end;
 
 
-procedure TKMControlsCollection.OnMouseDown(X,Y:integer);
+procedure TKMControlsCollection.OnMouseDown(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
-      if TKMControl(Items[I]).Visible then
+      if TKMControl(Items[I]).Visible then   
+      if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then
         TKMControl(Items[I]).Pressed:=true;
 end;
 
 
-procedure TKMControlsCollection.OnMouseUp(X,Y:integer);
+procedure TKMControlsCollection.OnMouseUp(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
       if TKMControl(Items[I]).Visible then
+      if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then begin
         TKMControl(Items[I]).Pressed:=false;
         if Assigned(TKMControl(Items[I]).OnClick) then begin
