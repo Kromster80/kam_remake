@@ -340,11 +340,6 @@ RoadsConnectivity:array [0..15,1..2]of byte = (
 //Render scale
 ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 
-
-const
-  SCROLLSPEED = 1; //This is the speed that the viewport will scroll every 100 ms
-  SCROLLFLEX = 4; //This is the number of pixels either side of the edge of the screen which will count as scrolling
-
 var
 //Players colors
 TeamColors:array[1..8]of cardinal = (

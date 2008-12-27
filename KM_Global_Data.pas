@@ -8,6 +8,11 @@ const
   Overlap=0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   FPSLag=5;             //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
+  //Moved it to where it belongs, Global engine data should be here,
+  //While KM_Defaults meant for enum, types and KaM related things
+  //Delete this comment upon reading ;-)
+  SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms
+  SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
   MakeGameSprites=false;//Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors=false; //Whenever to make team colors or not, saves RAM for debug
