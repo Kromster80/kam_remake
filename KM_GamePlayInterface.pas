@@ -5,17 +5,21 @@ uses KM_Controls, Forms, Graphics, Windows, SysUtils, KromUtils, KromOGLUtils, M
 type TKMGamePlayInterface = class
   private
     KMPanel:array[0..50]of TKMPanel;      //Pages
+    KMPanel_Unit,KMPanel_House:TKMPanel;
     KMButtonMain:array[1..5]of TKMButton; //4 common buttons
     KMButtonRun:TKMButton;                //Start Village functioning
     KMButton:array[1..20]of TKMButton;    //3D stone buttons
+    KMButton_House_Goods,KMButton_House_Repair:TKMButton;
     KMButtonFlat:array[1..40]of TKMButtonFlat; //Flat build buttons
     KMLabel:array[1..20]of TKMLabel;      //Texts
     //Or maybe it's better to store everything as Form1 does for its elements
     //Just make a huge list of KMControls in here?
     //Please add your comment
     KMLabel_UnitCondition:TKMLabel;
+    KMLabel_House:TKMLabel;
     KMHealthBar_Unit:TKMPercentBar;
     KMImage:array[1..20]of TKMImage;      //Images
+    KMImage_House_Logo:TKMImage;
     procedure SwitchPage(Sender: TObject);
   public
     constructor Create;
@@ -63,7 +67,6 @@ begin
 {Building page}
   Page:=gp_Build;
   KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
-  KMPanel[Page].Visible:=false;
 
   KMLabel[1]:=fControls.AddLabel(KMPanel[Page],100,10,100,30,fnt_Metal,kaCenter,'Items   to   build');
 
@@ -81,39 +84,36 @@ begin
 {Ratios page}
   Page:=gp_Ratios;
   KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
-  KMPanel[Page].Visible:=false;
 
 {Stats page}
   Page:=gp_Stats;
   KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
-  KMPanel[Page].Visible:=false;
 
 {Menu page}
   Page:=gp_Menu;
   KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
-  KMPanel[Page].Visible:=false;
 
   KMButton[1]:=fControls.AddButton(KMPanel[Page],10,20,180,30,'Save game',fnt_Metal);
   KMButton[2]:=fControls.AddButton(KMPanel[Page],10,60,180,30,'Load game',fnt_Metal);
   KMButton[3]:=fControls.AddButton(KMPanel[Page],10,100,180,30,'Options',fnt_Metal);
   KMButton[4]:=fControls.AddButton(KMPanel[Page],10,180,180,30,'Exit',fnt_Metal);
 
-{Unit description page}
-  Page:=gp_Unit;
-  KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
-  KMPanel[Page].Visible:=false;
+{Village Unit description page, no actions}
+  KMPanel_Unit:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
 
-  KMLabel[gl_UnitName]:=fControls.AddLabel(KMPanel[Page],100,10,100,30,fnt_Metal,kaCenter,'Unit name here');
-  KMLabel[gl_UnitCondition]:=fControls.AddLabel(KMPanel[Page],80,40,100,30,fnt_Metal,kaLeft,'Condition');
-  KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel[Page],80,60,100,20,80);
-  KMLabel_UnitCondition:=fControls.AddLabel(KMPanel[Page],80,80,100,30,fnt_Metal,kaLeft,'Condition');
+  KMLabel[gl_UnitName]:=fControls.AddLabel(KMPanel_Unit,100,10,100,30,fnt_Metal,kaCenter,'Unit name here');
+  KMLabel[gl_UnitCondition]:=fControls.AddLabel(KMPanel_Unit,80,40,100,30,fnt_Metal,kaLeft,'Condition');
+  KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,80,60,100,20,80);
+  KMLabel_UnitCondition:=fControls.AddLabel(KMPanel_Unit,80,80,100,30,fnt_Metal,kaLeft,'Condition');
 
-{House description pages}
-{  Page:=gp_Unit;
-  KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
-  KMPanel[Page].Visible:=false;
+{House description page}
+  KMPanel_House:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
+  KMLabel_House:=fControls.AddLabel(KMPanel_House,100,10,100,30,fnt_Metal,kaCenter,'House name here');
+  KMButton_House_Goods:=fControls.AddButton(KMPanel_House,10,40,30,30,37);
+  KMButton_House_Repair:=fControls.AddButton(KMPanel_House,44,40,30,30,39);
+  KMImage_House_Logo:=fControls.AddImage(KMPanel_House,78,40,32,32,338);
 
-  KMLabel[gl_UnitName]:=fControls.AddLabel(KMPanel[Page],100,10,100,30,fnt_Metal,kaCenter,'Gets replaced');  }
+SwitchPage(nil);
 end;
 
 
@@ -122,9 +122,9 @@ procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
 var i:integer;
 begin
 //First thing - hide all existing pages and then show one we need now
-  for i:=1 to length(KMPanel)-1 do
-    if Assigned(KMPanel[i]) then
-      KMPanel[i].Visible:=false;
+  for i:=0 to KMPanel[gp_ToolBar].ChildCount-1 do
+    if KMPanel[gp_ToolBar].Childs[i] is TKMPanel then
+      KMPanel[gp_ToolBar].Childs[i].Visible:=false;
 
 //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
 if (Sender=KMButtonMain[1])or(Sender=KMButtonMain[2])or(Sender=KMButtonMain[3])or(Sender=KMButtonMain[4]) then begin
@@ -140,7 +140,10 @@ end else begin
   KMButtonMain[5].Visible:=false;
 end;
 //Now process all other kinds of pages
-if Sender=KMPanel[gp_Unit] then begin
+if Sender=KMPanel_Unit then begin
+  TKMPanel(Sender).Visible:=true;
+end else
+if Sender=KMPanel_House then begin
   TKMPanel(Sender).Visible:=true;
 end;
 end;
@@ -149,16 +152,21 @@ end;
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse);
 begin
   Assert(InRange(gp_HouseA+byte(Sender.GetHouseType)-1,gp_HouseA,gp_HouseZ),'THouseType-HousePages is out of range');
-  if not Assigned(KMPanel[gp_HouseA+byte(Sender.GetHouseType)-1]) then
-    SwitchPage(KMPanel[1]);
-  SwitchPage(KMPanel[gp_HouseA+byte(Sender.GetHouseType)-1]);
-  //Here should be variable stuff, like resources count and etc.. for specific house
-
+  SwitchPage(KMPanel_House);
+  KMLabel_House.Caption:=TypeToString(Sender.GetHouseType);
+  KMImage_House_Logo.TexID:=300+byte(Sender.GetHouseType);
+  //process common properties
+  //if has demand - list it
+  //if has product - list it
+  //if has order placement - list it
+  //if has production costs - list them
+  //Process special houses - Store, Barracks, School
 end;
+
 
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TUnitType);
 begin
-  SwitchPage(KMPanel[gp_Unit]);
+  SwitchPage(KMPanel_Unit);
   KMLabel[gl_UnitName].Caption:=TypeToString(Sender);
 end;
 

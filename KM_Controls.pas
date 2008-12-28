@@ -7,11 +7,10 @@ type TNotifyEvent = procedure(Sender: TObject) of object;
 {Base class for all TKM elements}
 type
 TKMControl = class
-  private
+  public
     Parent: TKMControl;
     ChildCount:word;             //Those two are actually used only for TKMPanel
     Childs: array of TKMControl; //No other elements needs to be parented
-  public
     Left: Integer;
     Top: Integer;
     Width: Integer;
@@ -186,9 +185,9 @@ end;
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint();
 begin
-  if MakeDrawPagesOvelay then fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
   Inherited Paint;
-  if MakeDrawPagesOvelay then fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
 end;
 
 
@@ -243,17 +242,22 @@ begin
 end;
 
 
+{Make sure image area is at least enough to fit an image, or bigger}
 constructor TKMImage.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
+  aWidth:=max(aWidth,GFXData[4,aTexID].PxWidth);
+  aHeight:=max(aHeight,GFXData[4,aTexID].PxHeight);
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
   TexID:=aTexID;
 end;
 
 
+{If image area is bigger than image - do center image in it}
 procedure TKMImage.Paint();
 begin
-  fRenderUI.WritePic(TexID,Left,Top);
+  fRenderUI.WritePic(TexID, Left + (Width-GFXData[4,TexID].PxWidth) div 2,
+                            Top + (Height-GFXData[4,TexID].PxHeight) div 2);
 end;
 
 

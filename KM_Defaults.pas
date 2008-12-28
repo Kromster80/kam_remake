@@ -46,7 +46,7 @@ type
 
 const //TGUIButton = (
   //GUI Pages
-  gp_ToolBar=0; gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4; gp_Unit=5;
+  gp_ToolBar=0; gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4;
   gp_HouseA=6; {29pcs} gp_HouseZ=35; //6..35 span is used for houses pages
   //GUI Flat Buttons
   gb_Road=1;   gb_Field=2;   gb_Wine=3;   gb_Cancel=4;
