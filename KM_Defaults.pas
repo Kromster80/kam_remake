@@ -53,7 +53,7 @@ const //TGUIButton = (
   gb_BuildItemA=5; {27pcs} gb_BuildItemZ=32; //5..32 span is used for build buttons
   //Labels
   //Why do I need to store all this unique IDs as constants???
-  //Do you have better idea Lewin?
+  //Do you have better idea Lewin??
   gl_BuildName=1; gl_UnitName=2; gl_UnitCondition=3;
 
 type

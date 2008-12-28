@@ -13,7 +13,7 @@ const
 
   MakeGameSprites=false; //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors=false;  //Whenever to make team colors or not, saves RAM for debug
-  MakeDrawPagesOvelay=false; //Draw colored overlays ontop of panels, usefull for making layout 
+  MakeDrawPagesOverlay=false; //Draw colored overlays ontop of panels, usefull for making layout
   MaxPlayers=8;         //Maximum players per map
   MaxHouses=255;        //Maximum houses one player can own
   MaxResInHouse=5;      //Maximum resource items allowed to be in house (it's 5, but I use 3 for testing)
@@ -22,7 +22,6 @@ const
 var
   XH:integer=32;        //Height divider
   GlobalTickCount:integer=0;
-
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 

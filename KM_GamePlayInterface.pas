@@ -11,7 +11,8 @@ type TKMGamePlayInterface = class
     KMButtonFlat:array[1..40]of TKMButtonFlat; //Flat build buttons
     KMLabel:array[1..20]of TKMLabel;      //Texts
     //Or maybe it's better to store everything as Form1 does for its elements
-    //Just make a huge list of KMControls in here
+    //Just make a huge list of KMControls in here?
+    //Please add your comment
     KMLabel_UnitCondition:TKMLabel;
     KMHealthBar_Unit:TKMPercentBar;
     KMImage:array[1..20]of TKMImage;      //Images
