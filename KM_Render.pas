@@ -37,9 +37,12 @@ public
 published
 end;
 
+var
+  fRender: TRender;
+
 implementation
 
-uses KM_Unit1, KM_Terrain, KM_Global_Data, KM_Units, KM_Houses;
+uses KM_Unit1, KM_Terrain, KM_Global_Data, KM_Units, KM_Houses, KM_Viewport, KM_Controls;
 
 procedure TRender.SetRender(RenderFrame:HWND);
 begin

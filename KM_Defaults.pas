@@ -1,6 +1,12 @@
 unit KM_Defaults;
 interface
-uses KromUtils;
+uses Classes, KromUtils;
+
+type
+  TKMList = class(TList)
+  public
+    procedure Clear; override;
+  end;
 
 type TKMPointList = class
   public
@@ -11,6 +17,8 @@ type TKMPointList = class
     procedure AddEntry(aLoc:TKMPoint);
   end;
 
+
+
 type cmCursorMode = (cm_None, cm_Erase, cm_Roads, cm_Houses);
 
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
@@ -20,7 +28,7 @@ type cmCursorMode = (cm_None, cm_Erase, cm_Roads, cm_Houses);
              fnt_Grey, fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2, fnt_KMLobby3,
              fnt_KMLobby4, fnt_MainA, fnt_MainB, fnt_MainMapGold, fnt_Metal,
              fnt_Mini, fnt_Minimum, fnt_Outline, fnt_System, fnt_Won);
-const //Fon01.fnt seems to be damaged..
+const //Font01.fnt seems to be damaged..
   FontFiles: array[1..20]of string = (
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
@@ -38,10 +46,15 @@ type
 
 const //TGUIButton = (
   //GUI Pages
-  gp_ToolBar=0; gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4;
-  //GUI Buttons
+  gp_ToolBar=0; gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4; gp_Unit=5;
+  gp_HouseA=6; {29pcs} gp_HouseZ=35; //6..35 span is used for houses pages
+  //GUI Flat Buttons
   gb_Road=1;   gb_Field=2;   gb_Wine=3;   gb_Cancel=4;
   gb_BuildItemA=5; {27pcs} gb_BuildItemZ=32; //5..32 span is used for build buttons
+  //Labels
+  //Why do I need to store all this unique IDs as constants???
+  //Do you have better idea Lewin?
+  gl_BuildName=1; gl_UnitName=2; gl_UnitCondition=3;
 
 type
   TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);
@@ -190,13 +203,18 @@ const
   326, 321, 313, 305, 302,
   303, 311, 322, 312, 318);
 
+  UnitName:array[1..14]of string = (
+    'Serf','Woodcutter','Miner','AnimalBreeder','Farmer',
+    'Lamberjack','Baker','Butcher','Fisher','Worker',
+    'StoneCutter','Smith','Metallurgist','Recruit');
+
   HouseName:array[1..29]of string = (
-  'Sawmill','Iron smithy','Weapon smithy','Coal mine','Iron mine',
-  'Gold mine','Fisher hut','Bakery','Farm','Woodcutter',
-  'Armor smithy','Store','Stables','School','Quary',
-  'Metallurgist','Swine','Watch tower','Town hall','Weapon workshop',
-  'Armor workshop','Barracks','Mill','Siege workshop','Butchers',
-  'Tannery','N/A','Inn','Wineyard');
+    'Sawmill','Iron smithy','Weapon smithy','Coal mine','Iron mine',
+    'Gold mine','Fisher hut','Bakery','Farm','Woodcutter',
+    'Armor smithy','Store','Stables','School','Quary',
+    'Metallurgist','Swine','Watch tower','Town hall','Weapon workshop',
+    'Armor workshop','Barracks','Mill','Siege workshop','Butchers',
+    'Tannery','N/A','Inn','Wineyard');
 
   ResourceName:array[1..28]of string = (
     'Trunk',      'Stone',       'Wood',        'IronOre',
@@ -358,31 +376,49 @@ function TypeToString(t:TUnitType):string; overload
 
 implementation
 
+function TypeToString(t:TUnitType):string;
+var s:string;
+begin
+if byte(t) in [1..length(UnitName)] then
+  s:=UnitName[byte(t)]
+else
+  s:='N/A';
+Result:=s;
+end;
+
 
 function TypeToString(t:THouseType):string;
 var s:string;
 begin
-if byte(t) in [1..29] then
+if byte(t) in [1..length(HouseName)] then
   s:=HouseName[byte(t)]
 else
   s:='N/A';
 Result:=chr2(s,10);
 end;
 
+
 function TypeToString(t:TResourceType):string;
 var s:string;
 begin
-if byte(t) in [1..29] then
+if byte(t) in [1..length(ResourceName)] then
   s:=ResourceName[byte(t)]
 else
   s:='N/A';
 Result:=s;
 end;
 
-function TypeToString(t:TUnitType):string;
+{ TKMList }
+
+procedure TKMList.Clear;
+var
+  I: Integer;
 begin
-Result:='??????????';
+  for I := 0 to Count - 1 do
+    TObject(Items[I]).Free;
+  inherited;
 end;
+
 
 constructor TKMPointList.Create;
 begin end;

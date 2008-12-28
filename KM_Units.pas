@@ -2,7 +2,7 @@ unit KM_Units;
 interface
 uses
   KM_Defaults, windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain,
-  KM_Global_Data, KM_Classes, KM_Houses, KromUtils;
+  KM_Global_Data, KM_Houses, KromUtils;
 
 type
 
@@ -225,7 +225,7 @@ type
   end;
 
 implementation
-uses KM_Unit1;
+uses KM_Unit1, KM_Render;
 
 { TKMHunter }
 

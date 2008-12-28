@@ -22,6 +22,8 @@ public
 published
 end;
 
+var
+  fLog: TKMLog;
 
 
 implementation

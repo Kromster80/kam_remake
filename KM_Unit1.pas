@@ -4,7 +4,7 @@ uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
-  KM_Form_Loading, KM_Tplayer, KM_Terrain, KM_Global_Data,
+  KM_Form_Loading, KM_Terrain, KM_Global_Data,
   KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker;
 
 type
@@ -90,7 +90,6 @@ type
     ExportGUIMainRX: TMenuItem;
     Shape267: TShape;
     Exportfonts1: TMenuItem;
-    procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -103,7 +102,6 @@ type
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Pl1Click(Sender: TObject);
     procedure AboutClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ResetZoomClick(Sender: TObject);
@@ -140,7 +138,6 @@ var
 
 implementation  {$R *.DFM}
 
-uses KM_LoadDAT;
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
 var
@@ -311,7 +308,9 @@ begin
     cm_None:
       begin
         if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then
-          fGamePlayInterface.ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc).GetHouseType);
+          fGamePlayInterface.ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc));
+        if ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil then
+          fGamePlayInterface.ShowUnitInfo(ControlList.UnitsHitTest(CursorXc, CursorYc).GetUnitType);
       end;
     cm_Roads:
       begin
@@ -329,13 +328,6 @@ begin
         ControlList.AddHousePlan(P,THouseType(LandBrush),play_1)
     end;
 MouseButton:=mb2None;
-end;
-
-procedure TForm1.Pl1Click(Sender: TObject);
-begin
-//Obsolete
-s:=(TSpeedButton(Sender)).Name;
-Mission.ActivePlayer:=strtoint(s[3]);
 end;
 
 procedure TForm1.AboutClick(Sender: TObject);
@@ -376,10 +368,8 @@ procedure TForm1.BBClick(Sender: TObject);
 begin
 if TSpeedButton(Sender).Down=false then begin
   CursorMode:=cm_None;
-  ActiveTileName:=nil;
   exit;
 end;
-ActiveTileName:=Sender;
 s:=(TSpeedButton(Sender)).Name;
 LandBrush:=strtoint(s[3]+s[4]);
 case LandBrush of
@@ -422,13 +412,6 @@ destructor TForm1.Destroy;
 begin
   ControlList.Free;
   inherited;
-end;
-
-procedure TForm1.OpenDATClick(Sender: TObject);
-begin
-if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants dat (*.dat)|*.dat') then exit;
-LoadDAT(OpenDialog1.FileName);
-ExportDAT.Enabled:=true;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -537,30 +520,24 @@ end;
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Global_Data
 procedure TForm1.DoScrolling;
-var XCoord, YCoord: integer;
+const DirectinsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
+var XCoord, YCoord: integer; Temp:byte;
 begin
   XCoord := fViewport.XCoord; //First set X and Y to be the current values
   YCoord := fViewport.YCoord;
+  Temp:=0; //That is our bitfield variable for directions, 0..12 range
+  //    3 2 6  These are directions
+  //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
+  //    9 8 12
 
   //Left, Top, Right, Bottom
-  if Mouse.CursorPos.X < SCROLLFLEX then XCoord := XCoord-SCROLLSPEED;
-  if Mouse.CursorPos.Y < SCROLLFLEX then YCoord := YCoord-SCROLLSPEED;
-  if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then XCoord := XCoord+SCROLLSPEED;
-  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then YCoord := YCoord+SCROLLSPEED;
+  if Mouse.CursorPos.X < SCROLLFLEX then begin inc(Temp,1); XCoord := XCoord-SCROLLSPEED; end;
+  if Mouse.CursorPos.Y < SCROLLFLEX then begin inc(Temp,2); YCoord := YCoord-SCROLLSPEED; end;
+  if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); XCoord := XCoord+SCROLLSPEED; end;
+  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); YCoord := YCoord+SCROLLSPEED; end;
+  if Temp<>0 then Screen.Cursor :=DirectinsBitfield[Temp]; //Sample cursor type from bitfield value
 
-  //Set cursor. Topleft, topright, top, bottomright, right, leftbottom, bottom, left
-  if (Mouse.CursorPos.X < SCROLLFLEX) and (Mouse.CursorPos.Y < SCROLLFLEX) then //topleft
-    Screen.Cursor := c_Scroll7 else
-  if (Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX) and (Mouse.CursorPos.Y < SCROLLFLEX) then //topright
-    Screen.Cursor := c_Scroll1 else
-  if (Mouse.CursorPos.Y < SCROLLFLEX) then Screen.Cursor := c_Scroll0 else //top
-  if (Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX) and (Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX) then //bottomright
-    Screen.Cursor := c_Scroll3 else
-  if (Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX) then Screen.Cursor := c_Scroll2 else //right
-  if (Mouse.CursorPos.X < SCROLLFLEX) and (Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX) then //bottomleft
-    Screen.Cursor := c_Scroll5 else
-  if (Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX) then Screen.Cursor := c_Scroll4 else //bottom
-  if (Mouse.CursorPos.X < SCROLLFLEX) then Screen.Cursor := c_Scroll6; //left
+  //That was way to long ;-)
 
   //Now do actual the scrolling, if needed
   if (XCoord<>fViewport.XCoord)or(YCoord<>fViewport.YCoord) then

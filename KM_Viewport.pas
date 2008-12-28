@@ -38,6 +38,9 @@ public
 published
 end;
 
+var
+  fViewport: TViewport;
+  fMiniMap: TMiniMap;
 
 implementation
 uses KM_Global_Data, KM_Defaults, KM_Terrain, KM_Unit1;

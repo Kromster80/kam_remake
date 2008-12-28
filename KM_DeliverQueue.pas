@@ -67,7 +67,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Terrain, KM_Global_Data, KM_Classes;
+uses KM_Unit1, KM_Terrain, KM_Global_Data;
 
 { TKMDeliverQueue }
 

@@ -7,8 +7,6 @@ uses
   KM_Render in 'KM_Render.pas',
   KM_ReadGFX1 in 'KM_ReadGFX1.pas',
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
-  KM_LoadDAT in 'KM_LoadDAT.pas',
-  KM_TPlayer in 'KM_TPlayer.pas',
   KM_Terrain in 'KM_Terrain.pas',
   KM_Global_Data in 'KM_Global_Data.pas',
   KM_Viewport in 'KM_Viewport.pas',
@@ -20,8 +18,7 @@ uses
   KM_GamePlayInterface in 'KM_GamePlayInterface.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Controls in 'KM_Controls.pas',
-  ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
-  KM_Classes in 'KM_Classes.pas';
+  ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker};
 
 {$R *.RES}
 

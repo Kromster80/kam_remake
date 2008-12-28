@@ -1,6 +1,6 @@
 unit KM_ReadGFX1;
 interface
-uses OpenGL, Windows, Forms, Controls, KM_Defaults;
+uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults;
 
 type
   TByteArray2 = array of Byte;
@@ -22,11 +22,11 @@ type
     procedure ExportRX2BMP(RXid:integer);
 
     procedure MakeMiniMapColors();
-    function MakeCursors(RXid:integer):boolean;
+    procedure MakeCursors(RXid:integer);
 
 implementation
 
-uses KromUtils, KM_Unit1, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math, dglOpenGL,
+uses KromUtils, KM_Unit1, KM_Form_Loading,
      KM_Global_Data, KM_Log;
 
 function ReadGFX(text: string):boolean;
@@ -459,7 +459,7 @@ end;
 end;
 
 
-function MakeCursors(RXid:integer):boolean;
+procedure MakeCursors(RXid:integer);
 var
   i,sx,sy,x,y,t:integer;
   bm,bm2:TBitmap;

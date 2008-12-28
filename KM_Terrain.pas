@@ -91,9 +91,12 @@ published
 
 end;
 
+var
+  fTerrain: TTerrain;
+
 implementation
 
-uses KM_Unit1, KM_Global_Data;
+uses KM_Unit1, KM_Global_Data, KM_Viewport, KM_Render;
 
 constructor TTerrain.Create;
 begin
@@ -214,6 +217,7 @@ begin
   fMiniMap.ReSize(MapX,MapY);
 end;
 
+
 function TTerrain.OpenMapFromFile(filename:string):boolean;
 var
   i,k:integer;
@@ -224,15 +228,9 @@ begin
   assignfile(f,filename); reset(f,1);
   blockread(f,k,4);
   blockread(f,i,4);
-  if (k>MaxMapSize)or(i>MaxMapSize) then
-    begin
-      closefile(f);
-      fLog.AppendLog('TTerrain.OpenMapFromFile - Can''t open the map cos it''s too big.');
-      exit;
-    end else begin
-      MapX:=k;
-      MapY:=i;
-    end;
+  Assert((k<=MaxMapSize)and(i<=MaxMapSize),'TTerrain.OpenMapFromFile - Can''t open the map cos it''s too big.');
+  MapX:=k;
+  MapY:=i;
   MakeNewMap(MapX,MapY); //Reset whole map to default
   for i:=1 to MapY do for k:=1 to MapX do
     begin

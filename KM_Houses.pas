@@ -103,7 +103,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render;
 
 
 { TKMHouse }

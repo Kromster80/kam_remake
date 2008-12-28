@@ -122,7 +122,6 @@ object Form1: TForm1
     Flat = True
     Spacing = 2
     Transparent = False
-    OnClick = Pl1Click
   end
   object Pl4: TSpeedButton
     Left = 132
@@ -132,7 +131,6 @@ object Form1: TForm1
     GroupIndex = 100
     Caption = '4'
     Flat = True
-    OnClick = Pl1Click
   end
   object Pl5: TSpeedButton
     Left = 154
@@ -142,7 +140,6 @@ object Form1: TForm1
     GroupIndex = 100
     Caption = '5'
     Flat = True
-    OnClick = Pl1Click
   end
   object Pl2: TSpeedButton
     Left = 154
@@ -152,7 +149,6 @@ object Form1: TForm1
     GroupIndex = 100
     Caption = '2'
     Flat = True
-    OnClick = Pl1Click
   end
   object Pl3: TSpeedButton
     Left = 176
@@ -162,7 +158,6 @@ object Form1: TForm1
     GroupIndex = 100
     Caption = '3'
     Flat = True
-    OnClick = Pl1Click
   end
   object Pl6: TSpeedButton
     Left = 176
@@ -172,7 +167,6 @@ object Form1: TForm1
     GroupIndex = 100
     Caption = '6'
     Flat = True
-    OnClick = Pl1Click
   end
   object Shape267: TShape
     Left = 132
@@ -1580,7 +1574,6 @@ object Form1: TForm1
       Enabled = False
       object OpenDAT: TMenuItem
         Caption = 'Open DAT ...'
-        OnClick = OpenDATClick
       end
       object ExportDAT: TMenuItem
         Caption = 'Export DAT ...'

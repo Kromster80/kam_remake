@@ -2,7 +2,7 @@ unit KM_Users;
 
 interface
 uses
-  classes, KromUtils, KM_Global_Data, KM_Classes, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, windows;
+  classes, KromUtils, KM_Global_Data, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, Windows, SysUtils;
 type
   TUserControlType = (uct_User, uct_Computer);
 
@@ -65,7 +65,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  KM_Terrain;
 
 { TKMUserList }
 

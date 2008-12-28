@@ -15,6 +15,7 @@ type
     Label5: TLabel;
     Label6: TLabel;
     Label7: TLabel;
+    Label2: TLabel;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -26,7 +27,7 @@ var
   FormLoading: TFormLoading;
 
 implementation
-uses KM_Unit1, KM_Render, KM_ReadGFX1, KM_LoadDAT, KM_Global_Data, KM_Log, KM_Defaults, KM_GamePlayInterface;
+uses KM_Unit1, KM_Render, KM_ReadGFX1, KM_Global_Data, KM_Log, KM_Defaults, KM_Terrain, KM_Viewport;
 {$R *.dfm}
 
 procedure TFormLoading.FormCreate(Sender: TObject);

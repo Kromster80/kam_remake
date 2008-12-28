@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, KM_Classes, KM_RenderUI, Math, KM_Defaults, KromOGLUtils, Classes;
+uses Controls, Math, KromOGLUtils, Classes, KM_Defaults;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
@@ -18,7 +18,6 @@ TKMControl = class
     Height: Integer;
     Enabled: boolean;
     Visible: boolean;
-    Tag:integer;
     FOnClick:TNotifyEvent;
     CursorOver:boolean;
     Pressed:boolean;
@@ -48,6 +47,16 @@ TKMImage = class(TKMControl)
     TexID: integer;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+    procedure Paint(); override;
+end;
+
+
+{Percent bar}
+TKMPercentBar = class(TKMControl)
+  public
+    Position: byte;
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer);
     procedure Paint(); override;
 end;
 
@@ -93,15 +102,15 @@ end;
 
 TKMControlsCollection = class(TKMList)
   private
-    //fControl: TKMControl;
+    procedure AddToCollection(Sender:TKMControl);
   public
     constructor Create;
-    procedure AddToCollection(Sender:TKMControl);
     function AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton; overload;
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
     function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
     function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string):TKMLabel;
+    function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer):TKMPercentBar;
     function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
@@ -110,10 +119,10 @@ TKMControlsCollection = class(TKMList)
 end;
 
 var
-    fRenderUI: TRenderUI;
-    TagCount:integer=1;
+  fControls: TKMControlsCollection;
 
 implementation
+uses KM_RenderUI, KM_Global_Data;
 
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin
@@ -123,8 +132,6 @@ begin
   Height:=aHeight;
   Enabled:=true;
   Visible:=true;
-  Tag:=TagCount;
-  inc(TagCount);
 end;
 
 {Parentize control to another control}
@@ -179,9 +186,9 @@ end;
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint();
 begin
-  fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
+  if MakeDrawPagesOvelay then fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
   Inherited Paint;
-  fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
+  if MakeDrawPagesOvelay then fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
 end;
 
 
@@ -250,6 +257,20 @@ begin
 end;
 
 
+constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  Position:=EnsureRange(aPos,0,100);
+end;
+
+
+procedure TKMPercentBar.Paint();
+begin
+  fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
+end;
+
+
 constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -304,6 +325,12 @@ end;
 function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string):TKMLabel;
 begin
   Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer):TKMPercentBar;
+begin
+  Result:=TKMPercentBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aPos);
   AddToCollection(Result);
 end;
 

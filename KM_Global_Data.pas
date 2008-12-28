@@ -1,6 +1,6 @@
 unit KM_Global_Data;
 interface
-uses KM_Terrain, windows, dglOpenGL, KM_Defaults, KM_Tplayer, KM_Render, KM_RenderUI, KM_Viewport, KM_Log, KM_Controls, KM_GamePlayInterface;
+uses KM_Terrain, windows, dglOpenGL, KM_Defaults, KM_Render, KM_RenderUI, KM_Viewport, KM_Log, KM_Controls;
 
 const
   CellSize=40;          //Single cell size in pixels (width)
@@ -11,8 +11,9 @@ const
   SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
-  MakeGameSprites=true; //Whenever to make Units/Houses graphics or not, saves time for GUI debug
-  MakeTeamColors=true;  //Whenever to make team colors or not, saves RAM for debug
+  MakeGameSprites=false; //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeTeamColors=false;  //Whenever to make team colors or not, saves RAM for debug
+  MakeDrawPagesOvelay=false; //Draw colored overlays ontop of panels, usefull for making layout 
   MaxPlayers=8;         //Maximum players per map
   MaxHouses=255;        //Maximum houses one player can own
   MaxResInHouse=5;      //Maximum resource items allowed to be in house (it's 5, but I use 3 for testing)
@@ -22,13 +23,6 @@ var
   XH:integer=32;        //Height divider
   GlobalTickCount:integer=0;
 
-  fRender: TRender;
-  fGamePlayInterface: TKMGamePlayInterface;
-  fControls: TKMControlsCollection;
-  fViewport: TViewport;
-  fMiniMap: TMiniMap;
-  fTerrain: TTerrain;
-  fLog: TKMLog;
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
@@ -45,8 +39,6 @@ var
   CursorXc,CursorYc:integer; //Cursor position cell
   CursorXn2,CursorYn2:integer;     //keeps previous node position
   CursorXc2,CursorYc2:integer;     //keeps previous cell position
-
-  Mission:TMission;
 
   //Pallete for RX bitmaps
   Pal0:array[1..256,1..3]of byte;
@@ -121,7 +113,6 @@ end;
     u3,u4:word;                   //99
   end;
 
-  ActiveTileName:TObject; //Object (Brush) that was pressed last, should be released on tab change
   MiniMapSpy:boolean=false;
   MousePressed:boolean=false;
 

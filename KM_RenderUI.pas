@@ -10,10 +10,14 @@ TRenderUI = class
     constructor Create;
     procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WriteFlatButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+    procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
     procedure WritePic(ID,PosX,PosY:integer);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
     function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):integer; //Should return text width in px
   end;
+
+var
+  fRenderUI: TRenderUI;
 
 implementation
 uses KM_Unit1, KM_Global_Data;
@@ -146,6 +150,47 @@ begin
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
     end;
+
+  glPopMatrix;
+
+end;
+
+
+procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
+var BarWidth:word;
+begin
+  glPushMatrix;
+    glTranslate(PosX,PosY,0);
+
+    //Background
+    glColor4f(0,0,0,0.5);
+    glBegin (GL_QUADS);
+      glkRect(0,0,SizeX-1,SizeY-1);
+    glEnd;
+
+    //Thin outline rendered on top of background to avoid inset calculations
+    glBlendFunc(GL_DST_COLOR,GL_ONE);
+    glColor4f(1,1,1,1);
+    glBegin (GL_LINE_STRIP);
+      glvertex2f(SizeX-1,0);
+      glvertex2f(SizeX-1,SizeY-1);
+      glvertex2f(0,SizeY-1);
+    glEnd;
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0,0,0,0.75);
+    glBegin (GL_LINE_STRIP);
+      glvertex2f(0,SizeY-1);
+      glvertex2f(0,0);
+      glvertex2f(SizeX-1,0);
+    glEnd;
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    BarWidth:=round((SizeX-4)*Pos/100);
+      glColor4f(0,0.4,0,1);
+      glBegin (GL_QUADS);
+        glkRect(2,2,BarWidth+2,SizeY-3);
+      glEnd;
 
   glPopMatrix;
 
