@@ -485,8 +485,8 @@ begin
     end;
 
   IconInfo.fIcon:=false;
-  IconInfo.xHotspot:=1;
-  IconInfo.yHotspot:=1;
+  IconInfo.xHotspot:=-RXData[RXid].Pivot[Cursors[i]].x; //Load hotspot offsets from RX file
+  IconInfo.yHotspot:=-RXData[RXid].Pivot[Cursors[i]].y; //Load hotspot offsets from RX file
   IconInfo.hbmMask:=bm2.Handle;
   IconInfo.hbmColor:=bm.Handle;
 

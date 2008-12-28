@@ -283,7 +283,7 @@ if CursorMode=cm_None then
   if (ControlList.HousesHitTest(CursorXc, CursorYc)<>nil)or
      (ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil) then
     Screen.Cursor:=c_Info
-  else
+  else if not Scrolling then
     Screen.Cursor:=c_Default;
 
 fTerrain.UpdateCursor(CursorMode,KMPoint(CursorXc,CursorYc));
@@ -534,66 +534,12 @@ begin
   fRender.Render;
 end;
 
-procedure TForm1.DoScrolling;
-var
-  XCoord, YCoord: integer;
-  HaveChanged: boolean;
-begin
-  //Here we must test each edge to see if we need to scroll in that direction
-  //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
-
-  //First set X and Y to be the current values
-  XCoord := fViewport.XCoord;
-  YCoord := fViewport.YCoord;
-  HaveChanged := false;
-
-  // -----------------      LEFT       ------------------
-  if Mouse.CursorPos.X < SCROLLFLEX then
-  begin
-    //We must scroll left
-    XCoord := XCoord-SCROLLSPEED;
-    HaveChanged := true;
-  end;
-  // -----------------      TOP       ------------------
-  if Mouse.CursorPos.Y < SCROLLFLEX then
-  begin
-    //We must scroll up
-    YCoord := YCoord-SCROLLSPEED;
-    HaveChanged := true;
-  end;
-  // -----------------      RIGHT       ------------------
-  if Mouse.CursorPos.X > Screen.Width-1-SCROLLFLEX then
-  begin
-    //We must scroll right
-    XCoord := XCoord+SCROLLSPEED;
-    HaveChanged := true;
-  end;         
-  // -----------------      BOTTOM       ------------------
-  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then
-  begin
-    //We must scroll down
-    YCoord := YCoord+SCROLLSPEED;
-    HaveChanged := true;
-  end;
-
-  //Now do actual the scrolling, if needed
-  if HaveChanged then
-  begin
-    fViewport.SetCenter(XCoord,YCoord);
-    fMiniMap.SetRect(fViewport); //Update mini-map
-  end;
-end;
-
-{//I want to suggest. Please don't think of me as a moroon, but I feel important to keep code tight rather than spread
-//I squeezed 48lines into 19. Since they do all fit into one screen it's much easier to read now.
-//Cursors will probably add another 12lines to it
 //Here we must test each edge to see if we need to scroll in that direction
-//We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
+//We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Global_Data
 procedure TForm1.DoScrolling;
 var XCoord, YCoord: integer;
 begin
-  //First set X and Y to be the current values
-  XCoord := fViewport.XCoord;
+  XCoord := fViewport.XCoord; //First set X and Y to be the current values
   YCoord := fViewport.YCoord;
 
   //Left, Top, Right, Bottom
@@ -602,12 +548,30 @@ begin
   if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then XCoord := XCoord+SCROLLSPEED;
   if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then YCoord := YCoord+SCROLLSPEED;
 
+  //Set cursor. Topleft, topright, top, bottomright, right, leftbottom, bottom, left
+  if (Mouse.CursorPos.X < SCROLLFLEX) and (Mouse.CursorPos.Y < SCROLLFLEX) then //topleft
+    Screen.Cursor := c_Scroll7 else
+  if (Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX) and (Mouse.CursorPos.Y < SCROLLFLEX) then //topright
+    Screen.Cursor := c_Scroll1 else
+  if (Mouse.CursorPos.Y < SCROLLFLEX) then Screen.Cursor := c_Scroll0 else //top
+  if (Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX) and (Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX) then //bottomright
+    Screen.Cursor := c_Scroll3 else
+  if (Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX) then Screen.Cursor := c_Scroll2 else //right
+  if (Mouse.CursorPos.X < SCROLLFLEX) and (Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX) then //bottomleft
+    Screen.Cursor := c_Scroll5 else
+  if (Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX) then Screen.Cursor := c_Scroll4 else //bottom
+  if (Mouse.CursorPos.X < SCROLLFLEX) then Screen.Cursor := c_Scroll6; //left
+
   //Now do actual the scrolling, if needed
   if (XCoord<>fViewport.XCoord)or(YCoord<>fViewport.YCoord) then
   begin
     fViewport.SetCenter(XCoord,YCoord);
     fMiniMap.SetRect(fViewport); //Update mini-map
-  end;
-end;}
+    Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
+  end else begin
+    Scrolling := false; //Allow cursor changes to be overriden and reset if still on a scrolling cursor
+    if (Screen.Cursor = c_Scroll0) or (Screen.Cursor = c_Scroll1) or (Screen.Cursor = c_Scroll2) or (Screen.Cursor = c_Scroll3) or (Screen.Cursor = c_Scroll4) or (Screen.Cursor = c_Scroll5) or (Screen.Cursor = c_Scroll6) or (Screen.Cursor = c_Scroll7) then
+      Screen.Cursor := c_Default; end;
+end;
 
 end.

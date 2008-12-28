@@ -133,6 +133,8 @@ mmMiniMap.Left:=(MaxMapSize-X) div 2;
 mmMiniMap.Top:=(MaxMapSize-Y) div 2;
 mmMiniMap.Width:=X;
 mmMiniMap.Height:=Y;
+mmMiniMap.Picture.Bitmap.Width :=X; //Also resize the minimap canvas
+mmMiniMap.Picture.Bitmap.Height:=Y; //Also resize the minimap canvas
 end;
 
 end.
