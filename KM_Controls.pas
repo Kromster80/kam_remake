@@ -153,8 +153,9 @@ begin
     Pressed := true;
 
   for i:=1 to ChildCount do
-    if Childs[i-1].Visible then
-      Childs[i-1].CheckCursorOver(X,Y,AShift);
+    if Childs[i-1].Visible then  
+      if Childs[i-1].Enabled then
+        Childs[i-1].CheckCursorOver(X,Y,AShift);
 end;
 
 
