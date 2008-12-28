@@ -5,21 +5,22 @@ uses KM_Controls, Forms, Graphics, Windows, SysUtils, KromUtils, KromOGLUtils, M
 type TKMGamePlayInterface = class
   private
     KMPanel:array[0..50]of TKMPanel;      //Pages
-    KMPanel_Unit,KMPanel_House:TKMPanel;
+      KMImage_1,KMImage_2,KMImage_3,KMImage_4:TKMImage; //Toolbar background
     KMButtonMain:array[1..5]of TKMButton; //4 common buttons
     KMButtonRun:TKMButton;                //Start Village functioning
     KMButton:array[1..20]of TKMButton;    //3D stone buttons
-    KMButton_House_Goods,KMButton_House_Repair:TKMButton;
     KMButtonFlat:array[1..40]of TKMButtonFlat; //Flat build buttons
     KMLabel:array[1..20]of TKMLabel;      //Texts
     //Or maybe it's better to store everything as Form1 does for its elements
     //Just make a huge list of KMControls in here?
     //Please add your comment
-    KMLabel_UnitCondition:TKMLabel;
-    KMLabel_House:TKMLabel;
-    KMHealthBar_Unit:TKMPercentBar;
-    KMImage:array[1..20]of TKMImage;      //Images
-    KMImage_House_Logo:TKMImage;
+    KMPanel_Unit:TKMPanel;
+      KMLabel_UnitCondition:TKMLabel;
+      KMHealthBar_Unit:TKMPercentBar;
+    KMPanel_House:TKMPanel;
+      KMLabel_House:TKMLabel;
+      KMButton_House_Goods,KMButton_House_Repair:TKMButton;
+      KMImage_House_Logo:TKMImage;
     procedure SwitchPage(Sender: TObject);
   public
     constructor Create;
@@ -39,10 +40,10 @@ begin
 {Parent Page for whole toolbar in-game}
   KMPanel[gp_ToolBar]:=fControls.AddPanel(nil,0,0,224,1024);
 
-    KMImage[1]:=fControls.AddImage(KMPanel[gp_ToolBar],0,0,224,200,407);
-    KMImage[2]:=fControls.AddImage(KMPanel[gp_ToolBar],0,200,224,60,404);
-    KMImage[3]:=fControls.AddImage(KMPanel[gp_ToolBar],0,260,224,168,554);
-    KMImage[4]:=fControls.AddImage(KMPanel[gp_ToolBar],0,428,224,400,404);
+    KMImage_1:=fControls.AddImage(KMPanel[gp_ToolBar],0,0,224,200,407);
+    KMImage_2:=fControls.AddImage(KMPanel[gp_ToolBar],0,200,224,60,404);
+    KMImage_3:=fControls.AddImage(KMPanel[gp_ToolBar],0,260,224,168,554);
+    KMImage_4:=fControls.AddImage(KMPanel[gp_ToolBar],0,428,224,400,404);
 
     {for i:=1 to length(FontFiles) do begin
       L[i]:=TKMLabel.Create(50,300+i*20,160,30,TKMFont(i),kaLeft,FontFiles[i]+' This is a test string for KaM Remake');

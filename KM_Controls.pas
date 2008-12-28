@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, Math, KromOGLUtils, Classes, KM_Defaults;
+uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
@@ -185,9 +185,8 @@ end;
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint();
 begin
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer($400000FF,Left,Top,Width,Height);
   Inherited Paint;
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer($200000FF,Left,Top,Width,Height);
 end;
 
 
@@ -198,7 +197,7 @@ begin
   ParentTo(aParent);
 end;
 
-{Different version of button, with caption on in instead of image}
+{Different version of button, with caption on it instead of image}
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -256,6 +255,7 @@ end;
 {If image area is bigger than image - do center image in it}
 procedure TKMImage.Paint();
 begin
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer($4000FF00,Left,Top,Width,Height);
   fRenderUI.WritePic(TexID, Left + (Width-GFXData[4,TexID].PxWidth) div 2,
                             Top + (Height-GFXData[4,TexID].PxHeight) div 2);
 end;
@@ -286,8 +286,16 @@ end;
 
 
 procedure TKMLabel.Paint();
+var Tmp:TKMPoint;
 begin
-  Width:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font);
+  if MakeDrawPagesOverlay then
+  case TextAlign of
+  kaLeft: fRenderUI.WriteLayer($4000FFFF,Left,Top,Width,Height);
+  kaCenter: fRenderUI.WriteLayer($4000FFFF,Left - Width div 2,Top,Width,Height);
+  end;
+  Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font);
+  Width:=Tmp.X;
+  Height:=Tmp.Y;
 end;
 
 

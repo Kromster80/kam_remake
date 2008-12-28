@@ -1,6 +1,6 @@
 unit KM_RenderUI;
 interface
-uses dglOpenGL, OpenGL, KromUtils, KromOGLUtils, SysUtils, KM_Defaults;
+uses dglOpenGL, OpenGL, Math, KromUtils, KromOGLUtils, SysUtils, KM_Defaults;
 
 type
 TRenderUI = class
@@ -13,7 +13,7 @@ TRenderUI = class
     procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
     procedure WritePic(ID,PosX,PosY:integer);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
-    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):integer; //Should return text width in px
+    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):TKMPoint; //Should return text width in px
   end;
 
 var
@@ -227,23 +227,26 @@ end;
 
 
 {Renders a line of text and returns text width in px}
-function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):integer;
-var i,Num:integer; TextWidth:single;
+function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):TKMPoint;
+const InterLetter=1; //Spacing between letters
+var i,Num:integer; TextWidth:integer;
 begin
   TextWidth:=0;
+  Result.Y:=0;
   for i:=1 to length(Text) do
-    if Text[i] in [' '..'z'] then
-    TextWidth:=TextWidth+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+1.5;
-  Result:=round(TextWidth);
+    if Text[i] in [' '..'z'] then begin
+      TextWidth:=TextWidth+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
+      Result.Y:=max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
+    end;
 
-  glColor4f(1,1,1,1);
+  Result.X:=TextWidth;
 
   glPushMatrix;
     glkMoveAALines(false);
     if Align=kaLeft   then glTranslate(PosX,PosY,0);
-    if Align=kaCenter then glTranslate(PosX-TextWidth/2,PosY,0);
+    if Align=kaCenter then glTranslate(PosX-(TextWidth div 2),PosY,0);
     if Align=kaRight  then glTranslate(PosX-TextWidth,PosY,0);
-
+    glColor4f(1,1,1,1);
     //glkScale(2);
     for i:=1 to length(Text) do begin
       Num:=ord(Text[i]);
@@ -257,7 +260,7 @@ begin
         end;
       glEnd;
       //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
-      glTranslate(FontData[byte(Fnt)].Letters[Num].Width+1,0,0);
+      glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
     end;
     glBindTexture(GL_TEXTURE_2D,0);
   glPopMatrix;
