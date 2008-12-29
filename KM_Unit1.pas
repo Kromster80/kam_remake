@@ -312,12 +312,10 @@ begin
         if ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil then
           fGamePlayInterface.ShowUnitInfo(ControlList.UnitsHitTest(CursorXc, CursorYc).GetUnitType);
       end;
-    cm_Roads:
-      begin
-        if LandBrush=1 then ControlList.AddRoadPlan(P,mu_RoadPlan);
-        if LandBrush=2 then ControlList.AddRoadPlan(P,mu_FieldPlan);
-        if LandBrush=3 then ControlList.AddRoadPlan(P,mu_WinePlan);
-      end;
+    cm_Road: ControlList.AddRoadPlan(P,mu_RoadPlan);
+    cm_Field: ControlList.AddRoadPlan(P,mu_FieldPlan);
+    cm_Wine: ControlList.AddRoadPlan(P,mu_WinePlan);
+
     cm_Erase:
       begin
         ControlList.RemPlan(P);
@@ -375,7 +373,7 @@ LandBrush:=strtoint(s[3]+s[4]);
 case LandBrush of
   0:      CursorMode:=cm_Erase;
   1..29:  CursorMode:=cm_Houses;
-  97..99: begin CursorMode:=cm_Roads; dec(LandBrush,96); end; //Brush in 1..3
+//  97..99: begin CursorMode:=cm_Roads; dec(LandBrush,96); end; //Brush in 1..3
   else    CursorMode:=cm_None;
 end;
 end;
@@ -536,8 +534,6 @@ begin
   if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); XCoord := XCoord+SCROLLSPEED; end;
   if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); YCoord := YCoord+SCROLLSPEED; end;
   if Temp<>0 then Screen.Cursor :=DirectinsBitfield[Temp]; //Sample cursor type from bitfield value
-
-  //That was way to long ;-)
 
   //Now do actual the scrolling, if needed
   if (XCoord<>fViewport.XCoord)or(YCoord<>fViewport.YCoord) then

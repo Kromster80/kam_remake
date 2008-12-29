@@ -4,17 +4,23 @@ uses KM_Controls, Forms, Graphics, Windows, SysUtils, KromUtils, KromOGLUtils, M
 
 type TKMGamePlayInterface = class
   private
-    KMPanel:array[0..50]of TKMPanel;      //Pages
+    KMPanel_Main:TKMPanel;
+    KMPanel_Ratios,KMPanel_Stats,KMPanel_Menu:TKMPanel;
+    //KMPanel:array[0..50]of TKMPanel;      //Pages
       KMImage_1,KMImage_2,KMImage_3,KMImage_4:TKMImage; //Toolbar background
     KMButtonMain:array[1..5]of TKMButton; //4 common buttons
     KMButtonRun:TKMButton;                //Start Village functioning
     KMButton:array[1..20]of TKMButton;    //3D stone buttons
-    KMButtonFlat:array[1..40]of TKMButtonFlat; //Flat build buttons
     KMLabel:array[1..20]of TKMLabel;      //Texts
-    //Or maybe it's better to store everything as Form1 does for its elements
-    //Just make a huge list of KMControls in here?
-    //Please add your comment
+
+    KMPanel_Build:TKMPanel;
+      KMLabel_Build:TKMLabel;
+      KMImage_Selected:TKMImage;
+      KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine,KMButton_BuildCancel:TKMButtonFlat;
+      KMButton_Build:array[1..40]of TKMButtonFlat;
     KMPanel_Unit:TKMPanel;
+      KMLabel_UnitName:TKMLabel;
+      KMLabel_UnitCondition:TKMLabel;
       KMLabel_UnitDescription:TKMLabel;
       KMHealthBar_Unit:TKMPercentBar;
       KMImage_UnitScroll:TKMImage;
@@ -25,10 +31,11 @@ type TKMGamePlayInterface = class
       KMHealthBar_House:TKMPercentBar;
       KMLabel_HouseCondition:TKMLabel;
     procedure SwitchPage(Sender: TObject);
+    procedure BuildButtonClick(Sender: TObject);
   public
     constructor Create;
     procedure ShowHouseInfo(Sender:TKMHouse);
-    procedure ShowUnitInfo(Sender:TUnitType);  
+    procedure ShowUnitInfo(Sender:TUnitType);
     procedure HouseRepairToggle(Sender:TObject);
     procedure WareDeliveryToggle(Sender:TObject);
   end;
@@ -43,81 +50,84 @@ constructor TKMGamePlayInterface.Create();
 var i,k,Page,Button:integer;
 begin
 {Parent Page for whole toolbar in-game}
-  KMPanel[gp_ToolBar]:=fControls.AddPanel(nil,0,0,224,1024);
+  KMPanel_Main:=fControls.AddPanel(nil,0,0,224,1024);
 
-    KMImage_1:=fControls.AddImage(KMPanel[gp_ToolBar],0,0,224,200,407);
-    KMImage_2:=fControls.AddImage(KMPanel[gp_ToolBar],0,200,224,60,404);
-    KMImage_3:=fControls.AddImage(KMPanel[gp_ToolBar],0,260,224,168,554);
-    KMImage_4:=fControls.AddImage(KMPanel[gp_ToolBar],0,428,224,400,404);
+    KMImage_1:=fControls.AddImage(KMPanel_Main,0,0,224,200,407);
+    KMImage_2:=fControls.AddImage(KMPanel_Main,0,200,224,60,404);
+    KMImage_3:=fControls.AddImage(KMPanel_Main,0,260,224,168,554);
+    KMImage_4:=fControls.AddImage(KMPanel_Main,0,428,224,400,404);
 
     {for i:=1 to length(FontFiles) do begin
       L[i]:=TKMLabel.Create(50,300+i*20,160,30,TKMFont(i),kaLeft,FontFiles[i]+' This is a test string for KaM Remake');
       fControls.Add(L[i]);
     end;}
 
-    KMLabel[6]:=fControls.AddLabel(KMPanel[gp_ToolBar],8,161,236,200,fnt_Grey,kaLeft,'Description of unit');
+    KMLabel[6]:=fControls.AddLabel(KMPanel_Main,8,161,236,200,fnt_Grey,kaLeft,'Description of unit');
 
     //This is button to start Village functioning
-    KMButtonRun:=fControls.AddButton(KMPanel[gp_ToolBar],50,205,100,40,36);
+    KMButtonRun:=fControls.AddButton(KMPanel_Main,50,205,100,40,36);
     KMButtonRun.OnClick:=Form1.Button1Click; //Procedure where stuff is placed on map
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
-      KMButtonMain[i+1]:=fControls.AddButton(KMPanel[gp_ToolBar],  8+48*i, 428+5, 42, 36, 439+i);
+      KMButtonMain[i+1]:=fControls.AddButton(KMPanel_Main,  8+48*i, 428+5, 42, 36, 439+i);
       KMButtonMain[i+1].OnClick:=SwitchPage;
     end;
-    KMButtonMain[5]:=fControls.AddButton(KMPanel[gp_ToolBar],  8, 428+5, 42, 36, 443);
+    KMButtonMain[5]:=fControls.AddButton(KMPanel_Main,  8, 428+5, 42, 36, 443);
     KMButtonMain[5].OnClick:=SwitchPage;
     KMButtonMain[5].Visible:=false;
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 
 {Building page}
-  Page:=gp_Build;
-  KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
+  KMPanel_Build:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
 
-  KMLabel[1]:=fControls.AddLabel(KMPanel[Page],100,10,100,30,fnt_Metal,kaCenter,'Items to build');
+  KMLabel_Build:=fControls.AddLabel(KMPanel_Build,100,10,100,30,fnt_Metal,kaCenter,'Items to build');
 
-  KMButtonFlat[gb_Road]   := fControls.AddButtonFlat(KMPanel[Page],  8,80,32,32,335);
-  KMButtonFlat[gb_Field]  := fControls.AddButtonFlat(KMPanel[Page], 44,80,32,32,337);
-  KMButtonFlat[gb_Wine]   := fControls.AddButtonFlat(KMPanel[Page], 80,80,32,32,336);
-  KMButtonFlat[gb_Cancel] := fControls.AddButtonFlat(KMPanel[Page],152,80,32,32,340);
+  KMImage_Selected:=fControls.AddImage(KMPanel_Build,8,40,32,32,335);
+
+  KMButton_BuildRoad   := fControls.AddButtonFlat(KMPanel_Build,  8,80,32,32,335);
+  KMButton_BuildField  := fControls.AddButtonFlat(KMPanel_Build, 44,80,32,32,337);
+  KMButton_BuildWine   := fControls.AddButtonFlat(KMPanel_Build, 80,80,32,32,336);
+  KMButton_BuildCancel := fControls.AddButtonFlat(KMPanel_Build,152,80,32,32,340);
+  KMButton_BuildRoad.OnClick:=BuildButtonClick;
+  KMButton_BuildField.OnClick:=BuildButtonClick;
+  KMButton_BuildWine.OnClick:=BuildButtonClick;
+  KMButton_BuildCancel.OnClick:=BuildButtonClick;
 
   for i:=0 to 4 do for k:=0 to 4 do begin
     Button:=gb_BuildItemA+i*5+k;
     Assert(Button<=gb_BuildItemZ,'Number of build buttons exceeded'); //Stick to 20 TSK buttons for now
-    KMButtonFlat[Button]:=fControls.AddButtonFlat(KMPanel[Page], 8+k*36,120+i*36,32,32,GUIBuildIcons[i*5+k+1]);
+    KMButton_Build[Button]:=fControls.AddButtonFlat(KMPanel_Build, 8+k*36,120+i*36,32,32,GUIBuildIcons[i*5+k+1]);
+    KMButton_Build[Button].OnClick:=BuildButtonClick;
   end;
 
 {Ratios page}
-  Page:=gp_Ratios;
-  KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
+  KMPanel_Ratios:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
 
 {Stats page}
-  Page:=gp_Stats;
-  KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
+  KMPanel_Stats:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
 
 {Menu page}
-  Page:=gp_Menu;
-  KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
+  KMPanel_Menu:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
 
-  KMButton[1]:=fControls.AddButton(KMPanel[Page],10,20,180,30,'Save game',fnt_Metal);
-  KMButton[2]:=fControls.AddButton(KMPanel[Page],10,60,180,30,'Load game',fnt_Metal);
-  KMButton[3]:=fControls.AddButton(KMPanel[Page],10,100,180,30,'Options',fnt_Metal);
-  KMButton[4]:=fControls.AddButton(KMPanel[Page],10,180,180,30,'Exit',fnt_Metal);
+  KMButton[1]:=fControls.AddButton(KMPanel_Menu,10,20,180,30,'Save game',fnt_Metal);
+  KMButton[2]:=fControls.AddButton(KMPanel_Menu,10,60,180,30,'Load game',fnt_Metal);
+  KMButton[3]:=fControls.AddButton(KMPanel_Menu,10,100,180,30,'Options',fnt_Metal);
+  KMButton[4]:=fControls.AddButton(KMPanel_Menu,10,180,180,30,'Exit',fnt_Metal);
 
 {Village Unit description page, no actions}
-  KMPanel_Unit:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
+  KMPanel_Unit:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
 
-  KMLabel[gl_UnitName]:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'Unit name here');
-  KMLabel[gl_UnitCondition]:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,'Condition');
+  KMLabel_UnitName:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'Unit name here');
+  KMLabel_UnitCondition:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,'Condition');
   KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
   KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,
   'Description of unit'+eol+'Line2'+eol+'Line3 '); //Should be taken from LIB resource
   KMImage_UnitScroll:=fControls.AddImage(KMPanel_Unit,8,52,54,80,521);
 
 {House description page}
-  KMPanel_House:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
+  KMPanel_House:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
   //Thats common things
   //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
 
@@ -138,25 +148,44 @@ end;
 {Switch between pages}
 procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
 var i:integer;
+  procedure Hide4MainButtons();
+  var i:integer;
+  begin
+    for i:=1 to 4 do
+      KMButtonMain[i].Visible:=false;
+    KMButtonMain[5].Visible:=true;
+  end;
 begin
-//First thing - hide all existing pages and then show one we need now
-  for i:=0 to KMPanel[gp_ToolBar].ChildCount-1 do
-    if KMPanel[gp_ToolBar].Childs[i] is TKMPanel then
-      KMPanel[gp_ToolBar].Childs[i].Visible:=false;
+//Reset the CursorMode, to cm_None
+BuildButtonClick(nil);
+
+//First thing - hide all existing pages
+  for i:=1 to KMPanel_Main.ChildCount do
+    if KMPanel_Main.Childs[i] is TKMPanel then
+      KMPanel_Main.Childs[i].Visible:=false;
 
 //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
-if (Sender=KMButtonMain[1])or(Sender=KMButtonMain[2])or(Sender=KMButtonMain[3])or(Sender=KMButtonMain[4]) then begin
-  for i:=1 to 4 do begin
-    KMPanel[i].Visible:= Sender=KMButtonMain[i];
-    KMButtonMain[i].Visible:=false;
-  end;
-  KMButtonMain[5].Visible:=true;
-//If Sender is anything else - then show all 4 buttons and hide Return button
-end else begin
+if Sender=KMButtonMain[1] then begin
+  KMPanel_Build.Visible:=true;
+  Hide4MainButtons;
+end else
+if Sender=KMButtonMain[2] then begin
+  KMPanel_Ratios.Visible:=true;
+  Hide4MainButtons;
+end else
+if Sender=KMButtonMain[3] then begin
+  KMPanel_Stats.Visible:=true;
+  Hide4MainButtons;
+end else
+if Sender=KMButtonMain[4] then begin
+  KMPanel_Menu.Visible:=true;
+  Hide4MainButtons;
+end else begin //If Sender is anything else - then show all 4 buttons and hide Return button
   for i:=1 to 4 do
     KMButtonMain[i].Visible:=true;
   KMButtonMain[5].Visible:=false;
 end;
+
 //Now process all other kinds of pages
 if Sender=KMPanel_Unit then begin
   TKMPanel(Sender).Visible:=true;
@@ -165,6 +194,34 @@ if Sender=KMPanel_House then begin
   TKMPanel(Sender).Visible:=true;
 end;
 end;
+
+
+procedure TKMGamePlayInterface.BuildButtonClick(Sender: TObject);
+var i:integer; WasDown:boolean;
+begin
+  if Sender=nil then begin CursorMode:=cm_None; exit; end;
+
+  //Memorize if button was already pressed
+  WasDown := TKMButtonFlat(Sender).Checked = true;
+
+  //Release all buttons
+  for i:=1 to KMPanel_Build.ChildCount do
+    if KMPanel_Build.Childs[i] is TKMButtonFlat then
+      TKMButtonFlat(KMPanel_Build.Childs[i]).Checked:=false;
+
+  //Press the button if it wasn't
+  if not WasDown then TKMButtonFlat(Sender).Checked:=true;
+
+  //Reset cursor and see if it needs to be changed
+  CursorMode:=cm_None;
+  if WasDown then exit; //Button was released
+  if KMButton_BuildCancel.Checked then CursorMode:=cm_Erase;
+  if KMButton_BuildRoad.Checked then CursorMode:=cm_Road;
+  if KMButton_BuildField.Checked then CursorMode:=cm_Field;
+  if KMButton_BuildWine.Checked then CursorMode:=cm_Wine;
+
+end;
+
 
 procedure TKMGamePlayInterface.HouseRepairToggle(Sender:TObject);
 begin
@@ -212,7 +269,7 @@ end;
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TUnitType);
 begin
   SwitchPage(KMPanel_Unit);
-  KMLabel[gl_UnitName].Caption:=TypeToString(Sender);
+  KMLabel_UnitName.Caption:=TypeToString(Sender);
   KMImage_UnitScroll.TexID:=520+integer(Sender);
 end;
 

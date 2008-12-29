@@ -139,7 +139,7 @@ begin
     end;
 
     if bs_Highlight in State then begin
-      glColor4f(1,1,1,1);
+      glColor4f(0,1,1,1);
       glBegin (GL_LINE_LOOP);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
@@ -148,6 +148,13 @@ begin
     if bs_Disabled in State then begin
       glColor4f(0,0,0,0.5);
       glBegin (GL_QUADS);
+        glkRect(0,0,SizeX-1,SizeY-1);
+      glEnd;
+    end;
+
+    if bs_Down in State then begin
+      glColor4f(1,1,1,1);
+      glBegin (GL_LINE_LOOP);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
     end;

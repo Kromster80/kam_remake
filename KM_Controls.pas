@@ -19,11 +19,10 @@ TKMControl = class
     Visible: boolean;
     FOnClick:TNotifyEvent;
     CursorOver:boolean;
-    Pressed:boolean;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     procedure ParentTo (aParent:TKMControl);
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState);
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
     procedure Paint(); virtual;
   public
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
@@ -66,6 +65,7 @@ end;
 {3DButton}
 TKMButton = class(TKMControl)
   public
+    Down:boolean; //Only 3DButton can be pressed down, I rename it according to Delphi VCL Controls rules, ok?
     TexID: integer;
     Font: TKMFont;
     TextAlign: KAlign;
@@ -73,6 +73,7 @@ TKMButton = class(TKMControl)
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
 
@@ -80,6 +81,7 @@ end;
 {FlatButton}
 TKMButtonFlat = class(TKMControl)
   public
+    Checked:boolean;
     TexID: integer;
     Font: TKMFont;
     TextAlign: KAlign;
@@ -145,8 +147,9 @@ begin
   if aParent=nil then exit; //Has no parent
   Assert(aParent is TKMPanel,'Let''s not parent controls to anything else except TKMPanels');
   inc(aParent.ChildCount);
-  setlength(aParent.Childs,aParent.ChildCount);
-  aParent.Childs[aParent.ChildCount-1]:=Self;
+  {Hereby I still try to make a rule to count starting from 1, not from zero}
+  setlength(aParent.Childs,aParent.ChildCount+1);
+  aParent.Childs[aParent.ChildCount]:=Self;
   Self.Parent:=aParent;
   Self.Top:=aParent.Top+Self.Top;
   Self.Left:=aParent.Left+Self.Left;
@@ -157,15 +160,10 @@ procedure TKMControl.CheckCursorOver(X,Y:integer; AShift:TShiftState);
 var i:integer;
 begin
   CursorOver:=InRange(X,Left,Left+Width) and InRange(Y,Top,Top+Height);
-  Pressed:=Pressed and CursorOver;
-  //Now check to see if they moved their mouse back over with the left button still depressed
-  if (ssLeft in AShift) and (CursorOver) then
-    Pressed := true;
-
   for i:=1 to ChildCount do
-    if Childs[i-1].Visible then  
-      if Childs[i-1].Enabled then
-        Childs[i-1].CheckCursorOver(X,Y,AShift);
+    if Childs[i].Visible then
+      if Childs[i].Enabled then
+        Childs[i].CheckCursorOver(X,Y,AShift);
 end;
 
 
@@ -174,8 +172,8 @@ procedure TKMControl.Paint();
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    if Childs[i-1].Visible then
-      Childs[i-1].Paint;
+    if Childs[i].Visible then
+      Childs[i].Paint;
 end;
 
 
@@ -212,12 +210,25 @@ begin
 end;
 
 
+procedure TKMButton.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+var i:integer;
+begin
+  Down:=Down and CursorOver;
+  //Now check to see if they moved their mouse back over with the left button still depressed
+  if (ssLeft in AShift) and (CursorOver) then
+    Down := true;
+
+  Inherited CheckCursorOver(X,Y,AShift);
+end;
+
+
+
 procedure TKMButton.Paint();
 var State:T3DButtonStateSet;
 begin
   State:=[];
   if CursorOver and Enabled then State:=State+[bs_Highlight];
-  if Pressed then State:=State+[bs_Down];
+  if Down then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
   fRenderUI.Write3DButton(TexID,Left,Top,Width,Height,State);
   if TexID=0 then
@@ -239,7 +250,7 @@ var State:T3DButtonStateSet;
 begin
   State:=[];
   if CursorOver and Enabled then State:=State+[bs_Highlight];
-  if Pressed then State:=State+[bs_Down];
+  if Checked then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
   fRenderUI.WriteFlatButton(TexID,Left,Top,Width,Height,State);
 end;
@@ -385,7 +396,8 @@ begin
       if TKMControl(Items[I]).Visible then   
       if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then
-        TKMControl(Items[I]).Pressed:=true;
+      if Items[i]=TKMButton then
+      TKMButton(Items[I]).Down:=true;
 end;
 
 
@@ -398,7 +410,8 @@ begin
       if TKMControl(Items[I]).Visible then
       if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then begin
-        TKMControl(Items[I]).Pressed:=false;
+        if Items[i]=TKMButton then
+          TKMButton(Items[I]).Down:=false;
         if Assigned(TKMControl(Items[I]).OnClick) then begin
           TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
           exit; //Send OnClick only to one item

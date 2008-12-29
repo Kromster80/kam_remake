@@ -8,6 +8,7 @@ type
     procedure Clear; override;
   end;
 
+
 type TKMPointList = class
   public
     Count:integer;
@@ -18,8 +19,7 @@ type TKMPointList = class
   end;
 
 
-
-type cmCursorMode = (cm_None, cm_Erase, cm_Roads, cm_Houses);
+type cmCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Houses);
 
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 
@@ -49,12 +49,10 @@ const //TGUIButton = (
   gp_ToolBar=0; gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4;
   gp_HouseA=6; {29pcs} gp_HouseZ=35; //6..35 span is used for houses pages
   //GUI Flat Buttons
-  gb_Road=1;   gb_Field=2;   gb_Wine=3;   gb_Cancel=4;
   gb_BuildItemA=5; {27pcs} gb_BuildItemZ=32; //5..32 span is used for build buttons
   //Labels
   //Why do I need to store all this unique IDs as constants???
   //Do you have better idea Lewin??
-  gl_BuildName=1; gl_UnitName=2; gl_UnitCondition=3;
 
 type
   TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);
