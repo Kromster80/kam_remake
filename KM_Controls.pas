@@ -396,7 +396,7 @@ begin
       if TKMControl(Items[I]).Visible then   
       if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then
-      if Items[i]=TKMButton then
+      if TKMControl(Items[i]).ClassType=TKMButton then
       TKMButton(Items[I]).Down:=true;
 end;
 
@@ -410,7 +410,7 @@ begin
       if TKMControl(Items[I]).Visible then
       if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then begin
-        if Items[i]=TKMButton then
+        if TKMControl(Items[i]).ClassType=TKMButton then
           TKMButton(Items[I]).Down:=false;
         if Assigned(TKMControl(Items[I]).OnClick) then begin
           TKMControl(Items[I]).OnClick(TKMControl(Items[I]));

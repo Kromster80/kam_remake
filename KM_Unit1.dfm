@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 154
-  Top = 23
+  Left = 193
+  Top = 115
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 659
@@ -313,9 +313,6 @@ object Form1: TForm1
     Top = 600
     object File1: TMenuItem
       Caption = 'File'
-      object NewMapMenu: TMenuItem
-        Caption = 'New map...'
-      end
       object OpenMapMenu: TMenuItem
         Caption = 'Open map...'
         OnClick = OpenMapClick

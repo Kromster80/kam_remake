@@ -18,7 +18,6 @@ type
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     OpenMapMenu: TMenuItem;
-    NewMapMenu: TMenuItem;
     Exit1: TMenuItem;
     N1: TMenuItem;
     About1: TMenuItem;

@@ -165,6 +165,7 @@ end;
 
 
 procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
+const BarColor:TColor=$FF00AA26;
 var BarWidth:word;
 begin
   glPushMatrix;
@@ -177,14 +178,14 @@ begin
     glEnd;
 
     //Thin outline rendered on top of background to avoid inset calculations
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0,0,0,0.5);
+    glBlendFunc(GL_DST_COLOR,GL_ONE); //Switch BlendFunc, that allows us to make nice beveled edge
+    glColor4f(1,1,1,0.5);
     glBegin (GL_LINE_STRIP);
       glvertex2f(SizeX-1,0);
       glvertex2f(SizeX-1,SizeY-1);
       glvertex2f(0,SizeY-1);
     glEnd;
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Restore default BlendFunc
     glColor4f(0,0,0,0.5);
     glBegin (GL_LINE_STRIP);
       glvertex2f(0,SizeY-1);
@@ -192,28 +193,22 @@ begin
       glvertex2f(SizeX-1,0);
     glEnd;
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    //Draw the bar itself
     BarWidth:=round((SizeX-4)*Pos/100);
-      glColor4f(0,0.67,0.15,1);
-      glBegin (GL_QUADS);
-        glkRect(1,1,BarWidth+3,SizeY-1);
-      glEnd;  
+    glColor4ubv(@BarColor);
+    glBegin (GL_QUADS);
+      glkRect(1,1,BarWidth+3,SizeY-1);
+    glEnd;
+
     //Draw shadow on top and left of the bar, just like real one
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0,0.37,0.09,1);
-    glBegin (GL_LINE_STRIP);
+    glColor4f(0,0,0,0.5); //Set semi-transparent black
+    glBegin (GL_LINE_STRIP); //List vertices, order is important
       glvertex2f(1,SizeY-2);
       glvertex2f(1,1);
       glvertex2f(BarWidth+3,1);
-    glEnd;
-    //@Krom: Repeating above function offset by 1,1 as I don't know how to draw a 2px thick line. Clean up if you like
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0,0.37,0.09,1);
-    glBegin (GL_LINE_STRIP);
-      glvertex2f(2,SizeY-2);
-      glvertex2f(2,2);
       glvertex2f(BarWidth+3,2);
+      glvertex2f(2,2);
+      glvertex2f(2,SizeY-2);
     glEnd;
 
   glPopMatrix;
