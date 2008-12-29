@@ -17,7 +17,7 @@ type TKMGamePlayInterface = class
       KMLabel_Build:TKMLabel;
       KMImage_Selected:TKMImage;
       KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine,KMButton_BuildCancel:TKMButtonFlat;
-      KMButton_Build:array[1..40]of TKMButtonFlat;
+      KMButton_Build:array[1..27]of TKMButtonFlat;
     KMPanel_Unit:TKMPanel;
       KMLabel_UnitName:TKMLabel;
       KMLabel_UnitCondition:TKMLabel;
@@ -96,8 +96,8 @@ begin
   KMButton_BuildCancel.OnClick:=BuildButtonClick;
 
   for i:=0 to 4 do for k:=0 to 4 do begin
-    Button:=gb_BuildItemA+i*5+k;
-    Assert(Button<=gb_BuildItemZ,'Number of build buttons exceeded'); //Stick to 20 TSK buttons for now
+    Button:=i*5+k+1;
+    Assert(Button<=HouseCount,'Number of build buttons exceeded'); //Stick to 20 TSK buttons for now
     KMButton_Build[Button]:=fControls.AddButtonFlat(KMPanel_Build, 8+k*36,120+i*36,32,32,GUIBuildIcons[i*5+k+1]);
     KMButton_Build[Button].OnClick:=BuildButtonClick;
   end;
@@ -199,7 +199,7 @@ end;
 procedure TKMGamePlayInterface.BuildButtonClick(Sender: TObject);
 var i:integer; WasDown:boolean;
 begin
-  if Sender=nil then begin CursorMode:=cm_None; exit; end;
+  if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
 
   //Memorize if button was already pressed
   WasDown := TKMButtonFlat(Sender).Checked = true;
@@ -213,12 +213,19 @@ begin
   if not WasDown then TKMButtonFlat(Sender).Checked:=true;
 
   //Reset cursor and see if it needs to be changed
-  CursorMode:=cm_None;
+  CursorMode.Mode:=cm_None;
+  CursorMode.Param:=0;
   if WasDown then exit; //Button was released
-  if KMButton_BuildCancel.Checked then CursorMode:=cm_Erase;
-  if KMButton_BuildRoad.Checked then CursorMode:=cm_Road;
-  if KMButton_BuildField.Checked then CursorMode:=cm_Field;
-  if KMButton_BuildWine.Checked then CursorMode:=cm_Wine;
+  if KMButton_BuildCancel.Checked then CursorMode.Mode:=cm_Erase;
+  if KMButton_BuildRoad.Checked then CursorMode.Mode:=cm_Road;
+  if KMButton_BuildField.Checked then CursorMode.Mode:=cm_Field;
+  if KMButton_BuildWine.Checked then CursorMode.Mode:=cm_Wine;
+
+  for i:=1 to HouseCount do
+  if KMButton_Build[i].Checked then begin
+     CursorMode.Mode:=cm_Houses;
+     CursorMode.Param:=GUIBuildIcons[i]-300; // -300 Thats a shortcut, I know
+  end;
 
 end;
 

@@ -49,7 +49,6 @@ const //TGUIButton = (
   gp_ToolBar=0; gp_Build=1;  gp_Ratios=2;  gp_Stats=3;  gp_Menu=4;
   gp_HouseA=6; {29pcs} gp_HouseZ=35; //6..35 span is used for houses pages
   //GUI Flat Buttons
-  gb_BuildItemA=5; {27pcs} gb_BuildItemZ=32; //5..32 span is used for build buttons
   //Labels
   //Why do I need to store all this unique IDs as constants???
   //Do you have better idea Lewin??
@@ -194,7 +193,9 @@ type
 
 const
 
-  GUIBuildIcons:array[1..25]of word = (
+  HouseCount=25;
+
+  GUIBuildIcons:array[1..HouseCount]of word = (
   314, 328, 315, 310, 301,
   309, 323, 308, 317, 325,
   329, 306, 304, 316, 320,

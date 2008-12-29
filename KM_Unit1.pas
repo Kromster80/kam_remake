@@ -10,45 +10,9 @@ uses
 type
   TForm1 = class(TForm)
     OpenDialog1: TOpenDialog;
-    TBZoomControl: TTrackBar;
     SaveDialog1: TSaveDialog;
-    Pallete: TPageControl;
-    TabSheet3: TTabSheet;
-    BB01: TSpeedButton;
-    BB02: TSpeedButton;
-    BB03: TSpeedButton;
-    BB04: TSpeedButton;
-    BB05: TSpeedButton;
-    BB06: TSpeedButton;
-    BB07: TSpeedButton;
-    BB08: TSpeedButton;
-    BB09: TSpeedButton;
-    BB10: TSpeedButton;
-    BB97: TSpeedButton;
-    BB99: TSpeedButton;
-    BB98: TSpeedButton;
-    BB00: TSpeedButton;
-    BB11: TSpeedButton;
-    BB12: TSpeedButton;
-    BB13: TSpeedButton;
-    BB14: TSpeedButton;
-    BB15: TSpeedButton;
-    BB16: TSpeedButton;
-    BB17: TSpeedButton;
-    BB18: TSpeedButton;
-    BB21: TSpeedButton;
-    BB19: TSpeedButton;
-    BB22: TSpeedButton;
-    BB20: TSpeedButton;
-    BB23: TSpeedButton;
-    BB24: TSpeedButton;
-    BB25: TSpeedButton;
-    BB26: TSpeedButton;
-    BB27: TSpeedButton;
-    BB28: TSpeedButton;
-    BB29: TSpeedButton;
     StatusBar1: TStatusBar;
-    Panel2: TPanel;
+    Panel_Minimap: TPanel;
     MiniMap: TImage;
     ShapeFOV: TShape;
     MainMenu1: TMainMenu;
@@ -63,9 +27,6 @@ type
     ShowObjects: TMenuItem;
     ShowFlatTerrain: TMenuItem;
     Panel5: TPanel;
-    Image3: TImage;
-    Image4: TImage;
-    Label1: TLabel;
     Timer100ms: TTimer;
     PrintScreen1: TMenuItem;
     Export1: TMenuItem;
@@ -77,19 +38,24 @@ type
     OpenDAT: TMenuItem;
     ExportDAT: TMenuItem;
     DecodeDAT: TMenuItem;
+    Timer1sec: TTimer;
+    ExportGUIMainRX: TMenuItem;
+    Exportfonts1: TMenuItem;
+    GroupBox1: TGroupBox;
+    Image4: TImage;
+    TBZoomControl: TTrackBar;
+    Image3: TImage;
+    Label1: TLabel;
     Pl1: TSpeedButton;
-    Pl4: TSpeedButton;
-    Pl5: TSpeedButton;
     Pl2: TSpeedButton;
     Pl3: TSpeedButton;
     Pl6: TSpeedButton;
-    Timer1sec: TTimer;
-    CheckBox1: TCheckBox;
-    CheckBox2: TCheckBox;
-    CheckBox3: TCheckBox;
-    ExportGUIMainRX: TMenuItem;
+    Pl5: TSpeedButton;
+    Pl4: TSpeedButton;
     Shape267: TShape;
-    Exportfonts1: TMenuItem;
+    CheckBox2: TCheckBox;
+    CheckBox1: TCheckBox;
+    CheckBox3: TCheckBox;
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -105,7 +71,6 @@ type
     procedure AboutClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure ResetZoomClick(Sender: TObject);
-    procedure BBClick(Sender: TObject);
     procedure ExitClick(Sender: TObject);
     procedure ShowWiresClick(Sender: TObject);
     procedure ShowObjectsClick(Sender: TObject);
@@ -276,14 +241,14 @@ CursorYn:=EnsureRange(round(CursorY+1),1,fTerrain.MapY);
 StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '+floattostr(round(CursorY*10)/10)
 +' | '+inttostr(CursorXc)+' '+inttostr(CursorYc);
 
-if CursorMode=cm_None then
+if CursorMode.Mode=cm_None then
   if (ControlList.HousesHitTest(CursorXc, CursorYc)<>nil)or
      (ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil) then
     Screen.Cursor:=c_Info
   else if not Scrolling then
     Screen.Cursor:=c_Default;
 
-fTerrain.UpdateCursor(CursorMode,KMPoint(CursorXc,CursorYc));
+fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
 fControls.OnMouseOver(X,Y,Shift);
 
 if not MousePressed then exit;
@@ -304,7 +269,7 @@ begin
     fControls.OnMouseUp(X,Y,Button)
   else
 
-  case CursorMode of
+  case CursorMode.Mode of
     cm_None:
       begin
         if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then
@@ -322,8 +287,7 @@ begin
         ControlList.RemHouse(P);
       end;
     cm_Houses:
-      if LandBrush in [1..29] then
-        ControlList.AddHousePlan(P,THouseType(LandBrush),play_1)
+        ControlList.AddHousePlan(P,THouseType(CursorMode.Param),play_1)
     end;
 MouseButton:=mb2None;
 end;
@@ -360,22 +324,6 @@ end;
 procedure TForm1.ResetZoomClick(Sender: TObject);
 begin
   TBZoomControl.Position:=4;
-end;
-
-procedure TForm1.BBClick(Sender: TObject);
-begin
-if TSpeedButton(Sender).Down=false then begin
-  CursorMode:=cm_None;
-  exit;
-end;
-s:=(TSpeedButton(Sender)).Name;
-LandBrush:=strtoint(s[3]+s[4]);
-case LandBrush of
-  0:      CursorMode:=cm_Erase;
-  1..29:  CursorMode:=cm_Houses;
-//  97..99: begin CursorMode:=cm_Roads; dec(LandBrush,96); end; //Brush in 1..3
-  else    CursorMode:=cm_None;
-end;
 end;
 
 procedure TForm1.ExitClick(Sender: TObject);

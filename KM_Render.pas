@@ -234,7 +234,7 @@ begin
 //-Houses-
 //Render house shape
 //==============================================
-if CursorMode=cm_Houses then
+if CursorMode.Mode=cm_Houses then
 if (LandBrush in [0])and(not MousePressed) then
   begin
   glColor4f(1,0,0,0.2);    //Object eraser

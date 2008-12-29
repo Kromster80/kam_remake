@@ -27,7 +27,11 @@ var
 
   ExeDir:string;
 
-  CursorMode:cmCursorMode;
+  CursorMode:record //It's easier to store it in record
+    Mode:cmCursorMode;
+    Param:byte;
+  end;
+
   Scrolling: boolean;
   LandBrush:integer=0;  //Active brush
   s:string;
