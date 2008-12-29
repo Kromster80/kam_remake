@@ -534,6 +534,7 @@ closefile(f);
 //Compile texture
 AdvX:=0; AdvY:=0;
 setlength(TD,TexWidth*TexWidth+1);
+FillChar(TD[0],TexWidth*TexWidth+1,$80); //Make some background
 
 for i:=0 to 255 do
   if FontData[byte(aFont)].Pal[i]<>0 then
@@ -558,6 +559,8 @@ for i:=0 to 255 do
     end;
 
   GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],tm_TexID);
+
+  FontData[byte(aFont)].Letters[32].Width:=7; //"Space" width
 
 if WriteFontToBMP then begin
   MyBitMap:=TBitMap.Create;

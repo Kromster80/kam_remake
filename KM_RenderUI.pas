@@ -13,7 +13,7 @@ TRenderUI = class
     procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
     procedure WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
-    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor=$00000000):TKMPoint; //Should return text width in px
+    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor):TKMPoint; //Should return text width in px
   end;
 
 var
@@ -47,9 +47,7 @@ end;
     glTranslate(PosX,PosY,0);
 
     {//Thin black outline outside the button
-    //Actually, if you look at KaM there are NO "thin black outlines" on buttons
-    //Delete on reading ;)
-
+    //I know, but it's the first thing I'll do when we reach TSK status - add this thin outline, it make buttons look much niver ;-)
     glColor4f(0,0,0,0.75);
     glBegin (GL_LINE_LOOP);
       glkRect(-1,-1,SizeX,SizeY);
@@ -218,8 +216,7 @@ end;
 
 procedure TRenderUI.WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
 begin
-  //Temporaraly using semi transparency if image disabled, because I don't know how to darken each pixel but not the transperent ones. (like disabled images/buttons in KaM) If you could do that it would be great!
-  if Enabled = true then glColor4f(1,1,1,1) else glColor4f(1,1,1,0.4);
+  if Enabled = true then glColor4f(1,1,1,1) else glColor4f(0,0,0,1); //Full black
   if ID<>0 then with GFXData[4,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
     glPushMatrix;
@@ -248,45 +245,49 @@ end;
 
 
 {Renders a line of text and returns text width in px}
-function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor=$00000000):TKMPoint;
-const InterLetter=1; //Spacing between letters
-var i,Num:integer; TextWidth:integer;
+{By default color must be non-transparent white}
+function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor):TKMPoint;
+const InterLetter=0; //Spacing between letters
+var i,Num:integer;
 begin
-  //@Krom: Could you please make it so that all the pixels that are not transperent will be re-rendered with the Color parameter? The alpha will be 00 if the real colors are to be used. (therefore making it transperent) This is required for stuff like Condition on the building page.
-  TextWidth:=0;
+  Result.X:=0;
   Result.Y:=0;
   for i:=1 to length(Text) do
     if Text[i] in [' '..'z'] then begin
-      TextWidth:=TextWidth+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
+      Result.X:=Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
       Result.Y:=max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
     end;
-
-  Result.X:=TextWidth;
 
   glPushMatrix;
     glkMoveAALines(false);
     if Align=kaLeft   then glTranslate(PosX,PosY,0);
-    if Align=kaCenter then glTranslate(PosX-(TextWidth div 2),PosY,0);
-    if Align=kaRight  then glTranslate(PosX-TextWidth,PosY,0);
-    glColor4f(1,1,1,1);
-    //glkScale(2);
-    for i:=1 to length(Text) do begin
-      Num:=ord(Text[i]);
-      glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
-      glBegin(GL_QUADS);
-        with FontData[byte(Fnt)].Letters[Num] do begin
-          glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
-          glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
-          glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);
-          glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
+    if Align=kaCenter then glTranslate(PosX-(Result.X div 2),PosY,0);
+    if Align=kaRight  then glTranslate(PosX-Result.X,PosY,0);
+    glPushMatrix;
+      glColor4ubv(@Color);
+      for i:=1 to length(Text) do begin
+        Num:=ord(Text[i]);
+        glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
+        glBegin(GL_QUADS);
+          with FontData[byte(Fnt)].Letters[Num] do begin
+            glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
+            glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
+            glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);
+            glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
+          end;
+        glEnd;
+        //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
+        glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
+        //Switch line if needed
+        if Text[i]=#10 then begin//End-Of-Line character, or was it #13? I don't remember well
+          glPopMatrix;
+          glTranslate(0,Result.Y,0);
+          glPushMatrix;
         end;
-      glEnd;
-      //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
-      glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
-    end;
+      end;
+    glPopMatrix;
     glBindTexture(GL_TEXTURE_2D,0);
   glPopMatrix;
 end;
 
 end.
- 

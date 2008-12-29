@@ -55,6 +55,8 @@ begin
       fControls.Add(L[i]);
     end;}
 
+    KMLabel[6]:=fControls.AddLabel(KMPanel[gp_ToolBar],8,161,236,200,fnt_Grey,kaLeft,'Description of unit');
+
     //This is button to start Village functioning
     KMButtonRun:=fControls.AddButton(KMPanel[gp_ToolBar],50,205,100,40,36);
     KMButtonRun.OnClick:=Form1.Button1Click; //Procedure where stuff is placed on map
@@ -74,7 +76,7 @@ begin
   Page:=gp_Build;
   KMPanel[Page]:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
 
-  KMLabel[1]:=fControls.AddLabel(KMPanel[Page],100,10,100,30,fnt_Metal,kaCenter,'Items   to   build');
+  KMLabel[1]:=fControls.AddLabel(KMPanel[Page],100,10,100,30,fnt_Metal,kaCenter,'Items to build');
 
   KMButtonFlat[gb_Road]   := fControls.AddButtonFlat(KMPanel[Page],  8,80,32,32,335);
   KMButtonFlat[gb_Field]  := fControls.AddButtonFlat(KMPanel[Page], 44,80,32,32,337);
@@ -110,7 +112,7 @@ begin
   KMLabel[gl_UnitName]:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'Unit name here');
   KMLabel[gl_UnitCondition]:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,'Condition');
   KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
-  KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,'Description of unit');
+  KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,'Description of unit'+eol+'Line2'+eol+'Line3 ');
   KMImage_UnitScroll:=fControls.AddImage(KMPanel_Unit,8,52,54,80,521);
 
 {House description page}
@@ -126,7 +128,7 @@ begin
   KMImage_House_Logo:=fControls.AddImage(KMPanel_House,68,41,32,32,338);
   KMImage_House_Worker:=fControls.AddImage(KMPanel_House,98,41,32,32,141);
   KMHealthBar_House:=fControls.AddPercentBar(KMPanel_House,129,57,55,15,100,'550/550',fnt_Mini); //Not the correct color. Font color will have to be added to the percentage bar
-  KMLabel_HouseCondition:=fControls.AddLabel(KMPanel_House,156,45,30,50,fnt_Mini,kaCenter,'Condition:',$7FE3BF7F); //This color won't be rendered untill you add the code to do it
+  KMLabel_HouseCondition:=fControls.AddLabel(KMPanel_House,156,45,30,50,fnt_Mini,kaCenter,'Condition:',$FFFF00FF);
 
 SwitchPage(nil);
 end;
@@ -196,7 +198,7 @@ begin
   if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40; 
   if Sender.WareDelivery then KMButton_House_Goods.TexID:=37 else KMButton_House_Goods.TexID:=38;
 
-  //process common properties
+  //process common properties - done :-)
   //if has demand - list it
   //if has product - list it
   //if has order placement - list it

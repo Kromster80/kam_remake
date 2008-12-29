@@ -98,7 +98,7 @@ TKMLabel = class(TKMControl)
     TextAlign: KAlign;
     Caption: string;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$00000000);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$FFFFFFFF);
     procedure Paint(); override;
 end;
 
@@ -112,7 +112,7 @@ TKMControlsCollection = class(TKMList)
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton; overload;
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
     function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
-    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$00000000):TKMLabel;
+    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; const aColor:TColor=$FFFFFFFF):TKMLabel;
     function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
@@ -221,7 +221,7 @@ begin
   if not Enabled then State:=State+[bs_Disabled];
   fRenderUI.Write3DButton(TexID,Left,Top,Width,Height,State);
   if TexID=0 then
-    fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-6, TextAlign, Caption, Font);
+    fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-6, TextAlign, Caption, Font, $FFFFFFFF);
 end;
 
 
@@ -280,11 +280,11 @@ procedure TKMPercentBar.Paint();
 begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then //Now draw text over bar, if required
-    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, TextAlign, Caption, Font);
+    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, TextAlign, Caption, Font, $FFFFFFFF);
 end;
 
 
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$00000000);
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$FFFFFFFF);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
@@ -346,7 +346,8 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$00000000):TKMLabel;
+function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont;
+        aTextAlign: KAlign; aCaption:string; const aColor:TColor = $FFFFFFFF):TKMLabel;
 begin
   Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
   AddToCollection(Result);
