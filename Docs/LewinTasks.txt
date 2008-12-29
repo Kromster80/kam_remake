@@ -1,0 +1,4 @@
+Config.ini to store some of global params we talked about
+
+KM_LoadLIB unit, to load strings from KaM text library.
+

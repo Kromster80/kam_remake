@@ -47,7 +47,7 @@ end;
     glTranslate(PosX,PosY,0);
 
     {//Thin black outline outside the button
-    //I know, but it's the first thing I'll do when we reach TSK status - add this thin outline, it make buttons look much niver ;-)
+    //I know, but it's the first thing I'll do when we reach TSK status - add this thin outline, it make buttons look much nicer ;-)
     glColor4f(0,0,0,0.75);
     glBegin (GL_LINE_LOOP);
       glkRect(-1,-1,SizeX,SizeY);
@@ -129,8 +129,6 @@ begin
       glvertex2f(0,0);
       glvertex2f(SizeX-1,0);
     glEnd;
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     if ID<>0 then begin
       glColor4f(1,1,1,1);

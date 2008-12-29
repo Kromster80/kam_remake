@@ -1,3 +1,14 @@
+1. 2 armies fight
+
+2. Village functioning
+
+3. UserInterface
+
+4. Sounds/Music
+
+5. FrontEnd menu and SP init/campaign
+
+6. Multi-player
 
 Задача1: есть 2 армии, управление с мыши и кнопок на тулбаре, сближение, драка, гибель юнитов и т.п.
 

@@ -1,3 +1,11 @@
+Alex has quit from the propject, but tasks remained
+
+1. Path-finding A*
+
+2. Dynamic path-finding for moving units
+
+3. Fighting betwee units
+
 1. Алгоритм поиска пути А->В (А*)
 
 	1.1 Обращение к данным TTerrain.Passability
