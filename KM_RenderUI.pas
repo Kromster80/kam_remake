@@ -233,6 +233,7 @@ begin
   glBindTexture(GL_TEXTURE_2D,0);
 end;
 
+
 {Renders plane with given color}
 procedure TRenderUI.WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
 begin

@@ -113,6 +113,8 @@ begin
 
 {House description page}
   KMPanel_House:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
+  //Thats common things
+  //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
 
   KMLabel_House:=fControls.AddLabel(KMPanel_House,100,14,100,30,fnt_Outline,kaCenter,'House name here');
   KMButton_House_Goods:=fControls.AddButton(KMPanel_House,9,42,30,30,37);

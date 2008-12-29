@@ -293,13 +293,15 @@ begin
 end;
 
 
+{Send caption to render and recieve in result how much space did it took on screen}
 procedure TKMLabel.Paint();
 var Tmp:TKMPoint;
 begin
   if MakeDrawPagesOverlay then
   case TextAlign of
-  kaLeft: fRenderUI.WriteLayer($4000FFFF,Left,Top,Width,Height);
-  kaCenter: fRenderUI.WriteLayer($4000FFFF,Left - Width div 2,Top,Width,Height);
+    kaLeft:   fRenderUI.WriteLayer($4000FFFF, Left, Top, Width, Height);
+    kaCenter: fRenderUI.WriteLayer($4000FFFF, Left - Width div 2, Top, Width, Height);
+    kaRight:  fRenderUI.WriteLayer($4000FFFF, Left - Width, Top, Width, Height);
   end;
   Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font);
   Width:=Tmp.X;

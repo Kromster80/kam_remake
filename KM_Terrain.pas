@@ -3,7 +3,7 @@ interface
 uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 
 const
-MaxMapSize=176; //Just some number
+MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
 
 type TPassability = (CanWalk, CanBuild, CanPlantTrees, CanMakeFields, CanFish);
 
