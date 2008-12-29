@@ -4,11 +4,13 @@ FONT TROUBLES: (see image FontTroubles.gif, remake left, KaM right)
  - New line doesn't seem to work with the font files. It is required for many places such as unit descriptions, briefings, etc. Oh and spaces don't seem to work either. (or else they don't work much ;) )
 
 ANSWER: I can make it work. (Krom)
+End-of-lines are added. Spaces are faked in ReadGFX by altering Letter[32] which is space character
 
 
  - Another issue with the font is the spacing between characters. You seem to have made them fixed width, where as in fact in KaM the characters are the width of their pixels, i.e. all characters butt up against each other, unless seperated by a space.
 
 ANSWER: I see the problem and I can make it. (Krom)
+I've made them butt. More complex solution involves Kerning control and I'd like to skip that.
 
 
 

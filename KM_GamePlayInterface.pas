@@ -29,7 +29,7 @@ type TKMGamePlayInterface = class
     constructor Create;
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TUnitType);  
-    procedure HouseRepair(Sender:TObject);    
+    procedure HouseRepairToggle(Sender:TObject);
     procedure WareDeliveryToggle(Sender:TObject);
   end;
 
@@ -112,7 +112,8 @@ begin
   KMLabel[gl_UnitName]:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'Unit name here');
   KMLabel[gl_UnitCondition]:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,'Condition');
   KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
-  KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,'Description of unit'+eol+'Line2'+eol+'Line3 ');
+  KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,
+  'Description of unit'+eol+'Line2'+eol+'Line3 '); //Should be taken from LIB resource
   KMImage_UnitScroll:=fControls.AddImage(KMPanel_Unit,8,52,54,80,521);
 
 {House description page}
@@ -123,7 +124,7 @@ begin
   KMLabel_House:=fControls.AddLabel(KMPanel_House,100,14,100,30,fnt_Outline,kaCenter,'House name here');
   KMButton_House_Goods:=fControls.AddButton(KMPanel_House,9,42,30,30,37);
   KMButton_House_Repair:=fControls.AddButton(KMPanel_House,39,42,30,30,40);
-  KMButton_House_Repair.OnClick := fGamePlayInterface.HouseRepair;       
+  KMButton_House_Repair.OnClick := fGamePlayInterface.HouseRepairToggle;
   KMButton_House_Goods.OnClick := fGamePlayInterface.WareDeliveryToggle;
   KMImage_House_Logo:=fControls.AddImage(KMPanel_House,68,41,32,32,338);
   KMImage_House_Worker:=fControls.AddImage(KMPanel_House,98,41,32,32,141);
@@ -165,11 +166,13 @@ if Sender=KMPanel_House then begin
 end;
 end;
 
-procedure TKMGamePlayInterface.HouseRepair(Sender:TObject);
+procedure TKMGamePlayInterface.HouseRepairToggle(Sender:TObject);
 begin
   if ControlList.SelectedHouse <> nil then
     with ControlList.SelectedHouse do begin
       if BuildingRepair = true then BuildingRepair := false else BuildingRepair := true;
+      //I'd like to have it working this way though
+      //BuildingRepair := not BuildingRepair;
       if BuildingRepair then fGamePlayInterface.KMButton_House_Repair.TexID:=39 else fGamePlayInterface.KMButton_House_Repair.TexID:=40;
     end;
 end;  
@@ -190,12 +193,11 @@ begin
   KMLabel_House.Caption:=TypeToString(Sender.GetHouseType);
   KMImage_House_Logo.TexID:=300+byte(Sender.GetHouseType);
   KMImage_House_Worker.TexID:=140+integer(HouseOwnerUnit[integer(Sender.GetHouseType)]);
-  if Sender.GetHasOwner = true then KMImage_House_Worker.Enabled:=true else KMImage_House_Worker.Enabled:=false;
-  if HouseOwnerUnit[integer(Sender.GetHouseType)] = ut_None then KMImage_House_Worker.Visible:=false
-    else KMImage_House_Worker.Visible:=true;
+  KMImage_House_Worker.Enabled := Sender.GetHasOwner;
+  KMImage_House_Worker.Visible := HouseOwnerUnit[integer(Sender.GetHouseType)] <> ut_None;
   if (HouseInput[integer(Sender.GetHouseType)][1] = rt_None) or (HouseInput[integer(Sender.GetHouseType)][1] = rt_All) then
     KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enabled:=true;
-  if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40; 
+  if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40;
   if Sender.WareDelivery then KMButton_House_Goods.TexID:=37 else KMButton_House_Goods.TexID:=38;
 
   //process common properties - done :-)
