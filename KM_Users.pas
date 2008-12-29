@@ -37,6 +37,8 @@ type
     fBuildList: TKMBuildingQueue;
     function GetCtrl(Index: Integer): TKMUserControl;
     function UserByName(const aOwner:TPlayerID): TKMUser;
+    function GetSelHouse: TKMHouse;
+    procedure SetSelHouse(ASelHouse:TKMHouse);
   public
     constructor Create();
     destructor Destroy; override;
@@ -55,6 +57,7 @@ type
     procedure GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsSelectedUnit: TKMUnit;
+    property SelectedHouse: TKMHouse read GetSelHouse write SetSelHouse;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property BuildList:TKMBuildingQueue read fBuildList;
   public
@@ -205,6 +208,9 @@ begin
       Exit;
     end;
 end;
+
+function TKMUserControlList.GetSelHouse: TKMHouse; begin result:=fHouses.SelectedHouse; end;
+procedure TKMUserControlList.SetSelHouse(ASelHouse:TKMHouse); begin fHouses.SelectedHouse := ASelHouse; end;
 
 { TKMUser }
 

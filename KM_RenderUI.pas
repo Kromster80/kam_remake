@@ -1,6 +1,6 @@
 unit KM_RenderUI;
 interface
-uses dglOpenGL, OpenGL, Math, KromUtils, KromOGLUtils, SysUtils, KM_Defaults;
+uses dglOpenGL, OpenGL, Math, KromUtils, KromOGLUtils, SysUtils, KM_Defaults, Graphics;
 
 type
 TRenderUI = class
@@ -11,9 +11,9 @@ TRenderUI = class
     procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WriteFlatButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
-    procedure WritePic(ID,PosX,PosY:integer);
+    procedure WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
-    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):TKMPoint; //Should return text width in px
+    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor=$00000000):TKMPoint; //Should return text width in px
   end;
 
 var
@@ -46,11 +46,14 @@ end;
   glPushMatrix;
     glTranslate(PosX,PosY,0);
 
-    //Thin black outline outside the button
+    {//Thin black outline outside the button
+    //Actually, if you look at KaM there are NO "thin black outlines" on buttons
+    //Delete on reading ;)
+
     glColor4f(0,0,0,0.75);
     glBegin (GL_LINE_LOOP);
       glkRect(-1,-1,SizeX,SizeY);
-    glEnd;
+    glEnd;}
 
     glPushMatrix;
       glkMoveAALines(false);
@@ -91,7 +94,7 @@ end;
     end;
 
     if bs_Disabled in State then begin
-      glColor4f(0.5,0.5,0.5,0.5);
+      glColor4f(0,0,0,0.5);
       glBegin (GL_QUADS);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
@@ -169,7 +172,6 @@ begin
     glEnd;
 
     //Thin outline rendered on top of background to avoid inset calculations
-    //glBlendFunc(GL_DST_COLOR,GL_ONE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(0,0,0,0.5);
     glBegin (GL_LINE_STRIP);
@@ -214,9 +216,10 @@ begin
 end;
 
 
-procedure TRenderUI.WritePic(ID,PosX,PosY:integer);
-begin                          
-  glColor4f(1,1,1,1);
+procedure TRenderUI.WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
+begin
+  //Temporaraly using semi transparency if image disabled, because I don't know how to darken each pixel but not the transperent ones. (like disabled images/buttons in KaM) If you could do that it would be great!
+  if Enabled = true then glColor4f(1,1,1,1) else glColor4f(1,1,1,0.4);
   if ID<>0 then with GFXData[4,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
     glPushMatrix;
@@ -245,10 +248,11 @@ end;
 
 
 {Renders a line of text and returns text width in px}
-function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont):TKMPoint;
+function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor=$00000000):TKMPoint;
 const InterLetter=1; //Spacing between letters
 var i,Num:integer; TextWidth:integer;
 begin
+  //@Krom: Could you please make it so that all the pixels that are not transperent will be re-rendered with the Color parameter? The alpha will be 00 if the real colors are to be used. (therefore making it transperent) This is required for stuff like Condition on the building page.
   TextWidth:=0;
   Result.Y:=0;
   for i:=1 to length(Text) do

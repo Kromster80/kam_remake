@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils;
+uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
@@ -93,11 +93,12 @@ end;
 {Text Label}
 TKMLabel = class(TKMControl)
   public
-    Font: TKMFont;
+    Font: TKMFont;  
+    FontColor: TColor;
     TextAlign: KAlign;
     Caption: string;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$00000000);
     procedure Paint(); override;
 end;
 
@@ -111,7 +112,7 @@ TKMControlsCollection = class(TKMList)
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton; overload;
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
     function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
-    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string):TKMLabel;
+    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$00000000):TKMLabel;
     function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
@@ -260,7 +261,7 @@ procedure TKMImage.Paint();
 begin
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer($4000FF00,Left,Top,Width,Height);
   fRenderUI.WritePic(TexID, Left + (Width-GFXData[4,TexID].PxWidth) div 2,
-                            Top + (Height-GFXData[4,TexID].PxHeight) div 2);
+                            Top + (Height-GFXData[4,TexID].PxHeight) div 2,Enabled);
 end;
 
 
@@ -279,15 +280,16 @@ procedure TKMPercentBar.Paint();
 begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then //Now draw text over bar, if required
-    fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-5, TextAlign, Caption, Font);
+    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, TextAlign, Caption, Font);
 end;
 
 
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string);
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$00000000);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
   Font:=aFont;
+  FontColor:=aColor;
   TextAlign:=aTextAlign;
   Caption:=aCaption;
 end;
@@ -303,7 +305,7 @@ begin
     kaCenter: fRenderUI.WriteLayer($4000FFFF, Left - Width div 2, Top, Width, Height);
     kaRight:  fRenderUI.WriteLayer($4000FFFF, Left - Width, Top, Width, Height);
   end;
-  Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font);
+  Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font, FontColor);
   Width:=Tmp.X;
   Height:=Tmp.Y;
 end;
@@ -344,9 +346,9 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string):TKMLabel;
+function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$00000000):TKMLabel;
 begin
-  Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption);
+  Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
   AddToCollection(Result);
 end;
 

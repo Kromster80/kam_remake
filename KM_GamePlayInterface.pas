@@ -21,14 +21,16 @@ type TKMGamePlayInterface = class
     KMPanel_House:TKMPanel;
       KMLabel_House:TKMLabel;
       KMButton_House_Goods,KMButton_House_Repair:TKMButton;
-      KMImage_House_Logo:TKMImage;
+      KMImage_House_Logo,KMImage_House_Worker:TKMImage;
       KMHealthBar_House:TKMPercentBar;
       KMLabel_HouseCondition:TKMLabel;
     procedure SwitchPage(Sender: TObject);
   public
     constructor Create;
     procedure ShowHouseInfo(Sender:TKMHouse);
-    procedure ShowUnitInfo(Sender:TUnitType);
+    procedure ShowUnitInfo(Sender:TUnitType);  
+    procedure HouseRepair(Sender:TObject);    
+    procedure WareDeliveryToggle(Sender:TObject);
   end;
 
 var
@@ -119,9 +121,12 @@ begin
   KMLabel_House:=fControls.AddLabel(KMPanel_House,100,14,100,30,fnt_Outline,kaCenter,'House name here');
   KMButton_House_Goods:=fControls.AddButton(KMPanel_House,9,42,30,30,37);
   KMButton_House_Repair:=fControls.AddButton(KMPanel_House,39,42,30,30,40);
-  KMImage_House_Logo:=fControls.AddImage(KMPanel_House,69,42,32,32,338);
-  KMHealthBar_House:=fControls.AddPercentBar(KMPanel_House,129,57,55,15,100,'550/550',fnt_Minimum); //Not the correct font, I can't find it!!! Any ideas?
-  KMLabel_HouseCondition:=fControls.AddLabel(KMPanel_House,157,46,30,50,fnt_Minimum,kaCenter,'Condition:'); //Not the correct font, I can't find it!!! Any ideas?
+  KMButton_House_Repair.OnClick := fGamePlayInterface.HouseRepair;       
+  KMButton_House_Goods.OnClick := fGamePlayInterface.WareDeliveryToggle;
+  KMImage_House_Logo:=fControls.AddImage(KMPanel_House,68,41,32,32,338);
+  KMImage_House_Worker:=fControls.AddImage(KMPanel_House,98,41,32,32,141);
+  KMHealthBar_House:=fControls.AddPercentBar(KMPanel_House,129,57,55,15,100,'550/550',fnt_Mini); //Not the correct color. Font color will have to be added to the percentage bar
+  KMLabel_HouseCondition:=fControls.AddLabel(KMPanel_House,156,45,30,50,fnt_Mini,kaCenter,'Condition:',$7FE3BF7F); //This color won't be rendered untill you add the code to do it
 
 SwitchPage(nil);
 end;
@@ -158,6 +163,23 @@ if Sender=KMPanel_House then begin
 end;
 end;
 
+procedure TKMGamePlayInterface.HouseRepair(Sender:TObject);
+begin
+  if ControlList.SelectedHouse <> nil then
+    with ControlList.SelectedHouse do begin
+      if BuildingRepair = true then BuildingRepair := false else BuildingRepair := true;
+      if BuildingRepair then fGamePlayInterface.KMButton_House_Repair.TexID:=39 else fGamePlayInterface.KMButton_House_Repair.TexID:=40;
+    end;
+end;  
+
+procedure TKMGamePlayInterface.WareDeliveryToggle(Sender:TObject);
+begin
+  if ControlList.SelectedHouse <> nil then
+    with ControlList.SelectedHouse do begin
+      if WareDelivery = true then WareDelivery := false else WareDelivery := true;
+      if WareDelivery then fGamePlayInterface.KMButton_House_Goods.TexID:=37 else fGamePlayInterface.KMButton_House_Goods.TexID:=38;
+    end;
+end;
 
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse);
 begin
@@ -165,6 +187,15 @@ begin
   SwitchPage(KMPanel_House);
   KMLabel_House.Caption:=TypeToString(Sender.GetHouseType);
   KMImage_House_Logo.TexID:=300+byte(Sender.GetHouseType);
+  KMImage_House_Worker.TexID:=140+integer(HouseOwnerUnit[integer(Sender.GetHouseType)]);
+  if Sender.GetHasOwner = true then KMImage_House_Worker.Enabled:=true else KMImage_House_Worker.Enabled:=false;
+  if HouseOwnerUnit[integer(Sender.GetHouseType)] = ut_None then KMImage_House_Worker.Visible:=false
+    else KMImage_House_Worker.Visible:=true;
+  if (HouseInput[integer(Sender.GetHouseType)][1] = rt_None) or (HouseInput[integer(Sender.GetHouseType)][1] = rt_All) then
+    KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enabled:=true;
+  if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40; 
+  if Sender.WareDelivery then KMButton_House_Goods.TexID:=37 else KMButton_House_Goods.TexID:=38;
+
   //process common properties
   //if has demand - list it
   //if has product - list it

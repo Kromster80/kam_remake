@@ -417,15 +417,15 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 begin
 TKMControl(Sender).Enabled:=false;
-fViewPort.XCoord:=6;
-fViewPort.YCoord:=11;
+fViewPort.SetCenter(6,11);
 ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));
 ControlList.AddHouse(play_1, ht_Mill,KMPoint(8,5));
 ControlList.AddHouse(play_1, ht_Bakery,KMPoint(12,5));
 ControlList.AddHouse(play_1, ht_Store,KMPoint(16,5));
 ControlList.AddHouse(play_1, ht_Quary,KMPoint(12,8));
 ControlList.AddHouse(play_1, ht_WoodCutters,KMPoint(12,11));
-ControlList.AddHouse(play_1, ht_SawMill,KMPoint(12,14));
+ControlList.AddHouse(play_1, ht_SawMill,KMPoint(12,14));      
+ControlList.AddHouse(play_1, ht_FisherHut,KMPoint(18,9)); //Added to demonstrate a house without an occupant in the building page
 
 ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
 ControlList.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));

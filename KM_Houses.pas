@@ -54,6 +54,8 @@ type
 
     fHasOwner: boolean; //which is some TKMUnit
     fOwnerAtHome: boolean;
+    fBuildingRepair: boolean; //If on and the building is damaged then labourers will come and repair it
+    fWareDelivery: boolean; //If on then no wares will be delivered here
 
     fOutputTypes:array[1..4]of TResourceType;
     fInputTypes:array[1..4] of TResourceType;
@@ -66,6 +68,7 @@ type
 
     fLastUpdateTime: Cardinal;
     AnimStep: integer;
+    procedure SetWareDelivery(AVal:boolean);
   public
     constructor Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
@@ -82,6 +85,9 @@ type
     function ResTakeFromOut(aResource:TResourceType):boolean;
     property GetPosition:TKMPoint read fPosition;
     property GetHouseType:THouseType read fHouseType;
+    property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;  
+    property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
+    property GetHasOwner:boolean read fHasOwner;
     function GetProductionTask():THouseTask;
     procedure UpdateState;
     procedure Paint();
@@ -99,7 +105,7 @@ type
     function HitTest(X, Y: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
     procedure Paint();
-    property SelectedHouse: TKMHouse read fSelectedHouse; 
+    property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
   end;
 
 implementation
@@ -117,6 +123,8 @@ begin
   fBuildState:=aBuildState;
   fOwnerID:=aOwner;
   fHasOwner:=false;
+  fBuildingRepair:=false;
+  fWareDelivery:=true;
   fOwnerAtHome:=false;
   if aBuildState=hbs_Done then Self.Activate;
   fTerrain.SetHousePlan(fPosition,fHouseType,bt_None); //Sets passability
@@ -286,6 +294,13 @@ end;
 end;
 end;
 
+procedure TKMHouse.SetWareDelivery(AVal:boolean);
+begin
+  fWareDelivery := AVal;
+  //@Krom: Here we should either enable or disable delivery of wares to this building.
+  //I don't really understand how the delivery system works, so maybe you could do this? 
+end;
+
 { THouseAction }
 
 constructor THouseAction.Create(aHouseState: THouseState; const aTime:integer=0);
@@ -423,7 +438,7 @@ begin
       Result:= TKMHouse(Items[I]);
       Break;
     end;
-  fSelectedHouse:= Result;
+  if Result <> nil then fSelectedHouse:= Result;
 end;
 
 function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
