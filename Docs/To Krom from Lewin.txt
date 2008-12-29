@@ -1,0 +1,10 @@
+I thought I'd make this file so I can report stuff to you which I don't feel confident fixing myself.
+
+FONT TROUBLES: (see image FontTroubles.gif, remake left, KaM right)
+ - New line doesn't seem to work with the font files. It is required for many places such as unit descriptions, briefings, etc. Oh and spaces don't seem to work either. (or else they don't work much ;) )
+ - Another issue with the font is the spacing between characters. You seem to have made them fixed width, where as in fact in KaM the characters are the width of their pixels, i.e. all characters butt up against each other, unless seperated by a space.
+
+Less important:
+ - If you ask it to get the coordinates (to display in statusbar) for something past 176 then it crashes. If you load up mission 20 and move you mouse off the edge of the screen this happens. This will probably be fixed when we disallow scrolling past edges
+ 
+Please feel free to delete images/items from this list once they have been fixed.

@@ -54,8 +54,11 @@ end;
 TKMPercentBar = class(TKMControl)
   public
     Position: byte;
+    Caption: string;
+    Font: TKMFont;
+    TextAlign: KAlign;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont);
     procedure Paint(); override;
 end;
 
@@ -109,7 +112,7 @@ TKMControlsCollection = class(TKMList)
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
     function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
     function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string):TKMLabel;
-    function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer):TKMPercentBar;
+    function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
@@ -261,17 +264,22 @@ begin
 end;
 
 
-constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer);
+constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  Position:=EnsureRange(aPos,0,100);
+  Position:=EnsureRange(aPos,0,100);     
+  Font:=aFont;
+  TextAlign:=kaCenter;
+  Caption:=aCaption;
 end;
 
 
 procedure TKMPercentBar.Paint();
 begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
+  if Caption <> '' then //Now draw text over bar, if required
+    fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-5, TextAlign, Caption, Font);
 end;
 
 
@@ -340,9 +348,9 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer):TKMPercentBar;
+function TKMControlsCollection.AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
 begin
-  Result:=TKMPercentBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aPos);
+  Result:=TKMPercentBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aPos,aCaption,aFont);
   AddToCollection(Result);
 end;
 

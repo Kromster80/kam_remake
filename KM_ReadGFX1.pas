@@ -40,7 +40,7 @@ begin
   RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
   RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
   RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
-  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=false;
+  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
 
   for i:=1 to 5 do

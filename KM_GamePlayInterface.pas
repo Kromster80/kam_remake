@@ -15,12 +15,15 @@ type TKMGamePlayInterface = class
     //Just make a huge list of KMControls in here?
     //Please add your comment
     KMPanel_Unit:TKMPanel;
-      KMLabel_UnitCondition:TKMLabel;
+      KMLabel_UnitDescription:TKMLabel;
       KMHealthBar_Unit:TKMPercentBar;
+      KMImage_UnitScroll:TKMImage;
     KMPanel_House:TKMPanel;
       KMLabel_House:TKMLabel;
       KMButton_House_Goods,KMButton_House_Repair:TKMButton;
       KMImage_House_Logo:TKMImage;
+      KMHealthBar_House:TKMPercentBar;
+      KMLabel_HouseCondition:TKMLabel;
     procedure SwitchPage(Sender: TObject);
   public
     constructor Create;
@@ -102,17 +105,21 @@ begin
 {Village Unit description page, no actions}
   KMPanel_Unit:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
 
-  KMLabel[gl_UnitName]:=fControls.AddLabel(KMPanel_Unit,100,10,100,30,fnt_Metal,kaCenter,'Unit name here');
-  KMLabel[gl_UnitCondition]:=fControls.AddLabel(KMPanel_Unit,80,40,100,30,fnt_Metal,kaLeft,'Condition');
-  KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,80,60,100,20,80);
-  KMLabel_UnitCondition:=fControls.AddLabel(KMPanel_Unit,80,80,100,30,fnt_Metal,kaLeft,'Condition');
+  KMLabel[gl_UnitName]:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'Unit name here');
+  KMLabel[gl_UnitCondition]:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,'Condition');
+  KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
+  KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,'Description of unit');
+  KMImage_UnitScroll:=fControls.AddImage(KMPanel_Unit,8,52,54,80,521);
 
 {House description page}
   KMPanel_House:=fControls.AddPanel(KMPanel[gp_ToolBar],0,474,200,400);
-  KMLabel_House:=fControls.AddLabel(KMPanel_House,100,10,100,30,fnt_Metal,kaCenter,'House name here');
-  KMButton_House_Goods:=fControls.AddButton(KMPanel_House,10,40,30,30,37);
-  KMButton_House_Repair:=fControls.AddButton(KMPanel_House,44,40,30,30,39);
-  KMImage_House_Logo:=fControls.AddImage(KMPanel_House,78,40,32,32,338);
+
+  KMLabel_House:=fControls.AddLabel(KMPanel_House,100,14,100,30,fnt_Outline,kaCenter,'House name here');
+  KMButton_House_Goods:=fControls.AddButton(KMPanel_House,9,42,30,30,37);
+  KMButton_House_Repair:=fControls.AddButton(KMPanel_House,39,42,30,30,40);
+  KMImage_House_Logo:=fControls.AddImage(KMPanel_House,69,42,32,32,338);
+  KMHealthBar_House:=fControls.AddPercentBar(KMPanel_House,129,57,55,15,100,'550/550',fnt_Minimum); //Not the correct font, I can't find it!!! Any ideas?
+  KMLabel_HouseCondition:=fControls.AddLabel(KMPanel_House,157,46,30,50,fnt_Minimum,kaCenter,'Condition:'); //Not the correct font, I can't find it!!! Any ideas?
 
 SwitchPage(nil);
 end;
@@ -169,6 +176,7 @@ procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TUnitType);
 begin
   SwitchPage(KMPanel_Unit);
   KMLabel[gl_UnitName].Caption:=TypeToString(Sender);
+  KMImage_UnitScroll.TexID:=520+integer(Sender);
 end;
 
 end.

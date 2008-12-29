@@ -165,19 +165,20 @@ begin
     //Background
     glColor4f(0,0,0,0.5);
     glBegin (GL_QUADS);
-      glkRect(0,0,SizeX-1,SizeY-1);
+      glkRect(1,1,SizeX-1,SizeY-1);
     glEnd;
 
     //Thin outline rendered on top of background to avoid inset calculations
-    glBlendFunc(GL_DST_COLOR,GL_ONE);
-    glColor4f(1,1,1,1);
+    //glBlendFunc(GL_DST_COLOR,GL_ONE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0,0,0,0.5);
     glBegin (GL_LINE_STRIP);
       glvertex2f(SizeX-1,0);
       glvertex2f(SizeX-1,SizeY-1);
       glvertex2f(0,SizeY-1);
     glEnd;
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0,0,0,0.75);
+    glColor4f(0,0,0,0.5);
     glBegin (GL_LINE_STRIP);
       glvertex2f(0,SizeY-1);
       glvertex2f(0,0);
@@ -187,10 +188,26 @@ begin
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     BarWidth:=round((SizeX-4)*Pos/100);
-      glColor4f(0,0.4,0,1);
+      glColor4f(0,0.67,0.15,1);
       glBegin (GL_QUADS);
-        glkRect(2,2,BarWidth+2,SizeY-3);
-      glEnd;
+        glkRect(1,1,BarWidth+3,SizeY-1);
+      glEnd;  
+    //Draw shadow on top and left of the bar, just like real one
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0,0.37,0.09,1);
+    glBegin (GL_LINE_STRIP);
+      glvertex2f(1,SizeY-2);
+      glvertex2f(1,1);
+      glvertex2f(BarWidth+3,1);
+    glEnd;
+    //@Krom: Repeating above function offset by 1,1 as I don't know how to draw a 2px thick line. Clean up if you like
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0,0.37,0.09,1);
+    glBegin (GL_LINE_STRIP);
+      glvertex2f(2,SizeY-2);
+      glvertex2f(2,2);
+      glvertex2f(BarWidth+3,2);
+    glEnd;
 
   glPopMatrix;
 
