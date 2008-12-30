@@ -33,6 +33,9 @@ const //Font01.fnt seems to be damaged..
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
 
+  //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
+  FontCharSpacing: array[TKMFont] of integer = (0,0,0,0,0,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
+
   c_Default=1; c_Info=452;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
   c_Scroll0=4; c_Scroll1=7; c_Scroll2=3; c_Scroll3=9; c_Scroll4=5; c_Scroll5=8; c_Scroll6=2; c_Scroll7=6;

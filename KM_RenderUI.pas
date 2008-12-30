@@ -247,9 +247,9 @@ end;
 {Renders a line of text and returns text width in px}
 {By default color must be non-transparent white}
 function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor):TKMPoint;
-const InterLetter=-1; //Spacing between letters, this varies between fonts
-var i,Num:integer;
+var i,Num,InterLetter:integer;
 begin
+  InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X:=0;
   Result.Y:=0;
   for i:=1 to length(Text) do
