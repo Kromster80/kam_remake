@@ -5,7 +5,7 @@ uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, K
 type
   TByteArray2 = array of Byte;
   TWordArray2 = array of Word;
-  TexMode = (tm_NoCol, tm_TexID, tm_AltID);
+  TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest);
 
     function ReadGFX(text: string):boolean;
 
@@ -17,6 +17,7 @@ type
       function ReadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
       function ReadRX(filename:string; ID:integer):boolean;
+      procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
       procedure MakeGFX(Sender: TObject; RXid:integer);
 
     procedure ExportRX2BMP(RXid:integer);
@@ -45,14 +46,15 @@ begin
 
   for i:=1 to 5 do
   if (i=4)or(MakeGameSprites) then begin //Always make GUI
-
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
 
     //Make GUI items
-    if i=4 then
-      MakeCursors(4);
+    if i=4 then MakeCursors(4);
 
     MakeGFX(nil,i);
+
+    if i=2 then MakeGFX_AlphaTest(nil,i);
+    
     StepRefresh();
   end;
 
@@ -150,7 +152,7 @@ writeln(ft,fTextManager.GetTextString(siHouseNames+ii));
   for kk:=1 to 19 do
     writeln(ft,inttostr(kk)+'. '+inttostr(HouseDAT[ii].Anim[kk].Count));
 
-  for kk:=1 to 135 do
+  for kk:=1 to 133 do
   write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+' ');
   writeln(ft);
 end;
@@ -251,11 +253,23 @@ begin
 DestX:=MakePOT(mx);
 DestY:=MakePOT(my);
 
+if Mode=tm_AlphaTest then begin
+  glGenTextures(1, id);
+  glBindTexture(GL_TEXTURE_2D, id^);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+  exit;
+end;
+
 //Convert palette bitmap data to 32bit RGBA texture data
 TD:=AllocMem(DestX*DestY*4); //same as GetMem+FillChar(0)
 for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
   if (i<my)and(k<mx) then begin
     x:=Data[i*mx+k];
+    col:=0;
     if (x<>0) then begin
       by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
 
@@ -307,6 +321,72 @@ end;
 {Take RX data and make nice textures out of it.
 Textures should be POT to improve performance and avoid drivers bugs
 In result we have GFXData filled.}
+procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
+var
+  ID,ID1,ID2:integer; //RGB and A index
+  ci,i,k,h,StepCount:integer;
+  t:integer;
+  col:byte;
+  WidthPOT,HeightPOT:integer;
+  TD:array of byte;
+begin
+
+for ID:=1 to 29 do
+if HouseDAT[ID].Stone<>-1 then //Exlude House27 which is unused
+  for h:=1 to 2 do begin
+
+    if h=1 then begin
+      ID1:=HouseDAT[ID].Wood+1; ID2:=HouseDAT[ID].WoodPal+1; StepCount:=HouseDAT[ID].WoodCount;
+    end else begin
+      ID1:=HouseDAT[ID].Stone+1; ID2:=HouseDAT[ID].StonePal+1; StepCount:=HouseDAT[ID].StoneCount;
+    end;
+
+    WidthPOT:=MakePOT(RXData[RXid].Size[ID1,1]);
+    HeightPOT:=MakePOT(RXData[RXid].Size[ID1,2]);
+    setlength(TD,WidthPOT*HeightPOT*4+1);
+
+    for i:=1 to HeightPOT do begin
+      ci:=-1;
+      for k:=1 to RXData[RXid].Size[ID1,1] do begin
+        inc(ci);
+        if i<=RXData[RXid].Size[ID1,2] then begin
+          t:=((i-1)*WidthPOT+ci)*4;
+          col:=RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1,1]+k-1]+1;
+          TD[t+0]:=Pal0[col,1];
+          TD[t+1]:=Pal0[col,2];
+          TD[t+2]:=Pal0[col,3];
+          if i<=RXData[RXid].Size[ID2,2] then
+          if k<=RXData[RXid].Size[ID2,1] then //Cos someimes ID2 is smaller by few pixels
+          //This probably needs additional aligning using Pal pivot data, but for now I don't care, it looks good already
+          TD[t+3]:=255-round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2,1]+k-1]*(255/StepCount));
+          if col=1 then TD[t+3]:=0;
+        end;
+      end;
+    end;
+
+    GenTexture(@GFXData[RXid,ID1].TexID,WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
+    setlength(TD,0);
+    //GFXData[RXid,j].TexID:=  //Gets replaced
+    GFXData[RXid,ID1].AltID:=0;
+    GFXData[RXid,ID1].u1:=0;
+    GFXData[RXid,ID1].v1:=0;
+    GFXData[RXid,ID1].u2:=RXData[RXid].Size[ID1,1]/WidthPOT;
+    GFXData[RXid,ID1].v2:=RXData[RXid].Size[ID1,2]/HeightPOT;
+    GFXData[RXid,ID1].PxWidth:=RXData[RXid].Size[ID1,1];
+    GFXData[RXid,ID1].PxHeight:=RXData[RXid].Size[ID1,2];
+  end;
+
+//Now we can safely dispose of RXData[RXid].Data to save us some more RAM
+for i:=1 to RXData[RXid].Qty do setlength(RXData[RXid].Data[i],0);
+end;
+
+
+//=============================================
+//Making OpenGL textures
+//=============================================
+{Take RX data and make nice textures out of it.
+Textures should be POT to improve performance and avoid drivers bugs
+In result we have GFXData filled.}
 procedure MakeGFX(Sender: TObject; RXid:integer);
 var
   ci,ad,j,i,k,id,TexCount:integer;
@@ -317,6 +397,7 @@ begin
 id:=0; Am:=0; Rm:=0; Cm:=0; TexCount:=0;
 repeat
   inc(id);
+
   WidthPOT:=RXData[RXid].Size[id,1];
   HeightPOT:=MakePOT(RXData[RXid].Size[id,2]);
   ad:=1;
@@ -326,12 +407,11 @@ repeat
   while((id+ad<RXData[RXid].Qty)and
         (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2]))and
         (WidthPOT+RXData[RXid].Size[id+ad,1]<=MaxTexRes)) do begin
-    inc(WidthPOT,RXData[RXid].Size[id+ad,1]);    
+    inc(WidthPOT,RXData[RXid].Size[id+ad,1]);
     inc(ad);
   end;
 
   WidthPOT:=MakePOT(WidthPOT);
-
   setlength(TD,WidthPOT*HeightPOT+1);
 
   for i:=1 to HeightPOT do begin
@@ -364,7 +444,7 @@ repeat
   setlength(TD,0);
 
   k:=0;
-  for j:=id to id+ad-1 do begin
+  for j:=id to id+ad-1 do begin //Hack to test AlphaTest
     GFXData[RXid,j].TexID:=GFXData[RXid,id].TexID;
     GFXData[RXid,j].AltID:=GFXData[RXid,id].AltID;
     GFXData[RXid,j].u1:=k/WidthPOT;
@@ -375,7 +455,7 @@ repeat
     GFXData[RXid,j].PxWidth:=RXData[RXid].Size[j,1];
     GFXData[RXid,j].PxHeight:=RXData[RXid].Size[j,2];
 
-    setlength(RXData[RXid].Data[j],0);
+    //setlength(RXData[RXid].Data[j],0); //Do not erase since we need it for AlphaTest
     inc(Rm,RXData[RXid].Size[j,1]*RXData[RXid].Size[j,2]*4);
   end;
 

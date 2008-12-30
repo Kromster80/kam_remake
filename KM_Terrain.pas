@@ -265,6 +265,8 @@ begin
   for i:=LowY to HighY do for k:=LowX to HighX do begin
     x0:=EnsureRange(k-1,1,MapX);
     y2:=EnsureRange(i+1,1,MapY);
+    if InMapCoords(k,i) then
+    if InMapCoords(x0,y2) then
     Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1)*(1-Overlap); //  1.33*16 ~=22
     //Map borders fade to black
     if (i=1)or(i=MapY)or(k=1)or(k=MapX) then
@@ -454,8 +456,10 @@ begin
   Land[Loc.Y,Loc.X].TreeAge:=0;
 end;
 
+
+{Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
-var i,k:integer; hp,hp1,hp2,hp3,hp4:integer;
+var i,k:integer;
   procedure OccupyTile(X,Y:integer);
   var i,k:integer;
   begin
@@ -472,10 +476,12 @@ begin
       Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt;
     end;
 
-    UpdateBorders(KMPoint(Loc.X+k-3, Loc.Y+i-4));
+    if InMapCoords(Loc.X+k-3,Loc.Y+i-4) then
+      UpdateBorders(KMPoint(Loc.X+k-3, Loc.Y+i-4));
   end;
 end;
 
+{That is mainly used for minimap now}
 procedure TTerrain.SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
 var i,k:integer;
 begin
@@ -513,6 +519,8 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint);
     if a=b then Result:=bt_None;
   end;
 begin
+
+  if not InMapCoords(Loc.X,Loc.Y) then exit;
 
   if InMapCoords(Loc.X-1,Loc.Y) then
   Land[Loc.Y,Loc.X].BorderY:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y,Loc.X-1].FieldType);

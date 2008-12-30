@@ -42,28 +42,41 @@ type
 
   TKMBuildingQueue = class
   public
-  fFieldsQueue:array[1..1024]of
-  record
-    Loc:TKMPoint;
-    FieldType:TFieldType;
-    Importance:byte;
-    JobStatus:TJobStatus;
-  end;
-  fHousesQueue:array[1..1024]of
-  record
-    Loc:TKMPoint;
-    HouseType:THouseType;
-    Importance:byte;
-    JobStatus:TJobStatus;
-  end;
-  constructor Create();
-  procedure AddNewRoadToBuild(aLoc:TKMPoint; aFieldType:TFieldType);
-  function RemRoadToBuild(aLoc:TKMPoint):boolean;
-  procedure AddNewHouseToBuild(aLoc:TKMPoint; aHouseType: THouseType);
-  procedure CloseHouseToBuild(aID:integer);
-  function  AskForHouseToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
-  function  AskForRoadToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
-  procedure CloseRoadToBuild(aID:integer);
+    fFieldsQueue:array[1..1024]of
+    record
+      Loc:TKMPoint;
+      FieldType:TFieldType;
+      Importance:byte;
+      JobStatus:TJobStatus;
+    end;
+    fHousePlansQueue:array[1..1024]of
+    record
+      Loc:TKMPoint;
+      HouseType:THouseType;
+      Importance:byte;
+      JobStatus:TJobStatus;
+    end;
+    fHousesQueue:array[1..256]of
+    record
+      Loc:TKMPoint;
+      House:TKMHouse;
+      Importance:byte;
+      JobStatus:TJobStatus;
+    end;
+    constructor Create();
+    procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
+    function RemRoad(aLoc:TKMPoint):boolean;
+
+    procedure AddNewHousePlan(aLoc:TKMPoint; aHouseType: THouseType);
+    procedure CloseHousePlan(aID:integer);
+    function  AskForHousePlan(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+
+    procedure AddNewHouse(aLoc:TKMPoint; aHouse: TKMHouse);
+    procedure CloseHouse(aID:integer);
+    function  AskForHouse(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+
+    function  AskForRoad(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+    procedure CloseRoad(aID:integer);
   end;
 
 implementation
@@ -217,11 +230,12 @@ end;
 constructor TKMBuildingQueue.Create();
 var i:integer;
 begin
-for i:=1 to length(fFieldsQueue) do CloseRoadToBuild(i);
-for i:=1 to length(fHousesQueue) do CloseHouseToBuild(i);
+for i:=1 to length(fFieldsQueue) do CloseRoad(i);
+for i:=1 to length(fHousesQueue) do CloseHouse(i);
+for i:=1 to length(fHousePlansQueue) do CloseHousePlan(i);
 end;
 
-procedure TKMBuildingQueue.AddNewRoadToBuild(aLoc:TKMPoint; aFieldType:TFieldType);
+procedure TKMBuildingQueue.AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
 var i:integer;
 begin
 i:=1;
@@ -233,57 +247,91 @@ fFieldsQueue[i].Importance:=1;
 fFieldsQueue[i].JobStatus:=js_Open;
 end;
 
-function TKMBuildingQueue.RemRoadToBuild(aLoc:TKMPoint):boolean;
+function TKMBuildingQueue.RemRoad(aLoc:TKMPoint):boolean;
 var i:integer;
 begin
 Result:=false;
 for i:=1 to length(fFieldsQueue) do
   with fFieldsQueue[i] do
   if (JobStatus<>js_Taken)and(Loc.X=aLoc.X)and(Loc.Y=aLoc.Y) then begin
-    CloseRoadToBuild(i);
+    CloseRoad(i);
     Result:=true;
     break;
   end;
 end;
 
-procedure TKMBuildingQueue.AddNewHouseToBuild(aLoc:TKMPoint; aHouseType: THouseType);
+procedure TKMBuildingQueue.AddNewHousePlan(aLoc:TKMPoint; aHouseType: THouseType);
 var i:integer;
 begin
 i:=1;
-while fHousesQueue[i].Loc.X<>0 do inc(i);
+while fHousePlansQueue[i].Loc.X<>0 do inc(i);
 
-fHousesQueue[i].Loc:=aLoc;
-fHousesQueue[i].HouseType:=aHouseType;
-fHousesQueue[i].Importance:=1;
-fHousesQueue[i].JobStatus:=js_Open;
+fHousePlansQueue[i].Loc:=aLoc;
+fHousePlansQueue[i].HouseType:=aHouseType;
+fHousePlansQueue[i].Importance:=1;
+fHousePlansQueue[i].JobStatus:=js_Open;
 end;
 
-procedure TKMBuildingQueue.CloseHouseToBuild(aID:integer);
+procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
 begin
-fHousesQueue[aID].Loc:=KMPoint(0,0);
-fHousesQueue[aID].HouseType:=ht_None;
-fHousesQueue[aID].Importance:=0;
-fHousesQueue[aID].JobStatus:=js_Done;
+fHousePlansQueue[aID].Loc:=KMPoint(0,0);
+fHousePlansQueue[aID].HouseType:=ht_None;
+fHousePlansQueue[aID].Importance:=0;
+fHousePlansQueue[aID].JobStatus:=js_Done;
 end;
 
-function  TKMBuildingQueue.AskForHouseToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForHousePlan(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
 Result:=nil;
 i:=1;
-while (i<1024)and(fHousesQueue[i].JobStatus<>js_Open) do inc(i);
+while (i<1024)and(fHousePlansQueue[i].JobStatus<>js_Open) do inc(i);
 if i=1024 then
 begin
   Result:=nil;
   exit;
 end;
+if fHousePlansQueue[i].JobStatus=js_Open then
+  Result:=TTaskBuildHouseArea.Create(KMWorker, fHousePlansQueue[i].Loc, fHousePlansQueue[i].HouseType, i);
+fHousePlansQueue[i].JobStatus:=js_Taken;
+end;
+
+{Add new job to the list}
+procedure TKMBuildingQueue.AddNewHouse(aLoc:TKMPoint; aHouse: TKMHouse);
+var i:integer;
+begin
+  i:=1;
+  while fHousesQueue[i].Loc.X<>0 do inc(i); //Find an empty spot
+  fHousesQueue[i].Loc:=aLoc;
+  fHousesQueue[i].House:=aHouse;
+  fHousesQueue[i].Importance:=1;
+  fHousesQueue[i].JobStatus:=js_Open;
+end;
+
+{Find a job for worker}
+function  TKMBuildingQueue.AskForHouse(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+var i:integer;
+begin
+Result:=nil;
+i:=1;
+while (i<length(fHousesQueue))and(fHousesQueue[i].JobStatus<>js_Open) do inc(i);
+
 if fHousesQueue[i].JobStatus=js_Open then
-  Result:=TTaskBuildHouseArea.Create(KMWorker, fHousesQueue[i].Loc, fHousesQueue[i].HouseType, i);
-fHousesQueue[i].JobStatus:=js_Taken;
+  Result:=TTaskBuildHouse.Create(KMWorker, fHousesQueue[i].Loc, fHousesQueue[i].House, i);
+//fHousesQueue[i].JobStatus:=js_Taken; //Not required since many workers can build one same house
+end;
+
+{Clear up}
+procedure TKMBuildingQueue.CloseHouse(aID:integer);
+begin
+  fHousesQueue[aID].Loc:=KMPoint(0,0);
+  fHousesQueue[aID].House:=nil;
+  fHousesQueue[aID].Importance:=0;
+  fHousesQueue[aID].JobStatus:=js_Done;
 end;
 
 
-function  TKMBuildingQueue.AskForRoadToBuild(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForRoad(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
 Result:=nil;
@@ -300,7 +348,7 @@ if fFieldsQueue[i].FieldType=fdt_Wine then  Result:=TTaskBuildWine.Create(KMWork
 fFieldsQueue[i].JobStatus:=js_Taken;
 end;
 
-procedure TKMBuildingQueue.CloseRoadToBuild(aID:integer);
+procedure TKMBuildingQueue.CloseRoad(aID:integer);
 begin
 fFieldsQueue[aID].Loc:=KMPoint(0,0);
 fFieldsQueue[aID].FieldType:=fdt_None;

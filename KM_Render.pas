@@ -12,6 +12,7 @@ private
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderDot(pX,pY:single);
   procedure RenderSprite(RX,ID:integer; pX,pY:single; const Color:integer=$FF);
+  procedure RenderSpriteAlphaTest(RX,ID:integer; Param:single; pX,pY:single; const Color:integer=$FF);
 protected
 public
   constructor Create;
@@ -32,7 +33,9 @@ public
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderHouse(Index,pX,pY:integer);
-  procedure RenderHouseBuild(Index,Mode,Step,pX,pY:integer);
+  procedure RenderHouseBuild(Index,pX,pY:integer);
+  procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
+  procedure RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
   procedure RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
   procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
 published
@@ -131,6 +134,9 @@ begin
   if Form1.ShowWires.Checked then fRender.RenderWires();
 
   ControlList.Paint;            //Units and houses
+
+
+  fRender.RenderHouseWood(byte(ht_Inn), 0, 10, 10);
 
   glLoadIdentity();             // Reset The View
 
@@ -368,14 +374,35 @@ for h:=1 to 2 do
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    {glLineWidth(1);
-    glBegin (GL_LINE_LOOP);
-    glvertex2f(pX-1                 ,pY-1         );
-    glvertex2f(pX-1+pxWidth/CellSize,pY-1         );
-    glvertex2f(pX-1+pxWidth/CellSize,pY-1-pxHeight/CellSize);
-    glvertex2f(pX-1                 ,pY-1-pxHeight/CellSize);
+    {glBegin (GL_LINE_LOOP);
+    glRect(pX-1,pY-1,pX-1+pxWidth/CellSize,pY-1-pxHeight/CellSize);
     glEnd;}
   end;
+end;
+
+procedure TRender.RenderSpriteAlphaTest(RX,ID:integer; Param:single; pX,pY:single; const Color:integer=$FF);
+begin
+glEnable(GL_ALPHA_TEST);
+glAlphaFunc(GL_GREATER,1-Param);
+glBlendFunc(GL_ONE,GL_ZERO);
+  with GFXData[RX,ID] do begin
+    glColor3f(1,1,1);
+    glBindTexture(GL_TEXTURE_2D, TexID);
+
+    glBegin (GL_QUADS);
+    glTexCoord2f(u1,v2); glvertex2f(pX-1                 ,pY-1         );
+    glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CellSize,pY-1         );
+    glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CellSize,pY-1-pxHeight/CellSize);
+    glTexCoord2f(u1,v1); glvertex2f(pX-1                 ,pY-1-pxHeight/CellSize);
+    glEnd;
+    glBindTexture(GL_TEXTURE_2D, 0);
+    {glBegin (GL_LINE_LOOP);
+    glRect(pX-1,pY-1,pX-1+pxWidth/CellSize,pY-1-pxHeight/CellSize);
+    glEnd;}
+  end;
+glDisable(GL_ALPHA_TEST);
+glAlphaFunc(GL_ALWAYS,0);
+glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
 end;
 
 procedure TRender.RenderTile(Index,pX,pY,Rot:integer);
@@ -564,28 +591,49 @@ begin
   end;
 end;
 
+{Render house WIP tablet}
+procedure TRender.RenderHouseBuild(Index,pX,pY:integer);
+var ShiftX,ShiftY:single; ID:integer;
+begin
+  pX:=pX-HouseXOffset[Index];
+  ID:=Index+250;
+  ShiftX:=RXData[4].Pivot[ID].x/CellSize+0.5;
+  ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CellSize+0.5-fTerrain.Land[pY+1,pX].Height/xh;
+  RenderSprite(4,ID,pX+ShiftX,pY+ShiftY);
+end;
+
+{Render house in wood}
+procedure TRender.RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
+var ShiftX,ShiftY:single; ID:integer;
+begin
+  ID:=HouseDAT[Index].Wood+1;
+  ShiftX:=RXData[2].Pivot[ID].x/CellSize;
+  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CellSize-fTerrain.Land[pY+1,pX].Height/xh;
+  RenderSpriteAlphaTest(2,ID,Step,pX+ShiftX,pY+ShiftY);
+end;
+
+{Render house in stone}
+procedure TRender.RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
+var ShiftX,ShiftY:single; ID:integer;
+begin
+  RenderHouseWood(Index,1,pX,pY); //Render Wood part of it, opaque
+  ID:=HouseDAT[Index].Stone+1;
+  ShiftX:=RXData[2].Pivot[ID].x/CellSize;
+  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CellSize-fTerrain.Land[pY+1,pX].Height/xh;
+  RenderSpriteAlphaTest(2,ID,Step,pX+ShiftX,pY+ShiftY);
+end;
+
+{Render complete house}
 procedure TRender.RenderHouse(Index,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-    //Render base
-    ID:=HouseDAT[Index].Stone+1;
-    ShiftX:=RXData[2].Pivot[ID].x/CellSize;
-    ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CellSize-fTerrain.Land[pY+1,pX].Height/xh;
-    RenderSprite(2,ID,pX+ShiftX,pY+ShiftY);
+  ID:=HouseDAT[Index].Stone+1;
+  ShiftX:=RXData[2].Pivot[ID].x/CellSize;
+  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CellSize-fTerrain.Land[pY+1,pX].Height/xh;
+  //Need to render it opaque, but it has alpha, hence we declare Alpha=1
+  RenderSpriteAlphaTest(2,ID,1,pX+ShiftX,pY+ShiftY);
 end;
 
-{Render house WIP tablet}
-procedure TRender.RenderHouseBuild(Index,Mode,Step,pX,pY:integer);
-var ShiftX,ShiftY:single; ID:integer;
-begin
-if Mode=1 then begin
-    pX:=pX-HouseXOffset[Index];
-    ID:=Index+250;
-    ShiftX:=RXData[4].Pivot[ID].x/CellSize+0.5;
-    ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CellSize+0.5-fTerrain.Land[pY+1,pX].Height/xh;
-    RenderSprite(4,ID,pX+ShiftX,pY+ShiftY);
-end;
-end;
 
 procedure TRender.RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
 var ShiftX,ShiftY:single; ID,i:integer;

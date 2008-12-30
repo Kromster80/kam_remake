@@ -99,15 +99,28 @@ type
 
     TTaskBuildHouseArea = class(TUnitTask)
     private
-    fWorker:TKMWorker;
-    fLoc:TKMPoint;
-    fHouseType:THouseType;
-    TaskID:integer;
-    Step:byte;
-    ListOfCells:array[1..4*4]of TKMPoint;
+      fWorker:TKMWorker;
+      fLoc:TKMPoint;
+      fHouseType:THouseType;
+      TaskID:integer;
+      Step:byte;
+      ListOfCells:array[1..4*4]of TKMPoint;
     public
-    constructor Create(aWorker:TKMWorker; aLoc:TKMPoint; aHouseType:THouseType; aID:integer);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aWorker:TKMWorker; aLoc:TKMPoint; aHouseType:THouseType; aID:integer);
+      procedure Execute(out TaskDone:boolean); override;
+    end;
+
+    TTaskBuildHouse = class(TUnitTask)
+    private
+      fWorker:TKMWorker;
+      fLoc:TKMPoint;
+      fHouse:TKMHouse;
+      TaskID:integer;
+      Step:byte;
+      ListOfCells:array[1..4*4]of TKMPoint;
+    public
+      constructor Create(aWorker:TKMWorker; aLoc:TKMPoint; aHouse:TKMHouse; aID:integer);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
     TTaskGoHome = class(TUnitTask)
@@ -538,9 +551,11 @@ end;
 
 function TKMWorker.GetActionFromQueue():TUnitTask;
 begin
-Result:=ControlList.BuildList.AskForHouseToBuild(Self,KMPoint(1,1));
+Result:=ControlList.BuildList.AskForHousePlan(Self,KMPoint(1,1));
 if Result=nil then
-Result:=ControlList.BuildList.AskForRoadToBuild(Self,KMPoint(1,1));
+Result:=ControlList.BuildList.AskForHouse(Self,KMPoint(1,1));
+if Result=nil then
+Result:=ControlList.BuildList.AskForRoad(Self,KMPoint(1,1));
 end;
 
 { TKMwarrior }
@@ -727,7 +742,7 @@ case Phase of
 14:SetAction(TStayUnitAction.Create(11,ua_Work2,false));
 15:begin
     fTerrain.SetField(fLoc,fOwner,fdt_Road);
-    ControlList.BuildList.CloseRoadToBuild(ID);
+    ControlList.BuildList.CloseRoad(ID);
    end;
 16:SetAction(TStayUnitAction.Create(5,ua_Work2));
 17:TaskDone:=true;
@@ -764,7 +779,7 @@ case Phase of
 9: SetAction(TStayUnitAction.Create(44,ua_Work2,false));
 10:begin
     fTerrain.SetField(fLoc,fOwner,fdt_Wine);
-    ControlList.BuildList.CloseRoadToBuild(ID);
+    ControlList.BuildList.CloseRoad(ID);
    end;
 11:TaskDone:=true;
 end;
@@ -794,7 +809,7 @@ case Phase of
   5: fTerrain.IncFieldState(fLoc);
   6: SetAction(TStayUnitAction.Create(22,ua_Work1,false));
   7: begin
-       ControlList.BuildList.CloseRoadToBuild(ID);
+       ControlList.BuildList.CloseRoad(ID);
        fTerrain.SetField(fLoc,fOwner,fdt_Field);
      end;
   8: SetAction(TStayUnitAction.Create(5,ua_Work1));
@@ -820,6 +835,7 @@ begin
   end;
 end;
 
+{Prepare building site - flatten terrain}
 procedure TTaskBuildHouseArea.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
@@ -827,20 +843,59 @@ with fWorker do
 case Phase of
 0:  SetAction(TMoveUnitAction.Create(fLoc));
 1:  fTerrain.SetHousePlan(fLoc, fHouseType, fdt_HouseWIP);
-2:  SetAction(TMoveUnitAction.Create(ListOfCells[Step]));
-3:  SetAction(TStayUnitAction.Create(11,ua_Work1,false));
-4:  fTerrain.FlattenTerrain(ListOfCells[Step]);
-5:  SetAction(TStayUnitAction.Create(11,ua_Work1,false));
-6:  fTerrain.FlattenTerrain(ListOfCells[Step]);
-7:  SetAction(TStayUnitAction.Create(11,ua_Work1,false));
-8:  fTerrain.FlattenTerrain(ListOfCells[Step]);
-9:  SetAction(TStayUnitAction.Create(11,ua_Work1,false));
-10: begin fTerrain.FlattenTerrain(ListOfCells[Step]); dec(Step); end;
-11: TaskDone:=true;
+2:  ControlList.HousesHitTest(fLoc.X,fLoc.Y).SetBuildingState(hbs_NoGlyph);
+3:  SetAction(TMoveUnitAction.Create(ListOfCells[Step]));
+4:  SetAction(TStayUnitAction.Create(11,ua_Work1,false));
+5:  fTerrain.FlattenTerrain(ListOfCells[Step]);
+6:  SetAction(TStayUnitAction.Create(11,ua_Work1,false));
+7:  fTerrain.FlattenTerrain(ListOfCells[Step]);
+8:  SetAction(TStayUnitAction.Create(11,ua_Work1,false));
+9:  fTerrain.FlattenTerrain(ListOfCells[Step]);
+10: SetAction(TStayUnitAction.Create(11,ua_Work1,false));
+11: begin fTerrain.FlattenTerrain(ListOfCells[Step]); dec(Step); end;
+12: begin
+      ControlList.BuildList.CloseHousePlan(TaskID);
+      //ControlList.AddHouse(fOwner, fHouseType, fLoc);
+      ControlList.HousesHitTest(fLoc.X,fLoc.Y).SetBuildingState(hbs_Wood);
+      ControlList.BuildList.AddNewHouse(fLoc,ControlList.HousesHitTest(fLoc.X,fLoc.Y)); //Add the house to JobList, so then all workers could take it
+      end;
+13: TaskDone:=true;
 end;
 inc(Phase);
-if (Phase=11)and(Step>0) then Phase:=2; //Repeat with next cell
+if (Phase=12)and(Step>0) then Phase:=3; //Repeat with next cell
 end;
+
+
+{ TTaskBuildHouse }
+constructor TTaskBuildHouse.Create(aWorker:TKMWorker; aLoc:TKMPoint; aHouse:TKMHouse; aID:integer);
+begin
+  fWorker:=aWorker;
+  fLoc:=aLoc;
+  fHouse:=aHouse;
+  Phase:=0;
+  TaskID:=aID;
+  Step:=0;
+end;
+
+{Build the house}
+procedure TTaskBuildHouse.Execute(out TaskDone:boolean);
+begin
+  TaskDone:=false;
+  with fWorker do
+    case Phase of
+      0: SetAction(TMoveUnitAction.Create(fLoc));
+      1: fTerrain.SetHousePlan(fLoc, fHouse.GetHouseType, fdt_None);
+      2: SetAction(TStayUnitAction.Create(33,ua_Work,false));
+      3: fHouse.IncBuildingProgress;
+      4: begin
+           ControlList.BuildList.CloseHouse(TaskID);
+           TaskDone:=true;
+         end;
+    end;
+  inc(Phase);
+  if (Phase=4) and (not fHouse.IsComplete) then Phase:=2;
+end;
+
 
 { TTaskMining }
 constructor TTaskMining.Create(aHome:TKMHouse; aUnit:TKMUnit; aPlace:TKMPoint; aGatheringScript:TGatheringScript);

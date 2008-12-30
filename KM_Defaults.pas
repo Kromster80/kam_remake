@@ -101,7 +101,7 @@ type
   THouseState = ( hst_Empty, hst_Idle, hst_Work );
 
   //These are house building states
-  THouseBuildState = (hbs_Glyph, hbs_Wood, hbs_Stone, hbs_Done);
+  THouseBuildState = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
 
   THouseActionType = (
   ha_Work1=1, ha_Work2=2, ha_Work3=3, ha_Work4=4, ha_Work5=5, //Start, InProgress, .., .., Finish

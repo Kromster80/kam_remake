@@ -136,7 +136,7 @@ begin
   fRender:= TRender.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
-  fTextManager:= TTextManager.Create(IncludeTrailingBackslash(ExtractFilePath(Application.ExeName))+'data\misc');
+  fTextManager:= TTextManager.Create(ExeDir+'data\misc');
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   Application.OnIdle:=Form1.OnIdle;
 end;
@@ -359,13 +359,13 @@ procedure TForm1.Button1Click(Sender: TObject);
 begin
 TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(6,11);
-ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));
+{ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));
 ControlList.AddHouse(play_1, ht_Mill,KMPoint(8,5));
 ControlList.AddHouse(play_1, ht_Bakery,KMPoint(12,5));
 ControlList.AddHouse(play_1, ht_Store,KMPoint(16,5));
 ControlList.AddHouse(play_1, ht_Quary,KMPoint(12,8));
 ControlList.AddHouse(play_1, ht_WoodCutters,KMPoint(12,11));
-ControlList.AddHouse(play_1, ht_SawMill,KMPoint(12,14));      
+ControlList.AddHouse(play_1, ht_SawMill,KMPoint(12,14));
 ControlList.AddHouse(play_1, ht_FisherHut,KMPoint(18,9)); //Added to demonstrate a house without an occupant in the building page
 
 ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
@@ -377,25 +377,26 @@ ControlList.AddUnit(play_1, ut_Baker, KMPoint(10,9));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(4,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(5,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(6,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));}
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
 ControlList.AddRoadPlan(KMPoint(5,13),mu_FieldPlan);
 ControlList.AddRoadPlan(KMPoint(6,13),mu_FieldPlan);
 ControlList.AddRoadPlan(KMPoint(7,13),mu_FieldPlan);
-ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(6,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(7,14),mu_WinePlan);
+//ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
+//ControlList.AddRoadPlan(KMPoint(6,14),mu_WinePlan);
+//ControlList.AddRoadPlan(KMPoint(7,14),mu_WinePlan);
 
-ControlList.AddRoadPlan(KMPoint(5,12),mu_RoadPlan);
+{ControlList.AddRoadPlan(KMPoint(5,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(6,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(7,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,13),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);}
 
 ControlList.AddHousePlan(KMPoint(9,18), ht_Inn, play_1);
+//ControlList.AddHouse(play_1, ht_Inn, KMPoint(9,23));
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

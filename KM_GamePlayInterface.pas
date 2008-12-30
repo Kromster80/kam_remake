@@ -47,7 +47,7 @@ implementation
 uses KM_Unit1, KM_Global_Data;
 
 constructor TKMGamePlayInterface.Create();
-var i,k,Page,Button:integer;
+var i,k,Button:integer;
 begin
 {Parent Page for whole toolbar in-game}
   KMPanel_Main:=fControls.AddPanel(nil,0,0,224,1024);

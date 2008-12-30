@@ -84,7 +84,8 @@ HouseDAT:array[1..30] of packed record
     Count:smallint;
     MoveX,MoveY:integer;
   end;
-  Foot:array[1..135]of smallint;
+  WoodCount,StoneCount:word;
+  Foot:array[1..133]of smallint;
 end;
 
 UnitCarry:array[1..28] of packed record

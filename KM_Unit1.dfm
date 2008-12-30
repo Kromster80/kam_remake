@@ -276,6 +276,8 @@ object Form1: TForm1
       Width = 97
       Height = 17
       Caption = 'Speedup x10'
+      Checked = True
+      State = cbChecked
       TabOrder = 1
     end
     object CheckBox1: TCheckBox

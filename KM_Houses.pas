@@ -49,8 +49,11 @@ type
   private
     fPosition: TKMPoint;
     fHouseType: THouseType;
-    fBuildState:THouseBuildState;
+    fBuildState: THouseBuildState;
     fOwnerID: TPlayerID;
+
+    fBuildingProgress: word; //That is how many efforts were put into building (Wooding+Stoning)
+    fHealth: word; //House condition/health
 
     fHasOwner: boolean; //which is some TKMUnit
     fOwnerAtHome: boolean;
@@ -64,7 +67,7 @@ type
 
     fCurrentAction: THouseAction;
     HouseTask:THouseTask;
-    fProductionPlan:integer;
+    fProductionPlan:integer; //Plan according to which house functions at the moment
 
     fLastUpdateTime: Cardinal;
     AnimStep: integer;
@@ -74,6 +77,12 @@ type
     destructor Destroy; override;
     procedure Activate;
     function HitTest(X, Y: Integer): Boolean; overload;
+
+    procedure SetBuildingState(aState: THouseBuildState);
+    procedure IncBuildingProgress;
+    function IsComplete:boolean;
+
+
     procedure SetState(aState: THouseState);
     procedure OwnerGoesIn;
     procedure OwnerGoesOut;
@@ -83,11 +92,13 @@ type
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1);
     function ResTakeFromIn(aResource:TResourceType):boolean;
     function ResTakeFromOut(aResource:TResourceType):boolean;
+
     property GetPosition:TKMPoint read fPosition;
     property GetHouseType:THouseType read fHouseType;
-    property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;  
+    property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner;
+
     function GetProductionTask():THouseTask;
     procedure UpdateState;
     procedure Paint();
@@ -126,9 +137,10 @@ begin
   fBuildingRepair:=false;
   fWareDelivery:=true;
   fOwnerAtHome:=false;
+  fBuildingProgress:=0;
   if aBuildState=hbs_Done then Self.Activate;
   fTerrain.SetHousePlan(fPosition,fHouseType,fdt_None); //Sets passability
-  fTerrain.SetTileOwnership(fPosition,fHouseType,play_1); //Sets passability
+  fTerrain.SetTileOwnership(fPosition,fHouseType,play_1);
 end;
 
 destructor TKMHouse.Destroy;
@@ -166,6 +178,35 @@ if HousePlanYX[integer(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then
   Result:=true;
 end;
 
+procedure TKMHouse.SetBuildingState(aState: THouseBuildState);
+begin
+  fBuildState:=aState;
+end;
+
+{Increase building progress of house. When it reaches some point Stoning replaces Wooding
+ and then it's done and house should be finalized}
+procedure TKMHouse.IncBuildingProgress;
+begin
+  if IsComplete then exit;
+  inc(fBuildingProgress);
+  //inc(fHealth,5); //Should depend on build steps and full health
+  if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodCount) then begin
+    fBuildState:=hbs_Stone;
+    fBuildingProgress:=0;
+  end;
+  if (fBuildState=hbs_Stone)and(fBuildingProgress = HouseDAT[byte(fHouseType)].StoneCount) then begin
+    fBuildState:=hbs_Done;
+    Activate;
+  end;
+end;
+
+
+{Check if house is completely built, nevermind the damage}
+function TKMHouse.IsComplete():boolean;
+begin
+  Result := fBuildState = hbs_Done;
+end;
+
 function TKMHouse.CheckResIn(aResource:TResourceType):byte;
 var i:integer;
 begin
@@ -197,6 +238,7 @@ begin
     end;
 end;
 
+
 procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
 var i:integer;
 begin
@@ -205,6 +247,7 @@ begin
   if aResource = fInputTypes[i] then
     inc(fResourceIn[i],aCount);
 end;
+
 
 function TKMHouse.ResTakeFromIn(aResource:TResourceType):boolean;
 var i:integer;
@@ -219,6 +262,7 @@ if aResource=rt_None then exit;
   end;
 end;
 
+
 function TKMHouse.ResTakeFromOut(aResource:TResourceType):boolean;
 var i:integer;
 begin
@@ -231,10 +275,12 @@ if aResource=rt_None then exit;
   end;
 end;
 
+
 procedure TKMHouse.SetState(aState: THouseState);
 begin
   fCurrentAction.SetState(aState);
 end;
+
 
 procedure TKMHouse.UpdateState;
 var
@@ -244,13 +290,14 @@ begin
 if fBuildState<>hbs_Done then exit;
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
+  Assert(fCurrentAction<>nil,'House has no action to execute!');
   fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
   if not DoEnd then exit;
 
   if fCurrentAction.fHouseState=hst_Empty then exit;
 
   if HouseTask<>nil then
-  HouseTask.Execute(Self, TaskDone);
+    HouseTask.Execute(Self, TaskDone);
   if not TaskDone then exit;
 
   HouseTask:=GetProductionTask;
@@ -280,8 +327,10 @@ end;
 procedure TKMHouse.Paint;
 begin
 case fBuildState of
-hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),1,1,fPosition.X, fPosition.Y);
-//hbs_Wood: fRender.RenderHouse(byte(fHouseType),fPosition.X, fPosition.Y);
+  hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),fPosition.X, fPosition.Y);
+  hbs_NoGlyph:; //Nothing
+  hbs_Wood:  fRender.RenderHouseWood(byte(fHouseType), fBuildingProgress/HouseDAT[byte(fHouseType)].WoodCount, fPosition.X, fPosition.Y);
+  hbs_Stone: fRender.RenderHouseStone(byte(fHouseType), fBuildingProgress/HouseDAT[byte(fHouseType)].StoneCount, fPosition.X, fPosition.Y);
 else begin
 //Render base
 fRender.RenderHouse(byte(fHouseType),fPosition.X, fPosition.Y);
@@ -347,7 +396,7 @@ begin
   DoEnd:= False;
   inc(KMHouse.AnimStep);
   dec(TimeToAct);
-  if TimeToAct<=0 then DoEnd:= True;
+  if TimeToAct<=0 then begin DoEnd:= True; {TimeToAct:=0;} end; //Action is complete
 end;
 
 { TTaskIdle }
@@ -408,6 +457,7 @@ begin
 Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,aOwner,hbs_Done));
 end;
 
+{Add a plan for house}
 procedure TKMHousesCollection.AddPlan(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
 begin
 Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,aOwner, hbs_Glyph));

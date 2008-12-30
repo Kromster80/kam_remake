@@ -103,9 +103,9 @@ procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
 begin
   fTerrain.SetMarkup(aLoc, aMarkup);
   case aMarkup of
-    mu_RoadPlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Road);
-    mu_FieldPlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Field);
-    mu_WinePlan: BuildList.AddNewRoadToBuild(aLoc, fdt_Wine);
+    mu_RoadPlan: BuildList.AddNewRoad(aLoc, fdt_Road);
+    mu_FieldPlan: BuildList.AddNewRoad(aLoc, fdt_Field);
+    mu_WinePlan: BuildList.AddNewRoad(aLoc, fdt_Wine);
     else Assert(false,'Wrong markup');
   end;
 end;
@@ -119,7 +119,7 @@ begin
   fHouses.AddPlan(aOwner, aHouseType, aLoc.X, aLoc.Y);
   fTerrain.SetHousePlan(aLoc, aHouseType, fdt_HousePlan);
   fTerrain.SetTileOwnership(aLoc,aHouseType, play_1);
-  BuildList.AddNewHouseToBuild(aLoc, aHouseType);
+  BuildList.AddNewHousePlan(aLoc, aHouseType);
 end;
 
 procedure TKMUserControlList.RemUnit(Position: TKMPoint);
@@ -134,7 +134,7 @@ end;
 
 procedure TKMUserControlList.RemPlan(Position: TKMPoint);
 begin
-  if BuildList.RemRoadToBuild(Position) then
+  if BuildList.RemRoad(Position) then
     fTerrain.RemMarkup(Position);
 end;
 
