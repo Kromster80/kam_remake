@@ -197,8 +197,6 @@ procedure TForm1.MiniMapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TS
 begin MiniMapMouseMove(nil,Shift,X,Y); MiniMapSpy:=false; end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  P: TKMPoint;
 begin
   MousePressed:=true;
   case Button of
@@ -211,16 +209,13 @@ begin
   end;
   Panel1MouseMove(Panel5,Shift,X,Y);
 
-  P.X:= CursorXc;
-  P.Y:= CursorYc;
-
   fControls.OnMouseDown(X,Y,Button);
 
   //example for units need change
   if Button = mbRight then
-    ControlList.AddUnit(play_1, ut_Serf, P)
+    ControlList.AddUnit(play_1, ut_Serf, KMPoint(CursorXc,CursorYc))
   else if Button = mbMiddle then
-    ControlList.AddUnit(play_1, ut_HorseScout, P);
+    ControlList.AddUnit(play_1, ut_HorseScout, KMPoint(CursorXc,CursorYc));
 
 end;
 

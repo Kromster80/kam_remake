@@ -23,6 +23,7 @@ public
   procedure RenderTerrainAndFields(x1,x2,y1,y2:integer);
   procedure RenderWires();
   procedure RenderWireQuad(P:TKMPoint; Col:cardinal);
+  procedure RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType; Col:cardinal);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
   procedure RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
   procedure RenderMarkup(Index:integer; pX,pY:integer);
@@ -167,9 +168,9 @@ glbegin (GL_QUADS);
     if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
     glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/xh);
-    glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i-Land[i+1,k].Height/xh);
-    glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k,i-Land[i+1,k+1].Height/xh);
-    glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k,i-1-Land[i,k+1].Height/xh);
+    glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/xh);
+    glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
+    glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/xh);
   end;
 glEnd;
 
@@ -184,10 +185,10 @@ begin
 
   if fTerrain.Land[i,k].FieldType = fdt_Road then
     begin
-      rd:=byte(fTerrain.Land[max(i-1,1),k                  ].FieldType = fdt_Road)*1 +
-          byte(fTerrain.Land[i         ,min(k+1,MaxMapSize)].FieldType = fdt_Road)*2 +
-          byte(fTerrain.Land[max(i+1,1),k                  ].FieldType = fdt_Road)*4 +
-          byte(fTerrain.Land[i         ,min(k-1,MaxMapSize)].FieldType = fdt_Road)*8;
+      rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].FieldType = fdt_Road)*1 +
+          byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].FieldType = fdt_Road)*2 +
+          byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].FieldType = fdt_Road)*4 +
+          byte(fTerrain.Land[i                  ,max(k-1,1)         ].FieldType = fdt_Road)*8;
       ID:=RoadsConnectivity[rd,1];
       Rot:=RoadsConnectivity[rd,2];
       RenderTile(ID,k,i,Rot);
@@ -290,6 +291,7 @@ end;
 procedure TRender.RenderQuad(pX,pY:integer);
 begin
 glbegin (GL_QUADS);
+if fTerrain.InMapCoords(pX,pY) then
 with fTerrain do begin
   glvertex2f(pX-1,pY-1-Land[pY  ,pX  ].Height/xh);
   glvertex2f(pX  ,pY-1-Land[pY  ,pX+1].Height/xh);
@@ -304,6 +306,7 @@ procedure TRender.RenderWireQuad(P:TKMPoint; Col:cardinal);
 begin
   glColor3ubv(@Col);
   glbegin (GL_LINE_LOOP);
+  if fTerrain.InMapCoords(P.X,P.Y) then
   with fTerrain do begin
     glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/xh);
     glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/xh);
@@ -312,6 +315,23 @@ begin
   end;
   glEnd;
 end;
+
+
+procedure TRender.RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType; Col:cardinal);
+var i,k:integer; P2:TKMPoint;
+begin
+  for i:=1 to 4 do for k:=1 to 4 do
+  if fTerrain.InMapCoords(P.X+k-3+HouseXOffset[byte(aHouseType)],P.Y+i-4) then begin
+    P2:=KMPoint(P.X+k-3+HouseXOffset[byte(aHouseType)],P.Y+i-4);
+    if HousePlanYX[byte(aHouseType),i,k]<>0 then
+      if CanBuild in fTerrain.Land[P2.Y,P2.X].Passability then
+        RenderWireQuad(P2,$FFFF00)
+      else
+        RenderWireQuad(P2,$FF);
+    if HousePlanYX[byte(aHouseType),i,k]=2 then RenderSprite(4,481,P2.X+0.2,P2.Y+1-0.2,$FF);
+  end;
+end;
+
 
 procedure TRender.RenderDot(pX,pY:single);
 begin
@@ -554,13 +574,15 @@ begin
     RenderSprite(2,ID,pX+ShiftX,pY+ShiftY);
 end;
 
+{Render house WIP tablet}
 procedure TRender.RenderHouseBuild(Index,Mode,Step,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer;
 begin
 if Mode=1 then begin
+    pX:=pX-HouseXOffset[Index];
     ID:=Index+250;
-    ShiftX:=RXData[4].Pivot[ID].x/CellSize-0.5;
-    ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CellSize+0.25-fTerrain.Land[pY+1,pX].Height/xh;
+    ShiftX:=RXData[4].Pivot[ID].x/CellSize+0.5;
+    ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CellSize+0.5-fTerrain.Land[pY+1,pX].Height/xh;
     RenderSprite(4,ID,pX+ShiftX,pY+ShiftY);
 end;
 end;

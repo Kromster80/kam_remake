@@ -95,7 +95,7 @@ end;
 procedure TKMUserControlList.AddHouse(aOwner: TPlayerID; aHouseType: THouseType; Position: TKMPoint);
 var xo:integer;
 begin
-  xo:=HouseXOffset[integer(aHouseType)];
+  xo:=HouseXOffset[byte(aHouseType)];
   fHouses.Add(aOwner, aHouseType, Position.X+xo, Position.Y)
 end;
 
@@ -115,8 +115,9 @@ var xo:integer;
 begin
   xo:=HouseXOffset[integer(aHouseType)];
   aLoc.X:=aLoc.X+xo;
+  if not fTerrain.IsHouseCanBePlaced(aLoc,aHouseType) then exit;
   fHouses.AddPlan(aOwner, aHouseType, aLoc.X, aLoc.Y);
-  fTerrain.SetHousePlan(aLoc, aHouseType, bt_HousePlan);
+  fTerrain.SetHousePlan(aLoc, aHouseType, fdt_HousePlan);
   fTerrain.SetTileOwnership(aLoc,aHouseType, play_1);
   BuildList.AddNewHouseToBuild(aLoc, aHouseType);
 end;

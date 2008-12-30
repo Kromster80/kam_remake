@@ -16,7 +16,7 @@ private
 public
   MapX,MapY:integer; //Terrain width and height
 
-  CursorMode:cmCursorMode; //Cursor that is rendered on tiles
+  //CursorMode:cmCursorMode; //Cursor that is rendered on tiles
   CursorPos:TKMPoint;
 
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
@@ -61,7 +61,9 @@ public
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateMapCoord(inX,inY:single):single;
+  function InMapCoords(X,Y:integer; Inset:byte=0):boolean;
 public
+
   procedure IncFieldState(Loc:TKMPoint);
   procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
 
@@ -80,8 +82,9 @@ public
   procedure AddTree(Loc:TKMPoint; ID:integer);
   procedure ChopTree(Loc:TKMPoint);
 public
-  procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; bt:TBorderType);
+  procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
   procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
+  function IsHouseCanBePlaced(Loc:TKMPoint; aHouseType: THouseType):boolean;
   procedure UpdateBorders(Loc:TKMPoint);
 public
   procedure UpdateState;
@@ -153,7 +156,7 @@ end;
 
 procedure TTerrain.UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
 begin
-  CursorMode:=aCursor;
+  CursorMode.Mode:=aCursor;
   CursorPos:=Loc;
 end;
 
@@ -184,9 +187,13 @@ for i:=y1 to y2 do for k:=x1 to x2 do
 
   end;
 
-case CursorMode of
+case CursorMode.Mode of
   cm_None:;
   cm_Erase: fRender.RenderWireQuad(CursorPos, $FF); //Red quad
+  cm_Road: fRender.RenderWireQuad(CursorPos, $FFFF00); //Cyan quad
+  cm_Field: fRender.RenderWireQuad(CursorPos, $FFFF00); //Cyan quad
+  cm_Wine: fRender.RenderWireQuad(CursorPos, $FFFF00); //Cyan quad
+  cm_Houses: fRender.RenderWireHousePlan(CursorPos, THouseType(CursorMode.Param), $FFFF00); //Cyan quad
 end;
 end;
 
@@ -263,6 +270,12 @@ begin
     if (i=1)or(i=MapY)or(k=1)or(k=MapX) then
       Land[i,k].Light:=-1+Overlap;
   end
+end;
+
+{Check if supplied values are within Map boundaries}
+function TTerrain.InMapCoords(X,Y:integer; Inset:byte=0):boolean;
+begin
+  Result := InRange(X,1+Inset,MapX-1-Inset) and InRange(Y,1+Inset,MapY-1-Inset);
 end;
 
 {Place markup on tile, any new markup replaces old one, thats okay}
@@ -441,22 +454,25 @@ begin
   Land[Loc.Y,Loc.X].TreeAge:=0;
 end;
 
-procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; bt:TBorderType);
+procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
 var i,k:integer; hp,hp1,hp2,hp3,hp4:integer;
-begin                                     //    4
-  for i:=1 to 4 do for k:=1 to 4 do begin // 3  HP 1
-                                          //    2
-      hp:=min(HousePlanYX[byte(aHouseType),i,k],1);
-      if k=4 then hp1:=0 else hp1:=min(HousePlanYX[byte(aHouseType),i,k+1],1);
-      if i=4 then hp2:=0 else hp2:=min(HousePlanYX[byte(aHouseType),i+1,k],1);
-      if k=1 then hp3:=0 else hp3:=min(HousePlanYX[byte(aHouseType),i,k-1],1);
-      if i=1 then hp4:=0 else hp4:=min(HousePlanYX[byte(aHouseType),i-1,k],1);
+  procedure OccupyTile(X,Y:integer);
+  var i,k:integer;
+  begin
+    for i:=-1 to 1 do for k:=-1 to 1 do
+      if InMapCoords(X+k,Y+i) then
+        Land[Y+i,X+k].Passability:=Land[Y+i,X+k].Passability - [CanBuild, CanPlantTrees];
+    Land[Y,X].Passability:=Land[Y,X].Passability - [CanMakeFields];
+  end;
+begin
+  for i:=1 to 4 do for k:=1 to 4 do begin
 
-      if hp<>hp1 then Land[Loc.Y+i-4,Loc.X+k-2].BorderY:=bt;
-      if hp<>hp4 then Land[Loc.Y+i-4,Loc.X+k-3].BorderX:=bt;
-      if hp<>hp2 then Land[Loc.Y+i-3,Loc.X+k-3].BorderX:=bt;
-      if hp<>hp3 then Land[Loc.Y+i-4,Loc.X+k-3].BorderY:=bt;
+    if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+      OccupyTile(Loc.X+k-3, Loc.Y+i-4);
+      Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt;
+    end;
 
+    UpdateBorders(KMPoint(Loc.X+k-3, Loc.Y+i-4));
   end;
 end;
 
@@ -472,6 +488,19 @@ begin
     Land[Loc.Y,Loc.X].TileOwner:=aOwner;
 end;
 
+{@Lewin: Maybe you come up with better name for this function}
+{Check if house can be placed in that place}
+function TTerrain.IsHouseCanBePlaced(Loc:TKMPoint; aHouseType: THouseType):boolean;
+var i,k:integer;
+begin
+  for i:=1 to 4 do for k:=1 to 4 do
+    if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+      Result := InMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
+      Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
+    end;
+//Add other check here, e.g. trees, fields, etc..
+end;
+
 {Check 4 surrounding tiles, and if they are different place a border}
 procedure TTerrain.UpdateBorders(Loc:TKMPoint);
   function GetBorder(a,b:TFieldType):TBorderType;
@@ -479,20 +508,22 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint);
     Result:=bt_None;
     if (a=fdt_Field)or(b=fdt_Field) then Result:=bt_Field;
     if (a=fdt_Wine)or(b=fdt_Wine) then Result:=bt_Wine;
+    if (a=fdt_HousePlan)or(b=fdt_HousePlan) then Result:=bt_HousePlan;
+    if (a=fdt_HouseWIP)or(b=fdt_HouseWIP) then Result:=bt_HouseBuilding;
     if a=b then Result:=bt_None;
   end;
 begin
 
-  if Loc.X-1>=1 then
+  if InMapCoords(Loc.X-1,Loc.Y) then
   Land[Loc.Y,Loc.X].BorderY:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y,Loc.X-1].FieldType);
 
-  if Loc.Y-1>=1 then
+  if InMapCoords(Loc.X,Loc.Y-1) then
   Land[Loc.Y,Loc.X].BorderX:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y-1,Loc.X].FieldType);
 
-  if Loc.X+1<=MapX then
+  if InMapCoords(Loc.X+1,Loc.Y) then
   Land[Loc.Y,Loc.X+1].BorderY:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y,Loc.X+1].FieldType);
 
-  if Loc.Y+1<=MapY then
+  if InMapCoords(Loc.X,Loc.Y+1) then
   Land[Loc.Y+1,Loc.X].BorderX:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y+1,Loc.X].FieldType);
 
 end;

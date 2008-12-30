@@ -826,7 +826,7 @@ TaskDone:=false;
 with fWorker do
 case Phase of
 0:  SetAction(TMoveUnitAction.Create(fLoc));
-1:  fTerrain.SetHousePlan(fLoc, fHouseType, bt_HouseBuilding);
+1:  fTerrain.SetHousePlan(fLoc, fHouseType, fdt_HouseWIP);
 2:  SetAction(TMoveUnitAction.Create(ListOfCells[Step]));
 3:  SetAction(TStayUnitAction.Create(11,ua_Work1,false));
 4:  fTerrain.FlattenTerrain(ListOfCells[Step]);

@@ -20,7 +20,7 @@ type
 
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 
-function KMPoint(X, Y: Integer): TKMPoint;
+function KMPoint(X, Y: word): TKMPoint;
 function KMPointY1(P:TKMPoint): TKMPoint; overload
 function KMPointY1(P:TKMPointF): TKMPoint; overload
 
@@ -147,7 +147,7 @@ begin if A > B then if A > C then Result := A else Result := C
                else if B > C then Result := B else Result := C;
 end;
 
-function KMPoint(X, Y: Integer): TKMPoint;
+function KMPoint(X, Y: word): TKMPoint;
 begin
   Result.X := X;
   Result.Y := Y;

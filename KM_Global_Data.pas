@@ -11,7 +11,7 @@ const
   SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
-  MakeGameSprites=false; //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeGameSprites=true; //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors=false;  //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay=false; //Draw colored overlays ontop of panels, usefull for making layout
   MaxPlayers=8;         //Maximum players per map

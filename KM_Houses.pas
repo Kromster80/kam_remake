@@ -127,7 +127,7 @@ begin
   fWareDelivery:=true;
   fOwnerAtHome:=false;
   if aBuildState=hbs_Done then Self.Activate;
-  fTerrain.SetHousePlan(fPosition,fHouseType,bt_None); //Sets passability
+  fTerrain.SetHousePlan(fPosition,fHouseType,fdt_None); //Sets passability
   fTerrain.SetTileOwnership(fPosition,fHouseType,play_1); //Sets passability
 end;
 

@@ -181,7 +181,7 @@ HouseProductionPlanID:array[1..29]of byte = (
 
 type
   TFieldType = (fdt_None=0, fdt_Road=1, fdt_Field=2, fdt_Wine=3,
-                fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6);
+                fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6, fdt_HousePlan=7, fdt_HouseWIP=8);
 
   TFieldSpecial = (fs_None,
                    fs_Corn1, fs_Corn2,
