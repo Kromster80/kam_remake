@@ -296,8 +296,8 @@ begin
   Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
 
   UpdateBorders(Loc);
-  if aFieldType=fdt_Field then Land[Loc.Y,Loc.X].Terrain:=62;
-  if aFieldType=fdt_Wine  then Land[Loc.Y,Loc.X].Terrain:=55;
+  if aFieldType=fdt_Field then begin Land[Loc.Y,Loc.X].Terrain:=62; Land[Loc.Y,Loc.X].Rotation:=0; end; //Reset rotation so fields line up
+  if aFieldType=fdt_Wine  then begin Land[Loc.Y,Loc.X].Terrain:=55; Land[Loc.Y,Loc.X].Rotation:=0; end; //Reset rotation so fields line up
 end;
 
 { Should find closest wine field around.

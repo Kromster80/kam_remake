@@ -1,6 +1,6 @@
 unit KM_ReadGFX1;
 interface
-uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults;
+uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib;
 
 type
   TByteArray2 = array of Byte;
@@ -140,7 +140,7 @@ assignfile(ft,ExeDir+'Houses.txt'); rewrite(ft);
 for ii:=1 to 29 do begin
 writeln(ft);
 writeln(ft);
-writeln(ft,HouseName[ii]);
+writeln(ft,fTextManager.GetTextString(siHouseNames+ii));
   for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
   write(ft,'#') else write(ft,' ');
   writeln(ft);

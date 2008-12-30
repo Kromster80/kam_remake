@@ -1,6 +1,6 @@
 unit KM_GamePlayInterface;
 interface
-uses KM_Controls, Forms, Graphics, Windows, SysUtils, KromUtils, KromOGLUtils, Math, KM_Houses, KM_Defaults;
+uses KM_Controls, Forms, Graphics, Windows, SysUtils, KromUtils, KromOGLUtils, Math, KM_Houses, KM_Defaults, KM_LoadLib;
 
 type TKMGamePlayInterface = class
   private
@@ -123,7 +123,7 @@ begin
   KMLabel_UnitCondition:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,'Condition');
   KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
   KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,
-  'Description of unit'+eol+'Line2'+eol+'Line3 '); //Should be taken from LIB resource
+  'Description of unit|Line2|Line3 '); //Taken from LIB resource
   KMImage_UnitScroll:=fControls.AddImage(KMPanel_Unit,8,52,54,80,521);
 
 {House description page}
@@ -278,6 +278,7 @@ begin
   SwitchPage(KMPanel_Unit);
   KMLabel_UnitName.Caption:=TypeToString(Sender);
   KMImage_UnitScroll.TexID:=520+integer(Sender);
+  KMLabel_UnitDescription.Caption := fTextManager.GetTextString(siUnitDescriptions+byte(Sender))
 end;
 
 end.

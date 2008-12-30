@@ -5,7 +5,7 @@ uses
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
   KM_Form_Loading, KM_Terrain, KM_Global_Data,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker;
+  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib;
 
 type
   TForm1 = class(TForm)
@@ -136,6 +136,7 @@ begin
   fRender:= TRender.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
+  fTextManager:= TTextManager.Create(IncludeTrailingBackslash(ExtractFilePath(Application.ExeName))+'data\misc');
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   Application.OnIdle:=Form1.OnIdle;
 end;

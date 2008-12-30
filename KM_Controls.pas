@@ -393,7 +393,9 @@ begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
-      if TKMControl(Items[I]).Visible then   
+      if TKMControl(Items[I]).Visible then
+      if TKMControl(Items[I]).Parent <> nil then //Added this so command bellow will work. Doesn't seem to cause issues, and all clickable controls should have a parent
+      if TKMControl(Items[I]).Parent.Visible then //If parent (a panel) is invisible then don't allow clicking
       if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then
       if TKMControl(Items[i]).ClassType=TKMButton then
@@ -408,6 +410,8 @@ begin
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
       if TKMControl(Items[I]).Visible then
+      if TKMControl(Items[I]).Parent <> nil then //Added this so command bellow will work. Doesn't seem to cause issues, and all clickable controls should have a parent
+      if TKMControl(Items[I]).Parent.Visible then //If parent (a panel) is invisible then don't allow clicking
       if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then begin
         if TKMControl(Items[i]).ClassType=TKMButton then

@@ -1,6 +1,6 @@
 unit KM_Defaults;
 interface
-uses Classes, KromUtils;
+uses Classes, KromUtils, KM_LoadLib;
 
 type
   TKMList = class(TList)
@@ -202,7 +202,9 @@ const
   326, 321, 313, 305, 302,
   303, 311, 322, 312, 318);
 
-  UnitName:array[1..14]of string = (
+{ These are no longer needed as I now have implemented LIB loading
+
+ UnitName:array[1..14]of string = (
     'Serf','Woodcutter','Miner','AnimalBreeder','Farmer',
     'Lamberjack','Baker','Butcher','Fisher','Worker',
     'StoneCutter','Smith','Metallurgist','Recruit');
@@ -222,7 +224,7 @@ const
     'Leather',    'Sousages',    'Pig',         'Skin',
     'WoodShield', 'MetalShield', 'Armor',       'MetalArmor',
     'Axe',        'Sword',       'Pike',        'Hallebard',
-    'Bow',        'Arbalet',     'Horse',       'Fish');
+    'Bow',        'Arbalet',     'Horse',       'Fish');  }
 
 
 //Chopable tree, Chopdown animation,
@@ -378,8 +380,8 @@ implementation
 function TypeToString(t:TUnitType):string;
 var s:string;
 begin
-if byte(t) in [1..length(UnitName)] then
-  s:=UnitName[byte(t)]
+if byte(t) in [1..14] then
+  s:=fTextManager.GetTextString(siUnitNames+byte(t))
 else
   s:='N/A';
 Result:=s;
@@ -389,8 +391,8 @@ end;
 function TypeToString(t:THouseType):string;
 var s:string;
 begin
-if byte(t) in [1..length(HouseName)] then
-  s:=HouseName[byte(t)]
+if byte(t) in [1..29] then
+  s:=fTextManager.GetTextString(siHouseNames+byte(t))
 else
   s:='N/A';
 Result:=chr2(s,10);
@@ -400,8 +402,8 @@ end;
 function TypeToString(t:TResourceType):string;
 var s:string;
 begin
-if byte(t) in [1..length(ResourceName)] then
-  s:=ResourceName[byte(t)]
+if byte(t) in [1..28] then
+  s:=fTextManager.GetTextString(siResourceNames+byte(t))
 else
   s:='N/A';
 Result:=s;

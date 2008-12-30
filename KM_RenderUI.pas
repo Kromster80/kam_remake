@@ -247,7 +247,7 @@ end;
 {Renders a line of text and returns text width in px}
 {By default color must be non-transparent white}
 function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor):TKMPoint;
-const InterLetter=0; //Spacing between letters
+const InterLetter=-1; //Spacing between letters, this varies between fonts
 var i,Num:integer;
 begin
   Result.X:=0;
@@ -266,6 +266,14 @@ begin
     glPushMatrix;
       glColor4ubv(@Color);
       for i:=1 to length(Text) do begin
+        //Switch line if needed
+        if Text[i]=#124 then begin //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files, so lets do the same here. Saves complex conversions...
+          glPopMatrix;
+          glTranslate(0,Result.Y,0);
+          glPushMatrix;
+        end
+        else
+        begin    
         Num:=ord(Text[i]);
         glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
         glBegin(GL_QUADS);
@@ -278,11 +286,6 @@ begin
         glEnd;
         //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
         glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
-        //Switch line if needed
-        if Text[i]=#10 then begin//End-Of-Line character, or was it #13? I don't remember well
-          glPopMatrix;
-          glTranslate(0,Result.Y,0);
-          glPushMatrix;
         end;
       end;
     glPopMatrix;
