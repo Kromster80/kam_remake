@@ -30,6 +30,9 @@ type TKMGamePlayInterface = class
       KMImage_House_Logo,KMImage_House_Worker:TKMImage;
       KMHealthBar_House:TKMPercentBar;
       KMLabel_HouseCondition:TKMLabel;
+    KMPanel_HouseSchool:TKMPanel;
+      KMButton_SchoolRight,KMButton_SchoolLeft,KMButton_SchoolTrain:TKMButton;
+    KMPanel_HouseStore:TKMPanel;
     procedure SwitchPage(Sender: TObject);
     procedure BuildButtonClick(Sender: TObject);
   public
@@ -130,7 +133,6 @@ begin
   KMPanel_House:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
   //Thats common things
   //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
-
   KMLabel_House:=fControls.AddLabel(KMPanel_House,100,14,100,30,fnt_Outline,kaCenter,'House name here');
   KMButton_House_Goods:=fControls.AddButton(KMPanel_House,9,42,30,30,37);
   KMButton_House_Repair:=fControls.AddButton(KMPanel_House,39,42,30,30,40);
@@ -140,6 +142,20 @@ begin
   KMImage_House_Worker:=fControls.AddImage(KMPanel_House,98,41,32,32,141);
   KMHealthBar_House:=fControls.AddPercentBar(KMPanel_House,129,57,55,15,100,'550/550',fnt_Mini); //Not the correct color. Font color will have to be added to the percentage bar
   KMLabel_HouseCondition:=fControls.AddLabel(KMPanel_House,156,45,30,50,fnt_Mini,kaCenter,'Condition:',$FFFF00FF);
+
+{Child Pages}
+{School page}
+    KMPanel_HouseSchool:=fControls.AddPanel(KMPanel_House,0,60,200,400);
+      KMButton_SchoolLeft :=fControls.AddButton(KMPanel_HouseSchool,  5,180,55,40,35);
+      KMButton_SchoolTrain:=fControls.AddButton(KMPanel_HouseSchool, 70,180,55,40,42);
+      KMButton_SchoolRight:=fControls.AddButton(KMPanel_HouseSchool,135,180,55,40,36);
+
+{Store page}
+    KMPanel_HouseStore:=fControls.AddPanel(KMPanel_House,0,60,200,400);
+
+{Barracks page}
+
+{Common house page}
 
 SwitchPage(nil);
 end;
@@ -163,6 +179,10 @@ BuildButtonClick(nil);
   for i:=1 to KMPanel_Main.ChildCount do
     if KMPanel_Main.Childs[i] is TKMPanel then
       KMPanel_Main.Childs[i].Visible:=false;
+//First thing - hide all existing pages
+  for i:=1 to KMPanel_House.ChildCount do
+    if KMPanel_House.Childs[i] is TKMPanel then
+      KMPanel_House.Childs[i].Visible:=false;
 
 //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
 if Sender=KMButtonMain[1] then begin
@@ -193,6 +213,15 @@ end else
 if Sender=KMPanel_House then begin
   TKMPanel(Sender).Visible:=true;
 end;
+if Sender=KMPanel_HouseSchool then begin
+  TKMPanel(Sender).Parent.Visible:=true;
+  TKMPanel(Sender).Visible:=true;
+end;
+if Sender=KMPanel_HouseStore then begin
+  TKMPanel(Sender).Parent.Visible:=true;
+  TKMPanel(Sender).Visible:=true;
+end;
+
 end;
 
 
@@ -253,7 +282,6 @@ end;
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse);
 begin
   Assert(InRange(gp_HouseA+byte(Sender.GetHouseType)-1,gp_HouseA,gp_HouseZ),'THouseType-HousePages is out of range');
-  SwitchPage(KMPanel_House);
   KMLabel_House.Caption:=TypeToString(Sender.GetHouseType);
   KMImage_House_Logo.TexID:=300+byte(Sender.GetHouseType);
   KMImage_House_Worker.TexID:=140+integer(HouseOwnerUnit[integer(Sender.GetHouseType)]);
@@ -263,7 +291,10 @@ begin
     KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enabled:=true;
   if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40;
   if Sender.WareDelivery then KMButton_House_Goods.TexID:=37 else KMButton_House_Goods.TexID:=38;
+  SwitchPage(KMPanel_House);
 
+  if Sender.GetHouseType=ht_School then SwitchPage(KMPanel_HouseSchool);
+  if Sender.GetHouseType=ht_Store then SwitchPage(KMPanel_HouseStore);
   //process common properties - done :-)
   //if has demand - list it
   //if has product - list it

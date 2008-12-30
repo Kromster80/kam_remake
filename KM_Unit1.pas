@@ -359,7 +359,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 begin
 TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(6,11);
-{ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));
+ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));
 ControlList.AddHouse(play_1, ht_Mill,KMPoint(8,5));
 ControlList.AddHouse(play_1, ht_Bakery,KMPoint(12,5));
 ControlList.AddHouse(play_1, ht_Store,KMPoint(16,5));
@@ -377,7 +377,7 @@ ControlList.AddUnit(play_1, ut_Baker, KMPoint(10,9));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(4,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(5,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(6,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));}
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
@@ -395,7 +395,7 @@ ControlList.AddRoadPlan(KMPoint(8,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,13),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);}
 
-ControlList.AddHousePlan(KMPoint(9,18), ht_Inn, play_1);
+ControlList.AddHousePlan(KMPoint(9,18), ht_School, play_1);
 //ControlList.AddHouse(play_1, ht_Inn, KMPoint(9,23));
 end;
 

@@ -831,7 +831,7 @@ begin
   for i:=1 to 4 do for k:=1 to 4 do
   if HousePlanYX[byte(fHouseType),i,k]<>0 then begin
     inc(Step);
-    ListOfCells[Step]:=KMPoint(fLoc.X + HouseXOffset[byte(fHouseType)]+k-4,fLoc.Y + i - 4);
+    ListOfCells[Step]:=KMPoint(fLoc.X+k-3,fLoc.Y + i - 4);
   end;
 end;
 
