@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 193
+  Left = 426
   Top = 115
   HelpType = htKeyword
   BorderStyle = bsNone

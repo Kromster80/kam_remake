@@ -18,7 +18,8 @@ uses
   KM_GamePlayInterface in 'KM_GamePlayInterface.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Controls in 'KM_Controls.pas',
-  ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker};
+  ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
+  KM_LoadLib in 'KM_LoadLib.pas';
 
 {$R *.RES}
 
