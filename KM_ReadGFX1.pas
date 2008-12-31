@@ -47,14 +47,9 @@ begin
   for i:=1 to 5 do
   if (i=4)or(MakeGameSprites) then begin //Always make GUI
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-
-    //Make GUI items
-    if i=4 then MakeCursors(4);
-
+    if i=4 then MakeCursors(4); //Make GUI items
     MakeGFX(nil,i);
-
     if i=2 then MakeGFX_AlphaTest(nil,i);
-    
     StepRefresh();
   end;
 
@@ -325,7 +320,7 @@ procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
 var
   ID,ID1,ID2:integer; //RGB and A index
   ci,i,k,h,StepCount:integer;
-  t:integer;
+  t,t2:integer;
   col:byte;
   WidthPOT,HeightPOT:integer;
   TD:array of byte;
@@ -356,9 +351,11 @@ if HouseDAT[ID].Stone<>-1 then //Exlude House27 which is unused
           TD[t+1]:=Pal0[col,2];
           TD[t+2]:=Pal0[col,3];
           if i<=RXData[RXid].Size[ID2,2] then
-          if k<=RXData[RXid].Size[ID2,1] then //Cos someimes ID2 is smaller by few pixels
-          //This probably needs additional aligning using Pal pivot data, but for now I don't care, it looks good already
-          TD[t+3]:=255-round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2,1]+k-1]*(255/StepCount));
+          if k<=RXData[RXid].Size[ID2,1] then begin//Cos someimes ID2 is smaller by few pixels
+            t2:=t+(RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x)*4; //Shift by pivot, always positive
+            t2:=t2+(RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT*4; //Shift by pivot, always positive
+            TD[t2+3]:=255-round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2,1]+k-1]*(255/StepCount));
+          end;
           if col=1 then TD[t+3]:=0;
         end;
       end;
@@ -366,7 +363,6 @@ if HouseDAT[ID].Stone<>-1 then //Exlude House27 which is unused
 
     GenTexture(@GFXData[RXid,ID1].TexID,WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
     setlength(TD,0);
-    //GFXData[RXid,j].TexID:=  //Gets replaced
     GFXData[RXid,ID1].AltID:=0;
     GFXData[RXid,ID1].u1:=0;
     GFXData[RXid,ID1].v1:=0;

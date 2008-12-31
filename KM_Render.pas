@@ -135,8 +135,7 @@ begin
 
   ControlList.Paint;            //Units and houses
 
-
-  fRender.RenderHouseWood(byte(ht_Inn), 0, 10, 10);
+  //fRender.RenderHouseStone(byte(ht_Sawmill), Form1.TrackBar1.Position/100 , 10, 10);
 
   glLoadIdentity();             // Reset The View
 

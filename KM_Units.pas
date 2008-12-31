@@ -885,8 +885,8 @@ begin
     case Phase of
       0: SetAction(TMoveUnitAction.Create(fLoc));
       1: fTerrain.SetHousePlan(fLoc, fHouse.GetHouseType, fdt_None);
-      2: SetAction(TStayUnitAction.Create(33,ua_Work,false));
-      3: fHouse.IncBuildingProgress;
+      2: fHouse.IncBuildingProgress;
+      3: SetAction(TStayUnitAction.Create(11,ua_Work,false));
       4: begin
            ControlList.BuildList.CloseHouse(TaskID);
            TaskDone:=true;
