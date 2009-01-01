@@ -386,6 +386,10 @@ object Form1: TForm1
         Caption = 'Export fonts'
         OnClick = Exportfonts1Click
       end
+      object ExportText: TMenuItem
+        Caption = 'Export Text'
+        OnClick = ExportTextClick
+      end
     end
     object About1: TMenuItem
       Caption = 'About..'

@@ -384,7 +384,7 @@ function TypeToString(t:TUnitType):string;
 var s:string;
 begin
 if byte(t) in [1..14] then
-  s:=fTextManager.GetTextString(siUnitNames+byte(t))
+  s:=fTextLibrary.GetTextString(siUnitNames+byte(t))
 else
   s:='N/A';
 Result:=s;
@@ -395,10 +395,10 @@ function TypeToString(t:THouseType):string;
 var s:string;
 begin
 if byte(t) in [1..29] then
-  s:=fTextManager.GetTextString(siHouseNames+byte(t))
+  s:=fTextLibrary.GetTextString(siHouseNames+byte(t))
 else
   s:='N/A';
-Result:=chr2(s,10);
+Result:=s;
 end;
 
 
@@ -406,7 +406,7 @@ function TypeToString(t:TResourceType):string;
 var s:string;
 begin
 if byte(t) in [1..28] then
-  s:=fTextManager.GetTextString(siResourceNames+byte(t))
+  s:=fTextLibrary.GetTextString(siResourceNames+byte(t))
 else
   s:='N/A';
 Result:=s;

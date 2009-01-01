@@ -55,6 +55,7 @@ type
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
     CheckBox3: TCheckBox;
+    ExportText: TMenuItem;
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -88,6 +89,7 @@ type
     procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure Exportfonts1Click(Sender: TObject);  
     procedure DoScrolling;
+    procedure ExportTextClick(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -136,7 +138,7 @@ begin
   fRender:= TRender.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
-  fTextManager:= TTextManager.Create(ExeDir+'data\misc');
+  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc');
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   Application.OnIdle:=Form1.OnIdle;
 end;
@@ -489,6 +491,11 @@ begin
     Scrolling := false; //Allow cursor changes to be overriden and reset if still on a scrolling cursor
     if (Screen.Cursor = c_Scroll0) or (Screen.Cursor = c_Scroll1) or (Screen.Cursor = c_Scroll2) or (Screen.Cursor = c_Scroll3) or (Screen.Cursor = c_Scroll4) or (Screen.Cursor = c_Scroll5) or (Screen.Cursor = c_Scroll6) or (Screen.Cursor = c_Scroll7) then
       Screen.Cursor := c_Default; end;
+end;
+
+procedure TForm1.ExportTextClick(Sender: TObject);
+begin
+  fTextLibrary.ExportTextLibraries;
 end;
 
 end.

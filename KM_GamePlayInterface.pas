@@ -309,7 +309,7 @@ begin
   SwitchPage(KMPanel_Unit);
   KMLabel_UnitName.Caption:=TypeToString(Sender);
   KMImage_UnitScroll.TexID:=520+integer(Sender);
-  KMLabel_UnitDescription.Caption := fTextManager.GetTextString(siUnitDescriptions+byte(Sender))
+  KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender))
 end;
 
 end.

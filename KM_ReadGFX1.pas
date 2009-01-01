@@ -137,7 +137,7 @@ assignfile(ft,ExeDir+'Houses.txt'); rewrite(ft);
 for ii:=1 to 29 do begin
 writeln(ft);
 writeln(ft);
-writeln(ft,fTextManager.GetTextString(siHouseNames+ii));
+writeln(ft,fTextLibrary.GetTextString(siHouseNames+ii));
   for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
   write(ft,'#') else write(ft,' ');
   writeln(ft);
