@@ -40,8 +40,6 @@ var
   CursorX,CursorY:single;    //Precise cursor position on map
   CursorXn,CursorYn:integer; //Cursor position node
   CursorXc,CursorYc:integer; //Cursor position cell
-  CursorXn2,CursorYn2:integer;     //keeps previous node position
-  CursorXc2,CursorYc2:integer;     //keeps previous cell position
 
   //Pallete for RX bitmaps
   Pal0:array[1..256,1..3]of byte;
@@ -118,7 +116,6 @@ end;
   end;
 
   MiniMapSpy:boolean=false;
-  MousePressed:boolean=false;
 
   TileMMColor:array[1..256]of record R,G,B:byte; end;
 

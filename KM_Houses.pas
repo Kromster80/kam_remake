@@ -65,8 +65,8 @@ type
     fResourceIn:array[1..4] of byte;
     fResourceOut:array[1..4]of byte;
 
-    fCurrentAction: THouseAction;
-    HouseTask:THouseTask;
+    HouseTask:THouseTask; //House current task
+    fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
     fProductionPlan:integer; //Plan according to which house functions at the moment
 
     fLastUpdateTime: Cardinal;
@@ -104,11 +104,24 @@ type
     procedure Paint();
   end;
 
+  {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
+  TKMHouseSchool = class(TKMHouse)
+  public
+    UnitQueue:array[1..6]of TUnitType; //Also used in UI
+    UnitTrainProgress:byte; //Was it 12 steps in KaM?
+    constructor Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
+    procedure RemUnitFromQueue(id:integer); //Should remove unit from queue and shift rest up
+    procedure UnitIsTrained; //This should Create new unit and shift queue filling rest with ut_None
+  end;
+
+
   TKMHousesCollection = class(TList)
   private
     fSelectedHouse: TKMHouse;
+    procedure DoAddHouse(PosX,PosY:integer; aHouseType: THouseType; aOwner: TPlayerID; aHBS:THouseBuildState);
   public
-    procedure Add(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
+    procedure AddHouse(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
     procedure AddPlan(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
     procedure Rem(PosX,PosY:integer);
     procedure Clear; override;
@@ -162,8 +175,8 @@ begin
   for i:=1 to 4 do
     case fInputTypes[i] of
       rt_None:    ;
-      rt_Warfare: ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Constant);
-      rt_All:     ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Constant);
+      rt_Warfare: ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Always);
+      rt_All:     ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Always);
       else for k:=1 to 5 do //Every new house needs 5 resourceunits
           ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Once);
     end;
@@ -347,8 +360,50 @@ procedure TKMHouse.SetWareDelivery(AVal:boolean);
 begin
   fWareDelivery := AVal;
   //@Krom: Here we should either enable or disable delivery of wares to this building.
-  //I don't really understand how the delivery system works, so maybe you could do this? 
+  //I don't really understand how the delivery system works, so maybe you could do this?
+  //@Lewin:Later, cos I don't know how it works either, although I've designed it LOL
+  //This feature is not very important for now.
 end;
+
+
+constructor TKMHouseSchool.Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
+var i:integer;
+begin
+  Inherited Create(PosX,PosY, aHouseType, aOwner, aBuildState);
+  for i:=1 to length(UnitQueue) do
+    UnitQueue[i]:=ut_None;
+end;
+
+
+procedure TKMHouseSchool.AddUnitToQueue(aUnit:TUnitType);
+var i:integer;
+begin
+  for i:=1 to length(UnitQueue) do
+  if UnitQueue[i]=ut_None then begin
+    UnitQueue[i]:=aUnit;
+    break;
+  end;
+end;
+
+
+procedure TKMHouseSchool.RemUnitFromQueue(id:integer);
+var i:integer;
+begin
+  //if id=1 then //DoCancelTraining and reset UnitTrainProgress!
+  for i:=id to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift up
+  UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+end;
+
+
+procedure TKMHouseSchool.UnitIsTrained;
+var i:integer;
+begin
+  ControlList.AddUnit(fOwnerID,UnitQueue[1],fPosition);//Create Unit
+  //Unit should recieve a Task to go outside of School, one cell down
+  for i:=1 to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
+  UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+end;
+
 
 { THouseAction }
 
@@ -452,15 +507,23 @@ end;
 
 { TKMHousesCollection }
 
-procedure TKMHousesCollection.Add(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
+procedure TKMHousesCollection.DoAddHouse(PosX,PosY:integer; aHouseType: THouseType; aOwner: TPlayerID; aHBS:THouseBuildState);
 begin
-Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,aOwner,hbs_Done));
+case aHouseType of
+  ht_School: Inherited Add(TKMHouseSchool.Create(PosX,PosY,aHouseType,aOwner,aHBS))
+  else       Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,aOwner,aHBS));
+end;
+end;
+
+procedure TKMHousesCollection.AddHouse(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
+begin
+DoAddHouse(PosX,PosY,aHouseType,aOwner,hbs_Done);
 end;
 
 {Add a plan for house}
 procedure TKMHousesCollection.AddPlan(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
 begin
-Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,aOwner, hbs_Glyph));
+DoAddHouse(PosX,PosY,aHouseType,aOwner,hbs_Glyph);
 end;
 
 procedure TKMHousesCollection.Rem(PosX,PosY:integer);
@@ -488,7 +551,7 @@ begin
       Result:= TKMHouse(Items[I]);
       Break;
     end;
-  if Result <> nil then fSelectedHouse:= Result;
+  //if Result <> nil then fSelectedHouse:= Result; //It can't be set here since many func do HitTest beside OnMouseClick
 end;
 
 function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;

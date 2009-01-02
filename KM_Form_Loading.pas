@@ -33,7 +33,7 @@ uses KM_Unit1, KM_Render, KM_ReadGFX1, KM_Global_Data, KM_Log, KM_Defaults, KM_T
 procedure TFormLoading.FormCreate(Sender: TObject);
 begin
 Form1.Hide;
-ExeDir:=ExtractFilePath(Application.ExeName);
+ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log');
 
 FormLoading.Show; FormLoading.Refresh;

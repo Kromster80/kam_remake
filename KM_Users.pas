@@ -96,7 +96,7 @@ procedure TKMUserControlList.AddHouse(aOwner: TPlayerID; aHouseType: THouseType;
 var xo:integer;
 begin
   xo:=HouseXOffset[byte(aHouseType)];
-  fHouses.Add(aOwner, aHouseType, Position.X+xo, Position.Y)
+  fHouses.AddHouse(aOwner, aHouseType, Position.X+xo, Position.Y)
 end;
 
 procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
@@ -148,7 +148,7 @@ begin
   fUnits:= TKMUnitsCollection.Create;
   fHouses:= TKMHousesCollection.Create;
   fDeliverList:= TKMDeliverQueue.Create;
-  fBuildList:= TKMbuildingQueue.Create;
+  fBuildList:= TKMBuildingQueue.Create;
 end;
 
 destructor TKMUserControlList.Destroy;

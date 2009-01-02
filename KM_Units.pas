@@ -117,7 +117,7 @@ type
       fHouse:TKMHouse;
       TaskID:integer;
       Step:byte;
-      ListOfCells:array[1..4*4]of TKMPoint;
+      //ListOfCells:array[1..4*4]of TKMPoint;
     public
       constructor Create(aWorker:TKMWorker; aLoc:TKMPoint; aHouse:TKMHouse; aID:integer);
       procedure Execute(out TaskDone:boolean); override;
@@ -182,12 +182,6 @@ type
     function InitiateMining():TUnitTask;
     procedure Paint(); override;
   end;
-
-  //I grouped those so tight, but really, they don't have to use all 24 lines
-{  TKMFarmer = class(TKMHunter) public function InitiateMining():TUnitTask; override; end;
-  TKMStoneCutter = class(TKMHunter) public function InitiateMining():TUnitTask; override; end;
-  TKMWoodCutter = class(TKMHunter) public function InitiateMining():TUnitTask; override; end;}
-  //TKMFisher = class(TKMHunter) public function InitiateMining():boolean; override; end;
 
   //This is a common class for all those units sitting inside of houses
   TKMHomeSitting = class(TKMUnit)

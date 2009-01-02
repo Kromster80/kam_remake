@@ -144,6 +144,11 @@ const
     []
     );
 
+  School_Order:array[1..14] of TUnitType = (
+    ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
+    ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
+    ut_Miner, ut_Smith, ut_Metallurgist, ut_Recruit);
+
 type
   TGatheringScript = (
     gs_WoodCutterCut=1, gs_WoodCutterPlant=2,
@@ -192,7 +197,7 @@ type
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
 
-  TDemandType = (dt_Once, dt_Constant); //Is this one-time demand like usual, or constant (storehouse, barracks)
+  TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
 
 const
 
@@ -204,31 +209,6 @@ const
   329, 306, 304, 316, 320,
   326, 321, 313, 305, 302,
   303, 311, 322, 312, 318);
-
-{ These are no longer needed as I now have implemented LIB loading
-
- UnitName:array[1..14]of string = (
-    'Serf','Woodcutter','Miner','AnimalBreeder','Farmer',
-    'Lamberjack','Baker','Butcher','Fisher','Worker',
-    'StoneCutter','Smith','Metallurgist','Recruit');
-
-  HouseName:array[1..29]of string = (
-    'Sawmill','Iron smithy','Weapon smithy','Coal mine','Iron mine',
-    'Gold mine','Fisher hut','Bakery','Farm','Woodcutter',
-    'Armor smithy','Store','Stables','School','Quary',
-    'Metallurgist','Swine','Watch tower','Town hall','Weapon workshop',
-    'Armor workshop','Barracks','Mill','Siege workshop','Butchers',
-    'Tannery','N/A','Inn','Wineyard');
-
-  ResourceName:array[1..28]of string = (
-    'Trunk',      'Stone',       'Wood',        'IronOre',
-    'GoldOre',    'Coal',        'Steel',       'Gold',
-    'Wine',       'Corn',        'Bread',       'Flour',
-    'Leather',    'Sousages',    'Pig',         'Skin',
-    'WoodShield', 'MetalShield', 'Armor',       'MetalArmor',
-    'Axe',        'Sword',       'Pike',        'Hallebard',
-    'Bow',        'Arbalet',     'Horse',       'Fish');  }
-
 
 //Chopable tree, Chopdown animation,
 //Grow1, Grow2, Grow3, Grow4, Chop, Remainder
@@ -330,22 +310,22 @@ HouseInput:array[1..29,1..4] of TResourceType = (
 (rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter     //142
 (rt_None,       rt_None,       rt_None,       rt_None), //Armor smithy   //41
 (rt_All,        rt_None,       rt_None,       rt_None), //Store          //138
-(rt_None,       rt_None,       rt_None,       rt_None), //Stables        //146
-(rt_None,       rt_None,       rt_None,       rt_None), //School         //250
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Stables        //146
+(rt_Gold,       rt_None,       rt_None,       rt_None), //School         //250
 (rt_None,       rt_None,       rt_None,       rt_None), //Quarry         //211
 (rt_None,       rt_None,       rt_None,       rt_None), //Metallurgist   //235
-(rt_None,       rt_None,       rt_None,       rt_None), //Swine          //368
-(rt_None,       rt_None,       rt_None,       rt_None), //Watch tower    //255
-(rt_None,       rt_None,       rt_None,       rt_None), //Town hall      //1657
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Swine          //368
+(rt_Stone,      rt_None,       rt_None,       rt_None), //Watch tower    //255
+(rt_Gold,       rt_None,       rt_None,       rt_None), //Town hall      //1657
 (rt_None,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
 (rt_None,       rt_None,       rt_None,       rt_None), //Armor workshop //663
-(rt_None,       rt_None,       rt_None,       rt_None), //Barracks       //334
+(rt_Warfare,    rt_None,       rt_None,       rt_None), //Barracks       //334
 (rt_Corn,       rt_None,       rt_None,       rt_None), //Mill           //358
 (rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
 (rt_None,       rt_None,       rt_None,       rt_None), //Butcher        //397
 (rt_None,       rt_None,       rt_None,       rt_None), //Tannery        //668
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
-(rt_None,       rt_None,       rt_None,       rt_None), //Inn            //363
+(rt_Bread,      rt_Sousages,   rt_Wine,       rt_Fish), //Inn            //363
 (rt_None,       rt_None,       rt_None,       rt_None)  //Wineyard       //378
 );
 

@@ -29,15 +29,13 @@ var
   fTextLibrary: TTextLibrary;
 
 implementation
-
-uses
-  KM_Global_Data;
+uses KM_Global_Data;
 
 constructor TTextLibrary.Create(ALibPath: string);
 begin
   inherited Create;
-  LoadLIBFile(IncludeTrailingBackslash(ALibPath)+'text.lib',TextStrings);
-  LoadLIBFile(IncludeTrailingBackslash(ALibPath)+'setup.lib',SetupStrings);
+  LoadLIBFile(ALibPath+'text.lib',TextStrings);
+  LoadLIBFile(ALibPath+'setup.lib',SetupStrings);
 end;
 
 procedure TTextLibrary.LoadLIBFile(FilePath:string; var AArray:array of string);

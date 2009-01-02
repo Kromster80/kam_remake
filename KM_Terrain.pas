@@ -499,9 +499,10 @@ end;
 function TTerrain.IsHouseCanBePlaced(Loc:TKMPoint; aHouseType: THouseType):boolean;
 var i,k:integer;
 begin
+Result:=true;
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
-      Result := InMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
+      Result := Result AND InMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
       Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
     end;
 //Add other check here, e.g. trees, fields, etc..

@@ -62,6 +62,17 @@ TKMPercentBar = class(TKMControl)
 end;
 
 
+{Resource bar}
+TKMResourceBar = class(TKMControl)
+  public
+    Resource: TResourceType;
+    ResourceCount: integer;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
+    procedure Paint(); override;
+end;
+
+
 {3DButton}
 TKMButton = class(TKMControl)
   public
@@ -116,6 +127,7 @@ TKMControlsCollection = class(TKMList)
     function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
     function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; const aColor:TColor=$FFFFFFFF):TKMLabel;
     function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
+    function AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceBar;
     function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
@@ -280,7 +292,7 @@ constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:int
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  Position:=EnsureRange(aPos,0,100);     
+  Position:=EnsureRange(aPos,0,100);
   Font:=aFont;
   TextAlign:=kaCenter;
   Caption:=aCaption;
@@ -292,6 +304,26 @@ begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then //Now draw text over bar, if required
     fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, TextAlign, Caption, Font, $FFFFFFFF);
+end;
+
+
+constructor TKMResourceBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  Resource:=aRes;
+  ResourceCount:=aCount;
+end;
+
+
+procedure TKMResourceBar.Paint();
+var i:integer;
+begin
+  fRenderUI.WriteFlatButton(0,Left,Top,Width,Height,[]);
+  fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Grey, $FFFFFFFF);
+  Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
+  for i:=1 to ResourceCount do
+    fRenderUI.WritePic(350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
 end;
 
 
@@ -367,6 +399,12 @@ end;
 function TKMControlsCollection.AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
 begin
   Result:=TKMPercentBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aPos,aCaption,aFont);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceBar;
+begin
+  Result:=TKMResourceBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
   AddToCollection(Result);
 end;
 

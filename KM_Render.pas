@@ -29,7 +29,6 @@ public
   procedure RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
   procedure RenderMarkup(Index:integer; pX,pY:integer);
   procedure RenderBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
-  procedure RenderCursorPosition(ActivePage:string);
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderHouse(Index,pX,pY:integer);
@@ -234,31 +233,6 @@ end;
   glBindTexture(GL_TEXTURE_2D,0);
 end;
 
-procedure TRender.RenderCursorPosition(ActivePage:string);
-begin
-//==============================================
-//-Houses-
-//Render house shape
-//==============================================
-if CursorMode.Mode=cm_Houses then
-if (LandBrush in [0])and(not MousePressed) then
-  begin
-  glColor4f(1,0,0,0.2);    //Object eraser
-  RenderQuad(CursorXc,CursorYc);
-  end else
-if LandBrush in [1..29] then
-  begin
-//  RenderHouse(LandBrush,1,0,MapXc,MapYc);
-  end else
-if LandBrush in [97..99] then
-  begin
-  RenderTile(255,CursorXc,CursorYc,0);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  end;
-
-glPointSize(1);
-glLineWidth(1);
-end;
 
 procedure TRender.RenderWires();
 var i,k:integer; x1,x2,y1,y2:integer;

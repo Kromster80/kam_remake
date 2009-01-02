@@ -56,6 +56,8 @@ type
     CheckBox1: TCheckBox;
     CheckBox3: TCheckBox;
     ExportText: TMenuItem;
+    ExportStatus1: TMenuItem;
+    ExportDeliverlists1: TMenuItem;
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -90,6 +92,7 @@ type
     procedure Exportfonts1Click(Sender: TObject);  
     procedure DoScrolling;
     procedure ExportTextClick(Sender: TObject);
+    procedure ExportDeliverlists1Click(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -138,7 +141,7 @@ begin
   fRender:= TRender.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc');
+  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   Application.OnIdle:=Form1.OnIdle;
 end;
@@ -200,7 +203,6 @@ begin MiniMapMouseMove(nil,Shift,X,Y); MiniMapSpy:=false; end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  MousePressed:=true;
   case Button of
     mbLeft:
       MouseButton:= mb2Left;
@@ -248,17 +250,11 @@ if CursorMode.Mode=cm_None then
 fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
 fControls.OnMouseOver(X,Y,Shift);
 
-if not MousePressed then exit;
-
-CursorXn2:=CursorXn; CursorYn2:=CursorYn;
-CursorXc2:=CursorXc; CursorYc2:=CursorYc;
 end;
 
 procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-  var
-    P:TKMPoint;
+  var P:TKMPoint;
 begin
-  MousePressed:=false;
   P.X:=CursorXc;
   P.Y:=CursorYc;
 
@@ -269,10 +265,13 @@ begin
   case CursorMode.Mode of
     cm_None:
       begin
-        if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then
+        if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then begin
+          ControlList.SelectedHouse:=ControlList.HousesHitTest(CursorXc, CursorYc);
           fGamePlayInterface.ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc));
-        if ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil then
+        end;
+        if ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
           fGamePlayInterface.ShowUnitInfo(ControlList.UnitsHitTest(CursorXc, CursorYc).GetUnitType);
+        end;
       end;
     cm_Road: ControlList.AddRoadPlan(P,mu_RoadPlan);
     cm_Field: ControlList.AddRoadPlan(P,mu_FieldPlan);
@@ -314,8 +313,7 @@ if CheckBox2.Checked then
   for i:=1 to 50 do
     ControlList.UpdateState;
 
-  //Now check to see if we need to scroll
-  DoScrolling;
+  DoScrolling; //Now check to see if we need to scroll
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -493,9 +491,19 @@ begin
       Screen.Cursor := c_Default; end;
 end;
 
+
 procedure TForm1.ExportTextClick(Sender: TObject);
 begin
   fTextLibrary.ExportTextLibraries;
+end;
+
+
+procedure TForm1.ExportDeliverlists1Click(Sender: TObject);
+var f:textfile;
+begin
+assignfile(f,ExeDir+'DeliverLists.txt'); Rewrite(f);
+write(f,ControlList.DeliverList.WriteToText);
+closefile(f);
 end;
 
 end.

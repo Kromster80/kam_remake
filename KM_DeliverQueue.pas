@@ -6,42 +6,43 @@ uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defa
 
 type
   TKMDeliverQueue = class
+  private
+    fOffer:array[1..1024]of
+    record
+      Loc_House:TKMHouse;
+      Resource:TResourceType;
+      Status:TJobStatus;
+    end;
+    fDemand:array[1..1024]of
+    record
+      Loc_House:TKMHouse;
+      Loc_Unit:TKMUnit;
+      DemandType:TDemandType; //Once for everything, Always for Store and Barracks
+      Resource:TResourceType;
+      Importance:byte;
+      Status:TJobStatus;
+    end;
+    fQueue:array[1..1024]of
+    record
+      Loc1:TKMPoint;
+      Loc2_House:TKMHouse;
+      Loc2_Unit:TKMUnit;
+      Resource:TResourceType;
+      Importance:byte;
+      JobStatus:TJobStatus;
+    end;
+    procedure AddNewDelivery(aHouse:TKMHouse; bLoc_House:TKMHouse; bLoc_Unit:TKMUnit; aResource:TResourceType);
   public
-  fOffer:array[1..1024]of
-  record
-    Loc_House:TKMHouse;
-    Resource:TResourceType;
-    Status:TJobStatus;
-  end;
-  fDemand:array[1..1024]of
-  record
-    Loc_House:TKMHouse;
-    Loc_Unit:TKMUnit;
-    DemandType:TDemandType;
-    Resource:TResourceType;
-    Importance:byte;
-    Status:TJobStatus;
-  end;
-  fQueue:array[1..1024]of
-  record
-    Loc1:TKMPoint;
-    Loc2_House:TKMHouse;
-    Loc2_Unit:TKMUnit;
-    Resource:TResourceType;
-    Importance:byte;
-    JobStatus:TJobStatus;
-  end;
-  constructor Create();
-  procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
-  procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
-  procedure AddNewDelivery(aHouse:TKMHouse; bLoc_House:TKMHouse; bLoc_Unit:TKMUnit; aResource:TResourceType);
-  function WriteToText():string;
-  function  AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
-  procedure CloseDelivery(aID:integer);
+    constructor Create();
+    procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
+    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
+    function  AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
+    procedure CloseDelivery(aID:integer);
+    function WriteToText():string;
   end;
 
   TKMBuildingQueue = class
-  public
+  private
     fFieldsQueue:array[1..1024]of
     record
       Loc:TKMPoint;
@@ -63,20 +64,20 @@ type
       Importance:byte;
       JobStatus:TJobStatus;
     end;
+  public
     constructor Create();
     procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
     function RemRoad(aLoc:TKMPoint):boolean;
-
-    procedure AddNewHousePlan(aLoc:TKMPoint; aHouseType: THouseType);
-    procedure CloseHousePlan(aID:integer);
-    function  AskForHousePlan(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
-
-    procedure AddNewHouse(aLoc:TKMPoint; aHouse: TKMHouse);
-    procedure CloseHouse(aID:integer);
-    function  AskForHouse(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
-
     function  AskForRoad(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseRoad(aID:integer);
+
+    procedure AddNewHousePlan(aLoc:TKMPoint; aHouseType: THouseType);
+    function  AskForHousePlan(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+    procedure CloseHousePlan(aID:integer);
+
+    procedure AddNewHouse(aLoc:TKMPoint; aHouse: TKMHouse);
+    function  AskForHouse(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+    procedure CloseHouse(aID:integer);
   end;
 
 implementation
@@ -185,18 +186,6 @@ with fQueue[i] do
 
 end;
 
-function TKMDeliverQueue.WriteToText():string;
-var i:integer;
-begin
-Result:='Offer:'+eol+'---------------------------------';
-for i:=1 to 1024 do begin
-  if fDemand[i].Loc_House<>nil then Result:=Result+'H-'+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9;
-  if fDemand[i].Loc_Unit<>nil then Result:=Result+'U-'+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9;
-//  Result:=Result+'U-'+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9;
-  Result:=Result+eol;
-end;
-end;
-
 
 //Should issue a job based on requesters location and job importance
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
@@ -227,6 +216,36 @@ with fQueue[aID] do
   end;
 end;
 
+
+function TKMDeliverQueue.WriteToText():string;
+var i:integer;
+begin
+Result:='Demand:'+eol+'---------------------------------'+eol;
+for i:=1 to length(fDemand) do if fDemand[i].Resource<>rt_None then begin
+  if fDemand[i].Loc_House<>nil then Result:=Result+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9+#9;
+  if fDemand[i].Loc_Unit<>nil then Result:=Result+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9+#9;
+  Result:=Result+TypeToString(fDemand[i].Resource);
+  Result:=Result+eol;
+end;
+Result:=Result+eol+'Offer:'+eol+'---------------------------------'+eol;
+for i:=1 to length(fOffer) do if fOffer[i].Resource<>rt_None then begin
+  if fOffer[i].Loc_House<>nil then Result:=Result+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9+#9;
+  Result:=Result+TypeToString(fOffer[i].Resource);
+  Result:=Result+eol;
+end;
+Result:=Result+eol+'Deliveries:'+eol+'---------------------------------'+eol;
+for i:=1 to length(fQueue) do if fQueue[i].Resource<>rt_None then begin
+  //Result:=Result+TypeToString(fOffer[i].Resource);
+  //if fQueue[i].Loc_House<>nil then Result:=Result+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9;
+  Result:=Result+TypeToString(fQueue[i].Resource);
+  Result:=Result+eol;
+end;
+end;
+
+
+{==================================================================================================}
+{TKMBuildingQueue}
+{==================================================================================================}
 constructor TKMBuildingQueue.Create();
 var i:integer;
 begin
@@ -234,6 +253,7 @@ for i:=1 to length(fFieldsQueue) do CloseRoad(i);
 for i:=1 to length(fHousesQueue) do CloseHouse(i);
 for i:=1 to length(fHousePlansQueue) do CloseHousePlan(i);
 end;
+
 
 procedure TKMBuildingQueue.AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
 var i:integer;
@@ -247,6 +267,7 @@ fFieldsQueue[i].Importance:=1;
 fFieldsQueue[i].JobStatus:=js_Open;
 end;
 
+{Remove task if Player has cancelled it}
 function TKMBuildingQueue.RemRoad(aLoc:TKMPoint):boolean;
 var i:integer;
 begin
@@ -260,25 +281,44 @@ for i:=1 to length(fFieldsQueue) do
   end;
 end;
 
+
+function  TKMBuildingQueue.AskForRoad(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+var i:integer;
+begin
+Result:=nil;
+i:=1;
+while (i<1024)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
+if i=1024 then
+begin
+  Result:=nil;
+  exit;
+end;
+if fFieldsQueue[i].FieldType=fdt_Road then  Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
+if fFieldsQueue[i].FieldType=fdt_Field then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
+if fFieldsQueue[i].FieldType=fdt_Wine then  Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
+fFieldsQueue[i].JobStatus:=js_Taken;
+end;
+
+
+procedure TKMBuildingQueue.CloseRoad(aID:integer);
+begin
+fFieldsQueue[aID].Loc:=KMPoint(0,0);
+fFieldsQueue[aID].FieldType:=fdt_None;
+fFieldsQueue[aID].Importance:=0;
+fFieldsQueue[aID].JobStatus:=js_Done;
+end;
+
+
 procedure TKMBuildingQueue.AddNewHousePlan(aLoc:TKMPoint; aHouseType: THouseType);
 var i:integer;
 begin
-i:=1;
-while fHousePlansQueue[i].Loc.X<>0 do inc(i);
-
+i:=1; while fHousePlansQueue[i].Loc.X<>0 do inc(i);
 fHousePlansQueue[i].Loc:=aLoc;
 fHousePlansQueue[i].HouseType:=aHouseType;
 fHousePlansQueue[i].Importance:=1;
 fHousePlansQueue[i].JobStatus:=js_Open;
 end;
 
-procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
-begin
-fHousePlansQueue[aID].Loc:=KMPoint(0,0);
-fHousePlansQueue[aID].HouseType:=ht_None;
-fHousePlansQueue[aID].Importance:=0;
-fHousePlansQueue[aID].JobStatus:=js_Done;
-end;
 
 function  TKMBuildingQueue.AskForHousePlan(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
@@ -295,6 +335,16 @@ if fHousePlansQueue[i].JobStatus=js_Open then
   Result:=TTaskBuildHouseArea.Create(KMWorker, fHousePlansQueue[i].Loc, fHousePlansQueue[i].HouseType, i);
 fHousePlansQueue[i].JobStatus:=js_Taken;
 end;
+
+
+procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
+begin
+fHousePlansQueue[aID].Loc:=KMPoint(0,0);
+fHousePlansQueue[aID].HouseType:=ht_None;
+fHousePlansQueue[aID].Importance:=0;
+fHousePlansQueue[aID].JobStatus:=js_Done;
+end;
+
 
 {Add new job to the list}
 procedure TKMBuildingQueue.AddNewHouse(aLoc:TKMPoint; aHouse: TKMHouse);
@@ -331,30 +381,7 @@ begin
 end;
 
 
-function  TKMBuildingQueue.AskForRoad(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
-var i:integer;
-begin
-Result:=nil;
-i:=1;
-while (i<1024)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
-if i=1024 then
-begin
-  Result:=nil;
-  exit;
-end;
-if fFieldsQueue[i].FieldType=fdt_Road then  Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
-if fFieldsQueue[i].FieldType=fdt_Field then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
-if fFieldsQueue[i].FieldType=fdt_Wine then  Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
-fFieldsQueue[i].JobStatus:=js_Taken;
-end;
 
-procedure TKMBuildingQueue.CloseRoad(aID:integer);
-begin
-fFieldsQueue[aID].Loc:=KMPoint(0,0);
-fFieldsQueue[aID].FieldType:=fdt_None;
-fFieldsQueue[aID].Importance:=0;
-fFieldsQueue[aID].JobStatus:=js_Done;
-end;
 
 
 end.
