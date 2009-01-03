@@ -191,12 +191,15 @@ begin
       glvertex2f(SizeX-1,0);
     glEnd;
 
-    //Draw the bar itself
-    BarWidth:=round((SizeX-4)*Pos/100);
-    glColor4ubv(@BarColor);
-    glBegin (GL_QUADS);
-      glkRect(1,1,BarWidth+3,SizeY-1);
-    glEnd;
+    //Draw the bar itself, so long as it is above 0 position
+    if Pos > 0 then
+    begin
+      BarWidth:=round((SizeX-4)*Pos/100);
+      glColor4ubv(@BarColor);
+      glBegin (GL_QUADS);
+        glkRect(1,1,BarWidth+3,SizeY-1);
+      glEnd;
+    end;
 
     //Draw shadow on top and left of the bar, just like real one
     glColor4f(0,0,0,0.5); //Set semi-transparent black

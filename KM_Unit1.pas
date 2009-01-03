@@ -216,10 +216,11 @@ begin
   fControls.OnMouseDown(X,Y,Button);
 
   //example for units need change
-  if Button = mbRight then
-    ControlList.AddUnit(play_1, ut_Serf, KMPoint(CursorXc,CursorYc))
-  else if Button = mbMiddle then
-    ControlList.AddUnit(play_1, ut_HorseScout, KMPoint(CursorXc,CursorYc));
+  //Removed right since it interfers with the school buttons
+  if Button = mbMiddle then
+    ControlList.AddUnit(play_1, ut_Serf, KMPoint(CursorXc,CursorYc));
+  //else if Button = mbMiddle then
+  //  ControlList.AddUnit(play_1, ut_HorseScout, KMPoint(CursorXc,CursorYc));
 
 end;
 
@@ -265,12 +266,12 @@ begin
   case CursorMode.Mode of
     cm_None:
       begin
+        if ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
+          fGamePlayInterface.ShowUnitInfo(ControlList.UnitsHitTest(CursorXc, CursorYc).GetUnitType);
+        end; //Houses have prioraty over units, so you can't select an occupant 
         if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then begin
           ControlList.SelectedHouse:=ControlList.HousesHitTest(CursorXc, CursorYc);
           fGamePlayInterface.ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc));
-        end;
-        if ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
-          fGamePlayInterface.ShowUnitInfo(ControlList.UnitsHitTest(CursorXc, CursorYc).GetUnitType);
         end;
       end;
     cm_Road: ControlList.AddRoadPlan(P,mu_RoadPlan);

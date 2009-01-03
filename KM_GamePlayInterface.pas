@@ -59,6 +59,7 @@ type TKMGamePlayInterface = class
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TUnitType);
     procedure SchoolUnitChange(Sender:TObject);
+    procedure SchoolUnitChangeRight(Sender:TObject);
     procedure SchoolUnitRemove(Sender:TObject);
   end;
 
@@ -187,14 +188,18 @@ begin
       end;
       KMLabel_School_Unit:=fControls.AddLabel(KMPanel_House_School,100,116,100,30,fnt_Outline,kaCenter,'Unit name here');
       KMImage_School_Left :=fControls.AddImage(KMPanel_House_School,  8,136,54,80,521);
+      KMImage_School_Left.Enabled := false;
       KMImage_School_Train:=fControls.AddImage(KMPanel_House_School, 70,136,54,80,522);
       KMImage_School_Right:=fControls.AddImage(KMPanel_House_School,132,136,54,80,523);
+      KMImage_School_Right.Enabled := false;
       KMButton_School_Left :=fControls.AddButton(KMPanel_House_School,  8,226,54,40,35);
       KMButton_School_Train:=fControls.AddButton(KMPanel_House_School, 70,226,54,40,42);
       KMButton_School_Right:=fControls.AddButton(KMPanel_House_School,132,226,54,40,36);
       KMButton_School_Left.OnClick:=SchoolUnitChange;
+      KMButton_School_Left.OnRightClick:=SchoolUnitChangeRight;
       KMButton_School_Train.OnClick:=SchoolUnitChange;
       KMButton_School_Right.OnClick:=SchoolUnitChange;
+      KMButton_School_Right.OnRightClick:=SchoolUnitChangeRight;
 
 {Store page}
     KMPanel_HouseStore:=fControls.AddPanel(KMPanel_House,0,76,200,400);
@@ -337,7 +342,7 @@ begin
   KMImage_House_Worker.TexID:=140+integer(HouseOwnerUnit[integer(Sender.GetHouseType)]);
   KMImage_House_Worker.Enabled := Sender.GetHasOwner;
   KMImage_House_Worker.Visible := HouseOwnerUnit[integer(Sender.GetHouseType)] <> ut_None;
-  if (HouseInput[byte(Sender.GetHouseType)][1] = rt_None) or (HouseInput[integer(Sender.GetHouseType)][1] = rt_All) then
+  if (HouseInput[byte(Sender.GetHouseType)][1] = rt_None) or (HouseInput[byte(Sender.GetHouseType)][1] = rt_All) then
     KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enabled:=true;
   if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40;
   if Sender.WareDelivery then KMButton_House_Goods.TexID:=37 else KMButton_House_Goods.TexID:=38;
@@ -416,7 +421,6 @@ end;
 procedure TKMGamePlayInterface.SchoolUnitChange(Sender:TObject);
 var i:integer;
 begin
-
   if (Sender=KMButton_School_Left)and(LastSchoolUnit > 1) then dec(LastSchoolUnit);
   if (Sender=KMButton_School_Right)and(LastSchoolUnit < length(School_Order)) then inc(LastSchoolUnit);
 
@@ -449,7 +453,28 @@ begin
 
   if KMButton_School_Right.Enabled then
     KMImage_School_Right.TexID:=520+byte(School_Order[byte(LastSchoolUnit)+1]);
+end;
 
+
+{Process right click on Left-Right buttons of School}
+procedure TKMGamePlayInterface.SchoolUnitChangeRight(Sender:TObject);
+begin
+  if Sender=KMButton_School_Left then LastSchoolUnit := 1;
+  if Sender=KMButton_School_Right then LastSchoolUnit := Length(School_Order);
+
+  KMButton_School_Left.Enabled := LastSchoolUnit > 1;
+  KMButton_School_Right.Enabled := LastSchoolUnit < length(School_Order);
+  KMImage_School_Left.Visible:= KMButton_School_Left.Enabled;
+  KMImage_School_Right.Visible:= KMButton_School_Right.Enabled;
+
+  if KMButton_School_Left.Enabled then
+    KMImage_School_Left.TexID:=520+byte(School_Order[byte(LastSchoolUnit)-1]);
+
+  KMLabel_School_Unit.Caption:=TypeToString(TUnitType(School_Order[byte(LastSchoolUnit)]));
+  KMImage_School_Train.TexID:=520+byte(School_Order[byte(LastSchoolUnit)]);
+
+  if KMButton_School_Right.Enabled then
+    KMImage_School_Right.TexID:=520+byte(School_Order[byte(LastSchoolUnit)+1]);
 end;
 
 

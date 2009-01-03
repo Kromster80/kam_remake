@@ -363,6 +363,7 @@ begin
   //I don't really understand how the delivery system works, so maybe you could do this?
   //@Lewin:Later, cos I don't know how it works either, although I've designed it LOL
   //This feature is not very important for now.
+  //@Krom: True, it's not very important so do it later.
 end;
 
 

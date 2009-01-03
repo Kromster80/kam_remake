@@ -18,6 +18,7 @@ TKMControl = class
     Enabled: boolean;
     Visible: boolean;
     FOnClick:TNotifyEvent;
+    FOnRightClick:TNotifyEvent;
     CursorOver:boolean;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
@@ -26,6 +27,7 @@ TKMControl = class
     procedure Paint(); virtual;
   public
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
+    property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
 end;
 
 
@@ -226,8 +228,8 @@ procedure TKMButton.CheckCursorOver(X,Y:integer; AShift:TShiftState);
 var i:integer;
 begin
   Down:=Down and CursorOver;
-  //Now check to see if they moved their mouse back over with the left button still depressed
-  if (ssLeft in AShift) and (CursorOver) then
+  //Now check to see if they moved their mouse back over with the button still depressed
+  if ((ssLeft in AShift) or (ssRight in AShift) or (ssMiddle in AShift)) and (CursorOver) then
     Down := true;
 
   Inherited CheckCursorOver(X,Y,AShift);
@@ -434,7 +436,6 @@ begin
       if TKMControl(Items[I]).Visible then
       if TKMControl(Items[I]).Parent <> nil then //Added this so command bellow will work. Doesn't seem to cause issues, and all clickable controls should have a parent
       if TKMControl(Items[I]).Parent.Visible then //If parent (a panel) is invisible then don't allow clicking
-      if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then
       if TKMControl(Items[i]).ClassType=TKMButton then
       TKMButton(Items[I]).Down:=true;
@@ -450,14 +451,22 @@ begin
       if TKMControl(Items[I]).Visible then
       if TKMControl(Items[I]).Parent <> nil then //Added this so command bellow will work. Doesn't seem to cause issues, and all clickable controls should have a parent
       if TKMControl(Items[I]).Parent.Visible then //If parent (a panel) is invisible then don't allow clicking
-      if AButton = mbLeft then //For now only allow pressing with the LEFT mouse button
       if TKMControl(Items[I]).Enabled then begin
         if TKMControl(Items[i]).ClassType=TKMButton then
           TKMButton(Items[I]).Down:=false;
-        if Assigned(TKMControl(Items[I]).OnClick) then begin
-          TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
-          exit; //Send OnClick only to one item
-        end;
+         if AButton = mbLeft then
+         begin
+           if Assigned(TKMControl(Items[I]).OnClick) then begin
+             TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
+             exit; //Send OnClick only to one item
+           end;
+         end
+         else
+         if AButton = mbRight then
+           if Assigned(TKMControl(Items[I]).OnRightClick) then begin
+             TKMControl(Items[I]).OnRightClick(TKMControl(Items[I]));
+             exit; //Send OnClick only to one item
+           end;
       end;
 end;
 

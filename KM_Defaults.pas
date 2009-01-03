@@ -42,6 +42,10 @@ const //Font01.fnt seems to be damaged..
 
   Cursors:array[1..19]of integer = (1,452,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9);
 
+  ScrollCursorOffset = 17;
+  CursorOffsetsX:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
+  CursorOffsetsY:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
+
 type
   TMouseButton2 = (mb2None, mb2Left, mb2Right);
 
