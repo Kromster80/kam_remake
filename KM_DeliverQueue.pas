@@ -32,7 +32,7 @@ type
     constructor Create();
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
-    function  AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
+    function  AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
     procedure CloseDelivery(aID:integer);
     function WriteToText():string;
   end;
@@ -64,15 +64,15 @@ type
     constructor Create();
     procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
     function RemRoad(aLoc:TKMPoint):boolean;
-    function  AskForRoad(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+    function  AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseRoad(aID:integer);
 
     procedure AddNewHousePlan(aLoc:TKMPoint; aHouseType: THouseType);
-    function  AskForHousePlan(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+    function  AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHousePlan(aID:integer);
 
     procedure AddNewHouse(aLoc:TKMPoint; aHouse: TKMHouse);
-    function  AskForHouse(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+    function  AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHouse(aID:integer);
   end;
 
@@ -124,7 +124,7 @@ end;
 
 
 //Should issue a job based on requesters location and job importance
-function TKMDeliverQueue.AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
+function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
 var h,i,k:integer; Bid,BestBid:single;
 begin
 Result:=nil;
@@ -259,7 +259,7 @@ for i:=1 to length(fFieldsQueue) do
 end;
 
 
-function  TKMBuildingQueue.AskForRoad(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
 Result:=nil;
@@ -297,7 +297,7 @@ fHousePlansQueue[i].JobStatus:=js_Open;
 end;
 
 
-function  TKMBuildingQueue.AskForHousePlan(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
 Result:=nil;
@@ -336,7 +336,7 @@ begin
 end;
 
 {Find a job for worker}
-function  TKMBuildingQueue.AskForHouse(KMWorker:TKMWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
 Result:=nil;

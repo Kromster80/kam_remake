@@ -310,7 +310,10 @@ if CheckBox1.Checked then exit;
 ControlList.UpdateState;
 
 inc(GlobalTickCount);
-if GlobalTickCount mod 2 = 0 then fTerrain.UpdateState; //Update every third tick
+
+if CheckBox2.Checked then
+  for i:=1 to 10 do
+    fTerrain.UpdateState;
 
 if CheckBox2.Checked then
   for i:=1 to 100 do
@@ -363,16 +366,19 @@ var H:TKMHouseStore;
 begin
 TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(6,11);
-ControlList.AddHouse(play_1, ht_Farm,KMPoint(4,5));
+ControlList.AddHouse(play_1, ht_Farm,KMPoint(3,5));
 ControlList.AddHouse(play_1, ht_Mill,KMPoint(8,5));
-ControlList.AddHouse(play_1, ht_Bakery,KMPoint(12,5));
-ControlList.AddHouse(play_1, ht_Store,KMPoint(16,5));
+ControlList.AddHouse(play_1, ht_Bakery,KMPoint(13,5));
+
+ControlList.AddHouse(play_1, ht_WineYard,KMPoint(5,18));
+ControlList.AddHouse(play_1, ht_Store,KMPoint(17,5));
 ControlList.AddHouse(play_1, ht_Quary,KMPoint(12,8));
 ControlList.AddHouse(play_1, ht_WoodCutters,KMPoint(12,11));
 ControlList.AddHouse(play_1, ht_SawMill,KMPoint(12,14));
 ControlList.AddHouse(play_1, ht_CoalMine,KMPoint(12,17));
 ControlList.AddHouse(play_1, ht_FisherHut,KMPoint(18,9)); //Added to demonstrate a house without an occupant in the building page
-
+                                                    
+ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
 ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
 ControlList.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
 ControlList.AddUnit(play_1, ut_WoodCutter, KMPoint(7,9));
@@ -387,15 +393,15 @@ ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
-{ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
 ControlList.AddRoadPlan(KMPoint(6,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(7,14),mu_WinePlan);}
+ControlList.AddRoadPlan(KMPoint(7,14),mu_WinePlan);
 ControlList.AddRoadPlan(KMPoint(5,13),mu_FieldPlan);
 ControlList.AddRoadPlan(KMPoint(6,13),mu_FieldPlan);
 ControlList.AddRoadPlan(KMPoint(7,13),mu_FieldPlan);
 
 H:=ControlList.FindStore();
-if H<>nil then H.AddMultiResource(rt_All,300);
+if H<>nil then H.AddMultiResource(rt_All,30);
 
 {ControlList.AddRoadPlan(KMPoint(5,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(6,12),mu_RoadPlan);
@@ -405,7 +411,7 @@ ControlList.AddRoadPlan(KMPoint(8,13),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);}
 
 //ControlList.AddHousePlan(KMPoint(9,18), ht_School, play_1);
-//ControlList.AddHouse(play_1, ht_Inn, KMPoint(9,23));
+ControlList.AddHouse(play_1, ht_Inn, KMPoint(9,23));
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

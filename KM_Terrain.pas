@@ -74,6 +74,7 @@ public
   function FindCorn(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindCornField(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+  function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   procedure InitGrowth(Loc:TKMPoint);
   procedure CutCorn(Loc:TKMPoint);
@@ -362,6 +363,19 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
       for h:=1 to length(ChopableTrees) do
         if Land[i,k].Obj=ChopableTrees[h,4] then
           Result:=KMPoint(k,i);
+end;
+
+function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+//var i,k,h:integer;
+begin
+Result:=KMPoint(9,9);
+{Result:=KMPoint(0,0);
+for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
+  for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+    if (InRange(i,1,Self.MapY))and(InRange(k,1,Self.MapX))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+      for h:=1 to length(ChopableTrees) do
+        if Land[i,k].Obj=ChopableTrees[h,4] then
+          Result:=KMPoint(k,i);}
 end;
 
 

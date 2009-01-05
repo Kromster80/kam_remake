@@ -6,21 +6,6 @@ uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Glob
 type
   TKMHouse = class;
 
-  TProductionPlan = class
-  private
-    Resource1,Resource2:TResourceType;
-    Count1,Count2:integer;
-    Actions:array of record
-      Act: THouseActionType;
-      Cyc: integer;
-    end;
-    Result1:TResourceType;
-    ResultCount:integer;
-    Issued:boolean;
-  public
-    constructor Create(aHouseType:THouseType; aResultType:TResourceType);
-  end;
-
   THouseAction = class(TObject)
   private
     fHouse:TKMHouse;
@@ -33,7 +18,6 @@ type
     procedure SubActionWork(aActionSet: THouseActionType; const aTime:integer=0);
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
-    procedure Execute(KMHouse: TKMHouse; TimeDelta: single; out DoEnd: Boolean);
     property ActionType: THouseState read fHouseState;
   end;
 
@@ -52,14 +36,6 @@ type
       procedure Execute(KMHouse:TKMHouse; out TaskDone:boolean); override;
     end;
 
-    TTaskProduce = class(THouseTask)
-    private
-      fPlanID:TProductionPlan;
-      Phase:integer;
-    public
-      constructor Create(KMHouse: TKMHouse; aPlanID:TProductionPlan);
-      procedure Execute(KMHouse:TKMHouse; out TaskDone:boolean); override;
-    end;
 
   TKMHouse = class(TObject)
   private
@@ -76,19 +52,16 @@ type
     fBuildingRepair: boolean; //If on and the building is damaged then labourers will come and repair it
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
-    fOutputTypes:array[1..4]of TResourceType;
-    fInputTypes:array[1..4] of TResourceType;
     fResourceIn:array[1..4] of byte;
     fResourceOut:array[1..4]of byte;
 
-    HouseTask: THouseTask; //House current task
-    fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
-    fProductionPlan: TProductionPlan; //Plan according to which house functions at the moment
-
     fLastUpdateTime: Cardinal;
-    AnimStep: integer;
+    FlagAnimStep: integer; //Used for Flags and Burning animation
+    WorkAnimStep: integer; //Used for Work and etc..
     procedure SetWareDelivery(AVal:boolean);
   public
+    fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
+
     constructor Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
     procedure Activate;
@@ -98,11 +71,11 @@ type
     procedure IncBuildingProgress;
     function IsComplete:boolean;
 
-
     procedure SetState(aState: THouseState; aTime:integer);
     function GetState:THouseState;
     procedure OwnerGoesIn;
     procedure OwnerGoesOut;
+    
     function CheckResIn(aResource:TResourceType):byte;
     function CheckResOut(aResource:TResourceType):byte;
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
@@ -116,7 +89,6 @@ type
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner;
 
-    function GetProductionTask(Sender:string):THouseTask;
     procedure UpdateState;
     procedure Paint();
   end;
@@ -165,47 +137,6 @@ implementation
 uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render;
 
 
-{TProductionPlans}
-constructor TProductionPlan.Create(aHouseType:THouseType; aResultType:TResourceType);
-begin
-Issued:=true;
-case aHouseType of
-
-  ht_Sawmill: begin Resource1:=rt_Trunk; Count1:=1; setlength(Actions,3+1);
-                Actions[1].Act:=ha_Work1; Actions[1].Cyc:=1;
-                Actions[2].Act:=ha_Work2; Actions[2].Cyc:=8;
-                Actions[3].Act:=ha_Work5; Actions[3].Cyc:=1;
-                Result1:=rt_Wood;
-                ResultCount:=ResourceProductionX[byte(Result1)];
-              end;
-
-  ht_CoalMine:begin Resource1:=rt_None; Count1:=0; setlength(Actions,3+1);
-                Actions[1].Act:=ha_Work1; Actions[1].Cyc:=1;
-                Actions[2].Act:=ha_Work2; Actions[2].Cyc:=2;
-                Actions[3].Act:=ha_Work5; Actions[3].Cyc:=1;
-                Result1:=rt_Coal;
-                ResultCount:=ResourceProductionX[byte(Result1)];
-              end;
-
-  ht_Mill:    begin Resource1:=rt_Corn; Count1:=1; setlength(Actions,1+1);
-                Actions[1].Act:=ha_Work2; Actions[1].Cyc:=10;
-                Result1:=rt_Flour;
-                ResultCount:=ResourceProductionX[byte(Result1)];
-              end;
-
-  ht_Bakery:  begin Resource1:=rt_Flour; Count1:=1; setlength(Actions,4+1);
-                Actions[1].Act:=ha_Work2; Actions[1].Cyc:=2;
-                Actions[2].Act:=ha_Work3; Actions[2].Cyc:=2;
-                Actions[3].Act:=ha_Work2; Actions[3].Cyc:=2;
-                Actions[4].Act:=ha_Work3; Actions[4].Cyc:=2;
-                Result1:=rt_Bread;
-                ResultCount:=ResourceProductionX[byte(Result1)];
-              end;
-  else
-    Issued:=false;
-end;
-end;
-
 { TKMHouse }
 constructor TKMHouse.Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
 begin
@@ -234,21 +165,16 @@ end;
 procedure TKMHouse.Activate;
 var i,k:integer;
 begin
-
-  //fProductionPlan:=HouseProductionPlanID[byte(fHouseType)];
-
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
 
-  fOutputTypes[1]:=HouseOutput[byte(fHouseType),1];
-  fInputTypes[1]:=HouseInput[byte(fHouseType),1];
   for i:=1 to 4 do
-    case fInputTypes[i] of
+    case HouseInput[byte(fHouseType),i] of
       rt_None:    ;
-      rt_Warfare: ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Always);
-      rt_All:     ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Always);
+      rt_Warfare: ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always);
+      rt_All:     ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always);
       else for k:=1 to 5 do //Every new house needs 5 resourceunits
-          ControlList.DeliverList.AddNewDemand(Self,nil,fInputTypes[i],dt_Once);
+          ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Once);
     end;
 
 end;
@@ -294,8 +220,8 @@ function TKMHouse.CheckResIn(aResource:TResourceType):byte;
 var i:integer;
 begin
 Result:=0;
-  for i:=1 to 3 do
-  if (aResource = fInputTypes[i])or(aResource=rt_All) then
+  for i:=1 to 4 do
+  if (aResource = HouseInput[byte(fHouseType),i])or(aResource=rt_All) then
     inc(Result,fResourceIn[i]);
 end;
 
@@ -303,8 +229,8 @@ function TKMHouse.CheckResOut(aResource:TResourceType):byte;
 var i:integer;
 begin
 Result:=0;
-  for i:=1 to 3 do
-  if (aResource = fOutputTypes[i])or(aResource=rt_All) then
+  for i:=1 to 4 do
+  if (aResource = HouseOutput[byte(fHouseType),i])or(aResource=rt_All) then
     inc(Result,fResourceOut[i]);
 end;
 
@@ -312,8 +238,8 @@ procedure TKMHouse.ResAddToOut(aResource:TResourceType; const aCount:integer=1);
 var i,k:integer;
 begin
   if aResource=rt_None then exit;
-  for i:=1 to 3 do
-  if aResource = fOutputTypes[i] then
+  for i:=1 to 4 do
+  if aResource = HouseOutput[byte(fHouseType),i] then
     begin
       inc(fResourceOut[i],aCount);
       ControlList.DeliverList.AddNewOffer(Self,aResource,aCount);
@@ -325,11 +251,11 @@ procedure TKMHouse.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
 var i:integer;
 begin
   if aResource=rt_None then exit;
-  if fInputTypes[1]=rt_All then
+  if HouseInput[byte(fHouseType),1]=rt_All then
     TKMHouseStore(Self).AddResource(aResource)
   else
-    for i:=1 to 3 do
-    if aResource = fInputTypes[i] then
+    for i:=1 to 4 do
+    if aResource = HouseInput[byte(fHouseType),i] then
       inc(fResourceIn[i],aCount);
 end;
 
@@ -339,8 +265,8 @@ var i:integer;
 begin
 Result:=false;
 if aResource=rt_None then exit;
-  for i:=1 to 3 do
-  if aResource = fInputTypes[i] then begin
+  for i:=1 to 4 do
+  if aResource = HouseInput[byte(fHouseType),i] then begin
     Assert(fResourceIn[i]>0);
     dec(fResourceIn[i]);
     ControlList.DeliverList.AddNewDemand(Self,nil,aResource,dt_Once);
@@ -360,8 +286,8 @@ ht_Store: if TKMHouseStore(Self).ResourceCount[byte(aResource)]>0 then begin
             Result:=true;
           end;
 else
-          for i:=1 to 3 do
-          if aResource = fOutputTypes[i] then begin
+          for i:=1 to 4 do
+          if aResource = HouseOutput[byte(fHouseType),i] then begin
             dec(fResourceOut[i]);
             Result:=true;
           end;
@@ -390,40 +316,11 @@ begin
 
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
-  Assert(fCurrentAction<>nil,'House has no action to execute!');
-  fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
-  if not DoEnd then exit;
 
-  if fCurrentAction.fHouseState=hst_Empty then exit;
-
-  if HouseTask<>nil then begin
-    HouseTask.Execute(Self, TaskDone);
-    if not TaskDone then exit;
-  end else
-    HouseTask:=GetProductionTask('House');
-    
-//  if HouseTask=nil then
-//    HouseTask:=TTaskIdle.Create(Self, 5);
+  inc(FlagAnimStep);
+  inc(WorkAnimStep);
 end;
 
-function TKMHouse.GetProductionTask(Sender:string):THouseTask;
-begin
-  Result:=nil;
-  fProductionPlan.Free;
-  fProductionPlan:=TProductionPlan.Create(fHouseType,HouseOutput[byte(fHouseType),1]);
-  if (fProductionPlan.Resource1=rt_None)or(CheckResIn(fProductionPlan.Resource1)>0) then
-    if (fProductionPlan.Resource2=rt_None)or(CheckResIn(fProductionPlan.Resource2)>0) then
-      if CheckResOut(fProductionPlan.Result1)<MaxResInHouse then
-        Result:=TTaskProduce.Create(Self,fProductionPlan);
-
-  if not fProductionPlan.Issued then begin
-    fProductionPlan.Free;
-    Result:=nil;
-  end;
-  
-  if Result=nil then
-    Result:=TTaskIdle.Create(Self,15);
-end;
 
 procedure TKMHouse.OwnerGoesIn;
 begin
@@ -446,7 +343,7 @@ case fBuildState of
     fRender.RenderHouse(byte(fHouseType),fPosition.X, fPosition.Y);
     fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
     if fCurrentAction=nil then exit;
-    fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),AnimStep,integer(fOwnerID),fPosition.X, fPosition.Y);
+    fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,integer(fOwnerID),fPosition.X, fPosition.Y);
   end;
 end;
 end;
@@ -574,7 +471,7 @@ begin
   SubActionRem([ha_Work1..ha_Work5]);
   fSubAction:= fSubAction + [aActionSet];
   if aTime<>0 then TimeToAct:=aTime;
-  fHouse.AnimStep:=0;
+  fHouse.WorkAnimStep:=0;
 end;
 
 procedure THouseAction.SubActionAdd(aActionSet: THouseActionSet);
@@ -585,14 +482,6 @@ end;
 procedure THouseAction.SubActionRem(aActionSet: THouseActionSet);
 begin
   fSubAction:= fSubAction - aActionSet;
-end;
-
-procedure THouseAction.Execute(KMHouse: TKMHouse; TimeDelta: single; out DoEnd: Boolean);
-begin
-  DoEnd:= False;
-  inc(KMHouse.AnimStep);
-  dec(TimeToAct);
-  if TimeToAct<=0 then begin DoEnd:= True; {TimeToAct:=0;} end; //Action is complete
 end;
 
 { TTaskIdle }
@@ -616,44 +505,6 @@ TimeDelta:=1;
 TimeToIdle:=TimeToIdle-TimeDelta;
 if TimeToIdle<=0 then}
   TaskDone:=true;
-end;
-
-{ TTaskProduce }
-
-constructor TTaskProduce.Create(KMHouse: TKMHouse; aPlanID:TProductionPlan);
-begin
-fPlanID:=aPlanID;
-Phase:=0;
-end;
-
-procedure TTaskProduce.Execute(KMHouse:TKMHouse; out TaskDone:boolean);
-var t:integer;
-begin
-TaskDone:=false;
-case Phase of
-  0: KMHouse.SetState(hst_Work,0);
-  1: begin KMHouse.ResTakeFromIn(fPlanID.Resource1); KMHouse.ResTakeFromIn(fPlanID.Resource2); end; //Count should be added
-  2: KMHouse.fCurrentAction.SubActionAdd([ha_Smoke]);
-  3: if length(fPlanID.Actions)>1 then begin
-       t:=HouseDAT[byte(KMHouse.fHouseType)].Anim[byte(fPlanID.Actions[1].Act)].Count * fPlanID.Actions[1].Cyc;
-       KMHouse.fCurrentAction.SubActionWork(fPlanID.Actions[1].Act,t);
-     end;
-  4: if length(fPlanID.Actions)>2 then begin
-       t:=HouseDAT[byte(KMHouse.fHouseType)].Anim[byte(fPlanID.Actions[2].Act)].Count * fPlanID.Actions[2].Cyc;
-       KMHouse.fCurrentAction.SubActionWork(fPlanID.Actions[2].Act,t);
-     end;
-  5: if length(fPlanID.Actions)>3 then begin
-       t:=HouseDAT[byte(KMHouse.fHouseType)].Anim[byte(fPlanID.Actions[3].Act)].Count * fPlanID.Actions[3].Cyc;
-       KMHouse.fCurrentAction.SubActionWork(fPlanID.Actions[3].Act,t);
-     end;
-  6: if length(fPlanID.Actions)>4 then begin
-       t:=HouseDAT[byte(KMHouse.fHouseType)].Anim[byte(fPlanID.Actions[4].Act)].Count * fPlanID.Actions[4].Cyc;
-       KMHouse.fCurrentAction.SubActionWork(fPlanID.Actions[4].Act,t);
-     end;
-  7: KMHouse.ResAddToOut(fPlanID.Result1,fPlanID.ResultCount);
-  8: begin TaskDone:=true; fPlanID.Free; end;
-end;
-inc(Phase);
 end;
 
 { TKMHousesCollection }

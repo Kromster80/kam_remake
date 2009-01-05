@@ -123,27 +123,12 @@ const {Actions names}
 
 type
   TGatheringScript = (
+    gs_None=0,
     gs_WoodCutterCut=1, gs_WoodCutterPlant=2,
     gs_FarmerSow=3, gs_FarmerCorn=4, gs_FarmerWine=5,
     gs_Fisher=6,
-    gs_StoneCutter=7);
-
-const
-//Acquired resource, Count of resource, GoToWork, Work, GoFromWork, Work cycles, AfterWork Wait , Home idling
-//{Work time whould be specified in frames according to animation}
-  UnitMiningPlan:array[1..7,1..8]of byte = (
-    (byte(rt_Trunk), 1, byte(ua_WalkBooty), byte(ua_Work) , byte(ua_WalkTool2) , 6, 15, 10), //Chop the tree
-    (byte(rt_None) , 0, byte(ua_WalkTool) , byte(ua_Work1), byte(ua_Walk)      , 6, 0, 10), //Plant new tree
-
-    (byte(rt_None) , 0, byte(ua_Walk)     , byte(ua_Work1), byte(ua_Walk)      , 6, 0, 10), //Seed the corn
-    (byte(rt_Corn) , 1, byte(ua_WalkTool) , byte(ua_Work) , byte(ua_WalkBooty) , 6, 0, 10), //Gather crops
-    (byte(rt_Wine) , 1, byte(ua_WalkTool2), byte(ua_Work2), byte(ua_WalkBooty2), 6, 0, 50), //Gather grapes
-
-    (byte(rt_Fish) , 1, byte(ua_Walk)     , byte(ua_Walk) , byte(ua_Walk)      , 6, 0, 10), //Catch fish
-
-    (byte(rt_Stone), 3, byte(ua_Walk)     , byte(ua_Work) , byte(ua_WalkTool)  , 6, 10, 50)  //Cut stone
-    );
-
+    gs_StoneCutter=7,
+    gs_CoalMiner=8);
 
 {Houses game}
 type
