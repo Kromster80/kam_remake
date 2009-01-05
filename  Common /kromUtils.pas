@@ -64,6 +64,7 @@ function Pow(const Base, Exponent: integer): integer;
   function GetLength(ix,iy,iz:single): single; overload
   function GetLength(ix:Vector3f): single; overload  
   function GetLength(ix,iy:single): single; overload
+  function GetLength(A,B:TKMPoint): single; overload
 
   function InBetween(A,B,X:single): boolean;
 
@@ -634,6 +635,11 @@ end;
 function GetLength(ix,iy:single): single; overload
 begin
   Result:=sqrt(sqr(ix)+sqr(iy));
+end;
+
+function GetLength(A,B:TKMPoint): single; overload
+begin
+  Result:=sqrt(sqr(A.x-B.x)+sqr(A.y-B.y));
 end;
 
 

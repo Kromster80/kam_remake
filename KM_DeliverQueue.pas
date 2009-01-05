@@ -1,40 +1,36 @@
 unit KM_DeliverQueue;
 interface
-uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
+uses windows, math, classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
 
   type TJobStatus = (js_Open, js_Taken, js_Done);
+  const MaxEntries=1024;
 
 type
   TKMDeliverQueue = class
   private
-    fOffer:array[1..1024]of
+    fOffer:array[1..MaxEntries]of
     record
       Loc_House:TKMHouse;
       Resource:TResourceType;
-      Status:TJobStatus;
+      Count:integer;
     end;
-    fDemand:array[1..1024]of
+    fDemand:array[1..MaxEntries]of
     record
       Loc_House:TKMHouse;
       Loc_Unit:TKMUnit;
       DemandType:TDemandType; //Once for everything, Always for Store and Barracks
       Resource:TResourceType;
-      Importance:byte;
-      Status:TJobStatus;
     end;
-    fQueue:array[1..1024]of
+    fQueue:array[1..MaxEntries]of
     record
-      Loc1:TKMPoint;
-      Loc2_House:TKMHouse;
-      Loc2_Unit:TKMUnit;
-      Resource:TResourceType;
-      Importance:byte;
-      JobStatus:TJobStatus;
+      OfferID,DemandID:integer;
+      //Bid:integer; //Contains bid of current runner, e.g. 12sec, if new asker can make it quicker, then reassign to him,
+      //of course if Resource is still not taken from Offer
+      JobStatus:TJobStatus; //Open slot, resource Taken, job Done
     end;
-    procedure AddNewDelivery(aHouse:TKMHouse; bLoc_House:TKMHouse; bLoc_Unit:TKMUnit; aResource:TResourceType);
   public
     constructor Create();
-    procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
+    procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
     function  AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
     procedure CloseDelivery(aID:integer);
@@ -43,21 +39,21 @@ type
 
   TKMBuildingQueue = class
   private
-    fFieldsQueue:array[1..1024]of
+    fFieldsQueue:array[1..MaxEntries]of
     record
       Loc:TKMPoint;
       FieldType:TFieldType;
       Importance:byte;
       JobStatus:TJobStatus;
     end;
-    fHousePlansQueue:array[1..1024]of
+    fHousePlansQueue:array[1..MaxEntries]of
     record
       Loc:TKMPoint;
       HouseType:THouseType;
       Importance:byte;
       JobStatus:TJobStatus;
     end;
-    fHousesQueue:array[1..256]of
+    fHousesQueue:array[1..MaxEntries]of
     record
       Loc:TKMPoint;
       House:TKMHouse;
@@ -92,127 +88,107 @@ for i:=1 to length(fQueue) do
   CloseDelivery(i);
 end;
 
-//Adds new Offer to the list. List is stored without sorting,
+//Adds new Offer to the list. List is stored without sorting
+//(it matters only for Demand to keep evything in waiting its order in line),
 //so we just find an empty place and write there.
-procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType);
+procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
 var i:integer;
 begin
-//Check if new offer meets any of existing demands
-for i:=1 to 1024 do
-  if (fDemand[i].Resource=aResource) and (fDemand[i].Status=js_Open) then begin
-    if fDemand[i].Loc_House<>nil then
-    begin
-      fDemand[i].Status:=js_Taken;
-      AddNewDelivery(aHouse,fDemand[i].Loc_House,nil,aResource);
-    end else
-
-    if fDemand[i].Loc_Unit<>nil then
-    begin
-      fDemand[i].Status:=js_Taken;
-      AddNewDelivery(aHouse,nil,fDemand[i].Loc_Unit,aResource);
+  for i:=1 to length(fOffer) do //Add Count of resource to old offer
+    if (fOffer[i].Loc_House=aHouse)and(fOffer[i].Resource=aResource) then begin
+      inc(fOffer[i].Count,aCount);
+      exit; //Done
     end;
-    exit;
-  end;
 
-for i:=1 to 1024 do
-  if fDemand[i].Resource=rt_All then
-    if fDemand[i].Loc_House<>nil then
-    begin
-      AddNewDelivery(aHouse,fDemand[i].Loc_House,nil,aResource);
-      exit;
-    end else Assert(false);
-
-i:=1;
-while (i<1024)and(fOffer[i].Loc_House<>nil) do inc(i);
-with fOffer[i] do
-  begin
+  i:=1; while (i<MaxEntries)and(fOffer[i].Loc_House<>nil) do inc(i); //Find an empty spot
+  with fOffer[i] do begin //Put offer
     Loc_House:=aHouse;
     Resource:=aResource;
+    Count:=aCount;
   end;
 end;
 
-//Adds new Demand to the list. List is stored without sorting,
-//so we just find an empty place and write there.
+//Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
+//so we just find an empty place (which is last one) and write there.
 procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
 var i:integer;
 begin
-for i:=1 to 1024 do
-  if fOffer[i].Resource=aResource then
-    begin
-      if aHouse<>nil then AddNewDelivery(fOffer[i].Loc_House,aHouse,nil,aResource)
-      else
-      if aUnit<>nil then AddNewDelivery(fOffer[i].Loc_House,nil,aUnit,aResource)
-      else Assert(false);
-      exit;
-    end;
-
-i:=1;
-while (i<1024)and(fDemand[i].Resource<>rt_None) do inc(i);
-with fDemand[i] do
-  begin
+i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
+with fDemand[i] do begin
     Loc_House:=aHouse;
     Loc_Unit:=aUnit;
-    DemandType:=aDemandType;
+    DemandType:=aDemandType; //Once or Always
     Resource:=aResource;
-    Importance:=1;
-    Status:=js_Open;
   end;
-end;
-
-//Find an empty place
-procedure TKMDeliverQueue.AddNewDelivery(aHouse:TKMHouse; bLoc_House:TKMHouse; bLoc_Unit:TKMUnit; aResource:TResourceType);
-var i:integer;
-begin
-i:=1;
-while (i<1024)and(fQueue[i].JobStatus<>js_Done) do inc(i);
-
-with fQueue[i] do
-  begin
-    Loc1:=aHouse.GetPosition;
-    //Loc2 should be either house or unit
-    if bLoc_House<>nil then begin
-      Loc2_House:=bLoc_House;
-      Loc2_Unit:=nil;
-    end else
-    if bLoc_Unit<>nil then begin
-      Loc2_House:=nil;
-      Loc2_Unit:=bLoc_Unit;
-    end else
-      exit; //Do not take this task for it has no destination unit nor house
-    Resource:=aResource;
-    Importance:=1;
-    JobStatus:=js_Open;
-  end;
-
 end;
 
 
 //Should issue a job based on requesters location and job importance
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMSerf):TTaskDeliver;
-var i:integer;
+var h,i,k:integer; Bid,BestBid:single;
 begin
-i:=1;
-while (i<1024)and(fQueue[i].JobStatus<>js_Open) do inc(i);
-if i=1024 then
-begin
-  Result:=nil;
-  exit;
-end;
-Result:=TTaskDeliver.Create(KMSerf, fQueue[i].Loc1, fQueue[i].Loc2_House, fQueue[i].Loc2_Unit, fQueue[i].Resource, i);
-fQueue[i].JobStatus:=js_Taken;
+Result:=nil;
+
+i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
+if i=MaxEntries then exit;
+
+//Find Offer matching Demand
+//TravelRoute Asker>Offer>Demand should be shortest
+BestBid:=0;
+for h:=1 to length(fDemand) do
+  if fDemand[h].Resource <> rt_None then
+  for k:=1 to length(fOffer) do
+    if fOffer[k].Resource <> rt_None then
+    if (fDemand[h].Resource = fOffer[k].Resource)or(fDemand[h].Resource = rt_All) then
+    if (fDemand[h].Loc_House=nil)or((fDemand[h].Loc_House<>nil)and(fOffer[k].Loc_House.GetHouseType<>fDemand[h].Loc_House.GetHouseType))
+    then begin
+
+      if fDemand[h].Loc_House<>nil then
+        Bid := GetLength(fDemand[h].Loc_House.GetPosition,fOffer[k].Loc_House.GetPosition)
+      else
+        Bid := GetLength(fDemand[h].Loc_Unit.GetPosition,fOffer[k].Loc_House.GetPosition);
+
+      if fDemand[h].Resource=rt_All then
+        Bid:=Bid*5; //Prefer deliveries House-House
+
+      if fQueue[i].JobStatus=js_Open then BestBid:=Bid;
+
+      if BestBid>=Bid then begin
+        fQueue[i].DemandID:=h;
+        fQueue[i].OfferID:=k;
+        fQueue[i].JobStatus:=js_Taken; //The job is found, at least something
+        BestBid:=Bid;
+      end;
+    end;
+
+  if BestBid=0 then exit;
+
+  h:=fQueue[i].DemandID;
+  k:=fQueue[i].OfferID;
+  //Now we have best job and can perform it
+  Result:=TTaskDeliver.Create(KMSerf, fOffer[k].Loc_House.GetPosition, fDemand[h].Loc_House, fDemand[h].Loc_Unit, fOffer[k].Resource, i);
+
+  dec(fOffer[k].Count); //Remove resource from Offer
+  if fOffer[k].Count=0 then begin
+    fOffer[k].Loc_House:=nil;
+    fOffer[k].Resource:=rt_None;
+  end;
+
+  if fDemand[h].DemandType=dt_Once then
+  for i:=h to length(fDemand)-1 do //Remove resource from Demand
+    fDemand[i]:=fDemand[i+1];
+
 end;
 
 //Job successfully done and we ommit it.
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
+var i:integer;
 begin
 with fQueue[aID] do
   begin
-    Loc1:=KMPoint(0,0);
-    Loc2_House:=nil;
-    Loc2_Unit:=nil;
-    Resource:=rt_None;
-    Importance:=0;
-    JobStatus:=js_Done;
+    OfferID:=0;
+    DemandID:=0;
+    JobStatus:=js_Open; //Open slot
   end;
 end;
 
@@ -230,16 +206,17 @@ end;
 Result:=Result+eol+'Offer:'+eol+'---------------------------------'+eol;
 for i:=1 to length(fOffer) do if fOffer[i].Resource<>rt_None then begin
   if fOffer[i].Loc_House<>nil then Result:=Result+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9+#9;
-  Result:=Result+TypeToString(fOffer[i].Resource);
+  Result:=Result+TypeToString(fOffer[i].Resource)+#9;
+  Result:=Result+IntToStr(fOffer[i].Count);
   Result:=Result+eol;
 end;
 Result:=Result+eol+'Deliveries:'+eol+'---------------------------------'+eol;
-for i:=1 to length(fQueue) do if fQueue[i].Resource<>rt_None then begin
+{for i:=1 to length(fQueue) do if fQueue[i].Resource<>rt_None then begin
   //Result:=Result+TypeToString(fOffer[i].Resource);
   //if fQueue[i].Loc_House<>nil then Result:=Result+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9;
   Result:=Result+TypeToString(fQueue[i].Resource);
   Result:=Result+eol;
-end;
+end;}
 end;
 
 
@@ -287,8 +264,8 @@ var i:integer;
 begin
 Result:=nil;
 i:=1;
-while (i<1024)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
-if i=1024 then
+while (i<MaxEntries)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
+if i=MaxEntries then
 begin
   Result:=nil;
   exit;
@@ -325,8 +302,8 @@ var i:integer;
 begin
 Result:=nil;
 i:=1;
-while (i<1024)and(fHousePlansQueue[i].JobStatus<>js_Open) do inc(i);
-if i=1024 then
+while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Open) do inc(i);
+if i=MaxEntries then
 begin
   Result:=nil;
   exit;

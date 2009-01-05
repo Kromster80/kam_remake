@@ -19,7 +19,8 @@ uses
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Controls in 'KM_Controls.pas',
   ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
-  KM_LoadLib in 'KM_LoadLib.pas';
+  KM_LoadLib in 'KM_LoadLib.pas',
+  KM_LoadSFX in 'KM_LoadSFX.pas';
 
 {$R *.RES}
 

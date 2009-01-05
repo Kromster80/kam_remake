@@ -5,12 +5,11 @@ uses
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
   KM_Form_Loading, KM_Terrain, KM_Global_Data,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib;
+  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX;
 
 type
   TForm1 = class(TForm)
     OpenDialog1: TOpenDialog;
-    SaveDialog1: TSaveDialog;
     StatusBar1: TStatusBar;
     Panel_Minimap: TPanel;
     MiniMap: TImage;
@@ -58,6 +57,7 @@ type
     ExportText: TMenuItem;
     ExportStatus1: TMenuItem;
     ExportDeliverlists1: TMenuItem;
+    ExportSounds1: TMenuItem;
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -93,6 +93,7 @@ type
     procedure DoScrolling;
     procedure ExportTextClick(Sender: TObject);
     procedure ExportDeliverlists1Click(Sender: TObject);
+    procedure ExportSounds1Click(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -142,6 +143,7 @@ begin
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
+  fSoundLibrary:= TSoundLibrary.Create;
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   Application.OnIdle:=Form1.OnIdle;
 end;
@@ -311,7 +313,7 @@ inc(GlobalTickCount);
 if GlobalTickCount mod 2 = 0 then fTerrain.UpdateState; //Update every third tick
 
 if CheckBox2.Checked then
-  for i:=1 to 50 do
+  for i:=1 to 100 do
     ControlList.UpdateState;
 
   DoScrolling; //Now check to see if we need to scroll
@@ -357,6 +359,7 @@ begin
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
+var H:TKMHouseStore;
 begin
 TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(6,11);
@@ -367,6 +370,7 @@ ControlList.AddHouse(play_1, ht_Store,KMPoint(16,5));
 ControlList.AddHouse(play_1, ht_Quary,KMPoint(12,8));
 ControlList.AddHouse(play_1, ht_WoodCutters,KMPoint(12,11));
 ControlList.AddHouse(play_1, ht_SawMill,KMPoint(12,14));
+ControlList.AddHouse(play_1, ht_CoalMine,KMPoint(12,17));
 ControlList.AddHouse(play_1, ht_FisherHut,KMPoint(18,9)); //Added to demonstrate a house without an occupant in the building page
 
 ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
@@ -375,6 +379,7 @@ ControlList.AddUnit(play_1, ut_WoodCutter, KMPoint(7,9));
 ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,9));
 ControlList.AddUnit(play_1, ut_Baker, KMPoint(9,9));
 ControlList.AddUnit(play_1, ut_Baker, KMPoint(10,9));
+ControlList.AddUnit(play_1, ut_Miner, KMPoint(10,9));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(4,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(5,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(6,11));
@@ -382,12 +387,15 @@ ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
+{ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(6,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(7,14),mu_WinePlan);}
 ControlList.AddRoadPlan(KMPoint(5,13),mu_FieldPlan);
 ControlList.AddRoadPlan(KMPoint(6,13),mu_FieldPlan);
 ControlList.AddRoadPlan(KMPoint(7,13),mu_FieldPlan);
-//ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
-//ControlList.AddRoadPlan(KMPoint(6,14),mu_WinePlan);
-//ControlList.AddRoadPlan(KMPoint(7,14),mu_WinePlan);
+
+H:=ControlList.FindStore();
+if H<>nil then H.AddMultiResource(rt_All,300);
 
 {ControlList.AddRoadPlan(KMPoint(5,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(6,12),mu_RoadPlan);
@@ -396,7 +404,7 @@ ControlList.AddRoadPlan(KMPoint(8,12),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,13),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);}
 
-ControlList.AddHousePlan(KMPoint(9,18), ht_School, play_1);
+//ControlList.AddHousePlan(KMPoint(9,18), ht_School, play_1);
 //ControlList.AddHouse(play_1, ht_Inn, KMPoint(9,23));
 end;
 
@@ -505,6 +513,11 @@ begin
 assignfile(f,ExeDir+'DeliverLists.txt'); Rewrite(f);
 write(f,ControlList.DeliverList.WriteToText);
 closefile(f);
+end;
+
+procedure TForm1.ExportSounds1Click(Sender: TObject);
+begin
+fSoundLibrary.ExportSounds;
 end;
 
 end.

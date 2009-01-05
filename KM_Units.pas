@@ -5,6 +5,8 @@ uses
   KM_Global_Data, KM_Houses, KromUtils;
 
 type
+  //Switch to set if unit goes into house or out of it
+  TGoInDirection = (gid_In=1, gid_Out=-1);
 
   TKMUnit = class;
   TKMSerf = class;
@@ -170,6 +172,7 @@ type
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
     procedure SetAction(aAction: TUnitAction);
     property GetUnitType: TUnitType read fUnitType;
+    function GetPosition():TKMPoint;
     procedure UpdateState; virtual; abstract;
     procedure Paint; virtual; abstract;
   end;
@@ -233,6 +236,80 @@ type
 
 implementation
 uses KM_Unit1, KM_Render;
+
+
+{Whole thing should be moved to units Task}
+{Houses are only a place on map, they should not issue or perform tasks (except Training)}
+{Everything should be issued by units!}
+{Where to go, which walking style, what to do on location, for how long}
+{How to go back in case success, incase bad luck}
+{What to take from supply, how much, take2, much2}
+{What to do, Work/Cycles, What resource to add to Output, how much}
+{E.g. CoalMine: Miner arrives at home and Idles for 5sec, then takes a work task (depending on ResOut count)
+Since Loc is 0,0 he immidietely skips to Phase X where he switches house to Work1 (and self busy for same framecount)
+Then Work2 and Work3 same way. Then adds resource to out and everything to Idle for 5sec.}
+{E.g. Farmer arrives at home and Idles for 5sec, then takes a work task (depending on ResOut count, HouseType and Need to sow corn)
+...... then switches house to Work1 (and self busy for same framecount)
+Then Work2 and Work3 same way. Then adds resource to out and everything to Idle for 5sec.}
+{procedure TUnitWorkPlan.FillDefaults();
+begin
+  Issued:=true;
+  Loc:=TKMPoint(0,0);
+  WalkTo:=ua_Walk;
+  WorkType:=ua_Work;
+  WorkCyc:=0;
+  WalkFrom:=ua_Walk;
+  Resource1:=rt_None; Count1:=0;
+  Resource2:=rt_None; Count1:=0;
+  setlength(Actions,1+1);
+  HouseAct[1].Act:=ha_Work1; HouseAct[1].Cyc:=0;
+  Product:=rt_None;
+  ProductCount:=0;
+end;
+
+procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType);
+begin
+FillDefaults;
+//Now we need to fill only specific properties
+case aUnitType of
+  ht_LamberJack: case aHome of
+        ht_SawMill: begin
+                      Resource1:=rt_Trunk; Count1:=1;
+                      setlength(Actions,3+1);
+                      HouseAct[1].Act:=ha_Work1; HouseAct[1].Cyc:=1;
+                      HouseAct[2].Act:=ha_Work2; HouseAct[2].Cyc:=8;
+                      HouseAct[3].Act:=ha_Work5; HouseAct[3].Cyc:=1;
+                      Product:=rt_Wood; ProductCount:=ResourceProductionX[byte(Product)];
+                    end;
+        else Issued:=false;
+  end;
+  ht_CoalMine:begin Resource1:=rt_None; Count1:=0; setlength(Actions,3+1);
+                Actions[1].Act:=ha_Work1; Actions[1].Cyc:=1;
+                Actions[2].Act:=ha_Work2; Actions[2].Cyc:=2;
+                Actions[3].Act:=ha_Work5; Actions[3].Cyc:=1;
+                Result1:=rt_Coal;
+                ResultCount:=ResourceProductionX[byte(Result1)];
+              end;
+
+  ht_Mill:    begin Resource1:=rt_Corn; Count1:=1; setlength(Actions,1+1);
+                Actions[1].Act:=ha_Work2; Actions[1].Cyc:=10;
+                Result1:=rt_Flour;
+                ResultCount:=ResourceProductionX[byte(Result1)];
+              end;
+
+  ht_Bakery:  begin Resource1:=rt_Flour; Count1:=1; setlength(Actions,4+1);
+                Actions[1].Act:=ha_Work2; Actions[1].Cyc:=2;
+                Actions[2].Act:=ha_Work3; Actions[2].Cyc:=2;
+                Actions[3].Act:=ha_Work2; Actions[3].Cyc:=2;
+                Actions[4].Act:=ha_Work3; Actions[4].Cyc:=2;
+                Result1:=rt_Bread;
+                ResultCount:=ResourceProductionX[byte(Result1)];
+              end;
+  else
+    Issued:=false;
+end;
+end;}
+
 
 { TKMHunter }
 
@@ -319,6 +396,7 @@ begin
 
 Result:=nil;
 if fHome.CheckResOut(rt_All)>=MaxResInHouse then exit;
+if fHome.GetState <> hst_Idle then exit;
 
 case Self.fUnitType of
 
@@ -608,6 +686,12 @@ begin
   Result:= UnitSupportedActions[integer(fUnitType)];
 end;
 
+function TKMUnit.GetPosition():TKMPoint;
+begin
+Result.X:=round(fPosition.X);
+Result.Y:=round(fPosition.Y);
+end;
+
 function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
   Result:= (X = round(fPosition.X)) and (Y = round(fPosition.Y)) and ((fUnitType=UT)or(UT=ut_Any));
@@ -637,6 +721,7 @@ end;
 { TTaskDeliver }
 constructor TTaskDeliver.Create(aSerf:TKMSerf; aFrom:TKMPoint; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
+Assert((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
 fSerf:=aSerf;
 fFrom:=aFrom;
 fToHouse:=toHouse;
@@ -650,6 +735,10 @@ procedure TTaskDeliver.Execute(out TaskDone:boolean);
 var KMHouse:TKMHouse;
 begin
 TaskDone:=false;
+
+if fResource=rt_Wood then
+  Phase:=Phase;
+
 with fSerf do
 case Phase of
 0: SetAction(TMoveUnitAction.Create(KMPointY1(fFrom)));
@@ -773,6 +862,7 @@ case Phase of
 9: SetAction(TStayUnitAction.Create(44,ua_Work2,false));
 10:begin
     fTerrain.SetField(fLoc,fOwner,fdt_Wine);
+    fTerrain.InitGrowth(fLoc);
     ControlList.BuildList.CloseRoad(ID);
    end;
 11:TaskDone:=true;
@@ -917,7 +1007,7 @@ begin
 TaskDone:=false;
 with fUnit do
 case Phase of
-0: fHome.SetState(hst_Empty);
+0: fHome.SetState(hst_Empty,0);
 1: SetAction(TGoInUnitAction.Create(fAction1,gid_Out));
 2: SetAction(TMoveUnitAction.Create(fPlace,fAction1));
 3: begin //Choose direction and time to work
@@ -936,7 +1026,10 @@ case Phase of
                       fTerrain.InitGrowth(fPlace)
                     else
                     if fGatheringScript=gs_FarmerCorn then
-                      fTerrain.CutCorn(fPlace);
+                      fTerrain.CutCorn(fPlace)
+                    else
+                    if fGatheringScript=gs_FarmerWine then
+                      fTerrain.InitGrowth(fPlace);
         ut_WoodCutter : if fGatheringScript=gs_WoodCutterPlant then
                           fTerrain.AddTree(fPlace,ChopableTrees[Random(length(ChopableTrees))+1,1])
                         else
@@ -946,18 +1039,18 @@ case Phase of
         ut_Fisher:;
    end;
 
- //FarmerWine - decFieldAge
- //StoneCutter- decStone
- //Fisher     - remFish
+ //StoneCutter- decStoneSupply
+ //Fisher     - remFishFromSea
 
 6: SetAction(TStayUnitAction.Create(fTimeToStay, fAction2));
 
 7: SetAction(TMoveUnitAction.Create(KMPointY1(fHome.GetPosition),fAction3));
 8: SetAction(TGoInUnitAction.Create(fAction3,gid_In));
 9: fHome.ResAddToOut(fResource,fCount);
-10:fHome.SetState(hst_Idle);
-11:SetAction(TStayUnitAction.Create(fTimeToIdle,ua_Walk));
-12:TaskDone:=true;
+10:fHome.SetState(hst_Idle,15);
+//11:fHome.GetProductionTask('Unit'); //Create resource out of nothing
+12:SetAction(TStayUnitAction.Create(fTimeToIdle,ua_Walk));
+13:TaskDone:=true;
 end;
 inc(Phase);
 end;
@@ -979,7 +1072,7 @@ case Phase of
 1: SetAction(TGoInUnitAction.Create(ua_Walk,gid_In));
 2: fHome.OwnerGoesIn;
 3: SetAction(TStayUnitAction.Create(5,ua_Walk));
-4: fHome.SetState(hst_Idle);
+4: fHome.SetState(hst_Idle,15);
 5: TaskDone:=true;
 end;
 inc(Phase);
@@ -1075,15 +1168,12 @@ end;
 
 procedure TStayUnitAction.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 begin
-  DoEnd:= False;
-  if not StayStill then inc(KMUnit.AnimStep);
   dec(TimeToStay);
-  if TimeToStay<=0 then
-    DoEnd:=true;
+  DoEnd := TimeToStay<=0;
+  if not StayStill then inc(KMUnit.AnimStep);
 end;
 
 { TKMUnitsCollection }
-
 procedure TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer);
 begin
   case aUnitType of
@@ -1097,8 +1187,11 @@ begin
 
     ut_Baker:        Inherited Add(TKMHomeSitting.Create(aOwner,PosX,PosY,aUnitType));
     ut_Lamberjack:   Inherited Add(TKMHomeSitting.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Miner:        Inherited Add(TKMHomeSitting.Create(aOwner,PosX,PosY,aUnitType));
 
     ut_HorseScout:   Inherited Add(TKMwarrior.Create(aOwner,PosX,PosY,aUnitType));
+
+    else Assert(false,'Such unti doesn''t exists yet - '+TypeToString(aUnitType));
   end;
 end;
 

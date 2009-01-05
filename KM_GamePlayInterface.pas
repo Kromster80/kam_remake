@@ -38,7 +38,7 @@ type TKMGamePlayInterface = class
       KMLabel_Common_Demand,KMLabel_Common_Offer:TKMLabel;
       KMRow_Common_Resource:array[1..4]of TKMResourceBar; //4 bars is the maximum
     KMPanel_HouseStore:TKMPanel;
-      //
+      KMButton_Store:array[1..28]of TKMButtonFlat;
     KMPanel_House_School:TKMPanel;
       KMLabel_School_Res:TKMLabel;
       KMButton_School_Resource:TKMResourceBar;
@@ -49,9 +49,11 @@ type TKMGamePlayInterface = class
       KMImage_School_Right,KMImage_School_Train,KMImage_School_Left:TKMImage;
       KMButton_School_Right,KMButton_School_Train,KMButton_School_Left:TKMButton;
     KMPanel_HouseBarracks:TKMPanel;
-      // Much same as School 
+      // Much same as School
     procedure SwitchPage(Sender: TObject);
     procedure BuildButtonClick(Sender: TObject);
+    procedure StoreFill(Sender:TObject);
+    procedure StoreAcceptFlag(Sender:TObject);
   public
     constructor Create;
     procedure HouseRepairToggle(Sender:TObject);
@@ -171,10 +173,19 @@ begin
       //KMButton_Common_Order[2] :=fControls.AddResourceRow(KMPanel_House_Common,  8,162,180,20,rt_Stone,5);
       //KMButton_Common_Order[3] :=fControls.AddResourceRow(KMPanel_House_Common,  8,182,180,20,rt_Stone,5);
       //KMLabel_Common_Costs:=fControls.AddLabel(KMPanel_House_Common,100,202,100,30,fnt_Metal,kaCenter,'Resources:');
-      //These ones can use ResourceRow for now, it can be updated to KaM looks later 
+      //These ones can use ResourceRow for now, it can be updated to KaM looks later
       //KMButton_Common_Costs[1] :=fControls.AddResourceRow(KMPanel_House_Common,  8,142,180,20,rt_Trunk,5);
       //KMButton_Common_Costs[2] :=fControls.AddResourceRow(KMPanel_House_Common,  8,162,180,20,rt_Stone,5);
       //KMButton_Common_Costs[3] :=fControls.AddResourceRow(KMPanel_House_Common,  8,182,180,20,rt_Stone,5);
+
+{Store page}
+    KMPanel_HouseStore:=fControls.AddPanel(KMPanel_House,0,76,200,400);
+      for i:=1 to 28 do begin
+
+        KMButton_Store[i]:=fControls.AddButtonFlat(KMPanel_HouseStore, 8+((i-1)mod 5)*36,120+((i-1)div 5)*36,32,32,350+i);
+        KMButton_Store[i].OnClick:=StoreAcceptFlag;
+      end;
+
 {School page}
     KMPanel_House_School:=fControls.AddPanel(KMPanel_House,0,76,200,400);
       KMLabel_School_Res:=fControls.AddLabel(KMPanel_House_School,100,2,100,30,fnt_Metal,kaCenter,'Resources:');
@@ -200,9 +211,6 @@ begin
       KMButton_School_Train.OnClick:=SchoolUnitChange;
       KMButton_School_Right.OnClick:=SchoolUnitChange;
       KMButton_School_Right.OnRightClick:=SchoolUnitChangeRight;
-
-{Store page}
-    KMPanel_HouseStore:=fControls.AddPanel(KMPanel_House,0,76,200,400);
 
 {Barracks page}
     KMPanel_HouseBarracks:=fControls.AddPanel(KMPanel_House,0,76,200,400);
@@ -322,7 +330,7 @@ begin
       //BuildingRepair := not BuildingRepair;
       if BuildingRepair then fGamePlayInterface.KMButton_House_Repair.TexID:=39 else fGamePlayInterface.KMButton_House_Repair.TexID:=40;
     end;
-end;  
+end;
 
 procedure TKMGamePlayInterface.WareDeliveryToggle(Sender:TObject);
 begin
@@ -336,7 +344,6 @@ end;
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse);
 var i,Row,Base,Line:integer;
 begin
-  Assert(InRange(gp_HouseA+byte(Sender.GetHouseType)-1,gp_HouseA,gp_HouseZ),'THouseType-HousePages is out of range');
   KMLabel_House.Caption:=TypeToString(Sender.GetHouseType);
   KMImage_House_Logo.TexID:=300+byte(Sender.GetHouseType);
   KMImage_House_Worker.TexID:=140+integer(HouseOwnerUnit[integer(Sender.GetHouseType)]);
@@ -350,6 +357,7 @@ begin
 
   case Sender.GetHouseType of
   ht_Store: begin
+        StoreFill(nil);
         SwitchPage(KMPanel_HouseStore);
       end;
 
@@ -386,6 +394,7 @@ begin
         end;
         if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
           KMLabel_Common_Offer.Visible:=true;
+          KMLabel_Common_Offer.Caption:='Delivers x'+inttostr(ResourceProductionX[byte(HouseOutput[byte(Sender.GetHouseType),1])]);
           KMLabel_Common_Offer.Top:=Base+Line*20;
           inc(Line);
           for i:=1 to 4 do if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
@@ -419,24 +428,28 @@ end;
 
 {Process click on Left-Train-Right buttons of School}
 procedure TKMGamePlayInterface.SchoolUnitChange(Sender:TObject);
-var i:integer;
+var i:byte; School:TKMHouseSchool;
 begin
+  School:=TKMHouseSchool(ControlList.SelectedHouse);
+
   if (Sender=KMButton_School_Left)and(LastSchoolUnit > 1) then dec(LastSchoolUnit);
   if (Sender=KMButton_School_Right)and(LastSchoolUnit < length(School_Order)) then inc(LastSchoolUnit);
 
-  if Sender=KMButton_School_Train then //Add unit to training queue
-    TKMHouseSchool(ControlList.SelectedHouse).AddUnitToQueue(TUnitType(School_Order[byte(LastSchoolUnit)]));
+  if Sender=KMButton_School_Train then begin//Add unit to training queue
+    School.AddUnitToQueue(TUnitType(School_Order[LastSchoolUnit]));
+    ControlList.AddUnit(play_1,TUnitType(School_Order[LastSchoolUnit]),School.GetPosition);
+  end;
 
   if TKMHouseSchool(ControlList.SelectedHouse).UnitQueue[1]<>ut_None then
-    KMButton_School_UnitWIP.TexID :=140+byte(TKMHouseSchool(ControlList.SelectedHouse).UnitQueue[1])
+    KMButton_School_UnitWIP.TexID :=140+byte(School.UnitQueue[1])
   else
-    KMButton_School_UnitWIP.TexID :=41;
+    KMButton_School_UnitWIP.TexID :=41; //Question mark
 
-  KMButton_School_UnitWIPBar.Position:=TKMHouseSchool(ControlList.SelectedHouse).UnitTrainProgress;
+  KMButton_School_UnitWIPBar.Position:=School.UnitTrainProgress;
 
   for i:=1 to 5 do
-    if TKMHouseSchool(ControlList.SelectedHouse).UnitQueue[i+1]<>ut_None then
-      KMButton_School_UnitPlan[i].TexID:=140+byte(TKMHouseSchool(ControlList.SelectedHouse).UnitQueue[i+1])
+    if School.UnitQueue[i+1]<>ut_None then
+      KMButton_School_UnitPlan[i].TexID:=140+byte(School.UnitQueue[i+1])
     else
       KMButton_School_UnitPlan[i].TexID:=0;
 
@@ -446,13 +459,13 @@ begin
   KMImage_School_Right.Visible:= KMButton_School_Right.Enabled;
 
   if KMButton_School_Left.Enabled then
-    KMImage_School_Left.TexID:=520+byte(School_Order[byte(LastSchoolUnit)-1]);
+    KMImage_School_Left.TexID:=520+byte(School_Order[LastSchoolUnit-1]);
 
-  KMLabel_School_Unit.Caption:=TypeToString(TUnitType(School_Order[byte(LastSchoolUnit)]));
-  KMImage_School_Train.TexID:=520+byte(School_Order[byte(LastSchoolUnit)]);
+  KMLabel_School_Unit.Caption:=TypeToString(TUnitType(School_Order[LastSchoolUnit]));
+  KMImage_School_Train.TexID:=520+byte(School_Order[LastSchoolUnit]);
 
   if KMButton_School_Right.Enabled then
-    KMImage_School_Right.TexID:=520+byte(School_Order[byte(LastSchoolUnit)+1]);
+    KMImage_School_Right.TexID:=520+byte(School_Order[LastSchoolUnit+1]);
 end;
 
 
@@ -488,6 +501,24 @@ begin
     if Sender = KMButton_School_UnitPlan[i] then
       TKMHouseSchool(ControlList.SelectedHouse).RemUnitFromQueue(i+1);
   SchoolUnitChange(nil);
+end;
+
+
+procedure TKMGamePlayInterface.StoreFill(Sender:TObject);
+var i,Tmp:integer;
+begin
+for i:=1 to 28 do begin
+  Tmp:=TKMHouseStore(ControlList.SelectedHouse).ResourceCount[i];
+  if Tmp=0 then
+    KMButton_Store[i].Caption:='-'
+  else
+    KMButton_Store[i].Caption:=inttostr(Tmp);
+end;
+end;
+
+procedure TKMGamePlayInterface.StoreAcceptFlag(Sender:TObject);
+begin
+//
 end;
 
 end.

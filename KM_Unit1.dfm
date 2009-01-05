@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 219
-  Top = 111
+  Left = 262
+  Top = 247
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 659
@@ -301,17 +301,11 @@ object Form1: TForm1
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
-    Left = 768
-    Top = 600
-  end
-  object SaveDialog1: TSaveDialog
-    DefaultExt = 'map'
-    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Left = 800
     Top = 600
   end
   object MainMenu1: TMainMenu
-    Left = 736
+    Left = 768
     Top = 600
     object File1: TMenuItem
       Caption = 'File'
@@ -389,6 +383,10 @@ object Form1: TForm1
       object ExportText: TMenuItem
         Caption = 'Export Texts'
         OnClick = ExportTextClick
+      end
+      object ExportSounds1: TMenuItem
+        Caption = 'Export Sounds'
+        OnClick = ExportSounds1Click
       end
     end
     object ExportStatus1: TMenuItem

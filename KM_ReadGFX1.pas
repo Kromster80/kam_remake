@@ -21,6 +21,8 @@ type
       procedure MakeGFX(Sender: TObject; RXid:integer);
 
     procedure ExportRX2BMP(RXid:integer);
+    procedure ExportUnitAnim2BMP();
+    procedure ExportHouseAnim2BMP();
 
     procedure MakeMiniMapColors();
     procedure MakeCursors(RXid:integer);
@@ -55,12 +57,15 @@ begin
 
   MakeMiniMapColors();
   fLog.AppendLog('Prepared MiniMap colors...');
-  StepRefresh();       
+  StepRefresh();
 
   for i:=1 to length(FontFiles) do
     ReadFont(text+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
   fLog.AppendLog('Read fonts is done');
   StepRefresh();
+
+  //ExportUnitAnim2BMP;
+  //ExportHouseAnim2BMP;
 
   fLog.AppendLog('ReadGFX is done');
   Result:=true;
@@ -133,23 +138,26 @@ blockread(f,HouseDAT[ii],88+19*70+270);
 end;
 closefile(f);
 
-assignfile(ft,ExeDir+'Houses.txt'); rewrite(ft);
+assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
 for ii:=1 to 29 do begin
 writeln(ft);
-writeln(ft);
-writeln(ft,fTextLibrary.GetTextString(siHouseNames+ii));
+write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+',');
+{  write(ft,'Resource In: ');
   for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
   write(ft,'#') else write(ft,' ');
   writeln(ft);
+  write(ft,'Resource Out: ');
   for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
   write(ft,'#') else write(ft,' ');
   writeln(ft);
   for kk:=1 to 19 do
-    writeln(ft,inttostr(kk)+'. '+inttostr(HouseDAT[ii].Anim[kk].Count));
+    writeln(ft,HouseAction[kk]+#9+inttostr(HouseDAT[ii].Anim[kk].Count));}
 
   for kk:=1 to 133 do
-  write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+' ');
-  writeln(ft);
+  write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+',');
+  for kk:=1 to 133 do
+  write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+',');
+  //writeln(ft);
 end;
 closefile(ft);
 
@@ -192,7 +200,8 @@ for hh:=1 to 8 do
     begin
       write(ft,inttostr(kk)+'.'+inttostr(hh)+#9);
       for jj:=1 to 30 do
-      if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then write(ft,'#');
+      if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then //write(ft,'#');
+      write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Step[jj])+'. ');
       write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
       write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
       write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
@@ -496,6 +505,81 @@ begin
 
     setlength(RXData[RXid].Data[id],0);
   end;
+end;
+
+{Export Units graphics categorized by Unit and Action}
+procedure ExportUnitAnim2BMP();
+var MyBitMap:TBitMap;
+    ID,Ac,Di,k,ci,t:integer;
+    sy,sx,y,x:integer;
+begin
+  CreateDir(ExeDir+'UnitAnim\');
+  MyBitMap:=TBitMap.Create;
+  MyBitmap.PixelFormat:=pf24bit;
+
+  ReadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
+
+for ID:=1 to 1 do begin
+  for Ac:=1 to 14 do begin
+    for Di:=1 to 8 do if UnitSprite[ID].Act[Ac].Dir[Di].Step[1]<>-1 then begin
+      for k:=1 to UnitSprite[ID].Act[Ac].Dir[Di].Count do begin
+        CreateDir(ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\');
+        CreateDir(ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\');
+        if UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1<>0 then
+        ci:=UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1;
+
+        sx:=RXData[3].Size[ci,1];
+        sy:=RXData[3].Size[ci,2];
+        MyBitmap.Width:=sx;
+        MyBitmap.Height:=sy;
+
+        for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+          t:=RXData[3].Data[ci,y*sx+x]+1;
+          MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+        end;
+        if sy>0 then MyBitmap.SaveToFile(
+        ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\'+inttostr(Di)+'_'+int2fix(k,2)+'.bmp');
+      end;
+    end;
+  end;
+end;
+end;
+
+
+{Export Houses graphics categorized by House and Action}
+procedure ExportHouseAnim2BMP();
+var MyBitMap:TBitMap;
+    ID,Ac,Di,k,ci,t:integer;
+    sy,sx,y,x:integer;
+begin
+  CreateDir(ExeDir+'HouseAnim\');
+  MyBitMap:=TBitMap.Create;
+  MyBitmap.PixelFormat:=pf24bit;
+
+  ReadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
+
+for ID:=1 to 30 do begin
+  for Ac:=1 to 5 do begin //Work1..Work5
+    for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
+      CreateDir(ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\');
+      CreateDir(ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\');
+      if HouseDAT[ID].Anim[Ac].Step[k]+1<>0 then
+      ci:=HouseDAT[ID].Anim[Ac].Step[k]+1;
+
+      sx:=RXData[2].Size[ci,1];
+      sy:=RXData[2].Size[ci,2];
+      MyBitmap.Width:=sx;
+      MyBitmap.Height:=sy;
+
+      for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+        t:=RXData[2].Data[ci,y*sx+x]+1;
+        MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+      end;
+      if sy>0 then MyBitmap.SaveToFile(
+      ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
+    end;
+  end;
+end;
 end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,

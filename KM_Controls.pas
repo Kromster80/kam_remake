@@ -266,7 +266,7 @@ begin
   if CursorOver and Enabled then State:=State+[bs_Highlight];
   if Checked then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
-  fRenderUI.WriteFlatButton(TexID,Left,Top,Width,Height,State);
+    fRenderUI.WriteFlatButton(TexID,Caption,Left,Top,Width,Height,State)
 end;
 
 
@@ -321,7 +321,7 @@ end;
 procedure TKMResourceBar.Paint();
 var i:integer;
 begin
-  fRenderUI.WriteFlatButton(0,Left,Top,Width,Height,[]);
+  fRenderUI.WriteFlatButton(0,'',Left,Top,Width,Height,[]);
   fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Grey, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do

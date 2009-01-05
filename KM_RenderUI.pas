@@ -9,7 +9,7 @@ TRenderUI = class
   public
     constructor Create;
     procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
-    procedure WriteFlatButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+    procedure WriteFlatButton(ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
     procedure WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
@@ -103,7 +103,7 @@ end;
 end;
 
 
-procedure TRenderUI.WriteFlatButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+procedure TRenderUI.WriteFlatButton(ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
 begin
   glPushMatrix;
     glTranslate(PosX,PosY,0);
@@ -132,9 +132,15 @@ begin
 
     if ID<>0 then begin
       glColor4f(1,1,1,1);
+      if Caption='' then
       WritePic(ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
-                  round((SizeY-GFXData[4,ID].PxHeight)/2));
+                  round((SizeY-GFXData[4,ID].PxHeight)/2))
+      else
+      WritePic(ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
+                  round((SizeY-GFXData[4,ID].PxHeight)/2)-3);
     end;
+
+    WriteText(SizeX div 2, SizeY div 2, kaCenter, Caption, fnt_Metal, $FFFFFFFF);
 
     if bs_Highlight in State then begin
       glColor4f(0,1,1,1);

@@ -443,6 +443,10 @@ begin
   case Fs of
   fs_Corn1: Index:=59;
   fs_Corn2: Index:=60;
+  fs_Wine1: Index:=55;
+  fs_Wine2: Index:=56;
+  fs_Wine3: Index:=57;
+  fs_Wine4: Index:=58;
   else exit;
   end;
   ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;

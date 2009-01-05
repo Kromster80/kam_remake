@@ -126,29 +126,28 @@ for i:=1 to MapY do
 
     if Land[i,k].FieldType=fdt_Field then
     case Land[i,k].FieldAge of
-      5:  SetLand(k,i,61,fs_None);
-      10: SetLand(k,i,60,fs_Corn1);
-      15: SetLand(k,i,59,fs_Corn2);
-      16: Land[i,k].FieldAge:=255; //Skip to the end
+      10: SetLand(k,i,61,fs_None);
+      20: SetLand(k,i,60,fs_Corn1);
+      30: SetLand(k,i,59,fs_Corn2);
+      35: Land[i,k].FieldAge:=255; //Skip to the end
     end;
     if Land[i,k].FieldType=fdt_Wine then
     case Land[i,k].FieldAge of
-      5:  SetLand(k,i,52,fs_None);
-      10: SetLand(k,i,52,fs_Wine1);
-      15: SetLand(k,i,52,fs_Wine2);
-      20: SetLand(k,i,52,fs_Wine3);
-      25: SetLand(k,i,52,fs_Wine4);
-      26: Land[i,k].FieldAge:=255; //Skip to the end
+      1:  SetLand(k,i,55,fs_Wine1);
+      10: SetLand(k,i,55,fs_Wine2);
+      20: SetLand(k,i,55,fs_Wine3);
+      30: SetLand(k,i,55,fs_Wine4);
+      35: Land[i,k].FieldAge:=255; //Skip to the end
     end;
 
     for h:=1 to length(ChopableTrees) do
       for j:=1 to 3 do
         if Land[i,k].Obj=ChopableTrees[h,j] then
           case Land[i,k].TreeAge of
-            5:  Land[i,k].Obj:=ChopableTrees[h,2];
-            10: Land[i,k].Obj:=ChopableTrees[h,3];
-            15: Land[i,k].Obj:=ChopableTrees[h,4];
-            16: Land[i,k].TreeAge:=255; //Skip to the end
+            10:  Land[i,k].Obj:=ChopableTrees[h,2];
+            20: Land[i,k].Obj:=ChopableTrees[h,3];
+            30: Land[i,k].Obj:=ChopableTrees[h,4];
+            35: Land[i,k].TreeAge:=255; //Skip to the end
           end;
 
   end;
