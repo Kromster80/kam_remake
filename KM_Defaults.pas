@@ -175,15 +175,6 @@ const
     ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
     ut_Miner, ut_Smith, ut_Metallurgist, ut_Recruit);
 
-{
-  (byte(rt_Trunk), 1, byte(ha_Work1),  8, byte(rt_Wood) , 2)  //SawMill
-  (byte(rt_Corn ), 1, byte(rt_None) ,  0, byte(rt_Flour), 1), //Mill
-  (byte(rt_Flour), 1, byte(ha_Work2),  8, byte(rt_Bread), 2), //Bakery
-);}
-
-type
-THouseProductionPlan = (pp_SawMill, pp_IronSmithy);
-
 const
 //Offset from house center to entrance
 HouseXOffset:array[1..29]of shortint =

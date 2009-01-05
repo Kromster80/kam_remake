@@ -549,7 +549,7 @@ end;
 {Export Houses graphics categorized by House and Action}
 procedure ExportHouseAnim2BMP();
 var MyBitMap:TBitMap;
-    ID,Ac,Di,k,ci,t:integer;
+    ID,Ac,k,ci,t:integer;
     sy,sx,y,x:integer;
 begin
   CreateDir(ExeDir+'HouseAnim\');

@@ -225,7 +225,6 @@ end;
 
 
 procedure TKMButton.CheckCursorOver(X,Y:integer; AShift:TShiftState);
-var i:integer;
 begin
   Down:=Down and CursorOver;
   //Now check to see if they moved their mouse back over with the button still depressed
@@ -233,8 +232,7 @@ begin
     Down := true;
 
   Inherited CheckCursorOver(X,Y,AShift);
-end;
-
+end;   
 
 
 procedure TKMButton.Paint();

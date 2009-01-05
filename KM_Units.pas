@@ -161,7 +161,6 @@ type
     private
       WorkPlan:TUnitWorkPlan;
       fUnit:TKMUnit;
-      fHouse:TKMHouse;
     public
     constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
     procedure Execute(out TaskDone:boolean); override;
@@ -485,7 +484,6 @@ end;
 
 
 function TKMUnitCitizen.InitiateMining():TUnitTask;
-var aPlace:TKMPoint;
 begin
 Result:=nil;
 

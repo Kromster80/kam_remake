@@ -21,21 +21,6 @@ type
     property ActionType: THouseState read fHouseState;
   end;
 
-  THouseTask = class(TObject)
-  private
-  public
-   // constructor Create();
-    procedure Execute(KMHouse:TKMHouse; out TaskDone:boolean); virtual; abstract;
-  end;
-
-    TTaskIdle = class(THouseTask)
-    private
-//      TimeToIdle:integer;
-    public
-      constructor Create(KMHouse: TKMHouse; aTimeToIdle:integer);
-      procedure Execute(KMHouse:TKMHouse; out TaskDone:boolean); override;
-    end;
-
 
   TKMHouse = class(TObject)
   private
@@ -207,8 +192,7 @@ begin
     fBuildState:=hbs_Done;
     Activate;
   end;
-end;
-
+end; 
 
 {Check if house is completely built, nevermind the damage}
 function TKMHouse.IsComplete():boolean;
@@ -235,7 +219,7 @@ Result:=0;
 end;
 
 procedure TKMHouse.ResAddToOut(aResource:TResourceType; const aCount:integer=1);
-var i,k:integer;
+var i:integer;
 begin
   if aResource=rt_None then exit;
   for i:=1 to 4 do
@@ -310,7 +294,6 @@ end;
 procedure TKMHouse.UpdateState;
 var
   TimeDelta: Cardinal;
-  DoEnd,TaskDone: Boolean;
 begin
   if fBuildState<>hbs_Done then exit;
 
@@ -432,9 +415,10 @@ end;
 
 function TKMHouseStore.TakeResource(aResource:TResourceType):boolean;
 begin
-if ResourceCount[byte(aResource)]>0 then
-  dec(ResourceCount[byte(aResource)])
-else begin
+if ResourceCount[byte(aResource)]>0 then begin
+  dec(ResourceCount[byte(aResource)]);
+  Result:=true;
+end else begin
   Assert(false,'ResourceCount[byte(aResource)]>=0');
   Result:=false;
 end;
@@ -484,28 +468,6 @@ begin
   fSubAction:= fSubAction - aActionSet;
 end;
 
-{ TTaskIdle }
-
-constructor TTaskIdle.Create(KMHouse: TKMHouse; aTimeToIdle:integer);
-begin
-//TimeToIdle:=aTimeToIdle;
-//KMHouse.fCurrentAction.TimeToAct:=aTimeToIdle;
-if KMHouse.fOwnerAtHome then
-  KMHouse.SetState(hst_Idle,aTimeToIdle)
-else
-  KMHouse.SetState(hst_Empty,aTimeToIdle)
-end;
-
-procedure TTaskIdle.Execute(KMHouse:TKMHouse; out TaskDone:boolean);
-var
-  TimeDelta: integer;
-begin
-{TaskDone:=false;
-TimeDelta:=1;
-TimeToIdle:=TimeToIdle-TimeDelta;
-if TimeToIdle<=0 then}
-  TaskDone:=true;
-end;
 
 { TKMHousesCollection }
 

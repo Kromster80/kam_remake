@@ -205,19 +205,18 @@ begin
       glBegin (GL_QUADS);
         glkRect(1,1,BarWidth+3,SizeY-1);
       glEnd;
+      //Draw shadow on top and left of the bar, just like real one
+      glColor4f(0,0,0,0.5); //Set semi-transparent black
+      glBegin (GL_LINE_STRIP); //List vertices, order is important
+        glvertex2f(1,SizeY-2);
+        glvertex2f(1,1);
+        glvertex2f(BarWidth+3,1);
+        glvertex2f(BarWidth+3,2);
+        glvertex2f(2,2);
+        glvertex2f(2,SizeY-2);
+      glEnd;
     end;
-
-    //Draw shadow on top and left of the bar, just like real one
-    glColor4f(0,0,0,0.5); //Set semi-transparent black
-    glBegin (GL_LINE_STRIP); //List vertices, order is important
-      glvertex2f(1,SizeY-2);
-      glvertex2f(1,1);
-      glvertex2f(BarWidth+3,1);
-      glvertex2f(BarWidth+3,2);
-      glvertex2f(2,2);
-      glvertex2f(2,SizeY-2);
-    glEnd;
-
+    
   glPopMatrix;
 
 end;
@@ -225,12 +224,15 @@ end;
 
 procedure TRenderUI.WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
 begin
-  if Enabled = true then glColor4f(1,1,1,1) else glColor4f(0,0,0,1); //Full black
   if ID<>0 then with GFXData[4,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
     glPushMatrix;
       glkMoveAALines(false);
       glTranslate(PosX,PosY,0);
+      //@Lewin: First 3 components are RGB saturation from Black to FullColor of original image
+      //The last one is transparency. 4f here means input is 4 floats (0..1 range)
+      //So what I do is either full-color or 1/3 of color density. Fully opaque.
+      if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
       glBegin(GL_QUADS);
         glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
         glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );

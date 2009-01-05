@@ -182,7 +182,6 @@ end;
 
 //Job successfully done and we ommit it.
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
-var i:integer;
 begin
 with fQueue[aID] do
   begin

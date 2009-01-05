@@ -232,6 +232,7 @@ var
   f:file;
 begin
   Result:=false;
+  if not CheckFileExists(filename) then exit;
   assignfile(f,filename); reset(f,1);
   blockread(f,k,4);
   blockread(f,i,4);

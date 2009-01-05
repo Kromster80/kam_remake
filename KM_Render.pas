@@ -16,7 +16,7 @@ private
 protected
 public
   constructor Create;
-  destructor Destroy;
+  destructor Destroy; override;
   procedure SetRender(RenderFrame:HWND);
   procedure SetRenderDefaults();
   procedure RenderResize(Width,Height:integer);
@@ -114,6 +114,7 @@ destructor TRender.Destroy;
 begin
   wglMakeCurrent(h_DC, 0);
   wglDeleteContext(h_RC);
+  Inherited;
 end;
 
 procedure TRender.Render();
