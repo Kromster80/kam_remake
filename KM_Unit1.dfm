@@ -70,7 +70,7 @@ object Form1: TForm1
     Width = 176
     Height = 176
     BevelOuter = bvNone
-    Color = clBlack
+    Color = clMaroon
     TabOrder = 0
     object MiniMap: TImage
       Left = 0

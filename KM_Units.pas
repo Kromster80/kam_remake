@@ -284,6 +284,16 @@ procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct
     HouseAct[length(HouseAct)-1].Act:=aAct;
     HouseAct[length(HouseAct)-1].TimeToWork:=HouseDAT[byte(aHome)].Anim[byte(aAct)].Count * aCycles;
   end;
+  procedure WalkStyle(aLoc:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript);
+  begin
+    Loc:=aLoc;
+    WalkTo:=aTo;
+    WorkType:=aWork;
+    WorkCyc:=aCycles;
+    AfterWorkDelay:=aDelay;
+    GatheringScript:=aScript;
+    WalkFrom:=aFrom;
+  end;
 begin
 FillDefaults;
 //Now we need to fill only specific properties
@@ -320,33 +330,18 @@ if (aUnitType=ut_Baker)and(aHome=ht_Bakery) then begin
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
   if fTerrain.FindCorn(aLoc,12).X<>0 then begin
-    Loc:=fTerrain.FindCorn(aLoc,12);
-    WalkTo:=ua_WalkTool;
-    WorkType:=ua_Work;
-    WorkCyc:=6;
-    GatheringScript:=gs_FarmerCorn;
-    WalkFrom:=ua_WalkBooty;
+    WalkStyle(fTerrain.FindCorn(aLoc,12),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
     Product:=rt_Corn;
     ProductCount:=ResourceProductionX[byte(Product)];
   end else
-  if fTerrain.FindCornField(aLoc,12).X<>0 then begin
-    Loc:=fTerrain.FindCornField(aLoc,12);
-    WalkTo:=ua_Walk;
-    WorkType:=ua_Work1;
-    WorkCyc:=6;
-    GatheringScript:=gs_FarmerSow;
-    WalkFrom:=ua_Walk;
-  end else
+  if fTerrain.FindCornField(aLoc,12).X<>0 then
+    WalkStyle(fTerrain.FindCornField(aLoc,12),ua_Walk,ua_Work1,6,0,ua_Walk,gs_FarmerSow)
+  else
     Issued:=false;
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
   if fTerrain.FindGrapes(aLoc,12).X<>0 then begin
-    Loc:=fTerrain.FindGrapes(aLoc,12);
-    WalkTo:=ua_WalkTool2;
-    WorkType:=ua_Work2;
-    WorkCyc:=6;
-    GatheringScript:=gs_FarmerWine;
-    WalkFrom:=ua_WalkBooty2;
+    WalkStyle(fTerrain.FindGrapes(aLoc,12),ua_WalkTool2,ua_Work2,6,0,ua_WalkBooty2,gs_FarmerWine);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,8);
     SubActAdd(ha_Work5,1);
@@ -357,13 +352,7 @@ if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
 end else
 if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
   if fTerrain.FindStone(aLoc,12).X<>0 then begin
-    Loc:=fTerrain.FindStone(aLoc,12);
-    WalkTo:=ua_Walk;
-    WorkType:=ua_Work;
-    WorkCyc:=6;
-    GatheringScript:=gs_StoneCutter;
-    AfterWorkDelay:=10;
-    WalkFrom:=ua_WalkTool;
+    WalkStyle(fTerrain.FindStone(aLoc,12),ua_Walk,ua_Work,6,10,ua_WalkTool,gs_StoneCutter);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,8);
     SubActAdd(ha_Work5,1);
@@ -374,24 +363,13 @@ if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
 end else
 if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   if fTerrain.FindTree(aLoc,12).X<>0 then begin
-    Loc:=fTerrain.FindTree(aLoc,12);
-    WalkTo:=ua_WalkBooty;
-    WorkType:=ua_Work;
-    WorkCyc:=6;
-    GatheringScript:=gs_WoodCutterCut;
-    AfterWorkDelay:=10;
-    WalkFrom:=ua_WalkTool2;
+    WalkStyle(fTerrain.FindTree(aLoc,12),ua_WalkBooty,ua_Work,6,10,ua_WalkTool2,gs_WoodCutterCut);
     Product:=rt_Trunk;
     ProductCount:=ResourceProductionX[byte(Product)];
   end else
-  if fTerrain.FindPlaceForTree(aLoc,12).X<>0 then begin
-    Loc:=fTerrain.FindPlaceForTree(aLoc,12);
-    WalkTo:=ua_WalkTool;
-    WorkType:=ua_Work1;
-    WorkCyc:=6;
-    GatheringScript:=gs_WoodCutterPlant;
-    WalkFrom:=ua_Walk;
-  end else
+  if fTerrain.FindPlaceForTree(aLoc,12).X<>0 then
+    WalkStyle(fTerrain.FindPlaceForTree(aLoc,12),ua_WalkTool,ua_Work1,6,0,ua_Walk,gs_WoodCutterPlant)
+  else
     Issued:=false;
 end else
   Issued:=false;
@@ -1174,15 +1152,20 @@ end;
 procedure TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer);
 begin
   //@Krom: Question: Why do it like this? Surely only villagers are troops need to be different? Why can't I train a recruit in the school?
+  //@Lewin:
+  //I didn't thought or Recruit functionality yet, guess it's the same as any other UnitCitizen
+  //just needs tweaks to prefer Towers to Barracks and Barracks to accept unlimited quantity of Recruits
   case aUnitType of
-    ut_Serf:         Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
-    ut_Worker:       Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Serf:    Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Worker:  Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_WoodCutter..ut_Fisher: Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
-    //ut_Worker
-    ut_StoneCutter..ut_Metallurgist: Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+    ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
+                Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+                
+    //ut_Recruit:      Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_HorseScout:   Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Militia..ut_Barbarian:   Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
+    //ut_Bowman:   Inherited Add(TKMUnitArcher.Create(aOwner,PosX,PosY,aUnitType)); //I guess it will be stand-alone
 
     else Assert(false,'Such unit doesn''t exists yet - '+TypeToString(aUnitType));
   end;

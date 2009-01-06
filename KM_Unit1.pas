@@ -146,6 +146,7 @@ begin
   fSoundLibrary:= TSoundLibrary.Create;
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   Application.OnIdle:=Form1.OnIdle;
+  Panel_MiniMap.Color:=0; //Keep it colored until app is started, Controls should be visible in designtime 
 end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);

@@ -67,10 +67,7 @@ type
     rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
 const
   ResourceProductionX:array[1..28]of byte = (
-    1,3,2,1,1,1,2,3,
-    1,1,2,1,2,3,1,1,
-    1,1,1,1,1,1,1,1,
-    1,1,1,2);
+    1,3,2,1,1,1,2,3,1,1,2,1,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,2);
 
 {Units}
 type
@@ -78,11 +75,11 @@ type
     ut_Serf=1,          ut_Woodcutter=2,    ut_Miner=3,         ut_AnimalBreeder=4,
     ut_Farmer=5,        ut_Lamberjack=6,    ut_Baker=7,         ut_Butcher=8,
     ut_Fisher=9,        ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
-    ut_Metallurgist=13, ut_Recruit=14,      ut_HorseScout=22);
-//15 Militia        //16 AxeFighter     //17 Swordsman      //18 Bowman
-//19 Arbaletman     //20 Pikeman        //21 Hallebardman   //22 HorseScout
-//23 Cavalry        //24 Barbarian      //25 Peasant        //26 Slingshot
-//27 MetalBarbarian //28 Horseman       //29 Catapult       //30 Arbalest
+    ut_Metallurgist=13, ut_Recruit=14,
+    ut_Militia=15,         ut_AxeFighter=16,      ut_Swordsman=17,       ut_Bowman=18,
+    ut_Arbaletman=19,      ut_Pikeman=20,         ut_Hallebardman=21,    ut_HorseScout=22,
+    ut_Cavalry=23,         ut_Barbarian=24);{,       ut_Peasant=,         ut_Slingshot=,
+    ut_MetalBarbarian=,  ut_Horseman=,        ut_Catapult=,        ut_Arbalest=);}
 
 //31 Wolf           //32 Fish           //33 Watersnake     //34 Seastar
 //35 Crab           //36 Waterflower    //37 Waterleaf      //38 Duck
