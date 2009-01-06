@@ -85,7 +85,8 @@ public
 public
   procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
   procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
-  function IsHouseCanBePlaced(Loc:TKMPoint; aHouseType: THouseType):boolean;
+  function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
+  function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
   procedure UpdateBorders(Loc:TKMPoint);
 public
   procedure UpdateState;
@@ -508,9 +509,8 @@ begin
     Land[Loc.Y,Loc.X].TileOwner:=aOwner;
 end;
 
-{@Lewin: Maybe you come up with better name for this function}
 {Check if house can be placed in that place}
-function TTerrain.IsHouseCanBePlaced(Loc:TKMPoint; aHouseType: THouseType):boolean;
+function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
 var i,k:integer;
 begin
 Result:=true;
@@ -518,8 +518,20 @@ Result:=true;
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
       Result := Result AND InMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
       Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
+      Result := Result AND (ControlList.HousesHitTest(Loc.X+k-3,Loc.Y+i-4)=nil);
     end;
 //Add other check here, e.g. trees, fields, etc..
+end;
+
+function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
+begin  
+  Result:=true;
+  Result := Result AND InMapCoords(Loc.X,Loc.Y,0); //Inset one tile from map edges
+  Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
+  Result := Result AND (ControlList.HousesHitTest(Loc.X,Loc.Y)=nil);
+  if aMarkup <> mu_RoadPlan then //Don't allow fields on fields
+    Result := Result AND (Land[Loc.Y,Loc.X].FieldType=fdt_None);
+  //Add other check here, e.g. trees, fields, etc..
 end;
 
 {Check 4 surrounding tiles, and if they are different place a border}

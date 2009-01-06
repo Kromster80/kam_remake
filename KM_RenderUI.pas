@@ -137,10 +137,10 @@ begin
                   round((SizeY-GFXData[4,ID].PxHeight)/2))
       else
       WritePic(ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
-                  round((SizeY-GFXData[4,ID].PxHeight)/2)-3);
+                  round((SizeY-GFXData[4,ID].PxHeight)/2)-7);
     end;
 
-    WriteText(SizeX div 2, SizeY div 2, kaCenter, Caption, fnt_Metal, $FFFFFFFF);
+    WriteText(SizeX div 2, (SizeY div 2)+4, kaCenter, Caption, fnt_Game, $FFFFFFFF);
 
     if bs_Highlight in State then begin
       glColor4f(0,1,1,1);

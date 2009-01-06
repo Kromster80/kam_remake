@@ -63,6 +63,7 @@ type TKMGamePlayInterface = class
     procedure SchoolUnitChange(Sender:TObject);
     procedure SchoolUnitChangeRight(Sender:TObject);
     procedure SchoolUnitRemove(Sender:TObject);
+    procedure SelectRoad;
   end;
 
 var
@@ -132,15 +133,15 @@ begin
 
 {Menu page}
   KMPanel_Menu:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
-    KMButton_Menu_Save:=fControls.AddButton(KMPanel_Menu,10,20,180,30,'Save game',fnt_Metal);
-    KMButton_Menu_Load:=fControls.AddButton(KMPanel_Menu,10,60,180,30,'Load game',fnt_Metal);
-    KMButton_Menu_Options:=fControls.AddButton(KMPanel_Menu,10,100,180,30,'Options',fnt_Metal);
-    KMButton_Menu_Exit:=fControls.AddButton(KMPanel_Menu,10,180,180,30,'Exit',fnt_Metal);
+    KMButton_Menu_Save:=fControls.AddButton(KMPanel_Menu,10,20,180,30,fTextLibrary.GetTextString(173),fnt_Metal);
+    KMButton_Menu_Load:=fControls.AddButton(KMPanel_Menu,10,60,180,30,fTextLibrary.GetTextString(172),fnt_Metal);
+    KMButton_Menu_Options:=fControls.AddButton(KMPanel_Menu,10,100,180,30,fTextLibrary.GetTextString(170),fnt_Metal);
+    KMButton_Menu_Exit:=fControls.AddButton(KMPanel_Menu,10,180,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
 
 {Village Unit description page, no actions}
   KMPanel_Unit:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
     KMLabel_UnitName:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'Unit name here');
-    KMLabel_UnitCondition:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,'Condition');
+    KMLabel_UnitCondition:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(254));
     KMHealthBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
     KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,''); //Taken from LIB resource
     KMImage_UnitScroll:=fControls.AddImage(KMPanel_Unit,8,52,54,80,521);
@@ -149,7 +150,7 @@ begin
   KMPanel_House:=fControls.AddPanel(KMPanel_Main,0,474,200,400);
     //Thats common things
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
-    KMLabel_House:=fControls.AddLabel(KMPanel_House,100,14,100,30,fnt_Outline,kaCenter,'House name here');
+    KMLabel_House:=fControls.AddLabel(KMPanel_House,100,14,100,30,fnt_Outline,kaCenter,'');
     KMButton_House_Goods:=fControls.AddButton(KMPanel_House,9,42,30,30,37);
     KMButton_House_Repair:=fControls.AddButton(KMPanel_House,39,42,30,30,40);
     KMButton_House_Repair.OnClick := fGamePlayInterface.HouseRepairToggle;
@@ -157,13 +158,13 @@ begin
     KMImage_House_Logo:=fControls.AddImage(KMPanel_House,68,41,32,32,338);
     KMImage_House_Worker:=fControls.AddImage(KMPanel_House,98,41,32,32,141);
     KMHealthBar_House:=fControls.AddPercentBar(KMPanel_House,129,57,55,15,100,'550/550',fnt_Mini); //Not the correct color. Font color will have to be added to the percentage bar
-    KMLabel_HouseCondition:=fControls.AddLabel(KMPanel_House,156,45,30,50,fnt_Mini,kaCenter,'Condition:',$FFFF00FF);
+    KMLabel_HouseCondition:=fControls.AddLabel(KMPanel_House,156,45,30,50,fnt_Mini,kaCenter,fTextLibrary.GetTextString(228),$FFFF00FF);
 
 {Child Pages}
 {Common house page} //These Controls show/hide when needed, Height offset is simple +20px for each  
     KMPanel_House_Common:=fControls.AddPanel(KMPanel_House,0,76,200,400);
-      KMLabel_Common_Demand:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Metal,kaCenter,'Resources:');
-      KMLabel_Common_Offer:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Metal,kaCenter,'Resources:');
+      KMLabel_Common_Demand:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(227));
+      KMLabel_Common_Offer:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(227));
       KMRow_Common_Resource[1] :=fControls.AddResourceRow(KMPanel_House_Common,  8,22,180,20,rt_Trunk,5);
       KMRow_Common_Resource[2] :=fControls.AddResourceRow(KMPanel_House_Common,  8,42,180,20,rt_Stone,5);
       KMRow_Common_Resource[3] :=fControls.AddResourceRow(KMPanel_House_Common,  8,62,180,20,rt_Trunk,5);
@@ -181,14 +182,13 @@ begin
 {Store page}
     KMPanel_HouseStore:=fControls.AddPanel(KMPanel_House,0,76,200,400);
       for i:=1 to 28 do begin
-
-        KMButton_Store[i]:=fControls.AddButtonFlat(KMPanel_HouseStore, 8+((i-1)mod 5)*36,120+((i-1)div 5)*36,32,32,350+i);
+        KMButton_Store[i]:=fControls.AddButtonFlat(KMPanel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,350+i);
         KMButton_Store[i].OnClick:=StoreAcceptFlag;
       end;
 
 {School page}
     KMPanel_House_School:=fControls.AddPanel(KMPanel_House,0,76,200,400);
-      KMLabel_School_Res:=fControls.AddLabel(KMPanel_House_School,100,2,100,30,fnt_Metal,kaCenter,'Resources:');
+      KMLabel_School_Res:=fControls.AddLabel(KMPanel_House_School,100,2,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(227));
       KMButton_School_Resource :=fControls.AddResourceRow(KMPanel_House_School,  8,22,180,20,rt_Gold,5);
       KMButton_School_UnitWIP :=fControls.AddButton(KMPanel_House_School,  8,48,32,32,0);
       KMButton_School_UnitWIPBar:=fControls.AddPercentBar(KMPanel_House_School,42,54,138,20,0);
@@ -197,7 +197,7 @@ begin
         KMButton_School_UnitPlan[i]:= fControls.AddButtonFlat(KMPanel_House_School, 8+(i-1)*36,80,32,32,0);
         KMButton_School_UnitPlan[i].OnClick:= SchoolUnitRemove;
       end;
-      KMLabel_School_Unit:=fControls.AddLabel(KMPanel_House_School,100,116,100,30,fnt_Outline,kaCenter,'Unit name here');
+      KMLabel_School_Unit:=fControls.AddLabel(KMPanel_House_School,100,116,100,30,fnt_Outline,kaCenter,'');
       KMImage_School_Left :=fControls.AddImage(KMPanel_House_School,  8,136,54,80,521);
       KMImage_School_Left.Enabled := false;
       KMImage_School_Train:=fControls.AddImage(KMPanel_House_School, 70,136,54,80,522);
@@ -228,6 +228,13 @@ var i:integer;
     for i:=1 to 4 do
       KMButtonMain[i].Visible:=false;
     KMButtonMain[5].Visible:=true;
+  end;  
+  procedure Show4MainButtons();
+  var i:integer;
+  begin
+    for i:=1 to 4 do
+      KMButtonMain[i].Visible:=true;
+    KMButtonMain[5].Visible:=false;
   end;
 begin
 //Reset the CursorMode, to cm_None
@@ -246,6 +253,7 @@ BuildButtonClick(nil);
 if Sender=KMButtonMain[1] then begin
   KMPanel_Build.Visible:=true;
   Hide4MainButtons;
+  SelectRoad;
 end else
 if Sender=KMButtonMain[2] then begin
   KMPanel_Ratios.Visible:=true;
@@ -258,11 +266,8 @@ end else
 if Sender=KMButtonMain[4] then begin
   KMPanel_Menu.Visible:=true;
   Hide4MainButtons;
-end else begin //If Sender is anything else - then show all 4 buttons and hide Return button
-  for i:=1 to 4 do
-    KMButtonMain[i].Visible:=true;
-  KMButtonMain[5].Visible:=false;
-end;
+end else  //If Sender is anything else - then show all 4 buttons and hide Return button
+  Show4MainButtons;
 
 //Now process all other kinds of pages
 if Sender=KMPanel_Unit then begin
@@ -307,19 +312,18 @@ begin
   CursorMode.Mode:=cm_None;
   CursorMode.Param:=0;
   if WasDown then exit; //Button was released
-  if KMButton_BuildCancel.Checked then CursorMode.Mode:=cm_Erase;
-  if KMButton_BuildRoad.Checked then CursorMode.Mode:=cm_Road;
-  if KMButton_BuildField.Checked then CursorMode.Mode:=cm_Field;
-  if KMButton_BuildWine.Checked then CursorMode.Mode:=cm_Wine;
+  if KMButton_BuildCancel.Checked then begin CursorMode.Mode:=cm_Erase; KMImage_Selected.TexID := 340; end;
+  if KMButton_BuildRoad.Checked then begin CursorMode.Mode:=cm_Road; KMImage_Selected.TexID := 335; end;
+  if KMButton_BuildField.Checked then begin CursorMode.Mode:=cm_Field; KMImage_Selected.TexID := 337; end;
+  if KMButton_BuildWine.Checked then begin CursorMode.Mode:=cm_Wine; KMImage_Selected.TexID := 336; end;
 
   for i:=1 to HouseCount do
   if KMButton_Build[i].Checked then begin
      CursorMode.Mode:=cm_Houses;
-     CursorMode.Param:=GUIBuildIcons[i]-300; // -300 Thats a shortcut, I know
+     CursorMode.Param:=GUIBuildIcons[i]-300; // -300 Thats a shortcut, I know    
+     KMImage_Selected.TexID := GUIBuildIcons[i]; //Now update the selected icon
   end;
-
 end;
-
 
 procedure TKMGamePlayInterface.HouseRepairToggle(Sender:TObject);
 begin
@@ -387,21 +391,21 @@ begin
             KMRow_Common_Resource[Row].Resource:=HouseInput[byte(Sender.GetHouseType),i];
             KMRow_Common_Resource[Row].ResourceCount:=Sender.CheckResIn(HouseInput[byte(Sender.GetHouseType),i]);
             KMRow_Common_Resource[Row].Visible:=true;
-            KMRow_Common_Resource[Row].Top:=Base+Line*20;
+            KMRow_Common_Resource[Row].Top:=Base+Line*20-2;
             inc(Line);
             inc(Row);
           end;
         end;
         if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
           KMLabel_Common_Offer.Visible:=true;
-          KMLabel_Common_Offer.Caption:='Delivers x'+inttostr(ResourceProductionX[byte(HouseOutput[byte(Sender.GetHouseType),1])]);
-          KMLabel_Common_Offer.Top:=Base+Line*20;
+          KMLabel_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(ResourceProductionX[byte(HouseOutput[byte(Sender.GetHouseType),1])])+'):';
+          KMLabel_Common_Offer.Top:=Base+Line*20+8;
           inc(Line);
           for i:=1 to 4 do if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
             KMRow_Common_Resource[Row].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
             KMRow_Common_Resource[Row].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
             KMRow_Common_Resource[Row].Visible:=true;
-            KMRow_Common_Resource[Row].Top:=Base+Line*20;
+            KMRow_Common_Resource[Row].Top:=Base+Line*20+6;
             inc(Line);
             inc(Row);
           end;
@@ -503,6 +507,10 @@ begin
   SchoolUnitChange(nil);
 end;
 
+procedure TKMGamePlayInterface.SelectRoad;
+begin
+  BuildButtonClick(KMButton_BuildRoad);
+end;
 
 procedure TKMGamePlayInterface.StoreFill(Sender:TObject);
 var i,Tmp:integer;

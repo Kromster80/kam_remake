@@ -102,6 +102,7 @@ end;
 
 procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
 begin
+  if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
   fTerrain.SetMarkup(aLoc, aMarkup);
   case aMarkup of
     mu_RoadPlan: BuildList.AddNewRoad(aLoc, fdt_Road);
@@ -116,7 +117,7 @@ var xo:integer;
 begin
   xo:=HouseXOffset[integer(aHouseType)];
   aLoc.X:=aLoc.X+xo;
-  if not fTerrain.IsHouseCanBePlaced(aLoc,aHouseType) then exit;
+  if not fTerrain.CanPlaceHouse(aLoc,aHouseType) then exit;
   fHouses.AddPlan(aOwner, aHouseType, aLoc.X, aLoc.Y);
   fTerrain.SetHousePlan(aLoc, aHouseType, fdt_HousePlan);
   fTerrain.SetTileOwnership(aLoc,aHouseType, play_1);

@@ -136,13 +136,13 @@ done:=false; //repeats OnIdle event
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-begin
+begin               
+  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\'); //Must be done earily on so GamePlayInterface can use it
   fControls:= TKMControlsCollection.Create;
   fGamePlayInterface:= TKMGamePlayInterface.Create;
   fRender:= TRender.Create;
   fViewport:= TViewport.Create;
   fTerrain:= TTerrain.Create;
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fSoundLibrary:= TSoundLibrary.Create;
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   Application.OnIdle:=Form1.OnIdle;
@@ -263,7 +263,7 @@ begin
 
   if X<=ToolBarWidth then
     fControls.OnMouseUp(X,Y,Button)
-  else
+  else if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
 
   case CursorMode.Mode of
     cm_None:
@@ -286,7 +286,10 @@ begin
         ControlList.RemHouse(P);
       end;
     cm_Houses:
-        ControlList.AddHousePlan(P,THouseType(CursorMode.Param),play_1)
+      begin
+        ControlList.AddHousePlan(P,THouseType(CursorMode.Param),play_1);
+        fGamePlayInterface.SelectRoad;
+      end;
     end;
 MouseButton:=mb2None;
 end;

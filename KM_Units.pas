@@ -1173,6 +1173,7 @@ end;
 { TKMUnitsCollection }
 procedure TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer);
 begin
+  //@Krom: Question: Why do it like this? Surely only villagers are troops need to be different? Why can't I train a recruit in the school?
   case aUnitType of
     ut_Serf:         Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
     ut_Worker:       Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));

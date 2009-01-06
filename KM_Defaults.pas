@@ -45,7 +45,7 @@ const //Font01.fnt seems to be damaged..
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
 //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
-  FontCharSpacing: array[TKMFont] of integer = (0,0,0,0,0,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
+  FontCharSpacing: array[TKMFont] of integer = (0,0,0,0,1,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
 
 
   ScrollCursorOffset = 17;
@@ -173,7 +173,7 @@ const
   School_Order:array[1..14] of TUnitType = (
     ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
     ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
-    ut_Miner, ut_Smith, ut_Metallurgist, ut_Recruit);
+    ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
 
 const
 //Offset from house center to entrance
@@ -215,7 +215,7 @@ HousePlanYX:array[1..29,1..4,1..4]of byte = (
 //What house produces
 HouseOutput:array[1..29,1..4] of TResourceType = (
 (rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill        //1
-(rt_None,       rt_None,       rt_None,       rt_None), //Iron smithy    //21
+(rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy    //21
 (rt_None,       rt_None,       rt_None,       rt_None), //Weapon smithy  //244
 (rt_Coal,       rt_None,       rt_None,       rt_None), //Coal mine      //134
 (rt_IronOre,    rt_None,       rt_None,       rt_None), //Iron mine      //61
@@ -229,8 +229,8 @@ HouseOutput:array[1..29,1..4] of TResourceType = (
 (rt_Horse,      rt_None,       rt_None,       rt_None), //Stables        //146
 (rt_None,       rt_None,       rt_None,       rt_None), //School         //250
 (rt_Stone,      rt_None,       rt_None,       rt_None), //Quarry         //211
-(rt_None,       rt_None,       rt_None,       rt_None), //Metallurgist   //235
-(rt_None,       rt_None,       rt_None,       rt_None), //Swine          //368
+(rt_Gold,       rt_None,       rt_None,       rt_None), //Metallurgist   //235
+(rt_Pig,        rt_Skin,       rt_None,       rt_None), //Swine          //368
 (rt_None,       rt_None,       rt_None,       rt_None), //Watch tower    //255
 (rt_None,       rt_None,       rt_None,       rt_None), //Town hall      //1657
 (rt_None,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
@@ -239,7 +239,7 @@ HouseOutput:array[1..29,1..4] of TResourceType = (
 (rt_Flour,      rt_None,       rt_None,       rt_None), //Mill           //358
 (rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
 (rt_Sousages,   rt_None,       rt_None,       rt_None), //Butcher        //397
-(rt_None,       rt_None,       rt_None,       rt_None), //Tannery        //668
+(rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery        //668
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
 (rt_None,       rt_None,       rt_None,       rt_None), //Inn            //363
 (rt_Wine,       rt_None,       rt_None,       rt_None)  //Wineyard       //378
@@ -248,8 +248,8 @@ HouseOutput:array[1..29,1..4] of TResourceType = (
 //What house requires
 HouseInput:array[1..29,1..4] of TResourceType = (
 (rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill        //1
-(rt_None,       rt_None,       rt_None,       rt_None), //Iron smithy    //21
-(rt_None,       rt_None,       rt_None,       rt_None), //Weapon smithy  //244
+(rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy    //21
+(rt_Steel,      rt_Coal,       rt_None,       rt_None), //Weapon smithy  //244
 (rt_None,       rt_None,       rt_None,       rt_None), //Coal mine      //134
 (rt_None,       rt_None,       rt_None,       rt_None), //Iron mine      //61
 (rt_None,       rt_None,       rt_None,       rt_None), //Gold mine      //239
@@ -257,22 +257,22 @@ HouseInput:array[1..29,1..4] of TResourceType = (
 (rt_Flour,      rt_None,       rt_None,       rt_None), //Bakery         //101
 (rt_None,       rt_None,       rt_None,       rt_None), //Farm           //124
 (rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter     //142
-(rt_None,       rt_None,       rt_None,       rt_None), //Armor smithy   //41
+(rt_Steel,      rt_Coal,       rt_None,       rt_None), //Armor smithy   //41
 (rt_All,        rt_None,       rt_None,       rt_None), //Store          //138
 (rt_Corn,       rt_None,       rt_None,       rt_None), //Stables        //146
 (rt_Gold,       rt_None,       rt_None,       rt_None), //School         //250
 (rt_None,       rt_None,       rt_None,       rt_None), //Quarry         //211
-(rt_None,       rt_None,       rt_None,       rt_None), //Metallurgist   //235
+(rt_GoldOre,    rt_Coal,       rt_None,       rt_None), //Metallurgist   //235
 (rt_Corn,       rt_None,       rt_None,       rt_None), //Swine          //368
 (rt_Stone,      rt_None,       rt_None,       rt_None), //Watch tower    //255
 (rt_Gold,       rt_None,       rt_None,       rt_None), //Town hall      //1657
-(rt_None,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
-(rt_None,       rt_None,       rt_None,       rt_None), //Armor workshop //663
+(rt_Wood,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
+(rt_Wood,       rt_Leather,    rt_None,       rt_None), //Armor workshop //663
 (rt_Warfare,    rt_None,       rt_None,       rt_None), //Barracks       //334
 (rt_Corn,       rt_None,       rt_None,       rt_None), //Mill           //358
-(rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
-(rt_None,       rt_None,       rt_None,       rt_None), //Butcher        //397
-(rt_None,       rt_None,       rt_None,       rt_None), //Tannery        //668
+(rt_Wood,       rt_Steel,      rt_None,       rt_None), //Siege workshop //1681
+(rt_Pig,        rt_None,       rt_None,       rt_None), //Butcher        //397
+(rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery        //668
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
 (rt_Bread,      rt_Sousages,   rt_Wine,       rt_Fish), //Inn            //363
 (rt_None,       rt_None,       rt_None,       rt_None)  //Wineyard       //378

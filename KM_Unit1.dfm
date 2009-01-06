@@ -65,12 +65,12 @@ object Form1: TForm1
     SimplePanel = False
   end
   object Panel_Minimap: TPanel
-    Left = 9
-    Top = 13
+    Left = 10
+    Top = 9
     Width = 176
     Height = 176
     BevelOuter = bvNone
-    Color = clMaroon
+    Color = clBlack
     TabOrder = 0
     object MiniMap: TImage
       Left = 0
