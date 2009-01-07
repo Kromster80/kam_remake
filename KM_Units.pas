@@ -297,7 +297,7 @@ procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct
   procedure ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResourceType; Qty2:byte; Prod:TResourceType);
   begin
     Resource1:=Res1; Count1:=Qty1;
-    Resource2:=Res2; Count1:=Qty2;
+    Resource2:=Res2; Count2:=Qty2;
     Product:=Prod;
     ProductCount:=ResourceProductionX[byte(Product)];
   end;
@@ -368,7 +368,7 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   else
     Issued:=false;
 end else
-  Issued:=false;
+  Assert(false,'There''s yet no working plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
 end;
 
 
@@ -462,8 +462,6 @@ begin
 Result:=nil;
 
 WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),1],GetPosition);
-
-Assert(WorkPlan.Issued,'There''s yet no working plan for '+TypeToString(fUnitType)+' in '+TypeToString(fHome.GetHouseType));
 
 if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
 if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
@@ -727,10 +725,10 @@ case Phase of
 8: begin
      fToHouse.ResAddToIn(Carry);
      TakeResource(Carry);
+     SetAction(TUnitActionGoIn.Create(ua_walk,gid_Out));
+     ControlList.DeliverList.CloseDelivery(ID);
    end;
-9: SetAction(TUnitActionGoIn.Create(ua_walk,gid_Out));
-10: ControlList.DeliverList.CloseDelivery(ID);
-11: TaskDone:=true;
+9: TaskDone:=true;
 end;
 
 //Deliver to builder
@@ -738,13 +736,13 @@ if fToUnit<>nil then
 with fSerf do
 case Phase of
 5: SetAction(TUnitActionMove.Create(KMPointY1(fToUnit.fPosition)));
-6: TakeResource(Carry);
-7: begin
+6: begin
+     TakeResource(Carry);
      inc(fToUnit.UnitTask.Phase);
      fToUnit.SetAction(TUnitActionStay.Create(0,ua_Work1));
    end;
-8: ControlList.DeliverList.CloseDelivery(ID);
-9: TaskDone:=true;
+7: ControlList.DeliverList.CloseDelivery(ID);
+8: TaskDone:=true;
 end;
 inc(Phase);
 end;
@@ -765,30 +763,40 @@ TaskDone:=false;
 with fWorker do
 case Phase of
 0: SetAction(TUnitActionMove.Create(fLoc));
-1: fTerrain.RemMarkup(fLoc);
-2: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-3: fTerrain.IncFieldState(fLoc);
-4: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-5: fTerrain.IncFieldState(fLoc);
-6: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-7: ControlList.DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once);
-
-8: SetAction(TUnitActionStay.Create(30,ua_Work1));
-
-9: ;
-10:SetAction(TUnitActionStay.Create(11,ua_Work2,false));
-11:fTerrain.IncFieldState(fLoc);
-12:SetAction(TUnitActionStay.Create(11,ua_Work2,false));
-13:fTerrain.IncFieldState(fLoc);
-14:SetAction(TUnitActionStay.Create(11,ua_Work2,false));
-15:begin
-    fTerrain.SetField(fLoc,fOwner,fdt_Road);
-    ControlList.BuildList.CloseRoad(ID);
+1: begin
+   fTerrain.RemMarkup(fLoc);
+   SetAction(TUnitActionStay.Create(11,ua_Work1,false));
    end;
-16:SetAction(TUnitActionStay.Create(5,ua_Work2));
-17:TaskDone:=true;
+2: begin
+   fTerrain.IncFieldState(fLoc);
+   SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+   end;
+3: begin
+   fTerrain.IncFieldState(fLoc);
+   SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+   end;
+4: ControlList.DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once);
+
+5: SetAction(TUnitActionStay.Create(30,ua_Work1));
+6: begin
+   SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+   end;
+7: begin
+   fTerrain.IncFieldState(fLoc);
+   SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+   end;
+8: begin
+   fTerrain.IncFieldState(fLoc);
+   SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+   end;
+9: begin
+   fTerrain.SetField(fLoc,fOwner,fdt_Road);
+   ControlList.BuildList.CloseRoad(ID);
+   SetAction(TUnitActionStay.Create(5,ua_Work2));
+   end;
+10:TaskDone:=true;
 end;
-if Phase<>8 then inc(Phase); //Phase=8 is when worker waits for rt_Stone
+if Phase<>5 then inc(Phase); //Phase=5 is when worker waits for rt_Stone
 end;
 
 { TTaskBuildWine }
@@ -963,15 +971,16 @@ with fUnit do
         SetAction(TUnitActionGoIn.Create(WorkPlan.WalkTo,gid_Out)); //Walk outside the house
        end;
     1: SetAction(TUnitActionMove.Create(WorkPlan.Loc,WorkPlan.WalkTo));
-    2: begin //Choose direction and time to work
+    2: //IF resource still exists on location
+       begin //Choose direction and time to work
          Dir:=integer(fUnit.Direction);
          if UnitSprite[integer(fUnit.fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
            for Dir:=1 to 8 do
              if UnitSprite[integer(fUnit.fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
          Dir:=min(Dir,8);
-       fUnit.Direction:=TKMDirection(Dir);
-       TimeToWork:=WorkPlan.WorkCyc*max(UnitSprite[integer(fUnit.fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
-       SetAction(TUnitActionStay.Create(TimeToWork, WorkPlan.WorkType, false));
+         fUnit.Direction:=TKMDirection(Dir);
+         TimeToWork:=WorkPlan.WorkCyc*max(UnitSprite[integer(fUnit.fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
+         SetAction(TUnitActionStay.Create(TimeToWork, WorkPlan.WorkType, false));
        end;
     3: begin case WorkPlan.GatheringScript of //Perform special tasks if required
                gs_FarmerSow:   fTerrain.InitGrowth(WorkPlan.Loc);
@@ -980,7 +989,7 @@ with fUnit do
                gs_WoodCutterPlant: fTerrain.AddTree(WorkPlan.Loc,ChopableTrees[Random(length(ChopableTrees))+1,1]);
                gs_WoodCutterCut:   fTerrain.ChopTree(WorkPlan.Loc);
              end;
-       SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkDelay, WorkPlan.WorkType));
+         SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkDelay, WorkPlan.WorkType));
        end;
     4: SetAction(TUnitActionMove.Create(KMPointY1(fHome.GetPosition),WorkPlan.WalkFrom)); //Go home
     5: SetAction(TUnitActionGoIn.Create(WorkPlan.WalkFrom,gid_In)); //Go inside
@@ -1011,6 +1020,8 @@ with fUnit do
     11: begin
           case WorkPlan.GatheringScript of
             gs_CoalMiner:;
+            gs_GoldMiner:;
+            gs_IronMiner:;
           end;
           fHome.ResAddToOut(WorkPlan.Product,WorkPlan.ProductCount);
           fHome.SetState(hst_Idle,15);

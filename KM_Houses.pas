@@ -106,8 +106,8 @@ type
     fSelectedHouse: TKMHouse;
     procedure DoAddHouse(PosX,PosY:integer; aHouseType: THouseType; aOwner: TPlayerID; aHBS:THouseBuildState);
   public
-    procedure AddHouse(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
-    procedure AddPlan(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
+    procedure AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
+    procedure AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
     procedure Rem(PosX,PosY:integer);
     procedure Clear; override;
     procedure UpdateState;
@@ -480,13 +480,13 @@ case aHouseType of
 end;
 end;
 
-procedure TKMHousesCollection.AddHouse(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
+procedure TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
 begin
 DoAddHouse(PosX,PosY,aHouseType,aOwner,hbs_Done);
 end;
 
 {Add a plan for house}
-procedure TKMHousesCollection.AddPlan(aOwner: TPlayerID; aHouseType: THouseType; PosX,PosY:integer);
+procedure TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
 begin
 DoAddHouse(PosX,PosY,aHouseType,aOwner,hbs_Glyph);
 end;

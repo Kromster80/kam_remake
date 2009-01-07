@@ -110,7 +110,7 @@ const {Actions names}
     [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat]
+    [ua_Walk, ua_Spec, ua_Die, ua_Eat] //Recruit
     );
 
   UnitSpeeds:array[1..40]of single =(
@@ -121,11 +121,11 @@ const {Actions names}
 type
   TGatheringScript = (
     gs_None=0,
-    gs_WoodCutterCut=1, gs_WoodCutterPlant=2,
-    gs_FarmerSow=3, gs_FarmerCorn=4, gs_FarmerWine=5,
-    gs_Fisher=6,
-    gs_StoneCutter=7,
-    gs_CoalMiner=8);
+    gs_WoodCutterCut, gs_WoodCutterPlant,
+    gs_FarmerSow, gs_FarmerCorn, gs_FarmerWine,
+    gs_Fisher,
+    gs_StoneCutter,
+    gs_CoalMiner, gs_GoldMiner, gs_IronMiner);
 
 {Houses game}
 type

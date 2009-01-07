@@ -5,7 +5,7 @@ uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 const
 MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
 
-type TPassability = (CanWalk, CanBuild, CanPlantTrees, CanMakeFields, CanFish);
+type TPassability = (CanWalk, CanBuild, CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish);
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -212,7 +212,7 @@ begin
     Obj:=255;             //none
     FieldSpecial:=fs_None;
     Markup:=mu_None;
-    Passability:=[CanWalk, CanBuild, CanPlantTrees, CanMakeFields]; //allow anything
+    Passability:=[canWalk, canBuild, canMakeRoads, canPlantTrees, canMakeFields]; //allow anything
     TileOwner:=play_none;
     FieldType:=fdt_None;
     FieldAge:=0;
@@ -312,9 +312,19 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
 
+
   UpdateBorders(Loc);
-  if aFieldType=fdt_Field then begin Land[Loc.Y,Loc.X].Terrain:=62; Land[Loc.Y,Loc.X].Rotation:=0; end; //Reset rotation so fields line up
-  if aFieldType=fdt_Wine  then begin Land[Loc.Y,Loc.X].Terrain:=55; Land[Loc.Y,Loc.X].Rotation:=0; end; //Reset rotation so fields line up
+  if aFieldType=fdt_Field then begin
+    Land[Loc.Y,Loc.X].Terrain:=62;
+    Land[Loc.Y,Loc.X].Rotation:=0;
+    Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability - [canBuild];
+  end else
+  if aFieldType=fdt_Wine  then begin
+    Land[Loc.Y,Loc.X].Terrain:=55;
+    Land[Loc.Y,Loc.X].Rotation:=0;
+    Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability - [canBuild];
+  end else
+    Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability - [CanPlantTrees, CanMakeFields] + [canBuild];
 end;
 
 { Should find closest wine field around.
@@ -455,7 +465,7 @@ end;
 procedure TTerrain.AddTree(Loc:TKMPoint; ID:integer);
 begin
   Land[Loc.Y,Loc.X].Obj:=ID;
-  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability-[CanPlantTrees,CanBuild];
+  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability - [canBuild,canPlantTrees];
   Land[Loc.Y,Loc.X].TreeAge:=1;
 end;
 
@@ -467,7 +477,7 @@ begin
     if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
       Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
 
-  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability+[CanPlantTrees,CanBuild];
+  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + [canBuild,canPlantTrees];
   Land[Loc.Y,Loc.X].TreeAge:=0;
 end;
 
@@ -481,7 +491,7 @@ var i,k:integer;
     for i:=-1 to 1 do for k:=-1 to 1 do
       if InMapCoords(X+k,Y+i) then
         Land[Y+i,X+k].Passability:=Land[Y+i,X+k].Passability - [CanBuild, CanPlantTrees];
-    Land[Y,X].Passability:=Land[Y,X].Passability - [CanMakeFields];
+    Land[Y,X].Passability:=Land[Y,X].Passability - [CanMakeFields, CanMakeRoads];
   end;
 begin
   for i:=1 to 4 do for k:=1 to 4 do begin
@@ -526,7 +536,7 @@ end;
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
 begin  
   Result:=true;
-  Result := Result AND InMapCoords(Loc.X,Loc.Y,0); //Inset one tile from map edges
+  Result := Result AND InMapCoords(Loc.X,Loc.Y,0); //Don't inset one tile from map edges
   Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
   Result := Result AND (ControlList.HousesHitTest(Loc.X,Loc.Y)=nil);
   if aMarkup <> mu_RoadPlan then //Don't allow fields on fields

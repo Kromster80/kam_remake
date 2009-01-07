@@ -92,10 +92,10 @@ object Form1: TForm1
     end
   end
   object GroupBox1: TGroupBox
-    Left = 232
+    Left = 192
     Top = 8
     Width = 145
-    Height = 165
+    Height = 145
     Caption = '  Additional controls  '
     TabOrder = 3
     object Image4: TImage
@@ -244,10 +244,10 @@ object Form1: TForm1
       Flat = True
     end
     object Shape267: TShape
-      Left = 8
-      Top = 138
-      Width = 65
-      Height = 17
+      Left = 80
+      Top = 94
+      Width = 19
+      Height = 19
       OnDragDrop = Shape267DragDrop
       OnMouseUp = Shape267MouseUp
     end

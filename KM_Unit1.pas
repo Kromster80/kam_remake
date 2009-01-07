@@ -288,7 +288,7 @@ begin
       end;
     cm_Houses:
       begin
-        ControlList.AddHousePlan(P,THouseType(CursorMode.Param),play_1);
+        ControlList.AddHousePlan(THouseType(CursorMode.Param),P,play_1);
         fGamePlayInterface.SelectRoad;
       end;
     end;
@@ -369,53 +369,66 @@ procedure TForm1.Button1Click(Sender: TObject);
 var H:TKMHouseStore;
 begin
 TKMControl(Sender).Enabled:=false;
-fViewPort.SetCenter(6,11);
-ControlList.AddHouse(play_1, ht_Farm,KMPoint(3,5));
-ControlList.AddHouse(play_1, ht_Mill,KMPoint(8,5));
-ControlList.AddHouse(play_1, ht_Bakery,KMPoint(13,5));
+fViewPort.SetCenter(6,10);
+ControlList.AddRoadPlan(KMPoint(2,6),mu_RoadPlan);
 
-ControlList.AddHouse(play_1, ht_WineYard,KMPoint(5,18));
-ControlList.AddHouse(play_1, ht_Store,KMPoint(17,5));
-ControlList.AddHouse(play_1, ht_Quary,KMPoint(12,8));
-ControlList.AddHouse(play_1, ht_WoodCutters,KMPoint(12,11));
-ControlList.AddHouse(play_1, ht_SawMill,KMPoint(12,14));
-ControlList.AddHouse(play_1, ht_CoalMine,KMPoint(12,17));
-ControlList.AddHouse(play_1, ht_FisherHut,KMPoint(18,9)); //Added to demonstrate a house without an occupant in the building page
-                                                    
-ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
-ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
+{ControlList.AddRoadPlan(KMPoint(2,7),mu_FieldPlan);
+ControlList.AddRoadPlan(KMPoint(3,7),mu_FieldPlan);
+ControlList.AddRoadPlan(KMPoint(4,7),mu_FieldPlan);
+ControlList.AddRoadPlan(KMPoint(5,7),mu_FieldPlan); }
+
+ControlList.AddHouse(ht_Farm, KMPoint(3,5), play_1);
+ControlList.AddHouse(ht_Mill, KMPoint(8,5), play_1);
+ControlList.AddHouse(ht_Bakery, KMPoint(13,5), play_1);
+ControlList.AddUnit(play_1, ut_Farmer, KMPoint(3,7));
+ControlList.AddUnit(play_1, ut_Baker, KMPoint(4,7));
+ControlList.AddUnit(play_1, ut_Baker, KMPoint(5,7));
+
+ControlList.AddHouse(ht_Store, KMPoint(17,5), play_1);
+
+ControlList.AddHouse(ht_WoodCutters, KMPoint(4,9), play_1);
+ControlList.AddHouse(ht_SawMill, KMPoint(7,9), play_1);
+ControlList.AddHouse(ht_Quary, KMPoint(12,9), play_1);
+ControlList.AddUnit(play_1, ut_WoodCutter, KMPoint(7,11));
+ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
-ControlList.AddUnit(play_1, ut_WoodCutter, KMPoint(7,9));
-ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,9));
-ControlList.AddUnit(play_1, ut_Baker, KMPoint(9,9));
-ControlList.AddUnit(play_1, ut_Baker, KMPoint(10,9));
+
+{ControlList.AddRoadPlan(KMPoint(2,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(3,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(4,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan); }
+ControlList.AddHouse(ht_WineYard, KMPoint(4,13), play_1);
+ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
+ControlList.AddHouse(ht_CoalMine, KMPoint(8,13), play_1);
 ControlList.AddUnit(play_1, ut_Miner, KMPoint(10,9));
+ControlList.AddHouse(ht_FisherHut, KMPoint(12,13), play_1); //Added to demonstrate a house without an occupant in the building page
+
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(2,11));
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(3,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(4,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(5,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(6,11));
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(8,11));
+ControlList.AddUnit(play_1, ut_Serf, KMPoint(9,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
-ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(6,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(7,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(5,13),mu_FieldPlan);
-ControlList.AddRoadPlan(KMPoint(6,13),mu_FieldPlan);
-ControlList.AddRoadPlan(KMPoint(7,13),mu_FieldPlan);
 
 H:=ControlList.FindStore();
-if H<>nil then H.AddMultiResource(rt_All,30);
+if H<>nil then H.AddMultiResource(rt_All,10);
 
-{ControlList.AddRoadPlan(KMPoint(5,12),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(6,12),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(7,12),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(8,12),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(8,13),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(8,14),mu_RoadPlan);}
+{ControlList.AddRoadPlan(KMPoint(3,6),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(4,6),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(5,6),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(6,6),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(7,6),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(8,6),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);   }
 
-//ControlList.AddHousePlan(KMPoint(9,18), ht_School, play_1);
-ControlList.AddHouse(play_1, ht_Inn, KMPoint(9,23));
+ControlList.AddHousePlan(ht_School, KMPoint(4,17), play_1);
+ControlList.AddHousePlan(ht_Inn, KMPoint(9,17), play_1);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

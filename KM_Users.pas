@@ -46,9 +46,9 @@ type
     property Ctrl[Index: Integer]: TKMUserControl read GetCtrl;
   public
     function AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): Boolean;
-    procedure AddHouse(aOwner: TPlayerID; aHouseType: THouseType; Position: TKMPoint);
+    procedure AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
-    procedure AddHousePlan(aLoc: TKMPoint; aHouseType: THouseType; aOwner: TPlayerID);
+    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
     procedure RemUnit(Position: TKMPoint);
     procedure RemHouse(Position: TKMPoint);
     procedure RemPlan(Position: TKMPoint);
@@ -93,11 +93,11 @@ begin
     Result:=true;
 end;
 
-procedure TKMUserControlList.AddHouse(aOwner: TPlayerID; aHouseType: THouseType; Position: TKMPoint);
+procedure TKMUserControlList.AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
 var xo:integer;
 begin
   xo:=HouseXOffset[byte(aHouseType)];
-  fHouses.AddHouse(aOwner, aHouseType, Position.X+xo, Position.Y)
+  fHouses.AddHouse(aHouseType, aLoc.X+xo, aLoc.Y, aOwner)
 end;
 
 procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
@@ -112,13 +112,13 @@ begin
   end;
 end;
 
-procedure TKMUserControlList.AddHousePlan(aLoc: TKMPoint; aHouseType: THouseType; aOwner: TPlayerID);
+procedure TKMUserControlList.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
 var xo:integer;
 begin
   xo:=HouseXOffset[integer(aHouseType)];
   aLoc.X:=aLoc.X+xo;
   if not fTerrain.CanPlaceHouse(aLoc,aHouseType) then exit;
-  fHouses.AddPlan(aOwner, aHouseType, aLoc.X, aLoc.Y);
+  fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, aOwner);
   fTerrain.SetHousePlan(aLoc, aHouseType, fdt_HousePlan);
   fTerrain.SetTileOwnership(aLoc,aHouseType, play_1);
   BuildList.AddNewHousePlan(aLoc, aHouseType);
