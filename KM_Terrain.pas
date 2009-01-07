@@ -78,6 +78,7 @@ public
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   procedure InitGrowth(Loc:TKMPoint);
   procedure CutCorn(Loc:TKMPoint);
+  procedure CutGrapes(Loc:TKMPoint);
 
   procedure FlattenTerrain(Loc:TKMPoint);
   procedure AddTree(Loc:TKMPoint; ID:integer);
@@ -110,46 +111,48 @@ end;
 
 procedure TTerrain.UpdateState;
 var i,k,h,j:integer;
-
   procedure SetLand(x,y,tile:byte; Spec:TFieldSpecial);
   begin
     Land[y,x].Terrain:=tile;
     Land[y,x].FieldSpecial:=Spec;
   end;
 begin
-//  TimeDelta:= GetTickCount - fLastUpdateTime;
-//  fLastUpdateTime:= GetTickCount;
   inc(AnimStep);
+
 for i:=1 to MapY do
-  for k:=1 to MapX do begin
+  for k:=1 to MapX do
+  if (i*MapX+k+AnimStep) mod 20 = 0 then begin //All those global things can be performed once a sec, or even less frequent
 
     if InRange(Land[i,k].FieldAge,1,254) then inc(Land[i,k].FieldAge);
+
+    if Land[i,k].FieldType=fdt_Field then begin
+      case Land[i,k].FieldAge of
+        1: SetLand(k,i,61,fs_None);
+        2: SetLand(k,i,59,fs_None);
+        3: SetLand(k,i,60,fs_Corn1);
+        4: SetLand(k,i,60,fs_Corn2);
+        5: Land[i,k].FieldAge:=255; //Skip to the end
+      end;
+    end else
+    if Land[i,k].FieldType=fdt_Wine then begin
+      case Land[i,k].FieldAge of
+        1: SetLand(k,i,55,fs_Wine1);
+        2: SetLand(k,i,55,fs_Wine2);
+        3: SetLand(k,i,55,fs_Wine3);
+        4: SetLand(k,i,55,fs_Wine4);
+        5: Land[i,k].FieldAge:=255; //Skip to the end
+      end;
+    end;
+
     if InRange(Land[i,k].TreeAge,1,254) then inc(Land[i,k].TreeAge);
-
-    if Land[i,k].FieldType=fdt_Field then
-    case Land[i,k].FieldAge of
-      10: SetLand(k,i,61,fs_None);
-      20: SetLand(k,i,60,fs_Corn1);
-      30: SetLand(k,i,59,fs_Corn2);
-      35: Land[i,k].FieldAge:=255; //Skip to the end
-    end;
-    if Land[i,k].FieldType=fdt_Wine then
-    case Land[i,k].FieldAge of
-      1:  SetLand(k,i,55,fs_Wine1);
-      10: SetLand(k,i,55,fs_Wine2);
-      20: SetLand(k,i,55,fs_Wine3);
-      30: SetLand(k,i,55,fs_Wine4);
-      35: Land[i,k].FieldAge:=255; //Skip to the end
-    end;
-
     for h:=1 to length(ChopableTrees) do
       for j:=1 to 3 do
         if Land[i,k].Obj=ChopableTrees[h,j] then
           case Land[i,k].TreeAge of
-            10:  Land[i,k].Obj:=ChopableTrees[h,2];
-            20: Land[i,k].Obj:=ChopableTrees[h,3];
-            30: Land[i,k].Obj:=ChopableTrees[h,4];
-            35: Land[i,k].TreeAge:=255; //Skip to the end
+            1: Land[i,k].Obj:=ChopableTrees[h,2];
+            3: Land[i,k].Obj:=ChopableTrees[h,3];
+            5: Land[i,k].Obj:=ChopableTrees[h,4];
+            7: Land[i,k].TreeAge:=255; //Skip to the end
           end;
 
   end;
@@ -442,6 +445,12 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   Land[Loc.Y,Loc.X].Terrain:=63;
   Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
+end;
+
+procedure TTerrain.CutGrapes(Loc:TKMPoint);
+begin
+  Land[Loc.Y,Loc.X].FieldAge:=1;
+  Land[Loc.Y,Loc.X].FieldSpecial:=fs_Wine1;
 end;
 
 {Take 4 neighbour heights and approach it}

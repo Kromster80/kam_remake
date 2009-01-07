@@ -117,7 +117,6 @@ begin
                                  EnsureRange(TileMMColor[ID].B+Light,0,255)*65536
     else
       bm.Canvas.Pixels[k-1,i-1]:=TeamColors[Team];
-  //bm.Canvas.Pixels[k-1,i-1]:=random(16777214);
   end;
 
   Loc:=TKMPointList.Create;
@@ -128,6 +127,7 @@ begin
   end;
 
 mmMiniMap.Canvas.StretchDraw(mmMiniMap.Canvas.ClipRect,bm);
+bm.Free; //If we don't Free, it will trash RAM, little by little, ~1mb per hour...
 end;
 
 procedure TMiniMap.ReSize(X,Y:word);

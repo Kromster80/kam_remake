@@ -1,10 +1,10 @@
 object Form1: TForm1
-  Left = 262
-  Top = 247
+  Left = 105
+  Top = 66
   HelpType = htKeyword
   BorderStyle = bsNone
-  ClientHeight = 659
-  ClientWidth = 918
+  ClientHeight = 320
+  ClientWidth = 480
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,15 +19,15 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnResize = FormResize
   DesignSize = (
-    918
-    659)
+    480
+    320)
   PixelsPerInch = 96
   TextHeight = 13
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 918
-    Height = 641
+    Width = 480
+    Height = 302
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'Panel5'
@@ -39,8 +39,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 640
-    Width = 918
+    Top = 301
+    Width = 480
     Height = 19
     Panels = <
       item
@@ -244,10 +244,10 @@ object Form1: TForm1
       Flat = True
     end
     object Shape267: TShape
-      Left = 80
-      Top = 94
-      Width = 19
-      Height = 19
+      Left = 78
+      Top = 92
+      Width = 22
+      Height = 22
       OnDragDrop = Shape267DragDrop
       OnMouseUp = Shape267MouseUp
     end
@@ -301,12 +301,12 @@ object Form1: TForm1
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
-    Left = 800
-    Top = 600
+    Left = 48
+    Top = 192
   end
   object MainMenu1: TMainMenu
-    Left = 768
-    Top = 600
+    Left = 16
+    Top = 192
     object File1: TMenuItem
       Caption = 'File'
       object OpenMapMenu: TMenuItem
@@ -404,12 +404,12 @@ object Form1: TForm1
   object Timer100ms: TTimer
     Interval = 100
     OnTimer = Timer100msTimer
-    Left = 832
-    Top = 600
+    Left = 80
+    Top = 192
   end
   object Timer1sec: TTimer
     OnTimer = Timer1secTimer
-    Left = 864
-    Top = 600
+    Left = 112
+    Top = 192
   end
 end

@@ -832,7 +832,7 @@ case Phase of
 9: SetAction(TUnitActionStay.Create(44,ua_Work2,false));
 10:begin
     fTerrain.SetField(fLoc,fOwner,fdt_Wine);
-    fTerrain.InitGrowth(fLoc);
+    fTerrain.CutGrapes(fLoc);
     ControlList.BuildList.CloseRoad(ID);
    end;
 11:TaskDone:=true;
@@ -989,7 +989,7 @@ with fUnit do
     3: begin case WorkPlan.GatheringScript of //Perform special tasks if required
                gs_FarmerSow:   fTerrain.InitGrowth(WorkPlan.Loc);
                gs_FarmerCorn:  fTerrain.CutCorn(WorkPlan.Loc);
-               gs_FarmerWine:  fTerrain.InitGrowth(WorkPlan.Loc);
+               gs_FarmerWine:  fTerrain.CutGrapes(WorkPlan.Loc);
                gs_WoodCutterPlant: fTerrain.AddTree(WorkPlan.Loc,ChopableTrees[Random(length(ChopableTrees))+1,1]);
                gs_WoodCutterCut:   fTerrain.ChopTree(WorkPlan.Loc);
              end;

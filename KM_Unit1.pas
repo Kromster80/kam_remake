@@ -312,18 +312,22 @@ begin
 if not Form1.Active then exit;
 if CheckBox1.Checked then exit;
 ControlList.UpdateState;
+fTerrain.UpdateState;
 
 inc(GlobalTickCount);
 
 if CheckBox2.Checked then
-  for i:=1 to 10 do
+  for i:=1 to 100 do begin
     fTerrain.UpdateState;
-
-if CheckBox2.Checked then
-  for i:=1 to 100 do
     ControlList.UpdateState;
-
+  end;
   DoScrolling; //Now check to see if we need to scroll
+end;
+
+procedure TForm1.Timer1secTimer(Sender: TObject);
+begin
+  if not Form1.Active then exit;
+  fMiniMap.Repaint; //No need to repaint it more often
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -372,10 +376,10 @@ TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(6,10);
 ControlList.AddRoadPlan(KMPoint(2,6),mu_RoadPlan);
 
-{ControlList.AddRoadPlan(KMPoint(2,7),mu_FieldPlan);
+ControlList.AddRoadPlan(KMPoint(2,7),mu_FieldPlan);
 ControlList.AddRoadPlan(KMPoint(3,7),mu_FieldPlan);
 ControlList.AddRoadPlan(KMPoint(4,7),mu_FieldPlan);
-ControlList.AddRoadPlan(KMPoint(5,7),mu_FieldPlan); }
+ControlList.AddRoadPlan(KMPoint(5,7),mu_FieldPlan);
 
 ControlList.AddHouse(ht_Farm, KMPoint(3,5), play_1);
 ControlList.AddHouse(ht_Mill, KMPoint(8,5), play_1);
@@ -393,10 +397,10 @@ ControlList.AddUnit(play_1, ut_WoodCutter, KMPoint(7,11));
 ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
 
-{ControlList.AddRoadPlan(KMPoint(2,14),mu_WinePlan);
+ControlList.AddRoadPlan(KMPoint(2,14),mu_WinePlan);
 ControlList.AddRoadPlan(KMPoint(3,14),mu_WinePlan);
 ControlList.AddRoadPlan(KMPoint(4,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan); }
+ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
 ControlList.AddHouse(ht_WineYard, KMPoint(4,13), play_1);
 ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
 ControlList.AddHouse(ht_CoalMine, KMPoint(8,13), play_1);
@@ -416,18 +420,17 @@ ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
 ControlList.AddUnit(play_1, ut_Recruit, KMPoint(10,11));
 
-
 H:=ControlList.FindStore();
 if H<>nil then H.AddMultiResource(rt_All,10);
 
-{ControlList.AddRoadPlan(KMPoint(3,6),mu_RoadPlan);
+ControlList.AddRoadPlan(KMPoint(3,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(4,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(5,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(6,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(7,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(8,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);   }
+ControlList.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);
 
 ControlList.AddHousePlan(ht_School, KMPoint(4,17), play_1);
 ControlList.AddHousePlan(ht_Barracks, KMPoint(9,18), play_1);
@@ -436,8 +439,8 @@ end;
 procedure TForm1.PrintScreen1Click(Sender: TObject);
 var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
-sh:=Panel5.Width;
-sw:=Panel5.Height;
+sh:=Panel5.Height;
+sw:=Panel5.Width;
 
 setlength(bmp,sw*sh+1);
 glReadPixels(0,0,sw,sh,GL_BGRA,GL_UNSIGNED_BYTE,@bmp[0]);
@@ -469,18 +472,14 @@ procedure TForm1.ExportUnitsRXClick(Sender: TObject);  begin ExportRX2BMP(3); en
 procedure TForm1.ExportGUIRXClick(Sender: TObject);    begin ExportRX2BMP(4); end;
 procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP(5); end;
 
-procedure TForm1.Exportfonts1Click(Sender: TObject);
+procedure TForm1.ExportFonts1Click(Sender: TObject);
 var i:integer;
 begin
   for i:=1 to length(FontFiles) do
     ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
 end;
 
-procedure TForm1.Timer1secTimer(Sender: TObject);
-begin
-  if not Form1.Active then exit;
-  fMiniMap.Repaint; //No need to repaint it more often
-end;
+
 
 procedure TForm1.Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
