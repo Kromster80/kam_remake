@@ -278,13 +278,7 @@ begin
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
-  procedure SubActAdd(aAct:THouseActionType; aCycles:byte);
-  begin
-    setlength(HouseAct,length(HouseAct)+1);
-    HouseAct[length(HouseAct)-1].Act:=aAct;
-    HouseAct[length(HouseAct)-1].TimeToWork:=HouseDAT[byte(aHome)].Anim[byte(aAct)].Count * aCycles;
-  end;
-  procedure WalkStyle(aLoc:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript);
+  procedure WalkStyle(aLoc:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript); overload;
   begin
     Loc:=aLoc;
     WalkTo:=aTo;
@@ -294,45 +288,50 @@ procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct
     GatheringScript:=aScript;
     WalkFrom:=aFrom;
   end;
+  procedure SubActAdd(aAct:THouseActionType; aCycles:byte);
+  begin
+    setlength(HouseAct,length(HouseAct)+1);
+    HouseAct[length(HouseAct)-1].Act:=aAct;
+    HouseAct[length(HouseAct)-1].TimeToWork:=HouseDAT[byte(aHome)].Anim[byte(aAct)].Count * aCycles;
+  end;
+  procedure ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResourceType; Qty2:byte; Prod:TResourceType);
+  begin
+    Resource1:=Res1; Count1:=Qty1;
+    Resource2:=Res2; Count1:=Qty2;
+    Product:=Prod;
+    ProductCount:=ResourceProductionX[byte(Product)];
+  end;
 begin
 FillDefaults;
 //Now we need to fill only specific properties
 if (aUnitType=ut_LamberJack)and(aHome=ht_SawMill) then begin
-  Resource1:=rt_Trunk; Count1:=1;
+  ResourcePlan(rt_Trunk,1,rt_None,0,rt_Wood);
   SubActAdd(ha_Work1,1);
   SubActAdd(ha_Work2,8);
   SubActAdd(ha_Work5,1);
-  Product:=rt_Wood;
-  ProductCount:=ResourceProductionX[byte(Product)];
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
+  ResourcePlan(rt_None,0,rt_None,0,rt_Coal);
   GatheringScript:=gs_CoalMiner;
   SubActAdd(ha_Work1,1);
   SubActAdd(ha_Work2,8);
   SubActAdd(ha_Work5,1);
-  Product:=rt_Coal;
-  ProductCount:=ResourceProductionX[byte(Product)];
 end else
 if (aUnitType=ut_Baker)and(aHome=ht_Mill) then begin
-  Resource1:=rt_Corn; Count1:=1;
+  ResourcePlan(rt_Corn,1,rt_None,0,rt_Flour);
   SubActAdd(ha_Work2,12);
-  Product:=rt_Flour;
-  ProductCount:=ResourceProductionX[byte(Product)];
 end else
 if (aUnitType=ut_Baker)and(aHome=ht_Bakery) then begin
-  Resource1:=rt_Flour; Count1:=1;
+  ResourcePlan(rt_Flour,1,rt_None,0,rt_Bread);
   SubActAdd(ha_Work2,2);
   SubActAdd(ha_Work3,2);
   SubActAdd(ha_Work2,2);
   SubActAdd(ha_Work3,2);
-  Product:=rt_Bread;
-  ProductCount:=ResourceProductionX[byte(Product)];
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
   if fTerrain.FindCorn(aLoc,12).X<>0 then begin
+    ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
     WalkStyle(fTerrain.FindCorn(aLoc,12),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
-    Product:=rt_Corn;
-    ProductCount:=ResourceProductionX[byte(Product)];
   end else
   if fTerrain.FindCornField(aLoc,12).X<>0 then
     WalkStyle(fTerrain.FindCornField(aLoc,12),ua_Walk,ua_Work1,6,0,ua_Walk,gs_FarmerSow)
@@ -341,31 +340,28 @@ if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
   if fTerrain.FindGrapes(aLoc,12).X<>0 then begin
+    ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
     WalkStyle(fTerrain.FindGrapes(aLoc,12),ua_WalkTool2,ua_Work2,6,0,ua_WalkBooty2,gs_FarmerWine);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,8);
     SubActAdd(ha_Work5,1);
-    Product:=rt_Wine;
-    ProductCount:=ResourceProductionX[byte(Product)];
   end else
     Issued:=false;
 end else
 if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
   if fTerrain.FindStone(aLoc,12).X<>0 then begin
+    ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
     WalkStyle(fTerrain.FindStone(aLoc,12),ua_Walk,ua_Work,6,10,ua_WalkTool,gs_StoneCutter);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,8);
     SubActAdd(ha_Work5,1);
-    Product:=rt_Stone;
-    ProductCount:=ResourceProductionX[byte(Product)];
   end else
     Issued:=false;
 end else
 if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   if fTerrain.FindTree(aLoc,12).X<>0 then begin
+    ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
     WalkStyle(fTerrain.FindTree(aLoc,12),ua_WalkBooty,ua_Work,6,10,ua_WalkTool2,gs_WoodCutterCut);
-    Product:=rt_Trunk;
-    ProductCount:=ResourceProductionX[byte(Product)];
   end else
   if fTerrain.FindPlaceForTree(aLoc,12).X<>0 then
     WalkStyle(fTerrain.FindPlaceForTree(aLoc,12),ua_WalkTool,ua_Work1,6,0,ua_Walk,gs_WoodCutterPlant)
@@ -467,7 +463,8 @@ Result:=nil;
 
 WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),1],GetPosition);
 
-if not WorkPlan.Issued then exit;
+Assert(WorkPlan.Issued,'There''s yet no working plan for '+TypeToString(fUnitType)+' in '+TypeToString(fHome.GetHouseType));
+
 if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
 if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
 if fHome.CheckResOut(WorkPlan.Product)>=MaxResInHouse then exit;
