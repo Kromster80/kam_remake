@@ -56,7 +56,7 @@ type
       TUnitActionGoIn = class(TUnitAction)
       private
         fStep:single;
-        fDir:integer;
+        fDir:shortint;
       public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
@@ -368,6 +368,9 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   else
     Issued:=false;
 end else
+if (aUnitType=ut_Recruit)and(aHome=ht_Barracks) then begin
+  Issued:=false; //Let him idle!
+end else
   Assert(false,'There''s yet no working plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
 end;
 
@@ -463,6 +466,7 @@ Result:=nil;
 
 WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),1],GetPosition);
 
+if not WorkPlan.Issued then exit;
 if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
 if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
 if fHome.CheckResOut(WorkPlan.Product)>=MaxResInHouse then exit;
@@ -1109,7 +1113,7 @@ end;
 constructor TUnitActionGoIn.Create(aAction: TUnitActionType; aDirection:TGoInDirection);
 begin
   Inherited Create(aAction);
-  fDir:=integer(aDirection);
+  fDir:=shortint(aDirection);
   if fDir>0 then
     fStep:=1   //go Inside (one cell up)
   else
@@ -1133,9 +1137,12 @@ begin
 
   KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
 
-  if (fStep<=0)or(fStep>=1) then
-    DoEnd:=true
-  else
+  if (fStep<=0)or(fStep>=1) then begin
+    DoEnd:=true;
+    if KMUnit.fHome<>nil then //When Recruit enters Barracks...
+      if KMUnit.fHome.GetHouseType=ht_Barracks then
+        TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside + fDir;
+  end else
     inc(KMUnit.AnimStep);
 end;
 
@@ -1170,7 +1177,7 @@ begin
     ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
                 Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
                 
-    //ut_Recruit:      Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Recruit: Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
 
     ut_Militia..ut_Barbarian:   Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
     //ut_Bowman:   Inherited Add(TKMUnitArcher.Create(aOwner,PosX,PosY,aUnitType)); //I guess it will be stand-alone

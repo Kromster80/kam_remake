@@ -3,7 +3,7 @@ interface
 uses KM_Controls, Forms, Graphics, Windows, SysUtils, KromUtils, KromOGLUtils, Math, KM_Houses, KM_Defaults, KM_LoadLib;
 
 type TKMGamePlayInterface = class
-  private
+  protected
     LastSchoolUnit:integer; //Last unit that was selected in School, global for all schools player owns
     LastBarrackUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
     KMPanel_Main:TKMPanel;
@@ -49,10 +49,12 @@ type TKMGamePlayInterface = class
       KMImage_School_Right,KMImage_School_Train,KMImage_School_Left:TKMImage;
       KMButton_School_Right,KMButton_School_Train,KMButton_School_Left:TKMButton;
     KMPanel_HouseBarracks:TKMPanel;
-      // Much same as School
+      KMButton_Barracks:array[1..12]of TKMButtonFlat;
+  private
     procedure SwitchPage(Sender: TObject);
     procedure BuildButtonClick(Sender: TObject);
     procedure StoreFill(Sender:TObject);
+    procedure BarracksFill(Sender:TObject);
     procedure StoreAcceptFlag(Sender:TObject);
   public
     constructor Create;
@@ -214,6 +216,9 @@ begin
 
 {Barracks page}
     KMPanel_HouseBarracks:=fControls.AddPanel(KMPanel_House,0,76,200,400);
+      for i:=1 to 12 do
+        KMButton_Barracks[i]:=fControls.AddButtonFlat(KMPanel_HouseBarracks, 8+((i-1)mod 6)*31,19+((i-1)div 6)*42,28,36,366+i);
+      KMButton_Barracks[12].TexID:=154;
 
 SwitchPage(nil);
 end;
@@ -284,6 +289,10 @@ if Sender=KMPanel_House_School then begin
   TKMPanel(Sender).Parent.Visible:=true;
   TKMPanel(Sender).Visible:=true;
 end;
+if Sender=KMPanel_HouseBarracks then begin
+  TKMPanel(Sender).Parent.Visible:=true;
+  TKMPanel(Sender).Visible:=true;
+end;
 if Sender=KMPanel_HouseStore then begin
   TKMPanel(Sender).Parent.Visible:=true;
   TKMPanel(Sender).Visible:=true;
@@ -348,6 +357,7 @@ end;
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse);
 var i,Row,Base,Line:integer;
 begin
+  {Common data}
   KMLabel_House.Caption:=TypeToString(Sender.GetHouseType);
   KMImage_House_Logo.TexID:=300+byte(Sender.GetHouseType);
   KMImage_House_Worker.TexID:=140+integer(HouseOwnerUnit[integer(Sender.GetHouseType)]);
@@ -372,7 +382,10 @@ begin
         SwitchPage(KMPanel_House_School);
       end;
 
-  ht_Barracks:;
+  ht_Barracks: begin
+        BarracksFill(nil);
+        SwitchPage(KMPanel_HouseBarracks);
+        end;
   ht_TownHall:;
 
   else begin
@@ -413,9 +426,6 @@ begin
       SwitchPage(KMPanel_House_Common);
       end;
   end;
-        //process common properties - done :-)
-        //if has demand - list it
-        //if has product - list it
         //if has order placement - list it
         //if has production costs - list them
         //Process special houses - Store, Barracks, School
@@ -507,10 +517,12 @@ begin
   SchoolUnitChange(nil);
 end;
 
+
 procedure TKMGamePlayInterface.SelectRoad;
 begin
   BuildButtonClick(KMButton_BuildRoad);
 end;
+
 
 procedure TKMGamePlayInterface.StoreFill(Sender:TObject);
 var i,Tmp:integer;
@@ -524,9 +536,30 @@ for i:=1 to 28 do begin
 end;
 end;
 
+{That small red triangle blocking delivery}
 procedure TKMGamePlayInterface.StoreAcceptFlag(Sender:TObject);
 begin
 //
 end;
+
+
+procedure TKMGamePlayInterface.BarracksFill(Sender:TObject);
+var i,Tmp:integer;
+begin
+for i:=1 to 11 do begin
+  Tmp:=TKMHouseBarracks(ControlList.SelectedHouse).ResourceCount[i];
+  if Tmp=0 then
+    KMButton_Barracks[i].Caption:='-'
+  else
+    KMButton_Barracks[i].Caption:=inttostr(Tmp);
+end;
+  Tmp:=TKMHouseBarracks(ControlList.SelectedHouse).RecruitsInside;
+  if Tmp=0 then
+    KMButton_Barracks[12].Caption:='-'
+  else
+    KMButton_Barracks[12].Caption:=inttostr(Tmp);
+end;
+
+
 
 end.

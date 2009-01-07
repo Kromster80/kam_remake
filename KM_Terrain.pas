@@ -123,8 +123,8 @@ begin
 for i:=1 to MapY do
   for k:=1 to MapX do begin
 
-    if (Land[i,k].FieldAge > 0) and (Land[i,k].FieldAge < 255) then inc(Land[i,k].FieldAge);
-    if (Land[i,k].TreeAge  > 0) and (Land[i,k].TreeAge  < 255) then inc(Land[i,k].TreeAge);
+    if InRange(Land[i,k].FieldAge,1,254) then inc(Land[i,k].FieldAge);
+    if InRange(Land[i,k].TreeAge,1,254) then inc(Land[i,k].TreeAge);
 
     if Land[i,k].FieldType=fdt_Field then
     case Land[i,k].FieldAge of
@@ -335,7 +335,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InRange(i,1,Self.MapY))and(InRange(k,1,Self.MapX))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
       if Land[i,k].FieldType=fdt_Wine then
         if Land[i,k].FieldAge=255 then
           Result:=KMPoint(k,i);
@@ -347,7 +347,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InRange(i,1,Self.MapY))and(InRange(k,1,Self.MapX))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
       if Land[i,k].FieldType=fdt_Field then
         if Land[i,k].FieldAge=255 then
           Result:=KMPoint(k,i);
@@ -359,7 +359,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InRange(i,1,Self.MapY))and(InRange(k,1,Self.MapX))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
       if Land[i,k].FieldType=fdt_Field then
         if Land[i,k].FieldAge=0 then
           Result:=KMPoint(k,i);
@@ -371,7 +371,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InRange(i,1,Self.MapY))and(InRange(k,1,Self.MapX))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
       for h:=1 to length(ChopableTrees) do
         if Land[i,k].Obj=ChopableTrees[h,4] then
           Result:=KMPoint(k,i);
@@ -384,7 +384,7 @@ Result:=KMPoint(9,9);
 {Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InRange(i,1,Self.MapY))and(InRange(k,1,Self.MapX))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
       for h:=1 to length(ChopableTrees) do
         if Land[i,k].Obj=ChopableTrees[h,4] then
           Result:=KMPoint(k,i);}
@@ -401,7 +401,7 @@ setlength(List2,1024);
 ci:=0; ck:=0;
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InRange(i,1,Self.MapY))and(InRange(k,1,Self.MapX))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
       if CanPlantTrees in Land[i,k].Passability then begin
 
         FoundExTree:=false;

@@ -414,6 +414,8 @@ ControlList.AddUnit(play_1, ut_Serf, KMPoint(9,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
+ControlList.AddUnit(play_1, ut_Recruit, KMPoint(10,11));
+
 
 H:=ControlList.FindStore();
 if H<>nil then H.AddMultiResource(rt_All,10);
@@ -428,7 +430,7 @@ ControlList.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);   }
 
 ControlList.AddHousePlan(ht_School, KMPoint(4,17), play_1);
-ControlList.AddHousePlan(ht_Inn, KMPoint(9,17), play_1);
+ControlList.AddHousePlan(ht_Barracks, KMPoint(9,18), play_1);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);

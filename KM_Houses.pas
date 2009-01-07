@@ -47,7 +47,7 @@ type
   public
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
 
-    constructor Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
     procedure Activate;
     function HitTest(X, Y: Integer): Boolean; overload;
@@ -83,10 +83,21 @@ type
   public
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
     UnitTrainProgress:byte; //Was it 12 steps in KaM?
-    constructor Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(id:integer); //Should remove unit from queue and shift rest up
     procedure UnitIsTrained; //This should Create new unit and shift queue filling rest with ut_None
+  end;
+
+  {Barracks has 11 resources and Recruits}
+  TKMHouseBarracks = class(TKMHouse)
+  public
+    ResourceCount:array[1..11]of word;
+    RecruitsInside:integer;
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    procedure AddResource(aResource:TResourceType);
+    procedure AddMultiResource(aResource:TResourceType; aCount:integer);
+    function TakeResource(aResource:TResourceType):boolean;
   end;
 
   {Storehouse keeps all the resources and flags for them}
@@ -94,7 +105,7 @@ type
   public
     ResourceCount:array[1..28]of word;
     AcceptFlag:array[1..28]of boolean;
-    constructor Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     procedure AddResource(aResource:TResourceType);
     procedure AddMultiResource(aResource:TResourceType; aCount:integer);
     function TakeResource(aResource:TResourceType):boolean;
@@ -104,7 +115,7 @@ type
   TKMHousesCollection = class(TList)
   private
     fSelectedHouse: TKMHouse;
-    procedure DoAddHouse(PosX,PosY:integer; aHouseType: THouseType; aOwner: TPlayerID; aHBS:THouseBuildState);
+    procedure DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState);
   public
     procedure AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
     procedure AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
@@ -123,7 +134,7 @@ uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render;
 
 
 { TKMHouse }
-constructor TKMHouse.Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
+constructor TKMHouse.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
 begin
   Inherited Create;
   fPosition.X:= PosX;
@@ -238,6 +249,9 @@ begin
   if HouseInput[byte(fHouseType),1]=rt_All then
     TKMHouseStore(Self).AddResource(aResource)
   else
+  if HouseInput[byte(fHouseType),1]=rt_Warfare then
+    TKMHouseBarracks(Self).AddResource(aResource)
+  else
     for i:=1 to 4 do
     if aResource = HouseInput[byte(fHouseType),i] then
       inc(fResourceIn[i],aCount);
@@ -342,7 +356,7 @@ begin
 end;
 
 
-constructor TKMHouseSchool.Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
+constructor TKMHouseSchool.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
 var i:integer;
 begin
   Inherited;
@@ -381,7 +395,7 @@ begin
 end;
 
 
-constructor TKMHouseStore.Create(PosX,PosY:integer; aHouseType:THouseType; aOwner:TPlayerID; aBuildState:THouseBuildState);
+constructor TKMHouseStore.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
 var i:integer;
 begin
   Inherited;
@@ -425,8 +439,50 @@ end;
 end;
 
 
-{ THouseAction }
+constructor TKMHouseBarracks.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+var i:integer;
+begin
+  Inherited;
+  for i:=1 to length(ResourceCount) do
+    ResourceCount[i]:=0;
+  RecruitsInside:=0;
+end;
 
+
+procedure TKMHouseBarracks.AddResource(aResource:TResourceType);
+begin
+inc(ResourceCount[byte(aResource)-16]);
+//ControlList.DeliverList.AddNewOffer(Self,aResource,1); Doesn't need that
+end;
+
+
+procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; aCount:integer);
+var i:integer;
+begin
+if aResource=rt_Warfare then
+  for i:=1 to length(ResourceCount) do begin
+    inc(ResourceCount[i],aCount);
+    //ControlList.DeliverList.AddNewOffer(Self,TResourceType(i),aCount); Doesn't need that
+  end else begin
+    inc(ResourceCount[byte(aResource)-16],aCount);
+    //ControlList.DeliverList.AddNewOffer(Self,aResource,aCount); Doesn't need that
+  end;
+end;
+
+
+function TKMHouseBarracks.TakeResource(aResource:TResourceType):boolean;
+begin
+if ResourceCount[byte(aResource)-16]>0 then begin
+  dec(ResourceCount[byte(aResource)-16]);
+  Result:=true;
+end else begin
+  Assert(false,'ResourceCount[byte(aResource)-16]>=0');
+  Result:=false;
+end;
+end;
+
+
+{ THouseAction }
 constructor THouseAction.Create(aHouse:TKMHouse; aHouseState: THouseState; const aTime:integer=0);
 begin
   Inherited Create;
@@ -471,24 +527,25 @@ end;
 
 { TKMHousesCollection }
 
-procedure TKMHousesCollection.DoAddHouse(PosX,PosY:integer; aHouseType: THouseType; aOwner: TPlayerID; aHBS:THouseBuildState);
+procedure TKMHousesCollection.DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState);
 begin
 case aHouseType of
-  ht_School: Inherited Add(TKMHouseSchool.Create(PosX,PosY,aHouseType,aOwner,aHBS));
-  ht_Store:  Inherited Add(TKMHouseStore.Create(PosX,PosY,aHouseType,aOwner,aHBS));
-  else       Inherited Add(TKMHouse.Create(PosX,PosY,aHouseType,aOwner,aHBS));
+  ht_School: Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  ht_Barracks: Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  ht_Store:  Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  else       Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
 end;
 end;
 
 procedure TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
 begin
-DoAddHouse(PosX,PosY,aHouseType,aOwner,hbs_Done);
+DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Done);
 end;
 
 {Add a plan for house}
 procedure TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
 begin
-DoAddHouse(PosX,PosY,aHouseType,aOwner,hbs_Glyph);
+DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Glyph);
 end;
 
 procedure TKMHousesCollection.Rem(PosX,PosY:integer);
@@ -516,7 +573,6 @@ begin
       Result:= TKMHouse(Items[I]);
       Break;
     end;
-  //if Result <> nil then fSelectedHouse:= Result; //It can't be set here since many func do HitTest beside OnMouseClick
 end;
 
 function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -525,14 +581,14 @@ var
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-      if (HouseOwnerUnit[byte(TKMHouse(Items[I]).fHouseType)]=aUnitType)and
-         (not TKMHouse(Items[I]).fHasOwner)and
-         (TKMHouse(Items[I]).IsComplete) then
-      begin
-        Result:= TKMHouse(Items[I]);
-        TKMHouse(Items[I]).fHasOwner:=true;
-        exit;
-      end;
+    if (HouseOwnerUnit[byte(TKMHouse(Items[I]).fHouseType)]=aUnitType)and //If Unit can work in here
+       (not TKMHouse(Items[I]).fHasOwner)and                              //If there's yet no owner
+       (TKMHouse(Items[I]).IsComplete) then                               //If house is built
+    begin
+      Result:= TKMHouse(Items[I]);
+      if TKMHouse(Items[I]).fHouseType<>ht_Barracks then TKMHouse(Items[I]).fHasOwner:=true; //Become owner except Barracks;
+      exit;
+    end;
 end;
 
 function TKMHousesCollection.FindStore(): TKMHouseStore;

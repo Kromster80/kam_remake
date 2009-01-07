@@ -139,7 +139,9 @@ for h:=1 to length(fDemand) do
   if fDemand[h].Resource <> rt_None then
   for k:=1 to length(fOffer) do
     if fOffer[k].Resource <> rt_None then
-    if (fDemand[h].Resource = fOffer[k].Resource)or(fDemand[h].Resource = rt_All) then
+    if (fDemand[h].Resource = fOffer[k].Resource)or
+       (fDemand[h].Resource = rt_All)or
+       ((fDemand[h].Resource = rt_Warfare)and(fOffer[k].Resource in [rt_WoodShield..rt_Horse])) then
     if (fDemand[h].Loc_House=nil)or((fDemand[h].Loc_House<>nil)and(fOffer[k].Loc_House.GetHouseType<>fDemand[h].Loc_House.GetHouseType))
     then begin
 
@@ -150,6 +152,8 @@ for h:=1 to length(fDemand) do
 
       if fDemand[h].Resource=rt_All then
         Bid:=Bid*5; //Prefer deliveries House-House
+
+      //
 
       if fQueue[i].JobStatus=js_Open then BestBid:=Bid;
 
