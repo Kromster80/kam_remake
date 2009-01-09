@@ -250,6 +250,14 @@ for i:=y1 to y2 do begin
   glEnd;
 end;
 
+for i:=y1 to y2 do
+  for k:=x1 to x2 do
+  if byte(fTerrain.Land[i,k].Passability) AND Pow(2,Form1.TrackBar1.Position) = Pow(2,Form1.TrackBar1.Position) then begin
+  glColor4f(0,0,0,0.5);
+  glColor3ubv(@PresetColor[Form1.TrackBar1.Position+1]);
+  RenderQuad(k,i);
+  end;
+
 glPointSize(3);
 glbegin (GL_POINTS);
 for i:=y1 to y2 do

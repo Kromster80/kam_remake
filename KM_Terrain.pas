@@ -5,7 +5,16 @@ uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 const
 MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
 
-type TPassability = (CanWalk, CanBuild, CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish);
+type TPassability = (canWalk, canWalkRoad, canBuild, canMakeRoads, canMakeFields, canPlantTrees, canFish);
+     TPassabilitySet = set of TPassability;
+const PassabilityStr:array[1..7] of string = ('canWalk', 'canWalkRoad', 'canBuild', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
+{canWalk - General passability of tile for any walking units}
+{canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
+{canBuild - Can we build a house on this tile?}
+{canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk}
+{canMakeFields - Thats more strict than roads, cos e.g. on beaches you can't make fields}
+{canPlantTrees - If Forester can plant a tree there}
+{canFish - water tiles where fisherman can fish}
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -16,7 +25,6 @@ private
 public
   MapX,MapY:integer; //Terrain width and height
 
-  //CursorMode:cmCursorMode; //Cursor that is rendered on tiles
   CursorPos:TKMPoint;
 
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
@@ -26,7 +34,7 @@ public
     Light:single;
 
     //Meant to be set of allowed actions on the tile
-    Passability:set of TPassability; //pass_CanWalk, pass_CanBuild, pass_CanPlantTrees, pass_CanField
+    Passability:TPassabilitySet; //pass_CanWalk, pass_CanBuild, pass_CanPlantTrees, pass_CanField
 
     //Name says it all, should simplify player related issues
     TileOwner:TPlayerID; //Players 1..8
@@ -64,11 +72,10 @@ public
   function InMapCoords(X,Y:integer; Inset:byte=0):boolean;
 public
 
-  procedure IncFieldState(Loc:TKMPoint);
-  procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
-
   procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
   procedure RemMarkup(Loc:TKMPoint);
+  procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
+  procedure IncFieldState(Loc:TKMPoint);
 
   function FindGrapes(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindCorn(aPosition:TKMPoint; aRadius:integer):TKMPoint;
@@ -76,13 +83,17 @@ public
   function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+
+  procedure AddTree(Loc:TKMPoint; ID:integer);
+  procedure ChopTree(Loc:TKMPoint);
   procedure InitGrowth(Loc:TKMPoint);
   procedure CutCorn(Loc:TKMPoint);
   procedure CutGrapes(Loc:TKMPoint);
 
+  procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
+  procedure RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
+
   procedure FlattenTerrain(Loc:TKMPoint);
-  procedure AddTree(Loc:TKMPoint; ID:integer);
-  procedure ChopTree(Loc:TKMPoint);
 public
   procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
   procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
@@ -215,7 +226,7 @@ begin
     Obj:=255;             //none
     FieldSpecial:=fs_None;
     Markup:=mu_None;
-    Passability:=[canWalk, canBuild, canMakeRoads, canPlantTrees, canMakeFields]; //allow anything
+    Passability:=[canWalk, canBuild, canMakeRoads, canMakeFields, canPlantTrees]; //allow anything
     TileOwner:=play_none;
     FieldType:=fdt_None;
     FieldAge:=0;
@@ -320,14 +331,16 @@ begin
   if aFieldType=fdt_Field then begin
     Land[Loc.Y,Loc.X].Terrain:=62;
     Land[Loc.Y,Loc.X].Rotation:=0;
-    Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability - [canBuild];
+    RemPassability(Loc,[canBuild]);
   end else
   if aFieldType=fdt_Wine  then begin
     Land[Loc.Y,Loc.X].Terrain:=55;
     Land[Loc.Y,Loc.X].Rotation:=0;
-    Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability - [canBuild];
-  end else
-    Land[Loc.Y,Loc.X].Passability := Land[Loc.Y,Loc.X].Passability - [CanPlantTrees, CanMakeFields] + [canBuild];
+    RemPassability(Loc,[canBuild]);
+  end else begin
+    RemPassability(Loc,[CanPlantTrees, CanMakeFields]);
+    AddPassability(Loc,[canBuild]);
+  end;
 end;
 
 { Should find closest wine field around.
@@ -453,6 +466,18 @@ begin
   Land[Loc.Y,Loc.X].FieldSpecial:=fs_Wine1;
 end;
 
+procedure TTerrain.AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
+begin
+Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass;
+end;
+
+
+procedure TTerrain.RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
+begin
+Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability - aPass;
+end;
+
+
 {Take 4 neighbour heights and approach it}
 procedure TTerrain.FlattenTerrain(Loc:TKMPoint);
 var TempH:byte;
@@ -474,7 +499,7 @@ end;
 procedure TTerrain.AddTree(Loc:TKMPoint; ID:integer);
 begin
   Land[Loc.Y,Loc.X].Obj:=ID;
-  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability - [canBuild,canPlantTrees];
+  RemPassability(Loc,[canBuild,canPlantTrees]);
   Land[Loc.Y,Loc.X].TreeAge:=1;
 end;
 
@@ -486,7 +511,7 @@ begin
     if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
       Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
 
-  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + [canBuild,canPlantTrees];
+  AddPassability(Loc,[canBuild,canPlantTrees]);
   Land[Loc.Y,Loc.X].TreeAge:=0;
 end;
 
@@ -499,8 +524,9 @@ var i,k:integer;
   begin
     for i:=-1 to 1 do for k:=-1 to 1 do
       if InMapCoords(X+k,Y+i) then
-        Land[Y+i,X+k].Passability:=Land[Y+i,X+k].Passability - [CanBuild, CanPlantTrees];
-    Land[Y,X].Passability:=Land[Y,X].Passability - [CanMakeFields, CanMakeRoads];
+        RemPassability(KMPoint(X+k,Y+i),[canBuild,canPlantTrees]);
+
+      RemPassability(KMPoint(X,Y),[CanMakeRoads,CanMakeFields]);
   end;
 begin
   for i:=1 to 4 do for k:=1 to 4 do begin

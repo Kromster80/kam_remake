@@ -95,7 +95,7 @@ object Form1: TForm1
     Left = 192
     Top = 8
     Width = 145
-    Height = 145
+    Height = 169
     Caption = '  Additional controls  '
     TabOrder = 3
     object Image4: TImage
@@ -251,6 +251,13 @@ object Form1: TForm1
       OnDragDrop = Shape267DragDrop
       OnMouseUp = Shape267MouseUp
     end
+    object Label2: TLabel
+      Left = 69
+      Top = 142
+      Width = 26
+      Height = 13
+      Caption = '100%'
+    end
     object TBZoomControl: TTrackBar
       Left = 24
       Top = 69
@@ -296,6 +303,24 @@ object Form1: TForm1
       Caption = 'Wires'
       TabOrder = 3
       OnClick = ShowWiresClick
+    end
+    object TrackBar1: TTrackBar
+      Left = 8
+      Top = 141
+      Width = 61
+      Height = 21
+      Max = 8
+      Orientation = trHorizontal
+      PageSize = 1
+      Frequency = 1
+      Position = 4
+      SelEnd = 0
+      SelStart = 0
+      TabOrder = 4
+      ThumbLength = 14
+      TickMarks = tmBoth
+      TickStyle = tsNone
+      OnChange = TrackBar1Change
     end
   end
   object OpenDialog1: TOpenDialog

@@ -58,6 +58,8 @@ type
     ExportStatus1: TMenuItem;
     ExportDeliverlists1: TMenuItem;
     ExportSounds1: TMenuItem;
+    TrackBar1: TTrackBar;
+    Label2: TLabel;
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -94,6 +96,7 @@ type
     procedure ExportTextClick(Sender: TObject);
     procedure ExportDeliverlists1Click(Sender: TObject);
     procedure ExportSounds1Click(Sender: TObject);
+    procedure TrackBar1Change(Sender: TObject);
 
   private     { Private declarations }
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -542,6 +545,13 @@ end;
 procedure TForm1.ExportSounds1Click(Sender: TObject);
 begin
 fSoundLibrary.ExportSounds;
+end;
+
+procedure TForm1.TrackBar1Change(Sender: TObject);
+begin
+CheckBox3.Checked:=true;
+TrackBar1.Max:=length(PassabilityStr)-1;
+Label2.Caption:= PassabilityStr[TrackBar1.Position+1];
 end;
 
 end.

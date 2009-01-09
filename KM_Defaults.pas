@@ -350,6 +350,22 @@ var
   255 +  60 shr 8 +  45 shr 16,
   255 + 192 shr 8 +   0 shr 16);
 
+PresetColor:Array[1..30,1..3] of byte = (
+//Light colors
+(255,108,108),(255,182,108),(255,255,108),//Red,Orange,Yellow
+(108,255,108),(108,255,255),(108,182,255),//Green,Cyan,Blueish
+(108,108,255),(182,108,255),(255,108,255),//Blue,Violet,Pink
+//Dark colors
+(170,  0,  0),(170, 84,  0),(170,170,  0),//Red,Orange,Yellow
+(  0,170,  0),(  0,170,170),(  0, 84,170),//Green,Cyan,Blueish
+(  0 , 0,170),( 84,  0,170),(170,  0,170),//Blue,Violet,Pink
+//Medium colors
+(255,  0,  0),(255,128,  0),(255,255,  0),//Red,Orange,Yellow
+(  0,255,  0),(  0,255,255),(  0,128,255),//Green,Cyan,Blueish
+(  0,  0,255),(128,  0,255),(255,  0,255),//Blue,Violet,Pink
+//Grey colors
+(208,208,208),(144,144,144),( 84, 84, 84));//Light,Medium,Dark
+
 function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload
 function TypeToString(t:TUnitType):string; overload
