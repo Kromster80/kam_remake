@@ -320,7 +320,7 @@ fTerrain.UpdateState;
 inc(GlobalTickCount);
 
 if CheckBox2.Checked then
-  for i:=1 to 100 do begin
+  for i:=1 to 20 do begin
     fTerrain.UpdateState;
     ControlList.UpdateState;
   end;

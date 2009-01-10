@@ -74,7 +74,8 @@ type
 
   TUnitTask = class(TObject)
   private
-  Phase:byte;
+    Phase:byte;
+    Phase2:byte;
   public
     procedure Execute(out TaskDone:boolean); virtual; abstract;
   end;
@@ -140,9 +141,13 @@ type
       fWorker:TKMUnitWorker;
       fLoc:TKMPoint;
       fHouse:TKMHouse;
+      fHouseType:THouseType;
       TaskID:integer;
       Step:byte;
-      //ListOfCells:array[1..4*4]of TKMPoint; //Should be list of surrounding cells and directions
+      Cells:array[1..4*4]of record
+        Loc:TKMPoint; //List of surrounding cells and directions
+        Dir:TKMDirection;
+      end;
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aHouse:TKMHouse; aID:integer);
       procedure Execute(out TaskDone:boolean); override;
@@ -185,7 +190,7 @@ type
     destructor Destroy; override;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
-    procedure SetAction(aAction: TUnitAction);
+    procedure SetAction(aAction: TUnitAction; aStep:integer=0);
     property GetUnitType: TUnitType read fUnitType;
     function GetPosition():TKMPoint;
     procedure UpdateState; virtual; abstract;
@@ -657,9 +662,9 @@ begin
   Result:= (X = round(fPosition.X)) and (Y = round(fPosition.Y)) and ((fUnitType=UT)or(UT=ut_Any));
 end;
 
-procedure TKMUnit.SetAction(aAction: TUnitAction);
+procedure TKMUnit.SetAction(aAction: TUnitAction; aStep:integer=0);
 begin
-AnimStep:=0;
+AnimStep:=aStep;
   if aAction = nil then
   begin
     fCurrentAction.Free;
@@ -922,32 +927,75 @@ end;
 
 { TTaskBuildHouse }
 constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aHouse:TKMHouse; aID:integer);
+  var i,k:integer;
+  procedure AddLoc(X,Y:word; Dir:TKMDirection);
+  begin
+    inc(Step);
+    Cells[Step].Loc:=KMPoint(X,Y);
+    Cells[Step].Dir:=Dir;
+  end;
 begin
   fWorker:=aWorker;
   fLoc:=aLoc;
   fHouse:=aHouse;
+  fHouseType:=fHouse.GetHouseType;
   Phase:=0;
+  Phase2:=0;
   TaskID:=aID;
   Step:=0;
+  for i:=1 to 4 do for k:=1 to 4 do //Create list of surround tiles and directions
+  if HousePlanYX[byte(fHouseType),i,k]<>0 then
+    if (i=1)or(HousePlanYX[byte(fHouseType),i-1,k]=0) then //Up
+      AddLoc(fLoc.X + k - 3, fLoc.Y + i - 4 - 1, dir_S)
+    else
+    if (i=4)or(HousePlanYX[byte(fHouseType),i+1,k]=0) then //Down
+      AddLoc(fLoc.X + k - 3, fLoc.Y + i - 4 + 1, dir_N)
+    else
+    if (k=4)or(HousePlanYX[byte(fHouseType),i,k+1]=0) then //Right
+      AddLoc(fLoc.X + k - 3 + 1, fLoc.Y + i - 4, dir_W)
+    else
+    if (k=1)or(HousePlanYX[byte(fHouseType),i,k-1]=0) then //Left
+      AddLoc(fLoc.X + k - 3 - 1, fLoc.Y + i - 4, dir_E);
 end;
 
 {Build the house}
 procedure TTaskBuildHouse.Execute(out TaskDone:boolean);
+var i:integer;
 begin
   TaskDone:=false;
   with fWorker do
     case Phase of
-      0: SetAction(TUnitActionMove.Create(fLoc));
+      0: begin
+           i:=Random(Step)+1;
+           SetAction(TUnitActionMove.Create(Cells[i].Loc));
+           Direction:=Cells[i].Dir;
+           //fHouse.IsConstructionStarted //
+         end;
       1: fTerrain.SetHousePlan(fLoc, fHouse.GetHouseType, fdt_None);
-      2: fHouse.IncBuildingProgress;
-      3: SetAction(TUnitActionStay.Create(11,ua_Work,false));
-      4: begin
+
+      2: begin //Goto new cell
+           i:=Random(Step)+1;
+           SetAction(TUnitActionMove.Create(Cells[i].Loc));
+           Direction:=Cells[i].Dir;
+         end;
+      3: SetAction(TUnitActionStay.Create(5,ua_Work,false),0); //Start animation
+      4: begin                                                 //Do building and end animation
+           fHouse.IncBuildingProgress;
+           SetAction(TUnitActionStay.Create(6,ua_Work,false),5);
+           inc(Phase2);
+         end;
+
+      5: begin
            ControlList.BuildList.CloseHouse(TaskID);
            TaskDone:=true;
          end;
     end;
   inc(Phase);
-  if (Phase=4) and (not fHouse.IsComplete) then Phase:=2;
+  if (Phase=5) and (not fHouse.IsComplete) then //If animation cycle is done
+    if Phase2 mod 5 = 0 then //if worker did 5 hits from same spot
+      Phase:=2 //Then goto new spot
+    else
+      Phase:=3; //else do more hits
 end;
 
 

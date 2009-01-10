@@ -190,11 +190,13 @@ end;
 
 {Increase building progress of house. When it reaches some point Stoning replaces Wooding
  and then it's done and house should be finalized}
+ {Keep track on stone/wood reserve here}
 procedure TKMHouse.IncBuildingProgress;
 begin
   if IsComplete then exit;
   inc(fBuildingProgress);
   //inc(fHealth,5); //Should depend on build steps and full health
+  //dec(StoneSupply/WoodSupply); //For each 50hp
   if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodCount) then begin
     fBuildState:=hbs_Stone;
     fBuildingProgress:=0;

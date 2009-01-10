@@ -519,30 +519,32 @@ begin
 
   ReadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
-for ID:=1 to 1 do begin
-  for Ac:=1 to 14 do begin
-    for Di:=1 to 8 do if UnitSprite[ID].Act[Ac].Dir[Di].Step[1]<>-1 then begin
-      for k:=1 to UnitSprite[ID].Act[Ac].Dir[Di].Count do begin
-        CreateDir(ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\');
-        CreateDir(ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\');
-        if UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1<>0 then
-        ci:=UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1;
+  for ID:=10 to 10 do begin
+    for Ac:=1 to 14 do begin
+      for Di:=1 to 8 do if UnitSprite[ID].Act[Ac].Dir[Di].Step[1]<>-1 then begin
+        for k:=1 to UnitSprite[ID].Act[Ac].Dir[Di].Count do begin
+          CreateDir(ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\');
+          CreateDir(ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\');
+          if UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1<>0 then
+          ci:=UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1;
 
-        sx:=RXData[3].Size[ci,1];
-        sy:=RXData[3].Size[ci,2];
-        MyBitmap.Width:=sx;
-        MyBitmap.Height:=sy;
+          sx:=RXData[3].Size[ci,1];
+          sy:=RXData[3].Size[ci,2];
+          MyBitmap.Width:=sx;
+          MyBitmap.Height:=sy;
 
-        for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-          t:=RXData[3].Data[ci,y*sx+x]+1;
-          MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+          for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+            t:=RXData[3].Data[ci,y*sx+x]+1;
+            MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+          end;
+          if sy>0 then MyBitmap.SaveToFile(
+          ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\'+inttostr(Di)+'_'+int2fix(k,2)+'.bmp');
         end;
-        if sy>0 then MyBitmap.SaveToFile(
-        ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\'+inttostr(Di)+'_'+int2fix(k,2)+'.bmp');
       end;
     end;
   end;
-end;
+
+  MyBitmap.Free;
 end;
 
 
@@ -558,28 +560,30 @@ begin
 
   ReadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
 
-for ID:=1 to 30 do begin
-  for Ac:=1 to 5 do begin //Work1..Work5
-    for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
-      CreateDir(ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\');
-      CreateDir(ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\');
-      if HouseDAT[ID].Anim[Ac].Step[k]+1<>0 then
-      ci:=HouseDAT[ID].Anim[Ac].Step[k]+1;
+  for ID:=1 to 30 do begin
+    for Ac:=1 to 5 do begin //Work1..Work5
+      for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
+        CreateDir(ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\');
+        CreateDir(ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\');
+        if HouseDAT[ID].Anim[Ac].Step[k]+1<>0 then
+        ci:=HouseDAT[ID].Anim[Ac].Step[k]+1;
 
-      sx:=RXData[2].Size[ci,1];
-      sy:=RXData[2].Size[ci,2];
-      MyBitmap.Width:=sx;
-      MyBitmap.Height:=sy;
+        sx:=RXData[2].Size[ci,1];
+        sy:=RXData[2].Size[ci,2];
+        MyBitmap.Width:=sx;
+        MyBitmap.Height:=sy;
 
-      for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-        t:=RXData[2].Data[ci,y*sx+x]+1;
-        MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+        for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+          t:=RXData[2].Data[ci,y*sx+x]+1;
+          MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+        end;
+        if sy>0 then MyBitmap.SaveToFile(
+        ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
       end;
-      if sy>0 then MyBitmap.SaveToFile(
-      ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
     end;
   end;
-end;
+  
+  MyBitmap.Free;
 end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
