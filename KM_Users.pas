@@ -2,7 +2,7 @@ unit KM_Users;
 
 interface
 uses
-  classes, KromUtils, KM_Global_Data, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, Windows, SysUtils;
+  classes, KromUtils, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, Windows, SysUtils;
 type
   TUserControlType = (uct_User, uct_Computer);
 
@@ -45,19 +45,18 @@ type
     function Add(const aOwner:TPlayerID; aControlType: TUserControlType): TKMUserControl;
     property Ctrl[Index: Integer]: TKMUserControl read GetCtrl;
   public
-    function AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): Boolean;
+    SelectedUnit: TKMUnit;
+    function AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
-    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
-    procedure RemUnit(Position: TKMPoint);
+    function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID):boolean;
     procedure RemHouse(Position: TKMPoint);
     procedure RemPlan(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
-    function FindStore(): TKMHouseStore;
+    function FindHouse(aType:THouseType; X,Y:word): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     function HousesHitTest(X, Y: Integer): TKMHouse;
-    function UnitsSelectedUnit: TKMUnit;
     property SelectedHouse: TKMHouse read GetSelHouse write SetSelHouse;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property BuildList:TKMBuildingQueue read fBuildList;
@@ -65,6 +64,9 @@ type
     procedure UpdateState;
     procedure Paint;
   end;
+
+var
+  ControlList: TKMUserControlList;
 
 implementation
 
@@ -87,18 +89,19 @@ begin
     Inherited Add(Result);
 end;
 
-function TKMUserControlList.AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): Boolean;
+function TKMUserControlList.AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
 begin
-    fUnits.Add(aOwner, aUnitType, Position.X, Position.Y);
-    Result:=true;
+    Result:=fUnits.Add(aOwner, aUnitType, Position.X, Position.Y);
 end;
+
 
 procedure TKMUserControlList.AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
 var xo:integer;
 begin
-  xo:=HouseXOffset[byte(aHouseType)];
-  fHouses.AddHouse(aHouseType, aLoc.X+xo, aLoc.Y, aOwner)
+  xo:=HouseDAT[byte(aHouseType)].EntranceOffsetX;
+  fHouses.AddHouse(aHouseType, aLoc.X-xo, aLoc.Y, aOwner)
 end;
+
 
 procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
 begin
@@ -112,21 +115,17 @@ begin
   end;
 end;
 
-procedure TKMUserControlList.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
-var xo:integer;
+function TKMUserControlList.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID):boolean;
+var KMHouse:TKMHouse;
 begin
-  xo:=HouseXOffset[integer(aHouseType)];
-  aLoc.X:=aLoc.X+xo;
+  Result:=false;
+  aLoc.X:=aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
   if not fTerrain.CanPlaceHouse(aLoc,aHouseType) then exit;
-  fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, aOwner);
+  KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, aOwner);
   fTerrain.SetHousePlan(aLoc, aHouseType, fdt_HousePlan);
   fTerrain.SetTileOwnership(aLoc,aHouseType, play_1);
-  BuildList.AddNewHousePlan(aLoc, aHouseType);
-end;
-
-procedure TKMUserControlList.RemUnit(Position: TKMPoint);
-begin
-  fUnits.Rem(Position.X, Position.Y);
+  BuildList.AddNewHousePlan(KMHouse);
+  Result:=true;
 end;
 
 procedure TKMUserControlList.RemHouse(Position: TKMPoint);
@@ -142,12 +141,12 @@ end;
 
 function TKMUserControlList.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
 begin
-Result:=fHouses.FindEmptyHouse(aUnitType);
+  Result:=fHouses.FindEmptyHouse(aUnitType);
 end;
 
-function TKMUserControlList.FindStore(): TKMHouseStore;
+function TKMUserControlList.FindHouse(aType:THouseType; X,Y:word): TKMHouse;
 begin
-  Result:=fHouses.FindStore();
+  Result:=fHouses.FindHouse(aType, X, Y);
 end;
 
 constructor TKMUserControlList.Create();
@@ -191,11 +190,6 @@ end;
 function TKMUserControlList.HousesHitTest(X, Y: Integer): TKMHouse;
 begin
   Result:= fHouses.HitTest(X, Y);
-end;
-
-function TKMUserControlList.UnitsSelectedUnit: TKMUnit;
-begin
-  Result:= fUnits.SelectedUnit;
 end;
 
 procedure TKMUserControlList.UpdateState;

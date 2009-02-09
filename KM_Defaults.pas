@@ -1,22 +1,38 @@
 unit KM_Defaults;
 interface
-uses Classes, KromUtils, KM_LoadLib;
+uses Classes, KromUtils, dglOpenGL;
 
-type
-  TKMList = class(TList)
-  public
-    procedure Clear; override;
-  end;
+//I've ajoined Global_Data and Defaults since they have much in common
+//Global const
+const
+  CELL_SIZE_PX=40;      //Single cell size in pixels (width)
+  ToolBarWidth=224;     //Toolbar width in game
+  Overlap=0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
+  DEF_PAL=2;            //Default palette to use when generating full-color RGB textures
+  FPSLag=1;             //lag between frames, 1000/FPSLag = max allowed FPS
+  FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
+  SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms, in cells
+  SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
+
+var
+  MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
+  MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
+  MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
+
+const
+  MaxHouses=255;        //Maximum houses one player can own
+  MaxResInHouse=5;      //Maximum resource items allowed to be in house (it's 5, but I use 3 for testing)
+  MAX_ORDER=999;        //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
+  MaxTexRes=1024;       //Maximum texture resolution client can handle (used for packing sprites)
+
+const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna test ingame )
+        MAX_PLAYERS = 6;        //Maximum players per map
 
 
-type TKMPointList = class
-  public
-    Count:integer;
-    List:array of TKMPoint;
-    constructor Create;
-    procedure Clearup;
-    procedure AddEntry(aLoc:TKMPoint);
-  end;
+        //Here we store options that are hidden somewhere in code
+        GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
+        UNIT_MAX_CONDITION = 1800;             //3min of life
 
 
 {Cursors}
@@ -29,10 +45,17 @@ const
 
   Cursors:array[1..19]of integer = (1,452,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9);
 
+  ScrollCursorOffset = 17;
+  CursorOffsetsX:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
+  CursorOffsetsY:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
+
 {Controls}
 type
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
-  TMouseButton2 = (mb2None, mb2Left, mb2Right);
+
+{Palettes}
+const
+ pal_map=1; pal_0=2; pal_1=3; pal_2=4; pal_3=5; pal_4=6; pal_5=7; pal_set=8; pal_set2=9; pal_lin=10;
 
 {Fonts}
 type //Indexing should start from 1.
@@ -47,14 +70,15 @@ const //Font01.fnt seems to be damaged..
 //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
   FontCharSpacing: array[TKMFont] of integer = (0,0,0,0,1,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
 
-
-  ScrollCursorOffset = 17;
-  CursorOffsetsX:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
-  CursorOffsetsY:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
+  FontPal:array[1..20]of byte =
+  //Those 10 are unknown Pal, no existing Pal matches them well
+  (10,2,1,10,2,2,1,8,8,9,
+   9,8,10,8,2,8,8,2,10,9);
 
 type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 
+  
 {Resources}
 type
   TResourceType = (rt_None=0, rt_All=30, rt_Warfare=31,
@@ -62,12 +86,23 @@ type
     rt_GoldOre   =5  , rt_Coal       =6 , rt_Steel      =7 , rt_Gold        =8 ,
     rt_Wine      =9  , rt_Corn       =10, rt_Bread      =11, rt_Flour       =12,
     rt_Leather   =13 , rt_Sousages   =14, rt_Pig        =15, rt_Skin        =16,
-    rt_WoodShield=17 , rt_MetalShield=18, rt_Armor      =19, rt_MetalArmor  =20,
+    rt_Shield    =17 , rt_MetalShield=18, rt_Armor      =19, rt_MetalArmor  =20,
     rt_Axe       =21 , rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
     rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
+
 const
-  ResourceProductionX:array[1..28]of byte = (
-    1,3,2,1,1,1,2,3,1,1,2,1,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,2);
+ProductionCosts:array[17..26,1..2]of TResourceType = (
+(rt_None,rt_Wood),    //rt_Shield
+(rt_Coal,rt_Steel),    //rt_MetalShield
+(rt_None,rt_Leather),    //rt_Armor
+(rt_Coal,rt_Steel),    //rt_MetalArmor
+(rt_Wood,rt_Wood),   //rt_Axe
+(rt_Coal,rt_Steel),    //rt_Sword
+(rt_Wood,rt_Wood),    //rt_Pike
+(rt_Coal,rt_Steel),    //rt_Hallebard
+(rt_Wood,rt_Wood),    //rt_Bow
+(rt_Coal,rt_Steel)    //rt_Arbalet
+);
 
 {Units}
 type
@@ -76,13 +111,23 @@ type
     ut_Farmer=5,        ut_Lamberjack=6,    ut_Baker=7,         ut_Butcher=8,
     ut_Fisher=9,        ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
     ut_Metallurgist=13, ut_Recruit=14,
-    ut_Militia=15,         ut_AxeFighter=16,      ut_Swordsman=17,       ut_Bowman=18,
-    ut_Arbaletman=19,      ut_Pikeman=20,         ut_Hallebardman=21,    ut_HorseScout=22,
-    ut_Cavalry=23,         ut_Barbarian=24);{,       ut_Peasant=,         ut_Slingshot=,
-    ut_MetalBarbarian=,  ut_Horseman=,        ut_Catapult=,        ut_Arbalest=);}
+    ut_Militia=15,      ut_AxeFighter=16,   ut_Swordsman=17,    ut_Bowman=18,
+    ut_Arbaletman=19,   ut_Pikeman=20,      ut_Hallebardman=21, ut_HorseScout=22,
+    ut_Cavalry=23,      ut_Barbarian=24,
+    //ut_Peasant=25,    ut_Slingshot=26,    ut_MetalBarbarian=27,ut_Horseman=28,
+    //ut_Catapult=29,   ut_Ballista=30,
+    ut_Wolf=31,         ut_Fish=32,         ut_Watersnake=33,   ut_Seastar=34,
+    ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38);
 
-//31 Wolf           //32 Fish           //33 Watersnake     //34 Seastar
-//35 Crab           //36 Waterflower    //37 Waterleaf      //38 Duck
+const
+  Army_Flag=4962;
+  Thought_Eat=6250;
+  Thought_Home=6258;
+  Thought_Build=6266;
+  Thought_Stone=6275;
+  Thought_Wood=6282;
+  Thought_Death=6290;
+  Thought_Quest=6298;
 
 type
   TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,
@@ -113,11 +158,6 @@ const {Actions names}
     [ua_Walk, ua_Spec, ua_Die, ua_Eat] //Recruit
     );
 
-  UnitSpeeds:array[1..40]of single =(
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,                //Civilian units
-    1,1,1,1,1,1,1,1.5,1.5,1,1,1,1,1.5,0.5,0.5,  //Army units
-    1,1,1,1,1,1,1,1,1,1);                       //Animals
-
 type
   TGatheringScript = (
     gs_None=0,
@@ -127,6 +167,11 @@ type
     gs_StoneCutter,
     gs_CoalMiner, gs_GoldMiner, gs_IronMiner);
 
+const
+  StatUnitOrder:array[1..11]of TUnitType =
+  (ut_Stonecutter, ut_Woodcutter, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher, ut_Metallurgist,
+  ut_Smith, ut_Lamberjack, ut_Miner, ut_Recruit);
+
 {Houses game}
 type
   THouseType = ( ht_None=0,
@@ -135,7 +180,8 @@ type
     ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
     ht_Metallurgists=16, ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
     ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
+    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29,
+    ht_Wall=30);
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = ( hst_Empty, hst_Idle, hst_Work );
@@ -156,28 +202,63 @@ const
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
 
+  StatHouseOrder:array[1..11,1..3]of THouseType = (
+  (ht_Quary, ht_None, ht_None),
+  (ht_Woodcutters, ht_None, ht_None),
+  (ht_Farm, ht_Wineyard, ht_None),
+  (ht_Mill, ht_Bakery, ht_None),
+  (ht_Swine, ht_Stables, ht_None),
+  (ht_Butchers, ht_Tannery, ht_None),
+  (ht_Metallurgists, ht_IronSmithy, ht_None),
+  (ht_WeaponSmithy, ht_ArmorSmithy, ht_None),
+  (ht_Sawmill, ht_WeaponWorkshop, ht_ArmorWorkshop),
+  (ht_CoalMine, ht_IronMine, ht_GoldMine),
+  (ht_Barracks, ht_WatchTower, ht_None));
+
+  //Building of the house allows player to build following houses
+  BuildingAllowed:array[1..HOUSE_COUNT,1..7]of THouseType = (
+  (ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks), //Sawmill
+  (ht_WeaponSmithy,ht_ArmorSmithy,ht_None,ht_None,ht_None,ht_None,ht_None), //IronSmithy
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //CoalMine
+  (ht_IronSmithy,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //IronMine
+  (ht_Metallurgists,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //GoldMine
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Mill,ht_Swine,ht_Stables,ht_None,ht_None,ht_None,ht_None), //Farm
+  (ht_SawMill,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Woodcutters
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_School,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Store
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Inn,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //School
+  (ht_Woodcutters,ht_WatchTower,ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Butchers,ht_Tannery,ht_None,ht_None,ht_None,ht_None,ht_None), //Swine
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Bakery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Mill
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_ArmorWorkShop,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //Tannery
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Quary,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Inn
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
+  );
+
 const
-  //what kind kind of unit should dwell in that house
-  HouseOwnerUnit:array[1..29]of TUnitType = (
-    ut_Lamberjack, ut_Metallurgist, ut_Smith, ut_Miner, ut_Miner,
-    ut_Miner, ut_Fisher, ut_Baker, ut_Farmer, ut_Woodcutter,
-    ut_Smith, ut_None, ut_AnimalBreeder, ut_None, ut_StoneCutter,
-    ut_Metallurgist, ut_AnimalBreeder, ut_Recruit, ut_None, ut_Lamberjack,
-    ut_Lamberjack, ut_Recruit, ut_Baker, ut_Lamberjack, ut_Butcher,
-    ut_Butcher, ut_None, ut_None, ut_Farmer);
-
-
   School_Order:array[1..14] of TUnitType = (
     ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
     ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
     ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
+    
 
 const
-//Offset from house center to entrance
-HouseXOffset:array[1..29]of shortint =
-( 1, 0, 1, 1, 0, 0, 1,-1, 1, 0, 1, 1, 0, 1, 0, 1,-1, 0, 1, 1, 1, 1, 0, 1,-1, 0, 0, 1,-1);
 //1-building area //2-entrance
-HousePlanYX:array[1..29,1..4,1..4]of byte = (
+HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (
 ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill        //1
 ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy    //21
 ((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy  //244
@@ -206,14 +287,21 @@ HousePlanYX:array[1..29,1..4,1..4]of byte = (
 ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery        //668
 ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
 ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn            //363
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard       //378
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)), //Wineyard       //378
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,1,0))  //Wall
 );
 
+//Does house output needs to be ordered or it keeps on producing it itself
+HousePlaceOrders:array[1..HOUSE_COUNT] of boolean = (
+false,false,true,false,false,false,false,false,false,false,
+true,false,false,false,false,false,false,false,false,true,
+true,false,false,true,false,false,false,false,false,false);
+
 //What house produces
-HouseOutput:array[1..29,1..4] of TResourceType = (
+HouseOutput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
 (rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill        //1
 (rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy    //21
-(rt_None,       rt_None,       rt_None,       rt_None), //Weapon smithy  //244
+(rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None), //Weapon smithy  //244
 (rt_Coal,       rt_None,       rt_None,       rt_None), //Coal mine      //134
 (rt_IronOre,    rt_None,       rt_None,       rt_None), //Iron mine      //61
 (rt_GoldOre,    rt_None,       rt_None,       rt_None), //Gold mine      //239
@@ -221,7 +309,7 @@ HouseOutput:array[1..29,1..4] of TResourceType = (
 (rt_Bread,      rt_None,       rt_None,       rt_None), //Bakery         //101
 (rt_Corn,       rt_None,       rt_None,       rt_None), //Farm           //124
 (rt_Trunk,      rt_None,       rt_None,       rt_None), //Woodcutter     //142
-(rt_None,       rt_None,       rt_None,       rt_None), //Armor smithy   //41
+(rt_MetalArmor, rt_MetalShield,rt_None,       rt_None), //Armor smithy   //41
 (rt_All,        rt_None,       rt_None,       rt_None), //Store          //138
 (rt_Horse,      rt_None,       rt_None,       rt_None), //Stables        //146
 (rt_None,       rt_None,       rt_None,       rt_None), //School         //250
@@ -230,8 +318,8 @@ HouseOutput:array[1..29,1..4] of TResourceType = (
 (rt_Pig,        rt_Skin,       rt_None,       rt_None), //Swine          //368
 (rt_None,       rt_None,       rt_None,       rt_None), //Watch tower    //255
 (rt_None,       rt_None,       rt_None,       rt_None), //Town hall      //1657
-(rt_None,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
-(rt_None,       rt_None,       rt_None,       rt_None), //Armor workshop //663
+(rt_Axe,        rt_Pike,       rt_Bow,        rt_None), //Weapon workshop//273
+(rt_Shield,     rt_Armor,      rt_None,       rt_None), //Armor workshop //663
 (rt_None,       rt_None,       rt_None,       rt_None), //Barracks       //334
 (rt_Flour,      rt_None,       rt_None,       rt_None), //Mill           //358
 (rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
@@ -239,14 +327,15 @@ HouseOutput:array[1..29,1..4] of TResourceType = (
 (rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery        //668
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
 (rt_None,       rt_None,       rt_None,       rt_None), //Inn            //363
-(rt_Wine,       rt_None,       rt_None,       rt_None)  //Wineyard       //378
+(rt_Wine,       rt_None,       rt_None,       rt_None), //Wineyard       //378
+(rt_None,       rt_None,       rt_None,       rt_None)  //Wall
 );
 
 //What house requires
-HouseInput:array[1..29,1..4] of TResourceType = (
+HouseInput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
 (rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill        //1
 (rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy    //21
-(rt_Steel,      rt_Coal,       rt_None,       rt_None), //Weapon smithy  //244
+(rt_Coal,       rt_Steel,      rt_None,       rt_None), //Weapon smithy  //244
 (rt_None,       rt_None,       rt_None,       rt_None), //Coal mine      //134
 (rt_None,       rt_None,       rt_None,       rt_None), //Iron mine      //61
 (rt_None,       rt_None,       rt_None,       rt_None), //Gold mine      //239
@@ -272,24 +361,25 @@ HouseInput:array[1..29,1..4] of TResourceType = (
 (rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery        //668
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
 (rt_Bread,      rt_Sousages,   rt_Wine,       rt_Fish), //Inn            //363
-(rt_None,       rt_None,       rt_None,       rt_None)  //Wineyard       //378
+(rt_None,       rt_None,       rt_None,       rt_None), //Wineyard       //378
+(rt_None,       rt_None,       rt_None,       rt_None)  //Wall
 );
 
 {Houses UI}
 const
-  HouseCount=25;
-  GUIBuildIcons:array[1..HouseCount]of word = (
+  GUIBuildIcons:array[1..30]of word = (
   314, 328, 315, 310, 301,
   309, 323, 308, 317, 325,
   329, 306, 304, 316, 320,
   326, 321, 313, 305, 302,
-  303, 311, 322, 312, 318);
+  303, 311, 322, 312, 318,
+  307, 319, 324, 312, 330);
 
 
 {Terrain}
 type
   TFieldType = (fdt_None=0, fdt_Road=1, fdt_Field=2, fdt_Wine=3,
-                fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6, fdt_HousePlan=7, fdt_HouseWIP=8);
+                fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6, fdt_HousePlan=7, fdt_HouseWIP=8, fdt_House=9);
 
   TFieldSpecial = (fs_None,
                    fs_Corn1, fs_Corn2,
@@ -337,40 +427,157 @@ ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 
 
 type
-  TPlayerID = (play_none, play_1=3, play_2, play_3, play_4, play_5, play_6);
+  TPlayerID = (play_none, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6);
+
 var
   //Players colors
   TeamColors:array[1..8]of cardinal = (
-  255 +  60 shr 8 +  45 shr 16,
-  255 + 192 shr 8 +   0 shr 16,
-   60 + 200 shr 8 +  40 shr 16,
-  255 +  60 shr 8 +  45 shr 16,
-  255 + 192 shr 8 +   0 shr 16,
-   60 + 200 shr 8 +  40 shr 16,
-  255 +  60 shr 8 +  45 shr 16,
-  255 + 192 shr 8 +   0 shr 16);
+  $3040FF, //Red
+  $00C0FF, //Orange
+  $00FFFF, //Yellow
+  $28C840, //Green
+  $3040FF, //Red
+  $00C0FF, //Orange
+  $00FFFF, //Yellow
+  $28C840  //Green
+  );
 
-PresetColor:Array[1..30,1..3] of byte = (
-//Light colors
-(255,108,108),(255,182,108),(255,255,108),//Red,Orange,Yellow
-(108,255,108),(108,255,255),(108,182,255),//Green,Cyan,Blueish
-(108,108,255),(182,108,255),(255,108,255),//Blue,Violet,Pink
-//Dark colors
-(170,  0,  0),(170, 84,  0),(170,170,  0),//Red,Orange,Yellow
-(  0,170,  0),(  0,170,170),(  0, 84,170),//Green,Cyan,Blueish
-(  0 , 0,170),( 84,  0,170),(170,  0,170),//Blue,Violet,Pink
-//Medium colors
-(255,  0,  0),(255,128,  0),(255,255,  0),//Red,Orange,Yellow
-(  0,255,  0),(  0,255,255),(  0,128,255),//Green,Cyan,Blueish
-(  0,  0,255),(128,  0,255),(255,  0,255),//Blue,Violet,Pink
-//Grey colors
-(208,208,208),(144,144,144),( 84, 84, 84));//Light,Medium,Dark
+  XH:integer=32;        //Height divider
+  GlobalTickCount:integer=0;
+
+  OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
+
+  ExeDir:string;
+
+  CursorMode:record //It's easier to store it in record
+    Mode:cmCursorMode;
+    Param:byte;
+  end;
+
+  Scrolling: boolean;
+
+  CursorX,CursorY:single;    //Precise cursor position on map
+  CursorXn,CursorYn:integer; //Cursor position node
+  CursorXc,CursorYc:integer; //Cursor position cell
+
+  //Pallete for RX bitmaps
+  //There are 9 palette files Map, Pal0-5, Setup and Setup2
+  Pal:array[1..10,1..256,1..3]of byte;
+
+  RXData:array [1..5]of record
+    Title:string;
+    Qty:integer;
+    Pal:array[1..9500] of byte;
+    Size:array[1..9500,1..2] of word;
+    Pivot:array[1..9500] of record x,y:integer; end;
+    Data:array[1..9500] of array of byte;
+    NeedTeamColors:boolean;
+  end;
+
+  GFXData: array [1..5,1..9500] of record
+    TexID,AltID: GLUint; //AltID used for team colors
+    u1,v1,u2,v2: single;
+    PxWidth,PxHeight:word;
+  end;
+
+  FontData:array[1..32]of record
+    Title:TKMFont;
+    TexID:GLUint;
+    Pal:array[0..255]of byte;
+    Letters:array[0..255]of record
+      Width,Height:word;
+      Add:array[1..4]of word;
+      Data:array[1..4096] of byte;
+      u1,v1,u2,v2:single;
+    end;
+  end;
+
+HouseDAT1:array[1..30,1..35]of smallint; //Pigs and Horses
+HouseDAT:array[1..HOUSE_COUNT] of packed record
+  StonePic,WoodPic,WoodPal,StonePal:smallint;
+  SupplyIn:array[1..4,1..5]of smallint;
+  SupplyOut:array[1..4,1..5]of smallint;
+  Anim:array[1..19] of record
+    Step:array[1..30]of smallint;
+    Count:smallint;
+    MoveX,MoveY:integer;
+  end;
+  WoodPicSteps,StonePicSteps:word;
+  a1:smallint;
+  EntranceOffsetX:shortint;
+  a2,a3,a4:shortint;
+  BuildArea:array[1..10,1..10]of shortint;
+  WoodCost,StoneCost:byte;
+  BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
+  a5,SizeArea:smallint;
+  SizeX,SizeY,sx2,sy2:shortint;
+  a6,WorkerRest:smallint;
+  ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
+  ResProductionX:shortint;
+  MaxHealth,Sight:smallint;
+  OwnerType:shortint;
+  Foot:array[1..36]of shortint;
+end;
+
+SerfCarry:array[1..28] of packed record
+  Dir:array[1..8]of packed record
+    Step:array[1..30]of smallint;
+    Count:smallint;
+    MoveX,MoveY:integer;
+  end;
+end;
+
+UnitStat:array[1..41]of record
+  x1,Attack,AttackHorseBonus,x4,HitPoints,Speed,x7,Sight:smallint;
+  x9,x10:shortint;
+  CanWalkOut,x11:smallint;
+end;
+UnitSprite2:array[1..41,1..18]of smallint;
+UnitSprite:array[1..41]of packed record
+  Act:array[1..14]of packed record
+    Dir:array[1..8]of packed record
+      Step:array[1..30]of smallint;
+      Count:smallint;
+      MoveX,MoveY:integer;
+    end;
+  end;
+end;
+
+  MapElemQty:integer=254; //Default qty
+  MapElem:array[1..512]of packed record
+    Step:array[1..30]of smallint; //60
+    Count:word;                   //62
+    u1:array[1..16]of word;       //94
+    u2:shortint;                  //95
+    u3,u4:word;                   //99
+  end;
+
+  TileMMColor:array[1..256]of record R,G,B:byte; end;
+
+
+
+type
+  TKMList = class(TList)
+  public
+    procedure Clear; override;
+  end;
+
+
+type TKMPointList = class
+  public
+    Count:integer;
+    List:array of TKMPoint;
+    procedure Clearup;
+    procedure AddEntry(aLoc:TKMPoint);
+  end;
+
 
 function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload
 function TypeToString(t:TUnitType):string; overload
 
 implementation
+uses KM_LoadLib;
 
 function TypeToString(t:TUnitType):string;
 var s:string;
@@ -386,7 +593,7 @@ end;
 function TypeToString(t:THouseType):string;
 var s:string;
 begin
-if byte(t) in [1..29] then
+if byte(t) in [1..HOUSE_COUNT] then
   s:=fTextLibrary.GetTextString(siHouseNames+byte(t))
 else
   s:='N/A';
@@ -404,8 +611,8 @@ else
 Result:=s;
 end;
 
-{ TKMList }
 
+{ TKMList }
 procedure TKMList.Clear;
 var
   I: Integer;
@@ -416,14 +623,13 @@ begin
 end;
 
 
-constructor TKMPointList.Create;
-begin end;
-
+{ TKMPointList }
 procedure TKMPointList.Clearup;
 begin
   Count:=0;
   setlength(List,0);
 end;
+
 
 procedure TKMPointList.AddEntry(aLoc:TKMPoint);
 begin

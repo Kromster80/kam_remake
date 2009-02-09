@@ -35,6 +35,7 @@ begin
   assignfile(fl,logfile);
   rewrite(fl);
   closefile(fl);
+  AppendLog('Log is up and running');
 end;
 
 {Lines are timestamped, each line invokes file open/close for writing,

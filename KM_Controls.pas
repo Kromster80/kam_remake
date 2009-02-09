@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics;
+uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
@@ -11,15 +11,23 @@ TKMControl = class
     Parent: TKMControl;
     ChildCount:word;             //Those two are actually used only for TKMPanel
     Childs: array of TKMControl; //No other elements needs to be parented
+
     Left: Integer;
     Top: Integer;
     Width: Integer;
     Height: Integer;
+
     Enabled: boolean;
     Visible: boolean;
+
+    Tag: integer; //Some tag which can be used for various needs
+    Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
+    
+    CursorOver:boolean;
+
     FOnClick:TNotifyEvent;
     FOnRightClick:TNotifyEvent;
-    CursorOver:boolean;
+    FOnMouseOver:TMouseMoveEvent;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     procedure ParentTo (aParent:TKMControl);
@@ -28,6 +36,7 @@ TKMControl = class
   public
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
+    property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
 end;
 
 
@@ -51,30 +60,6 @@ TKMImage = class(TKMControl)
 end;
 
 
-{Percent bar}
-TKMPercentBar = class(TKMControl)
-  public
-    Position: byte;
-    Caption: string;
-    Font: TKMFont;
-    TextAlign: KAlign;
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont);
-    procedure Paint(); override;
-end;
-
-
-{Resource bar}
-TKMResourceBar = class(TKMControl)
-  public
-    Resource: TResourceType;
-    ResourceCount: integer;
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
-    procedure Paint(); override;
-end;
-
-
 {3DButton}
 TKMButton = class(TKMControl)
   public
@@ -94,11 +79,13 @@ end;
 {FlatButton}
 TKMButtonFlat = class(TKMControl)
   public
-    Checked:boolean;
     TexID: integer;
+    TexOffsetX:shortint;
+    Caption: string;
     Font: TKMFont;
     TextAlign: KAlign;
-    Caption: string;
+    Down:boolean;
+    HideHighlight:boolean;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
     procedure Paint(); override;
@@ -108,12 +95,73 @@ end;
 {Text Label}
 TKMLabel = class(TKMControl)
   public
-    Font: TKMFont;  
-    FontColor: TColor;
+    Font: TKMFont;
+    FontColor: TColor4;
     TextAlign: KAlign;
     Caption: string;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$FFFFFFFF);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
+    procedure Paint(); override;
+end;
+
+{Percent bar}
+TKMPercentBar = class(TKMControl)
+  public
+    Position: integer;
+    Caption: string;
+    Font: TKMFont;
+    TextAlign: KAlign;
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont);
+    procedure Paint(); override;
+end;
+
+
+{Resource bar}
+TKMResourceRow = class(TKMControl)
+  public
+    Resource: TResourceType;
+    ResourceCount: integer;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
+    procedure Paint(); override;
+end;
+
+
+{Resource order bar}
+TKMResourceOrderRow = class(TKMControl)
+  public
+    Resource: TResourceType;
+    ResourceCount: integer;
+    OrderAdd:TKMButton;
+    OrderLab:TKMLabel;
+    OrderRem:TKMButton;
+    OrderCount:word;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
+    procedure Paint(); override;
+end;
+
+
+{Production cost bar}
+TKMCostsRow = class(TKMControl)
+  public
+    CostID:byte;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte);
+    procedure Paint(); override;
+end;
+
+
+{Ratio bar}
+TKMRatioRow = class(TKMControl)
+  public
+    Position:byte;
+    MaxValue:byte;
+    MinValue:byte;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
 
@@ -127,9 +175,12 @@ TKMControlsCollection = class(TKMList)
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton; overload;
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
     function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
-    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; const aColor:TColor=$FFFFFFFF):TKMLabel;
+    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
-    function AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceBar;
+    function AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
+    function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
+    function AddCostsRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
+    function AddRatioRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
     function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
@@ -141,7 +192,7 @@ var
   fControls: TKMControlsCollection;
 
 implementation
-uses KM_RenderUI, KM_Global_Data;
+uses KM_RenderUI;
 
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin
@@ -174,6 +225,10 @@ procedure TKMControl.CheckCursorOver(X,Y:integer; AShift:TShiftState);
 var i:integer;
 begin
   CursorOver:=InRange(X,Left,Left+Width) and InRange(Y,Top,Top+Height);
+
+  if (CursorOver)and(Assigned(Self.OnMouseOver)) then
+    Self.OnMouseOver(Self,AShift,X,Y);
+
   for i:=1 to ChildCount do
     if Childs[i].Visible then
       if Childs[i].Enabled then
@@ -206,6 +261,7 @@ begin
 end;
 
 
+{ TKMButton }
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -232,7 +288,7 @@ begin
     Down := true;
 
   Inherited CheckCursorOver(X,Y,AShift);
-end;   
+end;
 
 
 procedure TKMButton.Paint();
@@ -258,13 +314,25 @@ end;
 
 {Render}
 procedure TKMButtonFlat.Paint();
-var State:T3DButtonStateSet;
+var State:T3DButtonStateSet; TexOffsetY:shortint;
 begin
   State:=[];
-  if CursorOver and Enabled then State:=State+[bs_Highlight];
-  if Checked then State:=State+[bs_Down];
-  if not Enabled then State:=State+[bs_Disabled];
-    fRenderUI.WriteFlatButton(TexID,Caption,Left,Top,Width,Height,State)
+  if CursorOver and Enabled and not HideHighlight then State:=State+[bs_Highlight];
+  if Down and not HideHighlight then State:=State+[bs_Down];
+  //if not Enabled then State:=State+[bs_Disabled];
+    fRenderUI.WriteFlatButton(TexID,Caption,Left,Top,Width,Height,State);
+
+  if TexID<>0 then begin
+    TexOffsetY:=-7*byte(Caption<>'');
+    fRenderUI.WritePic(TexID, Left + (Width-GFXData[4,TexID].PxWidth) div 2 + TexOffsetX,
+                              Top + (Height-GFXData[4,TexID].PxHeight) div 2 + TexOffsetY,true);
+  end;
+
+  if Enabled then
+    fRenderUI.WriteText(Left + Width div 2, Top + (Height div 2)+4, kaCenter, Caption, fnt_Game, $FFFFFFFF)
+  else
+    fRenderUI.WriteText(Left + Width div 2, Top + (Height div 2)+4, kaCenter, Caption, fnt_Game, $FF888888);
+
 end;
 
 
@@ -303,11 +371,13 @@ procedure TKMPercentBar.Paint();
 begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then //Now draw text over bar, if required
+    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, TextAlign, Caption, Font, $FF000000);
+  if Caption <> '' then //Now draw text over bar, if required
     fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, TextAlign, Caption, Font, $FFFFFFFF);
 end;
 
 
-constructor TKMResourceBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
+constructor TKMResourceRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
@@ -316,18 +386,112 @@ begin
 end;
 
 
-procedure TKMResourceBar.Paint();
+procedure TKMResourceRow.Paint();
 var i:integer;
 begin
   fRenderUI.WriteFlatButton(0,'',Left,Top,Width,Height,[]);
-  fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Grey, $FFFFFFFF);
+  fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Game, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
     fRenderUI.WritePic(350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
 end;
 
 
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor=$FFFFFFFF);
+constructor TKMResourceOrderRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
+begin
+  Inherited Create(aLeft+68,aTop,aWidth-68,aHeight);
+  ParentTo(aParent);
+  Resource:=aRes;
+  ResourceCount:=aCount;
+  OrderRem:=fControls.AddButton(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal);
+  OrderLab:=fControls.AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'00');
+  OrderAdd:=fControls.AddButton(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal);
+  OrderCount:=0;
+end;
+
+
+procedure TKMResourceOrderRow.Paint();
+var i:integer;
+begin
+  OrderRem.Top:=Top;
+  OrderLab.Top:=Top+4;
+  OrderAdd.Top:=Top;
+
+  //Otherwise they won't be rendered
+  OrderRem.Visible:=Visible;
+  OrderLab.Visible:=Visible;
+  OrderAdd.Visible:=Visible;
+
+  OrderLab.Caption:=inttostr(OrderCount);
+
+  fRenderUI.WriteFlatButton(0,'',Left,Top,Width,Height,[]);
+  fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Game, $FFFFFFFF);
+  Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
+  for i:=1 to ResourceCount do
+    fRenderUI.WritePic(350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
+end;
+
+
+{ TKMCostsRow }
+constructor TKMCostsRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  CostID:=aProductionCostID;
+end;
+
+
+procedure TKMCostsRow.Paint();
+var TexID:byte;
+begin
+  fRenderUI.WriteText(Left, Top + 4, kaLeft, TypeToString(TResourceType(CostID)), fnt_Grey, $FFFFFFFF);
+  if ProductionCosts[CostID,1] in [rt_Trunk..rt_Fish] then begin
+    TexID:=byte(ProductionCosts[CostID,1]);
+    fRenderUI.WritePic(350+TexID, Left+Width-40, Top + (Height-GFXData[4,TexID].PxHeight) div 2);
+  end;
+  if ProductionCosts[CostID,2] in [rt_Trunk..rt_Fish] then begin
+    TexID:=byte(ProductionCosts[CostID,2]);
+    fRenderUI.WritePic(350+TexID, Left+Width-20, Top + (Height-GFXData[4,TexID].PxHeight) div 2);
+  end;
+end;
+
+
+{ TKMRatioRow }
+constructor TKMRatioRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  Position:=5;
+  MaxValue:=10;
+  MinValue:=1;
+end;
+
+
+procedure TKMRatioRow.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+begin
+  Inherited CheckCursorOver(X,Y,AShift);
+  if (CursorOver) and (ssLeft in AShift) then
+    Position:=EnsureRange(round(MinValue+((X-Left-12)/(Width-28))*(MaxValue-MinValue)),MinValue,MaxValue);
+end;
+
+
+procedure TKMRatioRow.Paint();
+var Pos:word;
+begin
+  if MakeDrawPagesOverlay then
+    fRenderUI.WriteLayer($4000FF00, Left, Top, Width, Height);
+
+  fRenderUI.WriteFlatButton(0,'',Left+2,Top+2,Width-4,Height-4,[]);
+  Pos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
+  fRenderUI.WritePic(132, Left+Pos+2, Top);
+  if Enabled then
+    fRenderUI.WriteText(Left+12+2+Pos, Top+3,kaCenter,inttostr(Position),fnt_Metal,$FFFFFFFF)
+  else
+    fRenderUI.WriteText(Left+12+2+Pos, Top+3,kaCenter,inttostr(Position),fnt_Metal,$FF888888);
+end;
+
+
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
@@ -348,7 +512,10 @@ begin
     kaCenter: fRenderUI.WriteLayer($4000FFFF, Left - Width div 2, Top, Width, Height);
     kaRight:  fRenderUI.WriteLayer($4000FFFF, Left - Width, Top, Width, Height);
   end;
-  Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font, FontColor);
+  if Enabled then
+    Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font, FontColor)
+  else
+    Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font, $FF888888);
   Width:=Tmp.X;
   Height:=Tmp.Y;
 end;
@@ -390,7 +557,7 @@ begin
 end;
 
 function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont;
-        aTextAlign: KAlign; aCaption:string; const aColor:TColor = $FFFFFFFF):TKMLabel;
+        aTextAlign: KAlign; aCaption:string; const aColor:TColor4 = $FFFFFFFF):TKMLabel;
 begin
   Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
   AddToCollection(Result);
@@ -402,9 +569,27 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceBar;
+function TKMControlsCollection.AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
 begin
-  Result:=TKMResourceBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
+  Result:=TKMResourceRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
+begin
+  Result:=TKMResourceOrderRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddCostsRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
+begin
+  Result:=TKMCostsRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aProductionCostID);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddRatioRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
+begin
+  Result:=TKMRatioRow.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
 end;
 
@@ -452,19 +637,17 @@ begin
       if TKMControl(Items[I]).Enabled then begin
         if TKMControl(Items[i]).ClassType=TKMButton then
           TKMButton(Items[I]).Down:=false;
-         if AButton = mbLeft then
-         begin
-           if Assigned(TKMControl(Items[I]).OnClick) then begin
-             TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
-             exit; //Send OnClick only to one item
-           end;
-         end
-         else
-         if AButton = mbRight then
-           if Assigned(TKMControl(Items[I]).OnRightClick) then begin
-             TKMControl(Items[I]).OnRightClick(TKMControl(Items[I]));
-             exit; //Send OnClick only to one item
-           end;
+        if AButton = mbLeft then begin
+          if Assigned(TKMControl(Items[I]).OnClick) then begin
+            TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
+            exit; //Send OnClick only to one item
+          end;
+        end else
+          if AButton = mbRight then
+          if Assigned(TKMControl(Items[I]).OnRightClick) then begin
+            TKMControl(Items[I]).OnRightClick(TKMControl(Items[I]));
+            exit; //Send OnClick only to one item
+          end;
       end;
 end;
 

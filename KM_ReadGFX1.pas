@@ -4,12 +4,11 @@ uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, K
 
 type
   TByteArray2 = array of Byte;
-  TWordArray2 = array of Word;
   TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest);
 
     function ReadGFX(text: string):boolean;
 
-      function ReadPallete(filename:string):boolean;
+      function ReadPallete(filename:string; PalID:byte):boolean;
       function ReadMapElem(filename:string):boolean;
       function ReadHouseDAT(filename:string):boolean;
       function ReadUnitDAT(filename:string):boolean;
@@ -29,13 +28,26 @@ type
 
 implementation
 
-uses KromUtils, KM_Unit1, KM_Form_Loading,
-     KM_Global_Data, KM_Log;
+uses KromUtils, KM_Unit1, KM_Log, KM_Render;
 
 function ReadGFX(text: string):boolean;
 var i:integer; procedure StepRefresh(); begin FormLoading.Bar1.StepIt; FormLoading.Refresh; end;
 begin
-  fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm'));           StepRefresh();
+  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
+  Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
+
+  FormLoading.Label1.Caption:='Reading palettes ...';
+  fLog.AppendLog('Reading map.bbm',ReadPallete(text+'data\gfx\map.bbm',pal_map));       StepRefresh();
+  fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm',pal_0));       StepRefresh();
+  fLog.AppendLog('Reading pal1.bbm',ReadPallete(text+'data\gfx\pal1.bbm',pal_1));       StepRefresh();
+  fLog.AppendLog('Reading pal2.bbm',ReadPallete(text+'data\gfx\pal2.bbm',pal_2));       StepRefresh();
+  fLog.AppendLog('Reading pal3.bbm',ReadPallete(text+'data\gfx\pal3.bbm',pal_3));       StepRefresh();
+  fLog.AppendLog('Reading pal4.bbm',ReadPallete(text+'data\gfx\pal4.bbm',pal_4));       StepRefresh();
+  fLog.AppendLog('Reading pal5.bbm',ReadPallete(text+'data\gfx\pal5.bbm',pal_5));       StepRefresh();
+  fLog.AppendLog('Reading Setup.bbm',ReadPallete(text+'data\gfx\setup.bbm',pal_set));   StepRefresh();
+  fLog.AppendLog('Reading Setup2.bbm',ReadPallete(text+'data\gfx\setup2.bbm',pal_set2));StepRefresh();
+
+  FormLoading.Label1.Caption:='Reading defines ...';
   fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
   fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
   fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
@@ -48,6 +60,7 @@ begin
 
   for i:=1 to 5 do
   if (i=4)or(MakeGameSprites) then begin //Always make GUI
+    FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
     if i=4 then MakeCursors(4); //Make GUI items
     MakeGFX(nil,i);
@@ -55,17 +68,16 @@ begin
     StepRefresh();
   end;
 
+  FormLoading.Label1.Caption:='Making minimap colors ...';
   MakeMiniMapColors();
   fLog.AppendLog('Prepared MiniMap colors...');
   StepRefresh();
 
+  FormLoading.Label1.Caption:='Reading fonts ...';
   for i:=1 to length(FontFiles) do
     ReadFont(text+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
   fLog.AppendLog('Read fonts is done');
   StepRefresh();
-
-  //ExportUnitAnim2BMP;
-  //ExportHouseAnim2BMP;
 
   fLog.AppendLog('ReadGFX is done');
   Result:=true;
@@ -75,16 +87,24 @@ end;
 //=============================================
 //Reading pallete for trees/objects
 //=============================================
-function ReadPallete(filename:string):boolean;
-var f:file;
+function ReadPallete(filename:string; PalID:byte):boolean;
+var f:file; i:byte;
 begin
 Result:=false;
 if not CheckFileExists(filename) then exit;
   assignfile(f,filename);
   reset(f,1);
-  blockread(f,Pal0,48); //Unknown and/or unimportant 
-  blockread(f,Pal0,768); //256*3
+  blockread(f,Pal[PalID],48); //Unknown and/or unimportant
+  blockread(f,Pal[PalID],768); //256*3
   closefile(f);
+
+  if PalID=1 then //Make greyscale linear Pal
+    for i:=0 to 255 do begin
+      Pal[10,i+1,1]:=i;
+      Pal[10,i+1,2]:=i;
+      Pal[10,i+1,3]:=i;
+    end;
+
 Result:=true;
 end;
 
@@ -127,39 +147,76 @@ end;
 //Reading houses.dat data
 //=============================================
 function ReadHouseDAT(filename:string):boolean;
-var ii,kk:integer; ft:textfile; f:file;
+var ii,kk,h:integer; ft:textfile; f:file;
 begin
 Result:=false;
 if not CheckFileExists(filename) then exit;
 assignfile(f,filename); reset(f,1);
 blockread(f,HouseDAT1,30*70);
-for ii:=1 to 29 do begin
-blockread(f,HouseDAT[ii],88+19*70+270);
+for h:=1 to 29 do begin
+blockread(f,HouseDAT[h],88+19*70+270);
+end;
+//Append info for new houses
+for ii:=30 to HOUSE_COUNT do begin
+fillChar(HouseDAT[ii],SizeOf(HouseDAT[ii]),#0);
+HouseDAT[ii].StonePic:=129-1;
+HouseDAT[ii].WoodPic:=130-1;
+HouseDAT[ii].WoodPal:=132-1;
+HouseDAT[ii].StonePal:=131-1;
+HouseDAT[ii].WoodPicSteps:=7;
+HouseDAT[ii].StonePicSteps:=8;
+HouseDAT[ii].MaxHealth:=50;
 end;
 closefile(f);
 
-assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
-for ii:=1 to 29 do begin
-writeln(ft);
-write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+',');
-{  write(ft,'Resource In: ');
-  for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
-  write(ft,'#') else write(ft,' ');
-  writeln(ft);
-  write(ft,'Resource Out: ');
-  for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
-  write(ft,'#') else write(ft,' ');
-  writeln(ft);
-  for kk:=1 to 19 do
-    writeln(ft,HouseAction[kk]+#9+inttostr(HouseDAT[ii].Anim[kk].Count));}
-
-  for kk:=1 to 133 do
-  write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+',');
-  for kk:=1 to 133 do
-  write(ft,inttostr(HouseDAT[ii].Foot[kk]+1)+',');
+  assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
+  writeln(ft,'House;a1;a2;a3;a4;a6;a8;Foot---------->;');
+  for ii:=1 to HOUSE_COUNT do begin
   //writeln(ft);
-end;
-closefile(ft);
+  write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+';');
+  {  write(ft,'Resource In: ');
+    for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
+    write(ft,'#') else write(ft,' ');
+    writeln(ft);
+    write(ft,'Resource Out: ');
+    for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
+    write(ft,'#') else write(ft,' ');
+    writeln(ft);
+    for kk:=1 to 19 do writeln(ft,HouseAction[kk]+#9+inttostr(HouseDAT[ii].Anim[kk].Count));}
+    //write(ft,inttostr(HouseDAT[ii].WoodPicSteps)+';');
+    //write(ft,inttostr(HouseDAT[ii].StonePicSteps)+';');
+    write(ft,inttostr(HouseDAT[ii].a1)+';'); //0
+    //write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
+    write(ft,inttostr(HouseDAT[ii].a2)+';'); //0
+    write(ft,inttostr(HouseDAT[ii].a3)+';');
+    write(ft,inttostr(HouseDAT[ii].a4)+';');
+    {writeln(ft);
+    for kk:=1 to length(HouseDAT[ii].BuildArea) do begin
+      for h:=1 to 10 do
+        write(ft,inttostr(HouseDAT[ii].BuildArea[kk,h])+';');
+      writeln(ft,';');
+    end; }
+    //write(ft,inttostr(HouseDAT[ii].WoodCost)+';');
+    //write(ft,inttostr(HouseDAT[ii].StoneCost)+';');
+    //for kk:=1 to 12 do write(ft,'dx '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveX)+' dy '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveY)+';');
+    write(ft,inttostr(HouseDAT[ii].a5)+';');
+    //write(ft,'Area '+inttostr(HouseDAT[ii].SizeArea)+';');
+    //write(ft,'Size '+inttostr(HouseDAT[ii].SizeX)+'x'+inttostr(HouseDAT[ii].SizeY)+';');
+    //write(ft,'Size2 '+inttostr(HouseDAT[ii].sx2)+'x'+inttostr(HouseDAT[ii].sy2)+';');
+    write(ft,inttostr(HouseDAT[ii].a6)+';');
+    //write(ft,inttostr(HouseDAT[ii].WorkerRest)+'sec;');
+    //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResInput[kk]+1))+';');
+    //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResOutput[kk]+1))+';');
+    //write(ft,'Product x'+inttostr(HouseDAT[ii].ResProductionX)+';');
+    //write(ft,inttostr(HouseDAT[ii].MaxHealth)+'hp;');
+    //write(ft,'Sight '+inttostr(HouseDAT[ii].Sight)+';');
+    //write(ft,TypeToString(TUnitType(HouseDAT[ii].OwnerType+1))+';');
+    for kk:=1 to 36 do write(ft,inttostr(HouseDAT[ii].Foot[kk])+';');
+    writeln(ft);
+  end;
+  closefile(ft);
+
+//Form1.Close;
 
 Result:=true;
 end;
@@ -174,7 +231,7 @@ Result:=false;
 if not CheckFileExists(filename) then exit;
 assignfile(f,filename); reset(f,1);
 for ii:=1 to 28 do begin
-blockread(f,UnitCarry[ii],8*70);
+blockread(f,SerfCarry[ii],8*70);
 end;
 for ii:=1 to 41 do begin
 blockread(f,UnitStat[ii],22);
@@ -182,6 +239,26 @@ blockread(f,UnitSprite[ii],112*70);
 blockread(f,UnitSprite2[ii],36);
 end;
 closefile(f);
+
+assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
+writeln(ft,'Name;x1;Attack;AttackHorseBonus;x4;HitPoints;Speed;x7;Sight;x9;x10;CanWalkOut;0;');
+for ii:=1 to 40 do begin
+  write(ft,fTextLibrary.GetTextString(siUnitNames+ii)+';');
+  write(ft,inttostr(UnitStat[ii].x1)+';');
+  write(ft,inttostr(UnitStat[ii].Attack)+';');
+  write(ft,inttostr(UnitStat[ii].AttackHorseBonus)+';');
+  write(ft,inttostr(UnitStat[ii].x4)+';');
+  write(ft,inttostr(UnitStat[ii].HitPoints)+'hp;');
+  write(ft,inttostr(UnitStat[ii].Speed)+';');
+  write(ft,inttostr(UnitStat[ii].x7)+';');
+  write(ft,inttostr(UnitStat[ii].Sight)+';');
+  write(ft,inttostr(UnitStat[ii].x9)+';');
+  write(ft,inttostr(UnitStat[ii].x10)+';');
+  write(ft,inttostr(UnitStat[ii].CanWalkOut)+';');
+  write(ft,inttostr(UnitStat[ii].x11)+';');
+  writeln(ft);
+end;
+closefile(ft);
 
 //This is a bad idea to fix anything here, but at the time it's the simplest solution
 //Woodcutter(2) needs to shuffle actions
@@ -244,7 +321,7 @@ end;
 //=============================================
 //Make texture
 //=============================================
-procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode);
+procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL);
 var
   i,k:integer;
   x:byte;
@@ -278,14 +355,14 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
       by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
 
       if Mode=tm_NoCol then
-          col:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000
+          col:=Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000
       else
 
       if Mode=tm_TexID then
-        if x in [24..30] then
+        if InRange(x,24,30) then
           col:=((x-27)*42+128)*65793 OR $FF000000 //convert to greyscale B>>>>>W
         else
-          col:=Pal0[x+1,1]+Pal0[x+1,2] SHL 8 +Pal0[x+1,3] SHL 16 OR $FF000000
+          col:=Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000
       else
 
       if Mode=tm_AltID then
@@ -335,14 +412,14 @@ var
   TD:array of byte;
 begin
 
-for ID:=1 to 29 do
-if HouseDAT[ID].Stone<>-1 then //Exlude House27 which is unused
+for ID:=1 to HOUSE_COUNT do
+if HouseDAT[ID].StonePic<>-1 then //Exlude House27 which is unused
   for h:=1 to 2 do begin
 
     if h=1 then begin
-      ID1:=HouseDAT[ID].Wood+1; ID2:=HouseDAT[ID].WoodPal+1; StepCount:=HouseDAT[ID].WoodCount;
+      ID1:=HouseDAT[ID].WoodPic+1; ID2:=HouseDAT[ID].WoodPal+1; StepCount:=HouseDAT[ID].WoodPicSteps;
     end else begin
-      ID1:=HouseDAT[ID].Stone+1; ID2:=HouseDAT[ID].StonePal+1; StepCount:=HouseDAT[ID].StoneCount;
+      ID1:=HouseDAT[ID].StonePic+1; ID2:=HouseDAT[ID].StonePal+1; StepCount:=HouseDAT[ID].StonePicSteps;
     end;
 
     WidthPOT:=MakePOT(RXData[RXid].Size[ID1,1]);
@@ -356,9 +433,9 @@ if HouseDAT[ID].Stone<>-1 then //Exlude House27 which is unused
         if i<=RXData[RXid].Size[ID1,2] then begin
           t:=((i-1)*WidthPOT+ci)*4;
           col:=RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1,1]+k-1]+1;
-          TD[t+0]:=Pal0[col,1];
-          TD[t+1]:=Pal0[col,2];
-          TD[t+2]:=Pal0[col,3];
+          TD[t+0]:=Pal[DEF_PAL,col,1];
+          TD[t+1]:=Pal[DEF_PAL,col,2];
+          TD[t+2]:=Pal[DEF_PAL,col,3];
           if i<=RXData[RXid].Size[ID2,2] then
           if k<=RXData[RXid].Size[ID2,1] then begin//Cos someimes ID2 is smaller by few pixels
             t2:=t+(RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x)*4; //Shift by pivot, always positive
@@ -432,7 +509,7 @@ repeat
   end;
 
   //If we need to prepare textures for TeamColors
-  if RXData[RXid].NeedTeamColors then
+  if MakeTeamColors and RXData[RXid].NeedTeamColors then
     GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_TexID)
   else
     GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol);
@@ -499,7 +576,7 @@ begin
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[RXid].Data[id,y*sx+x]+1;
-      MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+      MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
     end;
     if sy>0 then MyBitmap.SaveToFile(ExeDir+RXData[RXid].Title+'rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
 
@@ -519,6 +596,7 @@ begin
 
   ReadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
+  ci:=0;
   for ID:=10 to 10 do begin
     for Ac:=1 to 14 do begin
       for Di:=1 to 8 do if UnitSprite[ID].Act[Ac].Dir[Di].Step[1]<>-1 then begin
@@ -535,7 +613,7 @@ begin
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
             t:=RXData[3].Data[ci,y*sx+x]+1;
-            MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+            MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
           end;
           if sy>0 then MyBitmap.SaveToFile(
           ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\'+inttostr(Di)+'_'+int2fix(k,2)+'.bmp');
@@ -560,6 +638,7 @@ begin
 
   ReadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
 
+  ci:=0;
   for ID:=1 to 30 do begin
     for Ac:=1 to 5 do begin //Work1..Work5
       for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
@@ -575,7 +654,7 @@ begin
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do begin
           t:=RXData[2].Data[ci,y*sx+x]+1;
-          MyBitmap.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+          MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
         end;
         if sy>0 then MyBitmap.SaveToFile(
         ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
@@ -641,7 +720,7 @@ begin
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[RXid].Data[Cursors[i],y*sx+x]+1;
-      bm.Canvas.Pixels[x,y]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+      bm.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
       if t=1 then
         bm2.Canvas.Pixels[x,y]:=$FFFFFF
       else
@@ -667,9 +746,9 @@ const
   TexWidth=256; //Connected to TexData, don't change
 var
   f:file;
-  t:byte;
+  p,t:byte;
   a,b,c,d:word;
-  i,ci,ck:integer;
+  i,k,ci,ck:integer;
   MaxHeight:integer;
   AdvX,AdvY:integer;
   TD:array of byte;
@@ -693,8 +772,16 @@ for i:=0 to 255 do
       Assert(Width*Height<>0); //Fon01.fnt seems to be damaged..
       blockread(f,Data[1],Width*Height);
     end;
-
 closefile(f);
+
+//Special fixes:
+if aFont=fnt_game then
+for i:=0 to 255 do
+  if FontData[byte(aFont)].Pal[i]<>0 then
+    for k:=1 to 4096 do
+      if FontData[byte(aFont)].Letters[i].Data[k]<>0 then
+        FontData[byte(aFont)].Letters[i].Data[k]:=218; //Light grey color in Pal2
+
 
 //Compile texture
 AdvX:=0; AdvY:=0;
@@ -723,10 +810,11 @@ for i:=0 to 255 do
       inc(AdvX,1+Width+1);
     end;
 
-  GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],tm_TexID);
+  GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
 
   FontData[byte(aFont)].Letters[32].Width:=7; //"Space" width
 
+//for i:=1 to 10 do
 if WriteFontToBMP then begin
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
@@ -734,12 +822,14 @@ if WriteFontToBMP then begin
   MyBitmap.Height:=TexWidth;
 
   for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
+  p:=FontPal[byte(aFont)];
+  //p:=i;
     t:=TD[ci*TexWidth+ck]+1;
-    MyBitmap.Canvas.Pixels[ck,ci]:=Pal0[t,1]+Pal0[t,2]*256+Pal0[t,3]*65536;
+    MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
   end;
 
   CreateDir(ExeDir+'Fonts\');
-  MyBitmap.SaveToFile(ExeDir+'Fonts\'+ExtractFileName(filename)+'.bmp');
+  MyBitmap.SaveToFile(ExeDir+'Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
 end;
 
 setlength(TD,0);

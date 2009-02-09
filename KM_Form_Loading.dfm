@@ -15,7 +15,6 @@ object FormLoading: TFormLoading
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   Position = poScreenCenter
-  OnCreate = FormCreate
   DesignSize = (
     257
     155)

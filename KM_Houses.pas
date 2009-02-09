@@ -1,6 +1,6 @@
 unit KM_Houses;
 interface
-uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Global_Data, KM_Defaults;
+uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults;
 
   {Everything related to houses is here}
 type
@@ -29,20 +29,23 @@ type
     fBuildState: THouseBuildState;
     fOwnerID: TPlayerID;
 
+    fBuildSupplyWood: byte;
+    fBuildSupplyStone: byte;
     fBuildingProgress: word; //That is how many efforts were put into building (Wooding+Stoning)
-    fHealth: word; //House condition/health
+    fHealth: single; //House condition/health
 
     fHasOwner: boolean; //which is some TKMUnit
-    fOwnerAtHome: boolean;
     fBuildingRepair: boolean; //If on and the building is damaged then labourers will come and repair it
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
     fResourceIn:array[1..4] of byte;
     fResourceOut:array[1..4]of byte;
 
+    fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
+
     fLastUpdateTime: Cardinal;
     FlagAnimStep: integer; //Used for Flags and Burning animation
-    WorkAnimStep: integer; //Used for Work and etc..
+    WorkAnimStep: integer; //Used for Work and etc.. which is not in sync with Flags
     procedure SetWareDelivery(AVal:boolean);
   public
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
@@ -54,25 +57,29 @@ type
 
     procedure SetBuildingState(aState: THouseBuildState);
     procedure IncBuildingProgress;
+    function IsStarted:boolean;
     function IsComplete:boolean;
 
     procedure SetState(aState: THouseState; aTime:integer);
     function GetState:THouseState;
-    procedure OwnerGoesIn;
-    procedure OwnerGoesOut;
-    
+
     function CheckResIn(aResource:TResourceType):byte;
     function CheckResOut(aResource:TResourceType):byte;
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
-    procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1);
+    procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual;
     function ResTakeFromIn(aResource:TResourceType):boolean;
     function ResTakeFromOut(aResource:TResourceType):boolean;
+    procedure AddOrder(ID:byte; const Amount:byte=1);
+    procedure RemOrder(ID:byte; const Amount:byte=1);
+    function CheckResOrder(ID:byte):word;
 
     property GetPosition:TKMPoint read fPosition;
+    function GetEntrance():TKMPoint;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner;
+    property GetHealth:single read fHealth;
 
     procedure UpdateState;
     procedure Paint();
@@ -81,12 +88,15 @@ type
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
   public
+    //fUnit:TKMUnit;
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
-    UnitTrainProgress:byte; //Was it 12 steps in KaM?
+    UnitTrainProgress:byte; //Was it 150 steps in KaM?
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(id:integer); //Should remove unit from queue and shift rest up
-    procedure UnitIsTrained; //This should Create new unit and shift queue filling rest with ut_None
+    procedure UnitIsStart; //This should Create new unit and start training cycle
+    procedure UnitIsTrained; //This should shift queue filling rest with ut_None
   end;
 
   {Barracks has 11 resources and Recruits}
@@ -104,7 +114,7 @@ type
   TKMHouseStore = class(TKMHouse)
   public
     ResourceCount:array[1..28]of word;
-    AcceptFlag:array[1..28]of boolean;
+    NotAcceptFlag:array[1..28]of boolean;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     procedure AddResource(aResource:TResourceType);
     procedure AddMultiResource(aResource:TResourceType; aCount:integer);
@@ -115,22 +125,22 @@ type
   TKMHousesCollection = class(TList)
   private
     fSelectedHouse: TKMHouse;
-    procedure DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState);
+    function DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
   public
-    procedure AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
-    procedure AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
+    function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
+    function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
     procedure Rem(PosX,PosY:integer);
     procedure Clear; override;
     procedure UpdateState;
     function HitTest(X, Y: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
-    function FindStore(): TKMHouseStore;
+    function FindHouse(aType:THouseType; X,Y:word): TKMHouse;
     procedure Paint();
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Users, KM_Settings;
 
 
 { TKMHouse }
@@ -142,35 +152,51 @@ begin
   fHouseType:=aHouseType;
   fBuildState:=aBuildState;
   fOwnerID:=aOwner;
+  fBuildSupplyWood:=0;
+  fBuildSupplyStone:=0;
+  fBuildingProgress:=0;
+  fHealth:=0;
   fHasOwner:=false;
   fBuildingRepair:=false;
   fWareDelivery:=true;
-  fOwnerAtHome:=false;
-  fBuildingProgress:=0;
-  if aBuildState=hbs_Done then Self.Activate;
-  fTerrain.SetHousePlan(fPosition,fHouseType,fdt_None); //Sets passability
+  fResourceOrder[1]:=0;
+  fResourceOrder[2]:=0;
+  fResourceOrder[3]:=0;
+  fResourceOrder[4]:=0;
+
   fTerrain.SetTileOwnership(fPosition,fHouseType,play_1);
+
+  if aBuildState=hbs_Done then begin //House was placed on map already Built e.g. in mission maker
+    Self.Activate;
+    fHealth:=HouseDAT[byte(fHouseType)].MaxHealth;
+    fTerrain.SetHousePlan(fPosition,fHouseType,fdt_House); //Sets passability
+  end else
+    fTerrain.SetHousePlan(fPosition,fHouseType,fdt_None);
 end;
 
 destructor TKMHouse.Destroy;
 begin
-  Inherited;
   fCurrentAction.Free;
+  fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
+  if fBuildState=hbs_Done then fMissionSettings.DestroyedHouse(fHouseType);
+  Inherited;
 end;
 
 procedure TKMHouse.Activate;
 var i,k:integer;
 begin
+  fMissionSettings.CreatedHouse(fHouseType); //Only activated houses count
+
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
 
   for i:=1 to 4 do
     case HouseInput[byte(fHouseType),i] of
       rt_None:    ;
-      rt_Warfare: ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always);
-      rt_All:     ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always);
+      rt_Warfare: ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always, di_Norm);
+      rt_All:     ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always, di_Norm);
       else for k:=1 to 5 do //Every new house needs 5 resourceunits
-          ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Once);
+          ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Once, di_Norm);
     end;
 
 end;
@@ -190,22 +216,30 @@ end;
 
 {Increase building progress of house. When it reaches some point Stoning replaces Wooding
  and then it's done and house should be finalized}
- {Keep track on stone/wood reserve here}
+ {Keep track on stone/wood reserve here as well}
 procedure TKMHouse.IncBuildingProgress;
 begin
   if IsComplete then exit;
   inc(fBuildingProgress);
-  //inc(fHealth,5); //Should depend on build steps and full health
+  fHealth:=fHealth + HouseDAT[byte(fHouseType)].MaxHealth/
+  (HouseDAT[byte(fHouseType)].WoodPicSteps+HouseDAT[byte(fHouseType)].StonePicSteps);
+  
   //dec(StoneSupply/WoodSupply); //For each 50hp
-  if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodCount) then begin
+  if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodPicSteps) then begin
     fBuildState:=hbs_Stone;
     fBuildingProgress:=0;
   end;
-  if (fBuildState=hbs_Stone)and(fBuildingProgress = HouseDAT[byte(fHouseType)].StoneCount) then begin
+  if (fBuildState=hbs_Stone)and(fBuildingProgress = HouseDAT[byte(fHouseType)].StonePicSteps) then begin
     fBuildState:=hbs_Done;
     Activate;
   end;
 end; 
+
+{Check if house is started to build, so to know if we need to init the building site or not}
+function TKMHouse.IsStarted():boolean;
+begin
+  Result := fBuildingProgress > 0;
+end;
 
 {Check if house is completely built, nevermind the damage}
 function TKMHouse.IsComplete():boolean;
@@ -269,7 +303,7 @@ if aResource=rt_None then exit;
   if aResource = HouseInput[byte(fHouseType),i] then begin
     Assert(fResourceIn[i]>0);
     dec(fResourceIn[i]);
-    ControlList.DeliverList.AddNewDemand(Self,nil,aResource,dt_Once);
+    ControlList.DeliverList.AddNewDemand(Self,nil,aResource,dt_Once,di_Norm);
     Result:=true;
   end;
 end;
@@ -290,8 +324,28 @@ else
           if aResource = HouseOutput[byte(fHouseType),i] then begin
             dec(fResourceOut[i]);
             Result:=true;
+            exit;
           end;
 end;
+end;
+
+
+procedure TKMHouse.AddOrder(ID:byte; const Amount:byte=1);
+begin
+fResourceOrder[ID]:=EnsureRange(fResourceOrder[ID]+Amount,0,MAX_ORDER);
+end;
+
+
+procedure TKMHouse.RemOrder(ID:byte; const Amount:byte=1);
+begin
+  fResourceOrder[ID]:=EnsureRange(fResourceOrder[ID]-Amount,0,MAX_ORDER);
+end;
+
+
+{Check amount of order for given ID}
+function TKMHouse.CheckResOrder(ID:byte):word;
+begin
+Result:=fResourceOrder[ID];
 end;
 
 
@@ -301,6 +355,7 @@ begin
   fCurrentAction.SetState(aState);
 end;
 
+
 function TKMHouse.GetState:THouseState;
 begin
   Result:=fCurrentAction.fHouseState;
@@ -308,12 +363,9 @@ end;
 
 
 procedure TKMHouse.UpdateState;
-var
-  TimeDelta: Cardinal;
 begin
   if fBuildState<>hbs_Done then exit;
-
-  TimeDelta:= GetTickCount - fLastUpdateTime;
+  
   fLastUpdateTime:= GetTickCount;
 
   inc(FlagAnimStep);
@@ -321,25 +373,23 @@ begin
 end;
 
 
-procedure TKMHouse.OwnerGoesIn;
+{Return Entrance of the house, which is different than house position sometimes}
+function TKMHouse.GetEntrance():TKMPoint;
 begin
-fOwnerAtHome:=true;
+  Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
+  Result.Y:=GetPosition.Y;
 end;
 
-procedure TKMHouse.OwnerGoesOut;
-begin
-fOwnerAtHome:=false;
-end;               
 
 procedure TKMHouse.Paint;
 begin
 case fBuildState of
   hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),fPosition.X, fPosition.Y);
   hbs_NoGlyph:; //Nothing
-  hbs_Wood:  fRender.RenderHouseWood(byte(fHouseType), fBuildingProgress/HouseDAT[byte(fHouseType)].WoodCount, fPosition.X, fPosition.Y);
-  hbs_Stone: fRender.RenderHouseStone(byte(fHouseType), fBuildingProgress/HouseDAT[byte(fHouseType)].StoneCount, fPosition.X, fPosition.Y);
+  hbs_Wood:  fRender.RenderHouseWood(byte(fHouseType), fBuildingProgress/HouseDAT[byte(fHouseType)].WoodPicSteps, fPosition.X, fPosition.Y);
+  hbs_Stone: fRender.RenderHouseStone(byte(fHouseType), fBuildingProgress/HouseDAT[byte(fHouseType)].StonePicSteps, fPosition.X, fPosition.Y);
   else begin
-    fRender.RenderHouse(byte(fHouseType),fPosition.X, fPosition.Y);
+    fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
     fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
     if fCurrentAction=nil then exit;
     fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,integer(fOwnerID),fPosition.X, fPosition.Y);
@@ -355,6 +405,9 @@ begin
   //@Lewin:Later, cos I don't know how it works either, although I've designed it LOL
   //This feature is not very important for now.
   //@Krom: True, it's not very important so do it later.
+  //@Lewin: Okay, I've made it work. House only stores WareDelivery option, it is accessed
+  //from DeliverQueue when choosing delivery job.
+  //P.S. Keep this chat, it's fun to read ;-) 
 end;
 
 
@@ -366,6 +419,13 @@ begin
     UnitQueue[i]:=ut_None;
 end;
 
+procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
+begin
+Inherited;
+//If there's no unit in training then UnitIsStart
+//So far thats that wouldbe an only proof way to avoid 2units train at once;
+end;
+
 
 procedure TKMHouseSchool.AddUnitToQueue(aUnit:TUnitType);
 var i:integer;
@@ -373,27 +433,39 @@ begin
   for i:=1 to length(UnitQueue) do
   if UnitQueue[i]=ut_None then begin
     UnitQueue[i]:=aUnit;
+    if i=1 then UnitIsStart;
     break;
   end;
 end;
 
 
 procedure TKMHouseSchool.RemUnitFromQueue(id:integer);
-var i:integer;
+//var TK:TKMUnit;
 begin
-  //if id=1 then //DoCancelTraining and reset UnitTrainProgress!
-  for i:=id to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift up
-  UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+  //DoCancelTraining and remove untrained unit
+  UnitIsTrained;
+end;
+
+
+procedure TKMHouseSchool.UnitIsStart;
+var TK:TKMUnit;
+begin
+  //If there's yet no unit in training
+  if CheckResIn(rt_Gold)=0 then exit;
+  ResTakeFromIn(rt_Gold);
+  TK:=ControlList.AddUnit(fOwnerID,UnitQueue[1],GetEntrance);//Create Unit
+  TK.UnitTask:=TTaskSelfTrain.Create(TK,Self);
+  //pUnit:=@TK;
 end;
 
 
 procedure TKMHouseSchool.UnitIsTrained;
 var i:integer;
 begin
-  ControlList.AddUnit(fOwnerID,UnitQueue[1],fPosition);//Create Unit
-  //Unit should recieve a Task to go outside of School, one cell down
   for i:=1 to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
   UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+  if UnitQueue[1]<>ut_None then UnitIsStart;
+  UnitTrainProgress:=0;
 end;
 
 
@@ -403,7 +475,7 @@ begin
   Inherited;
   for i:=1 to length(ResourceCount) do begin
     ResourceCount[i]:=0;
-    AcceptFlag[i]:=true;
+    NotAcceptFlag[i]:=false;
   end;
 end;
 
@@ -418,6 +490,7 @@ end;
 procedure TKMHouseStore.AddMultiResource(aResource:TResourceType; aCount:integer);
 var i:integer;
 begin
+if InRange(aCount,1,1000) then
 if aResource=rt_All then
   for i:=1 to length(ResourceCount) do begin
     inc(ResourceCount[i],aCount);
@@ -453,8 +526,7 @@ end;
 
 procedure TKMHouseBarracks.AddResource(aResource:TResourceType);
 begin
-inc(ResourceCount[byte(aResource)-16]);
-//ControlList.DeliverList.AddNewOffer(Self,aResource,1); Doesn't need that
+  inc(ResourceCount[byte(aResource)-16]);
 end;
 
 
@@ -462,13 +534,9 @@ procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; aCount:inte
 var i:integer;
 begin
 if aResource=rt_Warfare then
-  for i:=1 to length(ResourceCount) do begin
-    inc(ResourceCount[i],aCount);
-    //ControlList.DeliverList.AddNewOffer(Self,TResourceType(i),aCount); Doesn't need that
-  end else begin
-    inc(ResourceCount[byte(aResource)-16],aCount);
-    //ControlList.DeliverList.AddNewOffer(Self,aResource,aCount); Doesn't need that
-  end;
+  for i:=1 to length(ResourceCount) do inc(ResourceCount[i],aCount)
+else
+  inc(ResourceCount[byte(aResource)-16],aCount);    
 end;
 
 
@@ -492,6 +560,7 @@ begin
   SetState(aHouseState);
   TimeToAct:=aTime;
 end;
+
 
 procedure THouseAction.SetState(aHouseState: THouseState);
 begin
@@ -528,26 +597,27 @@ end;
 
 
 { TKMHousesCollection }
-
-procedure TKMHousesCollection.DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState);
+function TKMHousesCollection.DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
+var T:integer;
 begin
 case aHouseType of
-  ht_School: Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-  ht_Barracks: Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-  ht_Store:  Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
-  else       Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  ht_School:   T:=Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  ht_Barracks: T:=Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  ht_Store:    T:=Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  else         T:=Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
 end;
+  if T=-1 then Result:=nil else Result:=Items[T];
 end;
 
-procedure TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
+function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
 begin
-DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Done);
+  Result:=DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Done);
 end;
 
 {Add a plan for house}
-procedure TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID);
+function TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
 begin
-DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Glyph);
+  Result:=DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Glyph);
 end;
 
 procedure TKMHousesCollection.Rem(PosX,PosY:integer);
@@ -577,13 +647,14 @@ begin
     end;
 end;
 
+
 function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
 var
   i: integer;
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    if (HouseOwnerUnit[byte(TKMHouse(Items[I]).fHouseType)]=aUnitType)and //If Unit can work in here
+    if (TUnitType(HouseDAT[byte(TKMHouse(Items[I]).fHouseType)].OwnerType+1)=aUnitType)and //If Unit can work in here
        (not TKMHouse(Items[I]).fHasOwner)and                              //If there's yet no owner
        (TKMHouse(Items[I]).IsComplete) then                               //If house is built
     begin
@@ -593,16 +664,17 @@ begin
     end;
 end;
 
-function TKMHousesCollection.FindStore(): TKMHouseStore;
+
+function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word): TKMHouse;
 var
   i: integer;
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-      if (TKMHouse(Items[I]).fHouseType=ht_Store)and
+      if (TKMHouse(Items[I]).fHouseType=aType)and
       (TKMHouse(Items[I]).IsComplete) then
       begin
-        Result:= TKMHouseStore(Items[I]);
+        Result:= TKMHouse(Items[I]);
         exit;
       end;
 end;

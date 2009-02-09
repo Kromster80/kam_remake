@@ -5,15 +5,13 @@
 3. UserInterface
 
 4. Sounds/Music
+	Krom: I have some experience with OpenAL, I think I can make it work with WAV files. Dunno about MP3 and CDDA though.
 
-5. FrontEnd menu and SP init/campaign
+5. Loading of KaM maps and scripting
 
-6. Multi-player
+6. FrontEnd menu and SP init/campaign
+	Krom: We should also foresee support for addon maps and missions/campaigns
 
-Задача1: есть 2 армии, управление с мыши и кнопок на тулбаре, сближение, драка, гибель юнитов и т.п.
+7. Multi-player
 
-Задача2: есть деревня 10 домов, управления нет, все автономно, производство, переработка, складирование, транспортировка крестьянами
-
-Задача3: ЮзерИнтерфейс, тулбары
-
-Задача4: ...
+8. Self-sufficient AI for single-player

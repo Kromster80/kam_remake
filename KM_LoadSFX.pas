@@ -23,7 +23,7 @@ var
   fSoundLibrary: TSoundLibrary;
 
 implementation
-uses KM_Global_Data;
+uses KM_Defaults;
 
 constructor TSoundLibrary.Create;
 begin

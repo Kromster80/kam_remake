@@ -46,6 +46,7 @@ type
     procedure PositionHSBCursors();
     procedure SpinHSBChange(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -75,14 +76,14 @@ implementation
 
 procedure TForm_ColorPicker.FormShow(Sender: TObject);
 begin
-BitmapHueSat:=Tbitmap.Create;
+{BitmapHueSat:=Tbitmap.Create;
 BitmapHueSat.PixelFormat:=pf24bit;
 BitmapHueSat.Width:=HSImage.Width;;
 BitmapHueSat.Height:=HSImage.Height;
 BitmapBri:=Tbitmap.Create;
 BitmapBri.PixelFormat:=pf24bit;
 BitmapBri.Width:=1;
-BitmapBri.Height:=BriImage.Height;
+BitmapBri.Height:=BriImage.Height;}
 end;   
 
 //This is wrap to acquire data in different formats and convert them to internal R,G,B
@@ -327,6 +328,18 @@ end;
 procedure TForm_ColorPicker.Button2Click(Sender: TObject);
 begin
 Form_ColorPicker.Close;
+end;
+
+procedure TForm_ColorPicker.FormCreate(Sender: TObject);
+begin
+BitmapHueSat:=Tbitmap.Create;
+BitmapHueSat.PixelFormat:=pf24bit;
+BitmapHueSat.Width:=HSImage.Width;;
+BitmapHueSat.Height:=HSImage.Height;
+BitmapBri:=Tbitmap.Create;
+BitmapBri.PixelFormat:=pf24bit;
+BitmapBri.Width:=1;
+BitmapBri.Height:=BriImage.Height;
 end;
 
 end.

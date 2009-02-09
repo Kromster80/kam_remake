@@ -13,14 +13,14 @@ TRenderUI = class
     procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
     procedure WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
-    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor):TKMPoint; //Should return text width in px
+    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint; //Should return text width in px
   end;
 
 var
   fRenderUI: TRenderUI;
 
 implementation
-uses KM_Unit1, KM_Global_Data;
+uses KM_Unit1;
 
 constructor TRenderUI.Create;
 begin
@@ -130,18 +130,6 @@ begin
       glvertex2f(SizeX-1,0);
     glEnd;
 
-    if ID<>0 then begin
-      glColor4f(1,1,1,1);
-      if Caption='' then
-      WritePic(ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
-                  round((SizeY-GFXData[4,ID].PxHeight)/2))
-      else
-      WritePic(ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
-                  round((SizeY-GFXData[4,ID].PxHeight)/2)-7);
-    end;
-
-    WriteText(SizeX div 2, (SizeY div 2)+4, kaCenter, Caption, fnt_Game, $FFFFFFFF);
-
     if bs_Highlight in State then begin
       glColor4f(0,1,1,1);
       glBegin (GL_LINE_LOOP);
@@ -149,12 +137,12 @@ begin
       glEnd;
     end;
 
-    if bs_Disabled in State then begin
+    {if bs_Disabled in State then begin
       glColor4f(0,0,0,0.5);
       glBegin (GL_QUADS);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
-    end;
+    end;}
 
     if bs_Down in State then begin
       glColor4f(1,1,1,1);
@@ -169,7 +157,7 @@ end;
 
 
 procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
-const BarColor:TColor=$FF00AA26;
+const BarColor:TColor4=$FF00AA26;
 var BarWidth:word;
 begin
   glPushMatrix;
@@ -252,12 +240,16 @@ begin
   glBegin(GL_QUADS);
     glkRect(PosX,PosY,PosX+Width-1,PosY+Height-1);
   glEnd;
+  glColor4f(1,1,1,1);
+  glBegin(GL_LINE_LOOP);
+    glkRect(PosX,PosY,PosX+Width-1,PosY+Height-1);
+  glEnd;
 end;
 
 
 {Renders a line of text and returns text width in px}
 {By default color must be non-transparent white}
-function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor):TKMPoint;
+function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint;
 var i,Num,InterLetter:integer;
 begin
   InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts

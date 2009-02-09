@@ -29,7 +29,7 @@ var
   fTextLibrary: TTextLibrary;
 
 implementation
-uses KM_Global_Data;
+uses KM_Defaults;
 
 constructor TTextLibrary.Create(ALibPath: string);
 begin
@@ -142,7 +142,7 @@ begin
   for i:= 0 to MaxStrings do
     FileData.Add(IntToStr(i)+': '+ALibrary[i]);
   FileData.SaveToFile(AFileName);
-  FreeAndNil(FileData); //Free the memory
+  FileData.Free;
 end;
 
 procedure TTextLibrary.ExportTextLibraries;

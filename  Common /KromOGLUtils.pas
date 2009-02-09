@@ -8,6 +8,8 @@ type Vector = record x,y,z:single; end;
 
 KAlign = (kaLeft, kaCenter, kaRight);
 
+TColor4 = cardinal;
+
 function SetDCPixelFormat(h_DC:HDC):boolean;
 procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
 procedure BuildFont(h_DC:HDC;FontSize:integer);

@@ -4,16 +4,13 @@ uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
-  KM_Form_Loading, KM_Terrain, KM_Global_Data,
+  KM_Form_Loading, KM_Terrain, 
   KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX;
 
-type
+type                           
   TForm1 = class(TForm)
     OpenDialog1: TOpenDialog;
     StatusBar1: TStatusBar;
-    Panel_Minimap: TPanel;
-    MiniMap: TImage;
-    ShapeFOV: TShape;
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     OpenMapMenu: TMenuItem;
@@ -44,12 +41,6 @@ type
     TBZoomControl: TTrackBar;
     Image3: TImage;
     Label1: TLabel;
-    Pl1: TSpeedButton;
-    Pl2: TSpeedButton;
-    Pl3: TSpeedButton;
-    Pl6: TSpeedButton;
-    Pl5: TSpeedButton;
-    Pl4: TSpeedButton;
     Shape267: TShape;
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
@@ -60,6 +51,13 @@ type
     ExportSounds1: TMenuItem;
     TrackBar1: TTrackBar;
     Label2: TLabel;
+    Panel_Minimap: TPanel;
+    MiniMap: TImage;
+    ShapeFOV: TShape;
+    CheckBox4: TCheckBox;
+    HouseAnim1: TMenuItem;
+    UnitAnim1: TMenuItem;
+    CheckBox5: TCheckBox;
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -81,6 +79,7 @@ type
     procedure ShowFlatTerrainClick(Sender: TObject);
     procedure Timer100msTimer(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
     procedure PrintScreen1Click(Sender: TObject);
     procedure ExportGUIRXClick(Sender: TObject);
     procedure ExportTreesRXClick(Sender: TObject);
@@ -88,8 +87,7 @@ type
     procedure ExportUnitsRXClick(Sender: TObject);
     procedure Timer1secTimer(Sender: TObject);
     procedure ExportGUIMainRXClick(Sender: TObject);
-    procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+    procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure Exportfonts1Click(Sender: TObject);  
     procedure DoScrolling;
@@ -97,19 +95,19 @@ type
     procedure ExportDeliverlists1Click(Sender: TObject);
     procedure ExportSounds1Click(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
-
-  private     { Private declarations }
+    procedure HouseAnim1Click(Sender: TObject);
+    procedure UnitAnim1Click(Sender: TObject);
+    procedure CheckBox5Click(Sender: TObject);
+  private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
-  public      { Public declarations }
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
   end;
 
 var
   Form1: TForm1;
-  ControlList: TKMUserControlList;
+  FormLoading:TFormLoading;
 
 implementation  {$R *.DFM}
+uses KM_Settings;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
@@ -139,17 +137,48 @@ done:=false; //repeats OnIdle event
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-begin               
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\'); //Must be done earily on so GamePlayInterface can use it
-  fControls:= TKMControlsCollection.Create;
-  fGamePlayInterface:= TKMGamePlayInterface.Create;
+begin
+  if Sender<>nil then exit;
+
+  FormLoading.Show;
+  FormLoading.Refresh;
+
+  ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
+  fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
+
+  FormLoading.Label1.Caption:='Initializing 3D ...';
   fRender:= TRender.Create;
-  fViewport:= TViewport.Create;
-  fTerrain:= TTerrain.Create;
+  fRender.SetRender(Form1.Panel5.Handle);
+
+  //Must be done early on so that GamePlayInterface can use it
+  FormLoading.Label1.Caption:='Reading KaM data ...';
+  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fSoundLibrary:= TSoundLibrary.Create;
+  ReadGFX(ExeDir);
+  fLog.AppendLog('Resources are loaded',true);
+
+  FormLoading.Label1.Caption:='Initializing FrontEnd ...';
+  fViewport:= TViewport.Create;
   fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
+  fControls:= TKMControlsCollection.Create;
+  fGameSettings:= TGameSettings.Create;
+  fMissionSettings:= TMissionSettings.Create;
+  fGamePlayInterface:= TKMGamePlayInterface.Create;
+  fLog.AppendLog('FrontEnd initialized',true);
+
+  FormLoading.Label1.Caption:='Initializing Gameplay ...';
+  fTerrain:= TTerrain.Create;
+  fTerrain.MakeNewMap(96,96);
+  ControlList:= TKMUserControlList.Create();
+  ControlList.Add(play_1, uct_User);       
+
   Application.OnIdle:=Form1.OnIdle;
-  Panel_MiniMap.Color:=0; //Keep it colored until app is started, Controls should be visible in designtime 
+  Panel_MiniMap.Color:=$00; //Keep it colored until app is started, Controls should be visible in designtime
+  Form1.Caption:='KaM Remake - '+'New.map';
+
+  fLog.AppendLog('Form1 create is done');
+
+  FormLoading.Hide;
 end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);
@@ -161,8 +190,7 @@ end;
 procedure TForm1.OpenMap(filename:string);
 begin
 fTerrain.OpenMapFromFile(filename);
-fViewport.SetZoom(1);
-Form1.FormResize(nil);
+fViewport.SetZoom:=1;
 Form1.Caption:='KaM Remake - '+filename;
 end;
 
@@ -170,7 +198,7 @@ procedure TForm1.FormResize(Sender:TObject);
 begin
   fRender.RenderResize(Panel5.Width,Panel5.Height);
   fViewport.SetArea(Panel5.Width,Panel5.Height);
-  fViewport.SetZoom(ZoomLevels[TBZoomControl.Position]);
+  fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
   fMiniMap.SetRect(fViewport);
 end;
 
@@ -190,52 +218,49 @@ end;
 
 procedure TForm1.ZoomChange(Sender: TObject);
 begin
-fViewport.SetZoom(ZoomLevels[TBZoomControl.Position]);
+fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
 fMiniMap.SetRect(fViewport);
 end;
 
 procedure TForm1.MiniMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin MiniMapSpy:=true; MiniMapMouseMove(nil,Shift,X,Y); end;
+begin MiniMapMouseMove(nil,Shift,X,Y); end;
 
 procedure TForm1.MiniMapMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
-if not MiniMapSpy then exit;
+if not (ssLeft in Shift) then exit;
 fViewport.SetCenter(X,Y);
 fMiniMap.SetRect(fViewport);
 end;
 
 procedure TForm1.MiniMapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin MiniMapMouseMove(nil,Shift,X,Y); MiniMapSpy:=false; end;
+begin MiniMapMouseMove(nil,Shift,X,Y); end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  case Button of
-    mbLeft:
-      MouseButton:= mb2Left;
-    mbRight:
-      MouseButton:= mb2Right;
-  else
-    MouseButton:=mb2None;
-  end;
-  Panel1MouseMove(Panel5,Shift,X,Y);
-
+if X<=ToolBarWidth then
   fControls.OnMouseDown(X,Y,Button);
+
+  Panel1MouseMove(Panel5,Shift,X,Y);
 
   //example for units need change
   //Removed right since it interfers with the school buttons
   if Button = mbMiddle then
-    ControlList.AddUnit(play_1, ut_Serf, KMPoint(CursorXc,CursorYc));
-  //else if Button = mbMiddle then
-  //  ControlList.AddUnit(play_1, ut_HorseScout, KMPoint(CursorXc,CursorYc));
-
+    ControlList.AddUnit(play_1, ut_HorseScout, KMPoint(CursorXc,CursorYc));
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
-  if (X>0)and(X<Panel5.Width)and(Y>0)and(Y<Panel5.Height) then
+  if InRange(X,1,Panel5.Width-1) and InRange(Y,1,Panel5.Height-1) then
   else exit;
-CursorX:=fViewport.XCoord+(X-fViewport.ViewRect.Right/2+ToolBarWidth/2)/CellSize/fViewport.Zoom;
-CursorY:=fViewport.YCoord+(Y-fViewport.ViewRect.Bottom/2)/CellSize/fViewport.Zoom;
+
+if X<=ToolBarWidth then begin
+  fControls.OnMouseOver(X,Y,Shift);
+  Screen.Cursor:=c_Default;
+  exit;
+end;
+
+CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
+CursorY:=fViewport.GetCenter.Y+(Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
 
 CursorY:=fTerrain.ConvertCursorToMapCoord(CursorX,CursorY);
 
@@ -255,7 +280,6 @@ if CursorMode.Mode=cm_None then
     Screen.Cursor:=c_Default;
 
 fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
-fControls.OnMouseOver(X,Y,Shift);
 
 end;
 
@@ -273,8 +297,9 @@ begin
     cm_None:
       begin
         if ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
-          fGamePlayInterface.ShowUnitInfo(ControlList.UnitsHitTest(CursorXc, CursorYc).GetUnitType);
-        end; //Houses have prioraty over units, so you can't select an occupant 
+          fGamePlayInterface.ShowUnitInfo(ControlList.UnitsHitTest(CursorXc, CursorYc));
+          ControlList.SelectedUnit:=ControlList.UnitsHitTest(CursorXc, CursorYc);
+        end; //Houses have priority over units, so you can't select an occupant
         if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then begin
           ControlList.SelectedHouse:=ControlList.HousesHitTest(CursorXc, CursorYc);
           fGamePlayInterface.ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc));
@@ -291,38 +316,50 @@ begin
       end;
     cm_Houses:
       begin
-        ControlList.AddHousePlan(THouseType(CursorMode.Param),P,play_1);
-        fGamePlayInterface.SelectRoad;
+        if ControlList.AddHousePlan(THouseType(CursorMode.Param),P,play_1) then
+          fGamePlayInterface.SelectRoad;
       end;
     end;
-MouseButton:=mb2None;
+
+  if ControlList.SelectedUnit<>nil then
+  if ControlList.SelectedUnit.GetUnitType=ut_HorseScout then
+  ControlList.SelectedUnit.SetAction(TUnitActionWalkTo.Create(ControlList.SelectedUnit.GetPosition,P));
 end;
 
 procedure TForm1.AboutClick(Sender: TObject);
 begin
   FormLoading.Bar1.Position:=0;
+  FormLoading.Label1.Caption:='';
   FormLoading.Show;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-fRender.Destroy;
+  fRender.Destroy;
+  fGameSettings.Destroy;
+  ControlList.Free;
 end;
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
 var i:integer;
 begin
 if not Form1.Active then exit;
-if CheckBox1.Checked then exit;
-ControlList.UpdateState;
-fTerrain.UpdateState;
-
 inc(GlobalTickCount);
 
+if CheckBox1.Checked then exit;
+
+if CheckBox4.Checked then
+if GlobalTickCount mod 2 <> 0 then exit;
+
+fTerrain.UpdateState;
+ControlList.UpdateState;
+fGamePlayInterface.UpdateState;
+
 if CheckBox2.Checked then
-  for i:=1 to 20 do begin
+  for i:=1 to 50 do begin
     fTerrain.UpdateState;
     ControlList.UpdateState;
+    fGamePlayInterface.UpdateState;
   end;
   DoScrolling; //Now check to see if we need to scroll
 end;
@@ -356,27 +393,15 @@ end;
 procedure TForm1.ShowFlatTerrainClick(Sender: TObject);
 begin
   ShowFlatTerrain.Checked:= not ShowFlatTerrain.Checked;
-  xh:=36+integer(ShowFlatTerrain.Checked)*164; // 1/36 .. 1/200
+  xh:=36+byte(ShowFlatTerrain.Checked)*164; // 1/36 .. 1/200
 end;
 
-constructor TForm1.Create(AOwner: TComponent);
-begin
-  Inherited Create(AOwner);
-  ControlList:= TKMUserControlList.Create();
-  ControlList.Add(play_1, uct_User);
-end;
-
-destructor TForm1.Destroy;
-begin
-  ControlList.Free;
-  inherited;
-end;
 
 procedure TForm1.Button1Click(Sender: TObject);
-var H:TKMHouseStore;
+var H:TKMHouseStore; i:integer;
 begin
 TKMControl(Sender).Enabled:=false;
-fViewPort.SetCenter(6,10);
+fViewPort.SetCenter(10,9);
 ControlList.AddRoadPlan(KMPoint(2,6),mu_RoadPlan);
 
 ControlList.AddRoadPlan(KMPoint(2,7),mu_FieldPlan);
@@ -398,6 +423,8 @@ ControlList.AddHouse(ht_SawMill, KMPoint(7,9), play_1);
 ControlList.AddHouse(ht_Quary, KMPoint(12,9), play_1);
 ControlList.AddUnit(play_1, ut_WoodCutter, KMPoint(7,11));
 ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
+ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
+ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
 ControlList.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
 
 ControlList.AddRoadPlan(KMPoint(2,14),mu_WinePlan);
@@ -410,21 +437,29 @@ ControlList.AddHouse(ht_CoalMine, KMPoint(8,13), play_1);
 ControlList.AddUnit(play_1, ut_Miner, KMPoint(10,9));
 ControlList.AddHouse(ht_FisherHut, KMPoint(12,13), play_1); //Added to demonstrate a house without an occupant in the building page
 
+ControlList.AddHouse(ht_WeaponSmithy, KMPoint(16,13), play_1); //Added to demonstrate a house without an occupant in the building page
+ControlList.AddHouse(ht_WeaponWorkshop, KMPoint(16,16), play_1); //Added to demonstrate a house without an occupant in the building page
+
+ControlList.AddHouse(ht_ArmorSmithy, KMPoint(20,13), play_1); //Added to demonstrate a house without an occupant in the building page
+ControlList.AddHouse(ht_ArmorWorkshop, KMPoint(20,17), play_1); //Added to demonstrate a house without an occupant in the building page
+
+ControlList.AddHouse(ht_IronMine, KMPoint(21,6), play_1); //Added to demonstrate a house without an occupant in the building page
+ControlList.AddHouse(ht_IronSmithy, KMPoint(21,9), play_1); //Added to demonstrate a house without an occupant in the building page
+
+for i:=1 to 16 do
 ControlList.AddUnit(play_1, ut_Serf, KMPoint(2,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(3,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(4,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(5,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(6,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(7,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(8,11));
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(9,11));
-ControlList.AddUnit(play_1, ut_Worker, KMPoint(8,11));
-ControlList.AddUnit(play_1, ut_Worker, KMPoint(9,11));
 
-ControlList.AddUnit(play_1, ut_Recruit, KMPoint(10,11));
+for i:=1 to 3 do
+ControlList.AddUnit(play_1, ut_Worker, KMPoint(3,11));
 
-H:=ControlList.FindStore();
-if H<>nil then H.AddMultiResource(rt_All,10);
+ControlList.AddUnit(play_1, ut_Recruit, KMPoint(12,11));
+ControlList.AddUnit(play_1, ut_Metallurgist, KMPoint(13,11));
+ControlList.AddUnit(play_1, ut_Miner, KMPoint(13,11));
+ControlList.AddUnit(play_1, ut_Smith, KMPoint(13,11));
+ControlList.AddUnit(play_1, ut_Smith, KMPoint(13,11));
+
+H:=TKMHouseStore(ControlList.FindHouse(ht_Store,0,0));
+if H<>nil then H.AddMultiResource(rt_All,5);
 
 ControlList.AddRoadPlan(KMPoint(3,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(4,6),mu_RoadPlan);
@@ -436,11 +471,27 @@ ControlList.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
 ControlList.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);
 
 ControlList.AddHousePlan(ht_School, KMPoint(4,17), play_1);
-ControlList.AddHousePlan(ht_Barracks, KMPoint(9,18), play_1);
+ControlList.AddHousePlan(ht_Inn, KMPoint(9,18), play_1);
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+var H:TKMHouseStore; i:integer;
+begin
+TKMControl(Sender).Enabled:=false;
+ControlList.AddHouse(ht_Store, KMPoint(17,5), play_1);
+H:=TKMHouseStore(ControlList.FindHouse(ht_Store,0,0));
+if H<>nil then H.AddMultiResource(rt_All,20);
+
+for i:=1 to 5 do ControlList.AddUnit(play_1, ut_Serf, KMPoint(2,11));
+
+for i:=1 to 3 do ControlList.AddUnit(play_1, ut_Worker, KMPoint(3,11));
+
+fViewPort.SetCenter(10,9);
+
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);
-var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
+var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal; s:string;
 begin
 sh:=Panel5.Height;
 sw:=Panel5.Width;
@@ -480,8 +531,7 @@ var i:integer;
 begin
   for i:=1 to length(FontFiles) do
     ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
-end;
-
+end;  
 
 
 procedure TForm1.Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -498,33 +548,36 @@ end;
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Global_Data
 procedure TForm1.DoScrolling;
-const DirectinsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
-var XCoord, YCoord: integer; Temp:byte;
+const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
+var XCoord, YCoord, ScrollAdv: integer; Temp:byte;
 begin
-  XCoord := fViewport.XCoord; //First set X and Y to be the current values
-  YCoord := fViewport.YCoord;
+  XCoord := fViewport.GetCenter.X; //First set X and Y to be the current values
+  YCoord := fViewport.GetCenter.Y;
   Temp:=0; //That is our bitfield variable for directions, 0..12 range
   //    3 2 6  These are directions
   //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
   //    9 8 12
 
+  ScrollAdv := SCROLLSPEED + byte(fGameSettings.IsFastScroll)*3; //4 times faster
+
   //Left, Top, Right, Bottom
-  if Mouse.CursorPos.X < SCROLLFLEX then begin inc(Temp,1); XCoord := XCoord-SCROLLSPEED; end;
-  if Mouse.CursorPos.Y < SCROLLFLEX then begin inc(Temp,2); YCoord := YCoord-SCROLLSPEED; end;
-  if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); XCoord := XCoord+SCROLLSPEED; end;
-  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); YCoord := YCoord+SCROLLSPEED; end;
-  if Temp<>0 then Screen.Cursor :=DirectinsBitfield[Temp]; //Sample cursor type from bitfield value
+  if Mouse.CursorPos.X < SCROLLFLEX then begin inc(Temp,1); dec(XCoord,ScrollAdv); end;
+  if Mouse.CursorPos.Y < SCROLLFLEX then begin inc(Temp,2); dec(YCoord,ScrollAdv); end;
+  if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); inc(XCoord,ScrollAdv); end;
+  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); inc(YCoord,ScrollAdv); end;
+  if Temp<>0 then Screen.Cursor :=DirectionsBitfield[Temp]; //Sample cursor type from bitfield value
 
   //Now do actual the scrolling, if needed
-  if (XCoord<>fViewport.XCoord)or(YCoord<>fViewport.YCoord) then
+  if (XCoord<>fViewport.GetCenter.X)or(YCoord<>fViewport.GetCenter.Y) then
   begin
     fViewport.SetCenter(XCoord,YCoord);
     fMiniMap.SetRect(fViewport); //Update mini-map
     Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
   end else begin
     Scrolling := false; //Allow cursor changes to be overriden and reset if still on a scrolling cursor
-    if (Screen.Cursor = c_Scroll0) or (Screen.Cursor = c_Scroll1) or (Screen.Cursor = c_Scroll2) or (Screen.Cursor = c_Scroll3) or (Screen.Cursor = c_Scroll4) or (Screen.Cursor = c_Scroll5) or (Screen.Cursor = c_Scroll6) or (Screen.Cursor = c_Scroll7) then
-      Screen.Cursor := c_Default; end;
+    if (Screen.Cursor in [c_Scroll0..c_Scroll7]) then
+      Screen.Cursor := c_Default;
+  end;
 end;
 
 
@@ -552,6 +605,22 @@ begin
 CheckBox3.Checked:=true;
 TrackBar1.Max:=length(PassabilityStr)-1;
 Label2.Caption:= PassabilityStr[TrackBar1.Position+1];
+end;
+
+
+procedure TForm1.HouseAnim1Click(Sender: TObject);
+begin
+  ExportHouseAnim2BMP();
+end;
+
+procedure TForm1.UnitAnim1Click(Sender: TObject);
+begin
+  ExportUnitAnim2BMP();
+end;
+
+procedure TForm1.CheckBox5Click(Sender: TObject);
+begin
+  MakeDrawPagesOverlay:=CheckBox5.Checked;
 end;
 
 end.

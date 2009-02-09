@@ -11,9 +11,9 @@ const PassabilityStr:array[1..7] of string = ('canWalk', 'canWalkRoad', 'canBuil
 {canWalk - General passability of tile for any walking units}
 {canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
 {canBuild - Can we build a house on this tile?}
-{canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk}
+{canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges}
 {canMakeFields - Thats more strict than roads, cos e.g. on beaches you can't make fields}
-{canPlantTrees - If Forester can plant a tree there}
+{canPlantTrees - If Forester can plant a tree here, dunno if it's the same as fields}
 {canFish - water tiles where fisherman can fish}
 
 type
@@ -68,7 +68,7 @@ public
   function OpenMapFromFile(filename:string):boolean;
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
   function ConvertCursorToMapCoord(inX,inY:single):single;
-  function InterpolateMapCoord(inX,inY:single):single;
+  function InterpolateLandHeight(inX,inY:single):single;
   function InMapCoords(X,Y:integer; Inset:byte=0):boolean;
 public
 
@@ -92,6 +92,7 @@ public
 
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   procedure RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
+  procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
 
   procedure FlattenTerrain(Loc:TKMPoint);
 public
@@ -113,7 +114,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Global_Data, KM_Viewport, KM_Render;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_Users;
 
 constructor TTerrain.Create;
 begin
@@ -278,10 +279,10 @@ These values are used to draw highlights/shadows on terrain.}
 procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
 var i,k:integer; x0,y2:integer;
 begin
-  for i:=LowY to HighY do for k:=LowX to HighX do begin
+  for i:=LowY to HighY do for k:=LowX to HighX do
+    if InMapCoords(k,i) then begin
     x0:=EnsureRange(k-1,1,MapX);
     y2:=EnsureRange(i+1,1,MapY);
-    if InMapCoords(k,i) then
     if InMapCoords(x0,y2) then
     Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1)*(1-Overlap); //  1.33*16 ~=22
     //Map borders fade to black
@@ -351,7 +352,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if Land[i,k].FieldType=fdt_Wine then
         if Land[i,k].FieldAge=255 then
           Result:=KMPoint(k,i);
@@ -363,7 +364,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if Land[i,k].FieldType=fdt_Field then
         if Land[i,k].FieldAge=255 then
           Result:=KMPoint(k,i);
@@ -375,7 +376,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if Land[i,k].FieldType=fdt_Field then
         if Land[i,k].FieldAge=0 then
           Result:=KMPoint(k,i);
@@ -387,7 +388,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       for h:=1 to length(ChopableTrees) do
         if Land[i,k].Obj=ChopableTrees[h,4] then
           Result:=KMPoint(k,i);
@@ -396,11 +397,11 @@ end;
 function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 //var i,k,h:integer;
 begin
-Result:=KMPoint(9,9);
+Result:=KMPoint(1,1);
 {Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       for h:=1 to length(ChopableTrees) do
         if Land[i,k].Obj=ChopableTrees[h,4] then
           Result:=KMPoint(k,i);}
@@ -417,7 +418,7 @@ setlength(List2,1024);
 ci:=0; ck:=0;
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(GetLength(aPosition.Y-i,aPosition.X-k)<=aRadius) then
+    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if CanPlantTrees in Land[i,k].Passability then begin
 
         FoundExTree:=false;
@@ -477,6 +478,142 @@ begin
 Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability - aPass;
 end;
 
+{Find a route from A to B which meets aPass Passability}
+{Results should be written as NodeCount of waypoint nodes to Nodes}
+{Simplification1 - ajoin nodes that don't require direction change}
+procedure TTerrain.MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
+const c_closed=65535;
+var
+  i,k,y,x:integer;
+  NewCost:integer;
+  MinCost:record
+    Cost:integer;
+    ID:word;
+    Pos:TKMPoint;
+  end;
+  ORef:array[1..MaxMapSize,1..MaxMapSize] of word; //Ref to OpenList
+  OCount:word;
+  OList:array[1..1024]of record //List of checked cells
+    Pos:TKMPoint;
+    CostTo:word;
+    Estim:word;
+    Parent:word;//Ref to parent
+  end;
+begin
+  OCount:=0;
+  FillChar(ORef,SizeOf(ORef),#0);
+  FillChar(OList,SizeOf(OList),#0);
+
+  //Init start point
+  inc(OCount);
+  ORef[LocA.Y,LocA.X]:=OCount;
+  OList[OCount].Pos:=LocA;
+  OList[OCount].CostTo:=0; //
+  OList[OCount].Estim:=(abs(LocB.X-LocA.X) + abs(LocB.Y-LocA.Y))*10;
+  OList[OCount].Parent:=0;
+
+  k:=0;
+  repeat
+  inc(k);
+
+    //Find cell with least (Estim+CostTo)
+    MinCost.Cost:=65535;
+    for i:=1 to OCount do
+    if OList[i].Estim<>c_closed then
+    if (OList[i].Estim+OList[i].CostTo) < MinCost.Cost then begin
+      MinCost.Cost:=OList[i].Estim+OList[i].CostTo;
+      MinCost.ID:=i;
+      MinCost.Pos:=OList[i].Pos;
+    end;
+
+    //Keep looking if we haven't reached destination
+    if (MinCost.Pos.X <> LocB.X)or(MinCost.Pos.Y <> LocB.Y) then begin
+
+      OList[MinCost.ID].Estim:=c_closed;
+
+      //Check all surrounds and issue costs to them
+      for y:=MinCost.Pos.Y-1 to MinCost.Pos.Y+1 do for x:=MinCost.Pos.X-1 to MinCost.Pos.X+1 do
+      if InMapCoords(x,y) then //Ignore those outside of MapCoords
+        if ORef[y,x]=0 then begin //Cell is new
+          if aPass in Land[y,x].Passability then begin //If cell meets Passability then estimate it
+            inc(OCount);
+            ORef[y,x]:=OCount;
+            OList[OCount].Pos:=KMPoint(x,y);
+            OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
+            OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(y-MinCost.Pos.Y,x-MinCost.Pos.X)*10); //
+            OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y))*10;
+          end else begin //If cell doen't meets Passability then mark it as Closed
+            inc(OCount);
+            OList[OCount].Estim:=c_closed;
+            OList[OCount].Pos:=KMPoint(x,y);
+          end;
+        end else begin
+          //If route through new cell is shorter than ORef[y,x] then
+          if OList[ORef[y,x]].Estim<>c_closed then begin
+            NewCost:=round(GetLength(y-MinCost.Pos.Y,x-MinCost.Pos.X)*10);
+            if OList[MinCost.ID].CostTo + NewCost < OList[ORef[y,x]].CostTo then begin
+              OList[ORef[y,x]].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
+              OList[ORef[y,x]].CostTo:=OList[MinCost.ID].CostTo + NewCost;
+              //OList[ORef[y,x]].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y))*10;
+            end;
+          end;
+        end;
+    end;
+  until((k=500)or(OCount+8>=length(OList))or((MinCost.Pos.X = LocB.X)and(MinCost.Pos.Y = LocB.Y)));
+
+  if (MinCost.Pos.X <> LocB.X)or(MinCost.Pos.Y <> LocB.Y)or(k=200) then begin
+    NodeCount:=1;
+    Nodes[0]:=LocA;
+    exit;
+  end;
+
+  //Calculate NodeCount
+  k:=MinCost.ID; NodeCount:=0;
+  repeat
+    inc(NodeCount);
+    k:=OList[k].Parent;
+  until(k=0);
+
+  if NodeCount > length(Nodes) then begin
+    NodeCount:=1;
+    Nodes[0]:=LocA;
+    exit;
+  end;
+
+  k:=MinCost.ID;
+  for i:=1 to NodeCount do begin
+    Nodes[NodeCount-i]:=OList[k].Pos; //invert, since path is assembled LocB>LocA in fact
+    k:=OList[k].Parent;
+  end;
+    //Nodes[0]:=LocA;
+
+  //Should ajoin straight pieces to reduce mem usage
+  //Important rule:
+  // - First node is LocA,
+  // - next to last node is neighbour of LocB (important for delivery to workers),
+  // - last node is LocB
+
+  if NodeCount>3 then begin
+  k:=2;
+  for i:=3 to NodeCount-1 do begin //simplify within LocA+1 .. LocB-2 range
+  // i/k are always -1 since array is [0..Count-1] range
+    if (sign(Nodes[k-1].X-Nodes[k-2].X) = sign(Nodes[i-1].X-Nodes[i-2].X))and //Direction matches
+       (sign(Nodes[k-1].Y-Nodes[k-2].Y) = sign(Nodes[i-1].Y-Nodes[i-2].Y)) then begin
+      Nodes[k-1]:=Nodes[i-1];
+    end else begin
+      inc(k);
+      Nodes[k-1]:=Nodes[i-1];
+    end;
+  end;
+  inc(k);
+  Nodes[k-1]:=Nodes[NodeCount-1];
+  NodeCount:=k;
+  end;
+
+  for i:=1 to NodeCount do
+    Assert(InMapCoords(Nodes[i-1].X,Nodes[i-1].Y));
+end;
+
 
 {Take 4 neighbour heights and approach it}
 procedure TTerrain.FlattenTerrain(Loc:TKMPoint);
@@ -526,7 +663,9 @@ var i,k:integer;
       if InMapCoords(X+k,Y+i) then
         RemPassability(KMPoint(X+k,Y+i),[canBuild,canPlantTrees]);
 
-      RemPassability(KMPoint(X,Y),[CanMakeRoads,CanMakeFields]);
+    RemPassability(KMPoint(X,Y),[CanMakeRoads,CanMakeFields]);
+    if fdt=fdt_House then
+      RemPassability(KMPoint(X,Y),[CanWalkRoad,CanWalk]);
   end;
 begin
   for i:=1 to 4 do for k:=1 to 4 do begin
@@ -562,10 +701,11 @@ Result:=true;
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
       Result := Result AND InMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
-      Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
-      Result := Result AND (ControlList.HousesHitTest(Loc.X+k-3,Loc.Y+i-4)=nil);
+      if aHouseType<>ht_Wall then
+        Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability)
+      //else
+        //Result := Result AND (CanWalk in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
     end;
-//Add other check here, e.g. trees, fields, etc..
 end;
 
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
@@ -608,12 +748,13 @@ begin
 
 end;
 
+
 {Cursor position should be converted to tile-coords respecting tile heights}
 function TTerrain.ConvertCursorToMapCoord(inX,inY:single):single;
 var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
 begin
-  Xc:=EnsureRange(round(inX+0.5),1,MapX); //Cell below cursor without height check
-  Yc:=EnsureRange(round(inY+0.5),1,MapY);
+  Xc:=EnsureRange(round(inX+0.5),1,MapX-1); //Cell below cursor without height check
+  Yc:=EnsureRange(round(inY+0.5),1,MapY-1);
 
   for ii:=-2 to 4 do
   begin//make an array of tile heights above and below cursor (-2..4)
@@ -633,8 +774,9 @@ begin
   //Assert(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
 end;
 
+
 {Return height within cell interpolating node heights}
-function TTerrain.InterpolateMapCoord(inX,inY:single):single;
+function TTerrain.InterpolateLandHeight(inX,inY:single):single;
 var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   Xc:=trunc(inX);

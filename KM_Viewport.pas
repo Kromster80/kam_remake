@@ -1,7 +1,6 @@
 unit KM_Viewport;
-interface
-
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics;
+interface            
+uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, KromUtils;
 
 type
 
@@ -9,15 +8,16 @@ type
 //I guess they should be combined with TMinimap somehow..? 
 TViewport = class
 private
+XCoord,YCoord:integer;
 protected
 public
 Zoom:single;
-XCoord,YCoord:integer;
 ViewRect:TRect;
 ViewWidth,ViewHeight:integer;
   constructor Create;
-  procedure SetZoom(NewZoom:single);
+  property SetZoom:single write Zoom;
   procedure SetArea(NewWidth,NewHeight:integer);
+  function GetCenter():TKMPoint;
   procedure SetCenter(NewX,NewY:integer);
   function GetClip():TRect; //returns visible are dimensions in map space
 published
@@ -43,16 +43,11 @@ var
   fMiniMap: TMiniMap;
 
 implementation
-uses KM_Global_Data, KM_Defaults, KM_Terrain, KM_Unit1;
+uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Users;
 
 constructor TViewport.Create;
 begin
-Zoom:=1;
-end;
-
-procedure TViewport.SetZoom(NewZoom:single);
-begin
-Zoom:=NewZoom;
+  Zoom:=1;
 end;
 
 procedure TViewport.SetArea(NewWidth,NewHeight:integer);
@@ -65,19 +60,25 @@ ViewWidth:=ViewRect.Right-ViewRect.Left;
 ViewHeight:=ViewRect.Bottom-ViewRect.Top;
 end;
 
+function TViewport.GetCenter():TKMPoint;
+begin
+  Result.X:=EnsureRange(XCoord,1,fTerrain.MapX);
+  Result.Y:=EnsureRange(YCoord,1,fTerrain.MapY);
+end;
+
 procedure TViewport.SetCenter(NewX,NewY:integer);
 begin
-XCoord:=EnsureRange(NewX,1,fTerrain.MapX);
-YCoord:=EnsureRange(NewY,1,fTerrain.MapY);
+  XCoord:=EnsureRange(NewX,1,fTerrain.MapX);
+  YCoord:=EnsureRange(NewY,1,fTerrain.MapY);
 end;
 
 //Acquire boundaries of area visible to user
 function TViewport.GetClip():TRect;
 begin
-Result.Left  :=max(round(XCoord-(ViewWidth/2-ViewRect.Left)/CellSize/Zoom),1);
-Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left)/CellSize/Zoom)+1,fTerrain.MapX-1);
-Result.Top   :=max(round(YCoord-ViewHeight/CellSize/2/Zoom),1);
-Result.Bottom:=min(round(YCoord+ViewHeight/CellSize/2/Zoom)+4,fTerrain.MapY-1);
+Result.Left  :=max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom),1);
+Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
+Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
+Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
 end;
 
 constructor TMiniMap.Create(inShape:TShape; inMiniMap:TImage; inLabel:TLabel);
@@ -91,10 +92,10 @@ procedure TMiniMap.SetRect(Viewport:TViewport);
 begin
   with Viewport do
     begin
-      mmShape.Width:=round(ViewWidth/CellSize/Zoom);
-      mmShape.Height:=round(ViewHeight/CellSize/Zoom);
+      mmShape.Width:=round(ViewWidth/CELL_SIZE_PX/Zoom);
+      mmShape.Height:=round(ViewHeight/CELL_SIZE_PX/Zoom);
       mmLabel.Caption:=inttostr(round(Zoom*100))+'%';
-      mmShape.Left:=round(XCoord+mmMiniMap.Left +ViewRect.Left/CellSize/Zoom -mmShape.Width  div 2);
+      mmShape.Left:=round(XCoord+mmMiniMap.Left +(ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom -mmShape.Width  div 2);
       mmShape.Top :=YCoord+mmMiniMap.Top -mmShape.Height div 2;
       mmShape.Refresh;
     end;
@@ -120,7 +121,7 @@ begin
   end;
 
   Loc:=TKMPointList.Create;
-  for i:=1 to MaxPlayers do begin
+  for i:=1 to MAX_PLAYERS do begin
     ControlList.GetUnitLocations(TPlayerID(i),Loc);
     for k:=1 to Loc.Count do
       bm.Canvas.Pixels[Loc.List[k].X-1,Loc.List[k].Y-1]:=TeamColors[i];

@@ -3,6 +3,7 @@ interface
 uses windows, math, classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
 
   type TJobStatus = (js_Open, js_Taken, js_Done);
+  type TDemandImportance = (di_Norm, di_High);
   const MaxEntries=1024;
 
 type
@@ -19,6 +20,7 @@ type
       Loc_House:TKMHouse;
       Loc_Unit:TKMUnit;
       DemandType:TDemandType; //Once for everything, Always for Store and Barracks
+      Importance:TDemandImportance; //How important demand is, e.g. Workers and building sites should be di_High
       Resource:TResourceType;
     end;
     fQueue:array[1..MaxEntries]of
@@ -31,9 +33,10 @@ type
   public
     constructor Create();
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
-    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
+    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType; aImp:TDemandImportance);
     function  AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
     procedure CloseDelivery(aID:integer);
+    procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
     function WriteToText():string;
   end;
 
@@ -48,14 +51,12 @@ type
     end;
     fHousePlansQueue:array[1..MaxEntries]of
     record
-      Loc:TKMPoint;
-      HouseType:THouseType;
+      House:TKMHouse;
       Importance:byte;
       JobStatus:TJobStatus;
     end;
     fHousesQueue:array[1..MaxEntries]of
     record
-      Loc:TKMPoint;
       House:TKMHouse;
       Importance:byte;
       JobStatus:TJobStatus;
@@ -67,17 +68,17 @@ type
     function  AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseRoad(aID:integer);
 
-    procedure AddNewHousePlan(aLoc:TKMPoint; aHouseType: THouseType);
+    procedure AddNewHousePlan(aHouse: TKMHouse);
     function  AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHousePlan(aID:integer);
 
-    procedure AddNewHouse(aLoc:TKMPoint; aHouse: TKMHouse);
+    procedure AddNewHouse(aHouse: TKMHouse);
     function  AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHouse(aID:integer);
   end;
 
 implementation
-uses KM_Unit1, KM_Terrain, KM_Global_Data;
+uses KM_Unit1, KM_Terrain;
 
 { TKMDeliverQueue }
 
@@ -110,7 +111,7 @@ end;
 
 //Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
 //so we just find an empty place (which is last one) and write there.
-procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType);
+procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType; aImp:TDemandImportance);
 var i:integer;
 begin
 i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
@@ -119,6 +120,9 @@ with fDemand[i] do begin
     Loc_Unit:=aUnit;
     DemandType:=aDemandType; //Once or Always
     Resource:=aResource;
+    Importance:=aImp;
+    if GOLD_TO_SCHOOLS_IMPORTANT then
+    if (Resource=rt_gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
   end;
 end;
 
@@ -139,25 +143,40 @@ for h:=1 to length(fDemand) do
   if fDemand[h].Resource <> rt_None then
   for k:=1 to length(fOffer) do
     if fOffer[k].Resource <> rt_None then
-    if (fDemand[h].Resource = fOffer[k].Resource)or
+
+    if (fDemand[h].Resource = fOffer[k].Resource)or //If Offer Resource matches Demand
        (fDemand[h].Resource = rt_All)or
-       ((fDemand[h].Resource = rt_Warfare)and(fOffer[k].Resource in [rt_WoodShield..rt_Horse])) then
-    if (fDemand[h].Loc_House=nil)or((fDemand[h].Loc_House<>nil)and(fOffer[k].Loc_House.GetHouseType<>fDemand[h].Loc_House.GetHouseType))
+       ((fDemand[h].Resource = rt_Warfare)and(fOffer[k].Resource in [rt_Shield..rt_Horse])) then
+
+    if (fDemand[h].Loc_House=nil)or //If Demand house has WareDelivery toggled ON
+       ((fDemand[h].Loc_House<>nil)and(fDemand[h].Loc_House.WareDelivery)) then
+
+    if (fDemand[h].Loc_House=nil)or //If Demand is a Storehouse and it has WareDelivery toggled ON
+       ((fDemand[h].Loc_House<>nil)and((fDemand[h].Loc_House.GetHouseType<>ht_Store)or(
+       (fDemand[h].Loc_House.GetHouseType=ht_Store)and(TKMHouseStore(fDemand[h].Loc_House).NotAcceptFlag[byte(fOffer[k].Resource)]=false)))) then
+
+    if (fDemand[h].Loc_House=nil)or //If Demand and Offer are different Types, means forbid Store>Store deliveries
+       ((fDemand[h].Loc_House<>nil)and(fOffer[k].Loc_House.GetHouseType<>fDemand[h].Loc_House.GetHouseType))
     then begin
 
       if fDemand[h].Loc_House<>nil then
-        Bid := GetLength(fDemand[h].Loc_House.GetPosition,fOffer[k].Loc_House.GetPosition)
+        Bid := KMLength(fOffer[k].Loc_House.GetEntrance,fDemand[h].Loc_House.GetEntrance)
       else
-        Bid := GetLength(fDemand[h].Loc_Unit.GetPosition,fOffer[k].Loc_House.GetPosition);
+        Bid := KMLength(fOffer[k].Loc_House.GetEntrance,fDemand[h].Loc_Unit.GetPosition);
 
-      if fDemand[h].Resource=rt_All then
-        Bid:=Bid*5; //Prefer deliveries House-House
+      //Modifications for bidding system
+      if fDemand[h].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
+        Bid:=Bid*3+5;
 
-      //
+      if fDemand[h].Loc_House<>nil then //Prefer delivering to houses with fewer supply
+      if (fDemand[h].Resource <> rt_All)and(fDemand[h].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
+        Bid:=Bid * ((fDemand[h].Loc_House.CheckResIn(fDemand[h].Resource)+1)/6);
 
-      if fQueue[i].JobStatus=js_Open then BestBid:=Bid;
+      if fDemand[h].Importance=di_High then //If Demand importance is high - make it done ASAP
+        Bid:=1;
 
-      if BestBid>=Bid then begin
+      //Take first one incase there's nothing better to be found
+      if (fQueue[i].JobStatus=js_Open)or(Bid<BestBid) then begin
         fQueue[i].DemandID:=h;
         fQueue[i].OfferID:=k;
         fQueue[i].JobStatus:=js_Taken; //The job is found, at least something
@@ -170,7 +189,7 @@ for h:=1 to length(fDemand) do
   h:=fQueue[i].DemandID;
   k:=fQueue[i].OfferID;
   //Now we have best job and can perform it
-  Result:=TTaskDeliver.Create(KMSerf, fOffer[k].Loc_House.GetPosition, fDemand[h].Loc_House, fDemand[h].Loc_Unit, fOffer[k].Resource, i);
+  Result:=TTaskDeliver.Create(KMSerf, fOffer[k].Loc_House, fDemand[h].Loc_House, fDemand[h].Loc_Unit, fOffer[k].Resource, i);
 
   dec(fOffer[k].Count); //Remove resource from Offer
   if fOffer[k].Count=0 then begin
@@ -193,6 +212,12 @@ with fQueue[aID] do
     DemandID:=0;
     JobStatus:=js_Open; //Open slot
   end;
+end;
+
+//Job was abandoned before it was completed
+procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
+begin
+//
 end;
 
 
@@ -289,12 +314,11 @@ fFieldsQueue[aID].JobStatus:=js_Done;
 end;
 
 
-procedure TKMBuildingQueue.AddNewHousePlan(aLoc:TKMPoint; aHouseType: THouseType);
+procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
 var i:integer;
 begin
-i:=1; while fHousePlansQueue[i].Loc.X<>0 do inc(i);
-fHousePlansQueue[i].Loc:=aLoc;
-fHousePlansQueue[i].HouseType:=aHouseType;
+i:=1; while fHousePlansQueue[i].House<>nil do inc(i);
+fHousePlansQueue[i].House:=aHouse;
 fHousePlansQueue[i].Importance:=1;
 fHousePlansQueue[i].JobStatus:=js_Open;
 end;
@@ -312,27 +336,25 @@ begin
   exit;
 end;
 if fHousePlansQueue[i].JobStatus=js_Open then
-  Result:=TTaskBuildHouseArea.Create(KMWorker, fHousePlansQueue[i].Loc, fHousePlansQueue[i].HouseType, i);
+  Result:=TTaskBuildHouseArea.Create(KMWorker, fHousePlansQueue[i].House, i);
 fHousePlansQueue[i].JobStatus:=js_Taken;
 end;
 
 
 procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
 begin
-fHousePlansQueue[aID].Loc:=KMPoint(0,0);
-fHousePlansQueue[aID].HouseType:=ht_None;
+fHousePlansQueue[aID].House:=nil;
 fHousePlansQueue[aID].Importance:=0;
 fHousePlansQueue[aID].JobStatus:=js_Done;
 end;
 
 
 {Add new job to the list}
-procedure TKMBuildingQueue.AddNewHouse(aLoc:TKMPoint; aHouse: TKMHouse);
+procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
 var i:integer;
 begin
   i:=1;
-  while fHousesQueue[i].Loc.X<>0 do inc(i); //Find an empty spot
-  fHousesQueue[i].Loc:=aLoc;
+  while fHousesQueue[i].House<>nil do inc(i); //Find an empty spot
   fHousesQueue[i].House:=aHouse;
   fHousesQueue[i].Importance:=1;
   fHousesQueue[i].JobStatus:=js_Open;
@@ -347,14 +369,13 @@ i:=1;
 while (i<length(fHousesQueue))and(fHousesQueue[i].JobStatus<>js_Open) do inc(i);
 
 if fHousesQueue[i].JobStatus=js_Open then
-  Result:=TTaskBuildHouse.Create(KMWorker, fHousesQueue[i].Loc, fHousesQueue[i].House, i);
+  Result:=TTaskBuildHouse.Create(KMWorker, fHousesQueue[i].House, i);
 //fHousesQueue[i].JobStatus:=js_Taken; //Not required since many workers can build one same house
 end;
 
 {Clear up}
 procedure TKMBuildingQueue.CloseHouse(aID:integer);
 begin
-  fHousesQueue[aID].Loc:=KMPoint(0,0);
   fHousesQueue[aID].House:=nil;
   fHousesQueue[aID].Importance:=0;
   fHousesQueue[aID].JobStatus:=js_Done;

@@ -6,6 +6,8 @@ Less important:
 
 ANSWER: There's variable MaxMapSize=176 somewhere in Global_Data or Terrain unit. I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned). Once it's all solved the limit can be increased to any value (though exceeding 256 will introduce new bugs, I'm sure).
 
+ANSWER2: Okay, checked and fixed it. Was a mistake in Height interpolation. Solved.
+
 
 
 

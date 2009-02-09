@@ -1,10 +1,9 @@
 object Form1: TForm1
-  Left = 105
-  Top = 66
+  Left = 354
+  Top = 92
+  Width = 1032
+  Height = 834
   HelpType = htKeyword
-  BorderStyle = bsNone
-  ClientHeight = 320
-  ClientWidth = 480
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,29 +18,56 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnResize = FormResize
   DesignSize = (
-    480
-    320)
+    1024
+    788)
   PixelsPerInch = 96
   TextHeight = 13
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 480
-    Height = 302
+    Width = 1024
+    Height = 768
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'Panel5'
     Color = clBlack
-    TabOrder = 1
+    TabOrder = 0
     OnMouseDown = Panel1MouseDown
     OnMouseMove = Panel1MouseMove
     OnMouseUp = Panel1MouseUp
+    object Panel_Minimap: TPanel
+      Left = 10
+      Top = 10
+      Width = 176
+      Height = 176
+      BevelOuter = bvNone
+      Color = clMaroon
+      TabOrder = 0
+      object MiniMap: TImage
+        Left = 0
+        Top = 0
+        Width = 176
+        Height = 176
+        OnMouseDown = MiniMapMouseDown
+        OnMouseMove = MiniMapMouseMove
+        OnMouseUp = MiniMapMouseUp
+      end
+      object ShapeFOV: TShape
+        Left = 24
+        Top = 24
+        Width = 65
+        Height = 65
+        Brush.Style = bsClear
+        Enabled = False
+        Pen.Color = clWhite
+      end
+    end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 301
-    Width = 480
-    Height = 19
+    Top = 768
+    Width = 1024
+    Height = 20
     Panels = <
       item
         Text = 'Map size: 176 x 176'
@@ -54,53 +80,19 @@ object Form1: TForm1
       item
         Text = '50.0 fps (50)'
         Width = 80
-      end
-      item
-        Text = 'Brush: None Selected'
-        Width = 140
-      end
-      item
-        Width = 50
       end>
     SimplePanel = False
   end
-  object Panel_Minimap: TPanel
-    Left = 10
-    Top = 9
-    Width = 176
-    Height = 176
-    BevelOuter = bvNone
-    Color = clMaroon
-    TabOrder = 0
-    object MiniMap: TImage
-      Left = 0
-      Top = 0
-      Width = 176
-      Height = 176
-      OnMouseDown = MiniMapMouseDown
-      OnMouseMove = MiniMapMouseMove
-      OnMouseUp = MiniMapMouseUp
-    end
-    object ShapeFOV: TShape
-      Left = 24
-      Top = 24
-      Width = 65
-      Height = 65
-      Brush.Style = bsClear
-      Enabled = False
-      Pen.Color = clWhite
-    end
-  end
   object GroupBox1: TGroupBox
-    Left = 192
+    Left = 224
     Top = 8
-    Width = 145
-    Height = 169
+    Width = 425
+    Height = 57
     Caption = '  Additional controls  '
-    TabOrder = 3
+    TabOrder = 2
     object Image4: TImage
       Left = 10
-      Top = 70
+      Top = 17
       Width = 13
       Height = 14
       AutoSize = True
@@ -129,7 +121,7 @@ object Form1: TForm1
     end
     object Image3: TImage
       Left = 86
-      Top = 65
+      Top = 12
       Width = 19
       Height = 21
       AutoSize = True
@@ -180,89 +172,32 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 109
-      Top = 70
+      Top = 17
       Width = 26
       Height = 13
       Caption = '100%'
       OnClick = ResetZoomClick
     end
-    object Pl1: TSpeedButton
-      Left = 8
-      Top = 92
-      Width = 22
-      Height = 22
-      GroupIndex = 100
-      Down = True
-      Caption = '1'
-      Flat = True
-      Spacing = 2
-      Transparent = False
-    end
-    object Pl2: TSpeedButton
-      Left = 30
-      Top = 92
-      Width = 22
-      Height = 22
-      GroupIndex = 100
-      Caption = '2'
-      Flat = True
-    end
-    object Pl3: TSpeedButton
-      Left = 52
-      Top = 92
-      Width = 22
-      Height = 22
-      GroupIndex = 100
-      Caption = '3'
-      Flat = True
-    end
-    object Pl6: TSpeedButton
-      Left = 52
-      Top = 114
-      Width = 22
-      Height = 22
-      GroupIndex = 100
-      Caption = '6'
-      Flat = True
-    end
-    object Pl5: TSpeedButton
-      Left = 30
-      Top = 114
-      Width = 22
-      Height = 22
-      GroupIndex = 100
-      Caption = '5'
-      Flat = True
-    end
-    object Pl4: TSpeedButton
-      Left = 8
-      Top = 114
-      Width = 22
-      Height = 22
-      GroupIndex = 100
-      Caption = '4'
-      Flat = True
-    end
     object Shape267: TShape
-      Left = 78
-      Top = 92
+      Left = 394
+      Top = 16
       Width = 22
       Height = 22
       OnDragDrop = Shape267DragDrop
       OnMouseUp = Shape267MouseUp
     end
     object Label2: TLabel
-      Left = 69
-      Top = 142
-      Width = 26
+      Left = 85
+      Top = 37
+      Width = 49
       Height = 13
-      Caption = '100%'
+      Caption = 'Passability'
     end
     object TBZoomControl: TTrackBar
       Left = 24
-      Top = 69
+      Top = 16
       Width = 61
-      Height = 21
+      Height = 17
       Max = 7
       Min = 1
       Orientation = trHorizontal
@@ -278,38 +213,36 @@ object Form1: TForm1
       OnChange = ZoomChange
     end
     object CheckBox2: TCheckBox
-      Left = 8
+      Left = 144
       Top = 16
-      Width = 97
+      Width = 73
       Height = 17
-      Caption = 'Speedup x10'
-      Checked = True
-      State = cbChecked
+      Caption = 'Speed x10'
       TabOrder = 1
     end
     object CheckBox1: TCheckBox
-      Left = 8
-      Top = 32
-      Width = 97
+      Left = 224
+      Top = 16
+      Width = 49
       Height = 17
       Caption = 'Pause'
       TabOrder = 2
     end
     object CheckBox3: TCheckBox
-      Left = 8
-      Top = 48
-      Width = 97
+      Left = 224
+      Top = 32
+      Width = 49
       Height = 17
       Caption = 'Wires'
       TabOrder = 3
       OnClick = ShowWiresClick
     end
     object TrackBar1: TTrackBar
-      Left = 8
-      Top = 141
-      Width = 61
-      Height = 21
-      Max = 8
+      Left = 2
+      Top = 36
+      Width = 83
+      Height = 17
+      Max = 9
       Orientation = trHorizontal
       PageSize = 1
       Frequency = 1
@@ -321,6 +254,23 @@ object Form1: TForm1
       TickMarks = tmBoth
       TickStyle = tsNone
       OnChange = TrackBar1Change
+    end
+    object CheckBox4: TCheckBox
+      Left = 144
+      Top = 32
+      Width = 81
+      Height = 17
+      Caption = 'Speed x1/2'
+      TabOrder = 5
+    end
+    object CheckBox5: TCheckBox
+      Left = 280
+      Top = 16
+      Width = 57
+      Height = 17
+      Caption = 'Overlay'
+      TabOrder = 6
+      OnClick = CheckBox5Click
     end
   end
   object OpenDialog1: TOpenDialog
@@ -382,36 +332,44 @@ object Form1: TForm1
     object Export1: TMenuItem
       Caption = 'Export Data'
       object ExportTreesRX: TMenuItem
-        Caption = 'Trees'
+        Caption = 'Trees.rx'
         OnClick = ExportTreesRXClick
       end
       object ExportHousesRX: TMenuItem
-        Caption = 'Houses'
+        Caption = 'Houses.rx'
         OnClick = ExportHousesRXClick
       end
       object ExportUnitsRX: TMenuItem
-        Caption = 'Units'
+        Caption = 'Units.rx'
         OnClick = ExportUnitsRXClick
       end
       object ExportGUIRX: TMenuItem
-        Caption = 'GUI'
+        Caption = 'GUI.rx'
         OnClick = ExportGUIRXClick
       end
       object ExportGUIMainRX: TMenuItem
-        Caption = 'GUI Main'
+        Caption = 'GUI Main.rx'
         OnClick = ExportGUIMainRXClick
       end
       object Exportfonts1: TMenuItem
-        Caption = 'Export Fonts'
+        Caption = 'Fonts'
         OnClick = Exportfonts1Click
       end
       object ExportText: TMenuItem
-        Caption = 'Export Texts'
+        Caption = 'Texts'
         OnClick = ExportTextClick
       end
       object ExportSounds1: TMenuItem
-        Caption = 'Export Sounds'
+        Caption = 'Sounds'
         OnClick = ExportSounds1Click
+      end
+      object HouseAnim1: TMenuItem
+        Caption = 'House Anim'
+        OnClick = HouseAnim1Click
+      end
+      object UnitAnim1: TMenuItem
+        Caption = 'Unit Anim'
+        OnClick = UnitAnim1Click
       end
     end
     object ExportStatus1: TMenuItem
