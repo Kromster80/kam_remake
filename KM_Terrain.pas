@@ -66,16 +66,16 @@ public
   constructor Create;
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
-  procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
-  function ConvertCursorToMapCoord(inX,inY:single):single;
-  function InterpolateLandHeight(inX,inY:single):single;
-  function InMapCoords(X,Y:integer; Inset:byte=0):boolean;
-public
 
   procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
   procedure RemMarkup(Loc:TKMPoint);
   procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
   procedure IncFieldState(Loc:TKMPoint);
+
+  procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
+  procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
+  function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
+  function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
 
   function FindGrapes(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindCorn(aPosition:TKMPoint; aRadius:integer):TKMPoint;
@@ -94,19 +94,16 @@ public
   procedure RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
 
-  procedure FlattenTerrain(Loc:TKMPoint);
-public
-  procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
-  procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
-  function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
-  function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
+  function InMapCoords(X,Y:integer; Inset:byte=0):boolean;
   procedure UpdateBorders(Loc:TKMPoint);
-public
+  procedure FlattenTerrain(Loc:TKMPoint);
+  procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
+  function ConvertCursorToMapCoord(inX,inY:single):single;
+  function InterpolateLandHeight(inX,inY:single):single;
+
   procedure UpdateState;
   procedure UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
   procedure Paint;
-published
-
 end;
 
 var
@@ -121,97 +118,7 @@ begin
 //Don't know what to put here yet
 end;
 
-procedure TTerrain.UpdateState;
-var i,k,h,j:integer;
-  procedure SetLand(x,y,tile:byte; Spec:TFieldSpecial);
-  begin
-    Land[y,x].Terrain:=tile;
-    Land[y,x].FieldSpecial:=Spec;
-  end;
-begin
-  inc(AnimStep);
 
-for i:=1 to MapY do
-  for k:=1 to MapX do
-  if (i*MapX+k+AnimStep) mod 20 = 0 then begin //All those global things can be performed once a sec, or even less frequent
-
-    if InRange(Land[i,k].FieldAge,1,254) then inc(Land[i,k].FieldAge);
-
-    if Land[i,k].FieldType=fdt_Field then begin
-      case Land[i,k].FieldAge of
-        1: SetLand(k,i,61,fs_None);
-        2: SetLand(k,i,59,fs_None);
-        3: SetLand(k,i,60,fs_Corn1);
-        4: SetLand(k,i,60,fs_Corn2);
-        5: Land[i,k].FieldAge:=255; //Skip to the end
-      end;
-    end else
-    if Land[i,k].FieldType=fdt_Wine then begin
-      case Land[i,k].FieldAge of
-        1: SetLand(k,i,55,fs_Wine1);
-        2: SetLand(k,i,55,fs_Wine2);
-        3: SetLand(k,i,55,fs_Wine3);
-        4: SetLand(k,i,55,fs_Wine4);
-        5: Land[i,k].FieldAge:=255; //Skip to the end
-      end;
-    end;
-
-    if InRange(Land[i,k].TreeAge,1,254) then inc(Land[i,k].TreeAge);
-    for h:=1 to length(ChopableTrees) do
-      for j:=1 to 3 do
-        if Land[i,k].Obj=ChopableTrees[h,j] then
-          case Land[i,k].TreeAge of
-            1: Land[i,k].Obj:=ChopableTrees[h,2];
-            3: Land[i,k].Obj:=ChopableTrees[h,3];
-            5: Land[i,k].Obj:=ChopableTrees[h,4];
-            7: Land[i,k].TreeAge:=255; //Skip to the end
-          end;
-
-  end;
-end;
-
-procedure TTerrain.UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
-begin
-  CursorMode.Mode:=aCursor;
-  CursorPos:=Loc;
-end;
-
-procedure TTerrain.Paint;
-var i,k:integer; x1,x2,y1,y2:integer;
-begin
-x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
-y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
-
-fRender.RenderTerrainAndFields(x1,x2,y1,y2);
-
-for i:=y1 to y2 do for k:=x1 to x2 do
-  begin
-    if Land[i,k].BorderX <> bt_None then
-      fRender.RenderBorder(Land[i,k].BorderX,1,k,i); //Horizontal
-
-    if Land[i,k].BorderY <> bt_None then
-      fRender.RenderBorder(Land[i,k].BorderY,2,k,i); //Vertical
-
-    if Land[i,k].Markup in [mu_RoadPlan..mu_WinePlan] then
-      fRender.RenderMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
-
-    if Land[i,k].Obj<>255 then
-      fRender.RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
-
-    if Land[i,k].FieldSpecial<>fs_None then
-      fRender.RenderObjectSpecial(Land[i,k].FieldSpecial,AnimStep,k,i);
-
-  end;
-
-case CursorMode.Mode of
-  cm_None:;
-  cm_Erase: fRender.RenderWireQuad(CursorPos, $FF); //Red quad
-  cm_Road: fRender.RenderWireQuad(CursorPos, $FFFF00); //Cyan quad
-  cm_Field: fRender.RenderWireQuad(CursorPos, $FFFF00); //Cyan quad
-  cm_Wine: fRender.RenderWireQuad(CursorPos, $FFFF00); //Cyan quad
-  cm_Houses: fRender.RenderWireHousePlan(CursorPos, THouseType(CursorMode.Param), $FFFF00); //Cyan quad
-end;
-end;
 
 //Reset whole map with default values
 procedure TTerrain.MakeNewMap(Width,Height:integer);
@@ -274,22 +181,6 @@ Result:=true;
 end;
 
 
-{ Rebuilds lighting values for given bounds.
-These values are used to draw highlights/shadows on terrain.}
-procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
-var i,k:integer; x0,y2:integer;
-begin
-  for i:=LowY to HighY do for k:=LowX to HighX do
-    if InMapCoords(k,i) then begin
-    x0:=EnsureRange(k-1,1,MapX);
-    y2:=EnsureRange(i+1,1,MapY);
-    if InMapCoords(x0,y2) then
-    Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1)*(1-Overlap); //  1.33*16 ~=22
-    //Map borders fade to black
-    if (i=1)or(i=MapY)or(k=1)or(k=MapX) then
-      Land[i,k].Light:=-1+Overlap;
-  end
-end;
 
 {Check if supplied values are within Map boundaries}
 function TTerrain.InMapCoords(X,Y:integer; Inset:byte=0):boolean;
@@ -309,15 +200,6 @@ begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
 end;
 
-procedure TTerrain.IncFieldState(Loc:TKMPoint);
-begin
-  case Land[Loc.Y,Loc.X].FieldSpecial of
-    fs_Dig3: Land[Loc.Y,Loc.X].FieldSpecial:=fs_Dig4;
-    fs_Dig2: Land[Loc.Y,Loc.X].FieldSpecial:=fs_Dig3;
-    fs_Dig1: Land[Loc.Y,Loc.X].FieldSpecial:=fs_Dig2;
-    else     Land[Loc.Y,Loc.X].FieldSpecial:=fs_Dig1;
-  end;
-end;
 
 procedure TTerrain.SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
 begin
@@ -343,6 +225,18 @@ begin
     AddPassability(Loc,[canBuild]);
   end;
 end;
+
+
+procedure TTerrain.IncFieldState(Loc:TKMPoint);
+begin
+  case Land[Loc.Y,Loc.X].FieldSpecial of
+    fs_Dig3: Land[Loc.Y,Loc.X].FieldSpecial:=fs_Dig4;
+    fs_Dig2: Land[Loc.Y,Loc.X].FieldSpecial:=fs_Dig3;
+    fs_Dig1: Land[Loc.Y,Loc.X].FieldSpecial:=fs_Dig2;
+    else     Land[Loc.Y,Loc.X].FieldSpecial:=fs_Dig1;
+  end;
+end;
+
 
 { Should find closest wine field around.
 Perhaps this could be merged with FindCorn? }
@@ -449,10 +343,31 @@ else
 end;
 
 
+procedure TTerrain.AddTree(Loc:TKMPoint; ID:integer);
+begin
+  Land[Loc.Y,Loc.X].Obj:=ID;
+  RemPassability(Loc,[canBuild,canPlantTrees]);
+  Land[Loc.Y,Loc.X].TreeAge:=1;
+end;
+
+{}
+procedure TTerrain.ChopTree(Loc:TKMPoint);
+var h:integer;
+begin
+  for h:=1 to length(ChopableTrees) do
+    if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
+      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
+
+  AddPassability(Loc,[canBuild,canPlantTrees]);
+  Land[Loc.Y,Loc.X].TreeAge:=0;
+end;
+
+
 procedure TTerrain.InitGrowth(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
 end;
+
 
 procedure TTerrain.CutCorn(Loc:TKMPoint);
 begin
@@ -633,23 +548,21 @@ begin
 end;
 
 
-procedure TTerrain.AddTree(Loc:TKMPoint; ID:integer);
+{ Rebuilds lighting values for given bounds.
+These values are used to draw highlights/shadows on terrain.}
+procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
+var i,k:integer; x0,y2:integer;
 begin
-  Land[Loc.Y,Loc.X].Obj:=ID;
-  RemPassability(Loc,[canBuild,canPlantTrees]);
-  Land[Loc.Y,Loc.X].TreeAge:=1;
-end;
-
-{}
-procedure TTerrain.ChopTree(Loc:TKMPoint);
-var h:integer;
-begin
-  for h:=1 to length(ChopableTrees) do
-    if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
-      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
-
-  AddPassability(Loc,[canBuild,canPlantTrees]);
-  Land[Loc.Y,Loc.X].TreeAge:=0;
+  for i:=LowY to HighY do for k:=LowX to HighX do begin
+    if InMapCoords(k,i) then begin
+      x0:=EnsureRange(k-1,1,MapX);
+      y2:=EnsureRange(i+1,1,MapY);
+      if InMapCoords(x0,y2) then
+        Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1)*(1-Overlap); //  1.33*16 ~=22
+    end;
+    if (i=1)or(i=MapY)or(k=1)or(k=MapX) then //Map borders fade to black
+      Land[i,k].Light:=-1+Overlap;
+  end
 end;
 
 
@@ -711,7 +624,7 @@ end;
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
 begin  
   Result:=true;
-  Result := Result AND InMapCoords(Loc.X,Loc.Y,0); //Don't inset one tile from map edges
+  Result := Result AND InMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
   Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
   Result := Result AND (ControlList.HousesHitTest(Loc.X,Loc.Y)=nil);
   if aMarkup <> mu_RoadPlan then //Don't allow fields on fields
@@ -784,6 +697,101 @@ begin
   Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
   Result:=mix(Tmp2, Tmp1, frac(InY));
+end;
+
+
+procedure TTerrain.UpdateState;
+var i,k,h,j:integer;
+  procedure SetLand(x,y,tile:byte; Spec:TFieldSpecial);
+  begin
+    Land[y,x].Terrain:=tile;
+    Land[y,x].FieldSpecial:=Spec;
+  end;
+begin
+  inc(AnimStep);
+
+for i:=1 to MapY do
+  for k:=1 to MapX do
+  if (i*MapX+k+AnimStep) mod 20 = 0 then begin //All those global things can be performed once a sec, or even less frequent
+
+    if InRange(Land[i,k].FieldAge,1,254) then inc(Land[i,k].FieldAge);
+
+    if Land[i,k].FieldType=fdt_Field then begin
+      case Land[i,k].FieldAge of
+        1: SetLand(k,i,61,fs_None);
+        2: SetLand(k,i,59,fs_None);
+        3: SetLand(k,i,60,fs_Corn1);
+        4: SetLand(k,i,60,fs_Corn2);
+        5: Land[i,k].FieldAge:=255; //Skip to the end
+      end;
+    end else
+    if Land[i,k].FieldType=fdt_Wine then begin
+      case Land[i,k].FieldAge of
+        1: SetLand(k,i,55,fs_Wine1);
+        2: SetLand(k,i,55,fs_Wine2);
+        3: SetLand(k,i,55,fs_Wine3);
+        4: SetLand(k,i,55,fs_Wine4);
+        5: Land[i,k].FieldAge:=255; //Skip to the end
+      end;
+    end;
+
+    if InRange(Land[i,k].TreeAge,1,254) then inc(Land[i,k].TreeAge);
+    for h:=1 to length(ChopableTrees) do
+      for j:=1 to 3 do
+        if Land[i,k].Obj=ChopableTrees[h,j] then
+          case Land[i,k].TreeAge of
+            1: Land[i,k].Obj:=ChopableTrees[h,2];
+            3: Land[i,k].Obj:=ChopableTrees[h,3];
+            5: Land[i,k].Obj:=ChopableTrees[h,4];
+            7: Land[i,k].TreeAge:=255; //Skip to the end
+          end;
+
+  end;
+end;
+
+
+procedure TTerrain.UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
+begin
+  CursorMode.Mode:=aCursor;
+  CursorPos:=Loc;
+end;
+
+
+procedure TTerrain.Paint;
+var i,k:integer; x1,x2,y1,y2:integer;
+begin
+x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
+y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
+
+fRender.RenderTerrainAndFields(x1,x2,y1,y2);
+
+for i:=y1 to y2 do for k:=x1 to x2 do
+  begin
+    if Land[i,k].BorderX <> bt_None then
+      fRender.RenderBorder(Land[i,k].BorderX,1,k,i); //Horizontal
+
+    if Land[i,k].BorderY <> bt_None then
+      fRender.RenderBorder(Land[i,k].BorderY,2,k,i); //Vertical
+
+    if Land[i,k].Markup in [mu_RoadPlan..mu_WinePlan] then
+      fRender.RenderMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
+
+    if Land[i,k].Obj<>255 then
+      fRender.RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
+
+    if Land[i,k].FieldSpecial<>fs_None then
+      fRender.RenderObjectSpecial(Land[i,k].FieldSpecial,AnimStep,k,i);
+
+  end;
+
+case CursorMode.Mode of
+  cm_None:;
+  cm_Erase: fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
+  cm_Road: fRender.RenderWireQuad(CursorPos, $FFFFFF00); //Cyan quad
+  cm_Field: fRender.RenderWireQuad(CursorPos, $FFFFFF00); //Cyan quad
+  cm_Wine: fRender.RenderWireQuad(CursorPos, $FFFFFF00); //Cyan quad
+  cm_Houses: fRender.RenderWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
+end;
 end;
 
 end.

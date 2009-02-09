@@ -575,7 +575,7 @@ begin
     Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
   end else begin
     Scrolling := false; //Allow cursor changes to be overriden and reset if still on a scrolling cursor
-    if (Screen.Cursor in [c_Scroll0..c_Scroll7]) then
+    if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
       Screen.Cursor := c_Default;
   end;
 end;

@@ -41,7 +41,7 @@ public
   procedure RenderWires();
   procedure RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
   procedure RenderWireQuad(P:TKMPoint; Col:TColor4);
-  procedure RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType; Col:TColor4);
+  procedure RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
   procedure RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
   procedure RenderMarkup(Index:integer; pX,pY:integer);
@@ -320,7 +320,7 @@ end;
 
 procedure TRender.RenderWireQuad(P:TKMPoint; Col:TColor4);
 begin
-  glColor3ubv(@Col);
+  glColor4ubv(@Col);
   glbegin (GL_LINE_LOOP);
   if fTerrain.InMapCoords(P.X,P.Y) then
   with fTerrain do begin
@@ -333,19 +333,20 @@ begin
 end;
 
 
-procedure TRender.RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType; Col:TColor4);
+procedure TRender.RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
 var i,k:integer; P2:TKMPoint;
 begin
   for i:=1 to 4 do for k:=1 to 4 do
-  if fTerrain.InMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4) then begin
+  if fTerrain.InMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
     P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
     if HousePlanYX[byte(aHouseType),i,k]<>0 then
       if CanBuild in fTerrain.Land[P2.Y,P2.X].Passability then
-        RenderWireQuad(P2,$FFFF00)
+        RenderWireQuad(P2,$FFFFFF00) //Cyan
       else
-        RenderWireQuad(P2,$FF);
+        RenderWireQuad(P2,$FF0000FF); //Red
     if HousePlanYX[byte(aHouseType),i,k]=2 then AddSpriteToList(4,481,P2.X+0.2,P2.Y+1-0.2,true);
-  end;
+  end else
+//    RenderWireQuad(P2,$FF0000FF);
 end;
 
 
@@ -370,6 +371,7 @@ end;
 end;
 
 
+{ 4 objects packed on 1 tile for Corn and Grapes }
 procedure TRender.RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
 var ShiftX,ShiftY:single; ID,Index:integer;
 begin
@@ -480,28 +482,6 @@ begin
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
-procedure TRender.RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
-var ShiftX,ShiftY:single; ID,AnimCount:integer; i:integer; Arr:array[0..24]of integer;
-begin
-  if AnimType<>0 then
-  begin
-  ConvertSetToArray(AnimType, @Arr);
-  for i:=1 to Arr[0] do
-    begin
-      AnimType:=Arr[i];
-      AnimCount:=HouseDAT[Index].Anim[AnimType].Count;
-      if AnimCount<>0 then
-        begin
-          ID:=HouseDAT[Index].Anim[AnimType].Step[AnimStep mod AnimCount + 1]+1;
-          ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-          ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
-          ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/CELL_SIZE_PX;
-          ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/CELL_SIZE_PX;
-          AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false,Owner);
-        end;
-    end;
-  end;
-end;
 
 {Render house WIP tablet}
 procedure TRender.RenderHouseBuild(Index,pX,pY:integer);
@@ -535,6 +515,30 @@ begin
   ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
   AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false,0,Step);
+end;
+
+
+procedure TRender.RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
+var ShiftX,ShiftY:single; ID,AnimCount:integer; i:integer; Arr:array[0..24]of integer;
+begin
+  if AnimType<>0 then
+  begin
+  ConvertSetToArray(AnimType, @Arr);
+  for i:=1 to Arr[0] do
+    begin
+      AnimType:=Arr[i];
+      AnimCount:=HouseDAT[Index].Anim[AnimType].Count;
+      if AnimCount<>0 then
+        begin
+          ID:=HouseDAT[Index].Anim[AnimType].Step[AnimStep mod AnimCount + 1]+1;
+          ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
+          ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+          ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/CELL_SIZE_PX;
+          ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/CELL_SIZE_PX;
+          AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false,Owner);
+        end;
+    end;
+  end;
 end;
 
 
