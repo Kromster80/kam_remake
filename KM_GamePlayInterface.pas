@@ -85,7 +85,10 @@ type TKMGamePlayInterface = class
     procedure Stats_Fill(Sender:TObject);
   public
     constructor Create;
-    procedure Create_Statistics_Page;
+    procedure Create_Build_Page;
+    procedure Create_Ratios_Page;
+    procedure Create_Stats_Page;
+    procedure Create_Menu_Page;
     procedure Create_Settings_Page;
     procedure Create_Unit_Page;
     procedure Create_House_Page;
@@ -218,7 +221,7 @@ end;
 
 
 constructor TKMGamePlayInterface.Create();
-var i,k,Button:integer;
+var i:integer;
 begin
 Assert(fGameSettings<>nil,'fGameSettings required to be init first');
 
@@ -258,9 +261,28 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
     KMButtonMain[5].OnMouseOver:=DisplayHint;
 
     KMLabel_Hint:=fControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,fnt_Outline,kaLeft,'Hint');
+
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 
-{Building page}
+Create_Build_Page();
+Create_Ratios_Page();
+Create_Stats_Page();
+Create_Menu_Page();
+  Create_Settings_Page();
+
+Create_Unit_Page();
+Create_House_Page();
+  Create_Store_Page();
+  Create_School_Page();
+  Create_Barracks_Page();
+
+SwitchPage(nil);
+end;
+
+{Build page}
+procedure TKMGamePlayInterface.Create_Build_Page;
+var i:integer;
+begin
   KMPanel_Build:=fControls.AddPanel(KMPanel_Main,0,412,196,400);
     KMLabel_Build:=fControls.AddLabel(KMPanel_Build,100,10,100,30,fnt_Outline,kaCenter,'Items to build');
     KMImage_Build_Selected:=fControls.AddImage(KMPanel_Build,8,40,32,32,335);
@@ -277,43 +299,25 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
     KMButton_BuildWine.OnClick:=BuildButtonClick;
     KMButton_BuildCancel.OnClick:=BuildButtonClick;
 
-    i:=0; k:=0;
-    for Button:=1 to HOUSE_COUNT do begin
-      KMButton_Build[Button]:=fControls.AddButtonFlat(KMPanel_Build, 8+k*37,120+i*37,33,33,GUIBuildIcons[i*5+k+1]);
-      KMButton_Build[Button].OnClick:=BuildButtonClick;
-      inc(k);
-      if Button mod 5 = 0 then begin inc(i); k:=0; end;
+    for i:=1 to HOUSE_COUNT do begin
+      KMButton_Build[i]:=fControls.AddButtonFlat(KMPanel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,GUIBuildIcons[i]);
+      KMButton_Build[i].OnClick:=BuildButtonClick;
+      KMButton_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[i]-300);
+      KMButton_Build[i].OnMouseOver:=DisplayHint;
     end;
+end;
+
 
 {Ratios page}
+procedure TKMGamePlayInterface.Create_Ratios_Page;
+begin
   KMPanel_Ratios:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
 
-{Stats page}
-Create_Statistics_Page();
-
-{Menu page}
-  KMPanel_Menu:=fControls.AddPanel(KMPanel_Main,0,412,196,400);
-    KMButton_Menu_Save:=fControls.AddButton(KMPanel_Menu,8,20,180,30,fTextLibrary.GetTextString(173),fnt_Metal);
-    KMButton_Menu_Load:=fControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(172),fnt_Metal);
-    KMButton_Menu_Settings:=fControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(170),fnt_Metal);
-    KMButton_Menu_Settings.OnClick:=ShowSettings;
-    KMButton_Menu_Exit:=fControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
-
-
-Create_Settings_Page();
-
-Create_Unit_Page();
-Create_House_Page();
-Create_Store_Page();
-Create_School_Page();
-Create_Barracks_Page();
-
-SwitchPage(nil);
 end;
 
 
 {Statistics page}
-procedure TKMGamePlayInterface.Create_Statistics_Page;
+procedure TKMGamePlayInterface.Create_Stats_Page;
 var i,k,ci:integer;
 begin
   KMPanel_Stats:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
@@ -332,12 +336,25 @@ begin
   end;
 end;
 
+
+{Menu page}
+procedure TKMGamePlayInterface.Create_Menu_Page;
+begin
+  KMPanel_Menu:=fControls.AddPanel(KMPanel_Main,0,412,196,400);
+    KMButton_Menu_Save:=fControls.AddButton(KMPanel_Menu,8,20,180,30,fTextLibrary.GetTextString(173),fnt_Metal);
+    KMButton_Menu_Load:=fControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(172),fnt_Metal);
+    KMButton_Menu_Settings:=fControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(170),fnt_Metal);
+    KMButton_Menu_Settings.OnClick:=ShowSettings;
+    KMButton_Menu_Exit:=fControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+end;
+
+
 {Options page}
 procedure TKMGamePlayInterface.Create_Settings_Page;
 var i:integer;
 begin
   KMPanel_Settings:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
-    KMLabel_Settings_Brightness:=fControls.AddLabel(KMPanel_Settings,100,10,100,30,fnt_Metal,kaCenter,'Brightness');
+    KMLabel_Settings_Brightness:=fControls.AddLabel(KMPanel_Settings,100,10,100,30,fnt_Metal,kaCenter,fTextLibrary.GetTextString(181));
     KMButton_Settings_Dark:=fControls.AddButton(KMPanel_Settings,8,30,36,24,'-',fnt_Metal);
     KMButton_Settings_Light:=fControls.AddButton(KMPanel_Settings,154,30,36,24,'+',fnt_Metal);
     KMButton_Settings_Dark.OnMouseOver:=DisplayHint;
