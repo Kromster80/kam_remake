@@ -12,6 +12,7 @@ type TKMGamePlayInterface = class
 
     KMPanel_Main:TKMPanel;
       KMImage_1,KMImage_2,KMImage_3,KMImage_4:TKMImage; //Toolbar background
+      KMMinimap:TKMMinimap;
       KMLabel_Hint:TKMLabel;
       L:array[1..20]of TKMLabel;
       KMButtonRun,KMButtonRun1:TKMButton;                //Start Village functioning
@@ -78,6 +79,7 @@ type TKMGamePlayInterface = class
   private
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
+    procedure Minimap_Move(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure BuildButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
     procedure StoreFill(Sender:TObject);
@@ -115,7 +117,7 @@ var
   fGamePlayInterface: TKMGamePlayInterface;
 
 implementation
-uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib;
+uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport;
 
 
 {Switch between pages}
@@ -220,6 +222,21 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Minimap_Move(Sender: TObject; AShift:TShiftState; X,Y:integer);
+begin
+  KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
+
+  if Sender=nil then begin
+    KMMinimap.CenteredAt:=fViewport.GetCenter;
+    KMMinimap.ViewArea:=fViewport.GetClip;
+  end else begin
+    fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
+
+  end;
+
+end;
+
+
 constructor TKMGamePlayInterface.Create();
 var i:integer;
 begin
@@ -236,6 +253,9 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
     KMImage_1:=fControls.AddImage(KMPanel_Main,0,0,224,200,407);
     KMImage_3:=fControls.AddImage(KMPanel_Main,0,200,224,168,554);
     KMImage_4:=fControls.AddImage(KMPanel_Main,0,368,224,400,404);
+
+    KMMinimap:=fControls.AddMinimap(KMPanel_Main,10,10,176,176);
+    KMMinimap.OnMouseOver:=Minimap_Move;
 
     {for i:=1 to length(FontFiles) do begin
       L[i]:=fControls.AddLabel(KMPanel_Main,250,300+i*20,160,30,TKMFont(i),kaLeft,FontFiles[i]+' This is a test string for KaM Remake');
@@ -508,6 +528,8 @@ begin
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse);
 
   if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
+
+  Minimap_Move(nil,[],0,0);
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);

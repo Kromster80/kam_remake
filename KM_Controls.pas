@@ -1,8 +1,9 @@
 unit KM_Controls;
 interface
-uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils;
+uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
+
 
 {Base class for all TKM elements}
 type
@@ -39,13 +40,17 @@ TKMControl = class
     property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
 end;
 
+type TKMPanel = class;
 
-{Panel which should have child items on it}
-TKMPanel = class(TKMControl)
-  private
+{Text Label}
+TKMLabel = class(TKMControl)
   public
+    Font: TKMFont;
+    FontColor: TColor4;
+    TextAlign: KAlign;
+    Caption: string;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
     procedure Paint(); override;
 end;
 
@@ -56,6 +61,16 @@ TKMImage = class(TKMControl)
     TexID: integer;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+    procedure Paint(); override;
+end;
+
+
+{Panel which should have child items on it}
+TKMPanel = class(TKMControl)
+  private
+  public
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure Paint(); override;
 end;
 
@@ -91,18 +106,6 @@ TKMButtonFlat = class(TKMControl)
     procedure Paint(); override;
 end;
 
-
-{Text Label}
-TKMLabel = class(TKMControl)
-  public
-    Font: TKMFont;
-    FontColor: TColor4;
-    TextAlign: KAlign;
-    Caption: string;
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
-    procedure Paint(); override;
-end;
 
 {Percent bar}
 TKMPercentBar = class(TKMControl)
@@ -166,22 +169,36 @@ TKMRatioRow = class(TKMControl)
 end;
 
 
+{ Minimap as stand-alone control}
+TKMMinimap = class(TKMControl)
+  public
+    MapSize:TKMPoint;
+    CenteredAt:TKMPoint;
+    ViewArea:TRect;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
+    procedure Paint(); override;
+end;
+
+
 TKMControlsCollection = class(TKMList)
   private
     procedure AddToCollection(Sender:TKMControl);
   public
     constructor Create;
+    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; const aColor:TColor4=$FFFFFFFF):TKMLabel;
+    function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
     function AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton; overload;
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
     function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
-    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
     function AddCostsRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
     function AddRatioRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
-    function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
+    function AddMinimap(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp(X,Y:integer; AButton:TMouseButton);
@@ -491,6 +508,36 @@ begin
 end;
 
 
+{ TKMMinimap }
+constructor TKMMinimap.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  CenteredAt:=KMPoint(0,0);
+end;
+
+
+procedure TKMMinimap.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+begin
+  Inherited CheckCursorOver(X,Y,AShift);
+  if (CursorOver) and (ssLeft in AShift) then begin
+    CenteredAt.X := EnsureRange(X - Left - (Width-MapSize.X) div 2,1,MapSize.X);
+    CenteredAt.Y := EnsureRange(Y - Top - (Height-MapSize.Y) div 2,1,MapSize.Y);
+  end;
+end;
+
+
+procedure TKMMinimap.Paint();
+begin
+  fRenderUI.WriteFlatButton(0,'',Left,Top,Width,Height,[]);
+  fRenderUI.RenderMinimap(Left,Top,Width,Height,MapSize.X,MapSize.Y);
+  fRenderUI.WriteRect(Left + (Width-MapSize.X) div 2 + ViewArea.Left,
+                      Top  + (Height-MapSize.Y) div 2 + ViewArea.Top,
+                      ViewArea.Right-ViewArea.Left,
+                      ViewArea.Bottom-ViewArea.Top, $FFFFFFFF);
+end;
+
+
 constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -590,6 +637,12 @@ end;
 function TKMControlsCollection.AddRatioRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
 begin
   Result:=TKMRatioRow.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddMinimap(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
+begin
+  Result:=TKMMinimap.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
 end;
 

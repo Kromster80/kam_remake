@@ -12,15 +12,17 @@ TRenderUI = class
     procedure WriteFlatButton(ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
     procedure WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
+    procedure WriteRect(PosX,PosY,Width,Height:integer; Col:TColor4);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
     function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint; //Should return text width in px
+    procedure RenderMinimap(PosX,PosY,SizeX,SizeY,MapX,MapY:integer);
   end;
 
 var
   fRenderUI: TRenderUI;
 
 implementation
-uses KM_Unit1;
+uses KM_Unit1, KM_Terrain, KM_Users;
 
 constructor TRenderUI.Create;
 begin
@@ -233,6 +235,15 @@ begin
 end;
 
 
+procedure TRenderUI.WriteRect(PosX,PosY,Width,Height:integer; Col:TColor4);
+begin
+  glColor4ubv(@Col);
+  glBegin(GL_LINE_LOOP);
+    glkRect(PosX,PosY,PosX+Width-1,PosY+Height-1);
+  glEnd;
+end;
+
+
 {Renders plane with given color}
 procedure TRenderUI.WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
 begin
@@ -293,6 +304,38 @@ begin
       end;
     glPopMatrix;
     glBindTexture(GL_TEXTURE_2D,0);
+  glPopMatrix;
+end;
+
+
+procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY,MapX,MapY:integer);
+var i,k,ID:integer; Light:single; Loc:TKMPointList;
+begin
+  glPushMatrix;
+    glTranslate(PosX + (SizeX-MapX)div 2, PosY + (SizeY-MapY)div 2,0);
+    glBegin(GL_POINTS);
+      for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
+        ID:=fTerrain.Land[i,k].Terrain+1;
+        Light:=fTerrain.Land[i,k].Light/4; //Originally it's -1..1 range
+        if fTerrain.Land[i,k].TileOwner=play_none then
+        glColor4f(TileMMColor2[ID].R+Light,
+                  TileMMColor2[ID].G+Light,
+                  TileMMColor2[ID].B+Light,
+                   1)
+        else
+          glColor4ubv(@TeamColors[byte(fTerrain.Land[i,k].TileOwner)]);
+        glVertex2f(k,i);
+      end;
+
+      Loc:=TKMPointList.Create;
+      for i:=1 to MAX_PLAYERS do begin
+        ControlList.GetUnitLocations(TPlayerID(i),Loc);
+        glColor4ubv(@TeamColors[i]);
+        for k:=1 to Loc.Count do
+          glVertex2f(Loc.List[k].X,Loc.List[k].Y);
+      end;
+      Loc.Free;
+    glEnd;
   glPopMatrix;
 end;
 

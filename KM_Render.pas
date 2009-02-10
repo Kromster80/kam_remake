@@ -40,7 +40,6 @@ public
   procedure RenderTerrainAndFields(x1,x2,y1,y2:integer);
   procedure RenderWires();
   procedure RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
-  procedure RenderMinimap();
   procedure RenderWireQuad(P:TKMPoint; Col:TColor4);
   procedure RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
@@ -169,8 +168,6 @@ begin
   glPointSize(1);
   glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
   fControls.Paint;      //UserInterface
-
-  RenderMinimap;      //Minimap
 
   glLoadIdentity();
   RenderBrightness(fGameSettings.GetBrightness);
@@ -318,47 +315,6 @@ glBegin(GL_LINE_STRIP);
 for i:=1 to Count do
   glVertex2f(Nodes[i-1].X-0.5,Nodes[i-1].Y-0.5-fTerrain.InterpolateLandHeight(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5)/xh);
 glEnd;
-end;
-
-
-procedure TRender.RenderMinimap();
-var i,k,ID:integer; Light:single; Loc:TKMPointList;
-begin
-  glPushMatrix;
-    glTranslate(10,10,0);
-    glBegin(GL_POINTS);
-      for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
-        ID:=fTerrain.Land[i,k].Terrain+1;
-        Light:=fTerrain.Land[i,k].Light/4; //Originally it's -1..1 range
-        if fTerrain.Land[i,k].TileOwner=play_none then
-        glColor4f(TileMMColor2[ID].R+Light,
-                  TileMMColor2[ID].G+Light,
-                  TileMMColor2[ID].B+Light,
-                   1)
-        else
-          glColor4ubv(@TeamColors[byte(fTerrain.Land[i,k].TileOwner)]);
-        glVertex2f(k,i);
-      end;
-
-      Loc:=TKMPointList.Create;
-      for i:=1 to MAX_PLAYERS do begin
-        ControlList.GetUnitLocations(TPlayerID(i),Loc);
-        glColor4ubv(@TeamColors[i]);
-        for k:=1 to Loc.Count do
-          glVertex2f(Loc.List[k].X,Loc.List[k].Y);
-      end;
-      Loc.Free;
-    glEnd;
-
-      glColor4f(1,1,1,1);
-    glBegin(GL_LINE_LOOP);
-      glkRect(
-      fViewport.GetClip.Left,
-      fViewport.GetClip.Top,
-      fViewport.GetClip.Right,
-      fViewport.GetClip.Bottom);
-    glEnd;
-  glPopMatrix;
 end;
 
 
