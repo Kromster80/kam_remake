@@ -40,6 +40,7 @@ public
   procedure RenderTerrainAndFields(x1,x2,y1,y2:integer);
   procedure RenderWires();
   procedure RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
+  procedure RenderMinimap();
   procedure RenderWireQuad(P:TKMPoint; Col:TColor4);
   procedure RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
@@ -168,6 +169,8 @@ begin
   glPointSize(1);
   glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
   fControls.Paint;      //UserInterface
+
+  RenderMinimap;      //Minimap
 
   glLoadIdentity();
   RenderBrightness(fGameSettings.GetBrightness);
@@ -318,11 +321,52 @@ glEnd;
 end;
 
 
+procedure TRender.RenderMinimap();
+var i,k,ID:integer; Light:single; Loc:TKMPointList;
+begin
+  glPushMatrix;
+    glTranslate(10,10,0);
+    glBegin(GL_POINTS);
+      for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
+        ID:=fTerrain.Land[i,k].Terrain+1;
+        Light:=fTerrain.Land[i,k].Light/4; //Originally it's -1..1 range
+        if fTerrain.Land[i,k].TileOwner=play_none then
+        glColor4f(TileMMColor2[ID].R+Light,
+                  TileMMColor2[ID].G+Light,
+                  TileMMColor2[ID].B+Light,
+                   1)
+        else
+          glColor4ubv(@TeamColors[byte(fTerrain.Land[i,k].TileOwner)]);
+        glVertex2f(k,i);
+      end;
+
+      Loc:=TKMPointList.Create;
+      for i:=1 to MAX_PLAYERS do begin
+        ControlList.GetUnitLocations(TPlayerID(i),Loc);
+        glColor4ubv(@TeamColors[i]);
+        for k:=1 to Loc.Count do
+          glVertex2f(Loc.List[k].X,Loc.List[k].Y);
+      end;
+      Loc.Free;
+    glEnd;
+
+      glColor4f(1,1,1,1);
+    glBegin(GL_LINE_LOOP);
+      glkRect(
+      fViewport.GetClip.Left,
+      fViewport.GetClip.Top,
+      fViewport.GetClip.Right,
+      fViewport.GetClip.Bottom);
+    glEnd;
+  glPopMatrix;
+end;
+
+
 procedure TRender.RenderWireQuad(P:TKMPoint; Col:TColor4);
 begin
   glColor4ubv(@Col);
   glbegin (GL_LINE_LOOP);
-  if fTerrain.InMapCoords(P.X,P.Y) then
+  if fTerrain.TileInMapCoords(P.X,P.Y) then
   with fTerrain do begin
     glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/xh);
     glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/xh);
@@ -337,7 +381,7 @@ procedure TRender.RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
 var i,k:integer; P2:TKMPoint;
 begin
   for i:=1 to 4 do for k:=1 to 4 do
-  if fTerrain.InMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
+  if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
     P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
     if HousePlanYX[byte(aHouseType),i,k]<>0 then
       if CanBuild in fTerrain.Land[P2.Y,P2.X].Passability then
@@ -617,7 +661,7 @@ end;
 procedure TRender.RenderQuad(pX,pY:integer);
 begin
 glbegin (GL_QUADS);
-if fTerrain.InMapCoords(pX,pY) then
+if fTerrain.TileInMapCoords(pX,pY) then
 with fTerrain do begin
   glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/xh,
           pX  ,pY-1-Land[pY  ,pX+1].Height/xh,

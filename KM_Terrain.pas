@@ -94,7 +94,8 @@ public
   procedure RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
 
-  function InMapCoords(X,Y:integer; Inset:byte=0):boolean;
+  function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+  function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   procedure UpdateBorders(Loc:TKMPoint);
   procedure FlattenTerrain(Loc:TKMPoint);
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
@@ -144,7 +145,6 @@ begin
   end;
 
   RebuildLighting(1,MapX,1,MapY);
-  fMiniMap.ReSize(MapX,MapY);
 end;
 
 
@@ -176,17 +176,23 @@ begin
     end;
 closefile(f);
 RebuildLighting(1,MapX,1,MapY);
-fMiniMap.ReSize(MapX,MapY);
 Result:=true;
 end;
 
 
-
-{Check if supplied values are within Map boundaries}
-function TTerrain.InMapCoords(X,Y:integer; Inset:byte=0):boolean;
+{Check if requested tile is within Map boundaries}
+function TTerrain.TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
   Result := InRange(X,1+Inset,MapX-1-Inset) and InRange(Y,1+Inset,MapY-1-Inset);
 end;
+
+
+{Check if requested vertice is within Map boundaries}
+function TTerrain.VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+begin
+  Result := InRange(X,1+Inset,MapX-Inset) and InRange(Y,1+Inset,MapY-Inset);
+end;
+
 
 {Place markup on tile, any new markup replaces old one, thats okay}
 procedure TTerrain.SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
@@ -246,7 +252,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if Land[i,k].FieldType=fdt_Wine then
         if Land[i,k].FieldAge=255 then
           Result:=KMPoint(k,i);
@@ -258,7 +264,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if Land[i,k].FieldType=fdt_Field then
         if Land[i,k].FieldAge=255 then
           Result:=KMPoint(k,i);
@@ -270,7 +276,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if Land[i,k].FieldType=fdt_Field then
         if Land[i,k].FieldAge=0 then
           Result:=KMPoint(k,i);
@@ -282,7 +288,7 @@ begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       for h:=1 to length(ChopableTrees) do
         if Land[i,k].Obj=ChopableTrees[h,4] then
           Result:=KMPoint(k,i);
@@ -295,7 +301,7 @@ Result:=KMPoint(1,1);
 {Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       for h:=1 to length(ChopableTrees) do
         if Land[i,k].Obj=ChopableTrees[h,4] then
           Result:=KMPoint(k,i);}
@@ -312,7 +318,7 @@ setlength(List2,1024);
 ci:=0; ck:=0;
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (InMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if CanPlantTrees in Land[i,k].Passability then begin
 
         FoundExTree:=false;
@@ -448,7 +454,7 @@ begin
 
       //Check all surrounds and issue costs to them
       for y:=MinCost.Pos.Y-1 to MinCost.Pos.Y+1 do for x:=MinCost.Pos.X-1 to MinCost.Pos.X+1 do
-      if InMapCoords(x,y) then //Ignore those outside of MapCoords
+      if TileInMapCoords(x,y) then //Ignore those outside of MapCoords
         if ORef[y,x]=0 then begin //Cell is new
           if aPass in Land[y,x].Passability then begin //If cell meets Passability then estimate it
             inc(OCount);
@@ -526,7 +532,7 @@ begin
   end;
 
   for i:=1 to NodeCount do
-    Assert(InMapCoords(Nodes[i-1].X,Nodes[i-1].Y));
+    Assert(TileInMapCoords(Nodes[i-1].X,Nodes[i-1].Y));
 end;
 
 
@@ -553,16 +559,15 @@ These values are used to draw highlights/shadows on terrain.}
 procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
 var i,k:integer; x0,y2:integer;
 begin
-  for i:=LowY to HighY do for k:=LowX to HighX do begin
-    if InMapCoords(k,i) then begin
+  for i:=LowY to HighY do for k:=LowX to HighX do
+    if VerticeInMapCoords(k,i) then begin
       x0:=EnsureRange(k-1,1,MapX);
       y2:=EnsureRange(i+1,1,MapY);
-      if InMapCoords(x0,y2) then
+      if VerticeInMapCoords(x0,y2) then
         Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1)*(1-Overlap); //  1.33*16 ~=22
-    end;
     if (i=1)or(i=MapY)or(k=1)or(k=MapX) then //Map borders fade to black
       Land[i,k].Light:=-1+Overlap;
-  end
+    end;
 end;
 
 
@@ -573,7 +578,7 @@ var i,k:integer;
   var i,k:integer;
   begin
     for i:=-1 to 1 do for k:=-1 to 1 do
-      if InMapCoords(X+k,Y+i) then
+      if TileInMapCoords(X+k,Y+i) then
         RemPassability(KMPoint(X+k,Y+i),[canBuild,canPlantTrees]);
 
     RemPassability(KMPoint(X,Y),[CanMakeRoads,CanMakeFields]);
@@ -588,7 +593,7 @@ begin
       Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt;
     end;
 
-    if InMapCoords(Loc.X+k-3,Loc.Y+i-4) then
+    if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
       UpdateBorders(KMPoint(Loc.X+k-3, Loc.Y+i-4));
   end;
 end;
@@ -613,7 +618,7 @@ begin
 Result:=true;
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
-      Result := Result AND InMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
+      Result := Result AND TileInMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
       if aHouseType<>ht_Wall then
         Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability)
       //else
@@ -624,7 +629,7 @@ end;
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
 begin  
   Result:=true;
-  Result := Result AND InMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
+  Result := Result AND TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
   Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
   Result := Result AND (ControlList.HousesHitTest(Loc.X,Loc.Y)=nil);
   if aMarkup <> mu_RoadPlan then //Don't allow fields on fields
@@ -645,18 +650,18 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint);
   end;
 begin
 
-  if not InMapCoords(Loc.X,Loc.Y) then exit;
+  if not TileInMapCoords(Loc.X,Loc.Y) then exit;
 
-  if InMapCoords(Loc.X-1,Loc.Y) then
+  if TileInMapCoords(Loc.X-1,Loc.Y) then
   Land[Loc.Y,Loc.X].BorderY:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y,Loc.X-1].FieldType);
 
-  if InMapCoords(Loc.X,Loc.Y-1) then
+  if TileInMapCoords(Loc.X,Loc.Y-1) then
   Land[Loc.Y,Loc.X].BorderX:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y-1,Loc.X].FieldType);
 
-  if InMapCoords(Loc.X+1,Loc.Y) then
+  if TileInMapCoords(Loc.X+1,Loc.Y) then
   Land[Loc.Y,Loc.X+1].BorderY:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y,Loc.X+1].FieldType);
 
-  if InMapCoords(Loc.X,Loc.Y+1) then
+  if TileInMapCoords(Loc.X,Loc.Y+1) then
   Land[Loc.Y+1,Loc.X].BorderX:=GetBorder(Land[Loc.Y,Loc.X].FieldType,Land[Loc.Y+1,Loc.X].FieldType);
 
 end;

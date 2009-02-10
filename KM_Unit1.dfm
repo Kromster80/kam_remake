@@ -35,33 +35,6 @@ object Form1: TForm1
     OnMouseDown = Panel1MouseDown
     OnMouseMove = Panel1MouseMove
     OnMouseUp = Panel1MouseUp
-    object Panel_Minimap: TPanel
-      Left = 10
-      Top = 10
-      Width = 176
-      Height = 176
-      BevelOuter = bvNone
-      Color = clMaroon
-      TabOrder = 0
-      object MiniMap: TImage
-        Left = 0
-        Top = 0
-        Width = 176
-        Height = 176
-        OnMouseDown = MiniMapMouseDown
-        OnMouseMove = MiniMapMouseMove
-        OnMouseUp = MiniMapMouseUp
-      end
-      object ShapeFOV: TShape
-        Left = 24
-        Top = 24
-        Width = 65
-        Height = 65
-        Brush.Style = bsClear
-        Enabled = False
-        Pen.Color = clWhite
-      end
-    end
   end
   object StatusBar1: TStatusBar
     Left = 0

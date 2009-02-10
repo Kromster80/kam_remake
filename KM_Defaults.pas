@@ -216,37 +216,37 @@ const
   (ht_Barracks, ht_WatchTower, ht_None));
 
   //Building of the house allows player to build following houses
-  BuildingAllowed:array[1..HOUSE_COUNT,1..7]of THouseType = (
-  (ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks), //Sawmill
-  (ht_WeaponSmithy,ht_ArmorSmithy,ht_None,ht_None,ht_None,ht_None,ht_None), //IronSmithy
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //CoalMine
-  (ht_IronSmithy,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //IronMine
-  (ht_Metallurgists,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //GoldMine
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Mill,ht_Swine,ht_Stables,ht_None,ht_None,ht_None,ht_None), //Farm
-  (ht_SawMill,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Woodcutters
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_School,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Store
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Inn,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //School
-  (ht_Woodcutters,ht_WatchTower,ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Butchers,ht_Tannery,ht_None,ht_None,ht_None,ht_None,ht_None), //Swine
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Bakery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Mill
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_ArmorWorkShop,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //Tannery
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Quary,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Inn
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
+  BuildingAllowed:array[1..HOUSE_COUNT,1..8]of THouseType = (
+  (ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks, ht_FisherHut), //Sawmill
+  (ht_WeaponSmithy,ht_ArmorSmithy,ht_SiegeWorkshop,ht_None,ht_None,ht_None,ht_None,ht_None), //IronSmithy
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //CoalMine
+  (ht_IronSmithy,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //IronMine
+  (ht_Metallurgists,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //GoldMine
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Mill,ht_Swine,ht_Stables,ht_None,ht_None,ht_None,ht_None,ht_None), //Farm
+  (ht_SawMill,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Woodcutters
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_School,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Store
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Inn,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //School
+  (ht_Woodcutters,ht_WatchTower,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
+  (ht_TownHall,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Metallurgists
+  (ht_Butchers,ht_Tannery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Swine
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Bakery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Mill
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_ArmorWorkShop,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //Tannery
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_Quary,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Inn
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
+  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
   );
 
 const
@@ -432,14 +432,14 @@ type
 var
   //Players colors
   TeamColors:array[1..8]of cardinal = (
-  $3040FF, //Red
-  $00C0FF, //Orange
-  $00FFFF, //Yellow
-  $28C840, //Green
-  $3040FF, //Red
-  $00C0FF, //Orange
-  $00FFFF, //Yellow
-  $28C840  //Green
+  $FF3040FF, //Red
+  $FF00C0FF, //Orange
+  $FF00FFFF, //Yellow
+  $FF28C840, //Green
+  $FF3040FF, //Red
+  $FF00C0FF, //Orange
+  $FF00FFFF, //Yellow
+  $FF28C840  //Green
   );
 
   XH:integer=32;        //Height divider
@@ -553,6 +553,7 @@ end;
   end;
 
   TileMMColor:array[1..256]of record R,G,B:byte; end;
+  TileMMColor2:array[1..256]of record R,G,B:single; end;
 
 
 

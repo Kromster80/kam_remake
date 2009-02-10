@@ -148,6 +148,7 @@ var i:integer;
 begin
   Inherited Create;
   for i:=1 to length(AllowToBuild) do AllowToBuild[i]:=true;
+  BuildReqDone[byte(ht_Store)]:=true;
 end;
 
 

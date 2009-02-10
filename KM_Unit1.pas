@@ -51,9 +51,6 @@ type
     ExportSounds1: TMenuItem;
     TrackBar1: TTrackBar;
     Label2: TLabel;
-    Panel_Minimap: TPanel;
-    MiniMap: TImage;
-    ShapeFOV: TShape;
     CheckBox4: TCheckBox;
     HouseAnim1: TMenuItem;
     UnitAnim1: TMenuItem;
@@ -111,26 +108,26 @@ uses KM_Settings;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
-var
-  FrameTime:integer;
+var FrameTime:cardinal;
 begin //Counting FPS
-if not Form1.Active then exit;
-FrameTime:=GetTickCount-OldTimeFPS;
-OldTimeFPS:=GetTickCount;
-if (FPSLag<>1)and(FrameTime<FPSLag) then
-begin
-  sleep(FPSLag-FrameTime);
-  FrameTime:=FPSLag;
-end;
-inc(OldFrameTimes,FrameTime);
-inc(FrameCount);
-if OldFrameTimes>=FPS_INTERVAL then
-begin
-  StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPSLag)+')';
-  OldFrameTimes:=0;
-  FrameCount:=0;
-  fLog.AppendLog('First sec frame done');
-end; //FPS calculation complete
+  if not Form1.Active then exit;
+
+  FrameTime:=GetTickCount-OldTimeFPS;
+  OldTimeFPS:=GetTickCount;
+
+  if (FPSLag<>1)and(FrameTime<FPSLag) then begin
+    sleep(FPSLag-FrameTime);
+    FrameTime:=FPSLag;
+  end;
+
+  inc(OldFrameTimes,FrameTime);
+  inc(FrameCount);
+  if OldFrameTimes>=FPS_INTERVAL then begin
+    StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPSLag)+')';
+    OldFrameTimes:=0;
+    FrameCount:=0;
+    fLog.AppendLog('First sec frame done');
+  end; //FPS calculation complete
 
 fRender.Render;
 done:=false; //repeats OnIdle event
@@ -159,7 +156,6 @@ begin
 
   FormLoading.Label1.Caption:='Initializing FrontEnd ...';
   fViewport:= TViewport.Create;
-  fMiniMap:= TMiniMap.Create(ShapeFOV,MiniMap,Label1);
   fControls:= TKMControlsCollection.Create;
   fGameSettings:= TGameSettings.Create;
   fMissionSettings:= TMissionSettings.Create;
@@ -173,7 +169,6 @@ begin
   ControlList.Add(play_1, uct_User);       
 
   Application.OnIdle:=Form1.OnIdle;
-  Panel_MiniMap.Color:=$00; //Keep it colored until app is started, Controls should be visible in designtime
   Form1.Caption:='KaM Remake - '+'New.map';
 
   fLog.AppendLog('Form1 create is done');
@@ -199,7 +194,6 @@ begin
   fRender.RenderResize(Panel5.Width,Panel5.Height);
   fViewport.SetArea(Panel5.Width,Panel5.Height);
   fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
-  fMiniMap.SetRect(fViewport);
 end;
 
 procedure TForm1.DecodeDATClick(Sender: TObject);
@@ -219,7 +213,6 @@ end;
 procedure TForm1.ZoomChange(Sender: TObject);
 begin
 fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
-fMiniMap.SetRect(fViewport);
 end;
 
 procedure TForm1.MiniMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -229,7 +222,6 @@ procedure TForm1.MiniMapMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Inte
 begin
 if not (ssLeft in Shift) then exit;
 fViewport.SetCenter(X,Y);
-fMiniMap.SetRect(fViewport);
 end;
 
 procedure TForm1.MiniMapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -366,8 +358,8 @@ end;
 
 procedure TForm1.Timer1secTimer(Sender: TObject);
 begin
-  if not Form1.Active then exit;
-  fMiniMap.Repaint; //No need to repaint it more often
+//  if not Form1.Active then exit;
+//  fMiniMap.Repaint; //No need to repaint it more often
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -571,7 +563,6 @@ begin
   if (XCoord<>fViewport.GetCenter.X)or(YCoord<>fViewport.GetCenter.Y) then
   begin
     fViewport.SetCenter(XCoord,YCoord);
-    fMiniMap.SetRect(fViewport); //Update mini-map
     Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
   end else begin
     Scrolling := false; //Allow cursor changes to be overriden and reset if still on a scrolling cursor
