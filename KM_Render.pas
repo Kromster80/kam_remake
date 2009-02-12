@@ -1,6 +1,6 @@
 unit KM_Render;
 interface
-uses windows, sysutils, Forms, OpenGL, dglOpenGL, KromOGLUtils, KromUtils, math, ExtCtrls, KM_TGATexture, KM_Defaults;
+uses OpenGL, dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, KM_TGATexture, KM_Defaults;
 
 type
 TRender = class
@@ -31,10 +31,8 @@ private
   procedure RenderBrightness(Value:byte);
 protected
 public
-  constructor Create;
+  constructor Create(RenderFrame:HWND);
   destructor Destroy; override;
-  procedure SetRender(RenderFrame:HWND);
-  procedure SetRenderDefaults();
   procedure RenderResize(Width,Height:integer);
   procedure Render();
   procedure RenderTerrainAndFields(x1,x2,y1,y2:integer);
@@ -64,10 +62,19 @@ implementation
 
 uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_Users, KM_Settings;
 
-constructor TRender.Create;
+
+constructor TRender.Create(RenderFrame:HWND);
 begin
-  // Nothing here yet
+  SetRenderFrame(RenderFrame, h_DC, h_RC);
+  SetRenderDefaults();
+
+  glDisable(GL_LIGHTING);
+  LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);    // Load the Textures
+  LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512,0);    // Load the Textures
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  BuildFont(h_DC,16);
 end;
+
 
 destructor TRender.Destroy;
 begin
@@ -76,52 +83,6 @@ begin
   Inherited;
 end;
 
-procedure TRender.SetRender(RenderFrame:HWND);
-begin
-  InitOpenGL;
-  h_DC := GetDC(RenderFrame);
-  if h_DC=0 then
-  begin
-    MessageBox(Form1.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
-  if not SetDCPixelFormat(h_DC) then
-    exit;
-  h_RC := wglCreateContext(h_DC);
-  if h_RC=0 then
-  begin
-    MessageBox(Form1.Handle, 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
-  if not wglMakeCurrent(h_DC, h_RC) then
-  begin
-    MessageBox(Form1.Handle, 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
-  ReadExtensions;
-  ReadImplementationProperties;
-  SetRenderDefaults();
-end;
-
-procedure TRender.SetRenderDefaults();
-begin
-  glClearColor(0, 0, 0, 0); 	   //Background
-  glClear (GL_COLOR_BUFFER_BIT);
-  glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
-  glEnable(GL_NORMALIZE);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-  //glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST); //Does it works?
-  glDisable(GL_LIGHTING);
-  glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
-  glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
-  LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);    // Load the Textures
-  LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512,0);    // Load the Textures
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glPolygonMode(GL_FRONT,GL_FILL);
-  BuildFont(h_DC,16);
-end;
 
 procedure TRender.RenderResize(Width,Height:integer);
 begin

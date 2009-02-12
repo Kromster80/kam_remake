@@ -4,7 +4,7 @@ uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
-  KM_Form_Loading, KM_Terrain, 
+  KM_Form_Loading, KM_Terrain,
   KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX;
 
 type                           
@@ -144,8 +144,8 @@ begin
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
   FormLoading.Label1.Caption:='Initializing 3D ...';
-  fRender:= TRender.Create;
-  fRender.SetRender(Form1.Panel5.Handle);
+  fRender:= TRender.Create(Form1.Panel5.Handle);
+
 
   //Must be done early on so that GamePlayInterface can use it
   FormLoading.Label1.Caption:='Reading KaM data ...';

@@ -1,6 +1,6 @@
 unit KromOGLUtils;
 interface
-uses dglOpenGL,OpenGL,sysutils,windows;
+uses dglOpenGL, OpenGL, sysutils, windows, Forms;
 
 type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
 kPoly=5,kSurface=6,kObject=7,kButton=8);  //1..31 are ok
@@ -10,6 +10,8 @@ KAlign = (kaLeft, kaCenter, kaRight);
 
 TColor4 = cardinal;
 
+procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
+procedure SetRenderDefaults();
 function SetDCPixelFormat(h_DC:HDC):boolean;
 procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
 procedure BuildFont(h_DC:HDC;FontSize:integer);
@@ -40,6 +42,46 @@ MatModeDefaultF:string=
 '}';
 
 implementation
+
+procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
+begin
+  InitOpenGL;
+  h_DC := GetDC(RenderFrame);
+  if h_DC=0 then
+  begin
+    MessageBox(Application.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR);
+    exit;
+  end;
+  if not SetDCPixelFormat(h_DC) then
+    exit;
+  h_RC := wglCreateContext(h_DC);
+  if h_RC=0 then
+  begin
+    MessageBox(Application.Handle, 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
+    exit;
+  end;
+  if not wglMakeCurrent(h_DC, h_RC) then
+  begin
+    MessageBox(Application.Handle, 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
+    exit;
+  end;
+  ReadExtensions;
+  ReadImplementationProperties;
+end;
+
+procedure SetRenderDefaults();
+begin
+  glClearColor(0, 0, 0, 0); 	   //Background
+  glClear (GL_COLOR_BUFFER_BIT);
+  glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
+  glPolygonMode(GL_FRONT,GL_FILL);
+  glEnable(GL_NORMALIZE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+  glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
+  glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
+end;
 
 function SetDCPixelFormat(h_DC:HDC):boolean;
 var
