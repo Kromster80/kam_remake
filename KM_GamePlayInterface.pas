@@ -226,13 +226,11 @@ procedure TKMGamePlayInterface.Minimap_Move(Sender: TObject; AShift:TShiftState;
 begin
   KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
 
-  if Sender=nil then begin
-    KMMinimap.CenteredAt:=fViewport.GetCenter;
-    KMMinimap.ViewArea:=fViewport.GetClip;
-  end else begin
+  if Sender<>nil then
     fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
 
-  end;
+  KMMinimap.CenteredAt:=fViewport.GetCenter;
+  KMMinimap.ViewArea:=fViewport.GetClip;
 
 end;
 

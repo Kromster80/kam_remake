@@ -146,7 +146,6 @@ begin
   FormLoading.Label1.Caption:='Initializing 3D ...';
   fRender:= TRender.Create(Form1.Panel5.Handle);
 
-
   //Must be done early on so that GamePlayInterface can use it
   FormLoading.Label1.Caption:='Reading KaM data ...';
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
@@ -174,6 +173,10 @@ begin
   fLog.AppendLog('Form1 create is done');
 
   FormLoading.Hide;
+
+  Form1.WindowState:=wsMaximized;
+  Form1.FormResize(nil);
+
 end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);

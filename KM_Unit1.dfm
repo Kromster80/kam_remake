@@ -1,9 +1,10 @@
 object Form1: TForm1
-  Left = 354
-  Top = 92
-  Width = 1032
-  Height = 834
+  Left = 426
+  Top = 315
   HelpType = htKeyword
+  BorderStyle = bsNone
+  ClientHeight = 245
+  ClientWidth = 654
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,19 +19,20 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnResize = FormResize
   DesignSize = (
-    1024
-    788)
+    654
+    245)
   PixelsPerInch = 96
   TextHeight = 13
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 1024
-    Height = 768
+    Width = 654
+    Height = 225
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'Panel5'
     Color = clBlack
+    UseDockManager = False
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
     OnMouseMove = Panel1MouseMove
@@ -38,8 +40,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 768
-    Width = 1024
+    Top = 225
+    Width = 654
     Height = 20
     Panels = <
       item

@@ -10,7 +10,7 @@ KAlign = (kaLeft, kaCenter, kaRight);
 
 TColor4 = cardinal;
 
-procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
+procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
 procedure SetRenderDefaults();
 function SetDCPixelFormat(h_DC:HDC):boolean;
 procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
@@ -43,7 +43,7 @@ MatModeDefaultF:string=
 
 implementation
 
-procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
+procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
 begin
   InitOpenGL;
   h_DC := GetDC(RenderFrame);

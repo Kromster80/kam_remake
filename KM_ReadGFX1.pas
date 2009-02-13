@@ -170,7 +170,7 @@ end;
 closefile(f);
 
   assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
-  writeln(ft,'House;a1;a2;a3;a4;a6;a8;Foot---------->;');
+  writeln(ft,'House;a1;a3;a4;a8;Foot---------->;');
   for ii:=1 to HOUSE_COUNT do begin
   //writeln(ft);
   write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+';');
@@ -186,8 +186,8 @@ closefile(f);
     //write(ft,inttostr(HouseDAT[ii].WoodPicSteps)+';');
     //write(ft,inttostr(HouseDAT[ii].StonePicSteps)+';');
     write(ft,inttostr(HouseDAT[ii].a1)+';'); //0
-    //write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
-    write(ft,inttostr(HouseDAT[ii].a2)+';'); //0
+    write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
+    write(ft,'Y '+inttostr(HouseDAT[ii].EntranceOffsetY)+';'); //0
     write(ft,inttostr(HouseDAT[ii].a3)+';');
     write(ft,inttostr(HouseDAT[ii].a4)+';');
     {writeln(ft);
@@ -203,7 +203,7 @@ closefile(f);
     //write(ft,'Area '+inttostr(HouseDAT[ii].SizeArea)+';');
     //write(ft,'Size '+inttostr(HouseDAT[ii].SizeX)+'x'+inttostr(HouseDAT[ii].SizeY)+';');
     //write(ft,'Size2 '+inttostr(HouseDAT[ii].sx2)+'x'+inttostr(HouseDAT[ii].sy2)+';');
-    write(ft,inttostr(HouseDAT[ii].a6)+';');
+    write(ft,inttostr(HouseDAT[ii].WorkerWork)+'sec;');
     //write(ft,inttostr(HouseDAT[ii].WorkerRest)+'sec;');
     //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResInput[kk]+1))+';');
     //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResOutput[kk]+1))+';');

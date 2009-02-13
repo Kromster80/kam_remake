@@ -65,6 +65,7 @@ uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_Use
 
 constructor TRender.Create(RenderFrame:HWND);
 begin
+  Inherited Create;
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults();
 

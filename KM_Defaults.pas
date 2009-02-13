@@ -15,7 +15,7 @@ const
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
 var
-  MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeGameSprites:boolean=false;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
@@ -504,14 +504,14 @@ HouseDAT:array[1..HOUSE_COUNT] of packed record
   end;
   WoodPicSteps,StonePicSteps:word;
   a1:smallint;
-  EntranceOffsetX:shortint;
-  a2,a3,a4:shortint;
+  EntranceOffsetX,EntranceOffsetY:shortint;
+  a3,a4:shortint;
   BuildArea:array[1..10,1..10]of shortint;
   WoodCost,StoneCost:byte;
   BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
   a5,SizeArea:smallint;
   SizeX,SizeY,sx2,sy2:shortint;
-  a6,WorkerRest:smallint;
+  WorkerWork,WorkerRest:smallint;
   ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
   ResProductionX:shortint;
   MaxHealth,Sight:smallint;
