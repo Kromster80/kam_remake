@@ -597,7 +597,7 @@ begin
   ReadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
   ci:=0;
-  for ID:=10 to 10 do begin
+  for ID:=2 to 2 do begin
     for Ac:=1 to 14 do begin
       for Di:=1 to 8 do if UnitSprite[ID].Act[Ac].Dir[Di].Step[1]<>-1 then begin
         for k:=1 to UnitSprite[ID].Act[Ac].Dir[Di].Count do begin

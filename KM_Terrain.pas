@@ -50,7 +50,7 @@ public
 
     //Age of field/wine, another independent variable
     //Depending on this special object maybe rendered (straw, grapes)
-    FieldAge:byte;  //Empty=0, 1, 2, 3, 4, Full=255
+    FieldAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535
 
     //Age of tree, another independent variable since trees can grow on fields
     //Depending on this tree gets older and thus could be chopped
@@ -118,7 +118,6 @@ constructor TTerrain.Create;
 begin
 //Don't know what to put here yet
 end;
-
 
 
 //Reset whole map with default values
@@ -254,7 +253,7 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if Land[i,k].FieldType=fdt_Wine then
-        if Land[i,k].FieldAge=255 then
+        if Land[i,k].FieldAge=65535 then
           Result:=KMPoint(k,i);
 end;
 
@@ -266,7 +265,7 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if Land[i,k].FieldType=fdt_Field then
-        if Land[i,k].FieldAge=255 then
+        if Land[i,k].FieldAge=65535 then
           Result:=KMPoint(k,i);
 end;
 
@@ -717,26 +716,26 @@ begin
 
 for i:=1 to MapY do
   for k:=1 to MapX do
-  if (i*MapX+k+AnimStep) mod 20 = 0 then begin //All those global things can be performed once a sec, or even less frequent
+  if (i*MapX+k+AnimStep) mod round(TERRAIN_PACE/GAME_LOGIC_PACE) = 0 then begin //All those global things can be performed once a sec, or even less frequent
 
-    if InRange(Land[i,k].FieldAge,1,254) then inc(Land[i,k].FieldAge);
+    if InRange(Land[i,k].FieldAge,1,65534) then inc(Land[i,k].FieldAge);
 
     if Land[i,k].FieldType=fdt_Field then begin
       case Land[i,k].FieldAge of
-        1: SetLand(k,i,61,fs_None);
-        2: SetLand(k,i,59,fs_None);
-        3: SetLand(k,i,60,fs_Corn1);
-        4: SetLand(k,i,60,fs_Corn2);
-        5: Land[i,k].FieldAge:=255; //Skip to the end
+         45: SetLand(k,i,61,fs_None);  //Numbers are measured from KaM, 195
+        240: SetLand(k,i,59,fs_None);
+        435: SetLand(k,i,60,fs_Corn1);
+        630: SetLand(k,i,60,fs_Corn2);
+        650: Land[i,k].FieldAge:=65535; //Skip to the end
       end;
     end else
     if Land[i,k].FieldType=fdt_Wine then begin
       case Land[i,k].FieldAge of
-        1: SetLand(k,i,55,fs_Wine1);
-        2: SetLand(k,i,55,fs_Wine2);
-        3: SetLand(k,i,55,fs_Wine3);
-        4: SetLand(k,i,55,fs_Wine4);
-        5: Land[i,k].FieldAge:=255; //Skip to the end
+        10: SetLand(k,i,55,fs_Wine1);
+        20: SetLand(k,i,55,fs_Wine2);
+        30: SetLand(k,i,55,fs_Wine3);
+        40: SetLand(k,i,55,fs_Wine4);
+        50: Land[i,k].FieldAge:=65535; //Skip to the end
       end;
     end;
 

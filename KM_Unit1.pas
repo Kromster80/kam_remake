@@ -34,7 +34,6 @@ type
     OpenDAT: TMenuItem;
     ExportDAT: TMenuItem;
     DecodeDAT: TMenuItem;
-    Timer1sec: TTimer;
     ExportGUIMainRX: TMenuItem;
     Exportfonts1: TMenuItem;
     GroupBox1: TGroupBox;
@@ -83,7 +82,6 @@ type
     procedure ExportTreesRXClick(Sender: TObject);
     procedure ExportHousesRXClick(Sender: TObject);
     procedure ExportUnitsRXClick(Sender: TObject);
-    procedure Timer1secTimer(Sender: TObject);
     procedure ExportGUIMainRXClick(Sender: TObject);
     procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -175,6 +173,7 @@ begin
 
   FormLoading.Hide;
 
+  //Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
   Form1.WindowState:=wsMaximized;
   Form1.FormResize(nil);
 
@@ -358,12 +357,6 @@ if CheckBox2.Checked then
     fGamePlayInterface.UpdateState;
   end;
   DoScrolling; //Now check to see if we need to scroll
-end;
-
-procedure TForm1.Timer1secTimer(Sender: TObject);
-begin
-//  if not Form1.Active then exit;
-//  fMiniMap.Repaint; //No need to repaint it more often
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);

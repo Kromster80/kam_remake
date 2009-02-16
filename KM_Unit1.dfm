@@ -365,9 +365,4 @@ object Form1: TForm1
     Left = 80
     Top = 192
   end
-  object Timer1sec: TTimer
-    OnTimer = Timer1secTimer
-    Left = 112
-    Top = 192
-  end
 end

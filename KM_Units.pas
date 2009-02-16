@@ -564,6 +564,8 @@ var
   DoEnd,TaskDone: Boolean;
 begin
   Inherited;
+  DoEnd:=true;
+  TaskDone:=true;
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
 
@@ -663,6 +665,8 @@ var
   DoEnd,TaskDone: Boolean;
 begin
   Inherited;
+  DoEnd:=true;
+  TaskDone:=true;
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
 
@@ -731,6 +735,8 @@ var
   DoEnd,TaskDone: Boolean;
 begin
   Inherited;
+  DoEnd:=true;
+  TaskDone:=true;
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
 
@@ -787,6 +793,7 @@ var
   DoEnd: Boolean;
 begin
   Inherited;
+  DoEnd:=true;
   TimeDelta:= GetTickCount - fLastUpdateTime;
   fLastUpdateTime:= GetTickCount;
   if fCurrentAction <> nil then
@@ -1294,8 +1301,8 @@ with fUnit do
          Phase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
          exit;
        end else begin
-        fHome.SetState(hst_Empty,0);
-        SetAction(TUnitActionGoIn.Create(WorkPlan.WalkTo,gid_Out)); //Walk outside the house
+         fHome.SetState(hst_Empty,0);
+         SetAction(TUnitActionGoIn.Create(WorkPlan.WalkTo,gid_Out)); //Walk outside the house
        end;
     1: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,WorkPlan.Loc,WorkPlan.WalkTo));
     2: //IF resource still exists on location
