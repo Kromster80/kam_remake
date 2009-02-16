@@ -219,6 +219,7 @@ type
     procedure SetAction(aAction: TUnitAction; aStep:integer=0);
     property UnitTask: TUnitTask write fUnitTask;
     property GetUnitType: TUnitType read fUnitType;
+    function GetUnitTaskText():string;
     property GetCondition: integer read fCondition;
     property IsVisible: boolean read fVisible;
     //property IsAtHome: boolean read UnitAtHome;
@@ -750,17 +751,17 @@ begin
 
   fUnitTask:=GetActionFromQueue;
 
-  if fUnitTask=nil then SetAction(TUnitActionStay.Create(10,ua_Walk));
+  if fUnitTask=nil then SetAction(TUnitActionStay.Create(20,ua_Walk));
 end;
 
 
 function TKMUnitWorker.GetActionFromQueue():TUnitTask;
 begin
-Result:=ControlList.BuildList.AskForHousePlan(Self,KMPoint(1,1));
+Result:=ControlList.BuildList.AskForHousePlan(Self,Self.GetPosition);
 if Result=nil then
-Result:=ControlList.BuildList.AskForHouse(Self,KMPoint(1,1));
+Result:=ControlList.BuildList.AskForHouse(Self,Self.GetPosition);
 if Result=nil then
-Result:=ControlList.BuildList.AskForRoad(Self,KMPoint(1,1));
+Result:=ControlList.BuildList.AskForRoad(Self,Self.GetPosition);
 end;
 
 
@@ -833,6 +834,21 @@ function TKMUnit.GetPosition():TKMPoint;
 begin
   Result.X:=round(fPosition.X);
   Result.Y:=round(fPosition.Y);
+end;
+
+function TKMUnit.GetUnitTaskText():string;
+begin
+  Result:='Idle';
+  if fUnitTask is TTaskSelfTrain then Result:='Self-training in school';
+  if fUnitTask is TTaskDeliver then Result:='Delivering';
+  if fUnitTask is TTaskBuildRoad then Result:='Building road';
+  if fUnitTask is TTaskBuildWine then Result:='Building wine field';
+  if fUnitTask is TTaskBuildField then Result:='Building corn field';
+  if fUnitTask is TTaskBuildHouseArea then Result:='Preparing house area';
+  if fUnitTask is TTaskBuildHouse then Result:='Building house';
+  if fUnitTask is TTaskGoHome then Result:='Going home';
+  if fUnitTask is TTaskGoEat then Result:='Going to eat';
+  if fUnitTask is TTaskMining then Result:='Mining resources';
 end;
 
 function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
@@ -951,9 +967,9 @@ case Phase of
 4: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
 end;
 
-//Deliver into house
-
+//Deliver into complete house
 if fToHouse<>nil then
+if fToHouse.IsComplete then
 with fSerf do
 case Phase of
 5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,KMPointY1(fToHouse.GetEntrance)));
@@ -966,6 +982,20 @@ case Phase of
      ControlList.DeliverList.CloseDelivery(ID);
    end;
 9: TaskDone:=true;
+end;
+
+//Deliver into wip house
+if fToHouse<>nil then
+if not fToHouse.IsComplete then
+with fSerf do
+case Phase of
+5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,KMPointY1(fToHouse.GetEntrance)));
+6: begin
+     fToHouse.ResAddToBuild(Carry);
+     TakeResource(Carry);
+     ControlList.DeliverList.CloseDelivery(ID);
+   end;
+7: TaskDone:=true;
 end;
 
 //Deliver to builder
@@ -1123,33 +1153,46 @@ end;
 
 {Prepare building site - flatten terrain}
 procedure TTaskBuildHouseArea.Execute(out TaskDone:boolean);
+var i:integer;
 begin
 TaskDone:=false;
 with fWorker do
 case Phase of
 0:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fHouse.GetEntrance));
-1:  fTerrain.SetHousePlan(fHouse.GetPosition, fHouse.GetHouseType, fdt_HouseWIP);
-2:  fHouse.SetBuildingState(hbs_NoGlyph);
-3:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,ListOfCells[Step]));
-4:  SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-5:  fTerrain.FlattenTerrain(ListOfCells[Step]);
-6:  SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-7:  fTerrain.FlattenTerrain(ListOfCells[Step]);
-8:  SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-9:  fTerrain.FlattenTerrain(ListOfCells[Step]);
-10: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-11: begin fTerrain.FlattenTerrain(ListOfCells[Step]); dec(Step); end;
-12: begin
+1:  begin
+      fTerrain.SetHousePlan(fHouse.GetPosition, fHouse.GetHouseType, fdt_HouseWIP);
+      fHouse.SetBuildingState(hbs_NoGlyph);
+    end;
+2:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,ListOfCells[Step]));
+3:  begin
+      SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fTerrain.FlattenTerrain(ListOfCells[Step]);
+    end;
+4:  begin
+      SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fTerrain.FlattenTerrain(ListOfCells[Step]);
+    end;
+5:  begin
+      SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fTerrain.FlattenTerrain(ListOfCells[Step]);
+    end;
+6:  begin
+      SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fTerrain.FlattenTerrain(ListOfCells[Step]); dec(Step);
+    end;
+7:  begin
       ControlList.BuildList.CloseHousePlan(TaskID);
-      //ControlList.AddHouse(fOwner, fHouseType, fLoc);
       fHouse.SetBuildingState(hbs_Wood);
       ControlList.BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
-      //ControlList.DeliverList.AddNewDemand(ControlList.HousesHitTest(fLoc.X,fLoc.Y),nil,rt_Wood,dt_Once);
-      end;
-13: TaskDone:=true;
+      for i:=1 to HouseDAT[byte(fHouse.GetHouseType)].WoodCost do
+        ControlList.DeliverList.AddNewDemand(fHouse,nil,rt_Wood,dt_Once,di_Norm);
+      for i:=1 to HouseDAT[byte(fHouse.GetHouseType)].StoneCost do
+        ControlList.DeliverList.AddNewDemand(fHouse,nil,rt_Stone,dt_Once,di_Norm);
+      TaskDone:=true;
+    end;
 end;
 inc(Phase);
-if (Phase=12)and(Step>0) then Phase:=3; //Repeat with next cell
+if (Phase=7)and(Step>0) then Phase:=2; //Repeat with next cell
 end;
 
 
@@ -1189,6 +1232,13 @@ begin
     case Phase of
       //Pick random location and go there
       0: begin
+           //If house has not enough resource to be built, consider building task is done
+           //and look for new task that has enough resouce. Once this house has resource delivered
+           //it will be available to be built again.
+           if not fHouse.CheckResToBuild then begin
+             TaskDone:=true; //Drop the task
+             exit;
+           end;
            CurLoc:=Random(LocCount)+1;
            SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,Cells[CurLoc].Loc));
          end;
@@ -1201,6 +1251,11 @@ begin
            Direction:=Cells[CurLoc].Dir;
          end;
       3: begin
+           //Cancel building no matter progress if resource depleted
+           if not fHouse.CheckResToBuild then begin
+             TaskDone:=true; //Drop the task
+             exit;
+           end;
            fHouse.IncBuildingProgress;
            SetAction(TUnitActionStay.Create(6,ua_Work,false),5); //Do building and end animation
            inc(Phase2);

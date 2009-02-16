@@ -365,10 +365,18 @@ function  TKMBuildingQueue.AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TU
 var i:integer;
 begin
 Result:=nil;
-i:=1;
-while (i<length(fHousesQueue))and(fHousesQueue[i].JobStatus<>js_Open) do inc(i);
+for i:=1 to MaxEntries do begin
+  if (fHousesQueue[i].JobStatus=js_Open)and
+     (fHousesQueue[i].House<>nil)and
+     (fHousesQueue[i].House.CheckResToBuild) then break;
+end;
 
-if fHousesQueue[i].JobStatus=js_Open then
+if i>=MaxEntries then
+begin
+  Result:=nil;
+  exit;
+end;
+
   Result:=TTaskBuildHouse.Create(KMWorker, fHousesQueue[i].House, i);
 //fHousesQueue[i].JobStatus:=js_Taken; //Not required since many workers can build one same house
 end;

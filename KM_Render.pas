@@ -47,6 +47,7 @@ public
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderHouseBuild(Index,pX,pY:integer);
+  procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
   procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
   procedure RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
   procedure RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
@@ -454,6 +455,25 @@ begin
   ShiftX:=RXData[4].Pivot[ID].x/CELL_SIZE_PX+0.5;
   ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CELL_SIZE_PX+0.5-fTerrain.Land[pY+1,pX].Height/xh;
   AddSpriteToList(4,ID,pX+ShiftX,pY+ShiftY,true);
+end;
+
+
+{Render house build supply}
+procedure TRender.RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
+var ShiftX,ShiftY:single; ID:integer;
+begin
+  if Wood<>0 then begin
+    ID:=260+Wood-1;
+    ShiftX:=HouseDAT[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
+    ShiftY:=(HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
+  end;
+  if Stone<>0 then begin
+    ID:=267+Stone-1;
+    ShiftX:=HouseDAT[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
+    ShiftY:=(HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
+  end;
 end;
 
 

@@ -62,7 +62,7 @@ object Form1: TForm1
     Left = 224
     Top = 8
     Width = 425
-    Height = 57
+    Height = 73
     Caption = '  Additional controls  '
     TabOrder = 2
     object Image4: TImage
@@ -196,8 +196,8 @@ object Form1: TForm1
       TabOrder = 1
     end
     object CheckBox1: TCheckBox
-      Left = 224
-      Top = 16
+      Left = 144
+      Top = 48
       Width = 49
       Height = 17
       Caption = 'Pause'
@@ -205,7 +205,7 @@ object Form1: TForm1
     end
     object CheckBox3: TCheckBox
       Left = 224
-      Top = 32
+      Top = 16
       Width = 49
       Height = 17
       Caption = 'Wires'
@@ -239,8 +239,8 @@ object Form1: TForm1
       TabOrder = 5
     end
     object CheckBox5: TCheckBox
-      Left = 280
-      Top = 16
+      Left = 224
+      Top = 32
       Width = 57
       Height = 17
       Caption = 'Overlay'

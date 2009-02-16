@@ -47,6 +47,7 @@ type TKMGamePlayInterface = class
     KMPanel_Unit:TKMPanel;
       KMLabel_UnitName:TKMLabel;
       KMLabel_UnitCondition:TKMLabel;
+      KMLabel_UnitTask:TKMLabel;
       KMLabel_UnitDescription:TKMLabel;
       KMConditionBar_Unit:TKMPercentBar;
       KMImage_UnitPic:TKMImage;
@@ -415,6 +416,7 @@ begin
   KMPanel_Unit:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
     KMLabel_UnitName:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'Unit name here');
     KMLabel_UnitCondition:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(254));
+    KMLabel_UnitTask:=fControls.AddLabel(KMPanel_Unit,73,89,100,30,fnt_Grey,kaLeft,'Task');
     KMConditionBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
     KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,''); //Taken from LIB resource
     KMImage_UnitPic:=fControls.AddImage(KMPanel_Unit,8,52,54,80,521);
@@ -725,6 +727,7 @@ begin
   KMLabel_UnitName.Caption:=TypeToString(Sender.GetUnitType);
   KMImage_UnitPic.TexID:=520+byte(Sender.GetUnitType);
   KMConditionBar_Unit.Position:=round(Sender.GetCondition / UNIT_MAX_CONDITION * 100);
+  KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType))
 end;
 

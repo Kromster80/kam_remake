@@ -5,7 +5,8 @@ uses
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
   KM_Form_Loading, KM_Terrain,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX;
+  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX,
+  MPlayer;
 
 type                           
   TForm1 = class(TForm)
@@ -479,7 +480,7 @@ if H<>nil then H.AddMultiResource(rt_All,20);
 
 for i:=1 to 5 do ControlList.AddUnit(play_1, ut_Serf, KMPoint(2,11));
 
-for i:=1 to 3 do ControlList.AddUnit(play_1, ut_Worker, KMPoint(3,11));
+for i:=1 to 1 do ControlList.AddUnit(play_1, ut_Worker, KMPoint(3,11));
 
 fViewPort.SetCenter(10,9);
 

@@ -31,8 +31,9 @@ type
 
     fBuildSupplyWood: byte;
     fBuildSupplyStone: byte;
+    fBuildReserve: byte; //Take one resource into reserve and "build from it"
     fBuildingProgress: word; //That is how many efforts were put into building (Wooding+Stoning)
-    fHealth: single; //House condition/health
+    fHealth: word; //House condition/health
 
     fHasOwner: boolean; //which is some TKMUnit
     fBuildingRepair: boolean; //If on and the building is damaged then labourers will come and repair it
@@ -65,13 +66,15 @@ type
 
     function CheckResIn(aResource:TResourceType):byte;
     function CheckResOut(aResource:TResourceType):byte;
+    function CheckResOrder(ID:byte):word;
+    function CheckResToBuild():boolean;
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
-    procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual;
+    procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual; //override for School and etc..
+    procedure ResAddToBuild(aResource:TResourceType);
     function ResTakeFromIn(aResource:TResourceType):boolean;
     function ResTakeFromOut(aResource:TResourceType):boolean;
     procedure AddOrder(ID:byte; const Amount:byte=1);
     procedure RemOrder(ID:byte; const Amount:byte=1);
-    function CheckResOrder(ID:byte):word;
 
     property GetPosition:TKMPoint read fPosition;
     function GetEntrance():TKMPoint;
@@ -79,7 +82,7 @@ type
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner;
-    property GetHealth:single read fHealth;
+    property GetHealth:word read fHealth;
 
     procedure UpdateState;
     procedure Paint();
@@ -220,16 +223,25 @@ end;
 procedure TKMHouse.IncBuildingProgress;
 begin
   if IsComplete then exit;
-  inc(fBuildingProgress);
-  fHealth:=fHealth + HouseDAT[byte(fHouseType)].MaxHealth/
-  (HouseDAT[byte(fHouseType)].WoodPicSteps+HouseDAT[byte(fHouseType)].StonePicSteps);
-  
-  //dec(StoneSupply/WoodSupply); //For each 50hp
-  if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodPicSteps) then begin
+
+  if (fBuildState=hbs_Wood)and(fBuildReserve = 0) then begin
+    dec(fBuildSupplyWood);
+    inc(fBuildReserve,50);
+  end;
+  if (fBuildState=hbs_Stone)and(fBuildReserve = 0) then begin
+    dec(fBuildSupplyStone);
+    inc(fBuildReserve,50);
+  end;
+
+  inc(fBuildingProgress,5); //is how many effort was put into building nevermind applied damage
+  dec(fBuildReserve,5); //This is reserve we build from
+  inc(fHealth,5);
+
+  if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodCost*50) then begin
     fBuildState:=hbs_Stone;
     fBuildingProgress:=0;
   end;
-  if (fBuildState=hbs_Stone)and(fBuildingProgress = HouseDAT[byte(fHouseType)].StonePicSteps) then begin
+  if (fBuildState=hbs_Stone)and(fBuildingProgress = HouseDAT[byte(fHouseType)].StoneCost*50) then begin
     fBuildState:=hbs_Done;
     Activate;
   end;
@@ -265,6 +277,25 @@ Result:=0;
     inc(Result,fResourceOut[i]);
 end;
 
+
+{Check amount of order for given ID}
+function TKMHouse.CheckResOrder(ID:byte):word;
+begin
+  Result:=fResourceOrder[ID];
+end;
+
+
+{Check if house has enough resource supply to be built depending on it's state}
+function TKMHouse.CheckResToBuild():boolean;
+begin
+  Result:=false;
+  if fBuildState=hbs_Wood then
+    Result:=(fBuildSupplyWood>0)or(fBuildReserve>0);
+  if fBuildState=hbs_Stone then
+    Result:=(fBuildSupplyStone>0)or(fBuildReserve>0);
+end;
+
+
 procedure TKMHouse.ResAddToOut(aResource:TResourceType; const aCount:integer=1);
 var i:integer;
 begin
@@ -291,6 +322,16 @@ begin
     for i:=1 to 4 do
     if aResource = HouseInput[byte(fHouseType),i] then
       inc(fResourceIn[i],aCount);
+end;
+
+
+procedure TKMHouse.ResAddToBuild(aResource:TResourceType);
+begin
+  case aResource of
+    rt_Wood: inc(fBuildSupplyWood);
+    rt_Stone: inc(fBuildSupplyStone);
+  else Assert(false,'WIP house is not supposed to recieve '+TypeToString(aResource)+', right?');
+  end;
 end;
 
 
@@ -342,13 +383,6 @@ begin
 end;
 
 
-{Check amount of order for given ID}
-function TKMHouse.CheckResOrder(ID:byte):word;
-begin
-Result:=fResourceOrder[ID];
-end;
-
-
 procedure TKMHouse.SetState(aState: THouseState; aTime:integer);
 begin
   fCurrentAction.TimeToAct:=aTime;
@@ -386,8 +420,20 @@ begin
 case fBuildState of
   hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),fPosition.X, fPosition.Y);
   hbs_NoGlyph:; //Nothing
-  hbs_Wood:  fRender.RenderHouseWood(byte(fHouseType), fBuildingProgress/HouseDAT[byte(fHouseType)].WoodPicSteps, fPosition.X, fPosition.Y);
-  hbs_Stone: fRender.RenderHouseStone(byte(fHouseType), fBuildingProgress/HouseDAT[byte(fHouseType)].StonePicSteps, fPosition.X, fPosition.Y);
+  hbs_Wood:
+    begin
+      fRender.RenderHouseWood(byte(fHouseType),
+      fBuildingProgress/50/HouseDAT[byte(fHouseType)].WoodCost, //0...1 range
+      fPosition.X, fPosition.Y);
+      fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
+    end;
+  hbs_Stone:
+    begin
+      fRender.RenderHouseStone(byte(fHouseType),
+      fBuildingProgress/50/HouseDAT[byte(fHouseType)].StoneCost, //0...1 range
+      fPosition.X, fPosition.Y);
+      fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
+    end;
   else begin
     fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
     fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);

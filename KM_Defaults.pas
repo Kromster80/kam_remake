@@ -15,7 +15,7 @@ const
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
 var
-  MakeGameSprites:boolean=false;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
@@ -578,7 +578,7 @@ function TypeToString(t:TResourceType):string; overload
 function TypeToString(t:TUnitType):string; overload
 
 implementation
-uses KM_LoadLib;
+uses KM_LoadLib,KM_Units;
 
 function TypeToString(t:TUnitType):string;
 var s:string;
