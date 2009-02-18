@@ -11,7 +11,7 @@ type TKMGamePlayInterface = class
     LastBarrackUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
 
     KMPanel_Main:TKMPanel;
-      KMImage_1,KMImage_2,KMImage_3,KMImage_4:TKMImage; //Toolbar background
+      KMImage_Main1,KMImage_Main2,KMImage_Main3,KMImage_Main4:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
       KMLabel_Hint:TKMLabel;
       L:array[1..20]of TKMLabel;
@@ -22,7 +22,7 @@ type TKMGamePlayInterface = class
     KMPanel_Stats:TKMPanel;
       Stat_House,Stat_Unit:array[1..32]of TKMButtonFlat;
       Stat_HouseQty,Stat_UnitQty:array[1..32]of TKMLabel;
-      //
+
     KMPanel_Build:TKMPanel;
       KMLabel_Build:TKMLabel;
       KMImage_Build_Selected:TKMImage;
@@ -30,19 +30,23 @@ type TKMGamePlayInterface = class
       KMImage_BuildCdost_StonePic:TKMImage;
       KMLabel_BuildCost_Wood:TKMLabel;
       KMLabel_BuildCost_Stone:TKMLabel;
-
       KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine,KMButton_BuildCancel:TKMButtonFlat;
       KMButton_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
-    KMPanel_Menu:TKMPanel;
-      KMButton_Menu_Save,KMButton_Menu_Load,KMButton_Menu_Settings,KMButton_Menu_Exit:TKMButton;
 
-    KMPanel_Settings:TKMPanel;
-      KMLabel_Settings_Brightness,KMLabel_Settings_BrightValue:TKMLabel;
-      KMButton_Settings_Dark,KMButton_Settings_Light:TKMButton;
-      KMLabel_Settings_Autosave,KMLabel_Settings_FastScroll:TKMLabel;
-      KMLabel_Settings_MouseSpeed,KMLabel_Settings_SFX,KMLabel_Settings_Music,KMLabel_Settings_Music2:TKMLabel;
-      KMRatio_Settings_Mouse,KMRatio_Settings_SFX,KMRatio_Settings_Music:TKMRatioRow;
-      KMButton_Settings_Music:TKMButton;
+    KMPanel_Menu:TKMPanel;
+      KMButton_Menu_Save,KMButton_Menu_Load,KMButton_Menu_Settings,KMButton_Menu_Quit:TKMButton;
+
+      KMPanel_Settings:TKMPanel;
+        KMLabel_Settings_Brightness,KMLabel_Settings_BrightValue:TKMLabel;
+        KMButton_Settings_Dark,KMButton_Settings_Light:TKMButton;
+        KMLabel_Settings_Autosave,KMLabel_Settings_FastScroll:TKMLabel;
+        KMLabel_Settings_MouseSpeed,KMLabel_Settings_SFX,KMLabel_Settings_Music,KMLabel_Settings_Music2:TKMLabel;
+        KMRatio_Settings_Mouse,KMRatio_Settings_SFX,KMRatio_Settings_Music:TKMRatioRow;
+        KMButton_Settings_Music:TKMButton;
+
+      KMPanel_Quit:TKMPanel;
+        KMLabel_Quit:TKMLabel;
+        KMButton_Quit_Yes,KMButton_Quit_No:TKMButton;
 
     KMPanel_Unit:TKMPanel;
       KMLabel_UnitName:TKMLabel;
@@ -51,6 +55,7 @@ type TKMGamePlayInterface = class
       KMLabel_UnitDescription:TKMLabel;
       KMConditionBar_Unit:TKMPercentBar;
       KMImage_UnitPic:TKMImage;
+      
     KMPanel_House:TKMPanel;
       KMLabel_House:TKMLabel;
       KMButton_House_Goods,KMButton_House_Repair:TKMButton;
@@ -93,6 +98,7 @@ type TKMGamePlayInterface = class
     procedure Create_Stats_Page;
     procedure Create_Menu_Page;
     procedure Create_Settings_Page;
+    procedure Create_Quit_Page;
     procedure Create_Unit_Page;
     procedure Create_House_Page;
     procedure Create_Store_Page;
@@ -141,7 +147,7 @@ var i:integer;
 begin
 
 if (Sender=KMButtonMain[1])or(Sender=KMButtonMain[2])or(Sender=KMButtonMain[3])or(Sender=KMButtonMain[4])or
-   (Sender=KMButton_Menu_Settings) then begin
+   (Sender=KMButton_Menu_Settings)or(Sender=KMButton_Menu_Quit) then begin
   ShownHouse:=nil;
   ShownUnit:=nil;
 end;
@@ -177,9 +183,13 @@ end else
 if Sender=KMButtonMain[4] then begin
   KMPanel_Menu.Visible:=true;
   Hide4MainButtons;
-end else  
+end else
 if Sender=KMButton_Menu_Settings then begin
   KMPanel_Settings.Visible:=true;
+  Hide4MainButtons;
+end else
+if Sender=KMButton_Menu_Quit then begin
+  KMPanel_Quit.Visible:=true;
   Hide4MainButtons;
 end else //If Sender is anything else - then show all 4 buttons and hide Return button
   Show4MainButtons;
@@ -249,9 +259,9 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
 {Parent Page for whole toolbar in-game}
   KMPanel_Main:=fControls.AddPanel(nil,0,0,224,768);
 
-    KMImage_1:=fControls.AddImage(KMPanel_Main,0,0,224,200,407);
-    KMImage_3:=fControls.AddImage(KMPanel_Main,0,200,224,168,554);
-    KMImage_4:=fControls.AddImage(KMPanel_Main,0,368,224,400,404);
+    KMImage_Main1:=fControls.AddImage(KMPanel_Main,0,0,224,200,407);
+    KMImage_Main3:=fControls.AddImage(KMPanel_Main,0,200,224,168,554);
+    KMImage_Main4:=fControls.AddImage(KMPanel_Main,0,368,224,400,404);
 
     KMMinimap:=fControls.AddMinimap(KMPanel_Main,10,10,176,176);
     KMMinimap.OnMouseOver:=Minimap_Move;
@@ -288,6 +298,7 @@ Create_Ratios_Page();
 Create_Stats_Page();
 Create_Menu_Page();
   Create_Settings_Page();
+  Create_Quit_Page();
 
 Create_Unit_Page();
 Create_House_Page();
@@ -364,7 +375,8 @@ begin
     KMButton_Menu_Load:=fControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(172),fnt_Metal);
     KMButton_Menu_Settings:=fControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(170),fnt_Metal);
     KMButton_Menu_Settings.OnClick:=ShowSettings;
-    KMButton_Menu_Exit:=fControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+    KMButton_Menu_Quit:=fControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+    KMButton_Menu_Quit.OnClick:=SwitchPage;
 end;
 
 
@@ -407,6 +419,22 @@ begin
     //There are many clickable controls, so let them all be handled in one procedure to save dozens of lines of code
     for i:=1 to KMPanel_Settings.ChildCount do
       TKMControl(KMPanel_Settings.Childs[i]).OnClick:=Settings_Change;
+end;
+
+
+{Options page}
+procedure TKMGamePlayInterface.Create_Quit_Page;
+begin
+  KMPanel_Quit:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
+    KMLabel_Quit:=fControls.AddLabel(KMPanel_Quit,100,30,100,30,fnt_Metal,kaCenter,fTextLibrary.GetTextString(176));
+    KMButton_Quit_Yes:=fControls.AddButton(KMPanel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+    KMButton_Quit_No:=fControls.AddButton(KMPanel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
+    {KMButton_Quit_Yes.OnMouseOver:=DisplayHint;
+    KMButton_Quit_No.OnMouseOver:=DisplayHint;
+    KMButton_Quit_Yes.Hint:=fTextLibrary.GetTextString(185);
+    KMButton_Quit_No.Hint:=fTextLibrary.GetTextString(184);}
+    KMButton_Quit_Yes.OnClick:=Form1.ExitClick;
+    KMButton_Quit_No.OnClick:=SwitchPage;
 end;
 
 
@@ -592,8 +620,8 @@ end;
 
 procedure TKMGamePlayInterface.ShowSettings(Sender: TObject);
 begin
-SwitchPage(Sender);
-Settings_Change(nil);
+  SwitchPage(Sender);
+  Settings_Change(nil);
 end;
 
 

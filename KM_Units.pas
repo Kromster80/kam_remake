@@ -884,6 +884,7 @@ AnimStep:=aStep;
   end;
 end;
 
+
 procedure TKMUnit.UpdateState();
 begin
 //dec(fCondition); //Disabled for now
@@ -899,6 +900,7 @@ begin
   Phase:=0;
   fUnit.fVisible:=false;
 end;
+
 
 procedure TTaskSelfTrain.Execute(out TaskDone:boolean);
 begin

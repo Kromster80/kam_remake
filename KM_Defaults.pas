@@ -507,7 +507,7 @@ HouseDAT:array[1..HOUSE_COUNT] of packed record
   WoodPicSteps,StonePicSteps:word;
   a1:smallint;
   EntranceOffsetX,EntranceOffsetY:shortint;
-  a3,a4:shortint;
+  EntranceOffsetXpx,EntranceOffsetYpx:shortint;
   BuildArea:array[1..10,1..10]of shortint;
   WoodCost,StoneCost:byte;
   BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;

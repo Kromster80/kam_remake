@@ -170,7 +170,7 @@ end;
 closefile(f);
 
   assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
-  writeln(ft,'House;a1;a3;a4;a8;Foot---------->;');
+  writeln(ft,'House;a1;a3;a4;a5;a8;Foot---------->;');
   for ii:=1 to HOUSE_COUNT do begin
   //writeln(ft);
   write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+';');
@@ -183,13 +183,13 @@ closefile(f);
     write(ft,'#') else write(ft,' ');
     writeln(ft);
     for kk:=1 to 19 do writeln(ft,HouseAction[kk]+#9+inttostr(HouseDAT[ii].Anim[kk].Count));}
-    //write(ft,inttostr(HouseDAT[ii].WoodPicSteps)+';');
-    //write(ft,inttostr(HouseDAT[ii].StonePicSteps)+';');
+    //write(ft,inttostr(HouseDAT[ii].WoodPicSteps)+'wooding ;');
+    //write(ft,inttostr(HouseDAT[ii].StonePicSteps)+'stoning ;');
     write(ft,inttostr(HouseDAT[ii].a1)+';'); //0
-    write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
-    write(ft,'Y '+inttostr(HouseDAT[ii].EntranceOffsetY)+';'); //0
-    write(ft,inttostr(HouseDAT[ii].a3)+';');
-    write(ft,inttostr(HouseDAT[ii].a4)+';');
+    //write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
+    //write(ft,'Y '+inttostr(HouseDAT[ii].EntranceOffsetY)+';'); //0
+    //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
+    //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
     {writeln(ft);
     for kk:=1 to length(HouseDAT[ii].BuildArea) do begin
       for h:=1 to 10 do
@@ -202,9 +202,9 @@ closefile(f);
     write(ft,inttostr(HouseDAT[ii].a5)+';');
     //write(ft,'Area '+inttostr(HouseDAT[ii].SizeArea)+';');
     //write(ft,'Size '+inttostr(HouseDAT[ii].SizeX)+'x'+inttostr(HouseDAT[ii].SizeY)+';');
-    //write(ft,'Size2 '+inttostr(HouseDAT[ii].sx2)+'x'+inttostr(HouseDAT[ii].sy2)+';');
-    write(ft,inttostr(HouseDAT[ii].WorkerWork)+'sec;');
-    //write(ft,inttostr(HouseDAT[ii].WorkerRest)+'sec;');
+    write(ft,'Size2 '+inttostr(HouseDAT[ii].sx2)+'x'+inttostr(HouseDAT[ii].sy2)+';');
+    write(ft,inttostr(HouseDAT[ii].WorkerWork)+'W sec;');
+    write(ft,inttostr(HouseDAT[ii].WorkerRest)+'R sec;');
     //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResInput[kk]+1))+';');
     //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResOutput[kk]+1))+';');
     //write(ft,'Product x'+inttostr(HouseDAT[ii].ResProductionX)+';');

@@ -54,7 +54,7 @@ public
 
     //Age of tree, another independent variable since trees can grow on fields
     //Depending on this tree gets older and thus could be chopped
-    TreeAge:byte;  //Empty=0, 1, 2, 3, 4, Full=255
+    TreeAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535
 
     //SpecialObjects on field/wine, depends on FieldAge (x4 straw, x2 grapes)
     FieldSpecial:TFieldSpecial;  //fs_None, fs_Corn1, fs_Corn2, fs_Wine1, fs_Wine2, fs_Wine3, fs_Wine4, fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4
@@ -389,13 +389,13 @@ end;
 
 procedure TTerrain.AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
 begin
-Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass;
+  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass;
 end;
 
 
 procedure TTerrain.RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
 begin
-Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability - aPass;
+  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability - aPass;
 end;
 
 {Find a route from A to B which meets aPass Passability}
@@ -731,23 +731,23 @@ for i:=1 to MapY do
     end else
     if Land[i,k].FieldType=fdt_Wine then begin
       case Land[i,k].FieldAge of
-        10: SetLand(k,i,55,fs_Wine1);
-        20: SetLand(k,i,55,fs_Wine2);
-        30: SetLand(k,i,55,fs_Wine3);
-        40: SetLand(k,i,55,fs_Wine4);
-        50: Land[i,k].FieldAge:=65535; //Skip to the end
+        45: SetLand(k,i,55,fs_Wine1);
+       240: SetLand(k,i,55,fs_Wine2);
+       435: SetLand(k,i,55,fs_Wine3);
+       630: SetLand(k,i,55,fs_Wine4);
+       650: Land[i,k].FieldAge:=65535; //Skip to the end
       end;
     end;
 
-    if InRange(Land[i,k].TreeAge,1,254) then inc(Land[i,k].TreeAge);
+    if InRange(Land[i,k].TreeAge,1,65534) then inc(Land[i,k].TreeAge);
     for h:=1 to length(ChopableTrees) do
       for j:=1 to 3 do
         if Land[i,k].Obj=ChopableTrees[h,j] then
           case Land[i,k].TreeAge of
-            1: Land[i,k].Obj:=ChopableTrees[h,2];
-            3: Land[i,k].Obj:=ChopableTrees[h,3];
-            5: Land[i,k].Obj:=ChopableTrees[h,4];
-            7: Land[i,k].TreeAge:=255; //Skip to the end
+            45: Land[i,k].Obj:=ChopableTrees[h,2];
+           240: Land[i,k].Obj:=ChopableTrees[h,3];
+           435: Land[i,k].Obj:=ChopableTrees[h,4];
+           630: Land[i,k].TreeAge:=65535; //Skip to the end
           end;
 
   end;

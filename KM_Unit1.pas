@@ -61,9 +61,6 @@ type
     procedure DecodeDATClick(Sender: TObject);
     procedure OpenMapClick(Sender: TObject);
     procedure ZoomChange(Sender: TObject);
-    procedure MiniMapMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-    procedure MiniMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure MiniMapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -173,7 +170,7 @@ begin
 
   FormLoading.Hide;
 
-  //Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
+  Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
   Form1.WindowState:=wsMaximized;
   Form1.FormResize(nil);
 
@@ -218,29 +215,19 @@ begin
 fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
 end;
 
-procedure TForm1.MiniMapMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin MiniMapMouseMove(nil,Shift,X,Y); end;
-
-procedure TForm1.MiniMapMouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-begin
-if not (ssLeft in Shift) then exit;
-fViewport.SetCenter(X,Y);
-end;
-
-procedure TForm1.MiniMapMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin MiniMapMouseMove(nil,Shift,X,Y); end;
-
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-if X<=ToolBarWidth then
-  fControls.OnMouseDown(X,Y,Button);
+  if X<=ToolBarWidth then begin
+    fControls.OnMouseDown(X,Y,Button);
+    exit;
+  end;
 
   Panel1MouseMove(Panel5,Shift,X,Y);
 
   //example for units need change
   //Removed right since it interfers with the school buttons
   if Button = mbMiddle then
-    ControlList.AddUnit(play_1, ut_HorseScout, KMPoint(CursorXc,CursorYc));
+    ControlList.AddUnit(play_2, ut_HorseScout, KMPoint(CursorXc,CursorYc));
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -284,9 +271,12 @@ begin
   P.X:=CursorXc;
   P.Y:=CursorYc;
 
-  if X<=ToolBarWidth then
-    fControls.OnMouseUp(X,Y,Button)
-  else if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
+  if X<=ToolBarWidth then begin
+    fControls.OnMouseUp(X,Y,Button);
+    exit;
+  end;
+  
+  if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
 
   case CursorMode.Mode of
     cm_None:
@@ -469,7 +459,7 @@ begin
 TKMControl(Sender).Enabled:=false;
 ControlList.AddHouse(ht_Store, KMPoint(17,5), play_1);
 H:=TKMHouseStore(ControlList.FindHouse(ht_Store,0,0));
-if H<>nil then H.AddMultiResource(rt_All,20);
+if H<>nil then H.AddMultiResource(rt_All,30);
 
 for i:=1 to 5 do ControlList.AddUnit(play_1, ut_Serf, KMPoint(2,11));
 
