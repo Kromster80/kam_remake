@@ -261,16 +261,29 @@ end;
 {Renders a line of text and returns text width in px}
 {By default color must be non-transparent white}
 function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint;
-var i,Num,InterLetter:integer;
+var i,Num,InterLetter,LineCount:integer; LineWidth:array[1..16] of word; //Lets hope 16 will be enough. Num0 stores count
 begin
   InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X:=0;
   Result.Y:=0;
-  for i:=1 to length(Text) do
+  LineCount:=0;
+
+  for i:=1 to length(Text) do begin
     if Text[i] in [' '..'z'] then begin
       Result.X:=Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
       Result.Y:=max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
     end;
+    if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
+      inc(LineCount);
+      LineWidth[LineCount]:=max(0,Result.X-InterLetter); //Remove last interletter space and negate double EOLs
+      Result.X:=0;
+    end;
+  end;
+
+  for i:=1 to LineCount do
+    Result.X:=max(Result.X,LineWidth[i]);
+
+  LineCount:=1;
 
   glPushMatrix;
     glkMoveAALines(false);
@@ -283,23 +296,24 @@ begin
         //Switch line if needed
         if Text[i]=#124 then begin //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files, so lets do the same here. Saves complex conversions...
           glPopMatrix;
-          glTranslate(0,Result.Y,0);
+          inc(LineCount);
+          if Align=kaLeft   then glTranslate(0, Result.Y, 0);
+          if Align=kaCenter then glTranslate(0, Result.Y, 0); //A bit wrong, should negate previous shift
+          if Align=kaRight  then glTranslate(0, Result.Y, 0); //should negate previous shift
           glPushMatrix;
-        end
-        else
-        begin    
-        Num:=ord(Text[i]);
-        glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
-        glBegin(GL_QUADS);
-          with FontData[byte(Fnt)].Letters[Num] do begin
-            glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
-            glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
-            glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);
-            glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
-          end;
-        glEnd;
-        //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
-        glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
+        end else begin
+          Num:=ord(Text[i]);
+          glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
+          glBegin(GL_QUADS);
+            with FontData[byte(Fnt)].Letters[Num] do begin
+              glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
+              glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
+              glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);
+              glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
+            end;
+          glEnd;
+          //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
+          glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
         end;
       end;
     glPopMatrix;
@@ -318,10 +332,10 @@ begin
         ID:=fTerrain.Land[i,k].Terrain+1;
         Light:=fTerrain.Land[i,k].Light/4; //Originally it's -1..1 range
         if fTerrain.Land[i,k].TileOwner=play_none then
-        glColor4f(TileMMColor2[ID].R+Light,
-                  TileMMColor2[ID].G+Light,
-                  TileMMColor2[ID].B+Light,
-                   1)
+        glColor4f(TileMMColor[ID].R+Light,
+                  TileMMColor[ID].G+Light,
+                  TileMMColor[ID].B+Light,
+                  1)
         else
           glColor4ubv(@TeamColors[byte(fTerrain.Land[i,k].TileOwner)]);
         glVertex2f(k,i);

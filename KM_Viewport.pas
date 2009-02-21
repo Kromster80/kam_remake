@@ -23,13 +23,6 @@ ViewWidth,ViewHeight:integer;
 published
 end;
 
-{ Here should be Minimap routines }
-TMiniMap = class
-public
-  procedure SetRect(Viewport:TViewport); //Update view area position and size, use TViewport info
-  procedure ReSize(X,Y:word);
-end;
-
 var
   fViewport: TViewport;
 
@@ -70,31 +63,6 @@ begin
   Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
   Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
   Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
-end;
-
-
-procedure TMiniMap.SetRect(Viewport:TViewport);
-begin
-{  with Viewport do
-    begin
-      mmShape.Width:=round(ViewWidth/CELL_SIZE_PX/Zoom);
-      mmShape.Height:=round(ViewHeight/CELL_SIZE_PX/Zoom);
-      mmLabel.Caption:=inttostr(round(Zoom*100))+'%';
-      mmShape.Left:=round(XCoord+mmMiniMap.Left +(ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom -mmShape.Width  div 2);
-      mmShape.Top :=YCoord+mmMiniMap.Top -mmShape.Height div 2;
-      mmShape.Refresh;
-    end; }
-end;     
-
-
-procedure TMiniMap.ReSize(X,Y:word);
-begin {
-mmMiniMap.Left:=(MaxMapSize-X) div 2;
-mmMiniMap.Top:=(MaxMapSize-Y) div 2;
-mmMiniMap.Width:=X;
-mmMiniMap.Height:=Y;
-mmMiniMap.Picture.Bitmap.Width :=X; //Also resize the minimap canvas
-mmMiniMap.Picture.Bitmap.Height:=Y; //Also resize the minimap canvas }
 end;
 
 end.

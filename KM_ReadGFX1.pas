@@ -698,9 +698,9 @@ for ii:=0 to 15 do for kk:=0 to 15 do begin
   TileMMColor[px].G:=round (G / 1024);
   TileMMColor[px].B:=round (B / 1024);
 
-  TileMMColor2[px].R:= (R / 1024) / 255; //each tile is 32x32 px
-  TileMMColor2[px].G:= (G / 1024) / 255;
-  TileMMColor2[px].B:= (B / 1024) / 255;
+  TileMMColor[px].R:= (R / 1024) / 255; //each tile is 32x32 px
+  TileMMColor[px].G:= (G / 1024) / 255;
+  TileMMColor[px].B:= (B / 1024) / 255;
 
 end;
 end;

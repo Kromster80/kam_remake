@@ -364,7 +364,6 @@ end;
 function  TKMBuildingQueue.AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
-Result:=nil;
 for i:=1 to MaxEntries do begin
   if (fHousesQueue[i].JobStatus=js_Open)and
      (fHousesQueue[i].House<>nil)and

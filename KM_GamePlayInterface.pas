@@ -15,7 +15,7 @@ type TKMGamePlayInterface = class
       KMMinimap:TKMMinimap;
       KMLabel_Hint:TKMLabel;
       L:array[1..20]of TKMLabel;
-      KMButtonRun,KMButtonRun1:TKMButton;                //Start Village functioning
+      KMButtonRun,KMButtonRun1,KMButtonStop:TKMButton;                //Start Village functioning
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
     KMPanel_Ratios:TKMPanel;
       //
@@ -276,6 +276,10 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
 
     KMButtonRun1:=fControls.AddButton(KMPanel_Main,80,205,50,30,'1',fnt_Outline);
     KMButtonRun1.OnClick:=Form1.Button2Click; //Procedure where stuff is placed on map
+
+
+    KMButtonStop:=fControls.AddButton(KMPanel_Main,140,205,50,30,'Stop',fnt_Outline);
+    KMButtonStop.OnClick:=Form1.Button3Click; //Procedure where all stuff is removed from map
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin

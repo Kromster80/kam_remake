@@ -2,8 +2,6 @@ unit KM_Settings;
 interface
 uses Windows, Classes, SysUtils, KromUtils, Math, KM_Defaults;
 
-const MaxWaves = 200;
-
 type
   TGameSettings = class
   private
@@ -56,8 +54,6 @@ type
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetCanBuild(aType:THouseType):boolean;
-
-
   end;
 
 

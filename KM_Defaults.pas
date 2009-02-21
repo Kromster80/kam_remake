@@ -554,11 +554,9 @@ end;
     u3,u4:word;                   //99
   end;
 
-  TileMMColor:array[1..256]of record R,G,B:byte; end;
-  TileMMColor2:array[1..256]of record R,G,B:single; end;
+  TileMMColor:array[1..256]of record R,G,B:single; end;
 
-
-
+  
 type
   TKMList = class(TList)
   public

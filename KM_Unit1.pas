@@ -91,6 +91,7 @@ type
     procedure HouseAnim1Click(Sender: TObject);
     procedure UnitAnim1Click(Sender: TObject);
     procedure CheckBox5Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -151,9 +152,9 @@ begin
 
   FormLoading.Label1.Caption:='Initializing FrontEnd ...';
   fViewport:= TViewport.Create;
-  fControls:= TKMControlsCollection.Create;
   fGameSettings:= TGameSettings.Create;
   fMissionSettings:= TMissionSettings.Create;
+  fControls:= TKMControlsCollection.Create;
   fGamePlayInterface:= TKMGamePlayInterface.Create;
   fLog.AppendLog('FrontEnd initialized',true);
 
@@ -599,6 +600,11 @@ end;
 procedure TForm1.CheckBox5Click(Sender: TObject);
 begin
   MakeDrawPagesOverlay:=CheckBox5.Checked;
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+//
 end;
 
 end.
