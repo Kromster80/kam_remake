@@ -920,7 +920,7 @@ procedure TKMGamePlayInterface.Build_Fill(Sender:TObject);
 var i:integer;
 begin
   for i:=1 to HOUSE_COUNT do
-  if fMissionSettings.GetCanBuild(THouseType(GUIBuildIcons[i]-300)) then begin
+  if MyPlayer.GetCanBuild(THouseType(GUIBuildIcons[i]-300)) then begin
     KMButton_Build[i].Enabled:=true;
     KMButton_Build[i].TexID:=GUIBuildIcons[i];
     KMButton_Build[i].OnClick:=BuildButtonClick;
@@ -965,15 +965,15 @@ begin
   for i:=1 to 11 do for k:=1 to 3 do
   if StatHouseOrder[i,k]<>ht_None then begin
     inc(ci);
-    Tmp:=fMissionSettings.GetHouseQty(StatHouseOrder[i,k]);
+    Tmp:=MyPlayer.GetHouseQty(StatHouseOrder[i,k]);
     if Tmp=0 then Stat_HouseQty[ci].Caption:='-' else Stat_HouseQty[ci].Caption:=inttostr(Tmp);
-    if fMissionSettings.GetCanBuild(StatHouseOrder[i,k]) or (Tmp>0) then
+    if MyPlayer.GetCanBuild(StatHouseOrder[i,k]) or (Tmp>0) then
       Stat_House[ci].TexID:=byte(StatHouseOrder[i,k])+300
     else
       Stat_House[ci].TexID:=41;
   end;
   for i:=1 to 11 do begin
-    Tmp:=fMissionSettings.GetUnitQty(StatUnitOrder[i]);
+    Tmp:=MyPlayer.GetUnitQty(StatUnitOrder[i]);
     if Tmp=0 then Stat_UnitQty[i].Caption:='-' else Stat_UnitQty[i].Caption:=inttostr(Tmp);
   end;
 end;

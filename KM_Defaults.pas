@@ -429,7 +429,7 @@ ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 
 
 type
-  TPlayerID = (play_none=-1, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6);
+  TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6);
 
 var
   //Players colors
@@ -438,8 +438,8 @@ var
   $FF00C0FF, //Orange
   $FF00FFFF, //Yellow
   $FF28C840, //Green
-  $FF3040FF, //Red
-  $FF00C0FF, //Orange
+  $FFC0C040, //Cyan
+  $FFC00000, //Blue
   $FF00FFFF, //Yellow
   $FF28C840  //Green
   );

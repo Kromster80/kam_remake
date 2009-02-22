@@ -143,7 +143,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Users, KM_Settings;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Users;
 
 
 { TKMHouse }
@@ -181,14 +181,14 @@ destructor TKMHouse.Destroy;
 begin
   fCurrentAction.Free;
   fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
-  if fBuildState=hbs_Done then fMissionSettings.DestroyedHouse(fHouseType);
+  if fBuildState=hbs_Done then fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
   Inherited;
 end;
 
 procedure TKMHouse.Activate;
 var i,k:integer;
 begin
-  fMissionSettings.CreatedHouse(fHouseType); //Only activated houses count
+  fPlayers.Player[byte(fOwner)].CreatedHouse(fHouseType); //Only activated houses count
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);

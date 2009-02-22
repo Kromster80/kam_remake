@@ -1,14 +1,15 @@
 unit KM_Users;
-
 interface
 uses
-  classes, KromUtils, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, Windows, SysUtils;
+  classes, KromUtils, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, KM_Settings, Windows, SysUtils;
+
 type
   TPlayerType = (uct_Human, uct_Computer);
 
   TKMPlayerAssets = class
   private
     PlayerID:TPlayerID; //Which ID this player is
+    fMissionSettings: TMissionSettings;
     fUnits: TKMUnitsCollection;
     fHouses: TKMHousesCollection;
     fDeliverList: TKMDeliverQueue;
@@ -27,10 +28,20 @@ type
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
-    procedure GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+    procedure GetUnitLocations(out Loc:TKMPointList);
     function HousesHitTest(X, Y: Integer): TKMHouse;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property BuildList:TKMBuildingQueue read fBuildList;
+
+    procedure CreatedHouse(aType:THouseType);
+    procedure CreatedUnit(aType:TUnitType);
+    procedure DestroyedHouse(aType:THouseType);
+    procedure DestroyedUnit(aType:TUnitType);
+    procedure UpdateReqDone(aType:THouseType);
+
+    function GetCanBuild(aType:THouseType):boolean;
+    function GetHouseQty(aType:THouseType):integer;
+    function GetUnitQty(aType:TUnitType):integer;
   public
     procedure UpdateState;
     procedure Paint;
@@ -131,6 +142,7 @@ end;
 constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 begin
   PlayerID:=aPlayerID;
+  fMissionSettings:= TMissionSettings.Create;
   fUnits:= TKMUnitsCollection.Create;
   fHouses:= TKMHousesCollection.Create;
   fDeliverList:= TKMDeliverQueue.Create;
@@ -158,15 +170,57 @@ begin
   Result:= fUnits.HitTest(X, Y, UT);
 end;
 
-procedure TKMPlayerAssets.GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+procedure TKMPlayerAssets.GetUnitLocations(out Loc:TKMPointList);
 begin
-  fUnits.GetLocations(aOwner,Loc);
+  fUnits.GetLocations(PlayerID,Loc);
 end;
 
 function TKMPlayerAssets.HousesHitTest(X, Y: Integer): TKMHouse;
 begin
   Result:= fHouses.HitTest(X, Y);
 end;
+
+
+procedure TKMPlayerAssets.CreatedHouse(aType:THouseType);
+begin
+  fMissionSettings.CreatedHouse(aType);
+end;
+
+procedure TKMPlayerAssets.CreatedUnit(aType:TUnitType);
+begin
+  fMissionSettings.CreatedUnit(aType);
+end;
+
+procedure TKMPlayerAssets.DestroyedHouse(aType:THouseType);
+begin
+  fMissionSettings.DestroyedHouse(aType);
+end;
+
+procedure TKMPlayerAssets.DestroyedUnit(aType:TUnitType);
+begin
+  fMissionSettings.DestroyedUnit(aType);
+end;
+
+procedure TKMPlayerAssets.UpdateReqDone(aType:THouseType);
+begin
+  fMissionSettings.UpdateReqDone(aType);
+end;
+
+function TKMPlayerAssets.GetCanBuild(aType:THouseType):boolean;
+begin
+  Result:=fMissionSettings.GetCanBuild(aType);
+end;
+
+function TKMPlayerAssets.GetHouseQty(aType:THouseType):integer;
+begin
+  Result:=fMissionSettings.GetHouseQty(aType);
+end;
+
+function TKMPlayerAssets.GetUnitQty(aType:TUnitType):integer;
+begin
+  Result:=fMissionSettings.GetUnitQty(aType);
+end;
+
 
 procedure TKMPlayerAssets.UpdateState;
 begin

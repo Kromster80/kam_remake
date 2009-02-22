@@ -5,8 +5,7 @@ uses
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
   KM_Form_Loading, KM_Terrain,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX,
-  MPlayer;
+  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX;
 
 type                           
   TForm1 = class(TForm)
@@ -157,7 +156,6 @@ begin
   FormLoading.Label1.Caption:='Initializing FrontEnd ...';
   fViewport:= TViewport.Create;
   fGameSettings:= TGameSettings.Create;
-  fMissionSettings:= TMissionSettings.Create;
   fControls:= TKMControlsCollection.Create;
   fGamePlayInterface:= TKMGamePlayInterface.Create;
   fLog.AppendLog('FrontEnd initialized',true);
@@ -606,7 +604,14 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 begin
-//
+//Reset map
+  fPlayers.Destroy;
+
+  fTerrain.MakeNewMap(96,96);
+
+  fPlayers:=TKMAllPlayers.Create(6); //Create 6 players
+  MyPlayer:=fPlayers.Player[1];
+
 end;
 
 procedure TForm1.RGPlayerClick(Sender: TObject);

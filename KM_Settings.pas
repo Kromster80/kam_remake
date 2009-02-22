@@ -60,7 +60,7 @@ type
 
 var
   fGameSettings: TGameSettings;
-  fMissionSettings: TMissionSettings;
+
 
 implementation
 uses KM_Log;

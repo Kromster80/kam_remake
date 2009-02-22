@@ -276,7 +276,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users, KM_Settings;
+uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users;
 
 
 {Whole thing should be moved to units Task}
@@ -820,7 +820,7 @@ begin
   Speed:=UnitStat[byte(aUnitType)].Speed/24;
   SetAction(TUnitActionStay.Create(10,ua_Walk));
   fCondition:=UNIT_MAX_CONDITION;
-  fMissionSettings.CreatedUnit(fUnitType);
+  fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType);
 end;
 
 destructor TKMUnit.Destroy;
@@ -831,7 +831,7 @@ begin
   //fHome.GetHasOwner:=false;
   fCurrentAction.Free;
   fUnitTask.Free;
-  fMissionSettings.DestroyedUnit(fUnitType);
+  fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
   Inherited;
 end;
 

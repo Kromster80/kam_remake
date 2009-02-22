@@ -59,8 +59,7 @@ end;
 var
   fRender: TRender;
 
-implementation
-
+implementation 
 uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_Users, KM_Settings;
 
 
