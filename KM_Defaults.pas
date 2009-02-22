@@ -17,8 +17,8 @@ const
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
 var
-  MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
-  MakeTeamColors:boolean=true;         //Whenever to make team colors or not, saves RAM for debug
+  MakeGameSprites:boolean=false;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
 
@@ -70,7 +70,7 @@ const //Font01.fnt seems to be damaged..
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
 //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
-  FontCharSpacing: array[TKMFont] of integer = (0,0,0,0,1,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
+  FontCharSpacing: array[TKMFont] of shortint = (0,0,0,0,1,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
 
   FontPal:array[1..20]of byte =
   //Those 10 are unknown Pal, no existing Pal matches them well

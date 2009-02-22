@@ -261,7 +261,7 @@ end;
 {Renders a line of text and returns text width in px}
 {By default color must be non-transparent white}
 function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint;
-var i,Num,InterLetter,LineCount:integer; LineWidth:array[1..16] of word; //Lets hope 16 will be enough. Num0 stores count
+var i,Num,InterLetter,LineCount,RevX:integer; LineWidth:array[1..16] of word; //Lets hope 16 will be enough. Num0 stores count
 begin
   InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X:=0;
@@ -283,41 +283,43 @@ begin
   for i:=1 to LineCount do
     Result.X:=max(Result.X,LineWidth[i]);
 
+  RevX:=0;
   LineCount:=1;
 
   glPushMatrix;
     glkMoveAALines(false);
-    if Align=kaLeft   then glTranslate(PosX,PosY,0);
-    if Align=kaCenter then glTranslate(PosX-(Result.X div 2),PosY,0);
-    if Align=kaRight  then glTranslate(PosX-Result.X,PosY,0);
+    glTranslate( PosX, PosY, 0);
+        if Align=kaLeft   then glTranslate(0, 0, 0);
+        if Align=kaCenter then glTranslate(-(Result.X div 2), 0, 0);
+        if Align=kaRight  then glTranslate(-Result.X , 0, 0);
     glPushMatrix;
-      glColor4ubv(@Color);
-      for i:=1 to length(Text) do begin
-        //Switch line if needed
-        if Text[i]=#124 then begin //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files, so lets do the same here. Saves complex conversions...
-          glPopMatrix;
-          inc(LineCount);
-          if Align=kaLeft   then glTranslate(0, Result.Y, 0);
-          if Align=kaCenter then glTranslate(0, Result.Y, 0); //A bit wrong, should negate previous shift
-          if Align=kaRight  then glTranslate(0, Result.Y, 0); //should negate previous shift
-          glPushMatrix;
-        end else begin
-          Num:=ord(Text[i]);
-          glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
-          glBegin(GL_QUADS);
-            with FontData[byte(Fnt)].Letters[Num] do begin
-              glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
-              glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
-              glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);
-              glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
-            end;
-          glEnd;
-          //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
-          glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
-        end;
+    glColor4ubv(@Color);
+    for i:=1 to length(Text) do begin
+      //Switch line if needed
+      if (Text[i]=#124) then begin //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files, so lets do the same here. Saves complex conversions...
+        if Align=kaLeft   then glTranslate(-RevX, Result.Y, 0);
+        if Align=kaCenter then glTranslate(-RevX, Result.Y, 0);
+        if Align=kaRight  then glTranslate(-RevX, Result.Y, 0);
+        RevX:=0;
+        inc(LineCount);
       end;
-    glPopMatrix;
-    glBindTexture(GL_TEXTURE_2D,0);
+      if Text[i]<>#124 then begin
+        Num:=ord(Text[i]);
+        glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
+        glBegin(GL_QUADS);
+          with FontData[byte(Fnt)].Letters[Num] do begin
+            glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
+            glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
+            glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);
+            glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
+          end;
+        glEnd;
+        //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
+        glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
+        inc(RevX,FontData[byte(Fnt)].Letters[Num].Width+InterLetter);
+      end;
+    end;
+    glBindTexture(GL_TEXTURE_2D,0);glPopMatrix;
   glPopMatrix;
 end;
 

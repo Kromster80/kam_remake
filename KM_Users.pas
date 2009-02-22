@@ -70,7 +70,6 @@ type
 var
   fPlayers: TKMAllPlayers;
   MyPlayer: TKMPlayerAssets; //shortcut to access 
-  //ControlList: TKMPlayerAssets;
 
 implementation
 
