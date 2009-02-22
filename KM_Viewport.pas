@@ -5,7 +5,6 @@ uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, KromUtils, KromOGLUtil
 type
 
 { Here should be viewport routines }
-//I guess they should be combined with TMinimap somehow..? 
 TViewport = class
 private
 XCoord,YCoord:integer;

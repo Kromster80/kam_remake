@@ -18,7 +18,7 @@ const
 
 var
   MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
-  MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
+  MakeTeamColors:boolean=true;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
 
@@ -429,7 +429,7 @@ ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 
 
 type
-  TPlayerID = (play_none, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6);
+  TPlayerID = (play_none=-1, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6);
 
 var
   //Players colors

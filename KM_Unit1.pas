@@ -55,7 +55,6 @@ type
     HouseAnim1: TMenuItem;
     UnitAnim1: TMenuItem;
     CheckBox5: TCheckBox;
-    procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure DecodeDATClick(Sender: TObject);
@@ -161,8 +160,10 @@ begin
   FormLoading.Label1.Caption:='Initializing Gameplay ...';
   fTerrain:= TTerrain.Create;
   fTerrain.MakeNewMap(96,96);
-  ControlList:= TKMUserControlList.Create();
-  ControlList.Add(play_1, uct_User);       
+
+  fPlayers:=TKMAllPlayers.Create(2); //Create 2 players
+  MyPlayer:=fPlayers.Player[1];
+
 
   Application.OnIdle:=Form1.OnIdle;
   Form1.Caption:='KaM Remake - '+'New.map';
@@ -179,15 +180,10 @@ end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);
 begin
-if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
-OpenMap(OpenDialog1.FileName);
-end;
-
-procedure TForm1.OpenMap(filename:string);
-begin
-fTerrain.OpenMapFromFile(filename);
-fViewport.SetZoom:=1;
-Form1.Caption:='KaM Remake - '+filename;
+  if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
+  fTerrain.OpenMapFromFile(OpenDialog1.FileName);
+  fViewport.SetZoom:=1;
+  Form1.Caption:='KaM Remake - '+OpenDialog1.FileName;
 end;
 
 procedure TForm1.FormResize(Sender:TObject);
@@ -228,7 +224,7 @@ begin
   //example for units need change
   //Removed right since it interfers with the school buttons
   if Button = mbMiddle then
-    ControlList.AddUnit(play_2, ut_HorseScout, KMPoint(CursorXc,CursorYc));
+    fPlayers.Player[1].AddUnit(play_2, ut_HorseScout, KMPoint(CursorXc,CursorYc));
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -256,8 +252,8 @@ StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '
 +' | '+inttostr(CursorXc)+' '+inttostr(CursorYc);
 
 if CursorMode.Mode=cm_None then
-  if (ControlList.HousesHitTest(CursorXc, CursorYc)<>nil)or
-     (ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil) then
+  if (fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil)or
+     (fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil) then
     Screen.Cursor:=c_Info
   else if not Scrolling then
     Screen.Cursor:=c_Default;
@@ -282,34 +278,35 @@ begin
   case CursorMode.Mode of
     cm_None:
       begin
-        if ControlList.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
-          fGamePlayInterface.ShowUnitInfo(ControlList.UnitsHitTest(CursorXc, CursorYc));
-          ControlList.SelectedUnit:=ControlList.UnitsHitTest(CursorXc, CursorYc);
+        if fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
+          fGamePlayInterface.ShowUnitInfo(fPlayers.UnitsHitTest(CursorXc, CursorYc));
+          fPlayers.SelectedUnit:=fPlayers.UnitsHitTest(CursorXc, CursorYc);
         end; //Houses have priority over units, so you can't select an occupant
-        if ControlList.HousesHitTest(CursorXc, CursorYc)<>nil then begin
-          ControlList.SelectedHouse:=ControlList.HousesHitTest(CursorXc, CursorYc);
-          fGamePlayInterface.ShowHouseInfo(ControlList.HousesHitTest(CursorXc, CursorYc));
+        if fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil then begin
+          fPlayers.SelectedHouse:=fPlayers.HousesHitTest(CursorXc, CursorYc);
+          fGamePlayInterface.ShowHouseInfo(fPlayers.HousesHitTest(CursorXc, CursorYc));
         end;
       end;
-    cm_Road: ControlList.AddRoadPlan(P,mu_RoadPlan);
-    cm_Field: ControlList.AddRoadPlan(P,mu_FieldPlan);
-    cm_Wine: ControlList.AddRoadPlan(P,mu_WinePlan);
+    cm_Road: MyPlayer.AddRoadPlan(P,mu_RoadPlan);
+    cm_Field: MyPlayer.AddRoadPlan(P,mu_FieldPlan);
+    cm_Wine: MyPlayer.AddRoadPlan(P,mu_WinePlan);
 
     cm_Erase:
       begin
-        ControlList.RemPlan(P);
-        ControlList.RemHouse(P);
+        MyPlayer.RemPlan(P);
+        MyPlayer.RemHouse(P);
       end;
     cm_Houses:
       begin
-        if ControlList.AddHousePlan(THouseType(CursorMode.Param),P,play_1) then
+        if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,play_1) then
           fGamePlayInterface.SelectRoad;
       end;
     end;
 
-  if ControlList.SelectedUnit<>nil then
-  if ControlList.SelectedUnit.GetUnitType=ut_HorseScout then
-  ControlList.SelectedUnit.SetAction(TUnitActionWalkTo.Create(ControlList.SelectedUnit.GetPosition,P));
+  //These are only for testing purposes, Later on it should be changed a lot
+  if fPlayers.SelectedUnit<>nil then
+  if fPlayers.SelectedUnit.GetUnitType=ut_HorseScout then
+  fPlayers.SelectedUnit.SetAction(TUnitActionWalkTo.Create(fPlayers.SelectedUnit.GetPosition,P));
 end;
 
 procedure TForm1.AboutClick(Sender: TObject);
@@ -323,7 +320,7 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   fRender.Destroy;
   fGameSettings.Destroy;
-  ControlList.Free;
+  fPlayers.Destroy;
 end;
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
@@ -338,13 +335,13 @@ if CheckBox4.Checked then
 if GlobalTickCount mod 2 <> 0 then exit;
 
 fTerrain.UpdateState;
-ControlList.UpdateState;
+fPlayers.UpdateState;
 fGamePlayInterface.UpdateState;
 
 if CheckBox2.Checked then
   for i:=1 to 50 do begin
     fTerrain.UpdateState;
-    ControlList.UpdateState;
+    fPlayers.UpdateState;
     fGamePlayInterface.UpdateState;
   end;
   DoScrolling; //Now check to see if we need to scroll
@@ -382,89 +379,89 @@ var H:TKMHouseStore; i:integer;
 begin
 TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(10,9);
-ControlList.AddRoadPlan(KMPoint(2,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(2,6),mu_RoadPlan);
 
-ControlList.AddRoadPlan(KMPoint(2,7),mu_FieldPlan);
-ControlList.AddRoadPlan(KMPoint(3,7),mu_FieldPlan);
-ControlList.AddRoadPlan(KMPoint(4,7),mu_FieldPlan);
-ControlList.AddRoadPlan(KMPoint(5,7),mu_FieldPlan);
+MyPlayer.AddRoadPlan(KMPoint(2,7),mu_FieldPlan);
+MyPlayer.AddRoadPlan(KMPoint(3,7),mu_FieldPlan);
+MyPlayer.AddRoadPlan(KMPoint(4,7),mu_FieldPlan);
+MyPlayer.AddRoadPlan(KMPoint(5,7),mu_FieldPlan);
 
-ControlList.AddHouse(ht_Farm, KMPoint(3,5), play_1);
-ControlList.AddHouse(ht_Mill, KMPoint(8,5), play_1);
-ControlList.AddHouse(ht_Bakery, KMPoint(13,5), play_1);
-ControlList.AddUnit(play_1, ut_Farmer, KMPoint(3,7));
-ControlList.AddUnit(play_1, ut_Baker, KMPoint(4,7));
-ControlList.AddUnit(play_1, ut_Baker, KMPoint(5,7));
+MyPlayer.AddHouse(ht_Farm, KMPoint(3,5), play_1);
+MyPlayer.AddHouse(ht_Mill, KMPoint(8,5), play_1);
+MyPlayer.AddHouse(ht_Bakery, KMPoint(13,5), play_1);
+MyPlayer.AddUnit(play_1, ut_Farmer, KMPoint(3,7));
+MyPlayer.AddUnit(play_1, ut_Baker, KMPoint(4,7));
+MyPlayer.AddUnit(play_1, ut_Baker, KMPoint(5,7));
 
-ControlList.AddHouse(ht_Store, KMPoint(17,5), play_1);
+MyPlayer.AddHouse(ht_Store, KMPoint(17,5), play_1);
 
-ControlList.AddHouse(ht_WoodCutters, KMPoint(4,9), play_1);
-ControlList.AddHouse(ht_SawMill, KMPoint(7,9), play_1);
-ControlList.AddHouse(ht_Quary, KMPoint(12,9), play_1);
-ControlList.AddUnit(play_1, ut_WoodCutter, KMPoint(7,11));
-ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
-ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
-ControlList.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
-ControlList.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
+MyPlayer.AddHouse(ht_WoodCutters, KMPoint(4,9), play_1);
+MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9), play_1);
+MyPlayer.AddHouse(ht_Quary, KMPoint(12,9), play_1);
+MyPlayer.AddUnit(play_1, ut_WoodCutter, KMPoint(7,11));
+MyPlayer.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
+MyPlayer.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
+MyPlayer.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
+MyPlayer.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
 
-ControlList.AddRoadPlan(KMPoint(2,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(3,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(4,14),mu_WinePlan);
-ControlList.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
-ControlList.AddHouse(ht_WineYard, KMPoint(4,13), play_1);
-ControlList.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
-ControlList.AddHouse(ht_CoalMine, KMPoint(8,13), play_1);
-ControlList.AddUnit(play_1, ut_Miner, KMPoint(10,9));
-ControlList.AddHouse(ht_FisherHut, KMPoint(12,13), play_1); //Added to demonstrate a house without an occupant in the building page
+MyPlayer.AddRoadPlan(KMPoint(2,14),mu_WinePlan);
+MyPlayer.AddRoadPlan(KMPoint(3,14),mu_WinePlan);
+MyPlayer.AddRoadPlan(KMPoint(4,14),mu_WinePlan);
+MyPlayer.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
+MyPlayer.AddHouse(ht_WineYard, KMPoint(4,13), play_1);
+MyPlayer.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
+MyPlayer.AddHouse(ht_CoalMine, KMPoint(8,13), play_1);
+MyPlayer.AddUnit(play_1, ut_Miner, KMPoint(10,9));
+MyPlayer.AddHouse(ht_FisherHut, KMPoint(12,13), play_1); //Added to demonstrate a house without an occupant in the building page
 
-ControlList.AddHouse(ht_WeaponSmithy, KMPoint(16,13), play_1); //Added to demonstrate a house without an occupant in the building page
-ControlList.AddHouse(ht_WeaponWorkshop, KMPoint(16,16), play_1); //Added to demonstrate a house without an occupant in the building page
+MyPlayer.AddHouse(ht_WeaponSmithy, KMPoint(16,13), play_1);
+MyPlayer.AddHouse(ht_WeaponWorkshop, KMPoint(16,16), play_1);
 
-ControlList.AddHouse(ht_ArmorSmithy, KMPoint(20,13), play_1); //Added to demonstrate a house without an occupant in the building page
-ControlList.AddHouse(ht_ArmorWorkshop, KMPoint(20,17), play_1); //Added to demonstrate a house without an occupant in the building page
+MyPlayer.AddHouse(ht_ArmorSmithy, KMPoint(20,13), play_1);
+MyPlayer.AddHouse(ht_ArmorWorkshop, KMPoint(20,17), play_1);
 
-ControlList.AddHouse(ht_IronMine, KMPoint(21,6), play_1); //Added to demonstrate a house without an occupant in the building page
-ControlList.AddHouse(ht_IronSmithy, KMPoint(21,9), play_1); //Added to demonstrate a house without an occupant in the building page
+MyPlayer.AddHouse(ht_IronMine, KMPoint(21,6), play_1);
+MyPlayer.AddHouse(ht_IronSmithy, KMPoint(21,9), play_1);
 
 for i:=1 to 16 do
-ControlList.AddUnit(play_1, ut_Serf, KMPoint(2,11));
+MyPlayer.AddUnit(play_1, ut_Serf, KMPoint(2,11));
 
 for i:=1 to 3 do
-ControlList.AddUnit(play_1, ut_Worker, KMPoint(3,11));
+MyPlayer.AddUnit(play_1, ut_Worker, KMPoint(3,11));
 
-ControlList.AddUnit(play_1, ut_Recruit, KMPoint(12,11));
-ControlList.AddUnit(play_1, ut_Metallurgist, KMPoint(13,11));
-ControlList.AddUnit(play_1, ut_Miner, KMPoint(13,11));
-ControlList.AddUnit(play_1, ut_Smith, KMPoint(13,11));
-ControlList.AddUnit(play_1, ut_Smith, KMPoint(13,11));
+MyPlayer.AddUnit(play_1, ut_Recruit, KMPoint(12,11));
+MyPlayer.AddUnit(play_1, ut_Metallurgist, KMPoint(13,11));
+MyPlayer.AddUnit(play_1, ut_Miner, KMPoint(13,11));
+MyPlayer.AddUnit(play_1, ut_Smith, KMPoint(13,11));
+MyPlayer.AddUnit(play_1, ut_Smith, KMPoint(13,11));
 
-H:=TKMHouseStore(ControlList.FindHouse(ht_Store,0,0));
+H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
 if H<>nil then H.AddMultiResource(rt_All,5);
 
-ControlList.AddRoadPlan(KMPoint(3,6),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(4,6),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(5,6),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(6,6),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(7,6),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(8,6),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
-ControlList.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(4,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(5,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(6,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(7,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(8,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);
 
-ControlList.AddHousePlan(ht_School, KMPoint(4,17), play_1);
-ControlList.AddHousePlan(ht_Inn, KMPoint(9,18), play_1);
+MyPlayer.AddHousePlan(ht_School, KMPoint(4,17), play_1);
+MyPlayer.AddHousePlan(ht_Inn, KMPoint(9,18), play_1);
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var H:TKMHouseStore; i:integer;
 begin
 TKMControl(Sender).Enabled:=false;
-ControlList.AddHouse(ht_Store, KMPoint(17,5), play_1);
-H:=TKMHouseStore(ControlList.FindHouse(ht_Store,0,0));
+MyPlayer.AddHouse(ht_Store, KMPoint(17,5), play_1);
+H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
 if H<>nil then H.AddMultiResource(rt_All,30);
 
-for i:=1 to 5 do ControlList.AddUnit(play_1, ut_Serf, KMPoint(2,11));
+for i:=1 to 5 do MyPlayer.AddUnit(play_1, ut_Serf, KMPoint(2,11));
 
-for i:=1 to 1 do ControlList.AddUnit(play_1, ut_Worker, KMPoint(3,11));
+for i:=1 to 1 do MyPlayer.AddUnit(play_1, ut_Worker, KMPoint(3,11));
 
 fViewPort.SetCenter(10,9);
 
@@ -567,10 +564,11 @@ end;
 
 
 procedure TForm1.ExportDeliverlists1Click(Sender: TObject);
-var f:textfile;
+var f:textfile; i:integer;
 begin
 assignfile(f,ExeDir+'DeliverLists.txt'); Rewrite(f);
-write(f,ControlList.DeliverList.WriteToText);
+for i:=1 to fPlayers.PlayerCount do
+  writeln(f,'Player_'+inttostr(i)+eol+fPlayers.Player[i].DeliverList.WriteToText+eol+eol);
 closefile(f);
 end;
 

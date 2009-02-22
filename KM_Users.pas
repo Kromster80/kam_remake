@@ -4,48 +4,19 @@ interface
 uses
   classes, KromUtils, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, Windows, SysUtils;
 type
-  TUserControlType = (uct_User, uct_Computer);
+  TPlayerType = (uct_Human, uct_Computer);
 
-  TKMUser = class(TObject)
-  private
-    fUserName: TPlayerID;
-  public
-    constructor Create(const aOwner:TPlayerID);
-  end;
-
-  TKMUserControl = class(TObject)
-  private
-    fUser: TKMUser;
-  public
-    constructor Create(const aOwner:TPlayerID);
-    destructor Destroy; override;
-  end;
-
-  TKMUserUserControl = class(TKMUserControl)
-
-  end;
-
-  TKMUserComputerControl = class(TKMUserControl)
-
-  end;
-
-  TKMUserControlList = class(TKMList)
+  TKMPlayerAssets = class
   private
     fUnits: TKMUnitsCollection;
     fHouses: TKMHousesCollection;
     fDeliverList: TKMDeliverQueue;
     fBuildList: TKMBuildingQueue;
-    function GetCtrl(Index: Integer): TKMUserControl;
-    function UserByName(const aOwner:TPlayerID): TKMUser;
-    function GetSelHouse: TKMHouse;
-    procedure SetSelHouse(ASelHouse:TKMHouse);
   public
     constructor Create();
     destructor Destroy; override;
-    function Add(const aOwner:TPlayerID; aControlType: TUserControlType): TKMUserControl;
-    property Ctrl[Index: Integer]: TKMUserControl read GetCtrl;
   public
-    SelectedUnit: TKMUnit;
+    PlayerType: TPlayerType; //Is it Human or AI
     function AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
@@ -57,7 +28,6 @@ type
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     function HousesHitTest(X, Y: Integer): TKMHouse;
-    property SelectedHouse: TKMHouse read GetSelHouse write SetSelHouse;
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property BuildList:TKMBuildingQueue read fBuildList;
   public
@@ -65,37 +35,45 @@ type
     procedure Paint;
   end;
 
+
+  TKMAllPlayers = class
+  private
+    fPlayerCount:integer;
+  public
+    Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
+    SelectedHouse: TKMHouse;
+    SelectedUnit: TKMUnit;
+  public
+    constructor Create(PlayerCount:integer);
+    destructor Destroy; override;
+  public
+    property PlayerCount:integer read fPlayerCount;
+    function HousesHitTest(X, Y: Integer): TKMHouse;
+    function UnitsHitTest(X, Y: Integer): TKMUnit;
+  public
+    procedure UpdateState;
+    procedure Paint;
+  end;
+
 var
-  ControlList: TKMUserControlList;
+  fPlayers: TKMAllPlayers;
+  MyPlayer: TKMPlayerAssets; //shortcut to access 
+  //ControlList: TKMPlayerAssets;
 
 implementation
 
 uses
   KM_Terrain;
 
-{ TKMUserList }
+{ TKMPlayerAssets }
 
-function TKMUserControlList.Add(const aOwner:TPlayerID; aControlType: TUserControlType): TKMUserControl;
-begin
-  case aControlType of
-    uct_User:
-      Result:= TKMUserUserControl.Create(aOwner);
-    uct_Computer:
-      Result:= TKMUserComputerControl.Create(aOwner);
-  else
-    Result:= nil;
-  end;
-  if Result <> nil then
-    Inherited Add(Result);
-end;
-
-function TKMUserControlList.AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
+function TKMPlayerAssets.AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
 begin
     Result:=fUnits.Add(aOwner, aUnitType, Position.X, Position.Y);
 end;
 
 
-procedure TKMUserControlList.AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
+procedure TKMPlayerAssets.AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
 var xo:integer;
 begin
   xo:=HouseDAT[byte(aHouseType)].EntranceOffsetX;
@@ -103,7 +81,7 @@ begin
 end;
 
 
-procedure TKMUserControlList.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
+procedure TKMPlayerAssets.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
 begin
   if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
   fTerrain.SetMarkup(aLoc, aMarkup);
@@ -115,7 +93,7 @@ begin
   end;
 end;
 
-function TKMUserControlList.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID):boolean;
+function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID):boolean;
 var KMHouse:TKMHouse;
 begin
   Result:=false;
@@ -128,28 +106,28 @@ begin
   Result:=true;
 end;
 
-procedure TKMUserControlList.RemHouse(Position: TKMPoint);
+procedure TKMPlayerAssets.RemHouse(Position: TKMPoint);
 begin
   fHouses.Rem(Position.X, Position.Y);
 end;
 
-procedure TKMUserControlList.RemPlan(Position: TKMPoint);
+procedure TKMPlayerAssets.RemPlan(Position: TKMPoint);
 begin
   if BuildList.RemRoad(Position) then
     fTerrain.RemMarkup(Position);
 end;
 
-function TKMUserControlList.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
+function TKMPlayerAssets.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
 begin
   Result:=fHouses.FindEmptyHouse(aUnitType);
 end;
 
-function TKMUserControlList.FindHouse(aType:THouseType; X,Y:word): TKMHouse;
+function TKMPlayerAssets.FindHouse(aType:THouseType; X,Y:word): TKMHouse;
 begin
   Result:=fHouses.FindHouse(aType, X, Y);
 end;
 
-constructor TKMUserControlList.Create();
+constructor TKMPlayerAssets.Create();
 begin
   fUnits:= TKMUnitsCollection.Create;
   fHouses:= TKMHousesCollection.Create;
@@ -157,7 +135,7 @@ begin
   fBuildList:= TKMBuildingQueue.Create;
 end;
 
-destructor TKMUserControlList.Destroy;
+destructor TKMPlayerAssets.Destroy;
 begin
   fUnits.Free;
   fHouses.Free;
@@ -166,75 +144,94 @@ begin
   inherited;
 end;
 
-function TKMUserControlList.GetCtrl(Index: Integer): TKMUserControl;
-begin
-  Result:= TKMUserControl(Items[Index]);
-end;
 
-procedure TKMUserControlList.Paint;
+procedure TKMPlayerAssets.Paint;
 begin
   fUnits.Paint;
   fHouses.Paint;
 end;
 
-function TKMUserControlList.UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+function TKMPlayerAssets.UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 begin
   Result:= fUnits.HitTest(X, Y, UT);
 end;
 
-procedure TKMUserControlList.GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+procedure TKMPlayerAssets.GetUnitLocations(aOwner:TPlayerID; out Loc:TKMPointList);
 begin
   fUnits.GetLocations(aOwner,Loc);
 end;
 
-function TKMUserControlList.HousesHitTest(X, Y: Integer): TKMHouse;
+function TKMPlayerAssets.HousesHitTest(X, Y: Integer): TKMHouse;
 begin
   Result:= fHouses.HitTest(X, Y);
 end;
 
-procedure TKMUserControlList.UpdateState;
+procedure TKMPlayerAssets.UpdateState;
 begin
   fUnits.UpdateState;
   fHouses.UpdateState;
 end;
 
-function TKMUserControlList.UserByName(const aOwner:TPlayerID): TKMUser;
-var
-  I: Integer;
+
+{TKMAllPlayers}
+constructor TKMAllPlayers.Create(PlayerCount:integer);
+var i:integer;
 begin
-  Result:= nil;
-  for I := 0 to Count - 1 do
-    if (Ctrl[I].fUser.fUserName=aOwner) then
-    begin
-      Result:= Ctrl[I].fUser;
-      Exit;
-    end;
+  Assert(PlayerCount<=MAX_PLAYERS,'PlayerCount exceeded');
+
+  fPlayerCount:=PlayerCount; //Used internally
+  for i:=1 to fPlayerCount do
+    Player[i]:=TKMPlayerAssets.Create;
 end;
 
-function TKMUserControlList.GetSelHouse: TKMHouse; begin result:=fHouses.SelectedHouse; end;
-procedure TKMUserControlList.SetSelHouse(ASelHouse:TKMHouse); begin fHouses.SelectedHouse := ASelHouse; end;
-
-{ TKMUser }
-
-constructor TKMUser.Create(const aOwner:TPlayerID);
+destructor TKMAllPlayers.Destroy;
+var i:integer;
 begin
-  Inherited Create;
-  fUserName:= aOwner;
-end;
+  for i:=1 to fPlayerCount do
+    Player[i].Destroy;
 
-
-{ TKMUserControl }
-
-constructor TKMUserControl.Create(const aOwner:TPlayerID);
-begin
-  Inherited Create;
-  fUser:= TKMUser.Create(aOwner);
-end;
-
-destructor TKMUserControl.Destroy;
-begin
-  fUser.Free;
   inherited;
 end;
+
+
+function TKMAllPlayers.HousesHitTest(X, Y: Integer): TKMHouse;
+var i:integer;
+begin
+  Result:=nil;
+  for i:=1 to fPlayerCount do begin
+    Result:= Player[i].HousesHitTest(X,Y);
+    if Result<>nil then Break; //else keep on testing
+  end;
+end;
+
+
+function TKMAllPlayers.UnitsHitTest(X, Y: Integer): TKMUnit;
+var i:integer;
+begin
+  Result:=nil;
+  for i:=1 to fPlayerCount do begin
+    Result:= Player[i].UnitsHitTest(X,Y);
+    if Result<>nil then Break; //else keep on testing
+  end;
+end;
+
+
+procedure TKMAllPlayers.UpdateState;
+var i:integer;
+begin
+  for i:=1 to fPlayerCount do
+    Player[i].UpdateState;
+end;
+
+
+procedure TKMAllPlayers.Paint;
+var i:integer;
+begin
+  for i:=1 to fPlayerCount do
+    Player[i].Paint;
+end;
+
+
+
 
 end.

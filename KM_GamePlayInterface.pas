@@ -436,13 +436,11 @@ end;
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   KMPanel_Quit:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
-    KMLabel_Quit:=fControls.AddLabel(KMPanel_Quit,100,110,100,30,fnt_Outline,kaCenter,fTextLibrary.GetTextString(176));
-    KMButton_Quit_Yes:=fControls.AddButton(KMPanel_Quit,8,170,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
-    KMButton_Quit_No:=fControls.AddButton(KMPanel_Quit,8,210,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
-    {KMButton_Quit_Yes.OnMouseOver:=DisplayHint;
-    KMButton_Quit_No.OnMouseOver:=DisplayHint;
-    KMButton_Quit_Yes.Hint:=fTextLibrary.GetTextString(185);
-    KMButton_Quit_No.Hint:=fTextLibrary.GetTextString(184);}
+    KMLabel_Quit:=fControls.AddLabel(KMPanel_Quit,100,30,100,30,fnt_Outline,kaCenter,fTextLibrary.GetTextString(176));
+    KMButton_Quit_Yes:=fControls.AddButton(KMPanel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+    KMButton_Quit_No:=fControls.AddButton(KMPanel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
+    KMButton_Quit_Yes.Hint:='';//fTextLibrary.GetTextString(185); wrong ID
+    KMButton_Quit_No.Hint:='';//fTextLibrary.GetTextString(184);
     KMButton_Quit_Yes.OnClick:=Form1.ExitClick;
     KMButton_Quit_No.OnClick:=SwitchPage;
 end;
@@ -772,8 +770,8 @@ end;
 
 procedure TKMGamePlayInterface.House_RepairToggle(Sender:TObject);
 begin
-  if ControlList.SelectedHouse = nil then exit;
-  with ControlList.SelectedHouse do begin
+  if fPlayers.SelectedHouse = nil then exit;
+  with fPlayers.SelectedHouse do begin
     BuildingRepair := not BuildingRepair;
     if BuildingRepair then fGamePlayInterface.KMButton_House_Repair.TexID:=39
                       else fGamePlayInterface.KMButton_House_Repair.TexID:=40;
@@ -783,8 +781,8 @@ end;
 
 procedure TKMGamePlayInterface.House_WareDeliveryToggle(Sender:TObject);
 begin
-  if ControlList.SelectedHouse = nil then exit;
-  with ControlList.SelectedHouse do begin
+  if fPlayers.SelectedHouse = nil then exit;
+  with fPlayers.SelectedHouse do begin
     WareDelivery := not WareDelivery;
     if WareDelivery then fGamePlayInterface.KMButton_House_Goods.TexID:=37
                     else fGamePlayInterface.KMButton_House_Goods.TexID:=38;
@@ -796,8 +794,8 @@ procedure TKMGamePlayInterface.House_OrderClick(Sender:TObject);
 var i:integer;
 begin
   for i:=1 to 4 do begin
-    if Sender = KMRow_Order[i].OrderRem then ControlList.SelectedHouse.RemOrder(i);
-    if Sender = KMRow_Order[i].OrderAdd then ControlList.SelectedHouse.AddOrder(i);
+    if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.RemOrder(i);
+    if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.AddOrder(i);
   end;
 end;
 
@@ -806,8 +804,8 @@ procedure TKMGamePlayInterface.House_OrderClickRight(Sender:TObject);
 var i:integer;
 begin
   for i:=1 to 4 do begin
-    if Sender = KMRow_Order[i].OrderRem then ControlList.SelectedHouse.RemOrder(i,10);
-    if Sender = KMRow_Order[i].OrderAdd then ControlList.SelectedHouse.AddOrder(i,10);
+    if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.RemOrder(i,10);
+    if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.AddOrder(i,10);
   end;
 end;
 
@@ -816,7 +814,7 @@ end;
 procedure TKMGamePlayInterface.House_SchoolUnitChange(Sender:TObject);
 var i:byte; School:TKMHouseSchool;
 begin
-  School:=TKMHouseSchool(ControlList.SelectedHouse);
+  School:=TKMHouseSchool(fPlayers.SelectedHouse);
 
   if (Sender=KMButton_School_Left)and(LastSchoolUnit > 1) then dec(LastSchoolUnit);
   if (Sender=KMButton_School_Right)and(LastSchoolUnit < length(School_Order)) then inc(LastSchoolUnit);
@@ -867,10 +865,10 @@ procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
 var i:integer;
 begin
   if Sender = KMButton_School_UnitWIP then
-    TKMHouseSchool(ControlList.SelectedHouse).RemUnitFromQueue(1)
+    TKMHouseSchool(fPlayers.SelectedHouse).RemUnitFromQueue(1)
   else for i:=1 to 5 do
     if Sender = KMButton_School_UnitPlan[i] then
-      TKMHouseSchool(ControlList.SelectedHouse).RemUnitFromQueue(i+1);
+      TKMHouseSchool(fPlayers.SelectedHouse).RemUnitFromQueue(i+1);
   House_SchoolUnitChange(nil);
 end;
 
@@ -879,8 +877,8 @@ end;
 {Resource determined by Button.Tag property}
 procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
-  TKMHouseStore(ControlList.SelectedHouse).NotAcceptFlag[(Sender as TKMControl).Tag]:=
-    not TKMHouseStore(ControlList.SelectedHouse).NotAcceptFlag[(Sender as TKMControl).Tag];
+  TKMHouseStore(fPlayers.SelectedHouse).NotAcceptFlag[(Sender as TKMControl).Tag]:=
+    not TKMHouseStore(fPlayers.SelectedHouse).NotAcceptFlag[(Sender as TKMControl).Tag];
 end;
 
 
@@ -938,10 +936,10 @@ procedure TKMGamePlayInterface.StoreFill(Sender:TObject);
 var i,Tmp:integer;
 begin
   for i:=1 to 28 do begin
-    Tmp:=TKMHouseStore(ControlList.SelectedHouse).ResourceCount[i];
+    Tmp:=TKMHouseStore(fPlayers.SelectedHouse).ResourceCount[i];
     if Tmp=0 then KMButton_Store[i].Caption:='-'
              else KMButton_Store[i].Caption:=inttostr(Tmp);
-    KMImage_Store_Accept[i].Visible := TKMHouseStore(ControlList.SelectedHouse).NotAcceptFlag[i];
+    KMImage_Store_Accept[i].Visible := TKMHouseStore(fPlayers.SelectedHouse).NotAcceptFlag[i];
   end;
 end;
 
@@ -950,11 +948,11 @@ procedure TKMGamePlayInterface.BarracksFill(Sender:TObject);
 var i,Tmp:integer;
 begin
   for i:=1 to 11 do begin
-    Tmp:=TKMHouseBarracks(ControlList.SelectedHouse).ResourceCount[i];
+    Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).ResourceCount[i];
     if Tmp=0 then KMButton_Barracks[i].Caption:='-'
              else KMButton_Barracks[i].Caption:=inttostr(Tmp);
   end;
-    Tmp:=TKMHouseBarracks(ControlList.SelectedHouse).RecruitsInside;
+    Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).RecruitsInside;
     if Tmp=0 then KMButton_Barracks[12].Caption:='-'
              else KMButton_Barracks[12].Caption:=inttostr(Tmp);
 end;

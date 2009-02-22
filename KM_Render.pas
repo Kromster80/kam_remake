@@ -118,7 +118,7 @@ begin
   glPointSize(1);
   if Form1.ShowWires.Checked then fRender.RenderWires();
 
-  ControlList.Paint;            //Units and houses
+  fPlayers.Paint;            //Units and houses
 
   SortRenderList;
   RenderRenderList;

@@ -342,8 +342,8 @@ begin
       end;
 
       Loc:=TKMPointList.Create;
-      for i:=1 to MAX_PLAYERS do begin
-        ControlList.GetUnitLocations(TPlayerID(i),Loc);
+      for i:=1 to Fplayers.PlayerCount do begin
+        fPlayers.Player[i].GetUnitLocations(TPlayerID(i),Loc);
         glColor4ubv(@TeamColors[i]);
         for k:=1 to Loc.Count do
           glVertex2f(Loc.List[k].X,Loc.List[k].Y);

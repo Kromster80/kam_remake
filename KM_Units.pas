@@ -516,17 +516,20 @@ end;
 { TKMUnitCitizen }
 constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
-Inherited;
-WorkPlan:=TUnitWorkPlan.Create;
+  Inherited;
+  WorkPlan:=TUnitWorkPlan.Create;
 end;
 
 
 function TKMUnitCitizen.FindHome():boolean;
 var KMHouse:TKMHouse;
 begin
-Result:=false;
-KMHouse:=ControlList.FindEmptyHouse(fUnitType);
-if KMHouse<>nil then begin fHome:=KMHouse; Result:=true; end;
+  Result:=false;
+  KMHouse:=fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType);
+  if KMHouse<>nil then begin
+    fHome:=KMHouse;
+    Result:=true;
+  end;
 end;
 
 
@@ -589,8 +592,8 @@ begin
 //Priority no.2 - find self a home
 //Priority no.3 - find self a work
     if fCondition<1200 then
-      if ControlList.FindHouse(ht_Inn,round(fPosition.X),round(fPosition.Y))<>nil then
-        fUnitTask:=TTaskGoEat.Create(ControlList.FindHouse(ht_Inn,round(fPosition.X),round(fPosition.Y)),Self)
+      if fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,round(fPosition.X),round(fPosition.Y))<>nil then
+        fUnitTask:=TTaskGoEat.Create(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,round(fPosition.X),round(fPosition.Y)),Self)
       else
         //StayStillAndDieSoon
     else
@@ -709,7 +712,7 @@ end;
 
 function TKMUnitSerf.GetActionFromQueue():TUnitTask;
 begin
-Result:=ControlList.DeliverList.AskForDelivery(Self);
+  Result:=fPlayers.Player[byte(fOwner)].DeliverList.AskForDelivery(Self);
 end;
 
 
@@ -763,11 +766,11 @@ end;
 
 function TKMUnitWorker.GetActionFromQueue():TUnitTask;
 begin
-Result:=ControlList.BuildList.AskForHousePlan(Self,Self.GetPosition);
+Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHousePlan(Self,Self.GetPosition);
 if Result=nil then
-Result:=ControlList.BuildList.AskForHouse(Self,Self.GetPosition);
+Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouse(Self,Self.GetPosition);
 if Result=nil then
-Result:=ControlList.BuildList.AskForRoad(Self,Self.GetPosition);
+Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForRoad(Self,Self.GetPosition);
 end;
 
 
@@ -969,7 +972,7 @@ case Phase of
      else
      begin
        SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
-       ControlList.DeliverList.CloseDelivery(ID);
+       fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
        TaskDone:=true;
      end;
    end;
@@ -988,7 +991,7 @@ case Phase of
      fToHouse.ResAddToIn(Carry);
      TakeResource(Carry);
      SetAction(TUnitActionGoIn.Create(ua_walk,gid_Out));
-     ControlList.DeliverList.CloseDelivery(ID);
+     fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
    end;
 9: TaskDone:=true;
 end;
@@ -1002,7 +1005,7 @@ case Phase of
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
-     ControlList.DeliverList.CloseDelivery(ID);
+     fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
    end;
 7: TaskDone:=true;
 end;
@@ -1017,7 +1020,7 @@ case Phase of
      inc(fToUnit.fUnitTask.Phase);
      fToUnit.SetAction(TUnitActionStay.Create(0,ua_Work1));
    end;
-7: ControlList.DeliverList.CloseDelivery(ID);
+7: fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
 8: TaskDone:=true;
 end;
 inc(Phase);
@@ -1051,7 +1054,7 @@ case Phase of
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
    end;
-4: ControlList.DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once, di_High);
+4: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once, di_High);
 
 5: SetAction(TUnitActionStay.Create(30,ua_Work1));
 6: begin
@@ -1067,7 +1070,7 @@ case Phase of
    end;
 9: begin
    fTerrain.SetField(fLoc,fOwner,fdt_Road);
-   ControlList.BuildList.CloseRoad(ID);
+   fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
    SetAction(TUnitActionStay.Create(5,ua_Work2));
    end;
 10:TaskDone:=true;
@@ -1097,7 +1100,7 @@ case Phase of
 4: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
 5: fTerrain.IncFieldState(fLoc);
 6: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-7: ControlList.DeliverList.AddNewDemand(nil,fWorker,rt_Wood, dt_Once, di_High);
+7: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fWorker,rt_Wood, dt_Once, di_High);
 
 8: SetAction(TUnitActionStay.Create(30,ua_Work1));
 
@@ -1105,7 +1108,7 @@ case Phase of
 10:begin
     fTerrain.SetField(fLoc,fOwner,fdt_Wine);
     fTerrain.CutGrapes(fLoc);
-    ControlList.BuildList.CloseRoad(ID);
+    fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
    end;
 11:TaskDone:=true;
 end;
@@ -1135,7 +1138,7 @@ case Phase of
   5: fTerrain.IncFieldState(fLoc);
   6: SetAction(TUnitActionStay.Create(22,ua_Work1,false));
   7: begin
-       ControlList.BuildList.CloseRoad(ID);
+       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
        fTerrain.SetField(fLoc,fOwner,fdt_Field);
      end;
   8: SetAction(TUnitActionStay.Create(5,ua_Work1));
@@ -1190,13 +1193,13 @@ case Phase of
       fTerrain.FlattenTerrain(ListOfCells[Step]); dec(Step);
     end;
 7:  begin
-      ControlList.BuildList.CloseHousePlan(TaskID);
+      fPlayers.Player[byte(fOwner)].BuildList.CloseHousePlan(TaskID);
       fHouse.SetBuildingState(hbs_Wood);
-      ControlList.BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
+      fPlayers.Player[byte(fOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
       for i:=1 to HouseDAT[byte(fHouse.GetHouseType)].WoodCost do
-        ControlList.DeliverList.AddNewDemand(fHouse,nil,rt_Wood,dt_Once,di_Norm);
+        fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(fHouse,nil,rt_Wood,dt_Once,di_Norm);
       for i:=1 to HouseDAT[byte(fHouse.GetHouseType)].StoneCost do
-        ControlList.DeliverList.AddNewDemand(fHouse,nil,rt_Stone,dt_Once,di_Norm);
+        fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(fHouse,nil,rt_Stone,dt_Once,di_Norm);
       TaskDone:=true;
     end;
 end;
@@ -1270,7 +1273,7 @@ begin
            inc(Phase2);
          end;
       4: begin
-           ControlList.BuildList.CloseHouse(TaskID);
+           fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(TaskID);
            TaskDone:=true;
          end;
     end;

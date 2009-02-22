@@ -27,7 +27,7 @@ type
     fPosition: TKMPoint;
     fHouseType: THouseType;
     fBuildState: THouseBuildState;
-    fOwnerID: TPlayerID;
+    fOwner: TPlayerID;
 
     fBuildSupplyWood: byte;
     fBuildSupplyStone: byte;
@@ -154,7 +154,7 @@ begin
   fPosition.Y:= PosY;
   fHouseType:=aHouseType;
   fBuildState:=aBuildState;
-  fOwnerID:=aOwner;
+  fOwner:=aOwner;
   fBuildSupplyWood:=0;
   fBuildSupplyStone:=0;
   fBuildingProgress:=0;
@@ -196,10 +196,10 @@ begin
   for i:=1 to 4 do
     case HouseInput[byte(fHouseType),i] of
       rt_None:    ;
-      rt_Warfare: ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always, di_Norm);
-      rt_All:     ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always, di_Norm);
+      rt_Warfare: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always, di_Norm);
+      rt_All:     fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always, di_Norm);
       else for k:=1 to 5 do //Every new house needs 5 resourceunits
-          ControlList.DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Once, di_Norm);
+          fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Once, di_Norm);
     end;
 
 end;
@@ -304,7 +304,7 @@ begin
   if aResource = HouseOutput[byte(fHouseType),i] then
     begin
       inc(fResourceOut[i],aCount);
-      ControlList.DeliverList.AddNewOffer(Self,aResource,aCount);
+      fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
     end;
 end;
 
@@ -344,7 +344,7 @@ if aResource=rt_None then exit;
   if aResource = HouseInput[byte(fHouseType),i] then begin
     Assert(fResourceIn[i]>0);
     dec(fResourceIn[i]);
-    ControlList.DeliverList.AddNewDemand(Self,nil,aResource,dt_Once,di_Norm);
+    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,dt_Once,di_Norm);
     Result:=true;
   end;
 end;
@@ -438,7 +438,7 @@ case fBuildState of
     fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
     fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
     if fCurrentAction=nil then exit;
-    fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,integer(fOwnerID),fPosition.X, fPosition.Y);
+    fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,integer(fOwner),fPosition.X, fPosition.Y);
   end;
 end;
 end;
@@ -499,7 +499,7 @@ begin
   //If there's yet no unit in training
   if CheckResIn(rt_Gold)=0 then exit;
   ResTakeFromIn(rt_Gold);
-  TK:=ControlList.AddUnit(fOwnerID,UnitQueue[1],GetEntrance);//Create Unit
+  TK:=fPlayers.Player[byte(fOwner)].AddUnit(fOwner,UnitQueue[1],GetEntrance);//Create Unit
   TK.UnitTask:=TTaskSelfTrain.Create(TK,Self);
   //pUnit:=@TK;
 end;
@@ -529,7 +529,7 @@ end;
 procedure TKMHouseStore.AddResource(aResource:TResourceType);
 begin
 inc(ResourceCount[byte(aResource)]);
-ControlList.DeliverList.AddNewOffer(Self,aResource,1);
+fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,1);
 end;
 
 
@@ -540,10 +540,10 @@ if InRange(aCount,1,1000) then
 if aResource=rt_All then
   for i:=1 to length(ResourceCount) do begin
     inc(ResourceCount[i],aCount);
-    ControlList.DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
+    fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
   end else begin
     inc(ResourceCount[byte(aResource)],aCount);
-    ControlList.DeliverList.AddNewOffer(Self,aResource,aCount);
+    fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
   end;
 end;
 

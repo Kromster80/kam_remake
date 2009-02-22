@@ -630,7 +630,7 @@ begin
   Result:=true;
   Result := Result AND TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
   Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
-  Result := Result AND (ControlList.HousesHitTest(Loc.X,Loc.Y)=nil);
+  Result := Result AND (fPlayers.HousesHitTest(Loc.X,Loc.Y)=nil);
   if aMarkup <> mu_RoadPlan then //Don't allow fields on fields
     Result := Result AND (Land[Loc.Y,Loc.X].FieldType=fdt_None);
   //Add other check here, e.g. trees, fields, etc..

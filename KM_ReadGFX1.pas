@@ -694,10 +694,6 @@ for ii:=0 to 15 do for kk:=0 to 15 do begin
   if (kk<8)and(ii>7) then px:=(ii-8)*8+kk+128+1;
   if (kk>7)and(ii>7) then px:=(ii-8)*8+(kk-8)+192+1;
 
-  TileMMColor[px].R:=round (R / 1024); //each tile is 32x32 px
-  TileMMColor[px].G:=round (G / 1024);
-  TileMMColor[px].B:=round (B / 1024);
-
   TileMMColor[px].R:= (R / 1024) / 255; //each tile is 32x32 px
   TileMMColor[px].G:= (G / 1024) / 255;
   TileMMColor[px].B:= (B / 1024) / 255;
