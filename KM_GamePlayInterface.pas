@@ -1,6 +1,6 @@
 unit KM_GamePlayInterface;
 interface
-uses KM_Controls, KM_Houses, KM_Units, KM_Defaults, SysUtils, KromUtils, KromOGLUtils, Math, Classes;
+uses KM_Controls, KM_Houses, KM_Units, KM_Defaults, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls;
 
 type TKMGamePlayInterface = class
   protected
@@ -118,6 +118,7 @@ type TKMGamePlayInterface = class
     procedure House_StoreAcceptFlag(Sender:TObject);
     procedure Settings_Change(Sender:TObject);
     procedure SelectRoad;
+    procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
   end;
 
 var
@@ -290,12 +291,10 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
       KMButtonMain[i+1]:=fControls.AddButton(KMPanel_Main,  8+46*i, 372, 42, 36, 439+i);
       KMButtonMain[i+1].OnClick:=SwitchPage;
       KMButtonMain[i+1].Hint:=fTextLibrary.GetTextString(160+i);
-      KMButtonMain[i+1].OnMouseOver:=DisplayHint;
     end;
     KMButtonMain[5]:=fControls.AddButton(KMPanel_Main,  8, 372, 42, 36, 443);
     KMButtonMain[5].OnClick:=SwitchPage;
     KMButtonMain[5].Hint:=fTextLibrary.GetTextString(165);
-    KMButtonMain[5].OnMouseOver:=DisplayHint;
 
     KMLabel_Hint:=fControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,fnt_Outline,kaLeft,'Hint');
 
@@ -313,6 +312,8 @@ Create_House_Page();
   Create_Store_Page();
   Create_School_Page();
   Create_Barracks_Page();
+
+  SetHintEvents(DisplayHint); //Set all OnHint events to be the correct function
 
 SwitchPage(nil);
 end;
@@ -336,12 +337,15 @@ begin
     KMButton_BuildField.OnClick:=BuildButtonClick;
     KMButton_BuildWine.OnClick:=BuildButtonClick;
     KMButton_BuildCancel.OnClick:=BuildButtonClick;
+    KMButton_BuildRoad.Hint:=fTextLibrary.GetTextString(213);
+    KMButton_BuildField.Hint:=fTextLibrary.GetTextString(215);
+    KMButton_BuildWine.Hint:=fTextLibrary.GetTextString(219);
+    KMButton_BuildCancel.Hint:=fTextLibrary.GetTextString(211);
 
     for i:=1 to HOUSE_COUNT do begin
       KMButton_Build[i]:=fControls.AddButtonFlat(KMPanel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,GUIBuildIcons[i]);
       KMButton_Build[i].OnClick:=BuildButtonClick;
       KMButton_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[i]-300);
-      KMButton_Build[i].OnMouseOver:=DisplayHint;
     end;
 end;
 
@@ -396,8 +400,6 @@ begin
     KMLabel_Settings_Brightness:=fControls.AddLabel(KMPanel_Settings,100,10,100,30,fnt_Metal,kaCenter,fTextLibrary.GetTextString(181));
     KMButton_Settings_Dark:=fControls.AddButton(KMPanel_Settings,8,30,36,24,'-',fnt_Metal);
     KMButton_Settings_Light:=fControls.AddButton(KMPanel_Settings,154,30,36,24,'+',fnt_Metal);
-    KMButton_Settings_Dark.OnMouseOver:=DisplayHint;
-    KMButton_Settings_Light.OnMouseOver:=DisplayHint;
     KMButton_Settings_Dark.Hint:=fTextLibrary.GetTextString(185);
     KMButton_Settings_Light.Hint:=fTextLibrary.GetTextString(184);
     KMLabel_Settings_BrightValue:=fControls.AddLabel(KMPanel_Settings,100,34,100,30,fnt_Grey,kaCenter,'very dark');
@@ -978,6 +980,15 @@ begin
   end;
 end;
 
+procedure TKMGamePlayInterface.SetHintEvents(AHintEvent:TMouseMoveEvent);
+var
+  i: integer;
+begin
+  //Here we must go through every control and set the hint event to be the parameter
+  for i:=0 to fControls.Count-1 do
+    if fControls.Items[i] <> nil then
+      TKMControl(fControls.Items[i]).OnHint := AHintEvent;
+end;
 
 
 end.

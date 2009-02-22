@@ -29,6 +29,7 @@ TKMControl = class
     FOnClick:TNotifyEvent;
     FOnRightClick:TNotifyEvent;
     FOnMouseOver:TMouseMoveEvent;
+    FOnHint:TMouseMoveEvent;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     procedure ParentTo (aParent:TKMControl);
@@ -38,6 +39,7 @@ TKMControl = class
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
     property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
+    property OnHint: TMouseMoveEvent read FOnHint write FOnHint;
 end;
 
 type TKMPanel = class;
@@ -245,6 +247,9 @@ begin
 
   if (CursorOver)and(Assigned(Self.OnMouseOver)) then
     Self.OnMouseOver(Self,AShift,X,Y);
+
+  if (CursorOver)and(Assigned(Self.OnHint))and(Hint<>'') then
+    Self.OnHint(Self,AShift,X,Y);
 
   for i:=1 to ChildCount do
     if Childs[i].Visible then
