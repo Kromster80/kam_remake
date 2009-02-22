@@ -247,6 +247,50 @@ object Form1: TForm1
       TabOrder = 6
       OnClick = CheckBox5Click
     end
+    object RGPlayer: TRadioGroup
+      Left = 280
+      Top = 8
+      Width = 105
+      Height = 49
+      Caption = ' Active player  '
+      Columns = 3
+      ItemIndex = 1
+      Items.Strings = (
+        '1'
+        '2'
+        '3'
+        '4'
+        '5'
+        '6')
+      TabOrder = 7
+      OnClick = RGPlayerClick
+    end
+    object Button1: TButton
+      Left = 200
+      Top = 52
+      Width = 25
+      Height = 17
+      Caption = '>>'
+      TabOrder = 8
+      OnClick = Button1Click
+    end
+    object Button2: TButton
+      Left = 224
+      Top = 52
+      Width = 25
+      Height = 17
+      Caption = '1'
+      TabOrder = 9
+      OnClick = Button2Click
+    end
+    object Button3: TButton
+      Left = 248
+      Top = 52
+      Width = 25
+      Height = 17
+      Caption = 'Stop'
+      TabOrder = 10
+    end
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'

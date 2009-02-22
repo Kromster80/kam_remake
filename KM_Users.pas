@@ -8,19 +8,20 @@ type
 
   TKMPlayerAssets = class
   private
+    PlayerID:TPlayerID; //Which ID this player is
     fUnits: TKMUnitsCollection;
     fHouses: TKMHousesCollection;
     fDeliverList: TKMDeliverQueue;
     fBuildList: TKMBuildingQueue;
   public
-    constructor Create();
+    constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
   public
     PlayerType: TPlayerType; //Is it Human or AI
-    function AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
-    procedure AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
+    procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
-    function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID):boolean;
+    function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint):boolean;
     procedure RemHouse(Position: TKMPoint);
     procedure RemPlan(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -67,17 +68,17 @@ uses
 
 { TKMPlayerAssets }
 
-function TKMPlayerAssets.AddUnit(const aOwner: TPlayerID; aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
+function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
 begin
-    Result:=fUnits.Add(aOwner, aUnitType, Position.X, Position.Y);
+    Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y);
 end;
 
 
-procedure TKMPlayerAssets.AddHouse(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID);
+procedure TKMPlayerAssets.AddHouse(aHouseType: THouseType; Position: TKMPoint);
 var xo:integer;
 begin
   xo:=HouseDAT[byte(aHouseType)].EntranceOffsetX;
-  fHouses.AddHouse(aHouseType, aLoc.X-xo, aLoc.Y, aOwner)
+  fHouses.AddHouse(aHouseType, Position.X-xo, Position.Y, PlayerID)
 end;
 
 
@@ -93,15 +94,15 @@ begin
   end;
 end;
 
-function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; aOwner: TPlayerID):boolean;
+function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint):boolean;
 var KMHouse:TKMHouse;
 begin
   Result:=false;
   aLoc.X:=aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
   if not fTerrain.CanPlaceHouse(aLoc,aHouseType) then exit;
-  KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, aOwner);
+  KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, PlayerID);
   fTerrain.SetHousePlan(aLoc, aHouseType, fdt_HousePlan);
-  fTerrain.SetTileOwnership(aLoc,aHouseType, play_1);
+  fTerrain.SetTileOwnership(aLoc,aHouseType, PlayerID);
   BuildList.AddNewHousePlan(KMHouse);
   Result:=true;
 end;
@@ -127,8 +128,9 @@ begin
   Result:=fHouses.FindHouse(aType, X, Y);
 end;
 
-constructor TKMPlayerAssets.Create();
+constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 begin
+  PlayerID:=aPlayerID;
   fUnits:= TKMUnitsCollection.Create;
   fHouses:= TKMHousesCollection.Create;
   fDeliverList:= TKMDeliverQueue.Create;
@@ -181,7 +183,7 @@ begin
 
   fPlayerCount:=PlayerCount; //Used internally
   for i:=1 to fPlayerCount do
-    Player[i]:=TKMPlayerAssets.Create;
+    Player[i]:=TKMPlayerAssets.Create(TPlayerID(i));
 end;
 
 destructor TKMAllPlayers.Destroy;

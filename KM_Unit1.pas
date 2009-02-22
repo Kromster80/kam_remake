@@ -55,6 +55,10 @@ type
     HouseAnim1: TMenuItem;
     UnitAnim1: TMenuItem;
     CheckBox5: TCheckBox;
+    RGPlayer: TRadioGroup;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure DecodeDATClick(Sender: TObject);
@@ -91,6 +95,7 @@ type
     procedure UnitAnim1Click(Sender: TObject);
     procedure CheckBox5Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure RGPlayerClick(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -161,9 +166,8 @@ begin
   fTerrain:= TTerrain.Create;
   fTerrain.MakeNewMap(96,96);
 
-  fPlayers:=TKMAllPlayers.Create(2); //Create 2 players
+  fPlayers:=TKMAllPlayers.Create(6); //Create 6 players
   MyPlayer:=fPlayers.Player[1];
-
 
   Application.OnIdle:=Form1.OnIdle;
   Form1.Caption:='KaM Remake - '+'New.map';
@@ -224,7 +228,7 @@ begin
   //example for units need change
   //Removed right since it interfers with the school buttons
   if Button = mbMiddle then
-    fPlayers.Player[1].AddUnit(play_2, ut_HorseScout, KMPoint(CursorXc,CursorYc));
+    fPlayers.Player[1].AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -298,7 +302,7 @@ begin
       end;
     cm_Houses:
       begin
-        if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,play_1) then
+        if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P) then
           fGamePlayInterface.SelectRoad;
       end;
     end;
@@ -386,54 +390,54 @@ MyPlayer.AddRoadPlan(KMPoint(3,7),mu_FieldPlan);
 MyPlayer.AddRoadPlan(KMPoint(4,7),mu_FieldPlan);
 MyPlayer.AddRoadPlan(KMPoint(5,7),mu_FieldPlan);
 
-MyPlayer.AddHouse(ht_Farm, KMPoint(3,5), play_1);
-MyPlayer.AddHouse(ht_Mill, KMPoint(8,5), play_1);
-MyPlayer.AddHouse(ht_Bakery, KMPoint(13,5), play_1);
-MyPlayer.AddUnit(play_1, ut_Farmer, KMPoint(3,7));
-MyPlayer.AddUnit(play_1, ut_Baker, KMPoint(4,7));
-MyPlayer.AddUnit(play_1, ut_Baker, KMPoint(5,7));
+MyPlayer.AddHouse(ht_Farm, KMPoint(3,5));
+MyPlayer.AddHouse(ht_Mill, KMPoint(8,5));
+MyPlayer.AddHouse(ht_Bakery, KMPoint(13,5));
+MyPlayer.AddUnit(ut_Farmer, KMPoint(3,7));
+MyPlayer.AddUnit(ut_Baker, KMPoint(4,7));
+MyPlayer.AddUnit(ut_Baker, KMPoint(5,7));
 
-MyPlayer.AddHouse(ht_Store, KMPoint(17,5), play_1);
+MyPlayer.AddHouse(ht_Store, KMPoint(17,5));
 
-MyPlayer.AddHouse(ht_WoodCutters, KMPoint(4,9), play_1);
-MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9), play_1);
-MyPlayer.AddHouse(ht_Quary, KMPoint(12,9), play_1);
-MyPlayer.AddUnit(play_1, ut_WoodCutter, KMPoint(7,11));
-MyPlayer.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
-MyPlayer.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
-MyPlayer.AddUnit(play_1, ut_Lamberjack, KMPoint(8,11));
-MyPlayer.AddUnit(play_1, ut_StoneCutter, KMPoint(6,9));
+MyPlayer.AddHouse(ht_WoodCutters, KMPoint(4,9));
+MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9));
+MyPlayer.AddHouse(ht_Quary, KMPoint(12,9));
+MyPlayer.AddUnit(ut_WoodCutter, KMPoint(7,11));
+MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
+MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
+MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
+MyPlayer.AddUnit(ut_StoneCutter, KMPoint(6,9));
 
 MyPlayer.AddRoadPlan(KMPoint(2,14),mu_WinePlan);
 MyPlayer.AddRoadPlan(KMPoint(3,14),mu_WinePlan);
 MyPlayer.AddRoadPlan(KMPoint(4,14),mu_WinePlan);
 MyPlayer.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
-MyPlayer.AddHouse(ht_WineYard, KMPoint(4,13), play_1);
-MyPlayer.AddUnit(play_1, ut_Farmer, KMPoint(15,9));
-MyPlayer.AddHouse(ht_CoalMine, KMPoint(8,13), play_1);
-MyPlayer.AddUnit(play_1, ut_Miner, KMPoint(10,9));
-MyPlayer.AddHouse(ht_FisherHut, KMPoint(12,13), play_1); //Added to demonstrate a house without an occupant in the building page
+MyPlayer.AddHouse(ht_WineYard, KMPoint(4,13));
+MyPlayer.AddUnit(ut_Farmer, KMPoint(15,9));
+MyPlayer.AddHouse(ht_CoalMine, KMPoint(8,13));
+MyPlayer.AddUnit(ut_Miner, KMPoint(10,9));
+MyPlayer.AddHouse(ht_FisherHut, KMPoint(12,13)); //Added to demonstrate a house without an occupant in the building page
 
-MyPlayer.AddHouse(ht_WeaponSmithy, KMPoint(16,13), play_1);
-MyPlayer.AddHouse(ht_WeaponWorkshop, KMPoint(16,16), play_1);
+MyPlayer.AddHouse(ht_WeaponSmithy, KMPoint(16,13));
+MyPlayer.AddHouse(ht_WeaponWorkshop, KMPoint(16,16));
 
-MyPlayer.AddHouse(ht_ArmorSmithy, KMPoint(20,13), play_1);
-MyPlayer.AddHouse(ht_ArmorWorkshop, KMPoint(20,17), play_1);
+MyPlayer.AddHouse(ht_ArmorSmithy, KMPoint(20,13));
+MyPlayer.AddHouse(ht_ArmorWorkshop, KMPoint(20,17));
 
-MyPlayer.AddHouse(ht_IronMine, KMPoint(21,6), play_1);
-MyPlayer.AddHouse(ht_IronSmithy, KMPoint(21,9), play_1);
+MyPlayer.AddHouse(ht_IronMine, KMPoint(21,6));
+MyPlayer.AddHouse(ht_IronSmithy, KMPoint(21,9));
 
 for i:=1 to 16 do
-MyPlayer.AddUnit(play_1, ut_Serf, KMPoint(2,11));
+MyPlayer.AddUnit(ut_Serf, KMPoint(2,11));
 
 for i:=1 to 3 do
-MyPlayer.AddUnit(play_1, ut_Worker, KMPoint(3,11));
+MyPlayer.AddUnit(ut_Worker, KMPoint(3,11));
 
-MyPlayer.AddUnit(play_1, ut_Recruit, KMPoint(12,11));
-MyPlayer.AddUnit(play_1, ut_Metallurgist, KMPoint(13,11));
-MyPlayer.AddUnit(play_1, ut_Miner, KMPoint(13,11));
-MyPlayer.AddUnit(play_1, ut_Smith, KMPoint(13,11));
-MyPlayer.AddUnit(play_1, ut_Smith, KMPoint(13,11));
+MyPlayer.AddUnit(ut_Recruit, KMPoint(12,11));
+MyPlayer.AddUnit(ut_Metallurgist, KMPoint(13,11));
+MyPlayer.AddUnit(ut_Miner, KMPoint(13,11));
+MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
+MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 
 H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
 if H<>nil then H.AddMultiResource(rt_All,5);
@@ -447,21 +451,21 @@ MyPlayer.AddRoadPlan(KMPoint(8,6),mu_RoadPlan);
 MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
 MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);
 
-MyPlayer.AddHousePlan(ht_School, KMPoint(4,17), play_1);
-MyPlayer.AddHousePlan(ht_Inn, KMPoint(9,18), play_1);
+MyPlayer.AddHousePlan(ht_School, KMPoint(4,17));
+MyPlayer.AddHousePlan(ht_Inn, KMPoint(9,18));
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var H:TKMHouseStore; i:integer;
 begin
 TKMControl(Sender).Enabled:=false;
-MyPlayer.AddHouse(ht_Store, KMPoint(17,5), play_1);
+MyPlayer.AddHouse(ht_Store, KMPoint(25,5));
 H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
 if H<>nil then H.AddMultiResource(rt_All,30);
 
-for i:=1 to 5 do MyPlayer.AddUnit(play_1, ut_Serf, KMPoint(2,11));
+for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(22,11));
 
-for i:=1 to 1 do MyPlayer.AddUnit(play_1, ut_Worker, KMPoint(3,11));
+for i:=1 to 1 do MyPlayer.AddUnit(ut_Worker, KMPoint(23,11));
 
 fViewPort.SetCenter(10,9);
 
@@ -603,6 +607,11 @@ end;
 procedure TForm1.Button3Click(Sender: TObject);
 begin
 //
+end;
+
+procedure TForm1.RGPlayerClick(Sender: TObject);
+begin
+  MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
 end;
 
 end.

@@ -167,7 +167,7 @@ begin
   fResourceOrder[3]:=0;
   fResourceOrder[4]:=0;
 
-  fTerrain.SetTileOwnership(fPosition,fHouseType,play_1);
+  fTerrain.SetTileOwnership(fPosition,fHouseType,fOwner);
 
   if aBuildState=hbs_Done then begin //House was placed on map already Built e.g. in mission maker
     Self.Activate;
@@ -499,7 +499,7 @@ begin
   //If there's yet no unit in training
   if CheckResIn(rt_Gold)=0 then exit;
   ResTakeFromIn(rt_Gold);
-  TK:=fPlayers.Player[byte(fOwner)].AddUnit(fOwner,UnitQueue[1],GetEntrance);//Create Unit
+  TK:=fPlayers.Player[byte(fOwner)].AddUnit(UnitQueue[1],GetEntrance);//Create Unit
   TK.UnitTask:=TTaskSelfTrain.Create(TK,Self);
   //pUnit:=@TK;
 end;
