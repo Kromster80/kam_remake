@@ -191,6 +191,10 @@ end else
 if Sender=KMButton_Menu_Quit then begin
   KMPanel_Quit.Visible:=true;
   Hide4MainButtons;
+end else
+if Sender=KMButton_Quit_No then begin
+  KMPanel_Menu.Visible:=true;
+  Hide4MainButtons;
 end else //If Sender is anything else - then show all 4 buttons and hide Return button
   Show4MainButtons;
 
@@ -430,9 +434,9 @@ end;
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   KMPanel_Quit:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
-    KMLabel_Quit:=fControls.AddLabel(KMPanel_Quit,100,30,100,30,fnt_Metal,kaCenter,fTextLibrary.GetTextString(176));
-    KMButton_Quit_Yes:=fControls.AddButton(KMPanel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
-    KMButton_Quit_No:=fControls.AddButton(KMPanel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
+    KMLabel_Quit:=fControls.AddLabel(KMPanel_Quit,100,110,100,30,fnt_Outline,kaCenter,fTextLibrary.GetTextString(176));
+    KMButton_Quit_Yes:=fControls.AddButton(KMPanel_Quit,8,170,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+    KMButton_Quit_No:=fControls.AddButton(KMPanel_Quit,8,210,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
     {KMButton_Quit_Yes.OnMouseOver:=DisplayHint;
     KMButton_Quit_No.OnMouseOver:=DisplayHint;
     KMButton_Quit_Yes.Hint:=fTextLibrary.GetTextString(185);
@@ -919,9 +923,11 @@ begin
   if fMissionSettings.GetCanBuild(THouseType(GUIBuildIcons[i]-300)) then begin
     KMButton_Build[i].Enabled:=true;
     KMButton_Build[i].TexID:=GUIBuildIcons[i];
+    KMButton_Build[i].OnClick:=BuildButtonClick;
   end else begin
-    KMButton_Build[i].Enabled:=false;
-    KMButton_Build[i].TexID:=41;
+    KMButton_Build[i].OnClick:=nil;
+    KMButton_Build[i].TexID:=41;        
+    KMButton_Build[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
   end;
 end;
 

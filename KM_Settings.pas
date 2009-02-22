@@ -7,7 +7,7 @@ type
   private
     fBrightness:byte;
     fAutosave:boolean;
-    fFastScroll:boolean; 
+    fFastScroll:boolean;
     fMouseSpeed:byte;
     fSoundFXVolume:byte;
     fMusicVolume:byte;
@@ -18,6 +18,7 @@ type
     destructor Destroy; override;
     function LoadSettingsFromFile(filename:string):boolean;
     procedure SaveSettingsToFile(filename:string);
+    procedure SetDefaultValues;
     property GetBrightness:byte read fBrightness default 1;
     procedure IncBrightness;
     procedure DecBrightness;
@@ -82,7 +83,11 @@ function TGameSettings.LoadSettingsFromFile(filename:string):boolean;
 var f:file;
 begin
   Result:=false;
-  if not CheckFileExists(filename,true) then exit;
+  if not CheckFileExists(filename,true) then
+  begin
+    SetDefaultValues; //There is no config, so set defaults
+    exit;
+  end;
   try
   assignfile(f,filename); reset(f,1);
   blockread(f, fBrightness, 1);
@@ -110,6 +115,18 @@ begin
   blockwrite(f, fMusicVolume, 1);
   blockwrite(f, fMusicOnOff, 1);
   closefile(f);
+end;
+
+procedure TGameSettings.SetDefaultValues;
+begin
+  //This procedure will set the default values for all of the settings
+  fBrightness := 1;
+  fAutosave := false;
+  fFastScroll := false;
+  fMouseSpeed := 10;
+  fSoundFXVolume := 20;
+  fMusicVolume := 8;
+  fMusicOnOff := true;
 end;
 
 procedure TGameSettings.IncBrightness;
