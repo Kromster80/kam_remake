@@ -454,16 +454,22 @@ MyPlayer.AddHousePlan(ht_Inn, KMPoint(9,18));
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
-var H:TKMHouseStore; i:integer;
+var H:TKMHouseStore; i,k:integer;
 begin
 TKMControl(Sender).Enabled:=false;
-MyPlayer.AddHouse(ht_Store, KMPoint(25,5));
-H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
-if H<>nil then H.AddMultiResource(rt_All,30);
 
-for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(22,11));
+for k:=1 to 4 do begin
+  MyPlayer:=fPlayers.Player[k];
 
-for i:=1 to 1 do MyPlayer.AddUnit(ut_Worker, KMPoint(23,11));
+  MyPlayer.AddHouse(ht_Store, KMPoint(k*4,5));
+  H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
+  if H<>nil then H.AddMultiResource(rt_All,30);
+
+  for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(k*4,8));
+
+  for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(k*4+1,8));
+
+end;
 
 fViewPort.SetCenter(10,9);
 

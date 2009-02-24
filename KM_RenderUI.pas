@@ -258,10 +258,10 @@ begin
 end;
 
 
-{Renders a line of text and returns text width in px}
+{Renders a line of text and returns text width and height in px}
 {By default color must be non-transparent white}
 function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint;
-var i,Num,InterLetter,LineCount,RevX:integer; LineWidth:array[1..16] of word; //Lets hope 16 will be enough. Num0 stores count
+var i,Num,InterLetter,LineCount,NegX:integer; LineWidth:array[1..16] of word; //Lets hope 16 will be enough. Num0 stores count
 begin
   InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X:=0;
@@ -269,7 +269,7 @@ begin
   LineCount:=0;
 
   for i:=1 to length(Text) do begin
-    if Text[i] in [' '..'z'] then begin
+    if Text[i]<>#124 then begin
       Result.X:=Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
       Result.Y:=max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
     end;
@@ -283,29 +283,28 @@ begin
   for i:=1 to LineCount do
     Result.X:=max(Result.X,LineWidth[i]);
 
-  RevX:=0;
+  NegX:=0;
   LineCount:=1;
 
   glPushMatrix;
+  glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
     glkMoveAALines(false);
-    glTranslate( PosX, PosY, 0);
-        if Align=kaLeft   then glTranslate(0, 0, 0);
-        if Align=kaCenter then glTranslate(-(Result.X div 2), 0, 0);
-        if Align=kaRight  then glTranslate(-Result.X , 0, 0);
-    glPushMatrix;
+    if Align=kaLeft   then glTranslate(PosX,                  PosY, 0);
+    if Align=kaCenter then glTranslate(PosX-(Result.X div 2), PosY, 0);
+    if Align=kaRight  then glTranslate(PosX-Result.X,         PosY, 0);
     glColor4ubv(@Color);
     for i:=1 to length(Text) do begin
       //Switch line if needed
-      if (Text[i]=#124) then begin //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files, so lets do the same here. Saves complex conversions...
-        if Align=kaLeft   then glTranslate(-RevX, Result.Y, 0);
-        if Align=kaCenter then glTranslate(-RevX, Result.Y, 0);
-        if Align=kaRight  then glTranslate(-RevX, Result.Y, 0);
-        RevX:=0;
+      //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files,
+      //so lets do the same here. Saves complex conversions...
+      if Text[i]=#124 then begin
         inc(LineCount);
-      end;
-      if Text[i]<>#124 then begin
+        if Align=kaLeft   then glTranslate(-NegX, Result.Y, 0); //Negate previous line length
+        if Align=kaCenter then glTranslate(-NegX-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, Result.Y, 0);
+        if Align=kaRight  then glTranslate(-NegX-LineWidth[LineCount]+LineWidth[LineCount-1], Result.Y, 0);
+        NegX:=0;
+      end else begin
         Num:=ord(Text[i]);
-        glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
         glBegin(GL_QUADS);
           with FontData[byte(Fnt)].Letters[Num] do begin
             glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
@@ -314,13 +313,14 @@ begin
             glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
           end;
         glEnd;
-        //glCallList(coChar[ EnsureRange(Num-32,0,96) ]);
+        //glCallList(coChar[ EnsureRange(Num-32,0,96) ]); //We could use this later on to increase FPS
         glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
-        inc(RevX,FontData[byte(Fnt)].Letters[Num].Width+InterLetter);
+        inc(NegX,FontData[byte(Fnt)].Letters[Num].Width+InterLetter);
       end;
     end;
-    glBindTexture(GL_TEXTURE_2D,0);glPopMatrix;
+  glBindTexture(GL_TEXTURE_2D,0);
   glPopMatrix;
+  Result.Y:=Result.Y*LineCount;
 end;
 
 

@@ -69,7 +69,7 @@ type
 
 var
   fPlayers: TKMAllPlayers;
-  MyPlayer: TKMPlayerAssets; //shortcut to access 
+  MyPlayer: TKMPlayerAssets; //shortcut to access players player
 
 implementation
 
