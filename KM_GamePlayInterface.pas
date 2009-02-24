@@ -759,7 +759,6 @@ begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
   if (Sender=nil)or(not Sender.IsVisible) then begin
-    ShownUnit:=nil;
     SwitchPage(nil);
     exit;
   end;

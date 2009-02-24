@@ -245,6 +245,7 @@ begin
   for i:=1 to fPlayerCount do
     Player[i].Destroy;
 
+  SelectedHouse:=nil;
   inherited;
 end;
 

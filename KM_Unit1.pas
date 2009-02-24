@@ -331,6 +331,8 @@ begin
 if not Form1.Active then exit;
 inc(GlobalTickCount);
 
+//if GlobalTickCount=30 then fGamePlayInterface.DropDownMessageButton(ButtonLogoID,MessageID);
+
 if CheckBox1.Checked then exit;
 
 if CheckBox4.Checked then
@@ -377,10 +379,15 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
-var H:TKMHouseStore; i:integer;
+var H:TKMHouseStore; i,k:integer;
 begin
 TKMControl(Sender).Enabled:=false;
-fViewPort.SetCenter(10,9);
+fViewPort.SetCenter(11,9);
+
+for k:=-5 to 5 do
+for i:=-4 to 6 do
+fTerrain.SetCoalReserve(KMPoint(8+i,14+k));
+
 MyPlayer.AddRoadPlan(KMPoint(2,6),mu_RoadPlan);
 
 MyPlayer.AddRoadPlan(KMPoint(2,7),mu_FieldPlan);
@@ -397,7 +404,7 @@ MyPlayer.AddUnit(ut_Baker, KMPoint(5,7));
 
 MyPlayer.AddHouse(ht_Store, KMPoint(17,5));
 
-MyPlayer.AddHouse(ht_WoodCutters, KMPoint(4,9));
+//MyPlayer.AddHouse(ht_WoodCutters, KMPoint(4,9));
 MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9));
 MyPlayer.AddHouse(ht_Quary, KMPoint(12,9));
 MyPlayer.AddUnit(ut_WoodCutter, KMPoint(7,11));

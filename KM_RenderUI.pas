@@ -27,6 +27,7 @@ uses KM_Unit1, KM_Terrain, KM_Users;
 constructor TRenderUI.Create;
 begin
 //
+MinimapList:=glGenLists(1);
 end;
 
 
@@ -329,15 +330,16 @@ var i,k,ID:integer; Light:single; Loc:TKMPointList;
 begin
   glPushMatrix;
     glTranslate(PosX + (SizeX-MapX)div 2, PosY + (SizeY-MapY)div 2,0);
+    //glNewList(MinimapList,GL_COMPILE);
     glBegin(GL_POINTS);
       for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
         ID:=fTerrain.Land[i,k].Terrain+1;
         Light:=fTerrain.Land[i,k].Light/4; //Originally it's -1..1 range
         if fTerrain.Land[i,k].TileOwner=play_none then
-        glColor4f(TileMMColor[ID].R+Light,
-                  TileMMColor[ID].G+Light,
-                  TileMMColor[ID].B+Light,
-                  1)
+          glColor4f(TileMMColor[ID].R+Light,
+                    TileMMColor[ID].G+Light,
+                    TileMMColor[ID].B+Light,
+                    1)
         else
           glColor4ubv(@TeamColors[byte(fTerrain.Land[i,k].TileOwner)]);
         glVertex2f(k,i);
@@ -352,6 +354,7 @@ begin
       end;
       Loc.Free;
     glEnd;
+    //glEndList;
   glPopMatrix;
 end;
 

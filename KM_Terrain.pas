@@ -82,6 +82,7 @@ public
   function FindCornField(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+  function FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 
   procedure AddTree(Loc:TKMPoint; ID:integer);
@@ -89,6 +90,8 @@ public
   procedure InitGrowth(Loc:TKMPoint);
   procedure CutCorn(Loc:TKMPoint);
   procedure CutGrapes(Loc:TKMPoint);
+  procedure SetCoalReserve(Loc:TKMPoint);
+  procedure DecCoalReserve(Loc:TKMPoint);
 
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   procedure RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
@@ -307,7 +310,33 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
 end;
 
 
-{Find suitable place for planting a tree.
+function TTerrain.FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+var i,k:integer; L:array[1..4]of TKMPointList;
+begin
+  for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
+
+  //aRadius:=aRadius+2;//Coal radius is not circular and should be gradient a bit
+  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius-1 do
+    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+      if TileInMapCoords(k,i) then
+        case Land[i,k].Terrain of
+        152: L[1].AddEntry(KMPoint(k,i));
+        153: L[2].AddEntry(KMPoint(k,i));
+        154: L[3].AddEntry(KMPoint(k,i));
+        155: L[4].AddEntry(KMPoint(k,i));
+        end;
+
+  if L[4].Count<>0 then Result:=L[4].List[Random(L[4].Count)+1] else
+  if L[3].Count<>0 then Result:=L[3].List[Random(L[3].Count)+1] else
+  if L[2].Count<>0 then Result:=L[2].List[Random(L[2].Count)+1] else
+  if L[1].Count<>0 then Result:=L[1].List[Random(L[1].Count)+1] else
+  Result:=KMPoint(0,0);
+  
+  for i:=1 to 4 do L[i].Free;
+end;
+
+
+{Find suitable place to plant a tree.
 Prefer ex-trees locations}
 function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 var h,i,k,ci,ck:integer; List1,List2:array of TKMPoint; FoundExTree:boolean;
@@ -386,6 +415,28 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
   Land[Loc.Y,Loc.X].FieldSpecial:=fs_Wine1;
 end;
+
+
+{Used only in debug - places coal on map}
+procedure TTerrain.SetCoalReserve(Loc:TKMPoint);
+begin
+  Land[Loc.Y,Loc.X].Terrain:=155;
+end;
+
+
+{Extract one unit of coal}
+procedure TTerrain.DecCoalReserve(Loc:TKMPoint);
+begin
+  case Land[Loc.Y,Loc.X].Terrain of
+  152: Land[Loc.Y,Loc.X].Terrain:=36;
+  153: Land[Loc.Y,Loc.X].Terrain:=152;
+  154: Land[Loc.Y,Loc.X].Terrain:=153;
+  155: Land[Loc.Y,Loc.X].Terrain:=154;
+  //This check is removed incase worker builds wine field ontop of coal tile
+  //else Assert(false,'Can''t DecCoalReserve');
+  end;
+end;
+
 
 procedure TTerrain.AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
 begin

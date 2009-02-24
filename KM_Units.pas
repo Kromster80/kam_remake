@@ -15,6 +15,7 @@ type
   TUnitWorkPlan = class
   private
     Issued:boolean;
+    HasToWalk:boolean;
     Loc:TKMPoint;
     WalkTo:TUnitActionType;
     WorkType:TUnitActionType;
@@ -295,6 +296,7 @@ Then Work2 and Work3 same way. Then adds resource to out and everything to Idle 
 procedure TUnitWorkPlan.FillDefaults();
 begin
   Issued:=true;
+  HasToWalk:=false;
   Loc:=KMPoint(0,0);
   WalkTo:=ua_Walk;
   WorkType:=ua_Work;
@@ -313,6 +315,7 @@ procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct
   procedure WalkStyle(aLoc:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript); overload;
   begin
     Loc:=aLoc;
+    HasToWalk:=true;
     WalkTo:=aTo;
     WorkType:=aWork;
     WorkCyc:=aCycles;
@@ -342,11 +345,15 @@ if (aUnitType=ut_LamberJack)and(aHome=ht_SawMill) then begin
   SubActAdd(ha_Work5,1);
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
-  ResourcePlan(rt_None,0,rt_None,0,rt_Coal);
-  GatheringScript:=gs_CoalMiner;
-  SubActAdd(ha_Work1,1);
-  SubActAdd(ha_Work2,8);
-  SubActAdd(ha_Work5,1);
+  if fTerrain.FindCoal(aLoc,2).X<>0 then begin
+    Loc:=fTerrain.FindCoal(aLoc,2);
+    ResourcePlan(rt_None,0,rt_None,0,rt_Coal);
+    GatheringScript:=gs_CoalMiner;
+    SubActAdd(ha_Work1,1);
+    SubActAdd(ha_Work2,8);
+    SubActAdd(ha_Work5,1);
+  end else
+    Issued:=false;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
   ResourcePlan(rt_None,0,rt_None,0,rt_IronOre);
@@ -1302,12 +1309,12 @@ begin
 TaskDone:=false;
 with fUnit do
   case Phase of
-    0: if WorkPlan.Loc.X=0 then begin
-         Phase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
-         exit;
-       end else begin
+    0: if WorkPlan.HasToWalk then begin
          fHome.SetState(hst_Empty,0);
          SetAction(TUnitActionGoIn.Create(WorkPlan.WalkTo,gid_Out)); //Walk outside the house
+       end else begin
+         Phase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
+         exit;
        end;
     1: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,WorkPlan.Loc,WorkPlan.WalkTo));
     2: //IF resource still exists on location
@@ -1358,7 +1365,7 @@ with fUnit do
        end else begin Phase:=SkipWork; exit; end;
     11: begin
           case WorkPlan.GatheringScript of
-            gs_CoalMiner:;
+            gs_CoalMiner: fTerrain.DecCoalReserve(WorkPlan.Loc);
             gs_GoldMiner:;
             gs_IronMiner:;
           end;
