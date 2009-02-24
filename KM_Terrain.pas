@@ -83,6 +83,7 @@ public
   function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+  function FindOre(aPosition:TKMPoint; aRadius:integer; Rt:TResourceType):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 
   procedure AddTree(Loc:TKMPoint; ID:integer);
@@ -92,6 +93,7 @@ public
   procedure CutGrapes(Loc:TKMPoint);
   procedure SetCoalReserve(Loc:TKMPoint);
   procedure DecCoalReserve(Loc:TKMPoint);
+  procedure DecOreReserve(Loc:TKMPoint; rt:TResourceType);
 
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   procedure RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
@@ -315,7 +317,8 @@ var i,k:integer; L:array[1..4]of TKMPointList;
 begin
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
-  //aRadius:=aRadius+2;//Coal radius is not circular and should be gradient a bit
+  //aRadius:=aRadius+2; //Should add some gradient to it later on
+  //Coal radius is not circular, hence -1 on bottom
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius-1 do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if TileInMapCoords(k,i) then
@@ -325,6 +328,43 @@ begin
         154: L[3].AddEntry(KMPoint(k,i));
         155: L[4].AddEntry(KMPoint(k,i));
         end;
+
+  if L[4].Count<>0 then Result:=L[4].List[Random(L[4].Count)+1] else
+  if L[3].Count<>0 then Result:=L[3].List[Random(L[3].Count)+1] else
+  if L[2].Count<>0 then Result:=L[2].List[Random(L[2].Count)+1] else
+  if L[1].Count<>0 then Result:=L[1].List[Random(L[1].Count)+1] else
+  Result:=KMPoint(0,0);
+  
+  for i:=1 to 4 do L[i].Free;
+end;
+
+
+function TTerrain.FindOre(aPosition:TKMPoint; aRadius:integer; Rt:TResourceType):TKMPoint; //Gold or Iron
+var i,k:integer; L:array[1..4]of TKMPointList;
+begin
+  Assert(Rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
+  for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
+
+  //aRadius:=aRadius+2; //Should add some gradient to it later on or not?
+  //Ore radius is not circular, hence -2 on top and -1 on bottom
+  for i:=aPosition.Y-aRadius-2 to aPosition.Y+aRadius-1 do
+    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+      if TileInMapCoords(k,i) then begin
+        if Rt=rt_GoldOre then
+        case Land[i,k].Terrain of
+        144: L[1].AddEntry(KMPoint(k,i));
+        145: L[2].AddEntry(KMPoint(k,i));
+        146: L[3].AddEntry(KMPoint(k,i));
+        147: L[4].AddEntry(KMPoint(k,i));
+        end;
+        if Rt=rt_IronOre then
+        case Land[i,k].Terrain of
+        148: L[1].AddEntry(KMPoint(k,i));
+        149: L[2].AddEntry(KMPoint(k,i));
+        150: L[3].AddEntry(KMPoint(k,i));
+        151: L[4].AddEntry(KMPoint(k,i));
+        end;
+      end;
 
   if L[4].Count<>0 then Result:=L[4].List[Random(L[4].Count)+1] else
   if L[3].Count<>0 then Result:=L[3].List[Random(L[3].Count)+1] else
@@ -434,6 +474,23 @@ begin
   155: Land[Loc.Y,Loc.X].Terrain:=154;
   //This check is removed incase worker builds wine field ontop of coal tile
   //else Assert(false,'Can''t DecCoalReserve');
+  end;
+end;
+
+
+{Extract one unit of ore}
+procedure TTerrain.DecOreReserve(Loc:TKMPoint; rt:TResourceType);
+begin
+  case Land[Loc.Y,Loc.X].Terrain of
+  144: Land[Loc.Y,Loc.X].Terrain:=157; //Gold
+  145: Land[Loc.Y,Loc.X].Terrain:=144;
+  146: Land[Loc.Y,Loc.X].Terrain:=145;
+  147: Land[Loc.Y,Loc.X].Terrain:=146;
+  148: Land[Loc.Y,Loc.X].Terrain:=160; //Iron
+  149: Land[Loc.Y,Loc.X].Terrain:=148;
+  150: Land[Loc.Y,Loc.X].Terrain:=149;
+  151: Land[Loc.Y,Loc.X].Terrain:=150;
+  else Assert(false,'Can''t DecOreReserve');
   end;
 end;
 

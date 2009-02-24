@@ -275,16 +275,15 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
       L[i]:=fControls.AddLabel(KMPanel_Main,250,300+i*20,160,30,TKMFont(i),kaLeft,FontFiles[i]+' This is a test string for KaM Remake');
     end;//}
 
-    L[1]:=fControls.AddLabel(KMPanel_Main,250,120,160,30,fnt_Outline,kaLeft,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'indeed'+#124+'indeed');
-    L[2]:=fControls.AddLabel(KMPanel_Main,250,320,160,30,fnt_Outline,kaCenter,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'indeed'+#124+'indeed');
-    L[3]:=fControls.AddLabel(KMPanel_Main,250,520,160,30,fnt_Outline,kaRight,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'indeed'+#124+'indeed');
-
+    //L[1]:=fControls.AddLabel(KMPanel_Main,250,120,160,30,fnt_Outline,kaLeft,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
+    //L[2]:=fControls.AddLabel(KMPanel_Main,250,320,160,30,fnt_Outline,kaCenter,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
+    //L[3]:=fControls.AddLabel(KMPanel_Main,250,520,160,30,fnt_Outline,kaRight,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
 
     //This is button to start Village functioning
     KMButtonRun:=fControls.AddButton(KMPanel_Main,20,205,50,30,36);
     KMButtonRun.OnClick:=Form1.Button1Click; //Procedure where stuff is placed on map
 
-    KMButtonRun1:=fControls.AddButton(KMPanel_Main,80,205,50,30,'1',fnt_Outline);
+    KMButtonRun1:=fControls.AddButton(KMPanel_Main,80,205,50,30,'6',fnt_Outline);
     KMButtonRun1.OnClick:=Form1.Button2Click; //Procedure where stuff is placed on map
 
     KMButtonStop:=fControls.AddButton(KMPanel_Main,140,205,50,30,'Stop',fnt_Outline);

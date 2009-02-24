@@ -346,7 +346,7 @@ if CheckBox2.Checked then
   for i:=1 to 50 do begin
     fTerrain.UpdateState;
     fPlayers.UpdateState;
-    fGamePlayInterface.UpdateState;
+   // fGamePlayInterface.UpdateState;
   end;
   DoScrolling; //Now check to see if we need to scroll
 end;

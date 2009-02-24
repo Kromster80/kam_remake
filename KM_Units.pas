@@ -356,18 +356,26 @@ if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
     Issued:=false;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
-  ResourcePlan(rt_None,0,rt_None,0,rt_IronOre);
-  GatheringScript:=gs_IronMiner;
-  SubActAdd(ha_Work1,1);
-  SubActAdd(ha_Work2,8);
-  SubActAdd(ha_Work5,1);
+  if fTerrain.FindCoal(aLoc,2).X<>0 then begin
+    Loc:=fTerrain.FindOre(aLoc,2,rt_IronOre);
+    ResourcePlan(rt_None,0,rt_None,0,rt_IronOre);
+    GatheringScript:=gs_IronMiner;
+    SubActAdd(ha_Work1,1);
+    SubActAdd(ha_Work2,8);
+    SubActAdd(ha_Work5,1);
+  end else
+    Issued:=false;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_GoldMine) then begin
-  ResourcePlan(rt_None,0,rt_None,0,rt_GoldOre);
-  GatheringScript:=gs_GoldMiner;
-  SubActAdd(ha_Work1,1);
-  SubActAdd(ha_Work2,8);
-  SubActAdd(ha_Work5,1);
+  if fTerrain.FindCoal(aLoc,2).X<>0 then begin
+    Loc:=fTerrain.FindOre(aLoc,2,rt_GoldOre);
+    ResourcePlan(rt_None,0,rt_None,0,rt_GoldOre);
+    GatheringScript:=gs_GoldMiner;
+    SubActAdd(ha_Work1,1);
+    SubActAdd(ha_Work2,8);
+    SubActAdd(ha_Work5,1);
+  end else
+    Issued:=false;
 end else
 if (aUnitType=ut_Metallurgist)and(aHome=ht_IronSmithy) then begin
   ResourcePlan(rt_IronOre,1,rt_Coal,1,rt_Steel);
@@ -1366,8 +1374,8 @@ with fUnit do
     11: begin
           case WorkPlan.GatheringScript of
             gs_CoalMiner: fTerrain.DecCoalReserve(WorkPlan.Loc);
-            gs_GoldMiner:;
-            gs_IronMiner:;
+            gs_GoldMiner: fTerrain.DecOreReserve(WorkPlan.Loc,rt_GoldOre);
+            gs_IronMiner: fTerrain.DecOreReserve(WorkPlan.Loc,rt_IronOre);
           end;
           fHome.ResAddToOut(WorkPlan.Product,WorkPlan.ProductCount);
           fHome.SetState(hst_Idle,15);
