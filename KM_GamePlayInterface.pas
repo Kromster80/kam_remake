@@ -17,6 +17,7 @@ type TKMGamePlayInterface = class
       L:array[1..20]of TKMLabel;
       KMButtonRun,KMButtonRun1,KMButtonStop:TKMButton;                //Start Village functioning
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
+      KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
     KMPanel_Ratios:TKMPanel;
       //
     KMPanel_Stats:TKMPanel;
@@ -137,6 +138,7 @@ var i:integer;
     for i:=1 to 4 do
       KMButtonMain[i].Visible:=false;
     KMButtonMain[5].Visible:=true;
+    KMLabel_MenuTitle.Visible:=true;
   end;  
   procedure Show4MainButtons();
   var i:integer;
@@ -144,6 +146,7 @@ var i:integer;
     for i:=1 to 4 do
       KMButtonMain[i].Visible:=true;
     KMButtonMain[5].Visible:=false;
+    KMLabel_MenuTitle.Visible:=false;
   end;
 begin
 
@@ -170,31 +173,32 @@ if Sender=KMButtonMain[1] then begin
   Build_Fill(nil);
   KMPanel_Build.Visible:=true;
   Hide4MainButtons;
+  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(166);
   SelectRoad;
 end else
 if Sender=KMButtonMain[2] then begin
   KMPanel_Ratios.Visible:=true;
   Hide4MainButtons;
+  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(167);
 end else
 if Sender=KMButtonMain[3] then begin
   Stats_Fill(nil);
   KMPanel_Stats.Visible:=true;
   Hide4MainButtons;
+  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
 end else
-if Sender=KMButtonMain[4] then begin
+if ((Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No)) then begin
   KMPanel_Menu.Visible:=true;
   Hide4MainButtons;
+  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
 end else
 if Sender=KMButton_Menu_Settings then begin
   KMPanel_Settings.Visible:=true;
   Hide4MainButtons;
-end else
+  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
+end else  
 if Sender=KMButton_Menu_Quit then begin
   KMPanel_Quit.Visible:=true;
-  Hide4MainButtons;
-end else
-if Sender=KMButton_Quit_No then begin
-  KMPanel_Menu.Visible:=true;
   Hide4MainButtons;
 end else //If Sender is anything else - then show all 4 buttons and hide Return button
   Show4MainButtons;
@@ -234,7 +238,7 @@ begin
   //Random numbers here are to show every time hint gets refreshed
   KMLabel_Hint.Top:=fRender.GetRenderAreaSize.Y-16;
   if ShownHint=nil then KMLabel_Hint.Caption:=''+'    '+inttostr(random(10)) else
-  KMLabel_Hint.Caption:=(Sender as TKMControl).Hint+'    '+inttostr(random(10));
+  KMLabel_Hint.Caption:=(Sender as TKMControl).Hint+'    '+inttostr(random(10)); //@Krom: What are these random numbers and spaces for? If they are debugging then can we just remove them?
 end;
 
 
@@ -295,11 +299,13 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
       KMButtonMain[i+1].OnClick:=SwitchPage;
       KMButtonMain[i+1].Hint:=fTextLibrary.GetTextString(160+i);
     end;
+    KMButtonMain[4].Hint:=fTextLibrary.GetTextString(164); //This is an exception to the rule above
     KMButtonMain[5]:=fControls.AddButton(KMPanel_Main,  8, 372, 42, 36, 443);
     KMButtonMain[5].OnClick:=SwitchPage;
     KMButtonMain[5].Hint:=fTextLibrary.GetTextString(165);
+    KMLabel_MenuTitle:=fControls.AddLabel(KMPanel_Main,54,372,138,36,fnt_Grey,kaLeft,'');
 
-    KMLabel_Hint:=fControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,fnt_Outline,kaLeft,'Hint');
+    KMLabel_Hint:=fControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,fnt_Outline,kaLeft,'');
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 
@@ -326,12 +332,12 @@ procedure TKMGamePlayInterface.Create_Build_Page;
 var i:integer;
 begin
   KMPanel_Build:=fControls.AddPanel(KMPanel_Main,0,412,196,400);
-    KMLabel_Build:=fControls.AddLabel(KMPanel_Build,100,10,100,30,fnt_Outline,kaCenter,'Items to build');
+    KMLabel_Build:=fControls.AddLabel(KMPanel_Build,100,10,100,30,fnt_Outline,kaCenter,'');
     KMImage_Build_Selected:=fControls.AddImage(KMPanel_Build,8,40,32,32,335);
     KMImage_BuildCost_WoodPic:=fControls.AddImage(KMPanel_Build,75,40,32,32,353);
     KMImage_BuildCdost_StonePic:=fControls.AddImage(KMPanel_Build,130,40,32,32,352);
-    KMLabel_BuildCost_Wood:=fControls.AddLabel(KMPanel_Build,105,50,10,30,fnt_Outline,kaLeft,'0');
-    KMLabel_BuildCost_Stone:=fControls.AddLabel(KMPanel_Build,160,50,10,30,fnt_Outline,kaLeft,'0');
+    KMLabel_BuildCost_Wood:=fControls.AddLabel(KMPanel_Build,105,50,10,30,fnt_Outline,kaLeft,'');
+    KMLabel_BuildCost_Stone:=fControls.AddLabel(KMPanel_Build,160,50,10,30,fnt_Outline,kaLeft,'');
     KMButton_BuildRoad   := fControls.AddButtonFlat(KMPanel_Build,  8,80,33,33,335);
     KMButton_BuildField  := fControls.AddButtonFlat(KMPanel_Build, 45,80,33,33,337);
     KMButton_BuildWine   := fControls.AddButtonFlat(KMPanel_Build, 82,80,33,33,336);
@@ -372,12 +378,16 @@ begin
     inc(ci);
     Stat_House[ci]:=fControls.AddButtonFlat(KMPanel_Stats,8+(k-1)*42,(i-1)*32,40,30,41);
     Stat_House[ci].TexOffsetX:=-4;
-    Stat_HouseQty[ci]:=fControls.AddLabel(KMPanel_Stats,8+37+(k-1)*42,(i-1)*32+18,33,30,fnt_Grey,kaRight,'1');
+    Stat_House[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
+    Stat_HouseQty[ci]:=fControls.AddLabel(KMPanel_Stats,8+37+(k-1)*42,(i-1)*32+18,33,30,fnt_Grey,kaRight,'');
+    Stat_HouseQty[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
   end;
   for i:=1 to 11 do begin
     Stat_Unit[i]:=fControls.AddButtonFlat(KMPanel_Stats,154,(i-1)*32,35,30,byte(StatUnitOrder[i])+140);
     Stat_Unit[i].TexOffsetX:=-4;
-    Stat_UnitQty[i]:=fControls.AddLabel(KMPanel_Stats,154+32,(i-1)*32+18,33,30,fnt_Grey,kaRight,'3');
+    Stat_Unit[i].Hint:=TypeToString(StatUnitOrder[i]);
+    Stat_UnitQty[i]:=fControls.AddLabel(KMPanel_Stats,154+32,(i-1)*32+18,33,30,fnt_Grey,kaRight,'');
+    Stat_UnitQty[i].Hint:=TypeToString(StatUnitOrder[i]);
   end;
 end;
 
@@ -386,11 +396,15 @@ end;
 procedure TKMGamePlayInterface.Create_Menu_Page;
 begin
   KMPanel_Menu:=fControls.AddPanel(KMPanel_Main,0,412,196,400);
-    KMButton_Menu_Save:=fControls.AddButton(KMPanel_Menu,8,20,180,30,fTextLibrary.GetTextString(173),fnt_Metal);
-    KMButton_Menu_Load:=fControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(172),fnt_Metal);
-    KMButton_Menu_Settings:=fControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(170),fnt_Metal);
+    KMButton_Menu_Save:=fControls.AddButton(KMPanel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
+    KMButton_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
+    KMButton_Menu_Load:=fControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
+    KMButton_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
+    KMButton_Menu_Settings:=fControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
     KMButton_Menu_Settings.OnClick:=ShowSettings;
-    KMButton_Menu_Quit:=fControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+    KMButton_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
+    KMButton_Menu_Quit:=fControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
+    KMButton_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     KMButton_Menu_Quit.OnClick:=SwitchPage;
 end;
 
@@ -401,34 +415,38 @@ var i:integer;
 begin
   KMPanel_Settings:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
     KMLabel_Settings_Brightness:=fControls.AddLabel(KMPanel_Settings,100,10,100,30,fnt_Metal,kaCenter,fTextLibrary.GetTextString(181));
-    KMButton_Settings_Dark:=fControls.AddButton(KMPanel_Settings,8,30,36,24,'-',fnt_Metal);
-    KMButton_Settings_Light:=fControls.AddButton(KMPanel_Settings,154,30,36,24,'+',fnt_Metal);
+    KMButton_Settings_Dark:=fControls.AddButton(KMPanel_Settings,8,30,36,24,fTextLibrary.GetTextString(183),fnt_Metal);
+    KMButton_Settings_Light:=fControls.AddButton(KMPanel_Settings,154,30,36,24,fTextLibrary.GetTextString(182),fnt_Metal);
     KMButton_Settings_Dark.Hint:=fTextLibrary.GetTextString(185);
     KMButton_Settings_Light.Hint:=fTextLibrary.GetTextString(184);
-    KMLabel_Settings_BrightValue:=fControls.AddLabel(KMPanel_Settings,100,34,100,30,fnt_Grey,kaCenter,'very dark');
-    KMLabel_Settings_Autosave:=fControls.AddLabel(KMPanel_Settings,8,70,100,30,fnt_Metal,kaLeft,'O Autosave');
+    KMLabel_Settings_BrightValue:=fControls.AddLabel(KMPanel_Settings,100,34,100,30,fnt_Grey,kaCenter,'');
+    KMLabel_Settings_Autosave:=fControls.AddLabel(KMPanel_Settings,8,70,100,30,fnt_Metal,kaLeft,'');
     KMLabel_Settings_Autosave.Enabled:=false;
-    KMLabel_Settings_FastScroll:=fControls.AddLabel(KMPanel_Settings,8,95,100,30,fnt_Metal,kaLeft,'O Fast scrolling');
-    KMLabel_Settings_MouseSpeed:=fControls.AddLabel(KMPanel_Settings,24,130,100,30,fnt_Metal,kaLeft,'Mouse speed');
+    KMLabel_Settings_FastScroll:=fControls.AddLabel(KMPanel_Settings,8,95,100,30,fnt_Metal,kaLeft,'');
+    KMLabel_Settings_MouseSpeed:=fControls.AddLabel(KMPanel_Settings,24,130,100,30,fnt_Metal,kaLeft,fTextLibrary.GetTextString(192));
     KMLabel_Settings_MouseSpeed.Enabled:=false;
     KMRatio_Settings_Mouse:=fControls.AddRatioRow(KMPanel_Settings,18,150,160,20);
     KMRatio_Settings_Mouse.Enabled:=false;
     KMRatio_Settings_Mouse.MaxValue:=fGameSettings.GetSlidersMax;
     KMRatio_Settings_Mouse.MinValue:=fGameSettings.GetSlidersMin;
-    KMLabel_Settings_SFX:=fControls.AddLabel(KMPanel_Settings,24,178,100,30,fnt_Metal,kaLeft,'SFX');
+    KMRatio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
+    KMLabel_Settings_SFX:=fControls.AddLabel(KMPanel_Settings,24,178,100,30,fnt_Metal,kaLeft,fTextLibrary.GetTextString(194));
     KMLabel_Settings_SFX.Enabled:=false;
     KMRatio_Settings_SFX:=fControls.AddRatioRow(KMPanel_Settings,18,198,160,20);
     KMRatio_Settings_SFX.Enabled:=false;
     KMRatio_Settings_SFX.MaxValue:=fGameSettings.GetSlidersMax;
     KMRatio_Settings_SFX.MinValue:=fGameSettings.GetSlidersMin;
-    KMLabel_Settings_Music:=fControls.AddLabel(KMPanel_Settings,24,226,100,30,fnt_Metal,kaLeft,'Music');
+    KMRatio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
+    KMLabel_Settings_Music:=fControls.AddLabel(KMPanel_Settings,24,226,100,30,fnt_Metal,kaLeft,fTextLibrary.GetTextString(196));
     KMLabel_Settings_Music.Enabled:=false;
     KMRatio_Settings_Music:=fControls.AddRatioRow(KMPanel_Settings,18,246,160,20);
     KMRatio_Settings_Music.Enabled:=false;
     KMRatio_Settings_Music.MaxValue:=fGameSettings.GetSlidersMax;
     KMRatio_Settings_Music.MinValue:=fGameSettings.GetSlidersMin;
-    KMLabel_Settings_Music2:=fControls.AddLabel(KMPanel_Settings,100,280,100,30,fnt_Metal,kaCenter,'Music:');
-    KMButton_Settings_Music:=fControls.AddButton(KMPanel_Settings,8,300,180,30,'On/Off',fnt_Metal);
+    KMRatio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
+    KMLabel_Settings_Music2:=fControls.AddLabel(KMPanel_Settings,100,280,100,30,fnt_Metal,kaCenter,fTextLibrary.GetTextString(197));
+    KMButton_Settings_Music:=fControls.AddButton(KMPanel_Settings,8,300,180,30,'',fnt_Metal);
+    KMButton_Settings_Music.Hint:=fTextLibrary.GetTextString(198);
     //There are many clickable controls, so let them all be handled in one procedure to save dozens of lines of code
     for i:=1 to KMPanel_Settings.ChildCount do
       TKMControl(KMPanel_Settings.Childs[i]).OnClick:=Settings_Change;
@@ -442,8 +460,8 @@ begin
     KMLabel_Quit:=fControls.AddLabel(KMPanel_Quit,100,30,100,30,fnt_Outline,kaRight,fTextLibrary.GetTextString(176));
     KMButton_Quit_Yes:=fControls.AddButton(KMPanel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
     KMButton_Quit_No:=fControls.AddButton(KMPanel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
-    KMButton_Quit_Yes.Hint:='';//fTextLibrary.GetTextString(185); wrong ID
-    KMButton_Quit_No.Hint:='';//fTextLibrary.GetTextString(184);
+    KMButton_Quit_Yes.Hint:=fTextLibrary.GetTextString(177);
+    KMButton_Quit_No.Hint:=fTextLibrary.GetTextString(178);
     KMButton_Quit_Yes.OnClick:=Form1.ExitClick;
     KMButton_Quit_No.OnClick:=SwitchPage;
 end;
@@ -453,9 +471,9 @@ end;
 procedure TKMGamePlayInterface.Create_Unit_Page;
 begin
   KMPanel_Unit:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
-    KMLabel_UnitName:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'Unit name here');
+    KMLabel_UnitName:=fControls.AddLabel(KMPanel_Unit,100,30,100,30,fnt_Outline,kaCenter,'');
     KMLabel_UnitCondition:=fControls.AddLabel(KMPanel_Unit,130,54,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(254));
-    KMLabel_UnitTask:=fControls.AddLabel(KMPanel_Unit,73,89,100,30,fnt_Grey,kaLeft,'Task');
+    KMLabel_UnitTask:=fControls.AddLabel(KMPanel_Unit,73,89,100,30,fnt_Grey,kaLeft,'');
     KMConditionBar_Unit:=fControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
     KMLabel_UnitDescription:=fControls.AddLabel(KMPanel_Unit,8,161,236,200,fnt_Grey,kaLeft,''); //Taken from LIB resource
     KMImage_UnitPic:=fControls.AddImage(KMPanel_Unit,8,52,54,80,521);
@@ -472,18 +490,20 @@ begin
     KMLabel_House:=fControls.AddLabel(KMPanel_House,100,14,100,30,fnt_Outline,kaCenter,'');
     KMButton_House_Goods:=fControls.AddButton(KMPanel_House,9,42,30,30,37);
     KMButton_House_Goods.OnClick := fGamePlayInterface.House_WareDeliveryToggle;
+    KMButton_House_Goods.Hint := fTextLibrary.GetTextString(249);
     KMButton_House_Repair:=fControls.AddButton(KMPanel_House,39,42,30,30,40);
     KMButton_House_Repair.OnClick := fGamePlayInterface.House_RepairToggle;
     KMButton_House_Repair.Enabled:=false;
+    KMButton_House_Repair.Hint := fTextLibrary.GetTextString(250);
     KMImage_House_Logo:=fControls.AddImage(KMPanel_House,68,41,32,32,338);
     KMImage_House_Worker:=fControls.AddImage(KMPanel_House,98,41,32,32,141);
     KMLabel_HouseHealth:=fControls.AddLabel(KMPanel_House,156,45,30,50,fnt_Mini,kaCenter,fTextLibrary.GetTextString(228),$FFFFFFFF);
-    KMHealthBar_House:=fControls.AddPercentBar(KMPanel_House,129,57,55,15,50,'-?-',fnt_Mini);
+    KMHealthBar_House:=fControls.AddPercentBar(KMPanel_House,129,57,55,15,50,'',fnt_Mini);
 
     KMPanel_House_Common:=fControls.AddPanel(KMPanel_House,0,76,200,400);
-      KMLabel_Common_Demand:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Grey,kaCenter,'Demand');
-      KMLabel_Common_Offer:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Grey,kaCenter,'Offer');
-      KMLabel_Common_Costs:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Grey,kaCenter,'Cost');
+      KMLabel_Common_Demand:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(227));
+      KMLabel_Common_Offer:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Grey,kaCenter,'');
+      KMLabel_Common_Costs:=fControls.AddLabel(KMPanel_House_Common,100,2,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(248));
       KMRow_Common_Resource[1] :=fControls.AddResourceRow(KMPanel_House_Common,  8,22,180,20,rt_Trunk,5);
       KMRow_Common_Resource[2] :=fControls.AddResourceRow(KMPanel_House_Common,  8,42,180,20,rt_Stone,5);
       KMRow_Common_Resource[3] :=fControls.AddResourceRow(KMPanel_House_Common,  8,62,180,20,rt_Trunk,5);
@@ -492,8 +512,10 @@ begin
         KMRow_Order[i] :=fControls.AddResourceOrderRow(KMPanel_House_Common,  8,22,180,20,rt_Trunk,5);
         KMRow_Order[i].OrderRem.OnClick:=House_OrderClick;
         KMRow_Order[i].OrderRem.OnRightClick:=House_OrderClickRight;
+        KMRow_Order[i].OrderRem.Hint:=fTextLibrary.GetTextString(234);
         KMRow_Order[i].OrderAdd.OnClick:=House_OrderClick;
         KMRow_Order[i].OrderAdd.OnRightClick:=House_OrderClickRight;
+        KMRow_Order[i].OrderAdd.Hint:=fTextLibrary.GetTextString(235);
       end;
       KMRow_Costs[1] :=fControls.AddCostsRow(KMPanel_House_Common,  8,22,180,20, 1);
       KMRow_Costs[2] :=fControls.AddCostsRow(KMPanel_House_Common,  8,22,180,20, 1);
@@ -510,9 +532,11 @@ begin
         KMButton_Store[i]:=fControls.AddButtonFlat(KMPanel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,350+i);
         KMButton_Store[i].OnClick:=House_StoreAcceptFlag;
         KMButton_Store[i].Tag:=i;
+        KMButton_Store[i].Hint:=TypeToString(TResourceType(i));
         KMButton_Store[i].HideHighlight:=true;
         KMImage_Store_Accept[i]:=fControls.AddImage(KMPanel_HouseStore, 8+((i-1)mod 5)*36+9,18+((i-1)div 5)*42-11,32,36,49);
         KMImage_Store_Accept[i].FOnClick:=House_StoreAcceptFlag;
+        KMImage_Store_Accept[i].Hint:=TypeToString(TResourceType(i));
       end;
 end;
 
@@ -524,7 +548,9 @@ begin
     KMPanel_House_School:=fControls.AddPanel(KMPanel_House,0,76,200,400);
       KMLabel_School_Res:=fControls.AddLabel(KMPanel_House_School,100,2,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(227));
       KMResRow_School_Resource :=fControls.AddResourceRow(KMPanel_House_School,  8,22,180,20,rt_Gold,5);
+      KMResRow_School_Resource.Hint :=TypeToString(rt_Gold);
       KMButton_School_UnitWIP :=fControls.AddButton(KMPanel_House_School,  8,48,32,32,0);
+      KMButton_School_UnitWIP.Hint:=fTextLibrary.GetTextString(225);
       KMButton_School_UnitWIPBar:=fControls.AddPercentBar(KMPanel_House_School,42,54,138,20,0);
       KMButton_School_UnitWIP.OnClick:= House_SchoolUnitRemove;
       for i:=1 to 5 do begin
@@ -545,6 +571,9 @@ begin
       KMButton_School_Right.OnClick:=House_SchoolUnitChange;
       KMButton_School_Left.OnRightClick:=House_SchoolUnitChangeRight;
       KMButton_School_Right.OnRightClick:=House_SchoolUnitChangeRight;
+      KMButton_School_Left.Hint :=fTextLibrary.GetTextString(242);
+      KMButton_School_Train.Hint:=fTextLibrary.GetTextString(243);
+      KMButton_School_Right.Hint:=fTextLibrary.GetTextString(241);
 end;
 
 
@@ -554,8 +583,12 @@ var i:integer;
 begin
     KMPanel_HouseBarracks:=fControls.AddPanel(KMPanel_House,0,76,200,400);
       for i:=1 to 12 do
+      begin
         KMButton_Barracks[i]:=fControls.AddButtonFlat(KMPanel_HouseBarracks, 8+((i-1)mod 6)*31,19+((i-1)div 6)*42,28,36,366+i);
+        KMButton_Barracks[i].Hint:=TypeToString(TResourceType(16+i));
+      end;
       KMButton_Barracks[12].TexID:=154;
+      KMButton_Barracks[12].Hint:=TypeToString(ut_Recruit);
 end;
 
 
@@ -596,26 +629,31 @@ begin
   CursorMode.Param:=0;
   KMLabel_BuildCost_Wood.Caption:='-';
   KMLabel_BuildCost_Stone.Caption:='-';
+  KMLabel_Build.Caption := '';
 
   if WasDown then exit; //Button was released
   
   if KMButton_BuildCancel.Down then begin
     CursorMode.Mode:=cm_Erase;
     KMImage_Build_Selected.TexID := 340;
+    KMLabel_Build.Caption := fTextLibrary.GetTextString(210);
   end;
   if KMButton_BuildRoad.Down then begin
     CursorMode.Mode:=cm_Road;
     KMImage_Build_Selected.TexID := 335;
     KMLabel_BuildCost_Stone.Caption:='1';
+    KMLabel_Build.Caption := fTextLibrary.GetTextString(212);
   end;
   if KMButton_BuildField.Down then begin
     CursorMode.Mode:=cm_Field;
     KMImage_Build_Selected.TexID := 337;
+    KMLabel_Build.Caption := fTextLibrary.GetTextString(214);
   end;
   if KMButton_BuildWine.Down then begin
     CursorMode.Mode:=cm_Wine;
     KMImage_Build_Selected.TexID := 336;
     KMLabel_BuildCost_Wood.Caption:='1';
+    KMLabel_Build.Caption := fTextLibrary.GetTextString(218);
   end;
 
   for i:=1 to HOUSE_COUNT do
@@ -625,6 +663,7 @@ begin
      KMImage_Build_Selected.TexID := GUIBuildIcons[i]; //Now update the selected icon
      KMLabel_BuildCost_Wood.Caption:=inttostr(HouseDAT[GUIBuildIcons[i]-300].WoodCost);
      KMLabel_BuildCost_Stone.Caption:=inttostr(HouseDAT[GUIBuildIcons[i]-300].StoneCost);
+     KMLabel_Build.Caption := TypeToString(THouseType(GUIBuildIcons[i]-300));
   end;
 end;
 
@@ -653,6 +692,7 @@ begin
   KMImage_House_Logo.TexID:=300+byte(Sender.GetHouseType);
   KMImage_House_Worker.TexID:=140+HouseDAT[byte(Sender.GetHouseType)].OwnerType+1;
   KMImage_House_Worker.Enabled := Sender.GetHasOwner;
+  KMImage_House_Worker.Hint := TypeToString(TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1));
   KMImage_House_Worker.Visible := TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1) <> ut_None;
   if (HouseInput[byte(Sender.GetHouseType)][1] in [rt_None,rt_All,rt_Warfare]) then
     KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enabled:=true;
@@ -695,6 +735,7 @@ begin
           inc(Line);
           for i:=1 to 4 do if HouseInput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
             KMRow_Common_Resource[RowRes].Resource:=HouseInput[byte(Sender.GetHouseType),i];
+            KMRow_Common_Resource[RowRes].Hint:=TypeToString(HouseInput[byte(Sender.GetHouseType),i]);
             KMRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResIn(HouseInput[byte(Sender.GetHouseType),i]);
             KMRow_Common_Resource[RowRes].Visible:=true;
             KMRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
@@ -715,6 +756,7 @@ begin
             KMRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
             KMRow_Common_Resource[RowRes].Visible:=true;
             KMRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
+            KMRow_Common_Resource[RowRes].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
             inc(Line);
             inc(RowRes);
           end;
@@ -731,11 +773,11 @@ begin
             KMRow_Order[i].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
             KMRow_Order[i].OrderCount:=Sender.CheckResOrder(i);
             KMRow_Order[i].Visible:=true;
+            KMRow_Order[i].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
             KMRow_Order[i].Top:=Base+Line*LineAdv;
             inc(Line);
           end;
           KMLabel_Common_Costs.Visible:=true;
-          KMLabel_Common_Costs.Caption:=fTextLibrary.GetTextString(248);
           KMLabel_Common_Costs.Top:=Base+Line*LineAdv+6;
           inc(Line);
           for i:=1 to 4 do //Costs
@@ -765,7 +807,7 @@ begin
   KMLabel_UnitName.Caption:=TypeToString(Sender.GetUnitType);
   KMImage_UnitPic.TexID:=520+byte(Sender.GetUnitType);
   KMConditionBar_Unit.Position:=round(Sender.GetCondition / UNIT_MAX_CONDITION * 100);
-  KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
+  KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText; //@Krom: No string in LIB files availible. If this is perminate (not just debugging) then we will need to add it. Prehaps we should start a list of new texts added which will need translating?
   KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType))
 end;
 
@@ -833,9 +875,15 @@ begin
 
   for i:=1 to 5 do
     if School.UnitQueue[i+1]<>ut_None then
-      KMButton_School_UnitPlan[i].TexID:=140+byte(School.UnitQueue[i+1])
+    begin
+      KMButton_School_UnitPlan[i].TexID:=140+byte(School.UnitQueue[i+1]);
+      KMButton_School_UnitPlan[i].Hint:=TypeToString(School.UnitQueue[i+1]);
+    end
     else
+    begin
       KMButton_School_UnitPlan[i].TexID:=0;
+      KMButton_School_UnitPlan[i].Hint:='';
+    end;
 
   KMButton_School_Left.Enabled := LastSchoolUnit > 1;
   KMButton_School_Right.Enabled := LastSchoolUnit < length(School_Order);
@@ -907,7 +955,7 @@ begin
   KMRatio_Settings_SFX.Position:=fGameSettings.GetSoundFXVolume;
   KMRatio_Settings_Music.Position:=fGameSettings.GetMusicVolume;
   if fGameSettings.IsMusic then
-  KMButton_Settings_Music.Caption:='On' else KMButton_Settings_Music.Caption:='Off';
+  KMButton_Settings_Music.Caption:=fTextLibrary.GetTextString(201) else KMButton_Settings_Music.Caption:=fTextLibrary.GetTextString(199);
 end;
 
 
@@ -925,10 +973,11 @@ begin
   if MyPlayer.GetCanBuild(THouseType(GUIBuildIcons[i]-300)) then begin
     KMButton_Build[i].Enabled:=true;
     KMButton_Build[i].TexID:=GUIBuildIcons[i];
-    KMButton_Build[i].OnClick:=BuildButtonClick;
+    KMButton_Build[i].OnClick:=BuildButtonClick;      
+    KMButton_Build[i].Hint:=TypeToString(THouseType(GUIBuildIcons[i]-300));
   end else begin
     KMButton_Build[i].OnClick:=nil;
-    KMButton_Build[i].TexID:=41;        
+    KMButton_Build[i].TexID:=41;
     KMButton_Build[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
   end;
 end;
@@ -970,13 +1019,23 @@ begin
     Tmp:=MyPlayer.GetHouseQty(StatHouseOrder[i,k]);
     if Tmp=0 then Stat_HouseQty[ci].Caption:='-' else Stat_HouseQty[ci].Caption:=inttostr(Tmp);
     if MyPlayer.GetCanBuild(StatHouseOrder[i,k]) or (Tmp>0) then
-      Stat_House[ci].TexID:=byte(StatHouseOrder[i,k])+300
+    begin
+      Stat_House[ci].TexID:=byte(StatHouseOrder[i,k])+300;
+      Stat_House[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
+      Stat_HouseQty[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
+    end
     else
+    begin
       Stat_House[ci].TexID:=41;
+      Stat_House[ci].Hint:=fTextLibrary.GetTextString(251); //Building not available
+      Stat_HouseQty[ci].Hint:=fTextLibrary.GetTextString(251); //Building not available
+    end;
   end;
   for i:=1 to 11 do begin
     Tmp:=MyPlayer.GetUnitQty(StatUnitOrder[i]);
     if Tmp=0 then Stat_UnitQty[i].Caption:='-' else Stat_UnitQty[i].Caption:=inttostr(Tmp);
+    Stat_Unit[i].Hint:=TypeToString(StatUnitOrder[i]);
+    Stat_UnitQty[i].Hint:=TypeToString(StatUnitOrder[i]);
   end;
 end;
 
