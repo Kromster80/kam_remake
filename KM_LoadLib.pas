@@ -119,6 +119,16 @@ begin
   end;
             
   CloseFile(LIBFile);
+
+  //@Lewin: Here I suggest you organise a temp list of new strings
+  //TextStrings[1025]:='Activity';
+  //TextStrings[1026]:='Building';
+  //TextStrings[1027]:='Digging';
+  //TextStrings[1028]:='Delivering';
+  //etc..
+  //Once we settle the design and test it ingame we could either export it to lib files
+  //or make an addon lib file especially for Remake (I like that better) - addon.lib
+  //Your ideas?
 end;
            
 function TTextLibrary.GetTextString(AIndex:integer):string;

@@ -237,8 +237,12 @@ begin
   if (ShownHint<>nil)and(not (ShownHint as TKMControl).Visible) then ShownHint:=nil;
   //Random numbers here are to show every time hint gets refreshed
   KMLabel_Hint.Top:=fRender.GetRenderAreaSize.Y-16;
+  //@Krom: What are these random numbers and spaces for?
+  //If they are debugging then can we just remove them?
+  //@Lewin: I'd like to rework hint display so it didn't refreshed each frame
+  //IF OnHint text didn't changed then exit;
   if ShownHint=nil then KMLabel_Hint.Caption:=''+'    '+inttostr(random(10)) else
-  KMLabel_Hint.Caption:=(Sender as TKMControl).Hint+'    '+inttostr(random(10)); //@Krom: What are these random numbers and spaces for? If they are debugging then can we just remove them?
+  KMLabel_Hint.Caption:=(Sender as TKMControl).Hint+'    '+inttostr(random(10));
 end;
 
 
@@ -275,9 +279,9 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
     KMMinimap:=fControls.AddMinimap(KMPanel_Main,10,10,176,176);
     KMMinimap.OnMouseOver:=Minimap_Move;
 
-    {for i:=1 to length(FontFiles) do begin
+    {for i:=1 to length(FontFiles) do
       L[i]:=fControls.AddLabel(KMPanel_Main,250,300+i*20,160,30,TKMFont(i),kaLeft,FontFiles[i]+' This is a test string for KaM Remake');
-    end;//}
+    //}
 
     //L[1]:=fControls.AddLabel(KMPanel_Main,250,120,160,30,fnt_Outline,kaLeft,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
     //L[2]:=fControls.AddLabel(KMPanel_Main,250,320,160,30,fnt_Outline,kaCenter,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
@@ -308,23 +312,23 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
     KMLabel_Hint:=fControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,fnt_Outline,kaLeft,'');
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
+{==========================================================================================}
+  Create_Build_Page();
+  Create_Ratios_Page();
+  Create_Stats_Page();
+  Create_Menu_Page();
+    Create_Settings_Page();
+    Create_Quit_Page();
 
-Create_Build_Page();
-Create_Ratios_Page();
-Create_Stats_Page();
-Create_Menu_Page();
-  Create_Settings_Page();
-  Create_Quit_Page();
-
-Create_Unit_Page();
-Create_House_Page();
-  Create_Store_Page();
-  Create_School_Page();
-  Create_Barracks_Page();
+  Create_Unit_Page();
+  Create_House_Page();
+    Create_Store_Page();
+    Create_School_Page();
+    Create_Barracks_Page();
 
   SetHintEvents(DisplayHint); //Set all OnHint events to be the correct function
 
-SwitchPage(nil);
+  SwitchPage(nil); //Update
 end;
 
 {Build page}
@@ -457,7 +461,7 @@ end;
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   KMPanel_Quit:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
-    KMLabel_Quit:=fControls.AddLabel(KMPanel_Quit,100,30,100,30,fnt_Outline,kaRight,fTextLibrary.GetTextString(176));
+    KMLabel_Quit:=fControls.AddLabel(KMPanel_Quit,100,30,100,30,fnt_Outline,kaCenter,fTextLibrary.GetTextString(176));
     KMButton_Quit_Yes:=fControls.AddButton(KMPanel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
     KMButton_Quit_No:=fControls.AddButton(KMPanel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
     KMButton_Quit_Yes.Hint:=fTextLibrary.GetTextString(177);
@@ -807,7 +811,12 @@ begin
   KMLabel_UnitName.Caption:=TypeToString(Sender.GetUnitType);
   KMImage_UnitPic.TexID:=520+byte(Sender.GetUnitType);
   KMConditionBar_Unit.Position:=round(Sender.GetCondition / UNIT_MAX_CONDITION * 100);
-  KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText; //@Krom: No string in LIB files availible. If this is perminate (not just debugging) then we will need to add it. Prehaps we should start a list of new texts added which will need translating?
+  //@Krom: No string in LIB files availible.
+  //If this is perminate (not just debugging) then we will need to add it.
+  //Prehaps we should start a list of new texts added which will need translating?
+  //@Lewin: This is for debug atm, but I think this could be a nice new feature.
+  //Yes, can you make a sort of extension to LoadLIB? > See LoadLib for my comments.
+  KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType))
 end;
 
