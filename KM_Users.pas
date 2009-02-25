@@ -24,6 +24,7 @@ type
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint):boolean;
     procedure RemHouse(Position: TKMPoint);
+    procedure RemUnit(Position: TKMUnit);
     procedure RemPlan(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word): TKMHouse;
@@ -120,6 +121,11 @@ end;
 procedure TKMPlayerAssets.RemHouse(Position: TKMPoint);
 begin
   fHouses.Rem(Position.X, Position.Y);
+end;
+
+procedure TKMPlayerAssets.RemUnit(Position: TKMUnit);
+begin
+  fUnits.Rem(Position);
 end;
 
 procedure TKMPlayerAssets.RemPlan(Position: TKMPoint);

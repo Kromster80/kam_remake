@@ -384,9 +384,11 @@ begin
 TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(11,9);
 
-for k:=-5 to 5 do
-for i:=-4 to 6 do
+for k:=-5 to 5 do for i:=-4 to 6 do
 fTerrain.SetCoalReserve(KMPoint(8+i,14+k));
+
+for k:=-5 to 5 do for i:=-4 to 6 do
+fTerrain.SetOreReserve(KMPoint(21+i,6+k),rt_IronOre);
 
 MyPlayer.AddRoadPlan(KMPoint(2,6),mu_RoadPlan);
 
@@ -404,7 +406,7 @@ MyPlayer.AddUnit(ut_Baker, KMPoint(5,7));
 
 MyPlayer.AddHouse(ht_Store, KMPoint(17,5));
 
-//MyPlayer.AddHouse(ht_WoodCutters, KMPoint(4,9));
+MyPlayer.AddHouse(ht_WoodCutters, KMPoint(4,9));
 MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9));
 MyPlayer.AddHouse(ht_Quary, KMPoint(12,9));
 MyPlayer.AddUnit(ut_WoodCutter, KMPoint(7,11));
@@ -473,7 +475,6 @@ for k:=1 to 4 do begin
   if H<>nil then H.AddMultiResource(rt_All,30);
 
   for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(k*4,8));
-
   for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(k*4+1,8));
 
 end;

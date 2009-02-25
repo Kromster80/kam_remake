@@ -279,7 +279,7 @@ object Form1: TForm1
       Top = 52
       Width = 25
       Height = 17
-      Caption = '1'
+      Caption = '6'
       TabOrder = 9
       OnClick = Button2Click
     end

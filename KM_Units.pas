@@ -45,9 +45,6 @@ type
     property ActionType: TUnitActionType read fActionType;
   end;
 
-      {Simple movement between cells}
-      //Obsolete
-
       {Walk to somewhere}
       TUnitActionWalkTo = class(TUnitAction)
       private
@@ -95,51 +92,51 @@ type
       fSchool:TKMHouseSchool;
       Phase:byte;
     public
-    constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
     TTaskDeliver = class(TUnitTask)
     private
-    fSerf:TKMUnitSerf;
-    fFrom:TKMHouse;
-    fToHouse:TKMHouse;
-    fToUnit:TKMUnit;
-    fResource:TResourceType;
-    ID:integer;
+      fSerf:TKMUnitSerf;
+      fFrom:TKMHouse;
+      fToHouse:TKMHouse;
+      fToUnit:TKMUnit;
+      fResource:TResourceType;
+      ID:integer;
     public
-    constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
     TTaskBuildRoad = class(TUnitTask)
     private
-    fWorker:TKMUnitWorker;
-    fLoc:TKMPoint;
-    ID:integer;
+      fWorker:TKMUnitWorker;
+      fLoc:TKMPoint;
+      ID:integer;
     public
-    constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
     TTaskBuildWine = class(TUnitTask)
     private
-    fWorker:TKMUnitWorker;
-    fLoc:TKMPoint;
-    ID:integer;
+      fWorker:TKMUnitWorker;
+      fLoc:TKMPoint;
+      ID:integer;
     public
-    constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
     TTaskBuildField = class(TUnitTask)
     private
-    fWorker:TKMUnitWorker;
-    fLoc:TKMPoint;
-    ID:integer;
+      fWorker:TKMUnitWorker;
+      fLoc:TKMPoint;
+      ID:integer;
     public
-    constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
     TTaskBuildHouseArea = class(TUnitTask)
@@ -175,8 +172,8 @@ type
       fUnit:TKMUnit;
       fDestPos:TKMPoint;
     public
-    constructor Create(aTo:TKMPoint; aUnit:TKMUnit);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aTo:TKMPoint; aUnit:TKMUnit);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
     TTaskGoEat = class(TUnitTask)
@@ -184,8 +181,8 @@ type
       fUnit:TKMUnit;
       fInn:TKMHouse;
     public
-    constructor Create(aInn:TKMHouse; aUnit:TKMUnit);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aInn:TKMHouse; aUnit:TKMUnit);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
     TTaskMining = class(TUnitTask)
@@ -193,12 +190,24 @@ type
       WorkPlan:TUnitWorkPlan;
       fUnit:TKMUnit;
     public
-    constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
-    procedure Execute(out TaskDone:boolean); override;
+      constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
+      procedure Execute(out TaskDone:boolean); override;
+    end;
+
+    {Yep, this is a Task}
+    TTaskDie = class(TUnitTask)
+    private
+      fUnit:TKMUnit;
+    public
+      constructor Create(aUnit:TKMUnit);
+      procedure Execute(out TaskDone:boolean); override;
     end;
 
   TKMUnit = class(TObject)
   private
+    //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
+    //UpdateState cycle. So we need to finish the cycle and only then remove the unit.
+    ScheduleUnitForRemoval:boolean;
     Speed:single;
     fOwner:TPlayerID;
     fHome:TKMHouse;
@@ -270,6 +279,7 @@ type
   TKMUnitsCollection = class(TKMList)
   public
     function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer):TKMUnit;
+    procedure Rem(aUnit:TKMUnit);
     procedure UpdateState;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
@@ -356,7 +366,7 @@ if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
     Issued:=false;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
-  if fTerrain.FindCoal(aLoc,2).X<>0 then begin
+  if fTerrain.FindOre(aLoc,2,rt_IronOre).X<>0 then begin
     Loc:=fTerrain.FindOre(aLoc,2,rt_IronOre);
     ResourcePlan(rt_None,0,rt_None,0,rt_IronOre);
     GatheringScript:=gs_IronMiner;
@@ -367,7 +377,7 @@ if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
     Issued:=false;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_GoldMine) then begin
-  if fTerrain.FindCoal(aLoc,2).X<>0 then begin
+  if fTerrain.FindOre(aLoc,2,rt_GoldOre).X<>0 then begin
     Loc:=fTerrain.FindOre(aLoc,2,rt_GoldOre);
     ResourcePlan(rt_None,0,rt_None,0,rt_GoldOre);
     GatheringScript:=gs_GoldMiner;
@@ -580,6 +590,7 @@ procedure TKMUnitCitizen.UpdateState;
 var
   TimeDelta: Cardinal;
   DoEnd,TaskDone: Boolean;
+  H:TKMHouse;
 begin
   Inherited;
   DoEnd:=true;
@@ -606,20 +617,23 @@ begin
 //Priority no.1 - find self a food
 //Priority no.2 - find self a home
 //Priority no.3 - find self a work
-    if fCondition<1200 then
-      if fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,round(fPosition.X),round(fPosition.Y))<>nil then
-        fUnitTask:=TTaskGoEat.Create(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,round(fPosition.X),round(fPosition.Y)),Self)
+    if fCondition<UNIT_MIN_CONDITION then begin
+      H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
+      if (H<>nil)and
+      (H.CheckResIn(rt_Sousages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+        fUnitTask:=TTaskGoEat.Create(H,Self)
+      else //If there's no Inn or no food in it
+        //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
+        //for now - IgnoreHunger for all
+    end;
+    if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
+      if (fHome=nil) then
+        if FindHome then
+          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self) //Home found - go there
+        else
+          SetAction(TUnitActionStay.Create(120, ua_Walk)) //There's no home
       else
-        //StayStillAndDieSoon
-    else
-    if (fHome=nil) then
-      if FindHome then
-        fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self)
-      else
-        SetAction(TUnitActionStay.Create(120, ua_Walk))
-    else
-    //if not at home - go home
-      fUnitTask:=InitiateMining;
+        fUnitTask:=InitiateMining; //Unit has home, so go get a job
 
 if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk));
 end;
@@ -681,6 +695,7 @@ procedure TKMUnitSerf.UpdateState;
 var
   TimeDelta: Cardinal;
   DoEnd,TaskDone: Boolean;
+  H:TKMHouse;
 begin
   Inherited;
   DoEnd:=true;
@@ -703,9 +718,19 @@ begin
     fUnitTask:=nil
   end;
 
+  if fCondition<UNIT_MIN_CONDITION then begin
+    H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
+    if (H<>nil)and
+    (H.CheckResIn(rt_Sousages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+      fUnitTask:=TTaskGoEat.Create(H,Self)
+  else //If there's no Inn or no food in it
+    //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
+    //for now - IgnoreHunger for all
+  end;
+
   fUnitTask:=GetActionFromQueue;
 
-  if fUnitTask=nil then SetAction(TUnitActionStay.Create(10,ua_Walk)); //Stay idle
+  if fUnitTask=nil then SetAction(TUnitActionStay.Create(20,ua_Walk)); //Stay idle
 end;
 
 
@@ -751,6 +776,7 @@ procedure TKMUnitWorker.UpdateState;
 var
   TimeDelta: Cardinal;
   DoEnd,TaskDone: Boolean;
+  H:TKMHouse;
 begin
   Inherited;
   DoEnd:=true;
@@ -771,6 +797,16 @@ begin
   if fUnitTask <> nil then begin
     fUnitTask.Free;
     fUnitTask:=nil
+  end;
+
+  if fCondition<UNIT_MIN_CONDITION then begin
+  H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
+  if (H<>nil)and
+  (H.CheckResIn(rt_Sousages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+    fUnitTask:=TTaskGoEat.Create(H,Self)
+  else //If there's no Inn or no food in it
+    //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
+    //for now - IgnoreHunger for all
   end;
 
   fUnitTask:=GetActionFromQueue;
@@ -825,6 +861,7 @@ end;
 constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
+  ScheduleUnitForRemoval:=false;
   fHome:=nil;
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
@@ -905,9 +942,17 @@ end;
 
 procedure TKMUnit.UpdateState();
 begin
-//dec(fCondition); //Disabled for now
-//if fCondition<=0 then Die
+  if fCondition>0 then dec(fCondition); //Disabled for now
+
+  if fCondition=0 then
+  if not (fUnitTask is TTaskDie) then begin
+    SetAction(nil);
+    fUnitTask.Free; //Should be overriden to dispose of Task-specific items
+    fUnitTask:=nil;
+    fUnitTask:=TTaskDie.Create(Self);
+  end;
 end;
+
 
 { TTaskSelfTrain }
 {Train itself in school}
@@ -1411,6 +1456,34 @@ inc(Phase);
 end;
 
 
+{ TTaskDie }
+constructor TTaskDie.Create(aUnit:TKMUnit);
+begin
+  fUnit:=aUnit;
+  Phase:=0;
+end;
+
+procedure TTaskDie.Execute(out TaskDone:boolean);
+begin
+TaskDone:=false;
+with fUnit do
+case Phase of
+  0: if not fVisible then begin
+       if fHome<>nil then fHome.SetState(hst_Empty,0);
+       SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
+     end;  
+  1: SetAction(TUnitActionStay.Create(16,ua_Die,false));
+  2: begin
+      //Schedule Unit for removal and remove it after fUnits.UpdateState is done
+      fUnit.ScheduleUnitForRemoval:=true;
+      exit;
+     end;
+  //3: TaskDone:=true; //Doesn't matter any more
+end;
+inc(Phase);
+end;
+
+
 { TTaskGoEat }
 constructor TTaskGoEat.Create(aInn:TKMHouse; aUnit:TKMUnit);
 begin
@@ -1602,6 +1675,11 @@ begin
 end;
 
 
+procedure TKMUnitsCollection.Rem(aUnit:TKMUnit);
+begin
+  Remove(aUnit);
+end;
+
 function TKMUnitsCollection.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 var
   I: Integer;
@@ -1639,6 +1717,13 @@ var
 begin
   for I := 0 to Count - 1 do
     TKMUnit(Items[I]).UpdateState;
+
+  for I := Count - 1 downto 0 do
+    if TKMUnit(Items[I]).ScheduleUnitForRemoval then begin
+      TKMUnit(Items[I]).Destroy;
+      Rem(TKMUnit(Items[I]));
+    end;
+
 end;
 
 end.

@@ -206,7 +206,7 @@ end;
 
 function TMissionSettings.GetUnitQty(aType:TUnitType):integer;
 begin
-  Result:=UnitTrainedCount[byte(aType)];
+  Result:=UnitTrainedCount[byte(aType)]-UnitLostCount[byte(aType)];
 end;
 
 

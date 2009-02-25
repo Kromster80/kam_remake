@@ -60,7 +60,7 @@ public
     FieldSpecial:TFieldSpecial;  //fs_None, fs_Corn1, fs_Corn2, fs_Wine1, fs_Wine2, fs_Wine3, fs_Wine4, fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4
 
     //Another var for borders (ropes, planks, stones) Top and Left
-    BorderX,BorderY:TBorderType;
+    BorderX,BorderY:TBorderType; //Should be also bottom and right
   end;
   
   constructor Create;
@@ -92,6 +92,7 @@ public
   procedure CutCorn(Loc:TKMPoint);
   procedure CutGrapes(Loc:TKMPoint);
   procedure SetCoalReserve(Loc:TKMPoint);
+  procedure SetOreReserve(Loc:TKMPoint; rt:TResourceType);
   procedure DecCoalReserve(Loc:TKMPoint);
   procedure DecOreReserve(Loc:TKMPoint; rt:TResourceType);
 
@@ -203,6 +204,7 @@ procedure TTerrain.SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
 begin
   Land[Loc.Y,Loc.X].Markup:=aMarkup;
 end;
+
 
 {Remove markup from tile}
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
@@ -450,6 +452,7 @@ begin
   Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
 end;
 
+
 procedure TTerrain.CutGrapes(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
@@ -460,7 +463,18 @@ end;
 {Used only in debug - places coal on map}
 procedure TTerrain.SetCoalReserve(Loc:TKMPoint);
 begin
+  if not TileInMapCoords(Loc.X, Loc.Y) then exit;
   Land[Loc.Y,Loc.X].Terrain:=155;
+end;
+
+
+{Used only in debug - places coal on map}
+procedure TTerrain.SetOreReserve(Loc:TKMPoint; rt:TResourceType);
+begin
+  if not TileInMapCoords(Loc.X, Loc.Y) then exit;
+  Assert(rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
+  if rt=rt_IronOre then Land[Loc.Y,Loc.X].Terrain:=151;
+  if rt=rt_GoldOre then Land[Loc.Y,Loc.X].Terrain:=147;
 end;
 
 
@@ -481,6 +495,7 @@ end;
 {Extract one unit of ore}
 procedure TTerrain.DecOreReserve(Loc:TKMPoint; rt:TResourceType);
 begin
+  Assert(Rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
   case Land[Loc.Y,Loc.X].Terrain of
   144: Land[Loc.Y,Loc.X].Terrain:=157; //Gold
   145: Land[Loc.Y,Loc.X].Terrain:=144;

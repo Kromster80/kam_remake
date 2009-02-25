@@ -34,7 +34,8 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
 
         //Here we store options that are hidden somewhere in code
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
-        UNIT_MAX_CONDITION = 1800;             //3min of life
+        UNIT_MAX_CONDITION = 5*600;             //*min of life
+        UNIT_MIN_CONDITION = 600;               //If unit condition is less it will look for Inn
 
 
 {Cursors}
