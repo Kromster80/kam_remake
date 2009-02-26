@@ -447,7 +447,7 @@ MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 
 H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
-if H<>nil then H.AddMultiResource(rt_All,5);
+if H<>nil then H.AddMultiResource(rt_All,15);
 
 MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan);
 MyPlayer.AddRoadPlan(KMPoint(4,6),mu_RoadPlan);
@@ -459,7 +459,7 @@ MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
 MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);
 
 MyPlayer.AddHousePlan(ht_School, KMPoint(4,17));
-MyPlayer.AddHousePlan(ht_Inn, KMPoint(9,18));
+MyPlayer.AddHouse(ht_Inn, KMPoint(9,18));
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);

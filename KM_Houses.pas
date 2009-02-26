@@ -81,7 +81,7 @@ type
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
-    property GetHasOwner:boolean read fHasOwner;
+    property GetHasOwner:boolean read fHasOwner write fHasOwner;
     property GetHealth:word read fHealth;
 
     procedure UpdateState;

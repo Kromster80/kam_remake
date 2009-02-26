@@ -728,7 +728,8 @@ begin
     //for now - IgnoreHunger for all
   end;
 
-  fUnitTask:=GetActionFromQueue;
+  if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
+    fUnitTask:=GetActionFromQueue;
 
   if fUnitTask=nil then SetAction(TUnitActionStay.Create(20,ua_Walk)); //Stay idle
 end;
@@ -809,7 +810,8 @@ begin
     //for now - IgnoreHunger for all
   end;
 
-  fUnitTask:=GetActionFromQueue;
+  if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
+    fUnitTask:=GetActionFromQueue;
 
   if fUnitTask=nil then SetAction(TUnitActionStay.Create(20,ua_Walk));
 end;
@@ -877,10 +879,6 @@ end;
 
 destructor TKMUnit.Destroy;
 begin
-  //Abandon delivery or other current task
-  //Abandon home
-  //if fUnitTask is TTaskDeliver then ControlList.DeliverList.AbandonDelivery(TTaskDeliver(fUnitTask).ID);
-  //fHome.GetHasOwner:=false;
   fCurrentAction.Free;
   fUnitTask.Free;
   fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
@@ -1257,9 +1255,9 @@ case Phase of
       fHouse.SetBuildingState(hbs_Wood);
       fPlayers.Player[byte(fOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
       for i:=1 to HouseDAT[byte(fHouse.GetHouseType)].WoodCost do
-        fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(fHouse,nil,rt_Wood,dt_Once,di_Norm);
+        fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(fHouse,nil,rt_Wood,dt_Once,di_High);
       for i:=1 to HouseDAT[byte(fHouse.GetHouseType)].StoneCost do
-        fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(fHouse,nil,rt_Stone,dt_Once,di_Norm);
+        fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(fHouse,nil,rt_Stone,dt_Once,di_High);
       TaskDone:=true;
     end;
 end;
@@ -1469,11 +1467,15 @@ TaskDone:=false;
 with fUnit do
 case Phase of
   0: if not fVisible then begin
-       if fHome<>nil then fHome.SetState(hst_Empty,0);
+       if fHome<>nil then begin
+         fHome.SetState(hst_Idle,0);
+         fHome.SetState(hst_Empty,0);
+       end;
        SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
      end;  
   1: SetAction(TUnitActionStay.Create(16,ua_Die,false));
   2: begin
+      if fHome<>nil then fHome.GetHasOwner:=false;
       //Schedule Unit for removal and remove it after fUnits.UpdateState is done
       fUnit.ScheduleUnitForRemoval:=true;
       exit;
@@ -1495,7 +1497,6 @@ end;
 procedure TTaskGoEat.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
-
 fUnit.fCondition:= UNIT_MAX_CONDITION;
 TaskDone:=true;
 exit;

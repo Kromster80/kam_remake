@@ -995,6 +995,7 @@ end;
 procedure TKMGamePlayInterface.StoreFill(Sender:TObject);
 var i,Tmp:integer;
 begin
+  if fPlayers.SelectedHouse=nil then exit;
   for i:=1 to 28 do begin
     Tmp:=TKMHouseStore(fPlayers.SelectedHouse).ResourceCount[i];
     if Tmp=0 then KMButton_Store[i].Caption:='-'
