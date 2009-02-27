@@ -803,7 +803,7 @@ procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
 begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
-  if (Sender=nil)or(not Sender.IsVisible) then begin
+  if (Sender=nil)or(not Sender.IsVisible)or(Sender.ScheduleForRemoval) then begin
     SwitchPage(nil);
     exit;
   end;

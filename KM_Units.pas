@@ -205,9 +205,6 @@ type
 
   TKMUnit = class(TObject)
   private
-    //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
-    //UpdateState cycle. So we need to finish the cycle and only then remove the unit.
-    ScheduleUnitForRemoval:boolean;
     Speed:single;
     fOwner:TPlayerID;
     fHome:TKMHouse;
@@ -221,6 +218,9 @@ type
     fCondition:integer; //Unit condition, when it reaches zero unit should die
     //function UnitAtHome():boolean; Test if Unit is invisible and Pos matches fHome.GetEntrance
   public
+    //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
+    //UpdateState cycle. So we need to finish the cycle and only then remove the unit. Property is public.
+    ScheduleForRemoval:boolean;
     Direction: TKMDirection;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
@@ -863,7 +863,7 @@ end;
 constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
-  ScheduleUnitForRemoval:=false;
+  ScheduleForRemoval:=false;
   fHome:=nil;
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
@@ -1477,7 +1477,7 @@ case Phase of
   2: begin
       if fHome<>nil then fHome.GetHasOwner:=false;
       //Schedule Unit for removal and remove it after fUnits.UpdateState is done
-      fUnit.ScheduleUnitForRemoval:=true;
+      fUnit.ScheduleForRemoval:=true;
       exit;
      end;
   //3: TaskDone:=true; //Doesn't matter any more
@@ -1719,9 +1719,9 @@ begin
   for I := 0 to Count - 1 do
     TKMUnit(Items[I]).UpdateState;
 
-  for I := Count - 1 downto 0 do
-    if TKMUnit(Items[I]).ScheduleUnitForRemoval then begin
-      TKMUnit(Items[I]).Destroy;
+  for I := Count - 1 downto 0 do //After all units are updated we can safely remove those that died.
+    if TKMUnit(Items[I]).ScheduleForRemoval then begin
+      TKMUnit(Items[I]).Free;
       Rem(TKMUnit(Items[I]));
     end;
 

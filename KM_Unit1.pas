@@ -459,7 +459,7 @@ MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
 MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);
 
 MyPlayer.AddHousePlan(ht_School, KMPoint(4,17));
-MyPlayer.AddHouse(ht_Inn, KMPoint(9,18));
+//MyPlayer.AddHouse(ht_Inn, KMPoint(9,18));
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
