@@ -803,14 +803,14 @@ procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
 begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
-  if (Sender=nil)or(not Sender.IsVisible)or(Sender.ScheduleForRemoval) then begin
+  if (Sender=nil)or(not Sender.IsVisible)or((Sender<>nil)and(Sender.ScheduleForRemoval)) then begin
     SwitchPage(nil);
     exit;
   end;
   SwitchPage(KMPanel_Unit);
   KMLabel_UnitName.Caption:=TypeToString(Sender.GetUnitType);
   KMImage_UnitPic.TexID:=520+byte(Sender.GetUnitType);
-  KMConditionBar_Unit.Position:=round(Sender.GetCondition / UNIT_MAX_CONDITION * 100);
+  KMConditionBar_Unit.Position:=EnsureRange(round(Sender.GetCondition / UNIT_MAX_CONDITION * 100),-10,110);
   //@Krom: No string in LIB files availible.
   //If this is perminate (not just debugging) then we will need to add it.
   //Prehaps we should start a list of new texts added which will need translating?

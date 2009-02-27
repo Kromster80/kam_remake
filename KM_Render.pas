@@ -212,11 +212,15 @@ end;
   glbegin (GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
-    begin
-    glTexCoord1f(max(0,-Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
-    glTexCoord1f(max(0,-Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
-    glTexCoord1f(max(0,-Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
-    glTexCoord1f(max(0,-Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+    begin                              
+    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckRevelation(k,i,MyPlayer.PlayerID)));
+    glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
+    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckRevelation(k,i+1,MyPlayer.PlayerID)));
+    glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
+    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckRevelation(k+1,i+1,MyPlayer.PlayerID)));
+    glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
+    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckRevelation(k+1,i,MyPlayer.PlayerID)));
+    glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
     end;
   glEnd;
 

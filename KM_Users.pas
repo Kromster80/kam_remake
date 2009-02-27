@@ -8,7 +8,6 @@ type
 
   TKMPlayerAssets = class
   private
-    PlayerID:TPlayerID; //Which ID this player is
     fMissionSettings: TMissionSettings;
     fUnits: TKMUnitsCollection;
     fHouses: TKMHousesCollection;
@@ -18,6 +17,7 @@ type
     constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
   public
+    PlayerID:TPlayerID; //Which ID this player is
     PlayerType: TPlayerType; //Is it Human or AI
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);

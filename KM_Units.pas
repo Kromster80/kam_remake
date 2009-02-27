@@ -940,7 +940,10 @@ end;
 
 procedure TKMUnit.UpdateState();
 begin
-  if fCondition>0 then dec(fCondition); //Disabled for now
+  if fCondition>0 then dec(fCondition);
+
+  //We use fCondition as a sort of counter to reveal terrain 4 times a sec
+  if fCondition mod 4 = 0 then fTerrain.RevealCircle(GetPosition,6,10,fOwner);
 
   if fCondition=0 then
   if not (fUnitTask is TTaskDie) then begin

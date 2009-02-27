@@ -7,6 +7,7 @@ MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solv
 
 type TPassability = (canWalk, canWalkRoad, canBuild, canMakeRoads, canMakeFields, canPlantTrees, canFish);
      TPassabilitySet = set of TPassability;
+
 const PassabilityStr:array[1..7] of string = ('canWalk', 'canWalkRoad', 'canBuild', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
 {canWalk - General passability of tile for any walking units}
 {canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
@@ -61,6 +62,10 @@ public
 
     //Another var for borders (ropes, planks, stones) Top and Left
     BorderX,BorderY:TBorderType; //Should be also bottom and right
+
+    //This would be a bitfield for 8 players, 2bits per player - total of 16bit
+    //First bit is wherever vertice is explored at all, second is if fog of war unveiled at the moment
+    FogOfWar:array[1..8]of byte; //0 unexplored, 1 explored 255 visible
   end;
   
   constructor Create;
@@ -102,6 +107,8 @@ public
 
   function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+  procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
+  function CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
   procedure UpdateBorders(Loc:TKMPoint);
   procedure FlattenTerrain(Loc:TKMPoint);
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
@@ -128,7 +135,7 @@ end;
 
 //Reset whole map with default values
 procedure TTerrain.MakeNewMap(Width,Height:integer);
-var i,k:integer;
+var i,k,h:integer;
 begin
   MapX:=min(Width,MaxMapSize);
   MapY:=min(Height,MaxMapSize);
@@ -147,6 +154,7 @@ begin
     TreeAge:=0;
     BorderX:=bt_None;
     BorderY:=bt_None;
+    for h:=1 to 8 do FogOfWar[h]:=0;
   end;
 
   RebuildLighting(1,MapX,1,MapY);
@@ -196,6 +204,29 @@ end;
 function TTerrain.VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
   Result := InRange(X,1+Inset,MapX-Inset) and InRange(Y,1+Inset,MapY-Inset);
+end;
+
+
+{Reveal circle on map}
+{Amount controls how rapid terrain is revealed, almost instantly or slowly}
+procedure TTerrain.RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
+var i,k:integer;
+begin
+  if not InRange(byte(PlayerID),1,8) then exit;
+  for i:=Pos.Y-Radius to Pos.Y+Radius do for k:=Pos.X-Radius to Pos.X+Radius do
+  if (VerticeInMapCoords(k,i,1))and(KMLength(Pos,KMPoint(k,i))<=Radius) then
+    Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,TERRAIN_FOG_OF_WAR_MAX);
+end;
+
+
+{Check if requested vertice is revealed}
+function TTerrain.CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
+begin
+  //I like how "alive" fog looks with some tweaks
+  //pulsating around units and slowly thickening when they leave :)
+  if Land[Y,X].FogOfWar[byte(PlayerID)] >= TERRAIN_FOG_OF_WAR_ACT then
+  Result:=1 else
+  Result:=Land[Y,X].FogOfWar[byte(PlayerID)]/TERRAIN_FOG_OF_WAR_ACT;
 end;
 
 
@@ -827,6 +858,8 @@ begin
 end;
 
 
+{ This whle thing is very CPU intesive think of it - to update all 40000tiles }
+//Don't use any advanced math here, only simpliest operations - + div * 
 procedure TTerrain.UpdateState;
 var i,k,h,j:integer;
   procedure SetLand(x,y,tile:byte; Spec:TFieldSpecial);
@@ -839,13 +872,17 @@ begin
 
 for i:=1 to MapY do
   for k:=1 to MapX do
-  if (i*MapX+k+AnimStep) mod round(TERRAIN_PACE/GAME_LOGIC_PACE) = 0 then begin //All those global things can be performed once a sec, or even less frequent
+  //All those global things can be performed once a sec, or even less frequent
+  if (i*MapX+k+AnimStep) mod round(TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then begin
+
+  for h:=1 to 8 do
+    if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_ACT div 3 then dec(Land[i,k].FogOfWar[h]);
 
     if InRange(Land[i,k].FieldAge,1,65534) then inc(Land[i,k].FieldAge);
 
     if Land[i,k].FieldType=fdt_Field then begin
       case Land[i,k].FieldAge of
-         45: SetLand(k,i,61,fs_None);  //Numbers are measured from KaM, 195
+         45: SetLand(k,i,61,fs_None);  //Numbers are measured from KaM, ~195sec
         240: SetLand(k,i,59,fs_None);
         435: SetLand(k,i,60,fs_Corn1);
         630: SetLand(k,i,60,fs_Corn2);

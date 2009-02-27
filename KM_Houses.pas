@@ -188,6 +188,7 @@ procedure TKMHouse.Activate;
 var i,k:integer;
 begin
   fPlayers.Player[byte(fOwner)].CreatedHouse(fHouseType); //Only activated houses count
+  fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,100,fOwner);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
@@ -403,6 +404,8 @@ begin
 
   inc(FlagAnimStep);
   inc(WorkAnimStep);
+  
+  if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,10,fOwner);
 end;
 
 
