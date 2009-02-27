@@ -334,7 +334,8 @@ begin
     glBegin(GL_POINTS);
       for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
         ID:=fTerrain.Land[i,k].Terrain+1;
-        Light:=fTerrain.Land[i,k].Light/4; //Originally it's -1..1 range
+        Light:=fTerrain.Land[i,k].Light/4-(1-fTerrain.CheckRevelation(k,i,MyPlayer.PlayerID)); //Originally it's -1..1 range
+        //Will tweak it later..
         if fTerrain.Land[i,k].TileOwner=play_none then
           glColor4f(TileMMColor[ID].R+Light,
                     TileMMColor[ID].G+Light,

@@ -63,11 +63,10 @@ public
     //Another var for borders (ropes, planks, stones) Top and Left
     BorderX,BorderY:TBorderType; //Should be also bottom and right
 
-    //This would be a bitfield for 8 players, 2bits per player - total of 16bit
-    //First bit is wherever vertice is explored at all, second is if fog of war unveiled at the moment
-    FogOfWar:array[1..8]of byte; //0 unexplored, 1 explored 255 visible
+    //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
+    FogOfWar:array[1..8]of byte;
   end;
-  
+
   constructor Create;
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
@@ -145,6 +144,7 @@ begin
     Height:=random(7);    //variation in height
     Rotation:=random(4);  //Make it random
     Obj:=255;             //none
+    if Random(16)=0 then Obj:=ChopableTrees[Random(13)+1,2];
     FieldSpecial:=fs_None;
     Markup:=mu_None;
     Passability:=[canWalk, canBuild, canMakeRoads, canMakeFields, canPlantTrees]; //allow anything
@@ -876,7 +876,7 @@ for i:=1 to MapY do
   if (i*MapX+k+AnimStep) mod round(TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then begin
 
   for h:=1 to 8 do
-    if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_ACT div 3 then dec(Land[i,k].FogOfWar[h]);
+    if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
     if InRange(Land[i,k].FieldAge,1,65534) then inc(Land[i,k].FieldAge);
 

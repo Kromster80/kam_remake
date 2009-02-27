@@ -17,15 +17,16 @@ private
     NewInst:boolean;
     Team:byte;
     AlphaStep:single; //Only appliable to HouseBuild
+    Color:TColor4; // Used for Fog of War
   end;
   RenderAreaSize:TKMPoint;
   procedure RenderDot(pX,pY:single);
   procedure RenderDotOnTile(pX,pY:single);
   procedure RenderQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
-  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4=$FF);
+  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4=$FF; const Col2:TColor4 = $FFFFFFFF);
   procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; const Col:TColor4=$FF);
-  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
+  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aColor:TColor4=$FFFFFFFF);
   procedure SortRenderList;
   procedure RenderRenderList;
   procedure RenderBrightness(Value:byte);
@@ -317,7 +318,7 @@ end;
 
 
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
-var ShiftX,ShiftY:single; ID:integer;
+var ShiftX,ShiftY:single; ID:integer; Col:TColor4;
 begin
 if MapElem[Index].Count=0 then exit;
 ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
@@ -329,7 +330,8 @@ if Index=61 then begin //Object 42 is an invisible wall
 end else begin
   ShiftX:=RXData[1].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[1].Pivot[ID].y+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/xh;
-  AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true);
+  Col:=$FF000000+round(65793*EnsureRange(fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID),0,1)*255);
+  AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true,0,-1,Col);
   {RenderDot(pX,pY);
   glRasterPos2f(pX-1+0.1,pY-1+0.1);
   glPrint(inttostr(Index)+':'+inttostr(ID));}
@@ -652,13 +654,14 @@ glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
-procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4 = $FF);
+procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4 = $FF; const Col2:TColor4 = $FFFFFFFF);
 var h:integer;
 begin
 for h:=1 to 2 do
   with GFXData[RX,ID] do begin
     if h=1 then begin
       glColor4f(1,1,1,1);
+      glColor4ubv(@Col2);
       glBindTexture(GL_TEXTURE_2D, TexID);
     end else
       if (h=2) and (RXData[RX].NeedTeamColors) and (AltID<>0) then begin
@@ -710,7 +713,7 @@ end;
 
 
 {Collect all sprites into list}
-procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
+procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aColor:TColor4=$FFFFFFFF);
 begin
 inc(RenderCount);
 if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+32); //Book some space
@@ -720,6 +723,7 @@ RenderList[RenderCount].ID:=aID;
 RenderList[RenderCount].NewInst:=aNew;
 RenderList[RenderCount].Team:=aTeam;
 RenderList[RenderCount].AlphaStep:=Step;
+RenderList[RenderCount].Color:=aColor;
 end;
 
 
@@ -763,7 +767,7 @@ if RO[i]<>0 then begin
         if Team<>0 then
           RenderSprite(RX,ID,Loc.X,Loc.Y,TeamColors[Team])
         else
-          RenderSprite(RX,ID,Loc.X,Loc.Y)
+          RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,Color)
       else
         RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,$FF)
     end;

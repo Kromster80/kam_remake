@@ -404,7 +404,7 @@ begin
 
   inc(FlagAnimStep);
   inc(WorkAnimStep);
-  
+  //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,10,fOwner);
 end;
 

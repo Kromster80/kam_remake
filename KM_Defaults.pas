@@ -11,8 +11,9 @@ const
   DEF_PAL=2;            //Default palette to use when generating full-color RGB textures
   GAME_LOGIC_PACE=100;  //Game logic should be updated each 100ms
   TERRAIN_PACE=1000;    //Terrain gets updated once each 1000ms
-  TERRAIN_FOG_OF_WAR_MAX=25;
-  TERRAIN_FOG_OF_WAR_ACT=15;
+  TERRAIN_FOG_OF_WAR_MAX=25; //This is max value that FOW can be
+  TERRAIN_FOG_OF_WAR_MIN=5;  //Minimum value for explored but FOW terrain
+  TERRAIN_FOG_OF_WAR_ACT=15; //Until this value FOW is not rendered
   FPSLag=1;             //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms, in cells
