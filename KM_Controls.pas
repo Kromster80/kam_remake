@@ -34,6 +34,7 @@ TKMControl = class
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     procedure ParentTo (aParent:TKMControl);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
+    procedure HintCheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
     procedure Paint(); virtual;
   public
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
@@ -248,13 +249,24 @@ begin
   if (CursorOver)and(Assigned(Self.OnMouseOver)) then
     Self.OnMouseOver(Self,AShift,X,Y);
 
-  if (CursorOver)and(Assigned(Self.OnHint))and(Hint<>'') then
-    Self.OnHint(Self,AShift,X,Y);
-
   for i:=1 to ChildCount do
     if Childs[i].Visible then
       if Childs[i].Enabled then
         Childs[i].CheckCursorOver(X,Y,AShift);
+end;  
+
+
+procedure TKMControl.HintCheckCursorOver(X,Y:integer; AShift:TShiftState);
+var i:integer;
+begin
+  CursorOver:=InRange(X,Left,Left+Width) and InRange(Y,Top,Top+Height);
+
+  if (CursorOver)and(Assigned(Self.OnHint))and(Hint<>'') then
+    Self.OnHint(Self,AShift,X,Y);
+
+  for i:=1 to ChildCount do
+    if Childs[i].Visible then //No hints for invisible controls
+      Childs[i].HintCheckCursorOver(X,Y,AShift);
 end;
 
 
@@ -663,8 +675,11 @@ begin
   for i:=0 to Count-1 do
     if TKMControl(Items[I]).Parent=nil then
       if TKMControl(Items[I]).Visible then
-      if TKMControl(Items[I]).Enabled then
-        TKMControl(Items[I]).CheckCursorOver(X,Y,AShift);
+      begin
+        if TKMControl(Items[I]).Enabled then
+          TKMControl(Items[I]).CheckCursorOver(X,Y,AShift);
+        TKMControl(Items[I]).HintCheckCursorOver(X,Y,AShift);
+      end;
 end;
 
 

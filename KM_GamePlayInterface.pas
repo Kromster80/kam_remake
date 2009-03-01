@@ -1,6 +1,6 @@
 unit KM_GamePlayInterface;
 interface
-uses KM_Controls, KM_Houses, KM_Units, KM_Defaults, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls;
+uses KM_Controls, KM_Houses, KM_Units, KM_Defaults, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils;
 
 type TKMGamePlayInterface = class
   protected
@@ -131,7 +131,7 @@ uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_View
 
 {Switch between pages}
 procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
-var i:integer;
+var i:integer; LastVisiblePage: TKMPanel;
   procedure Hide4MainButtons();
   var i:integer;
   begin
@@ -158,6 +158,10 @@ end;
 
 //Reset the CursorMode, to cm_None
 BuildButtonClick(nil);
+
+//Set LastVisiblePage to which ever page was last visible, out of the ones needed
+if KMPanel_Settings.Visible = true then
+  LastVisiblePage := KMPanel_Settings;
 
 //First thing - hide all existing pages
   for i:=1 to KMPanel_Main.ChildCount do
@@ -187,7 +191,8 @@ if Sender=KMButtonMain[3] then begin
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
 end else
-if ((Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No)) then begin
+if ((Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No) or
+   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings))) then begin
   KMPanel_Menu.Visible:=true;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
@@ -231,18 +236,19 @@ end;
 
 
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
+var RandomNum: string;
 begin
+  RandomNum := '    '+inttostr(random(9)); //Random numbers here are to show every time hint gets refreshed
   ShownHint:=Sender;
-  if (ShownHint<>nil)and(not (ShownHint as TKMControl).CursorOver) then ShownHint:=nil;
-  if (ShownHint<>nil)and(not (ShownHint as TKMControl).Visible) then ShownHint:=nil;
-  //Random numbers here are to show every time hint gets refreshed
+  if((ShownHint<>nil) and (not TKMControl(ShownHint).CursorOver) or (not TKMControl(ShownHint).Visible) ) then ShownHint:=nil; //only set if cursor is over and control is visible
+  if ((ShownHint<>nil) and (TKMControl(ShownHint).Parent <> nil)) then //only set if parent is visible (e.g. panel)
+    if (ShownHint<>nil)and(not (ShownHint as TKMControl).Parent.Visible) then ShownHint:=nil;
+
   KMLabel_Hint.Top:=fRender.GetRenderAreaSize.Y-16;
-  //@Krom: What are these random numbers and spaces for?
-  //If they are debugging then can we just remove them?
-  //@Lewin: I'd like to rework hint display so it didn't refreshed each frame
-  //IF OnHint text didn't changed then exit;
-  if ShownHint=nil then KMLabel_Hint.Caption:=''+'    '+inttostr(random(10)) else
-  KMLabel_Hint.Caption:=(Sender as TKMControl).Hint+'    '+inttostr(random(10));
+  //If hint hasn't changed then don't refresh it
+  if ((ShownHint<>nil) and (LeftStr(KMLabel_Hint.Caption,Length(KMLabel_Hint.Caption)-Length(RandomNum)) = TKMControl(Sender).Hint)) then exit;
+  if ShownHint=nil then KMLabel_Hint.Caption:=''+RandomNum else
+    KMLabel_Hint.Caption:=(Sender as TKMControl).Hint+RandomNum;
 end;
 
 
@@ -377,7 +383,7 @@ var i,k,ci:integer;
 begin
   KMPanel_Stats:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
   ci:=0;
-  for i:=1 to 11 do for k:=1 to 3 do
+  for i:=1 to 11 do for k:=1 to 4 do
   if StatHouseOrder[i,k]<>ht_None then begin
     inc(ci);
     Stat_House[ci]:=fControls.AddButtonFlat(KMPanel_Stats,8+(k-1)*42,(i-1)*32,40,30,41);
@@ -385,13 +391,16 @@ begin
     Stat_House[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
     Stat_HouseQty[ci]:=fControls.AddLabel(KMPanel_Stats,8+37+(k-1)*42,(i-1)*32+18,33,30,fnt_Grey,kaRight,'');
     Stat_HouseQty[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
-  end;
-  for i:=1 to 11 do begin
-    Stat_Unit[i]:=fControls.AddButtonFlat(KMPanel_Stats,154,(i-1)*32,35,30,byte(StatUnitOrder[i])+140);
-    Stat_Unit[i].TexOffsetX:=-4;
-    Stat_Unit[i].Hint:=TypeToString(StatUnitOrder[i]);
-    Stat_UnitQty[i]:=fControls.AddLabel(KMPanel_Stats,154+32,(i-1)*32+18,33,30,fnt_Grey,kaRight,'');
-    Stat_UnitQty[i].Hint:=TypeToString(StatUnitOrder[i]);
+  end;              
+  ci:=0;
+  for i:=1 to 11 do for k:=1 to 5 do
+  if StatUnitOrder[i,k]<>ut_None then begin     
+    inc(ci);
+    Stat_Unit[ci]:=fControls.AddButtonFlat(KMPanel_Stats,8+(k-1)*36,(i-1)*32,35,30,byte(StatUnitOrder[i,k])+140);
+    Stat_Unit[ci].TexOffsetX:=-4;
+    Stat_Unit[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
+    Stat_UnitQty[ci]:=fControls.AddLabel(KMPanel_Stats,8+32+(k-1)*36,(i-1)*32+18,33,30,fnt_Grey,kaRight,'');
+    Stat_UnitQty[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
   end;
 end;
 
@@ -1023,7 +1032,7 @@ procedure TKMGamePlayInterface.Stats_Fill(Sender:TObject);
 var i,k,ci,Tmp:integer;
 begin
   ci:=0;
-  for i:=1 to 11 do for k:=1 to 3 do
+  for i:=1 to 11 do for k:=1 to 4 do
   if StatHouseOrder[i,k]<>ht_None then begin
     inc(ci);
     Tmp:=MyPlayer.GetHouseQty(StatHouseOrder[i,k]);
@@ -1041,11 +1050,14 @@ begin
       Stat_HouseQty[ci].Hint:=fTextLibrary.GetTextString(251); //Building not available
     end;
   end;
-  for i:=1 to 11 do begin
-    Tmp:=MyPlayer.GetUnitQty(StatUnitOrder[i]);
-    if Tmp=0 then Stat_UnitQty[i].Caption:='-' else Stat_UnitQty[i].Caption:=inttostr(Tmp);
-    Stat_Unit[i].Hint:=TypeToString(StatUnitOrder[i]);
-    Stat_UnitQty[i].Hint:=TypeToString(StatUnitOrder[i]);
+  ci:=0;
+  for i:=1 to 11 do for k:=1 to 5 do
+  if StatUnitOrder[i,k]<>ut_None then begin
+    inc(ci);
+    Tmp:=MyPlayer.GetUnitQty(StatUnitOrder[i,k]);
+    if Tmp=0 then Stat_UnitQty[ci].Caption:='-' else Stat_UnitQty[ci].Caption:=inttostr(Tmp);
+    Stat_Unit[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
+    Stat_UnitQty[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
   end;
 end;
 
