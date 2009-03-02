@@ -214,7 +214,7 @@ var i,k:integer;
 begin
   if not InRange(byte(PlayerID),1,8) then exit;
   for i:=Pos.Y-Radius to Pos.Y+Radius do for k:=Pos.X-Radius to Pos.X+Radius do
-  if (VerticeInMapCoords(k,i,1))and(KMLength(Pos,KMPoint(k,i))<=Radius) then
+  if (VerticeInMapCoords(k,i,1))and(GetLength(Pos,KMPoint(k,i))<=Radius) then
     Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,TERRAIN_FOG_OF_WAR_MAX);
 end;
 
@@ -226,7 +226,7 @@ begin
   //pulsating around units and slowly thickening when they leave :)
   if Land[Y,X].FogOfWar[byte(PlayerID)] >= TERRAIN_FOG_OF_WAR_ACT then
   Result:=1 else
-  Result:=Land[Y,X].FogOfWar[byte(PlayerID)]/TERRAIN_FOG_OF_WAR_ACT;
+  Result:=Land[Y,X].FogOfWar[byte(PlayerID)] / TERRAIN_FOG_OF_WAR_ACT;
 end;
 
 
@@ -831,7 +831,7 @@ begin
   begin//make an array of tile heights above and below cursor (-2..4)
     Tmp:=EnsureRange(Yc+ii,1,MapY);
     Ycoef[ii]:=(Yc-1)+ii-(fTerrain.Land[Tmp,Xc].Height*(1-frac(InX))
-                         +fTerrain.Land[Tmp,Xc+1].Height*frac(InX))/xh;
+                         +fTerrain.Land[Tmp,Xc+1].Height*frac(InX))/CELL_HEIGHT_DIV;
   end;
 
   Result:=Yc; //Assign something incase following code returns nothing 

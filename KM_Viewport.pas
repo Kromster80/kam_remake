@@ -18,7 +18,7 @@ ViewWidth,ViewHeight:integer;
   procedure SetArea(NewWidth,NewHeight:integer);
   function GetCenter():TKMPoint;
   procedure SetCenter(NewX,NewY:integer);
-  function GetClip():TRect; //returns visible are dimensions in map space
+  function GetClip():TRect; //returns visible area dimensions in map space
 published
 end;
 
@@ -35,12 +35,12 @@ end;
 
 procedure TViewport.SetArea(NewWidth,NewHeight:integer);
 begin
-ViewRect.Left:=ToolBarWidth;
-ViewRect.Top:=0;
-ViewRect.Right:=NewWidth;
-ViewRect.Bottom:=NewHeight;
-ViewWidth:=ViewRect.Right-ViewRect.Left;
-ViewHeight:=ViewRect.Bottom-ViewRect.Top;
+  ViewRect.Left:=ToolBarWidth;
+  ViewRect.Top:=0;
+  ViewRect.Right:=NewWidth;
+  ViewRect.Bottom:=NewHeight;
+  ViewWidth:=ViewRect.Right-ViewRect.Left;
+  ViewHeight:=ViewRect.Bottom-ViewRect.Top;
 end;
 
 function TViewport.GetCenter():TKMPoint;
@@ -56,12 +56,18 @@ begin
 end;
 
 //Acquire boundaries of area visible to user
+//TestViewportClipInset is for debug, allows to see if all gets clipped well
 function TViewport.GetClip():TRect;
 begin
   Result.Left  :=max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom),1);
   Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
   Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
   Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
+  if not TestViewportClipInset then exit;
+  inc(Result.Left,4);
+  dec(Result.Right,4);
+  inc(Result.Top,4);
+  dec(Result.Bottom,7);
 end;
 
 end.

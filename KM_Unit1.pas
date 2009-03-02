@@ -72,7 +72,6 @@ type
     procedure ExitClick(Sender: TObject);
     procedure ShowWiresClick(Sender: TObject);
     procedure ShowObjectsClick(Sender: TObject);
-    procedure ShowFlatTerrainClick(Sender: TObject);
     procedure Timer100msTimer(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -371,13 +370,6 @@ begin
   ShowObjects.Checked:=not ShowObjects.Checked;
 end;
 
-procedure TForm1.ShowFlatTerrainClick(Sender: TObject);
-begin
-  ShowFlatTerrain.Checked:= not ShowFlatTerrain.Checked;
-  xh:=36+byte(ShowFlatTerrain.Checked)*164; // 1/36 .. 1/200
-end;
-
-
 procedure TForm1.Button1Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
@@ -622,6 +614,7 @@ begin
   fPlayers.Destroy;
 
   fTerrain.MakeNewMap(96,96);
+  fTerrain.RevealCircle(KMPoint(12,12),12,100,play_1);
 
   fPlayers:=TKMAllPlayers.Create(6); //Create 6 players
   MyPlayer:=fPlayers.Player[1];

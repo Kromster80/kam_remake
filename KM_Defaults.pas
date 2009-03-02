@@ -6,14 +6,15 @@ uses Classes, KromUtils, dglOpenGL;
 //Global const
 const
   CELL_SIZE_PX=40;      //Single cell size in pixels (width)
+  CELL_HEIGHT_DIV=32;   //Height divider
   ToolBarWidth=224;     //Toolbar width in game
   Overlap=0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   DEF_PAL=2;            //Default palette to use when generating full-color RGB textures
   GAME_LOGIC_PACE=100;  //Game logic should be updated each 100ms
   TERRAIN_PACE=1000;    //Terrain gets updated once each 1000ms
-  TERRAIN_FOG_OF_WAR_MAX=25; //This is max value that FOW can be
-  TERRAIN_FOG_OF_WAR_MIN=5;  //Minimum value for explored but FOW terrain
-  TERRAIN_FOG_OF_WAR_ACT=15; //Until this value FOW is not rendered
+  TERRAIN_FOG_OF_WAR_MIN=8;  //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
+  TERRAIN_FOG_OF_WAR_ACT=16; //Until this value FOW is not rendered at all
+  TERRAIN_FOG_OF_WAR_MAX=24; //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
   FPSLag=1;             //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms, in cells
@@ -24,6 +25,7 @@ var
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
+  TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
 
 const
   MaxHouses=255;        //Maximum houses one player can own
@@ -461,7 +463,7 @@ var
   $FF28C840  //Green
   );
 
-  XH:integer=32;        //Height divider
+
   GlobalTickCount:integer=0;
 
   MinimapList:GLint;

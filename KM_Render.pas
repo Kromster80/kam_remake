@@ -17,16 +17,16 @@ private
     NewInst:boolean;
     Team:byte;
     AlphaStep:single; //Only appliable to HouseBuild
-    Color:TColor4; // Used for Fog of War
+    FOWvalue:byte; // Fog of War thickness
   end;
   RenderAreaSize:TKMPoint;
   procedure RenderDot(pX,pY:single);
   procedure RenderDotOnTile(pX,pY:single);
   procedure RenderQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
-  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4=$FF; const Col2:TColor4 = $FFFFFFFF);
+  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4=$FF; const aFOW:byte=$FF);
   procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; const Col:TColor4=$FF);
-  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aColor:TColor4=$FFFFFFFF);
+  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aFOW:byte=$FF);
   procedure SortRenderList;
   procedure RenderRenderList;
   procedure RenderBrightness(Value:byte);
@@ -164,10 +164,10 @@ glbegin (GL_QUADS);
     if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
     if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
-    glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/xh);
-    glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/xh);
-    glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
-    glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/xh);
+    glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+    glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+    glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+    glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
   end;
 glEnd;
 
@@ -200,10 +200,10 @@ end;
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     begin
-      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
-      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
-      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
-      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;                  
 
@@ -213,20 +213,19 @@ end;
   glbegin (GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
-    begin                              
+    begin
     glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckRevelation(k,i,MyPlayer.PlayerID)));
-    glvertex2f(k-1,i-1-Land[i  ,k  ].Height/xh);
+    glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
     glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckRevelation(k,i+1,MyPlayer.PlayerID)));
-    glvertex2f(k-1,i  -Land[i+1,k  ].Height/xh);
+    glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
     glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckRevelation(k+1,i+1,MyPlayer.PlayerID)));
-    glvertex2f(k  ,i  -Land[i+1,k+1].Height/xh);
+    glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
     glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckRevelation(k+1,i,MyPlayer.PlayerID)));
-    glvertex2f(k  ,i-1-Land[i  ,k+1].Height/xh);
+    glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
   glBindTexture(GL_TEXTURE_2D,0);
 end;
 
@@ -241,7 +240,7 @@ for i:=y1 to y2 do begin
   glbegin (GL_LINE_STRIP);
   for k:=x1 to x2 do begin
     glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-CursorYc)+sqr(k-CursorXc))/10); //Smooth circle gradient blending
-    glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/xh);
+    glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
   end;
   glEnd;
 end;
@@ -260,7 +259,7 @@ for i:=y1 to y2 do
 for k:=x1 to x2 do begin
 //  glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
   glColor4f(byte(fTerrain.Land[i,k].BorderX=bt_HousePlan),byte(fTerrain.Land[i,k].BorderY=bt_HousePlan),0,1);
-  glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/xh);
+  glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
 end;
 glEnd;
 
@@ -280,7 +279,7 @@ for i:=1 to Count do
   RenderDotOnTile(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5);
 glBegin(GL_LINE_STRIP);
 for i:=1 to Count do
-  glVertex2f(Nodes[i-1].X-0.5,Nodes[i-1].Y-0.5-fTerrain.InterpolateLandHeight(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5)/xh);
+  glVertex2f(Nodes[i-1].X-0.5,Nodes[i-1].Y-0.5-fTerrain.InterpolateLandHeight(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5)/CELL_HEIGHT_DIV);
 glEnd;
 end;
 
@@ -291,10 +290,10 @@ begin
   glbegin (GL_LINE_LOOP);
   if fTerrain.TileInMapCoords(P.X,P.Y) then
   with fTerrain do begin
-    glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/xh);
-    glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/xh);
-    glvertex2f(p.X  ,p.Y-  Land[p.Y+1,p.X+1].Height/xh);
-    glvertex2f(p.X-1,p.Y-  Land[p.Y+1,p.X  ].Height/xh);
+    glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/CELL_HEIGHT_DIV);
+    glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/CELL_HEIGHT_DIV);
+    glvertex2f(p.X  ,p.Y-  Land[p.Y+1,p.X+1].Height/CELL_HEIGHT_DIV);
+    glvertex2f(p.X-1,p.Y-  Land[p.Y+1,p.X  ].Height/CELL_HEIGHT_DIV);
   end;
   glEnd;
 end;
@@ -311,142 +310,142 @@ begin
         RenderWireQuad(P2,$FFFFFF00) //Cyan
       else
         RenderWireQuad(P2,$FF0000FF); //Red
-    if HousePlanYX[byte(aHouseType),i,k]=2 then AddSpriteToList(4,481,P2.X+0.2,P2.Y+1-0.2,true);
+    if HousePlanYX[byte(aHouseType),i,k]=2 then AddSpriteToList(4,481,P2.X+0.2,P2.Y+1-0.2-fTerrain.InterpolateLandHeight(P2.X+0.5,P2.Y+0.5)/CELL_HEIGHT_DIV,true);
   end else
-//    RenderWireQuad(P2,$FF0000FF);
+    //RenderWireQuad(P2,$FF0000FF);
 end;
 
 
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
-var ShiftX,ShiftY:single; ID:integer; Col:TColor4;
+var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
-if MapElem[Index].Count=0 then exit;
-ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
-if ID<=0 then exit;
-if Index=61 then begin //Object 42 is an invisible wall
-  glBindTexture(GL_TEXTURE_2D,0);
-  glColor4f(1,0,0,1);
-  RenderDot(pX,pY);
-end else begin
-  ShiftX:=RXData[1].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[1].Pivot[ID].y+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/xh;
-  Col:=$FF000000+round(65793*EnsureRange(fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID),0,1)*255);
-  AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true,0,-1,Col);
-  {RenderDot(pX,pY);
-  glRasterPos2f(pX-1+0.1,pY-1+0.1);
-  glPrint(inttostr(Index)+':'+inttostr(ID));}
-end;
+  if MapElem[Index].Count=0 then exit;
+
+  FOW:=EnsureRange(round(fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)*255),0,255);
+  if FOW <=128 then AnimStep:=0; //Stop animation
+  ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
+  if ID<=0 then exit;
+
+  if Index=61 then begin //Object 42 is an invisible wall
+    glBindTexture(GL_TEXTURE_2D,0);
+    glColor4f(1,0,0,1);
+    RenderDot(pX,pY);
+  end else begin
+    ShiftX:=RXData[1].Pivot[ID].x/CELL_SIZE_PX;
+    ShiftY:=(RXData[1].Pivot[ID].y+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV;
+    AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true,0,-1,FOW);
+    {RenderDot(pX,pY);
+    glRasterPos2f(pX-1+0.1,pY-1+0.1);
+    glPrint(inttostr(Index)+':'+inttostr(ID));}
+  end;
 end;
 
 
 { 4 objects packed on 1 tile for Corn and Grapes }
 procedure TRender.RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
-var ShiftX,ShiftY:single; ID,Index:integer;
-begin
-  glColor4f(1,1,1,1);
-  case Fs of
-  fs_Corn1: Index:=59;
-  fs_Corn2: Index:=60;
-  fs_Wine1: Index:=55;
-  fs_Wine2: Index:=56;
-  fs_Wine3: Index:=57;
-  fs_Wine4: Index:=58;
-  else exit;
+var Index:integer; FOW:byte;
+  procedure AddSpriteToListBy(ID:integer; AnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
+  begin
+    ID := MapElem[ID].Step[ AnimStep mod MapElem[ID].Count +1 ] +1;
+    ShiftY := ShiftY + (RXData[1].Size[ID,2]) / CELL_SIZE_PX-fTerrain.Land[pY,pX].Height / CELL_HEIGHT_DIV;
+    AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true,0,-1,FOW);
   end;
-  ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
-  ShiftX:=0;
-  ShiftY:=(0+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/xh-0.4;
-  AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true);
-  ID:=MapElem[Index].Step[(AnimStep+1) mod MapElem[Index].Count +1]+1;
-  ShiftX:=0.5;
-  ShiftY:=(0+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/xh-0.4;
-  AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true);
-  ID:=MapElem[Index].Step[(AnimStep+1) mod MapElem[Index].Count +1]+1;
-  ShiftX:=0;
-  ShiftY:=(0+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/xh+0.1;
-  AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true);
-  ID:=MapElem[Index].Step[(AnimStep) mod MapElem[Index].Count +1]+1;
-  ShiftX:=0.5;
-  ShiftY:=(0+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/xh+0.1;
-  AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true);
+begin
+  FOW:=EnsureRange(round(fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)*255),0,255);
+  if FOW <=128 then AnimStep:=0; //Stop animation
+
+  case Fs of
+    fs_Corn1: Index:=59;
+    fs_Corn2: Index:=60;
+    fs_Wine1: Index:=55;
+    fs_Wine2: Index:=56;
+    fs_Wine3: Index:=57;
+    fs_Wine4: Index:=58;
+    else exit;
+  end;
+  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  ,-0.4);
+  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0.5,-0.4);
+  if Index in [55..58]then exit;
+  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
+  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
 end;
 
 
 procedure TRender.RenderMarkup(Index:integer; pX,pY:integer);
-var a,b:TKMPointF; ID:integer;
+var a,b:TKMPointF; ID:integer; FOW:single;
 begin
-case Index of
-1: ID:=105; //Road
-2: ID:=107; //Field
-3: ID:=108; //Wine
-else ID:=0;
-end;
-  glColor4f(1,1,1,1);
+  case Index of
+    1: ID:=105; //Road
+    2: ID:=107; //Field
+    3: ID:=108; //Wine
+    else ID:=0;
+  end;
+  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
+
+  glColor4f(FOW,FOW,FOW,1);
   glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
 
   a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
   b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
 
   glBegin(GL_QUADS);
-    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/xh-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/xh-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/xh);
+    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
 
-    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/xh-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/xh-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/xh);
+    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
   glEnd;
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
+
 
 procedure TRender.RenderBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
 var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer;
 begin
   ID1:=0; ID2:=0;
-  if bt_HouseBuilding = Border then
-    if Dir=1 then ID1:=463 else ID2:=467; //WIP (Wood planks)
-  if bt_HousePlan = Border then
-    if Dir=1 then ID1:=105 else ID2:=117; //Plan (Ropes)
-  if bt_Wine = Border then
-    if Dir=1 then ID1:=462 else ID2:=466; //Fence (Wood)
-  if bt_Field = Border then
-    if Dir=1 then ID1:=461 else ID2:=465; //Fence (Stones)
+  if bt_HouseBuilding = Border then if Dir=1 then ID1:=463 else ID2:=467; //WIP (Wood planks)
+  if bt_HousePlan = Border then     if Dir=1 then ID1:=105 else ID2:=117; //Plan (Ropes)
+  if bt_Wine = Border then          if Dir=1 then ID1:=462 else ID2:=466; //Fence (Wood)
+  if bt_Field = Border then         if Dir=1 then ID1:=461 else ID2:=465; //Fence (Stones)
 
   glColor4f(1,1,1,1);
-    if Dir = 1 then begin //Horizontal border
-      glBindTexture(GL_TEXTURE_2D,GFXData[4,ID1].TexID);
-      a.x:=GFXData[4,ID1].u1; a.y:=GFXData[4,ID1].v1;
-      b.x:=GFXData[4,ID1].u2; b.y:=GFXData[4,ID1].v2;
-      t:=GFXData[4,ID1].PxWidth/CELL_SIZE_PX; //Height of border
-      glBegin(GL_QUADS);
-        glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/xh);
-        glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/xh);
-        glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/xh);
-        glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/xh);
-      glEnd;
-    end;
-    if Dir = 2 then begin //Vertical border
-      glBindTexture(GL_TEXTURE_2D,GFXData[4,ID2].TexID);
-      HeightInPx:= Round ( CELL_SIZE_PX * (1 + fTerrain.Land[pY,pX].Height/xh - fTerrain.Land[pY+1,pX].Height/xh) );
-      a.x:=GFXData[4,ID2].u1; a.y:=GFXData[4,ID2].v1;
-      b.x:=GFXData[4,ID2].u2; b.y:=GFXData[4,ID2].v2 * (HeightInPx / GFXData[4,ID2].PxHeight);
-      t:=GFXData[4,ID2].PxWidth/CELL_SIZE_PX; //Width of border
-      glBegin(GL_QUADS);
-        glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-        glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-        glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-        glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-      glEnd;
-{      glBindTexture(GL_TEXTURE_2D, 0);
-      glBegin(GL_LINE_LOOP);
-        glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-        glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-        glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-        glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-      glEnd;}
-    end;
+  if Dir = 1 then begin //Horizontal border
+    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID1].TexID);
+    a.x:=GFXData[4,ID1].u1; a.y:=GFXData[4,ID1].v1;
+    b.x:=GFXData[4,ID1].u2; b.y:=GFXData[4,ID1].v2;
+    t:=GFXData[4,ID1].PxWidth/CELL_SIZE_PX; //Height of border
+    glBegin(GL_QUADS);
+      glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+    glEnd;
+  end;
+
+  if Dir = 2 then begin //Vertical border
+    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID2].TexID);
+    HeightInPx := Round ( CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV) );
+    a.x:=GFXData[4,ID2].u1; a.y:=GFXData[4,ID2].v1;
+    b.x:=GFXData[4,ID2].u2; b.y:=GFXData[4,ID2].v2 * (HeightInPx / GFXData[4,ID2].PxHeight);
+    t:=GFXData[4,ID2].PxWidth/CELL_SIZE_PX; //Width of border
+    glBegin(GL_QUADS);
+      glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+    glEnd;
+{    glBindTexture(GL_TEXTURE_2D, 0);
+    glBegin(GL_LINE_LOOP);
+      glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
+      glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
+      glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
+      glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
+    glEnd;}
+  end;
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
@@ -458,7 +457,7 @@ begin
   pX:=pX+HouseDAT[Index].EntranceOffsetX;
   ID:=Index+250;
   ShiftX:=RXData[4].Pivot[ID].x/CELL_SIZE_PX+0.5;
-  ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CELL_SIZE_PX+0.5-fTerrain.Land[pY+1,pX].Height/xh;
+  ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CELL_SIZE_PX+0.5-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(4,ID,pX+ShiftX,pY+ShiftY,true);
 end;
 
@@ -470,13 +469,13 @@ begin
   if Wood<>0 then begin
     ID:=260+Wood-1;
     ShiftX:=HouseDAT[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
-    ShiftY:=(HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+    ShiftY:=(HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
   end;
   if Stone<>0 then begin
     ID:=267+Stone-1;
     ShiftX:=HouseDAT[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
-    ShiftY:=(HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+    ShiftY:=(HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
   end;
 end;
@@ -488,7 +487,7 @@ var ShiftX,ShiftY:single; ID:integer;
 begin
   ID:=HouseDAT[Index].WoodPic+1;
   ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,true,0,Step);
 end;
 
@@ -500,7 +499,7 @@ begin
   RenderHouseWood(Index,1,pX,pY); //Render Wood part of it, opaque
   ID:=HouseDAT[Index].StonePic+1;
   ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false,0,Step);
 end;
 
@@ -519,7 +518,7 @@ begin
         begin
           ID:=HouseDAT[Index].Anim[AnimType].Step[AnimStep mod AnimCount + 1]+1;
           ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-          ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+          ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
           ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/CELL_SIZE_PX;
           ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/CELL_SIZE_PX;
           AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false,Owner);
@@ -536,7 +535,7 @@ for i:=1 to 4 do if (R1[i-1])>0 then begin
     ID:=HouseDAT[Index].SupplyIn[i,min(R1[i-1],5)]+1;
     if ID>0 then begin
     ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-    ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+    ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
     end;
     end;
@@ -544,7 +543,7 @@ for i:=1 to 4 do if (R2[i-1])>0 then begin
     ID:=HouseDAT[Index].SupplyOut[i,min(R2[i-1],5)]+1;
     if ID>0 then begin
     ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-    ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/xh;
+    ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
     end;
     end;
@@ -559,11 +558,11 @@ if ID<=0 then exit;
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
 
-  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/xh-0.4;
+  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,NewInst,Owner);
 
   glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
-  RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/xh);
+  RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
 end;
 
 procedure TRender.RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
@@ -574,7 +573,7 @@ ID:=SerfCarry[CarryID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
-  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/xh-0.4;
+  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   ShiftX:=ShiftX+SerfCarry[CarryID].Dir[DirID].MoveX/CELL_SIZE_PX;
   ShiftY:=ShiftY+SerfCarry[CarryID].Dir[DirID].MoveY/CELL_SIZE_PX;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,false,Owner);
@@ -592,7 +591,7 @@ end;
 
 procedure TRender.RenderDotOnTile(pX,pY:single);
 begin
-  pY:=pY-fTerrain.InterpolateLandHeight(pX,pY)/xh;
+  pY:=pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV;
   glBindTexture(GL_TEXTURE_2D, 0);
   glBegin (GL_QUADS);
     glkRect(pX-1,pY-1,pX-1+0.1,pY-1-0.1);
@@ -606,10 +605,10 @@ begin
 glbegin (GL_QUADS);
 if fTerrain.TileInMapCoords(pX,pY) then
 with fTerrain do begin
-  glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/xh,
-          pX  ,pY-1-Land[pY  ,pX+1].Height/xh,
-          pX  ,pY-  Land[pY+1,pX+1].Height/xh,
-          pX-1,pY-  Land[pY+1,pX  ].Height/xh);
+  glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV,
+          pX  ,pY-1-Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV,
+          pX  ,pY-  Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV,
+          pX-1,pY-  Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
 end;
 glEnd;
 end;
@@ -644,24 +643,24 @@ if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]
 k:=pX; i:=pY;
 glbegin (GL_QUADS);
 with fTerrain do begin
-  glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/xh);
-  glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i-Land[i+1,k].Height/xh);
-  glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k,i-Land[i+1,k+1].Height/xh);
-  glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k,i-1-Land[i,k+1].Height/xh);
+  glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+  glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+  glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k,i-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+  glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
 end;
 glEnd;
 glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
-procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4 = $FF; const Col2:TColor4 = $FFFFFFFF);
+procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4 = $FF; const aFOW:byte=$FF);
 var h:integer;
 begin
 for h:=1 to 2 do
   with GFXData[RX,ID] do begin
     if h=1 then begin
       glColor4f(1,1,1,1);
-      glColor4ubv(@Col2);
+      glColor4ub(aFOW,aFOW,aFOW,255);
       glBindTexture(GL_TEXTURE_2D, TexID);
     end else
       if (h=2) and (RXData[RX].NeedTeamColors) and (AltID<>0) then begin
@@ -688,13 +687,19 @@ end;
 
 procedure TRender.RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; const Col:TColor4=$FF);
 begin
-glEnable(GL_ALPHA_TEST);
-glAlphaFunc(GL_GREATER,1-Param);
-glBlendFunc(GL_ONE,GL_ZERO);
-  with GFXData[RX,ID] do begin
-    glColor3f(1,1,1);
-    glBindTexture(GL_TEXTURE_2D, TexID);
+//if Param<1 then begin
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_GREATER,1-Param);
+  glBlendFunc(GL_ONE,GL_ZERO);
+{end else begin
+  glEnable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_ALWAYS,0);
+  glBlendFunc(GL_ONE,GL_ZERO);}
+//end;
 
+  with GFXData[RX,ID] do begin
+    glColor4f(1,1,1,1);
+    glBindTexture(GL_TEXTURE_2D, TexID);
     glBegin (GL_QUADS);
     glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1         );
     glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
@@ -702,9 +707,9 @@ glBlendFunc(GL_ONE,GL_ZERO);
     glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
-    {glBegin (GL_LINE_LOOP);
-    glRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-    glEnd;}
+    //glBegin (GL_LINE_LOOP);
+    //glRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+    //glEnd;
   end;
 glDisable(GL_ALPHA_TEST);
 glAlphaFunc(GL_ALWAYS,0);
@@ -713,7 +718,7 @@ end;
 
 
 {Collect all sprites into list}
-procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aColor:TColor4=$FFFFFFFF);
+procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aFOW:byte=$FF);
 begin
 inc(RenderCount);
 if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+32); //Book some space
@@ -723,7 +728,7 @@ RenderList[RenderCount].ID:=aID;
 RenderList[RenderCount].NewInst:=aNew;
 RenderList[RenderCount].Team:=aTeam;
 RenderList[RenderCount].AlphaStep:=Step;
-RenderList[RenderCount].Color:=aColor;
+RenderList[RenderCount].FOWvalue:=aFOW;
 end;
 
 
@@ -767,7 +772,7 @@ if RO[i]<>0 then begin
         if Team<>0 then
           RenderSprite(RX,ID,Loc.X,Loc.Y,TeamColors[Team])
         else
-          RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,Color)
+          RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
       else
         RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,$FF)
     end;

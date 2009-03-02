@@ -261,7 +261,6 @@ begin
 
   KMMinimap.CenteredAt:=fViewport.GetCenter;
   KMMinimap.ViewArea:=fViewport.GetClip;
-
 end;
 
 
@@ -373,7 +372,6 @@ end;
 procedure TKMGamePlayInterface.Create_Ratios_Page;
 begin
   KMPanel_Ratios:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
-
 end;
 
 

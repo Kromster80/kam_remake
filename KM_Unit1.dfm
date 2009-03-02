@@ -342,7 +342,6 @@ object Form1: TForm1
       end
       object ShowFlatTerrain: TMenuItem
         Caption = 'Show flat terrain'
-        OnClick = ShowFlatTerrainClick
       end
       object PrintScreen1: TMenuItem
         Caption = 'PrintScreen'
