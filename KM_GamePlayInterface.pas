@@ -464,7 +464,7 @@ begin
 end;
 
 
-{Options page}
+{Quit page}
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   KMPanel_Quit:=fControls.AddPanel(KMPanel_Main,0,412,200,400);

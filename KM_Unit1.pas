@@ -58,6 +58,7 @@ type
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
+    Button4: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure DecodeDATClick(Sender: TObject);
@@ -94,6 +95,7 @@ type
     procedure CheckBox5Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure RGPlayerClick(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -624,6 +626,11 @@ end;
 procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
   MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+fSoundLibrary.Play(1,KMPoint(0,0));
 end;
 
 end.

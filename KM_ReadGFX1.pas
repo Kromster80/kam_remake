@@ -737,6 +737,8 @@ begin
   Screen.Cursors[Cursors[i]]:=CreateIconIndirect(iconInfo);
   end;
 
+  bm.Free;
+  bm2.Free;
   Screen.Cursor:=c_Default;
 end;
 
@@ -822,14 +824,15 @@ if WriteFontToBMP then begin
   MyBitmap.Height:=TexWidth;
 
   for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-  p:=FontPal[byte(aFont)];
-  //p:=i;
+    p:=FontPal[byte(aFont)];
+    //p:=i;
     t:=TD[ci*TexWidth+ck]+1;
     MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
   end;
 
   CreateDir(ExeDir+'Fonts\');
   MyBitmap.SaveToFile(ExeDir+'Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
+  MyBitmap.Free;
 end;
 
 setlength(TD,0);

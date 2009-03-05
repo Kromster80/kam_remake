@@ -688,9 +688,11 @@ end;
 procedure TRender.RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; const Col:TColor4=$FF);
 begin
 //if Param<1 then begin
+  //NOTION: This function does not work on some GPUs will need to replace it with simplier more complicated way
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_GREATER,1-Param);
   glBlendFunc(GL_ONE,GL_ZERO);
+
 {end else begin
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_ALWAYS,0);

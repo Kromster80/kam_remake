@@ -1,6 +1,6 @@
 unit KM_Defaults;
 interface
-uses Classes, KromUtils, dglOpenGL;
+uses Windows, Classes, SysUtils, KromUtils, dglOpenGL;
 
 //I've ajoined Global_Data and Defaults since they have much in common
 //Global const
@@ -21,7 +21,7 @@ const
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
 var
-  MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeGameSprites:boolean=false;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
@@ -201,7 +201,7 @@ type
 const
   HouseAction:array[1..19] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish
-  'ha_Smoke', 'ha_FlagShtok', 'ha_Idle ',
+  'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
 
@@ -450,6 +450,18 @@ ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 type
   TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6);
 
+  TSoundFX = (
+    sfx_corncut=1,
+    sfx_dig,
+    sfx_pave,
+    sfx_unknown4,
+    sfx_unknown5,
+    sfx_chop,
+    sfx_unknown7,
+    sfx_unknown8,
+    sfx_unknown9,
+    sfx_mill    );
+
 var
   //Players colors
   TeamColors:array[1..8]of cardinal = (
@@ -594,12 +606,83 @@ type TKMPointList = class
   end;
 
 
+{This is custom logging system}
+type
+  TKMLog = class
+  private
+    fl:textfile;
+    logfile:string;
+    PreviousTick:cardinal;
+    procedure AddLine(text:string);
+  public
+    constructor Create(path:string);
+    procedure AppendLog(text:string); overload;
+    procedure AppendLog(text:string; num:integer); overload;
+    procedure AppendLog(num:integer; text:string); overload;
+    procedure AppendLog(text:string; Res:boolean); overload;
+    procedure AppendLog(a,b:integer); overload;
+  end;
+
+var
+  fLog: TKMLog;
+
 function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload
 function TypeToString(t:TUnitType):string; overload
 
 implementation
 uses KM_LoadLib,KM_Units;
+
+{Reset log file}
+constructor TKMLog.Create(path:string);
+begin
+  logfile:=path;
+  assignfile(fl,logfile);
+  rewrite(fl);
+  closefile(fl);
+  AppendLog('Log is up and running');
+end;
+
+{Lines are timestamped, each line invokes file open/close for writing,
+meaning no lines will be lost if Remake crashes}
+procedure TKMLog.AddLine(text:string);
+var Delta:cardinal;
+begin
+  Delta:=GetTickCount - PreviousTick;
+  PreviousTick:=GetTickCount;
+  if Delta>100000 then Delta:=0; //ommit first usage
+  assignfile(fl,logfile);
+  append(fl);
+  writeln(fl,inttostr(Delta)+'ms'+#9+text);
+  closefile(fl);
+end;
+
+procedure TKMLog.AppendLog(text:string);
+begin
+  AddLine(text);
+end;
+
+procedure TKMLog.AppendLog(text:string; num:integer);
+begin
+  AddLine(text+' '+inttostr(num));
+end;
+
+procedure TKMLog.AppendLog(num:integer; text:string);
+begin
+  AddLine(inttostr(num)+' '+text);
+end;
+
+procedure TKMLog.AppendLog(text:string; Res:boolean);
+var s:string;
+begin
+  if Res then s:='done' else s:='fail';
+  AddLine(text+' ... '+s);
+end;
+
+procedure TKMLog.AppendLog(a,b:integer);
+begin
+  AddLine(inttostr(a)+' : '+inttostr(b));
+end;
 
 function TypeToString(t:TUnitType):string;
 var s:string;

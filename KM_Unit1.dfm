@@ -293,6 +293,15 @@ object Form1: TForm1
       OnClick = Button3Click
     end
   end
+  object Button4: TButton
+    Left = 296
+    Top = 136
+    Width = 75
+    Height = 25
+    Caption = 'Button4'
+    TabOrder = 3
+    OnClick = Button4Click
+  end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
