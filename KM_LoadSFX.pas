@@ -31,14 +31,13 @@ type
       Foot: array of char;
     end;
     Props: array[1..MaxWaves] of record
-      SampleRate,Volume:integer;
-      a,b:integer;
+      SampleRate,Volume,a,b:integer;
       i,j,k,l,Index:word;
     end;
     Listener:record
-      Pos: array [1..3] of TALfloat;
-      Vel: array [1..3] of TALfloat;
-      Ori: array [1..6] of TALfloat;
+      Pos: array [1..3] of TALfloat; //Position in 3D space
+      Vel: array [1..3] of TALfloat; //Velocity, used in doppler effect calculation
+      Ori: array [1..6] of TALfloat; //Orientation LookingAt and UpVector
     end;
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
@@ -47,7 +46,7 @@ type
     constructor Create;
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPoint);
-    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean; const TimesToPlay:byte=1);
+    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean);
 end;
 
 var
@@ -64,8 +63,12 @@ begin
   AlutInit(nil,argv);
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
   LoadSoundsDAT();
-  AlGenBuffers(32, @ALBuffer); //64 looks like the limit
-  AlGenSources(32, @ALSource);
+  AlGenBuffers(MaxSourceCount, @ALBuffer); //64 looks like the limit, depends on hardware
+  AlGenSources(MaxSourceCount, @ALSource);
+  //Set default Listener orientation
+  Listener.Ori[1]:=0; Listener.Ori[2]:=1; Listener.Ori[3]:=0; //Look-at vector
+  Listener.Ori[4]:=0; Listener.Ori[5]:=0; Listener.Ori[6]:=1; //Up vector
+  AlListenerfv ( AL_ORIENTATION, @Listener.Ori);
 end;
 
 procedure TSoundLib.LoadSoundsDAT();
@@ -116,22 +119,21 @@ begin
   end;
 end;
 
+
+{Update listener position in 3D space}
 procedure TSoundLib.UpdateListener(Pos:TKMPoint);
 begin
   Listener.Pos[1]:=Pos.X;
   Listener.Pos[2]:=Pos.Y;
   Listener.Pos[3]:=0;
   AlListenerfv ( AL_POSITION, @Listener.Pos);
-
-  Listener.Ori[1]:=0; Listener.Ori[2]:=1; Listener.Ori[3]:=0; //Look-at vector
-  Listener.Ori[4]:=0; Listener.Ori[5]:=0; Listener.Ori[6]:=1; //Up vector
-  AlListenerfv ( AL_ORIENTATION, @Listener.Ori);
 end;
 
 
-{Call to this procedure will find a right spot and start to play sound immediately}
+{Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
-procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean; const TimesToPlay:byte=1);
+{Attenuated means if sound should fade over distance or not}
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean);
 var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
 begin
   //Find free buffer and use it
@@ -144,7 +146,7 @@ begin
     end;
   end;
 
-  if i>=MaxSourceCount then exit;//FreeBuf:=MaxSourceCount;
+  if i>=MaxSourceCount then exit;//Don't play if there's no room left, will need to replace with better scheme sometime
 
   ID:=word(SoundID);
 
