@@ -317,6 +317,10 @@ object Form1: TForm1
         Caption = 'Open map...'
         OnClick = OpenMapClick
       end
+      object OpenMissionMenu: TMenuItem
+        Caption = 'Open mission...'
+        OnClick = OpenMissionMenuClick
+      end
       object N1: TMenuItem
         Caption = '-'
       end

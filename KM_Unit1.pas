@@ -5,7 +5,7 @@ uses
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
   KM_Form_Loading, KM_Terrain,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX;
+  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
 
 type                           
   TForm1 = class(TForm)
@@ -59,6 +59,7 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    OpenMissionMenu: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure DecodeDATClick(Sender: TObject);
@@ -96,6 +97,7 @@ type
     procedure Button3Click(Sender: TObject);
     procedure RGPlayerClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure OpenMissionMenuClick(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -150,6 +152,7 @@ begin
   //Must be done early on so that GamePlayInterface can use it
   FormLoading.Label1.Caption:='Reading KaM data ...';
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
+  fMissionPaser:= TMissionPaser.Create;
   fSoundLib:= TSoundLib.Create;
   ReadGFX(ExeDir);
   fLog.AppendLog('Resources are loaded',true);
@@ -631,6 +634,14 @@ end;
 procedure TForm1.Button4Click(Sender: TObject);
 begin
 fSoundLib.Play(10,KMPoint(48,48));
+end;
+
+procedure TForm1.OpenMissionMenuClick(Sender: TObject);
+begin
+  if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;    
+  fLog.AppendLog('Loading DAT...');
+  fMissionPaser.LoadDATFile(OpenDialog1.FileName);  
+  fLog.AppendLog('DAT Loaded');
 end;
 
 end.

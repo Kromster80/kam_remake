@@ -766,6 +766,7 @@ begin
   if fCurrentAction is TUnitActionWalkTo then
     fRender.RenderRoute(TUnitActionWalkTo(fCurrentAction).NodeCount,TUnitActionWalkTo(fCurrentAction).Nodes,$FFFFFFFF);
 
+  //@Krom: Often when testing the remake it crashes at the following line. Any idea why/how to fix?
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 

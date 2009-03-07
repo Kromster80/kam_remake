@@ -162,6 +162,8 @@ BuildButtonClick(nil);
 //Set LastVisiblePage to which ever page was last visible, out of the ones needed
 if KMPanel_Settings.Visible = true then
   LastVisiblePage := KMPanel_Settings;
+if KMPanel_Quit.Visible = true then
+  LastVisiblePage := KMPanel_Quit;
 
 //First thing - hide all existing pages
   for i:=1 to KMPanel_Main.ChildCount do
@@ -192,7 +194,8 @@ if Sender=KMButtonMain[3] then begin
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
 end else
 if ((Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No) or
-   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings))) then begin
+   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings)) or
+   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Quit))) then begin
   KMPanel_Menu.Visible:=true;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);

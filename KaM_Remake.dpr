@@ -19,7 +19,8 @@ uses
   ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
   KM_LoadLib in 'KM_LoadLib.pas',
   KM_LoadSFX in 'KM_LoadSFX.pas',
-  KM_Settings in 'KM_Settings.pas';
+  KM_Settings in 'KM_Settings.pas',
+  KM_LoadDAT in 'KM_LoadDAT.pas';
 
 {$R *.RES}
 {}
