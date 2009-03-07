@@ -150,7 +150,7 @@ begin
   //Must be done early on so that GamePlayInterface can use it
   FormLoading.Label1.Caption:='Reading KaM data ...';
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
-  fSoundLibrary:= TSoundLibrary.Create;
+  fSoundLib:= TSoundLib.Create;
   ReadGFX(ExeDir);
   fLog.AppendLog('Resources are loaded',true);
 
@@ -584,7 +584,7 @@ end;
 
 procedure TForm1.ExportSounds1Click(Sender: TObject);
 begin
-fSoundLibrary.ExportSounds;
+fSoundLib.ExportSounds;
 end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
@@ -630,7 +630,7 @@ end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 begin
-fSoundLibrary.Play(1,KMPoint(0,0));
+fSoundLib.Play(10,KMPoint(48,48));
 end;
 
 end.

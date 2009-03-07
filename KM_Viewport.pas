@@ -26,7 +26,7 @@ var
   fViewport: TViewport;
 
 implementation
-uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Users;
+uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Users, KM_LoadSFX;
 
 constructor TViewport.Create;
 begin
@@ -47,12 +47,14 @@ function TViewport.GetCenter():TKMPoint;
 begin
   Result.X:=EnsureRange(XCoord,1,fTerrain.MapX);
   Result.Y:=EnsureRange(YCoord,1,fTerrain.MapY);
+  fSoundLib.UpdateListener(KMPoint(XCoord,YCoord));
 end;
 
 procedure TViewport.SetCenter(NewX,NewY:integer);
 begin
   XCoord:=EnsureRange(NewX,1,fTerrain.MapX);
   YCoord:=EnsureRange(NewY,1,fTerrain.MapY);
+  fSoundLib.UpdateListener(KMPoint(NewX,NewY));
 end;
 
 //Acquire boundaries of area visible to user
