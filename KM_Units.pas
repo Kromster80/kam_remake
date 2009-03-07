@@ -877,7 +877,8 @@ destructor TKMUnit.Destroy;
 begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
-  if Assigned(fPlayers.Player[byte(fOwner)]) then fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
+  if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+    fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
   Inherited;
 end;
 

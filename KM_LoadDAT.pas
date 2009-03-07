@@ -142,10 +142,11 @@ end;
 procedure TMissionPaser.UnloadMission;
 begin
   //fPlayers.Destroy; //@Krom: Is this the correct way of resetting the players?
-  //FreeAndNil(fPlayers);
+  FreeAndNil(fPlayers);
   //@Lewin: I'm not sure which command to use, Free, FreeAndNil or Destroy. Till now I prefered Destroy.
   //fPlayers.Destroy; Probably FreeAndNil is better, but there's an issue:
-  //Object should be Freed first and then Niled, where's Delphi does it other way round 
+  //Object should be Freed first and then Niled, where's Delphi does it other way round
+  //Okay I solved it, use FreeAndNil
   CurrentPlayerIndex := 0;
 end;
 
@@ -226,6 +227,17 @@ begin
 
   //@Krom: Items bellow are just examples, please feel free to redo them, as I'm not sure if I'm doing it the best way. (am I doing too much range checking/debugging?)
   //Look in my mission editor help file if you want info on the commands. (under Appendix -> List of Commands)
+  //@Lewin: I like how it looks, perhaps a little reformatting will improve readability
+  {case CurrentCommandText of
+  '!SET_MAX_PLAYER': begin
+                     fPlayers:=TKMAllPlayers.Create(EnsureRange(StrToIntDef(ParamList[1],0),1,MAX_PLAYERS)); //Create players
+                     end;
+  '!SET_CURR_PLAYER': begin
+                      if fPlayers <> nil then
+                      CurrentPlayerIndex := EnsureRange(StrToIntDef(ParamList[1],0),0,fPlayers.PlayerCount-1)
+  etc..
+  }
+
   {case CurrentCommandText of
     '!SET_MAX_PLAYER' :
     begin

@@ -26,6 +26,7 @@ var
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
+  TERRAIN_FOG_OF_WAR_ENABLE:boolean=true;//Whenever fog of war is enabled or not
 
 const
   MaxHouses=255;        //Maximum houses one player can own

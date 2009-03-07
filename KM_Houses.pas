@@ -1,6 +1,6 @@
 unit KM_Houses;
 interface
-uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults;
+uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, SysUtils;
 
   {Everything related to houses is here}
 type
@@ -178,9 +178,10 @@ end;
 
 destructor TKMHouse.Destroy;
 begin
-  fCurrentAction.Free;
+  FreeAndNil(fCurrentAction);
   fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
-  if fBuildState=hbs_Done then if Assigned(fPlayers.Player[byte(fOwner)]) then fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
+  if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+    fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
   Inherited;
 end;
 
@@ -448,14 +449,9 @@ end;
 procedure TKMHouse.SetWareDelivery(AVal:boolean);
 begin
   fWareDelivery := AVal;
-  //@Krom: Here we should either enable or disable delivery of wares to this building.
-  //I don't really understand how the delivery system works, so maybe you could do this?
-  //@Lewin:Later, cos I don't know how it works either, although I've designed it LOL
-  //This feature is not very important for now.
-  //@Krom: True, it's not very important so do it later.
-  //@Lewin: Okay, I've made it work. House only stores WareDelivery option, it is accessed
-  //from DeliverQueue when choosing delivery job.
-  //P.S. Keep this chat, it's fun to read ;-) 
+  //@Lewin: Chat removed to keep code clean. I suggest we remove solved issues.
+  //It's actually handy to keep all issues in source and mark them with @Lewin/@Krom markers.
+  //Delete upon reading.
 end;
 
 

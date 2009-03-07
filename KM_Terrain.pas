@@ -875,6 +875,7 @@ for i:=1 to MapY do
   //All those global things can be performed once a sec, or even less frequent
   if (i*MapX+k+AnimStep) mod round(TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then begin
 
+  if TERRAIN_FOG_OF_WAR_ENABLE then
   for h:=1 to 8 do
     if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
