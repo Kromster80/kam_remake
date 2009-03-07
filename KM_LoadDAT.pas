@@ -143,6 +143,9 @@ procedure TMissionPaser.UnloadMission;
 begin
   //fPlayers.Destroy; //@Krom: Is this the correct way of resetting the players?
   //FreeAndNil(fPlayers);
+  //@Lewin: I'm not sure which command to use, Free, FreeAndNil or Destroy. Till now I prefered Destroy.
+  //fPlayers.Destroy; Probably FreeAndNil is better, but there's an issue:
+  //Object should be Freed first and then Niled, where's Delphi does it other way round 
   CurrentPlayerIndex := 0;
 end;
 
@@ -248,4 +251,66 @@ begin
   //Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
 end;
 
+
+{ Just as idea on how it could be done (copy from KaM Editor), of course there are better ways..
+k:=1; s:=''; Row:=1;
+//Acquire one command with parameters
+repeat
+  //append space
+  if length(Cmd)-1<Row then
+    setlength(Cmd,length(Cmd)+100);
+
+  //clearup
+  Cmd[Row].Command:='';
+  Cmd[Row].Text:='';
+  for i:=1 to 6 do
+  Cmd[Row].Numer[i]:=-1;
+  Cmd[Row].Comment:='';
+
+  //Acquire command name starting with '!'
+  if st[k]='!' then begin
+
+    repeat
+      Cmd[Row].Command:=Cmd[Row].Command+st[k];
+      inc(k);
+    until((st[k]=#32)or(k>=length(st)));
+    inc(k); //Skip space
+
+
+    //Acquire single text parameter
+    if not(ord(st[k]) in [48..57])and(st[k]<>'!') then begin//if not a number
+    repeat
+    Cmd[Row].Text:=Cmd[Row].Text+st[k];
+    inc(k);
+    until((st[k]=#32)or(k>=length(st)));
+    inc(k); //Skip space
+    end;
+
+    //Acquire upto 6 numeric parameters
+    for i:=1 to 6 do
+    if (k<=length(st))and(ord(st[k]) in [48..57]) then
+      begin
+        Cmd[Row].Numer[i]:=0;
+        repeat
+          Cmd[Row].Numer[i]:=Cmd[Row].Numer[i]*10+strtoint(st[k]);
+          inc(k);
+        until((k>length(st))or(not (ord(st[k]) in [48..57])));
+        if (k>length(st))or(st[k]=#32) then inc(k); //Skip space
+      end;
+
+  end;
+
+  //Skip all comments and disabled commands
+  while ((k<length(st))and(st[k]<>'!')) do begin
+    Cmd[Row].Comment:=Cmd[Row].Comment+st[k];
+    inc(k);
+  end;
+
+  inc(Row);
+
+until(k>=length(st));
+CMDCount:=Row-1;
+}
 end.
+
+

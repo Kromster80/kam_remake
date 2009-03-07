@@ -2,7 +2,7 @@ unit KM_Units;
 interface
 uses
   KM_Defaults, windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain,
-  KM_Houses, KromUtils;
+  KM_Houses, KromUtils, SysUtils;
 
 type
   //Switch to set if unit goes into house or out of it
@@ -608,10 +608,8 @@ begin
 
   if not TaskDone then exit;
 
-  if fUnitTask <> nil then begin
-    fUnitTask.Free;
-    fUnitTask:=nil
-  end;
+  if fUnitTask <> nil then
+    FreeAndNil(fUnitTask);
 
 //Here come unit tasks in priorities
 //Priority no.1 - find self a food
@@ -713,10 +711,8 @@ begin
 
   if not TaskDone then exit;
 
-  if fUnitTask <> nil then begin
-    fUnitTask.Free;
-    fUnitTask:=nil
-  end;
+  if fUnitTask <> nil then
+    FreeAndNil(fUnitTask);
 
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
@@ -767,6 +763,7 @@ begin
     fRender.RenderRoute(TUnitActionWalkTo(fCurrentAction).NodeCount,TUnitActionWalkTo(fCurrentAction).Nodes,$FFFFFFFF);
 
   //@Krom: Often when testing the remake it crashes at the following line. Any idea why/how to fix?
+  //@Lewin: Please describe how to reproduce the bug, cos the error is somewhere outside.
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 
@@ -796,10 +793,8 @@ begin
 
   if not TaskDone then exit;
 
-  if fUnitTask <> nil then begin
-    fUnitTask.Free;
-    fUnitTask:=nil
-  end;
+  if fUnitTask <> nil then
+    FreeAndNil(fUnitTask);
 
   if fCondition<UNIT_MIN_CONDITION then begin
   H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
@@ -880,9 +875,9 @@ end;
 
 destructor TKMUnit.Destroy;
 begin
-  fCurrentAction.Free;
-  fUnitTask.Free;
-  fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
+  FreeAndNil(fCurrentAction);
+  FreeAndNil(fUnitTask);
+  if Assigned(fPlayers.Player[byte(fOwner)]) then fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
   Inherited;
 end;
 
@@ -922,8 +917,7 @@ begin
 AnimStep:=aStep;
   if aAction = nil then
   begin
-    fCurrentAction.Free;
-    fCurrentAction:= nil;
+    FreeAndNil(fCurrentAction);
     Exit;
   end;
   if not (aAction.ActionType in GetSupportedActions) then
@@ -949,8 +943,7 @@ begin
   if fCondition=0 then
   if not (fUnitTask is TTaskDie) then begin
     SetAction(nil);
-    fUnitTask.Free; //Should be overriden to dispose of Task-specific items
-    fUnitTask:=nil;
+    FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
     fUnitTask:=TTaskDie.Create(Self);
   end;
 end;

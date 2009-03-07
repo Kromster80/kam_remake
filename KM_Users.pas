@@ -144,6 +144,7 @@ begin
   Result:=fHouses.FindHouse(aType, X, Y);
 end;
 
+
 constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 begin
   PlayerID:=aPlayerID;
@@ -154,12 +155,14 @@ begin
   fBuildList:= TKMBuildingQueue.Create;
 end;
 
+
 destructor TKMPlayerAssets.Destroy;
 begin
-  fUnits.Free;
-  fHouses.Free;
-  fDeliverList.Free;
-  fBuildList.Free;
+  FreeAndNil(fMissionSettings);
+  FreeAndNil(fUnits);
+  FreeAndNil(fHouses);
+  FreeAndNil(fDeliverList);
+  FreeAndNil(fBuildList);
   inherited;
 end;
 
@@ -203,7 +206,7 @@ end;
 
 procedure TKMPlayerAssets.DestroyedUnit(aType:TUnitType);
 begin
-  fMissionSettings.DestroyedUnit(aType);
+  if Assigned(fMissionSettings) then fMissionSettings.DestroyedUnit(aType);
 end;
 
 procedure TKMPlayerAssets.UpdateReqDone(aType:THouseType);
@@ -249,7 +252,7 @@ destructor TKMAllPlayers.Destroy;
 var i:integer;
 begin
   for i:=1 to fPlayerCount do
-    Player[i].Destroy;
+    FreeAndNil(Player[i]);
 
   SelectedHouse:=nil;
   inherited;

@@ -180,7 +180,7 @@ destructor TKMHouse.Destroy;
 begin
   fCurrentAction.Free;
   fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
-  if fBuildState=hbs_Done then fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
+  if fBuildState=hbs_Done then if Assigned(fPlayers.Player[byte(fOwner)]) then fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
   Inherited;
 end;
 

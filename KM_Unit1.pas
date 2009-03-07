@@ -616,14 +616,13 @@ end;
 procedure TForm1.Button3Click(Sender: TObject);
 begin
 //Reset map
-  fPlayers.Destroy;
+  FreeAndNil(fPlayers);
 
   fTerrain.MakeNewMap(96,96);
   fTerrain.RevealCircle(KMPoint(12,12),12,100,play_1);
 
   fPlayers:=TKMAllPlayers.Create(6); //Create 6 players
   MyPlayer:=fPlayers.Player[1];
-
 end;
 
 procedure TForm1.RGPlayerClick(Sender: TObject);

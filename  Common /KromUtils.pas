@@ -118,6 +118,15 @@ const
 
 implementation
 
+{procedure FreeAndNil(var Obj);
+begin
+  try
+    TObject(Obj).Free;
+  finally
+    TObject(Obj) := nil;
+  end;
+end;}
+
 function Vectorize(A,B:single):Vector2f; overload;
 begin
 Result.U:=A;
