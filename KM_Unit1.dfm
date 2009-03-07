@@ -329,20 +329,6 @@ object Form1: TForm1
         OnClick = ExitClick
       end
     end
-    object Script1: TMenuItem
-      Caption = 'Script'
-      Enabled = False
-      object OpenDAT: TMenuItem
-        Caption = 'Open DAT ...'
-      end
-      object ExportDAT: TMenuItem
-        Caption = 'Export DAT ...'
-      end
-      object DecodeDAT: TMenuItem
-        Caption = 'Decode DAT ...'
-        OnClick = DecodeDATClick
-      end
-    end
     object Advanced1: TMenuItem
       Caption = 'Advanced'
       object ShowWires: TMenuItem

@@ -21,7 +21,7 @@ type
     PlayerType: TPlayerType; //Is it Human or AI
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
-    procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
+    procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint):boolean;
     procedure RemHouse(Position: TKMPoint);
     procedure RemUnit(Position: TKMUnit);
@@ -75,7 +75,7 @@ var
 implementation
 
 uses
-  KM_Terrain;
+  KM_Terrain, KM_LoadSFX;
 
 { TKMPlayerAssets }
 
@@ -93,7 +93,7 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup);
+procedure TKMPlayerAssets.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
 begin
   if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
   fTerrain.SetMarkup(aLoc, aMarkup);
@@ -103,6 +103,8 @@ begin
     mu_WinePlan: BuildList.AddNewRoad(aLoc, fdt_Wine);
     else Assert(false,'Wrong markup');
   end;
+  if not DoSilent then
+  fSoundLib.Play(sfx_placemarker,aLoc,false);
 end;
 
 function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint):boolean;

@@ -29,10 +29,6 @@ type
     ExportTreesRX: TMenuItem;
     ExportHousesRX: TMenuItem;
     ExportUnitsRX: TMenuItem;
-    Script1: TMenuItem;
-    OpenDAT: TMenuItem;
-    ExportDAT: TMenuItem;
-    DecodeDAT: TMenuItem;
     ExportGUIMainRX: TMenuItem;
     Exportfonts1: TMenuItem;
     GroupBox1: TGroupBox;
@@ -62,7 +58,6 @@ type
     OpenMissionMenu: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
-    procedure DecodeDATClick(Sender: TObject);
     procedure OpenMapClick(Sender: TObject);
     procedure ZoomChange(Sender: TObject);
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -199,20 +194,6 @@ begin
   fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
 end;
 
-procedure TForm1.DecodeDATClick(Sender: TObject);
-var ii,fsize:integer; f:file; c:array[1..65536] of char;
-begin
-if not OpenDialog1.Execute then exit;
-fsize:=GetFileSize(OpenDialog1.FileName);
-assignfile(f,OpenDialog1.FileName); reset(f,1);
-blockread(f,c,fsize);
-for ii:=1 to fsize do c[ii]:=chr(ord(c[ii]) xor 239);
-closefile(f);
-assignfile(f,OpenDialog1.FileName+'.txt'); rewrite(f,1);
-blockwrite(f,c,fsize);
-closefile(f);
-end;
-
 procedure TForm1.ZoomChange(Sender: TObject);
 begin
 fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
@@ -293,9 +274,9 @@ begin
           fGamePlayInterface.ShowHouseInfo(fPlayers.HousesHitTest(CursorXc, CursorYc));
         end;
       end;
-    cm_Road: MyPlayer.AddRoadPlan(P,mu_RoadPlan);
-    cm_Field: MyPlayer.AddRoadPlan(P,mu_FieldPlan);
-    cm_Wine: MyPlayer.AddRoadPlan(P,mu_WinePlan);
+    cm_Road: MyPlayer.AddRoadPlan(P,mu_RoadPlan, false);
+    cm_Field: MyPlayer.AddRoadPlan(P,mu_FieldPlan, false);
+    cm_Wine: MyPlayer.AddRoadPlan(P,mu_WinePlan, false);
 
     cm_Erase:
       begin
@@ -387,12 +368,12 @@ fTerrain.SetCoalReserve(KMPoint(8+i,14+k));
 for k:=-5 to 5 do for i:=-4 to 6 do
 fTerrain.SetOreReserve(KMPoint(21+i,6+k),rt_IronOre);
 
-MyPlayer.AddRoadPlan(KMPoint(2,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(2,6),mu_RoadPlan,true);
 
-MyPlayer.AddRoadPlan(KMPoint(2,7),mu_FieldPlan);
-MyPlayer.AddRoadPlan(KMPoint(3,7),mu_FieldPlan);
-MyPlayer.AddRoadPlan(KMPoint(4,7),mu_FieldPlan);
-MyPlayer.AddRoadPlan(KMPoint(5,7),mu_FieldPlan);
+MyPlayer.AddRoadPlan(KMPoint(2,7),mu_FieldPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(3,7),mu_FieldPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(4,7),mu_FieldPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(5,7),mu_FieldPlan,true);
 
 MyPlayer.AddHouse(ht_Farm, KMPoint(3,5));
 MyPlayer.AddHouse(ht_Mill, KMPoint(8,5));
@@ -412,10 +393,10 @@ MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
 MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
 MyPlayer.AddUnit(ut_StoneCutter, KMPoint(6,9));
 
-MyPlayer.AddRoadPlan(KMPoint(2,14),mu_WinePlan);
-MyPlayer.AddRoadPlan(KMPoint(3,14),mu_WinePlan);
-MyPlayer.AddRoadPlan(KMPoint(4,14),mu_WinePlan);
-MyPlayer.AddRoadPlan(KMPoint(5,14),mu_WinePlan);
+MyPlayer.AddRoadPlan(KMPoint(2,14),mu_WinePlan,true);
+MyPlayer.AddRoadPlan(KMPoint(3,14),mu_WinePlan,true);
+MyPlayer.AddRoadPlan(KMPoint(4,14),mu_WinePlan,true);
+MyPlayer.AddRoadPlan(KMPoint(5,14),mu_WinePlan,true);
 MyPlayer.AddHouse(ht_WineYard, KMPoint(4,13));
 MyPlayer.AddUnit(ut_Farmer, KMPoint(15,9));
 MyPlayer.AddHouse(ht_CoalMine, KMPoint(8,13));
@@ -446,14 +427,14 @@ MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
 if H<>nil then H.AddMultiResource(rt_All,15);
 
-MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan);
-MyPlayer.AddRoadPlan(KMPoint(4,6),mu_RoadPlan);
-MyPlayer.AddRoadPlan(KMPoint(5,6),mu_RoadPlan);
-MyPlayer.AddRoadPlan(KMPoint(6,6),mu_RoadPlan);
-MyPlayer.AddRoadPlan(KMPoint(7,6),mu_RoadPlan);
-MyPlayer.AddRoadPlan(KMPoint(8,6),mu_RoadPlan);
-MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan);
-MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan);
+MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(4,6),mu_RoadPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(5,6),mu_RoadPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(6,6),mu_RoadPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(7,6),mu_RoadPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(8,6),mu_RoadPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan,true);
+MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan,true);
 
 MyPlayer.AddHousePlan(ht_School, KMPoint(4,17));
 MyPlayer.AddHouse(ht_Inn, KMPoint(9,18));
@@ -632,14 +613,14 @@ end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 begin
-fSoundLib.Play(10,KMPoint(48,48));
+  fSoundLib.Play(sfx_dig,KMPoint(48,48),true);
 end;
 
 procedure TForm1.OpenMissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;    
   fLog.AppendLog('Loading DAT...');
-  fMissionPaser.LoadDATFile(OpenDialog1.FileName);  
+  fMissionPaser.LoadDATFile(OpenDialog1.FileName);
   fLog.AppendLog('DAT Loaded');
 end;
 

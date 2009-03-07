@@ -219,7 +219,7 @@ begin
 end;
 
 
-{Check if requested vertice is revealed}
+{Check if requested vertice is revealed for given player}
 function TTerrain.CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
 begin
   //I like how "alive" fog looks with some tweaks

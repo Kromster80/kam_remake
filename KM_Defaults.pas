@@ -21,7 +21,7 @@ const
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
 var
-  MakeGameSprites:boolean=false;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
@@ -458,10 +458,34 @@ type
     sfx_unknown4,
     sfx_unknown5,
     sfx_chop,
-    sfx_unknown7,
-    sfx_unknown8,
-    sfx_unknown9,
-    sfx_mill    );
+    sfx_housebuild,
+    sfx_placemarker,
+    sfx_click,
+    sfx_mill,
+    sfx_saw,
+    sfx_wineStep,
+    sfx_wineDrain,
+    sfx_metallurgists,
+    sfx_coalDown,
+    sfx_Pig1,sfx_Pig2,sfx_Pig3,sfx_Pig4,
+    sfx_Mine,
+    sfx_unknown21,
+    sfx_Leather,
+    sfx_unknown23,
+    sfx_unknown24,
+    sfx_StoneThrow,
+    sfx_unknown26,
+    sfx_unknown27,
+    sfx_Sousages,
+    sfx_unknown29,
+    sfx_TreeDown,
+    sfx_unknown31,
+    sfx_unknown32,
+    sfx_Paper,
+    sfx_unknown34,
+    sfx_Horn,
+    sfx_Die1,
+    sfx_Die2     );
 
 var
   //Players colors

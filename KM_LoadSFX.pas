@@ -1,18 +1,9 @@
 unit KM_LoadSFX;
 interface
-uses Windows, Classes, SysUtils, KromUtils, OpenAL;
+uses Windows, Classes, SysUtils, KromUtils, OpenAL, KM_Defaults;
 
 const MaxWaves = 200;
-var
-  ALBuffer : array [1..64] of TALuint;
-  ALSource : array [1..64] of TALuint;
-//  SourcePos: array [1..64,1..3] of TALfloat;
-  SourceVel: array [1..64,1..3] of TALfloat;
-  Listener:record
-    Pos: array [1..3] of TALfloat;
-    Vel: array [1..3] of TALfloat;
-    Ori: array [1..6] of TALfloat;
-  end;
+const MaxSourceCount = 16; //Actually it depends on hardware
 
 type
   TWAVHeaderEx = record
@@ -44,19 +35,25 @@ type
       a,b:integer;
       i,j,k,l,Index:word;
     end;
+    Listener:record
+      Pos: array [1..3] of TALfloat;
+      Vel: array [1..3] of TALfloat;
+      Ori: array [1..6] of TALfloat;
+    end;
+    //Buffer used to store the wave data, Source is sound position in space
+    ALSource,ALBuffer: array [1..64] of TALuint;
     procedure LoadSoundsDAT();
   public
     constructor Create;
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPoint);
-    procedure Play(ID:integer; Loc:TKMPoint; const TimesToPlay:byte=1);
+    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean; const TimesToPlay:byte=1);
 end;
 
 var
   fSoundLib: TSoundLib;
 
 implementation
-  uses KM_Defaults;
 
 constructor TSoundLib.Create;
 var
@@ -123,31 +120,57 @@ procedure TSoundLib.UpdateListener(Pos:TKMPoint);
 begin
   Listener.Pos[1]:=Pos.X;
   Listener.Pos[2]:=Pos.Y;
-  Listener.Pos[3]:=1;
+  Listener.Pos[3]:=0;
   AlListenerfv ( AL_POSITION, @Listener.Pos);
 
-  Listener.Ori[1]:=0; Listener.Ori[2]:=0; Listener.Ori[3]:=-1; //Look-at vector
+  Listener.Ori[1]:=0; Listener.Ori[2]:=1; Listener.Ori[3]:=0; //Look-at vector
   Listener.Ori[4]:=0; Listener.Ori[5]:=0; Listener.Ori[6]:=1; //Up vector
   AlListenerfv ( AL_ORIENTATION, @Listener.Ori);
 end;
 
-procedure TSoundLib.Play(ID:integer; Loc:TKMPoint; const TimesToPlay:byte=1);
-var Dif:array[1..3]of single; FreeBuf:integer;
+
+{Call to this procedure will find a right spot and start to play sound immediately}
+{Will need to make another one for unit sounds, which will take WAV file path as parameter}
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean; const TimesToPlay:byte=1);
+var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
 begin
   //Find free buffer and use it
   FreeBuf:=1;
+  for i:=1 to MaxSourceCount do begin
+    alGetSourcei(ALSource[i], AL_SOURCE_STATE, @ALState);
+    if ALState<>AL_PLAYING then begin
+      FreeBuf:=i;
+      break;
+    end;
+  end;
 
+  if i>=MaxSourceCount then exit;//FreeBuf:=MaxSourceCount;
+
+  ID:=word(SoundID);
+
+  //Stope previously playing sound and release buffer
+  AlSourceStop(ALSource[FreeBuf]);
+  AlSourcei ( ALSource[FreeBuf], AL_BUFFER, 0);
+
+  //Assign new data to buffer and assign it to source
   AlBufferData(ALBuffer[FreeBuf], AL_FORMAT_MONO8, @Waves[ID].Data[0], Waves[ID].Head.DataSize, Waves[ID].Head.SampleRate);
-    AlSourcei ( ALSource[FreeBuf], AL_BUFFER, ALBuffer[FreeBuf]);
-    AlSourcef ( ALSource[FreeBuf], AL_PITCH, 1.0 );
-    AlSourcef ( ALSource[FreeBuf], AL_GAIN, 1.0 );
+
+  //Set source properties
+  AlSourcei ( ALSource[FreeBuf], AL_BUFFER, ALBuffer[FreeBuf]);
+  AlSourcef ( ALSource[FreeBuf], AL_PITCH, 1.0 );
+  AlSourcef ( ALSource[FreeBuf], AL_GAIN, 1.0 );
+  if Attenuated then begin
     Dif[1]:=Loc.X; Dif[2]:=Loc.Y; Dif[3]:=0;
     AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Dif[1]);
-    AlSourcef ( ALSource[FreeBuf], AL_REFERENCE_DISTANCE, 1.0 );
-    AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, 20.0 );
-    AlSourcef ( ALSource[FreeBuf], AL_ROLLOFF_FACTOR, 1.0 );
-    AlSourcei ( ALSource[FreeBuf], AL_LOOPING, AL_TRUE);
-    AlSourcePlay(ALSource[FreeBuf]);
+  end else
+    AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Listener.Pos);
+  AlSourcef ( ALSource[FreeBuf], AL_REFERENCE_DISTANCE, 5.0 );
+  AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, 15.0 );
+  AlSourcef ( ALSource[FreeBuf], AL_ROLLOFF_FACTOR, 1.0 );
+  AlSourcei ( ALSource[FreeBuf], AL_LOOPING, AL_FALSE);
+
+  //Start playing
+  AlSourcePlay(ALSource[FreeBuf]);
 end;
 
 

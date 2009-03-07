@@ -287,7 +287,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users;
+uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users, KM_LoadSFX;
 
 
 {Whole thing should be moved to units Task}
@@ -1101,28 +1101,34 @@ case Phase of
 1: begin
    fTerrain.RemMarkup(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+   fSoundLib.Play(sfx_Dig,fLoc,true);
    end;
 2: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+   fSoundLib.Play(sfx_Dig,fLoc,true);
    end;
 3: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+   fSoundLib.Play(sfx_Dig,fLoc,true);
    end;
 4: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once, di_High);
 
 5: SetAction(TUnitActionStay.Create(30,ua_Work1));
 6: begin
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+   fSoundLib.Play(sfx_Pave,fLoc,true);
    end;
 7: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+   fSoundLib.Play(sfx_Pave,fLoc,true);
    end;
 8: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+   fSoundLib.Play(sfx_Pave,fLoc,true);
    end;
 9: begin
    fTerrain.SetField(fLoc,fOwner,fdt_Road);
@@ -1234,18 +1240,22 @@ case Phase of
 2:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,ListOfCells[Step]));
 3:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fSoundLib.Play(sfx_dig,ListOfCells[Step],true);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
     end;
 4:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fSoundLib.Play(sfx_dig,ListOfCells[Step],true);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
     end;
 5:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fSoundLib.Play(sfx_dig,ListOfCells[Step],true);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
     end;
 6:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fSoundLib.Play(sfx_dig,ListOfCells[Step],true);
       fTerrain.FlattenTerrain(ListOfCells[Step]); dec(Step);
     end;
 7:  begin
@@ -1326,6 +1336,7 @@ begin
            end;
            fHouse.IncBuildingProgress;
            SetAction(TUnitActionStay.Create(6,ua_Work,false),5); //Do building and end animation
+           fSoundLib.Play(sfx_HouseBuild,Cells[CurLoc].Loc,true);
            inc(Phase2);
          end;
       4: begin
