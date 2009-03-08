@@ -764,6 +764,7 @@ begin
 
   //@Krom: Often when testing the remake it crashes at the following line. Any idea why/how to fix?
   //@Lewin: Please describe how to reproduce the bug, cos the error is somewhere outside.
+  //@Krom: It's not easy... It just happens sometimes, I can't find a way to always make it happen. Next time it does I will try to find out more. For the moment just ignore it.
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 
@@ -1679,7 +1680,9 @@ begin
     ut_Militia..ut_Barbarian:   T:= Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
     //ut_Bowman:   Inherited Add(TKMUnitArcher.Create(aOwner,PosX,PosY,aUnitType)); //I guess it will be stand-alone
 
-    else Assert(false,'Such unit doesn''t exists yet - '+TypeToString(aUnitType));
+    //@Krom: Could you please enable animals? Even if they don't do anything yet. BTW: The codes you are using for animals in Defaults are not right. (e.g. fish = 26 not 32) What shall we do about that?
+
+    else Assert(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
   end;
   if T=-1 then Result:=nil else Result:=TKMUnit(Items[T]);
 end;

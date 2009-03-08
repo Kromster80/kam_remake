@@ -449,9 +449,6 @@ end;
 procedure TKMHouse.SetWareDelivery(AVal:boolean);
 begin
   fWareDelivery := AVal;
-  //@Lewin: Chat removed to keep code clean. I suggest we remove solved issues.
-  //It's actually handy to keep all issues in source and mark them with @Lewin/@Krom markers.
-  //Delete upon reading.
 end;
 
 

@@ -106,6 +106,7 @@ type TKMGamePlayInterface = class
     procedure Create_School_Page;
     procedure Create_Barracks_Page;
     procedure UpdateState;
+    procedure RightClickCancel;
     procedure ShowSettings(Sender: TObject);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
@@ -688,6 +689,12 @@ begin
   Settings_Change(nil);
 end;
 
+procedure TKMGamePlayInterface.RightClickCancel;
+begin
+  //This function will be called if the user right clicks on the screen. We should close the build menu if it's open.
+  if KMPanel_Build.Visible = true then
+    SwitchPage(KMButtonMain[5]);
+end;
 
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse);
 const LineAdv = 25; //Each new Line is placed ## pixels after previous

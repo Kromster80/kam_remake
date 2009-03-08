@@ -253,7 +253,7 @@ begin
     if Childs[i].Visible then
       if Childs[i].Enabled then
         Childs[i].CheckCursorOver(X,Y,AShift);
-end;  
+end;
 
 
 procedure TKMControl.HintCheckCursorOver(X,Y:integer; AShift:TShiftState);

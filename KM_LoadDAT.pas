@@ -1,13 +1,24 @@
 unit KM_LoadDAT;
 interface
 uses
-  Windows, Classes, SysUtils, StrUtils, KromUtils, KM_Users;
+  Windows, Classes, SysUtils, StrUtils, KromUtils, KM_Users, Dialogs, Math, KM_Terrain, KM_Viewport;
+
+//@Krom: Should these be in Defaults, or should they be here because this is the only unit which will use it?
+type
+  TKMCommandType = (ct_Unknown,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
+                    ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_SetUnit,ct_SetRoad);//,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_);
+
+const
+  //@Krom: If you are happy with my system here then let me know and I will add all of the commands
+  COMMANDVALUES: array[TKMCommandType] of string = ('','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
+                                                    'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR','CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES','ADD_GOAL','SET_UNIT','SET_STREET');//,'','','','','','','','','','','','','','','','','','','');
+  MAXPARAMS = 8;
 
 type
   TMissionPaser = class(TObject)
   private     { Private declarations }
     CurrentPlayerIndex: integer;
-    procedure ProcessCommand(CurrentCommandText,FileText:string; i:integer);
+    procedure ProcessCommand(CommandType: TKMCommandType; ParamList: array of string);
     procedure DebugScriptError(ErrorMsg:string);
     procedure UnloadMission;
   public      { Public declarations } 
@@ -20,6 +31,21 @@ var
 
 implementation
 uses KM_Defaults;
+
+function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
+var
+  i: TKMCommandType;
+begin
+  Result := ct_Unknown;
+  for i:=low(TKMCommandType) to high(TKMCommandType) do
+  begin
+    if ACommandText = '!'+COMMANDVALUES[i] then
+    begin
+      Result := i;
+      break;
+    end;
+  end;
+end;
 
 { STRING FUNCTIONS }
 //Should be in LewinUtils? ;)
@@ -57,80 +83,6 @@ begin
     temp := RightStr(temp, length(temp) - 1);
   end;
 end;
-
-function GetNextWord(const s : string) : string;
-var
-  Found : boolean;
-  StartedWord : Boolean;
-  i, startofword : integer;
-begin
-  i := 1;
-  StartedWord := false;
-  Found := false;
-  startofword := -1;
-  while Found = false do
-  begin
-    if s[i] = ' ' then
-    begin
-      if StartedWord then
-      begin
-        Result := LeftStr(RightStr(s, Length(s) - startofword), i - startofword - 1);
-        Found := true;
-      end;
-    end
-    else
-    begin
-      StartedWord := true;
-      //only set this at the start
-      if startofword = -1 then
-        startofword := i - 1;
-    end;
-    //stop at the end of the file, if all else fails
-    if i >= Length(s) then
-    begin
-      Result := LeftStr(RightStr(s, Length(s) - startofword), i - startofword - 1);
-      Found := true;
-    end;
-    i := i + 1;
-  end;
-end;
-
-function GetLengthToEndOfNextWord(const s : string) : integer;
-var
-  Found : boolean;
-  StartedWord : Boolean;
-  i, startofword : integer;
-begin
-  i := 1;
-  StartedWord := false;
-  Found := false;
-  startofword := -1;
-  while Found = false do
-  begin
-    if s[i] = ' ' then
-    begin
-      if StartedWord then
-      begin
-        Found := true;
-      end;
-    end
-    else
-    begin
-      StartedWord := true;
-      //only set this at the start
-      if startofword = -1 then
-        startofword := i - 1;
-    end;
-    //stop at the end of the file, if all else fails
-    if i >= Length(s) then
-    begin
-      Result := Length(s);
-      Found := true;
-    end;
-    inc(i);
-  end;
-  Result := i - 1;
-end;
 { END STRING FUNCTIONS }
 
 
@@ -141,22 +93,19 @@ end;
 
 procedure TMissionPaser.UnloadMission;
 begin
-  //fPlayers.Destroy; //@Krom: Is this the correct way of resetting the players?
   FreeAndNil(fPlayers);
-  //@Lewin: I'm not sure which command to use, Free, FreeAndNil or Destroy. Till now I prefered Destroy.
-  //fPlayers.Destroy; Probably FreeAndNil is better, but there's an issue:
-  //Object should be Freed first and then Niled, where's Delphi does it other way round
-  //Okay I solved it, use FreeAndNil
-  CurrentPlayerIndex := 0;
+  CurrentPlayerIndex := 1;
 end;
 
 procedure TMissionPaser.LoadDATFile(AFileName:string);
 var
-  FileText, CurrentCommandText: string;
-  i, k, FileSize: integer;
+  FileText, CommandText: string;
+  ParamList: array[1..8] of string;
+  i, k, l, FileSize: integer;
   f: file;
   c:array[1..131072] of char;  
   fl: textfile;
+  CommandType: TKMCommandType;
 begin
   if not CheckFileExists(AFileName) then exit;
   UnloadMission; //Call function which will reset fPlayers and other stuff
@@ -184,78 +133,101 @@ begin
   closefile(fl);}
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
-  i := 1;
-  //go forward until we reach an !
-  while i <= Length(FileText) do
-  begin
-    if FileText[i] = '!' then
-    begin
-      //i is now at the start of a command. Lets get the whole command text into another string
-      CurrentCommandText := LeftStrTo(LeftStr(RightStr(FileText, Length(FileText) - i + 1), 50), ' ');
-      //procces this command
-      ProcessCommand(CurrentCommandText, FileText, i);
-      //move i to the end of this command so that we can continue
-      i := i + Length(CurrentCommandText);
+  k := 1;
+  repeat    
+    if FileText[k]='!' then
+    begin           
+      for l:=1 to 8 do
+        ParamList[l]:='';
+      CommandText:='';
+      //Extract command until a space
+      repeat
+        CommandText:=CommandText+FileText[k];
+        inc(k);
+      until((FileText[k]=#32)or(k>=length(FileText)));
+      //Now convert command into type
+      CommandType := GetCommandTypeFromText(CommandText);
+      inc(k);
+      //Extract parameters
+      for l:=1 to 8 do
+        if (FileText[k]<>'!') and (k<length(FileText)) then
+        begin
+          repeat
+            ParamList[l]:=ParamList[l]+FileText[k];
+            inc(k);
+          until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
+          if FileText[k]=#32 then inc(k);
+        end;
+      //We now have command text and parameters, so process them
+      ProcessCommand(CommandType,ParamList)
     end
     else
-      inc(i);
-  end;
+      inc(k);
+  until (k>=length(FileText));
 end;
 
-procedure TMissionPaser.ProcessCommand(CurrentCommandText,FileText:string; i:integer);
+procedure TMissionPaser.ProcessCommand(CommandType: TKMCommandType; ParamList: array of string);
 var
-  ParamList : array[1..8] of string;
-  ParamStart : string;
-  int: integer;
+  MyStr: string;
+  i: integer;
 begin
-  //Extract parameters
-  ParamStart := RightStr(FileText, Length(FileText) - i - Length(CurrentCommandText));
-  for int:=1 to 8 do
-    if ParamStart <> '' then
-    begin
-      ParamList[int] := GetNextWord(ParamStart);
-      if LeftStr(ParamList[int],1) = '!' then //Stop at the next command
-      begin
-        ParamStart := '';
-        ParamList[int] := '';
-      end
-      else
-        ParamStart := RightStr(ParamStart, Length(ParamStart) - GetLengthToEndOfNextWord(ParamStart));
-    end
-    else
-      ParamList[int] := '';
-
   //@Krom: Items bellow are just examples, please feel free to redo them, as I'm not sure if I'm doing it the best way. (am I doing too much range checking/debugging?)
   //Look in my mission editor help file if you want info on the commands. (under Appendix -> List of Commands)
-  //@Lewin: I like how it looks, perhaps a little reformatting will improve readability
-  {case CurrentCommandText of
-  '!SET_MAX_PLAYER': begin
-                     fPlayers:=TKMAllPlayers.Create(EnsureRange(StrToIntDef(ParamList[1],0),1,MAX_PLAYERS)); //Create players
+  case CommandType of
+  ct_SetMap:         begin
+                     //We must extract the file path from the text in quotes
+                     if ParamList[0][1] = '"' then
+                     begin
+                       i := 2;
+                       repeat
+                         MyStr := MyStr+ParamList[0][i];
+                         inc(i);
+                       until ParamList[0][i] = '"';
+                       fTerrain.OpenMapFromFile(ExeDir+MyStr);
+                       fViewport.SetZoom:=1;
                      end;
-  '!SET_CURR_PLAYER': begin
-                      if fPlayers <> nil then
-                      CurrentPlayerIndex := EnsureRange(StrToIntDef(ParamList[1],0),0,fPlayers.PlayerCount-1)
-  etc..
-  }
+                     end;
+  ct_SetMaxPlayer:   begin
+                     fPlayers:=TKMAllPlayers.Create(EnsureRange(StrToIntDef(ParamList[0],0),1,MAX_PLAYERS)); //Create players
+                     end;
+  ct_SetCurrPlayer:  begin
+                     if fPlayers <> nil then
+                       CurrentPlayerIndex := EnsureRange(StrToIntDef(ParamList[0],0),0,fPlayers.PlayerCount-1)+1;
+                     end;
+  ct_SetHumanPlayer: begin
+                     if fPlayers <> nil then
+                       MyPlayer := fPlayers.Player[EnsureRange(StrToIntDef(ParamList[0],0),0,fPlayers.PlayerCount-1)+1];
+                     end;
+  ct_CenterScreen:   begin
+                     fViewPort.SetCenter(StrToIntDef(ParamList[0],0),StrToIntDef(ParamList[1],0));
+                     end;
+  ct_ClearUp:        begin
+                     if fPlayers <> nil then
+                       fTerrain.RevealCircle(KMPoint(StrToIntDef(ParamList[0],0),StrToIntDef(ParamList[1],0)),StrToIntDef(ParamList[2],0),100,TPlayerID(CurrentPlayerIndex));
+                     end;
+  ct_SetHouse:       begin
+                     if fPlayers <> nil then
+                       fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType( EnsureRange(StrToIntDef(ParamList[0],0),0,Integer(High(THouseType))-1)+1 ), KMPoint(StrToIntDef(ParamList[1],0),StrToIntDef(ParamList[2],0)));
+                     end;
+  ct_SetUnit:        begin
+                     if fPlayers <> nil then
+                       fPlayers.Player[CurrentPlayerIndex].AddUnit(TUnitType( EnsureRange(StrToIntDef(ParamList[0],0),0,24{Integer(High(TUnitType))}-1)+1 ), KMPoint(StrToIntDef(ParamList[1],0),StrToIntDef(ParamList[2],0)));
+                     end;   
+  ct_SetRoad:        begin
+                     if fPlayers <> nil then
+                       fPlayers.Player[CurrentPlayerIndex].AddRoadPlan(KMPoint(StrToIntDef(ParamList[0],0),StrToIntDef(ParamList[1],0)),mu_RoadPlan,true); //@Krom: How to make these actual roads?
+                     end;
+  //To add:
+  ct_SetTactic:      begin
 
-  {case CurrentCommandText of
-    '!SET_MAX_PLAYER' :
-    begin
-      fPlayers:=TKMAllPlayers.Create(EnsureRange(StrToIntDef(ParamList[1],0),1,MAX_PLAYERS)); //Create players
-    end;
-    '!SET_CURR_PLAYER' :
-    begin
-      if fPlayers <> nil then
-        CurrentPlayerIndex := EnsureRange(StrToIntDef(ParamList[1],0),0,fPlayers.PlayerCount-1)
-      else
-        DebugScriptError('!SET_CURR_PLAYER before !SET_MAX_PLAYERS');
-    end;
-    '!SET_HOUSE' :
-    begin
-      if fPlayers <> nil then
-        fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(EnsureRange(StrToIntDef(ParamList[1],0),0,High(THouseType))+1), KMPoint(StrToIntDef(ParamList[2],0),StrToIntDef(ParamList[2],0)));
-    end;
-  end;}
+                     end;
+  ct_EnablePlayer:   begin
+
+                     end;
+  ct_AIPlayer:       begin
+
+                     end;
+  end;
 end;
 
 procedure TMissionPaser.DebugScriptError(ErrorMsg:string);
@@ -263,66 +235,6 @@ begin
   //Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
 end;
 
-
-{ Just as idea on how it could be done (copy from KaM Editor), of course there are better ways..
-k:=1; s:=''; Row:=1;
-//Acquire one command with parameters
-repeat
-  //append space
-  if length(Cmd)-1<Row then
-    setlength(Cmd,length(Cmd)+100);
-
-  //clearup
-  Cmd[Row].Command:='';
-  Cmd[Row].Text:='';
-  for i:=1 to 6 do
-  Cmd[Row].Numer[i]:=-1;
-  Cmd[Row].Comment:='';
-
-  //Acquire command name starting with '!'
-  if st[k]='!' then begin
-
-    repeat
-      Cmd[Row].Command:=Cmd[Row].Command+st[k];
-      inc(k);
-    until((st[k]=#32)or(k>=length(st)));
-    inc(k); //Skip space
-
-
-    //Acquire single text parameter
-    if not(ord(st[k]) in [48..57])and(st[k]<>'!') then begin//if not a number
-    repeat
-    Cmd[Row].Text:=Cmd[Row].Text+st[k];
-    inc(k);
-    until((st[k]=#32)or(k>=length(st)));
-    inc(k); //Skip space
-    end;
-
-    //Acquire upto 6 numeric parameters
-    for i:=1 to 6 do
-    if (k<=length(st))and(ord(st[k]) in [48..57]) then
-      begin
-        Cmd[Row].Numer[i]:=0;
-        repeat
-          Cmd[Row].Numer[i]:=Cmd[Row].Numer[i]*10+strtoint(st[k]);
-          inc(k);
-        until((k>length(st))or(not (ord(st[k]) in [48..57])));
-        if (k>length(st))or(st[k]=#32) then inc(k); //Skip space
-      end;
-
-  end;
-
-  //Skip all comments and disabled commands
-  while ((k<length(st))and(st[k]<>'!')) do begin
-    Cmd[Row].Comment:=Cmd[Row].Comment+st[k];
-    inc(k);
-  end;
-
-  inc(Row);
-
-until(k>=length(st));
-CMDCount:=Row-1;
-}
 end.
 
 
