@@ -1,15 +1,21 @@
 unit KM_LoadDAT;
 interface
 uses
-  Windows, Classes, SysUtils, StrUtils, KromUtils, KM_Users, Dialogs, Math, KM_Terrain, KM_Viewport;
+  Windows, Classes, SysUtils, StrUtils, KromUtils, Dialogs, Math;
 
 //@Krom: Should these be in Defaults, or should they be here because this is the only unit which will use it?
+//@Lewin: These are okay to be here since they won't be used anywhere outside. My concern is to keep it readable
+//and organized. TKMCommandType<=>COMMANDVALUES are good, but they should be structurized better and
+//as a basic rule - fit into 100letters each line
 type
-  TKMCommandType = (ct_Unknown,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
-                    ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_SetUnit,ct_SetRoad);//,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_);
+  TKMCommandType = (ct_Unknown=0{should start from zero and go on incase we need to be sure it gets converted to integer somewhere},ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
+                    ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
+                    ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_SetUnit,ct_SetRoad);
+                    //,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_);
 
 const
   //@Krom: If you are happy with my system here then let me know and I will add all of the commands
+  //@Lewin: I quite like your system, it will presumably save time on comparision of commands
   COMMANDVALUES: array[TKMCommandType] of string = ('','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
                                                     'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR','CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES','ADD_GOAL','SET_UNIT','SET_STREET');//,'','','','','','','','','','','','','','','','','','','');
   MAXPARAMS = 8;
@@ -27,10 +33,10 @@ type
 end;
 
 var
-  fMissionPaser: TMissionPaser;
+  fMissionPaser: TMissionPaser; //@Lewin, rename it to MissionParser please ;)
 
 implementation
-uses KM_Defaults;
+uses KM_Defaults, KM_Users, KM_Terrain, KM_Viewport;
 
 function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
 var
@@ -94,7 +100,7 @@ end;
 procedure TMissionPaser.UnloadMission;
 begin
   FreeAndNil(fPlayers);
-  CurrentPlayerIndex := 1;
+  CurrentPlayerIndex := 1; //@Lewin: maybe it's better to set to 0
 end;
 
 procedure TMissionPaser.LoadDATFile(AFileName:string);
@@ -111,10 +117,11 @@ begin
   UnloadMission; //Call function which will reset fPlayers and other stuff
 
   //Load and decode .DAT file into FileText
-  FileSize:=GetFileSize(AFileName);
+  //FileSize:=GetFileSize(AFileName); //@Lewin: Thats not required, there's better way
   assignfile(f,AFileName); reset(f,1);
-  blockread(f,c,FileSize);
-  setlength(FileText,FileSize);
+  blockread(f,c[1],length(c),FileSize); //@Lewin: Filesize gets returned here
+  Assert(FileSize<>length(c),'DAT file size is too big, can''t fit into buffer');
+  //setlength(FileText,FileSize); //Unused because of setlength(FileText,k);
   closefile(f);
   i:=1; k:=1;
   repeat
@@ -159,6 +166,8 @@ begin
           if FileText[k]=#32 then inc(k);
         end;
       //We now have command text and parameters, so process them
+      //@Lewin: Make ParamList an array of integer, it will simplify processing of commands
+      //few string params could be handled individually
       ProcessCommand(CommandType,ParamList)
     end
     else
@@ -171,7 +180,8 @@ var
   MyStr: string;
   i: integer;
 begin
-  //@Krom: Items bellow are just examples, please feel free to redo them, as I'm not sure if I'm doing it the best way. (am I doing too much range checking/debugging?)
+  //@Krom: Items bellow are just examples, please feel free to redo them, as I'm not sure if I'm doing it the best way.
+  //(am I doing too much range checking/debugging?)
   //Look in my mission editor help file if you want info on the commands. (under Appendix -> List of Commands)
   case CommandType of
   ct_SetMap:         begin
@@ -188,7 +198,16 @@ begin
                      end;
                      end;
   ct_SetMaxPlayer:   begin
-                     fPlayers:=TKMAllPlayers.Create(EnsureRange(StrToIntDef(ParamList[0],0),1,MAX_PLAYERS)); //Create players
+                     //@Lewin: TKMAllPlayers.Create already has a check for that, so use
+                     //fPlayers:=TKMAllPlayers.Create(StrToIntDef(ParamList[0],0)); //if anything wrong then 0 will cause error message
+                     //General idea is to move most of the checks to places inside the code, so it checks for data acceptability(is there such a word?) in code
+                     //Here should remain checks for data validity.
+                     //Tell me, why use StrToIntDef ? What can go wrong if we use StrToInt?
+                     //I vote for strict decoding without assumtions
+                     //if ct_SetMaxPlayer=32765 for any reason then raise an error and stop loading
+                     //instead of assuming it's MaxPlayers or 0
+                     //same goes for all parameters, some odd values should be ignored and some raise errors.
+                     fPlayers:=TKMAllPlayers.Create(StrToIntDef(ParamList[0],0)); //Create players
                      end;
   ct_SetCurrPlayer:  begin
                      if fPlayers <> nil then

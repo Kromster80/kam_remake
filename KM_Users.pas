@@ -1,7 +1,7 @@
 unit KM_Users;
 interface
 uses
-  classes, KromUtils, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, KM_Settings, Windows, SysUtils;
+  classes, KromUtils, Math, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, KM_Settings, Windows, SysUtils;
 
 type
   TPlayerType = (uct_Human, uct_Computer);
@@ -243,7 +243,7 @@ end;
 constructor TKMAllPlayers.Create(PlayerCount:integer);
 var i:integer;
 begin
-  Assert(PlayerCount<=MAX_PLAYERS,'PlayerCount exceeded');
+  Assert(InRange(PlayerCount,1,MAX_PLAYERS),'PlayerCount exceeded');
 
   fPlayerCount:=PlayerCount; //Used internally
   for i:=1 to fPlayerCount do
