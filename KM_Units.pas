@@ -32,6 +32,7 @@ type
     end;
     Product:TResourceType;
     ProductCount:byte;
+    AfterWorkIdle:integer;
   procedure FillDefaults();
   procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
   end;
@@ -50,11 +51,12 @@ type
       private
         fDestPos: TKMPoint;
         fRouteBuilt:boolean;
+        fWalkToSpot:boolean;
         NodeCount:integer;
         Nodes:array[1..1024] of TKMPoint;
         NodePos:integer;
       public
-        constructor Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
+        constructor Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -73,6 +75,7 @@ type
       private
       StayStill:boolean;
       TimeToStay:integer;
+      ActionType:TUnitActionType;
        public
         constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
@@ -90,7 +93,6 @@ type
     private
       fUnit:TKMUnit;
       fSchool:TKMHouseSchool;
-      Phase:byte;
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
       procedure Execute(out TaskDone:boolean); override;
@@ -219,7 +221,7 @@ type
     //function UnitAtHome():boolean; Test if Unit is invisible and Pos matches fHome.GetEntrance
   public
     //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
-    //UpdateState cycle. So we need to finish the cycle and only then remove the unit. Property is public.
+    //UpdateState cycle. So we need to finish the cycle and only then remove the unit. Property is public
     ScheduleForRemoval:boolean;
     Direction: TKMDirection;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -319,6 +321,7 @@ begin
   ActCount:=0;
   Product:=rt_None;
   ProductCount:=0;
+  AfterWorkIdle:=20;
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
@@ -733,17 +736,17 @@ end;
 
 function TKMUnitSerf.GiveResource(Res:TResourceType):boolean;
 begin
-Result:=false;
-if Carry<>rt_None then exit;
-Carry:=Res;
-Result:=true;
+  Result:=false;
+  if Carry<>rt_None then exit;
+  Carry:=Res;
+  Result:=true;
 end;
 
 
 function TKMUnitSerf.TakeResource(Res:TResourceType):boolean;
 begin
-Carry:=rt_None;
-Result:=true;
+  Carry:=rt_None;
+  Result:=true;
 end;
 
 
@@ -1058,27 +1061,29 @@ if fToHouse<>nil then
 if not fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,KMPointY1(fToHouse.GetEntrance)));
+5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,fToHouse.GetPosition,ua_Walk,false));
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
      fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
+     TaskDone:=true;
    end;
-7: TaskDone:=true;
 end;
 
 //Deliver to builder
 if fToUnit<>nil then
 with fSerf do
 case Phase of
-5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,KMPointY1(fToUnit.fPosition)));
+5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,fToUnit.GetPosition,ua_Walk,false));
 6: begin
      TakeResource(Carry);
      inc(fToUnit.fUnitTask.Phase);
      fToUnit.SetAction(TUnitActionStay.Create(0,ua_Work1));
    end;
-7: fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
-8: TaskDone:=true;
+7: begin
+    fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
+    TaskDone:=true;
+   end;
 end;
 inc(Phase);
 end;
@@ -1102,34 +1107,26 @@ case Phase of
 1: begin
    fTerrain.RemMarkup(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-   fSoundLib.Play(sfx_Dig,fLoc,true);
    end;
 2: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-   fSoundLib.Play(sfx_Dig,fLoc,true);
    end;
 3: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-   fSoundLib.Play(sfx_Dig,fLoc,true);
    end;
 4: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once, di_High);
 
 5: SetAction(TUnitActionStay.Create(30,ua_Work1));
-6: begin
-   SetAction(TUnitActionStay.Create(11,ua_Work2,false));
-   fSoundLib.Play(sfx_Pave,fLoc,true);
-   end;
+6: SetAction(TUnitActionStay.Create(11,ua_Work2,false));
 7: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
-   fSoundLib.Play(sfx_Pave,fLoc,true);
    end;
 8: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
-   fSoundLib.Play(sfx_Pave,fLoc,true);
    end;
 9: begin
    fTerrain.SetField(fLoc,fOwner,fdt_Road);
@@ -1156,26 +1153,30 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
-0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
-1: fTerrain.RemMarkup(fLoc);
-2: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-3: fTerrain.IncFieldState(fLoc);
-4: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-5: fTerrain.IncFieldState(fLoc);
-6: SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-7: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fWorker,rt_Wood, dt_Once, di_High);
-
-8: SetAction(TUnitActionStay.Create(30,ua_Work1));
-
-9: SetAction(TUnitActionStay.Create(44,ua_Work2,false));
-10:begin
-    fTerrain.SetField(fLoc,fOwner,fdt_Wine);
-    fTerrain.CutGrapes(fLoc);
-    fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
-   end;
-11:TaskDone:=true;
+ 0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
+ 1: begin
+      fTerrain.RemMarkup(fLoc);
+      SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+    end;
+ 2: begin
+      fTerrain.IncFieldState(fLoc);
+      SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+    end;
+ 3: begin
+      fTerrain.IncFieldState(fLoc);
+      SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+    end;
+ 4: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fWorker,rt_Wood, dt_Once, di_High);
+ 5: SetAction(TUnitActionStay.Create(30,ua_Work1));
+ 6: SetAction(TUnitActionStay.Create(11*4,ua_Work2,false));
+ 7: begin
+      fTerrain.SetField(fLoc,fOwner,fdt_Wine);
+      fTerrain.CutGrapes(fLoc);
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
+    end;
+11: TaskDone:=true;
 end;
-if Phase<>8 then inc(Phase); //Phase=8 is when worker waits for rt_Stone
+if Phase<>5 then inc(Phase); //Phase=5 is when worker waits for rt_Stone
 end;
 
 { TTaskBuildField }
@@ -1184,6 +1185,7 @@ begin
 fWorker:=aWorker;
 fLoc:=aLoc;
 Phase:=0;
+Phase2:=0;
 ID:=aID;
 end;
 
@@ -1195,19 +1197,21 @@ with fWorker do
 case Phase of
   0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
   1: fTerrain.RemMarkup(fLoc);
-  2: SetAction(TUnitActionStay.Create(44,ua_Work1,false));
-  3: fTerrain.IncFieldState(fLoc);
-  4: SetAction(TUnitActionStay.Create(44,ua_Work1,false));
-  5: fTerrain.IncFieldState(fLoc);
-  6: SetAction(TUnitActionStay.Create(22,ua_Work1,false));
-  7: begin
+  2: begin
+      SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      inc(Phase2);
+      if Phase2 in [4,8,10] then fTerrain.IncFieldState(fLoc);
+     end;
+  3: begin
        fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
        fTerrain.SetField(fLoc,fOwner,fdt_Field);
      end;
-  8: SetAction(TUnitActionStay.Create(5,ua_Work1));
-  9: TaskDone:=true;
+  4: begin
+      SetAction(TUnitActionStay.Create(5,ua_Work1));
+      TaskDone:=true;
+     end;
 end;
-inc(Phase);
+if Phase2 in [0,10] then inc(Phase);
 end;
 
 { TTaskBuildHouseArea }
@@ -1241,22 +1245,18 @@ case Phase of
 2:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,ListOfCells[Step]));
 3:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-      fSoundLib.Play(sfx_dig,ListOfCells[Step],true);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
     end;
 4:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-      fSoundLib.Play(sfx_dig,ListOfCells[Step],true);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
     end;
 5:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-      fSoundLib.Play(sfx_dig,ListOfCells[Step],true);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
     end;
 6:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-      fSoundLib.Play(sfx_dig,ListOfCells[Step],true);
       fTerrain.FlattenTerrain(ListOfCells[Step]); dec(Step);
     end;
 7:  begin
@@ -1337,7 +1337,6 @@ begin
            end;
            fHouse.IncBuildingProgress;
            SetAction(TUnitActionStay.Create(6,ua_Work,false),5); //Do building and end animation
-           fSoundLib.Play(sfx_HouseBuild,Cells[CurLoc].Loc,true);
            inc(Phase2);
          end;
       4: begin
@@ -1364,7 +1363,7 @@ end;
 
 {This is execution of Resource mining}
 procedure TTaskMining.Execute(out TaskDone:boolean);
-const SkipWalk=6; SkipWork=11; //Skip to certain Phases
+const SkipWalk=6; SkipWork=10; //Skip to certain Phases
 var Dir:integer; TimeToWork:integer;
 begin
 TaskDone:=false;
@@ -1407,34 +1406,35 @@ with fUnit do
         fHome.ResTakeFromIn(WorkPlan.Resource1); //Count should be added
         fHome.ResTakeFromIn(WorkPlan.Resource2);
         fHome.fCurrentAction.SubActionAdd([ha_Smoke]);
-       end;
-    7: if WorkPlan.ActCount>=1 then begin
+        if WorkPlan.ActCount>=1 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[1].Act,WorkPlan.HouseAct[1].TimeToWork);
-           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[1].TimeToWork,ua_Walk)); //Keepp unit idling till next Phase
+           //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
+           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[1].TimeToWork-1,ua_Walk));
        end else begin Phase:=SkipWork; exit; end;
-    8: if WorkPlan.ActCount>=2 then begin
+       end;
+    7: if WorkPlan.ActCount>=2 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[2].Act,WorkPlan.HouseAct[2].TimeToWork);
-           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[2].TimeToWork,ua_Walk));
+           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[2].TimeToWork-1,ua_Walk));
        end else begin Phase:=SkipWork; exit; end;
-    9:if WorkPlan.ActCount>=3 then begin
+    8:if WorkPlan.ActCount>=3 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[3].Act,WorkPlan.HouseAct[3].TimeToWork);
-           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[3].TimeToWork,ua_Walk));
+           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[3].TimeToWork-1,ua_Walk));
        end else begin Phase:=SkipWork; exit; end;
-    10:if WorkPlan.ActCount>=4 then begin
+    9:if WorkPlan.ActCount>=4 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[4].Act,WorkPlan.HouseAct[4].TimeToWork);
-           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[4].TimeToWork,ua_Walk));
+           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[4].TimeToWork-1,ua_Walk));
        end else begin Phase:=SkipWork; exit; end;
-    11: begin
+    10: begin
           case WorkPlan.GatheringScript of
             gs_CoalMiner: fTerrain.DecCoalReserve(WorkPlan.Loc);
             gs_GoldMiner: fTerrain.DecOreReserve(WorkPlan.Loc,rt_GoldOre);
             gs_IronMiner: fTerrain.DecOreReserve(WorkPlan.Loc,rt_IronOre);
           end;
           fHome.ResAddToOut(WorkPlan.Product,WorkPlan.ProductCount);
-          fHome.SetState(hst_Idle,15);
-          SetAction(TUnitActionStay.Create(15,ua_Walk));
+          fHome.SetState(hst_Idle,WorkPlan.AfterWorkIdle);
+          SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkIdle-1,ua_Walk));
         end;
-    12: TaskDone:=true;
+    11: TaskDone:=true;
   end;
 inc(Phase);
 end;
@@ -1449,18 +1449,18 @@ end;
 
 procedure TTaskGoHome.Execute(out TaskDone:boolean);
 begin
-TaskDone:=false;
-with fUnit do
-case Phase of
-  0: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,KMPointY1(fDestPos)));
-  1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
-  2: begin
-        SetAction(TUnitActionStay.Create(5,ua_Walk));
-        fHome.SetState(hst_Idle,0);
-     end;
-  3: TaskDone:=true;
-end;
-inc(Phase);
+  TaskDone:=false;
+  with fUnit do
+  case Phase of
+    0: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,KMPointY1(fDestPos)));
+    1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
+    2: begin
+          SetAction(TUnitActionStay.Create(5,ua_Walk));
+          fHome.SetState(hst_Idle,0);
+       end;
+    3: TaskDone:=true;
+  end;
+  inc(Phase);
 end;
 
 
@@ -1553,15 +1553,17 @@ end;
 //First approach lets make a route for unit depending on static obstacles
 //Then handle new static obstacles (if any) along with dynamic ones (LookAhead only one tile)
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
+constructor TUnitActionWalkTo.Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
 begin
   Inherited Create(aActionType);
   fDestPos:= LocB;
   fRouteBuilt:=false;
+  fWalkToSpot:=aWalkToSpot;
   NodePos:=1;
 
   //Build a route A*
   fTerrain.MakeRoute(LocA, LocB, CanWalk, NodeCount, Nodes);
+  if not fWalkToSpot then dec(NodeCount); //Approach spot from any side
   fRouteBuilt:=NodeCount>1;
 //  Assert(fRouteBuilt,'Unable to make a route');
 end;
@@ -1653,13 +1655,32 @@ begin
   Inherited Create(aActionType);
   StayStill:=aStayStill;
   TimeToStay:=aTimeToStay;
+  ActionType:=aActionType;
 end;
 
 procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
+var Cycle:byte;
 begin
+  if not StayStill then begin
+    //Various UnitTypes and ActionTypes
+    Cycle:=max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+    if TimeToStay>=1 then
+    case KMUnit.GetUnitType of
+      ut_Worker: case ActionType of
+        ua_Work: if KMUnit.AnimStep mod Cycle = 5 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
+        ua_Work1: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
+        ua_Work2: if KMUnit.AnimStep mod Cycle = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
+      end;
+      ut_Farmer: case ActionType of
+        ua_Work: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
+        ua_Work1: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true);
+      end;
+    end;
+    inc(KMUnit.AnimStep);
+  end;
+
   dec(TimeToStay);
   DoEnd := TimeToStay<=0;
-  if not StayStill then inc(KMUnit.AnimStep);
 end;
 
 
@@ -1707,8 +1728,7 @@ begin
 end;
 
 procedure TKMUnitsCollection.GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
-var
-  i:integer;
+var i:integer;
 begin
   Loc.Clearup;
   for I := 0 to Count - 1 do
@@ -1731,7 +1751,8 @@ begin
   for I := 0 to Count - 1 do
     TKMUnit(Items[I]).UpdateState;
 
-  for I := Count - 1 downto 0 do //After all units are updated we can safely remove those that died.
+  //After all units are updated we can safely remove those that died.  
+  for I := Count - 1 downto 0 do
     if TKMUnit(Items[I]).ScheduleForRemoval then begin
       TKMUnit(Items[I]).Free;
       Rem(TKMUnit(Items[I]));

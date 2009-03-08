@@ -72,9 +72,10 @@ begin
 
   glDisable(GL_LIGHTING);
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);    // Load the Textures
-  LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512,0);    // Load the Textures
+  LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512,0);  // Load the Textures
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  BuildFont(h_DC,16);
+
+  //BuildFont(h_DC,16); //Deprecated
 end;
 
 

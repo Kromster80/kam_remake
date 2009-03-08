@@ -36,7 +36,7 @@ const
 
 const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna test ingame )
         MAX_PLAYERS = 6;        //Maximum players per map
-
+        SAVEGAME_COUNT = 10;    //Savegame slots available
 
         //Here we store options that are hidden somewhere in code
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
@@ -456,8 +456,8 @@ type
     sfx_dig,
     sfx_pave,
     sfx_unknown4,
-    sfx_unknown5,
-    sfx_chop,
+    sfx_cornsow,
+    sfx_choptree,
     sfx_housebuild,
     sfx_placemarker,
     sfx_click,
@@ -499,7 +499,6 @@ var
   $FF00FFFF, //Yellow
   $FF28C840  //Green
   );
-
 
   GlobalTickCount:integer=0;
 
@@ -709,6 +708,8 @@ begin
   AddLine(inttostr(a)+' : '+inttostr(b));
 end;
 
+
+{TypeToString routines}
 function TypeToString(t:TUnitType):string;
 var s:string;
 begin

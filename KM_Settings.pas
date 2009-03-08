@@ -63,14 +63,15 @@ var
 
 
 implementation
-uses KM_Log;
+uses KM_Log, KM_LoadSFX;
 
 constructor TGameSettings.Create;
 begin
   Inherited Create;
-  SlidersMin:=1;
+  SlidersMin:=0;
   SlidersMax:=20;
   LoadSettingsFromFile(ExeDir+'KaM_Remake_Settings.ini');
+  fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
 end;
 
 destructor TGameSettings.Destroy;
@@ -147,6 +148,7 @@ end;
 procedure TGameSettings.SetSoundFXVolume(Value:integer);
 begin
   fSoundFXVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
+  fSoundLib.UpdateSFXVolume(Value/SlidersMax);
 end;
 
 procedure TGameSettings.SetMusicVolume(Value:integer);

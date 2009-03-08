@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 426
-  Top = 315
+  Left = 238
+  Top = 150
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 245
@@ -266,7 +266,7 @@ object Form1: TForm1
       OnClick = RGPlayerClick
     end
     object Button1: TButton
-      Left = 200
+      Left = 224
       Top = 52
       Width = 25
       Height = 17
@@ -275,7 +275,7 @@ object Form1: TForm1
       OnClick = Button1Click
     end
     object Button2: TButton
-      Left = 224
+      Left = 248
       Top = 52
       Width = 25
       Height = 17
@@ -284,13 +284,31 @@ object Form1: TForm1
       OnClick = Button2Click
     end
     object Button3: TButton
-      Left = 248
+      Left = 296
       Top = 52
       Width = 25
       Height = 17
       Caption = 'Stop'
       TabOrder = 10
       OnClick = Button3Click
+    end
+    object Step1Frame: TButton
+      Left = 196
+      Top = 48
+      Width = 25
+      Height = 17
+      Caption = '|| >'
+      TabOrder = 11
+      OnClick = Timer100msTimer
+    end
+    object Button5: TButton
+      Left = 272
+      Top = 52
+      Width = 25
+      Height = 17
+      Caption = '1'
+      TabOrder = 12
+      OnClick = Button5Click
     end
   end
   object Button4: TButton

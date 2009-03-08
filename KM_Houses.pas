@@ -16,6 +16,7 @@ type
     constructor Create(aHouse:TKMHouse; aHouseState: THouseState; const aTime:integer=0);
     procedure SetState(aHouseState: THouseState);
     procedure SubActionWork(aActionSet: THouseActionType; const aTime:integer=0);
+    function GetWorkID():byte;
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
     property ActionType: THouseState read fHouseState;
@@ -142,7 +143,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Users;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Users, KM_LoadSFX;
 
 
 { TKMHouse }
@@ -398,13 +399,32 @@ end;
 
 
 procedure TKMHouse.UpdateState;
+var Cycle,WorkID:byte;
 begin
   if fBuildState<>hbs_Done then exit;
-  
-  fLastUpdateTime:= GetTickCount;
+
+  fLastUpdateTime := GetTickCount;
+
+  WorkID:=fCurrentAction.GetWorkID;
+  if WorkID<>0 then begin
+    Cycle:=HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
+    if Cycle<>0 then
+    case fHouseType of
+      //Various buildings and HouseActions producing sounds
+      ht_Mill: if (WorkID = 2)and(WorkAnimStep mod Cycle = 0) then fSoundLib.Play(sfx_mill,GetPosition);
+      ht_CoalMine: if (WorkID = 1)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_coaldown,GetPosition)
+                   else if (WorkID = 2)and(WorkAnimStep mod Cycle = 7) then fSoundLib.Play(sfx_mine,GetPosition)
+                   else if (WorkID = 2)and(WorkAnimStep mod Cycle = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
+                   else if (WorkID = 5)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_coaldown,GetPosition);
+      ht_SawMill: if (WorkID = 2)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_saw,GetPosition);
+      ht_School: if (WorkID = 5)and(WorkAnimStep = 20) then fSoundLib.Play(sfx_saw,GetPosition);
+      //ht_Bakery: if (WorkID = 3)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_mill,GetPosition);
+    end;
+  end;
 
   inc(FlagAnimStep);
   inc(WorkAnimStep);
+
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,10,fOwner);
 end;
@@ -624,6 +644,16 @@ begin
   fSubAction:= fSubAction + [aActionSet];
   if aTime<>0 then TimeToAct:=aTime;
   fHouse.WorkAnimStep:=0;
+end;
+
+function THouseAction.GetWorkID():byte;
+begin
+  if ha_Work1 in fSubAction then Result:=1 else
+  if ha_Work2 in fSubAction then Result:=2 else
+  if ha_Work3 in fSubAction then Result:=3 else
+  if ha_Work4 in fSubAction then Result:=4 else
+  if ha_Work5 in fSubAction then Result:=5 else
+    Result:=0;
 end;
 
 procedure THouseAction.SubActionAdd(aActionSet: THouseActionSet);

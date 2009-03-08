@@ -41,12 +41,15 @@ type
     end;
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
+    SoundGain,MusicGain:single;
     procedure LoadSoundsDAT();
   public
     constructor Create;
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPoint);
-    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean);
+    procedure UpdateSFXVolume(Value:single);
+    procedure UpdateMusicVolume(Value:single);
+    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
 end;
 
 var
@@ -130,10 +133,26 @@ begin
 end;
 
 
+{Update sound gain (global volume for all sounds/music)}
+procedure TSoundLib.UpdateSFXVolume(Value:single);
+begin
+  SoundGain:=Value;
+//  alListenerf ( AL_GAIN, SoundGain );
+end;
+
+
+{Update music gain (global volume for all sounds/music)}
+procedure TSoundLib.UpdateMusicVolume(Value:single);
+begin
+  MusicGain:=Value;
+//  alListenerf ( AL_GAIN, MusicGain );
+end;
+
+
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
-procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; Attenuated:boolean);
+procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
 var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
 begin
   //Find free buffer and use it
@@ -150,7 +169,7 @@ begin
 
   ID:=word(SoundID);
 
-  //Stope previously playing sound and release buffer
+  //Stop previously playing sound and release buffer
   AlSourceStop(ALSource[FreeBuf]);
   AlSourcei ( ALSource[FreeBuf], AL_BUFFER, 0);
 
@@ -160,16 +179,16 @@ begin
   //Set source properties
   AlSourcei ( ALSource[FreeBuf], AL_BUFFER, ALBuffer[FreeBuf]);
   AlSourcef ( ALSource[FreeBuf], AL_PITCH, 1.0 );
-  AlSourcef ( ALSource[FreeBuf], AL_GAIN, 1.0 );
+  AlSourcef ( ALSource[FreeBuf], AL_GAIN, 1.0 * Volume * SoundGain);
   if Attenuated then begin
     Dif[1]:=Loc.X; Dif[2]:=Loc.Y; Dif[3]:=0;
     AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Dif[1]);
   end else
     AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Listener.Pos);
-  AlSourcef ( ALSource[FreeBuf], AL_REFERENCE_DISTANCE, 5.0 );
-  AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, 15.0 );
+  AlSourcef ( ALSource[FreeBuf], AL_REFERENCE_DISTANCE, 4.0 );
+  AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, 20.0 );
   AlSourcef ( ALSource[FreeBuf], AL_ROLLOFF_FACTOR, 1.0 );
-  AlSourcei ( ALSource[FreeBuf], AL_LOOPING, AL_FALSE);
+  AlSourcei ( ALSource[FreeBuf], AL_LOOPING, AL_FALSE );
 
   //Start playing
   AlSourcePlay(ALSource[FreeBuf]);

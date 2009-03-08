@@ -56,6 +56,8 @@ type
     Button3: TButton;
     Button4: TButton;
     OpenMissionMenu: TMenuItem;
+    Step1Frame: TButton;
+    Button5: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure OpenMapClick(Sender: TObject);
@@ -93,6 +95,7 @@ type
     procedure RGPlayerClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure OpenMissionMenuClick(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -147,7 +150,7 @@ begin
   //Must be done early on so that GamePlayInterface can use it
   FormLoading.Label1.Caption:='Reading KaM data ...';
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
-  fMissionPaser:= TMissionPaser.Create;
+  fMissionParser:= TMissionParser.Create;
   fSoundLib:= TSoundLib.Create;
   ReadGFX(ExeDir);
   fLog.AppendLog('Resources are loaded',true);
@@ -163,7 +166,7 @@ begin
   fTerrain:= TTerrain.Create;
   fTerrain.MakeNewMap(96,96);
 
-  fPlayers:=TKMAllPlayers.Create(6); //Create 6 players
+  fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
   MyPlayer:=fPlayers.Player[1];
 
   Application.OnIdle:=Form1.OnIdle;
@@ -321,7 +324,7 @@ inc(GlobalTickCount);
 
 //if GlobalTickCount=30 then fGamePlayInterface.DropDownMessageButton(ButtonLogoID,MessageID);
 
-if CheckBox1.Checked then exit;
+if (CheckBox1.Checked)and(Sender<>Step1Frame) then exit;
 
 if CheckBox4.Checked then
 if GlobalTickCount mod 2 <> 0 then exit;
@@ -605,7 +608,7 @@ begin
   fTerrain.MakeNewMap(96,96);
   fTerrain.RevealCircle(KMPoint(12,12),12,100,play_1);
 
-  fPlayers:=TKMAllPlayers.Create(6); //Create 6 players
+  fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
   MyPlayer:=fPlayers.Player[1];
 end;
 
@@ -623,8 +626,27 @@ procedure TForm1.OpenMissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;    
   fLog.AppendLog('Loading DAT...');
-  fMissionPaser.LoadDATFile(OpenDialog1.FileName);
+  fMissionParser.LoadDATFile(OpenDialog1.FileName);
   fLog.AppendLog('DAT Loaded');
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+var H:TKMHouseStore;
+begin
+  MyPlayer:=fPlayers.Player[1];
+
+  MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
+  H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
+  if H<>nil then H.AddMultiResource(rt_All,30);
+
+  MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
+  MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
+
+  MyPlayer.AddHouse(ht_Mill,KMPoint(9,8));
+  MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
+  TKMHouse(MyPlayer.FindHouse(ht_Mill,0,0)).ResAddToIn(rt_Corn,5);
+
+  fViewPort.SetCenter(10,9);
 end;
 
 end.

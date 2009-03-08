@@ -37,6 +37,12 @@ type TKMGamePlayInterface = class
     KMPanel_Menu:TKMPanel;
       KMButton_Menu_Save,KMButton_Menu_Load,KMButton_Menu_Settings,KMButton_Menu_Quit:TKMButton;
 
+      KMPanel_Save:TKMPanel;
+        KMButton_Save:array[1..SAVEGAME_COUNT]of TKMButton;
+
+      KMPanel_Load:TKMPanel;
+        KMButton_Load:array[1..SAVEGAME_COUNT]of TKMButton;
+
       KMPanel_Settings:TKMPanel;
         KMLabel_Settings_Brightness,KMLabel_Settings_BrightValue:TKMLabel;
         KMButton_Settings_Dark,KMButton_Settings_Light:TKMButton;
@@ -98,6 +104,8 @@ type TKMGamePlayInterface = class
     procedure Create_Ratios_Page;
     procedure Create_Stats_Page;
     procedure Create_Menu_Page;
+    procedure Create_Save_Page;
+    procedure Create_Load_Page;
     procedure Create_Settings_Page;
     procedure Create_Quit_Page;
     procedure Create_Unit_Page;
@@ -108,6 +116,7 @@ type TKMGamePlayInterface = class
     procedure UpdateState;
     procedure RightClickCancel;
     procedure ShowSettings(Sender: TObject);
+    procedure ShowLoad(Sender: TObject);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure House_RepairToggle(Sender:TObject);
@@ -201,11 +210,21 @@ if ((Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No) or
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
 end else
+if Sender=KMButton_Menu_Save then begin
+  KMPanel_Save.Visible:=true;
+  Hide4MainButtons;
+  //KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
+end else
+if Sender=KMButton_Menu_Load then begin
+  KMPanel_Load.Visible:=true;
+  Hide4MainButtons;
+  //KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
+end else
 if Sender=KMButton_Menu_Settings then begin
   KMPanel_Settings.Visible:=true;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
-end else  
+end else
 if Sender=KMButton_Menu_Quit then begin
   KMPanel_Quit.Visible:=true;
   Hide4MainButtons;
@@ -222,15 +241,15 @@ end;
 if Sender=KMPanel_House_Common then begin
   TKMPanel(Sender).Parent.Visible:=true;
   TKMPanel(Sender).Visible:=true;
-end;
+end else
 if Sender=KMPanel_House_School then begin
   TKMPanel(Sender).Parent.Visible:=true;
   TKMPanel(Sender).Visible:=true;
-end;
+end else
 if Sender=KMPanel_HouseBarracks then begin
   TKMPanel(Sender).Parent.Visible:=true;
   TKMPanel(Sender).Visible:=true;
-end;
+end else
 if Sender=KMPanel_HouseStore then begin
   TKMPanel(Sender).Parent.Visible:=true;
   TKMPanel(Sender).Visible:=true;
@@ -327,6 +346,8 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
   Create_Ratios_Page();
   Create_Stats_Page();
   Create_Menu_Page();
+    Create_Save_Page();
+    Create_Load_Page();
     Create_Settings_Page();
     Create_Quit_Page();
 
@@ -413,8 +434,10 @@ procedure TKMGamePlayInterface.Create_Menu_Page;
 begin
   KMPanel_Menu:=fControls.AddPanel(KMPanel_Main,0,412,196,400);
     KMButton_Menu_Save:=fControls.AddButton(KMPanel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
+    KMButton_Menu_Save.OnClick:=ShowLoad;
     KMButton_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
     KMButton_Menu_Load:=fControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
+    KMButton_Menu_Load.OnClick:=ShowLoad;
     KMButton_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
     KMButton_Menu_Settings:=fControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
     KMButton_Menu_Settings.OnClick:=ShowSettings;
@@ -422,6 +445,32 @@ begin
     KMButton_Menu_Quit:=fControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     KMButton_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     KMButton_Menu_Quit.OnClick:=SwitchPage;
+end;
+
+
+{Save page}
+procedure TKMGamePlayInterface.Create_Save_Page;
+var i:integer;
+begin
+  KMPanel_Save:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
+    for i:=1 to SAVEGAME_COUNT do begin
+      KMButton_Save[i]:=fControls.AddButton(KMPanel_Save,8,10+(i-1)*35,180,30,'Savegame #'+inttostr(i),fnt_Metal);
+      //KMButton_Save[i].OnClick:=SaveGame;
+      KMButton_Save[i].Enabled:=false;
+    end;
+end;
+
+
+{Load page}
+procedure TKMGamePlayInterface.Create_Load_Page;
+var i:integer;
+begin
+  KMPanel_Load:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
+    for i:=1 to SAVEGAME_COUNT do begin
+      KMButton_Load[i]:=fControls.AddButton(KMPanel_Load,8,10+(i-1)*35,180,30,'Savegame #'+inttostr(i),fnt_Metal);
+      //KMButton_Load[i].OnClick:=LoadGame;
+      KMButton_Load[i].Enabled:=false;
+    end;
 end;
 
 
@@ -447,9 +496,7 @@ begin
     KMRatio_Settings_Mouse.MinValue:=fGameSettings.GetSlidersMin;
     KMRatio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
     KMLabel_Settings_SFX:=fControls.AddLabel(KMPanel_Settings,24,178,100,30,fnt_Metal,kaLeft,fTextLibrary.GetTextString(194));
-    KMLabel_Settings_SFX.Enabled:=false;
     KMRatio_Settings_SFX:=fControls.AddRatioRow(KMPanel_Settings,18,198,160,20);
-    KMRatio_Settings_SFX.Enabled:=false;
     KMRatio_Settings_SFX.MaxValue:=fGameSettings.GetSlidersMax;
     KMRatio_Settings_SFX.MinValue:=fGameSettings.GetSlidersMin;
     KMRatio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
@@ -693,6 +740,18 @@ begin
   if KMPanel_Build.Visible = true then
     SwitchPage(KMButtonMain[5]);
 end;
+
+procedure TKMGamePlayInterface.ShowLoad(Sender: TObject);
+var i:integer;
+begin
+{for i:=1 to SAVEGAME_COUNT do
+  if CheckSaveGameValidity(i) then begin
+    KMButton_Save[i].Caption:=Savegame.Title+Savegame.Time;
+    KMButton_Load[i].Caption:=Savegame.Title+Savegame.Time;
+  end;}
+  SwitchPage(Sender);
+end;
+
 
 procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse);
 const LineAdv = 25; //Each new Line is placed ## pixels after previous

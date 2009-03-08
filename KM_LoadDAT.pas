@@ -21,7 +21,7 @@ type
     procedure ProcessCommand(CommandType: TKMCommandType; ParamList: array of string);
     procedure DebugScriptError(ErrorMsg:string);
     procedure UnloadMission;
-  public      { Public declarations } 
+  public      { Public declarations }
     constructor Create;
     procedure LoadDATFile(AFileName:string);
 end;
