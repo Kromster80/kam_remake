@@ -230,7 +230,7 @@ const
   (ut_None, ut_None, ut_None, ut_None, ut_None),
   (ut_None, ut_None, ut_None, ut_None, ut_None),
   (ut_None, ut_None, ut_None, ut_None, ut_None),
-                                                
+
   (ut_None, ut_None, ut_None, ut_None, ut_None),
   (ut_StoneCutter, ut_Woodcutter, ut_Fisher, ut_Farmer, ut_Baker),
   (ut_AnimalBreeder, ut_Butcher, ut_Metallurgist, ut_Smith, ut_Miner),
@@ -389,7 +389,7 @@ HouseInput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
 
 {Houses UI}
 const
-  GUIBuildIcons:array[1..30]of word = (
+  GUIBuildIcons:array[1..HOUSE_COUNT]of word = (
   314, 328, 315, 310, 301,
   309, 323, 308, 317, 325,
   329, 306, 304, 316, 320,

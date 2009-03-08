@@ -244,13 +244,14 @@ var RandomNum: string;
 begin
   RandomNum := '    '+inttostr(random(9)); //Random numbers here are to show every time hint gets refreshed
   ShownHint:=Sender;
-  if((ShownHint<>nil) and (not TKMControl(ShownHint).CursorOver) or (not TKMControl(ShownHint).Visible) ) then ShownHint:=nil; //only set if cursor is over and control is visible
+  if((ShownHint<>nil) and ((not TKMControl(ShownHint).CursorOver) or (not TKMControl(ShownHint).Visible)) ) then ShownHint:=nil; //only set if cursor is over and control is visible
   if ((ShownHint<>nil) and (TKMControl(ShownHint).Parent <> nil)) then //only set if parent is visible (e.g. panel)
     if (ShownHint<>nil)and(not (ShownHint as TKMControl).Parent.Visible) then ShownHint:=nil;
 
   KMLabel_Hint.Top:=fRender.GetRenderAreaSize.Y-16;
   //If hint hasn't changed then don't refresh it
   if ((ShownHint<>nil) and (LeftStr(KMLabel_Hint.Caption,Length(KMLabel_Hint.Caption)-Length(RandomNum)) = TKMControl(Sender).Hint)) then exit;
+  if ((ShownHint=nil) and (Length(KMLabel_Hint.Caption) = Length(RandomNum))) then exit;
   if ShownHint=nil then KMLabel_Hint.Caption:=''+RandomNum else
     KMLabel_Hint.Caption:=(Sender as TKMControl).Hint+RandomNum;
 end;
@@ -615,6 +616,7 @@ begin
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse);
 
   if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
+  if Mouse.CursorPos.X>ToolBarWidth then DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar
 
   Minimap_Move(nil,[],0,0);
 
@@ -628,16 +630,13 @@ var i:integer; WasDown:boolean;
 begin
   if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
 
-  //Memorize if button was already pressed
-  WasDown := TKMButtonFlat(Sender).Down = true;
-
   //Release all buttons
   for i:=1 to KMPanel_Build.ChildCount do
     if KMPanel_Build.Childs[i] is TKMButtonFlat then
       TKMButtonFlat(KMPanel_Build.Childs[i]).Down:=false;
 
-  //Press the button if it wasn't
-  if not WasDown then TKMButtonFlat(Sender).Down:=true;
+  //Press the button
+  TKMButtonFlat(Sender).Down:=true;
 
   //Reset cursor and see if it needs to be changed
   CursorMode.Mode:=cm_None;
@@ -646,7 +645,6 @@ begin
   KMLabel_BuildCost_Stone.Caption:='-';
   KMLabel_Build.Caption := '';
 
-  if WasDown then exit; //Button was released
   
   if KMButton_BuildCancel.Down then begin
     CursorMode.Mode:=cm_Erase;
@@ -794,6 +792,8 @@ begin
             KMRow_Order[i].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
             KMRow_Order[i].OrderCount:=Sender.CheckResOrder(i);
             KMRow_Order[i].Visible:=true;
+            KMRow_Order[i].OrderAdd.Visible:=true;
+            KMRow_Order[i].OrderRem.Visible:=true;
             KMRow_Order[i].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
             KMRow_Order[i].Top:=Base+Line*LineAdv;
             inc(Line);

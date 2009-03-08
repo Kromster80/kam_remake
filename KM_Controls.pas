@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types;
+uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_LoadLIB;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
@@ -437,9 +437,9 @@ begin
   ParentTo(aParent);
   Resource:=aRes;
   ResourceCount:=aCount;
-  OrderRem:=fControls.AddButton(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal);
-  OrderLab:=fControls.AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'00');
-  OrderAdd:=fControls.AddButton(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal);
+  OrderRem:=fControls.AddButton(aParent,aLeft,aTop+2,20,aHeight,fTextLibrary.GetTextString(183),fnt_Metal);
+  OrderLab:=fControls.AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
+  OrderAdd:=fControls.AddButton(aParent,aLeft+46,aTop+2,20,aHeight,fTextLibrary.GetTextString(182),fnt_Metal);
   OrderCount:=0;
 end;
 
