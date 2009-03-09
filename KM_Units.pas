@@ -236,7 +236,7 @@ type
     property IsVisible: boolean read fVisible;
     //property IsAtHome: boolean read UnitAtHome;
     function GetPosition():TKMPoint;
-    procedure UpdateState; virtual;
+    function UpdateState():boolean; virtual;
     procedure Paint; virtual; abstract;
   end;
 
@@ -246,7 +246,7 @@ type
     WorkPlan:TUnitWorkPlan;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     function FindHome():boolean;
-    procedure UpdateState; override;
+    function UpdateState():boolean; override;
     function InitiateMining():TUnitTask;
     procedure Paint(); override;
   end;
@@ -255,7 +255,7 @@ type
   TKMUnitSerf = class(TKMUnit)
     Carry: TResourceType;
   public
-    procedure UpdateState; override;
+    function UpdateState():boolean; override;
     procedure Paint(); override;
     function GiveResource(Res:TResourceType):boolean;
     function TakeResource(Res:TResourceType):boolean;
@@ -265,7 +265,7 @@ type
   //Worker class - builds everything ingame
   TKMUnitWorker = class(TKMUnit)
   public
-    procedure UpdateState; override;
+    function UpdateState():boolean; override;
     procedure Paint(); override;
     function GetActionFromQueue():TUnitTask;
   end;
@@ -274,7 +274,15 @@ type
   TKMUnitWarrior = class(TKMUnit)
   public
     function GetSupportedActions: TUnitActionTypeSet; override;
-    procedure UpdateState; override;
+    function UpdateState():boolean; override;
+    procedure Paint(); override;
+  end;
+
+  //Animals
+  TKMUnitAnimal = class(TKMUnit)
+  public
+    function GetSupportedActions: TUnitActionTypeSet; override;
+    function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
 
@@ -589,30 +597,11 @@ end;
 end;
 
 
-procedure TKMUnitCitizen.UpdateState;
+function TKMUnitCitizen.UpdateState():boolean;
 var
-  TimeDelta: Cardinal;
-  DoEnd,TaskDone: Boolean;
   H:TKMHouse;
 begin
-  Inherited;
-  DoEnd:=true;
-  TaskDone:=true;
-  TimeDelta:= GetTickCount - fLastUpdateTime;
-  fLastUpdateTime:= GetTickCount;
-
-  if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
-
-  if not DoEnd then exit;
-
-  if fUnitTask <> nil then
-    fUnitTask.Execute(TaskDone);
-
-  if not TaskDone then exit;
-
-  if fUnitTask <> nil then
-    FreeAndNil(fUnitTask);
+  if Inherited UpdateState then exit;
 
 //Here come unit tasks in priorities
 //Priority no.1 - find self a food
@@ -636,7 +625,7 @@ begin
       else
         fUnitTask:=InitiateMining; //Unit has home, so go get a job
 
-if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk));
+  if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk));
 end;
 
 
@@ -692,30 +681,11 @@ begin
 end;
 
 
-procedure TKMUnitSerf.UpdateState;
+function TKMUnitSerf.UpdateState():boolean;
 var
-  TimeDelta: Cardinal;
-  DoEnd,TaskDone: Boolean;
   H:TKMHouse;
 begin
-  Inherited;
-  DoEnd:=true;
-  TaskDone:=true;
-  TimeDelta:= GetTickCount - fLastUpdateTime;
-  fLastUpdateTime:= GetTickCount;
-
-  if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
-
-  if not DoEnd then exit;
-
-  if fUnitTask <> nil then
-    fUnitTask.Execute(TaskDone);
-
-  if not TaskDone then exit;
-
-  if fUnitTask <> nil then
-    FreeAndNil(fUnitTask);
+  if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
@@ -767,7 +737,8 @@ begin
 
   //@Krom: Often when testing the remake it crashes at the following line. Any idea why/how to fix?
   //@Lewin: Please describe how to reproduce the bug, cos the error is somewhere outside.
-  //@Krom: It's not easy... It just happens sometimes, I can't find a way to always make it happen. Next time it does I will try to find out more. For the moment just ignore it.
+  //@Krom: It's not easy... It just happens sometimes, I can't find a way to always make it happen.
+  //Next time it does I will try to find out more. For the moment just ignore it.
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 
@@ -775,30 +746,11 @@ begin
 end;
 
 
-procedure TKMUnitWorker.UpdateState;
+function TKMUnitWorker.UpdateState():boolean;
 var
-  TimeDelta: Cardinal;
-  DoEnd,TaskDone: Boolean;
   H:TKMHouse;
 begin
-  Inherited;
-  DoEnd:=true;
-  TaskDone:=true;
-  TimeDelta:= GetTickCount - fLastUpdateTime;
-  fLastUpdateTime:= GetTickCount;
-
-  if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
-
-  if not DoEnd then exit;
-
-  if fUnitTask <> nil then
-    fUnitTask.Execute(TaskDone);
-
-  if not TaskDone then exit;
-
-  if fUnitTask <> nil then
-    FreeAndNil(fUnitTask);
+  if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
   H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
@@ -843,23 +795,40 @@ fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwn
 end;
 
 
-procedure TKMUnitWarrior.UpdateState;
-var
-  TimeDelta: Cardinal;
-  DoEnd: Boolean;
+function TKMUnitWarrior.UpdateState():boolean;
 begin
-  Inherited;
-  DoEnd:=true;
-  TimeDelta:= GetTickCount - fLastUpdateTime;
-  fLastUpdateTime:= GetTickCount;
-  if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, TimeDelta/1000, DoEnd);
-  if DoEnd then
-    SetAction(TUnitActionStay.Create(50,ua_Walk))
+  if Inherited UpdateState then exit;
+
+  SetAction(TUnitActionStay.Create(50,ua_Walk))
 end;
 
-{ TKMUnit }
+{ TKMUnitAnimal }
+function TKMUnitAnimal.GetSupportedActions: TUnitActionTypeSet;
+begin
+  Result:= [ua_Walk];
+end;
 
+
+procedure TKMUnitAnimal.Paint();
+var AnimAct,AnimDir:integer;
+begin
+AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
+AnimDir:=integer(Direction);
+fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+end;
+
+
+function TKMUnitAnimal.UpdateState():boolean;
+begin
+  if Inherited UpdateState then exit;
+
+  SetAction(TUnitActionWalkTo.Create(GetPosition,
+  fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(8),GetPosition.Y+RandomS(8),3)
+  ));    
+end;
+
+
+{ TKMUnit }
 constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
@@ -893,8 +862,7 @@ end;
 
 function TKMUnit.GetPosition():TKMPoint;
 begin
-  Result.X:=round(fPosition.X);
-  Result.Y:=round(fPosition.Y);
+  Result:=KMPointRound(fPosition);
 end;
 
 function TKMUnit.GetUnitTaskText():string;
@@ -914,7 +882,7 @@ end;
 
 function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
-  Result:= (X = round(fPosition.X)) and (Y = round(fPosition.Y)) and ((fUnitType=UT)or(UT=ut_Any));
+  Result:= (X = GetPosition.X) and (Y = GetPosition.Y) and ((fUnitType=UT)or(UT=ut_Any));
 end;
 
 procedure TKMUnit.SetAction(aAction: TUnitAction; aStep:integer=0);
@@ -938,11 +906,18 @@ AnimStep:=aStep;
 end;
 
 
-procedure TKMUnit.UpdateState();
+{Here are common Unit.UpdateState routines}
+function TKMUnit.UpdateState():boolean;
+var
+  TimeDelta: Cardinal;
+  ActDone,TaskDone: Boolean;
 begin
+  Result:=true;
+
+  //Make unit hungry
   if fCondition>0 then dec(fCondition);
 
-  //fCondition as a sort of counter to reveal terrain 2 times a sec
+  //Can use fCondition as a sort of counter to reveal terrain X times a sec
   if fCondition mod 10 = 0 then fTerrain.RevealCircle(GetPosition,UnitStat[byte(fUnitType)].Sight,20,fOwner);
 
   if fCondition=0 then
@@ -950,7 +925,28 @@ begin
     SetAction(nil);
     FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
     fUnitTask:=TTaskDie.Create(Self);
+    exit;
   end;
+
+  ActDone:=true;
+  TaskDone:=true;
+  TimeDelta:= GetTickCount - fLastUpdateTime;
+  fLastUpdateTime:= GetTickCount;
+
+  if fCurrentAction <> nil then
+    fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
+
+  if not ActDone then exit;
+
+  if fUnitTask <> nil then
+    fUnitTask.Execute(TaskDone);
+
+  if not TaskDone then exit;
+
+  if fUnitTask <> nil then
+    FreeAndNil(fUnitTask);
+
+  Result:=false;
 end;
 
 
@@ -1701,9 +1697,14 @@ begin
     ut_Militia..ut_Barbarian:   T:= Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
     //ut_Bowman:   Inherited Add(TKMUnitArcher.Create(aOwner,PosX,PosY,aUnitType)); //I guess it will be stand-alone
 
-    //@Krom: Could you please enable animals? Even if they don't do anything yet. BTW: The codes you are using for animals in Defaults are not right. (e.g. fish = 26 not 32) What shall we do about that?
+    ut_Wolf..ut_Duck:           T:= Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
+    //@Krom: The codes you are using for animals in Defaults are not right. (e.g. fish = 26 not 32)
+    //What shall we do about that?
+    //@Lewin: Animals are added :)
+    //The codes are correct for TPR RX data, I guess we need to remap them in DAT decoder for TSK missions?
 
-    else Assert(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
+    else
+    Assert(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
   end;
   if T=-1 then Result:=nil else Result:=TKMUnit(Items[T]);
 end;

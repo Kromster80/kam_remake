@@ -105,6 +105,7 @@ public
   procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
 
   function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+  function SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   function CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
@@ -197,6 +198,14 @@ end;
 function TTerrain.TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
   Result := InRange(X,1+Inset,MapX-1-Inset) and InRange(Y,1+Inset,MapY-1-Inset);
+end;
+
+
+{Check if requested tile is within Map boundaries}
+function TTerrain.SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
+begin
+  Result.X := EnsureRange(X,1+Inset,MapX-1-Inset);
+  Result.Y := EnsureRange(Y,1+Inset,MapY-1-Inset);
 end;
 
 

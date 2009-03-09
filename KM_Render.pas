@@ -405,7 +405,7 @@ end;
 
 
 procedure TRender.RenderBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
-var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer;
+var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer; FOW:single;
 begin
   ID1:=0; ID2:=0;
   if bt_HouseBuilding = Border then if Dir=1 then ID1:=463 else ID2:=467; //WIP (Wood planks)
@@ -413,7 +413,9 @@ begin
   if bt_Wine = Border then          if Dir=1 then ID1:=462 else ID2:=466; //Fence (Wood)
   if bt_Field = Border then         if Dir=1 then ID1:=461 else ID2:=465; //Fence (Stones)
 
-  glColor4f(1,1,1,1);
+  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
+
+  glColor4f(FOW,FOW,FOW,1);
   if Dir = 1 then begin //Horizontal border
     glBindTexture(GL_TEXTURE_2D,GFXData[4,ID1].TexID);
     a.x:=GFXData[4,ID1].u1; a.y:=GFXData[4,ID1].v1;

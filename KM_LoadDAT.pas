@@ -82,9 +82,19 @@ begin
   assignfile(f,AFileName); reset(f,1);
   blockread(f,c[1],length(c),FileSize);
   Assert(FileSize<>length(c),'DAT file size is too big, can''t fit into buffer');
+<<<<<<< .mine
+  setlength(FileText,FileSize); //Unused because of setlength(FileText,k);
+=======
+>>>>>>> .r133
   closefile(f);
+<<<<<<< .mine
+
+  //@Lewin: I guess we should make a sort of switch to enable loading of unciphered DAT files,
+  //for debug time
+=======
   setlength(FileText,FileSize); //Unused because of setlength(FileText,k); @Krom: Wrong. Without this line it crashes when trying to put data into FileText. Try it. If you have a different solution that works then I would be happy to use it though
 
+>>>>>>> .r133
   i:=1; k:=1;
   repeat
     FileText[k]:=chr(ord(c[i]) xor 239);
@@ -197,17 +207,35 @@ begin
                      end;
   ct_SetHouse:       begin
                      if fPlayers <> nil then
+<<<<<<< .mine
+                       fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(
+                       EnsureRange(StrToIntDef(ParamList[0],0),0,Integer(High(THouseType))-1)+1 ),
+                       KMPoint(StrToIntDef(ParamList[1],0),StrToIntDef(ParamList[2],0)));
+=======
                        if (ParamList[0] >= 0) and (ParamList[0] <= Integer(High(THouseType))-1) then
                          fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), KMPoint(ParamList[1],ParamList[2]));
+>>>>>>> .r133
                      end;
   ct_SetUnit:        begin
                      if fPlayers <> nil then
+<<<<<<< .mine
+                       fPlayers.Player[CurrentPlayerIndex].AddUnit(TUnitType(
+                       EnsureRange(StrToIntDef(ParamList[0],0),0,Integer(High(TUnitType))-1)+1 ),
+                       KMPoint(StrToIntDef(ParamList[1],0),StrToIntDef(ParamList[2],0)));
+=======
                        if (ParamList[0] >= 0) and (ParamList[0] <= 24{Integer(High(TUnitType))-1}) then
                          fPlayers.Player[CurrentPlayerIndex].AddUnit(TUnitType(ParamList[0]+1), KMPoint(ParamList[1],ParamList[2]));
+>>>>>>> .r133
                      end;   
   ct_SetRoad:        begin
                      if fPlayers <> nil then
+<<<<<<< .mine
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPoint(StrToIntDef(ParamList[0],0),StrToIntDef(ParamList[1],0)),mu_RoadPlan);
+                       //@Krom: How to make these actual roads?
+                       //@Lewin: I've added command fPlayers.Player[CurrentPlayerIndex].AddRoad();
+=======
                        fPlayers.Player[CurrentPlayerIndex].AddRoadPlan(KMPoint(ParamList[0],ParamList[1]),mu_RoadPlan,true); //@Krom: How to make these actual roads?
+>>>>>>> .r133
                      end;
   //To add:
   ct_SetTactic:      begin

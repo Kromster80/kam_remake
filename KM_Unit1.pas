@@ -5,7 +5,7 @@ uses
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
   KM_Form_Loading, KM_Terrain,
-  KM_Units, KM_Houses, KM_Viewport, KM_Log, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
+  KM_Units, KM_Houses, KM_Viewport, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
 
 type                           
   TForm1 = class(TForm)
@@ -647,6 +647,16 @@ begin
   TKMHouse(MyPlayer.FindHouse(ht_Mill,0,0)).ResAddToIn(rt_Corn,5);
 
   fViewPort.SetCenter(10,9);
+
+  MyPlayer.AddUnit(ut_Wolf,KMPoint(5,12));
+{  MyPlayer.AddUnit(ut_Fish,KMPoint(6,12));
+  MyPlayer.AddUnit(ut_Watersnake,KMPoint(7,12));
+  MyPlayer.AddUnit(ut_Seastar,KMPoint(8,12));
+  MyPlayer.AddUnit(ut_Crab,KMPoint(9,12));
+  MyPlayer.AddUnit(ut_Waterflower,KMPoint(10,12));
+  MyPlayer.AddUnit(ut_Waterleaf,KMPoint(11,12));
+  MyPlayer.AddUnit(ut_Duck,KMPoint(12,12)); }
+
 end;
 
 end.

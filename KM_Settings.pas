@@ -63,7 +63,7 @@ var
 
 
 implementation
-uses KM_Log, KM_LoadSFX;
+uses KM_LoadSFX;
 
 constructor TGameSettings.Create;
 begin

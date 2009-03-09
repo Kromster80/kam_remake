@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 238
-  Top = 150
+  Left = 197
+  Top = 72
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 245
@@ -283,15 +283,6 @@ object Form1: TForm1
       TabOrder = 9
       OnClick = Button2Click
     end
-    object Button3: TButton
-      Left = 296
-      Top = 52
-      Width = 25
-      Height = 17
-      Caption = 'Stop'
-      TabOrder = 10
-      OnClick = Button3Click
-    end
     object Step1Frame: TButton
       Left = 196
       Top = 48
@@ -309,6 +300,15 @@ object Form1: TForm1
       Caption = '1'
       TabOrder = 12
       OnClick = Button5Click
+    end
+    object Button3: TButton
+      Left = 296
+      Top = 52
+      Width = 25
+      Height = 17
+      Caption = 'Stop'
+      TabOrder = 10
+      OnClick = Button3Click
     end
   end
   object Button4: TButton

@@ -4,7 +4,7 @@ uses
   classes, KromUtils, Math, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, KM_Settings, Windows, SysUtils;
 
 type
-  TPlayerType = (uct_Human, uct_Computer);
+  TPlayerType = (uct_Human, uct_Computer, uct_Animals);
 
   TKMPlayerAssets = class
   private
@@ -21,6 +21,7 @@ type
     PlayerType: TPlayerType; //Is it Human or AI
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
+    procedure AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint):boolean;
     procedure RemHouse(Position: TKMPoint);
@@ -77,8 +78,8 @@ implementation
 uses
   KM_Terrain, KM_LoadSFX;
 
-{ TKMPlayerAssets }
 
+{ TKMPlayerAssets }
 function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
 begin
     Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y);
@@ -93,6 +94,19 @@ begin
 end;
 
 
+procedure TKMPlayerAssets.AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
+begin
+  if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
+  case aMarkup of
+    mu_RoadPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Road);
+    mu_FieldPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Field);
+    mu_WinePlan: fTerrain.SetField(aLoc,PlayerID,fdt_Wine);
+    else Assert(false,'Wrong markup');
+  end;
+end;
+
+
+{DoSilent means that there will be no sound when markup is placed, needed e.g. when script used}
 procedure TKMPlayerAssets.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
 begin
   if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
