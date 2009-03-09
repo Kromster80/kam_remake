@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_LoadLIB;
+uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
@@ -27,6 +27,7 @@ TKMControl = class
     CursorOver:boolean;
 
     FOnClick:TNotifyEvent;
+    FOnChange:TNotifyEvent;
     FOnRightClick:TNotifyEvent;
     FOnMouseOver:TMouseMoveEvent;
     FOnHint:TMouseMoveEvent;
@@ -38,6 +39,7 @@ TKMControl = class
     procedure Paint(); virtual;
   public
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
     property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
     property OnHint: TMouseMoveEvent read FOnHint write FOnHint;
@@ -212,7 +214,7 @@ var
   fControls: TKMControlsCollection;
 
 implementation
-uses KM_RenderUI;
+uses KM_RenderUI, KM_LoadLIB;
 
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin
@@ -334,7 +336,10 @@ begin
   if not Enabled then State:=State+[bs_Disabled];
   fRenderUI.Write3DButton(TexID,Left,Top,Width,Height,State);
   if TexID=0 then
-    fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-6, TextAlign, Caption, Font, $FFFFFFFF);
+    if Enabled then //If disabled then text should be faded
+      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, TextAlign, Caption, Font, $FFFFFFFF)
+    else
+      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, TextAlign, Caption, Font, $FF888888);
 end;
 
 
@@ -502,10 +507,19 @@ end;
 
 
 procedure TKMRatioRow.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+var NewPos: integer;
 begin
   Inherited CheckCursorOver(X,Y,AShift);
+  NewPos := Position;
   if (CursorOver) and (ssLeft in AShift) then
-    Position:=EnsureRange(round(MinValue+((X-Left-12)/(Width-28))*(MaxValue-MinValue)),MinValue,MaxValue);
+    NewPos:=EnsureRange(round(MinValue+((X-Left-12)/(Width-28))*(MaxValue-MinValue)),MinValue,MaxValue);
+  if NewPos <> Position then
+  begin
+    Position := NewPos;
+    if Assigned(OnChange) then
+      OnChange(Self);
+  end
+  else Position := NewPos;
 end;
 
 

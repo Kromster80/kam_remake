@@ -150,7 +150,7 @@ begin
   //Must be done early on so that GamePlayInterface can use it
   FormLoading.Label1.Caption:='Reading KaM data ...';
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
-  fMissionPaser:= TMissionPaser.Create;
+  fMissionParser:= TMissionParser.Create;
   fSoundLib:= TSoundLib.Create;
   ReadGFX(ExeDir);
   fLog.AppendLog('Resources are loaded',true);
@@ -626,7 +626,7 @@ procedure TForm1.OpenMissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;    
   fLog.AppendLog('Loading DAT...');
-  fMissionPaser.LoadDATFile(OpenDialog1.FileName);
+  fMissionParser.LoadDATFile(OpenDialog1.FileName);
   fLog.AppendLog('DAT Loaded');
 end;
 

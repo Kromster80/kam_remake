@@ -1,14 +1,6 @@
 I thought I'd make this file so I can report stuff to you which I don't feel confident fixing myself.
 
-
-Less important:
- - If you ask it to get the coordinates (to display in statusbar) for something past 176 then it crashes. If you load up mission 20 and move you mouse off the edge of the screen this happens. This will probably be fixed when we disallow scrolling past edges 
-
-ANSWER: There's variable MaxMapSize=176 somewhere in Global_Data or Terrain unit. I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned). Once it's all solved the limit can be increased to any value (though exceeding 256 will introduce new bugs, I'm sure).
-
-ANSWER2: Okay, checked and fixed it. Was a mistake in Height interpolation. Solved.
-
-
+ - Flat buttons should highlight be brightning rather than drawing a cyan outline. For example, if you move your mouse over the storehouse items or the build items in KaM then they brighten slightly, instead of outlining.
 
 
 This file can be used to raise and solve non-specific code issues.

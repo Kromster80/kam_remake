@@ -35,7 +35,8 @@ type TKMGamePlayInterface = class
       KMButton_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
 
     KMPanel_Menu:TKMPanel;
-      KMButton_Menu_Save,KMButton_Menu_Load,KMButton_Menu_Settings,KMButton_Menu_Quit:TKMButton;
+      KMButton_Menu_Save,KMButton_Menu_Load,KMButton_Menu_Settings,KMButton_Menu_Quit,KMButton_Menu_Track:TKMButton;
+      KMLabel_Menu_Music, KMLabel_Menu_Track: TKMLabel;
 
       KMPanel_Save:TKMPanel;
         KMButton_Save:array[1..SAVEGAME_COUNT]of TKMButton;
@@ -172,8 +173,10 @@ BuildButtonClick(nil);
 //Set LastVisiblePage to which ever page was last visible, out of the ones needed
 if KMPanel_Settings.Visible = true then
   LastVisiblePage := KMPanel_Settings;
-if KMPanel_Quit.Visible = true then
-  LastVisiblePage := KMPanel_Quit;
+if KMPanel_Save.Visible = true then
+  LastVisiblePage := KMPanel_Save;
+if KMPanel_Load.Visible = true then
+  LastVisiblePage := KMPanel_Load;
 
 //First thing - hide all existing pages
   for i:=1 to KMPanel_Main.ChildCount do
@@ -205,7 +208,8 @@ if Sender=KMButtonMain[3] then begin
 end else
 if ((Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No) or
    ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings)) or
-   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Quit))) then begin
+   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Load)) or
+   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Save))) then begin
   KMPanel_Menu.Visible:=true;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
@@ -213,12 +217,12 @@ end else
 if Sender=KMButton_Menu_Save then begin
   KMPanel_Save.Visible:=true;
   Hide4MainButtons;
-  //KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
+  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
 end else
 if Sender=KMButton_Menu_Load then begin
   KMPanel_Load.Visible:=true;
   Hide4MainButtons;
-  //KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
+  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(172);
 end else
 if Sender=KMButton_Menu_Settings then begin
   KMPanel_Settings.Visible:=true;
@@ -336,7 +340,7 @@ Assert(fGameSettings<>nil,'fGameSettings required to be init first');
     KMButtonMain[5]:=fControls.AddButton(KMPanel_Main,  8, 372, 42, 36, 443);
     KMButtonMain[5].OnClick:=SwitchPage;
     KMButtonMain[5].Hint:=fTextLibrary.GetTextString(165);
-    KMLabel_MenuTitle:=fControls.AddLabel(KMPanel_Main,54,372,138,36,fnt_Grey,kaLeft,'');
+    KMLabel_MenuTitle:=fControls.AddLabel(KMPanel_Main,54,372,138,36,fnt_Metal,kaLeft,'');
 
     KMLabel_Hint:=fControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,fnt_Outline,kaLeft,'');
 
@@ -412,6 +416,7 @@ begin
     inc(ci);
     Stat_House[ci]:=fControls.AddButtonFlat(KMPanel_Stats,8+(k-1)*42,(i-1)*32,40,30,41);
     Stat_House[ci].TexOffsetX:=-4;
+    Stat_House[ci].HideHighlight:=true;
     Stat_House[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
     Stat_HouseQty[ci]:=fControls.AddLabel(KMPanel_Stats,8+37+(k-1)*42,(i-1)*32+18,33,30,fnt_Grey,kaRight,'');
     Stat_HouseQty[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
@@ -422,6 +427,7 @@ begin
     inc(ci);
     Stat_Unit[ci]:=fControls.AddButtonFlat(KMPanel_Stats,8+(k-1)*36,(i-1)*32,35,30,byte(StatUnitOrder[i,k])+140);
     Stat_Unit[ci].TexOffsetX:=-4;
+    Stat_Unit[ci].HideHighlight:=true;
     Stat_Unit[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
     Stat_UnitQty[ci]:=fControls.AddLabel(KMPanel_Stats,8+32+(k-1)*36,(i-1)*32+18,33,30,fnt_Grey,kaRight,'');
     Stat_UnitQty[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
@@ -445,6 +451,11 @@ begin
     KMButton_Menu_Quit:=fControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     KMButton_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     KMButton_Menu_Quit.OnClick:=SwitchPage;
+    KMButton_Menu_Track:=fControls.AddButton(KMPanel_Menu,158,320,30,30,'>',fnt_Metal);
+    KMButton_Menu_Track.Hint:=fTextLibrary.GetTextString(209);
+    //KMButton_Menu_Quit.OnClick:=TrackUp;
+    KMLabel_Menu_Music:=fControls.AddLabel(KMPanel_Menu,100,298,100,30,fnt_Metal,kaCenter,fTextLibrary.GetTextString(207));
+    KMLabel_Menu_Track:=fControls.AddLabel(KMPanel_Menu,58,326,100,30,fnt_Grey,kaLeft,'Spirit');
 end;
 
 
@@ -454,7 +465,7 @@ var i:integer;
 begin
   KMPanel_Save:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
     for i:=1 to SAVEGAME_COUNT do begin
-      KMButton_Save[i]:=fControls.AddButton(KMPanel_Save,8,10+(i-1)*35,180,30,'Savegame #'+inttostr(i),fnt_Metal);
+      KMButton_Save[i]:=fControls.AddButton(KMPanel_Save,12,10+(i-1)*26,170,24,'Savegame #'+inttostr(i),fnt_Grey);
       //KMButton_Save[i].OnClick:=SaveGame;
       KMButton_Save[i].Enabled:=false;
     end;
@@ -467,7 +478,7 @@ var i:integer;
 begin
   KMPanel_Load:=fControls.AddPanel(KMPanel_Main,0,412,200,400);
     for i:=1 to SAVEGAME_COUNT do begin
-      KMButton_Load[i]:=fControls.AddButton(KMPanel_Load,8,10+(i-1)*35,180,30,'Savegame #'+inttostr(i),fnt_Metal);
+      KMButton_Load[i]:=fControls.AddButton(KMPanel_Load,12,10+(i-1)*26,170,24,'Savegame #'+inttostr(i),fnt_Grey);
       //KMButton_Load[i].OnClick:=LoadGame;
       KMButton_Load[i].Enabled:=false;
     end;
@@ -512,7 +523,10 @@ begin
     KMButton_Settings_Music.Hint:=fTextLibrary.GetTextString(198);
     //There are many clickable controls, so let them all be handled in one procedure to save dozens of lines of code
     for i:=1 to KMPanel_Settings.ChildCount do
+    begin
       TKMControl(KMPanel_Settings.Childs[i]).OnClick:=Settings_Change;
+      TKMControl(KMPanel_Settings.Childs[i]).OnChange:=Settings_Change;
+    end;
 end;
 
 
