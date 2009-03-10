@@ -266,7 +266,7 @@ end;
 procedure TKMMainMenuInterface.Play_Tutorial(Sender: TObject);
 begin
   Assert(Sender=KMButton_MainMenuTutor);
-  fGame.StartGame();
+  fGame.StartGame('');
 end;
 
 

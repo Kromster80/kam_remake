@@ -21,7 +21,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure StartGame;
+    procedure StartGame(MissionFile:string);
     procedure StopGame;
     procedure UpdateState;
   end;
@@ -194,7 +194,7 @@ begin
 end;
 
 
-procedure TKMGame.StartGame;
+procedure TKMGame.StartGame(MissionFile:string);
 begin
   fMainMenuInterface.ShowLoadingScreen;
   fRender.Render;
@@ -207,14 +207,24 @@ begin
   fViewport:=TViewport.Create;
   fGameSettings:= TGameSettings.Create;
   fGamePlayInterface:= TKMGamePlayInterface.Create;
-  fMissionParser:= TMissionParser.Create; //Creation involves no processing
 
   //Here comes terrain/mission init
+  fMissionParser:= TMissionParser.Create;
   fTerrain:= TTerrain.Create;
-  fTerrain.MakeNewMap(96,96);
 
-  fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
-  MyPlayer:=fPlayers.Player[1];
+  fLog.AppendLog('Loading DAT...');
+  if CheckFileExists(MissionFile,true) then begin
+    fMissionParser.LoadDATFile(MissionFile);
+    // fTerrain.LoadMapFromFile / fPlayers should be somewhere there
+    //@Lewin: LoadDATFile should return true/false whenever mission is succesfully loaded or not
+    //if not - we abort whole thing, show script errors if any and return to main menu 
+    fLog.AppendLog('DAT Loaded');            
+  end else begin
+    fTerrain.MakeNewMap(96,96); //For debug we use blank mission
+    fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
+    MyPlayer:=fPlayers.Player[1];
+  end;
+
   fLog.AppendLog('Gameplay initialized',true);
 
   fRender.RenderResize(ScreenX,ScreenY);

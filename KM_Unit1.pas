@@ -139,7 +139,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   if Sender<>nil then exit;
 
-  FormLoading.Show;
+  FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
 
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
@@ -161,6 +161,7 @@ end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);
 begin
+  //Assert(false,'Should be re-rigged');
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
   fTerrain.OpenMapFromFile(OpenDialog1.FileName);
   Form1.Caption:='KaM Remake - '+OpenDialog1.FileName;
@@ -209,7 +210,8 @@ begin
 
   fGame.UpdateState;
 
-  //DoScrolling; //Now check to see if we need to scroll
+  if fGame.GameIsRunning then //Need to re-rig it to fViewport later
+    DoScrolling; //Now check to see if we need to scroll
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -236,7 +238,7 @@ procedure TForm1.Button1Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
   fGame.StopGame;
-  fGame.StartGame;
+  fGame.StartGame('');
 TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(11,9);
 
@@ -322,7 +324,7 @@ procedure TForm1.Button2Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
   fGame.StopGame;
-  fGame.StartGame;
+  fGame.StartGame('');
 TKMControl(Sender).Enabled:=false;
 
 for k:=1 to 4 do begin
@@ -376,6 +378,9 @@ procedure TForm1.ExportHousesRXClick(Sender: TObject); begin ExportRX2BMP(2); en
 procedure TForm1.ExportUnitsRXClick(Sender: TObject);  begin ExportRX2BMP(3); end;
 procedure TForm1.ExportGUIRXClick(Sender: TObject);    begin ExportRX2BMP(4); end;
 procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP(5); end;
+procedure TForm1.ExportSounds1Click(Sender: TObject);  begin fSoundLib.ExportSounds; end;
+procedure TForm1.HouseAnim1Click(Sender: TObject);     begin ExportHouseAnim2BMP(); end;
+procedure TForm1.UnitAnim1Click(Sender: TObject);      begin ExportUnitAnim2BMP();  end;
 
 procedure TForm1.ExportFonts1Click(Sender: TObject);
 var i:integer;
@@ -392,7 +397,7 @@ end;
 
 procedure TForm1.Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-  TeamColors[3]:=Shape267.Brush.Color;
+  TeamColors[1]:=Shape267.Brush.Color;
   fRender.Render;
 end;
 
@@ -440,33 +445,20 @@ end;
 procedure TForm1.ExportDeliverlists1Click(Sender: TObject);
 var f:textfile; i:integer;
 begin
-assignfile(f,ExeDir+'DeliverLists.txt'); Rewrite(f);
-for i:=1 to fPlayers.PlayerCount do
-  writeln(f,'Player_'+inttostr(i)+eol+fPlayers.Player[i].DeliverList.WriteToText+eol+eol);
-closefile(f);
+  if fPlayers=nil then exit;
+
+  assignfile(f,ExeDir+'DeliverLists.txt'); Rewrite(f);
+  for i:=1 to fPlayers.PlayerCount do
+    writeln(f,'Player_'+inttostr(i)+eol+fPlayers.Player[i].DeliverList.WriteToText+eol+eol);
+  closefile(f);
 end;
 
-procedure TForm1.ExportSounds1Click(Sender: TObject);
-begin
-fSoundLib.ExportSounds;
-end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
 begin
-CheckBox3.Checked:=true;
-TrackBar1.Max:=length(PassabilityStr)-1;
-Label2.Caption:= PassabilityStr[TrackBar1.Position+1];
-end;
-
-
-procedure TForm1.HouseAnim1Click(Sender: TObject);
-begin
-  ExportHouseAnim2BMP();
-end;
-
-procedure TForm1.UnitAnim1Click(Sender: TObject);
-begin
-  ExportUnitAnim2BMP();
+  CheckBox3.Checked:=true;
+  TrackBar1.Max:=length(PassabilityStr)-1;
+  Label2.Caption:= PassabilityStr[TrackBar1.Position+1];
 end;
 
 procedure TForm1.CheckBox5Click(Sender: TObject);
@@ -492,16 +484,15 @@ end;
 procedure TForm1.OpenMissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;    
-  fLog.AppendLog('Loading DAT...');
-  fMissionParser.LoadDATFile(OpenDialog1.FileName);
-  fLog.AppendLog('DAT Loaded');
+  fGame.StopGame;
+  fGame.StartGame(OpenDialog1.FileName);
 end;
 
 procedure TForm1.Button5Click(Sender: TObject);
 var H:TKMHouseStore;
 begin
   fGame.StopGame;
-  fGame.StartGame;
+  fGame.StartGame('');
   MyPlayer:=fPlayers.Player[1];
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
@@ -525,7 +516,6 @@ begin
   MyPlayer.AddUnit(ut_Waterflower,KMPoint(10,12));
   MyPlayer.AddUnit(ut_Waterleaf,KMPoint(11,12));
   MyPlayer.AddUnit(ut_Duck,KMPoint(12,12)); }
-
 end;
 
 procedure TForm1.CheckBox2Click(Sender: TObject);
