@@ -37,7 +37,6 @@ begin
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   if LoadEssence then begin
-    fLog.AppendLog('Reading palettes ...');
     FormLoading.Label1.Caption:='Reading palettes ...';
     ReadPallete(text+'data\gfx\map.bbm',pal_map);
     ReadPallete(text+'data\gfx\pal0.bbm',pal_0);
@@ -145,23 +144,25 @@ begin
   blockread(f,MapElem[1],MapElemQty*99); //256*3
   closefile(f);
 
-  assignfile(ft,ExeDir+'Trees.txt'); rewrite(ft);
-  for ii:=1 to MapElemQty do begin
-  writeln(ft);
-  writeln(ft);
-  writeln(ft,ii);
-    for kk:=1 to 30 do if MapElem[ii].Step[kk]>0 then
-    write(ft,MapElem[ii].Step[kk],' ') else write(ft,'- ');
+  if WriteResourceInfoToTXT then begin
+    assignfile(ft,ExeDir+'Trees.txt'); rewrite(ft);
+    for ii:=1 to MapElemQty do begin
+    writeln(ft);
+    writeln(ft);
+    writeln(ft,ii);
+      for kk:=1 to 30 do if MapElem[ii].Step[kk]>0 then
+      write(ft,MapElem[ii].Step[kk],' ') else write(ft,'- ');
 
-    writeln(ft);
-    for kk:=1 to 16 do
-    write(ft,MapElem[ii].u1[kk],' ');
-    write(ft,' =',MapElem[ii].u2);
-    write(ft,' =',MapElem[ii].u3);
-    write(ft,' =',MapElem[ii].u4);
-    writeln(ft);
+      writeln(ft);
+      for kk:=1 to 16 do
+      write(ft,MapElem[ii].u1[kk],' ');
+      write(ft,' =',MapElem[ii].u2);
+      write(ft,' =',MapElem[ii].u3);
+      write(ft,' =',MapElem[ii].u4);
+      writeln(ft);
+    end;
+    closefile(ft);
   end;
-  closefile(ft);
 
   Result:=true;
 end;
@@ -193,52 +194,54 @@ HouseDAT[ii].MaxHealth:=50;
 end;
 closefile(f);
 
-  assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
-  writeln(ft,'House;a1;a3;a4;a5;a8;Foot---------->;');
-  for ii:=1 to HOUSE_COUNT do begin
-  //writeln(ft);
-  write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+';');
-  {  write(ft,'Resource In: ');
-    for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
-    write(ft,'#') else write(ft,' ');
-    writeln(ft);
-    write(ft,'Resource Out: ');
-    for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
-    write(ft,'#') else write(ft,' ');
-    writeln(ft);
-    for kk:=1 to 19 do writeln(ft,HouseAction[kk]+#9+inttostr(HouseDAT[ii].Anim[kk].Count));}
-    //write(ft,inttostr(HouseDAT[ii].WoodPicSteps)+'wooding ;');
-    //write(ft,inttostr(HouseDAT[ii].StonePicSteps)+'stoning ;');
-    write(ft,inttostr(HouseDAT[ii].a1)+';'); //0
-    //write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
-    //write(ft,'Y '+inttostr(HouseDAT[ii].EntranceOffsetY)+';'); //0
-    //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
-    //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
-    {writeln(ft);
-    for kk:=1 to length(HouseDAT[ii].BuildArea) do begin
-      for h:=1 to 10 do
-        write(ft,inttostr(HouseDAT[ii].BuildArea[kk,h])+';');
-      writeln(ft,';');
-    end; }
-    //write(ft,inttostr(HouseDAT[ii].WoodCost)+';');
-    //write(ft,inttostr(HouseDAT[ii].StoneCost)+';');
-    //for kk:=1 to 12 do write(ft,'dx '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveX)+' dy '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveY)+';');
-    write(ft,inttostr(HouseDAT[ii].a5)+';');
-    //write(ft,'Area '+inttostr(HouseDAT[ii].SizeArea)+';');
-    //write(ft,'Size '+inttostr(HouseDAT[ii].SizeX)+'x'+inttostr(HouseDAT[ii].SizeY)+';');
-    write(ft,'Size2 '+inttostr(HouseDAT[ii].sx2)+'x'+inttostr(HouseDAT[ii].sy2)+';');
-    write(ft,inttostr(HouseDAT[ii].WorkerWork)+'W sec;');
-    write(ft,inttostr(HouseDAT[ii].WorkerRest)+'R sec;');
-    //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResInput[kk]+1))+';');
-    //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResOutput[kk]+1))+';');
-    //write(ft,'Product x'+inttostr(HouseDAT[ii].ResProductionX)+';');
-    //write(ft,inttostr(HouseDAT[ii].MaxHealth)+'hp;');
-    //write(ft,'Sight '+inttostr(HouseDAT[ii].Sight)+';');
-    //write(ft,TypeToString(TUnitType(HouseDAT[ii].OwnerType+1))+';');
-    for kk:=1 to 36 do write(ft,inttostr(HouseDAT[ii].Foot[kk])+';');
-    writeln(ft);
-  end;
-  closefile(ft);
+  if WriteResourceInfoToTXT then begin
+    assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
+    writeln(ft,'House;a1;a3;a4;a5;a8;Foot---------->;');
+    for ii:=1 to HOUSE_COUNT do begin
+    //writeln(ft);
+    write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+';');
+    {  write(ft,'Resource In: ');
+      for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
+      write(ft,'#') else write(ft,' ');
+      writeln(ft);
+      write(ft,'Resource Out: ');
+      for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
+      write(ft,'#') else write(ft,' ');
+      writeln(ft);
+      for kk:=1 to 19 do writeln(ft,HouseAction[kk]+#9+inttostr(HouseDAT[ii].Anim[kk].Count));}
+      //write(ft,inttostr(HouseDAT[ii].WoodPicSteps)+'wooding ;');
+      //write(ft,inttostr(HouseDAT[ii].StonePicSteps)+'stoning ;');
+      write(ft,inttostr(HouseDAT[ii].a1)+';'); //0
+      //write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
+      //write(ft,'Y '+inttostr(HouseDAT[ii].EntranceOffsetY)+';'); //0
+      //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
+      //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
+      {writeln(ft);
+      for kk:=1 to length(HouseDAT[ii].BuildArea) do begin
+        for h:=1 to 10 do
+          write(ft,inttostr(HouseDAT[ii].BuildArea[kk,h])+';');
+        writeln(ft,';');
+      end; }
+      //write(ft,inttostr(HouseDAT[ii].WoodCost)+';');
+      //write(ft,inttostr(HouseDAT[ii].StoneCost)+';');
+      //for kk:=1 to 12 do write(ft,'dx '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveX)+' dy '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveY)+';');
+      write(ft,inttostr(HouseDAT[ii].a5)+';');
+      //write(ft,'Area '+inttostr(HouseDAT[ii].SizeArea)+';');
+      //write(ft,'Size '+inttostr(HouseDAT[ii].SizeX)+'x'+inttostr(HouseDAT[ii].SizeY)+';');
+      write(ft,'Size2 '+inttostr(HouseDAT[ii].sx2)+'x'+inttostr(HouseDAT[ii].sy2)+';');
+      write(ft,inttostr(HouseDAT[ii].WorkerWork)+'W sec;');
+      write(ft,inttostr(HouseDAT[ii].WorkerRest)+'R sec;');
+      //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResInput[kk]+1))+';');
+      //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResOutput[kk]+1))+';');
+      //write(ft,'Product x'+inttostr(HouseDAT[ii].ResProductionX)+';');
+      //write(ft,inttostr(HouseDAT[ii].MaxHealth)+'hp;');
+      //write(ft,'Sight '+inttostr(HouseDAT[ii].Sight)+';');
+      //write(ft,TypeToString(TUnitType(HouseDAT[ii].OwnerType+1))+';');
+      for kk:=1 to 36 do write(ft,inttostr(HouseDAT[ii].Foot[kk])+';');
+      writeln(ft);
+    end;
+    closefile(ft);
+end;
 
 //Form1.Close;
 
@@ -264,52 +267,54 @@ blockread(f,UnitSprite2[ii],36);
 end;
 closefile(f);
 
-assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
-writeln(ft,'Name;x1;Attack;AttackHorseBonus;x4;HitPoints;Speed;x7;Sight;x9;x10;CanWalkOut;0;');
-for ii:=1 to 40 do begin
-  write(ft,fTextLibrary.GetTextString(siUnitNames+ii)+';');
-  write(ft,inttostr(UnitStat[ii].x1)+';');
-  write(ft,inttostr(UnitStat[ii].Attack)+';');
-  write(ft,inttostr(UnitStat[ii].AttackHorseBonus)+';');
-  write(ft,inttostr(UnitStat[ii].x4)+';');
-  write(ft,inttostr(UnitStat[ii].HitPoints)+'hp;');
-  write(ft,inttostr(UnitStat[ii].Speed)+';');
-  write(ft,inttostr(UnitStat[ii].x7)+';');
-  write(ft,inttostr(UnitStat[ii].Sight)+';');
-  write(ft,inttostr(UnitStat[ii].x9)+';');
-  write(ft,inttostr(UnitStat[ii].x10)+';');
-  write(ft,inttostr(UnitStat[ii].CanWalkOut)+';');
-  write(ft,inttostr(UnitStat[ii].x11)+';');
-  writeln(ft);
-end;
-closefile(ft);
-
-//This is a bad idea to fix anything here, but at the time it's the simplest solution
-//Woodcutter(2) needs to shuffle actions
-//Split planting from chopping
-UnitSprite[2].Act[5].Dir[1]:=UnitSprite[2].Act[2].Dir[1];
-UnitSprite[2].Act[2].Dir[1]:=UnitSprite[2].Act[5].Dir[2];
-
-assignfile(ft,ExeDir+'Units.txt'); rewrite(ft);
-for ii:=1 to 40 do begin
-writeln(ft);
-writeln(ft);
-writeln(ft,'NewUnit'+inttostr(ii));
-for kk:=1 to 14 do
-for hh:=1 to 8 do
-//  if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then
-    begin
-      write(ft,inttostr(kk)+'.'+inttostr(hh)+#9);
-      for jj:=1 to 30 do
-      if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then //write(ft,'#');
-      write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Step[jj])+'. ');
-      write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
-      write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
-      write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
+  if WriteResourceInfoToTXT then begin
+    assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
+    writeln(ft,'Name;x1;Attack;AttackHorseBonus;x4;HitPoints;Speed;x7;Sight;x9;x10;CanWalkOut;0;');
+    for ii:=1 to 40 do begin
+      write(ft,fTextLibrary.GetTextString(siUnitNames+ii)+';');
+      write(ft,inttostr(UnitStat[ii].x1)+';');
+      write(ft,inttostr(UnitStat[ii].Attack)+';');
+      write(ft,inttostr(UnitStat[ii].AttackHorseBonus)+';');
+      write(ft,inttostr(UnitStat[ii].x4)+';');
+      write(ft,inttostr(UnitStat[ii].HitPoints)+'hp;');
+      write(ft,inttostr(UnitStat[ii].Speed)+';');
+      write(ft,inttostr(UnitStat[ii].x7)+';');
+      write(ft,inttostr(UnitStat[ii].Sight)+';');
+      write(ft,inttostr(UnitStat[ii].x9)+';');
+      write(ft,inttostr(UnitStat[ii].x10)+';');
+      write(ft,inttostr(UnitStat[ii].CanWalkOut)+';');
+      write(ft,inttostr(UnitStat[ii].x11)+';');
       writeln(ft);
     end;
-end;
-closefile(ft);
+    closefile(ft);
+
+    //This is a bad idea to fix anything here, but at the time it's the simplest solution
+    //Woodcutter(2) needs to shuffle actions
+    //Split planting from chopping
+    UnitSprite[2].Act[5].Dir[1]:=UnitSprite[2].Act[2].Dir[1];
+    UnitSprite[2].Act[2].Dir[1]:=UnitSprite[2].Act[5].Dir[2];
+
+    assignfile(ft,ExeDir+'Units.txt'); rewrite(ft);
+    for ii:=1 to 40 do begin
+    writeln(ft);
+    writeln(ft);
+    writeln(ft,'NewUnit'+inttostr(ii));
+    for kk:=1 to 14 do
+    for hh:=1 to 8 do
+    //  if UnitSprite[ii].Act[kk].Dir[hh].Step[1]>0 then
+        begin
+          write(ft,inttostr(kk)+'.'+inttostr(hh)+#9);
+          for jj:=1 to 30 do
+          if UnitSprite[ii].Act[kk].Dir[hh].Step[jj]>0 then //write(ft,'#');
+          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Step[jj])+'. ');
+          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].Count)+' ');
+          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveX)+' ');
+          write(ft,inttostr(UnitSprite[ii].Act[kk].Dir[hh].MoveY)+' ');
+          writeln(ft);
+        end;
+    end;
+    closefile(ft);
+  end;
 Result:=true;
 end;
 
@@ -579,8 +584,8 @@ repeat
 until(id=RXData[RXid].Qty);
 
 fLog.AppendLog(inttostr(TexCount)+' Textures created');
-fLog.AppendLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
-fLog.AppendLog(inttostr(Cm div 1024)+' KBytes for team colors'+eol);
+fLog.AddToLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
+fLog.AddToLog(inttostr(Cm div 1024)+' KBytes for team colors');
 end;
 
 //=============================================
@@ -706,35 +711,35 @@ thus it's better to spend few ms and generate minimap colors from actual data}
 procedure MakeMiniMapColors();
 var ii,kk,h,j,px:integer; c:array of byte; R,G,B:integer; f:file;
 begin
-assignfile(f,ExeDir+'Resource\Tiles512.tga');
-FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
+  assignfile(f,ExeDir+'Resource\Tiles512.tga');
+  FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
-setlength(c,512*512*4+1);
-blockread(f,c[1],18);
-blockread(f,c[1],512*512*4);
-closefile(f);
+  setlength(c,512*512*4+1);
+  blockread(f,c[1],18);
+  blockread(f,c[1],512*512*4);
+  closefile(f);
 
-for ii:=0 to 15 do for kk:=0 to 15 do begin
+  for ii:=0 to 15 do for kk:=0 to 15 do begin
 
-  R:=0; G:=0; B:=0;
+    R:=0; G:=0; B:=0;
 
-  for j:=0 to 31 do for h:=0 to 31 do begin
-    px:=((511-(ii*32+j))*512+kk*32+h)*4; //TGA comes flipped upside down
-    inc(B, c[px+1]);
-    inc(G, c[px+2]);
-    inc(R, c[px+3]);
+    for j:=0 to 31 do for h:=0 to 31 do begin
+      px:=((511-(ii*32+j))*512+kk*32+h)*4; //TGA comes flipped upside down
+      inc(B, c[px+1]);
+      inc(G, c[px+2]);
+      inc(R, c[px+3]);
+    end;
+
+    if (kk<8)and(ii<8) then px:=ii*8+kk+1;
+    if (kk>7)and(ii<8) then px:=ii*8+(kk-8)+64+1;
+    if (kk<8)and(ii>7) then px:=(ii-8)*8+kk+128+1;
+    if (kk>7)and(ii>7) then px:=(ii-8)*8+(kk-8)+192+1;
+
+    TileMMColor[px].R:= (R / 1024) / 255; //each tile is 32x32 px
+    TileMMColor[px].G:= (G / 1024) / 255;
+    TileMMColor[px].B:= (B / 1024) / 255;
+
   end;
-
-  if (kk<8)and(ii<8) then px:=ii*8+kk+1;
-  if (kk>7)and(ii<8) then px:=ii*8+(kk-8)+64+1;
-  if (kk<8)and(ii>7) then px:=(ii-8)*8+kk+128+1;
-  if (kk>7)and(ii>7) then px:=(ii-8)*8+(kk-8)+192+1;
-
-  TileMMColor[px].R:= (R / 1024) / 255; //each tile is 32x32 px
-  TileMMColor[px].G:= (G / 1024) / 255;
-  TileMMColor[px].B:= (B / 1024) / 255;
-
-end;
 end;
 
 

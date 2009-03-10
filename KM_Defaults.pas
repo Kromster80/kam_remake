@@ -25,6 +25,7 @@ var
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
+  WriteResourceInfoToTXT:boolean=false;  //Whenever to write txt files with defines data properties 
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
   TERRAIN_FOG_OF_WAR_ENABLE:boolean=true;//Whenever fog of war is enabled or not
 
@@ -648,6 +649,7 @@ type
     logfile:string;
     PreviousTick:cardinal;
     procedure AddLine(text:string);
+    procedure AddLineNoTime(text:string);
   public
     constructor Create(path:string);
     procedure AppendLog(text:string); overload;
@@ -655,6 +657,7 @@ type
     procedure AppendLog(num:integer; text:string); overload;
     procedure AppendLog(text:string; Res:boolean); overload;
     procedure AppendLog(a,b:integer); overload;
+    procedure AddToLog(text:string);
   end;
 
 var
@@ -691,6 +694,15 @@ begin
   closefile(fl);
 end;
 
+{Same line but without timestamp}
+procedure TKMLog.AddLineNoTime(text:string);
+begin
+  assignfile(fl,logfile);
+  append(fl);
+  writeln(fl,#9+text);
+  closefile(fl);
+end;
+
 procedure TKMLog.AppendLog(text:string);
 begin
   AddLine(text);
@@ -716,6 +728,11 @@ end;
 procedure TKMLog.AppendLog(a,b:integer);
 begin
   AddLine(inttostr(a)+' : '+inttostr(b));
+end;
+
+procedure TKMLog.AddToLog(text:string);
+begin
+  AddLineNoTime(text);
 end;
 
 
