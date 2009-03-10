@@ -148,13 +148,13 @@ begin
   fGame:=TKMGame.Create(ExeDir,Form1.Panel5.Handle);
 
   Application.OnIdle:=Form1.OnIdle;
-  Form1.Caption:='KaM Remake - '+'New.map';
 
   fLog.AppendLog('Form1 create is done');
 
   FormLoading.Hide;
 
   Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
+  Form1.Caption:='KaM Remake - '+'New.map';
   Form1.WindowState:=wsMaximized;
   Form1.FormResize(nil);
 end;

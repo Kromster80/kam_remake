@@ -6,7 +6,7 @@ type
   TByteArray2 = array of Byte;
   TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest);
 
-    function ReadGFX(text: string):boolean;
+    function ReadGFX(text: string; LoadEssence:boolean):boolean;
 
       function ReadPallete(filename:string; PalID:byte):boolean;
       function ReadMapElem(filename:string):boolean;
@@ -30,39 +30,54 @@ implementation
 
 uses KromUtils, KM_Unit1, KM_Render, KM_Game;
 
-function ReadGFX(text: string):boolean;
-var i:integer; procedure StepRefresh(); begin FormLoading.Bar1.StepIt; FormLoading.Refresh; end;
+function ReadGFX(text: string; LoadEssence:boolean):boolean;
+var i,RX1,RX2:integer; procedure StepRefresh(); begin FormLoading.Bar1.StepIt; FormLoading.Refresh; end;
 begin
   Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
-  FormLoading.Label1.Caption:='Reading palettes ...';
-  fLog.AppendLog('Reading map.bbm',ReadPallete(text+'data\gfx\map.bbm',pal_map));       StepRefresh();
-  fLog.AppendLog('Reading pal0.bbm',ReadPallete(text+'data\gfx\pal0.bbm',pal_0));       StepRefresh();
-  fLog.AppendLog('Reading pal1.bbm',ReadPallete(text+'data\gfx\pal1.bbm',pal_1));       StepRefresh();
-  fLog.AppendLog('Reading pal2.bbm',ReadPallete(text+'data\gfx\pal2.bbm',pal_2));       StepRefresh();
-  fLog.AppendLog('Reading pal3.bbm',ReadPallete(text+'data\gfx\pal3.bbm',pal_3));       StepRefresh();
-  fLog.AppendLog('Reading pal4.bbm',ReadPallete(text+'data\gfx\pal4.bbm',pal_4));       StepRefresh();
-  fLog.AppendLog('Reading pal5.bbm',ReadPallete(text+'data\gfx\pal5.bbm',pal_5));       StepRefresh();
-  fLog.AppendLog('Reading Setup.bbm',ReadPallete(text+'data\gfx\setup.bbm',pal_set));   StepRefresh();
-  fLog.AppendLog('Reading Setup2.bbm',ReadPallete(text+'data\gfx\setup2.bbm',pal_set2));StepRefresh();
-  fLog.AppendLog('Makign lenear pal',ReadPallete(text+'data\gfx\map.bbm',pal_lin));     StepRefresh();
-  fLog.AppendLog('Reading MapGold.lbm',ReadPallete(text+'data\gfx\mapgold.lbm',pal2_mapgold));StepRefresh();
-  fLog.AppendLog('Reading setup.lbm',ReadPallete(text+'data\gfx\setup.lbm',pal2_setup));StepRefresh();
-  fLog.AppendLog('Reading pal1.lbm',ReadPallete(text+'data\gfx\pal1.lbm',pal2_1));       StepRefresh();
+  if LoadEssence then begin
+    fLog.AppendLog('Reading palettes ...');
+    FormLoading.Label1.Caption:='Reading palettes ...';
+    ReadPallete(text+'data\gfx\map.bbm',pal_map);
+    ReadPallete(text+'data\gfx\pal0.bbm',pal_0);
+    ReadPallete(text+'data\gfx\pal1.bbm',pal_1);
+    ReadPallete(text+'data\gfx\pal2.bbm',pal_2);
+    ReadPallete(text+'data\gfx\pal3.bbm',pal_3);
+    ReadPallete(text+'data\gfx\pal4.bbm',pal_4);
+    ReadPallete(text+'data\gfx\pal5.bbm',pal_5);
+    ReadPallete(text+'data\gfx\setup.bbm',pal_set);
+    ReadPallete(text+'data\gfx\setup2.bbm',pal_set2);
+    ReadPallete(text+'data\gfx\map.bbm',pal_lin);
+    ReadPallete(text+'data\gfx\mapgold.lbm',pal2_mapgold);
+    ReadPallete(text+'data\gfx\setup.lbm',pal2_setup);
+    ReadPallete(text+'data\gfx\pal1.lbm',pal2_1);
+    fLog.AppendLog('Reading palettes',true);
+    StepRefresh();
+  end;
 
-  FormLoading.Label1.Caption:='Reading defines ...';
-  fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
-  fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
-  fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
+  if not LoadEssence then begin
+    FormLoading.Label1.Caption:='Reading defines ...';
+    fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
+    fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
+    fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
+  end;
 
-  RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
-  RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
-  RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
-  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
-  RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
+  if LoadEssence then begin
+    RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
+    RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
+    RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
+    RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
+    RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
+  end;
 
-  for i:=1 to 5 do
+  if LoadEssence then begin
+    RX1:=4; RX2:=5;
+  end else begin
+    RX1:=1; RX2:=3;
+  end;
+
+  for i:=RX1 to RX2 do
   if (i in [4,5])or(MakeGameSprites) then begin //Always make GUI
     FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
@@ -72,19 +87,24 @@ begin
     StepRefresh();
   end;
 
-  FormLoading.Label1.Caption:='Making minimap colors ...';
-  MakeMiniMapColors();
-  fLog.AppendLog('Prepared MiniMap colors...');
-  StepRefresh();
+  if not LoadEssence then begin
+    FormLoading.Label1.Caption:='Making minimap colors ...';
+    MakeMiniMapColors();
+    fLog.AppendLog('Prepared MiniMap colors...');
+    StepRefresh();
+  end;
 
-  FormLoading.Label1.Caption:='Reading fonts ...';
-  for i:=1 to length(FontFiles) do
-    ReadFont(text+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
-  fLog.AppendLog('Read fonts is done');
-  StepRefresh();
+  if LoadEssence then begin
+    FormLoading.Label1.Caption:='Reading fonts ...';
+    for i:=1 to length(FontFiles) do
+      ReadFont(text+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
+    fLog.AppendLog('Read fonts is done');
+    StepRefresh();
+  end;
 
   fLog.AppendLog('ReadGFX is done');
   Result:=true;
+  //Form1.Close;
 end;
 
 
@@ -92,7 +112,7 @@ end;
 //Reading pallete for trees/objects
 //=============================================
 function ReadPallete(filename:string; PalID:byte):boolean;
-var f:file; i:byte;
+var f:file; i:integer;
 begin
 Result:=false;
 if not CheckFileExists(filename) then exit;

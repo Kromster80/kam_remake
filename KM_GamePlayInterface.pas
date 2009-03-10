@@ -13,6 +13,9 @@ type TKMMainMenuInterface = class
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage; //Credits background
       KMButton_CreditsBack:TKMButton;
+    KMPanel_Loading:TKMPanel;
+      KMImage_LoadingBG:TKMImage;
+      KMLabel_Loading:TKMLabel;
   private
     procedure SwitchMenuPage(Sender: TObject);
     procedure Play_Tutorial(Sender: TObject);
@@ -20,8 +23,11 @@ type TKMMainMenuInterface = class
     MyControls: TKMControlsCollection;
     constructor Create;
     procedure SetScreenSize(X,Y:word);
+    procedure ShowLoadingScreen();
+    procedure ShowMainScreen();
     procedure Create_MainMenu_Page;
     procedure Create_MainCredit_Page;
+    procedure Create_Loading_Page;
 end;
 
 type TKMGamePlayInterface = class
@@ -175,6 +181,7 @@ inherited;
 
   Create_MainMenu_Page;
   Create_MainCredit_Page;
+  Create_Loading_Page;
 
   SwitchMenuPage(nil);
 end;
@@ -184,6 +191,16 @@ procedure TKMMainMenuInterface.SetScreenSize(X,Y:word);
 begin
   ScreenX:=X;
   ScreenY:=Y;
+end;
+
+procedure TKMMainMenuInterface.ShowLoadingScreen();
+begin
+  SwitchMenuPage(KMPanel_Loading);
+end;
+
+procedure TKMMainMenuInterface.ShowMainScreen();
+begin
+  SwitchMenuPage(nil);
 end;
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
@@ -217,6 +234,14 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Create_Loading_Page;
+begin
+  KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
+    KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,1024,768,2,5);
+    KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,600,434,100,30,fnt_Grey,kaCenter,'Loading... Please wait');
+end;
+
+
 procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
 var i:integer;
 begin
@@ -232,6 +257,9 @@ begin
 
   if Sender=KMButton_MainMenuCredit then
     KMPanel_Credits.Show;
+
+  if Sender=KMPanel_Loading then
+    KMPanel_Loading.Show;
 end;
 
 

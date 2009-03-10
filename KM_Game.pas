@@ -4,12 +4,15 @@ uses Windows, Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Users, KM_Render, KM_LoadLib, KM_GamePlayInterface, KM_ReadGFX1, KM_Terrain, KM_LoadDAT,
   KM_LoadSFX, KM_Viewport, KM_Units, KM_Settings;
 
+type TDataLoadingState = (dls_None, dls_Essence, dls_All);
+
 type
   TKMGame = class
   public
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameIsRunning:boolean;
+    DataState:TDataLoadingState;
   public
     constructor Create(ExeDir:string; RenderHandle:HWND);
     destructor Destroy; override;
@@ -34,11 +37,17 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND);
 begin
+  DataState:=dls_None;
   fRender:= TRender.Create(RenderHandle);
+  fLog.AppendLog('Render init',true);
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
-  ReadGFX(ExeDir); //Should load only GUI part of it
+  fLog.AppendLog('TextLib init',true);
+  ReadGFX(ExeDir, true); //Should load only GUI part of it
+  DataState:=dls_Essence;
   fSoundLib:= TSoundLib.Create; //Needed for button click sounds and etc?
+  fLog.AppendLog('SoundLib init',true);
   fMainMenuInterface:= TKMMainMenuInterface.Create;
+  fLog.AppendLog('fMainMenuInterface init',true);
   GameSpeed:=1;
   GameIsRunning:=false;
 end;
@@ -187,6 +196,14 @@ end;
 
 procedure TKMGame.StartGame;
 begin
+  fMainMenuInterface.ShowLoadingScreen;
+  fRender.Render;
+
+  if DataState<>dls_All then begin
+    ReadGFX(ExeDir, false); //Should load the rest part of data
+    DataState:=dls_All;
+  end;
+
   fViewport:=TViewport.Create;
   fGameSettings:= TGameSettings.Create;
   fGamePlayInterface:= TKMGamePlayInterface.Create;
@@ -219,6 +236,8 @@ begin
   FreeAndNil(fGameSettings);
   FreeAndNil(fViewport);
   fLog.AppendLog('Gameplay free',true);
+
+  fMainMenuInterface.ShowMainScreen;//Should be mission results screen
 end;
 
 procedure TKMGame.UpdateState;

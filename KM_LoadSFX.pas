@@ -30,7 +30,7 @@ type
       Data: array of char;
       Foot: array of char;
     end;
-    Props: array[1..MaxWaves] of record
+    Props: array[1..MaxWaves] of packed record
       SampleRate,Volume,a,b:integer;
       i,j,k,l,Index:word;
     end;
@@ -81,7 +81,7 @@ var
   Tab1:array[1..200]of integer;
   Tab2:array[1..200]of smallint;
   i,Tmp:integer;
-  c: array[1..100000] of char;
+  c: array[1..20] of char;
 begin
   if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then exit;
   AssignFile(f, ExeDir+'data\sfx\sounds.dat'); Reset(f,1);
@@ -102,8 +102,7 @@ begin
   end;
 
   BlockRead(f,c,20);
-  for i:=1 to Head.Count do
-    BlockRead(f,Props[i],26);
+  BlockRead(f,Props[1],26*Head.Count);
 
   CloseFile(f);
 end;
