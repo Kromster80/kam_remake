@@ -46,6 +46,10 @@ begin
   fLog.AppendLog('Reading pal5.bbm',ReadPallete(text+'data\gfx\pal5.bbm',pal_5));       StepRefresh();
   fLog.AppendLog('Reading Setup.bbm',ReadPallete(text+'data\gfx\setup.bbm',pal_set));   StepRefresh();
   fLog.AppendLog('Reading Setup2.bbm',ReadPallete(text+'data\gfx\setup2.bbm',pal_set2));StepRefresh();
+  fLog.AppendLog('Makign lenear pal',ReadPallete(text+'data\gfx\map.bbm',pal_lin));     StepRefresh();
+  fLog.AppendLog('Reading MapGold.lbm',ReadPallete(text+'data\gfx\mapgold.lbm',pal2_mapgold));StepRefresh();
+  fLog.AppendLog('Reading setup.lbm',ReadPallete(text+'data\gfx\setup.lbm',pal2_setup));StepRefresh();
+  fLog.AppendLog('Reading pal1.lbm',ReadPallete(text+'data\gfx\pal1.lbm',pal2_1));       StepRefresh();
 
   FormLoading.Label1.Caption:='Reading defines ...';
   fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
@@ -59,7 +63,7 @@ begin
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
 
   for i:=1 to 5 do
-  if (i=4)or(MakeGameSprites) then begin //Always make GUI
+  if (i in [4,5])or(MakeGameSprites) then begin //Always make GUI
     FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
     if i=4 then MakeCursors(4); //Make GUI items
@@ -98,11 +102,11 @@ if not CheckFileExists(filename) then exit;
   blockread(f,Pal[PalID],768); //256*3
   closefile(f);
 
-  if PalID=1 then //Make greyscale linear Pal
+  if PalID=pal_lin then //Make greyscale linear Pal
     for i:=0 to 255 do begin
-      Pal[10,i+1,1]:=i;
-      Pal[10,i+1,2]:=i;
-      Pal[10,i+1,3]:=i;
+      Pal[pal_lin,i+1,1]:=i;
+      Pal[pal_lin,i+1,2]:=i;
+      Pal[pal_lin,i+1,3]:=i;
     end;
 
 Result:=true;
@@ -491,6 +495,7 @@ repeat
         (WidthPOT+RXData[RXid].Size[id+ad,1]<=MaxTexRes)) do begin
     inc(WidthPOT,RXData[RXid].Size[id+ad,1]);
     inc(ad);
+    if RXid=5 then break; //Don't align RX5 images for they use all different palettes
   end;
 
   WidthPOT:=MakePOT(WidthPOT);
@@ -512,7 +517,13 @@ repeat
   if MakeTeamColors and RXData[RXid].NeedTeamColors then
     GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_TexID)
   else
-    GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol);
+    if RXid=5 then begin
+      if RX5Pal[id]<>0 then
+        GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[id])
+      else
+        GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10);
+    end else
+      GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol);
 
   //TeamColors are done through alternative plain colored texture
   if MakeTeamColors and RXData[RXid].NeedTeamColors then
@@ -560,6 +571,7 @@ procedure ExportRX2BMP(RXid:integer);
 var MyBitMap:TBitMap;
     id,t:integer;
     sy,sx,y,x:integer;
+    UsePal:integer;
 begin
   CreateDir(ExeDir+RXData[RXid].Title+'rx\');
   MyBitMap:=TBitMap.Create;
@@ -574,9 +586,13 @@ begin
     MyBitmap.Width:=sx;
     MyBitmap.Height:=sy;
 
+    UsePal:=DEF_PAL;
+    if RXid=5 then UsePal:=RX5Pal[id];
+    if UsePal=0 then UsePal:=10;
+
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[RXid].Data[id,y*sx+x]+1;
-      MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+      MyBitmap.Canvas.Pixels[x,y]:=Pal[UsePal,t,1]+Pal[UsePal,t,2]*256+Pal[UsePal,t,3]*65536;
     end;
     if sy>0 then MyBitmap.SaveToFile(ExeDir+RXData[RXid].Title+'rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
 

@@ -193,17 +193,17 @@ begin
     KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,400,100,0,0,4,5);
     KMImage_MainMenu2:=MyControls.AddImage(KMPanel_MainMenu,200,400,0,0,5,5);
     KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,600,400,0,0,6,5);
-    KMButton_MainMenuTutor :=MyControls.AddButton(KMPanel_MainMenu,100,400,224,30,fTextLibrary.GetSetupString(3),fnt_Metal);
+    KMButton_MainMenuTutor :=MyControls.AddButton(KMPanel_MainMenu,100,400,350,30,fTextLibrary.GetSetupString(3),fnt_Metal);
     KMButton_MainMenuTutor.OnClick:=Play_Tutorial;
-    KMButton_MainMenuTSK   :=MyControls.AddButton(KMPanel_MainMenu,100,440,224,30,fTextLibrary.GetSetupString(1),fnt_Metal);
+    KMButton_MainMenuTSK   :=MyControls.AddButton(KMPanel_MainMenu,100,440,350,30,fTextLibrary.GetSetupString(1),fnt_Metal);
     KMButton_MainMenuTSK.Disable;
-    KMButton_MainMenuTPR   :=MyControls.AddButton(KMPanel_MainMenu,100,480,224,30,fTextLibrary.GetSetupString(2),fnt_Metal);
+    KMButton_MainMenuTPR   :=MyControls.AddButton(KMPanel_MainMenu,100,480,350,30,fTextLibrary.GetSetupString(2),fnt_Metal);
     KMButton_MainMenuTPR.Disable;
-    KMButton_MainMenuSingle:=MyControls.AddButton(KMPanel_MainMenu,100,520,224,30,fTextLibrary.GetSetupString(4),fnt_Metal);
+    KMButton_MainMenuSingle:=MyControls.AddButton(KMPanel_MainMenu,100,520,350,30,fTextLibrary.GetSetupString(4),fnt_Metal);
     KMButton_MainMenuSingle.Disable;
-    KMButton_MainMenuCredit:=MyControls.AddButton(KMPanel_MainMenu,100,560,224,30,fTextLibrary.GetSetupString(13),fnt_Metal);
+    KMButton_MainMenuCredit:=MyControls.AddButton(KMPanel_MainMenu,100,560,350,30,fTextLibrary.GetSetupString(13),fnt_Metal);
     KMButton_MainMenuCredit.OnClick:=SwitchMenuPage;
-    KMButton_MainMenuQuit  :=MyControls.AddButton(KMPanel_MainMenu,100,640,224,30,fTextLibrary.GetSetupString(14),fnt_Metal);
+    KMButton_MainMenuQuit  :=MyControls.AddButton(KMPanel_MainMenu,100,640,350,30,fTextLibrary.GetSetupString(14),fnt_Metal);
     KMButton_MainMenuQuit.OnClick:=Form1.Exit1.OnClick;
 end;
 

@@ -21,7 +21,7 @@ const
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
 
 var
-  MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeGameSprites:boolean=false;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
@@ -65,6 +65,14 @@ type
 {Palettes}
 const
  pal_map=1; pal_0=2; pal_1=3; pal_2=4; pal_3=5; pal_4=6; pal_5=7; pal_set=8; pal_set2=9; pal_lin=10;
+ pal2_mapgold=11; pal2_setup=12; pal2_1=13;
+
+ //I couldn't find matching palettes for several entries, so I marked them 0 
+ RX5Pal:array[1..40]of byte = (
+ 12,12,12,12,12,12,9,0,0,1,
+ 1,1,1,1,1,1,12,12,12,13,
+ 0,0,0,0,12,1,1,1,1,1,
+ 12,12,12,12,12,12,12,12,12,12);
 
 {Fonts}
 type //Indexing should start from 1.
@@ -521,7 +529,9 @@ var
 
   //Pallete for RX bitmaps
   //There are 9 palette files Map, Pal0-5, Setup and Setup2
-  Pal:array[1..10,1..256,1..3]of byte;
+  //+1 linear
+  //+2lbm
+  Pal:array[1..13,1..256,1..3]of byte;
 
   RXData:array [1..5]of record
     Title:string;
