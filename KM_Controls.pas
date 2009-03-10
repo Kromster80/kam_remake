@@ -37,7 +37,10 @@ TKMControl = class
     procedure HintCheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
     procedure Paint(); virtual;
   public
+    procedure Enable;
     procedure Disable;
+    procedure Show;
+    procedure Hide;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
@@ -280,11 +283,11 @@ begin
 end;
 
 
-{Quick disable}
-procedure TKMControl.Disable;
-begin
-  Enabled:=false;
-end;
+{Shortcuts to commands}
+procedure TKMControl.Enable;  begin Enabled:=true;  end;
+procedure TKMControl.Disable; begin Enabled:=false; end;
+procedure TKMControl.Show;    begin Visible:=true;  end;
+procedure TKMControl.Hide;    begin Visible:=false; end;
 
 
 constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);

@@ -220,18 +220,18 @@ begin
   //First thing - hide all existing pages
   for i:=1 to KMPanel_Main1.ChildCount do
     if KMPanel_Main1.Childs[i] is TKMPanel then
-      KMPanel_Main1.Childs[i].Visible:=false;
+      KMPanel_Main1.Childs[i].Hide;
 
-  if Sender=nil then KMPanel_MainMenu.Visible:=true;
-  if Sender=KMButton_CreditsBack then KMPanel_MainMenu.Visible:=true;
-  if Sender=KMButton_MainMenuCredit then KMPanel_Credits.Visible:=true;
+  if Sender=nil then KMPanel_MainMenu.Show;
+  if Sender=KMButton_CreditsBack then KMPanel_MainMenu.Show;
+  if Sender=KMButton_MainMenuCredit then KMPanel_Credits.Show;
 end;
 
 
 procedure TKMMainMenuInterface.Play_Tutorial(Sender: TObject);
 begin
   Assert(Sender=KMButton_MainMenuTutor);
-  KMPanel_Main1.Visible:=false;
+  KMPanel_Main1.Hide;
 
   fViewport:= TViewport.Create;
   fGameSettings:= TGameSettings.Create;
@@ -258,17 +258,17 @@ var i:integer; LastVisiblePage: TKMPanel;
   var i:integer;
   begin
     for i:=1 to 4 do
-      KMButtonMain[i].Visible:=false;
-    KMButtonMain[5].Visible:=true;
-    KMLabel_MenuTitle.Visible:=true;
+      KMButtonMain[i].Hide;
+    KMButtonMain[5].Show;
+    KMLabel_MenuTitle.Show;
   end;  
   procedure Show4MainButtons();
   var i:integer;
   begin
     for i:=1 to 4 do
-      KMButtonMain[i].Visible:=true;
-    KMButtonMain[5].Visible:=false;
-    KMLabel_MenuTitle.Visible:=false;
+      KMButtonMain[i].Show;
+    KMButtonMain[5].Hide;
+    KMLabel_MenuTitle.Hide;
   end;
 begin
 
@@ -292,28 +292,28 @@ if KMPanel_Load.Visible = true then
 //First thing - hide all existing pages
   for i:=1 to KMPanel_Main.ChildCount do
     if KMPanel_Main.Childs[i] is TKMPanel then
-      KMPanel_Main.Childs[i].Visible:=false;
+      KMPanel_Main.Childs[i].Hide;
 //First thing - hide all existing pages
   for i:=1 to KMPanel_House.ChildCount do
     if KMPanel_House.Childs[i] is TKMPanel then
-      KMPanel_House.Childs[i].Visible:=false;
+      KMPanel_House.Childs[i].Hide;
 
 //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
 if Sender=KMButtonMain[1] then begin
   Build_Fill(nil);
-  KMPanel_Build.Visible:=true;
+  KMPanel_Build.Show;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(166);
   SelectRoad;
 end else
 if Sender=KMButtonMain[2] then begin
-  KMPanel_Ratios.Visible:=true;
+  KMPanel_Ratios.Show;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(167);
 end else
 if Sender=KMButtonMain[3] then begin
   Stats_Fill(nil);
-  KMPanel_Stats.Visible:=true;
+  KMPanel_Stats.Show;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
 end else
@@ -321,53 +321,53 @@ if ((Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No) or
    ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings)) or
    ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Load)) or
    ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Save))) then begin
-  KMPanel_Menu.Visible:=true;
+  KMPanel_Menu.Show;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
 end else
 if Sender=KMButton_Menu_Save then begin
-  KMPanel_Save.Visible:=true;
+  KMPanel_Save.Show;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
 end else
 if Sender=KMButton_Menu_Load then begin
-  KMPanel_Load.Visible:=true;
+  KMPanel_Load.Show;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(172);
 end else
 if Sender=KMButton_Menu_Settings then begin
-  KMPanel_Settings.Visible:=true;
+  KMPanel_Settings.Show;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
 end else
 if Sender=KMButton_Menu_Quit then begin
-  KMPanel_Quit.Visible:=true;
+  KMPanel_Quit.Show;
   Hide4MainButtons;
 end else //If Sender is anything else - then show all 4 buttons and hide Return button
   Show4MainButtons;
 
 //Now process all other kinds of pages
 if Sender=KMPanel_Unit then begin
-  TKMPanel(Sender).Visible:=true;
+  TKMPanel(Sender).Show;
 end else
 if Sender=KMPanel_House then begin
-  TKMPanel(Sender).Visible:=true;
+  TKMPanel(Sender).Show;
 end;
 if Sender=KMPanel_House_Common then begin
-  TKMPanel(Sender).Parent.Visible:=true;
-  TKMPanel(Sender).Visible:=true;
+  TKMPanel(Sender).Parent.Show;
+  TKMPanel(Sender).Show;
 end else
 if Sender=KMPanel_House_School then begin
-  TKMPanel(Sender).Parent.Visible:=true;
-  TKMPanel(Sender).Visible:=true;
+  TKMPanel(Sender).Parent.Show;
+  TKMPanel(Sender).Show;
 end else
 if Sender=KMPanel_HouseBarracks then begin
-  TKMPanel(Sender).Parent.Visible:=true;
-  TKMPanel(Sender).Visible:=true;
+  TKMPanel(Sender).Parent.Show;
+  TKMPanel(Sender).Show;
 end else
 if Sender=KMPanel_HouseStore then begin
-  TKMPanel(Sender).Parent.Visible:=true;
-  TKMPanel(Sender).Visible:=true;
+  TKMPanel(Sender).Parent.Show;
+  TKMPanel(Sender).Show;
 end;
 
 end;
@@ -581,7 +581,7 @@ begin
     for i:=1 to SAVEGAME_COUNT do begin
       KMButton_Save[i]:=MyControls.AddButton(KMPanel_Save,12,10+(i-1)*26,170,24,'Savegame #'+inttostr(i),fnt_Grey);
       //KMButton_Save[i].OnClick:=SaveGame;
-      KMButton_Save[i].Enabled:=false;
+      KMButton_Save[i].Disable;
     end;
 end;
 
@@ -594,7 +594,7 @@ begin
     for i:=1 to SAVEGAME_COUNT do begin
       KMButton_Load[i]:=MyControls.AddButton(KMPanel_Load,12,10+(i-1)*26,170,24,'Savegame #'+inttostr(i),fnt_Grey);
       //KMButton_Load[i].OnClick:=LoadGame;
-      KMButton_Load[i].Enabled:=false;
+      KMButton_Load[i].Disable;
     end;
 end;
 
@@ -611,12 +611,12 @@ begin
     KMButton_Settings_Light.Hint:=fTextLibrary.GetTextString(184);
     KMLabel_Settings_BrightValue:=MyControls.AddLabel(KMPanel_Settings,100,34,100,30,fnt_Grey,kaCenter,'');
     KMLabel_Settings_Autosave:=MyControls.AddLabel(KMPanel_Settings,8,70,100,30,fnt_Metal,kaLeft,'');
-    KMLabel_Settings_Autosave.Enabled:=false;
+    KMLabel_Settings_Autosave.Disable;
     KMLabel_Settings_FastScroll:=MyControls.AddLabel(KMPanel_Settings,8,95,100,30,fnt_Metal,kaLeft,'');
     KMLabel_Settings_MouseSpeed:=MyControls.AddLabel(KMPanel_Settings,24,130,100,30,fnt_Metal,kaLeft,fTextLibrary.GetTextString(192));
-    KMLabel_Settings_MouseSpeed.Enabled:=false;
+    KMLabel_Settings_MouseSpeed.Disable;
     KMRatio_Settings_Mouse:=MyControls.AddRatioRow(KMPanel_Settings,18,150,160,20);
-    KMRatio_Settings_Mouse.Enabled:=false;
+    KMRatio_Settings_Mouse.Disable;
     KMRatio_Settings_Mouse.MaxValue:=fGameSettings.GetSlidersMax;
     KMRatio_Settings_Mouse.MinValue:=fGameSettings.GetSlidersMin;
     KMRatio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
@@ -626,9 +626,9 @@ begin
     KMRatio_Settings_SFX.MinValue:=fGameSettings.GetSlidersMin;
     KMRatio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
     KMLabel_Settings_Music:=MyControls.AddLabel(KMPanel_Settings,24,226,100,30,fnt_Metal,kaLeft,fTextLibrary.GetTextString(196));
-    KMLabel_Settings_Music.Enabled:=false;
+    KMLabel_Settings_Music.Disable;
     KMRatio_Settings_Music:=MyControls.AddRatioRow(KMPanel_Settings,18,246,160,20);
-    KMRatio_Settings_Music.Enabled:=false;
+    KMRatio_Settings_Music.Disable;
     KMRatio_Settings_Music.MaxValue:=fGameSettings.GetSlidersMax;
     KMRatio_Settings_Music.MinValue:=fGameSettings.GetSlidersMin;
     KMRatio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
@@ -684,7 +684,7 @@ begin
     KMButton_House_Goods.Hint := fTextLibrary.GetTextString(249);
     KMButton_House_Repair:=MyControls.AddButton(KMPanel_House,39,42,30,30,40);
     KMButton_House_Repair.OnClick := fGamePlayInterface.House_RepairToggle;
-    KMButton_House_Repair.Enabled:=false;
+    KMButton_House_Repair.Disable;
     KMButton_House_Repair.Hint := fTextLibrary.GetTextString(250);
     KMImage_House_Logo:=MyControls.AddImage(KMPanel_House,68,41,32,32,338);
     KMImage_House_Worker:=MyControls.AddImage(KMPanel_House,98,41,32,32,141);
@@ -901,7 +901,7 @@ begin
   KMImage_House_Worker.Hint := TypeToString(TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1));
   KMImage_House_Worker.Visible := TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1) <> ut_None;
   if (HouseInput[byte(Sender.GetHouseType)][1] in [rt_None,rt_All,rt_Warfare]) then
-    KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enabled:=true;
+    KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enable;
   if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40;
   if Sender.WareDelivery then KMButton_House_Goods.TexID:=37 else KMButton_House_Goods.TexID:=38;
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(HouseDAT[byte(Sender.GetHouseType)].MaxHealth);
@@ -930,20 +930,20 @@ begin
 
         //First thing - hide everything
         for i:=1 to KMPanel_House_Common.ChildCount do
-          KMPanel_House_Common.Childs[i].Visible:=false;
+          KMPanel_House_Common.Childs[i].Hide;
 
         //Now show only what we need
         RowRes:=1; Line:=0; Base:=KMPanel_House_Common.Top+2;
         //Show Demand
         if HouseInput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
-          KMLabel_Common_Demand.Visible:=true;
+          KMLabel_Common_Demand.Show;
           KMLabel_Common_Demand.Top:=Base+Line*LineAdv+6;
           inc(Line);
           for i:=1 to 4 do if HouseInput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
             KMRow_Common_Resource[RowRes].Resource:=HouseInput[byte(Sender.GetHouseType),i];
             KMRow_Common_Resource[RowRes].Hint:=TypeToString(HouseInput[byte(Sender.GetHouseType),i]);
             KMRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResIn(HouseInput[byte(Sender.GetHouseType),i]);
-            KMRow_Common_Resource[RowRes].Visible:=true;
+            KMRow_Common_Resource[RowRes].Show;
             KMRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
             inc(Line);
             inc(RowRes);
@@ -952,7 +952,7 @@ begin
         //Show Output
         if not HousePlaceOrders[byte(Sender.GetHouseType)] then
         if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
-          KMLabel_Common_Offer.Visible:=true;
+          KMLabel_Common_Offer.Show;
           KMLabel_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
           KMLabel_Common_Offer.Top:=Base+Line*LineAdv+6;
           inc(Line);
@@ -960,7 +960,7 @@ begin
           if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
             KMRow_Common_Resource[RowRes].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
             KMRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
-            KMRow_Common_Resource[RowRes].Visible:=true;
+            KMRow_Common_Resource[RowRes].Show;
             KMRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
             KMRow_Common_Resource[RowRes].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
             inc(Line);
@@ -969,7 +969,7 @@ begin
         end;
         //Show Orders
         if HousePlaceOrders[byte(Sender.GetHouseType)] then begin
-          KMLabel_Common_Offer.Visible:=true;
+          KMLabel_Common_Offer.Show;
           KMLabel_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
           KMLabel_Common_Offer.Top:=Base+Line*LineAdv+6;
           inc(Line);
@@ -978,20 +978,20 @@ begin
             KMRow_Order[i].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
             KMRow_Order[i].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
             KMRow_Order[i].OrderCount:=Sender.CheckResOrder(i);
-            KMRow_Order[i].Visible:=true;
-            KMRow_Order[i].OrderAdd.Visible:=true;
-            KMRow_Order[i].OrderRem.Visible:=true;
+            KMRow_Order[i].Show;
+            KMRow_Order[i].OrderAdd.Show;
+            KMRow_Order[i].OrderRem.Show;
             KMRow_Order[i].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
             KMRow_Order[i].Top:=Base+Line*LineAdv;
             inc(Line);
           end;
-          KMLabel_Common_Costs.Visible:=true;
+          KMLabel_Common_Costs.Show;
           KMLabel_Common_Costs.Top:=Base+Line*LineAdv+6;
           inc(Line);
           for i:=1 to 4 do //Costs
           if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
             KMRow_Costs[i].CostID:=byte(HouseOutput[byte(Sender.GetHouseType),i]);
-            KMRow_Costs[i].Visible:=true;
+            KMRow_Costs[i].Show;
             KMRow_Costs[i].Top:=Base+Line*LineAdv;
             inc(Line);
           end;
@@ -1175,8 +1175,8 @@ end;
 {Quit the mission and return to main menu}
 procedure TKMGamePlayInterface.QuitMission(Sender:TObject);
 begin
-  KMPanel_Main.Visible:=false;
-  fMainMenuInterface.KMPanel_Main1.Visible:=true;
+  KMPanel_Main.Hide;
+  fMainMenuInterface.KMPanel_Main1.Show;
 
   FreeAndNil(fPlayers);
   FreeAndNil(fTerrain);
@@ -1203,7 +1203,7 @@ var i:integer;
 begin
   for i:=1 to HOUSE_COUNT do
   if MyPlayer.GetCanBuild(THouseType(GUIBuildIcons[i]-300)) then begin
-    KMButton_Build[i].Enabled:=true;
+    KMButton_Build[i].Enable;
     KMButton_Build[i].TexID:=GUIBuildIcons[i];
     KMButton_Build[i].OnClick:=BuildButtonClick;      
     KMButton_Build[i].Hint:=TypeToString(THouseType(GUIBuildIcons[i]-300));
