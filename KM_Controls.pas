@@ -66,9 +66,10 @@ end;
 {Image}
 TKMImage = class(TKMControl)
   public
+    RXid: integer; //RX library
     TexID: integer;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
 end;
 
@@ -87,12 +88,13 @@ end;
 TKMButton = class(TKMControl)
   public
     Down:boolean; //Only 3DButton can be pressed down, I rename it according to Delphi VCL Controls rules, ok?
+    RXid: integer; //RX library
     TexID: integer;
     Font: TKMFont;
     TextAlign: KAlign;
     Caption: string;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
@@ -102,6 +104,7 @@ end;
 {FlatButton}
 TKMButtonFlat = class(TKMControl)
   public
+    RXid: integer; //RX library
     TexID: integer;
     TexOffsetX:shortint;
     Caption: string;
@@ -110,7 +113,7 @@ TKMButtonFlat = class(TKMControl)
     Down:boolean;
     HideHighlight:boolean;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
 end;
 
@@ -196,11 +199,11 @@ TKMControlsCollection = class(TKMList)
   public
     constructor Create;
     function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; const aColor:TColor4=$FFFFFFFF):TKMLabel;
-    function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
+    function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
     function AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
-    function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton; overload;
+    function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButton; overload;
     function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
-    function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
+    function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
     function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
@@ -306,7 +309,7 @@ end;
 
 
 { TKMButton }
-constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   TexID:=aTexID;
@@ -342,7 +345,7 @@ begin
   if CursorOver and Enabled then State:=State+[bs_Highlight];
   if Down then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
-  fRenderUI.Write3DButton(TexID,Left,Top,Width,Height,State);
+  fRenderUI.Write3DButton(4,TexID,Left,Top,Width,Height,State);
   if TexID=0 then
     if Enabled then //If disabled then text should be faded
       fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, TextAlign, Caption, Font, $FFFFFFFF)
@@ -352,9 +355,10 @@ end;
 
 
 {Simple version of button, with image and nothing more}
-constructor TKMButtonFlat.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+constructor TKMButtonFlat.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
+  RXid:=aRXid;
   TexID:=aTexID;
   ParentTo(aParent);
 end;
@@ -367,12 +371,12 @@ begin
   if CursorOver and Enabled and not HideHighlight then State:=State+[bs_Highlight];
   if Down and not HideHighlight then State:=State+[bs_Down];
   //if not Enabled then State:=State+[bs_Disabled];
-    fRenderUI.WriteFlatButton(TexID,Caption,Left,Top,Width,Height,State);
+    fRenderUI.WriteFlatButton(RXid,TexID,Caption,Left,Top,Width,Height,State);
 
   if TexID<>0 then begin
     TexOffsetY:=-7*byte(Caption<>'');
-    fRenderUI.WritePic(TexID, Left + (Width-GFXData[4,TexID].PxWidth) div 2 + TexOffsetX,
-                              Top + (Height-GFXData[4,TexID].PxHeight) div 2 + TexOffsetY,true);
+    fRenderUI.WritePic(RXid,TexID, Left + (Width-GFXData[RXid,TexID].PxWidth) div 2 + TexOffsetX,
+                              Top + (Height-GFXData[RXid,TexID].PxHeight) div 2 + TexOffsetY,true);
   end;
 
   if Enabled then
@@ -384,13 +388,16 @@ end;
 
 
 {Make sure image area is at least enough to fit an image, or bigger}
-constructor TKMImage.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer);
+constructor TKMImage.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
 begin
-  aWidth:=max(aWidth,GFXData[4,aTexID].PxWidth);
-  aHeight:=max(aHeight,GFXData[4,aTexID].PxHeight);
+  RXid:=aRXid;
+  TexID:=aTexID;
+  if aWidth=0 then aLeft:=aLeft - GFXData[RXid,aTexID].PxWidth div 2;
+  if aHeight=0 then aTop:=aTop - GFXData[RXid,aTexID].PxHeight div 2;
+  aWidth:=max(aWidth,GFXData[RXid,aTexID].PxWidth);
+  aHeight:=max(aHeight,GFXData[RXid,aTexID].PxHeight);
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  TexID:=aTexID;
 end;
 
 
@@ -398,8 +405,8 @@ end;
 procedure TKMImage.Paint();
 begin
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer($4000FF00,Left,Top,Width,Height);
-  fRenderUI.WritePic(TexID, Left + (Width-GFXData[4,TexID].PxWidth) div 2,
-                            Top + (Height-GFXData[4,TexID].PxHeight) div 2,Enabled);
+  fRenderUI.WritePic(RXid,TexID, Left + (Width-GFXData[RXid,TexID].PxWidth) div 2,
+                            Top + (Height-GFXData[RXid,TexID].PxHeight) div 2,Enabled);
 end;
 
 
@@ -437,11 +444,11 @@ end;
 procedure TKMResourceRow.Paint();
 var i:integer;
 begin
-  fRenderUI.WriteFlatButton(0,'',Left,Top,Width,Height,[]);
+  fRenderUI.WriteFlatButton(4,0,'',Left,Top,Width,Height,[]);
   fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Game, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
-    fRenderUI.WritePic(350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
+    fRenderUI.WritePic(4,350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
 end;
 
 
@@ -472,11 +479,11 @@ begin
 
   OrderLab.Caption:=inttostr(OrderCount);
 
-  fRenderUI.WriteFlatButton(0,'',Left,Top,Width,Height,[]);
+  fRenderUI.WriteFlatButton(4,0,'',Left,Top,Width,Height,[]);
   fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Game, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
-    fRenderUI.WritePic(350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
+    fRenderUI.WritePic(4,350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
 end;
 
 
@@ -495,11 +502,11 @@ begin
   fRenderUI.WriteText(Left, Top + 4, kaLeft, TypeToString(TResourceType(CostID)), fnt_Grey, $FFFFFFFF);
   if ProductionCosts[CostID,1] in [rt_Trunk..rt_Fish] then begin
     TexID:=byte(ProductionCosts[CostID,1]);
-    fRenderUI.WritePic(350+TexID, Left+Width-40, Top + (Height-GFXData[4,TexID].PxHeight) div 2);
+    fRenderUI.WritePic(4,350+TexID, Left+Width-40, Top + (Height-GFXData[4,TexID].PxHeight) div 2);
   end;
   if ProductionCosts[CostID,2] in [rt_Trunk..rt_Fish] then begin
     TexID:=byte(ProductionCosts[CostID,2]);
-    fRenderUI.WritePic(350+TexID, Left+Width-20, Top + (Height-GFXData[4,TexID].PxHeight) div 2);
+    fRenderUI.WritePic(4,350+TexID, Left+Width-20, Top + (Height-GFXData[4,TexID].PxHeight) div 2);
   end;
 end;
 
@@ -538,9 +545,9 @@ begin
   if MakeDrawPagesOverlay then
     fRenderUI.WriteLayer($4000FF00, Left, Top, Width, Height);
 
-  fRenderUI.WriteFlatButton(0,'',Left+2,Top+2,Width-4,Height-4,[]);
+  fRenderUI.WriteFlatButton(4,0,'',Left+2,Top+2,Width-4,Height-4,[]);
   Pos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
-  fRenderUI.WritePic(132, Left+Pos+2, Top);
+  fRenderUI.WritePic(4,132, Left+Pos+2, Top);
   if Enabled then
     fRenderUI.WriteText(Left+12+2+Pos, Top+3,kaCenter,inttostr(Position),fnt_Metal,$FFFFFFFF)
   else
@@ -569,7 +576,7 @@ end;
 
 procedure TKMMinimap.Paint();
 begin
-  fRenderUI.WriteFlatButton(0,'',Left,Top,Width,Height,[]);
+  fRenderUI.WriteFlatButton(4,0,'',Left,Top,Width,Height,[]);
   fRenderUI.RenderMinimap(Left,Top,Width,Height,MapSize.X,MapSize.Y);
   fRenderUI.WriteRect(Left + (Width-MapSize.X) div 2 + ViewArea.Left,
                       Top  + (Height-MapSize.Y) div 2 + ViewArea.Top,
@@ -625,9 +632,9 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButton;
+function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButton;
 begin
-  Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID);
+  Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
   AddToCollection(Result);
 end;
 
@@ -637,9 +644,9 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMButtonFlat;
+function TKMControlsCollection.AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
 begin
-  Result:=TKMButtonFlat.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID);
+  Result:=TKMButtonFlat.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
   AddToCollection(Result);
 end;
 
@@ -692,9 +699,9 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer):TKMImage;
+function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
 begin
-  Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID);
+  Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
   AddToCollection(Result);
 end;
 

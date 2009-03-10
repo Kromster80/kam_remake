@@ -8,10 +8,10 @@ TRenderUI = class
   protected
   public
     constructor Create;
-    procedure Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
-    procedure WriteFlatButton(ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+    procedure Write3DButton(RXid,ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+    procedure WriteFlatButton(RXid,ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
-    procedure WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
+    procedure WritePic(RXid,ID,PosX,PosY:integer;Enabled:boolean=true);
     procedure WriteRect(PosX,PosY,Width,Height:integer; Col:TColor4);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
     function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint; //Should return text width in px
@@ -31,7 +31,7 @@ MinimapList:=glGenLists(1);
 end;
 
 
-procedure TRenderUI.Write3DButton(ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+procedure TRenderUI.Write3DButton(RXid,ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
 var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte;
 begin
 //402 is a stone background
@@ -83,7 +83,7 @@ end;
 
     if ID<>0 then begin
       glColor4f(1,1,1,1);
-      WritePic(ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
+      WritePic(RXid,ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
                   round((SizeY-GFXData[4,ID].PxHeight)/2));
     end;
 
@@ -106,7 +106,7 @@ end;
 end;
 
 
-procedure TRenderUI.WriteFlatButton(ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+procedure TRenderUI.WriteFlatButton(RXid,ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
 begin
   glPushMatrix;
     glTranslate(PosX,PosY,0);
@@ -213,9 +213,9 @@ begin
 end;
 
 
-procedure TRenderUI.WritePic(ID,PosX,PosY:integer;Enabled:boolean=true);
+procedure TRenderUI.WritePic(RXid,ID,PosX,PosY:integer;Enabled:boolean=true);
 begin
-  if ID<>0 then with GFXData[4,ID] do begin
+  if ID<>0 then with GFXData[RXid,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
     glPushMatrix;
       glkMoveAALines(false);

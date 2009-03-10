@@ -7,7 +7,7 @@ type TKMMainMenuInterface = class
     ScreenX,ScreenY:word;
     KMPanel_Main1:TKMPanel;
     KMPanel_MainMenu:TKMPanel;
-      KMImage_MainMenuBG:TKMImage; //Menu background
+      KMImage_MainMenuBG,KMImage_MainMenu1,KMImage_MainMenu2,KMImage_MainMenu3:TKMImage; //Menu background
       KMButton_MainMenuTutor,KMButton_MainMenuTSK,KMButton_MainMenuTPR,
       KMButton_MainMenuSingle,KMButton_MainMenuCredit,KMButton_MainMenuQuit:TKMButton;
     KMPanel_Credits:TKMPanel;
@@ -189,7 +189,10 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   KMPanel_MainMenu:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
-    KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,1024,768,407);
+    KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,800,600,2,5);
+    KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,400,100,0,0,4,5);
+    KMImage_MainMenu2:=MyControls.AddImage(KMPanel_MainMenu,200,400,0,0,5,5);
+    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,600,400,0,0,6,5);
     KMButton_MainMenuTutor :=MyControls.AddButton(KMPanel_MainMenu,100,400,224,30,fTextLibrary.GetSetupString(3),fnt_Metal);
     KMButton_MainMenuTutor.OnClick:=Play_Tutorial;
     KMButton_MainMenuTSK   :=MyControls.AddButton(KMPanel_MainMenu,100,440,224,30,fTextLibrary.GetSetupString(1),fnt_Metal);
@@ -208,7 +211,7 @@ end;
 procedure TKMMainMenuInterface.Create_MainCredit_Page;
 begin
   KMPanel_Credits:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
-    KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,1024,768,407);
+    KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,1024,768,2,5);
     KMButton_CreditsBack:=MyControls.AddButton(KMPanel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
     KMButton_CreditsBack.OnClick:=SwitchMenuPage;
 end;
