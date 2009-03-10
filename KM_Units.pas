@@ -604,6 +604,7 @@ function TKMUnitCitizen.UpdateState():boolean;
 var
   H:TKMHouse;
 begin
+  Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
 //Here come unit tasks in priorities
@@ -688,6 +689,7 @@ function TKMUnitSerf.UpdateState():boolean;
 var
   H:TKMHouse;
 begin
+  Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
@@ -753,6 +755,7 @@ function TKMUnitWorker.UpdateState():boolean;
 var
   H:TKMHouse;
 begin
+  Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
@@ -800,6 +803,7 @@ end;
 
 function TKMUnitWarrior.UpdateState():boolean;
 begin
+  Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
   SetAction(TUnitActionStay.Create(50,ua_Walk))
@@ -823,6 +827,7 @@ end;
 
 function TKMUnitAnimal.UpdateState():boolean;
 begin
+  Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
   SetAction(TUnitActionWalkTo.Create(GetPosition,

@@ -82,7 +82,7 @@ uses
 { TKMPlayerAssets }
 function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
 begin
-    Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y);
+  Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y);
 end;
 
 

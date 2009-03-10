@@ -61,7 +61,8 @@ var
   fRender: TRender;
 
 implementation 
-uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_Users, KM_Settings, KM_GamePlayInterface;
+uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_Users,
+KM_Settings, KM_GamePlayInterface, KM_Game;
 
 
 constructor TRender.Create(RenderFrame:HWND);
@@ -105,7 +106,7 @@ procedure TRender.Render();
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen
 
-  if fViewport<>nil then begin //If game is running
+  if fGame.GameIsRunning then begin //If game is running
     glLoadIdentity();                // Reset The View
     glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
@@ -127,18 +128,22 @@ begin
     RenderRenderList;
 
     //fRender.RenderHouseStone(byte(ht_Sawmill), Form1.TrackBar1.Position/100 , 10, 10);
-  end;
 
-  glLoadIdentity();             // Reset The View
-  glLineWidth(1);
-  glPointSize(1);
-  glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
-    fMainMenuInterface.MyControls.Paint;
-    if fGameplayInterface<>nil then fGameplayInterface.MyControls.Paint;
+    glLoadIdentity();             // Reset The View
+    glLineWidth(1);
+    glPointSize(1);
+    glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
+    fGameplayInterface.MyControls.Paint;
 
-  if fViewport<>nil then begin //If game is running
     glLoadIdentity();
     RenderBrightness(fGameSettings.GetBrightness);
+  end else begin
+
+    glLoadIdentity();             // Reset The View
+    glLineWidth(1);
+    glPointSize(1);
+    glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
+    fMainMenuInterface.MyControls.Paint;
   end;
 
   SwapBuffers(h_DC);

@@ -26,7 +26,8 @@ type
 end;
 
 var
-  fTextLibrary: TTextLibrary;
+  fTextLibrary:TTextLibrary;
+
 
 implementation
 uses KM_Defaults;

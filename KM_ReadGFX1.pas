@@ -28,7 +28,7 @@ type
 
 implementation
 
-uses KromUtils, KM_Unit1, KM_Render;
+uses KromUtils, KM_Unit1, KM_Render, KM_Game;
 
 function ReadGFX(text: string):boolean;
 var i:integer; procedure StepRefresh(); begin FormLoading.Bar1.StepIt; FormLoading.Refresh; end;

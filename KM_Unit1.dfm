@@ -194,6 +194,7 @@ object Form1: TForm1
       Height = 17
       Caption = 'Speed x10'
       TabOrder = 1
+      OnClick = CheckBox2Click
     end
     object CheckBox1: TCheckBox
       Left = 144

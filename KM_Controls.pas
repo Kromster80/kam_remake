@@ -218,7 +218,7 @@ end;
 
 
 implementation
-uses KM_RenderUI, KM_LoadLIB;
+uses KM_RenderUI, KM_LoadLIB, KM_Game;
 
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin

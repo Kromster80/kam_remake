@@ -20,7 +20,8 @@ uses
   KM_LoadLib in 'KM_LoadLib.pas',
   KM_LoadSFX in 'KM_LoadSFX.pas',
   KM_Settings in 'KM_Settings.pas',
-  KM_LoadDAT in 'KM_LoadDAT.pas';
+  KM_LoadDAT in 'KM_LoadDAT.pas',
+  KM_Game in 'KM_Game.pas';
 
 {$R *.RES}
 {}

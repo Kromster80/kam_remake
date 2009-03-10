@@ -162,7 +162,7 @@ var
   fMainMenuInterface: TKMMainMenuInterface;
 
 implementation
-uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport;
+uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game;
 
 
 constructor TKMMainMenuInterface.Create;
@@ -226,35 +226,19 @@ begin
       KMPanel_Main1.Childs[i].Hide;
 
   if Sender=nil then KMPanel_MainMenu.Show;
-  if Sender=KMButton_CreditsBack then KMPanel_MainMenu.Show;
-  if Sender=KMButton_MainMenuCredit then KMPanel_Credits.Show;
+  
+  if Sender=KMButton_CreditsBack then
+    KMPanel_MainMenu.Show;
+
+  if Sender=KMButton_MainMenuCredit then
+    KMPanel_Credits.Show;
 end;
 
 
 procedure TKMMainMenuInterface.Play_Tutorial(Sender: TObject);
-var i:integer;
 begin
   Assert(Sender=KMButton_MainMenuTutor);
-  KMPanel_Main1.Hide;
-  for i:=1 to KMPanel_Main1.ChildCount do
-    if KMPanel_Main1.Childs[i] is TKMPanel then
-      KMPanel_Main1.Childs[i].Hide;
-
-  fViewport:= TViewport.Create;
-  fGameSettings:= TGameSettings.Create;
-  fGamePlayInterface:= TKMGamePlayInterface.Create;
-
-  //Here comes terrain/mission init
-  fTerrain:= TTerrain.Create;
-  fTerrain.MakeNewMap(96,96);
-  fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
-  MyPlayer:=fPlayers.Player[1];
-  fLog.AppendLog('Gameplay initialized',true);
-
-  fRender.RenderResize(ScreenX,ScreenY);
-  fViewport.SetArea(ScreenX,ScreenY);
-  fViewport.SetZoom:=1;
-
+  fGame.StartGame();
 end;
 
 
@@ -1187,18 +1171,8 @@ begin
   for i:=1 to KMPanel_Main.ChildCount do
     if KMPanel_Main.Childs[i] is TKMPanel then
       KMPanel_Main.Childs[i].Hide;
-  fMainMenuInterface.KMPanel_Main1.Show;
 
-  FreeAndNil(fPlayers);
-  FreeAndNil(fTerrain);
-
-  FreeAndNil(fGamePlayInterface);
-  FreeAndNil(fGameSettings);
-  FreeAndNil(fViewport);
-
-  fLog.AppendLog('Gameplay free',true);
-
-  Form1.FormResize(nil); //Resize
+  fGame.StopGame();
 end;
 
 

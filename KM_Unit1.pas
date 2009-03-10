@@ -4,7 +4,7 @@ uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
   Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
-  KM_Form_Loading, KM_Terrain,
+  KM_Form_Loading, KM_Terrain, KM_Game,
   KM_Units, KM_Houses, KM_Viewport, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
 
 type                           
@@ -96,6 +96,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure OpenMissionMenuClick(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure CheckBox2Click(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -144,33 +145,7 @@ begin
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
-  FormLoading.Label1.Caption:='Initializing 3D ...';
-  fRender:= TRender.Create(Form1.Panel5.Handle);
-
-  //Must be done early on so that GamePlayInterface can use it
-  FormLoading.Label1.Caption:='Reading KaM data ...';
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
-  fMissionParser:= TMissionParser.Create; //Creation involves no processing
-  fSoundLib:= TSoundLib.Create;
-  ReadGFX(ExeDir);
-  fLog.AppendLog('Resources are loaded',true);
-
-  FormLoading.Label1.Caption:='Initializing FrontEnd ...';
-  //fControls:= TKMControlsCollection.Create;
-  fLog.AppendLog('FrontEnd initialized',true);
-
-  fMainMenuInterface:= TKMMainMenuInterface.Create;
-
-  {FormLoading.Label1.Caption:='Initializing Gameplay ...';
-  fViewport:= TViewport.Create;
-  fGameSettings:= TGameSettings.Create;
-  fGamePlayInterface:= TKMGamePlayInterface.Create;
-  //Here comes terrain/mission init
-  fTerrain:= TTerrain.Create;
-  fTerrain.MakeNewMap(96,96);
-  fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
-  MyPlayer:=fPlayers.Player[1];
-  fLog.AppendLog('Gameplay initialized',true);}
+  fGame:=TKMGame.Create(ExeDir,Form1.Panel5.Handle);
 
   Application.OnIdle:=Form1.OnIdle;
   Form1.Caption:='KaM Remake - '+'New.map';
@@ -181,143 +156,35 @@ begin
 
   Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
   Form1.WindowState:=wsMaximized;
-  Form1.FormResize(nil); 
+  Form1.FormResize(nil);
 end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
   fTerrain.OpenMapFromFile(OpenDialog1.FileName);
-  fViewport.SetZoom:=1;
   Form1.Caption:='KaM Remake - '+OpenDialog1.FileName;
 end;
 
 procedure TForm1.FormResize(Sender:TObject);
 begin
-  if fRender<>nil then
-    fRender.RenderResize(Panel5.Width,Panel5.Height);
-  if fViewport<>nil then begin //If game is running
-    fViewport.SetArea(Panel5.Width,Panel5.Height);
-    fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
-  end;
-  if fMainMenuInterface<>nil then
-    fMainMenuInterface.SetScreenSize(Panel5.Width,Panel5.Height);
+  if fGame<>nil then //Occurs on exit
+    fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
 end;
 
 procedure TForm1.ZoomChange(Sender: TObject);
 begin
-if fViewport<>nil then begin //If game is running
-  fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
-end;
+  fGame.ZoomInGameArea(ZoomLevels[TBZoomControl.Position]);
 end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  if X<=ToolBarWidth then begin
-    fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
-    if fGameplayInterface<>nil then fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
-    exit;
-  end;
-
-  Panel1MouseMove(Panel5,Shift,X,Y);
-
-  if not (fViewport<>nil) then exit; //If game is not running
-
-  //example for units need change
-  //Removed right since it interfers with the school buttons
-  if Button = mbMiddle then
-    fPlayers.Player[1].AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
-end;
+begin fGame.MouseDown(Button, Shift, X, Y); end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-begin
-  if InRange(X,1,Panel5.Width-1) and InRange(Y,1,Panel5.Height-1) then
-  else exit;
-
-if X<=ToolBarWidth then begin
-    fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
-    if fGameplayInterface<>nil then fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
-  Screen.Cursor:=c_Default;
-  exit;
-end;
-
-if not (fViewport<>nil) then exit; //If game is not running
-
-CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
-CursorY:=fViewport.GetCenter.Y+(Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
-
-CursorY:=fTerrain.ConvertCursorToMapCoord(CursorX,CursorY);
-
-CursorXc:=EnsureRange(round(CursorX+0.5),1,fTerrain.MapX); //Cell below cursor
-CursorYc:=EnsureRange(round(CursorY+0.5),1,fTerrain.MapY);
-CursorXn:=EnsureRange(round(CursorX+1),1,fTerrain.MapX); //Node below cursor
-CursorYn:=EnsureRange(round(CursorY+1),1,fTerrain.MapY);
-
-StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '+floattostr(round(CursorY*10)/10)
-+' | '+inttostr(CursorXc)+' '+inttostr(CursorYc);
-
-if CursorMode.Mode=cm_None then
-  if (fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil)or
-     (fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil) then
-    Screen.Cursor:=c_Info
-  else if not Scrolling then
-    Screen.Cursor:=c_Default;
-
-fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
-end;
+begin fGame.MouseMove(Shift, X, Y); end;
 
 procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-  var P:TKMPoint;
-begin
-  P.X:=CursorXc;
-  P.Y:=CursorYc;
-
-  if X<=ToolBarWidth then begin
-    fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
-    if fGameplayInterface<>nil then fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
-    exit;
-  end;
-
-  if not (fViewport<>nil) then exit; //If game is not running
-
-  if Button = mbRight then //Right clicking with the build menu open will close it
-    if fGameplayInterface<>nil then fGamePlayInterface.RightClickCancel;
-
-  if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-
-  case CursorMode.Mode of
-    cm_None:
-      begin
-        if fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
-          if fGameplayInterface<>nil then fGamePlayInterface.ShowUnitInfo(fPlayers.UnitsHitTest(CursorXc, CursorYc));
-          fPlayers.SelectedUnit:=fPlayers.UnitsHitTest(CursorXc, CursorYc);
-        end; //Houses have priority over units, so you can't select an occupant
-        if fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil then begin
-          fPlayers.SelectedHouse:=fPlayers.HousesHitTest(CursorXc, CursorYc);
-          if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.HousesHitTest(CursorXc, CursorYc));
-        end;
-      end;
-    cm_Road: MyPlayer.AddRoadPlan(P,mu_RoadPlan, false);
-    cm_Field: MyPlayer.AddRoadPlan(P,mu_FieldPlan, false);
-    cm_Wine: MyPlayer.AddRoadPlan(P,mu_WinePlan, false);
-
-    cm_Erase:
-      begin
-        MyPlayer.RemPlan(P);
-        MyPlayer.RemHouse(P);
-      end;
-    cm_Houses:
-      begin
-        if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P) then
-          if fGameplayInterface<>nil then fGamePlayInterface.SelectRoad;
-      end;
-    end;
-
-  //These are only for testing purposes, Later on it should be changed a lot
-  if fPlayers.SelectedUnit<>nil then
-  if fPlayers.SelectedUnit.GetUnitType=ut_HorseScout then
-  fPlayers.SelectedUnit.SetAction(TUnitActionWalkTo.Create(fPlayers.SelectedUnit.GetPosition,P));
-end;
+begin fGame.MouseUp(Button, Shift, X, Y); end;
 
 procedure TForm1.AboutClick(Sender: TObject);
 begin
@@ -328,36 +195,21 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  FreeAndNil(fRender);
-  FreeAndNil(fGameSettings);
-  FreeAndNil(fPlayers);
+  FreeAndNil(fGame);
 end;
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
-var i:integer;
 begin
-if not (fViewport<>nil) then exit; //If game is not running
-if not Form1.Active then exit;
-inc(GlobalTickCount);
+  if not Form1.Active then exit;
 
-//if GlobalTickCount=30 then fGamePlayInterface.DropDownMessageButton(ButtonLogoID,MessageID);
+  if (CheckBox1.Checked)and(Sender<>Step1Frame) then exit;
 
-if (CheckBox1.Checked)and(Sender<>Step1Frame) then exit;
+  if CheckBox4.Checked then
+  if GlobalTickCount mod 2 <> 0 then exit;
 
-if CheckBox4.Checked then
-if GlobalTickCount mod 2 <> 0 then exit;
+  fGame.UpdateState;
 
-fTerrain.UpdateState;
-fPlayers.UpdateState;
-fGamePlayInterface.UpdateState;
-
-if CheckBox2.Checked then
-  for i:=1 to 50 do begin
-    fTerrain.UpdateState;
-    fPlayers.UpdateState;
-   // fGamePlayInterface.UpdateState;
-  end;
-  DoScrolling; //Now check to see if we need to scroll
+  //DoScrolling; //Now check to see if we need to scroll
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -383,6 +235,8 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
+  fGame.StopGame;
+  fGame.StartGame;
 TKMControl(Sender).Enabled:=false;
 fViewPort.SetCenter(11,9);
 
@@ -467,6 +321,8 @@ end;
 procedure TForm1.Button2Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
+  fGame.StopGame;
+  fGame.StartGame;
 TKMControl(Sender).Enabled:=false;
 
 for k:=1 to 4 do begin
@@ -620,14 +476,7 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 begin
-//Reset map
-  FreeAndNil(fPlayers);
-
-  fTerrain.MakeNewMap(96,96);
-  fTerrain.RevealCircle(KMPoint(12,12),12,100,play_1);
-
-  fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
-  MyPlayer:=fPlayers.Player[1];
+  fGame.StopGame;
 end;
 
 procedure TForm1.RGPlayerClick(Sender: TObject);
@@ -651,6 +500,8 @@ end;
 procedure TForm1.Button5Click(Sender: TObject);
 var H:TKMHouseStore;
 begin
+  fGame.StopGame;
+  fGame.StartGame;
   MyPlayer:=fPlayers.Player[1];
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
@@ -675,6 +526,11 @@ begin
   MyPlayer.AddUnit(ut_Waterleaf,KMPoint(11,12));
   MyPlayer.AddUnit(ut_Duck,KMPoint(12,12)); }
 
+end;
+
+procedure TForm1.CheckBox2Click(Sender: TObject);
+begin
+  if CheckBox2.Checked then fGame.GameSpeed:=30 else fGame.GameSpeed:=1;
 end;
 
 end.
