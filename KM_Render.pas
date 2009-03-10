@@ -61,7 +61,7 @@ var
   fRender: TRender;
 
 implementation 
-uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_Users, KM_Settings;
+uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_Users, KM_Settings, KM_GamePlayInterface;
 
 
 constructor TRender.Create(RenderFrame:HWND);
@@ -104,37 +104,42 @@ end;
 procedure TRender.Render();
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen
-  glLoadIdentity();                // Reset The View
-  glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
-  glkScale(fViewport.Zoom*CELL_SIZE_PX);
-  glTranslate(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
 
-  glLineWidth(fViewport.Zoom*2);
-  glPointSize(fViewport.Zoom*5);
+  if fViewport<>nil then begin //If game is running
+    glLoadIdentity();                // Reset The View
+    glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
+    glkScale(fViewport.Zoom*CELL_SIZE_PX);
+    glTranslate(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
 
-  RenderCount:=0; //Init RenderList
+    glLineWidth(fViewport.Zoom*2);
+    glPointSize(fViewport.Zoom*5);
 
-  fTerrain.Paint;
-  glLineWidth(1);
-  glPointSize(1);
-  if Form1.ShowWires.Checked then fRender.RenderWires();
+    RenderCount:=0; //Init RenderList
 
-  fPlayers.Paint;            //Units and houses
+    fTerrain.Paint;
+    glLineWidth(1);
+    glPointSize(1);
+    if Form1.ShowWires.Checked then fRender.RenderWires();
 
-  SortRenderList;
-  RenderRenderList;
+    fPlayers.Paint;            //Units and houses
 
-  //fRender.RenderHouseStone(byte(ht_Sawmill), Form1.TrackBar1.Position/100 , 10, 10);
+    SortRenderList;
+    RenderRenderList;
+
+    //fRender.RenderHouseStone(byte(ht_Sawmill), Form1.TrackBar1.Position/100 , 10, 10);
+  end;
 
   glLoadIdentity();             // Reset The View
-
   glLineWidth(1);
   glPointSize(1);
   glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
-  fControls.Paint;      //UserInterface
+    fMainMenuInterface.MyControls.Paint;
+    if fGameplayInterface<>nil then fGameplayInterface.MyControls.Paint;
 
-  glLoadIdentity();
-  RenderBrightness(fGameSettings.GetBrightness);
+  if fViewport<>nil then begin //If game is running
+    glLoadIdentity();
+    RenderBrightness(fGameSettings.GetBrightness);
+  end;
 
   SwapBuffers(h_DC);
 end;

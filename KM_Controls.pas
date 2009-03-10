@@ -4,7 +4,6 @@ uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, Sy
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
-
 {Base class for all TKM elements}
 type
 TKMControl = class
@@ -38,6 +37,7 @@ TKMControl = class
     procedure HintCheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
     procedure Paint(); virtual;
   public
+    procedure Disable;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
@@ -210,8 +210,6 @@ TKMControlsCollection = class(TKMList)
     procedure Paint();
 end;
 
-var
-  fControls: TKMControlsCollection;
 
 implementation
 uses KM_RenderUI, KM_LoadLIB;
@@ -279,6 +277,13 @@ begin
   for i:=1 to ChildCount do
     if Childs[i].Visible then
       Childs[i].Paint;
+end;
+
+
+{Quick disable}
+procedure TKMControl.Disable;
+begin
+  Enabled:=false;
 end;
 
 
@@ -416,6 +421,7 @@ begin
 end;
 
 
+{ TKMResourceRow }
 constructor TKMResourceRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -442,9 +448,9 @@ begin
   ParentTo(aParent);
   Resource:=aRes;
   ResourceCount:=aCount;
-  OrderRem:=fControls.AddButton(aParent,aLeft,aTop+2,20,aHeight,fTextLibrary.GetTextString(183),fnt_Metal);
-  OrderLab:=fControls.AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
-  OrderAdd:=fControls.AddButton(aParent,aLeft+46,aTop+2,20,aHeight,fTextLibrary.GetTextString(182),fnt_Metal);
+  //OrderRem:=MyControls.AddButton(aParent,aLeft,aTop+2,20,aHeight,fTextLibrary.GetTextString(183),fnt_Metal);
+  //OrderLab:=MyControls.AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
+  //OrderAdd:=MyControls.AddButton(aParent,aLeft+46,aTop+2,20,aHeight,fTextLibrary.GetTextString(182),fnt_Metal);
   OrderCount:=0;
 end;
 
@@ -657,6 +663,12 @@ function TKMControlsCollection.AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,
 begin
   Result:=TKMResourceOrderRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
   AddToCollection(Result);
+  Result.OrderRem :=AddButton(aParent,aLeft,aTop+2,20,aHeight,fTextLibrary.GetTextString(183),fnt_Metal);
+  AddToCollection(Result.OrderRem);
+  Result.OrderLab :=AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
+  AddToCollection(Result.OrderLab);
+  Result.OrderAdd :=AddButton(aParent,aLeft+46,aTop+2,20,aHeight,fTextLibrary.GetTextString(182),fnt_Metal);
+  AddToCollection(Result.OrderAdd);
 end;
 
 function TKMControlsCollection.AddCostsRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;

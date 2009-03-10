@@ -545,6 +545,9 @@ end else
 if (aUnitType=ut_Recruit)and(aHome=ht_Barracks) then begin
   Issued:=false; //Let him idle
 end else
+if (aUnitType=ut_Recruit)and(aHome=ht_WatchTower) then begin
+  Issued:=false; //Let him idle
+end else
   Assert(false,'There''s yet no working plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
 end;
 

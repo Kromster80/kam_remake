@@ -82,7 +82,7 @@ type
     procedure ExportGUIMainRXClick(Sender: TObject);
     procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure Exportfonts1Click(Sender: TObject);  
+    procedure Exportfonts1Click(Sender: TObject);
     procedure DoScrolling;
     procedure ExportTextClick(Sender: TObject);
     procedure ExportDeliverlists1Click(Sender: TObject);
@@ -150,24 +150,27 @@ begin
   //Must be done early on so that GamePlayInterface can use it
   FormLoading.Label1.Caption:='Reading KaM data ...';
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
-  fMissionParser:= TMissionParser.Create;
+  fMissionParser:= TMissionParser.Create; //Creation involves no processing
   fSoundLib:= TSoundLib.Create;
   ReadGFX(ExeDir);
   fLog.AppendLog('Resources are loaded',true);
 
   FormLoading.Label1.Caption:='Initializing FrontEnd ...';
-  fViewport:= TViewport.Create;
-  fGameSettings:= TGameSettings.Create;
-  fControls:= TKMControlsCollection.Create;
-  fGamePlayInterface:= TKMGamePlayInterface.Create;
+  //fControls:= TKMControlsCollection.Create;
   fLog.AppendLog('FrontEnd initialized',true);
 
-  FormLoading.Label1.Caption:='Initializing Gameplay ...';
+  fMainMenuInterface:= TKMMainMenuInterface.Create;
+
+  {FormLoading.Label1.Caption:='Initializing Gameplay ...';
+  fViewport:= TViewport.Create;
+  fGameSettings:= TGameSettings.Create;
+  fGamePlayInterface:= TKMGamePlayInterface.Create;
+  //Here comes terrain/mission init
   fTerrain:= TTerrain.Create;
   fTerrain.MakeNewMap(96,96);
-
   fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
   MyPlayer:=fPlayers.Player[1];
+  fLog.AppendLog('Gameplay initialized',true);}
 
   Application.OnIdle:=Form1.OnIdle;
   Form1.Caption:='KaM Remake - '+'New.map';
@@ -178,8 +181,7 @@ begin
 
   Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
   Form1.WindowState:=wsMaximized;
-  Form1.FormResize(nil);
-
+  Form1.FormResize(nil); 
 end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);
@@ -192,24 +194,34 @@ end;
 
 procedure TForm1.FormResize(Sender:TObject);
 begin
-  fRender.RenderResize(Panel5.Width,Panel5.Height);
-  fViewport.SetArea(Panel5.Width,Panel5.Height);
-  fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
+  if fRender<>nil then
+    fRender.RenderResize(Panel5.Width,Panel5.Height);
+  if fViewport<>nil then begin //If game is running
+    fViewport.SetArea(Panel5.Width,Panel5.Height);
+    fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
+  end;
+  if fMainMenuInterface<>nil then
+    fMainMenuInterface.SetScreenSize(Panel5.Width,Panel5.Height);
 end;
 
 procedure TForm1.ZoomChange(Sender: TObject);
 begin
-fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
+if fViewport<>nil then begin //If game is running
+  fViewport.SetZoom:=ZoomLevels[TBZoomControl.Position];
+end;
 end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if X<=ToolBarWidth then begin
-    fControls.OnMouseDown(X,Y,Button);
+    fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
+    if fGameplayInterface<>nil then fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
     exit;
   end;
 
   Panel1MouseMove(Panel5,Shift,X,Y);
+
+  if not (fViewport<>nil) then exit; //If game is not running
 
   //example for units need change
   //Removed right since it interfers with the school buttons
@@ -223,10 +235,13 @@ begin
   else exit;
 
 if X<=ToolBarWidth then begin
-  fControls.OnMouseOver(X,Y,Shift);
+    fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
+    if fGameplayInterface<>nil then fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
   Screen.Cursor:=c_Default;
   exit;
 end;
+
+if not (fViewport<>nil) then exit; //If game is not running
 
 CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
 CursorY:=fViewport.GetCenter.Y+(Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
@@ -249,7 +264,6 @@ if CursorMode.Mode=cm_None then
     Screen.Cursor:=c_Default;
 
 fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
-
 end;
 
 procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -259,12 +273,15 @@ begin
   P.Y:=CursorYc;
 
   if X<=ToolBarWidth then begin
-    fControls.OnMouseUp(X,Y,Button);
+    fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
+    if fGameplayInterface<>nil then fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
     exit;
   end;
 
+  if not (fViewport<>nil) then exit; //If game is not running
+
   if Button = mbRight then //Right clicking with the build menu open will close it
-    fGamePlayInterface.RightClickCancel;
+    if fGameplayInterface<>nil then fGamePlayInterface.RightClickCancel;
 
   if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
 
@@ -272,12 +289,12 @@ begin
     cm_None:
       begin
         if fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
-          fGamePlayInterface.ShowUnitInfo(fPlayers.UnitsHitTest(CursorXc, CursorYc));
+          if fGameplayInterface<>nil then fGamePlayInterface.ShowUnitInfo(fPlayers.UnitsHitTest(CursorXc, CursorYc));
           fPlayers.SelectedUnit:=fPlayers.UnitsHitTest(CursorXc, CursorYc);
         end; //Houses have priority over units, so you can't select an occupant
         if fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil then begin
           fPlayers.SelectedHouse:=fPlayers.HousesHitTest(CursorXc, CursorYc);
-          fGamePlayInterface.ShowHouseInfo(fPlayers.HousesHitTest(CursorXc, CursorYc));
+          if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.HousesHitTest(CursorXc, CursorYc));
         end;
       end;
     cm_Road: MyPlayer.AddRoadPlan(P,mu_RoadPlan, false);
@@ -292,7 +309,7 @@ begin
     cm_Houses:
       begin
         if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P) then
-          fGamePlayInterface.SelectRoad;
+          if fGameplayInterface<>nil then fGamePlayInterface.SelectRoad;
       end;
     end;
 
@@ -311,14 +328,15 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  fRender.Destroy;
-  fGameSettings.Destroy;
-  fPlayers.Destroy;
+  FreeAndNil(fRender);
+  FreeAndNil(fGameSettings);
+  FreeAndNil(fPlayers);
 end;
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
 var i:integer;
 begin
+if not (fViewport<>nil) then exit; //If game is not running
 if not Form1.Active then exit;
 inc(GlobalTickCount);
 
