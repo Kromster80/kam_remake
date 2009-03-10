@@ -232,9 +232,13 @@ end;
 
 
 procedure TKMMainMenuInterface.Play_Tutorial(Sender: TObject);
+var i:integer;
 begin
   Assert(Sender=KMButton_MainMenuTutor);
   KMPanel_Main1.Hide;
+  for i:=1 to KMPanel_Main1.ChildCount do
+    if KMPanel_Main1.Childs[i] is TKMPanel then
+      KMPanel_Main1.Childs[i].Hide;
 
   fViewport:= TViewport.Create;
   fGameSettings:= TGameSettings.Create;
@@ -1177,8 +1181,12 @@ end;
 
 {Quit the mission and return to main menu}
 procedure TKMGamePlayInterface.QuitMission(Sender:TObject);
+var i:integer;
 begin
   KMPanel_Main.Hide;
+  for i:=1 to KMPanel_Main.ChildCount do
+    if KMPanel_Main.Childs[i] is TKMPanel then
+      KMPanel_Main.Childs[i].Hide;
   fMainMenuInterface.KMPanel_Main1.Show;
 
   FreeAndNil(fPlayers);
