@@ -43,6 +43,8 @@ with GFXData[4,402] do begin
   b.y := v1 + (v2-v1) * ((PosY+SizeY)/PxHeight) ;
   if PosX+SizeX>PxWidth  then begin a.x:=a.x-(u2-u1); b.x:=b.x-(u2-u1); end;
   if PosY+SizeY>PxHeight then begin a.y:=a.y-(v2-v1); b.y:=b.y-(v2-v1); end;
+  a.x:=EnsureRange(a.x,u1,u2); b.x:=EnsureRange(b.x,u1,u2); //HotFix
+  a.y:=EnsureRange(a.y,v1,v2); b.y:=EnsureRange(b.y,v1,v2);
 end;
   InsetX:=3/SizeX; //3px
   InsetY:=3/SizeY; //3px

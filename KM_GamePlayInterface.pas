@@ -7,10 +7,12 @@ type TKMMainMenuInterface = class
     ScreenX,ScreenY:word;
   protected
     KMPanel_Main1:TKMPanel;
+      L:array[1..20]of TKMLabel;
     KMPanel_MainMenu:TKMPanel;
       KMImage_MainMenuBG,KMImage_MainMenu1,KMImage_MainMenu2,KMImage_MainMenu3:TKMImage; //Menu background
       KMButton_MainMenuTutor,KMButton_MainMenuTSK,KMButton_MainMenuTPR,
       KMButton_MainMenuSingle,KMButton_MainMenuCredit,KMButton_MainMenuQuit:TKMButton;
+      KMLabel_Version:TKMLabel;
     KMPanel_Single:TKMPanel;
       KMImage_SingleBG:TKMImage; //Single background
       KMButton_SingleBack:TKMButton;
@@ -20,6 +22,9 @@ type TKMMainMenuInterface = class
     KMPanel_Loading:TKMPanel;
       KMImage_LoadingBG:TKMImage;
       KMLabel_Loading:TKMLabel;
+    KMPanel_Results:TKMPanel;
+      KMImage_ResultsBG:TKMImage;
+      KMButton_ResultsBack:TKMButton;
   private
     procedure SwitchMenuPage(Sender: TObject);
     procedure Play_Tutorial(Sender: TObject);
@@ -28,12 +33,14 @@ type TKMMainMenuInterface = class
     constructor Create(X,Y:word);
     destructor Destroy; override;
     procedure SetScreenSize(X,Y:word);
-    procedure ShowLoadingScreen();
-    procedure ShowMainScreen();
+    procedure ShowScreen_Loading();
+    procedure ShowScreen_Main();
+    procedure ShowScreen_Results();
     procedure Create_MainMenu_Page;
     procedure Create_Single_Page;
     procedure Create_Credits_Page;
     procedure Create_Loading_Page;
+    procedure Create_Results_Page;
 end;
 
 type TKMGamePlayInterface = class
@@ -48,7 +55,6 @@ type TKMGamePlayInterface = class
       KMImage_Main1,KMImage_Main2,KMImage_Main3,KMImage_Main4:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
       KMLabel_Hint:TKMLabel;
-      L:array[1..20]of TKMLabel;
       KMButtonRun,KMButtonRun1,KMButtonStop:TKMButton;                //Start Village functioning
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
@@ -179,6 +185,7 @@ uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_View
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word);
+//var i:integer;
 begin
 inherited Create;
   {Parent Page for whole toolbar in-game}
@@ -192,6 +199,18 @@ inherited Create;
   Create_Single_Page;
   Create_Credits_Page;
   Create_Loading_Page;
+  Create_Results_Page;
+
+  {for i:=1 to length(FontFiles) do
+    L[i]:=MyControls.AddLabel(KMPanel_Main1,550,300+i*20,160,30,TKMFont(i),kaLeft,FontFiles[i]+' This is a test string for KaM Remake');
+  //}
+
+  //L[1]:=MyControls.AddLabel(KMPanel_Main,250,120,160,30,fnt_Outline,kaLeft,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
+  //L[2]:=MyControls.AddLabel(KMPanel_Main,250,320,160,30,fnt_Outline,kaCenter,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
+  //L[3]:=MyControls.AddLabel(KMPanel_Main,250,520,160,30,fnt_Outline,kaRight,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
+
+  //Show version info on every page
+  KMLabel_Version:=MyControls.AddLabel(KMPanel_Main1,5,5,100,30,fnt_Antiqua,kaLeft,GAME_VERSION);
 
   SwitchMenuPage(nil);
 end;
@@ -210,15 +229,22 @@ begin
   ScreenY:=Y;
 end;
 
-procedure TKMMainMenuInterface.ShowLoadingScreen();
+procedure TKMMainMenuInterface.ShowScreen_Loading();
 begin
   SwitchMenuPage(KMPanel_Loading);
 end;
 
-procedure TKMMainMenuInterface.ShowMainScreen();
+procedure TKMMainMenuInterface.ShowScreen_Main();
 begin
   SwitchMenuPage(nil);
 end;
+
+
+procedure TKMMainMenuInterface.ShowScreen_Results();
+begin
+  SwitchMenuPage(KMPanel_Results);
+end;
+
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
@@ -269,7 +295,17 @@ begin
   KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,ScreenX,ScreenY,2,5);
     KMImage_LoadingBG.StretchImage:=true;
-    KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,600,434,100,30,fnt_Grey,kaCenter,'Loading... Please wait');
+    KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2,100,30,fnt_Grey,kaCenter,'Loading... Please wait');
+end;
+
+
+procedure TKMMainMenuInterface.Create_Results_Page;
+begin
+  KMPanel_Results:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
+    KMImage_ResultsBG:=MyControls.AddImage(KMPanel_Results,0,0,ScreenX,ScreenY,7,5);
+    KMImage_ResultsBG.StretchImage:=true;
+    KMButton_ResultsBack:=MyControls.AddButton(KMPanel_Results,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
+    KMButton_ResultsBack.OnClick:=SwitchMenuPage;
 end;
 
 
@@ -283,7 +319,7 @@ begin
 
   if Sender=nil then KMPanel_MainMenu.Show;
   
-  if (Sender=KMButton_CreditsBack)or(Sender=KMButton_SingleBack) then
+  if (Sender=KMButton_CreditsBack)or(Sender=KMButton_SingleBack)or(Sender=KMButton_ResultsBack) then
     KMPanel_MainMenu.Show;
 
   if Sender=KMButton_MainMenuCredit then
@@ -294,6 +330,9 @@ begin
 
   if Sender=KMPanel_Loading then
     KMPanel_Loading.Show;
+
+  if Sender=KMPanel_Results then //This page can be accessed only by itself
+    KMPanel_Results.Show;
 end;
 
 
@@ -479,14 +518,6 @@ Assert(fViewport<>nil,'fViewport required to be init first');
 
     KMMinimap:=MyControls.AddMinimap(KMPanel_Main,10,10,176,176);
     KMMinimap.OnMouseOver:=Minimap_Move;
-
-    {for i:=1 to length(FontFiles) do
-      L[i]:=MyControls.AddLabel(KMPanel_Main,250,300+i*20,160,30,TKMFont(i),kaLeft,FontFiles[i]+' This is a test string for KaM Remake');
-    //}
-
-    //L[1]:=MyControls.AddLabel(KMPanel_Main,250,120,160,30,fnt_Outline,kaLeft,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
-    //L[2]:=MyControls.AddLabel(KMPanel_Main,250,320,160,30,fnt_Outline,kaCenter,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
-    //L[3]:=MyControls.AddLabel(KMPanel_Main,250,520,160,30,fnt_Outline,kaRight,'This is a test'+#124+'string for'+#124+'KaM Remake'+#124+'text alignment'+#124+'indeed');
 
     //This is button to start Village functioning
     KMButtonRun:=MyControls.AddButton(KMPanel_Main,20,205,50,30,36);

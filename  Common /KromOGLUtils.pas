@@ -41,6 +41,7 @@ MatModeDefaultF:string=
 'gl_FragColor = vec4(kColor.rgb,1);'+#10+#13+
 '}';
 
+
 implementation
 
 procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
@@ -240,10 +241,8 @@ Still it's unclear if that works on all GPUs the same..}
 procedure glkMoveAALines(DoShift:boolean);
 const Value=0.5;
 begin
-if DoShift then
-  glTranslate(Value,Value,0)
-else
-  glTranslate(-Value,-Value,0);
+if DoShift then glTranslate(Value,Value,0)
+           else glTranslate(-Value,-Value,0);
 end;
 
 

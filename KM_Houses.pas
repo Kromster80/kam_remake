@@ -417,6 +417,8 @@ begin
                    else if (WorkID = 2)and(WorkAnimStep mod Cycle = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
                    else if (WorkID = 5)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_coaldown,GetPosition);
       ht_SawMill: if (WorkID = 2)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_saw,GetPosition);
+      ht_Wineyard: if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,6,13,18]) then fSoundLib.Play(sfx_wineStep,GetPosition)
+                   else if (WorkID = 5)and(WorkAnimStep mod Cycle = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition);
       ht_School: if (WorkID = 5)and(WorkAnimStep = 20) then fSoundLib.Play(sfx_saw,GetPosition);
       //ht_Bakery: if (WorkID = 3)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_mill,GetPosition);
     end;

@@ -2,6 +2,7 @@ unit KM_Settings;
 interface
 uses Windows, Classes, SysUtils, KromUtils, Math, KM_Defaults;
 
+{Global game settings}
 type
   TGameSettings = class
   private
@@ -35,7 +36,7 @@ type
     property IsMusic:boolean read fMusicOnOff write fMusicOnOff default true;
   end;
 
-{These are mission specific settings and stats}
+{These are mission specific settings and stats for each player}
 type
   TMissionSettings = class
   private
@@ -49,9 +50,9 @@ type
     procedure CreatedUnit(aType:TUnitType);
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
-
+  public
     procedure UpdateReqDone(aType:THouseType);
-
+  public
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetCanBuild(aType:THouseType):boolean;

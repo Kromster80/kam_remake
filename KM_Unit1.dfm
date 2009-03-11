@@ -151,13 +151,13 @@ object Form1: TForm1
       Caption = '100%'
       OnClick = ResetZoomClick
     end
-    object Shape267: TShape
+    object TeamColorPicker: TShape
       Left = 394
       Top = 16
       Width = 22
       Height = 22
-      OnDragDrop = Shape267DragDrop
-      OnMouseUp = Shape267MouseUp
+      OnDragDrop = TeamColorPickerDragDrop
+      OnMouseUp = TeamColorPickerMouseUp
     end
     object Label2: TLabel
       Left = 85

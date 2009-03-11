@@ -28,7 +28,7 @@ uses
 
 begin
   Application.Initialize;
-  Application.Title := 'KaM Editor';
+  Application.Title := 'KaM Remake';
   Application.HelpFile := '';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);

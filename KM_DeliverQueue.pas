@@ -123,6 +123,9 @@ with fDemand[i] do begin
     Importance:=aImp;
     if GOLD_TO_SCHOOLS_IMPORTANT then
     if (Resource=rt_gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
+    if FOOD_TO_INN_IMPORTANT then
+    if (Resource in [rt_bread,rt_Sousages,rt_Wine,rt_Fish])and
+       (Loc_House<>nil)and(Loc_House.GetHouseType=ht_Inn) then Importance:=di_High;
   end;
 end;
 

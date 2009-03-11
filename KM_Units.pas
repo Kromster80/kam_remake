@@ -229,6 +229,7 @@ type
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
     procedure SetAction(aAction: TUnitAction; aStep:integer=0);
+    procedure Feed(Amount:single);
     property UnitTask: TUnitTask write fUnitTask;
     property GetUnitType: TUnitType read fUnitType;
     function GetUnitTaskText():string;
@@ -601,8 +602,7 @@ end;
 
 
 function TKMUnitCitizen.UpdateState():boolean;
-var
-  H:TKMHouse;
+var H:TKMHouse;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -627,7 +627,10 @@ begin
         else
           SetAction(TUnitActionStay.Create(120, ua_Walk)) //There's no home
       else
-        fUnitTask:=InitiateMining; //Unit has home, so go get a job
+        if fVisible then //Unit is not at home, still it has one
+          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self)
+        else
+          fUnitTask:=InitiateMining; //Unit is at home, so go get a job
 
   if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk));
 end;
@@ -759,10 +762,10 @@ begin
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-  H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
-  if (H<>nil)and
-  (H.CheckResIn(rt_Sousages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
-    fUnitTask:=TTaskGoEat.Create(H,Self)
+    H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
+    if (H<>nil)and
+    (H.CheckResIn(rt_Sousages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+      fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
     //for now - IgnoreHunger for all
@@ -911,6 +914,12 @@ AnimStep:=aStep;
     fCurrentAction.Free;
     fCurrentAction:= aAction;
   end;
+end;
+
+
+procedure TKMUnit.Feed(Amount:single);
+begin
+  fCondition:=min(fCondition+round(Amount),UNIT_MAX_CONDITION);
 end;
 
 
@@ -1081,10 +1090,10 @@ case Phase of
 5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,fToUnit.GetPosition,ua_Walk,false));
 6: begin
      TakeResource(Carry);
-     inc(fToUnit.fUnitTask.Phase);
-     fToUnit.SetAction(TUnitActionStay.Create(0,ua_Work1));
-   end;
-7: begin
+     if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil) then begin
+       inc(fToUnit.fUnitTask.Phase);
+       fToUnit.SetAction(TUnitActionStay.Create(0,ua_Work1));
+     end;
     fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
     TaskDone:=true;
    end;
@@ -1334,8 +1343,8 @@ begin
            Direction:=Cells[CurLoc].Dir;
          end;
       3: begin
-           //Cancel building no matter progress if resource depleted
-           if not fHouse.CheckResToBuild then begin
+           //Cancel building no matter progress if resource depleted or must eat
+           if (not fHouse.CheckResToBuild)or(fCondition<UNIT_MIN_CONDITION) then begin
              TaskDone:=true; //Drop the task
              exit;
            end;
@@ -1511,9 +1520,9 @@ end;
 procedure TTaskGoEat.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
-fUnit.fCondition:= UNIT_MAX_CONDITION;
-TaskDone:=true;
-exit;
+//fUnit.fCondition:= UNIT_MAX_CONDITION;
+//TaskDone:=true;
+//exit;
 
 with fUnit do
 case Phase of
@@ -1521,27 +1530,32 @@ case Phase of
       if fHome<>nil then fHome.SetState(hst_Empty,0);
       if not fVisible then SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)); //Walk outside the house
     end;
- 1: SetAction(TUnitActionWalkTo.Create(GetPosition,fInn.GetPosition));
+ 1: SetAction(TUnitActionWalkTo.Create(GetPosition,KMPointY1(fInn.GetEntrance)));
  2: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In)); //Enter Inn
  3: if fInn.CheckResIn(rt_Bread)>0 then begin
       fInn.ResTakeFromIn(rt_Bread);
       //Choose spot
-      //fVisible:=true; Direction:=dir_N; //Make it overdraw
+      //fVisible:=true; Direction:=dir_N; //Make it overlay Inn
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
-      inc(fCondition,round(UNIT_MAX_CONDITION/3));
+      Feed(UNIT_MAX_CONDITION/3);
     end;
  4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sousages)>0) then begin
       fInn.ResTakeFromIn(rt_Sousages);
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
-      inc(fCondition,round(UNIT_MAX_CONDITION/2));
+      Feed(UNIT_MAX_CONDITION/2);
     end;
  5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0) then begin
       fInn.ResTakeFromIn(rt_Wine);
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
-      inc(fCondition,round(UNIT_MAX_CONDITION/6));
+      Feed(UNIT_MAX_CONDITION/4);
     end;
- 6: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)); //Exit Inn
- 7: TaskDone:=true;
+ 6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0) then begin
+      fInn.ResTakeFromIn(rt_Fish);
+      SetAction(TUnitActionStay.Create(29,ua_Eat,false));
+      Feed(UNIT_MAX_CONDITION/4);
+    end;
+ 7: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)); //Exit Inn
+ 8: TaskDone:=true;
 end;
 inc(Phase);
 end;

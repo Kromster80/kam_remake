@@ -1,10 +1,11 @@
 unit KM_Users;
 interface
 uses
-  classes, KromUtils, Math, KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, KM_Settings, Windows, SysUtils;
+  Windows, Classes, KromUtils, Math, SysUtils,
+  KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, KM_Settings;
 
 type
-  TPlayerType = (uct_Human, uct_Computer, uct_Animals);
+  TPlayerType = (pt_Human, pt_Computer, pt_Animals);
 
   TKMPlayerAssets = class
   private
@@ -18,12 +19,12 @@ type
     destructor Destroy; override;
   public
     PlayerID:TPlayerID; //Which ID this player is
-    PlayerType: TPlayerType; //Is it Human or AI
+    PlayerType: TPlayerType; //Is it Human or AI or Animals
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
     procedure AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
-    function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint):boolean;
+    function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean):boolean;
     procedure RemHouse(Position: TKMPoint);
     procedure RemUnit(Position: TKMUnit);
     procedure RemPlan(Position: TKMPoint);
@@ -121,7 +122,7 @@ begin
   fSoundLib.Play(sfx_placemarker,aLoc,false);
 end;
 
-function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint):boolean;
+function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean):boolean;
 var KMHouse:TKMHouse;
 begin
   Result:=false;
@@ -132,6 +133,8 @@ begin
   fTerrain.SetTileOwnership(aLoc,aHouseType, PlayerID);
   BuildList.AddNewHousePlan(KMHouse);
   Result:=true;
+  if not DoSilent then
+  fSoundLib.Play(sfx_placemarker,aLoc,false);
 end;
 
 procedure TKMPlayerAssets.RemHouse(Position: TKMPoint);

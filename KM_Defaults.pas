@@ -2,7 +2,6 @@ unit KM_Defaults;
 interface
 uses Windows, Classes, SysUtils, KromUtils, dglOpenGL;
 
-//I've ajoined Global_Data and Defaults since they have much in common
 //Global const
 const
   CELL_SIZE_PX=40;      //Single cell size in pixels (width)
@@ -19,6 +18,7 @@ const
   FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms, in cells
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
+  GAME_VERSION = 'Alpha'; //Game version string displayed in menu corner
 
 var
   MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
@@ -41,8 +41,9 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
 
         //Here we store options that are hidden somewhere in code
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
-        UNIT_MAX_CONDITION = 4*600;             //*min of life
-        UNIT_MIN_CONDITION = 1*600;               //If unit condition is less it will look for Inn
+        FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
+        UNIT_MAX_CONDITION = 15*600;             //*min of life
+        UNIT_MIN_CONDITION = 3*600;             //If unit condition is less it will look for Inn
 
 
 {Cursors}
@@ -111,13 +112,13 @@ type
 const
 ProductionCosts:array[17..26,1..2]of TResourceType = (
 (rt_None,rt_Wood),    //rt_Shield
-(rt_Coal,rt_Steel),    //rt_MetalShield
-(rt_None,rt_Leather),    //rt_Armor
-(rt_Coal,rt_Steel),    //rt_MetalArmor
-(rt_Wood,rt_Wood),   //rt_Axe
-(rt_Coal,rt_Steel),    //rt_Sword
+(rt_Coal,rt_Steel),   //rt_MetalShield
+(rt_None,rt_Leather), //rt_Armor
+(rt_Coal,rt_Steel),   //rt_MetalArmor
+(rt_Wood,rt_Wood),    //rt_Axe
+(rt_Coal,rt_Steel),   //rt_Sword
 (rt_Wood,rt_Wood),    //rt_Pike
-(rt_Coal,rt_Steel),    //rt_Hallebard
+(rt_Coal,rt_Steel),   //rt_Hallebard
 (rt_Wood,rt_Wood),    //rt_Bow
 (rt_Coal,rt_Steel)    //rt_Arbalet
 );
@@ -460,6 +461,7 @@ ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 type
   TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6);
 
+  {@Lewin:If you know other names- please fill in }
   TSoundFX = (
     sfx_corncut=1,
     sfx_dig,

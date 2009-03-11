@@ -77,10 +77,11 @@ begin
     ZoomInGameArea(1);
   end else begin
     //Should resize all Controls somehow...
-    //FreeAndNil(fMainMenuInterface);
-    //fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y);
-    //GameSpeed:=1;
-    //GameIsRunning:=false;
+    //Remember last page and all relevant menu settings
+    FreeAndNil(fMainMenuInterface);
+    fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y);
+    GameSpeed:=1;
+    GameIsRunning:=false;
     fMainMenuInterface.SetScreenSize(X,Y);
   end;
 end;
@@ -183,7 +184,7 @@ begin
             end;
           cm_Houses:
             begin
-              if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P) then
+              if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false) then
                 if fGameplayInterface<>nil then fGamePlayInterface.SelectRoad;
             end;
         end;
@@ -203,7 +204,7 @@ end;
 
 procedure TKMGame.StartGame(MissionFile:string);
 begin
-  fMainMenuInterface.ShowLoadingScreen;
+  fMainMenuInterface.ShowScreen_Loading;
   fRender.Render;
 
   if DataState<>dls_All then begin
@@ -254,8 +255,9 @@ begin
   FreeAndNil(fViewport);
   fLog.AppendLog('Gameplay free',true);
 
-  fMainMenuInterface.ShowMainScreen;//Should be mission results screen
+  fMainMenuInterface.ShowScreen_Results;//Should be mission results screen
 end;
+
 
 procedure TKMGame.UpdateState;
 var i:integer;

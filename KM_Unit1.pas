@@ -2,8 +2,8 @@ unit KM_Unit1;
 interface
 uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
-  Menus, Buttons, math, SysUtils, KromUtils, OpenGL, KromOGLUtils, dglOpenGL, JPEG,
-  KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults, KM_GamePlayInterface,
+  Menus, Buttons, Math, SysUtils, KromUtils, OpenGL, dglOpenGL,
+  KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults,
   KM_Form_Loading, KM_Terrain, KM_Game,
   KM_Units, KM_Houses, KM_Viewport, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
 
@@ -36,7 +36,7 @@ type
     TBZoomControl: TTrackBar;
     Image3: TImage;
     Label1: TLabel;
-    Shape267: TShape;
+    TeamColorPicker: TShape;
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
     CheckBox3: TCheckBox;
@@ -80,8 +80,8 @@ type
     procedure ExportHousesRXClick(Sender: TObject);
     procedure ExportUnitsRXClick(Sender: TObject);
     procedure ExportGUIMainRXClick(Sender: TObject);
-    procedure Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure Exportfonts1Click(Sender: TObject);
     procedure DoScrolling;
     procedure ExportTextClick(Sender: TObject);
@@ -147,7 +147,8 @@ begin
 
   Form1.WindowState:=wsMaximized;
   //Form1.BorderStyle:=bsSizeable;
-  Form1.FormResize(nil);
+//  Form1.FormResize(nil);
+  Form1.Refresh;
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
 
   Application.OnIdle:=Form1.OnIdle;
@@ -265,7 +266,7 @@ MyPlayer.AddUnit(ut_Baker, KMPoint(5,7));
 
 MyPlayer.AddHouse(ht_Store, KMPoint(17,5));
 
-MyPlayer.AddHouse(ht_WoodCutters, KMPoint(4,9));
+MyPlayer.AddHouse(ht_WoodCutters, KMPoint(24,9));
 MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9));
 MyPlayer.AddHouse(ht_Quary, KMPoint(12,9));
 MyPlayer.AddUnit(ut_WoodCutter, KMPoint(7,11));
@@ -307,6 +308,7 @@ MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 
 H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
 if H<>nil then H.AddMultiResource(rt_All,15);
+if H<>nil then H.AddMultiResource(rt_Sousages,500);
 
 MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan,true);
 MyPlayer.AddRoadPlan(KMPoint(4,6),mu_RoadPlan,true);
@@ -317,7 +319,7 @@ MyPlayer.AddRoadPlan(KMPoint(8,6),mu_RoadPlan,true);
 MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan,true);
 MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan,true);
 
-MyPlayer.AddHousePlan(ht_School, KMPoint(4,17));
+MyPlayer.AddHousePlan(ht_School, KMPoint(4,17),true);
 MyPlayer.AddHouse(ht_Inn, KMPoint(9,18));
 end;
 
@@ -345,33 +347,10 @@ fViewPort.SetCenter(10,9);
 end;
 
 procedure TForm1.PrintScreen1Click(Sender: TObject);
-var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal; s:string;
+var s:string;
 begin
-sh:=Panel5.Height;
-sw:=Panel5.Width;
-
-setlength(bmp,sw*sh+1);
-glReadPixels(0,0,sw,sh,GL_BGRA,GL_UNSIGNED_BYTE,@bmp[0]);
-
-//Mirror verticaly
-for i:=0 to (sh div 2)-1 do for k:=0 to sw-1 do
-SwapInt(bmp[i*sw+k],bmp[((sh-1)-i)*sw+k]);
-
-mkbmp:=TBitmap.Create;
-mkbmp.Handle:=CreateBitmap(sw,sh,1,32,@bmp[0]);
-
-jpg:=TJpegImage.Create;
-jpg.assign(mkbmp);
-jpg.ProgressiveEncoding:=true;
-jpg.ProgressiveDisplay:=true;
-jpg.Performance:=jpBestQuality;
-jpg.CompressionQuality:=90;
-jpg.Compress;
-DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
-jpg.SaveToFile(ExeDir+'KaM '+s+'.jpg');
-
-jpg.Free;
-mkbmp.Free;
+  DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
+  if fRender<>nil then fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
 end;
 
 procedure TForm1.ExportTreesRXClick(Sender: TObject);  begin ExportRX2BMP(1); end;
@@ -392,16 +371,18 @@ begin
 end;  
 
 
-procedure TForm1.Shape267MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TForm1.TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   DefineInputColor((Sender as TShape).Brush.Color,Sender);
 end;
 
-procedure TForm1.Shape267DragDrop(Sender, Source: TObject; X, Y: Integer);
+
+procedure TForm1.TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-  TeamColors[1]:=Shape267.Brush.Color;
+  TeamColors[1]:=TeamColorPicker.Brush.Color;
   fRender.Render;
 end;
+
 
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Global_Data
@@ -486,7 +467,7 @@ begin
 end;
 
 procedure TForm1.Button5Click(Sender: TObject);
-var H:TKMHouseStore;
+var H:TKMHouseStore; i:integer;
 begin
   fGame.StopGame;
   fGame.StartGame('');
@@ -494,14 +475,14 @@ begin
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
   H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
-  if H<>nil then H.AddMultiResource(rt_All,30);
+  if H<>nil then H.AddMultiResource(rt_All,300);
 
-  MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
+  for i:=1 to 2 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
   MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
-  MyPlayer.AddHouse(ht_Mill,KMPoint(9,8));
-  MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
-  TKMHouse(MyPlayer.FindHouse(ht_Mill,0,0)).ResAddToIn(rt_Corn,5);
+  MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
+  //MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
+  //TKMHouse(MyPlayer.FindHouse(ht_Mill,0,0)).ResAddToIn(rt_Corn,5);
 
   fViewPort.SetCenter(10,9);
 
@@ -517,7 +498,7 @@ end;
 
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
-  if CheckBox2.Checked then fGame.GameSpeed:=30 else fGame.GameSpeed:=1;
+  if CheckBox2.Checked then fGame.GameSpeed:=50 else fGame.GameSpeed:=1;
 end;
 
 end.

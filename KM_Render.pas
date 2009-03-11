@@ -1,6 +1,7 @@
 unit KM_Render;
 interface
-uses OpenGL, dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, KM_TGATexture, KM_Defaults;
+uses OpenGL, dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, JPEG, Graphics,
+  KM_TGATexture, KM_Defaults;
 
 type
 TRender = class
@@ -36,6 +37,7 @@ public
   destructor Destroy; override;
   procedure RenderResize(Width,Height:integer);
   procedure Render();
+  procedure DoPrintScreen(filename:string);
   procedure RenderTerrainAndFields(x1,x2,y1,y2:integer);
   procedure RenderWires();
   procedure RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
@@ -136,6 +138,7 @@ begin
 
     glLoadIdentity();
     RenderBrightness(fGameSettings.GetBrightness);
+
   end else begin
 
     glLoadIdentity();             // Reset The View
@@ -143,9 +146,40 @@ begin
     glPointSize(1);
     glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
     fMainMenuInterface.MyControls.Paint;
+    
   end;
 
   SwapBuffers(h_DC);
+end;
+
+
+procedure TRender.DoPrintScreen(filename:string);
+var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
+begin
+  sw:=RenderAreaSize.X;
+  sh:=RenderAreaSize.Y;
+
+  setlength(bmp,sw*sh+1);
+  glReadPixels(0,0,sw,sh,GL_BGRA,GL_UNSIGNED_BYTE,@bmp[0]);
+
+  //Mirror verticaly
+  for i:=0 to (sh div 2)-1 do for k:=0 to sw-1 do
+  SwapInt(bmp[i*sw+k],bmp[((sh-1)-i)*sw+k]);
+
+  mkbmp:=TBitmap.Create;
+  mkbmp.Handle:=CreateBitmap(sw,sh,1,32,@bmp[0]);
+
+  jpg:=TJpegImage.Create;
+  jpg.assign(mkbmp);
+  jpg.ProgressiveEncoding:=true;
+  jpg.ProgressiveDisplay:=true;
+  jpg.Performance:=jpBestQuality;
+  jpg.CompressionQuality:=90;
+  jpg.Compress;
+  jpg.SaveToFile(filename);
+
+  jpg.Free;
+  mkbmp.Free;
 end;
 
 
