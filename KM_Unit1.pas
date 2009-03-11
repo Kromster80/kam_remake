@@ -145,7 +145,10 @@ begin
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
-  fGame:=TKMGame.Create(ExeDir,Form1.Panel5.Handle);
+  Form1.WindowState:=wsMaximized;
+  //Form1.BorderStyle:=bsSizeable;
+  Form1.FormResize(nil);
+  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
 
   Application.OnIdle:=Form1.OnIdle;
 
@@ -155,8 +158,6 @@ begin
 
   Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
   Form1.Caption:='KaM Remake - '+'New.map';
-  Form1.WindowState:=wsMaximized;
-  Form1.FormResize(nil);
 end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);
@@ -381,6 +382,7 @@ procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP(5); en
 procedure TForm1.ExportSounds1Click(Sender: TObject);  begin fSoundLib.ExportSounds; end;
 procedure TForm1.HouseAnim1Click(Sender: TObject);     begin ExportHouseAnim2BMP(); end;
 procedure TForm1.UnitAnim1Click(Sender: TObject);      begin ExportUnitAnim2BMP();  end;
+procedure TForm1.ExportTextClick(Sender: TObject);     begin fTextLibrary.ExportTextLibraries; end;
 
 procedure TForm1.ExportFonts1Click(Sender: TObject);
 var i:integer;
@@ -435,11 +437,6 @@ begin
   end;
 end;
 
-
-procedure TForm1.ExportTextClick(Sender: TObject);
-begin
-  fTextLibrary.ExportTextLibraries;
-end;
 
 
 procedure TForm1.ExportDeliverlists1Click(Sender: TObject);

@@ -1,17 +1,15 @@
 object Form1: TForm1
   Left = 197
   Top = 72
+  Width = 662
+  Height = 291
   HelpType = htKeyword
-  BorderStyle = bsNone
-  ClientHeight = 245
-  ClientWidth = 654
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  HelpFile = 'KM_Editor.hlp'
   Menu = MainMenu1
   OldCreateOrder = False
   Position = poScreenCenter

@@ -21,12 +21,13 @@ type TKMMainMenuInterface = class
     procedure Play_Tutorial(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
-    constructor Create;
+    constructor Create(X,Y:word);
+    destructor Destroy; override;
     procedure SetScreenSize(X,Y:word);
     procedure ShowLoadingScreen();
     procedure ShowMainScreen();
     procedure Create_MainMenu_Page;
-    procedure Create_MainCredit_Page;
+    procedure Create_Credits_Page;
     procedure Create_Loading_Page;
 end;
 
@@ -130,6 +131,7 @@ type TKMGamePlayInterface = class
   public
     MyControls: TKMControlsCollection;
     constructor Create;
+    destructor Destroy; override;
     procedure Create_Build_Page;
     procedure Create_Ratios_Page;
     procedure Create_Stats_Page;
@@ -171,19 +173,28 @@ implementation
 uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game;
 
 
-constructor TKMMainMenuInterface.Create;
+constructor TKMMainMenuInterface.Create(X,Y:word);
 begin
-inherited;
+inherited Create;
   {Parent Page for whole toolbar in-game}
   MyControls:=TKMControlsCollection.Create;
+  ScreenX:=X;
+  ScreenY:=Y;
 
   KMPanel_Main1:=MyControls.AddPanel(nil,0,0,1024,768);
 
   Create_MainMenu_Page;
-  Create_MainCredit_Page;
+  Create_Credits_Page;
   Create_Loading_Page;
 
   SwitchMenuPage(nil);
+end;
+
+
+destructor TKMMainMenuInterface.Destroy;
+begin
+  FreeAndNil(MyControls);
+  inherited;
 end;
 
 
@@ -225,10 +236,11 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_MainCredit_Page;
+procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
-  KMPanel_Credits:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
-    KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,1024,768,2,5);
+  KMPanel_Credits:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
+    KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,ScreenX,ScreenY,2,5);
+    KMImage_CreditsBG.StretchImage:=true;
     KMButton_CreditsBack:=MyControls.AddButton(KMPanel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
     KMButton_CreditsBack.OnClick:=SwitchMenuPage;
 end;
@@ -425,6 +437,7 @@ end;
 constructor TKMGamePlayInterface.Create();
 var i:integer;
 begin
+inherited;
 Assert(fGameSettings<>nil,'fGameSettings required to be init first');
 Assert(fViewport<>nil,'fViewport required to be init first');
 
@@ -498,6 +511,14 @@ Assert(fViewport<>nil,'fViewport required to be init first');
 
   SwitchPage(nil); //Update
 end;
+
+
+destructor TKMGamePlayInterface.Destroy;
+begin
+  FreeAndNil(MyControls);
+  inherited;
+end;
+
 
 {Build page}
 procedure TKMGamePlayInterface.Create_Build_Page;

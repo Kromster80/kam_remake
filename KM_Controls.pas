@@ -68,6 +68,7 @@ TKMImage = class(TKMControl)
   public
     RXid: integer; //RX library
     TexID: integer;
+    StretchImage: boolean;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
@@ -388,10 +389,14 @@ end;
 
 
 {Make sure image area is at least enough to fit an image, or bigger}
+{if Width/Height are 0 then image gets centered around Left/Top}
+{if Width/Height are smaller than actual image then adjust them to fit image}
+{if Width/Height are bigger than actual image then image will be centered within bounds}
 constructor TKMImage.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
 begin
   RXid:=aRXid;
   TexID:=aTexID;
+  StretchImage:=false;
   if aWidth=0 then aLeft:=aLeft - GFXData[RXid,aTexID].PxWidth div 2;
   if aHeight=0 then aTop:=aTop - GFXData[RXid,aTexID].PxHeight div 2;
   aWidth:=max(aWidth,GFXData[RXid,aTexID].PxWidth);
@@ -405,8 +410,11 @@ end;
 procedure TKMImage.Paint();
 begin
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer($4000FF00,Left,Top,Width,Height);
-  fRenderUI.WritePic(RXid,TexID, Left + (Width-GFXData[RXid,TexID].PxWidth) div 2,
-                            Top + (Height-GFXData[RXid,TexID].PxHeight) div 2,Enabled);
+  if StretchImage then
+    fRenderUI.WritePic(RXid, TexID, Left, Top, Width, Height, Enabled)
+  else
+    fRenderUI.WritePic(RXid,TexID, Left + (Width-GFXData[RXid,TexID].PxWidth) div 2,
+                                    Top + (Height-GFXData[RXid,TexID].PxHeight) div 2,Enabled);
 end;
 
 
@@ -673,12 +681,10 @@ function TKMControlsCollection.AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,
 begin
   Result:=TKMResourceOrderRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
   AddToCollection(Result);
+  //These three will be added to collection themselfes
   Result.OrderRem :=AddButton(aParent,aLeft,aTop+2,20,aHeight,fTextLibrary.GetTextString(183),fnt_Metal);
-  AddToCollection(Result.OrderRem);
   Result.OrderLab :=AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
-  AddToCollection(Result.OrderLab);
   Result.OrderAdd :=AddButton(aParent,aLeft+46,aTop+2,20,aHeight,fTextLibrary.GetTextString(182),fnt_Metal);
-  AddToCollection(Result.OrderAdd);
 end;
 
 function TKMControlsCollection.AddCostsRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;

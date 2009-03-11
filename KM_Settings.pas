@@ -77,7 +77,7 @@ end;
 destructor TGameSettings.Destroy;
 begin
   SaveSettingsToFile(ExeDir+'KaM_Remake_Settings.ini');
-  Inherited Destroy;
+  Inherited;
 end;
 
 function TGameSettings.LoadSettingsFromFile(filename:string):boolean;

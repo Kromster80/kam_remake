@@ -11,7 +11,8 @@ TRenderUI = class
     procedure Write3DButton(RXid,ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WriteFlatButton(RXid,ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
     procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
-    procedure WritePic(RXid,ID,PosX,PosY:integer;Enabled:boolean=true);
+    procedure WritePic(RXid,ID,PosX,PosY:integer;Enabled:boolean=true); overload;
+    procedure WritePic(RXid,ID,PosX,PosY,SizeX,SizeY:integer;Enabled:boolean=true); overload;
     procedure WriteRect(PosX,PosY,Width,Height:integer; Col:TColor4);
     procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
     function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint; //Should return text width in px
@@ -220,15 +221,33 @@ begin
     glPushMatrix;
       glkMoveAALines(false);
       glTranslate(PosX,PosY,0);
-      //@Lewin: First 3 components are RGB saturation from Black to FullColor of original image
-      //The last one is transparency. 4f here means input is 4 floats (0..1 range)
-      //So what I do is either full-color or 1/3 of color density. Fully opaque.
       if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
       glBegin(GL_QUADS);
         glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
         glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );
         glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
         glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
+      glEnd;
+    glPopMatrix;
+  end;
+  glBindTexture(GL_TEXTURE_2D,0);
+end;
+
+
+{Stretched pic}
+procedure TRenderUI.WritePic(RXid,ID,PosX,PosY,SizeX,SizeY:integer;Enabled:boolean=true);
+begin
+  if ID<>0 then with GFXData[RXid,ID] do begin
+    glBindTexture(GL_TEXTURE_2D,TexID);
+    glPushMatrix;
+      glkMoveAALines(false);
+      glTranslate(PosX,PosY,0);
+      if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
+      glBegin(GL_QUADS);
+        glTexCoord2f(u1,v1); glVertex2f(0       ,0      );
+        glTexCoord2f(u2,v1); glVertex2f(0+SizeX ,0      );
+        glTexCoord2f(u2,v2); glVertex2f(0+SizeX ,0+SizeY);
+        glTexCoord2f(u1,v2); glVertex2f(0       ,0+SizeY);
       glEnd;
     glPopMatrix;
   end;

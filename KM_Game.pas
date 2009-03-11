@@ -4,7 +4,7 @@ uses Windows, Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Users, KM_Render, KM_LoadLib, KM_GamePlayInterface, KM_ReadGFX1, KM_Terrain, KM_LoadDAT,
   KM_LoadSFX, KM_Viewport, KM_Units, KM_Settings;
 
-type TDataLoadingState = (dls_None, dls_Essence, dls_All);
+type TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and rest
 
 type
   TKMGame = class
@@ -14,7 +14,7 @@ type
     GameIsRunning:boolean;
     DataState:TDataLoadingState;
   public
-    constructor Create(ExeDir:string; RenderHandle:HWND);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer);
     destructor Destroy; override;
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
@@ -35,18 +35,20 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer);
 begin
   DataState:=dls_None;
+  ScreenX:=aScreenX;
+  ScreenY:=aScreenY;
   fRender:= TRender.Create(RenderHandle);
   fLog.AppendLog('Render init',true);
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fLog.AppendLog('TextLib init',true);
   ReadGFX(ExeDir, true); //Should load only GUI part of it
-  DataState:=dls_Essence;
+  DataState:=dls_Menu;
   fSoundLib:= TSoundLib.Create; //Needed for button click sounds and etc?
   fLog.AppendLog('SoundLib init',true);
-  fMainMenuInterface:= TKMMainMenuInterface.Create;
+  fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY);
   fLog.AppendLog('fMainMenuInterface init',true);
   GameSpeed:=1;
   GameIsRunning:=false;
@@ -74,6 +76,11 @@ begin
     fViewport.SetArea(X,Y);
     ZoomInGameArea(1);
   end else begin
+    //Should resize all Controls somehow...
+    //FreeAndNil(fMainMenuInterface);
+    //fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y);
+    //GameSpeed:=1;
+    //GameIsRunning:=false;
     fMainMenuInterface.SetScreenSize(X,Y);
   end;
 end;
