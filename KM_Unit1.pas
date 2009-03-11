@@ -475,7 +475,7 @@ end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 begin
-  fSoundLib.Play(sfx_dig,KMPoint(48,48),true);
+  fSoundLib.Play(sfx_dig,KMPoint(48,48),false);
 end;
 
 procedure TForm1.OpenMissionMenuClick(Sender: TObject);

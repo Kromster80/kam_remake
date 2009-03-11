@@ -5,11 +5,15 @@ uses KM_Controls, KM_Houses, KM_Units, KM_Defaults, SysUtils, KromUtils, KromOGL
 type TKMMainMenuInterface = class
   private
     ScreenX,ScreenY:word;
+  protected
     KMPanel_Main1:TKMPanel;
     KMPanel_MainMenu:TKMPanel;
       KMImage_MainMenuBG,KMImage_MainMenu1,KMImage_MainMenu2,KMImage_MainMenu3:TKMImage; //Menu background
       KMButton_MainMenuTutor,KMButton_MainMenuTSK,KMButton_MainMenuTPR,
       KMButton_MainMenuSingle,KMButton_MainMenuCredit,KMButton_MainMenuQuit:TKMButton;
+    KMPanel_Single:TKMPanel;
+      KMImage_SingleBG:TKMImage; //Single background
+      KMButton_SingleBack:TKMButton;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage; //Credits background
       KMButton_CreditsBack:TKMButton;
@@ -27,6 +31,7 @@ type TKMMainMenuInterface = class
     procedure ShowLoadingScreen();
     procedure ShowMainScreen();
     procedure Create_MainMenu_Page;
+    procedure Create_Single_Page;
     procedure Create_Credits_Page;
     procedure Create_Loading_Page;
 end;
@@ -184,6 +189,7 @@ inherited Create;
   KMPanel_Main1:=MyControls.AddPanel(nil,0,0,1024,768);
 
   Create_MainMenu_Page;
+  Create_Single_Page;
   Create_Credits_Page;
   Create_Loading_Page;
 
@@ -217,7 +223,8 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   KMPanel_MainMenu:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
-    KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,800,600,2,5);
+    KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,ScreenX,ScreenY,2,5);
+    KMImage_MainMenuBG.StretchImage:=true;
     KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,400,100,0,0,4,5);
     KMImage_MainMenu2:=MyControls.AddImage(KMPanel_MainMenu,200,400,0,0,5,5);
     KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,600,400,0,0,6,5);
@@ -228,11 +235,22 @@ begin
     KMButton_MainMenuTPR   :=MyControls.AddButton(KMPanel_MainMenu,100,480,350,30,fTextLibrary.GetSetupString(2),fnt_Metal);
     KMButton_MainMenuTPR.Disable;
     KMButton_MainMenuSingle:=MyControls.AddButton(KMPanel_MainMenu,100,520,350,30,fTextLibrary.GetSetupString(4),fnt_Metal);
-    KMButton_MainMenuSingle.Disable;
+    KMButton_MainMenuSingle.OnClick:=SwitchMenuPage;
+    KMButton_MainMenuSingle.Disable; //@Lewin: I like to keep incomplete controls disabled )
     KMButton_MainMenuCredit:=MyControls.AddButton(KMPanel_MainMenu,100,560,350,30,fTextLibrary.GetSetupString(13),fnt_Metal);
     KMButton_MainMenuCredit.OnClick:=SwitchMenuPage;
     KMButton_MainMenuQuit  :=MyControls.AddButton(KMPanel_MainMenu,100,640,350,30,fTextLibrary.GetSetupString(14),fnt_Metal);
     KMButton_MainMenuQuit.OnClick:=Form1.Exit1.OnClick;
+end;
+
+
+procedure TKMMainMenuInterface.Create_Single_Page;
+begin
+  KMPanel_Single:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
+    KMImage_SingleBG:=MyControls.AddImage(KMPanel_Single,0,0,ScreenX,ScreenY,2,5);
+    KMImage_SingleBG.StretchImage:=true;
+    KMButton_SingleBack:=MyControls.AddButton(KMPanel_Single,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
+    KMButton_SingleBack.OnClick:=SwitchMenuPage;
 end;
 
 
@@ -248,8 +266,9 @@ end;
 
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
-  KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
-    KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,1024,768,2,5);
+  KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
+    KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,ScreenX,ScreenY,2,5);
+    KMImage_LoadingBG.StretchImage:=true;
     KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,600,434,100,30,fnt_Grey,kaCenter,'Loading... Please wait');
 end;
 
@@ -264,11 +283,14 @@ begin
 
   if Sender=nil then KMPanel_MainMenu.Show;
   
-  if Sender=KMButton_CreditsBack then
+  if (Sender=KMButton_CreditsBack)or(Sender=KMButton_SingleBack) then
     KMPanel_MainMenu.Show;
 
   if Sender=KMButton_MainMenuCredit then
     KMPanel_Credits.Show;
+
+  if Sender=KMButton_MainMenuSingle then
+    KMPanel_Single.Show;
 
   if Sender=KMPanel_Loading then
     KMPanel_Loading.Show;

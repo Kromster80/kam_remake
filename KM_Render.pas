@@ -72,11 +72,10 @@ begin
   SetRenderDefaults();
 
   glDisable(GL_LIGHTING);
+  fLog.AppendLog('Pre-texture done');
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);    // Load the Textures
   LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512,0);  // Load the Textures
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-  //BuildFont(h_DC,16); //Deprecated
 end;
 
 

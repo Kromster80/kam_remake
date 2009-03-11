@@ -40,14 +40,14 @@ begin
 end;
 
 procedure TTextLibrary.LoadLIBFile(FilePath:string; var AArray:array of string);
-var
+var             
+  f:file; NumRead:integer;
   LIBFile: file of char;
   i, i2, i3, StrCount, Byte1, Byte2, LastStrLen, LastFirstFFIndex, StrLen, TheIndex, ExtraCount: integer;
   FileData: array[0..100000] of byte;
   TheString: string;
   LastWasFF: boolean;
   c: char;
-  b: byte;
 begin
   {
   By reading this code you will probably think that I'm crazy. But all the weird stuff
@@ -57,17 +57,15 @@ begin
   what I'm talking about. ;)
   }
   if not CheckFileExists(FilePath) then exit;
-  AssignFile(LIBFile, FilePath);
-  Reset(LIBFile);
-  //First load entire file into an array 
-  i2 := 0;
-  while not EOF(LIBFile) do
-  begin
-    Read(LIBFile, c);  b := ord(c);
-    FileData[i2] := b; 
-    i2 := i2 + 1;
-  end;
+  //@Lewin: Replaced your code. Saved us 200ms on loading :)
+  //Reading files byte-by-byte is the slowest thing ever.
+  //Always try to read whole thing in one chunk into memory first and then process it
+  //NumRead holds Count read from file, it's generally unused, but allows to avoid GetFileSize thing
+  assignfile(f,FilePath); reset(f,1);
+  blockread(f,FileData,100000,NumRead);
+  closefile(f);
 
+  AssignFile(LIBFile, FilePath);
   Reset(LIBFile); //Reset the file so we can start reading from the start again
   //Load string count from first two bytes
   Read(LIBFile, c); i := ord(c);

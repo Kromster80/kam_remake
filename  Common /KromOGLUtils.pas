@@ -235,6 +235,8 @@ end;
 {Lines are drawn between pixels, thus when AA turned on they get blurred.
 We can negate this by using 0.5 offset
 Still it's unclear if that works on all GPUs the same..}
+//After we apply this command we can draw lines over pixels
+//when everythings done either shift back or PopMatrix
 procedure glkMoveAALines(DoShift:boolean);
 const Value=0.5;
 begin

@@ -84,23 +84,25 @@ end;
 
     if ID<>0 then begin
       glColor4f(1,1,1,1);
-      WritePic(RXid,ID,round((SizeX-GFXData[4,ID].PxWidth)/2),
-                  round((SizeY-GFXData[4,ID].PxHeight)/2));
+      WritePic(RXid,ID,(SizeX-GFXData[4,ID].PxWidth) div 2,
+                       (SizeY-GFXData[4,ID].PxHeight) div 2);
     end;
 
+    glkMoveAALines(false);
     if bs_Highlight in State then begin
       glColor4f(1,1,1,0.15);
       glBegin (GL_QUADS);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
     end;
-
+                      
     if bs_Disabled in State then begin
       glColor4f(0,0,0,0.5);
       glBegin (GL_QUADS);
-        glkRect(0,0,SizeX-1,SizeY-1);
+        glkRect(0,0,SizeX,SizeY);
       glEnd;
     end;
+    glkMoveAALines(true);
 
   glPopMatrix;
 
@@ -348,7 +350,8 @@ procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY,MapX,MapY:integer);
 var i,k,ID:integer; Light:single; Loc:TKMPointList;
 begin
   glPushMatrix;
-    glTranslate(PosX + (SizeX-MapX)div 2, PosY + (SizeY-MapY)div 2,0);
+    glTranslate(PosX + (SizeX-MapX) div 2, PosY + (SizeY-MapY) div 2,0);
+    //glkScale(SizeX/MapX);
     //glNewList(MinimapList,GL_COMPILE);
     glBegin(GL_POINTS);
       for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin

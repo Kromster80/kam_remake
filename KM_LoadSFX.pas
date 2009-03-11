@@ -61,11 +61,14 @@ constructor TSoundLib.Create;
 var
   argv: array of PalByte;
 begin
-  Inherited Create;
+  Inherited;
+  fLog.AppendLog('Pre-LoadSFX',true);
   InitOpenAL;
   AlutInit(nil,argv);
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
+  fLog.AppendLog('Pre-LoadSFX init done',true);
   LoadSoundsDAT();
+  fLog.AppendLog('LoadSFX init done',true);
   AlGenBuffers(MaxSourceCount, @ALBuffer); //64 looks like the limit, depends on hardware
   AlGenSources(MaxSourceCount, @ALSource);
   //Set default Listener orientation
