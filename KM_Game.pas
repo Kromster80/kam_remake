@@ -40,14 +40,19 @@ begin
   DataState:=dls_None;
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
+  fLog.AppendLog('<== Render init follows ==>');
   fRender:= TRender.Create(RenderHandle);
   fLog.AppendLog('Render init',true);
+  fLog.AppendLog('<== TextLib init follows ==>');
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fLog.AppendLog('TextLib init',true);
+  fLog.AppendLog('<== ReadGFX init follows ==>');
   ReadGFX(ExeDir, true); //Should load only GUI part of it
   DataState:=dls_Menu;
+  fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create; //Needed for button click sounds and etc?
   fLog.AppendLog('SoundLib init',true);
+  fLog.AppendLog('<== MainMenu init follows ==>');
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY);
   fLog.AppendLog('fMainMenuInterface init',true);
   GameSpeed:=1;

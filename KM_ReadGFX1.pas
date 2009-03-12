@@ -352,6 +352,7 @@ end;
 //=============================================
 procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL);
 var
+  MyBitMap:TBitMap;
   i,k:integer;
   x:byte;
   by:^cardinal;
@@ -389,7 +390,7 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
 
       if Mode=tm_TexID then
         if InRange(x,24,30) then
-          col:=((x-27)*42+128)*65793 OR $FF000000 //convert to greyscale B>>>>>W
+          col:=(byte(x-27)*42+128)*65793 OR $FF000000 //convert to greyscale B>>>>>W
         else
           col:=Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000
       else
@@ -403,6 +404,7 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
           else   col:=0;
         end;
 
+      //col:=max(MAXDWORD-col,0) OR $FF000000;//Fast invert
       by^:=col;
     end;
   end;
@@ -421,6 +423,20 @@ glBindTexture(GL_TEXTURE_2D, id^);
   tm_AltID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
   end;
 end;
+
+if WriteAllTexturesToBMP then begin
+  CreateDir(ExeDir+'GenTextures\');
+  MyBitMap:=TBitMap.Create;
+  MyBitmap.PixelFormat:=pf32bit;
+  MyBitmap.Width:=DestX;
+  MyBitmap.Height:=DestY;
+    for i:=0 to DestY-1 do for k:=0 to DestX-1 do begin
+      MyBitmap.Canvas.Pixels[k,i]:=((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
+    end;
+    MyBitmap.SaveToFile(ExeDir+'GenTextures\'+int2fix(ID^,4)+'.bmp');
+  MyBitMap.Free;
+end;
+
 FreeMem(TD);
 end;
 
@@ -516,7 +532,10 @@ repeat
   //Pack textures with same POT height into rows to save memory
   //This also means fewer textures for GPU RAM == better performance
   while((id+ad<RXData[RXid].Qty)and
-        (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2]))and
+        (
+        (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2]))
+        or((HeightPOT>=MakePOT(RXData[RXid].Size[id+ad,2]))AND(WidthPOT+RXData[RXid].Size[id+ad,1]<MakePOT(WidthPOT)))
+        )and
         (WidthPOT+RXData[RXid].Size[id+ad,1]<=MaxTexRes)) do begin
     inc(WidthPOT,RXData[RXid].Size[id+ad,1]);
     inc(ad);

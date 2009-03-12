@@ -26,6 +26,7 @@ var
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
   WriteResourceInfoToTXT:boolean=false;  //Whenever to write txt files with defines data properties 
+  WriteAllTexturesToBMP:boolean=false;  //Whenever to write txt files with defines data properties
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
   TERRAIN_FOG_OF_WAR_ENABLE:boolean=true;//Whenever fog of war is enabled or not
 
@@ -680,7 +681,9 @@ begin
   assignfile(fl,logfile);
   rewrite(fl);
   closefile(fl);
-  AppendLog('Log is up and running');
+  AddToLog('');
+  AddToLog('');
+  AddToLog('Log is up and running');
 end;
 
 {Lines are timestamped, each line invokes file open/close for writing,
@@ -693,7 +696,7 @@ begin
   if Delta>100000 then Delta:=0; //ommit first usage
   assignfile(fl,logfile);
   append(fl);
-  writeln(fl,inttostr(Delta)+'ms'+#9+text);
+  writeln(fl,#9+inttostr(Delta)+'ms'+#9+text);
   closefile(fl);
 end;
 
@@ -702,7 +705,7 @@ procedure TKMLog.AddLineNoTime(text:string);
 begin
   assignfile(fl,logfile);
   append(fl);
-  writeln(fl,#9+text);
+  writeln(fl,#9+#9+text);
   closefile(fl);
 end;
 

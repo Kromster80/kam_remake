@@ -55,7 +55,7 @@ procedure TViewport.SetCenter(NewX,NewY:integer);
 begin
   XCoord:=EnsureRange(NewX,1,fTerrain.MapX);
   YCoord:=EnsureRange(NewY,1,fTerrain.MapY);
-  fSoundLib.UpdateListener(KMPoint(NewX,NewY));
+  fSoundLib.UpdateListener(KMPoint(XCoord,YCoord));
 end;
 
 //Acquire boundaries of area visible to user

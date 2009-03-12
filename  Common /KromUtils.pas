@@ -630,9 +630,18 @@ end;
 function MakePOT(num:integer):integer;
 var t:single; i:integer;
 begin
+i:=num-1;
+i:= i OR i SHR 1;
+i:= i OR i SHR 2;
+i:= i OR i SHR 4;
+i:= i OR i SHR 8;
+i:= i OR i SHR 16;
+Result:=i+1;
+       {
 t:=num; i:=1;
 while t>2 do begin t:=t / 2; inc(i); end;
-Result:=pow(2,i);
+Result:=pow(2,i); }
+
 end;
 
 function GetLengthSQR(ix,iy,iz:integer): integer;

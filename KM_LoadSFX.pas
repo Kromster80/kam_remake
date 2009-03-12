@@ -59,16 +59,25 @@ implementation
 
 constructor TSoundLib.Create;
 var
-  argv: array of PalByte;
+  Context: PALCcontext;
+  Device: PALCdevice;
 begin
   Inherited;
-  fLog.AppendLog('Pre-LoadSFX',true);
   InitOpenAL;
-  AlutInit(nil,argv);
+
+  //Open device
+  Device := alcOpenDevice(nil); // this is supposed to select the "preferred device"
+  //Create context(s)
+  Context := alcCreateContext(Device, nil);
+  //Set active context
+  alcMakeContextCurrent(Context);
+
+  //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
-  fLog.AppendLog('Pre-LoadSFX init done',true);
+  fLog.AppendLog('Pre-LoadSFX init',true);
+  
   LoadSoundsDAT();
-  fLog.AppendLog('LoadSFX init done',true);
+  fLog.AppendLog('Load Sounds.dat',true);
   AlGenBuffers(MaxSourceCount, @ALBuffer); //64 looks like the limit, depends on hardware
   AlGenSources(MaxSourceCount, @ALSource);
   //Set default Listener orientation
