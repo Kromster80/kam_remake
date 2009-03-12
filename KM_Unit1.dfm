@@ -202,15 +202,6 @@ object Form1: TForm1
       Caption = 'Pause'
       TabOrder = 2
     end
-    object CheckBox3: TCheckBox
-      Left = 224
-      Top = 16
-      Width = 49
-      Height = 17
-      Caption = 'Wires'
-      TabOrder = 3
-      OnClick = ShowWiresClick
-    end
     object TrackBar1: TTrackBar
       Left = 2
       Top = 36
@@ -223,7 +214,7 @@ object Form1: TForm1
       Position = 4
       SelEnd = 0
       SelStart = 0
-      TabOrder = 4
+      TabOrder = 3
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
@@ -235,16 +226,7 @@ object Form1: TForm1
       Width = 81
       Height = 17
       Caption = 'Speed x1/2'
-      TabOrder = 5
-    end
-    object CheckBox5: TCheckBox
-      Left = 224
-      Top = 32
-      Width = 57
-      Height = 17
-      Caption = 'Overlay'
-      TabOrder = 6
-      OnClick = CheckBox5Click
+      TabOrder = 4
     end
     object RGPlayer: TRadioGroup
       Left = 280
@@ -261,7 +243,7 @@ object Form1: TForm1
         '4'
         '5'
         '6')
-      TabOrder = 7
+      TabOrder = 5
       OnClick = RGPlayerClick
     end
     object Button1: TButton
@@ -270,7 +252,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '>>'
-      TabOrder = 8
+      TabOrder = 6
       OnClick = Button1Click
     end
     object Button2: TButton
@@ -279,7 +261,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '6'
-      TabOrder = 9
+      TabOrder = 7
       OnClick = Button2Click
     end
     object Step1Frame: TButton
@@ -288,7 +270,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '|| >'
-      TabOrder = 11
+      TabOrder = 9
       OnClick = Timer100msTimer
     end
     object Button5: TButton
@@ -297,7 +279,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '1'
-      TabOrder = 12
+      TabOrder = 10
       OnClick = Button5Click
     end
     object Button3: TButton
@@ -306,7 +288,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = 'Stop'
-      TabOrder = 10
+      TabOrder = 8
       OnClick = Button3Click
     end
   end
@@ -356,12 +338,13 @@ object Form1: TForm1
         Caption = 'Show object ID'
         OnClick = ShowObjectsClick
       end
-      object ShowFlatTerrain: TMenuItem
-        Caption = 'Show flat terrain'
-      end
-      object PrintScreen1: TMenuItem
+      object PrintScreen: TMenuItem
         Caption = 'PrintScreen'
-        OnClick = PrintScreen1Click
+        OnClick = PrintScreenClick
+      end
+      object ShowOverlay: TMenuItem
+        Caption = 'Show Overlay'
+        OnClick = ShowOverlayClick
       end
     end
     object Export1: TMenuItem

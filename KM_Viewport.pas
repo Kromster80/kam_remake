@@ -1,6 +1,6 @@
 unit KM_Viewport;
 interface            
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, KromUtils, KromOGLUtils, OpenGL;
+uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils, OpenGL;
 
 type
 
@@ -19,6 +19,7 @@ ViewWidth,ViewHeight:integer;
   function GetCenter():TKMPoint;
   procedure SetCenter(NewX,NewY:integer);
   function GetClip():TRect; //returns visible area dimensions in map space
+  procedure DoScrolling;
 published
 end;
 
@@ -26,7 +27,7 @@ var
   fViewport: TViewport;
 
 implementation
-uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Users, KM_LoadSFX;
+uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Users, KM_LoadSFX, KM_Settings;
 
 constructor TViewport.Create;
 begin
@@ -70,6 +71,38 @@ begin
   dec(Result.Right,4);
   inc(Result.Top,4);
   dec(Result.Bottom,7);
+end;
+
+//Here we must test each edge to see if we need to scroll in that direction
+//We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Global_Data
+procedure TViewport.DoScrolling;
+const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
+var ScrollAdv: integer; Temp:byte;
+begin
+  Temp:=0; //That is our bitfield variable for directions, 0..12 range
+  //    3 2 6  These are directions
+  //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
+  //    9 8 12
+
+  ScrollAdv := SCROLLSPEED + byte(fGameSettings.IsFastScroll)*3; //3 times faster
+
+  //Left, Top, Right, Bottom
+  if Mouse.CursorPos.X < SCROLLFLEX then begin inc(Temp,1); dec(XCoord,ScrollAdv); end;
+  if Mouse.CursorPos.Y < SCROLLFLEX then begin inc(Temp,2); dec(YCoord,ScrollAdv); end;
+  if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); inc(XCoord,ScrollAdv); end;
+  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); inc(YCoord,ScrollAdv); end;
+
+  //Now do actual the scrolling, if needed
+  if Temp<>0 then
+  begin
+    SetCenter(XCoord,YCoord); //EnsureRanges
+    Screen.Cursor :=DirectionsBitfield[Temp]; //Sample cursor type from bitfield value
+    Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
+  end else begin
+    Scrolling := false; //Allow cursor changes to be overriden and reset if still on a scrolling cursor
+    if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
+      Screen.Cursor := c_Default;
+  end;
 end;
 
 end.

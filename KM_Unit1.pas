@@ -5,7 +5,7 @@ uses
   Menus, Buttons, Math, SysUtils, KromUtils, OpenGL, dglOpenGL,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults,
   KM_Form_Loading, KM_Terrain, KM_Game,
-  KM_Units, KM_Houses, KM_Viewport, KM_Users, KM_Controls, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
+  KM_Units, KM_Houses, KM_Viewport, KM_Users, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
 
 type                           
   TForm1 = class(TForm)
@@ -20,10 +20,9 @@ type
     Advanced1: TMenuItem;
     ShowWires: TMenuItem;
     ShowObjects: TMenuItem;
-    ShowFlatTerrain: TMenuItem;
     Panel5: TPanel;
     Timer100ms: TTimer;
-    PrintScreen1: TMenuItem;
+    PrintScreen: TMenuItem;
     Export1: TMenuItem;
     ExportGUIRX: TMenuItem;
     ExportTreesRX: TMenuItem;
@@ -39,7 +38,6 @@ type
     TeamColorPicker: TShape;
     CheckBox2: TCheckBox;
     CheckBox1: TCheckBox;
-    CheckBox3: TCheckBox;
     ExportText: TMenuItem;
     ExportStatus1: TMenuItem;
     ExportDeliverlists1: TMenuItem;
@@ -49,7 +47,6 @@ type
     CheckBox4: TCheckBox;
     HouseAnim1: TMenuItem;
     UnitAnim1: TMenuItem;
-    CheckBox5: TCheckBox;
     RGPlayer: TRadioGroup;
     Button1: TButton;
     Button2: TButton;
@@ -58,6 +55,7 @@ type
     OpenMissionMenu: TMenuItem;
     Step1Frame: TButton;
     Button5: TButton;
+    ShowOverlay: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure OpenMapClick(Sender: TObject);
@@ -74,7 +72,7 @@ type
     procedure Timer100msTimer(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
-    procedure PrintScreen1Click(Sender: TObject);
+    procedure PrintScreenClick(Sender: TObject);
     procedure ExportGUIRXClick(Sender: TObject);
     procedure ExportTreesRXClick(Sender: TObject);
     procedure ExportHousesRXClick(Sender: TObject);
@@ -83,14 +81,13 @@ type
     procedure TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure Exportfonts1Click(Sender: TObject);
-    procedure DoScrolling;
     procedure ExportTextClick(Sender: TObject);
     procedure ExportDeliverlists1Click(Sender: TObject);
     procedure ExportSounds1Click(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
     procedure HouseAnim1Click(Sender: TObject);
     procedure UnitAnim1Click(Sender: TObject);
-    procedure CheckBox5Click(Sender: TObject);
+    procedure ShowOverlayClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure RGPlayerClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
@@ -205,15 +202,10 @@ procedure TForm1.Timer100msTimer(Sender: TObject);
 begin
   if not Form1.Active then exit;
 
-  if (CheckBox1.Checked)and(Sender<>Step1Frame) then exit;
-
-  if CheckBox4.Checked then
-  if GlobalTickCount mod 2 <> 0 then exit;
+  if (CheckBox1.Checked)and(Sender<>Step1Frame) then exit; //Pause
+  if (CheckBox4.Checked)and(GlobalTickCount mod 2 <> 0) then exit; //1/2 slow
 
   fGame.UpdateState;
-
-  if fGame.GameIsRunning then //Need to re-rig it to fViewport later
-    DoScrolling; //Now check to see if we need to scroll
 end;
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
@@ -221,27 +213,13 @@ begin
   TBZoomControl.Position:=4;
 end;
 
-procedure TForm1.ExitClick(Sender: TObject);
-begin
-  Form1.Close;
-end;
-
-procedure TForm1.ShowWiresClick(Sender: TObject);
-begin
-  ShowWires.Checked:=not ShowWires.Checked;
-end;
-
-procedure TForm1.ShowObjectsClick(Sender: TObject);
-begin
-  ShowObjects.Checked:=not ShowObjects.Checked;
-end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
   fGame.StopGame;
   fGame.StartGame('');
-TKMControl(Sender).Enabled:=false;
+
 fViewPort.SetCenter(11,9);
 
 for k:=-5 to 5 do for i:=-4 to 6 do
@@ -328,7 +306,6 @@ var H:TKMHouseStore; i,k:integer;
 begin
   fGame.StopGame;
   fGame.StartGame('');
-TKMControl(Sender).Enabled:=false;
 
 for k:=1 to 4 do begin
   MyPlayer:=fPlayers.Player[k];
@@ -343,16 +320,28 @@ for k:=1 to 4 do begin
 end;
 
 fViewPort.SetCenter(10,9);
-
 end;
 
-procedure TForm1.PrintScreen1Click(Sender: TObject);
+
+//Exit
+procedure TForm1.ExitClick(Sender: TObject);        begin Form1.Close; end;
+
+//Options
+procedure TForm1.ShowWiresClick(Sender: TObject);   begin ShowWires.Checked:=not ShowWires.Checked; end;
+procedure TForm1.ShowObjectsClick(Sender: TObject); begin ShowObjects.Checked:=not ShowObjects.Checked; end;
+procedure TForm1.ShowOverlayClick(Sender: TObject);
+begin
+  ShowOverlay.Checked:= not ShowOverlay.Checked;
+  MakeDrawPagesOverlay:=ShowOverlay.Checked;
+end;
+procedure TForm1.PrintScreenClick(Sender: TObject);
 var s:string;
 begin
   DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
   if fRender<>nil then fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
 end;
 
+//Exports
 procedure TForm1.ExportTreesRXClick(Sender: TObject);  begin ExportRX2BMP(1); end;
 procedure TForm1.ExportHousesRXClick(Sender: TObject); begin ExportRX2BMP(2); end;
 procedure TForm1.ExportUnitsRXClick(Sender: TObject);  begin ExportRX2BMP(3); end;
@@ -384,42 +373,6 @@ begin
 end;
 
 
-//Here we must test each edge to see if we need to scroll in that direction
-//We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Global_Data
-procedure TForm1.DoScrolling;
-const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
-var XCoord, YCoord, ScrollAdv: integer; Temp:byte;
-begin
-  XCoord := fViewport.GetCenter.X; //First set X and Y to be the current values
-  YCoord := fViewport.GetCenter.Y;
-  Temp:=0; //That is our bitfield variable for directions, 0..12 range
-  //    3 2 6  These are directions
-  //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
-  //    9 8 12
-
-  ScrollAdv := SCROLLSPEED + byte(fGameSettings.IsFastScroll)*3; //4 times faster
-
-  //Left, Top, Right, Bottom
-  if Mouse.CursorPos.X < SCROLLFLEX then begin inc(Temp,1); dec(XCoord,ScrollAdv); end;
-  if Mouse.CursorPos.Y < SCROLLFLEX then begin inc(Temp,2); dec(YCoord,ScrollAdv); end;
-  if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); inc(XCoord,ScrollAdv); end;
-  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); inc(YCoord,ScrollAdv); end;
-  if Temp<>0 then Screen.Cursor :=DirectionsBitfield[Temp]; //Sample cursor type from bitfield value
-
-  //Now do actual the scrolling, if needed
-  if (XCoord<>fViewport.GetCenter.X)or(YCoord<>fViewport.GetCenter.Y) then
-  begin
-    fViewport.SetCenter(XCoord,YCoord);
-    Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
-  end else begin
-    Scrolling := false; //Allow cursor changes to be overriden and reset if still on a scrolling cursor
-    if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
-      Screen.Cursor := c_Default;
-  end;
-end;
-
-
-
 procedure TForm1.ExportDeliverlists1Click(Sender: TObject);
 var f:textfile; i:integer;
 begin
@@ -434,15 +387,12 @@ end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
 begin
-  CheckBox3.Checked:=true;
+  ShowWires.Checked:=true;
   TrackBar1.Max:=length(PassabilityStr)-1;
   Label2.Caption:= PassabilityStr[TrackBar1.Position+1];
 end;
 
-procedure TForm1.CheckBox5Click(Sender: TObject);
-begin
-  MakeDrawPagesOverlay:=CheckBox5.Checked;
-end;
+
 
 procedure TForm1.Button3Click(Sender: TObject);
 begin

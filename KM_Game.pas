@@ -265,11 +265,13 @@ begin
   if not GameIsRunning then exit; //If game is not running
   inc(GlobalTickCount);
 
+  fViewport.DoScrolling; //Check to see if we need to scroll
   for i:=1 to GameSpeed do begin
     fTerrain.UpdateState;
     fPlayers.UpdateState;
   end;
   fGamePlayInterface.UpdateState;
+
 end;
 
 end.
