@@ -2,7 +2,7 @@ unit KM_Unit1;
 interface
 uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
-  Menus, Buttons, Math, SysUtils, KromUtils, OpenGL, dglOpenGL,
+  Menus, Buttons, Math, SysUtils, KromUtils, OpenGL, dglOpenGL, MMSystem,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults,
   KM_Form_Loading, KM_Terrain, KM_Game,
   KM_Units, KM_Houses, KM_Viewport, KM_Users, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
@@ -111,8 +111,8 @@ var FrameTime:cardinal;
 begin //Counting FPS
   if not Form1.Active then exit;
 
-  FrameTime:=GetTickCount-OldTimeFPS;
-  OldTimeFPS:=GetTickCount;
+  FrameTime:=TimeGetTime-OldTimeFPS;
+  OldTimeFPS:=TimeGetTime;
 
   if (FPSLag<>1)and(FrameTime<FPSLag) then begin
     sleep(FPSLag-FrameTime);
@@ -148,6 +148,7 @@ begin
   Form1.Refresh;
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
 
+  TimeBeginPeriod(1);
   Application.OnIdle:=Form1.OnIdle;
 
   fLog.AppendLog('Form1 create is done');
@@ -157,6 +158,14 @@ begin
   Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
   Form1.Caption:='KaM Remake - '+'New.map';
 end;
+
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(fGame);
+  TimeEndPeriod(1);
+end;
+
 
 procedure TForm1.OpenMapClick(Sender: TObject);
 begin
@@ -193,10 +202,6 @@ begin
   FormLoading.Show;
 end;
 
-procedure TForm1.FormDestroy(Sender: TObject);
-begin
-  FreeAndNil(fGame);
-end;
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
 begin

@@ -1,6 +1,6 @@
 unit KM_Houses;
 interface
-uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, SysUtils;
+uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, SysUtils, MMSystem;
 
   {Everything related to houses is here}
 type
@@ -401,7 +401,7 @@ var Cycle,WorkID:byte;
 begin
   if fBuildState<>hbs_Done then exit;
 
-  fLastUpdateTime := GetTickCount;
+  fLastUpdateTime := TimeGetTime;
 
   WorkID:=fCurrentAction.GetWorkID;
   if WorkID<>0 then begin

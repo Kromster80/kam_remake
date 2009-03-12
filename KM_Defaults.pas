@@ -1,6 +1,6 @@
 unit KM_Defaults;
 interface
-uses Windows, Classes, SysUtils, KromUtils, dglOpenGL;
+uses Windows, Classes, SysUtils, KromUtils, dglOpenGL, MMSystem;
 
 //Global const
 const
@@ -688,8 +688,8 @@ meaning no lines will be lost if Remake crashes}
 procedure TKMLog.AddLine(text:string);
 var Delta:cardinal;
 begin
-  Delta:=GetTickCount - PreviousTick;
-  PreviousTick:=GetTickCount;
+  Delta:=TimeGetTime - PreviousTick;
+  PreviousTick:=TimeGetTime;
   if Delta>100000 then Delta:=0; //ommit first usage
   assignfile(fl,logfile);
   append(fl);

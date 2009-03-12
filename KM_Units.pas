@@ -2,7 +2,7 @@ unit KM_Units;
 interface
 uses
   KM_Defaults, windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain,
-  KM_Houses, KromUtils, SysUtils;
+  KM_Houses, KromUtils, SysUtils, MMSystem;
 
 type
   //Switch to set if unit goes into house or out of it
@@ -947,8 +947,8 @@ begin
 
   ActDone:=true;
   TaskDone:=true;
-  TimeDelta:= GetTickCount - fLastUpdateTime;
-  fLastUpdateTime:= GetTickCount;
+  TimeDelta:= TimeGetTime - fLastUpdateTime;
+  fLastUpdateTime:= TimeGetTime;
 
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
