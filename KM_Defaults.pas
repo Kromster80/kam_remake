@@ -42,8 +42,8 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         //Here we store options that are hidden somewhere in code
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
-        UNIT_MAX_CONDITION = 15*600;             //*min of life
-        UNIT_MIN_CONDITION = 3*600;             //If unit condition is less it will look for Inn
+        UNIT_MAX_CONDITION = 15*600;            //*min of life. In KaM it's 45min
+        UNIT_MIN_CONDITION = 5*600;             //If unit condition is less it will look for Inn
 
 
 {Cursors}
@@ -637,9 +637,10 @@ type
 type TKMPointList = class
   public
     Count:integer;
-    List:array of TKMPoint;
+    List:array of TKMPoint; //1..Count
     procedure Clearup;
     procedure AddEntry(aLoc:TKMPoint);
+    function GetRandom():TKMPoint;
   end;
 
 
@@ -797,6 +798,12 @@ begin
   if Count>length(List)-1 then setlength(List,Count+10);
   List[Count]:=aLoc;
 end;
+
+function TKMPointList.GetRandom():TKMPoint;
+begin
+  Result:=List[random(Count)+1];
+end;
+
 
 
 end.

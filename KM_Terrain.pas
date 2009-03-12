@@ -15,7 +15,7 @@ const PassabilityStr:array[1..7] of string = ('canWalk', 'canWalkRoad', 'canBuil
 {canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges}
 {canMakeFields - Thats more strict than roads, cos e.g. on beaches you can't make fields}
 {canPlantTrees - If Forester can plant a tree here, dunno if it's the same as fields}
-{canFish - water tiles where fisherman can fish}
+{canFish - water tiles where fish can move around}
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -102,11 +102,15 @@ public
 
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   procedure RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
+  procedure RecalculatePassability(Loc:TKMPoint);
+
   procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
 
   function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   function SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+  function TileIsWater(Loc:TKMPoint):boolean;
+  function TileIsSoil(Loc:TKMPoint):boolean;
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   function CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
   procedure UpdateBorders(Loc:TKMPoint);
@@ -213,6 +217,22 @@ end;
 function TTerrain.VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
   Result := InRange(X,1+Inset,MapX-Inset) and InRange(Y,1+Inset,MapY-Inset);
+end;
+
+
+{Check if requested tile is water}
+function TTerrain.TileIsWater(Loc:TKMPoint):boolean;
+begin
+  //Should be Tileset property, especially if we allow different tilesets
+  Result := Land[Loc.Y,Loc.X].Terrain in [192,193,194, 208,209, 240,244];
+end;
+
+
+{Check if requested tile is soil suitable for fields and trees}
+function TTerrain.TileIsSoil(Loc:TKMPoint):boolean;
+begin
+  //Should be Tileset property, especially if we allow different tilesets
+  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26,27, 34..39, 56,57,58, 66..68, 72..75, 84..87, 88,89, 96,98];
 end;
 
 
@@ -421,11 +441,10 @@ end;
 {Find suitable place to plant a tree.
 Prefer ex-trees locations}
 function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var h,i,k,ci,ck:integer; List1,List2:array of TKMPoint; FoundExTree:boolean;
+var h,i,k:integer; List1,List2:TKMPointList; FoundExTree:boolean;
 begin
-setlength(List1,1024);
-setlength(List2,1024);
-ci:=0; ck:=0;
+List1:=TKMPointList.Create;
+List2:=TKMPointList.Create;
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
@@ -440,22 +459,15 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
             FoundExTree:=true;
 
         if FoundExTree then
-          begin
-            List1[ci]:=KMPoint(k,i);
-            inc(ci);
-          end else begin
-            List2[ck]:=KMPoint(k,i);
-            inc(ck);
-          end;
-
-        Assert(ci<length(List1),'Can''t make a list for tree placement');
-        Assert(ck<length(List2),'Can''t make a list for tree placement');
+            List1.AddEntry(KMPoint(k,i))
+          else
+            List2.AddEntry(KMPoint(k,i));
 
       end;
-if ci<>0 then
-  Result:=List1[random(ci)]
+if List1.Count>0 then
+  Result:=List1.GetRandom
 else
-  Result:=List2[random(ck)];
+  Result:=List2.GetRandom;
 end;
 
 
@@ -560,6 +572,39 @@ procedure TTerrain.RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
 begin
   Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability - aPass;
 end;
+
+
+procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
+begin
+  {canWalk, canWalkRoad, canBuild, canMakeRoads, canMakeFields, canPlantTrees, canFish}
+  Land[Loc.Y,Loc.X].Passability:=[];
+
+  //First of all exclude all tiles outside of actual map and all houses
+  if (TileInMapCoords(Loc.X,Loc.Y))and(fPlayers.HousesHitTest(Loc.X,Loc.Y)=nil) then begin
+
+
+     if (TileIsSoil(Loc))and
+        (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
+       AddPassability(Loc, [canMakeRoads]);
+
+     if (TileIsSoil(Loc))and
+        (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
+       AddPassability(Loc, [canMakeFields]);
+
+     if (TileIsSoil(Loc))and
+        (Land[Loc.Y,Loc.X].Obj=255)and
+        (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
+       AddPassability(Loc, [canPlantTrees]);
+
+     if TileIsWater(Loc) then
+       AddPassability(Loc, [canFish]);
+  end else
+    Land[Loc.Y,Loc.X].Passability:=[]; //Allow nothing
+end;
+
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
@@ -792,8 +837,9 @@ function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
 begin  
   Result:=true;
   Result := Result AND TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
+  Result := Result AND (Land[Loc.Y,Loc.X].Markup=mu_None); //Do not allow placing over old markups
   Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
-  Result := Result AND (fPlayers.HousesHitTest(Loc.X,Loc.Y)=nil);
+  Result := Result AND (fPlayers.HousesHitTest(Loc.X,Loc.Y)=nil); //No house on that tile
   if aMarkup <> mu_RoadPlan then //Don't allow fields on fields
     Result := Result AND (Land[Loc.Y,Loc.X].FieldType=fdt_None);
   //Add other check here, e.g. trees, fields, etc..
@@ -932,38 +978,31 @@ end;
 
 
 procedure TTerrain.Paint;
-var i,k:integer; x1,x2,y1,y2:integer;
+var x1,x2,y1,y2:integer;
 begin
-x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
-y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
+  x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
+  y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
-fRender.RenderTerrainAndFields(x1,x2,y1,y2);
+  fRender.RenderTerrainAndFields(x1,x2,y1,y2);
+  fRender.RenderFieldBorders(x1,x2,y1,y2);
+  fRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep);
 
-for i:=y1 to y2 do for k:=x1 to x2 do
-  begin
-    if Land[i,k].BorderX <> bt_None then
-      fRender.RenderBorder(Land[i,k].BorderX,1,k,i); //Horizontal
-
-    if Land[i,k].BorderY <> bt_None then
-      fRender.RenderBorder(Land[i,k].BorderY,2,k,i); //Vertical
-
-    if Land[i,k].Markup in [mu_RoadPlan..mu_WinePlan] then
-      fRender.RenderMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
-
-    if Land[i,k].Obj<>255 then
-      fRender.RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
-
-    if Land[i,k].FieldSpecial<>fs_None then
-      fRender.RenderObjectSpecial(Land[i,k].FieldSpecial,AnimStep,k,i);
-
-  end;
 
 case CursorMode.Mode of
   cm_None:;
   cm_Erase: fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
-  cm_Road: fRender.RenderWireQuad(CursorPos, $FFFFFF00); //Cyan quad
-  cm_Field: fRender.RenderWireQuad(CursorPos, $FFFFFF00); //Cyan quad
-  cm_Wine: fRender.RenderWireQuad(CursorPos, $FFFFFF00); //Cyan quad
+  cm_Road: if CanPlaceRoad(CursorPos,mu_RoadPlan) then
+             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else
+             fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
+  cm_Field: if CanPlaceRoad(CursorPos,mu_FieldPlan) then
+             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else
+             fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
+  cm_Wine: if CanPlaceRoad(CursorPos,mu_WinePlan) then
+             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else
+             fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
   cm_Houses: fRender.RenderWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
 end;
 end;

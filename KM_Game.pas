@@ -158,8 +158,9 @@ begin
   if GameIsRunning then begin
     if X<=ToolBarWidth then begin
       fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
-      if Button = mbRight then fGameplayInterface.RightClickCancel; //Right clicking with the build menu open will close it
+      //if Button = mbRight then fGameplayInterface.RightClickCancel; //Right clicking with the build menu open will close it
     end else begin
+      if Button = mbRight then fGameplayInterface.RightClickCancel; //Right clicking with the build menu open will close it
       if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
         case CursorMode.Mode of
           cm_None:

@@ -39,6 +39,8 @@ public
   procedure Render();
   procedure DoPrintScreen(filename:string);
   procedure RenderTerrainAndFields(x1,x2,y1,y2:integer);
+  procedure RenderFieldBorders(x1,x2,y1,y2:integer);
+  procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderWires();
   procedure RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
   procedure RenderWireQuad(P:TKMPoint; Col:TColor4);
@@ -105,7 +107,7 @@ end;
 
 procedure TRender.Render();
 begin
-  glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen
+  glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
   if fGame.GameIsRunning then begin //If game is running
     glLoadIdentity();                // Reset The View
@@ -271,6 +273,35 @@ end;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D,0);
+end;
+
+
+procedure TRender.RenderFieldBorders(x1,x2,y1,y2:integer);
+var i,k:integer;
+begin
+for i:=y1 to y2 do for k:=x1 to x2 do
+  with fTerrain do begin
+    if Land[i,k].BorderX <> bt_None then
+      RenderBorder(Land[i,k].BorderX,1,k,i); //Horizontal
+
+    if Land[i,k].BorderY <> bt_None then
+      RenderBorder(Land[i,k].BorderY,2,k,i); //Vertical
+
+    if Land[i,k].Markup in [mu_RoadPlan..mu_WinePlan] then
+      RenderMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
+
+  end;
+end;
+
+
+procedure TRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
+var i,k:integer;
+begin
+for i:=y1 to y2 do for k:=x1 to x2 do
+  with fTerrain do begin
+    if Land[i,k].Obj<>255 then RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
+    if Land[i,k].FieldSpecial<>fs_None then RenderObjectSpecial(Land[i,k].FieldSpecial,AnimStep,k,i);
+  end;
 end;
 
 

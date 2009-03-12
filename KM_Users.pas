@@ -29,7 +29,7 @@ type
     procedure RemUnit(Position: TKMUnit);
     procedure RemPlan(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
-    function FindHouse(aType:THouseType; X,Y:word): TKMHouse;
+    function FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetUnitLocations(out Loc:TKMPointList);
     function HousesHitTest(X, Y: Integer): TKMHouse;
@@ -158,9 +158,9 @@ begin
   Result:=fHouses.FindEmptyHouse(aUnitType);
 end;
 
-function TKMPlayerAssets.FindHouse(aType:THouseType; X,Y:word): TKMHouse;
+function TKMPlayerAssets.FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
 begin
-  Result:=fHouses.FindHouse(aType, X, Y);
+  Result:=fHouses.FindHouse(aType, X, Y, Index);
 end;
 
 

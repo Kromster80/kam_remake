@@ -40,11 +40,11 @@ type
 type
   TMissionSettings = class
   private
-    AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
-    BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed
     HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of word;
     UnitTrainedCount,UnitLostCount:array[1..40]of word;
   public
+    AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
+    BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed or assigned from script
     constructor Create;
     procedure CreatedHouse(aType:THouseType);
     procedure CreatedUnit(aType:TUnitType);

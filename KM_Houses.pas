@@ -108,8 +108,7 @@ type
     ResourceCount:array[1..11]of word;
     RecruitsInside:integer;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
-    procedure AddResource(aResource:TResourceType);
-    procedure AddMultiResource(aResource:TResourceType; aCount:integer);
+    procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function TakeResource(aResource:TResourceType):boolean;
   end;
 
@@ -119,8 +118,7 @@ type
     ResourceCount:array[1..28]of word;
     NotAcceptFlag:array[1..28]of boolean;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
-    procedure AddResource(aResource:TResourceType);
-    procedure AddMultiResource(aResource:TResourceType; aCount:integer);
+    procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function TakeResource(aResource:TResourceType):boolean;
   end;
 
@@ -137,7 +135,7 @@ type
     procedure UpdateState;
     function HitTest(X, Y: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
-    function FindHouse(aType:THouseType; X,Y:word): TKMHouse;
+    function FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
     procedure Paint();
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
   end;
@@ -316,10 +314,10 @@ var i:integer;
 begin
   if aResource=rt_None then exit;
   if HouseInput[byte(fHouseType),1]=rt_All then
-    TKMHouseStore(Self).AddResource(aResource)
+    TKMHouseStore(Self).AddMultiResource(aResource)
   else
   if HouseInput[byte(fHouseType),1]=rt_Warfare then
-    TKMHouseBarracks(Self).AddResource(aResource)
+    TKMHouseBarracks(Self).AddMultiResource(aResource)
   else
     for i:=1 to 4 do
     if aResource = HouseInput[byte(fHouseType),i] then
@@ -543,25 +541,21 @@ begin
 end;
 
 
-procedure TKMHouseStore.AddResource(aResource:TResourceType);
-begin
-inc(ResourceCount[byte(aResource)]);
-fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,1);
-end;
-
-
-procedure TKMHouseStore.AddMultiResource(aResource:TResourceType; aCount:integer);
+procedure TKMHouseStore.AddMultiResource(aResource:TResourceType; const aCount:word=1);
 var i:integer;
 begin
-if InRange(aCount,1,1000) then
 if aResource=rt_All then
   for i:=1 to length(ResourceCount) do begin
-    inc(ResourceCount[i],aCount);
+    ResourceCount[i]:=EnsureRange(ResourceCount[i]+aCount,0,MAXWORD);
     fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
-  end else begin
-    inc(ResourceCount[byte(aResource)],aCount);
+  end
+else
+if aResource in [rt_Trunk..rt_Fish] then begin
+    ResourceCount[byte(aResource)]:=EnsureRange(ResourceCount[byte(aResource)]+aCount,0,MAXWORD);
     fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
-  end;
+  end
+else
+Assert(false,'Cant''t add such resource '+TypeToString(aResource));
 end;
 
 
@@ -587,19 +581,18 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.AddResource(aResource:TResourceType);
-begin
-  inc(ResourceCount[byte(aResource)-16]);
-end;
-
-
-procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; aCount:integer);
+procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; const aCount:word=1);
+//const MAX_WARFARE:=200;  //Has to influence ware delivery
 var i:integer;
 begin
 if aResource=rt_Warfare then
-  for i:=1 to length(ResourceCount) do inc(ResourceCount[i],aCount)
+  for i:=1 to length(ResourceCount) do
+    ResourceCount[i]:=EnsureRange(ResourceCount[i]+aCount,0,MAXWORD)
 else
-  inc(ResourceCount[byte(aResource)-16],aCount);    
+if aResource in [rt_Shield..rt_Horse] then
+  ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,MAXWORD)
+else
+  Assert(false,'Cant''t add such resource '+TypeToString(aResource));
 end;
 
 
@@ -738,19 +731,24 @@ begin
 end;
 
 
-function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word): TKMHouse;
+function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
 var
-  i: integer;
+  i,id: integer;
 begin
-  Result:= nil;
+  Result:= nil; id:=0;
+  Assert((X*Y=0)or(Index=1), 'Can''t find house basing both on Position and Index');
   for I := 0 to Count - 1 do
       if (TKMHouse(Items[I]).fHouseType=aType)and
       (TKMHouse(Items[I]).IsComplete) then
       begin
-        Result:= TKMHouse(Items[I]);
-        exit;
+        inc(id);
+        if Index=id then begin//Take the N-th result
+          Result:= TKMHouse(Items[I]);
+          exit;
+        end;
       end;
 end;
+
 
 procedure TKMHousesCollection.Paint();
 var
