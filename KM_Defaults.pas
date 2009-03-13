@@ -25,16 +25,16 @@ var
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
-  WriteResourceInfoToTXT:boolean=false;  //Whenever to write txt files with defines data properties 
-  WriteAllTexturesToBMP:boolean=false;  //Whenever to write txt files with defines data properties
+  WriteResourceInfoToTXT:boolean=false;  //Whenever to write txt files with defines data properties
+  WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
-  TERRAIN_FOG_OF_WAR_ENABLE:boolean=true;//Whenever fog of war is enabled or not
+  TERRAIN_FOG_OF_WAR_ENABLE:boolean=false;//Whenever fog of war is enabled or not
 
 const
   MaxHouses=255;        //Maximum houses one player can own
   MaxResInHouse=5;      //Maximum resource items allowed to be in house (it's 5, but I use 3 for testing)
   MAX_ORDER=999;        //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
-  MaxTexRes=1024;       //Maximum texture resolution client can handle (used for packing sprites)
+  MAX_TEX_RESOLUTION=1024;       //Maximum texture resolution client can handle (used for packing sprites)
 
 const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna test ingame )
         MAX_PLAYERS = 6;        //Maximum players per map

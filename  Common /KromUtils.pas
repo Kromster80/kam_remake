@@ -628,20 +628,14 @@ A^:=k-1;
 end;
 
 function MakePOT(num:integer):integer;
-var t:single; i:integer;
 begin
-i:=num-1;
-i:= i OR i SHR 1;
-i:= i OR i SHR 2;
-i:= i OR i SHR 4;
-i:= i OR i SHR 8;
-i:= i OR i SHR 16;
-Result:=i+1;
-       {
-t:=num; i:=1;
-while t>2 do begin t:=t / 2; inc(i); end;
-Result:=pow(2,i); }
-
+num := num - 1; //Took this rather smart code from Net
+num := num OR (num SHR 1);
+num := num OR (num SHR 2);
+num := num OR (num SHR 4);
+num := num OR (num SHR 8);
+num := num OR (num SHR 16); //32bit needs no more
+Result := num+1;
 end;
 
 function GetLengthSQR(ix,iy,iz:integer): integer;

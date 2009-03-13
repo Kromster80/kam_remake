@@ -5,13 +5,16 @@ uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 const
 MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
 
-type TPassability = (canWalk, canWalkRoad, canBuild, canMakeRoads, canMakeFields, canPlantTrees, canFish);
+type TPassability = (canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish);
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[1..7] of string = ('canWalk', 'canWalkRoad', 'canBuild', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
+const PassabilityStr:array[1..9] of string = ('canWalk', 'canWalkRoad', 'canBuild', 'canBuildIron', 'canBuildGold', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
 {canWalk - General passability of tile for any walking units}
 {canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
 {canBuild - Can we build a house on this tile?}
+{canBuildIron - Special allowance for Iron Mines
+{canBuildGold - Special allowance for Gold Mines
+{canBuildCoal? - Special allowance for Coal Mines. Do we need it?
 {canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges}
 {canMakeFields - Thats more strict than roads, cos e.g. on beaches you can't make fields}
 {canPlantTrees - If Forester can plant a tree here, dunno if it's the same as fields}
@@ -100,8 +103,6 @@ public
   procedure DecCoalReserve(Loc:TKMPoint);
   procedure DecOreReserve(Loc:TKMPoint; rt:TResourceType);
 
-  procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
-  procedure RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   procedure RecalculatePassability(Loc:TKMPoint);
 
   procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
@@ -111,11 +112,14 @@ public
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   function TileIsWater(Loc:TKMPoint):boolean;
   function TileIsSoil(Loc:TKMPoint):boolean;
+  function TileIsWalkable(Loc:TKMPoint):boolean;
+  function TileIsRoadable(Loc:TKMPoint):boolean;
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   function CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
   procedure UpdateBorders(Loc:TKMPoint);
   procedure FlattenTerrain(Loc:TKMPoint);
-  procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
+  procedure RebuildLighting(LowX,HighX,LowY,HighY:word);
+  procedure RebuildPassability(LowX,HighX,LowY,HighY:word);
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
 
@@ -194,6 +198,7 @@ begin
     end;
 closefile(f);
 RebuildLighting(1,MapX,1,MapY);
+RebuildPassability(1,MapX,1,MapY);
 Result:=true;
 end;
 
@@ -220,11 +225,12 @@ begin
 end;
 
 
+//@Lewin: Feel free to tweak these flags if you think they are wrong, I could have been mistaken with Soil
 {Check if requested tile is water}
 function TTerrain.TileIsWater(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
-  Result := Land[Loc.Y,Loc.X].Terrain in [192,193,194, 208,209, 240,244];
+  Result := Land[Loc.Y,Loc.X].Terrain in [192,193,194,196, 200, 208..211, 235,236, 240,244];
 end;
 
 
@@ -234,6 +240,32 @@ begin
   //Should be Tileset property, especially if we allow different tilesets
   Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26,27, 34..39, 56,57,58, 66..68, 72..75, 84..87, 88,89, 96,98];
 end;
+
+
+{Check if requested tile is generally walkable}
+function TTerrain.TileIsWalkable(Loc:TKMPoint):boolean;
+begin
+  //Should be Tileset property, especially if we allow different tilesets
+  //Include 1/2 and 3/4 walkable as walkable
+  Result := Land[Loc.Y,Loc.X].Terrain in [0..6, 8..11,13,14, 16..22, 25..31, 32..39, 44..47, 49,52,55, 56..63,
+                                          64..71, 72..79, 80..87, 88..95, 96..103, 104,106..109,111, 112,113,116,117, 123..125,
+                                          139, 152..155, 166,167, 168..175, 180..183, 188..191,
+                                          197, 203..205,207, 212..215, 220..223, 242,243,247];
+end;
+
+{Check if requested tile is generally suitable for road building}
+function TTerrain.TileIsRoadable(Loc:TKMPoint):boolean;
+begin
+  //Should be Tileset property, especially if we allow different tilesets
+  //Do not include 1/2 and 1/4 walkable as roadable
+  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..31, 32..39, 47, 55, 56..63,
+                                          64..71, 72..79, 80..87, 88..95, 96..103, 104,111, 112,113,
+                                          152..155,
+                                          197, 203..205, 212,213,215, 220, 247];
+end;
+
+//Also need to make such table for objects with 2 options
+// - CanBuildOnTop(means everything allowed), CanWalkOnTop(can only walk and build roads on top), CanNothing
 
 
 {Reveal circle on map}
@@ -263,6 +295,7 @@ end;
 procedure TTerrain.SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
 begin
   Land[Loc.Y,Loc.X].Markup:=aMarkup;
+  RecalculatePassability(Loc);
 end;
 
 
@@ -270,6 +303,7 @@ end;
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
+  RecalculatePassability(Loc);
 end;
 
 
@@ -281,21 +315,16 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
 
-
   UpdateBorders(Loc);
   if aFieldType=fdt_Field then begin
     Land[Loc.Y,Loc.X].Terrain:=62;
     Land[Loc.Y,Loc.X].Rotation:=0;
-    RemPassability(Loc,[canBuild]);
   end else
   if aFieldType=fdt_Wine  then begin
     Land[Loc.Y,Loc.X].Terrain:=55;
     Land[Loc.Y,Loc.X].Rotation:=0;
-    RemPassability(Loc,[canBuild]);
-  end else begin
-    RemPassability(Loc,[CanPlantTrees, CanMakeFields]);
-    AddPassability(Loc,[canBuild]);
   end;
+  RecalculatePassability(Loc);
 end;
 
 
@@ -391,10 +420,10 @@ begin
         155: L[4].AddEntry(KMPoint(k,i));
         end;
 
-  if L[4].Count<>0 then Result:=L[4].List[Random(L[4].Count)+1] else
-  if L[3].Count<>0 then Result:=L[3].List[Random(L[3].Count)+1] else
-  if L[2].Count<>0 then Result:=L[2].List[Random(L[2].Count)+1] else
-  if L[1].Count<>0 then Result:=L[1].List[Random(L[1].Count)+1] else
+  if L[4].Count<>0 then Result:=L[4].GetRandom else
+  if L[3].Count<>0 then Result:=L[3].GetRandom else
+  if L[2].Count<>0 then Result:=L[2].GetRandom else
+  if L[1].Count<>0 then Result:=L[1].GetRandom else
   Result:=KMPoint(0,0);
   
   for i:=1 to 4 do L[i].Free;
@@ -428,10 +457,10 @@ begin
         end;
       end;
 
-  if L[4].Count<>0 then Result:=L[4].List[Random(L[4].Count)+1] else
-  if L[3].Count<>0 then Result:=L[3].List[Random(L[3].Count)+1] else
-  if L[2].Count<>0 then Result:=L[2].List[Random(L[2].Count)+1] else
-  if L[1].Count<>0 then Result:=L[1].List[Random(L[1].Count)+1] else
+  if L[4].Count<>0 then Result:=L[4].GetRandom else
+  if L[3].Count<>0 then Result:=L[3].GetRandom else
+  if L[2].Count<>0 then Result:=L[2].GetRandom else
+  if L[1].Count<>0 then Result:=L[1].GetRandom else
   Result:=KMPoint(0,0);
   
   for i:=1 to 4 do L[i].Free;
@@ -474,8 +503,8 @@ end;
 procedure TTerrain.AddTree(Loc:TKMPoint; ID:integer);
 begin
   Land[Loc.Y,Loc.X].Obj:=ID;
-  RemPassability(Loc,[canBuild,canPlantTrees]);
   Land[Loc.Y,Loc.X].TreeAge:=1;
+  RecalculatePassability(Loc);
 end;
 
 {}
@@ -485,15 +514,15 @@ begin
   for h:=1 to length(ChopableTrees) do
     if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
       Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
-
-  AddPassability(Loc,[canBuild,canPlantTrees]);
   Land[Loc.Y,Loc.X].TreeAge:=0;
+  RecalculatePassability(Loc);
 end;
 
 
 procedure TTerrain.InitGrowth(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
+  RecalculatePassability(Loc);
 end;
 
 
@@ -517,6 +546,7 @@ procedure TTerrain.SetCoalReserve(Loc:TKMPoint);
 begin
   if not TileInMapCoords(Loc.X, Loc.Y) then exit;
   Land[Loc.Y,Loc.X].Terrain:=155;
+  RecalculatePassability(Loc);
 end;
 
 
@@ -527,6 +557,7 @@ begin
   Assert(rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
   if rt=rt_IronOre then Land[Loc.Y,Loc.X].Terrain:=151;
   if rt=rt_GoldOre then Land[Loc.Y,Loc.X].Terrain:=147;
+  RecalculatePassability(Loc);
 end;
 
 
@@ -541,6 +572,7 @@ begin
   //This check is removed incase worker builds wine field ontop of coal tile
   //else Assert(false,'Can''t DecCoalReserve');
   end;
+  RecalculatePassability(Loc);
 end;
 
 
@@ -559,22 +591,15 @@ begin
   151: Land[Loc.Y,Loc.X].Terrain:=150;
   else Assert(false,'Can''t DecOreReserve');
   end;
+  RecalculatePassability(Loc);
 end;
 
 
-procedure TTerrain.AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
-begin
-  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass;
-end;
-
-
-procedure TTerrain.RemPassability(Loc:TKMPoint; aPass:TPassabilitySet);
-begin
-  Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability - aPass;
-end;
 
 
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
+  procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
+  begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
   {canWalk, canWalkRoad, canBuild, canMakeRoads, canMakeFields, canPlantTrees, canFish}
   Land[Loc.Y,Loc.X].Passability:=[];
@@ -582,8 +607,42 @@ begin
   //First of all exclude all tiles outside of actual map and all houses
   if (TileInMapCoords(Loc.X,Loc.Y))and(fPlayers.HousesHitTest(Loc.X,Loc.Y)=nil) then begin
 
+     if (TileIsWalkable(Loc))and
+        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House]))then
+       AddPassability(Loc, [canWalk]);
 
-     if (TileIsSoil(Loc))and
+     if (true)and
+        ((Land[Loc.Y,Loc.X].FieldType in [fdt_Road]))then
+       AddPassability(Loc, [canWalkRoad]);
+
+     if (TileIsRoadable(Loc))and
+        (Land[Loc.Y,Loc.X].Obj=255)and
+        (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (TileInMapCoords(Loc.X,Loc.Y,1))and
+        //No houses nearby
+        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Road,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
+       AddPassability(Loc, [canBuild]);
+
+     if (Land[Loc.Y,Loc.X].Terrain in [168,169,170])and
+        (Land[Loc.Y,Loc.X].Rotation = 0)and     
+        (Land[Loc.Y,Loc.X].Obj=255)and
+        (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (TileInMapCoords(Loc.X,Loc.Y,1))and
+        //No houses nearby
+        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House]))then
+       AddPassability(Loc, [canBuildIron]);
+
+     if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
+        (Land[Loc.Y,Loc.X].Rotation = 0)and
+        (Land[Loc.Y,Loc.X].Obj=255)and
+        (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (TileInMapCoords(Loc.X,Loc.Y,1))and
+        //No houses nearby
+        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House]))then
+       AddPassability(Loc, [canBuildGold]);
+
+     if (TileIsRoadable(Loc))and
+        (TileInMapCoords(Loc.X,Loc.Y,1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
        AddPassability(Loc, [canMakeRoads]);
@@ -595,6 +654,7 @@ begin
 
      if (TileIsSoil(Loc))and
         (Land[Loc.Y,Loc.X].Obj=255)and
+        (TileInMapCoords(Loc.X,Loc.Y,1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
        AddPassability(Loc, [canPlantTrees]);
@@ -758,13 +818,14 @@ begin
   Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
   Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
+  RecalculatePassability(Loc);
 end;
 
 
 { Rebuilds lighting values for given bounds.
 These values are used to draw highlights/shadows on terrain.}
-procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
-var i,k:integer; x0,y2:integer;
+procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:word);
+var i,k:word; x0,y2:integer;
 begin
   for i:=LowY to HighY do for k:=LowX to HighX do
     if VerticeInMapCoords(k,i) then begin
@@ -778,29 +839,25 @@ begin
 end;
 
 
+{ Rebuilds passability for given bounds }
+procedure TTerrain.RebuildPassability(LowX,HighX,LowY,HighY:word);
+var i,k:word;
+begin
+  for i:=LowY to HighY do for k:=LowX to HighX do
+    if TileInMapCoords(k,i) then
+      RecalculatePassability(KMPoint(k,i));
+end;
+
+
 {Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
 var i,k:integer;
-  procedure OccupyTile(X,Y:integer);
-  var i,k:integer;
-  begin
-    for i:=-1 to 1 do for k:=-1 to 1 do
-      if TileInMapCoords(X+k,Y+i) then
-        RemPassability(KMPoint(X+k,Y+i),[canBuild,canPlantTrees]);
-
-    RemPassability(KMPoint(X,Y),[CanMakeRoads,CanMakeFields]);
-    if fdt=fdt_House then
-      RemPassability(KMPoint(X,Y),[CanWalkRoad,CanWalk]);
-  end;
 begin
-  for i:=1 to 4 do for k:=1 to 4 do begin
-
-    if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
-      OccupyTile(Loc.X+k-3, Loc.Y+i-4);
-      Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt;
-    end;
-
+  for i:=1 to 4 do for k:=1 to 4 do
     if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
+    if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+      Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt;
+      RecalculatePassability(KMPoint(Loc.X+k-3,Loc.Y+i-4));
       UpdateBorders(KMPoint(Loc.X+k-3, Loc.Y+i-4));
   end;
 end;
@@ -810,13 +867,15 @@ procedure TTerrain.SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner
 var i,k:integer;
 begin
   if aHouseType<>ht_None then //If this is a house make a change for whole place
-    for i:=1 to 4 do for k:=1 to 4 do begin
-      if HousePlanYX[byte(aHouseType),i,k]<>0 then
-        Land[Loc.Y+i-4,Loc.X+k-3].TileOwner:=aOwner;
-    end;
+    for i:=1 to 4 do for k:=1 to 4 do
+      if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
+        if HousePlanYX[byte(aHouseType),i,k]<>0 then
+          Land[Loc.Y+i-4,Loc.X+k-3].TileOwner:=aOwner;
+
   if aHouseType=ht_None then
     Land[Loc.Y,Loc.X].TileOwner:=aOwner;
 end;
+
 
 {Check if house can be placed in that place}
 function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
@@ -826,24 +885,26 @@ Result:=true;
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
       Result := Result AND TileInMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
-      if aHouseType<>ht_Wall then
-        Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability)
-      //else
-        //Result := Result AND (CanWalk in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
+
+      if aHouseType=ht_IronMine then
+        Result := Result AND (CanBuildIron in Land[Loc.Y+i-4,Loc.X+k-3].Passability) else
+      if aHouseType=ht_GoldMine then
+        Result := Result AND (CanBuildGold in Land[Loc.Y+i-4,Loc.X+k-3].Passability) else
+      if aHouseType=ht_Wall then
+        Result := Result AND (CanWalk in Land[Loc.Y+i-4,Loc.X+k-3].Passability)
+      else
+        Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
+
     end;
 end;
 
+
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
 begin  
-  Result:=true;
-  Result := Result AND TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
-  Result := Result AND (Land[Loc.Y,Loc.X].Markup=mu_None); //Do not allow placing over old markups
-  Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
-  Result := Result AND (fPlayers.HousesHitTest(Loc.X,Loc.Y)=nil); //No house on that tile
-  if aMarkup <> mu_RoadPlan then //Don't allow fields on fields
-    Result := Result AND (Land[Loc.Y,Loc.X].FieldType=fdt_None);
-  //Add other check here, e.g. trees, fields, etc..
+  Result := TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
+  Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
 end;
+
 
 {Check 4 surrounding tiles, and if they are different place a border}
 procedure TTerrain.UpdateBorders(Loc:TKMPoint);

@@ -323,7 +323,7 @@ end;
 t:=Form1.TrackBar1.Position;
 for i:=y1 to y2 do
   for k:=x1 to x2 do
-  if byte(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then begin
+  if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then begin
   glColor4f(0,1,0,0.5);
   RenderQuad(k,i);
   end;
@@ -375,16 +375,24 @@ end;
 
 
 procedure TRender.RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
-var i,k:integer; P2:TKMPoint;
+var i,k:integer; P2:TKMPoint; AllowBuild:boolean;
 begin
   for i:=1 to 4 do for k:=1 to 4 do
   if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
     P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
-    if HousePlanYX[byte(aHouseType),i,k]<>0 then
-      if CanBuild in fTerrain.Land[P2.Y,P2.X].Passability then
-        RenderWireQuad(P2,$FFFFFF00) //Cyan
-      else
-        RenderWireQuad(P2,$FF0000FF); //Red
+    
+    if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+
+      case aHouseType of
+        ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
+        ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
+        ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
+        else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
+      end;
+
+      if AllowBuild then RenderWireQuad(P2,$FFFFFF00) //Cyan
+                    else RenderWireQuad(P2,$FF0000FF); //Red
+    end;
     if HousePlanYX[byte(aHouseType),i,k]=2 then AddSpriteToList(4,481,P2.X+0.2,P2.Y+1-0.2-fTerrain.InterpolateLandHeight(P2.X+0.5,P2.Y+0.5)/CELL_HEIGHT_DIV,true);
   end else
     //RenderWireQuad(P2,$FF0000FF);

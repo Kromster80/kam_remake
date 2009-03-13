@@ -536,10 +536,10 @@ repeat
         (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2]))
         or((HeightPOT>=MakePOT(RXData[RXid].Size[id+ad,2]))AND(WidthPOT+RXData[RXid].Size[id+ad,1]<MakePOT(WidthPOT)))
         )and
-        (WidthPOT+RXData[RXid].Size[id+ad,1]<=MaxTexRes)) do begin
+        (WidthPOT+RXData[RXid].Size[id+ad,1]<=MAX_TEX_RESOLUTION)) do begin
     inc(WidthPOT,RXData[RXid].Size[id+ad,1]);
     inc(ad);
-    if RXid=5 then break; //Don't align RX5 images for they use all different palettes
+    if (RXid=5)and(RX5pal[id]<>RX5pal[id+ad]) then break; //Don't align RX5 images for they use all different palettes
   end;
 
   WidthPOT:=MakePOT(WidthPOT);

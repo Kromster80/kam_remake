@@ -172,6 +172,7 @@ begin
   //Assert(false,'Should be re-rigged');
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
   fTerrain.OpenMapFromFile(OpenDialog1.FileName);
+  fTerrain.RevealCircle(KMPoint(0,0), 1024,100, play_1);
   Form1.Caption:='KaM Remake - '+OpenDialog1.FileName;
 end;
 
