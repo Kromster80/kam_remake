@@ -291,6 +291,15 @@ object Form1: TForm1
       TabOrder = 8
       OnClick = Button3Click
     end
+    object CB_ShowUnit: TCheckBox
+      Left = 8
+      Top = 52
+      Width = 73
+      Height = 17
+      Caption = 'Show units'
+      TabOrder = 11
+      OnClick = CB_ShowUnitClick
+    end
   end
   object Button4: TButton
     Left = 296

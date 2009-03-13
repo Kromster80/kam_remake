@@ -56,6 +56,7 @@ type
     Step1Frame: TButton;
     Button5: TButton;
     ShowOverlay: TMenuItem;
+    CB_ShowUnit: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure OpenMapClick(Sender: TObject);
@@ -94,6 +95,7 @@ type
     procedure OpenMissionMenuClick(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
+    procedure CB_ShowUnitClick(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -231,7 +233,7 @@ fViewPort.SetCenter(11,9);
 for k:=-5 to 5 do for i:=-4 to 6 do
 fTerrain.SetCoalReserve(KMPoint(8+i,14+k));
 
-for k:=-5 to 5 do for i:=-4 to 6 do
+for k:=-4 to 0 do for i:=-3 to 3 do
 fTerrain.SetOreReserve(KMPoint(21+i,6+k),rt_IronOre);
 
 MyPlayer.AddRoadPlan(KMPoint(2,6),mu_RoadPlan,true);
@@ -455,6 +457,11 @@ end;
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
   if CheckBox2.Checked then fGame.GameSpeed:=50 else fGame.GameSpeed:=1;
+end;
+
+procedure TForm1.CB_ShowUnitClick(Sender: TObject);
+begin
+MakeShowUnitMove:=CB_ShowUnit.Checked;
 end;
 
 end.

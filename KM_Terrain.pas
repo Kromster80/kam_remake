@@ -68,6 +68,9 @@ public
 
     //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
     FogOfWar:array[1..8]of byte;
+
+    //Whenever there's a unit on that tile mark the tile as occupied
+    IsUnit:boolean;
   end;
 
   constructor Create;
@@ -105,7 +108,10 @@ public
 
   procedure RecalculatePassability(Loc:TKMPoint);
 
-  procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
+  procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
+  procedure UnitAdd(LocTo:TKMPoint);
+  procedure UnitRem(LocFrom:TKMPoint);
+  procedure UnitWalk(LocFrom,LocTo:TKMPoint);
 
   function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   function SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
@@ -133,7 +139,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_Users;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_Users, KM_Houses;
 
 constructor TTerrain.Create;
 begin
@@ -164,6 +170,7 @@ begin
     BorderX:=bt_None;
     BorderY:=bt_None;
     for h:=1 to 8 do FogOfWar[h]:=0;
+    IsUnit:=false;
   end;
 
   RebuildLighting(1,MapX,1,MapY);
@@ -598,17 +605,19 @@ end;
 
 
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
+//var H:TKMHouse;
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
   {canWalk, canWalkRoad, canBuild, canMakeRoads, canMakeFields, canPlantTrees, canFish}
   Land[Loc.Y,Loc.X].Passability:=[];
+  //H:=fPlayers.HousesHitTest(Loc.X,Loc.Y);
 
   //First of all exclude all tiles outside of actual map and all houses
-  if (TileInMapCoords(Loc.X,Loc.Y))and(fPlayers.HousesHitTest(Loc.X,Loc.Y)=nil) then begin
+  if (TileInMapCoords(Loc.X,Loc.Y))and(Land[Loc.Y,Loc.X].FieldType<>fdt_House) then begin
 
      if (TileIsWalkable(Loc))and
-        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House]))then
+        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HouseWIP]))then
        AddPassability(Loc, [canWalk]);
 
      if (true)and
@@ -669,7 +678,7 @@ end;
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
 {Simplification1 - ajoin nodes that don't require direction change}
-procedure TTerrain.MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:integer; out Nodes:array of TKMPoint);
+procedure TTerrain.MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
 const c_closed=65535;
 var
   i,k,y,x:integer;
@@ -803,6 +812,26 @@ begin
 end;
 
 
+{Mark previous tile as empty and next one as occupied}
+procedure TTerrain.UnitAdd(LocTo:TKMPoint);
+begin
+  Land[LocTo.Y,LocTo.X].IsUnit:=true;
+end;
+
+{Mark previous tile as empty and next one as occupied}
+procedure TTerrain.UnitRem(LocFrom:TKMPoint);
+begin
+  Land[LocFrom.Y,LocFrom.X].IsUnit:=false;
+end;
+
+{Mark previous tile as empty and next one as occupied}
+procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
+begin
+  Land[LocFrom.Y,LocFrom.X].IsUnit:=false;
+  Land[LocTo.Y,LocTo.X].IsUnit:=true;
+end;
+
+
 {Take 4 neighbour heights and approach it}
 procedure TTerrain.FlattenTerrain(Loc:TKMPoint);
 var TempH:byte;
@@ -857,8 +886,8 @@ begin
     if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
       Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt;
-      RecalculatePassability(KMPoint(Loc.X+k-3,Loc.Y+i-4));
       UpdateBorders(KMPoint(Loc.X+k-3, Loc.Y+i-4));
+      RecalculatePassability(KMPoint(Loc.X+k-3,Loc.Y+i-4));
   end;
 end;
 

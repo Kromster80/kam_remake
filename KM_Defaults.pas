@@ -25,6 +25,7 @@ var
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
+  MakeShowUnitMove:boolean=true;        //Draw unit movement overlay
   WriteResourceInfoToTXT:boolean=false;  //Whenever to write txt files with defines data properties
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
@@ -670,6 +671,7 @@ var
 function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload
 function TypeToString(t:TUnitType):string; overload
+function TypeToString(t:TKMPoint):string; overload
 
 implementation
 uses KM_LoadLib, KM_Units, KM_Game;
@@ -773,6 +775,12 @@ if byte(t) in [1..28] then
 else
   s:='N/A';
 Result:=s;
+end;
+
+
+function TypeToString(t:TKMPoint):string;
+begin
+Result:='('+inttostr(t.x)+';'+inttostr(t.y)+')';
 end;
 
 

@@ -42,6 +42,7 @@ public
   procedure RenderFieldBorders(x1,x2,y1,y2:integer);
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderWires();
+  procedure RenderUnitMoves();
   procedure RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
   procedure RenderWireQuad(P:TKMPoint; Col:TColor4);
   procedure RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
@@ -124,6 +125,7 @@ begin
     glLineWidth(1);
     glPointSize(1);
     if Form1.ShowWires.Checked then fRender.RenderWires();
+    if MakeShowUnitMove then fRender.RenderUnitMoves();
 
     fPlayers.Paint;            //Units and houses
 
@@ -308,40 +310,46 @@ end;
 procedure TRender.RenderWires();
 var i,k,t:integer; x1,x2,y1,y2:integer;
 begin
-x1:=max(CursorXc-11,1); x2:=min(CursorXc+11,fTerrain.MapX);
-y1:=max(CursorYc-10,1); y2:=min(CursorYc+10,fTerrain.MapY);
+  x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
+  y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
-for i:=y1 to y2 do begin
-  glbegin (GL_LINE_STRIP);
-  for k:=x1 to x2 do begin
-    glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-CursorYc)+sqr(k-CursorXc))/10); //Smooth circle gradient blending
+  for i:=y1 to y2 do begin
+    glbegin (GL_LINE_STRIP);
+    for k:=x1 to x2 do begin
+      glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-CursorYc)+sqr(k-CursorXc))/10); //Smooth circle gradient blending
+      glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
+    end;
+    glEnd;
+  end;
+
+  glColor4f(0,1,0,0.5);
+  t:=Form1.TrackBar1.Position;
+  for i:=y1 to y2 do for k:=x1 to x2 do
+    if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
+      RenderQuad(k,i);
+
+  glPointSize(3);
+  glbegin (GL_POINTS);
+  for i:=y1 to y2 do for k:=x1 to x2 do begin
+    //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
+    glColor4f(byte(fTerrain.Land[i,k].BorderX=bt_HousePlan),byte(fTerrain.Land[i,k].BorderY=bt_HousePlan),0,1);
     glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
   end;
   glEnd;
 end;
 
-t:=Form1.TrackBar1.Position;
-for i:=y1 to y2 do
-  for k:=x1 to x2 do
-  if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then begin
-  glColor4f(0,1,0,0.5);
-  RenderQuad(k,i);
-  end;
 
-glPointSize(3);
-glbegin (GL_POINTS);
-for i:=y1 to y2 do
-for k:=x1 to x2 do begin
-//  glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
-  glColor4f(byte(fTerrain.Land[i,k].BorderX=bt_HousePlan),byte(fTerrain.Land[i,k].BorderY=bt_HousePlan),0,1);
-  glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
-end;
-glEnd;
+procedure TRender.RenderUnitMoves();
+var i,k,t:integer; x1,x2,y1,y2:integer;
+begin
+  x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
+  y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
-(*glRasterPos2f(k-1+0.1,i-1-0.1-Land[i,k].Height/xh);
-glColor4f(0.6,1,0.45,0.75);
-glPrint(inttostr(Land[i,k].Height));
-glPrint(inttostr(Land[i,k].Border));*)
+  glColor4f(0,1,1,0.5);
+
+  for i:=y1 to y2 do for k:=x1 to x2 do
+    if fTerrain.Land[i,k].IsUnit then
+      RenderQuad(k,i);
 
 end;
 

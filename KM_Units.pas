@@ -52,7 +52,7 @@ type
         fDestPos: TKMPoint;
         fRouteBuilt:boolean;
         fWalkToSpot:boolean;
-        NodeCount:integer;
+        NodeCount:word; //Should be positive
         Nodes:array[1..1024] of TKMPoint;
         NodePos:integer;
       public
@@ -855,10 +855,12 @@ begin
   SetAction(TUnitActionStay.Create(10,ua_Walk));
   fCondition:=UNIT_MAX_CONDITION;
   fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType);
+  fTerrain.UnitAdd(GetPosition);
 end;
 
 destructor TKMUnit.Destroy;
 begin
+  fTerrain.UnitRem(GetPosition);
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
   if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
@@ -1581,14 +1583,20 @@ begin
 
   //Build a route A*
   fTerrain.MakeRoute(LocA, LocB, CanWalk, NodeCount, Nodes);
-  if not fWalkToSpot then dec(NodeCount); //Approach spot from any side
+
+  //There are two possibilities here:
+  // - Route can't be built cos there's no walkable way to go from A to B
+  // - A and B are the same point
   fRouteBuilt:=NodeCount>1;
-//  Assert(fRouteBuilt,'Unable to make a route');
+  if not fRouteBuilt then
+    fLog.AddToLog('Unable to make a route '+TypeToString(LocA)+' > '+TypeToString(LocB));
+
+  if not fWalkToSpot then dec(NodeCount); //Approach spot from any side
 end;
 
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var
-  DX, DY, Distance:single;
+  DX, DY, Distance:single; OldPos:TKMPoint;
 begin
   //Execute the route in series of moves
   DoEnd:= False;
@@ -1617,8 +1625,13 @@ begin
     if (DX <> 0) and (DY <> 0) then
       Distance:=Distance / sqrt (2);
 
+    OldPos:=KMUnit.GetPosition;
+
     KMUnit.fPosition.X:= KMUnit.fPosition.X + sign(DX)*min(Distance,abs(DX));
     KMUnit.fPosition.Y:= KMUnit.fPosition.Y + sign(DY)*min(Distance,abs(DY));
+
+    if not KMSamePoint(OldPos,KMUnit.GetPosition) then fTerrain.UnitWalk(OldPos,KMUnit.GetPosition);
+
     inc(KMUnit.AnimStep);
   end;
 end;

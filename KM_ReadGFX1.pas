@@ -531,12 +531,13 @@ repeat
 
   //Pack textures with same POT height into rows to save memory
   //This also means fewer textures for GPU RAM == better performance
-  while((id+ad<RXData[RXid].Qty)and
+  while((id+ad<RXData[RXid].Qty)and //Keep packing until end of sprites
         (
-        (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2]))
-        or((HeightPOT>=MakePOT(RXData[RXid].Size[id+ad,2]))AND(WidthPOT+RXData[RXid].Size[id+ad,1]<MakePOT(WidthPOT)))
+          (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2])) //Pack if HeightPOT matches
+          or((HeightPOT>=MakePOT(RXData[RXid].Size[id+ad,2]))AND(WidthPOT+RXData[RXid].Size[id+ad,1]<MakePOT(WidthPOT)))
         )and
-        (WidthPOT+RXData[RXid].Size[id+ad,1]<=MAX_TEX_RESOLUTION)) do begin
+        (WidthPOT+RXData[RXid].Size[id+ad,1]<=MAX_TEX_RESOLUTION)) //Pack until Texresolution approached
+  do begin
     inc(WidthPOT,RXData[RXid].Size[id+ad,1]);
     inc(ad);
     if (RXid=5)and(RX5pal[id]<>RX5pal[id+ad]) then break; //Don't align RX5 images for they use all different palettes

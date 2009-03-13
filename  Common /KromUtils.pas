@@ -24,6 +24,7 @@ function KMPointY1(P:TKMPoint): TKMPoint; overload
 function KMPointY1(P:TKMPointF): TKMPoint; overload
 
 function KMPointRound(P:TKMPointf): TKMPoint;
+function KMSamePoint(P1,P2:TKMPoint): boolean;
 
 function KMLength(A,B:TKMPoint): single;
 
@@ -179,6 +180,11 @@ function KMPointRound(P:TKMPointf): TKMPoint;
 begin
   Result.X := round(P.X);
   Result.Y := round(P.Y);
+end;
+
+function KMSamePoint(P1,P2:TKMPoint): boolean;
+begin
+  Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
 
 //Length as straight and diagonal
