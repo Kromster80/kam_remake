@@ -11,17 +11,17 @@ type
   private
     fOffer:array[1..MaxEntries]of
     record
-      Loc_House:TKMHouse;
       Resource:TResourceType;
       Count:integer;
+      Loc_House:TKMHouse;
     end;
     fDemand:array[1..MaxEntries]of
     record
-      Loc_House:TKMHouse;
-      Loc_Unit:TKMUnit;
+      Resource:TResourceType;
       DemandType:TDemandType; //Once for everything, Always for Store and Barracks
       Importance:TDemandImportance; //How important demand is, e.g. Workers and building sites should be di_High
-      Resource:TResourceType;
+      Loc_House:TKMHouse;
+      Loc_Unit:TKMUnit;
     end;
     fQueue:array[1..MaxEntries]of
     record
@@ -115,6 +115,7 @@ procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource
 var i:integer;
 begin
 i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
+
 with fDemand[i] do begin
     Loc_House:=aHouse;
     Loc_Unit:=aUnit;
@@ -122,17 +123,17 @@ with fDemand[i] do begin
     Resource:=aResource;
     Importance:=aImp;
     if GOLD_TO_SCHOOLS_IMPORTANT then
-    if (Resource=rt_gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
+      if (Resource=rt_gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
     if FOOD_TO_INN_IMPORTANT then
-    if (Resource in [rt_bread,rt_Sousages,rt_Wine,rt_Fish])and
-       (Loc_House<>nil)and(Loc_House.GetHouseType=ht_Inn) then Importance:=di_High;
+      if (Resource in [rt_bread,rt_Sausages,rt_Wine,rt_Fish])and
+      (Loc_House<>nil)and(Loc_House.GetHouseType=ht_Inn) then Importance:=di_High;
   end;
 end;
 
 
 //Should issue a job based on requesters location and job importance
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
-var h,i,k:integer; Bid,BestBid:single;
+var h,i,k:integer; Bid,BestBid:single; NCount:word; Nodes:array[1..1024] of TKMPoint;
 begin
 Result:=nil;
 
@@ -143,8 +144,10 @@ if i=MaxEntries then exit;
 //TravelRoute Asker>Offer>Demand should be shortest
 BestBid:=0;
 for h:=1 to length(fDemand) do
+  if BestBid<>1 then //Quit loop when best bid is found
   if fDemand[h].Resource <> rt_None then
   for k:=1 to length(fOffer) do
+    if BestBid<>1 then //Quit loop when best bid is found
     if fOffer[k].Resource <> rt_None then
 
     if (fDemand[h].Resource = fOffer[k].Resource)or //If Offer Resource matches Demand
@@ -158,10 +161,16 @@ for h:=1 to length(fDemand) do
        ((fDemand[h].Loc_House<>nil)and((fDemand[h].Loc_House.GetHouseType<>ht_Store)or(
        (fDemand[h].Loc_House.GetHouseType=ht_Store)and(TKMHouseStore(fDemand[h].Loc_House).NotAcceptFlag[byte(fOffer[k].Resource)]=false)))) then
 
-    if (fDemand[h].Loc_House=nil)or //If Demand and Offer are different Types, means forbid Store>Store deliveries
-       ((fDemand[h].Loc_House<>nil)and(fOffer[k].Loc_House.GetHouseType<>fDemand[h].Loc_House.GetHouseType))
-    then begin
+    if (fDemand[h].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
+       ((fDemand[h].Loc_House<>nil)and((fDemand[h].Loc_House.GetHouseType<>ht_Barracks)or( //How do we know how many resource are on-route already??
+       (fDemand[h].Loc_House.GetHouseType=ht_Barracks)and(TKMHouseBarracks(fDemand[h].Loc_House).CheckResIn(fOffer[k].Resource)<=MAX_WARFARE_IN_BARRACKS)))) then
 
+    if (fDemand[h].Loc_House=nil)or //If Demand and Offer are different HouseTypes, means forbid Store>Store deliveries
+       ((fDemand[h].Loc_House<>nil)and(fOffer[k].Loc_House.GetHouseType<>fDemand[h].Loc_House.GetHouseType)) then
+
+    begin
+
+      //Basic Bid is length of route
       if fDemand[h].Loc_House<>nil then
         Bid := KMLength(fOffer[k].Loc_House.GetEntrance,fDemand[h].Loc_House.GetEntrance)
       else
@@ -173,21 +182,29 @@ for h:=1 to length(fDemand) do
 
       if fDemand[h].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[h].Resource <> rt_All)and(fDemand[h].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
-        Bid:=Bid * ((fDemand[h].Loc_House.CheckResIn(fDemand[h].Resource)+1)/6);
+        Bid:=Bid * (1+fDemand[h].Loc_House.CheckResIn(fDemand[h].Resource)/3);
 
       if fDemand[h].Importance=di_High then //If Demand importance is high - make it done ASAP
         Bid:=1;
 
+      if fDemand[h].Loc_House<>nil then begin//House>House delivery
+        fTerrain.MakeRoute(KMPointY1(fOffer[k].Loc_House.GetEntrance),KMPointY1(fDemand[h].Loc_House.GetEntrance),canWalkRoad,NCount,Nodes);
+        if NCount=0 then Bid:=0;
+      end else
+        Bid:=10;
+
       //Take first one incase there's nothing better to be found
-      if (fQueue[i].JobStatus=js_Open)or(Bid<BestBid) then begin
+      //Do not take deliveries with Bid=0 (no route found)
+      if (Bid<>0)and((fQueue[i].JobStatus=js_Open)or(Bid<BestBid)) then begin
         fQueue[i].DemandID:=h;
         fQueue[i].OfferID:=k;
         fQueue[i].JobStatus:=js_Taken; //The job is found, at least something
         BestBid:=Bid;
       end;
+
     end;
 
-  if BestBid=0 then exit;
+  if BestBid=0 then exit; //No suitable delivery has been found
 
   h:=fQueue[i].DemandID;
   k:=fQueue[i].OfferID;
@@ -229,13 +246,16 @@ var i:integer;
 begin
 Result:='Demand:'+eol+'---------------------------------'+eol;
 for i:=1 to length(fDemand) do if fDemand[i].Resource<>rt_None then begin
+  Result:=Result+#9;
   if fDemand[i].Loc_House<>nil then Result:=Result+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9+#9;
   if fDemand[i].Loc_Unit<>nil then Result:=Result+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9+#9;
   Result:=Result+TypeToString(fDemand[i].Resource);
+  if fDemand[i].Importance=di_High then Result:=Result+'*****';
   Result:=Result+eol;
 end;
 Result:=Result+eol+'Offer:'+eol+'---------------------------------'+eol;
 for i:=1 to length(fOffer) do if fOffer[i].Resource<>rt_None then begin
+  Result:=Result+#9;
   if fOffer[i].Loc_House<>nil then Result:=Result+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9+#9;
   Result:=Result+TypeToString(fOffer[i].Resource)+#9;
   Result:=Result+IntToStr(fOffer[i].Count);
@@ -294,13 +314,10 @@ function  TKMBuildingQueue.AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUn
 var i:integer;
 begin
 Result:=nil;
-i:=1;
-while (i<MaxEntries)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
-if i=MaxEntries then
-begin
-  Result:=nil;
-  exit;
-end;
+
+i:=1; while (i<MaxEntries)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
+if i=MaxEntries then exit;
+
 if fFieldsQueue[i].FieldType=fdt_Road then  Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
 if fFieldsQueue[i].FieldType=fdt_Field then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
 if fFieldsQueue[i].FieldType=fdt_Wine then  Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);

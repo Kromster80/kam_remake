@@ -537,7 +537,7 @@ if (aUnitType=ut_Butcher)and(aHome=ht_Tannery) then begin
   SubActAdd(ha_Work2,6);
 end else
 if (aUnitType=ut_Butcher)and(aHome=ht_Butchers) then begin
-  ResourcePlan(rt_Pig,1,rt_None,0,rt_Sousages);
+  ResourcePlan(rt_Pig,1,rt_None,0,rt_Sausages);
   SubActAdd(ha_Work1,1);
   SubActAdd(ha_Work2,1);
   SubActAdd(ha_Work3,1);
@@ -614,7 +614,7 @@ begin
     if fCondition<UNIT_MIN_CONDITION then begin
       H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
       if (H<>nil)and
-      (H.CheckResIn(rt_Sousages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+      (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
         fUnitTask:=TTaskGoEat.Create(H,Self)
       else //If there's no Inn or no food in it
         //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -698,7 +698,7 @@ begin
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
     if (H<>nil)and
-    (H.CheckResIn(rt_Sousages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+    (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -708,7 +708,7 @@ begin
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
     fUnitTask:=GetActionFromQueue;
 
-  if fUnitTask=nil then SetAction(TUnitActionStay.Create(20,ua_Walk)); //Stay idle
+  if fUnitTask=nil then SetAction(TUnitActionStay.Create(60,ua_Walk)); //Stay idle
 end;
 
 
@@ -764,7 +764,7 @@ begin
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
     if (H<>nil)and
-    (H.CheckResIn(rt_Sousages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+    (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -1076,7 +1076,7 @@ if fToHouse<>nil then
 if not fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,fToHouse.GetPosition,ua_Walk,false));
+5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,KMPointY1(fToHouse.GetEntrance),ua_Walk,false));
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
@@ -1541,8 +1541,8 @@ case Phase of
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/3);
     end;
- 4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sousages)>0) then begin
-      fInn.ResTakeFromIn(rt_Sousages);
+ 4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0) then begin
+      fInn.ResTakeFromIn(rt_Sausages);
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/2);
     end;
@@ -1587,10 +1587,11 @@ begin
   //There are two possibilities here:
   // - Route can't be built cos there's no walkable way to go from A to B
   // - A and B are the same point
-  fRouteBuilt:=NodeCount>1;
+  fRouteBuilt:=NodeCount>0;
   if not fRouteBuilt then
     fLog.AddToLog('Unable to make a route '+TypeToString(LocA)+' > '+TypeToString(LocB));
 
+  if fRouteBuilt then
   if not fWalkToSpot then dec(NodeCount); //Approach spot from any side
 end;
 
@@ -1648,7 +1649,7 @@ begin
 end;
 
 procedure TUnitActionGoIn.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
-var Distance:single;
+var Distance:single; OldPos:TKMPoint;
 begin
   DoEnd:= False;
   TimeDelta:=0.1;
@@ -1664,9 +1665,13 @@ begin
   if KMLength(KMUnit.GetPosition, KMUnit.fHome.GetEntrance)=0 then
     TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside - 1;
 
+  OldPos:=KMUnit.GetPosition;
+
   fStep := fStep - Distance * fDir;
   KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * fDir;
   KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
+
+  if not KMSamePoint(OldPos,KMUnit.GetPosition) then fTerrain.UnitWalk(OldPos,KMUnit.GetPosition);
 
   if (fStep<=0)and(fDir=shortint(gid_In)) then //Unit went into house
   if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks

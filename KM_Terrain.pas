@@ -70,7 +70,7 @@ public
     FogOfWar:array[1..8]of byte;
 
     //Whenever there's a unit on that tile mark the tile as occupied
-    IsUnit:boolean;
+    IsUnit:byte;
   end;
 
   constructor Create;
@@ -170,7 +170,7 @@ begin
     BorderX:=bt_None;
     BorderY:=bt_None;
     for h:=1 to 8 do FogOfWar[h]:=0;
-    IsUnit:=false;
+    IsUnit:=0;
   end;
 
   RebuildLighting(1,MapX,1,MapY);
@@ -724,7 +724,7 @@ begin
     end;
 
     //Keep looking if we haven't reached destination
-    if (MinCost.Pos.X <> LocB.X)or(MinCost.Pos.Y <> LocB.Y) then begin
+    if not KMSamePoint(MinCost.Pos,LocB) then begin
 
       OList[MinCost.ID].Estim:=c_closed;
 
@@ -756,10 +756,10 @@ begin
           end;
         end;
     end;
-  until((k=500)or(OCount+8>=length(OList))or((MinCost.Pos.X = LocB.X)and(MinCost.Pos.Y = LocB.Y)));
+  until((k=500)or(OCount+8>=length(OList))or(KMSamePoint(MinCost.Pos,LocB)));
 
-  if (MinCost.Pos.X <> LocB.X)or(MinCost.Pos.Y <> LocB.Y)or(k=200) then begin
-    NodeCount:=1;
+  if (not KMSamePoint(MinCost.Pos,LocB))or(k=500) then begin
+    NodeCount:=0; //Something went wrong
     Nodes[0]:=LocA;
     exit;
   end;
@@ -772,7 +772,7 @@ begin
   until(k=0);
 
   if NodeCount > length(Nodes) then begin
-    NodeCount:=1;
+    NodeCount:=0; //Something went wrong
     Nodes[0]:=LocA;
     exit;
   end;
@@ -807,28 +807,28 @@ begin
   NodeCount:=k;
   end;
 
-  for i:=1 to NodeCount do
-    Assert(TileInMapCoords(Nodes[i-1].X,Nodes[i-1].Y));
+  //for i:=1 to NodeCount do
+  //  Assert(TileInMapCoords(Nodes[i-1].X,Nodes[i-1].Y));
 end;
 
 
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitAdd(LocTo:TKMPoint);
 begin
-  Land[LocTo.Y,LocTo.X].IsUnit:=true;
+  inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
 
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitRem(LocFrom:TKMPoint);
 begin
-  Land[LocFrom.Y,LocFrom.X].IsUnit:=false;
+  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
 end;
 
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
-  Land[LocFrom.Y,LocFrom.X].IsUnit:=false;
-  Land[LocTo.Y,LocTo.X].IsUnit:=true;
+  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
+  inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
 
 
@@ -931,7 +931,12 @@ end;
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
 begin  
   Result := TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
-  Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
+  case aMarkup of
+  mu_RoadPlan: Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
+  mu_FieldPlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
+  mu_WinePlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
+  else Result:=false;
+  end;
 end;
 
 

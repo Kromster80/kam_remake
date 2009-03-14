@@ -42,6 +42,7 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         SAVEGAME_COUNT = 10;    //Savegame slots available
 
         //Here we store options that are hidden somewhere in code
+        MAX_WARFARE_IN_BARRACKS = 20;
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
         UNIT_MAX_CONDITION = 15*600;            //*min of life. In KaM it's 45min
@@ -106,7 +107,7 @@ type
     rt_Trunk     =1  , rt_Stone      =2 , rt_Wood       =3 , rt_IronOre     =4 ,
     rt_GoldOre   =5  , rt_Coal       =6 , rt_Steel      =7 , rt_Gold        =8 ,
     rt_Wine      =9  , rt_Corn       =10, rt_Bread      =11, rt_Flour       =12,
-    rt_Leather   =13 , rt_Sousages   =14, rt_Pig        =15, rt_Skin        =16,
+    rt_Leather   =13 , rt_Sausages   =14, rt_Pig        =15, rt_Skin        =16,
     rt_Shield    =17 , rt_MetalShield=18, rt_Armor      =19, rt_MetalArmor  =20,
     rt_Axe       =21 , rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
     rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
@@ -357,7 +358,7 @@ HouseOutput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
 (rt_None,       rt_None,       rt_None,       rt_None), //Barracks       //334
 (rt_Flour,      rt_None,       rt_None,       rt_None), //Mill           //358
 (rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
-(rt_Sousages,   rt_None,       rt_None,       rt_None), //Butcher        //397
+(rt_Sausages,   rt_None,       rt_None,       rt_None), //Butcher        //397
 (rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery        //668
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
 (rt_None,       rt_None,       rt_None,       rt_None), //Inn            //363
@@ -394,7 +395,7 @@ HouseInput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
 (rt_Pig,        rt_None,       rt_None,       rt_None), //Butcher        //397
 (rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery        //668
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
-(rt_Bread,      rt_Sousages,   rt_Wine,       rt_Fish), //Inn            //363
+(rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish), //Inn            //363
 (rt_None,       rt_None,       rt_None,       rt_None), //Wineyard       //378
 (rt_None,       rt_None,       rt_None,       rt_None)  //Wall
 );

@@ -294,7 +294,7 @@ MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 
 H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
 if H<>nil then H.AddMultiResource(rt_All,15);
-if H<>nil then H.AddMultiResource(rt_Sousages,500);
+if H<>nil then H.AddMultiResource(rt_Sausages,500);
 
 MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan,true);
 MyPlayer.AddRoadPlan(KMPoint(4,6),mu_RoadPlan,true);

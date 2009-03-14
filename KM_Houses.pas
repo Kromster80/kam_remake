@@ -65,7 +65,7 @@ type
     procedure SetState(aState: THouseState; aTime:integer);
     function GetState:THouseState;
 
-    function CheckResIn(aResource:TResourceType):byte;
+    function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
     function CheckResOrder(ID:byte):word;
     function CheckResToBuild():boolean;
@@ -109,6 +109,7 @@ type
     RecruitsInside:integer;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
+    function CheckResIn(aResource:TResourceType):word; override;
     function TakeResource(aResource:TResourceType):boolean;
   end;
 
@@ -259,7 +260,7 @@ begin
   Result := fBuildState = hbs_Done;
 end;
 
-function TKMHouse.CheckResIn(aResource:TResourceType):byte;
+function TKMHouse.CheckResIn(aResource:TResourceType):word;
 var i:integer;
 begin
 Result:=0;
@@ -582,7 +583,7 @@ end;
 
 
 procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; const aCount:word=1);
-//const MAX_WARFARE:=200;  //Has to influence ware delivery
+//const MAX_WARFARE_IN_BARRACKS:=200;  //Has to influence ware delivery
 var i:integer;
 begin
 if aResource=rt_Warfare then
@@ -596,15 +597,25 @@ else
 end;
 
 
+function TKMHouseBarracks.CheckResIn(aResource:TResourceType):word;
+begin
+  if aResource in [rt_Shield..rt_Horse] then
+    Result:=ResourceCount[byte(aResource)-16]
+  else
+    Result:=0;
+end;
+
+
 function TKMHouseBarracks.TakeResource(aResource:TResourceType):boolean;
 begin
-if ResourceCount[byte(aResource)-16]>0 then begin
-  dec(ResourceCount[byte(aResource)-16]);
-  Result:=true;
-end else begin
-  Assert(false,'ResourceCount[byte(aResource)-16]>=0');
-  Result:=false;
-end;
+  if aResource in [rt_Shield..rt_Horse] then
+  if ResourceCount[byte(aResource)-16]>0 then begin
+    dec(ResourceCount[byte(aResource)-16]);
+    Result:=true;
+  end else begin
+    Assert(false,'ResourceCount[byte(aResource)-16]>=0');
+    Result:=false;
+  end;
 end;
 
 
