@@ -174,6 +174,7 @@ type TKMGamePlayInterface = class
     procedure QuitMission(Sender:TObject);
     procedure SelectRoad;
     procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
+    procedure EnableOrDisableMenuIcons;
   end;
 
 var
@@ -662,7 +663,7 @@ begin
     KMButton_Menu_Track.Hint:=fTextLibrary.GetTextString(209);
     //KMButton_Menu_Quit.OnClick:=TrackUp;
     KMLabel_Menu_Music:=MyControls.AddLabel(KMPanel_Menu,100,298,100,30,fnt_Metal,kaCenter,fTextLibrary.GetTextString(207));
-    KMLabel_Menu_Track:=MyControls.AddLabel(KMPanel_Menu,58,326,100,30,fnt_Grey,kaLeft,'Spirit');
+    KMLabel_Menu_Track:=MyControls.AddLabel(KMPanel_Menu,100,326,100,30,fnt_Grey,kaCenter,'Spirit');
 end;
 
 
@@ -890,6 +891,7 @@ begin
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
+  EnableOrDisableMenuIcons;
 end;
 
 
@@ -1372,5 +1374,20 @@ begin
       TKMControl(MyControls.Items[i]).OnHint := AHintEvent;
 end;
 
+procedure TKMGamePlayInterface.EnableOrDisableMenuIcons;
+begin
+  if MissionMode = mm_Tactic then
+  begin
+    KMButtonMain[1].Enabled := false;
+    KMButtonMain[2].Enabled := false;
+    KMButtonMain[3].Enabled := false;
+  end
+  else
+  begin
+    KMButtonMain[1].Enabled := true;
+    KMButtonMain[2].Enabled := true;
+    KMButtonMain[3].Enabled := true;
+  end;
+end;
 
 end.

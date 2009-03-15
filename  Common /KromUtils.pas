@@ -20,6 +20,7 @@ type
 
 function KMPoint(X, Y: word): TKMPoint;
 function KMPointF(X, Y: single): TKMPointF;
+function KMPointX1Y1(X, Y: word): TKMPoint;
 function KMPointY1(P:TKMPoint): TKMPoint; overload
 function KMPointY1(P:TKMPointF): TKMPoint; overload
 
@@ -162,6 +163,12 @@ function KMPointF(X, Y: single): TKMPointF;
 begin
   Result.X := X;
   Result.Y := Y;
+end;
+
+function KMPointX1Y1(X, Y: word): TKMPoint;
+begin
+  Result.X := X+1;
+  Result.Y := Y+1;
 end;
 
 function KMPointY1(P:TKMPoint): TKMPoint; overload

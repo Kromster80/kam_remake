@@ -409,7 +409,8 @@ end;
 
 procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
-  MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
+  if fPlayers.Player[RGPlayer.ItemIndex+1] <> nil then
+    MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);

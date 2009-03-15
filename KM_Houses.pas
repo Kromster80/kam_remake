@@ -412,14 +412,15 @@ begin
       //Various buildings and HouseActions producing sounds
       ht_Mill: if (WorkID = 2)and(WorkAnimStep mod Cycle = 0) then fSoundLib.Play(sfx_mill,GetPosition);
       ht_CoalMine: if (WorkID = 1)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_coaldown,GetPosition)
+                   else if (WorkID = 1)and(WorkAnimStep mod Cycle = 22) then fSoundLib.Play(sfx_CoalMineThud,GetPosition)
                    else if (WorkID = 2)and(WorkAnimStep mod Cycle = 7) then fSoundLib.Play(sfx_mine,GetPosition)
                    else if (WorkID = 2)and(WorkAnimStep mod Cycle = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
                    else if (WorkID = 5)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_coaldown,GetPosition);
       ht_SawMill: if (WorkID = 2)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_saw,GetPosition);
       ht_Wineyard: if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,6,13,18]) then fSoundLib.Play(sfx_wineStep,GetPosition)
                    else if (WorkID = 5)and(WorkAnimStep mod Cycle = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition);
-      ht_School: if (WorkID = 5)and(WorkAnimStep = 20) then fSoundLib.Play(sfx_saw,GetPosition);
-      //ht_Bakery: if (WorkID = 3)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_mill,GetPosition);
+      ht_School: if (WorkID = 5)and(WorkAnimStep = 20) then fSoundLib.Play(sfx_SchoolDing,GetPosition);
+      //ht_Bakery: if (WorkID = 3)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
     end;
   end;
 

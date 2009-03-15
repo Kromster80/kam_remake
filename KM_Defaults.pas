@@ -483,23 +483,22 @@ type
     sfx_coalDown,
     sfx_Pig1,sfx_Pig2,sfx_Pig3,sfx_Pig4,
     sfx_Mine,
-    sfx_unknown21,
+    sfx_Pig5,
     sfx_Leather,
-    sfx_unknown23,
-    sfx_unknown24,
+    sfx_BakerSlap,
+    sfx_CoalMineThud,
     sfx_StoneThrow,
-    sfx_unknown26,
-    sfx_unknown27,
-    sfx_Sousages,
-    sfx_unknown29,
+    sfx_SausageString,
+    sfx_QuarryClink,
     sfx_TreeDown,
-    sfx_unknown31,
-    sfx_unknown32,
-    sfx_Paper,
-    sfx_unknown34,
-    sfx_Horn,
-    sfx_Die1,
-    sfx_Die2     );
+    sfx_WoodcutterDig,
+    sfx_CantPlace,
+    sfx_MessageOpen,
+    sfx_MessageClose,
+    sfx_MessageNotice,
+    { Here there are lots of melee sounds for fighting/attacking buildings }
+    sfx_Blacksmith=63,
+    sfx_SchoolDing=72    );
 
 var
   //Players colors

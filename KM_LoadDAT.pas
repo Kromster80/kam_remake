@@ -1,39 +1,60 @@
 unit KM_LoadDAT;
 interface
 uses
-  Windows, Classes, SysUtils, StrUtils, KromUtils, Dialogs, Math;
+  Windows, Classes, KromUtils, SysUtils, StrUtils, Dialogs, Math, KM_Defaults;
 
 //@Krom: Why? If you want the value as an integer then just use "Integer(TKMCommandType[i])". That will return it as an integer, with the first one as 0 and so on. Surely that's easier?
 //@Lewin: Exactly my point, but just to make sure first element is 0, who knows how we could extend it. See TUnitType for example
+//@Krom: Ok, I see. Just as long as I don't have to give each command an ID. To be deleted...
 
 type
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
                     ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
-                    ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_SetUnit,ct_SetRoad);
-                    //,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_,ct_);
+                    ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
+                    ct_SetUnit,ct_SetRoad,ct_SetField,ct_Set_Winefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
+                    ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
+                    ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon);
 
 const
   COMMANDVALUES: array[TKMCommandType] of string = ('','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
-                                                    'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR','CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES','ADD_GOAL','SET_UNIT','SET_STREET');//,'','','','','','','','','','','','','','','','','','','');
+                                                    'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
+                                                    'CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
+                                                    'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
+                                                    'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
+                                                    'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
+                                                    'ADD_WARE_TO_ALL','ADD_WEAPON');
   MAXPARAMS = 8;
+  //This is a map of the valid values for !SET_UNIT, and the corrisponing unit that will be created (matches KaM behavior)
+  UnitsRemap: array[0..31] of TUnitType = (ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,
+    ut_Farmer,ut_Lamberjack,ut_Baker,ut_Butcher,ut_Fisher,ut_Worker,ut_StoneCutter,
+    ut_Smith,ut_Metallurgist,ut_Recruit, //Units
+    ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,ut_Pikeman,ut_Hallebardman,
+    ut_HorseScout,ut_Cavalry,ut_Barbarian, //Troops
+    ut_Wolf,ut_Fish,ut_Watersnake,ut_Seastar,ut_Crab,ut_Waterflower,ut_Waterleaf,ut_Duck); //Animals
+    
+  //This is a map of the valid values for !SET_GROUP, and the corrisponing unit that will be created (matches KaM behavior)
+  TroopsRemap: array[14..29] of TUnitType = (ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
+  ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
+  {ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,ut_Catapult,ut_Ballista);} //TPR Troops, which are not yet enabled
+  ut_None,ut_None,ut_None,ut_None,ut_None,ut_None); //Temp replacement for TPR Troops
 
 type
   TMissionParser = class(TObject)
   private     { Private declarations }
     CurrentPlayerIndex: integer;
-    procedure ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string);
+    function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
     procedure DebugScriptError(ErrorMsg:string);
     procedure UnloadMission;
   public      { Public declarations }
     constructor Create;
-    procedure LoadDATFile(AFileName:string);
+    function LoadDATFile(AFileName:string):boolean;
 end;
 
 var
   fMissionParser: TMissionParser;
 
 implementation
-uses KM_Defaults, KM_Users, KM_Terrain, KM_Viewport;
+uses KM_Users, KM_Terrain, KM_Viewport, KM_Houses;
 
 function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
 var
@@ -58,21 +79,18 @@ end;
 procedure TMissionParser.UnloadMission;
 begin
   FreeAndNil(fPlayers);
-  CurrentPlayerIndex := 1; //@Lewin: maybe it's better to set to 0
-  //@Krom: But the players are 1 indexed in the users unit... Or do you mean to start it off with an
-  //invalid number so that by default commands will be ignored?
-  //@Lewin: When mission is unloaded I prefer to keep it with error, so it can't be accidentially used
-  //TMissionParser.LoadMission will take care of setting it to PlayerID ;)
+  CurrentPlayerIndex := 0;
+  MissionMode:=mm_Normal;
 end;
 
-procedure TMissionParser.LoadDATFile(AFileName:string);
+function TMissionParser.LoadDATFile(AFileName:string):boolean;
+const ENCODED = true; //If false then files will be opened as text
 var
   FileText, CommandText, Param, TextParam: string;
   ParamList: array[1..8] of integer;
   i, k, l, FileSize: integer;
   f: file;
-  c:array[1..131072] of char;  
-  fl: textfile;
+  c:array[1..131072] of char;
   CommandType: TKMCommandType;
 begin
   if not CheckFileExists(AFileName) then exit;
@@ -87,20 +105,16 @@ begin
 
   i:=1; k:=1;
   repeat
-    FileText[k]:=chr(ord(c[i]) xor 239);
+    if ENCODED then
+      FileText[k]:=chr(ord(c[i]) xor 239)
+    else
+      FileText[k]:=c[i];
     if (FileText[k]=#9)or(FileText[k]=#10)or(FileText[k]=#13) then FileText[k]:=' ';
     inc(i);
     if (k>1)and(((FileText[k-1]=#32)and(FileText[k]=#32))or((FileText[k-1]='!')and(FileText[k]='!'))) then else
     inc(k);
   until(i>FileSize);
   setlength(FileText,k); //Because some extra characters are removed
-
-  //Temporary debugging
-  //@Lewin: I guess we should make a sort of switch to enable loading of unciphered DAT files, for debug time
-  {assignfile(fl,ExeDir+'Mission.txt');
-  rewrite(fl);
-  write(fl,FileText);
-  closefile(fl);}
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
   k := 1;
@@ -135,18 +149,28 @@ begin
           if FileText[k]=#32 then inc(k);
         end;
       //We now have command text and parameters, so process them
-      //few string params could be handled individually
-      ProcessCommand(CommandType,ParamList,TextParam)
+      
+      //@Lewin: few string params could be handled individually
+      //@Krom: Do you mean we process the text param here and change the command
+      // type based on it's value? (e.g. have a ct_AICharacterTownDefence for the
+      // split command !SET_AI_CHARACTER TOWN_DEFENSE)
+      if ProcessCommand(CommandType,ParamList,TextParam) = false then //A returned value of false indicates an error has occoured and we should exit
+      begin
+        Result:=false;
+        exit;
+      end;
     end
     else
       inc(k);
   until (k>=length(FileText));
+  Result:=true; //If we have reach here without exiting then it must have worked
 end;
 
-procedure TMissionParser.ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string);
+function TMissionParser.ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
 var
   MyStr: string;
-  i: integer;
+  i, MyInt: integer;
+  Storehouse:TKMHouseStore; Barracks: TKMHouseBarracks;
 begin
   case CommandType of
   ct_SetMap:         begin
@@ -157,82 +181,156 @@ begin
                        repeat
                          MyStr := MyStr+TextParam[i];
                          inc(i);
-                       until TextParam[i] = '"';
+                       until (TextParam[i] = '"') or (i >= Length(TextParam));
                        fTerrain.OpenMapFromFile(ExeDir+MyStr);
-                       //if not fTerrain.OpenMapFromFile(ExeDir+MyStr) then BreakWholeLoadingAndReset
+                       if not fTerrain.OpenMapFromFile(ExeDir+MyStr) then
+                       begin
+                         Result := false;
+                         exit;
+                       end;
                        fViewport.SetZoom:=1;
                      end;
                      end;
   ct_SetMaxPlayer:   begin
-                     {"so it checks for data acceptability(is there such a word?) in code"
-                     @Krom: No, acceptability is not a word. I would write
-                     //"so it checks that the data is acceptabile in code" or something.
-                     //English lessions in code? ;)
-                     //@Lewin: Sure, why not :-) ToBeDeleted.
-
-                     Tell me, why use StrToIntDef ? What can go wrong if we use StrToInt?
-                     I vote for strict decoding without assumtions
-                     if ct_SetMaxPlayer=32765 for any reason then raise an error and stop loading
-                     instead of assuming it's MaxPlayers or 0
-                     same goes for all parameters, some odd values should be ignored and some raise errors
-
-                     @Krom: Aggreed. I will do that from now on. However, sometimes it will not raise an exception.
-                     //For example, if the integer is to be used in an array, then it will get some other
-                     //weird data out of memory. Therefore I will do range checks (but no EnsureRange)
-                     //on things like player numbers which are to be used for arrays.}
-                     //@Lewin: Okay, if I have more suggestions I'll write them later on
-
-
                      fPlayers:=TKMAllPlayers.Create(ParamList[0]); //Create players
+                     end;    
+  ct_SetTactic:      begin
+                       MissionMode:=mm_Tactic;
                      end;
-  ct_SetCurrPlayer:  begin       
-                     if fPlayers <> nil then //@Krom: I guess all of these should be removed too then?
-                     //(if not true then it will crash with an error, so they are not needed, right?)
-                     //@Lewin: DebugScriptError may come in handy here, but of course it makes little sense
-                     //to check if fPlayers <> nil for EVERY single command. Maybe there's a better solution? I don't know.
-                       if (ParamList[0] > 0) and (ParamList[0] < fPlayers.PlayerCount-1) then
-                         CurrentPlayerIndex := ParamList[0]+1; //+1 because in DAT players IDs are 0 based, but here they are 1 based
+  ct_SetCurrPlayer:  begin
+                     if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
+                       CurrentPlayerIndex := ParamList[0]+1; //+1 because in DAT players IDs are 0 based, but here they are 1 based
                      end;
   ct_SetHumanPlayer: begin
                      if fPlayers <> nil then
-                       if (ParamList[0] > 0) and (ParamList[0] < fPlayers.PlayerCount-1) then
-                       //@Lewin: try this - if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
+                       if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
+                       begin
                          MyPlayer := fPlayers.Player[ParamList[0]+1];
+                         MyPlayer.PlayerType:=pt_Human;
+                       end;
+                     end;
+  ct_AIPlayer:       begin
+                     if fPlayers <> nil then
+                       if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
+                         fPlayers.Player[ParamList[0]+1].PlayerType:=pt_Computer
+                       else //This command doesn't require an ID, just use the current player
+                         fPlayers.Player[CurrentPlayerIndex].PlayerType:=pt_Computer;
                      end;
   ct_CenterScreen:   begin
                      fViewPort.SetCenter(ParamList[0],ParamList[1]);
                      end;
   ct_ClearUp:        begin
-                     if fPlayers <> nil then
-                       fTerrain.RevealCircle(KMPoint(ParamList[0],ParamList[1]),ParamList[2],100,TPlayerID(CurrentPlayerIndex));
+                     fTerrain.RevealCircle(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2],100,TPlayerID(CurrentPlayerIndex));
                      end;
   ct_SetHouse:       begin
-                     if fPlayers <> nil then
-                       if (ParamList[0] >= 0) and (ParamList[0] <= Integer(High(THouseType))-1) then
-                         fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), KMPoint(ParamList[1],ParamList[2]));
+                     if InRange(ParamList[0],0,HOUSE_COUNT-1) then
+                       fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), KMPointX1Y1(ParamList[1]+HouseDAT[ParamList[0]+1].EntranceOffsetX,ParamList[2]));
                      end;
   ct_SetUnit:        begin
-                     if fPlayers <> nil then
-                       if (ParamList[0] >= 0) and (ParamList[0] <= 24{Integer(High(TUnitType))-1}) then
-                         fPlayers.Player[CurrentPlayerIndex].AddUnit(TUnitType(ParamList[0]+1),KMPoint(ParamList[1],ParamList[2]));
+                     if InRange(ParamList[0],0,31) then
+                       fPlayers.Player[CurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]));
+                     end;
+  ct_SetUnitByStock: begin
+                     if InRange(ParamList[0],0,31) then
+                     begin
+                       Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,0,0,1));
+                       if Storehouse<>nil then
+                         fPlayers.Player[CurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointY1(Storehouse.GetEntrance));
+                     end;
                      end;
   ct_SetRoad:        begin
-                     if fPlayers <> nil then
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPoint(ParamList[0],ParamList[1]),mu_RoadPlan);
-                       //@Krom: How to make these actual roads?
-                       //@Lewin: I've added command fPlayers.Player[CurrentPlayerIndex].AddRoad();
+                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]),mu_RoadPlan);
+                     end;
+  ct_SetField:      begin
+                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]),mu_FieldPlan);
+                     end;
+  ct_Set_Winefield:  begin
+                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]),mu_WinePlan);
+                     end;
+  ct_SetStock:       begin
+                     //This command basically means: Put a storehouse here with road bellow it
+                     fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0],ParamList[1]));
+                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]+1),mu_RoadPlan);
+                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1),mu_RoadPlan);
+                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1),mu_RoadPlan);
+                     end;
+  ct_AddWare:        begin
+                     MyInt:=ParamList[1];
+                     if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,0,0,1));
+                     if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
+                     end;
+  ct_AddWareToAll:   begin
+                     MyInt:=ParamList[1];
+                     if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                     for i:=1 to fPlayers.PlayerCount do
+                     begin
+                       Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,0,0,1));
+                       if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
+                     end;
+                     end;
+  ct_AddWareToSecond:begin
+                     MyInt:=ParamList[1];
+                     if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,0,0,2));
+                     if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
+                     end;
+  ct_AddWeapon:      begin
+                     MyInt:=ParamList[1];
+                     if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum weapons
+                     Barracks:=TKMHouseBarracks(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Barracks,0,0,1));
+                     if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then Barracks.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
+                     end;
+  ct_BlockHouse:     begin
+                     if InRange(ParamList[0],0,HOUSE_COUNT-1) then
+                       fPlayers.Player[CurrentPlayerIndex].fMissionSettings.AllowToBuild[ParamList[0]+1]:=false;
+                     end;
+  ct_ReleaseHouse:   begin
+                     if InRange(ParamList[0],0,HOUSE_COUNT-1) then
+                       fPlayers.Player[CurrentPlayerIndex].fMissionSettings.BuildReqDone[ParamList[0]+1]:=true;
+                     end;
+ ct_ReleaseAllHouses:begin
+                     for i:=1 to HOUSE_COUNT do
+                       fPlayers.Player[CurrentPlayerIndex].fMissionSettings.BuildReqDone[i]:=true;
                      end;
   //To add:
-  ct_SetTactic:      begin
-
-                     end;
   ct_EnablePlayer:   begin
+                     {@Krom: Not sure what to do about this one. Every player in the script has one of these.
+                     Presumably in KaM it does some enabling process and otherwise the player won't function.
+                     However, there is no practical purpose for it (you must always have it) so maybe we just ignore it?}
+                     end;
+  ct_AddGoal:        begin
 
                      end;
-  ct_AIPlayer:       begin
+  ct_AddLostGoal:    begin
 
                      end;
-  end;
+  ct_SetHouseDamage: begin
+
+                     end;
+  ct_SetAlliance:    begin
+
+                     end;
+  ct_SetNewRemap:    begin
+
+                     end;
+  ct_SetMapColor:    begin
+
+                     end;
+  ct_SetGroup:       begin
+
+                     end;
+  ct_SetGroupFood:   begin
+
+                     end;
+  ct_SendGroup:      begin
+
+                     end;
+  ct_AttackPosition: begin
+
+                     end;
+  end;           
+  Result := true; //Must have worked if we haven't exited by now
 end;
 
 procedure TMissionParser.DebugScriptError(ErrorMsg:string);

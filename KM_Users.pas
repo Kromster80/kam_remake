@@ -6,10 +6,10 @@ uses
 
 type
   TPlayerType = (pt_Human, pt_Computer, pt_Animals);
+  TMissionMode = (mm_Normal, mm_Tactic);
 
   TKMPlayerAssets = class
   private
-    fMissionSettings: TMissionSettings;
     fUnits: TKMUnitsCollection;
     fHouses: TKMHousesCollection;
     fDeliverList: TKMDeliverQueue;
@@ -18,6 +18,7 @@ type
     constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
   public
+    fMissionSettings: TMissionSettings; //Required to be public so it can be accessed from LoadDAT
     PlayerID:TPlayerID; //Which ID this player is
     PlayerType: TPlayerType; //Is it Human or AI or Animals
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
@@ -73,6 +74,7 @@ type
 var
   fPlayers: TKMAllPlayers;
   MyPlayer: TKMPlayerAssets; //shortcut to access players player
+  MissionMode: TMissionMode;
 
 implementation
 

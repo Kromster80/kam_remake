@@ -231,7 +231,9 @@ begin
     fMissionParser.LoadDATFile(MissionFile);
     // fTerrain.LoadMapFromFile / fPlayers should be somewhere there
     //@Lewin: LoadDATFile should return true/false whenever mission is succesfully loaded or not
-    //if not - we abort whole thing, show script errors if any and return to main menu 
+    //if not - we abort whole thing, show script errors if any and return to main menu
+    //@Krom: Done! You can add the code here to return to the main menu. When I have added script
+    //error reporting then we can add that feature. For now, just show an error message and exit.
     fLog.AppendLog('DAT Loaded');            
   end else begin
     fTerrain.MakeNewMap(96,96); //For debug we use blank mission
