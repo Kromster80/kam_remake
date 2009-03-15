@@ -187,11 +187,11 @@ for h:=1 to length(fDemand) do
       if fDemand[h].Importance=di_High then //If Demand importance is high - make it done ASAP
         Bid:=1;
 
-      if fDemand[h].Loc_House<>nil then begin//House>House delivery
+      {if fDemand[h].Loc_House<>nil then begin//House>House delivery
         fTerrain.MakeRoute(KMPointY1(fOffer[k].Loc_House.GetEntrance),KMPointY1(fDemand[h].Loc_House.GetEntrance),canWalkRoad,NCount,Nodes);
         if NCount=0 then Bid:=0;
       end else
-        Bid:=10;
+        Bid:=10;}
 
       //Take first one incase there's nothing better to be found
       //Do not take deliveries with Bid=0 (no route found)

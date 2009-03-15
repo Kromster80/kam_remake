@@ -3,10 +3,6 @@ interface
 uses
   Windows, Classes, KromUtils, SysUtils, StrUtils, Dialogs, Math, KM_Defaults;
 
-//@Krom: Why? If you want the value as an integer then just use "Integer(TKMCommandType[i])". That will return it as an integer, with the first one as 0 and so on. Surely that's easier?
-//@Lewin: Exactly my point, but just to make sure first element is 0, who knows how we could extend it. See TUnitType for example
-//@Krom: Ok, I see. Just as long as I don't have to give each command an ID. To be deleted...
-
 type
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
                     ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
@@ -16,13 +12,15 @@ type
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon);
 
 const
-  COMMANDVALUES: array[TKMCommandType] of string = ('','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
-                                                    'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
-                                                    'CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
-                                                    'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
-                                                    'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
-                                                    'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
-                                                    'ADD_WARE_TO_ALL','ADD_WEAPON');
+  COMMANDVALUES: array[TKMCommandType] of string = (
+    '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
+    'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
+    'CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
+    'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
+    'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
+    'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
+    'ADD_WARE_TO_ALL','ADD_WEAPON');
+
   MAXPARAMS = 8;
   //This is a map of the valid values for !SET_UNIT, and the corrisponing unit that will be created (matches KaM behavior)
   UnitsRemap: array[0..31] of TUnitType = (ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,
@@ -154,6 +152,9 @@ begin
       //@Krom: Do you mean we process the text param here and change the command
       // type based on it's value? (e.g. have a ct_AICharacterTownDefence for the
       // split command !SET_AI_CHARACTER TOWN_DEFENSE)
+      //@Lewin: I mean you could convert everything strtoint here instead of writing it for every
+      //command you process later, saves a lot of text and makes command decoding look cleaner
+      //you already did it :-) Tobedeleted.
       if ProcessCommand(CommandType,ParamList,TextParam) = false then //A returned value of false indicates an error has occoured and we should exit
       begin
         Result:=false;
@@ -298,6 +299,7 @@ begin
                      {@Krom: Not sure what to do about this one. Every player in the script has one of these.
                      Presumably in KaM it does some enabling process and otherwise the player won't function.
                      However, there is no practical purpose for it (you must always have it) so maybe we just ignore it?}
+                     //@Lewin: Keep it as placeholder, just in case.
                      end;
   ct_AddGoal:        begin
 

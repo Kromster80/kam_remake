@@ -5,10 +5,11 @@ uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
 const
 MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
 
-type TPassability = (canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish);
+type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish);
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[1..9] of string = ('canWalk', 'canWalkRoad', 'canBuild', 'canBuildIron', 'canBuildGold', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
+const PassabilityStr:array[1..10] of string = ('canAll', 'canWalk', 'canWalkRoad', 'canBuild', 'canBuildIron', 'canBuildGold', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
+{canAll - Crat blanche, e.g. for workers building house are which is normaly unwalkable} //@Lewin:Why fenced house area is unwalkable?
 {canWalk - General passability of tile for any walking units}
 {canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
 {canBuild - Can we build a house on this tile?}
@@ -70,7 +71,9 @@ public
     FogOfWar:array[1..8]of byte;
 
     //Whenever there's a unit on that tile mark the tile as occupied
+    //Counter for number of units on tile
     IsUnit:byte;
+
   end;
 
   constructor Create;
@@ -185,6 +188,7 @@ var
 begin
   Result:=false;
   if not CheckFileExists(filename) then exit;
+  fLog.AppendLog('Loading map file');
   assignfile(f,filename); reset(f,1);
   blockread(f,k,4);
   blockread(f,i,4);
@@ -206,6 +210,7 @@ begin
 closefile(f);
 RebuildLighting(1,MapX,1,MapY);
 RebuildPassability(1,MapX,1,MapY);
+fLog.AppendLog('Map file loaded');
 Result:=true;
 end;
 
@@ -616,6 +621,8 @@ begin
   //First of all exclude all tiles outside of actual map and all houses
   if (TileInMapCoords(Loc.X,Loc.Y))and(Land[Loc.Y,Loc.X].FieldType<>fdt_House) then begin
 
+       AddPassability(Loc, [canAll]);
+
      if (TileIsWalkable(Loc))and
         (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HouseWIP]))then
        AddPassability(Loc, [canWalk]);
@@ -626,6 +633,7 @@ begin
 
      if (TileIsRoadable(Loc))and
         (Land[Loc.Y,Loc.X].Obj=255)and
+        //Only certain objects are excluded
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
@@ -880,16 +888,24 @@ end;
 
 {Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
-var i,k:integer;
+var i,k,x,y:shortint;
 begin
   for i:=1 to 4 do for k:=1 to 4 do
-    if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
-      Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt;
-      UpdateBorders(KMPoint(Loc.X+k-3, Loc.Y+i-4));
-      RecalculatePassability(KMPoint(Loc.X+k-3,Loc.Y+i-4));
-  end;
+      x:=Loc.X+k-3; y:=Loc.Y+i-4;
+      if TileInMapCoords(x,y) then begin
+
+        if (fdt=fdt_House)and(HousePlanYX[byte(aHouseType),i,k]=2) then
+          Land[y,x].FieldType:=fdt_Road
+        else
+          Land[y,x].FieldType:=fdt;
+
+        UpdateBorders(KMPoint(x,y));
+        RecalculatePassability(KMPoint(x,y));
+      end;
+    end;
 end;
+
 
 {That is mainly used for minimap now}
 procedure TTerrain.SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);

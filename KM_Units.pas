@@ -56,7 +56,7 @@ type
         Nodes:array[1..1024] of TKMPoint;
         NodePos:integer;
       public
-        constructor Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
+        constructor Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aPass:TPassability=canWalk);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -1257,7 +1257,7 @@ case Phase of
       fTerrain.SetHousePlan(fHouse.GetPosition, fHouse.GetHouseType, fdt_HouseWIP);
       fHouse.SetBuildingState(hbs_NoGlyph);
     end;
-2:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,ListOfCells[Step]));
+2:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,ListOfCells[Step],ua_walk,true,canAll));
 3:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
       fTerrain.FlattenTerrain(ListOfCells[Step]);
@@ -1272,7 +1272,10 @@ case Phase of
     end;
 6:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
-      fTerrain.FlattenTerrain(ListOfCells[Step]); dec(Step);
+      fTerrain.FlattenTerrain(ListOfCells[Step]);
+      if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
+        fTerrain.Land[fHouse.GetEntrance.Y,fHouse.GetEntrance.X].FieldType:=fdt_Road;
+      dec(Step);
     end;
 7:  begin
       fPlayers.Player[byte(fOwner)].BuildList.CloseHousePlan(TaskID);
@@ -1573,7 +1576,7 @@ end;
 //First approach lets make a route for unit depending on static obstacles
 //Then handle new static obstacles (if any) along with dynamic ones (LookAhead only one tile)
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
+constructor TUnitActionWalkTo.Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aPass:TPassability=canWalk);
 begin
   Inherited Create(aActionType);
   fDestPos:= LocB;
@@ -1582,7 +1585,7 @@ begin
   NodePos:=1;
 
   //Build a route A*
-  fTerrain.MakeRoute(LocA, LocB, CanWalk, NodeCount, Nodes);
+  fTerrain.MakeRoute(LocA, LocB, aPass, NodeCount, Nodes);
 
   //There are two possibilities here:
   // - Route can't be built cos there's no walkable way to go from A to B
@@ -1624,9 +1627,11 @@ begin
     if (DX=0) and (DY<0) then KMUnit.Direction:=dir_N;
 
     if (DX <> 0) and (DY <> 0) then
-      Distance:=Distance / sqrt (2);
+      Distance:=Distance / 1.41{sqrt (2)};
 
     OldPos:=KMUnit.GetPosition;
+
+    //LookAhead.X := KMUnit.fPosition.X + sign(DX)*0.5
 
     KMUnit.fPosition.X:= KMUnit.fPosition.X + sign(DX)*min(Distance,abs(DX));
     KMUnit.fPosition.Y:= KMUnit.fPosition.Y + sign(DY)*min(Distance,abs(DY));
