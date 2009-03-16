@@ -124,6 +124,7 @@ public
   function TileIsWalkable(Loc:TKMPoint):boolean;
   function TileIsRoadable(Loc:TKMPoint):boolean;
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
+  procedure RevealWholeMap(PlayerID:TPlayerID);
   function CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
   procedure UpdateBorders(Loc:TKMPoint);
   procedure FlattenTerrain(Loc:TKMPoint);
@@ -289,6 +290,16 @@ begin
   for i:=Pos.Y-Radius to Pos.Y+Radius do for k:=Pos.X-Radius to Pos.X+Radius do
   if (VerticeInMapCoords(k,i,1))and(GetLength(Pos,KMPoint(k,i))<=Radius) then
     Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,TERRAIN_FOG_OF_WAR_MAX);
+end;
+
+
+{Reveal whole map}
+procedure TTerrain.RevealWholeMap(PlayerID:TPlayerID);
+var i,k:integer;
+begin
+  if not InRange(byte(PlayerID),1,8) then exit;
+  for i:=1 to MapY do for k:=1 to MapX do
+    Land[i,k].FogOfWar[byte(PlayerID)] := TERRAIN_FOG_OF_WAR_MAX;
 end;
 
 
@@ -798,7 +809,7 @@ begin
   // - next to last node is neighbour of LocB (important for delivery to workers),
   // - last node is LocB
 
-  if NodeCount>3 then begin
+  {if NodeCount>3 then begin
   k:=2;
   for i:=3 to NodeCount-1 do begin //simplify within LocA+1 .. LocB-2 range
   // i/k are always -1 since array is [0..Count-1] range
@@ -813,7 +824,7 @@ begin
   inc(k);
   Nodes[k-1]:=Nodes[NodeCount-1];
   NodeCount:=k;
-  end;
+  end;}
 
   //for i:=1 to NodeCount do
   //  Assert(TileInMapCoords(Nodes[i-1].X,Nodes[i-1].Y));
@@ -1018,6 +1029,8 @@ var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   Xc:=trunc(inX);
   Yc:=trunc(inY);
+  if not TileInMapCoords(Xc,Yc) then
+  Tmp1:=0;
   Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
   Result:=mix(Tmp2, Tmp1, frac(InY));
