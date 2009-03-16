@@ -335,7 +335,11 @@ end;
 procedure TForm1.ExitClick(Sender: TObject);        begin Form1.Close; end;
 
 //Options
-procedure TForm1.ShowWiresClick(Sender: TObject);   begin ShowWires.Checked:=not ShowWires.Checked; end;
+procedure TForm1.ShowWiresClick(Sender: TObject);
+begin
+  ShowWires.Checked:=not ShowWires.Checked;
+  ShowTerrainWires:=ShowWires.Checked;
+end;
 procedure TForm1.ShowObjectsClick(Sender: TObject); begin ShowObjects.Checked:=not ShowObjects.Checked; end;
 procedure TForm1.ShowOverlayClick(Sender: TObject);
 begin

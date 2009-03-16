@@ -91,6 +91,7 @@ var
   c:array[1..131072] of char;
   CommandType: TKMCommandType;
 begin
+  Result:=false; //Set it right from the start
   if not CheckFileExists(AFileName) then exit;
   UnloadMission; //Call function which will reset fPlayers and other stuff
 
@@ -157,7 +158,7 @@ begin
       //you already did it :-) Tobedeleted.
       if ProcessCommand(CommandType,ParamList,TextParam) = false then //A returned value of false indicates an error has occoured and we should exit
       begin
-        Result:=false;
+        //Result:=false;
         exit;
       end;
     end
@@ -173,6 +174,7 @@ var
   i, MyInt: integer;
   Storehouse:TKMHouseStore; Barracks: TKMHouseBarracks;
 begin
+  Result:=false; //Set it right from the start
   case CommandType of
   ct_SetMap:         begin
                      //We must extract the file path from the text in quotes
@@ -186,7 +188,7 @@ begin
                        fTerrain.OpenMapFromFile(ExeDir+MyStr);
                        if not fTerrain.OpenMapFromFile(ExeDir+MyStr) then
                        begin
-                         Result := false;
+                         //Result := false;
                          exit;
                        end;
                        fViewport.SetZoom:=1;

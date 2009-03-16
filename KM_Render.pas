@@ -124,7 +124,7 @@ begin
     fTerrain.Paint;
     glLineWidth(1);
     glPointSize(1);
-    if Form1.ShowWires.Checked then fRender.RenderWires();
+    if ShowTerrainWires then fRender.RenderWires();
     if MakeShowUnitMove then fRender.RenderUnitMoves();
 
     fPlayers.Paint;            //Units and houses
@@ -340,7 +340,7 @@ end;
 
 
 procedure TRender.RenderUnitMoves();
-var i,k,t:integer; x1,x2,y1,y2:integer;
+var i,k:integer; x1,x2,y1,y2:integer;
 begin
   x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
   y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;

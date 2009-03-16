@@ -353,10 +353,10 @@ end;
 procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL);
 var
   MyBitMap:TBitMap;
-  i,k:integer;
+  i,k:word;
   x:byte;
   by:^cardinal;
-  DestX, DestY:integer;
+  DestX, DestY:word;
   col:cardinal;
   TD:Pointer;
 begin

@@ -609,14 +609,13 @@ end;
 
 function TKMHouseBarracks.TakeResource(aResource:TResourceType):boolean;
 begin
+  Result:=false;
   if aResource in [rt_Shield..rt_Horse] then
-  if ResourceCount[byte(aResource)-16]>0 then begin
-    dec(ResourceCount[byte(aResource)-16]);
-    Result:=true;
-  end else begin
-    Assert(false,'ResourceCount[byte(aResource)-16]>=0');
-    Result:=false;
-  end;
+    if ResourceCount[byte(aResource)-16]>0 then begin
+      dec(ResourceCount[byte(aResource)-16]);
+      Result:=true;
+    end else
+      Assert(false,'ResourceCount[byte(aResource)-16]<0');
 end;
 
 

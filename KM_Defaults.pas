@@ -23,6 +23,7 @@ const
 var
   MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
+  ShowTerrainWires:boolean=false;
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
   MakeShowUnitMove:boolean=true;        //Draw unit movement overlay
