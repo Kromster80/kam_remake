@@ -64,7 +64,7 @@ type
       TUnitActionGoIn = class(TUnitAction)
       private
         fStep:single;
-        fDir:shortint;
+        fDir:TGoInDirection;
       public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
@@ -492,19 +492,19 @@ if (aUnitType=ut_Baker)and(aHome=ht_Bakery) then begin
   SubActAdd(ha_Work3,2);
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-  if fTerrain.FindCorn(aLoc,12).X<>0 then begin
+  if fTerrain.FindField(aLoc,12,fdt_Field,true).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
-    WalkStyle(fTerrain.FindCorn(aLoc,12),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
+    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Field,true),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
   end else
-  if fTerrain.FindCornField(aLoc,12).X<>0 then
-    WalkStyle(fTerrain.FindCornField(aLoc,12),ua_Walk,ua_Work1,6,0,ua_Walk,gs_FarmerSow)
+  if fTerrain.FindField(aLoc,12,fdt_Field,false).X<>0 then
+    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Field,false),ua_Walk,ua_Work1,6,0,ua_Walk,gs_FarmerSow)
   else
     Issued:=false;
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
-  if fTerrain.FindGrapes(aLoc,12).X<>0 then begin
+  if fTerrain.FindField(aLoc,12,fdt_Wine,true).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
-    WalkStyle(fTerrain.FindGrapes(aLoc,12),ua_WalkTool2,ua_Work2,6,0,ua_WalkBooty2,gs_FarmerWine);
+    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Wine,true),ua_WalkTool2,ua_Work2,6,0,ua_WalkBooty2,gs_FarmerWine);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,8);
     SubActAdd(ha_Work5,1);
@@ -1407,6 +1407,7 @@ with fUnit do
          SetAction(TUnitActionStay.Create(TimeToWork, WorkPlan.WorkType, false));
        end;
     3: begin case WorkPlan.GatheringScript of //Perform special tasks if required
+               gs_StoneCutter: fTerrain.DecStoneReserve(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
                gs_FarmerSow:   fTerrain.InitGrowth(WorkPlan.Loc);
                gs_FarmerCorn:  fTerrain.CutCorn(WorkPlan.Loc);
                gs_FarmerWine:  fTerrain.CutGrapes(WorkPlan.Loc);
@@ -1607,50 +1608,51 @@ begin
   TimeDelta:=0.1;
   Distance:= TimeDelta * KMUnit.Speed;
 
-  if Equals(KMUnit.fPosition.X,Nodes[NodePos].X) and Equals(KMUnit.fPosition.Y,Nodes[NodePos].Y) then
+  if Equals(KMUnit.fPosition.X,Nodes[NodePos].X) and Equals(KMUnit.fPosition.Y,Nodes[NodePos].Y) then begin
     inc(NodePos);
 
-  if NodePos>NodeCount then
-    DoEnd:=true
-  else begin
-
-    DX:= Nodes[NodePos].X - KMUnit.fPosition.X;
-    DY:= Nodes[NodePos].Y - KMUnit.fPosition.Y;
-
-    if (DX<0) and (DY<0) then KMUnit.Direction:=dir_NW;
-    if (DX<0) and (DY=0) then KMUnit.Direction:=dir_W;
-    if (DX<0) and (DY>0) then KMUnit.Direction:=dir_SW;
-    if (DX=0) and (DY>0) then KMUnit.Direction:=dir_S;
-    if (DX>0) and (DY>0) then KMUnit.Direction:=dir_SE;
-    if (DX>0) and (DY=0) then KMUnit.Direction:=dir_E;
-    if (DX>0) and (DY<0) then KMUnit.Direction:=dir_NE;
-    if (DX=0) and (DY<0) then KMUnit.Direction:=dir_N;
-
-    if (DX <> 0) and (DY <> 0) then
-      Distance:=Distance / 1.41{sqrt (2)};
-
-    OldPos:=KMUnit.GetPosition;
-
-    //LookAhead.X := KMUnit.fPosition.X + sign(DX)*0.5
-
-    KMUnit.fPosition.X:= KMUnit.fPosition.X + sign(DX)*min(Distance,abs(DX));
-    KMUnit.fPosition.Y:= KMUnit.fPosition.Y + sign(DY)*min(Distance,abs(DY));
-
-    if not KMSamePoint(OldPos,KMUnit.GetPosition) then fTerrain.UnitWalk(OldPos,KMUnit.GetPosition);
-
-    inc(KMUnit.AnimStep);
   end;
+
+  if NodePos>NodeCount then begin
+    DoEnd:=true;
+    exit;
+  end;
+
+  DX := Nodes[NodePos].X - KMUnit.fPosition.X;
+  DY := Nodes[NodePos].Y - KMUnit.fPosition.Y;
+
+  if (DX<0) and (DY<0) then KMUnit.Direction:=dir_NW;
+  if (DX<0) and (DY=0) then KMUnit.Direction:=dir_W;
+  if (DX<0) and (DY>0) then KMUnit.Direction:=dir_SW;
+  if (DX=0) and (DY>0) then KMUnit.Direction:=dir_S;
+  if (DX>0) and (DY>0) then KMUnit.Direction:=dir_SE;
+  if (DX>0) and (DY=0) then KMUnit.Direction:=dir_E;
+  if (DX>0) and (DY<0) then KMUnit.Direction:=dir_NE;
+  if (DX=0) and (DY<0) then KMUnit.Direction:=dir_N;
+
+  if (DX <> 0) and (DY <> 0) then
+    Distance:=Distance / 1.41; {sqrt (2)}
+
+  OldPos:=KMUnit.GetPosition;
+
+  //LookAhead.X := KMUnit.fPosition.X + sign(DX)*0.5
+
+  KMUnit.fPosition.X:= KMUnit.fPosition.X + sign(DX)*min(Distance,abs(DX));
+  KMUnit.fPosition.Y:= KMUnit.fPosition.Y + sign(DY)*min(Distance,abs(DY));
+
+  if not KMSamePoint(OldPos,KMUnit.GetPosition) then fTerrain.UnitWalk(OldPos,KMUnit.GetPosition);
+
+  inc(KMUnit.AnimStep);
+
 end;
 
 { TUnitActionGoIn }
 constructor TUnitActionGoIn.Create(aAction: TUnitActionType; aDirection:TGoInDirection);
 begin
   Inherited Create(aAction);
-  fDir:=shortint(aDirection);
-  if fDir>0 then
-    fStep:=1   //go Inside (one cell up)
-  else
-    fStep:=0; //go Outside (one cell down)
+  fDir:=aDirection;
+  if fDir=gid_In then fStep:=1  //go Inside (one cell up)
+                 else fStep:=0; //go Outside (one cell down)
 end;
 
 procedure TUnitActionGoIn.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
@@ -1660,27 +1662,25 @@ begin
   TimeDelta:=0.1;
   Distance:= TimeDelta * KMUnit.Speed;
 
-  if fDir>0 then
+  if fDir=gid_In then
     KMUnit.Direction:=dir_N   //go Inside (one cell up)
   else
     KMUnit.Direction:=dir_S; //go Outside (one cell down)
 
-  if (fStep=0)and(fDir=shortint(gid_Out)) then //Unit goes from house
-  if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-  if KMLength(KMUnit.GetPosition, KMUnit.fHome.GetEntrance)=0 then
-    TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside - 1;
-
   OldPos:=KMUnit.GetPosition;
 
-  fStep := fStep - Distance * fDir;
-  KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * fDir;
+  fStep := fStep - Distance * shortint(fDir);
+  KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * shortint(fDir);
   KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
 
   if not KMSamePoint(OldPos,KMUnit.GetPosition) then fTerrain.UnitWalk(OldPos,KMUnit.GetPosition);
 
-  if (fStep<=0)and(fDir=shortint(gid_In)) then //Unit went into house
+  if (fStep<=0)and(fDir=gid_Out) then //Unit goes from house
   if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-  if KMLength(KMUnit.GetPosition, KMUnit.fHome.GetEntrance)=0 then
+    TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside - 1;
+
+  if (fStep>=1)and(fDir=gid_In) then //Unit went into house
+  if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
     TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside + 1;
 
   if (fStep<=0)or(fStep>=1) then

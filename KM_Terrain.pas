@@ -90,9 +90,7 @@ public
   function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
   function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
 
-  function FindGrapes(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-  function FindCorn(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-  function FindCornField(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+  function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
   function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
@@ -104,8 +102,8 @@ public
   procedure InitGrowth(Loc:TKMPoint);
   procedure CutCorn(Loc:TKMPoint);
   procedure CutGrapes(Loc:TKMPoint);
-  procedure SetCoalReserve(Loc:TKMPoint);
-  procedure SetOreReserve(Loc:TKMPoint; rt:TResourceType);
+  procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
+  procedure DecStoneReserve(Loc:TKMPoint);
   procedure DecCoalReserve(Loc:TKMPoint);
   procedure DecOreReserve(Loc:TKMPoint; rt:TResourceType);
 
@@ -120,6 +118,7 @@ public
   function SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   function TileIsWater(Loc:TKMPoint):boolean;
+  function TileIsStone(Loc:TKMPoint):byte;
   function TileIsSoil(Loc:TKMPoint):boolean;
   function TileIsWalkable(Loc:TKMPoint):boolean;
   function TileIsRoadable(Loc:TKMPoint):boolean;
@@ -216,7 +215,8 @@ Result:=true;
 end;
 
 
-{Check if requested tile is within Map boundaries}
+{Check if requested tile (X,Y) is within Map boundaries}
+{X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TTerrain.TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
   Result := InRange(X,1+Inset,MapX-1-Inset) and InRange(Y,1+Inset,MapY-1-Inset);
@@ -224,6 +224,7 @@ end;
 
 
 {Check if requested tile is within Map boundaries}
+{X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TTerrain.SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
 begin
   Result.X := EnsureRange(X,1+Inset,MapX-1-Inset);
@@ -232,6 +233,7 @@ end;
 
 
 {Check if requested vertice is within Map boundaries}
+{X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TTerrain.VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
   Result := InRange(X,1+Inset,MapX-Inset) and InRange(Y,1+Inset,MapY-Inset);
@@ -239,11 +241,26 @@ end;
 
 
 //@Lewin: Feel free to tweak these flags if you think they are wrong, I could have been mistaken with Soil
-{Check if requested tile is water}
+{Check if requested tile is water suitable for fish and/or sail. No waterfalls}
 function TTerrain.TileIsWater(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   Result := Land[Loc.Y,Loc.X].Terrain in [192,193,194,196, 200, 208..211, 235,236, 240,244];
+end;
+
+
+{Check if requested tile is Stone and returns Stone deposit}
+function TTerrain.TileIsStone(Loc:TKMPoint):byte;
+begin
+  //Should be Tileset property, especially if we allow different tilesets
+  case Land[Loc.Y,Loc.X].Terrain of
+    132,137: Result:=5;
+    131,136: Result:=4;
+    130,135: Result:=3;
+    129,134: Result:=2;
+    128,133: Result:=1;
+    else     Result:=0;
+  end;
 end;
 
 
@@ -282,7 +299,7 @@ end;
 
 
 {Reveal circle on map}
-{Amount controls how rapid terrain is revealed, almost instantly or slowly}
+{Amount controls how "strong" terrain is revealed, almost instantly or slowly frame-by-frame in multiple calls}
 procedure TTerrain.RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
 var i,k:integer;
 begin
@@ -293,7 +310,7 @@ begin
 end;
 
 
-{Reveal whole map}
+{Reveal whole map to max value}
 procedure TTerrain.RevealWholeMap(PlayerID:TPlayerID);
 var i,k:integer;
 begin
@@ -304,13 +321,15 @@ end;
 
 
 {Check if requested vertice is revealed for given player}
+{Return value revelation is x100 in percent}
 function TTerrain.CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
 begin
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
   if Land[Y,X].FogOfWar[byte(PlayerID)] >= TERRAIN_FOG_OF_WAR_ACT then
-  Result:=1 else
-  Result:=Land[Y,X].FogOfWar[byte(PlayerID)] / TERRAIN_FOG_OF_WAR_ACT;
+    Result:=1
+  else
+    Result:=Land[Y,X].FogOfWar[byte(PlayerID)] / TERRAIN_FOG_OF_WAR_ACT;
 end;
 
 
@@ -330,6 +349,7 @@ begin
 end;
 
 
+{Set field on tile - road/field/wine}
 procedure TTerrain.SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
 begin
   Land[Loc.Y,Loc.X].TileOwner:=aOwner;
@@ -362,44 +382,22 @@ begin
 end;
 
 
-{ Should find closest wine field around.
-Perhaps this could be merged with FindCorn? }
-function TTerrain.FindGrapes(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+{ Should find closest field around}
+{aAgeFull is used for fdt_Field mostly. Incase Farmer is looking for empty or full field of corn}
+function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
 var i,k:integer;
 begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if Land[i,k].FieldType=fdt_Wine then
-        if Land[i,k].FieldAge=65535 then
+      if Land[i,k].FieldType=aFieldType then
+        if ((aAgeFull)and(Land[i,k].FieldAge=65535))or((not aAgeFull)and(Land[i,k].FieldAge=0)) then
           Result:=KMPoint(k,i);
 end;
 
-function TTerrain.FindCorn(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k:integer;
-begin
-Result:=KMPoint(0,0);
-for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-  for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if Land[i,k].FieldType=fdt_Field then
-        if Land[i,k].FieldAge=65535 then
-          Result:=KMPoint(k,i);
-end;
 
-function TTerrain.FindCornField(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k:integer;
-begin
-Result:=KMPoint(0,0);
-for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-  for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if Land[i,k].FieldType=fdt_Field then
-        if Land[i,k].FieldAge=0 then
-          Result:=KMPoint(k,i);
-end;
-
+{Find closest chopable Tree around}
 function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 var i,k,h:integer;
 begin
@@ -412,17 +410,18 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
           Result:=KMPoint(k,i);
 end;
 
+
+{Find closest harvestable deposit of Stone}
+{Return walkable tile below Stone deposit}
 function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-//var i,k,h:integer;
+var i,k:integer;
 begin
-Result:=KMPoint(1,1);
-{Result:=KMPoint(0,0);
+Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      for h:=1 to length(ChopableTrees) do
-        if Land[i,k].Obj=ChopableTrees[h,4] then
-          Result:=KMPoint(k,i);}
+    if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+      if (TileIsStone(KMPoint(k,i))>0)and(TileIsWalkable(KMPoint(k,i+1))) then
+          Result:=KMPoint(k,i+1);
 end;
 
 
@@ -530,7 +529,7 @@ begin
   RecalculatePassability(Loc);
 end;
 
-{}
+{Remove the tree and place stump instead}
 procedure TTerrain.ChopTree(Loc:TKMPoint);
 var h:integer;
 begin
@@ -565,21 +564,32 @@ end;
 
 
 {Used only in debug - places coal on map}
-procedure TTerrain.SetCoalReserve(Loc:TKMPoint);
+procedure TTerrain.SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
 begin
   if not TileInMapCoords(Loc.X, Loc.Y) then exit;
-  Land[Loc.Y,Loc.X].Terrain:=155;
+  case rt of
+    rt_Stone:    Land[Loc.Y,Loc.X].Terrain:=132;
+    rt_Coal:     Land[Loc.Y,Loc.X].Terrain:=155;
+    rt_IronOre: Land[Loc.Y,Loc.X].Terrain:=151;
+    rt_GoldOre:  Land[Loc.Y,Loc.X].Terrain:=147;
+    else Assert(false,'Wrong resource');
+  end;
   RecalculatePassability(Loc);
 end;
 
 
-{Used only in debug - places coal on map}
-procedure TTerrain.SetOreReserve(Loc:TKMPoint; rt:TResourceType);
+{Extract one unit of stone}
+procedure TTerrain.DecStoneReserve(Loc:TKMPoint);
 begin
-  if not TileInMapCoords(Loc.X, Loc.Y) then exit;
-  Assert(rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
-  if rt=rt_IronOre then Land[Loc.Y,Loc.X].Terrain:=151;
-  if rt=rt_GoldOre then Land[Loc.Y,Loc.X].Terrain:=147;
+  case Land[Loc.Y,Loc.X].Terrain of
+    132,137: Land[Loc.Y,Loc.X].Terrain:=131+Random(2)*5;
+    131,136: Land[Loc.Y,Loc.X].Terrain:=130+Random(2)*5;
+    130,135: Land[Loc.Y,Loc.X].Terrain:=129+Random(2)*5;
+    129,134: Land[Loc.Y,Loc.X].Terrain:=128+Random(2)*5;
+    128,133: Land[Loc.Y,Loc.X].Terrain:=0;
+    else Assert(false,'Cant DecStoneReserve at '+TypeToString(Loc));
+  end;
+  Land[Loc.Y,Loc.X].Rotation:=Random(4);
   RecalculatePassability(Loc);
 end;
 
@@ -1029,8 +1039,7 @@ var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   Xc:=trunc(inX);
   Yc:=trunc(inY);
-  if not TileInMapCoords(Xc,Yc) then
-  Tmp1:=0;
+  Assert(TileInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong');
   Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
   Result:=mix(Tmp2, Tmp1, frac(InY));

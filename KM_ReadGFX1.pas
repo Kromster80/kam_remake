@@ -364,6 +364,8 @@ begin
 DestX:=MakePOT(mx);
 DestY:=MakePOT(my);
 
+if DestX*DestY=0 then exit; //Do not generate zeroed textures
+
 if Mode=tm_AlphaTest then begin
   glGenTextures(1, id);
   glBindTexture(GL_TEXTURE_2D, id^);

@@ -231,10 +231,13 @@ begin
 fViewPort.SetCenter(11,9);
 
 for k:=-5 to 5 do for i:=-4 to 6 do
-fTerrain.SetCoalReserve(KMPoint(8+i,14+k));
+fTerrain.SetResourceDeposit(KMPoint(8+i,14+k),rt_Coal);
 
 for k:=-4 to 0 do for i:=-3 to 3 do
-fTerrain.SetOreReserve(KMPoint(21+i,6+k),rt_IronOre);
+fTerrain.SetResourceDeposit(KMPoint(21+i,6+k),rt_IronOre);
+
+for k:=0 to 1 do for i:=0 to 1 do
+fTerrain.SetResourceDeposit(KMPoint(15+i,8+k),rt_Stone);
 
 MyPlayer.AddRoadPlan(KMPoint(2,6),mu_RoadPlan,true);
 
