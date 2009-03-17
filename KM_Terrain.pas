@@ -1,6 +1,6 @@
 unit KM_Terrain;
 interface
-uses Controls, StdCtrls, Math, KM_Defaults, KromUtils;
+uses Controls, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils;
 
 const
 MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
@@ -1039,7 +1039,7 @@ var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   Xc:=trunc(inX);
   Yc:=trunc(inY);
-  Assert(TileInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong');
+  Assert(TileInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
   Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
   Result:=mix(Tmp2, Tmp1, frac(InY));

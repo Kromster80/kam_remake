@@ -15,6 +15,8 @@ type TKMMainMenuInterface = class
       KMLabel_Version:TKMLabel;
     KMPanel_Single:TKMPanel;
       KMImage_SingleBG:TKMImage; //Single background
+      KMButton_SingleMode,KMButton_SingleTeams,KMButton_SingleTitleBG:array[1..20]of TKMButtonFlat;
+      KMLabel_SingleTitle1,KMLabel_SingleTitle2:array[1..20]of TKMLabel;
       KMButton_SingleBack:TKMButton;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage; //Credits background
@@ -263,7 +265,7 @@ begin
     KMButton_MainMenuTPR.Disable;
     KMButton_MainMenuSingle:=MyControls.AddButton(KMPanel_MainMenu,100,520,350,30,fTextLibrary.GetSetupString(4),fnt_Metal);
     KMButton_MainMenuSingle.OnClick:=SwitchMenuPage;
-    KMButton_MainMenuSingle.Disable; //@Lewin: I like to keep incomplete controls disabled )
+    //KMButton_MainMenuSingle.Disable; //@Lewin: I like to keep incomplete controls disabled )
     KMButton_MainMenuCredit:=MyControls.AddButton(KMPanel_MainMenu,100,560,350,30,fTextLibrary.GetSetupString(13),fnt_Metal);
     KMButton_MainMenuCredit.OnClick:=SwitchMenuPage;
     KMButton_MainMenuQuit  :=MyControls.AddButton(KMPanel_MainMenu,100,640,350,30,fTextLibrary.GetSetupString(14),fnt_Metal);
@@ -272,10 +274,20 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Single_Page;
+var i:integer;
 begin
   KMPanel_Single:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_SingleBG:=MyControls.AddImage(KMPanel_Single,0,0,ScreenX,ScreenY,2,5);
     KMImage_SingleBG.StretchImage:=true;
+    for i:=1 to 10 do begin
+      KMButton_SingleMode[i]:=MyControls.AddButtonFlat(KMPanel_Single,100,180+(i-1)*40,48,40,28+random(2)*14);
+      KMButton_SingleTeams[i]:=MyControls.AddButtonFlat(KMPanel_Single,148,180+(i-1)*40,48,40,30+random(2)*1);
+      KMButton_SingleTitleBG[i]:=MyControls.AddButtonFlat(KMPanel_Single,196,180+(i-1)*40,320,40,0);
+      KMLabel_SingleTitle1[i]:=MyControls.AddLabel(KMPanel_Single,200,184+(i-1)*40,48,40,fnt_Metal, kaLeft,fTextLibrary.GetSetupString(random(29)));
+      KMLabel_SingleTitle1[i]:=MyControls.AddLabel(KMPanel_Single,200,202+(i-1)*40,48,40,fnt_Game, kaLeft,fTextLibrary.GetSetupString(random(29)));
+      KMButton_SingleMode[i].Disable;
+      KMButton_SingleTeams[i].Disable;
+    end;
     KMButton_SingleBack:=MyControls.AddButton(KMPanel_Single,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
     KMButton_SingleBack.OnClick:=SwitchMenuPage;
 end;

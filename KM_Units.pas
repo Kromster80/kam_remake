@@ -212,6 +212,7 @@ type
     fHome:TKMHouse;
     fCurrentAction: TUnitAction;
     fPosition: TKMPointF;
+    NextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
     fLastUpdateTime: Cardinal;
     fUnitType: TUnitType;
     AnimStep: integer;
@@ -238,7 +239,7 @@ type
     //property IsAtHome: boolean read UnitAtHome;
     function GetPosition():TKMPoint;
     function UpdateState():boolean; virtual;
-    procedure Paint; virtual; abstract;
+    procedure Paint; virtual;
   end;
 
   //This is a common class for units going out of their homes for resources
@@ -576,6 +577,7 @@ end;
 procedure TKMUnitCitizen.Paint();
 var UnitType:integer; AnimAct,AnimDir:integer;
 begin
+inherited;
 if not fVisible then exit;
 UnitType:=byte(fUnitType);
 AnimAct:=byte(fCurrentAction.fActionType);
@@ -633,6 +635,8 @@ begin
           fUnitTask:=InitiateMining; //Unit is at home, so go get a job
 
   if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk));
+
+  Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -672,6 +676,7 @@ end;
 procedure TKMUnitSerf.Paint();
 var AnimAct,AnimDir:integer;
 begin
+  inherited;
   if not fVisible then exit;
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
@@ -709,6 +714,8 @@ begin
     fUnitTask:=GetActionFromQueue;
 
   if fUnitTask=nil then SetAction(TUnitActionStay.Create(60,ua_Walk)); //Stay idle
+
+  Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -738,6 +745,7 @@ end;
 procedure TKMUnitWorker.Paint();
 var AnimAct,AnimDir:integer;
 begin
+  inherited;
   if not fVisible then exit;
 
   if fCurrentAction is TUnitActionWalkTo then
@@ -747,6 +755,7 @@ begin
   //@Lewin: Please describe how to reproduce the bug, cos the error is somewhere outside.
   //@Krom: It's not easy... It just happens sometimes, I can't find a way to always make it happen.
   //Next time it does I will try to find out more. For the moment just ignore it.
+  //@Lewin: I'm working on it, see TKMUnit.Paint for info, it should provide better bug details
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 
@@ -775,6 +784,8 @@ begin
     fUnitTask:=GetActionFromQueue;
 
   if fUnitTask=nil then SetAction(TUnitActionStay.Create(20,ua_Walk));
+
+  Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -798,6 +809,7 @@ end;
 procedure TKMUnitWarrior.Paint();
 var AnimAct,AnimDir:integer;
 begin
+inherited;
 AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
 AnimDir:=integer(Direction);
 fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
@@ -809,7 +821,9 @@ begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
-  SetAction(TUnitActionStay.Create(50,ua_Walk))
+  SetAction(TUnitActionStay.Create(50,ua_Walk));
+
+  Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 { TKMUnitAnimal }
@@ -822,6 +836,7 @@ end;
 procedure TKMUnitAnimal.Paint();
 var AnimAct,AnimDir:integer;
 begin
+inherited;
 AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
 AnimDir:=integer(Direction);
 fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
@@ -835,7 +850,9 @@ begin
 
   SetAction(TUnitActionWalkTo.Create(GetPosition,
   fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(8),GetPosition.Y+RandomS(8),3)
-  ));    
+  ));
+
+  Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -847,6 +864,7 @@ begin
   fHome:=nil;
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
+  NextPosition:=GetPosition;
   fOwner:= aOwner;
   fUnitType:=aUnitType;
   Direction:=dir_S;
@@ -855,12 +873,12 @@ begin
   SetAction(TUnitActionStay.Create(10,ua_Walk));
   fCondition:=UNIT_MAX_CONDITION;
   fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType);
-  fTerrain.UnitAdd(GetPosition);
+  fTerrain.UnitAdd(NextPosition);
 end;
 
 destructor TKMUnit.Destroy;
 begin
-  fTerrain.UnitRem(GetPosition);
+  fTerrain.UnitRem(NextPosition);
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
   if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
@@ -955,19 +973,24 @@ begin
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
 
-  if not ActDone then exit;
+  if ActDone then FreeAndNil(fCurrentAction) else exit;
 
   if fUnitTask <> nil then
     fUnitTask.Execute(TaskDone);
 
-  if not TaskDone then exit;
+  if TaskDone then FreeAndNil(fUnitTask) else exit;
 
-  if fUnitTask <> nil then
-    FreeAndNil(fUnitTask);
-
+  //If we get to this point means common part is done and now unit-specific overrides will be executed
   Result:=false;
 end;
 
+procedure TKMUnit.Paint();
+begin
+  Assert((fUnitTask<>nil)or(fCurrentAction<>nil),'Unit '+TypeToString(fUnitType)+' has no action!');
+  Assert(fCurrentAction<>nil,'Unit '+TypeToString(fUnitType)+' has no action!');
+  //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
+  //Unit always meant to have some Action performed.
+end;
 
 { TTaskSelfTrain }
 {Train itself in school}
@@ -977,6 +1000,7 @@ begin
   fSchool:=aSchool;
   Phase:=0;
   fUnit.fVisible:=false;
+  fUnit.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 
@@ -1030,6 +1054,7 @@ fToUnit:=toUnit;
 fResource:=Res;
 Phase:=0;
 ID:=aID;
+fSerf.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 procedure TTaskDeliver.Execute(out TaskDone:boolean);
@@ -1045,13 +1070,10 @@ case Phase of
      if fFrom.ResTakeFromOut(fResource) then
        GiveResource(fResource)
      else
-     begin
-       SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
        fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
-       TaskDone:=true;
-     end;
+     SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
    end;
-4: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
+4: if Carry=rt_None then TaskDone:=true else SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 //Deliver into complete house
@@ -1110,6 +1132,7 @@ begin
   fLoc:=aLoc;
   Phase:=0;
   ID:=aID;
+  fWorker.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 procedure TTaskBuildRoad.Execute(out TaskDone:boolean);
@@ -1130,27 +1153,27 @@ case Phase of
 3: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+   fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once, di_High);
    end;
-4: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once, di_High);
 
-5: SetAction(TUnitActionStay.Create(30,ua_Work1));
-6: SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+4: SetAction(TUnitActionStay.Create(30,ua_Work1));
+5: SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+6: begin
+   fTerrain.IncFieldState(fLoc);
+   SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+   end;
 7: begin
    fTerrain.IncFieldState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
    end;
 8: begin
-   fTerrain.IncFieldState(fLoc);
-   SetAction(TUnitActionStay.Create(11,ua_Work2,false));
-   end;
-9: begin
    fTerrain.SetField(fLoc,fOwner,fdt_Road);
    fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
    SetAction(TUnitActionStay.Create(5,ua_Work2));
    end;
-10:TaskDone:=true;
+9: TaskDone:=true;
 end;
-if Phase<>5 then inc(Phase); //Phase=5 is when worker waits for rt_Stone
+if Phase<>4 then inc(Phase); //Phase=4 is when worker waits for rt_Stone
 end;
 
 { TTaskBuildWine }
@@ -1160,6 +1183,7 @@ fWorker:=aWorker;
 fLoc:=aLoc;
 Phase:=0;
 ID:=aID;
+fWorker.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 procedure TTaskBuildWine.Execute(out TaskDone:boolean);
@@ -1180,18 +1204,19 @@ case Phase of
  3: begin
       fTerrain.IncFieldState(fLoc);
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
+      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fWorker,rt_Wood, dt_Once, di_High);
     end;
- 4: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fWorker,rt_Wood, dt_Once, di_High);
- 5: SetAction(TUnitActionStay.Create(30,ua_Work1));
- 6: SetAction(TUnitActionStay.Create(11*4,ua_Work2,false));
- 7: begin
+ 4: SetAction(TUnitActionStay.Create(30,ua_Work1));
+ 5: SetAction(TUnitActionStay.Create(11*4,ua_Work2,false));
+ 6: begin
       fTerrain.SetField(fLoc,fOwner,fdt_Wine);
       fTerrain.CutGrapes(fLoc);
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
+      SetAction(TUnitActionStay.Create(5,ua_Work2));
     end;
-11: TaskDone:=true;
+ 7: TaskDone:=true;
 end;
-if Phase<>5 then inc(Phase); //Phase=5 is when worker waits for rt_Stone
+if Phase<>4 then inc(Phase); //Phase=4 is when worker waits for rt_Stone
 end;
 
 { TTaskBuildField }
@@ -1202,6 +1227,7 @@ fLoc:=aLoc;
 Phase:=0;
 Phase2:=0;
 ID:=aID;
+fWorker.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 procedure TTaskBuildField.Execute(out TaskDone:boolean);
@@ -1211,20 +1237,21 @@ TaskDone:=false;
 with fWorker do
 case Phase of
   0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
-  1: fTerrain.RemMarkup(fLoc);
+  1: begin
+      fTerrain.RemMarkup(fLoc);
+      SetAction(TUnitActionStay.Create(0,ua_Walk));
+     end;
   2: begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
       inc(Phase2);
       if Phase2 in [4,8,10] then fTerrain.IncFieldState(fLoc);
      end;
   3: begin
-       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
-       fTerrain.SetField(fLoc,fOwner,fdt_Field);
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
+      fTerrain.SetField(fLoc,fOwner,fdt_Field);
+      SetAction(TUnitActionStay.Create(5,ua_Walk));
      end;
-  4: begin
-      SetAction(TUnitActionStay.Create(5,ua_Work1));
-      TaskDone:=true;
-     end;
+  4: TaskDone:=true;
 end;
 if Phase2 in [0,10] then inc(Phase);
 end;
@@ -1243,6 +1270,7 @@ begin
     inc(Step);
     ListOfCells[Step]:=KMPoint(fHouse.GetPosition.X+k-3,fHouse.GetPosition.Y + i - 4);
   end;
+  fWorker.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 {Prepare building site - flatten terrain}
@@ -1256,6 +1284,7 @@ case Phase of
 1:  begin
       fTerrain.SetHousePlan(fHouse.GetPosition, fHouse.GetHouseType, fdt_HouseWIP);
       fHouse.SetBuildingState(hbs_NoGlyph);
+      SetAction(TUnitActionStay.Create(5,ua_Walk));
     end;
 2:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,ListOfCells[Step],ua_walk,true,canAll));
 3:  begin
@@ -1319,6 +1348,7 @@ begin
     if (i=4)or(HousePlanYX[ht,i+1,k]=0) then AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N) else //Down
     if (k=4)or(HousePlanYX[ht,i,k+1]=0) then AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W) else //Right
     if (k=1)or(HousePlanYX[ht,i,k-1]=0) then AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E);     //Left
+  fWorker.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 {Build the house}
@@ -1341,6 +1371,7 @@ begin
          end;
       1: begin
            Direction:=Cells[CurLoc].Dir;
+           SetAction(TUnitActionStay.Create(0,ua_Walk));
            if not fHouse.IsStarted then fTerrain.SetHousePlan(fHouse.GetPosition, fHouse.GetHouseType, fdt_House);
          end;
       2: begin
@@ -1377,6 +1408,7 @@ begin
 WorkPlan:=aWorkPlan;
 fUnit:=aUnit;
 Phase:=0;
+fUnit.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 {This is execution of Resource mining}
@@ -1392,6 +1424,7 @@ with fUnit do
          SetAction(TUnitActionGoIn.Create(WorkPlan.WalkTo,gid_Out)); //Walk outside the house
        end else begin
          Phase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
+         SetAction(TUnitActionStay.Create(0,ua_Walk));
          exit;
        end;
     1: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,WorkPlan.Loc,WorkPlan.WalkTo));
@@ -1429,20 +1462,36 @@ with fUnit do
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[1].Act,WorkPlan.HouseAct[1].TimeToWork);
            //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
            SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[1].TimeToWork-1,ua_Walk));
-       end else begin Phase:=SkipWork; exit; end;
+       end else begin
+           Phase:=SkipWork;
+           SetAction(TUnitActionStay.Create(0,ua_Walk));
+           exit;
+       end;
        end;
     7: if WorkPlan.ActCount>=2 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[2].Act,WorkPlan.HouseAct[2].TimeToWork);
            SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[2].TimeToWork-1,ua_Walk));
-       end else begin Phase:=SkipWork; exit; end;
+       end else begin
+           Phase:=SkipWork;
+           SetAction(TUnitActionStay.Create(0,ua_Walk));
+           exit;
+       end;
     8:if WorkPlan.ActCount>=3 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[3].Act,WorkPlan.HouseAct[3].TimeToWork);
            SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[3].TimeToWork-1,ua_Walk));
-       end else begin Phase:=SkipWork; exit; end;
+       end else begin
+           Phase:=SkipWork;
+           SetAction(TUnitActionStay.Create(0,ua_Walk));
+           exit;
+       end;
     9:if WorkPlan.ActCount>=4 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[4].Act,WorkPlan.HouseAct[4].TimeToWork);
            SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[4].TimeToWork-1,ua_Walk));
-       end else begin Phase:=SkipWork; exit; end;
+       end else begin
+           Phase:=SkipWork;
+           SetAction(TUnitActionStay.Create(0,ua_Walk));
+           exit;
+       end;
     10: begin
           case WorkPlan.GatheringScript of
             gs_CoalMiner: fTerrain.DecCoalReserve(WorkPlan.Loc);
@@ -1464,6 +1513,7 @@ begin
   fDestPos:=aTo;
   fUnit:=aUnit;
   Phase:=0;
+  fUnit.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 procedure TTaskGoHome.Execute(out TaskDone:boolean);
@@ -1474,8 +1524,8 @@ begin
     0: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,KMPointY1(fDestPos)));
     1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
     2: begin
-          SetAction(TUnitActionStay.Create(5,ua_Walk));
-          fHome.SetState(hst_Idle,0);
+        SetAction(TUnitActionStay.Create(5,ua_Walk));
+        fHome.SetState(hst_Idle,0);
        end;
     3: TaskDone:=true;
   end;
@@ -1488,6 +1538,7 @@ constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
   fUnit:=aUnit;
   Phase:=0;
+  fUnit.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 procedure TTaskDie.Execute(out TaskDone:boolean);
@@ -1501,15 +1552,16 @@ case Phase of
          fHome.SetState(hst_Empty,0);
        end;
        SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
-     end;  
+     end else
+     SetAction(TUnitActionStay.Create(0,ua_Walk));
   1: SetAction(TUnitActionStay.Create(16,ua_Die,false));
   2: begin
       if fHome<>nil then fHome.GetHasOwner:=false;
       //Schedule Unit for removal and remove it after fUnits.UpdateState is done
       fUnit.ScheduleForRemoval:=true;
+      TaskDone:=true; //Doesn't matter any more
       exit;
      end;
-  //3: TaskDone:=true; //Doesn't matter any more
 end;
 inc(Phase);
 end;
@@ -1521,6 +1573,7 @@ begin
   fInn:=aInn;
   fUnit:=aUnit;
   Phase:=0;
+  fUnit.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
 procedure TTaskGoEat.Execute(out TaskDone:boolean);
@@ -1534,7 +1587,8 @@ with fUnit do
 case Phase of
  0: begin
       if fHome<>nil then fHome.SetState(hst_Empty,0);
-      if not fVisible then SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)); //Walk outside the house
+      if not fVisible then SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)) else
+                           SetAction(TUnitActionStay.Create(0,ua_Walk)); //Walk outside the house
     end;
  1: SetAction(TUnitActionWalkTo.Create(GetPosition,KMPointY1(fInn.GetEntrance)));
  2: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In)); //Enter Inn
@@ -1601,19 +1655,26 @@ end;
 
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var
-  DX, DY, Distance:single; OldPos:TKMPoint;
+  DX, DY, Distance:single;
 begin
   //Execute the route in series of moves
   DoEnd:= False;
   TimeDelta:=0.1;
   Distance:= TimeDelta * KMUnit.Speed;
 
-  if Equals(KMUnit.fPosition.X,Nodes[NodePos].X) and Equals(KMUnit.fPosition.Y,Nodes[NodePos].Y) then begin
+  if Equals(KMUnit.fPosition.X,Nodes[NodePos].X,Distance) and Equals(KMUnit.fPosition.Y,Nodes[NodePos].Y,Distance) then begin
     inc(NodePos);
-
+    if NodePos>NodeCount then begin
+      DoEnd:=true;
+      exit;
+    end else begin
+      KMUnit.NextPosition:=Nodes[NodePos];
+      fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
+    end;
   end;
 
   if NodePos>NodeCount then begin
+    Assert(false,'TUnitAction is being overrun for some reason - error!');
     DoEnd:=true;
     exit;
   end;
@@ -1633,14 +1694,8 @@ begin
   if (DX <> 0) and (DY <> 0) then
     Distance:=Distance / 1.41; {sqrt (2)}
 
-  OldPos:=KMUnit.GetPosition;
-
-  //LookAhead.X := KMUnit.fPosition.X + sign(DX)*0.5
-
   KMUnit.fPosition.X:= KMUnit.fPosition.X + sign(DX)*min(Distance,abs(DX));
   KMUnit.fPosition.Y:= KMUnit.fPosition.Y + sign(DY)*min(Distance,abs(DY));
-
-  if not KMSamePoint(OldPos,KMUnit.GetPosition) then fTerrain.UnitWalk(OldPos,KMUnit.GetPosition);
 
   inc(KMUnit.AnimStep);
 
@@ -1656,7 +1711,7 @@ begin
 end;
 
 procedure TUnitActionGoIn.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
-var Distance:single; OldPos:TKMPoint;
+var Distance:single;
 begin
   DoEnd:= False;
   TimeDelta:=0.1;
@@ -1667,13 +1722,18 @@ begin
   else
     KMUnit.Direction:=dir_S; //go Outside (one cell down)
 
-  OldPos:=KMUnit.GetPosition;
+  if fStep=1 then begin //First step on going inside
+    KMUnit.NextPosition:=KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
+    fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
+  end;
+  if fStep=0 then begin //First step on going outside
+    KMUnit.NextPosition:=KMPointY1(KMUnit.GetPosition);
+    fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
+  end;
 
   fStep := fStep - Distance * shortint(fDir);
   KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * shortint(fDir);
   KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
-
-  if not KMSamePoint(OldPos,KMUnit.GetPosition) then fTerrain.UnitWalk(OldPos,KMUnit.GetPosition);
 
   if (fStep<=0)and(fDir=gid_Out) then //Unit goes from house
   if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
