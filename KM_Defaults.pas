@@ -3,7 +3,7 @@ interface
 uses Windows, Classes, SysUtils, KromUtils, dglOpenGL, MMSystem;
 
 //Global const
-const
+const                             
   CELL_SIZE_PX=40;      //Single cell size in pixels (width)
   CELL_HEIGHT_DIV=32;   //Height divider
   ToolBarWidth=224;     //Toolbar width in game
@@ -31,6 +31,7 @@ var
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
   TERRAIN_FOG_OF_WAR_ENABLE:boolean=false;//Whenever fog of war is enabled or not
+  DO_UNIT_INTERACTION:boolean=false;    //Debug for unit interaction
 
 const
   MaxHouses=255;        //Maximum houses one player can own

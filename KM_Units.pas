@@ -1667,14 +1667,28 @@ end;
 
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var
-  DX, DY, Distance:single;
+  DX, DY, Distance:single; U:TKMUnit;
 begin
   //Execute the route in series of moves
   DoEnd:= False;
   TimeDelta:=0.1;
   Distance:= TimeDelta * KMUnit.Speed;
 
-  if Equals(KMUnit.fPosition.X,Nodes[NodePos].X,Distance) and Equals(KMUnit.fPosition.Y,Nodes[NodePos].Y,Distance) then begin
+  if Equals(KMUnit.fPosition.X,Nodes[NodePos].X,Distance/2) and Equals(KMUnit.fPosition.Y,Nodes[NodePos].Y,Distance/2) then begin
+    if DO_UNIT_INTERACTION then
+    if NodePos<NodeCount then
+      if fTerrain.Land[Nodes[NodePos+1].Y,Nodes[NodePos+1].X].IsUnit>0 then begin
+        //If Unit on the way is idling then wait while forcing it to go away
+        U:=fPlayers.UnitsHitTest(Nodes[NodePos+1].X,Nodes[NodePos+1].Y);
+        if U<>nil then
+        if U.fCurrentAction is TUnitActionStay then
+        if TUnitActionStay(U.fCurrentAction).StayStill then begin
+        U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,fTerrain.GetOutOfTheWay(U.GetPosition,canWalk)));
+        exit;
+        end;
+        //If Unit on the way is walking then wait till it walks away
+        exit;
+      end;
     inc(NodePos);
     if NodePos>NodeCount then begin
       DoEnd:=true;
@@ -1730,30 +1744,29 @@ begin
   Distance:= TimeDelta * KMUnit.Speed;
 
   if fDir=gid_In then
-    KMUnit.Direction:=dir_N   //go Inside (one cell up)
+    KMUnit.Direction:=dir_N  //go Inside (one cell up)
   else
     KMUnit.Direction:=dir_S; //go Outside (one cell down)
 
-  if fStep=1 then begin //First step on going inside
+  //First step on going inside
+  if fStep=1 then begin 
     KMUnit.NextPosition:=KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
     fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
+    if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
+      TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside + 1;
   end;
-  if fStep=0 then begin //First step on going outside
+
+  //First step on going outside
+  if fStep=0 then begin 
     KMUnit.NextPosition:=KMPointY1(KMUnit.GetPosition);
     fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
-  end;
+    if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
+      TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside - 1;
+ end;
 
   fStep := fStep - Distance * shortint(fDir);
   KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * shortint(fDir);
   KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
-
-  if (fStep<=0)and(fDir=gid_Out) then //Unit goes from house
-  if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-    TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside - 1;
-
-  if (fStep>=1)and(fDir=gid_In) then //Unit went into house
-  if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-    TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside + 1;
 
   if (fStep<=0)or(fStep>=1) then
     DoEnd:=true

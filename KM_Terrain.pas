@@ -109,6 +109,7 @@ public
 
   procedure RecalculatePassability(Loc:TKMPoint);
 
+  function GetOutOfTheWay(Loc:TKMPoint; aPass:TPassability):TKMPoint;
   procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
   procedure UnitAdd(LocTo:TKMPoint);
   procedure UnitRem(LocFrom:TKMPoint);
@@ -701,6 +702,20 @@ begin
        AddPassability(Loc, [canFish]);
   end else
     Land[Loc.Y,Loc.X].Passability:=[]; //Allow nothing
+end;
+
+
+{Return random tile surrounding given one with aPass property}
+function TTerrain.GetOutOfTheWay(Loc:TKMPoint; aPass:TPassability):TKMPoint;
+var i,k:integer; L:TKMPointList;
+begin
+  L:=TKMPointList.Create;
+  for i:=-1 to 1 do for k:=-1 to 1 do
+    if TileInMapCoords(Loc.X+k,Loc.Y+i) then
+      if(i<>0)and(k<>0) then
+        if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
+          L.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+  Result:=L.GetRandom;
 end;
 
 
