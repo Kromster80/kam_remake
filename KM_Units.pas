@@ -1123,6 +1123,8 @@ case Phase of
    end;
 end;
 inc(Phase);
+if (fSerf.fCurrentAction=nil)and(not TaskDone) then
+  Assert(false);
 end;
 
 { TTaskBuildRoad }
@@ -1505,6 +1507,8 @@ with fUnit do
     11: TaskDone:=true;
   end;
 inc(Phase);
+if (fUnit.fCurrentAction=nil)and(not TaskDone) then
+  Assert(false);
 end;
 
 { TTaskGoHome }
@@ -1530,6 +1534,8 @@ begin
     3: TaskDone:=true;
   end;
   inc(Phase);
+  if (fUnit.fCurrentAction=nil)and(not TaskDone) then
+    Assert(false);
 end;
 
 
@@ -1594,30 +1600,36 @@ case Phase of
  2: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In)); //Enter Inn
  3: if fInn.CheckResIn(rt_Bread)>0 then begin
       fInn.ResTakeFromIn(rt_Bread);
-      //Choose spot
+      //Choose spot 
       //fVisible:=true; Direction:=dir_N; //Make it overlay Inn
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/3);
-    end;
+    end else
+      SetAction(TUnitActionStay.Create(0,ua_Walk));
  4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0) then begin
       fInn.ResTakeFromIn(rt_Sausages);
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/2);
-    end;
+    end else
+      SetAction(TUnitActionStay.Create(0,ua_Walk));
  5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0) then begin
       fInn.ResTakeFromIn(rt_Wine);
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/4);
-    end;
+    end else
+      SetAction(TUnitActionStay.Create(0,ua_Walk));
  6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0) then begin
       fInn.ResTakeFromIn(rt_Fish);
       SetAction(TUnitActionStay.Create(29,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/4);
-    end;
+    end else
+      SetAction(TUnitActionStay.Create(0,ua_Walk));
  7: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)); //Exit Inn
  8: TaskDone:=true;
 end;
 inc(Phase);
+if (fUnit.fCurrentAction=nil)and(not TaskDone) then
+  Assert(false);
 end;
 
 
