@@ -103,9 +103,9 @@ public
   procedure CutCorn(Loc:TKMPoint);
   procedure CutGrapes(Loc:TKMPoint);
   procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
-  procedure DecStoneReserve(Loc:TKMPoint);
-  procedure DecCoalReserve(Loc:TKMPoint);
-  procedure DecOreReserve(Loc:TKMPoint; rt:TResourceType);
+  procedure DecStoneDeposit(Loc:TKMPoint);
+  procedure DecCoalDeposit(Loc:TKMPoint);
+  procedure DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 
   procedure RecalculatePassability(Loc:TKMPoint);
 
@@ -569,10 +569,10 @@ procedure TTerrain.SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
 begin
   if not TileInMapCoords(Loc.X, Loc.Y) then exit;
   case rt of
-    rt_Stone:    Land[Loc.Y,Loc.X].Terrain:=132;
-    rt_Coal:     Land[Loc.Y,Loc.X].Terrain:=155;
+    rt_Stone:   Land[Loc.Y,Loc.X].Terrain:=132;
+    rt_Coal:    Land[Loc.Y,Loc.X].Terrain:=155;
     rt_IronOre: Land[Loc.Y,Loc.X].Terrain:=151;
-    rt_GoldOre:  Land[Loc.Y,Loc.X].Terrain:=147;
+    rt_GoldOre: Land[Loc.Y,Loc.X].Terrain:=147;
     else Assert(false,'Wrong resource');
   end;
   RecalculatePassability(Loc);
@@ -580,7 +580,24 @@ end;
 
 
 {Extract one unit of stone}
-procedure TTerrain.DecStoneReserve(Loc:TKMPoint);
+procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
+  procedure UpdateTransition(X,Y:integer);
+  const TileID:array[0..15]of byte = (0,139,139,138,139,140,138,141,139,138,140,141,138,141,141,128);
+         RotID:array[0..15]of byte = (0,  0,  1,  0,  2,  0,  1,  3,  3,  3,  1,  2,  2,  1,  0,  0);
+  var Bits:byte;
+  begin
+    if TileInMapCoords(X,Y) then
+    if TileIsStone(KMPoint(X,Y))=0 then begin
+      Bits:=0;
+      if TileInMapCoords(X,Y+1) and (TileIsStone(KMPoint(X,Y-1))>0) then inc(Bits,1);    //     1
+      if TileInMapCoords(X+1,Y) and (TileIsStone(KMPoint(X+1,Y))>0) then inc(Bits,2);    //   8 . 2
+      if TileInMapCoords(X,Y-1) and (TileIsStone(KMPoint(X,Y+1))>0) then inc(Bits,4);    //     4
+      if TileInMapCoords(X-1,Y) and (TileIsStone(KMPoint(X-1,Y))>0) then inc(Bits,8);    //
+      Land[Y,X].Terrain:=TileID[Bits];
+      Land[Y,X].Rotation:=RotID[Bits];
+      RecalculatePassability(Loc);
+    end;
+  end;
 begin
   case Land[Loc.Y,Loc.X].Terrain of
     132,137: Land[Loc.Y,Loc.X].Terrain:=131+Random(2)*5;
@@ -588,15 +605,19 @@ begin
     130,135: Land[Loc.Y,Loc.X].Terrain:=129+Random(2)*5;
     129,134: Land[Loc.Y,Loc.X].Terrain:=128+Random(2)*5;
     128,133: Land[Loc.Y,Loc.X].Terrain:=0;
-    else Assert(false,'Cant DecStoneReserve at '+TypeToString(Loc));
+    else Assert(false,'Unable to DecStoneReserve at '+TypeToString(Loc)+' for it isn''t there');
   end;
   Land[Loc.Y,Loc.X].Rotation:=Random(4);
-  RecalculatePassability(Loc);
+  UpdateTransition(Loc.X,Loc.Y);
+  UpdateTransition(Loc.X,Loc.Y-1);
+  UpdateTransition(Loc.X+1,Loc.Y);
+  UpdateTransition(Loc.X,Loc.Y+1);
+  UpdateTransition(Loc.X-1,Loc.Y);
 end;
 
 
 {Extract one unit of coal}
-procedure TTerrain.DecCoalReserve(Loc:TKMPoint);
+procedure TTerrain.DecCoalDeposit(Loc:TKMPoint);
 begin
   case Land[Loc.Y,Loc.X].Terrain of
   152: Land[Loc.Y,Loc.X].Terrain:=36;
@@ -611,7 +632,7 @@ end;
 
 
 {Extract one unit of ore}
-procedure TTerrain.DecOreReserve(Loc:TKMPoint; rt:TResourceType);
+procedure TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 begin
   Assert(Rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
   case Land[Loc.Y,Loc.X].Terrain of

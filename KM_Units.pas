@@ -1442,7 +1442,7 @@ with fUnit do
          SetAction(TUnitActionStay.Create(TimeToWork, WorkPlan.WorkType, false));
        end;
     3: begin case WorkPlan.GatheringScript of //Perform special tasks if required
-               gs_StoneCutter: fTerrain.DecStoneReserve(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
+               gs_StoneCutter: fTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
                gs_FarmerSow:   fTerrain.InitGrowth(WorkPlan.Loc);
                gs_FarmerCorn:  fTerrain.CutCorn(WorkPlan.Loc);
                gs_FarmerWine:  fTerrain.CutGrapes(WorkPlan.Loc);
@@ -1496,9 +1496,9 @@ with fUnit do
        end;
     10: begin
           case WorkPlan.GatheringScript of
-            gs_CoalMiner: fTerrain.DecCoalReserve(WorkPlan.Loc);
-            gs_GoldMiner: fTerrain.DecOreReserve(WorkPlan.Loc,rt_GoldOre);
-            gs_IronMiner: fTerrain.DecOreReserve(WorkPlan.Loc,rt_IronOre);
+            gs_CoalMiner: fTerrain.DecCoalDeposit(WorkPlan.Loc);
+            gs_GoldMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_GoldOre);
+            gs_IronMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_IronOre);
           end;
           fHome.ResAddToOut(WorkPlan.Product,WorkPlan.ProductCount);
           fHome.SetState(hst_Idle,WorkPlan.AfterWorkIdle);
