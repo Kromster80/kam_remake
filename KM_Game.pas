@@ -250,7 +250,7 @@ begin
   GameIsRunning:=true;
 end;
 
-
+                     
 procedure TKMGame.StopGame;
 begin
   GameIsRunning:=false;

@@ -25,29 +25,29 @@ type
 
   TKMHouse = class(TObject)
   private
-    fPosition: TKMPoint;
-    fHouseType: THouseType;
-    fBuildState: THouseBuildState;
-    fOwner: TPlayerID;
+    fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance
+    fHouseType: THouseType; //House type
+    fBuildState: THouseBuildState; // = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
+    fOwner: TPlayerID; //House owner player, determines flag color as well
 
-    fBuildSupplyWood: byte;
-    fBuildSupplyStone: byte;
-    fBuildReserve: byte; //Take one resource into reserve and "build from it"
+    fBuildSupplyWood: byte; //How much Wood was delivered to house building site
+    fBuildSupplyStone: byte; //How much Stone was delivered to house building site
+    fBuildReserve: byte; //Take one build supply resource into reserve and "build from it"
     fBuildingProgress: word; //That is how many efforts were put into building (Wooding+Stoning)
-    fHealth: word; //House condition/health
+    fDamage: word; //Damaged inflicted to house
 
     fHasOwner: boolean; //which is some TKMUnit
     fBuildingRepair: boolean; //If on and the building is damaged then labourers will come and repair it
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
-    fResourceIn:array[1..4] of byte;
-    fResourceOut:array[1..4]of byte;
+    fResourceIn:array[1..4] of byte; //Resource count in input
+    fResourceOut:array[1..4]of byte; //Resource count in output
 
     fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
 
-    fLastUpdateTime: Cardinal;
-    FlagAnimStep: integer; //Used for Flags and Burning animation
-    WorkAnimStep: integer; //Used for Work and etc.. which is not in sync with Flags
+    fLastUpdateTime: cardinal;
+    FlagAnimStep: cardinal; //Used for Flags and Burning animation
+    WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
     procedure SetWareDelivery(AVal:boolean);
   public
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
@@ -59,6 +59,7 @@ type
 
     procedure SetBuildingState(aState: THouseBuildState);
     procedure IncBuildingProgress;
+    procedure AddDamage(aAmount:word);
     function IsStarted:boolean;
     function IsComplete:boolean;
 
@@ -83,7 +84,7 @@ type
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
-    property GetHealth:word read fHealth;
+    function GetHealth():word;
 
     procedure UpdateState;
     procedure Paint();
@@ -157,7 +158,7 @@ begin
   fBuildSupplyWood:=0;
   fBuildSupplyStone:=0;
   fBuildingProgress:=0;
-  fHealth:=0;
+  fDamage:=0;
   fHasOwner:=false;
   fBuildingRepair:=false;
   fWareDelivery:=true;
@@ -170,7 +171,7 @@ begin
 
   if aBuildState=hbs_Done then begin //House was placed on map already Built e.g. in mission maker
     Self.Activate;
-    fHealth:=HouseDAT[byte(fHouseType)].MaxHealth;
+    fBuildingProgress:=HouseDAT[byte(fHouseType)].MaxHealth;
     fTerrain.SetHousePlan(fPosition,fHouseType,fdt_House); //Sets passability
   end else
     fTerrain.SetHousePlan(fPosition,fHouseType,fdt_None);
@@ -236,17 +237,42 @@ begin
 
   inc(fBuildingProgress,5); //is how many effort was put into building nevermind applied damage
   dec(fBuildReserve,5); //This is reserve we build from
-  inc(fHealth,5);
 
   if (fBuildState=hbs_Wood)and(fBuildingProgress = HouseDAT[byte(fHouseType)].WoodCost*50) then begin
     fBuildState:=hbs_Stone;
-    fBuildingProgress:=0;
+    //fBuildingProgress:=0;
   end;
-  if (fBuildState=hbs_Stone)and(fBuildingProgress = HouseDAT[byte(fHouseType)].StoneCost*50) then begin
+  if (fBuildState=hbs_Stone)and(fBuildingProgress-HouseDAT[byte(fHouseType)].WoodCost*50 = HouseDAT[byte(fHouseType)].StoneCost*50) then begin
     fBuildState:=hbs_Done;
     Activate;
   end;
-end; 
+end;
+
+
+{Add damage to the house}
+procedure TKMHouse.AddDamage(aAmount:word);
+begin
+  fDamage:= fDamage + aAmount;
+  //if BuildingRepair then MyPlayer.BuildList.AddHouseRepair();
+  if fDamage >   0 then fCurrentAction.SubActionAdd([ha_Fire1]);
+  if fDamage >  50 then fCurrentAction.SubActionAdd([ha_Fire2]);
+  if fDamage > 100 then fCurrentAction.SubActionAdd([ha_Fire3]);
+  if fDamage > 150 then fCurrentAction.SubActionAdd([ha_Fire4]);
+  if fDamage > 200 then fCurrentAction.SubActionAdd([ha_Fire5]);
+  if fDamage > 250 then fCurrentAction.SubActionAdd([ha_Fire6]);
+  if fDamage > 300 then fCurrentAction.SubActionAdd([ha_Fire7]);
+  if fDamage > 350 then fCurrentAction.SubActionAdd([ha_Fire8]);
+  if fDamage >=fBuildingProgress then {Destroy house}
+end;
+
+
+//EnableRepair
+{if house is damage then add repair to buildlist}
+
+
+//DisableRepair
+{if house is damage then remove repair from buildlist and free up workers}
+
 
 {Check if house is started to build, so to know if we need to init the building site or not}
 function TKMHouse.IsStarted():boolean;
@@ -254,11 +280,13 @@ begin
   Result := fBuildingProgress > 0;
 end;
 
+
 {Check if house is completely built, nevermind the damage}
 function TKMHouse.IsComplete():boolean;
 begin
   Result := fBuildState = hbs_Done;
 end;
+
 
 function TKMHouse.CheckResIn(aResource:TResourceType):word;
 var i:integer;
@@ -440,6 +468,12 @@ begin
 end;
 
 
+function TKMHouse.GetHealth():word;
+begin
+  Result:=fBuildingProgress-fDamage;
+end;
+
+
 procedure TKMHouse.Paint;
 begin
 case fBuildState of
@@ -455,7 +489,7 @@ case fBuildState of
   hbs_Stone:
     begin
       fRender.RenderHouseStone(byte(fHouseType),
-      fBuildingProgress/50/HouseDAT[byte(fHouseType)].StoneCost, //0...1 range
+      (fBuildingProgress/50-HouseDAT[byte(fHouseType)].WoodCost)/HouseDAT[byte(fHouseType)].StoneCost, //0...1 range
       fPosition.X, fPosition.Y);
       fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
     end;
@@ -463,7 +497,7 @@ case fBuildState of
     fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
     fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
     if fCurrentAction=nil then exit;
-    fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,integer(fOwner),fPosition.X, fPosition.Y);
+    fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,byte(fOwner),fPosition.X, fPosition.Y);
   end;
 end;
 end;

@@ -22,7 +22,7 @@ type
     PlayerID:TPlayerID; //Which ID this player is
     PlayerType: TPlayerType; //Is it Human or AI or Animals
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
-    procedure AddHouse(aHouseType: THouseType; Position: TKMPoint);
+    function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean):boolean;
@@ -83,17 +83,17 @@ uses
 
 
 { TKMPlayerAssets }
-function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
+function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
 begin
   Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y);
 end;
 
 
-procedure TKMPlayerAssets.AddHouse(aHouseType: THouseType; Position: TKMPoint);
+function TKMPlayerAssets.AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
 var xo:integer;
 begin
   xo:=HouseDAT[byte(aHouseType)].EntranceOffsetX;
-  fHouses.AddHouse(aHouseType, Position.X-xo, Position.Y, PlayerID)
+  Result:=fHouses.AddHouse(aHouseType, Position.X-xo, Position.Y, PlayerID);
 end;
 
 

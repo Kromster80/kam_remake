@@ -258,7 +258,7 @@ MyPlayer.AddHouse(ht_Store, KMPoint(17,5));
 MyPlayer.AddHouse(ht_WoodCutters, KMPoint(24,9));
 MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9));
 MyPlayer.AddHouse(ht_Quary, KMPoint(12,9));
-MyPlayer.AddUnit(ut_WoodCutter, KMPoint(7,11));
+MyPlayer.AddUnit(ut_WoodCutter, KMPoint(7,11));                                                 
 MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
 MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
 MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
@@ -402,7 +402,7 @@ end;
 
 procedure TForm1.TrackBar1Change(Sender: TObject);
 begin
-  ShowWires.Checked:=true;
+  ShowTerrainWires:=true;
   TrackBar1.Max:=length(PassabilityStr)-1;
   Label2.Caption:= PassabilityStr[TrackBar1.Position+1];
 end;
@@ -433,7 +433,7 @@ begin
 end;
 
 procedure TForm1.Button5Click(Sender: TObject);
-var H:TKMHouseStore; i:integer;
+var H:TKMHouse; i:integer;
 begin
   fGame.StopGame;
   fGame.StartGame('');
@@ -441,14 +441,16 @@ begin
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
   H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
-  if H<>nil then H.AddMultiResource(rt_All,300);
+  if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All,300);
 
-  for i:=1 to 2 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
+  for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
   MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
-  MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
+  H:=MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
+
+  H.AddDamage(255);
+  //MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
   //MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
-  //TKMHouse(MyPlayer.FindHouse(ht_Mill,0,0)).ResAddToIn(rt_Corn,5);
 
   fViewPort.SetCenter(10,9);
 

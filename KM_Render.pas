@@ -228,12 +228,12 @@ begin
     fs_Dig4: RenderTile(256,k,i,0);
   end;
 
-  if fTerrain.Land[i,k].FieldType = fdt_Road then
+  if fTerrain.Land[i,k].FieldType in [fdt_Road,fdt_HouseRoad] then
     begin
-      rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].FieldType = fdt_Road)*1 +
-          byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].FieldType = fdt_Road)*2 +
-          byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].FieldType = fdt_Road)*4 +
-          byte(fTerrain.Land[i                  ,max(k-1,1)         ].FieldType = fdt_Road)*8;
+      rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].FieldType in [fdt_Road,fdt_HouseRoad])*1 +
+          byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].FieldType in [fdt_Road,fdt_HouseRoad])*2 +
+          byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].FieldType in [fdt_Road,fdt_HouseRoad])*4 +
+          byte(fTerrain.Land[i                  ,max(k-1,1)         ].FieldType in [fdt_Road,fdt_HouseRoad])*8;
       ID:=RoadsConnectivity[rd,1];
       Rot:=RoadsConnectivity[rd,2];
       RenderTile(ID,k,i,Rot);

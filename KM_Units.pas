@@ -1305,7 +1305,7 @@ case Phase of
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
       fTerrain.FlattenTerrain(ListOfCells[Step]);
       if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
-        fTerrain.Land[fHouse.GetEntrance.Y,fHouse.GetEntrance.X].FieldType:=fdt_Road;
+        fTerrain.Land[fHouse.GetEntrance.Y,fHouse.GetEntrance.X].FieldType:=fdt_HouseRoad;
       dec(Step);
     end;
 7:  begin
@@ -1678,15 +1678,39 @@ begin
     if DO_UNIT_INTERACTION then
     if NodePos<NodeCount then
       if fTerrain.Land[Nodes[NodePos+1].Y,Nodes[NodePos+1].X].IsUnit>0 then begin
-        //If Unit on the way is idling then wait while forcing it to go away
+        
         U:=fPlayers.UnitsHitTest(Nodes[NodePos+1].X,Nodes[NodePos+1].Y);
-        if U<>nil then
-        if U.fCurrentAction is TUnitActionStay then
-        if TUnitActionStay(U.fCurrentAction).StayStill then begin
-        U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,fTerrain.GetOutOfTheWay(U.GetPosition,canWalk)));
-        exit;
+
+        //If there's yet no Unit on the way but tile is pre-occupied
+        if U=nil then begin
+          {Do nothing and wait till unit is there}
+          exit;
         end;
-        //If Unit on the way is walking then wait till it walks away
+
+        //If Unit on the way is idling
+        if (U<>nil)and(U.fCurrentAction is TUnitActionStay) then
+        if TUnitActionStay(U.fCurrentAction).ActionType=ua_Walk then begin //Unit stays idle
+          {ForceUnitToGoAway}
+          U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,fTerrain.GetOutOfTheWay(U.GetPosition,canWalk)));
+          exit;
+        end;
+
+        //If Unit on the way is doing something and won't move away
+        if (U<>nil)and(U.fCurrentAction is TUnitActionStay) then
+        if TUnitActionStay(U.fCurrentAction).ActionType<>ua_Walk then begin //Unit is doing something
+          {StartWalkingAround}
+          exit;
+        end;
+
+        //If Unit on the way is walking somewhere
+        if (U<>nil)and(U.fCurrentAction is TUnitActionWalkTo) then begin //Unit is walking
+          {Check unit direction and exchange}
+          {Or wait till it walks away for 0.5sec}
+          {If unit isn't walking away - go around it}
+          exit;
+        end;
+
+        //If enything else - wait
         exit;
       end;
     inc(NodePos);

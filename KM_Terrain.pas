@@ -166,7 +166,7 @@ begin
     if Random(16)=0 then Obj:=ChopableTrees[Random(13)+1,2];
     FieldSpecial:=fs_None;
     Markup:=mu_None;
-    Passability:=[canWalk, canBuild, canMakeRoads, canMakeFields, canPlantTrees]; //allow anything
+    Passability:=[]; //Gets recalculated later
     TileOwner:=play_none;
     FieldType:=fdt_None;
     FieldAge:=0;
@@ -177,7 +177,10 @@ begin
     IsUnit:=0;
   end;
 
+  i:=SizeOf(Land[1,1]); //Shall align it manually later on for better performance and less size
+
   RebuildLighting(1,MapX,1,MapY);
+  RebuildPassability(1,MapX,1,MapY);
 end;
 
 
@@ -205,7 +208,7 @@ begin
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
       //Everything else is default
-      //Land[i,k].Passability:=[CanWalk, CanBuild, CanPlantTrees, CanMakeFields];
+      //Land[i,k].Passability:=[];
       //Land[i,k].TileOwner:=play_none; //no roads
     end;
 closefile(f);
@@ -667,7 +670,7 @@ begin
        AddPassability(Loc, [canAll]);
 
      if (TileIsWalkable(Loc))and
-        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HouseWIP]))then
+        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HouseWIP,fdt_HouseRoad]))then
        AddPassability(Loc, [canWalk]);
 
      if (true)and
@@ -689,7 +692,7 @@ begin
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
-        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House]))then
+        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]))then
        AddPassability(Loc, [canBuildIron]);
 
      if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
@@ -698,7 +701,7 @@ begin
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
-        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House]))then
+        (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]))then
        AddPassability(Loc, [canBuildGold]);
 
      if (TileIsRoadable(Loc))and
