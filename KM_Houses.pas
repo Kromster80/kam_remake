@@ -1,6 +1,6 @@
 unit KM_Houses;
 interface
-uses windows, math, classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, SysUtils, MMSystem;
+uses Windows, Math, Classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, SysUtils, MMSystem;
 
   {Everything related to houses is here}
 type

@@ -1,9 +1,10 @@
 object Form1: TForm1
   Left = 320
   Top = 117
-  Width = 662
-  Height = 291
   HelpType = htKeyword
+  BorderStyle = bsNone
+  ClientHeight = 245
+  ClientWidth = 654
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

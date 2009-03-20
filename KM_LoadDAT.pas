@@ -53,10 +53,10 @@ type
   private
     MapCount:word;
     Maps:array[1..255]of record
-      Path:string;
+      Folder:string; //Map folder
       IsFight:boolean; //Fight or Build map
       PlayerCount:byte;
-      Title,SmallDesc:string;
+      Title,SmallDesc,BigDesc:string;
       MapSize:string; //S,M,L,XL
     end;
   public
@@ -66,6 +66,7 @@ type
     function GetPlayerCount(ID:integer):byte;
     function GetTitle(ID:integer):string;
     function GetSmallDesc(ID:integer):string;
+    function GetBigDesc(ID:integer):string;
     function GetMapSize(ID:integer):string;
   end;
 
@@ -361,15 +362,57 @@ end;
 {TKMMapInfo}
 
 procedure TKMMapInfo.ScanSingleMapsFolder(Path:string);
-var i:integer;
+var i:integer; SearchRec:TSearchRec; ft:textfile; s:string;
 begin
-  MapCount:=10;
-  for i:=1 to 10 do with Maps[i] do begin
-    IsFight:=boolean(random(2));
-    PlayerCount:=random(8)+1;
-    Title:=TypeToString(THouseType(i));
-    SmallDesc:=TypeToString(TUnitType(i));
-    MapSize:='XL';
+  MapCount:=0;
+  if not DirectoryExists(ExeDir+'Maps\') then exit;
+
+  ChDir(ExeDir+'Maps\');
+  FindFirst('*', faDirectory, SearchRec);
+  repeat
+  if (SearchRec.Attr and faDirectory = faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
+  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\Mission.txt') then begin
+    inc(MapCount);
+    Maps[MapCount].Folder:=SearchRec.Name;
+  end;
+  until (FindNext(SearchRec)<>0);
+  FindClose(SearchRec);
+
+  for i:=1 to MapCount do with Maps[i] do begin
+    assignfile(ft,ExeDir+'\Maps\'+Maps[MapCount].Folder+'\Mission.txt');
+    reset(ft);
+
+    repeat
+    readln(ft,s);
+
+    if UpperCase(s)=UpperCase('IsFight') then begin
+      readln(ft,s);
+      Assert((UpperCase(s)='TRUE')or(UpperCase(s)='FALSE'),'\Maps\'+Maps[MapCount].Folder+'\Mission.txt'+eol+'Wrong IsFight value');
+      IsFight := UpperCase(s)='TRUE';
+    end;
+
+    if UpperCase(s)=UpperCase('PlayerCount') then begin
+      readln(ft,PlayerCount);
+      Assert(InRange(PlayerCount,1,Max_Players),'\Maps\'+Maps[MapCount].Folder+'\Mission.txt'+eol+'Wrong PlayerCount value')
+    end;
+
+    if UpperCase(s)=UpperCase('Title') then
+      readln(ft,Title);
+
+    if UpperCase(s)=UpperCase('SmallDesc') then
+      readln(ft,SmallDesc);
+
+    if UpperCase(s)=UpperCase('BigDesc') then
+      readln(ft,BigDesc);
+
+    if UpperCase(s)=UpperCase('MapSize') then begin
+      readln(ft,MapSize);
+      Assert(InRange(length(MapSize),1,3),'\Maps\'+Maps[MapCount].Folder+'\Mission.txt'+eol+'Wrong MapSize value')
+    end;
+
+    until(eof(ft));
+
+    closefile(ft);
   end;
 end;
 
@@ -378,6 +421,7 @@ function TKMMapInfo.IsFight(ID:integer):boolean;        begin Result:=Maps[ID].I
 function TKMMapInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].PlayerCount;     end;
 function TKMMapInfo.GetTitle(ID:integer):string;        begin Result:=Maps[ID].Title;           end;
 function TKMMapInfo.GetSmallDesc(ID:integer):string;    begin Result:=Maps[ID].SmallDesc;       end;
+function TKMMapInfo.GetBigDesc(ID:integer):string;      begin Result:=Maps[ID].BigDesc;         end;
 function TKMMapInfo.GetMapSize(ID:integer):string;      begin Result:=Maps[ID].MapSize;         end;
 
 

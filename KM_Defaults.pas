@@ -19,6 +19,8 @@ const
   SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms, in cells
   SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
   GAME_VERSION = 'Alpha'; //Game version string displayed in menu corner
+  MENU_DESIGN_X = 1024; //Thats the size menu was designed for. All elements are placed in this size
+  MENU_DESIGN_Y = 768;
 
 var
   MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
@@ -693,7 +695,7 @@ function TypeToString(t:TUnitType):string; overload
 function TypeToString(t:TKMPoint):string; overload
 
 implementation
-uses KM_LoadLib, KM_Units, KM_Game;
+uses KM_LoadLib;
 
 {Reset log file}
 constructor TKMLog.Create(path:string);

@@ -1,6 +1,6 @@
 unit KM_DeliverQueue;
 interface
-uses windows, math, classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
+uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
 
   type TJobStatus = (js_Open, js_Taken, js_Done);
   type TDemandImportance = (di_Norm, di_High);
@@ -75,6 +75,10 @@ type
     procedure AddNewHouse(aHouse: TKMHouse);
     function  AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHouse(aID:integer);
+
+    {procedure AddHouseRepair(aHouse: TKMHouse);
+    function  AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+    procedure CloseHouseRepair(aID:integer);}
   end;
 
 implementation

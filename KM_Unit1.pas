@@ -143,8 +143,12 @@ begin
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
   Form1.WindowState:=wsMaximized;
-  //Form1.BorderStyle:=bsSizeable;
-//  Form1.FormResize(nil);
+  //Form1.ClientWidth:=1024;
+  //Form1.ClientHeight:=768;
+  GroupBox1.Hide;
+  //To get fullscreen - change this in ObjectInspector, otherwise it doesn't work right
+  //!Form1.BorderStyle:=bsNone;
+
   Form1.Refresh;
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
 

@@ -16,9 +16,6 @@ type
     Label2: TLabel;
   end;
 
-
-
-
 implementation
 {$R *.dfm}
 

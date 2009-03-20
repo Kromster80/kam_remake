@@ -219,7 +219,7 @@ end;
 
 
 implementation
-uses KM_RenderUI, KM_LoadLIB, KM_Game;
+uses KM_RenderUI;
 
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin
@@ -409,6 +409,7 @@ end;
 {If image area is bigger than image - do center image in it}
 procedure TKMImage.Paint();
 begin
+  if TexID=0 then exit;
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer($4000FF00,Left,Top,Width,Height);
   if StretchImage then
     fRenderUI.WritePic(RXid, TexID, Left, Top, Width, Height, Enabled)
@@ -682,9 +683,9 @@ begin
   Result:=TKMResourceOrderRow.Create(aParent, aLeft,aTop,aWidth,aHeight, aRes, aCount);
   AddToCollection(Result);
   //These three will be added to collection themselfes
-  Result.OrderRem :=AddButton(aParent,aLeft,aTop+2,20,aHeight,fTextLibrary.GetTextString(183),fnt_Metal);
+  Result.OrderRem :=AddButton(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal);
   Result.OrderLab :=AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
-  Result.OrderAdd :=AddButton(aParent,aLeft+46,aTop+2,20,aHeight,fTextLibrary.GetTextString(182),fnt_Metal);
+  Result.OrderAdd :=AddButton(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal);
 end;
 
 function TKMControlsCollection.AddCostsRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
