@@ -471,7 +471,7 @@ type
     sfx_corncut=1,
     sfx_dig,
     sfx_pave,
-    sfx_unknown4,
+    sfx_minestone,
     sfx_cornsow,
     sfx_choptree,
     sfx_housebuild,
@@ -485,7 +485,7 @@ type
     sfx_coalDown,
     sfx_Pig1,sfx_Pig2,sfx_Pig3,sfx_Pig4,
     sfx_Mine,
-    sfx_Pig5,
+    sfx_unknown21,
     sfx_Leather,
     sfx_BakerSlap,
     sfx_CoalMineThud,
@@ -498,9 +498,26 @@ type
     sfx_MessageOpen,
     sfx_MessageClose,
     sfx_MessageNotice,
-    { Here there are lots of melee sounds for fighting/attacking buildings }
-    sfx_Blacksmith=63,
-    sfx_SchoolDing=72    );
+    { 34-57 are melee attack sounds }
+    sfx_BowDraw=58,
+    sfx_ArrowHit,
+    sfx_CrossbowShoot,
+    sfx_CrossbowDraw,
+    sfx_BowShoot,
+    sfx_BlacksmithBang,
+    sfx_BlacksmithFire,
+    sfx_CarpenterHammer,
+    sfx_Horse1,sfx_Horse2,sfx_Horse3,sfx_Horse4,
+    sfx_unknown70,
+    sfx_HouseDestroy,
+    sfx_SchoolDing,
+    sfx_SlingerShoot,
+    sfx_BalistaShoot,
+    sfx_CatapultShoot,
+    sfx_unknown76,
+    sfx_CatapultReload,
+    sfx_SiegeBuildingSmash
+        );
 
 var
   //Players colors

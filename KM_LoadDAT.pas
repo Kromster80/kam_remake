@@ -149,13 +149,6 @@ begin
         end;
       //We now have command text and parameters, so process them
       
-      //@Lewin: few string params could be handled individually
-      //@Krom: Do you mean we process the text param here and change the command
-      // type based on it's value? (e.g. have a ct_AICharacterTownDefence for the
-      // split command !SET_AI_CHARACTER TOWN_DEFENSE)
-      //@Lewin: I mean you could convert everything strtoint here instead of writing it for every
-      //command you process later, saves a lot of text and makes command decoding look cleaner
-      //you already did it :-) Tobedeleted.
       if ProcessCommand(CommandType,ParamList,TextParam) = false then //A returned value of false indicates an error has occoured and we should exit
       begin
         //Result:=false;
@@ -223,7 +216,10 @@ begin
                      fViewPort.SetCenter(ParamList[0],ParamList[1]);
                      end;
   ct_ClearUp:        begin
-                     fTerrain.RevealCircle(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2],100,TPlayerID(CurrentPlayerIndex));
+                     if ParamList[0] = 255 then
+                       fTerrain.RevealWholeMap(TPlayerID(CurrentPlayerIndex))
+                     else
+                       fTerrain.RevealCircle(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2],100,TPlayerID(CurrentPlayerIndex));
                      end;
   ct_SetHouse:       begin
                      if InRange(ParamList[0],0,HOUSE_COUNT-1) then
@@ -298,9 +294,7 @@ begin
                      end;
   //To add:
   ct_EnablePlayer:   begin
-                     {@Krom: Not sure what to do about this one. Every player in the script has one of these.
-                     Presumably in KaM it does some enabling process and otherwise the player won't function.
-                     However, there is no practical purpose for it (you must always have it) so maybe we just ignore it?}
+
                      //@Lewin: Keep it as placeholder, just in case.
                      end;
   ct_AddGoal:        begin

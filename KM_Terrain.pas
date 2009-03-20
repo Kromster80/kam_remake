@@ -15,7 +15,7 @@ const PassabilityStr:array[1..10] of string = ('canAll', 'canWalk', 'canWalkRoad
 {canBuild - Can we build a house on this tile?}
 {canBuildIron - Special allowance for Iron Mines
 {canBuildGold - Special allowance for Gold Mines
-{canBuildCoal? - Special allowance for Coal Mines. Do we need it?
+{canBuildCoal? - Special allowance for Coal Mines. Do we need it? @Krom: I don't think so. If the player wants to put the coal mine where there is no coal then that's ok by me. Also remember that sometimes you need to place one with only a few squares on the coal
 {canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges}
 {canMakeFields - Thats more strict than roads, cos e.g. on beaches you can't make fields}
 {canPlantTrees - If Forester can plant a tree here, dunno if it's the same as fields}

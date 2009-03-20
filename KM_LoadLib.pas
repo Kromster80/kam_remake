@@ -51,7 +51,7 @@ var
 begin
   {
   By reading this code you will probably think that I'm crazy. But all the weird stuff
-  with the so called "FF byte pars" is actually needed. If I just load everything in
+  with the so called "FF byte pairs" is actually needed. If I just load everything in
   order then stuff won't be correct and it WILL cause us problems later on. Just trust
   me on this one, I spent a long time making a tool to edit these files so I DO know
   what I'm talking about. ;)
@@ -61,24 +61,18 @@ begin
   //Reading files byte-by-byte is the slowest thing ever.
   //Always try to read whole thing in one chunk into memory first and then process it
   //NumRead holds Count read from file, it's generally unused, but allows to avoid GetFileSize thing
+
+  //@Krom: Thanks for that, I think I understand BlockRead/Write now. You're right, it's far more effecient
+  //than doing it one byte at a time, but that was all I knew. I have cleaned up the code below so that it
+  //no longer reopens the file. It just loads stuff out of FileData. LIB loading is now down to 50ms. :) To be deleted...
   assignfile(f,FilePath); reset(f,1);
   blockread(f,FileData,100000,NumRead);
   closefile(f);
 
-  AssignFile(LIBFile, FilePath);
-  Reset(LIBFile); //Reset the file so we can start reading from the start again
   //Load string count from first two bytes
-  Read(LIBFile, c); i := ord(c);
-  Read(LIBFile, c);
-  StrCount := i + (ord(c) * 256);
+  StrCount := FileData[0] + (FileData[1] * 256);
   //Load the length of the last string which is stored here
-  Read(LIBFile, c); LastStrLen := ord(c);
-  //Skip 5 other header bytes which are not needed for reading only
-  Read(LIBFile, c);
-  Read(LIBFile, c);
-  Read(LIBFile, c);
-  Read(LIBFile, c);
-  Read(LIBFile, c);
+  LastStrLen := FileData[2];
   
   //Now starts the indexes, set some defaults then run a loop
   ExtraCount := 1;
@@ -87,12 +81,13 @@ begin
   for i3 := 1 to StrCount do
   begin
     //Load index bytes for this string
-    Read(LIBFile, c);  Byte1 := ord(c);
-    Read(LIBFile, c);  Byte2 := ord(c);
+    Byte1 := FileData[8+((i3-1)*2)];
+    Byte2 := FileData[9+((i3-1)*2)];
     //Check for FF byte pars
     if (Byte1 = 255) and (Byte2 = 255) then
     begin
-      //This string is unused, meaning we must store it as blank, but also for some extreamly annoying reason they also change the order of bytes around them (don't ask...)
+      //This string is unused, meaning we must store it as blank, but also for some extreamly
+      //annoying reason they also change the order of bytes around them (don't ask...)
       AArray[i3] := ''; //Make it blank
       if LastWasFF = false then
         LastFirstFFIndex := i3;
@@ -116,8 +111,6 @@ begin
       LastWasFF := false;
     end;
   end;
-            
-  CloseFile(LIBFile);
 
   //@Lewin: Here I suggest you organise a temp list of new strings
   //TextStrings[1025]:='Activity';
@@ -128,6 +121,10 @@ begin
   //Once we settle the design and test it ingame we could either export it to lib files
   //or make an addon lib file especially for Remake (I like that better) - addon.lib
   //Your ideas?
+
+  //@Krom: Temp list of strings is a good idea, but only use it for things that are likely
+  //to become perminate. (not just debugging stuff)
+  //I too like the addon.lib idea better. Once we have a more complete list then I can organise that
 end;
            
 function TTextLibrary.GetTextString(AIndex:integer):string;
@@ -145,7 +142,7 @@ var
   i: integer;
   FileData: TStringList;
 begin
-  //Here we will export all of the text to text.txt and setup.txt
+  //Here we will export all of the text to a file
   FileData := TStringList.Create;
   if FileExists(AFileName) then DeleteFile(AFileName);
   for i:= 0 to MaxStrings do
@@ -156,7 +153,7 @@ end;
 
 procedure TTextLibrary.ExportTextLibraries;
 begin
-  //Here we will export all of the text to text.txt and setup.txt
+  //Here we will export all of the text to LIB_Setup.txt and LIB_Text.txt
   ExportTextLibrary(SetupStrings,ExeDir+'LIB_Setup.txt');
   ExportTextLibrary(TextStrings,ExeDir+'LIB_Text.txt');
 end;

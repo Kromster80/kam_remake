@@ -1822,8 +1822,14 @@ begin
         ua_Work2: if KMUnit.AnimStep mod Cycle = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
       end;
       ut_Farmer: case ActionType of
-        ua_Work: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
-        ua_Work1: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true);
+        ua_Work: if KMUnit.AnimStep mod Cycle = 8 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
+        ua_Work1: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true,0.8);
+      end;
+      ut_StoneCutter: if ActionType = ua_Work then
+       if KMUnit.AnimStep mod Cycle = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
+      ut_WoodCutter: case ActionType of
+        ua_Work: if KMUnit.AnimStep mod Cycle = 5 then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true);
+        ua_Work1: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
       end;
     end;
     inc(KMUnit.AnimStep);
@@ -1852,10 +1858,6 @@ begin
     //ut_Bowman:   Inherited Add(TKMUnitArcher.Create(aOwner,PosX,PosY,aUnitType)); //I guess it will be stand-alone
 
     ut_Wolf..ut_Duck:           T:= Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
-    //@Krom: The codes you are using for animals in Defaults are not right. (e.g. fish = 26 not 32)
-    //What shall we do about that?
-    //@Lewin: Animals are added :)
-    //The codes are correct for TPR RX data, I guess we need to remap them in DAT decoder for TSK missions?
 
     else
     Assert(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
