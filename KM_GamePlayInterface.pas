@@ -15,7 +15,8 @@ type TKMMainMenuInterface = class
       KMLabel_Version:TKMLabel;
     KMPanel_Single:TKMPanel;
       KMImage_SingleBG:TKMImage; //Single background
-      KMButton_SingleMode,KMButton_SingleTeams,KMButton_SingleTitleBG:array[1..20]of TKMButtonFlat;
+      KMButton_SingleHeadMode,KMButton_SingleHeadTeams,KMButton_SingleHeadTitle,KMButton_SingleHeadSize:TKMButton;
+      KMButton_SingleMode,KMButton_SinglePlayers,KMButton_SingleTitle,KMButton_SingleSize:array[1..20]of TKMButtonFlat;
       KMLabel_SingleTitle1,KMLabel_SingleTitle2:array[1..20]of TKMLabel;
       KMButton_SingleBack:TKMButton;
     KMPanel_Credits:TKMPanel;
@@ -30,6 +31,7 @@ type TKMMainMenuInterface = class
   private
     procedure SwitchMenuPage(Sender: TObject);
     procedure Play_Tutorial(Sender: TObject);
+    procedure RefreshSingleMapPage();
   public
     MyControls: TKMControlsCollection;
     constructor Create(X,Y:word);
@@ -184,7 +186,7 @@ var
   fMainMenuInterface: TKMMainMenuInterface;
 
 implementation
-uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game;
+uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_LoadDAT;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word);
@@ -279,14 +281,20 @@ begin
   KMPanel_Single:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_SingleBG:=MyControls.AddImage(KMPanel_Single,0,0,ScreenX,ScreenY,2,5);
     KMImage_SingleBG.StretchImage:=true;
+    KMButton_SingleHeadMode:=MyControls.AddButton(KMPanel_Single,100,140,48,40,28+random(2)*14);
+    KMButton_SingleHeadTeams:=MyControls.AddButton(KMPanel_Single,148,140,48,40,30+random(2)*1);
+    KMButton_SingleHeadTitle:=MyControls.AddButton(KMPanel_Single,196,140,320,40,'Title',fnt_Metal);
+    KMButton_SingleHeadSize:=MyControls.AddButton(KMPanel_Single,516,140,48,40,'Size',fnt_Metal);
     for i:=1 to 10 do begin
       KMButton_SingleMode[i]:=MyControls.AddButtonFlat(KMPanel_Single,100,180+(i-1)*40,48,40,28+random(2)*14);
-      KMButton_SingleTeams[i]:=MyControls.AddButtonFlat(KMPanel_Single,148,180+(i-1)*40,48,40,30+random(2)*1);
-      KMButton_SingleTitleBG[i]:=MyControls.AddButtonFlat(KMPanel_Single,196,180+(i-1)*40,320,40,0);
+      KMButton_SinglePlayers[i]:=MyControls.AddButtonFlat(KMPanel_Single,148,180+(i-1)*40,48,40,0);
+      KMButton_SingleTitle[i]:=MyControls.AddButtonFlat(KMPanel_Single,196,180+(i-1)*40,320,40,0);
       KMLabel_SingleTitle1[i]:=MyControls.AddLabel(KMPanel_Single,200,184+(i-1)*40,48,40,fnt_Metal, kaLeft,fTextLibrary.GetSetupString(random(29)));
-      KMLabel_SingleTitle1[i]:=MyControls.AddLabel(KMPanel_Single,200,202+(i-1)*40,48,40,fnt_Game, kaLeft,fTextLibrary.GetSetupString(random(29)));
+      KMLabel_SingleTitle2[i]:=MyControls.AddLabel(KMPanel_Single,200,202+(i-1)*40,48,40,fnt_Game, kaLeft,fTextLibrary.GetSetupString(random(29)));
+      KMButton_SingleSize[i]:=MyControls.AddButtonFlat(KMPanel_Single,516,180+(i-1)*40,48,40,0);
       KMButton_SingleMode[i].Disable;
-      KMButton_SingleTeams[i].Disable;
+      KMButton_SinglePlayers[i].Disable;
+      KMButton_SingleSize[i].Disable;
     end;
     KMButton_SingleBack:=MyControls.AddButton(KMPanel_Single,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
     KMButton_SingleBack.OnClick:=SwitchMenuPage;
@@ -338,14 +346,34 @@ begin
   if Sender=KMButton_MainMenuCredit then
     KMPanel_Credits.Show;
 
-  if Sender=KMButton_MainMenuSingle then
+  if Sender=KMButton_MainMenuSingle then begin
+    RefreshSingleMapPage();
     KMPanel_Single.Show;
+  end;
 
   if Sender=KMPanel_Loading then
     KMPanel_Loading.Show;
 
   if Sender=KMPanel_Results then //This page can be accessed only by itself
     KMPanel_Results.Show;
+end;
+
+
+procedure TKMMainMenuInterface.RefreshSingleMapPage();
+var i:integer; MapInfo:TKMMapInfo;
+begin
+  MapInfo:=TKMMapInfo.Create;
+  MapInfo.ScanSingleMapsFolder('');
+
+  for i:=1 to min(MapInfo.GetMapCount,10) do begin
+    KMButton_SingleMode[i].TexID:=28+byte(MapInfo.IsFight(i))*14;
+    KMButton_SinglePlayers[i].Caption:=inttostr(MapInfo.GetPlayerCount(i));
+    KMLabel_SingleTitle1[i].Caption:=MapInfo.GetTitle(i);
+    KMLabel_SingleTitle2[i].Caption:=MapInfo.GetSmallDesc(i);
+    KMButton_SingleSize[i].Caption:=MapInfo.GetMapSize(i);
+  end;
+
+  FreeAndNil(MapInfo);
 end;
 
 

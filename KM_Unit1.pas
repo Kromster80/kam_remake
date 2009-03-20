@@ -51,7 +51,6 @@ type
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
-    Button4: TButton;
     OpenMissionMenu: TMenuItem;
     Step1Frame: TButton;
     Button5: TButton;
@@ -91,7 +90,6 @@ type
     procedure ShowOverlayClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure RGPlayerClick(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
     procedure OpenMissionMenuClick(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
@@ -418,11 +416,6 @@ procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
   if fPlayers.Player[RGPlayer.ItemIndex+1] <> nil then
     MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
-end;
-
-procedure TForm1.Button4Click(Sender: TObject);
-begin
-  fSoundLib.Play(sfx_dig,KMPoint(48,48),false);
 end;
 
 procedure TForm1.OpenMissionMenuClick(Sender: TObject);

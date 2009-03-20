@@ -42,12 +42,10 @@ end;
 procedure TTextLibrary.LoadLIBFile(FilePath:string; var AArray:array of string);
 var             
   f:file; NumRead:integer;
-  LIBFile: file of char;
-  i, i2, i3, StrCount, Byte1, Byte2, LastStrLen, LastFirstFFIndex, StrLen, TheIndex, ExtraCount: integer;
+  i2, i3, StrCount, Byte1, Byte2, LastStrLen, LastFirstFFIndex, StrLen, TheIndex, ExtraCount: integer;
   FileData: array[0..100000] of byte;
   TheString: string;
   LastWasFF: boolean;
-  c: char;
 begin
   {
   By reading this code you will probably think that I'm crazy. But all the weird stuff
@@ -57,14 +55,7 @@ begin
   what I'm talking about. ;)
   }
   if not CheckFileExists(FilePath) then exit;
-  //@Lewin: Replaced your code. Saved us 200ms on loading :)
-  //Reading files byte-by-byte is the slowest thing ever.
-  //Always try to read whole thing in one chunk into memory first and then process it
-  //NumRead holds Count read from file, it's generally unused, but allows to avoid GetFileSize thing
 
-  //@Krom: Thanks for that, I think I understand BlockRead/Write now. You're right, it's far more effecient
-  //than doing it one byte at a time, but that was all I knew. I have cleaned up the code below so that it
-  //no longer reopens the file. It just loads stuff out of FileData. LIB loading is now down to 50ms. :) To be deleted...
   assignfile(f,FilePath); reset(f,1);
   blockread(f,FileData,100000,NumRead);
   closefile(f);

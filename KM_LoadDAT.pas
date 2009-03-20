@@ -29,7 +29,7 @@ const
     ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,ut_Pikeman,ut_Hallebardman,
     ut_HorseScout,ut_Cavalry,ut_Barbarian, //Troops
     ut_Wolf,ut_Fish,ut_Watersnake,ut_Seastar,ut_Crab,ut_Waterflower,ut_Waterleaf,ut_Duck); //Animals
-    
+
   //This is a map of the valid values for !SET_GROUP, and the corrisponing unit that will be created (matches KaM behavior)
   TroopsRemap: array[14..29] of TUnitType = (ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
   ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
@@ -47,6 +47,27 @@ type
     constructor Create;
     function LoadDATFile(AFileName:string):boolean;
 end;
+
+type
+  TKMMapInfo = class(TObject)
+  private
+    MapCount:word;
+    Maps:array[1..255]of record
+      Path:string;
+      IsFight:boolean; //Fight or Build map
+      PlayerCount:byte;
+      Title,SmallDesc:string;
+      MapSize:string; //S,M,L,XL
+    end;
+  public
+    procedure ScanSingleMapsFolder(Path:string);
+    property GetMapCount:word read MapCount;
+    function IsFight(ID:integer):boolean;
+    function GetPlayerCount(ID:integer):byte;
+    function GetTitle(ID:integer):string;
+    function GetSmallDesc(ID:integer):string;
+    function GetMapSize(ID:integer):string;
+  end;
 
 var
   fMissionParser: TMissionParser;
@@ -335,6 +356,30 @@ procedure TMissionParser.DebugScriptError(ErrorMsg:string);
 begin
   //Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
 end;
+
+
+{TKMMapInfo}
+
+procedure TKMMapInfo.ScanSingleMapsFolder(Path:string);
+var i:integer;
+begin
+  MapCount:=10;
+  for i:=1 to 10 do with Maps[i] do begin
+    IsFight:=boolean(random(2));
+    PlayerCount:=random(8)+1;
+    Title:=TypeToString(THouseType(i));
+    SmallDesc:=TypeToString(TUnitType(i));
+    MapSize:='XL';
+  end;
+end;
+
+
+function TKMMapInfo.IsFight(ID:integer):boolean;        begin Result:=Maps[ID].IsFight;         end;
+function TKMMapInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].PlayerCount;     end;
+function TKMMapInfo.GetTitle(ID:integer):string;        begin Result:=Maps[ID].Title;           end;
+function TKMMapInfo.GetSmallDesc(ID:integer):string;    begin Result:=Maps[ID].SmallDesc;       end;
+function TKMMapInfo.GetMapSize(ID:integer):string;      begin Result:=Maps[ID].MapSize;         end;
+
 
 end.
 
