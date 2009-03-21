@@ -620,7 +620,8 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     UsePal:integer;
 begin
-  CreateDir(ExeDir+RXData[RXid].Title+'rx\');
+  CreateDir(ExeDir+'Export\');
+  CreateDir(ExeDir+'Export\'+RXData[RXid].Title+'.rx\');
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
@@ -641,7 +642,7 @@ begin
       t:=RXData[RXid].Data[id,y*sx+x]+1;
       MyBitmap.Canvas.Pixels[x,y]:=Pal[UsePal,t,1]+Pal[UsePal,t,2]*256+Pal[UsePal,t,3]*65536;
     end;
-    if sy>0 then MyBitmap.SaveToFile(ExeDir+RXData[RXid].Title+'rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
+    if sy>0 then MyBitmap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
 
     setlength(RXData[RXid].Data[id],0);
   end;
@@ -653,7 +654,8 @@ var MyBitMap:TBitMap;
     ID,Ac,Di,k,ci,t:integer;
     sy,sx,y,x:integer;
 begin
-  CreateDir(ExeDir+'UnitAnim\');
+  CreateDir(ExeDir+'Export\');
+  CreateDir(ExeDir+'Export\UnitAnim\');
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
@@ -679,7 +681,7 @@ begin
             MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
           end;
           if sy>0 then MyBitmap.SaveToFile(
-          ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\'+inttostr(Di)+'_'+int2fix(k,2)+'.bmp');
+          ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\'+inttostr(Di)+'_'+int2fix(k,2)+'.bmp');
         end;
       end;
     end;
@@ -720,7 +722,7 @@ begin
           MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
         end;
         if sy>0 then MyBitmap.SaveToFile(
-        ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
+        ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
       end;
     end;
   end;
@@ -893,8 +895,9 @@ if WriteFontToBMP then begin
     MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
   end;
 
-  CreateDir(ExeDir+'Fonts\');
-  MyBitmap.SaveToFile(ExeDir+'Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
+  CreateDir(ExeDir+'Export\');
+  CreateDir(ExeDir+'Export\Fonts\');
+  MyBitmap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
   MyBitmap.Free;
 end;
 

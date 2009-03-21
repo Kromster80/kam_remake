@@ -56,6 +56,9 @@ type
     Button5: TButton;
     ShowOverlay: TMenuItem;
     CB_ShowUnit: TCheckBox;
+    AnimData1: TMenuItem;
+    Other1: TMenuItem;
+    ShowDebugpanel1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure OpenMapClick(Sender: TObject);
@@ -94,6 +97,7 @@ type
     procedure Button5Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
     procedure CB_ShowUnitClick(Sender: TObject);
+    procedure ShowDebugpanel1Click(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -357,6 +361,10 @@ begin
   DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
   if fRender<>nil then fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
 end;
+procedure TForm1.ShowDebugpanel1Click(Sender: TObject);
+begin
+  GroupBox1.Visible:=not GroupBox1.Visible;
+end;
 
 //Exports
 procedure TForm1.ExportTreesRXClick(Sender: TObject);  begin ExportRX2BMP(1); end;
@@ -470,5 +478,7 @@ procedure TForm1.CB_ShowUnitClick(Sender: TObject);
 begin
 MakeShowUnitMove:=CB_ShowUnit.Checked;
 end;
+
+
 
 end.

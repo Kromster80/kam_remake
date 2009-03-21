@@ -145,8 +145,9 @@ end;
 procedure TTextLibrary.ExportTextLibraries;
 begin
   //Here we will export all of the text to LIB_Setup.txt and LIB_Text.txt
-  ExportTextLibrary(SetupStrings,ExeDir+'LIB_Setup.txt');
-  ExportTextLibrary(TextStrings,ExeDir+'LIB_Text.txt');
+  CreateDir(ExeDir+'Export\');
+  ExportTextLibrary(SetupStrings,ExeDir+'Export\LIB_Setup.txt');
+  ExportTextLibrary(TextStrings,ExeDir+'Export\LIB_Text.txt');
 end;
 
 end.

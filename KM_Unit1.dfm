@@ -3,6 +3,7 @@ object Form1: TForm1
   Top = 117
   HelpType = htKeyword
   BorderStyle = bsNone
+  Caption = 'q'
   ClientHeight = 245
   ClientWidth = 654
   Color = clSkyBlue
@@ -347,6 +348,10 @@ object Form1: TForm1
         Caption = 'Show Overlay'
         OnClick = ShowOverlayClick
       end
+      object ShowDebugpanel1: TMenuItem
+        Caption = 'Show Debug panel'
+        OnClick = ShowDebugpanel1Click
+      end
     end
     object Export1: TMenuItem
       Caption = 'Export Data'
@@ -370,6 +375,22 @@ object Form1: TForm1
         Caption = 'GUI Main.rx'
         OnClick = ExportGUIMainRXClick
       end
+      object AnimData1: TMenuItem
+        Caption = '-'
+        Enabled = False
+      end
+      object HouseAnim1: TMenuItem
+        Caption = 'House Anim'
+        OnClick = HouseAnim1Click
+      end
+      object UnitAnim1: TMenuItem
+        Caption = 'Unit Anim'
+        OnClick = UnitAnim1Click
+      end
+      object Other1: TMenuItem
+        Caption = '-'
+        Enabled = False
+      end
       object Exportfonts1: TMenuItem
         Caption = 'Fonts'
         OnClick = Exportfonts1Click
@@ -381,14 +402,6 @@ object Form1: TForm1
       object ExportSounds1: TMenuItem
         Caption = 'Sounds'
         OnClick = ExportSounds1Click
-      end
-      object HouseAnim1: TMenuItem
-        Caption = 'House Anim'
-        OnClick = HouseAnim1Click
-      end
-      object UnitAnim1: TMenuItem
-        Caption = 'Unit Anim'
-        OnClick = UnitAnim1Click
       end
     end
     object ExportStatus1: TMenuItem
