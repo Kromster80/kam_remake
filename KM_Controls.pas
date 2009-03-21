@@ -56,6 +56,7 @@ TKMLabel = class(TKMControl)
     Font: TKMFont;
     FontColor: TColor4;
     TextAlign: KAlign;
+    AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
     Caption: string;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
@@ -199,18 +200,18 @@ TKMControlsCollection = class(TKMList)
     procedure AddToCollection(Sender:TKMControl);
   public
     constructor Create;
-    function AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; const aColor:TColor4=$FFFFFFFF):TKMLabel;
-    function AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
-    function AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
-    function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButton; overload;
-    function AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
-    function AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
-    function AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
-    function AddResourceRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
+    function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
+    function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
+    function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
+    function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButton; overload;
+    function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
+    function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
+    function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
+    function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
-    function AddCostsRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
-    function AddRatioRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
-    function AddMinimap(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
+    function AddCostsRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
+    function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
+    function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp(X,Y:integer; AButton:TMouseButton);
@@ -304,7 +305,7 @@ end;
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint();
 begin
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer($400000FF,Left,Top,Width,Height);
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $400000FF);
   Inherited Paint;
 end;
 
@@ -346,12 +347,12 @@ begin
   if CursorOver and Enabled then State:=State+[bs_Highlight];
   if Down then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
-  fRenderUI.Write3DButton(4,TexID,Left,Top,Width,Height,State);
+  fRenderUI.Write3DButton(Left,Top,Width,Height,4,TexID,State);
   if TexID=0 then
     if Enabled then //If disabled then text should be faded
-      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, TextAlign, Caption, Font, $FFFFFFFF)
+      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, Caption, Font, TextAlign, false, $FFFFFFFF)
     else
-      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, TextAlign, Caption, Font, $FF888888);
+      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, Caption, Font, TextAlign, false, $FF888888);
 end;
 
 
@@ -372,18 +373,18 @@ begin
   if CursorOver and Enabled and not HideHighlight then State:=State+[bs_Highlight];
   if Down and not HideHighlight then State:=State+[bs_Down];
   //if not Enabled then State:=State+[bs_Disabled];
-    fRenderUI.WriteFlatButton(RXid,TexID,Caption,Left,Top,Width,Height,State);
+    fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,Caption,State);
 
   if TexID<>0 then begin
     TexOffsetY:=-7*byte(Caption<>'');
-    fRenderUI.WritePic(RXid,TexID, Left + (Width-GFXData[RXid,TexID].PxWidth) div 2 + TexOffsetX,
-                              Top + (Height-GFXData[RXid,TexID].PxHeight) div 2 + TexOffsetY,true);
+    fRenderUI.WritePicture(Left + (Width-GFXData[RXid,TexID].PxWidth) div 2 + TexOffsetX,
+                              Top + (Height-GFXData[RXid,TexID].PxHeight) div 2 + TexOffsetY,RXid,TexID, true);
   end;
 
   if Enabled then
-    fRenderUI.WriteText(Left + Width div 2, Top + (Height div 2)+4, kaCenter, Caption, fnt_Game, $FFFFFFFF)
+    fRenderUI.WriteText(Left + Width div 2, Top + (Height div 2)+4, Width, Caption, fnt_Game, kaCenter, false, $FFFFFFFF)
   else
-    fRenderUI.WriteText(Left + Width div 2, Top + (Height div 2)+4, kaCenter, Caption, fnt_Game, $FF888888);
+    fRenderUI.WriteText(Left + Width div 2, Top + (Height div 2)+4, Width, Caption, fnt_Game, kaCenter, false, $FF888888);
 
 end;
 
@@ -410,12 +411,12 @@ end;
 procedure TKMImage.Paint();
 begin
   if TexID=0 then exit;
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer($4000FF00,Left,Top,Width,Height);
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
   if StretchImage then
-    fRenderUI.WritePic(RXid, TexID, Left, Top, Width, Height, Enabled)
+    fRenderUI.WritePicture(Left, Top, Width, Height, RXid, TexID, Enabled)
   else
-    fRenderUI.WritePic(RXid,TexID, Left + (Width-GFXData[RXid,TexID].PxWidth) div 2,
-                                    Top + (Height-GFXData[RXid,TexID].PxHeight) div 2,Enabled);
+    fRenderUI.WritePicture(Left + (Width-GFXData[RXid,TexID].PxWidth) div 2,
+                           Top + (Height-GFXData[RXid,TexID].PxHeight) div 2, RXid,TexID, Enabled);
 end;
 
 
@@ -434,9 +435,9 @@ procedure TKMPercentBar.Paint();
 begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then //Now draw text over bar, if required
-    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, TextAlign, Caption, Font, $FF000000);
+    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, Width, Caption, Font, TextAlign, false, $FF000000);
   if Caption <> '' then //Now draw text over bar, if required
-    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, TextAlign, Caption, Font, $FFFFFFFF);
+    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, Width, Caption, Font, TextAlign, false, $FFFFFFFF);
 end;
 
 
@@ -453,11 +454,11 @@ end;
 procedure TKMResourceRow.Paint();
 var i:integer;
 begin
-  fRenderUI.WriteFlatButton(4,0,'',Left,Top,Width,Height,[]);
-  fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Game, $FFFFFFFF);
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,4,0,'',[]);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
-    fRenderUI.WritePic(4,350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, 4,350+byte(Resource));
 end;
 
 
@@ -488,11 +489,11 @@ begin
 
   OrderLab.Caption:=inttostr(OrderCount);
 
-  fRenderUI.WriteFlatButton(4,0,'',Left,Top,Width,Height,[]);
-  fRenderUI.WriteText(Left + 4, Top + 3, kaLeft, TypeToString(Resource), fnt_Game, $FFFFFFFF);
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,4,0,'',[]);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
-    fRenderUI.WritePic(4,350+byte(Resource), (Left+Width-2-20)-(ResourceCount-i)*14, Top+1);
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, 4,350+byte(Resource));
 end;
 
 
@@ -508,14 +509,14 @@ end;
 procedure TKMCostsRow.Paint();
 var TexID:byte;
 begin
-  fRenderUI.WriteText(Left, Top + 4, kaLeft, TypeToString(TResourceType(CostID)), fnt_Grey, $FFFFFFFF);
+  fRenderUI.WriteText(Left, Top + 4, Width, TypeToString(TResourceType(CostID)), fnt_Grey, kaLeft, false, $FFFFFFFF);
   if ProductionCosts[CostID,1] in [rt_Trunk..rt_Fish] then begin
     TexID:=byte(ProductionCosts[CostID,1]);
-    fRenderUI.WritePic(4,350+TexID, Left+Width-40, Top + (Height-GFXData[4,TexID].PxHeight) div 2);
+    fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[4,TexID].PxHeight) div 2, 4,350+TexID);
   end;
   if ProductionCosts[CostID,2] in [rt_Trunk..rt_Fish] then begin
     TexID:=byte(ProductionCosts[CostID,2]);
-    fRenderUI.WritePic(4,350+TexID, Left+Width-20, Top + (Height-GFXData[4,TexID].PxHeight) div 2);
+    fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[4,TexID].PxHeight) div 2, 4,350+TexID);
   end;
 end;
 
@@ -552,15 +553,15 @@ procedure TKMRatioRow.Paint();
 var Pos:word;
 begin
   if MakeDrawPagesOverlay then
-    fRenderUI.WriteLayer($4000FF00, Left, Top, Width, Height);
+    fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
 
-  fRenderUI.WriteFlatButton(4,0,'',Left+2,Top+2,Width-4,Height-4,[]);
+  fRenderUI.WriteFlatButton(Left+2,Top+2,Width-4,Height-4,4,0,'',[]);
   Pos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
-  fRenderUI.WritePic(4,132, Left+Pos+2, Top);
+  fRenderUI.WritePicture(Left+Pos+2, Top, 4,132);
   if Enabled then
-    fRenderUI.WriteText(Left+12+2+Pos, Top+3,kaCenter,inttostr(Position),fnt_Metal,$FFFFFFFF)
+    fRenderUI.WriteText(Left+12+2+Pos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FFFFFFFF)
   else
-    fRenderUI.WriteText(Left+12+2+Pos, Top+3,kaCenter,inttostr(Position),fnt_Metal,$FF888888);
+    fRenderUI.WriteText(Left+12+2+Pos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FF888888);
 end;
 
 
@@ -585,7 +586,7 @@ end;
 
 procedure TKMMinimap.Paint();
 begin
-  fRenderUI.WriteFlatButton(4,0,'',Left,Top,Width,Height,[]);
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,4,0,'',[]);
   fRenderUI.RenderMinimap(Left,Top,Width,Height,MapSize.X,MapSize.Y);
   fRenderUI.WriteRect(Left + (Width-MapSize.X) div 2 + ViewArea.Left,
                       Top  + (Height-MapSize.Y) div 2 + ViewArea.Top,
@@ -601,6 +602,7 @@ begin
   Font:=aFont;
   FontColor:=aColor;
   TextAlign:=aTextAlign;
+  AutoWrap:=false;
   Caption:=aCaption;
 end;
 
@@ -611,15 +613,17 @@ var Tmp:TKMPoint;
 begin
   if MakeDrawPagesOverlay then
   case TextAlign of
-    kaLeft:   fRenderUI.WriteLayer($4000FFFF, Left, Top, Width, Height);
-    kaCenter: fRenderUI.WriteLayer($4000FFFF, Left - Width div 2, Top, Width, Height);
-    kaRight:  fRenderUI.WriteLayer($4000FFFF, Left - Width, Top, Width, Height);
+    kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
+    kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
+    kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
   end;
   if Enabled then
-    Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font, FontColor)
+    Tmp:=fRenderUI.WriteText(Left,Top, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
   else
-    Tmp:=fRenderUI.WriteText(Left,Top, TextAlign, Caption, Font, $FF888888);
-  Width:=Tmp.X;
+    Tmp:=fRenderUI.WriteText(Left,Top, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
+
+  if not AutoWrap then
+    Width:=Tmp.X;
   Height:=Tmp.Y;
 end;
 
@@ -659,8 +663,8 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont;
-        aTextAlign: KAlign; aCaption:string; const aColor:TColor4 = $FFFFFFFF):TKMLabel;
+function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string;
+        aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4 = $FFFFFFFF):TKMLabel;
 begin
   Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
   AddToCollection(Result);
@@ -684,7 +688,7 @@ begin
   AddToCollection(Result);
   //These three will be added to collection themselfes
   Result.OrderRem :=AddButton(aParent,aLeft,aTop+2,20,aHeight,'-',fnt_Metal);
-  Result.OrderLab :=AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
+  Result.OrderLab :=AddLabel(aParent,aLeft+33,aTop+4,0,0,'',fnt_Grey,kaCenter);
   Result.OrderAdd :=AddButton(aParent,aLeft+46,aTop+2,20,aHeight,'+',fnt_Metal);
 end;
 

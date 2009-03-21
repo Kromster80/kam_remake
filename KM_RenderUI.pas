@@ -4,19 +4,17 @@ uses dglOpenGL, OpenGL, Math, KromUtils, KromOGLUtils, SysUtils, KM_Defaults, Gr
 
 type
 TRenderUI = class
-  private
-  protected
   public
     constructor Create;
-    procedure Write3DButton(RXid,ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
-    procedure WriteFlatButton(RXid,ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
-    procedure WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
-    procedure WritePic(RXid,ID,PosX,PosY:integer;Enabled:boolean=true); overload;
-    procedure WritePic(RXid,ID,PosX,PosY,SizeX,SizeY:integer;Enabled:boolean=true); overload;
-    procedure WriteRect(PosX,PosY,Width,Height:integer; Col:TColor4);
-    procedure WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
-    function WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint; //Should return text width in px
-    procedure RenderMinimap(PosX,PosY,SizeX,SizeY,MapX,MapY:integer);
+    procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet);
+    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Caption:string; State:T3DButtonStateSet);
+    procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
+    procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true); overload;
+    procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true); overload;
+    procedure WriteRect         (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
+    procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
+    function  WriteText         (PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint; //Should return text width in px
+    procedure RenderMinimap     (PosX,PosY,SizeX,SizeY,MapX,MapY:smallint);
   end;
 
 var
@@ -32,7 +30,7 @@ MinimapList:=glGenLists(1);
 end;
 
 
-procedure TRenderUI.Write3DButton(RXid,ID,PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet);
 var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte;
 begin
 //402 is a stone background
@@ -86,8 +84,8 @@ end;
 
     if ID<>0 then begin
       glColor4f(1,1,1,1);
-      WritePic(RXid,ID,(SizeX-GFXData[4,ID].PxWidth) div 2,
-                       (SizeY-GFXData[4,ID].PxHeight) div 2);
+      WritePicture((SizeX-GFXData[4,ID].PxWidth) div 2,
+                   (SizeY-GFXData[4,ID].PxHeight) div 2,RXid,ID);
     end;
 
     glkMoveAALines(false);
@@ -111,7 +109,7 @@ end;
 end;
 
 
-procedure TRenderUI.WriteFlatButton(RXid,ID:integer; Caption:string; PosX,PosY,SizeX,SizeY:integer; State:T3DButtonStateSet);
+procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Caption:string; State:T3DButtonStateSet);
 begin
   glPushMatrix;
     glTranslate(PosX,PosY,0);
@@ -164,7 +162,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:integer);
+procedure TRenderUI.WritePercentBar(PosX,PosY,SizeX,SizeY,Pos:smallint);
 const BarColor:TColor4=$FF00AA26;
 var BarWidth:word;
 begin
@@ -218,7 +216,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePic(RXid,ID,PosX,PosY:integer;Enabled:boolean=true);
+procedure TRenderUI.WritePicture(PosX,PosY,RXid,ID:smallint;Enabled:boolean=true);
 begin
   if ID<>0 then with GFXData[RXid,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
@@ -239,7 +237,7 @@ end;
 
 
 {Stretched pic}
-procedure TRenderUI.WritePic(RXid,ID,PosX,PosY,SizeX,SizeY:integer;Enabled:boolean=true);
+procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true);
 begin
   if ID<>0 then with GFXData[RXid,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
@@ -259,39 +257,55 @@ begin
 end;
 
 
-procedure TRenderUI.WriteRect(PosX,PosY,Width,Height:integer; Col:TColor4);
+procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
 begin
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
-    glkRect(PosX,PosY,PosX+Width-1,PosY+Height-1);
+    glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
 end;
 
 
 {Renders plane with given color}
-procedure TRenderUI.WriteLayer(Col:cardinal; PosX,PosY,Width,Height:integer);
+procedure TRenderUI.WriteLayer(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
 begin
   glColor4ubv(@Col);
   glBegin(GL_QUADS);
-    glkRect(PosX,PosY,PosX+Width-1,PosY+Height-1);
+    glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
   glColor4f(1,1,1,1);
   glBegin(GL_LINE_LOOP);
-    glkRect(PosX,PosY,PosX+Width-1,PosY+Height-1);
+    glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
 end;
 
 
 {Renders a line of text and returns text width and height in px}
 {By default color must be non-transparent white}
-function TRenderUI.WriteText(PosX,PosY:integer; Align:KAlign; Text:string; Fnt:TKMFont; Color:TColor4):TKMPoint;
-var i,Num,InterLetter,LineCount,NegX:integer; LineWidth:array[1..16] of word; //Lets hope 16 will be enough. Num0 stores count
+function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint;
+var
+  i,Num:word;
+  InterLetter,LineCount,NegX,LastSpace:integer;
+  LineWidth:array[1..32] of word; //Lets hope 16 will be enough. Num0 stores count
 begin
   InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X:=0;
   Result.Y:=0;
-  LineCount:=0;
 
+  LineCount:=0;
+  if Wrap then  //Reposition EOLs
+    for i:=1 to length(Text) do begin
+      if Text[i]=#124 then Text[i]:=#32; //Replace EOLs with whitespaces
+
+      if Text[i]=#32 then LastSpace:=i;
+      inc(LineCount,FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter);
+      if LineCount>SizeX then begin
+        Text[LastSpace]:=#124;
+        LineCount:=0;
+      end;
+  end;
+
+  LineCount:=0;
   for i:=1 to length(Text) do begin
     if Text[i]<>#124 then begin
       Result.X:=Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
@@ -311,44 +325,43 @@ begin
   LineCount:=1;
 
   glPushMatrix;
-  glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
+    glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
     glkMoveAALines(false);
     if Align=kaLeft   then glTranslate(PosX,                  PosY, 0);
     if Align=kaCenter then glTranslate(PosX-(Result.X div 2), PosY, 0);
     if Align=kaRight  then glTranslate(PosX-Result.X,         PosY, 0);
     glColor4ubv(@Color);
-    for i:=1 to length(Text) do begin
+    glBegin(GL_QUADS);
+      for i:=1 to length(Text) do
       //Switch line if needed
       //Actually KaM uses #124 or vertical bar (|) for new lines in the LIB files,
       //so lets do the same here. Saves complex conversions...
       if Text[i]=#124 then begin
+        glEnd;
         inc(LineCount);
-        if Align=kaLeft   then glTranslate(-NegX, Result.Y, 0); //Negate previous line length
-        if Align=kaCenter then glTranslate(-NegX-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, Result.Y, 0);
-        if Align=kaRight  then glTranslate(-NegX-LineWidth[LineCount]+LineWidth[LineCount-1], Result.Y, 0);
+        if Align=kaLeft   then glTranslate(0, Result.Y, 0); //Negate previous line length
+        if Align=kaCenter then glTranslate(-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, Result.Y, 0);
+        if Align=kaRight  then glTranslate(-LineWidth[LineCount]+LineWidth[LineCount-1], Result.Y, 0);
         NegX:=0;
+        glBegin(GL_QUADS);
       end else begin
         Num:=ord(Text[i]);
-        glBegin(GL_QUADS);
           with FontData[byte(Fnt)].Letters[Num] do begin
-            glTexCoord2f(u1,v1); glVertex2f(0       ,0       );
-            glTexCoord2f(u2,v1); glVertex2f(0+Width ,0       );
-            glTexCoord2f(u2,v2); glVertex2f(0+Width ,0+Height);
-            glTexCoord2f(u1,v2); glVertex2f(0       ,0+Height);
+            glTexCoord2f(u1,v1); glVertex2f(NegX+0       ,0       );
+            glTexCoord2f(u2,v1); glVertex2f(NegX+0+Width ,0       );
+            glTexCoord2f(u2,v2); glVertex2f(NegX+0+Width ,0+Height);
+            glTexCoord2f(u1,v2); glVertex2f(NegX+0       ,0+Height);
           end;
-        glEnd;
-        //glCallList(coChar[ EnsureRange(Num-32,0,96) ]); //We could use this later on to increase FPS
-        glTranslate(FontData[byte(Fnt)].Letters[Num].Width+InterLetter,0,0);
         inc(NegX,FontData[byte(Fnt)].Letters[Num].Width+InterLetter);
       end;
-    end;
-  glBindTexture(GL_TEXTURE_2D,0);
+    glEnd;
+    glBindTexture(GL_TEXTURE_2D,0);
   glPopMatrix;
   Result.Y:=Result.Y*LineCount;
 end;
 
 
-procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY,MapX,MapY:integer);
+procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY,MapX,MapY:smallint);
 var i,k,ID:integer; Light:single; Loc:TKMPointList;
 begin
   glPushMatrix;
