@@ -8,6 +8,7 @@ TRenderUI = class
     constructor Create;
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet);
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Caption:string; State:T3DButtonStateSet);
+    procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; const HalfContrast:boolean=false);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
     procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true); overload;
@@ -159,6 +160,36 @@ begin
 
   glPopMatrix;
 
+end;
+
+
+procedure TRenderUI.WriteBevel(PosX,PosY,SizeX,SizeY:smallint; const HalfContrast:boolean=false);
+begin
+  glPushMatrix;
+    glTranslate(PosX,PosY,0);
+
+    //Background
+    glColor4f(0,0,0,0.5);
+    glBegin (GL_QUADS);
+      glkRect(0,0,SizeX-1,SizeY-1);
+    glEnd;
+
+    //Thin outline rendered on top of background to avoid inset calculations
+    glBlendFunc(GL_DST_COLOR,GL_ONE);
+    glColor4f(1-byte(HalfContrast)/2,1-byte(HalfContrast)/2,1-byte(HalfContrast)/2,1);
+    glBegin (GL_LINE_STRIP);
+      glvertex2f(SizeX-1,0);
+      glvertex2f(SizeX-1,SizeY-1);
+      glvertex2f(0,SizeY-1);
+    glEnd;
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0,0,0,0.75-byte(HalfContrast)/2);
+    glBegin (GL_LINE_STRIP);
+      glvertex2f(0,SizeY-1);
+      glvertex2f(0,0);
+      glvertex2f(SizeX-1,0);
+    glEnd;
+  glPopMatrix;
 end;
 
 

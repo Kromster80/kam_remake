@@ -76,8 +76,18 @@ TKMImage = class(TKMControl)
 end;
 
 
-{Panel which should have child items on it}
+{Panel which should have child items on it, is virtual thing and is not visible}
 TKMPanel = class(TKMControl)
+  private
+  public
+  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure Paint(); override;
+end;
+
+
+{Panel which is visible}
+TKMBevel = class(TKMControl)
   private
   public
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
@@ -173,11 +183,29 @@ end;
 TKMRatioRow = class(TKMControl)
   public
     Position:byte;
-    MaxValue:byte;
     MinValue:byte;
+    MaxValue:byte;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
+    procedure Paint(); override;
+end;
+
+
+{Ratio bar}
+TKMScrollBar = class(TKMControl)
+  public
+    Position:byte;
+    MinValue:byte;
+    MaxValue:byte;
+    ScrollVertical:boolean;
+    Thumb:word;
+    ScrollUp:TKMButton;
+    ScrollDown:TKMButton;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
+    procedure RefreshItems();
     procedure Paint(); override;
 end;
 
@@ -203,6 +231,7 @@ TKMControlsCollection = class(TKMList)
     function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
+    function AddBevel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
@@ -211,6 +240,7 @@ TKMControlsCollection = class(TKMList)
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
     function AddCostsRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
+    function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
@@ -310,6 +340,20 @@ begin
 end;
 
 
+{ TKMBevel }
+constructor TKMBevel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+end;
+
+
+procedure TKMBevel.Paint();
+begin
+  fRenderUI.WriteBevel(Left,Top,Width,Height);
+end;
+
+
 { TKMButton }
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
 begin
@@ -389,6 +433,39 @@ begin
 end;
 
 
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  Font:=aFont;
+  FontColor:=aColor;
+  TextAlign:=aTextAlign;
+  AutoWrap:=false;
+  Caption:=aCaption;
+end;
+
+
+{Send caption to render and recieve in result how much space did it took on screen}
+procedure TKMLabel.Paint();
+var Tmp:TKMPoint;
+begin
+  if MakeDrawPagesOverlay then
+  case TextAlign of
+    kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
+    kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
+    kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
+  end;
+  if Enabled then
+    Tmp:=fRenderUI.WriteText(Left,Top, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
+  else
+    Tmp:=fRenderUI.WriteText(Left,Top, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
+
+  if not AutoWrap then
+    Width:=Tmp.X;
+  Height:=Tmp.Y;
+end;
+
+
 {Make sure image area is at least enough to fit an image, or bigger}
 {if Width/Height are 0 then image gets centered around Left/Top}
 {if Width/Height are smaller than actual image then adjust them to fit image}
@@ -454,7 +531,7 @@ end;
 procedure TKMResourceRow.Paint();
 var i:integer;
 begin
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,4,0,'',[]);
+  fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
@@ -468,9 +545,6 @@ begin
   ParentTo(aParent);
   Resource:=aRes;
   ResourceCount:=aCount;
-  //OrderRem:=MyControls.AddButton(aParent,aLeft,aTop+2,20,aHeight,fTextLibrary.GetTextString(183),fnt_Metal);
-  //OrderLab:=MyControls.AddLabel(aParent,aLeft+33,aTop+4,0,0,fnt_Grey,kaCenter,'');
-  //OrderAdd:=MyControls.AddButton(aParent,aLeft+46,aTop+2,20,aHeight,fTextLibrary.GetTextString(182),fnt_Metal);
   OrderCount:=0;
 end;
 
@@ -489,7 +563,7 @@ begin
 
   OrderLab.Caption:=inttostr(OrderCount);
 
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,4,0,'',[]);
+  fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
@@ -555,13 +629,76 @@ begin
   if MakeDrawPagesOverlay then
     fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
 
-  fRenderUI.WriteFlatButton(Left+2,Top+2,Width-4,Height-4,4,0,'',[]);
+  fRenderUI.WriteBevel(Left+2,Top+2,Width-4,Height-4);
   Pos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
   fRenderUI.WritePicture(Left+Pos+2, Top, 4,132);
   if Enabled then
     fRenderUI.WriteText(Left+12+2+Pos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FFFFFFFF)
   else
     fRenderUI.WriteText(Left+12+2+Pos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FF888888);
+end;
+
+
+{ TKMScrollBar }
+constructor TKMScrollBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  ScrollVertical:=true;
+  Position:=5;
+  MaxValue:=10;
+  MinValue:=1;
+  Thumb:=10;
+end;
+
+
+procedure TKMScrollBar.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+var NewPos: integer;
+begin
+  Inherited CheckCursorOver(X,Y,AShift);
+  NewPos := Position;
+  if (CursorOver) and (ssLeft in AShift) then
+    NewPos:=EnsureRange(round(MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue)),MinValue,MaxValue);
+  if NewPos <> Position then
+  begin
+    Position := NewPos;
+    if Assigned(OnChange) then
+      OnChange(Self);
+  end
+  else Position := NewPos;
+end;
+
+
+{Refresh button sizes and etc.}
+procedure TKMScrollBar.RefreshItems();
+begin
+  if ScrollVertical then begin
+    ScrollUp.Top:=Top;
+    ScrollDown.Top:=Top+Height-Width;
+    ScrollUp.Height:=Width;
+    ScrollDown.Height:=Width;
+    ScrollUp.Width:=Width;
+    ScrollDown.Width:=Width;
+    Thumb:=(Height-2*Width) div 4;
+  end;
+end;
+
+
+procedure TKMScrollBar.Paint();
+var Pos:word;
+begin
+  if MakeDrawPagesOverlay then
+    fRenderUI.WriteLayer(Left, Top, Width, Height, $40FFFF00);
+
+  //Otherwise they won't be rendered
+  ScrollUp.Visible:=Visible;
+  ScrollDown.Visible:=Visible;
+
+  fRenderUI.WriteBevel(Left,Top+Width,Width,Height-Width);
+
+  Pos:=round(Position*(Height-Width*2-Thumb)/(MaxValue-MinValue));
+
+  fRenderUI.Write3DButton(Left,Top+Pos,Width,Thumb,0,0,[]);
 end;
 
 
@@ -586,45 +723,12 @@ end;
 
 procedure TKMMinimap.Paint();
 begin
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,4,0,'',[]);
+  fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.RenderMinimap(Left,Top,Width,Height,MapSize.X,MapSize.Y);
   fRenderUI.WriteRect(Left + (Width-MapSize.X) div 2 + ViewArea.Left,
                       Top  + (Height-MapSize.Y) div 2 + ViewArea.Top,
                       ViewArea.Right-ViewArea.Left,
                       ViewArea.Bottom-ViewArea.Top, $FFFFFFFF);
-end;
-
-
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
-begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
-  Font:=aFont;
-  FontColor:=aColor;
-  TextAlign:=aTextAlign;
-  AutoWrap:=false;
-  Caption:=aCaption;
-end;
-
-
-{Send caption to render and recieve in result how much space did it took on screen}
-procedure TKMLabel.Paint();
-var Tmp:TKMPoint;
-begin
-  if MakeDrawPagesOverlay then
-  case TextAlign of
-    kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
-    kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
-    kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
-  end;
-  if Enabled then
-    Tmp:=fRenderUI.WriteText(Left,Top, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
-  else
-    Tmp:=fRenderUI.WriteText(Left,Top, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
-
-  if not AutoWrap then
-    Width:=Tmp.X;
-  Height:=Tmp.Y;
 end;
 
 
@@ -639,9 +743,28 @@ begin
   Inherited Add(Sender);
 end;
 
+function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string;
+        aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4 = $FFFFFFFF):TKMLabel;
+begin
+  Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
+begin
+  Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
+  AddToCollection(Result);
+end;
+
 function TKMControlsCollection.AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
 begin
   Result:=TKMPanel.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddBevel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
+begin
+  Result:=TKMBevel.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
 end;
 
@@ -660,13 +783,6 @@ end;
 function TKMControlsCollection.AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
 begin
   Result:=TKMButtonFlat.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
-  AddToCollection(Result);
-end;
-
-function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string;
-        aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4 = $FFFFFFFF):TKMLabel;
-begin
-  Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
   AddToCollection(Result);
 end;
 
@@ -704,15 +820,19 @@ begin
   AddToCollection(Result);
 end;
 
+function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMScrollBar;
+begin
+  Result:=TKMScrollBar.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  AddToCollection(Result);
+  //These three will be added to collection themselfes
+  Result.ScrollUp :=AddButton(aParent,aLeft,aTop,20,aHeight,4);
+  Result.ScrollDown :=AddButton(aParent,aLeft,aTop,20,aHeight,5);
+  Result.RefreshItems();
+end;
+
 function TKMControlsCollection.AddMinimap(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
 begin
   Result:=TKMMinimap.Create(aParent, aLeft,aTop,aWidth,aHeight);
-  AddToCollection(Result);
-end;
-
-function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
-begin
-  Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
   AddToCollection(Result);
 end;
 
