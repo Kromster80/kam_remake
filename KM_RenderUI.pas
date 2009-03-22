@@ -284,26 +284,32 @@ end;
 {By default color must be non-transparent white}
 function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint;
 var
-  i,Num:word;
-  InterLetter,LineCount,NegX,LastSpace:integer;
-  LineWidth:array[1..32] of word; //Lets hope 16 will be enough. Num0 stores count
+  i:integer;
+  InterLetter,LineCount,AdvX,PrevX,LastSpace:integer;
+  LineWidth:array[1..64] of word; //Lets hope 64 will be enough
 begin
   InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X:=0;
   Result.Y:=0;
 
-  LineCount:=0;
+  AdvX:=0; PrevX:=0; //Used as line width
   if Wrap then  //Reposition EOLs
     for i:=1 to length(Text) do begin
-      if Text[i]=#124 then Text[i]:=#32; //Replace EOLs with whitespaces
+      if Text[i]=#124 then Text[i]:=#32; //Replace old EOLs with whitespaces
 
-      if Text[i]=#32 then LastSpace:=i;
-      inc(LineCount,FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter);
-      if LineCount>SizeX then begin
-        Text[LastSpace]:=#124;
-        LineCount:=0;
+      if Text[i]=#32 then begin
+        LastSpace:=i;
+        PrevX:=AdvX;
       end;
-  end;
+
+      inc(AdvX,FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter);
+
+      //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
+      if AdvX>SizeX then begin 
+        Text[LastSpace]:=#124; //Place EOL instead of last whitespace
+        AdvX:=AdvX-PrevX; //Should subtract replaced whitespace
+      end;
+    end;
 
   LineCount:=0;
   for i:=1 to length(Text) do begin
@@ -321,7 +327,7 @@ begin
   for i:=1 to LineCount do
     Result.X:=max(Result.X,LineWidth[i]);
 
-  NegX:=0;
+  AdvX:=0;
   LineCount:=1;
 
   glPushMatrix;
@@ -342,17 +348,16 @@ begin
         if Align=kaLeft   then glTranslate(0, Result.Y, 0); //Negate previous line length
         if Align=kaCenter then glTranslate(-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, Result.Y, 0);
         if Align=kaRight  then glTranslate(-LineWidth[LineCount]+LineWidth[LineCount-1], Result.Y, 0);
-        NegX:=0;
+        AdvX:=0;
         glBegin(GL_QUADS);
       end else begin
-        Num:=ord(Text[i]);
-          with FontData[byte(Fnt)].Letters[Num] do begin
-            glTexCoord2f(u1,v1); glVertex2f(NegX+0       ,0       );
-            glTexCoord2f(u2,v1); glVertex2f(NegX+0+Width ,0       );
-            glTexCoord2f(u2,v2); glVertex2f(NegX+0+Width ,0+Height);
-            glTexCoord2f(u1,v2); glVertex2f(NegX+0       ,0+Height);
-          end;
-        inc(NegX,FontData[byte(Fnt)].Letters[Num].Width+InterLetter);
+        with FontData[byte(Fnt)].Letters[ord(Text[i])] do begin
+          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       );
+          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       );
+          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height);
+          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height);
+        end;
+        inc(AdvX,FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter);
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);

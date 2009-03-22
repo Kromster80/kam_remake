@@ -93,6 +93,7 @@ const //Font01.fnt seems to be damaged..
   FontFiles: array[1..20]of string = (
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
+  
 //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
   FontCharSpacing: array[TKMFont] of shortint = (0,0,0,0,1,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
 

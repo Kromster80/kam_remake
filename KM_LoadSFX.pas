@@ -39,6 +39,7 @@ type
       Vel: array [1..3] of TALfloat; //Velocity, used in doppler effect calculation
       Ori: array [1..6] of TALfloat; //Orientation LookingAt and UpVector
     end;
+    IsOpenALInitialized:boolean;
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
     SoundGain,MusicGain:single;
@@ -63,7 +64,9 @@ var
   Device: PALCdevice;
 begin
   Inherited;
-  InitOpenAL;
+  IsOpenALInitialized:=InitOpenAL;
+
+  if not IsOpenALInitialized then exit;
 
   //Open device
   Device := alcOpenDevice(nil); // this is supposed to select the "preferred device"
@@ -123,6 +126,7 @@ end;
 procedure TSoundLib.ExportSounds();
 var f:file; i:integer;
 begin
+  if not IsOpenALInitialized then exit;
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\Sounds.dat\');
   for i:=1 to MaxWaves do if length(Waves[i].Data)>0 then begin
@@ -138,6 +142,7 @@ end;
 {Update listener position in 3D space}
 procedure TSoundLib.UpdateListener(Pos:TKMPoint);
 begin
+  if not IsOpenALInitialized then exit;
   Listener.Pos[1]:=Pos.X;
   Listener.Pos[2]:=Pos.Y;
   Listener.Pos[3]:=0;
@@ -148,6 +153,7 @@ end;
 {Update sound gain (global volume for all sounds/music)}
 procedure TSoundLib.UpdateSFXVolume(Value:single);
 begin
+  if not IsOpenALInitialized then exit;
   SoundGain:=Value;
 //  alListenerf ( AL_GAIN, SoundGain );
 end;
@@ -156,6 +162,7 @@ end;
 {Update music gain (global volume for all sounds/music)}
 procedure TSoundLib.UpdateMusicVolume(Value:single);
 begin
+  if not IsOpenALInitialized then exit;
   MusicGain:=Value;
 //  alListenerf ( AL_GAIN, MusicGain );
 end;
@@ -167,6 +174,7 @@ end;
 procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
 var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
 begin
+  if not IsOpenALInitialized then exit;
   //Find free buffer and use it
   FreeBuf:=1;
   for i:=1 to MaxSourceCount do begin
