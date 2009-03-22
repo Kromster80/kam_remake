@@ -98,6 +98,7 @@ var
   i,Tmp:integer;
   c: array[1..20] of char;
 begin
+  if not IsOpenALInitialized then exit;
   if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then exit;
   AssignFile(f, ExeDir+'data\sfx\sounds.dat'); Reset(f,1);
 
