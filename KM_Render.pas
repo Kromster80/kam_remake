@@ -138,7 +138,7 @@ begin
     glLineWidth(1);
     glPointSize(1);
     glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
-    fGameplayInterface.MyControls.Paint;
+    fGameplayInterface.Paint;
 
     glLoadIdentity();
     RenderBrightness(fGameSettings.GetBrightness);

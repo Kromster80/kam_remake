@@ -379,21 +379,25 @@ begin
   FindClose(SearchRec);
 
   for i:=1 to MapCount do with Maps[i] do begin
-    assignfile(ft,ExeDir+'\Maps\'+Maps[MapCount].Folder+'\Mission.txt');
+    assignfile(ft,ExeDir+'\Maps\'+Maps[i].Folder+'\Mission.txt');
     reset(ft);
 
     repeat
     readln(ft,s);
 
+    //@Lewin: Most of these options could be read from mission.dat file. Can you make them into LoadDAT ?
+    //Some kind of quick parser. e.g. function GetPlayerCount('\Maps\'+Maps[i].Folder+'\mission.dat):byte;
+    //Also for now we can use map folders (txt+map+dat files), but later we need to ajoin them somehow?
+
     if UpperCase(s)=UpperCase('IsFight') then begin
       readln(ft,s);
-      Assert((UpperCase(s)='TRUE')or(UpperCase(s)='FALSE'),'\Maps\'+Maps[MapCount].Folder+'\Mission.txt'+eol+'Wrong IsFight value');
+      Assert((UpperCase(s)='TRUE')or(UpperCase(s)='FALSE'),'\Maps\'+Maps[i].Folder+'\Mission.txt'+eol+'Wrong IsFight value');
       IsFight := UpperCase(s)='TRUE';
     end;
 
     if UpperCase(s)=UpperCase('PlayerCount') then begin
       readln(ft,PlayerCount);
-      Assert(InRange(PlayerCount,1,Max_Players),'\Maps\'+Maps[MapCount].Folder+'\Mission.txt'+eol+'Wrong PlayerCount value')
+      Assert(InRange(PlayerCount,1,Max_Players),'\Maps\'+Maps[i].Folder+'\Mission.txt'+eol+'Wrong PlayerCount value')
     end;
 
     if UpperCase(s)=UpperCase('Title') then
@@ -407,7 +411,7 @@ begin
 
     if UpperCase(s)=UpperCase('MapSize') then begin
       readln(ft,MapSize);
-      Assert(InRange(length(MapSize),1,3),'\Maps\'+Maps[MapCount].Folder+'\Mission.txt'+eol+'Wrong MapSize value')
+      Assert(InRange(length(MapSize),1,3),'\Maps\'+Maps[i].Folder+'\Mission.txt'+eol+'Wrong MapSize value')
     end;
 
     until(eof(ft));
@@ -417,6 +421,7 @@ begin
 end;
 
 
+{ Get map properties}
 function TKMMapInfo.IsFight(ID:integer):boolean;        begin Result:=Maps[ID].IsFight;         end;
 function TKMMapInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].PlayerCount;     end;
 function TKMMapInfo.GetTitle(ID:integer):string;        begin Result:=Maps[ID].Title;           end;

@@ -70,6 +70,7 @@ const
 {Controls}
 type
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
+  TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
 {Palettes}
 const

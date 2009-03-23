@@ -7,7 +7,9 @@ type TKMMainMenuInterface = class
   private
     ScreenX,ScreenY:word;
     OffX,OffY:integer;
-    TopSingleMap,ItemIndexSingleMap:integer;
+    SingleMap_Top:integer; //Top map in list
+    SingleMap_Selected:integer; //Selected map
+    SingleMap_Count:integer; //Number of maps in list
   protected
     KMPanel_Main1:TKMPanel;
       L:array[1..20]of TKMLabel;
@@ -17,6 +19,7 @@ type TKMMainMenuInterface = class
       KMButton_MainMenuSingle,KMButton_MainMenuCredit,KMButton_MainMenuQuit:TKMButton;
       KMLabel_Version:TKMLabel;
     KMPanel_Single:TKMPanel;
+      KMPanel_SingleList,KMPanel_SingleDesc:TKMPanel;
       KMImage_SingleBG:TKMImage; //Single background
       KMButton_SingleHeadMode,KMButton_SingleHeadTeams,KMButton_SingleHeadTitle,KMButton_SingleHeadSize:TKMButton;
       KMBevel_SingleBG:array[1..20,1..5]of TKMBevel;
@@ -39,9 +42,9 @@ type TKMMainMenuInterface = class
       KMButton_ResultsBack:TKMButton;
   private
     procedure SwitchMenuPage(Sender: TObject);
-    procedure RefreshSingleMapPage();
-    procedure SingleScrollUpClick(Sender: TObject);
-    procedure Play_Tutorial(Sender: TObject);
+    procedure SingleMap_RefreshList();
+    procedure SingleMap_Start(Sender: TObject);
+    procedure MainMenu_PlayTutorial(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create(X,Y:word);
@@ -191,6 +194,7 @@ type TKMGamePlayInterface = class
     procedure SelectRoad;
     procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
     procedure EnableOrDisableMenuIcons;
+    procedure Paint;
   end;
 
 var
@@ -211,8 +215,9 @@ inherited Create;
   ScreenY:=min(Y,768);
   OffX := (X-1024) div 2;
   OffY := (Y-768) div 2;
-  TopSingleMap:=1;
-  ItemIndexSingleMap:=1;
+  SingleMap_Top:=1;
+  SingleMap_Selected:=1;
+  SingleMap_Count:=12;
 
   KMPanel_Main1:=MyControls.AddPanel(nil,OffX,OffY,ScreenX,ScreenY);
 
@@ -276,7 +281,7 @@ begin
     KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,640,220,207,295,6,5);
     KMImage_MainMenu3.StretchImage:=true;
     KMButton_MainMenuTutor :=MyControls.AddButton(KMPanel_MainMenu,100,400,350,30,fTextLibrary.GetSetupString(3),fnt_Metal);
-    KMButton_MainMenuTutor.OnClick:=Play_Tutorial;
+    KMButton_MainMenuTutor.OnClick:=MainMenu_PlayTutorial;
     KMButton_MainMenuTSK   :=MyControls.AddButton(KMPanel_MainMenu,100,440,350,30,fTextLibrary.GetSetupString(1),fnt_Metal);
     KMButton_MainMenuTSK.Disable;
     KMButton_MainMenuTPR   :=MyControls.AddButton(KMPanel_MainMenu,100,480,350,30,fTextLibrary.GetSetupString(2),fnt_Metal);
@@ -295,40 +300,57 @@ procedure TKMMainMenuInterface.Create_Single_Page;
 var i:integer;
 begin
   KMPanel_Single:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
+
     KMImage_SingleBG:=MyControls.AddImage(KMPanel_Single,0,0,ScreenX,ScreenY,2,5);
     KMImage_SingleBG.StretchImage:=true;
-    KMButton_SingleHeadMode:=MyControls.AddButton(KMPanel_Single,50,140,48,40,42);
-    KMButton_SingleHeadTeams:=MyControls.AddButton(KMPanel_Single,98,140,48,40,31);
-    KMButton_SingleHeadTitle:=MyControls.AddButton(KMPanel_Single,146,140,320,40,'Title',fnt_Metal);
-    KMButton_SingleHeadSize:=MyControls.AddButton(KMPanel_Single,466,140,48,40,'Size',fnt_Metal);
-    for i:=1 to 12 do begin
-      KMBevel_SingleBG[i,1]:=MyControls.AddBevel(KMPanel_Single,50,180+(i-1)*40,48,40);
-      KMBevel_SingleBG[i,2]:=MyControls.AddBevel(KMPanel_Single,98,180+(i-1)*40,48,40);
-      KMBevel_SingleBG[i,3]:=MyControls.AddBevel(KMPanel_Single,146,180+(i-1)*40,320,40);
-      KMBevel_SingleBG[i,4]:=MyControls.AddBevel(KMPanel_Single,466,180+(i-1)*40,48,40);
 
-      KMButton_SingleMode[i]:=MyControls.AddImage(KMPanel_Single,50,180+(i-1)*40,48,40,28+random(2)*14);
-      KMButton_SinglePlayers[i]:=MyControls.AddLabel(KMPanel_Single,98+24,180+(i-1)*40+14,48,40,'0',fnt_Outline, kaCenter);
-      KMLabel_SingleTitle1[i]:=MyControls.AddLabel(KMPanel_Single,152,185+(i-1)*40,48,40,fTextLibrary.GetSetupString(random(29)),fnt_Metal, kaLeft);
-      KMLabel_SingleTitle2[i]:=MyControls.AddLabel(KMPanel_Single,152,202+(i-1)*40,48,40,fTextLibrary.GetSetupString(random(29)),fnt_Game, kaLeft);
-      KMButton_SingleSize[i]:=MyControls.AddLabel(KMPanel_Single,466+24,180+(i-1)*40+14,48,40,'0',fnt_Outline, kaCenter);
-    end;
+    KMPanel_SingleList:=MyControls.AddPanel(KMPanel_Single,45,150,445,600);
 
-    KMScrollBar_SingleMaps:=MyControls.AddScrollBar(KMPanel_Single,514,180,30,480);
-    KMScrollBar_SingleMaps.ScrollUp.OnClick:=SingleScrollUpClick;
-    KMScrollBar_SingleMaps.ScrollDown.OnClick:=SingleScrollUpClick;
+      KMButton_SingleHeadMode :=MyControls.AddButton(KMPanel_SingleList,  0,0, 40,40,42);
+      KMButton_SingleHeadTeams:=MyControls.AddButton(KMPanel_SingleList, 40,0, 40,40,31);
+      KMButton_SingleHeadTitle:=MyControls.AddButton(KMPanel_SingleList, 80,0,300,40,'Title',fnt_Metal);
+      KMButton_SingleHeadSize :=MyControls.AddButton(KMPanel_SingleList,380,0, 40,40,'Size',fnt_Metal);
+      MyControls.AddButton(KMPanel_SingleList,420,0, 25,40,'',fnt_Game);
+      for i:=1 to 12 do begin
+        KMBevel_SingleBG[i,1]:=MyControls.AddBevel(KMPanel_SingleList,0,  40+(i-1)*40,40,40);
+        KMBevel_SingleBG[i,2]:=MyControls.AddBevel(KMPanel_SingleList,40, 40+(i-1)*40,40,40);
+        KMBevel_SingleBG[i,3]:=MyControls.AddBevel(KMPanel_SingleList,80, 40+(i-1)*40,300,40);
+        KMBevel_SingleBG[i,4]:=MyControls.AddBevel(KMPanel_SingleList,380,40+(i-1)*40,40,40);
 
-    KMImage_SingleScroll1:=MyControls.AddImage(KMPanel_Single,550,140,400,200,15,5);
-    KMImage_SingleScroll1.StretchImage:=true;
-    KMImage_SingleScroll1.Height:=200; //Need to reset it after stretching is enabled, cos it can't stretch down by default
-    KMLabel_SingleDesc:=MyControls.AddLabel(KMPanel_Single,565,174,360,180,fTextLibrary.GetSetupString(350),fnt_Metal, kaLeft);
-    KMLabel_SingleDesc.AutoWrap:=true;
+        KMButton_SingleMode[i]   :=MyControls.AddImage(KMPanel_SingleList,  0   ,40+(i-1)*40,40,40,28+random(2)*14);
+        KMButton_SinglePlayers[i]:=MyControls.AddLabel(KMPanel_SingleList, 40+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
+        KMLabel_SingleTitle1[i]  :=MyControls.AddLabel(KMPanel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,fTextLibrary.GetSetupString(random(29)),fnt_Metal, kaLeft);
+        KMLabel_SingleTitle2[i]  :=MyControls.AddLabel(KMPanel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,fTextLibrary.GetSetupString(random(29)),fnt_Game, kaLeft);
+        KMButton_SingleSize[i]   :=MyControls.AddLabel(KMPanel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
+      end;
 
+      KMScrollBar_SingleMaps:=MyControls.AddScrollBar(KMPanel_SingleList,420,40,25,480);
 
-    KMButton_SingleBack:=MyControls.AddButton(KMPanel_Single,550,630,200,30,fTextLibrary.GetSetupString(9),fnt_Metal);
-    KMButton_SingleBack.OnClick:=SwitchMenuPage;
-    KMButton_SingleStart:=MyControls.AddButton(KMPanel_Single,750,630,200,30,fTextLibrary.GetSetupString(9),fnt_Metal);
-    KMButton_SingleStart.Disable;
+    KMPanel_SingleDesc:=MyControls.AddPanel(KMPanel_Single,512+22,150,445,600);
+
+      KMImage_SingleScroll1:=MyControls.AddImage(KMPanel_SingleDesc,0,0,445,200,15,5);
+      KMImage_SingleScroll1.StretchImage:=true;
+      KMImage_SingleScroll1.Height:=200; //Need to reset it after stretching is enabled, cos it can't stretch down by default
+      KMLabel_SingleDesc:=MyControls.AddLabel(KMPanel_SingleDesc,15,25,420,180,fTextLibrary.GetSetupString(350),fnt_Metal, kaLeft);
+      KMLabel_SingleDesc.AutoWrap:=true;
+
+      MyControls.AddBevel(KMPanel_SingleDesc,0,300,445,20);
+      MyControls.AddLabel(KMPanel_SingleDesc,8,304,445,20,'Win condition: ',fnt_Metal, kaLeft);
+      MyControls.AddBevel(KMPanel_SingleDesc,0,322,445,20);
+      MyControls.AddLabel(KMPanel_SingleDesc,8,326,445,20,'Defeat condition: ',fnt_Metal, kaLeft);
+
+      MyControls.AddButtonFlat(KMPanel_SingleDesc,0,390,60,80,0);
+      MyControls.AddButtonFlat(KMPanel_SingleDesc,60,390,60,80,0);
+      MyControls.AddButtonFlat(KMPanel_SingleDesc,120,390,60,80,0);
+      MyControls.AddButtonFlat(KMPanel_SingleDesc,180,390,60,80,0);
+      MyControls.AddButtonFlat(KMPanel_SingleDesc,240,390,205,80,0);
+      MyControls.AddLabel(KMPanel_SingleDesc,340,402,40,40,'Difficulty:',fnt_Metal, kaCenter);
+      MyControls.AddLabel(KMPanel_SingleDesc,340,422,40,40,'Medium',fnt_Game, kaCenter);
+
+      KMButton_SingleBack:=MyControls.AddButton(KMPanel_SingleDesc,0,480,220,30,fTextLibrary.GetSetupString(9),fnt_Metal);
+      KMButton_SingleBack.OnClick:=SwitchMenuPage;
+      KMButton_SingleStart:=MyControls.AddButton(KMPanel_SingleDesc,225,480,220,30,fTextLibrary.GetSetupString(8),fnt_Metal);
+      KMButton_SingleStart.OnClick:=SingleMap_Start;
 end;
 
 
@@ -378,7 +400,7 @@ begin
     KMPanel_Credits.Show;
 
   if Sender=KMButton_MainMenuSingle then begin
-    RefreshSingleMapPage();
+    SingleMap_RefreshList();
     KMPanel_Single.Show;
   end;
 
@@ -390,20 +412,20 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.RefreshSingleMapPage();
+procedure TKMMainMenuInterface.SingleMap_RefreshList();
 var i:integer; MapInfo:TKMMapInfo;
 begin
   MapInfo:=TKMMapInfo.Create;
   MapInfo.ScanSingleMapsFolder('');
 
-  for i:=TopSingleMap to TopSingleMap+min(MapInfo.GetMapCount,12) do begin //Fill with existing maps
+  for i:=SingleMap_Top to SingleMap_Top + min(MapInfo.GetMapCount,SingleMap_Count) - 1 do begin //Fill with existing maps
     KMButton_SingleMode[i].TexID:=28+byte(not MapInfo.IsFight(i))*14;
     KMButton_SinglePlayers[i].Caption:=inttostr(MapInfo.GetPlayerCount(i));
     KMLabel_SingleTitle1[i].Caption:=MapInfo.GetTitle(i);
     KMLabel_SingleTitle2[i].Caption:=MapInfo.GetSmallDesc(i);
     KMButton_SingleSize[i].Caption:=MapInfo.GetMapSize(i);
   end;
-  for i:=TopSingleMap+min(MapInfo.GetMapCount,12) to TopSingleMap+11 do begin //Fill the rest if there's place left
+  for i:=SingleMap_Top + min(MapInfo.GetMapCount,SingleMap_Count) to SingleMap_Top + SingleMap_Count - 1 do begin //Fill the rest if there's place left
     KMButton_SingleMode[i].TexID:=0;
     KMButton_SinglePlayers[i].Caption:='';
     KMLabel_SingleTitle1[i].Caption:='';
@@ -411,26 +433,25 @@ begin
     KMButton_SingleSize[i].Caption:='';
   end;
 
-  KMLabel_SingleDesc.Caption:=MapInfo.GetBigDesc(ItemIndexSingleMap);
+  KMLabel_SingleDesc.Caption:=MapInfo.GetBigDesc(SingleMap_Selected);
 
   FreeAndNil(MapInfo);
 end;
 
 
-procedure TKMMainMenuInterface.SingleScrollUpClick(Sender: TObject);
+procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
-//
+  Assert(Sender=KMButton_SingleStart);
+  fGame.StartGame(''); //Provide mission filename here
 end;
 
-
-procedure TKMMainMenuInterface.Play_Tutorial(Sender: TObject);
+procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
   Assert(Sender=KMButton_MainMenuTutor);
-  fGame.StartGame('');
+  fGame.StartGame(''); //Provide mission filename here
 end;
 
 
-{Reposition our 1024x768 interface to center of the render area}
 procedure TKMMainMenuInterface.Paint;
 begin
   MyControls.Paint;
@@ -1482,5 +1503,12 @@ begin
     KMButtonMain[3].Enabled := true;
   end;
 end;
+
+
+procedure TKMGamePlayInterface.Paint;
+begin
+  MyControls.Paint;
+end;
+
 
 end.

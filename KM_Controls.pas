@@ -202,6 +202,8 @@ TKMScrollBar = class(TKMControl)
     Thumb:word;
     ScrollUp:TKMButton;
     ScrollDown:TKMButton;
+    procedure IncPosition(Sender:TObject);
+    procedure DecPosition(Sender:TObject);
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
@@ -406,30 +408,25 @@ begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   RXid:=aRXid;
   TexID:=aTexID;
+  TexOffsetX:=0;
+  Caption:='';
+  Font:=fnt_Grey;
+  TextAlign:=kaLeft;
+  HideHighlight:=false;
   ParentTo(aParent);
 end;
 
+
 {Render}
 procedure TKMButtonFlat.Paint();
-var State:T3DButtonStateSet; TexOffsetY:shortint;
+var State:TFlatButtonStateSet;
 begin
   State:=[];
-  if CursorOver and Enabled and not HideHighlight then State:=State+[bs_Highlight];
-  if Down and not HideHighlight then State:=State+[bs_Down];
-  //if not Enabled then State:=State+[bs_Disabled];
-    fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,Caption,State);
+  if CursorOver and Enabled and not HideHighlight then State:=State+[fbs_Highlight];
+  if Down and not HideHighlight then State:=State+[fbs_Selected];
+  //if not Enabled then State:=State+[fbs_Disabled];
 
-  if TexID<>0 then begin
-    TexOffsetY:=-7*byte(Caption<>'');
-    fRenderUI.WritePicture(Left + (Width-GFXData[RXid,TexID].PxWidth) div 2 + TexOffsetX,
-                              Top + (Height-GFXData[RXid,TexID].PxHeight) div 2 + TexOffsetY,RXid,TexID, true);
-  end;
-
-  if Enabled then
-    fRenderUI.WriteText(Left + Width div 2, Top + (Height div 2)+4, Width, Caption, fnt_Game, kaCenter, false, $FFFFFFFF)
-  else
-    fRenderUI.WriteText(Left + Width div 2, Top + (Height div 2)+4, Width, Caption, fnt_Game, kaCenter, false, $FF888888);
-
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,Caption,State);
 end;
 
 
@@ -656,16 +653,24 @@ procedure TKMScrollBar.CheckCursorOver(X,Y:integer; AShift:TShiftState);
 var NewPos: integer;
 begin
   Inherited CheckCursorOver(X,Y,AShift);
-  NewPos := Position;
-  if (CursorOver) and (ssLeft in AShift) then
-    NewPos:=EnsureRange(round(MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue)),MinValue,MaxValue);
-  if NewPos <> Position then
-  begin
-    Position := NewPos;
-    if Assigned(OnChange) then
-      OnChange(Self);
-  end
-  else Position := NewPos;
+
+  if InRange(Y,Top+Width,Top+Height-Width) then begin
+
+    NewPos := Position;
+    if (CursorOver) and (ssLeft in AShift) then
+      NewPos:=EnsureRange(round(
+
+      MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue)
+
+      ),MinValue,MaxValue);
+
+    if NewPos <> Position then begin
+      Position := NewPos;
+      if Assigned(OnChange) then
+        OnChange(Self);
+    end;
+
+  end;
 end;
 
 
@@ -684,6 +689,18 @@ begin
 end;
 
 
+procedure TKMScrollBar.IncPosition(Sender:TObject);
+begin
+  Position:=EnsureRange(Position+1,MinValue,MaxValue);
+end;
+
+
+procedure TKMScrollBar.DecPosition(Sender:TObject);
+begin
+  Position:=EnsureRange(Position-1,MinValue,MaxValue);
+end;
+
+
 procedure TKMScrollBar.Paint();
 var Pos:word;
 begin
@@ -696,9 +713,9 @@ begin
 
   fRenderUI.WriteBevel(Left,Top+Width,Width,Height-Width);
 
-  Pos:=round(Position*(Height-Width*2-Thumb)/(MaxValue-MinValue));
+  Pos:=round((Position-MinValue)*(Height-Width*2-Thumb)/(MaxValue-MinValue));
 
-  fRenderUI.Write3DButton(Left,Top+Pos,Width,Thumb,0,0,[]);
+  fRenderUI.Write3DButton(Left,Top+Width+Pos,Width,Thumb,0,0,[]);
 end;
 
 
@@ -825,8 +842,10 @@ begin
   Result:=TKMScrollBar.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
   //These three will be added to collection themselfes
-  Result.ScrollUp :=AddButton(aParent,aLeft,aTop,20,aHeight,4);
-  Result.ScrollDown :=AddButton(aParent,aLeft,aTop,20,aHeight,5);
+  Result.ScrollUp :=AddButton(aParent,aLeft,aTop,aWidth,aHeight,4);
+  Result.ScrollUp.OnClick:=Result.DecPosition;
+  Result.ScrollDown :=AddButton(aParent,aLeft,aTop,aWidth,aHeight,5);
+  Result.ScrollDown.OnClick:=Result.IncPosition;
   Result.RefreshItems();
 end;
 

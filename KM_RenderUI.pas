@@ -7,7 +7,7 @@ TRenderUI = class
   public
     constructor Create;
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet);
-    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Caption:string; State:T3DButtonStateSet);
+    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX:smallint; Caption:string; State:TFlatButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; const HalfContrast:boolean=false);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
     procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true); overload;
@@ -110,7 +110,8 @@ end;
 end;
 
 
-procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Caption:string; State:T3DButtonStateSet);
+procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX:smallint; Caption:string; State:TFlatButtonStateSet);
+var TexOffsetY:shortint;
 begin
   glPushMatrix;
     glTranslate(PosX,PosY,0);
@@ -137,21 +138,32 @@ begin
       glvertex2f(SizeX-1,0);
     glEnd;
 
-    if bs_Highlight in State then begin
-      glColor4f(0,1,1,1);
-      glBegin (GL_LINE_LOOP);
+    if ID<>0 then begin
+      TexOffsetY:=-7*byte(Caption<>'');
+      fRenderUI.WritePicture((SizeX-GFXData[RXid,ID].PxWidth) div 2 + TexOffsetX,
+                             (SizeY-GFXData[RXid,ID].PxHeight) div 2 + TexOffsetY,RXid,ID, true);
+    end;
+
+    if fbs_Disabled in State then
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4, SizeX, Caption, fnt_Game, kaCenter, false, $FF888888)
+    else
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4, SizeX, Caption, fnt_Game, kaCenter, false, $FFFFFFFF);
+
+    if fbs_Highlight in State then begin
+      glColor4f(1,1,1,0.25);
+      glBegin (GL_QUADS);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
     end;
 
-    {if bs_Disabled in State then begin
+    {if fbs_Disabled in State then begin
       glColor4f(0,0,0,0.5);
       glBegin (GL_QUADS);
         glkRect(0,0,SizeX-1,SizeY-1);
       glEnd;
     end;}
 
-    if bs_Down in State then begin
+    if fbs_Selected in State then begin
       glColor4f(1,1,1,1);
       glBegin (GL_LINE_LOOP);
         glkRect(0,0,SizeX-1,SizeY-1);
@@ -323,7 +335,7 @@ begin
   Result.X:=0;
   Result.Y:=0;
 
-  AdvX:=0; PrevX:=0; //Used as line width
+  AdvX:=0; PrevX:=0; LastSpace:=-1; //Used as line width
   if Wrap then  //Reposition EOLs
     for i:=1 to length(Text) do begin
       if Text[i]=#124 then Text[i]:=#32; //Replace old EOLs with whitespaces
@@ -336,7 +348,7 @@ begin
       inc(AdvX,FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter);
 
       //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-      if AdvX>SizeX then begin 
+      if (AdvX>SizeX)and(LastSpace<>-1) then begin
         Text[LastSpace]:=#124; //Place EOL instead of last whitespace
         AdvX:=AdvX-PrevX; //Should subtract replaced whitespace
       end;
