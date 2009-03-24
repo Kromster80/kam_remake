@@ -493,7 +493,7 @@ type
     sfx_Leather,
     sfx_BakerSlap,
     sfx_CoalMineThud,
-    sfx_StoneThrow,
+    sfx_ButcherCut,
     sfx_SausageString,
     sfx_QuarryClink,
     sfx_TreeDown,

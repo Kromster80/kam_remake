@@ -1,7 +1,7 @@
 unit KM_LoadDAT;
 interface
 uses
-  Windows, Classes, KromUtils, SysUtils, StrUtils, Dialogs, Math, KM_Defaults;
+  Windows, Classes, KromUtils, SysUtils, StrUtils, Dialogs, Math, KM_Defaults, KM_Houses;
 
 type
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
@@ -40,6 +40,7 @@ type
   TMissionParser = class(TObject)
   private     { Private declarations }
     CurrentPlayerIndex: integer;
+    LastHouse: TKMHouse;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
     procedure DebugScriptError(ErrorMsg:string);
     procedure UnloadMission;
@@ -74,7 +75,7 @@ var
   fMissionParser: TMissionParser;
 
 implementation
-uses KM_Users, KM_Terrain, KM_Viewport, KM_Houses;
+uses KM_Users, KM_Terrain, KM_Viewport;
 
 function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
 var
@@ -245,7 +246,11 @@ begin
                      end;
   ct_SetHouse:       begin
                      if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                       fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), KMPointX1Y1(ParamList[1]+HouseDAT[ParamList[0]+1].EntranceOffsetX,ParamList[2]));
+                       LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(THouseType(ParamList[0]+1), KMPointX1Y1(ParamList[1]+HouseDAT[ParamList[0]+1].EntranceOffsetX,ParamList[2]));
+                     end;
+  ct_SetHouseDamage: begin
+                     if LastHouse <> nil then
+                       LastHouse.AddDamage(ParamList[0]);
                      end;
   ct_SetUnit:        begin
                      if InRange(ParamList[0],0,31) then
@@ -270,7 +275,7 @@ begin
                      end;
   ct_SetStock:       begin
                      //This command basically means: Put a storehouse here with road bellow it
-                     fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0],ParamList[1]));
+                     LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0],ParamList[1]));
                      fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]+1),mu_RoadPlan);
                      fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1),mu_RoadPlan);
                      fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1),mu_RoadPlan);
@@ -323,9 +328,6 @@ begin
 
                      end;
   ct_AddLostGoal:    begin
-
-                     end;
-  ct_SetHouseDamage: begin
 
                      end;
   ct_SetAlliance:    begin

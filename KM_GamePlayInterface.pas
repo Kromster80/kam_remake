@@ -131,7 +131,7 @@ type TKMGamePlayInterface = class
       KMLabel_HouseHealth:TKMLabel;
 
     KMPanel_House_Common:TKMPanel;
-      KMLabel_Common_Demand,KMLabel_Common_Offer,KMLabel_Common_Costs:TKMLabel;
+      KMLabel_Common_Demand,KMLabel_Common_Offer,KMLabel_Common_Costs,KMLabel_House_UnderConstruction:TKMLabel;
       KMRow_Common_Resource:array[1..4]of TKMResourceRow; //4 bars is the maximum
       KMRow_Order:array[1..4]of TKMResourceOrderRow; //3 bars is the maximum
       KMRow_Costs:array[1..4]of TKMCostsRow; //3 bars is the maximum
@@ -202,7 +202,7 @@ var
   fMainMenuInterface: TKMMainMenuInterface;
 
 implementation
-uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_LoadDAT;
+uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_LoadDAT, KM_LoadSFX;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word);
@@ -898,6 +898,7 @@ begin
     KMImage_House_Worker:=MyControls.AddImage(KMPanel_House,98,41,32,32,141);
     KMLabel_HouseHealth:=MyControls.AddLabel(KMPanel_House,156,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
     KMHealthBar_House:=MyControls.AddPercentBar(KMPanel_House,129,57,55,15,50,'',fnt_Mini);
+    KMLabel_House_UnderConstruction:=MyControls.AddLabel(KMPanel_House,100,170,100,30,fnt_Grey,kaCenter,fTextLibrary.GetTextString(230));
 
     KMPanel_House_Common:=MyControls.AddPanel(KMPanel_House,0,76,200,400);
       KMLabel_Common_Demand:=MyControls.AddLabel(KMPanel_House_Common,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
@@ -1106,15 +1107,33 @@ begin
   KMLabel_House.Caption:=TypeToString(Sender.GetHouseType);
   KMImage_House_Logo.TexID:=300+byte(Sender.GetHouseType);
   KMImage_House_Worker.TexID:=140+HouseDAT[byte(Sender.GetHouseType)].OwnerType+1;
-  KMImage_House_Worker.Enabled := Sender.GetHasOwner;
   KMImage_House_Worker.Hint := TypeToString(TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1));
+  KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(HouseDAT[byte(Sender.GetHouseType)].MaxHealth);
+  KMHealthBar_House.Position:=round( Sender.GetHealth / HouseDAT[byte(Sender.GetHouseType)].MaxHealth * 100 );
+
+  if not Sender.IsComplete then
+  begin
+  for i:=1 to KMPanel_House.ChildCount do
+    KMPanel_House.Childs[i].Hide; //hide all
+  KMLabel_House_UnderConstruction.Visible := true;
+  KMLabel_House.Visible := true;
+  KMImage_House_Logo.Visible := true;
+  KMImage_House_Worker.Visible := true;
+  KMHealthBar_House.Visible := true;
+  KMLabel_HouseHealth.Visible := true;
+  SwitchPage(KMPanel_House);
+  end
+  else
+  begin
+  for i:=1 to KMPanel_House.ChildCount do
+    KMPanel_House.Childs[i].Show; //show all
+  KMImage_House_Worker.Enabled := Sender.GetHasOwner;
   KMImage_House_Worker.Visible := TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1) <> ut_None;
   if (HouseInput[byte(Sender.GetHouseType)][1] in [rt_None,rt_All,rt_Warfare]) then
     KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enable;
   if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40;
   if Sender.WareDelivery then KMButton_House_Goods.TexID:=37 else KMButton_House_Goods.TexID:=38;
-  KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(HouseDAT[byte(Sender.GetHouseType)].MaxHealth);
-  KMHealthBar_House.Position:=round( Sender.GetHealth / HouseDAT[byte(Sender.GetHouseType)].MaxHealth * 100 );
+  KMLabel_House_UnderConstruction.Visible := false;
   SwitchPage(KMPanel_House);
 
   case Sender.GetHouseType of
@@ -1209,6 +1228,7 @@ begin
       SwitchPage(KMPanel_House_Common);
       end;
   end;
+  end;
 end;
 
 
@@ -1286,7 +1306,10 @@ begin
   if (Sender=KMButton_School_Right)and(LastSchoolUnit < length(School_Order)) then inc(LastSchoolUnit);
 
   if Sender=KMButton_School_Train then //Add unit to training queue
+  begin
+    fSoundLib.Play(sfx_click,KMPoint(0,0),false);
     School.AddUnitToQueue(TUnitType(School_Order[LastSchoolUnit]));
+  end;
 
   if School.UnitQueue[1]<>ut_None then
     KMButton_School_UnitWIP.TexID :=140+byte(School.UnitQueue[1])
@@ -1340,7 +1363,10 @@ begin
     TKMHouseSchool(fPlayers.SelectedHouse).RemUnitFromQueue(1)
   else for i:=1 to 5 do
     if Sender = KMButton_School_UnitPlan[i] then
+    begin
+      fSoundLib.Play(sfx_click,KMPoint(0,0),false);
       TKMHouseSchool(fPlayers.SelectedHouse).RemUnitFromQueue(i+1);
+    end;
   House_SchoolUnitChange(nil);
 end;
 

@@ -103,7 +103,10 @@ begin
   case aMarkup of
     mu_RoadPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Road);
     mu_FieldPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Field);
-    mu_WinePlan: fTerrain.SetField(aLoc,PlayerID,fdt_Wine);
+    mu_WinePlan: begin
+                   fTerrain.SetField(aLoc,PlayerID,fdt_Wine); 
+                   fTerrain.CutGrapes(aLoc);
+                 end;
     else Assert(false,'Wrong markup');
   end;
 end;

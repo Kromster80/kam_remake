@@ -62,6 +62,7 @@ type
     procedure AddDamage(aAmount:word);
     function IsStarted:boolean;
     function IsComplete:boolean;
+    function IsStone:boolean;
 
     procedure SetState(aState: THouseState; aTime:integer);
     function GetState:THouseState;
@@ -287,6 +288,11 @@ begin
   Result := fBuildState = hbs_Done;
 end;
 
+function TKMHouse.IsStone:boolean;
+begin
+  Result := fBuildState = hbs_Stone;
+end;
+
 
 function TKMHouse.CheckResIn(aResource:TResourceType):word;
 var i:integer;
@@ -437,28 +443,48 @@ begin
     Cycle:=HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
     if Cycle<>0 then
     case fHouseType of
-      //Various buildings and HouseActions producing sounds
-      ht_Mill:     if (WorkID = 2)and(WorkAnimStep mod Cycle = 0) then fSoundLib.Play(sfx_mill,GetPosition);
-      ht_CoalMine: if (WorkID = 1)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_coaldown,GetPosition)
+ //Various buildings and HouseActions producing sounds
+ ht_Mill:          if (WorkID = 2)and(WorkAnimStep mod Cycle = 0) then fSoundLib.Play(sfx_mill,GetPosition);
+ ht_CoalMine:      if (WorkID = 1)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_coaldown,GetPosition)
                    else if (WorkID = 1)and(WorkAnimStep mod Cycle = 24) then fSoundLib.Play(sfx_CoalMineThud,GetPosition,true,0.8)
                    else if (WorkID = 2)and(WorkAnimStep mod Cycle = 7) then fSoundLib.Play(sfx_mine,GetPosition)
                    else if (WorkID = 2)and(WorkAnimStep mod Cycle = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
                    else if (WorkID = 5)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_coaldown,GetPosition);
-      ht_IronMine: if (WorkID = 2)and(WorkAnimStep mod Cycle = 7) then fSoundLib.Play(sfx_mine,GetPosition)
+ ht_IronMine:      if (WorkID = 2)and(WorkAnimStep mod Cycle = 7) then fSoundLib.Play(sfx_mine,GetPosition)
                    else if (WorkID = 2)and(WorkAnimStep mod Cycle = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
-      ht_GoldMine: if (WorkID = 2)and(WorkAnimStep mod Cycle = 7) then fSoundLib.Play(sfx_mine,GetPosition)
-                   else if (WorkID = 2)and(WorkAnimStep mod Cycle = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
-      ht_SawMill:  if (WorkID = 2)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_saw,GetPosition);
-      ht_Wineyard: if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
+ ht_GoldMine:      if (WorkID = 2)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_mine,GetPosition)
+                   else if (WorkID = 2)and(WorkAnimStep mod Cycle = 6) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
+ ht_SawMill:       if (WorkID = 2)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_saw,GetPosition);
+ ht_Wineyard:      if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
                    else if (WorkID = 5)and(WorkAnimStep mod Cycle = 14) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5)
                    else if (WorkID = 1)and(WorkAnimStep mod Cycle = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5);
-      ht_School:   if (WorkID = 5)and(WorkAnimStep = 20) then fSoundLib.Play(sfx_SchoolDing,GetPosition);
-      ht_Bakery:   if (WorkID = 3)and(WorkAnimStep mod Cycle in [6,25]) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
-      ht_Quary:    if (WorkID in [2,5])and(WorkAnimStep mod Cycle in [4,13]) then fSoundLib.Play(sfx_QuarryClink,GetPosition);
-   ht_WeaponSmithy:if (WorkID = 1)and(WorkAnimStep mod Cycle = 18) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+ ht_School:        if (WorkID = 5)and(WorkAnimStep = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition);
+ ht_Bakery:        if (WorkID = 3)and(WorkAnimStep mod Cycle in [6,25]) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
+ ht_Quary:         if (WorkID = 2)and(WorkAnimStep mod Cycle in [4,13]) then fSoundLib.Play(sfx_QuarryClink,GetPosition)
+                   else if (WorkID = 5)and(WorkAnimStep mod Cycle in [4,13,22]) then fSoundLib.Play(sfx_QuarryClink,GetPosition);
+ ht_WeaponSmithy:  if (WorkID = 1)and(WorkAnimStep mod Cycle in [17,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
                    else if (WorkID = 2)and(WorkAnimStep mod Cycle in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
                    else if (WorkID = 3)and(WorkAnimStep mod Cycle in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                   else if (WorkID = 4)and(WorkAnimStep mod Cycle = 9) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition);
+                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+                   else if (WorkID = 5)and(WorkAnimStep mod Cycle = 12) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition);
+ ht_ArmorSmithy:   if (WorkID = 2)and(WorkAnimStep mod Cycle in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+                   else if (WorkID = 5)and(WorkAnimStep mod Cycle in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition);
+ ht_Metallurgists: if (WorkID = 3)and(WorkAnimStep mod Cycle = 6) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [16,20]) then fSoundLib.Play(sfx_wineDrain,GetPosition);
+ ht_IronSmithy:    if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,16]) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                   else if (WorkID = 3)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                   else if (WorkID = 3)and(WorkAnimStep mod Cycle = 13) then fSoundLib.Play(sfx_wineDrain,GetPosition);
+ ht_WeaponWorkshop:if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,10,19]) then fSoundLib.Play(sfx_saw,GetPosition)
+                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [10,21]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
+                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [2,13]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
+ ht_ArmorWorkshop: if (WorkID = 2)and(WorkAnimStep mod Cycle in [3,13,23]) then fSoundLib.Play(sfx_saw,GetPosition)
+                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [17,28]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
+                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [10,20]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
+ ht_Tannery:       if (WorkID = 2)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_Leather,GetPosition,true,0.8);
+ ht_Butchers:      if (WorkID = 2)and(WorkAnimStep mod Cycle in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut,GetPosition)
+                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
     end;
   end;
 
@@ -547,10 +573,16 @@ end;
 
 
 procedure TKMHouseSchool.RemUnitFromQueue(id:integer);
-//var TK:TKMUnit;
+var i:integer;
 begin
   //DoCancelTraining and remove untrained unit
-  UnitIsTrained;
+  if id = 1 then
+    UnitIsTrained
+  else
+  begin
+    for i:=id to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
+    UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+  end;
 end;
 
 
