@@ -176,7 +176,7 @@ begin
     IsUnit:=0;
   end;
 
-  i:=SizeOf(Land[1,1]); //Shall align it manually later on for better performance and less size
+  //i:=SizeOf(Land[1,1]); //Shall align it manually later on for better performance and less size
 
   RebuildLighting(1,MapX,1,MapY);
   RebuildPassability(1,MapX,1,MapY);

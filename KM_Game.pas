@@ -22,7 +22,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure StartGame(MissionFile:string);
-    procedure StopGame;
+    procedure StopGame(const StoppedCosOfError:boolean=false);
     procedure UpdateState;
   end;
 
@@ -228,13 +228,11 @@ begin
 
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(MissionFile,true) then begin
-    fMissionParser.LoadDATFile(MissionFile);
-    // fTerrain.LoadMapFromFile / fPlayers should be somewhere there
-    //@Lewin: LoadDATFile should return true/false whenever mission is succesfully loaded or not
-    //if not - we abort whole thing, show script errors if any and return to main menu
-    //@Krom: Done! You can add the code here to return to the main menu. When I have added script
-    //error reporting then we can add that feature. For now, just show an error message and exit.
-    fLog.AppendLog('DAT Loaded');            
+    if not fMissionParser.LoadDATFile(MissionFile) then begin
+      StopGame(true);
+      exit;
+    end;
+    fLog.AppendLog('DAT Loaded');
   end else begin
     fTerrain.MakeNewMap(96,96); //For debug we use blank mission
     fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
@@ -251,7 +249,7 @@ begin
 end;
 
                      
-procedure TKMGame.StopGame;
+procedure TKMGame.StopGame(const StoppedCosOfError:boolean=false);
 begin
   GameIsRunning:=false;
   FreeAndNil(fPlayers);
@@ -261,9 +259,15 @@ begin
   FreeAndNil(fGamePlayInterface);
   FreeAndNil(fGameSettings);
   FreeAndNil(fViewport);
-  fLog.AppendLog('Gameplay free',true);
 
-  fMainMenuInterface.ShowScreen_Results;//Should be mission results screen
+  if StoppedCosOfError then begin
+    fLog.AppendLog('Gameplay error',true);
+    fMainMenuInterface.ShowScreen_Main;
+  end else begin
+    fLog.AppendLog('Gameplay free',true);
+    fMainMenuInterface.ShowScreen_Results;//Should be mission results screen
+  end;
+
 end;
 
 

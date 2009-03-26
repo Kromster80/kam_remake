@@ -58,7 +58,7 @@ TKMLabel = class(TKMControl)
     TextAlign: KAlign;
     AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
     Caption: string;
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
     procedure Paint(); override;
 end;
@@ -70,7 +70,7 @@ TKMImage = class(TKMControl)
     RXid: integer; //RX library
     TexID: integer;
     StretchImage: boolean;
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
 end;
@@ -78,9 +78,7 @@ end;
 
 {Panel which should have child items on it, is virtual thing and is not visible}
 TKMPanel = class(TKMControl)
-  private
-  public
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure Paint(); override;
 end;
@@ -88,10 +86,19 @@ end;
 
 {Panel which is visible}
 TKMBevel = class(TKMControl)
-  private
-  public
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure Paint(); override;
+end;
+
+
+{Rectangle}
+TKMShape = class(TKMControl)
+  public
+    Color:TColor4; //color of rectangle
+    LineWidth:byte;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4);
     procedure Paint(); override;
 end;
 
@@ -105,7 +112,7 @@ TKMButton = class(TKMControl)
     Font: TKMFont;
     TextAlign: KAlign;
     Caption: string;
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
@@ -124,7 +131,7 @@ TKMButtonFlat = class(TKMControl)
     TextAlign: KAlign;
     Down:boolean;
     HideHighlight:boolean;
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
 end;
@@ -137,7 +144,7 @@ TKMPercentBar = class(TKMControl)
     Caption: string;
     Font: TKMFont;
     TextAlign: KAlign;
-  protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
+  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont);
     procedure Paint(); override;
 end;
@@ -192,13 +199,13 @@ TKMRatioRow = class(TKMControl)
 end;
 
 
-{Ratio bar}
+{Scroll bar}
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;
     MinValue:byte;
     MaxValue:byte;
-    ScrollVertical:boolean;
+    ScrollVertical:boolean; //So far only vertical scrolls are working
     Thumb:word;
     ScrollUp:TKMButton;
     ScrollDown:TKMButton;
@@ -234,6 +241,7 @@ TKMControlsCollection = class(TKMList)
     function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddBevel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
+    function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
@@ -244,9 +252,9 @@ TKMControlsCollection = class(TKMList)
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
     function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
-    procedure OnMouseOver(X,Y:integer; AShift:TShiftState);
-    procedure OnMouseDown(X,Y:integer; AButton:TMouseButton);
-    procedure OnMouseUp(X,Y:integer; AButton:TMouseButton);
+    procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
+    procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
+    procedure OnMouseUp         (X,Y:integer; AButton:TMouseButton);
     procedure Paint();
 end;
 
@@ -353,6 +361,22 @@ end;
 procedure TKMBevel.Paint();
 begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
+end;
+
+
+{ TKMShape }
+constructor TKMShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  Color:=aColor;
+  LineWidth:=2;
+end;
+
+
+procedure TKMShape.Paint();
+begin
+  fRenderUI.WriteRect(Left,Top,Width,Height,LineWidth,Color);
 end;
 
 
@@ -686,6 +710,9 @@ begin
     ScrollDown.Width:=Width;
     Thumb:=(Height-2*Width) div 4;
   end;
+
+  ScrollUp.Enabled:=Enabled;
+  ScrollDown.Enabled:=Enabled;
 end;
 
 
@@ -745,7 +772,7 @@ begin
   fRenderUI.WriteRect(Left + (Width-MapSize.X) div 2 + ViewArea.Left,
                       Top  + (Height-MapSize.Y) div 2 + ViewArea.Top,
                       ViewArea.Right-ViewArea.Left,
-                      ViewArea.Bottom-ViewArea.Top, $FFFFFFFF);
+                      ViewArea.Bottom-ViewArea.Top, 1, $FFFFFFFF);
 end;
 
 
@@ -782,6 +809,12 @@ end;
 function TKMControlsCollection.AddBevel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
 begin
   Result:=TKMBevel.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddShape(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
+begin
+  Result:=TKMShape.Create(aParent, aLeft,aTop,aWidth,aHeight,aColor);
   AddToCollection(Result);
 end;
 

@@ -231,7 +231,7 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
-  fGame.StopGame;
+  fGame.StopGame();
   fGame.StartGame('');
 
 fViewPort.SetCenter(11,9);

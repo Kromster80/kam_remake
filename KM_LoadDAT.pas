@@ -50,7 +50,7 @@ type
 end;
 
 type
-  TKMMapInfo = class(TObject)
+  TKMMapsInfo = class(TObject)
   private
     MapCount:word;
     Maps:array[1..255]of record
@@ -59,6 +59,7 @@ type
       PlayerCount:byte;
       Title,SmallDesc,BigDesc:string;
       MapSize:string; //S,M,L,XL
+      MissionFile:string; //mission00.dat
     end;
   public
     procedure ScanSingleMapsFolder(Path:string);
@@ -69,6 +70,10 @@ type
     function GetSmallDesc(ID:integer):string;
     function GetBigDesc(ID:integer):string;
     function GetMapSize(ID:integer):string;
+    function GetFolder(ID:integer):string;
+    function GetMissionFile(ID:integer):string;
+    function GetWin(ID:integer):string;
+    function GetDefeat(ID:integer):string;
   end;
 
 var
@@ -363,7 +368,7 @@ end;
 
 {TKMMapInfo}
 
-procedure TKMMapInfo.ScanSingleMapsFolder(Path:string);
+procedure TKMMapsInfo.ScanSingleMapsFolder(Path:string);
 var i:integer; SearchRec:TSearchRec; ft:textfile; s:string;
 begin
   MapCount:=0;
@@ -373,7 +378,7 @@ begin
   FindFirst('*', faDirectory, SearchRec);
   repeat
   if (SearchRec.Attr and faDirectory = faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
-  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\Mission.txt') then begin
+  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then begin
     inc(MapCount);
     Maps[MapCount].Folder:=SearchRec.Name;
   end;
@@ -381,14 +386,14 @@ begin
   FindClose(SearchRec);
 
   for i:=1 to MapCount do with Maps[i] do begin
-    assignfile(ft,ExeDir+'\Maps\'+Maps[i].Folder+'\Mission.txt');
+    assignfile(ft,ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt');
     reset(ft);
 
     repeat
     readln(ft,s);
 
     //@Lewin: Most of these options could be read from mission.dat file. Can you make them into LoadDAT ?
-    //Some kind of quick parser. e.g. function GetPlayerCount('\Maps\'+Maps[i].Folder+'\mission.dat):byte;
+    //Some kind of quick parser. e.g. function GetPlayerCount(mission.dat):byte;
     //Also for now we can use map folders (txt+map+dat files), but later we need to ajoin them somehow?
 
     if UpperCase(s)=UpperCase('IsFight') then begin
@@ -424,12 +429,16 @@ end;
 
 
 { Get map properties}
-function TKMMapInfo.IsFight(ID:integer):boolean;        begin Result:=Maps[ID].IsFight;         end;
-function TKMMapInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].PlayerCount;     end;
-function TKMMapInfo.GetTitle(ID:integer):string;        begin Result:=Maps[ID].Title;           end;
-function TKMMapInfo.GetSmallDesc(ID:integer):string;    begin Result:=Maps[ID].SmallDesc;       end;
-function TKMMapInfo.GetBigDesc(ID:integer):string;      begin Result:=Maps[ID].BigDesc;         end;
-function TKMMapInfo.GetMapSize(ID:integer):string;      begin Result:=Maps[ID].MapSize;         end;
+function TKMMapsInfo.IsFight(ID:integer):boolean;        begin Result:=Maps[ID].IsFight;         end;
+function TKMMapsInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].PlayerCount;     end;
+function TKMMapsInfo.GetTitle(ID:integer):string;        begin Result:=Maps[ID].Title;           end;
+function TKMMapsInfo.GetSmallDesc(ID:integer):string;    begin Result:=Maps[ID].SmallDesc;       end;
+function TKMMapsInfo.GetBigDesc(ID:integer):string;      begin Result:=Maps[ID].BigDesc;         end;
+function TKMMapsInfo.GetMapSize(ID:integer):string;      begin Result:=Maps[ID].MapSize;         end;
+function TKMMapsInfo.GetFolder(ID:integer):string;       begin Result:=Maps[ID].Folder;          end;
+function TKMMapsInfo.GetMissionFile(ID:integer):string;  begin Result:=Maps[ID].Folder+'.dat';   end;
+function TKMMapsInfo.GetWin(ID:integer):string;          begin Result:='No win condition';       end;
+function TKMMapsInfo.GetDefeat(ID:integer):string;       begin Result:='No defeat condition';    end;
 
 
 end.

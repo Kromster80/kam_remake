@@ -12,7 +12,7 @@ TRenderUI = class
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
     procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true); overload;
-    procedure WriteRect         (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
+    procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
     function  WriteText         (PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint; //Should return text width in px
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY,MapX,MapY:smallint);
@@ -300,12 +300,17 @@ begin
 end;
 
 
-procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
+procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
+var i:single;
 begin
+  //@Lewin: I know it looks a bit wrong on corners and if coupled with AA turned On, I'll fix it later
+  glGetFloatv(GL_LINE_WIDTH,@i); //Memorize
+  glLineWidth(LineWidth);
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
     glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
+  glLineWidth(i); //Restore
 end;
 
 
