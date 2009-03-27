@@ -56,6 +56,7 @@ type TKMMainMenuInterface = class
     procedure Create_Results_Page;
     procedure SwitchMenuPage(Sender: TObject);
     procedure SingleMap_RefreshList();
+    procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_SelectDiff(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
@@ -342,8 +343,8 @@ begin
       end;
 
       KMScrollBar_SingleMaps:=MyControls.AddScrollBar(KMPanel_SingleList,420,40,25,480);
-      KMScrollBar_SingleMaps.Disable;
-      //KMScrollBar_SingleMaps.RefreshItems;
+      KMScrollBar_SingleMaps.OnChange:=SingleMap_ScrollChange;
+      //KMScrollBar_SingleMaps.Disable;
 
       KMShape_SingleMap:=MyControls.AddShape(KMPanel_SingleList,0,40,420,40,$FFFFFF00);
 
@@ -448,26 +449,39 @@ end;
 
 
 procedure TKMMainMenuInterface.SingleMap_RefreshList();
-var i:integer;
+var i,ci:integer;
 begin
   SingleMapsInfo.ScanSingleMapsFolder('');
 
-  for i:=SingleMap_Top to SingleMap_Top + min(SingleMapsInfo.GetMapCount,SingleMap_Count) - 1 do begin //Fill with existing maps
-    KMButton_SingleMode[i].TexID:=28+byte(not SingleMapsInfo.IsFight(i))*14;
-    KMButton_SinglePlayers[i].Caption:=inttostr(SingleMapsInfo.GetPlayerCount(i));
-    KMLabel_SingleTitle1[i].Caption:=SingleMapsInfo.GetTitle(i);
-    KMLabel_SingleTitle2[i].Caption:=SingleMapsInfo.GetSmallDesc(i);
-    KMButton_SingleSize[i].Caption:=SingleMapsInfo.GetMapSize(i);
-  end;
-  for i:=SingleMap_Top + min(SingleMapsInfo.GetMapCount,SingleMap_Count) to SingleMap_Top + SingleMap_Count - 1 do begin //Fill the rest if there's place left
-    KMButton_SingleMode[i].TexID:=0;
-    KMButton_SinglePlayers[i].Caption:='';
-    KMLabel_SingleTitle1[i].Caption:='';
-    KMLabel_SingleTitle2[i].Caption:='';
-    KMButton_SingleSize[i].Caption:='';
+  for i:=1 to SingleMap_Count do begin
+    ci:=SingleMap_Top-1+i;
+    if ci>SingleMapsInfo.GetMapCount then begin
+      KMButton_SingleMode[i].TexID:=0;
+      KMButton_SinglePlayers[i].Caption:='';
+      KMLabel_SingleTitle1[i].Caption:='';
+      KMLabel_SingleTitle2[i].Caption:='';
+      KMButton_SingleSize[i].Caption:='';
+    end else begin
+      KMButton_SingleMode[i].TexID:=28+byte(not SingleMapsInfo.IsFight(i))*14;
+      KMButton_SinglePlayers[i].Caption:=inttostr(SingleMapsInfo.GetPlayerCount(i));
+      KMLabel_SingleTitle1[i].Caption:=SingleMapsInfo.GetTitle(i);
+      KMLabel_SingleTitle2[i].Caption:=SingleMapsInfo.GetSmallDesc(i);
+      KMButton_SingleSize[i].Caption:=SingleMapsInfo.GetMapSize(i);
+    end;
   end;
 
+  KMScrollBar_SingleMaps.MinValue:=1;
+  KMScrollBar_SingleMaps.MaxValue:=max(1,SingleMapsInfo.GetMapCount-SingleMapsInfo.GetMapCount);
+  KMScrollBar_SingleMaps.Position:=EnsureRange(KMScrollBar_SingleMaps.Position,KMScrollBar_SingleMaps.MinValue,KMScrollBar_SingleMaps.MaxValue);
+
   SingleMap_SelectMap(KMBevel_SingleBG[1,3]); //Select first map
+end;
+
+
+procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
+begin
+  SingleMap_Top:=KMScrollBar_SingleMaps.Position;
+  SingleMap_RefreshList();
 end;
 
 

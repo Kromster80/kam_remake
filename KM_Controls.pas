@@ -719,17 +719,19 @@ end;
 procedure TKMScrollBar.IncPosition(Sender:TObject);
 begin
   Position:=EnsureRange(Position+1,MinValue,MaxValue);
+  OnChange(Self);
 end;
 
 
 procedure TKMScrollBar.DecPosition(Sender:TObject);
 begin
   Position:=EnsureRange(Position-1,MinValue,MaxValue);
+  OnChange(Self);
 end;
 
 
 procedure TKMScrollBar.Paint();
-var Pos:word;
+var Pos:word; State:T3DButtonStateSet;
 begin
   if MakeDrawPagesOverlay then
     fRenderUI.WriteLayer(Left, Top, Width, Height, $40FFFF00);
@@ -738,11 +740,21 @@ begin
   ScrollUp.Visible:=Visible;
   ScrollDown.Visible:=Visible;
 
-  fRenderUI.WriteBevel(Left,Top+Width,Width,Height-Width);
+  fRenderUI.WriteBevel(Left, Top+Width, Width, Height-Width);
 
-  Pos:=round((Position-MinValue)*(Height-Width*2-Thumb)/(MaxValue-MinValue));
+  if MinValue=MaxValue then begin
+    Pos:=(Height-Width*2-Thumb) div 2;
+    State:=[bs_Disabled];
+    ScrollUp.Disable;
+    ScrollDown.Disable;
+  end else begin
+    Pos:=(Position-MinValue)*(Height-Width*2-Thumb) div (MaxValue-MinValue);
+    State:=[];   // <- looks like a smiley
+    ScrollUp.Enable;
+    ScrollDown.Enable;
+  end;
 
-  fRenderUI.Write3DButton(Left,Top+Width+Pos,Width,Thumb,0,0,[]);
+  fRenderUI.Write3DButton(Left,Top+Width+Pos,Width,Thumb,0,0,State);
 end;
 
 
