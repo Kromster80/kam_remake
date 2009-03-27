@@ -163,7 +163,7 @@ type TKMGamePlayInterface = class
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Move(Sender: TObject; AShift:TShiftState; X,Y:integer);
-    procedure BuildButtonClick(Sender: TObject);
+    procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
     procedure StoreFill(Sender:TObject);
     procedure BarracksFill(Sender:TObject);
@@ -186,9 +186,6 @@ type TKMGamePlayInterface = class
     procedure Create_School_Page;
     procedure Create_Barracks_Page;
     procedure UpdateState;
-    procedure RightClickCancel;
-    procedure ShowSettings(Sender: TObject);
-    procedure ShowLoad(Sender: TObject);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure House_RepairToggle(Sender:TObject);
@@ -199,11 +196,14 @@ type TKMGamePlayInterface = class
     procedure House_SchoolUnitChangeRight(Sender:TObject);
     procedure House_SchoolUnitRemove(Sender:TObject);
     procedure House_StoreAcceptFlag(Sender:TObject);
-    procedure Settings_Change(Sender:TObject);
-    procedure QuitMission(Sender:TObject);
-    procedure SelectRoad;
+    procedure Menu_ShowSettings(Sender: TObject);
+    procedure Menu_Settings_Change(Sender:TObject);
+    procedure Menu_ShowLoad(Sender: TObject);
+    procedure Menu_QuitMission(Sender:TObject);
+    procedure Build_SelectRoad;
+    procedure Build_RightClickCancel;
     procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
-    procedure EnableOrDisableMenuIcons;
+    procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure Paint;
   end;
 
@@ -543,7 +543,7 @@ if (Sender=KMButtonMain[1])or(Sender=KMButtonMain[2])or(Sender=KMButtonMain[3])o
 end;
 
 //Reset the CursorMode, to cm_None
-BuildButtonClick(nil);
+Build_ButtonClick(nil);
 
 //Set LastVisiblePage to which ever page was last visible, out of the ones needed
 if KMPanel_Settings.Visible = true then
@@ -568,7 +568,7 @@ if Sender=KMButtonMain[1] then begin
   KMPanel_Build.Show;
   Hide4MainButtons;
   KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(166);
-  SelectRoad;
+  Build_SelectRoad;
 end else
 if Sender=KMButtonMain[2] then begin
   KMPanel_Ratios.Show;
@@ -760,10 +760,10 @@ begin
     KMButton_BuildField  := MyControls.AddButtonFlat(KMPanel_Build, 45,80,33,33,337);
     KMButton_BuildWine   := MyControls.AddButtonFlat(KMPanel_Build, 82,80,33,33,336);
     KMButton_BuildCancel := MyControls.AddButtonFlat(KMPanel_Build,156,80,33,33,340);
-    KMButton_BuildRoad.OnClick:=BuildButtonClick;
-    KMButton_BuildField.OnClick:=BuildButtonClick;
-    KMButton_BuildWine.OnClick:=BuildButtonClick;
-    KMButton_BuildCancel.OnClick:=BuildButtonClick;
+    KMButton_BuildRoad.OnClick:=Build_ButtonClick;
+    KMButton_BuildField.OnClick:=Build_ButtonClick;
+    KMButton_BuildWine.OnClick:=Build_ButtonClick;
+    KMButton_BuildCancel.OnClick:=Build_ButtonClick;
     KMButton_BuildRoad.Hint:=fTextLibrary.GetTextString(213);
     KMButton_BuildField.Hint:=fTextLibrary.GetTextString(215);
     KMButton_BuildWine.Hint:=fTextLibrary.GetTextString(219);
@@ -771,7 +771,7 @@ begin
 
     for i:=1 to HOUSE_COUNT do begin
       KMButton_Build[i]:=MyControls.AddButtonFlat(KMPanel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,GUIBuildIcons[i]);
-      KMButton_Build[i].OnClick:=BuildButtonClick;
+      KMButton_Build[i].OnClick:=Build_ButtonClick;
       KMButton_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[i]-300);
     end;
 end;
@@ -819,13 +819,13 @@ procedure TKMGamePlayInterface.Create_Menu_Page;
 begin
   KMPanel_Menu:=MyControls.AddPanel(KMPanel_Main,0,412,196,400);
     KMButton_Menu_Save:=MyControls.AddButton(KMPanel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
-    KMButton_Menu_Save.OnClick:=ShowLoad;
+    KMButton_Menu_Save.OnClick:=Menu_ShowLoad;
     KMButton_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
     KMButton_Menu_Load:=MyControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
-    KMButton_Menu_Load.OnClick:=ShowLoad;
+    KMButton_Menu_Load.OnClick:=Menu_ShowLoad;
     KMButton_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
     KMButton_Menu_Settings:=MyControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
-    KMButton_Menu_Settings.OnClick:=ShowSettings;
+    KMButton_Menu_Settings.OnClick:=Menu_ShowSettings;
     KMButton_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
     KMButton_Menu_Quit:=MyControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     KMButton_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
@@ -903,8 +903,8 @@ begin
     //There are many clickable controls, so let them all be handled in one procedure to save dozens of lines of code
     for i:=1 to KMPanel_Settings.ChildCount do
     begin
-      TKMControl(KMPanel_Settings.Childs[i]).OnClick:=Settings_Change;
-      TKMControl(KMPanel_Settings.Childs[i]).OnChange:=Settings_Change;
+      TKMControl(KMPanel_Settings.Childs[i]).OnClick:=Menu_Settings_Change;
+      TKMControl(KMPanel_Settings.Childs[i]).OnChange:=Menu_Settings_Change;
     end;
 end;
 
@@ -918,7 +918,7 @@ begin
     KMButton_Quit_No:=MyControls.AddButton(KMPanel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
     KMButton_Quit_Yes.Hint:=fTextLibrary.GetTextString(177);
     KMButton_Quit_No.Hint:=fTextLibrary.GetTextString(178);
-    KMButton_Quit_Yes.OnClick:=QuitMission;
+    KMButton_Quit_Yes.OnClick:=Menu_QuitMission;
     KMButton_Quit_No.OnClick:=SwitchPage;
 end;
 
@@ -1049,7 +1049,7 @@ begin
 end;
 
 
-{Should update any items changed by game (resoource counts, hp, etc..)}
+{Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMGamePlayInterface.UpdateState;
 begin
@@ -1063,11 +1063,11 @@ begin
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
-  EnableOrDisableMenuIcons;
+  EnableOrDisableMenuIcons(not (MissionMode = mm_Tactic)); //@Lewin: This should be somewhere in Create, we don't want to call it every UpdateState
 end;
 
 
-procedure TKMGamePlayInterface.BuildButtonClick(Sender: TObject);
+procedure TKMGamePlayInterface.Build_ButtonClick(Sender: TObject);
 var i:integer;
 begin
   if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
@@ -1120,31 +1120,6 @@ begin
      KMLabel_BuildCost_Stone.Caption:=inttostr(HouseDAT[GUIBuildIcons[i]-300].StoneCost);
      KMLabel_Build.Caption := TypeToString(THouseType(GUIBuildIcons[i]-300));
   end;
-end;
-
-
-procedure TKMGamePlayInterface.ShowSettings(Sender: TObject);
-begin
-  SwitchPage(Sender);
-  Settings_Change(nil);
-end;
-
-procedure TKMGamePlayInterface.RightClickCancel;
-begin
-  //This function will be called if the user right clicks on the screen. We should close the build menu if it's open.
-  if KMPanel_Build.Visible = true then
-    SwitchPage(KMButtonMain[5]);
-end;
-
-procedure TKMGamePlayInterface.ShowLoad(Sender: TObject);
-//var i:integer;
-begin
-{for i:=1 to SAVEGAME_COUNT do
-  if CheckSaveGameValidity(i) then begin
-    KMButton_Save[i].Caption:=Savegame.Title+Savegame.Time;
-    KMButton_Load[i].Caption:=Savegame.Title+Savegame.Time;
-  end;}
-  SwitchPage(Sender);
 end;
 
 
@@ -1437,7 +1412,14 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Settings_Change(Sender:TObject);
+procedure TKMGamePlayInterface.Menu_ShowSettings(Sender: TObject);
+begin
+  SwitchPage(Sender);
+  Menu_Settings_Change(nil);
+end;
+
+
+procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
 begin
   if Sender = KMButton_Settings_Dark then fGameSettings.DecBrightness;
   if Sender = KMButton_Settings_Light then fGameSettings.IncBrightness;
@@ -1464,8 +1446,21 @@ begin
 end;
 
 
+{Show list of savegames and act depending on Sender (Save or Load)}
+procedure TKMGamePlayInterface.Menu_ShowLoad(Sender: TObject);
+//var i:integer;
+begin
+{for i:=1 to SAVEGAME_COUNT do
+  if CheckSaveGameValidity(i) then begin
+    KMButton_Save[i].Caption:=Savegame.Title+Savegame.Time;
+    KMButton_Load[i].Caption:=Savegame.Title+Savegame.Time;
+  end;}
+  SwitchPage(Sender);
+end;
+
+
 {Quit the mission and return to main menu}
-procedure TKMGamePlayInterface.QuitMission(Sender:TObject);
+procedure TKMGamePlayInterface.Menu_QuitMission(Sender:TObject);
 var i:integer;
 begin
   KMPanel_Main.Hide;
@@ -1477,13 +1472,6 @@ begin
 end;
 
 
-{Virtually press BuildRoad button when changing page to BuildingPage or after house plan is placed}
-procedure TKMGamePlayInterface.SelectRoad;
-begin
-  BuildButtonClick(KMButton_BuildRoad);
-end;
-
-
 procedure TKMGamePlayInterface.Build_Fill(Sender:TObject);
 var i:integer;
 begin
@@ -1491,13 +1479,28 @@ begin
   if MyPlayer.GetCanBuild(THouseType(GUIBuildIcons[i]-300)) then begin
     KMButton_Build[i].Enable;
     KMButton_Build[i].TexID:=GUIBuildIcons[i];
-    KMButton_Build[i].OnClick:=BuildButtonClick;      
+    KMButton_Build[i].OnClick:=Build_ButtonClick;
     KMButton_Build[i].Hint:=TypeToString(THouseType(GUIBuildIcons[i]-300));
   end else begin
     KMButton_Build[i].OnClick:=nil;
     KMButton_Build[i].TexID:=41;
     KMButton_Build[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
   end;
+end;
+
+
+{Virtually press BuildRoad button when changing page to BuildingPage or after house plan is placed}
+procedure TKMGamePlayInterface.Build_SelectRoad;
+begin
+  Build_ButtonClick(KMButton_BuildRoad);
+end;
+
+
+procedure TKMGamePlayInterface.Build_RightClickCancel;
+begin
+  //This function will be called if the user right clicks on the screen. We should close the build menu if it's open.
+  if KMPanel_Build.Visible = true then
+    SwitchPage(KMButtonMain[5]);
 end;
 
 
@@ -1571,20 +1574,11 @@ begin
       TKMControl(MyControls.Items[i]).OnHint := AHintEvent;
 end;
 
-procedure TKMGamePlayInterface.EnableOrDisableMenuIcons;
+procedure TKMGamePlayInterface.EnableOrDisableMenuIcons(NewValue:boolean);
 begin
-  if MissionMode = mm_Tactic then
-  begin
-    KMButtonMain[1].Enabled := false;
-    KMButtonMain[2].Enabled := false;
-    KMButtonMain[3].Enabled := false;
-  end
-  else
-  begin
-    KMButtonMain[1].Enabled := true;
-    KMButtonMain[2].Enabled := true;
-    KMButtonMain[3].Enabled := true;
-  end;
+  KMButtonMain[1].Enabled := NewValue;
+  KMButtonMain[2].Enabled := NewValue;
+  KMButtonMain[3].Enabled := NewValue;
 end;
 
 

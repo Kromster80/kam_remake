@@ -165,7 +165,7 @@ begin
       fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
       //if Button = mbRight then fGameplayInterface.RightClickCancel; //Right clicking with the build menu open will close it
     end else begin
-      if Button = mbRight then fGameplayInterface.RightClickCancel; //Right clicking with the build menu open will close it
+      if Button = mbRight then fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
       if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
         case CursorMode.Mode of
           cm_None:
@@ -191,7 +191,7 @@ begin
           cm_Houses:
             begin
               if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false) then
-                if fGameplayInterface<>nil then fGamePlayInterface.SelectRoad;
+                if fGameplayInterface<>nil then fGamePlayInterface.Build_SelectRoad;
             end;
         end;
     end;
