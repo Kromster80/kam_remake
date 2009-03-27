@@ -656,6 +656,7 @@ if ID<=0 then exit;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,NewInst,Owner);
 
+  if not MakeShowUnitMove then exit;
   glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
   RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
 end;

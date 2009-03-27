@@ -230,6 +230,7 @@ begin
   if CheckFileExists(MissionFile,true) then begin
     if not fMissionParser.LoadDATFile(MissionFile) then begin
       StopGame(true);
+      //Show all required error messages here
       exit;
     end;
     fLog.AppendLog('DAT Loaded');

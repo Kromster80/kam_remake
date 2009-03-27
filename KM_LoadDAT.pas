@@ -39,6 +39,7 @@ const
 type
   TMissionParser = class(TObject)
   private     { Private declarations }
+    OpenedMissionName:string;
     CurrentPlayerIndex: integer;
     LastHouse: TKMHouse;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
@@ -123,12 +124,16 @@ begin
   if not CheckFileExists(AFileName) then exit;
   UnloadMission; //Call function which will reset fPlayers and other stuff
 
+  OpenedMissionName:=AFileName; //Used in MAP loading later on
+
   //Load and decode .DAT file into FileText
   assignfile(f,AFileName); reset(f,1);
   blockread(f,c[1],length(c),FileSize);
   Assert(FileSize<>length(c),'DAT file size is too big, can''t fit into buffer');
   setlength(FileText,FileSize);
   closefile(f);
+
+  //@Lewin: ENCODED := c[1] = chr(206); //That is encoded first char
 
   i:=1; k:=1;
   repeat
@@ -206,11 +211,14 @@ begin
                          MyStr := MyStr+TextParam[i];
                          inc(i);
                        until (TextParam[i] = '"') or (i >= Length(TextParam));
-                       fTerrain.OpenMapFromFile(ExeDir+MyStr);
-                       if not fTerrain.OpenMapFromFile(ExeDir+MyStr) then
+
+                       //fTerrain.OpenMapFromFile(ExeDir+MyStr); Useless
+                       if not fTerrain.OpenMapFromFile(ExeDir+MyStr) then //This one is enough
                        begin
-                         //Result := false;
-                         exit;
+                         if not fTerrain.OpenMapFromFile(ChangeFileExt(OpenedMissionName,'.map')) then begin
+                           //Result := false;
+                           exit;
+                         end;
                        end;
                        fViewport.SetZoom:=1;
                      end;

@@ -596,6 +596,12 @@ if (aUnitType=ut_Butcher)and(aHome=ht_Butchers) then begin
   SubActAdd(ha_Work4,1);
   SubActAdd(ha_Work3,1);
 end else
+
+//These are undefined yet 
+if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Swine) then begin
+  Issued:=false; //Let him idle
+end else
+
 if (aUnitType=ut_Recruit)and(aHome=ht_Barracks) then begin
   Issued:=false; //Let him idle
 end else
@@ -896,6 +902,7 @@ end;
 
 
 function TKMUnitAnimal.UpdateState():boolean;
+var Spot:TKMPoint; SpotJit:byte; //Target spot where unit will go
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -904,9 +911,23 @@ begin
   // locks up. (load up mission 1 TSK and see) If you replace it with an idle task like:
   //SetAction(TUnitActionStay.Create(20,ua_Walk));
   //then it runs fine, so it must be something to do with this command. (I don't understand the task system well)
-  SetAction(TUnitActionWalkTo.Create(GetPosition,
-  fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(8),GetPosition.Y+RandomS(8),3)
-  ));
+  //@Lewin: That was due to repeated unability to make a walking route when unit was on unwalkable terrain.
+  //Fixed and to be deleted..
+
+  //Randomly choose walk or wait
+  if Random(2)=0 then begin// 50/50 chance
+
+    SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
+    repeat //Where unit should go, keep picking until target is walkable for the unit
+      dec(SpotJit);
+      Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit),1);
+    until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
+
+    //31..38 only //@Krom: Self-reminder - Crabs should not go off sand, needs another canWalkSand!
+    SetAction(TUnitActionWalkTo.Create(GetPosition, Spot, ua_Walk, true, AnimalTerrain[byte(GetUnitType)]));
+
+  end else
+    SetAction(TUnitActionStay.Create(Random(20),ua_Walk)); //Should depend on unit type, e.g. Wolfs are fastrunners in general
 
   Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
@@ -1714,6 +1735,8 @@ procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEn
 var
   DX, DY, Distance:single; U:TKMUnit;
 begin
+  if not fRouteBuilt then
+    fLog.AddToLog('Unable to make a route ');
   //Execute the route in series of moves
   DoEnd:= False;
   TimeDelta:=0.1;

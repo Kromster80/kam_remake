@@ -300,6 +300,7 @@ until(len=k);
 Result:=uppercase(s);
 end;
 
+
 function AssureFileExt(FileName,Ext:string): string;
 begin
 if (Ext='')or(GetFileExt(FileName,length(Ext))=UpperCase(Ext)) then
@@ -307,6 +308,7 @@ if (Ext='')or(GetFileExt(FileName,length(Ext))=UpperCase(Ext)) then
 else
   Result:=FileName+'.'+Ext;
 end;
+
 
 function GetFileSize(const FileName: string): LongInt;
 var
@@ -880,7 +882,7 @@ end;
 
 function RandomS(Range_Both_Directions:integer):integer; overload
 begin
-Result:=Random(Range_Both_Directions*2+1)-Range_Both_Directions;
+  Result:=Random(Range_Both_Directions*2+1)-Range_Both_Directions;
 end;
 
 function RandomS(Range_Both_Directions:single):single; overload

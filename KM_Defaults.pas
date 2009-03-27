@@ -132,6 +132,23 @@ ProductionCosts:array[17..26,1..2]of TResourceType = (
 (rt_Coal,rt_Steel)    //rt_Arbalet
 );
 
+{ Terrain }
+type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish);
+     TPassabilitySet = set of TPassability;
+
+const PassabilityStr:array[1..10] of string = ('canAll', 'canWalk', 'canWalkRoad', 'canBuild', 'canBuildIron', 'canBuildGold', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
+{canAll - Crat blanche, e.g. for workers building house are which is normaly unwalkable} //@Lewin:Why fenced house area is unwalkable?
+{canWalk - General passability of tile for any walking units}
+{canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
+{canBuild - Can we build a house on this tile?}
+{canBuildIron - Special allowance for Iron Mines
+{canBuildGold - Special allowance for Gold Mines
+{canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges}
+{canMakeFields - Thats more strict than roads, cos e.g. on beaches you can't make fields}
+{canPlantTrees - If Forester can plant a tree here, dunno if it's the same as fields}
+{canFish - water tiles where fish can move around}
+
+
 {Units}
 type
   TUnitType = ( ut_None=0, ut_Any=40,
@@ -146,6 +163,10 @@ type
     //ut_Catapult=29,   ut_Ballista=30,
     ut_Wolf=31,         ut_Fish=32,         ut_Watersnake=33,   ut_Seastar=34,
     ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38);
+
+//Defines which animal prefers which terrain
+const AnimalTerrain: array[31..38] of TPassability = (
+    canWalk, canFish, canFish, canFish, canWalk, canFish, canFish, canFish);
 
 const
   Army_Flag=4962;

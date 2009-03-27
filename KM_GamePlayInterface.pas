@@ -49,6 +49,11 @@ type TKMMainMenuInterface = class
       KMImage_ResultsBG:TKMImage;
       KMButton_ResultsBack:TKMButton;
   private
+    procedure Create_MainMenu_Page;
+    procedure Create_Single_Page;
+    procedure Create_Credits_Page;
+    procedure Create_Loading_Page;
+    procedure Create_Results_Page;
     procedure SwitchMenuPage(Sender: TObject);
     procedure SingleMap_RefreshList();
     procedure SingleMap_SelectMap(Sender: TObject);
@@ -63,11 +68,6 @@ type TKMMainMenuInterface = class
     procedure ShowScreen_Loading();
     procedure ShowScreen_Main();
     procedure ShowScreen_Results();
-    procedure Create_MainMenu_Page;
-    procedure Create_Single_Page;
-    procedure Create_Credits_Page;
-    procedure Create_Loading_Page;
-    procedure Create_Results_Page;
   public
     procedure Paint;
 end;
@@ -192,6 +192,8 @@ type TKMGamePlayInterface = class
     procedure House_WareDeliveryToggle(Sender:TObject);
     procedure House_OrderClick(Sender:TObject);
     procedure House_OrderClickRight(Sender:TObject);
+    procedure House_BarracksUnitChange(Sender:TObject);
+    procedure House_BarracksUnitChangeRight(Sender:TObject);
     procedure House_SchoolUnitChange(Sender:TObject);
     procedure House_SchoolUnitChangeRight(Sender:TObject);
     procedure House_SchoolUnitRemove(Sender:TObject);
@@ -418,22 +420,28 @@ begin
     if KMPanel_Main1.Childs[i] is TKMPanel then
       KMPanel_Main1.Childs[i].Hide;
 
+  {Return to MainMenu if Sender unspecified}
   if Sender=nil then KMPanel_MainMenu.Show;
-  
+
+  {Return to MainMenu}
   if (Sender=KMButton_CreditsBack)or(Sender=KMButton_SingleBack)or(Sender=KMButton_ResultsBack) then
     KMPanel_MainMenu.Show;
 
+  {Show Credits}
   if Sender=KMButton_MainMenuCredit then
     KMPanel_Credits.Show;
 
+  {Show SingleMap menu}
   if Sender=KMButton_MainMenuSingle then begin
     SingleMap_RefreshList();
     KMPanel_Single.Show;
   end;
 
+  {Show Loading... screen}
   if Sender=KMPanel_Loading then
     KMPanel_Loading.Show;
 
+  {Show Results screen}
   if Sender=KMPanel_Results then //This page can be accessed only by itself
     KMPanel_Results.Show;
 end;
@@ -1046,6 +1054,23 @@ begin
       end;
       KMButton_Barracks[12].TexID:=154;
       KMButton_Barracks[12].Hint:=TypeToString(ut_Recruit);
+      {KMLabel_School_Unit:=MyControls.AddLabel(KMPanel_House_School,100,116,100,30,'',fnt_Outline,kaCenter);
+      KMImage_School_Left :=MyControls.AddImage(KMPanel_House_School,  8,136,54,80,521);
+      KMImage_School_Left.Enabled := false;
+      KMImage_School_Train:=MyControls.AddImage(KMPanel_House_School, 70,136,54,80,522);
+      KMImage_School_Right:=MyControls.AddImage(KMPanel_House_School,132,136,54,80,523);
+      KMImage_School_Right.Enabled := false;
+      KMButton_School_Left :=MyControls.AddButton(KMPanel_House_School,  8,226,54,40,35);
+      KMButton_School_Train:=MyControls.AddButton(KMPanel_House_School, 70,226,54,40,42);
+      KMButton_School_Right:=MyControls.AddButton(KMPanel_House_School,132,226,54,40,36);
+      KMButton_School_Left.OnClick:=House_SchoolUnitChange;
+      KMButton_School_Train.OnClick:=House_SchoolUnitChange;
+      KMButton_School_Right.OnClick:=House_SchoolUnitChange;
+      KMButton_School_Left.OnRightClick:=House_SchoolUnitChangeRight;
+      KMButton_School_Right.OnRightClick:=House_SchoolUnitChangeRight;
+      KMButton_School_Left.Hint :=fTextLibrary.GetTextString(242);
+      KMButton_School_Train.Hint:=fTextLibrary.GetTextString(243);
+      KMButton_School_Right.Hint:=fTextLibrary.GetTextString(241);}
 end;
 
 
@@ -1325,6 +1350,18 @@ begin
     if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.RemOrder(i,10);
     if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.AddOrder(i,10);
   end;
+end;
+
+
+procedure TKMGamePlayInterface.House_BarracksUnitChange(Sender:TObject);
+begin
+//
+end;
+
+
+procedure TKMGamePlayInterface.House_BarracksUnitChangeRight(Sender:TObject);
+begin
+//
 end;
 
 

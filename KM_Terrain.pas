@@ -5,21 +5,6 @@ uses Controls, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils;
 const
 MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
 
-type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish);
-     TPassabilitySet = set of TPassability;
-
-const PassabilityStr:array[1..10] of string = ('canAll', 'canWalk', 'canWalkRoad', 'canBuild', 'canBuildIron', 'canBuildGold', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
-{canAll - Crat blanche, e.g. for workers building house are which is normaly unwalkable} //@Lewin:Why fenced house area is unwalkable?
-{canWalk - General passability of tile for any walking units}
-{canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
-{canBuild - Can we build a house on this tile?}
-{canBuildIron - Special allowance for Iron Mines
-{canBuildGold - Special allowance for Gold Mines
-{canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges}
-{canMakeFields - Thats more strict than roads, cos e.g. on beaches you can't make fields}
-{canPlantTrees - If Forester can plant a tree here, dunno if it's the same as fields}
-{canFish - water tiles where fish can move around}
-
 type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class
@@ -107,6 +92,7 @@ public
   procedure DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 
   procedure RecalculatePassability(Loc:TKMPoint);
+  function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
 
   function GetOutOfTheWay(Loc:TKMPoint; aPass:TPassability):TKMPoint;
   procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
@@ -652,8 +638,6 @@ begin
 end;
 
 
-
-
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 //var H:TKMHouse;
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
@@ -728,6 +712,12 @@ begin
 end;
 
 
+function TTerrain.CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
+begin
+  Result := aPass in Land[Loc.Y,Loc.X].Passability;
+end;
+
+
 {Return random tile surrounding given one with aPass property}
 function TTerrain.GetOutOfTheWay(Loc:TKMPoint; aPass:TPassability):TKMPoint;
 var i,k:integer; L:TKMPointList;
@@ -764,6 +754,14 @@ var
     Parent:word;//Ref to parent
   end;
 begin
+
+  //Don't try to make a route if it's obviously impossible
+  if (KMSamePoint(LocA,LocB))or(not (aPass in Land[LocB.Y,LocB.X].Passability)) then begin
+    NodeCount:=0;
+    Nodes[0]:=LocA;
+    exit;
+  end;
+
   OCount:=0;
   FillChar(ORef,SizeOf(ORef),#0);
   FillChar(OList,SizeOf(OList),#0);
