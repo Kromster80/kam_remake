@@ -821,7 +821,7 @@ begin
     Stat_House[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
     Stat_HouseQty[ci]:=MyControls.AddLabel(KMPanel_Stats,8+37+(k-1)*42,(i-1)*32+18,33,30,'',fnt_Grey,kaRight);
     Stat_HouseQty[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
-  end;              
+  end;
   ci:=0;
   for i:=1 to 11 do for k:=1 to 5 do
   if StatUnitOrder[i,k]<>ut_None then begin     
@@ -1012,7 +1012,6 @@ begin
         KMButton_Store[i].OnClick:=House_StoreAcceptFlag;
         KMButton_Store[i].Tag:=i;
         KMButton_Store[i].Hint:=TypeToString(TResourceType(i));
-        KMButton_Store[i].HideHighlight:=true;
         KMImage_Store_Accept[i]:=MyControls.AddImage(KMPanel_HouseStore, 8+((i-1)mod 5)*36+9,18+((i-1)div 5)*42-11,32,36,49);
         KMImage_Store_Accept[i].FOnClick:=House_StoreAcceptFlag;
         KMImage_Store_Accept[i].Hint:=TypeToString(TResourceType(i));
@@ -1064,6 +1063,7 @@ begin
       for i:=1 to 12 do
       begin
         KMButton_Barracks[i]:=MyControls.AddButtonFlat(KMPanel_HouseBarracks, 8+((i-1)mod 6)*31,19+((i-1)div 6)*42,28,36,366+i);
+        KMButton_Barracks[i].HideHighlight:=true;
         KMButton_Barracks[i].Hint:=TypeToString(TResourceType(16+i));
       end;
       KMButton_Barracks[12].TexID:=154;
@@ -1190,6 +1190,7 @@ begin
   KMLabel_House.Visible := true;
   KMImage_House_Logo.Visible := true;
   KMImage_House_Worker.Visible := true;
+  KMImage_House_Worker.Enabled := true;
   KMHealthBar_House.Visible := true;
   KMLabel_HouseHealth.Visible := true;
   SwitchPage(KMPanel_House);
@@ -1220,6 +1221,7 @@ begin
       end;
 
   ht_Barracks: begin
+        KMImage_House_Worker.Enabled := true; //In the barrack the recruit icon is always enabled
         BarracksFill(nil);
         SwitchPage(KMPanel_HouseBarracks);
         end;

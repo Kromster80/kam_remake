@@ -583,9 +583,38 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
       if TileInMapCoords(X-1,Y) and (TileIsStone(KMPoint(X-1,Y))>0) then inc(Bits,8);    //
       Land[Y,X].Terrain:=TileID[Bits];
       Land[Y,X].Rotation:=RotID[Bits];
+      if Land[Y,X].Terrain = 0 then Land[Y,X].Rotation:=Random(4); //Randomise the direction of grass tiles
       RecalculatePassability(Loc);
     end;
   end;
+
+  function DecHeight(CurHeight,BaseHeight:byte; ReductionFactor:single):byte;
+  var MyMin:byte;
+  begin
+    if CurHeight < BaseHeight then
+      MyMin := 100 //This tile is low, so we should allow it to be raised
+    else
+      MyMin := CurHeight; //This tile is higher than the base, so don't allow it to be raised
+    Result := min(round(max(0,CurHeight-BaseHeight) * ReductionFactor)+BaseHeight,MyMin);
+    Result := EnsureRange(Result + RandomS(2),0,100);
+  end;
+
+  procedure ReduceHeights(LowX,HighX,LowY,HighY:word);
+  var ix, iy: word;
+  const StoneHeightReduction = 0.95; //The amount that surounding tiles height will be reduced by for the surounding tiles
+        GrassHeightReduction = 0.8; //Grass is reduced more than stone to ensure that no peaks in the grass occur
+  begin
+    for iy:=HighY downto LowY do
+      for ix:=LowX to HighX do
+      begin
+        if TileIsStone(KMPoint(ix,iy))>0 then
+          Land[iy,ix].Height:=DecHeight(Land[iy,ix].Height,Land[iy+1,ix].Height,StoneHeightReduction)
+        else Land[iy,ix].Height:=DecHeight(Land[iy,ix].Height,Land[iy+1,ix].Height,GrassHeightReduction);   
+        RecalculatePassability(KMPoint(ix,iy));
+      end;
+    RebuildLighting(LowX,HighX,LowY,HighY); //Update the lighting
+  end;
+  const HeightReduction = 0.75; //The amount that height will be reduced by for the decreased tile
 begin
   case Land[Loc.Y,Loc.X].Terrain of
     132,137: Land[Loc.Y,Loc.X].Terrain:=131+Random(2)*5;
@@ -593,14 +622,17 @@ begin
     130,135: Land[Loc.Y,Loc.X].Terrain:=129+Random(2)*5;
     129,134: Land[Loc.Y,Loc.X].Terrain:=128+Random(2)*5;
     128,133: Land[Loc.Y,Loc.X].Terrain:=0;
-    else Assert(false,'Unable to DecStoneReserve at '+TypeToString(Loc)+' for it isn''t there');
+    else exit; //Assert(false,'Unable to DecStoneReserve at '+TypeToString(Loc)+' for it isn''t there');
   end;
   Land[Loc.Y,Loc.X].Rotation:=Random(4);
+  Land[Loc.Y,Loc.X].Height:=DecHeight(Land[Loc.Y,Loc.X].Height,Land[Loc.Y+1,Loc.X].Height,HeightReduction); //Reduce height
+  RecalculatePassability(Loc);
   UpdateTransition(Loc.X,Loc.Y);
   UpdateTransition(Loc.X,Loc.Y-1);
   UpdateTransition(Loc.X+1,Loc.Y);
   UpdateTransition(Loc.X,Loc.Y+1);
   UpdateTransition(Loc.X-1,Loc.Y);
+  ReduceHeights(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Required for height reduction
 end;
 
 
