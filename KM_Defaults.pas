@@ -856,7 +856,8 @@ end;
 
 function TKMPointList.GetRandom():TKMPoint;
 begin
-  Result:=List[random(Count)+1];
+  if Count=0 then Result:=KMPoint(0,0)
+             else Result:=List[random(Count)+1];
 end;
 
 

@@ -108,6 +108,7 @@ public
   function TileIsSoil(Loc:TKMPoint):boolean;
   function TileIsWalkable(Loc:TKMPoint):boolean;
   function TileIsRoadable(Loc:TKMPoint):boolean;
+  function TileIsExTree(Loc:TKMPoint):boolean;
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
   function CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
@@ -283,6 +284,17 @@ begin
                                           197, 203..205, 212,213,215, 220, 247];
 end;
 
+
+{Check if the tile has stomp of chopped tree}
+function TTerrain.TileIsExTree(Loc:TKMPoint):boolean;
+var i:integer;
+begin
+  Result:=false;
+  if Land[Loc.Y,Loc.X].Obj<>255 then
+    for i:=1 to length(ChopableTrees) do
+      Result:=Result or (Land[Loc.Y,Loc.X].Obj=ChopableTrees[i,6]);
+end;
+
 //Also need to make such table for objects with 2 options
 // - CanBuildOnTop(means everything allowed), CanWalkOnTop(can only walk and build roads on top), CanNothing
 
@@ -403,31 +415,36 @@ end;
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
 function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k:integer;
+var i,k:integer; List:TKMPointList;
 begin
-Result:=KMPoint(0,0);
-for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-  for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if (TileIsStone(KMPoint(k,i))>0)and(TileIsWalkable(KMPoint(k,i+1))) then
-          Result:=KMPoint(k,i+1);
+  List:=TKMPointList.Create;
+//  Result:=KMPoint(0,0);
+  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
+    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+      if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+        if (TileIsStone(KMPoint(k,i))>0)and(TileIsWalkable(KMPoint(k,i+1))) then
+          List.AddEntry(KMPoint(k,i+1));
+//            Result:=KMPoint(k,i+1);
+
+  Result:=List.GetRandom;
+  List.Free;
 end;
 
 
 function TTerrain.FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k:integer; L:array[1..4]of TKMPointList;
+var i,k,RadX,RadY:integer; L:array[1..4]of TKMPointList;
 begin
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
-  //aRadius:=aRadius+2; //Should add some gradient to it later on
-  //Coal radius is not circular, hence -1 on bottom
-  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius-1 do
-    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+  RadX:=aRadius+3; //Should add some gradient to it later on
+  RadY:=aRadius+2; //Should add some gradient to it later on
+  for i:=aPosition.Y-RadY to aPosition.Y+RadY do
+    for k:=aPosition.X-RadX to aPosition.X+RadX do
       if TileInMapCoords(k,i) then
         case Land[i,k].Terrain of
-        152: L[1].AddEntry(KMPoint(k,i));
-        153: L[2].AddEntry(KMPoint(k,i));
-        154: L[3].AddEntry(KMPoint(k,i));
+        152: if abs(i-aPosition.Y)<=(RadY-3) then if abs(k-aPosition.X)<=(RadX-3) then L[1].AddEntry(KMPoint(k,i));
+        153: if abs(i-aPosition.Y)<=(RadY-2) then if abs(k-aPosition.X)<=(RadX-2) then L[2].AddEntry(KMPoint(k,i));
+        154: if abs(i-aPosition.Y)<=(RadY-1) then if abs(k-aPosition.X)<=(RadX-1) then L[3].AddEntry(KMPoint(k,i));
         155: L[4].AddEntry(KMPoint(k,i));
         end;
 
@@ -481,7 +498,7 @@ end;
 {Find suitable place to plant a tree.
 Prefer ex-trees locations}
 function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var h,i,k:integer; List1,List2:TKMPointList; FoundExTree:boolean;
+var i,k:integer; List1,List2:TKMPointList;
 begin
 List1:=TKMPointList.Create;
 List2:=TKMPointList.Create;
@@ -490,15 +507,7 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if CanPlantTrees in Land[i,k].Passability then begin
 
-        FoundExTree:=false;
-
-        //If there's an object, check if it is ex-tree
-        if Land[i,k].Obj<>255 then
-        for h:=1 to length(ChopableTrees) do
-          if Land[i,k].Obj=ChopableTrees[h,6] then
-            FoundExTree:=true;
-
-        if FoundExTree then
+        if TileIsExTree(KMPoint(k,i)) then
             List1.AddEntry(KMPoint(k,i))
           else
             List2.AddEntry(KMPoint(k,i));
@@ -508,6 +517,8 @@ if List1.Count>0 then
   Result:=List1.GetRandom
 else
   Result:=List2.GetRandom;
+List1.Free;
+List2.Free;
 end;
 
 
@@ -731,7 +742,7 @@ begin
        AddPassability(Loc, [canMakeFields]);
 
      if (TileIsSoil(Loc))and
-        (Land[Loc.Y,Loc.X].Obj=255)and
+        (Land[Loc.Y,Loc.X].Obj=255)or(TileIsExTree(Loc))and //No object or ExTree
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then

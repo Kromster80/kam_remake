@@ -236,7 +236,7 @@ begin
 
 fViewPort.SetCenter(11,9);
 
-for k:=-5 to 5 do for i:=-4 to 6 do
+for k:=-6 to 6 do for i:=-5 to 6 do
 fTerrain.SetResourceDeposit(KMPoint(8+i,14+k),rt_Coal);
 
 for k:=-4 to 0 do for i:=-3 to 3 do

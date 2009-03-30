@@ -22,7 +22,7 @@ TKMControl = class
 
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
-    
+
     CursorOver:boolean;
 
     FOnClick:TNotifyEvent;
@@ -41,6 +41,7 @@ TKMControl = class
     procedure Disable;
     procedure Show;
     procedure Hide;
+    function IsVisible():boolean;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
@@ -270,6 +271,8 @@ begin
   Height:=aHeight;
   Enabled:=true;
   Visible:=true;
+  Tag:=0;
+  Hint:='';
 end;
 
 {Parentize control to another control}
@@ -328,11 +331,24 @@ begin
 end;
 
 
-{Shortcuts to commands}
+{Shortcuts to Controls properties}
 procedure TKMControl.Enable;  begin Enabled:=true;  end;
 procedure TKMControl.Disable; begin Enabled:=false; end;
 procedure TKMControl.Show;    begin Visible:=true;  end;
 procedure TKMControl.Hide;    begin Visible:=false; end;
+
+
+{Check Control including all its Parents to see if Control is actually displayed/visible}
+function TKMControl.IsVisible():boolean;
+var C:TKMControl;
+begin
+  Result:=Visible;
+  C:=Self.Parent;
+  while C<>nil do begin
+    Result:=Result and C.Visible;
+    C:=C.Parent;
+  end;
+end;
 
 
 constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
@@ -774,6 +790,8 @@ begin
     CenteredAt.X := EnsureRange(X - Left - (Width-MapSize.X) div 2,1,MapSize.X);
     CenteredAt.Y := EnsureRange(Y - Top - (Height-MapSize.Y) div 2,1,MapSize.Y);
   end;
+  if Assigned(OnChange) then
+    OnChange(Self);
 end;
 
 
@@ -905,7 +923,7 @@ var i:integer;
 begin
   for i:=0 to Count-1 do
     if TKMControl(Items[I]).Parent=nil then
-      if TKMControl(Items[I]).Visible then
+      if TKMControl(Items[I]).IsVisible then
       begin
         if TKMControl(Items[I]).Enabled then
           TKMControl(Items[I]).CheckCursorOver(X,Y,AShift);
@@ -920,9 +938,7 @@ begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
-      if TKMControl(Items[I]).Visible then
-      if TKMControl(Items[I]).Parent <> nil then //Added this so command bellow will work. Doesn't seem to cause issues, and all clickable controls should have a parent
-      if TKMControl(Items[I]).Parent.Visible then //If parent (a panel) is invisible then don't allow clicking
+      if TKMControl(Items[I]).IsVisible then
       if TKMControl(Items[I]).Enabled then
       if TKMControl(Items[i]).ClassType=TKMButton then
       TKMButton(Items[I]).Down:=true;
@@ -935,9 +951,7 @@ begin
   for i:=0 to Count-1 do
     if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
        InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
-      if TKMControl(Items[I]).Visible then
-      if TKMControl(Items[I]).Parent <> nil then //Added this so command bellow will work. Doesn't seem to cause issues, and all clickable controls should have a parent
-      if TKMControl(Items[I]).Parent.Visible then //If parent (a panel) is invisible then don't allow clicking
+      if TKMControl(Items[I]).IsVisible then
       if TKMControl(Items[I]).Enabled then begin
         if TKMControl(Items[i]).ClassType=TKMButton then
           TKMButton(Items[I]).Down:=false;
@@ -963,7 +977,7 @@ procedure TKMControlsCollection.Paint();
 begin
   for i:=0 to Count-1 do
     if TKMControl(Items[I]).Parent=nil then
-      if TKMControl(Items[I]).Visible then TKMControl(Items[I]).Paint;
+      if TKMControl(Items[I]).IsVisible then TKMControl(Items[I]).Paint;
 end;
 
 

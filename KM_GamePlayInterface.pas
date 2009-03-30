@@ -21,8 +21,8 @@ type TKMMainMenuInterface = class
       KMButton_MainMenuSingle,KMButton_MainMenuCredit,KMButton_MainMenuQuit:TKMButton;
       KMLabel_Version:TKMLabel;
     KMPanel_Single:TKMPanel;
-      KMPanel_SingleList,KMPanel_SingleDesc:TKMPanel;
       KMImage_SingleBG:TKMImage; //Single background
+      KMPanel_SingleList,KMPanel_SingleDesc:TKMPanel;
       KMButton_SingleHeadMode,KMButton_SingleHeadTeams,KMButton_SingleHeadTitle,KMButton_SingleHeadSize:TKMButton;
       KMBevel_SingleBG:array[1..20,1..5]of TKMBevel;
       KMButton_SingleMode:array[1..20]of TKMImage;
@@ -31,14 +31,12 @@ type TKMMainMenuInterface = class
       KMScrollBar_SingleMaps:TKMScrollBar;
       KMShape_SingleMap:TKMShape;
       KMImage_SingleScroll1:TKMImage;
-      KMLabel_SingleTitle:TKMLabel;
-      KMLabel_SingleDesc:TKMLabel;
+      KMLabel_SingleTitle,KMLabel_SingleDesc:TKMLabel;
       KMLabel_SingleCondWin,KMLabel_SingleCondDef:TKMLabel;
       KM_Button_SingleDiff:array[1..4]of TKMButtonFlat;
       KMShape_SingleDiff:TKMShape;
       KMLabel_SingleDiff:TKMLabel;
-      KMButton_SingleBack:TKMButton;
-      KMButton_SingleStart:TKMButton;
+      KMButton_SingleBack,KMButton_SingleStart:TKMButton;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage; //Credits background
       KMButton_CreditsBack:TKMButton;
@@ -163,7 +161,7 @@ type TKMGamePlayInterface = class
   private
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
-    procedure Minimap_Move(Sender: TObject; AShift:TShiftState; X,Y:integer);
+    procedure Minimap_Move(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
     procedure StoreFill(Sender:TObject);
@@ -540,121 +538,122 @@ end;
 {Switch between pages}
 procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
 var i:integer; LastVisiblePage: TKMPanel;
-  procedure Hide4MainButtons();
+
+  procedure Flip4MainButtons(ShowEm:boolean);
   var i:integer;
   begin
-    for i:=1 to 4 do
-      KMButtonMain[i].Hide;
-    KMButtonMain[5].Show;
-    KMLabel_MenuTitle.Show;
-  end;  
-  procedure Show4MainButtons();
-  var i:integer;
-  begin
-    for i:=1 to 4 do
-      KMButtonMain[i].Show;
-    KMButtonMain[5].Hide;
-    KMLabel_MenuTitle.Hide;
+    for i:=1 to 4 do KMButtonMain[i].Visible:=ShowEm;
+    KMButtonMain[5].Visible:=not ShowEm;
+    KMLabel_MenuTitle.Visible:=not ShowEm;
   end;
+
 begin
 
-if (Sender=KMButtonMain[1])or(Sender=KMButtonMain[2])or(Sender=KMButtonMain[3])or(Sender=KMButtonMain[4])or
-   (Sender=KMButton_Menu_Settings)or(Sender=KMButton_Menu_Quit) then begin
-  ShownHouse:=nil;
-  ShownUnit:=nil;
-end;
+  if (Sender=KMButtonMain[1])or(Sender=KMButtonMain[2])or
+     (Sender=KMButtonMain[3])or(Sender=KMButtonMain[4])or
+     (Sender=KMButton_Menu_Settings)or(Sender=KMButton_Menu_Quit) then begin
+    ShownHouse:=nil;
+    ShownUnit:=nil;
+  end;
 
-//Reset the CursorMode, to cm_None
-Build_ButtonClick(nil);
+  //Reset the CursorMode, to cm_None
+  Build_ButtonClick(nil);
 
-//Set LastVisiblePage to which ever page was last visible, out of the ones needed
-if KMPanel_Settings.Visible = true then
-  LastVisiblePage := KMPanel_Settings;
-if KMPanel_Save.Visible = true then
-  LastVisiblePage := KMPanel_Save;
-if KMPanel_Load.Visible = true then
-  LastVisiblePage := KMPanel_Load;
+  //Set LastVisiblePage to which ever page was last visible, out of the ones needed
+  if KMPanel_Settings.Visible = true then
+    LastVisiblePage := KMPanel_Settings else
+  if KMPanel_Save.Visible = true then
+    LastVisiblePage := KMPanel_Save else
+  if KMPanel_Load.Visible = true then
+    LastVisiblePage := KMPanel_Load else
+    LastVisiblePage := nil;
 
-//First thing - hide all existing pages
-  for i:=1 to KMPanel_Main.ChildCount do
-    if KMPanel_Main.Childs[i] is TKMPanel then
-      KMPanel_Main.Childs[i].Hide;
-//First thing - hide all existing pages
-  for i:=1 to KMPanel_House.ChildCount do
-    if KMPanel_House.Childs[i] is TKMPanel then
-      KMPanel_House.Childs[i].Hide;
+  //First thing - hide all existing pages
+    for i:=1 to KMPanel_Main.ChildCount do
+      if KMPanel_Main.Childs[i] is TKMPanel then
+        KMPanel_Main.Childs[i].Hide;
+  //First thing - hide all existing pages
+    for i:=1 to KMPanel_House.ChildCount do
+      if KMPanel_House.Childs[i] is TKMPanel then
+        KMPanel_House.Childs[i].Hide;
 
-//If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
-if Sender=KMButtonMain[1] then begin
-  Build_Fill(nil);
-  KMPanel_Build.Show;
-  Hide4MainButtons;
-  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(166);
-  Build_SelectRoad;
-end else
-if Sender=KMButtonMain[2] then begin
-  KMPanel_Ratios.Show;
-  Hide4MainButtons;
-  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(167);
-end else
-if Sender=KMButtonMain[3] then begin
-  Stats_Fill(nil);
-  KMPanel_Stats.Show;
-  Hide4MainButtons;
-  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
-end else
-if ((Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No) or
-   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings)) or
-   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Load)) or
-   ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Save))) then begin
-  KMPanel_Menu.Show;
-  Hide4MainButtons;
-  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
-end else
-if Sender=KMButton_Menu_Save then begin
-  KMPanel_Save.Show;
-  Hide4MainButtons;
-  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
-end else
-if Sender=KMButton_Menu_Load then begin
-  KMPanel_Load.Show;
-  Hide4MainButtons;
-  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(172);
-end else
-if Sender=KMButton_Menu_Settings then begin
-  KMPanel_Settings.Show;
-  Hide4MainButtons;
-  KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
-end else
-if Sender=KMButton_Menu_Quit then begin
-  KMPanel_Quit.Show;
-  Hide4MainButtons;
-end else //If Sender is anything else - then show all 4 buttons and hide Return button
-  Show4MainButtons;
+  //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
+  Flip4MainButtons(false);
+  if Sender=KMButtonMain[1] then begin
+    Build_Fill(nil);
+    KMPanel_Build.Show;
+    KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(166);
+    Build_SelectRoad;
+  end else
 
-//Now process all other kinds of pages
-if Sender=KMPanel_Unit then begin
-  TKMPanel(Sender).Show;
-end else
-if Sender=KMPanel_House then begin
-  TKMPanel(Sender).Show;
-end;
-if Sender=KMPanel_House_Common then begin
-  TKMPanel(Sender).Parent.Show;
-  TKMPanel(Sender).Show;
-end else
-if Sender=KMPanel_House_School then begin
-  TKMPanel(Sender).Parent.Show;
-  TKMPanel(Sender).Show;
-end else
-if Sender=KMPanel_HouseBarracks then begin
-  TKMPanel(Sender).Parent.Show;
-  TKMPanel(Sender).Show;
-end else
-if Sender=KMPanel_HouseStore then begin
-  TKMPanel(Sender).Parent.Show;
-  TKMPanel(Sender).Show;
-end;
+  if Sender=KMButtonMain[2] then begin
+    KMPanel_Ratios.Show;
+    KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(167);
+  end else
+
+  if Sender=KMButtonMain[3] then begin
+    Stats_Fill(nil);
+    KMPanel_Stats.Show;
+    KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
+  end else
+
+  if (Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No) or
+     ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings)) or
+     ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Load)) or
+     ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Save)) then begin
+    KMPanel_Menu.Show;
+    KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
+  end else
+
+  if Sender=KMButton_Menu_Save then begin
+    KMPanel_Save.Show;
+    KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
+  end else
+
+  if Sender=KMButton_Menu_Load then begin
+    KMPanel_Load.Show;
+    KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(172);
+  end else
+
+  if Sender=KMButton_Menu_Settings then begin
+    KMPanel_Settings.Show;
+    KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
+  end else
+
+  if Sender=KMButton_Menu_Quit then begin
+    KMPanel_Quit.Show;
+  end else
+    //If Sender is anything else - then show all 4 buttons and hide Return button
+    Flip4MainButtons(true);
+
+  //Now process all other kinds of pages
+  if Sender=KMPanel_Unit then begin
+    TKMPanel(Sender).Show;
+  end else
+
+  if Sender=KMPanel_House then begin
+    TKMPanel(Sender).Show;
+  end;
+
+  if Sender=KMPanel_House_Common then begin
+    TKMPanel(Sender).Parent.Show;
+    TKMPanel(Sender).Show;
+  end else
+
+  if Sender=KMPanel_House_School then begin
+    TKMPanel(Sender).Parent.Show;
+    TKMPanel(Sender).Show;
+  end else
+
+  if Sender=KMPanel_HouseBarracks then begin
+    TKMPanel(Sender).Parent.Show;
+    TKMPanel(Sender).Show;
+  end else
+
+  if Sender=KMPanel_HouseStore then begin
+    TKMPanel(Sender).Parent.Show;
+    TKMPanel(Sender).Show;
+  end;
 
 end;
 
@@ -677,7 +676,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Minimap_Move(Sender: TObject; AShift:TShiftState; X,Y:integer);
+procedure TKMGamePlayInterface.Minimap_Move(Sender: TObject);
 begin
   KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
 
@@ -711,7 +710,7 @@ Assert(fViewport<>nil,'fViewport required to be init first');
     KMImage_Main4:=MyControls.AddImage(KMPanel_Main,0,368,224,400,404);
 
     KMMinimap:=MyControls.AddMinimap(KMPanel_Main,10,10,176,176);
-    KMMinimap.OnMouseOver:=Minimap_Move;
+    KMMinimap.OnChange:=Minimap_Move;
 
     //This is button to start Village functioning
     KMButtonRun:=MyControls.AddButton(KMPanel_Main,20,205,50,30,36);
@@ -1098,7 +1097,7 @@ begin
   if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
   if Mouse.CursorPos.X>ToolBarWidth then DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar
 
-  Minimap_Move(nil,[],0,0);
+  Minimap_Move(nil);
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
@@ -1168,7 +1167,7 @@ var i,RowRes,Base,Line:integer;
 begin
   ShownUnit:=nil;
   ShownHouse:=Sender;
-  
+
   if Sender=nil then begin
     SwitchPage(nil);
     exit;
@@ -1184,19 +1183,17 @@ begin
 
   if not Sender.IsComplete then
   begin
-  for i:=1 to KMPanel_House.ChildCount do
-    KMPanel_House.Childs[i].Hide; //hide all
-  KMLabel_House_UnderConstruction.Visible := true;
-  KMLabel_House.Visible := true;
-  KMImage_House_Logo.Visible := true;
-  KMImage_House_Worker.Visible := true;
-  KMImage_House_Worker.Enabled := true;
-  KMHealthBar_House.Visible := true;
-  KMLabel_HouseHealth.Visible := true;
-  SwitchPage(KMPanel_House);
-  end
-  else
-  begin
+    for i:=1 to KMPanel_House.ChildCount do
+      KMPanel_House.Childs[i].Hide; //hide all
+    KMLabel_House_UnderConstruction.Show;
+    KMLabel_House.Show;
+    KMImage_House_Logo.Show;
+    KMImage_House_Worker.Show;
+    KMImage_House_Worker.Enable;
+    KMHealthBar_House.Show;
+    KMLabel_HouseHealth.Show;
+    SwitchPage(KMPanel_House);
+  end else begin
   for i:=1 to KMPanel_House.ChildCount do
     KMPanel_House.Childs[i].Show; //show all
   KMImage_House_Worker.Enabled := Sender.GetHasOwner;
