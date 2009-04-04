@@ -155,9 +155,9 @@ begin
 
       writeln(ft);
       for kk:=1 to 16 do
-      write(ft,MapElem[ii].u1[kk],' ');
+      write(ft,MapElem[ii].Properties[MapElemProperties(kk)],' ');
       write(ft,' =',MapElem[ii].u2);
-      write(ft,' =',MapElem[ii].u3);
+      write(ft,' =',MapElem[ii].CanBeRemoved);
       write(ft,' =',MapElem[ii].u4);
       writeln(ft);
     end;

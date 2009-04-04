@@ -300,7 +300,7 @@ begin
     KMButton_MainMenuTPR.Disable;
     KMButton_MainMenuSingle:=MyControls.AddButton(KMPanel_MainMenu,100,520,350,30,fTextLibrary.GetSetupString(4),fnt_Metal);
     KMButton_MainMenuSingle.OnClick:=SwitchMenuPage;
-    //KMButton_MainMenuSingle.Disable; //@Lewin: I like to keep incomplete controls disabled )
+    //KMButton_MainMenuSingle.Disable; //@Lewin: I like to keep incomplete controls disabled. @Krom: Ok. )
     KMButton_MainMenuCredit:=MyControls.AddButton(KMPanel_MainMenu,100,560,350,30,fTextLibrary.GetSetupString(13),fnt_Metal);
     KMButton_MainMenuCredit.OnClick:=SwitchMenuPage;
     KMButton_MainMenuQuit  :=MyControls.AddButton(KMPanel_MainMenu,100,640,350,30,fTextLibrary.GetSetupString(14),fnt_Metal);
@@ -1101,7 +1101,6 @@ begin
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
-  EnableOrDisableMenuIcons(not (MissionMode = mm_Tactic)); //@Lewin: This should be somewhere in Create, we don't want to call it every UpdateState
 end;
 
 

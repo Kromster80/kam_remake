@@ -530,19 +530,20 @@ if (aUnitType=ut_Baker)and(aHome=ht_Bakery) then begin
   end;
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-  if fTerrain.FindField(aLoc,12,fdt_Field,true).X<>0 then begin
+  if ((fTerrain.FindField(aLoc,12,fdt_Field,false).X=0) and (fTerrain.FindField(aLoc,12,fdt_Field,true).X<>0)) or
+     ((fTerrain.FindField(aLoc,12,fdt_Field,true).X<>0) and (fTerrain.FindField(aLoc,12,fdt_Field,false).X<>0) and (Random(2) = 1)) then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
     WalkStyle(fTerrain.FindField(aLoc,12,fdt_Field,true),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
   end else
   if fTerrain.FindField(aLoc,12,fdt_Field,false).X<>0 then
-    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Field,false),ua_Walk,ua_Work1,6,0,ua_Walk,gs_FarmerSow)
+    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Field,false),ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
   else
     Issued:=false;
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
   if fTerrain.FindField(aLoc,12,fdt_Wine,true).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
-    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Wine,true),ua_WalkTool2,ua_Work2,6,0,ua_WalkBooty2,gs_FarmerWine);
+    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Wine,true),ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,11);
     SubActAdd(ha_Work5,1);
@@ -552,7 +553,7 @@ end else
 if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
   if fTerrain.FindStone(aLoc,12).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
-    WalkStyle(fTerrain.FindStone(aLoc,12),ua_Walk,ua_Work,6,1,ua_WalkTool,gs_StoneCutter);
+    WalkStyle(fTerrain.FindStone(aLoc,12),ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,9);
     SubActAdd(ha_Work5,1);
@@ -906,15 +907,9 @@ var Spot:TKMPoint; SpotJit:byte; //Target spot where unit will go
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
-       
-  //@Krom: This code is VERY inefficent and needs improving. With lots of animals the game almost
-  // locks up. (load up mission 1 TSK and see) If you replace it with an idle task like:
-  //SetAction(TUnitActionStay.Create(20,ua_Walk));
-  //then it runs fine, so it must be something to do with this command. (I don't understand the task system well)
-  //@Lewin: That was due to repeated unability to make a walking route when unit was on unwalkable terrain.
-  //Fixed and to be deleted..
 
   //Randomly choose walk or wait
+  //@Krom: Why? In KaM the animals keep moving, and they look odd if they keep stopping.
   if Random(2)=0 then begin// 50/50 chance
 
     SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
@@ -1383,6 +1378,8 @@ case Phase of
       fTerrain.FlattenTerrain(ListOfCells[Step]);
       if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
         fTerrain.Land[fHouse.GetEntrance.Y,fHouse.GetEntrance.X].FieldType:=fdt_HouseRoad;
+
+      fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
       dec(Step);
     end;
 7:  begin

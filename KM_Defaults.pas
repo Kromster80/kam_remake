@@ -137,7 +137,7 @@ type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBu
      TPassabilitySet = set of TPassability;
 
 const PassabilityStr:array[1..10] of string = ('canAll', 'canWalk', 'canWalkRoad', 'canBuild', 'canBuildIron', 'canBuildGold', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
-{canAll - Crat blanche, e.g. for workers building house are which is normaly unwalkable} //@Lewin:Why fenced house area is unwalkable?
+{canAll - Crat blanche, e.g. for workers building house are which is normaly unwalkable} //@Lewin:Why fenced house area is unwalkable? @Krom: Only the tiles that have been leveled are unwalkable. The tiles which the labourer hasn't dug out yet are walkable. (you sometimes see serfs walking over them) As for why it is unwalkable, well I guess if they labourer has just dug it out then he doesn't want serfs messing it up. Remember, that ground becomes the floor of someone's house. People aren't allowed on construction sites.
 {canWalk - General passability of tile for any walking units}
 {canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
 {canBuild - Can we build a house on this tile?}
@@ -544,6 +544,13 @@ type
     sfx_SiegeBuildingSmash
         );
 
+type
+  //Properties of map elements, e.g. passibility. Mostly unknown.
+  MapElemProperties = (
+    mep_u1,mep_u2,mep_u3,mep_u4,mep_u5,mep_u6,mep_u7,mep_u8,
+    mep_AllBlocked,
+    mep_u10,mep_u11,mep_u12,mep_u13,mep_u14,mep_u15,mep_u16);
+
 var
   //Players colors
   TeamColors:array[1..8]of cardinal = (
@@ -663,11 +670,11 @@ end;
 
   MapElemQty:integer=254; //Default qty
   MapElem:array[1..512]of packed record
-    Step:array[1..30]of smallint; //60
-    Count:word;                   //62
-    u1:array[1..16]of word;       //94
-    u2:shortint;                  //95
-    u3,u4:word;                   //99
+    Step:array[1..30]of smallint;               //60
+    Count:word;                                 //62
+    Properties:array[MapElemProperties]of word; //94
+    u2:shortint;                                //95
+    CanBeRemoved,u4:word;                       //99
   end;
 
   TileMMColor:array[1..256]of record R,G,B:single; end;

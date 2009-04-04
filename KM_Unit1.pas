@@ -143,6 +143,7 @@ begin
   FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
 
+  Randomize; //Randomize the random seed to ensure that we don't get repeditive patterns
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 

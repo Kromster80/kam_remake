@@ -237,7 +237,7 @@ object Form1: TForm1
       Height = 49
       Caption = ' Active player  '
       Columns = 3
-      ItemIndex = 1
+      ItemIndex = 0
       Items.Strings = (
         '1'
         '2'
@@ -299,6 +299,8 @@ object Form1: TForm1
       Width = 73
       Height = 17
       Caption = 'Show units'
+      Checked = True
+      State = cbChecked
       TabOrder = 11
       OnClick = CB_ShowUnitClick
     end

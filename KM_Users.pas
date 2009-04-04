@@ -99,7 +99,12 @@ end;
 
 procedure TKMPlayerAssets.AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
 begin
-  if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
+  //if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
+  //@Krom: In some missions (e.g. 5 TSK) there is some road over tiles that aren't really supposed to have it.
+  //Also, sometimes you want road under houses (e.g. the inn in mission 7 TSK)
+  //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
+  //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
+  //All to be deleted, unless you would like to discuss it.
   case aMarkup of
     mu_RoadPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Road);
     mu_FieldPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Field);

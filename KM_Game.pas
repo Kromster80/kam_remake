@@ -239,6 +239,7 @@ begin
     fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
     MyPlayer:=fPlayers.Player[1];
   end;
+  fGamePlayInterface.EnableOrDisableMenuIcons(not (MissionMode = mm_Tactic));
 
   fLog.AppendLog('Gameplay initialized',true);
 

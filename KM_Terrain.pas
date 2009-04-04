@@ -696,6 +696,7 @@ begin
        AddPassability(Loc, [canAll]);
 
      if (TileIsWalkable(Loc))and
+        (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
         (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HouseWIP,fdt_HouseRoad]))then
        AddPassability(Loc, [canWalk]);
 
@@ -704,7 +705,7 @@ begin
        AddPassability(Loc, [canWalkRoad]);
 
      if (TileIsRoadable(Loc))and
-        (Land[Loc.Y,Loc.X].Obj=255)and
+        ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         //Only certain objects are excluded
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
@@ -714,7 +715,7 @@ begin
 
      if (Land[Loc.Y,Loc.X].Terrain in [168,169,170])and
         (Land[Loc.Y,Loc.X].Rotation = 0)and     
-        (Land[Loc.Y,Loc.X].Obj=255)and
+        ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
@@ -723,7 +724,7 @@ begin
 
      if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
         (Land[Loc.Y,Loc.X].Rotation = 0)and
-        (Land[Loc.Y,Loc.X].Obj=255)and
+        ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
@@ -731,12 +732,14 @@ begin
        AddPassability(Loc, [canBuildGold]);
 
      if (TileIsRoadable(Loc))and
+        (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
        AddPassability(Loc, [canMakeRoads]);
 
      if (TileIsSoil(Loc))and
+        (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
        AddPassability(Loc, [canMakeFields]);

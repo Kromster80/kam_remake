@@ -117,7 +117,7 @@ var
   ParamList: array[1..8] of integer;
   i, k, l, FileSize: integer;
   f: file;
-  c:array[1..131072] of char;
+  c:array of char;
   CommandType: TKMCommandType;
 begin
   Result:=false; //Set it right from the start
@@ -127,6 +127,7 @@ begin
   OpenedMissionName:=AFileName; //Used in MAP loading later on
 
   //Load and decode .DAT file into FileText
+  SetLength(c,1024000);
   assignfile(f,AFileName); reset(f,1);
   blockread(f,c[1],length(c),FileSize);
   Assert(FileSize<>length(c),'DAT file size is too big, can''t fit into buffer');
@@ -134,6 +135,7 @@ begin
   closefile(f);
 
   //@Lewin: ENCODED := c[1] = chr(206); //That is encoded first char
+  //@Krom: We can't use that method. Some mission editors (e.g. Thunderwolf's) put a comment at the top of the file stating that it was made with his editor. And we don't want to force people to start with a command. I vote we use: If file text contains !SET_MAX_PLAYERS then it is real. Because every mission must have that command. That's what I'm using for my mission editor, and it works well. (1 string search won't take long, will it?)
 
   i:=1; k:=1;
   repeat
@@ -147,6 +149,7 @@ begin
     inc(k);
   until(i>FileSize);
   setlength(FileText,k); //Because some extra characters are removed
+  SetLength(c,0); //Clear the buffer to save RAM
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
   k := 1;
@@ -288,7 +291,7 @@ begin
                      end;
   ct_SetStock:       begin
                      //This command basically means: Put a storehouse here with road bellow it
-                     LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0],ParamList[1]));
+                     LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0]-1,ParamList[1]));
                      fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]+1),mu_RoadPlan);
                      fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1),mu_RoadPlan);
                      fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1),mu_RoadPlan);
@@ -335,7 +338,6 @@ begin
   //To add:
   ct_EnablePlayer:   begin
 
-                     //@Lewin: Keep it as placeholder, just in case.
                      end;
   ct_AddGoal:        begin
 
@@ -403,6 +405,10 @@ begin
     //@Lewin: Most of these options could be read from mission.dat file. Can you make them into LoadDAT ?
     //Some kind of quick parser. e.g. function GetPlayerCount(mission.dat):byte;
     //Also for now we can use map folders (txt+map+dat files), but later we need to ajoin them somehow?
+
+    //@Krom: I thought I might make a function GetMissionDetails which returns a record containing all the
+    //       info needed about the mission. (player count, is fight, etc.) That would be more efficient
+    //       than your suggestion of multiple functions like function GetPlayerCount(mission.dat):byte
 
     if UpperCase(s)=UpperCase('IsFight') then begin
       readln(ft,s);
