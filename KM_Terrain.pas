@@ -258,7 +258,7 @@ end;
 function TTerrain.TileIsSoil(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
-  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26,27, 34..39, 56,57,58, 66..68, 72..75, 84..87, 88,89, 96,98];
+  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..28, 34..39, 47, 49, 56,57,58, 64..69, 72..80, 84..87, 88,89, 93..98,180,182..183,188,190..191,220,247];
 end;
 
 
@@ -269,7 +269,7 @@ begin
   //Include 1/2 and 3/4 walkable as walkable
   Result := Land[Loc.Y,Loc.X].Terrain in [0..6, 8..11,13,14, 16..22, 25..31, 32..39, 44..47, 49,52,55, 56..63,
                                           64..71, 72..79, 80..87, 88..95, 96..103, 104,106..109,111, 112,113,116,117, 123..125,
-                                          139, 152..155, 166,167, 168..175, 180..183, 188..191,
+                                          138..139, 152..155, 166,167, 168..175, 180..183, 188..191,
                                           197, 203..205,207, 212..215, 220..223, 242,243,247];
 end;
 
@@ -278,10 +278,10 @@ function TTerrain.TileIsRoadable(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   //Do not include 1/2 and 1/4 walkable as roadable
-  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..31, 32..39, 47, 55, 56..63,
-                                          64..71, 72..79, 80..87, 88..95, 96..103, 104,111, 112,113,
-                                          152..155,
-                                          197, 203..205, 212,213,215, 220, 247];
+  Result := Land[Loc.Y,Loc.X].Terrain in [0..3,5,6, 8,9,11,13,14, 16..21, 26..31, 32..39, 45..47, 49, 52, 55, 56..63,
+                                          64..71, 72..80, 80..87, 88..95, 96..103, 104,108,111, 112,113,
+                                          152..155,180..183,188..191,
+                                          203..205, 212,213,215, 220, 247];
 end;
 
 
@@ -406,9 +406,8 @@ Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      for h:=1 to length(ChopableTrees) do
-        if Land[i,k].Obj=ChopableTrees[h,4] then
-          Result:=KMPoint(k,i);
+      if MapElem[Land[i,k].Obj+1].Properties[mep_CuttableTree]=1 then
+        Result:=KMPoint(k,i);
 end;
 
 
@@ -710,7 +709,7 @@ begin
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
-        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Road,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
+        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Road])then
        AddPassability(Loc, [canBuild]);
 
      if (Land[Loc.Y,Loc.X].Terrain in [168,169,170])and
@@ -733,7 +732,6 @@ begin
 
      if (TileIsRoadable(Loc))and
         (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
-        (TileInMapCoords(Loc.X,Loc.Y,1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
        AddPassability(Loc, [canMakeRoads]);
