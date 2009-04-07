@@ -26,7 +26,7 @@ type
     procedure AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean):boolean;
-    procedure RemHouse(Position: TKMPoint);
+    procedure RemHouse(Position: TKMPoint; DoSilent:boolean);
     procedure RemUnit(Position: TKMUnit);
     procedure RemPlan(Position: TKMPoint);
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -100,16 +100,14 @@ end;
 procedure TKMPlayerAssets.AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
 begin
   //if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
-  //@Krom: In some missions (e.g. 5 TSK) there is some road over tiles that aren't really supposed to have it.
-  //Also, sometimes you want road under houses (e.g. the inn in mission 7 TSK)
   //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
   //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
-  //All to be deleted, unless you would like to discuss it.
+  //@Lewin: You right. Explanation to be kept.
   case aMarkup of
     mu_RoadPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Road);
     mu_FieldPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Field);
     mu_WinePlan: begin
-                   fTerrain.SetField(aLoc,PlayerID,fdt_Wine); 
+                   fTerrain.SetField(aLoc,PlayerID,fdt_Wine);
                    fTerrain.CutGrapes(aLoc);
                  end;
     else Assert(false,'Wrong markup');
@@ -147,9 +145,11 @@ begin
   fSoundLib.Play(sfx_placemarker,aLoc,false);
 end;
 
-procedure TKMPlayerAssets.RemHouse(Position: TKMPoint);
+procedure TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean);
+var fHouse:TKMHouse;
 begin
-  fHouses.Rem(Position.X, Position.Y);
+  fHouse:=fHouses.HitTest(Position.X, Position.Y);
+  if fHouse<>nil then fHouse.DemolishHouse;
 end;
 
 procedure TKMPlayerAssets.RemUnit(Position: TKMUnit);

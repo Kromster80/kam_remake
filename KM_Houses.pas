@@ -48,21 +48,36 @@ type
     fLastUpdateTime: cardinal;
     FlagAnimStep: cardinal; //Used for Flags and Burning animation
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
+
+    ScheduleForRemoval:boolean;
     procedure SetWareDelivery(AVal:boolean);
+
+    procedure MakeSound();
   public
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
 
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
+
     procedure Activate;
+    procedure DemolishHouse;
+
+    property GetPosition:TKMPoint read fPosition;
+    function GetEntrance():TKMPoint;
     function HitTest(X, Y: Integer): Boolean; overload;
+    property GetHouseType:THouseType read fHouseType;
+    property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
+    property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
+    property GetHasOwner:boolean read fHasOwner write fHasOwner;
+    function GetHealth():word;
 
     procedure SetBuildingState(aState: THouseBuildState);
     procedure IncBuildingProgress;
     procedure AddDamage(aAmount:word);
     function IsStarted:boolean;
-    function IsComplete:boolean;
     function IsStone:boolean;
+    function IsComplete:boolean;
+    property IsDestroyed:boolean read ScheduleForRemoval;
 
     procedure SetState(aState: THouseState; aTime:integer);
     function GetState:THouseState;
@@ -71,21 +86,13 @@ type
     function CheckResOut(aResource:TResourceType):byte;
     function CheckResOrder(ID:byte):word;
     function CheckResToBuild():boolean;
-    procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual; //override for School and etc..
+    procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
     function ResTakeFromIn(aResource:TResourceType):boolean;
     function ResTakeFromOut(aResource:TResourceType):boolean;
-    procedure AddOrder(ID:byte; const Amount:byte=1);
-    procedure RemOrder(ID:byte; const Amount:byte=1);
-
-    property GetPosition:TKMPoint read fPosition;
-    function GetEntrance():TKMPoint;
-    property GetHouseType:THouseType read fHouseType;
-    property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
-    property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
-    property GetHasOwner:boolean read fHasOwner write fHasOwner;
-    function GetHealth():word;
+    procedure ResAddOrder(ID:byte; const Amount:byte=1);
+    procedure ResRemOrder(ID:byte; const Amount:byte=1);
 
     procedure UpdateState;
     procedure Paint();
@@ -126,15 +133,14 @@ type
   end;
 
 
-  TKMHousesCollection = class(TList)
+  TKMHousesCollection = class(TKMList)
   private
     fSelectedHouse: TKMHouse;
     function DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
   public
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
     function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
-    procedure Rem(PosX,PosY:integer);
-    procedure Clear; override;
+    procedure Rem(aHouse:TKMHouse);
     procedure UpdateState;
     function HitTest(X, Y: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -167,6 +173,7 @@ begin
   fResourceOrder[2]:=0;
   fResourceOrder[3]:=0;
   fResourceOrder[4]:=0;
+  ScheduleForRemoval:=false;
 
   fTerrain.SetTileOwnership(fPosition,fHouseType,fOwner);
 
@@ -207,6 +214,25 @@ begin
 
 end;
 
+
+procedure TKMHouse.DemolishHouse;
+begin
+  fSoundLib.Play(sfx_HouseDestroy,GetPosition);
+  ScheduleForRemoval:=true;
+  //Dispose of delivery tasks performed in DeliverQueue unit
+  fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
+  fTerrain.AddHouseRemainder(fPosition,fHouseType);
+end;
+
+
+{Return Entrance of the house, which is different than house position sometimes}
+function TKMHouse.GetEntrance():TKMPoint;
+begin
+  Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
+  Result.Y:=GetPosition.Y;
+end;
+
+
 function TKMHouse.HitTest(X, Y: Integer): Boolean;
 begin
   Result:=false;
@@ -215,10 +241,18 @@ if HousePlanYX[integer(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then
   Result:=true;
 end;
 
+
+function TKMHouse.GetHealth():word;
+begin
+  Result:=EnsureRange(fBuildingProgress-fDamage,0,maxword);
+end;
+
+
 procedure TKMHouse.SetBuildingState(aState: THouseBuildState);
 begin
   fBuildState:=aState;
 end;
+
 
 {Increase building progress of house. When it reaches some point Stoning replaces Wooding
  and then it's done and house should be finalized}
@@ -268,11 +302,11 @@ end;
 
 
 //EnableRepair
-{if house is damage then add repair to buildlist}
+{if house is damaged then add repair to buildlist}
 
 
 //DisableRepair
-{if house is damage then remove repair from buildlist and free up workers}
+{if house is damaged then remove repair from buildlist and free up workers}
 
 
 {Check if house is started to build, so to know if we need to init the building site or not}
@@ -282,18 +316,33 @@ begin
 end;
 
 
-{Check if house is completely built, nevermind the damage}
-function TKMHouse.IsComplete():boolean;
-begin
-  Result := fBuildState = hbs_Done;
-end;
-
 function TKMHouse.IsStone:boolean;
 begin
   Result := fBuildState = hbs_Stone;
 end;
 
 
+{Check if house is completely built, nevermind the damage}
+function TKMHouse.IsComplete():boolean;
+begin
+  Result := fBuildState = hbs_Done;
+end;
+
+
+procedure TKMHouse.SetState(aState: THouseState; aTime:integer);
+begin
+  fCurrentAction.TimeToAct:=aTime;
+  fCurrentAction.SetState(aState);
+end;
+
+
+function TKMHouse.GetState:THouseState;
+begin
+  Result:=fCurrentAction.fHouseState;
+end;
+
+
+{How much resources house has in Input}
 function TKMHouse.CheckResIn(aResource:TResourceType):word;
 var i:integer;
 begin
@@ -303,6 +352,8 @@ Result:=0;
     inc(Result,fResourceIn[i]);
 end;
 
+
+{How much resources house has in Output}
 function TKMHouse.CheckResOut(aResource:TResourceType):byte;
 var i:integer;
 begin
@@ -313,7 +364,7 @@ Result:=0;
 end;
 
 
-{Check amount of order for given ID}
+{Check amount of placed order for given ID}
 function TKMHouse.CheckResOrder(ID:byte):word;
 begin
   Result:=fResourceOrder[ID];
@@ -328,19 +379,6 @@ begin
     Result:=(fBuildSupplyWood>0)or(fBuildReserve>0);
   if fBuildState=hbs_Stone then
     Result:=(fBuildSupplyStone>0)or(fBuildReserve>0);
-end;
-
-
-procedure TKMHouse.ResAddToOut(aResource:TResourceType; const aCount:integer=1);
-var i:integer;
-begin
-  if aResource=rt_None then exit;
-  for i:=1 to 4 do
-  if aResource = HouseOutput[byte(fHouseType),i] then
-    begin
-      inc(fResourceOut[i],aCount);
-      fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
-    end;
 end;
 
 
@@ -360,6 +398,20 @@ begin
 end;
 
 
+procedure TKMHouse.ResAddToOut(aResource:TResourceType; const aCount:integer=1);
+var i:integer;
+begin
+  if aResource=rt_None then exit;
+  for i:=1 to 4 do
+  if aResource = HouseOutput[byte(fHouseType),i] then
+    begin
+      inc(fResourceOut[i],aCount);
+      fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
+    end;
+end;
+
+
+{Add resources to building process}
 procedure TKMHouse.ResAddToBuild(aResource:TResourceType);
 begin
   case aResource of
@@ -406,107 +458,92 @@ end;
 end;
 
 
-procedure TKMHouse.AddOrder(ID:byte; const Amount:byte=1);
+{Place production order}
+procedure TKMHouse.ResAddOrder(ID:byte; const Amount:byte=1);
 begin
-fResourceOrder[ID]:=EnsureRange(fResourceOrder[ID]+Amount,0,MAX_ORDER);
+  fResourceOrder[ID]:=EnsureRange(fResourceOrder[ID]+Amount,0,MAX_ORDER);
 end;
 
 
-procedure TKMHouse.RemOrder(ID:byte; const Amount:byte=1);
+{Reduce production order amount}
+procedure TKMHouse.ResRemOrder(ID:byte; const Amount:byte=1);
 begin
   fResourceOrder[ID]:=EnsureRange(fResourceOrder[ID]-Amount,0,MAX_ORDER);
 end;
 
 
-procedure TKMHouse.SetState(aState: THouseState; aTime:integer);
+procedure TKMHouse.MakeSound();
+var Cycle,WorkID,Step:byte;
 begin
-  fCurrentAction.TimeToAct:=aTime;
-  fCurrentAction.SetState(aState);
-end;
+  WorkID:=fCurrentAction.GetWorkID;
+  if WorkID=0 then exit;
 
+  Cycle:=HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
+  if Cycle=0 then exit;
 
-function TKMHouse.GetState:THouseState;
-begin
-  Result:=fCurrentAction.fHouseState;
+  Step:=WorkAnimStep mod Cycle;
+
+  case fHouseType of //Various buildings and HouseActions producing sounds
+    ht_Mill:          if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_mill,GetPosition);
+    ht_CoalMine:      if (WorkID = 1)and(Step = 5) then fSoundLib.Play(sfx_coaldown,GetPosition)
+                      else if (WorkID = 1)and(Step = 24) then fSoundLib.Play(sfx_CoalMineThud,GetPosition,true,0.8)
+                      else if (WorkID = 2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
+                      else if (WorkID = 2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
+                      else if (WorkID = 5)and(Step = 1) then fSoundLib.Play(sfx_coaldown,GetPosition);
+    ht_IronMine:      if (WorkID = 2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
+                      else if (WorkID = 2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
+    ht_GoldMine:      if (WorkID = 2)and(Step = 5) then fSoundLib.Play(sfx_mine,GetPosition)
+                      else if (WorkID = 2)and(Step = 6) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
+    ht_SawMill:       if (WorkID = 2)and(Step = 1) then fSoundLib.Play(sfx_saw,GetPosition);
+    ht_Wineyard:      if (WorkID = 2)and(Step in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
+                      else if (WorkID = 5)and(Step = 14) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5)
+                      else if (WorkID = 1)and(Step = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5);
+    ht_School:        if (WorkID = 5)and(WorkAnimStep = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition);
+    ht_Bakery:        if (WorkID = 3)and(Step in [6,25]) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
+    ht_Quary:         if (WorkID = 2)and(Step in [4,13]) then fSoundLib.Play(sfx_QuarryClink,GetPosition)
+                      else if (WorkID = 5)and(Step in [4,13,22]) then fSoundLib.Play(sfx_QuarryClink,GetPosition);
+    ht_WeaponSmithy:  if (WorkID = 1)and(Step in [17,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+                      else if (WorkID = 2)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                      else if (WorkID = 3)and(Step in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                      else if (WorkID = 4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+                      else if (WorkID = 5)and(Step = 12) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition);
+    ht_ArmorSmithy:   if (WorkID = 2)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                      else if (WorkID = 3)and(Step in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
+                      else if (WorkID = 4)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
+                      else if (WorkID = 5)and(Step in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition);
+    ht_Metallurgists: if (WorkID = 3)and(Step = 6) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                      else if (WorkID = 4)and(Step in [16,20]) then fSoundLib.Play(sfx_wineDrain,GetPosition);
+    ht_IronSmithy:    if (WorkID = 2)and(Step in [1,16]) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                      else if (WorkID = 3)and(Step = 1) then fSoundLib.Play(sfx_metallurgists,GetPosition)
+                      else if (WorkID = 3)and(Step = 13) then fSoundLib.Play(sfx_wineDrain,GetPosition);
+    ht_WeaponWorkshop:if (WorkID = 2)and(Step in [1,10,19]) then fSoundLib.Play(sfx_saw,GetPosition)
+                      else if (WorkID = 3)and(Step in [10,21]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
+                      else if (WorkID = 4)and(Step in [2,13]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
+    ht_ArmorWorkshop: if (WorkID = 2)and(Step in [3,13,23]) then fSoundLib.Play(sfx_saw,GetPosition)
+                      else if (WorkID = 3)and(Step in [17,28]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
+                      else if (WorkID = 4)and(Step in [10,20]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
+    ht_Tannery:       if (WorkID = 2)and(Step = 5) then fSoundLib.Play(sfx_Leather,GetPosition,true,0.8);
+    ht_Butchers:      if (WorkID = 2)and(Step in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut,GetPosition)
+                      else if (WorkID = 3)and(Step in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
+  end;
 end;
 
 
 procedure TKMHouse.UpdateState;
-var Cycle,WorkID:byte;
 begin
   if fBuildState<>hbs_Done then exit;
 
   fLastUpdateTime := TimeGetTime;
 
-  WorkID:=fCurrentAction.GetWorkID;
-  if WorkID<>0 then begin
-    Cycle:=HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
-    if Cycle<>0 then
-    case fHouseType of
- //Various buildings and HouseActions producing sounds
- ht_Mill:          if (WorkID = 2)and(WorkAnimStep mod Cycle = 0) then fSoundLib.Play(sfx_mill,GetPosition);
- ht_CoalMine:      if (WorkID = 1)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_coaldown,GetPosition)
-                   else if (WorkID = 1)and(WorkAnimStep mod Cycle = 24) then fSoundLib.Play(sfx_CoalMineThud,GetPosition,true,0.8)
-                   else if (WorkID = 2)and(WorkAnimStep mod Cycle = 7) then fSoundLib.Play(sfx_mine,GetPosition)
-                   else if (WorkID = 2)and(WorkAnimStep mod Cycle = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
-                   else if (WorkID = 5)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_coaldown,GetPosition);
- ht_IronMine:      if (WorkID = 2)and(WorkAnimStep mod Cycle = 7) then fSoundLib.Play(sfx_mine,GetPosition)
-                   else if (WorkID = 2)and(WorkAnimStep mod Cycle = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
- ht_GoldMine:      if (WorkID = 2)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_mine,GetPosition)
-                   else if (WorkID = 2)and(WorkAnimStep mod Cycle = 6) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
- ht_SawMill:       if (WorkID = 2)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_saw,GetPosition);
- ht_Wineyard:      if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
-                   else if (WorkID = 5)and(WorkAnimStep mod Cycle = 14) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5)
-                   else if (WorkID = 1)and(WorkAnimStep mod Cycle = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5);
- ht_School:        if (WorkID = 5)and(WorkAnimStep = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition);
- ht_Bakery:        if (WorkID = 3)and(WorkAnimStep mod Cycle in [6,25]) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
- ht_Quary:         if (WorkID = 2)and(WorkAnimStep mod Cycle in [4,13]) then fSoundLib.Play(sfx_QuarryClink,GetPosition)
-                   else if (WorkID = 5)and(WorkAnimStep mod Cycle in [4,13,22]) then fSoundLib.Play(sfx_QuarryClink,GetPosition);
- ht_WeaponSmithy:  if (WorkID = 1)and(WorkAnimStep mod Cycle in [17,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                   else if (WorkID = 2)and(WorkAnimStep mod Cycle in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [10,25]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                   else if (WorkID = 5)and(WorkAnimStep mod Cycle = 12) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition);
- ht_ArmorSmithy:   if (WorkID = 2)and(WorkAnimStep mod Cycle in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [13,28]) then fSoundLib.Play(sfx_BlacksmithBang,GetPosition)
-                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition)
-                   else if (WorkID = 5)and(WorkAnimStep mod Cycle in [8,22]) then fSoundLib.Play(sfx_BlacksmithFire,GetPosition);
- ht_Metallurgists: if (WorkID = 3)and(WorkAnimStep mod Cycle = 6) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [16,20]) then fSoundLib.Play(sfx_wineDrain,GetPosition);
- ht_IronSmithy:    if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,16]) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                   else if (WorkID = 3)and(WorkAnimStep mod Cycle = 1) then fSoundLib.Play(sfx_metallurgists,GetPosition)
-                   else if (WorkID = 3)and(WorkAnimStep mod Cycle = 13) then fSoundLib.Play(sfx_wineDrain,GetPosition);
- ht_WeaponWorkshop:if (WorkID = 2)and(WorkAnimStep mod Cycle in [1,10,19]) then fSoundLib.Play(sfx_saw,GetPosition)
-                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [10,21]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
-                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [2,13]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
- ht_ArmorWorkshop: if (WorkID = 2)and(WorkAnimStep mod Cycle in [3,13,23]) then fSoundLib.Play(sfx_saw,GetPosition)
-                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [17,28]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition)
-                   else if (WorkID = 4)and(WorkAnimStep mod Cycle in [10,20]) then fSoundLib.Play(sfx_CarpenterHammer,GetPosition);
- ht_Tannery:       if (WorkID = 2)and(WorkAnimStep mod Cycle = 5) then fSoundLib.Play(sfx_Leather,GetPosition,true,0.8);
- ht_Butchers:      if (WorkID = 2)and(WorkAnimStep mod Cycle in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut,GetPosition)
-                   else if (WorkID = 3)and(WorkAnimStep mod Cycle in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
-    end;
-  end;
+  if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse;
+
+  MakeSound(); //Make some sound/noise along the work
 
   inc(FlagAnimStep);
   inc(WorkAnimStep);
 
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,10,fOwner);
-end;
-
-
-{Return Entrance of the house, which is different than house position sometimes}
-function TKMHouse.GetEntrance():TKMPoint;
-begin
-  Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
-  Result.Y:=GetPosition.Y;
-end;
-
-
-function TKMHouse.GetHealth():word;
-begin
-  Result:=fBuildingProgress-fDamage;
 end;
 
 
@@ -767,25 +804,19 @@ begin
   Result:=DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Done);
 end;
 
+
 {Add a plan for house}
 function TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
 begin
   Result:=DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Glyph);
 end;
 
-procedure TKMHousesCollection.Rem(PosX,PosY:integer);
+
+procedure TKMHousesCollection.Rem(aHouse:TKMHouse);
 begin
-  if HitTest(PosX,PosY)<>nil then Remove(HitTest(PosX,PosY));
+  Remove(aHouse);
 end;
 
-procedure TKMHousesCollection.Clear;
-var
-  I: Integer;
-begin
-  for I := 0 to Count - 1 do
-    TObject(Items[I]).Free;
-  inherited;
-end;
 
 function TKMHousesCollection.HitTest(X, Y: Integer): TKMHouse;
 var
@@ -851,6 +882,13 @@ var
 begin
   for I := 0 to Count - 1 do
     TKMHouse(Items[I]).UpdateState;
+
+  //After all houses are updated we can safely remove those that destroyed
+  for I := Count - 1 downto 0 do
+    if TKMHouse(Items[I]).ScheduleForRemoval then begin
+      TKMHouse(Items[I]).Free;
+      Rem(TKMHouse(Items[I]));
+    end;
 end;
 
 end.

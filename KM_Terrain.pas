@@ -69,10 +69,11 @@ public
   procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
   procedure IncFieldState(Loc:TKMPoint);
 
-  procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
-  procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
-  function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
+  procedure SetHousePlan(Loc:TKMPoint; aHouseType:THouseType; fdt:TFieldType);
+  procedure SetTileOwnership(Loc:TKMPoint; aHouseType:THouseType; aOwner:TPlayerID);
+  function CanPlaceHouse(Loc:TKMPoint; aHouseType:THouseType):boolean;
   function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
+  procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType);
 
   function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
   function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
@@ -400,7 +401,7 @@ end;
 
 {Find closest chopable Tree around}
 function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k,h:integer;
+var i,k:integer;
 begin
 Result:=KMPoint(0,0);
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
@@ -1046,7 +1047,7 @@ end;
 
 
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
-begin  
+begin
   Result := TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
   case aMarkup of
   mu_RoadPlan: Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
@@ -1054,6 +1055,21 @@ begin
   mu_WinePlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
   else Result:=false;
   end;
+end;
+
+
+procedure TTerrain.AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType);
+var i,k:integer;
+begin
+  for i:=2 to 4 do for k:=2 to 4 do
+    if HousePlanYX[byte(aHouseType),i-1,k]<>0 then
+    if HousePlanYX[byte(aHouseType),i,k-1]<>0 then
+    if HousePlanYX[byte(aHouseType),i-1,k-1]<>0 then
+    if HousePlanYX[byte(aHouseType),i,k]<>0 then
+      Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+Random(6);
+  for i:=1 to 4 do for k:=1 to 4 do
+    if HousePlanYX[byte(aHouseType),i,k]=1 then
+      Land[Loc.Y+i-4,Loc.X+k-3].FieldSpecial:=fs_Dig3;
 end;
 
 

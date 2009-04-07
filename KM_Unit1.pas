@@ -150,7 +150,6 @@ begin
   Form1.WindowState:=wsMaximized;
   //Form1.ClientWidth:=1024;
   //Form1.ClientHeight:=768;
-  GroupBox1.Hide;
   //To get fullscreen - change this in ObjectInspector, otherwise it doesn't work right
   //!Form1.BorderStyle:=bsNone;
 
@@ -454,7 +453,7 @@ begin
 
   H:=MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
 
-  H.AddDamage(255);
+  H.AddDamage(1255);
   //MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
   //MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
 

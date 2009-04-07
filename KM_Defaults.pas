@@ -536,6 +536,7 @@ type
     sfx_unknown70,
     sfx_HouseDestroy,
     sfx_SchoolDing,
+    //Below are TPR sounds ...
     sfx_SlingerShoot,
     sfx_BalistaShoot,
     sfx_CatapultShoot,
@@ -547,9 +548,23 @@ type
 type
   //Properties of map elements, e.g. passibility. Mostly unknown.
   MapElemProperties = (
-    mep_u1,mep_u2,mep_u3,mep_u4,mep_CuttableTree,mep_u6,mep_u7,mep_u8,
+    //It's easier to read this way, if I may suggest
+    mep_u1,
+    mep_u2,
+    mep_u3,
+    mep_u4,
+    mep_CuttableTree,
+    mep_u6,
+    mep_u7,
+    mep_u8,
     mep_AllBlocked,
-    mep_u10,mep_u11,mep_u12,mep_u13,mep_u14,mep_u15,mep_u16);
+    mep_u10,
+    mep_u11,
+    mep_u12,
+    mep_u13,
+    mep_u14,
+    mep_u15,
+    mep_u16);
 
 var
   //Players colors

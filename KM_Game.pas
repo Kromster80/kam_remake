@@ -186,7 +186,8 @@ begin
           cm_Erase:
             begin
               MyPlayer.RemPlan(P);
-              MyPlayer.RemHouse(P);
+              //Should ask wherever player wants to destroy own house
+              MyPlayer.RemHouse(P,false);
             end;
           cm_Houses:
             begin

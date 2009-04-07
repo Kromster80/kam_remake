@@ -105,7 +105,7 @@ begin
       exit; //Done
     end;
 
-  i:=1; while (i<MaxEntries)and(fOffer[i].Loc_House<>nil) do inc(i); //Find an empty spot
+  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i); //Find an empty spot
   with fOffer[i] do begin //Put offer
     Loc_House:=aHouse;
     Resource:=aResource;
@@ -137,62 +137,73 @@ end;
 
 //Should issue a job based on requesters location and job importance
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
-var h,i,k:integer; Bid,BestBid:single; NCount:word; Nodes:array[1..1024] of TKMPoint;
+var i,iD,iO:integer; Bid,BestBid:single; NCount:word; Nodes:array[1..1024] of TKMPoint;
 begin
 Result:=nil;
 
+//Find place for new Delivery to be written to after Offer-Demand pair is found
 i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
 if i=MaxEntries then exit;
+
+//Cleanup for destroyed
+for iD:=1 to length(fDemand) do
+  if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].Loc_House.IsDestroyed) then fDemand[iD].Resource:=rt_None
+  else
+  if (fDemand[iD].Loc_Unit<>nil)and(fDemand[iD].Loc_Unit.IsDestroyed) then fDemand[iD].Resource:=rt_None;
+
+for iO:=1 to length(fOffer) do
+  if (fOffer[iO].Loc_House<>nil)and(fOffer[iO].Loc_House.IsDestroyed) then fOffer[iO].Resource:=rt_None;
+
 
 //Find Offer matching Demand
 //TravelRoute Asker>Offer>Demand should be shortest
 BestBid:=0;
-for h:=1 to length(fDemand) do
-  if BestBid<>1 then //Quit loop when best bid is found
-  if fDemand[h].Resource <> rt_None then
-  for k:=1 to length(fOffer) do
-    if BestBid<>1 then //Quit loop when best bid is found
-    if fOffer[k].Resource <> rt_None then
+for iD:=1 to length(fDemand) do
+  if BestBid=1 then break else //Quit loop when best bid is found
+  if fDemand[iD].Resource <> rt_None then
+  for iO:=1 to length(fOffer) do
+   if BestBid=1 then break else //Quit loop when best bid is found
+    if fOffer[iO].Resource <> rt_None then
 
-    if (fDemand[h].Resource = fOffer[k].Resource)or //If Offer Resource matches Demand
-       (fDemand[h].Resource = rt_All)or
-       ((fDemand[h].Resource = rt_Warfare)and(fOffer[k].Resource in [rt_Shield..rt_Horse])) then
+    if (fDemand[iD].Resource = fOffer[iO].Resource)or //If Offer Resource matches Demand
+       (fDemand[iD].Resource = rt_All)or
+       ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [rt_Shield..rt_Horse])) then
 
-    if (fDemand[h].Loc_House=nil)or //If Demand house has WareDelivery toggled ON
-       ((fDemand[h].Loc_House<>nil)and(fDemand[h].Loc_House.WareDelivery)) then
+    if (fDemand[iD].Loc_House=nil)or //If Demand house has WareDelivery toggled ON
+       ((fDemand[iD].Loc_House<>nil)and(fDemand[iD].Loc_House.WareDelivery)) then
 
-    if (fDemand[h].Loc_House=nil)or //If Demand is a Storehouse and it has WareDelivery toggled ON
-       ((fDemand[h].Loc_House<>nil)and((fDemand[h].Loc_House.GetHouseType<>ht_Store)or(
-       (fDemand[h].Loc_House.GetHouseType=ht_Store)and(TKMHouseStore(fDemand[h].Loc_House).NotAcceptFlag[byte(fOffer[k].Resource)]=false)))) then
+    if (fDemand[iD].Loc_House=nil)or //If Demand is a Storehouse and it has WareDelivery toggled ON
+       ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Store)or(
+       (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[byte(fOffer[iO].Resource)]=false)))) then
 
-    if (fDemand[h].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
-       ((fDemand[h].Loc_House<>nil)and((fDemand[h].Loc_House.GetHouseType<>ht_Barracks)or( //How do we know how many resource are on-route already??
-       (fDemand[h].Loc_House.GetHouseType=ht_Barracks)and(TKMHouseBarracks(fDemand[h].Loc_House).CheckResIn(fOffer[k].Resource)<=MAX_WARFARE_IN_BARRACKS)))) then
+    if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
+       ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Barracks)or( //How do we know how many resource are on-route already??
+       (fDemand[iD].Loc_House.GetHouseType=ht_Barracks)and(TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<=MAX_WARFARE_IN_BARRACKS)))) then
 
-    if (fDemand[h].Loc_House=nil)or //If Demand and Offer are different HouseTypes, means forbid Store>Store deliveries
-       ((fDemand[h].Loc_House<>nil)and(fOffer[k].Loc_House.GetHouseType<>fDemand[h].Loc_House.GetHouseType)) then
+    if (fDemand[iD].Loc_House=nil)or //If Demand and Offer are different HouseTypes, means forbid Store>Store deliveries
+       ((fDemand[iD].Loc_House<>nil)and(fOffer[iO].Loc_House.GetHouseType<>fDemand[iD].Loc_House.GetHouseType)) then
 
     begin
 
       //Basic Bid is length of route
-      if fDemand[h].Loc_House<>nil then
-        Bid := KMLength(fOffer[k].Loc_House.GetEntrance,fDemand[h].Loc_House.GetEntrance)
+      if fDemand[iD].Loc_House<>nil then
+        Bid := KMLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
       else
-        Bid := KMLength(fOffer[k].Loc_House.GetEntrance,fDemand[h].Loc_Unit.GetPosition);
+        Bid := KMLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
 
       //Modifications for bidding system
-      if fDemand[h].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
+      if fDemand[iD].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
         Bid:=Bid*3+5;
 
-      if fDemand[h].Loc_House<>nil then //Prefer delivering to houses with fewer supply
-      if (fDemand[h].Resource <> rt_All)and(fDemand[h].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
-        Bid:=Bid * (1+fDemand[h].Loc_House.CheckResIn(fDemand[h].Resource)/3);
+      if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
+      if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
+        Bid:=Bid * (1+fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource)/3);
 
-      if fDemand[h].Importance=di_High then //If Demand importance is high - make it done ASAP
+      if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
         Bid:=1;
 
-      {if fDemand[h].Loc_House<>nil then begin//House>House delivery
-        fTerrain.MakeRoute(KMPointY1(fOffer[k].Loc_House.GetEntrance),KMPointY1(fDemand[h].Loc_House.GetEntrance),canWalkRoad,NCount,Nodes);
+      {if fDemand[iD].Loc_House<>nil then begin//House>House delivery
+        fTerrain.MakeRoute(KMPointY1(fOffer[k].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,NCount,Nodes);
         if NCount=0 then Bid:=0;
       end else
         Bid:=10;}
@@ -200,8 +211,8 @@ for h:=1 to length(fDemand) do
       //Take first one incase there's nothing better to be found
       //Do not take deliveries with Bid=0 (no route found)
       if (Bid<>0)and((fQueue[i].JobStatus=js_Open)or(Bid<BestBid)) then begin
-        fQueue[i].DemandID:=h;
-        fQueue[i].OfferID:=k;
+        fQueue[i].DemandID:=iD;
+        fQueue[i].OfferID:=iO;
         fQueue[i].JobStatus:=js_Taken; //The job is found, at least something
         BestBid:=Bid;
       end;
@@ -210,20 +221,17 @@ for h:=1 to length(fDemand) do
 
   if BestBid=0 then exit; //No suitable delivery has been found
 
-  h:=fQueue[i].DemandID;
-  k:=fQueue[i].OfferID;
+  iD:=fQueue[i].DemandID;
+  iO:=fQueue[i].OfferID;
   //Now we have best job and can perform it
-  Result:=TTaskDeliver.Create(KMSerf, fOffer[k].Loc_House, fDemand[h].Loc_House, fDemand[h].Loc_Unit, fOffer[k].Resource, i);
+  Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 
-  dec(fOffer[k].Count); //Remove resource from Offer
-  if fOffer[k].Count=0 then begin
-    fOffer[k].Loc_House:=nil;
-    fOffer[k].Resource:=rt_None;
-  end;
+  dec(fOffer[iO].Count); //Remove resource from Offer
+  if fOffer[iO].Count=0 then
+    fOffer[iO].Resource:=rt_None;
 
-  if fDemand[h].DemandType=dt_Once then
-  for i:=h to length(fDemand)-1 do //Remove resource from Demand
-    fDemand[i]:=fDemand[i+1];
+  if fDemand[iD].DemandType=dt_Once then //Remove resource from Demand
+    fDemand[iD].Resource:=rt_None;
 
 end;
 
@@ -254,7 +262,7 @@ for i:=1 to length(fDemand) do if fDemand[i].Resource<>rt_None then begin
   if fDemand[i].Loc_House<>nil then Result:=Result+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9+#9;
   if fDemand[i].Loc_Unit<>nil then Result:=Result+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9+#9;
   Result:=Result+TypeToString(fDemand[i].Resource);
-  if fDemand[i].Importance=di_High then Result:=Result+'*****';
+  if fDemand[i].Importance=di_High then Result:=Result+'^';
   Result:=Result+eol;
 end;
 Result:=Result+eol+'Offer:'+eol+'---------------------------------'+eol;

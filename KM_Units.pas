@@ -220,10 +220,10 @@ type
     fUnitTask:TUnitTask;
     fCondition:integer; //Unit condition, when it reaches zero unit should die
     //function UnitAtHome():boolean; Test if Unit is invisible and Pos matches fHome.GetEntrance
-  public
     //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
     //UpdateState cycle. So we need to finish the cycle and only then remove the unit. Property is public
     ScheduleForRemoval:boolean;
+  public
     Direction: TKMDirection;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
@@ -236,6 +236,7 @@ type
     function GetUnitTaskText():string;
     property GetCondition: integer read fCondition;
     property IsVisible: boolean read fVisible;
+    property IsDestroyed:boolean read ScheduleForRemoval;
     //property IsAtHome: boolean read UnitAtHome;
     function GetPosition():TKMPoint;
     function UpdateState():boolean; virtual;
@@ -725,7 +726,7 @@ if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPla
 if fHome.CheckResOut(WorkPlan.Product)>=MaxResInHouse then exit;
 
 if HousePlaceOrders[byte(fHome.GetHouseType)] then
-  fHome.RemOrder(Res);
+  fHome.ResRemOrder(Res);
 
 Result:=TTaskMining.Create(WorkPlan,Self,fHome);
 end;
@@ -1037,6 +1038,13 @@ begin
     exit;
   end;
 
+  if (fHome<>nil)and(fHome.IsDestroyed) then begin
+    fHome:=nil;
+    FreeAndNil(fCurrentAction);
+    FreeAndNil(fUnitTask);
+    fVisible:=true;
+  end;
+  
   ActDone:=true;
   TaskDone:=true;
   TimeDelta:= TimeGetTime - fLastUpdateTime;
@@ -1874,29 +1882,34 @@ begin
 end;
 
 procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
-var Cycle:byte;
+var Cycle,Step:byte;
 begin
-  if not StayStill then begin
-    //Various UnitTypes and ActionTypes
+  if not StayStill then begin //Various UnitTypes and ActionTypes
+
+    {MakeSound ->}
     Cycle:=max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+    Step:=KMUnit.AnimStep mod Cycle;
+
     if TimeToStay>=1 then
     case KMUnit.GetUnitType of
       ut_Worker: case ActionType of
-        ua_Work: if KMUnit.AnimStep mod Cycle = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
-        ua_Work1: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
-        ua_Work2: if KMUnit.AnimStep mod Cycle = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
-      end;
+                   ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
+                   ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
+                   ua_Work2: if Step = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
+                 end;
       ut_Farmer: case ActionType of
-        ua_Work: if KMUnit.AnimStep mod Cycle = 8 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
-        ua_Work1: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true,0.8);
-      end;
-      ut_StoneCutter: if ActionType = ua_Work then
-       if KMUnit.AnimStep mod Cycle = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
+                   ua_Work:  if Step = 8 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
+                   ua_Work1: if Step = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true,0.8);
+                 end;
+      ut_StoneCutter: if ActionType =
+                   ua_Work then if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
       ut_WoodCutter: case ActionType of
-        ua_Work: if KMUnit.AnimStep mod Cycle = 5 then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true);
-        ua_Work1: if KMUnit.AnimStep mod Cycle = 0 then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
-      end;
+                   ua_Work:  if Step = 5 then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true);
+                   ua_Work1: if Step = 0 then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
+                 end;
     end;
+    {<- MakeSound}
+
     inc(KMUnit.AnimStep);
   end;
 

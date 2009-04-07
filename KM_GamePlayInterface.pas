@@ -294,6 +294,7 @@ begin
     KMImage_MainMenu3.StretchImage:=true;
     KMButton_MainMenuTutor :=MyControls.AddButton(KMPanel_MainMenu,100,400,350,30,fTextLibrary.GetSetupString(3),fnt_Metal);
     KMButton_MainMenuTutor.OnClick:=MainMenu_PlayTutorial;
+    KMButton_MainMenuTutor.Disable; //Unused for now
     KMButton_MainMenuTSK   :=MyControls.AddButton(KMPanel_MainMenu,100,440,350,30,fTextLibrary.GetSetupString(1),fnt_Metal);
     KMButton_MainMenuTSK.Disable;
     KMButton_MainMenuTPR   :=MyControls.AddButton(KMPanel_MainMenu,100,480,350,30,fTextLibrary.GetSetupString(2),fnt_Metal);
@@ -1305,7 +1306,7 @@ procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
 begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
-  if (Sender=nil)or(not Sender.IsVisible)or((Sender<>nil)and(Sender.ScheduleForRemoval)) then begin
+  if (Sender=nil)or(not Sender.IsVisible)or((Sender<>nil)and(Sender.IsDestroyed)) then begin
     SwitchPage(nil);
     exit;
   end;
@@ -1349,8 +1350,8 @@ procedure TKMGamePlayInterface.House_OrderClick(Sender:TObject);
 var i:integer;
 begin
   for i:=1 to 4 do begin
-    if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.RemOrder(i);
-    if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.AddOrder(i);
+    if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.ResRemOrder(i);
+    if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.ResAddOrder(i);
   end;
 end;
 
@@ -1359,8 +1360,8 @@ procedure TKMGamePlayInterface.House_OrderClickRight(Sender:TObject);
 var i:integer;
 begin
   for i:=1 to 4 do begin
-    if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.RemOrder(i,10);
-    if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.AddOrder(i,10);
+    if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.ResRemOrder(i,10);
+    if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.ResAddOrder(i,10);
   end;
 end;
 
