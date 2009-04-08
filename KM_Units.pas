@@ -75,9 +75,10 @@ type
       private
       StayStill:boolean;
       TimeToStay:integer;
+      StillFrame:byte;
       ActionType:TUnitActionType;
        public
-        constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true);
+        constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -247,6 +248,7 @@ type
   TKMUnitCitizen = class(TKMUnit)
   public
     WorkPlan:TUnitWorkPlan;
+    RestedSinceWork: boolean;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     function FindHome():boolean;
     function UpdateState():boolean; override;
@@ -564,10 +566,10 @@ end else
 if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   if fTerrain.FindTree(aLoc,12).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
-    WalkStyle(fTerrain.FindTree(aLoc,12),ua_WalkBooty,ua_Work,6,10,ua_WalkTool2,gs_WoodCutterCut);
+    WalkStyle(fTerrain.FindTree(aLoc,12),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut);
   end else
   if fTerrain.FindPlaceForTree(aLoc,12).X<>0 then
-    WalkStyle(fTerrain.FindPlaceForTree(aLoc,12),ua_WalkTool,ua_Work1,6,0,ua_Walk,gs_WoodCutterPlant)
+    WalkStyle(fTerrain.FindPlaceForTree(aLoc,12),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant)
   else
     Issued:=false;
 end else
@@ -602,6 +604,9 @@ end else
 //These are undefined yet 
 if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Swine) then begin
   Issued:=false; //Let him idle
+end else 
+if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Stables) then begin
+  Issued:=false; //Let him idle
 end else
 
 if (aUnitType=ut_Recruit)and(aHome=ht_Barracks) then begin
@@ -619,6 +624,7 @@ constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; a
 begin
   Inherited;
   WorkPlan:=TUnitWorkPlan.Create;
+  RestedSinceWork := true;
 end;
 
 
@@ -692,8 +698,12 @@ begin
         if fVisible then //Unit is not at home, still it has one
           fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self)
         else
-          fUnitTask:=InitiateMining; //Unit is at home, so go get a job
-
+          if RestedSinceWork then fUnitTask:=InitiateMining //Unit is at home, so go get a job
+            else begin
+              SetAction(TUnitActionStay.Create(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk)); //Rest for as long as we must before doing the next job
+                                               //@Krom: Will WorkerRest*10 give the correct value? I think WorkerRest is in seconds, but what is this time in?
+              RestedSinceWork := true;
+            end;
   if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk));
 
   Assert(fCurrentAction<>nil,'Unit has no action!');
@@ -729,6 +739,8 @@ if HousePlaceOrders[byte(fHome.GetHouseType)] then
   fHome.ResRemOrder(Res);
 
 Result:=TTaskMining.Create(WorkPlan,Self,fHome);
+
+RestedSinceWork := false;
 end;
 
 
@@ -1498,8 +1510,8 @@ end;
 
 {This is execution of Resource mining}
 procedure TTaskMining.Execute(out TaskDone:boolean);
-const SkipWalk=6; SkipWork=28; //Skip to certain Phases
-var Dir:integer; TimeToWork:integer;
+const SkipWalk=7; SkipWork=29; //Skip to certain Phases
+var Dir:integer; TimeToWork, StillFrame:integer;
 begin
 TaskDone:=false;
 with fUnit do
@@ -1520,25 +1532,39 @@ with fUnit do
            for Dir:=1 to 8 do
              if UnitSprite[integer(fUnit.fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
          Dir:=min(Dir,8);
+         //Some actions have specific directions
+         if WorkPlan.GatheringScript = gs_WoodCutterPlant then Dir:=1;
+         if WorkPlan.GatheringScript = gs_WoodCutterCut   then Dir:=8; //Will need to be improved later to choose the direction based on the direction of approch. For now always cut from the bottom left.
          fUnit.Direction:=TKMDirection(Dir);
          TimeToWork:=WorkPlan.WorkCyc*max(UnitSprite[integer(fUnit.fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
          SetAction(TUnitActionStay.Create(TimeToWork, WorkPlan.WorkType, false));
+       end; 
+    3: begin if WorkPlan.GatheringScript = gs_WoodCutterCut then
+             begin
+               SetAction(TUnitActionStay.Create(10, WorkPlan.WorkType, true, 5));
+             end
+             else
+               SetAction(TUnitActionStay.Create(0, WorkPlan.WorkType));
        end;
-    3: begin case WorkPlan.GatheringScript of //Perform special tasks if required
+    4: begin StillFrame := 0;
+             case WorkPlan.GatheringScript of //Perform special tasks if required
                gs_StoneCutter: fTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
                gs_FarmerSow:   fTerrain.InitGrowth(WorkPlan.Loc);
                gs_FarmerCorn:  fTerrain.CutCorn(WorkPlan.Loc);
                gs_FarmerWine:  fTerrain.CutGrapes(WorkPlan.Loc);
                gs_WoodCutterPlant: fTerrain.AddTree(WorkPlan.Loc,ChopableTrees[Random(length(ChopableTrees))+1,1]);
-               gs_WoodCutterCut:   fTerrain.ChopTree(WorkPlan.Loc);
+               gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
              end;
-         SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkDelay, WorkPlan.WorkType));
+         SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame));
        end;
-    4: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,KMPointY1(fHome.GetEntrance),WorkPlan.WalkFrom)); //Go home
-    5: SetAction(TUnitActionGoIn.Create(WorkPlan.WalkFrom,gid_In)); //Go inside
+    5: begin
+         fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
+         SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,KMPointY1(fHome.GetEntrance),WorkPlan.WalkFrom)); //Go home
+       end;
+    6: SetAction(TUnitActionGoIn.Create(WorkPlan.WalkFrom,gid_In)); //Go inside
 
     {Unit back at home and can process its booty now}
-    6: begin
+    7: begin
         Phase2:=1;
         fHome.SetState(hst_Work,0); //Set house to Work state
         fHome.ResTakeFromIn(WorkPlan.Resource1); //Count should be added
@@ -1554,7 +1580,7 @@ with fUnit do
            exit;
        end;
        end;
-    7..27: begin //Allow for 20 different "house work" phases
+    8..28: begin //Allow for 20 different "house work" phases
            inc(Phase2);
            if WorkPlan.ActCount>=Phase2 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[Phase2].Act,WorkPlan.HouseAct[Phase2].TimeToWork);
@@ -1565,7 +1591,7 @@ with fUnit do
            exit;
            end;
        end;
-    28: begin
+    29: begin
           case WorkPlan.GatheringScript of
             gs_CoalMiner: fTerrain.DecCoalDeposit(WorkPlan.Loc);
             gs_GoldMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_GoldOre);
@@ -1575,7 +1601,7 @@ with fUnit do
           fHome.SetState(hst_Idle,WorkPlan.AfterWorkIdle);
           SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkIdle-1,ua_Walk));
         end;
-    29: TaskDone:=true;
+    30: TaskDone:=true;
   end;
 inc(Phase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then
@@ -1873,12 +1899,13 @@ end;
 
 
 { TUnitActionStay }
-constructor TUnitActionStay.Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true);
+constructor TUnitActionStay.Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0);
 begin
   Inherited Create(aActionType);
   StayStill:=aStayStill;
   TimeToStay:=aTimeToStay;
   ActionType:=aActionType;
+  StillFrame:=aStillFrame;
 end;
 
 procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
@@ -1904,14 +1931,16 @@ begin
       ut_StoneCutter: if ActionType =
                    ua_Work then if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
       ut_WoodCutter: case ActionType of
-                   ua_Work:  if Step = 5 then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true);
-                   ua_Work1: if Step = 0 then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
-                 end;
+                   ua_Work: if (KMUnit.AnimStep mod Cycle = 5) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true) else
+                            if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
+      end;
     end;
     {<- MakeSound}
 
     inc(KMUnit.AnimStep);
-  end;
+  end
+  else
+    KMUnit.AnimStep:=StillFrame;
 
   dec(TimeToStay);
   DoEnd := TimeToStay<=0;

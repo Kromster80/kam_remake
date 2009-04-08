@@ -10,6 +10,7 @@ type
 TTerrain = class
 private
   AnimStep:integer;
+  FallingTrees: TKMPointList;
 
 public
   MapX,MapY:integer; //Terrain width and height
@@ -45,6 +46,9 @@ public
     //Depending on this tree gets older and thus could be chopped
     TreeAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535
 
+    //The animation step for a falling tree, because they must fall at the right time.
+    FallingTreeAnimStep:integer;
+
     //SpecialObjects on field/wine, depends on FieldAge (x4 straw, x2 grapes)
     FieldSpecial:TFieldSpecial;  //fs_None, fs_Corn1, fs_Corn2, fs_Wine1, fs_Wine2, fs_Wine3, fs_Wine4, fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4
 
@@ -61,6 +65,7 @@ public
   end;
 
   constructor Create;
+  destructor Destroy;
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
 
@@ -69,10 +74,11 @@ public
   procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
   procedure IncFieldState(Loc:TKMPoint);
 
-  procedure SetHousePlan(Loc:TKMPoint; aHouseType:THouseType; fdt:TFieldType);
-  procedure SetTileOwnership(Loc:TKMPoint; aHouseType:THouseType; aOwner:TPlayerID);
-  function CanPlaceHouse(Loc:TKMPoint; aHouseType:THouseType):boolean;
-  function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
+  procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
+  procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
+  function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
+  function CanErase(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+  function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
   procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType);
 
   function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
@@ -84,6 +90,7 @@ public
 
   procedure AddTree(Loc:TKMPoint; ID:integer);
   procedure ChopTree(Loc:TKMPoint);
+  procedure FallTree(Loc:TKMPoint);
   procedure InitGrowth(Loc:TKMPoint);
   procedure CutCorn(Loc:TKMPoint);
   procedure CutGrapes(Loc:TKMPoint);
@@ -130,13 +137,18 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_Users, KM_Houses;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_Users, KM_Houses, KM_LoadSFX;
 
 constructor TTerrain.Create;
 begin
 //Don't know what to put here yet
+  FallingTrees := TKMPointList.Create;
 end;
 
+destructor TTerrain.Destroy;
+begin
+  FallingTrees.Free;
+end;
 
 //Reset whole map with default values
 procedure TTerrain.MakeNewMap(Width,Height:integer);
@@ -158,6 +170,7 @@ begin
     FieldType:=fdt_None;
     FieldAge:=0;
     TreeAge:=0;
+    FallingTreeAnimStep:=-1;
     BorderX:=bt_None;
     BorderY:=bt_None;
     for h:=1 to 8 do FogOfWar[h]:=0;
@@ -387,28 +400,33 @@ end;
 { Should find closest field around}
 {aAgeFull is used for fdt_Field mostly. Incase Farmer is looking for empty or full field of corn}
 function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
-var i,k:integer;
+var i,k:integer; List:TKMPointList;
 begin
-Result:=KMPoint(0,0);
-for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-  for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if Land[i,k].FieldType=aFieldType then
-        if ((aAgeFull)and(Land[i,k].FieldAge=65535))or((not aAgeFull)and(Land[i,k].FieldAge=0)) then
-          Result:=KMPoint(k,i);
+  List:=TKMPointList.Create;
+  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
+    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+        if Land[i,k].FieldType=aFieldType then
+          if ((aAgeFull)and(Land[i,k].FieldAge=65535))or((not aAgeFull)and(Land[i,k].FieldAge=0)) then
+            List.AddEntry(KMPoint(k,i));
+
+  Result:=List.GetRandom;
+  List.Free;
 end;
 
 
 {Find closest chopable Tree around}
 function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k:integer;
+var i,k,h:integer; List:TKMPointList;
 begin
-Result:=KMPoint(0,0);
-for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-  for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if MapElem[Land[i,k].Obj+1].Properties[mep_CuttableTree]=1 then
-        Result:=KMPoint(k,i);
+  List:=TKMPointList.Create;
+  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
+    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+        if MapElem[Land[i,k].Obj+1].Properties[mep_CuttableTree]=1 then
+          List.AddEntry(KMPoint(k,i));
+  Result:=List.GetRandom;
+  List.Free;
 end;
 
 
@@ -529,14 +547,30 @@ begin
   RecalculatePassability(Loc);
 end;
 
+{Remove the tree and place a falling tree instead}
+procedure TTerrain.FallTree(Loc:TKMPoint);
+var h:integer;
+begin
+  for h:=1 to length(ChopableTrees) do
+    if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
+      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,5];
+  Land[Loc.Y,Loc.X].TreeAge:=0;
+  Land[Loc.Y,Loc.X].FallingTreeAnimStep:=0;
+  fSoundLib.Play(sfx_TreeDown,Loc,true);
+  FallingTrees.AddEntry(Loc);
+  RecalculatePassability(Loc);
+end;
+
 {Remove the tree and place stump instead}
 procedure TTerrain.ChopTree(Loc:TKMPoint);
 var h:integer;
 begin
   for h:=1 to length(ChopableTrees) do
-    if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
+    if ChopableTrees[h,5]=Land[Loc.Y,Loc.X].Obj then
       Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
   Land[Loc.Y,Loc.X].TreeAge:=0;
+  Land[Loc.Y,Loc.X].FallingTreeAnimStep:=-1;
+  FallingTrees.RemoveEntry(Loc);
   RecalculatePassability(Loc);
 end;
 
@@ -683,10 +717,13 @@ end;
 
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 //var H:TKMHouse;
+var i,k:integer; CanDo: boolean;
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
   {canWalk, canWalkRoad, canBuild, canMakeRoads, canMakeFields, canPlantTrees, canFish}
+  if not TileInMapCoords(loc.X,loc.y) then
+    Assert(false, 'Fail: '+TypeToString(loc));
   Land[Loc.Y,Loc.X].Passability:=[];
   //H:=fPlayers.HousesHitTest(Loc.X,Loc.Y);
 
@@ -704,21 +741,31 @@ begin
         ((Land[Loc.Y,Loc.X].FieldType in [fdt_Road]))then
        AddPassability(Loc, [canWalkRoad]);
 
+     //Check for houses around this tile
+     CanDo := true;
+     for i:=-1 to 1 do
+       for k:=-1 to 1 do
+         if TileInMapCoords(Loc.X+k,Loc.Y+i) then
+           if (Land[Loc.Y+i,Loc.X+k].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]) then
+             CanDo := false;
+
      if (TileIsRoadable(Loc))and
         ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         //Only certain objects are excluded
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
+        (CanDo = true)and
         (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Road])then
-       AddPassability(Loc, [canBuild]);
+        AddPassability(Loc, [canBuild]);
 
-     if (Land[Loc.Y,Loc.X].Terrain in [168,169,170])and
+     if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
         (Land[Loc.Y,Loc.X].Rotation = 0)and     
         ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
+        (CanDo = true)and
         (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]))then
        AddPassability(Loc, [canBuildIron]);
 
@@ -728,19 +775,20 @@ begin
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
+        (CanDo = true)and
         (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]))then
        AddPassability(Loc, [canBuildGold]);
 
      if (TileIsRoadable(Loc))and
         (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
+        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine])then
        AddPassability(Loc, [canMakeRoads]);
 
      if (TileIsSoil(Loc))and
         (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Field,fdt_Wine,fdt_RoadWIP,fdt_FieldWIP,fdt_WineWIP])then
+        (Land[Loc.Y,Loc.X].FieldType in [fdt_None])then
        AddPassability(Loc, [canMakeFields]);
 
      if (TileIsSoil(Loc))and
@@ -990,7 +1038,7 @@ end;
 
 {Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
-var i,k,x,y:shortint;
+var i,k,x,y:word;
 begin
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
@@ -998,7 +1046,7 @@ begin
       if TileInMapCoords(x,y) then begin
 
         if (fdt=fdt_House)and(HousePlanYX[byte(aHouseType),i,k]=2) then
-          Land[y,x].FieldType:=fdt_Road
+          Land[y,x].FieldType:=fdt_HouseRoad
         else
           Land[y,x].FieldType:=fdt;
 
@@ -1006,6 +1054,8 @@ begin
         RecalculatePassability(KMPoint(x,y));
       end;
     end;
+  //Recalculate Passability for tiles around the house so that they can't be built on too
+  RebuildPassability(Loc.X-3,Loc.Y-4,Loc.X+2,Loc.Y+1);
 end;
 
 
@@ -1025,13 +1075,18 @@ end;
 
 
 {Check if house can be placed in that place}
-function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType):boolean;
-var i,k:integer;
+function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
+var i,k,l,m:integer;
 begin
 Result:=true;
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
       Result := Result AND TileInMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
+      //Now check that surrounding tiles don't have a house
+      for l:=-1 to 1 do
+        for m:=-1 to 1 do  
+          if fTerrain.TileInMapCoords(Loc.X+k-3+l,Loc.Y+i-4+m) then
+            Result := Result AND (not (Land[Loc.Y+i-4+m,Loc.X+k-3+l].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]));
 
       if aHouseType=ht_IronMine then
         Result := Result AND (CanBuildIron in Land[Loc.Y+i-4,Loc.X+k-3].Passability) else
@@ -1042,11 +1097,17 @@ Result:=true;
       else
         Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
 
+      if PlayerRevealID <> play_none then
+        Result := Result AND (CheckRevelation(Loc.X+k-3,Loc.Y+i-4,PlayerRevealID) > 0);
     end;
 end;
 
+function TTerrain.CanErase(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+begin
+   Result := fPlayers.Player[integer(PlayerID)].RemPlan(Loc,true);
+end;
 
-function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup):boolean;
+function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
   case aMarkup of
@@ -1055,6 +1116,8 @@ begin
   mu_WinePlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
   else Result:=false;
   end;
+  if PlayerRevealID <> play_none then
+    Result := Result AND (CheckRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0);
 end;
 
 
@@ -1153,6 +1216,8 @@ var i,k,h,j:integer;
   end;
 begin
   inc(AnimStep);
+  for i:=1 to FallingTrees.Count do
+    inc(Land[FallingTrees.List[i].Y,FallingTrees.List[i].X].FallingTreeAnimStep);
 
 for i:=1 to MapY do
   for k:=1 to MapX do
@@ -1219,19 +1284,18 @@ begin
 
 case CursorMode.Mode of
   cm_None:;
-  cm_Erase: fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
-  cm_Road: if CanPlaceRoad(CursorPos,mu_RoadPlan) then
+  cm_Erase: if (CanErase(CursorPos,MyPlayer.PlayerID)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
              fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else
-             fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
-  cm_Field: if CanPlaceRoad(CursorPos,mu_FieldPlan) then
+           else fRender.RenderBuildIcon(CursorPos);       //Red X
+  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
              fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else
-             fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
-  cm_Wine: if CanPlaceRoad(CursorPos,mu_WinePlan) then
+           else fRender.RenderBuildIcon(CursorPos);       //Red X
+  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
              fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else
-             fRender.RenderWireQuad(CursorPos, $FF0000FF); //Red quad
+           else fRender.RenderBuildIcon(CursorPos);       //Red X
+  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
+             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderBuildIcon(CursorPos);       //Red X
   cm_Houses: fRender.RenderWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
 end;
 end;

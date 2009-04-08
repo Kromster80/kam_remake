@@ -11,6 +11,14 @@ type
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon);
 
+  TKMMissionDetails = record
+    MapPath: string;
+    IsFight: boolean;
+    TeamCount, HumanPlayer: byte;
+  end;
+
+  TKMCommandTypeSet = set of TKMCommandType;
+
 const
   COMMANDVALUES: array[TKMCommandType] of string = (
     '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
@@ -34,7 +42,9 @@ const
   TroopsRemap: array[14..29] of TUnitType = (ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
   ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
   {ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,ut_Catapult,ut_Ballista);} //TPR Troops, which are not yet enabled
-  ut_None,ut_None,ut_None,ut_None,ut_None,ut_None); //Temp replacement for TPR Troops
+  ut_None,ut_None,ut_None,ut_None,ut_None,ut_None); //Temp replacement for TPR Troops       
+
+  CommandsUsedInGetMissionDetails: TKMCommandTypeSet = [ct_SetMap,ct_SetMaxPlayer,ct_SetHumanPlayer,ct_SetTactic];
 
 type
   TMissionParser = class(TObject)
@@ -43,11 +53,14 @@ type
     CurrentPlayerIndex: integer;
     LastHouse: TKMHouse;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
+    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
     procedure DebugScriptError(ErrorMsg:string);
     procedure UnloadMission;
+    function ReadMissionFile(AFileName:string):string;
   public      { Public declarations }
     constructor Create;
     function LoadDATFile(AFileName:string):boolean;
+    function GetMissionDetails(AFileName:string):TKMMissionDetails;
 end;
 
 type
@@ -110,21 +123,15 @@ begin
   MissionMode:=mm_Normal;
 end;
 
-function TMissionParser.LoadDATFile(AFileName:string):boolean;
+function TMissionParser.ReadMissionFile(AFileName:string):string;
 const ENCODED = true; //If false then files will be opened as text
 var
-  FileText, CommandText, Param, TextParam: string;
-  ParamList: array[1..8] of integer;
-  i, k, l, FileSize: integer;
+  FileText: string;
+  i, k, FileSize: integer;
   f: file;
   c:array of char;
-  CommandType: TKMCommandType;
 begin
-  Result:=false; //Set it right from the start
   if not CheckFileExists(AFileName) then exit;
-  UnloadMission; //Call function which will reset fPlayers and other stuff
-
-  OpenedMissionName:=AFileName; //Used in MAP loading later on
 
   //Load and decode .DAT file into FileText
   SetLength(c,1024000);
@@ -150,12 +157,120 @@ begin
   until(i>FileSize);
   setlength(FileText,k); //Because some extra characters are removed
   SetLength(c,0); //Clear the buffer to save RAM
+  Result := FileText;
+end;
+
+function TMissionParser.GetMissionDetails(AFileName:string):TKMMissionDetails;
+var
+  FileText, CommandText, Param, TextParam: string;
+  ParamList: array[1..8] of integer;
+  k, l: integer;
+  CommandType: TKMCommandType;
+begin
+  //Set default values
+  Result.IsFight := false;
+  Result.MapPath := '';
+  Result.TeamCount := 0;
+  Result.HumanPlayer := 0;
+
+  FileText := ReadMissionFile(AFileName);
+  if FileText = '' then exit;
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
   k := 1;
-  repeat    
+  repeat
     if FileText[k]='!' then
-    begin           
+    begin
+      for l:=1 to 8 do
+        ParamList[l]:=-1;
+      TextParam:='';
+      CommandText:='';
+      //Extract command until a space
+      repeat
+        CommandText:=CommandText+FileText[k];
+        inc(k);
+      until((FileText[k]=#32)or(k>=length(FileText)));
+      //Now convert command into type
+      CommandType := GetCommandTypeFromText(CommandText);
+      if CommandType in CommandsUsedInGetMissionDetails then //Try to make it faster by only processing commands used
+      begin
+      inc(k);
+      //Extract parameters
+      for l:=1 to 8 do
+        if (FileText[k]<>'!') and (k<length(FileText)) then
+        begin
+          Param := '';
+          repeat
+            Param:=Param+FileText[k];
+            inc(k);
+          until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
+          //Convert to an integer, if possible
+          if StrToIntDef(Param,-1) <> -1 then ParamList[l] := StrToInt(Param)
+          else if l=1 then TextParam:=Param; //Accept text for first parameter
+
+          if FileText[k]=#32 then inc(k);
+        end;
+      //We now have command text and parameters, so process them
+      GetDetailsProcessCommand(CommandType,ParamList,TextParam,Result);
+      end;
+    end
+    else
+      inc(k);
+  until (k>=length(FileText));
+end;
+
+procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
+var
+  MyStr: string;
+  i: integer;
+begin
+  case CommandType of
+  ct_SetMap:         begin
+                       //We must extract the file path from the text in quotes
+                       if TextParam[1] = '"' then
+                       begin
+                         i := 2;
+                         repeat
+                           MyStr := MyStr+TextParam[i];
+                           inc(i);
+                         until (TextParam[i] = '"') or (i >= Length(TextParam));
+
+                         MissionDetails.MapPath := MyStr;
+                       end;
+                     end;
+  ct_SetMaxPlayer:   begin
+                       MissionDetails.TeamCount := ParamList[0];
+                     end;
+  ct_SetTactic:      begin
+                       MissionDetails.IsFight := true;
+                     end;
+  ct_SetHumanPlayer: begin
+                       MissionDetails.HumanPlayer := ParamList[0]+1;
+                     end;
+  end;
+end;
+
+function TMissionParser.LoadDATFile(AFileName:string):boolean;
+var
+  FileText, CommandText, Param, TextParam: string;
+  ParamList: array[1..8] of integer;
+  k, l: integer;
+  CommandType: TKMCommandType;
+begin
+  Result:=false; //Set it right from the start
+  UnloadMission; //Call function which will reset fPlayers and other stuff
+
+  OpenedMissionName:=AFileName; //Used in MAP loading later on
+
+  //Read the mission file into FileText
+  FileText := ReadMissionFile(AFileName);
+  if FileText = '' then exit;
+
+  //FileText should now be formatted nicely with 1 space between each parameter/command
+  k := 1;
+  repeat
+    if FileText[k]='!' then
+    begin
       for l:=1 to 8 do
         ParamList[l]:=-1;
       TextParam:='';
@@ -184,7 +299,7 @@ begin
           if FileText[k]=#32 then inc(k);
         end;
       //We now have command text and parameters, so process them
-      
+
       if ProcessCommand(CommandType,ParamList,TextParam) = false then //A returned value of false indicates an error has occoured and we should exit
       begin
         //Result:=false;
@@ -366,7 +481,7 @@ begin
   ct_AttackPosition: begin
 
                      end;
-  end;           
+  end;
   Result := true; //Must have worked if we haven't exited by now
 end;
 
@@ -380,6 +495,7 @@ end;
 
 procedure TKMMapsInfo.ScanSingleMapsFolder(Path:string);
 var i:integer; SearchRec:TSearchRec; ft:textfile; s:string;
+  MissionDetails: TKMMissionDetails;
 begin
   MapCount:=0;
   if not DirectoryExists(ExeDir+'Maps\') then exit;
@@ -410,7 +526,14 @@ begin
     //       info needed about the mission. (player count, is fight, etc.) That would be more efficient
     //       than your suggestion of multiple functions like function GetPlayerCount(mission.dat):byte
 
-    if UpperCase(s)=UpperCase('IsFight') then begin
+    //@Krom: I've made it, but it seems to be quite inefficient. We will either need to make it more efficient or
+    //       have a message saying: "Scanning Maps Folder..." or both.
+
+    MissionDetails := fMissionParser.GetMissionDetails(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.dat');
+    IsFight := MissionDetails.IsFight;
+    PlayerCount := MissionDetails.TeamCount;
+
+    {if UpperCase(s)=UpperCase('IsFight') then begin
       readln(ft,s);
       Assert((UpperCase(s)='TRUE')or(UpperCase(s)='FALSE'),'\Maps\'+Maps[i].Folder+'\Mission.txt'+eol+'Wrong IsFight value');
       IsFight := UpperCase(s)='TRUE';
@@ -419,7 +542,7 @@ begin
     if UpperCase(s)=UpperCase('PlayerCount') then begin
       readln(ft,PlayerCount);
       Assert(InRange(PlayerCount,1,Max_Players),'\Maps\'+Maps[i].Folder+'\Mission.txt'+eol+'Wrong PlayerCount value')
-    end;
+    end;}
 
     if UpperCase(s)=UpperCase('Title') then
       readln(ft,Title);

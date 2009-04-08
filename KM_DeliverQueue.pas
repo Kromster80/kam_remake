@@ -64,7 +64,7 @@ type
   public
     constructor Create();
     procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
-    function RemRoad(aLoc:TKMPoint):boolean;
+    function RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
     function  AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseRoad(aID:integer);
 
@@ -308,14 +308,14 @@ fFieldsQueue[i].JobStatus:=js_Open;
 end;
 
 {Remove task if Player has cancelled it}
-function TKMBuildingQueue.RemRoad(aLoc:TKMPoint):boolean;
+function TKMBuildingQueue.RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin
 Result:=false;
 for i:=1 to length(fFieldsQueue) do
   with fFieldsQueue[i] do
   if (JobStatus<>js_Taken)and(Loc.X=aLoc.X)and(Loc.Y=aLoc.Y) then begin
-    CloseRoad(i);
+    if not Simulated then CloseRoad(i);
     Result:=true;
     break;
   end;

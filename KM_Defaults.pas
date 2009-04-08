@@ -708,6 +708,7 @@ type TKMPointList = class
     List:array of TKMPoint; //1..Count
     procedure Clearup;
     procedure AddEntry(aLoc:TKMPoint);
+    function RemoveEntry(aLoc:TKMPoint):boolean;
     function GetRandom():TKMPoint;
   end;
 
@@ -874,6 +875,21 @@ begin
   inc(Count);
   if Count>length(List)-1 then setlength(List,Count+10);
   List[Count]:=aLoc;
+end;
+
+function TKMPointList.RemoveEntry(aLoc:TKMPoint):boolean;
+var i: integer; Found: boolean;
+begin
+  Found := false;
+  for i:=1 to Count do
+  begin
+    if (KMSamePoint(List[i],aLoc) and (not Found)) then
+    begin
+      dec(Count);
+      Found := true;
+    end;
+    if (Found) and (i < Count) then List[i] := List[i+1];
+  end;
 end;
 
 function TKMPointList.GetRandom():TKMPoint;

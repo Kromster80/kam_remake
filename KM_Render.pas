@@ -44,6 +44,7 @@ public
   procedure RenderWires();
   procedure RenderUnitMoves();
   procedure RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
+  procedure RenderBuildIcon(P:TKMPoint; id:integer=479);
   procedure RenderWireQuad(P:TKMPoint; Col:TColor4);
   procedure RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
@@ -301,8 +302,15 @@ var i,k:integer;
 begin
 for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain do begin
-    if Land[i,k].Obj<>255 then RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
-    if Land[i,k].FieldSpecial<>fs_None then RenderObjectSpecial(Land[i,k].FieldSpecial,AnimStep,k,i);
+    if Land[i,k].FallingTreeAnimStep <> -1 then
+    begin
+      RenderObject(Land[i,k].Obj+1,Land[i,k].FallingTreeAnimStep,k,i);
+    end
+    else
+    begin
+      if Land[i,k].Obj<>255 then RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
+      if Land[i,k].FieldSpecial<>fs_None then RenderObjectSpecial(Land[i,k].FieldSpecial,AnimStep,k,i);
+    end;
   end;
 end;
 
@@ -369,6 +377,16 @@ glEnd;
 end;
 
 
+procedure TRender.RenderBuildIcon(P:TKMPoint; id:integer=479);
+begin
+  //@Krom: How do I make these always render on top of everything else? (e.g. the it should go over houses rather than under them)
+  //       Same thing for the wire build quad, although it's less important
+  if fTerrain.TileInMapCoords(P.X,P.Y) then
+    RenderSprite(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV);
+    //AddSpriteToList(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,true);
+end;
+
+
 procedure TRender.RenderWireQuad(P:TKMPoint; Col:TColor4);
 begin
   glColor4ubv(@Col);
@@ -385,12 +403,25 @@ end;
 
 
 procedure TRender.RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
-var i,k:integer; P2:TKMPoint; AllowBuild:boolean;
+var i,k,s,t,markpntr:integer; P2:TKMPoint; AllowBuild:boolean;
+MarkedLocations:array[1..64] of TKMPoint;
+
+  procedure MarkPoint(APoint:TKMPoint; AID:integer);
+  var v: integer;
+  begin
+    for v:=1 to markpntr-1 do
+      if KMSamePoint(MarkedLocations[v],APoint) then exit;
+      
+    RenderBuildIcon(APoint,AID);
+    MarkedLocations[markpntr] := APoint;
+    inc(markpntr);
+  end;
 begin
+  markpntr := 1;
   for i:=1 to 4 do for k:=1 to 4 do
   if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
     P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
-    
+
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
 
       case aHouseType of
@@ -399,12 +430,39 @@ begin
         ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
         else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
       end;
+      AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)<>0);
 
-      if AllowBuild then RenderWireQuad(P2,$FFFFFF00) //Cyan
-                    else RenderWireQuad(P2,$FF0000FF); //Red
+
+      for s:=-1 to 1 do
+        for t:=-1 to 1 do
+          if not ((s=0)and(t=0)) then //This is a surrounding tile, not the actual tile
+          begin
+            if fTerrain.Land[P2.Y+t,P2.X+s].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad] then
+            begin
+              MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
+              AllowBuild := false;
+            end;
+          end;
+
+      if AllowBuild then
+      begin
+        RenderWireQuad(P2,$FFFFFF00); //Cyan
+        if HousePlanYX[byte(aHouseType),i,k]=2 then
+          MarkPoint(P2,481);
+      end
+      else
+      begin
+        if HousePlanYX[byte(aHouseType),i,k]=2 then
+          MarkPoint(P2,482)
+        else
+          if aHouseType in [ht_GoldMine,ht_IronMine] then
+            MarkPoint(P2,480)
+          else
+            MarkPoint(P2,479);
+      end;
     end;
-    if HousePlanYX[byte(aHouseType),i,k]=2 then AddSpriteToList(4,481,P2.X+0.2,P2.Y+1-0.2-fTerrain.InterpolateLandHeight(P2.X+0.5,P2.Y+0.5)/CELL_HEIGHT_DIV,true);
-  end else
+  end else if HousePlanYX[byte(aHouseType),i,k]<>0 then //Draw red Xs for edge of map
+    MarkPoint(KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4),479);
     //RenderWireQuad(P2,$FF0000FF);
 end;
 
@@ -415,6 +473,7 @@ begin
   if MapElem[Index].Count=0 then exit;
 
   FOW:=EnsureRange(round(fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)*255),0,255);
+  if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <=128 then AnimStep:=0; //Stop animation
   ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
   if ID<=0 then exit;
@@ -465,7 +524,7 @@ end;
 
 
 procedure TRender.RenderMarkup(Index:integer; pX,pY:integer);
-var a,b:TKMPointF; ID:integer; FOW:single;
+var a,b:TKMPointF; ID:integer; FOW, DrawX, DrawY:single;
 begin
   case Index of
     1: ID:=105; //Road
@@ -481,16 +540,19 @@ begin
   a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
   b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
 
+  //Shift the X and Y so that the markup is centred correctly on the tile
+  DrawX:=pX-0.05;
+  DrawY:=pY+0.2;
   glBegin(GL_QUADS);
-    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(DrawX  , DrawY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(DrawX  , DrawY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
 
-    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(DrawX  , DrawY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(DrawX  , DrawY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
   glEnd;
   glBindTexture(GL_TEXTURE_2D, 0);
 end;

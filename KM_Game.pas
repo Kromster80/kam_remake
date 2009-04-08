@@ -179,19 +179,27 @@ begin
                 if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.HousesHitTest(CursorXc, CursorYc));
               end;
             end;
-          cm_Road: MyPlayer.AddRoadPlan(P,mu_RoadPlan, false);
-          cm_Field: MyPlayer.AddRoadPlan(P,mu_FieldPlan, false);
-          cm_Wine: MyPlayer.AddRoadPlan(P,mu_WinePlan, false);
+          cm_Road: if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
+                   MyPlayer.RemPlan(P)
+              else MyPlayer.AddRoadPlan(P,mu_RoadPlan, false,MyPlayer.PlayerID);
+
+          cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
+                   MyPlayer.RemPlan(P)
+              else MyPlayer.AddRoadPlan(P,mu_FieldPlan, false,MyPlayer.PlayerID);
+
+          cm_Wine: if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
+                   MyPlayer.RemPlan(P)
+              else MyPlayer.AddRoadPlan(P,mu_WinePlan, false,MyPlayer.PlayerID);
 
           cm_Erase:
             begin
-              MyPlayer.RemPlan(P);
               //Should ask wherever player wants to destroy own house
-              MyPlayer.RemHouse(P,false);
+              if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false)) then
+                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
             end;
           cm_Houses:
             begin
-              if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false) then
+              if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false,MyPlayer.PlayerID) then
                 if fGameplayInterface<>nil then fGamePlayInterface.Build_SelectRoad;
             end;
         end;

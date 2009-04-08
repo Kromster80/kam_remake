@@ -24,11 +24,11 @@ type
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
-    procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
-    function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean):boolean;
-    procedure RemHouse(Position: TKMPoint; DoSilent:boolean);
+    procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
+    function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
+    function RemHouse(Position: TKMPoint; DoSilent:boolean):boolean;
     procedure RemUnit(Position: TKMUnit);
-    procedure RemPlan(Position: TKMPoint);
+    function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
@@ -116,9 +116,14 @@ end;
 
 
 {DoSilent means that there will be no sound when markup is placed, needed e.g. when script used}
-procedure TKMPlayerAssets.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean);
+procedure TKMPlayerAssets.AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
 begin
-  if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
+  if not fTerrain.CanPlaceRoad(aLoc,aMarkup,PlayerRevealID) then
+  begin
+    if not DoSilent then
+      fSoundLib.Play(sfx_CantPlace,aLoc,false,4.0);
+    exit;
+  end;
   fTerrain.SetMarkup(aLoc, aMarkup);
   case aMarkup of
     mu_RoadPlan: BuildList.AddNewRoad(aLoc, fdt_Road);
@@ -127,29 +132,39 @@ begin
     else Assert(false,'Wrong markup');
   end;
   if not DoSilent then
-  fSoundLib.Play(sfx_placemarker,aLoc,false);
+    fSoundLib.Play(sfx_placemarker,aLoc,false);
 end;
 
-function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean):boolean;
+function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
 var KMHouse:TKMHouse;
 begin
   Result:=false;
   aLoc.X:=aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
-  if not fTerrain.CanPlaceHouse(aLoc,aHouseType) then exit;
+  if not fTerrain.CanPlaceHouse(aLoc,aHouseType,PlayerRevealID) then
+  begin
+    if not DoSilent then
+      fSoundLib.Play(sfx_CantPlace,aLoc,false,4.0);
+    exit;
+  end;
   KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, PlayerID);
   fTerrain.SetHousePlan(aLoc, aHouseType, fdt_HousePlan);
   fTerrain.SetTileOwnership(aLoc,aHouseType, PlayerID);
   BuildList.AddNewHousePlan(KMHouse);
   Result:=true;
   if not DoSilent then
-  fSoundLib.Play(sfx_placemarker,aLoc,false);
+    fSoundLib.Play(sfx_placemarker,aLoc,false);
 end;
 
-procedure TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean);
+function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean):boolean;
 var fHouse:TKMHouse;
-begin
+begin      
+  Result := false;
   fHouse:=fHouses.HitTest(Position.X, Position.Y);
-  if fHouse<>nil then fHouse.DemolishHouse;
+  if fHouse<>nil then
+  begin
+    fHouse.DemolishHouse;     
+    Result := true;
+  end;
 end;
 
 procedure TKMPlayerAssets.RemUnit(Position: TKMUnit);
@@ -157,10 +172,14 @@ begin
   fUnits.Rem(Position);
 end;
 
-procedure TKMPlayerAssets.RemPlan(Position: TKMPoint);
+function TKMPlayerAssets.RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
 begin
-  if BuildList.RemRoad(Position) then
+  Result := BuildList.RemRoad(Position,Simulated);
+  if (Result) and (not Simulated) then
+  begin
+    fSoundLib.Play(sfx_click,Position,false);
     fTerrain.RemMarkup(Position);
+  end;
 end;
 
 function TKMPlayerAssets.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;

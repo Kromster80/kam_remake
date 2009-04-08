@@ -140,7 +140,7 @@ type
   public
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
     function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
-    procedure Rem(aHouse:TKMHouse);
+    function Rem(aHouse:TKMHouse):boolean;
     procedure UpdateState;
     function HitTest(X, Y: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -812,9 +812,10 @@ begin
 end;
 
 
-procedure TKMHousesCollection.Rem(aHouse:TKMHouse);
+function TKMHousesCollection.Rem(aHouse:TKMHouse):boolean;
 begin
   Remove(aHouse);
+  Result := true;
 end;
 
 
