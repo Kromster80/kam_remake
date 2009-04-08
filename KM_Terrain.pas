@@ -77,7 +77,7 @@ public
   procedure SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
   procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
   function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
-  function CanErase(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+  function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
   procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType);
 
@@ -141,13 +141,13 @@ uses KM_Unit1, KM_Viewport, KM_Render, KM_Users, KM_Houses, KM_LoadSFX;
 
 constructor TTerrain.Create;
 begin
-//Don't know what to put here yet
+  //Don't know what to put here yet
   FallingTrees := TKMPointList.Create;
 end;
 
 destructor TTerrain.Destroy;
 begin
-  FallingTrees.Free;
+  FreeAndNil(FallingTrees);
 end;
 
 //Reset whole map with default values
@@ -417,7 +417,7 @@ end;
 
 {Find closest chopable Tree around}
 function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k,h:integer; List:TKMPointList;
+var i,k:integer; List:TKMPointList;
 begin
   List:=TKMPointList.Create;
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
@@ -717,7 +717,8 @@ end;
 
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 //var H:TKMHouse;
-var i,k:integer; CanDo: boolean;
+var i,k:integer;
+  CanDo:boolean; //What a weird meaningless name ;-)
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
@@ -1102,10 +1103,13 @@ Result:=true;
     end;
 end;
 
-function TTerrain.CanErase(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+
+//@Lewin: This function was badly named CanErase, I renamed it
+function TTerrain.CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
 begin
    Result := fPlayers.Player[integer(PlayerID)].RemPlan(Loc,true);
 end;
+
 
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
 begin
@@ -1280,24 +1284,6 @@ begin
   fRender.RenderTerrainAndFields(x1,x2,y1,y2);
   fRender.RenderFieldBorders(x1,x2,y1,y2);
   fRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep);
-
-
-case CursorMode.Mode of
-  cm_None:;
-  cm_Erase: if (CanErase(CursorPos,MyPlayer.PlayerID)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
-             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderBuildIcon(CursorPos);       //Red X
-  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
-             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderBuildIcon(CursorPos);       //Red X
-  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
-             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderBuildIcon(CursorPos);       //Red X
-  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
-             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderBuildIcon(CursorPos);       //Red X
-  cm_Houses: fRender.RenderWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
-end;
 end;
 
 end.

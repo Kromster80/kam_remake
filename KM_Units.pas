@@ -700,11 +700,13 @@ begin
         else
           if RestedSinceWork then fUnitTask:=InitiateMining //Unit is at home, so go get a job
             else begin
+              //@Lewin: I suggest you move this thing into WorkPlan AfterWorkIdle field, since it's tied to WorkPlan rather logicaly
               SetAction(TUnitActionStay.Create(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk)); //Rest for as long as we must before doing the next job
-                                               //@Krom: Will WorkerRest*10 give the correct value? I think WorkerRest is in seconds, but what is this time in?
+              //@Krom: Will WorkerRest*10 give the correct value? I think WorkerRest is in seconds, but what is this time in?
+              //@Lewin: Remake time is in Steps where each step is GAME_LOGIC_PACE ms
               RestedSinceWork := true;
             end;
-  if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk));
+  if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk)); //Absolutely nothing to do ...
 
   Assert(fCurrentAction<>nil,'Unit has no action!');
 end;

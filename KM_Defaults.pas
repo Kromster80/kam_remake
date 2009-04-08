@@ -29,7 +29,7 @@ var
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
   MakeShowUnitMove:boolean=true;        //Draw unit movement overlay
-  WriteResourceInfoToTXT:boolean=false;  //Whenever to write txt files with defines data properties
+  WriteResourceInfoToTXT:boolean=true;  //Whenever to write txt files with defines data properties
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
   TERRAIN_FOG_OF_WAR_ENABLE:boolean=false;//Whenever fog of war is enabled or not
@@ -549,7 +549,7 @@ type
   //Properties of map elements, e.g. passibility. Mostly unknown.
   MapElemProperties = (
     //It's easier to read this way, if I may suggest
-    mep_u1,
+    mep_u1=1, //@Lewin: please always specify where first element is 0 or 1, it already caused a bug in Text export which assumed 1..16 range
     mep_u2,
     mep_u3,
     mep_u4,

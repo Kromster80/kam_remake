@@ -30,6 +30,7 @@ private
   procedure AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aFOW:byte=$FF);
   procedure SortRenderList;
   procedure RenderRenderList;
+  procedure RenderCursorHighlights;
   procedure RenderBrightness(Value:byte);
 protected
 public
@@ -125,15 +126,19 @@ begin
     fTerrain.Paint;
     glLineWidth(1);
     glPointSize(1);
-    if ShowTerrainWires then fRender.RenderWires();
-    if MakeShowUnitMove then fRender.RenderUnitMoves();
+    if ShowTerrainWires then RenderWires();
+    if MakeShowUnitMove then RenderUnitMoves();
 
     fPlayers.Paint;            //Units and houses
 
     SortRenderList;
     RenderRenderList;
 
-    //fRender.RenderHouseStone(byte(ht_Sawmill), Form1.TrackBar1.Position/100 , 10, 10);
+    glLineWidth(fViewport.Zoom*2);
+    glPointSize(fViewport.Zoom*5);
+    RenderCursorHighlights();
+    glLineWidth(1);
+    glPointSize(1);
 
     glLoadIdentity();             // Reset The View
     glLineWidth(1);
@@ -381,9 +386,11 @@ procedure TRender.RenderBuildIcon(P:TKMPoint; id:integer=479);
 begin
   //@Krom: How do I make these always render on top of everything else? (e.g. the it should go over houses rather than under them)
   //       Same thing for the wire build quad, although it's less important
+  //@Lewin: Sorry, was not that clear, but AddSpriteToList(aNew=false) will render it ontop of everything
+  //Currently I moved CursorHighlights render to be after units/houses - should be fine now
+  //To be deleted..
   if fTerrain.TileInMapCoords(P.X,P.Y) then
     RenderSprite(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV);
-    //AddSpriteToList(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,true);
 end;
 
 
@@ -403,69 +410,86 @@ end;
 
 
 procedure TRender.RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
-var i,k,s,t,markpntr:integer; P2:TKMPoint; AllowBuild:boolean;
-MarkedLocations:array[1..64] of TKMPoint;
+var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
+  MarkedLocations:array[1..64] of TKMPoint; //List of locations with special marks on them
+  MarkCount:integer;
 
   procedure MarkPoint(APoint:TKMPoint; AID:integer);
   var v: integer;
   begin
-    for v:=1 to markpntr-1 do
-      if KMSamePoint(MarkedLocations[v],APoint) then exit;
-      
+    for v:=1 to MarkCount do if KMSamePoint(MarkedLocations[v],APoint) then exit;
     RenderBuildIcon(APoint,AID);
-    MarkedLocations[markpntr] := APoint;
-    inc(markpntr);
+    inc(MarkCount);
+    MarkedLocations[MarkCount] := APoint;
   end;
 begin
-  markpntr := 1;
+  MarkCount := 0;
   for i:=1 to 4 do for k:=1 to 4 do
-  if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
-    P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
+  if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
+      P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4); //This can't be done earlier since values can be off-map 
 
-    if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+        //Check house-specific conditions, e.g. allow shipyards only near water and etc..
+        case aHouseType of
+          ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
+          ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
+          ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
+          else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
+        end;
 
-      case aHouseType of
-        ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
-        ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
-        ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
-        else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
-      end;
-      AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)<>0);
+        //Forbid planning on unrevealed areas
+        AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)<>0);
 
+        //Check surrounding tiles in +/- 1 range for other houses pressence                                
+        for s:=-1 to 1 do for t:=-1 to 1 do
+        if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
+        if fTerrain.Land[P2.Y+t,P2.X+s].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad] then
+        begin
+          MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
+          AllowBuild := false;
+        end;
 
-      for s:=-1 to 1 do
-        for t:=-1 to 1 do
-          if not ((s=0)and(t=0)) then //This is a surrounding tile, not the actual tile
-          begin
-            if fTerrain.Land[P2.Y+t,P2.X+s].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad] then
-            begin
-              MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
-              AllowBuild := false;
-            end;
-          end;
-
-      if AllowBuild then
-      begin
-        RenderWireQuad(P2,$FFFFFF00); //Cyan
-        if HousePlanYX[byte(aHouseType),i,k]=2 then
-          MarkPoint(P2,481);
-      end
-      else
-      begin
-        if HousePlanYX[byte(aHouseType),i,k]=2 then
-          MarkPoint(P2,482)
-        else
-          if aHouseType in [ht_GoldMine,ht_IronMine] then
-            MarkPoint(P2,480)
+        //Mark the tile according to previous check results
+        if AllowBuild then begin
+          RenderWireQuad(P2,$FFFFFF00); //Cyan
+          if HousePlanYX[byte(aHouseType),i,k]=2 then
+            MarkPoint(P2,481);
+        end else begin
+          if HousePlanYX[byte(aHouseType),i,k]=2 then
+            MarkPoint(P2,482)
           else
-            MarkPoint(P2,479);
-      end;
-    end;
-  end else if HousePlanYX[byte(aHouseType),i,k]<>0 then //Draw red Xs for edge of map
-    MarkPoint(KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4),479);
-    //RenderWireQuad(P2,$FF0000FF);
-end;
+            if aHouseType in [ht_GoldMine,ht_IronMine] then
+              MarkPoint(P2,480)
+            else
+              MarkPoint(P2,479);
+        end;
 
+    end else
+    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,0) then
+      MarkPoint(KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4),479);
+  end;
+end;
+             
+//@Lewin: I always wanted to ask you 2 things - why??
+//
+//procedure MarkPoint(APoint:TKMPoint; AID:integer); //Why first letter is 'A', not 'a'
+//
+//and the 2nd one
+//
+//if Foo<>Bar then
+//begin
+//  Foo:=Bar;
+//  ...
+//end;
+//
+//Why do you move 'begin' to the next line instead of
+//
+//if Foo<>Bar then begin
+//  Foo:=Bar;
+//  ...
+//end;
+//
+//No offence, just curiosity
 
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
@@ -541,8 +565,8 @@ begin
   b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
 
   //Shift the X and Y so that the markup is centred correctly on the tile
-  DrawX:=pX-0.05;
-  DrawY:=pY+0.2;
+  DrawX:=pX; //This one is unchanged, unless you have a screenshot to show
+  DrawY:=pY+0.1;
   glBegin(GL_QUADS);
     glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
     glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
@@ -882,13 +906,14 @@ procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean
 begin
 inc(RenderCount);
 if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+32); //Book some space
-RenderList[RenderCount].Loc:=KMPointF(pX,pY);
-RenderList[RenderCount].RX:=aRX;
-RenderList[RenderCount].ID:=aID;
-RenderList[RenderCount].NewInst:=aNew;
-RenderList[RenderCount].Team:=aTeam;
-RenderList[RenderCount].AlphaStep:=Step;
-RenderList[RenderCount].FOWvalue:=aFOW;
+
+RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
+RenderList[RenderCount].RX:=aRX;              //RX library
+RenderList[RenderCount].ID:=aID;              //Texture ID
+RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top)
+RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
+RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
+RenderList[RenderCount].FOWvalue:=aFOW;       //Visibility
 end;
 
 
@@ -941,6 +966,28 @@ if RO[i]<>0 then begin
 end;
 setlength(RenderList,0);
 setlength(RO,0);
+end;
+
+
+procedure TRender.RenderCursorHighlights;
+begin
+with fTerrain do
+case CursorMode.Mode of
+  cm_None:;
+  cm_Erase:if (CanRemovePlan(CursorPos,MyPlayer.PlayerID)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
+             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderBuildIcon(CursorPos);       //Red X
+  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
+             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderBuildIcon(CursorPos);       //Red X
+  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
+             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderBuildIcon(CursorPos);       //Red X
+  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
+             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderBuildIcon(CursorPos);       //Red X
+  cm_Houses: fRender.RenderWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
+end;
 end;
 
 

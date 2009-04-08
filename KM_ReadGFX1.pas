@@ -148,14 +148,13 @@ begin
     assignfile(ft,ExeDir+'Trees.txt'); rewrite(ft);
     for ii:=1 to MapElemQty do begin
     writeln(ft);
-    writeln(ft);
     writeln(ft,ii);
       for kk:=1 to 30 do if MapElem[ii].Step[kk]>0 then
-      write(ft,MapElem[ii].Step[kk],' ') else write(ft,'- ');
+      write(ft,MapElem[ii].Step[kk],'.') else write(ft,'_.');
 
       writeln(ft);
       for kk:=1 to 16 do
-      write(ft,MapElem[ii].Properties[MapElemProperties(kk)],' ');
+      write(ft,MapElem[ii].Properties[MapElemProperties(kk)],''); //Those are 1/0 so we can ommit space between them
       write(ft,' =',MapElem[ii].u2);
       write(ft,' =',MapElem[ii].CanBeRemoved);
       write(ft,' =',MapElem[ii].u4);

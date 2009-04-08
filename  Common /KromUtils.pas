@@ -96,6 +96,7 @@ procedure decs(var AText:string; const Len:integer=1); overload;
 procedure decs(var AText:widestring; const Len:integer=1); overload;
 function  decs(AText:string; Len,RunAsFunction:integer):string; overload;
 function GetNumberFromString(AText:string; Position:integer):single;
+function RemoveQuotes(Input:string):string;
 procedure SwapStr(var A,B:string);
 procedure SwapInt(var A,B:word); overload;
 procedure SwapInt(var A,B:cardinal); overload;
@@ -837,6 +838,17 @@ begin
   Result:=strtofloat(s);
 
 end;
+
+
+function RemoveQuotes(Input:string):string;
+var i:integer;
+begin
+  Result:='';
+  for i:=1 to length(Input) do
+  if Input[i]<>'"' then
+    Result:=Result+Input[i];
+end;
+
 
 procedure SwapStr(var A,B:string);
 var s:string;

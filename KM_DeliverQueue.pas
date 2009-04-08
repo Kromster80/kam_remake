@@ -308,6 +308,7 @@ fFieldsQueue[i].JobStatus:=js_Open;
 end;
 
 {Remove task if Player has cancelled it}
+{Simulated just means that we simply want to check if player ever issued that task}
 function TKMBuildingQueue.RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin

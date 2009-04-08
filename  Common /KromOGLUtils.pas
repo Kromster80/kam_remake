@@ -41,7 +41,6 @@ MatModeDefaultF:string=
 'gl_FragColor = vec4(kColor.rgb,1);'+#10+#13+
 '}';
 
-
 implementation
 
 procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
