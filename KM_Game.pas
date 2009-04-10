@@ -124,6 +124,10 @@ begin
   if GameIsRunning then begin
     if X<=ToolBarWidth then begin
       Screen.Cursor:=c_Default;
+      //@Krom: There is a problem with this. If you have your mouse on an item in the build menu,
+      //       and you move it across to the main area very quickly then the selected build button
+      //       stays highlighted, because there is no event saying that the mouse is no longer over it.
+      //       Should we run this even if the mouse is not over the ToolBar?
       fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
     end else begin
       CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;

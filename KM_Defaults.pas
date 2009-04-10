@@ -549,7 +549,7 @@ type
   //Properties of map elements, e.g. passibility. Mostly unknown.
   MapElemProperties = (
     //It's easier to read this way, if I may suggest
-    mep_u1=1, //@Lewin: please always specify where first element is 0 or 1, it already caused a bug in Text export which assumed 1..16 range
+    mep_u1=1, //@Lewin: please always specify where first element is 0 or 1, it already caused a bug in Text export which assumed 1..16 range @Krom: Sorry, I'll do that in the future. To be deleted...
     mep_u2,
     mep_u3,
     mep_u4,

@@ -384,11 +384,6 @@ end;
 
 procedure TRender.RenderBuildIcon(P:TKMPoint; id:integer=479);
 begin
-  //@Krom: How do I make these always render on top of everything else? (e.g. the it should go over houses rather than under them)
-  //       Same thing for the wire build quad, although it's less important
-  //@Lewin: Sorry, was not that clear, but AddSpriteToList(aNew=false) will render it ontop of everything
-  //Currently I moved CursorHighlights render to be after units/houses - should be fine now
-  //To be deleted..
   if fTerrain.TileInMapCoords(P.X,P.Y) then
     RenderSprite(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV);
 end;
@@ -491,6 +486,16 @@ end;
 //
 //No offence, just curiosity
 
+{
+@Krom: First question:  A/a, that was a kind of mistake. I forgot that it should be lower case.
+                        I'll use 'a' in the future. Would you like me to change it? (e.g. in LoadDAT)
+Second question:
+  That's just how I was taught. It still looks odd to me to have the begin right after the then.
+  I have always done it like that and so I have to remember not to here. (I am trying to follow your
+  coding/formatting standards, which differ greatly from mine) Please let me know if there is anything
+  else that I do which you do not like. I am trying to do it your way, but sometimes I forget/make mistakes. ;)
+}
+
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
@@ -567,6 +572,11 @@ begin
   //Shift the X and Y so that the markup is centred correctly on the tile
   DrawX:=pX; //This one is unchanged, unless you have a screenshot to show
   DrawY:=pY+0.1;
+  //@Krom: I guess it's ok like that. I was simply trying to make the red X in placement
+  //       centre on the markup.
+  //       At the moment it's a little high and to the right IMO, but it's your choice.
+  //       It's subtle, but if you compare it, it is different to KaM.
+  //       But I'm happy to leave it like this, few people will notice. To be deleted.
   glBegin(GL_QUADS);
     glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
     glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
@@ -974,7 +984,8 @@ begin
 with fTerrain do
 case CursorMode.Mode of
   cm_None:;
-  cm_Erase:if (CanRemovePlan(CursorPos,MyPlayer.PlayerID)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
+  cm_Erase:if ((CanRemovePlan(CursorPos,MyPlayer.PlayerID)) or CanRemoveHouse(CursorPos,MyPlayer.PlayerID))
+               and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
              fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderBuildIcon(CursorPos);       //Red X
   cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then

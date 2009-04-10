@@ -70,7 +70,8 @@ public
   function OpenMapFromFile(filename:string):boolean;
 
   procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
-  procedure RemMarkup(Loc:TKMPoint);
+  procedure RemMarkup(Loc:TKMPoint); 
+  procedure RemFieldSpecial(Loc:TKMPoint);
   procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
   procedure IncFieldState(Loc:TKMPoint);
 
@@ -78,6 +79,7 @@ public
   procedure SetTileOwnership(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
   function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
   function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+  function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
   procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType);
 
@@ -360,6 +362,14 @@ end;
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
+  RecalculatePassability(Loc);
+end;
+
+
+{Remove FieldSpecial from tile}
+procedure TTerrain.RemFieldSpecial(Loc:TKMPoint);
+begin
+  Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
   RecalculatePassability(Loc);
 end;
 
@@ -718,7 +728,11 @@ end;
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 //var H:TKMHouse;
 var i,k:integer;
-  CanDo:boolean; //What a weird meaningless name ;-)
+  HousesNearBy:boolean; //What a weird meaningless name ;-)
+  //@Krom: I'm really sorry about that one, I don't know what happened there. I think it was
+  //       late at night or something and I wasn't thinking properly. I will try not to do that
+  //       again. I agree, that name was really weird and useless, I have no idea why I wrote it.
+  //       To be deleted.
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
@@ -743,12 +757,12 @@ begin
        AddPassability(Loc, [canWalkRoad]);
 
      //Check for houses around this tile
-     CanDo := true;
+     HousesNearBy := false;
      for i:=-1 to 1 do
        for k:=-1 to 1 do
          if TileInMapCoords(Loc.X+k,Loc.Y+i) then
            if (Land[Loc.Y+i,Loc.X+k].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]) then
-             CanDo := false;
+             HousesNearBy := true;
 
      if (TileIsRoadable(Loc))and
         ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
@@ -756,7 +770,7 @@ begin
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
-        (CanDo = true)and
+        (not HousesNearBy)and
         (Land[Loc.Y,Loc.X].FieldType in [fdt_None,fdt_Road])then
         AddPassability(Loc, [canBuild]);
 
@@ -766,7 +780,7 @@ begin
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
-        (CanDo = true)and
+        (not HousesNearBy)and
         (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]))then
        AddPassability(Loc, [canBuildIron]);
 
@@ -776,7 +790,7 @@ begin
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
-        (CanDo = true)and
+        (not HousesNearBy)and
         (not (Land[Loc.Y,Loc.X].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad]))then
        AddPassability(Loc, [canBuildGold]);
 
@@ -1105,9 +1119,16 @@ end;
 
 
 //@Lewin: This function was badly named CanErase, I renamed it
+//@Krom:  Ok, good idea. To be deleted
 function TTerrain.CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
 begin
    Result := fPlayers.Player[integer(PlayerID)].RemPlan(Loc,true);
+end;
+
+
+function TTerrain.CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+begin
+   Result := fPlayers.Player[integer(PlayerID)].RemHouse(Loc,true,true);
 end;
 
 
@@ -1135,8 +1156,11 @@ begin
     if HousePlanYX[byte(aHouseType),i,k]<>0 then
       Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+Random(6);
   for i:=1 to 4 do for k:=1 to 4 do
-    if HousePlanYX[byte(aHouseType),i,k]=1 then
+    if (HousePlanYX[byte(aHouseType),i,k]=1) or (HousePlanYX[byte(aHouseType),i,k]=2) then begin
       Land[Loc.Y+i-4,Loc.X+k-3].FieldSpecial:=fs_Dig3;
+      Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt_None;
+    end;
+  RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
 end;
 
 

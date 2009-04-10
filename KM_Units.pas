@@ -248,7 +248,6 @@ type
   TKMUnitCitizen = class(TKMUnit)
   public
     WorkPlan:TUnitWorkPlan;
-    RestedSinceWork: boolean;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     function FindHome():boolean;
     function UpdateState():boolean; override;
@@ -624,7 +623,6 @@ constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; a
 begin
   Inherited;
   WorkPlan:=TUnitWorkPlan.Create;
-  RestedSinceWork := true;
 end;
 
 
@@ -670,7 +668,7 @@ end;
 
 
 function TKMUnitCitizen.UpdateState():boolean;
-var H:TKMHouse;
+var H:TKMHouse; RestTime: integer;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -698,15 +696,13 @@ begin
         if fVisible then //Unit is not at home, still it has one
           fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self)
         else
-          if RestedSinceWork then fUnitTask:=InitiateMining //Unit is at home, so go get a job
-            else begin
-              //@Lewin: I suggest you move this thing into WorkPlan AfterWorkIdle field, since it's tied to WorkPlan rather logicaly
-              SetAction(TUnitActionStay.Create(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk)); //Rest for as long as we must before doing the next job
-              //@Krom: Will WorkerRest*10 give the correct value? I think WorkerRest is in seconds, but what is this time in?
-              //@Lewin: Remake time is in Steps where each step is GAME_LOGIC_PACE ms
-              RestedSinceWork := true;
-            end;
-  if fUnitTask=nil then SetAction(TUnitActionStay.Create(120, ua_Walk)); //Absolutely nothing to do ...
+          fUnitTask:=InitiateMining; //Unit is at home, so go get a job
+
+  if fHome <> nil then
+       RestTime := HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10
+  else RestTime := 120; //Unit may not have a home; if so, load a default value
+
+  if fUnitTask=nil then SetAction(TUnitActionStay.Create(RestTime, ua_Walk)); //Absolutely nothing to do ...
 
   Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
@@ -737,12 +733,12 @@ if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPla
 if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
 if fHome.CheckResOut(WorkPlan.Product)>=MaxResInHouse then exit;
 
+WorkPlan.AfterWorkIdle := HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10;
+
 if HousePlaceOrders[byte(fHome.GetHouseType)] then
   fHome.ResRemOrder(Res);
 
 Result:=TTaskMining.Create(WorkPlan,Self,fHome);
-
-RestedSinceWork := false;
 end;
 
 
@@ -1240,6 +1236,7 @@ case Phase of
 0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
 1: begin
    fTerrain.RemMarkup(fLoc);
+   fTerrain.RemFieldSpecial(fLoc); //In case we are building on a destroyed house
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
    end;
 2: begin
@@ -1260,6 +1257,7 @@ case Phase of
    end;
 7: begin
    fTerrain.IncFieldState(fLoc);
+   fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
    end;
 8: begin

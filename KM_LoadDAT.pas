@@ -144,6 +144,7 @@ begin
   //@Lewin: ENCODED := c[1] = chr(206); //That is encoded first char
   //@Krom: We can't use that method. Some mission editors (e.g. Thunderwolf's) put a comment at the top of the file stating that it was made with his editor. And we don't want to force people to start with a command. I vote we use: If file text contains !SET_MAX_PLAYERS then it is real. Because every mission must have that command. That's what I'm using for my mission editor, and it works well. (1 string search won't take long, will it?)
   //@Lewin: Okay, then we could grab 100bytes from the middle and estimate if they are in a..Z range or XORed.
+  //@Krom: Yes, that sounds ok to me. I'll add it at some point, but it's low prioraty IMO, I'd rather get the game engine working. If you think it's urgent then feel free to write it yourself.
 
   i:=1; k:=1;
   repeat
@@ -167,7 +168,7 @@ function TMissionParser.GetMissionDetails(AFileName:string):TKMMissionDetails;
 const Max_Cmd=1;
 var
   FileText, CommandText, Param, TextParam: string;
-  ParamList: array[1..Max_Cmd] of integer; //@Lewin: We can save some time by using only 1st command, rest we don't need
+  ParamList: array[1..Max_Cmd] of integer; //@Lewin: We can save some time by using only 1st command, rest we don't need. @Krom: Good idea. To be deleted
   k, l: integer;
   CommandType: TKMCommandType;
 begin
@@ -209,7 +210,7 @@ begin
             inc(k);
           until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
           //Convert to an integer, if possible
-          if StrToIntDef(Param,-1) <> -1 then ParamList[l] := StrToInt(Param)
+          if StrToIntDef(Param,-999) <> -999 then ParamList[l] := StrToInt(Param)
           else if l=1 then TextParam:=Param; //Accept text for first parameter
 
           if FileText[k]=#32 then inc(k);
@@ -229,7 +230,7 @@ end;
 procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
 begin
   case CommandType of
-  ct_SetMap:         MissionDetails.MapPath     := RemoveQuotes(TextParam); //@Lewin: I've split it into KromUtils for more general use
+  ct_SetMap:         MissionDetails.MapPath     := RemoveQuotes(TextParam); //@Lewin: I've split it into KromUtils for more general use. @Krom: But I don't like the way you've recodded it. If someone gives us "abcd"ddgg then we should only return abcd. We want to extract data between quotes with that function, not just remove all quotes. If that was the goal then I would simply have used StringReplace(TextParam,'"','',[rfReplaceAll]);
   ct_SetMaxPlayer:   MissionDetails.TeamCount   := ParamList[0];
   ct_SetTactic:      MissionDetails.IsFight     := 1;
   ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
@@ -280,7 +281,7 @@ begin
             inc(k);
           until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
           //Convert to an integer, if possible
-          if StrToIntDef(Param,-1) <> -1 then ParamList[l] := StrToInt(Param)
+          if StrToIntDef(Param,-999) <> -999 then ParamList[l] := StrToInt(Param)
           else if l=1 then TextParam:=Param; //Accept text for first parameter
 
           if FileText[k]=#32 then inc(k);
@@ -511,6 +512,9 @@ begin
     //       work faster .. Shame on you - you put it into Repeat loop! :-D
     //       Still it got only x13 calls, so I guess it works good till 50maps, then we'll need to improve it once again
     //       e.g. by scanning only new maps and storing all stats in maplist.dat file
+
+    //@Krom: OMG OOPS! I must have been tired when I did that, how could I have been so stupid! I'll try and be more
+    //       careful in the future, as I said I didn't really check that last commit of mine. Sorry.
 
     inc(r); //Loop counter
 

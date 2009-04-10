@@ -26,7 +26,7 @@ type
     procedure AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
-    function RemHouse(Position: TKMPoint; DoSilent:boolean):boolean;
+    function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
     procedure RemUnit(Position: TKMUnit);
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
@@ -90,8 +90,13 @@ end;
 
 
 function TKMPlayerAssets.AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
-var xo:integer;
+var xo,i,k:integer;
 begin
+  //First flatten the terrain at the location of the house
+  for i:=4 downto 1 do for k:=4 downto 1 do
+    if HousePlanYX[byte(aHouseType),i,k]<>0 then
+      fTerrain.FlattenTerrain(KMPoint(Position.X+k-3,Position.Y+i-4));
+
   xo:=HouseDAT[byte(aHouseType)].EntranceOffsetX;
   Result:=fHouses.AddHouse(aHouseType, Position.X-xo, Position.Y, PlayerID);
 end;
@@ -104,7 +109,10 @@ begin
   //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
   //@Lewin: You right. Explanation to be kept.
   case aMarkup of
-    mu_RoadPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Road);
+    mu_RoadPlan: begin
+                   fTerrain.SetField(aLoc,PlayerID,fdt_Road); 
+                   fTerrain.FlattenTerrain(aLoc); //Flatten the terrain for road
+                 end;
     mu_FieldPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Field);
     mu_WinePlan: begin
                    fTerrain.SetField(aLoc,PlayerID,fdt_Wine);
@@ -155,14 +163,15 @@ begin
     fSoundLib.Play(sfx_placemarker,aLoc,false);
 end;
 
-function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean):boolean;
+function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
 var fHouse:TKMHouse;
 begin      
   Result := false;
   fHouse:=fHouses.HitTest(Position.X, Position.Y);
   if fHouse<>nil then
   begin
-    fHouse.DemolishHouse;     
+    if not Simulated then
+      fHouse.DemolishHouse(DoSilent);
     Result := true;
   end;
 end;

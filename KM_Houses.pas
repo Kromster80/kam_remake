@@ -60,7 +60,7 @@ type
     destructor Destroy; override;
 
     procedure Activate;
-    procedure DemolishHouse;
+    procedure DemolishHouse(DoSilent:boolean);
 
     property GetPosition:TKMPoint read fPosition;
     function GetEntrance():TKMPoint;
@@ -215,9 +215,9 @@ begin
 end;
 
 
-procedure TKMHouse.DemolishHouse;
+procedure TKMHouse.DemolishHouse(DoSilent:boolean);
 begin
-  fSoundLib.Play(sfx_HouseDestroy,GetPosition);
+  if not DoSilent then fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   ScheduleForRemoval:=true;
   //Dispose of delivery tasks performed in DeliverQueue unit
   fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
@@ -535,7 +535,7 @@ begin
 
   fLastUpdateTime := TimeGetTime;
 
-  if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse;
+  if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
 
   MakeSound(); //Make some sound/noise along the work
 
