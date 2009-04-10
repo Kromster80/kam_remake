@@ -126,8 +126,8 @@ public
   function CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
   procedure UpdateBorders(Loc:TKMPoint);
   procedure FlattenTerrain(Loc:TKMPoint);
-  procedure RebuildLighting(LowX,HighX,LowY,HighY:word);
-  procedure RebuildPassability(LowX,HighX,LowY,HighY:word);
+  procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
+  procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
 
@@ -1031,6 +1031,7 @@ begin
   Land[Loc.Y+1,Loc.X].Height:=mix(Land[Loc.Y+1,Loc.X].Height,TempH,0.5);
   Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
   Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
+
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
   RecalculatePassability(Loc);
 end;
@@ -1038,8 +1039,8 @@ end;
 
 { Rebuilds lighting values for given bounds.
 These values are used to draw highlights/shadows on terrain.}
-procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:word);
-var i,k:word; x0,y2:integer;
+procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
+var i,k:integer; x0,y2:integer;
 begin
   for i:=LowY to HighY do for k:=LowX to HighX do
     if VerticeInMapCoords(k,i) then begin
@@ -1054,8 +1055,8 @@ end;
 
 
 { Rebuilds passability for given bounds }
-procedure TTerrain.RebuildPassability(LowX,HighX,LowY,HighY:word);
-var i,k:word;
+procedure TTerrain.RebuildPassability(LowX,HighX,LowY,HighY:integer);
+var i,k:integer;
 begin
   for i:=LowY to HighY do for k:=LowX to HighX do
     if TileInMapCoords(k,i) then

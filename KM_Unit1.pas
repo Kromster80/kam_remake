@@ -11,7 +11,6 @@ type
   TForm1 = class(TForm)
     N2: TMenuItem;
     Debug_ShowUnits: TMenuItem;
-  public //Just to separate items in TreeView
     OpenDialog1: TOpenDialog;
     StatusBar1: TStatusBar;
     MainMenu1: TMainMenu;
@@ -151,7 +150,9 @@ begin
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
-  Form1.WindowState:=wsMaximized;
+  Form1.BorderStyle:=bsSizeable;
+
+  //Form1.WindowState:=wsMaximized;
   //Form1.ClientWidth:=1024;
   //Form1.ClientHeight:=768;
   //To get fullscreen - change this in ObjectInspector, otherwise it doesn't work right

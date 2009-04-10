@@ -675,6 +675,7 @@ case fCurrentAction.fActionType of
 ua_Walk:
   begin
     fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+    if ua_WalkArm in UnitSupportedActions[byte(UnitType)] then
     fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,false);
   end;
 ua_Work..ua_Eat:

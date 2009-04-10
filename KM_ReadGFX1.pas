@@ -664,12 +664,12 @@ begin
   ReadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
   ci:=0;
-  for ID:=2 to 2 do begin
+  for ID:=4 to 4 do begin
     for Ac:=1 to 14 do begin
       for Di:=1 to 8 do if UnitSprite[ID].Act[Ac].Dir[Di].Step[1]<>-1 then begin
         for k:=1 to UnitSprite[ID].Act[Ac].Dir[Di].Count do begin
-          CreateDir(ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\');
-          CreateDir(ExeDir+'UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\');
+          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(ID))+'\');
+          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\');
           if UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1<>0 then
           ci:=UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1;
 
