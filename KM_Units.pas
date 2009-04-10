@@ -310,9 +310,13 @@ type
     procedure Paint(); override;
   end;
 
-  TKMUnitsCollection = class(TKMList)
+
+  TKMUnitsCollection = class(TKMList) //List of TKMUnits
+  private
+    Groups:array of integer;
   public
     function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer):TKMUnit;
+    function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     procedure Rem(aUnit:TKMUnit);
     procedure UpdateState;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
@@ -898,9 +902,9 @@ procedure TKMUnitWarrior.Paint();
 var AnimAct,AnimDir:integer;
 begin
 inherited;
-AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
-AnimDir:=integer(Direction);
-fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+  AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
+  AnimDir:=integer(Direction);
+  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
 end;
 
 
@@ -2119,6 +2123,16 @@ begin
     Assert(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
   end;
   if T=-1 then Result:=nil else Result:=TKMUnit(Items[T]);
+end;
+
+function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
+var U:TKMUnit; i:integer;
+begin
+  for i:=1 to aUnitCount do begin
+    U:=Add(aOwner, aUnitType, PosX + i div aUnitPerRow, PosY + i mod aUnitPerRow);
+    U.Direction:=aDir;
+  end;
+  Result:=U;
 end;
 
 

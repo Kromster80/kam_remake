@@ -150,9 +150,9 @@ begin
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
-  Form1.BorderStyle:=bsSizeable;
+  //Form1.BorderStyle:=bsSizeable;
 
-  //Form1.WindowState:=wsMaximized;
+  Form1.WindowState:=wsMaximized;
   //Form1.ClientWidth:=1024;
   //Form1.ClientHeight:=768;
   //To get fullscreen - change this in ObjectInspector, otherwise it doesn't work right
@@ -545,6 +545,8 @@ begin
   MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
+
+  MyPlayer.AddGroup(ut_Militia,KMPoint(12,14),dir_N,5,30);
 
   //H.AddDamage(255);
   //MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));

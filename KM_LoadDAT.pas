@@ -449,6 +449,9 @@ begin
 
                      end;
   ct_SetGroup:       begin
+                       if InRange(ParamList[0],0,31) then
+                         fPlayers.Player[CurrentPlayerIndex].AddGroup(
+                         UnitsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]);
 
                      end;
   ct_SetGroupFood:   begin
