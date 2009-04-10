@@ -6,7 +6,7 @@ type TNotifyEvent = procedure(Sender: TObject) of object;
 
 {Base class for all TKM elements}
 type
-TKMControl = class
+TKMControl = class(TObject)
   public
     Parent: TKMControl;
     ChildCount:word;             //Those two are actually used only for TKMPanel
@@ -326,8 +326,10 @@ procedure TKMControl.Paint();
 var i:integer;
 begin
   for i:=1 to ChildCount do
-    if Childs[i].Visible then
+    if Childs[i].Visible then begin
       Childs[i].Paint;
+      inc(CtrlPaintCount);
+    end;
 end;
 
 
@@ -400,6 +402,7 @@ end;
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
+  RXid:=aRXid;
   TexID:=aTexID;
   ParentTo(aParent);
 end;
@@ -433,10 +436,10 @@ begin
   if CursorOver and Enabled then State:=State+[bs_Highlight];
   if Down then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
-  fRenderUI.Write3DButton(Left,Top,Width,Height,4,TexID,State);
+  fRenderUI.Write3DButton(Left,Top,Width,Height,RXid,TexID,State);
   if TexID=0 then
     if Enabled then //If disabled then text should be faded
-      fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, Caption, Font, TextAlign, false, $FFFFFFFF)
+      fRenderUI.WriteText(Left + Width div 2 +byte(Down), (Top + Height div 2)-7+byte(Down), Width, Caption, Font, TextAlign, false, $FFFFFFFF)
     else
       fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, Caption, Font, TextAlign, false, $FF888888);
 end;
@@ -975,9 +978,12 @@ end;
 procedure TKMControlsCollection.Paint();
   var i:integer;
 begin
+  CtrlPaintCount:=0;
   for i:=0 to Count-1 do
     if TKMControl(Items[I]).Parent=nil then
-      if TKMControl(Items[I]).IsVisible then TKMControl(Items[I]).Paint;
+      if TKMControl(Items[I]).IsVisible then
+        TKMControl(Items[I]).Paint;
+  CtrlPaintCount:=0; //Counter
 end;
 
 

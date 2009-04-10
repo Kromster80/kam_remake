@@ -176,7 +176,7 @@ begin
 Result:=false;
 if not CheckFileExists(filename) then exit;
 assignfile(f,filename); reset(f,1);
-blockread(f,HouseDAT1,30*70);
+blockread(f,HouseDATs,30*70);
 for h:=1 to 29 do begin
 blockread(f,HouseDAT[h],88+19*70+270);
 end;
@@ -392,6 +392,8 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
       if Mode=tm_TexID then
         if InRange(x,24,30) then
           col:=(byte(x-27)*42+128)*65793 OR $FF000000 //convert to greyscale B>>>>>W
+          //Alternative method
+          //col:=$FF000000
         else
           col:=Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000
       else
@@ -404,8 +406,9 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
           27:    col:=$FFFFFFFF;   //16
           else   col:=0;
         end;
+        //Alternative method
+        //if InRange(x,24,30) then col:= ((x-24)*21+128) + ((x-24)*21+128) SHL 8 + ((x-24)*21+128) SHL 16 OR $FF000000;
 
-      //col:=max(MAXDWORD-col,0) OR $FF000000;//Fast invert
       by^:=col;
     end;
   end;
@@ -693,21 +696,23 @@ end;
 {Export Houses graphics categorized by House and Action}
 procedure ExportHouseAnim2BMP();
 var MyBitMap:TBitMap;
-    ID,Ac,k,ci,t:integer;
+    Q,ID,Ac,k,ci,t:integer;
     sy,sx,y,x:integer;
+    s:string;
 begin
-  CreateDir(ExeDir+'HouseAnim\');
+  CreateDir(ExeDir+'Export\');
+  CreateDir(ExeDir+'Export\HouseAnim\');
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
   ReadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
 
   ci:=0;
-  for ID:=1 to 30 do begin
+  for ID:=1 to HOUSE_COUNT do begin
     for Ac:=1 to 5 do begin //Work1..Work5
       for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
-        CreateDir(ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\');
-        CreateDir(ExeDir+'HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\');
+        CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\');
+        CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\');
         if HouseDAT[ID].Anim[Ac].Step[k]+1<>0 then
         ci:=HouseDAT[ID].Anim[Ac].Step[k]+1;
 
@@ -725,7 +730,34 @@ begin
       end;
     end;
   end;
-  
+
+  ci:=0;
+  for Q:=1 to 2 do begin
+    if Q=1 then s:='_Swine';
+    if Q=2 then s:='_Stables';
+    CreateDir(ExeDir+'Export\HouseAnim\'+s+'\');
+    for ID:=1 to 5 do begin
+      for Ac:=1 to 3 do begin //Age 1..3
+        for k:=1 to HouseDATs[Q,ID,Ac].Count do begin
+          CreateDir(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\');
+          if HouseDATs[Q,ID,Ac].Step[k]+1<>0 then
+          ci:=HouseDATs[Q,ID,Ac].Step[k]+1;
+
+          sx:=RXData[2].Size[ci,1];
+          sy:=RXData[2].Size[ci,2];
+          MyBitmap.Width:=sx;
+          MyBitmap.Height:=sy;
+
+          for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+            t:=RXData[2].Data[ci,y*sx+x]+1;
+            MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+          end;
+          if sy>0 then MyBitmap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
+        end;
+      end;
+    end;
+  end;
+
   MyBitmap.Free;
 end;
 

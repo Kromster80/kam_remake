@@ -17,6 +17,7 @@ object Form1: TForm1
   Position = poScreenCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnMouseWheel = FormMouseWheel
   OnResize = FormResize
   DesignSize = (
     654
@@ -154,7 +155,7 @@ object Form1: TForm1
       OnClick = ResetZoomClick
     end
     object TeamColorPicker: TShape
-      Left = 394
+      Left = 386
       Top = 16
       Width = 22
       Height = 22
@@ -167,6 +168,15 @@ object Form1: TForm1
       Width = 49
       Height = 13
       Caption = 'Passability'
+    end
+    object Button4: TButton
+      Left = 144
+      Top = 52
+      Width = 25
+      Height = 17
+      Caption = 'W'
+      TabOrder = 11
+      OnClick = Button4Click
     end
     object TBZoomControl: TTrackBar
       Left = 24
@@ -198,7 +208,7 @@ object Form1: TForm1
     end
     object CheckBox1: TCheckBox
       Left = 144
-      Top = 48
+      Top = 32
       Width = 49
       Height = 17
       Caption = 'Pause'
@@ -222,20 +232,12 @@ object Form1: TForm1
       TickStyle = tsNone
       OnChange = TrackBar1Change
     end
-    object CheckBox4: TCheckBox
-      Left = 144
-      Top = 32
-      Width = 81
-      Height = 17
-      Caption = 'Speed x1/2'
-      TabOrder = 4
-    end
     object RGPlayer: TRadioGroup
       Left = 280
       Top = 8
-      Width = 105
-      Height = 49
-      Caption = ' Active player  '
+      Width = 97
+      Height = 61
+      Caption = ' Player '
       Columns = 3
       ItemIndex = 0
       Items.Strings = (
@@ -244,53 +246,55 @@ object Form1: TForm1
         '3'
         '4'
         '5'
-        '6')
-      TabOrder = 5
+        '6'
+        '7'
+        '8')
+      TabOrder = 4
       OnClick = RGPlayerClick
     end
     object Button1: TButton
-      Left = 224
+      Left = 168
       Top = 52
       Width = 25
       Height = 17
       Caption = '>>'
-      TabOrder = 6
+      TabOrder = 5
       OnClick = Button1Click
     end
     object Button2: TButton
-      Left = 248
+      Left = 192
       Top = 52
       Width = 25
       Height = 17
       Caption = '6'
-      TabOrder = 7
+      TabOrder = 6
       OnClick = Button2Click
     end
     object Step1Frame: TButton
       Left = 196
-      Top = 48
+      Top = 32
       Width = 25
       Height = 17
       Caption = '|| >'
-      TabOrder = 9
+      TabOrder = 8
       OnClick = Timer100msTimer
     end
     object Button5: TButton
-      Left = 272
+      Left = 216
       Top = 52
       Width = 25
       Height = 17
       Caption = '1'
-      TabOrder = 10
+      TabOrder = 9
       OnClick = Button5Click
     end
     object Button3: TButton
-      Left = 296
+      Left = 240
       Top = 52
       Width = 25
       Height = 17
       Caption = 'Stop'
-      TabOrder = 8
+      TabOrder = 7
       OnClick = Button3Click
     end
     object CB_ShowUnit: TCheckBox
@@ -299,9 +303,7 @@ object Form1: TForm1
       Width = 73
       Height = 17
       Caption = 'Show units'
-      Checked = True
-      State = cbChecked
-      TabOrder = 11
+      TabOrder = 10
       OnClick = CB_ShowUnitClick
     end
   end

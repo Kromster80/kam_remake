@@ -20,6 +20,7 @@ TRenderUI = class
 
 var
   fRenderUI: TRenderUI;
+  Loc2:TKMPointList;
 
 implementation
 uses KM_Unit1, KM_Terrain, KM_Users;
@@ -27,22 +28,21 @@ uses KM_Unit1, KM_Terrain, KM_Users;
 constructor TRenderUI.Create;
 begin
 //
-MinimapList:=glGenLists(1);
 end;
 
 
 procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet);
+const bRX=4; bID=402; //4-402 is a stone background
 var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte;
 begin
-//402 is a stone background
-with GFXData[4,402] do begin
-  a.x := u1 + (u2-u1) * (PosX/PxWidth) ;
-  b.x := u1 + (u2-u1) * ((PosX+SizeX)/PxWidth) ;
-  a.y := v1 + (v2-v1) * (PosY/PxHeight) ;
-  b.y := v1 + (v2-v1) * ((PosY+SizeY)/PxHeight) ;
-  if PosX+SizeX>PxWidth  then begin a.x:=a.x-(u2-u1); b.x:=b.x-(u2-u1); end;
-  if PosY+SizeY>PxHeight then begin a.y:=a.y-(v2-v1); b.y:=b.y-(v2-v1); end;
-  a.x:=EnsureRange(a.x,u1,u2); b.x:=EnsureRange(b.x,u1,u2); //HotFix
+with GFXData[bRX,bID] do begin
+  a.x := u1 + (u2-u1) * (PosX         - byte(bs_Down in State)) / PxWidth;
+  b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) / PxWidth;
+  a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) / PxHeight;
+  b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bs_Down in State)) / PxHeight;
+  a.x:=a.x-(u2-u1)*((PosX+SizeX) div PxWidth ); b.x:=b.x-(u2-u1)*((PosX+SizeX) div PxWidth );
+  a.y:=a.y-(v2-v1)*((PosY+SizeY) div PxHeight); b.y:=b.y-(v2-v1)*((PosY+SizeY) div PxHeight);
+  a.x:=EnsureRange(a.x,u1,u2); b.x:=EnsureRange(b.x,u1,u2);
   a.y:=EnsureRange(a.y,v1,v2); b.y:=EnsureRange(b.y,v1,v2);
 end;
   InsetX:=3/SizeX; //3px
@@ -53,50 +53,57 @@ end;
 
     {//Thin black outline outside the button
     //I know, but it's the first thing I'll do when we reach TSK status - add this thin outline, it make buttons look much nicer ;-)
-    glColor4f(0,0,0,0.75);
+    glColor4f(0,0,0,0.5);
     glBegin (GL_LINE_LOOP);
       glkRect(-1,-1,SizeX,SizeY);
     glEnd;}
 
     glPushMatrix;
       glkMoveAALines(false);
-      glScale(SizeX,SizeY,0);
+
+      //Stone background
       glColor4f(1,1,1,1);
-      glBindTexture(GL_TEXTURE_2D, GFXData[4,402].TexID);
+      glBindTexture(GL_TEXTURE_2D, GFXData[bRX,bID].TexID);
       glBegin (GL_QUADS);
         glTexCoord2f(a.x,a.y); glvertex2f(0,0);
-        glTexCoord2f(b.x,a.y); glvertex2f(1,0);
-        glTexCoord2f(b.x,b.y); glvertex2f(1,1);
-        glTexCoord2f(a.x,b.y); glvertex2f(0,1);
+        glTexCoord2f(b.x,a.y); glvertex2f(SizeX,0);
+        glTexCoord2f(b.x,b.y); glvertex2f(SizeX,SizeY);
+        glTexCoord2f(a.x,b.y); glvertex2f(0,SizeY);
       glEnd;
+
+      //Render beveled edges
       glBindTexture(GL_TEXTURE_2D, 0);
       if bs_Down in State then begin
-        c1:=0; c2:=1;
+        c1:=0; c2:=1; //Quick way to invert bevel lighting
       end else begin
         c1:=1; c2:=0;
       end;
-      glBegin (GL_QUADS); //Render beveled edges
-        glColor4f(c1,c1,c1,0.75); glkQuad(0,0, 1,0, 1-InsetX,0+InsetY, 0+InsetX,0+InsetY);
-        glColor4f(c1,c1,c1,0.65); glkQuad(0,0, 0+InsetX,0+InsetY, 0+InsetX,1-InsetY, 0,1);
-        glColor4f(c2,c2,c2,0.55); glkQuad(1,0, 1,1, 1-InsetX,1-InsetY, 1-InsetX,0+InsetY);
-        glColor4f(c2,c2,c2,0.45); glkQuad(0,1, 0+InsetX,1-InsetY, 1-InsetX,1-InsetY, 1,1);
+      glScale(SizeX,SizeY,0);
+      glBegin (GL_QUADS);
+        glColor4f(c1,c1,c1,0.75); glkQuad(0,0, 1,0,               1-InsetX,0+InsetY, 0+InsetX,0+InsetY);
+        glColor4f(c1,c1,c1,0.65); glkQuad(0,0, 0+InsetX,0+InsetY, 0+InsetX,1-InsetY, 0,1              );
+        glColor4f(c2,c2,c2,0.55); glkQuad(1,0, 1,1,               1-InsetX,1-InsetY, 1-InsetX,0+InsetY);
+        glColor4f(c2,c2,c2,0.45); glkQuad(0,1, 0+InsetX,1-InsetY, 1-InsetX,1-InsetY, 1,1              );
       glEnd;
     glPopMatrix;
 
+    //Render a pic ontop
     if ID<>0 then begin
       glColor4f(1,1,1,1);
-      WritePicture((SizeX-GFXData[4,ID].PxWidth) div 2,
-                   (SizeY-GFXData[4,ID].PxHeight) div 2,RXid,ID);
+      WritePicture((SizeX-GFXData[RXid,ID].PxWidth ) div 2 +byte(bs_Down in State),
+                   (SizeY-GFXData[RXid,ID].PxHeight) div 2 +byte(bs_Down in State),RXid,ID);
     end;
 
+    //Render highlight
     glkMoveAALines(false);
     if bs_Highlight in State then begin
       glColor4f(1,1,1,0.15);
       glBegin (GL_QUADS);
-        glkRect(0,0,SizeX-1,SizeY-1);
+        glkRect(0,0,SizeX,SizeY);
       glEnd;
     end;
-                      
+
+    //Render darklight
     if bs_Disabled in State then begin
       glColor4f(0,0,0,0.5);
       glBegin (GL_QUADS);
@@ -106,7 +113,6 @@ end;
     glkMoveAALines(true);
 
   glPopMatrix;
-
 end;
 
 
@@ -415,37 +421,22 @@ end;
 
 
 procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY,MapX,MapY:smallint);
-var i,k,ID:integer; Light:single; Loc:TKMPointList;
+var i,k:integer; Scale:single;
 begin
   glPushMatrix;
-    glTranslate(PosX + (SizeX-MapX) div 2, PosY + (SizeY-MapY) div 2,0);
-    //glkScale(SizeX/MapX);
-    //glNewList(MinimapList,GL_COMPILE);
+
+    Scale:=1;//min(SizeX/MapX,SizeY/MapY);
+    glTranslate(PosX + round((SizeX-MapX*Scale)/2), PosY + round((SizeY-MapY*Scale)/2),0);
+    glkScale(Scale);
+    glPointSize(ceil(Scale));
+
     glBegin(GL_POINTS);
-      for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
-        ID:=fTerrain.Land[i,k].Terrain+1;
-        Light:=fTerrain.Land[i,k].Light/4-(1-fTerrain.CheckRevelation(k,i,MyPlayer.PlayerID)); //Originally it's -1..1 range
-        //Will tweak it later..
-        if fTerrain.Land[i,k].TileOwner=play_none then
-          glColor4f(TileMMColor[ID].R+Light,
-                    TileMMColor[ID].G+Light,
-                    TileMMColor[ID].B+Light,
-                    1)
-        else
-          glColor4ubv(@TeamColors[byte(fTerrain.Land[i,k].TileOwner)]);
+      for i:=1 to MapY-1 do for k:=1 to MapX-1 do begin
+        glColor3ubv(@fTerrain.MM[i,k].R);
         glVertex2f(k,i);
       end;
-
-      Loc:=TKMPointList.Create;
-      for i:=1 to Fplayers.PlayerCount do begin
-        fPlayers.Player[i].GetUnitLocations(Loc);
-        glColor4ubv(@TeamColors[i]);
-        for k:=1 to Loc.Count do
-          glVertex2f(Loc.List[k].X,Loc.List[k].Y);
-      end;
-      Loc.Free;
     glEnd;
-    //glEndList;
+
   glPopMatrix;
 end;
 

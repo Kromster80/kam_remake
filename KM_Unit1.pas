@@ -44,7 +44,6 @@ type
     ExportSounds1: TMenuItem;
     TrackBar1: TTrackBar;
     Label2: TLabel;
-    CheckBox4: TCheckBox;
     HouseAnim1: TMenuItem;
     UnitAnim1: TMenuItem;
     RGPlayer: TRadioGroup;
@@ -59,6 +58,7 @@ type
     AnimData1: TMenuItem;
     Other1: TMenuItem;
     ShowDebugpanel1: TMenuItem;
+    Button4: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure OpenMapClick(Sender: TObject);
@@ -98,6 +98,9 @@ type
     procedure CheckBox2Click(Sender: TObject);
     procedure CB_ShowUnitClick(Sender: TObject);
     procedure ShowDebugpanel1Click(Sender: TObject);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure Button4Click(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -180,7 +183,7 @@ begin
   //Assert(false,'Should be re-rigged');
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
   fTerrain.OpenMapFromFile(OpenDialog1.FileName);
-  fTerrain.RevealCircle(KMPoint(0,0), 1024,100, play_1);
+  fTerrain.RevealWholeMap(play_1);
   Form1.Caption:='KaM Remake - '+OpenDialog1.FileName;
 end;
 
@@ -217,7 +220,6 @@ begin
   if not Form1.Active then exit;
 
   if (CheckBox1.Checked)and(Sender<>Step1Frame) then exit; //Pause
-  if (CheckBox4.Checked)and(GlobalTickCount mod 2 <> 0) then exit; //1/2 slow
 
   fGame.UpdateState;
 end;
@@ -324,19 +326,21 @@ begin
   fGame.StopGame;
   fGame.StartGame('');
 
-for k:=1 to 4 do begin
-  MyPlayer:=fPlayers.Player[k];
+  for k:=1 to 4 do begin
+    MyPlayer:=fPlayers.Player[k];
 
-  MyPlayer.AddHouse(ht_Store, KMPoint(k*4,5));
-  H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
-  if H<>nil then H.AddMultiResource(rt_All,30);
+    MyPlayer.AddHouse(ht_Store, KMPoint(k*4,5));
+    H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
+    if H<>nil then H.AddMultiResource(rt_All,30);
 
-  for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(k*4,8));
-  for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(k*4+1,8));
+    for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(k*4,8));
+    for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(k*4+1,8));
 
-end;
+  end;
+  
+  RGPlayerClick(nil); //Update
 
-fViewPort.SetCenter(10,9);
+  fViewPort.SetCenter(10,9);
 end;
 
 
@@ -418,7 +422,6 @@ begin
 end;
 
 
-
 procedure TForm1.Button3Click(Sender: TObject);
 begin
   fGame.StopGame;
@@ -438,7 +441,7 @@ begin
 end;
 
 procedure TForm1.Button5Click(Sender: TObject);
-var H:TKMHouse; i:integer;
+var H:TKMHouse; i,k:integer;
 begin
   fGame.StopGame;
   fGame.StartGame('');
@@ -446,14 +449,17 @@ begin
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
   H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
-  if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All,300);
+  if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All,1300);
 
   for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
   MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
-  H:=MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
+  H:=MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
+  H:=MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
+  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
+  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
 
-  H.AddDamage(1255);
+  //H.AddDamage(255);
   //MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
   //MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
 
@@ -469,16 +475,83 @@ begin
   MyPlayer.AddUnit(ut_Duck,KMPoint(12,12)); }
 end;
 
+
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
   if CheckBox2.Checked then fGame.GameSpeed:=50 else fGame.GameSpeed:=1;
 end;
 
+
 procedure TForm1.CB_ShowUnitClick(Sender: TObject);
 begin
 MakeShowUnitMove:=CB_ShowUnit.Checked;
+MakeShowUnitRoutes:=CB_ShowUnit.Checked;
 end;
 
 
+procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  if MOUSEWHEEL_ZOOM_ENABLE then 
+  if fViewport<>nil then
+  fViewport.Zoom:=fViewport.Zoom+WheelDelta/1000; //4Debug only
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+var U:TKMUnit;
+begin
+  fGame.StopGame;
+  fGame.StartGame('');
+  MyPlayer:=fPlayers.Player[1];
+
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(1,1));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(1,2));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(2,1));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(2,2)); 
+
+  //Diagonal exchange
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(9,9)));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(9,9)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,5)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,5))); //}
+
+  //Walk in row
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,8));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));//}
+
+  //Walk through group
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,7));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,8));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,9));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,7));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,8));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,9));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,7));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,8));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(12,8)));//}
+
+  //Solve diamond
+  //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot 
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,9)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(6,10)));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,11)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(4,10)));//}
+
+  fTerrain.RevealWholeMap(play_1);
+
+  fViewPort.SetCenter(5,10);
+
+end;
 
 end.

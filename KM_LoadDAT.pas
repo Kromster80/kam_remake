@@ -66,18 +66,17 @@ end;
 type
   TKMMapsInfo = class(TObject)
   private
-    MapCount:word;
+    MapCount:byte;
     Maps:array[1..255]of record
       Folder:string; //Map folder
       IsFight:boolean; //Fight or Build map
       PlayerCount:byte;
       Title,SmallDesc,BigDesc:string;
       MapSize:string; //S,M,L,XL
-      MissionFile:string; //mission00.dat
     end;
   public
     procedure ScanSingleMapsFolder(Path:string);
-    property GetMapCount:word read MapCount;
+    property GetMapCount:byte read MapCount;
     function IsFight(ID:integer):boolean;
     function GetPlayerCount(ID:integer):byte;
     function GetTitle(ID:integer):string;
@@ -224,13 +223,19 @@ begin
   until ((k>=length(FileText))
   //or((Result.MapPath<>'')and(Result.IsFight>=0)and(Result.TeamCount>=0)and(Result.HumanPlayerID>=0)) //Appeared it's more of a slowdown or no effect
   );
-
 end;
 
 procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
 begin
   case CommandType of
-  ct_SetMap:         MissionDetails.MapPath     := RemoveQuotes(TextParam); //@Lewin: I've split it into KromUtils for more general use. @Krom: But I don't like the way you've recodded it. If someone gives us "abcd"ddgg then we should only return abcd. We want to extract data between quotes with that function, not just remove all quotes. If that was the goal then I would simply have used StringReplace(TextParam,'"','',[rfReplaceAll]);
+  ct_SetMap:         MissionDetails.MapPath     := RemoveQuotes(TextParam);
+  //@Lewin: I've split it into KromUtils for more general use.
+  //@Krom: But I don't like the way you've recodded it. If someone gives us "abcd"ddgg
+  //then we should only return abcd. We want to extract data between quotes with that function,
+  //not just remove all quotes. If that was the goal then I would simply have used
+  //StringReplace(TextParam,'"','',[rfReplaceAll]);
+  //@Lewin: You right. I've fixed it to your description. Tell me if it's ok now.
+  //To be deleted..
   ct_SetMaxPlayer:   MissionDetails.TeamCount   := ParamList[0];
   ct_SetTactic:      MissionDetails.IsFight     := 1;
   ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
@@ -478,7 +483,9 @@ begin
   FindFirst('*', faDirectory, SearchRec);
   repeat
   if (SearchRec.Attr and faDirectory = faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
-  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then begin
+  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.dat') then
+  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.map') then begin
+  //if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then begin
     inc(MapCount);
     Maps[MapCount].Folder:=SearchRec.Name;
   end;
@@ -486,56 +493,69 @@ begin
   FindClose(SearchRec);
 
   for i:=1 to MapCount do with Maps[i] do begin
-    assignfile(ft,ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt');
-    reset(ft);
 
     MissionDetails := fMissionParser.GetMissionDetails(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.dat');
     IsFight := MissionDetails.IsFight=1;
     PlayerCount := MissionDetails.TeamCount;
 
-    repeat
-    readln(ft,s);
+    Title:=Maps[i].Folder;
+    SmallDesc:='-';
+    BigDesc:='-';
+    MapSize:='?';
 
-    //@Lewin: Most of these options could be read from mission.dat file. Can you make them into LoadDAT ?
-    //Some kind of quick parser. e.g. function GetPlayerCount(mission.dat):byte;
-    //Also for now we can use map folders (txt+map+dat files), but later we need to ajoin them somehow?
 
-    //@Krom: I thought I might make a function GetMissionDetails which returns a record containing all the
-    //       info needed about the mission. (player count, is fight, etc.) That would be more efficient
-    //       than your suggestion of multiple functions like function GetPlayerCount(mission.dat):byte
+    if fileexists(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt') then begin
+      assignfile(ft,ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt');
+      reset(ft);
 
-    //@Krom: I've made it, but it seems to be quite inefficient. We will either need to make it more efficient or
-    //       have a message saying: "Scanning Maps Folder..." or both.
+      repeat
+      readln(ft,s);
 
-    //@Lewin: Thats my fear, cos when scanning addon maps folder there could be 100 maps easily and we need to know
-    //       stats from all of them at once (e.g. to apply filters or sort maps by size). We need to make it
-    //       work faster .. Shame on you - you put it into Repeat loop! :-D
-    //       Still it got only x13 calls, so I guess it works good till 50maps, then we'll need to improve it once again
-    //       e.g. by scanning only new maps and storing all stats in maplist.dat file
+      //@Lewin: Most of these options could be read from mission.dat file. Can you make them into LoadDAT ?
+      //Some kind of quick parser. e.g. function GetPlayerCount(mission.dat):byte;
+      //Also for now we can use map folders (txt+map+dat files), but later we need to ajoin them somehow?
 
-    //@Krom: OMG OOPS! I must have been tired when I did that, how could I have been so stupid! I'll try and be more
-    //       careful in the future, as I said I didn't really check that last commit of mine. Sorry.
+      //@Krom: I thought I might make a function GetMissionDetails which returns a record containing all the
+      //       info needed about the mission. (player count, is fight, etc.) That would be more efficient
+      //       than your suggestion of multiple functions like function GetPlayerCount(mission.dat):byte
 
-    inc(r); //Loop counter
+      //@Krom: I've made it, but it seems to be quite inefficient. We will either need to make it more efficient or
+      //       have a message saying: "Scanning Maps Folder..." or both.
 
-    if UpperCase(s)=UpperCase('Title') then
-      readln(ft,Title);
+      //@Lewin: Thats my fear, cos when scanning addon maps folder there could be 100 maps easily and we need to know
+      //       stats from all of them at once (e.g. to apply filters or sort maps by size). We need to make it
+      //       work faster .. Shame on you - you put it into Repeat loop! :-D
+      //       Still it got only x13 calls, so I guess it works good till 50maps, then we'll need to improve it once again
+      //       e.g. by scanning only new maps and storing all stats in maplist.dat file
 
-    if UpperCase(s)=UpperCase('SmallDesc') then
-      readln(ft,SmallDesc);
+      //@Krom: OMG OOPS! I must have been tired when I did that, how could I have been so stupid! I'll try and be more
+      //       careful in the future, as I said I didn't really check that last commit of mine. Sorry.
 
-    if UpperCase(s)=UpperCase('BigDesc') then
-      readln(ft,BigDesc);
+      //@Lewin: No big deal =) After all you prooved that 39+ addon maps is already worth optimizing..
 
-    if UpperCase(s)=UpperCase('MapSize') then begin
-      readln(ft,MapSize);
-      //Could be read from map file itself later on
-      Assert(InRange(length(MapSize),1,3),'\Maps\'+Maps[i].Folder+'\Mission.txt'+eol+'Wrong MapSize value')
+      //Explanation to be kept, discussion te be deleted .. ;)
+
+      inc(r); //Loop counter
+
+      if UpperCase(s)=UpperCase('Title') then
+        readln(ft,Title);
+
+      if UpperCase(s)=UpperCase('SmallDesc') then
+        readln(ft,SmallDesc);
+
+      if UpperCase(s)=UpperCase('BigDesc') then
+        readln(ft,BigDesc);
+
+      if UpperCase(s)=UpperCase('MapSize') then begin
+        readln(ft,MapSize);
+        //Could be read from map file itself later on MapSize:=ScanMapFileSize();
+        Assert(InRange(length(MapSize),1,3),'\Maps\'+Maps[i].Folder+'\Mission.txt'+eol+'Wrong MapSize value')
+      end;
+
+      until(eof(ft));
+
+      closefile(ft);
     end;
-
-    until(eof(ft));
-
-    closefile(ft);
   end;
 
 end;

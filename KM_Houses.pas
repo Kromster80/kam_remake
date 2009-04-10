@@ -38,6 +38,7 @@ type
 
     fHasOwner: boolean; //which is some TKMUnit
     fBuildingRepair: boolean; //If on and the building is damaged then labourers will come and repair it
+    fRepairID:integer; //Switch to remember TaskID of asked repair
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
     fResourceIn:array[1..4] of byte; //Resource count in input
@@ -64,7 +65,7 @@ type
 
     property GetPosition:TKMPoint read fPosition;
     function GetEntrance():TKMPoint;
-    function HitTest(X, Y: Integer): Boolean; overload;
+    function HitTest(X, Y: Integer): Boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
@@ -74,9 +75,15 @@ type
     procedure SetBuildingState(aState: THouseBuildState);
     procedure IncBuildingProgress;
     procedure AddDamage(aAmount:word);
+    procedure AddRepair(aAmount:word=5);
+    procedure UpdateDamage();
+    procedure EnableRepair();
+    procedure DisableRepair();
+
     function IsStarted:boolean;
     function IsStone:boolean;
     function IsComplete:boolean;
+    function IsDamaged:boolean;
     property IsDestroyed:boolean read ScheduleForRemoval;
 
     procedure SetState(aState: THouseState; aTime:integer);
@@ -95,8 +102,26 @@ type
     procedure ResRemOrder(ID:byte; const Amount:byte=1);
 
     procedure UpdateState;
-    procedure Paint();
+    procedure Paint; virtual;
   end;
+
+  {SwineStable has unique property - it needs to accumulate some resource before production begins, also special animation}
+  TKMHouseSwineStable = class(TKMHouse)
+  public
+    BeastAge:array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    procedure FeedBeasts();
+    procedure Paint; override;
+  end;
+
+  {TKMHouseInn = class(TKMHouse)
+  public
+    Beast:array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
+    BeastAnimStep:array[1..5]of cardinal;
+    procedure FeedBeast();
+    function GetTheBeast():boolean;
+    procedure Paint(); override; //Render all eaters
+  end;}
 
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
@@ -129,7 +154,6 @@ type
     NotAcceptFlag:array[1..28]of boolean;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
-    function TakeResource(aResource:TResourceType):boolean;
   end;
 
 
@@ -167,7 +191,8 @@ begin
   fBuildingProgress:=0;
   fDamage:=0;
   fHasOwner:=false;
-  fBuildingRepair:=false;
+  fBuildingRepair:=true;
+  fRepairID:=0;
   fWareDelivery:=true;
   fResourceOrder[1]:=0;
   fResourceOrder[2]:=0;
@@ -288,7 +313,28 @@ end;
 procedure TKMHouse.AddDamage(aAmount:word);
 begin
   fDamage:= fDamage + aAmount;
-  //if BuildingRepair then MyPlayer.BuildList.AddHouseRepair();
+  if (BuildingRepair)and(fRepairID=0) then
+    fRepairID:=MyPlayer.BuildList.AddHouseRepair(Self);
+  UpdateDamage();
+end;
+
+
+{Add repair to the house}
+procedure TKMHouse.AddRepair(aAmount:word=5);
+begin
+  fDamage:= EnsureRange(fDamage - aAmount,0,maxword);
+  if (fDamage=0)and(fRepairID<>0) then begin
+    MyPlayer.BuildList.CloseHouseRepair(fRepairID);
+    fRepairID:=0;
+  end;
+  UpdateDamage();
+end;
+
+
+{Update house damage animation}
+procedure TKMHouse.UpdateDamage();
+begin
+  fCurrentAction.SubActionRem([ha_Fire1,ha_Fire2,ha_Fire3,ha_Fire4,ha_Fire5,ha_Fire6,ha_Fire7,ha_Fire8]);
   if fDamage >   0 then fCurrentAction.SubActionAdd([ha_Fire1]);
   if fDamage >  50 then fCurrentAction.SubActionAdd([ha_Fire2]);
   if fDamage > 100 then fCurrentAction.SubActionAdd([ha_Fire3]);
@@ -297,16 +343,24 @@ begin
   if fDamage > 250 then fCurrentAction.SubActionAdd([ha_Fire6]);
   if fDamage > 300 then fCurrentAction.SubActionAdd([ha_Fire7]);
   if fDamage > 350 then fCurrentAction.SubActionAdd([ha_Fire8]);
-  if fDamage >=fBuildingProgress then {Destroy house}
+  {House gets destroyed in UpdateState loop}
 end;
 
 
-//EnableRepair
 {if house is damaged then add repair to buildlist}
+procedure TKMHouse.EnableRepair();
+begin
+  BuildingRepair:=true;
+  AddDamage(0); //Shortcut to refresh of damage
+end;
 
 
-//DisableRepair
 {if house is damaged then remove repair from buildlist and free up workers}
+procedure TKMHouse.DisableRepair();
+begin
+  BuildingRepair:=false;
+  AddRepair(0); //Shortcut to refresh of damage
+end;
 
 
 {Check if house is started to build, so to know if we need to init the building site or not}
@@ -326,6 +380,13 @@ end;
 function TKMHouse.IsComplete():boolean;
 begin
   Result := fBuildState = hbs_Done;
+end;
+
+
+{Check if house is damaged}
+function TKMHouse.IsDamaged():boolean;
+begin
+  Result := fDamage <> 0;
 end;
 
 
@@ -547,7 +608,7 @@ begin
 end;
 
 
-procedure TKMHouse.Paint;
+procedure TKMHouse.Paint();
 begin
 case fBuildState of
   hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),fPosition.X, fPosition.Y);
@@ -578,6 +639,38 @@ end;
 procedure TKMHouse.SetWareDelivery(AVal:boolean);
 begin
   fWareDelivery := AVal;
+end;
+
+
+{TKMHouseSwineStable}
+constructor TKMHouseSwineStable.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+var i:integer;
+begin
+  Inherited;
+  for i:=1 to length(BeastAge) do
+    BeastAge[i]:=0;
+end;
+
+
+procedure TKMHouseSwineStable.FeedBeasts();
+var i:integer;
+begin
+  inc(BeastAge[Random(5)+1]); //Let's hope it never overflows MAX
+  for i:=1 to length(BeastAge) do
+    if BeastAge[i]>3 then begin //This is for Horses, Pigs may be different
+      BeastAge[i]:=0;
+      ResAddToOut(HouseOutput[byte(fHouseType),1]);
+    end;
+end;
+
+
+procedure TKMHouseSwineStable.Paint;
+var i:integer;
+begin
+  inherited;
+  for i:=1 to 5 do
+    if BeastAge[i]>0 then
+      fRender.RenderHouseStableBeasts(byte(fHouseType), i, BeastAge[i], WorkAnimStep, fPosition.X, fPosition.Y);
 end;
 
 
@@ -671,18 +764,6 @@ if aResource in [rt_Trunk..rt_Fish] then begin
   end
 else
 Assert(false,'Cant''t add such resource '+TypeToString(aResource));
-end;
-
-
-function TKMHouseStore.TakeResource(aResource:TResourceType):boolean;
-begin
-if ResourceCount[byte(aResource)]>0 then begin
-  dec(ResourceCount[byte(aResource)]);
-  Result:=true;
-end else begin
-  Assert(false,'ResourceCount[byte(aResource)]>=0');
-  Result:=false;
-end;
 end;
 
 
@@ -791,6 +872,8 @@ function TKMHousesCollection.DoAddHouse(aHouseType: THouseType; PosX,PosY:intege
 var T:integer;
 begin
 case aHouseType of
+  ht_Swine:    T:=Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  ht_Stables:  T:=Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   ht_School:   T:=Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   ht_Barracks: T:=Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   ht_Store:    T:=Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));

@@ -3,7 +3,7 @@ interface
 uses Controls, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils;
 
 const
-MaxMapSize=176; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
+MaxMapSize=256; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -14,6 +14,7 @@ private
 
 public
   MapX,MapY:integer; //Terrain width and height
+  MM:array[1..MaxMapSize,1..MaxMapSize]of record R,G,B:byte; end;
 
   CursorPos:TKMPoint;
 
@@ -65,7 +66,7 @@ public
   end;
 
   constructor Create;
-  destructor Destroy;
+  destructor Destroy; override;
   procedure MakeNewMap(Width,Height:integer);
   function OpenMapFromFile(filename:string):boolean;
 
@@ -114,6 +115,7 @@ public
   function SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   function TileIsWater(Loc:TKMPoint):boolean;
+  function TileIsSand(Loc:TKMPoint):boolean;
   function TileIsStone(Loc:TKMPoint):byte;
   function TileIsSoil(Loc:TKMPoint):boolean;
   function TileIsWalkable(Loc:TKMPoint):boolean;
@@ -121,13 +123,15 @@ public
   function TileIsExTree(Loc:TKMPoint):boolean;
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
-  function CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
+  function CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
   procedure UpdateBorders(Loc:TKMPoint);
   procedure FlattenTerrain(Loc:TKMPoint);
   procedure RebuildLighting(LowX,HighX,LowY,HighY:word);
   procedure RebuildPassability(LowX,HighX,LowY,HighY:word);
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
+
+  procedure RefreshMinimapData();
 
   procedure UpdateState;
   procedure UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
@@ -150,6 +154,7 @@ end;
 destructor TTerrain.Destroy;
 begin
   FreeAndNil(FallingTrees);
+  inherited;
 end;
 
 //Reset whole map with default values
@@ -255,6 +260,15 @@ begin
 end;
 
 
+//@Lewin: Feel free to tweak these flags if you think they are wrong, I could have been mistaken with Soil
+{Check if requested tile is sand suitable for crabs}
+function TTerrain.TileIsSand(Loc:TKMPoint):boolean;
+begin
+  //Should be Tileset property, especially if we allow different tilesets
+  Result := Land[Loc.Y,Loc.X].Terrain in [31..33, 69..71, 99..104, 108,109, 111..113, 116..119, 169, 173, 181, 189];
+end;
+
+
 {Check if requested tile is Stone and returns Stone deposit}
 function TTerrain.TileIsStone(Loc:TKMPoint):byte;
 begin
@@ -339,14 +353,14 @@ end;
 
 {Check if requested vertice is revealed for given player}
 {Return value revelation is x100 in percent}
-function TTerrain.CheckRevelation(X,Y:word; PlayerID:TPlayerID):single;
+function TTerrain.CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
   if Land[Y,X].FogOfWar[byte(PlayerID)] >= TERRAIN_FOG_OF_WAR_ACT then
-    Result:=1
+    Result:=255
   else
-    Result:=Land[Y,X].FogOfWar[byte(PlayerID)] / TERRAIN_FOG_OF_WAR_ACT;
+    Result:=EnsureRange(round(Land[Y,X].FogOfWar[byte(PlayerID)] / TERRAIN_FOG_OF_WAR_ACT * 255),0,255);
 end;
 
 
@@ -726,21 +740,15 @@ end;
 
 
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
-//var H:TKMHouse;
 var i,k:integer;
-  HousesNearBy:boolean; //What a weird meaningless name ;-)
-  //@Krom: I'm really sorry about that one, I don't know what happened there. I think it was
-  //       late at night or something and I wasn't thinking properly. I will try not to do that
-  //       again. I agree, that name was really weird and useless, I have no idea why I wrote it.
-  //       To be deleted.
+  HousesNearBy:boolean;
+  //@Lewin: No big deal, I was mostly joking, cos it appeared quite self-explainig by usage, but the name was real funny one =)
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
-  {canWalk, canWalkRoad, canBuild, canMakeRoads, canMakeFields, canPlantTrees, canFish}
   if not TileInMapCoords(loc.X,loc.y) then
     Assert(false, 'Fail: '+TypeToString(loc));
   Land[Loc.Y,Loc.X].Passability:=[];
-  //H:=fPlayers.HousesHitTest(Loc.X,Loc.Y);
 
   //First of all exclude all tiles outside of actual map and all houses
   if (TileInMapCoords(Loc.X,Loc.Y))and(Land[Loc.Y,Loc.X].FieldType<>fdt_House) then begin
@@ -815,6 +823,10 @@ begin
 
      if TileIsWater(Loc) then
        AddPassability(Loc, [canFish]);
+
+     if TileIsSand(Loc) then
+       AddPassability(Loc, [canCrab]);
+
   end else
     Land[Loc.Y,Loc.X].Passability:=[]; //Allow nothing
 end;
@@ -1053,7 +1065,7 @@ end;
 
 {Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHousePlan(Loc:TKMPoint; aHouseType: THouseType; fdt:TFieldType);
-var i,k,x,y:word;
+var i,k,x,y:word; L,H:TKMPoint;
 begin
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
@@ -1070,7 +1082,9 @@ begin
       end;
     end;
   //Recalculate Passability for tiles around the house so that they can't be built on too
-  RebuildPassability(Loc.X-3,Loc.Y-4,Loc.X+2,Loc.Y+1);
+  L:=SetTileInMapCoords(Loc.X-3,Loc.Y-4);
+  H:=SetTileInMapCoords(Loc.X+2,Loc.Y+1);
+  RebuildPassability(L.X,L.Y,H.X,H.Y);
 end;
 
 
@@ -1118,8 +1132,6 @@ Result:=true;
 end;
 
 
-//@Lewin: This function was badly named CanErase, I renamed it
-//@Krom:  Ok, good idea. To be deleted
 function TTerrain.CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
 begin
    Result := fPlayers.Player[integer(PlayerID)].RemPlan(Loc,true);
@@ -1226,14 +1238,53 @@ var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   Xc:=trunc(inX);
   Yc:=trunc(inY);
-  Assert(TileInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
+  Assert(VerticeInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
   Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
   Result:=mix(Tmp2, Tmp1, frac(InY));
 end;
 
 
-{ This whle thing is very CPU intesive think of it - to update all 40000tiles }
+procedure TTerrain.RefreshMinimapData();
+var i,k,ID:integer; Light:single; Loc:TKMPointList; FOW:byte;
+begin
+  for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
+    //MM[i,k].A:=255;
+    FOW:=fTerrain.CheckRevelation(k,i,MyPlayer.PlayerID);
+    if fTerrain.Land[i,k].TileOwner=play_none then begin
+      if FOW=0 then begin
+        MM[i,k].R:=0;
+        MM[i,k].G:=0;
+        MM[i,k].B:=0;
+      end else begin
+        ID:=fTerrain.Land[i,k].Terrain+1;
+        Light:=fTerrain.Land[i,k].Light/4-(1-FOW/255); //Originally it's -1..1 range
+        //Will tweak it later..
+        MM[i,k].R:=round(EnsureRange(TileMMColor[ID].R+Light,0,1)*255);
+        MM[i,k].G:=round(EnsureRange(TileMMColor[ID].G+Light,0,1)*255);
+        MM[i,k].B:=round(EnsureRange(TileMMColor[ID].B+Light,0,1)*255);
+      end;
+    end else begin
+      MM[i,k].R:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] and $FF;
+      MM[i,k].G:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 8 and $FF;
+      MM[i,k].B:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 16 and $FF;
+    end;
+  end;
+
+  Loc:=TKMPointList.Create;
+  for i:=1 to fPlayers.PlayerCount do begin
+    fPlayers.Player[i].GetUnitLocations(Loc);
+    for k:=1 to Loc.Count do begin
+      MM[Loc.List[k].Y,Loc.List[k].X].R:=TeamColors[i] and $FF;
+      MM[Loc.List[k].Y,Loc.List[k].X].G:=TeamColors[i] shr 8 and $FF;
+      MM[Loc.List[k].Y,Loc.List[k].X].B:=TeamColors[i] shr 16 and $FF;
+    end;
+  end;
+  Loc.Free;
+end;
+
+
+{ This whole thing is very CPU intesive think of it - to update all 40000tiles }
 //Don't use any advanced math here, only simpliest operations - + div * 
 procedure TTerrain.UpdateState;
 var i,k,h,j:integer;
@@ -1252,7 +1303,7 @@ for i:=1 to MapY do
   //All those global things can be performed once a sec, or even less frequent
   if (i*MapX+k+AnimStep) mod round(TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then begin
 
-  if TERRAIN_FOG_OF_WAR_ENABLE then
+  if FOG_OF_WAR_ENABLE then
   for h:=1 to 8 do
     if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
@@ -1305,9 +1356,13 @@ begin
   x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
   y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
-  fRender.RenderTerrainAndFields(x1,x2,y1,y2);
-  fRender.RenderFieldBorders(x1,x2,y1,y2);
+  fRender.RenderTerrain(x1,x2,y1,y2);
+  fRender.RenderTerrainFieldBorders(x1,x2,y1,y2);
   fRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep);
+
+  if ShowTerrainWires then fRender.RenderDebugWires();
+  if MakeShowUnitMove then fRender.RenderDebugUnitMoves();
+
 end;
 
 end.

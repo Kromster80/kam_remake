@@ -21,19 +21,28 @@ const
   GAME_VERSION = 'Alpha'; //Game version string displayed in menu corner
   MENU_DESIGN_X = 1024; //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y = 768;
+  MENU_SINGLE_MAPS_COUNT = 14; //Number of single player mamps to display in menu
 
 var
+  //These should be TRUE
   MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
+  DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
+  DO_UNIT_HUNGER:boolean=false;         //Wherever units get hungry or not
+
+  //These should be FALSE
   ShowTerrainWires:boolean=false;
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
-  MakeDrawRoutes:boolean=true;          //Draw unit routes when they are chosen
-  MakeShowUnitMove:boolean=true;        //Draw unit movement overlay
-  WriteResourceInfoToTXT:boolean=true;  //Whenever to write txt files with defines data properties
+  MakeShowUnitRoutes:boolean=false;     //Draw unit routes when they are chosen
+  MakeShowUnitMove:boolean=false;       //Draw unit movement overlay
+  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
-  TERRAIN_FOG_OF_WAR_ENABLE:boolean=false;//Whenever fog of war is enabled or not
-  DO_UNIT_INTERACTION:boolean=false;    //Debug for unit interaction
+  FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
+  MOUSEWHEEL_ZOOM_ENABLE:boolean=false; //Should we allow to zoom in game or not
+
+  //Statistics
+  CtrlPaintCount:integer;               //How many Controls were painted
 
 const
   MaxHouses=255;        //Maximum houses one player can own
@@ -42,7 +51,7 @@ const
   MAX_TEX_RESOLUTION=1024;       //Maximum texture resolution client can handle (used for packing sprites)
 
 const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna test ingame )
-        MAX_PLAYERS = 6;        //Maximum players per map
+        MAX_PLAYERS = 8;        //Maximum players per map
         SAVEGAME_COUNT = 10;    //Savegame slots available
 
         //Here we store options that are hidden somewhere in code
@@ -65,7 +74,8 @@ const
 
   ScrollCursorOffset = 17;
   CursorOffsetsX:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
-  CursorOffsetsY:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
+  CursorOffsetsY:array[1..19] of integer = (0,6,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
+  //@Lewin: I'm not sure if c_Info pivot is correct yet
 
 {Controls}
 type
@@ -105,7 +115,8 @@ const //Font01.fnt seems to be damaged..
 
 type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
-
+const
+  TKMDirectionS: array[0..8]of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
   
 {Resources}
 type
@@ -133,22 +144,22 @@ ProductionCosts:array[17..26,1..2]of TResourceType = (
 );
 
 { Terrain }
-type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish);
+type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish, CanCrab);
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[1..10] of string = ('canAll', 'canWalk', 'canWalkRoad', 'canBuild', 'canBuildIron', 'canBuildGold', 'canMakeRoads', 'canMakeFields', 'canPlantTrees', 'canFish');
-{canAll - Crat blanche, e.g. for workers building house are which is normaly unwalkable} //@Lewin:Why fenced house area is unwalkable? @Krom: Only the tiles that have been leveled are unwalkable. The tiles which the labourer hasn't dug out yet are walkable. (you sometimes see serfs walking over them) As for why it is unwalkable, well I guess if they labourer has just dug it out then he doesn't want serfs messing it up. Remember, that ground becomes the floor of someone's house. People aren't allowed on construction sites.
-{canWalk - General passability of tile for any walking units}
-{canWalkRoad - Type of passability for Serfs when transporting goods, only roads have it}
-{canBuild - Can we build a house on this tile?}
-{canBuildIron - Special allowance for Iron Mines
-{canBuildGold - Special allowance for Gold Mines
-{canMakeRoads - Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges}
-{canMakeFields - Thats more strict than roads, cos e.g. on beaches you can't make fields}
-{canPlantTrees - If Forester can plant a tree here, dunno if it's the same as fields}
-{canFish - water tiles where fish can move around}
-
-
+const PassabilityStr:array[1..11] of string = (
+'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
+'canWalk',      // General passability of tile for any walking units
+'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
+'canBuild',     // Can we build a house on this tile?
+'canBuildIron', // Special allowance for Iron Mines
+'canBuildGold', // Special allowance for Gold Mines
+'canMakeRoads', // Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges
+'canMakeFields',// Thats more strict than roads, cos e.g. on beaches you can't make fields
+'canPlantTrees',// If Forester can plant a tree here, dunno if it's the same as fields
+'canFish',      // Water tiles where fish can move around
+'canCrab'       // Sand tiles where crabs can move around
+);
 {Units}
 type
   TUnitType = ( ut_None=0, ut_Any=40,
@@ -214,7 +225,8 @@ type
     gs_FarmerSow, gs_FarmerCorn, gs_FarmerWine,
     gs_Fisher,
     gs_StoneCutter,
-    gs_CoalMiner, gs_GoldMiner, gs_IronMiner);
+    gs_CoalMiner, gs_GoldMiner, gs_IronMiner,
+    gs_HorseBreeder, gs_SwineBreeder);
 
 {Houses game}
 type
@@ -427,16 +439,24 @@ HouseInput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
 (rt_None,       rt_None,       rt_None,       rt_None)  //Wall
 );
 
+
 {Houses UI}
 const
   GUIBuildIcons:array[1..HOUSE_COUNT]of word = (
-  314, 328, 315, 310, 301,
-  309, 323, 308, 317, 325,
-  329, 306, 304, 316, 320,
-  326, 321, 313, 305, 302,
-  303, 311, 322, 312, 318,
-  307, 319, 324, 312, 330);
+  301, 302, 303, 304, 305,
+  306, 307, 308, 309, 310,
+  311, 312, 313, 314, 315,
+  316, 317, 318, 319, 320,
+  321, 322, 323, 324, 325,
+  326, 327, 328, 329, 330);
 
+  GUIHouseOrder:array[1..HOUSE_COUNT]of THouseType = (
+    ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
+    ht_Farm, ht_Mill, ht_Bakery, ht_Swine, ht_Butchers,
+    ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
+    ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
+    ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
+    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_NA, ht_Wall);
 
 {Terrain}
 type
@@ -549,7 +569,7 @@ type
   //Properties of map elements, e.g. passibility. Mostly unknown.
   MapElemProperties = (
     //It's easier to read this way, if I may suggest
-    mep_u1=1, //@Lewin: please always specify where first element is 0 or 1, it already caused a bug in Text export which assumed 1..16 range @Krom: Sorry, I'll do that in the future. To be deleted...
+    mep_u1=1,
     mep_u2,
     mep_u3,
     mep_u4,
@@ -580,8 +600,6 @@ var
   );
 
   GlobalTickCount:integer=0;
-
-  MinimapList:GLint;
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
@@ -632,7 +650,11 @@ var
     end;
   end;
 
-HouseDAT1:array[1..30,1..35]of smallint; //Pigs and Horses
+HouseDATs:array[1..2,1..5,1..3] of packed record //Swine Horses
+    Step:array[1..30]of smallint;
+    Count:smallint;
+    MoveX,MoveY:integer;
+  end;
 HouseDAT:array[1..HOUSE_COUNT] of packed record
   StonePic,WoodPic,WoodPal,StonePal:smallint;
   SupplyIn:array[1..4,1..5]of smallint;
@@ -694,7 +716,6 @@ end;
 
   TileMMColor:array[1..256]of record R,G,B:single; end;
 
-  
 type
   TKMList = class(TList)
   public
@@ -739,6 +760,7 @@ function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload
 function TypeToString(t:TUnitType):string; overload
 function TypeToString(t:TKMPoint):string; overload
+function TypeToString(t:TKMDirection):string; overload
 
 implementation
 uses KM_LoadLib;
@@ -847,7 +869,13 @@ end;
 
 function TypeToString(t:TKMPoint):string;
 begin
-Result:='('+inttostr(t.x)+';'+inttostr(t.y)+')';
+  Result:='('+inttostr(t.x)+';'+inttostr(t.y)+')';
+end;
+
+
+function TypeToString(t:TKMDirection):string;
+begin
+  Result:=TKMDirectionS[byte(t)];
 end;
 
 
@@ -873,13 +901,16 @@ end;
 procedure TKMPointList.AddEntry(aLoc:TKMPoint);
 begin
   inc(Count);
-  if Count>length(List)-1 then setlength(List,Count+10);
+  if Count>length(List)-1 then setlength(List,Count+32);
   List[Count]:=aLoc;
 end;
 
+
+{Remove point from the list if is there. Return 'true' if succeded}
 function TKMPointList.RemoveEntry(aLoc:TKMPoint):boolean;
 var i: integer; Found: boolean;
 begin
+  Result:=false;
   Found := false;
   for i:=1 to Count do
   begin
@@ -887,10 +918,12 @@ begin
     begin
       dec(Count);
       Found := true;
+      Result:=true;
     end;
     if (Found) and (i < Count) then List[i] := List[i+1];
   end;
 end;
+
 
 function TKMPointList.GetRandom():TKMPoint;
 begin

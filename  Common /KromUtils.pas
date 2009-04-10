@@ -99,6 +99,7 @@ function GetNumberFromString(AText:string; Position:integer):single;
 function RemoveQuotes(Input:string):string;
 procedure SwapStr(var A,B:string);
 procedure SwapInt(var A,B:word); overload;
+procedure SwapInt(var A,B:integer); overload;
 procedure SwapInt(var A,B:cardinal); overload;
 procedure SwapFloat(var A,B:single);
 function Equals(A,B:single; const Epsilon:single=0.001):boolean;
@@ -844,9 +845,13 @@ function RemoveQuotes(Input:string):string;
 var i:integer;
 begin
   Result:='';
-  for i:=1 to length(Input) do
-  if Input[i]<>'"' then
-    Result:=Result+Input[i];
+  if Input[1]<>'"' then exit;
+
+  for i:=2 to length(Input) do
+    if Input[i]<>'"' then
+      Result:=Result+Input[i]
+    else
+      exit; //Will exit on first encountered quotes from 2nd character
 end;
 
 
@@ -858,6 +863,12 @@ end;
 
 procedure SwapInt(var A,B:word);
 var s:word;
+begin
+s:=A; A:=B; B:=s;
+end;
+
+procedure SwapInt(var A,B:integer);
+var s:integer;
 begin
 s:=A; A:=B; B:=s;
 end;

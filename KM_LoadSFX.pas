@@ -176,6 +176,7 @@ procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolea
 var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
 begin
   if not IsOpenALInitialized then exit;
+  //Here should be some sort of RenderQueue/List/Clip 
   //Find free buffer and use it
   FreeBuf:=1;
   for i:=1 to MaxSourceCount do begin

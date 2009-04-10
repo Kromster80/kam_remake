@@ -12,24 +12,31 @@ private
   RenderCount:integer;
   RO:array of integer; //RenderOrder
   RenderList:array of record
-    Loc:TKMPointF;
+    Loc,Obj:TKMPointF;
     RX:byte;
     ID:word;
     NewInst:boolean;
     Team:byte;
     AlphaStep:single; //Only appliable to HouseBuild
     FOWvalue:byte; // Fog of War thickness
+    Exclude:boolean;
   end;
   RenderAreaSize:TKMPoint;
   procedure RenderDot(pX,pY:single);
   procedure RenderDotOnTile(pX,pY:single);
   procedure RenderQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
-  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4=$FF; const aFOW:byte=$FF);
+  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte);
   procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; const Col:TColor4=$FF);
-  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aFOW:byte=$FF);
+  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
+  procedure ClipRenderList();
   procedure SortRenderList;
   procedure RenderRenderList;
+  procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
+  procedure RenderTerrainBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
+  procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
+  procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
+  procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
   procedure RenderCursorHighlights;
   procedure RenderBrightness(Value:byte);
 protected
@@ -39,29 +46,24 @@ public
   procedure RenderResize(Width,Height:integer);
   procedure Render();
   procedure DoPrintScreen(filename:string);
-  procedure RenderTerrainAndFields(x1,x2,y1,y2:integer);
-  procedure RenderFieldBorders(x1,x2,y1,y2:integer);
+  procedure RenderTerrain(x1,x2,y1,y2:integer);
+  procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
-  procedure RenderWires();
-  procedure RenderUnitMoves();
-  procedure RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
-  procedure RenderBuildIcon(P:TKMPoint; id:integer=479);
-  procedure RenderWireQuad(P:TKMPoint; Col:TColor4);
-  procedure RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
+  procedure RenderDebugWires();
+  procedure RenderDebugUnitMoves();
+  procedure RenderDebugUnitRoute(Count:integer; Nodes:array of TKMPoint; Pos:integer; Col:TColor4);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
   procedure RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
-  procedure RenderMarkup(Index:integer; pX,pY:integer);
-  procedure RenderBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
-  procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
-  procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderHouseBuild(Index,pX,pY:integer);
   procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
   procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
   procedure RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
-  procedure RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
   procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
+  procedure RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
+  procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
+  procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
+  procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   property GetRenderAreaSize:TKMPoint read RenderAreaSize;
-published
 end;
 
 var
@@ -124,21 +126,14 @@ begin
     RenderCount:=0; //Init RenderList
 
     fTerrain.Paint;
-    glLineWidth(1);
-    glPointSize(1);
-    if ShowTerrainWires then RenderWires();
-    if MakeShowUnitMove then RenderUnitMoves();
 
     fPlayers.Paint;            //Units and houses
 
-    SortRenderList;
-    RenderRenderList;
+    ClipRenderList();
+    SortRenderList();
+    RenderRenderList();
 
-    glLineWidth(fViewport.Zoom*2);
-    glPointSize(fViewport.Zoom*5);
-    RenderCursorHighlights();
-    glLineWidth(1);
-    glPointSize(1);
+    RenderCursorHighlights(); //Will be on-top
 
     glLoadIdentity();             // Reset The View
     glLineWidth(1);
@@ -193,7 +188,7 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainAndFields(x1,x2,y1,y2:integer);
+procedure TRender.RenderTerrain(x1,x2,y1,y2:integer);
 var
   i,k:integer; ID,Rot,rd:integer;
   ax,ay:single; xt,a:integer;
@@ -213,6 +208,7 @@ glbegin (GL_QUADS);
     TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
     TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
     TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
+
     TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
     if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
@@ -268,13 +264,13 @@ end;
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     begin
-    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckRevelation(k,i,MyPlayer.PlayerID)));
+    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckRevelation(k,i,MyPlayer.PlayerID)/255));
     glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckRevelation(k,i+1,MyPlayer.PlayerID)));
+    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckRevelation(k,i+1,MyPlayer.PlayerID)/255));
     glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckRevelation(k+1,i+1,MyPlayer.PlayerID)));
+    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
     glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckRevelation(k+1,i,MyPlayer.PlayerID)));
+    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckRevelation(k+1,i,MyPlayer.PlayerID)/255));
     glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
@@ -284,20 +280,19 @@ end;
 end;
 
 
-procedure TRender.RenderFieldBorders(x1,x2,y1,y2:integer);
+procedure TRender.RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
 var i,k:integer;
 begin
 for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain do begin
     if Land[i,k].BorderX <> bt_None then
-      RenderBorder(Land[i,k].BorderX,1,k,i); //Horizontal
+      RenderTerrainBorder(Land[i,k].BorderX,1,k,i); //Horizontal
 
     if Land[i,k].BorderY <> bt_None then
-      RenderBorder(Land[i,k].BorderY,2,k,i); //Vertical
+      RenderTerrainBorder(Land[i,k].BorderY,2,k,i); //Vertical
 
     if Land[i,k].Markup in [mu_RoadPlan..mu_WinePlan] then
-      RenderMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
-
+      RenderTerrainMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
   end;
 end;
 
@@ -320,7 +315,7 @@ for i:=y1 to y2 do for k:=x1 to x2 do
 end;
 
 
-procedure TRender.RenderWires();
+procedure TRender.RenderDebugWires();
 var i,k,t:integer; x1,x2,y1,y2:integer;
 begin
   x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
@@ -352,7 +347,7 @@ begin
 end;
 
 
-procedure TRender.RenderUnitMoves();
+procedure TRender.RenderDebugUnitMoves();
 var i,k:integer; x1,x2,y1,y2:integer;
 begin
   x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
@@ -369,102 +364,32 @@ begin
 end;
 
 
-procedure TRender.RenderRoute(Count:integer; Nodes:array of TKMPoint; Col:TColor4);
-var i:integer;
+procedure TRender.RenderDebugUnitRoute(Count:integer; Nodes:array of TKMPoint; Pos:integer; Col:TColor4);
+var i,k:integer; x,y:single;
 begin
-glColor4ubv(@Col);
-for i:=1 to Count do
-  RenderDotOnTile(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5);
-glBegin(GL_LINE_STRIP);
-for i:=1 to Count do
-  glVertex2f(Nodes[i-1].X-0.5,Nodes[i-1].Y-0.5-fTerrain.InterpolateLandHeight(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5)/CELL_HEIGHT_DIV);
-glEnd;
-end;
+  if Count = 0 then exit;
 
-
-procedure TRender.RenderBuildIcon(P:TKMPoint; id:integer=479);
-begin
-  if fTerrain.TileInMapCoords(P.X,P.Y) then
-    RenderSprite(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV);
-end;
-
-
-procedure TRender.RenderWireQuad(P:TKMPoint; Col:TColor4);
-begin
   glColor4ubv(@Col);
-  glbegin (GL_LINE_LOOP);
-  if fTerrain.TileInMapCoords(P.X,P.Y) then
-  with fTerrain do begin
-    glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/CELL_HEIGHT_DIV);
-    glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/CELL_HEIGHT_DIV);
-    glvertex2f(p.X  ,p.Y-  Land[p.Y+1,p.X+1].Height/CELL_HEIGHT_DIV);
-    glvertex2f(p.X-1,p.Y-  Land[p.Y+1,p.X  ].Height/CELL_HEIGHT_DIV);
-  end;
+  for i:=1 to Count do
+    RenderDotOnTile(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5);
+
+  glBegin(GL_LINE_STRIP);
+  for i:=1 to Count do
+    glVertex2f(Nodes[i-1].X-0.5,Nodes[i-1].Y-0.5-fTerrain.InterpolateLandHeight(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5)/CELL_HEIGHT_DIV);
+  glEnd;
+
+  glColor4f(1,1,1,1); //Vector where unit is going to
+  i:=Pos;
+  k:=min(Pos+1,Count);
+  x:=mix(Nodes[i-1].X-0.5,Nodes[k-1].X-0.5,0.4);
+  y:=mix(Nodes[i-1].Y-0.5,Nodes[k-1].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
+  RenderDotOnTile(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5+0.2);
+  glBegin(GL_LINES);
+    glVertex2f(Nodes[i-1].X-0.5,Nodes[i-1].Y-0.5+0.2-fTerrain.InterpolateLandHeight(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5)/CELL_HEIGHT_DIV);
+    glVertex2f(x,y-fTerrain.InterpolateLandHeight(x+1,y+1)/CELL_HEIGHT_DIV);
   glEnd;
 end;
 
-
-procedure TRender.RenderWireHousePlan(P:TKMPoint; aHouseType:THouseType);
-var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
-  MarkedLocations:array[1..64] of TKMPoint; //List of locations with special marks on them
-  MarkCount:integer;
-
-  procedure MarkPoint(APoint:TKMPoint; AID:integer);
-  var v: integer;
-  begin
-    for v:=1 to MarkCount do if KMSamePoint(MarkedLocations[v],APoint) then exit;
-    RenderBuildIcon(APoint,AID);
-    inc(MarkCount);
-    MarkedLocations[MarkCount] := APoint;
-  end;
-begin
-  MarkCount := 0;
-  for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
-    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
-      P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4); //This can't be done earlier since values can be off-map 
-
-        //Check house-specific conditions, e.g. allow shipyards only near water and etc..
-        case aHouseType of
-          ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
-          ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
-          ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
-          else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
-        end;
-
-        //Forbid planning on unrevealed areas
-        AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)<>0);
-
-        //Check surrounding tiles in +/- 1 range for other houses pressence                                
-        for s:=-1 to 1 do for t:=-1 to 1 do
-        if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-        if fTerrain.Land[P2.Y+t,P2.X+s].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad] then
-        begin
-          MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
-          AllowBuild := false;
-        end;
-
-        //Mark the tile according to previous check results
-        if AllowBuild then begin
-          RenderWireQuad(P2,$FFFFFF00); //Cyan
-          if HousePlanYX[byte(aHouseType),i,k]=2 then
-            MarkPoint(P2,481);
-        end else begin
-          if HousePlanYX[byte(aHouseType),i,k]=2 then
-            MarkPoint(P2,482)
-          else
-            if aHouseType in [ht_GoldMine,ht_IronMine] then
-              MarkPoint(P2,480)
-            else
-              MarkPoint(P2,479);
-        end;
-
-    end else
-    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,0) then
-      MarkPoint(KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4),479);
-  end;
-end;
-             
 //@Lewin: I always wanted to ask you 2 things - why??
 //
 //procedure MarkPoint(APoint:TKMPoint; AID:integer); //Why first letter is 'A', not 'a'
@@ -496,25 +421,33 @@ Second question:
   else that I do which you do not like. I am trying to do it your way, but sometimes I forget/make mistakes. ;)
 }
 
+{@Lewin:
+1st: We could use either of these, still I'd prefer it would be 'a', it looks neater next to var name aText, aInput, etc.. If you don't like it - no problem with me - keep it 'A' =)
+2nd: To be honest I've never been taught to any coding standards nor rules, nor etc..
+If you spare some of you time to educate me - I'd be happy! =)
+In this case it's became a matter of my habit. If there's anything else beside it, some reasonable explanation, then I'd be happy to take it and stick to better style
+}
+
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
   if MapElem[Index].Count=0 then exit;
 
-  FOW:=EnsureRange(round(fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)*255),0,255);
+  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <=128 then AnimStep:=0; //Stop animation
   ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
   if ID<=0 then exit;
 
-  if Index=61 then begin //Object 42 is an invisible wall
+  if Index=61 then begin //Invisible wall
     glBindTexture(GL_TEXTURE_2D,0);
-    glColor4f(1,0,0,1);
-    RenderDot(pX,pY);
+    glColor4f(1,0,0,0.33);
+    RenderQuad(pX,pY);
+    RenderCursorWireQuad(KMPoint(pX,pY),$FF0000FF);
   end else begin
     ShiftX:=RXData[1].Pivot[ID].x/CELL_SIZE_PX;
     ShiftY:=(RXData[1].Pivot[ID].y+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true,0,-1,FOW);
+    AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
     {RenderDot(pX,pY);
     glRasterPos2f(pX-1+0.1,pY-1+0.1);
     glPrint(inttostr(Index)+':'+inttostr(ID));}
@@ -529,10 +462,10 @@ var Index:integer; FOW:byte;
   begin
     ID := MapElem[ID].Step[ AnimStep mod MapElem[ID].Count +1 ] +1;
     ShiftY := ShiftY + (RXData[1].Size[ID,2]) / CELL_SIZE_PX-fTerrain.Land[pY,pX].Height / CELL_HEIGHT_DIV;
-    AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,true,0,-1,FOW);
+    AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,pX,pY,true,0,-1);
   end;
 begin
-  FOW:=EnsureRange(round(fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)*255),0,255);
+  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
   if FOW <=128 then AnimStep:=0; //Stop animation
 
   case Fs of
@@ -549,96 +482,7 @@ begin
   if Index in [55..58]then exit;
   AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
   AddSpriteToListBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
-end;
-
-
-procedure TRender.RenderMarkup(Index:integer; pX,pY:integer);
-var a,b:TKMPointF; ID:integer; FOW, DrawX, DrawY:single;
-begin
-  case Index of
-    1: ID:=105; //Road
-    2: ID:=107; //Field
-    3: ID:=108; //Wine
-    else ID:=0;
-  end;
-  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
-
-  glColor4f(FOW,FOW,FOW,1);
-  glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
-
-  a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
-  b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
-
-  //Shift the X and Y so that the markup is centred correctly on the tile
-  DrawX:=pX; //This one is unchanged, unless you have a screenshot to show
-  DrawY:=pY+0.1;
-  //@Krom: I guess it's ok like that. I was simply trying to make the red X in placement
-  //       centre on the markup.
-  //       At the moment it's a little high and to the right IMO, but it's your choice.
-  //       It's subtle, but if you compare it, it is different to KaM.
-  //       But I'm happy to leave it like this, few people will notice. To be deleted.
-  glBegin(GL_QUADS);
-    glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(DrawX  , DrawY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(DrawX  , DrawY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
-
-    glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(DrawX  , DrawY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(DrawX  , DrawY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
-  glEnd;
-  glBindTexture(GL_TEXTURE_2D, 0);
-end;
-
-
-procedure TRender.RenderBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
-var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer; FOW:single;
-begin
-  ID1:=0; ID2:=0;
-  if bt_HouseBuilding = Border then if Dir=1 then ID1:=463 else ID2:=467; //WIP (Wood planks)
-  if bt_HousePlan = Border then     if Dir=1 then ID1:=105 else ID2:=117; //Plan (Ropes)
-  if bt_Wine = Border then          if Dir=1 then ID1:=462 else ID2:=466; //Fence (Wood)
-  if bt_Field = Border then         if Dir=1 then ID1:=461 else ID2:=465; //Fence (Stones)
-
-  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
-
-  glColor4f(FOW,FOW,FOW,1);
-  if Dir = 1 then begin //Horizontal border
-    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID1].TexID);
-    a.x:=GFXData[4,ID1].u1; a.y:=GFXData[4,ID1].v1;
-    b.x:=GFXData[4,ID1].u2; b.y:=GFXData[4,ID1].v2;
-    t:=GFXData[4,ID1].PxWidth/CELL_SIZE_PX; //Height of border
-    glBegin(GL_QUADS);
-      glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
-    glEnd;
-  end;
-
-  if Dir = 2 then begin //Vertical border
-    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID2].TexID);
-    HeightInPx := Round ( CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV) );
-    a.x:=GFXData[4,ID2].u1; a.y:=GFXData[4,ID2].v1;
-    b.x:=GFXData[4,ID2].u2; b.y:=GFXData[4,ID2].v2 * (HeightInPx / GFXData[4,ID2].PxHeight);
-    t:=GFXData[4,ID2].PxWidth/CELL_SIZE_PX; //Width of border
-    glBegin(GL_QUADS);
-      glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-      glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-    glEnd;
-{    glBindTexture(GL_TEXTURE_2D, 0);
-    glBegin(GL_LINE_LOOP);
-      glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-      glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-      glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-      glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-    glEnd;}
-  end;
-  glBindTexture(GL_TEXTURE_2D, 0);
-end;
+end;      
 
 
 {Render house WIP tablet}
@@ -649,7 +493,7 @@ begin
   ID:=Index+250;
   ShiftX:=RXData[4].Pivot[ID].x/CELL_SIZE_PX+0.5;
   ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CELL_SIZE_PX+0.5-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(4,ID,pX+ShiftX,pY+ShiftY,true);
+  AddSpriteToList(4,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
 end;
 
 
@@ -661,13 +505,13 @@ begin
     ID:=260+Wood-1;
     ShiftX:=HouseDAT[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
     ShiftY:=(HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
+    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
   end;
   if Stone<>0 then begin
     ID:=267+Stone-1;
     ShiftX:=HouseDAT[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
     ShiftY:=(HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
+    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
   end;
 end;
 
@@ -679,7 +523,7 @@ begin
   ID:=HouseDAT[Index].WoodPic+1;
   ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,true,0,Step);
+  AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,true,0,Step);
 end;
 
 
@@ -691,7 +535,7 @@ begin
   ID:=HouseDAT[Index].StonePic+1;
   ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-  AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false,0,Step);
+  AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,0,Step);
 end;
 
 
@@ -712,7 +556,7 @@ begin
           ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
           ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/CELL_SIZE_PX;
           ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/CELL_SIZE_PX;
-          AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false,Owner);
+          AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,Owner);
         end;
     end;
   end;
@@ -727,7 +571,7 @@ for i:=1 to 4 do if (R1[i-1])>0 then begin
     if ID>0 then begin
     ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
     ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
+    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
     end;
     end;
 for i:=1 to 4 do if (R2[i-1])>0 then begin
@@ -735,10 +579,34 @@ for i:=1 to 4 do if (R2[i-1])>0 then begin
     if ID>0 then begin
     ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
     ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,false);
+    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
     end;
     end;
 end;
+
+
+procedure TRender.RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
+var ShiftX,ShiftY:single; Q,ID,AnimCount:integer;
+begin
+  case Index of
+    13: Q:=2; //Stables
+    17: Q:=1; //Swine
+    else Q:=0;
+  end;
+  Assert(Q<>0,'Wrong caller for RenderHouseStableBeasts');
+  Assert(InRange(BeastID,1,5),'Wrong ID for RenderHouseStableBeasts');
+  Assert(InRange(BeastAge,1,3),'Wrong Age for RenderHouseStableBeasts');
+
+  AnimCount:=HouseDATs[Q,BeastID,BeastAge].Count;
+  ID:=HouseDATs[Q,BeastID,BeastAge].Step[AnimStep mod AnimCount + 1]+1;
+  ShiftX:=HouseDATs[Q,BeastID,BeastAge].MoveX/CELL_SIZE_PX;
+  ShiftY:=HouseDATs[Q,BeastID,BeastAge].MoveY/CELL_SIZE_PX;
+
+  ShiftX:=ShiftX+RXData[2].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY:=ShiftY+(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+  AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
+end;
+
 
 procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
@@ -750,7 +618,7 @@ if ID<=0 then exit;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,NewInst,Owner);
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
 
   if not MakeShowUnitMove then exit;
   glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
@@ -768,7 +636,7 @@ if ID<=0 then exit;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   ShiftX:=ShiftX+SerfCarry[CarryID].Dir[DirID].MoveX/CELL_SIZE_PX;
   ShiftY:=ShiftY+SerfCarry[CarryID].Dir[DirID].MoveY/CELL_SIZE_PX;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,false,Owner);
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,Owner);
 end;
 
 
@@ -845,26 +713,25 @@ glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
-procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; const Col:TColor4 = $FF; const aFOW:byte=$FF);
+procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte);
 var h:integer;
 begin
 for h:=1 to 2 do
   with GFXData[RX,ID] do begin
     if h=1 then begin
-      glColor4f(1,1,1,1);
-      glColor4ub(aFOW,aFOW,aFOW,255);
+      glColor3ub(aFOW,aFOW,aFOW);
       glBindTexture(GL_TEXTURE_2D, TexID);
     end else
       if (h=2) and (RXData[RX].NeedTeamColors) and (AltID<>0) then begin
-        glColor3ubv(@Col);
+        glColor4ubv(@Col);
         glBindTexture(GL_TEXTURE_2D, AltID);
         //glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR);
       end else
         exit;
 
     glBegin (GL_QUADS);
-    glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1         );
-    glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
+    glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1                      );
+    glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
     glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
     glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
@@ -901,9 +768,6 @@ begin
     glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
-    //glBegin (GL_LINE_LOOP);
-    //glRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-    //glEnd;
   end;
 glDisable(GL_ALPHA_TEST);
 glAlphaFunc(GL_ALWAYS,0);
@@ -912,42 +776,70 @@ end;
 
 
 {Collect all sprites into list}
-procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; const aFOW:byte=$FF);
+procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
 begin
 inc(RenderCount);
 if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+32); //Book some space
 
 RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
+RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object, floating-point
 RenderList[RenderCount].RX:=aRX;              //RX library
 RenderList[RenderCount].ID:=aID;              //Texture ID
-RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top)
+RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top of it's parent)
 RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
 RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
-RenderList[RenderCount].FOWvalue:=aFOW;       //Visibility
+RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
+RenderList[RenderCount].Exclude:=false;       //Exclude entry from render if it's clipped
+end;
+
+
+procedure TRender.ClipRenderList();
+var i,Margin:integer; x1,x2,y1,y2:integer; P:TKMPoint;
+begin
+  if TestViewportClipInset then Margin:=-3 else Margin:=3;
+  x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
+  y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
+
+  for i:=1 to RenderCount do begin
+
+    P:=KMPointRound(RenderList[i].Obj);
+    RenderList[i].FOWvalue:=fTerrain.CheckRevelation(P.X,P.Y,MyPlayer.PlayerID);
+
+
+    if RenderList[i].NewInst then begin
+
+      if not (InRange(RenderList[i].Obj.X,x1,x2) and InRange(RenderList[i].Obj.Y,y1,y2)) then
+        RenderList[i].Exclude:=true;
+        
+      if RenderList[i].FOWvalue=0 then
+        RenderList[i].Exclude:=true;
+
+    end;
+  end;
+
 end;
 
 
 {Need to sort all items in list from top-right to bottom-left}
 procedure TRender.SortRenderList;
-var i,k,t:integer;
+var i,k:integer;
 begin
-setlength(RO,RenderCount+1);
 
-for i:=1 to RenderCount do //Mark child sprites with 0
-if RenderList[i].NewInst then RO[i]:=i else RO[i]:=0;
+  setlength(RO,RenderCount+1);
 
-for i:=1 to RenderCount do if i<>0 then //Exclude child sprites from comparision
-  for k:=i+1 to RenderCount do if k<>0 then
+  for i:=1 to RenderCount do //Mark child sprites with 0, also excluded ones
+  if (RenderList[i].NewInst)or(RenderList[i].Exclude) then RO[i]:=i else RO[i]:=0;
 
-    if RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y then begin //TopMost
-      t:=RO[k]; RO[k]:=RO[i]; RO[i]:=t;
-    end else
+  for i:=1 to RenderCount do if RO[i]<>0 then //Exclude child sprites from comparision
+  for k:=i+1 to RenderCount do if RO[k]<>0 then begin
 
-    if RenderList[RO[k]].Loc.Y = RenderList[RO[i]].Loc.Y then
-    if RenderList[RO[k]].Loc.X > RenderList[RO[i]].Loc.X then begin //Rightmost
-      t:=RO[k]; RO[k]:=RO[i]; RO[i]:=t;
-    end;
-
+      if RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y then //TopMost
+        SwapInt(RO[k],RO[i])
+      else
+      if RenderList[RO[k]].Loc.Y = RenderList[RO[i]].Loc.Y then
+      if RenderList[RO[k]].Loc.X > RenderList[RO[i]].Loc.X then //Rightmost
+        SwapInt(RO[k],RO[i]);
+  end;
 end;
 
 
@@ -955,17 +847,20 @@ end;
 procedure TRender.RenderRenderList;
 var i,h:integer;
 begin
+
 for i:=1 to RenderCount do
-if RO[i]<>0 then begin
+if not RenderList[RO[i]].Exclude then if RO[i]<>0 then begin
+
   h:=RO[i];
   if not MakeGameSprites then
     RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
   else
+
   repeat //Render child sprites only after their parent
     with RenderList[h] do begin
       if AlphaStep=-1 then
         if Team<>0 then
-          RenderSprite(RX,ID,Loc.X,Loc.Y,TeamColors[Team])
+          RenderSprite(RX,ID,Loc.X,Loc.Y,TeamColors[Team],FOWvalue)
         else
           RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
       else
@@ -973,9 +868,192 @@ if RO[i]<>0 then begin
     end;
     inc(h);
   until((h>RenderCount)or(RenderList[h].NewInst));
+
 end;
 setlength(RenderList,0);
 setlength(RO,0);
+end;
+
+
+procedure TRender.RenderTerrainMarkup(Index:integer; pX,pY:integer);
+var a,b:TKMPointF; ID:integer; FOW, DrawX, DrawY:single;
+begin
+  case Index of
+    1: ID:=105; //Road
+    2: ID:=107; //Field
+    3: ID:=108; //Wine
+    else ID:=0;
+  end;
+  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)/255;
+
+  glColor4f(FOW,FOW,FOW,1);
+  glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
+
+  a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
+  b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
+
+  //Shift the X and Y so that the markup is centred correctly on the tile
+  DrawX:=pX; //This one is unchanged, unless you have a screenshot to show
+  DrawY:=pY+0.1;
+  //@Krom: I guess it's ok like that. I was simply trying to make the red X in placement
+  //       centre on the markup.
+  //       At the moment it's a little high and to the right IMO, but it's your choice.
+  //       It's subtle, but if you compare it, it is different to KaM.
+  //       But I'm happy to leave it like this, few people will notice. To be deleted.
+  //@Lewin: atm Markup it rendered within tile coords by X and centered at Y as well. I can't notice if it's worth moving =)
+  //I don't have any screens at hand, but I wouldn't like to be dictator and push my decision only because "I said so"
+  //Can you add a screen to trunk? 
+  glBegin(GL_QUADS);
+    glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(DrawX  , DrawY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(DrawX  , DrawY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
+
+    glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(DrawX  , DrawY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(DrawX  , DrawY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+  glEnd;
+  glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+
+procedure TRender.RenderTerrainBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
+var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer; FOW:single;
+begin
+  ID1:=0; ID2:=0;
+  if bt_HouseBuilding = Border then if Dir=1 then ID1:=463 else ID2:=467; //WIP (Wood planks)
+  if bt_HousePlan = Border then     if Dir=1 then ID1:=105 else ID2:=117; //Plan (Ropes)
+  if bt_Wine = Border then          if Dir=1 then ID1:=462 else ID2:=466; //Fence (Wood)
+  if bt_Field = Border then         if Dir=1 then ID1:=461 else ID2:=465; //Fence (Stones)
+
+  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)/255;
+
+  glColor4f(FOW,FOW,FOW,1);
+  if Dir = 1 then begin //Horizontal border
+    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID1].TexID);
+    a.x:=GFXData[4,ID1].u1; a.y:=GFXData[4,ID1].v1;
+    b.x:=GFXData[4,ID1].u2; b.y:=GFXData[4,ID1].v2;
+    t:=GFXData[4,ID1].PxWidth/CELL_SIZE_PX; //Height of border
+    glBegin(GL_QUADS);
+      glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+    glEnd;
+  end;
+
+  if Dir = 2 then begin //Vertical border
+    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID2].TexID);
+    HeightInPx := Round ( CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV) );
+    a.x:=GFXData[4,ID2].u1; a.y:=GFXData[4,ID2].v1;
+    b.x:=GFXData[4,ID2].u2; b.y:=GFXData[4,ID2].v2 * (HeightInPx / GFXData[4,ID2].PxHeight);
+    t:=GFXData[4,ID2].PxWidth/CELL_SIZE_PX; //Width of border
+    glBegin(GL_QUADS);
+      glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+      glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
+    glEnd;
+{    glBindTexture(GL_TEXTURE_2D, 0);
+    glBegin(GL_LINE_LOOP);
+      glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
+      glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
+      glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
+      glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
+    glEnd;}
+  end;
+  glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+
+
+procedure TRender.RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
+begin
+  glColor4ubv(@Col);
+  glbegin (GL_LINE_LOOP);
+  if fTerrain.TileInMapCoords(P.X,P.Y) then
+  with fTerrain do begin
+    glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/CELL_HEIGHT_DIV);
+    glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/CELL_HEIGHT_DIV);
+    glvertex2f(p.X  ,p.Y-  Land[p.Y+1,p.X+1].Height/CELL_HEIGHT_DIV);
+    glvertex2f(p.X-1,p.Y-  Land[p.Y+1,p.X  ].Height/CELL_HEIGHT_DIV);
+  end;
+  glEnd;
+end;
+
+
+procedure TRender.RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
+begin
+  //@Krom: How do I make these always render on top of everything else? (e.g. the it should go over houses rather than under them)
+  //       Same thing for the wire build quad, although it's less important
+  //@Lewin: Sorry, was not that clear, but AddSpriteToList(aNew=false) will render it ontop of previous item marked as aNew=true
+  //Currently I moved CursorHighlights render to be after units/houses - should be fine now
+  //To be deleted..
+  if fTerrain.TileInMapCoords(P.X,P.Y) then
+    RenderSprite(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,$FFFFFFFF,$FF);
+end;
+
+
+procedure TRender.RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
+var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
+  MarkedLocations:array[1..64] of TKMPoint; //List of locations with special marks on them
+  MarkCount:integer;
+
+  procedure MarkPoint(APoint:TKMPoint; AID:integer);
+  var v: integer;
+  begin
+    for v:=1 to MarkCount do if KMSamePoint(MarkedLocations[v],APoint) then exit;
+    RenderCursorBuildIcon(APoint,AID);
+    inc(MarkCount);
+    MarkedLocations[MarkCount] := APoint;
+  end;
+begin
+  MarkCount := 0;
+  for i:=1 to 4 do for k:=1 to 4 do
+  if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
+      P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4); //This can't be done earlier since values can be off-map 
+
+        //Check house-specific conditions, e.g. allow shipyards only near water and etc..
+        case aHouseType of
+          ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
+          ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
+          ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
+          else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
+        end;
+
+        //Forbid planning on unrevealed areas
+        AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
+
+        //Check surrounding tiles in +/- 1 range for other houses pressence                                
+        for s:=-1 to 1 do for t:=-1 to 1 do
+        if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
+        if fTerrain.Land[P2.Y+t,P2.X+s].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad] then
+        begin
+          MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
+          AllowBuild := false;
+        end;
+
+        //Mark the tile according to previous check results
+        if AllowBuild then begin
+          RenderCursorWireQuad(P2,$FFFFFF00); //Cyan
+          if HousePlanYX[byte(aHouseType),i,k]=2 then
+            MarkPoint(P2,481);
+        end else begin
+          if HousePlanYX[byte(aHouseType),i,k]=2 then
+            MarkPoint(P2,482)
+          else
+            if aHouseType in [ht_GoldMine,ht_IronMine] then
+              MarkPoint(P2,480)
+            else
+              MarkPoint(P2,479);
+        end;
+
+    end else
+    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,0) then
+      MarkPoint(KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4),479);
+  end;
 end;
 
 
@@ -984,20 +1062,19 @@ begin
 with fTerrain do
 case CursorMode.Mode of
   cm_None:;
-  cm_Erase:if ((CanRemovePlan(CursorPos,MyPlayer.PlayerID)) or CanRemoveHouse(CursorPos,MyPlayer.PlayerID))
-               and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
-             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderBuildIcon(CursorPos);       //Red X
-  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
-             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderBuildIcon(CursorPos);       //Red X
-  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
-             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderBuildIcon(CursorPos);       //Red X
-  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)<>0) then
-             fRender.RenderWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderBuildIcon(CursorPos);       //Red X
-  cm_Houses: fRender.RenderWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
+  cm_Erase:if (CanRemovePlan(CursorPos,MyPlayer.PlayerID)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+             fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
+  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+             fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
+  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+             fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
+  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+             fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
+  cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
 end;
 end;
 

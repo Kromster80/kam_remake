@@ -128,6 +128,9 @@ begin
       //       and you move it across to the main area very quickly then the selected build button
       //       stays highlighted, because there is no event saying that the mouse is no longer over it.
       //       Should we run this even if the mouse is not over the ToolBar?
+      //@Lewin:In best case scenario we should not, but we will need to handle messages and etc
+      //       I guess you are right
+      //To be executed..
       fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
     end else begin
       CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
@@ -248,7 +251,7 @@ begin
     end;
     fLog.AppendLog('DAT Loaded');
   end else begin
-    fTerrain.MakeNewMap(96,96); //For debug we use blank mission
+    fTerrain.MakeNewMap(64,64); //For debug we use blank mission
     fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
     MyPlayer:=fPlayers.Player[1];
   end;
@@ -297,6 +300,8 @@ begin
     fTerrain.UpdateState;
     fPlayers.UpdateState;
   end;
+  
+  fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
   fGamePlayInterface.UpdateState;
 
 end;

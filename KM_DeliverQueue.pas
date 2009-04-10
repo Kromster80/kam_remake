@@ -2,7 +2,7 @@ unit KM_DeliverQueue;
 interface
 uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
 
-  type TJobStatus = (js_Open, js_Taken, js_Done);
+  type TJobStatus = (js_Open, js_Taken);
   type TDemandImportance = (di_Norm, di_High);
   const MaxEntries=1024;
 
@@ -49,36 +49,43 @@ type
       Importance:byte;
       JobStatus:TJobStatus;
     end;
+    fHousesQueue:array[1..MaxEntries]of
+    record
+      House:TKMHouse;
+      Importance:byte;
+      //No need to have JobStatus since many workers can build same house
+    end;
     fHousePlansQueue:array[1..MaxEntries]of
     record
       House:TKMHouse;
       Importance:byte;
       JobStatus:TJobStatus;
     end;
-    fHousesQueue:array[1..MaxEntries]of
+    fHousesRepairQueue:array[1..MaxEntries]of
     record
       House:TKMHouse;
       Importance:byte;
-      JobStatus:TJobStatus;
+      //No need to have JobStatus since many workers can repair same house
     end;
   public
     constructor Create();
-    procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
-    function RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
-    function  AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseRoad(aID:integer);
-
-    procedure AddNewHousePlan(aHouse: TKMHouse);
-    function  AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+    procedure CloseHouse(aID:integer);
     procedure CloseHousePlan(aID:integer);
 
+    procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
     procedure AddNewHouse(aHouse: TKMHouse);
-    function  AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
-    procedure CloseHouse(aID:integer);
+    procedure AddNewHousePlan(aHouse: TKMHouse);
+    function AddHouseRepair(aHouse: TKMHouse):integer;
 
-    {procedure AddHouseRepair(aHouse: TKMHouse);
+    function RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
+
+    function  AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+    function  AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+    function  AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+
     function  AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
-    procedure CloseHouseRepair(aID:integer);}
+    procedure CloseHouseRepair(aID:integer);
   end;
 
 implementation
@@ -295,20 +302,82 @@ for i:=1 to length(fHousePlansQueue) do CloseHousePlan(i);
 end;
 
 
+procedure TKMBuildingQueue.CloseRoad(aID:integer);
+begin
+  fFieldsQueue[aID].Loc:=KMPoint(0,0);
+  fFieldsQueue[aID].FieldType:=fdt_None;
+  fFieldsQueue[aID].Importance:=0;
+  fFieldsQueue[aID].JobStatus:=js_Open;
+end;
+
+
+{Clear up}
+procedure TKMBuildingQueue.CloseHouse(aID:integer);
+begin
+  fHousesQueue[aID].House:=nil;
+  fHousesQueue[aID].Importance:=0;
+end;
+
+
+procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
+begin
+  fHousePlansQueue[aID].House:=nil;
+  fHousePlansQueue[aID].Importance:=0;
+  fHousePlansQueue[aID].JobStatus:=js_Open;
+end;
+
+
+procedure TKMBuildingQueue.CloseHouseRepair(aID:integer);
+begin
+  fHousesRepairQueue[aID].House:=nil;
+  fHousesRepairQueue[aID].Importance:=0;
+end;
+
+
 procedure TKMBuildingQueue.AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
 var i:integer;
 begin
-i:=1;
-while fFieldsQueue[i].Loc.X<>0 do inc(i);
-
-fFieldsQueue[i].Loc:=aLoc;
-fFieldsQueue[i].FieldType:=aFieldType;
-fFieldsQueue[i].Importance:=1;
-fFieldsQueue[i].JobStatus:=js_Open;
+  i:=1; while (i<MaxEntries)and(fFieldsQueue[i].Loc.X<>0) do inc(i);
+  fFieldsQueue[i].Loc:=aLoc;
+  fFieldsQueue[i].FieldType:=aFieldType;
+  fFieldsQueue[i].Importance:=1;
+  fFieldsQueue[i].JobStatus:=js_Open;
 end;
+
+
+{Add new job to the list}
+procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
+var i:integer;
+begin
+  i:=1; while (i<MaxEntries)and(fHousesQueue[i].House<>nil) do inc(i);
+  fHousesQueue[i].House:=aHouse;
+  fHousesQueue[i].Importance:=1;
+end;
+
+
+procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
+var i:integer;
+begin
+  i:=1; while (i<MaxEntries)and(fHousePlansQueue[i].House<>nil) do inc(i);
+  fHousePlansQueue[i].House:=aHouse;
+  fHousePlansQueue[i].Importance:=1;
+  fHousePlansQueue[i].JobStatus:=js_Open;
+end;
+
+
+function TKMBuildingQueue.AddHouseRepair(aHouse: TKMHouse):integer;
+var i:integer;
+begin
+  i:=1; while (i<MaxEntries)and(fHousesRepairQueue[i].House<>nil) do inc(i);
+  fHousesRepairQueue[i].House:=aHouse;
+  fHousesRepairQueue[i].Importance:=1;
+  Result:=i;
+end;
+
 
 {Remove task if Player has cancelled it}
 {Simulated just means that we simply want to check if player ever issued that task}
+{@Lewin:Why do we need to check for that?}
 function TKMBuildingQueue.RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin
@@ -326,101 +395,51 @@ end;
 function  TKMBuildingQueue.AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
-Result:=nil;
+  Result:=nil;
 
-i:=1; while (i<MaxEntries)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
-if i=MaxEntries then exit;
+  i:=1; while (i<MaxEntries)and((fFieldsQueue[i].Loc.x=0)or(fFieldsQueue[i].JobStatus<>js_Open)) do inc(i);
+  if i=MaxEntries then exit;
 
-if fFieldsQueue[i].FieldType=fdt_Road then  Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
-if fFieldsQueue[i].FieldType=fdt_Field then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
-if fFieldsQueue[i].FieldType=fdt_Wine then  Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
-fFieldsQueue[i].JobStatus:=js_Taken;
+  if fFieldsQueue[i].FieldType=fdt_Road then  Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  if fFieldsQueue[i].FieldType=fdt_Field then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  if fFieldsQueue[i].FieldType=fdt_Wine then  Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  fFieldsQueue[i].JobStatus:=js_Taken;
 end;
 
 
-procedure TKMBuildingQueue.CloseRoad(aID:integer);
-begin
-fFieldsQueue[aID].Loc:=KMPoint(0,0);
-fFieldsQueue[aID].FieldType:=fdt_None;
-fFieldsQueue[aID].Importance:=0;
-fFieldsQueue[aID].JobStatus:=js_Done;
-end;
-
-
-procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
+{Find a job for worker}
+function  TKMBuildingQueue.AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
-i:=1; while fHousePlansQueue[i].House<>nil do inc(i);
-fHousePlansQueue[i].House:=aHouse;
-fHousePlansQueue[i].Importance:=1;
-fHousePlansQueue[i].JobStatus:=js_Open;
+  Result:=nil; i:=1;
+  while (i<MaxEntries)and((fHousesQueue[i].House=nil)or(not fHousesQueue[i].House.CheckResToBuild)) do inc(i);
+  if i=MaxEntries then exit;
+
+  Result:=TTaskBuildHouse.Create(KMWorker, fHousesQueue[i].House, i);
 end;
 
 
 function  TKMBuildingQueue.AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
-Result:=nil;
-i:=1;
-while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Open) do inc(i);
-if i=MaxEntries then
-begin
-  Result:=nil;
-  exit;
-end;
-if fHousePlansQueue[i].JobStatus=js_Open then
+  Result:=nil; i:=1;
+  while (i<MaxEntries)and((fHousePlansQueue[i].House=nil)or(fHousePlansQueue[i].JobStatus<>js_Open)) do inc(i);
+  if i=MaxEntries then exit;
+
   Result:=TTaskBuildHouseArea.Create(KMWorker, fHousePlansQueue[i].House, i);
-fHousePlansQueue[i].JobStatus:=js_Taken;
+  fHousePlansQueue[i].JobStatus:=js_Taken;
 end;
 
 
-procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
-begin
-fHousePlansQueue[aID].House:=nil;
-fHousePlansQueue[aID].Importance:=0;
-fHousePlansQueue[aID].JobStatus:=js_Done;
-end;
-
-
-{Add new job to the list}
-procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
+function  TKMBuildingQueue.AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
-  i:=1;
-  while fHousesQueue[i].House<>nil do inc(i); //Find an empty spot
-  fHousesQueue[i].House:=aHouse;
-  fHousesQueue[i].Importance:=1;
-  fHousesQueue[i].JobStatus:=js_Open;
-end;
+  Result:=nil; i:=1;
+  while (i<MaxEntries)and(fHousesRepairQueue[i].House=nil) do inc(i);
+  if i=MaxEntries then exit;
 
-{Find a job for worker}
-function  TKMBuildingQueue.AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
-var i:integer;
-begin
-for i:=1 to MaxEntries do begin
-  if (fHousesQueue[i].JobStatus=js_Open)and
-     (fHousesQueue[i].House<>nil)and
-     (fHousesQueue[i].House.CheckResToBuild) then break;
+  Result :=TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
 end;
-
-if i>=MaxEntries then
-begin
-  Result:=nil;
-  exit;
-end;
-
-  Result:=TTaskBuildHouse.Create(KMWorker, fHousesQueue[i].House, i);
-//fHousesQueue[i].JobStatus:=js_Taken; //Not required since many workers can build one same house
-end;
-
-{Clear up}
-procedure TKMBuildingQueue.CloseHouse(aID:integer);
-begin
-  fHousesQueue[aID].House:=nil;
-  fHousesQueue[aID].Importance:=0;
-  fHousesQueue[aID].JobStatus:=js_Done;
-end;
-
 
 
 
