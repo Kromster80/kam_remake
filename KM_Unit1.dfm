@@ -152,7 +152,7 @@ object Form1: TForm1
       Width = 26
       Height = 13
       Caption = '100%'
-      OnClick = ResetZoomClick
+      OnClick = Debug_ResetZoomClick
     end
     object TeamColorPicker: TShape
       Left = 386
@@ -169,14 +169,14 @@ object Form1: TForm1
       Height = 13
       Caption = 'Passability'
     end
-    object Button4: TButton
+    object Button_W: TButton
       Left = 144
       Top = 52
       Width = 25
       Height = 17
       Caption = 'W'
-      TabOrder = 11
-      OnClick = Button4Click
+      TabOrder = 10
+      OnClick = Button_WClick
     end
     object TBZoomControl: TTrackBar
       Left = 24
@@ -195,7 +195,7 @@ object Form1: TForm1
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
-      OnChange = ZoomChange
+      OnChange = Debug_ZoomChange
     end
     object CheckBox2: TCheckBox
       Left = 144
@@ -206,7 +206,7 @@ object Form1: TForm1
       TabOrder = 1
       OnClick = CheckBox2Click
     end
-    object CheckBox1: TCheckBox
+    object Debug_Pause: TCheckBox
       Left = 144
       Top = 32
       Width = 49
@@ -214,7 +214,7 @@ object Form1: TForm1
       Caption = 'Pause'
       TabOrder = 2
     end
-    object TrackBar1: TTrackBar
+    object Debug_PassabilityTrack: TTrackBar
       Left = 2
       Top = 36
       Width = 83
@@ -230,7 +230,7 @@ object Form1: TForm1
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
-      OnChange = TrackBar1Change
+      OnChange = Debug_PassabilityTrackChange
     end
     object RGPlayer: TRadioGroup
       Left = 280
@@ -252,23 +252,23 @@ object Form1: TForm1
       TabOrder = 4
       OnClick = RGPlayerClick
     end
-    object Button1: TButton
+    object Button_V: TButton
       Left = 168
       Top = 52
       Width = 25
       Height = 17
-      Caption = '>>'
+      Caption = 'V'
       TabOrder = 5
-      OnClick = Button1Click
+      OnClick = Button_VClick
     end
-    object Button2: TButton
+    object Button_6: TButton
       Left = 192
       Top = 52
       Width = 25
       Height = 17
       Caption = '6'
       TabOrder = 6
-      OnClick = Button2Click
+      OnClick = Button_6Click
     end
     object Step1Frame: TButton
       Left = 196
@@ -279,32 +279,23 @@ object Form1: TForm1
       TabOrder = 8
       OnClick = Timer100msTimer
     end
-    object Button5: TButton
+    object Button_1: TButton
       Left = 216
       Top = 52
       Width = 25
       Height = 17
       Caption = '1'
       TabOrder = 9
-      OnClick = Button5Click
+      OnClick = Button_1Click
     end
-    object Button3: TButton
+    object Button_Stop: TButton
       Left = 240
       Top = 52
       Width = 25
       Height = 17
       Caption = 'Stop'
       TabOrder = 7
-      OnClick = Button3Click
-    end
-    object CB_ShowUnit: TCheckBox
-      Left = 8
-      Top = 52
-      Width = 73
-      Height = 17
-      Caption = 'Show units'
-      TabOrder = 10
-      OnClick = CB_ShowUnitClick
+      OnClick = Button_StopClick
     end
   end
   object OpenDialog1: TOpenDialog
@@ -320,11 +311,11 @@ object Form1: TForm1
       Caption = 'File'
       object OpenMapMenu: TMenuItem
         Caption = 'Open map...'
-        OnClick = OpenMapClick
+        OnClick = Open_MapClick
       end
       object OpenMissionMenu: TMenuItem
         Caption = 'Open mission...'
-        OnClick = OpenMissionMenuClick
+        OnClick = Open_MissionMenuClick
       end
       object N1: TMenuItem
         Caption = '-'
@@ -334,85 +325,89 @@ object Form1: TForm1
         OnClick = ExitClick
       end
     end
-    object Advanced1: TMenuItem
-      Caption = 'Advanced'
-      object ShowWires: TMenuItem
+    object Debug1: TMenuItem
+      Caption = 'Debug'
+      object Debug_ShowWires: TMenuItem
         Caption = 'Show wires'
-        OnClick = ShowWiresClick
+        OnClick = Debug_ShowWiresClick
       end
-      object ShowObjects: TMenuItem
+      object Debug_ShowObjects: TMenuItem
         Caption = 'Show object ID'
-        OnClick = ShowObjectsClick
+        OnClick = Debug_ShowObjectsClick
       end
-      object PrintScreen: TMenuItem
+      object Debug_PrintScreen: TMenuItem
         Caption = 'PrintScreen'
-        OnClick = PrintScreenClick
+        OnClick = Debug_PrintScreenClick
       end
-      object ShowOverlay: TMenuItem
+      object Debug_ShowOverlay: TMenuItem
         Caption = 'Show Overlay'
-        OnClick = ShowOverlayClick
+        OnClick = Debug_ShowOverlayClick
       end
-      object ShowDebugpanel1: TMenuItem
+      object Debug_ShowPanel1: TMenuItem
         Caption = 'Show Debug panel'
-        OnClick = ShowDebugpanel1Click
+        OnClick = Debug_ShowPanel1Click
+      end
+      object Debug_ShowUnits: TMenuItem
+        Caption = 'Show Units'
+        OnClick = Debug_ShowUnitClick
       end
     end
     object Export1: TMenuItem
       Caption = 'Export Data'
-      object ExportTreesRX: TMenuItem
+      object Export_TreesRX: TMenuItem
         Caption = 'Trees.rx'
-        OnClick = ExportTreesRXClick
+        OnClick = Export_TreesRXClick
       end
-      object ExportHousesRX: TMenuItem
+      object Export_HousesRX: TMenuItem
         Caption = 'Houses.rx'
-        OnClick = ExportHousesRXClick
+        OnClick = Export_HousesRXClick
       end
-      object ExportUnitsRX: TMenuItem
+      object Export_UnitsRX: TMenuItem
         Caption = 'Units.rx'
-        OnClick = ExportUnitsRXClick
+        OnClick = Export_UnitsRXClick
       end
-      object ExportGUIRX: TMenuItem
+      object Export_GUIRX: TMenuItem
         Caption = 'GUI.rx'
-        OnClick = ExportGUIRXClick
+        OnClick = Export_GUIRXClick
       end
-      object ExportGUIMainRX: TMenuItem
+      object Export_GUIMainRX: TMenuItem
         Caption = 'GUI Main.rx'
-        OnClick = ExportGUIMainRXClick
+        OnClick = Export_GUIMainRXClick
       end
       object AnimData1: TMenuItem
         Caption = '-'
         Enabled = False
       end
-      object HouseAnim1: TMenuItem
+      object Export_HouseAnim1: TMenuItem
         Caption = 'House Anim'
-        OnClick = HouseAnim1Click
+        OnClick = Export_HouseAnim1Click
       end
-      object UnitAnim1: TMenuItem
+      object Export_UnitAnim1: TMenuItem
         Caption = 'Unit Anim'
-        OnClick = UnitAnim1Click
+        OnClick = Export_UnitAnim1Click
       end
       object Other1: TMenuItem
         Caption = '-'
         Enabled = False
       end
-      object Exportfonts1: TMenuItem
+      object Export_Fonts1: TMenuItem
         Caption = 'Fonts'
-        OnClick = Exportfonts1Click
+        OnClick = Export_Fonts1Click
       end
-      object ExportText: TMenuItem
+      object Export_Text: TMenuItem
         Caption = 'Texts'
-        OnClick = ExportTextClick
+        OnClick = Export_TextClick
       end
-      object ExportSounds1: TMenuItem
+      object Export_Sounds1: TMenuItem
         Caption = 'Sounds'
-        OnClick = ExportSounds1Click
+        OnClick = Export_Sounds1Click
       end
-    end
-    object ExportStatus1: TMenuItem
-      Caption = 'Export Status'
-      object ExportDeliverlists1: TMenuItem
+      object N2: TMenuItem
+        Caption = '-'
+      end
+      object Export_Deliverlists1: TMenuItem
         Caption = 'Export Deliver lists'
-        OnClick = ExportDeliverlists1Click
+        OnClick = Export_Deliverlists1Click
       end
     end
     object About1: TMenuItem

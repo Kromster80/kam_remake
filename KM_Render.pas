@@ -331,7 +331,7 @@ begin
   end;
 
   glColor4f(0,1,0,0.5);
-  t:=Form1.TrackBar1.Position;
+  t:=Form1.Debug_PassabilityTrack.Position;
   for i:=y1 to y2 do for k:=x1 to x2 do
     if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
       RenderQuad(k,i);

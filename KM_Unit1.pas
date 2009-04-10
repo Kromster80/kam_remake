@@ -9,6 +9,9 @@ uses
 
 type                           
   TForm1 = class(TForm)
+    N2: TMenuItem;
+    Debug_ShowUnits: TMenuItem;
+  public //Just to separate items in TreeView
     OpenDialog1: TOpenDialog;
     StatusBar1: TStatusBar;
     MainMenu1: TMainMenu;
@@ -17,19 +20,19 @@ type
     Exit1: TMenuItem;
     N1: TMenuItem;
     About1: TMenuItem;
-    Advanced1: TMenuItem;
-    ShowWires: TMenuItem;
-    ShowObjects: TMenuItem;
+    Debug1: TMenuItem;
+    Debug_ShowWires: TMenuItem;
+    Debug_ShowObjects: TMenuItem;
     Panel5: TPanel;
     Timer100ms: TTimer;
-    PrintScreen: TMenuItem;
+    Debug_PrintScreen: TMenuItem;
     Export1: TMenuItem;
-    ExportGUIRX: TMenuItem;
-    ExportTreesRX: TMenuItem;
-    ExportHousesRX: TMenuItem;
-    ExportUnitsRX: TMenuItem;
-    ExportGUIMainRX: TMenuItem;
-    Exportfonts1: TMenuItem;
+    Export_GUIRX: TMenuItem;
+    Export_TreesRX: TMenuItem;
+    Export_HousesRX: TMenuItem;
+    Export_UnitsRX: TMenuItem;
+    Export_GUIMainRX: TMenuItem;
+    Export_Fonts1: TMenuItem;
     GroupBox1: TGroupBox;
     Image4: TImage;
     TBZoomControl: TTrackBar;
@@ -37,70 +40,68 @@ type
     Label1: TLabel;
     TeamColorPicker: TShape;
     CheckBox2: TCheckBox;
-    CheckBox1: TCheckBox;
-    ExportText: TMenuItem;
-    ExportStatus1: TMenuItem;
-    ExportDeliverlists1: TMenuItem;
-    ExportSounds1: TMenuItem;
-    TrackBar1: TTrackBar;
+    Debug_Pause: TCheckBox;
+    Export_Text: TMenuItem;
+    Export_Deliverlists1: TMenuItem;
+    Export_Sounds1: TMenuItem;
+    Debug_PassabilityTrack: TTrackBar;
     Label2: TLabel;
-    HouseAnim1: TMenuItem;
-    UnitAnim1: TMenuItem;
+    Export_HouseAnim1: TMenuItem;
+    Export_UnitAnim1: TMenuItem;
     RGPlayer: TRadioGroup;
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
+    Button_V: TButton;
+    Button_6: TButton;
+    Button_Stop: TButton;
     OpenMissionMenu: TMenuItem;
     Step1Frame: TButton;
-    Button5: TButton;
-    ShowOverlay: TMenuItem;
-    CB_ShowUnit: TCheckBox;
+    Button_1: TButton;
+    Debug_ShowOverlay: TMenuItem;
     AnimData1: TMenuItem;
     Other1: TMenuItem;
-    ShowDebugpanel1: TMenuItem;
-    Button4: TButton;
+    Debug_ShowPanel1: TMenuItem;
+    Button_W: TButton;
+  published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
-    procedure OpenMapClick(Sender: TObject);
-    procedure ZoomChange(Sender: TObject);
+    procedure Open_MapClick(Sender: TObject);
+    procedure Debug_ZoomChange(Sender: TObject);
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure AboutClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure ResetZoomClick(Sender: TObject);
+    procedure Debug_ResetZoomClick(Sender: TObject);
     procedure ExitClick(Sender: TObject);
-    procedure ShowWiresClick(Sender: TObject);
-    procedure ShowObjectsClick(Sender: TObject);
+    procedure Debug_ShowWiresClick(Sender: TObject);
+    procedure Debug_ShowObjectsClick(Sender: TObject);
     procedure Timer100msTimer(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
-    procedure PrintScreenClick(Sender: TObject);
-    procedure ExportGUIRXClick(Sender: TObject);
-    procedure ExportTreesRXClick(Sender: TObject);
-    procedure ExportHousesRXClick(Sender: TObject);
-    procedure ExportUnitsRXClick(Sender: TObject);
-    procedure ExportGUIMainRXClick(Sender: TObject);
+    procedure Button_VClick(Sender: TObject);
+    procedure Button_6Click(Sender: TObject);
+    procedure Debug_PrintScreenClick(Sender: TObject);
+    procedure Export_TreesRXClick(Sender: TObject);
+    procedure Export_HousesRXClick(Sender: TObject);
+    procedure Export_UnitsRXClick(Sender: TObject);
+    procedure Export_GUIRXClick(Sender: TObject);
+    procedure Export_GUIMainRXClick(Sender: TObject);
+    procedure Export_Sounds1Click(Sender: TObject);
+    procedure Export_HouseAnim1Click(Sender: TObject);
+    procedure Export_UnitAnim1Click(Sender: TObject);
+    procedure Export_TextClick(Sender: TObject);
+    procedure Export_Fonts1Click(Sender: TObject);
+    procedure Export_DeliverLists1Click(Sender: TObject);
     procedure TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure Exportfonts1Click(Sender: TObject);
-    procedure ExportTextClick(Sender: TObject);
-    procedure ExportDeliverlists1Click(Sender: TObject);
-    procedure ExportSounds1Click(Sender: TObject);
-    procedure TrackBar1Change(Sender: TObject);
-    procedure HouseAnim1Click(Sender: TObject);
-    procedure UnitAnim1Click(Sender: TObject);
-    procedure ShowOverlayClick(Sender: TObject);
-    procedure Button3Click(Sender: TObject);
+    procedure Debug_PassabilityTrackChange(Sender: TObject);
+    procedure Debug_ShowOverlayClick(Sender: TObject);
+    procedure Button_StopClick(Sender: TObject);
     procedure RGPlayerClick(Sender: TObject);
-    procedure OpenMissionMenuClick(Sender: TObject);
-    procedure Button5Click(Sender: TObject);
+    procedure Open_MissionMenuClick(Sender: TObject);
+    procedure Button_1Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
-    procedure CB_ShowUnitClick(Sender: TObject);
-    procedure ShowDebugpanel1Click(Sender: TObject);
-    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure Button4Click(Sender: TObject);
+    procedure Debug_ShowUnitClick(Sender: TObject);
+    procedure Debug_ShowPanel1Click(Sender: TObject);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure Button_WClick(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
@@ -178,7 +179,45 @@ begin
 end;
 
 
-procedure TForm1.OpenMapClick(Sender: TObject);
+procedure TForm1.FormResize(Sender:TObject);
+begin
+  if fGame<>nil then //Occurs on exit
+    fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+end;
+
+
+procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin fGame.MouseDown(Button, Shift, X, Y); end;
+
+
+procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+begin fGame.MouseMove(Shift, X, Y); end;
+
+
+procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin fGame.MouseUp(Button, Shift, X, Y); end;
+
+
+procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  if MOUSEWHEEL_ZOOM_ENABLE then
+  if fViewport<>nil then
+  fViewport.Zoom:=fViewport.Zoom+WheelDelta/1000; //4Debug only
+end;
+
+
+procedure TForm1.Timer100msTimer(Sender: TObject);
+begin
+  if not Form1.Active then exit;
+
+  if (Debug_Pause.Checked)and(Sender<>Step1Frame) then exit; //Pause
+
+  fGame.UpdateState;
+end;
+
+
+//Open
+procedure TForm1.Open_MapClick(Sender: TObject);
 begin
   //Assert(false,'Should be re-rigged');
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
@@ -187,26 +226,20 @@ begin
   Form1.Caption:='KaM Remake - '+OpenDialog1.FileName;
 end;
 
-procedure TForm1.FormResize(Sender:TObject);
+
+procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
-  if fGame<>nil then //Occurs on exit
-    fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+  if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;
+  fGame.StopGame;
+  fGame.StartGame(OpenDialog1.FileName);
 end;
 
-procedure TForm1.ZoomChange(Sender: TObject);
-begin
-  fGame.ZoomInGameArea(ZoomLevels[TBZoomControl.Position]);
-end;
 
-procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin fGame.MouseDown(Button, Shift, X, Y); end;
+//Exit
+procedure TForm1.ExitClick(Sender: TObject); begin Form1.Close; end;
 
-procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-begin fGame.MouseMove(Shift, X, Y); end;
 
-procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin fGame.MouseUp(Button, Shift, X, Y); end;
-
+//About
 procedure TForm1.AboutClick(Sender: TObject);
 begin
   FormLoading.Bar1.Position:=0;
@@ -215,22 +248,168 @@ begin
 end;
 
 
-procedure TForm1.Timer100msTimer(Sender: TObject);
+//Debug Options
+procedure TForm1.Debug_ShowWiresClick(Sender: TObject);
 begin
-  if not Form1.Active then exit;
-
-  if (CheckBox1.Checked)and(Sender<>Step1Frame) then exit; //Pause
-
-  fGame.UpdateState;
+  Debug_ShowWires.Checked:=not Debug_ShowWires.Checked;
+  ShowTerrainWires:=Debug_ShowWires.Checked;
 end;
 
-procedure TForm1.ResetZoomClick(Sender: TObject);
+procedure TForm1.Debug_ShowObjectsClick(Sender: TObject);
+begin Debug_ShowObjects.Checked:=not Debug_ShowObjects.Checked; end;
+
+procedure TForm1.Debug_ShowOverlayClick(Sender: TObject);
 begin
-  TBZoomControl.Position:=4;
+  Debug_ShowOverlay.Checked:= not Debug_ShowOverlay.Checked;
+  MakeDrawPagesOverlay:=Debug_ShowOverlay.Checked;
+end;
+
+procedure TForm1.Debug_ShowUnitClick(Sender: TObject);
+begin
+  Debug_ShowUnits.Checked:= not Debug_ShowUnits.Checked;
+  MakeShowUnitMove:=Debug_ShowUnits.Checked;
+  MakeShowUnitRoutes:=Debug_ShowUnits.Checked;
+end;
+
+procedure TForm1.Debug_PrintScreenClick(Sender: TObject);
+var s:string;
+begin
+  DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
+  if fRender<>nil then fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
+end;
+
+procedure TForm1.Debug_ShowPanel1Click(Sender: TObject);
+begin GroupBox1.Visible:=not GroupBox1.Visible; end;
+
+procedure TForm1.Debug_PassabilityTrackChange(Sender: TObject);
+begin
+  ShowTerrainWires:=true;
+  Debug_PassabilityTrack.Max:=length(PassabilityStr)-1;
+  Label2.Caption:= PassabilityStr[Debug_PassabilityTrack.Position+1];
+end;
+
+procedure TForm1.Debug_ZoomChange(Sender: TObject);
+begin fGame.ZoomInGameArea(ZoomLevels[TBZoomControl.Position]); end;
+
+procedure TForm1.Debug_ResetZoomClick(Sender: TObject);
+begin TBZoomControl.Position:=4; end;
+
+
+
+//Exports
+procedure TForm1.Export_TreesRXClick(Sender: TObject);   begin ExportRX2BMP(1); end;
+procedure TForm1.Export_HousesRXClick(Sender: TObject);  begin ExportRX2BMP(2); end;
+procedure TForm1.Export_UnitsRXClick(Sender: TObject);   begin ExportRX2BMP(3); end;
+procedure TForm1.Export_GUIRXClick(Sender: TObject);     begin ExportRX2BMP(4); end;
+procedure TForm1.Export_GUIMainRXClick(Sender: TObject); begin ExportRX2BMP(5); end;
+procedure TForm1.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.ExportSounds; end;
+procedure TForm1.Export_HouseAnim1Click(Sender: TObject);begin ExportHouseAnim2BMP(); end;
+procedure TForm1.Export_UnitAnim1Click(Sender: TObject); begin ExportUnitAnim2BMP();  end;
+procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.ExportTextLibraries; end;
+
+procedure TForm1.Export_Fonts1Click(Sender: TObject);
+var i:integer;
+begin
+  for i:=1 to length(FontFiles) do
+    ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
+end;  
+
+
+procedure TForm1.Export_DeliverLists1Click(Sender: TObject);
+var f:textfile; i:integer;
+begin
+  if fPlayers=nil then exit;
+
+  assignfile(f,ExeDir+'DeliverLists.txt'); Rewrite(f);
+  for i:=1 to fPlayers.PlayerCount do
+    writeln(f,'Player_'+inttostr(i)+eol+fPlayers.Player[i].DeliverList.WriteToText+eol+eol);
+  closefile(f);
 end;
 
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TForm1.TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  DefineInputColor((Sender as TShape).Brush.Color,Sender);
+end;
+
+
+procedure TForm1.TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
+begin
+  TeamColors[1]:=TeamColorPicker.Brush.Color;
+  fRender.Render;
+end;
+
+
+procedure TForm1.RGPlayerClick(Sender: TObject);
+begin
+  if fPlayers.Player[RGPlayer.ItemIndex+1] <> nil then
+    MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
+end;
+
+
+procedure TForm1.CheckBox2Click(Sender: TObject);
+begin
+  if CheckBox2.Checked then fGame.GameSpeed:=50 else fGame.GameSpeed:=1;
+end;
+
+
+
+{Walk tests}
+procedure TForm1.Button_WClick(Sender: TObject);
+var U:TKMUnit;
+begin
+  fGame.StopGame;
+  fGame.StartGame('');
+  MyPlayer:=fPlayers.Player[1];
+
+  //Diagonal exchange
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(9,9)));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(9,9)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,5)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,5))); //}
+
+  //Walk in row
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,8));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));//}
+
+  //Walk through group
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,7));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,8));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,9));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,7));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,8));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,9));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,7));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,8));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(12,8)));//}
+
+  //Solve diamond
+  //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot 
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,9)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(6,10)));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,11)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(4,10)));//}
+
+  fTerrain.RevealWholeMap(play_1);
+
+  fViewPort.SetCenter(5,10);
+end;
+
+
+{Village tests}
+procedure TForm1.Button_VClick(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
   fGame.StopGame();
@@ -320,13 +499,15 @@ MyPlayer.AddHousePlan(ht_School, KMPoint(4,17),true);
 MyPlayer.AddHouse(ht_Inn, KMPoint(9,18));
 end;
 
-procedure TForm1.Button2Click(Sender: TObject);
+
+{Maxplayer tests}
+procedure TForm1.Button_6Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
   fGame.StopGame;
   fGame.StartGame('');
 
-  for k:=1 to 4 do begin
+  for k:=1 to 6 do begin
     MyPlayer:=fPlayers.Player[k];
 
     MyPlayer.AddHouse(ht_Store, KMPoint(k*4,5));
@@ -337,111 +518,16 @@ begin
     for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(k*4+1,8));
 
   end;
-  
+
   RGPlayerClick(nil); //Update
 
   fViewPort.SetCenter(10,9);
 end;
 
 
-//Exit
-procedure TForm1.ExitClick(Sender: TObject);        begin Form1.Close; end;
-
-//Options
-procedure TForm1.ShowWiresClick(Sender: TObject);
-begin
-  ShowWires.Checked:=not ShowWires.Checked;
-  ShowTerrainWires:=ShowWires.Checked;
-end;
-procedure TForm1.ShowObjectsClick(Sender: TObject); begin ShowObjects.Checked:=not ShowObjects.Checked; end;
-procedure TForm1.ShowOverlayClick(Sender: TObject);
-begin
-  ShowOverlay.Checked:= not ShowOverlay.Checked;
-  MakeDrawPagesOverlay:=ShowOverlay.Checked;
-end;
-procedure TForm1.PrintScreenClick(Sender: TObject);
-var s:string;
-begin
-  DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
-  if fRender<>nil then fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
-end;
-procedure TForm1.ShowDebugpanel1Click(Sender: TObject);
-begin
-  GroupBox1.Visible:=not GroupBox1.Visible;
-end;
-
-//Exports
-procedure TForm1.ExportTreesRXClick(Sender: TObject);  begin ExportRX2BMP(1); end;
-procedure TForm1.ExportHousesRXClick(Sender: TObject); begin ExportRX2BMP(2); end;
-procedure TForm1.ExportUnitsRXClick(Sender: TObject);  begin ExportRX2BMP(3); end;
-procedure TForm1.ExportGUIRXClick(Sender: TObject);    begin ExportRX2BMP(4); end;
-procedure TForm1.ExportGUIMainRXClick(Sender: TObject);begin ExportRX2BMP(5); end;
-procedure TForm1.ExportSounds1Click(Sender: TObject);  begin fSoundLib.ExportSounds; end;
-procedure TForm1.HouseAnim1Click(Sender: TObject);     begin ExportHouseAnim2BMP(); end;
-procedure TForm1.UnitAnim1Click(Sender: TObject);      begin ExportUnitAnim2BMP();  end;
-procedure TForm1.ExportTextClick(Sender: TObject);     begin fTextLibrary.ExportTextLibraries; end;
-
-procedure TForm1.ExportFonts1Click(Sender: TObject);
-var i:integer;
-begin
-  for i:=1 to length(FontFiles) do
-    ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
-end;  
-
-
-procedure TForm1.TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  DefineInputColor((Sender as TShape).Brush.Color,Sender);
-end;
-
-
-procedure TForm1.TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
-begin
-  TeamColors[1]:=TeamColorPicker.Brush.Color;
-  fRender.Render;
-end;
-
-
-procedure TForm1.ExportDeliverlists1Click(Sender: TObject);
-var f:textfile; i:integer;
-begin
-  if fPlayers=nil then exit;
-
-  assignfile(f,ExeDir+'DeliverLists.txt'); Rewrite(f);
-  for i:=1 to fPlayers.PlayerCount do
-    writeln(f,'Player_'+inttostr(i)+eol+fPlayers.Player[i].DeliverList.WriteToText+eol+eol);
-  closefile(f);
-end;
-
-
-procedure TForm1.TrackBar1Change(Sender: TObject);
-begin
-  ShowTerrainWires:=true;
-  TrackBar1.Max:=length(PassabilityStr)-1;
-  Label2.Caption:= PassabilityStr[TrackBar1.Position+1];
-end;
-
-
-procedure TForm1.Button3Click(Sender: TObject);
-begin
-  fGame.StopGame;
-end;
-
-procedure TForm1.RGPlayerClick(Sender: TObject);
-begin
-  if fPlayers.Player[RGPlayer.ItemIndex+1] <> nil then
-    MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
-end;
-
-procedure TForm1.OpenMissionMenuClick(Sender: TObject);
-begin
-  if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;    
-  fGame.StopGame;
-  fGame.StartGame(OpenDialog1.FileName);
-end;
-
-procedure TForm1.Button5Click(Sender: TObject);
-var H:TKMHouse; i,k:integer;
+{Single house tests}
+procedure TForm1.Button_1Click(Sender: TObject);
+var H:TKMHouse; i:integer;
 begin
   fGame.StopGame;
   fGame.StartGame('');
@@ -454,8 +540,8 @@ begin
   for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
   MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
-  H:=MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
-  H:=MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
+  MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
+  MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
 
@@ -476,82 +562,10 @@ begin
 end;
 
 
-procedure TForm1.CheckBox2Click(Sender: TObject);
-begin
-  if CheckBox2.Checked then fGame.GameSpeed:=50 else fGame.GameSpeed:=1;
-end;
-
-
-procedure TForm1.CB_ShowUnitClick(Sender: TObject);
-begin
-MakeShowUnitMove:=CB_ShowUnit.Checked;
-MakeShowUnitRoutes:=CB_ShowUnit.Checked;
-end;
-
-
-procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin
-  if MOUSEWHEEL_ZOOM_ENABLE then 
-  if fViewport<>nil then
-  fViewport.Zoom:=fViewport.Zoom+WheelDelta/1000; //4Debug only
-end;
-
-procedure TForm1.Button4Click(Sender: TObject);
-var U:TKMUnit;
+procedure TForm1.Button_StopClick(Sender: TObject);
 begin
   fGame.StopGame;
-  fGame.StartGame('');
-  MyPlayer:=fPlayers.Player[1];
-
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(1,1));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(1,2));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(2,1));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(2,2)); 
-
-  //Diagonal exchange
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(9,9)));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(9,9)));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,5)));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,5))); //}
-
-  //Walk in row
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,8));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));//}
-
-  //Walk through group
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,7));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,8));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,9));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,7));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,8));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,9));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,7));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,8));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(12,8)));//}
-
-  //Solve diamond
-  //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot 
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,9)));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(6,10)));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,11)));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(4,10)));//}
-
-  fTerrain.RevealWholeMap(play_1);
-
-  fViewPort.SetCenter(5,10);
-
 end;
+
 
 end.

@@ -3,7 +3,7 @@ program KaM_Remake;
 uses
   Forms,
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
-  KM_Form_Loading in 'KM_Form_Loading.pas' {Form1},
+  KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
   KM_Defaults in 'KM_Defaults.pas',
   KM_Render in 'KM_Render.pas',
   KM_ReadGFX1 in 'KM_ReadGFX1.pas',
