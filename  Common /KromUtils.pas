@@ -842,12 +842,14 @@ end;
 
 
 function RemoveQuotes(Input:string):string;
-var i:integer;
+var i,k:integer;
 begin
-  Result:='';
-  if Input[1]<>'"' then exit;
+  Result:=''; k:=1;
+  while (Input[k]<>'"') and (k <= Length(Input)) do
+    inc(k);
+  if k = Length(Input) then exit; //No quotes found
 
-  for i:=2 to length(Input) do
+  for i:=k+1 to length(Input) do
     if Input[i]<>'"' then
       Result:=Result+Input[i]
     else

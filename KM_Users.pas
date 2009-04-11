@@ -114,7 +114,6 @@ begin
   //if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
   //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
   //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
-  //@Lewin: You right. Explanation to be kept.
   case aMarkup of
     mu_RoadPlan: begin
                    fTerrain.SetField(aLoc,PlayerID,fdt_Road); 

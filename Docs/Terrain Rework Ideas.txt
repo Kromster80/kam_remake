@@ -1,0 +1,45 @@
+This document is used for discussing ideas about the reworked terrain system.
+Please modify and discuss the proposed changes. I have just written down my basic thoughts which are probably flawed and need rethinking. Feel free to completely redesign!
+
+
+Properties of each tile:
+Terrain        - The terrain type
+
+Object         - The map object. Some types are automatically drawn as quads. (this is probably defined in MapElemProperties)
+
+TerrainOverlay - This is rendered as a tile on top of the main one. Will only be used for house rubble
+
+FieldSpecial   - This terrain type is overlaid on the other two. This is ONLY used for road/field building. Values: fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4
+
+FieldType      - The type of field or road. (NOT houses) Values: fdt_None=0, fdt_Road=1, fdt_Field=2, fdt_Wine=3, fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6
+
+HouseType      - Whether this is a house and what stage of development. Values: fdt_None=0, fdt_HousePlan=1, fdt_HouseWIP=2, fdt_House=3
+
+BorderTop,BorderLeft,BorderBottom,BorderRight - The border of the tile. Using 4 values like this allows for house development next to fields.
+
+FogOfWarLastSeen - To be added later, but included in design plan. Will contain the properties last seen before this tile turned into fog. Will need to store any properties that can be changed. Possible Properties: Terrain, Object, Height, Light, Rotation, FieldType, HouseType. Will also need to store houses.
+
+Height         - No change
+Light          - No change
+Rotation       - No change
+Passability    - No change
+TileOwner      - No change
+Markup         - No change
+FieldAge       - No change
+TreeAge        - No change
+FallingTreeAnimStep - No change
+FogOfWar       - No change
+IsUnit         - No change
+
+
+Notes:
+ - fdt_HouseRoad is no longer needed. Instead you will have: FieldType=fdt_Road and HouseType=fdt_House
+
+Explanations:
+  - House destruction: The Terrain values of all tiles will be set to the half-dug-road rubble. (NOT FieldSpecial as is currently done)
+  - Road/field building: Same as now. Uses FieldSpecial to show half dug.
+  - Fields/Field age: Will be determined and rendered based on the value of Terrain.
+  - Using 3 stage tile rendering allows for the following: Half dug road (FieldSpecial) on a destroyed house (TerrainOverlay) on the original tile. (Terrain)
+  
+Discussions:
+ - FogOfWarLastSeen: To be discussed once we are ready to implement that. (probably after all other changes)

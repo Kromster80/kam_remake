@@ -378,6 +378,8 @@ end;
 {Remove task if Player has cancelled it}
 {Simulated just means that we simply want to check if player ever issued that task}
 {@Lewin:Why do we need to check for that?}
+{@Krom: So that the erase cursor changes when you move over a piece of deletable road/field.
+        If you have a better idea then please say so, this was just the first thing I thought of. }
 function TKMBuildingQueue.RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin
@@ -434,11 +436,15 @@ end;
 function  TKMBuildingQueue.AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
-  Result:=nil; i:=1;
-  while (i<MaxEntries)and(fHousesRepairQueue[i].House=nil) do inc(i);
-  if i=MaxEntries then exit;
-
-  Result :=TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
+  Result:=nil;
+  for i:=1 to MaxEntries-1 do begin
+    if fHousesRepairQueue[i].House<>nil then
+      if (fHousesRepairQueue[i].House.IsDamaged) and (fHousesRepairQueue[i].House.BuildingRepair) then
+      begin        
+        Result :=TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
+        exit;
+      end else CloseHouseRepair(i); //House is not damaged or in repair mode
+  end;
 end;
 
 

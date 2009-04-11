@@ -532,6 +532,10 @@ begin
   KMShape_SingleDiff.Left:=TKMControl(Sender).Left;
   KMLabel_SingleDiff.Caption:='Difficulty of '+inttostr(TKMControl(Sender).Tag);
   //@Lewin: Dummy, Easy, Medium, Hard
+  //@Krom: I dislike the idea that people can set the difficulty. What would it change anyway?
+  //       People don't want to have to specify that kind of stuff in the mission file, it would be to complicated.
+  //       I think each mission should have an "estimated difficulty" that the creator sets in the TXT file, so that
+  //       people have an idea of how hard the mission will be.
 end;
 
 
@@ -969,7 +973,7 @@ begin
     KMLabel_UnitAct:=MyControls.AddLabel(KMPanel_Unit,73,109,130,30,'',fnt_Grey,kaLeft);
     KMLabel_UnitAct.AutoWrap:=true;
     KMConditionBar_Unit:=MyControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
-    KMLabel_UnitDescription:=MyControls.AddLabel(KMPanel_Unit,8,{161temp}261,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
+    KMLabel_UnitDescription:=MyControls.AddLabel(KMPanel_Unit,8,161,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
     KMImage_UnitPic:=MyControls.AddImage(KMPanel_Unit,8,52,54,80,521);
 end;
 
@@ -1168,7 +1172,7 @@ begin
   if KMButton_Build[i].Down then begin
      CursorMode.Mode:=cm_Houses;
      CursorMode.Param:=byte(GUIHouseOrder[i]);
-     KMImage_Build_Selected.TexID := GUIBuildIcons[i]; //Now update the selected icon
+     KMImage_Build_Selected.TexID := GUIBuildIcons[byte(GUIHouseOrder[i])]; //Now update the selected icon
      KMLabel_BuildCost_Wood.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].WoodCost);
      KMLabel_BuildCost_Stone.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].StoneCost);
      KMLabel_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));

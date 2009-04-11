@@ -428,6 +428,15 @@ If you spare some of you time to educate me - I'd be happy! =)
 In this case it's became a matter of my habit. If there's anything else beside it, some reasonable explanation, then I'd be happy to take it and stick to better style
 }
 
+{@Krom:
+1st: I agree, I will use 'a' in the future. I have changed a few occurances I found but feel free to change others
+2nd: Well I was always taught to put begins on new lines and to keep the indenting strict and correct.
+     I have a tool called DelFor (Delphi Formatter) that will automatically format indenting and stuff in all project files.
+     If you're interested then I could try running it on the project and see what happens. It is configuarable so we
+     could probably set it up to format it in the way you want (like keeping begins on previous line if you prefer that)
+     It would enforce everything to a standard. Although the formatting doesn't bother me too much, just I mess it up sometimes.
+}
+
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
@@ -902,7 +911,11 @@ begin
   //       But I'm happy to leave it like this, few people will notice. To be deleted.
   //@Lewin: atm Markup it rendered within tile coords by X and centered at Y as well. I can't notice if it's worth moving =)
   //I don't have any screens at hand, but I wouldn't like to be dictator and push my decision only because "I said so"
-  //Can you add a screen to trunk? 
+  //Can you add a screen to trunk?
+  //@Krom: Sure, I've done it. It's not very artistic, I put it together quickly.
+  //       Take a look and tell me what you think.
+  //       Just looking at it myself, the change is very small and hardly worth fussing over.
+  //       Although if it's on a slope the difference is greater and fields have different markups. 
   glBegin(GL_QUADS);
     glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
     glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
@@ -985,11 +998,6 @@ end;
 
 procedure TRender.RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
 begin
-  //@Krom: How do I make these always render on top of everything else? (e.g. the it should go over houses rather than under them)
-  //       Same thing for the wire build quad, although it's less important
-  //@Lewin: Sorry, was not that clear, but AddSpriteToList(aNew=false) will render it ontop of previous item marked as aNew=true
-  //Currently I moved CursorHighlights render to be after units/houses - should be fine now
-  //To be deleted..
   if fTerrain.TileInMapCoords(P.X,P.Y) then
     RenderSprite(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,$FFFFFFFF,$FF);
 end;
@@ -1062,7 +1070,8 @@ begin
 with fTerrain do
 case CursorMode.Mode of
   cm_None:;
-  cm_Erase:if (CanRemovePlan(CursorPos,MyPlayer.PlayerID)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+  cm_Erase:if ((CanRemovePlan(CursorPos,MyPlayer.PlayerID)) or (CanRemoveHouse(CursorPos,MyPlayer.PlayerID)))
+           and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then

@@ -191,7 +191,7 @@ begin
   fBuildingProgress:=0;
   fDamage:=0;
   fHasOwner:=false;
-  fBuildingRepair:=true;
+  fBuildingRepair:=false; //Repair mode off by default
   fRepairID:=0;
   fWareDelivery:=true;
   fResourceOrder[1]:=0;
@@ -246,7 +246,7 @@ begin
   ScheduleForRemoval:=true;
   //Dispose of delivery tasks performed in DeliverQueue unit
   fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
-  fTerrain.AddHouseRemainder(fPosition,fHouseType);
+  fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
 end;
 
 

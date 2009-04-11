@@ -358,6 +358,10 @@ begin
   Product:=rt_None;
   ProductCount:=0;
   AfterWorkIdle:=20; //@Lewin: this should be sufficient for AfterWorkIdle time you talked about
+  //@Krom: I'm kinda confused about this one. I want the AfterWorkIdle to be loaded from the house DAT. (so the balance of the game stays the same, and wares are produced at the same speed)
+  //       After the work routine is complete, the worker rests in idle state before starting the next job.
+  //       I added code to do that into InitiateMining, which seems to be working. Is that where is should be?
+  //       What are you saying I should do here?
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);

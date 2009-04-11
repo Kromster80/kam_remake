@@ -16,12 +16,12 @@ type
   private     { Private declarations }
     TextStrings: array[0..MaxStrings] of string;
     SetupStrings: array[0..MaxStrings] of string;  
-    procedure LoadLIBFile(FilePath:string; var AArray:array of string);
-    procedure ExportTextLibrary(var ALibrary: array of string; AFileName:string);
+    procedure LoadLIBFile(FilePath:string; var aArray:array of string);
+    procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
   public      { Public declarations } 
-    constructor Create(ALibPath: string);
-    function GetTextString(AIndex:integer):string;
-    function GetSetupString(AIndex:integer):string;
+    constructor Create(aLibPath: string);
+    function GetTextString(aIndex:integer):string;
+    function GetSetupString(aIndex:integer):string;
     procedure ExportTextLibraries;
 end;
 
@@ -32,14 +32,14 @@ var
 implementation
 uses KM_Defaults;
 
-constructor TTextLibrary.Create(ALibPath: string);
+constructor TTextLibrary.Create(aLibPath: string);
 begin
   inherited Create;
-  LoadLIBFile(ALibPath+'text.lib',TextStrings);
-  LoadLIBFile(ALibPath+'setup.lib',SetupStrings);
+  LoadLIBFile(aLibPath+'text.lib',TextStrings);
+  LoadLIBFile(aLibPath+'setup.lib',SetupStrings);
 end;
 
-procedure TTextLibrary.LoadLIBFile(FilePath:string; var AArray:array of string);
+procedure TTextLibrary.LoadLIBFile(FilePath:string; var aArray:array of string);
 var             
   f:file; NumRead:integer;
   i2, i3, StrCount, Byte1, Byte2, LastStrLen, LastFirstFFIndex, StrLen, TheIndex, ExtraCount: integer;
@@ -79,7 +79,7 @@ begin
     begin
       //This string is unused, meaning we must store it as blank, but also for some extreamly
       //annoying reason they also change the order of bytes around them (don't ask...)
-      AArray[i3] := ''; //Make it blank
+      aArray[i3] := ''; //Make it blank
       if LastWasFF = false then
         LastFirstFFIndex := i3;
       LastWasFF := true;
@@ -98,7 +98,7 @@ begin
       ExtraCount := StrLen + 1;   
       if LastWasFF then  TheIndex := LastFirstFFIndex
       else TheIndex := i3;
-      AArray[TheIndex-1] := TheString;
+      aArray[TheIndex-1] := TheString;
       LastWasFF := false;
     end;
   end;
@@ -118,27 +118,27 @@ begin
   //I too like the addon.lib idea better. Once we have a more complete list then I can organise that
 end;
            
-function TTextLibrary.GetTextString(AIndex:integer):string;
+function TTextLibrary.GetTextString(aIndex:integer):string;
 begin
-  if AIndex < MaxStrings then Result := TextStrings[AIndex];
+  if aIndex < MaxStrings then Result := TextStrings[aIndex];
 end;
 
-function TTextLibrary.GetSetupString(AIndex:integer):string;
+function TTextLibrary.GetSetupString(aIndex:integer):string;
 begin
-  if AIndex < MaxStrings then Result := SetupStrings[AIndex];
+  if aIndex < MaxStrings then Result := SetupStrings[aIndex];
 end;
 
-procedure TTextLibrary.ExportTextLibrary(var ALibrary: array of string; AFileName:string);
+procedure TTextLibrary.ExportTextLibrary(var aLibrary: array of string; aFileName:string);
 var
   i: integer;
   FileData: TStringList;
 begin
   //Here we will export all of the text to a file
   FileData := TStringList.Create;
-  if FileExists(AFileName) then DeleteFile(AFileName);
+  if FileExists(aFileName) then DeleteFile(aFileName);
   for i:= 0 to MaxStrings do
-    FileData.Add(IntToStr(i)+': '+ALibrary[i]);
-  FileData.SaveToFile(AFileName);
+    FileData.Add(IntToStr(i)+': '+aLibrary[i]);
+  FileData.SaveToFile(aFileName);
   FileData.Free;
 end;
 

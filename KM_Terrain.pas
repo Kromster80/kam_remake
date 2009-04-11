@@ -82,7 +82,7 @@ public
   function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
-  procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType);
+  procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
   function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
   function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
@@ -252,6 +252,8 @@ end;
 
 
 //@Lewin: Feel free to tweak these flags if you think they are wrong, I could have been mistaken with Soil
+//@Krom:  I've tweaked them all, and I think they are correct. There could still be mistakes, but we can fix them
+//        when we find them. To be deleted...
 {Check if requested tile is water suitable for fish and/or sail. No waterfalls}
 function TTerrain.TileIsWater(Loc:TKMPoint):boolean;
 begin
@@ -260,12 +262,11 @@ begin
 end;
 
 
-//@Lewin: Feel free to tweak these flags if you think they are wrong, I could have been mistaken with Soil
 {Check if requested tile is sand suitable for crabs}
 function TTerrain.TileIsSand(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
-  Result := Land[Loc.Y,Loc.X].Terrain in [31..33, 69..71, 99..104, 108,109, 111..113, 116..119, 169, 173, 181, 189];
+  Result := Land[Loc.Y,Loc.X].Terrain in [31..33, 70,71, 99,100,102,103, 108,109, 112,113, 116,117, 169, 173, 181, 189];
 end;
 
 
@@ -742,7 +743,6 @@ end;
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 var i,k:integer;
   HousesNearBy:boolean;
-  //@Lewin: No big deal, I was mostly joking, cos it appeared quite self-explainig by usage, but the name was real funny one =)
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
@@ -1159,20 +1159,34 @@ begin
 end;
 
 
-procedure TTerrain.AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType);
+procedure TTerrain.AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 var i,k:integer;
 begin
-  for i:=2 to 4 do for k:=2 to 4 do
-    if HousePlanYX[byte(aHouseType),i-1,k]<>0 then
-    if HousePlanYX[byte(aHouseType),i,k-1]<>0 then
-    if HousePlanYX[byte(aHouseType),i-1,k-1]<>0 then
-    if HousePlanYX[byte(aHouseType),i,k]<>0 then
-      Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+Random(6);
-  for i:=1 to 4 do for k:=1 to 4 do
-    if (HousePlanYX[byte(aHouseType),i,k]=1) or (HousePlanYX[byte(aHouseType),i,k]=2) then begin
-      Land[Loc.Y+i-4,Loc.X+k-3].FieldSpecial:=fs_Dig3;
-      Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt_None;
-    end;
+  if aBuildState in [hbs_Wood, hbs_Stone, hbs_Done] then
+  begin
+    //For houses that are at least partually built (leaves rubble)
+    for i:=2 to 4 do for k:=2 to 4 do
+      if HousePlanYX[byte(aHouseType),i-1,k]<>0 then
+      if HousePlanYX[byte(aHouseType),i,k-1]<>0 then
+      if HousePlanYX[byte(aHouseType),i-1,k-1]<>0 then
+      if HousePlanYX[byte(aHouseType),i,k]<>0 then
+        Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+Random(6);
+    for i:=1 to 4 do for k:=1 to 4 do
+      if (HousePlanYX[byte(aHouseType),i,k]=1) or (HousePlanYX[byte(aHouseType),i,k]=2) then begin
+        Land[Loc.Y+i-4,Loc.X+k-3].FieldSpecial:=fs_Dig3;
+        Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt_None;
+      end;
+  end
+  else begin
+    //For glyphs
+    for i:=1 to 4 do for k:=1 to 4 do
+      if (HousePlanYX[byte(aHouseType),i,k]=1) or (HousePlanYX[byte(aHouseType),i,k]=2) then begin
+        ///@Krom: Unfinished, due to issues with design of Terrain system. To be discussed... (somewhere else)
+        Land[Loc.Y+i-4,Loc.X+k-3].FieldType:=fdt_None;
+        Land[Loc.Y+i-4,Loc.X+k-3].BorderX:=bt_None;
+        Land[Loc.Y+i-4,Loc.X+k-3].BorderY:=bt_None;
+      end;
+  end;
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
 end;
 

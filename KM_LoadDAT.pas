@@ -56,11 +56,11 @@ type
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
     procedure DebugScriptError(ErrorMsg:string);
     procedure UnloadMission;
-    function ReadMissionFile(AFileName:string):string;
+    function ReadMissionFile(aFileName:string):string;
   public      { Public declarations }
     constructor Create;
-    function LoadDATFile(AFileName:string):boolean;
-    function GetMissionDetails(AFileName:string):TKMMissionDetails;
+    function LoadDATFile(aFileName:string):boolean;
+    function GetMissionDetails(aFileName:string):TKMMissionDetails;
 end;
 
 type
@@ -122,7 +122,7 @@ begin
   MissionMode:=mm_Normal;
 end;
 
-function TMissionParser.ReadMissionFile(AFileName:string):string;
+function TMissionParser.ReadMissionFile(aFileName:string):string;
 const ENCODED = true; //If false then files will be opened as text
 var
   FileText: string;
@@ -130,11 +130,11 @@ var
   f: file;
   c:array of char;
 begin
-  if not CheckFileExists(AFileName) then exit;
+  if not CheckFileExists(aFileName) then exit;
 
   //Load and decode .DAT file into FileText
   SetLength(c,1024000);
-  assignfile(f,AFileName); reset(f,1);
+  assignfile(f,aFileName); reset(f,1);
   blockread(f,c[1],length(c),FileSize);
   Assert(FileSize<>length(c),'DAT file size is too big, can''t fit into buffer');
   setlength(FileText,FileSize);
@@ -163,11 +163,11 @@ end;
 
 
 {Acquire specific map details in a fast way}
-function TMissionParser.GetMissionDetails(AFileName:string):TKMMissionDetails;
+function TMissionParser.GetMissionDetails(aFileName:string):TKMMissionDetails;
 const Max_Cmd=1;
 var
   FileText, CommandText, Param, TextParam: string;
-  ParamList: array[1..Max_Cmd] of integer; //@Lewin: We can save some time by using only 1st command, rest we don't need. @Krom: Good idea. To be deleted
+  ParamList: array[1..Max_Cmd] of integer;
   k, l: integer;
   CommandType: TKMCommandType;
 begin
@@ -177,7 +177,7 @@ begin
   Result.TeamCount := -1;
   Result.HumanPlayerID := -1;
 
-  FileText := ReadMissionFile(AFileName);
+  FileText := ReadMissionFile(aFileName);
   if FileText = '' then exit;
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
@@ -236,6 +236,8 @@ begin
   //StringReplace(TextParam,'"','',[rfReplaceAll]);
   //@Lewin: You right. I've fixed it to your description. Tell me if it's ok now.
   //To be deleted..
+  //@Krom: I still wasn't happy with it, so I fixed it some more. (if they entered ab"cd"ef it wouldn't work)
+  //       I've tested it and it works fine now. To be deleted...
   ct_SetMaxPlayer:   MissionDetails.TeamCount   := ParamList[0];
   ct_SetTactic:      MissionDetails.IsFight     := 1;
   ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
@@ -243,7 +245,7 @@ begin
 end;
 
 
-function TMissionParser.LoadDATFile(AFileName:string):boolean;
+function TMissionParser.LoadDATFile(aFileName:string):boolean;
 var
   FileText, CommandText, Param, TextParam: string;
   ParamList: array[1..8] of integer;
@@ -253,10 +255,10 @@ begin
   Result:=false; //Set it right from the start
   UnloadMission; //Call function which will reset fPlayers and other stuff
 
-  OpenedMissionName:=AFileName; //Used in MAP loading later on
+  OpenedMissionName:=aFileName; //Used in MAP loading later on
 
   //Read the mission file into FileText
-  FileText := ReadMissionFile(AFileName);
+  FileText := ReadMissionFile(aFileName);
   if FileText = '' then exit;
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
@@ -346,7 +348,7 @@ begin
                          fPlayers.Player[CurrentPlayerIndex].PlayerType:=pt_Computer;
                      end;
   ct_CenterScreen:   begin
-                     fViewPort.SetCenter(ParamList[0],ParamList[1]);
+                     fViewPort.SetCenter(ParamList[0],ParamList[1]); //@Krom: This now seems to sometimes not work. (screen is centred top left) Any idea why?
                      end;
   ct_ClearUp:        begin
                      if ParamList[0] = 255 then
@@ -449,9 +451,9 @@ begin
 
                      end;
   ct_SetGroup:       begin
-                       if InRange(ParamList[0],0,31) then
+                       if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
                          fPlayers.Player[CurrentPlayerIndex].AddGroup(
-                         UnitsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]);
+                         TroopsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]);
 
                      end;
   ct_SetGroupFood:   begin
@@ -514,31 +516,7 @@ begin
       repeat
       readln(ft,s);
 
-      //@Lewin: Most of these options could be read from mission.dat file. Can you make them into LoadDAT ?
-      //Some kind of quick parser. e.g. function GetPlayerCount(mission.dat):byte;
-      //Also for now we can use map folders (txt+map+dat files), but later we need to ajoin them somehow?
-
-      //@Krom: I thought I might make a function GetMissionDetails which returns a record containing all the
-      //       info needed about the mission. (player count, is fight, etc.) That would be more efficient
-      //       than your suggestion of multiple functions like function GetPlayerCount(mission.dat):byte
-
-      //@Krom: I've made it, but it seems to be quite inefficient. We will either need to make it more efficient or
-      //       have a message saying: "Scanning Maps Folder..." or both.
-
-      //@Lewin: Thats my fear, cos when scanning addon maps folder there could be 100 maps easily and we need to know
-      //       stats from all of them at once (e.g. to apply filters or sort maps by size). We need to make it
-      //       work faster .. Shame on you - you put it into Repeat loop! :-D
-      //       Still it got only x13 calls, so I guess it works good till 50maps, then we'll need to improve it once again
-      //       e.g. by scanning only new maps and storing all stats in maplist.dat file
-
-      //@Krom: OMG OOPS! I must have been tired when I did that, how could I have been so stupid! I'll try and be more
-      //       careful in the future, as I said I didn't really check that last commit of mine. Sorry.
-
-      //@Lewin: No big deal =) After all you prooved that 39+ addon maps is already worth optimizing..
-
-      //Explanation to be kept, discussion te be deleted .. ;)
-
-      inc(r); //Loop counter
+      inc(r); //Loop counter. @Krom: For what purpose? It's never used.
 
       if UpperCase(s)=UpperCase('Title') then
         readln(ft,Title);

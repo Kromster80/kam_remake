@@ -76,6 +76,7 @@ const
   CursorOffsetsX:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
   CursorOffsetsY:array[1..19] of integer = (0,6,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
   //@Lewin: I'm not sure if c_Info pivot is correct yet
+  //@Krom: I agree that it's a bit odd but it is the same as in KaM. We can move it if you like though.
 
 {Controls}
 type
