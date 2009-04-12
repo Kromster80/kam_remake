@@ -4,32 +4,45 @@ Please modify and discuss the proposed changes. I have just written down my basi
 
 Properties of each tile:
 Terrain        - The terrain type
+		TILE
+		HEIGHT
+		LIGHT
+		ROTATION
+		PASSABILITY (end result of RecalculatePassability function)
+		OWNER
+		IS_UNIT (4 unit interaction)
+		MARKUP (road, corn, wine, house_N, house_E, house_S, house_W) //Should be visible for all players
+
 
 Object         - The map object. Some types are automatically drawn as quads. (this is probably defined in MapElemProperties)
+		OBJECT
+		OBJECT_AGE
+
 
 TerrainOverlay - This is rendered as a tile on top of the main one. Will only be used for house rubble
+		OVERLAY_FOR_ROADS_&_DIGS
+
 
 FieldSpecial   - This terrain type is overlaid on the other two. This is ONLY used for road/field building. Values: fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4
+		_REMOVE (ajoined to OVERLAY_FOR_ROADS_&_DIGS)
+		
 
 FieldType      - The type of field or road. (NOT houses) Values: fdt_None=0, fdt_Road=1, fdt_Field=2, fdt_Wine=3, fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6
+		_REMOVE (will be deduced from OVERLAY_FOR_ROADS_&_DIGS and OBJECT)
+
 
 HouseType      - Whether this is a house and what stage of development. Values: fdt_None=0, fdt_HousePlan=1, fdt_HouseWIP=2, fdt_House=3
+		HOUSE_WIP (Could be removed aswell, if we set OBJECT to be invisible wall upon flattening the terrain, nice idea in fact)
+
 
 BorderTop,BorderLeft,BorderBottom,BorderRight - The border of the tile. Using 4 values like this allows for house development next to fields.
+		BORDERTYPE_N (houseplan, housewip, corn, wine)
+		BORDERTYPE_E (houseplan, housewip, corn, wine)
+		BORDERTYPE_S (houseplan, housewip, corn, wine)
+		BORDERTYPE_W (houseplan, housewip, corn, wine)
+
 
 FogOfWarLastSeen - To be added later, but included in design plan. Will contain the properties last seen before this tile turned into fog. Will need to store any properties that can be changed. Possible Properties: Terrain, Object, Height, Light, Rotation, FieldType, HouseType. Will also need to store houses.
-
-Height         - No change
-Light          - No change
-Rotation       - No change
-Passability    - No change
-TileOwner      - No change
-Markup         - No change
-FieldAge       - No change
-TreeAge        - No change
-FallingTreeAnimStep - No change
-FogOfWar       - No change
-IsUnit         - No change
 
 
 Notes:
