@@ -5,13 +5,14 @@ Please modify and discuss the proposed changes. I have just written down my basi
 Properties of each tile:
 Terrain        - The terrain type
 		TILE
+		TILE_AGE (for ungrown corn)
 		HEIGHT
 		LIGHT
 		ROTATION
 		PASSABILITY (end result of RecalculatePassability function)
 		OWNER
 		IS_UNIT (4 unit interaction)
-		MARKUP (road, corn, wine, house_N, house_E, house_S, house_W) //Should be visible for all players
+		MARKUP (road, corn, wine, house_N, house_E, house_S, house_W, house_NA) //Should be visible for all players
 
 
 Object         - The map object. Some types are automatically drawn as quads. (this is probably defined in MapElemProperties)
