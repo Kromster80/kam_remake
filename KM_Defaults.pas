@@ -25,7 +25,8 @@ const
 
 var
   //These should be TRUE
-  MakeGameSprites:boolean=true;        //Whenever to make Units/Houses graphics or not, saves time for GUI debug
+  MakeUnitSprites:boolean=true;        //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeHouseSprites:boolean=false;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
   DO_UNIT_HUNGER:boolean=false;         //Wherever units get hungry or not
@@ -838,7 +839,7 @@ end;
 function TypeToString(t:TUnitType):string;
 var s:string;
 begin
-if byte(t) in [1..14] then
+if byte(t) in [1..29] then
   s:=fTextLibrary.GetTextString(siUnitNames+byte(t))
 else
   s:='N/A';

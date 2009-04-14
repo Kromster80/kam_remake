@@ -296,7 +296,11 @@ type
 
   //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
+    fIsCommander:boolean; //Wherever the unit is a leader of a group and has a shtandart
+    fCommanderID:TKMUnit; //ID of commander unit
+    fFlagAnim:cardinal;
   public
+    constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     function GetSupportedActions: TUnitActionTypeSet; override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -896,6 +900,15 @@ end;
 
 
 { TKMwarrior }
+constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+begin
+  Inherited;
+  fFlagAnim:=0;
+  fIsCommander:=false;
+  fCommanderID:=nil;
+end;
+
+
 function TKMUnitWarrior.GetSupportedActions: TUnitActionTypeSet;
 begin
   Result:= [ua_Walk, ua_Work1, ua_Die];
@@ -903,17 +916,22 @@ end;
 
 
 procedure TKMUnitWarrior.Paint();
-var AnimAct,AnimDir:integer;
+var UnitType,AnimAct,AnimDir:byte;
 begin
 inherited;
-  AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
-  AnimDir:=integer(Direction);
-  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+  UnitType:=byte(fUnitType);
+  AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
+  AnimDir:=byte(Direction);
+  
+  fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+  if fIsCommander then
+  fRender.RenderUnit(UnitType,       9, AnimDir, fFlagAnim, byte(fOwner), fPosition.X, fPosition.Y-0.75,false);
 end;
 
 
 function TKMUnitWarrior.UpdateState():boolean;
 begin
+  inc(fFlagAnim);
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
@@ -933,9 +951,9 @@ procedure TKMUnitAnimal.Paint();
 var AnimAct,AnimDir:integer;
 begin
 inherited;
-AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
-AnimDir:=integer(Direction);
-fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+  AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
+  AnimDir:=integer(Direction);
+  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
 end;
 
 
@@ -2130,11 +2148,21 @@ begin
 end;
 
 function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
-var U:TKMUnit; i:integer;
+const DirAngle:array[TKMDirection]of word =   (0,  0,   45,  90,   135, 180,   225, 270,   315);
+const DirRatio:array[TKMDirection]of single = (0,  1, 1.41,   1,  1.41,   1,  1.41,   1,  1.41);
+var U:TKMUnit; i,x,y,px,py:integer;
 begin
   for i:=1 to aUnitCount do begin
-    U:=Add(aOwner, aUnitType, PosX + i div aUnitPerRow, PosY + i mod aUnitPerRow);
+
+    px:=(i-1) mod aUnitPerRow - aUnitPerRow div 2;
+    py:=(i-1) div aUnitPerRow;
+
+    x:=round( px*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - py*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
+    y:=round( px*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + py*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
+
+    U:=Add(aOwner, aUnitType, PosX + x, PosY + y);
     U.Direction:=aDir;
+    if (U.GetPosition.X=PosX)and(U.GetPosition.Y=PosY) then TKMUnitWarrior(U).fIsCommander:=true;
   end;
   Result:=U;
 end;

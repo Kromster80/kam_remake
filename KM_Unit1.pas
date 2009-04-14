@@ -546,7 +546,14 @@ begin
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
 
-  MyPlayer.AddGroup(ut_Militia,KMPoint(12,14),dir_N,5,30);
+  MyPlayer.AddGroup(ut_Militia,KMPoint(5,14),dir_N,3,6);
+  MyPlayer.AddGroup(ut_Militia,KMPoint(10,14),dir_NE,3,6);
+  MyPlayer.AddGroup(ut_Militia,KMPoint(15,14),dir_E,3,6);
+  MyPlayer.AddGroup(ut_Militia,KMPoint(20,14),dir_SE,3,6);
+  MyPlayer.AddGroup(ut_Militia,KMPoint(25,14),dir_S,3,6);
+  MyPlayer.AddGroup(ut_Militia,KMPoint(30,14),dir_SW,3,6);
+  MyPlayer.AddGroup(ut_Militia,KMPoint(35,14),dir_W,3,6);
+  MyPlayer.AddGroup(ut_Militia,KMPoint(40,14),dir_NW,3,6);
 
   //H.AddDamage(255);
   //MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));

@@ -77,7 +77,7 @@ begin
   end;
 
   for i:=RX1 to RX2 do
-  if (i in [4,5])or(MakeGameSprites) then begin //Always make GUI
+  if (i in [4,5])or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites) then begin //Always make GUI
     FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
     if i=4 then MakeCursors(4); //Make GUI items
@@ -653,25 +653,27 @@ end;
 {Export Units graphics categorized by Unit and Action}
 procedure ExportUnitAnim2BMP();
 var MyBitMap:TBitMap;
-    ID,Ac,Di,k,ci,t:integer;
+    iUnit,iAct,iDir,iFrame,ci,t:integer;
     sy,sx,y,x:integer;
+    Used:array of integer;
 begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\UnitAnim\');
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
+  ReadUnitDAT(ExeDir+'data\defines\unit.dat');
   ReadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
   ci:=0;
-  for ID:=4 to 4 do begin
-    for Ac:=1 to 14 do begin
-      for Di:=1 to 8 do if UnitSprite[ID].Act[Ac].Dir[Di].Step[1]<>-1 then begin
-        for k:=1 to UnitSprite[ID].Act[Ac].Dir[Di].Count do begin
-          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(ID))+'\');
-          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\');
-          if UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1<>0 then
-          ci:=UnitSprite[ID].Act[Ac].Dir[Di].Step[k]+1;
+  for iUnit:=15 to 15 do begin
+    for iAct:=1 to 14 do begin
+      for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
+        for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do begin
+          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\');
+          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\');
+          if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
+          ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
 
           sx:=RXData[3].Size[ci,1];
           sy:=RXData[3].Size[ci,2];
@@ -683,10 +685,40 @@ begin
             MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
           end;
           if sy>0 then MyBitmap.SaveToFile(
-          ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(ID))+'\'+UnitAct[Ac]+'\'+inttostr(Di)+'_'+int2fix(k,2)+'.bmp');
+          ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
         end;
       end;
     end;
+  end;
+
+  CreateDir(ExeDir+'Export\UnitAnim\_TheRest');
+  setlength(Used,length(RXData[3].Size));
+  for iUnit:=1 to 41 do
+  for iAct:=1 to 14 do
+  for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then
+  for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do
+  if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
+  Used[UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1]:=1;
+
+  for iUnit:=1 to 28 do
+  for iDir:=1 to 8 do if SerfCarry[iUnit].Dir[iDir].Step[1]<>-1 then
+  for iFrame:=1 to SerfCarry[iUnit].Dir[iDir].Count do
+  if SerfCarry[iUnit].Dir[iDir].Step[iFrame]+1<>0 then
+  Used[SerfCarry[iUnit].Dir[iDir].Step[iFrame]+1]:=1;
+
+  for ci:=1 to length(Used)-1 do
+  if Used[ci]=0 then begin
+    sx:=RXData[3].Size[ci,1];
+    sy:=RXData[3].Size[ci,2];
+    MyBitmap.Width:=sx;
+    MyBitmap.Height:=sy;
+
+    for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+      t:=RXData[3].Data[ci,y*sx+x]+1;
+      MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+    end;
+    if sy>0 then MyBitmap.SaveToFile(
+    ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
   end;
 
   MyBitmap.Free;

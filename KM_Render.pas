@@ -861,7 +861,10 @@ for i:=1 to RenderCount do
 if not RenderList[RO[i]].Exclude then if RO[i]<>0 then begin
 
   h:=RO[i];
-  if not MakeGameSprites then
+  if (RenderList[h].RX=2) and not MakeHouseSprites then
+    RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
+  else
+  if (RenderList[h].RX=3) and not MakeUnitSprites then
     RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
   else
 
