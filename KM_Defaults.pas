@@ -62,6 +62,7 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         UNIT_MAX_CONDITION = 15*600;            //*min of life. In KaM it's 45min
         UNIT_MIN_CONDITION = 5*600;             //If unit condition is less it will look for Inn
 
+type TRXid = (rxT=1,rxH,rxU,rxG,rxM);
 
 {Cursors}
 type

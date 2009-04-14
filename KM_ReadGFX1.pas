@@ -78,12 +78,14 @@ begin
   end;
 
   for i:=RX1 to RX2 do
-  if (i in [4,5])or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites) then begin //Always make GUI
+  if (i=1)or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites)or(i in [4,5]) then begin //Always make GUI
+
     FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
+
     if i=4 then MakeCursors(4); //Make GUI items
     MakeGFX(nil,i);
-    if i=2 then MakeGFX_AlphaTest(nil,i);
+    if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
     StepRefresh();
   end;
 

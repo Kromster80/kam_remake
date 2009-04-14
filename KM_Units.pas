@@ -30,8 +30,8 @@ type
       Act:THouseActionType;
       TimeToWork:word;
     end;
-    Product:TResourceType;
-    ProductCount:byte;
+    Product1:TResourceType; ProdCount1:byte;
+    Product2:TResourceType; ProdCount2:byte;
     AfterWorkIdle:integer;
   procedure FillDefaults();
   procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
@@ -76,12 +76,13 @@ type
       {Stay in place for set time}
       TUnitActionStay = class(TUnitAction)
       private
-      StayStill:boolean;
-      TimeToStay:integer;
-      StillFrame:byte;
-      ActionType:TUnitActionType;
-       public
+        StayStill:boolean;
+        TimeToStay:integer;
+        StillFrame:byte;
+        ActionType:TUnitActionType;
+      public
         constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0);
+        function HowLongLeftToStay():integer;
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -211,6 +212,7 @@ type
     private
       WorkPlan:TUnitWorkPlan;
       fUnit:TKMUnit;
+      BeastID:byte;
     public
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
       procedure Execute(out TaskDone:boolean); override;
@@ -248,6 +250,7 @@ type
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
+    property UnitAction: TUnitAction read fCurrentAction;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
     procedure SetAction(aAction: TUnitAction; aStep:integer=0);
     procedure Feed(Amount:single);
@@ -258,6 +261,7 @@ type
     property GetCondition: integer read fCondition;
     property IsVisible: boolean read fVisible;
     property IsDestroyed:boolean read ScheduleForRemoval;
+    procedure RemoveUntrainedFromSchool();
     //property IsAtHome: boolean read UnitAtHome;
     function GetPosition():TKMPoint;
     function UpdateState():boolean; virtual;
@@ -359,8 +363,8 @@ begin
   Resource1:=rt_None; Count1:=0;
   Resource2:=rt_None; Count2:=0;
   ActCount:=0;
-  Product:=rt_None;
-  ProductCount:=0;
+  Product1:=rt_None; ProdCount1:=0;
+  Product2:=rt_None; ProdCount2:=0;
   AfterWorkIdle:=20; //@Lewin: this should be sufficient for AfterWorkIdle time you talked about
   //@Krom: I'm kinda confused about this one. I want the AfterWorkIdle to be loaded from the house DAT. (so the balance of the game stays the same, and wares are produced at the same speed)
   //       After the work routine is complete, the worker rests in idle state before starting the next job.
@@ -387,12 +391,13 @@ procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct
     inc(ActCount); HouseAct[ActCount].Act:=aAct;
     HouseAct[ActCount].TimeToWork:=round(HouseDAT[byte(aHome)].Anim[byte(aAct)].Count * aCycles);
   end;
-  procedure ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResourceType; Qty2:byte; Prod:TResourceType);
+  procedure ResourcePlan(Res1:TResourceType; Qty1:byte; Res2:TResourceType; Qty2:byte; Prod1:TResourceType; Prod2:TResourceType=rt_None);
   begin
     Resource1:=Res1; Count1:=Qty1;
     Resource2:=Res2; Count2:=Qty2;
-    Product:=Prod;
-    ProductCount:=HouseDAT[byte(aHome)].ResProductionX;
+    Product1:=Prod1; ProdCount1:=HouseDAT[byte(aHome)].ResProductionX;
+    if Prod2=rt_None then exit;
+    Product2:=Prod2; ProdCount2:=HouseDAT[byte(aHome)].ResProductionX;
   end;
   var i:integer;
 begin
@@ -621,9 +626,9 @@ if (aUnitType=ut_Butcher)and(aHome=ht_Butchers) then begin
   end;
 end else
 if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Swine) then begin
-  ResourcePlan(rt_Corn,1,rt_None,0,rt_Pig);
+  ResourcePlan(rt_Corn,1,rt_None,0,rt_Pig,rt_Skin);
   GatheringScript:=gs_SwineBreeder;
-  SubActAdd(ha_Work2,1);
+  SubActAdd(ha_Work2,1); //@Lewin: please take a look at this one, how much cycles it should be?
   SubActAdd(ha_Work3,1);
 end else 
 if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Stables) then begin
@@ -767,7 +772,8 @@ WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseTy
 if not WorkPlan.Issued then exit;
 if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
 if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
-if fHome.CheckResOut(WorkPlan.Product)>=MaxResInHouse then exit;
+if fHome.CheckResOut(WorkPlan.Product1)>=MaxResInHouse then exit;
+if fHome.CheckResOut(WorkPlan.Product2)>=MaxResInHouse then exit;
 
 WorkPlan.AfterWorkIdle := HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10;
 
@@ -1074,6 +1080,11 @@ begin
 end;
 
 
+procedure TKMUnit.RemoveUntrainedFromSchool();
+begin
+  ScheduleForRemoval:=true;
+end;
+
 {Here are common Unit.UpdateState routines}
 function TKMUnit.UpdateState():boolean;
 var
@@ -1177,7 +1188,7 @@ case Phase of
      end;
   6: begin
       SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
-      fSchool.UnitIsTrained;
+      fSchool.UnitTrainingComplete;
      end;
   7: TaskDone:=true;
 end;
@@ -1632,6 +1643,7 @@ WorkPlan:=aWorkPlan;
 fUnit:=aUnit;
 Phase:=0;
 Phase2:=0;
+BeastID:=0;
 fUnit.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
 
@@ -1697,6 +1709,15 @@ with fUnit do
         fHome.ResTakeFromIn(WorkPlan.Resource1); //Count should be added
         fHome.ResTakeFromIn(WorkPlan.Resource2);
         fHome.fCurrentAction.SubActionAdd([ha_Smoke]);
+        if WorkPlan.GatheringScript = gs_SwineBreeder then begin
+          BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;
+          if BeastID=0 then begin
+            Phase:=SkipWork;
+            SetAction(TUnitActionStay.Create(0,ua_Walk));
+            exit;
+          end else
+            TKMHouseSwineStable(fHome).TakeBeast(BeastID);
+        end;
         if WorkPlan.ActCount>=Phase2 then begin
            fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[Phase2].Act,WorkPlan.HouseAct[Phase2].TimeToWork);
            //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
@@ -1709,13 +1730,14 @@ with fUnit do
        end;
     8..28: begin //Allow for 20 different "house work" phases
            inc(Phase2);
+           if (Phase2=2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;
            if WorkPlan.ActCount>=Phase2 then begin
-           fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[Phase2].Act,WorkPlan.HouseAct[Phase2].TimeToWork);
-           SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[Phase2].TimeToWork-1,ua_Walk));
-       end else begin
-           Phase:=SkipWork;
-           SetAction(TUnitActionStay.Create(0,ua_Walk));
-           exit;
+             fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[Phase2].Act,WorkPlan.HouseAct[Phase2].TimeToWork);
+             SetAction(TUnitActionStay.Create(WorkPlan.HouseAct[Phase2].TimeToWork-1,ua_Walk));
+           end else begin
+             Phase:=SkipWork;
+             SetAction(TUnitActionStay.Create(0,ua_Walk));
+             exit;
            end;
        end;
     29: begin
@@ -1724,13 +1746,21 @@ with fUnit do
             gs_GoldMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_GoldOre);
             gs_IronMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_IronOre);
           end;
-          if WorkPlan.GatheringScript = gs_HorseBreeder then
-            TKMHouseSwineStable(fHome).FeedBeasts
-          else
-          if WorkPlan.GatheringScript = gs_SwineBreeder then
-            TKMHouseSwineStable(fHome).FeedBeasts //This one is wrong..
-          else
-            fHome.ResAddToOut(WorkPlan.Product,WorkPlan.ProductCount);
+          if WorkPlan.GatheringScript = gs_HorseBreeder then begin
+            if BeastID<>0 then begin
+              TKMHouseSwineStable(fHome).TakeBeast(BeastID);
+              fHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
+            end;
+          end else
+          if WorkPlan.GatheringScript = gs_SwineBreeder then begin
+            if BeastID<>0 then begin
+              fHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
+              fHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
+            end;
+          end else begin
+            fHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
+            fHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2); //This is unused tbh
+          end;
 
           fHome.SetState(hst_Idle,WorkPlan.AfterWorkIdle);
           SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkIdle-1,ua_Walk));
@@ -2077,6 +2107,14 @@ begin
   ActionType:=aActionType;
   StillFrame:=aStillFrame;
 end;
+
+
+//If someone whats to know how much time unit has to stay
+function TUnitActionStay.HowLongLeftToStay():integer;
+begin
+  Result:=EnsureRange(TimeToStay,0,maxint);
+end;
+
 
 procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var Cycle,Step:byte;

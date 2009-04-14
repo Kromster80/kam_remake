@@ -1233,6 +1233,7 @@ begin
   ht_School: begin
         KMResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold);
         House_SchoolUnitChange(nil);
+        KMButton_School_UnitWIPBar.Position:=TKMHouseSchool(Sender).GetTrainingProgress;
         SwitchPage(KMPanel_House_School);
       end;
 

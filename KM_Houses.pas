@@ -9,7 +9,7 @@ type
   THouseAction = class(TObject)
   private
     fHouse:TKMHouse;
-    TimeToAct:integer;
+    TimeToAct:integer; //This one is unused in fact. All house states are controlled by Units
     fHouseState: THouseState;
     fSubAction: THouseActionSet;
   public
@@ -110,7 +110,8 @@ type
   public
     BeastAge:array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
-    procedure FeedBeasts();
+    function FeedBeasts():byte;
+    procedure TakeBeast(ID:byte);
     procedure Paint; override;
   end;
 
@@ -126,14 +127,17 @@ type
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
   public
+    UnitWIP:Pointer;
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
+    HideOneGold:boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
     UnitTrainProgress:byte; //Was it 150 steps in KaM?
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(id:integer); //Should remove unit from queue and shift rest up
-    procedure UnitIsStart; //This should Create new unit and start training cycle
-    procedure UnitIsTrained; //This should shift queue filling rest with ut_None
+    procedure StartTrainingUnit; //This should Create new unit and start training cycle
+    procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
+    function GetTrainingProgress():byte;
   end;
 
   {Barracks has 11 resources and Recruits}
@@ -652,15 +656,23 @@ begin
 end;
 
 
-procedure TKMHouseSwineStable.FeedBeasts();
+//Return ID of beast that has grown up
+function TKMHouseSwineStable.FeedBeasts():byte;
 var i:integer;
 begin
+  Result:=0;
   inc(BeastAge[Random(5)+1]); //Let's hope it never overflows MAX
   for i:=1 to length(BeastAge) do
-    if BeastAge[i]>3 then begin //This is for Horses, Pigs may be different
-      BeastAge[i]:=0;
-      ResAddToOut(HouseOutput[byte(fHouseType),1]);
-    end;
+    if BeastAge[i]>3 then
+      Result:=i;
+end;
+
+
+procedure TKMHouseSwineStable.TakeBeast(ID:byte);
+begin
+  if ID<>0 then
+    if BeastAge[ID]>3 then
+      BeastAge[ID]:=0;
 end;
 
 
@@ -670,7 +682,9 @@ begin
   inherited;
   for i:=1 to 5 do
     if BeastAge[i]>0 then
-      fRender.RenderHouseStableBeasts(byte(fHouseType), i, BeastAge[i], WorkAnimStep, fPosition.X, fPosition.Y);
+      fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition.X, fPosition.Y);
+  //Overlay, not entirely correct, but works ok
+  fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,byte(fOwner),fPosition.X, fPosition.Y);
 end;
 
 
@@ -680,13 +694,13 @@ begin
   Inherited;
   for i:=1 to length(UnitQueue) do
     UnitQueue[i]:=ut_None;
+  UnitWIP:=nil;
 end;
 
 procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
 begin
 Inherited;
-//If there's no unit in training then UnitIsStart
-//So far thats that wouldbe an only proof way to avoid 2units train at once;
+if UnitWIP=nil then StartTrainingUnit;
 end;
 
 
@@ -696,45 +710,64 @@ begin
   for i:=1 to length(UnitQueue) do
   if UnitQueue[i]=ut_None then begin
     UnitQueue[i]:=aUnit;
-    if i=1 then UnitIsStart;
+    if i=1 then StartTrainingUnit; //If thats the first unit then start training it
     break;
   end;
 end;
 
 
+//DoCancelTraining and remove untrained unit
 procedure TKMHouseSchool.RemUnitFromQueue(id:integer);
 var i:integer;
 begin
-  //DoCancelTraining and remove untrained unit
-  if id = 1 then
-    UnitIsTrained
-  else
-  begin
-    for i:=id to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
-    UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+  if UnitQueue[id]=ut_None then exit; //Ignore clicks on empty queue items
+  if id = 1 then begin
+    SetState(hst_Idle,0);
+    if UnitWIP<>nil then begin
+      TKMUnit(UnitWIP).RemoveUntrainedFromSchool; //Make sure unit started training
+      HideOneGold:=false;
+    end;
+    UnitWIP:=nil;
   end;
+  for i:=id to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
+  UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
+  if UnitQueue[1]<>ut_None then StartTrainingUnit;
 end;
 
 
-procedure TKMHouseSchool.UnitIsStart;
-var TK:TKMUnit;
+procedure TKMHouseSchool.StartTrainingUnit;
 begin
   //If there's yet no unit in training
+  if UnitQueue[1]=ut_None then exit;
   if CheckResIn(rt_Gold)=0 then exit;
-  ResTakeFromIn(rt_Gold);
-  TK:=fPlayers.Player[byte(fOwner)].AddUnit(UnitQueue[1],GetEntrance);//Create Unit
-  TK.UnitTask:=TTaskSelfTrain.Create(TK,Self);
-  //pUnit:=@TK;
+  HideOneGold:=true;
+  UnitWIP:=fPlayers.Player[byte(fOwner)].AddUnit(UnitQueue[1],GetEntrance);//Create Unit
+  TKMUnit(UnitWIP).UnitTask:=TTaskSelfTrain.Create(UnitWIP,Self);
 end;
 
 
-procedure TKMHouseSchool.UnitIsTrained;
+//To be called only by Unit itself when it's trained!
+procedure TKMHouseSchool.UnitTrainingComplete;
 var i:integer;
 begin
+  UnitWIP:=nil;
+  ResTakeFromIn(rt_Gold); //Do the goldtaking
+  HideOneGold:=false;
   for i:=1 to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
   UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
-  if UnitQueue[1]<>ut_None then UnitIsStart;
+  if UnitQueue[1]<>ut_None then StartTrainingUnit;
   UnitTrainProgress:=0;
+end;
+
+
+function TKMHouseSchool.GetTrainingProgress():byte;
+begin
+  Result:=0;
+  if UnitWIP=nil then exit;
+  Result:=EnsureRange(round(
+  ((fCurrentAction.GetWorkID-1)*30+30-TUnitActionStay(TKMUnit(UnitWIP).UnitAction).HowLongLeftToStay)
+  /1.5),0,100); //150 steps into 0..100 range
+  //Substeps could be asked from Unit.ActionStay.TimeToStay, but it's a private field now
 end;
 
 

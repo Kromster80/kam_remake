@@ -146,7 +146,7 @@ begin
   if not IsOpenALInitialized then exit;
   Listener.Pos[1]:=Pos.X;
   Listener.Pos[2]:=Pos.Y;
-  Listener.Pos[3]:=0;
+  Listener.Pos[3]:=12; //Place Listener above the surface
   AlListenerfv ( AL_POSITION, @Listener.Pos);
 end;
 
@@ -176,7 +176,9 @@ procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolea
 var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
 begin
   if not IsOpenALInitialized then exit;
-  //Here should be some sort of RenderQueue/List/Clip 
+
+  //Here should be some sort of RenderQueue/List/Clip
+
   //Find free buffer and use it
   FreeBuf:=1;
   for i:=1 to MaxSourceCount do begin
