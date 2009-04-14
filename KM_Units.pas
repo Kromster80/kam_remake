@@ -366,6 +366,8 @@ begin
   //       After the work routine is complete, the worker rests in idle state before starting the next job.
   //       I added code to do that into InitiateMining, which seems to be working. Is that where is should be?
   //       What are you saying I should do here?
+  //@Lewin:AfterWorkIdle is a part of working plan, so just make it AfterWorkIdle:=UnitData[aUnitType].IdleTime*10; Thats all :)
+  //       No need to overload InitiateMining function with something that can be done here in just one line
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
@@ -963,21 +965,14 @@ begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
-  //Randomly choose walk or wait
-  //@Krom: Why? In KaM the animals keep moving, and they look odd if they keep stopping.
-  if Random(2)=0 then begin// 50/50 chance
+  SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
+  repeat //Where unit should go, keep picking until target is walkable for the unit
+    dec(SpotJit);
+    Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit),1);
+  until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
 
-    SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
-    repeat //Where unit should go, keep picking until target is walkable for the unit
-      dec(SpotJit);
-      Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit),1);
-    until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
-
-    //31..38 only //@Krom: Self-reminder - Crabs should not go off sand, needs another canWalkSand!
-    SetAction(TUnitActionWalkTo.Create(GetPosition, Spot, ua_Walk, true, AnimalTerrain[byte(GetUnitType)]));
-
-  end else
-    SetAction(TUnitActionStay.Create(Random(20),ua_Walk)); //Should depend on unit type, e.g. Wolfs are fastrunners in general
+  //31..38 only //@Krom: Self-reminder - Crabs should not go off sand, needs another canWalkSand!
+  SetAction(TUnitActionWalkTo.Create(GetPosition, Spot, ua_Walk, true, AnimalTerrain[byte(GetUnitType)]));
 
   Assert(fCurrentAction<>nil,'Unit has no action!');
 end;

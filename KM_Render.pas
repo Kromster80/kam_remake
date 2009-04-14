@@ -139,7 +139,7 @@ begin
     glLineWidth(1);
     glPointSize(1);
     glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
-    fGameplayInterface.Paint;
+    fGame.fGameplayInterface.Paint;
 
     glLoadIdentity();
     RenderBrightness(fGameSettings.GetBrightness);
@@ -150,7 +150,7 @@ begin
     glLineWidth(1);
     glPointSize(1);
     glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
-    fMainMenuInterface.Paint;
+    fGame.fMainMenuInterface.Paint;
     
   end;
 
@@ -391,17 +391,6 @@ begin
 end;
 
 //@Lewin: I always wanted to ask you 2 things - why??
-//
-//procedure MarkPoint(APoint:TKMPoint; AID:integer); //Why first letter is 'A', not 'a'
-//
-//and the 2nd one
-//
-//if Foo<>Bar then
-//begin
-//  Foo:=Bar;
-//  ...
-//end;
-//
 //Why do you move 'begin' to the next line instead of
 //
 //if Foo<>Bar then begin
@@ -412,9 +401,7 @@ end;
 //No offence, just curiosity
 
 {
-@Krom: First question:  A/a, that was a kind of mistake. I forgot that it should be lower case.
-                        I'll use 'a' in the future. Would you like me to change it? (e.g. in LoadDAT)
-Second question:
+@Krom: Second question:
   That's just how I was taught. It still looks odd to me to have the begin right after the then.
   I have always done it like that and so I have to remember not to here. (I am trying to follow your
   coding/formatting standards, which differ greatly from mine) Please let me know if there is anything
@@ -422,19 +409,30 @@ Second question:
 }
 
 {@Lewin:
-1st: We could use either of these, still I'd prefer it would be 'a', it looks neater next to var name aText, aInput, etc.. If you don't like it - no problem with me - keep it 'A' =)
 2nd: To be honest I've never been taught to any coding standards nor rules, nor etc..
 If you spare some of you time to educate me - I'd be happy! =)
 In this case it's became a matter of my habit. If there's anything else beside it, some reasonable explanation, then I'd be happy to take it and stick to better style
 }
 
 {@Krom:
-1st: I agree, I will use 'a' in the future. I have changed a few occurances I found but feel free to change others
 2nd: Well I was always taught to put begins on new lines and to keep the indenting strict and correct.
      I have a tool called DelFor (Delphi Formatter) that will automatically format indenting and stuff in all project files.
      If you're interested then I could try running it on the project and see what happens. It is configuarable so we
      could probably set it up to format it in the way you want (like keeping begins on previous line if you prefer that)
      It would enforce everything to a standard. Although the formatting doesn't bother me too much, just I mess it up sometimes.
+}
+
+{@Lewin: As we discussed auto-formatting would ruin a lot of manually aligned blocks, e.g.
+  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  ,-0.4);
+  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0.5,-0.4);
+  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
+  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
+so we better not use it, unless there's an option to preserve such cases intact
+
+As for 'begin' from a new line .. I prefer to have code tighter rather than spread, especially in 'end else begin' case
+Let's leave it 'as is' - you code it from new line, me keeping it on same line. That doesn't harm anyone.
+
+BTW, you mention you coding stndards differ greatly from mine - can you show me an example, maybe I should borrow some ideas
 }
 
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
@@ -491,7 +489,7 @@ begin
   if Index in [55..58]then exit;
   AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
   AddSpriteToListBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
-end;      
+end;
 
 
 {Render house WIP tablet}
@@ -888,7 +886,7 @@ end;
 
 
 procedure TRender.RenderTerrainMarkup(Index:integer; pX,pY:integer);
-var a,b:TKMPointF; ID:integer; FOW, DrawX, DrawY:single;
+var a,b:TKMPointF; ID:integer; FOW:byte;
 begin
   case Index of
     1: ID:=105; //Road
@@ -896,17 +894,14 @@ begin
     3: ID:=108; //Wine
     else ID:=0;
   end;
-  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)/255;
+  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
 
-  glColor4f(FOW,FOW,FOW,1);
+  glColor3ub(FOW,FOW,FOW);
   glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
 
   a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
   b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
 
-  //Shift the X and Y so that the markup is centred correctly on the tile
-  DrawX:=pX; //This one is unchanged, unless you have a screenshot to show
-  DrawY:=pY+0.1;
   //@Krom: I guess it's ok like that. I was simply trying to make the red X in placement
   //       centre on the markup.
   //       At the moment it's a little high and to the right IMO, but it's your choice.
@@ -918,17 +913,19 @@ begin
   //@Krom: Sure, I've done it. It's not very artistic, I put it together quickly.
   //       Take a look and tell me what you think.
   //       Just looking at it myself, the change is very small and hardly worth fussing over.
-  //       Although if it's on a slope the difference is greater and fields have different markups. 
+  //       Although if it's on a slope the difference is greater and fields have different markups.
+  //@Lewin: I guess now it's better, bottom is aligned to be within tile and top is 0.15 above upper edge
+  
   glBegin(GL_QUADS);
-    glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(DrawX  , DrawY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(DrawX  , DrawY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV+0.10);
+    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV-0.15);
+    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY   - fTerrain.Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV);
 
-    glTexCoord2f(b.x,a.y); glvertex2f(DrawX-1, DrawY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
-    glTexCoord2f(a.x,a.y); glvertex2f(DrawX-1, DrawY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(a.x,b.y); glvertex2f(DrawX  , DrawY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV-0.25);
-    glTexCoord2f(b.x,b.y); glvertex2f(DrawX  , DrawY-1 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
+    glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY   - fTerrain.Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV-0.25);
+    glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV-0.15);
+    glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1 - fTerrain.Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV+0.10);
   glEnd;
   glBindTexture(GL_TEXTURE_2D, 0);
 end;

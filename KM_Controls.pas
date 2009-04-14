@@ -253,6 +253,7 @@ TKMControlsCollection = class(TKMList)
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
     function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
+    function MouseOverControl   ():TKMControl;
     procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp         (X,Y:integer; AButton:TMouseButton);
@@ -793,7 +794,7 @@ begin
     CenteredAt.X := EnsureRange(X - Left - (Width-MapSize.X) div 2,1,MapSize.X);
     CenteredAt.Y := EnsureRange(Y - Top - (Height-MapSize.Y) div 2,1,MapSize.Y);
   end;
-  if Assigned(OnChange) then
+  if Assigned(OnChange) and (ssLeft in AShift) then
     OnChange(Self);
 end;
 
@@ -920,6 +921,20 @@ begin
   Result:=TKMMinimap.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
 end;
+
+function TKMControlsCollection.MouseOverControl():TKMControl;
+var i:integer;
+begin
+  Result:=nil;
+  for i:=Count-1 downto 1 do //This will return last created cursor
+    if not (TKMControl(Items[I]) is TKMPanel) then //Do not check Panels
+      if TKMControl(Items[I]).IsVisible then
+          if TKMControl(Items[I]).CursorOver then begin
+            Result:=TKMControl(Items[I]);
+            break;
+          end;
+end;
+
 
 procedure TKMControlsCollection.OnMouseOver(X,Y:integer; AShift:TShiftState);
 var i:integer;

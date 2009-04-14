@@ -212,9 +212,6 @@ type TKMGamePlayInterface = class
     procedure Paint;
   end;
 
-var
-  fGamePlayInterface: TKMGamePlayInterface;
-  fMainMenuInterface: TKMMainMenuInterface;
 
 implementation
 uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_LoadSFX;
@@ -536,6 +533,9 @@ begin
   //       People don't want to have to specify that kind of stuff in the mission file, it would be to complicated.
   //       I think each mission should have an "estimated difficulty" that the creator sets in the TXT file, so that
   //       people have an idea of how hard the mission will be.
+  //@Lewin: You right again, but my idea was to allow some kind of cheat, e.g. Easy makes your troops x1.5 stronger
+  //       there will be no need for map author to foresee it, he just makes it on Normal.
+  //       Anyway thats too far ahead, so we will think about exact plan later on, for now it's just a placeholder
 end;
 
 
@@ -987,10 +987,10 @@ begin
     //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     KMLabel_House:=MyControls.AddLabel(KMPanel_House,100,14,100,30,'',fnt_Outline,kaCenter);
     KMButton_House_Goods:=MyControls.AddButton(KMPanel_House,9,42,30,30,37);
-    KMButton_House_Goods.OnClick := fGamePlayInterface.House_WareDeliveryToggle;
+    KMButton_House_Goods.OnClick := House_WareDeliveryToggle;
     KMButton_House_Goods.Hint := fTextLibrary.GetTextString(249);
     KMButton_House_Repair:=MyControls.AddButton(KMPanel_House,39,42,30,30,40);
-    KMButton_House_Repair.OnClick := fGamePlayInterface.House_RepairToggle;
+    KMButton_House_Repair.OnClick := House_RepairToggle;
     KMButton_House_Repair.Hint := fTextLibrary.GetTextString(250);
     KMImage_House_Logo:=MyControls.AddImage(KMPanel_House,68,41,32,32,338);
     KMImage_House_Worker:=MyControls.AddImage(KMPanel_House,98,41,32,32,141);
@@ -1349,8 +1349,8 @@ begin
   if fPlayers.SelectedHouse = nil then exit;
   with fPlayers.SelectedHouse do begin
     BuildingRepair := not BuildingRepair;
-    if BuildingRepair then fGamePlayInterface.KMButton_House_Repair.TexID:=39
-                      else fGamePlayInterface.KMButton_House_Repair.TexID:=40;
+    if BuildingRepair then KMButton_House_Repair.TexID:=39
+                      else KMButton_House_Repair.TexID:=40;
     if BuildingRepair then EnableRepair
                       else DisableRepair;
   end;
@@ -1362,8 +1362,8 @@ begin
   if fPlayers.SelectedHouse = nil then exit;
   with fPlayers.SelectedHouse do begin
     WareDelivery := not WareDelivery;
-    if WareDelivery then fGamePlayInterface.KMButton_House_Goods.TexID:=37
-                    else fGamePlayInterface.KMButton_House_Goods.TexID:=38;
+    if WareDelivery then KMButton_House_Goods.TexID:=37
+                    else KMButton_House_Goods.TexID:=38;
     end;
 end;
 

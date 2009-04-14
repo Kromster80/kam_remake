@@ -25,11 +25,11 @@ const
 
 var
   //These should be TRUE
-  MakeUnitSprites:boolean=true;        //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites:boolean=false;        //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors:boolean=false;         //Whenever to make team colors or not, saves RAM for debug
+  MakeUnitSprites:boolean=true;         //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
-  DO_UNIT_HUNGER:boolean=false;         //Wherever units get hungry or not
+  DO_UNIT_HUNGER:boolean=false;          //Wherever units get hungry or not
 
   //These should be FALSE
   ShowTerrainWires:boolean=false;
@@ -75,9 +75,11 @@ const
 
   ScrollCursorOffset = 17;
   CursorOffsetsX:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
-  CursorOffsetsY:array[1..19] of integer = (0,6,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
+  CursorOffsetsY:array[1..19] of integer = (0,9,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
   //@Lewin: I'm not sure if c_Info pivot is correct yet
   //@Krom: I agree that it's a bit odd but it is the same as in KaM. We can move it if you like though.
+  //@Lewin: Magnifying glass was centered by X axis, it makes sense to center it by Y axis as well
+  //it is a bit unlike KaM though, so if you have an idea against it I reset it to 0
 
 {Controls}
 type

@@ -8,11 +8,14 @@ type TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded i
 
 type
   TKMGame = class
+  private
   public
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameIsRunning:boolean;
     DataState:TDataLoadingState;
+    fMainMenuInterface: TKMMainMenuInterface;
+    fGamePlayInterface: TKMGamePlayInterface;
   public
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer);
     destructor Destroy; override;
@@ -31,7 +34,7 @@ type
 
 implementation
 uses
-  KM_Defaults;
+  KM_Defaults, KM_Unit1;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
@@ -101,7 +104,7 @@ end;
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if GameIsRunning then begin
-    if X<=ToolBarWidth then
+    if fGameplayInterface.MyControls.MouseOverControl()<>nil then
       fGameplayInterface.MyControls.OnMouseDown(X,Y,Button)
     else
 
@@ -123,7 +126,7 @@ begin
 
   if GameIsRunning then begin
     fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
-    if X<=ToolBarWidth then
+    if fGameplayInterface.MyControls.MouseOverControl()<>nil then
       Screen.Cursor:=c_Default
     else begin
       CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
@@ -149,8 +152,8 @@ begin
     fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
   end;
 
-//Form1.StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '+floattostr(round(CursorY*10)/10)
-//+' | '+inttostr(CursorXc)+' '+inttostr(CursorYc);
+Form1.StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '+floattostr(round(CursorY*10)/10)
++' | '+inttostr(CursorXc)+' '+inttostr(CursorYc);
 end;
 
 
@@ -161,7 +164,7 @@ begin
   P.Y:=CursorYc;
 
   if GameIsRunning then begin
-    if X<=ToolBarWidth then begin
+    if fGameplayInterface.MyControls.MouseOverControl()<>nil then begin
       fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
       //if Button = mbRight then fGameplayInterface.RightClickCancel; //Right clicking with the build menu open will close it
     end else begin

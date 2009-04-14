@@ -229,15 +229,6 @@ procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; P
 begin
   case CommandType of
   ct_SetMap:         MissionDetails.MapPath     := RemoveQuotes(TextParam);
-  //@Lewin: I've split it into KromUtils for more general use.
-  //@Krom: But I don't like the way you've recodded it. If someone gives us "abcd"ddgg
-  //then we should only return abcd. We want to extract data between quotes with that function,
-  //not just remove all quotes. If that was the goal then I would simply have used
-  //StringReplace(TextParam,'"','',[rfReplaceAll]);
-  //@Lewin: You right. I've fixed it to your description. Tell me if it's ok now.
-  //To be deleted..
-  //@Krom: I still wasn't happy with it, so I fixed it some more. (if they entered ab"cd"ef it wouldn't work)
-  //       I've tested it and it works fine now. To be deleted...
   ct_SetMaxPlayer:   MissionDetails.TeamCount   := ParamList[0];
   ct_SetTactic:      MissionDetails.IsFight     := 1;
   ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
@@ -506,8 +497,7 @@ begin
     Title:=Maps[i].Folder;
     SmallDesc:='-';
     BigDesc:='-';
-    MapSize:='?';
-
+    MapSize:='?';              
 
     if fileexists(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt') then begin
       assignfile(ft,ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt');
@@ -517,6 +507,7 @@ begin
       readln(ft,s);
 
       inc(r); //Loop counter. @Krom: For what purpose? It's never used.
+      //@Lewin: Ahh, I just counted how many times fMissionParser.GetMissionDetails was called. To be deleted along with 'r' ..
 
       if UpperCase(s)=UpperCase('Title') then
         readln(ft,Title);

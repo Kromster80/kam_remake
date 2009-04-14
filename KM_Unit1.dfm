@@ -378,6 +378,10 @@ object Form1: TForm1
         Caption = '-'
         Enabled = False
       end
+      object Export_TreeAnim1: TMenuItem
+        Caption = 'Tree Anim'
+        OnClick = Export_TreeAnim1Click
+      end
       object Export_HouseAnim1: TMenuItem
         Caption = 'House Anim'
         OnClick = Export_HouseAnim1Click

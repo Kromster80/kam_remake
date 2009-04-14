@@ -20,8 +20,9 @@ type
       procedure MakeGFX(Sender: TObject; RXid:integer);
 
     procedure ExportRX2BMP(RXid:integer);
-    procedure ExportUnitAnim2BMP();
+    procedure ExportTreeAnim2BMP();
     procedure ExportHouseAnim2BMP();
+    procedure ExportUnitAnim2BMP();
 
     procedure MakeMiniMapColors();
     procedure MakeCursors(RXid:integer);
@@ -737,6 +738,7 @@ begin
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
+  ReadHouseDAT(ExeDir+'data\defines\houses.dat');
   ReadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
 
   ci:=0;
@@ -787,6 +789,44 @@ begin
           if sy>0 then MyBitmap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
       end;
+    end;
+  end;
+
+  MyBitmap.Free;
+end;
+
+
+{Export Trees graphics categorized by ID}
+procedure ExportTreeAnim2BMP();
+var MyBitMap:TBitMap;
+    ID,k,ci,t:integer;
+    sy,sx,y,x:integer;
+begin
+  CreateDir(ExeDir+'Export\');
+  CreateDir(ExeDir+'Export\TreeAnim\');
+  MyBitMap:=TBitMap.Create;
+  MyBitmap.PixelFormat:=pf24bit;
+
+  ReadMapElem(ExeDir+'data\defines\mapelem.dat');
+  ReadRX(ExeDir+'data\gfx\res\'+RXData[1].Title+'.rx',1);
+
+  ci:=0;
+  for ID:=1 to MapElemQty do begin
+    for k:=1 to MapElem[ID].Count do begin
+      if MapElem[ID].Step[k]+1<>0 then
+      ci:=MapElem[ID].Step[k]+1;
+
+      sx:=RXData[1].Size[ci,1];
+      sy:=RXData[1].Size[ci,2];
+      MyBitmap.Width:=sx;
+      MyBitmap.Height:=sy;
+
+      for y:=0 to sy-1 do for x:=0 to sx-1 do begin
+        t:=RXData[1].Data[ci,y*sx+x]+1;
+        MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+      end;
+      if sy>0 then MyBitmap.SaveToFile(
+      ExeDir+'Export\TreeAnim\'+int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
     end;
   end;
 

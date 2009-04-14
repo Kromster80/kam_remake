@@ -59,6 +59,8 @@ type
     Other1: TMenuItem;
     Debug_ShowPanel1: TMenuItem;
     Button_W: TButton;
+    Export_TreeAnim1: TMenuItem;
+    procedure Export_TreeAnim1Click(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -304,6 +306,7 @@ procedure TForm1.Export_UnitsRXClick(Sender: TObject);   begin ExportRX2BMP(3); 
 procedure TForm1.Export_GUIRXClick(Sender: TObject);     begin ExportRX2BMP(4); end;
 procedure TForm1.Export_GUIMainRXClick(Sender: TObject); begin ExportRX2BMP(5); end;
 procedure TForm1.Export_Sounds1Click(Sender: TObject);   begin fSoundLib.ExportSounds; end;
+procedure TForm1.Export_TreeAnim1Click(Sender: TObject); begin ExportTreeAnim2BMP(); end;
 procedure TForm1.Export_HouseAnim1Click(Sender: TObject);begin ExportHouseAnim2BMP(); end;
 procedure TForm1.Export_UnitAnim1Click(Sender: TObject); begin ExportUnitAnim2BMP();  end;
 procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.ExportTextLibraries; end;
