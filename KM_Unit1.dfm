@@ -374,6 +374,10 @@ object Form1: TForm1
         Caption = 'GUI Main.rx'
         OnClick = Export_GUIMainRXClick
       end
+      object Export_GUIMainHRX: TMenuItem
+        Caption = 'GUI MainH.rx'
+        OnClick = Export_GUIMainHRXClick
+      end
       object AnimData1: TMenuItem
         Caption = '-'
         Enabled = False

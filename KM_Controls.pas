@@ -113,9 +113,10 @@ TKMButton = class(TKMControl)
     Font: TKMFont;
     TextAlign: KAlign;
     Caption: string;
+    Style:TButtonStyle;
   protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer); overload;
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle); overload;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle); overload;
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
@@ -210,10 +211,11 @@ TKMScrollBar = class(TKMControl)
     Thumb:word;
     ScrollUp:TKMButton;
     ScrollDown:TKMButton;
+    Style:TButtonStyle;
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
   protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure RefreshItems();
     procedure Paint(); override;
@@ -243,15 +245,15 @@ TKMControlsCollection = class(TKMList)
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddBevel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
     function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
-    function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButton; overload;
-    function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton; overload;
+    function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
+    function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
     function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
     function AddCostsRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
-    function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMScrollBar;
+    function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle=bsGame):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     function MouseOverControl   ():TKMControl;
     procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
@@ -400,22 +402,27 @@ end;
 
 
 { TKMButton }
-constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
+constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   RXid:=aRXid;
   TexID:=aTexID;
+  Caption:='';
   ParentTo(aParent);
+  Style:=aStyle;
 end;
 
 {Different version of button, with caption on it instead of image}
-constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
+constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
+  RXid:=0;
+  TexID:=0;
   Caption:=aCaption;
   Font:=aFont;
   TextAlign:=kaCenter; //Thats default everywhere in KaM
   ParentTo(aParent);
+  Style:=aStyle;
 end;
 
 
@@ -437,7 +444,7 @@ begin
   if CursorOver and Enabled then State:=State+[bs_Highlight];
   if Down then State:=State+[bs_Down];
   if not Enabled then State:=State+[bs_Disabled];
-  fRenderUI.Write3DButton(Left,Top,Width,Height,RXid,TexID,State);
+  fRenderUI.Write3DButton(Left,Top,Width,Height,RXid,TexID,State,Style);
   if TexID=0 then
     if Enabled then //If disabled then text should be faded
       fRenderUI.WriteText(Left + Width div 2 +byte(Down), (Top + Height div 2)-7+byte(Down), Width, Caption, Font, TextAlign, false, $FFFFFFFF)
@@ -681,7 +688,7 @@ end;
 
 
 { TKMScrollBar }
-constructor TKMScrollBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMScrollBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
@@ -690,6 +697,7 @@ begin
   MaxValue:=10;
   MinValue:=1;
   Thumb:=10;
+  Style:=aStyle;
 end;
 
 
@@ -774,7 +782,7 @@ begin
     ScrollDown.Enable;
   end;
 
-  fRenderUI.Write3DButton(Left,Top+Width+Pos,Width,Thumb,0,0,State);
+  fRenderUI.Write3DButton(Left,Top+Width+Pos,Width,Thumb,0,0,State,Style);
 end;
 
 
@@ -852,15 +860,15 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButton;
+function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton;
 begin
-  Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
+  Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid,aStyle);
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMButton;
+function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton;
 begin
-  Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont);
+  Result:=TKMButton.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont,aStyle);
   AddToCollection(Result);
 end;
 
@@ -904,14 +912,14 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMScrollBar;
+function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle=bsGame):TKMScrollBar;
 begin
-  Result:=TKMScrollBar.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  Result:=TKMScrollBar.Create(aParent, aLeft,aTop,aWidth,aHeight,aStyle);
   AddToCollection(Result);
   //These three will be added to collection themselfes
-  Result.ScrollUp :=AddButton(aParent,aLeft,aTop,aWidth,aHeight,4);
+  Result.ScrollUp :=AddButton(aParent,aLeft,aTop,aWidth,aHeight,4,4,aStyle);
   Result.ScrollUp.OnClick:=Result.DecPosition;
-  Result.ScrollDown :=AddButton(aParent,aLeft,aTop,aWidth,aHeight,5);
+  Result.ScrollDown :=AddButton(aParent,aLeft,aTop,aWidth,aHeight,5,4,aStyle);
   Result.ScrollDown.OnClick:=Result.IncPosition;
   Result.RefreshItems();
 end;

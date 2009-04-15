@@ -284,20 +284,21 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   KMPanel_MainMenu:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
-    KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,ScreenX,ScreenY,2,5);
+    KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,ScreenX,ScreenY,2,6);
     KMImage_MainMenuBG.StretchImage:=true;
     KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,100,100,423,164,4,5);
-    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,640,220,round(207*1.25),round(295*1.25),6,5);
-    KMImage_MainMenu3.StretchImage:=true;
+    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,440,220,round(207*1.25),round(295*1.25),6,5);
+    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,740,220,round(207*1.25),round(295*1.25),6,6);
+//    KMImage_MainMenu3.StretchImage:=true;
 
     KMPanel_MainButtons:=MyControls.AddPanel(KMPanel_MainMenu,130,350,350,350);
-      KMButton_MainMenuTutor  :=MyControls.AddButton(KMPanel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal);
-      KMButton_MainMenuTSK    :=MyControls.AddButton(KMPanel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal);
-      KMButton_MainMenuTPR    :=MyControls.AddButton(KMPanel_MainButtons,0, 80,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal);
-      KMButton_MainMenuSingle :=MyControls.AddButton(KMPanel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal);
-      KMButton_MainMenuOptions:=MyControls.AddButton(KMPanel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(12),fnt_Metal);
-      KMButton_MainMenuCredit :=MyControls.AddButton(KMPanel_MainButtons,0,200,350,30,fTextLibrary.GetSetupString(13),fnt_Metal);
-      KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,280,350,30,fTextLibrary.GetSetupString(14),fnt_Metal);
+      KMButton_MainMenuTutor  :=MyControls.AddButton(KMPanel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal,bsMenu);
+      KMButton_MainMenuTSK    :=MyControls.AddButton(KMPanel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
+      KMButton_MainMenuTPR    :=MyControls.AddButton(KMPanel_MainButtons,0, 80,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
+      KMButton_MainMenuSingle :=MyControls.AddButton(KMPanel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
+      KMButton_MainMenuOptions:=MyControls.AddButton(KMPanel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
+      KMButton_MainMenuCredit :=MyControls.AddButton(KMPanel_MainButtons,0,200,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
+      KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,280,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       KMButton_MainMenuTutor.OnClick :=MainMenu_PlayTutorial;
       KMButton_MainMenuSingle.OnClick:=SwitchMenuPage;
       KMButton_MainMenuOptions.OnClick:=SwitchMenuPage;
@@ -322,11 +323,11 @@ begin
 
     KMPanel_SingleList:=MyControls.AddPanel(KMPanel_Single,45,100,445,600);
 
-      KMButton_SingleHeadMode :=MyControls.AddButton(KMPanel_SingleList,  0,0, 40,40,42);
-      KMButton_SingleHeadTeams:=MyControls.AddButton(KMPanel_SingleList, 40,0, 40,40,31);
-      KMButton_SingleHeadTitle:=MyControls.AddButton(KMPanel_SingleList, 80,0,300,40,'Title',fnt_Metal);
-      KMButton_SingleHeadSize :=MyControls.AddButton(KMPanel_SingleList,380,0, 40,40,'Size',fnt_Metal);
-      MyControls.AddButton(KMPanel_SingleList,420,0, 25,40,'',fnt_Game);
+      KMButton_SingleHeadMode :=MyControls.AddButton(KMPanel_SingleList,  0,0, 40,40,42,4,bsMenu);
+      KMButton_SingleHeadTeams:=MyControls.AddButton(KMPanel_SingleList, 40,0, 40,40,31,4,bsMenu);
+      KMButton_SingleHeadTitle:=MyControls.AddButton(KMPanel_SingleList, 80,0,300,40,'Title',fnt_Metal,bsMenu);
+      KMButton_SingleHeadSize :=MyControls.AddButton(KMPanel_SingleList,380,0, 40,40,'Size',fnt_Metal,bsMenu);
+      MyControls.AddButton(KMPanel_SingleList,420,0, 25,40,'',fnt_Game,bsMenu);
       for i:=1 to MENU_SINGLE_MAPS_COUNT do begin
         KMBevel_SingleBG[i,1]:=MyControls.AddBevel(KMPanel_SingleList,0,  40+(i-1)*40,40,40);
         KMBevel_SingleBG[i,2]:=MyControls.AddBevel(KMPanel_SingleList,40, 40+(i-1)*40,40,40);
@@ -342,7 +343,7 @@ begin
         KMButton_SingleSize[i]   :=MyControls.AddLabel(KMPanel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
       end;
 
-      KMScrollBar_SingleMaps:=MyControls.AddScrollBar(KMPanel_SingleList,420,40,25,MENU_SINGLE_MAPS_COUNT*40);
+      KMScrollBar_SingleMaps:=MyControls.AddScrollBar(KMPanel_SingleList,420,40,25,MENU_SINGLE_MAPS_COUNT*40,bsMenu);
       KMScrollBar_SingleMaps.OnChange:=SingleMap_ScrollChange;
 
       KMShape_SingleMap:=MyControls.AddShape(KMPanel_SingleList,0,40,420,40,$FFFFFF00);
@@ -375,9 +376,9 @@ begin
       MyControls.AddLabel(KMPanel_SingleDesc,340,402,40,40,'Difficulty:',fnt_Metal, kaCenter);
       KMLabel_SingleDiff:=MyControls.AddLabel(KMPanel_SingleDesc,340,422,40,40,'Medium',fnt_Game, kaCenter);
 
-      KMButton_SingleBack:=MyControls.AddButton(KMPanel_SingleDesc,0,560,220,30,fTextLibrary.GetSetupString(9),fnt_Metal);
+      KMButton_SingleBack:=MyControls.AddButton(KMPanel_SingleDesc,0,560,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
       KMButton_SingleBack.OnClick:=SwitchMenuPage;
-      KMButton_SingleStart:=MyControls.AddButton(KMPanel_SingleDesc,225,560,220,30,fTextLibrary.GetSetupString(8),fnt_Metal);
+      KMButton_SingleStart:=MyControls.AddButton(KMPanel_SingleDesc,225,560,220,30,fTextLibrary.GetSetupString(8),fnt_Metal,bsMenu);
       KMButton_SingleStart.OnClick:=SingleMap_Start;
 end;
 

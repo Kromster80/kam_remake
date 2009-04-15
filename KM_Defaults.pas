@@ -84,6 +84,7 @@ const
 
 {Controls}
 type
+  TButtonStyle = (bsMenu,bsGame);
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
@@ -94,10 +95,14 @@ const
 
  //I couldn't find matching palettes for several entries, so I marked them 0 
  RX5Pal:array[1..40]of byte = (
- 12,12,12,12,12,12,9,0,0,1,
+ 12,12,12,12,12,12,9,9,9,1,
  1,1,1,1,1,1,12,12,12,13,
  0,0,0,0,12,1,1,1,1,1,
- 12,12,12,12,12,12,12,12,12,12);
+ 12,12,12,12,12,12,12,0,0,0);
+ //I couldn't find matching palettes for several entries, so I marked them 0 
+ RX6Pal:array[1..20]of byte = (
+ 8,8,8,8,8,8,9,9,9,1,
+ 1,1,1,1,1,1,0,0,0,0);
 
 {Fonts}
 type //Indexing should start from 1.
@@ -627,7 +632,7 @@ var
   //+2lbm
   Pal:array[1..13,1..256,1..3]of byte;
 
-  RXData:array [1..5]of record
+  RXData:array [1..6]of record
     Title:string;
     Qty:integer;
     Pal:array[1..9500] of byte;
@@ -637,7 +642,7 @@ var
     NeedTeamColors:boolean;
   end;
 
-  GFXData: array [1..5,1..9500] of record
+  GFXData: array [1..6,1..9500] of record
     TexID,AltID: GLUint; //AltID used for team colors
     u1,v1,u2,v2: single;
     PxWidth,PxHeight:word;

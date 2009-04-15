@@ -16,6 +16,9 @@ type
     IsFight: shortint; //We need to have 3 states here: default, no, yes  (-1,0,1)
     TeamCount, HumanPlayerID: shortint;
   end;
+  TKMMapDetails = record
+    MapSize: TKMPoint;
+  end;
 
   TKMCommandTypeSet = set of TKMCommandType;
 
@@ -61,6 +64,7 @@ type
     constructor Create;
     function LoadDATFile(aFileName:string):boolean;
     function GetMissionDetails(aFileName:string):TKMMissionDetails;
+    function GetMapDetails(aFileName:string):TKMMapDetails;
 end;
 
 type
@@ -233,6 +237,14 @@ begin
   ct_SetTactic:      MissionDetails.IsFight     := 1;
   ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
   end;
+end;
+
+
+{Acquire specific map details in a fast way}
+function TMissionParser.GetMapDetails(aFileName:string):TKMMapDetails;
+begin
+  Result.MapSize.X:=32;
+  Result.MapSize.Y:=32;
 end;
 
 
@@ -471,6 +483,7 @@ end;
 procedure TKMMapsInfo.ScanSingleMapsFolder(Path:string);
 var i:integer; SearchRec:TSearchRec; ft:textfile; s:string; r:integer;
   MissionDetails: TKMMissionDetails;
+  MapDetails: TKMMapDetails;
 begin
   MapCount:=0; r:=0;
   if not DirectoryExists(ExeDir+'Maps\') then exit;
@@ -491,13 +504,21 @@ begin
   for i:=1 to MapCount do with Maps[i] do begin
 
     MissionDetails := fMissionParser.GetMissionDetails(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.dat');
+    MapDetails := fMissionParser.GetMapDetails(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.map');
     IsFight := MissionDetails.IsFight=1;
     PlayerCount := MissionDetails.TeamCount;
+
+    case MapDetails.MapSize.X*MapDetails.MapSize.Y of
+              1.. 64* 64: MapSize:='S';
+       64* 64+1..112*112: MapSize:='M';
+      112*112+1..176*176: MapSize:='L';
+      176*176+1..256*256: MapSize:='XL';
+      else Assert(false,'Unexpected MapDetail size');
+    end;
 
     Title:=Maps[i].Folder;
     SmallDesc:='-';
     BigDesc:='-';
-    MapSize:='?';              
 
     if fileexists(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt') then begin
       assignfile(ft,ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt');
@@ -518,12 +539,6 @@ begin
       if UpperCase(s)=UpperCase('BigDesc') then
         readln(ft,BigDesc);
 
-      if UpperCase(s)=UpperCase('MapSize') then begin
-        readln(ft,MapSize);
-        //Could be read from map file itself later on MapSize:=ScanMapFileSize();
-        Assert(InRange(length(MapSize),1,3),'\Maps\'+Maps[i].Folder+'\Mission.txt'+eol+'Wrong MapSize value')
-      end;
-
       until(eof(ft));
 
       closefile(ft);
@@ -537,7 +552,18 @@ end;
 function TKMMapsInfo.IsFight(ID:integer):boolean;        begin Result:=Maps[ID].IsFight;         end;
 function TKMMapsInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].PlayerCount;     end;
 function TKMMapsInfo.GetTitle(ID:integer):string;        begin Result:=Maps[ID].Title;           end;
-function TKMMapsInfo.GetSmallDesc(ID:integer):string;    begin Result:=Maps[ID].SmallDesc;       end;
+
+//Remove any EOLs and limit length
+function TKMMapsInfo.GetSmallDesc(ID:integer):string;
+begin
+  Result:=StringReplace(Maps[ID].SmallDesc,#124,' ',[rfReplaceAll]);
+  if length(Result)>36 then begin
+    setlength(Result,36);
+    Result:=Result+' ...';
+  end;
+end;
+
+
 function TKMMapsInfo.GetBigDesc(ID:integer):string;      begin Result:=Maps[ID].BigDesc;         end;
 function TKMMapsInfo.GetMapSize(ID:integer):string;      begin Result:=Maps[ID].MapSize;         end;
 function TKMMapsInfo.GetFolder(ID:integer):string;       begin Result:=Maps[ID].Folder;          end;

@@ -6,7 +6,7 @@ type
 TRenderUI = class
   public
     constructor Create;
-    procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet);
+    procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet; aStyle:TButtonStyle);
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX:smallint; Caption:string; State:TFlatButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; const HalfContrast:boolean=false);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
@@ -31,20 +31,25 @@ begin
 end;
 
 
-procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet);
-const bRX=4; bID=402; //4-402 is a stone background
-var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte;
+procedure TRenderUI.Write3DButton(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet; aStyle:TButtonStyle);
+var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte; bRX,bID:word;
 begin
-with GFXData[bRX,bID] do begin
-  a.x := u1 + (u2-u1) * (PosX         - byte(bs_Down in State)) / PxWidth;
-  b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) / PxWidth;
-  a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) / PxHeight;
-  b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bs_Down in State)) / PxHeight;
-  a.x:=a.x-(u2-u1)*((PosX+SizeX) div PxWidth ); b.x:=b.x-(u2-u1)*((PosX+SizeX) div PxWidth );
-  a.y:=a.y-(v2-v1)*((PosY+SizeY) div PxHeight); b.y:=b.y-(v2-v1)*((PosY+SizeY) div PxHeight);
-  a.x:=EnsureRange(a.x,u1,u2); b.x:=EnsureRange(b.x,u1,u2);
-  a.y:=EnsureRange(a.y,v1,v2); b.y:=EnsureRange(b.y,v1,v2);
-end;
+  bRX:=4; bID:=402; //4-402 is a stone background
+  if aStyle=bsMenu then begin
+    bRX:=5; bID:=9; //5-3 is a metal background
+  end;
+
+  with GFXData[bRX,bID] do begin
+    a.x := u1 + (u2-u1) * (PosX         - byte(bs_Down in State)) / PxWidth;
+    b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) / PxWidth;
+    a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) / PxHeight;
+    b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bs_Down in State)) / PxHeight;
+    a.x:=a.x-(u2-u1)*((PosX+SizeX) div PxWidth ); b.x:=b.x-(u2-u1)*((PosX+SizeX) div PxWidth );
+    a.y:=a.y-(v2-v1)*((PosY+SizeY) div PxHeight); b.y:=b.y-(v2-v1)*((PosY+SizeY) div PxHeight);
+    a.x:=EnsureRange(a.x,u1,u2); b.x:=EnsureRange(b.x,u1,u2);
+    a.y:=EnsureRange(a.y,v1,v2); b.y:=EnsureRange(b.y,v1,v2);
+  end;
+
   InsetX:=3/SizeX; //3px
   InsetY:=3/SizeY; //3px
 

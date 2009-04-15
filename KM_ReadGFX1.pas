@@ -69,16 +69,17 @@ begin
     RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
     RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
     RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
+    RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
   end;
 
   if LoadEssence then begin
-    RX1:=4; RX2:=5;
+    RX1:=4; RX2:=6;
   end else begin
     RX1:=1; RX2:=3;
   end;
 
   for i:=RX1 to RX2 do
-  if (i=1)or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites)or(i in [4,5]) then begin //Always make GUI
+  if (i=1)or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites)or(i in [4,5,6]) then begin //Always make GUI
 
     FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
@@ -548,6 +549,7 @@ repeat
     inc(WidthPOT,RXData[RXid].Size[id+ad,1]);
     inc(ad);
     if (RXid=5)and(RX5pal[id]<>RX5pal[id+ad]) then break; //Don't align RX5 images for they use all different palettes
+    if (RXid=6)and(RX6pal[id]<>RX6pal[id+ad]) then break; //Don't align RX6 images for they use all different palettes
   end;
 
   WidthPOT:=MakePOT(WidthPOT);
@@ -572,6 +574,12 @@ repeat
     if RXid=5 then begin
       if RX5Pal[id]<>0 then
         GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[id])
+      else
+        GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10);
+    end else
+    if RXid=6 then begin
+      if RX6Pal[id]<>0 then
+        GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX6Pal[id])
       else
         GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10);
     end else
@@ -641,6 +649,7 @@ begin
 
     UsePal:=DEF_PAL;
     if RXid=5 then UsePal:=RX5Pal[id];
+    if RXid=6 then UsePal:=RX6Pal[id];
     if UsePal=0 then UsePal:=10;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
