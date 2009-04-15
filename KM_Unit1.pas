@@ -5,7 +5,8 @@ uses
   Menus, Buttons, Math, SysUtils, KromUtils, OpenGL, dglOpenGL, MMSystem,
   KM_Render, KM_RenderUI, KM_ReadGFX1, KM_Defaults,
   KM_Form_Loading, KM_Terrain, KM_Game,
-  KM_Units, KM_Houses, KM_Viewport, KM_Users, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT;
+  KM_Units, KM_Houses, KM_Viewport, KM_Users, ColorPicker, KM_LoadLib, KM_LoadSFX, KM_LoadDAT,
+  MPlayer;
 
 type                           
   TForm1 = class(TForm)
@@ -61,6 +62,7 @@ type
     Button_W: TButton;
     Export_TreeAnim1: TMenuItem;
     Export_GUIMainHRX: TMenuItem;
+    MediaPlayer1: TMediaPlayer;
     procedure Export_TreeAnim1Click(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
@@ -163,7 +165,7 @@ begin
   //!Form1.BorderStyle:=bsNone;
 
   Form1.Refresh;
-  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
+  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1);
 
   TimeBeginPeriod(1);
   Application.OnIdle:=Form1.OnIdle;
@@ -584,6 +586,5 @@ procedure TForm1.Button_StopClick(Sender: TObject);
 begin
   fGame.StopGame;
 end;
-
 
 end.

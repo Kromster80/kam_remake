@@ -298,6 +298,16 @@ object Form1: TForm1
       OnClick = Button_StopClick
     end
   end
+  object MediaPlayer1: TMediaPlayer
+    Left = 88
+    Top = 48
+    Width = 113
+    Height = 30
+    ColoredButtons = [btPlay, btStop, btNext, btPrev]
+    EnabledButtons = [btPlay, btStop, btNext, btPrev, btStep, btBack, btRecord, btEject]
+    VisibleButtons = [btPlay, btStop, btNext, btPrev]
+    TabOrder = 3
+  end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]

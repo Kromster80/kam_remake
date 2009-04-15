@@ -1,6 +1,6 @@
 unit KM_LoadSFX;
 interface
-uses Windows, Classes, SysUtils, KromUtils, OpenAL, KM_Defaults;
+uses Windows, MMSystem, MPlayer, Classes, SysUtils, KromUtils, OpenAL, KM_Defaults;
 
 const MaxWaves = 200;
 const MaxSourceCount = 16; //Actually it depends on hardware
@@ -25,6 +25,7 @@ type
 type
   TSoundLib = class(TObject)
   private
+    MediaPlayer: TMediaPlayer;
     Waves: array[1..MaxWaves] of record
       Head: TWAVHeaderEx;
       Data: array of char;
@@ -45,12 +46,14 @@ type
     SoundGain,MusicGain:single;
     procedure LoadSoundsDAT();
   public
-    constructor Create;
+    constructor Create(aMediaPlayer: TMediaPlayer);
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPoint);
     procedure UpdateSFXVolume(Value:single);
     procedure UpdateMusicVolume(Value:single);
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+    function IsMusicEnded():boolean;
+    procedure PlayMusicFile(FileName:string);
 end;
 
 var
@@ -58,12 +61,12 @@ var
 
 implementation
 
-constructor TSoundLib.Create;
+constructor TSoundLib.Create(aMediaPlayer: TMediaPlayer);
 var
   Context: PALCcontext;
   Device: PALCdevice;
 begin
-  Inherited;
+  Inherited Create;
   IsOpenALInitialized:=InitOpenAL;
 
   if not IsOpenALInitialized then exit;
@@ -74,6 +77,8 @@ begin
   Context := alcCreateContext(Device, nil);
   //Set active context
   alcMakeContextCurrent(Context);
+
+  MediaPlayer:=aMediaPlayer;
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
@@ -162,11 +167,31 @@ end;
 
 {Update music gain (global volume for all sounds/music)}
 procedure TSoundLib.UpdateMusicVolume(Value:single);
+const
+  MCI_SETAUDIO = $0873;
+  MCI_DGV_SETAUDIO_VOLUME = $4002;
+  MCI_DGV_SETAUDIO_ITEM = $00800000;
+  MCI_DGV_SETAUDIO_VALUE = $01000000;
+var
+  P:record
+  dwCallback: DWORD;
+  dwItem: DWORD;
+  dwValue: DWORD;
+  dwOver: DWORD;
+  lpstrAlgorithm: PChar;
+  lpstrQuality: PChar;
+  end;
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsOpenALInitialized then exit; //Keep silent
   MusicGain:=Value;
-//  alListenerf ( AL_GAIN, MusicGain );
-end;
+  P.dwCallback := 0;
+  P.dwItem := MCI_DGV_SETAUDIO_VOLUME;
+  P.dwValue := round(Value*1000);
+  P.dwOver := 0;
+  P.lpstrAlgorithm := nil;
+  P.lpstrQuality := nil;
+  mciSendCommand(MediaPlayer.DeviceID, MCI_SETAUDIO, MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@P)) ;
+end;  
 
 
 {Call to this procedure will find free spot and start to play sound immediately}
@@ -218,5 +243,24 @@ begin
   AlSourcePlay(ALSource[FreeBuf]);
 end;
 
+
+//Check if Music has stopped playing, to know when new mp3 should be feeded
+function TSoundLib.IsMusicEnded():boolean;
+begin
+//Inefficient way, I'll replace it later on
+end;
+
+
+procedure TSoundLib.PlayMusicFile(FileName:string);
+begin
+  MediaPlayer.Close; //Cancel previous sound
+  if not CheckFileExists(FileName) then exit;
+  if GetFileExt(FileName)<>'MP3' then exit;
+  MediaPlayer.FileName:=FileName;
+  MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
+  MediaPlayer.Open; //Needs to be done for every new file
+  UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
+  MediaPlayer.Play;
+end;
 
 end.

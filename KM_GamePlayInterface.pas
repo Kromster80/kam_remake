@@ -933,9 +933,7 @@ begin
     KMRatio_Settings_SFX.MinValue:=fGameSettings.GetSlidersMin;
     KMRatio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
     KMLabel_Settings_Music:=MyControls.AddLabel(KMPanel_Settings,24,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-    KMLabel_Settings_Music.Disable;
     KMRatio_Settings_Music:=MyControls.AddRatioRow(KMPanel_Settings,18,246,160,20);
-    KMRatio_Settings_Music.Disable;
     KMRatio_Settings_Music.MaxValue:=fGameSettings.GetSlidersMax;
     KMRatio_Settings_Music.MinValue:=fGameSettings.GetSlidersMin;
     KMRatio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);

@@ -14,11 +14,11 @@ type
     fMusicVolume:byte;
     fMusicOnOff:boolean;
     SlidersMin,SlidersMax:byte;
+    function LoadSettingsFromFile(filename:string):boolean;
+    procedure SaveSettingsToFile(filename:string);
   public
     constructor Create;
     destructor Destroy; override;
-    function LoadSettingsFromFile(filename:string):boolean;
-    procedure SaveSettingsToFile(filename:string);
     procedure SetDefaultValues;
     property GetBrightness:byte read fBrightness default 1;
     procedure IncBrightness;
@@ -30,6 +30,7 @@ type
     procedure SetMouseSpeed(Value:integer);
     procedure SetSoundFXVolume(Value:integer);
     procedure SetMusicVolume(Value:integer);
+    procedure UpdateSFXVolume();
     property GetMouseSpeed:byte read fMouseSpeed;
     property GetSoundFXVolume:byte read fSoundFXVolume;
     property GetMusicVolume:byte read fMusicVolume;
@@ -72,7 +73,7 @@ begin
   SlidersMin:=0;
   SlidersMax:=20;
   LoadSettingsFromFile(ExeDir+'KaM_Remake_Settings.ini');
-  fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
+  UpdateSFXVolume(); //Other settings may added here as well
 end;
 
 destructor TGameSettings.Destroy;
@@ -126,8 +127,8 @@ begin
   fAutosave := false;
   fFastScroll := false;
   fMouseSpeed := 10;
-  fSoundFXVolume := 20;
-  fMusicVolume := 8;
+  fSoundFXVolume := 10;
+  fMusicVolume := 10;
   fMusicOnOff := true;
 end;
 
@@ -149,13 +150,21 @@ end;
 procedure TGameSettings.SetSoundFXVolume(Value:integer);
 begin
   fSoundFXVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
-  fSoundLib.UpdateSFXVolume(Value/SlidersMax);
+  UpdateSFXVolume();
 end;
 
 procedure TGameSettings.SetMusicVolume(Value:integer);
 begin
   fMusicVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
+  UpdateSFXVolume();
 end;
+
+procedure TGameSettings.UpdateSFXVolume();
+begin
+  fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
+  fSoundLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
+end;
+
 
 
 { TMissionSettings }

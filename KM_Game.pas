@@ -1,6 +1,6 @@
 unit KM_Game;
 interface
-uses Windows, Forms, Controls, Classes, SysUtils, KromUtils, Math,
+uses Windows, MPlayer, Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Users, KM_Render, KM_LoadLib, KM_GamePlayInterface, KM_ReadGFX1, KM_Terrain, KM_LoadDAT,
   KM_LoadSFX, KM_Viewport, KM_Units, KM_Settings;
 
@@ -17,7 +17,7 @@ type
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
   public
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer);
     destructor Destroy; override;
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
@@ -38,34 +38,37 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer);
 begin
   DataState:=dls_None;
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
   fLog.AppendLog('<== Render init follows ==>');
   fRender:= TRender.Create(RenderHandle);
-  fLog.AppendLog('Render init',true);
   fLog.AppendLog('<== TextLib init follows ==>');
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
-  fLog.AppendLog('TextLib init',true);
+  fLog.AppendLog('<== SoundLib init follows ==>');
+  fSoundLib:= TSoundLib.Create(aMediaPlayer); //Needed for button click sounds and etc?
   fLog.AppendLog('<== ReadGFX init follows ==>');
   ReadGFX(ExeDir, true); //Should load only GUI part of it
   DataState:=dls_Menu;
-  fLog.AppendLog('<== SoundLib init follows ==>');
-  fSoundLib:= TSoundLib.Create; //Needed for button click sounds and etc?
-  fLog.AppendLog('SoundLib init',true);
   fLog.AppendLog('<== MainMenu init follows ==>');
   fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY);
   fLog.AppendLog('fMainMenuInterface init',true);
+
+  fGameSettings:= TGameSettings.Create;
+  
   GameSpeed:=1;
   GameIsRunning:=false;
+  
+  fSoundLib.PlayMusicFile(ExeDir+'track_02.mp3');
 end;
 
 
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
+  FreeAndNil(fGameSettings);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fSoundLib);
   FreeAndNil(fMissionParser);
@@ -232,7 +235,6 @@ begin
   end;
 
   fViewport:=TViewport.Create;
-  fGameSettings:= TGameSettings.Create;
   fGamePlayInterface:= TKMGamePlayInterface.Create;
 
   //Here comes terrain/mission init
@@ -272,7 +274,6 @@ begin
 
   FreeAndNil(fMissionParser);
   FreeAndNil(fGamePlayInterface);
-  FreeAndNil(fGameSettings);
   FreeAndNil(fViewport);
 
   if StoppedCosOfError then begin
@@ -304,4 +305,3 @@ begin
 end;
 
 end.
- 
