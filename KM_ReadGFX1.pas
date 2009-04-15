@@ -849,7 +849,10 @@ thus it's better to spend few ms and generate minimap colors from actual data}
 procedure MakeMiniMapColors();
 var ii,kk,h,j,px:integer; c:array of byte; R,G,B:integer; f:file;
 begin
-  assignfile(f,ExeDir+'Resource\Tiles512.tga');
+  Assert(FileExists(ExeDir+'Resource\Tiles1.tga'),'Unpack Resource.rar in Resource folder. ');
+  //Cos unpacked it takes whole 17mb, so I thought I'd better pack it
+
+  assignfile(f,ExeDir+'Resource\Tiles1.tga');
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
   setlength(c,512*512*4+1);
@@ -868,10 +871,7 @@ begin
       inc(R, c[px+3]);
     end;
 
-    if (kk<8)and(ii<8) then px:=ii*8+kk+1;
-    if (kk>7)and(ii<8) then px:=ii*8+(kk-8)+64+1;
-    if (kk<8)and(ii>7) then px:=(ii-8)*8+kk+128+1;
-    if (kk>7)and(ii>7) then px:=(ii-8)*8+(kk-8)+192+1;
+    px:=ii*16+kk+1;
 
     TileMMColor[px].R:= (R / 1024) / 255; //each tile is 32x32 px
     TileMMColor[px].G:= (G / 1024) / 255;

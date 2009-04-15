@@ -8,7 +8,11 @@ TRender = class
 private
   h_DC: HDC;
   h_RC: HGLRC;
-  TextG,Text512:GLuint;
+  TextG:GLuint; //Shading gradient
+  TextT:GLuint; //Tiles
+  TextW:array[1..8]of GLuint; //Water
+  TextS:array[1..3]of GLuint; //Swamps
+  TextF:array[1..5]of GLuint; //WaterFalls
   RenderCount:integer;
   RO:array of integer; //RenderOrder
   RenderList:array of record
@@ -43,10 +47,11 @@ protected
 public
   constructor Create(RenderFrame:HWND);
   destructor Destroy; override;
+  procedure LoadTileSet();
   procedure RenderResize(Width,Height:integer);
   procedure Render();
   procedure DoPrintScreen(filename:string);
-  procedure RenderTerrain(x1,x2,y1,y2:integer);
+  procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderDebugWires();
@@ -82,8 +87,6 @@ begin
 
   glDisable(GL_LIGHTING);
   fLog.AppendLog('Pre-texture done');
-  LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);    // Load the Textures
-  LoadTexture(ExeDir+'Resource\Tiles512.tga', Text512,0);  // Load the Textures
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 end;
 
@@ -93,6 +96,18 @@ begin
   wglMakeCurrent(h_DC, 0);
   wglDeleteContext(h_RC);
   Inherited;
+end;
+
+
+// Load the Textures
+procedure TRender.LoadTileSet();
+var i:integer;
+begin
+  LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);
+  LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT,0);
+  for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i],0);
+  for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i],0);
+  for i:=1 to 5 do LoadTexture(ExeDir+'Resource\Falls'+inttostr(i)+'.tga', TextF[i],0);
 end;
 
 
@@ -188,38 +203,44 @@ begin
 end;
 
 
-procedure TRender.RenderTerrain(x1,x2,y1,y2:integer);
+procedure TRender.RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
 var
-  i,k:integer; ID,Rot,rd:integer;
-  ax,ay:single; xt,a:integer;
+  i,k,iW:integer; ID,Rot,rd:integer;
+  xt,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
 glColor4f(1,1,1,1);
-glBindTexture(GL_TEXTURE_2D, Text512);
-glbegin (GL_QUADS);
-  with fTerrain do
-  for i:=y1 to y2 do for k:=x1 to x2 do begin
-    xt:=fTerrain.Land[i,k].Terrain;
-    ax:=((xt div 64) mod 2) /2;
-    ay:=(xt div 128) /2;
 
-    TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
-    TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
-    TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
-    TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
-
-    TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
-
-    if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
-    if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
-
-    glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-    glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
-    glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-    glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+for iW:=1 to 4 do begin //Each new layer inflicts 10% fps drop
+  case iW of
+    1: glBindTexture(GL_TEXTURE_2D, TextT);
+    2: glBindTexture(GL_TEXTURE_2D, TextW[AnimStep mod 8 + 1]); 
+    3: glBindTexture(GL_TEXTURE_2D, TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
+    4: glBindTexture(GL_TEXTURE_2D, TextF[AnimStep mod 5 + 1]);
   end;
-glEnd;
+  glbegin (GL_QUADS);
+    with fTerrain do
+    for i:=y1 to y2 do for k:=x1 to x2 do begin
+      xt:=fTerrain.Land[i,k].Terrain;
+
+      TexC[1,1]:=(xt mod 16  )/16+Overlap; TexC[1,2]:=(xt div 16  )/16+Overlap;
+      TexC[2,1]:=(xt mod 16  )/16+Overlap; TexC[2,2]:=(xt div 16+1)/16-Overlap;
+      TexC[3,1]:=(xt mod 16+1)/16-Overlap; TexC[3,2]:=(xt div 16+1)/16-Overlap;
+      TexC[4,1]:=(xt mod 16+1)/16-Overlap; TexC[4,2]:=(xt div 16  )/16+Overlap;
+
+      TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
+
+      if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
+      if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
+
+      glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+    end;
+  glEnd;
+end;
 
 for i:=y1 to y2 do for k:=x1 to x2 do
 begin
@@ -682,7 +703,7 @@ end;
 
 {Render one terrian cell}
 procedure TRender.RenderTile(Index,pX,pY,Rot:integer);
-var xt,k,i,a:integer; ax,ay:single;
+var xt,k,i,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
@@ -692,16 +713,13 @@ if (pY<1)or(pY>fTerrain.MapY) then exit;
 if not InRange(Index,1,256) then Assert(false,'Wrong tile index');
 
 glColor4f(1,1,1,1);
-glBindTexture(GL_TEXTURE_2D, Text512);
+glBindTexture(GL_TEXTURE_2D, TextT);
 xt:=Index-1;
 
-ax:=((xt div 64) mod 2) /2;
-ay:=(xt div 128) /2;
-
-TexC[1,1]:=(xt mod 8  )/16+ax+Overlap; TexC[1,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
-TexC[2,1]:=(xt mod 8  )/16+ax+Overlap; TexC[2,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
-TexC[3,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[3,2]:=(xt mod 64 div 8+1)/16+ay-Overlap;
-TexC[4,1]:=(xt mod 8+1)/16+ax-Overlap; TexC[4,2]:=(xt mod 64 div 8  )/16+ay+Overlap;
+TexC[1,1]:=(xt mod 16  )/16+Overlap; TexC[1,2]:=(xt div 16  )/16+Overlap;
+TexC[2,1]:=(xt mod 16  )/16+Overlap; TexC[2,2]:=(xt div 16+1)/16-Overlap;
+TexC[3,1]:=(xt mod 16+1)/16-Overlap; TexC[3,2]:=(xt div 16+1)/16-Overlap;
+TexC[4,1]:=(xt mod 16+1)/16-Overlap; TexC[4,2]:=(xt div 16  )/16+Overlap;
 TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
 if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1

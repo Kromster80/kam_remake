@@ -227,6 +227,7 @@ begin
 
   if DataState<>dls_All then begin
     ReadGFX(ExeDir, false); //Should load the rest part of data
+    fRender.LoadTileSet();
     DataState:=dls_All;
   end;
 

@@ -165,7 +165,7 @@ begin
   MapY:=min(Height,MaxMapSize);
 
   for i:=1 to MapY do for k:=1 to MapX do with Land[i,k] do begin
-    Terrain:=0;
+    Terrain:=i*k mod 256;
     Height:=random(7);    //variation in height
     Rotation:=random(4);  //Make it random
     Obj:=255;             //none
@@ -1371,7 +1371,7 @@ begin
   x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
   y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
 
-  fRender.RenderTerrain(x1,x2,y1,y2);
+  fRender.RenderTerrain(x1,x2,y1,y2,AnimStep);
   fRender.RenderTerrainFieldBorders(x1,x2,y1,y2);
   fRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep);
 
