@@ -295,9 +295,9 @@ begin
   fViewport.DoScrolling; //Check to see if we need to scroll
   for i:=1 to GameSpeed do begin
     fTerrain.UpdateState;
-    fPlayers.UpdateState;
+    fPlayers.UpdateState; //Quite slow
   end;
-  
+
   fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
   fGamePlayInterface.UpdateState;
 

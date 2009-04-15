@@ -526,9 +526,10 @@ begin
 
   end;
 
+  RGPlayer.ItemIndex:=2;
   RGPlayerClick(nil); //Update
 
-  fViewPort.SetCenter(10,9);
+  fViewPort.SetCenter(13,11);
 end;
 
 

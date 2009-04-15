@@ -15,7 +15,7 @@ private
   TextF:array[1..5]of GLuint; //WaterFalls
   RenderCount:integer;
   RO:array of integer; //RenderOrder
-  RenderList:array of record
+  RenderList:array{[1..4096]} of record
     Loc,Obj:TKMPointF;
     RX:byte;
     ID:word;
@@ -84,6 +84,7 @@ begin
   Inherited Create;
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults();
+  setlength(RenderList,512);
 
   glDisable(GL_LIGHTING);
   fLog.AppendLog('Pre-texture done');
@@ -93,6 +94,7 @@ end;
 
 destructor TRender.Destroy;
 begin
+  setlength(RenderList,0);
   wglMakeCurrent(h_DC, 0);
   wglDeleteContext(h_RC);
   Inherited;
@@ -130,6 +132,7 @@ begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
   if fGame.GameIsRunning then begin //If game is running
+  
     glLoadIdentity();                // Reset The View
     glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
@@ -142,7 +145,7 @@ begin
 
     fTerrain.Paint;
 
-    fPlayers.Paint;            //Units and houses
+    fPlayers.Paint; //Quite slow           //Units and houses
 
     ClipRenderList();
     SortRenderList();
@@ -804,15 +807,16 @@ end;
 procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
 begin
 inc(RenderCount);
-if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+32); //Book some space
+if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+512); //Book some space
 
 RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
-RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object, floating-point
+RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object in tile-space, floating-point
 RenderList[RenderCount].RX:=aRX;              //RX library
 RenderList[RenderCount].ID:=aID;              //Texture ID
 RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top of it's parent)
 RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
 RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
+
 RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
 RenderList[RenderCount].Exclude:=false;       //Exclude entry from render if it's clipped
 end;
@@ -825,22 +829,21 @@ begin
   x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
   y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
 
-  for i:=1 to RenderCount do begin
+  for i:=1 to RenderCount do
+  if RenderList[i].NewInst then begin
+  
+    if not (InRange(RenderList[i].Obj.X,x1,x2) and InRange(RenderList[i].Obj.Y,y1,y2)) then
+      RenderList[i].Exclude:=true;
 
-    P:=KMPointRound(RenderList[i].Obj);
-    RenderList[i].FOWvalue:=fTerrain.CheckRevelation(P.X,P.Y,MyPlayer.PlayerID);
-
-
-    if RenderList[i].NewInst then begin
-
-      if not (InRange(RenderList[i].Obj.X,x1,x2) and InRange(RenderList[i].Obj.Y,y1,y2)) then
-        RenderList[i].Exclude:=true;
-        
+    if not RenderList[i].Exclude then begin
+      P:=KMPointRound(RenderList[i].Obj);
+      RenderList[i].FOWvalue:=fTerrain.CheckRevelation(P.X,P.Y,MyPlayer.PlayerID);
       if RenderList[i].FOWvalue=0 then
         RenderList[i].Exclude:=true;
-
     end;
-  end;
+
+  end else
+    RenderList[i].FOWvalue:=RenderList[i-1].FOWvalue; //Take from previous
 
 end;
 
@@ -853,18 +856,15 @@ begin
   setlength(RO,RenderCount+1);
 
   for i:=1 to RenderCount do //Mark child sprites with 0, also excluded ones
-  if (RenderList[i].NewInst)or(RenderList[i].Exclude) then RO[i]:=i else RO[i]:=0;
+  if (RenderList[i].NewInst)and(not RenderList[i].Exclude) then RO[i]:=i else RO[i]:=0;
 
   for i:=1 to RenderCount do if RO[i]<>0 then //Exclude child sprites from comparision
-  for k:=i+1 to RenderCount do if RO[k]<>0 then begin
-
-      if RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y then //TopMost
-        SwapInt(RO[k],RO[i])
-      else
-      if RenderList[RO[k]].Loc.Y = RenderList[RO[i]].Loc.Y then
-      if RenderList[RO[k]].Loc.X > RenderList[RO[i]].Loc.X then //Rightmost
-        SwapInt(RO[k],RO[i]);
-  end;
+  for k:=i+1 to RenderCount do if RO[k]<>0 then
+    if (RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y)
+    or((RenderList[RO[k]].Loc.Y = RenderList[RO[i]].Loc.Y)
+    and(RenderList[RO[k]].Loc.X > RenderList[RO[i]].Loc.X))
+    then //TopMost Rightmost
+      SwapInt(RO[k],RO[i])
 end;
 
 
@@ -898,8 +898,7 @@ if not RenderList[RO[i]].Exclude then if RO[i]<>0 then begin
   until((h>RenderCount)or(RenderList[h].NewInst));
 
 end;
-setlength(RenderList,0);
-setlength(RO,0);
+
 end;
 
 

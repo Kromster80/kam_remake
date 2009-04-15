@@ -165,7 +165,7 @@ begin
   MapY:=min(Height,MaxMapSize);
 
   for i:=1 to MapY do for k:=1 to MapX do with Land[i,k] do begin
-    Terrain:=i*k mod 256;
+    Terrain:=0;
     Height:=random(7);    //variation in height
     Rotation:=random(4);  //Make it random
     Obj:=255;             //none
