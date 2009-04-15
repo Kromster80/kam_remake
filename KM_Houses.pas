@@ -126,11 +126,12 @@ type
 
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
-  public
+  private
     UnitWIP:Pointer;
-    UnitQueue:array[1..6]of TUnitType; //Also used in UI
     HideOneGold:boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
     UnitTrainProgress:byte; //Was it 150 steps in KaM?
+  public
+    UnitQueue:array[1..6]of TUnitType; //Also used in UI
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
@@ -178,7 +179,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Users, KM_LoadSFX;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Users, KM_LoadSFX, KM_Viewport;
 
 
 { TKMHouse }
@@ -538,15 +539,14 @@ end;
 
 
 procedure TKMHouse.MakeSound();
-var Cycle,WorkID,Step:byte;
+var WorkID,Step:byte;
 begin
   WorkID:=fCurrentAction.GetWorkID;
   if WorkID=0 then exit;
 
-  Cycle:=HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
-  if Cycle=0 then exit;
-
-  Step:=WorkAnimStep mod Cycle;
+  Step:=HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
+  if Step=0 then exit;
+  Step:=WorkAnimStep mod Step;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
     ht_Mill:          if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_mill,GetPosition);
@@ -697,6 +697,7 @@ begin
   UnitWIP:=nil;
 end;
 
+
 procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
 begin
 Inherited;
@@ -721,6 +722,7 @@ procedure TKMHouseSchool.RemUnitFromQueue(id:integer);
 var i:integer;
 begin
   if UnitQueue[id]=ut_None then exit; //Ignore clicks on empty queue items
+
   if id = 1 then begin
     SetState(hst_Idle,0);
     if UnitWIP<>nil then begin
@@ -729,9 +731,12 @@ begin
     end;
     UnitWIP:=nil;
   end;
+
   for i:=id to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
   UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
-  if UnitQueue[1]<>ut_None then StartTrainingUnit;
+
+  if id = 1 then
+    if UnitQueue[1]<>ut_None then StartTrainingUnit;
 end;
 
 
@@ -986,10 +991,14 @@ end;
 
 
 procedure TKMHousesCollection.Paint();
-var
-  I: Integer;
+var i:integer; x1,x2,y1,y2,Margin:integer;
 begin
+  if TestViewportClipInset then Margin:=-3 else Margin:=3;
+  x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
+  y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
+
   for I := 0 to Count - 1 do
+  if (InRange(TKMHouse(Items[I]).fPosition.X,x1,x2) and InRange(TKMHouse(Items[I]).fPosition.Y,y1,y2)) then
     TKMHouse(Items[I]).Paint();
 end;
 

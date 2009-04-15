@@ -60,7 +60,7 @@ object Form1: TForm1
     SimplePanel = False
   end
   object GroupBox1: TGroupBox
-    Left = 224
+    Left = 400
     Top = 8
     Width = 425
     Height = 73

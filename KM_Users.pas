@@ -67,6 +67,7 @@ type
     property PlayerCount:integer read fPlayerCount;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
+    function GetUnitCount():integer;
   public
     procedure UpdateState;
     procedure Paint;
@@ -341,6 +342,16 @@ begin
     Result:= Player[i].UnitsHitTest(X,Y);
     if Result<>nil then Break; //else keep on testing
   end;
+end;
+
+
+//Get total unit count
+function TKMAllPlayers.GetUnitCount():integer;
+var i:integer;
+begin
+  Result:=0;
+  for i:=1 to fPlayerCount do
+    inc(Result,Player[i].fUnits.Count);
 end;
 
 

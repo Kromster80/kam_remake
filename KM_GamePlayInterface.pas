@@ -86,7 +86,7 @@ type TKMGamePlayInterface = class
     KMPanel_Main:TKMPanel;
       KMImage_Main1,KMImage_Main2,KMImage_Main3,KMImage_Main4:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
-      KMLabel_Hint:TKMLabel;
+      KMLabel_Stat,KMLabel_Hint:TKMLabel;
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
     KMPanel_Ratios:TKMPanel;
@@ -752,6 +752,7 @@ Assert(fViewport<>nil,'fViewport required to be init first');
     KMButtonMain[5].Hint:=fTextLibrary.GetTextString(165);
     KMLabel_MenuTitle:=MyControls.AddLabel(KMPanel_Main,54,372,138,36,'',fnt_Metal,kaLeft);
 
+    KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
@@ -1122,6 +1123,11 @@ begin
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
+
+  KMLabel_Stat.Caption:=
+        inttostr(fPlayers.GetUnitCount)+' units'+#124+
+        inttostr(fRender.Stat_Sprites)+' sprites'+#124+
+        '';
 end;
 
 
@@ -1422,7 +1428,7 @@ begin
   else
     KMButton_School_UnitWIP.TexID :=41; //Question mark
 
-  KMButton_School_UnitWIPBar.Position:=School.UnitTrainProgress;
+  KMButton_School_UnitWIPBar.Position:=School.GetTrainingProgress;
 
   for i:=1 to 5 do
     if School.UnitQueue[i+1]<>ut_None then

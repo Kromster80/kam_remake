@@ -333,7 +333,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users, KM_LoadSFX;
+uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users, KM_LoadSFX, KM_Viewport;
 
 
 {Whole thing should be moved to units Task}
@@ -959,8 +959,8 @@ procedure TKMUnitAnimal.Paint();
 var AnimAct,AnimDir:integer;
 begin
 inherited;
-  AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
-  AnimDir:=integer(Direction);
+  AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
+  AnimDir:=byte(Direction);
   fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
 end;
 
@@ -973,7 +973,7 @@ begin
 
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
-    dec(SpotJit);
+    dec(SpotJit,2);
     Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit),1);
   until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
 
@@ -1082,6 +1082,8 @@ end;
 
 procedure TKMUnit.RemoveUntrainedFromSchool();
 begin
+  if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+    fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
   ScheduleForRemoval:=true;
 end;
 
@@ -2231,10 +2233,14 @@ begin
 end;
 
 procedure TKMUnitsCollection.Paint();
-var
-  I: Integer;
+var i:integer; x1,x2,y1,y2,Margin:integer;
 begin
+  if TestViewportClipInset then Margin:=-3 else Margin:=3;
+  x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
+  y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
+
   for I := 0 to Count - 1 do
+  if (InRange(TKMUnit(Items[I]).fPosition.X,x1,x2) and InRange(TKMUnit(Items[I]).fPosition.Y,y1,y2)) then
     TKMUnit(Items[I]).Paint();
 end;
 

@@ -13,9 +13,11 @@ private
   TextW:array[1..8]of GLuint; //Water
   TextS:array[1..3]of GLuint; //Swamps
   TextF:array[1..5]of GLuint; //WaterFalls
-  RenderCount:integer;
-  RO:array of integer; //RenderOrder
-  RenderList:array{[1..4096]} of record
+  RenderAreaSize:TKMPoint;
+
+  RenderCount:word;
+  RO:array of word; //RenderOrder
+  RenderList:array of record
     Loc,Obj:TKMPointF;
     RX:byte;
     ID:word;
@@ -23,15 +25,14 @@ private
     Team:byte;
     AlphaStep:single; //Only appliable to HouseBuild
     FOWvalue:byte; // Fog of War thickness
-    Exclude:boolean;
   end;
-  RenderAreaSize:TKMPoint;
+  
   procedure RenderDot(pX,pY:single);
   procedure RenderDotOnTile(pX,pY:single);
   procedure RenderQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte);
-  procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; const Col:TColor4=$FF);
+  procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
   procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
   procedure ClipRenderList();
   procedure SortRenderList;
@@ -45,6 +46,7 @@ private
   procedure RenderBrightness(Value:byte);
 protected
 public
+  Stat_Sprites:integer;
   constructor Create(RenderFrame:HWND);
   destructor Destroy; override;
   procedure LoadTileSet();
@@ -84,6 +86,7 @@ begin
   Inherited Create;
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults();
+
   setlength(RenderList,512);
 
   glDisable(GL_LIGHTING);
@@ -772,7 +775,7 @@ for h:=1 to 2 do
 end;
 
 
-procedure TRender.RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; const Col:TColor4=$FF);
+procedure TRender.RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
 begin
 //if Param<1 then begin
   //NOTION: This function does not work on some GPUs will need to replace it with simplier more complicated way
@@ -787,7 +790,7 @@ begin
 //end;
 
   with GFXData[RX,ID] do begin
-    glColor4f(1,1,1,1);
+    glColor3ub(aFOW,aFOW,aFOW);
     glBindTexture(GL_TEXTURE_2D, TexID);
     glBegin (GL_QUADS);
     glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1         );
@@ -807,7 +810,7 @@ end;
 procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
 begin
 inc(RenderCount);
-if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+512); //Book some space
+if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+256); //Book some space
 
 RenderList[RenderCount].Loc:=KMPointF(pX,pY); //Position of sprite, floating-point
 RenderList[RenderCount].Obj:=KMPointF(oX,oY); //Position of object in tile-space, floating-point
@@ -818,32 +821,25 @@ RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
 RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
 
 RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
-RenderList[RenderCount].Exclude:=false;       //Exclude entry from render if it's clipped
 end;
 
 
 procedure TRender.ClipRenderList();
-var i,Margin:integer; x1,x2,y1,y2:integer; P:TKMPoint;
+var i:integer; P:TKMPoint;
 begin
-  if TestViewportClipInset then Margin:=-3 else Margin:=3;
-  x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
-  y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
+  setlength(RO,RenderCount+1);
 
   for i:=1 to RenderCount do
   if RenderList[i].NewInst then begin
-  
-    if not (InRange(RenderList[i].Obj.X,x1,x2) and InRange(RenderList[i].Obj.Y,y1,y2)) then
-      RenderList[i].Exclude:=true;
-
-    if not RenderList[i].Exclude then begin
-      P:=KMPointRound(RenderList[i].Obj);
-      RenderList[i].FOWvalue:=fTerrain.CheckRevelation(P.X,P.Y,MyPlayer.PlayerID);
-      if RenderList[i].FOWvalue=0 then
-        RenderList[i].Exclude:=true;
-    end;
-
-  end else
+    RO[i]:=i;
+    P:=KMPointRound(RenderList[i].Obj);
+    RenderList[i].FOWvalue:=fTerrain.CheckRevelation(P.X,P.Y,MyPlayer.PlayerID);
+    if RenderList[i].FOWvalue=0 then
+      RO[i]:=0;
+  end else begin
+    RO[i]:=0;
     RenderList[i].FOWvalue:=RenderList[i-1].FOWvalue; //Take from previous
+  end;
 
 end;
 
@@ -852,12 +848,6 @@ end;
 procedure TRender.SortRenderList;
 var i,k:integer;
 begin
-
-  setlength(RO,RenderCount+1);
-
-  for i:=1 to RenderCount do //Mark child sprites with 0, also excluded ones
-  if (RenderList[i].NewInst)and(not RenderList[i].Exclude) then RO[i]:=i else RO[i]:=0;
-
   for i:=1 to RenderCount do if RO[i]<>0 then //Exclude child sprites from comparision
   for k:=i+1 to RenderCount do if RO[k]<>0 then
     if (RenderList[RO[k]].Loc.Y < RenderList[RO[i]].Loc.Y)
@@ -872,11 +862,13 @@ end;
 procedure TRender.RenderRenderList;
 var i,h:integer;
 begin
+Stat_Sprites:=RenderCount;
 
 for i:=1 to RenderCount do
-if not RenderList[RO[i]].Exclude then if RO[i]<>0 then begin
+if RO[i]<>0 then begin
 
   h:=RO[i];
+  //Incase no sprites were made
   if (RenderList[h].RX=2) and not MakeHouseSprites then
     RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
   else
@@ -892,7 +884,7 @@ if not RenderList[RO[i]].Exclude then if RO[i]<>0 then begin
         else
           RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
       else
-        RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,$FF)
+        RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
     end;
     inc(h);
   until((h>RenderCount)or(RenderList[h].NewInst));
