@@ -40,7 +40,7 @@ var
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
   FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
-  MOUSEWHEEL_ZOOM_ENABLE:boolean=false; //Should we allow to zoom in game or not
+  MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted
@@ -609,7 +609,7 @@ var
   $FF28C840  //Green
   );
 
-  GlobalTickCount:integer=0;
+  GlobalTickCount:integer=-1; //So that first number after inc() would be 0
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 

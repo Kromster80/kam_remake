@@ -40,6 +40,8 @@ type
       Vel: array [1..3] of TALfloat; //Velocity, used in doppler effect calculation
       Ori: array [1..6] of TALfloat; //Orientation LookingAt and UpVector
     end;
+    MusicCount,MusicIndex:integer;
+    MusicTracks:array[1..256]of string;
     IsOpenALInitialized:boolean;
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
@@ -52,8 +54,11 @@ type
     procedure UpdateSFXVolume(Value:single);
     procedure UpdateMusicVolume(Value:single);
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+    procedure ScanMusicTracks(Path:string);
+    procedure PlayMenuTrack();
+    procedure PlayNextTrack();
     function IsMusicEnded():boolean;
-    procedure PlayMusicFile(FileName:string);
+    function PlayMusicFile(FileName:string):boolean;
 end;
 
 var
@@ -79,6 +84,7 @@ begin
   alcMakeContextCurrent(Context);
 
   MediaPlayer:=aMediaPlayer;
+  ScanMusicTracks(ExeDir+'Music\');
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
@@ -244,15 +250,29 @@ begin
 end;
 
 
-//Check if Music has stopped playing, to know when new mp3 should be feeded
-function TSoundLib.IsMusicEnded():boolean;
+procedure TSoundLib.ScanMusicTracks(Path:string);
+var SearchRec:TSearchRec;
 begin
-//Inefficient way, I'll replace it later on
+  MusicCount:=0;
+  if not DirectoryExists(Path) then exit;
+
+  ChDir(Path);
+  FindFirst('*', faDirectory, SearchRec);
+  repeat
+    if (SearchRec.Attr and faDirectory <> faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
+    if GetFileExt(SearchRec.Name)='MP3' then begin
+      inc(MusicCount);
+      MusicTracks[MusicCount]:=SearchRec.Name;
+    end;
+  until (FindNext(SearchRec)<>0);
+  FindClose(SearchRec);
+  MusicIndex:=0;
 end;
 
 
-procedure TSoundLib.PlayMusicFile(FileName:string);
+function TSoundLib.PlayMusicFile(FileName:string):boolean;
 begin
+  Result:=false;
   MediaPlayer.Close; //Cancel previous sound
   if not CheckFileExists(FileName) then exit;
   if GetFileExt(FileName)<>'MP3' then exit;
@@ -260,7 +280,31 @@ begin
   MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
   MediaPlayer.Open; //Needs to be done for every new file
   UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
-  MediaPlayer.Play;
+  MediaPlayer.Play; //Start actual playback
+  Result:=true;
 end;
+
+
+procedure TSoundLib.PlayMenuTrack();
+begin
+  if FileExists(ExeDir+'Music\track_02.mp3') then
+    PlayMusicFile(ExeDir+'Music\track_02.mp3');
+end;
+
+
+procedure TSoundLib.PlayNextTrack();
+begin
+  if MusicCount=0 then exit; //no music files found
+  MusicIndex := MusicIndex mod MusicCount + 1; //Set next index, looped
+  PlayMusicFile(MusicTracks[MusicIndex]);
+end;
+
+
+//Check if Music is not playing, to know when new mp3 should be feeded
+function TSoundLib.IsMusicEnded():boolean;
+begin
+  Result:= (MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName='');
+end;
+
 
 end.

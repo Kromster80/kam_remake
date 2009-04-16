@@ -318,7 +318,7 @@ begin
 
   KMPanel_Single:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
 
-    KMImage_SingleBG:=MyControls.AddImage(KMPanel_Single,0,0,ScreenX,ScreenY,2,5);
+    KMImage_SingleBG:=MyControls.AddImage(KMPanel_Single,0,0,ScreenX,ScreenY,2,6);
     KMImage_SingleBG.StretchImage:=true;
 
     KMPanel_SingleList:=MyControls.AddPanel(KMPanel_Single,45,100,445,600);

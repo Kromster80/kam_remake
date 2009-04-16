@@ -40,7 +40,7 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer);
 begin
-  DataState:=dls_None;
+  DataState:=dls_None; 
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
   fLog.AppendLog('<== Render init follows ==>');
@@ -57,11 +57,11 @@ begin
   fLog.AppendLog('fMainMenuInterface init',true);
 
   fGameSettings:= TGameSettings.Create;
-  
+
+  fSoundLib.PlayMenuTrack;
+
   GameSpeed:=1;
   GameIsRunning:=false;
-  
-  fSoundLib.PlayMusicFile(ExeDir+'track_02.mp3');
 end;
 
 
@@ -100,7 +100,7 @@ end;
 
 procedure TKMGame.ZoomInGameArea(X:single);
 begin
-  if GameIsRunning then fViewport.SetZoom:=X;
+  if GameIsRunning then fViewport.SetZoom(X);
 end;
 
 
@@ -260,7 +260,8 @@ begin
 
   fRender.RenderResize(ScreenX,ScreenY);
   fViewport.SetArea(ScreenX,ScreenY);
-  fViewport.SetZoom:=1;
+  fViewport.SetZoom(1);
+  fSoundLib.PlayNextTrack(); //Feed new music track
   
   GameIsRunning:=true;
 end;
@@ -290,8 +291,15 @@ end;
 procedure TKMGame.UpdateState;
 var i:integer;
 begin
-  if not GameIsRunning then exit; //If game is not running
+
   inc(GlobalTickCount);
+
+  if not GameIsRunning then begin
+    if GlobalTickCount mod 10 = 0 then //Once a sec
+    if fSoundLib.IsMusicEnded then
+      fSoundLib.PlayMenuTrack(); //Menu tune
+   exit; //If game is not running
+  end;
 
   fViewport.DoScrolling; //Check to see if we need to scroll
   for i:=1 to GameSpeed do begin
@@ -299,9 +307,14 @@ begin
     fPlayers.UpdateState; //Quite slow
   end;
 
-  fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
   fGamePlayInterface.UpdateState;
 
+  if GlobalTickCount mod 5 = 0 then //Every 500ms
+    fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
+
+  if GlobalTickCount mod 10 = 0 then
+    if fSoundLib.IsMusicEnded then
+      fSoundLib.PlayNextTrack(); //Feed new music track
 end;
 
 end.

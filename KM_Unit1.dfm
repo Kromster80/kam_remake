@@ -5,7 +5,7 @@ object Form1: TForm1
   BorderStyle = bsNone
   Caption = 'q'
   ClientHeight = 245
-  ClientWidth = 654
+  ClientWidth = 867
   Color = clSkyBlue
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,14 +20,14 @@ object Form1: TForm1
   OnMouseWheel = FormMouseWheel
   OnResize = FormResize
   DesignSize = (
-    654
+    867
     245)
   PixelsPerInch = 96
   TextHeight = 13
   object Panel5: TPanel
     Left = 0
     Top = 0
-    Width = 654
+    Width = 867
     Height = 225
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
@@ -42,7 +42,7 @@ object Form1: TForm1
   object StatusBar1: TStatusBar
     Left = 0
     Top = 225
-    Width = 654
+    Width = 867
     Height = 20
     Panels = <
       item
@@ -68,7 +68,7 @@ object Form1: TForm1
     TabOrder = 2
     object Image4: TImage
       Left = 10
-      Top = 17
+      Top = 35
       Width = 13
       Height = 14
       AutoSize = True
@@ -97,7 +97,7 @@ object Form1: TForm1
     end
     object Image3: TImage
       Left = 86
-      Top = 12
+      Top = 30
       Width = 19
       Height = 21
       AutoSize = True
@@ -148,7 +148,7 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 109
-      Top = 17
+      Top = 35
       Width = 26
       Height = 13
       Caption = '100%'
@@ -164,10 +164,20 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 85
-      Top = 37
+      Top = 55
       Width = 49
       Height = 13
       Caption = 'Passability'
+    end
+    object MediaPlayer1: TMediaPlayer
+      Left = 8
+      Top = 13
+      Width = 113
+      Height = 20
+      ColoredButtons = [btPlay, btStop, btNext, btPrev]
+      EnabledButtons = [btPlay, btStop, btNext, btPrev, btStep, btBack, btRecord, btEject]
+      VisibleButtons = [btPlay, btStop, btNext, btPrev]
+      TabOrder = 0
     end
     object Button_W: TButton
       Left = 144
@@ -175,12 +185,12 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = 'W'
-      TabOrder = 10
+      TabOrder = 7
       OnClick = Button_WClick
     end
     object TBZoomControl: TTrackBar
       Left = 24
-      Top = 16
+      Top = 34
       Width = 61
       Height = 17
       Max = 7
@@ -191,7 +201,7 @@ object Form1: TForm1
       Position = 4
       SelEnd = 0
       SelStart = 0
-      TabOrder = 0
+      TabOrder = 1
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
@@ -203,7 +213,7 @@ object Form1: TForm1
       Width = 73
       Height = 17
       Caption = 'Speed x10'
-      TabOrder = 1
+      TabOrder = 3
       OnClick = CheckBox2Click
     end
     object Debug_Pause: TCheckBox
@@ -212,11 +222,11 @@ object Form1: TForm1
       Width = 49
       Height = 17
       Caption = 'Pause'
-      TabOrder = 2
+      TabOrder = 4
     end
     object Debug_PassabilityTrack: TTrackBar
       Left = 2
-      Top = 36
+      Top = 54
       Width = 83
       Height = 17
       Max = 9
@@ -226,7 +236,7 @@ object Form1: TForm1
       Position = 4
       SelEnd = 0
       SelStart = 0
-      TabOrder = 3
+      TabOrder = 2
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
@@ -249,7 +259,7 @@ object Form1: TForm1
         '6'
         '7'
         '8')
-      TabOrder = 4
+      TabOrder = 6
       OnClick = RGPlayerClick
     end
     object Button_V: TButton
@@ -258,7 +268,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = 'V'
-      TabOrder = 5
+      TabOrder = 8
       OnClick = Button_VClick
     end
     object Button_6: TButton
@@ -267,7 +277,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '6'
-      TabOrder = 6
+      TabOrder = 9
       OnClick = Button_6Click
     end
     object Step1Frame: TButton
@@ -276,7 +286,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '|| >'
-      TabOrder = 8
+      TabOrder = 5
       OnClick = Timer100msTimer
     end
     object Button_1: TButton
@@ -285,7 +295,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '1'
-      TabOrder = 9
+      TabOrder = 10
       OnClick = Button_1Click
     end
     object Button_Stop: TButton
@@ -294,19 +304,9 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = 'Stop'
-      TabOrder = 7
+      TabOrder = 11
       OnClick = Button_StopClick
     end
-  end
-  object MediaPlayer1: TMediaPlayer
-    Left = 88
-    Top = 48
-    Width = 113
-    Height = 30
-    ColoredButtons = [btPlay, btStop, btNext, btPrev]
-    EnabledButtons = [btPlay, btStop, btNext, btPrev, btStep, btBack, btRecord, btEject]
-    VisibleButtons = [btPlay, btStop, btNext, btPrev]
-    TabOrder = 3
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'

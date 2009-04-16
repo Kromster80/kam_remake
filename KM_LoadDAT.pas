@@ -323,7 +323,7 @@ begin
                        if not fTerrain.OpenMapFromFile(ExeDir+MyStr) then //This one is enough
                          if not fTerrain.OpenMapFromFile(ChangeFileExt(OpenedMissionName,'.map')) then
                            exit;
-                       fViewport.SetZoom:=1;
+                       fViewport.SetZoom(1);
                      end;
   ct_SetMaxPlayer:   begin
                      fPlayers:=TKMAllPlayers.Create(ParamList[0]); //Create players

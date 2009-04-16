@@ -209,7 +209,7 @@ procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta:
 begin
   if MOUSEWHEEL_ZOOM_ENABLE then
   if fViewport<>nil then
-  fViewport.Zoom:=fViewport.Zoom+WheelDelta/1000; //4Debug only
+  fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000); //4Debug only
 end;
 
 

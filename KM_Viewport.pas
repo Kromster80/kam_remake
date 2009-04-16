@@ -14,7 +14,7 @@ Zoom:single;
 ViewRect:TRect;
 ViewWidth,ViewHeight:integer;
   constructor Create;
-  property SetZoom:single write Zoom;
+  procedure SetZoom(aZoom:single);
   procedure SetArea(NewWidth,NewHeight:integer);
   function GetCenter():TKMPoint;
   procedure SetCenter(NewX,NewY:integer);
@@ -33,6 +33,13 @@ constructor TViewport.Create;
 begin
   Zoom:=1;
 end;
+
+
+procedure TViewport.SetZoom(aZoom:single);
+begin
+  Zoom:=EnsureRange(aZoom,0.1,8);
+end;
+
 
 procedure TViewport.SetArea(NewWidth,NewHeight:integer);
 begin
