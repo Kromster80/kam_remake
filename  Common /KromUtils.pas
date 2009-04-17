@@ -1,7 +1,7 @@
 //some new lines
 unit KromUtils;
 interface
-uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs;
+uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, ShellApi;
 
 type
   PSingleArray = ^TSingleArray;
@@ -116,6 +116,9 @@ function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 
 procedure Triangulate(VerticeCount:integer; Vertice:array of vector3f; out PolyCount:integer; out Polys:array of word; out Result:boolean);
+
+function BrowseURL(const URL: string) : boolean;
+procedure MailTo(Address,Subject,Body:string);
 
 const
   eol:string=#13+#10; //EndOfLine
@@ -1098,6 +1101,40 @@ begin
   PolyCount:=(ci-1) div 3;
 
   Result:= PolyCount <> VerticeCount-2;
+end;
+
+
+//By Zarko Gajic, About.com
+function BrowseURL(const URL: string) : boolean;
+var
+   Browser: string;
+begin
+   Result := True;
+   Browser := '';
+   with TRegistry.Create do
+   try
+     RootKey := HKEY_CLASSES_ROOT;
+     Access := KEY_QUERY_VALUE;
+     if OpenKey('\htmlfile\shell\open\command', False) then
+       Browser := ReadString('') ;
+     CloseKey;
+   finally
+     Free;
+   end;
+   if Browser = '' then
+   begin
+     Result := False;
+     Exit;
+   end;
+   Browser := Copy(Browser, Pos('"', Browser) + 1, Length(Browser)) ;
+   Browser := Copy(Browser, 1, Pos('"', Browser) - 1) ;
+   ShellExecute(0, 'open', PChar(Browser), PChar(URL), nil, SW_SHOW) ;
+end;
+
+
+procedure MailTo(Address,Subject,Body:string);
+begin
+  BrowseURL('mailto:'+Address+'?subject='+Subject+'&body='+Body);
 end;
 
 end.
