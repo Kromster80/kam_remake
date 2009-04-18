@@ -40,12 +40,12 @@ begin
   end;
 
   with GFXData[bRX,bID] do begin
-    a.x := u1 + (u2-u1) * (PosX         - byte(bs_Down in State)) / PxWidth;
-    b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) / PxWidth;
-    a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) / PxHeight;
-    b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bs_Down in State)) / PxHeight;
-    a.x:=a.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth ); b.x:=b.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth );
-    a.y:=a.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight); b.y:=b.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight);
+    a.x := u1 + (u2-u1) * (PosX         - byte(bs_Down in State)) /2/ PxWidth;
+    b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) /2/ PxWidth;
+    a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) /2/ PxHeight;
+    b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bs_Down in State)) /2/ PxHeight;
+    a.x:=a.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2; b.x:=b.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth )/2;
+    a.y:=a.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2; b.y:=b.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight)/2;
     a.x:=EnsureRange(a.x,u1,u2); b.x:=EnsureRange(b.x,u1,u2);
     a.y:=EnsureRange(a.y,v1,v2); b.y:=EnsureRange(b.y,v1,v2);
   end;

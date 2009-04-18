@@ -89,6 +89,7 @@ type TKMGamePlayInterface = class
     KMPanel_Main:TKMPanel;
       KMImage_Main1,KMImage_Main2,KMImage_Main3,KMImage_Main4:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
+      Button_UnPause:TKMButton;
       KMLabel_Stat,KMLabel_Hint:TKMLabel;
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
@@ -212,6 +213,7 @@ type TKMGamePlayInterface = class
     procedure Build_RightClickCancel;
     procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
+    procedure UnPauseGame(Sender:TObject);
     procedure Paint;
   end;
 
@@ -310,7 +312,6 @@ begin
       KMButton_MainMenuOptions.OnClick:=SwitchMenuPage;
       KMButton_MainMenuCredit.OnClick:=SwitchMenuPage;
       KMButton_MainMenuQuit.OnClick  :=Form1.Exit1.OnClick;
-      KMButton_MainMenuTutor.Disable;
       KMButton_MainMenuTSK.Disable;
       KMButton_MainMenuTPR.Disable;
       KMButton_MainMenuCredit.Disable;
@@ -587,7 +588,7 @@ end;
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
   Assert(Sender=KMButton_MainMenuTutor);
-  fGame.StartGame(''); //Provide mission filename here
+  fGame.StartGame(ExeDir+'data\mission\dmission0.dat'); //Provide mission filename here
 end;
 
 
@@ -622,12 +623,9 @@ begin
   Build_ButtonClick(nil);
 
   //Set LastVisiblePage to which ever page was last visible, out of the ones needed
-  if KMPanel_Settings.Visible = true then
-    LastVisiblePage := KMPanel_Settings else
-  if KMPanel_Save.Visible = true then
-    LastVisiblePage := KMPanel_Save else
-  if KMPanel_Load.Visible = true then
-    LastVisiblePage := KMPanel_Load else
+  if KMPanel_Settings.Visible then LastVisiblePage := KMPanel_Settings else
+  if KMPanel_Save.Visible     then LastVisiblePage := KMPanel_Save     else
+  if KMPanel_Load.Visible     then LastVisiblePage := KMPanel_Load     else
     LastVisiblePage := nil;
 
   //First thing - hide all existing pages
@@ -744,6 +742,7 @@ begin
   if Sender=nil then begin //UpdateState loop
     KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
   end else
+    if KMMinimap.CenteredAt.X*KMMinimap.CenteredAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
     fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
 
   KMMinimap.CenteredAt:=fViewport.GetCenter;
@@ -774,6 +773,9 @@ Assert(fViewport<>nil,'fViewport required to be init first');
 
     KMMinimap:=MyControls.AddMinimap(KMPanel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;
+
+    Button_UnPause:=MyControls.AddButton(KMPanel_Main,  54, 336, 42, 30,'UnPause >>',fnt_Metal);
+    Button_UnPause.OnClick:=UnPauseGame;
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
@@ -1687,6 +1689,12 @@ begin
   KMButtonMain[1].Enabled := NewValue;
   KMButtonMain[2].Enabled := NewValue;
   KMButtonMain[3].Enabled := NewValue;
+end;
+
+
+procedure TKMGamePlayInterface.UnPauseGame(Sender:TObject);
+begin
+  fGame.PauseGame(false);
 end;
 
 

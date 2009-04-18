@@ -333,7 +333,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users, KM_LoadSFX, KM_Viewport;
+uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users, KM_LoadSFX, KM_Viewport, KM_Game;
 
 
 {Whole thing should be moved to units Task}
@@ -978,8 +978,13 @@ begin
   until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
 
   //31..38 only //@Krom: Self-reminder - Crabs should not go off sand, needs another canWalkSand!
-  if SpotJit=0 then SetAction(TUnitActionStay.Create(20, ua_Walk));
+  if KMSamePoint(GetPosition,Spot) then begin
+    SetAction(TUnitActionStay.Create(20, ua_Walk));
+    exit;
+  end;
+
   SetAction(TUnitActionWalkTo.Create(GetPosition, Spot, ua_Walk, true, AnimalTerrain[byte(GetUnitType)]));
+  if not TUnitActionWalkTo(fCurrentAction).fRouteBuilt then SetAction(TUnitActionStay.Create(5, ua_Walk));
 
   Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
@@ -2002,8 +2007,18 @@ const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single;
 begin
-  if not fRouteBuilt then
-    fLog.AddToLog('Unable to make a route ');
+
+  if not fRouteBuilt then begin
+    if KMSamePoint(KMUnit.GetPosition,fDestPos) then begin //Happens whe e.g. Serf stays in frnt of Store and gets Deliver task
+      DoEnd:=true;
+      exit;
+    end;
+    fLog.AddToLog('Unable to walk a route ');
+    //DEBUG, should be wrapped somehow for the release
+    fViewport.SetCenter(KMUnit.GetPosition.X,KMUnit.GetPosition.Y);
+    fGame.PauseGame(true);
+  end;
+
   //Execute the route in series of moves
   DoEnd:= False;
   TimeDelta:=0.1;

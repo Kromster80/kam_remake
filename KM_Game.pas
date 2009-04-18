@@ -25,6 +25,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure StartGame(MissionFile:string);
+    procedure PauseGame(DoPause:boolean);
     procedure StopGame(const StoppedCosOfError:boolean=false);
     procedure UpdateState;
   end;
@@ -262,6 +263,12 @@ begin
   fSoundLib.PlayNextTrack(); //Feed new music track
   
   GameIsRunning:=true;
+end;
+
+
+procedure TKMGame.PauseGame(DoPause:boolean);
+begin
+  GameSpeed:=1-byte(DoPause);
 end;
 
                      
