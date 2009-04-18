@@ -38,8 +38,10 @@ type TKMMainMenuInterface = class
       KMLabel_SingleDiff:TKMLabel;
       KMButton_SingleBack,KMButton_SingleStart:TKMButton;
     KMPanel_Options:TKMPanel;
-      KMImage_OptionsBG:TKMImage; //Credits background
-      KMButton_OptionsBack:TKMButton;
+      Image_Opts_BG:TKMImage; //Credits background
+      Label_Opts_MouseSpeed,Label_Opts_SFX,Label_Opts_Music:TKMLabel;
+      Ratio_Opts_Mouse,Ratio_Opts_SFX,Ratio_Opts_Music:TKMRatioRow;
+      Button_Opts_Back:TKMButton;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage; //Credits background
       KMButton_CreditsBack:TKMButton;
@@ -62,6 +64,7 @@ type TKMMainMenuInterface = class
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_SelectDiff(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
+    procedure Options_Change(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
@@ -221,6 +224,10 @@ constructor TKMMainMenuInterface.Create(X,Y:word);
 //var i:integer;
 begin
 inherited Create;
+
+  Assert(fGameSettings<>nil,'fGameSettings should be init before MainMenuInterface');
+  Assert(fTextLibrary<>nil,'fTextLibrary should be init before MainMenuInterface');
+
   {Parent Page for whole toolbar in-game}
   MyControls:=TKMControlsCollection.Create;
   ScreenX:=min(X,1024);
@@ -286,12 +293,11 @@ begin
   KMPanel_MainMenu:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
     KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,ScreenX,ScreenY,2,6);
     KMImage_MainMenuBG.StretchImage:=true;
-    KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,100,100,423,164,4,5);
-    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,440,220,round(207*1.25),round(295*1.25),6,5);
-    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,740,220,round(207*1.25),round(295*1.25),6,6);
-//    KMImage_MainMenu3.StretchImage:=true;
+    KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,120,100,423,164,4,5);
+    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,660,220,round(207*1.25),round(295*1.25),6,6);
+    KMImage_MainMenu3.StretchImage:=true;
 
-    KMPanel_MainButtons:=MyControls.AddPanel(KMPanel_MainMenu,130,350,350,350);
+    KMPanel_MainButtons:=MyControls.AddPanel(KMPanel_MainMenu,160,300,350,350);
       KMButton_MainMenuTutor  :=MyControls.AddButton(KMPanel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal,bsMenu);
       KMButton_MainMenuTSK    :=MyControls.AddButton(KMPanel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
       KMButton_MainMenuTPR    :=MyControls.AddButton(KMPanel_MainButtons,0, 80,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
@@ -384,12 +390,34 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Options_Page;
+var i:integer;
 begin
   KMPanel_Options:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
-    KMImage_OptionsBG:=MyControls.AddImage(KMPanel_Options,0,0,ScreenX,ScreenY,2,5);
-    KMImage_OptionsBG.StretchImage:=true;
-    KMButton_OptionsBack:=MyControls.AddButton(KMPanel_Options,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
-    KMButton_OptionsBack.OnClick:=SwitchMenuPage;
+    Image_Opts_BG:=MyControls.AddImage(KMPanel_Options,0,0,ScreenX,ScreenY,2,6);
+    Image_Opts_BG.StretchImage:=true;
+
+    Label_Opts_MouseSpeed:=MyControls.AddLabel(KMPanel_Options,124,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
+    Label_Opts_MouseSpeed.Disable;
+    Ratio_Opts_Mouse:=MyControls.AddRatioRow(KMPanel_Options,118,150,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    Ratio_Opts_Mouse.Disable;
+    Label_Opts_SFX:=MyControls.AddLabel(KMPanel_Options,124,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
+    Ratio_Opts_SFX:=MyControls.AddRatioRow(KMPanel_Options,118,198,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    Label_Opts_Music:=MyControls.AddLabel(KMPanel_Options,124,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
+    Ratio_Opts_Music:=MyControls.AddRatioRow(KMPanel_Options,118,246,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+
+    Ratio_Opts_Mouse.Position:=fGameSettings.GetMouseSpeed;
+    Ratio_Opts_SFX.Position  :=fGameSettings.GetSoundFXVolume;
+    Ratio_Opts_Music.Position:=fGameSettings.GetMusicVolume;
+
+    for i:=1 to KMPanel_Options.ChildCount do
+    if TKMControl(KMPanel_Options.Childs[i]) is TKMRatioRow then
+    begin
+      TKMControl(KMPanel_Options.Childs[i]).OnClick:=Options_Change;
+      TKMControl(KMPanel_Options.Childs[i]).OnChange:=Options_Change;
+    end;
+
+    Button_Opts_Back:=MyControls.AddButton(KMPanel_Options,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_Opts_Back.OnClick:=SwitchMenuPage;
     //Should contain resolution selector, fullscreen option and other things
 end;
 
@@ -437,7 +465,7 @@ begin
   {Return to MainMenu}
   if (Sender=KMButton_CreditsBack)or
      (Sender=KMButton_SingleBack)or
-     (Sender=KMButton_OptionsBack)or
+     (Sender=Button_Opts_Back)or
      (Sender=KMButton_ResultsBack) then
     KMPanel_MainMenu.Show;
                           
@@ -547,6 +575,13 @@ begin
   if not InRange(SingleMap_Selected,1,SingleMapsInfo.GetMapCount) then exit;
   MissionPath:=ExeDir+'Maps\'+SingleMapsInfo.GetFolder(SingleMap_Selected)+'\'+SingleMapsInfo.GetMissionFile(SingleMap_Selected);
   fGame.StartGame(MissionPath); //Provide mission filename here
+end;
+
+procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
+begin
+  if Sender = Ratio_Opts_Mouse then fGameSettings.SetMouseSpeed(Ratio_Opts_Mouse.Position);
+  if Sender = Ratio_Opts_SFX   then fGameSettings.SetSoundFXVolume(Ratio_Opts_SFX.Position);
+  if Sender = Ratio_Opts_Music then fGameSettings.SetMusicVolume(Ratio_Opts_Music.Position);
 end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
@@ -922,20 +957,14 @@ begin
     KMLabel_Settings_FastScroll:=MyControls.AddLabel(KMPanel_Settings,8,95,100,30,'',fnt_Metal,kaLeft);
     KMLabel_Settings_MouseSpeed:=MyControls.AddLabel(KMPanel_Settings,24,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     KMLabel_Settings_MouseSpeed.Disable;
-    KMRatio_Settings_Mouse:=MyControls.AddRatioRow(KMPanel_Settings,18,150,160,20);
+    KMRatio_Settings_Mouse:=MyControls.AddRatioRow(KMPanel_Settings,18,150,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
     KMRatio_Settings_Mouse.Disable;
-    KMRatio_Settings_Mouse.MaxValue:=fGameSettings.GetSlidersMax;
-    KMRatio_Settings_Mouse.MinValue:=fGameSettings.GetSlidersMin;
     KMRatio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
     KMLabel_Settings_SFX:=MyControls.AddLabel(KMPanel_Settings,24,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-    KMRatio_Settings_SFX:=MyControls.AddRatioRow(KMPanel_Settings,18,198,160,20);
-    KMRatio_Settings_SFX.MaxValue:=fGameSettings.GetSlidersMax;
-    KMRatio_Settings_SFX.MinValue:=fGameSettings.GetSlidersMin;
+    KMRatio_Settings_SFX:=MyControls.AddRatioRow(KMPanel_Settings,18,198,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
     KMRatio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
     KMLabel_Settings_Music:=MyControls.AddLabel(KMPanel_Settings,24,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-    KMRatio_Settings_Music:=MyControls.AddRatioRow(KMPanel_Settings,18,246,160,20);
-    KMRatio_Settings_Music.MaxValue:=fGameSettings.GetSlidersMax;
-    KMRatio_Settings_Music.MinValue:=fGameSettings.GetSlidersMin;
+    KMRatio_Settings_Music:=MyControls.AddRatioRow(KMPanel_Settings,18,246,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
     KMRatio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
     KMLabel_Settings_Music2:=MyControls.AddLabel(KMPanel_Settings,100,280,100,30,fTextLibrary.GetTextString(197),fnt_Metal,kaCenter);
     KMButton_Settings_Music:=MyControls.AddButton(KMPanel_Settings,8,300,180,30,'',fnt_Metal);
@@ -1124,7 +1153,7 @@ begin
 
   KMLabel_Stat.Caption:=
         inttostr(fPlayers.GetUnitCount)+' units'+#124+
-        inttostr(fRender.Stat_Sprites)+' sprites'+#124+
+        inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
         '';
 end;
 

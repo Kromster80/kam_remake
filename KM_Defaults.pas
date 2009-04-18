@@ -28,11 +28,13 @@ var
   MakeUnitSprites:boolean=true;         //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
+  MUSIC_ENABLE:boolean=false;            //Music gets annoying during debug
   DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
   DO_UNIT_HUNGER:boolean=false;          //Wherever units get hungry or not
 
   //These should be FALSE
   ShowTerrainWires:boolean=false;
+  ShowSpriteOverlay:boolean=true;
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes:boolean=false;     //Draw unit routes when they are chosen
   MakeShowUnitMove:boolean=false;       //Draw unit movement overlay

@@ -556,6 +556,8 @@ begin
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
 
+  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(62,62));
+
   MyPlayer.AddGroup(ut_Militia,KMPoint(5,14),dir_N,3,6);
   MyPlayer.AddGroup(ut_Militia,KMPoint(10,14),dir_NE,3,6);
   MyPlayer.AddGroup(ut_Militia,KMPoint(15,14),dir_E,3,6);

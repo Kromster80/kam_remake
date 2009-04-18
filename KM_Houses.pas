@@ -172,7 +172,7 @@ type
     function Rem(aHouse:TKMHouse):boolean;
     procedure UpdateState;
     function HitTest(X, Y: Integer): TKMHouse;
-    function FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
+    function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
     procedure Paint();
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
@@ -954,7 +954,8 @@ begin
 end;
 
 
-function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType): TKMHouse;
+//Should find closest house to Loc
+function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
 var
   i: integer;
 begin
@@ -964,10 +965,13 @@ begin
        (not TKMHouse(Items[I]).fHasOwner)and                              //If there's yet no owner
        (TKMHouse(Items[I]).IsComplete) then                               //If house is built
     begin
-      Result:= TKMHouse(Items[I]);
-      if TKMHouse(Items[I]).fHouseType<>ht_Barracks then TKMHouse(Items[I]).fHasOwner:=true; //Become owner except Barracks;
-      exit;
+      Result := TKMHouse(Items[I]);
+      if Result.fHouseType=ht_WatchTower then break; //Always prefer Towers to Barracks
     end;
+
+
+ if Result<>nil then
+ if Result.fHouseType<>ht_Barracks then Result.fHasOwner:=true; //Become owner except Barracks;
 end;
 
 

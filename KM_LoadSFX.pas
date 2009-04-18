@@ -262,7 +262,7 @@ begin
     if (SearchRec.Attr and faDirectory <> faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
     if GetFileExt(SearchRec.Name)='MP3' then begin
       inc(MusicCount);
-      MusicTracks[MusicCount]:=SearchRec.Name;
+      MusicTracks[MusicCount]:=Path+SearchRec.Name;
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
@@ -278,6 +278,7 @@ begin
   if GetFileExt(FileName)<>'MP3' then exit;
   MediaPlayer.FileName:=FileName;
   MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
+  //MessageBox(0,@FileName[1],'Now playing',MB_OK);
   MediaPlayer.Open; //Needs to be done for every new file
   UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
   MediaPlayer.Play; //Start actual playback
@@ -287,13 +288,16 @@ end;
 
 procedure TSoundLib.PlayMenuTrack();
 begin
+  if MUSIC_ENABLE then
   if FileExists(ExeDir+'Music\track_02.mp3') then
     PlayMusicFile(ExeDir+'Music\track_02.mp3');
+  //BUG: Attempt to play MPEG 1.0 Layer 3 silently crashes Remake on some PCs
 end;
 
 
 procedure TSoundLib.PlayNextTrack();
 begin
+  if not MUSIC_ENABLE then exit;
   if MusicCount=0 then exit; //no music files found
   MusicIndex := MusicIndex mod MusicCount + 1; //Set next index, looped
   PlayMusicFile(MusicTracks[MusicIndex]);
@@ -303,7 +307,7 @@ end;
 //Check if Music is not playing, to know when new mp3 should be feeded
 function TSoundLib.IsMusicEnded():boolean;
 begin
-  Result:= (MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName='');
+  Result:= MUSIC_ENABLE and ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
 end;
 
 

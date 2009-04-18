@@ -52,11 +52,9 @@ begin
   fLog.AppendLog('<== ReadGFX init follows ==>');
   ReadGFX(ExeDir, true); //Should load only GUI part of it
   DataState:=dls_Menu;
-  fLog.AppendLog('<== MainMenu init follows ==>');
-  fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY);
-  fLog.AppendLog('fMainMenuInterface init',true);
 
-  fGameSettings:= TGameSettings.Create;
+  fGameSettings         := TGameSettings.Create;
+  fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);  
 
   fSoundLib.PlayMenuTrack;
 

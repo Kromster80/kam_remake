@@ -46,7 +46,8 @@ private
   procedure RenderBrightness(Value:byte);
 protected
 public
-  Stat_Sprites:integer;
+  Stat_Sprites:integer; //Total sprites in queue
+  Stat_Sprites2:integer;//Rendered sprites
   constructor Create(RenderFrame:HWND);
   destructor Destroy; override;
   procedure LoadTileSet();
@@ -747,31 +748,37 @@ end;
 procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte);
 var h:integer;
 begin
-for h:=1 to 2 do
+  for h:=1 to 2 do
   with GFXData[RX,ID] do begin
     if h=1 then begin
       glColor3ub(aFOW,aFOW,aFOW);
       glBindTexture(GL_TEXTURE_2D, TexID);
     end else
-      if (h=2) and (RXData[RX].NeedTeamColors) and (AltID<>0) then begin
-        glColor4ubv(@Col);
-        glBindTexture(GL_TEXTURE_2D, AltID);
-        //glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR);
-      end else
-        exit;
+    if h=2 then begin
+      glColor4ubv(@Col);
+      glBindTexture(GL_TEXTURE_2D, AltID);
+      //glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR); //Alternative coloring mode
+    end;
 
-    glBegin (GL_QUADS);
-    glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1                      );
-    glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
-    glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-    glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
-    glEnd;
-    glBindTexture(GL_TEXTURE_2D, 0);
+    if (h=1)or( (h=2)and(RXData[RX].NeedTeamColors)and(AltID<>0)) then begin
+      glBegin (GL_QUADS);
+        glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1                      );
+        glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
+        glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+      glEnd;
+    end;
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    {glBegin (GL_LINE_LOOP);
-    glRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-    glEnd;}
   end;
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  if not ShowSpriteOverlay then exit;
+  glColor3f(1,1,1);
+  glBegin (GL_LINE_LOOP);
+    with GFXData[RX,ID] do
+    glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+  glEnd;
 end;
 
 
@@ -803,6 +810,13 @@ begin
 glDisable(GL_ALPHA_TEST);
 glAlphaFunc(GL_ALWAYS,0);
 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
+
+  if not ShowSpriteOverlay then exit;
+  glColor3f(1,1,1);
+  glBegin (GL_LINE_LOOP);
+    with GFXData[RX,ID] do
+    glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+  glEnd;
 end;
 
 
@@ -863,6 +877,7 @@ procedure TRender.RenderRenderList;
 var i,h:integer;
 begin
 Stat_Sprites:=RenderCount;
+Stat_Sprites2:=0;
 
 for i:=1 to RenderCount do
 if RO[i]<>0 then begin
@@ -887,6 +902,7 @@ if RO[i]<>0 then begin
         RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
     end;
     inc(h);
+    inc(Stat_Sprites2);
   until((h>RenderCount)or(RenderList[h].NewInst));
 
 end;

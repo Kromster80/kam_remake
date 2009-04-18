@@ -1000,20 +1000,22 @@ end;
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitAdd(LocTo:TKMPoint);
 begin
-  inc(Land[LocTo.Y,LocTo.X].IsUnit);
+//  if not TileInMapCoords(LocTo.Y,LocTo.X) then
+//    break;
+//  inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
 
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitRem(LocFrom:TKMPoint);
 begin
-  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
+//  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
 end;
 
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
-  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
-  inc(Land[LocTo.Y,LocTo.X].IsUnit);
+//  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
+//  inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
 
 

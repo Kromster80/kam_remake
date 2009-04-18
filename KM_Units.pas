@@ -666,7 +666,7 @@ function TKMUnitCitizen.FindHome():boolean;
 var KMHouse:TKMHouse;
 begin
   Result:=false;
-  KMHouse:=fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType);
+  KMHouse:=fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
   if KMHouse<>nil then begin
     fHome:=KMHouse;
     Result:=true;
@@ -973,11 +973,12 @@ begin
 
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
-    dec(SpotJit,2);
+    dec(SpotJit,1);
     Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit),1);
   until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
 
   //31..38 only //@Krom: Self-reminder - Crabs should not go off sand, needs another canWalkSand!
+  if SpotJit=0 then SetAction(TUnitActionStay.Create(20, ua_Walk));
   SetAction(TUnitActionWalkTo.Create(GetPosition, Spot, ua_Walk, true, AnimalTerrain[byte(GetUnitType)]));
 
   Assert(fCurrentAction<>nil,'Unit has no action!');

@@ -36,7 +36,7 @@ var a,b:TKMPointF; InsetX,InsetY:single; c1,c2:byte; bRX,bID:word;
 begin
   bRX:=4; bID:=402; //4-402 is a stone background
   if aStyle=bsMenu then begin
-    bRX:=5; bID:=9; //5-3 is a metal background
+    bRX:=5; bID:=9; //5-3 is a metal background used in main menu
   end;
 
   with GFXData[bRX,bID] do begin
@@ -44,8 +44,8 @@ begin
     b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) / PxWidth;
     a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) / PxHeight;
     b.y := v1 + (v2-v1) * (PosY + SizeY - byte(bs_Down in State)) / PxHeight;
-    a.x:=a.x-(u2-u1)*((PosX+SizeX) div PxWidth ); b.x:=b.x-(u2-u1)*((PosX+SizeX) div PxWidth );
-    a.y:=a.y-(v2-v1)*((PosY+SizeY) div PxHeight); b.y:=b.y-(v2-v1)*((PosY+SizeY) div PxHeight);
+    a.x:=a.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth ); b.x:=b.x-(u2-u1)*((PosX+SizeX div 2) div PxWidth );
+    a.y:=a.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight); b.y:=b.y-(v2-v1)*((PosY+SizeY div 2) div PxHeight);
     a.x:=EnsureRange(a.x,u1,u2); b.x:=EnsureRange(b.x,u1,u2);
     a.y:=EnsureRange(a.y,v1,v2); b.y:=EnsureRange(b.y,v1,v2);
   end;
@@ -66,7 +66,7 @@ begin
     glPushMatrix;
       glkMoveAALines(false);
 
-      //Stone background
+      //Background
       glColor4f(1,1,1,1);
       glBindTexture(GL_TEXTURE_2D, GFXData[bRX,bID].TexID);
       glBegin (GL_QUADS);
@@ -85,10 +85,10 @@ begin
       end;
       glScale(SizeX,SizeY,0);
       glBegin (GL_QUADS);
-        glColor4f(c1,c1,c1,0.75); glkQuad(0,0, 1,0,               1-InsetX,0+InsetY, 0+InsetX,0+InsetY);
-        glColor4f(c1,c1,c1,0.65); glkQuad(0,0, 0+InsetX,0+InsetY, 0+InsetX,1-InsetY, 0,1              );
-        glColor4f(c2,c2,c2,0.55); glkQuad(1,0, 1,1,               1-InsetX,1-InsetY, 1-InsetX,0+InsetY);
-        glColor4f(c2,c2,c2,0.45); glkQuad(0,1, 0+InsetX,1-InsetY, 1-InsetX,1-InsetY, 1,1              );
+        glColor4f(c1,c1,c1,0.7); glkQuad(0, 0, 1,        0,        1-InsetX, 0+InsetY, 0+InsetX, 0+InsetY);
+        glColor4f(c1,c1,c1,0.6); glkQuad(0, 0, 0+InsetX, 0+InsetY, 0+InsetX, 1-InsetY, 0,        1       );
+        glColor4f(c2,c2,c2,0.5); glkQuad(1, 0, 1,        1,        1-InsetX, 1-InsetY, 1-InsetX, 0+InsetY);
+        glColor4f(c2,c2,c2,0.4); glkQuad(0, 1, 0+InsetX, 1-InsetY, 1-InsetX, 1-InsetY, 1,        1       );
       glEnd;
     glPopMatrix;
 

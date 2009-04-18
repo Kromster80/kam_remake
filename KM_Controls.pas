@@ -195,7 +195,7 @@ TKMRatioRow = class(TKMControl)
     MinValue:byte;
     MaxValue:byte;
   protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
@@ -252,7 +252,7 @@ TKMControlsCollection = class(TKMList)
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
     function AddCostsRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
-    function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
+    function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer):TKMRatioRow;
     function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle=bsGame):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     function MouseOverControl   ():TKMControl;
@@ -644,13 +644,13 @@ end;
 
 
 { TKMRatioRow }
-constructor TKMRatioRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+constructor TKMRatioRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  Position:=5;
-  MaxValue:=10;
-  MinValue:=1;
+  MinValue:=aMin;
+  MaxValue:=aMax;
+  Position:=(MinValue+MaxValue) div 2;
 end;
 
 
@@ -906,9 +906,9 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddRatioRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMRatioRow;
+function TKMControlsCollection.AddRatioRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer):TKMRatioRow;
 begin
-  Result:=TKMRatioRow.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  Result:=TKMRatioRow.Create(aParent, aLeft,aTop,aWidth,aHeight,aMin,aMax);
   AddToCollection(Result);
 end;
 
