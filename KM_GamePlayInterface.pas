@@ -774,7 +774,7 @@ Assert(fViewport<>nil,'fViewport required to be init first');
     KMMinimap:=MyControls.AddMinimap(KMPanel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;
 
-    Button_UnPause:=MyControls.AddButton(KMPanel_Main,  54, 336, 42, 30,'UnPause >>',fnt_Metal);
+    Button_UnPause:=MyControls.AddButton(KMPanel_Main,  54, 336, 126, 30,'UnPause >>',fnt_Metal);
     Button_UnPause.OnClick:=UnPauseGame;
 
     {Main 4 buttons +return button}
@@ -923,7 +923,7 @@ var i:integer;
 begin
   KMPanel_Save:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
     for i:=1 to SAVEGAME_COUNT do begin
-      KMButton_Save[i]:=MyControls.AddButton(KMPanel_Save,12,10+(i-1)*26,170,24,'Savegame #'+inttostr(i),fnt_Grey);
+      KMButton_Save[i]:=MyControls.AddButton(KMPanel_Save,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
       //KMButton_Save[i].OnClick:=SaveGame;
       KMButton_Save[i].Disable;
     end;
@@ -936,7 +936,7 @@ var i:integer;
 begin
   KMPanel_Load:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
     for i:=1 to SAVEGAME_COUNT do begin
-      KMButton_Load[i]:=MyControls.AddButton(KMPanel_Load,12,10+(i-1)*26,170,24,'Savegame #'+inttostr(i),fnt_Grey);
+      KMButton_Load[i]:=MyControls.AddButton(KMPanel_Load,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
       //KMButton_Load[i].OnClick:=LoadGame;
       KMButton_Load[i].Disable;
     end;

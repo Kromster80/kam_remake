@@ -191,6 +191,8 @@ type
 const AnimalTerrain: array[31..38] of TPassability = (
     canWalk, canFish, canFish, canFish, canWalk, canFish, canFish, canFish);
 
+type TMoveDir = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3); 
+
 const
   Army_Flag=4962;
   Thought_Eat=6250;

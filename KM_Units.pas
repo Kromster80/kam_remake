@@ -328,6 +328,7 @@ type
     procedure Rem(aUnit:TKMUnit);
     procedure UpdateState;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+    function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     procedure Paint();
   end;
@@ -966,10 +967,28 @@ end;
 
 
 function TKMUnitAnimal.UpdateState():boolean;
-var Spot:TKMPoint; SpotJit:byte; //Target spot where unit will go
+var
+  TimeDelta: Cardinal;
+  ActDone,TaskDone: Boolean;
+  Spot:TKMPoint; //Target spot where unit will go
+  SpotJit:byte; 
 begin
   Result:=true; //Required for override compatibility
-  if Inherited UpdateState then exit;
+
+  ActDone:=true;
+  TaskDone:=true;
+  TimeDelta:= TimeGetTime - fLastUpdateTime;
+  fLastUpdateTime:= TimeGetTime;
+
+  if fCurrentAction <> nil then
+    fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
+
+  if ActDone then FreeAndNil(fCurrentAction) else exit;
+
+  if fUnitTask <> nil then
+    fUnitTask.Execute(TaskDone);
+
+  if TaskDone then FreeAndNil(fUnitTask) else exit;
 
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
@@ -2178,33 +2197,41 @@ end;
 
 { TKMUnitsCollection }
 function TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer):TKMUnit;
-var T:Integer;
+var U:Integer; P:TKMPoint;
 begin
+
+  P:=FindPlaceForUnit(PosX,PosY,aUnitType);
+  PosX:=P.X;
+  PosY:=P.Y;
+
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin
     fLog.AppendLog('Unable to add unit to '+TypeToString(KMPoint(PosX,PosY)));
     Result:=nil;
     exit;
   end;
-  T:=-1;
+
+  U:=-1;
   case aUnitType of
-    ut_Serf:    T:= Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
-    ut_Worker:  T:= Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Serf:    U:= Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Worker:  U:= Inherited Add(TKMUnitWorker.Create(aOwner,PosX,PosY,aUnitType));
 
     ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                T:= Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+                U:= Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Recruit: T:= Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Recruit: U:= Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Militia..ut_Barbarian:   T:= Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Militia..ut_Barbarian:   U:= Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
     //ut_Bowman:   Inherited Add(TKMUnitArcher.Create(aOwner,PosX,PosY,aUnitType)); //I guess it will be stand-alone
 
-    ut_Wolf..ut_Duck:           T:= Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Wolf..ut_Duck:           U:= Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
     else
     Assert(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
   end;
-  if T=-1 then Result:=nil else Result:=TKMUnit(Items[T]);
+
+  if U=-1 then Result:=nil else Result:=TKMUnit(Items[U]);
 end;
+
 
 function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
 const DirAngle:array[TKMDirection]of word =   (0,  0,   45,  90,   135, 180,   225, 270,   315);
@@ -2247,6 +2274,46 @@ begin
       Result:= TKMUnit(Items[I]);
       Break;
     end;
+end;
+
+
+{Should return closest position where unit can be placed}
+function TKMUnitsCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
+var
+  aPass:TPassability; //temp for required passability
+  Span:integer; //Span length
+  X,Y:integer; //Temp position
+  mDir:TMoveDir; //Direction to test
+  i:integer;
+  function TryOut(aX,aY:integer):boolean;
+  begin
+    Result:= fTerrain.CheckPassability(KMPoint(aX,aY),aPass) and (HitTest(aX,aY)=nil);
+  end;
+begin
+  if aUnitType in [ut_Wolf..ut_Duck] then
+    aPass:=AnimalTerrain[byte(aUnitType)]
+  else
+    aPass:=canWalk;
+
+  if TryOut(PosX,PosY) then begin
+    Result:=KMPoint(PosX,PosY);
+    exit;
+  end;
+
+  //Should swirl around input point
+  Span:=1; X:=PosX; Y:=PosY; mDir:=TMoveDir(3);
+  repeat
+    mDir:=TMoveDir((byte(mDir)+1)mod 4); //wrap around
+    case mDir of
+      mdPosX: for i:=X+1 to     X+Span do begin inc(X); if TryOut(X,Y) then break; end;
+      mdPosY: for i:=Y+1 to     Y+Span do begin inc(Y); if TryOut(X,Y) then break; end;
+      mdNegX: for i:=X-1 downto X-Span do begin dec(X); if TryOut(X,Y) then break; end;
+      mdNegY: for i:=Y-1 downto Y-Span do begin dec(Y); if TryOut(X,Y) then break; end;
+    end;
+    if mDir in [mdPosY,mdNegY] then inc(Span); //increase span every second turn
+  until(TryOut(X,Y) or (Span=10)); //Catch the end
+
+  Result:=KMPoint(X,Y);
 end;
 
 
