@@ -29,14 +29,14 @@ var
   MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
   MUSIC_ENABLE:boolean=false;            //Music gets annoying during debug
-  DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
+  DO_UNIT_INTERACTION:boolean=true;     //Debug for unit interaction
   DO_UNIT_HUNGER:boolean=false;          //Wherever units get hungry or not
 
   //These should be FALSE
   ShowTerrainWires:boolean=false;
-  ShowSpriteOverlay:boolean=true;
+  ShowSpriteOverlay:boolean=false;
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
-  MakeShowUnitRoutes:boolean=false;     //Draw unit routes when they are chosen
+  MakeShowUnitRoutes:boolean=true;     //Draw unit routes when they are chosen
   MakeShowUnitMove:boolean=false;       //Draw unit movement overlay
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
@@ -607,8 +607,8 @@ var
   $FF28C840, //Green
   $FFC0C040, //Cyan
   $FFC00000, //Blue
-  $FF00FFFF, //Yellow
-  $FF28C840  //Green
+  $FFFF00FF, //Violet
+  $FF282828  //Black
   );
 
   GlobalTickCount:integer=-1; //So that first number after inc() would be 0

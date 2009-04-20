@@ -974,7 +974,7 @@ begin
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
-    Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit),1);
+    Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
   until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
 
   //31..38 only //@Krom: Self-reminder - Crabs should not go off sand, needs another canWalkSand!
@@ -1920,6 +1920,9 @@ begin
   fWalkToSpot:=aWalkToSpot;
   NodePos:=1;
 
+  if LocB.X=0 then
+    NodePos:=1;
+
   //Build a route A*
   fTerrain.MakeRoute(LocA, LocB, aPass, NodeCount, Nodes);
 
@@ -2177,6 +2180,11 @@ end;
 function TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer):TKMUnit;
 var T:Integer;
 begin
+  if not fTerrain.TileInMapCoords(PosX, PosY) then begin
+    fLog.AppendLog('Unable to add unit to '+TypeToString(KMPoint(PosX,PosY)));
+    Result:=nil;
+    exit;
+  end;
   T:=-1;
   case aUnitType of
     ut_Serf:    T:= Inherited Add(TKMUnitSerf.Create(aOwner,PosX,PosY,aUnitType));
@@ -2203,6 +2211,7 @@ const DirAngle:array[TKMDirection]of word =   (0,  0,   45,  90,   135, 180,   2
 const DirRatio:array[TKMDirection]of single = (0,  1, 1.41,   1,  1.41,   1,  1.41,   1,  1.41);
 var U:TKMUnit; i,x,y,px,py:integer;
 begin
+  Result:=nil;
   for i:=1 to aUnitCount do begin
 
     px:=(i-1) mod aUnitPerRow - aUnitPerRow div 2;
@@ -2212,10 +2221,12 @@ begin
     y:=round( px*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + py*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
 
     U:=Add(aOwner, aUnitType, PosX + x, PosY + y);
-    U.Direction:=aDir;
-    if (U.GetPosition.X=PosX)and(U.GetPosition.Y=PosY) then TKMUnitWarrior(U).fIsCommander:=true;
+    if U<>nil then U.Direction:=aDir; //Incase unit didn't fit on map
+    if (U<>nil) and KMSamePoint(U.GetPosition,KMPoint(PosX,PosY)) then begin
+      TKMUnitWarrior(U).fIsCommander:=true;
+      Result:=U;
+    end;
   end;
-  Result:=U;
 end;
 
 

@@ -388,17 +388,9 @@ begin
   U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));//}
 
   //Walk through group
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,7));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,8));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(7,9));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,7));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,8));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(8,9));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,7));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,8));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
+  U:=MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(12,8)));//}
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(16,8)));//}
 
   //Solve diamond
   //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot 

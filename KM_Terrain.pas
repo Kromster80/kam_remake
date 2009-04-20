@@ -461,13 +461,11 @@ function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 var i,k:integer; List:TKMPointList;
 begin
   List:=TKMPointList.Create;
-//  Result:=KMPoint(0,0);
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
         if (TileIsStone(KMPoint(k,i))>0)and(TileIsWalkable(KMPoint(k,i+1))) then
           List.AddEntry(KMPoint(k,i+1));
-//            Result:=KMPoint(k,i+1);
 
   Result:=List.GetRandom;
   List.Free;
@@ -834,7 +832,10 @@ end;
 
 function TTerrain.CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
 begin
-  Result := aPass in Land[Loc.Y,Loc.X].Passability;
+  if TileInMapCoords(Loc.X,Loc.Y) then
+    Result := aPass in Land[Loc.Y,Loc.X].Passability
+  else
+    Result:=false;
 end;
 
 
@@ -848,7 +849,10 @@ begin
       if(i<>0)and(k<>0) then
         if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
           L.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
-  Result:=L.GetRandom;
+  if L.Count<>0 then
+    Result:=L.GetRandom
+  else
+    Result:=Loc;
 end;
 
 
@@ -876,7 +880,7 @@ var
 begin
 
   //Don't try to make a route if it's obviously impossible
-  if (KMSamePoint(LocA,LocB))or(not (aPass in Land[LocB.Y,LocB.X].Passability)) then begin
+  if (KMSamePoint(LocA,LocB))or(not CheckPassability(LocB,aPass)) then begin
     NodeCount:=0;
     Nodes[0]:=LocA;
     exit;
@@ -1002,20 +1006,20 @@ procedure TTerrain.UnitAdd(LocTo:TKMPoint);
 begin
 //  if not TileInMapCoords(LocTo.Y,LocTo.X) then
 //    break;
-//  inc(Land[LocTo.Y,LocTo.X].IsUnit);
+  inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
 
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitRem(LocFrom:TKMPoint);
 begin
-//  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
+  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
 end;
 
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
-//  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
-//  inc(Land[LocTo.Y,LocTo.X].IsUnit);
+  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
+  inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
 
 
