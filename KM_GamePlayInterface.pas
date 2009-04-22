@@ -253,7 +253,7 @@ inherited Create;
   //}
 
   //Show version info on every page
-  KMLabel_Version:=MyControls.AddLabel(KMPanel_Main1,5,5,100,30,GAME_VERSION,fnt_Antiqua,kaLeft);
+  KMLabel_Version:=MyControls.AddLabel(KMPanel_Main1,5,5,100,30,GAME_VERSION+' / OpenGL'+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
 
   SwitchMenuPage(nil);
 end;
@@ -345,8 +345,8 @@ begin
 
         KMButton_SingleMode[i]   :=MyControls.AddImage(KMPanel_SingleList,  0   ,40+(i-1)*40,40,40,28+random(2)*14);
         KMButton_SinglePlayers[i]:=MyControls.AddLabel(KMPanel_SingleList, 40+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
-        KMLabel_SingleTitle1[i]  :=MyControls.AddLabel(KMPanel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,fTextLibrary.GetSetupString(random(29)),fnt_Metal, kaLeft);
-        KMLabel_SingleTitle2[i]  :=MyControls.AddLabel(KMPanel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,fTextLibrary.GetSetupString(random(29)),fnt_Game, kaLeft);
+        KMLabel_SingleTitle1[i]  :=MyControls.AddLabel(KMPanel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
+        KMLabel_SingleTitle2[i]  :=MyControls.AddLabel(KMPanel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,'<<<LEER>>>',fnt_Game, kaLeft);
         KMButton_SingleSize[i]   :=MyControls.AddLabel(KMPanel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
       end;
 
@@ -719,9 +719,7 @@ end;
 
 
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
-var RandomNum: string;
 begin
-  RandomNum := '    '+inttostr(random(9)); //Random numbers here are to show every time hint gets refreshed
   ShownHint:=Sender;
   if((ShownHint<>nil) and ((not TKMControl(ShownHint).CursorOver) or (not TKMControl(ShownHint).Visible)) ) then ShownHint:=nil; //only set if cursor is over and control is visible
   if ((ShownHint<>nil) and (TKMControl(ShownHint).Parent <> nil)) then //only set if parent is visible (e.g. panel)
@@ -729,10 +727,10 @@ begin
 
   KMLabel_Hint.Top:=fRender.GetRenderAreaSize.Y-16;
   //If hint hasn't changed then don't refresh it
-  if ((ShownHint<>nil) and (LeftStr(KMLabel_Hint.Caption,Length(KMLabel_Hint.Caption)-Length(RandomNum)) = TKMControl(Sender).Hint)) then exit;
-  if ((ShownHint=nil) and (Length(KMLabel_Hint.Caption) = Length(RandomNum))) then exit;
-  if ShownHint=nil then KMLabel_Hint.Caption:=''+RandomNum else
-    KMLabel_Hint.Caption:=(Sender as TKMControl).Hint+RandomNum;
+  if ((ShownHint<>nil) and (KMLabel_Hint.Caption = TKMControl(Sender).Hint)) then exit;
+  if ((ShownHint=nil) and (KMLabel_Hint.Caption = '')) then exit;
+  if ShownHint=nil then KMLabel_Hint.Caption:='' else
+    KMLabel_Hint.Caption:=(Sender as TKMControl).Hint;
 end;
 
 

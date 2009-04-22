@@ -224,6 +224,8 @@ end;
 
 procedure TKMGame.StartGame(MissionFile:string);
 begin
+  RandSeed:=1;
+
   fMainMenuInterface.ShowScreen_Loading;
   fRender.Render;
 

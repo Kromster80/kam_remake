@@ -37,7 +37,7 @@ var
   ShowSpriteOverlay:boolean=false;
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes:boolean=true;     //Draw unit routes when they are chosen
-  MakeShowUnitMove:boolean=false;       //Draw unit movement overlay
+  MakeShowUnitMove:boolean=true;       //Draw unit movement overlay
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well

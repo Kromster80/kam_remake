@@ -55,6 +55,7 @@ type
         NodeCount:word; //Should be positive
         Nodes:array[1..1024] of TKMPoint;
         NodePos:integer;
+        DoesWalking:boolean;
         DoEvade:boolean; //Command to make exchange maneuver with other unit
         Explanation:string; //Debug only, explanation what unit is doing
       public
@@ -1969,48 +1970,60 @@ begin
 
   //If there's yet no Unit on the way but tile is pre-occupied
   if U=nil then begin
-    {Do nothing and wait till unit is actually there so we can interact with it}
+    //Do nothing and wait till unit is actually there so we can interact with it
     Explanation:='Can''t walk. No Unit on the way but tile is occupied';
     Result:=false;
     exit;
   end;
 
   //If Unit on the way is idling
-  if (U.fCurrentAction is TUnitActionStay) then
-  if TUnitActionStay(U.fCurrentAction).ActionType=ua_Walk then begin //Unit stays idle, not working or something
-    {ForceUnitToGoAway}
-    U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,fTerrain.GetOutOfTheWay(U.GetPosition,canWalk)));
-    Explanation:='Unit on the way but it''s forced to get away';
-    Result:=false; //Next frame tile will be free and unit can go there
-    exit;
-  end;
-
-  //If Unit on the way is doing something and won't move away
-  if (U.fCurrentAction is TUnitActionStay) then
-  if TUnitActionStay(U.fCurrentAction).ActionType<>ua_Walk then begin //Unit is doing something
-    {StartWalkingAround}
-    Explanation:='Unit on the way is doing something and won''t move away';
-    Result:=false; //Temp
-    exit;
+  if (U.fCurrentAction is TUnitActionStay) then begin
+    if TUnitActionStay(U.fCurrentAction).ActionType=ua_Walk then begin //Unit stays idle, not working or something
+      //Force Unit to go away
+      U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,fTerrain.GetOutOfTheWay(U.GetPosition,KMUnit.GetPosition,canWalk)));
+      Explanation:='Unit blocking the way but it''s forced to get away';
+      Result:=false; //Next frame tile will be free and unit will walk there
+      exit;
+    end else begin
+      //If Unit on the way is doing something and won't move away
+      {StartWalkingAround}
+      Explanation:='Unit on the way is doing something and won''t move away';
+      Result:=false;
+      exit;
+      { UNRESOLVED! }
+    end;
   end;
 
   //If Unit on the way is walking somewhere
   if (U.fCurrentAction is TUnitActionWalkTo) then begin //Unit is walking
-
-    {Check unit direction to be opposite and exchange}
-    if min(byte(U.Direction),byte(KMUnit.Direction))+4 = max(byte(U.Direction),byte(KMUnit.Direction)) then begin
-      //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
-      TUnitActionWalkTo(U.fCurrentAction).DoEvade:=true;
-      TUnitActionWalkTo(KMUnit.fCurrentAction).DoEvade:=true;
-      Explanation:='Unit on the way is walking opposite direction and will exchange';
-      Result:=true; //
-      exit;
+    //Check unit direction to be opposite and exchange, but only if the unit is staying on tile, not walking
+    if (min(byte(U.Direction),byte(KMUnit.Direction))+4 = max(byte(U.Direction),byte(KMUnit.Direction))) then begin
+      if TUnitActionWalkTo(U.fCurrentAction).DoesWalking then begin
+        //Unit yet not arrived on tile, wait till it does, otherwise there might be 2 units on one tile
+        Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks into spot and then exchange';
+        Result:=false;
+        exit;
+      end else begin
+        //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
+        TUnitActionWalkTo(U.fCurrentAction).DoEvade:=true;
+        TUnitActionWalkTo(KMUnit.fCurrentAction).DoEvade:=true;
+        Explanation:='Unit on the way is walking opposite direction. Perform an exchange';
+        Result:=true;
+        exit;
+      end
     end else begin
-      {Or wait till it walks away for 0.5sec}
-      {If unit isn't walking away - go around it}
-      Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(KMUnit.Direction);
-      Result:=false; //Temp
-      exit;
+      if TUnitActionWalkTo(U.fCurrentAction).DoesWalking then begin
+        //Simply wait till it walks away
+        Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(KMUnit.Direction);
+        Result:=false;
+        exit;
+      end else begin
+        //Unit isn't walking away - go around it
+        Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(KMUnit.Direction);
+        Result:=false;
+        exit;
+        { UNRESOLVED! }
+      end;
     end;
   end;
 
@@ -2029,7 +2042,7 @@ const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single;
 begin
-
+  DoesWalking:=false; //Set it to false at start of update
   if not fRouteBuilt then begin
     if KMSamePoint(KMUnit.GetPosition,fDestPos) then begin //Happens whe e.g. Serf stays in frnt of Store and gets Deliver task
       DoEnd:=true;
@@ -2087,6 +2100,8 @@ begin
   KMUnit.fPosition.Y:= KMUnit.fPosition.Y + DY*min(Distance,abs(WalkY));
 
   inc(KMUnit.AnimStep);
+
+  DoesWalking:=true; //Now it's true that unit did walked one step
 
 end;
 
