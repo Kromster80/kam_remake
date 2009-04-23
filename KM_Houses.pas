@@ -115,14 +115,20 @@ type
     procedure Paint; override;
   end;
 
-  {TKMHouseInn = class(TKMHouse)
+  TKMHouseInn = class(TKMHouse)
+  private
+    Eater:array[1..16]of record //6 will be visible, 10 in stash, rest invisible 
+      UnitType:TUnitType;
+      FoodKind:byte; //What kind of food eater eats
+      AnimStep:cardinal;
+    end;
   public
-    Beast:array[1..5]of byte; //Each beasts "age". Once Best reaches age 3+1 it's ready
-    BeastAnimStep:array[1..5]of cardinal;
-    procedure FeedBeast();
-    function GetTheBeast():boolean;
+    constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    function EaterGetsInside(aUnitType:TUnitType):byte;
+    procedure UpdateEater(aID:byte; aFoodKind:byte);
+    procedure EatersGoesOut(aID:byte);
     procedure Paint(); override; //Render all eaters
-  end;}
+  end;
 
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
@@ -688,6 +694,67 @@ begin
 end;
 
 
+constructor TKMHouseInn.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+var i:integer;
+begin
+  Inherited;
+  for i:=low(Eater) to high(Eater) do
+    Eater[i].UnitType:=ut_None;
+end;
+
+
+function TKMHouseInn.EaterGetsInside(aUnitType:TUnitType):byte;
+var i:integer;
+begin
+  Result:=0;
+  for i:=low(Eater) to high(Eater) do
+  if Eater[i].UnitType=ut_None then
+  begin
+    Eater[i].UnitType:=aUnitType;
+    Eater[i].FoodKind:=0;
+    Eater[i].AnimStep:=FlagAnimStep;
+    Result:=i;
+    exit;
+  end;
+end;
+
+
+procedure TKMHouseInn.UpdateEater(aID:byte; aFoodKind:byte);
+begin
+  if aID=0 then exit;
+  Eater[aID].FoodKind:=aFoodKind; //Order is Wine-Bread-Sausages-Fish
+  Eater[aID].AnimStep:=0;
+end;
+
+
+procedure TKMHouseInn.EatersGoesOut(aID:byte);
+begin
+  if aID=0 then exit;
+  Eater[aID].UnitType:=ut_None;
+end;
+
+
+procedure TKMHouseInn.Paint;
+const
+  offX:array[1..3]of single = (-0.5, 0.0, 0.5);
+  offY:array[1..3]of single = ( 0.35, 0.4, 0.45);
+var i:integer; UnitType,AnimAct,AnimDir:byte; AnimStep:cardinal;
+begin
+  inherited;
+  for i:=1 to 6 do
+  if (Eater[i].UnitType<>ut_None)and(Eater[i].FoodKind<>0) then begin
+    UnitType:=byte(Eater[i].UnitType);
+    AnimAct:=byte(ua_Eat);
+    AnimDir:=Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
+    Assert(InRange(AnimDir,1,8));
+    AnimStep:=FlagAnimStep-Eater[i].AnimStep; //Delta is our AnimStep
+    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner),
+      fPosition.X+offX[(i-1) mod 3 +1],
+      fPosition.Y+offY[(i-1) mod 3 +1], false);
+  end;
+end;
+
+
 constructor TKMHouseSchool.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
 var i:integer;
 begin
@@ -700,8 +767,8 @@ end;
 
 procedure TKMHouseSchool.ResAddToIn(aResource:TResourceType; const aCount:integer=1);
 begin
-Inherited;
-if UnitWIP=nil then StartTrainingUnit;
+  Inherited;
+  if UnitWIP=nil then StartTrainingUnit;
 end;
 
 
@@ -912,6 +979,7 @@ begin
 case aHouseType of
   ht_Swine:    T:=Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   ht_Stables:  T:=Inherited Add(TKMHouseSwineStable.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+  ht_Inn:      T:=Inherited Add(TKMHouseInn.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   ht_School:   T:=Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   ht_Barracks: T:=Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   ht_Store:    T:=Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));

@@ -47,10 +47,6 @@ type
     procedure SpinHSBChange(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-  private
-    { Private declarations }
-  public
-    { Public declarations }
   end;
 
 procedure DefineInputColor(R,G,B:byte; Sender:TObject); overload;

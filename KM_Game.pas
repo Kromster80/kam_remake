@@ -138,8 +138,6 @@ begin
 
       CursorXc:=EnsureRange(round(CursorX+0.5),1,fTerrain.MapX); //Cell below cursor
       CursorYc:=EnsureRange(round(CursorY+0.5),1,fTerrain.MapY);
-      CursorXn:=EnsureRange(round(CursorX+1),1,fTerrain.MapX); //Node below cursor
-      CursorYn:=EnsureRange(round(CursorY+1),1,fTerrain.MapY);
 
       if CursorMode.Mode=cm_None then
         if (fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil)or
@@ -224,7 +222,7 @@ end;
 
 procedure TKMGame.StartGame(MissionFile:string);
 begin
-  RandSeed:=1;
+  RandSeed:=4;
 
   fMainMenuInterface.ShowScreen_Loading;
   fRender.Render;

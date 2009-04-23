@@ -31,7 +31,7 @@ function KMLength(A,B:TKMPoint): single;
 
 function ElapsedTime(i1: pcardinal): string;
 function ExtractOpenedFileName(in_s: string):string;
-function GetFileExt (const FileName: string; len:integer=3): string;
+function GetFileExt (const FileName: string): string;
 function AssureFileExt(FileName,Ext:string): string;
 function GetFileSize(const FileName: string): LongInt;
 function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
@@ -119,6 +119,7 @@ procedure Triangulate(VerticeCount:integer; Vertice:array of vector3f; out PolyC
 
 function BrowseURL(const URL: string) : boolean;
 procedure MailTo(Address,Subject,Body:string);
+procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
 
 const
   eol:string=#13+#10; //EndOfLine
@@ -293,22 +294,24 @@ end else out_s:='';
 Result:=out_s;
 end;
 
-function GetFileExt(const FileName: string; len:integer=3): string;
+function GetFileExt(const FileName: string): string;
 var k:integer; s:string;
 begin
-if length(FileName)<=len then exit;
 s:=''; k:=0;
 repeat
-inc(k); //thats correct
-s:=s+FileName[length(FileName)-len+k];
-until(len=k);
+    s:=FileName[length(FileName)-k]+s;
+    inc(k);
+  until((length(FileName)-k=0)or(FileName[length(FileName)-k]='.'));
+  if length(FileName)-k=0 then
+    Result:=''
+  else
 Result:=uppercase(s);
 end;
 
 
 function AssureFileExt(FileName,Ext:string): string;
 begin
-if (Ext='')or(GetFileExt(FileName,length(Ext))=UpperCase(Ext)) then
+if (Ext='')or(GetFileExt(FileName)=UpperCase(Ext)) then
   Result:=FileName
 else
   Result:=FileName+'.'+Ext;
@@ -1136,5 +1139,12 @@ procedure MailTo(Address,Subject,Body:string);
 begin
   BrowseURL('mailto:'+Address+'?subject='+Subject+'&body='+Body);
 end;
+
+
+procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
+begin
+  BrowseURL(Address+'/index_r.php?t='+ToolName); //Maybe add tool version later..
+end;
+
 
 end.

@@ -134,7 +134,7 @@ public
   procedure RefreshMinimapData();
 
   procedure UpdateState;
-  procedure UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
+  procedure UpdateCursor(aCursor:TCursorMode; Loc:TKMPoint);
   procedure Paint;
 end;
 
@@ -1364,7 +1364,7 @@ for i:=1 to MapY do
 end;
 
 
-procedure TTerrain.UpdateCursor(aCursor:cmCursorMode; Loc:TKMPoint);
+procedure TTerrain.UpdateCursor(aCursor:TCursorMode; Loc:TKMPoint);
 begin
   CursorMode.Mode:=aCursor;
   CursorPos:=Loc;

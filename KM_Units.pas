@@ -203,9 +203,10 @@ type
     TTaskGoEat = class(TUnitTask)
     private
       fUnit:TKMUnit;
-      fInn:TKMHouse;
+      fInn:TKMHouseInn;
+      PlaceID:byte; //Units place in Inn
     public
-      constructor Create(aInn:TKMHouse; aUnit:TKMUnit);
+      constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -241,12 +242,12 @@ type
     AnimStep: integer;
     fVisible:boolean;
     fUnitTask:TUnitTask;
-    fCondition:integer; //Unit condition, when it reaches zero unit should die
     //function UnitAtHome():boolean; Test if Unit is invisible and Pos matches fHome.GetEntrance
     //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
     //UpdateState cycle. So we need to finish the cycle and only then remove the unit. Property is public
     ScheduleForRemoval:boolean;
   public
+    fCondition:integer; //Unit condition, when it reaches zero unit should die
     Direction: TKMDirection;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
@@ -367,19 +368,13 @@ begin
   ActCount:=0;
   Product1:=rt_None; ProdCount1:=0;
   Product2:=rt_None; ProdCount2:=0;
-  AfterWorkIdle:=20; //@Lewin: this should be sufficient for AfterWorkIdle time you talked about
-  //@Krom: I'm kinda confused about this one. I want the AfterWorkIdle to be loaded from the house DAT. (so the balance of the game stays the same, and wares are produced at the same speed)
-  //       After the work routine is complete, the worker rests in idle state before starting the next job.
-  //       I added code to do that into InitiateMining, which seems to be working. Is that where is should be?
-  //       What are you saying I should do here?
-  //@Lewin:AfterWorkIdle is a part of working plan, so just make it AfterWorkIdle:=UnitData[aUnitType].IdleTime*10; Thats all :)
-  //       No need to overload InitiateMining function with something that can be done here in just one line
+  AfterWorkIdle:=0;
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
-  procedure WalkStyle(aLoc:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript); overload;
+  procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript); overload;
   begin
-    Loc:=aLoc;
+    Loc:=aLoc2;
     HasToWalk:=true;
     WalkTo:=aTo;
     WorkType:=aWork;
@@ -404,6 +399,8 @@ procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct
   var i:integer;
 begin
 FillDefaults;
+AfterWorkIdle := HouseDAT[byte(aHome)].WorkerRest*10;
+
 //Now we need to fill only specific properties
 if (aUnitType=ut_LamberJack)and(aHome=ht_SawMill) then begin
   ResourcePlan(rt_Trunk,1,rt_None,0,rt_Wood);
@@ -711,7 +708,7 @@ end;
 
 
 function TKMUnitCitizen.UpdateState():boolean;
-var H:TKMHouse; RestTime: integer;
+var H:TKMHouseInn; RestTime: integer;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -721,7 +718,7 @@ begin
 //Priority no.2 - find self a home
 //Priority no.3 - find self a work
     if fCondition<UNIT_MIN_CONDITION then begin
-      H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
+      H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
       if (H<>nil)and
       (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
         fUnitTask:=TTaskGoEat.Create(H,Self)
@@ -777,7 +774,7 @@ if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPla
 if fHome.CheckResOut(WorkPlan.Product1)>=MaxResInHouse then exit;
 if fHome.CheckResOut(WorkPlan.Product2)>=MaxResInHouse then exit;
 
-WorkPlan.AfterWorkIdle := HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10;
+
 
 if HousePlaceOrders[byte(fHome.GetHouseType)] then
   fHome.ResRemOrder(Res);
@@ -810,13 +807,13 @@ end;
 
 function TKMUnitSerf.UpdateState():boolean;
 var
-  H:TKMHouse;
+  H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
+    H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
     if (H<>nil)and
     (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
@@ -876,13 +873,13 @@ end;
 
 function TKMUnitWorker.UpdateState():boolean;
 var
-  H:TKMHouse;
+  H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y);
+    H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
     if (H<>nil)and
     (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
@@ -1076,7 +1073,7 @@ end;
 
 function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
-  Result:= (X = GetPosition.X) and (Y = GetPosition.Y) and ((fUnitType=UT)or(UT=ut_Any));
+  Result:= (X = GetPosition.X) and (Y = GetPosition.Y) and ((fUnitType=UT)or(UT=ut_Any)) and not (fUnitType in [ut_Wolf..ut_Duck]);
 end;
 
 procedure TKMUnit.SetAction(aAction: TUnitAction; aStep:integer=0);
@@ -1124,6 +1121,7 @@ begin
   //Make unit hungry
   if fCondition>0 then dec(fCondition);
 
+  //Feed the unit automatically
   if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition:=UNIT_MAX_CONDITION;
 
   //Can use fCondition as a sort of counter to reveal terrain X times a sec
@@ -1136,7 +1134,6 @@ begin
       fUnitTask:=TTaskDie.Create(Self);
       exit;
     end;
-
 
   if (fHome<>nil)and(fHome.IsDestroyed) then begin
     fHome:=nil;
@@ -1863,10 +1860,11 @@ end;
 
 
 { TTaskGoEat }
-constructor TTaskGoEat.Create(aInn:TKMHouse; aUnit:TKMUnit);
+constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
   fInn:=aInn;
   fUnit:=aUnit;
+  PlaceID:=0;
   Phase:=0;
   fUnit.SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
@@ -1886,34 +1884,42 @@ case Phase of
                            SetAction(TUnitActionStay.Create(0,ua_Walk)); //Walk outside the house
     end;
  1: SetAction(TUnitActionWalkTo.Create(GetPosition,KMPointY1(fInn.GetEntrance)));
- 2: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In)); //Enter Inn
+ 2: begin
+      SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In)); //Enter Inn
+      PlaceID:=fInn.EaterGetsInside(fUnitType);
+    end;
  3: if fInn.CheckResIn(rt_Bread)>0 then begin
       fInn.ResTakeFromIn(rt_Bread);
-      //Choose spot 
-      //fVisible:=true; Direction:=dir_N; //Make it overlay Inn
-      SetAction(TUnitActionStay.Create(29,ua_Eat,false));
+      SetAction(TUnitActionStay.Create(29*8,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/3);
+      fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
     end else
       SetAction(TUnitActionStay.Create(0,ua_Walk));
  4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0) then begin
       fInn.ResTakeFromIn(rt_Sausages);
-      SetAction(TUnitActionStay.Create(29,ua_Eat,false));
+      SetAction(TUnitActionStay.Create(29*8,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/2);
+      fInn.UpdateEater(PlaceID,3);
     end else
       SetAction(TUnitActionStay.Create(0,ua_Walk));
  5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0) then begin
       fInn.ResTakeFromIn(rt_Wine);
-      SetAction(TUnitActionStay.Create(29,ua_Eat,false));
+      SetAction(TUnitActionStay.Create(29*8,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/4);
+      fInn.UpdateEater(PlaceID,1);
     end else
       SetAction(TUnitActionStay.Create(0,ua_Walk));
  6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0) then begin
       fInn.ResTakeFromIn(rt_Fish);
-      SetAction(TUnitActionStay.Create(29,ua_Eat,false));
+      SetAction(TUnitActionStay.Create(29*8,ua_Eat,false));
       Feed(UNIT_MAX_CONDITION/4);
+      fInn.UpdateEater(PlaceID,4);
     end else
       SetAction(TUnitActionStay.Create(0,ua_Walk));
- 7: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)); //Exit Inn
+ 7: begin
+      SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)); //Exit Inn
+      fInn.EatersGoesOut(PlaceID);
+    end;
  8: TaskDone:=true;
 end;
 inc(Phase);
@@ -1972,6 +1978,12 @@ begin
   if U=nil then begin
     //Do nothing and wait till unit is actually there so we can interact with it
     Explanation:='Can''t walk. No Unit on the way but tile is occupied';
+    Result:=false;
+    exit;
+  end;
+
+  if (KMUnit.GetUnitType in [ut_Wolf..ut_Duck])and(not(U.GetUnitType in [ut_Wolf..ut_Duck])) then begin
+    Explanation:='Unit is animal and therefor has no priority in movement';
     Result:=false;
     exit;
   end;
@@ -2044,7 +2056,8 @@ var
 begin
   DoesWalking:=false; //Set it to false at start of update
   if not fRouteBuilt then begin
-    if KMSamePoint(KMUnit.GetPosition,fDestPos) then begin //Happens whe e.g. Serf stays in frnt of Store and gets Deliver task
+    //Happens whe e.g. Serf stays in front of Store and gets Deliver task
+    if KMSamePoint(KMUnit.GetPosition,fDestPos) then begin
       DoEnd:=true;
       exit;
     end;
@@ -2069,7 +2082,12 @@ begin
       KMUnit.Direction:=DirectionsBitfield[DX,DY];
     end;
 
-    if not DoUnitInteraction(KMUnit) then exit; //Do no further walking until unit interaction is solved
+    if not DoUnitInteraction(KMUnit) then
+      if KMUnit.GetUnitType in [ut_Wolf..ut_Duck] then begin
+        DoEnd:=true;
+        exit;
+      end else
+        exit; //Do no further walking until unit interaction is solved
 
     inc(NodePos);
 

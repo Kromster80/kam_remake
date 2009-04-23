@@ -387,13 +387,8 @@ begin
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
   U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));//}
 
-  //Walk through group
-  U:=MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(16,8)));//}
-
   //Solve diamond
-  //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot 
+  //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
   {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
   U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,9)));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
@@ -403,8 +398,12 @@ begin
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
   U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(4,10)));//}
 
-  fTerrain.RevealWholeMap(play_1);
+  //Walk through group
+  MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
+  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(16,8)));//}
 
+  fTerrain.RevealWholeMap(play_1);
   fViewPort.SetCenter(5,10);
 end;
 
@@ -529,7 +528,7 @@ end;
 
 {Single house tests}
 procedure TForm1.Button_1Click(Sender: TObject);
-var H:TKMHouse; i:integer;
+var H:TKMHouse; i:integer; U:TKMUnit;
 begin
   fGame.StopGame;
   fGame.StartGame('');
@@ -542,13 +541,11 @@ begin
   for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
   MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
-  MyPlayer.AddHouse(ht_School,KMPoint(18,8));
+  H:=MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
   MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
   MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
-
-  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(62,62));
 
   {MyPlayer.AddGroup(ut_Militia,KMPoint(5,14),dir_N,3,6);
   MyPlayer.AddGroup(ut_Militia,KMPoint(10,14),dir_NE,3,6);

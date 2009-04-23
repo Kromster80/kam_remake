@@ -436,7 +436,7 @@ end;
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
-    KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,ScreenX,ScreenY,2,5);
+    KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,ScreenX,ScreenY,2,6);
     KMImage_LoadingBG.StretchImage:=true;
     KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2,100,30,'Loading... Please wait',fnt_Grey,kaCenter);
 end;
@@ -898,9 +898,11 @@ begin
     KMButton_Menu_Save:=MyControls.AddButton(KMPanel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
     KMButton_Menu_Save.OnClick:=Menu_ShowLoad;
     KMButton_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
+    KMButton_Menu_Save.Disable;
     KMButton_Menu_Load:=MyControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
     KMButton_Menu_Load.OnClick:=Menu_ShowLoad;
     KMButton_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
+    KMButton_Menu_Load.Disable;
     KMButton_Menu_Settings:=MyControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
     KMButton_Menu_Settings.OnClick:=Menu_ShowSettings;
     KMButton_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);

@@ -29,8 +29,8 @@ var
   MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
   MUSIC_ENABLE:boolean=false;            //Music gets annoying during debug
-  DO_UNIT_INTERACTION:boolean=true;     //Debug for unit interaction
-  DO_UNIT_HUNGER:boolean=false;          //Wherever units get hungry or not
+  DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
+  DO_UNIT_HUNGER:boolean=true;          //Wherever units get hungry or not
 
   //These should be FALSE
   ShowTerrainWires:boolean=false;
@@ -68,7 +68,7 @@ type TRXid = (rxT=1,rxH,rxU,rxG,rxM);
 
 {Cursors}
 type
-  cmCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Houses);
+  TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Houses);
 const
   c_Default=1; c_Info=452;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
@@ -620,14 +620,13 @@ var
   ExeDir:string;
 
   CursorMode:record //It's easier to store it in record
-    Mode:cmCursorMode;
+    Mode:TCursorMode;
     Param:byte;
   end;
 
   Scrolling: boolean;
 
   CursorX,CursorY:single;    //Precise cursor position on map
-  CursorXn,CursorYn:integer; //Cursor position node
   CursorXc,CursorYc:integer; //Cursor position cell
 
   //Pallete for RX bitmaps
