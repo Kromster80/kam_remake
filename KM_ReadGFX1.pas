@@ -158,7 +158,7 @@ begin
 
       writeln(ft);
       for kk:=1 to 16 do
-      write(ft,MapElem[ii].Properties[MapElemProperties(kk)],''); //Those are 1/0 so we can ommit space between them
+      write(ft,MapElem[ii].Properties[TMapElemProperties(kk)],''); //Those are 1/0 so we can ommit space between them
       write(ft,' =',MapElem[ii].u2);
       write(ft,' =',MapElem[ii].CanBeRemoved);
       write(ft,' =',MapElem[ii].u4);

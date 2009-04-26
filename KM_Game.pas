@@ -260,7 +260,7 @@ begin
   fRender.RenderResize(ScreenX,ScreenY);
   fViewport.SetArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
-  fSoundLib.PlayNextTrack(); //Feed new music track
+  //fSoundLib.PlayNextTrack(); //Feed new music track. @Krom: Why? Shouldn't we just keep playing the same tune?
   
   GameIsRunning:=true;
 end;
@@ -289,7 +289,6 @@ begin
     fLog.AppendLog('Gameplay free',true);
     fMainMenuInterface.ShowScreen_Results;//Should be mission results screen
   end;
-
 end;
 
 

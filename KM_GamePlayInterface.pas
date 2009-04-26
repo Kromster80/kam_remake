@@ -110,7 +110,7 @@ type TKMGamePlayInterface = class
       KMButton_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
 
     KMPanel_Menu:TKMPanel;
-      KMButton_Menu_Save,KMButton_Menu_Load,KMButton_Menu_Settings,KMButton_Menu_Quit,KMButton_Menu_Track:TKMButton;
+      KMButton_Menu_Save,KMButton_Menu_Load,KMButton_Menu_Settings,KMButton_Menu_Quit,KMButton_Menu_TrackUp,KMButton_Menu_TrackDown:TKMButton;
       KMLabel_Menu_Music, KMLabel_Menu_Track: TKMLabel;
 
       KMPanel_Save:TKMPanel;
@@ -175,6 +175,7 @@ type TKMGamePlayInterface = class
     procedure Store_Fill(Sender:TObject);
     procedure Barracks_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
+    procedure Menu_Fill(Sender:TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create;
@@ -209,6 +210,8 @@ type TKMGamePlayInterface = class
     procedure Menu_Settings_Change(Sender:TObject);
     procedure Menu_ShowLoad(Sender: TObject);
     procedure Menu_QuitMission(Sender:TObject);
+    procedure Menu_NextTrack(Sender:TObject);
+    procedure Menu_PreviousTrack(Sender:TObject);
     procedure Build_SelectRoad;
     procedure Build_RightClickCancel;
     procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
@@ -909,9 +912,12 @@ begin
     KMButton_Menu_Quit:=MyControls.AddButton(KMPanel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     KMButton_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     KMButton_Menu_Quit.OnClick:=SwitchPage;
-    KMButton_Menu_Track:=MyControls.AddButton(KMPanel_Menu,158,320,30,30,'>',fnt_Metal);
-    KMButton_Menu_Track.Hint:=fTextLibrary.GetTextString(209);
-    //KMButton_Menu_Quit.OnClick:=TrackUp;
+    KMButton_Menu_TrackUp  :=MyControls.AddButton(KMPanel_Menu,158,320,30,30,'>',fnt_Metal);
+    KMButton_Menu_TrackDown:=MyControls.AddButton(KMPanel_Menu,8,320,30,30,'<',fnt_Metal);
+    KMButton_Menu_TrackUp.Hint  :=fTextLibrary.GetTextString(209);
+    KMButton_Menu_TrackDown.Hint:=fTextLibrary.GetTextString(208);
+    KMButton_Menu_TrackUp.OnClick  :=Menu_NextTrack;
+    KMButton_Menu_TrackDown.OnClick:=Menu_PreviousTrack;
     KMLabel_Menu_Music:=MyControls.AddLabel(KMPanel_Menu,100,298,100,30,fTextLibrary.GetTextString(207),fnt_Metal,kaCenter);
     KMLabel_Menu_Track:=MyControls.AddLabel(KMPanel_Menu,100,326,100,30,'Spirit',fnt_Grey,kaCenter);
 end;
@@ -1152,6 +1158,7 @@ begin
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
+  if KMPanel_Menu.Visible then Menu_Fill(nil);
 
   KMLabel_Stat.Caption:=
         inttostr(fPlayers.GetUnitCount)+' units'+#124+
@@ -1581,6 +1588,10 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fSoundLib.PlayNextTrack; end;
+procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fSoundLib.PlayPreviousTrack; end;
+
+
 procedure TKMGamePlayInterface.Build_Fill(Sender:TObject);
 var i:integer;
 begin
@@ -1640,6 +1651,22 @@ begin
              else KMButton_Barracks[12].Caption:=inttostr(Tmp);
 end;
 
+procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
+begin
+  if fGameSettings.IsMusic then
+  begin
+    KMLabel_Menu_Track.Caption := fSoundLib.GetTrackTitle;
+    KMLabel_Menu_Track.Enabled := true;
+    KMButton_Menu_TrackUp.Enabled := true;
+    KMButton_Menu_TrackDown.Enabled := true;
+  end
+  else begin
+    KMLabel_Menu_Track.Caption := '-';
+    KMLabel_Menu_Track.Enabled := false;
+    KMButton_Menu_TrackUp.Enabled := false;
+    KMButton_Menu_TrackDown.Enabled := false;
+  end;
+end;
 
 procedure TKMGamePlayInterface.Stats_Fill(Sender:TObject);
 var i,k,ci,Tmp:integer;

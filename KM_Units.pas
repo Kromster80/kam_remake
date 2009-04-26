@@ -1345,6 +1345,8 @@ case Phase of
 7: begin
    fTerrain.IncFieldState(fLoc);
    fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
+   if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].Properties[mep_Quad]=1 then
+     fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields and other quads as they won't fit with road
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
    end;
 8: begin

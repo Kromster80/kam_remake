@@ -30,11 +30,12 @@ type
     procedure SetMouseSpeed(Value:integer);
     procedure SetSoundFXVolume(Value:integer);
     procedure SetMusicVolume(Value:integer);
+    procedure SetMusicOnOff(Value:boolean);
     procedure UpdateSFXVolume();
     property GetMouseSpeed:byte read fMouseSpeed;
     property GetSoundFXVolume:byte read fSoundFXVolume;
     property GetMusicVolume:byte read fMusicVolume;
-    property IsMusic:boolean read fMusicOnOff write fMusicOnOff default true;
+    property IsMusic:boolean read fMusicOnOff write SetMusicOnOff default true;
   end;
 
 {These are mission specific settings and stats for each player}
@@ -157,6 +158,16 @@ procedure TGameSettings.SetMusicVolume(Value:integer);
 begin
   fMusicVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
   UpdateSFXVolume();
+end;
+
+procedure TGameSettings.SetMusicOnOff(Value:boolean);
+var OldValue: boolean;
+begin
+  OldValue:=fMusicOnOff;
+  fMusicOnOff:=Value;
+  if fMusicOnOff <> OldValue then
+    if Value then fSoundLib.PlayMenuTrack //Start with the default track
+    else fSoundLib.StopMusic;
 end;
 
 procedure TGameSettings.UpdateSFXVolume();

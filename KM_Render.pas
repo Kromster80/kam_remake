@@ -62,7 +62,7 @@ public
   procedure RenderDebugUnitMoves();
   procedure RenderDebugUnitRoute(Count:integer; Nodes:array of TKMPoint; Pos:integer; Col:TColor4);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
-  procedure RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
+  procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean);
   procedure RenderHouseBuild(Index,pX,pY:integer);
   procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
   procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
@@ -340,8 +340,10 @@ for i:=y1 to y2 do for k:=x1 to x2 do
     end
     else
     begin
-      if Land[i,k].Obj<>255 then RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
-      if Land[i,k].FieldSpecial<>fs_None then RenderObjectSpecial(Land[i,k].FieldSpecial,AnimStep,k,i);
+      if Land[i,k].Obj<>255 then
+      if MapElem[Land[i,k].Obj+1].Properties[mep_Quad]=1 then
+        RenderObjectQuad(Land[i,k].Obj+1,AnimStep,k,i,(MapElem[Land[i,k].Obj+1].Properties[mep_Double]=1))
+      else RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
     end;
   end;
 end;
@@ -495,8 +497,8 @@ end;
 
 
 { 4 objects packed on 1 tile for Corn and Grapes }
-procedure TRender.RenderObjectSpecial(Fs:TFieldSpecial; AnimStep,pX,pY:integer);
-var Index:integer; FOW:byte;
+procedure TRender.RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean);
+var FOW:byte;
   procedure AddSpriteToListBy(ID:integer; AnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
   begin
     ID := MapElem[ID].Step[ AnimStep mod MapElem[ID].Count +1 ] +1;
@@ -507,18 +509,9 @@ begin
   FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
   if FOW <=128 then AnimStep:=0; //Stop animation
 
-  case Fs of
-    fs_Corn1: Index:=59;
-    fs_Corn2: Index:=60;
-    fs_Wine1: Index:=55;
-    fs_Wine2: Index:=56;
-    fs_Wine3: Index:=57;
-    fs_Wine4: Index:=58;
-    else exit;
-  end;
   AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  ,-0.4);
   AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0.5,-0.4);
-  if Index in [55..58]then exit;
+  if IsDouble then exit;
   AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
   AddSpriteToListBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
 end;

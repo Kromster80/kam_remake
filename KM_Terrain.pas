@@ -50,8 +50,8 @@ public
     //The animation step for a falling tree, because they must fall at the right time.
     FallingTreeAnimStep:integer;
 
-    //SpecialObjects on field/wine, depends on FieldAge (x4 straw, x2 grapes)
-    FieldSpecial:TFieldSpecial;  //fs_None, fs_Corn1, fs_Corn2, fs_Wine1, fs_Wine2, fs_Wine3, fs_Wine4, fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4
+    //Used to display half-dug road
+    FieldSpecial:TFieldSpecial;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4
 
     //Another var for borders (ropes, planks, stones) Top and Left
     BorderX,BorderY:TBorderType; //Should be also bottom and right
@@ -396,7 +396,6 @@ begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
   Land[Loc.Y,Loc.X].FieldType:=aFieldType;
   Land[Loc.Y,Loc.X].FieldAge:=0;
-  Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
 
   UpdateBorders(Loc);
   if aFieldType=fdt_Field then begin
@@ -609,14 +608,14 @@ procedure TTerrain.CutCorn(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   Land[Loc.Y,Loc.X].Terrain:=63;
-  Land[Loc.Y,Loc.X].FieldSpecial:=fs_None;
+  Land[Loc.Y,Loc.X].Obj:=255;
 end;
 
 
 procedure TTerrain.CutGrapes(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
-  Land[Loc.Y,Loc.X].FieldSpecial:=fs_Wine1;
+  Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
 end;
 
 
@@ -1309,10 +1308,10 @@ end;
 //Don't use any advanced math here, only simpliest operations - + div * 
 procedure TTerrain.UpdateState;
 var i,k,h,j:integer;
-  procedure SetLand(x,y,tile:byte; Spec:TFieldSpecial);
+  procedure SetLand(x,y,tile,Obj:byte);
   begin
     Land[y,x].Terrain:=tile;
-    Land[y,x].FieldSpecial:=Spec;
+    Land[y,x].Obj:=Obj;
   end;
 begin
   inc(AnimStep);
@@ -1332,19 +1331,19 @@ for i:=1 to MapY do
 
     if Land[i,k].FieldType=fdt_Field then begin
       case Land[i,k].FieldAge of
-         45: SetLand(k,i,61,fs_None);  //Numbers are measured from KaM, ~195sec
-        240: SetLand(k,i,59,fs_None);
-        435: SetLand(k,i,60,fs_Corn1);
-        630: SetLand(k,i,60,fs_Corn2);
+         45: SetLand(k,i,61,255);  //Numbers are measured from KaM, ~195sec
+        240: SetLand(k,i,59,255);
+        435: SetLand(k,i,60,58);
+        630: SetLand(k,i,60,59);
         650: Land[i,k].FieldAge:=65535; //Skip to the end
       end;
     end else
     if Land[i,k].FieldType=fdt_Wine then begin
       case Land[i,k].FieldAge of
-        45: SetLand(k,i,55,fs_Wine1);
-       240: SetLand(k,i,55,fs_Wine2);
-       435: SetLand(k,i,55,fs_Wine3);
-       630: SetLand(k,i,55,fs_Wine4);
+        45: SetLand(k,i,55,54);
+       240: SetLand(k,i,55,55);
+       435: SetLand(k,i,55,56);
+       630: SetLand(k,i,55,57);
        650: Land[i,k].FieldAge:=65535; //Skip to the end
       end;
     end;

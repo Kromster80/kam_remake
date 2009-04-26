@@ -10,6 +10,7 @@ const
   siResourceNames = 39;
   siUnitNames = 69;
   siUnitDescriptions = 99;
+  siTrackNames = 570;
 
 type
   TTextLibrary = class(TObject)

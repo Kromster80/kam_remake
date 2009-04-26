@@ -28,7 +28,6 @@ var
   MakeUnitSprites:boolean=true;         //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
-  MUSIC_ENABLE:boolean=false;            //Music gets annoying during debug
   DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
   DO_UNIT_HUNGER:boolean=true;          //Wherever units get hungry or not
 
@@ -478,8 +477,6 @@ type
                 fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6, fdt_HousePlan=7, fdt_HouseWIP=8, fdt_House=9, fdt_HouseRoad=10);
 
   TFieldSpecial = (fs_None,
-                   fs_Corn1, fs_Corn2,
-                   fs_Wine1, fs_Wine2, fs_Wine3, fs_Wine4,
                    fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 );
 
   TMarkup = (mu_None, mu_RoadPlan, mu_FieldPlan, mu_WinePlan);
@@ -581,19 +578,18 @@ type
 
 type
   //Properties of map elements, e.g. passibility. Mostly unknown.
-  MapElemProperties = (
-    //It's easier to read this way, if I may suggest
+  TMapElemProperties = (
     mep_u1=1,
     mep_u2,
     mep_u3,
     mep_u4,
-    mep_CuttableTree,
+    mep_CuttableTree, //This tree can be cut by a woodcutter
     mep_u6,
-    mep_u7,
+    mep_Double, //Draw two sprites per object. (grapes)
     mep_u8,
-    mep_AllBlocked,
+    mep_AllBlocked, //All passibility blocked. Can't walk, build, swim, etc.
     mep_u10,
-    mep_u11,
+    mep_Quad, //Draw 4 sprites per object (corn)
     mep_u12,
     mep_u13,
     mep_u14,
@@ -722,7 +718,7 @@ end;
   MapElem:array[1..512]of packed record
     Step:array[1..30]of smallint;               //60
     Count:word;                                 //62
-    Properties:array[MapElemProperties]of word; //94
+    Properties:array[TMapElemProperties]of word; //94
     u2:shortint;                                //95
     CanBeRemoved,u4:word;                       //99
   end;
