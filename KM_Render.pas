@@ -255,19 +255,19 @@ end;
 
 for i:=y1 to y2 do for k:=x1 to x2 do
 begin
-  case fTerrain.Land[i,k].FieldSpecial of
-    fs_Dig1: RenderTile(250,k,i,0);
-    fs_Dig2: RenderTile(252,k,i,0);
-    fs_Dig3: RenderTile(254,k,i,0);
-    fs_Dig4: RenderTile(256,k,i,0);
+  case fTerrain.Land[i,k].TileOverlay of
+    to_Dig1: RenderTile(250,k,i,0);
+    to_Dig2: RenderTile(252,k,i,0);
+    to_Dig3: RenderTile(254,k,i,0);
+    to_Dig4: RenderTile(256,k,i,0);
   end;
 
-  if fTerrain.Land[i,k].FieldType in [fdt_Road,fdt_HouseRoad] then
+  if fTerrain.Land[i,k].TileOverlay=to_Road then
     begin
-      rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].FieldType in [fdt_Road,fdt_HouseRoad])*1 +
-          byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].FieldType in [fdt_Road,fdt_HouseRoad])*2 +
-          byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].FieldType in [fdt_Road,fdt_HouseRoad])*4 +
-          byte(fTerrain.Land[i                  ,max(k-1,1)         ].FieldType in [fdt_Road,fdt_HouseRoad])*8;
+      rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].TileOverlay=to_Road)*1 +
+          byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].TileOverlay=to_Road)*2 +
+          byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].TileOverlay=to_Road)*4 +
+          byte(fTerrain.Land[i                  ,max(k-1,1)         ].TileOverlay=to_Road)*8;
       ID:=RoadsConnectivity[rd,1];
       Rot:=RoadsConnectivity[rd,2];
       RenderTile(ID,k,i,Rot);
@@ -334,17 +334,11 @@ var i,k:integer;
 begin
 for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain do begin
-    if Land[i,k].FallingTreeAnimStep <> -1 then
-    begin
-      RenderObject(Land[i,k].Obj+1,Land[i,k].FallingTreeAnimStep,k,i);
-    end
+    if Land[i,k].Obj<>255 then
+    if MapElem[Land[i,k].Obj+1].Properties[mep_Quad]=1 then
+      RenderObjectQuad(Land[i,k].Obj+1,AnimStep,k,i,(MapElem[Land[i,k].Obj+1].Properties[mep_Double]=1))
     else
-    begin
-      if Land[i,k].Obj<>255 then
-      if MapElem[Land[i,k].Obj+1].Properties[mep_Quad]=1 then
-        RenderObjectQuad(Land[i,k].Obj+1,AnimStep,k,i,(MapElem[Land[i,k].Obj+1].Properties[mep_Double]=1))
-      else RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
-    end;
+      RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
   end;
 end;
 
@@ -1056,10 +1050,10 @@ begin
         //Forbid planning on unrevealed areas
         AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
 
-        //Check surrounding tiles in +/- 1 range for other houses pressence                                
+        //Check surrounding tiles in +/- 1 range for other houses pressence
         for s:=-1 to 1 do for t:=-1 to 1 do
         if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-        if fTerrain.Land[P2.Y+t,P2.X+s].FieldType in [fdt_HousePlan,fdt_HouseWIP,fdt_House,fdt_HouseRoad] then
+        if not (CanBuild in fTerrain.Land[P2.Y+t,P2.X+s].Passability) then
         begin
           MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
           AllowBuild := false;

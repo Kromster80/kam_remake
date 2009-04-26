@@ -211,20 +211,17 @@ begin
   fResourceOrder[4]:=0;
   ScheduleForRemoval:=false;
 
-  fTerrain.SetTileOwnership(fPosition,fHouseType,fOwner);
-
   if aBuildState=hbs_Done then begin //House was placed on map already Built e.g. in mission maker
     Self.Activate;
     fBuildingProgress:=HouseDAT[byte(fHouseType)].MaxHealth;
-    fTerrain.SetHousePlan(fPosition,fHouseType,fdt_House); //Sets passability
+    fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner); //Sets passability
   end else
-    fTerrain.SetHousePlan(fPosition,fHouseType,fdt_None);
+    fTerrain.SetHouse(fPosition, fHouseType, hs_Plan, play_None); //Terrain remains neutral yet
 end;
 
 destructor TKMHouse.Destroy;
 begin
   FreeAndNil(fCurrentAction);
-  fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
   if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
     fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
   Inherited;
@@ -256,7 +253,7 @@ begin
   if not DoSilent then fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   ScheduleForRemoval:=true;
   //Dispose of delivery tasks performed in DeliverQueue unit
-  fTerrain.SetTileOwnership(fPosition,fHouseType,play_none);
+  fTerrain.SetHouseAreaOwner(fPosition,fHouseType,play_none);
   fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
 end;
 

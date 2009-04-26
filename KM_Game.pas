@@ -160,15 +160,19 @@ end;
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var P:TKMPoint;
 begin
-  P.X:=CursorXc;
-  P.Y:=CursorYc;
+  P:=KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
 
   if GameIsRunning then begin
     if fGameplayInterface.MyControls.MouseOverControl()<>nil then begin
+
       fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
       //if Button = mbRight then fGameplayInterface.RightClickCancel; //Right clicking with the build menu open will close it
+
     end else begin
-      if Button = mbRight then fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
+
+      if Button = mbRight then
+        fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
+
       if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
         case CursorMode.Mode of
           cm_None:
@@ -183,16 +187,19 @@ begin
               end;
             end;
           cm_Road: if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
-                   MyPlayer.RemPlan(P)
-              else MyPlayer.AddRoadPlan(P,mu_RoadPlan, false,MyPlayer.PlayerID);
+                     MyPlayer.RemPlan(P)
+                   else
+                     MyPlayer.AddRoadPlan(P,mu_RoadPlan, false,MyPlayer.PlayerID);
 
           cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
-                   MyPlayer.RemPlan(P)
-              else MyPlayer.AddRoadPlan(P,mu_FieldPlan, false,MyPlayer.PlayerID);
+                      MyPlayer.RemPlan(P)
+                    else
+                      MyPlayer.AddRoadPlan(P,mu_FieldPlan, false,MyPlayer.PlayerID);
 
           cm_Wine: if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
-                   MyPlayer.RemPlan(P)
-              else MyPlayer.AddRoadPlan(P,mu_WinePlan, false,MyPlayer.PlayerID);
+                     MyPlayer.RemPlan(P)
+                   else
+                     MyPlayer.AddRoadPlan(P,mu_WinePlan, false,MyPlayer.PlayerID);
 
           cm_Erase:
             begin
@@ -209,12 +216,13 @@ begin
     end;
 
     //These are only for testing purposes, Later on it should be changed a lot
+    if Button = mbRight then
     if fPlayers<>nil then
     if fPlayers.SelectedUnit<>nil then
     if fPlayers.SelectedUnit.GetUnitType=ut_HorseScout then
     fPlayers.SelectedUnit.SetAction(TUnitActionWalkTo.Create(fPlayers.SelectedUnit.GetPosition,P));
 
-  end else begin
+  end else begin //If GameIsRunning=false
     fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
   end;
 end;

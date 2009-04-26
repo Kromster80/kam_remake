@@ -9,7 +9,7 @@ Terrain        - The terrain type
 		ROTATION 2bits
 		OWNER 4bits //forbid any actions on enemy tiles
 		IS_UNIT byte //For unit interaction, will be 1bit later on
-		MARKUP set of TMarkup (road, corn, wine, houseplan, housewip) 3bits //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
+		MARKUP TMarkup (road, corn, wine, houseplan, housewip) 3bits //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
 
 
 Object         - The map object. Some types are automatically drawn as quads. (this is probably defined in MapElemProperties)

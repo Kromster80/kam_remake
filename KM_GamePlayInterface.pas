@@ -606,9 +606,9 @@ procedure TKMGamePlayInterface.SwitchPage(Sender: TObject);
 var i:integer; LastVisiblePage: TKMPanel;
 
   procedure Flip4MainButtons(ShowEm:boolean);
-  var i:integer;
+  var k:integer;
   begin
-    for i:=1 to 4 do KMButtonMain[i].Visible:=ShowEm;
+    for k:=1 to 4 do KMButtonMain[k].Visible:=ShowEm;
     KMButtonMain[5].Visible:=not ShowEm;
     KMLabel_MenuTitle.Visible:=not ShowEm;
   end;

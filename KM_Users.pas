@@ -24,7 +24,8 @@ type
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
-    procedure AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
+    procedure AddRoad(aLoc: TKMPoint);
+    procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
@@ -110,23 +111,20 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.AddRoad(aLoc: TKMPoint; aMarkup:TMarkup);
+procedure TKMPlayerAssets.AddRoad(aLoc: TKMPoint);
 begin
   //if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
   //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
   //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
-  case aMarkup of
-    mu_RoadPlan: begin
-                   fTerrain.SetField(aLoc,PlayerID,fdt_Road); 
-                   fTerrain.FlattenTerrain(aLoc); //Flatten the terrain for road
-                 end;
-    mu_FieldPlan: fTerrain.SetField(aLoc,PlayerID,fdt_Field);
-    mu_WinePlan: begin
-                   fTerrain.SetField(aLoc,PlayerID,fdt_Wine);
-                   fTerrain.CutGrapes(aLoc);
-                 end;
-    else Assert(false,'Wrong markup');
-  end;
+
+  fTerrain.SetRoad(aLoc,PlayerID);
+  fTerrain.FlattenTerrain(aLoc); //Flatten the terrain for road
+end;
+
+
+procedure TKMPlayerAssets.AddField(aLoc: TKMPoint; aFieldType:TFieldType);
+begin
+  fTerrain.SetField(aLoc,PlayerID,ft_Corn);
 end;
 
 
@@ -141,9 +139,9 @@ begin
   end;
   fTerrain.SetMarkup(aLoc, aMarkup);
   case aMarkup of
-    mu_RoadPlan: BuildList.AddNewRoad(aLoc, fdt_Road);
-    mu_FieldPlan: BuildList.AddNewRoad(aLoc, fdt_Field);
-    mu_WinePlan: BuildList.AddNewRoad(aLoc, fdt_Wine);
+    mu_RoadPlan: BuildList.AddNewRoad(aLoc, ft_Road);
+    mu_FieldPlan: BuildList.AddNewRoad(aLoc, ft_Corn);
+    mu_WinePlan: BuildList.AddNewRoad(aLoc, ft_Wine);
     else Assert(false,'Wrong markup');
   end;
   if not DoSilent then
@@ -162,8 +160,7 @@ begin
     exit;
   end;
   KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, PlayerID);
-  fTerrain.SetHousePlan(aLoc, aHouseType, fdt_HousePlan);
-  fTerrain.SetTileOwnership(aLoc,aHouseType, PlayerID);
+  fTerrain.SetHouse(aLoc, aHouseType, hs_Plan, PlayerID);
   BuildList.AddNewHousePlan(KMHouse);
   Result:=true;
   if not DoSilent then

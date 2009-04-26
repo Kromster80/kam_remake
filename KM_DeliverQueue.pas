@@ -305,7 +305,7 @@ end;
 procedure TKMBuildingQueue.CloseRoad(aID:integer);
 begin
   fFieldsQueue[aID].Loc:=KMPoint(0,0);
-  fFieldsQueue[aID].FieldType:=fdt_None;
+  fFieldsQueue[aID].FieldType:=ft_None;
   fFieldsQueue[aID].Importance:=0;
   fFieldsQueue[aID].JobStatus:=js_Open;
 end;
@@ -401,9 +401,9 @@ begin
   i:=1; while (i<MaxEntries)and((fFieldsQueue[i].Loc.x=0)or(fFieldsQueue[i].JobStatus<>js_Open)) do inc(i);
   if i=MaxEntries then exit;
 
-  if fFieldsQueue[i].FieldType=fdt_Road then  Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
-  if fFieldsQueue[i].FieldType=fdt_Field then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
-  if fFieldsQueue[i].FieldType=fdt_Wine then  Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  if fFieldsQueue[i].FieldType=ft_Road then Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  if fFieldsQueue[i].FieldType=ft_Corn then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  if fFieldsQueue[i].FieldType=ft_Wine then Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
   fFieldsQueue[i].JobStatus:=js_Taken;
 end;
 

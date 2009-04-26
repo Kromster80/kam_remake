@@ -570,20 +570,20 @@ if (aUnitType=ut_Baker)and(aHome=ht_Bakery) then begin
   end;
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-  if ((fTerrain.FindField(aLoc,12,fdt_Field,false).X=0) and (fTerrain.FindField(aLoc,12,fdt_Field,true).X<>0)) or
-     ((fTerrain.FindField(aLoc,12,fdt_Field,true).X<>0) and (fTerrain.FindField(aLoc,12,fdt_Field,false).X<>0) and (Random(2) = 1)) then begin
+  if ((fTerrain.FindField(aLoc,12,ft_Corn,false).X=0) and (fTerrain.FindField(aLoc,12,ft_Corn,true).X<>0)) or
+     ((fTerrain.FindField(aLoc,12,ft_Corn,true).X<>0) and (fTerrain.FindField(aLoc,12,ft_Corn,false).X<>0) and (Random(2) = 1)) then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
-    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Field,true),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
+    WalkStyle(fTerrain.FindField(aLoc,12,ft_Corn,true),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
   end else
-  if fTerrain.FindField(aLoc,12,fdt_Field,false).X<>0 then
-    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Field,false),ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
+  if fTerrain.FindField(aLoc,12,ft_Corn,false).X<>0 then
+    WalkStyle(fTerrain.FindField(aLoc,12,ft_Corn,false),ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
   else
     Issued:=false;
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
-  if fTerrain.FindField(aLoc,12,fdt_Wine,true).X<>0 then begin
+  if fTerrain.FindField(aLoc,12,ft_Wine,true).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
-    WalkStyle(fTerrain.FindField(aLoc,12,fdt_Wine,true),ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine);
+    WalkStyle(fTerrain.FindField(aLoc,12,ft_Wine,true),ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,11);
     SubActAdd(ha_Work5,1);
@@ -1323,7 +1323,6 @@ case Phase of
 0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
 1: begin
    fTerrain.RemMarkup(fLoc);
-   fTerrain.RemFieldSpecial(fLoc); //In case we are building on a destroyed house
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
    end;
 2: begin
@@ -1350,7 +1349,7 @@ case Phase of
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
    end;
 8: begin
-   fTerrain.SetField(fLoc,fOwner,fdt_Road);
+   fTerrain.SetRoad(fLoc,fOwner);
    fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
    SetAction(TUnitActionStay.Create(5,ua_Work2));
    end;
@@ -1392,7 +1391,7 @@ case Phase of
  4: SetAction(TUnitActionStay.Create(30,ua_Work1));
  5: SetAction(TUnitActionStay.Create(11*4,ua_Work2,false));
  6: begin
-      fTerrain.SetField(fLoc,fOwner,fdt_Wine);
+      fTerrain.SetField(fLoc,fOwner,ft_Wine);
       fTerrain.CutGrapes(fLoc);
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
       SetAction(TUnitActionStay.Create(5,ua_Work2));
@@ -1431,7 +1430,7 @@ case Phase of
      end;
   3: begin
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
-      fTerrain.SetField(fLoc,fOwner,fdt_Field);
+      fTerrain.SetField(fLoc,fOwner,ft_Corn);
       SetAction(TUnitActionStay.Create(5,ua_Walk));
      end;
   4: TaskDone:=true;
@@ -1465,7 +1464,7 @@ with fWorker do
 case Phase of
 0:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fHouse.GetEntrance));
 1:  begin
-      fTerrain.SetHousePlan(fHouse.GetPosition, fHouse.GetHouseType, fdt_HouseWIP);
+      fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, fOwner);
       fHouse.SetBuildingState(hbs_NoGlyph);
       SetAction(TUnitActionStay.Create(5,ua_Walk));
     end;
@@ -1486,7 +1485,7 @@ case Phase of
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
       fTerrain.FlattenTerrain(ListOfCells[Step]);
       if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
-        fTerrain.Land[fHouse.GetEntrance.Y,fHouse.GetEntrance.X].FieldType:=fdt_HouseRoad;
+        fTerrain.SetRoad(fHouse.GetEntrance, fOwner);
 
       fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
       dec(Step);
@@ -1561,7 +1560,7 @@ begin
       2: begin
            SetAction(TUnitActionStay.Create(5,ua_Work,false),0); //Start animation
            Direction:=Cells[CurLoc].Dir;
-           if fHouse.IsStone then fTerrain.SetHousePlan(fHouse.GetPosition, fHouse.GetHouseType, fdt_House); //Remove house plan when we start the stone phase (it is still required for wood)
+           if fHouse.IsStone then fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, fOwner); //Remove house plan when we start the stone phase (it is still required for wood)
          end;
       3: begin
            //Cancel building no matter progress if resource depleted or must eat
@@ -1874,9 +1873,6 @@ end;
 procedure TTaskGoEat.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
-//fUnit.fCondition:= UNIT_MAX_CONDITION;
-//TaskDone:=true;
-//exit;
 
 with fUnit do
 case Phase of

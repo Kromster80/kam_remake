@@ -473,13 +473,17 @@ const
 
 {Terrain}
 type
-  TFieldType = (fdt_None=0, fdt_Road=1, fdt_Field=2, fdt_Wine=3,
-                fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6, fdt_HousePlan=7, fdt_HouseWIP=8, fdt_House=9, fdt_HouseRoad=10);
+  TFieldType = (ft_None=0, ft_Road, ft_Corn, ft_Wine); //This is used only for querrying
+  THouseStage = (hs_Plan, hs_Fence, hs_Built);
 
-  TFieldSpecial = (fs_None,
-                   fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 );
+  TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road );
 
-  TMarkup = (mu_None, mu_RoadPlan, mu_FieldPlan, mu_WinePlan);
+  //Nothing
+  //Road/Corn/Wine ropes
+  //rope outline
+  //fence outline
+  //actual house
+  TMarkup = (mu_None=0, mu_RoadPlan, mu_FieldPlan, mu_WinePlan, mu_HousePlan, mu_HouseFence, mu_House);
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
 
