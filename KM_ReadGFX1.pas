@@ -1,6 +1,6 @@
 unit KM_ReadGFX1;
 interface
-uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib;
+uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes, ZLibEx;
 
 type
   TByteArray2 = array of Byte;
@@ -24,7 +24,7 @@ type
     procedure ExportHouseAnim2BMP();
     procedure ExportUnitAnim2BMP();
 
-    procedure MakeMiniMapColors();
+    procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
 
 implementation
@@ -92,7 +92,7 @@ begin
 
   if not LoadEssence then begin
     FormLoading.Label1.Caption:='Making minimap colors ...';
-    MakeMiniMapColors();
+    MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
     fLog.AppendLog('Prepared MiniMap colors...');
     StepRefresh();
   end;
@@ -846,19 +846,41 @@ end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
-procedure MakeMiniMapColors();
+procedure MakeMiniMapColors(FileName:string);
 var ii,kk,h,j,px:integer; c:array of byte; R,G,B:integer; f:file;
+
+var
+  InputStream: TFileStream;
+  OutputStream: TMemoryStream;
+  DeCompressionStream: TZDecompressionStream;
 begin
-  Assert(FileExists(ExeDir+'Resource\Tiles1.tga'),'Unpack Resource.rar in Resource folder. ');
+  Assert(FileExists(FileName),'Unpack Resource.rar in Resource folder. ');
   //Cos unpacked it takes whole 17mb, so I thought I'd better pack it
 
   assignfile(f,ExeDir+'Resource\Tiles1.tga');
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
   setlength(c,512*512*4+1);
-  blockread(f,c[1],18);
-  blockread(f,c[1],512*512*4);
-  closefile(f);
+  blockread(f,c[1],18); //SizeOf(TGAHeader)
+
+  if c[1]=120 then
+  begin
+    closefile(f);
+    InputStream := TFileStream.Create(FileName, fmOpenRead);
+    OutputStream := TMemoryStream.Create;
+    DecompressionStream := TZDecompressionStream.Create(InputStream);
+    OutputStream.CopyFrom(DecompressionStream, 0);
+    OutputStream.Position := 18; //SizeOf(TGAHeader)
+    OutputStream.ReadBuffer(c[1], 512*512*4);
+    InputStream.Free;
+    OutputStream.Free;
+    DeCompressionStream.Free;
+  end
+  else
+  begin
+    blockread(f,c[1],512*512*4);
+    closefile(f);
+  end;
 
   for ii:=0 to 15 do for kk:=0 to 15 do begin
 

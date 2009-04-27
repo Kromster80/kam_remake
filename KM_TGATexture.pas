@@ -13,11 +13,9 @@
 //
 //----------------------------------------------------------------------------
 unit KM_TGATexture;
-
 interface
-
 uses
-  Windows, OpenGL, SysUtils;
+  Windows, OpenGL, SysUtils, Classes, ZLibEx;
 
 function LoadTexture(Filename: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
@@ -58,21 +56,6 @@ begin
 end;
 
 
-// Copy a pixel from source to dest and Swap the RGB color values
-procedure CopySwapPixel(const Source, Destination : Pointer);
-asm
-  push ebx
-  mov bl,[eax+0]
-  mov bh,[eax+1]
-  mov [edx+2],bl
-  mov [edx+1],bh
-  mov bl,[eax+2]
-  mov bh,[eax+3]
-  mov [edx+0],bl
-  mov [edx+3],bh
-  pop ebx
-end;
-
 procedure FlipImageVertical(W,H,bpp:integer; Image:pointer);
 var ii,kk:integer;
   Front: ^Byte;
@@ -109,18 +92,21 @@ var
   end;
   TGAFile   : File;
   bytesRead : Integer;
+  ZLibCompressed:boolean;
   Image     : Pointer;
-  CompImage : Pointer;
   Width, Height : Integer;
   ColorDepth    : Integer;
   ImageSize     : Integer;
-  BufferIndex : Integer;
-  currentByte : Integer;
-  CurrentPixel : Integer;
   I : Integer;
   Front: ^Byte;
   Back: ^Byte;
   Temp: Byte;
+
+var
+  InputStream: TFileStream;
+  OutputStream: TMemoryStream;
+  DeCompressionStream: TZDecompressionStream;
+
 begin
   result :=FALSE;
   if FileExists(Filename) then begin
@@ -128,7 +114,15 @@ begin
     FileMode:=0; Reset(TGAFile,1); FileMode:=2; //Open ReadOnly
 
     // Read in the bitmap file header
-    BlockRead(TGAFile, TGAHeader, SizeOf(TGAHeader));
+    BlockRead(TGAFile, TGAHeader, SizeOf(TGAHeader), bytesRead);
+
+    if SizeOf(TGAHeader) <> bytesRead then begin
+      Result := False;      
+      CloseFile(TGAFile);
+      MessageBox(0, PChar('Couldn''t read file header "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
+      Exit;
+    end;
+
     result :=TRUE;
   end else
   begin
@@ -136,141 +130,110 @@ begin
     Exit;
   end;
 
-  if Result = TRUE then
+  if Result <> TRUE then exit;
+
+  ZLibCompressed := TGAHeader.FileType=120;
+
+  //TGA is compressed by ZLibEx, thats only KaM Remake custom option
+  if TGAHeader.FileType=120 then
   begin
-
-    // Only support 24, 32 bit images
-    if (TGAHeader.ImageType <> 2) AND    { TGA_RGB }
-       (TGAHeader.ImageType <> 10) then  { Compressed RGB }
-    begin
-      Result := False;
-      CloseFile(TGAFile);
-      MessageBox(0, PChar('Couldn''t load "'+ Filename +'". Only 24 and 32bit TGA supported.'), PChar('TGA File Error'), MB_OK);
-      Exit;
-    end;
-
-    // Don't support colormapped files
-    if TGAHeader.ColorMapType <> 0 then
-    begin
-      Result := False;
-      CloseFile(TGAFile);
-      MessageBox(0, PChar('Couldn''t load "'+ Filename +'". Colormapped TGA files not supported.'), PChar('TGA File Error'), MB_OK);
-      Exit;
-    end;
-
-    // Get the width, height, and color depth
-    Width  := TGAHeader.Width[0]  + TGAHeader.Width[1]  * 256;
-    Height := TGAHeader.Height[0] + TGAHeader.Height[1] * 256;
-    ColorDepth := TGAHeader.BPP;
-    ImageSize  := Width*Height*(ColorDepth div 8);
-
-    if ColorDepth < 24 then
-    begin
-      Result := False;
-      CloseFile(TGAFile);
-      MessageBox(0, PChar('Couldn''t load "'+ Filename +'". Only 24 and 32 bit TGA files supported.'), PChar('TGA File Error'), MB_OK);
-      Exit;
-    end;
-
-    GetMem(Image, ImageSize);
-
-    if TGAHeader.ImageType = 2 then   // Standard 24, 32 bit TGA file
-    begin
-      BlockRead(TGAFile, image^, ImageSize, bytesRead);
-      CloseFile(TGAFile);
-      if bytesRead <> ImageSize then
-      begin
-        Result := False;
-        CloseFile(TGAFile);
-        MessageBox(0, PChar('Couldn''t read file "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
-        Exit;
-      end;
-
-      FlipImageVertical(Width,Height,(ColorDepth div 8),Image);
-
-      // TGAs are stored BGR and not RGB, so swap the R and B bytes.
-      // 32 bit TGA files have alpha channel and gets loaded differently
-      if TGAHeader.BPP = 24 then
-      begin
-        for I :=0 to Width * Height - 1 do
-        begin
-          Front := Pointer(Integer(Image) + I*3);
-          Back := Pointer(Integer(Image) + I*3 + 2);
-          Temp := Front^;
-          Front^ := Back^;
-          Back^ := Temp;
-        end;
-        Texture :=CreateTexture(Width, Height, GL_RGB, Image);
-      end
-      else
-      begin
-        for I :=0 to Width * Height - 1 do
-        begin
-          Front := Pointer(Integer(Image) + I*4);
-          Back := Pointer(Integer(Image) + I*4 + 2);
-          Temp := Front^;
-          Front^ := Back^;
-          Back^ := Temp;
-        end;
-        Texture :=CreateTexture(Width, Height, GL_RGBA, Image);
-      end;
-    end;
-
-    // Compressed 24, 32 bit TGA files
-    if TGAHeader.ImageType = 10 then
-    begin
-      ColorDepth :=ColorDepth DIV 8;
-      CurrentByte :=0;
-      CurrentPixel :=0;
-      BufferIndex :=0;
-
-      GetMem(CompImage, FileSize(TGAFile)-sizeOf(TGAHeader));
-      BlockRead(TGAFile, CompImage^, FileSize(TGAFile)-sizeOf(TGAHeader), BytesRead);   // load compressed data into memory
-      CloseFile(TGAFile);
-      if bytesRead <> FileSize(TGAFile)-sizeOf(TGAHeader) then
-      begin
-        Result := False;
-        CloseFile(TGAFile);
-        MessageBox(0, PChar('Couldn''t read file "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
-        Exit;
-      end;
-
-      // Extract pixel information from compressed data
-      repeat
-        Front := Pointer(Integer(CompImage) + BufferIndex);
-        Inc(BufferIndex);
-        if Front^ < 128 then
-        begin
-          For I := 0 to Front^ do
-          begin
-            CopySwapPixel(Pointer(Integer(CompImage)+BufferIndex+I*ColorDepth), Pointer(Integer(image)+CurrentByte));
-            CurrentByte := CurrentByte + ColorDepth;
-            inc(CurrentPixel);
-          end;
-          BufferIndex :=BufferIndex + (Front^+1)*ColorDepth
-        end
-        else
-        begin
-          For I := 0 to Front^ -128 do
-          begin
-            CopySwapPixel(Pointer(Integer(CompImage)+BufferIndex), Pointer(Integer(image)+CurrentByte));
-            CurrentByte := CurrentByte + ColorDepth;
-            inc(CurrentPixel);
-          end;
-          BufferIndex :=BufferIndex + ColorDepth
-        end;
-      until CurrentPixel >= Width*Height;
-
-      if ColorDepth = 3 then
-        Texture :=CreateTexture(Width, Height, GL_RGB, Image)
-      else
-        Texture :=CreateTexture(Width, Height, GL_RGBA, Image);
-    FreeMem(CompImage);
-    end;
-
-    Result :=TRUE;
-    FreeMem(Image);
+    CloseFile(TGAFile);
+    InputStream := TFileStream.Create(FileName, fmOpenRead);
+    OutputStream := TMemoryStream.Create;
+    DecompressionStream := TZDecompressionStream.Create(InputStream);
+    OutputStream.CopyFrom(DecompressionStream, 0);
+    InputStream.Free;
+    DeCompressionStream.Free;
+    OutputStream.Position:=0;
+    OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
   end;
+
+  // Only support 24, 32 bit uncompressed images
+  if (TGAHeader.ImageType <> 2) then    { TGA_RGB }
+  begin
+    Result := False;
+    CloseFile(TGAFile);
+    MessageBox(0, PChar('Couldn''t load "'+ Filename +'". Only 24 and 32bit TGA supported.'), PChar('TGA File Error'), MB_OK);
+    Exit;
+  end;
+
+  // Don't support colormapped files
+  if TGAHeader.ColorMapType <> 0 then
+  begin
+    Result := False;
+    CloseFile(TGAFile);
+    MessageBox(0, PChar('Couldn''t load "'+ Filename +'". Colormapped TGA files not supported.'), PChar('TGA File Error'), MB_OK);
+    Exit;
+  end;
+
+  // Get the width, height, and color depth
+  Width  := TGAHeader.Width[0]  + TGAHeader.Width[1]  * 256;
+  Height := TGAHeader.Height[0] + TGAHeader.Height[1] * 256;
+  ColorDepth := TGAHeader.BPP;
+  ImageSize  := Width*Height*(ColorDepth div 8);
+
+  if ColorDepth < 24 then
+  begin
+    Result := False;
+    CloseFile(TGAFile);
+    MessageBox(0, PChar('Couldn''t load "'+ Filename +'". Only 24 and 32 bit TGA files supported.'), PChar('TGA File Error'), MB_OK);
+    Exit;
+  end;
+
+  GetMem(Image, ImageSize);
+
+  if ZLibCompressed then
+  begin
+    bytesRead := OutputStream.Read(Image^, ImageSize);
+    OutputStream.Free;
+  end
+  else
+  begin
+    BlockRead(TGAFile, image^, ImageSize, bytesRead);
+    CloseFile(TGAFile);
+  end;
+
+  //BlockRead(TGAFile, image^, ImageSize, bytesRead);
+  //CloseFile(TGAFile);
+  if bytesRead <> ImageSize then
+  begin
+    Result := False;
+    MessageBox(0, PChar('Couldn''t read file "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
+    Exit;
+  end;
+
+  FlipImageVertical(Width,Height,(ColorDepth div 8),Image);
+
+  // TGAs are stored BGR and not RGB, so swap the R and B bytes.
+  // 32 bit TGA files have alpha channel and gets loaded differently
+  if TGAHeader.BPP = 24 then
+  begin
+    for I :=0 to Width * Height - 1 do
+    begin
+      Front := Pointer(Integer(Image) + I*3);
+      Back := Pointer(Integer(Image) + I*3 + 2);
+      Temp := Front^;
+      Front^ := Back^;
+      Back^ := Temp;
+    end;
+    Texture :=CreateTexture(Width, Height, GL_RGB, Image);
+  end
+  else
+  begin
+    for I :=0 to Width * Height - 1 do
+    begin
+      Front := Pointer(Integer(Image) + I*4);
+      Back := Pointer(Integer(Image) + I*4 + 2);
+      Temp := Front^;
+      Front^ := Back^;
+      Back^ := Temp;
+    end;
+    Texture :=CreateTexture(Width, Height, GL_RGBA, Image);
+  end;
+
+  Result :=TRUE;
+  FreeMem(Image);
+
 end;
 
 end.
