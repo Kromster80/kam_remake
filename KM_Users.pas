@@ -124,7 +124,7 @@ end;
 
 procedure TKMPlayerAssets.AddField(aLoc: TKMPoint; aFieldType:TFieldType);
 begin
-  fTerrain.SetField(aLoc,PlayerID,ft_Corn);
+  fTerrain.SetField(aLoc,PlayerID,aFieldType);
 end;
 
 

@@ -1392,7 +1392,6 @@ case Phase of
  5: SetAction(TUnitActionStay.Create(11*4,ua_Work2,false));
  6: begin
       fTerrain.SetField(fLoc,fOwner,ft_Wine);
-      fTerrain.CutGrapes(fLoc);
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
       SetAction(TUnitActionStay.Create(5,ua_Work2));
     end;

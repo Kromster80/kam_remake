@@ -43,7 +43,9 @@ public
     //DEDUCTED
     Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
     Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
-    BorderX, BorderY:TBorderType; //Borders (ropes, planks, stones) Top and Left, Should be also bottom and right
+
+    Border: TBorderType; //Borders (ropes, planks, stones)
+    BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
 
     //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
     FogOfWar:array[1..8]of byte;
@@ -115,7 +117,7 @@ public
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
   function CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
-  procedure UpdateBorders(Loc:TKMPoint);
+  procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
   procedure FlattenTerrain(Loc:TKMPoint);
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
   procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
@@ -167,8 +169,11 @@ begin
     TileOwner:=play_none;
     FieldAge:=0;
     TreeAge:=0;
-    BorderX:=bt_None;
-    BorderY:=bt_None;
+    Border:=bt_None;
+    BorderTop:=false;
+    BorderLeft:=false;
+    BorderBottom:=false;
+    BorderRight:=false;
     for h:=1 to 8 do FogOfWar[h]:=0;
     IsUnit:=0;
   end;
@@ -394,6 +399,7 @@ begin
   if aFieldType=ft_Wine  then begin
     Land[Loc.Y,Loc.X].Terrain:=55;
     Land[Loc.Y,Loc.X].Rotation:=0;
+    CutGrapes(Loc);
   end;
   UpdateBorders(Loc);
   RecalculatePassability(Loc);
@@ -759,6 +765,7 @@ begin
         ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         //Only certain objects are excluded
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (not (Land[Loc.Y,Loc.X].Terrain in [55,59..63]))and //Can't build houses on fields
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
         (not HousesNearBy) then
@@ -768,6 +775,7 @@ begin
         (Land[Loc.Y,Loc.X].Rotation = 0)and     
         ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (not (Land[Loc.Y,Loc.X].Terrain in [55,59..63]))and //Can't build houses on fields
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
         (not HousesNearBy) then
@@ -777,6 +785,7 @@ begin
         (Land[Loc.Y,Loc.X].Rotation = 0)and
         ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (not (Land[Loc.Y,Loc.X].Terrain in [55,59..63]))and //Can't build houses on fields
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         //No houses nearby
         (not HousesNearBy) then
@@ -784,7 +793,8 @@ begin
 
      if (TileIsRoadable(Loc))and
         (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
-        (Land[Loc.Y,Loc.X].Markup=mu_None) then
+        (Land[Loc.Y,Loc.X].Markup=mu_None)and
+        (Land[Loc.Y,Loc.X].TileOverlay<>to_Road) then
        AddPassability(Loc, [canMakeRoads]);
 
      if (TileIsSoil(Loc))and
@@ -1162,7 +1172,10 @@ begin
         Land[Loc.Y+i-4,Loc.X+k-3].Obj:=68+Random(6);
     for i:=1 to 4 do for k:=1 to 4 do
       if (HousePlanYX[byte(aHouseType),i,k]=1) or (HousePlanYX[byte(aHouseType),i,k]=2) then
+      begin
         Land[Loc.Y+i-4,Loc.X+k-3].TileOverlay:=to_Dig3;
+        Land[Loc.Y+i-4,Loc.X+k-3].Markup:=mu_None;
+      end;
   end
   else begin
     //For glyphs
@@ -1177,41 +1190,56 @@ end;
 
 
 {Check 4 surrounding tiles, and if they are different place a border}
-procedure TTerrain.UpdateBorders(Loc:TKMPoint);
-  function GetBorder(Loc2:TKMPoint):TBorderType;
+procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
+  function GetBorderType:TBorderType;
   begin
-    if ((Land[Loc.Y,Loc.X].Terrain in [59..63]) and (Land[Loc2.Y,Loc2.X].Terrain in [59..63]))or //Both are Corn
-      ((Land[Loc.Y,Loc.X].Terrain = 55) and (Land[Loc2.Y,Loc2.X].Terrain = 55))or //Both are Wine
-      (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup) then //Both are same mu_House****
-      Result:=bt_None
+    if Land[Loc.Y,Loc.X].Terrain in [59..63] then Result:=bt_Field
     else
-
-    if (Land[Loc.Y,Loc.X].Terrain in [59..63]) or (Land[Loc2.Y,Loc2.X].Terrain in [59..63]) then Result:=bt_Field
+    if Land[Loc.Y,Loc.X].Terrain = 55 then Result:=bt_Wine
     else
-    if (Land[Loc.Y,Loc.X].Terrain = 55) or (Land[Loc2.Y,Loc2.X].Terrain = 55) then Result:=bt_Wine
+    if Land[Loc.Y,Loc.X].Markup=mu_HousePlan then Result:=bt_HousePlan
     else
-    if (Land[Loc.Y,Loc.X].Markup=mu_HousePlan)or(Land[Loc2.Y,Loc2.X].Markup=mu_HousePlan) then Result:=bt_HousePlan
-    else
-    if (Land[Loc.Y,Loc.X].Markup=mu_HouseFence)or(Land[Loc2.Y,Loc2.X].Markup=mu_HouseFence) then Result:=bt_HouseBuilding
+    if Land[Loc.Y,Loc.X].Markup=mu_HouseFence then Result:=bt_HouseBuilding
     else
     Result:=bt_None;
   end;
+  function GetBorderEnabled(Loc2:TKMPoint):boolean;
+  begin
+    Result:=true;
+    if not TileInMapCoords(Loc2.X,Loc2.Y) then exit;
+    if ((Land[Loc.Y,Loc.X].Terrain in [59..63]) and (Land[Loc2.Y,Loc2.X].Terrain in [59..63]))or //Both are Corn
+      ((Land[Loc.Y,Loc.X].Terrain = 55) and (Land[Loc2.Y,Loc2.X].Terrain = 55))or //Both are Wine
+      ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFence]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) then //Both are same mu_House****
+      Result:=false;
+    //TO FIX: Don't have fences if road has been built over field
+  end;
 begin
+ if not TileInMapCoords(Loc.X,Loc.Y) then exit;
 
-  if not TileInMapCoords(Loc.X,Loc.Y) then exit;
-
-  if TileInMapCoords(Loc.X-1,Loc.Y) then
-  Land[Loc.Y,Loc.X].BorderY:=GetBorder(KMPoint(Loc.Y,Loc.X-1));
-
-  if TileInMapCoords(Loc.X,Loc.Y-1) then
-  Land[Loc.Y,Loc.X].BorderX:=GetBorder(KMPoint(Loc.Y-1,Loc.X));
-
-  if TileInMapCoords(Loc.X+1,Loc.Y) then
-  Land[Loc.Y,Loc.X+1].BorderY:=GetBorder(KMPoint(Loc.Y,Loc.X+1));
-
-  if TileInMapCoords(Loc.X,Loc.Y+1) then
-  Land[Loc.Y+1,Loc.X].BorderX:=GetBorder(KMPoint(Loc.Y+1,Loc.X));
-
+  Land[Loc.Y,Loc.X].Border:=GetBorderType;
+  if Land[Loc.Y,Loc.X].Border = bt_None then begin
+  Land[Loc.Y,Loc.X].BorderTop    := false;
+  Land[Loc.Y,Loc.X].BorderLeft   := false;
+  Land[Loc.Y,Loc.X].BorderBottom := false;
+  Land[Loc.Y,Loc.X].BorderRight  := false;
+  end
+  else begin
+  Land[Loc.Y,Loc.X].BorderTop    := true;
+  Land[Loc.Y,Loc.X].BorderLeft   := true;
+  Land[Loc.Y,Loc.X].BorderBottom := true;
+  Land[Loc.Y,Loc.X].BorderRight  := true;
+  Land[Loc.Y,Loc.X].BorderTop    := GetBorderEnabled(KMPoint(Loc.X,Loc.Y-1));
+  Land[Loc.Y,Loc.X].BorderLeft   := GetBorderEnabled(KMPoint(Loc.X-1,Loc.Y));
+  Land[Loc.Y,Loc.X].BorderBottom := GetBorderEnabled(KMPoint(Loc.X,Loc.Y+1));
+  Land[Loc.Y,Loc.X].BorderRight  := GetBorderEnabled(KMPoint(Loc.X+1,Loc.Y));
+  end;
+  if CheckSurrounding then
+  begin
+    UpdateBorders(KMPoint(Loc.X-1,Loc.Y),false);
+    UpdateBorders(KMPoint(Loc.X+1,Loc.Y),false);
+    UpdateBorders(KMPoint(Loc.X,Loc.Y-1),false);
+    UpdateBorders(KMPoint(Loc.X,Loc.Y+1),false);
+  end;
 end;
 
 

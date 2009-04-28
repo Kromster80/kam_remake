@@ -39,7 +39,7 @@ private
   procedure SortRenderList;
   procedure RenderRenderList;
   procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
-  procedure RenderTerrainBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
+  procedure RenderTerrainBorder(Border:TBorderType; Dir:integer; Pos:integer; pX,pY:integer);
   procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
   procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
   procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
@@ -317,11 +317,17 @@ var i,k:integer;
 begin
 for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain do begin
-    if Land[i,k].BorderX <> bt_None then
-      RenderTerrainBorder(Land[i,k].BorderX,1,k,i); //Horizontal
+    if Land[i,k].BorderTop = true then
+      RenderTerrainBorder(Land[i,k].Border,1,1,k,i); //Horizontal left
 
-    if Land[i,k].BorderY <> bt_None then
-      RenderTerrainBorder(Land[i,k].BorderY,2,k,i); //Vertical
+    if Land[i,k].BorderLeft = true then
+      RenderTerrainBorder(Land[i,k].Border,2,1,k,i); //Vertical left
+
+    if Land[i,k].BorderBottom = true then
+      RenderTerrainBorder(Land[i,k].Border,1,2,k,i); //Horizontal right
+
+    if Land[i,k].BorderRight = true then
+      RenderTerrainBorder(Land[i,k].Border,2,2,k,i); //Vertical right
 
     if Land[i,k].Markup in [mu_RoadPlan..mu_WinePlan] then
       RenderTerrainMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
@@ -368,7 +374,7 @@ begin
   glbegin (GL_POINTS);
   for i:=y1 to y2 do for k:=x1 to x2 do begin
     //glColor4f(fTerrain.Land[i,k].Height/100,0,0,1.2-sqrt(sqr(i-MapYc)+sqr(k-MapXc))/10);
-    glColor4f(byte(fTerrain.Land[i,k].BorderX=bt_HousePlan),byte(fTerrain.Land[i,k].BorderY=bt_HousePlan),0,1);
+    glColor4f(byte(fTerrain.Land[i,k].Border=bt_HousePlan),byte(fTerrain.Land[i,k].Border=bt_HousePlan),0,1);
     glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
   end;
   glEnd;
@@ -947,9 +953,11 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainBorder(Border:TBorderType; Dir:integer; pX,pY:integer);
+procedure TRender.RenderTerrainBorder(Border:TBorderType; Dir:integer; Pos:integer; pX,pY:integer);
 var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer; FOW:single;
 begin
+  //@Krom: These should all be moved in slightly, (1-2px) so that border next to border doesn't overlap
+  //       If Pos=1 then add offset, if Pos=2 then subtract offset (Pos 2 means bottom or right side of tile)
   ID1:=0; ID2:=0;
   if bt_HouseBuilding = Border then if Dir=1 then ID1:=463 else ID2:=467; //WIP (Wood planks)
   if bt_HousePlan = Border then     if Dir=1 then ID1:=105 else ID2:=117; //Plan (Ropes)
@@ -958,6 +966,8 @@ begin
 
   FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)/255;
 
+  if (Pos = 2) and (Dir = 1) then pY:=pY+1;
+  if (Pos = 2) and (Dir = 2) then pX:=pX+1;
   glColor4f(FOW,FOW,FOW,1);
   if Dir = 1 then begin //Horizontal border
     glBindTexture(GL_TEXTURE_2D,GFXData[4,ID1].TexID);
@@ -1053,7 +1063,7 @@ begin
         //Check surrounding tiles in +/- 1 range for other houses pressence
         for s:=-1 to 1 do for t:=-1 to 1 do
         if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-        if not (CanBuild in fTerrain.Land[P2.Y+t,P2.X+s].Passability) then
+        if fTerrain.Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFence, mu_House] then
         begin
           MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
           AllowBuild := false;
