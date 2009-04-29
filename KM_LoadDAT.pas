@@ -481,11 +481,11 @@ end;
 {TKMMapInfo}
 
 procedure TKMMapsInfo.ScanSingleMapsFolder(Path:string);
-var i:integer; SearchRec:TSearchRec; ft:textfile; s:string; r:integer;
+var i:integer; SearchRec:TSearchRec; ft:textfile; s:string;
   MissionDetails: TKMMissionDetails;
   MapDetails: TKMMapDetails;
 begin
-  MapCount:=0; r:=0;
+  MapCount:=0;
   if not DirectoryExists(ExeDir+'Maps\') then exit;
 
   ChDir(ExeDir+'Maps\');
@@ -526,9 +526,6 @@ begin
 
       repeat
       readln(ft,s);
-
-      inc(r); //Loop counter. @Krom: For what purpose? It's never used.
-      //@Lewin: Ahh, I just counted how many times fMissionParser.GetMissionDetails was called. To be deleted along with 'r' ..
 
       if UpperCase(s)=UpperCase('Title') then
         readln(ft,Title);

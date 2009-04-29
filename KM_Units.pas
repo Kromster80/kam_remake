@@ -1323,6 +1323,7 @@ case Phase of
 0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
 1: begin
    fTerrain.RemMarkup(fLoc);
+   fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
    end;
 2: begin
@@ -1377,6 +1378,7 @@ case Phase of
  0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
  1: begin
       fTerrain.RemMarkup(fLoc);
+      fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
     end;
  2: begin
@@ -1420,6 +1422,7 @@ case Phase of
   0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
   1: begin
       fTerrain.RemMarkup(fLoc);
+      fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
       SetAction(TUnitActionStay.Create(0,ua_Walk));
      end;
   2: begin

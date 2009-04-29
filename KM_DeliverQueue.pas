@@ -378,7 +378,6 @@ end;
 {Remove task if Player has cancelled it}
 {Simulated just means that we simply want to check if player ever issued that task}
 {The erase cursor changes when you move over a piece of deletable road/field}
-{@Lewin: your idea is good :) I didn't thought of that myself. To be deleted..}
 function TKMBuildingQueue.RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin

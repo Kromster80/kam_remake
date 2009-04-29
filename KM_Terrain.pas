@@ -70,6 +70,7 @@ public
 
   procedure RemMarkup(Loc:TKMPoint);
   procedure IncDigState(Loc:TKMPoint);
+  procedure ResetDigState(Loc:TKMPoint);
 
   function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
   function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
@@ -438,6 +439,12 @@ begin
 end;
 
 
+procedure TTerrain.ResetDigState(Loc:TKMPoint);
+begin
+  Land[Loc.Y,Loc.X].TileOverlay:=to_None;
+end;
+
+
 { Should find closest field around}
 {aAgeFull is used for ft_Corn. Incase Farmer is looking for empty or full field of corn}
 function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
@@ -632,6 +639,10 @@ end;
 procedure TTerrain.CutGrapes(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
+
+  //@Krom: Why did you remove this piece of code? It seems nececary to me.
+  //       Also it is used when first placing grapes to ensure that the object is set.
+  //       Now there are no grapes growing in the field at the start of the game.
   //Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
 end;
 
@@ -1246,10 +1257,6 @@ begin
     Land[Loc.Y,Loc.X].BorderRight  := false;
   end
   else begin
-    Land[Loc.Y,Loc.X].BorderTop    := true;
-    Land[Loc.Y,Loc.X].BorderLeft   := true;
-    Land[Loc.Y,Loc.X].BorderBottom := true;
-    Land[Loc.Y,Loc.X].BorderRight  := true;
     Land[Loc.Y,Loc.X].BorderTop    := GetBorderEnabled(KMPoint(Loc.X,Loc.Y-1));
     Land[Loc.Y,Loc.X].BorderLeft   := GetBorderEnabled(KMPoint(Loc.X-1,Loc.Y));
     Land[Loc.Y,Loc.X].BorderBottom := GetBorderEnabled(KMPoint(Loc.X,Loc.Y+1));

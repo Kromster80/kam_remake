@@ -1112,6 +1112,7 @@ begin
         AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
 
         //@Lewin: Please correct this if it's wrong
+        //@Krom:  I don't quite understand what it does. But there seem to be no problems with placement so I guess it is ok!
         if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
         //Check surrounding tiles in +/- 1 range for other houses pressence
         for s:=-1 to 1 do for t:=-1 to 1 do

@@ -1428,8 +1428,10 @@ begin
   if Sender=KMButton_House_DemolishYes then begin
     MyPlayer.RemHouse(fPlayers.SelectedHouse.GetPosition,false);
     ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
-  end else
+  end else begin
     AskDemolish:=false;
+    SwitchPage(KMButtonMain[1]); //Cancel and return to build menu
+  end;
 end;
 
 

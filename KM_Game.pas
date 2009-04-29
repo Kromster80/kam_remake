@@ -204,8 +204,11 @@ begin
           cm_Erase:
             begin
               fPlayers.SelectedHouse:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
-              if fGameplayInterface<>nil then //Should ask wherever player wants to destroy own house
+              if fGameplayInterface<>nil then //Ask wherever player wants to destroy own house
+              begin
                 fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse,true);
+                fSoundLib.Play(sfx_click,P,false);
+              end;
               if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
                 fSoundLib.Play(sfx_CantPlace,P,false,4.0);
             end;
