@@ -69,7 +69,7 @@ public
   procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
 
   procedure RemMarkup(Loc:TKMPoint);
-  procedure IncFieldState(Loc:TKMPoint);
+  procedure IncDigState(Loc:TKMPoint);
 
   function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
   function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
@@ -84,12 +84,14 @@ public
   function FindOre(aPosition:TKMPoint; aRadius:integer; Rt:TResourceType):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 
-  procedure AddTree(Loc:TKMPoint; ID:integer);
-  procedure ChopTree(Loc:TKMPoint);
+  procedure SetTree(Loc:TKMPoint; ID:integer);
   procedure FallTree(Loc:TKMPoint);
-  procedure InitGrowth(Loc:TKMPoint);
+  procedure ChopTree(Loc:TKMPoint);
+
+  procedure SowCorn(Loc:TKMPoint);
   procedure CutCorn(Loc:TKMPoint);
   procedure CutGrapes(Loc:TKMPoint);
+  
   procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
   procedure DecStoneDeposit(Loc:TKMPoint);
   procedure DecCoalDeposit(Loc:TKMPoint);
@@ -406,7 +408,7 @@ begin
 end;
 
 
-procedure TTerrain.IncFieldState(Loc:TKMPoint);
+procedure TTerrain.IncDigState(Loc:TKMPoint);
 begin
   case Land[Loc.Y,Loc.X].TileOverlay of
     to_Dig3: Land[Loc.Y,Loc.X].TileOverlay:=to_Dig4;
@@ -558,12 +560,13 @@ List2.Free;
 end;
 
 
-procedure TTerrain.AddTree(Loc:TKMPoint; ID:integer);
+procedure TTerrain.SetTree(Loc:TKMPoint; ID:integer);
 begin
   Land[Loc.Y,Loc.X].Obj:=ID;
   Land[Loc.Y,Loc.X].TreeAge:=1;
   RecalculatePassability(Loc);
 end;
+
 
 {Remove the tree and place a falling tree instead}
 procedure TTerrain.FallTree(Loc:TKMPoint);
@@ -578,6 +581,7 @@ begin
   RecalculatePassability(Loc);
 end;
 
+
 {Remove the tree and place stump instead}
 procedure TTerrain.ChopTree(Loc:TKMPoint);
 var h:integer;
@@ -591,7 +595,7 @@ begin
 end;
 
 
-procedure TTerrain.InitGrowth(Loc:TKMPoint);
+procedure TTerrain.SowCorn(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
   RecalculatePassability(Loc);
@@ -602,14 +606,14 @@ procedure TTerrain.CutCorn(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   Land[Loc.Y,Loc.X].Terrain:=63;
-  Land[Loc.Y,Loc.X].Obj:=255;
+  //Land[Loc.Y,Loc.X].Obj:=255;
 end;
 
 
 procedure TTerrain.CutGrapes(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
-  Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
+  //Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
 end;
 
 
@@ -1218,20 +1222,20 @@ begin
 
   Land[Loc.Y,Loc.X].Border:=GetBorderType;
   if Land[Loc.Y,Loc.X].Border = bt_None then begin
-  Land[Loc.Y,Loc.X].BorderTop    := false;
-  Land[Loc.Y,Loc.X].BorderLeft   := false;
-  Land[Loc.Y,Loc.X].BorderBottom := false;
-  Land[Loc.Y,Loc.X].BorderRight  := false;
+    Land[Loc.Y,Loc.X].BorderTop    := false;
+    Land[Loc.Y,Loc.X].BorderLeft   := false;
+    Land[Loc.Y,Loc.X].BorderBottom := false;
+    Land[Loc.Y,Loc.X].BorderRight  := false;
   end
   else begin
-  Land[Loc.Y,Loc.X].BorderTop    := true;
-  Land[Loc.Y,Loc.X].BorderLeft   := true;
-  Land[Loc.Y,Loc.X].BorderBottom := true;
-  Land[Loc.Y,Loc.X].BorderRight  := true;
-  Land[Loc.Y,Loc.X].BorderTop    := GetBorderEnabled(KMPoint(Loc.X,Loc.Y-1));
-  Land[Loc.Y,Loc.X].BorderLeft   := GetBorderEnabled(KMPoint(Loc.X-1,Loc.Y));
-  Land[Loc.Y,Loc.X].BorderBottom := GetBorderEnabled(KMPoint(Loc.X,Loc.Y+1));
-  Land[Loc.Y,Loc.X].BorderRight  := GetBorderEnabled(KMPoint(Loc.X+1,Loc.Y));
+    Land[Loc.Y,Loc.X].BorderTop    := true;
+    Land[Loc.Y,Loc.X].BorderLeft   := true;
+    Land[Loc.Y,Loc.X].BorderBottom := true;
+    Land[Loc.Y,Loc.X].BorderRight  := true;
+    Land[Loc.Y,Loc.X].BorderTop    := GetBorderEnabled(KMPoint(Loc.X,Loc.Y-1));
+    Land[Loc.Y,Loc.X].BorderLeft   := GetBorderEnabled(KMPoint(Loc.X-1,Loc.Y));
+    Land[Loc.Y,Loc.X].BorderBottom := GetBorderEnabled(KMPoint(Loc.X,Loc.Y+1));
+    Land[Loc.Y,Loc.X].BorderRight  := GetBorderEnabled(KMPoint(Loc.X+1,Loc.Y));
   end;
   if CheckSurrounding then
   begin
@@ -1286,7 +1290,6 @@ procedure TTerrain.RefreshMinimapData();
 var i,k,ID:integer; Light:single; Loc:TKMPointList; FOW:byte;
 begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
-    //MM[i,k].A:=255;
     FOW:=fTerrain.CheckRevelation(k,i,MyPlayer.PlayerID);
     if fTerrain.Land[i,k].TileOwner=play_none then begin
       if FOW=0 then begin

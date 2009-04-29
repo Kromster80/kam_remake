@@ -288,6 +288,8 @@ begin
   if InRange(MusicIndex,1,256) then
     Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex)
   else Result := 'Unknown';
+
+  Result:=ExtractFileName(MusicTracks[MusicIndex]); //@Lewin: I think we should do it this way eventually
 end;
 
 
@@ -334,7 +336,6 @@ begin
   if MusicIndex = 0 then MusicIndex := MusicCount; //Loop to the top
   PlayMusicFile(MusicTracks[MusicIndex]);
 end;
-
 
 //Check if Music is not playing, to know when new mp3 should be feeded
 function TSoundLib.IsMusicEnded():boolean;

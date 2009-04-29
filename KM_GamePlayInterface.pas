@@ -85,6 +85,7 @@ type TKMGamePlayInterface = class
     ShownHint:TObject;
     LastSchoolUnit:integer; //Last unit that was selected in School, global for all schools player owns
     LastBarrackUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
+    AskDemolish:boolean;
 
     KMPanel_Main:TKMPanel;
       KMImage_Main1,KMImage_Main2,KMImage_Main3,KMImage_Main4:TKMImage; //Toolbar background
@@ -148,7 +149,9 @@ type TKMGamePlayInterface = class
       KMLabel_HouseHealth:TKMLabel;
 
     KMPanel_House_Common:TKMPanel;
-      KMLabel_Common_Demand,KMLabel_Common_Offer,KMLabel_Common_Costs,KMLabel_House_UnderConstruction:TKMLabel;
+      KMLabel_Common_Demand,KMLabel_Common_Offer,KMLabel_Common_Costs,
+      KMLabel_House_UnderConstruction,KMLabel_House_Demolish:TKMLabel;
+      KMButton_House_DemolishYes,KMButton_House_DemolishNo:TKMButton;
       KMRow_Common_Resource:array[1..4]of TKMResourceRow; //4 bars is the maximum
       KMRow_Order:array[1..4]of TKMResourceOrderRow; //3 bars is the maximum
       KMRow_Costs:array[1..4]of TKMCostsRow; //3 bars is the maximum
@@ -194,8 +197,9 @@ type TKMGamePlayInterface = class
     procedure Create_School_Page;
     procedure Create_Barracks_Page;
     procedure UpdateState;
-    procedure ShowHouseInfo(Sender:TKMHouse);
+    procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit);
+    procedure House_Demolish(Sender:TObject);
     procedure House_RepairToggle(Sender:TObject);
     procedure House_WareDeliveryToggle(Sender:TObject);
     procedure House_OrderClick(Sender:TObject);
@@ -1035,6 +1039,14 @@ begin
     KMHealthBar_House:=MyControls.AddPercentBar(KMPanel_House,129,57,55,15,50,'',fnt_Mini);
     KMLabel_House_UnderConstruction:=MyControls.AddLabel(KMPanel_House,100,170,100,30,fTextLibrary.GetTextString(230),fnt_Grey,kaCenter);
 
+    KMLabel_House_Demolish:=MyControls.AddLabel(KMPanel_House,100,130,100,30,fTextLibrary.GetTextString(232),fnt_Grey,kaCenter);
+    KMButton_House_DemolishYes:=MyControls.AddButton(KMPanel_House,8,185,180,30,fTextLibrary.GetTextString(231),fnt_Metal);
+    KMButton_House_DemolishNo :=MyControls.AddButton(KMPanel_House,8,220,180,30,fTextLibrary.GetTextString(224),fnt_Metal);
+    KMButton_House_DemolishYes.Hint:=fTextLibrary.GetTextString(233);
+    KMButton_House_DemolishNo.Hint:= fTextLibrary.GetTextString(224);
+    KMButton_House_DemolishYes.OnClick:=House_Demolish;
+    KMButton_House_DemolishNo.OnClick:= House_Demolish;
+
     KMPanel_House_Common:=MyControls.AddPanel(KMPanel_House,0,76,200,400);
       KMLabel_Common_Demand:=MyControls.AddLabel(KMPanel_House_Common,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
       KMLabel_Common_Offer:=MyControls.AddLabel(KMPanel_House_Common,100,2,100,30,'',fnt_Grey,kaCenter);
@@ -1149,7 +1161,7 @@ end;
 procedure TKMGamePlayInterface.UpdateState;
 begin
   if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
-  if ShownHouse<>nil then ShowHouseInfo(ShownHouse);
+  if ShownHouse<>nil then ShowHouseInfo(ShownHouse,AskDemolish);
 
   if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
   if Mouse.CursorPos.X>ToolBarWidth then DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar
@@ -1223,12 +1235,13 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse);
+procedure TKMGamePlayInterface.ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
 const LineAdv = 25; //Each new Line is placed ## pixels after previous
 var i,RowRes,Base,Line:integer;
 begin
   ShownUnit:=nil;
   ShownHouse:=Sender;
+  AskDemolish:=aAskDemolish;
 
   if Sender=nil then begin
     SwitchPage(nil);
@@ -1243,6 +1256,23 @@ begin
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(HouseDAT[byte(Sender.GetHouseType)].MaxHealth);
   KMHealthBar_House.Position:=round( Sender.GetHealth / HouseDAT[byte(Sender.GetHouseType)].MaxHealth * 100 );
 
+  if AskDemolish then
+  begin
+    for i:=1 to KMPanel_House.ChildCount do
+      KMPanel_House.Childs[i].Hide; //hide all
+    KMLabel_House_Demolish.Show;
+    KMButton_House_DemolishYes.Show;
+    KMButton_House_DemolishNo.Show;
+    KMLabel_House.Show;
+    KMImage_House_Logo.Show;
+    KMImage_House_Worker.Show;
+    KMImage_House_Worker.Enable;
+    KMHealthBar_House.Show;
+    KMLabel_HouseHealth.Show;
+    SwitchPage(KMPanel_House);
+    exit;
+  end;
+
   if not Sender.IsComplete then
   begin
     for i:=1 to KMPanel_House.ChildCount do
@@ -1255,111 +1285,114 @@ begin
     KMHealthBar_House.Show;
     KMLabel_HouseHealth.Show;
     SwitchPage(KMPanel_House);
-  end else begin
+    exit;
+  end;
+
+
   for i:=1 to KMPanel_House.ChildCount do
     KMPanel_House.Childs[i].Show; //show all
   KMImage_House_Worker.Enabled := Sender.GetHasOwner;
   KMImage_House_Worker.Visible := TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1) <> ut_None;
-  if (HouseInput[byte(Sender.GetHouseType)][1] in [rt_None,rt_All,rt_Warfare]) then
-    KMButton_House_Goods.Enabled:=false else KMButton_House_Goods.Enable;
+  KMButton_House_Goods.Enabled := not (HouseInput[byte(Sender.GetHouseType)][1] in [rt_None,rt_All,rt_Warfare]);
   if Sender.BuildingRepair then KMButton_House_Repair.TexID:=39 else KMButton_House_Repair.TexID:=40;
   if Sender.WareDelivery then KMButton_House_Goods.TexID:=37 else KMButton_House_Goods.TexID:=38;
-  KMLabel_House_UnderConstruction.Visible := false;
+  KMLabel_House_UnderConstruction.Hide;
+  KMLabel_House_Demolish.Hide;
+  KMButton_House_DemolishYes.Hide;
+  KMButton_House_DemolishNo.Hide;
   SwitchPage(KMPanel_House);
 
   case Sender.GetHouseType of
-  ht_Store: begin
-        Store_Fill(nil);
-        SwitchPage(KMPanel_HouseStore);
-      end;
-
-  ht_School: begin
-        KMResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold);
-        House_SchoolUnitChange(nil);
-        KMButton_School_UnitWIPBar.Position:=TKMHouseSchool(Sender).GetTrainingProgress;
-        SwitchPage(KMPanel_House_School);
-      end;
-
-  ht_Barracks: begin
-        KMImage_House_Worker.Enabled := true; //In the barrack the recruit icon is always enabled
-        Barracks_Fill(nil);
-        SwitchPage(KMPanel_HouseBarracks);
+    ht_Store: begin
+          Store_Fill(nil);
+          SwitchPage(KMPanel_HouseStore);
         end;
-  ht_TownHall:;
 
+    ht_School: begin
+          KMResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold);
+          House_SchoolUnitChange(nil);
+          KMButton_School_UnitWIPBar.Position:=TKMHouseSchool(Sender).GetTrainingProgress;
+          SwitchPage(KMPanel_House_School);
+        end;
+
+    ht_Barracks: begin
+          KMImage_House_Worker.Enabled := true; //In the barrack the recruit icon is always enabled
+          Barracks_Fill(nil);
+          SwitchPage(KMPanel_HouseBarracks);
+          end;
+    ht_TownHall:;
   else begin
 
-        //First thing - hide everything
-        for i:=1 to KMPanel_House_Common.ChildCount do
-          KMPanel_House_Common.Childs[i].Hide;
+    //First thing - hide everything
+    for i:=1 to KMPanel_House_Common.ChildCount do
+      KMPanel_House_Common.Childs[i].Hide;
 
-        //Now show only what we need
-        RowRes:=1; Line:=0; Base:=KMPanel_House_Common.Top+2;
-        //Show Demand
-        if HouseInput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
-          KMLabel_Common_Demand.Show;
-          KMLabel_Common_Demand.Top:=Base+Line*LineAdv+6;
-          inc(Line);
-          for i:=1 to 4 do if HouseInput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
-            KMRow_Common_Resource[RowRes].Resource:=HouseInput[byte(Sender.GetHouseType),i];
-            KMRow_Common_Resource[RowRes].Hint:=TypeToString(HouseInput[byte(Sender.GetHouseType),i]);
-            KMRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResIn(HouseInput[byte(Sender.GetHouseType),i]);
-            KMRow_Common_Resource[RowRes].Show;
-            KMRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
-            inc(Line);
-            inc(RowRes);
-          end;
-        end;
-        //Show Output
-        if not HousePlaceOrders[byte(Sender.GetHouseType)] then
-        if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
-          KMLabel_Common_Offer.Show;
-          KMLabel_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
-          KMLabel_Common_Offer.Top:=Base+Line*LineAdv+6;
-          inc(Line);
-          for i:=1 to 4 do
-          if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
-            KMRow_Common_Resource[RowRes].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
-            KMRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
-            KMRow_Common_Resource[RowRes].Show;
-            KMRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
-            KMRow_Common_Resource[RowRes].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
-            inc(Line);
-            inc(RowRes);
-          end;
-        end;
-        //Show Orders
-        if HousePlaceOrders[byte(Sender.GetHouseType)] then begin
-          KMLabel_Common_Offer.Show;
-          KMLabel_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
-          KMLabel_Common_Offer.Top:=Base+Line*LineAdv+6;
-          inc(Line);
-          for i:=1 to 4 do //Orders
-          if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
-            KMRow_Order[i].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
-            KMRow_Order[i].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
-            KMRow_Order[i].OrderCount:=Sender.CheckResOrder(i);
-            KMRow_Order[i].Show;
-            KMRow_Order[i].OrderAdd.Show;
-            KMRow_Order[i].OrderRem.Show;
-            KMRow_Order[i].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
-            KMRow_Order[i].Top:=Base+Line*LineAdv;
-            inc(Line);
-          end;
-          KMLabel_Common_Costs.Show;
-          KMLabel_Common_Costs.Top:=Base+Line*LineAdv+6;
-          inc(Line);
-          for i:=1 to 4 do //Costs
-          if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
-            KMRow_Costs[i].CostID:=byte(HouseOutput[byte(Sender.GetHouseType),i]);
-            KMRow_Costs[i].Show;
-            KMRow_Costs[i].Top:=Base+Line*LineAdv;
-            inc(Line);
-          end;
-
-        end;
-      SwitchPage(KMPanel_House_Common);
+    //Now show only what we need
+    RowRes:=1; Line:=0; Base:=KMPanel_House_Common.Top+2;
+    //Show Demand
+    if HouseInput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
+      KMLabel_Common_Demand.Show;
+      KMLabel_Common_Demand.Top:=Base+Line*LineAdv+6;
+      inc(Line);
+      for i:=1 to 4 do if HouseInput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
+        KMRow_Common_Resource[RowRes].Resource:=HouseInput[byte(Sender.GetHouseType),i];
+        KMRow_Common_Resource[RowRes].Hint:=TypeToString(HouseInput[byte(Sender.GetHouseType),i]);
+        KMRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResIn(HouseInput[byte(Sender.GetHouseType),i]);
+        KMRow_Common_Resource[RowRes].Show;
+        KMRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
+        inc(Line);
+        inc(RowRes);
       end;
+    end;
+    //Show Output
+    if not HousePlaceOrders[byte(Sender.GetHouseType)] then
+    if HouseOutput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
+      KMLabel_Common_Offer.Show;
+      KMLabel_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
+      KMLabel_Common_Offer.Top:=Base+Line*LineAdv+6;
+      inc(Line);
+      for i:=1 to 4 do
+      if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
+        KMRow_Common_Resource[RowRes].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
+        KMRow_Common_Resource[RowRes].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
+        KMRow_Common_Resource[RowRes].Show;
+        KMRow_Common_Resource[RowRes].Top:=Base+Line*LineAdv;
+        KMRow_Common_Resource[RowRes].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
+        inc(Line);
+        inc(RowRes);
+      end;
+    end;
+    //Show Orders
+    if HousePlaceOrders[byte(Sender.GetHouseType)] then begin
+      KMLabel_Common_Offer.Show;
+      KMLabel_Common_Offer.Caption:=fTextLibrary.GetTextString(229)+'(x'+inttostr(HouseDAT[byte(Sender.GetHouseType)].ResProductionX)+'):';
+      KMLabel_Common_Offer.Top:=Base+Line*LineAdv+6;
+      inc(Line);
+      for i:=1 to 4 do //Orders
+      if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
+        KMRow_Order[i].Resource:=HouseOutput[byte(Sender.GetHouseType),i];
+        KMRow_Order[i].ResourceCount:=Sender.CheckResOut(HouseOutput[byte(Sender.GetHouseType),i]);
+        KMRow_Order[i].OrderCount:=Sender.CheckResOrder(i);
+        KMRow_Order[i].Show;
+        KMRow_Order[i].OrderAdd.Show;
+        KMRow_Order[i].OrderRem.Show;
+        KMRow_Order[i].Hint:=TypeToString(HouseOutput[byte(Sender.GetHouseType),i]);
+        KMRow_Order[i].Top:=Base+Line*LineAdv;
+        inc(Line);
+      end;
+      KMLabel_Common_Costs.Show;
+      KMLabel_Common_Costs.Top:=Base+Line*LineAdv+6;
+      inc(Line);
+      for i:=1 to 4 do //Costs
+      if HouseOutput[byte(Sender.GetHouseType),i] in [rt_Trunk..rt_Fish] then begin
+        KMRow_Costs[i].CostID:=byte(HouseOutput[byte(Sender.GetHouseType),i]);
+        KMRow_Costs[i].Show;
+        KMRow_Costs[i].Top:=Base+Line*LineAdv;
+        inc(Line);
+      end;
+
+    end;
+  SwitchPage(KMPanel_House_Common);
   end;
   end;
 end;
@@ -1385,6 +1418,18 @@ begin
   KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   KMLabel_UnitAct.Caption:='Act: '+Sender.GetUnitActText;
   KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType))
+end;
+
+
+procedure TKMGamePlayInterface.House_Demolish(Sender:TObject);
+begin
+  if fPlayers.SelectedHouse = nil then exit;
+
+  if Sender=KMButton_House_DemolishYes then begin
+    MyPlayer.RemHouse(fPlayers.SelectedHouse.GetPosition,false);
+    ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
+  end else
+    AskDemolish:=false;
 end;
 
 
@@ -1545,6 +1590,7 @@ begin
   if Sender = KMRatio_Settings_SFX then fGameSettings.SetSoundFXVolume(KMRatio_Settings_SFX.Position);
   if Sender = KMRatio_Settings_Music then fGameSettings.SetMusicVolume(KMRatio_Settings_Music.Position);
   if Sender = KMButton_Settings_Music then fGameSettings.IsMusic:=not fGameSettings.IsMusic;
+  
   KMLabel_Settings_BrightValue.Caption:=fTextLibrary.GetTextString(185 + fGameSettings.GetBrightness);
   if fGameSettings.IsAutosave then
   KMLabel_Settings_Autosave.Caption:='X '+fTextLibrary.GetTextString(203)
@@ -1641,14 +1687,12 @@ end;
 procedure TKMGamePlayInterface.Barracks_Fill(Sender:TObject);
 var i,Tmp:integer;
 begin
-  for i:=1 to 11 do begin
-    Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).ResourceCount[i];
+  for i:=1 to 12 do begin
+    if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).ResourceCount[i]
+                    else Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).RecruitsInside;
     if Tmp=0 then KMButton_Barracks[i].Caption:='-'
              else KMButton_Barracks[i].Caption:=inttostr(Tmp);
   end;
-    Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).RecruitsInside;
-    if Tmp=0 then KMButton_Barracks[12].Caption:='-'
-             else KMButton_Barracks[12].Caption:=inttostr(Tmp);
 end;
 
 procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);

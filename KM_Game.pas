@@ -178,12 +178,12 @@ begin
           cm_None:
             begin
               if fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
-                if fGameplayInterface<>nil then fGamePlayInterface.ShowUnitInfo(fPlayers.UnitsHitTest(CursorXc, CursorYc));
                 fPlayers.SelectedUnit:=fPlayers.UnitsHitTest(CursorXc, CursorYc);
+                if fGameplayInterface<>nil then fGamePlayInterface.ShowUnitInfo(fPlayers.SelectedUnit);
               end; //Houses have priority over units, so you can't select an occupant
               if fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil then begin
                 fPlayers.SelectedHouse:=fPlayers.HousesHitTest(CursorXc, CursorYc);
-                if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.HousesHitTest(CursorXc, CursorYc));
+                if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse);
               end;
             end;
           cm_Road: if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
@@ -203,10 +203,13 @@ begin
 
           cm_Erase:
             begin
-              //Should ask wherever player wants to destroy own house
-              if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false)) then
+              fPlayers.SelectedHouse:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
+              if fGameplayInterface<>nil then //Should ask wherever player wants to destroy own house
+                fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse,true);
+              if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
                 fSoundLib.Play(sfx_CantPlace,P,false,4.0);
             end;
+            
           cm_Houses:
             begin
               if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false,MyPlayer.PlayerID) then

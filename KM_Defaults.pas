@@ -25,6 +25,7 @@ const
 
 var
   //These should be TRUE
+  MakeTerrainAnim:boolean=false;
   MakeUnitSprites:boolean=true;         //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
@@ -171,6 +172,7 @@ const PassabilityStr:array[1..11] of string = (
 'canFish',      // Water tiles where fish can move around
 'canCrab'       // Sand tiles where crabs can move around
 );
+
 {Units}
 type
   TUnitType = ( ut_None=0, ut_Any=40,

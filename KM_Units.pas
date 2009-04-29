@@ -1326,11 +1326,11 @@ case Phase of
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
    end;
 2: begin
-   fTerrain.IncFieldState(fLoc);
+   fTerrain.IncDigState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
    end;
 3: begin
-   fTerrain.IncFieldState(fLoc);
+   fTerrain.IncDigState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work1,false));
    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once, di_High);
    end;
@@ -1338,11 +1338,11 @@ case Phase of
 4: SetAction(TUnitActionStay.Create(30,ua_Work1));
 5: SetAction(TUnitActionStay.Create(11,ua_Work2,false));
 6: begin
-   fTerrain.IncFieldState(fLoc);
+   fTerrain.IncDigState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
    end;
 7: begin
-   fTerrain.IncFieldState(fLoc);
+   fTerrain.IncDigState(fLoc);
    fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
    if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].Properties[mep_Quad]=1 then
      fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields and other quads as they won't fit with road
@@ -1380,11 +1380,11 @@ case Phase of
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
     end;
  2: begin
-      fTerrain.IncFieldState(fLoc);
+      fTerrain.IncDigState(fLoc);
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
     end;
  3: begin
-      fTerrain.IncFieldState(fLoc);
+      fTerrain.IncDigState(fLoc);
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
       fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fWorker,rt_Wood, dt_Once, di_High);
     end;
@@ -1425,7 +1425,7 @@ case Phase of
   2: begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
       inc(Phase2);
-      if Phase2 in [4,8,10] then fTerrain.IncFieldState(fLoc);
+      if Phase2 in [4,8,10] then fTerrain.IncDigState(fLoc);
      end;
   3: begin
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
@@ -1713,10 +1713,10 @@ with fUnit do
     4: begin StillFrame := 0;
              case WorkPlan.GatheringScript of //Perform special tasks if required
                gs_StoneCutter: fTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
-               gs_FarmerSow:   fTerrain.InitGrowth(WorkPlan.Loc);
+               gs_FarmerSow:   fTerrain.SowCorn(WorkPlan.Loc);
                gs_FarmerCorn:  fTerrain.CutCorn(WorkPlan.Loc);
                gs_FarmerWine:  fTerrain.CutGrapes(WorkPlan.Loc);
-               gs_WoodCutterPlant: fTerrain.AddTree(WorkPlan.Loc,ChopableTrees[Random(length(ChopableTrees))+1,1]);
+               gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,ChopableTrees[Random(length(ChopableTrees))+1,1]);
                gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
              end;
          SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame));
@@ -2317,7 +2317,7 @@ var
   i:integer;
   function TryOut(aX,aY:integer):boolean;
   begin
-    Result:= fTerrain.CheckPassability(KMPoint(aX,aY),aPass) and (HitTest(aX,aY)=nil);
+    Result:= fTerrain.TileInMapCoords(aX,aY) and fTerrain.CheckPassability(KMPoint(aX,aY),aPass) and (HitTest(aX,aY)=nil);
   end;
 begin
   if aUnitType in [ut_Wolf..ut_Duck] then
