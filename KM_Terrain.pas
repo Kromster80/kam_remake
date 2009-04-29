@@ -109,6 +109,7 @@ public
   function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   function SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+
   function TileIsWater(Loc:TKMPoint):boolean;
   function TileIsSand(Loc:TKMPoint):boolean;
   function TileIsStone(Loc:TKMPoint):byte;
@@ -116,6 +117,9 @@ public
   function TileIsWalkable(Loc:TKMPoint):boolean;
   function TileIsRoadable(Loc:TKMPoint):boolean;
   function TileIsExTree(Loc:TKMPoint):boolean;
+  function TileIsCornField(Loc:TKMPoint):boolean;
+  function TileIsWineField(Loc:TKMPoint):boolean;
+
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
   function CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
@@ -322,6 +326,21 @@ begin
       Result:=Result or (Land[Loc.Y,Loc.X].Obj=ChopableTrees[i,6]);
 end;
 
+
+{Check if the tile is a corn field}
+function TTerrain.TileIsCornField(Loc:TKMPoint):boolean;
+begin
+  Result := Land[Loc.Y,Loc.X].Terrain in [59..63];
+end;
+
+
+{Check if the tile is a wine field}
+function TTerrain.TileIsWineField(Loc:TKMPoint):boolean;
+begin
+  Result := Land[Loc.Y,Loc.X].Terrain in [55];
+end;
+
+
 //Also need to make such table for objects with 2 options
 // - CanBuildOnTop(means everything allowed), CanWalkOnTop(can only walk and build roads on top), CanNothing
 
@@ -428,7 +447,7 @@ begin
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if Land[i,k].Terrain in [59..63] then //Should replace it later on
+        if TileIsCornField(KMPoint(k,i)) then
           if ((aAgeFull)and(Land[i,k].FieldAge=65535))or((not aAgeFull)and(Land[i,k].FieldAge=0)) then
             List.AddEntry(KMPoint(k,i));
 
@@ -766,33 +785,32 @@ begin
              HousesNearBy := true;
 
      if (TileIsRoadable(Loc))and
-        ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
-        //Only certain objects are excluded
+        ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and //Only certain objects are excluded
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (not (Land[Loc.Y,Loc.X].Terrain in [55,59..63]))and //Can't build houses on fields
+        (not TileIsCornField(Loc))and
+        (not TileIsWineField(Loc))and //Can't build houses on fields
         (TileInMapCoords(Loc.X,Loc.Y,1))and
-        //No houses nearby
-        (not HousesNearBy) then
+        (not HousesNearBy) then //No houses nearby
         AddPassability(Loc, [canBuild]);
 
      if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
-        (Land[Loc.Y,Loc.X].Rotation = 0)and     
+        (Land[Loc.Y,Loc.X].Rotation = 0)and //only horizontal mountain edges allowed
         ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (not (Land[Loc.Y,Loc.X].Terrain in [55,59..63]))and //Can't build houses on fields
+        (not TileIsCornField(Loc))and
+        (not TileIsWineField(Loc))and //Can't build houses on fields
         (TileInMapCoords(Loc.X,Loc.Y,1))and
-        //No houses nearby
-        (not HousesNearBy) then
+        (not HousesNearBy) then //No houses nearby
        AddPassability(Loc, [canBuildIron]);
 
      if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
         (Land[Loc.Y,Loc.X].Rotation = 0)and
         ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (not (Land[Loc.Y,Loc.X].Terrain in [55,59..63]))and //Can't build houses on fields
+        (not TileIsCornField(Loc))and
+        (not TileIsWineField(Loc))and //Can't build houses on fields
         (TileInMapCoords(Loc.X,Loc.Y,1))and
-        //No houses nearby
-        (not HousesNearBy) then
+        (not HousesNearBy) then //No houses nearby
        AddPassability(Loc, [canBuildGold]);
 
      if (TileIsRoadable(Loc))and
@@ -1197,9 +1215,9 @@ end;
 procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
   function GetBorderType:TBorderType;
   begin
-    if Land[Loc.Y,Loc.X].Terrain in [59..63] then Result:=bt_Field
+    if TileIsCornField(Loc) then Result:=bt_Field
     else
-    if Land[Loc.Y,Loc.X].Terrain = 55 then Result:=bt_Wine
+    if TileIsWineField(Loc) then Result:=bt_Wine
     else
     if Land[Loc.Y,Loc.X].Markup=mu_HousePlan then Result:=bt_HousePlan
     else
@@ -1211,8 +1229,8 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
   begin
     Result:=true;
     if not TileInMapCoords(Loc2.X,Loc2.Y) then exit;
-    if ((Land[Loc.Y,Loc.X].Terrain in [59..63]) and (Land[Loc2.Y,Loc2.X].Terrain in [59..63]))or //Both are Corn
-      ((Land[Loc.Y,Loc.X].Terrain = 55) and (Land[Loc2.Y,Loc2.X].Terrain = 55))or //Both are Wine
+    if (TileIsCornField(Loc) and TileIsCornField(Loc2))or //Both are Corn
+       (TileIsWineField(Loc) and TileIsWineField(Loc2))or //Both are Wine
       ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFence]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) then //Both are same mu_House****
       Result:=false;
     //TO FIX: Don't have fences if road has been built over field
@@ -1347,37 +1365,42 @@ for i:=1 to MapY do
   for h:=1 to 8 do
     if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
-    if InRange(Land[i,k].FieldAge,1,65534) then inc(Land[i,k].FieldAge);
-
-    if Land[i,k].Terrain in [59..63] then begin
-      case Land[i,k].FieldAge of
-         45: SetLand(k,i,61,255);  //Numbers are measured from KaM, ~195sec
-        240: SetLand(k,i,59,255);
-        435: SetLand(k,i,60,58);
-        630: SetLand(k,i,60,59);
-        650: Land[i,k].FieldAge:=65535; //Skip to the end
-      end;
-    end else
-    if Land[i,k].Terrain=55 then begin
-      case Land[i,k].FieldAge of
-        45: SetLand(k,i,55,54);
-       240: SetLand(k,i,55,55);
-       435: SetLand(k,i,55,56);
-       630: SetLand(k,i,55,57);
-       650: Land[i,k].FieldAge:=65535; //Skip to the end
-      end;
+    if InRange(Land[i,k].FieldAge,1,65534) then
+    begin       
+      inc(Land[i,k].FieldAge);
+      if TileIsCornField(KMPoint(k,i)) then
+        case Land[i,k].FieldAge of
+           45: SetLand(k,i,61,255);  //Numbers are measured from KaM, ~195sec
+          240: SetLand(k,i,59,255);
+          435: SetLand(k,i,60,58);
+          630: SetLand(k,i,60,59);
+          650: Land[i,k].FieldAge:=65535; //Skip to the end
+        end
+      else
+      if TileIsWineField(KMPoint(k,i)) then
+        case Land[i,k].FieldAge of
+          45: SetLand(k,i,55,54);
+         240: SetLand(k,i,55,55);
+         435: SetLand(k,i,55,56);
+         630: SetLand(k,i,55,57);
+         650: Land[i,k].FieldAge:=65535; //Skip to the end
+        end;
     end;
 
-    if InRange(Land[i,k].TreeAge,1,65534) then inc(Land[i,k].TreeAge);
-    for h:=1 to length(ChopableTrees) do
-      for j:=1 to 3 do
-        if Land[i,k].Obj=ChopableTrees[h,j] then
-          case Land[i,k].TreeAge of
-            45: Land[i,k].Obj:=ChopableTrees[h,2];
-           240: Land[i,k].Obj:=ChopableTrees[h,3];
-           435: Land[i,k].Obj:=ChopableTrees[h,4];
-           630: Land[i,k].TreeAge:=65535; //Skip to the end
-          end;
+    if InRange(Land[i,k].TreeAge,1,65534) then
+    begin
+      inc(Land[i,k].TreeAge);
+      if (Land[i,k].TreeAge=45)or(Land[i,k].TreeAge=240)or(Land[i,k].TreeAge=435)or(Land[i,k].TreeAge=630) then //Speedup
+      for h:=1 to length(ChopableTrees) do
+        for j:=1 to 3 do
+          if Land[i,k].Obj=ChopableTrees[h,j] then
+            case Land[i,k].TreeAge of
+              45: Land[i,k].Obj:=ChopableTrees[h,2];
+             240: Land[i,k].Obj:=ChopableTrees[h,3];
+             435: Land[i,k].Obj:=ChopableTrees[h,4];
+             630: Land[i,k].TreeAge:=65535; //Skip to the end
+            end;
+    end;
 
   end;
 end;
