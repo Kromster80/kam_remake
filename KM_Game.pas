@@ -81,7 +81,7 @@ procedure TKMGame.ResizeGameArea(X,Y:integer);
 begin
   ScreenX:=X;
   ScreenY:=Y;
-  fRender.RenderResize(X,Y);
+  fRender.RenderResize(X,Y,rm2D);
   if GameIsRunning then begin //If game is running
     fViewport.SetArea(X,Y);
     ZoomInGameArea(1);
@@ -268,7 +268,7 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
-  fRender.RenderResize(ScreenX,ScreenY);
+  fRender.RenderResize(ScreenX,ScreenY,rm2D);
   fViewport.SetArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
   //fSoundLib.PlayNextTrack(); //Feed new music track. @Krom: Why? Shouldn't we just keep playing the same tune?

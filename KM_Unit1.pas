@@ -63,7 +63,10 @@ type
     Export_TreeAnim1: TMenuItem;
     Export_GUIMainHRX: TMenuItem;
     MediaPlayer1: TMediaPlayer;
+    TB_Angle: TTrackBar;
+    Label3: TLabel;
     procedure Export_TreeAnim1Click(Sender: TObject);
+    procedure TB_Angle_Change(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -578,6 +581,14 @@ end;
 procedure TForm1.Button_StopClick(Sender: TObject);
 begin
   fGame.StopGame;
+end;
+
+procedure TForm1.TB_Angle_Change(Sender: TObject);
+begin
+RENDER_3D:=TB_Angle.Position<>0;
+Label3.Caption:=inttostr(TB_Angle.Position);
+fRender.SetRotation(-TB_Angle.Position,0,0);
+fRender.Render;
 end;
 
 end.

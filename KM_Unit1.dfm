@@ -68,7 +68,7 @@ object Form1: TForm1
     TabOrder = 2
     object Image4: TImage
       Left = 10
-      Top = 35
+      Top = 19
       Width = 13
       Height = 14
       AutoSize = True
@@ -97,7 +97,7 @@ object Form1: TForm1
     end
     object Image3: TImage
       Left = 86
-      Top = 30
+      Top = 14
       Width = 19
       Height = 21
       AutoSize = True
@@ -148,7 +148,7 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 109
-      Top = 35
+      Top = 19
       Width = 26
       Height = 13
       Caption = '100%'
@@ -169,15 +169,12 @@ object Form1: TForm1
       Height = 13
       Caption = 'Passability'
     end
-    object MediaPlayer1: TMediaPlayer
-      Left = 8
-      Top = 13
-      Width = 113
-      Height = 20
-      ColoredButtons = [btPlay, btStop, btNext, btPrev]
-      EnabledButtons = [btPlay, btStop, btNext, btPrev, btStep, btBack, btRecord, btEject]
-      VisibleButtons = [btPlay, btStop, btNext, btPrev]
-      TabOrder = 0
+    object Label3: TLabel
+      Left = 101
+      Top = 39
+      Width = 6
+      Height = 13
+      Caption = '0'
     end
     object Button_W: TButton
       Left = 144
@@ -185,12 +182,12 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = 'W'
-      TabOrder = 7
+      TabOrder = 6
       OnClick = Button_WClick
     end
     object TBZoomControl: TTrackBar
       Left = 24
-      Top = 34
+      Top = 18
       Width = 61
       Height = 17
       Max = 7
@@ -201,7 +198,7 @@ object Form1: TForm1
       Position = 4
       SelEnd = 0
       SelStart = 0
-      TabOrder = 1
+      TabOrder = 0
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
@@ -213,7 +210,7 @@ object Form1: TForm1
       Width = 73
       Height = 17
       Caption = 'Speed x10'
-      TabOrder = 3
+      TabOrder = 2
       OnClick = CheckBox2Click
     end
     object Debug_Pause: TCheckBox
@@ -222,7 +219,7 @@ object Form1: TForm1
       Width = 49
       Height = 17
       Caption = 'Pause'
-      TabOrder = 4
+      TabOrder = 3
     end
     object Debug_PassabilityTrack: TTrackBar
       Left = 2
@@ -236,7 +233,7 @@ object Form1: TForm1
       Position = 4
       SelEnd = 0
       SelStart = 0
-      TabOrder = 2
+      TabOrder = 1
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
@@ -259,7 +256,7 @@ object Form1: TForm1
         '6'
         '7'
         '8')
-      TabOrder = 6
+      TabOrder = 5
       OnClick = RGPlayerClick
     end
     object Button_V: TButton
@@ -268,7 +265,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = 'V'
-      TabOrder = 8
+      TabOrder = 7
       OnClick = Button_VClick
     end
     object Button_6: TButton
@@ -277,7 +274,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '6'
-      TabOrder = 9
+      TabOrder = 8
       OnClick = Button_6Click
     end
     object Step1Frame: TButton
@@ -286,7 +283,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '|| >'
-      TabOrder = 5
+      TabOrder = 4
       OnClick = Timer100msTimer
     end
     object Button_1: TButton
@@ -295,7 +292,7 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = '1'
-      TabOrder = 10
+      TabOrder = 9
       OnClick = Button_1Click
     end
     object Button_Stop: TButton
@@ -304,9 +301,38 @@ object Form1: TForm1
       Width = 25
       Height = 17
       Caption = 'Stop'
-      TabOrder = 11
+      TabOrder = 10
       OnClick = Button_StopClick
     end
+    object TB_Angle: TTrackBar
+      Left = 2
+      Top = 36
+      Width = 95
+      Height = 17
+      Max = 90
+      Orientation = trHorizontal
+      PageSize = 1
+      Frequency = 1
+      Position = 0
+      SelEnd = 0
+      SelStart = 0
+      TabOrder = 11
+      ThumbLength = 14
+      TickMarks = tmBoth
+      TickStyle = tsNone
+      OnChange = TB_Angle_Change
+    end
+  end
+  object MediaPlayer1: TMediaPlayer
+    Left = 112
+    Top = 201
+    Width = 113
+    Height = 20
+    ColoredButtons = [btPlay, btStop, btNext, btPrev]
+    EnabledButtons = [btPlay, btStop, btNext, btPrev, btStep, btBack, btRecord, btEject]
+    VisibleButtons = [btPlay, btStop, btNext, btPrev]
+    Visible = False
+    TabOrder = 3
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'

@@ -43,6 +43,7 @@ var
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
   FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
+  RENDER_3D:boolean=false;              //Experimental 3D render
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted
@@ -65,6 +66,8 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         UNIT_MIN_CONDITION = 5*600;             //If unit condition is less it will look for Inn
 
 type TRXid = (rxT=1,rxH,rxU,rxG,rxM);
+
+TRenderMode = (rm2D, rm3D);
 
 {Cursors}
 type

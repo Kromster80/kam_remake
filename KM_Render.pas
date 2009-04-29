@@ -16,6 +16,8 @@ private
   TextF:array[1..5]of GLuint; //WaterFalls
   RenderAreaSize:TKMPoint;
 
+  rPitch,rHeading,rBank:integer;
+
   RenderCount:word;
   RO:array of word; //RenderOrder
   RenderList:array of record
@@ -52,7 +54,8 @@ public
   constructor Create(RenderFrame:HWND);
   destructor Destroy; override;
   procedure LoadTileSet();
-  procedure RenderResize(Width,Height:integer);
+  procedure SetRotation(aH,aP,aB:integer);
+  procedure RenderResize(Width,Height:integer; aRenderMode:TRenderMode);
   procedure Render();
   procedure DoPrintScreen(filename:string);
   procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
@@ -122,14 +125,24 @@ begin
 end;
 
 
-procedure TRender.RenderResize(Width,Height:integer);
+procedure TRender.SetRotation(aH,aP,aB:integer);
+begin
+  rHeading:=aH;
+  rPitch:=aP;
+  rBank:=aB;
+end;
+
+procedure TRender.RenderResize(Width,Height:integer; aRenderMode:TRenderMode);
 begin
   if Height=0 then Height:=1;
   if Width=0  then Width :=1;
   glViewport(0, 0, Width, Height);
   glMatrixMode(GL_PROJECTION);        // Change Matrix Mode to Projection
   glLoadIdentity();                   // Reset View
-  gluOrtho2D(0,Width,Height,0);
+  if aRenderMode=rm2D then
+    gluOrtho2D(0,Width,Height,0)
+  else
+    gluPerspective(80, -Width/Height, 0.1, 5000.0);
   glMatrixMode(GL_MODELVIEW);         // Return to the modelview matrix
   glLoadIdentity();                   // Reset View
   RenderAreaSize.X:=Width;
@@ -143,9 +156,22 @@ begin
   if fGame.GameIsRunning then begin //If game is running
   
     glLoadIdentity();                // Reset The View
+    //glRotate(-15,0,0,1); //Funny thing
     glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
     glTranslate(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
+
+    if RENDER_3D then begin
+      glLoadIdentity();
+      RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm3D);
+
+      glkScale(-CELL_SIZE_PX/14);
+      glRotate(rHeading,1,0,0);
+      glRotate(rPitch  ,0,1,0);
+      glRotate(rBank   ,0,0,1);
+      glTranslate(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
+      glkScale(fViewport.Zoom);
+    end;
 
     glLineWidth(fViewport.Zoom*2);
     glPointSize(fViewport.Zoom*5);
@@ -162,6 +188,7 @@ begin
 
     RenderCursorHighlights(); //Will be on-top
 
+    RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm2D);
     glLoadIdentity();             // Reset The View
     glLineWidth(1);
     glPointSize(1);
@@ -246,10 +273,17 @@ for iW:=1 to 1+3*byte(MakeTerrainAnim) do begin //Each new layer inflicts 10% fp
       if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
       if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
 
+      if RENDER_3D then begin
+      glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+      end else begin
       glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
       glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
       glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
       glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+      end;
     end;
   glEnd;
 end;
@@ -282,13 +316,18 @@ end;
   glbegin (GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
-    begin
+    if RENDER_3D then begin
+      glTexCoord1f(max(0,Land[i  ,k  ].Light)); glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i+1,k  ].Light)); glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i+1,k+1].Light)); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,Land[i  ,k+1].Light)); glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+    end else begin
       glTexCoord1f(max(0,Land[i  ,k  ].Light)); glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(max(0,Land[i+1,k  ].Light)); glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(max(0,Land[i+1,k+1].Light)); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
       glTexCoord1f(max(0,Land[i  ,k+1].Light)); glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
-  glEnd;                  
+  glEnd;
 
   //Render shadows
   glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
@@ -296,7 +335,16 @@ end;
   glbegin (GL_QUADS);
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
-    begin
+    if RENDER_3D then begin
+    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckRevelation(k,i,MyPlayer.PlayerID)/255));
+    glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckRevelation(k,i+1,MyPlayer.PlayerID)/255));
+    glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+    glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckRevelation(k+1,i,MyPlayer.PlayerID)/255));
+    glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+    end else begin
     glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckRevelation(k,i,MyPlayer.PlayerID)/255));
     glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
     glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckRevelation(k,i+1,MyPlayer.PlayerID)/255));
@@ -732,12 +780,18 @@ if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]
 
 k:=pX; i:=pY;
 glbegin (GL_QUADS);
-with fTerrain do begin
+with fTerrain do
+  if RENDER_3D then begin
+  glTexCoord2fv(@TexC[TexO[1]]); glvertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
+  glTexCoord2fv(@TexC[TexO[2]]); glvertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+  glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+  glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+  end else begin
   glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i-Land[i+1,k].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k,i-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-  glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
-end;
+  glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+  glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+  glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+  end;
 glEnd;
 glBindTexture(GL_TEXTURE_2D, 0);
 end;
@@ -760,10 +814,10 @@ begin
 
     if (h=1)or( (h=2)and(RXData[RX].NeedTeamColors)and(AltID<>0)) then begin
       glBegin (GL_QUADS);
-        glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1                      );
-        glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
+        glTexCoord2f(u1,v2); glvertex2f(pX-1                   ,pY-1                     );
+        glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                     );
         glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-        glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(u1,v1); glvertex2f(pX-1                   ,pY-1-pxHeight/CELL_SIZE_PX);
       glEnd;
     end;
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -777,6 +831,7 @@ begin
     with GFXData[RX,ID] do
     glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
   glEnd;
+
 end;
 
 
@@ -798,16 +853,16 @@ begin
     glColor3ub(aFOW,aFOW,aFOW);
     glBindTexture(GL_TEXTURE_2D, TexID);
     glBegin (GL_QUADS);
-    glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1         );
+    glTexCoord2f(u1,v2); glvertex2f(pX-1                   ,pY-1         );
     glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
     glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-    glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+    glTexCoord2f(u1,v1); glvertex2f(pX-1                   ,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
   end;
-glDisable(GL_ALPHA_TEST);
-glAlphaFunc(GL_ALWAYS,0);
-glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
+  glDisable(GL_ALPHA_TEST);
+  glAlphaFunc(GL_ALWAYS,0);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
 
   if not ShowSpriteOverlay then exit;
   glColor3f(1,1,1);
@@ -888,20 +943,29 @@ if RO[i]<>0 then begin
   if (RenderList[h].RX=3) and not MakeUnitSprites then
     RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
   else
+  begin
 
-  repeat //Render child sprites only after their parent
-    with RenderList[h] do begin
-      if AlphaStep=-1 then
-        if Team<>0 then
-          RenderSprite(RX,ID,Loc.X,Loc.Y,TeamColors[Team],FOWvalue)
-        else
-          RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
-      else
-        RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
-    end;
-    inc(h);
-    inc(Stat_Sprites2);
-  until((h>RenderCount)or(RenderList[h].NewInst));
+    glPushMatrix;
+      glTranslate(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
+      glRotate(rHeading,-1,0,0);
+      glTranslate(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
+
+      repeat //Render child sprites only after their parent
+        with RenderList[h] do begin
+          if AlphaStep=-1 then
+            if Team<>0 then
+              RenderSprite(RX,ID,Loc.X,Loc.Y,TeamColors[Team],FOWvalue)
+            else
+              RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
+          else
+            RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
+        end;
+        inc(h);
+        inc(Stat_Sprites2);
+      until((h>RenderCount)or(RenderList[h].NewInst));
+
+    glPopMatrix;
+  end;
 
 end;
 
@@ -925,20 +989,6 @@ begin
   a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
   b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
 
-  //@Krom: I guess it's ok like that. I was simply trying to make the red X in placement
-  //       centre on the markup.
-  //       At the moment it's a little high and to the right IMO, but it's your choice.
-  //       It's subtle, but if you compare it, it is different to KaM.
-  //       But I'm happy to leave it like this, few people will notice. To be deleted.
-  //@Lewin: atm Markup it rendered within tile coords by X and centered at Y as well. I can't notice if it's worth moving =)
-  //I don't have any screens at hand, but I wouldn't like to be dictator and push my decision only because "I said so"
-  //Can you add a screen to trunk?
-  //@Krom: Sure, I've done it. It's not very artistic, I put it together quickly.
-  //       Take a look and tell me what you think.
-  //       Just looking at it myself, the change is very small and hardly worth fussing over.
-  //       Although if it's on a slope the difference is greater and fields have different markups.
-  //@Lewin: I guess now it's better, bottom is aligned to be within tile and top is 0.15 above upper edge
-  
   glBegin(GL_QUADS);
     glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV+0.10);
     glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1 - fTerrain.Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV-0.15);
