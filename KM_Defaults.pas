@@ -510,6 +510,12 @@ const
   ( 162, 163, 164, 165, 166,  33),
   ( 167, 168, 169, 170, 171,  33));
 
+//Ages at which tree grows up / changes sprite
+TreeAge1 = 200;  //I did measured only corn, and it was ~195sec
+TreeAge2 = 400;
+TreeAge3 = 600;
+TreeAge4 = 800; //Tree is old enough to be chopped
+
 //   1      //Select road tile and rotation
 //  8*2     //depending on surrounding tiles
 //   4      //Bitfield

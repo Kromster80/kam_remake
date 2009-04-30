@@ -218,6 +218,12 @@ begin
       Land[i,k].Height:=c[3];
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
+      //@Lewin: This is how we enable Trees growth. I hope I've supplied correct values. To be deleted..
+      if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge:=0;
+      if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge:=TreeAge1;
+      if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge:=TreeAge2;
+      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge:=65535;
+
       //Everything else is default
       //Land[i,k].Passability:=[];
       //Land[i,k].TileOwner:=play_none; //no roads
@@ -1424,15 +1430,16 @@ begin
       if InRange(Land[i,k].TreeAge,1,65534) then
       begin
         inc(Land[i,k].TreeAge);
-        if (Land[i,k].TreeAge=45)or(Land[i,k].TreeAge=240)or(Land[i,k].TreeAge=435)or(Land[i,k].TreeAge=630) then //Speedup
+        if (Land[i,k].TreeAge=TreeAge1)or(Land[i,k].TreeAge=TreeAge2)or
+           (Land[i,k].TreeAge=TreeAge3)or(Land[i,k].TreeAge=TreeAge4) then //Speedup
         for h:=1 to length(ChopableTrees) do
           for j:=1 to 3 do
             if Land[i,k].Obj=ChopableTrees[h,j] then
               case Land[i,k].TreeAge of
-                45: Land[i,k].Obj:=ChopableTrees[h,2];
-               240: Land[i,k].Obj:=ChopableTrees[h,3];
-               435: Land[i,k].Obj:=ChopableTrees[h,4];
-               630: Land[i,k].TreeAge:=65535; //Skip to the end
+                TreeAge1: Land[i,k].Obj:=ChopableTrees[h,2];
+                TreeAge2: Land[i,k].Obj:=ChopableTrees[h,3];
+                TreeAge3: Land[i,k].Obj:=ChopableTrees[h,4];
+                TreeAge4: Land[i,k].TreeAge:=65535; //Skip to the end
               end;
       end;
 
