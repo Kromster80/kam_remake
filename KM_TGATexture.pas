@@ -136,7 +136,7 @@ begin
 
   //TGA is compressed by ZLibEx, thats only KaM Remake custom option
   if TGAHeader.FileType=120 then
-  begin
+  begin                  
     CloseFile(TGAFile);
     InputStream := TFileStream.Create(FileName, fmOpenRead);
     OutputStream := TMemoryStream.Create;
@@ -193,8 +193,6 @@ begin
     CloseFile(TGAFile);
   end;
 
-  //BlockRead(TGAFile, image^, ImageSize, bytesRead);
-  //CloseFile(TGAFile);
   if bytesRead <> ImageSize then
   begin
     Result := False;

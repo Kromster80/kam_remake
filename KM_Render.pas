@@ -395,6 +395,11 @@ for i:=y1 to y2 do for k:=x1 to x2 do
     else
       RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
   end;
+
+  with fTerrain do
+  for i:=1 to FallingTrees.Count do
+    RenderObject(FallingTrees.Tag[i]+1,AnimStep-FallingTrees.Tag2[i],FallingTrees.List[i].X,FallingTrees.List[i].Y);
+
 end;
 
 
@@ -1005,21 +1010,24 @@ end;
 
 
 procedure TRender.RenderTerrainBorder(Border:TBorderType; Dir:integer; Pos:integer; pX,pY:integer);
-var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer; FOW:single;
+var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer; FOW:byte;
 begin
   //@Krom: These should all be moved in slightly, (1-2px) so that border next to border doesn't overlap
   //       If Pos=1 then add offset, if Pos=2 then subtract offset (Pos 2 means bottom or right side of tile)
+  //@Lewin: I suggest you replace Dir and Pos with TKMDirection (N,E,S,W) to make it clearer
+  //       They do overlap in KaM, but I like your idea better :)
   ID1:=0; ID2:=0;
+  //@Lewin: Do you mind swaping this, cos "if bt_Field = Border then" sounds awkward, better "if Border = ...", or even better "case Border of ..."
   if bt_HouseBuilding = Border then if Dir=1 then ID1:=463 else ID2:=467; //WIP (Wood planks)
   if bt_HousePlan = Border then     if Dir=1 then ID1:=105 else ID2:=117; //Plan (Ropes)
   if bt_Wine = Border then          if Dir=1 then ID1:=462 else ID2:=466; //Fence (Wood)
   if bt_Field = Border then         if Dir=1 then ID1:=461 else ID2:=465; //Fence (Stones)
 
-  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID)/255;
+  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
 
   if (Pos = 2) and (Dir = 1) then pY:=pY+1;
   if (Pos = 2) and (Dir = 2) then pX:=pX+1;
-  glColor4f(FOW,FOW,FOW,1);
+  glColor3ub(FOW,FOW,FOW);
   if Dir = 1 then begin //Horizontal border
     glBindTexture(GL_TEXTURE_2D,GFXData[4,ID1].TexID);
     a.x:=GFXData[4,ID1].u1; a.y:=GFXData[4,ID1].v1;

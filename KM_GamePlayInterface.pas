@@ -775,6 +775,7 @@ Assert(fViewport<>nil,'fViewport required to be init first');
     KMImage_Main1:=MyControls.AddImage(KMPanel_Main,0,0,224,200,407);
     KMImage_Main3:=MyControls.AddImage(KMPanel_Main,0,200,224,168,554);
     KMImage_Main4:=MyControls.AddImage(KMPanel_Main,0,368,224,400,404);
+                   MyControls.AddImage(KMPanel_Main,0,768,224,400,404);
 
     KMMinimap:=MyControls.AddMinimap(KMPanel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;
@@ -1577,8 +1578,8 @@ end;
 
 procedure TKMGamePlayInterface.Menu_ShowSettings(Sender: TObject);
 begin
-  SwitchPage(Sender);
-  Menu_Settings_Change(nil);
+  Menu_Settings_Change(nil); //Prepare eveything first
+  SwitchPage(Sender); //Only then switch
 end;
 
 

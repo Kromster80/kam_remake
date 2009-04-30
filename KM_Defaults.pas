@@ -745,10 +745,19 @@ type TKMPointList = class
   public
     Count:integer;
     List:array of TKMPoint; //1..Count
-    procedure Clearup;
-    procedure AddEntry(aLoc:TKMPoint);
-    function RemoveEntry(aLoc:TKMPoint):boolean;
+    procedure Clearup; virtual;
+    procedure AddEntry(aLoc:TKMPoint); dynamic;
+    function RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
     function GetRandom():TKMPoint;
+  end;
+
+
+type TKMPointTagList = class (TKMPointList)
+  public
+    Tag,Tag2:array of cardinal; //1..Count
+    procedure Clearup; override;
+    procedure AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal); reintroduce;
+    function RemoveEntry(aLoc:TKMPoint):cardinal; override;
   end;
 
 
@@ -925,10 +934,10 @@ end;
 
 
 {Remove point from the list if is there. Return 'true' if succeded}
-function TKMPointList.RemoveEntry(aLoc:TKMPoint):boolean;
+function TKMPointList.RemoveEntry(aLoc:TKMPoint):cardinal;
 var i: integer; Found: boolean;
 begin
-  Result:=false;
+  Result:=0;
   Found := false;
   for i:=1 to Count do
   begin
@@ -936,7 +945,7 @@ begin
     begin
       dec(Count);
       Found := true;
-      Result:=true;
+      Result:=i;
     end;
     if (Found) and (i < Count) then List[i] := List[i+1];
   end;
@@ -949,6 +958,36 @@ begin
              else Result:=List[random(Count)+1];
 end;
 
+
+procedure TKMPointTagList.Clearup;
+begin
+  inherited;
+  setlength(Tag,0);
+  setlength(Tag2,0);
+end;
+
+
+procedure TKMPointTagList.AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal);
+begin
+  inherited AddEntry(aLoc);
+  if Count>length(Tag)-1 then setlength(Tag,Count+32);
+  if Count>length(Tag2)-1 then setlength(Tag2,Count+32);
+  Tag[Count]:=aTag;
+  Tag2[Count]:=aTag2;
+end;
+
+
+function TKMPointTagList.RemoveEntry(aLoc:TKMPoint):cardinal;
+var i: integer;
+begin
+  Result:= inherited RemoveEntry(aLoc);
+
+  for i:=Result to Count-1 do
+  begin
+    Tag[i] := Tag[i+1];
+    Tag2[i] := Tag2[i+1];
+  end;
+end;
 
 
 end.

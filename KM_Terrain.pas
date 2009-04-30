@@ -52,9 +52,10 @@ public
 
   end;
 
+  FallingTrees: TKMPointTagList;
+  
 private
   AnimStep:integer;
-  FallingTrees: TKMPointList;
 
 public
   constructor Create;
@@ -117,9 +118,10 @@ public
   function TileIsSoil(Loc:TKMPoint):boolean;
   function TileIsWalkable(Loc:TKMPoint):boolean;
   function TileIsRoadable(Loc:TKMPoint):boolean;
-  function TileIsExTree(Loc:TKMPoint):boolean;
   function TileIsCornField(Loc:TKMPoint):boolean;
   function TileIsWineField(Loc:TKMPoint):boolean;
+
+  function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
 
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
@@ -148,7 +150,7 @@ uses KM_Unit1, KM_Viewport, KM_Render, KM_Users, KM_Houses, KM_LoadSFX;
 constructor TTerrain.Create;
 begin
   //Don't know what to put here yet
-  FallingTrees := TKMPointList.Create;
+  FallingTrees := TKMPointTagList.Create;
 end;
 
 destructor TTerrain.Destroy;
@@ -169,13 +171,14 @@ begin
     Height:=random(7);    //variation in height
     Rotation:=random(4);  //Make it random
     Obj:=255;             //none
-    if Random(16)=0 then Obj:=ChopableTrees[Random(13)+1,2];
+    if Random(16)=0 then Obj:=ChopableTrees[Random(13)+1,4];
     TileOverlay:=to_None;
     Markup:=mu_None;
     Passability:=[]; //Gets recalculated later
     TileOwner:=play_none;
     FieldAge:=0;
     TreeAge:=0;
+    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge:=65535;
     Border:=bt_None;
     BorderTop:=false;
     BorderLeft:=false;
@@ -317,17 +320,6 @@ begin
 end;
 
 
-{Check if the tile has stomp of chopped tree}
-function TTerrain.TileIsExTree(Loc:TKMPoint):boolean;
-var i:integer;
-begin
-  Result:=false;
-  if Land[Loc.Y,Loc.X].Obj<>255 then
-    for i:=1 to length(ChopableTrees) do
-      Result:=Result or (Land[Loc.Y,Loc.X].Obj=ChopableTrees[i,6]);
-end;
-
-
 {Check if the tile is a corn field}
 function TTerrain.TileIsCornField(Loc:TKMPoint):boolean;
 begin
@@ -339,6 +331,15 @@ end;
 function TTerrain.TileIsWineField(Loc:TKMPoint):boolean;
 begin
   Result := Land[Loc.Y,Loc.X].Terrain in [55];
+end;
+
+
+function TTerrain.ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
+var h:byte;
+begin
+  Result:=false;
+  for h:=1 to length(ChopableTrees) do
+    Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,Stage]);
 end;
 
 
@@ -454,7 +455,8 @@ begin
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if TileIsCornField(KMPoint(k,i)) then
+        if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
+           ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
           if ((aAgeFull)and(Land[i,k].FieldAge=65535))or((not aAgeFull)and(Land[i,k].FieldAge=0)) then
             List.AddEntry(KMPoint(k,i));
 
@@ -471,7 +473,9 @@ begin
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if MapElem[Land[i,k].Obj+1].Properties[mep_CuttableTree]=1 then
+        //@Lewin: Still this does not fit into our system
+        //if MapElem[Land[i,k].Obj+1].Properties[mep_CuttableTree]=1 then
+        if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge=65535) then //Grownup tree
           List.AddEntry(KMPoint(k,i));
   Result:=List.GetRandom;
   List.Free;
@@ -571,7 +575,7 @@ for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if CanPlantTrees in Land[i,k].Passability then begin
 
-        if TileIsExTree(KMPoint(k,i)) then
+        if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
             List1.AddEntry(KMPoint(k,i))
           else
             List2.AddEntry(KMPoint(k,i));
@@ -600,24 +604,31 @@ var h:integer;
 begin
   for h:=1 to length(ChopableTrees) do
     if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
-      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,5];
-  Land[Loc.Y,Loc.X].TreeAge:=0;
-  fSoundLib.Play(sfx_TreeDown,Loc,true);
-  FallingTrees.AddEntry(Loc);
-  RecalculatePassability(Loc);
+    begin
+      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
+      //Land[Loc.Y,Loc.X].TreeAge:=0;
+      fSoundLib.Play(sfx_TreeDown,Loc,true);
+      FallingTrees.AddEntry(Loc,ChopableTrees[h,5],AnimStep);
+      //RecalculatePassability(Loc); //Keep old passability until Stump
+      exit;
+    end;
 end;
 
 
 {Remove the tree and place stump instead}
 procedure TTerrain.ChopTree(Loc:TKMPoint);
-var h:integer;
+//var h:integer;
 begin
-  for h:=1 to length(ChopableTrees) do
-    if ChopableTrees[h,5]=Land[Loc.Y,Loc.X].Obj then
-      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
-  Land[Loc.Y,Loc.X].TreeAge:=0;
-  FallingTrees.RemoveEntry(Loc);
-  RecalculatePassability(Loc);
+//  for h:=1 to length(ChopableTrees) do
+//    if ChopableTrees[h,5]=Land[Loc.Y,Loc.X].Obj then
+    begin
+      //Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
+      Land[Loc.Y,Loc.X].TreeAge:=0;
+      FallingTrees.RemoveEntry(Loc);
+      RecalculatePassability(Loc);
+      exit;
+    end;
+  //Assert(false,'Can''t chop the tree at '+TypeToString(Loc));
 end;
 
 
@@ -632,18 +643,19 @@ procedure TTerrain.CutCorn(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   Land[Loc.Y,Loc.X].Terrain:=63;
-  //Land[Loc.Y,Loc.X].Obj:=255;
+  Land[Loc.Y,Loc.X].Obj:=255;
 end;
 
 
 procedure TTerrain.CutGrapes(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
-
   //@Krom: Why did you remove this piece of code? It seems nececary to me.
   //       Also it is used when first placing grapes to ensure that the object is set.
   //       Now there are no grapes growing in the field at the start of the game.
-  //Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
+  //@Lewin: I planned to remove Obj usage from Fields to allow trees and stones on fields
+  //        while rendering Field objects independantly (using FieldAge). Tell me what you think?
+  Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
 end;
 
 
@@ -837,7 +849,7 @@ begin
        AddPassability(Loc, [canMakeFields]);
 
      if (TileIsSoil(Loc))and
-        (Land[Loc.Y,Loc.X].Obj=255)or(TileIsExTree(Loc))and //No object or ExTree
+        (Land[Loc.Y,Loc.X].Obj=255)or(ObjectIsChopableTree(Loc,6))and //No object or Stump
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
@@ -1109,7 +1121,7 @@ begin
       x:=Loc.X+k-3; y:=Loc.Y+i-4;
       if TileInMapCoords(x,y) then begin
 
-      if HousePlanYX[byte(aHouseType),i,k]=2 then Land[y,x].TileOverlay:=to_Road;
+      if (HousePlanYX[byte(aHouseType),i,k]=2)and(aHouseStage=hs_Built) then Land[y,x].TileOverlay:=to_Road;
 
         case aHouseStage of
           hs_Plan:  Land[y,x].Markup:=mu_HousePlan;
@@ -1360,56 +1372,55 @@ var i,k,h,j:integer;
   end;
 begin
   inc(AnimStep);
-  {for i:=1 to FallingTrees.Count do
-    inc(Land[FallingTrees.List[i].Y,FallingTrees.List[i].X].FallingTreeAnimStep);}
 
-for i:=1 to MapY do
+  for i:=1 to MapY do
   for k:=1 to MapX do
   //All those global things can be performed once a sec, or even less frequent
-  if (i*MapX+k+AnimStep) mod round(TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then begin
+  if (i*MapX+k+AnimStep) mod (TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then
+  begin
 
-  if FOG_OF_WAR_ENABLE then
-  for h:=1 to 8 do
-    if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
+    if FOG_OF_WAR_ENABLE then
+    for h:=1 to 8 do
+      if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
-    if InRange(Land[i,k].FieldAge,1,65534) then
-    begin       
-      inc(Land[i,k].FieldAge);
-      if TileIsCornField(KMPoint(k,i)) then
-        case Land[i,k].FieldAge of
-           45: SetLand(k,i,61,255);  //Numbers are measured from KaM, ~195sec
-          240: SetLand(k,i,59,255);
-          435: SetLand(k,i,60,58);
-          630: SetLand(k,i,60,59);
-          650: Land[i,k].FieldAge:=65535; //Skip to the end
-        end
-      else
-      if TileIsWineField(KMPoint(k,i)) then
-        case Land[i,k].FieldAge of
-          45: SetLand(k,i,55,54);
-         240: SetLand(k,i,55,55);
-         435: SetLand(k,i,55,56);
-         630: SetLand(k,i,55,57);
-         650: Land[i,k].FieldAge:=65535; //Skip to the end
-        end;
+      if InRange(Land[i,k].FieldAge,1,65534) then
+      begin       
+        inc(Land[i,k].FieldAge);
+        if TileIsCornField(KMPoint(k,i)) then
+          case Land[i,k].FieldAge of
+             45: SetLand(k,i,61,255);  //Numbers are measured from KaM, ~195sec
+            240: SetLand(k,i,59,255);
+            435: SetLand(k,i,60,58);
+            630: SetLand(k,i,60,59);
+            650: Land[i,k].FieldAge:=65535; //Skip to the end
+          end
+        else
+        if TileIsWineField(KMPoint(k,i)) then
+          case Land[i,k].FieldAge of
+            45: SetLand(k,i,55,54);
+           240: SetLand(k,i,55,55);
+           435: SetLand(k,i,55,56);
+           630: SetLand(k,i,55,57);
+           650: Land[i,k].FieldAge:=65535; //Skip to the end
+          end;
+      end;
+
+      if InRange(Land[i,k].TreeAge,1,65534) then
+      begin
+        inc(Land[i,k].TreeAge);
+        if (Land[i,k].TreeAge=45)or(Land[i,k].TreeAge=240)or(Land[i,k].TreeAge=435)or(Land[i,k].TreeAge=630) then //Speedup
+        for h:=1 to length(ChopableTrees) do
+          for j:=1 to 3 do
+            if Land[i,k].Obj=ChopableTrees[h,j] then
+              case Land[i,k].TreeAge of
+                45: Land[i,k].Obj:=ChopableTrees[h,2];
+               240: Land[i,k].Obj:=ChopableTrees[h,3];
+               435: Land[i,k].Obj:=ChopableTrees[h,4];
+               630: Land[i,k].TreeAge:=65535; //Skip to the end
+              end;
+      end;
+
     end;
-
-    if InRange(Land[i,k].TreeAge,1,65534) then
-    begin
-      inc(Land[i,k].TreeAge);
-      if (Land[i,k].TreeAge=45)or(Land[i,k].TreeAge=240)or(Land[i,k].TreeAge=435)or(Land[i,k].TreeAge=630) then //Speedup
-      for h:=1 to length(ChopableTrees) do
-        for j:=1 to 3 do
-          if Land[i,k].Obj=ChopableTrees[h,j] then
-            case Land[i,k].TreeAge of
-              45: Land[i,k].Obj:=ChopableTrees[h,2];
-             240: Land[i,k].Obj:=ChopableTrees[h,3];
-             435: Land[i,k].Obj:=ChopableTrees[h,4];
-             630: Land[i,k].TreeAge:=65535; //Skip to the end
-            end;
-    end;
-
-  end;
 end;
 
 

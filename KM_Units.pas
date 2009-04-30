@@ -1725,7 +1725,8 @@ with fUnit do
          SetAction(TUnitActionStay.Create(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame));
        end;
     5: begin
-         fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
+         if WorkPlan.GatheringScript = gs_WoodCutterCut then
+           fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
          SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,KMPointY1(fHome.GetEntrance),WorkPlan.WalkFrom)); //Go home
        end;
     6: SetAction(TUnitActionGoIn.Create(WorkPlan.WalkFrom,gid_In)); //Go inside
