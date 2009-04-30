@@ -324,6 +324,7 @@ end;
 function TTerrain.TileIsCornField(Loc:TKMPoint):boolean;
 begin
   Result := Land[Loc.Y,Loc.X].Terrain in [59..63];
+  Result := Result and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road); //Can't be if there is road here
 end;
 
 
@@ -331,6 +332,7 @@ end;
 function TTerrain.TileIsWineField(Loc:TKMPoint):boolean;
 begin
   Result := Land[Loc.Y,Loc.X].Terrain in [55];
+  Result := Result and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road); //Can't be if there is road here
 end;
 
 
@@ -475,6 +477,11 @@ begin
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
         //@Lewin: Still this does not fit into our system
         //if MapElem[Land[i,k].Obj+1].Properties[mep_CuttableTree]=1 then
+        //@Krom: Sure, I understand. However, when you start my test mission the woodcutter won't cut the existing trees.
+        //       So you've messed up somewhere.
+        //       Another unrelated bug report: I saw this happening a while back, but it stopped happening. Now it is back.
+        //       I'm talking about the "boucing trees" bug. In my test mission, the trees near the stone are jumping
+        //       up and down in between animation steps. Only happens on tiles with a certain height? 
         if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge=65535) then //Grownup tree
           List.AddEntry(KMPoint(k,i));
   Result:=List.GetRandom;
@@ -655,6 +662,15 @@ begin
   //       Now there are no grapes growing in the field at the start of the game.
   //@Lewin: I planned to remove Obj usage from Fields to allow trees and stones on fields
   //        while rendering Field objects independantly (using FieldAge). Tell me what you think?
+  //@Krom:  I don't think other objects on fields are needed. They would get in the way and most
+  //        farmers wouldn't want rocks/stumps in the middle of the corn/grapes.
+  //        It also wouldn't work with some objects like the quad swamp grass. The only good reason
+  //        that I can see is that trees won't disappear when you place winefield. Although I never
+  //        noticed it in KaM, so I don't think people will really notice here.
+  //        Perhaps this could be added later. Right now, having a possible 2 objects per tile just
+  //        seems over complicated. For now we are sort of cloning KaM, and KaM doesn't have this.
+  //        Still, I won't really mind if you implement it, but I see it as a low prioraty thing.
+
   Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
 end;
 
@@ -1256,7 +1272,6 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
        (TileIsWineField(Loc) and TileIsWineField(Loc2))or //Both are Wine
       ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFence]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) then //Both are same mu_House****
       Result:=false;
-    //TO FIX: Don't have fences if road has been built over field
   end;
 begin
  if not TileInMapCoords(Loc.X,Loc.Y) then exit;

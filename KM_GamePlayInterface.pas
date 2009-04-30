@@ -668,8 +668,9 @@ begin
      ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings)) or
      ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Load)) or
      ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Save)) then begin
-    KMPanel_Menu.Show;
+    Menu_Fill(Sender); //Make sure updating happens before it is shown
     KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
+    KMPanel_Menu.Show;
   end else
 
   if Sender=KMButton_Menu_Save then begin
@@ -852,13 +853,14 @@ begin
     KMButton_BuildWine.Hint:=fTextLibrary.GetTextString(219);
     KMButton_BuildCancel.Hint:=fTextLibrary.GetTextString(211);
 
-    for i:=1 to HOUSE_COUNT do begin
-      KMButton_Build[i]:=MyControls.AddButtonFlat(KMPanel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,
-      GUIBuildIcons[byte(GUIHouseOrder[i])]);
+    for i:=1 to HOUSE_COUNT do
+      if GUIHouseOrder[i] <> ht_None then begin
+        KMButton_Build[i]:=MyControls.AddButtonFlat(KMPanel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,
+        GUIBuildIcons[byte(GUIHouseOrder[i])]);
 
-      KMButton_Build[i].OnClick:=Build_ButtonClick;
-      KMButton_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
-    end;
+        KMButton_Build[i].OnClick:=Build_ButtonClick;
+        KMButton_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
+      end;
 end;
 
 
@@ -1225,6 +1227,7 @@ begin
   end;
 
   for i:=1 to HOUSE_COUNT do
+  if GUIHouseOrder[i] <> ht_None then
   if KMButton_Build[i].Down then begin
      CursorMode.Mode:=cm_Houses;
      CursorMode.Param:=byte(GUIHouseOrder[i]);
@@ -1645,6 +1648,7 @@ procedure TKMGamePlayInterface.Build_Fill(Sender:TObject);
 var i:integer;
 begin
   for i:=1 to HOUSE_COUNT do
+  if GUIHouseOrder[i] <> ht_None then
   if MyPlayer.GetCanBuild(THouseType(byte(GUIHouseOrder[i]))) then begin
     KMButton_Build[i].Enable;
     KMButton_Build[i].TexID:=GUIBuildIcons[byte(GUIHouseOrder[i])];

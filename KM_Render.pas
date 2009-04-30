@@ -41,7 +41,7 @@ private
   procedure SortRenderList;
   procedure RenderRenderList;
   procedure RenderTerrainMarkup(Index:integer; pX,pY:integer);
-  procedure RenderTerrainBorder(Border:TBorderType; Dir:integer; Pos:integer; pX,pY:integer);
+  procedure RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
   procedure RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
   procedure RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
   procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
@@ -367,16 +367,16 @@ begin
 for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain do begin
     if Land[i,k].BorderTop = true then
-      RenderTerrainBorder(Land[i,k].Border,1,1,k,i); //Horizontal left
+      RenderTerrainBorder(Land[i,k].Border,dir_N,k,i); //Horizontal left
 
     if Land[i,k].BorderLeft = true then
-      RenderTerrainBorder(Land[i,k].Border,2,1,k,i); //Vertical left
+      RenderTerrainBorder(Land[i,k].Border,dir_E,k,i); //Vertical left
 
     if Land[i,k].BorderBottom = true then
-      RenderTerrainBorder(Land[i,k].Border,1,2,k,i); //Horizontal right
+      RenderTerrainBorder(Land[i,k].Border,dir_S,k,i); //Horizontal right
 
     if Land[i,k].BorderRight = true then
-      RenderTerrainBorder(Land[i,k].Border,2,2,k,i); //Vertical right
+      RenderTerrainBorder(Land[i,k].Border,dir_W,k,i); //Vertical right
 
     if Land[i,k].Markup in [mu_RoadPlan..mu_WinePlan] then
       RenderTerrainMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
@@ -1009,44 +1009,46 @@ begin
 end;
 
 
-procedure TRender.RenderTerrainBorder(Border:TBorderType; Dir:integer; Pos:integer; pX,pY:integer);
-var a,b:TKMPointF; ID1,ID2:integer; t:single; HeightInPx:integer; FOW:byte;
+procedure TRender.RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
+var a,b:TKMPointF; ID:integer; t:single; HeightInPx:integer; FOW:byte;
 begin
   //@Krom: These should all be moved in slightly, (1-2px) so that border next to border doesn't overlap
   //       If Pos=1 then add offset, if Pos=2 then subtract offset (Pos 2 means bottom or right side of tile)
   //@Lewin: I suggest you replace Dir and Pos with TKMDirection (N,E,S,W) to make it clearer
   //       They do overlap in KaM, but I like your idea better :)
-  ID1:=0; ID2:=0;
-  //@Lewin: Do you mind swaping this, cos "if bt_Field = Border then" sounds awkward, better "if Border = ...", or even better "case Border of ..."
-  if bt_HouseBuilding = Border then if Dir=1 then ID1:=463 else ID2:=467; //WIP (Wood planks)
-  if bt_HousePlan = Border then     if Dir=1 then ID1:=105 else ID2:=117; //Plan (Ropes)
-  if bt_Wine = Border then          if Dir=1 then ID1:=462 else ID2:=466; //Fence (Wood)
-  if bt_Field = Border then         if Dir=1 then ID1:=461 else ID2:=465; //Fence (Stones)
+  //@Krom: Done, your right, it's much clearer. Have you inset the borders? I guess it can't be done much or they will
+  //       not be on the edge of the tile. All to be deleted
+  ID:=1;
+  case Border of
+    bt_HouseBuilding: if (Pos=dir_N) or (Pos=dir_S) then ID:=463 else ID:=467; //WIP (Wood planks)
+    bt_HousePlan:     if (Pos=dir_N) or (Pos=dir_S) then ID:=105 else ID:=117; //Plan (Ropes)
+    bt_Wine:          if (Pos=dir_N) or (Pos=dir_S) then ID:=462 else ID:=466; //Fence (Wood)
+    bt_Field:         if (Pos=dir_N) or (Pos=dir_S) then ID:=461 else ID:=465; //Fence (Stones)
+  end;
 
   FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
 
-  if (Pos = 2) and (Dir = 1) then pY:=pY+1;
-  if (Pos = 2) and (Dir = 2) then pX:=pX+1;
+  if Pos=dir_S then pY:=pY+1;
+  if Pos=dir_W then pX:=pX+1;
   glColor3ub(FOW,FOW,FOW);
-  if Dir = 1 then begin //Horizontal border
-    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID1].TexID);
-    a.x:=GFXData[4,ID1].u1; a.y:=GFXData[4,ID1].v1;
-    b.x:=GFXData[4,ID1].u2; b.y:=GFXData[4,ID1].v2;
-    t:=GFXData[4,ID1].PxWidth/CELL_SIZE_PX; //Height of border
+  if (Pos=dir_N) or (Pos=dir_S) then begin //Horizontal border
+    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
+    a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
+    b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
+    t:=GFXData[4,ID].PxWidth/CELL_SIZE_PX; //Height of border
     glBegin(GL_QUADS);
       glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
     glEnd;
-  end;
-
-  if Dir = 2 then begin //Vertical border
-    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID2].TexID);
+  end
+  else begin //Vertical border
+    glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
     HeightInPx := Round ( CELL_SIZE_PX * (1 + (fTerrain.Land[pY,pX].Height - fTerrain.Land[pY+1,pX].Height)/CELL_HEIGHT_DIV) );
-    a.x:=GFXData[4,ID2].u1; a.y:=GFXData[4,ID2].v1;
-    b.x:=GFXData[4,ID2].u2; b.y:=GFXData[4,ID2].v2 * (HeightInPx / GFXData[4,ID2].PxHeight);
-    t:=GFXData[4,ID2].PxWidth/CELL_SIZE_PX; //Width of border
+    a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
+    b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2 * (HeightInPx / GFXData[4,ID].PxHeight);
+    t:=GFXData[4,ID].PxWidth/CELL_SIZE_PX; //Width of border
     glBegin(GL_QUADS);
       glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);

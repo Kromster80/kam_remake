@@ -474,7 +474,7 @@ const
     ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
     ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
-    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_NA, ht_Wall);
+    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_None, ht_None);
 
 {Terrain}
 type
