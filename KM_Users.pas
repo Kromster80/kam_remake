@@ -187,7 +187,7 @@ end;
 
 function TKMPlayerAssets.RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
 begin
-  Result := BuildList.RemRoad(Position,Simulated);
+  Result := BuildList.CancelRoad(Position,Simulated);
   if (Result) and (not Simulated) then
   begin
     fSoundLib.Play(sfx_click,Position,false);

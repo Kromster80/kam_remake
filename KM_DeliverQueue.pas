@@ -48,6 +48,7 @@ type
       FieldType:TFieldType;
       Importance:byte;
       JobStatus:TJobStatus;
+      Worker:TKMUnit;
     end;
     fHousesQueue:array[1..MaxEntries]of
     record
@@ -78,7 +79,7 @@ type
     procedure AddNewHousePlan(aHouse: TKMHouse);
     function AddHouseRepair(aHouse: TKMHouse):integer;
 
-    function RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
+    function CancelRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 
     function  AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     function  AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
@@ -378,14 +379,22 @@ end;
 {Remove task if Player has cancelled it}
 {Simulated just means that we simply want to check if player ever issued that task}
 {The erase cursor changes when you move over a piece of deletable road/field}
-function TKMBuildingQueue.RemRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
+function TKMBuildingQueue.CancelRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 var i:integer;
 begin
-Result:=false;
-for i:=1 to length(fFieldsQueue) do
+  Result:=false;
+  for i:=1 to length(fFieldsQueue) do
   with fFieldsQueue[i] do
-  if (JobStatus<>js_Taken)and(Loc.X=aLoc.X)and(Loc.Y=aLoc.Y) then begin
-    if not Simulated then CloseRoad(i);
+  if {(JobStatus<>js_Taken)and}(Loc.X=aLoc.X)and(Loc.Y=aLoc.Y) then
+  begin
+
+    if not Simulated then
+    begin
+      CloseRoad(i);
+      if Worker<>nil then
+        Worker.UnitTask:=nil;
+    end;
+
     Result:=true;
     break;
   end;
@@ -404,6 +413,7 @@ begin
   if fFieldsQueue[i].FieldType=ft_Corn then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
   if fFieldsQueue[i].FieldType=ft_Wine then Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
   fFieldsQueue[i].JobStatus:=js_Taken;
+  fFieldsQueue[i].Worker:=KMWorker;
 end;
 
 

@@ -1127,7 +1127,7 @@ procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:TH
 var i,k,x,y:word; L,H:TKMPoint;
 begin
 
-  if aHouseStage = hs_Plan then
+  if aHouseStage in [hs_None, hs_Plan] then
     SetHouseAreaOwner(Loc, aHouseType, play_none)
   else
     SetHouseAreaOwner(Loc, aHouseType, aOwner);
@@ -1140,6 +1140,7 @@ begin
       if (HousePlanYX[byte(aHouseType),i,k]=2)and(aHouseStage=hs_Built) then Land[y,x].TileOverlay:=to_Road;
 
         case aHouseStage of
+          hs_None:  Land[y,x].Markup:=mu_None;        
           hs_Plan:  Land[y,x].Markup:=mu_HousePlan;
           hs_Fence: Land[y,x].Markup:=mu_HouseFence;
           hs_Built: Land[y,x].Markup:=mu_House;

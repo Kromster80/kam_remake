@@ -253,7 +253,7 @@ begin
   if not DoSilent then fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   ScheduleForRemoval:=true;
   //Dispose of delivery tasks performed in DeliverQueue unit
-  fTerrain.SetHouseAreaOwner(fPosition,fHouseType,play_none);
+  fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
   fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
 end;
 
