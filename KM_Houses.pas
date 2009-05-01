@@ -1023,17 +1023,28 @@ end;
 function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
 var
   i: integer;
+  Dist,Bid:single;
 begin
   Result:= nil;
+  Bid:=0;
+
   for I := 0 to Count - 1 do
     if (TUnitType(HouseDAT[byte(TKMHouse(Items[I]).fHouseType)].OwnerType+1)=aUnitType)and //If Unit can work in here
        (not TKMHouse(Items[I]).fHasOwner)and                              //If there's yet no owner
        (TKMHouse(Items[I]).IsComplete) then                               //If house is built
     begin
-      Result := TKMHouse(Items[I]);
-      if Result.fHouseType=ht_WatchTower then break; //Always prefer Towers to Barracks
-    end;
 
+      Dist:=KMLength(Loc,TKMHouse(Items[I]).GetPosition);
+
+      if (Bid=0)or(Bid>Dist) then
+      begin
+        Bid:=Dist;
+        Result := TKMHouse(Items[I]);
+        //Always prefer Towers to Barracks by making Barracks Bid much less attractive
+        if Result.fHouseType=ht_Barracks then Bid:=1024;
+      end;
+
+    end;
 
  if Result<>nil then
  if Result.fHouseType<>ht_Barracks then Result.fHasOwner:=true; //Become owner except Barracks;

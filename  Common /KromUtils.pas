@@ -28,6 +28,7 @@ function KMPointRound(P:TKMPointf): TKMPoint;
 function KMSamePoint(P1,P2:TKMPoint): boolean;
 
 function KMLength(A,B:TKMPoint): single;
+function KMRoute(A,B:TKMPoint): single;
 
 function ElapsedTime(i1: pcardinal): string;
 function ExtractOpenedFileName(in_s: string):string;
@@ -208,6 +209,14 @@ if abs(A.X-B.X) > abs(A.Y-B.Y) then
 else
   Result := abs(A.Y-B.Y) + abs(A.X-B.X)*0.41
 end;
+
+
+//Length as route, return 0 if unwalkable
+function KMRoute(A,B:TKMPoint): single;
+begin
+//
+end;
+
 
 function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
 var ft:textfile; m:integer; ii:integer; res:string[4];
