@@ -514,7 +514,7 @@ const
 TreeAge1 = 200;  //I did measured only corn, and it was ~195sec
 TreeAge2 = 400;
 TreeAge3 = 600;
-TreeAge4 = 800; //Tree is old enough to be chopped
+TreeAgeFull = 800; //Tree is old enough to be chopped
 
 //   1      //Select road tile and rotation
 //  8*2     //depending on surrounding tiles

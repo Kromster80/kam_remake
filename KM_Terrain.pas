@@ -30,7 +30,7 @@ public
     Obj:byte;
     //Age of tree, another independent variable since trees can grow on fields
     //Depending on this tree gets older and thus could be chopped
-    TreeAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535
+    TreeAge:word;  //Not init=0 .. Full=TreeAgeFull
 
     //Age of field/wine, another independent variable
     //Depending on this special object maybe rendered (straw, grapes)
@@ -178,7 +178,7 @@ begin
     TileOwner:=play_none;
     FieldAge:=0;
     TreeAge:=0;
-    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge:=65535;
+    if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge:=TreeAgeFull;
     Border:=bt_None;
     BorderTop:=false;
     BorderLeft:=false;
@@ -219,10 +219,10 @@ begin
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
       //@Lewin: This is how we enable Trees growth. I hope I've supplied correct values. To be deleted..
-      if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge:=0;
+      if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge:=1;
       if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge:=TreeAge1;
       if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge:=TreeAge2;
-      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge:=65535;
+      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge:=TreeAgeFull;
 
       //Everything else is default
       //Land[i,k].Passability:=[];
@@ -487,8 +487,11 @@ begin
         //       So you've messed up somewhere.
         //       Another unrelated bug report: I saw this happening a while back, but it stopped happening. Now it is back.
         //       I'm talking about the "boucing trees" bug. In my test mission, the trees near the stone are jumping
-        //       up and down in between animation steps. Only happens on tiles with a certain height? 
-        if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge=65535) then //Grownup tree
+        //       up and down in between animation steps. Only happens on tiles with a certain height?
+        //@Lewin: Please check that it's fixed now. To be deleted..
+        //@Lewin: I never saw that bouncing bug, can you give me more info plz?
+        if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
+        //if CanWalkToThere then
           List.AddEntry(KMPoint(k,i));
   Result:=List.GetRandom;
   List.Free;
@@ -630,18 +633,10 @@ end;
 
 {Remove the tree and place stump instead}
 procedure TTerrain.ChopTree(Loc:TKMPoint);
-//var h:integer;
 begin
-//  for h:=1 to length(ChopableTrees) do
-//    if ChopableTrees[h,5]=Land[Loc.Y,Loc.X].Obj then
-    begin
-      //Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
-      Land[Loc.Y,Loc.X].TreeAge:=0;
-      FallingTrees.RemoveEntry(Loc);
-      RecalculatePassability(Loc);
-      exit;
-    end;
-  //Assert(false,'Can''t chop the tree at '+TypeToString(Loc));
+  Land[Loc.Y,Loc.X].TreeAge:=0;
+  FallingTrees.RemoveEntry(Loc);
+  RecalculatePassability(Loc);
 end;
 
 
@@ -871,7 +866,7 @@ begin
        AddPassability(Loc, [canMakeFields]);
 
      if (TileIsSoil(Loc))and
-        (Land[Loc.Y,Loc.X].Obj=255)or(ObjectIsChopableTree(Loc,6))and //No object or Stump
+        ((Land[Loc.Y,Loc.X].Obj=255) or (ObjectIsChopableTree(Loc,6)))and //No object or Stump
         (TileInMapCoords(Loc.X,Loc.Y,1))and
         (Land[Loc.Y,Loc.X].Markup=mu_None)and
         (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
@@ -1139,17 +1134,20 @@ begin
     SetHouseAreaOwner(Loc, aHouseType, aOwner);
 
   for i:=1 to 4 do for k:=1 to 4 do
-    if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
+    if HousePlanYX[byte(aHouseType),i,k]<>0 then
+    begin
       x:=Loc.X+k-3; y:=Loc.Y+i-4;
-      if TileInMapCoords(x,y) then begin
+      if TileInMapCoords(x,y) then
+      begin
 
-      if (HousePlanYX[byte(aHouseType),i,k]=2)and(aHouseStage=hs_Built) then Land[y,x].TileOverlay:=to_Road;
+        if (HousePlanYX[byte(aHouseType),i,k]=2)and(aHouseStage=hs_Built) then
+          Land[y,x].TileOverlay:=to_Road;
 
         case aHouseStage of
           hs_None:  Land[y,x].Markup:=mu_None;        
           hs_Plan:  Land[y,x].Markup:=mu_HousePlan;
           hs_Fence: Land[y,x].Markup:=mu_HouseFence;
-          hs_Built: Land[y,x].Markup:=mu_House;
+          hs_Built: begin Land[y,x].Markup:=mu_House; Land[y,x].Obj:=255; end;
         end;
 
         UpdateBorders(KMPoint(x,y));
@@ -1427,11 +1425,11 @@ begin
           end;
       end;
 
-      if InRange(Land[i,k].TreeAge,1,65534) then
+      if InRange(Land[i,k].TreeAge,1,TreeAgeFull) then
       begin
         inc(Land[i,k].TreeAge);
         if (Land[i,k].TreeAge=TreeAge1)or(Land[i,k].TreeAge=TreeAge2)or
-           (Land[i,k].TreeAge=TreeAge3)or(Land[i,k].TreeAge=TreeAge4) then //Speedup
+           (Land[i,k].TreeAge=TreeAge3)or(Land[i,k].TreeAge=TreeAgeFull) then //Speedup
         for h:=1 to length(ChopableTrees) do
           for j:=1 to 3 do
             if Land[i,k].Obj=ChopableTrees[h,j] then
@@ -1439,7 +1437,6 @@ begin
                 TreeAge1: Land[i,k].Obj:=ChopableTrees[h,2];
                 TreeAge2: Land[i,k].Obj:=ChopableTrees[h,3];
                 TreeAge3: Land[i,k].Obj:=ChopableTrees[h,4];
-                TreeAge4: Land[i,k].TreeAge:=65535; //Skip to the end
               end;
       end;
 
