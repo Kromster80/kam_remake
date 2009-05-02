@@ -21,7 +21,7 @@ type
     fMissionSettings: TMissionSettings; //Required to be public so it can be accessed from LoadDAT
     PlayerID:TPlayerID; //Which ID this player is
     PlayerType: TPlayerType; //Is it Human or AI or Animals
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint);
@@ -86,9 +86,9 @@ uses
 
 
 { TKMPlayerAssets }
-function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
+function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true):TKMUnit;
 begin
-  Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y);
+  Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
 end;
 
 

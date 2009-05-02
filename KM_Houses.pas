@@ -73,6 +73,7 @@ type
     function GetHealth():word;
 
     procedure SetBuildingState(aState: THouseBuildState);
+    function GetBuildingState: THouseBuildState;
     procedure IncBuildingProgress;
     procedure AddDamage(aAmount:word);
     procedure AddRepair(aAmount:word=5);
@@ -250,7 +251,9 @@ end;
 
 procedure TKMHouse.DemolishHouse(DoSilent:boolean);
 begin
-  if not DoSilent then fSoundLib.Play(sfx_HouseDestroy,GetPosition);
+  if not DoSilent then
+   if GetBuildingState = hbs_Glyph then fSoundLib.Play(sfx_click,GetPosition)
+   else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   ScheduleForRemoval:=true;
   //Dispose of delivery tasks performed in DeliverQueue unit
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
@@ -284,6 +287,12 @@ end;
 procedure TKMHouse.SetBuildingState(aState: THouseBuildState);
 begin
   fBuildState:=aState;
+end;
+
+
+function TKMHouse.GetBuildingState: THouseBuildState;
+begin
+  Result:=fBuildState;
 end;
 
 
@@ -810,7 +819,7 @@ begin
   if UnitQueue[1]=ut_None then exit;
   if CheckResIn(rt_Gold)=0 then exit;
   HideOneGold:=true;
-  UnitWIP:=fPlayers.Player[byte(fOwner)].AddUnit(UnitQueue[1],GetEntrance);//Create Unit
+  UnitWIP:=fPlayers.Player[byte(fOwner)].AddUnit(UnitQueue[1],GetEntrance,false);//Create Unit
   TKMUnit(UnitWIP).UnitTask:=TTaskSelfTrain.Create(UnitWIP,Self);
 end;
 

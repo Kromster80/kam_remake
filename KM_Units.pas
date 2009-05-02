@@ -325,7 +325,7 @@ type
   private
     Groups:array of integer;
   public
-    function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer):TKMUnit;
+    function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
     function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     procedure Rem(aUnit:TKMUnit);
     procedure UpdateState;
@@ -2230,13 +2230,16 @@ end;
 
 
 { TKMUnitsCollection }
-function TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer):TKMUnit;
+{ AutoPlace means should we find a spot for this unit or just place it where we are told.
+  Used for creating units still inside schools }
+function TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
 var U:Integer; P:TKMPoint;
 begin
-
-  P:=FindPlaceForUnit(PosX,PosY,aUnitType);
-  PosX:=P.X;
-  PosY:=P.Y;
+  if AutoPlace then begin
+    P:=FindPlaceForUnit(PosX,PosY,aUnitType);
+    PosX:=P.X;
+    PosY:=P.Y;
+  end;
 
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin
     fLog.AppendLog('Unable to add unit to '+TypeToString(KMPoint(PosX,PosY)));

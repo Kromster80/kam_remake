@@ -481,15 +481,10 @@ begin
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        //@Lewin: Still this does not fit into our system
-        //if MapElem[Land[i,k].Obj+1].Properties[mep_CuttableTree]=1 then
-        //@Krom: Sure, I understand. However, when you start my test mission the woodcutter won't cut the existing trees.
-        //       So you've messed up somewhere.
-        //       Another unrelated bug report: I saw this happening a while back, but it stopped happening. Now it is back.
-        //       I'm talking about the "boucing trees" bug. In my test mission, the trees near the stone are jumping
-        //       up and down in between animation steps. Only happens on tiles with a certain height?
-        //@Lewin: Please check that it's fixed now. To be deleted..
         //@Lewin: I never saw that bouncing bug, can you give me more info plz?
+        //@Krom: It isn't happening here either. Could possibly be that it only happens on the laptop
+        //       at the apartment. I'll do more testing. For now, ignore, but have a look for it when
+        //       you're testing on other computers. Tree cutting is fine now BTW. To be deleted...
         if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
         //if CanWalkToThere then
           List.AddEntry(KMPoint(k,i));

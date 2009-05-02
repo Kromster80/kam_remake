@@ -206,8 +206,12 @@ begin
               fPlayers.SelectedHouse:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
               if (fGameplayInterface<>nil) and (MyPlayer.RemHouse(P,false,true)) then //Ask wherever player wants to destroy own house
               begin
-                fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse,true);
-                fSoundLib.Play(sfx_click,P,false);
+                if fPlayers.SelectedHouse.GetBuildingState = hbs_Glyph then
+                  MyPlayer.RemHouse(P,false) //don't ask about houses that are not started
+                else begin
+                  fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse,true);
+                  fSoundLib.Play(sfx_click,P,false);
+                end;
               end;
               if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
                 fSoundLib.Play(sfx_CantPlace,P,false,4.0);
