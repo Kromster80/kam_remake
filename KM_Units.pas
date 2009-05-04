@@ -994,7 +994,6 @@ begin
     Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
   until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
 
-  //31..38 only //@Krom: Self-reminder - Crabs should not go off sand, needs another canWalkSand!
   if KMSamePoint(GetPosition,Spot) then begin
     SetAction(TUnitActionStay.Create(20, ua_Walk));
     exit;

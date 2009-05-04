@@ -73,7 +73,7 @@ type
     function GetHealth():word;
 
     procedure SetBuildingState(aState: THouseBuildState);
-    function GetBuildingState: THouseBuildState;
+    property GetBuildingState: THouseBuildState read fBuildState;
     procedure IncBuildingProgress;
     procedure AddDamage(aAmount:word);
     procedure AddRepair(aAmount:word=5);
@@ -287,12 +287,6 @@ end;
 procedure TKMHouse.SetBuildingState(aState: THouseBuildState);
 begin
   fBuildState:=aState;
-end;
-
-
-function TKMHouse.GetBuildingState: THouseBuildState;
-begin
-  Result:=fBuildState;
 end;
 
 

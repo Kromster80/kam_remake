@@ -466,7 +466,8 @@ begin
         if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
            ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
           if ((aAgeFull)and(Land[i,k].FieldAge=65535))or((not aAgeFull)and(Land[i,k].FieldAge=0)) then
-            List.AddEntry(KMPoint(k,i));
+            if CanWalk in Land[i,k].Passability then
+              List.AddEntry(KMPoint(k,i));
 
   Result:=List.GetRandom;
   List.Free;
@@ -481,13 +482,9 @@ begin
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        //@Lewin: I never saw that bouncing bug, can you give me more info plz?
-        //@Krom: It isn't happening here either. Could possibly be that it only happens on the laptop
-        //       at the apartment. I'll do more testing. For now, ignore, but have a look for it when
-        //       you're testing on other computers. Tree cutting is fine now BTW. To be deleted...
         if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
-        //if CanWalkToThere then
-          List.AddEntry(KMPoint(k,i));
+          if CanWalk in Land[i,k].Passability then
+            List.AddEntry(KMPoint(k,i));
   Result:=List.GetRandom;
   List.Free;
 end;
@@ -502,7 +499,7 @@ begin
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if (TileIsStone(KMPoint(k,i))>0)and(TileIsWalkable(KMPoint(k,i+1))) then
+        if (TileIsStone(KMPoint(k,i))>0)and(CanWalk in Land[i+1,k].Passability) then
           List.AddEntry(KMPoint(k,i+1));
 
   Result:=List.GetRandom;
@@ -584,7 +581,7 @@ List2:=TKMPointList.Create;
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if CanPlantTrees in Land[i,k].Passability then begin
+      if (CanPlantTrees in Land[i,k].Passability) and (CanWalk in Land[i,k].Passability) then begin
 
         if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
             List1.AddEntry(KMPoint(k,i))
@@ -1242,7 +1239,6 @@ begin
     //For glyphs
     for i:=1 to 4 do for k:=1 to 4 do
       if (HousePlanYX[byte(aHouseType),i,k]=1) or (HousePlanYX[byte(aHouseType),i,k]=2) then begin
-        ///@Krom: Unfinished, due to issues with design of Terrain system. To be discussed... (somewhere else)
         Land[Loc.Y+i-4,Loc.X+k-3].Markup:=mu_None;
       end;
   end;

@@ -5,7 +5,7 @@ uses Windows, Classes, SysUtils, KromUtils, dglOpenGL, MMSystem;
 //Global const
 const                             
   CELL_SIZE_PX=40;      //Single cell size in pixels (width)
-  CELL_HEIGHT_DIV=32;   //Height divider
+  CELL_HEIGHT_DIV=33.333;//Height divider
   ToolBarWidth=224;     //Toolbar width in game
   Overlap=0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   DEF_PAL=2;            //Default palette to use when generating full-color RGB textures
@@ -193,7 +193,7 @@ type
 
 //Defines which animal prefers which terrain
 const AnimalTerrain: array[31..38] of TPassability = (
-    canWalk, canFish, canFish, canFish, canWalk, canFish, canFish, canFish);
+    canWalk, canFish, canFish, canFish, CanCrab, canFish, canFish, canFish);
 
 type TMoveDir = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3); 
 
