@@ -426,6 +426,17 @@ begin
   if aFieldType=ft_Corn then begin
     Land[Loc.Y,Loc.X].Terrain:=62;
     Land[Loc.Y,Loc.X].Rotation:=0;
+    //If object is already corn then set the field age (some maps start with corn placed)
+    case Land[Loc.Y,Loc.X].Obj of
+      58: begin  //Corn 1
+            Land[Loc.Y,Loc.X].FieldAge := 435;
+            Land[Loc.Y,Loc.X].Terrain := 60;
+          end;
+      59: begin  //Corn 1
+            Land[Loc.Y,Loc.X].FieldAge := 630;
+            Land[Loc.Y,Loc.X].Terrain := 60;
+          end;
+    end;
   end else
   if aFieldType=ft_Wine  then begin
     Land[Loc.Y,Loc.X].Terrain:=55;
@@ -796,10 +807,12 @@ begin
     Assert(false, 'Fail: '+TypeToString(loc));
   Land[Loc.Y,Loc.X].Passability:=[];
 
-  //First of all exclude all tiles outside of actual map and all houses, should add house_fenced in here somehow
-  if (TileInMapCoords(Loc.X,Loc.Y))and(not(Land[Loc.Y,Loc.X].Markup in [mu_House])) then begin
+  //First of all exclude all tiles outside of actual map
+  if TileInMapCoords(Loc.X,Loc.Y) then begin
+    AddPassability(Loc, [canAll]);
 
-       AddPassability(Loc, [canAll]);
+    //For all passability types other than canAll, houses and fenced houses are excluded
+    if not(Land[Loc.Y,Loc.X].Markup in [mu_House,mu_HouseFence]) then begin
 
      if (TileIsWalkable(Loc))and
         (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)then
@@ -869,7 +882,7 @@ begin
 
      if TileIsSand(Loc) then
        AddPassability(Loc, [canCrab]);
-
+    end;
   end else
     Land[Loc.Y,Loc.X].Passability:=[]; //Allow nothing
 end;
@@ -886,16 +899,25 @@ end;
 
 {Return random tile surrounding given one with aPass property except Loc2}
 function TTerrain.GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
-var i,k:integer; L:TKMPointList;
+var i,k:integer; L1,L2:TKMPointList;
 begin
-  L:=TKMPointList.Create;
+  //List 2 holds the best positions, ones which are not occupide. List 1 holds second best options
+  L1:=TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
       if (not((i=0)and(k=0)))and(not KMSamePoint(Loc,Loc2)) then
         if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
-          L.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
-  if L.Count<>0 then
-    Result:=L.GetRandom
+          L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+  //Now see which ones are empty
+  L2:=TKMPointList.Create;
+  for i:=1 to L1.Count-1 do
+    if Land[L1.List[i].Y,L1.List[i].X].IsUnit = 0 then
+      L2.AddEntry(L1.List[i]);
+       
+  if L2.Count<>0 then
+    Result:=L2.GetRandom
+  else if L1.Count<>0 then
+    Result:=L1.GetRandom
   else
     Result:=Loc;
 end;
@@ -923,6 +945,16 @@ var
     Parent:word;//Ref to parent
   end;
 begin
+  {@Krom: BUG REPORT:
+  Try placing a peice of road above the iron mountain in the test mission.
+  The labourer cannot find a route. Try a few different places if it doesn't
+  happen for you. (far to the right or in the hollow work well)
+
+  Is this a known issue?
+
+  I'm only guessing, but does it happen when the route requires the unit to go up,
+  accross and then back down? (It happens on the lower far side of the bridge too)
+  }
 
   //Don't try to make a route if it's obviously impossible
   if (KMSamePoint(LocA,LocB))or(not CheckPassability(LocB,aPass)) then begin
@@ -1395,7 +1427,7 @@ begin
       if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
       if InRange(Land[i,k].FieldAge,1,65534) then
-      begin       
+      begin
         inc(Land[i,k].FieldAge);
         if TileIsCornField(KMPoint(k,i)) then
           case Land[i,k].FieldAge of

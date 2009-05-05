@@ -83,8 +83,8 @@ type TKMGamePlayInterface = class
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
     ShownHint:TObject;
-    LastSchoolUnit:integer; //Last unit that was selected in School, global for all schools player owns
-    LastBarrackUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
+    LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
+    LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
     AskDemolish:boolean;
 
     KMPanel_Main:TKMPanel;
@@ -169,6 +169,9 @@ type TKMGamePlayInterface = class
       KMButton_School_Right,KMButton_School_Train,KMButton_School_Left:TKMButton;
     KMPanel_HouseBarracks:TKMPanel;
       KMButton_Barracks:array[1..12]of TKMButtonFlat;
+      KMLabel_Barracks_Unit:TKMLabel;
+      KMImage_Barracks_Right,KMImage_Barracks_Train,KMImage_Barracks_Left:TKMImage;
+      KMButton_Barracks_Right,KMButton_Barracks_Train,KMButton_Barracks_Left:TKMButton;
   private
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
@@ -176,7 +179,6 @@ type TKMGamePlayInterface = class
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
     procedure Store_Fill(Sender:TObject);
-    procedure Barracks_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
   public
@@ -454,7 +456,7 @@ begin
   KMPanel_Results:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_ResultsBG:=MyControls.AddImage(KMPanel_Results,0,0,ScreenX,ScreenY,7,5);
     KMImage_ResultsBG.StretchImage:=true;
-    KMButton_ResultsBack:=MyControls.AddButton(KMPanel_Results,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
+    KMButton_ResultsBack:=MyControls.AddButton(KMPanel_Results,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     KMButton_ResultsBack.OnClick:=SwitchMenuPage;
 end;
 
@@ -769,7 +771,7 @@ Assert(fViewport<>nil,'fViewport required to be init first');
   ShownHouse:=nil;
 
   LastSchoolUnit:=1;
-  LastBarrackUnit:=1;
+  LastBarracksUnit:=1;
 {Parent Page for whole toolbar in-game}
   KMPanel_Main:=MyControls.AddPanel(nil,0,0,224,768);
 
@@ -884,7 +886,7 @@ begin
     Stat_House[ci].TexOffsetX:=-4;
     Stat_House[ci].HideHighlight:=true;
     Stat_House[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
-    Stat_HouseQty[ci]:=MyControls.AddLabel(KMPanel_Stats,8+37+(k-1)*42,(i-1)*32+18,33,30,'',fnt_Grey,kaRight);
+    Stat_HouseQty[ci]:=MyControls.AddLabel(KMPanel_Stats,8+37+(k-1)*42,(i-1)*32+16,33,30,'',fnt_Grey,kaRight);
     Stat_HouseQty[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
   end;
   ci:=0;
@@ -895,7 +897,7 @@ begin
     Stat_Unit[ci].TexOffsetX:=-4;
     Stat_Unit[ci].HideHighlight:=true;
     Stat_Unit[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
-    Stat_UnitQty[ci]:=MyControls.AddLabel(KMPanel_Stats,8+32+(k-1)*36,(i-1)*32+18,33,30,'',fnt_Grey,kaRight);
+    Stat_UnitQty[ci]:=MyControls.AddLabel(KMPanel_Stats,8+32+(k-1)*36,(i-1)*32+16,33,30,'',fnt_Grey,kaRight);
     Stat_UnitQty[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
   end;
 end;
@@ -1133,29 +1135,35 @@ begin
     KMPanel_HouseBarracks:=MyControls.AddPanel(KMPanel_House,0,76,200,400);
       for i:=1 to 12 do
       begin
-        KMButton_Barracks[i]:=MyControls.AddButtonFlat(KMPanel_HouseBarracks, 8+((i-1)mod 6)*31,19+((i-1)div 6)*42,28,36,366+i);
+        KMButton_Barracks[i]:=MyControls.AddButtonFlat(KMPanel_HouseBarracks, 8+((i-1)mod 6)*31,19+((i-1)div 6)*42,28,38,366+i);
+        KMButton_Barracks[i].TexOffsetX:=1;
+        KMButton_Barracks[i].TexOffsetY:=1;
+        KMButton_Barracks[i].CapOffsetY:=2;
         KMButton_Barracks[i].HideHighlight:=true;
         KMButton_Barracks[i].Hint:=TypeToString(TResourceType(16+i));
       end;
       KMButton_Barracks[12].TexID:=154;
       KMButton_Barracks[12].Hint:=TypeToString(ut_Recruit);
-      {KMLabel_School_Unit:=MyControls.AddLabel(KMPanel_House_School,100,116,100,30,'',fnt_Outline,kaCenter);
-      KMImage_School_Left :=MyControls.AddImage(KMPanel_House_School,  8,136,54,80,521);
-      KMImage_School_Left.Enabled := false;
-      KMImage_School_Train:=MyControls.AddImage(KMPanel_House_School, 70,136,54,80,522);
-      KMImage_School_Right:=MyControls.AddImage(KMPanel_House_School,132,136,54,80,523);
-      KMImage_School_Right.Enabled := false;
-      KMButton_School_Left :=MyControls.AddButton(KMPanel_House_School,  8,226,54,40,35);
-      KMButton_School_Train:=MyControls.AddButton(KMPanel_House_School, 70,226,54,40,42);
-      KMButton_School_Right:=MyControls.AddButton(KMPanel_House_School,132,226,54,40,36);
-      KMButton_School_Left.OnClick:=House_SchoolUnitChange;
-      KMButton_School_Train.OnClick:=House_SchoolUnitChange;
-      KMButton_School_Right.OnClick:=House_SchoolUnitChange;
-      KMButton_School_Left.OnRightClick:=House_SchoolUnitChangeRight;
-      KMButton_School_Right.OnRightClick:=House_SchoolUnitChangeRight;
-      KMButton_School_Left.Hint :=fTextLibrary.GetTextString(242);
-      KMButton_School_Train.Hint:=fTextLibrary.GetTextString(243);
-      KMButton_School_Right.Hint:=fTextLibrary.GetTextString(241);}
+
+      KMLabel_Barracks_Unit:=MyControls.AddLabel(KMPanel_HouseBarracks,100,116,100,30,'',fnt_Outline,kaCenter);
+
+      KMImage_Barracks_Left :=MyControls.AddImage(KMPanel_HouseBarracks,  8,136,54,80,535);
+      KMImage_Barracks_Left.Enabled := false;
+      KMImage_Barracks_Train:=MyControls.AddImage(KMPanel_HouseBarracks, 70,136,54,80,536);
+      KMImage_Barracks_Right:=MyControls.AddImage(KMPanel_HouseBarracks,132,136,54,80,537);
+      KMImage_Barracks_Right.Enabled := false;
+
+      KMButton_Barracks_Left :=MyControls.AddButton(KMPanel_HouseBarracks,  8,246,54,40,35);
+      KMButton_Barracks_Train:=MyControls.AddButton(KMPanel_HouseBarracks, 70,246,54,40,42);
+      KMButton_Barracks_Right:=MyControls.AddButton(KMPanel_HouseBarracks,132,246,54,40,36);
+      KMButton_Barracks_Left.OnClick:=House_BarracksUnitChange;
+      KMButton_Barracks_Train.OnClick:=House_BarracksUnitChange;
+      KMButton_Barracks_Right.OnClick:=House_BarracksUnitChange;
+      KMButton_Barracks_Left.OnRightClick:=House_BarracksUnitChangeRight;
+      KMButton_Barracks_Right.OnRightClick:=House_BarracksUnitChangeRight;
+      KMButton_Barracks_Left.Hint :=fTextLibrary.GetTextString(237);
+      KMButton_Barracks_Train.Hint:=fTextLibrary.GetTextString(240);
+      KMButton_Barracks_Right.Hint:=fTextLibrary.GetTextString(238);
 end;
 
 
@@ -1315,13 +1323,12 @@ begin
     ht_School: begin
           KMResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold);
           House_SchoolUnitChange(nil);
-          KMButton_School_UnitWIPBar.Position:=TKMHouseSchool(Sender).GetTrainingProgress;
           SwitchPage(KMPanel_House_School);
         end;
 
     ht_Barracks: begin
           KMImage_House_Worker.Enabled := true; //In the barrack the recruit icon is always enabled
-          Barracks_Fill(nil);
+          House_BarracksUnitChange(nil);
           SwitchPage(KMPanel_HouseBarracks);
           end;
     ht_TownHall:;
@@ -1484,14 +1491,57 @@ end;
 
 
 procedure TKMGamePlayInterface.House_BarracksUnitChange(Sender:TObject);
+var i, k, Tmp: integer; Barracks:TKMHouseBarracks; CanEquip: boolean;
 begin
-//
+  Barracks:=TKMHouseBarracks(fPlayers.SelectedHouse);
+  if (Sender=KMButton_Barracks_Left)and(LastBarracksUnit > 1) then dec(LastBarracksUnit);
+  if (Sender=KMButton_Barracks_Right)and(LastBarracksUnit < length(Barracks_Order)) then inc(LastBarracksUnit);
+
+  if Sender=KMButton_Barracks_Train then //Equip unit
+  begin
+    fSoundLib.Play(sfx_click,KMPoint(0,0),false);
+    //Barracks.Equip;
+  end;
+
+  CanEquip:=true;
+  for i:=1 to 12 do begin
+    if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).ResourceCount[i]
+                    else Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).RecruitsInside;
+    if Tmp=0 then KMButton_Barracks[i].Caption:='-'
+             else KMButton_Barracks[i].Caption:=inttostr(Tmp);
+    //Set highlights
+    KMButton_Barracks[i].Down:=false;
+    for k:=1 to 4 do
+      if i = TroopCost[TUnitType(14+LastBarracksUnit),k] then
+      begin
+        KMButton_Barracks[i].Down:=true;
+        if Tmp=0 then CanEquip := false; //Can't equip if we don't have a required resource
+      end;
+  end;
+  KMButton_Barracks[12].Down:=true; //Recruit is always enabled, all troops require one
+
+  KMButton_Barracks_Train.Enabled := CanEquip and (Barracks.RecruitsInside > 0);
+  KMButton_Barracks_Left.Enabled := LastBarracksUnit > 1;
+  KMButton_Barracks_Right.Enabled := LastBarracksUnit < length(Barracks_Order);
+  KMImage_Barracks_Left.Visible:= KMButton_Barracks_Left.Enabled;
+  KMImage_Barracks_Right.Visible:= KMButton_Barracks_Right.Enabled;
+
+  if KMButton_Barracks_Left.Enabled then
+    KMImage_Barracks_Left.TexID:=520+byte(Barracks_Order[LastBarracksUnit-1]);
+
+  KMLabel_Barracks_Unit.Caption:=TypeToString(TUnitType(Barracks_Order[LastBarracksUnit]));
+  KMImage_Barracks_Train.TexID:=520+byte(Barracks_Order[LastBarracksUnit]);
+
+  if KMButton_Barracks_Right.Enabled then
+    KMImage_Barracks_Right.TexID:=520+byte(Barracks_Order[LastBarracksUnit+1]);
 end;
 
 
 procedure TKMGamePlayInterface.House_BarracksUnitChangeRight(Sender:TObject);
 begin
-//
+  if Sender=KMButton_Barracks_Left  then LastBarracksUnit := 1;
+  if Sender=KMButton_Barracks_Right then LastBarracksUnit := Length(Barracks_Order);
+  House_BarracksUnitChange(nil);
 end;
 
 
@@ -1529,6 +1579,7 @@ begin
       KMButton_School_UnitPlan[i].Hint:='';
     end;
 
+  KMButton_School_Train.Enabled := School.UnitQueue[length(School.UnitQueue)]=ut_None;
   KMButton_School_Left.Enabled := LastSchoolUnit > 1;
   KMButton_School_Right.Enabled := LastSchoolUnit < length(School_Order);
   KMImage_School_Left.Visible:= KMButton_School_Left.Enabled;
@@ -1690,17 +1741,6 @@ begin
   end;
 end;
 
-
-procedure TKMGamePlayInterface.Barracks_Fill(Sender:TObject);
-var i,Tmp:integer;
-begin
-  for i:=1 to 12 do begin
-    if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).ResourceCount[i]
-                    else Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).RecruitsInside;
-    if Tmp=0 then KMButton_Barracks[i].Caption:='-'
-             else KMButton_Barracks[i].Caption:=inttostr(Tmp);
-  end;
-end;
 
 procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin

@@ -149,6 +149,16 @@ end;
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
 var i,iD,iO:integer; Bid,BestBid:single; NCount:word; Nodes:array[1..1024] of TKMPoint;
 begin
+{
+@Krom: BUG REPORT:
+Weapons are delivered from houses to store instead of barracks. If there is a barracks then
+weapons should never go to a store.
+After going to the store, they are soon taken to the barracks though.
+Tried to fix but was unable to. ;) I had trouble fully understanding the bidding system.
+
+One more thing while we're on delivery: How come gold to the school is the last delivery to
+be done in the test mission? Is it just chance or intentinal? It should be a high prioraty if anything.
+}
 Result:=nil;
 
 //Find place for new Delivery to be written to after Offer-Demand pair is found

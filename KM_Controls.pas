@@ -127,7 +127,7 @@ TKMButtonFlat = class(TKMControl)
   public
     RXid: integer; //RX library
     TexID: integer;
-    TexOffsetX:shortint;
+    TexOffsetX,TexOffsetY,CapOffsetY:shortint;
     Caption: string;
     Font: TKMFont;
     TextAlign: KAlign;
@@ -460,6 +460,8 @@ begin
   RXid:=aRXid;
   TexID:=aTexID;
   TexOffsetX:=0;
+  TexOffsetY:=0;
+  CapOffsetY:=0;
   Caption:='';
   Font:=fnt_Grey;
   TextAlign:=kaLeft;
@@ -474,10 +476,10 @@ var State:TFlatButtonStateSet;
 begin
   State:=[];
   if CursorOver and Enabled and not HideHighlight then State:=State+[fbs_Highlight];
-  if Down and not HideHighlight then State:=State+[fbs_Selected];
+  if Down then State:=State+[fbs_Selected];
   //if not Enabled then State:=State+[fbs_Disabled];
 
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,Caption,State);
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,State);
 end;
 
 

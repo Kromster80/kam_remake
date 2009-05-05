@@ -7,7 +7,7 @@ TRenderUI = class
   public
     constructor Create;
     procedure Write3DButton     (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; State:T3DButtonStateSet; aStyle:TButtonStyle);
-    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX:smallint; Caption:string; State:TFlatButtonStateSet);
+    procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; Caption:string; State:TFlatButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; const HalfContrast:boolean=false);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
     procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true); overload;
@@ -121,8 +121,7 @@ begin
 end;
 
 
-procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX:smallint; Caption:string; State:TFlatButtonStateSet);
-var TexOffsetY:shortint;
+procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; Caption:string; State:TFlatButtonStateSet);
 begin
   glPushMatrix;
     glTranslate(PosX,PosY,0);
@@ -150,15 +149,15 @@ begin
     glEnd;
 
     if ID<>0 then begin
-      TexOffsetY:=-7*byte(Caption<>'');
+      TexOffsetY:=TexOffsetY-6*byte(Caption<>'');
       fRenderUI.WritePicture((SizeX-GFXData[RXid,ID].PxWidth) div 2 + TexOffsetX,
                              (SizeY-GFXData[RXid,ID].PxHeight) div 2 + TexOffsetY,RXid,ID, true);
     end;
 
     if fbs_Disabled in State then
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4, SizeX, Caption, fnt_Game, kaCenter, false, $FF888888)
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, false, $FF888888)
     else
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4, SizeX, Caption, fnt_Game, kaCenter, false, $FFFFFFFF);
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, false, $FFFFFFFF);
 
     if fbs_Highlight in State then begin
       glColor4f(1,1,1,0.25);

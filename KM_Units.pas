@@ -719,8 +719,7 @@ begin
 //Priority no.3 - find self a work
     if fCondition<UNIT_MIN_CONDITION then begin
       H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-      if (H<>nil)and
-      (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+      if (H<>nil)and(H.HasFood) then
         fUnitTask:=TTaskGoEat.Create(H,Self)
       else //If there's no Inn or no food in it
         //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -814,8 +813,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-    if (H<>nil)and
-    (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+    if (H<>nil)and (H.HasFood) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -880,8 +878,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-    if (H<>nil)and
-    (H.CheckResIn(rt_Sausages)+H.CheckResIn(rt_Bread)+H.CheckResIn(rt_Wine)+H.CheckResIn(rt_Fish)>0) then
+    if (H<>nil)and(H.HasFood) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -1512,6 +1509,8 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
   var i,k:integer; ht:byte; Loc:TKMPoint;
   procedure AddLoc(X,Y:word; Dir:TKMDirection);
   begin
+    //First check that the passabilty is correct, as the house may be placed against blocked terrain
+    if not (canWalk in fTerrain.Land[Y,X].Passability) then exit;
     inc(LocCount);
     Cells[LocCount].Loc:=KMPoint(X,Y);
     Cells[LocCount].Dir:=Dir;

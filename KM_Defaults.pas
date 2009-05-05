@@ -132,7 +132,7 @@ type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 const
   TKMDirectionS: array[0..8]of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
-  
+
 {Resources}
 type
   TResourceType = (rt_None=0, rt_All=30, rt_Warfare=31,
@@ -159,7 +159,7 @@ ProductionCosts:array[17..26,1..2]of TResourceType = (
 );
 
 { Terrain }
-type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish, CanCrab);
+type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab);
      TPassabilitySet = set of TPassability;
 
 const PassabilityStr:array[1..11] of string = (
@@ -193,7 +193,7 @@ type
 
 //Defines which animal prefers which terrain
 const AnimalTerrain: array[31..38] of TPassability = (
-    canWalk, canFish, canFish, canFish, CanCrab, canFish, canFish, canFish);
+    canWalk, canFish, canFish, canFish, canCrab, canFish, canFish, canFish);
 
 type TMoveDir = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3); 
 
@@ -346,7 +346,23 @@ const
     ut_Serf, ut_Worker, ut_StoneCutter, ut_Woodcutter, ut_Lamberjack,
     ut_Fisher, ut_Farmer, ut_Baker, ut_AnimalBreeder, ut_Butcher,
     ut_Miner, ut_Metallurgist, ut_Smith, ut_Recruit);
-    
+
+  Barracks_Order:array[1..9] of TUnitType = (
+    ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
+    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
+
+  TroopCost:array[ut_Militia..ut_Cavalry,1..4] of byte = (
+  (5, 0, 0, 0), //Militia
+  (1, 3, 5, 0), //Axefighter
+  (2, 4, 6, 0), //Swordfighter
+  (3, 9, 0, 0), //Bowman
+  (4,10, 0, 0), //Crossbowman
+  (3, 7, 0, 0), //Lance Carrier
+  (4, 8, 0, 0), //Pikeman
+  (1, 3, 5,11), //Scout
+  (2, 4, 6,11)  //Knight
+  );
+
 
 const
 //1-building area //2-entrance

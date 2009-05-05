@@ -128,6 +128,7 @@ type
     function EaterGetsInside(aUnitType:TUnitType):byte;
     procedure UpdateEater(aID:byte; aFoodKind:byte);
     procedure EatersGoesOut(aID:byte);
+    function HasFood:boolean;
     procedure Paint(); override; //Render all eaters
   end;
 
@@ -731,6 +732,12 @@ procedure TKMHouseInn.EatersGoesOut(aID:byte);
 begin
   if aID=0 then exit;
   Eater[aID].UnitType:=ut_None;
+end;
+
+
+function TKMHouseInn.HasFood:boolean;
+begin
+  Result:=(CheckResIn(rt_Sausages)+CheckResIn(rt_Bread)+CheckResIn(rt_Wine)+CheckResIn(rt_Fish)>0);
 end;
 
 
