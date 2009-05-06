@@ -498,7 +498,7 @@ MyPlayer.AddRoadPlan(KMPoint(8,6),mu_RoadPlan,true);
 MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan,true);
 MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan,true);
 
-MyPlayer.AddHousePlan(ht_School, KMPoint(4,17),true);
+MyPlayer.AddHouse(ht_School, KMPoint(4,17));
 MyPlayer.AddHouse(ht_Inn, KMPoint(9,18));
 end;
 

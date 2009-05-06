@@ -155,9 +155,13 @@ Weapons are delivered from houses to store instead of barracks. If there is a ba
 weapons should never go to a store.
 After going to the store, they are soon taken to the barracks though.
 Tried to fix but was unable to. ;) I had trouble fully understanding the bidding system.
+@Lewin: There should be new condition perhaps - if Player.hasBarracks then do not bid delivery to store
 
 One more thing while we're on delivery: How come gold to the school is the last delivery to
 be done in the test mission? Is it just chance or intentinal? It should be a high prioraty if anything.
+
+@Lewin: I think you've forgot to add Gold to store in TestMission, hence it's delivered to School only
+        after it has been produced at Metallurgists ;) To be deleted..
 }
 Result:=nil;
 
@@ -165,7 +169,7 @@ Result:=nil;
 i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
 if i=MaxEntries then exit;
 
-//Cleanup for destroyed
+//Cleanup for destroyed houses
 for iD:=1 to length(fDemand) do
   if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].Loc_House.IsDestroyed) then fDemand[iD].Resource:=rt_None
   else

@@ -4,41 +4,42 @@ uses Windows, Classes, SysUtils, KromUtils, dglOpenGL, MMSystem;
 
 //Global const
 const                             
-  CELL_SIZE_PX=40;      //Single cell size in pixels (width)
-  CELL_HEIGHT_DIV=33.333;//Height divider
-  ToolBarWidth=224;     //Toolbar width in game
-  Overlap=0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
-  DEF_PAL=2;            //Default palette to use when generating full-color RGB textures
-  GAME_LOGIC_PACE=100;  //Game logic should be updated each 100ms
-  TERRAIN_PACE=1000;    //Terrain gets updated once each 1000ms
-  TERRAIN_FOG_OF_WAR_MIN=8;  //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
-  TERRAIN_FOG_OF_WAR_ACT=16; //Until this value FOW is not rendered at all
-  TERRAIN_FOG_OF_WAR_MAX=24; //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  FPSLag=1;             //lag between frames, 1000/FPSLag = max allowed FPS
-  FPS_INTERVAL=1000;    //time between FPS measurements, more=accurate
-  SCROLLSPEED = 1;      //This is the speed that the viewport will scroll every 100 ms, in cells
-  SCROLLFLEX = 4;       //This is the number of pixels either side of the edge of the screen which will count as scrolling
-  GAME_VERSION = 'Alpha'; //Game version string displayed in menu corner
-  MENU_DESIGN_X = 1024; //Thats the size menu was designed for. All elements are placed in this size
+  CELL_SIZE_PX=40;              //Single cell size in pixels (width)
+  CELL_HEIGHT_DIV=33.333;       //Height divider
+  ToolBarWidth=224;             //Toolbar width in game
+  Overlap=0.0;                  //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
+  DEF_PAL=2;                    //Default palette to use when generating full-color RGB textures
+  GAME_LOGIC_PACE=100;          //Game logic should be updated each 100ms
+  TERRAIN_PACE=1000;            //Terrain gets updated once each 1000ms
+  TERRAIN_FOG_OF_WAR_MIN=8;     //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
+  TERRAIN_FOG_OF_WAR_ACT=16;    //Until this value FOW is not rendered at all
+  TERRAIN_FOG_OF_WAR_MAX=24;    //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+  FPSLag=1;                     //lag between frames, 1000/FPSLag = max allowed FPS
+  FPS_INTERVAL=1000;            //time between FPS measurements, more=accurate
+  SCROLLSPEED = 1;              //This is the speed that the viewport will scroll every 100 ms, in cells
+  SCROLLFLEX = 4;               //This is the number of pixels either side of the edge of the screen which will count as scrolling
+  GAME_VERSION = 'Alpha';       //Game version string displayed in menu corner
+  MENU_DESIGN_X = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y = 768;
-  MENU_SINGLE_MAPS_COUNT = 14; //Number of single player mamps to display in menu
+  MENU_SINGLE_MAPS_COUNT = 14;  //Number of single player mamps to display in menu
 
 var
   //These should be TRUE
-  MakeTerrainAnim:boolean=false;
+  MakeTerrainAnim:boolean=false;         //Should we animate water and swamps
   MakeUnitSprites:boolean=true;         //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
   DO_UNIT_HUNGER:boolean=true;          //Wherever units get hungry or not
+  DO_SERFS_WALK_ROADS:boolean=true;     //Wherever serfs should walk only on roads
 
   //These should be FALSE
-  ShowTerrainWires:boolean=false;
-  ShowSpriteOverlay:boolean=false;
+  ShowTerrainWires:boolean=false;       //Makes terrain height visible
+  ShowSpriteOverlay:boolean=false;      //Render outline around every sprite
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes:boolean=false;     //Draw unit routes when they are chosen
   MakeShowUnitMove:boolean=false;       //Draw unit movement overlay
-  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties
+  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
   FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
@@ -65,13 +66,13 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         UNIT_MAX_CONDITION = 15*600;            //*min of life. In KaM it's 45min
         UNIT_MIN_CONDITION = 5*600;             //If unit condition is less it will look for Inn
 
-type TRXid = (rxT=1,rxH,rxU,rxG,rxM);
-
-TRenderMode = (rm2D, rm3D);
+type
+  TRenderMode = (rm2D, rm3D);
 
 {Cursors}
 type
   TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Houses);
+  
 const
   c_Default=1; c_Info=452;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
@@ -145,7 +146,7 @@ type
     rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
 
 const
-ProductionCosts:array[17..26,1..2]of TResourceType = (
+WarfareCosts:array[17..26,1..2]of TResourceType = (
 (rt_None,rt_Wood),    //rt_Shield
 (rt_Coal,rt_Steel),   //rt_MetalShield
 (rt_None,rt_Leather), //rt_Armor
@@ -195,8 +196,10 @@ type
 const AnimalTerrain: array[31..38] of TPassability = (
     canWalk, canFish, canFish, canFish, canCrab, canFish, canFish, canFish);
 
-type TMoveDir = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3); 
+//Direction order used in unit placement, makes swirl around input point
+type TMoveDirection = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3);
 
+//Unit thoughts
 const
   Army_Flag=4962;
   Thought_Eat=6250;
@@ -246,7 +249,7 @@ type
     gs_CoalMiner, gs_GoldMiner, gs_IronMiner,
     gs_HorseBreeder, gs_SwineBreeder);
 
-{Houses game}
+{Houses in game}
 type
   THouseType = ( ht_None=0,
     ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
@@ -307,7 +310,8 @@ const
   (ut_Lamberjack, ut_Recruit, ut_None, ut_Serf, ut_Worker)
   );
 
-  //Building of the house allows player to build following houses
+  //Building of certain house allows player to build following houses,
+  //unless they are blocked in mission script of course
   BuildingAllowed:array[1..HOUSE_COUNT,1..8]of THouseType = (
   (ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks, ht_FisherHut), //Sawmill
   (ht_WeaponSmithy,ht_ArmorSmithy,ht_SiegeWorkshop,ht_None,ht_None,ht_None,ht_None,ht_None), //IronSmithy
@@ -351,6 +355,7 @@ const
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
 
+  //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
   TroopCost:array[ut_Militia..ut_Cavalry,1..4] of byte = (
   (5, 0, 0, 0), //Militia
   (1, 3, 5, 0), //Axefighter
@@ -367,109 +372,109 @@ const
 const
 //1-building area //2-entrance
 HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill        //1
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy    //21
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy  //244
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)), //Coal mine      //134
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)), //Iron mine      //61
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)), //Gold mine      //239
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)), //Fisher hut     //81
-((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)), //Bakery         //101
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Farm           //124
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)), //Woodcutter     //142
-((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)), //Armor smithy   //41
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Store          //138
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)), //Stables        //146
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //School         //250
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Quarry         //211
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Metallurgist   //235
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)), //Swine          //368
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower    //255
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Town hall      //1657
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop//273
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)), //Armor workshop //663
-((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Barracks       //334
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Mill           //358
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)), //Siege workshop //1681
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)), //Butcher        //397
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery        //668
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy
+((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)), //Coal mine
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)), //Iron mine
+((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)), //Gold mine
+((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)), //Fisher hut
+((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)), //Bakery
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Farm
+((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)), //Woodcutter
+((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)), //Armor smithy
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Store
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)), //Stables
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //School
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Quarry
+((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Metallurgist
+((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)), //Swine
+((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower
+((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Town hall
+((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop
+((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)), //Armor workshop
+((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Barracks
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Mill
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)), //Siege workshop
+((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)), //Butcher
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery
 ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn            //363
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)), //Wineyard       //378
+((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)), //Wineyard
 ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,1,0))  //Wall
 );
 
-//Does house output needs to be ordered or it keeps on producing it itself
+//Does house output needs to be ordered by Player or it keeps on producing by itself
 HousePlaceOrders:array[1..HOUSE_COUNT] of boolean = (
 false,false,true,false,false,false,false,false,false,false,
 true,false,false,false,false,false,false,false,false,true,
 true,false,false,true,false,false,false,false,false,false);
 
-//What house produces
+//What does house produces
 HouseOutput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
-(rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill        //1
-(rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy    //21
-(rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None), //Weapon smithy  //244
-(rt_Coal,       rt_None,       rt_None,       rt_None), //Coal mine      //134
-(rt_IronOre,    rt_None,       rt_None,       rt_None), //Iron mine      //61
-(rt_GoldOre,    rt_None,       rt_None,       rt_None), //Gold mine      //239
-(rt_Fish,       rt_None,       rt_None,       rt_None), //Fisher hut     //81
-(rt_Bread,      rt_None,       rt_None,       rt_None), //Bakery         //101
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Farm           //124
-(rt_Trunk,      rt_None,       rt_None,       rt_None), //Woodcutter     //142
-(rt_MetalArmor, rt_MetalShield,rt_None,       rt_None), //Armor smithy   //41
-(rt_All,        rt_None,       rt_None,       rt_None), //Store          //138
-(rt_Horse,      rt_None,       rt_None,       rt_None), //Stables        //146
-(rt_None,       rt_None,       rt_None,       rt_None), //School         //250
-(rt_Stone,      rt_None,       rt_None,       rt_None), //Quarry         //211
-(rt_Gold,       rt_None,       rt_None,       rt_None), //Metallurgist   //235
-(rt_Pig,        rt_Skin,       rt_None,       rt_None), //Swine          //368
-(rt_None,       rt_None,       rt_None,       rt_None), //Watch tower    //255
-(rt_None,       rt_None,       rt_None,       rt_None), //Town hall      //1657
-(rt_Axe,        rt_Pike,       rt_Bow,        rt_None), //Weapon workshop//273
-(rt_Shield,     rt_Armor,      rt_None,       rt_None), //Armor workshop //663
-(rt_None,       rt_None,       rt_None,       rt_None), //Barracks       //334
-(rt_Flour,      rt_None,       rt_None,       rt_None), //Mill           //358
-(rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop //1681
-(rt_Sausages,   rt_None,       rt_None,       rt_None), //Butcher        //397
-(rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery        //668
+(rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill
+(rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy
+(rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None), //Weapon smithy
+(rt_Coal,       rt_None,       rt_None,       rt_None), //Coal mine
+(rt_IronOre,    rt_None,       rt_None,       rt_None), //Iron mine
+(rt_GoldOre,    rt_None,       rt_None,       rt_None), //Gold mine
+(rt_Fish,       rt_None,       rt_None,       rt_None), //Fisher hut
+(rt_Bread,      rt_None,       rt_None,       rt_None), //Bakery
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Farm
+(rt_Trunk,      rt_None,       rt_None,       rt_None), //Woodcutter
+(rt_MetalArmor, rt_MetalShield,rt_None,       rt_None), //Armor smithy
+(rt_All,        rt_None,       rt_None,       rt_None), //Store
+(rt_Horse,      rt_None,       rt_None,       rt_None), //Stables
+(rt_None,       rt_None,       rt_None,       rt_None), //School
+(rt_Stone,      rt_None,       rt_None,       rt_None), //Quarry
+(rt_Gold,       rt_None,       rt_None,       rt_None), //Metallurgist
+(rt_Pig,        rt_Skin,       rt_None,       rt_None), //Swine
+(rt_None,       rt_None,       rt_None,       rt_None), //Watch tower
+(rt_None,       rt_None,       rt_None,       rt_None), //Town hall
+(rt_Axe,        rt_Pike,       rt_Bow,        rt_None), //Weapon workshop
+(rt_Shield,     rt_Armor,      rt_None,       rt_None), //Armor workshop
+(rt_None,       rt_None,       rt_None,       rt_None), //Barracks
+(rt_Flour,      rt_None,       rt_None,       rt_None), //Mill
+(rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop
+(rt_Sausages,   rt_None,       rt_None,       rt_None), //Butcher
+(rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
-(rt_None,       rt_None,       rt_None,       rt_None), //Inn            //363
-(rt_Wine,       rt_None,       rt_None,       rt_None), //Wineyard       //378
+(rt_None,       rt_None,       rt_None,       rt_None), //Inn
+(rt_Wine,       rt_None,       rt_None,       rt_None), //Wineyard       
 (rt_None,       rt_None,       rt_None,       rt_None)  //Wall
 );
 
 //What house requires
 HouseInput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
-(rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill        //1
-(rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy    //21
-(rt_Coal,       rt_Steel,      rt_None,       rt_None), //Weapon smithy  //244
-(rt_None,       rt_None,       rt_None,       rt_None), //Coal mine      //134
-(rt_None,       rt_None,       rt_None,       rt_None), //Iron mine      //61
-(rt_None,       rt_None,       rt_None,       rt_None), //Gold mine      //239
-(rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut     //81
-(rt_Flour,      rt_None,       rt_None,       rt_None), //Bakery         //101
-(rt_None,       rt_None,       rt_None,       rt_None), //Farm           //124
-(rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter     //142
-(rt_Steel,      rt_Coal,       rt_None,       rt_None), //Armor smithy   //41
-(rt_All,        rt_None,       rt_None,       rt_None), //Store          //138
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Stables        //146
-(rt_Gold,       rt_None,       rt_None,       rt_None), //School         //250
-(rt_None,       rt_None,       rt_None,       rt_None), //Quarry         //211
-(rt_GoldOre,    rt_Coal,       rt_None,       rt_None), //Metallurgist   //235
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Swine          //368
-(rt_Stone,      rt_None,       rt_None,       rt_None), //Watch tower    //255
-(rt_Gold,       rt_None,       rt_None,       rt_None), //Town hall      //1657
-(rt_Wood,       rt_None,       rt_None,       rt_None), //Weapon workshop//273
-(rt_Wood,       rt_Leather,    rt_None,       rt_None), //Armor workshop //663
-(rt_Warfare,    rt_None,       rt_None,       rt_None), //Barracks       //334
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Mill           //358
-(rt_Wood,       rt_Steel,      rt_None,       rt_None), //Siege workshop //1681
-(rt_Pig,        rt_None,       rt_None,       rt_None), //Butcher        //397
-(rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery        //668
+(rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill
+(rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy
+(rt_Coal,       rt_Steel,      rt_None,       rt_None), //Weapon smithy
+(rt_None,       rt_None,       rt_None,       rt_None), //Coal mine
+(rt_None,       rt_None,       rt_None,       rt_None), //Iron mine
+(rt_None,       rt_None,       rt_None,       rt_None), //Gold mine
+(rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut
+(rt_Flour,      rt_None,       rt_None,       rt_None), //Bakery
+(rt_None,       rt_None,       rt_None,       rt_None), //Farm
+(rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter
+(rt_Steel,      rt_Coal,       rt_None,       rt_None), //Armor smithy
+(rt_All,        rt_None,       rt_None,       rt_None), //Store
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Stables
+(rt_Gold,       rt_None,       rt_None,       rt_None), //School
+(rt_None,       rt_None,       rt_None,       rt_None), //Quarry
+(rt_GoldOre,    rt_Coal,       rt_None,       rt_None), //Metallurgist
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Swine
+(rt_Stone,      rt_None,       rt_None,       rt_None), //Watch tower
+(rt_Gold,       rt_None,       rt_None,       rt_None), //Town hall
+(rt_Wood,       rt_None,       rt_None,       rt_None), //Weapon workshop
+(rt_Wood,       rt_Leather,    rt_None,       rt_None), //Armor workshop
+(rt_Warfare,    rt_None,       rt_None,       rt_None), //Barracks
+(rt_Corn,       rt_None,       rt_None,       rt_None), //Mill
+(rt_Wood,       rt_Steel,      rt_None,       rt_None), //Siege workshop
+(rt_Pig,        rt_None,       rt_None,       rt_None), //Butcher
+(rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
-(rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish), //Inn            //363
-(rt_None,       rt_None,       rt_None,       rt_None), //Wineyard       //378
+(rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish), //Inn
+(rt_None,       rt_None,       rt_None,       rt_None), //Wineyard      
 (rt_None,       rt_None,       rt_None,       rt_None)  //Wall
 );
 
@@ -499,12 +504,12 @@ type
 
   TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road );
 
+  TMarkup = (mu_None=0, mu_RoadPlan, mu_FieldPlan, mu_WinePlan, mu_HousePlan, mu_HouseFence, mu_House);
   //Nothing
   //Road/Corn/Wine ropes
-  //rope outline
-  //fence outline
-  //actual house
-  TMarkup = (mu_None=0, mu_RoadPlan, mu_FieldPlan, mu_WinePlan, mu_HousePlan, mu_HouseFence, mu_House);
+  //Rope outline of house area
+  //Fence outline of house area
+  //Actual house, which is not rendered and is used in here to siplify whole thing
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
 
@@ -551,7 +556,7 @@ ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 
 
 type
-  TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6);
+  TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_8=8);
 
   {@Lewin:If you know other names- please fill in }
   TSoundFX = (
@@ -614,13 +619,13 @@ type
     mep_u2,
     mep_u3,
     mep_u4,
-    mep_CuttableTree, //This tree can be cut by a woodcutter
+    mep_CuttableTree,   //This tree can be cut by a woodcutter
     mep_u6,
-    mep_Double, //Draw two sprites per object. (grapes)
+    mep_Double,         //Draw two sprites per object (grapes)
     mep_u8,
-    mep_AllBlocked, //All passibility blocked. Can't walk, build, swim, etc.
+    mep_AllBlocked,     //All passibility blocked. Can't walk, build, swim, etc.
     mep_u10,
-    mep_Quad, //Draw 4 sprites per object (corn)
+    mep_Quad,           //Draw 4 sprites per object (corn)
     mep_u12,
     mep_u13,
     mep_u14,
@@ -629,7 +634,7 @@ type
 
 var
   //Players colors
-  TeamColors:array[1..8]of cardinal = (
+  TeamColors:array[1..MAX_PLAYERS]of cardinal = (
   $FF3040FF, //Red
   $FF00C0FF, //Orange
   $FF00FFFF, //Yellow
@@ -690,11 +695,13 @@ var
     end;
   end;
 
-HouseDATs:array[1..2,1..5,1..3] of packed record //Swine Horses
+  //Swine&Horses, 5 beasts in each house, 3 ages for each beast
+  HouseDATs:array[1..2,1..5,1..3] of packed record
     Step:array[1..30]of smallint;
     Count:smallint;
     MoveX,MoveY:integer;
   end;
+
 HouseDAT:array[1..HOUSE_COUNT] of packed record
   StonePic,WoodPic,WoodPal,StonePal:smallint;
   SupplyIn:array[1..4,1..5]of smallint;
@@ -707,7 +714,7 @@ HouseDAT:array[1..HOUSE_COUNT] of packed record
   WoodPicSteps,StonePicSteps:word;
   a1:smallint;
   EntranceOffsetX,EntranceOffsetY:shortint;
-  EntranceOffsetXpx,EntranceOffsetYpx:shortint;
+  EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
   BuildArea:array[1..10,1..10]of shortint;
   WoodCost,StoneCost:byte;
   BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
@@ -721,6 +728,7 @@ HouseDAT:array[1..HOUSE_COUNT] of packed record
   Foot:array[1..36]of shortint;
 end;
 
+//Resource types serf carries around
 SerfCarry:array[1..28] of packed record
   Dir:array[1..8]of packed record
     Step:array[1..30]of smallint;
@@ -729,11 +737,13 @@ SerfCarry:array[1..28] of packed record
   end;
 end;
 
+//
 UnitStat:array[1..41]of record
   x1,Attack,AttackHorseBonus,x4,HitPoints,Speed,x7,Sight:smallint;
   x9,x10:shortint;
   CanWalkOut,x11:smallint;
 end;
+
 UnitSprite2:array[1..41,1..18]of smallint;
 UnitSprite:array[1..41]of packed record
   Act:array[1..14]of packed record
@@ -754,7 +764,9 @@ end;
     CanBeRemoved,u4:word;                       //99
   end;
 
+  //Minimap tile colors, computed on tileset loading
   TileMMColor:array[1..256]of record R,G,B:single; end;
+
 
 type
   TKMList = class(TList)

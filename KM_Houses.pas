@@ -1099,7 +1099,7 @@ begin
   for I := 0 to Count - 1 do
     TKMHouse(Items[I]).UpdateState;
 
-  //After all houses are updated we can safely remove those that destroyed
+  //After all houses are updated we can safely remove those that were destroyed
   for I := Count - 1 downto 0 do
     if TKMHouse(Items[I]).ScheduleForRemoval then begin
       TKMHouse(Items[I]).Free;

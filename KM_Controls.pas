@@ -585,7 +585,7 @@ begin
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
   Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
-    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, 4,350+byte(Resource));
+    fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top, 4,350+byte(Resource));
 end;
 
 
@@ -634,12 +634,12 @@ procedure TKMCostsRow.Paint();
 var TexID:byte;
 begin
   fRenderUI.WriteText(Left, Top + 4, Width, TypeToString(TResourceType(CostID)), fnt_Grey, kaLeft, false, $FFFFFFFF);
-  if ProductionCosts[CostID,1] in [rt_Trunk..rt_Fish] then begin
-    TexID:=byte(ProductionCosts[CostID,1]);
+  if WarfareCosts[CostID,1] in [rt_Trunk..rt_Fish] then begin
+    TexID:=byte(WarfareCosts[CostID,1]);
     fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[4,TexID].PxHeight) div 2, 4,350+TexID);
   end;
-  if ProductionCosts[CostID,2] in [rt_Trunk..rt_Fish] then begin
-    TexID:=byte(ProductionCosts[CostID,2]);
+  if WarfareCosts[CostID,2] in [rt_Trunk..rt_Fish] then begin
+    TexID:=byte(WarfareCosts[CostID,2]);
     fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[4,TexID].PxHeight) div 2, 4,350+TexID);
   end;
 end;

@@ -1949,7 +1949,7 @@ begin
     NodePos:=1;
 
   //Build a route A*
-  fTerrain.MakeRoute(LocA, LocB, aPass, NodeCount, Nodes);
+  fTerrain.Route_Make(LocA, LocB, aPass, NodeCount, Nodes);
 
   //There are two possibilities here:
   // - Route can't be built cos there's no walkable way to go from A to B
@@ -2318,7 +2318,7 @@ var
   aPass:TPassability; //temp for required passability
   Span:integer; //Span length
   X,Y:integer; //Temp position
-  mDir:TMoveDir; //Direction to test
+  mDir:TMoveDirection; //Direction to test
   i:integer;
   function TryOut(aX,aY:integer):boolean;
   begin
@@ -2336,9 +2336,9 @@ begin
   end;
 
   //Should swirl around input point
-  Span:=1; X:=PosX; Y:=PosY; mDir:=TMoveDir(3);
+  Span:=1; X:=PosX; Y:=PosY; mDir:=TMoveDirection(3);
   repeat
-    mDir:=TMoveDir((byte(mDir)+1)mod 4); //wrap around
+    mDir:=TMoveDirection((byte(mDir)+1)mod 4); //wrap around
     case mDir of
       mdPosX: for i:=X+1 to     X+Span do begin inc(X); if TryOut(X,Y) then break; end;
       mdPosY: for i:=Y+1 to     Y+Span do begin inc(Y); if TryOut(X,Y) then break; end;

@@ -103,7 +103,9 @@ public
   function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
-  procedure MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
+  function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
+  procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
+
   procedure UnitAdd(LocTo:TKMPoint);
   procedure UnitRem(LocFrom:TKMPoint);
   procedure UnitWalk(LocFrom,LocTo:TKMPoint);
@@ -922,12 +924,28 @@ begin
     Result:=Loc;
 end;
 
+//Test wherever the route is possible to make
+function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
+begin
+  //target has to be different point than source
+  Result:=not (KMSamePoint(LocA,LocB));
+
+  //target point has to be walkable
+  Result:=Result and CheckPassability(LocB,aPass);
+
+  if not Result then exit;
+
+  //And finally check by floodfill that there's a route at all (e.g. there's no route between islands)
+
+  //@Lewin: Do you want to write Flood Fill algorithm? (http://en.wikipedia.org/wiki/Flood_fill)
+
+end;
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
 {Simplification1 - ajoin nodes that don't require direction change}
-procedure TTerrain.MakeRoute(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
-const c_closed=65535;
+procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
+const c_closed=65535; TEST_MAX=1024;
 var
   i,k,y,x:integer;
   NewCost:integer;
@@ -938,7 +956,7 @@ var
   end;
   ORef:array[1..MaxMapSize,1..MaxMapSize] of word; //Ref to OpenList
   OCount:word;
-  OList:array[1..1024]of record //List of checked cells
+  OList:array[1..TEST_MAX]of record //List of checked cells
     Pos:TKMPoint;
     CostTo:word;
     Estim:word;
@@ -954,10 +972,16 @@ begin
 
   I'm only guessing, but does it happen when the route requires the unit to go up,
   accross and then back down? (It happens on the lower far side of the bridge too)
+
+  @Lewin: This is a known issue when route can't be made from starting point to target point.
+        This can happen for 2 reasons: route does not even exists, route is too long for this algorithm
+        First case should be solved by using Route_CanBeMade
+        Second case - optimizing and increasing algorith depth (TEST_MAX parameter)
+
   }
 
   //Don't try to make a route if it's obviously impossible
-  if (KMSamePoint(LocA,LocB))or(not CheckPassability(LocB,aPass)) then begin
+  if not Route_CanBeMade(LocA, LocB, aPass) then begin
     NodeCount:=0;
     Nodes[0]:=LocA;
     exit;
@@ -975,9 +999,9 @@ begin
   OList[OCount].Estim:=(abs(LocB.X-LocA.X) + abs(LocB.Y-LocA.Y))*10;
   OList[OCount].Parent:=0;
 
-  k:=0;
+  //k:=0;
   repeat
-  inc(k);
+  //inc(k);
 
     //Find cell with least (Estim+CostTo)
     MinCost.Cost:=65535;
@@ -1022,9 +1046,15 @@ begin
           end;
         end;
     end;
-  until((k=500)or(OCount+8>=length(OList))or(KMSamePoint(MinCost.Pos,LocB)));
+  //Cancel if:
+  // list can hold no more cells,
+  // Destination point is reached
+  // There's no more open cells available (which means flood fill test failed)
+  until({(k=500)or}(OCount+8>=length(OList))or(KMSamePoint(MinCost.Pos,LocB))or(MinCost.Cost=65535));
 
-  if (not KMSamePoint(MinCost.Pos,LocB))or(k=500) then begin
+  Assert(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
+
+  if (not KMSamePoint(MinCost.Pos,LocB)){or(k=500)}or(MinCost.Cost=65535) then begin
     NodeCount:=0; //Something went wrong
     Nodes[0]:=LocA;
     exit;
