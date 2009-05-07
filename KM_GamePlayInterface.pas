@@ -1135,7 +1135,7 @@ begin
     KMPanel_HouseBarracks:=MyControls.AddPanel(KMPanel_House,0,76,200,400);
       for i:=1 to 12 do
       begin
-        KMButton_Barracks[i]:=MyControls.AddButtonFlat(KMPanel_HouseBarracks, 8+((i-1)mod 6)*31,19+((i-1)div 6)*42,28,38,366+i);
+        KMButton_Barracks[i]:=MyControls.AddButtonFlat(KMPanel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,366+i);
         KMButton_Barracks[i].TexOffsetX:=1;
         KMButton_Barracks[i].TexOffsetY:=1;
         KMButton_Barracks[i].CapOffsetY:=2;
@@ -1145,17 +1145,17 @@ begin
       KMButton_Barracks[12].TexID:=154;
       KMButton_Barracks[12].Hint:=TypeToString(ut_Recruit);
 
-      KMLabel_Barracks_Unit:=MyControls.AddLabel(KMPanel_HouseBarracks,100,116,100,30,'',fnt_Outline,kaCenter);
+      KMLabel_Barracks_Unit:=MyControls.AddLabel(KMPanel_HouseBarracks,100,96,100,30,'',fnt_Outline,kaCenter);
 
-      KMImage_Barracks_Left :=MyControls.AddImage(KMPanel_HouseBarracks,  8,136,54,80,535);
+      KMImage_Barracks_Left :=MyControls.AddImage(KMPanel_HouseBarracks,  8,116,54,80,535);
       KMImage_Barracks_Left.Enabled := false;
-      KMImage_Barracks_Train:=MyControls.AddImage(KMPanel_HouseBarracks, 70,136,54,80,536);
-      KMImage_Barracks_Right:=MyControls.AddImage(KMPanel_HouseBarracks,132,136,54,80,537);
+      KMImage_Barracks_Train:=MyControls.AddImage(KMPanel_HouseBarracks, 70,116,54,80,536);
+      KMImage_Barracks_Right:=MyControls.AddImage(KMPanel_HouseBarracks,132,116,54,80,537);
       KMImage_Barracks_Right.Enabled := false;
 
-      KMButton_Barracks_Left :=MyControls.AddButton(KMPanel_HouseBarracks,  8,246,54,40,35);
-      KMButton_Barracks_Train:=MyControls.AddButton(KMPanel_HouseBarracks, 70,246,54,40,42);
-      KMButton_Barracks_Right:=MyControls.AddButton(KMPanel_HouseBarracks,132,246,54,40,36);
+      KMButton_Barracks_Left :=MyControls.AddButton(KMPanel_HouseBarracks,  8,226,54,40,35);
+      KMButton_Barracks_Train:=MyControls.AddButton(KMPanel_HouseBarracks, 70,226,54,40,42);
+      KMButton_Barracks_Right:=MyControls.AddButton(KMPanel_HouseBarracks,132,226,54,40,36);
       KMButton_Barracks_Left.OnClick:=House_BarracksUnitChange;
       KMButton_Barracks_Train.OnClick:=House_BarracksUnitChange;
       KMButton_Barracks_Right.OnClick:=House_BarracksUnitChange;
