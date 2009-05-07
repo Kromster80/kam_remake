@@ -168,7 +168,8 @@ end;
 
 {Acquire specific map details in a fast way}
 function TMissionParser.GetMissionDetails(aFileName:string):TKMMissionDetails;
-const Max_Cmd=1;
+const
+  Max_Cmd=1;
 var
   FileText, CommandText, Param, TextParam: string;
   ParamList: array[1..Max_Cmd] of integer;
@@ -178,11 +179,14 @@ begin
   //Set default values
   Result.MapPath := '';
   Result.IsFight := -1;
-  Result.TeamCount := -1;
-  Result.HumanPlayerID := -1;
+  Result.TeamCount := 0;
+  Result.HumanPlayerID := 0;
 
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then exit;
+
+  //We need only these 4 commands
+  //!SET_MAP, !SET_MAX_PLAYER, !SET_TACTIC, !SET_HUMAN_PLAYER
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
   k := 1;
@@ -198,28 +202,31 @@ begin
         CommandText:=CommandText+FileText[k];
         inc(k);
       until((FileText[k]=#32)or(k>=length(FileText)));
-      //Now convert command into type
-      CommandType := GetCommandTypeFromText(CommandText);
-      if CommandType in CommandsUsedInGetMissionDetails then //Try to make it faster by only processing commands used
+      
+      //Try to make it faster by only processing commands used
+      if (CommandText='SET_MAP')or(CommandText='SET_MAX_PLAYER')or
+         (CommandText='SET_TACTIC')or(CommandText='SET_HUMAN_PLAYER') then
       begin
-      inc(k);
-      //Extract parameters
-      for l:=1 to Max_Cmd do
-        if (FileText[k]<>'!') and (k<length(FileText)) then
-        begin
-          Param := '';
-          repeat
-            Param:=Param+FileText[k];
-            inc(k);
-          until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
-          //Convert to an integer, if possible
-          if StrToIntDef(Param,-999) <> -999 then ParamList[l] := StrToInt(Param)
-          else if l=1 then TextParam:=Param; //Accept text for first parameter
+        //Now convert command into type
+        CommandType := GetCommandTypeFromText(CommandText);
+        inc(k);
+        //Extract parameters
+        for l:=1 to Max_Cmd do
+          if (FileText[k]<>'!') and (k<length(FileText)) then
+          begin
+            Param := '';
+            repeat
+              Param:=Param+FileText[k];
+              inc(k);
+            until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
+            //Convert to an integer, if possible
+            if StrToIntDef(Param,-999) <> -999 then ParamList[l] := StrToInt(Param)
+            else if l=1 then TextParam:=Param; //Accept text for first parameter
 
-          if FileText[k]=#32 then inc(k);
-        end;
-      //We now have command text and parameters, so process them
-      GetDetailsProcessCommand(CommandType,ParamList,TextParam,Result);
+            if FileText[k]=#32 then inc(k);
+          end;
+        //We now have command text and parameters, so process them
+        GetDetailsProcessCommand(CommandType,ParamList,TextParam,Result);
       end;
     end
     else
@@ -242,9 +249,15 @@ end;
 
 {Acquire specific map details in a fast way}
 function TMissionParser.GetMapDetails(aFileName:string):TKMMapDetails;
+var f:file; i,k:integer;
 begin
-  Result.MapSize.X:=32;
-  Result.MapSize.Y:=32;
+  assignfile(f,aFileName); reset(f,1);
+  blockread(f,k,4);
+  blockread(f,i,4);
+  Assert((k<=MaxMapSize)and(i<=MaxMapSize),'TMissionParser.GetMapDetails - Can''t open the map cos it''s too big.');
+  closefile(f);
+  Result.MapSize.X:=k;
+  Result.MapSize.Y:=i;
 end;
 
 
@@ -480,6 +493,7 @@ begin
   end;
   Result := true; //Must have worked if we haven't exited by now
 end;
+
 
 procedure TMissionParser.DebugScriptError(ErrorMsg:string);
 begin
