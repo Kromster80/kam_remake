@@ -320,10 +320,19 @@ begin
   case CommandType of
   ct_SetMap:         begin
                        MyStr := RemoveQuotes(TextParam);
-                       if not fTerrain.OpenMapFromFile(ExeDir+MyStr) then //This one is enough
-                         if not fTerrain.OpenMapFromFile(ChangeFileExt(OpenedMissionName,'.map')) then
-                           exit;
-                       fViewport.SetZoom(1);
+                       //Check for same filename.map in same folder first - Remake format
+                       if CheckFileExists(ChangeFileExt(OpenedMissionName,'.map'),true) then
+                         fTerrain.OpenMapFromFile(ChangeFileExt(OpenedMissionName,'.map'))
+                       else
+                       //Check for KaM format map path
+                       if CheckFileExists(ExeDir+MyStr,true) then
+                         fTerrain.OpenMapFromFile(ExeDir+MyStr)
+                       else
+                       begin
+                         //Else abort loading and fail
+                         DebugScriptError('Map file couldn''t be found');
+                         exit;
+                         end;
                      end;
   ct_SetMaxPlayer:   begin
                      fPlayers:=TKMAllPlayers.Create(ParamList[0]); //Create players

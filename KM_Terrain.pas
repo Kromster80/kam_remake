@@ -926,17 +926,20 @@ end;
 
 //Test wherever the route is possible to make
 function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
+//var NQty:word; Ns:array[1..1024]of TKMPoint;
 begin
+  Result := true;
   //target has to be different point than source
-  Result:=not (KMSamePoint(LocA,LocB));
+  //Result:=not (KMSamePoint(LocA,LocB)); //Or maybe we don't care
 
   //target point has to be walkable
-  Result:=Result and CheckPassability(LocB,aPass);
+  Result := Result and CheckPassability(LocB,aPass);
 
   if not Result then exit;
 
   //And finally check by floodfill that there's a route at all (e.g. there's no route between islands)
-
+  //Route_Make(LocA, LocB, aPass, NQty, Ns);
+  //Result := Result and (NQty<>0);
   //@Lewin: Do you want to write Flood Fill algorithm? (http://en.wikipedia.org/wiki/Flood_fill)
 
 end;
@@ -981,7 +984,7 @@ begin
   }
 
   //Don't try to make a route if it's obviously impossible
-  if not Route_CanBeMade(LocA, LocB, aPass) then begin
+  if not CheckPassability(LocB,aPass) or not CheckPassability(LocA,aPass) then begin
     NodeCount:=0;
     Nodes[0]:=LocA;
     exit;
@@ -1052,7 +1055,7 @@ begin
   // There's no more open cells available (which means flood fill test failed)
   until({(k=500)or}(OCount+8>=length(OList))or(KMSamePoint(MinCost.Pos,LocB))or(MinCost.Cost=65535));
 
-  Assert(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
+  //Assert(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
 
   if (not KMSamePoint(MinCost.Pos,LocB)){or(k=500)}or(MinCost.Cost=65535) then begin
     NodeCount:=0; //Something went wrong

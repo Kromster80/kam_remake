@@ -207,6 +207,11 @@ for iD:=1 to length(fDemand) do
     if (fDemand[iD].Loc_House=nil)or //If Demand and Offer are different HouseTypes, means forbid Store>Store deliveries
        ((fDemand[iD].Loc_House<>nil)and(fOffer[iO].Loc_House.GetHouseType<>fDemand[iD].Loc_House.GetHouseType)) then
 
+    //if ((fDemand[iD].Loc_House<>nil)and //House-House delivery should be performed only if there's a connecting road
+    //   (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad)))or
+    //   ((fDemand[iD].Loc_Unit<>nil)and //House-Unit delivery can be performed without connecting road
+    //   (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk))) then
+
     begin
 
       //Basic Bid is length of route
