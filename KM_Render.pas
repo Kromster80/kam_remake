@@ -363,7 +363,7 @@ if SHOW_MAP_AREAS then
 for i:=y1 to y2 do for k:=x1 to x2 do
 with fTerrain do
 begin
-  glColor3f(Land[i,k].WalkConnect/4,Land[i,k].WalkConnect/8,Land[i,k].WalkConnect/16);
+  glColor3f(Land[i,k].WalkConnect[1]/8,Land[i,k].WalkConnect[2]/8,0);
   RenderQuad(k,i)
 end;
 

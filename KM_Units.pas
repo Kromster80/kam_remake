@@ -49,18 +49,20 @@ type
       {Walk to somewhere}
       TUnitActionWalkTo = class(TUnitAction)
       private
-        fDestPos: TKMPoint;
+        fWalker:TKMUnit;
+        fWalkFrom,fWalkTo:TKMPoint;
         fRouteBuilt:boolean;
         fWalkToSpot:boolean;
+        fPass:TPassability; //Desired passability set once on Create
         NodeCount:word; //Should be positive
-        Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint;
+        Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint; //In fact it's much shorter array
         NodePos:integer;
         DoesWalking:boolean;
         DoEvade:boolean; //Command to make exchange maneuver with other unit
         Explanation:string; //Debug only, explanation what unit is doing
       public
-        constructor Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aPass:TPassability=canWalk);
-        function DoUnitInteraction(KMUnit: TKMUnit):boolean;
+        constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const IgnorePass:boolean=false);
+        function DoUnitInteraction():boolean;
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -719,7 +721,7 @@ begin
 //Priority no.3 - find self a work
     if fCondition<UNIT_MIN_CONDITION then begin
       H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-      if (H<>nil)and(H.HasFood) then
+      if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalkRoad)) then
         fUnitTask:=TTaskGoEat.Create(H,Self)
       else //If there's no Inn or no food in it
         //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -813,7 +815,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-    if (H<>nil)and (H.HasFood) then
+    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalkRoad)) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -878,7 +880,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-    if (H<>nil)and(H.HasFood) then
+    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalk)) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -989,14 +991,14 @@ begin
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
-  until((SpotJit=0)or(fTerrain.CheckPassability(Spot,AnimalTerrain[byte(GetUnitType)])));
+  until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)])));
 
   if KMSamePoint(GetPosition,Spot) then begin
     SetAction(TUnitActionStay.Create(20, ua_Walk));
     exit;
   end;
 
-  SetAction(TUnitActionWalkTo.Create(GetPosition, Spot, ua_Walk, true, AnimalTerrain[byte(GetUnitType)]));
+  SetAction(TUnitActionWalkTo.Create(Self, Spot, KMPoint(0,0)));
   if not TUnitActionWalkTo(fCurrentAction).fRouteBuilt then SetAction(TUnitActionStay.Create(5, ua_Walk));
 
   Assert(fCurrentAction<>nil,'Unit has no action!');
@@ -1236,7 +1238,9 @@ TaskDone:=false;
 
 with fSerf do
 case Phase of
-0: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,KMPointY1(fFrom.GetEntrance)));
+0: begin
+    SetAction(TUnitActionWalkTo.Create(fSerf,KMPointY1(fFrom.GetEntrance), KMPoint(0,0)));
+   end;
 1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
 2: SetAction(TUnitActionStay.Create(5,ua_Walk));
 3: begin
@@ -1254,7 +1258,7 @@ if fToHouse<>nil then
 if fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,KMPointY1(fToHouse.GetEntrance)));
+5: SetAction(TUnitActionWalkTo.Create(fSerf,KMPointY1(fToHouse.GetEntrance), KMPoint(0,0)));
 6: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
 7: SetAction(TUnitActionStay.Create(5,ua_Walk));
 8: begin
@@ -1271,7 +1275,7 @@ if fToHouse<>nil then
 if not fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,KMPointY1(fToHouse.GetEntrance),ua_Walk,false));
+5: SetAction(TUnitActionWalkTo.Create(fSerf,KMPointY1(fToHouse.GetEntrance), KMPoint(0,0), ua_Walk, false));
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
@@ -1284,7 +1288,7 @@ end;
 if fToUnit<>nil then
 with fSerf do
 case Phase of
-5: SetAction(TUnitActionWalkTo.Create(fSerf.GetPosition,fToUnit.GetPosition,ua_Walk,false));
+5: SetAction(TUnitActionWalkTo.Create(fSerf,fToUnit.GetPosition, KMPoint(0,0),ua_Walk,false));
 6: begin
      TakeResource(Carry);
      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil) then begin
@@ -1316,7 +1320,7 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
-0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
+0: SetAction(TUnitActionWalkTo.Create(fWorker,fLoc, KMPoint(0,0)));
 1: begin
    fTerrain.RemMarkup(fLoc);
    fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
@@ -1371,7 +1375,7 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
- 0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
+ 0: SetAction(TUnitActionWalkTo.Create(fWorker,fLoc, KMPoint(0,0)));
  1: begin
       fTerrain.RemMarkup(fLoc);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
@@ -1415,7 +1419,7 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
-  0: SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fLoc));
+  0: SetAction(TUnitActionWalkTo.Create(fWorker,fLoc, KMPoint(0,0)));
   1: begin
       fTerrain.RemMarkup(fLoc);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
@@ -1460,13 +1464,13 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
-0:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,fHouse.GetEntrance));
+0:  SetAction(TUnitActionWalkTo.Create(fWorker,fHouse.GetEntrance, KMPoint(0,0)));
 1:  begin
       fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, fOwner);
       fHouse.SetBuildingState(hbs_NoGlyph);
       SetAction(TUnitActionStay.Create(5,ua_Walk));
     end;
-2:  SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,ListOfCells[Step],ua_walk,true,canAll));
+2:  SetAction(TUnitActionWalkTo.Create(fWorker,ListOfCells[Step], KMPoint(0,0), ua_Walk, true, true));
 3:  begin
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
       fTerrain.FlattenTerrain(ListOfCells[Step]);
@@ -1488,7 +1492,8 @@ case Phase of
       fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
       dec(Step);
     end;
-7:  begin
+7:  SetAction(TUnitActionWalkTo.Create(fWorker,KMPointY1(fHouse.GetEntrance), KMPoint(0,0), ua_Walk, true, true));
+8:  begin
       fPlayers.Player[byte(fOwner)].BuildList.CloseHousePlan(TaskID);
       fHouse.SetBuildingState(hbs_Wood);
       fPlayers.Player[byte(fOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
@@ -1551,7 +1556,7 @@ begin
              exit;
            end;
            CurLoc:=Random(LocCount)+1;
-           SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,Cells[CurLoc].Loc));
+           SetAction(TUnitActionWalkTo.Create(fWorker,Cells[CurLoc].Loc, KMPoint(0,0)));
          end;
       1: begin
            Direction:=Cells[CurLoc].Dir;
@@ -1629,7 +1634,7 @@ begin
       //Pick random location and go there
       0: begin
            CurLoc:=Random(LocCount)+1;
-           SetAction(TUnitActionWalkTo.Create(fWorker.GetPosition,Cells[CurLoc].Loc));
+           SetAction(TUnitActionWalkTo.Create(fWorker,Cells[CurLoc].Loc, KMPoint(0,0)));
          end;
       1: begin
            Direction:=Cells[CurLoc].Dir;
@@ -1689,7 +1694,7 @@ with fUnit do
          SetAction(TUnitActionStay.Create(0,ua_Walk));
          exit;
        end;
-    1: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,WorkPlan.Loc,WorkPlan.WalkTo));
+    1: SetAction(TUnitActionWalkTo.Create(fUnit,WorkPlan.Loc, KMPoint(0,0),WorkPlan.WalkTo));
     2: //IF resource still exists on location
        begin //Choose direction and time to work
          Dir:=integer(fUnit.Direction);
@@ -1725,7 +1730,7 @@ with fUnit do
     5: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
-         SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,KMPointY1(fHome.GetEntrance),WorkPlan.WalkFrom)); //Go home
+         SetAction(TUnitActionWalkTo.Create(fUnit,KMPointY1(fHome.GetEntrance), KMPoint(0,0),WorkPlan.WalkFrom)); //Go home
        end;
     6: SetAction(TUnitActionGoIn.Create(WorkPlan.WalkFrom,gid_In)); //Go inside
 
@@ -1813,7 +1818,7 @@ begin
   TaskDone:=false;
   with fUnit do
   case Phase of
-    0: SetAction(TUnitActionWalkTo.Create(fUnit.GetPosition,KMPointY1(fDestPos)));
+    0: SetAction(TUnitActionWalkTo.Create(fUnit,KMPointY1(fDestPos), KMPoint(0,0)));
     1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
     2: begin
         SetAction(TUnitActionStay.Create(5,ua_Walk));
@@ -1882,7 +1887,7 @@ case Phase of
       if not fVisible then SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)) else
                            SetAction(TUnitActionStay.Create(0,ua_Walk)); //Walk outside the house
     end;
- 1: SetAction(TUnitActionWalkTo.Create(GetPosition,KMPointY1(fInn.GetEntrance)));
+ 1: SetAction(TUnitActionWalkTo.Create(fUnit,KMPointY1(fInn.GetEntrance), KMPoint(0,0)));
  2: begin
       SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In)); //Enter Inn
       PlaceID:=fInn.EaterGetsInside(fUnitType);
@@ -1937,33 +1942,58 @@ end;
 //First approach lets make a route for unit depending on static obstacles
 //Then handle new static obstacles (if any) along with dynamic ones (LookAhead only one tile)
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(LocA,LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aPass:TPassability=canWalk);
+constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const IgnorePass:boolean=false);
 begin
   Inherited Create(aActionType);
-  fDestPos:= LocB;
-  fRouteBuilt:=false;
-  fWalkToSpot:=aWalkToSpot;
-  NodePos:=1;
+  fWalker       :=KMUnit;
+  fWalkFrom     :=fWalker.GetPosition;
+  fWalkTo       :=LocB;
+  fWalkToSpot   :=aWalkToSpot;   
 
-  if LocB.X=0 then
-    NodePos:=1;
+  case fWalker.fUnitType of
+    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: fPass:=canWalkRoad; //Citizens except Worker
+    ut_Wolf..ut_Duck: fPass:=AnimalTerrain[byte(fWalker.fUnitType)]
+    else fPass:=canWalk;
+  end;
+
+  if not DO_SERFS_WALK_ROADS then fPass:=canWalk;
+
+  //Thats for Workers on house area
+  if IgnorePass then fPass:=canAll;
+
+  //Thats for 'miners' at work
+  if (fWalker.fUnitType in [ut_Woodcutter,ut_Farmer,ut_Fisher,ut_StoneCutter])and
+     (fWalker.fUnitTask is TTaskMining) then
+    fPass:=canWalk;
+
+  NodePos       :=1;
+  fRouteBuilt   :=false;
+
+  Assert(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
+
+  if KMSamePoint(fWalkFrom,fWalkTo) then exit; //We don't care for this case, Execute will report action is done immeduately
 
   //Build a route A*
-  fTerrain.Route_Make(LocA, LocB, aPass, NodeCount, Nodes);
+  fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, fPass, NodeCount, Nodes); //Try to make the route with fPass
 
-  //There are two possibilities here:
-  // - Route can't be built cos there's no walkable way to go from A to B
-  // - A and B are the same point
   fRouteBuilt:=NodeCount>0;
   if not fRouteBuilt then
-    fLog.AddToLog('Unable to make a route '+TypeToString(LocA)+' > '+TypeToString(LocB));
+    fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with default fPass');
+
+  if not fRouteBuilt then begin //Build a route with canWalk
+    fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, canWalk, NodeCount, Nodes); //Try to make a route
+    fRouteBuilt:=NodeCount>0;
+  end;
+
+  if not fRouteBuilt then
+    fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with canWalk');
 
   if fRouteBuilt then
   if not fWalkToSpot then dec(NodeCount); //Approach spot from any side
 end;
 
 
-function TUnitActionWalkTo.DoUnitInteraction(KMUnit: TKMUnit):boolean;
+function TUnitActionWalkTo.DoUnitInteraction():boolean;
 var U:TKMUnit;
 begin
   Result:=true;
@@ -1981,7 +2011,7 @@ begin
     exit;
   end;
 
-  if (KMUnit.GetUnitType in [ut_Wolf..ut_Duck])and(not(U.GetUnitType in [ut_Wolf..ut_Duck])) then begin
+  if (fWalker.GetUnitType in [ut_Wolf..ut_Duck])and(not(U.GetUnitType in [ut_Wolf..ut_Duck])) then begin
     Explanation:='Unit is animal and therefor has no priority in movement';
     Result:=false;
     exit;
@@ -1991,7 +2021,7 @@ begin
   if (U.fCurrentAction is TUnitActionStay) then begin
     if TUnitActionStay(U.fCurrentAction).ActionType=ua_Walk then begin //Unit stays idle, not working or something
       //Force Unit to go away
-      U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,fTerrain.GetOutOfTheWay(U.GetPosition,KMUnit.GetPosition,canWalk)));
+      U.SetAction(TUnitActionWalkTo.Create(U,fTerrain.GetOutOfTheWay(U.GetPosition,fWalker.GetPosition,canWalk), KMPoint(0,0)));
       Explanation:='Unit blocking the way but it''s forced to get away';
       Result:=false; //Next frame tile will be free and unit will walk there
       exit;
@@ -2008,7 +2038,7 @@ begin
   //If Unit on the way is walking somewhere
   if (U.fCurrentAction is TUnitActionWalkTo) then begin //Unit is walking
     //Check unit direction to be opposite and exchange, but only if the unit is staying on tile, not walking
-    if (min(byte(U.Direction),byte(KMUnit.Direction))+4 = max(byte(U.Direction),byte(KMUnit.Direction))) then begin
+    if (min(byte(U.Direction),byte(fWalker.Direction))+4 = max(byte(U.Direction),byte(fWalker.Direction))) then begin
       if TUnitActionWalkTo(U.fCurrentAction).DoesWalking then begin
         //Unit yet not arrived on tile, wait till it does, otherwise there might be 2 units on one tile
         Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks into spot and then exchange';
@@ -2017,7 +2047,7 @@ begin
       end else begin
         //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
         TUnitActionWalkTo(U.fCurrentAction).DoEvade:=true;
-        TUnitActionWalkTo(KMUnit.fCurrentAction).DoEvade:=true;
+        TUnitActionWalkTo(fWalker.fCurrentAction).DoEvade:=true;
         Explanation:='Unit on the way is walking opposite direction. Perform an exchange';
         Result:=true;
         exit;
@@ -2025,13 +2055,23 @@ begin
     end else begin
       if TUnitActionWalkTo(U.fCurrentAction).DoesWalking then begin
         //Simply wait till it walks away
-        Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(KMUnit.Direction);
+        Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(fWalker.Direction);
         Result:=false;
         exit;
       end else begin
         //Unit isn't walking away - go around it
-        Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(KMUnit.Direction);
+        Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(fWalker.Direction);
         Result:=false;
+        {KMUnit.SetAction(
+          TUnitActionWalkTo.Create(
+            KMUnit.GetPosition,
+            fDestPos,
+            KMPoint(Nodes[NodePos+1].X,Nodes[NodePos+1].Y), //Avoid this tile
+            fActionType,
+            fWalkToSpot,
+            fPass
+          )
+        );   }
         exit;
         { UNRESOLVED! }
       end;
@@ -2053,36 +2093,39 @@ const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single;
 begin
+  DoEnd:= False;
   DoesWalking:=false; //Set it to false at start of update
-  if not fRouteBuilt then begin
-    //Happens whe e.g. Serf stays in front of Store and gets Deliver task
-    if KMSamePoint(KMUnit.GetPosition,fDestPos) then begin
-      DoEnd:=true;
-      exit;
-    end;
+
+  //Happens whe e.g. Serf stays in front of Store and gets Deliver task
+  if KMSamePoint(fWalkFrom,fWalkTo) then begin
+    DoEnd:=true;
+    exit;
+  end;
+
+  if not fRouteBuilt then begin  
     fLog.AddToLog('Unable to walk a route ');
     //DEBUG, should be wrapped somehow for the release
-    fViewport.SetCenter(KMUnit.GetPosition.X,KMUnit.GetPosition.Y);
+    fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
     fGame.PauseGame(true);
   end;
 
   //Execute the route in series of moves
-  DoEnd:= False;
   TimeDelta:=0.1;
-  Distance:= TimeDelta * KMUnit.Speed;
+  Distance:= TimeDelta * fWalker.Speed;
 
   //Check if unit has arrived on tile
-  if Equals(KMUnit.fPosition.X,Nodes[NodePos].X,Distance/2) and Equals(KMUnit.fPosition.Y,Nodes[NodePos].Y,Distance/2) then begin
+  if Equals(fWalker.fPosition.X,Nodes[NodePos].X,Distance/2) and Equals(fWalker.fPosition.Y,Nodes[NodePos].Y,Distance/2) then begin
     
     //Here comes a patch to update unit direction
     if NodePos+1<=NodeCount then begin
       DX := sign(Nodes[NodePos+1].X - Nodes[NodePos].X); //-1,0,1
       DY := sign(Nodes[NodePos+1].Y - Nodes[NodePos].Y); //-1,0,1
-      KMUnit.Direction:=DirectionsBitfield[DX,DY];
+      fWalker.Direction:=DirectionsBitfield[DX,DY];
     end;
 
-    if not DoUnitInteraction(KMUnit) then
-      if KMUnit.GetUnitType in [ut_Wolf..ut_Duck] then begin
+    //Perform interaction
+    if not DoUnitInteraction() then
+      if fWalker.GetUnitType in [ut_Wolf..ut_Duck] then begin
         DoEnd:=true;
         exit;
       end else
@@ -2094,33 +2137,32 @@ begin
       DoEnd:=true;
       exit;
     end else begin
-      KMUnit.NextPosition:=Nodes[NodePos];
-      fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
+      fWalker.NextPosition:=Nodes[NodePos];
+      fTerrain.UnitWalk(fWalker.GetPosition,fWalker.NextPosition);
     end;
   end;
 
   if NodePos>NodeCount then
     Assert(false,'TUnitAction is being overrun for some reason - error!');
 
-  WalkX := Nodes[NodePos].X - KMUnit.fPosition.X;
-  WalkY := Nodes[NodePos].Y - KMUnit.fPosition.Y;
+  WalkX := Nodes[NodePos].X - fWalker.fPosition.X;
+  WalkY := Nodes[NodePos].Y - fWalker.fPosition.Y;
   DX := sign(WalkX); //-1,0,1
   DY := sign(WalkY); //-1,0,1
 
-  KMUnit.Direction:=DirectionsBitfield[DX,DY];
+  fWalker.Direction:=DirectionsBitfield[DX,DY];
 
   if (DX <> 0) and (DY <> 0) then
     Distance:=Distance / 1.41; {sqrt (2)}
 
-  //if not InteractResult then exit;
-  KMUnit.fPosition.X:= KMUnit.fPosition.X + DX*min(Distance,abs(WalkX));
-  KMUnit.fPosition.Y:= KMUnit.fPosition.Y + DY*min(Distance,abs(WalkY));
+  fWalker.fPosition.X:= fWalker.fPosition.X + DX*min(Distance,abs(WalkX));
+  fWalker.fPosition.Y:= fWalker.fPosition.Y + DY*min(Distance,abs(WalkY));
 
-  inc(KMUnit.AnimStep);
+  inc(fWalker.AnimStep);
 
   DoesWalking:=true; //Now it's true that unit did walked one step
-
 end;
+
 
 { TUnitActionGoIn }
 constructor TUnitActionGoIn.Create(aAction: TUnitActionType; aDirection:TGoInDirection);
@@ -2154,6 +2196,7 @@ begin
   //First step on going outside
   if fStep=0 then begin 
     KMUnit.NextPosition:=KMPointY1(KMUnit.GetPosition);
+    //if fTerrain.Land[KMUnit.NextPosition.Y,KMUnit.NextPosition.X].IsUnit<>0 then exit; //Do not exit if tile is occupied
     fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
     if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
       TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside - 1;

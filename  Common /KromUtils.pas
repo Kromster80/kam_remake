@@ -214,7 +214,7 @@ end;
 //Length as route, return 0 if unwalkable
 function KMRoute(A,B:TKMPoint): single;
 begin
-//
+  Result:=0;
 end;
 
 

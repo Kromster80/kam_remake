@@ -147,7 +147,7 @@ end;
 
 //Should issue a job based on requesters location and job importance
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
-var i,iD,iO:integer; Bid,BestBid:single; NCount:word; Nodes:array[1..1024] of TKMPoint;
+var i,iD,iO:integer; Bid,BestBid:single;
 begin
 {
 @Krom: BUG REPORT:
@@ -207,18 +207,18 @@ for iD:=1 to length(fDemand) do
     if (fDemand[iD].Loc_House=nil)or //If Demand and Offer are different HouseTypes, means forbid Store>Store deliveries
        ((fDemand[iD].Loc_House<>nil)and(fOffer[iO].Loc_House.GetHouseType<>fDemand[iD].Loc_House.GetHouseType)) then
 
-    //if ((fDemand[iD].Loc_House<>nil)and //House-House delivery should be performed only if there's a connecting road
-    //   (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad)))or
-    //   ((fDemand[iD].Loc_Unit<>nil)and //House-Unit delivery can be performed without connecting road
-    //   (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk))) then
+    if ((fDemand[iD].Loc_House<>nil)and(DO_SERFS_WALK_ROADS)and //House-House delivery should be performed only if there's a connecting road
+       (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad)))or
+       ((fDemand[iD].Loc_Unit<>nil)and //House-Unit delivery can be performed without connecting road
+       (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk))) then
 
     begin
 
       //Basic Bid is length of route
       if fDemand[iD].Loc_House<>nil then
-        Bid := KMLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
+        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
       else
-        Bid := KMLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
+        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
 
       //Modifications for bidding system
       if fDemand[iD].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
@@ -226,16 +226,10 @@ for iD:=1 to length(fDemand) do
 
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
-        Bid:=Bid * (1+fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource)/3);
+        Bid:=Bid + Bid * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource) / 3;
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
         Bid:=1;
-
-      {if fDemand[iD].Loc_House<>nil then begin//House>House delivery
-        fTerrain.MakeRoute(KMPointY1(fOffer[k].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,NCount,Nodes);
-        if NCount=0 then Bid:=0;
-      end else
-        Bid:=10;}
 
       //Take first one incase there's nothing better to be found
       //Do not take deliveries with Bid=0 (no route found)

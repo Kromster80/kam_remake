@@ -392,17 +392,18 @@ begin
 
   //Solve diamond
   //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,9)));
+  //but how to maintain TTask integrity?
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
+  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(5,9),KMPoint(0,0)));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(6,10)));
+  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(6,10),KMPoint(0,0)));
   U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,11)));
+  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(5,11),KMPoint(0,0)));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(4,10)));//}
+  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(4,10),KMPoint(0,0)));//}
 
   //Walk through group
-  MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
+  {MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
   U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(16,8)));//}
 
@@ -449,9 +450,6 @@ MyPlayer.AddHouse(ht_WoodCutters, KMPoint(24,9));
 MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9));
 MyPlayer.AddHouse(ht_Quary, KMPoint(12,9));
 MyPlayer.AddUnit(ut_WoodCutter, KMPoint(7,11));                                                 
-MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
-MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
-MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
 MyPlayer.AddUnit(ut_StoneCutter, KMPoint(6,9));
 
 MyPlayer.AddRoadPlan(KMPoint(2,14),mu_WinePlan,true);
@@ -472,6 +470,10 @@ MyPlayer.AddHouse(ht_ArmorWorkshop, KMPoint(20,17));
 
 MyPlayer.AddHouse(ht_IronMine, KMPoint(21,6));
 MyPlayer.AddHouse(ht_IronSmithy, KMPoint(21,9));
+
+MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
+MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
+MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
 
 for i:=1 to 16 do
 MyPlayer.AddUnit(ut_Serf, KMPoint(2,11));

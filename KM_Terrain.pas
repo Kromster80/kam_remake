@@ -44,7 +44,7 @@ public
     Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
     Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-    WalkConnect:byte; //Whole map is painted into interconnected areas
+    WalkConnect:array[1..2]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad
 
     Border: TBorderType; //Borders (ropes, planks, stones)
     BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
@@ -106,7 +106,7 @@ public
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
-  procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
+  procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
 
   procedure UnitAdd(LocTo:TKMPoint);
   procedure UnitRem(LocFrom:TKMPoint);
@@ -134,7 +134,8 @@ public
   procedure FlattenTerrain(Loc:TKMPoint);
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
   procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
-  procedure RebuildWalkConnect();
+  procedure RebuildWalkConnect(aPass:TPassability);
+
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
 
@@ -197,7 +198,7 @@ begin
 
   RebuildLighting(1,MapX,1,MapY);
   RebuildPassability(1,MapX,1,MapY);
-  RebuildWalkConnect();
+  RebuildWalkConnect(canWalk);
 end;
 
 
@@ -237,7 +238,7 @@ begin
 closefile(f);
 RebuildLighting(1,MapX,1,MapY);
 RebuildPassability(1,MapX,1,MapY);
-RebuildWalkConnect();
+RebuildWalkConnect(canWalk);
 fLog.AppendLog('Map file loaded');
 Result:=true;
 end;
@@ -915,7 +916,7 @@ begin
   L1:=TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-      if (not((i=0)and(k=0)))and(not KMSamePoint(Loc,Loc2)) then
+      if (not((i=0)and(k=0)))and(not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2)) then
         if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
           L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
@@ -941,16 +942,20 @@ begin
   //Result:=not (KMSamePoint(LocA,LocB)); //Or maybe we don't care
 
   //target point has to be walkable
+  Result := Result and CheckPassability(LocA,aPass);
   Result := Result and CheckPassability(LocB,aPass);
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
-  Result := Result and (Land[LocA.Y,LocA.X].WalkConnect = Land[LocB.Y,LocB.X].WalkConnect);
+  if aPass=canWalk then
+    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[LocB.Y,LocB.X].WalkConnect[1]);
+  if aPass=canWalkRoad then
+    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[LocB.Y,LocB.X].WalkConnect[2]);
 end;
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
 {Simplification1 - ajoin nodes that don't require direction change}
-procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
+procedure TTerrain.Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
 const c_closed=65535;
 var
   i,k,y,x:integer;
@@ -1007,6 +1012,7 @@ begin
 
       //Check all surrounds and issue costs to them
       for y:=MinCost.Pos.Y-1 to MinCost.Pos.Y+1 do for x:=MinCost.Pos.X-1 to MinCost.Pos.X+1 do
+
       if TileInMapCoords(x,y) then //Ignore those outside of MapCoords
         if ORef[y,x]=0 then begin //Cell is new
         
@@ -1166,13 +1172,16 @@ end;
 
 
 { Rebuilds connected areas using floowd fill algorithm }
-procedure TTerrain.RebuildWalkConnect();
+procedure TTerrain.RebuildWalkConnect(aPass:TPassability);
+const MinSize=9; //Minimum size that is treated as new area
+var i,k{,h}:integer; AreaID:byte; Count:integer; TestMode:byte;
 
-  procedure FillArea(x,y:word; ID:byte; out Count:integer);
+  procedure FillArea(x,y:word; ID:byte; out Count:integer); //Mode = 1canWalk or 2canWalkRoad
   begin
-    if (Land[y,x].WalkConnect=0)and(canWalk in Land[y,x].Passability) then //Untested area
+    if ((TestMode=1)and(Land[y,x].WalkConnect[1]=0)and(aPass in Land[y,x].Passability))or
+       ((TestMode=2)and(Land[y,x].WalkConnect[2]=0)and(aPass in Land[y,x].Passability)) then //Untested area
     begin
-      Land[y,x].WalkConnect:=ID;
+      Land[y,x].WalkConnect[TestMode]:=ID;
       inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
       if x-1>=1 then begin
@@ -1192,29 +1201,37 @@ procedure TTerrain.RebuildWalkConnect();
     end;
   end;
 
-const MinSize=9; //Minimum size that is treated as new area
-var i,k{,h}:integer; AreaID:byte; Count:integer;
 begin
   {fLog.AppendLog('FloodFill for '+TypeToString(KMPoint(MapX,MapY))+' map');
   for h:=1 to 200 do
   begin}
+
+    TestMode:=0;
+    case aPass of
+    canWalk: TestMode:=1;
+    canWalkRoad: TestMode:=2;
+    else Assert(false, 'Unexpected aPass in RebuildWalkConnect function');
+    end;
+
     //Reset everything
     for i:=1 to MapY do for k:=1 to MapX do
-      Land[i,k].WalkConnect:=0;
+      Land[i,k].WalkConnect[TestMode]:=0;
 
     AreaID:=0;
     for i:=1 to MapY do for k:=1 to MapX do
-    if (Land[i,k].WalkConnect=0)and(canWalk in Land[i,k].Passability) then
+    if (Land[i,k].WalkConnect[TestMode]=0)and(aPass in Land[i,k].Passability) then
     begin
       inc(AreaID);
       Count:=0;
       FillArea(k,i,AreaID,Count);
+
       if Count=1 {<MinSize} then //Revert
       begin
         dec(AreaID);
         Count:=0;
-        Land[i,k].WalkConnect:=0;
+        Land[i,k].WalkConnect[TestMode]:=0;
       end;
+      
       //if (Count<>0) then
       //  fLog.AddToLog(inttostr(Count)+' area');
       Assert(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
@@ -1492,6 +1509,10 @@ var i,k,h,j:integer;
   end;
 begin
   inc(AnimStep);
+
+  //Rebuild road areas
+  if AnimStep mod (TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then
+    RebuildWalkConnect(canWalkRoad);
 
   for i:=1 to MapY do
   for k:=1 to MapX do
