@@ -14,6 +14,7 @@ const
   TERRAIN_FOG_OF_WAR_MIN=8;     //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   TERRAIN_FOG_OF_WAR_ACT=16;    //Until this value FOW is not rendered at all
   TERRAIN_FOG_OF_WAR_MAX=24;    //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+  TEST_MAX_WALK_PATH=8192;      //A* max test length (with max value of MapX*MapY-1 in worst case)
   FPSLag=1;                     //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;            //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;              //This is the speed that the viewport will scroll every 100 ms, in cells
@@ -45,6 +46,7 @@ var
   FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   RENDER_3D:boolean=false;              //Experimental 3D render
+  SHOW_MAP_AREAS:boolean=false;         //Show floodfill areas
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted

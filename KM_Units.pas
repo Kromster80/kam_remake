@@ -53,7 +53,7 @@ type
         fRouteBuilt:boolean;
         fWalkToSpot:boolean;
         NodeCount:word; //Should be positive
-        Nodes:array[1..1024] of TKMPoint;
+        Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint;
         NodePos:integer;
         DoesWalking:boolean;
         DoEvade:boolean; //Command to make exchange maneuver with other unit
@@ -1848,7 +1848,7 @@ case Phase of
        SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
      end else
      SetAction(TUnitActionStay.Create(0,ua_Walk));
-  1: SetAction(TUnitActionStay.Create(16,ua_Die,false));
+  1: SetAction(TUnitActionStay.Create(16-1,ua_Die,false));
   2: begin
       if fHome<>nil then fHome.GetHasOwner:=false;
       //Schedule Unit for removal and remove it after fUnits.UpdateState is done

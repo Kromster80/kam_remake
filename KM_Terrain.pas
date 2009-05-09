@@ -44,6 +44,8 @@ public
     Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
     Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
+    WalkConnect:byte; //Whole map is painted into interconnected areas
+
     Border: TBorderType; //Borders (ropes, planks, stones)
     BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
 
@@ -132,6 +134,7 @@ public
   procedure FlattenTerrain(Loc:TKMPoint);
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
   procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
+  procedure RebuildWalkConnect();
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
 
@@ -194,6 +197,7 @@ begin
 
   RebuildLighting(1,MapX,1,MapY);
   RebuildPassability(1,MapX,1,MapY);
+  RebuildWalkConnect();
 end;
 
 
@@ -233,6 +237,7 @@ begin
 closefile(f);
 RebuildLighting(1,MapX,1,MapY);
 RebuildPassability(1,MapX,1,MapY);
+RebuildWalkConnect();
 fLog.AppendLog('Map file loaded');
 Result:=true;
 end;
@@ -263,9 +268,6 @@ begin
 end;
 
 
-//@Lewin: Feel free to tweak these flags if you think they are wrong, I could have been mistaken with Soil
-//@Krom:  I've tweaked them all, and I think they are correct. There could still be mistakes, but we can fix them
-//        when we find them. To be deleted...
 {Check if requested tile is water suitable for fish and/or sail. No waterfalls}
 function TTerrain.TileIsWater(Loc:TKMPoint):boolean;
 begin
@@ -380,7 +382,7 @@ end;
 
 
 {Check if requested vertice is revealed for given player}
-{Return value revelation is x100 in percent}
+{Return value of revelation is 0..255}
 function TTerrain.CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
   //I like how "alive" fog looks with some tweaks
@@ -478,7 +480,8 @@ begin
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
         if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
            ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
-          if ((aAgeFull)and(Land[i,k].FieldAge=65535))or((not aAgeFull)and(Land[i,k].FieldAge=0)) then
+          if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
+             ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
             if CanWalk in Land[i,k].Passability then
               List.AddEntry(KMPoint(k,i));
 
@@ -498,6 +501,7 @@ begin
         if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
           if CanWalk in Land[i,k].Passability then
             List.AddEntry(KMPoint(k,i));
+
   Result:=List.GetRandom;
   List.Free;
 end;
@@ -542,7 +546,7 @@ begin
   if L[2].Count<>0 then Result:=L[2].GetRandom else
   if L[1].Count<>0 then Result:=L[1].GetRandom else
   Result:=KMPoint(0,0);
-  
+
   for i:=1 to 4 do L[i].Free;
 end;
 
@@ -579,7 +583,7 @@ begin
   if L[2].Count<>0 then Result:=L[2].GetRandom else
   if L[1].Count<>0 then Result:=L[1].GetRandom else
   Result:=KMPoint(0,0);
-  
+
   for i:=1 to 4 do L[i].Free;
 end;
 
@@ -676,7 +680,6 @@ begin
   //        Perhaps this could be added later. Right now, having a possible 2 objects per tile just
   //        seems over complicated. For now we are sort of cloning KaM, and KaM doesn't have this.
   //        Still, I won't really mind if you implement it, but I see it as a low prioraty thing.
-
   Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
 end;
 
@@ -698,13 +701,15 @@ end;
 
 {Extract one unit of stone}
 procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
+
   procedure UpdateTransition(X,Y:integer);
   const TileID:array[0..15]of byte = (0,139,139,138,139,140,138,141,139,138,140,141,138,141,141,128);
          RotID:array[0..15]of byte = (0,  0,  1,  0,  2,  0,  1,  3,  3,  3,  1,  2,  2,  1,  0,  0);
   var Bits:byte;
   begin
     if TileInMapCoords(X,Y) then
-    if TileIsStone(KMPoint(X,Y))=0 then begin
+    if TileIsStone(KMPoint(X,Y))=0 then
+    begin
       Bits:=0;
       if TileInMapCoords(X,Y+1) and (TileIsStone(KMPoint(X,Y-1))>0) then inc(Bits,1);    //     1
       if TileInMapCoords(X+1,Y) and (TileIsStone(KMPoint(X+1,Y))>0) then inc(Bits,2);    //   8 . 2
@@ -738,12 +743,14 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
       begin
         if TileIsStone(KMPoint(ix,iy))>0 then
           Land[iy,ix].Height:=DecHeight(Land[iy,ix].Height,Land[iy+1,ix].Height,StoneHeightReduction)
-        else Land[iy,ix].Height:=DecHeight(Land[iy,ix].Height,Land[iy+1,ix].Height,GrassHeightReduction);   
+        else
+          Land[iy,ix].Height:=DecHeight(Land[iy,ix].Height,Land[iy+1,ix].Height,GrassHeightReduction);   
         RecalculatePassability(KMPoint(ix,iy));
       end;
     RebuildLighting(LowX,HighX,LowY,HighY); //Update the lighting
   end;
-  const HeightReduction = 0.75; //The amount that height will be reduced by for the decreased tile
+
+const HeightReduction = 0.75; //The amount that height will be reduced by for the decreased tile
 begin
   case Land[Loc.Y,Loc.X].Terrain of
     132,137: Land[Loc.Y,Loc.X].Terrain:=131+Random(2)*5;
@@ -783,7 +790,7 @@ end;
 {Extract one unit of ore}
 procedure TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 begin
-  Assert(Rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
+  Assert(rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
   case Land[Loc.Y,Loc.X].Terrain of
   144: Land[Loc.Y,Loc.X].Terrain:=157; //Gold
   145: Land[Loc.Y,Loc.X].Terrain:=144;
@@ -805,88 +812,88 @@ var i,k:integer;
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
-  if not TileInMapCoords(loc.X,loc.y) then
-    Assert(false, 'Fail: '+TypeToString(loc));
-  Land[Loc.Y,Loc.X].Passability:=[];
-
   //First of all exclude all tiles outside of actual map
-  if TileInMapCoords(Loc.X,Loc.Y) then begin
-    AddPassability(Loc, [canAll]);
+  if not TileInMapCoords(Loc.X,Loc.Y) then begin
+    Assert(false, 'Fail: '+TypeToString(loc));
+    exit;
+  end;
 
-    //For all passability types other than canAll, houses and fenced houses are excluded
-    if not(Land[Loc.Y,Loc.X].Markup in [mu_House,mu_HouseFence]) then begin
+  Land[Loc.Y,Loc.X].Passability:=[];
+  AddPassability(Loc, [canAll]);
 
-     if (TileIsWalkable(Loc))and
-        (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)then
-       AddPassability(Loc, [canWalk]);
+  //For all passability types other than canAll, houses and fenced houses are excluded
+  if not(Land[Loc.Y,Loc.X].Markup in [mu_House,mu_HouseFence]) then begin
 
-     if (Land[Loc.Y,Loc.X].TileOverlay=to_Road) then
-       AddPassability(Loc, [canWalkRoad]);
+   if (TileIsWalkable(Loc))and
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)then
+     AddPassability(Loc, [canWalk]);
 
-     //Check for houses around this tile
-     HousesNearBy := false;
-     for i:=-1 to 1 do
-       for k:=-1 to 1 do
-         if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-           if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HousePlan,mu_HouseFence,mu_House]) then
-             HousesNearBy := true;
+   if (Land[Loc.Y,Loc.X].TileOverlay=to_Road) then
+     AddPassability(Loc, [canWalkRoad]);
 
-     if (TileIsRoadable(Loc))and
-        ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and //Only certain objects are excluded
-        (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (not TileIsCornField(Loc))and
-        (not TileIsWineField(Loc))and //Can't build houses on fields
-        (TileInMapCoords(Loc.X,Loc.Y,1))and
-        (not HousesNearBy) then //No houses nearby
-        AddPassability(Loc, [canBuild]);
+   //Check for houses around this tile
+   HousesNearBy := false;
+   for i:=-1 to 1 do
+     for k:=-1 to 1 do
+       if TileInMapCoords(Loc.X+k,Loc.Y+i) then
+         if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HousePlan,mu_HouseFence,mu_House]) then
+           HousesNearBy := true;
 
-     if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
-        (Land[Loc.Y,Loc.X].Rotation = 0)and //only horizontal mountain edges allowed
-        ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
-        (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (not TileIsCornField(Loc))and
-        (not TileIsWineField(Loc))and //Can't build houses on fields
-        (TileInMapCoords(Loc.X,Loc.Y,1))and
-        (not HousesNearBy) then //No houses nearby
-       AddPassability(Loc, [canBuildIron]);
+   if (TileIsRoadable(Loc))and
+      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and //Only certain objects are excluded
+      (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (not TileIsCornField(Loc))and
+      (not TileIsWineField(Loc))and //Can't build houses on fields
+      (TileInMapCoords(Loc.X,Loc.Y,1))and
+      (not HousesNearBy) then //No houses nearby
+      AddPassability(Loc, [canBuild]);
 
-     if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
-        (Land[Loc.Y,Loc.X].Rotation = 0)and
-        ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
-        (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (not TileIsCornField(Loc))and
-        (not TileIsWineField(Loc))and //Can't build houses on fields
-        (TileInMapCoords(Loc.X,Loc.Y,1))and
-        (not HousesNearBy) then //No houses nearby
-       AddPassability(Loc, [canBuildGold]);
+   if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
+      (Land[Loc.Y,Loc.X].Rotation = 0)and //only horizontal mountain edges allowed
+      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
+      (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (not TileIsCornField(Loc))and
+      (not TileIsWineField(Loc))and //Can't build houses on fields
+      (TileInMapCoords(Loc.X,Loc.Y,1))and
+      (not HousesNearBy) then //No houses nearby
+     AddPassability(Loc, [canBuildIron]);
 
-     if (TileIsRoadable(Loc))and
-        (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
-        (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (Land[Loc.Y,Loc.X].TileOverlay<>to_Road) then
-       AddPassability(Loc, [canMakeRoads]);
+   if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
+      (Land[Loc.Y,Loc.X].Rotation = 0)and
+      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
+      (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (not TileIsCornField(Loc))and
+      (not TileIsWineField(Loc))and //Can't build houses on fields
+      (TileInMapCoords(Loc.X,Loc.Y,1))and
+      (not HousesNearBy) then //No houses nearby
+     AddPassability(Loc, [canBuildGold]);
 
-     if (TileIsSoil(Loc))and
-        (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
-        (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
-       AddPassability(Loc, [canMakeFields]);
+   if (TileIsRoadable(Loc))and
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
+      (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Road) then
+     AddPassability(Loc, [canMakeRoads]);
 
-     if (TileIsSoil(Loc))and
-        ((Land[Loc.Y,Loc.X].Obj=255) or (ObjectIsChopableTree(Loc,6)))and //No object or Stump
-        (TileInMapCoords(Loc.X,Loc.Y,1))and
-        (Land[Loc.Y,Loc.X].Markup=mu_None)and
-        (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
-       AddPassability(Loc, [canPlantTrees]);
+   if (TileIsSoil(Loc))and
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
+      (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
+     AddPassability(Loc, [canMakeFields]);
 
-     if TileIsWater(Loc) then
-       AddPassability(Loc, [canFish]);
+   if (TileIsSoil(Loc))and
+      ((Land[Loc.Y,Loc.X].Obj=255) or (ObjectIsChopableTree(Loc,6)))and //No object or Stump
+      (TileInMapCoords(Loc.X,Loc.Y,1))and
+      (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
+     AddPassability(Loc, [canPlantTrees]);
 
-     if TileIsSand(Loc) then
-       AddPassability(Loc, [canCrab]);
-    end;
-  end else
-    Land[Loc.Y,Loc.X].Passability:=[]; //Allow nothing
+   if TileIsWater(Loc) then
+     AddPassability(Loc, [canFish]);
+
+   if TileIsSand(Loc) then
+     AddPassability(Loc, [canCrab]);
+  end;
+
 end;
 
 
@@ -900,19 +907,21 @@ end;
 
 
 {Return random tile surrounding given one with aPass property except Loc2}
+{The command is used for unit interaction}
 function TTerrain.GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
 var i,k:integer; L1,L2:TKMPointList;
 begin
-  //List 2 holds the best positions, ones which are not occupide. List 1 holds second best options
+  //List 1 holds all available walkable positions
   L1:=TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
       if (not((i=0)and(k=0)))and(not KMSamePoint(Loc,Loc2)) then
         if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
           L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
-  //Now see which ones are empty
+
+  //List 2 holds the best positions, ones which are not occupied
   L2:=TKMPointList.Create;
-  for i:=1 to L1.Count-1 do
+  for i:=1 to L1.Count{-1} do //@Lewin: There should be no -1 here, right? To be deleted..
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit = 0 then
       L2.AddEntry(L1.List[i]);
        
@@ -926,7 +935,6 @@ end;
 
 //Test wherever the route is possible to make
 function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
-//var NQty:word; Ns:array[1..1024]of TKMPoint;
 begin
   Result := true;
   //target has to be different point than source
@@ -935,20 +943,15 @@ begin
   //target point has to be walkable
   Result := Result and CheckPassability(LocB,aPass);
 
-  if not Result then exit;
-
-  //And finally check by floodfill that there's a route at all (e.g. there's no route between islands)
-  //Route_Make(LocA, LocB, aPass, NQty, Ns);
-  //Result := Result and (NQty<>0);
-  //@Lewin: Do you want to write Flood Fill algorithm? (http://en.wikipedia.org/wiki/Flood_fill)
-
+  //There's a walkable way between A and B (which is proved by FloodFill test on map init)
+  Result := Result and (Land[LocA.Y,LocA.X].WalkConnect = Land[LocB.Y,LocB.X].WalkConnect);
 end;
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
 {Simplification1 - ajoin nodes that don't require direction change}
 procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; out NodeCount:word; out Nodes:array of TKMPoint);
-const c_closed=65535; TEST_MAX=1024;
+const c_closed=65535;
 var
   i,k,y,x:integer;
   NewCost:integer;
@@ -959,30 +962,13 @@ var
   end;
   ORef:array[1..MaxMapSize,1..MaxMapSize] of word; //Ref to OpenList
   OCount:word;
-  OList:array[1..TEST_MAX]of record //List of checked cells
+  OList:array[1..TEST_MAX_WALK_PATH]of record //List of checked cells
     Pos:TKMPoint;
     CostTo:word;
     Estim:word;
-    Parent:word;//Ref to parent
+    Parent:word;//Reference to parent
   end;
 begin
-  {@Krom: BUG REPORT:
-  Try placing a peice of road above the iron mountain in the test mission.
-  The labourer cannot find a route. Try a few different places if it doesn't
-  happen for you. (far to the right or in the hollow work well)
-
-  Is this a known issue?
-
-  I'm only guessing, but does it happen when the route requires the unit to go up,
-  accross and then back down? (It happens on the lower far side of the bridge too)
-
-  @Lewin: This is a known issue when route can't be made from starting point to target point.
-        This can happen for 2 reasons: route does not even exists, route is too long for this algorithm
-        First case should be solved by using Route_CanBeMade
-        Second case - optimizing and increasing algorith depth (TEST_MAX parameter)
-
-  }
-
   //Don't try to make a route if it's obviously impossible
   if not CheckPassability(LocB,aPass) or not CheckPassability(LocA,aPass) then begin
     NodeCount:=0;
@@ -990,25 +976,23 @@ begin
     exit;
   end;
 
-  OCount:=0;
   FillChar(ORef,SizeOf(ORef),#0);
   FillChar(OList,SizeOf(OList),#0);
 
   //Init start point
-  inc(OCount);
+  OCount:=1;
   ORef[LocA.Y,LocA.X]:=OCount;
   OList[OCount].Pos:=LocA;
   OList[OCount].CostTo:=0; //
   OList[OCount].Estim:=(abs(LocB.X-LocA.X) + abs(LocB.Y-LocA.Y))*10;
   OList[OCount].Parent:=0;
 
-  //k:=0;
   repeat
-  //inc(k);
-
     //Find cell with least (Estim+CostTo)
     MinCost.Cost:=65535;
-    for i:=1 to OCount do
+    //for i:=1 to OCount do
+    //@Lewin: Tell me why 'downto' works faster, is it cos of CPU cache?
+    for i:=OCount downto 1 do
     if OList[i].Estim<>c_closed then
     if (OList[i].Estim+OList[i].CostTo) < MinCost.Cost then begin
       MinCost.Cost:=OList[i].Estim+OList[i].CostTo;
@@ -1025,39 +1009,41 @@ begin
       for y:=MinCost.Pos.Y-1 to MinCost.Pos.Y+1 do for x:=MinCost.Pos.X-1 to MinCost.Pos.X+1 do
       if TileInMapCoords(x,y) then //Ignore those outside of MapCoords
         if ORef[y,x]=0 then begin //Cell is new
+        
+          inc(OCount);
+          OList[OCount].Pos:=KMPoint(x,y);
+
           if aPass in Land[y,x].Passability then begin //If cell meets Passability then estimate it
-            inc(OCount);
             ORef[y,x]:=OCount;
-            OList[OCount].Pos:=KMPoint(x,y);
             OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
-            OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(y-MinCost.Pos.Y,x-MinCost.Pos.X)*10); //
+            OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(KMPoint(x,y),MinCost.Pos)*10); //
             OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y))*10;
-          end else begin //If cell doen't meets Passability then mark it as Closed
-            inc(OCount);
+          end else //If cell doen't meets Passability then mark it as Closed
             OList[OCount].Estim:=c_closed;
-            OList[OCount].Pos:=KMPoint(x,y);
-          end;
+
         end else begin
+
           //If route through new cell is shorter than ORef[y,x] then
           if OList[ORef[y,x]].Estim<>c_closed then begin
-            NewCost:=round(GetLength(y-MinCost.Pos.Y,x-MinCost.Pos.X)*10);
+            NewCost:=round(GetLength(KMPoint(x,y),MinCost.Pos)*10);
             if OList[MinCost.ID].CostTo + NewCost < OList[ORef[y,x]].CostTo then begin
               OList[ORef[y,x]].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
               OList[ORef[y,x]].CostTo:=OList[MinCost.ID].CostTo + NewCost;
               //OList[ORef[y,x]].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y))*10;
             end;
           end;
+
         end;
     end;
   //Cancel if:
   // list can hold no more cells,
   // Destination point is reached
-  // There's no more open cells available (which means flood fill test failed)
-  until({(k=500)or}(OCount+8>=length(OList))or(KMSamePoint(MinCost.Pos,LocB))or(MinCost.Cost=65535));
+  // There's no more open cells available
+  until((OCount+8>=length(OList))or(KMSamePoint(MinCost.Pos,LocB))or(MinCost.Cost=65535));
 
   //Assert(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
 
-  if (not KMSamePoint(MinCost.Pos,LocB)){or(k=500)}or(MinCost.Cost=65535) then begin
+  if (not KMSamePoint(MinCost.Pos,LocB))or(MinCost.Cost=65535) then begin
     NodeCount:=0; //Something went wrong
     Nodes[0]:=LocA;
     exit;
@@ -1076,9 +1062,10 @@ begin
     exit;
   end;
 
+  //Assemble the route reversing the list, since path is LocB>LocA in fact
   k:=MinCost.ID;
   for i:=1 to NodeCount do begin
-    Nodes[NodeCount-i]:=OList[k].Pos; //invert, since path is assembled LocB>LocA in fact
+    Nodes[NodeCount-i]:=OList[k].Pos;
     k:=OList[k].Parent;
   end;
     //Nodes[0]:=LocA;
@@ -1106,8 +1093,6 @@ begin
   NodeCount:=k;
   end;}
 
-  //for i:=1 to NodeCount do
-  //  Assert(TileInMapCoords(Nodes[i-1].X,Nodes[i-1].Y));
 end;
 
 
@@ -1177,6 +1162,65 @@ begin
   for i:=LowY to HighY do for k:=LowX to HighX do
     if TileInMapCoords(k,i) then
       RecalculatePassability(KMPoint(k,i));
+end;
+
+
+{ Rebuilds connected areas using floowd fill algorithm }
+procedure TTerrain.RebuildWalkConnect();
+
+  procedure FillArea(x,y:word; ID:byte; out Count:integer);
+  begin
+    if (Land[y,x].WalkConnect=0)and(canWalk in Land[y,x].Passability) then //Untested area
+    begin
+      Land[y,x].WalkConnect:=ID;
+      inc(Count);
+      //Using custom TileInMapCoords replacement gives ~40% speed improvement
+      if x-1>=1 then begin
+        if y-1>=1 then    FillArea(x-1,y-1,ID,Count);
+                          FillArea(x-1,y  ,ID,Count);
+        if y+1<=MapY then FillArea(x-1,y+1,ID,Count);
+      end;
+
+      if y-1>=1 then    FillArea(x,y-1,ID,Count);
+      if y+1<=MapY then FillArea(x,y+1,ID,Count);
+
+      if x+1<=MapX then begin
+        if y-1>=1 then    FillArea(x+1,y-1,ID,Count);
+                          FillArea(x+1,y  ,ID,Count);
+        if y+1<=MapY then FillArea(x+1,y+1,ID,Count);
+      end;
+    end;
+  end;
+
+const MinSize=9; //Minimum size that is treated as new area
+var i,k{,h}:integer; AreaID:byte; Count:integer;
+begin
+  {fLog.AppendLog('FloodFill for '+TypeToString(KMPoint(MapX,MapY))+' map');
+  for h:=1 to 200 do
+  begin}
+    //Reset everything
+    for i:=1 to MapY do for k:=1 to MapX do
+      Land[i,k].WalkConnect:=0;
+
+    AreaID:=0;
+    for i:=1 to MapY do for k:=1 to MapX do
+    if (Land[i,k].WalkConnect=0)and(canWalk in Land[i,k].Passability) then
+    begin
+      inc(AreaID);
+      Count:=0;
+      FillArea(k,i,AreaID,Count);
+      if Count=1 {<MinSize} then //Revert
+      begin
+        dec(AreaID);
+        Count:=0;
+        Land[i,k].WalkConnect:=0;
+      end;
+      //if (Count<>0) then
+      //  fLog.AddToLog(inttostr(Count)+' area');
+      Assert(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
+    end;
+{  end;
+  fLog.AppendLog('FloodFill done 200 times');}
 end;
 
 

@@ -358,6 +358,15 @@ end;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D,0);
+
+if SHOW_MAP_AREAS then
+for i:=y1 to y2 do for k:=x1 to x2 do
+with fTerrain do
+begin
+  glColor3f(Land[i,k].WalkConnect/4,Land[i,k].WalkConnect/8,Land[i,k].WalkConnect/16);
+  RenderQuad(k,i)
+end;
+
 end;
 
 

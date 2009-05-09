@@ -516,8 +516,9 @@ begin
   repeat
   if (SearchRec.Attr and faDirectory = faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
   if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.dat') then
-  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.map') then begin
-  //if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then begin
+  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.map') then
+  //if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then
+  begin
     inc(MapCount);
     Maps[MapCount].Folder:=SearchRec.Name;
   end;
@@ -532,10 +533,12 @@ begin
     PlayerCount := MissionDetails.TeamCount;
 
     case MapDetails.MapSize.X*MapDetails.MapSize.Y of
-              1.. 64* 64: MapSize:='S';
-       64* 64+1..112*112: MapSize:='M';
+              1.. 48* 48: MapSize:='XS';
+       48* 48+1.. 72* 72: MapSize:='S';
+       72* 72+1..112*112: MapSize:='M';
       112*112+1..176*176: MapSize:='L';
       176*176+1..256*256: MapSize:='XL';
+      256*256+1..320*320: MapSize:='XXL';
       else Assert(false,'Unexpected MapDetail size');
     end;
 

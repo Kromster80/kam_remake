@@ -407,7 +407,7 @@ begin
   U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(16,8)));//}
 
   fTerrain.RevealWholeMap(play_1);
-  fViewPort.SetCenter(5,10);
+  fViewPort.SetCenter(10,10);
 end;
 
 
@@ -486,7 +486,7 @@ MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 
 H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
-if H<>nil then H.AddMultiResource(rt_All,15);
+if H<>nil then H.AddMultiResource(rt_All,25);
 if H<>nil then H.AddMultiResource(rt_Sausages,500);
 
 MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan,true);
@@ -590,5 +590,17 @@ Label3.Caption:=inttostr(TB_Angle.Position);
 fRender.SetRotation(-TB_Angle.Position,0,0);
 fRender.Render;
 end;
+
+{procedure TForm1.Button1Click(Sender: TObject);
+var
+  Count,h:word;
+  A:array[1..TEST_MAX_WALK_PATH]of TKMPoint;
+  T:cardinal;
+begin
+  T:=TimeGetTime;
+  for h:=1 to 1 do
+  fTerrain.Route_Make(KMPoint(1,14),KMPoint(71,2),canWalk,Count,A);
+  Button1.Caption:=inttostr(TimeGetTime-T)+'ms';
+end;}
 
 end.
