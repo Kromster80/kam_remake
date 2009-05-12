@@ -810,6 +810,7 @@ type
     constructor Create(path:string);
     procedure AppendLog(text:string); overload;
     procedure AppendLog(text:string; num:integer); overload;
+    procedure AppendLog(text:string; num:single ); overload;
     procedure AppendLog(num:integer; text:string); overload;
     procedure AppendLog(text:string; Res:boolean); overload;
     procedure AppendLog(a,b:integer); overload;
@@ -871,6 +872,11 @@ end;
 procedure TKMLog.AppendLog(text:string; num:integer);
 begin
   AddLine(text+' '+inttostr(num));
+end;
+
+procedure TKMLog.AppendLog(text:string; num:single);
+begin
+  AddLine(text+' '+FloatToStr(num));
 end;
 
 procedure TKMLog.AppendLog(num:integer; text:string);

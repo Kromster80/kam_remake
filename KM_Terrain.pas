@@ -1119,6 +1119,8 @@ end;
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
+  //@Krom: Low importance bug report: When moving a scout around the map it often crashes here. This is because
+  //       if you tell the scout to move when it already is moving, it gets confused as to which tile it is on.
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;

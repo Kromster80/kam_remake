@@ -71,8 +71,9 @@ type
       private
         fStep:single;
         fDir:TGoInDirection;
+        fHouseType:THouseType;
       public
-        constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection);
+        constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -629,8 +630,15 @@ end else
 if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Swine) then begin
   ResourcePlan(rt_Corn,1,rt_None,0,rt_Pig,rt_Skin);
   GatheringScript:=gs_SwineBreeder;
-  SubActAdd(ha_Work2,1); //@Lewin: please take a look at this one, how much cycles it should be?
+  SubActAdd(ha_Work2,1);
   SubActAdd(ha_Work3,1);
+  SubActAdd(ha_Work2,1);
+  SubActAdd(ha_Work3,1);
+  SubActAdd(ha_Work2,1);
+  SubActAdd(ha_Work3,1);
+  SubActAdd(ha_Work2,1);
+  SubActAdd(ha_Work3,1);
+  SubActAdd(ha_Work2,1);
 end else 
 if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Stables) then begin
   ResourcePlan(rt_Corn,1,rt_None,0,rt_Horse);
@@ -1210,7 +1218,7 @@ case Phase of
       SetAction(TUnitActionStay.Create(9,ua_Walk));
      end;
   6: begin
-      SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
+      SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out,ht_School));
       fSchool.UnitTrainingComplete;
      end;
   7: TaskDone:=true;
@@ -1241,14 +1249,14 @@ case Phase of
 0: begin
     SetAction(TUnitActionWalkTo.Create(fSerf,KMPointY1(fFrom.GetEntrance), KMPoint(0,0)));
    end;
-1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
+1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In,fFrom.GetHouseType));
 2: SetAction(TUnitActionStay.Create(5,ua_Walk));
 3: begin
      if fFrom.ResTakeFromOut(fResource) then
        GiveResource(fResource)
      else
        fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
-     SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
+     SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out,fFrom.GetHouseType));
    end;
 4: if Carry=rt_None then TaskDone:=true else SetAction(TUnitActionStay.Create(0,ua_Walk));
 end;
@@ -1259,12 +1267,12 @@ if fToHouse.IsComplete then
 with fSerf do
 case Phase of
 5: SetAction(TUnitActionWalkTo.Create(fSerf,KMPointY1(fToHouse.GetEntrance), KMPoint(0,0)));
-6: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
+6: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In,fToHouse.GetHouseType));
 7: SetAction(TUnitActionStay.Create(5,ua_Walk));
 8: begin
      fToHouse.ResAddToIn(Carry);
      TakeResource(Carry);
-     SetAction(TUnitActionGoIn.Create(ua_walk,gid_Out));
+     SetAction(TUnitActionGoIn.Create(ua_walk,gid_Out,fToHouse.GetHouseType));
      fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
    end;
 9: TaskDone:=true;
@@ -1688,7 +1696,7 @@ with fUnit do
   case Phase of
     0: if WorkPlan.HasToWalk then begin
          fHome.SetState(hst_Empty,0);
-         SetAction(TUnitActionGoIn.Create(WorkPlan.WalkTo,gid_Out)); //Walk outside the house
+         SetAction(TUnitActionGoIn.Create(WorkPlan.WalkTo,gid_Out,fUnit.fHome.GetHouseType)); //Walk outside the house
        end else begin
          Phase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
          SetAction(TUnitActionStay.Create(0,ua_Walk));
@@ -1732,7 +1740,7 @@ with fUnit do
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
          SetAction(TUnitActionWalkTo.Create(fUnit,KMPointY1(fHome.GetEntrance), KMPoint(0,0),WorkPlan.WalkFrom)); //Go home
        end;
-    6: SetAction(TUnitActionGoIn.Create(WorkPlan.WalkFrom,gid_In)); //Go inside
+    6: SetAction(TUnitActionGoIn.Create(WorkPlan.WalkFrom,gid_In,fUnit.fHome.GetHouseType)); //Go inside
 
     {Unit back at home and can process its booty now}
     7: begin
@@ -1745,6 +1753,11 @@ with fUnit do
           BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;
           if BeastID=0 then begin
             Phase:=SkipWork;
+            //@Krom: In KaM, the work phase is NOT skipped if the beast is just fed. (not slaughted)
+            //       I guess what you've done makes more sense, because the animation seems to be the animal
+            //       breeder killing the pig. What do you think? Should we match KaM or not? If not then we need
+            //       to make him waste time for that long because otherwise it will be faster and the ballance will
+            //       be changed. Please give me your thoughts...
             SetAction(TUnitActionStay.Create(0,ua_Walk));
             exit;
           end else
@@ -1819,7 +1832,7 @@ begin
   with fUnit do
   case Phase of
     0: SetAction(TUnitActionWalkTo.Create(fUnit,KMPointY1(fDestPos), KMPoint(0,0)));
-    1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In));
+    1: SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In,fUnit.fHome.GetHouseType));
     2: begin
         SetAction(TUnitActionStay.Create(5,ua_Walk));
         fHome.SetState(hst_Idle,0);
@@ -1850,7 +1863,7 @@ case Phase of
          fHome.SetState(hst_Idle,0);
          fHome.SetState(hst_Empty,0);
        end;
-       SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out));
+       SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out,fUnit.fHome.GetHouseType));
      end else
      SetAction(TUnitActionStay.Create(0,ua_Walk));
   1: SetAction(TUnitActionStay.Create(16-1,ua_Die,false));
@@ -1884,12 +1897,12 @@ with fUnit do
 case Phase of
  0: begin
       if fHome<>nil then fHome.SetState(hst_Empty,0);
-      if not fVisible then SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)) else
+      if not fVisible then SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out,fUnit.fHome.GetHouseType)) else
                            SetAction(TUnitActionStay.Create(0,ua_Walk)); //Walk outside the house
     end;
  1: SetAction(TUnitActionWalkTo.Create(fUnit,KMPointY1(fInn.GetEntrance), KMPoint(0,0)));
  2: begin
-      SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In)); //Enter Inn
+      SetAction(TUnitActionGoIn.Create(ua_Walk,gid_In,ht_Inn)); //Enter Inn
       PlaceID:=fInn.EaterGetsInside(fUnitType);
     end;
  3: if fInn.CheckResIn(rt_Bread)>0 then begin
@@ -1921,7 +1934,7 @@ case Phase of
     end else
       SetAction(TUnitActionStay.Create(0,ua_Walk));
  7: begin
-      SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out)); //Exit Inn
+      SetAction(TUnitActionGoIn.Create(ua_Walk,gid_Out,ht_Inn)); //Exit Inn
       fInn.EatersGoesOut(PlaceID);
     end;
  8: TaskDone:=true;
@@ -2165,10 +2178,11 @@ end;
 
 
 { TUnitActionGoIn }
-constructor TUnitActionGoIn.Create(aAction: TUnitActionType; aDirection:TGoInDirection);
+constructor TUnitActionGoIn.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
 begin
   Inherited Create(aAction);
   fDir:=aDirection;
+  fHouseType:=aHouseType;
   if fDir=gid_In then fStep:=1  //go Inside (one cell up)
                  else fStep:=0; //go Outside (one cell down)
 end;
@@ -2186,7 +2200,7 @@ begin
     KMUnit.Direction:=dir_S; //go Outside (one cell down)
 
   //First step on going inside
-  if fStep=1 then begin 
+  if fStep=1 then begin
     KMUnit.NextPosition:=KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
     fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
     if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
@@ -2204,6 +2218,16 @@ begin
 
   fStep := fStep - Distance * shortint(fDir);
   KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * shortint(fDir);
+  {
+  Attempt at making unit go towards entrance. I couldn't work out the algorithm
+
+  if fHouseType <> ht_None then
+  begin
+    KMUnit.fPosition.X := KMUnit.fPosition.X - (HouseDAT[byte(fHouseType)].EntranceOffsetXpx/CELL_SIZE_PX)*Distance * shortint(fDir);
+    //KMUnit.fPosition.Y := KMUnit.fPosition.Y - (HouseDAT[byte(fHouseType)].EntranceOffsetYpx/CELL_SIZE_PX)*Distance * shortint(fDir);
+  end;
+  }
+
   KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
 
   if (fStep<=0)or(fStep>=1) then
