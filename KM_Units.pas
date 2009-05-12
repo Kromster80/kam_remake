@@ -1275,7 +1275,7 @@ if fToHouse<>nil then
 if not fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetAction(TUnitActionWalkTo.Create(fSerf,KMPointY1(fToHouse.GetEntrance), KMPoint(0,0), ua_Walk, false));
+5: SetAction(TUnitActionWalkTo.Create(fSerf,fToHouse.GetEntrance, KMPoint(0,0), ua_Walk, false));
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);

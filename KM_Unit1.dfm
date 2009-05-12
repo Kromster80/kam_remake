@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 272
+  Left = 149
   Top = 108
   HelpType = htKeyword
   BorderStyle = bsNone
@@ -209,7 +209,7 @@ object Form1: TForm1
       Top = 16
       Width = 73
       Height = 17
-      Caption = 'Speed x10'
+      Caption = 'Speed x50'
       TabOrder = 2
       OnClick = CheckBox2Click
     end
@@ -333,6 +333,25 @@ object Form1: TForm1
     VisibleButtons = [btPlay, btStop, btNext, btPrev]
     Visible = False
     TabOrder = 3
+  end
+  object CBHide: TCheckBox
+    Left = 8
+    Top = 8
+    Width = 49
+    Height = 17
+    Caption = 'Show'
+    Checked = True
+    Color = clBlack
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentColor = False
+    ParentFont = False
+    State = cbChecked
+    TabOrder = 4
+    OnClick = CBHideClick
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'

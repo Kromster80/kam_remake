@@ -282,13 +282,13 @@ const
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
 
   StatHouseOrder:array[1..11,1..4] of THouseType = (
-  (ht_Quary, ht_Woodcutters, ht_FisherHut, ht_Farm),
-  (ht_Wineyard, ht_Mill, ht_Bakery, ht_Swine),
-  (ht_Stables, ht_Butchers, ht_Tannery, ht_Metallurgists),
-  (ht_IronSmithy, ht_WeaponSmithy, ht_ArmorSmithy, ht_CoalMine),
-  (ht_IronMine, ht_GoldMine, ht_Sawmill, ht_WeaponWorkshop),
-  (ht_ArmorWorkshop, ht_SiegeWorkshop, ht_Barracks, ht_TownHall),
-  (ht_WatchTower, ht_Store, ht_School, ht_Inn),
+  (ht_Quary,         ht_Woodcutters,   ht_FisherHut,   ht_Farm          ),
+  (ht_Wineyard,      ht_Mill,          ht_Bakery,      ht_Swine         ),
+  (ht_Stables,       ht_Butchers,      ht_Tannery,     ht_Metallurgists ),
+  (ht_IronSmithy,    ht_WeaponSmithy,  ht_ArmorSmithy, ht_CoalMine      ),
+  (ht_IronMine,      ht_GoldMine,      ht_Sawmill,     ht_WeaponWorkshop),
+  (ht_ArmorWorkshop, ht_SiegeWorkshop, ht_Barracks,    ht_TownHall      ),
+  (ht_WatchTower,    ht_Store,         ht_School,      ht_Inn           ),
 
   (ht_None, ht_None, ht_None, ht_None),
   (ht_None, ht_None, ht_None, ht_None),

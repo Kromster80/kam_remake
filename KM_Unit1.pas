@@ -65,8 +65,10 @@ type
     MediaPlayer1: TMediaPlayer;
     TB_Angle: TTrackBar;
     Label3: TLabel;
+    CBHide: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
+    procedure CBHideClick(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -604,5 +606,20 @@ begin
   fTerrain.Route_Make(KMPoint(1,14),KMPoint(71,2),canWalk,Count,A);
   Button1.Caption:=inttostr(TimeGetTime-T)+'ms';
 end;}
+
+procedure TForm1.CBHideClick(Sender: TObject);
+var i:integer;
+begin
+  GroupBox1.Visible:=CBHide.Checked;
+  StatusBar1.Visible:=CBHide.Checked;
+  for i:=1 to MainMenu1.Items.Count do
+    MainMenu1.Items[i-1].Visible:=CBHide.Checked;
+
+    Form1.Refresh;
+  Panel5.Top:=0;
+  Panel5.Height:=Form1.ClientHeight;
+  fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+
+end;
 
 end.
