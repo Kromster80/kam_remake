@@ -13,8 +13,10 @@ type
   Vector2f = record U,V:single; end;
   PVector3f = ^Vector3f;
 
+  FWord = word; //Floating-point with 1 decimal place 0..6553.5  Int/10=FWord
+
   TKMPoint = record X,Y:word; end;
-  TKMPointf = record X,Y:single; end;
+  TKMPointF = record X,Y:single; end;
 
   TKMouseButton = (kmb_None, kmb_Left, kmb_Right, kmb_Middle);
 

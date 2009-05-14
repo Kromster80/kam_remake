@@ -688,13 +688,14 @@ procedure TKMHouseSwineStable.Paint;
 var i:integer;
 begin
   inherited;
+  if (fBuildState<>hbs_Done) then exit;
   for i:=1 to 5 do
     if BeastAge[i]>0 then
       fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition.X, fPosition.Y);
   //@Krom: When trying to build a swine farm or stables it crashes here. Something to do with trying to paint the work
   //       even though it's not yet built?
-
-  //Overlay, not entirely correct, but works ok
+  //@Lewin: Resolved. To be deleted..
+  if (fCurrentAction<>nil) then //Overlay, not entirely correct, but works ok
   fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,byte(fOwner),fPosition.X, fPosition.Y);
 end;
 
@@ -752,8 +753,11 @@ const
 var i:integer; UnitType,AnimAct,AnimDir:byte; AnimStep:cardinal;
 begin
   inherited;
+  if (fBuildState<>hbs_Done) then exit;
+
   for i:=1 to 6 do
-  if (Eater[i].UnitType<>ut_None)and(Eater[i].FoodKind<>0) then begin
+  if (Eater[i].UnitType<>ut_None)and(Eater[i].FoodKind<>0) then
+  begin
     UnitType:=byte(Eater[i].UnitType);
     AnimAct:=byte(ua_Eat);
     AnimDir:=Eater[i].FoodKind*2 - 1 + ((i-1) div 3);

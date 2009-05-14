@@ -808,12 +808,14 @@ type
     procedure AddLineNoTime(text:string);
   public
     constructor Create(path:string);
+    //AppendLog adds the line to Log along with time passed since previous line added
     procedure AppendLog(text:string); overload;
     procedure AppendLog(text:string; num:integer); overload;
     procedure AppendLog(text:string; num:single ); overload;
     procedure AppendLog(num:integer; text:string); overload;
     procedure AppendLog(text:string; Res:boolean); overload;
     procedure AppendLog(a,b:integer); overload;
+    //AddToLog simply adds the text
     procedure AddToLog(text:string);
   end;
 

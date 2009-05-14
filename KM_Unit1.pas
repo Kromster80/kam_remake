@@ -490,7 +490,7 @@ MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 
 H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
-if H<>nil then H.AddMultiResource(rt_All,25);
+if H<>nil then H.AddMultiResource(rt_All,250); //It had had lack of stones
 if H<>nil then H.AddMultiResource(rt_Sausages,500);
 
 MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan,true);

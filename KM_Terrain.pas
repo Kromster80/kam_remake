@@ -418,6 +418,7 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassability(Loc);
+  RebuildWalkConnect(canWalkRoad);
 end;
 
 
@@ -1277,6 +1278,7 @@ begin
   L:=SetTileInMapCoords(Loc.X-3,Loc.Y-4);
   H:=SetTileInMapCoords(Loc.X+2,Loc.Y+1);
   RebuildPassability(L.X,H.X,L.Y,H.Y);
+  RebuildWalkConnect(canWalkRoad);
 end;
 
 
@@ -1511,10 +1513,6 @@ var i,k,h,j:integer;
   end;
 begin
   inc(AnimStep);
-
-  //Rebuild road areas
-  if AnimStep mod (TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then
-    RebuildWalkConnect(canWalkRoad);
 
   for i:=1 to MapY do
   for k:=1 to MapX do

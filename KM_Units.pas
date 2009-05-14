@@ -1082,6 +1082,7 @@ begin
   Result:= (X = GetPosition.X) and (Y = GetPosition.Y) and ((fUnitType=UT)or(UT=ut_Any)) and not (fUnitType in [ut_Wolf..ut_Duck]);
 end;
 
+
 procedure TKMUnit.SetAction(aAction: TUnitAction; aStep:integer=0);
 begin
 AnimStep:=aStep;
@@ -1163,7 +1164,8 @@ begin
 
   if TaskDone then FreeAndNil(fUnitTask) else exit;
 
-  //If we get to this point means common part is done and now unit-specific overrides will be executed
+  //If we get to this point then it means that common part is done and now
+  //we can perform unit-specific activities (ask for job, etc..)
   Result:=false;
 end;
 

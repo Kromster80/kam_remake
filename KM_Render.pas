@@ -487,50 +487,6 @@ begin
   glEnd;
 end;
 
-//@Lewin: I always wanted to ask you 2 things - why??
-//Why do you move 'begin' to the next line instead of
-//
-//if Foo<>Bar then begin
-//  Foo:=Bar;
-//  ...
-//end;
-//
-//No offence, just curiosity
-
-{
-@Krom: Second question:
-  That's just how I was taught. It still looks odd to me to have the begin right after the then.
-  I have always done it like that and so I have to remember not to here. (I am trying to follow your
-  coding/formatting standards, which differ greatly from mine) Please let me know if there is anything
-  else that I do which you do not like. I am trying to do it your way, but sometimes I forget/make mistakes. ;)
-}
-
-{@Lewin:
-2nd: To be honest I've never been taught to any coding standards nor rules, nor etc..
-If you spare some of you time to educate me - I'd be happy! =)
-In this case it's became a matter of my habit. If there's anything else beside it, some reasonable explanation, then I'd be happy to take it and stick to better style
-}
-
-{@Krom:
-2nd: Well I was always taught to put begins on new lines and to keep the indenting strict and correct.
-     I have a tool called DelFor (Delphi Formatter) that will automatically format indenting and stuff in all project files.
-     If you're interested then I could try running it on the project and see what happens. It is configuarable so we
-     could probably set it up to format it in the way you want (like keeping begins on previous line if you prefer that)
-     It would enforce everything to a standard. Although the formatting doesn't bother me too much, just I mess it up sometimes.
-}
-
-{@Lewin: As we discussed auto-formatting would ruin a lot of manually aligned blocks, e.g.
-  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  ,-0.4);
-  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0.5,-0.4);
-  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
-  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
-so we better not use it, unless there's an option to preserve such cases intact
-
-As for 'begin' from a new line .. I prefer to have code tighter rather than spread, especially in 'end else begin' case
-Let's leave it 'as is' - you code it from new line, me keeping it on same line. That doesn't harm anyone.
-
-BTW, you mention you coding stndards differ greatly from mine - can you show me an example, maybe I should borrow some ideas
-}
 
 procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
