@@ -230,7 +230,8 @@ begin
     if fPlayers<>nil then
     if fPlayers.SelectedUnit<>nil then
     if fPlayers.SelectedUnit.GetUnitType=ut_HorseScout then
-    fPlayers.SelectedUnit.SetAction(TUnitActionWalkTo.Create(fPlayers.SelectedUnit,P,KMPoint(0,0)));
+    TKMUnitWarrior(fPlayers.SelectedUnit).PlaceOrder(wo_walk,P);
+//    SetAction(TUnitActionWalkTo.Create(fPlayers.SelectedUnit,P,KMPoint(0,0)));
 
   end else begin //If GameIsRunning=false
     fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);

@@ -308,9 +308,12 @@ type
     fIsCommander:boolean; //Wherever the unit is a leader of a group and has a shtandart
     fCommanderID:TKMUnit; //ID of commander unit
     fFlagAnim:cardinal;
+    fOrder:TWarriorOrder;
+    fOrderLoc:TKMPoint;
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     function GetSupportedActions: TUnitActionTypeSet; override;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
     function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
@@ -920,12 +923,40 @@ begin
   fFlagAnim:=0;
   fIsCommander:=false;
   fCommanderID:=nil;
+  fOrder:=wo_Stop;
+  fOrderLoc:=KMPoint(0,0);
 end;
 
 
 function TKMUnitWarrior.GetSupportedActions: TUnitActionTypeSet;
 begin
   Result:= [ua_Walk, ua_Work1, ua_Die];
+end;
+
+
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
+begin
+  fOrder:=aWarriorOrder;
+  fOrderLoc:=aLoc;
+end;
+
+
+function TKMUnitWarrior.UpdateState():boolean;
+begin
+  inc(fFlagAnim);
+
+  //@Lewin:
+  //Override current action if there's an Order in queue paying attention
+  //to unit WalkTo current position (let the unit arrive on next tile first!)
+  //As well let the unit finish it's curent Attack action before taking a new order
+  //This should make units response delayed, is it a good idea?   
+
+  Result:=true; //Required for override compatibility
+  if Inherited UpdateState then exit;
+
+  SetAction(TUnitActionStay.Create(50,ua_Walk));
+
+  Assert(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -942,17 +973,6 @@ inherited;
   fRender.RenderUnit(UnitType,       9, AnimDir, fFlagAnim, byte(fOwner), fPosition.X, fPosition.Y-0.75,false);
 end;
 
-
-function TKMUnitWarrior.UpdateState():boolean;
-begin
-  inc(fFlagAnim);
-  Result:=true; //Required for override compatibility
-  if Inherited UpdateState then exit;
-
-  SetAction(TUnitActionStay.Create(50,ua_Walk));
-
-  Assert(fCurrentAction<>nil,'Unit has no action!');
-end;
 
 { TKMUnitAnimal }
 function TKMUnitAnimal.GetSupportedActions: TUnitActionTypeSet;
@@ -1954,8 +1974,7 @@ begin
   fActionType:= aActionType;
 end;
 
-//First approach lets make a route for unit depending on static obstacles
-//Then handle new static obstacles (if any) along with dynamic ones (LookAhead only one tile)
+
 { TUnitActionWalkTo }
 constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const IgnorePass:boolean=false);
 begin
@@ -2117,6 +2136,7 @@ begin
     exit;
   end;
 
+  //Somehow route was not built, this is an error
   if not fRouteBuilt then begin  
     fLog.AddToLog('Unable to walk a route ');
     //DEBUG, should be wrapped somehow for the release
@@ -2130,8 +2150,12 @@ begin
 
   //Check if unit has arrived on tile
   if Equals(fWalker.fPosition.X,Nodes[NodePos].X,Distance/2) and Equals(fWalker.fPosition.Y,Nodes[NodePos].Y,Distance/2) then begin
-    
-    //Here comes a patch to update unit direction
+
+    //Set precise position to avoid rounding errors
+    fWalker.fPosition.X:=Nodes[NodePos].X;
+    fWalker.fPosition.Y:=Nodes[NodePos].Y;
+
+    //Update unit direction according to next Node 
     if NodePos+1<=NodeCount then begin
       DX := sign(Nodes[NodePos+1].X - Nodes[NodePos].X); //-1,0,1
       DY := sign(Nodes[NodePos+1].Y - Nodes[NodePos].Y); //-1,0,1
@@ -2140,10 +2164,12 @@ begin
 
     //Perform interaction
     if not DoUnitInteraction() then
-      if fWalker.GetUnitType in [ut_Wolf..ut_Duck] then begin
+      if fWalker.GetUnitType in [ut_Wolf..ut_Duck] then
+      begin //Animals have no tasks hence they can choose new WalkTo spot no problem
         DoEnd:=true;
         exit;
-      end else
+      end
+      else
         exit; //Do no further walking until unit interaction is solved
 
     inc(NodePos);
@@ -2153,7 +2179,7 @@ begin
       exit;
     end else begin
       fWalker.NextPosition:=Nodes[NodePos];
-      fTerrain.UnitWalk(fWalker.GetPosition,fWalker.NextPosition);
+      fTerrain.UnitWalk(fWalker.GetPosition,fWalker.NextPosition); //Pre-occupy next tile
     end;
   end;
 
@@ -2165,17 +2191,17 @@ begin
   DX := sign(WalkX); //-1,0,1
   DY := sign(WalkY); //-1,0,1
 
-  fWalker.Direction:=DirectionsBitfield[DX,DY];
+  //fWalker.Direction:=DirectionsBitfield[DX,DY];
 
   if (DX <> 0) and (DY <> 0) then
-    Distance:=Distance / 1.41; {sqrt (2)}
+    Distance:=Distance / 1.41; {sqrt (2) = 1.41421 }
 
   fWalker.fPosition.X:= fWalker.fPosition.X + DX*min(Distance,abs(WalkX));
   fWalker.fPosition.Y:= fWalker.fPosition.Y + DY*min(Distance,abs(WalkY));
 
   inc(fWalker.AnimStep);
 
-  DoesWalking:=true; //Now it's true that unit did walked one step
+  DoesWalking:=true; //Now it's definitely true that unit did walked one step
 end;
 
 
