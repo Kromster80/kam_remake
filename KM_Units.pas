@@ -62,6 +62,7 @@ type
         Explanation:string; //Debug only, explanation what unit is doing
       public
         constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const IgnorePass:boolean=false);
+        function ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
         function DoUnitInteraction():boolean;
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
@@ -1978,34 +1979,20 @@ end;
 { TUnitActionWalkTo }
 constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const IgnorePass:boolean=false);
 begin
-  Inherited Create(aActionType);
-  fWalker       :=KMUnit;
-  fWalkFrom     :=fWalker.GetPosition;
-  fWalkTo       :=LocB;
-  fWalkToSpot   :=aWalkToSpot;   
-
-  case fWalker.fUnitType of
-    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: fPass:=canWalkRoad; //Citizens except Worker
-    ut_Wolf..ut_Duck: fPass:=AnimalTerrain[byte(fWalker.fUnitType)]
-    else fPass:=canWalk;
-  end;
-
-  if not DO_SERFS_WALK_ROADS then fPass:=canWalk;
-
-  //Thats for Workers on house area
-  if IgnorePass then fPass:=canAll;
-
-  //Thats for 'miners' at work
-  if (fWalker.fUnitType in [ut_Woodcutter,ut_Farmer,ut_Fisher,ut_StoneCutter])and
-     (fWalker.fUnitTask is TTaskMining) then
-    fPass:=canWalk;
-
-  NodePos       :=1;
-  fRouteBuilt   :=false;
-
   Assert(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
-  if KMSamePoint(fWalkFrom,fWalkTo) then exit; //We don't care for this case, Execute will report action is done immeduately
+  Inherited Create(aActionType);
+  fWalker       := KMUnit;
+  fWalkFrom     := fWalker.GetPosition;
+  fWalkTo       := LocB;
+  fWalkToSpot   := aWalkToSpot;
+  fPass         := ChoosePassability(fWalker, IgnorePass);
+
+  NodePos       :=1;
+  fRouteBuilt   :=false;     
+
+  if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
+    exit; //so we don't need to perform any more processing
 
   //Build a route A*
   fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, fPass, NodeCount, Nodes); //Try to make the route with fPass
@@ -2022,8 +2009,25 @@ begin
   if not fRouteBuilt then
     fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with canWalk');
 
-  if fRouteBuilt then
-  if not fWalkToSpot then dec(NodeCount); //Approach spot from any side
+  if fRouteBuilt and not fWalkToSpot then dec(NodeCount); //Approach spot from any side
+end;
+
+
+function TUnitActionWalkTo.ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
+begin
+  case KMUnit.fUnitType of //Select desired passability depending on unit type
+    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result:=canWalkRoad; //Citizens except Worker
+    ut_Wolf..ut_Duck: Result:=AnimalTerrain[byte(KMUnit.fUnitType)] //Animals
+    else Result:=canWalk; //Worker, Warriors
+  end;
+
+  if not DO_SERFS_WALK_ROADS then Result:=canWalk; //Reset everyone to canWalk for debug
+
+  //Thats for 'miners' at work
+  if (KMUnit.fUnitType in [ut_Woodcutter,ut_Farmer,ut_Fisher,ut_StoneCutter])and(KMUnit.fUnitTask is TTaskMining) then
+    Result:=canWalk;
+
+  if DoIgnorePass then Result:=canAll; //Thats for Workers walking on house area and maybe some other cases?
 end;
 
 
@@ -2138,10 +2142,11 @@ begin
 
   //Somehow route was not built, this is an error
   if not fRouteBuilt then begin  
-    fLog.AddToLog('Unable to walk a route ');
+    fLog.AddToLog('Unable to walk a route since it''s unbuilt');
     //DEBUG, should be wrapped somehow for the release
     fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
     fGame.PauseGame(true);
+    //Pop-up some message
   end;
 
   //Execute the route in series of moves
