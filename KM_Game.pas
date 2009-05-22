@@ -4,7 +4,6 @@ uses Windows, MPlayer, Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Users, KM_Render, KM_LoadLib, KM_GamePlayInterface, KM_ReadGFX1, KM_Terrain, KM_LoadDAT,
   KM_LoadSFX, KM_Viewport, KM_Units, KM_Settings;
 
-type TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and rest
 
 type
   TKMGame = class
@@ -13,7 +12,6 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameIsRunning:boolean;
-    DataState:TDataLoadingState;
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
   public
@@ -41,7 +39,6 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer);
 begin
-  DataState:=dls_None; 
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
   fLog.AppendLog('<== Render init follows ==>');
@@ -51,8 +48,8 @@ begin
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(aMediaPlayer); //Needed for button click sounds and etc?
   fLog.AppendLog('<== ReadGFX init follows ==>');
-  ReadGFX(ExeDir, true); //Should load only GUI part of it
-  DataState:=dls_Menu;
+  fResource:=TResource.Create;
+  fResource.LoadMenuResources;
 
   fGameSettings         := TGameSettings.Create;
   fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);  
@@ -246,10 +243,9 @@ begin
   fMainMenuInterface.ShowScreen_Loading;
   fRender.Render;
 
-  if DataState<>dls_All then begin
-    ReadGFX(ExeDir, false); //Should load the rest part of data
+  if fResource.GetDataState<>dls_All then begin
+    fResource.LoadGameResources();
     fRender.LoadTileSet();
-    DataState:=dls_All;
   end;
 
   fViewport:=TViewport.Create;

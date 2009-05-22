@@ -40,7 +40,7 @@ var
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes:boolean=true;     //Draw unit routes when they are chosen
   MakeShowUnitMove:boolean=false;       //Draw unit movement overlay
-  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
+  WriteResourceInfoToTXT:boolean=true; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
   FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
@@ -59,7 +59,7 @@ const
 
 const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna test ingame )
         MAX_PLAYERS = 8;        //Maximum players per map
-        SAVEGAME_COUNT = 10;    //Savegame slots available
+        SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
 
         //Here we store options that are hidden somewhere in code
         MAX_WARFARE_IN_BARRACKS = 20;
@@ -330,7 +330,7 @@ const
   (ht_School,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Store
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_Inn,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //School
-  (ht_Woodcutters,ht_WatchTower,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
+  (ht_Woodcutters,ht_WatchTower,ht_Wall,ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
   (ht_TownHall,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Metallurgists
   (ht_Butchers,ht_Tannery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Swine
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
@@ -498,7 +498,7 @@ const
     ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
     ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
-    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_None, ht_None);
+    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_None, ht_Wall);
 
 {Terrain}
 type
@@ -728,7 +728,7 @@ HouseDAT:array[1..HOUSE_COUNT] of packed record
   ResProductionX:shortint;
   MaxHealth,Sight:smallint;
   OwnerType:shortint;
-  Foot:array[1..36]of shortint;
+  Foot:array[1..36]of shortint; //Sound indices vs sprite ID
 end;
 
 //Resource types serf carries around
@@ -747,7 +747,6 @@ UnitStat:array[1..41]of record
   CanWalkOut,x11:smallint;
 end;
 
-UnitSprite2:array[1..41,1..18]of smallint;
 UnitSprite:array[1..41]of packed record
   Act:array[1..14]of packed record
     Dir:array[1..8]of packed record
@@ -757,6 +756,7 @@ UnitSprite:array[1..41]of packed record
     end;
   end;
 end;
+UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
 
   MapElemQty:integer=254; //Default qty
   MapElem:array[1..512]of packed record
@@ -765,6 +765,18 @@ end;
     Properties:array[TMapElemProperties]of word; //94
     u2:shortint;                                //95
     CanBeRemoved,u4:word;                       //99
+  end;
+
+  //Unused by KaM Remake
+  PatternDAT:array[1..256]of packed record
+    MinimapColor:byte;
+    Walkable,Buildable:boolean;
+    TileType:byte;
+    u1,u2:boolean;
+  end;
+  TileTable:array[1..30,1..30]of packed record
+    Tile1,Tile2,Tile3:byte;
+    b1,b2,b3,b4,b5,b6,b7:boolean;
   end;
 
   //Minimap tile colors, computed on tileset loading

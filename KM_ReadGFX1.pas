@@ -5,116 +5,161 @@ uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, K
 type
   TByteArray2 = array of Byte;
   TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest);
+type TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and rest
 
-    function ReadGFX(text: string; LoadEssence:boolean):boolean;
+type
+  TResource = class
+  private
+    DataState:TDataLoadingState;
 
-      function ReadPallete(filename:string; PalID:byte):boolean;
-      function ReadMapElem(filename:string):boolean;
-      function ReadHouseDAT(filename:string):boolean;
-      function ReadUnitDAT(filename:string):boolean;
+    procedure StepRefresh();
 
-      function ReadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
+    function LoadPallete(filename:string; PalID:byte):boolean;
+    function LoadMapElemDAT(filename:string):boolean;
+    function LoadPatternDAT(filename:string):boolean;
+    function LoadHouseDAT(filename:string):boolean;
+    function LoadUnitDAT(filename:string):boolean;
+    function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
-      function ReadRX(filename:string; ID:integer):boolean;
-      procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
-      procedure MakeGFX(Sender: TObject; RXid:integer);
+    function LoadRX(filename:string; ID:integer):boolean;
+    procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
+    procedure MakeGFX(Sender: TObject; RXid:integer);
+
+    procedure MakeMiniMapColors(FileName:string);
+    procedure MakeCursors(RXid:integer);
+
+    procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL); //This should belong to TRender?
+  public
+    constructor Create;
+    function LoadMenuResources():boolean;
+    function LoadGameResources():boolean;
+
+    property GetDataState:TDataLoadingState read DataState;
+
+    //procedure ExportRX2BMP(RXid:integer);
+    //procedure ExportTreeAnim2BMP();
+    //procedure ExportHouseAnim2BMP();
+    //procedure ExportUnitAnim2BMP();
+  end;
+
+  var
+    fResource:TResource;
+
 
     procedure ExportRX2BMP(RXid:integer);
     procedure ExportTreeAnim2BMP();
     procedure ExportHouseAnim2BMP();
     procedure ExportUnitAnim2BMP();
 
-    procedure MakeMiniMapColors(FileName:string);
-    procedure MakeCursors(RXid:integer);
 
 implementation
 
 uses KromUtils, KM_Unit1, KM_Render, KM_Game;
 
-function ReadGFX(text: string; LoadEssence:boolean):boolean;
-var i,RX1,RX2:integer; procedure StepRefresh(); begin FormLoading.Bar1.StepIt; FormLoading.Refresh; end;
+
+constructor TResource.Create;
 begin
+  Inherited;
+  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
+  Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
+  DataState:=dls_None;
+end;
+
+procedure TResource.StepRefresh();
+begin
+  FormLoading.Bar1.StepIt;
+  FormLoading.Refresh;
+end;
+
+
+function TResource.LoadMenuResources():boolean;
+var i:integer;
+begin
+  Result:=false;
   Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
-  if LoadEssence then begin
-    FormLoading.Label1.Caption:='Reading palettes ...';
-    ReadPallete(text+'data\gfx\map.bbm',pal_map);
-    ReadPallete(text+'data\gfx\pal0.bbm',pal_0);
-    ReadPallete(text+'data\gfx\pal1.bbm',pal_1);
-    ReadPallete(text+'data\gfx\pal2.bbm',pal_2);
-    ReadPallete(text+'data\gfx\pal3.bbm',pal_3);
-    ReadPallete(text+'data\gfx\pal4.bbm',pal_4);
-    ReadPallete(text+'data\gfx\pal5.bbm',pal_5);
-    ReadPallete(text+'data\gfx\setup.bbm',pal_set);
-    ReadPallete(text+'data\gfx\setup2.bbm',pal_set2);
-    ReadPallete(text+'data\gfx\map.bbm',pal_lin);
-    ReadPallete(text+'data\gfx\mapgold.lbm',pal2_mapgold);
-    ReadPallete(text+'data\gfx\setup.lbm',pal2_setup);
-    ReadPallete(text+'data\gfx\pal1.lbm',pal2_1);
-    fLog.AppendLog('Reading palettes',true);
+  FormLoading.Label1.Caption:='Reading palettes ...';
+  LoadPallete(ExeDir+'data\gfx\map.bbm',pal_map);
+  LoadPallete(ExeDir+'data\gfx\pal0.bbm',pal_0);
+  LoadPallete(ExeDir+'data\gfx\pal1.bbm',pal_1);
+  LoadPallete(ExeDir+'data\gfx\pal2.bbm',pal_2);
+  LoadPallete(ExeDir+'data\gfx\pal3.bbm',pal_3);
+  LoadPallete(ExeDir+'data\gfx\pal4.bbm',pal_4);
+  LoadPallete(ExeDir+'data\gfx\pal5.bbm',pal_5);
+  LoadPallete(ExeDir+'data\gfx\setup.bbm',pal_set);
+  LoadPallete(ExeDir+'data\gfx\setup2.bbm',pal_set2);
+  LoadPallete(ExeDir+'data\gfx\map.bbm',pal_lin);
+  LoadPallete(ExeDir+'data\gfx\mapgold.lbm',pal2_mapgold);
+  LoadPallete(ExeDir+'data\gfx\setup.lbm',pal2_setup);
+  LoadPallete(ExeDir+'data\gfx\pal1.lbm',pal2_1);
+  fLog.AppendLog('Reading palettes',true);
+
+  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
+  RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
+  RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
+
+  for i:=4 to 6 do
+  begin
+    FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
+    fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
+    if i=4 then MakeCursors(4); //Make GUI items before they are flushed
+    MakeGFX(nil,i);
     StepRefresh();
   end;
 
-  if not LoadEssence then begin
-    FormLoading.Label1.Caption:='Reading defines ...';
-    fLog.AppendLog('Reading mapelem.dat',ReadMapElem(text+'data\defines\mapelem.dat')); StepRefresh();
-    fLog.AppendLog('Reading houses.dat',ReadHouseDAT(text+'data\defines\houses.dat'));  StepRefresh();
-    fLog.AppendLog('Reading unit.dat',ReadUnitDAT(text+'data\defines\unit.dat'));       StepRefresh();
-  end;
+  FormLoading.Label1.Caption:='Reading fonts ...';
+  for i:=1 to length(FontFiles) do
+    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
+  fLog.AppendLog('Read fonts is done');
+  StepRefresh();
+  fLog.AppendLog('ReadGFX is done');
+  DataState:=dls_Menu;
+  Result:=true;
+end;
 
-  if LoadEssence then begin
-    RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
-    RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
-    RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
-    RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
-    RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
-    RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
-  end;
 
-  if LoadEssence then begin
-    RX1:=4; RX2:=6;
-  end else begin
-    RX1:=1; RX2:=3;
-  end;
+function TResource.LoadGameResources():boolean;
+var i:integer;
+begin
+  Result:=false;
+  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
+  Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
-  for i:=RX1 to RX2 do
-  if (i=1)or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites)or(i in [4,5,6]) then begin //Always make GUI
+  FormLoading.Label1.Caption:='Reading defines ...';
+  fLog.AppendLog('Reading mapelem.dat',LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat')); StepRefresh();
+  fLog.AppendLog('Reading pattern.dat',LoadPatternDAT(ExeDir+'data\defines\pattern.dat')); StepRefresh();
+  fLog.AppendLog('Reading houses.dat', LoadHouseDAT(ExeDir+'data\defines\houses.dat'));    StepRefresh();
+  fLog.AppendLog('Reading unit.dat',   LoadUnitDAT(ExeDir+'data\defines\unit.dat'));       StepRefresh();
 
+  RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
+  RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
+  RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
+
+  for i:=1 to 3 do
+  if (i=1)or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites) then
+  begin
     FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
-    fLog.AppendLog('Reading '+RXData[i].Title+'.rx',ReadRX(text+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-
-    if i=4 then MakeCursors(4); //Make GUI items
+    fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
     MakeGFX(nil,i);
     if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
     StepRefresh();
   end;
 
-  if not LoadEssence then begin
-    FormLoading.Label1.Caption:='Making minimap colors ...';
-    MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
-    fLog.AppendLog('Prepared MiniMap colors...');
-    StepRefresh();
-  end;
-
-  if LoadEssence then begin
-    FormLoading.Label1.Caption:='Reading fonts ...';
-    for i:=1 to length(FontFiles) do
-      ReadFont(text+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
-    fLog.AppendLog('Read fonts is done');
-    StepRefresh();
-  end;
-
+  FormLoading.Label1.Caption:='Making minimap colors ...';
+  MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
+  fLog.AppendLog('Prepared MiniMap colors...');
+  StepRefresh();
   fLog.AppendLog('ReadGFX is done');
+  DataState:=dls_All;
   Result:=true;
-  //Form1.Close;
 end;
 
 
 //=============================================
 //Reading pallete for trees/objects
 //=============================================
-function ReadPallete(filename:string; PalID:byte):boolean;
+function TResource.LoadPallete(filename:string; PalID:byte):boolean;
 var f:file; i:integer;
 begin
 Result:=false;
@@ -139,7 +184,7 @@ end;
 //=============================================
 //Reading map elements (has animation data)
 //=============================================
-function ReadMapElem(filename:string):boolean;
+function TResource.LoadMapElemDAT(filename:string):boolean;
 var ii,kk:integer; ft:textfile; f:file;
 begin
   Result:=false;
@@ -172,9 +217,59 @@ end;
 
 
 //=============================================
+//Reading pattern data (tile info)
+//=============================================
+function TResource.LoadPatternDAT(filename:string):boolean;
+var ii,kk:integer; ft:textfile; f:file; s:byte;
+begin
+  Result:=false;
+  if not CheckFileExists(filename) then exit;
+  assignfile(f,filename); reset(f,1);
+  blockread(f,PatternDAT[1],6*256);
+  for ii:=1 to 30 do begin
+    blockread(f,TileTable[ii,1],30*10);
+    blockread(f,s,1);
+    if s<>0 then
+      s:=s;
+  end;
+
+  closefile(f);
+
+  if WriteResourceInfoToTXT then begin
+    assignfile(ft,ExeDir+'Pattern.csv'); rewrite(ft);
+    writeln(ft,'PatternDAT');
+    for ii:=0 to 15 do begin
+      for kk:=1 to 16 do
+        write(ft,inttostr(ii*16+kk),' ',PatternDAT[ii*16+kk].TileType,';');
+      writeln(ft);
+    end;
+    writeln(ft,'TileTable');
+    for ii:=1 to 30 do begin
+      for kk:=1 to 30 do begin
+      write(ft,inttostr(TileTable[ii,kk].Tile1)+'_'+inttostr(TileTable[ii,kk].Tile2)+'_'+inttostr(TileTable[ii,kk].Tile3)+' ');
+      write(ft,inttostr(byte(TileTable[ii,kk].b1)));
+      write(ft,inttostr(byte(TileTable[ii,kk].b2)));
+      write(ft,inttostr(byte(TileTable[ii,kk].b3)));
+      write(ft,inttostr(byte(TileTable[ii,kk].b4)));
+      write(ft,inttostr(byte(TileTable[ii,kk].b5)));
+      write(ft,inttostr(byte(TileTable[ii,kk].b6)));
+      write(ft,inttostr(byte(TileTable[ii,kk].b7)));
+      write(ft,';');
+      end;
+
+      writeln(ft);
+    end;
+    closefile(ft);
+  end;
+
+  Result:=true;
+end;
+
+
+//=============================================
 //Reading houses.dat data
 //=============================================
-function ReadHouseDAT(filename:string):boolean;
+function TResource.LoadHouseDAT(filename:string):boolean;
 var ii,kk,h:integer; ft:textfile; f:file;
 begin
 Result:=false;
@@ -254,7 +349,7 @@ end;
 //=============================================
 //Reading unit.dat data
 //=============================================
-function ReadUnitDAT(filename:string):boolean;
+function TResource.LoadUnitDAT(filename:string):boolean;
 var ii,kk,jj,hh:integer; ft:textfile; f:file;
 begin
 Result:=false;
@@ -322,10 +417,109 @@ Result:=true;
 end;
 
 
+function TResource.LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
+const
+  TexWidth=256; //Connected to TexData, don't change
+var
+  f:file;
+  p,t:byte;
+  a,b,c,d:word;
+  i,k,ci,ck:integer;
+  MaxHeight:integer;
+  AdvX,AdvY:integer;
+  TD:array of byte;
+  MyBitMap:TBitMap;
+begin
+Result:=false;
+MaxHeight:=0;
+if not CheckFileExists(filename, true) then exit;
+assignfile(f,filename); reset(f,1);
+blockread(f,a,2); blockread(f,b,2);
+blockread(f,c,2); blockread(f,d,2);
+blockread(f,FontData[byte(aFont)].Pal[0],256);
+
+//Read font data
+for i:=0 to 255 do
+  if FontData[byte(aFont)].Pal[i]<>0 then
+    with FontData[byte(aFont)].Letters[i] do begin
+      blockread(f,Width,4);
+      blockread(f,Add,8);
+      MaxHeight:=max(MaxHeight,Height);
+      Assert(Width*Height<>0); //Fon01.fnt seems to be damaged..
+      blockread(f,Data[1],Width*Height);
+    end;
+closefile(f);
+
+//Special fixes:
+if aFont=fnt_game then
+for i:=0 to 255 do
+  if FontData[byte(aFont)].Pal[i]<>0 then
+    for k:=1 to 4096 do
+      if FontData[byte(aFont)].Letters[i].Data[k]<>0 then
+        FontData[byte(aFont)].Letters[i].Data[k]:=218; //Light grey color in Pal2
+
+
+//Compile texture
+AdvX:=0; AdvY:=0;
+setlength(TD,TexWidth*TexWidth+1);
+FillChar(TD[0],TexWidth*TexWidth+1,$80); //Make some background
+
+for i:=0 to 255 do
+  if FontData[byte(aFont)].Pal[i]<>0 then
+    with FontData[byte(aFont)].Letters[i] do begin
+
+    Assert(FontData[byte(aFont)].Pal[i]=1);
+
+      if AdvX+Width+2>TexWidth then begin
+        AdvX:=0;
+        inc(AdvY,MaxHeight);
+      end;
+
+      for ci:=1 to Height do for ck:=1 to Width do
+        TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=Data[(ci-1)*Width+ck];
+
+      u1:=(AdvX+1)/TexWidth;
+      v1:=AdvY/TexWidth;
+      u2:=(AdvX+1+Width)/TexWidth;
+      v2:=(AdvY+Height)/TexWidth;
+
+      inc(AdvX,1+Width+1);
+    end;
+
+  GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
+
+  FontData[byte(aFont)].Letters[32].Width:=7; //"Space" width
+
+//for i:=1 to 10 do
+if WriteFontToBMP then begin
+  MyBitMap:=TBitMap.Create;
+  MyBitmap.PixelFormat:=pf24bit;
+  MyBitmap.Width:=TexWidth;
+  MyBitmap.Height:=TexWidth;
+
+  for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
+    p:=FontPal[byte(aFont)];
+    //p:=i;
+    t:=TD[ci*TexWidth+ck]+1;
+    MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
+  end;
+
+  CreateDir(ExeDir+'Export\');
+  CreateDir(ExeDir+'Export\Fonts\');
+  MyBitmap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
+  MyBitmap.Free;
+end;
+
+setlength(TD,0);
+Result:=true;
+
+end;
+
+
 //=============================================
 //Reading RX Data
 //=============================================
-function ReadRX(filename:string; ID:integer):boolean;
+function TResource.LoadRX(filename:string; ID:integer):boolean;
   var i:integer; f:file;
 begin
   Result:=false;
@@ -353,7 +547,7 @@ end;
 //=============================================
 //Make texture
 //=============================================
-procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL);
+procedure TResource.GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL);
 var
   MyBitMap:TBitMap;
   i,k:word;
@@ -455,7 +649,7 @@ end;
 {Take RX data and make nice textures out of it.
 Textures should be POT to improve performance and avoid drivers bugs
 In result we have GFXData filled.}
-procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
+procedure TResource.MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
 var
   ID,ID1,ID2:integer; //RGB and A index
   ci,i,k,h,StepCount:integer;
@@ -522,7 +716,7 @@ end;
 {Take RX data and make nice textures out of it.
 Textures should be POT to improve performance and avoid drivers bugs
 In result we have GFXData filled.}
-procedure MakeGFX(Sender: TObject; RXid:integer);
+procedure TResource.MakeGFX(Sender: TObject; RXid:integer);
 var
   ci,ad,j,i,k,id,TexCount:integer;
   Am,Cm,Rm:integer;
@@ -638,7 +832,7 @@ begin
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
-  ReadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
+  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
 
   for id:=1 to RXData[RXid].Qty do begin
 
@@ -674,8 +868,8 @@ begin
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
-  ReadUnitDAT(ExeDir+'data\defines\unit.dat');
-  ReadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
+  fResource.LoadUnitDAT(ExeDir+'data\defines\unit.dat');
+  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
   ci:=0;
   for iUnit:=15 to 15 do begin
@@ -749,8 +943,8 @@ begin
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
-  ReadHouseDAT(ExeDir+'data\defines\houses.dat');
-  ReadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
+  fResource.LoadHouseDAT(ExeDir+'data\defines\houses.dat');
+  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
 
   ci:=0;
   for ID:=1 to HOUSE_COUNT do begin
@@ -818,8 +1012,8 @@ begin
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf24bit;
 
-  ReadMapElem(ExeDir+'data\defines\mapelem.dat');
-  ReadRX(ExeDir+'data\gfx\res\'+RXData[1].Title+'.rx',1);
+  fResource.LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat');
+  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[1].Title+'.rx',1);
 
   ci:=0;
   for ID:=1 to MapElemQty do begin
@@ -846,7 +1040,7 @@ end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
-procedure MakeMiniMapColors(FileName:string);
+procedure TResource.MakeMiniMapColors(FileName:string);
 var ii,kk,h,j,px:integer; c:array of byte; R,G,B:integer; f:file;
 
 var
@@ -854,9 +1048,6 @@ var
   OutputStream: TMemoryStream;
   DeCompressionStream: TZDecompressionStream;
 begin
-  Assert(FileExists(FileName),'Unpack Resource.rar in Resource folder. ');
-  //Cos unpacked it takes whole 17mb, so I thought I'd better pack it
-
   assignfile(f,ExeDir+'Resource\Tiles1.tga');
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
@@ -903,7 +1094,7 @@ begin
 end;
 
 
-procedure MakeCursors(RXid:integer);
+procedure TResource.MakeCursors(RXid:integer);
 var
   i,sx,sy,x,y,t:integer;
   bm,bm2:TBitmap;
@@ -944,103 +1135,7 @@ begin
 end;
 
 
-function ReadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
-const
-  TexWidth=256; //Connected to TexData, don't change
-var
-  f:file;
-  p,t:byte;
-  a,b,c,d:word;
-  i,k,ci,ck:integer;
-  MaxHeight:integer;
-  AdvX,AdvY:integer;
-  TD:array of byte;
-  MyBitMap:TBitMap;
-begin
-Result:=false;
-MaxHeight:=0;
-if not CheckFileExists(filename, true) then exit;
-assignfile(f,filename); reset(f,1);
-blockread(f,a,2); blockread(f,b,2);
-blockread(f,c,2); blockread(f,d,2);
-blockread(f,FontData[byte(aFont)].Pal[0],256);
 
-//Read font data
-for i:=0 to 255 do
-  if FontData[byte(aFont)].Pal[i]<>0 then
-    with FontData[byte(aFont)].Letters[i] do begin
-      blockread(f,Width,4);
-      blockread(f,Add,8);
-      MaxHeight:=max(MaxHeight,Height);
-      Assert(Width*Height<>0); //Fon01.fnt seems to be damaged..
-      blockread(f,Data[1],Width*Height);
-    end;
-closefile(f);
-
-//Special fixes:
-if aFont=fnt_game then
-for i:=0 to 255 do
-  if FontData[byte(aFont)].Pal[i]<>0 then
-    for k:=1 to 4096 do
-      if FontData[byte(aFont)].Letters[i].Data[k]<>0 then
-        FontData[byte(aFont)].Letters[i].Data[k]:=218; //Light grey color in Pal2
-
-
-//Compile texture
-AdvX:=0; AdvY:=0;
-setlength(TD,TexWidth*TexWidth+1);
-FillChar(TD[0],TexWidth*TexWidth+1,$80); //Make some background
-
-for i:=0 to 255 do
-  if FontData[byte(aFont)].Pal[i]<>0 then
-    with FontData[byte(aFont)].Letters[i] do begin
-
-    Assert(FontData[byte(aFont)].Pal[i]=1);
-
-      if AdvX+Width+2>TexWidth then begin
-        AdvX:=0;
-        inc(AdvY,MaxHeight);
-      end;
-
-      for ci:=1 to Height do for ck:=1 to Width do
-        TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=Data[(ci-1)*Width+ck];
-
-      u1:=(AdvX+1)/TexWidth;
-      v1:=AdvY/TexWidth;
-      u2:=(AdvX+1+Width)/TexWidth;
-      v2:=(AdvY+Height)/TexWidth;
-
-      inc(AdvX,1+Width+1);
-    end;
-
-  GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
-
-  FontData[byte(aFont)].Letters[32].Width:=7; //"Space" width
-
-//for i:=1 to 10 do
-if WriteFontToBMP then begin
-  MyBitMap:=TBitMap.Create;
-  MyBitmap.PixelFormat:=pf24bit;
-  MyBitmap.Width:=TexWidth;
-  MyBitmap.Height:=TexWidth;
-
-  for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-    p:=FontPal[byte(aFont)];
-    //p:=i;
-    t:=TD[ci*TexWidth+ck]+1;
-    MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
-  end;
-
-  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\Fonts\');
-  MyBitmap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
-  MyBitmap.Free;
-end;
-
-setlength(TD,0);
-Result:=true;
-
-end;
 
 
 end.

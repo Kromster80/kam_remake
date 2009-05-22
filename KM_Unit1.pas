@@ -214,7 +214,7 @@ procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta:
 begin
   if MOUSEWHEEL_ZOOM_ENABLE then
   if fViewport<>nil then
-  fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000); //4Debug only
+  fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
 end;
 
 
@@ -324,8 +324,9 @@ procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.Expo
 procedure TForm1.Export_Fonts1Click(Sender: TObject);
 var i:integer;
 begin
+  Assert(fResource<>nil);
   for i:=1 to length(FontFiles) do
-    ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
+    //ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
 end;  
 
 
