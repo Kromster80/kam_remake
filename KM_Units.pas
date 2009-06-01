@@ -240,6 +240,7 @@ type
     fHome:TKMHouse;
     fCurrentAction: TUnitAction;
     fPosition: TKMPointF;
+    PrevPosition: TKMPoint;
     NextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
     fLastUpdateTime: Cardinal;
     fUnitType: TUnitType;
@@ -2169,13 +2170,10 @@ begin
 
     //Perform interaction
     if not DoUnitInteraction() then
-      if fWalker.GetUnitType in [ut_Wolf..ut_Duck] then
-      begin //Animals have no tasks hence they can choose new WalkTo spot no problem
-        DoEnd:=true;
-        exit;
-      end
-      else
-        exit; //Do no further walking until unit interaction is solved
+    begin
+      DoEnd:=fWalker.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
+      exit; //Do no further walking until unit interaction is solved
+    end;
 
     inc(NodePos);
 
@@ -2183,8 +2181,9 @@ begin
       DoEnd:=true;
       exit;
     end else begin
+      fWalker.PrevPosition:=fWalker.NextPosition;
       fWalker.NextPosition:=Nodes[NodePos];
-      fTerrain.UnitWalk(fWalker.GetPosition,fWalker.NextPosition); //Pre-occupy next tile
+      fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
     end;
   end;
 

@@ -236,7 +236,8 @@ begin
   closefile(f);
 
   if WriteResourceInfoToTXT then begin
-    assignfile(ft,ExeDir+'Pattern.csv'); rewrite(ft);
+    assignfile(ft,ExeDir+'Pattern.csv');
+    rewrite(ft);
     writeln(ft,'PatternDAT');
     for ii:=0 to 15 do begin
       for kk:=1 to 16 do

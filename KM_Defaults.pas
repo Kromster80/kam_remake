@@ -770,9 +770,11 @@ UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
   //Unused by KaM Remake
   PatternDAT:array[1..256]of packed record
     MinimapColor:byte;
-    Walkable,Buildable:boolean;
-    TileType:byte;
-    u1,u2:boolean;
+    Walkable:byte;  //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
+    Buildable:byte; //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
+    TileType:byte;  //This looks like a 0..31 bitfield, --||--
+    u1:byte; //Boolean IsTransitionTile?
+    u2:byte;
   end;
   TileTable:array[1..30,1..30]of packed record
     Tile1,Tile2,Tile3:byte;

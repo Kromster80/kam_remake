@@ -367,6 +367,16 @@ begin
   RenderQuad(k,i)
 end;
 
+//if SHOW_MAP_AREAS then
+{for i:=y1 to y2 do for k:=x1 to x2 do
+with fTerrain do
+begin
+  glColor4f(byte(PatternDAT[Land[i,k].Terrain+1].u2 and 1 = 1),
+            byte(PatternDAT[Land[i,k].Terrain+1].u2 and 2 = 2),
+            byte(PatternDAT[Land[i,k].Terrain+1].u2 and 4 = 4),0.5);
+  RenderQuad(k,i)
+end;}
+
 end;
 
 
@@ -427,7 +437,7 @@ begin
     glEnd;
   end;
 
-  glColor4f(0,1,0,0.5);
+  glColor4f(0,1,0,0.25);
   t:=Form1.Debug_PassabilityTrack.Position;
   for i:=y1 to y2 do for k:=x1 to x2 do
     if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then

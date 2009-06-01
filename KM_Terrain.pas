@@ -313,10 +313,13 @@ function TTerrain.TileIsWalkable(Loc:TKMPoint):boolean;
 begin
   //Should be Tileset property, especially if we allow different tilesets
   //Include 1/2 and 3/4 walkable as walkable
-  Result := Land[Loc.Y,Loc.X].Terrain in [0..6, 8..11,13,14, 16..22, 25..31, 32..39, 44..47, 49,52,55, 56..63,
-                                          64..71, 72..79, 80..87, 88..95, 96..103, 104,106..109,111, 112,113,116,117, 123..125,
-                                          138..139, 152..155, 166,167, 168..175, 180..183, 188..191,
-                                          197, 203..205,207, 212..215, 220..223, 242,243,247];
+  //Result := Land[Loc.Y,Loc.X].Terrain in [0..6, 8..11,13,14, 16..22, 25..31, 32..39, 44..47, 49,52,55, 56..63,
+  //                                        64..71, 72..79, 80..87, 88..95, 96..103, 104,106..109,111, 112,113,116,117, 123..125,
+  //                                        138..139, 152..155, 166,167, 168..175, 180..183, 188..191,
+  //                                        197, 203..205,207, 212..215, 220..223, 242,243,247];
+  //+1 converts terrain type from 0..255 to 1..256
+  //Values can be 1 or 2, What 2 does is unknown
+  Result:=PatternDAT[Land[Loc.Y,Loc.X].Terrain+1].Walkable <> 0;
 end;
 
 {Check if requested tile is generally suitable for road building}
