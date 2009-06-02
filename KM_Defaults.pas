@@ -30,7 +30,7 @@ var
   MakeUnitSprites:boolean=true;         //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
-  DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
+  DO_UNIT_INTERACTION:boolean=true;     //Debug for unit interaction
   DO_UNIT_HUNGER:boolean=false;          //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS:boolean=true;     //Wherever serfs should walk only on roads
 
@@ -46,7 +46,7 @@ var
   FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   RENDER_3D:boolean=false;              //Experimental 3D render
-  SHOW_MAP_AREAS:boolean=false;         //Show floodfill areas
+  SHOW_MAP_AREAS:boolean=false;         //Show floodfill areas of interconnected areas
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted

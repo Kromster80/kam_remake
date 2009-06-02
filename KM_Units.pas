@@ -40,6 +40,7 @@ type
   TUnitAction = class(TObject)
   private
     fActionType: TUnitActionType;
+    IsStepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
   public
     constructor Create(aActionType: TUnitActionType);
     procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); virtual; abstract;
@@ -54,6 +55,7 @@ type
         fRouteBuilt:boolean;
         fWalkToSpot:boolean;
         fPass:TPassability; //Desired passability set once on Create
+        fIgnorePass:boolean;
         NodeCount:word; //Should be positive
         Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint; //In fact it's much shorter array
         NodePos:integer;
@@ -61,7 +63,7 @@ type
         DoEvade:boolean; //Command to make exchange maneuver with other unit
         Explanation:string; //Debug only, explanation what unit is doing
       public
-        constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const IgnorePass:boolean=false);
+        constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
         function ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
         function DoUnitInteraction():boolean;
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
@@ -235,18 +237,18 @@ type
 
   TKMUnit = class(TObject)
   private
+    fUnitType: TUnitType;
+    fUnitTask: TUnitTask;
+    fCurrentAction: TUnitAction;
     Speed:single;
     fOwner:TPlayerID;
     fHome:TKMHouse;
-    fCurrentAction: TUnitAction;
     fPosition: TKMPointF;
     PrevPosition: TKMPoint;
     NextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
     fLastUpdateTime: Cardinal;
-    fUnitType: TUnitType;
     AnimStep: integer;
     fVisible:boolean;
-    fUnitTask:TUnitTask;
     //function UnitAtHome():boolean; Test if Unit is invisible and Pos matches fHome.GetEntrance
     //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
     //UpdateState cycle. So we need to finish the cycle and only then remove the unit. Property is public
@@ -951,7 +953,14 @@ begin
   //Override current action if there's an Order in queue paying attention
   //to unit WalkTo current position (let the unit arrive on next tile first!)
   //As well let the unit finish it's curent Attack action before taking a new order
-  //This should make units response delayed, is it a good idea?   
+  //This should make units response delayed, is it a good idea?
+  
+  //Dispatch new order when warrior finished previous action part 
+  if (fOrder=wo_Walk) and UnitAction.IsStepDone then
+  begin
+    SetAction(TUnitActionWalkTo.Create(Self,fOrderLoc,KMPoint(0,0)));
+    fOrder:=wo_Stop; 
+  end;
 
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -1043,6 +1052,7 @@ begin
   fHome:=nil;
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
+  PrevPosition:=GetPosition;
   NextPosition:=GetPosition;
   fOwner:= aOwner;
   fUnitType:=aUnitType;
@@ -1974,11 +1984,12 @@ constructor TUnitAction.Create(aActionType: TUnitActionType);
 begin
   Inherited Create;
   fActionType:= aActionType;
+  IsStepDone:=false;
 end;
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const IgnorePass:boolean=false);
+constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
 begin
   Assert(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
@@ -1987,7 +1998,8 @@ begin
   fWalkFrom     := fWalker.GetPosition;
   fWalkTo       := LocB;
   fWalkToSpot   := aWalkToSpot;
-  fPass         := ChoosePassability(fWalker, IgnorePass);
+  fIgnorePass   := aIgnorePass; //Store incase we need it in DoUnitInteraction re-routing 
+  fPass         := ChoosePassability(fWalker, fIgnorePass);
 
   NodePos       :=1;
   fRouteBuilt   :=false;     
@@ -2101,16 +2113,16 @@ begin
         //Unit isn't walking away - go around it
         Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(fWalker.Direction);
         Result:=false;
-        {KMUnit.SetAction(
+        fWalker.SetAction(
           TUnitActionWalkTo.Create(
-            KMUnit.GetPosition,
-            fDestPos,
+            fWalker,
+            fWalkTo,
             KMPoint(Nodes[NodePos+1].X,Nodes[NodePos+1].Y), //Avoid this tile
             fActionType,
             fWalkToSpot,
-            fPass
+            fIgnorePass
           )
-        );   }
+        );
         exit;
         { UNRESOLVED! }
       end;
@@ -2133,6 +2145,7 @@ var
   DX,DY:shortint; WalkX,WalkY,Distance:single;
 begin
   DoEnd:= False;
+  IsStepDone:=false;
   DoesWalking:=false; //Set it to false at start of update
 
   //Happens whe e.g. Serf stays in front of Store and gets Deliver task
@@ -2157,6 +2170,8 @@ begin
   //Check if unit has arrived on tile
   if Equals(fWalker.fPosition.X,Nodes[NodePos].X,Distance/2) and Equals(fWalker.fPosition.Y,Nodes[NodePos].Y,Distance/2) then begin
 
+    IsStepDone:=true; //Unit stepped on a new tile
+
     //Set precise position to avoid rounding errors
     fWalker.fPosition.X:=Nodes[NodePos].X;
     fWalker.fPosition.Y:=Nodes[NodePos].Y;
@@ -2171,7 +2186,8 @@ begin
     //Perform interaction
     if not DoUnitInteraction() then
     begin
-      DoEnd:=fWalker.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
+      //fWalker gets nulled if DoUnitInteraction creates new path, hence we need to querry KMUnit instead
+      DoEnd:=KMUnit.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
       exit; //Do no further walking until unit interaction is solved
     end;
 
@@ -2181,7 +2197,7 @@ begin
       DoEnd:=true;
       exit;
     end else begin
-      fWalker.PrevPosition:=fWalker.NextPosition;
+      fWalker.PrevPosition:=fWalker.NextPosition; ////////////////
       fWalker.NextPosition:=Nodes[NodePos];
       fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
     end;
@@ -2240,7 +2256,7 @@ begin
   end;
 
   //First step on going outside
-  if fStep=0 then begin 
+  if fStep=0 then begin
     KMUnit.NextPosition:=KMPointY1(KMUnit.GetPosition);
     //if fTerrain.Land[KMUnit.NextPosition.Y,KMUnit.NextPosition.X].IsUnit<>0 then exit; //Do not exit if tile is occupied
     fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
@@ -2250,14 +2266,11 @@ begin
 
   fStep := fStep - Distance * shortint(fDir);
   KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * shortint(fDir);
-  {
-  Attempt at making unit go towards entrance. I couldn't work out the algorithm
 
+  {//Attempt at making unit go towards entrance. I couldn't work out the algorithm
+  //@Lewin: Try using Mix function, I sketched it for you
   if fHouseType <> ht_None then
-  begin
-    KMUnit.fPosition.X := KMUnit.fPosition.X - (HouseDAT[byte(fHouseType)].EntranceOffsetXpx/CELL_SIZE_PX)*Distance * shortint(fDir);
-    //KMUnit.fPosition.Y := KMUnit.fPosition.Y - (HouseDAT[byte(fHouseType)].EntranceOffsetYpx/CELL_SIZE_PX)*Distance * shortint(fDir);
-  end;
+    KMUnit.fPosition.X := mix(KMUnit.GetPosition.X,KMUnit.fPosition.X - (HouseDAT[byte(fHouseType)].EntranceOffsetXpx/CELL_SIZE_PX),fStep);
   }
 
   KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
@@ -2296,6 +2309,8 @@ begin
     Cycle:=max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
     Step:=KMUnit.AnimStep mod Cycle;
 
+    IsStepDone:=KMUnit.AnimStep mod Cycle = 0;
+
     if TimeToStay>=1 then
     case KMUnit.GetUnitType of
       ut_Worker: case ActionType of
@@ -2319,7 +2334,10 @@ begin
     inc(KMUnit.AnimStep);
   end
   else
+  begin
     KMUnit.AnimStep:=StillFrame;
+    IsStepDone:=true;
+  end;
 
   dec(TimeToStay);
   DoEnd := TimeToStay<=0;

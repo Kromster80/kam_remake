@@ -1018,8 +1018,9 @@ begin
       for y:=MinCost.Pos.Y-1 to MinCost.Pos.Y+1 do for x:=MinCost.Pos.X-1 to MinCost.Pos.X+1 do
 
       if TileInMapCoords(x,y) then //Ignore those outside of MapCoords
+      if not KMSamePoint(KMPoint(x,y),Avoid) then
         if ORef[y,x]=0 then begin //Cell is new
-        
+
           inc(OCount);
           OList[OCount].Pos:=KMPoint(x,y);
 

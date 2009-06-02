@@ -396,6 +396,18 @@ begin
   //Solve diamond
   //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
   //but how to maintain TTask integrity?
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
+  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(6,8),KMPoint(0,0)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
+  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(7,11),KMPoint(0,0)));
+  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
+  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(4,12),KMPoint(0,0)));
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
+  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(3,9),KMPoint(0,0)));//}
+
+  //Solve diamond with destination being blocked
+  //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
+  //but how to maintain TTask integrity?
   U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
   U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(5,9),KMPoint(0,0)));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
@@ -404,6 +416,7 @@ begin
   U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(5,11),KMPoint(0,0)));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
   U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(4,10),KMPoint(0,0)));//}
+
 
   //Walk through group
   {MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
