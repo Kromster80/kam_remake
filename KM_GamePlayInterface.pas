@@ -38,10 +38,10 @@ type TKMMainMenuInterface = class
       KMLabel_SingleDiff:TKMLabel;
       KMButton_SingleBack,KMButton_SingleStart:TKMButton;
     KMPanel_Options:TKMPanel;
-      Image_Opts_BG:TKMImage; //Credits background
-      Label_Opts_MouseSpeed,Label_Opts_SFX,Label_Opts_Music:TKMLabel;
-      Ratio_Opts_Mouse,Ratio_Opts_SFX,Ratio_Opts_Music:TKMRatioRow;
-      Button_Opts_Back:TKMButton;
+      Image_Options_BG:TKMImage; //Credits background
+      Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
+      Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
+      Button_Options_MusicOn,Button_Options_Back:TKMButton;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage; //Credits background
       KMButton_CreditsBack:TKMButton;
@@ -403,21 +403,27 @@ procedure TKMMainMenuInterface.Create_Options_Page;
 var i:integer;
 begin
   KMPanel_Options:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
-    Image_Opts_BG:=MyControls.AddImage(KMPanel_Options,0,0,ScreenX,ScreenY,2,6);
-    Image_Opts_BG.StretchImage:=true;
+    Image_Options_BG:=MyControls.AddImage(KMPanel_Options,0,0,ScreenX,ScreenY,2,6);
+    Image_Options_BG.StretchImage:=true;
 
-    Label_Opts_MouseSpeed:=MyControls.AddLabel(KMPanel_Options,124,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
-    Label_Opts_MouseSpeed.Disable;
-    Ratio_Opts_Mouse:=MyControls.AddRatioRow(KMPanel_Options,118,150,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
-    Ratio_Opts_Mouse.Disable;
-    Label_Opts_SFX:=MyControls.AddLabel(KMPanel_Options,124,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-    Ratio_Opts_SFX:=MyControls.AddRatioRow(KMPanel_Options,118,198,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
-    Label_Opts_Music:=MyControls.AddLabel(KMPanel_Options,124,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-    Ratio_Opts_Music:=MyControls.AddRatioRow(KMPanel_Options,118,246,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    Label_Options_MouseSpeed:=MyControls.AddLabel(KMPanel_Options,124,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
+    Label_Options_MouseSpeed.Disable;
+    Ratio_Options_Mouse:=MyControls.AddRatioRow(KMPanel_Options,118,150,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    Ratio_Options_Mouse.Disable;
+    Label_Options_SFX:=MyControls.AddLabel(KMPanel_Options,124,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
+    Ratio_Options_SFX:=MyControls.AddRatioRow(KMPanel_Options,118,198,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    Label_Options_Music:=MyControls.AddLabel(KMPanel_Options,124,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
+    Ratio_Options_Music:=MyControls.AddRatioRow(KMPanel_Options,118,246,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
 
-    Ratio_Opts_Mouse.Position:=fGameSettings.GetMouseSpeed;
-    Ratio_Opts_SFX.Position  :=fGameSettings.GetSoundFXVolume;
-    Ratio_Opts_Music.Position:=fGameSettings.GetMusicVolume;
+    Label_Options_MusicOn:=MyControls.AddLabel(KMPanel_Options,200,280,100,30,fTextLibrary.GetTextString(197),fnt_Metal,kaCenter);
+    Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,246,180,30,'',fnt_Metal);
+    Button_Options_MusicOn.OnClick:=Options_Change;
+
+    Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;
+    Ratio_Options_SFX.Position  :=fGameSettings.GetSoundFXVolume;
+    Ratio_Options_Music.Position:=fGameSettings.GetMusicVolume;
+    if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
+                             else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
     for i:=1 to KMPanel_Options.ChildCount do
     if TKMControl(KMPanel_Options.Childs[i]) is TKMRatioRow then
@@ -426,8 +432,8 @@ begin
       TKMControl(KMPanel_Options.Childs[i]).OnChange:=Options_Change;
     end;
 
-    Button_Opts_Back:=MyControls.AddButton(KMPanel_Options,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
-    Button_Opts_Back.OnClick:=SwitchMenuPage;
+    Button_Options_Back:=MyControls.AddButton(KMPanel_Options,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_Options_Back.OnClick:=SwitchMenuPage;
     //Should contain resolution selector, fullscreen option and other things
 end;
 
@@ -475,7 +481,7 @@ begin
   {Return to MainMenu}
   if (Sender=KMButton_CreditsBack)or
      (Sender=KMButton_SingleBack)or
-     (Sender=Button_Opts_Back)or
+     (Sender=Button_Options_Back)or
      (Sender=KMButton_ResultsBack) then
     KMPanel_MainMenu.Show;
                           
@@ -589,9 +595,13 @@ end;
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
 begin
-  if Sender = Ratio_Opts_Mouse then fGameSettings.SetMouseSpeed(Ratio_Opts_Mouse.Position);
-  if Sender = Ratio_Opts_SFX   then fGameSettings.SetSoundFXVolume(Ratio_Opts_SFX.Position);
-  if Sender = Ratio_Opts_Music then fGameSettings.SetMusicVolume(Ratio_Opts_Music.Position);
+  if Sender = Ratio_Options_Mouse then fGameSettings.SetMouseSpeed(Ratio_Options_Mouse.Position);
+  if Sender = Ratio_Options_SFX   then fGameSettings.SetSoundFXVolume(Ratio_Options_SFX.Position);
+  if Sender = Ratio_Options_Music then fGameSettings.SetMusicVolume(Ratio_Options_Music.Position);
+  if Sender = Button_Options_MusicOn then fGameSettings.IsMusic := not fGameSettings.IsMusic;
+
+  if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
+                           else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
