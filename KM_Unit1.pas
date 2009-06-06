@@ -563,6 +563,7 @@ begin
   MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
   H:=MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
+  MyPlayer.AddHousePlan(ht_Mill,KMPoint(6,12),true);
   MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
   MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));

@@ -2008,21 +2008,19 @@ begin
     exit; //so we don't need to perform any more processing
 
   //Build a route A*
-  fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, fPass, NodeCount, Nodes); //Try to make the route with fPass
+  fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, fPass, fWalkToSpot, NodeCount, Nodes); //Try to make the route with fPass
 
   fRouteBuilt:=NodeCount>0;
   if not fRouteBuilt then
     fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with default fPass');
 
   if not fRouteBuilt then begin //Build a route with canWalk
-    fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, canWalk, NodeCount, Nodes); //Try to make a route
+    fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, canWalk, fWalkToSpot, NodeCount, Nodes); //Try to make a route
     fRouteBuilt:=NodeCount>0;
   end;
 
   if not fRouteBuilt then
     fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with canWalk');
-
-  if fRouteBuilt and not fWalkToSpot then dec(NodeCount); //Approach spot from any side
 end;
 
 
@@ -2081,6 +2079,16 @@ begin
       {StartWalkingAround}
       Explanation:='Unit on the way is doing something and won''t move away';
       Result:=false;
+        fWalker.SetAction(
+          TUnitActionWalkTo.Create(
+            fWalker,
+            fWalkTo,
+            KMPoint(Nodes[NodePos+1].X,Nodes[NodePos+1].Y), //Avoid this tile
+            fActionType,
+            fWalkToSpot,
+            fIgnorePass
+          )
+        );
       exit;
       { UNRESOLVED! }
     end;
@@ -2113,7 +2121,7 @@ begin
         //Unit isn't walking away - go around it
         Explanation:='Unit on the way is walking '+TypeToString(U.Direction)+'. Waiting till it walks away '+TypeToString(fWalker.Direction);
         Result:=false;
-        fWalker.SetAction(
+        {fWalker.SetAction(
           TUnitActionWalkTo.Create(
             fWalker,
             fWalkTo,
@@ -2122,9 +2130,9 @@ begin
             fWalkToSpot,
             fIgnorePass
           )
-        );
+        );}
         exit;
-        { UNRESOLVED! }
+        { UNRESOLVED! } //see SolveDiamond
       end;
     end;
   end;

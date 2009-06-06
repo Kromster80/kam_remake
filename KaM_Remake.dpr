@@ -21,7 +21,8 @@ uses
   KM_LoadSFX in 'KM_LoadSFX.pas',
   KM_Settings in 'KM_Settings.pas',
   KM_LoadDAT in 'KM_LoadDAT.pas',
-  KM_Game in 'KM_Game.pas';
+  KM_Game in 'KM_Game.pas',
+  KM_PathFinding in 'KM_PathFinding.pas';
 
 {$R *.RES}
 {}
