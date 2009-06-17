@@ -4,12 +4,10 @@ uses
   KM_Defaults, windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain,
   KM_Houses, KromUtils, SysUtils, MMSystem, KM_Units_WorkPlan;
 
-type
-
+type    
   TKMUnit = class;
   TKMUnitSerf = class;
   TKMUnitWorker = class;
-
 
   TUnitAction = class(TObject)
   private
@@ -232,6 +230,7 @@ type
     Direction: TKMDirection;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
+    procedure KillUnit;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     property UnitAction: TUnitAction read fCurrentAction;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
@@ -728,6 +727,15 @@ begin
   Inherited;
 end;
 
+procedure TKMUnit.KillUnit;
+begin
+  if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
+
+  SetAction(nil); //Dispose of current action
+  FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
+  fUnitTask:=TTaskDie.Create(Self);
+end;
+
 function TKMUnit.GetSupportedActions: TUnitActionTypeSet;
 begin
   Result:= UnitSupportedActions[integer(fUnitType)];
@@ -819,13 +827,10 @@ begin
   //Can use fCondition as a sort of counter to reveal terrain X times a sec
   if fCondition mod 10 = 0 then fTerrain.RevealCircle(GetPosition,UnitStat[byte(fUnitType)].Sight,20,fOwner);
 
-  if fCondition=0 then
-    if not (fUnitTask is TTaskDie) then begin
-      SetAction(nil);
-      FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
-      fUnitTask:=TTaskDie.Create(Self);
-      exit;
-    end;
+  if fCondition=0 then begin
+    KillUnit;
+    exit;
+  end;
 
   if (fHome<>nil)and(fHome.IsDestroyed) then begin
     fHome:=nil;

@@ -140,6 +140,7 @@ type TKMGamePlayInterface = class
       KMLabel_UnitDescription:TKMLabel;
       KMConditionBar_Unit:TKMPercentBar;
       KMImage_UnitPic:TKMImage;
+      KMButton_Die:TKMButton;
       
     KMPanel_House:TKMPanel;
       KMLabel_House:TKMLabel;
@@ -201,6 +202,7 @@ type TKMGamePlayInterface = class
     procedure UpdateState;
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit);
+    procedure Unit_Die(Sender:TObject);
     procedure House_Demolish(Sender:TObject);
     procedure House_RepairToggle(Sender:TObject);
     procedure House_WareDeliveryToggle(Sender:TObject);
@@ -1031,6 +1033,8 @@ begin
     KMConditionBar_Unit:=MyControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
     KMLabel_UnitDescription:=MyControls.AddLabel(KMPanel_Unit,8,161,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
     KMImage_UnitPic:=MyControls.AddImage(KMPanel_Unit,8,52,54,80,521);
+    KMButton_Die:=MyControls.AddButton(KMPanel_Unit,8,140,54,30,'Die',fnt_Grey);
+    KMButton_Die.OnClick:=Unit_Die;
 end;
 
 
@@ -1439,6 +1443,13 @@ begin
   KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   KMLabel_UnitAct.Caption:='Act: '+Sender.GetUnitActText;
   KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType))
+end;
+
+
+procedure TKMGamePlayInterface.Unit_Die(Sender:TObject);
+begin
+  if fPlayers.SelectedUnit = nil then exit;
+  fPlayers.SelectedUnit.KillUnit;
 end;
 
 
