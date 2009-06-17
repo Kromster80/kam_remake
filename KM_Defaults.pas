@@ -201,6 +201,8 @@ const AnimalTerrain: array[31..38] of TPassability = (
 //Direction order used in unit placement, makes swirl around input point
 type TMoveDirection = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3);
 
+type TGoInDirection = (gid_In=1, gid_Out=-1); //Switch to set if unit goes into house or out of it
+
 //Unit thoughts
 const
   Army_Flag=4962;

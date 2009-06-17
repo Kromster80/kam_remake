@@ -22,7 +22,8 @@ uses
   KM_Settings in 'KM_Settings.pas',
   KM_LoadDAT in 'KM_LoadDAT.pas',
   KM_Game in 'KM_Game.pas',
-  KM_PathFinding in 'KM_PathFinding.pas';
+  KM_PathFinding in 'KM_PathFinding.pas',
+  KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas';
 
 {$R *.RES}
 {}
