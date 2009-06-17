@@ -5,7 +5,7 @@ uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, K
 type
   TByteArray2 = array of Byte;
   TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest);
-type TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and rest
+  TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and rest
 
 type
   TResource = class
@@ -45,7 +45,6 @@ type
   var
     fResource:TResource;
 
-
     procedure ExportRX2BMP(RXid:integer);
     procedure ExportTreeAnim2BMP();
     procedure ExportHouseAnim2BMP();
@@ -53,7 +52,6 @@ type
 
 
 implementation
-
 uses KromUtils, KM_Unit1, KM_Render, KM_Game;
 
 
@@ -101,6 +99,7 @@ begin
   for i:=1 to length(FontFiles) do
     LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
   fLog.AppendLog('Read fonts is done');
+  
   StepRefresh();
   fLog.AppendLog('ReadGFX is done');
   DataState:=dls_Menu;

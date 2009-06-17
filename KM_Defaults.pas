@@ -30,9 +30,12 @@ var
   MakeUnitSprites:boolean=true;         //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
-  DO_UNIT_INTERACTION:boolean=true;     //Debug for unit interaction
+  DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
   DO_UNIT_HUNGER:boolean=false;          //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS:boolean=true;     //Wherever serfs should walk only on roads
+
+  //These should be ... enabled sometime
+  FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
 
   //These should be FALSE
   ShowTerrainWires:boolean=false;       //Makes terrain height visible
@@ -40,10 +43,9 @@ var
   MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes:boolean=true;     //Draw unit routes when they are chosen
   MakeShowUnitMove:boolean=false;       //Draw unit movement overlay
-  WriteResourceInfoToTXT:boolean=true; //Whenever to write txt files with defines data properties on loading
+  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
   TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
-  FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   RENDER_3D:boolean=false;              //Experimental 3D render
   SHOW_MAP_AREAS:boolean=false;         //Show floodfill areas of interconnected areas
@@ -92,7 +94,7 @@ const
 
 {Controls}
 type
-  TButtonStyle = (bsMenu,bsGame);
+  TButtonStyle = (bsMenu, bsGame);
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
@@ -152,36 +154,38 @@ type
     rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
 
 const
-WarfareCosts:array[17..26,1..2]of TResourceType = (
-(rt_None,rt_Wood),    //rt_Shield
-(rt_Coal,rt_Steel),   //rt_MetalShield
-(rt_None,rt_Leather), //rt_Armor
-(rt_Coal,rt_Steel),   //rt_MetalArmor
-(rt_Wood,rt_Wood),    //rt_Axe
-(rt_Coal,rt_Steel),   //rt_Sword
-(rt_Wood,rt_Wood),    //rt_Pike
-(rt_Coal,rt_Steel),   //rt_Hallebard
-(rt_Wood,rt_Wood),    //rt_Bow
-(rt_Coal,rt_Steel)    //rt_Arbalet
-);
+  WarfareCosts:array[17..26,1..2]of TResourceType = (
+    (rt_None,rt_Wood),    //rt_Shield
+    (rt_Coal,rt_Steel),   //rt_MetalShield
+    (rt_None,rt_Leather), //rt_Armor
+    (rt_Coal,rt_Steel),   //rt_MetalArmor
+    (rt_Wood,rt_Wood),    //rt_Axe
+    (rt_Coal,rt_Steel),   //rt_Sword
+    (rt_Wood,rt_Wood),    //rt_Pike
+    (rt_Coal,rt_Steel),   //rt_Hallebard
+    (rt_Wood,rt_Wood),    //rt_Bow
+    (rt_Coal,rt_Steel)    //rt_Arbalet
+  );
 
 { Terrain }
-type TPassability = (canAll, canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold, canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab);
+type TPassability = (canAll,
+                     canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold,
+                     canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab);
      TPassabilitySet = set of TPassability;
 
 const PassabilityStr:array[1..11] of string = (
-'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
-'canWalk',      // General passability of tile for any walking units
-'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
-'canBuild',     // Can we build a house on this tile?
-'canBuildIron', // Special allowance for Iron Mines
-'canBuildGold', // Special allowance for Gold Mines
-'canMakeRoads', // Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges
-'canMakeFields',// Thats more strict than roads, cos e.g. on beaches you can't make fields
-'canPlantTrees',// If Forester can plant a tree here, dunno if it's the same as fields
-'canFish',      // Water tiles where fish can move around
-'canCrab'       // Sand tiles where crabs can move around
-);
+    'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
+    'canWalk',      // General passability of tile for any walking units
+    'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
+    'canBuild',     // Can we build a house on this tile?
+    'canBuildIron', // Special allowance for Iron Mines
+    'canBuildGold', // Special allowance for Gold Mines
+    'canMakeRoads', // Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges
+    'canMakeFields',// Thats more strict than roads, cos e.g. on beaches you can't make fields
+    'canPlantTrees',// If Forester can plant a tree here, dunno if it's the same as fields
+    'canFish',      // Water tiles where fish can move around
+    'canCrab'       // Sand tiles where crabs can move around
+  );
 
 {Units}
 type
@@ -207,16 +211,18 @@ type TMoveDirection = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3);
 
 type TGoInDirection = (gid_In=1, gid_Out=-1); //Switch to set if unit goes into house or out of it
 
-//Unit thoughts
-const
-  Army_Flag=4962;
-  Thought_Eat=6250;
-  Thought_Home=6258;
-  Thought_Build=6266;
-  Thought_Stone=6275;
-  Thought_Wood=6282;
-  Thought_Death=6290;
-  Thought_Quest=6298;
+type
+  TUnitThought = (
+    Thought_None=0,
+    //Army_Flag=4962,
+    Thought_Eat=6250,
+    Thought_Home=6258,
+    Thought_Build=6266,
+    Thought_Stone=6275,
+    Thought_Wood=6282,
+    Thought_Death=6290,
+    Thought_Quest=6298
+  );
 
 type
   TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,

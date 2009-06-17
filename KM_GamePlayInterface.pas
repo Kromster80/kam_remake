@@ -32,7 +32,7 @@ type TKMMainMenuInterface = class
       KMShape_SingleMap:TKMShape;
       KMImage_SingleScroll1:TKMImage;
       KMLabel_SingleTitle,KMLabel_SingleDesc:TKMLabel;
-      KMLabel_SingleCondWin,KMLabel_SingleCondDef:TKMLabel;
+      KMLabel_SingleCondTyp,KMLabel_SingleCondWin,KMLabel_SingleCondDef:TKMLabel;
       KM_Button_SingleDiff:array[1..4]of TKMButtonFlat;
       KMShape_SingleDiff:TKMShape;
       KMLabel_SingleDiff:TKMLabel;
@@ -368,20 +368,24 @@ begin
 
     KMPanel_SingleDesc:=MyControls.AddPanel(KMPanel_Single,512+22,100,445,600);
 
-      KMImage_SingleScroll1:=MyControls.AddImage(KMPanel_SingleDesc,0,0,445,200,15,5);
+      KMImage_SingleScroll1:=MyControls.AddImage(KMPanel_SingleDesc,0,0,445,220,15,5);
       KMImage_SingleScroll1.StretchImage:=true;
-      KMImage_SingleScroll1.Height:=200; //Need to reset it after stretching is enabled, cos it can't stretch down by default
+      KMImage_SingleScroll1.Height:=220; //Need to reset it after stretching is enabled, cos it can't stretch down by default
 
       KMLabel_SingleTitle:=MyControls.AddLabel(KMPanel_SingleDesc,445 div 2,35,420,180,'',fnt_Outline, kaCenter);
       KMLabel_SingleTitle.AutoWrap:=true;
 
-      KMLabel_SingleDesc:=MyControls.AddLabel(KMPanel_SingleDesc,15,60,420,180,'',fnt_Metal, kaLeft);
-      KMLabel_SingleDesc.AutoWrap:=true; 
+      KMLabel_SingleDesc:=MyControls.AddLabel(KMPanel_SingleDesc,15,60,420,160,'',fnt_Metal, kaLeft);
+      KMLabel_SingleDesc.AutoWrap:=true;
 
-      MyControls.AddBevel(KMPanel_SingleDesc,0,300,445,20);
-      KMLabel_SingleCondWin:=MyControls.AddLabel(KMPanel_SingleDesc,8,304,445,20,'Win condition: ',fnt_Metal, kaLeft);
-      MyControls.AddBevel(KMPanel_SingleDesc,0,322,445,20);
-      KMLabel_SingleCondDef:=MyControls.AddLabel(KMPanel_SingleDesc,8,326,445,20,'Defeat condition: ',fnt_Metal, kaLeft);
+      MyControls.AddBevel(KMPanel_SingleDesc,125,230,192,192);
+
+      MyControls.AddBevel(KMPanel_SingleDesc,0,408,445,20);
+      KMLabel_SingleCondTyp:=MyControls.AddLabel(KMPanel_SingleDesc,8,412,445,20,'Mission type: ',fnt_Metal, kaLeft);
+      MyControls.AddBevel(KMPanel_SingleDesc,0,430,445,20);
+      KMLabel_SingleCondWin:=MyControls.AddLabel(KMPanel_SingleDesc,8,434,445,20,'Win condition: ',fnt_Metal, kaLeft);
+      MyControls.AddBevel(KMPanel_SingleDesc,0,452,445,20);
+      KMLabel_SingleCondDef:=MyControls.AddLabel(KMPanel_SingleDesc,8,456,445,20,'Defeat condition: ',fnt_Metal, kaLeft);
 
       for i:=1 to 4 do begin
         KM_Button_SingleDiff[i]:=MyControls.AddButtonFlat(KMPanel_SingleDesc,0+(i-1)*60,390,60,80,31+i);
@@ -561,6 +565,7 @@ begin
   KMLabel_SingleTitle.Caption:=SingleMapsInfo.GetTitle(SingleMap_Selected);
   KMLabel_SingleDesc.Caption:=SingleMapsInfo.GetBigDesc(SingleMap_Selected);
 
+  KMLabel_SingleCondTyp.Caption:='Mission type: '+SingleMapsInfo.GetTyp(SingleMap_Selected);
   KMLabel_SingleCondWin.Caption:='Win condition: '+SingleMapsInfo.GetWin(SingleMap_Selected);
   KMLabel_SingleCondDef.Caption:='Defeat condition: '+SingleMapsInfo.GetDefeat(SingleMap_Selected);
 

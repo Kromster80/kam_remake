@@ -13,7 +13,7 @@ type
 
   TKMMissionDetails = record
     MapPath: string;
-    IsFight: shortint; //We need to have 3 states here: default, no, yes  (-1,0,1)
+    IsFight: boolean;
     TeamCount, HumanPlayerID: shortint;
   end;
   TKMMapDetails = record
@@ -89,6 +89,7 @@ type
     function GetMapSize(ID:integer):string;
     function GetFolder(ID:integer):string;
     function GetMissionFile(ID:integer):string;
+    function GetTyp(ID:integer):string;
     function GetWin(ID:integer):string;
     function GetDefeat(ID:integer):string;
   end;
@@ -178,7 +179,7 @@ var
 begin
   //Set default values
   Result.MapPath := '';
-  Result.IsFight := -1;
+  Result.IsFight := false;
   Result.TeamCount := 0;
   Result.HumanPlayerID := 0;
 
@@ -241,7 +242,7 @@ begin
   case CommandType of
   ct_SetMap:         MissionDetails.MapPath     := RemoveQuotes(TextParam);
   ct_SetMaxPlayer:   MissionDetails.TeamCount   := ParamList[0];
-  ct_SetTactic:      MissionDetails.IsFight     := 1;
+  ct_SetTactic:      MissionDetails.IsFight     := true;
   ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
   end;
 end;
@@ -529,7 +530,7 @@ begin
 
     MissionDetails := fMissionParser.GetMissionDetails(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.dat');
     MapDetails := fMissionParser.GetMapDetails(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.map');
-    IsFight := MissionDetails.IsFight=1;
+    IsFight := MissionDetails.IsFight;
     PlayerCount := MissionDetails.TeamCount;
 
     case MapDetails.MapSize.X*MapDetails.MapSize.Y of
@@ -591,6 +592,15 @@ function TKMMapsInfo.GetBigDesc(ID:integer):string;      begin Result:=Maps[ID].
 function TKMMapsInfo.GetMapSize(ID:integer):string;      begin Result:=Maps[ID].MapSize;         end;
 function TKMMapsInfo.GetFolder(ID:integer):string;       begin Result:=Maps[ID].Folder;          end;
 function TKMMapsInfo.GetMissionFile(ID:integer):string;  begin Result:=Maps[ID].Folder+'.dat';   end;
+
+function TKMMapsInfo.GetTyp(ID:integer):string;
+begin
+  if Maps[ID].IsFight then
+    Result:='Fighting'
+  else
+    Result:='Town building & fighting';
+end;
+
 function TKMMapsInfo.GetWin(ID:integer):string;          begin Result:='No win condition';       end;
 function TKMMapsInfo.GetDefeat(ID:integer):string;       begin Result:='No defeat condition';    end;
 

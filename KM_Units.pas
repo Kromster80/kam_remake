@@ -212,6 +212,7 @@ type
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
+    fThought:TUnitThought;
     Speed:single;
     fOwner:TPlayerID;
     fHome:TKMHouse;
@@ -701,6 +702,7 @@ constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType
 begin
   Inherited Create;
   ScheduleForRemoval:=false;
+  fThought:=Thought_None;
   fHome:=nil;
   fPosition.X:= PosX;
   fPosition.Y:= PosY;
@@ -733,6 +735,7 @@ procedure TKMUnit.KillUnit;
 begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
+  fThought:=Thought_None; //Reset thought
   SetAction(nil); //Dispose of current action
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
   fUnitTask:=TTaskDie.Create(Self);
@@ -1039,8 +1042,15 @@ case Phase of
    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, dt_Once, di_High);
    end;
 
-4: SetAction(TUnitActionStay.Create(30,ua_Work1));
-5: SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+4: begin
+   SetAction(TUnitActionStay.Create(30,ua_Work1));
+   fThought:=Thought_Stone;
+   end;
+
+5: begin
+   SetAction(TUnitActionStay.Create(11,ua_Work2,false));
+   fThought:=Thought_None;
+   end;
 6: begin
    fTerrain.IncDigState(fLoc);
    SetAction(TUnitActionStay.Create(11,ua_Work2,false));
@@ -1093,8 +1103,14 @@ case Phase of
       SetAction(TUnitActionStay.Create(11,ua_Work1,false));
       fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fWorker,rt_Wood, dt_Once, di_High);
     end;
- 4: SetAction(TUnitActionStay.Create(30,ua_Work1));
- 5: SetAction(TUnitActionStay.Create(11*4,ua_Work2,false));
+ 4: begin
+      SetAction(TUnitActionStay.Create(30,ua_Work1));
+      fThought:=Thought_Wood;
+    end;
+ 5: begin
+      SetAction(TUnitActionStay.Create(11*4,ua_Work2,false));
+      fThought:=Thought_None;
+    end;  
  6: begin
       fTerrain.SetField(fLoc,fOwner,ft_Wine);
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
