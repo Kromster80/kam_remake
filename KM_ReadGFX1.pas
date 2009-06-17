@@ -80,19 +80,8 @@ begin
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   FormLoading.Label1.Caption:='Reading palettes ...';
-  LoadPallete(ExeDir+'data\gfx\map.bbm',pal_map);
-  LoadPallete(ExeDir+'data\gfx\pal0.bbm',pal_0);
-  LoadPallete(ExeDir+'data\gfx\pal1.bbm',pal_1);
-  LoadPallete(ExeDir+'data\gfx\pal2.bbm',pal_2);
-  LoadPallete(ExeDir+'data\gfx\pal3.bbm',pal_3);
-  LoadPallete(ExeDir+'data\gfx\pal4.bbm',pal_4);
-  LoadPallete(ExeDir+'data\gfx\pal5.bbm',pal_5);
-  LoadPallete(ExeDir+'data\gfx\setup.bbm',pal_set);
-  LoadPallete(ExeDir+'data\gfx\setup2.bbm',pal_set2);
-  LoadPallete(ExeDir+'data\gfx\map.bbm',pal_lin);
-  LoadPallete(ExeDir+'data\gfx\mapgold.lbm',pal2_mapgold);
-  LoadPallete(ExeDir+'data\gfx\setup.lbm',pal2_setup);
-  LoadPallete(ExeDir+'data\gfx\pal1.lbm',pal2_1);
+  for i:=1 to length(PalFiles) do
+   LoadPallete(ExeDir+'data\gfx\'+PalFiles[i],i);
   fLog.AppendLog('Reading palettes',true);
 
   RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.

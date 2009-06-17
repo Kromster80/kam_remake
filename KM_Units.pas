@@ -727,6 +727,8 @@ begin
   Inherited;
 end;
 
+
+{Call this procedure to properly kill unit}
 procedure TKMUnit.KillUnit;
 begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
@@ -735,6 +737,7 @@ begin
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
   fUnitTask:=TTaskDie.Create(Self);
 end;
+
 
 function TKMUnit.GetSupportedActions: TUnitActionTypeSet;
 begin
