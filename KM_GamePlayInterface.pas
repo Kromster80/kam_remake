@@ -416,7 +416,7 @@ begin
     Ratio_Options_Music:=MyControls.AddRatioRow(KMPanel_Options,118,246,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
 
     Label_Options_MusicOn:=MyControls.AddLabel(KMPanel_Options,200,280,100,30,fTextLibrary.GetTextString(197),fnt_Metal,kaCenter);
-    Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,246,180,30,'',fnt_Metal);
+    Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal);
     Button_Options_MusicOn.OnClick:=Options_Change;
 
     Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;

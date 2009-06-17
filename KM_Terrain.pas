@@ -105,7 +105,7 @@ public
   function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
-  function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
+  function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
   procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeCount:word; out Nodes:array of TKMPoint);
 
   procedure UnitAdd(LocTo:TKMPoint);
@@ -939,7 +939,8 @@ begin
 end;
 
 //Test wherever the route is possible to make
-function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
+function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
+var i,k:integer;
 begin
   Result := true;
   //target has to be different point than source
@@ -947,7 +948,12 @@ begin
 
   //target point has to be walkable
   Result := Result and CheckPassability(LocA,aPass);
-  Result := Result and CheckPassability(LocB,aPass);
+  if aWalkToSpot then
+    Result := Result and CheckPassability(LocB,aPass)
+  else
+    for i:=LocB.Y-1 to LocB.Y+1 do for k:=LocB.X-1 to LocB.X+1 do
+    if fTerrain.TileInMapCoords(k,i) then
+    Result := Result or CheckPassability(KMPoint(k,i),aPass);
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
   if aPass=canWalk then
@@ -985,8 +991,6 @@ end;
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
-  //@Krom: Low importance bug report: When moving a scout around the map it often crashes here. This is because
-  //       if you tell the scout to move when it already is moving, it gets confused as to which tile it is on.
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;

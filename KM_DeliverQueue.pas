@@ -208,9 +208,9 @@ for iD:=1 to length(fDemand) do
        ((fDemand[iD].Loc_House<>nil)and(fOffer[iO].Loc_House.GetHouseType<>fDemand[iD].Loc_House.GetHouseType)) then
 
     if ((fDemand[iD].Loc_House<>nil)and(DO_SERFS_WALK_ROADS)and //House-House delivery should be performed only if there's a connecting road
-       (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad)))or
+       (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,true)))or
        ((fDemand[iD].Loc_Unit<>nil)and //House-Unit delivery can be performed without connecting road
-       (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk))) then
+       (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk,false))) then
 
     begin
 

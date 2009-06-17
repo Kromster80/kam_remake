@@ -39,7 +39,9 @@ begin
     bRX:=5; bID:=9; //5-3 is a metal background used in main menu
   end;
 
-  with GFXData[bRX,bID] do begin
+  with GFXData[bRX,bID] do
+  if PxWidth*PxHeight<>0 then //Incase data wasn't loaded properly
+  begin
     a.x := u1 + (u2-u1) * (PosX         - byte(bs_Down in State)) /2/ PxWidth;
     b.x := u1 + (u2-u1) * (PosX + SizeX - byte(bs_Down in State)) /2/ PxWidth;
     a.y := v1 + (v2-v1) * (PosY         - byte(bs_Down in State)) /2/ PxHeight;

@@ -30,7 +30,7 @@ private
   fRouteSuccessfullyBuilt:boolean;
   function CheckRouteCanExist():boolean;
   procedure InitRoute();
-  procedure MakeRoute();
+  function MakeRoute():boolean;
   function IsDestinationReached():boolean;
 public
   constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean);
@@ -45,7 +45,7 @@ uses KM_Unit1, KM_Users, KM_LoadSFX, KM_Settings;
 function TPathFinding.CheckRouteCanExist():boolean;
 begin
   //Don't try to make a route if it's obviously impossible
-  Result := fTerrain.CheckPassability(LocB,Pass) or (not WalkToSpot);
+  Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,WalkToSpot)
 end;
 
 
@@ -56,7 +56,7 @@ begin
   OCount:=1;
   ORef[LocA.Y,LocA.X]:=OCount;
   OList[OCount].Pos:=LocA;
-  OList[OCount].CostTo:=0; //
+  OList[OCount].CostTo:=0;
   OList[OCount].Estim:=(abs(LocB.X-LocA.X) + abs(LocB.Y-LocA.Y))*10;
   OList[OCount].Parent:=0;
 end;
@@ -68,7 +68,7 @@ begin
 end;
 
 
-procedure TPathFinding.MakeRoute();
+function TPathFinding.MakeRoute():boolean;
 const c_closed=65535;
 var i,x,y:integer;
 begin
@@ -128,8 +128,8 @@ begin
          IsDestinationReached or // Destination point is reached
          (MinCost.Cost=65535)); // There's no more open cells available
 
+  Result := IsDestinationReached;
   //Assert(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
-
 end;
 
 
@@ -143,12 +143,12 @@ begin
   Avoid := aAvoid;
   Pass := aPass;
   WalkToSpot := aWalkToSpot;
-  fRouteSuccessfullyBuilt:=false;
+  fRouteSuccessfullyBuilt := false;
 
   if not CheckRouteCanExist then exit;
 
   InitRoute();
-  MakeRoute();
+  fRouteSuccessfullyBuilt := MakeRoute(); //
 
 end;
 
@@ -156,7 +156,7 @@ end;
 procedure TPathFinding.ReturnRoute(out NodeCount:word; out Nodes:array of TKMPoint);
 var i,k:integer;
 begin
-  if (not IsDestinationReached) or (MinCost.Cost=65535) then
+  if not fRouteSuccessfullyBuilt then
   begin
     NodeCount:=0; //Something went wrong
     Nodes[0]:=LocA;

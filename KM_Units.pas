@@ -736,7 +736,7 @@ begin
 //Priority no.3 - find self a work
     if fCondition<UNIT_MIN_CONDITION then begin
       H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-      if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalkRoad)) then
+      if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalkRoad,true)) then
         fUnitTask:=TTaskGoEat.Create(H,Self)
       else //If there's no Inn or no food in it
         //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -830,7 +830,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalkRoad)) then
+    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalkRoad,true)) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -895,7 +895,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then begin
     H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalk)) then
+    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(fHome.GetEntrance),canWalk,true)) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -1030,7 +1030,7 @@ begin
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
-  until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)])));
+  until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)],true)));
 
   if KMSamePoint(GetPosition,Spot) then begin
     SetAction(TUnitActionStay.Create(20, ua_Walk));

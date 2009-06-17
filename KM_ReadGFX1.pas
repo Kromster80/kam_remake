@@ -715,7 +715,7 @@ end;
 //Making OpenGL textures
 //=============================================
 {Take RX data and make nice textures out of it.
-Textures should be POT to improve performance and avoid drivers bugs
+Textures should be POT to improve performance and avoid driver bugs
 In result we have GFXData filled.}
 procedure TResource.MakeGFX(Sender: TObject; RXid:integer);
 var
@@ -811,7 +811,7 @@ repeat
   inc(id,ad-1);
   inc(TexCount);
 
-until(id=RXData[RXid].Qty);
+until(id>=RXData[RXid].Qty); // >= in case data wasn't loaded and Qty=0
 
 fLog.AppendLog(inttostr(TexCount)+' Textures created');
 fLog.AddToLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
