@@ -42,6 +42,7 @@ type TKMMainMenuInterface = class
       Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
       Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
       Button_Options_MusicOn,Button_Options_Back:TKMButton;
+      Label_Options_FullScreen:TKMLabel;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage; //Credits background
       KMButton_CreditsBack:TKMButton;
@@ -264,7 +265,7 @@ inherited Create;
   //}
 
   //Show version info on every page
-  KMLabel_Version:=MyControls.AddLabel(KMPanel_Main1,5,5,100,30,GAME_VERSION+' / OpenGL'+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
+  KMLabel_Version:=MyControls.AddLabel(KMPanel_Main1,5,5,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
 
   SwitchMenuPage(nil);
 end;
@@ -425,9 +426,13 @@ begin
     Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal);
     Button_Options_MusicOn.OnClick:=Options_Change;
 
+    Label_Options_FullScreen:=MyControls.AddLabel(KMPanel_Options,118,340,100,30,'Fullscreen',fnt_Metal,kaLeft);
+    Label_Options_FullScreen.OnClick:=Options_Change;
+
     Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;
     Ratio_Options_SFX.Position  :=fGameSettings.GetSoundFXVolume;
     Ratio_Options_Music.Position:=fGameSettings.GetMusicVolume;
+    Options_Change(nil);
     if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                              else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
@@ -609,6 +614,15 @@ begin
 
   if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                            else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
+  if fGameSettings.IsFullScreen then Label_Options_FullScreen.Caption:='V FullScreen'
+                                else Label_Options_FullScreen.Caption:='O FullScreen';
+
+  //This one should be called last since it re-inits whole fGame and the rest
+  if Sender = Label_Options_FullScreen then begin
+    fGame.ToggleFullScreen(not fGameSettings.IsFullScreen);
+    exit;
+  end;
+
 end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
@@ -1274,7 +1288,7 @@ begin
   ShownHouse:=Sender;
   AskDemolish:=aAskDemolish;
 
-  if Sender=nil then begin
+  if (not Assigned(Sender)) then begin //=nil produces wrong result when there's no object at all
     SwitchPage(nil);
     exit;
   end;
@@ -1432,7 +1446,7 @@ procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
 begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
-  if (Sender=nil)or(not Sender.IsVisible)or((Sender<>nil)and(Sender.IsDestroyed)) then begin
+  if (not Assigned(Sender))or(not Sender.IsVisible)or((Sender<>nil)and(Sender.IsDestroyed)) then begin
     SwitchPage(nil);
     exit;
   end;

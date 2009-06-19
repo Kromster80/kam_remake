@@ -8,6 +8,7 @@ uses Windows, MPlayer, Forms, Controls, Classes, SysUtils, KromUtils, Math,
 type
   TKMGame = class
   private
+    FormControlsVisible:boolean;
   public
     ScreenX,ScreenY:word;
     GameSpeed:integer;
@@ -19,6 +20,8 @@ type
     destructor Destroy; override;
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
+    procedure ToggleFullScreen(aToggle:boolean);
+    procedure KeyUp(Key: Word; Shift: TShiftState);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -97,6 +100,31 @@ end;
 procedure TKMGame.ZoomInGameArea(X:single);
 begin
   if GameIsRunning then fViewport.SetZoom(X);
+end;
+
+
+procedure TKMGame.ToggleFullScreen(aToggle:boolean);
+begin
+  fGameSettings.IsFullScreen := aToggle;
+  fGameSettings.Destroy; //Saves all settings
+  Form1.ToggleFullScreen(aToggle);
+end;
+
+
+procedure TKMGame.KeyUp(Key: Word; Shift: TShiftState);
+begin
+  //List of conflicting keys:
+  //F12 Pauses Execution and switched to debug
+  //F10 sets focus on MainMenu1
+  //F9 is the default key in Fraps for video capture
+  //others.. unknown
+  if Key=VK_F11 then begin
+    Form1.SetControlsVisibility(FormControlsVisible);
+    FormControlsVisible := not FormControlsVisible;
+  end;
+  if Key=VK_F8 then begin
+    Self.ToggleFullScreen(not fGameSettings.IsFullScreen);
+  end;
 end;
 
 

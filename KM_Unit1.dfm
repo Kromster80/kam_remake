@@ -12,11 +12,13 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  KeyPreview = True
   Menu = MainMenu1
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyUp = FormKeyUp
   OnMouseWheel = FormMouseWheel
   OnResize = FormResize
   DesignSize = (
@@ -32,7 +34,7 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'Panel5'
-    Color = clBlack
+    Color = clMaroon
     UseDockManager = False
     TabOrder = 0
     OnMouseDown = Panel1MouseDown
@@ -64,7 +66,9 @@ object Form1: TForm1
     Top = 8
     Width = 425
     Height = 73
-    Caption = '  Additional controls  '
+    Caption = 
+      '  Additional controls   ..   Press F11 to swap controls visibili' +
+      'ty'
     TabOrder = 2
     object Image4: TImage
       Left = 10
@@ -155,7 +159,7 @@ object Form1: TForm1
       OnClick = Debug_ResetZoomClick
     end
     object TeamColorPicker: TShape
-      Left = 386
+      Left = 290
       Top = 16
       Width = 22
       Height = 22
@@ -240,7 +244,7 @@ object Form1: TForm1
       OnChange = Debug_PassabilityTrackChange
     end
     object RGPlayer: TRadioGroup
-      Left = 280
+      Left = 320
       Top = 8
       Width = 97
       Height = 61

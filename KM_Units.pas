@@ -1988,7 +1988,7 @@ end;
 
 procedure TUnitActionStay.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
 begin
-  case KMUnit.GetUnitType of
+  case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
     ut_Worker: case ActionType of
                  ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
@@ -2005,14 +2005,13 @@ begin
                      else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
                    end;
   end;
-
 end;
 
 
 procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var Cycle,Step:byte;
 begin
-  if not StayStill then begin //Various UnitTypes and ActionTypes
+  if not StayStill then begin 
 
     Cycle:=max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
     Step:=KMUnit.AnimStep mod Cycle;
@@ -2020,7 +2019,6 @@ begin
     IsStepDone:=KMUnit.AnimStep mod Cycle = 0;
 
     if TimeToStay >= 1 then MakeSound(KMUnit, Cycle, Step);
-
 
     inc(KMUnit.AnimStep);
   end

@@ -69,6 +69,8 @@ type
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure CBHideClick(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -114,6 +116,9 @@ type
     procedure Button_WClick(Sender: TObject);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
+  public
+    procedure SetControlsVisibility(ShowCtrls:boolean);
+    procedure ToggleFullScreen(Toggle:boolean);
   end;
 
 var
@@ -195,6 +200,13 @@ procedure TForm1.FormResize(Sender:TObject);
 begin
   if fGame<>nil then //Occurs on exit
     fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+end;
+
+
+procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+Assert(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
+fGame.KeyUp(Key, Shift);
 end;
 
 
@@ -623,18 +635,66 @@ begin
 end;}
 
 procedure TForm1.CBHideClick(Sender: TObject);
-var i:integer;
 begin
-  GroupBox1.Visible:=CBHide.Checked;
-  StatusBar1.Visible:=CBHide.Checked;
-  for i:=1 to MainMenu1.Items.Count do
-    MainMenu1.Items[i-1].Visible:=CBHide.Checked;
+  SetControlsVisibility(CBHide.Checked);
+end;
 
-    Form1.Refresh;
+procedure TForm1.SetControlsVisibility(ShowCtrls:boolean);
+  var i:integer;
+begin
+  CBHide.Visible:=ShowCtrls;
+  GroupBox1.Visible:=ShowCtrls;
+  StatusBar1.Visible:=ShowCtrls;
+  for i:=1 to MainMenu1.Items.Count do
+    MainMenu1.Items[i-1].Visible:=ShowCtrls;
+  CBHide.Enabled:=ShowCtrls;
+  GroupBox1.Enabled:=ShowCtrls;
+  StatusBar1.Enabled:=ShowCtrls;
+  for i:=1 to MainMenu1.Items.Count do
+    MainMenu1.Items[i-1].Enabled:=ShowCtrls;
+
+  //Form1.BorderStyle:=bsSizeable;
+
+  Form1.WindowState:=wsMaximized;
+  //Form1.ClientWidth:=1024;
+  //Form1.ClientHeight:=768;
+  //To get fullscreen - change this in ObjectInspector, otherwise it doesn't work right
+  //!Form1.BorderStyle:=bsNone;
+
+
+  Form1.Refresh;
+
   Panel5.Top:=0;
   Panel5.Height:=Form1.ClientHeight;
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
-
 end;
+
+
+procedure TForm1.ToggleFullScreen(Toggle:boolean);
+begin
+
+  if Toggle then begin
+    Form1.BorderStyle:=bsNone;
+    Form1.WindowState:=wsMaximized;
+  end else begin
+    Form1.Refresh;
+    Form1.WindowState:=wsNormal;
+    Form1.BorderStyle:=bsSizeable;
+    Form1.ClientWidth:=1024;
+    Form1.ClientHeight:=768;
+  end;
+
+  //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
+  //Don't know how lame it is, but it works well
+  //It wastes a bit of RAM (4mb) and takes few seconds to re-init
+  fGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1);
+
+  Form1.Refresh;
+
+  Panel5.Top:=0;
+  Panel5.Height:=Form1.ClientHeight;
+  fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+end;
+
 
 end.

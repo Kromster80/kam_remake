@@ -13,6 +13,7 @@ type
     fSoundFXVolume:byte;
     fMusicVolume:byte;
     fMusicOnOff:boolean;
+    fFullScreen:boolean;
     SlidersMin,SlidersMax:byte;
     function LoadSettingsFromFile(filename:string):boolean;
     procedure SaveSettingsToFile(filename:string);
@@ -36,6 +37,7 @@ type
     property GetSoundFXVolume:byte read fSoundFXVolume;
     property GetMusicVolume:byte read fMusicVolume;
     property IsMusic:boolean read fMusicOnOff write SetMusicOnOff default true;
+    property IsFullScreen:boolean read fFullScreen write fFullScreen default true;
   end;
 
 {These are mission specific settings and stats for each player}
@@ -101,6 +103,7 @@ begin
   blockread(f, fSoundFXVolume, 1);
   blockread(f, fMusicVolume, 1);
   blockread(f, fMusicOnOff, 1);
+  blockread(f, fFullScreen, 1);
   closefile(f);
   except end;
   Result:=true;
@@ -118,6 +121,7 @@ begin
   blockwrite(f, fSoundFXVolume, 1);
   blockwrite(f, fMusicVolume, 1);
   blockwrite(f, fMusicOnOff, 1);
+  blockwrite(f, fFullScreen, 1);
   closefile(f);
 end;
 
@@ -131,6 +135,7 @@ begin
   fSoundFXVolume := 10;
   fMusicVolume := 10;
   fMusicOnOff := true;
+  fFullScreen := true;
 end;
 
 procedure TGameSettings.IncBrightness;

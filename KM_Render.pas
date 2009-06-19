@@ -8,7 +8,7 @@ TRender = class
 private
   h_DC: HDC;
   h_RC: HGLRC;
-  RendererVersion:string;
+  OpenGL_Vendor, OpenGL_Renderer, OpenGL_Version:string;
   TextG:GLuint; //Shading gradient
   TextT:GLuint; //Tiles
   TextW:array[1..8]of GLuint; //Water
@@ -76,7 +76,7 @@ public
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   property GetRenderAreaSize:TKMPoint read RenderAreaSize;
-  property GetRendererVersion:string read RendererVersion;
+  property GetRendererVersion:string read OpenGL_Version;
 end;
 
 var
@@ -93,13 +93,15 @@ begin
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults();
 
+  OpenGL_Vendor:=glGetString(GL_VENDOR);     fLog.AddToLog('Vendor:  '+OpenGL_Vendor);
+  OpenGL_Renderer:=glGetString(GL_RENDERER); fLog.AddToLog('Renderer:  '+OpenGL_Renderer);
+  OpenGL_Version:=glGetString(GL_VERSION);   fLog.AddToLog('Version:  '+OpenGL_Version);
+
   setlength(RenderList,512);
 
   glDisable(GL_LIGHTING);
   fLog.AppendLog('Pre-texture done');
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-  RendererVersion:=glGetString(GL_VERSION);
 end;
 
 
