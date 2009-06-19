@@ -62,6 +62,7 @@ type
       public
         constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0);
         function HowLongLeftToStay():integer;
+        procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -1985,36 +1986,41 @@ begin
 end;
 
 
+procedure TUnitActionStay.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
+begin
+  case KMUnit.GetUnitType of
+    ut_Worker: case ActionType of
+                 ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
+                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
+                 ua_Work2: if Step = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
+               end;
+    ut_Farmer: case ActionType of
+                 ua_Work:  if Step = 8 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
+                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true,0.8);
+               end;
+    ut_StoneCutter: if ActionType = ua_Work then
+                           if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
+    ut_WoodCutter: case ActionType of
+                     ua_Work: if (KMUnit.AnimStep mod Cycle = 5) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true)
+                     else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
+                   end;
+  end;
+
+end;
+
+
 procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var Cycle,Step:byte;
 begin
   if not StayStill then begin //Various UnitTypes and ActionTypes
 
-    {MakeSound ->}
     Cycle:=max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
     Step:=KMUnit.AnimStep mod Cycle;
 
     IsStepDone:=KMUnit.AnimStep mod Cycle = 0;
 
-    if TimeToStay>=1 then
-    case KMUnit.GetUnitType of
-      ut_Worker: case ActionType of
-                   ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
-                   ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
-                   ua_Work2: if Step = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
-                 end;
-      ut_Farmer: case ActionType of
-                   ua_Work:  if Step = 8 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
-                   ua_Work1: if Step = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true,0.8);
-                 end;
-      ut_StoneCutter: if ActionType =
-                   ua_Work then if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
-      ut_WoodCutter: case ActionType of
-                   ua_Work: if (KMUnit.AnimStep mod Cycle = 5) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true) else
-                            if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
-      end;
-    end;
-    {<- MakeSound}
+    if TimeToStay >= 1 then MakeSound(KMUnit, Cycle, Step);
+
 
     inc(KMUnit.AnimStep);
   end
