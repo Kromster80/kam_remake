@@ -989,12 +989,6 @@ end;
 procedure TRender.RenderTerrainBorder(Border:TBorderType; Pos:TKMDirection; pX,pY:integer);
 var a,b:TKMPointF; ID:integer; t:single; HeightInPx:integer; FOW:byte;
 begin
-  //@Krom: These should all be moved in slightly, (1-2px) so that border next to border doesn't overlap
-  //       If Pos=1 then add offset, if Pos=2 then subtract offset (Pos 2 means bottom or right side of tile)
-  //@Lewin: I suggest you replace Dir and Pos with TKMDirection (N,E,S,W) to make it clearer
-  //       They do overlap in KaM, but I like your idea better :)
-  //@Krom: Done, your right, it's much clearer. Have you inset the borders? I guess it can't be done much or they will
-  //       not be on the edge of the tile. All to be deleted
   ID:=1;
   case Border of
     bt_HouseBuilding: if (Pos=dir_N) or (Pos=dir_S) then ID:=463 else ID:=467; //WIP (Wood planks)
@@ -1098,8 +1092,6 @@ begin
         //Forbid planning on unrevealed areas
         AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
 
-        //@Lewin: Please correct this if it's wrong
-        //@Krom:  I don't quite understand what it does. But there seem to be no problems with placement so I guess it is ok!
         if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
         //Check surrounding tiles in +/- 1 range for other houses pressence
         for s:=-1 to 1 do for t:=-1 to 1 do

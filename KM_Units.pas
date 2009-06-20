@@ -47,6 +47,8 @@ type
         fStep:single;
         fDir:TGoInDirection;
         fHouseType:THouseType;
+        fStartX:single;
+        fHasStarted:boolean;
       public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
@@ -1917,6 +1919,7 @@ begin
   Inherited Create(aAction);
   fDir:=aDirection;
   fHouseType:=aHouseType;
+  fHasStarted:=false;
   if fDir=gid_In then fStep:=1  //go Inside (one cell up)
                  else fStep:=0; //go Outside (one cell down)
 end;
@@ -1924,6 +1927,10 @@ end;
 procedure TUnitActionGoIn.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var Distance:single;
 begin
+  if not fHasStarted then
+    fStartX := KMUnit.fPosition.X;
+
+  fHasStarted:=true;
   DoEnd:= False;
   TimeDelta:=0.1;
   Distance:= TimeDelta * KMUnit.Speed;
@@ -1953,16 +1960,21 @@ begin
   fStep := fStep - Distance * shortint(fDir);
   KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * shortint(fDir);
 
-  {//Attempt at making unit go towards entrance. I couldn't work out the algorithm
+  //Attempt at making unit go towards entrance. I couldn't work out the algorithm
   //@Lewin: Try using Mix function, I sketched it for you
+  //@Krom: Thanks, I've nearly got it working. I divided the offset by 4 because otherwise they move too much. I haven't done it for Y yet, just X.
+  //       I don't know if it is like KaM though, it is hardly noticable anyway. Are there any house that have a big offset?
+  //       What do you think?
   if fHouseType <> ht_None then
-    KMUnit.fPosition.X := mix(KMUnit.GetPosition.X,KMUnit.fPosition.X - (HouseDAT[byte(fHouseType)].EntranceOffsetXpx/CELL_SIZE_PX),fStep);
-  }
+    KMUnit.fPosition.X := Mix(fStartX,fStartX + ((HouseDAT[byte(fHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX),fStep);
 
   KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
 
   if (fStep<=0)or(fStep>=1) then
-    DoEnd:=true
+  begin
+    DoEnd:=true;
+    KMUnit.fPosition.X := fStartX;
+  end
   else
     inc(KMUnit.AnimStep);
 end;

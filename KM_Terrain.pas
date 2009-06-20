@@ -225,7 +225,6 @@ begin
       Land[i,k].Height:=c[3];
       Land[i,k].Rotation:=c[4];
       Land[i,k].Obj:=c[6];
-      //@Lewin: This is how we enable Trees growth. I hope I've supplied correct values. To be deleted..
       if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge:=1;
       if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge:=TreeAge1;
       if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge:=TreeAge2;
@@ -926,7 +925,7 @@ begin
 
   //List 2 holds the best positions, ones which are not occupied
   L2:=TKMPointList.Create;
-  for i:=1 to L1.Count{-1} do //@Lewin: There should be no -1 here, right? To be deleted..
+  for i:=1 to L1.Count do
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit = 0 then
       L2.AddEntry(L1.List[i]);
        

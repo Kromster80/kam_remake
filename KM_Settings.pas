@@ -88,6 +88,14 @@ end;
 function TGameSettings.LoadSettingsFromFile(filename:string):boolean;
 var f:file;
 begin
+  //@Krom: This needs some kind of check that the file is complete
+  // When I ran it then it crashed with "Read beyond end of file" because my config
+  // is old and doesn't have the FullScreen value. Would you like me to make this
+  // a true INI file format? I always use TIniFile from the unit "inifiles", which works well and manages
+  // everything automatically. The only disadvantage of this is that anyone can read and edit the
+  // config, but do we really care? Sometimes it is useful to be able to change the config
+  // outside of a game. Also the file will be maybe 100 bytes larger, but that's not a problem either IMO.
+  // Let me know what you think.
   Result:=false;
   if not CheckFileExists(filename,true) then
   begin

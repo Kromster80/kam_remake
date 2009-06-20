@@ -71,6 +71,8 @@ type
     procedure CBHideClick(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -207,6 +209,14 @@ procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
 Assert(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
 fGame.KeyUp(Key, Shift);
+end;
+
+
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+Assert(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
+fGame.KeyUp(Key, Shift, true);
 end;
 
 
@@ -695,6 +705,5 @@ begin
   Panel5.Height:=Form1.ClientHeight;
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
 end;
-
 
 end.

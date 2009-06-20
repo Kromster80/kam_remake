@@ -21,7 +21,7 @@ type
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
     procedure ToggleFullScreen(aToggle:boolean);
-    procedure KeyUp(Key: Word; Shift: TShiftState);
+    procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -107,24 +107,33 @@ procedure TKMGame.ToggleFullScreen(aToggle:boolean);
 begin
   fGameSettings.IsFullScreen := aToggle;
   fGameSettings.Destroy; //Saves all settings
+  //@Krom: I don't understand why this has to reset everything and return to the main menu.
+  //       Can't it just switch and keep the game running? At the moment it exits without confirming
+  //       to save and then won't start a new game because the old one is still running undernether.
   Form1.ToggleFullScreen(aToggle);
 end;
 
 
-procedure TKMGame.KeyUp(Key: Word; Shift: TShiftState);
+procedure TKMGame.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
 begin
   //List of conflicting keys:
   //F12 Pauses Execution and switched to debug
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
   //others.. unknown
-  if Key=VK_F11 then begin
-    Form1.SetControlsVisibility(FormControlsVisible);
-    FormControlsVisible := not FormControlsVisible;
+  if not IsDown then
+  begin
+    if Key=VK_F11 then begin
+      Form1.SetControlsVisibility(FormControlsVisible);
+      FormControlsVisible := not FormControlsVisible;
+    end;
+    if Key=VK_F8 then begin
+      Self.ToggleFullScreen(not fGameSettings.IsFullScreen);
+    end;
   end;
-  if Key=VK_F8 then begin
-    Self.ToggleFullScreen(not fGameSettings.IsFullScreen);
-  end;
+  //Also send shortcut to GamePlayInterface if it is there
+  if (GameIsRunning) and (fGamePlayInterface <> nil) then
+    fGamePlayInterface.ShortcutPress(Key,IsDown);
 end;
 
 

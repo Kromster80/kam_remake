@@ -1,7 +1,7 @@
 unit KM_GamePlayInterface;
 interface
 uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, OpenGL,
-  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT;
+  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT, Windows;
 
 type TKMMainMenuInterface = class
   private
@@ -226,6 +226,7 @@ type TKMGamePlayInterface = class
     procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure UnPauseGame(Sender:TObject);
+    procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     procedure Paint;
   end;
 
@@ -614,7 +615,8 @@ begin
 
   if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                            else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
-  if fGameSettings.IsFullScreen then Label_Options_FullScreen.Caption:='V FullScreen'
+  if fGameSettings.IsFullScreen then Label_Options_FullScreen.Caption:='V FullScreen' //@Krom: Why not an 'X' like normal for enabled?
+  //...     To be honest I don't really like the O,X system, some people might not understand it. Do you think it should be changed to something else?
                                 else Label_Options_FullScreen.Caption:='O FullScreen';
 
   //This one should be called last since it re-inits whole fGame and the rest
@@ -1853,6 +1855,22 @@ end;
 procedure TKMGamePlayInterface.UnPauseGame(Sender:TObject);
 begin
   fGame.PauseGame(false);
+end;
+
+
+procedure TKMGamePlayInterface.ShortcutPress(Key:Word; IsDown:boolean=false);
+begin
+  //1-4 game menu shortcuts
+  if Key in [49..52] then
+  begin
+    KMButtonMain[Key-48].Down := IsDown;
+    if (not IsDown) and (not KMButtonMain[5].Visible) then SwitchPage(KMButtonMain[Key-48]);
+  end;
+  if Key=VK_ESCAPE then
+  begin
+    KMButtonMain[5].Down := IsDown;
+    if (not IsDown) and (KMButtonMain[5].Visible) then SwitchPage(KMButtonMain[5]);
+  end;
 end;
 
 
