@@ -31,6 +31,7 @@ const
     'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
     'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
     'ADD_WARE_TO_ALL','ADD_WEAPON');
+    //SET_AI_NO_BUILD, SET_AI_START_POSITION, SET_AI_CHARACTER, SET_AI_DEFENSE, ...
 
   MAXPARAMS = 8;
   //This is a map of the valid values for !SET_UNIT, and the corrisponing unit that will be created (matches KaM behavior)
@@ -113,6 +114,7 @@ begin
       break;
     end;
   end;
+  if Result = ct_Unknown then fLog.AddToLog(ACommandText);
 end;
 
 constructor TMissionParser.Create;
@@ -596,9 +598,9 @@ function TKMMapsInfo.GetMissionFile(ID:integer):string;  begin Result:=Maps[ID].
 function TKMMapsInfo.GetTyp(ID:integer):string;
 begin
   if Maps[ID].IsFight then
-    Result:='Fighting'
+    Result := 'Fighting'
   else
-    Result:='Town building & fighting';
+    Result := 'Town building & fighting';
 end;
 
 function TKMMapsInfo.GetWin(ID:integer):string;          begin Result:='No win condition';       end;

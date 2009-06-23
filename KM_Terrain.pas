@@ -386,6 +386,7 @@ end;
 
 {Check if requested vertice is revealed for given player}
 {Return value of revelation is 0..255}
+//0 unrevealed, 255 revealed completely
 function TTerrain.CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
   //I like how "alive" fog looks with some tweaks
@@ -520,8 +521,10 @@ begin
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if (TileIsStone(KMPoint(k,i))>0)and(CanWalk in Land[i+1,k].Passability) then
-          List.AddEntry(KMPoint(k,i+1));
+        if (TileIsStone(KMPoint(k,i))>0) then
+          //if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
+          if Route_CanBeMade(KMPointY1(aPosition),KMPoint(k,i+1),CanWalk,true) then
+            List.AddEntry(KMPoint(k,i+1));
 
   Result:=List.GetRandom;
   List.Free;
@@ -766,13 +769,15 @@ begin
   end;
   Land[Loc.Y,Loc.X].Rotation:=Random(4);
   Land[Loc.Y,Loc.X].Height:=DecHeight(Land[Loc.Y,Loc.X].Height,Land[Loc.Y+1,Loc.X].Height,HeightReduction); //Reduce height
-  RecalculatePassability(Loc);
   UpdateTransition(Loc.X,Loc.Y);
   UpdateTransition(Loc.X,Loc.Y-1);
   UpdateTransition(Loc.X+1,Loc.Y);
   UpdateTransition(Loc.X,Loc.Y+1);
   UpdateTransition(Loc.X-1,Loc.Y);
   ReduceHeights(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Required for height reduction
+
+  RecalculatePassability(Loc);
+  RebuildWalkConnect(canWalk);
 end;
 
 
@@ -1337,30 +1342,32 @@ var i,k,ID:integer; Light:single; Loc:TKMPointList; FOW:byte;
 begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
     FOW:=fTerrain.CheckRevelation(k,i,MyPlayer.PlayerID);
-    if fTerrain.Land[i,k].TileOwner=play_none then begin
-      if FOW=0 then begin
-        MM[i,k].R:=0;
-        MM[i,k].G:=0;
-        MM[i,k].B:=0;
-      end else begin
+    if SHOW_ALL_ON_MINIMAP then FOW := 255;
+    if FOW = 0 then begin
+      MM[i,k].R:=0;
+      MM[i,k].G:=0;
+      MM[i,k].B:=0;
+    end else
+      if fTerrain.Land[i,k].TileOwner=play_none then begin
         ID:=fTerrain.Land[i,k].Terrain+1;
         Light:=fTerrain.Land[i,k].Light/4-(1-FOW/255); //Originally it's -1..1 range
         //Will tweak it later..
         MM[i,k].R:=round(EnsureRange(TileMMColor[ID].R+Light,0,1)*255);
         MM[i,k].G:=round(EnsureRange(TileMMColor[ID].G+Light,0,1)*255);
         MM[i,k].B:=round(EnsureRange(TileMMColor[ID].B+Light,0,1)*255);
+      end else begin
+        MM[i,k].R:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] and $FF;
+        MM[i,k].G:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 8 and $FF;
+        MM[i,k].B:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 16 and $FF;
       end;
-    end else begin
-      MM[i,k].R:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] and $FF;
-      MM[i,k].G:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 8 and $FF;
-      MM[i,k].B:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 16 and $FF;
-    end;
   end;
 
   Loc:=TKMPointList.Create;
   for i:=1 to fPlayers.PlayerCount do begin
     fPlayers.Player[i].GetUnitLocations(Loc);
-    for k:=1 to Loc.Count do begin
+    for k:=1 to Loc.Count do
+    if (fTerrain.CheckRevelation(Loc.List[k].X,Loc.List[k].Y,MyPlayer.PlayerID)=255)or(SHOW_ALL_ON_MINIMAP) then
+    begin
       MM[Loc.List[k].Y,Loc.List[k].X].R:=TeamColors[i] and $FF;
       MM[Loc.List[k].Y,Loc.List[k].X].G:=TeamColors[i] shr 8 and $FF;
       MM[Loc.List[k].Y,Loc.List[k].X].B:=TeamColors[i] shr 16 and $FF;

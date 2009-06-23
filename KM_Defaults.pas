@@ -26,29 +26,30 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim:boolean=false;         //Should we animate water and swamps
-  MakeUnitSprites:boolean=true;         //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites:boolean=true;        //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors:boolean=false;          //Whenever to make team colors or not, saves RAM for debug
-  DO_UNIT_INTERACTION:boolean=false;     //Debug for unit interaction
-  DO_UNIT_HUNGER:boolean=false;          //Wherever units get hungry or not
-  DO_SERFS_WALK_ROADS:boolean=true;     //Wherever serfs should walk only on roads
+  MakeTerrainAnim       :boolean=false; //Should we animate water and swamps
+  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeTeamColors        :boolean=false; //Whenever to make team colors or not, saves RAM for debug
+  DO_UNIT_INTERACTION   :boolean=false; //Debug for unit interaction
+  DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
+  DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
 
   //These should be ... enabled sometime
-  FOG_OF_WAR_ENABLE:boolean=false;      //Whenever fog of war is enabled or not
+  FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
 
   //These should be FALSE
-  ShowTerrainWires:boolean=false;       //Makes terrain height visible
-  ShowSpriteOverlay:boolean=false;      //Render outline around every sprite
-  MakeDrawPagesOverlay:boolean=false;   //Draw colored overlays ontop of panels, usefull for making layout
-  MakeShowUnitRoutes:boolean=true;     //Draw unit routes when they are chosen
-  MakeShowUnitMove:boolean=false;       //Draw unit movement overlay
+  ShowTerrainWires      :boolean=false; //Makes terrain height visible
+  ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
+  MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
+  MakeShowUnitRoutes    :boolean=false; //Draw unit routes when they are chosen
+  MakeShowUnitMove      :boolean=false; //Draw unit movement overlay
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
-  WriteAllTexturesToBMP:boolean=false;  //Whenever to write all generated textures to BMP on loading
-  TestViewportClipInset:boolean=false;  //Renders smaller area to see if everything gets clipped well
+  WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (very time consuming)
+  TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
-  RENDER_3D:boolean=false;              //Experimental 3D render
-  SHOW_MAP_AREAS:boolean=false;         //Show floodfill areas of interconnected areas
+  RENDER_3D             :boolean=false; //Experimental 3D render
+  SHOW_WALK_CONNECT     :boolean=true; //Show floodfill areas of interconnected areas
+  SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted
@@ -67,7 +68,7 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         MAX_WARFARE_IN_BARRACKS = 20;
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
-        UNIT_MAX_CONDITION = 15*600;            //*min of life. In KaM it's 45min
+        UNIT_MAX_CONDITION = 6*600;            //*min of life. In KaM it's 45min
         UNIT_MIN_CONDITION = 5*600;             //If unit condition is less it will look for Inn
 
 type
@@ -97,6 +98,10 @@ type
   TButtonStyle = (bsMenu, bsGame);
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
+
+{Massages}
+  TKMMessageType = (msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
+
 
 {Palettes}
 const
@@ -211,19 +216,14 @@ type TMoveDirection = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3);
 
 type TGoInDirection = (gid_In=1, gid_Out=-1); //Switch to set if unit goes into house or out of it
 
-type
-  TUnitThought = (
-    Thought_None=0,
-    //Army_Flag=4962,
-    Thought_Eat=6250,
-    Thought_Home=6258,
-    Thought_Build=6266,
-    Thought_Stone=6275,
-    Thought_Wood=6282,
-    Thought_Death=6290,
-    Thought_Quest=6298
-  );
+type //Army_Flag=4962,
+  TUnitThought = (th_None=0, th_Eat=1, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
 
+const //Corresponding indices in units.rx
+  ThoughtBounds:array[1..7,1..2] of word = (
+  (6250,6257),(6258,6265),(6266,6273),(6274,6281),(6282,6289),(6290,6297),(6298,6305)
+  );
+      
 type
   TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,
                      ua_Work2=6, ua_WorkEnd=7, ua_Eat=8, ua_WalkArm=9, ua_WalkTool=10,
@@ -592,7 +592,7 @@ type
     sfx_coalDown,
     sfx_Pig1,sfx_Pig2,sfx_Pig3,sfx_Pig4,
     sfx_Mine,
-    sfx_unknown21,
+    sfx_unknown21, //Pig?
     sfx_Leather,
     sfx_BakerSlap,
     sfx_CoalMineThud,
@@ -605,8 +605,31 @@ type
     sfx_MessageOpen,
     sfx_MessageClose,
     sfx_MessageNotice,
-    { 34-57 are melee attack sounds }
-    sfx_BowDraw=58,
+    sfx_Melee34, //Killed by shot?
+    sfx_Melee35, //Killed by stone?
+    sfx_Melee36, //Killed by stone?
+    sfx_Melee37, //Smacked?
+    sfx_Melee38,
+    sfx_Melee39,
+    sfx_Melee40,
+    sfx_Melee41, //House hit
+    sfx_Melee42, //Clung?
+    sfx_Melee43,
+    sfx_Melee44, //Killed
+    sfx_Melee45,
+    sfx_Melee46,
+    sfx_Melee47, //House hit
+    sfx_Melee48,
+    sfx_Melee49,
+    sfx_Melee50,
+    sfx_Melee51, //Sword-sword
+    sfx_Melee52, //Sword-sword
+    sfx_Melee53, //Sword-sword
+    sfx_Melee54, //Sword-sword
+    sfx_Melee55,
+    sfx_Melee56,
+    sfx_Melee57,
+    sfx_BowDraw,
     sfx_ArrowHit,
     sfx_CrossbowShoot,
     sfx_CrossbowDraw,

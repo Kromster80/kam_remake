@@ -53,7 +53,8 @@ type
     procedure UpdateListener(Pos:TKMPoint);
     procedure UpdateSFXVolume(Value:single);
     procedure UpdateMusicVolume(Value:single);
-    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
+    procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
+    procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
     procedure ScanMusicTracks(Path:string);
     procedure PlayMenuTrack();
     procedure PlayNextTrack();
@@ -205,6 +206,13 @@ begin
 end;  
 
 
+{Wrapper with fewer options for non-attenuated sounds}
+procedure TSoundLib.Play(SoundID:TSoundFX; const Volume:single=1.0);
+begin
+  Play(SoundID, KMPoint(0,0), false, Volume);
+end;
+
+
 {Call to this procedure will find free spot and start to play sound immediately}
 {Will need to make another one for unit sounds, which will take WAV file path as parameter}
 {Attenuated means if sound should fade over distance or not}
@@ -212,6 +220,8 @@ procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolea
 var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
 begin
   if not IsOpenALInitialized then exit;
+
+  //fLog.AddToLog('SoundPlay ID'+inttostr(byte(SoundID))+' at '+TypeToString(Loc));
 
   //Here should be some sort of RenderQueue/List/Clip
 
@@ -224,6 +234,8 @@ begin
       break;
     end;
   end;
+
+  //fLog.AddToLog('Assigned buffer '+inttostr(FreeBuf));
 
   if i>=MaxSourceCount then exit;//Don't play if there's no room left, will need to replace with better scheme sometime
 

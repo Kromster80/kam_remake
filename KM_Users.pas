@@ -171,7 +171,7 @@ function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulate
 var fHouse:TKMHouse;
 begin
   Result := BuildList.CancelHousePlan(Position,Simulated);
-  fHouse:=fHouses.HitTest(Position.X, Position.Y);
+  fHouse := fHouses.HitTest(Position.X, Position.Y);
   if fHouse<>nil then
   begin
     if not Simulated then

@@ -75,6 +75,7 @@ public
   procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
+  procedure RenderUnitThought(Thought:TUnitThought; StepID:integer; pX,pY:single);
   property GetRenderAreaSize:TKMPoint read RenderAreaSize;
   property GetRendererVersion:string read OpenGL_Version;
 end;
@@ -361,11 +362,11 @@ end;
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D,0);
 
-if SHOW_MAP_AREAS then
+if SHOW_WALK_CONNECT then
 for i:=y1 to y2 do for k:=x1 to x2 do
 with fTerrain do
 begin
-  glColor3f(Land[i,k].WalkConnect[1]/8,Land[i,k].WalkConnect[2]/8,0);
+  glColor4f(Land[i,k].WalkConnect[1]/8,Land[i,k].WalkConnect[2]/8,0,0.5);
   RenderQuad(k,i)
 end;
 
@@ -688,6 +689,7 @@ if ID<=0 then exit;
   RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
 end;
 
+
 procedure TRender.RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
@@ -700,6 +702,19 @@ if ID<=0 then exit;
   ShiftX:=ShiftX+SerfCarry[CarryID].Dir[DirID].MoveX/CELL_SIZE_PX;
   ShiftY:=ShiftY+SerfCarry[CarryID].Dir[DirID].MoveY/CELL_SIZE_PX;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,Owner);
+end;
+
+
+procedure TRender.RenderUnitThought(Thought:TUnitThought; StepID:integer; pX,pY:single);
+var ShiftX,ShiftY:single; ID:integer;
+begin
+  if byte(Thought) = 0 then exit; 
+  ID:=ThoughtBounds[byte(Thought),1]+1 +
+     (GlobalTickCount mod (ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
+  ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
+  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
 end;
 
 

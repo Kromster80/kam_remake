@@ -1,9 +1,3 @@
-
-
-Load and process Palette.dat into TPassability format we use
-
-
-
 Performing living village cycle
 
 	citizens

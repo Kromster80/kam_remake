@@ -33,7 +33,8 @@ type
   public
     constructor Create();
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
-    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType; aImp:TDemandImportance);
+    procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
+    function PermitDelivery(iO,iD:integer):boolean;
     function  AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
     procedure CloseDelivery(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
@@ -92,7 +93,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Terrain;
+uses KM_Unit1, KM_Terrain, KM_Users;
 
 { TKMDeliverQueue }
 
@@ -125,23 +126,64 @@ end;
 
 //Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
 //so we just find an empty place (which is last one) and write there.
-procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandType:TDemandType; aImp:TDemandImportance);
-var i:integer;
+procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
+var i,k:integer;
 begin
-i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
+  for k:=1 to aDemandCount do begin
+    i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
 
-with fDemand[i] do begin
-    Loc_House:=aHouse;
-    Loc_Unit:=aUnit;
-    DemandType:=aDemandType; //Once or Always
-    Resource:=aResource;
-    Importance:=aImp;
-    if GOLD_TO_SCHOOLS_IMPORTANT then
-      if (Resource=rt_gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
-    if FOOD_TO_INN_IMPORTANT then
-      if (Resource in [rt_bread,rt_Sausages,rt_Wine,rt_Fish])and
-      (Loc_House<>nil)and(Loc_House.GetHouseType=ht_Inn) then Importance:=di_High;
+    with fDemand[i] do begin
+      Loc_House:=aHouse;
+      Loc_Unit:=aUnit;
+      DemandType:=aDemandType; //Once or Always
+      Resource:=aResource;
+      Importance:=aImp;
+      if GOLD_TO_SCHOOLS_IMPORTANT then
+        if (Resource=rt_gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
+      if FOOD_TO_INN_IMPORTANT then
+        if (Resource in [rt_bread,rt_Sausages,rt_Wine,rt_Fish])and
+        (Loc_House<>nil)and(Loc_House.GetHouseType=ht_Inn) then Importance:=di_High;
+    end;
   end;
+end;
+
+
+function TKMDeliverQueue.PermitDelivery(iO,iD:integer):boolean;
+begin
+  //If Offer Resource matches Demand
+  Result := (fDemand[iD].Resource = fOffer[iO].Resource)or
+            (fDemand[iD].Resource = rt_All)or
+            ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [rt_Shield..rt_Horse]));
+
+  //If Demand house has WareDelivery toggled ON
+  Result := Result and ((fDemand[iD].Loc_House=nil) or (fDemand[iD].Loc_House.WareDelivery));
+
+  //If Demand is a Storehouse and it has WareDelivery toggled ON
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Store)or
+                        (TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[byte(fOffer[iO].Resource)]=false));
+
+  //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
+  //How do we know how many resource are on-route already??
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Barracks)or
+                       (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<=MAX_WARFARE_IN_BARRACKS));
+
+  //if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
+  //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Store)or(
+  //   (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(fPlayers.Player[byte(KMSerf.GetOwner)].fMissionSettings.GetHouseQty(ht_Barracks)=0)))) then
+  //Works wrong, besides we need to check ALL barracks player owns
+
+  //If Demand and Offer are different HouseTypes, means forbid Store<->Store deliveries
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fOffer[iO].Loc_House.GetHouseType<>fDemand[iD].Loc_House.GetHouseType));
+
+
+  Result := Result and (
+            //House-House delivery should be performed only if there's a connecting road
+            (fDemand[iD].Loc_House<>nil)and(DO_SERFS_WALK_ROADS)and
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,true))
+            )or
+            //House-Unit delivery can be performed without connecting road
+            ((fDemand[iD].Loc_Unit<>nil)and
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk,false)));
 end;
 
 
@@ -189,29 +231,7 @@ for iD:=1 to length(fDemand) do
    if BestBid=1 then break else //Quit loop when best bid is found
     if fOffer[iO].Resource <> rt_None then
 
-    if (fDemand[iD].Resource = fOffer[iO].Resource)or //If Offer Resource matches Demand
-       (fDemand[iD].Resource = rt_All)or
-       ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [rt_Shield..rt_Horse])) then
-
-    if (fDemand[iD].Loc_House=nil)or //If Demand house has WareDelivery toggled ON
-       ((fDemand[iD].Loc_House<>nil)and(fDemand[iD].Loc_House.WareDelivery)) then
-
-    if (fDemand[iD].Loc_House=nil)or //If Demand is a Storehouse and it has WareDelivery toggled ON
-       ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Store)or(
-       (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[byte(fOffer[iO].Resource)]=false)))) then
-
-    if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
-       ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Barracks)or( //How do we know how many resource are on-route already??
-       (fDemand[iD].Loc_House.GetHouseType=ht_Barracks)and(TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<=MAX_WARFARE_IN_BARRACKS)))) then
-
-    if (fDemand[iD].Loc_House=nil)or //If Demand and Offer are different HouseTypes, means forbid Store>Store deliveries
-       ((fDemand[iD].Loc_House<>nil)and(fOffer[iO].Loc_House.GetHouseType<>fDemand[iD].Loc_House.GetHouseType)) then
-
-    if ((fDemand[iD].Loc_House<>nil)and(DO_SERFS_WALK_ROADS)and //House-House delivery should be performed only if there's a connecting road
-       (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,true)))or
-       ((fDemand[iD].Loc_Unit<>nil)and //House-Unit delivery can be performed without connecting road
-       (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk,false))) then
-
+    if PermitDelivery(iO,iD) then
     begin
 
       //Basic Bid is length of route

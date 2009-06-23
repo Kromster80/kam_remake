@@ -230,7 +230,7 @@ begin
 end;
 
 procedure TKMHouse.Activate;
-var i,k:integer;
+var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[byte(fOwner)].CreatedHouse(fHouseType); //Only activated houses count
   fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,100,fOwner);
@@ -239,13 +239,16 @@ begin
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
 
   for i:=1 to 4 do
-    case HouseInput[byte(fHouseType),i] of
+  begin
+    Res := HouseInput[byte(fHouseType),i];
+    with fPlayers.Player[byte(fOwner)].DeliverList do
+    case Res of
       rt_None:    ;
-      rt_Warfare: fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always, di_Norm);
-      rt_All:     fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Always, di_Norm);
-      else for k:=1 to 5 do //Every new house needs 5 resourceunits
-          fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],dt_Once, di_Norm);
+      rt_Warfare: AddNewDemand(Self, nil, Res, 1, dt_Always, di_Norm);
+      rt_All:     AddNewDemand(Self, nil, Res, 1, dt_Always, di_Norm);
+      else        AddNewDemand(Self, nil, Res, 5, dt_Once,   di_Norm); //Every new house needs 5 resourceunits
     end;
+  end;
 
 end;
 
@@ -253,8 +256,8 @@ end;
 procedure TKMHouse.DemolishHouse(DoSilent:boolean);
 begin
   if not DoSilent then
-   if GetBuildingState = hbs_Glyph then fSoundLib.Play(sfx_click,GetPosition)
-   else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
+    if GetBuildingState = hbs_Glyph then fSoundLib.Play(sfx_click,GetPosition)
+    else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   ScheduleForRemoval:=true;
   //Dispose of delivery tasks performed in DeliverQueue unit
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
@@ -265,6 +268,9 @@ end;
 {Return Entrance of the house, which is different than house position sometimes}
 function TKMHouse.GetEntrance():TKMPoint;
 begin
+  if Self=nil then
+  if GetPosition.X=49 then
+  fLog.AppendLog(TypeToString(GetPosition));
   Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y:=GetPosition.Y;
 end;
@@ -273,9 +279,11 @@ end;
 function TKMHouse.HitTest(X, Y: Integer): Boolean;
 begin
   Result:=false;
-if (X-fPosition.X+3 in [1..4])and(Y-fPosition.Y+4 in [1..4]) then
-if HousePlanYX[integer(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then
-  Result:=true;
+  if (X-fPosition.X+3 in [1..4])and(Y-fPosition.Y+4 in [1..4]) then
+  if HousePlanYX[integer(fHouseType),Y-fPosition.Y+4,X-fPosition.X+3]<>0 then begin
+    Result:=true;
+    exit;
+  end;
 end;
 
 
@@ -504,7 +512,7 @@ if aResource=rt_None then exit;
   if aResource = HouseInput[byte(fHouseType),i] then begin
     Assert(fResourceIn[i]>0);
     dec(fResourceIn[i]);
-    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,dt_Once,di_Norm);
+    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,1,dt_Once,di_Norm);
     Result:=true;
   end;
 end;
@@ -548,6 +556,10 @@ end;
 procedure TKMHouse.MakeSound();
 var WorkID,Step:byte;
 begin
+
+  //Do not play sounds if house is invisible to MyPlayer
+  if fTerrain.CheckRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+
   WorkID:=fCurrentAction.GetWorkID;
   if WorkID=0 then exit;
 

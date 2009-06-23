@@ -36,7 +36,7 @@ type
 
 implementation
 uses
-  KM_Defaults, KM_Unit1;
+  KM_Defaults, KM_Unit1, KM_Controls;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
@@ -106,7 +106,6 @@ end;
 procedure TKMGame.ToggleFullScreen(aToggle:boolean);
 begin
   fGameSettings.IsFullScreen := aToggle;
-  fGameSettings.Destroy; //Saves all settings
   //@Krom: I don't understand why this has to reset everything and return to the main menu.
   //       Can't it just switch and keep the game running? At the moment it exits without confirming
   //       to save and then won't start a new game because the old one is still running undernether.
@@ -117,7 +116,7 @@ end;
 procedure TKMGame.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
 begin
   //List of conflicting keys:
-  //F12 Pauses Execution and switched to debug
+  //F12 Pauses Execution and switches to debug
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
   //others.. unknown
@@ -127,30 +126,59 @@ begin
       Form1.SetControlsVisibility(FormControlsVisible);
       FormControlsVisible := not FormControlsVisible;
     end;
-    if Key=VK_F8 then begin
+    if (Key=VK_F9) and not GameIsRunning then begin
       Self.ToggleFullScreen(not fGameSettings.IsFullScreen);
     end;
+    if (Key=VK_F8) and GameIsRunning then begin
+      GameSpeed:=11-GameSpeed; //1 or 11
+      if not (GameSpeed in [1,10]) then GameSpeed:=1; //Reset just in case
+      fGameplayInterface.ShowClock(GameSpeed=10);
+    end;
+    {Thats my debug example}
+    if (Key=ord('5')) and GameIsRunning then begin
+      fGameplayInterface.IssueMessage(msgText,'123');
+    end;
+    if (Key=ord('6')) and GameIsRunning then begin
+      fGameplayInterface.IssueMessage(msgHouse,'123');
+    end;
+    if (Key=ord('7')) and GameIsRunning then begin
+      fGameplayInterface.IssueMessage(msgUnit,'123');
+    end;
+    if (Key=ord('8')) and GameIsRunning then begin
+      fGameplayInterface.IssueMessage(msgHorn,'123');
+    end;
+    if (Key=ord('9')) and GameIsRunning then begin
+      fGameplayInterface.IssueMessage(msgQuill,'123');
+    end;
+    if (Key=ord('0')) and GameIsRunning then begin
+      fGameplayInterface.IssueMessage(msgScroll,'123');
+    end;
+
+    //Also send shortcut to GamePlayInterface if it is there
+    if (GameIsRunning) and (fGamePlayInterface <> nil) {and (Key in [49..52,VK_ESCAPE])} then
+      fGamePlayInterface.ShortcutPress(Key,IsDown);
   end;
-  //Also send shortcut to GamePlayInterface if it is there
-  if (GameIsRunning) and (fGamePlayInterface <> nil) then
-    fGamePlayInterface.ShortcutPress(Key,IsDown);
 end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var MOver:TKMControl;
 begin
   if GameIsRunning then begin
-    if fGameplayInterface.MyControls.MouseOverControl()<>nil then
+    MOver := fGameplayInterface.MyControls.MouseOverControl(); //Remember control that was clicked
+    if MOver<>nil then
       fGameplayInterface.MyControls.OnMouseDown(X,Y,Button)
     else
-
-    //example for units need change
-    //Removed right since it interfers with the school buttons
     if Button = mbMiddle then
       fPlayers.Player[1].AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
   end else begin
+    MOver := fMainMenuInterface.MyControls.MouseOverControl(); //Remember control that was clicked
     fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
   end;
+
+  //Find what control was clicked and make sound
+  if (MOver is TKMButton) and MOver.Enabled then
+    fSoundLib.Play(sfx_click);
 
   MouseMove(Shift,X,Y);
 end;
@@ -265,7 +293,7 @@ begin
     if fPlayers.SelectedUnit<>nil then
     if fPlayers.SelectedUnit.GetUnitType=ut_HorseScout then
       TKMUnitWarrior(fPlayers.SelectedUnit).PlaceOrder(wo_walk,P);
-    //TKMUnitWarrior(fPlayers.SelectedUnit).SetAction(TUnitActionWalkTo.Create(fPlayers.SelectedUnit,P,KMPoint(0,0)));
+    //TKMUnitWarrior(fPlayers.SelectedUnit).SetActionWalk(fPlayers.SelectedUnit,P,KMPoint(0,0));
 
   end else begin //If GameIsRunning=false
     fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
@@ -354,7 +382,7 @@ begin
     if GlobalTickCount mod 10 = 0 then //Once a sec
     if fSoundLib.IsMusicEnded then
       fSoundLib.PlayMenuTrack(); //Menu tune
-   exit; //If game is not running
+    exit; //If game is not running
   end;
 
   fViewport.DoScrolling; //Check to see if we need to scroll

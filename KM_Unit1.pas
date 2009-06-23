@@ -65,12 +65,9 @@ type
     MediaPlayer1: TMediaPlayer;
     TB_Angle: TTrackBar;
     Label3: TLabel;
-    CBHide: TCheckBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
-    procedure CBHideClick(Sender: TObject);
-    procedure FormKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
   published
@@ -171,8 +168,6 @@ begin
   //Form1.BorderStyle:=bsSizeable;
 
   Form1.WindowState:=wsMaximized;
-  //Form1.ClientWidth:=1024;
-  //Form1.ClientHeight:=768;
   //To get fullscreen - change this in ObjectInspector, otherwise it doesn't work right
   //!Form1.BorderStyle:=bsNone;
 
@@ -401,49 +396,49 @@ begin
 
   //Diagonal exchange
   {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(9,9)));
+  U.SetActionWalk(U.GetPosition,KMPoint(9,9));
   U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(9,9)));
+  U.SetActionWalk(U.GetPosition,KMPoint(9,9));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,5)));
+  U.SetActionWalk(U.GetPosition,KMPoint(5,5));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,5))); //}
+  U.SetActionWalk(U.GetPosition,KMPoint(5,5)); //}
 
   //Walk in row
   {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,8));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));
+  U.SetActionWalk(U.GetPosition,KMPoint(5,14));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(5,14)));//}
+  U.SetActionWalk(U.GetPosition,KMPoint(5,14));//}
 
   //Solve diamond
   //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
   //but how to maintain TTask integrity?
   {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
-  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(6,8),KMPoint(0,0)));
+  U.SetActionWalk(U,KMPoint(6,8),KMPoint(0,0));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
-  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(7,11),KMPoint(0,0)));
+  U.SetActionWalk(U,KMPoint(7,11),KMPoint(0,0));
   U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
-  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(4,12),KMPoint(0,0)));
+  U.SetActionWalk(U,KMPoint(4,12),KMPoint(0,0));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
-  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(3,9),KMPoint(0,0)));//}
+  U.SetActionWalk(U,KMPoint(3,9),KMPoint(0,0));//}
 
   //Solve diamond with destination being blocked
   //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
   //but how to maintain TTask integrity?
   U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
-  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(5,9),KMPoint(0,0)));
+  U.SetActionWalk(U,KMPoint(5,9),KMPoint(0,0));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
-  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(6,10),KMPoint(0,0)));
+  U.SetActionWalk(U,KMPoint(6,10),KMPoint(0,0));
   U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
-  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(5,11),KMPoint(0,0)));
+  U.SetActionWalk(U,KMPoint(5,11),KMPoint(0,0));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
-  U.SetAction(TUnitActionWalkTo.Create(U,KMPoint(4,10),KMPoint(0,0)));//}
+  U.SetActionWalk(U,KMPoint(4,10),KMPoint(0,0));//}
 
 
   //Walk through group
   {MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetAction(TUnitActionWalkTo.Create(U.GetPosition,KMPoint(16,8)));//}
+  U.SetActionWalk(U.GetPosition,KMPoint(16,8));//}
 
   fTerrain.RevealWholeMap(play_1);
   fViewPort.SetCenter(10,10);
@@ -571,7 +566,7 @@ end;
 
 {Single house tests}
 procedure TForm1.Button_1Click(Sender: TObject);
-var H:TKMHouse; i:integer; U:TKMUnit;
+var H:TKMHouse; i:integer;
 begin
   fGame.StopGame;
   fGame.StartGame('');
@@ -584,7 +579,7 @@ begin
   for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
   MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
-  H:=MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
+  MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
   MyPlayer.AddHousePlan(ht_Mill,KMPoint(6,12),true);
   MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
   MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
@@ -644,33 +639,18 @@ begin
   Button1.Caption:=inttostr(TimeGetTime-T)+'ms';
 end;}
 
-procedure TForm1.CBHideClick(Sender: TObject);
-begin
-  SetControlsVisibility(CBHide.Checked);
-end;
 
 procedure TForm1.SetControlsVisibility(ShowCtrls:boolean);
   var i:integer;
 begin
-  CBHide.Visible:=ShowCtrls;
   GroupBox1.Visible:=ShowCtrls;
   StatusBar1.Visible:=ShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
     MainMenu1.Items[i-1].Visible:=ShowCtrls;
-  CBHide.Enabled:=ShowCtrls;
   GroupBox1.Enabled:=ShowCtrls;
   StatusBar1.Enabled:=ShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
     MainMenu1.Items[i-1].Enabled:=ShowCtrls;
-
-  //Form1.BorderStyle:=bsSizeable;
-
-  Form1.WindowState:=wsMaximized;
-  //Form1.ClientWidth:=1024;
-  //Form1.ClientHeight:=768;
-  //To get fullscreen - change this in ObjectInspector, otherwise it doesn't work right
-  //!Form1.BorderStyle:=bsNone;
-
 
   Form1.Refresh;
 
@@ -690,13 +670,21 @@ begin
     Form1.Refresh;
     Form1.WindowState:=wsNormal;
     Form1.BorderStyle:=bsSizeable;
-    Form1.ClientWidth:=1024;
-    Form1.ClientHeight:=768;
+    Form1.ClientWidth:=800;
+    Form1.ClientHeight:=600;
   end;
+
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   //Don't know how lame it is, but it works well
-  //It wastes a bit of RAM (4mb) and takes few seconds to re-init
+  //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
+  fGameSettings.Destroy; //Saves all settings into ini file
+  //Free up some more RAM
+  FreeAndNil(fSoundLib);
+  FreeAndNil(fMissionParser);
+  FreeAndNil(fTextLibrary);
+  FreeAndNil(fRender);
+  //Now re-init fGame
   fGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1);
 
   Form1.Refresh;
