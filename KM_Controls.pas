@@ -51,6 +51,7 @@ end;
 
 type TKMPanel = class;
 
+
 {Text Label}
 TKMLabel = class(TKMControl)
   public
@@ -135,6 +136,18 @@ TKMButtonFlat = class(TKMControl)
     HideHighlight:boolean;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
+    procedure Paint(); override;
+end;
+
+
+{Checkbox}
+TKMCheckBox = class(TKMControl)
+  public
+    Caption: string;
+    Font: TKMFont;
+    Checked:boolean;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
     procedure Paint(); override;
 end;
 
@@ -248,6 +261,7 @@ TKMControlsCollection = class(TKMList)
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
+    function AddCheckBox        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
     function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
@@ -483,6 +497,33 @@ begin
 end;
 
 
+{TKMCheckBox}
+constructor TKMCheckBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Caption:=aCaption;
+  Font:=aFont;
+  ParentTo(aParent);
+end;
+
+
+procedure TKMCheckBox.Paint();
+const BoxWidth=20;
+var Tmp:TKMPoint; Col:TColor4;
+begin
+  if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+
+  fRenderUI.WriteText(Left, Top, Width, 'O', Font, kaLeft, false, Col);
+  if Checked then
+    fRenderUI.WriteText(Left, Top, Width, 'X', Font, kaLeft, false, Col);
+
+  Tmp:=fRenderUI.WriteText(Left+BoxWidth, Top, Width, Caption, Font, kaLeft, false, Col);
+  
+  Width:=Tmp.X+BoxWidth;
+  Height:=Tmp.Y;
+end;
+
+
 constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -506,9 +547,9 @@ begin
     kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
   end;
   if Enabled then
-    Tmp:=fRenderUI.WriteText(Left,Top, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
+    Tmp:=fRenderUI.WriteText(Left, Top, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
   else
-    Tmp:=fRenderUI.WriteText(Left,Top, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
+    Tmp:=fRenderUI.WriteText(Left, Top, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
 
   if not AutoWrap then
     Width:=Tmp.X;
@@ -877,6 +918,12 @@ end;
 function TKMControlsCollection.AddButtonFlat(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
 begin
   Result:=TKMButtonFlat.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddCheckBox(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
+begin
+  Result:=TKMCheckBox.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont);
   AddToCollection(Result);
 end;
 

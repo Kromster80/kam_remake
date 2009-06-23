@@ -39,7 +39,7 @@ type TKMMainMenuInterface = class
       Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
       Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
       Button_Options_MusicOn,Button_Options_Back:TKMButton;
-      Label_Options_FullScreen:TKMLabel;
+      CheckBox_Options_FullScreen:TKMCheckBox;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage; //Credits background
       KMButton_CreditsBack:TKMButton;
@@ -125,7 +125,7 @@ type TKMGamePlayInterface = class
       KMPanel_Settings:TKMPanel;
         KMLabel_Settings_Brightness,KMLabel_Settings_BrightValue:TKMLabel;
         KMButton_Settings_Dark,KMButton_Settings_Light:TKMButton;
-        KMLabel_Settings_Autosave,KMLabel_Settings_FastScroll:TKMLabel;
+        KMCheckBox_Settings_Autosave,KMCheckBox_Settings_FastScroll:TKMCheckBox;
         KMLabel_Settings_MouseSpeed,KMLabel_Settings_SFX,KMLabel_Settings_Music,KMLabel_Settings_Music2:TKMLabel;
         KMRatio_Settings_Mouse,KMRatio_Settings_SFX,KMRatio_Settings_Music:TKMRatioRow;
         KMButton_Settings_Music:TKMButton;
@@ -437,8 +437,9 @@ begin
     Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
     Button_Options_MusicOn.OnClick:=Options_Change;
 
-    Label_Options_FullScreen:=MyControls.AddLabel(KMPanel_Options,118,340,100,30,'Fullscreen',fnt_Metal,kaLeft);
-    Label_Options_FullScreen.OnClick:=Options_Change;
+
+    CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options,118,340,100,30,'Fullscreen',fnt_Metal);
+    CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
     Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;
     Ratio_Options_SFX.Position  :=fGameSettings.GetSoundFXVolume;
@@ -637,15 +638,15 @@ begin
 
   if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                            else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
-  if fGameSettings.IsFullScreen then Label_Options_FullScreen.Caption:='X FullScreen'
+
   //@Krom: Why not an 'X' like normal for enabled?
   //...     To be honest I don't really like the O,X system, some people might not understand it.
   //Do you think it should be changed to something else?
   //@Lewin: I guess we should make a kind of TKMCheckbox control mimicing(?) Delphi VCL Checkbox
-                                else Label_Options_FullScreen.Caption:='O FullScreen';
+  CheckBox_Options_FullScreen.Checked := fGameSettings.IsFullScreen;
 
   //This one should be called last since it re-inits whole fGame and the rest
-  if Sender = Label_Options_FullScreen then begin
+  if Sender = CheckBox_Options_FullScreen then begin
     fGame.ToggleFullScreen(not fGameSettings.IsFullScreen);
     exit;
   end;
@@ -1028,9 +1029,9 @@ begin
     KMButton_Settings_Dark.Hint:=fTextLibrary.GetTextString(185);
     KMButton_Settings_Light.Hint:=fTextLibrary.GetTextString(184);
     KMLabel_Settings_BrightValue:=MyControls.AddLabel(KMPanel_Settings,100,34,100,30,'',fnt_Grey,kaCenter);
-    KMLabel_Settings_Autosave:=MyControls.AddLabel(KMPanel_Settings,8,70,100,30,'',fnt_Metal,kaLeft);
-    KMLabel_Settings_Autosave.Disable;
-    KMLabel_Settings_FastScroll:=MyControls.AddLabel(KMPanel_Settings,8,95,100,30,'',fnt_Metal,kaLeft);
+    KMCheckBox_Settings_Autosave:=MyControls.AddCheckBox(KMPanel_Settings,8,70,100,30,fTextLibrary.GetTextString(203),fnt_Metal);
+    KMCheckBox_Settings_Autosave.Disable;
+    KMCheckBox_Settings_FastScroll:=MyControls.AddCheckBox(KMPanel_Settings,8,95,100,30,fTextLibrary.GetTextString(204),fnt_Metal);
     KMLabel_Settings_MouseSpeed:=MyControls.AddLabel(KMPanel_Settings,24,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     KMLabel_Settings_MouseSpeed.Disable;
     KMRatio_Settings_Mouse:=MyControls.AddRatioRow(KMPanel_Settings,18,150,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
@@ -1716,22 +1717,16 @@ procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
 begin
   if Sender = KMButton_Settings_Dark then fGameSettings.DecBrightness;
   if Sender = KMButton_Settings_Light then fGameSettings.IncBrightness;
-  if Sender = KMLabel_Settings_Autosave then fGameSettings.IsAutosave:=not fGameSettings.IsAutosave;
-  if Sender = KMLabel_Settings_FastScroll then fGameSettings.IsFastScroll:=not fGameSettings.IsFastScroll;
+  if Sender = KMCheckBox_Settings_Autosave then fGameSettings.IsAutosave:=not fGameSettings.IsAutosave;
+  if Sender = KMCheckBox_Settings_FastScroll then fGameSettings.IsFastScroll:=not fGameSettings.IsFastScroll;
   if Sender = KMRatio_Settings_Mouse then fGameSettings.SetMouseSpeed(KMRatio_Settings_Mouse.Position);
   if Sender = KMRatio_Settings_SFX then fGameSettings.SetSoundFXVolume(KMRatio_Settings_SFX.Position);
   if Sender = KMRatio_Settings_Music then fGameSettings.SetMusicVolume(KMRatio_Settings_Music.Position);
   if Sender = KMButton_Settings_Music then fGameSettings.IsMusic:=not fGameSettings.IsMusic;
   
   KMLabel_Settings_BrightValue.Caption:=fTextLibrary.GetTextString(185 + fGameSettings.GetBrightness);
-  if fGameSettings.IsAutosave then
-  KMLabel_Settings_Autosave.Caption:='X '+fTextLibrary.GetTextString(203)
-  else
-  KMLabel_Settings_Autosave.Caption:='O '+fTextLibrary.GetTextString(203);
-  if fGameSettings.IsFastScroll then
-  KMLabel_Settings_FastScroll.Caption:='X '+fTextLibrary.GetTextString(204)
-  else
-  KMLabel_Settings_FastScroll.Caption:='O '+fTextLibrary.GetTextString(204);
+  KMCheckBox_Settings_Autosave.Checked:=fGameSettings.IsAutosave;
+  KMCheckBox_Settings_FastScroll.Checked:=fGameSettings.IsFastScroll;
   KMRatio_Settings_Mouse.Position:=fGameSettings.GetMouseSpeed;
   KMRatio_Settings_SFX.Position:=fGameSettings.GetSoundFXVolume;
   KMRatio_Settings_Music.Position:=fGameSettings.GetMusicVolume;
