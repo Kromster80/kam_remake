@@ -48,7 +48,7 @@ var
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   RENDER_3D             :boolean=false; //Experimental 3D render
-  SHOW_WALK_CONNECT     :boolean=true; //Show floodfill areas of interconnected areas
+  SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap
 
   //Statistics
@@ -519,7 +519,7 @@ type
 
   TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road );
 
-  TMarkup = (mu_None=0, mu_RoadPlan, mu_FieldPlan, mu_WinePlan, mu_HousePlan, mu_HouseFence, mu_House);
+  TMarkup = (mu_None=0, mu_RoadPlan, mu_FieldPlan, mu_WinePlan, mu_HousePlan, mu_HouseFence, mu_House, mu_UnderConstruction);
   //Nothing
   //Road/Corn/Wine ropes
   //Rope outline of house area

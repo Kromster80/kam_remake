@@ -34,7 +34,6 @@ object Form1: TForm1
     Height = 225
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
-    Caption = 'Panel5'
     Color = clMaroon
     UseDockManager = False
     TabOrder = 0

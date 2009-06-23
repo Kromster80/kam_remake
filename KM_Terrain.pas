@@ -1178,6 +1178,7 @@ Result:=true;
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
       Result := Result AND TileInMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
+      Result := Result AND (Land[Loc.Y+i-4,Loc.X+k-3].Markup<>mu_UnderConstruction);
 
       case aHouseType of
         ht_IronMine: Result := Result AND (CanBuildIron in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
@@ -1214,6 +1215,7 @@ begin
   mu_WinePlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
   else Result:=false;
   end;
+  Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
   if PlayerRevealID <> play_none then
     Result := Result AND (CheckRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0);
 end;

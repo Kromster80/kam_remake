@@ -269,7 +269,7 @@ end;
 function TKMHouse.GetEntrance():TKMPoint;
 begin
   if Self=nil then
-  if GetPosition.X=49 then
+  if GetPosition.X=49 then //@Krom: What is this for? Old debug stuff? It seems to crash here sometimes
   fLog.AppendLog(TypeToString(GetPosition));
   Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y:=GetPosition.Y;

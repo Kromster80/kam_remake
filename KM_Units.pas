@@ -1107,9 +1107,13 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
-0: SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+0: begin
+   SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+   fThought := th_Build;
+   end;
 1: begin
-   fTerrain.RemMarkup(fLoc);
+   fThought := th_None;
+   fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
    fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
    SetActionStay(11,ua_Work1,false);
    end;
@@ -1147,6 +1151,7 @@ case Phase of
    fTerrain.SetRoad(fLoc,fOwner);
    fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
    SetActionStay(5,ua_Work2);
+   fTerrain.RemMarkup(fLoc);
    end;
 9: TaskDone:=true;
 end;
@@ -1171,9 +1176,13 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
- 0: SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+ 0: begin
+      SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+      fThought := th_Build;
+    end;
  1: begin
-      fTerrain.RemMarkup(fLoc);
+      fThought := th_None;
+      fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
       SetActionStay(11,ua_Work1,false);
     end;
@@ -1198,6 +1207,7 @@ case Phase of
       fTerrain.SetField(fLoc,fOwner,ft_Wine);
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
       SetActionStay(5,ua_Work2);
+      fTerrain.RemMarkup(fLoc);
     end;
  7: TaskDone:=true;
 end;
@@ -1223,9 +1233,12 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
-  0: SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+  0: begin
+       SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+       fThought := th_Build;
+     end;
   1: begin
-      fTerrain.RemMarkup(fLoc);
+      fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
       SetActionStay(0,ua_Walk);
      end;
@@ -1235,9 +1248,11 @@ case Phase of
       if Phase2 in [4,8,10] then fTerrain.IncDigState(fLoc);
      end;
   3: begin
+      fThought := th_None; //Keep thinking build until it's done
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
       fTerrain.SetField(fLoc,fOwner,ft_Corn);
       SetActionStay(5,ua_Walk);
+      fTerrain.RemMarkup(fLoc);
      end;
   4: TaskDone:=true;
 end;
