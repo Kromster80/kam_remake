@@ -148,9 +148,14 @@ begin
   closefile(f);
 
   //@Lewin: ENCODED := c[1] = chr(206); //That is encoded first char
-  //@Krom: We can't use that method. Some mission editors (e.g. Thunderwolf's) put a comment at the top of the file stating that it was made with his editor. And we don't want to force people to start with a command. I vote we use: If file text contains !SET_MAX_PLAYERS then it is real. Because every mission must have that command. That's what I'm using for my mission editor, and it works well. (1 string search won't take long, will it?)
+  //@Krom: We can't use that method. Some mission editors (e.g. Thunderwolf's) put a comment at the
+  //top of the file stating that it was made with his editor. And we don't want to force people to
+  //start with a command. I vote we use: If file text contains !SET_MAX_PLAYERS then it is real.
+  //Because every mission must have that command. That's what I'm using for my mission editor, and
+  //it works well. (1 string search won't take long, will it?)
   //@Lewin: Okay, then we could grab 100bytes from the middle and estimate if they are in a..Z range or XORed.
-  //@Krom: Yes, that sounds ok to me. I'll add it at some point, but it's low prioraty IMO, I'd rather get the game engine working. If you think it's urgent then feel free to write it yourself.
+  //@Krom: Yes, that sounds ok to me. I'll add it at some point, but it's low prioraty IMO, I'd rather
+  //get the game engine working. If you think it's urgent then feel free to write it yourself.
 
   i:=1; k:=1;
   repeat
@@ -376,7 +381,9 @@ begin
                          fPlayers.Player[CurrentPlayerIndex].PlayerType:=pt_Computer;
                      end;
   ct_CenterScreen:   begin
-                     fViewPort.SetCenter(ParamList[0],ParamList[1]); //@Krom: This now seems to sometimes not work. (screen is centred top left) Any idea why?
+                     fViewPort.SetCenter(ParamList[0],ParamList[1]);
+                     //@Krom: This now seems to sometimes not work. (screen is centred top left) Any idea why?
+                     //@Lewin: I've no idea. Plz confirm it still has the bug
                      end;
   ct_ClearUp:        begin
                      if ParamList[0] = 255 then

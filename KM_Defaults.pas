@@ -92,6 +92,7 @@ const
   //@Krom: I agree that it's a bit odd but it is the same as in KaM. We can move it if you like though.
   //@Lewin: Magnifying glass was centered by X axis, it makes sense to center it by Y axis as well
   //it is a bit unlike KaM though, so if you have an idea against it I reset it to 0
+  //@Lewin: No objections? To be deleted ..
 
 {Controls}
 type

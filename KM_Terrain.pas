@@ -687,6 +687,8 @@ begin
   //        Perhaps this could be added later. Right now, having a possible 2 objects per tile just
   //        seems over complicated. For now we are sort of cloning KaM, and KaM doesn't have this.
   //        Still, I won't really mind if you implement it, but I see it as a low prioraty thing.
+  //@Lewin: Now as I've checked KaM it has even more stupid solution - corn is sown, but does not grow on tiles with trees!
+  //        So I drop my idea for later or never.. To be deleted ..
   Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
 end;
 

@@ -270,6 +270,9 @@ function TKMHouse.GetEntrance():TKMPoint;
 begin
   if Self=nil then
   if GetPosition.X=49 then //@Krom: What is this for? Old debug stuff? It seems to crash here sometimes
+                           //@Lewin: Stone Test mission has a repeating bug here. When bottommost Stonemason (49:83)
+                           //gets hungry it looks for an Inn and querries path from fHome.GetEntrance to Inn
+                           //Now for some absolutely unknown reason his fHome = nil ! Hence the crash.....
   fLog.AppendLog(TypeToString(GetPosition));
   Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y:=GetPosition.Y;
@@ -704,9 +707,6 @@ begin
   for i:=1 to 5 do
     if BeastAge[i]>0 then
       fRender.RenderHouseStableBeasts(byte(fHouseType), i, min(BeastAge[i],3), WorkAnimStep, fPosition.X, fPosition.Y);
-  //@Krom: When trying to build a swine farm or stables it crashes here. Something to do with trying to paint the work
-  //       even though it's not yet built?
-  //@Lewin: Resolved. To be deleted..
   if (fCurrentAction<>nil) then //Overlay, not entirely correct, but works ok
   fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,byte(fOwner),fPosition.X, fPosition.Y);
 end;

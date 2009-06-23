@@ -615,6 +615,7 @@ begin
   //@Lewin: You right again, but my idea was to allow some kind of cheat, e.g. Easy makes your troops x1.5 stronger
   //       there will be no need for map author to foresee it, he just makes it on Normal.
   //       Anyway thats too far ahead, so we will think about exact plan later on, for now it's just a placeholder
+  //@Lewin: Okay, removed it. I really was just walking in HoMM4 shoes here.. Without is better. To be deleted..
 end;  *)
 
 
@@ -636,8 +637,11 @@ begin
 
   if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                            else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
-  if fGameSettings.IsFullScreen then Label_Options_FullScreen.Caption:='V FullScreen' //@Krom: Why not an 'X' like normal for enabled?
-  //...     To be honest I don't really like the O,X system, some people might not understand it. Do you think it should be changed to something else?
+  if fGameSettings.IsFullScreen then Label_Options_FullScreen.Caption:='X FullScreen'
+  //@Krom: Why not an 'X' like normal for enabled?
+  //...     To be honest I don't really like the O,X system, some people might not understand it.
+  //Do you think it should be changed to something else?
+  //@Lewin: I guess we should make a kind of TKMCheckbox control mimicing(?) Delphi VCL Checkbox
                                 else Label_Options_FullScreen.Caption:='O FullScreen';
 
   //This one should be called last since it re-inits whole fGame and the rest
@@ -1490,11 +1494,6 @@ begin
   KMLabel_UnitName.Caption:=TypeToString(Sender.GetUnitType);
   KMImage_UnitPic.TexID:=520+byte(Sender.GetUnitType);
   KMConditionBar_Unit.Position:=EnsureRange(round(Sender.GetCondition / UNIT_MAX_CONDITION * 100),-10,110);
-  //@Krom: No string in LIB files availible.
-  //If this is perminate (not just debugging) then we will need to add it.
-  //Prehaps we should start a list of new texts added which will need translating?
-  //@Lewin: This is for debug atm, but I think this could be a nice new feature.
-  //Yes, can you make a sort of extension to LoadLIB? > See LoadLib for my comments.
   KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText+'-'+TypeToString(Sender.GetHome.GetEntrance);
   KMLabel_UnitAct.Caption:='Act: '+Sender.GetUnitActText;
   KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType))

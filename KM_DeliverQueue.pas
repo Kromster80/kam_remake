@@ -167,6 +167,12 @@ begin
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Barracks)or
                        (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<=MAX_WARFARE_IN_BARRACKS));
 
+  {@Krom: BUG REPORT:
+  Weapons are delivered from houses to store instead of barracks. If there is a barracks then
+  weapons should never go to a store.
+  After going to the store, they are soon taken to the barracks though.
+  Tried to fix but was unable to. ;) I had trouble fully understanding the bidding system.
+  @Lewin: There should be new condition perhaps - if Player.hasBarracks then do not bid delivery to store}
   //if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
   //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Store)or(
   //   (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(fPlayers.Player[byte(KMSerf.GetOwner)].fMissionSettings.GetHouseQty(ht_Barracks)=0)))) then
@@ -191,20 +197,6 @@ end;
 function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
 var i,iD,iO:integer; Bid,BestBid:single;
 begin
-{
-@Krom: BUG REPORT:
-Weapons are delivered from houses to store instead of barracks. If there is a barracks then
-weapons should never go to a store.
-After going to the store, they are soon taken to the barracks though.
-Tried to fix but was unable to. ;) I had trouble fully understanding the bidding system.
-@Lewin: There should be new condition perhaps - if Player.hasBarracks then do not bid delivery to store
-
-One more thing while we're on delivery: How come gold to the school is the last delivery to
-be done in the test mission? Is it just chance or intentinal? It should be a high prioraty if anything.
-
-@Lewin: I think you've forgot to add Gold to store in TestMission, hence it's delivered to School only
-        after it has been produced at Metallurgists ;) To be deleted..
-}
 Result:=nil;
 
 //Find place for new Delivery to be written to after Offer-Demand pair is found

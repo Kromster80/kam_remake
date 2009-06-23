@@ -117,6 +117,11 @@ begin
   //@Krom: Temp list of strings is a good idea, but only use it for things that are likely
   //to become perminate. (not just debugging stuff)
   //I too like the addon.lib idea better. Once we have a more complete list then I can organise that
+
+  //@Lewin: Okay, I guess it will be hardcoded until we export it to LIB.
+  //fTextLibrary.GetRemakeString(*)
+  // RemakeStrings[1]:='Activity';
+  // etc.. I will look into this when we have more menu options..
 end;
            
 function TTextLibrary.GetTextString(aIndex:integer):string;

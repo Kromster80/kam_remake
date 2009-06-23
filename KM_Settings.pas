@@ -96,6 +96,8 @@ begin
   // config, but do we really care? Sometimes it is useful to be able to change the config
   // outside of a game. Also the file will be maybe 100 bytes larger, but that's not a problem either IMO.
   // Let me know what you think.
+  //@Lewin: Please do it! :)
+  //        In fact my config was just a quick patch, of course it should be proper INI all-in-all    
   Result:=false;
   if not CheckFileExists(filename,true) then
   begin

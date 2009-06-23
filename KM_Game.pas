@@ -109,6 +109,9 @@ begin
   //@Krom: I don't understand why this has to reset everything and return to the main menu.
   //       Can't it just switch and keep the game running? At the moment it exits without confirming
   //       to save and then won't start a new game because the old one is still running undernether.
+  //@Lewin: It has to exit to re-init whole Interface part to new positions. Also RenderContext
+  //        being recreated requires to reload all textures.. You know - most of the games can't change
+  //        resolution ingame, only in menu.. now I know why. I disabled Fullscreen toggle ingame for that case.
   Form1.ToggleFullScreen(aToggle);
 end;
 
@@ -340,7 +343,11 @@ begin
   fRender.RenderResize(ScreenX,ScreenY,rm2D);
   fViewport.SetArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
-  //fSoundLib.PlayNextTrack(); //Feed new music track. @Krom: Why? Shouldn't we just keep playing the same tune?
+  //fSoundLib.PlayNextTrack();  //Discussed. No need to feed new music track.
+                                //@Krom: Why? Shouldn't we just keep playing the same tune?
+                                //@Lewin: Well, I'm not sure if that makes good sense, but it sort of
+                                //suggests itself to start new tune along with new game.. I guess you
+                                //are right. Discussion to be deleted, comment to be kept
   
   GameIsRunning:=true;
 end;

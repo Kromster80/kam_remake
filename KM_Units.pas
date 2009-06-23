@@ -1576,6 +1576,7 @@ with fUnit do
             //       breeder killing the pig. What do you think? Should we match KaM or not? If not then we need
             //       to make him waste time for that long because otherwise it will be faster and the ballance will
             //       be changed. Please give me your thoughts...
+            //@Lewin: TBH I have no arguments for any of options here. To me it's all the same.. I rely on your decision. To be deleted..
             SetActionStay(0,ua_Walk);
             exit;
           end else
@@ -2070,9 +2071,15 @@ begin
 
   //Attempt at making unit go towards entrance. I couldn't work out the algorithm
   //@Lewin: Try using Mix function, I sketched it for you
-  //@Krom: Thanks, I've nearly got it working. I divided the offset by 4 because otherwise they move too much. I haven't done it for Y yet, just X.
-  //       I don't know if it is like KaM though, it is hardly noticable anyway. Are there any house that have a big offset?
+  //@Krom: Thanks, I've nearly got it working. I divided the offset by 4 because otherwise they move
+  //       too much. I haven't done it for Y yet, just X. I don't know if it is like KaM though, it
+  //       is hardly noticable anyway. Are there any house that have a big offset?
   //       What do you think?
+  //@Lewin: Don't forget the case when unit is walking out of the house ;)
+  //        Y controls position at which unit becomes invisible. So far I cut it at (KMUnit.fVisible := fStep >= 0.3;)
+  //        Stables have the biggest offset
+  //        I think TUnitActionGoIn should be split into few pieces, so each
+  //        of them would fit on one screen (30lines)
   if fHouseType <> ht_None then
     KMUnit.fPosition.X := Mix(fStartX,fStartX + ((HouseDAT[byte(fHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX),fStep);
 
