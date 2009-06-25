@@ -27,8 +27,8 @@ const
 var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false; //Should we animate water and swamps
-  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeUnitSprites       :boolean=false;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false; //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION   :boolean=false; //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
@@ -308,7 +308,44 @@ const
   (ht_None, ht_None, ht_None, ht_None),
   (ht_None, ht_None, ht_None, ht_None),
   (ht_None, ht_None, ht_None, ht_None)
-  );   
+  );
+
+  StatHouse:array[1..28] of THouseType = (
+  ht_Quary, ht_Woodcutters, ht_FisherHut,
+  ht_Farm, ht_Wineyard, ht_Mill, ht_Bakery,
+  ht_Swine, ht_Stables, ht_Butchers, ht_Tannery,
+  ht_Metallurgists, ht_IronSmithy, ht_ArmorSmithy, ht_IronSmithy,
+  ht_CoalMine, ht_IronMine, ht_GoldMine,
+  ht_Sawmill, ht_WeaponWorkshop, ht_ArmorWorkshop, ht_SiegeWorkshop,
+  ht_Barracks, ht_WatchTower,
+  ht_TownHall, ht_Store, ht_School, ht_Inn );
+
+  //0=space, 1=house, 2=unit
+  StatCount:array[1..8,1..8]of byte = (
+  (1,2,0,1,2,0,1,2),
+  (1,1,2,0,1,1,2,0),
+  (1,1,2,0,1,1,2,0),
+  (1,1,2,0,1,1,2,0),
+  (1,1,1,2,0,0,0,0),
+  (1,1,1,1,2,0,0,0),
+  (1,1,2,0,0,0,0,0),
+  (1,1,1,1,0,2,2,0));
+
+  StatUnit:array[1..14] of TUnitType = (
+  ut_StoneCutter, ut_Woodcutter, ut_Fisher,
+  ut_Farmer, ut_Baker,
+  ut_AnimalBreeder, ut_Butcher,
+  ut_Metallurgist, ut_Smith,
+  ut_Miner,
+  ut_Lamberjack,
+  ut_Recruit,
+  ut_Serf, ut_Worker );
+
+  //We have 11+1 different TSK owners
+  //We have 12+1 different TPR owners
+  //That makes it 13 lines we need at least (if we don't ajoin few ot them)
+  //We can ajoin 1/1 owners - Stonemason, Woodcutter, Fisher into 1 line?
+  //Also remaining houses are Store,School,Inn,Townhall and units are Serf,Laborer which could make 1 line as well
 
   StatUnitOrder:array[1..11,1..5] of TUnitType =
   (

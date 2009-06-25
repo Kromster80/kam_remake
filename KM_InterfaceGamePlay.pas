@@ -25,6 +25,7 @@ type TKMGamePlayInterface = class
       //
     KMPanel_Stats:TKMPanel;
       Stat_House,Stat_Unit:array[1..32]of TKMButtonFlat;
+      Stat_House2,Stat_Unit2:array[1..32]of TKMImage;
       Stat_HouseQty,Stat_UnitQty:array[1..32]of TKMLabel;
 
     KMPanel_Build:TKMPanel;
@@ -431,10 +432,11 @@ end;
 
 {Statistics page}
 procedure TKMGamePlayInterface.Create_Stats_Page;
-var i,k,ci:integer;
+const IncY=34;
+var i,k,ci:integer; hc,uc,off:integer;
 begin
   KMPanel_Stats:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
-  ci:=0;
+  {ci:=0;
   for i:=1 to 11 do for k:=1 to 4 do
   if StatHouseOrder[i,k]<>ht_None then begin
     inc(ci);
@@ -447,7 +449,7 @@ begin
   end;
   ci:=0;
   for i:=1 to 11 do for k:=1 to 5 do
-  if StatUnitOrder[i,k]<>ut_None then begin     
+  if StatUnitOrder[i,k]<>ut_None then begin
     inc(ci);
     Stat_Unit[ci]:=MyControls.AddButtonFlat(KMPanel_Stats,8+(k-1)*36,(i-1)*32,35,30,byte(StatUnitOrder[i,k])+140);
     Stat_Unit[ci].TexOffsetX:=-4;
@@ -455,7 +457,59 @@ begin
     Stat_Unit[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
     Stat_UnitQty[ci]:=MyControls.AddLabel(KMPanel_Stats,8+32+(k-1)*36,(i-1)*32+16,33,30,'',fnt_Grey,kaRight);
     Stat_UnitQty[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
+  end;}
+
+  hc:=1; uc:=1;
+  for i:=1 to 8 do begin
+  off:=0;
+  case i of
+  1: begin
+        MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,56,30);
+        MyControls.AddBevel(KMPanel_Stats,70,(i-1)*IncY,56,30);
+        MyControls.AddBevel(KMPanel_Stats,132,(i-1)*IncY,56,30);
+     end;
+  2: begin
+        MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
+        MyControls.AddBevel(KMPanel_Stats,100,(i-1)*IncY,86,30);
+     end;
+  3: begin
+        MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
+        MyControls.AddBevel(KMPanel_Stats,100,(i-1)*IncY,86,30);
+     end;
+  4: begin
+        MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
+        MyControls.AddBevel(KMPanel_Stats,100,(i-1)*IncY,86,30);
+     end;
+  5:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,116,30);
+  6:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,146,30);
+  7:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
+  8: begin
+        MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,120,30);
+        MyControls.AddBevel(KMPanel_Stats,134,(i-1)*IncY,52,30);
+     end;
   end;
+  for k:=1 to 8 do
+  if StatCount[i,k]=0 then begin
+    inc(off,6);
+  end else
+  if StatCount[i,k]=1 then begin
+    Stat_House2[hc]:=MyControls.AddImage(KMPanel_Stats,8+off,(i-1)*IncY,32,30,byte(StatHouse[hc])+300);
+    Stat_House2[hc].Hint:=TypeToString(StatHouse[hc]);
+    Stat_HouseQty[hc]:=MyControls.AddLabel(KMPanel_Stats,8+1+off,(i-1)*IncY+16,37,30,'0',fnt_Grey,kaLeft);
+    Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
+    inc(hc);
+    inc(off,30);
+  end else
+  if StatCount[i,k]=2 then begin
+    Stat_Unit2[uc]:=MyControls.AddImage(KMPanel_Stats,8+off,(i-1)*IncY,26,30,byte(StatUnit[uc])+140);
+    Stat_Unit2[uc].Hint:=TypeToString(StatUnit[uc]);
+    Stat_UnitQty[uc]:=MyControls.AddLabel(KMPanel_Stats,8+24+off,(i-1)*IncY+16,33,30,'0',fnt_Grey,kaRight);
+    Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
+    inc(uc);
+    inc(off,26);
+  end;
+  end;
+
 end;
 
 
@@ -478,7 +532,7 @@ begin
     KMButton_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     KMButton_Menu_Quit.OnClick:=SwitchPage;
     KMButton_Menu_TrackUp  :=MyControls.AddButton(KMPanel_Menu,158,320,30,30,'>',fnt_Metal);
-    KMButton_Menu_TrackDown:=MyControls.AddButton(KMPanel_Menu,8,320,30,30,'<',fnt_Metal);
+    KMButton_Menu_TrackDown:=MyControls.AddButton(KMPanel_Menu,  8,320,30,30,'<',fnt_Metal);
     KMButton_Menu_TrackUp.Hint  :=fTextLibrary.GetTextString(209);
     KMButton_Menu_TrackDown.Hint:=fTextLibrary.GetTextString(208);
     KMButton_Menu_TrackUp.OnClick  :=Menu_NextTrack;
@@ -1341,7 +1395,7 @@ end;
 procedure TKMGamePlayInterface.Stats_Fill(Sender:TObject);
 var i,k,ci,Tmp:integer;
 begin
-  ci:=0;
+{  ci:=0;
   for i:=1 to 11 do for k:=1 to 4 do
   if StatHouseOrder[i,k]<>ht_None then begin
     inc(ci);
@@ -1368,7 +1422,7 @@ begin
     if Tmp=0 then Stat_UnitQty[ci].Caption:='-' else Stat_UnitQty[ci].Caption:=inttostr(Tmp);
     Stat_Unit[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
     Stat_UnitQty[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
-  end;
+  end;    }
 end;
 
 procedure TKMGamePlayInterface.SetHintEvents(AHintEvent:TMouseMoveEvent);
