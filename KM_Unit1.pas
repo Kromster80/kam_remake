@@ -180,6 +180,7 @@ begin
   fLog.AppendLog('Form1 create is done');
 
   FormLoading.Hide;
+  FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
 
   Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
   Form1.Caption:='KaM Remake - '+'New.map';

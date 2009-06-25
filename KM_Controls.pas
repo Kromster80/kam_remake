@@ -508,14 +508,14 @@ end;
 
 
 procedure TKMCheckBox.Paint();
-const BoxWidth=20;
+const BoxWidth=25;
 var Tmp:TKMPoint; Col:TColor4;
 begin
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  fRenderUI.WriteText(Left, Top, Width, 'O', Font, kaLeft, false, Col);
+  fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
   if Checked then
-    fRenderUI.WriteText(Left, Top, Width, 'X', Font, kaLeft, false, Col);
+    fRenderUI.WriteText(Left+4, Top, Width, 'x', Font, kaLeft, false, Col);
 
   Tmp:=fRenderUI.WriteText(Left+BoxWidth, Top, Width, Caption, Font, kaLeft, false, Col);
   

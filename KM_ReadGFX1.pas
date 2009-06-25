@@ -13,8 +13,9 @@ type
     DataState:TDataLoadingState;
 
     procedure StepRefresh();
+    procedure StepCaption(aCaption:string);
 
-    function LoadPallete(filename:string; PalID:byte):boolean;
+    function LoadPalette(filename:string; PalID:byte):boolean;
     function LoadMapElemDAT(filename:string):boolean;
     function LoadPatternDAT(filename:string):boolean;
     function LoadHouseDAT(filename:string):boolean;
@@ -63,9 +64,19 @@ begin
   DataState:=dls_None;
 end;
 
+
 procedure TResource.StepRefresh();
 begin
+  if not FormLoading.Visible then exit;
   FormLoading.Bar1.StepIt;
+  FormLoading.Refresh;
+end;
+
+
+procedure TResource.StepCaption(aCaption:string);
+begin
+  if not FormLoading.Visible then exit;
+  FormLoading.Label1.Caption:=aCaption;
   FormLoading.Refresh;
 end;
 
@@ -77,9 +88,9 @@ begin
   Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
-  FormLoading.Label1.Caption:='Reading palettes ...';
+  StepCaption('Reading palettes ...');
   for i:=1 to length(PalFiles) do
-   LoadPallete(ExeDir+'data\gfx\'+PalFiles[i],i);
+   LoadPalette(ExeDir+'data\gfx\'+PalFiles[i],i);
   fLog.AppendLog('Reading palettes',true);
 
   RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
@@ -88,14 +99,14 @@ begin
 
   for i:=4 to 6 do
   begin
-    FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
+    StepCaption('Reading '+RXData[i].Title+' GFX ...');
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
     if i=4 then MakeCursors(4); //Make GUI items before they are flushed
     MakeGFX(nil,i);
     StepRefresh();
   end;
 
-  FormLoading.Label1.Caption:='Reading fonts ...';
+  StepCaption('Reading fonts ...');
   for i:=1 to length(FontFiles) do
     LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
   fLog.AppendLog('Read fonts is done');
@@ -114,7 +125,7 @@ begin
   Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
-  FormLoading.Label1.Caption:='Reading defines ...';
+  StepCaption('Reading defines ...');
   fLog.AppendLog('Reading mapelem.dat',LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat')); StepRefresh();
   fLog.AppendLog('Reading pattern.dat',LoadPatternDAT(ExeDir+'data\defines\pattern.dat')); StepRefresh();
   fLog.AppendLog('Reading houses.dat', LoadHouseDAT(ExeDir+'data\defines\houses.dat'));    StepRefresh();
@@ -127,14 +138,14 @@ begin
   for i:=1 to 3 do
   if (i=1)or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites) then
   begin
-    FormLoading.Label1.Caption:='Reading '+RXData[i].Title+' GFX ...';
+    StepCaption('Reading '+RXData[i].Title+' GFX ...');
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
     MakeGFX(nil,i);
     if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
     StepRefresh();
   end;
 
-  FormLoading.Label1.Caption:='Making minimap colors ...';
+  StepCaption('Making minimap colors ...');
   MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
   fLog.AppendLog('Prepared MiniMap colors...');
   StepRefresh();
@@ -145,9 +156,9 @@ end;
 
 
 //=============================================
-//Reading pallete for trees/objects
+//Reading Palette for trees/objects
 //=============================================
-function TResource.LoadPallete(filename:string; PalID:byte):boolean;
+function TResource.LoadPalette(filename:string; PalID:byte):boolean;
 var f:file; i:integer;
 begin
 Result:=false;
