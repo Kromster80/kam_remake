@@ -135,7 +135,7 @@ begin
   ZLibCompressed := TGAHeader.FileType=120;
 
   //TGA is compressed by ZLibEx, thats only KaM Remake custom option
-  if TGAHeader.FileType=120 then
+  if ZLibCompressed{TGAHeader.FileType=120} then
   begin                  
     CloseFile(TGAFile);
     InputStream := TFileStream.Create(FileName, fmOpenRead);

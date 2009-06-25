@@ -315,7 +315,7 @@ type
 
   TKMUnitsCollection = class(TKMList) //List of TKMUnits
   private
-    Groups:array of integer;
+    //Groups:array of integer;
   public
     function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
     function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;

@@ -841,7 +841,7 @@ type TKMPointList = class
 
 type TKMPointTagList = class (TKMPointList)
   public
-    Tag,Tag2:array of cardinal; //1..Count
+    Tag,Tag2:array of integer; //1..Count
     procedure Clearup; override;
     procedure AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal); reintroduce;
     function RemoveEntry(aLoc:TKMPoint):cardinal; override;

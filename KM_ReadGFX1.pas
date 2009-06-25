@@ -4,8 +4,8 @@ uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, K
 
 type
   TByteArray2 = array of Byte;
-  TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest);
-  TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and rest
+  TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
+  TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
 
 type
   TResource = class

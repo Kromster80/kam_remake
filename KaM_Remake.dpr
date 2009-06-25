@@ -13,7 +13,7 @@ uses
   KM_Users in 'KM_Users.pas',
   KM_Houses in 'KM_Houses.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
-  KM_GamePlayInterface in 'KM_GamePlayInterface.pas',
+  KM_InterfaceGamePlay in 'KM_InterfaceGamePlay.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Controls in 'KM_Controls.pas',
   ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
@@ -23,7 +23,8 @@ uses
   KM_LoadDAT in 'KM_LoadDAT.pas',
   KM_Game in 'KM_Game.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
-  KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas';
+  KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas',
+  KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas';
 
 {$R *.RES}
 {}
