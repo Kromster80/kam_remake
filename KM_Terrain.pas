@@ -674,21 +674,6 @@ end;
 procedure TTerrain.CutGrapes(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
-  //@Krom: Why did you remove this piece of code? It seems nececary to me.
-  //       Also it is used when first placing grapes to ensure that the object is set.
-  //       Now there are no grapes growing in the field at the start of the game.
-  //@Lewin: I planned to remove Obj usage from Fields to allow trees and stones on fields
-  //        while rendering Field objects independantly (using FieldAge). Tell me what you think?
-  //@Krom:  I don't think other objects on fields are needed. They would get in the way and most
-  //        farmers wouldn't want rocks/stumps in the middle of the corn/grapes.
-  //        It also wouldn't work with some objects like the quad swamp grass. The only good reason
-  //        that I can see is that trees won't disappear when you place winefield. Although I never
-  //        noticed it in KaM, so I don't think people will really notice here.
-  //        Perhaps this could be added later. Right now, having a possible 2 objects per tile just
-  //        seems over complicated. For now we are sort of cloning KaM, and KaM doesn't have this.
-  //        Still, I won't really mind if you implement it, but I see it as a low prioraty thing.
-  //@Lewin: Now as I've checked KaM it has even more stupid solution - corn is sown, but does not grow on tiles with trees!
-  //        So I drop my idea for later or never.. To be deleted ..
   Land[Loc.Y,Loc.X].Obj:=54; //Reset the grapes
 end;
 

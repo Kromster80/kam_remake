@@ -344,10 +344,6 @@ begin
   fViewport.SetArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
   //fSoundLib.PlayNextTrack();  //Discussed. No need to feed new music track.
-                                //@Krom: Why? Shouldn't we just keep playing the same tune?
-                                //@Lewin: Well, I'm not sure if that makes good sense, but it sort of
-                                //suggests itself to start new tune along with new game.. I guess you
-                                //are right. Discussion to be deleted, comment to be kept
   
   GameIsRunning:=true;
 end;

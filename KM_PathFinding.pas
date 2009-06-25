@@ -78,6 +78,7 @@ begin
     MinCost.Cost:=65535;
     //for i:=1 to OCount do
     //@Lewin: Tell me why 'downto' works faster, is it cos of CPU cache?
+    //@Krom: I didn't know that it was faster, and I don't know why. To be deleted?
     for i:=OCount downto 1 do
     if OList[i].Estim<>c_closed then
     if (OList[i].Estim+OList[i].CostTo) < MinCost.Cost then begin

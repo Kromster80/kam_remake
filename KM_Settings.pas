@@ -1,6 +1,6 @@
 unit KM_Settings;
 interface
-uses Windows, Classes, SysUtils, KromUtils, Math, KM_Defaults;
+uses Windows, Classes, SysUtils, KromUtils, Math, KM_Defaults, inifiles;
 
 {Global game settings}
 type
@@ -20,7 +20,6 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure SetDefaultValues;
     property GetBrightness:byte read fBrightness default 1;
     procedure IncBrightness;
     procedure DecBrightness;
@@ -86,66 +85,42 @@ begin
 end;
 
 function TGameSettings.LoadSettingsFromFile(filename:string):boolean;
-var f:file;
+var f:TIniFile;
 begin
-  //@Krom: This needs some kind of check that the file is complete
-  // When I ran it then it crashed with "Read beyond end of file" because my config
-  // is old and doesn't have the FullScreen value. Would you like me to make this
-  // a true INI file format? I always use TIniFile from the unit "inifiles", which works well and manages
-  // everything automatically. The only disadvantage of this is that anyone can read and edit the
-  // config, but do we really care? Sometimes it is useful to be able to change the config
-  // outside of a game. Also the file will be maybe 100 bytes larger, but that's not a problem either IMO.
-  // Let me know what you think.
-  //@Lewin: Please do it! :)
-  //        In fact my config was just a quick patch, of course it should be proper INI all-in-all    
-  Result:=false;
-  if not CheckFileExists(filename,true) then
-  begin
-    SetDefaultValues; //There is no config, so set defaults
-    exit;
-  end;
-  try
-  assignfile(f,filename); reset(f,1);
-  blockread(f, fBrightness, 1);
-  blockread(f, fAutosave, 1);
-  blockread(f, fFastScroll, 1);
-  blockread(f, fMouseSpeed, 1);
-  blockread(f, fSoundFXVolume, 1);
-  blockread(f, fMusicVolume, 1);
-  blockread(f, fMusicOnOff, 1);
-  blockread(f, fFullScreen, 1);
-  closefile(f);
-  except end;
-  Result:=true;
+  f := TIniFile.Create(filename);
+
+  fBrightness    := f.ReadInteger('GFX','Brightness',1);
+  fFullScreen    := f.ReadBool   ('GFX','FullScreen',true);
+
+  fAutosave      := f.ReadBool   ('Game','Autosave',false);
+  fFastScroll    := f.ReadBool   ('Game','FastScroll',false);
+  fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
+
+  fSoundFXVolume := f.ReadInteger('SFX','SFXVolume',10);
+  fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
+  fMusicOnOff    := f.ReadBool   ('SFX','MusicEnabled',true);
+
+  FreeAndNil(f);
 end;
 
 
 procedure TGameSettings.SaveSettingsToFile(filename:string);
-var f:file;
-begin
-  assignfile(f,filename); rewrite(f,1);
-  blockwrite(f, fBrightness, 1);
-  blockwrite(f, fAutosave, 1);
-  blockwrite(f, fFastScroll, 1);
-  blockwrite(f, fMouseSpeed, 1);
-  blockwrite(f, fSoundFXVolume, 1);
-  blockwrite(f, fMusicVolume, 1);
-  blockwrite(f, fMusicOnOff, 1);
-  blockwrite(f, fFullScreen, 1);
-  closefile(f);
-end;
+var f:TIniFile;
+begin      
+  f := TIniFile.Create(filename);
 
-procedure TGameSettings.SetDefaultValues;
-begin
-  //This procedure will set the default values for all of the settings
-  fBrightness := 1;
-  fAutosave := false;
-  fFastScroll := false;
-  fMouseSpeed := 10;
-  fSoundFXVolume := 10;
-  fMusicVolume := 10;
-  fMusicOnOff := true;
-  fFullScreen := true;
+  f.WriteInteger('GFX','Brightness',fBrightness);
+  f.WriteBool   ('GFX','FullScreen',fFullScreen);
+
+  f.WriteBool   ('Game','Autosave',fAutosave);
+  f.WriteBool   ('Game','FastScroll',fFastScroll);
+  f.WriteInteger('Game','MouseSpeed',fMouseSpeed);
+
+  f.WriteInteger('SFX','SFXVolume',fSoundFXVolume); 
+  f.WriteInteger('SFX','MusicVolume',fMusicVolume);
+  f.WriteBool   ('SFX','MusicEnabled',fMusicOnOff);
+
+  FreeAndNil(f);
 end;
 
 procedure TGameSettings.IncBrightness;

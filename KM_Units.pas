@@ -648,6 +648,7 @@ begin
   //to unit WalkTo current position (let the unit arrive on next tile first!)
   //As well let the unit finish it's curent Attack action before taking a new order
   //This should make units response delayed, is it a good idea?
+  //@Krom: I think that sounds fine. To be deleted
   
   //Dispatch new order when warrior finished previous action part 
   if (fOrder=wo_Walk) and UnitAction.IsStepDone then
@@ -2080,6 +2081,8 @@ begin
   //        Stables have the biggest offset
   //        I think TUnitActionGoIn should be split into few pieces, so each
   //        of them would fit on one screen (30lines)
+  //@Krom:  Sounds like a good idea, I think I'll leave this mess for you to sort out,
+  //        I'm not really confident and I don't really understand what I'm doing. :P
   if fHouseType <> ht_None then
     KMUnit.fPosition.X := Mix(fStartX,fStartX + ((HouseDAT[byte(fHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX),fStep);
 

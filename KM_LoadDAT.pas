@@ -384,6 +384,7 @@ begin
                      fViewPort.SetCenter(ParamList[0],ParamList[1]);
                      //@Krom: This now seems to sometimes not work. (screen is centred top left) Any idea why?
                      //@Lewin: I've no idea. Plz confirm it still has the bug
+                     //@Krom: I can't remember reporting this, and I can't remember it happening recently. To be deleted
                      end;
   ct_ClearUp:        begin
                      if ParamList[0] = 255 then

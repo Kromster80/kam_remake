@@ -447,25 +447,6 @@ begin
 end;
 
 
-(* {Map Difficulty tweak}
-//@Lewin: We will stitch it later
-procedure TKMMainMenuInterface.SingleMap_SelectDiff(Sender: TObject);
-begin
-  {SingleMap_Difficulty:=TKMControl(Sender).Tag;
-  KMShape_SingleDiff.Left:=TKMControl(Sender).Left;
-  KMLabel_SingleDiff.Caption:='Difficulty of '+inttostr(TKMControl(Sender).Tag);}
-  //@Lewin: Dummy, Easy, Medium, Hard
-  //@Krom: I dislike the idea that people can set the difficulty. What would it change anyway?
-  //       People don't want to have to specify that kind of stuff in the mission file, it would be to complicated.
-  //       I think each mission should have an "estimated difficulty" that the creator sets in the TXT file, so that
-  //       people have an idea of how hard the mission will be.
-  //@Lewin: You right again, but my idea was to allow some kind of cheat, e.g. Easy makes your troops x1.5 stronger
-  //       there will be no need for map author to foresee it, he just makes it on Normal.
-  //       Anyway thats too far ahead, so we will think about exact plan later on, for now it's just a placeholder
-  //@Lewin: Okay, removed it. I really was just walking in HoMM4 shoes here.. Without is better. To be deleted..
-end;  *)
-
-
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 var MissionPath:string;
 begin
@@ -489,6 +470,8 @@ begin
   //...     To be honest I don't really like the O,X system, some people might not understand it.
   //Do you think it should be changed to something else?
   //@Lewin: I guess we should make a kind of TKMCheckbox control mimicing(?) Delphi VCL Checkbox
+  //@Krom: Yes, I think it should be a proper control in a KaM style. Just text [x] doesn't look great.
+  //       Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
   CheckBox_Options_FullScreen.Checked := fGameSettings.IsFullScreen;
 
   //This one should be called last since it re-inits whole fGame and the rest
