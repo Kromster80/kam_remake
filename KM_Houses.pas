@@ -1084,39 +1084,34 @@ end;
 
 function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
 var
-  i,id,ih,bestmatch: integer;
-  UsePosition:boolean;
-  HouseIndexArray: array[1..1024] of integer;
-  HouseDistArray : array[1..1024] of single;
+  i,id: integer;
+  UsePosition: boolean;
+  Sample,Dist: single;
 begin
-  UsePosition:=X*Y<>0; //Calculate this once to save computing lots of multiplications
-  Result:= nil; id:=0; ih:=0;
+  //@Lewin: Sorry I had to rework this.. All could be done in place and without using 5kb of RAM. To be deleted..
+  Result := nil;
+  id := 0;
+  Sample := -1; //Use -1 value to init variable on first run
+  UsePosition := X*Y<>0; //Calculate this once to save computing lots of multiplications
   Assert((not UsePosition)or(Index=1), 'Can''t find house basing both on Position and Index');
+
   for I := 0 to Count - 1 do
-      if (TKMHouse(Items[I]).fHouseType=aType)and
-      (TKMHouse(Items[I]).IsComplete) then
+  if (TKMHouse(Items[I]).fHouseType=aType) and (TKMHouse(Items[I]).IsComplete) then
+  begin
+      inc(id);
+      if UsePosition then
       begin
-        inc(id);
-        if UsePosition then
-        begin
-          inc(ih);
-          HouseIndexArray[ih] := I;
-          HouseDistArray [ih] := GetLength(TKMHouse(Items[I]).GetPosition,KMPoint(X,Y))
-        end else
-          if Index=id then begin//Take the N-th result
-            Result:= TKMHouse(Items[I]);
+          Dist := GetLength(TKMHouse(Items[I]).GetPosition,KMPoint(X,Y));
+          if Sample = -1 then Sample := Dist; //Initialize for first use
+          if Dist < Sample then begin
+            Sample := Dist;
+            Result := TKMHouse(Items[I]);
+          end;
+      end else
+          if Index = id then begin//Take the N-th result
+            Result := TKMHouse(Items[I]);
             exit;
           end;
-      end;  
-  if (UsePosition) and (ih > 0) then
-  begin
-    //Now find the closest house
-    bestmatch:=1;
-    for i:=2 to ih do
-      if HouseDistArray[ih] > HouseDistArray[bestmatch] then
-        bestmatch := ih;
-
-    Result := TKMHouse(Items[HouseIndexArray[bestmatch]])
   end;
 end;
 
