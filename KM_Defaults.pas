@@ -294,7 +294,7 @@ const
   ht_Quary, ht_Woodcutters, ht_FisherHut,
   ht_Farm, ht_Wineyard, ht_Mill, ht_Bakery,
   ht_Swine, ht_Stables, ht_Butchers, ht_Tannery,
-  ht_Metallurgists, ht_IronSmithy, ht_ArmorSmithy, ht_IronSmithy,
+  ht_Metallurgists, ht_IronSmithy, ht_ArmorSmithy, ht_WeaponSmithy,
   ht_CoalMine, ht_IronMine, ht_GoldMine,
   ht_Sawmill, ht_WeaponWorkshop, ht_ArmorWorkshop, ht_SiegeWorkshop,
   ht_Barracks, ht_WatchTower,
