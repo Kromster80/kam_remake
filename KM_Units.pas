@@ -1285,13 +1285,18 @@ begin
 TaskDone:=false;
 with fWorker do
 case Phase of
-0:  SetActionWalk(fWorker,fHouse.GetEntrance, KMPoint(0,0));
+0:  begin
+      SetActionWalk(fWorker,fHouse.GetEntrance, KMPoint(0,0));
+      fThought := th_Build;
+    end;
 1:  if not fHouse.IsDestroyed then begin //House plan was cancelled before worker has arrived on site
       fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, fOwner);
       fHouse.SetBuildingState(hbs_NoGlyph);
       SetActionStay(5,ua_Walk);
+      fThought := th_None;
     end else begin
       TaskDone:=true;
+      fThought := th_None;
     end;
 2:  SetActionWalk(fWorker,ListOfCells[Step], KMPoint(0,0), ua_Walk, true, true);
 3:  begin
@@ -1378,8 +1383,10 @@ begin
            //it will be available to be built again.
            if not fHouse.CheckResToBuild then begin
              TaskDone:=true; //Drop the task
+             fThought := th_None;
              exit;
            end;
+           fThought := th_Build;
            CurLoc:=Random(LocCount)+1;
            SetActionWalk(fWorker,Cells[CurLoc].Loc, KMPoint(0,0));
          end;
@@ -1396,6 +1403,7 @@ begin
            //Cancel building no matter progress if resource depleted or must eat
            if (not fHouse.CheckResToBuild)or(fCondition<UNIT_MIN_CONDITION) then begin
              TaskDone:=true; //Drop the task
+             fThought := th_None;
              exit;
            end;
            fHouse.IncBuildingProgress;
@@ -1405,6 +1413,7 @@ begin
       4: begin
            fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(TaskID);
            TaskDone:=true;
+           fThought := th_None;
          end;
     end;
   inc(Phase);
@@ -1451,6 +1460,7 @@ procedure TTaskBuildHouseRepair.Execute(out TaskDone:boolean);
 begin
   if (not fHouse.IsDamaged)or(not fHouse.BuildingRepair) then begin
    TaskDone:=true; //Drop the task
+   fWorker.fThought := th_None;
    exit;
   end;
 
@@ -1459,6 +1469,7 @@ begin
     case Phase of
       //Pick random location and go there
       0: begin
+           fThought := th_Build;
            CurLoc:=Random(LocCount)+1;
            SetActionWalk(fWorker,Cells[CurLoc].Loc, KMPoint(0,0));
          end;
@@ -1480,6 +1491,7 @@ begin
            inc(Phase2);
          end;
       4: begin
+           fThought := th_None;
            fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(TaskID);
            TaskDone:=true;
          end;
@@ -1558,11 +1570,13 @@ with fUnit do
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
          SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance), KMPoint(0,0),WorkPlan.WalkFrom); //Go home
+         fThought := th_Home;
        end;
     6: SetActionGoIn(WorkPlan.WalkFrom,gid_In,fHome.GetHouseType); //Go inside
 
     {Unit back at home and can process its booty now}
     7: begin
+        fThought := th_None;
         Phase2:=1;
         fHome.SetState(hst_Work,0); //Set house to Work state
         fHome.ResTakeFromIn(WorkPlan.Resource1); //Count should be added
@@ -1570,17 +1584,7 @@ with fUnit do
         fHome.fCurrentAction.SubActionAdd([ha_Smoke]);
         if WorkPlan.GatheringScript = gs_SwineBreeder then begin
           BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;
-          if BeastID=0 then begin
-            Phase:=SkipWork;
-            //@Krom: In KaM, the work phase is NOT skipped if the beast is just fed. (not slaughted)
-            //       I guess what you've done makes more sense, because the animation seems to be the animal
-            //       breeder killing the pig. What do you think? Should we match KaM or not? If not then we need
-            //       to make him waste time for that long because otherwise it will be faster and the ballance will
-            //       be changed. Please give me your thoughts...
-            //@Lewin: TBH I have no arguments for any of options here. To me it's all the same.. I rely on your decision. To be deleted..
-            SetActionStay(0,ua_Walk);
-            exit;
-          end else
+          if BeastID<>0 then
             TKMHouseSwineStable(fHome).TakeBeast(BeastID);
         end;
         if WorkPlan.ActCount>=Phase2 then begin

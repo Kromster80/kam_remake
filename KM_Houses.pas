@@ -273,6 +273,7 @@ begin
                            //@Lewin: Stone Test mission has a repeating bug here. When bottommost Stonemason (49:83)
                            //gets hungry it looks for an Inn and querries path from fHome.GetEntrance to Inn
                            //Now for some absolutely unknown reason his fHome = nil ! Hence the crash.....
+                           //@Krom: I see. Could it be because the road inbetween the house and the inn is unexplored at the begining?
   fLog.AppendLog(TypeToString(GetPosition));
   Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y:=GetPosition.Y;
@@ -1083,20 +1084,40 @@ end;
 
 function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
 var
-  i,id: integer;
+  i,id,ih,bestmatch: integer;
+  UsePosition:boolean;
+  HouseIndexArray: array[1..1024] of integer;
+  HouseDistArray : array[1..1024] of single;
 begin
-  Result:= nil; id:=0;
-  Assert((X*Y=0)or(Index=1), 'Can''t find house basing both on Position and Index');
+  UsePosition:=X*Y<>0; //Calculate this once to save computing lots of multiplications
+  Result:= nil; id:=0; ih:=0;
+  Assert((not UsePosition)or(Index=1), 'Can''t find house basing both on Position and Index');
   for I := 0 to Count - 1 do
       if (TKMHouse(Items[I]).fHouseType=aType)and
       (TKMHouse(Items[I]).IsComplete) then
       begin
         inc(id);
-        if Index=id then begin//Take the N-th result
-          Result:= TKMHouse(Items[I]);
-          exit;
-        end;
-      end;
+        if UsePosition then
+        begin
+          inc(ih);
+          HouseIndexArray[ih] := I;
+          HouseDistArray [ih] := GetLength(TKMHouse(Items[I]).GetPosition,KMPoint(X,Y))
+        end else
+          if Index=id then begin//Take the N-th result
+            Result:= TKMHouse(Items[I]);
+            exit;
+          end;
+      end;  
+  if (UsePosition) and (ih > 0) then
+  begin
+    //Now find the closest house
+    bestmatch:=1;
+    for i:=2 to ih do
+      if HouseDistArray[ih] > HouseDistArray[bestmatch] then
+        bestmatch := ih;
+
+    Result := TKMHouse(Items[HouseIndexArray[bestmatch]])
+  end;
 end;
 
 
