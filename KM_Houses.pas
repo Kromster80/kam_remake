@@ -1088,7 +1088,6 @@ var
   UsePosition: boolean;
   Sample,Dist: single;
 begin
-  //@Lewin: Sorry I had to rework this.. All could be done in place and without using 5kb of RAM. To be deleted..
   Result := nil;
   id := 0;
   Sample := -1; //Use -1 value to init variable on first run

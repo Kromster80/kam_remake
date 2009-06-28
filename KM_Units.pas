@@ -1061,7 +1061,7 @@ if fToHouse<>nil then
 if not fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetActionWalk(fSerf,fToHouse.GetEntrance, KMPoint(0,0), ua_Walk, false);
+5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance), KMPoint(0,0), ua_Walk);
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
@@ -1728,8 +1728,12 @@ case Phase of
       if not fVisible then SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType) else
                            SetActionStay(0,ua_Walk); //Walk outside the house
     end;
- 1: SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance), KMPoint(0,0));
+ 1: begin
+      fThought := th_Eat;
+      SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance), KMPoint(0,0));
+    end;
  2: begin
+      fThought := th_None;
       SetActionGoIn(ua_Walk,gid_In,ht_Inn); //Enter Inn
       PlaceID:=fInn.EaterGetsInside(fUnitType);
     end;
