@@ -290,21 +290,6 @@ const
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
 
-  StatHouseOrder:array[1..11,1..4] of THouseType = (
-  (ht_Quary,         ht_Woodcutters,   ht_FisherHut,   ht_Farm          ),
-  (ht_Wineyard,      ht_Mill,          ht_Bakery,      ht_Swine         ),
-  (ht_Stables,       ht_Butchers,      ht_Tannery,     ht_Metallurgists ),
-  (ht_IronSmithy,    ht_WeaponSmithy,  ht_ArmorSmithy, ht_CoalMine      ),
-  (ht_IronMine,      ht_GoldMine,      ht_Sawmill,     ht_WeaponWorkshop),
-  (ht_ArmorWorkshop, ht_SiegeWorkshop, ht_Barracks,    ht_TownHall      ),
-  (ht_WatchTower,    ht_Store,         ht_School,      ht_Inn           ),
-
-  (ht_None, ht_None, ht_None, ht_None),
-  (ht_None, ht_None, ht_None, ht_None),
-  (ht_None, ht_None, ht_None, ht_None),
-  (ht_None, ht_None, ht_None, ht_None)
-  );
-
   StatHouse:array[1..28] of THouseType = (
   ht_Quary, ht_Woodcutters, ht_FisherHut,
   ht_Farm, ht_Wineyard, ht_Mill, ht_Bakery,
@@ -335,28 +320,6 @@ const
   ut_Lamberjack,
   ut_Recruit,
   ut_Serf, ut_Worker );
-
-  //We have 11+1 different TSK owners
-  //We have 12+1 different TPR owners
-  //That makes it 13 lines we need at least (if we don't ajoin few ot them)
-  //We can ajoin 1/1 owners - Stonemason, Woodcutter, Fisher into 1 line?
-  //Also remaining houses are Store,School,Inn,Townhall and units are Serf,Laborer which could make 1 line as well
-
-  StatUnitOrder:array[1..11,1..5] of TUnitType =
-  (
-  (ut_None, ut_None, ut_None, ut_None, ut_None),
-  (ut_None, ut_None, ut_None, ut_None, ut_None),
-  (ut_None, ut_None, ut_None, ut_None, ut_None),
-  (ut_None, ut_None, ut_None, ut_None, ut_None),
-  (ut_None, ut_None, ut_None, ut_None, ut_None),
-  (ut_None, ut_None, ut_None, ut_None, ut_None),
-  (ut_None, ut_None, ut_None, ut_None, ut_None),
-
-  (ut_None, ut_None, ut_None, ut_None, ut_None),
-  (ut_StoneCutter, ut_Woodcutter, ut_Fisher, ut_Farmer, ut_Baker),
-  (ut_AnimalBreeder, ut_Butcher, ut_Metallurgist, ut_Smith, ut_Miner),
-  (ut_Lamberjack, ut_Recruit, ut_None, ut_Serf, ut_Worker)
-  );
 
   //Building of certain house allows player to build following houses,
   //unless they are blocked in mission script of course

@@ -24,8 +24,7 @@ type TKMGamePlayInterface = class
     KMPanel_Ratios:TKMPanel;
       //
     KMPanel_Stats:TKMPanel;
-      Stat_House,Stat_Unit:array[1..32]of TKMButtonFlat;
-      Stat_House2,Stat_Unit2:array[1..32]of TKMImage;
+      Stat_HousePic,Stat_UnitPic:array[1..32]of TKMImage;
       Stat_HouseQty,Stat_UnitQty:array[1..32]of TKMLabel;
 
     KMPanel_Build:TKMPanel;
@@ -433,36 +432,14 @@ end;
 {Statistics page}
 procedure TKMGamePlayInterface.Create_Stats_Page;
 const IncY=34;
-var i,k,ci:integer; hc,uc,off:integer;
+var i,k:integer; hc,uc,off:integer;
 begin
   KMPanel_Stats:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
-  {ci:=0;
-  for i:=1 to 11 do for k:=1 to 4 do
-  if StatHouseOrder[i,k]<>ht_None then begin
-    inc(ci);
-    Stat_House[ci]:=MyControls.AddButtonFlat(KMPanel_Stats,8+(k-1)*42,(i-1)*32,40,30,41);
-    Stat_House[ci].TexOffsetX:=-4;
-    Stat_House[ci].HideHighlight:=true;
-    Stat_House[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
-    Stat_HouseQty[ci]:=MyControls.AddLabel(KMPanel_Stats,8+37+(k-1)*42,(i-1)*32+16,33,30,'',fnt_Grey,kaRight);
-    Stat_HouseQty[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
-  end;
-  ci:=0;
-  for i:=1 to 11 do for k:=1 to 5 do
-  if StatUnitOrder[i,k]<>ut_None then begin
-    inc(ci);
-    Stat_Unit[ci]:=MyControls.AddButtonFlat(KMPanel_Stats,8+(k-1)*36,(i-1)*32,35,30,byte(StatUnitOrder[i,k])+140);
-    Stat_Unit[ci].TexOffsetX:=-4;
-    Stat_Unit[ci].HideHighlight:=true;
-    Stat_Unit[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
-    Stat_UnitQty[ci]:=MyControls.AddLabel(KMPanel_Stats,8+32+(k-1)*36,(i-1)*32+16,33,30,'',fnt_Grey,kaRight);
-    Stat_UnitQty[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
-  end;}
 
   hc:=1; uc:=1;
   for i:=1 to 8 do begin
   off:=0;
-  case i of
+  case i of //This should be simplified, compacted and automated
   1: begin
         MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,56,30);
         MyControls.AddBevel(KMPanel_Stats,70,(i-1)*IncY,56,30);
@@ -493,17 +470,17 @@ begin
     inc(off,6);
   end else
   if StatCount[i,k]=1 then begin
-    Stat_House2[hc]:=MyControls.AddImage(KMPanel_Stats,8+off,(i-1)*IncY,32,30,byte(StatHouse[hc])+300);
-    Stat_House2[hc].Hint:=TypeToString(StatHouse[hc]);
-    Stat_HouseQty[hc]:=MyControls.AddLabel(KMPanel_Stats,8+1+off,(i-1)*IncY+16,37,30,'0',fnt_Grey,kaLeft);
+    Stat_HousePic[hc]:=MyControls.AddImage(KMPanel_Stats,8+off,(i-1)*IncY,32,30,41{byte(StatHouse[hc])+300});
+    Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
+    Stat_HouseQty[hc]:=MyControls.AddLabel(KMPanel_Stats,8+1+off,(i-1)*IncY+16,37,30,'-',fnt_Grey,kaLeft);
     Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
     inc(hc);
     inc(off,30);
   end else
   if StatCount[i,k]=2 then begin
-    Stat_Unit2[uc]:=MyControls.AddImage(KMPanel_Stats,8+off,(i-1)*IncY,26,30,byte(StatUnit[uc])+140);
-    Stat_Unit2[uc].Hint:=TypeToString(StatUnit[uc]);
-    Stat_UnitQty[uc]:=MyControls.AddLabel(KMPanel_Stats,8+24+off,(i-1)*IncY+16,33,30,'0',fnt_Grey,kaRight);
+    Stat_UnitPic[uc]:=MyControls.AddImage(KMPanel_Stats,8+off,(i-1)*IncY,26,30,byte(StatUnit[uc])+140);
+    Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
+    Stat_UnitQty[uc]:=MyControls.AddLabel(KMPanel_Stats,8+24+off,(i-1)*IncY+16,33,30,'-',fnt_Grey,kaRight);
     Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
     inc(uc);
     inc(off,26);
@@ -1393,36 +1370,32 @@ begin
 end;
 
 procedure TKMGamePlayInterface.Stats_Fill(Sender:TObject);
-var i,k,ci,Tmp:integer;
+var i,Tmp:integer;
 begin
-{  ci:=0;
-  for i:=1 to 11 do for k:=1 to 4 do
-  if StatHouseOrder[i,k]<>ht_None then begin
-    inc(ci);
-    Tmp:=MyPlayer.GetHouseQty(StatHouseOrder[i,k]);
-    if Tmp=0 then Stat_HouseQty[ci].Caption:='-' else Stat_HouseQty[ci].Caption:=inttostr(Tmp);
-    if MyPlayer.GetCanBuild(StatHouseOrder[i,k]) or (Tmp>0) then
+  for i:=low(StatHouse) to high(StatHouse) do
+  begin
+    Tmp:=MyPlayer.GetHouseQty(StatHouse[i]);
+    if Tmp=0 then Stat_HouseQty[i].Caption:='-' else Stat_HouseQty[i].Caption:=inttostr(Tmp);
+    if MyPlayer.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
-      Stat_House[ci].TexID:=byte(StatHouseOrder[i,k])+300;
-      Stat_House[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
-      Stat_HouseQty[ci].Hint:=TypeToString(StatHouseOrder[i,k]);
+      Stat_HousePic[i].TexID:=byte(StatHouse[i])+300;
+      Stat_HousePic[i].Hint:=TypeToString(StatHouse[i]);
+      Stat_HouseQty[i].Hint:=TypeToString(StatHouse[i]);
     end
     else
     begin
-      Stat_House[ci].TexID:=41;
-      Stat_House[ci].Hint:=fTextLibrary.GetTextString(251); //Building not available
-      Stat_HouseQty[ci].Hint:=fTextLibrary.GetTextString(251); //Building not available
+      Stat_HousePic[i].TexID:=41;
+      Stat_HousePic[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
+      Stat_HouseQty[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
     end;
   end;
-  ci:=0;
-  for i:=1 to 11 do for k:=1 to 5 do
-  if StatUnitOrder[i,k]<>ut_None then begin
-    inc(ci);
-    Tmp:=MyPlayer.GetUnitQty(StatUnitOrder[i,k]);
-    if Tmp=0 then Stat_UnitQty[ci].Caption:='-' else Stat_UnitQty[ci].Caption:=inttostr(Tmp);
-    Stat_Unit[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
-    Stat_UnitQty[ci].Hint:=TypeToString(StatUnitOrder[i,k]);
-  end;    }
+  for i:=low(StatUnit) to high(StatUnit) do
+  begin
+    Tmp:=MyPlayer.GetUnitQty(StatUnit[i]);
+    if Tmp=0 then Stat_UnitQty[i].Caption:='-' else Stat_UnitQty[i].Caption:=inttostr(Tmp);
+    Stat_UnitPic[i].Hint:=TypeToString(StatUnit[i]);
+    Stat_UnitQty[i].Hint:=TypeToString(StatUnit[i]);
+  end;
 end;
 
 procedure TKMGamePlayInterface.SetHintEvents(AHintEvent:TMouseMoveEvent);
