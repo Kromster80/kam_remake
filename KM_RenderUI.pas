@@ -20,13 +20,14 @@ TRenderUI = class
 
 var
   fRenderUI: TRenderUI;
-  Loc2:TKMPointList;
 
 implementation
 uses KM_Unit1, KM_Terrain, KM_Users;
 
+
 constructor TRenderUI.Create;
 begin
+  inherited;
 //
 end;
 

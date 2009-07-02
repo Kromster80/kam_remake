@@ -69,6 +69,7 @@ destructor TKMGame.Destroy;
 begin
   FreeAndNil(fGameSettings);
   FreeAndNil(fMainMenuInterface);
+  FreeAndNil(fResource);
   FreeAndNil(fSoundLib);
   FreeAndNil(fMissionParser);
   FreeAndNil(fTextLibrary);

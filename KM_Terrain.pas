@@ -155,7 +155,7 @@ uses KM_Unit1, KM_Viewport, KM_Render, KM_Users, KM_Houses, KM_LoadSFX, KM_PathF
 
 constructor TTerrain.Create;
 begin
-  //Don't know what to put here yet
+  Inherited;
   FallingTrees := TKMPointTagList.Create;
 end;
 
@@ -927,6 +927,9 @@ begin
     Result:=L1.GetRandom
   else
     Result:=Loc;
+
+  L1.Free;
+  L2.Free;
 end;
 
 //Test wherever the route is possible to make

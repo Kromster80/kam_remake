@@ -253,7 +253,7 @@ TKMControlsCollection = class(TKMList)
     procedure AddToCollection(Sender:TKMControl);
   public
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
     function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
@@ -864,6 +864,7 @@ end;
 
 constructor TKMControlsCollection.Create();
 begin
+  inherited;
   fRenderUI:= TRenderUI.Create;
 end;
 

@@ -91,7 +91,7 @@ type
       fFrom:TKMHouse;
       fToHouse:TKMHouse;
       fToUnit:TKMUnit;
-      fResource:TResourceType;
+      fResourceType:TResourceType;
       ID:integer;
     public
       constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
@@ -264,6 +264,7 @@ type
   public
     WorkPlan:TUnitWorkPlan;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+    destructor Destroy; override;
     function FindHome():boolean;
     function UpdateState():boolean; override;
     function InitiateMining():TUnitTask;
@@ -331,13 +332,17 @@ implementation
 uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_Users, KM_LoadSFX, KM_Viewport, KM_Game;
 
 
-
-
 { TKMUnitCitizen }
 constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
   WorkPlan:=TUnitWorkPlan.Create;
+end;
+
+
+destructor TKMUnitCitizen.Destroy;
+begin
+  FreeAndNil(WorkPlan);
 end;
 
 
@@ -842,6 +847,7 @@ begin
   if not (aAction.ActionType in GetSupportedActions) then
   begin
     aAction.Free;
+    aAction:=nil;
     exit;
   end;
   if fCurrentAction <> aAction then
@@ -1011,7 +1017,7 @@ fSerf:=aSerf;
 fFrom:=aFrom;
 fToHouse:=toHouse;
 fToUnit:=toUnit;
-fResource:=Res;
+fResourceType:=Res;
 Phase:=0;
 ID:=aID;
 fSerf.SetActionStay(0,ua_Walk);
@@ -1030,8 +1036,8 @@ case Phase of
 1: SetActionGoIn(ua_Walk,gid_In,fFrom.GetHouseType);
 2: SetActionStay(5,ua_Walk);
 3: begin
-     if fFrom.ResTakeFromOut(fResource) then
-       GiveResource(fResource)
+     if fFrom.ResTakeFromOut(fResourceType) then
+       GiveResource(fResourceType)
      else
        fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
      SetActionGoIn(ua_Walk,gid_Out,fFrom.GetHouseType);

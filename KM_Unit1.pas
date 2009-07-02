@@ -189,6 +189,7 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  fGame.StopGame(true);
   FreeAndNil(fGame);
   FreeAndNil(fLog);
   TimeEndPeriod(1);
@@ -680,14 +681,9 @@ begin
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   //Don't know how lame it is, but it works well
   //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
-  fGameSettings.Destroy; //Saves all settings into ini file
-  //Free up some more RAM
-  FreeAndNil(fSoundLib);
-  FreeAndNil(fMissionParser);
-  FreeAndNil(fTextLibrary);
-  FreeAndNil(fRender);
+  FreeAndNil(fGame); //Saves all settings into ini file in midst
   //Now re-init fGame
-  fGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1);
+  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1);
 
   Form1.Refresh;
 

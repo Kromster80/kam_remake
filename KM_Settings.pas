@@ -160,6 +160,7 @@ begin
     else fSoundLib.StopMusic;
 end;
 
+
 procedure TGameSettings.UpdateSFXVolume();
 begin
   fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
@@ -167,12 +168,11 @@ begin
 end;
 
 
-
 { TMissionSettings }
 constructor TMissionSettings.Create;
 var i:integer;
 begin
-  Inherited Create;
+  Inherited;
   for i:=1 to length(AllowToBuild) do AllowToBuild[i]:=true;
   BuildReqDone[byte(ht_Store)]:=true;
 end;

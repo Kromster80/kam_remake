@@ -268,12 +268,14 @@ end;
 {Return Entrance of the house, which is different than house position sometimes}
 function TKMHouse.GetEntrance():TKMPoint;
 begin
-  if Self=nil then
+  if Self=nil then begin
+    Form1.Close;
   if GetPosition.X=49 then //@Krom: What is this for? Old debug stuff? It seems to crash here sometimes
                            //@Lewin: Stone Test mission has a repeating bug here. When bottommost Stonemason (49:83)
                            //gets hungry it looks for an Inn and querries path from fHome.GetEntrance to Inn
                            //Now for some absolutely unknown reason his fHome = nil ! Hence the crash.....
                            //@Krom: I see. Could it be because the road inbetween the house and the inn is unexplored at the begining?
+  end;
   fLog.AppendLog(TypeToString(GetPosition));
   Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y:=GetPosition.Y;
