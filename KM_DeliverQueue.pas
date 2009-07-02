@@ -185,11 +185,11 @@ begin
   Result := Result and (
             //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House<>nil)and(DO_SERFS_WALK_ROADS)and
-            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,true))
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance(nil)),KMPointY1(fDemand[iD].Loc_House.GetEntrance(nil)),canWalkRoad,true))
             )or
             //House-Unit delivery can be performed without connecting road
             ((fDemand[iD].Loc_Unit<>nil)and
-            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk,false)));
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance(nil)),fDemand[iD].Loc_Unit.GetPosition,canWalk,false)));
 end;
 
 
@@ -228,9 +228,9 @@ for iD:=1 to length(fDemand) do
 
       //Basic Bid is length of route
       if fDemand[iD].Loc_House<>nil then
-        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
+        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance(nil),fDemand[iD].Loc_House.GetEntrance(nil))
       else
-        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
+        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance(nil),fDemand[iD].Loc_Unit.GetPosition);
 
       //Modifications for bidding system
       if fDemand[iD].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
@@ -262,11 +262,16 @@ for iD:=1 to length(fDemand) do
   Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 
   dec(fOffer[iO].Count); //Remove resource from Offer
-  if fOffer[iO].Count=0 then
+  if fOffer[iO].Count=0 then begin
     fOffer[iO].Resource:=rt_None;
+    fOffer[iO].Loc_House:=nil;
+  end;
 
-  if fDemand[iD].DemandType=dt_Once then //Remove resource from Demand
+  if fDemand[iD].DemandType=dt_Once then begin//Remove resource from Demand
     fDemand[iD].Resource:=rt_None;
+    fDemand[iD].Loc_House:=nil;
+    fDemand[iD].Loc_Unit:=nil;
+  end;
 
 end;
 
@@ -277,6 +282,7 @@ with fQueue[aID] do
   begin
     OfferID:=0;
     DemandID:=0;
+
     JobStatus:=js_Open; //Open slot
   end;
 end;

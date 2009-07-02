@@ -407,9 +407,9 @@ begin
   ct_SetUnitByStock: begin
                      if InRange(ParamList[0],0,31) then
                      begin
-                       Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,0,0,1));
+                       Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,KMPoint(0,0),1));
                        if Storehouse<>nil then
-                         fPlayers.Player[CurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointY1(Storehouse.GetEntrance));
+                         fPlayers.Player[CurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointY1(Storehouse.GetEntrance(nil)));
                      end;
                      end;
   ct_SetRoad:        begin
@@ -431,7 +431,7 @@ begin
   ct_AddWare:        begin
                      MyInt:=ParamList[1];
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
-                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,0,0,1));
+                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,KMPoint(0,0),1));
                      if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_AddWareToAll:   begin
@@ -439,20 +439,20 @@ begin
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
                      for i:=1 to fPlayers.PlayerCount do
                      begin
-                       Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,0,0,1));
+                       Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,KMPoint(0,0),1));
                        if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
                      end;
   ct_AddWareToSecond:begin
                      MyInt:=ParamList[1];
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
-                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,0,0,2));
+                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,KMPoint(0,0),2));
                      if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_AddWeapon:      begin
                      MyInt:=ParamList[1];
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum weapons
-                     Barracks:=TKMHouseBarracks(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Barracks,0,0,1));
+                     Barracks:=TKMHouseBarracks(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Barracks,KMPoint(0,0),1));
                      if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then Barracks.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_BlockHouse:     begin

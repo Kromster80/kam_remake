@@ -68,8 +68,8 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         MAX_WARFARE_IN_BARRACKS = 20;
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
-        UNIT_MAX_CONDITION = 6*600;            //*min of life. In KaM it's 45min
-        UNIT_MIN_CONDITION = 5*600;             //If unit condition is less it will look for Inn
+        UNIT_MAX_CONDITION = 51*600;            //*min of life. In KaM it's 45min
+        UNIT_MIN_CONDITION = 50*600;             //If unit condition is less it will look for Inn
 
 type
   TRenderMode = (rm2D, rm3D);

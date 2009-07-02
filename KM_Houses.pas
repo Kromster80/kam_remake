@@ -64,7 +64,7 @@ type
     procedure DemolishHouse(DoSilent:boolean);
 
     property GetPosition:TKMPoint read fPosition;
-    function GetEntrance():TKMPoint;
+    function GetEntrance(DebugSender:TObject):TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
@@ -266,9 +266,12 @@ end;
 
 
 {Return Entrance of the house, which is different than house position sometimes}
-function TKMHouse.GetEntrance():TKMPoint;
+function TKMHouse.GetEntrance(DebugSender:TObject):TKMPoint;
+var a:tkmpoint;
 begin
   if Self=nil then begin
+    a:=TKMUnitCitizen(DebugSender).GetPosition;
+    //Now we know unit which causes the trouble  -  it's idling Stonecutter at 64:40. Why would it ask for GetEntrance..?
     Form1.Close;
   if GetPosition.X=49 then //@Krom: What is this for? Old debug stuff? It seems to crash here sometimes
                            //@Lewin: Stone Test mission has a repeating bug here. When bottommost Stonemason (49:83)
@@ -843,7 +846,7 @@ begin
   if UnitQueue[1]=ut_None then exit;
   if CheckResIn(rt_Gold)=0 then exit;
   HideOneGold:=true;
-  UnitWIP:=fPlayers.Player[byte(fOwner)].AddUnit(UnitQueue[1],GetEntrance,false);//Create Unit
+  UnitWIP:=fPlayers.Player[byte(fOwner)].AddUnit(UnitQueue[1],GetEntrance(Self),false);//Create Unit
   TKMUnit(UnitWIP).UnitTask:=TTaskSelfTrain.Create(UnitWIP,Self);
 end;
 
@@ -1088,11 +1091,11 @@ function TKMHousesCollection.FindHouse(aType:THouseType; X,Y:word; const Index:b
 var
   i,id: integer;
   UsePosition: boolean;
-  Sample,Dist: single;
+  BestMatch,Dist: single;
 begin
   Result := nil;
   id := 0;
-  Sample := -1; //Use -1 value to init variable on first run
+  BestMatch := -1; //Use -1 value to init variable on first run
   UsePosition := X*Y<>0; //Calculate this once to save computing lots of multiplications
   Assert((not UsePosition)or(Index=1), 'Can''t find house basing both on Position and Index');
 
@@ -1103,9 +1106,9 @@ begin
       if UsePosition then
       begin
           Dist := GetLength(TKMHouse(Items[I]).GetPosition,KMPoint(X,Y));
-          if Sample = -1 then Sample := Dist; //Initialize for first use
-          if Dist < Sample then begin
-            Sample := Dist;
+          if BestMatch = -1 then BestMatch := Dist; //Initialize for first use
+          if Dist < BestMatch then begin
+            BestMatch := Dist;
             Result := TKMHouse(Items[I]);
           end;
       end else

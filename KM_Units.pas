@@ -239,7 +239,7 @@ type
     property UnitAction: TUnitAction read fCurrentAction;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
     procedure SetAction(aAction: TUnitAction; aStep:integer);
-    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType);
+    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType=ht_None);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false);
     procedure Feed(Amount:single);
@@ -407,8 +407,8 @@ begin
 //Priority no.2 - find self a home
 //Priority no.3 - find self a work
     if fCondition<UNIT_MIN_CONDITION then begin
-      H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-      if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(KMPointY1(fHome.GetEntrance),KMPointY1(H.GetEntrance),canWalkRoad,true)) then
+      H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition)); //@Lewin: Can you tweak it such a way that it returned list of available Inns and then choice was performed by both distance and food availability? See StoneMines mission for example - all units go to nearest Inn and it's immidiately emptied! Noone goes to second Inn
+      if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(H.GetEntrance(Self)),canWalkRoad,true)) then
         fUnitTask:=TTaskGoEat.Create(H,Self)
       else //If there's no Inn or no food in it
         //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -419,7 +419,7 @@ begin
       if (fHome=nil) then
         if FindHome then begin
           fThought:=th_Home;
-          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self) //Home found - go there
+          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self) //Home found - go there
         end else begin
           if random(2)=0 then fThought:=th_Quest;
           SetActionStay(120, ua_Walk) //There's no home
@@ -427,7 +427,7 @@ begin
       else
         if fVisible then begin//Unit is not at home, still it has one
           fThought:=th_Home;
-          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self)
+          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self)
         end else
           fUnitTask:=InitiateMining; //Unit is at home, so go get a job
 
@@ -467,7 +467,7 @@ end;
 //  fViewport.SetCenter(GetPosition.X,GetPosition.Y);
 //end;
 
-WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
+WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance(Self)));
 
 if not WorkPlan.IsIssued then exit;
 if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
@@ -519,8 +519,8 @@ begin
   fThought:=th_None;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(H.GetEntrance),canWalkRoad,true)) then
+    H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition));
+    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(H.GetEntrance(Self)),canWalkRoad,true)) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -593,8 +593,8 @@ begin
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition.X,GetPosition.Y));
-    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(H.GetEntrance),canWalk,true)) then
+    H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition));
+    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(H.GetEntrance(Self)),canWalk,true)) then
       fUnitTask:=TTaskGoEat.Create(H,Self)
   else //If there's no Inn or no food in it
     //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
@@ -858,7 +858,7 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType);
+procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType=ht_None);
 begin
   SetAction(TUnitActionGoIn.Create(aAction, aGoDir, aHouseType),0);
 end;
@@ -1031,7 +1031,7 @@ TaskDone:=false;
 with fSerf do
 case Phase of
 0: begin
-    SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance), KMPoint(0,0));
+    SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance(Self)), KMPoint(0,0));
    end;
 1: SetActionGoIn(ua_Walk,gid_In,fFrom.GetHouseType);
 2: SetActionStay(5,ua_Walk);
@@ -1050,7 +1050,7 @@ if fToHouse<>nil then
 if fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance), KMPoint(0,0));
+5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)), KMPoint(0,0));
 6: SetActionGoIn(ua_Walk,gid_In,fToHouse.GetHouseType);
 7: SetActionStay(5,ua_Walk);
 8: begin
@@ -1067,7 +1067,7 @@ if fToHouse<>nil then
 if not fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance), KMPoint(0,0), ua_Walk);
+5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)), KMPoint(0,0), ua_Walk);
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
@@ -1292,7 +1292,7 @@ TaskDone:=false;
 with fWorker do
 case Phase of
 0:  begin
-      SetActionWalk(fWorker,fHouse.GetEntrance, KMPoint(0,0));
+      SetActionWalk(fWorker,fHouse.GetEntrance(Self), KMPoint(0,0));
       fThought := th_Build;
     end;
 1:  if not fHouse.IsDestroyed then begin //House plan was cancelled before worker has arrived on site
@@ -1321,13 +1321,13 @@ case Phase of
       SetActionStay(11,ua_Work1,false);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
       if not fHouse.IsDestroyed then
-      if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
-        fTerrain.SetRoad(fHouse.GetEntrance, fOwner);
+      if KMSamePoint(fHouse.GetEntrance(Self),ListOfCells[Step]) then
+        fTerrain.SetRoad(fHouse.GetEntrance(Self), fOwner);
 
       fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
       dec(Step);
     end;
-7:  SetActionWalk(fWorker,KMPointY1(fHouse.GetEntrance), KMPoint(0,0), ua_Walk, true, true);
+7:  SetActionWalk(fWorker,KMPointY1(fHouse.GetEntrance(Self)), KMPoint(0,0), ua_Walk, true, true);
 8:  begin
       fPlayers.Player[byte(fOwner)].BuildList.CloseHousePlan(TaskID);
       fHouse.SetBuildingState(hbs_Wood);
@@ -1575,7 +1575,7 @@ with fUnit do
     5: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
-         SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance), KMPoint(0,0),WorkPlan.WalkFrom); //Go home
+         SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance(Self)), KMPoint(0,0),WorkPlan.WalkFrom); //Go home
          fThought := th_Home;
        end;
     6: SetActionGoIn(WorkPlan.WalkFrom,gid_In,fHome.GetHouseType); //Go inside
@@ -1695,8 +1695,12 @@ case Phase of
        if fHome<>nil then begin
          fHome.SetState(hst_Idle,0);
          fHome.SetState(hst_Empty,0);
-       end;
-       SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType);
+         SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType);
+       end
+       else
+         SetActionGoIn(ua_Walk,gid_Out); //Inn or Store or etc.. for units without home.
+                                         //Which means that our current approach to deduce housetype from
+                                         //fUnit.fHome is wrong
      end else
      SetActionStay(0,ua_Walk);
   1: SetActionStay(16-1,ua_Die,false);
@@ -1736,7 +1740,7 @@ case Phase of
     end;
  1: begin
       fThought := th_Eat;
-      SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance), KMPoint(0,0));
+      SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance(Self)), KMPoint(0,0));
     end;
  2: begin
       fThought := th_None;

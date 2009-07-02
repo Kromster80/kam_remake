@@ -523,7 +523,7 @@ MyPlayer.AddUnit(ut_Miner, KMPoint(13,11));
 MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 
-H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
+H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
 if H<>nil then H.AddMultiResource(rt_All,250); //It had had lack of stones
 if H<>nil then H.AddMultiResource(rt_Sausages,500);
 
@@ -552,7 +552,7 @@ begin
     MyPlayer:=fPlayers.Player[k];
 
     MyPlayer.AddHouse(ht_Store, KMPoint(k*4,5));
-    H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
+    H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
     if H<>nil then H.AddMultiResource(rt_All,30);
 
     for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(k*4,8));
@@ -576,7 +576,7 @@ begin
   MyPlayer:=fPlayers.Player[1];
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
-  H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,0,0));
+  H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
   if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All,1300);
 
   for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
