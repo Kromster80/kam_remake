@@ -47,6 +47,7 @@ type
     procedure SpinHSBChange(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   end;
 
 procedure DefineInputColor(R,G,B:byte; Sender:TObject); overload;
@@ -336,6 +337,12 @@ BitmapBri:=Tbitmap.Create;
 BitmapBri.PixelFormat:=pf24bit;
 BitmapBri.Width:=1;
 BitmapBri.Height:=BriImage.Height;
+end;
+
+procedure TForm_ColorPicker.FormDestroy(Sender: TObject);
+begin
+  BitmapHueSat.Free;
+  BitmapBri.Free;
 end;
 
 end.

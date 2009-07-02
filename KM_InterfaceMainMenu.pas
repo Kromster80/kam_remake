@@ -170,10 +170,10 @@ begin
     KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,ScreenX,ScreenY,2,6);
     KMImage_MainMenuBG.StretchImage:=true;
     KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,120,100,423,164,4,5);
-    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,660,220,round(207*1.25),round(295*1.25),6,6);
+    KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,635,220,round(207*1.3),round(295*1.3),6,6);
     KMImage_MainMenu3.StretchImage:=true;
 
-    KMPanel_MainButtons:=MyControls.AddPanel(KMPanel_MainMenu,160,300,350,350);
+    KMPanel_MainButtons:=MyControls.AddPanel(KMPanel_MainMenu,155,300,350,400);
       KMButton_MainMenuTutor  :=MyControls.AddButton(KMPanel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal,bsMenu);
       KMButton_MainMenuTSK    :=MyControls.AddButton(KMPanel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
       KMButton_MainMenuTPR    :=MyControls.AddButton(KMPanel_MainButtons,0, 80,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
@@ -183,11 +183,11 @@ begin
       KMButton_MainMenuOptions:=MyControls.AddButton(KMPanel_MainButtons,0,240,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
       KMButton_MainMenuCredit :=MyControls.AddButton(KMPanel_MainButtons,0,280,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
       KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,360,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
-      KMButton_MainMenuTutor.OnClick :=MainMenu_PlayTutorial;
-      KMButton_MainMenuSingle.OnClick:=SwitchMenuPage;
-      KMButton_MainMenuOptions.OnClick:=SwitchMenuPage;
-      KMButton_MainMenuCredit.OnClick:=SwitchMenuPage;
-      KMButton_MainMenuQuit.OnClick  :=Form1.Exit1.OnClick;
+      KMButton_MainMenuTutor.OnClick    :=MainMenu_PlayTutorial;
+      KMButton_MainMenuSingle.OnClick   :=SwitchMenuPage;
+      KMButton_MainMenuOptions.OnClick  :=SwitchMenuPage;
+      KMButton_MainMenuCredit.OnClick   :=SwitchMenuPage;
+      KMButton_MainMenuQuit.OnClick     :=Form1.Exit1.OnClick;
       KMButton_MainMenuTSK.Disable;
       KMButton_MainMenuTPR.Disable;
       KMButton_MainMenuLoad.Disable;

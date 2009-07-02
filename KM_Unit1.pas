@@ -190,6 +190,7 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(fGame);
+  FreeAndNil(fLog);
   TimeEndPeriod(1);
 end;
 

@@ -854,6 +854,8 @@ begin
 
     setlength(RXData[RXid].Data[id],0);
   end;
+
+  MyBitMap.Free;
 end;
 
 {Export Units graphics categorized by Unit and Action}
