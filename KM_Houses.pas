@@ -118,7 +118,7 @@ type
 
   TKMHouseInn = class(TKMHouse)
   private
-    Eater:array[1..16]of record //6 will be visible, 10 in stash, rest invisible 
+    Eater:array[1..6]of record //only 6 units are allowed in the inn
       UnitType:TUnitType;
       FoodKind:byte; //What kind of food eater eats
       AnimStep:cardinal;
@@ -129,6 +129,7 @@ type
     procedure UpdateEater(aID:byte; aFoodKind:byte);
     procedure EatersGoesOut(aID:byte);
     function HasFood:boolean;
+    function HasSpace:boolean;
     procedure Paint(); override; //Render all eaters
   end;
 
@@ -761,6 +762,15 @@ end;
 function TKMHouseInn.HasFood:boolean;
 begin
   Result:=(CheckResIn(rt_Sausages)+CheckResIn(rt_Bread)+CheckResIn(rt_Wine)+CheckResIn(rt_Fish)>0);
+end;
+
+function TKMHouseInn.HasSpace:boolean;
+var
+  i: integer;
+begin
+  Result:=false;
+  for i:=low(Eater) to high(Eater) do
+    Result := Result or (Eater[i].UnitType=ut_None);
 end;
 
 

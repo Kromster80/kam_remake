@@ -407,10 +407,16 @@ begin
 //Priority no.2 - find self a home
 //Priority no.3 - find self a work
     if fCondition<UNIT_MIN_CONDITION then begin
-      H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition)); //@Lewin: Can you tweak it such a way that it returned list of available Inns and then choice was performed by both distance and food availability? See StoneMines mission for example - all units go to nearest Inn and it's immidiately emptied! Noone goes to second Inn
-      if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(H.GetEntrance(Self)),canWalkRoad,true)) then
+      //@Lewin: Can you tweak it such a way that it returned list of available Inns and then choice was performed by both distance and food availability? See StoneMines mission for example - all units go to nearest Inn and it's immidiately emptied! Noone goes to second Inn
+      //@Krom:  I've done that, but it just chooses the closest inn that has food, can be walked to and is not full. But that's all KaM ever did so I don't think it's a problem.
+      //        A few comments: - Why did you allow 10 extra invisible units in the inn? KaM always limited it to 6, which I think was good because it meant that you needed multiple inns. In KaM you can always see what's happenen, and invisible eaters go against this.
+      //                        - I assume that you've set the UNIT_MIN_CONDITION condition high for debugging, but could it be a bit lower? Because now units go and eat right at the start because of my random condidtion thing. Maybe at 2/3 condition they go eat?
+      //                        - We need a second UNIT_MIN_CONDITION (which will be half the current one I think) and once units have less than that much they will show the death thought all of the time. This could just be calculated as (UNIT_MIN_CONDITION div 2) I suppose, although we might want to change it.
+      //        Please give me your thoughts on all of these matters.
+      H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
+      if H<>nil then
         fUnitTask:=TTaskGoEat.Create(H,Self)
-      else //If there's no Inn or no food in it
+      else //If there are no Inns available or no food in them
         //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
         //for now - IgnoreHunger for all
     end;
@@ -519,12 +525,12 @@ begin
   fThought:=th_None;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition));
-    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(H.GetEntrance(Self)),canWalkRoad,true)) then
+    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
+    if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self)
-  else //If there's no Inn or no food in it
-    //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
-    //for now - IgnoreHunger for all
+    else //If there's no Inn or no food in it
+      //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
+      //for now - IgnoreHunger for all
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
@@ -593,12 +599,12 @@ begin
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=TKMHouseInn(fPlayers.Player[byte(fOwner)].FindHouse(ht_Inn,GetPosition));
-    if (H<>nil)and(H.HasFood)and(fTerrain.Route_CanBeMade(GetPosition,KMPointY1(H.GetEntrance(Self)),canWalk,true)) then
+    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
+    if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self)
-  else //If there's no Inn or no food in it
-    //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
-    //for now - IgnoreHunger for all
+    else //If there's no Inn or no food in it
+      //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
+      //for now - IgnoreHunger for all
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
@@ -764,7 +770,10 @@ begin
   fVisible:=true;
   Speed:=UnitStat[byte(aUnitType)].Speed/24;
   SetActionStay(10,ua_Walk);
-  fCondition:=UNIT_MAX_CONDITION;
+  //Units start with a random amount of condition ranging from 3/4 to full.
+  //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
+  //Note: Warriors of the same group will need to be set the same if they are created at the begining of the mission
+  fCondition:=UNIT_MAX_CONDITION-Random(UNIT_MAX_CONDITION div 4);
   fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType);
   fTerrain.UnitAdd(NextPosition);
 end;
@@ -1747,28 +1756,28 @@ case Phase of
       SetActionGoIn(ua_Walk,gid_In,ht_Inn); //Enter Inn
       PlaceID:=fInn.EaterGetsInside(fUnitType);
     end;
- 3: if fInn.CheckResIn(rt_Bread)>0 then begin
+ 3: if (fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Bread);
       SetActionStay(29*8,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION/3);
       fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
     end else
       SetActionStay(0,ua_Walk);
- 4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0) then begin
+ 4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Sausages);
       SetActionStay(29*8,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION/2);
       fInn.UpdateEater(PlaceID,3);
     end else
       SetActionStay(0,ua_Walk);
- 5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0) then begin
+ 5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Wine);
       SetActionStay(29*8,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION/4);
       fInn.UpdateEater(PlaceID,1);
     end else
       SetActionStay(0,ua_Walk);
- 6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0) then begin
+ 6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Fish);
       SetActionStay(29*8,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION/4);

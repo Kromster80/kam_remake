@@ -32,6 +32,7 @@ type
     procedure RemUnit(Position: TKMUnit);
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
+    function FindInn(Loc:TKMPoint): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetUnitLocations(out Loc:TKMPointList);
@@ -205,6 +206,36 @@ begin
   Result:=fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
 end;
 
+function TKMPlayerAssets.FindInn(Loc:TKMPoint): TKMHouseInn;
+var
+  H: TKMHouseInn;
+  i: integer;
+  Dist, BestMatch: single;
+begin
+   //This function will return the best inn for a unit at Loc, base on distance, food available and space available.
+   //Will return nil if no suitable inn is available
+   Result := nil;
+   i:=1;
+   BestMatch := 9999;
+         
+   H:=TKMHouseInn(FindHouse(ht_Inn,KMPoint(0,0),1));
+   repeat
+     //First make sure that it is valid
+     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance(Self)),canWalkRoad,true)) then
+     begin
+        //Take the closest inn out of the ones that are suitable
+        Dist := GetLength(H.GetPosition,Loc);
+        if Dist < BestMatch then
+        begin
+          Result := H;
+          BestMatch := Dist;
+        end;
+     end;
+
+     inc(i);
+     H:=TKMHouseInn(FindHouse(ht_Inn,KMPoint(0,0),i));
+   until H = nil;
+end;
 
 constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 begin
