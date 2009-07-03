@@ -680,6 +680,7 @@ var
   );
 
   GlobalTickCount:integer=-1; //So that first number after inc() would be 0
+  GameplayTickCount:integer=0; //So that first number after inc() would be 0
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 

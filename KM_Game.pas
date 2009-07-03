@@ -157,7 +157,7 @@ begin
     if (Key=ord('0')) and GameIsRunning then begin
       fGameplayInterface.IssueMessage(msgScroll,'123');
     end;
-
+    
     //Also send shortcut to GamePlayInterface if it is there
     if (GameIsRunning) and (fGamePlayInterface <> nil) {and (Key in [49..52,VK_ESCAPE])} then
       fGamePlayInterface.ShortcutPress(Key,IsDown);
@@ -307,7 +307,7 @@ end;
 
 procedure TKMGame.StartGame(MissionFile:string);
 begin
-  RandSeed:=4;
+  RandSeed:=4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
 
   fMainMenuInterface.ShowScreen_Loading;
   fRender.Render;
@@ -345,7 +345,9 @@ begin
   fViewport.SetArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
   //fSoundLib.PlayNextTrack();  //Discussed. No need to feed new music track.
-  
+
+  GameplayTickCount:=0; //Restart counter
+
   GameIsRunning:=true;
 end;
 
@@ -389,8 +391,10 @@ begin
     exit; //If game is not running
   end;
 
+
   fViewport.DoScrolling; //Check to see if we need to scroll
   for i:=1 to GameSpeed do begin
+    inc(GameplayTickCount); //Thats our tick counter for gameplay events
     fTerrain.UpdateState;
     fPlayers.UpdateState; //Quite slow
   end;

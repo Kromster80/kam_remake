@@ -245,7 +245,7 @@ type
     procedure Feed(Amount:single);
     property GetOwner:TPlayerID read fOwner;
     property GetHome:TKMHouse read fHome;
-    property UnitTask: TUnitTask write fUnitTask;
+    property SetUnitTask: TUnitTask write fUnitTask;
     property GetUnitType: TUnitType read fUnitType;
     function GetUnitTaskText():string;
     function GetUnitActText():string;
@@ -402,6 +402,14 @@ begin
   if Inherited UpdateState then exit;
 
   fThought:=th_None;
+
+{  if fUnitTask=nil then //Which is always nil if 'Inherited UpdateState' works properly
+  if not TestHunger then
+  if not TestHasHome then
+  if not TestAtHome then
+  if not TestMining then
+    Idle..}
+
 //Here come unit tasks in priorities
 //Priority no.1 - find self a food
 //Priority no.2 - find self a home
@@ -904,6 +912,16 @@ var
   TimeDelta: Cardinal;
   ActDone,TaskDone: Boolean;
 begin
+  //There are layers of unit activity (bottom to top):
+  // - Action (Atom creating layer (walk 1frame, etc..))
+  // - Task (Action creating layer)
+  // - specific UpdateState (Task creating layer)
+
+  //Parallel to Action&Task each tick runs common UpdateState (see below)
+  // - Become hungrier
+  // - update FOW
+  // - die cos of hunger        
+
   Result:=true;
 
   //Make unit hungry
