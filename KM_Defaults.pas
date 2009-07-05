@@ -22,15 +22,15 @@ const
   GAME_VERSION = 'Alpha';       //Game version string displayed in menu corner
   MENU_DESIGN_X = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y = 768;
-  MENU_SINGLE_MAPS_COUNT = 14;  //Number of single player mamps to display in menu
+  MENU_SINGLE_MAPS_COUNT = 14;  //Number of single player maps to display in menu
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=true; //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=false; //Whenever to make team colors or not, saves RAM for debug
-  DO_UNIT_INTERACTION   :boolean=false; //Debug for unit interaction
+  MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
+  DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
 
@@ -68,8 +68,8 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         MAX_WARFARE_IN_BARRACKS = 20;
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
-        UNIT_MAX_CONDITION = 51*600;            //*min of life. In KaM it's 45min
-        UNIT_MIN_CONDITION = 50*600;             //If unit condition is less it will look for Inn
+        UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
+        UNIT_MIN_CONDITION = 44*600;             //If unit condition is less it will look for Inn
 
 type
   TRenderMode = (rm2D, rm3D);
@@ -290,16 +290,7 @@ const
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
   'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
 
-  StatHouse:array[1..28] of THouseType = (
-  ht_Quary, ht_Woodcutters, ht_FisherHut,
-  ht_Farm, ht_Wineyard, ht_Mill, ht_Bakery,
-  ht_Swine, ht_Stables, ht_Butchers, ht_Tannery,
-  ht_Metallurgists, ht_IronSmithy, ht_ArmorSmithy, ht_WeaponSmithy,
-  ht_CoalMine, ht_IronMine, ht_GoldMine,
-  ht_Sawmill, ht_WeaponWorkshop, ht_ArmorWorkshop, ht_SiegeWorkshop,
-  ht_Barracks, ht_WatchTower,
-  ht_TownHall, ht_Store, ht_School, ht_Inn );
-
+  //Statistics page in game menu
   //0=space, 1=house, 2=unit
   StatCount:array[1..8,1..8]of byte = (
   (1,2,0,1,2,0,1,2),
@@ -310,6 +301,16 @@ const
   (1,1,1,1,2,0,0,0),
   (1,1,2,0,0,0,0,0),
   (1,1,1,1,0,2,2,0));
+
+  StatHouse:array[1..28] of THouseType = (
+  ht_Quary, ht_Woodcutters, ht_FisherHut,
+  ht_Farm, ht_Wineyard, ht_Mill, ht_Bakery,
+  ht_Swine, ht_Stables, ht_Butchers, ht_Tannery,
+  ht_Metallurgists, ht_IronSmithy, ht_ArmorSmithy, ht_WeaponSmithy,
+  ht_CoalMine, ht_IronMine, ht_GoldMine,
+  ht_Sawmill, ht_WeaponWorkshop, ht_ArmorWorkshop, ht_SiegeWorkshop,
+  ht_Barracks, ht_WatchTower,
+  ht_TownHall, ht_Store, ht_School, ht_Inn );
 
   StatUnit:array[1..14] of TUnitType = (
   ut_StoneCutter, ut_Woodcutter, ut_Fisher,
@@ -521,6 +522,7 @@ type
   //Rope outline of house area
   //Fence outline of house area
   //Actual house, which is not rendered and is used in here to siplify whole thing
+  //Underconstruction tile, house area being flattened and roadworks
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
 
@@ -680,7 +682,7 @@ var
   );
 
   GlobalTickCount:integer=-1; //So that first number after inc() would be 0
-  GameplayTickCount:integer=0; //So that first number after inc() would be 0
+  GameplayTickCount:integer=0; //So that first tick will be #1
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
@@ -866,8 +868,22 @@ type
     procedure AddToLog(text:string);
   end;
 
+type TKMEvent = (evMouseDown=256, evMouseUp, evMouseMove); //reserve 2bytes at least
+
+{This is custom logging system}
+type
+  TKMEventLog = class
+  private
+    fe:textfile;
+    logfile:string; //Path to log file
+  public
+    constructor Create(path:string);
+    procedure AddToLog(TickCount:integer; EventID:TKMEvent; Param1,Param2,Param3,Param4:integer);
+  end;
+
 var
   fLog: TKMLog;
+  fEventLog: TKMEventLog;
 
 function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload
@@ -877,6 +893,23 @@ function TypeToString(t:TKMDirection):string; overload
 
 implementation
 uses KM_LoadLib;
+
+{Reset event log file}
+constructor TKMEventLog.Create(path:string);
+begin
+  logfile:=path;
+  assignfile(fe,logfile);
+  rewrite(fe);
+  closefile(fe);
+end;
+
+procedure TKMEventLog.AddToLog(TickCount:integer; EventID:TKMEvent; Param1,Param2,Param3,Param4:integer);
+begin
+  assignfile(fe,logfile);
+  append(fe);
+  writeln(fe,TickCount,' ',integer(EventID),' ',Param1,' ',Param2,' ',Param3,' ',Param4);
+  closefile(fe);
+end;
 
 {Reset log file}
 constructor TKMLog.Create(path:string);

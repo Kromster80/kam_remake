@@ -863,8 +863,7 @@ begin
   end;
   if not (aAction.ActionType in GetSupportedActions) then
   begin
-    aAction.Free;
-    aAction:=nil;
+    FreeAndNil(aAction);
     exit;
   end;
   if fCurrentAction <> aAction then
@@ -1039,15 +1038,15 @@ end;
 { TTaskDeliver }
 constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
-Assert((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
-fSerf:=aSerf;
-fFrom:=aFrom;
-fToHouse:=toHouse;
-fToUnit:=toUnit;
-fResourceType:=Res;
-Phase:=0;
-ID:=aID;
-fSerf.SetActionStay(0,ua_Walk);
+  Assert((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
+  fSerf:=aSerf;
+  fFrom:=aFrom;
+  fToHouse:=toHouse;
+  fToUnit:=toUnit;
+  fResourceType:=Res;
+  Phase:=0;
+  ID:=aID;
+  fSerf.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1118,6 +1117,7 @@ case Phase of
     TaskDone:=true;
    end;
 end;
+
 inc(Phase);
 if (fSerf.fCurrentAction=nil)and(not TaskDone) then
   Assert(false);
@@ -1412,8 +1412,8 @@ begin
       //Pick random location and go there
       0: begin
            //If house has not enough resource to be built, consider building task is done
-           //and look for new task that has enough resouce. Once this house has resource delivered
-           //it will be available to be built again.
+           //and look for a new task that has enough resouces. Once this house has building resources
+           //delivered it will be available from build queue again.
            if not fHouse.CheckResToBuild then begin
              TaskDone:=true; //Drop the task
              fThought := th_None;
@@ -1434,6 +1434,8 @@ begin
          end;
       3: begin
            //Cancel building no matter progress if resource depleted or must eat
+           //@Lewin: Is this right behaviour, that worker can drop building task for food?
+           //On a side note: Unit should have a CanGoEat function, cos if there are no Inns task shouldn't be dropped like that
            if (not fHouse.CheckResToBuild)or(fCondition<UNIT_MIN_CONDITION) then begin
              TaskDone:=true; //Drop the task
              fThought := th_None;

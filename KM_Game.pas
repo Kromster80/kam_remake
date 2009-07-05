@@ -55,7 +55,9 @@ begin
   fResource.LoadMenuResources;
 
   fGameSettings         := TGameSettings.Create;
-  fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);  
+  fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);
+
+  fEventLog := TKMEventLog.Create(ExeDir+'KaM_Events.log');
 
   fSoundLib.PlayMenuTrack;
 
@@ -176,6 +178,7 @@ begin
     if Button = mbMiddle then
       fPlayers.Player[1].AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
   end else begin
+    fEventLog.AddToLog(GlobalTickCount,evMouseDown,integer(Button),0,X,Y);
     MOver := fMainMenuInterface.MyControls.MouseOverControl(); //Remember control that was clicked
     fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
   end;
@@ -215,6 +218,7 @@ begin
       fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
     end;
   end else begin
+    fEventLog.AddToLog(GlobalTickCount,evMouseMove,integer(ssLeft in Shift),0,X,Y);
     fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
   end;
 
@@ -300,6 +304,7 @@ begin
     //TKMUnitWarrior(fPlayers.SelectedUnit).SetActionWalk(fPlayers.SelectedUnit,P,KMPoint(0,0));
 
   end else begin //If GameIsRunning=false
+    fEventLog.AddToLog(GlobalTickCount,evMouseUp,integer(Button),0,X,Y);
     fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
   end;
 end;

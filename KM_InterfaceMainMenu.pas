@@ -93,10 +93,10 @@ inherited Create;
 
   {Parent Page for whole toolbar in-game}
   MyControls:=TKMControlsCollection.Create;
-  ScreenX:=min(X,1024);
-  ScreenY:=min(Y,768);
-  OffX := (X-1024) div 2;
-  OffY := (Y-768) div 2;
+  ScreenX:=min(X,MENU_DESIGN_X);
+  ScreenY:=min(Y,MENU_DESIGN_Y);
+  OffX := (X-MENU_DESIGN_X) div 2;
+  OffY := (Y-MENU_DESIGN_Y) div 2;
   SingleMap_Top:=1;
   SingleMap_Selected:=1;
 
@@ -166,7 +166,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
-  KMPanel_MainMenu:=MyControls.AddPanel(KMPanel_Main1,0,0,1024,768);
+  KMPanel_MainMenu:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,ScreenX,ScreenY,2,6);
     KMImage_MainMenuBG.StretchImage:=true;
     KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,120,100,423,164,4,5);
@@ -466,10 +466,6 @@ begin
   if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                            else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
-  //@Krom: Why not an 'X' like normal for enabled?
-  //...     To be honest I don't really like the O,X system, some people might not understand it.
-  //Do you think it should be changed to something else?
-  //@Lewin: I guess we should make a kind of TKMCheckbox control mimicing(?) Delphi VCL Checkbox
   //@Krom: Yes, I think it should be a proper control in a KaM style. Just text [x] doesn't look great.
   //       Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
   CheckBox_Options_FullScreen.Checked := fGameSettings.IsFullScreen;

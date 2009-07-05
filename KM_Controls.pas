@@ -78,7 +78,7 @@ TKMImage = class(TKMControl)
 end;
 
 
-{Panel which should have child items on it, is virtual thing and is not visible}
+{Panel which should have child items on it, it's virtual and invisible}
 TKMPanel = class(TKMControl)
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
@@ -86,7 +86,7 @@ TKMPanel = class(TKMControl)
 end;
 
 
-{Panel which is visible}
+{Panel which is visible, beveled area}
 TKMBevel = class(TKMControl)
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
@@ -514,6 +514,7 @@ var Tmp:TKMPoint; Col:TColor4;
 begin
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
+  //We can replace it with something better later on. For now [x] fits just fine
   fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
   if Checked then
     fRenderUI.WriteText(Left+4, Top, Width, 'x', Font, kaLeft, false, Col);
@@ -754,11 +755,12 @@ begin
 
     NewPos := Position;
     if (CursorOver) and (ssLeft in AShift) then
-      NewPos:=EnsureRange(round(
-
-      MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue)
-
-      ),MinValue,MaxValue);
+      NewPos :=
+        EnsureRange(
+          round(
+            MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue)
+          ),
+        MinValue,MaxValue);
 
     if NewPos <> Position then begin
       Position := NewPos;

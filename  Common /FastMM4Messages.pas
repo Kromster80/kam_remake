@@ -16,7 +16,7 @@ const
   {The name of the debug info support DLL}
   FullDebugModeLibraryName = 'FastMM_FullDebugMode.dll';
   {Event log strings}
-  LogFileExtension = '_MemoryManager_EventLog.txt'#0;
+  LogFileExtension = '_FastMM_Log.txt'#0;
   CRLF = #13#10;
   EventSeparator = '--------------------------------';
   {Class name messages}
