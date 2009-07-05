@@ -35,6 +35,7 @@ type
   public
     constructor Create();
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
+    procedure RemoveOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
     function PermitDelivery(iO,iD:integer):boolean;
     function  AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
@@ -108,6 +109,7 @@ for i:=1 to length(fQueue) do
   CloseDelivery(i);
 end;
 
+
 //Adds new Offer to the list. List is stored without sorting
 //(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.
@@ -115,20 +117,41 @@ procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; 
 var i:integer;
 begin
   //Add Count of resource to old offer
-  for i:=1 to length(fOffer) do 
+  for i:=1 to length(fOffer) do
     if (fOffer[i].Loc_House=aHouse)and(fOffer[i].Resource=aResource) then begin
       inc(fOffer[i].Count,aCount);
       exit; //Done
     end;
 
   //Find an empty spot for new unique offer
-  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i); 
+  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i);
   with fOffer[i] do begin //Put offer
     Loc_House:=aHouse;
     Resource:=aResource;
     Count:=aCount;
   end;
 end;
+
+
+//Remove Offer from the list. List is stored without sorting
+//so we parse it to find that entry..
+procedure TKMDeliverQueue.RemoveOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
+var i:integer;
+begin
+  //Parse list until matching entry is found
+  i:=1; while (i<MaxEntries)and(fOffer[i].Loc_House<>aHouse)and(fOffer[i].Resource<>aResource) do inc(i);
+  if i=MaxEntries then Assert(false,'Can''t remove resource from offer');
+  with fOffer[i] do begin //Remove offer
+    dec(Count,aCount);
+    if Count=0 then begin
+      Loc_House:=aHouse;
+      Resource:=aResource;
+      BeingPerformed:=0;
+    end;
+    Assert(Count>=0,'Removed too much offer');
+  end;
+end;
+
 
 //Adds new Demand to the list. List is stored sorted, but the sorting is done upon Deliver completion,
 //so we just find an empty place (which is last one) and write there.
