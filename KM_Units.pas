@@ -1755,7 +1755,8 @@ case Phase of
       if fHome<>nil then fHome.GetHasOwner:=false;
       //Schedule Unit for removal and remove it after fUnits.UpdateState is done
       fUnit.ScheduleForRemoval:=true;
-      TaskDone:=true; //Doesn't matter any more
+      //SetActionStay(0,ua_Die);
+      TaskDone:=false; //Does matter. We don't want unit to grab another task after dying is done
       exit;
      end;
 end;

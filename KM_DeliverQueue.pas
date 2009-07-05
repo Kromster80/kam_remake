@@ -216,13 +216,20 @@ begin
 
 
   Result := Result and (
-            //House-House delivery should be performed only if there's a connecting road
-            (fDemand[iD].Loc_House<>nil)and(DO_SERFS_WALK_ROADS)and
+            ( //House-House delivery should be performed only if there's a connecting road
+            (fDemand[iD].Loc_House<>nil)and
             (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance(nil)),KMPointY1(fDemand[iD].Loc_House.GetEntrance(nil)),canWalkRoad,true))
-            )or
-            //House-Unit delivery can be performed without connecting road
-            ((fDemand[iD].Loc_Unit<>nil)and
-            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance(nil)),fDemand[iD].Loc_Unit.GetPosition,canWalk,false)));
+            )
+            or
+            ( //House-Unit delivery can be performed without connecting road
+            (fDemand[iD].Loc_Unit<>nil)and
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance(nil)),fDemand[iD].Loc_Unit.GetPosition,canWalk,false))
+            )
+            or
+            ( //Or maybe serfs can walk anywhere?
+            not DO_SERFS_WALK_ROADS
+            )
+            );
 end;
 
 
@@ -339,8 +346,8 @@ end;
 procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
   //Remove reservations without removing items from lists
-  if fQueue[aID].OfferID<>0 then dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
-  if fQueue[aID].DemandID<>0 then fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
+  if fQueue[aID].OfferID <> 0 then dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
+  if fQueue[aID].DemandID <> 0 then fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
   CloseDelivery(aID);
 end;
 

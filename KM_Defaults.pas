@@ -26,13 +26,13 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
-  DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
+  DO_SERFS_WALK_ROADS   :boolean=false;  //Wherever serfs should walk only on roads
 
   //These should be ... enabled sometime
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not

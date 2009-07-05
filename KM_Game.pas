@@ -69,6 +69,7 @@ end;
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
+  FreeAndNil(fEventLog);
   FreeAndNil(fGameSettings);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fResource);

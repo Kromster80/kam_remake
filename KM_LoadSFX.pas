@@ -323,10 +323,12 @@ end;
 
 procedure TSoundLib.PlayMenuTrack();
 begin
-  if not fGameSettings.IsMusic then exit;
   if MusicIndex = 1 then exit; //Don't change unless needed
   MusicIndex := 1; //First track (Spirit) is always menu music
   PlayMusicFile(MusicTracks[MusicIndex]);
+  if not fGameSettings.IsMusic then StopMusic; //This way music gets initialized irregardless of On/Off
+                                               //switch state on game launch. This means there's no 2sec
+                                               //lag when enabling music that was set to Off.
   //BUG: Attempt to play MPEG 1.0 Layer 3 silently crashes Remake on some PCs
 end;
 
