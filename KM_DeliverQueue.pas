@@ -14,6 +14,7 @@ type
       Resource:TResourceType;
       Count:integer;
       Loc_House:TKMHouse;
+      BeingPerformed:integer; //How many items are being delivered atm from total Count offered
     end;
     fDemand:array[1..MaxEntries]of
     record
@@ -22,6 +23,7 @@ type
       Importance:TDemandImportance; //How important demand is, e.g. Workers and building sites should be di_High
       Loc_House:TKMHouse;
       Loc_Unit:TKMUnit;
+      BeingPerformed:boolean;
     end;
     fQueue:array[1..MaxEntries]of
     record
@@ -36,6 +38,8 @@ type
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
     function PermitDelivery(iO,iD:integer):boolean;
     function  AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
+    procedure TakenOffer(aID:integer);
+    procedure GaveDemand(aID:integer);
     procedure CloseDelivery(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
     function WriteToText():string;
@@ -105,18 +109,20 @@ for i:=1 to length(fQueue) do
 end;
 
 //Adds new Offer to the list. List is stored without sorting
-//(it matters only for Demand to keep evything in waiting its order in line),
+//(it matters only for Demand to keep everything in waiting its order in line),
 //so we just find an empty place and write there.
 procedure TKMDeliverQueue.AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
 var i:integer;
 begin
-  for i:=1 to length(fOffer) do //Add Count of resource to old offer
+  //Add Count of resource to old offer
+  for i:=1 to length(fOffer) do 
     if (fOffer[i].Loc_House=aHouse)and(fOffer[i].Resource=aResource) then begin
       inc(fOffer[i].Count,aCount);
       exit; //Done
     end;
 
-  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i); //Find an empty spot
+  //Find an empty spot for new unique offer
+  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i); 
   with fOffer[i] do begin //Put offer
     Loc_House:=aHouse;
     Resource:=aResource;
@@ -138,6 +144,7 @@ begin
       DemandType:=aDemandType; //Once or Always
       Resource:=aResource;
       Importance:=aImp;
+      BeingPerformed:=false;
       if GOLD_TO_SCHOOLS_IMPORTANT then
         if (Resource=rt_gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
       if FOOD_TO_INN_IMPORTANT then
@@ -154,6 +161,9 @@ begin
   Result := (fDemand[iD].Resource = fOffer[iO].Resource)or
             (fDemand[iD].Resource = rt_All)or
             ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [rt_Shield..rt_Horse]));
+
+  //If Demand and Offer aren't reserved already
+  Result := Result and ((not fDemand[iD].BeingPerformed) and (fOffer[iO].BeingPerformed < fOffer[iO].Count));
 
   //If Demand house has WareDelivery toggled ON
   Result := Result and ((fDemand[iD].Loc_House=nil) or (fDemand[iD].Loc_House.WareDelivery));
@@ -261,36 +271,63 @@ for iD:=1 to length(fDemand) do
   //Now we have best job and can perform it
   Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 
-  dec(fOffer[iO].Count); //Remove resource from Offer
-  if fOffer[iO].Count=0 then begin
+  inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on an Offer
+  fDemand[iD].BeingPerformed:=true; //Places a virtual "Reserved" sign on Demand
+
+end;
+
+
+//Resource has been taken from Offer
+procedure TKMDeliverQueue.TakenOffer(aID:integer);
+var iO:integer;
+begin
+  iO:=fQueue[aID].OfferID;
+  fQueue[aID].OfferID:=0; //We don't need it any more
+
+  dec(fOffer[iO].BeingPerformed); //Remove reservation
+  dec(fOffer[iO].Count); //Remove resource from Offer list
+
+  if fOffer[iO].Count=0 then
+  begin
     fOffer[iO].Resource:=rt_None;
     fOffer[iO].Loc_House:=nil;
   end;
+end;
 
-  if fDemand[iD].DemandType=dt_Once then begin//Remove resource from Demand
+
+//Resource has been delivered to Demand
+procedure TKMDeliverQueue.GaveDemand(aID:integer);
+var iD:integer;
+begin
+  iD:=fQueue[aID].DemandID;
+  fQueue[aID].DemandID:=0; //We don't need it any more
+
+  fDemand[iD].BeingPerformed:=false; //Remove reservation
+
+  if fDemand[iD].DemandType=dt_Once then begin//Remove resource from Demand list
     fDemand[iD].Resource:=rt_None;
     fDemand[iD].Loc_House:=nil;
     fDemand[iD].Loc_Unit:=nil;
   end;
-
 end;
+
+
+//AbandonDelivery
+procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
+begin
+  //Remove reservations without removing items from lists
+  if fQueue[aID].OfferID<>0 then dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
+  if fQueue[aID].DemandID<>0 then fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
+  CloseDelivery(aID);
+end;
+
 
 //Job successfully done and we ommit it.
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
-with fQueue[aID] do
-  begin
-    OfferID:=0;
-    DemandID:=0;
-
-    JobStatus:=js_Open; //Open slot
-  end;
-end;
-
-//Job was abandoned before it was completed
-procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
-begin
-//
+  fQueue[aID].OfferID:=0;
+  fQueue[aID].DemandID:=0;
+  fQueue[aID].JobStatus:=js_Open; //Open slot
 end;
 
 

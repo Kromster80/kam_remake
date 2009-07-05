@@ -95,6 +95,7 @@ type
       ID:integer;
     public
       constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
+      procedure AbandonDelivery();
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -802,11 +803,16 @@ procedure TKMUnit.KillUnit;
 begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
-  fThought:=th_None; //Reset thought
   if Self is TKMUnitWarrior then begin
     TKMUnitWarrior(Self).fIsCommander:=false; //Remove commanders flag
     //Reassign commanders flag to another unit
   end;
+
+  //Abandon delivery if any
+  if (Self is TKMUnitSerf) and (Self.fUnitTask is TTaskDeliver) then
+    TTaskDeliver(Self.fUnitTask).AbandonDelivery;
+
+  fThought:=th_None; //Reset thought
   SetAction(nil,0); //Dispose of current action
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
   fUnitTask:=TTaskDie.Create(Self);
@@ -1050,6 +1056,12 @@ begin
 end;
 
 
+procedure TTaskDeliver.AbandonDelivery();
+begin
+  fPlayers.Player[byte(fSerf.fOwner)].DeliverList.AbandonDelivery(ID);
+end;
+
+
 procedure TTaskDeliver.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
@@ -1062,10 +1074,13 @@ case Phase of
 1: SetActionGoIn(ua_Walk,gid_In,fFrom.GetHouseType);
 2: SetActionStay(5,ua_Walk);
 3: begin
-     if fFrom.ResTakeFromOut(fResourceType) then
-       GiveResource(fResourceType)
-     else
+     if fFrom.ResTakeFromOut(fResourceType) then begin
+       GiveResource(fResourceType);
+       fPlayers.Player[byte(fOwner)].DeliverList.TakenOffer(ID);
+     end else begin
        fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
+       Assert(false,'Resource''s gone..');
+     end;
      SetActionGoIn(ua_Walk,gid_Out,fFrom.GetHouseType);
    end;
 4: if Carry=rt_None then TaskDone:=true else SetActionStay(0,ua_Walk);
@@ -1083,6 +1098,7 @@ case Phase of
      fToHouse.ResAddToIn(Carry);
      TakeResource(Carry);
      SetActionGoIn(ua_walk,gid_Out,fToHouse.GetHouseType);
+     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
      fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
    end;
 9: TaskDone:=true;
@@ -1097,6 +1113,7 @@ case Phase of
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
+     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
      fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
      TaskDone:=true;
    end;
@@ -1108,11 +1125,12 @@ with fSerf do
 case Phase of
 5: SetActionWalk(fSerf,fToUnit.GetPosition, KMPoint(0,0),ua_Walk,false);
 6: begin
-     TakeResource(Carry);
-     if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil) then begin
-       inc(fToUnit.fUnitTask.Phase);
-       fToUnit.SetActionStay(0,ua_Work1);
-     end;
+      TakeResource(Carry);
+      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil) then begin
+        inc(fToUnit.fUnitTask.Phase);
+        fToUnit.SetActionStay(0,ua_Work1);
+      end;
+    fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
     fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
     TaskDone:=true;
    end;
