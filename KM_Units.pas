@@ -344,6 +344,7 @@ end;
 destructor TKMUnitCitizen.Destroy;
 begin
   FreeAndNil(WorkPlan);
+  Inherited;
 end;
 
 
@@ -1071,17 +1072,26 @@ case Phase of
 0: begin
     SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance(Self)), KMPoint(0,0));
    end;
-1: SetActionGoIn(ua_Walk,gid_In,fFrom.GetHouseType);
+1: if not fFrom.IsDestroyed then
+     SetActionGoIn(ua_Walk,gid_In,fFrom.GetHouseType)
+   else begin
+     AbandonDelivery;
+     TaskDone:=true;
+   end;
 2: SetActionStay(5,ua_Walk);
-3: begin
+3: if not fFrom.IsDestroyed then
+   begin
      if fFrom.ResTakeFromOut(fResourceType) then begin
        GiveResource(fResourceType);
        fPlayers.Player[byte(fOwner)].DeliverList.TakenOffer(ID);
      end else begin
-       fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
+       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
        Assert(false,'Resource''s gone..');
      end;
      SetActionGoIn(ua_Walk,gid_Out,fFrom.GetHouseType);
+   end else begin
+     AbandonDelivery;
+     TaskDone:=true;
    end;
 4: if Carry=rt_None then TaskDone:=true else SetActionStay(0,ua_Walk);
 end;
@@ -1099,7 +1109,7 @@ case Phase of
      TakeResource(Carry);
      SetActionGoIn(ua_walk,gid_Out,fToHouse.GetHouseType);
      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
-     fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
+     fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
    end;
 9: TaskDone:=true;
 end;
@@ -1114,7 +1124,7 @@ case Phase of
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
-     fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
+     fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
      TaskDone:=true;
    end;
 end;
@@ -1131,7 +1141,7 @@ case Phase of
         fToUnit.SetActionStay(0,ua_Work1);
       end;
     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
-    fPlayers.Player[byte(fOwner)].DeliverList.CloseDelivery(ID);
+    fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
     TaskDone:=true;
    end;
 end;

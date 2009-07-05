@@ -35,7 +35,8 @@ type
   public
     constructor Create();
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
-    procedure RemoveOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
+    procedure RemoveOffer(aHouse:TKMHouse);
+    procedure RemoveDemand(aHouse:TKMHouse);
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
     function PermitDelivery(iO,iD:integer):boolean;
     function  AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
@@ -135,21 +136,25 @@ end;
 
 //Remove Offer from the list. List is stored without sorting
 //so we parse it to find that entry..
-procedure TKMDeliverQueue.RemoveOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
+procedure TKMDeliverQueue.RemoveOffer(aHouse:TKMHouse);
 var i:integer;
 begin
-  //Parse list until matching entry is found
-  i:=1; while (i<MaxEntries)and(fOffer[i].Loc_House<>aHouse)and(fOffer[i].Resource<>aResource) do inc(i);
-  if i=MaxEntries then Assert(false,'Can''t remove resource from offer');
-  with fOffer[i] do begin //Remove offer
-    dec(Count,aCount);
-    if Count=0 then begin
-      Loc_House:=aHouse;
-      Resource:=aResource;
-      BeingPerformed:=0;
-    end;
-    Assert(Count>=0,'Removed too much offer');
-  end;
+  //We need to parse whole list, never knowing how many offers the house had
+  for i:=1 to MaxEntries do
+  if fOffer[i].Loc_House=aHouse then
+    FillChar(fOffer[i],SizeOf(fDemand[i]),#0); //Remove offer
+end;
+
+
+//Remove Demand from the list. List is stored without sorting
+//so we parse it to find all entries..
+procedure TKMDeliverQueue.RemoveDemand(aHouse:TKMHouse);
+var i:integer;
+begin
+  //We need to parse whole list, never knowing how many demands the house had
+  for i:=1 to MaxEntries do
+  if fDemand[i].Loc_House=aHouse then
+    FillChar(fDemand[i],SizeOf(fDemand[i]),#0); //Clear up demand
 end;
 
 
