@@ -390,6 +390,11 @@ begin
   {Show Results screen}
   if Sender=KMPanel_Results then //This page can be accessed only by itself
     KMPanel_Results.Show;
+
+  { Save settings when leaving options, if needed }
+  if Sender=Button_Options_Back then
+    if fGameSettings.GetNeedsSave then
+      fGameSettings.SaveSettings;
 end;
 
 

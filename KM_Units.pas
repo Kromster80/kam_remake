@@ -1102,14 +1102,25 @@ if fToHouse.IsComplete then
 with fSerf do
 case Phase of
 5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)), KMPoint(0,0));
-6: SetActionGoIn(ua_Walk,gid_In,fToHouse.GetHouseType);
+6: if not fToHouse.IsDestroyed then
+     SetActionGoIn(ua_Walk,gid_In,fToHouse.GetHouseType)
+   else begin
+     AbandonDelivery;
+     TaskDone:=true;
+     TakeResource(Carry);
+   end;
 7: SetActionStay(5,ua_Walk);
-8: begin
+8: if not fToHouse.IsDestroyed then
+   begin
      fToHouse.ResAddToIn(Carry);
      TakeResource(Carry);
      SetActionGoIn(ua_walk,gid_Out,fToHouse.GetHouseType);
      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
+   end else begin
+     AbandonDelivery;
+     TaskDone:=true;
+     TakeResource(Carry);
    end;
 9: TaskDone:=true;
 end;
@@ -1117,6 +1128,8 @@ end;
 //Deliver into wip house
 if fToHouse<>nil then
 if not fToHouse.IsComplete then
+if not fToHouse.IsDestroyed then
+begin
 with fSerf do
 case Phase of
 5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)), KMPoint(0,0), ua_Walk);
@@ -1127,6 +1140,11 @@ case Phase of
      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
      TaskDone:=true;
    end;
+end;
+end else begin
+  AbandonDelivery;
+  TaskDone:=true;
+  fSerf.TakeResource(fSerf.Carry);
 end;
 
 //Deliver to builder

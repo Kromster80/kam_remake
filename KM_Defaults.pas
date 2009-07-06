@@ -33,6 +33,7 @@ var
   DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=false;  //Wherever serfs should walk only on roads
+  FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
 
   //These should be ... enabled sometime
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
@@ -79,6 +80,8 @@ type
   TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Houses);
   
 const
+  SETTINGS_FILE = 'KaM_Remake_Settings.ini';
+
   c_Default=1; c_Info=452;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
   c_Scroll0=4; c_Scroll1=7; c_Scroll2=3; c_Scroll3=9; c_Scroll4=5; c_Scroll5=8; c_Scroll6=2; c_Scroll7=6;

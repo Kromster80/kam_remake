@@ -113,6 +113,7 @@ type
     procedure Debug_ShowPanel1Click(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Button_WClick(Sender: TObject);
+    procedure SetScreenResolution(Width, Height: integer);
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   public
@@ -123,6 +124,9 @@ type
 var
   Form1: TForm1;
   FormLoading:TFormLoading;
+  //@Krom: Where should these go?
+  OldScreenWidth:  integer;
+  OldScreenHeight: integer;
 
 implementation  {$R *.DFM}
 uses KM_Settings;
@@ -158,6 +162,11 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   if Sender<>nil then exit;
 
+  //Save normal resolution to reset when they exit the game
+  OldScreenWidth  := GetSystemMetrics(SM_CXSCREEN);
+  OldScreenHeight := GetSystemMetrics(SM_CYSCREEN);
+
+
   FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
 
@@ -172,7 +181,7 @@ begin
   //!Form1.BorderStyle:=bsNone;
 
   Form1.Refresh;
-  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1);
+  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1,true);
 
   TimeBeginPeriod(1);
   Application.OnIdle:=Form1.OnIdle;
@@ -182,13 +191,25 @@ begin
   FormLoading.Hide;
   FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
 
+  //Now decide whether we should make it full screen or not
+  if fGameSettings.IsFullScreen then
+  begin
+    if FORCE_RESOLUTION then
+      SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y);
+    fSoundLib.PlayMenuTrack;
+  end
+  else
+    ToggleFullScreen(false);
+
   Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
-  Form1.Caption:='KaM Remake - '+'New.map';
+  Form1.Caption:='KaM Remake';
 end;
 
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  //Reset the resolution
+  SetScreenResolution(OldScreenWidth,OldScreenHeight);
   fGame.StopGame(true);
   FreeAndNil(fGame);
   FreeAndNil(fLog);
@@ -242,7 +263,7 @@ procedure TForm1.Timer100msTimer(Sender: TObject);
 begin
   if not Form1.Active then exit;
 
-  if (Debug_Pause.Checked)and(Sender<>Step1Frame) then exit; //Pause
+  if ((Debug_Pause.Checked)or(fGame.GameIsPaused))and(Sender<>Step1Frame) then exit; //Pause
 
   fGame.UpdateState;
 end;
@@ -665,16 +686,18 @@ end;
 
 procedure TForm1.ToggleFullScreen(Toggle:boolean);
 begin
-
   if Toggle then begin
     Form1.BorderStyle:=bsNone;
     Form1.WindowState:=wsMaximized;
+    if FORCE_RESOLUTION then
+      SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y);
   end else begin
     Form1.Refresh;
     Form1.WindowState:=wsNormal;
     Form1.BorderStyle:=bsSizeable;
     Form1.ClientWidth:=800;
     Form1.ClientHeight:=600;
+    SetScreenResolution(OldScreenWidth,OldScreenHeight);
   end;
 
 
@@ -690,6 +713,19 @@ begin
   Panel5.Top:=0;
   Panel5.Height:=Form1.ClientHeight;
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+end;
+
+procedure TForm1.SetScreenResolution(Width, Height: integer);
+var
+  DeviceMode: TDeviceMode;
+begin
+  with DeviceMode do begin
+    dmSize := SizeOf(TDeviceMode);
+    dmPelsWidth := Width;
+    dmPelsHeight := Height;
+    dmFields := DM_PELSWIDTH or DM_PELSHEIGHT;
+  end;
+  ChangeDisplaySettings(DeviceMode, CDS_UPDATEREGISTRY);
 end;
 
 end.

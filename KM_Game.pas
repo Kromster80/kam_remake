@@ -13,10 +13,11 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameIsRunning:boolean;
+    GameIsPaused:boolean;
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
   public
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
@@ -40,7 +41,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer; NoMusic:boolean=false);
 begin
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
@@ -59,10 +60,11 @@ begin
 
   fEventLog := TKMEventLog.Create(ExeDir+'KaM_Events.log');
 
-  fSoundLib.PlayMenuTrack;
+  if not NoMusic then fSoundLib.PlayMenuTrack;
 
   GameSpeed:=1;
   GameIsRunning:=false;
+  GameIsPaused:=false;
 end;
 
 
@@ -110,12 +112,6 @@ end;
 procedure TKMGame.ToggleFullScreen(aToggle:boolean);
 begin
   fGameSettings.IsFullScreen := aToggle;
-  //@Krom: I don't understand why this has to reset everything and return to the main menu.
-  //       Can't it just switch and keep the game running? At the moment it exits without confirming
-  //       to save and then won't start a new game because the old one is still running undernether.
-  //@Lewin: It has to exit to re-init whole Interface part to new positions. Also RenderContext
-  //        being recreated requires to reload all textures.. You know - most of the games can't change
-  //        resolution ingame, only in menu.. now I know why. I disabled Fullscreen toggle ingame for that case.
   Form1.ToggleFullScreen(aToggle);
 end;
 
@@ -141,6 +137,9 @@ begin
       if not (GameSpeed in [1,10]) then GameSpeed:=1; //Reset just in case
       fGameplayInterface.ShowClock(GameSpeed=10);
     end;
+    if Key=ord('P') then begin
+      GameIsPaused := not GameIsPaused;
+    end;
     {Thats my debug example}
     if (Key=ord('5')) and GameIsRunning then begin
       fGameplayInterface.IssueMessage(msgText,'123');
@@ -160,11 +159,16 @@ begin
     if (Key=ord('0')) and GameIsRunning then begin
       fGameplayInterface.IssueMessage(msgScroll,'123');
     end;
-    
-    //Also send shortcut to GamePlayInterface if it is there
-    if (GameIsRunning) and (fGamePlayInterface <> nil) {and (Key in [49..52,VK_ESCAPE])} then
-      fGamePlayInterface.ShortcutPress(Key,IsDown);
   end;
+  //Also send shortcut to GamePlayInterface if it is there
+  if (GameIsRunning) and (fGamePlayInterface <> nil) then
+    fGamePlayInterface.ShortcutPress(Key,IsDown);
+
+  //Scrolling
+  if (Key=VK_LEFT)  then fViewport.ScrollKeyLeft  := IsDown;
+  if (Key=VK_RIGHT) then fViewport.ScrollKeyRight := IsDown;
+  if (Key=VK_UP)    then fViewport.ScrollKeyUp    := IsDown;
+  if (Key=VK_DOWN)  then fViewport.ScrollKeyDown  := IsDown;
 end;
 
 

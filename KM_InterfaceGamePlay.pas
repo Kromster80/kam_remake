@@ -192,6 +192,11 @@ begin
   if KMPanel_Load.Visible     then LastVisiblePage := KMPanel_Load     else
     LastVisiblePage := nil;
 
+  //If they just closed settings then we should save them (if something has changed)
+  if LastVisiblePage = KMPanel_Settings then
+    if fGameSettings.GetNeedsSave then
+      fGameSettings.SaveSettings;
+
   //First thing - hide all existing pages
     for i:=1 to KMPanel_Main.ChildCount do
       if KMPanel_Main.Childs[i] is TKMPanel then

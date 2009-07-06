@@ -13,6 +13,7 @@ public
 Zoom:single;
 ViewRect:TRect;
 ViewWidth,ViewHeight:integer;
+ScrollKeyLeft,ScrollKeyRight,ScrollKeyUp,ScrollKeyDown: boolean;
   constructor Create;
   procedure SetZoom(aZoom:single);
   procedure SetArea(NewWidth,NewHeight:integer);
@@ -32,6 +33,10 @@ uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Users, KM_LoadSFX, KM_Settings;
 constructor TViewport.Create;
 begin
   Zoom:=1;
+  ScrollKeyLeft  := false;
+  ScrollKeyRight := false;
+  ScrollKeyUp    := false;
+  ScrollKeyDown  := false;
 end;
 
 
@@ -94,6 +99,12 @@ begin
   ScrollAdv := SCROLLSPEED + byte(fGameSettings.IsFastScroll)*3; //3 times faster
 
   //Left, Top, Right, Bottom
+  //Keys
+  if ScrollKeyLeft  then dec(XCoord,ScrollAdv);
+  if ScrollKeyUp    then dec(YCoord,ScrollAdv);
+  if ScrollKeyRight then inc(XCoord,ScrollAdv);
+  if ScrollKeyDown  then inc(YCoord,ScrollAdv);
+  //Mouse
   if Mouse.CursorPos.X < SCROLLFLEX then begin inc(Temp,1); dec(XCoord,ScrollAdv); end;
   if Mouse.CursorPos.Y < SCROLLFLEX then begin inc(Temp,2); dec(YCoord,ScrollAdv); end;
   if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); inc(XCoord,ScrollAdv); end;

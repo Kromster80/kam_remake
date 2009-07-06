@@ -15,18 +15,24 @@ type
     fMusicOnOff:boolean;
     fFullScreen:boolean;
     SlidersMin,SlidersMax:byte;
+    fNeedsSave: boolean;
     function LoadSettingsFromFile(filename:string):boolean;
     procedure SaveSettingsToFile(filename:string);
   public
     constructor Create;
     destructor Destroy; override;
+    procedure SaveSettings;
     property GetBrightness:byte read fBrightness default 1;
     procedure IncBrightness;
     procedure DecBrightness;
-    property IsAutosave:boolean read fAutosave write fAutosave default true;
-    property IsFastScroll:boolean read fFastScroll write fFastScroll default false;
+    procedure SetIsAutosave(val:boolean);
+    procedure SetIsFastScroll(val:boolean);
+    procedure SetIsFullScreen(val:boolean);
+    property IsAutosave:boolean read fAutosave write SetIsAutosave default true;
+    property IsFastScroll:boolean read fFastScroll write SetIsFastScroll default false;
     property GetSlidersMin:byte read SlidersMin;
     property GetSlidersMax:byte read SlidersMax;
+    property GetNeedsSave:boolean read fNeedsSave;
     procedure SetMouseSpeed(Value:integer);
     procedure SetSoundFXVolume(Value:integer);
     procedure SetMusicVolume(Value:integer);
@@ -36,7 +42,7 @@ type
     property GetSoundFXVolume:byte read fSoundFXVolume;
     property GetMusicVolume:byte read fMusicVolume;
     property IsMusic:boolean read fMusicOnOff write SetMusicOnOff default true;
-    property IsFullScreen:boolean read fFullScreen write fFullScreen default true;
+    property IsFullScreen:boolean read fFullScreen write SetIsFullScreen default true;
   end;
 
 {These are mission specific settings and stats for each player}
@@ -74,14 +80,20 @@ begin
   Inherited Create;
   SlidersMin:=0;
   SlidersMax:=20;
-  LoadSettingsFromFile(ExeDir+'KaM_Remake_Settings.ini');
+  LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
   UpdateSFXVolume(); //Other settings may added here as well
+  fNeedsSave:=false;
 end;
 
 destructor TGameSettings.Destroy;
 begin
-  SaveSettingsToFile(ExeDir+'KaM_Remake_Settings.ini');
+  SaveSettingsToFile(ExeDir+SETTINGS_FILE);
   Inherited;
+end;
+
+procedure TGameSettings.SaveSettings;
+begin
+  SaveSettingsToFile(ExeDir+SETTINGS_FILE);
 end;
 
 function TGameSettings.LoadSettingsFromFile(filename:string):boolean;
@@ -101,6 +113,7 @@ begin
   fMusicOnOff    := f.ReadBool   ('SFX','MusicEnabled',true);
 
   FreeAndNil(f);
+  fNeedsSave:=false;
 end;
 
 
@@ -121,33 +134,57 @@ begin
   f.WriteBool   ('SFX','MusicEnabled',fMusicOnOff);
 
   FreeAndNil(f);
+  fNeedsSave:=false;
 end;
 
 procedure TGameSettings.IncBrightness;
 begin
   fBrightness:= EnsureRange(fBrightness+1,1,6);
+  fNeedsSave:=true;
 end;
 
 procedure TGameSettings.DecBrightness;
 begin
   fBrightness:= EnsureRange(fBrightness-1,1,6);
+  fNeedsSave:=true;
+end;
+
+procedure TGameSettings.SetIsAutosave(val:boolean);
+begin
+  fAutosave:=val;
+  fNeedsSave:=true;
+end;
+
+procedure TGameSettings.SetIsFastScroll(val:boolean);
+begin
+  fFastScroll:=val;
+  fNeedsSave:=true;
+end;
+
+procedure TGameSettings.SetIsFullScreen(val:boolean);
+begin
+  fFullScreen:=val;
+  fNeedsSave:=true;
 end;
 
 procedure TGameSettings.SetMouseSpeed(Value:integer);
 begin
   fMouseSpeed:=EnsureRange(Value,SlidersMin,SlidersMax);
+  fNeedsSave:=true;
 end;
 
 procedure TGameSettings.SetSoundFXVolume(Value:integer);
 begin
   fSoundFXVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
   UpdateSFXVolume();
+  fNeedsSave:=true;
 end;
 
 procedure TGameSettings.SetMusicVolume(Value:integer);
 begin
   fMusicVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
   UpdateSFXVolume();
+  fNeedsSave:=true;
 end;
 
 procedure TGameSettings.SetMusicOnOff(Value:boolean);
@@ -158,6 +195,7 @@ begin
   if fMusicOnOff <> OldValue then
     if Value then fSoundLib.PlayMenuTrack //Start with the default track
     else fSoundLib.StopMusic;
+  fNeedsSave:=true;
 end;
 
 
@@ -165,6 +203,7 @@ procedure TGameSettings.UpdateSFXVolume();
 begin
   fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
   fSoundLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
+  fNeedsSave:=true;
 end;
 
 
