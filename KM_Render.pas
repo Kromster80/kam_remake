@@ -1171,7 +1171,17 @@ begin
   glBegin(GL_QUADS);
     glkRect(0,0,RenderAreaSize.X,RenderAreaSize.Y);
   glEnd;
+
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  if fGame.GameIsPaused then begin
+  //glBlendFunc(GL_DST_ALPHA,GL_DST_ALPHA);
+  glColor4f(0,0,0,0.5);
+  glBegin(GL_QUADS);
+    glkRect(0,0,RenderAreaSize.X,RenderAreaSize.Y);
+  glEnd;
+  end;
+
 end;
 
 end.

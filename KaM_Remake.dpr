@@ -1,7 +1,13 @@
 program KaM_Remake;
 
+//These are most global things we can ever have
+//
+  {.$DEFINE KAM_USE_FASTMM_DEBUG_MODE} //remove dot to enable
+
 uses
+  {$IFDEF KAM_USE_FASTMM_DEBUG_MODE}
   FastMM4,
+  {$ENDIF}
   Forms,
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},

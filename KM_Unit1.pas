@@ -695,8 +695,8 @@ begin
     Form1.Refresh;
     Form1.WindowState:=wsNormal;
     Form1.BorderStyle:=bsSizeable;
-    Form1.ClientWidth:=800;
-    Form1.ClientHeight:=600;
+    Form1.ClientWidth:=1024;
+    Form1.ClientHeight:=768;
     if FORCE_RESOLUTION then SetScreenResolution(OldScreenWidth,OldScreenHeight);
   end;
 
