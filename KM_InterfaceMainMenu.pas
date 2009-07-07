@@ -283,6 +283,10 @@ begin
     Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
     Button_Options_MusicOn.OnClick:=Options_Change;
 
+    //Button_Options_1024:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
+    //Button_Options_1024.OnClick:=Options_Change;
+    //Button_Options_1280:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
+    //Button_Options_1280.OnClick:=Options_Change; 
 
     CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options,118,340,100,30,'Fullscreen',fnt_Metal);
     CheckBox_Options_FullScreen.OnClick:=Options_Change;

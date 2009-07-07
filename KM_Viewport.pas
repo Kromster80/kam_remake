@@ -16,7 +16,7 @@ ViewWidth,ViewHeight:integer;
 ScrollKeyLeft,ScrollKeyRight,ScrollKeyUp,ScrollKeyDown: boolean;
   constructor Create;
   procedure SetZoom(aZoom:single);
-  procedure SetArea(NewWidth,NewHeight:integer);
+  procedure SetVisibleScreenArea(NewWidth,NewHeight:integer);
   function GetCenter():TKMPoint;
   procedure SetCenter(NewX,NewY:integer);
   function GetClip():TRect; //returns visible area dimensions in map space
@@ -46,14 +46,15 @@ begin
 end;
 
 
-procedure TViewport.SetArea(NewWidth,NewHeight:integer);
+procedure TViewport.SetVisibleScreenArea(NewWidth,NewHeight:integer);
 begin
-  ViewRect.Left:=ToolBarWidth;
-  ViewRect.Top:=0;
-  ViewRect.Right:=NewWidth;
-  ViewRect.Bottom:=NewHeight;
-  ViewWidth:=ViewRect.Right-ViewRect.Left;
-  ViewHeight:=ViewRect.Bottom-ViewRect.Top;
+  ViewRect.Left   := ToolBarWidth;
+  ViewRect.Top    := 0;
+  ViewRect.Right  := NewWidth;
+  ViewRect.Bottom := NewHeight;
+  
+  ViewWidth       := ViewRect.Right-ViewRect.Left;
+  ViewHeight      := ViewRect.Bottom-ViewRect.Top;
 end;
 
 function TViewport.GetCenter():TKMPoint;
@@ -65,8 +66,8 @@ end;
 
 procedure TViewport.SetCenter(NewX,NewY:integer);
 begin
-  XCoord:=EnsureRange(NewX,1,fTerrain.MapX);
-  YCoord:=EnsureRange(NewY,1,fTerrain.MapY);
+  XCoord:=EnsureRange(NewX, 0 + round(ViewWidth/2/40), fTerrain.MapX - round(ViewWidth/2/40) - 1);
+  YCoord:=EnsureRange(NewY, 0 + round(ViewHeight/2/40), fTerrain.MapY - round(ViewHeight/2/40) - 1);
   fSoundLib.UpdateListener(KMPoint(XCoord,YCoord));
 end;
 
@@ -113,7 +114,6 @@ begin
   //Now do actual the scrolling, if needed
   if Temp<>0 then
   begin
-    SetCenter(XCoord,YCoord); //EnsureRanges
     Screen.Cursor :=DirectionsBitfield[Temp]; //Sample cursor type from bitfield value
     Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
   end else begin
@@ -121,6 +121,8 @@ begin
     if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
       Screen.Cursor := c_Default;
   end;
+
+  SetCenter(XCoord,YCoord); //EnsureRanges
 end;
 
 end.

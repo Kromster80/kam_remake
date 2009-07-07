@@ -89,7 +89,7 @@ begin
   ScreenY:=Y;
   fRender.RenderResize(X,Y,rm2D);
   if GameIsRunning then begin //If game is running
-    fViewport.SetArea(X,Y);
+    fViewport.SetVisibleScreenArea(X,Y);
     ZoomInGameArea(1);
   end else begin
     //Should resize all Controls somehow...
@@ -352,7 +352,7 @@ begin
   fLog.AppendLog('Gameplay initialized',true);
 
   fRender.RenderResize(ScreenX,ScreenY,rm2D);
-  fViewport.SetArea(ScreenX,ScreenY);
+  fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
   //fSoundLib.PlayNextTrack();  //Discussed. No need to feed new music track.
 
