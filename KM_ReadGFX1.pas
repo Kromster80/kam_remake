@@ -445,7 +445,7 @@ for i:=0 to 255 do
       blockread(f,Width,4);
       blockread(f,Add,8);
       MaxHeight:=max(MaxHeight,Height);
-      fLog.AssertToLog(Width*Height<>0,'Width*Height<>0'); //Fon01.fnt seems to be damaged..
+      fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Fon01.fnt seems to be damaged..
       blockread(f,Data[1],Width*Height);
     end;
 closefile(f);
@@ -468,7 +468,7 @@ for i:=0 to 255 do
   if FontData[byte(aFont)].Pal[i]<>0 then
     with FontData[byte(aFont)].Letters[i] do begin
 
-    fLog.AssertToLog(FontData[byte(aFont)].Pal[i]=1,'FontData[byte(aFont)].Pal[i]=1');
+    fLog.AssertToLog(FontData[byte(aFont)].Pal[i]=1,'FontData palette <> 1');
 
       if AdvX+Width+2>TexWidth then begin
         AdvX:=0;

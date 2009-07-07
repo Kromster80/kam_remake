@@ -480,38 +480,38 @@ end;
 function TKMUnitCitizen.InitiateMining():TUnitTask;
 var i,Tmp,Res:integer;
 begin
-Result:=nil;
+  Result:=nil;
 
-Res:=1;
-//Check if House has production orders
-//Random pick from all amount;
-if HousePlaceOrders[byte(fHome.GetHouseType)] then begin
-  Tmp:= fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
-  if Tmp=0 then exit; //No orders
-  Tmp:=Random(Tmp)+1; //Pick random
-  for i:=1 to 4 do begin
-    if InRange(Tmp,1,fHome.CheckResOrder(i)) then Res:=i;
-    dec(Tmp,fHome.CheckResOrder(i));
+  Res:=1;
+  //Check if House has production orders
+  //Random pick from all amount;
+  if HousePlaceOrders[byte(fHome.GetHouseType)] then begin
+    Tmp:= fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
+    if Tmp=0 then exit; //No orders
+    Tmp:=Random(Tmp)+1; //Pick random from overall count
+    for i:=1 to 4 do begin
+      if InRange(Tmp,1,fHome.CheckResOrder(i)) then Res:=i;
+      dec(Tmp,fHome.CheckResOrder(i));
+    end;
   end;
-end;
 
-//if not KMSamePoint(GetPosition,fHome.GetEntrance) then begin
-//  fLog.AssertToLog(KMSamePoint(GetPosition,fHome.GetEntrance),'Asking for work from wrong spot');
-//  fViewport.SetCenter(GetPosition.X,GetPosition.Y);
-//end;
+  //if not KMSamePoint(GetPosition,fHome.GetEntrance) then begin
+  //  fLog.AssertToLog(KMSamePoint(GetPosition,fHome.GetEntrance),'Asking for work from wrong spot');
+  //  fViewport.SetCenter(GetPosition.X,GetPosition.Y);
+  //end;
 
-WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance(Self)));
+  WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance(Self)));
 
-if not WorkPlan.IsIssued then exit;
-if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
-if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
-if fHome.CheckResOut(WorkPlan.Product1)>=MaxResInHouse then exit;
-if fHome.CheckResOut(WorkPlan.Product2)>=MaxResInHouse then exit;
+  if not WorkPlan.IsIssued then exit;
+  if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
+  if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
+  if fHome.CheckResOut(WorkPlan.Product1)>=MaxResInHouse then exit;
+  if fHome.CheckResOut(WorkPlan.Product2)>=MaxResInHouse then exit;
 
-if HousePlaceOrders[byte(fHome.GetHouseType)] then
-  fHome.ResRemOrder(Res);
+  if HousePlaceOrders[byte(fHome.GetHouseType)] then
+    fHome.ResRemOrder(Res);
 
-Result:=TTaskMining.Create(WorkPlan,Self,fHome);
+  Result:=TTaskMining.Create(WorkPlan,Self,fHome);
 end;
 
 

@@ -660,7 +660,7 @@ begin
     17: Q:=1; //Swine
     else Q:=0;
   end;
-  fLog.AssertToLog(Q<>0,'Wrong caller for RenderHouseStableBeasts');
+  fLog.AssertToLog(Q<>0,'Wrong house for RenderHouseStableBeasts');
   fLog.AssertToLog(InRange(BeastID,1,5),'Wrong ID for RenderHouseStableBeasts');
   fLog.AssertToLog(InRange(BeastAge,1,3),'Wrong Age for RenderHouseStableBeasts');
 

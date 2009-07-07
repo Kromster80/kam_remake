@@ -987,8 +987,8 @@ end;
 procedure TKMLog.AssertToLog(TestValue:boolean; MessageText:string);
 begin
   if not TestValue then
-  AddLine('ASSERTION FAILED! Msg: '+MessageText);
-  Assert(TestValue,MessageText);
+  AddLine('ASSERTION FAILED! Msg: ' + MessageText);
+  Assert(TestValue, 'ASSERTION FAILED! Msg: ' + MessageText);
 end;
 
 procedure TKMLog.AddToLog(text:string);

@@ -215,7 +215,7 @@ end;
 
 procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-fLog.AssertToLog(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
+fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them fo fGame');
 fGame.KeyUp(Key, Shift);
 end;
 
@@ -223,7 +223,7 @@ end;
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-fLog.AssertToLog(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
+fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them fo fGame');
 fGame.KeyUp(Key, Shift, true);
 end;
 
@@ -330,7 +330,7 @@ procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.Expo
 procedure TForm1.Export_Fonts1Click(Sender: TObject);
 var i:integer;
 begin
-  fLog.AssertToLog(fResource<>nil,'Can''t export Fonts');
+  fLog.AssertToLog(fResource<>nil,'Can''t export Fonts cos they aren''t loaded yet');
   for i:=1 to length(FontFiles) do
     //ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
 end;

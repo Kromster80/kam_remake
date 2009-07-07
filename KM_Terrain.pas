@@ -214,7 +214,7 @@ begin
   assignfile(f,filename); reset(f,1);
   blockread(f,k,4);
   blockread(f,i,4);
-  fLog.AssertToLog((k<=MaxMapSize)and(i<=MaxMapSize),'TTerrain.OpenMapFromFile - Can''t open the map cos it''s too big.');
+  fLog.AssertToLog((k<=MaxMapSize)and(i<=MaxMapSize),'Can''t open the map cos it has too big dimensions');
   MapX:=k;
   MapY:=i;
   MakeNewMap(MapX,MapY); //Reset whole map to default
@@ -561,7 +561,7 @@ end;
 function TTerrain.FindOre(aPosition:TKMPoint; aRadius:integer; Rt:TResourceType):TKMPoint; //Gold or Iron
 var i,k:integer; L:array[1..4]of TKMPointList;
 begin
-  fLog.AssertToLog(Rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
+  fLog.AssertToLog(Rt in [rt_IronOre, rt_GoldOre],'Wrong resource to find as Ore');
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
   //aRadius:=aRadius+2; //Should add some gradient to it later on or not?
@@ -687,8 +687,8 @@ begin
     rt_Coal:    Land[Loc.Y,Loc.X].Terrain:=155;
     rt_IronOre: Land[Loc.Y,Loc.X].Terrain:=151;
     rt_GoldOre: Land[Loc.Y,Loc.X].Terrain:=147;
-    else fLog.AssertToLog(false,'Wrong resource');
-  end;
+    else fLog.AssertToLog(false, 'Trying to set wrong resource deposit');
+  end;                           
   RecalculatePassability(Loc);
 end;
 
@@ -752,7 +752,7 @@ begin
     130,135: Land[Loc.Y,Loc.X].Terrain:=129+Random(2)*5;
     129,134: Land[Loc.Y,Loc.X].Terrain:=128+Random(2)*5;
     128,133: Land[Loc.Y,Loc.X].Terrain:=0;
-    else exit; //fLog.AssertToLog(false,'Unable to DecStoneReserve at '+TypeToString(Loc)+' for it isn''t there');
+    else exit; //fLog.AssertToLog(false, 'Unable to DecStoneReserve at '+TypeToString(Loc)+' for it isn''t there');
   end;
   Land[Loc.Y,Loc.X].Rotation:=Random(4);
   Land[Loc.Y,Loc.X].Height:=DecHeight(Land[Loc.Y,Loc.X].Height,Land[Loc.Y+1,Loc.X].Height,HeightReduction); //Reduce height
@@ -777,7 +777,7 @@ begin
   154: Land[Loc.Y,Loc.X].Terrain:=153;
   155: Land[Loc.Y,Loc.X].Terrain:=154;
   //This check is removed incase worker builds wine field ontop of coal tile
-  //else fLog.AssertToLog(false,'Can''t DecCoalReserve');
+  //else fLog.AssertToLog(false, 'Can''t DecCoalReserve');
   end;
   RecalculatePassability(Loc);
 end;
@@ -786,7 +786,7 @@ end;
 {Extract one unit of ore}
 procedure TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 begin
-  fLog.AssertToLog(rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
+  fLog.AssertToLog(rt in [rt_IronOre,rt_GoldOre],'Wrong ore to decrease');
   case Land[Loc.Y,Loc.X].Terrain of
   144: Land[Loc.Y,Loc.X].Terrain:=157; //Gold
   145: Land[Loc.Y,Loc.X].Terrain:=144;
@@ -810,7 +810,7 @@ var i,k:integer;
 begin
   //First of all exclude all tiles outside of actual map
   if not TileInMapCoords(Loc.X,Loc.Y) then begin
-    fLog.AssertToLog(false, 'Fail: '+TypeToString(loc));
+    fLog.AssertToLog(false, 'Failed to recalculate passability at: '+TypeToString(loc));
     exit;
   end;
 
