@@ -48,7 +48,7 @@ object Form1: TForm1
     Height = 20
     Panels = <
       item
-        Text = 'Map size: 176 x 176'
+        Text = 'Map size: -'
         Width = 110
       end
       item
@@ -71,8 +71,8 @@ object Form1: TForm1
       'ty'
     TabOrder = 2
     object TeamColorPicker: TShape
-      Left = 290
-      Top = 16
+      Left = 144
+      Top = 40
       Width = 22
       Height = 22
       OnDragDrop = TeamColorPickerDragDrop
@@ -80,54 +80,53 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 85
-      Top = 55
+      Top = 15
       Width = 49
       Height = 13
       Caption = 'Passability'
     end
     object Label3: TLabel
       Left = 101
-      Top = 39
+      Top = 35
       Width = 6
       Height = 13
       Caption = '0'
     end
+    object Label1: TLabel
+      Left = 169
+      Top = 47
+      Width = 61
+      Height = 13
+      Caption = 'Player1 color'
+    end
     object Button_W: TButton
       Left = 144
-      Top = 52
+      Top = 16
       Width = 25
       Height = 17
       Caption = 'W'
-      TabOrder = 5
+      TabOrder = 3
       OnClick = Button_WClick
     end
     object CheckBox2: TCheckBox
-      Left = 144
-      Top = 16
+      Left = 8
+      Top = 52
       Width = 73
       Height = 17
       Caption = 'Speed x50'
       TabOrder = 1
       OnClick = CheckBox2Click
     end
-    object Debug_Pause: TCheckBox
-      Left = 144
-      Top = 32
-      Width = 49
-      Height = 17
-      Caption = 'Pause'
-      TabOrder = 2
-    end
     object Debug_PassabilityTrack: TTrackBar
       Left = 2
-      Top = 54
+      Top = 14
       Width = 83
       Height = 17
       Max = 9
       Orientation = trHorizontal
       PageSize = 1
       Frequency = 1
-      Position = 4
+      Position = 0
       SelEnd = 0
       SelStart = 0
       TabOrder = 0
@@ -137,9 +136,9 @@ object Form1: TForm1
       OnChange = Debug_PassabilityTrackChange
     end
     object RGPlayer: TRadioGroup
-      Left = 320
+      Left = 304
       Top = 8
-      Width = 97
+      Width = 105
       Height = 61
       Caption = ' Player '
       Columns = 3
@@ -153,57 +152,48 @@ object Form1: TForm1
         '6'
         '7'
         '8')
-      TabOrder = 4
+      TabOrder = 2
       OnClick = RGPlayerClick
     end
     object Button_V: TButton
       Left = 168
-      Top = 52
+      Top = 16
       Width = 25
       Height = 17
       Caption = 'V'
-      TabOrder = 6
+      TabOrder = 4
       OnClick = Button_VClick
     end
     object Button_6: TButton
       Left = 192
-      Top = 52
+      Top = 16
       Width = 25
       Height = 17
       Caption = '6'
-      TabOrder = 7
+      TabOrder = 5
       OnClick = Button_6Click
-    end
-    object Step1Frame: TButton
-      Left = 196
-      Top = 32
-      Width = 25
-      Height = 17
-      Caption = '|| >'
-      TabOrder = 3
-      OnClick = Timer100msTimer
     end
     object Button_1: TButton
       Left = 216
-      Top = 52
+      Top = 16
       Width = 25
       Height = 17
       Caption = '1'
-      TabOrder = 8
+      TabOrder = 6
       OnClick = Button_1Click
     end
     object Button_Stop: TButton
       Left = 240
-      Top = 52
+      Top = 16
       Width = 25
       Height = 17
       Caption = 'Stop'
-      TabOrder = 9
+      TabOrder = 7
       OnClick = Button_StopClick
     end
     object TB_Angle: TTrackBar
       Left = 2
-      Top = 36
+      Top = 32
       Width = 95
       Height = 17
       Max = 90
@@ -213,7 +203,7 @@ object Form1: TForm1
       Position = 0
       SelEnd = 0
       SelStart = 0
-      TabOrder = 10
+      TabOrder = 8
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
@@ -242,10 +232,6 @@ object Form1: TForm1
     Top = 192
     object File1: TMenuItem
       Caption = 'File'
-      object OpenMapMenu: TMenuItem
-        Caption = 'Open map...'
-        OnClick = Open_MapClick
-      end
       object OpenMissionMenu: TMenuItem
         Caption = 'Open mission...'
         OnClick = Open_MissionMenuClick

@@ -347,6 +347,7 @@ begin
     fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
     MyPlayer:=fPlayers.Player[1];
   end;
+  Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.EnableOrDisableMenuIcons(not (MissionMode = mm_Tactic));
 
   fLog.AppendLog('Gameplay initialized',true);
@@ -401,6 +402,7 @@ begin
     exit; //If game is not running
   end;
 
+  if fGame.GameIsPaused then exit;
 
   fViewport.DoScrolling; //Check to see if we need to scroll
   for i:=1 to GameSpeed do begin

@@ -16,7 +16,6 @@ type
     StatusBar1: TStatusBar;
     MainMenu1: TMainMenu;
     File1: TMenuItem;
-    OpenMapMenu: TMenuItem;
     Exit1: TMenuItem;
     N1: TMenuItem;
     About1: TMenuItem;
@@ -35,7 +34,6 @@ type
     GroupBox1: TGroupBox;
     TeamColorPicker: TShape;
     CheckBox2: TCheckBox;
-    Debug_Pause: TCheckBox;
     Export_Text: TMenuItem;
     Export_Deliverlists1: TMenuItem;
     Export_Sounds1: TMenuItem;
@@ -48,7 +46,6 @@ type
     Button_6: TButton;
     Button_Stop: TButton;
     OpenMissionMenu: TMenuItem;
-    Step1Frame: TButton;
     Button_1: TButton;
     Debug_ShowOverlay: TMenuItem;
     AnimData1: TMenuItem;
@@ -60,15 +57,14 @@ type
     MediaPlayer1: TMediaPlayer;
     TB_Angle: TTrackBar;
     Label3: TLabel;
+    Label1: TLabel;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
-    procedure Open_MapClick(Sender: TObject);
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -255,24 +251,11 @@ end;
 procedure TForm1.Timer100msTimer(Sender: TObject);
 begin
   if not Form1.Active then exit;
-
-  if ((Debug_Pause.Checked)or(fGame.GameIsPaused))and(Sender<>Step1Frame) then exit; //Pause
-
   fGame.UpdateState;
 end;
 
 
 //Open
-procedure TForm1.Open_MapClick(Sender: TObject);
-begin
-  //fLog.AssertToLog(false,'Should be re-rigged');
-  if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
-  fTerrain.OpenMapFromFile(OpenDialog1.FileName);
-  fTerrain.RevealWholeMap(play_1);
-  Form1.Caption:='KaM Remake - '+OpenDialog1.FileName;
-end;
-
-
 procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;
@@ -326,9 +309,9 @@ begin GroupBox1.Visible:=not GroupBox1.Visible; end;
 
 procedure TForm1.Debug_PassabilityTrackChange(Sender: TObject);
 begin
-  ShowTerrainWires:=true;
-  Debug_PassabilityTrack.Max:=length(PassabilityStr)-1;
-  Label2.Caption:= PassabilityStr[Debug_PassabilityTrack.Position+1];
+  ShowTerrainWires:=Debug_PassabilityTrack.Position<>0;
+  Debug_PassabilityTrack.Max:=length(PassabilityStr)-1; //Reserve 0 as Off
+  Label2.Caption:= PassabilityStr[Debug_PassabilityTrack.Position];
 end;
 
 //Exports
@@ -367,13 +350,13 @@ end;
 
 procedure TForm1.TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  DefineInputColor((Sender as TShape).Brush.Color,Sender);
+  DefineInputColor(TeamColors[1] and $FFFFFF,Sender);
 end;
 
 
 procedure TForm1.TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-  TeamColors[1]:=TeamColorPicker.Brush.Color;
+  TeamColors[1]:=TeamColorPicker.Brush.Color or $FF000000;
   fRender.Render;
 end;
 
@@ -388,8 +371,7 @@ end;
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
   if CheckBox2.Checked then fGame.GameSpeed:=50 else fGame.GameSpeed:=1;
-end;
-
+end;      
 
 
 {Walk tests}
@@ -627,10 +609,10 @@ end;
 
 procedure TForm1.TB_Angle_Change(Sender: TObject);
 begin
-RENDER_3D:=TB_Angle.Position<>0;
-Label3.Caption:=inttostr(TB_Angle.Position);
-fRender.SetRotation(-TB_Angle.Position,0,0);
-fRender.Render;
+  RENDER_3D:=TB_Angle.Position<>0;
+  Label3.Caption:=inttostr(TB_Angle.Position)+' 3D';
+  fRender.SetRotation(-TB_Angle.Position,0,0);
+  fRender.Render;
 end;
 
 {procedure TForm1.Button1Click(Sender: TObject);

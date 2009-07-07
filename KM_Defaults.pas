@@ -26,10 +26,10 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
+  MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
@@ -177,7 +177,8 @@ type TPassability = (canAll,
                      canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab);
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[1..11] of string = (
+const PassabilityStr:array[0..11] of string = (
+    'None',
     'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
     'canWalk',      // General passability of tile for any walking units
     'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it

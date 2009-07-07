@@ -440,11 +440,14 @@ begin
     glEnd;
   end;
 
-  glColor4f(0,1,0,0.25);
-  t:=Form1.Debug_PassabilityTrack.Position;
-  for i:=y1 to y2 do for k:=x1 to x2 do
-    if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
-      RenderQuad(k,i);
+  if Form1.Debug_PassabilityTrack.Position<>0 then
+  begin
+    glColor4f(0,1,0,0.25);
+    t:=Form1.Debug_PassabilityTrack.Position-1;
+    for i:=y1 to y2 do for k:=x1 to x2 do
+      if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
+        RenderQuad(k,i);
+  end;
 
   glPointSize(3);
   glbegin (GL_POINTS);
@@ -709,7 +712,7 @@ procedure TRender.RenderUnitThought(Thought:TUnitThought; StepID:integer; pX,pY:
 var ShiftX,ShiftY:single; ID:integer;
 begin
   if byte(Thought) = 0 then exit; 
-  ID:=ThoughtBounds[byte(Thought),1]+1 +
+  ID:=ThoughtBounds[byte(Thought),2]+1 -
      (GlobalTickCount mod (ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
@@ -1175,7 +1178,6 @@ begin
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   if fGame.GameIsPaused then begin
-  //glBlendFunc(GL_DST_ALPHA,GL_DST_ALPHA);
   glColor4f(0,0,0,0.5);
   glBegin(GL_QUADS);
     glkRect(0,0,RenderAreaSize.X,RenderAreaSize.Y);
