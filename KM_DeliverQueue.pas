@@ -266,7 +266,10 @@ for iD:=1 to length(fDemand) do
   if fDemand[iD].Resource <> rt_None then
   for iO:=1 to length(fOffer) do
    if BestBid=1 then break else //Quit loop when best bid is found
-    if fOffer[iO].Resource <> rt_None then
+    if fOffer[iO].Resource <> rt_None then begin
+
+    if fOffer[iO].Count=6 then
+    BestBid:=0;
 
     if PermitDelivery(iO,iD) then
     begin
@@ -298,6 +301,7 @@ for iD:=1 to length(fDemand) do
       end;
 
     end;
+   end;
 
   if BestBid=0 then exit; //No suitable delivery has been found
 
@@ -305,6 +309,9 @@ for iD:=1 to length(fDemand) do
   iO:=fQueue[i].OfferID;
   inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on an Offer
   fDemand[iD].BeingPerformed:=true; //Places a virtual "Reserved" sign on Demand
+
+  //Store never has enough demand performed
+  if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].DemandType = dt_Always) then fDemand[iD].BeingPerformed:=false;
 
   //Now we have best job and can perform it
   Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);

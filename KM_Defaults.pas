@@ -32,7 +32,7 @@ var
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
-  DO_SERFS_WALK_ROADS   :boolean=false;  //Wherever serfs should walk only on roads
+  DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
   FORCE_RESOLUTION      :boolean=false;  //Whether to change resolution on start up
 
   //These should be ... enabled sometime
