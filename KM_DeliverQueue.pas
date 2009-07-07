@@ -249,14 +249,14 @@ i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
 if i=MaxEntries then exit;
 
 //Cleanup for destroyed houses
-for iD:=1 to length(fDemand) do
+{for iD:=1 to length(fDemand) do
   if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].Loc_House.IsDestroyed) then fDemand[iD].Resource:=rt_None
   else
   if (fDemand[iD].Loc_Unit<>nil)and(fDemand[iD].Loc_Unit.IsDestroyed) then fDemand[iD].Resource:=rt_None;
 
 for iO:=1 to length(fOffer) do
   if (fOffer[iO].Loc_House<>nil)and(fOffer[iO].Loc_House.IsDestroyed) then fOffer[iO].Resource:=rt_None;
-
+}
 
 //Find Offer matching Demand
 //TravelRoute Asker>Offer>Demand should be shortest
@@ -303,12 +303,11 @@ for iD:=1 to length(fDemand) do
 
   iD:=fQueue[i].DemandID;
   iO:=fQueue[i].OfferID;
-  //Now we have best job and can perform it
-  Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
-
   inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on an Offer
   fDemand[iD].BeingPerformed:=true; //Places a virtual "Reserved" sign on Demand
 
+  //Now we have best job and can perform it
+  Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 end;
 
 

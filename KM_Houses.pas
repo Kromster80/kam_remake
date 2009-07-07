@@ -271,7 +271,7 @@ end;
 {Return Entrance of the house, which is different than house position sometimes}
 function TKMHouse.GetEntrance(DebugSender:TObject):TKMPoint;
 begin
-  fLog.AppendLog(TypeToString(GetPosition));
+  //fLog.AppendLog(TypeToString(GetPosition));
   Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y:=GetPosition.Y;
 end;
