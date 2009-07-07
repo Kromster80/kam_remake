@@ -266,10 +266,7 @@ for iD:=1 to length(fDemand) do
   if fDemand[iD].Resource <> rt_None then
   for iO:=1 to length(fOffer) do
    if BestBid=1 then break else //Quit loop when best bid is found
-    if fOffer[iO].Resource <> rt_None then begin
-
-    if fOffer[iO].Count=6 then
-    BestBid:=0;
+    if fOffer[iO].Resource <> rt_None then
 
     if PermitDelivery(iO,iD) then
     begin
@@ -301,7 +298,6 @@ for iD:=1 to length(fDemand) do
       end;
 
     end;
-   end;
 
   if BestBid=0 then exit; //No suitable delivery has been found
 

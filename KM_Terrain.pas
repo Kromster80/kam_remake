@@ -523,7 +523,7 @@ begin
       if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
         if (TileIsStone(KMPoint(k,i))>0) then
           //if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
-          if Route_CanBeMade(KMPointY1(aPosition),KMPoint(k,i+1),CanWalk,true) then
+          if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,true) then
             List.AddEntry(KMPoint(k,i+1));
 
   Result:=List.GetRandom;
