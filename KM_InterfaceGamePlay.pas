@@ -1028,9 +1028,9 @@ begin
   KMImage_UnitPic.TexID:=520+byte(Sender.GetUnitType);
   KMConditionBar_Unit.Position:=EnsureRange(round(Sender.GetCondition / UNIT_MAX_CONDITION * 100),-10,110);
   if Sender.GetHome<>nil then
-    KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText+' - '+TypeToString(Sender.GetHome.GetEntrance(Sender))
+    KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText
   else
-    KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText+' - '+'nil';
+    KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   KMLabel_UnitAct.Caption:='Act: '+Sender.GetUnitActText;
   KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType))
 end;

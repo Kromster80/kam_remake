@@ -22,7 +22,6 @@ type
     About1: TMenuItem;
     Debug1: TMenuItem;
     Debug_ShowWires: TMenuItem;
-    Debug_ShowObjects: TMenuItem;
     Panel5: TPanel;
     Timer100ms: TTimer;
     Debug_PrintScreen: TMenuItem;
@@ -34,10 +33,6 @@ type
     Export_GUIMainRX: TMenuItem;
     Export_Fonts1: TMenuItem;
     GroupBox1: TGroupBox;
-    Image4: TImage;
-    TBZoomControl: TTrackBar;
-    Image3: TImage;
-    Label1: TLabel;
     TeamColorPicker: TShape;
     CheckBox2: TCheckBox;
     Debug_Pause: TCheckBox;
@@ -74,16 +69,13 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
     procedure Open_MapClick(Sender: TObject);
-    procedure Debug_ZoomChange(Sender: TObject);
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure AboutClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure Debug_ResetZoomClick(Sender: TObject);
     procedure ExitClick(Sender: TObject);
     procedure Debug_ShowWiresClick(Sender: TObject);
-    procedure Debug_ShowObjectsClick(Sender: TObject);
     procedure Timer100msTimer(Sender: TObject);
     procedure Button_VClick(Sender: TObject);
     procedure Button_6Click(Sender: TObject);
@@ -309,9 +301,6 @@ begin
   ShowTerrainWires:=Debug_ShowWires.Checked;
 end;
 
-procedure TForm1.Debug_ShowObjectsClick(Sender: TObject);
-begin Debug_ShowObjects.Checked:=not Debug_ShowObjects.Checked; end;
-
 procedure TForm1.Debug_ShowOverlayClick(Sender: TObject);
 begin
   Debug_ShowOverlay.Checked:= not Debug_ShowOverlay.Checked;
@@ -341,14 +330,6 @@ begin
   Debug_PassabilityTrack.Max:=length(PassabilityStr)-1;
   Label2.Caption:= PassabilityStr[Debug_PassabilityTrack.Position+1];
 end;
-
-procedure TForm1.Debug_ZoomChange(Sender: TObject);
-begin fGame.ZoomInGameArea(ZoomLevels[TBZoomControl.Position]); end;
-
-procedure TForm1.Debug_ResetZoomClick(Sender: TObject);
-begin TBZoomControl.Position:=4; end;
-
-
 
 //Exports
 procedure TForm1.Export_TreesRXClick(Sender: TObject);   begin ExportRX2BMP(1); end;
