@@ -657,9 +657,9 @@ begin
     17: Q:=1; //Swine
     else Q:=0;
   end;
-  Assert(Q<>0,'Wrong caller for RenderHouseStableBeasts');
-  Assert(InRange(BeastID,1,5),'Wrong ID for RenderHouseStableBeasts');
-  Assert(InRange(BeastAge,1,3),'Wrong Age for RenderHouseStableBeasts');
+  fLog.AssertToLog(Q<>0,'Wrong caller for RenderHouseStableBeasts');
+  fLog.AssertToLog(InRange(BeastID,1,5),'Wrong ID for RenderHouseStableBeasts');
+  fLog.AssertToLog(InRange(BeastAge,1,3),'Wrong Age for RenderHouseStableBeasts');
 
   AnimCount:=HouseDATs[Q,BeastID,BeastAge].Count;
   ID:=HouseDATs[Q,BeastID,BeastAge].Step[AnimStep mod AnimCount + 1]+1;
@@ -760,7 +760,7 @@ begin
 if (pX<1)or(pX>fTerrain.MapX) then exit;
 if (pY<1)or(pY>fTerrain.MapY) then exit;
 
-if not InRange(Index,1,256) then Assert(false,'Wrong tile index');
+if not InRange(Index,1,256) then fLog.AssertToLog(false,'Wrong tile index');
 
 glColor4f(1,1,1,1);
 glBindTexture(GL_TEXTURE_2D, TextT);

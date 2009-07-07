@@ -143,7 +143,7 @@ begin
   SetLength(c,1024000);
   assignfile(f,aFileName); reset(f,1);
   blockread(f,c[1],length(c),FileSize);
-  Assert(FileSize<>length(c),'DAT file size is too big, can''t fit into buffer');
+  fLog.AssertToLog(FileSize<>length(c),'DAT file size is too big, can''t fit into buffer');
   setlength(FileText,FileSize);
   closefile(f);
 
@@ -262,7 +262,7 @@ begin
   assignfile(f,aFileName); reset(f,1);
   blockread(f,k,4);
   blockread(f,i,4);
-  Assert((k<=MaxMapSize)and(i<=MaxMapSize),'TMissionParser.GetMapDetails - Can''t open the map cos it''s too big.');
+  fLog.AssertToLog((k<=MaxMapSize)and(i<=MaxMapSize),'TMissionParser.GetMapDetails - Can''t open the map cos it''s too big.');
   closefile(f);
   Result.MapSize.X:=k;
   Result.MapSize.Y:=i;
@@ -550,7 +550,7 @@ begin
       112*112+1..176*176: MapSize:='L';
       176*176+1..256*256: MapSize:='XL';
       256*256+1..320*320: MapSize:='XXL';
-      else Assert(false,'Unexpected MapDetail size');
+      else fLog.AssertToLog(false,'Unexpected MapDetail size');
     end;
 
     Title:=Maps[i].Folder;

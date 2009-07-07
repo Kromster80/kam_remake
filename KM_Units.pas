@@ -473,7 +473,7 @@ begin
     SetActionStay(RestTime, ua_Walk); //Absolutely nothing to do ...
   end;
 
-  Assert(fCurrentAction<>nil,'Unit has no action!');
+  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -496,7 +496,7 @@ if HousePlaceOrders[byte(fHome.GetHouseType)] then begin
 end;
 
 //if not KMSamePoint(GetPosition,fHome.GetEntrance) then begin
-//  Assert(KMSamePoint(GetPosition,fHome.GetEntrance),'Asking for work from wrong spot');
+//  fLog.AssertToLog(KMSamePoint(GetPosition,fHome.GetEntrance),'Asking for work from wrong spot');
 //  fViewport.SetCenter(GetPosition.X,GetPosition.Y);
 //end;
 
@@ -571,7 +571,7 @@ begin
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
-  Assert(fCurrentAction<>nil,'Unit has no action!');
+  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -645,7 +645,7 @@ begin
 
   if fUnitTask=nil then SetActionStay(20,ua_Walk);
 
-  Assert(fCurrentAction<>nil,'Unit has no action!');
+  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -729,7 +729,7 @@ begin
 
   SetActionStay(50,ua_Walk);
 
-  Assert(fCurrentAction<>nil,'Unit has no action!');
+  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -805,7 +805,7 @@ begin
   SetActionWalk(Self, Spot, KMPoint(0,0));
   if not TUnitActionWalkTo(fCurrentAction).fRouteBuilt then SetActionStay(5, ua_Walk);
 
-  Assert(fCurrentAction<>nil,'Unit has no action!');
+  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
 end;
 
 
@@ -1038,10 +1038,10 @@ end;
 
 procedure TKMUnit.Paint();
 begin
-  //Assert(fUnitTask<>nil,'Unit '+TypeToString(fUnitType)+' has no task!');
+  //fLog.AssertToLog(fUnitTask<>nil,'Unit '+TypeToString(fUnitType)+' has no task!');
   if fCurrentAction=nil then
   begin
-    Assert(fCurrentAction<>nil,'Unit '+TypeToString(fUnitType)+' has no action!');
+    fLog.AssertToLog(fCurrentAction<>nil,'Unit '+TypeToString(fUnitType)+' has no action!');
     SetActionStay(10, ua_Walk);
   end;
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
@@ -1104,7 +1104,7 @@ end;
 { TTaskDeliver }
 constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
-  Assert((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
+  fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
   fSerf:=aSerf;
   fFrom:=aFrom;
   fToHouse:=toHouse;
@@ -1145,7 +1145,7 @@ case Phase of
        fPlayers.Player[byte(fOwner)].DeliverList.TakenOffer(ID);
      end else begin
        fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
-       Assert(false,'Resource''s gone..');
+       fLog.AssertToLog(false,'Resource''s gone..');
      end;
      SetActionGoIn(ua_Walk,gid_Out,fFrom.GetHouseType);
    end else begin
@@ -1233,7 +1233,7 @@ end;
 
 inc(Phase);
 if (fSerf.fCurrentAction=nil)and(not TaskDone) then
-  Assert(false);
+  fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');
 end;
 
 
@@ -1792,7 +1792,7 @@ with fUnit do
   end;
 inc(Phase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-  Assert(false);
+  fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
 end;
 
 
@@ -1821,7 +1821,7 @@ begin
   end;
   inc(Phase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-    Assert(false);
+    fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
 end;
 
 
@@ -1901,7 +1901,7 @@ begin
   if fUnit.fHome=nil then TaskDone := true;
   inc(Phase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-    Assert(false);
+    fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
 end;
 
 
@@ -1972,7 +1972,7 @@ case Phase of
 end;
 inc(Phase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-  Assert(false);
+  fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
 end;
 
 
@@ -1988,7 +1988,7 @@ end;
 { TUnitActionWalkTo }
 constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
 begin
-  Assert(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
+  fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
   Inherited Create(aActionType);
   fWalker       := KMUnit;
@@ -2138,7 +2138,7 @@ begin
     exit;
   end;
     //If enything else - wait
-    Assert(false,'DO_UNIT_INTERACTION');
+    fLog.AssertToLog(false,'DO_UNIT_INTERACTION');
 end;
 
 
@@ -2207,7 +2207,7 @@ begin
   end;
 
   if NodePos>NodeCount then
-    Assert(false,'TUnitAction is being overrun for some reason - error!');
+    fLog.AssertToLog(false,'TUnitAction is being overrun for some reason - error!');
 
   WalkX := Nodes[NodePos].X - fWalker.fPosition.X;
   WalkY := Nodes[NodePos].Y - fWalker.fPosition.Y;
@@ -2407,7 +2407,7 @@ begin
     ut_Wolf..ut_Duck:           U:= Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
     else
-    Assert(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
+    fLog.AssertToLog(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
   end;
 
   if U=-1 then Result:=nil else Result:=TKMUnit(Items[U]);

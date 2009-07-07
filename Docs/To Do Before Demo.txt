@@ -1,6 +1,6 @@
 Lewin	- Fullscreen resolution change
 	- Armies (thats not a bug, but we need either to disable them or to make groups working)
-	- Implement feedback system, so we know at least something on crashes
+	- Implement feedback system, so we know at least something on crashes /Replace every Assert with AppendLog+Assert/
 	- Remove debug stuff where it's not needed 
-Krom	- Remove all unit interaction stuff (esp. things that cause crashes)
-Krom	- Remove FastMM debug mode
+Krom	- Remove all unit interaction stuff (esp. things that cause crashes) [Removed under DO_UNIT_INTERACTION switch]
+Krom	- Remove FastMM debug mode [Done, see IFDEF KAM_USE_FASTMM_DEBUG_MODE switch in KaM_Remake]

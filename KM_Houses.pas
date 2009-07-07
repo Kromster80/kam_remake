@@ -499,7 +499,7 @@ begin
   case aResource of
     rt_Wood: inc(fBuildSupplyWood);
     rt_Stone: inc(fBuildSupplyStone);
-  else Assert(false,'WIP house is not supposed to recieve '+TypeToString(aResource)+', right?');
+  else fLog.AssertToLog(false,'WIP house is not supposed to recieve '+TypeToString(aResource)+', right?');
   end;
 end;
 
@@ -511,7 +511,7 @@ Result:=false;
 if aResource=rt_None then exit;
   for i:=1 to 4 do
   if aResource = HouseInput[byte(fHouseType),i] then begin
-    Assert(fResourceIn[i]>0);
+    fLog.AssertToLog(fResourceIn[i]>0,'fResourceIn[i]>0');
     dec(fResourceIn[i]);
     fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,1,dt_Once,di_Norm);
     Result:=true;
@@ -780,7 +780,7 @@ begin
     UnitType:=byte(Eater[i].UnitType);
     AnimAct:=byte(ua_Eat);
     AnimDir:=Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
-    Assert(InRange(AnimDir,1,8));
+    fLog.AssertToLog(InRange(AnimDir,1,8),'InRange(AnimDir,1,8)');
     AnimStep:=FlagAnimStep-Eater[i].AnimStep; //Delta is our AnimStep
     fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner),
       fPosition.X+offX[(i-1) mod 3 +1],
@@ -902,7 +902,7 @@ if aResource in [rt_Trunk..rt_Fish] then begin
     fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
   end
 else
-Assert(false,'Cant''t add such resource '+TypeToString(aResource));
+fLog.AssertToLog(false,'Cant''t add such resource '+TypeToString(aResource));
 end;
 
 
@@ -927,7 +927,7 @@ else
 if aResource in [rt_Shield..rt_Horse] then
   ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,MAXWORD)
 else
-  Assert(false,'Cant''t add such resource '+TypeToString(aResource));
+  fLog.AssertToLog(false,'Cant''t add such resource '+TypeToString(aResource));
 end;
 
 
@@ -948,7 +948,7 @@ begin
       dec(ResourceCount[byte(aResource)-16]);
       Result:=true;
     end else
-      Assert(false,'ResourceCount[byte(aResource)-16]<0');
+      fLog.AssertToLog(false,'ResourceCount[byte(aResource)-16]<0');
 end;
 
 
@@ -1098,7 +1098,7 @@ begin
   id := 0;
   BestMatch := -1; //Use -1 value to init variable on first run
   UsePosition := X*Y<>0; //Calculate this once to save computing lots of multiplications
-  Assert((not UsePosition)or(Index=1), 'Can''t find house basing both on Position and Index');
+  fLog.AssertToLog((not UsePosition)or(Index=1), 'Can''t find house basing both on Position and Index');
 
   for I := 0 to Count - 1 do
   if (TKMHouse(Items[I]).fHouseType=aType) and (TKMHouse(Items[I]).IsComplete) then

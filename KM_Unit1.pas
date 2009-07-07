@@ -227,7 +227,7 @@ end;
 
 procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-Assert(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
+fLog.AssertToLog(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
 fGame.KeyUp(Key, Shift);
 end;
 
@@ -235,7 +235,7 @@ end;
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-Assert(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
+fLog.AssertToLog(Form1.KeyPreview, 'Form should recieve keys to pass them fo fGame');
 fGame.KeyUp(Key, Shift, true);
 end;
 
@@ -273,7 +273,7 @@ end;
 //Open
 procedure TForm1.Open_MapClick(Sender: TObject);
 begin
-  //Assert(false,'Should be re-rigged');
+  //fLog.AssertToLog(false,'Should be re-rigged');
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
   fTerrain.OpenMapFromFile(OpenDialog1.FileName);
   fTerrain.RevealWholeMap(play_1);
@@ -366,10 +366,10 @@ procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.Expo
 procedure TForm1.Export_Fonts1Click(Sender: TObject);
 var i:integer;
 begin
-  Assert(fResource<>nil);
+  fLog.AssertToLog(fResource<>nil,'Can''t export Fonts');
   for i:=1 to length(FontFiles) do
     //ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
-end;  
+end;
 
 
 procedure TForm1.Export_DeliverLists1Click(Sender: TObject);

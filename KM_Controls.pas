@@ -299,7 +299,7 @@ end;
 procedure TKMControl.ParentTo(aParent:TKMControl);
 begin
   if aParent=nil then exit; //Has no parent
-  Assert(aParent is TKMPanel,'Let''s not parent controls to anything else except TKMPanels');
+  fLog.AssertToLog(aParent is TKMPanel,'Let''s not parent controls to anything else except TKMPanels');
   inc(aParent.ChildCount);
   {Hereby I still try to make a rule to count starting from 1, not from zero}
   setlength(aParent.Childs,aParent.ChildCount+1);
@@ -626,7 +626,7 @@ var i:integer;
 begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
-  Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
+  fLog.AssertToLog(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top, 4,350+byte(Resource));
 end;
@@ -658,7 +658,7 @@ begin
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
-  Assert(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
+  fLog.AssertToLog(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, 4,350+byte(Resource));
 end;

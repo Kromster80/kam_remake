@@ -589,7 +589,7 @@ begin
         end
         else
       else
-        CloseHouseRepair(i); //House is not damaged or in repair mode
+        CloseHouseRepair(i); //House is not damaged
 
 end;
 

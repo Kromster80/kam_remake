@@ -867,6 +867,8 @@ type
     procedure AppendLog(num:integer; text:string); overload;
     procedure AppendLog(text:string; Res:boolean); overload;
     procedure AppendLog(a,b:integer); overload;
+    //Add line if TestValue=false
+    procedure AssertToLog(TestValue:boolean; MessageText:string);
     //AddToLog simply adds the text
     procedure AddToLog(text:string);
   end;
@@ -979,6 +981,13 @@ end;
 procedure TKMLog.AppendLog(a,b:integer);
 begin
   AddLine(inttostr(a)+' : '+inttostr(b));
+end;
+
+procedure TKMLog.AssertToLog(TestValue:boolean; MessageText:string);
+begin
+  if not TestValue then
+  AddLine('ASSERTION FAILED! Msg: '+MessageText);
+  Assert(TestValue,MessageText);
 end;
 
 procedure TKMLog.AddToLog(text:string);

@@ -349,7 +349,7 @@ end else
 if (aUnitType=ut_Recruit)and(aHome=ht_WatchTower) then begin
   fIssued:=false; //Let him idle
 end else
-  Assert(false,'There''s yet no working plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
+  fLog.AssertToLog(false,'There''s yet no working plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
 end;
 
 

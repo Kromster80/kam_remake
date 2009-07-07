@@ -143,7 +143,7 @@ begin
     mu_RoadPlan: BuildList.AddNewRoad(aLoc, ft_Road);
     mu_FieldPlan: BuildList.AddNewRoad(aLoc, ft_Corn);
     mu_WinePlan: BuildList.AddNewRoad(aLoc, ft_Wine);
-    else Assert(false,'Wrong markup');
+    else fLog.AssertToLog(false,'Wrong markup');
   end;
   if not DoSilent then
     fSoundLib.Play(sfx_placemarker,aLoc,false);
@@ -333,7 +333,7 @@ end;
 constructor TKMAllPlayers.Create(PlayerCount:integer);
 var i:integer;
 begin
-  Assert(InRange(PlayerCount,1,MAX_PLAYERS),'PlayerCount exceeded');
+  fLog.AssertToLog(InRange(PlayerCount,1,MAX_PLAYERS),'PlayerCount exceeded');
 
   fPlayerCount:=PlayerCount; //Used internally
   for i:=1 to fPlayerCount do

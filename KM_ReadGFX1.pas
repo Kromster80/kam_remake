@@ -59,8 +59,8 @@ uses KromUtils, KM_Unit1, KM_Render, KM_Game;
 constructor TResource.Create;
 begin
   Inherited;
-  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
-  Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
+  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
+  fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
   DataState:=dls_None;
 end;
 
@@ -85,8 +85,8 @@ function TResource.LoadMenuResources():boolean;
 var i:integer;
 begin
   Result:=false;
-  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
-  Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
+  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
+  fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
   for i:=1 to length(PalFiles) do
@@ -122,8 +122,8 @@ function TResource.LoadGameResources():boolean;
 var i:integer;
 begin
   Result:=false;
-  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
-  Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
+  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
+  fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
   fLog.AppendLog('Reading mapelem.dat',LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat')); StepRefresh();
@@ -445,7 +445,7 @@ for i:=0 to 255 do
       blockread(f,Width,4);
       blockread(f,Add,8);
       MaxHeight:=max(MaxHeight,Height);
-      Assert(Width*Height<>0); //Fon01.fnt seems to be damaged..
+      fLog.AssertToLog(Width*Height<>0,'Width*Height<>0'); //Fon01.fnt seems to be damaged..
       blockread(f,Data[1],Width*Height);
     end;
 closefile(f);
@@ -468,7 +468,7 @@ for i:=0 to 255 do
   if FontData[byte(aFont)].Pal[i]<>0 then
     with FontData[byte(aFont)].Letters[i] do begin
 
-    Assert(FontData[byte(aFont)].Pal[i]=1);
+    fLog.AssertToLog(FontData[byte(aFont)].Pal[i]=1,'FontData[byte(aFont)].Pal[i]=1');
 
       if AdvX+Width+2>TexWidth then begin
         AdvX:=0;

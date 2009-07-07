@@ -88,8 +88,8 @@ constructor TKMMainMenuInterface.Create(X,Y:word);
 begin
 inherited Create;
 
-  Assert(fGameSettings<>nil,'fGameSettings should be init before MainMenuInterface');
-  Assert(fTextLibrary<>nil,'fTextLibrary should be init before MainMenuInterface');
+  fLog.AssertToLog(fGameSettings<>nil,'fGameSettings should be init before MainMenuInterface');
+  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before MainMenuInterface');
 
   {Parent Page for whole toolbar in-game}
   MyControls:=TKMControlsCollection.Create;
@@ -459,7 +459,7 @@ end;
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 var MissionPath:string;
 begin
-  Assert(Sender=KMButton_SingleStart);
+  fLog.AssertToLog(Sender=KMButton_SingleStart,'not KMButton_SingleStart');
   if not InRange(SingleMap_Selected,1,SingleMapsInfo.GetMapCount) then exit;
   MissionPath:=ExeDir+'Maps\'+SingleMapsInfo.GetFolder(SingleMap_Selected)+'\'+SingleMapsInfo.GetMissionFile(SingleMap_Selected);
   fGame.StartGame(MissionPath); //Provide mission filename here
@@ -489,7 +489,7 @@ end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
-  Assert(Sender=KMButton_MainMenuTutor);
+  fLog.AssertToLog(Sender=KMButton_MainMenuTutor,'not KMButton_MainMenuTutor');
   fGame.StartGame(ExeDir+'data\mission\mission0.dat'); //Provide mission filename here
 end;
 

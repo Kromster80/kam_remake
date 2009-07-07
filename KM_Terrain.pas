@@ -214,7 +214,7 @@ begin
   assignfile(f,filename); reset(f,1);
   blockread(f,k,4);
   blockread(f,i,4);
-  Assert((k<=MaxMapSize)and(i<=MaxMapSize),'TTerrain.OpenMapFromFile - Can''t open the map cos it''s too big.');
+  fLog.AssertToLog((k<=MaxMapSize)and(i<=MaxMapSize),'TTerrain.OpenMapFromFile - Can''t open the map cos it''s too big.');
   MapX:=k;
   MapY:=i;
   MakeNewMap(MapX,MapY); //Reset whole map to default
@@ -561,7 +561,7 @@ end;
 function TTerrain.FindOre(aPosition:TKMPoint; aRadius:integer; Rt:TResourceType):TKMPoint; //Gold or Iron
 var i,k:integer; L:array[1..4]of TKMPointList;
 begin
-  Assert(Rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
+  fLog.AssertToLog(Rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
   //aRadius:=aRadius+2; //Should add some gradient to it later on or not?
@@ -687,7 +687,7 @@ begin
     rt_Coal:    Land[Loc.Y,Loc.X].Terrain:=155;
     rt_IronOre: Land[Loc.Y,Loc.X].Terrain:=151;
     rt_GoldOre: Land[Loc.Y,Loc.X].Terrain:=147;
-    else Assert(false,'Wrong resource');
+    else fLog.AssertToLog(false,'Wrong resource');
   end;
   RecalculatePassability(Loc);
 end;
@@ -752,7 +752,7 @@ begin
     130,135: Land[Loc.Y,Loc.X].Terrain:=129+Random(2)*5;
     129,134: Land[Loc.Y,Loc.X].Terrain:=128+Random(2)*5;
     128,133: Land[Loc.Y,Loc.X].Terrain:=0;
-    else exit; //Assert(false,'Unable to DecStoneReserve at '+TypeToString(Loc)+' for it isn''t there');
+    else exit; //fLog.AssertToLog(false,'Unable to DecStoneReserve at '+TypeToString(Loc)+' for it isn''t there');
   end;
   Land[Loc.Y,Loc.X].Rotation:=Random(4);
   Land[Loc.Y,Loc.X].Height:=DecHeight(Land[Loc.Y,Loc.X].Height,Land[Loc.Y+1,Loc.X].Height,HeightReduction); //Reduce height
@@ -777,7 +777,7 @@ begin
   154: Land[Loc.Y,Loc.X].Terrain:=153;
   155: Land[Loc.Y,Loc.X].Terrain:=154;
   //This check is removed incase worker builds wine field ontop of coal tile
-  //else Assert(false,'Can''t DecCoalReserve');
+  //else fLog.AssertToLog(false,'Can''t DecCoalReserve');
   end;
   RecalculatePassability(Loc);
 end;
@@ -786,7 +786,7 @@ end;
 {Extract one unit of ore}
 procedure TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 begin
-  Assert(rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
+  fLog.AssertToLog(rt in [rt_IronOre,rt_GoldOre],'Wrong resource');
   case Land[Loc.Y,Loc.X].Terrain of
   144: Land[Loc.Y,Loc.X].Terrain:=157; //Gold
   145: Land[Loc.Y,Loc.X].Terrain:=144;
@@ -796,7 +796,7 @@ begin
   149: Land[Loc.Y,Loc.X].Terrain:=148;
   150: Land[Loc.Y,Loc.X].Terrain:=149;
   151: Land[Loc.Y,Loc.X].Terrain:=150;
-  else Assert(false,'Can''t DecOreReserve');
+  else fLog.AssertToLog(false,'Can''t DecOreReserve');
   end;
   RecalculatePassability(Loc);
 end;
@@ -810,7 +810,7 @@ var i,k:integer;
 begin
   //First of all exclude all tiles outside of actual map
   if not TileInMapCoords(Loc.X,Loc.Y) then begin
-    Assert(false, 'Fail: '+TypeToString(loc));
+    fLog.AssertToLog(false, 'Fail: '+TypeToString(loc));
     exit;
   end;
 
@@ -1079,7 +1079,7 @@ begin
     case aPass of
     canWalk: TestMode:=1;
     canWalkRoad: TestMode:=2;
-    else Assert(false, 'Unexpected aPass in RebuildWalkConnect function');
+    else fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 
     //Reset everything
@@ -1103,7 +1103,7 @@ begin
       
       //if (Count<>0) then
       //  fLog.AddToLog(inttostr(Count)+' area');
-      Assert(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
+      fLog.AssertToLog(AreaID<255,'RebuildWalkConnect failed due too many unconnected areas');
     end;
 {  end;
   fLog.AppendLog('FloodFill done 200 times');}
@@ -1315,7 +1315,7 @@ begin
         Result:=Yc+ii-(Ycoef[ii+1]-InY) / (Ycoef[ii+1]-Ycoef[ii]);
         break;
       end;
-  //Assert(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
+  //fLog.AssertToLog(false,'TTerrain.ConvertCursorToMapCoord - couldn''t convert')
 end;
 
 
@@ -1325,7 +1325,7 @@ var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   Xc:=trunc(inX);
   Yc:=trunc(inY);
-  Assert(VerticeInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
+  fLog.AssertToLog(VerticeInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
   Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
   Result:=mix(Tmp2, Tmp1, frac(InY));
