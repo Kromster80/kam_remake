@@ -182,25 +182,26 @@ begin
 
   Form1.Refresh;
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1,true);
+  fSoundLib.PlayMenuTrack;
 
   TimeBeginPeriod(1);
   Application.OnIdle:=Form1.OnIdle;
 
   fLog.AppendLog('Form1 create is done');
 
-  FormLoading.Hide;
-  FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
 
   //Now decide whether we should make it full screen or not
   if fGameSettings.IsFullScreen then
   begin
     if FORCE_RESOLUTION then
       SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y);
-    fSoundLib.PlayMenuTrack;
   end
   else
     ToggleFullScreen(false);
 
+  FormLoading.Hide;
+  FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
+  
   Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
   Form1.Caption:='KaM Remake';
 end;
