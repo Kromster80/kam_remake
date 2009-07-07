@@ -579,14 +579,18 @@ function  TKMBuildingQueue.AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoi
 var i:integer;
 begin
   Result:=nil;
-  for i:=1 to MaxEntries-1 do begin
+  for i:=1 to MaxEntries-1 do
     if fHousesRepairQueue[i].House<>nil then
-      if (fHousesRepairQueue[i].House.IsDamaged) and (fHousesRepairQueue[i].House.BuildingRepair) then
-      begin        
-        Result :=TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
-        exit;
-      end else CloseHouseRepair(i); //House is not damaged or in repair mode
-  end;
+      if fHousesRepairQueue[i].House.IsDamaged then
+        if fHousesRepairQueue[i].House.BuildingRepair then
+        begin
+          Result :=TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
+          exit;
+        end
+        else
+      else
+        CloseHouseRepair(i); //House is not damaged or in repair mode
+
 end;
 
 
