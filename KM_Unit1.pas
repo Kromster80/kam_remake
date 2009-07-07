@@ -209,7 +209,7 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   //Reset the resolution
-  SetScreenResolution(OldScreenWidth,OldScreenHeight);
+  if FORCE_RESOLUTION then SetScreenResolution(OldScreenWidth,OldScreenHeight);
   fGame.StopGame(true);
   FreeAndNil(fGame);
   FreeAndNil(fLog);
@@ -697,7 +697,7 @@ begin
     Form1.BorderStyle:=bsSizeable;
     Form1.ClientWidth:=800;
     Form1.ClientHeight:=600;
-    SetScreenResolution(OldScreenWidth,OldScreenHeight);
+    if FORCE_RESOLUTION then SetScreenResolution(OldScreenWidth,OldScreenHeight);
   end;
 
 

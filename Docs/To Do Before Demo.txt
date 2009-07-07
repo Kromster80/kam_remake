@@ -1,0 +1,5 @@
+ - Fullscreen resolution change
+ - Armies (thats not a bug, but we need either to disable them or to make groups working)
+ - Implement feedback system, so we know at least something on crashes
+ - Remove debug stuff where it's not needed 
+ - Remove all unit interaction stuff (esp. things that cause crashes)

@@ -1214,7 +1214,7 @@ end;
 procedure TTerrain.AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 var i,k:integer;
 begin
-  if aBuildState in [hbs_Wood, hbs_Stone, hbs_Done] then
+  if aBuildState in [hbs_Stone, hbs_Done] then //only leave rubble if the construction was well underway (stone and above)
   begin
     //For houses that are at least partually built (leaves rubble)
     for i:=2 to 4 do for k:=2 to 4 do

@@ -210,6 +210,14 @@ type
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
     end;
+    
+    TTaskGoOutShowHungry = class(TUnitTask)
+    private
+      fUnit:TKMUnit;
+    public
+      constructor Create(aUnit:TKMUnit);
+      procedure Execute(out TaskDone:boolean); override;
+    end;
 
   TKMUnit = class(TObject)
   private
@@ -250,10 +258,12 @@ type
     property GetUnitType: TUnitType read fUnitType;
     function GetUnitTaskText():string;
     function GetUnitActText():string;
+    procedure CancelUnitTask;
     property GetCondition: integer read fCondition;
     property IsVisible: boolean read fVisible;
     property IsDestroyed:boolean read ScheduleForRemoval;
     procedure RemoveUntrainedFromSchool();
+    function CanGoEat:boolean;
     //property IsAtHome: boolean read UnitAtHome;
     function GetPosition():TKMPoint;
     function UpdateState():boolean; virtual;
@@ -289,6 +299,7 @@ type
     function UpdateState():boolean; override;
     procedure Paint(); override;
     function GetActionFromQueue():TUnitTask;
+    procedure AbandonWork;
   end;
 
   //Possibly melee warrior class? with Archer class separate?
@@ -426,7 +437,13 @@ begin
       H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
       if H<>nil then
         fUnitTask:=TTaskGoEat.Create(H,Self)
-      else //If there are no Inns available or no food in them
+      else
+        if fHome <> nil then
+          if not fVisible then
+            fUnitTask:=TTaskGoOutShowHungry.Create(Self)
+          else
+            fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self);
+        //If there are no Inns available or no food in them
         //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
         //for now - IgnoreHunger for all
     end;
@@ -528,10 +545,12 @@ end;
 function TKMUnitSerf.UpdateState():boolean;
 var
   H:TKMHouseInn;
+  OldThought:TUnitThought;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
+  OldThought:=fThought;
   fThought:=th_None;
 
   if fCondition<UNIT_MIN_CONDITION then begin
@@ -546,8 +565,9 @@ begin
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
     fUnitTask:=GetActionFromQueue;
 
+  //Only show quest thought if we are idle and not thinking anything else (e.g. death)
   if fUnitTask=nil then begin
-    if random(2)=0 then fThought:=th_Quest; //
+    if (random(2)=0)and(OldThought=th_None) then fThought:=th_Quest; //
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
@@ -617,6 +637,9 @@ begin
       //for now - IgnoreHunger for all
   end;
 
+  if (fThought = th_Build)and(fUnitTask = nil) then
+    fThought := th_None; //Remove build thought if we are no longer doing anything
+
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
     fUnitTask:=GetActionFromQueue;
 
@@ -634,6 +657,21 @@ if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouse(S
 if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForRoad(Self,Self.GetPosition);
 end;
 
+procedure TKMUnitWorker.AbandonWork;
+begin
+  //This will be called when we die, and we should abandom our task (if any) and clean up stuff like temporary passability
+  if fUnitTask <> nil then
+  begin
+    //Road, wine and field: remove the markup that disallows all other building (mu_UnderConstruction) only if we have started digging
+    if (fUnitTask is TTaskBuildRoad) or (fUnitTask is TTaskBuildWine) or (fUnitTask is TTaskBuildField) then
+      if TTaskBuildRoad(fUnitTask).Phase > 0 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc);
+    //House area: remove house, restoring terrain to normal
+    if fUnitTask is TTaskBuildHouseArea then
+      if TTaskBuildHouseArea(fUnitTask).fHouse <> nil then
+        fPlayers.Player[Integer(fOwner)].RemHouse(TTaskBuildHouseArea(fUnitTask).fHouse.GetPosition,true)
+    //Build House and Repair: No action nececary, another worker will finish it automatically
+  end;
+end;
 
 { TKMwarrior }
 constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -670,12 +708,20 @@ begin
   //As well let the unit finish it's curent Attack action before taking a new order
   //This should make units response delayed, is it a good idea?
   //@Krom: I think that sounds fine. To be deleted
-  
+
+  if fCondition <= (UNIT_MIN_CONDITION div 3) then
+    fThought:=th_Death
+  else
+    if fCondition < UNIT_MIN_CONDITION then
+      fThought:=th_Eat
+    else
+      fThought:=th_None;
+
   //Dispatch new order when warrior finished previous action part 
   if (fOrder=wo_Walk) and UnitAction.IsStepDone then
   begin
     SetActionWalk(Self,fOrderLoc,KMPoint(0,0));
-    fOrder:=wo_Stop; 
+    fOrder:=wo_Stop;
   end;
 
   Result:=true; //Required for override compatibility
@@ -813,6 +859,10 @@ begin
   if (Self is TKMUnitSerf) and (Self.fUnitTask is TTaskDeliver) then
     TTaskDeliver(Self.fUnitTask).AbandonDelivery;
 
+  //Abandon work if any
+  if Self is TKMUnitWorker then
+    TKMUnitWorker(Self).AbandonWork;
+
   fThought:=th_None; //Reset thought
   SetAction(nil,0); //Dispose of current action
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
@@ -853,6 +903,10 @@ begin
     Result:=TUnitActionWalkTo(fCurrentAction).Explanation;
 end;
 
+procedure TKMUnit.CancelUnitTask;
+begin
+  FreeAndNil(fUnitTask);
+end;
 
 function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
@@ -912,6 +966,11 @@ begin
   ScheduleForRemoval:=true;
 end;
 
+function TKMUnit.CanGoEat:boolean;
+begin
+  Result := fPlayers.Player[byte(fOwner)].FindInn(GetPosition) <> nil;
+end;
+
 {Here are common Unit.UpdateState routines}
 function TKMUnit.UpdateState():boolean;
 var
@@ -942,7 +1001,7 @@ begin
   if (fThought<>th_Death) and (fCondition <= UNIT_MIN_CONDITION div 3) then
     fThought:=th_Death;
 
-  if (fThought=th_Death) and (fCondition > UNIT_MIN_CONDITION) then
+  if ((fThought=th_Death) or (fThought=th_Eat)) and (fCondition > UNIT_MIN_CONDITION) then
     fThought:=th_None;
 
   if fCondition=0 then
@@ -1151,16 +1210,24 @@ end;
 if fToUnit<>nil then
 with fSerf do
 case Phase of
-5: SetActionWalk(fSerf,fToUnit.GetPosition, KMPoint(0,0),ua_Walk,false);
+5: if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.ScheduleForRemoval) then
+     SetActionWalk(fSerf,fToUnit.GetPosition, KMPoint(0,0),ua_Walk,false)
+   else
+   begin
+     TakeResource(Carry);
+     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
+     fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
+     TaskDone:=true;
+   end;
 6: begin
       TakeResource(Carry);
-      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil) then begin
+      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.ScheduleForRemoval) then begin
         inc(fToUnit.fUnitTask.Phase);
         fToUnit.SetActionStay(0,ua_Work1);
       end;
-    fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
-    fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
-    TaskDone:=true;
+      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
+      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
+      TaskDone:=true;
    end;
 end;
 
@@ -1479,10 +1546,16 @@ begin
            if fHouse.IsStone then fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, fOwner); //Remove house plan when we start the stone phase (it is still required for wood)
          end;
       3: begin
-           //Cancel building no matter progress if resource depleted or must eat
            //@Lewin: Is this right behaviour, that worker can drop building task for food?
            //On a side note: Unit should have a CanGoEat function, cos if there are no Inns task shouldn't be dropped like that
-           if (not fHouse.CheckResToBuild)or(fCondition<UNIT_MIN_CONDITION) then begin
+           //@Krom: In KaM the worker will do one set of hits and then look for another task and check food level. (normally the task chosen will be to hit the building at a different location)
+           //That's why some workers will go build road if you order it while they are making a house.
+           //The way our system works the worker is locked into building the house until either it is finished, the resources are depleted or they get hungry. Same for repairing.
+           //Although that's not nececarily a bad thing, the only consequence I can think of is that all of your workers will build the same house instead of doing other things too. (sharing the work)
+           //I added the CanGoEat thing.
+
+           //Cancel building no matter progress if resource depleted or unit is hungry and is able to eat
+           if ((fCondition<UNIT_MIN_CONDITION)and(CanGoEat))or(not fHouse.CheckResToBuild) then begin
              TaskDone:=true; //Drop the task
              fThought := th_None;
              exit;
@@ -1563,7 +1636,7 @@ begin
            Direction:=Cells[CurLoc].Dir;
          end;
       3: begin
-           if (fCondition<UNIT_MIN_CONDITION) then begin
+           if (fCondition<UNIT_MIN_CONDITION) and CanGoEat then begin
              TaskDone:=true; //Drop the task
              exit;
            end;
@@ -1789,6 +1862,46 @@ case Phase of
      end;
 end;
 inc(Phase);
+end;
+
+
+{ TTaskGoOutShowHungry }
+constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
+begin
+  fUnit:=aUnit;
+  Phase:=0;
+  fUnit.SetActionStay(0,ua_Walk);
+end;
+
+
+procedure TTaskGoOutShowHungry.Execute(out TaskDone:boolean);
+begin
+  TaskDone:=false;
+  with fUnit do
+  case Phase of
+    0: begin
+         fThought := th_Eat;
+         SetActionStay(20,ua_Walk);
+       end;
+    1: begin
+         SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType);
+         fHome.SetState(hst_Empty,0);
+       end;
+    2: SetActionStay(4,ua_Walk);
+    3: SetActionGoIn(ua_Walk,gid_In,fUnit.fHome.GetHouseType);
+    4: begin
+         SetActionStay(20,ua_Walk);
+         fHome.SetState(hst_Idle,0);
+       end;
+    5: begin
+         fThought := th_None;
+         TaskDone := true;
+       end;
+  end;
+  if fUnit.fHome=nil then TaskDone := true;
+  inc(Phase);
+  if (fUnit.fCurrentAction=nil)and(not TaskDone) then
+    Assert(false);
 end;
 
 

@@ -33,7 +33,7 @@ var
   DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=false;  //Wherever serfs should walk only on roads
-  FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
+  FORCE_RESOLUTION      :boolean=false;  //Whether to change resolution on start up
 
   //These should be ... enabled sometime
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not

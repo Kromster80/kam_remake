@@ -497,7 +497,8 @@ begin
     begin
       CloseRoad(i);
       if Worker<>nil then
-        Worker.SetUnitTask:=nil;
+        Worker.CancelUnitTask; //@Krom: This was a memery leak: SetUnitTask:=nil;
+                               //       so I changed it.
     end;
 
     Result:=true;
@@ -522,7 +523,7 @@ begin
     begin
       CloseHousePlan(i);
       if Worker<>nil then
-        Worker.SetUnitTask:=nil;
+        Worker.CancelUnitTask;
     end;
 
     Result:=true;
