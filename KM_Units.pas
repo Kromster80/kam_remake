@@ -1922,27 +1922,29 @@ TaskDone:=false;
 
 with fUnit do
 case Phase of
- 0: begin
+ 0: begin 
+      fThought := th_Eat;
       if fHome<>nil then fHome.SetState(hst_Empty,0);
       if not fVisible then SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType) else
                            SetActionStay(0,ua_Walk); //Walk outside the house
     end;
  1: begin
-      fThought := th_Eat;
       SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance(Self)), KMPoint(0,0));
     end;
  2: begin
-      fThought := th_None;
       SetActionGoIn(ua_Walk,gid_In,ht_Inn); //Enter Inn
       PlaceID:=fInn.EaterGetsInside(fUnitType);
     end;
- 3: if (fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
-      fInn.ResTakeFromIn(rt_Bread);
-      SetActionStay(29*8,ua_Eat,false);
-      Feed(UNIT_MAX_CONDITION/3);
-      fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
-    end else
-      SetActionStay(0,ua_Walk);
+ 3: begin
+      fThought := th_None;
+      if (fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
+        fInn.ResTakeFromIn(rt_Bread);
+        SetActionStay(29*8,ua_Eat,false);
+        Feed(UNIT_MAX_CONDITION/3);
+        fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
+      end else
+        SetActionStay(0,ua_Walk);
+    end;
  4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Sausages);
       SetActionStay(29*8,ua_Eat,false);

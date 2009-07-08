@@ -20,6 +20,7 @@ type TKMGamePlayInterface = class
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
       KMImage_Message:array[1..256]of TKMImage; //Queue of messages
       KMImage_Clock:TKMImage; //Clock displayed when game speed is increased
+      KMLabel_Pause:TKMLabel;
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
     KMPanel_Ratios:TKMPanel;
       //
@@ -153,6 +154,7 @@ type TKMGamePlayInterface = class
     procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
+    procedure ShowPause(DoShow,DoFast:boolean);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     procedure Paint;
   end;
@@ -361,6 +363,9 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+
+    KMLabel_Pause:=MyControls.AddLabel(KMPanel_Main,(fRender.GetRenderAreaSize.X div 2)-32,(fRender.GetRenderAreaSize.Y div 2)-8,64,16,fTextLibrary.GetTextString(308),fnt_Metal,kaCenter);
+    KMLabel_Pause.Hide;
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -1427,6 +1432,14 @@ end;
 procedure TKMGamePlayInterface.ShowClock(DoShow:boolean);
 begin
   KMImage_Clock.Visible:=DoShow;
+end;
+
+
+procedure TKMGamePlayInterface.ShowPause(DoShow,DoFast:boolean);
+begin
+  KMLabel_Pause.Visible:=DoShow;
+  KMImage_Clock.Visible:=DoShow or (DoFast and not DoShow);
+  KMImage_Clock.TexID:=556
 end;
 
 

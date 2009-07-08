@@ -123,6 +123,7 @@ begin
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
   //others.. unknown
+  if GameIsPaused and not (Key=ord('P')) then exit;
   if not IsDown then
   begin
     if Key=VK_F11 then begin
@@ -135,10 +136,11 @@ begin
     if (Key=VK_F8) and GameIsRunning then begin
       GameSpeed:=11-GameSpeed; //1 or 11
       if not (GameSpeed in [1,10]) then GameSpeed:=1; //Reset just in case
-      fGameplayInterface.ShowClock(GameSpeed=10);
+      fGameplayInterface.ShowClock((GameSpeed=10)or GameIsPaused);
     end;
     if Key=ord('P') then begin
       GameIsPaused := not GameIsPaused;
+      fGameplayInterface.ShowPause(GameIsPaused,GameSpeed=10);
     end;
     {Thats my debug example}
     if (Key=ord('5')) and GameIsRunning then begin
@@ -175,6 +177,7 @@ end;
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var MOver:TKMControl;
 begin
+  if GameIsPaused then exit; //No clicking when paused
   if GameIsRunning then begin
     MOver := fGameplayInterface.MyControls.MouseOverControl(); //Remember control that was clicked
     if MOver<>nil then
@@ -198,6 +201,7 @@ end;
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
 begin
+  if GameIsPaused then exit; //No clicking when paused
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
   if GameIsRunning then begin
@@ -235,6 +239,7 @@ end;
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var P:TKMPoint;
 begin
+  if GameIsPaused then exit; //No clicking when paused
   P:=KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
 
   if GameIsRunning then begin
