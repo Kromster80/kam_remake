@@ -856,7 +856,7 @@ end;
 procedure TKMMinimap.Paint();
 begin
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.RenderMinimap(Left,Top,Width,Height,MapSize.X,MapSize.Y);
+  fRenderUI.RenderMinimap(Left,Top,Width,Height);
   fRenderUI.WriteRect(Left + (Width-MapSize.X) div 2 + ViewArea.Left,
                       Top  + (Height-MapSize.Y) div 2 + ViewArea.Top,
                       ViewArea.Right-ViewArea.Left,

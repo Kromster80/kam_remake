@@ -362,10 +362,6 @@ begin
 end;
 
 
-//Also need to make such table for objects with 2 options
-// - CanBuildOnTop(means everything allowed), CanWalkOnTop(can only walk and build roads on top), CanNothing
-
-
 {Reveal circle on map}
 {Amount controls how "strong" terrain is revealed, almost instantly or slowly frame-by-frame in multiple calls}
 procedure TTerrain.RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
@@ -882,11 +878,12 @@ begin
 
    //Check for objects, roads, houses, etc. around this tile
    ObjectsNearBy:=false;
-   for i:=-1 to 1 do
-     for k:=-1 to 1 do
+   for i:=0 to 1 do //Since Trees are growing on nodes, not on tiles.. we need to check only 4 surrounding tiles
+     for k:=0 to 1 do
        if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-         if ((Land[Loc.Y+i,Loc.X+k].Obj<>255) and (ObjectIsChopableTree(KMPoint(Loc.X+k,Loc.Y+i),0)))
-         or(Land[Loc.Y+i,Loc.X+k].Markup<>mu_None)or(Land[Loc.Y+i,Loc.X+k].TileOverlay = to_Road) then
+         if (ObjectIsChopableTree(KMPoint(Loc.X+k,Loc.Y+i),0))or
+            (Land[Loc.Y+i,Loc.X+k].Markup<>mu_None)or
+            (Land[Loc.Y+i,Loc.X+k].TileOverlay = to_Road) then
            ObjectsNearBy := true;
    //@Krom: I have a problem here. Trees should not be allowed to be built next to roads and fields, but
    //       because the passibility of the tiles around the roads and fields doesn't get updated it doesn't
@@ -894,6 +891,8 @@ begin
    //       A) Always rebuild passibility around roads, fields markups, etc. when they are created
    //       B) Calculate the passibility everytime in the FindPlaceForTreeFunction
    //       C) Something else...?
+
+   //@Lewin: I vote for A. This way we'll always have actual passability data, thats the way it's meant to be.
 
    if (TileIsSoil(Loc))and
       (not ObjectsNearBy)and //No object or Stump nearby

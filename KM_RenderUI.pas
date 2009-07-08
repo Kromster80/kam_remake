@@ -15,7 +15,7 @@ TRenderUI = class
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
     function  WriteText         (PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint; //Should return text width in px
-    procedure RenderMinimap     (PosX,PosY,SizeX,SizeY,MapX,MapY:smallint);
+    procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
 
 var
@@ -427,18 +427,18 @@ begin
 end;
 
 
-procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY,MapX,MapY:smallint);
+procedure TRenderUI.RenderMinimap(PosX,PosY,SizeX,SizeY:smallint);
 var i,k:integer; Scale:single;
 begin
   glPushMatrix;
 
     Scale:=1;//min(SizeX/MapX,SizeY/MapY);
-    glTranslate(PosX + round((SizeX-MapX*Scale)/2), PosY + round((SizeY-MapY*Scale)/2),0);
+    glTranslate(PosX + round((SizeX-fTerrain.MapX*Scale)/2), PosY + round((SizeY-fTerrain.MapY*Scale)/2),0);
     glkScale(Scale);
     glPointSize(ceil(Scale));
 
     glBegin(GL_POINTS);
-      for i:=1 to MapY-1 do for k:=1 to MapX-1 do begin
+      for i:=1 to fTerrain.MapY-1 do for k:=1 to fTerrain.MapX-1 do begin
         glColor3ubv(@fTerrain.MM[i,k].R);
         glVertex2f(k,i);
       end;
