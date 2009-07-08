@@ -37,7 +37,7 @@ type
 
 implementation
 uses
-  KM_Defaults, KM_Unit1, KM_Controls;
+  KM_Defaults, KM_Unit1, KM_Controls, KM_Houses;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
@@ -237,7 +237,7 @@ end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint;
+var P:TKMPoint; FoundUnit:boolean; SelectedHouse: TKMHouse;
 begin
   if GameIsPaused then exit; //No clicking when paused
   P:=KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
@@ -253,6 +253,7 @@ begin
       if Button = mbRight then
         fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
 
+      FoundUnit := false;
       if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
         case CursorMode.Mode of
           cm_None:
@@ -260,10 +261,13 @@ begin
               if fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
                 fPlayers.SelectedUnit:=fPlayers.UnitsHitTest(CursorXc, CursorYc);
                 if fGameplayInterface<>nil then fGamePlayInterface.ShowUnitInfo(fPlayers.SelectedUnit);
-              end; //Houses have priority over units, so you can't select an occupant
-              if fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil then begin
-                fPlayers.SelectedHouse:=fPlayers.HousesHitTest(CursorXc, CursorYc);
-                if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse);
+                FoundUnit := true;
+              end; //Houses have priority over units, so you can't select an occupant. However, this is only true if the house is built
+              SelectedHouse:=fPlayers.HousesHitTest(CursorXc, CursorYc);
+              if SelectedHouse<>nil then
+                if (not FoundUnit)or((SelectedHouse.GetBuildingState in [hbs_Stone,hbs_Done])and FoundUnit) then begin
+                  fPlayers.SelectedHouse:=SelectedHouse;
+                  if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse);
               end;
             end;
           cm_Road: if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then

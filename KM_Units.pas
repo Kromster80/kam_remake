@@ -1939,7 +1939,7 @@ case Phase of
       fThought := th_None;
       if (fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Bread);
-        SetActionStay(29*8,ua_Eat,false);
+        SetActionStay(29*4,ua_Eat,false);
         Feed(UNIT_MAX_CONDITION/3);
         fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
       end else
@@ -1947,21 +1947,21 @@ case Phase of
     end;
  4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Sausages);
-      SetActionStay(29*8,ua_Eat,false);
+      SetActionStay(29*4,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION/2);
       fInn.UpdateEater(PlaceID,3);
     end else
       SetActionStay(0,ua_Walk);
  5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Wine);
-      SetActionStay(29*8,ua_Eat,false);
+      SetActionStay(29*4,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION/4);
       fInn.UpdateEater(PlaceID,1);
     end else
       SetActionStay(0,ua_Walk);
  6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Fish);
-      SetActionStay(29*8,ua_Eat,false);
+      SetActionStay(29*4,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION/4);
       fInn.UpdateEater(PlaceID,4);
     end else

@@ -1020,12 +1020,12 @@ end;
 
 
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
-
 begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
   if (not Assigned(Sender))or(not Sender.IsVisible)or((Sender<>nil)and(Sender.IsDestroyed)) then begin
     SwitchPage(nil);
+    ShownUnit:=nil; //Make sure it doesn't come back again, especially if it's dead!
     exit;
   end;
   SwitchPage(KMPanel_Unit);

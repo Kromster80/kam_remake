@@ -350,11 +350,15 @@ end;
 
 
 function TTerrain.ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
-var h:byte;
+var h,i:byte;
 begin
+  //If Stage is not in 1..6 then assume they mean any type of tree
   Result:=false;
   for h:=1 to length(ChopableTrees) do
-    Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,Stage]);
+    if Stage in [1..6] then
+      Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,Stage])
+    else for i:=1 to 6 do
+      Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,i])
 end;
 
 
@@ -626,7 +630,7 @@ procedure TTerrain.SetTree(Loc:TKMPoint; ID:integer);
 begin
   Land[Loc.Y,Loc.X].Obj:=ID;
   Land[Loc.Y,Loc.X].TreeAge:=1;
-  RecalculatePassability(Loc);
+  RebuildPassability(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Because surrounding tiles will be affected (canPlantTrees)
 end;
 
 
@@ -652,7 +656,7 @@ procedure TTerrain.ChopTree(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TreeAge:=0;
   FallingTrees.RemoveEntry(Loc);
-  RecalculatePassability(Loc);
+  RebuildPassability(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Because surrounding tiles will be affected (canPlantTrees)
 end;
 
 
@@ -804,7 +808,7 @@ end;
 
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 var i,k:integer;
-  HousesNearBy:boolean;
+  HousesNearBy,ObjectsNearBy:boolean;
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 begin
@@ -876,11 +880,25 @@ begin
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
      AddPassability(Loc, [canMakeFields]);
 
+   //Check for objects, roads, houses, etc. around this tile
+   ObjectsNearBy:=false;
+   for i:=-1 to 1 do
+     for k:=-1 to 1 do
+       if TileInMapCoords(Loc.X+k,Loc.Y+i) then
+         if ((Land[Loc.Y+i,Loc.X+k].Obj<>255) and (ObjectIsChopableTree(KMPoint(Loc.X+k,Loc.Y+i),0)))
+         or(Land[Loc.Y+i,Loc.X+k].Markup<>mu_None)or(Land[Loc.Y+i,Loc.X+k].TileOverlay = to_Road) then
+           ObjectsNearBy := true;
+   //@Krom: I have a problem here. Trees should not be allowed to be built next to roads and fields, but
+   //       because the passibility of the tiles around the roads and fields doesn't get updated it doesn't
+   //       happen unless something else rebuilds the passibility. What should I do:
+   //       A) Always rebuild passibility around roads, fields markups, etc. when they are created
+   //       B) Calculate the passibility everytime in the FindPlaceForTreeFunction
+   //       C) Something else...?
+
    if (TileIsSoil(Loc))and
-      ((Land[Loc.Y,Loc.X].Obj=255) or (ObjectIsChopableTree(Loc,6)))and //No object or Stump
+      (not ObjectsNearBy)and //No object or Stump nearby
       (TileInMapCoords(Loc.X,Loc.Y,1))and
-      (Land[Loc.Y,Loc.X].Markup=mu_None)and
-      (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
+      (Land[Loc.Y,Loc.X].Obj=255) then
      AddPassability(Loc, [canPlantTrees]);
 
    if TileIsWater(Loc) then
