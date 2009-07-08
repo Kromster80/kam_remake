@@ -273,6 +273,7 @@ end;
 
 
 procedure TRenderUI.WritePicture(PosX,PosY,RXid,ID:smallint;Enabled:boolean=true);
+var Col:TColor4;
 begin
   if ID<>0 then with GFXData[RXid,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
@@ -286,6 +287,20 @@ begin
         glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
         glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
       glEnd;
+      if AltID<>0 then begin
+        glBindTexture(GL_TEXTURE_2D, AltID);
+        Col:=TeamColors[byte(MyPlayer.PlayerID)];
+        if Enabled then
+        glColor3ub(Col AND $FF, Col SHR 8 AND $FF, Col SHR 16 AND $FF)
+        else
+        glColor3f(Col AND $FF / 768, Col SHR 8 AND $FF / 768, Col SHR 16 AND $FF / 768);
+        glBegin(GL_QUADS);
+          glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
+          glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );
+          glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
+          glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
+        glEnd;
+      end;
     glPopMatrix;
   end;
   glBindTexture(GL_TEXTURE_2D,0);
