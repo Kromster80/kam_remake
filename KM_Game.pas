@@ -45,17 +45,18 @@ constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:i
 begin
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
+  fGameSettings         := TGameSettings.Create;
   fLog.AppendLog('<== Render init follows ==>');
   fRender:= TRender.Create(RenderHandle);
   fLog.AppendLog('<== TextLib init follows ==>');
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(aMediaPlayer); //Needed for button click sounds and etc?
+  fGameSettings.UpdateSFXVolume;
   fLog.AppendLog('<== ReadGFX init follows ==>');
   fResource:=TResource.Create;
   fResource.LoadMenuResources;
 
-  fGameSettings         := TGameSettings.Create;
   fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);
 
   fEventLog := TKMEventLog.Create(ExeDir+'KaM_Events.log');

@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 186
-  Top = 181
+  Left = 189
+  Top = 173
   HelpType = htKeyword
   BorderStyle = bsNone
   Caption = 'q'

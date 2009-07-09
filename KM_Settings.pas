@@ -14,6 +14,7 @@ type
     fMusicVolume:byte;
     fMusicOnOff:boolean;
     fFullScreen:boolean;
+    fLocale:shortstring;
     SlidersMin,SlidersMax:byte;
     fNeedsSave: boolean;
     function LoadSettingsFromFile(filename:string):boolean;
@@ -23,6 +24,7 @@ type
     destructor Destroy; override;
     procedure SaveSettings;
     property GetBrightness:byte read fBrightness default 1;
+    property GetLocale:shortstring read fLocale;
     procedure IncBrightness;
     procedure DecBrightness;
     procedure SetIsAutosave(val:boolean);
@@ -81,7 +83,7 @@ begin
   SlidersMin:=0;
   SlidersMax:=20;
   LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
-  UpdateSFXVolume(); //Other settings may added here as well
+  
   fNeedsSave:=false;
 end;
 
@@ -109,6 +111,7 @@ begin
   fAutosave      := f.ReadBool   ('Game','Autosave',false);
   fFastScroll    := f.ReadBool   ('Game','FastScroll',false);
   fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
+  fLocale        := f.ReadString ('Game','Locale','eng');
 
   fSoundFXVolume := f.ReadInteger('SFX','SFXVolume',10);
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
@@ -124,15 +127,16 @@ var f:TIniFile;
 begin      
   f := TIniFile.Create(filename);
 
-  f.WriteInteger('GFX','Brightness',fBrightness);
-  f.WriteBool   ('GFX','FullScreen',fFullScreen);
+  f.WriteInteger('GFX','Brightness', fBrightness);
+  f.WriteBool   ('GFX','FullScreen', fFullScreen);
 
-  f.WriteBool   ('Game','Autosave',fAutosave);
+  f.WriteBool   ('Game','Autosave',  fAutosave);
   f.WriteBool   ('Game','FastScroll',fFastScroll);
   f.WriteInteger('Game','MouseSpeed',fMouseSpeed);
+  f.WriteString ('Game','Locale',    fLocale);
 
-  f.WriteInteger('SFX','SFXVolume',fSoundFXVolume); 
-  f.WriteInteger('SFX','MusicVolume',fMusicVolume);
+  f.WriteInteger('SFX','SFXVolume',   fSoundFXVolume);
+  f.WriteInteger('SFX','MusicVolume', fMusicVolume);
   f.WriteBool   ('SFX','MusicEnabled',fMusicOnOff);
 
   FreeAndNil(f);

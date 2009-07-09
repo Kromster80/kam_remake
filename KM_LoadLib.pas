@@ -31,13 +31,13 @@ var
 
 
 implementation
-uses KM_Defaults;
+uses KM_Defaults, KM_Settings;
 
 constructor TTextLibrary.Create(aLibPath: string);
 begin
   inherited Create;
-  LoadLIBFile(aLibPath+'text.lib',TextStrings);
-  LoadLIBFile(aLibPath+'setup.lib',SetupStrings);
+  LoadLIBFile(aLibPath+'text.'+fGameSettings.GetLocale+'.lib',TextStrings);
+  LoadLIBFile(aLibPath+'setup.'+fGameSettings.GetLocale+'.lib',SetupStrings);
 end;
 
 procedure TTextLibrary.LoadLIBFile(FilePath:string; var aArray:array of string);
