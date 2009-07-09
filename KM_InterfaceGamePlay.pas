@@ -1115,7 +1115,6 @@ begin
 
   if Sender=KMButton_Barracks_Train then //Equip unit
   begin
-    //fSoundLib.Play(sfx_click,KMPoint(0,0),false); //This is done for all buttons now, see fGame.OnMouseDown
     //Barracks.Equip;
   end;
 
@@ -1172,7 +1171,6 @@ begin
 
   if Sender=KMButton_School_Train then //Add unit to training queue
   begin
-    //fSoundLib.Play(sfx_click,KMPoint(0,0),false); //This is done for all buttons now, see fGame.OnMouseDown
     School.AddUnitToQueue(TUnitType(School_Order[LastSchoolUnit]));
   end;
 
@@ -1230,8 +1228,9 @@ begin
   else for i:=1 to 5 do
     if Sender = KMButton_School_UnitPlan[i] then
     begin
-      //fSoundLib.Play(sfx_click,KMPoint(0,0),false); //This is done for all buttons now, see fGame.OnMouseDown
       TKMHouseSchool(fPlayers.SelectedHouse).RemUnitFromQueue(i+1);
+      fSoundLib.Play(sfx_click); //This is done for all buttons now, see fGame.OnMouseDown
+      //True, but these are not buttons, they are flat buttons. They still have to make the sound though. To be deleted
     end;
   House_SchoolUnitChange(nil);
 end;

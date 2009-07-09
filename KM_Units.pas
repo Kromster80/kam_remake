@@ -38,6 +38,17 @@ type
         constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
         function ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
         function DoUnitInteraction():boolean;
+        function GetNextPosition():TKMPoint;
+        procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+      end;
+
+      {Abandon the current walk, move onto next tile}
+      TUnitActionAbandonWalk = class(TUnitAction)
+      private
+        fWalker:TKMUnit;
+        fWalkFrom,fWalkTo:TKMPointF;
+      public
+        constructor Create(KMUnit: TKMUnit; LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -251,6 +262,8 @@ type
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType=ht_None);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false);
+    procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+    procedure AbandonWalk;
     procedure Feed(Amount:single);
     property GetOwner:TPlayerID read fOwner;
     property GetHome:TKMHouse read fHome;
@@ -905,6 +918,8 @@ end;
 
 procedure TKMUnit.CancelUnitTask;
 begin
+  if (fUnitTask <> nil)and(fCurrentAction is TUnitActionWalkTo) then
+    AbandonWalk;
   FreeAndNil(fUnitTask);
 end;
 
@@ -950,6 +965,20 @@ end;
 procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false);
 begin
   SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, aAvoid, aActionType, aWalkToSpot, aIgnorePass),0);
+end;
+
+
+procedure TKMUnit.SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+begin
+  SetAction(TUnitActionAbandonWalk.Create(aKMUnit, aLocB, aActionType),0);
+end;
+
+
+procedure TKMUnit.AbandonWalk;
+begin
+  if UnitAction is TUnitActionWalkTo then
+    SetActionAbandonWalk(Self, TUnitActionWalkTo(UnitAction).GetNextPosition, ua_Walk)
+  else SetActionStay(0, ua_Walk); //Error
 end;
 
 
@@ -1010,7 +1039,7 @@ begin
   //Reset unit activity if home was destroyed, except when unit is dying
   if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie)) then begin
     fHome:=nil;
-    FreeAndNil(fCurrentAction);
+    if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
     fVisible:=true;
   end;
@@ -1094,6 +1123,7 @@ case Phase of
   6: begin
       SetActionGoIn(ua_Walk,gid_Out,ht_School);
       fSchool.UnitTrainingComplete;
+      fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the unit comes out
      end;
   7: TaskDone:=true;
 end;
@@ -2151,6 +2181,14 @@ begin
 end;
 
 
+function TUnitActionWalkTo.GetNextPosition():TKMPoint;
+begin
+  if NodePos > NodeCount then
+    Result:=KMPoint(0,0) //Error
+  else Result:=Nodes[NodePos];
+end;
+
+
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
 var
@@ -2167,7 +2205,7 @@ begin
   end;
 
   //Somehow route was not built, this is an error
-  if not fRouteBuilt then begin  
+  if not fRouteBuilt then begin
     fLog.AddToLog('Unable to walk a route since it''s unbuilt');
     //DEBUG, should be wrapped somehow for the release
     fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
@@ -2234,6 +2272,60 @@ begin
   inc(fWalker.AnimStep);
 
   DoesWalking:=true; //Now it's definitely true that unit did walked one step
+end;
+
+
+{ TUnitActionAbandonWalk }
+constructor TUnitActionAbandonWalk.Create(KMUnit: TKMUnit; LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
+begin
+  fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
+
+  Inherited Create(aActionType);
+  fWalker       := KMUnit;
+  fWalkFrom     := fWalker.fPosition;
+  fWalkTo       := KMPointF(LocB.X,LocB.Y);
+end;
+
+
+procedure TUnitActionAbandonWalk.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
+const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+var
+  DX,DY:shortint; WalkX,WalkY,Distance:single;
+begin
+  DoEnd:= False;
+
+  if KMSamePointF(fWalkFrom,fWalkTo) then begin
+    DoEnd:=true;
+    exit;
+  end;
+
+  //Execute the route in series of moves
+  TimeDelta:=0.1;
+  Distance:= TimeDelta * fWalker.Speed;
+
+  //Check if unit has arrived on tile
+  if Equals(fWalker.fPosition.X,fWalkTo.X,Distance/2) and Equals(fWalker.fPosition.Y,fWalkTo.Y,Distance/2) then
+  begin
+    //Set precise position to avoid rounding errors
+    fWalker.fPosition.X:=fWalkTo.X;
+    fWalker.fPosition.Y:=fWalkTo.Y;
+    //We are finished
+    DoEnd:=true;
+    exit;
+  end;
+
+  WalkX := fWalkTo.X - fWalker.fPosition.X;
+  WalkY := fWalkTo.Y - fWalker.fPosition.Y;
+  DX := sign(WalkX); //-1,0,1
+  DY := sign(WalkY); //-1,0,1
+
+  if (DX <> 0) and (DY <> 0) then
+    Distance:=Distance / 1.41; {sqrt (2) = 1.41421 }
+
+  fWalker.fPosition.X:= fWalker.fPosition.X + DX*min(Distance,abs(WalkX));
+  fWalker.fPosition.Y:= fWalker.fPosition.Y + DY*min(Distance,abs(WalkY));
+
+  inc(fWalker.AnimStep);
 end;
 
 

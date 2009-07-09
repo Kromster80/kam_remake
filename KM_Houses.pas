@@ -257,7 +257,7 @@ end;
 procedure TKMHouse.DemolishHouse(DoSilent:boolean);
 begin
   if not DoSilent then
-    if GetBuildingState = hbs_Glyph then fSoundLib.Play(sfx_click,GetPosition)
+    if GetBuildingState = hbs_Glyph then fSoundLib.Play(sfx_click)
     else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   ScheduleForRemoval:=true;
   //Dispose of delivery tasks performed in DeliverQueue unit
@@ -583,7 +583,6 @@ begin
     ht_Wineyard:      if (WorkID = 2)and(Step in [1,7,13,19]) then fSoundLib.Play(sfx_wineStep,GetPosition)
                       else if (WorkID = 5)and(Step = 14) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5)
                       else if (WorkID = 1)and(Step = 10) then fSoundLib.Play(sfx_wineDrain,GetPosition,true,1.5);
-    ht_School:        if (WorkID = 5)and(WorkAnimStep = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition);
     ht_Bakery:        if (WorkID = 3)and(Step in [6,25]) then fSoundLib.Play(sfx_BakerSlap,GetPosition);
     ht_Quary:         if (WorkID = 2)and(Step in [4,13]) then fSoundLib.Play(sfx_QuarryClink,GetPosition)
                       else if (WorkID = 5)and(Step in [4,13,22]) then fSoundLib.Play(sfx_QuarryClink,GetPosition);

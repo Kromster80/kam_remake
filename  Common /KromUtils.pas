@@ -28,6 +28,7 @@ function KMPointY1(P:TKMPointF): TKMPoint; overload
 
 function KMPointRound(P:TKMPointf): TKMPoint;
 function KMSamePoint(P1,P2:TKMPoint): boolean;
+function KMSamePointF(P1,P2:TKMPointF): boolean;
 
 function KMLength(A,B:TKMPoint): single;
 function KMRoute(A,B:TKMPoint): single;
@@ -199,6 +200,11 @@ begin
 end;
 
 function KMSamePoint(P1,P2:TKMPoint): boolean;
+begin
+  Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
+end;
+
+function KMSamePointF(P1,P2:TKMPointF): boolean;
 begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;

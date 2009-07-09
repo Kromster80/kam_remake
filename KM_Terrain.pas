@@ -102,6 +102,7 @@ public
   procedure DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 
   procedure RecalculatePassability(Loc:TKMPoint);
+  procedure RecalculatePassabilityAround(Loc:TKMPoint);
   function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
@@ -402,7 +403,7 @@ end;
 procedure TTerrain.SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
 begin
   Land[Loc.Y,Loc.X].Markup:=aMarkup;
-  RecalculatePassability(Loc);
+  RecalculatePassabilityAround(Loc);
 end;
 
 
@@ -410,7 +411,7 @@ end;
 procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
-  RecalculatePassability(Loc);
+  RecalculatePassabilityAround(Loc);
 end;
 
 
@@ -420,7 +421,7 @@ begin
   Land[Loc.Y,Loc.X].TileOverlay:=to_Road;
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
-  RecalculatePassability(Loc);
+  RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(canWalkRoad);
 end;
 
@@ -453,7 +454,7 @@ begin
     CutGrapes(Loc);
   end;
   UpdateBorders(Loc);
-  RecalculatePassability(Loc);
+  RecalculatePassabilityAround(Loc);
 end;
 
 
@@ -802,11 +803,34 @@ begin
 end;
 
 
+procedure TTerrain.RecalculatePassabilityAround(Loc:TKMPoint);
+begin
+  RebuildPassability(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1);
+end;
+
+
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 var i,k:integer;
   HousesNearBy,ObjectsNearBy:boolean;
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
+
+  function IsObjectsNearby(X,Y:integer):boolean;
+  var i,k:integer;
+  begin
+    for i:=-1 to 1 do
+      for k:=-1 to 1 do
+        if TileInMapCoords(X+i,Y+k)and((i<>0)or(k<>0)) then
+        begin
+          //Tiles next to it can't be trees/stumps
+          if (k*i=0) and ObjectIsChopableTree(KMPoint(X+i,Y+k),0) then Result:=true;
+          //Tiles above or to the left can't be road/field/markup
+          if (i<=0)and(k<=0) then
+            if (Land[Y+k,X+i].Markup<>mu_None)or(Land[Y+k,X+i].TileOverlay = to_Road)or
+              (TileIsCornField(KMPoint(X+i,Y+k)))or(TileIsWineField(KMPoint(X+i,Y+k))) then
+              Result := true;
+        end;
+  end;
 begin
   //First of all exclude all tiles outside of actual map
   if not TileInMapCoords(Loc.X,Loc.Y) then begin
@@ -876,28 +900,17 @@ begin
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
      AddPassability(Loc, [canMakeFields]);
 
-   //Check for objects, roads, houses, etc. around this tile
-   ObjectsNearBy:=false;
-   for i:=0 to 1 do //Since Trees are growing on nodes, not on tiles.. we need to check only 4 surrounding tiles
-     for k:=0 to 1 do
-       if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-         if (ObjectIsChopableTree(KMPoint(Loc.X+k,Loc.Y+i),0))or
-            (Land[Loc.Y+i,Loc.X+k].Markup<>mu_None)or
-            (Land[Loc.Y+i,Loc.X+k].TileOverlay = to_Road) then
-           ObjectsNearBy := true;
-   //@Krom: I have a problem here. Trees should not be allowed to be built next to roads and fields, but
-   //       because the passibility of the tiles around the roads and fields doesn't get updated it doesn't
-   //       happen unless something else rebuilds the passibility. What should I do:
-   //       A) Always rebuild passibility around roads, fields markups, etc. when they are created
-   //       B) Calculate the passibility everytime in the FindPlaceForTreeFunction
-   //       C) Something else...?
-
-   //@Lewin: I vote for A. This way we'll always have actual passability data, thats the way it's meant to be.
-
+   {
+   @Krom: Take a look on a map using the debug tool to show the canPlantTrees passibility
+   and let me know what you think. I'm pretty happy with it.
+   }
    if (TileIsSoil(Loc))and
-      (not ObjectsNearBy)and //No object or Stump nearby
+      (not IsObjectsNearby(Loc.X,Loc.Y))and //This function checks surrounding tiles
+      (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (TileInMapCoords(Loc.X,Loc.Y,1))and
-      (Land[Loc.Y,Loc.X].Obj=255) then
+      (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
+      (not HousesNearBy)and
+      ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6)) then
      AddPassability(Loc, [canPlantTrees]);
 
    if TileIsWater(Loc) then

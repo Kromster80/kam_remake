@@ -192,10 +192,6 @@ begin
     fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
   end;
 
-  //Find what control was clicked and make sound
-  if (MOver is TKMButton) and MOver.Enabled then
-    fSoundLib.Play(sfx_click);
-
   MouseMove(Shift,X,Y);
 end;
 
@@ -238,10 +234,18 @@ end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint; FoundUnit:boolean; SelectedHouse: TKMHouse;
+var P:TKMPoint; FoundUnit:boolean; SelectedHouse: TKMHouse; MOver:TKMControl;
 begin
   if GameIsPaused then exit; //No clicking when paused
   P:=KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
+
+  //Find what control was clicked and make sound 
+  if GameIsRunning then
+    MOver := fGameplayInterface.MyControls.MouseOverControl() //Remember control that was clicked
+  else MOver := fMainMenuInterface.MyControls.MouseOverControl(); //Remember control that was clicked
+  if MOver <> nil then
+    if (MOver is TKMButton) and MOver.Enabled then
+      fSoundLib.Play(sfx_click);
 
   if GameIsRunning then begin
     if fGameplayInterface.MyControls.MouseOverControl()<>nil then begin
@@ -295,7 +299,7 @@ begin
                   MyPlayer.RemHouse(P,false) //don't ask about houses that are not started
                 else begin
                   fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse,true);
-                  fSoundLib.Play(sfx_click,P,false);
+                  fSoundLib.Play(sfx_click);
                 end;
               end;
               if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then

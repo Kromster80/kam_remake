@@ -191,7 +191,7 @@ begin
   Result := BuildList.CancelRoad(Position,Simulated);
   if (Result) and (not Simulated) then
   begin
-    fSoundLib.Play(sfx_click,Position,false);
+    fSoundLib.Play(sfx_click);
     fTerrain.RemMarkup(Position);
   end;
 end;

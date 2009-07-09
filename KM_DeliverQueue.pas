@@ -499,8 +499,7 @@ begin
     begin
       CloseRoad(i);
       if Worker<>nil then
-        Worker.CancelUnitTask; //@Krom: This was a memery leak: SetUnitTask:=nil;
-                               //       so I changed it.
+        Worker.CancelUnitTask;
     end;
 
     Result:=true;
