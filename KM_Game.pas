@@ -328,13 +328,17 @@ procedure TKMGame.StartGame(MissionFile:string);
 begin
   RandSeed:=4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
 
-  fMainMenuInterface.ShowScreen_Loading;
-  fRender.Render;
-
   if fResource.GetDataState<>dls_All then begin
+    fMainMenuInterface.ShowScreen_Loading('units and houses');
+    fRender.Render;
     fResource.LoadGameResources();
+    fMainMenuInterface.ShowScreen_Loading('tileset');
+    fRender.Render;
     fRender.LoadTileSet();
   end;
+
+  fMainMenuInterface.ShowScreen_Loading('initializing');
+  fRender.Render;
 
   fViewport:=TViewport.Create;
   fGamePlayInterface:= TKMGamePlayInterface.Create;

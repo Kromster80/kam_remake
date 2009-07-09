@@ -84,7 +84,7 @@ end;
 function TResource.LoadMenuResources():boolean;
 var i:integer;
 begin
-  Result:=false;
+//  Result:=false;
   fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
@@ -121,7 +121,7 @@ end;
 function TResource.LoadGameResources():boolean;
 var i:integer;
 begin
-  Result:=false;
+//  Result:=false;
   fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
@@ -288,7 +288,10 @@ HouseDAT[ii].WoodPal:=132-1;
 HouseDAT[ii].StonePal:=131-1;
 HouseDAT[ii].WoodPicSteps:=7;
 HouseDAT[ii].StonePicSteps:=8;
-HouseDAT[ii].MaxHealth:=50;
+HouseDAT[ii].WoodCost:=1;
+HouseDAT[ii].StoneCost:=1;
+HouseDAT[ii].OwnerType:=0;
+HouseDAT[ii].MaxHealth:=100;
 end;
 closefile(f);
 
@@ -718,103 +721,105 @@ Textures should be POT to improve performance and avoid driver bugs
 In result we have GFXData filled.}
 procedure TResource.MakeGFX(Sender: TObject; RXid:integer);
 var
-  ci,ad,j,i,k,id,TexCount:integer;
-  Am,Cm,Rm:integer;
+  ci,j,i,k,LeftIndex,RightIndex,TexCount,SpanCount:integer;
+  AllocatedRAM,RequiredRAM,ColorsRAM:integer;
   WidthPOT,HeightPOT:integer;
   TD:array of byte;
 begin
-id:=0; Am:=0; Rm:=0; Cm:=0; TexCount:=0;
-repeat
-  inc(id);
+  LeftIndex:=0; AllocatedRAM:=0; RequiredRAM:=0; ColorsRAM:=0; TexCount:=0;
+  repeat
+    inc(LeftIndex);
 
-  WidthPOT:=RXData[RXid].Size[id,1];
-  HeightPOT:=MakePOT(RXData[RXid].Size[id,2]);
-  ad:=1;
+    WidthPOT:=RXData[RXid].Size[LeftIndex,1];
+    HeightPOT:=MakePOT(RXData[RXid].Size[LeftIndex,2]);
+    SpanCount:=1;
 
-  //Pack textures with same POT height into rows to save memory
-  //This also means fewer textures for GPU RAM == better performance
-  while((id+ad<RXData[RXid].Qty)and //Keep packing until end of sprites
-        (
-          (HeightPOT=MakePOT(RXData[RXid].Size[id+ad,2])) //Pack if HeightPOT matches
-          or((HeightPOT>=MakePOT(RXData[RXid].Size[id+ad,2]))AND(WidthPOT+RXData[RXid].Size[id+ad,1]<MakePOT(WidthPOT)))
-        )and
-        (WidthPOT+RXData[RXid].Size[id+ad,1]<=MAX_TEX_RESOLUTION)) //Pack until Texresolution approached
-  do begin
-    inc(WidthPOT,RXData[RXid].Size[id+ad,1]);
-    inc(ad);
-    if (RXid=5)and(RX5pal[id]<>RX5pal[id+ad]) then break; //Don't align RX5 images for they use all different palettes
-    if (RXid=6)and(RX6pal[id]<>RX6pal[id+ad]) then break; //Don't align RX6 images for they use all different palettes
-  end;
-
-  WidthPOT:=MakePOT(WidthPOT);
-  setlength(TD,WidthPOT*HeightPOT+1);
-
-  for i:=1 to HeightPOT do begin
-    ci:=0;
-    for j:=id to id+ad-1 do
-      for k:=1 to RXData[RXid].Size[j,1] do begin
-        inc(ci);
-        if i<=RXData[RXid].Size[j,2] then
-          TD[(i-1)*WidthPOT+ci-1]:=RXData[RXid].Data[j,(i-1)*RXData[RXid].Size[j,1]+k-1]
-        else
-          TD[(i-1)*WidthPOT+ci-1]:=0;
-      end;
-  end;
-
-  //If we need to prepare textures for TeamColors
-  if MakeTeamColors and RXData[RXid].NeedTeamColors then
-    GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_TexID)
-  else
-    if RXid=5 then begin
-      if RX5Pal[id]<>0 then
-        GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[id])
-      else
-        GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10);
-    end else
-    if RXid=6 then begin
-      if RX6Pal[id]<>0 then
-        GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX6Pal[id])
-      else
-        GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10);
-    end else
-      GenTexture(@GFXData[RXid,id].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol);
-
-  //TeamColors are done through alternative plain colored texture
-  if MakeTeamColors and RXData[RXid].NeedTeamColors then
-  for i:=0 to length(TD)-1 do
-    if TD[i] in [24..30] then begin
-      GenTexture(@GFXData[RXid,id].AltID,WidthPOT,HeightPOT,@TD[0],tm_AltID);
-      inc(Cm,WidthPOT*HeightPOT*4);
-      break;
+    //Pack textures with same POT height into rows to save memory
+    //This also means fewer textures for GPU RAM == better performance
+    while((LeftIndex+SpanCount<RXData[RXid].Qty)and //Keep packing until end of sprites
+          (
+            (HeightPOT=MakePOT(RXData[RXid].Size[LeftIndex+SpanCount,2])) //Pack if HeightPOT matches
+        or((HeightPOT>=MakePOT(RXData[RXid].Size[LeftIndex+SpanCount,2]))AND(WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount,1]<MakePOT(WidthPOT)))
+          )and
+          (WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount,1]<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
+    do begin
+      inc(WidthPOT,RXData[RXid].Size[LeftIndex+SpanCount,1]);
+      inc(SpanCount);
+//      if (RXid=4)and(LeftIndex+SpanCount = 49) then break; //Don't align
+      if (RXid=5)and(RX5pal[LeftIndex]<>RX5pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
+      if (RXid=6)and(RX6pal[LeftIndex]<>RX6pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
     end;
 
-  setlength(TD,0);
+    RightIndex:=LeftIndex+SpanCount-1;
+    WidthPOT:=MakePOT(WidthPOT);
+    setlength(TD,WidthPOT*HeightPOT+1);
 
-  k:=0;
-  for j:=id to id+ad-1 do begin //Hack to test AlphaTest
-    GFXData[RXid,j].TexID:=GFXData[RXid,id].TexID;
-    GFXData[RXid,j].AltID:=GFXData[RXid,id].AltID;
-    GFXData[RXid,j].u1:=k/WidthPOT;
-    GFXData[RXid,j].v1:=0;
-    inc(k,RXData[RXid].Size[j,1]);
-    GFXData[RXid,j].u2:=k/WidthPOT;
-    GFXData[RXid,j].v2:=RXData[RXid].Size[j,2]/HeightPOT;
-    GFXData[RXid,j].PxWidth:=RXData[RXid].Size[j,1];
-    GFXData[RXid,j].PxHeight:=RXData[RXid].Size[j,2];
+    for i:=1 to HeightPOT do begin
+      ci:=0;
+      for j:=LeftIndex to RightIndex do
+        for k:=1 to RXData[RXid].Size[j,1] do begin
+          inc(ci);
+          if i<=RXData[RXid].Size[j,2] then
+            TD[(i-1)*WidthPOT+ci-1]:=RXData[RXid].Data[j,(i-1)*RXData[RXid].Size[j,1]+k-1]
+          else
+            TD[(i-1)*WidthPOT+ci-1]:=0;
+        end;
+    end;
 
-    //setlength(RXData[RXid].Data[j],0); //Do not erase since we need it for AlphaTest
-    inc(Rm,RXData[RXid].Size[j,1]*RXData[RXid].Size[j,2]*4);
-  end;
+    //If we need to prepare textures for TeamColors
+    if MakeTeamColors and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
+    begin
+      GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_TexID);
+      //TeamColors are done through alternative plain colored texture
+      for i:=0 to length(TD)-1 do
+        if TD[i] in [24..30] then begin //Determine if TD needs alt color
+          GenTexture(@GFXData[RXid,LeftIndex].AltID,WidthPOT,HeightPOT,@TD[0],tm_AltID);
+          inc(ColorsRAM,WidthPOT*HeightPOT*4);
+          break;
+        end;
+    end
+    else
+      if RXid=5 then
+        if RX5Pal[LeftIndex]<>0 then
+          GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[LeftIndex])
+        else
+          GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10)
+      else
+      if RXid=6 then
+        if RX6Pal[LeftIndex]<>0 then
+          GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX6Pal[LeftIndex])
+        else
+          GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10)
+      else
+        GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol);
 
-  inc(Am,WidthPOT*HeightPOT*4);
-  inc(id,ad-1);
-  inc(TexCount);
+    setlength(TD,0);
 
-until(id>=RXData[RXid].Qty); // >= in case data wasn't loaded and Qty=0
+    k:=0;
+    for j:=LeftIndex to RightIndex do begin //Hack to test AlphaTest
+      GFXData[RXid,j].TexID:=GFXData[RXid,LeftIndex].TexID;
+      GFXData[RXid,j].AltID:=GFXData[RXid,LeftIndex].AltID;
+      GFXData[RXid,j].u1:=k/WidthPOT;
+      GFXData[RXid,j].v1:=0;
+      inc(k,RXData[RXid].Size[j,1]);
+      GFXData[RXid,j].u2:=k/WidthPOT;
+      GFXData[RXid,j].v2:=RXData[RXid].Size[j,2]/HeightPOT;
+      GFXData[RXid,j].PxWidth:=RXData[RXid].Size[j,1];
+      GFXData[RXid,j].PxHeight:=RXData[RXid].Size[j,2];
 
-fLog.AppendLog(inttostr(TexCount)+' Textures created');
-fLog.AddToLog(inttostr(Am div 1024)+'/'+inttostr((Am-Rm) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
-fLog.AddToLog(inttostr(Cm div 1024)+' KBytes for team colors');
+      //setlength(RXData[RXid].Data[j],0); //Do not erase since we need it for AlphaTest
+      inc(RequiredRAM,RXData[RXid].Size[j,1]*RXData[RXid].Size[j,2]*4);
+    end;
+
+    inc(AllocatedRAM,WidthPOT*HeightPOT*4);
+    inc(LeftIndex,SpanCount-1);
+    inc(TexCount);
+
+  until(LeftIndex>=RXData[RXid].Qty); // >= in case data wasn't loaded and Qty=0
+
+  fLog.AppendLog(inttostr(TexCount)+' Textures created');
+  fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
+  fLog.AddToLog(inttostr(ColorsRAM div 1024)+' KBytes for team colors');
 end;
 
 //=============================================

@@ -915,7 +915,7 @@ begin
   if TileInMapCoords(Loc.X,Loc.Y) then
     Result := aPass in Land[Loc.Y,Loc.X].Passability
   else
-    Result:=false;
+    Result := false;
 end;
 
 

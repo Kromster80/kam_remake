@@ -404,7 +404,7 @@ ua_WalkArm .. ua_WalkBooty2:
 end;
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y - 0.5);
+  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
 end;
 
 
@@ -538,7 +538,7 @@ begin
     fRender.RenderUnit(byte(GetUnitType), 9, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,false);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y - 0.5);
+  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
 end;
 
 
@@ -617,7 +617,7 @@ begin
   fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y - 0.5);
+  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
 end;
 
 
@@ -743,10 +743,10 @@ inherited;
   
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
   if fIsCommander then
-  fRender.RenderUnit(UnitType,       9, AnimDir, fFlagAnim, byte(fOwner), fPosition.X, fPosition.Y-0.75,false);
+  fRender.RenderUnitFlag(UnitType,       9, AnimDir, fFlagAnim, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,false);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y - 0.5);
+  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
 end;
 
 
@@ -1490,7 +1490,7 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
   procedure AddLoc(X,Y:word; Dir:TKMDirection);
   begin
     //First check that the passabilty is correct, as the house may be placed against blocked terrain
-    if not (canWalk in fTerrain.Land[Y,X].Passability) then exit;
+    if not fTerrain.CheckPassability(KMPoint(X,Y),canWalk) then exit;
     inc(LocCount);
     Cells[LocCount].Loc:=KMPoint(X,Y);
     Cells[LocCount].Dir:=Dir;
@@ -1508,10 +1508,17 @@ begin
   //Create list of surrounding tiles and directions
   for i:=1 to 4 do for k:=1 to 4 do
   if HousePlanYX[ht,i,k]<>0 then
-    if (i=1)or(HousePlanYX[ht,i-1,k]=0) then AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S) else //Up
-    if (i=4)or(HousePlanYX[ht,i+1,k]=0) then AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N) else //Down
-    if (k=4)or(HousePlanYX[ht,i,k+1]=0) then AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W) else //Right
-    if (k=1)or(HousePlanYX[ht,i,k-1]=0) then AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E);     //Left
+  begin
+    if (i=1)or(HousePlanYX[ht,i-1,k]=0) then
+      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S); //Above
+    if (i=4)or(HousePlanYX[ht,i+1,k]=0) then
+      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N); //Below
+    if (k=4)or(HousePlanYX[ht,i,k+1]=0) then
+      AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W); //FromRight
+    if (k=1)or(HousePlanYX[ht,i,k-1]=0) then
+      AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E);     //FromLeft
+  end;
+  
   fWorker.SetActionStay(0,ua_Walk);
 end;
 

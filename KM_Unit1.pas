@@ -356,7 +356,7 @@ end;
 
 procedure TForm1.TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-  TeamColors[1]:=TeamColorPicker.Brush.Color or $FF000000;
+  TeamColors[1]:=cardinal(TeamColorPicker.Brush.Color) or $FF000000;
   fRender.Render;
 end;
 

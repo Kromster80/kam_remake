@@ -71,7 +71,7 @@ type TKMMainMenuInterface = class
     constructor Create(X,Y:word);
     destructor Destroy; override;
     procedure SetScreenSize(X,Y:word);
-    procedure ShowScreen_Loading();
+    procedure ShowScreen_Loading(Text:string);
     procedure ShowScreen_Main();
     procedure ShowScreen_Results();
   public
@@ -135,8 +135,9 @@ begin
   ScreenY:=Y;
 end;
 
-procedure TKMMainMenuInterface.ShowScreen_Loading();
+procedure TKMMainMenuInterface.ShowScreen_Loading(Text:string);
 begin
+  KMLabel_Loading.Caption:=Text;
   SwitchMenuPage(KMPanel_Loading);
 end;
 
@@ -326,7 +327,8 @@ begin
   KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,ScreenX,ScreenY,2,6);
     KMImage_LoadingBG.StretchImage:=true;
-    KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2,100,30,'Loading... Please wait',fnt_Grey,kaCenter);
+    MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2,100,30,'Loading... Please wait',fnt_Grey,kaCenter);
+    KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2+20,100,30,'...',fnt_Grey,kaCenter);
 end;
 
 

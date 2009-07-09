@@ -287,7 +287,7 @@ begin
         glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
         glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
       glEnd;
-      if AltID<>0 then begin
+      if (AltID<>0)and(MyPlayer<>nil) then begin
         glBindTexture(GL_TEXTURE_2D, AltID);
         Col:=TeamColors[byte(MyPlayer.PlayerID)];
         if Enabled then

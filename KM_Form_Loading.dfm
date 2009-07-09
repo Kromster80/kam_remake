@@ -220,7 +220,7 @@ object FormLoading: TFormLoading
     Height = 18
     Anchors = [akLeft, akBottom]
     Min = 0
-    Max = 10
+    Max = 8
     Step = 1
     TabOrder = 0
   end

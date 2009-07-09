@@ -76,6 +76,7 @@ public
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
   procedure RenderUnitThought(Thought:TUnitThought; StepID:integer; pX,pY:single);
+  procedure RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
   property GetRenderAreaSize:TKMPoint read RenderAreaSize;
   property GetRendererVersion:string read OpenGL_Version;
 end;
@@ -711,14 +712,33 @@ end;
 procedure TRender.RenderUnitThought(Thought:TUnitThought; StepID:integer; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer;
 begin
-  if byte(Thought) = 0 then exit; 
+  if byte(Thought) = 0 then exit;
   ID:=ThoughtBounds[byte(Thought),2]+1 -
-     (GlobalTickCount mod (ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
+     (GameplayTickCount mod (ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
-  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
+  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
 end;
+
+
+procedure TRender.RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
+var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
+begin
+AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
+ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
+if ID<=0 then exit;
+  ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX -0.5;
+  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
+
+  ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 -2.25;
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
+
+  if not MakeShowUnitMove then exit;
+  glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
+  RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
+end;
+
 
 
 {Simple dot to know where it actualy is}

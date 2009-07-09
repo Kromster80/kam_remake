@@ -99,6 +99,8 @@ end;
 function TGameSettings.LoadSettingsFromFile(filename:string):boolean;
 var f:TIniFile;
 begin
+  Result := FileExists(filename);
+
   f := TIniFile.Create(filename);
 
   fBrightness    := f.ReadInteger('GFX','Brightness',1);
