@@ -811,13 +811,14 @@ end;
 
 procedure TTerrain.RecalculatePassability(Loc:TKMPoint);
 var i,k:integer;
-  HousesNearBy,ObjectsNearBy:boolean;
+  HousesNearBy:boolean;
   procedure AddPassability(Loc:TKMPoint; aPass:TPassabilitySet);
   begin Land[Loc.Y,Loc.X].Passability:=Land[Loc.Y,Loc.X].Passability + aPass; end;
 
   function IsObjectsNearby(X,Y:integer):boolean;
   var i,k:integer;
   begin
+    Result := false;
     for i:=-1 to 1 do
       for k:=-1 to 1 do
         if TileInMapCoords(X+i,Y+k)and((i<>0)or(k<>0)) then

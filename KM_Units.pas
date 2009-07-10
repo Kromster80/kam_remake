@@ -45,10 +45,9 @@ type
       {Abandon the current walk, move onto next tile}
       TUnitActionAbandonWalk = class(TUnitAction)
       private
-        fWalker:TKMUnit;
-        fWalkFrom,fWalkTo:TKMPointF;
+        fWalkTo:TKMPoint;
       public
-        constructor Create(KMUnit: TKMUnit; LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
+        constructor Create(LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
@@ -976,7 +975,7 @@ end;
 
 procedure TKMUnit.SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 begin
-  SetAction(TUnitActionAbandonWalk.Create(aKMUnit, aLocB, aActionType),aKMUnit.AnimStep); //Use the current animation step, to ensure smooth transition
+  SetAction(TUnitActionAbandonWalk.Create(aLocB, aActionType),aKMUnit.AnimStep); //Use the current animation step, to ensure smooth transition
 end;
 
 
@@ -2282,14 +2281,11 @@ end;
 
 
 { TUnitActionAbandonWalk }
-constructor TUnitActionAbandonWalk.Create(KMUnit: TKMUnit; LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
+constructor TUnitActionAbandonWalk.Create(LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
 begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
-
   Inherited Create(aActionType);
-  fWalker       := KMUnit;
-  fWalkFrom     := fWalker.fPosition;
-  fWalkTo       := KMPointF(LocB.X,LocB.Y);
+  fWalkTo       := KMPoint(LocB.X,LocB.Y);
 end;
 
 
@@ -2300,38 +2296,33 @@ var
 begin
   DoEnd:= False;
 
-  if KMSamePointF(fWalkFrom,fWalkTo) then begin
-    DoEnd:=true;
-    exit;
-  end;
-
   //Execute the route in series of moves
   TimeDelta:=0.1;
-  Distance:= TimeDelta * fWalker.Speed;
+  Distance:= TimeDelta * KMUnit.Speed;
 
   //Check if unit has arrived on tile
-  if Equals(fWalker.fPosition.X,fWalkTo.X,Distance/2) and Equals(fWalker.fPosition.Y,fWalkTo.Y,Distance/2) then
+  if Equals(KMUnit.fPosition.X,fWalkTo.X,Distance/2) and Equals(KMUnit.fPosition.Y,fWalkTo.Y,Distance/2) then
   begin
     //Set precise position to avoid rounding errors
-    fWalker.fPosition.X:=fWalkTo.X;
-    fWalker.fPosition.Y:=fWalkTo.Y;
+    KMUnit.fPosition.X:=fWalkTo.X;
+    KMUnit.fPosition.Y:=fWalkTo.Y;
     //We are finished
     DoEnd:=true;
     exit;
   end;
 
-  WalkX := fWalkTo.X - fWalker.fPosition.X;
-  WalkY := fWalkTo.Y - fWalker.fPosition.Y;
+  WalkX := fWalkTo.X - KMUnit.fPosition.X;
+  WalkY := fWalkTo.Y - KMUnit.fPosition.Y;
   DX := sign(WalkX); //-1,0,1
   DY := sign(WalkY); //-1,0,1
 
   if (DX <> 0) and (DY <> 0) then
     Distance:=Distance / 1.41; {sqrt (2) = 1.41421 }
 
-  fWalker.fPosition.X:= fWalker.fPosition.X + DX*min(Distance,abs(WalkX));
-  fWalker.fPosition.Y:= fWalker.fPosition.Y + DY*min(Distance,abs(WalkY));
+  KMUnit.fPosition.X:= KMUnit.fPosition.X + DX*min(Distance,abs(WalkX));
+  KMUnit.fPosition.Y:= KMUnit.fPosition.Y + DY*min(Distance,abs(WalkY));
 
-  inc(fWalker.AnimStep);
+  inc(KMUnit.AnimStep);
 end;
 
 
@@ -2524,22 +2515,30 @@ end;
 function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
 const DirAngle:array[TKMDirection]of word =   (0,  0,   45,  90,   135, 180,   225, 270,   315);
 const DirRatio:array[TKMDirection]of single = (0,  1, 1.41,   1,  1.41,   1,  1.41,   1,  1.41);
-var U:TKMUnit; i,x,y,px,py:integer;
+var U,Commander:TKMUnit; i,x,y,px,py:integer;
 begin
-  Result:=nil;
-  for i:=1 to aUnitCount do begin
+  //Add commander
+  Commander:=Add(aOwner, aUnitType, PosX, PosY);
+  Result := Commander;
 
+  if Commander=nil then exit;
+
+  Commander.Direction:=aDir;
+  TKMUnitWarrior(Commander).fIsCommander:=true;
+
+  for i:=1 to aUnitCount do begin
     px:=(i-1) mod aUnitPerRow - aUnitPerRow div 2;
     py:=(i-1) div aUnitPerRow;
 
     x:=round( px*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - py*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
     y:=round( px*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + py*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
 
-    U:=Add(aOwner, aUnitType, PosX + x, PosY + y);
-    if U<>nil then U.Direction:=aDir; //U will be _nil_ if unit didn't fit on map
-    if (U<>nil) and KMSamePoint(U.GetPosition,KMPoint(PosX,PosY)) then begin
-      TKMUnitWarrior(U).fIsCommander:=true;
-      Result:=U;
+    if not ((x=0)and(y=0)) then begin//Skip commander
+      U:=Add(aOwner, aUnitType, PosX + x, PosY + y);
+      if U<>nil then begin
+        U.Direction:=aDir; //U will be _nil_ if unit didn't fit on map
+        TKMUnitWarrior(U).fCommanderID:=Commander;
+      end;
     end;
   end;
 end;

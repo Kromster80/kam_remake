@@ -503,7 +503,7 @@ const
   311, 312, 313, 314, 315,
   316, 317, 318, 319, 320,
   321, 322, 323, 324, 325,
-  326, 327, 328, 329, 330);
+  326, 327, 328, 329, 338);
 
   GUIHouseOrder:array[1..HOUSE_COUNT]of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
