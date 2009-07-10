@@ -40,6 +40,7 @@ type TKMMainMenuInterface = class
       Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
       Button_Options_MusicOn,Button_Options_Back:TKMButton;
       CheckBox_Options_FullScreen:TKMCheckBox;
+      KMLabel_Options_Lang:TKMLabel;
       CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage;
@@ -302,7 +303,7 @@ begin
     CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options,118,340,100,30,'Fullscreen',fnt_Metal);
     CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
-    MyControls.AddLabel(KMPanel_Options,124,370,100,30,'Language',fnt_Metal,kaLeft);
+    KMLabel_Options_Lang:=MyControls.AddLabel(KMPanel_Options,124,370,100,30,'Language',fnt_Outline,kaLeft);
     for i:=1 to LocalesCount do
     begin
       CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(KMPanel_Options,118,390+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
@@ -344,7 +345,7 @@ begin
   KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,ScreenX,ScreenY,2,6);
     KMImage_LoadingBG.StretchImage:=true;
-    MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2,100,30,'Loading... Please wait',fnt_Grey,kaCenter);
+    MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
     KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2+20,100,30,'...',fnt_Grey,kaCenter);
 end;
 

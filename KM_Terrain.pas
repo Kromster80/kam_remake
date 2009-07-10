@@ -901,10 +901,6 @@ begin
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
      AddPassability(Loc, [canMakeFields]);
 
-   {
-   @Krom: Take a look on a map using the debug tool to show the canPlantTrees passibility
-   and let me know what you think. I'm pretty happy with it.
-   }
    if (TileIsSoil(Loc))and
       (not IsObjectsNearby(Loc.X,Loc.Y))and //This function checks surrounding tiles
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
