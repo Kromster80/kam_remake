@@ -91,6 +91,7 @@ begin
   FreeAndNil(fTextLibrary);
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\');
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX,ScreenY);
+  fMainMenuInterface.ShowScreen_Options;
 end;
 
 

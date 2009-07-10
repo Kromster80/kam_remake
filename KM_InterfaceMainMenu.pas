@@ -74,6 +74,7 @@ type TKMMainMenuInterface = class
     procedure SetScreenSize(X,Y:word);
     procedure ShowScreen_Loading(Text:string);
     procedure ShowScreen_Main();
+    procedure ShowScreen_Options();
     procedure ShowScreen_Results();
   public
     procedure Paint;
@@ -136,15 +137,23 @@ begin
   ScreenY:=Y;
 end;
 
+
 procedure TKMMainMenuInterface.ShowScreen_Loading(Text:string);
 begin
   KMLabel_Loading.Caption:=Text;
   SwitchMenuPage(KMPanel_Loading);
 end;
 
+
 procedure TKMMainMenuInterface.ShowScreen_Main();
 begin
   SwitchMenuPage(nil);
+end;
+
+
+procedure TKMMainMenuInterface.ShowScreen_Options();
+begin
+  SwitchMenuPage(KMButton_MainMenuOptions);
 end;
 
 
