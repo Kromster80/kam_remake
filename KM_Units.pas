@@ -958,6 +958,12 @@ end;
 
 procedure TKMUnit.SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 begin
+  //When standing still in walk, use default frame
+  if (aAction = ua_Walk)and(aStayStill) then
+  begin
+    aStillFrame := UnitStillFrames[Direction];
+    aStep := UnitStillFrames[Direction];
+  end;
   SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame),aStep);
 end;
 
@@ -970,7 +976,7 @@ end;
 
 procedure TKMUnit.SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 begin
-  SetAction(TUnitActionAbandonWalk.Create(aKMUnit, aLocB, aActionType),0);
+  SetAction(TUnitActionAbandonWalk.Create(aKMUnit, aLocB, aActionType),aKMUnit.AnimStep); //Use the current animation step, to ensure smooth transition
 end;
 
 
@@ -1119,11 +1125,11 @@ case Phase of
   5: begin
       fSchool.SetState(hst_Idle,10);
       SetActionStay(9,ua_Walk);
+      fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
      end;
   6: begin
       SetActionGoIn(ua_Walk,gid_Out,ht_School);
       fSchool.UnitTrainingComplete;
-      fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the unit comes out
      end;
   7: TaskDone:=true;
 end;

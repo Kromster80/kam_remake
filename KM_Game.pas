@@ -188,7 +188,6 @@ begin
       fPlayers.Player[1].AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
   end else begin
     fEventLog.AddToLog(GlobalTickCount,evMouseDown,integer(Button),0,X,Y);
-    MOver := fMainMenuInterface.MyControls.MouseOverControl(); //Remember control that was clicked
     fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
   end;
 

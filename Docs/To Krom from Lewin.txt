@@ -1,7 +1,5 @@
 I thought I'd make this file so I can report stuff to you which I don't feel confident fixing myself.
 
- - Idle unit animation images. When units are standing idle, the image they use is not correct compared to in KaM. They look as if they are halfway through taking a step, rather than just standing there. The idle frame should be comfigurable.
- 
  - On a similar subject, when a unit changes between actions, (states) it seems to breifly return to the first frame of the previous action before moving on to the next. For example, when the woodcutter is felling a tree: In KaM, he strikes the tree one last time then holds his axe against it as is falls. When I tried to replicate that I ended up with: He strikes the tree one last time, then appears with his axe drawn back, (first frame of that sequence) then holds it against the tree as it falls. (there are actually 2 flashes of the first frame because the woodcutter runs the TUnitActionStay twice) I don't completely understand the rendering/unit system, and I had trouble in working out why this happens.
 
 
