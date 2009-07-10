@@ -98,7 +98,18 @@ type
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
+const
+  LocalesCount = 6;
+  Locales:array[1..LocalesCount,1..2]of shortstring = (
+  ('eng','English'),
+  ('deu','Deutch'),
+  ('pol','Polish'),
+  ('hun','Hungarian'),
+  ('nld','Nederlands'),
+  ('rus','Russian'));
+
 {Massages}
+type
   TKMMessageType = (msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
 
 

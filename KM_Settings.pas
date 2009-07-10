@@ -25,6 +25,7 @@ type
     procedure SaveSettings;
     property GetBrightness:byte read fBrightness default 1;
     property GetLocale:shortstring read fLocale;
+    property SetLocale:shortstring write fLocale;
     procedure IncBrightness;
     procedure DecBrightness;
     procedure SetIsAutosave(val:boolean);

@@ -679,6 +679,7 @@ begin
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
 end;
 
+
 procedure TForm1.SetScreenResolution(Width, Height: integer);
 var
   DeviceMode: TDeviceMode;

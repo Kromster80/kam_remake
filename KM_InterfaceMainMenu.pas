@@ -21,7 +21,7 @@ type TKMMainMenuInterface = class
       KMButton_MainMenuOptions,KMButton_MainMenuCredit,KMButton_MainMenuQuit:TKMButton;
       KMLabel_Version:TKMLabel;
     KMPanel_Single:TKMPanel;
-      KMImage_SingleBG:TKMImage; //Single background
+      KMImage_SingleBG:TKMImage;
       KMPanel_SingleList,KMPanel_SingleDesc:TKMPanel;
       KMButton_SingleHeadMode,KMButton_SingleHeadTeams,KMButton_SingleHeadTitle,KMButton_SingleHeadSize:TKMButton;
       KMBevel_SingleBG:array[1..MENU_SINGLE_MAPS_COUNT,1..5]of TKMBevel;
@@ -35,13 +35,14 @@ type TKMMainMenuInterface = class
       KMLabel_SingleCondTyp,KMLabel_SingleCondWin,KMLabel_SingleCondDef:TKMLabel;
       KMButton_SingleBack,KMButton_SingleStart:TKMButton;
     KMPanel_Options:TKMPanel;
-      Image_Options_BG:TKMImage; //Credits background
+      Image_Options_BG:TKMImage;
       Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
       Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
       Button_Options_MusicOn,Button_Options_Back:TKMButton;
       CheckBox_Options_FullScreen:TKMCheckBox;
+      CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
     KMPanel_Credits:TKMPanel;
-      KMImage_CreditsBG:TKMImage; //Credits background
+      KMImage_CreditsBG:TKMImage;
       KMButton_CreditsBack:TKMButton;
     KMPanel_Loading:TKMPanel;
       KMImage_LoadingBG:TKMImage;
@@ -287,10 +288,17 @@ begin
     //Button_Options_1024:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
     //Button_Options_1024.OnClick:=Options_Change;
     //Button_Options_1280:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
-    //Button_Options_1280.OnClick:=Options_Change; 
+    //Button_Options_1280.OnClick:=Options_Change;
 
     CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options,118,340,100,30,'Fullscreen',fnt_Metal);
     CheckBox_Options_FullScreen.OnClick:=Options_Change;
+
+    MyControls.AddLabel(KMPanel_Options,124,370,100,30,'Language',fnt_Metal,kaLeft);
+    for i:=1 to LocalesCount do
+    begin
+      CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(KMPanel_Options,118,390+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
+      CheckBox_Options_Lang[i].OnClick:=Options_Change;
+    end;
 
     Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;
     Ratio_Options_SFX.Position  :=fGameSettings.GetSoundFXVolume;
@@ -468,6 +476,7 @@ begin
 end;
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
+var i:integer;
 begin
   if Sender = Ratio_Options_Mouse then fGameSettings.SetMouseSpeed(Ratio_Options_Mouse.Position);
   if Sender = Ratio_Options_SFX   then fGameSettings.SetSoundFXVolume(Ratio_Options_SFX.Position);
@@ -486,6 +495,16 @@ begin
     fGame.ToggleFullScreen(not fGameSettings.IsFullScreen);
     exit;
   end;
+
+  for i:=1 to LocalesCount do
+    if Sender = CheckBox_Options_Lang[i] then begin
+      fGameSettings.SetLocale := Locales[i,1];
+      fGame.ToggleLocale;
+      exit;
+    end;
+
+  for i:=1 to LocalesCount do
+    CheckBox_Options_Lang[i].Checked := LowerCase(fGameSettings.GetLocale) = LowerCase(Locales[i,1]);
 
 end;
 

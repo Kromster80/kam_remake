@@ -19,6 +19,7 @@ type
   public
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer; NoMusic:boolean=false);
     destructor Destroy; override;
+    procedure ToggleLocale();
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
     procedure ToggleFullScreen(aToggle:boolean);
@@ -81,6 +82,15 @@ begin
   FreeAndNil(fTextLibrary);
   FreeAndNil(fRender);
   inherited;
+end;
+
+
+procedure TKMGame.ToggleLocale();
+begin
+  FreeAndNil(fMainMenuInterface);
+  FreeAndNil(fTextLibrary);
+  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\');
+  fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX,ScreenY);
 end;
 
 
@@ -264,6 +274,8 @@ begin
             begin
               if fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
                 fPlayers.SelectedUnit:=fPlayers.UnitsHitTest(CursorXc, CursorYc);
+                //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
+                //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
                 if fGameplayInterface<>nil then fGamePlayInterface.ShowUnitInfo(fPlayers.SelectedUnit);
                 FoundUnit := true;
               end; //Houses have priority over units, so you can't select an occupant. However, this is only true if the house is built

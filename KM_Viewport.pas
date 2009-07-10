@@ -42,7 +42,7 @@ end;
 
 procedure TViewport.SetZoom(aZoom:single);
 begin
-  Zoom:=EnsureRange(aZoom,0.1,8);
+  Zoom := EnsureRange(aZoom, 0.1, 8);
 end;
 
 
