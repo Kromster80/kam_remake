@@ -106,7 +106,7 @@ type
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   public
     procedure SetControlsVisibility(ShowCtrls:boolean);
-    procedure ToggleFullScreen(Toggle:boolean);
+    procedure ToggleFullScreen(Toggle:boolean; ShowOptions:boolean=false);
   end;
 
 var
@@ -648,7 +648,7 @@ begin
 end;
 
 
-procedure TForm1.ToggleFullScreen(Toggle:boolean);
+procedure TForm1.ToggleFullScreen(Toggle:boolean; ShowOptions:boolean=false);
 begin
   if Toggle then begin
     Form1.BorderStyle:=bsNone;
@@ -664,7 +664,6 @@ begin
     if FORCE_RESOLUTION then SetScreenResolution(OldScreenWidth,OldScreenHeight);
   end;
 
-
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   //Don't know how lame it is, but it works well
   //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
@@ -677,6 +676,8 @@ begin
   Panel5.Top:=0;
   Panel5.Height:=Form1.ClientHeight;
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+  
+  if ShowOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
 end;
 
 

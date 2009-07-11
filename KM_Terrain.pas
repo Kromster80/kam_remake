@@ -653,7 +653,7 @@ procedure TTerrain.ChopTree(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TreeAge:=0;
   FallingTrees.RemoveEntry(Loc);
-  RebuildPassability(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Because surrounding tiles will be affected (canPlantTrees)
+  RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (canPlantTrees)
 end;
 
 

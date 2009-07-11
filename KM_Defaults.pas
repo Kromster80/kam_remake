@@ -102,10 +102,10 @@ const
   LocalesCount = 6;
   Locales:array[1..LocalesCount,1..2]of shortstring = (
   ('eng','English'),
-  ('deu','German'),
+  ('ger','German'),
   ('pol','Polish'),
   ('hun','Hungarian'),
-  ('nld','Dutch'),
+  ('dut','Dutch'),
   ('rus','Russian'));
 
 {Massages}

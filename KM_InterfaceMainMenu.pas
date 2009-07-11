@@ -3,6 +3,13 @@ interface
 uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, OpenGL,
   KM_Controls, KM_Defaults, KM_LoadDAT, Windows;
 
+{@Krom: Discussion about assigning controls:
+
+It turns out that memory isn't being lost for unassigned controls, because the controls collection does that.
+Therefore it's not really nececary to assign things, unless we need to access them. (although it means you can see a list of the controls for each section more easily)
+Would you still like me to assign them? (I'd be happy to, it won't take long) Or shall we just leave them and assign them if we need to?
+}
+
 type TKMMainMenuInterface = class
   private
     ScreenX,ScreenY:word;
@@ -40,6 +47,7 @@ type TKMMainMenuInterface = class
       Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
       Button_Options_MusicOn,Button_Options_Back:TKMButton;
       CheckBox_Options_FullScreen:TKMCheckBox;
+      KMBevel_Options_Lang_Background:TKMBevel;
       KMLabel_Options_Lang:TKMLabel;
       CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
     KMPanel_Credits:TKMPanel;
@@ -303,10 +311,11 @@ begin
     CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options,118,340,100,30,'Fullscreen',fnt_Metal);
     CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
-    KMLabel_Options_Lang:=MyControls.AddLabel(KMPanel_Options,124,370,100,30,'Language',fnt_Outline,kaLeft);
+    KMLabel_Options_Lang:=MyControls.AddLabel(KMPanel_Options,178,380,100,30,'Language',fnt_Outline,kaCenter);
+    KMBevel_Options_Lang_Background:=MyControls.AddBevel(KMPanel_Options,110,400,136,8+LocalesCount*20);
     for i:=1 to LocalesCount do
     begin
-      CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(KMPanel_Options,118,390+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
+      CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(KMPanel_Options,118,405+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
       CheckBox_Options_Lang[i].OnClick:=Options_Change;
     end;
 
@@ -502,7 +511,7 @@ begin
 
   //This one should be called last since it re-inits whole fGame and the rest
   if Sender = CheckBox_Options_FullScreen then begin
-    fGame.ToggleFullScreen(not fGameSettings.IsFullScreen);
+    fGame.ToggleFullScreen(not fGameSettings.IsFullScreen,true);
     exit;
   end;
 

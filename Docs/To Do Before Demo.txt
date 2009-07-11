@@ -5,3 +5,11 @@ Krom	- Remove debug stuff where it's not needed
 Krom	- Remove all unit interaction stuff (esp. things that cause crashes) [Removed under DO_UNIT_INTERACTION switch]
 Krom	- Remove FastMM debug mode [Done, see IFDEF KAM_USE_FASTMM_DEBUG_MODE switch in KaM_Remake]
 Clean up menu, single maps and decide which missions we will ship with the demo (perhaps make a few more)
+
+
+
+
+Top prioraty items from Lewin's todo list: (Anyone can fix these)
+ - Fix citizens not eating [Can't find cause; Unsure]
+ - Update listener crash bug [Don't fully understand the problem or best solution]
+ - Abandon walk when house plan is canceled [Seems very complicated to implement because worker is not associated with task in delivery system]

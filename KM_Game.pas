@@ -22,7 +22,7 @@ type
     procedure ToggleLocale();
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
-    procedure ToggleFullScreen(aToggle:boolean);
+    procedure ToggleFullScreen(aToggle:boolean; ShowOptions:boolean=false);
     procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
@@ -50,7 +50,7 @@ begin
   fLog.AppendLog('<== Render init follows ==>');
   fRender:= TRender.Create(RenderHandle);
   fLog.AppendLog('<== TextLib init follows ==>');
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
+  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc.'+fGameSettings.GetLocale+'\');
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(aMediaPlayer); //Needed for button click sounds and etc?
   fGameSettings.UpdateSFXVolume;
@@ -89,7 +89,8 @@ procedure TKMGame.ToggleLocale();
 begin
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fTextLibrary);
-  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\');
+  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc.'+fGameSettings.GetLocale+'\');
+  fResource.LoadFonts;
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX,ScreenY);
   fMainMenuInterface.ShowScreen_Options;
 end;
@@ -121,10 +122,10 @@ begin
 end;
 
 
-procedure TKMGame.ToggleFullScreen(aToggle:boolean);
+procedure TKMGame.ToggleFullScreen(aToggle:boolean; ShowOptions:boolean=false);
 begin
   fGameSettings.IsFullScreen := aToggle;
-  Form1.ToggleFullScreen(aToggle);
+  Form1.ToggleFullScreen(aToggle,ShowOptions);
 end;
 
 
@@ -143,6 +144,7 @@ begin
       FormControlsVisible := not FormControlsVisible;
     end;
     if (Key=VK_F9) and not GameIsRunning then begin
+      //@Krom: I suggest we remove this shortcut, since it doesn't work in game and it can be easily done from the menu
       Self.ToggleFullScreen(not fGameSettings.IsFullScreen);
     end;
     if (Key=VK_F8) and GameIsRunning then begin

@@ -1,5 +1,5 @@
 unit KM_Viewport;
-interface            
+interface
 uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils, OpenGL;
 
 type
@@ -20,6 +20,7 @@ ScrollKeyLeft,ScrollKeyRight,ScrollKeyUp,ScrollKeyDown: boolean;
   function GetCenter():TKMPoint;
   procedure SetCenter(NewX,NewY:integer);
   function GetClip():TRect; //returns visible area dimensions in map space
+  function GetMinimapClip():TRect;
   procedure DoScrolling;
 published
 end;
@@ -43,6 +44,7 @@ end;
 procedure TViewport.SetZoom(aZoom:single);
 begin
   Zoom := EnsureRange(aZoom, 0.1, 8);
+  SetCenter(XCoord,YCoord); //To ensure it sets the limits smoothly
 end;
 
 
@@ -79,6 +81,20 @@ begin
   Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
   Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
   Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
+  if not TestViewportClipInset then exit;
+  inc(Result.Left,4);
+  dec(Result.Right,4);
+  inc(Result.Top,4);
+  dec(Result.Bottom,7);
+end;
+
+//Same as above function but with some values changed to suit minimap
+function TViewport.GetMinimapClip():TRect;
+begin
+  Result.Left  :=max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,1);
+  Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
+  Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+1,1);
+  Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+1,fTerrain.MapY);
   if not TestViewportClipInset then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);

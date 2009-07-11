@@ -34,6 +34,7 @@ type
     constructor Create;
     function LoadMenuResources():boolean;
     function LoadGameResources():boolean;
+    procedure LoadFonts;
 
     property GetDataState:TDataLoadingState read DataState;
 
@@ -53,7 +54,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Unit1, KM_Render, KM_Game;
+uses KromUtils, KM_Unit1, KM_Render, KM_Game, KM_Settings;
 
 
 constructor TResource.Create;
@@ -107,8 +108,7 @@ begin
   end;
 
   StepCaption('Reading fonts ...');
-  for i:=1 to length(FontFiles) do
-    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),false);
+  LoadFonts;
   fLog.AppendLog('Read fonts is done');
   
   StepRefresh();
@@ -152,6 +152,14 @@ begin
   fLog.AppendLog('ReadGFX is done');
   DataState:=dls_All;
   Result:=true;
+end;
+
+
+procedure TResource.LoadFonts;
+var i:integer;
+begin
+  for i:=1 to length(FontFiles) do
+    LoadFont(ExeDir+'data\gfx\fonts.'+fGameSettings.GetLocale+'\'+FontFiles[i]+'.fnt',TKMFont(i),false);
 end;
 
 

@@ -316,7 +316,7 @@ begin
     fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
 
   KMMinimap.CenteredAt:=fViewport.GetCenter;
-  KMMinimap.ViewArea:=fViewport.GetClip;
+  KMMinimap.ViewArea:=fViewport.GetMinimapClip;
 end;
 
 
@@ -364,7 +364,9 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
 
-    KMLabel_Pause:=MyControls.AddLabel(KMPanel_Main,(fRender.GetRenderAreaSize.X div 2)-32,(fRender.GetRenderAreaSize.Y div 2)-8,64,16,fTextLibrary.GetTextString(308),fnt_Metal,kaCenter);
+    //@Krom: This control should NOT be darkened when paused, because it makes it hard to read. (Antiqua is the font used in KaM, and I think it looks best expect that you can't see it because it's darkened)
+    //       It should stand out above all other things on the screen.
+    KMLabel_Pause:=MyControls.AddLabel(KMPanel_Main,(fRender.GetRenderAreaSize.X div 2)-32,(fRender.GetRenderAreaSize.Y div 2)-8,64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
     KMLabel_Pause.Hide;
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
@@ -1037,7 +1039,17 @@ begin
   else
     KMLabel_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
   KMLabel_UnitAct.Caption:='Act: '+Sender.GetUnitActText;
-  KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType))
+  if Sender is TKMUnitWarrior then
+  begin
+    //Warrior specific
+    KMLabel_UnitDescription.Hide;
+  end
+  else
+  begin
+    //Citizen specific
+    KMLabel_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType));
+    KMLabel_UnitDescription.Show;
+  end;
 end;
 
 
