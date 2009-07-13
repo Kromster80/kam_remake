@@ -23,7 +23,7 @@ type
   TKMCommandTypeSet = set of TKMCommandType;
 
 const
-  COMMANDVALUES: array[TKMCommandType] of string = (
+  COMMANDVALUES: array[TKMCommandType] of shortstring = (
     '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
     'SET_TACTIC','SET_AI_PLAYER','ENABLE_PLAYER','SET_NEW_REMAP','SET_MAP_COLOR',
     'CENTER_SCREEN','CLEAR_UP','BLOCK_HOUSE','RELEASE_HOUSE','RELEASE_ALL_HOUSES',
@@ -210,10 +210,10 @@ begin
         CommandText:=CommandText+FileText[k];
         inc(k);
       until((FileText[k]=#32)or(k>=length(FileText)));
-      
+
       //Try to make it faster by only processing commands used
-      if (CommandText='SET_MAP')or(CommandText='SET_MAX_PLAYER')or
-         (CommandText='SET_TACTIC')or(CommandText='SET_HUMAN_PLAYER') then
+      if (CommandText='!SET_MAP')or(CommandText='!SET_MAX_PLAYER')or
+         (CommandText='!SET_TACTIC')or(CommandText='!SET_HUMAN_PLAYER') then
       begin
         //Now convert command into type
         CommandType := GetCommandTypeFromText(CommandText);
@@ -356,8 +356,8 @@ begin
                          end;
                      end;
   ct_SetMaxPlayer:   begin
-                     fPlayers:=TKMAllPlayers.Create(ParamList[0]); //Create players
-                     end;    
+                       fPlayers:=TKMAllPlayers.Create(ParamList[0]); //Create players
+                     end;
   ct_SetTactic:      begin
                        MissionMode:=mm_Tactic;
                      end;
@@ -381,10 +381,7 @@ begin
                          fPlayers.Player[CurrentPlayerIndex].PlayerType:=pt_Computer;
                      end;
   ct_CenterScreen:   begin
-                     fViewPort.SetCenter(ParamList[0],ParamList[1]);
-                     //@Krom: This now seems to sometimes not work. (screen is centred top left) Any idea why?
-                     //@Lewin: I've no idea. Plz confirm it still has the bug
-                     //@Krom: I can't remember reporting this, and I can't remember it happening recently. To be deleted
+                       fViewPort.SetCenter(ParamList[0],ParamList[1]);
                      end;
   ct_ClearUp:        begin
                      if ParamList[0] = 255 then
@@ -515,7 +512,7 @@ end;
 {TKMMapInfo}
 
 procedure TKMMapsInfo.ScanSingleMapsFolder(Path:string);
-var i:integer; SearchRec:TSearchRec; ft:textfile; s:string;
+var i,k:integer; SearchRec:TSearchRec; ft:textfile; s:string;
   MissionDetails: TKMMissionDetails;
   MapDetails: TKMMapDetails;
 begin
@@ -526,9 +523,9 @@ begin
   FindFirst('*', faDirectory, SearchRec);
   repeat
   if (SearchRec.Attr and faDirectory = faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
-  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.dat') then
-  if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.map') then
-  //if fileexists(ExeDir+'\Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then
+  if fileexists(ExeDir+'Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.dat') then
+  if fileexists(ExeDir+'Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.map') then
+  //if fileexists(ExeDir+'Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then
   begin
     inc(MapCount);
     Maps[MapCount].Folder:=SearchRec.Name;
@@ -536,10 +533,11 @@ begin
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
 
+  for k:=1 to 1 do
   for i:=1 to MapCount do with Maps[i] do begin
 
-    MissionDetails := fMissionParser.GetMissionDetails(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.dat');
-    MapDetails := fMissionParser.GetMapDetails(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.map');
+    MissionDetails := fMissionParser.GetMissionDetails(ExeDir+'Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.dat');
+    MapDetails := fMissionParser.GetMapDetails(ExeDir+'Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.map');
     IsFight := MissionDetails.IsFight;
     PlayerCount := MissionDetails.TeamCount;
 
@@ -557,8 +555,8 @@ begin
     SmallDesc:='-';
     BigDesc:='-';
 
-    if fileexists(ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt') then begin
-      assignfile(ft,ExeDir+'\Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt');
+    if fileexists(ExeDir+'Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt') then begin
+      assignfile(ft,ExeDir+'Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt');
       reset(ft);
 
       repeat

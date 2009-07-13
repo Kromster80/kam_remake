@@ -103,7 +103,18 @@ begin
 
   glDisable(GL_LIGHTING);
   fLog.AppendLog('Pre-texture done');
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+  {Enable color blending into texture}
+//  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+  {Keep original KaM grainy look}
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  {Clamping UVs solves edge artifacts}
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
 end;
 
 
@@ -714,7 +725,7 @@ var ShiftX,ShiftY:single; ID:integer;
 begin
   if byte(Thought) = 0 then exit;
   ID:=ThoughtBounds[byte(Thought),2]+1 -
-     (GameplayTickCount mod (ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
+     (fGame.GetTickCount mod (ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;

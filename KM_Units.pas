@@ -440,13 +440,20 @@ begin
 //Priority no.2 - find self a home
 //Priority no.3 - find self a work
     if fCondition<UNIT_MIN_CONDITION then begin
-      //@Lewin: Can you tweak it such a way that it returned list of available Inns and then choice was performed by both distance and food availability? See StoneMines mission for example - all units go to nearest Inn and it's immidiately emptied! Noone goes to second Inn
-      //@Krom:  I've done that, but it just chooses the closest inn that has food, can be walked to and is not full. But that's all KaM ever did so I don't think it's a problem.
-      //        A few comments: - Why did you allow 10 extra invisible units in the inn? KaM always limited it to 6, which I think was good because it meant that you needed multiple inns. In KaM you can always see what's happenen, and invisible eaters go against this.
-      //                        - I assume that you've set the UNIT_MIN_CONDITION condition high for debugging, but could it be a bit lower? Because now units go and eat right at the start because of my random condidtion thing. Maybe at 2/3 condition they go eat?
-      //                        - We need a second UNIT_MIN_CONDITION (which will be half the current one I think) and once units have less than that much they will show the death thought all of the time. This could just be calculated as (UNIT_MIN_CONDITION div 2) I suppose, although we might want to change it.
+      //@Lewin: Can you tweak it such a way that it returned list of available Inns and then choice
+      //        was performed by both distance and food availability? See StoneMines mission for
+      //        example - all units go to nearest Inn and it's immidiately emptied! Noone goes to second Inn
+      //@Krom:  I've done that, but it just chooses the closest inn that has food, can be walked to
+      //        and is not full. But that's all KaM ever did so I don't think it's a problem.
+      //        A few comments: - Why did you allow 10 extra invisible units in the inn? KaM always
+      //        limited it to 6, which I think was good because it meant that you needed multiple inns.
+      //        In KaM you can always see what's happenen, and invisible eaters go against this.
+      //         - We need a second UNIT_MIN_CONDITION (which will be half the current one I think)
+      //           and once units have less than that much they will show the death thought all of
+      //           the time. This could just be calculated as (UNIT_MIN_CONDITION div 2) I suppose,
+      //           although we might want to change it.
       //        Please give me your thoughts on all of these matters.
-      H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
+      H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition); //Looks like a bug - unit position is inside the house, hence route can't be made properly
       if H<>nil then
         fUnitTask:=TTaskGoEat.Create(H,Self)
       else

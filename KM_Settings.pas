@@ -54,6 +54,8 @@ type
   private
     HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of word;
     UnitTrainedCount,UnitLostCount:array[1..40]of word;
+    ResourceRatios:array[1..4,1..4]of byte;
+    MissionTimeInSec:cardinal;
   public
     AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
     BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed or assigned from script
@@ -64,12 +66,25 @@ type
     procedure DestroyedUnit(aType:TUnitType);
   public
     procedure UpdateReqDone(aType:THouseType);
+    procedure IncreaseMissionTime(aSeconds:cardinal);
   public
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetCanBuild(aType:THouseType):boolean;
-  end;
 
+    function GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
+    procedure SetRatio(aRes:TResourceType; aHouse:THouseType; aValue:byte);
+
+    function GetUnitsLost:cardinal;
+    function GetUnitsKilled:cardinal;
+    function GetHousesLost:cardinal;
+    function GetHousesDestroyed:cardinal;
+    function GetHousesConstructed:cardinal;
+    function GetUnitsTrained:cardinal;
+    function GetWeaponsProduced:cardinal;
+    function GetSoldiersTrained:cardinal;
+    function GetMissionTime:cardinal;
+  end;
 
 var
   fGameSettings: TGameSettings;
@@ -78,13 +93,14 @@ var
 implementation
 uses KM_LoadSFX;
 
+
 constructor TGameSettings.Create;
 begin
   Inherited Create;
   SlidersMin:=0;
   SlidersMax:=20;
   LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
-  
+
   fNeedsSave:=false;
 end;
 
@@ -221,6 +237,8 @@ begin
   Inherited;
   for i:=1 to length(AllowToBuild) do AllowToBuild[i]:=true;
   BuildReqDone[byte(ht_Store)]:=true;
+  FillChar(ResourceRatios,SizeOf(ResourceRatios),#3); //Init all to byte=3
+  MissionTimeInSec:=0; //Init mission timer
 end;
 
 
@@ -240,8 +258,15 @@ end;
 procedure TMissionSettings.UpdateReqDone(aType:THouseType);
 var i:integer;
 begin
-  for i:=1 to length(BuildingAllowed[1]) do if BuildingAllowed[byte(aType),i]<>ht_None then
-    BuildReqDone[byte(BuildingAllowed[byte(aType),i])]:=true;
+  for i:=1 to length(BuildingAllowed[1]) do
+    if BuildingAllowed[byte(aType),i]<>ht_None then
+      BuildReqDone[byte(BuildingAllowed[byte(aType),i])]:=true;
+end;
+
+
+procedure TMissionSettings.IncreaseMissionTime(aSeconds:cardinal);
+begin
+  inc(MissionTimeInSec,aSeconds);
 end;
 
 
@@ -259,20 +284,126 @@ end;
 
 function TMissionSettings.GetHouseQty(aType:THouseType):integer;
 begin
-  Result:=HouseBuiltCount[byte(aType)]-HouseLostCount[byte(aType)];
+  Result := HouseBuiltCount[byte(aType)] - HouseLostCount[byte(aType)];
 end;
 
 
 function TMissionSettings.GetUnitQty(aType:TUnitType):integer;
 begin
-  Result:=UnitTrainedCount[byte(aType)]-UnitLostCount[byte(aType)];
+  Result := UnitTrainedCount[byte(aType)] - UnitLostCount[byte(aType)];
 end;
 
 
 function TMissionSettings.GetCanBuild(aType:THouseType):boolean;
 begin
-  Result:=BuildReqDone[byte(aType)] AND AllowToBuild[byte(aType)];
+  Result := BuildReqDone[byte(aType)] AND AllowToBuild[byte(aType)];
 end;
 
+
+function TMissionSettings.GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
+begin
+  case aRes of
+    rt_Steel: if aHouse=ht_WeaponSmithy   then Result:=ResourceRatios[1,1] else
+              if aHouse=ht_ArmorSmithy    then Result:=ResourceRatios[1,2];
+    rt_Coal:  if aHouse=ht_IronSmithy     then Result:=ResourceRatios[2,1] else
+              if aHouse=ht_Metallurgists  then Result:=ResourceRatios[2,2] else
+              if aHouse=ht_WeaponSmithy   then Result:=ResourceRatios[2,3] else
+              if aHouse=ht_ArmorSmithy    then Result:=ResourceRatios[2,4];
+    rt_Wood:  if aHouse=ht_ArmorWorkshop  then Result:=ResourceRatios[3,1] else
+              if aHouse=ht_WeaponWorkshop then Result:=ResourceRatios[3,2];
+    rt_Corn:  if aHouse=ht_Mill           then Result:=ResourceRatios[4,1] else
+              if aHouse=ht_Swine          then Result:=ResourceRatios[4,2] else
+              if aHouse=ht_Stables        then Result:=ResourceRatios[4,3];
+    else fLog.AssertToLog(false,'Unexpected resource at GetRatio');
+  end;
+end;
+
+
+procedure TMissionSettings.SetRatio(aRes:TResourceType; aHouse:THouseType; aValue:byte);
+begin
+  case aRes of
+    rt_Steel: if aHouse=ht_WeaponSmithy   then ResourceRatios[1,1]:=aValue else
+              if aHouse=ht_ArmorSmithy    then ResourceRatios[1,2]:=aValue;
+    rt_Coal:  if aHouse=ht_IronSmithy     then ResourceRatios[2,1]:=aValue else
+              if aHouse=ht_Metallurgists  then ResourceRatios[2,2]:=aValue else
+              if aHouse=ht_WeaponSmithy   then ResourceRatios[2,3]:=aValue else
+              if aHouse=ht_ArmorSmithy    then ResourceRatios[2,4]:=aValue;
+    rt_Wood:  if aHouse=ht_ArmorWorkshop  then ResourceRatios[3,1]:=aValue else
+              if aHouse=ht_WeaponWorkshop then ResourceRatios[3,2]:=aValue;
+    rt_Corn:  if aHouse=ht_Mill           then ResourceRatios[4,1]:=aValue else
+              if aHouse=ht_Swine          then ResourceRatios[4,2]:=aValue else
+              if aHouse=ht_Stables        then ResourceRatios[4,3]:=aValue;
+    else fLog.AssertToLog(false,'Unexpected resource at SetRatio');
+  end;
+end;
+
+
+function TMissionSettings.GetUnitsLost:cardinal;
+var i:integer;
+begin
+  Result:=0;
+  for i:=low(UnitLostCount) to high(UnitLostCount) do
+    inc(Result,UnitLostCount[i]);
+end;
+
+
+function TMissionSettings.GetUnitsKilled:cardinal;
+begin
+  Result:=0;
+end;
+
+
+function TMissionSettings.GetHousesLost:cardinal;
+var i:integer;
+begin
+  Result:=0;
+  for i:=low(HouseLostCount) to high(HouseLostCount) do
+    inc(Result,HouseLostCount[i]);
+end;
+
+
+function TMissionSettings.GetHousesDestroyed:cardinal;
+begin
+  Result:=0;
+end;
+
+
+function TMissionSettings.GetHousesConstructed:cardinal;
+var i:integer;
+begin
+  Result:=0;
+  for i:=low(HouseBuiltCount) to high(HouseBuiltCount) do
+    inc(Result,HouseBuiltCount[i]);
+end;
+
+
+function TMissionSettings.GetUnitsTrained:cardinal;
+var i:integer;
+begin
+  Result:=0;
+  for i:=byte(ut_Serf) to byte(ut_Recruit) do
+    inc(Result,UnitTrainedCount[i]);
+end;
+
+
+function TMissionSettings.GetWeaponsProduced:cardinal;
+begin
+  Result:=0;
+end;
+
+
+function TMissionSettings.GetSoldiersTrained:cardinal;
+var i:integer;
+begin
+  Result:=0;
+  for i:=byte(ut_Militia) to byte(ut_Barbarian) do
+    inc(Result,UnitTrainedCount[i]);
+end;
+
+
+function TMissionSettings.GetMissionTime:cardinal;
+begin
+  Result:=MissionTimeInSec;
+end;
 
 end.

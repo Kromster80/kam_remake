@@ -1,16 +1,10 @@
 program KaM_Remake;
 
-//These are most global things we can ever have
-//
-  {.$DEFINE KAM_USE_FASTMM_DEBUG_MODE} //remove dot to enable
-
 uses
-  {$IFDEF KAM_USE_FASTMM_DEBUG_MODE}
-  FastMM4,
-  {$ENDIF}
   Forms,
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
+  ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
   KM_Defaults in 'KM_Defaults.pas',
   KM_Render in 'KM_Render.pas',
   KM_ReadGFX1 in 'KM_ReadGFX1.pas',
@@ -20,18 +14,17 @@ uses
   KM_Users in 'KM_Users.pas',
   KM_Houses in 'KM_Houses.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
+  KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas',
   KM_InterfaceGamePlay in 'KM_InterfaceGamePlay.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Controls in 'KM_Controls.pas',
-  ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
   KM_LoadLib in 'KM_LoadLib.pas',
   KM_LoadSFX in 'KM_LoadSFX.pas',
   KM_Settings in 'KM_Settings.pas',
   KM_LoadDAT in 'KM_LoadDAT.pas',
   KM_Game in 'KM_Game.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
-  KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas',
-  KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas';
+  KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas';
 
 {$R *.RES}
 {}

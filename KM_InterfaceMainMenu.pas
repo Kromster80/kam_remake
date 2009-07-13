@@ -40,6 +40,7 @@ type TKMMainMenuInterface = class
       KMImage_SingleScroll1:TKMImage;
       KMLabel_SingleTitle,KMLabel_SingleDesc:TKMLabel;
       KMLabel_SingleCondTyp,KMLabel_SingleCondWin,KMLabel_SingleCondDef:TKMLabel;
+      KMLabel_SingleAllies,KMLabel_SingleEnemies:TKMLabel;
       KMButton_SingleBack,KMButton_SingleStart:TKMButton;
     KMPanel_Options:TKMPanel;
       Image_Options_BG:TKMImage;
@@ -52,6 +53,7 @@ type TKMMainMenuInterface = class
       CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage;
+      KMLabel_Credits:TKMLabel;
       KMButton_CreditsBack:TKMButton;
     KMPanel_Loading:TKMPanel;
       KMImage_LoadingBG:TKMImage;
@@ -84,14 +86,16 @@ type TKMMainMenuInterface = class
     procedure ShowScreen_Loading(Text:string);
     procedure ShowScreen_Main();
     procedure ShowScreen_Options();
-    procedure ShowScreen_Results();
+    procedure Fill_Results();
+    procedure ShowScreen_Results(Msg:gr_Message);
   public
+    procedure UpdateState;
     procedure Paint;
 end;
 
 
 implementation
-uses KM_Unit1, KM_Settings, KM_Render, KM_LoadLib, KM_Game, KM_LoadSFX;
+uses KM_Unit1, KM_Settings, KM_Render, KM_LoadLib, KM_Game, KM_LoadSFX, KM_Users;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word);
@@ -166,21 +170,30 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.ShowScreen_Results();
+procedure TKMMainMenuInterface.Fill_Results();
 begin
+  if (MyPlayer=nil) or (MyPlayer.fMissionSettings=nil) then exit;
+
+  Label_Stat[1].Caption := inttostr(MyPlayer.fMissionSettings.GetUnitsLost);
+  Label_Stat[2].Caption := inttostr(MyPlayer.fMissionSettings.GetUnitsKilled);
+  Label_Stat[3].Caption := inttostr(MyPlayer.fMissionSettings.GetHousesLost);
+  Label_Stat[4].Caption := inttostr(MyPlayer.fMissionSettings.GetHousesDestroyed);
+  Label_Stat[5].Caption := inttostr(MyPlayer.fMissionSettings.GetHousesConstructed);
+  Label_Stat[6].Caption := inttostr(MyPlayer.fMissionSettings.GetUnitsTrained);
+  Label_Stat[7].Caption := inttostr(MyPlayer.fMissionSettings.GetWeaponsProduced);
+  Label_Stat[8].Caption := inttostr(MyPlayer.fMissionSettings.GetSoldiersTrained);
+  Label_Stat[9].Caption := int2time(fGame.GetMissionTime);
+end;
+
+procedure TKMMainMenuInterface.ShowScreen_Results(Msg:gr_Message);
+begin
+  case Msg of
+  gr_Win:    Label_Results_Result.Caption:='Win';
+  gr_Defeat: Label_Results_Result.Caption:='Defeat';
+  gr_Cancel: Label_Results_Result.Caption:='Mission canceled';
+  else       Label_Results_Result.Caption:='<<<LEER>>>';
+  end;
   SwitchMenuPage(KMPanel_Results);
-
-  //if Assigned(MyPlayer) and Assigned(MyPlayer.fMissionSettings) then
-
-  Label_Stat[1].Caption := inttostr(0);
-  Label_Stat[2].Caption := inttostr(0);
-  Label_Stat[3].Caption := inttostr(0);
-  Label_Stat[4].Caption := inttostr(0);
-  Label_Stat[5].Caption := inttostr(0);
-  Label_Stat[6].Caption := inttostr(0);
-  Label_Stat[7].Caption := inttostr(0);
-  Label_Stat[8].Caption := inttostr(0);
-  Label_Stat[9].Caption := '00:00';
 end;
 
 
@@ -212,7 +225,7 @@ begin
       KMButton_MainMenuTPR.Disable;
       KMButton_MainMenuLoad.Disable;
       KMButton_MainMenuMulti.Disable;
-      KMButton_MainMenuCredit.Disable;
+//      KMButton_MainMenuCredit.Disable;
 end;
 
 
@@ -275,6 +288,10 @@ begin
       KMLabel_SingleCondWin:=MyControls.AddLabel(KMPanel_SingleDesc,8,453,445,20,'Win condition: ',fnt_Metal, kaLeft);
       MyControls.AddBevel(KMPanel_SingleDesc,0,472,445,20);
       KMLabel_SingleCondDef:=MyControls.AddLabel(KMPanel_SingleDesc,8,475,445,20,'Defeat condition: ',fnt_Metal, kaLeft);
+      MyControls.AddBevel(KMPanel_SingleDesc,0,494,445,20);
+      KMLabel_SingleAllies:=MyControls.AddLabel(KMPanel_SingleDesc,8,497,445,20,'Allies: ',fnt_Metal, kaLeft);
+      MyControls.AddBevel(KMPanel_SingleDesc,0,516,445,20);
+      KMLabel_SingleEnemies:=MyControls.AddLabel(KMPanel_SingleDesc,8,519,445,20,'Enemies: ',fnt_Metal, kaLeft);
 
       KMButton_SingleBack:=MyControls.AddButton(KMPanel_SingleDesc,0,570,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
       KMButton_SingleBack.OnClick:=SwitchMenuPage;
@@ -342,9 +359,10 @@ end;
 procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   KMPanel_Credits:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
-    KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,ScreenX,ScreenY,2,5);
+    KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,ScreenX,ScreenY,2,6);
     KMImage_CreditsBG.StretchImage:=true;
-    KMButton_CreditsBack:=MyControls.AddButton(KMPanel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal);
+    KMLabel_Credits:=MyControls.AddLabel(KMPanel_Credits,ScreenX div 2,ScreenY,100,30,'Credits go here...',fnt_Grey,kaCenter);
+    KMButton_CreditsBack:=MyControls.AddButton(KMPanel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     KMButton_CreditsBack.OnClick:=SwitchMenuPage;
 end;
 
@@ -413,8 +431,10 @@ begin
   end;
 
   {Show Credits}
-  if Sender=KMButton_MainMenuCredit then
+  if Sender=KMButton_MainMenuCredit then begin
     KMPanel_Credits.Show;
+    KMLabel_Credits.Top:=ScreenY;
+  end;
 
   {Show Loading... screen}
   if Sender=KMPanel_Loading then
@@ -531,6 +551,15 @@ procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=KMButton_MainMenuTutor,'not KMButton_MainMenuTutor');
   fGame.StartGame(ExeDir+'data\mission\mission0.dat'); //Provide mission filename here
+end;
+
+
+{Should update credits page mostly}
+procedure TKMMainMenuInterface.UpdateState;
+begin
+  if KMPanel_Credits.Visible then
+    KMLabel_Credits.Top := KMLabel_Credits.Top - 2; //Very slow, needs to be smoothed!
+
 end;
 
 

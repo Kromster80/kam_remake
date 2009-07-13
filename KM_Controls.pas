@@ -512,6 +512,9 @@ procedure TKMCheckBox.Paint();
 const BoxWidth=25;
 var Tmp:TKMPoint; Col:TColor4;
 begin
+  if MakeDrawPagesOverlay then
+    fRenderUI.WriteLayer(Left, Top, Width, Height, $40FF00FF);
+
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   //We can replace it with something better later on. For now [x] fits just fine

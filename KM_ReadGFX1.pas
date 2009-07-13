@@ -34,10 +34,10 @@ type
     constructor Create;
     function LoadMenuResources():boolean;
     function LoadGameResources():boolean;
-    procedure LoadFonts;
 
     property GetDataState:TDataLoadingState read DataState;
 
+    procedure LoadFonts(DoExport:boolean);
     //procedure ExportRX2BMP(RXid:integer);
     //procedure ExportTreeAnim2BMP();
     //procedure ExportHouseAnim2BMP();
@@ -86,8 +86,8 @@ function TResource.LoadMenuResources():boolean;
 var i:integer;
 begin
 //  Result:=false;
-  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
-  fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
+  fLog.AssertToLog(fTextLibrary <> nil, 'fTextLibrary should be init before ReadGFX');
+  fLog.AssertToLog(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
   for i:=1 to length(PalFiles) do
@@ -108,9 +108,9 @@ begin
   end;
 
   StepCaption('Reading fonts ...');
-  LoadFonts;
+  LoadFonts(false);
   fLog.AppendLog('Read fonts is done');
-  
+
   StepRefresh();
   fLog.AppendLog('ReadGFX is done');
   DataState:=dls_Menu;
@@ -136,7 +136,7 @@ begin
   RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
 
   for i:=1 to 3 do
-  if (i=1)or((i=2) and MakeHouseSprites)or((i=3) and MakeUnitSprites) then
+  if (i=1) or ((i=2) and MakeHouseSprites) or ((i=3) and MakeUnitSprites) then
   begin
     StepCaption('Reading '+RXData[i].Title+' GFX ...');
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
@@ -155,11 +155,11 @@ begin
 end;
 
 
-procedure TResource.LoadFonts;
+procedure TResource.LoadFonts(DoExport:boolean);
 var i:integer;
 begin
   for i:=1 to length(FontFiles) do
-    LoadFont(ExeDir+'data\gfx\fonts.'+fGameSettings.GetLocale+'\'+FontFiles[i]+'.fnt',TKMFont(i),false);
+    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),DoExport);
 end;
 
 
@@ -169,19 +169,20 @@ end;
 function TResource.LoadPalette(filename:string; PalID:byte):boolean;
 var f:file; i:integer;
 begin
-Result:=false;
-if not CheckFileExists(filename) then exit;
+  Result:=false;
+  if not CheckFileExists(filename) then exit;
+
   assignfile(f,filename);
   reset(f,1);
   blockread(f,Pal[PalID],48); //Unknown and/or unimportant
   blockread(f,Pal[PalID],768); //256*3
   closefile(f);
 
-  if PalID=pal_lin then //Make greyscale linear Pal
+  if PalID = pal_lin then //Make greyscale linear Pal
     for i:=0 to 255 do begin
-      Pal[pal_lin,i+1,1]:=i;
-      Pal[pal_lin,i+1,2]:=i;
-      Pal[pal_lin,i+1,3]:=i;
+      Pal[pal_lin,i+1,1] := i;
+      Pal[pal_lin,i+1,2] := i;
+      Pal[pal_lin,i+1,3] := i;
     end;
 
 Result:=true;
@@ -572,12 +573,14 @@ begin
 DestX:=MakePOT(mx);
 DestY:=MakePOT(my);
 
-if DestX*DestY=0 then exit; //Do not generate zeroed textures
+if DestX*DestY = 0 then exit; //Do not generate zeroed textures
 
 if Mode=tm_AlphaTest then begin
   glGenTextures(1, id);
   glBindTexture(GL_TEXTURE_2D, id^);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -626,7 +629,9 @@ glGenTextures(1, id);
 begin
 glBindTexture(GL_TEXTURE_2D, id^);
 //gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -829,6 +834,7 @@ begin
   fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
   fLog.AddToLog(inttostr(ColorsRAM div 1024)+' KBytes for team colors');
 end;
+
 
 //=============================================
 //Export RX to Bitmaps
@@ -1063,7 +1069,7 @@ var
   OutputStream: TMemoryStream;
   DeCompressionStream: TZDecompressionStream;
 begin
-  assignfile(f,ExeDir+'Resource\Tiles1.tga');
+  assignfile(f,FileName);
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
   setlength(c,512*512*4+1);

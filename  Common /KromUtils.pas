@@ -48,6 +48,7 @@ function unreal2(x:real):string;
 function hextoint(st: char): integer;
 function int2fix(Number,Len:integer):string;
 function float2fix(Number:single; Digits:integer):string;
+function int2time(Time:integer):string;
 function int2(c1,c2:char):integer; overload;
 function int2(c1,c2,c3,c4:char):integer; overload;
 function chr2(x,len:integer):string; overload;
@@ -511,6 +512,13 @@ var ss:string;
 begin
 ss:=FloatToStrF(Number,ffGeneral,3,2);
 float2fix:=ss;
+end;
+
+function int2time(Time:integer):string;
+begin
+Result := int2fix(Time div 3600 mod 24,2)+':'+
+          int2fix(Time div 60 mod 60,2)+':'+
+          int2fix(Time mod 60,2);
 end;
 
 function int2(c1,c2:char):integer; overload;

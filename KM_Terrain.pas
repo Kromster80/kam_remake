@@ -3,7 +3,7 @@ interface
 uses Controls, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils;
 
 const
-MaxMapSize=256; //I have a request, keep it 176 for now, as it will help to solve compatibility issues (just like those you've mentioned).
+MaxMapSize=256;
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -915,7 +915,19 @@ begin
 
    if TileIsSand(Loc) then
      AddPassability(Loc, [canCrab]);
+
   end;
+ //Check for houses around this vertice(!) Use only with canElevate since it's vertice-based!
+ HousesNearBy := false;
+ for i:=-1 to 0 do
+   for k:=-1 to 0 do
+     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
+       if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_House]) then
+         HousesNearBy := true;
+
+ if (VerticeInMapCoords(Loc.X,Loc.Y))and
+    (not HousesNearBy) then
+   AddPassability(Loc, [canElevate]);
 
 end;
 
@@ -1030,9 +1042,13 @@ begin
     Land[Loc.Y,Loc.X+1].Height+
     Land[Loc.Y+1,Loc.X+1].Height
   )div 4;
+  if CheckPassability(KMPoint(Loc.X,Loc.Y),canElevate) then
   Land[Loc.Y,Loc.X].Height:=mix(Land[Loc.Y,Loc.X].Height,TempH,0.5);
+  if CheckPassability(KMPoint(Loc.X,Loc.Y+1),canElevate) then
   Land[Loc.Y+1,Loc.X].Height:=mix(Land[Loc.Y+1,Loc.X].Height,TempH,0.5);
+  if CheckPassability(KMPoint(Loc.X+1,Loc.Y),canElevate) then
   Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
+  if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),canElevate) then
   Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
 
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);

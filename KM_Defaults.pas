@@ -26,10 +26,10 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
+  MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
@@ -106,13 +106,15 @@ const
   ('pol','Polish'),
   ('hun','Hungarian'),
   ('dut','Dutch'),
-  ('rus','Russian'));
+  ('rus','Russian (no fonts)'));
+
+
+type gr_Message = (gr_Win, gr_Defeat, gr_Cancel, gr_Error);
 
 {Massages}
 type
   TKMMessageType = (msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
-
-
+                
 {Palettes}
 const
  //Palette filename corresponds with pal_**** constant, except pal_lin which is generated proceduraly (filename doesn't matter for it)
@@ -183,12 +185,13 @@ const
   );
 
 { Terrain }
-type TPassability = (canAll,
-                     canWalk, canWalkRoad, canBuild, canBuildIron, canBuildGold,
-                     canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab);
+type TPassability = (canAll=0,
+                     canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
+                     canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab,
+                     canElevate);
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[0..11] of string = (
+const PassabilityStr:array[0..12] of string = (
     'None',
     'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
     'canWalk',      // General passability of tile for any walking units
@@ -200,7 +203,8 @@ const PassabilityStr:array[0..11] of string = (
     'canMakeFields',// Thats more strict than roads, cos e.g. on beaches you can't make fields
     'canPlantTrees',// If Forester can plant a tree here, dunno if it's the same as fields
     'canFish',      // Water tiles where fish can move around
-    'canCrab'       // Sand tiles where crabs can move around
+    'canCrab',      // Sand tiles where crabs can move around
+    'canElevate'    // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
   );
 
 {Units}
@@ -699,7 +703,6 @@ var
   );
 
   GlobalTickCount:integer=-1; //So that first number after inc() would be 0
-  GameplayTickCount:integer=0; //So that first tick will be #1
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
@@ -889,20 +892,8 @@ type
 
 type TKMEvent = (evMouseDown=256, evMouseUp, evMouseMove); //reserve 2bytes at least
 
-{This is custom logging system}
-type
-  TKMEventLog = class
-  private
-    fe:textfile;
-    logfile:string; //Path to log file
-  public
-    constructor Create(path:string);
-    procedure AddToLog(TickCount:integer; EventID:TKMEvent; Param1,Param2,Param3,Param4:integer);
-  end;
-
 var
   fLog: TKMLog;
-  fEventLog: TKMEventLog;
 
 function TypeToString(t:THouseType):string; overload
 function TypeToString(t:TResourceType):string; overload
@@ -912,23 +903,6 @@ function TypeToString(t:TKMDirection):string; overload
 
 implementation
 uses KM_LoadLib;
-
-{Reset event log file}
-constructor TKMEventLog.Create(path:string);
-begin
-  logfile:=path;
-  assignfile(fe,logfile);
-  rewrite(fe);
-  closefile(fe);
-end;
-
-procedure TKMEventLog.AddToLog(TickCount:integer; EventID:TKMEvent; Param1,Param2,Param3,Param4:integer);
-begin
-  assignfile(fe,logfile);
-  append(fe);
-  writeln(fe,TickCount,' ',integer(EventID),' ',Param1,' ',Param2,' ',Param3,' ',Param4);
-  closefile(fe);
-end;
 
 {Reset log file}
 constructor TKMLog.Create(path:string);

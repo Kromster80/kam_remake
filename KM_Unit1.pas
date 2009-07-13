@@ -199,7 +199,7 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   //Reset the resolution
   if FORCE_RESOLUTION then SetScreenResolution(OldScreenWidth,OldScreenHeight);
-  fGame.StopGame(true);
+  fGame.StopGame(gr_Error);
   FreeAndNil(fGame);
   FreeAndNil(fLog);
   TimeEndPeriod(1);
@@ -259,7 +259,7 @@ end;
 procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;
-  fGame.StopGame;
+  fGame.StopGame(gr_Error);
   fGame.StartGame(OpenDialog1.FileName);
 end;
 
@@ -328,11 +328,9 @@ procedure TForm1.Export_UnitAnim1Click(Sender: TObject); begin ExportUnitAnim2BM
 procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.ExportTextLibraries; end;
 
 procedure TForm1.Export_Fonts1Click(Sender: TObject);
-var i:integer;
 begin
   fLog.AssertToLog(fResource<>nil,'Can''t export Fonts cos they aren''t loaded yet');
-  for i:=1 to length(FontFiles) do
-    //ReadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),true);
+  fResource.LoadFonts(true);
 end;
 
 
@@ -363,6 +361,7 @@ end;
 
 procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
+  if fPlayers=nil then exit;
   if fPlayers.Player[RGPlayer.ItemIndex+1] <> nil then
     MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
 end;
@@ -378,7 +377,7 @@ end;
 procedure TForm1.Button_WClick(Sender: TObject);
 var U:TKMUnit;
 begin
-  fGame.StopGame;
+  fGame.StopGame(gr_Error);
   fGame.StartGame('');
   MyPlayer:=fPlayers.Player[1];
 
@@ -437,7 +436,7 @@ end;
 procedure TForm1.Button_VClick(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
-  fGame.StopGame();
+  fGame.StopGame(gr_Error);
   fGame.StartGame('');
 
 fViewPort.SetCenter(11,9);
@@ -530,7 +529,7 @@ end;
 procedure TForm1.Button_6Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
-  fGame.StopGame;
+  fGame.StopGame(gr_Error);
   fGame.StartGame('');
 
   for k:=1 to 6 do begin
@@ -556,7 +555,7 @@ end;
 procedure TForm1.Button_1Click(Sender: TObject);
 var H:TKMHouse; i:integer;
 begin
-  fGame.StopGame;
+  fGame.StopGame(gr_Error);
   fGame.StartGame('');
   MyPlayer:=fPlayers.Player[1];
 
@@ -604,7 +603,7 @@ end;
 
 procedure TForm1.Button_StopClick(Sender: TObject);
 begin
-  fGame.StopGame;
+  fGame.StopGame(gr_Cancel);
 end;
 
 procedure TForm1.TB_Angle_Change(Sender: TObject);

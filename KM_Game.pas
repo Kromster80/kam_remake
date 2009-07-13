@@ -1,14 +1,15 @@
 unit KM_Game;
 interface
 uses Windows, MPlayer, Forms, Controls, Classes, SysUtils, KromUtils, Math,
-  KM_Users, KM_Render, KM_LoadLib, KM_InterfaceGamePlay, KM_InterfaceMainMenu, KM_ReadGFX1, KM_Terrain, KM_LoadDAT,
-  KM_LoadSFX, KM_Viewport, KM_Units, KM_Settings;
+  KM_Defaults, KM_Users, KM_Render, KM_LoadLib, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_ReadGFX1, KM_Terrain, KM_LoadDAT, KM_LoadSFX, KM_Viewport, KM_Units, KM_Settings;
 
 
 type
   TKMGame = class
   private
     FormControlsVisible:boolean;
+    GameplayTickCount:cardinal; //So that first tick will be #1
   public
     ScreenX,ScreenY:word;
     GameSpeed:integer;
@@ -29,7 +30,9 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure StartGame(MissionFile:string);
     procedure PauseGame(DoPause:boolean);
-    procedure StopGame(const StoppedCosOfError:boolean=false);
+    procedure StopGame(const Msg:gr_Message; ShowResults:boolean=true);
+    function GetMissionTime:cardinal;
+    property GetTickCount:cardinal read GameplayTickCount;
     procedure UpdateState;
   end;
 
@@ -38,7 +41,7 @@ type
 
 implementation
 uses
-  KM_Defaults, KM_Unit1, KM_Controls, KM_Houses;
+  KM_Unit1, KM_Controls, KM_Houses;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 
@@ -50,7 +53,7 @@ begin
   fLog.AppendLog('<== Render init follows ==>');
   fRender:= TRender.Create(RenderHandle);
   fLog.AppendLog('<== TextLib init follows ==>');
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc.'+fGameSettings.GetLocale+'\');
+  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(aMediaPlayer); //Needed for button click sounds and etc?
   fGameSettings.UpdateSFXVolume;
@@ -59,8 +62,6 @@ begin
   fResource.LoadMenuResources;
 
   fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);
-
-  fEventLog := TKMEventLog.Create(ExeDir+'KaM_Events.log');
 
   if not NoMusic then fSoundLib.PlayMenuTrack;
 
@@ -73,7 +74,6 @@ end;
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
-  FreeAndNil(fEventLog);
   FreeAndNil(fGameSettings);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fResource);
@@ -89,8 +89,8 @@ procedure TKMGame.ToggleLocale();
 begin
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fTextLibrary);
-  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc.'+fGameSettings.GetLocale+'\');
-  fResource.LoadFonts;
+  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\');
+  fResource.LoadFonts(false);
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX,ScreenY);
   fMainMenuInterface.ShowScreen_Options;
 end;
@@ -126,6 +126,7 @@ procedure TKMGame.ToggleFullScreen(aToggle:boolean; ShowOptions:boolean=false);
 begin
   fGameSettings.IsFullScreen := aToggle;
   Form1.ToggleFullScreen(aToggle,ShowOptions);
+  fMainMenuInterface.ShowScreen_Options;
 end;
 
 
@@ -136,7 +137,7 @@ begin
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
   //others.. unknown
-  if GameIsPaused and not (Key=ord('P')) then exit;
+  if GameIsPaused and not (Key=ord('P')) then exit; //Ignore all keys if game is on 'Pause'
   if not IsDown then
   begin
     if Key=VK_F11 then begin
@@ -152,7 +153,7 @@ begin
       if not (GameSpeed in [1,10]) then GameSpeed:=1; //Reset just in case
       fGameplayInterface.ShowClock((GameSpeed=10)or GameIsPaused);
     end;
-    if Key=ord('P') then begin
+    if (Key=ord('P')) and GameIsRunning then begin
       GameIsPaused := not GameIsPaused;
       fGameplayInterface.ShowPause(GameIsPaused,GameSpeed=10);
     end;
@@ -176,15 +177,16 @@ begin
       fGameplayInterface.IssueMessage(msgScroll,'123');
     end;
   end;
+
   //Also send shortcut to GamePlayInterface if it is there
   if (GameIsRunning) and (fGamePlayInterface <> nil) then
     fGamePlayInterface.ShortcutPress(Key,IsDown);
 
   //Scrolling
-  if (Key=VK_LEFT)  then fViewport.ScrollKeyLeft  := IsDown;
-  if (Key=VK_RIGHT) then fViewport.ScrollKeyRight := IsDown;
-  if (Key=VK_UP)    then fViewport.ScrollKeyUp    := IsDown;
-  if (Key=VK_DOWN)  then fViewport.ScrollKeyDown  := IsDown;
+  if (GameIsRunning) and (Key=VK_LEFT)  then fViewport.ScrollKeyLeft  := IsDown;
+  if (GameIsRunning) and (Key=VK_RIGHT) then fViewport.ScrollKeyRight := IsDown;
+  if (GameIsRunning) and (Key=VK_UP)    then fViewport.ScrollKeyUp    := IsDown;
+  if (GameIsRunning) and (Key=VK_DOWN)  then fViewport.ScrollKeyDown  := IsDown;
 end;
 
 
@@ -200,7 +202,6 @@ begin
     if Button = mbMiddle then
       fPlayers.Player[1].AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
   end else begin
-    fEventLog.AddToLog(GlobalTickCount,evMouseDown,integer(Button),0,X,Y);
     fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
   end;
 
@@ -236,7 +237,6 @@ begin
       fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
     end;
   end else begin
-    fEventLog.AddToLog(GlobalTickCount,evMouseMove,integer(ssLeft in Shift),0,X,Y);
     fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
   end;
 
@@ -337,7 +337,6 @@ begin
     //TKMUnitWarrior(fPlayers.SelectedUnit).SetActionWalk(fPlayers.SelectedUnit,P,KMPoint(0,0));
 
   end else begin //If GameIsRunning=false
-    fEventLog.AddToLog(GlobalTickCount,evMouseUp,integer(Button),0,X,Y);
     fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
   end;
 end;
@@ -369,7 +368,7 @@ begin
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(MissionFile,true) then begin
     if not fMissionParser.LoadDATFile(MissionFile) then begin
-      StopGame(true);
+      StopGame(gr_Error);
       //Show all required error messages here
       exit;
     end;
@@ -401,9 +400,13 @@ begin
 end;
 
                      
-procedure TKMGame.StopGame(const StoppedCosOfError:boolean=false);
+procedure TKMGame.StopGame(const Msg:gr_Message; ShowResults:boolean=true);
 begin
   GameIsRunning:=false;
+
+  if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
+  fMainMenuInterface.Fill_Results;
+
   FreeAndNil(fPlayers);
   FreeAndNil(fTerrain);
 
@@ -411,13 +414,24 @@ begin
   FreeAndNil(fGamePlayInterface);
   FreeAndNil(fViewport);
 
-  if StoppedCosOfError then begin
+  if (Msg = gr_Win) or (Msg = gr_Defeat) then begin
+    fLog.AppendLog('Gameplay ended',true);
+    fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
+  end else
+  if Msg = gr_Cancel then begin
+    fLog.AppendLog('Gameplay canceled',true);
+    fMainMenuInterface.ShowScreen_Results(Msg);
+  end else
+  if Msg = gr_Error then begin
     fLog.AppendLog('Gameplay error',true);
     fMainMenuInterface.ShowScreen_Main;
-  end else begin
-    fLog.AppendLog('Gameplay free',true);
-    fMainMenuInterface.ShowScreen_Results;//Should be mission results screen
   end;
+end;
+
+
+function TKMGame.GetMissionTime:cardinal;
+begin
+  Result := MyPlayer.fMissionSettings.GetMissionTime + (GameplayTickCount div (1000 div GAME_LOGIC_PACE));
 end;
 
 
@@ -428,6 +442,7 @@ begin
   inc(GlobalTickCount);
 
   if not GameIsRunning then begin
+    fMainMenuInterface.UpdateState;
     if GlobalTickCount mod 10 = 0 then //Once a sec
     if fSoundLib.IsMusicEnded then
       fSoundLib.PlayMenuTrack(); //Menu tune
@@ -440,10 +455,11 @@ begin
   for i:=1 to GameSpeed do begin
     inc(GameplayTickCount); //Thats our tick counter for gameplay events
     fTerrain.UpdateState;
-    fPlayers.UpdateState; //Quite slow
+    fPlayers.UpdateState(GameplayTickCount); //Quite slow
+    if not GameIsRunning then exit; //Quit the update if game was stopped by MyPlayer defeat
   end;
 
-  fGamePlayInterface.UpdateState;
+  if fGamePlayInterface<>nil then fGamePlayInterface.UpdateState;
 
   if GlobalTickCount mod 5 = 0 then //Every 500ms
     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
@@ -452,5 +468,7 @@ begin
     if fSoundLib.IsMusicEnded then
       fSoundLib.PlayNextTrack(); //Feed new music track
 end;
+
+
 
 end.

@@ -20,10 +20,16 @@ type TKMGamePlayInterface = class
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
       KMImage_Message:array[1..256]of TKMImage; //Queue of messages
       KMImage_Clock:TKMImage; //Clock displayed when game speed is increased
+      KMLabel_Clock:TKMLabel;
       KMLabel_Pause:TKMLabel;
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
     KMPanel_Ratios:TKMPanel;
-      //
+      KMButton_Ratios:array[1..4]of TKMButton;
+      KMImage_RatioPic0:TKMImage;
+      KMLabel_RatioLab0:TKMLabel;
+      KMImage_RatioPic:array[1..4]of TKMImage;
+      KMLabel_RatioLab:array[1..4]of TKMLabel;
+      KMRatio_RatioRat:array[1..4]of TKMRatioRow;
     KMPanel_Stats:TKMPanel;
       Stat_HousePic,Stat_UnitPic:array[1..32]of TKMImage;
       Stat_HouseQty,Stat_UnitQty:array[1..32]of TKMLabel;
@@ -102,18 +108,6 @@ type TKMGamePlayInterface = class
       KMImage_Barracks_Right,KMImage_Barracks_Train,KMImage_Barracks_Left:TKMImage;
       KMButton_Barracks_Right,KMButton_Barracks_Train,KMButton_Barracks_Left:TKMButton;
   private
-    procedure SwitchPage(Sender: TObject);
-    procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
-    procedure Minimap_Update(Sender: TObject);
-    procedure Build_ButtonClick(Sender: TObject);
-    procedure Build_Fill(Sender:TObject);
-    procedure Store_Fill(Sender:TObject);
-    procedure Stats_Fill(Sender:TObject);
-    procedure Menu_Fill(Sender:TObject);
-  public
-    MyControls: TKMControlsCollection;
-    constructor Create;
-    destructor Destroy; override;
     procedure Create_Build_Page;
     procedure Create_Ratios_Page;
     procedure Create_Stats_Page;
@@ -127,7 +121,22 @@ type TKMGamePlayInterface = class
     procedure Create_Store_Page;
     procedure Create_School_Page;
     procedure Create_Barracks_Page;
-    procedure UpdateState;
+
+    procedure SwitchPage(Sender: TObject);
+    procedure SwitchPageRatios(Sender: TObject);
+    procedure RatiosChange(Sender: TObject);
+    procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
+    procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
+    procedure Minimap_Update(Sender: TObject);
+    procedure Build_ButtonClick(Sender: TObject);
+    procedure Build_Fill(Sender:TObject);
+    procedure Store_Fill(Sender:TObject);
+    procedure Stats_Fill(Sender:TObject);
+    procedure Menu_Fill(Sender:TObject);
+  public
+    MyControls: TKMControlsCollection;
+    constructor Create;
+    destructor Destroy; override;
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure Unit_Die(Sender:TObject);
@@ -151,17 +160,74 @@ type TKMGamePlayInterface = class
     procedure Build_SelectRoad;
     procedure Build_RightClickCancel;
     procedure IssueMessage(MsgTyp:TKMMessageType; Text:string);
-    procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow,DoFast:boolean);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
+    procedure UpdateState;
     procedure Paint;
   end;
 
 
 implementation
 uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_LoadSFX;
+
+
+{Switch between pages}
+procedure TKMGamePlayInterface.SwitchPageRatios(Sender: TObject);
+const ResPic:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
+      ResLab:array[1..4] of word = (298,300,302,304);
+      ResQty:array[1..4] of byte = (2,4,2,3);
+      ResHouse:array[1..4,1..4] of THouseType = (
+      (ht_WeaponSmithy,ht_ArmorSmithy,ht_None,ht_None),
+      (ht_IronSmithy,ht_Metallurgists,ht_WeaponSmithy,ht_ArmorSmithy),
+      (ht_ArmorWorkshop,ht_WeaponWorkshop,ht_None,ht_None),
+      (ht_Mill,ht_Swine,ht_Stables,ht_None));
+var i:integer; ResID:TResourceType; HouseID:THouseType;
+begin
+
+  if (MyPlayer=nil)or(MyPlayer.fMissionSettings=nil) then exit; //We need to be able to access these
+
+  if not (Sender is TKMButton) then exit;
+
+  //Hide everything but the tab buttons
+  for i:=1 to KMPanel_Ratios.ChildCount do
+    if not (KMPanel_Ratios.Childs[i] is TKMButton) then
+      KMPanel_Ratios.Childs[i].Hide;
+
+  ResID:=ResPic[TKMButton(Sender).Tag];
+
+  KMImage_RatioPic0.TexID:=350+byte(ResID);
+  KMLabel_RatioLab0.Caption:=fTextLibrary.GetTextString(ResLab[TKMButton(Sender).Tag]);
+  KMImage_RatioPic0.Show;
+  KMLabel_RatioLab0.Show;
+
+  for i:=1 to ResQty[TKMButton(Sender).Tag] do begin
+    HouseID:=ResHouse[TKMButton(Sender).Tag,i];
+    KMImage_RatioPic[i].TexID:=GUIBuildIcons[byte(HouseID)];
+    KMLabel_RatioLab[i].Caption:=fTextLibrary.GetTextString(GUIBuildIcons[byte(HouseID)]-300);
+    KMRatio_RatioRat[i].Position:=MyPlayer.fMissionSettings.GetRatio(ResID,HouseID);
+    KMImage_RatioPic[i].Show;
+    KMLabel_RatioLab[i].Show;
+    KMRatio_RatioRat[i].Show;
+  end;
+
+
+end;
+
+
+procedure TKMGamePlayInterface.RatiosChange(Sender: TObject);
+var ResID:TResourceType; HouseID:THouseType;
+begin
+
+  if (MyPlayer=nil)or(MyPlayer.fMissionSettings=nil) then exit; //We need to be able to access these
+  if not (Sender is TKMRatioRow) then exit;
+
+  ResID:=TResourceType(KMImage_RatioPic0.TexID-350);
+  HouseID:=THouseType(KMImage_RatioPic[TKMRatioRow(Sender).Tag].TexID-300);
+
+  MyPlayer.fMissionSettings.SetRatio(ResID,HouseID,TKMRatioRow(Sender).Position);
+end;
 
 
 {Switch between pages}
@@ -219,6 +285,7 @@ begin
 
   if Sender=KMButtonMain[2] then begin
     KMPanel_Ratios.Show;
+    SwitchPageRatios(KMButton_Ratios[1]); //Open 1st tab
     KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(167);
   end else
 
@@ -352,6 +419,7 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
       KMButtonMain[i+1].OnClick:=SwitchPage;
       KMButtonMain[i+1].Hint:=fTextLibrary.GetTextString(160+i);
     end;
+    KMButtonMain[2].Disable; //Unimplemented yet
     KMButtonMain[4].Hint:=fTextLibrary.GetTextString(164); //This is an exception to the rule above
     KMButtonMain[5]:=MyControls.AddButton(KMPanel_Main,  8, 372, 42, 36, 443);
     KMButtonMain[5].OnClick:=SwitchPage;
@@ -360,6 +428,8 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
     KMImage_Clock:=MyControls.AddImage(KMPanel_Main,232,8,67,65,556);
     KMImage_Clock.Hide;
+    KMLabel_Clock:=MyControls.AddLabel(KMPanel_Main,265,80,0,0,'mm:ss',fnt_Outline,kaCenter);
+    KMLabel_Clock.Hide;
 
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
@@ -385,6 +455,7 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     Create_Store_Page();
     Create_School_Page();
     Create_Barracks_Page();
+    //Create_TownHall_Page();
 
   SetHintEvents(DisplayHint); //Set all OnHint events to be the correct function
 
@@ -436,8 +507,29 @@ end;
 
 {Ratios page}
 procedure TKMGamePlayInterface.Create_Ratios_Page;
+const ResPic:array[1..4] of TResourceType = (rt_Steel,rt_Coal,rt_Wood,rt_Corn);
+      ResHint:array[1..4] of word = (297,299,301,303);
+var i:integer;
 begin
   KMPanel_Ratios:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
+
+  for i:=1 to 4 do begin
+    KMButton_Ratios[i] := MyControls.AddButton(KMPanel_Ratios, 8+(i-1)*40,20,32,32,350+byte(ResPic[i]));
+    KMButton_Ratios[i].Hint := fTextLibrary.GetTextString(ResHint[i]);
+    KMButton_Ratios[i].Tag := i;
+    KMButton_Ratios[i].OnClick := SwitchPageRatios;
+  end;
+
+  KMImage_RatioPic0:=MyControls.AddImage(KMPanel_Ratios,12,76,32,32,327);
+  KMLabel_RatioLab0:=MyControls.AddLabel(KMPanel_Ratios,44,72,100,30,'<<<LEER>>>',fnt_Outline,kaLeft);
+
+  for i:=1 to 4 do begin
+    KMImage_RatioPic[i]:=MyControls.AddImage(KMPanel_Ratios,12,124+(i-1)*50,32,32,327);
+    KMLabel_RatioLab[i]:=MyControls.AddLabel(KMPanel_Ratios,50,116+(i-1)*50,100,30,'<<<LEER>>>',fnt_Metal,kaLeft);
+    KMRatio_RatioRat[i]:=MyControls.AddRatioRow(KMPanel_Ratios,48,136+(i-1)*50,140,20,0,5);
+    KMRatio_RatioRat[i].Tag:=i;
+    KMRatio_RatioRat[i].OnChange:=RatiosChange;
+  end;
 end;
 
 
@@ -781,8 +873,10 @@ begin
   if Mouse.CursorPos.X>ToolBarWidth then DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar
 
   Minimap_Update(nil);
-  if KMImage_Clock.Visible then
+  if KMImage_Clock.Visible then begin
     KMImage_Clock.TexID := ((KMImage_Clock.TexID-556)+1)mod 16 +556;
+    KMLabel_Clock.Caption := int2time(fGame.GetMissionTime); 
+  end;
 
   for i:=low(KMImage_Message) to high(KMImage_Message) do
     if Assigned(KMImage_Message[i]) then
@@ -1308,7 +1402,7 @@ begin
     if KMPanel_Main.Childs[i] is TKMPanel then
       KMPanel_Main.Childs[i].Hide;
 
-  fGame.StopGame();
+  fGame.StopGame(gr_Cancel);
 end;
 
 
@@ -1435,7 +1529,7 @@ end;
 procedure TKMGamePlayInterface.EnableOrDisableMenuIcons(NewValue:boolean);
 begin
   KMButtonMain[1].Enabled := NewValue;
-  KMButtonMain[2].Enabled := NewValue;
+  //KMButtonMain[2].Enabled := NewValue; //Unimplemented yet
   KMButtonMain[3].Enabled := NewValue;
 end;
 
@@ -1443,6 +1537,7 @@ end;
 procedure TKMGamePlayInterface.ShowClock(DoShow:boolean);
 begin
   KMImage_Clock.Visible:=DoShow;
+  KMLabel_Clock.Visible:=DoShow;
 end;
 
 

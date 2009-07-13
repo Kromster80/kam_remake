@@ -1072,12 +1072,13 @@ begin
 
       Dist:=KMLength(Loc,TKMHouse(Items[I]).GetPosition);
 
+      //Always prefer Towers to Barracks by making Barracks Bid much less attractive
+      if TKMHouse(Items[I]).GetHouseType = ht_Barracks then Dist:=Dist*1000;
+
       if (Bid=0)or(Bid>Dist) then
       begin
         Bid:=Dist;
         Result := TKMHouse(Items[I]);
-        //Always prefer Towers to Barracks by making Barracks Bid much less attractive
-        if Result.fHouseType=ht_Barracks then Bid:=1024;
       end;
 
     end;
