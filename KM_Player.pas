@@ -1,6 +1,6 @@
 unit KM_Player;
 interface
-uses KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_Settings;
+uses KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_Settings, KM_CommonTypes;
 
 
 type
@@ -60,7 +60,30 @@ type
 implementation
 uses KM_Terrain, KM_LoadSFX;
 
+
 { TKMPlayerAssets }
+constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
+begin
+  PlayerID := aPlayerID;
+  fMissionSettings := TMissionSettings.Create;
+  fUnits := TKMUnitsCollection.Create;
+  fHouses := TKMHousesCollection.Create;
+  fDeliverList := TKMDeliverQueue.Create;
+  fBuildList := TKMBuildingQueue.Create;
+end;
+
+
+destructor TKMPlayerAssets.Destroy;
+begin
+  FreeAndNil(fMissionSettings);
+  FreeAndNil(fUnits);
+  FreeAndNil(fHouses);
+  FreeAndNil(fDeliverList);
+  FreeAndNil(fBuildList);
+  inherited;
+end;
+
+
 function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true):TKMUnit;
 begin
   Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
@@ -212,33 +235,6 @@ begin
    until H = nil;
 end;
 
-constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
-begin
-  PlayerID := aPlayerID;
-  fMissionSettings := TMissionSettings.Create;
-  fUnits := TKMUnitsCollection.Create;
-  fHouses := TKMHousesCollection.Create;
-  fDeliverList := TKMDeliverQueue.Create;
-  fBuildList := TKMBuildingQueue.Create;
-end;
-
-
-destructor TKMPlayerAssets.Destroy;
-begin
-  FreeAndNil(fMissionSettings);
-  FreeAndNil(fUnits);
-  FreeAndNil(fHouses);
-  FreeAndNil(fDeliverList);
-  FreeAndNil(fBuildList);
-  inherited;
-end;
-
-
-procedure TKMPlayerAssets.Paint;
-begin
-  fUnits.Paint;
-  fHouses.Paint;
-end;
 
 function TKMPlayerAssets.UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
 begin
@@ -308,6 +304,14 @@ begin
   fUnits.UpdateState;
   fHouses.UpdateState;
 end;
+
+
+procedure TKMPlayerAssets.Paint;
+begin
+  fUnits.Paint;
+  fHouses.Paint;
+end;
+
 
 
 end.

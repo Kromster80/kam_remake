@@ -41,7 +41,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Controls, KM_Houses;
+  KM_Unit1, KM_Controls, KM_Houses, KM_CommonTypes;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame } 

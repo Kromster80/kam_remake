@@ -32,6 +32,7 @@ type
   end;
 
 implementation
+uses KM_CommonTypes, KM_Utils;
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)}
 {Everything should be issued by units!}

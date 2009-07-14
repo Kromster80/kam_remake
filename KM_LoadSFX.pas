@@ -1,6 +1,6 @@
 unit KM_LoadSFX;
 interface
-uses Windows, MMSystem, MPlayer, Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults;
+uses Windows, MMSystem, MPlayer, Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults, KM_CommonTypes;
 
 const MaxWaves = 200;
 const MaxSourceCount = 16; //Actually it depends on hardware

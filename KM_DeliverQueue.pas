@@ -99,7 +99,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Terrain, KM_PlayersCollection;
+uses KM_Unit1, KM_Terrain, KM_PlayersCollection, KM_Utils;
 
 { TKMDeliverQueue }
 

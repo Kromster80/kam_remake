@@ -36,6 +36,7 @@ var
 
   
 implementation
+uses KM_CommonTypes;
 
 
 {TKMAllPlayers}

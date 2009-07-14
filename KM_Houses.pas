@@ -1,6 +1,6 @@
 unit KM_Houses;
 interface
-uses Windows, Math, Classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, SysUtils, MMSystem;
+uses Windows, Math, Classes, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, SysUtils, MMSystem,KM_CommonTypes;
 
   {Everything related to houses is here}
 type
@@ -188,7 +188,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_LoadSFX, KM_Viewport;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_Utils, KM_LoadSFX, KM_Viewport;
 
 
 { TKMHouse }

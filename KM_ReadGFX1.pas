@@ -54,7 +54,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Unit1, KM_Render, KM_Game, KM_Settings;
+uses KromUtils, KM_Unit1, KM_Render, KM_Game, KM_Settings, KM_CommonTypes, KM_Utils;
 
 
 constructor TResource.Create;

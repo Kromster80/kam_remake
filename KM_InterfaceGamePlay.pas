@@ -1,6 +1,6 @@
 unit KM_InterfaceGamePlay;
 interface
-uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, OpenGL, Windows, 
+uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, Windows,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT;
 
 type TKMGamePlayInterface = class
@@ -55,7 +55,7 @@ type TKMGamePlayInterface = class
         KMButton_Load:array[1..SAVEGAME_COUNT]of TKMButton;
 
       KMPanel_Settings:TKMPanel;
-        KMLabel_Settings_Brightness,KMLabel_Settings_BrightValue:TKMLabel;
+        KMLabel_Settings_BrightValue:TKMLabel;
         KMButton_Settings_Dark,KMButton_Settings_Light:TKMButton;
         KMCheckBox_Settings_Autosave,KMCheckBox_Settings_FastScroll:TKMCheckBox;
         KMLabel_Settings_MouseSpeed,KMLabel_Settings_SFX,KMLabel_Settings_Music,KMLabel_Settings_Music2:TKMLabel;
@@ -63,7 +63,6 @@ type TKMGamePlayInterface = class
         KMButton_Settings_Music:TKMButton;
 
       KMPanel_Quit:TKMPanel;
-        KMLabel_Quit:TKMLabel;
         KMButton_Quit_Yes,KMButton_Quit_No:TKMButton;
 
     KMPanel_Unit:TKMPanel;
@@ -172,7 +171,7 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_LoadSFX;
+uses KM_Unit1, KM_PlayersCollection, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_LoadSFX, KM_CommonTypes;
 
 
 {Switch between pages}
@@ -421,7 +420,6 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
       KMButtonMain[i+1].OnClick:=SwitchPage;
       KMButtonMain[i+1].Hint:=fTextLibrary.GetTextString(160+i);
     end;
-    KMButtonMain[2].Disable; //Unimplemented yet
     KMButtonMain[4].Hint:=fTextLibrary.GetTextString(164); //This is an exception to the rule above
     KMButtonMain[5]:=MyControls.AddButton(KMPanel_Main,  8, 372, 42, 36, 443);
     KMButtonMain[5].OnClick:=SwitchPage;
@@ -531,6 +529,7 @@ begin
     KMRatio_RatioRat[i]:=MyControls.AddRatioRow(KMPanel_Ratios,48,136+(i-1)*50,140,20,0,5);
     KMRatio_RatioRat[i].Tag:=i;
     KMRatio_RatioRat[i].OnChange:=RatiosChange;
+    KMRatio_RatioRat[i].Disable;
   end;
 end;
 
@@ -656,7 +655,7 @@ procedure TKMGamePlayInterface.Create_Settings_Page;
 var i:integer;
 begin
   KMPanel_Settings:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
-    KMLabel_Settings_Brightness:=MyControls.AddLabel(KMPanel_Settings,100,10,100,30,fTextLibrary.GetTextString(181),fnt_Metal,kaCenter);
+    MyControls.AddLabel(KMPanel_Settings,100,10,100,30,fTextLibrary.GetTextString(181),fnt_Metal,kaCenter);
     KMButton_Settings_Dark:=MyControls.AddButton(KMPanel_Settings,8,30,36,24,fTextLibrary.GetTextString(183),fnt_Metal);
     KMButton_Settings_Light:=MyControls.AddButton(KMPanel_Settings,154,30,36,24,fTextLibrary.GetTextString(182),fnt_Metal);
     KMButton_Settings_Dark.Hint:=fTextLibrary.GetTextString(185);
@@ -692,7 +691,7 @@ end;
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   KMPanel_Quit:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
-    KMLabel_Quit:=MyControls.AddLabel(KMPanel_Quit,100,30,100,30,fTextLibrary.GetTextString(176),fnt_Outline,kaCenter);
+    MyControls.AddLabel(KMPanel_Quit,100,30,100,30,fTextLibrary.GetTextString(176),fnt_Outline,kaCenter);
     KMButton_Quit_Yes:=MyControls.AddButton(KMPanel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
     KMButton_Quit_No:=MyControls.AddButton(KMPanel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
     KMButton_Quit_Yes.Hint:=fTextLibrary.GetTextString(177);

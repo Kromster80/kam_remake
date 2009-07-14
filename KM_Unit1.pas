@@ -117,7 +117,7 @@ var
   OldScreenHeight: integer;
 
 implementation  {$R *.DFM}
-uses KM_Settings;
+uses KM_Settings, KM_CommonTypes;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
