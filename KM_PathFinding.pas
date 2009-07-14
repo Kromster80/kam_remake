@@ -1,6 +1,6 @@
 unit KM_PathFinding;
 interface            
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain;
+uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils;
 
 type
 

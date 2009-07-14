@@ -2,7 +2,7 @@ unit KM_Units;
 interface
 uses
   KM_Defaults, windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain,
-  KM_Houses, KromUtils, SysUtils, MMSystem, KM_Units_WorkPlan, KM_CommonTypes;
+  KM_Houses, KromUtils, SysUtils, MMSystem, KM_Units_WorkPlan, KM_CommonTypes, KM_Utils;
 
 type    
   TKMUnit = class;
@@ -353,7 +353,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_LoadSFX, KM_Viewport, KM_Game, KM_Utils;
+uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_LoadSFX, KM_Viewport, KM_Game;
 
 
 { TKMUnitCitizen }

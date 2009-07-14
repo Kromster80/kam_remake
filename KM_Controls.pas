@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes;
+uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
 
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
@@ -279,7 +279,7 @@ end;
 
 
 implementation
-uses KM_RenderUI, KM_Utils;
+uses KM_RenderUI;
 
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin

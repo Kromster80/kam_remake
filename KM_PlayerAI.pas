@@ -1,6 +1,6 @@
 unit KM_PlayerAI;
 interface
-uses KM_Defaults, KromUtils, KM_Player;
+uses KM_Defaults, KromUtils, KM_Player, KM_Utils;
 
 
 type

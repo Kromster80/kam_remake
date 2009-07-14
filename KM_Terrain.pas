@@ -1,6 +1,6 @@
 unit KM_Terrain;
 interface
-uses Controls, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils, KM_CommonTypes;
+uses Controls, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils, KM_CommonTypes, KM_Utils;
 
 const
 MaxMapSize=256;
@@ -152,7 +152,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_LoadSFX, KM_PathFinding, KM_Utils;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_LoadSFX, KM_PathFinding;
 
 constructor TTerrain.Create;
 begin

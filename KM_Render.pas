@@ -1,7 +1,7 @@
 unit KM_Render;
 interface
 uses OpenGL, dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, JPEG, Graphics,
-  KM_TGATexture, KM_Defaults;
+  KM_TGATexture, KM_Defaults, KM_Utils;
 
 type
 TRender = class

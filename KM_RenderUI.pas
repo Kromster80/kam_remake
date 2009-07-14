@@ -1,6 +1,6 @@
 unit KM_RenderUI;
 interface
-uses dglOpenGL, OpenGL, Math, KromUtils, KromOGLUtils, SysUtils, KM_Defaults, Graphics;
+uses dglOpenGL, OpenGL, Math, KromUtils, KromOGLUtils, KM_Utils, SysUtils, KM_Defaults, Graphics;
 
 type
 TRenderUI = class

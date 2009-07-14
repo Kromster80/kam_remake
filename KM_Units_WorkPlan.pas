@@ -1,6 +1,6 @@
 unit KM_Units_WorkPlan;
 interface
-uses KM_Defaults, KromUtils, KM_Terrain;
+uses KM_Defaults, KromUtils, KM_Terrain, KM_Utils;
 
 type
   TUnitWorkPlan = class
@@ -32,7 +32,7 @@ type
   end;
 
 implementation
-uses KM_CommonTypes, KM_Utils;
+uses KM_CommonTypes;
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)}
 {Everything should be issued by units!}

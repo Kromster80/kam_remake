@@ -1,6 +1,6 @@
 unit KM_CommonTypes;
 interface
-uses Classes, SysUtils, KromUtils, MMSystem;
+uses Classes, SysUtils, KM_Utils, MMSystem;
 
 
 type

@@ -1,6 +1,6 @@
 unit KM_DeliverQueue;
 interface
-uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units;
+uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
 
   type TJobStatus = (js_Open, js_Taken);
   type TDemandImportance = (di_Norm, di_High);
@@ -99,7 +99,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Terrain, KM_PlayersCollection, KM_Utils;
+uses KM_Unit1, KM_Terrain, KM_PlayersCollection;
 
 { TKMDeliverQueue }
 
