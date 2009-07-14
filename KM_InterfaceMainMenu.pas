@@ -52,6 +52,10 @@ type TKMMainMenuInterface = class
     KMPanel_Loading:TKMPanel;
       KMImage_LoadingBG:TKMImage;
       KMLabel_Loading:TKMLabel;
+    KMPanel_Error:TKMPanel;
+      KMImage_ErrorBG:TKMImage;
+      KMLabel_Error:TKMLabel;
+      Button_ErrorBack:TKMButton;
     KMPanel_Results:TKMPanel;
       KMImage_ResultsBG:TKMImage;
       Label_Results_Result:TKMLabel;
@@ -64,6 +68,7 @@ type TKMMainMenuInterface = class
     procedure Create_Options_Page;
     procedure Create_Credits_Page;
     procedure Create_Loading_Page;
+    procedure Create_Error_Page;
     procedure Create_Results_Page;
     procedure SwitchMenuPage(Sender: TObject);
     procedure SingleMap_RefreshList();
@@ -78,6 +83,7 @@ type TKMMainMenuInterface = class
     destructor Destroy; override;
     procedure SetScreenSize(X,Y:word);
     procedure ShowScreen_Loading(Text:string);
+    procedure ShowScreen_Error(Text:string);
     procedure ShowScreen_Main();
     procedure ShowScreen_Options();
     procedure Fill_Results();
@@ -116,6 +122,7 @@ inherited Create;
   Create_Options_Page;
   Create_Credits_Page;
   Create_Loading_Page;
+  Create_Error_Page;
   Create_Results_Page;
 
   {for i:=1 to length(FontFiles) do
@@ -149,6 +156,13 @@ procedure TKMMainMenuInterface.ShowScreen_Loading(Text:string);
 begin
   KMLabel_Loading.Caption:=Text;
   SwitchMenuPage(KMPanel_Loading);
+end;
+
+
+procedure TKMMainMenuInterface.ShowScreen_Error(Text:string);
+begin
+  KMLabel_Error.Caption:=Text;
+  SwitchMenuPage(KMPanel_Error);
 end;
 
 
@@ -371,6 +385,18 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.Create_Error_Page;
+begin
+  KMPanel_Error:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
+    KMImage_ErrorBG:=MyControls.AddImage(KMPanel_Error,0,0,ScreenX,ScreenY,2,6);
+    KMImage_ErrorBG.StretchImage:=true;
+    MyControls.AddLabel(KMPanel_Error,ScreenX div 2,ScreenY div 2,100,30,'Error has occured...',fnt_Outline,kaCenter);
+    KMLabel_Error:=MyControls.AddLabel(KMPanel_Error,ScreenX div 2,ScreenY div 2+20,100,30,'...',fnt_Grey,kaCenter);
+    Button_ErrorBack:=MyControls.AddButton(KMPanel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ErrorBack.OnClick:=SwitchMenuPage;
+end;
+
+
 procedure TKMMainMenuInterface.Create_Results_Page;
 var i:integer; Adv:integer;
 begin
@@ -410,6 +436,7 @@ begin
   if (Sender=KMButton_CreditsBack)or
      (Sender=KMButton_SingleBack)or
      (Sender=Button_Options_Back)or
+     (Sender=Button_ErrorBack)or
      (Sender=KMButton_ResultsBack) then
     KMPanel_MainMenu.Show;
                           
@@ -433,6 +460,10 @@ begin
   {Show Loading... screen}
   if Sender=KMPanel_Loading then
     KMPanel_Loading.Show;
+
+  {Show Error... screen}
+  if Sender=KMPanel_Error then
+    KMPanel_Error.Show;
 
   {Show Results screen}
   if Sender=KMPanel_Results then //This page can be accessed only by itself

@@ -30,7 +30,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure StartGame(MissionFile:string);
     procedure PauseGame(DoPause:boolean);
-    procedure StopGame(const Msg:gr_Message; ShowResults:boolean=true);
+    procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
     function GetMissionTime:cardinal;
     property GetTickCount:cardinal read GameplayTickCount;
     procedure UpdateState;
@@ -343,6 +343,7 @@ end;
 
 
 procedure TKMGame.StartGame(MissionFile:string);
+var ResultMsg:string;
 begin
   RandSeed:=4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
 
@@ -367,8 +368,9 @@ begin
 
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(MissionFile,true) then begin
-    if not fMissionParser.LoadDATFile(MissionFile) then begin
-      StopGame(gr_Error);
+    ResultMsg := fMissionParser.LoadDATFile(MissionFile);
+    if ResultMsg<>'' then begin
+      StopGame(gr_Error,ResultMsg);
       //Show all required error messages here
       exit;
     end;
@@ -400,7 +402,7 @@ begin
 end;
 
                      
-procedure TKMGame.StopGame(const Msg:gr_Message; ShowResults:boolean=true);
+procedure TKMGame.StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
 begin
   GameIsRunning:=false;
 
@@ -424,7 +426,7 @@ begin
   end else
   if Msg = gr_Error then begin
     fLog.AppendLog('Gameplay error',true);
-    fMainMenuInterface.ShowScreen_Main;
+    fMainMenuInterface.ShowScreen_Error(TextMsg);
   end;
 end;
 

@@ -63,7 +63,7 @@ type
     function ReadMissionFile(aFileName:string):string;
   public      { Public declarations }
     constructor Create;
-    function LoadDATFile(aFileName:string):boolean;
+    function LoadDATFile(aFileName:string):string;
     function GetMissionDetails(aFileName:string):TKMMissionDetails;
     function GetMapDetails(aFileName:string):TKMMapDetails;
 end;
@@ -269,14 +269,14 @@ begin
 end;
 
 
-function TMissionParser.LoadDATFile(aFileName:string):boolean;
+function TMissionParser.LoadDATFile(aFileName:string):string;
 var
   FileText, CommandText, Param, TextParam: string;
   ParamList: array[1..8] of integer;
   k, l: integer;
   CommandType: TKMCommandType;
 begin
-  Result:=false; //Set it right from the start
+  Result:=''; //Set it right from the start
   UnloadMission; //Call function which will reset fPlayers and other stuff
 
   OpenedMissionName:=aFileName; //Used in MAP loading later on
@@ -328,7 +328,11 @@ begin
     else
       inc(k);
   until (k>=length(FileText));
-  Result:=true; //If we have reach here without exiting then it must have worked
+  if MyPlayer = nil then begin
+    //DebugScriptError('No human player detected - ''ct_SetHumanPlayer''');
+    Result:='No human player detected - ''ct_SetHumanPlayer''';
+  end else
+    Result:=''; //If we have reach here without exiting then it must have worked
 end;
 
 function TMissionParser.ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
@@ -428,6 +432,7 @@ begin
   ct_AddWare:        begin
                      MyInt:=ParamList[1];
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                     MyInt:=EnsureRange(MyInt,0,MAXWORD); //Sometimes user can define it to be 999999
                      Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,KMPoint(0,0),1));
                      if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
