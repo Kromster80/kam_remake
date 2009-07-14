@@ -34,7 +34,7 @@ type
     procedure RemUnit(Position: TKMUnit);
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
-    function FindInn(Loc:TKMPoint): TKMHouseInn;
+    function FindInn(Loc:TKMPoint;UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetUnitLocations(out Loc:TKMPointList);
@@ -284,7 +284,7 @@ begin
   Result:=fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
 end;
 
-function TKMPlayerAssets.FindInn(Loc:TKMPoint): TKMHouseInn;
+function TKMPlayerAssets.FindInn(Loc:TKMPoint;UnitIsAtHome:boolean=false): TKMHouseInn;
 var
   H: TKMHouseInn;
   i: integer;
@@ -295,6 +295,7 @@ begin
    Result := nil;
    i:=1;
    BestMatch := 9999;
+   if UnitIsAtHome then inc(Loc.Y); //From outside the door of the house
          
    H:=TKMHouseInn(FindHouse(ht_Inn,KMPoint(0,0),1));
    repeat

@@ -164,6 +164,8 @@ type TKMGamePlayInterface = class
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow,DoFast:boolean);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
+    property GetShownUnit: TKMUnit read ShownUnit;
+    procedure ClearShownUnit;
     procedure UpdateState;
     procedure Paint;
   end;
@@ -1562,6 +1564,13 @@ begin
     KMButtonMain[5].Down := IsDown;
     if (not IsDown) and (KMButtonMain[5].Visible) then SwitchPage(KMButtonMain[5]);
   end;
+end;
+
+
+procedure TKMGamePlayInterface.ClearShownUnit;
+begin
+  ShownUnit := nil;
+  SwitchPage(nil);
 end;
 
 

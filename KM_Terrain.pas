@@ -763,6 +763,8 @@ begin
   UpdateTransition(Loc.X,Loc.Y+1);
   UpdateTransition(Loc.X-1,Loc.Y);
   ReduceHeights(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Required for height reduction
+  //Should use something simpler like flatten terrain, but needs to be modified a bit
+  //FlattenTerrain(KMPointY1(Loc));
 
   RecalculatePassability(Loc);
   RebuildWalkConnect(canWalk);

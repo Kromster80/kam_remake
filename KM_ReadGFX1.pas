@@ -159,7 +159,7 @@ procedure TResource.LoadFonts(DoExport:boolean);
 var i:integer;
 begin
   for i:=1 to length(FontFiles) do
-    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt',TKMFont(i),DoExport);
+    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+fGameSettings.GetLocale+'.fnt',TKMFont(i),DoExport);
 end;
 
 

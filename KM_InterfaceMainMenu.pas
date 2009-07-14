@@ -3,12 +3,6 @@ interface
 uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, OpenGL,
   KM_Controls, KM_Defaults, KM_LoadDAT, Windows;
 
-{@Krom: Discussion about assigning controls:
-
-It turns out that memory isn't being lost for unassigned controls, because the controls collection does that.
-Therefore it's not really nececary to assign things, unless we need to access them. (although it means you can see a list of the controls for each section more easily)
-Would you still like me to assign them? (I'd be happy to, it won't take long) Or shall we just leave them and assign them if we need to?
-}
 
 type TKMMainMenuInterface = class
   private
@@ -188,8 +182,8 @@ end;
 procedure TKMMainMenuInterface.ShowScreen_Results(Msg:gr_Message);
 begin
   case Msg of
-  gr_Win:    Label_Results_Result.Caption:='Win';
-  gr_Defeat: Label_Results_Result.Caption:='Defeat';
+  gr_Win:    Label_Results_Result.Caption:=fTextLibrary.GetSetupString(111);
+  gr_Defeat: Label_Results_Result.Caption:=fTextLibrary.GetSetupString(112);
   gr_Cancel: Label_Results_Result.Caption:='Mission canceled';
   else       Label_Results_Result.Caption:='<<<LEER>>>';
   end;
@@ -361,7 +355,7 @@ begin
   KMPanel_Credits:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,ScreenX,ScreenY,2,6);
     KMImage_CreditsBG.StretchImage:=true;
-    KMLabel_Credits:=MyControls.AddLabel(KMPanel_Credits,ScreenX div 2,ScreenY,100,30,'Credits go here...',fnt_Grey,kaCenter);
+    KMLabel_Credits:=MyControls.AddLabel(KMPanel_Credits,ScreenX div 2,ScreenY,100,30,'Credits go here'{ fTextLibrary.GetSetupString(300) @Krom: Can't handle labels with strings this long },fnt_Grey,kaCenter);
     KMButton_CreditsBack:=MyControls.AddButton(KMPanel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     KMButton_CreditsBack.OnClick:=SwitchMenuPage;
 end;

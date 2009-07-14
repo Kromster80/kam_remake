@@ -43,7 +43,11 @@ end;
 
 procedure TViewport.SetZoom(aZoom:single);
 begin
-  Zoom := EnsureRange(aZoom, 0.1, 8);
+  aZoom := EnsureRange(aZoom, 0.1, 8);
+  //Limit the zoom to within the map boundaries
+  if ViewWidth /CELL_SIZE_PX/aZoom > fTerrain.MapX then aZoom := ViewWidth /CELL_SIZE_PX/(fTerrain.MapX-1);
+  if ViewHeight/CELL_SIZE_PX/aZoom > fTerrain.MapY then aZoom := ViewHeight/CELL_SIZE_PX/ fTerrain.MapY;
+  Zoom := aZoom;
   SetCenter(XCoord,YCoord); //To ensure it sets the limits smoothly
 end;
 
@@ -68,8 +72,8 @@ end;
 
 procedure TViewport.SetCenter(NewX,NewY:integer);
 begin
-  XCoord:=EnsureRange(NewX, 0 + round(ViewWidth/2/CELL_SIZE_PX/Zoom), fTerrain.MapX - round(ViewWidth/2/CELL_SIZE_PX/Zoom) - 1);
-  YCoord:=EnsureRange(NewY, -1 + round(ViewHeight/2/CELL_SIZE_PX/Zoom), fTerrain.MapY - round(ViewHeight/2/CELL_SIZE_PX/Zoom) - 1);
+  XCoord:=EnsureRange(NewX,-1 + round(ViewWidth/2/CELL_SIZE_PX/Zoom),  fTerrain.MapX - round(ViewWidth /2/CELL_SIZE_PX/Zoom) - 1);
+  YCoord:=EnsureRange(NewY, 0 + round(ViewHeight/2/CELL_SIZE_PX/Zoom), fTerrain.MapY - round(ViewHeight/2/CELL_SIZE_PX/Zoom) - 1);
   fSoundLib.UpdateListener(KMPoint(XCoord,YCoord));
 end;
 

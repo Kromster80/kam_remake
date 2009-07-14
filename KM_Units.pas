@@ -453,7 +453,7 @@ begin
       //           the time. This could just be calculated as (UNIT_MIN_CONDITION div 2) I suppose,
       //           although we might want to change it.
       //        Please give me your thoughts on all of these matters.
-      H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition); //Looks like a bug - unit position is inside the house, hence route can't be made properly
+      H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
       if H<>nil then
         fUnitTask:=TTaskGoEat.Create(H,Self)
       else
@@ -1753,7 +1753,7 @@ with fUnit do
        end; 
     3: begin if WorkPlan.GatheringScript = gs_WoodCutterCut then
              begin
-               SetActionStay(10, WorkPlan.WorkType, true, 5);
+               SetActionStay(10, WorkPlan.WorkType, true, 5, 5);
              end
              else
                SetActionStay(0, WorkPlan.WorkType);
@@ -1767,7 +1767,7 @@ with fUnit do
                gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,ChopableTrees[Random(length(ChopableTrees))+1,1]);
                gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
              end;
-         SetActionStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame);
+         SetActionStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);
        end;
     5: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
@@ -1900,7 +1900,10 @@ case Phase of
                                          //fUnit.fHome is wrong
      end else
      SetActionStay(0,ua_Walk);
-  1: SetActionStay(16-1,ua_Die,false);
+  1: begin
+       SetActionStay(16-1,ua_Die,false);
+       fThought := th_None; //Show no thought when dying, it looks bad
+     end;
   2: begin
       if fHome<>nil then fHome.GetHasOwner:=false;
       //Schedule Unit for removal and remove it after fUnits.UpdateState is done
@@ -1971,7 +1974,7 @@ TaskDone:=false;
 
 with fUnit do
 case Phase of
- 0: begin 
+ 0: begin
       fThought := th_Eat;
       if fHome<>nil then fHome.SetState(hst_Empty,0);
       if not fVisible then SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType) else
@@ -1985,7 +1988,6 @@ case Phase of
       PlaceID:=fInn.EaterGetsInside(fUnitType);
     end;
  3: begin
-      fThought := th_None;
       if (fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
         fInn.ResTakeFromIn(rt_Bread);
         SetActionStay(29*4,ua_Eat,false);
@@ -2016,6 +2018,10 @@ case Phase of
     end else
       SetActionStay(0,ua_Walk);
  7: begin
+      //Stop showing hungry if we no longer are, but if we are then walk out of the inn thinking hungry so that the player will know that we haven't been fed
+      if fCondition<UNIT_MAX_CONDITION then
+        fThought := th_Eat
+      else fThought := th_None;
       SetActionGoIn(ua_Walk,gid_Out,ht_Inn); //Exit Inn
       fInn.EatersGoesOut(PlaceID);
     end;
@@ -2644,6 +2650,8 @@ begin
   //After all units are updated we can safely remove those that died.  
   for I := Count - 1 downto 0 do
     if TKMUnit(Items[I]).ScheduleForRemoval then begin
+      if TKMUnit(Items[I]) = fGame.fGamePlayInterface.GetShownUnit then
+         fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
       TKMUnit(Items[I]).Free;
       Rem(TKMUnit(Items[I]));
     end;

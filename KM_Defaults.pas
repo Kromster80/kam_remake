@@ -106,7 +106,7 @@ const
   ('pol','Polish'),
   ('hun','Hungarian'),
   ('dut','Dutch'),
-  ('rus','Russian (no fonts)'));
+  ('rus','Russian'));
 
 
 type gr_Message = (gr_Win, gr_Defeat, gr_Cancel, gr_Error);
