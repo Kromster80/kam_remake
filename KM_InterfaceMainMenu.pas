@@ -380,8 +380,8 @@ begin
   KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,ScreenX,ScreenY,2,6);
     KMImage_LoadingBG.StretchImage:=true;
-    MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
-    KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2+20,100,30,'...',fnt_Grey,kaCenter);
+    MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
+    KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
 end;
 
 
@@ -390,8 +390,8 @@ begin
   KMPanel_Error:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_ErrorBG:=MyControls.AddImage(KMPanel_Error,0,0,ScreenX,ScreenY,2,6);
     KMImage_ErrorBG.StretchImage:=true;
-    MyControls.AddLabel(KMPanel_Error,ScreenX div 2,ScreenY div 2,100,30,'Error has occured...',fnt_Outline,kaCenter);
-    KMLabel_Error:=MyControls.AddLabel(KMPanel_Error,ScreenX div 2,ScreenY div 2+20,100,30,'...',fnt_Grey,kaCenter);
+    MyControls.AddLabel(KMPanel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'Error has occured...',fnt_Outline,kaCenter);
+    KMLabel_Error:=MyControls.AddLabel(KMPanel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack:=MyControls.AddButton(KMPanel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_ErrorBack.OnClick:=SwitchMenuPage;
 end;

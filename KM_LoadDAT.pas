@@ -46,13 +46,14 @@ const
   TroopsRemap: array[14..29] of TUnitType = (ut_Militia,ut_AxeFighter,ut_Swordsman,ut_Bowman,ut_Arbaletman,
   ut_Pikeman,ut_Hallebardman,ut_HorseScout,ut_Cavalry,ut_Barbarian, //TSK Troops
   {ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,ut_Catapult,ut_Ballista);} //TPR Troops, which are not yet enabled
-  ut_None,ut_None,ut_None,ut_None,ut_None,ut_None); //Temp replacement for TPR Troops       
+  ut_None,ut_None,ut_None,ut_None,ut_None,ut_None); //Temp replacement for TPR Troops
 
   CommandsUsedInGetMissionDetails: TKMCommandTypeSet = [ct_SetMap,ct_SetMaxPlayer,ct_SetHumanPlayer,ct_SetTactic];
 
 type
   TMissionParser = class(TObject)
   private     { Private declarations }
+    ErrorMessage:string; //Should be blank
     OpenedMissionName:string;
     CurrentPlayerIndex: integer;
     LastHouse: TKMHouse;
@@ -120,6 +121,7 @@ end;
 constructor TMissionParser.Create;
 begin
   inherited Create;
+  ErrorMessage:='';
 end;
 
 procedure TMissionParser.UnloadMission;
@@ -328,11 +330,11 @@ begin
     else
       inc(k);
   until (k>=length(FileText));
-  if MyPlayer = nil then begin
-    //DebugScriptError('No human player detected - ''ct_SetHumanPlayer''');
-    Result:='No human player detected - ''ct_SetHumanPlayer''';
-  end else
-    Result:=''; //If we have reach here without exiting then it must have worked
+
+  if MyPlayer = nil then
+    DebugScriptError('No human player detected - ''ct_SetHumanPlayer''');
+
+  Result:=ErrorMessage; //If we have reach here without exiting then it must have worked
 end;
 
 function TMissionParser.ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
@@ -510,6 +512,9 @@ end;
 
 procedure TMissionParser.DebugScriptError(ErrorMsg:string);
 begin
+  if ErrorMessage='' then
+  ErrorMessage:=ErrorMessage+OpenedMissionName+'|';
+  ErrorMessage:=ErrorMessage+ErrorMsg+'|';
   //Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
 end;
 
