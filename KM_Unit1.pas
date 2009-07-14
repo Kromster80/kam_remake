@@ -153,6 +153,7 @@ begin
   //Save normal resolution to reset when they exit the game
   OldScreenWidth  := GetSystemMetrics(SM_CXSCREEN);
   OldScreenHeight := GetSystemMetrics(SM_CYSCREEN);
+  //@Lewin: We also need to store old refresh rate, aswell use preferred refresh at our resolution (e.g. 60 or 100Hz)
 
 
   FormLoading.Show; //This is our splash screen
