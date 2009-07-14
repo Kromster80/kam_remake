@@ -345,10 +345,10 @@ type
     function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
     function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     procedure Rem(aUnit:TKMUnit);
-    procedure UpdateState;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+    procedure UpdateState;
     procedure Paint();
   end;
 
@@ -2627,6 +2627,25 @@ begin
 end;
 
 
+procedure TKMUnitsCollection.UpdateState;
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
+    TKMUnit(Items[I]).UpdateState;
+
+  //After all units are updated we can safely remove those that died.
+  for I := Count - 1 downto 0 do
+    if TKMUnit(Items[I]).ScheduleForRemoval then begin
+      if TKMUnit(Items[I]) = fGame.fGamePlayInterface.GetShownUnit then
+         fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
+      TKMUnit(Items[I]).Free;
+      Rem(TKMUnit(Items[I]));
+    end;
+
+end;
+
+
 procedure TKMUnitsCollection.Paint();
 var i:integer; x1,x2,y1,y2,Margin:integer;
 begin
@@ -2639,23 +2658,5 @@ begin
     TKMUnit(Items[I]).Paint();
 end;
 
-
-procedure TKMUnitsCollection.UpdateState;
-var
-  I: Integer;
-begin
-  for I := 0 to Count - 1 do
-    TKMUnit(Items[I]).UpdateState;
-
-  //After all units are updated we can safely remove those that died.  
-  for I := Count - 1 downto 0 do
-    if TKMUnit(Items[I]).ScheduleForRemoval then begin
-      if TKMUnit(Items[I]) = fGame.fGamePlayInterface.GetShownUnit then
-         fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
-      TKMUnit(Items[I]).Free;
-      Rem(TKMUnit(Items[I]));
-    end;
-
-end;
 
 end.
