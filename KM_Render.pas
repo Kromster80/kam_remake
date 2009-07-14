@@ -85,7 +85,7 @@ var
   fRender: TRender;
 
 implementation 
-uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_Users,
+uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_PlayersCollection,
 KM_Settings, KM_InterfaceGamePlay, KM_Game;
 
 

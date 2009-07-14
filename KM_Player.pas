@@ -1,12 +1,10 @@
-unit KM_Users;
+unit KM_Player;
 interface
-uses
-  Windows, Classes, KromUtils, Math, SysUtils,
-  KM_Units, KM_Houses, KM_DeliverQueue, KM_Defaults, KM_Settings;
+uses KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_Settings;
+
 
 type
   TPlayerType = (pt_Human, pt_Computer, pt_Animals);
-  TMissionMode = (mm_Normal, mm_Tactic);
 
 
 type
@@ -51,118 +49,16 @@ type
     function GetCanBuild(aType:THouseType):boolean;
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
-  public
-    procedure UpdateState;
-    procedure Paint;
-  end;
-
-
-type
-  TKMPlayerAI = class
-  private
-    Assets:TKMPlayerAssets;
-  public
-    constructor Create(aAssets:TKMPlayerAssets);
-    procedure CheckDefeatConditions();
-    procedure CheckCitizenCount();
-    procedure UpdateState;
-  end;
-
-
-type
-  TKMAllPlayers = class
-  private
-    fPlayerCount:integer;
-  public
-    Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
-    PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
-    SelectedHouse: TKMHouse;
-    SelectedUnit: TKMUnit;
-  public
-    constructor Create(PlayerCount:integer);
-    destructor Destroy; override;
-  public
-    property PlayerCount:integer read fPlayerCount;
-    function HousesHitTest(X, Y: Integer): TKMHouse;
-    function UnitsHitTest(X, Y: Integer): TKMUnit;
     function GetUnitCount():integer;
+    property GetHouses:TKMHousesCollection read fHouses;
+    property GetUnits:TKMUnitsCollection read fUnits;
   public
-    procedure UpdateState(Tick:cardinal);
+    procedure UpdateState;
     procedure Paint;
   end;
 
-
-
-var
-  fPlayers: TKMAllPlayers;
-  MyPlayer: TKMPlayerAssets; //shortcut to access players player
-  MissionMode: TMissionMode;
-
-  
 implementation
-uses
-  KM_Terrain, KM_LoadSFX, KM_Game;
-
-
-constructor TKMPlayerAI.Create(aAssets:TKMPlayerAssets);
-begin
-  Inherited Create;
-  Assets:=aAssets;
-end;
-
-
-procedure TKMPlayerAI.CheckDefeatConditions();
-begin
-  if (Assets.fMissionSettings.GetHouseQty(ht_Store)=0)
-  and(Assets.fMissionSettings.GetHouseQty(ht_School)=0)
-  and(Assets.fMissionSettings.GetHouseQty(ht_Barracks)=0)
-  //and(ArmyCount=0)
-  then
-    fGame.StopGame(gr_Defeat);
-
-end;
-
-
-procedure TKMPlayerAI.CheckCitizenCount();
-var i:integer; UnitType:TUnitType; H:TKMHouse; HC:TKMHousesCollection;
-begin
-  H := Assets.FindHouse(ht_School,KMPoint(0,0),1);
-  if H <> nil then
-    if TKMHouseSchool(H).UnitQueue[1]<>ut_None then exit;
-
-  HC:=Assets.fHouses;
-  for i:=0 to HC.Count-1 do
-  if TKMHouse(HC.Items[i]).IsComplete then
-  if not TKMHouse(HC.Items[i]).GetHasOwner then
-  if TKMHouse(HC.Items[i]).GetHouseType <> ht_Barracks then begin
-    UnitType := TUnitType(HouseDAT[byte(TKMHouse(HC.Items[i]).GetHouseType)].OwnerType+1);
-    if UnitType <> ut_None then break; //Don't need more UnitTypes yet
-  end;
-
-  if UnitType <> ut_None then begin
-    H := Assets.FindHouse(ht_School,KMPoint(0,0),1);
-    if H <> nil then TKMHouseSchool(H).AddUnitToQueue(UnitType);
-  end;
-end;
-
-
-procedure TKMPlayerAI.UpdateState();
-begin
-  //Check defeat only for MyPlayer
-  if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
-    CheckDefeatConditions //Store+Barracks+School+Armies = 0
-  else
-  
-  if Assets.PlayerType=pt_Computer then begin
-  CheckCitizenCount; //Train new citizens if needed
-  //CheckHouseCount; //Build new houses if needed
-  //CheckArmiesCount; //Train new soldiers if needed
-  //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
-  //CheckAndIssueAttack; //Attack enemy
-  //Anything Else?
-  end;
-end;
-
+uses KM_Terrain, KM_LoadSFX;
 
 { TKMPlayerAssets }
 function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true):TKMUnit;
@@ -401,93 +297,17 @@ begin
 end;
 
 
+function TKMPlayerAssets.GetUnitCount():integer;
+begin
+  Result:=fUnits.Count;
+end;
+
+
 procedure TKMPlayerAssets.UpdateState;
 begin
   fUnits.UpdateState;
   fHouses.UpdateState;
 end;
-
-
-{TKMAllPlayers}
-constructor TKMAllPlayers.Create(PlayerCount:integer);
-var i:integer;
-begin
-  fLog.AssertToLog(InRange(PlayerCount,1,MAX_PLAYERS),'PlayerCount exceeded');
-
-  fPlayerCount:=PlayerCount; //Used internally
-  for i:=1 to fPlayerCount do begin
-    Player[i]:=TKMPlayerAssets.Create(TPlayerID(i));
-    PlayerAI[i]:=TKMPlayerAI.Create(Player[i]);
-  end;
-end;
-
-destructor TKMAllPlayers.Destroy;
-var i:integer;
-begin
-  for i:=1 to fPlayerCount do begin
-    FreeAndNil(Player[i]);
-    FreeAndNil(PlayerAI[i]);
-  end;
-
-  MyPlayer:=nil;
-  SelectedHouse:=nil;
-  inherited;
-end;
-
-
-function TKMAllPlayers.HousesHitTest(X, Y: Integer): TKMHouse;
-var i:integer;
-begin
-  Result:=nil;
-  for i:=1 to fPlayerCount do begin
-    Result:= Player[i].HousesHitTest(X,Y);
-    if Result<>nil then Break; //else keep on testing
-  end;
-end;
-
-
-function TKMAllPlayers.UnitsHitTest(X, Y: Integer): TKMUnit;
-var i:integer;
-begin
-  Result:=nil;
-  for i:=1 to fPlayerCount do begin
-    Result:= Player[i].UnitsHitTest(X,Y);
-    if Result<>nil then Break; //else keep on testing
-  end;
-end;
-
-
-//Get total unit count
-function TKMAllPlayers.GetUnitCount():integer;
-var i:integer;
-begin
-  Result:=0;
-  for i:=1 to fPlayerCount do
-    inc(Result,Player[i].fUnits.Count);
-end;
-
-
-procedure TKMAllPlayers.UpdateState(Tick:cardinal);
-var i:integer;
-begin
-  for i:=1 to fPlayerCount do
-    Player[i].UpdateState;
-
-  //This is not ajoined with previous loop since it can result in StopGame which flushes all data
-  for i:=1 to fPlayerCount do
-    if (Tick+i) mod 20 = 0 then //Do only one player per Tick
-      PlayerAI[i].UpdateState;
-end;
-
-
-procedure TKMAllPlayers.Paint;
-var i:integer;
-begin
-  for i:=1 to fPlayerCount do
-    Player[i].Paint;
-end;
-
-
 
 
 end.

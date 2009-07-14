@@ -11,7 +11,7 @@ uses
   KM_Terrain in 'KM_Terrain.pas',
   KM_Viewport in 'KM_Viewport.pas',
   KM_Units in 'KM_Units.pas',
-  KM_Users in 'KM_Users.pas',
+  KM_PlayersCollection in 'KM_PlayersCollection.pas',
   KM_Houses in 'KM_Houses.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
   KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas',
@@ -24,7 +24,9 @@ uses
   KM_LoadDAT in 'KM_LoadDAT.pas',
   KM_Game in 'KM_Game.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
-  KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas';
+  KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas',
+  KM_PlayerAI in 'KM_PlayerAI.pas',
+  KM_Player in 'KM_Player.pas';
 
 {$R *.RES}
 {}

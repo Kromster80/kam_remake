@@ -99,7 +99,7 @@ var
   fMissionParser: TMissionParser;
 
 implementation
-uses KM_Users, KM_Terrain, KM_Viewport;
+uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player;
 
 function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
 var

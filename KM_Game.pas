@@ -1,7 +1,7 @@
 unit KM_Game;
 interface
 uses Windows, MPlayer, Forms, Controls, Classes, SysUtils, KromUtils, Math,
-  KM_Defaults, KM_Users, KM_Render, KM_LoadLib, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_Defaults, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ReadGFX1, KM_Terrain, KM_LoadDAT, KM_LoadSFX, KM_Viewport, KM_Units, KM_Settings;
 
 

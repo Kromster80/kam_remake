@@ -89,7 +89,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Settings, KM_Render, KM_LoadLib, KM_Game, KM_LoadSFX, KM_Users;
+uses KM_Unit1, KM_Settings, KM_Render, KM_LoadLib, KM_Game, KM_LoadSFX, KM_PlayersCollection;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word);

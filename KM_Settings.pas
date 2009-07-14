@@ -302,6 +302,7 @@ end;
 
 function TMissionSettings.GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
 begin
+  Result:=0;
   case aRes of
     rt_Steel: if aHouse=ht_WeaponSmithy   then Result:=ResourceRatios[1,1] else
               if aHouse=ht_ArmorSmithy    then Result:=ResourceRatios[1,2];

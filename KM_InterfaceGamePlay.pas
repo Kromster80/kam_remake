@@ -172,7 +172,7 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_Users, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_LoadSFX;
+uses KM_Unit1, KM_PlayersCollection, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_LoadSFX;
 
 
 {Switch between pages}
