@@ -71,6 +71,7 @@ type TKMMainMenuInterface = class
     procedure Create_Error_Page;
     procedure Create_Results_Page;
     procedure SwitchMenuPage(Sender: TObject);
+    procedure SingleMap_PopulateList();
     procedure SingleMap_RefreshList();
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
@@ -442,6 +443,7 @@ begin
                           
   {Show SingleMap menu}
   if Sender=KMButton_MainMenuSingle then begin
+    SingleMap_PopulateList();
     SingleMap_RefreshList();
     KMPanel_Single.Show;
   end;
@@ -476,13 +478,19 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.SingleMap_PopulateList();
+begin
+  SingleMapsInfo.ScanSingleMapsFolder('');
+end;
+
+
 procedure TKMMainMenuInterface.SingleMap_RefreshList();
 var i,ci:integer;
 begin
-  SingleMapsInfo.ScanSingleMapsFolder('');
+//  SingleMapsInfo.ScanSingleMapsFolder('');
 
   for i:=1 to MENU_SINGLE_MAPS_COUNT do begin
-    ci:=SingleMap_Top-1+i;
+    ci:=SingleMap_Top+i-1;
     if ci>SingleMapsInfo.GetMapCount then begin
       KMButton_SingleMode[i].TexID:=0;
       KMButton_SinglePlayers[i].Caption:='';
@@ -490,17 +498,17 @@ begin
       KMLabel_SingleTitle2[i].Caption:='';
       KMButton_SingleSize[i].Caption:='';
     end else begin
-      KMButton_SingleMode[i].TexID:=28+byte(not SingleMapsInfo.IsFight(i))*14;
-      KMButton_SinglePlayers[i].Caption:=inttostr(SingleMapsInfo.GetPlayerCount(i));
-      KMLabel_SingleTitle1[i].Caption:=SingleMapsInfo.GetTitle(i);
-      KMLabel_SingleTitle2[i].Caption:=SingleMapsInfo.GetSmallDesc(i);
-      KMButton_SingleSize[i].Caption:=SingleMapsInfo.GetMapSize(i);
+      KMButton_SingleMode[i].TexID:=28+byte(not SingleMapsInfo.IsFight(ci))*14;
+      KMButton_SinglePlayers[i].Caption:=inttostr(SingleMapsInfo.GetPlayerCount(ci));
+      KMLabel_SingleTitle1[i].Caption:=SingleMapsInfo.GetTitle(ci);
+      KMLabel_SingleTitle2[i].Caption:=SingleMapsInfo.GetSmallDesc(ci);
+      KMButton_SingleSize[i].Caption:=SingleMapsInfo.GetMapSize(ci);
     end;
   end;
 
-  KMScrollBar_SingleMaps.MinValue:=1;
-  KMScrollBar_SingleMaps.MaxValue:=max(1,SingleMapsInfo.GetMapCount-SingleMapsInfo.GetMapCount);
-  KMScrollBar_SingleMaps.Position:=EnsureRange(KMScrollBar_SingleMaps.Position,KMScrollBar_SingleMaps.MinValue,KMScrollBar_SingleMaps.MaxValue);
+  KMScrollBar_SingleMaps.MinValue := 1;
+  KMScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.GetMapCount - MENU_SINGLE_MAPS_COUNT);
+  KMScrollBar_SingleMaps.Position := EnsureRange(KMScrollBar_SingleMaps.Position,KMScrollBar_SingleMaps.MinValue,KMScrollBar_SingleMaps.MaxValue);
 
   SingleMap_SelectMap(KMBevel_SingleBG[1,3]); //Select first map
 end;
