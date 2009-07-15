@@ -568,11 +568,12 @@ begin
   MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
   MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
-  MyPlayer.AddHousePlan(ht_Mill,KMPoint(6,12),true);
-  MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
-  MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
+  MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)),KMPointY1(KMPoint(18,8)));
+  //MyPlayer.AddHousePlan(ht_Mill,KMPoint(6,12),true);
+  //MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
+  //MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
   MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
-  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
+  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(10,12));
 
   {MyPlayer.AddGroup(ut_Militia,KMPoint(5,14),dir_N,3,6);
   MyPlayer.AddGroup(ut_Militia,KMPoint(10,14),dir_NE,3,6);

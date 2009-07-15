@@ -28,11 +28,12 @@ type
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
+    procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
     procedure RemUnit(Position: TKMUnit);
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
-    function FindInn(Loc:TKMPoint;UnitIsAtHome:boolean=false): TKMHouseInn;
+    function FindInn(Loc:TKMPoint; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetUnitLocations(out Loc:TKMPointList);
@@ -58,7 +59,7 @@ type
   end;
 
 implementation
-uses KM_Terrain, KM_SoundFX;
+uses KM_Terrain, KM_SoundFX, KM_PathFinding;
 
 
 { TKMPlayerAssets }
@@ -165,6 +166,21 @@ begin
     fSoundLib.Play(sfx_placemarker,aLoc,false);
 end;
 
+
+procedure TKMPlayerAssets.AutoRoadConnect(LocA,LocB:TKMPoint);
+var fPath:TPathFinding; i:integer; NodeCount:word; Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint;
+begin
+  fPath := TPathFinding.Create(LocA, LocB, KMPoint(0,0), canMakeRoads, true);
+  fPath.ReturnRoute(NodeCount, Nodes);
+  fPath.Free;
+
+  for i:=1 to NodeCount do
+    AddRoad(Nodes[i]);
+
+
+end;
+
+
 function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
 var fHouse:TKMHouse;
 begin
@@ -203,7 +219,7 @@ begin
   Result:=fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
 end;
 
-function TKMPlayerAssets.FindInn(Loc:TKMPoint;UnitIsAtHome:boolean=false): TKMHouseInn;
+function TKMPlayerAssets.FindInn(Loc:TKMPoint; UnitIsAtHome:boolean=false): TKMHouseInn;
 var
   H: TKMHouseInn;
   i: integer;
@@ -232,7 +248,7 @@ begin
 
      inc(i);
      H:=TKMHouseInn(FindHouse(ht_Inn,KMPoint(0,0),i));
-   until H = nil;
+   until(H = nil);
 end;
 
 

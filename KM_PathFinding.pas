@@ -3,40 +3,39 @@ interface
 uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils;
 
 type
-
-{ Here should be pathfinding and all associated stuff }
-TPathFinding = class
-private
-  NewCost:integer;
-  MinCost:record
-    Cost:integer;
-    ID:word;
-    Pos:TKMPoint;
+  { Here should be pathfinding and all associated stuff }
+  TPathFinding = class
+  private
+    NewCost:integer;
+    MinCost:record
+      Cost:integer;
+      ID:word;
+      Pos:TKMPoint;
+    end;
+    ORef:array[1..MaxMapSize,1..MaxMapSize] of word; //Ref to OpenList
+    OCount:word;
+    OList:array[1..TEST_MAX_WALK_PATH]of record //List of checked cells
+      Pos:TKMPoint;
+      CostTo:word;
+      Estim:word;
+      Parent:word;//Reference to parent
+    end;
+  private
+    LocA:TKMPoint;
+    LocB:TKMPoint;
+    Avoid:TKMPoint;
+    Pass:TPassability;
+    WalkToSpot:boolean;
+    fRouteSuccessfullyBuilt:boolean;
+    function CheckRouteCanExist():boolean;
+    procedure InitRoute();
+    function MakeRoute():boolean;
+    function IsDestinationReached():boolean;
+  public
+    constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean);
+    procedure ReturnRoute(out NodeCount:word; out Nodes:array of TKMPoint);
+    property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
-  ORef:array[1..MaxMapSize,1..MaxMapSize] of word; //Ref to OpenList
-  OCount:word;
-  OList:array[1..TEST_MAX_WALK_PATH]of record //List of checked cells
-    Pos:TKMPoint;
-    CostTo:word;
-    Estim:word;
-    Parent:word;//Reference to parent
-  end;
-private
-  LocA:TKMPoint;
-  LocB:TKMPoint;
-  Avoid:TKMPoint;
-  Pass:TPassability;
-  WalkToSpot:boolean;
-  fRouteSuccessfullyBuilt:boolean;
-  function CheckRouteCanExist():boolean;
-  procedure InitRoute();
-  function MakeRoute():boolean;
-  function IsDestinationReached():boolean;
-public
-  constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean);
-  procedure ReturnRoute(out NodeCount:word; out Nodes:array of TKMPoint);
-  property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
-end;
 
 implementation
 uses KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Settings;
