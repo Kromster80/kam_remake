@@ -188,7 +188,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_LoadSFX, KM_Viewport;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_SoundFX, KM_Viewport;
 
 
 { TKMHouse }

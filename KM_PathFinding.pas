@@ -39,7 +39,7 @@ public
 end;
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_LoadSFX, KM_Settings;
+uses KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Settings;
 
 
 function TPathFinding.CheckRouteCanExist():boolean;

@@ -353,7 +353,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_LoadSFX, KM_Viewport, KM_Game;
+uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game;
 
 
 { TKMUnitCitizen }

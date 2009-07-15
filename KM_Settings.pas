@@ -91,7 +91,7 @@ var
 
 
 implementation
-uses KM_LoadSFX;
+uses KM_SoundFX;
 
 
 constructor TGameSettings.Create;

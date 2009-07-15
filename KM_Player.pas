@@ -58,7 +58,7 @@ type
   end;
 
 implementation
-uses KM_Terrain, KM_LoadSFX;
+uses KM_Terrain, KM_SoundFX;
 
 
 { TKMPlayerAssets }
