@@ -29,7 +29,7 @@ type
     procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
 
-    procedure GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL); //This should belong to TRender?
+    function GenTexture(mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint; //This should belong to TRender?
   public
     constructor Create;
     function LoadMenuResources():boolean;
@@ -54,7 +54,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Unit1, KM_Render, KM_Game, KM_Settings, KM_CommonTypes, KM_Utils;
+uses KromUtils, KM_Unit1, KM_Render, KM_Game, KM_Settings, KM_CommonTypes, KM_Utils, KM_TGATexture;
 
 
 constructor TResource.Create;
@@ -498,7 +498,7 @@ for i:=0 to 255 do
       inc(AdvX,1+Width+1);
     end;
 
-  GenTexture(@FontData[byte(aFont)].TexID,TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
+  FontData[byte(aFont)].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
 
   FontData[byte(aFont)].Letters[32].Width:=7; //"Space" width
 
@@ -559,7 +559,7 @@ end;
 //=============================================
 //Make texture
 //=============================================
-procedure TResource.GenTexture(ID:PGLUint; mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL);
+function TResource.GenTexture(mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint;
 var
   MyBitMap:TBitMap;
   i,k:word;
@@ -576,14 +576,7 @@ DestY:=MakePOT(my);
 if DestX*DestY = 0 then exit; //Do not generate zeroed textures
 
 if Mode=tm_AlphaTest then begin
-  glGenTextures(1, id);
-  glBindTexture(GL_TEXTURE_2D, id^);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   exit;
 end;
@@ -625,22 +618,12 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
     end;
   end;
 
-glGenTextures(1, id);
-begin
-glBindTexture(GL_TEXTURE_2D, id^);
-//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, DestX, DestY, GL_RGBA, GL_UNSIGNED_BYTE, TD);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
   case Mode of
   tm_NoCol: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
   tm_TexID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
   tm_AltID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
   end;
-end;
 
 if WriteAllTexturesToBMP then begin
   CreateDir(ExeDir+'GenTextures\');
@@ -651,7 +634,7 @@ if WriteAllTexturesToBMP then begin
     for i:=0 to DestY-1 do for k:=0 to DestX-1 do begin
       MyBitmap.Canvas.Pixels[k,i]:=((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
     end;
-    MyBitmap.SaveToFile(ExeDir+'GenTextures\'+int2fix(ID^,4)+'.bmp');
+    MyBitmap.SaveToFile(ExeDir+'GenTextures\'+int2fix(Result,4)+'.bmp');
   MyBitMap.Free;
 end;
 
@@ -710,7 +693,7 @@ if HouseDAT[ID].StonePic<>-1 then //Exlude House27 which is unused
       end;
     end;
 
-    GenTexture(@GFXData[RXid,ID1].TexID,WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
+    GFXData[RXid,ID1].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
     setlength(TD,0);
     GFXData[RXid,ID1].AltID:=0;
     GFXData[RXid,ID1].u1:=0;
@@ -782,11 +765,11 @@ begin
     //If we need to prepare textures for TeamColors
     if MakeTeamColors and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
     begin
-      GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_TexID);
+      GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
       //TeamColors are done through alternative plain colored texture
       for i:=0 to length(TD)-1 do
         if TD[i] in [24..30] then begin //Determine if TD needs alt color
-          GenTexture(@GFXData[RXid,LeftIndex].AltID,WidthPOT,HeightPOT,@TD[0],tm_AltID);
+          GFXData[RXid,LeftIndex].AltID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_AltID);
           inc(ColorsRAM,WidthPOT*HeightPOT*4);
           break;
         end;
@@ -794,17 +777,17 @@ begin
     else
       if RXid=5 then
         if RX5Pal[LeftIndex]<>0 then
-          GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[LeftIndex])
+          GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[LeftIndex])
         else
-          GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10)
+          GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,10)
       else
       if RXid=6 then
         if RX6Pal[LeftIndex]<>0 then
-          GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX6Pal[LeftIndex])
+          GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX6Pal[LeftIndex])
         else
-          GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol,10)
+          GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,10)
       else
-        GenTexture(@GFXData[RXid,LeftIndex].TexID,WidthPOT,HeightPOT,@TD[0],tm_NoCol);
+        GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol);
 
     setlength(TD,0);
 

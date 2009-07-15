@@ -15,41 +15,44 @@
 unit KM_TGATexture;
 interface
 uses
-  Windows, OpenGL, SysUtils, Classes, ZLibEx;
+  Windows, OpenGL, SysUtils, Classes, dglOpenGL, ZLibEx;
 
 function LoadTexture(Filename: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
+function GenerateTextureCommon():GLuint;
 
-implementation     
+implementation
 
 function gluBuild2DMipmaps(Target: GLenum; Components, Width, Height: GLint; Format, atype: GLenum; Data: Pointer): GLint; stdcall; external glu32;
 procedure glGenTextures(n: GLsizei; var textures: GLuint); stdcall; external opengl32;
 procedure glBindTexture(target: GLenum; texture: GLuint); stdcall; external opengl32;
 
-
-{------------------------------------------------------------------}
-{  Create the Texture                                              }
-{------------------------------------------------------------------}
-function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
-var
-  Texture : GLuint;
+function GenerateTextureCommon():GLuint;
+var Texture : GLuint;
 begin
   glGenTextures(1, Texture);
   glBindTexture(GL_TEXTURE_2D, Texture);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  Result := Texture;
+end;
+
+{------------------------------------------------------------------}
+{  Create the Texture                                              }
+{------------------------------------------------------------------}
+function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
+begin
+  Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
   if Format = GL_RGBA then
     gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, pData)
   else
     gluBuild2DMipmaps(GL_TEXTURE_2D, 3, Width, Height, GL_RGB, GL_UNSIGNED_BYTE, pData);
 //  glTexImage2D(GL_TEXTURE_2D, 0, 3, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, pData);  // Use when not wanting mipmaps to be built by openGL
-
-  result :=Texture;
 end;
 
 

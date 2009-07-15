@@ -176,8 +176,6 @@ begin
 
   for i:=1 to NodeCount do
     AddRoad(Nodes[i]);
-
-
 end;
 
 
