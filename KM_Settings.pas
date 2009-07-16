@@ -70,6 +70,7 @@ type
   public
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
+    function GetArmyCount():integer;
     function GetCanBuild(aType:THouseType):boolean;
 
     function GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
@@ -291,6 +292,15 @@ end;
 function TMissionSettings.GetUnitQty(aType:TUnitType):integer;
 begin
   Result := UnitTrainedCount[byte(aType)] - UnitLostCount[byte(aType)];
+end;
+
+
+function TMissionSettings.GetArmyCount():integer;
+var i:byte;
+begin
+  Result:=0;
+  for i:=byte(ut_Militia) to byte(ut_Barbarian) do
+    Result := Result + GetUnitQty(TUnitType(i));
 end;
 
 

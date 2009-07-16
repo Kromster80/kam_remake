@@ -60,14 +60,16 @@ begin
   fLog.AppendLog('<== ReadGFX init follows ==>');
   fResource:=TResource.Create;
   fResource.LoadMenuResources;
-
+  fLog.AppendLog('<== Main menu interface follows ==>');
   fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);
+  fLog.AppendLog('<== Sound playback follows ==>');
 
   if not NoMusic then fSoundLib.PlayMenuTrack;
 
   GameSpeed:=1;
   GameIsRunning:=false;
   GameIsPaused:=false;
+  fLog.AppendLog('<== Game creation is done ==>');
 end;
 
 
@@ -193,17 +195,24 @@ end;
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var MOver:TKMControl;
 begin
+
   if GameIsPaused then exit; //No clicking when paused
+
   if GameIsRunning then begin
+
     MOver := fGameplayInterface.MyControls.MouseOverControl(); //Remember control that was clicked
     if MOver<>nil then
       fGameplayInterface.MyControls.OnMouseDown(X,Y,Button)
     else
+
+
+
     if Button = mbMiddle then
       fPlayers.Player[1].AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
-  end else begin
+
+  end else
     fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
-  end;
+
 
   MouseMove(Shift,X,Y);
 end;
@@ -330,11 +339,12 @@ begin
 
     //These are only for testing purposes, Later on it should be changed a lot
     if Button = mbRight then
-    if fPlayers<>nil then
-    if fPlayers.SelectedUnit<>nil then
-    if fPlayers.SelectedUnit.GetUnitType=ut_HorseScout then
-      TKMUnitWarrior(fPlayers.SelectedUnit).PlaceOrder(wo_walk,P);
-    //TKMUnitWarrior(fPlayers.SelectedUnit).SetActionWalk(fPlayers.SelectedUnit,P,KMPoint(0,0));
+      if (fPlayers <> nil)
+      and(fPlayers.SelectedUnit <> nil)
+      and(fPlayers.SelectedUnit.IsArmyUnit)
+      and(fPlayers.SelectedUnit.GetOwner = MyPlayer.PlayerID)
+      and(fPlayers.SelectedUnit is TKMUnitWarrior)  then
+        TKMUnitWarrior(fPlayers.SelectedUnit).PlaceOrder(wo_walk,P);
 
   end else begin //If GameIsRunning=false
     fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);

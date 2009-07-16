@@ -274,6 +274,7 @@ type
     property GetCondition: integer read fCondition;
     property IsVisible: boolean read fVisible;
     property IsDestroyed:boolean read ScheduleForRemoval;
+    function IsArmyUnit():boolean;
     procedure RemoveUntrainedFromSchool();
     function CanGoEat:boolean;
     //property IsAtHome: boolean read UnitAtHome;
@@ -997,6 +998,13 @@ end;
 procedure TKMUnit.Feed(Amount:single);
 begin
   fCondition:=min(fCondition+round(Amount),UNIT_MAX_CONDITION);
+end;
+
+
+{Check wherever this unit is armed}
+function TKMUnit.IsArmyUnit():boolean;
+begin
+  Result:= fUnitType in [ut_Militia .. ut_Barbarian];
 end;
 
 

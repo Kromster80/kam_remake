@@ -29,7 +29,7 @@ begin
   if (Assets.fMissionSettings.GetHouseQty(ht_Store)=0)
   and(Assets.fMissionSettings.GetHouseQty(ht_School)=0)
   and(Assets.fMissionSettings.GetHouseQty(ht_Barracks)=0)
-  //and(ArmyCount=0)
+  and(Assets.fMissionSettings.GetArmyCount=0)
   then
     fGame.StopGame(gr_Defeat);
 
