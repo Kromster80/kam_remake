@@ -127,6 +127,7 @@ public
   function TileIsWineField(Loc:TKMPoint):boolean;
 
   function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
+  function CanWalkDiagonaly(A,B:TKMPoint):boolean;
 
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
@@ -360,6 +361,30 @@ begin
       Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,Stage])
     else for i:=1 to 6 do
       Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,i])
+end;
+
+
+{Check wherever unit can walk from A to B diagonaly}
+{Return true if direction is either walkable or not diagonal}
+{Maybe this can also be used later for inter-tile passability}
+function TTerrain.CanWalkDiagonaly(A,B:TKMPoint):boolean;
+begin
+  Result := true;
+
+  if (abs(A.X-B.X)<>1) or (abs(A.Y-B.Y)<>1) then exit; //Tiles are not diagonal to each other
+
+  //Implementation here..
+  if (A.X<B.X)and(A.Y<B.Y) then      //   A
+    Result := Land[B.Y,B.X].Obj=255  //    B
+  else
+  if (A.X<B.X)and(A.Y>B.Y) then        //    B
+    Result := Land[B.Y+1,B.X].Obj=255  //   A
+  else
+  if (A.X>B.X)and(A.Y>B.Y) then      //   B
+    Result := Land[A.Y,A.X].Obj=255  //    A
+  else
+  if (A.X>B.X)and(A.Y<B.Y) then        //    A
+    Result := Land[A.Y+1,A.X].Obj=255; //   B
 end;
 
 

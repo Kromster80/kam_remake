@@ -1,6 +1,6 @@
 unit KM_Settings;
 interface
-uses Windows, Classes, SysUtils, KromUtils, Math, KM_Defaults, inifiles, KM_CommonTypes;
+uses SysUtils, KromUtils, Math, KM_Defaults, inifiles, KM_CommonTypes;
 
 {Global game settings}
 type

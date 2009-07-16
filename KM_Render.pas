@@ -725,7 +725,7 @@ var ShiftX,ShiftY:single; ID:integer;
 begin
   if byte(Thought) = 0 then exit;
   ID:=ThoughtBounds[byte(Thought),2]+1 -
-     (fGame.GetTickCount mod (ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
+     (fGame.GetTickCount mod word(ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;

@@ -68,16 +68,15 @@ end;
 
 
 function TPathFinding.MakeRoute():boolean;
-const c_closed=65535;
+const c_closed=65535; c_tempclosed=65534;
 var i,x,y:integer;
 begin
 
   repeat
+
     //Find cell with least (Estim+CostTo)
     MinCost.Cost:=65535;
-    //for i:=1 to OCount do
-    //@Lewin: Tell me why 'downto' works faster, is it cos of CPU cache?
-    //@Krom: I didn't know that it was faster, and I don't know why. To be deleted?
+    //for i:=1 to OCount do //'downto' works faster here
     for i:=OCount downto 1 do
     if OList[i].Estim<>c_closed then
     if (OList[i].Estim+OList[i].CostTo) < MinCost.Cost then begin
@@ -91,11 +90,13 @@ begin
 
       OList[MinCost.ID].Estim:=c_closed;
 
-      //Check all surrounds and issue costs to them
+      //Check all surrounding cells and issue costs to them
       for y:=MinCost.Pos.Y-1 to MinCost.Pos.Y+1 do for x:=MinCost.Pos.X-1 to MinCost.Pos.X+1 do
 
       if fTerrain.TileInMapCoords(x,y) then //Ignore those outside of MapCoords
-      if not KMSamePoint(KMPoint(x,y),Avoid) then
+      if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
+      if not KMSamePoint(KMPoint(x,y),Avoid) then //If there are any cells in Avoid list then avoid them
+
         if ORef[y,x]=0 then begin //Cell is new
 
           inc(OCount);

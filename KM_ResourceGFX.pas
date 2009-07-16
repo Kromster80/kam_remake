@@ -570,8 +570,10 @@ var
   TD:Pointer;
 begin
 
-DestX:=MakePOT(mx);
-DestY:=MakePOT(my);
+Result := 0;
+
+DestX := MakePOT(mx);
+DestY := MakePOT(my);
 
 if DestX*DestY = 0 then exit; //Do not generate zeroed textures
 

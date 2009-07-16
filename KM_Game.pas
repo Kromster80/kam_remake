@@ -343,7 +343,7 @@ begin
       and(fPlayers.SelectedUnit <> nil)
       and(fPlayers.SelectedUnit.IsArmyUnit)
       and(fPlayers.SelectedUnit.GetOwner = MyPlayer.PlayerID)
-      and(fPlayers.SelectedUnit is TKMUnitWarrior)  then
+      and(fPlayers.SelectedUnit is TKMUnitWarrior) then
         TKMUnitWarrior(fPlayers.SelectedUnit).PlaceOrder(wo_walk,P);
 
   end else begin //If GameIsRunning=false
