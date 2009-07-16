@@ -94,6 +94,9 @@ begin
    LoadPalette(ExeDir+'data\gfx\'+PalFiles[i],i);
   fLog.AppendLog('Reading palettes',true);
 
+  RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
+  RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
+  RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
   RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
   RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
@@ -130,10 +133,6 @@ begin
   fLog.AppendLog('Reading pattern.dat',LoadPatternDAT(ExeDir+'data\defines\pattern.dat')); StepRefresh();
   fLog.AppendLog('Reading houses.dat', LoadHouseDAT(ExeDir+'data\defines\houses.dat'));    StepRefresh();
   fLog.AppendLog('Reading unit.dat',   LoadUnitDAT(ExeDir+'data\defines\unit.dat'));       StepRefresh();
-
-  RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
-  RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
-  RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
 
   for i:=1 to 3 do
   if (i=1) or ((i=2) and MakeHouseSprites) or ((i=3) and MakeUnitSprites) then
@@ -1037,7 +1036,9 @@ begin
         MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
       end;
       if sy>0 then MyBitmap.SaveToFile(
-      ExeDir+'Export\TreeAnim\'+int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
+      ExeDir+'Export\TreeAnim\'+inttostr(word(MapElem[ID].Properties[mep_Quad]))+'_'+
+                                inttostr(word(MapElem[ID].Properties[mep_Double]))+'_'+
+      int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
     end;
   end;
 

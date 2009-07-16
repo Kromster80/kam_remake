@@ -672,22 +672,14 @@ type
 type
   //Properties of map elements, e.g. passibility. Mostly unknown.
   TMapElemProperties = (
-    mep_u1=1,
-    mep_u2,
-    mep_u3,
-    mep_u4,
+    mep_u1=1,           //Always 0
+    mep_u2,             //Always 0
     mep_CuttableTree,   //This tree can be cut by a woodcutter
-    mep_u6,
-    mep_Double,         //Draw two sprites per object (grapes)
-    mep_u8,
+    mep_Double,         //Draw two sprites per object (grapes) but only if mep_Quad=1
     mep_AllBlocked,     //All passibility blocked. Can't walk, build, swim, etc.
-    mep_u10,
-    mep_Quad,           //Draw 4 sprites per object (corn)
-    mep_u12,
-    mep_u13,
-    mep_u14,
-    mep_u15,
-    mep_u16);
+    mep_Quad,           //Draw multiple (4) sprites per object (corn)
+    mep_u7,             //Unknown
+    mep_u8);            //Unknown
 
 var
   //Players colors
@@ -816,7 +808,7 @@ UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
   MapElem:array[1..512]of packed record
     Step:array[1..30]of smallint;               //60
     Count:word;                                 //62
-    Properties:array[TMapElemProperties]of word; //94
+    Properties:array[TMapElemProperties]of cardinal; //94
     u2:shortint;                                //95
     CanBeRemoved,u4:word;                       //99
   end;
