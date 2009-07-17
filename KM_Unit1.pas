@@ -176,7 +176,13 @@ begin
   TimeBeginPeriod(1);
   Application.OnIdle:=Form1.OnIdle;
 
-  fLog.AppendLog('Form1 create is done');  
+  fLog.AppendLog('Form1 create is done');
+
+  //Show the message if user has old OpenGL drivers
+  if not GL_VERSION_1_4 then
+    MessageBox(FormLoading.Handle,
+        @('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
+        'Please update your graphic drivers for better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
 
   //Now decide whether we should make it full screen or not
   if fGameSettings.IsFullScreen then

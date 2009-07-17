@@ -19,7 +19,7 @@ const
   FPS_INTERVAL=1000;            //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;              //This is the speed that the viewport will scroll every 100 ms, in cells
   SCROLLFLEX = 4;               //This is the number of pixels either side of the edge of the screen which will count as scrolling
-  GAME_VERSION = 'Alpha';       //Game version string displayed in menu corner
+  GAME_VERSION = 'Demo';        //Game version string displayed in menu corner
   MENU_DESIGN_X = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y = 768;
   MENU_SINGLE_MAPS_COUNT = 14;  //Number of single player maps to display in menu
