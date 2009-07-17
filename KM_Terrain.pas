@@ -873,7 +873,7 @@ begin
   if not(Land[Loc.Y,Loc.X].Markup in [mu_House,mu_HouseFence]) then begin
 
    if (TileIsWalkable(Loc))and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)then
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)then
      AddPassability(Loc, [canWalk]);
 
    if (Land[Loc.Y,Loc.X].TileOverlay=to_Road) then
@@ -888,7 +888,7 @@ begin
            HousesNearBy := true;
 
    if (TileIsRoadable(Loc))and
-      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and //Only certain objects are excluded
+      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and //Only certain objects are excluded
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
@@ -898,7 +898,7 @@ begin
 
    if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
       (Land[Loc.Y,Loc.X].Rotation = 0)and //only horizontal mountain edges allowed
-      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
+      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
@@ -908,7 +908,7 @@ begin
 
    if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
       (Land[Loc.Y,Loc.X].Rotation = 0)and
-      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved = 1))and
+      ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
@@ -917,13 +917,13 @@ begin
      AddPassability(Loc, [canBuildGold]);
 
    if (TileIsRoadable(Loc))and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked = false)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Road) then
      AddPassability(Loc, [canMakeRoads]);
 
    if (TileIsSoil(Loc))and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].Properties[mep_AllBlocked] = 0)and
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked = false)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
      AddPassability(Loc, [canMakeFields]);

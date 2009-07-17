@@ -669,18 +669,6 @@ type
     sfx_SiegeBuildingSmash
         );
 
-type
-  //Properties of map elements, e.g. passibility. Mostly unknown.
-  TMapElemProperties = (
-    mep_u1=1,           //Always 0
-    mep_u2,             //Always 0
-    mep_CuttableTree,   //This tree can be cut by a woodcutter
-    mep_Double,         //Draw two sprites per object (grapes) but only if mep_Quad=1
-    mep_AllBlocked,     //All passibility blocked. Can't walk, build, swim, etc.
-    mep_Quad,           //Draw multiple (4) sprites per object (corn)
-    mep_u7,             //Unknown
-    mep_u8);            //Unknown
-
 var
   //Players colors
   TeamColors:array[1..MAX_PLAYERS]of cardinal = (
@@ -804,13 +792,20 @@ UnitSprite:array[1..41]of packed record
 end;
 UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
 
+  //Trees and other terrain elements properties
   MapElemQty:integer=254; //Default qty
   MapElem:array[1..512]of packed record
     Step:array[1..30]of smallint;               //60
     Count:word;                                 //62
-    Properties:array[TMapElemProperties]of cardinal; //94
-    u2:shortint;                                //95
-    CanBeRemoved,u4:word;                       //99
+    MoveX,MoveY:integer;                        //70
+    CuttableTree:longbool; //This tree can be cut by a woodcutter
+    Double:longbool;       //Draw two sprites per object (grapes) but only if mep_Quad=1
+    AllBlocked:longbool;   //All passibility blocked. Can't walk, build, swim, etc.
+    Quad:longbool;         //Draw multiple (4) sprites per object (corn)
+    u5:longbool;           //Unknown
+    u6:longbool;           //Unknown            //94  that is 6 longbools 4bytes each
+    Stump:shortint;                             //95 Tree stump
+    CanBeRemoved:longbool;                      //99 //Can be removed in favor of building house
   end;
 
   //Unused by KaM Remake
