@@ -157,7 +157,7 @@ begin
       fGameplayInterface.ShowPause(GameIsPaused,GameSpeed=10);
     end;
     {Thats my debug example}
-    if (Key=ord('5')) and GameIsRunning then begin
+    {if (Key=ord('5')) and GameIsRunning then begin
       fGameplayInterface.IssueMessage(msgText,'123');
     end;
     if (Key=ord('6')) and GameIsRunning then begin
@@ -174,7 +174,7 @@ begin
     end;
     if (Key=ord('0')) and GameIsRunning then begin
       fGameplayInterface.IssueMessage(msgScroll,'123');
-    end;
+    end;}
   end;
 
   //Also send shortcut to GamePlayInterface if it is there
@@ -291,6 +291,7 @@ begin
               SelectedHouse:=fPlayers.HousesHitTest(CursorXc, CursorYc);
               if SelectedHouse<>nil then
                 if (not FoundUnit)or((SelectedHouse.GetBuildingState in [hbs_Stone,hbs_Done])and FoundUnit) then begin
+                  fPlayers.SelectedUnit:=nil;
                   fPlayers.SelectedHouse:=SelectedHouse;
                   if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse);
               end;
@@ -340,7 +341,9 @@ begin
       and(fPlayers.SelectedUnit <> nil)
       and(fPlayers.SelectedUnit.IsArmyUnit)
       and(fPlayers.SelectedUnit.GetOwner = MyPlayer.PlayerID)
-      and(fPlayers.SelectedUnit is TKMUnitWarrior) then
+      and(fPlayers.SelectedUnit is TKMUnitWarrior)
+      and(fTerrain.Route_CanBeMade(fPlayers.SelectedUnit.GetPosition,P,canWalk,true))
+      then
         TKMUnitWarrior(fPlayers.SelectedUnit).PlaceOrder(wo_walk,P);
 
   end else begin //If GameIsRunning=false
