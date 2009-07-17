@@ -69,6 +69,7 @@ begin
   GameSpeed:=1;
   GameIsRunning:=false;
   GameIsPaused:=false;
+  FormControlsVisible:=true;
   fLog.AppendLog('<== Game creation is done ==>');
 end;
 
@@ -145,10 +146,6 @@ begin
     if Key=VK_F11 then begin
       Form1.SetControlsVisibility(FormControlsVisible);
       FormControlsVisible := not FormControlsVisible;
-    end;
-    if (Key=VK_F9) and not GameIsRunning then begin
-      //@Krom: I suggest we remove this shortcut, since it doesn't work in game and it can be easily done from the menu
-      Self.ToggleFullScreen(not fGameSettings.IsFullScreen);
     end;
     if (Key=VK_F8) and GameIsRunning then begin
       GameSpeed:=11-GameSpeed; //1 or 11
