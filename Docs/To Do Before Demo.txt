@@ -1,7 +1,28 @@
-Lewin	- Fullscreen resolution change
-	- Armies (thats not a bug, but we need either to disable them or to make groups working)
-Clean up menu, single maps and decide which missions we will ship with the demo (perhaps make a few more)
+Should be done into Demo:
+	Readme	//Assigned to: Lewin
+	Set up add-on maps, choose which ones	//Assigned to: Lewin
+	
+
+Make sure these are checked:	//Assigned to: Krom
+	True/false switches in KM_Defaults
+	Include OpenAL distributive
+	Test installer and Demo
 
 
-Top prioraty items from Lewin's todo list: (Anyone can fix these)
- - Abandon walk when house plan is canceled [Seems very complicated to implement because worker is not associated with task in delivery system] {Looks like a bug IMHO}
+<===================================================================================>
+
+
+Can slip to later release (aka known bugs):
+	Abandon of cancelled house plan		//Highly important
+	Wrong render of houses (see GraphicFlaws folder)	//Assigned to: Krom
+	Diagonal passability switch
+
+
+Can slip to next after later release
+	Fullscreen resolution change	//Assigned to: Lewin
+	Armies group controls
+	Removing debug info
+	Unit interaction
+	Fisher & Town Hall
+
+
