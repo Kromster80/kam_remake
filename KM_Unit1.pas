@@ -208,6 +208,11 @@ end;
 
 procedure TForm1.FormResize(Sender:TObject);
 begin
+  //Thats very stupid way to make it, but I couldn't find better solution..
+  if Form1.GroupBox1.Tag<>999 then
+    Form1.SetControlsVisibility(false);
+  Form1.GroupBox1.Tag:=999;
+
   if fGame<>nil then //Occurs on exit
     fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
 end;
