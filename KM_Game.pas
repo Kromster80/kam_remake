@@ -147,6 +147,13 @@ begin
       Form1.SetControlsVisibility(FormControlsVisible);
       FormControlsVisible := not FormControlsVisible;
     end;
+    if Key=VK_BACK then begin
+      //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
+      //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
+      fViewport.SetZoom(1);
+      Form1.TB_Angle.Position := 0;
+      Form1.TB_Angle_Change(Form1.TB_Angle);
+    end;
     if (Key=VK_F8) and GameIsRunning then begin
       GameSpeed:=11-GameSpeed; //1 or 11
       if not (GameSpeed in [1,10]) then GameSpeed:=1; //Reset just in case

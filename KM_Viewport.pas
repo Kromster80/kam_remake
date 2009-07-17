@@ -72,7 +72,7 @@ end;
 
 procedure TViewport.SetCenter(NewX,NewY:integer);
 begin
-  XCoord:=EnsureRange(NewX,-1 + round(ViewWidth/2/CELL_SIZE_PX/Zoom),  fTerrain.MapX - round(ViewWidth /2/CELL_SIZE_PX/Zoom) - 1);
+  XCoord:=EnsureRange(NewX, 0 + round(ViewWidth/2/CELL_SIZE_PX/Zoom),  fTerrain.MapX - round(ViewWidth /2/CELL_SIZE_PX/Zoom) - 1);
   YCoord:=EnsureRange(NewY, 0 + round(ViewHeight/2/CELL_SIZE_PX/Zoom), fTerrain.MapY - round(ViewHeight/2/CELL_SIZE_PX/Zoom) - 1);
   fSoundLib.UpdateListener(KMPoint(XCoord,YCoord));
 end;

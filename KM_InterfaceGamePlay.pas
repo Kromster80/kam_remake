@@ -250,6 +250,8 @@ begin
      (Sender=KMButton_Menu_Settings)or(Sender=KMButton_Menu_Quit) then begin
     ShownHouse:=nil;
     ShownUnit:=nil;
+    fPlayers.SelectedUnit:=nil;
+    fPlayers.SelectedHouse:=nil;
   end;
 
   //Reset the CursorMode, to cm_None

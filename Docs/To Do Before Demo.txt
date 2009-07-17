@@ -16,6 +16,7 @@ Can slip to later release (aka known bugs):
 	Abandon of cancelled house plan		//Highly important
 	Wrong render of houses (see GraphicFlaws folder)	//Assigned to: Krom
 	Diagonal passability switch
+	Units return to road first then go eat, home, etc.
 
 
 Can slip to next after later release

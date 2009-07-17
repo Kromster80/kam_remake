@@ -4,7 +4,7 @@ uses
   KM_Defaults, windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain,
   KM_Houses, KromUtils, SysUtils, MMSystem, KM_Units_WorkPlan, KM_CommonTypes, KM_Utils;
 
-type    
+type
   TKMUnit = class;
   TKMUnitSerf = class;
   TKMUnitWorker = class;
@@ -216,6 +216,7 @@ type
     TTaskDie = class(TUnitTask)
     private
       fUnit:TKMUnit;
+      SequenceLength:integer;
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
@@ -354,7 +355,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game;
+uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game, KM_ResourceGFX;
 
 
 { TKMUnitCitizen }
@@ -1051,6 +1052,10 @@ begin
     fThought:=th_Death;
 
   if ((fThought=th_Death) or (fThought=th_Eat)) and (fCondition > UNIT_MIN_CONDITION) then
+    fThought:=th_None;
+
+  //Clear thought if we are in the process of dying
+  if (fUnitTask is TTaskDie) then
     fThought:=th_None;
 
   if fCondition=0 then
@@ -1888,6 +1893,7 @@ begin
   fUnit:=aUnit;
   Phase:=0;
   fUnit.SetActionStay(0,ua_Walk);
+  SequenceLength := fResource.GetUnitSequenceLength(fUnit.fUnitType,ua_Die,fUnit.Direction);
 end;
 
 
@@ -1908,10 +1914,7 @@ case Phase of
                                          //fUnit.fHome is wrong
      end else
      SetActionStay(0,ua_Walk);
-  1: begin
-       SetActionStay(16-1,ua_Die,false);
-       fThought := th_None; //Show no thought when dying, it looks bad
-     end;
+  1: SetActionStay(SequenceLength,ua_Die,false);
   2: begin
       if fHome<>nil then fHome.GetHasOwner:=false;
       //Schedule Unit for removal and remove it after fUnits.UpdateState is done

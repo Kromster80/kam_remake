@@ -36,6 +36,7 @@ type
     function LoadGameResources():boolean;
 
     property GetDataState:TDataLoadingState read DataState;
+    function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):integer;
 
     procedure LoadFonts(DoExport:boolean);
     //procedure ExportRX2BMP(RXid:integer);
@@ -160,6 +161,13 @@ begin
   for i:=1 to length(FontFiles) do
     LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+fGameSettings.GetLocale+'.fnt',TKMFont(i),DoExport);
 end;
+
+
+function TResource.GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):integer;
+begin
+  Result := UnitSprite[Integer(aUnitType)].Act[Integer(aAction)].Dir[Integer(aDir)].Count;
+end;
+
 
 
 //=============================================
