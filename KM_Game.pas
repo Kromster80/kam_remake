@@ -18,7 +18,7 @@ type
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
   public
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer; NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale();
     procedure ResizeGameArea(X,Y:integer);
@@ -44,8 +44,8 @@ uses
   KM_Unit1, KM_Controls, KM_Houses, KM_CommonTypes;
 
 
-{ Creating everything needed for MainMenu, game stuff is created on StartGame } 
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer: TMediaPlayer; NoMusic:boolean=false);
+{ Creating everything needed for MainMenu, game stuff is created on StartGame }
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
 begin
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
@@ -55,7 +55,7 @@ begin
   fLog.AppendLog('<== TextLib init follows ==>');
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fLog.AppendLog('<== SoundLib init follows ==>');
-  fSoundLib:= TSoundLib.Create(aMediaPlayer); //Needed for button click sounds and etc?
+  fSoundLib:= TSoundLib.Create(); //Needed for button click sounds and etc?
   fGameSettings.UpdateSFXVolume;
   fLog.AppendLog('<== ReadGFX init follows ==>');
   fResource:=TResource.Create;

@@ -54,7 +54,7 @@ type
     Button_W: TButton;
     Export_TreeAnim1: TMenuItem;
     Export_GUIMainHRX: TMenuItem;
-    MediaPlayer1: TMediaPlayer;
+    MediaPlayer123: TMediaPlayer;
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
@@ -159,21 +159,18 @@ begin
   FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
 
-  //Randomize; //Randomize the random seed to ensure that we don't get repeditive patterns, but we need this to be Off to reproduce bugs
+  //Randomize; //Randomize the random seed to ensure that we don't get repeditive patterns,
+  //but we need this to be Off to reproduce bugs
+  TimeBeginPeriod(1); //initialize timer precision
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
-  //Form1.BorderStyle:=bsSizeable;
-
   Form1.WindowState:=wsMaximized;
-  //To get fullscreen - change this in ObjectInspector, otherwise it doesn't work right
-  //!Form1.BorderStyle:=bsNone;
-
   Form1.Refresh;
-  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1,true);
+
+  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
   fSoundLib.PlayMenuTrack;
 
-  TimeBeginPeriod(1);
   Application.OnIdle:=Form1.OnIdle;
 
   fLog.AppendLog('Form1 create is done');
@@ -182,7 +179,7 @@ begin
   if not GL_VERSION_1_4 then
     MessageBox(FormLoading.Handle,
         @('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
-        'Please update your graphic drivers for better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
+        'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
 
   //Now decide whether we should make it full screen or not
   if fGameSettings.IsFullScreen then
@@ -680,7 +677,7 @@ begin
   //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
   FreeAndNil(fGame); //Saves all settings into ini file in midst
   //Now re-init fGame
-  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, MediaPlayer1);
+  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
 
   Form1.Refresh;
 

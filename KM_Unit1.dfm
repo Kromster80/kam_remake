@@ -210,7 +210,7 @@ object Form1: TForm1
       OnChange = TB_Angle_Change
     end
   end
-  object MediaPlayer1: TMediaPlayer
+  object MediaPlayer123: TMediaPlayer
     Left = 112
     Top = 201
     Width = 113

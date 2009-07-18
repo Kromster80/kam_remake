@@ -43,12 +43,14 @@ type
     MusicCount,MusicIndex:integer;
     MusicTracks:array[1..256]of string;
     IsOpenALInitialized:boolean;
+    IsMusicInitialized:boolean;
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
     SoundGain,MusicGain:single;
     procedure LoadSoundsDAT();
+    function CheckMusicError():boolean;
   public
-    constructor Create(aMediaPlayer: TMediaPlayer);
+    constructor Create();
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPoint);
     procedure UpdateSFXVolume(Value:single);
@@ -70,27 +72,69 @@ var
 
 implementation
 uses
-  KM_Settings, KM_LoadLib;
+  KM_Settings, KM_LoadLib, KM_Unit1;
 
-constructor TSoundLib.Create(aMediaPlayer: TMediaPlayer);
+
+constructor TSoundLib.Create();
 var
   Context: PALCcontext;
   Device: PALCdevice;
+  ErrCode:integer;
 begin
   Inherited Create;
-  IsOpenALInitialized:=InitOpenAL;
 
-  if not IsOpenALInitialized then exit;
+  IsOpenALInitialized := true;
+  IsMusicInitialized := true;
+
+  MediaPlayer := TMediaPlayer.CreateParented(Form1.Handle);
+  if MediaPlayer.Error<>0 then begin
+    MessageBox(Form1.Handle,@(MediaPlayer.errormessage)[1],'OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    IsMusicInitialized := false;
+    exit;
+  end;
+  ScanMusicTracks(ExeDir+'Music\');
+
+  IsOpenALInitialized := InitOpenAL;
+  if not IsOpenALInitialized then begin
+    fLog.AddToLog('OpenAL warning. OpenAL couldn''t be initialized.');
+    MessageBox(Form1.Handle,'OpenAL couldn''t be initialized.','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    IsOpenALInitialized := false;
+    exit;
+  end;
 
   //Open device
   Device := alcOpenDevice(nil); // this is supposed to select the "preferred device"
-  //Create context(s)
-  Context := alcCreateContext(Device, nil);
-  //Set active context
-  alcMakeContextCurrent(Context);
+  if Device = nil then begin
+    fLog.AddToLog('OpenAL warning. Device couldn''t be opened.');
+    MessageBox(Form1.Handle,'Device couldn''t be opened.','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    IsOpenALInitialized := false;
+    exit;
+  end;
 
-  MediaPlayer:=aMediaPlayer;
-  ScanMusicTracks(ExeDir+'Music\');
+  //Create context(s)
+  Context := alcCreateContext(Device, nil);  
+  if Context = nil then begin
+    fLog.AddToLog('OpenAL warning. Context couldn''t be created.');
+    MessageBox(Form1.Handle,'Context couldn''t be created.','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    IsOpenALInitialized := false;
+    exit;
+  end;
+
+  //Set active context
+  if alcMakeContextCurrent(Context) > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
+    fLog.AddToLog('OpenAL warning. Context couldn''t be made current.');
+    MessageBox(Form1.Handle,'Context couldn''t be made current.','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    IsOpenALInitialized := false;
+    exit;
+  end;
+
+  ErrCode:=alcGetError(Device);
+  if ErrCode <> ALC_NO_ERROR then begin
+    fLog.AddToLog('OpenAL warning. There''s OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
+    MessageBox(Form1.Handle,@('There''s OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.')[1],'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
+    IsOpenALInitialized := false;
+    exit;
+  end;
 
   //Set attenuation model
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
@@ -105,6 +149,19 @@ begin
   Listener.Ori[4]:=0; Listener.Ori[5]:=0; Listener.Ori[6]:=1; //Up vector
   AlListenerfv ( AL_ORIENTATION, @Listener.Ori);
 end;
+
+
+function TSoundLib.CheckMusicError():boolean;
+begin
+  Result:=false;
+  if MediaPlayer.Error<>0 then begin
+    fLog.AddToLog(MediaPlayer.errormessage);
+    MessageBox(Form1.Handle,@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
+    IsMusicInitialized := false;
+    Result:=true; //Error is there
+  end;
+end;
+
 
 procedure TSoundLib.LoadSoundsDAT();
 var
@@ -209,6 +266,7 @@ end;
 {Wrapper with fewer options for non-attenuated sounds}
 procedure TSoundLib.Play(SoundID:TSoundFX; const Volume:single=1.0);
 begin
+  if not IsOpenALInitialized then exit;
   Play(SoundID, KMPoint(0,0), false, Volume);
 end;
 
@@ -267,9 +325,13 @@ begin
 end;
 
 
+{Here goes Music lib}
+
+
 procedure TSoundLib.ScanMusicTracks(Path:string);
 var SearchRec:TSearchRec;
 begin
+  if not IsMusicInitialized then exit;
   MusicCount:=0;
   if not DirectoryExists(Path) then exit;
 
@@ -289,6 +351,7 @@ end;
 
 procedure TSoundLib.StopMusic;
 begin
+  if not IsMusicInitialized then exit;
   MediaPlayer.Close;
   MusicIndex := 0;
 end;
@@ -296,6 +359,7 @@ end;
 
 function TSoundLib.GetTrackTitle:string;
 begin
+  if not IsMusicInitialized then exit;
   //May not display the correct title as not all LIBs are correct. Should also do range checking
   if InRange(MusicIndex,1,256) then
     Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex)
@@ -308,21 +372,27 @@ end;
 function TSoundLib.PlayMusicFile(FileName:string):boolean;
 begin
   Result:=false;
+  if not IsMusicInitialized then exit;
   MediaPlayer.Close; //Cancel previous sound
+  if CheckMusicError then exit;
   if not CheckFileExists(FileName) then exit;
   if GetFileExt(FileName)<>'MP3' then exit;
   MediaPlayer.FileName:=FileName;
   MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
   //MessageBox(0,@FileName[1],'Now playing',MB_OK);
   MediaPlayer.Open; //Needs to be done for every new file
+  if CheckMusicError then exit;
   UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
+  if CheckMusicError then exit;
   MediaPlayer.Play; //Start actual playback
+  if CheckMusicError then exit;
   Result:=true;
 end;
 
 
 procedure TSoundLib.PlayMenuTrack();
 begin
+  if not IsMusicInitialized then exit;
   if MusicIndex = 1 then exit; //Don't change unless needed
   MusicIndex := 1; //First track (Spirit) is always menu music
   PlayMusicFile(MusicTracks[MusicIndex]);
@@ -335,6 +405,7 @@ end;
 
 procedure TSoundLib.PlayNextTrack();
 begin
+  if not IsMusicInitialized then exit;
   if not fGameSettings.IsMusic then exit;
   if MusicCount=0 then exit; //no music files found
   MusicIndex := MusicIndex mod MusicCount + 1; //Set next index, looped
@@ -344,6 +415,7 @@ end;
 
 procedure TSoundLib.PlayPreviousTrack();
 begin
+  if not IsMusicInitialized then exit;
   if not fGameSettings.IsMusic then exit;
   if MusicCount=0 then exit; //no music files found
   MusicIndex := MusicIndex - 1; //Set to previous
@@ -354,6 +426,8 @@ end;
 //Check if Music is not playing, to know when new mp3 should be feeded
 function TSoundLib.IsMusicEnded():boolean;
 begin
+  Result:=false;
+  if not IsMusicInitialized then exit;
   Result:= fGameSettings.IsMusic and ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
 end;
 
