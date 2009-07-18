@@ -1,1 +1,0 @@
-Config.ini to store some of global params we talked about

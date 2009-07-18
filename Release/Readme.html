@@ -3,18 +3,99 @@
 		<TITLE>Readme for KaM Remake</TITLE>
 	</HEAD>
 	<BODY>
-<P align="center"><FONT size="+3">Knights and Merchants Remake Demo</FONT><BR>
-Brought to you by Krom and Lewin</P>
-<P><B><FONT size="+1">Installing</FONT></B></P>
-Install instructions go here...<BR>
-Sketch: <BR>Using installer<BR>OpenAL?<BR>OpenGL?
-
-<BR><BR>
-<P><B><FONT size="+1">Running</FONT></B></P>
-Sketch: <BR>How to use menu, start maps, etc.<BR>Shortcuts<BR>Installing custom maps
-
-<BR><BR>
-<P><B><FONT size="+1">Giving Feedback</FONT></B></P>
-Please use <A href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&mforum=knights">the forum</A> to give feedback. Most of the bugs are probably known, but we would love feedback, suggestions, complements, etc.
+<P align="center"><font face="Calibri"><FONT size="+3">Knights and Merchants Remake Demo</FONT><BR>
+Brought to you by Krom and Lewin</font></P><hr>
+<p align="center"><font face="Calibri">Contents:<br>
+<a href="#Description">Description</a><br>
+<a href="#System_Requirements">System requirements</a><br>
+<a href="#Installing">Installing</a><br>
+<a href="#Gameplay">Gameplay</a><br>
+<a href="#F_A_Q_">F.A.Q.</a><br>
+<a href="#Known_bugs">Known bugs</a><br>
+<a href="#Feedback">Feedback</a><br>
+<a href="#Credits">Credits</a></font></p><hr>
+<P><B><FONT size="+1" face="Calibri"><a name="Description">Description</a></FONT></B></P>
+<p><font face="Calibri">KaM Remake (we don't have a fancy title yet) is an attempt to recreate original &quot;Knights and Merchants: The Shattered Kingdom&quot; strategy game. 
+This is the first demo featuring economy part of the game.<br>
+You wake up in a medieval age in a land ruled by a king. Your goal is to build 
+your own kingdom. You don't have direct control for it's not a leaders job to 
+sort out such small matters. You control really important things: economy, 
+building and later on - army.<br>
+KaM Remake is freeware<span style="background-color: #FF0000">(?)</span> and is 
+built by enthusiasts. Used technology: Delphi6, OpenGL, OpenAL, zLib,
+<span style="background-color: #FF0000">what else?</span></font></p>
+<P><B><FONT size="+1" face="Calibri"><a name="System_Requirements">System Requirements</a></FONT></B></P>
+<p><font face="Calibri">Windows 98, XP or Vista, a 500MHz or faster processor, 256MB or more of RAM, a 3D graphics accelerator OpenGL 1.4 compliant. 
+</font></p>
+<P><B><FONT size="+1" face="Calibri"><a name="Installing">Installing</a></FONT></B></P>
+<p><font face="Calibri">Run <b>setup.exe</b> and follow the installation 
+instructions.<br>
+Package also includes OpenAL audio drivers (<b>oalinst.exe</b>). 
+You might need to install them to play the KaM Remake. <br>
+KaM Remake uses OpenGL rendering engine, so you need to have OpenGL drivers 
+installed as well. Visit your graphics card manufacturer site to get the latest 
+drivers available.<br>LLaunch the game either from desktop shortcut or KaM_Remake.exe from installation 
+folder.<BR>&nbsp;</font></p>
+<p><B><FONT size="+1" face="Calibri"><a name="Gameplay">Gameplay</a></FONT></B></p>
+<p>
+<font face="Calibri">Following shortcuts are available:<br>
+<b>F8</b> speeds up the game pace<br>
+<b>F11 </b>will show up debug panel and menu<br>
+<b>P</b> pauses the game<br>
+<b>&#8592;&#8593;&#8594;&#8595;</b> cursor keys will scroll the view in game</font></p>
+<p><font face="Calibri">Installing add on maps:<br>
+Create a sub-folder in Maps folder of KaM Remake, name it i.e. &quot;My New Map&quot;.<br>
+Put inside .dat and .map files of the map and name them accordingly &quot;My New 
+Map.dat&quot; and &quot;My New Map.map&quot;.<br>
+File names should exactly match folder name.</font></p>
+<p><font face="Calibri">Sketch: <BR>How to use menu, start maps, etc.
+<span style="background-color: #FF0000">//These should be obvious already ;-)</span><BR>
+&nbsp;</font></p>
+<P><B><FONT size="+1" face="Calibri"><a name="F_A_Q_">F.A.Q.</a></FONT></B></P>
+<P>
+<font face="Calibri">Silent crashes:<br>
+KaM Remake silently crashes on loading or music track change if there are any 
+problems with sound system. Try installing latest OpenAL drivers. If that 
+doesn't help - remove &quot;Music&quot; folder from KaM Remake.<br>
+Low framerate:<br>
+If you have ridiculously low framerate this could mean your OpenGL drivers are 
+out of date. See OpenGL version info in main menu top-left corner. It should be 
+at least 1.4.x. If it's any less you need to update your graphics card drivers 
+(check card manufacturers website for that matter).<br>
+Assertion failed:<br>
+Sometimes when something unexpectedly happen you will get a &quot;Assertion failed&quot; 
+message. In this case you should terminate KaM_Remake from Task Manager (press 
+Ctrl+Alt+Del, choose KaM Remake and press End Task button). Browse to KaM Remake 
+folder and find KaM.log file containing details of the crash. Please send this 
+file by email either to Krom <a href="mailto:(kromster80@gmail.com">
+(kromster80@gmail.com</a>) or Lewin (<span style="background-color: #FF0000">your 
+email</span>).</font><br>
+&nbsp;</P>
+<P><B><FONT size="+1" face="Calibri"><a name="Known_bugs">Known bugs</a> and 
+limitations</FONT></B></P>
+<p><font face="Calibri">Main menu has fixed 1024x768 size irregardless of window 
+size or fullscreen.<br>
+Only single-player maps are supported (ones with ct_human_player line).<br>
+Units will go through one another.<br>
+Fisherman won't go for fish.<br>
+Unit training in Barracks nor Town Hall isn't functioning.<br>
+Citizens won't go to eat if they are standing off the road.<br>
+&nbsp;</font></p>
+<p><B><FONT size="+1" face="Calibri"><a name="Feedback">Feedback</a></FONT></B></p>
+<font face="Calibri">Please use <A href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&mforum=knights">the forum</A> to give 
+us feedback. Most of the bugs are probably known, but we would love your feedback, suggestions, complements, etc.
+<br>
+Whenever you can offer some help in Delphi coding (ai, net), menu design, ideas 
+for improvements - please write in the forum.
+  </font>
+  <P><B><FONT size="+1" face="Calibri"><a name="Credits">Credits</a></FONT></B></P>
+  <font face="Calibri">Lead programmer - Krom<br>
+Programmer - Lewin<br>
+Thanks to Alex who introduced core design back in 2008<br>
+Huge thanks to KaM community and its active members (Free_sms_kam, Harold, JBSNorro, 
+The_Knight, Litude, Merchator, Real Hotdog<span style="background-color: #FF0000"> 
+(old Litudes nik, right?)</span> and many <span style="background-color: #FF0000">
+others</span>) who helped us with decoding, advice, ideas<span style="background-color: #FF0000">, 
+etc..</span></font>
   </BODY>
 </HTML>
