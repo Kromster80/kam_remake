@@ -424,8 +424,8 @@ begin
 for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain do begin
     if Land[i,k].Obj<>255 then
-    if MapElem[Land[i,k].Obj+1].Quad then
-      RenderObjectQuad(Land[i,k].Obj+1,AnimStep,k,i,(MapElem[Land[i,k].Obj+1].Double))
+    if MapElem[Land[i,k].Obj+1].WineOrCorn then
+      RenderObjectQuad(Land[i,k].Obj+1,AnimStep,k,i,TileIsWineField(KMPoint(k,i)))
     else
       RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
   end;

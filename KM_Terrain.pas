@@ -374,17 +374,17 @@ begin
   if (abs(A.X-B.X)<>1) or (abs(A.Y-B.Y)<>1) then exit; //Tiles are not diagonal to each other
 
   //Implementation here..
-  if (A.X<B.X)and(A.Y<B.Y) then      //   A
-    Result := Land[B.Y,B.X].Obj=255  //    B
+  if (A.X<B.X)and(A.Y<B.Y) then                                  //   A
+    Result := not MapElem[Land[B.Y,B.X].Obj+1].DiagonalBlocked   //    B
   else
-  if (A.X<B.X)and(A.Y>B.Y) then        //    B
-    Result := Land[B.Y+1,B.X].Obj=255  //   A
+  if (A.X<B.X)and(A.Y>B.Y) then                                  //    B
+    Result := not MapElem[Land[B.Y+1,B.X].Obj+1].DiagonalBlocked //   A
   else
-  if (A.X>B.X)and(A.Y>B.Y) then      //   B
-    Result := Land[A.Y,A.X].Obj=255  //    A
+  if (A.X>B.X)and(A.Y>B.Y) then                                  //   B
+    Result := not MapElem[Land[A.Y,A.X].Obj+1].DiagonalBlocked   //    A
   else
-  if (A.X>B.X)and(A.Y<B.Y) then        //    A
-    Result := Land[A.Y+1,A.X].Obj=255; //   B
+  if (A.X>B.X)and(A.Y<B.Y) then                                  //    A
+    Result := not MapElem[Land[A.Y+1,A.X].Obj+1].DiagonalBlocked;//   B
 end;
 
 
@@ -851,7 +851,7 @@ var i,k:integer;
         if TileInMapCoords(X+i,Y+k)and((i<>0)or(k<>0)) then
         begin
           //Tiles next to it can't be trees/stumps
-          if (k*i=0) and ObjectIsChopableTree(KMPoint(X+i,Y+k),0) then Result:=true;
+          if (k*i=0) and MapElem[Land[Y+k,X+i].Obj+1].DontPlantNear then Result:=true;
           //Tiles above or to the left can't be road/field/markup
           if (i<=0)and(k<=0) then
             if (Land[Y+k,X+i].Markup<>mu_None)or(Land[Y+k,X+i].TileOverlay = to_Road)or

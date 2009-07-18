@@ -795,17 +795,17 @@ UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
   //Trees and other terrain elements properties
   MapElemQty:integer=254; //Default qty
   MapElem:array[1..512]of packed record
-    Step:array[1..30]of smallint;               //60
-    Count:word;                                 //62
-    MoveX,MoveY:integer;                        //70
-    CuttableTree:longbool; //This tree can be cut by a woodcutter
-    Double:longbool;       //Draw two sprites per object (grapes) but only if mep_Quad=1
-    AllBlocked:longbool;   //All passibility blocked. Can't walk, build, swim, etc.
-    Quad:longbool;         //Draw multiple (4) sprites per object (corn)
-    u5:longbool;           //Unknown
-    u6:longbool;           //Unknown            //94  that is 6 longbools 4bytes each
-    Stump:shortint;                             //95 Tree stump
-    CanBeRemoved:longbool;                      //99 //Can be removed in favor of building house
+    Step:array[1..30]of smallint;           //60
+    Count:word;                             //62
+    MoveX,MoveY:integer;                    //70
+    CuttableTree:longbool;                  //This tree can be cut by a woodcutter
+    DiagonalBlocked:longbool;               //Can't walk diagonally accross this object (mainly trees)
+    AllBlocked:longbool;                    //All passibility blocked. Can't walk, build, swim, etc.
+    WineOrCorn:longbool;                    //Draw multiple (4 or 2) sprites per object (corn or grapes)
+    CanGrow:longbool;                       //This object can grow (i.e. change to another object)
+    DontPlantNear:longbool;                 //This object can't be planted within one tile of
+    Stump:shortint;                         //95 Tree stump
+    CanBeRemoved:longbool;                  //99 //Can be removed in favor of building house
   end;
 
   //Unused by KaM Remake

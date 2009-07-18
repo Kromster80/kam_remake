@@ -1045,7 +1045,7 @@ begin
       if sy>0 then MyBitmap.SaveToFile(
       //@Lewin: insert field here and preee Export>Fonts. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
-      ExeDir+'Export\TreeAnim\'+inttostr(word(MapElem[ID].u5))+'_'+int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
+      ExeDir+'Export\TreeAnim\'+inttostr(word(MapElem[ID].DiagonalBlocked))+'_'+int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
     end;
   end;
 
