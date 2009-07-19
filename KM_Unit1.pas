@@ -8,7 +8,7 @@ uses
   KM_Units, KM_Houses, KM_Viewport, KM_PlayersCollection, ColorPicker, KM_LoadLib, KM_SoundFX, KM_LoadDAT,
   MPlayer, KM_Utils;
 
-type                           
+type
   TForm1 = class(TForm)
     N2: TMenuItem;
     Debug_ShowUnits: TMenuItem;
@@ -54,7 +54,7 @@ type
     Button_W: TButton;
     Export_TreeAnim1: TMenuItem;
     Export_GUIMainHRX: TMenuItem;
-    MediaPlayer123: TMediaPlayer;
+    MediaPlayer123: TMediaPlayer; //@Krom: What purpose does this serve?
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
@@ -102,6 +102,7 @@ type
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Button_WClick(Sender: TObject);
     procedure SetScreenResolution(Width, Height: integer);
+    procedure ResetResolution;
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
   public
@@ -112,9 +113,6 @@ type
 var
   Form1: TForm1;
   FormLoading:TFormLoading;
-  //@Krom: Where should these go?
-  OldScreenWidth:  integer;
-  OldScreenHeight: integer;
 
 implementation  {$R *.DFM}
 uses KM_Settings, KM_CommonTypes;
@@ -150,12 +148,6 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   if Sender<>nil then exit;
 
-  //Save normal resolution to reset when they exit the game
-  OldScreenWidth  := GetSystemMetrics(SM_CXSCREEN);
-  OldScreenHeight := GetSystemMetrics(SM_CYSCREEN);
-  //@Lewin: We also need to store old refresh rate, aswell use preferred refresh at our resolution (e.g. 60 or 100Hz)
-
-
   FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
 
@@ -183,10 +175,7 @@ begin
 
   //Now decide whether we should make it full screen or not
   if fGameSettings.IsFullScreen then
-  begin
-    if FORCE_RESOLUTION then
-      SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y);
-  end
+    SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y)
   else
     ToggleFullScreen(false);
 
@@ -201,7 +190,7 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   //Reset the resolution
-  if FORCE_RESOLUTION then SetScreenResolution(OldScreenWidth,OldScreenHeight);
+  ResetResolution;
   fGame.StopGame(gr_Error);
   FreeAndNil(fGame);
   FreeAndNil(fLog);
@@ -661,15 +650,14 @@ begin
   if Toggle then begin
     Form1.BorderStyle:=bsNone;
     Form1.WindowState:=wsMaximized;
-    if FORCE_RESOLUTION then
-      SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y);
+    SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y);
   end else begin
     Form1.Refresh;
     Form1.WindowState:=wsNormal;
     Form1.BorderStyle:=bsSizeable;
     Form1.ClientWidth:=1024;
     Form1.ClientHeight:=768;
-    if FORCE_RESOLUTION then SetScreenResolution(OldScreenWidth,OldScreenHeight);
+    ResetResolution;
   end;
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
@@ -691,15 +679,24 @@ end;
 
 procedure TForm1.SetScreenResolution(Width, Height: integer);
 var
-  DeviceMode: TDeviceMode;
+  DeviceMode: DEVMODE;
 begin
+  if not FORCE_RESOLUTION then exit;
+  ZeroMemory(@DeviceMode,sizeof(DeviceMode));
   with DeviceMode do begin
     dmSize := SizeOf(TDeviceMode);
     dmPelsWidth := Width;
     dmPelsHeight := Height;
-    dmFields := DM_PELSWIDTH or DM_PELSHEIGHT;
+    dmBitsPerPel := 32;
+    dmFields := DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
   end;
-  ChangeDisplaySettings(DeviceMode, CDS_UPDATEREGISTRY);
+  ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
+end;
+
+
+procedure TForm1.ResetResolution;
+begin
+  if FORCE_RESOLUTION then ChangeDisplaySettings(DEVMODE(nil^),0);
 end;
 
 end.

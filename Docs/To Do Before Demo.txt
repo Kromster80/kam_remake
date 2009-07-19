@@ -2,6 +2,8 @@ Should be done into Demo:
 	Change exe icon
 	Readme	//Assigned to: Lewin
 	Set up add-on maps, choose which ones	//Assigned to: Lewin
+	Fix bug: Units are not rendered if they are standing on the right or bottom edge of the map	//Assigned to: Krom
+	Fix bug: The left and top edges of the map are always "unrevealed". This means you can't place roads/fields there, which you can in KaM	//Assigned to: Krom
 	
 
 Make sure these are checked:	//Assigned to: Krom

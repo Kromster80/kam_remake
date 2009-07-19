@@ -22,7 +22,7 @@ public
 
     TileOwner:TPlayerID; //Name says it all, should simplify player related issues
     IsUnit:byte; //Whenever there's a unit on that tile mark the tile as occupied and count the number
-    
+
     //It can be placed independent from everything else
     //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
     Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
@@ -55,7 +55,7 @@ public
   end;
 
   FallingTrees: TKMPointTagList;
-  
+
 private
   AnimStep:integer;
 
@@ -95,7 +95,7 @@ public
   procedure SowCorn(Loc:TKMPoint);
   procedure CutCorn(Loc:TKMPoint);
   procedure CutGrapes(Loc:TKMPoint);
-  
+
   procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
   procedure DecStoneDeposit(Loc:TKMPoint);
   procedure DecCoalDeposit(Loc:TKMPoint);
@@ -513,7 +513,7 @@ begin
            ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
           if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
              ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
-            if CanWalk in Land[i,k].Passability then
+            if Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,true) then
               List.AddEntry(KMPoint(k,i));
 
   Result:=List.GetRandom;
@@ -530,7 +530,7 @@ begin
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
         if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
-          if CanWalk in Land[i,k].Passability then
+          if Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,true) then
             List.AddEntry(KMPoint(k,i));
 
   Result:=List.GetRandom;
@@ -631,7 +631,7 @@ List2:=TKMPointList.Create;
 for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
   for k:=aPosition.X-aRadius to aPosition.X+aRadius do
     if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if (CanPlantTrees in Land[i,k].Passability) and (CanWalk in Land[i,k].Passability) then begin
+      if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,true) then begin
 
         if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
             List1.AddEntry(KMPoint(k,i))
@@ -931,7 +931,7 @@ begin
    if (TileIsSoil(Loc))and
       (not IsObjectsNearby(Loc.X,Loc.Y))and //This function checks surrounding tiles
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
-      (TileInMapCoords(Loc.X,Loc.Y,1))and
+      (Loc.X > 1)and(Loc.Y > 1)and //Not top/left of map, but bottom/right is ok
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
       (not HousesNearBy)and
       ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6)) then
@@ -1271,7 +1271,7 @@ end;
 
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
 begin
-  Result := TileInMapCoords(Loc.X,Loc.Y,1); //Do inset one tile from map edges
+  Result := TileInMapCoords(Loc.X,Loc.Y); //Make sure it is inside map, roads can be built on edge
   case aMarkup of
   mu_RoadPlan: Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
   mu_FieldPlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);

@@ -264,20 +264,20 @@ if (aUnitType=ut_Baker)and(aHome=ht_Bakery) then begin
   end;
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Farm) then begin
-  if ((fTerrain.FindField(aLoc,12,ft_Corn,false).X=0) and (fTerrain.FindField(aLoc,12,ft_Corn,true).X<>0)) or
-     ((fTerrain.FindField(aLoc,12,ft_Corn,true).X<>0) and (fTerrain.FindField(aLoc,12,ft_Corn,false).X<>0) and (Random(2) = 1)) then begin
+  if ((fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,false).X=0) and (fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,true).X<>0)) or
+     ((fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,true).X<>0) and (fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,false).X<>0) and (Random(2) = 1)) then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Corn);
-    WalkStyle(fTerrain.FindField(aLoc,12,ft_Corn,true),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
+    WalkStyle(fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,true),ua_WalkTool,ua_Work,6,0,ua_WalkBooty,gs_FarmerCorn);
   end else
-  if fTerrain.FindField(aLoc,12,ft_Corn,false).X<>0 then
-    WalkStyle(fTerrain.FindField(aLoc,12,ft_Corn,false),ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
+  if fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,false).X<>0 then
+    WalkStyle(fTerrain.FindField(aLoc,RANGE_FARMER,ft_Corn,false),ua_Walk,ua_Work1,10,0,ua_Walk,gs_FarmerSow)
   else
     fIssued:=false;
 end else
 if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
-  if fTerrain.FindField(aLoc,12,ft_Wine,true).X<>0 then begin
+  if fTerrain.FindField(aLoc,RANGE_FARMER,ft_Wine,true).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Wine);
-    WalkStyle(fTerrain.FindField(aLoc,12,ft_Wine,true),ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine);
+    WalkStyle(fTerrain.FindField(aLoc,RANGE_FARMER,ft_Wine,true),ua_WalkTool2,ua_Work2,5,0,ua_WalkBooty2,gs_FarmerWine);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,11);
     SubActAdd(ha_Work5,1);
@@ -285,9 +285,9 @@ if (aUnitType=ut_Farmer)and(aHome=ht_Wineyard) then begin
     fIssued:=false;
 end else
 if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
-  if fTerrain.FindStone(aLoc,12).X<>0 then begin
+  if fTerrain.FindStone(aLoc,RANGE_STONECUTTER).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
-    WalkStyle(fTerrain.FindStone(aLoc,12),ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter);
+    WalkStyle(fTerrain.FindStone(aLoc,RANGE_STONECUTTER),ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,9);
     SubActAdd(ha_Work5,1);
@@ -295,12 +295,12 @@ if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
     fIssued:=false;
 end else
 if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
-  if fTerrain.FindTree(aLoc,12).X<>0 then begin
+  if fTerrain.FindTree(aLoc,RANGE_WOODCUTTER).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
-    WalkStyle(fTerrain.FindTree(aLoc,12),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut);
+    WalkStyle(fTerrain.FindTree(aLoc,RANGE_WOODCUTTER),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut);
   end else
-  if fTerrain.FindPlaceForTree(aLoc,12).X<>0 then
-    WalkStyle(fTerrain.FindPlaceForTree(aLoc,12),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant)
+  if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
+    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant)
   else
     fIssued:=false;
 end else
