@@ -2,7 +2,7 @@ unit KM_Unit1;
 interface
 uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
-  Menus, Buttons, Math, SysUtils, KromUtils, OpenGL, dglOpenGL, MMSystem,
+  Menus, Buttons, Math, SysUtils, KromUtils, OpenGL, dglOpenGL, MMSystem, Messages,
   KM_Render, KM_RenderUI, KM_ResourceGFX, KM_Defaults,
   KM_Form_Loading, KM_Terrain, KM_Game,
   KM_Units, KM_Houses, KM_Viewport, KM_PlayersCollection, ColorPicker, KM_LoadLib, KM_SoundFX, KM_LoadDAT,
@@ -58,6 +58,7 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
+    ListBox1: TListBox;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -105,6 +106,9 @@ type
     procedure ResetResolution;
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
+    procedure WMSysCommand(var Msg : TWMSysCommand); message WM_SYSCOMMAND;
+    procedure ReadAvailableResolutions;
+
   public
     procedure SetControlsVisibility(ShowCtrls:boolean);
     procedure ToggleFullScreen(Toggle:boolean; ShowOptions:boolean=false);
@@ -156,6 +160,8 @@ begin
   TimeBeginPeriod(1); //initialize timer precision
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
+
+  //ReadAvailableResolutions;    Undecided as to how this will fit in with the game, see discussion
 
   Form1.WindowState:=wsMaximized;
   Form1.Refresh;
@@ -697,6 +703,32 @@ end;
 procedure TForm1.ResetResolution;
 begin
   if FORCE_RESOLUTION then ChangeDisplaySettings(DEVMODE(nil^),0);
+end;
+
+
+procedure TForm1.WMSysCommand(var Msg : TWMSysCommand);
+begin
+  //If the system message is screensaver or monitor power off then trap the message and set its result to -1
+  if (Msg.CmdType = SC_SCREENSAVE) or (Msg.CmdType = SC_MONITORPOWER) then
+    Msg.Result := -1
+  else
+    inherited;
+end;
+
+
+procedure TForm1.ReadAvailableResolutions;
+var
+  i : Integer;
+  DevMode : TDevMode;
+begin
+  i := 0;
+  while EnumDisplaySettings(nil,i,DevMode) do
+  begin
+    with Devmode do
+      SupportedResolutions[i]:=Format('%dx%d %dHz', [dmPelsWidth,dmPelsHeight,dmDisplayFrequency]);
+    ListBox1.AddItem(SupportedResolutions[i],nil);
+    Inc(i) ;
+  end;
 end;
 
 end.

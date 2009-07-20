@@ -43,7 +43,6 @@ type TKMMainMenuInterface = class
       Button_Options_MusicOn,Button_Options_Back:TKMButton;
       CheckBox_Options_FullScreen:TKMCheckBox;
       KMBevel_Options_Lang_Background:TKMBevel;
-      KMLabel_Options_Lang:TKMLabel;
       CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage;
@@ -329,21 +328,35 @@ begin
     Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
     Button_Options_MusicOn.OnClick:=Options_Change;
 
-    //Button_Options_1024:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
-    //Button_Options_1024.OnClick:=Options_Change;
-    //Button_Options_1280:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
-    //Button_Options_1280.OnClick:=Options_Change;
-
-    CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options,118,340,100,30,'Fullscreen',fnt_Metal);
-    CheckBox_Options_FullScreen.OnClick:=Options_Change;
-
-    KMLabel_Options_Lang:=MyControls.AddLabel(KMPanel_Options,178,380,100,30,'Language',fnt_Outline,kaCenter);
-    KMBevel_Options_Lang_Background:=MyControls.AddBevel(KMPanel_Options,110,400,136,8+LocalesCount*20);
+    MyControls.AddLabel(KMPanel_Options,468,130,100,30,'Language',fnt_Outline,kaCenter);
+    KMBevel_Options_Lang_Background:=MyControls.AddBevel(KMPanel_Options,400,150,136,8+LocalesCount*20);
     for i:=1 to LocalesCount do
     begin
-      CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(KMPanel_Options,118,405+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
+      CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(KMPanel_Options,405,155+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
       CheckBox_Options_Lang[i].OnClick:=Options_Change;
     end;
+
+    CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options,118,360,100,30,'Fullscreen',fnt_Metal);
+    CheckBox_Options_FullScreen.OnClick:=Options_Change;
+
+    MyControls.AddLabel(KMPanel_Options,170,385,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaCenter);
+    //Resolution selector
+
+    {
+    @Krom: Now we need to decide how we are going to do the resolution selector. I can make it read in a list of
+           supported resolutions and refresh rates (hz) which we could use in some kind of list.
+           Some questions to ask:
+           1. Should we only support a set list of resolutions like KaM does, or support any resolution (within reason) that people choose?
+           2. Will we allow people to choose the refresh rate, or just select (the highest?) one automatically?
+           3. Will we just have a button you click to cycle the options like KaM or a proper list?
+           4. What resolution will the menu use? Will it be locked to 1024x768? (some screens might not support that) Or will it scale?
+
+           My opinion: 1. I think that we should support any resolution >= 800x600.
+           2. I don't think the refresh rate is very important, and just adds a complication for people to choose. Just use the default or the highest or something.
+           3. I think a scrolling list would be much nicer than a cycle button, although it seems that takes quite a bit of work to setup
+           4. I think that it would be nice to support an 800x600 menu as well, because some screens might not do 1024x768. TPR always uses an 800x600 menu.
+              However, 1024x768 looks much nicer, so possibly we could support both and use.
+    }
 
     Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;
     Ratio_Options_SFX.Position  :=fGameSettings.GetSoundFXVolume;
@@ -361,7 +374,6 @@ begin
 
     Button_Options_Back:=MyControls.AddButton(KMPanel_Options,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_Options_Back.OnClick:=SwitchMenuPage;
-    //Should contain resolution selector, fullscreen option and other things
 end;
 
 

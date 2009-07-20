@@ -1,9 +1,3 @@
-IsFight
-false
-
-PlayerCount
-2
-
 Title
 Stone Mines
 
@@ -11,7 +5,4 @@ SmallDesc
 A mission designed to test the stone mining algorithm
 
 BigDesc
-To train units, left click on the Schoolhouse and scroll through the 'next profession' button to select thy unit that thou doth wish to train. Then shalt thou left click on the 'Add to Queue' button. When trained,thy serfs shall, wonder of wonders, automatically start to perform their tasks.
-
-MapSize
-M
+This mission uses the map from mission 1 TSK and has lots of stonemasons placed around all of the stonehills to test the algorithms for stone mining.

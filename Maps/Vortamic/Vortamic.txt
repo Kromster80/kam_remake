@@ -1,0 +1,8 @@
+Title
+Vortamic
+
+SmallDesc
+Based on Ben's mission Vortamic
+
+BigDesc
+This mission is based on Ben's mission Vortamic that won the Christmas mission competition. Some AI players have been removed and a few other things modified.

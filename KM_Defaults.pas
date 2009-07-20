@@ -691,6 +691,8 @@ var
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
+  SupportedResolutions: array[0..255] of string; //Must start at 0 so we can use EnumDisplaySettings
+
   ExeDir:string;
 
   CursorMode:record //It's easier to store it in record

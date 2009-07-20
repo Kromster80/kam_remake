@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 198
-  Top = 152
+  Left = 483
+  Top = 372
   HelpType = htKeyword
   BorderStyle = bsNone
   Caption = 'q'
@@ -208,6 +208,14 @@ object Form1: TForm1
       TickMarks = tmBoth
       TickStyle = tsNone
       OnChange = TB_Angle_Change
+    end
+    object ListBox1: TListBox
+      Left = 216
+      Top = 24
+      Width = 89
+      Height = 49
+      ItemHeight = 13
+      TabOrder = 9
     end
   end
   object MediaPlayer123: TMediaPlayer
