@@ -517,7 +517,7 @@ begin
   Result:=false;
   for i:=1 to length(fHousePlansQueue) do
   with fHousePlansQueue[i] do
-  if (House<>nil)and(House.GetPosition.X=aLoc.X)and(House.GetPosition.Y=aLoc.Y) then
+  if (House<>nil)and(House.HitTest(aLoc.X,aLoc.Y)) then
   begin
 
     if not Simulated then

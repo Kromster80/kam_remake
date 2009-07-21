@@ -44,6 +44,7 @@ type TKMMainMenuInterface = class
       CheckBox_Options_FullScreen:TKMCheckBox;
       KMBevel_Options_Lang_Background:TKMBevel;
       CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
+      CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage;
       KMLabel_Credits:TKMLabel;
@@ -95,7 +96,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Settings, KM_Render, KM_LoadLib, KM_Game, KM_SoundFX, KM_PlayersCollection, KM_CommonTypes;
+uses KM_Unit1, KM_Settings, KM_Render, KM_LoadLib, KM_Game, KM_SoundFX, KM_PlayersCollection, KM_CommonTypes, Forms;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word);
@@ -341,6 +342,14 @@ begin
 
     MyControls.AddLabel(KMPanel_Options,170,385,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaCenter);
     //Resolution selector
+    MyControls.AddBevel(KMPanel_Options,118,405,170,8+RESOLUTION_COUNT*20);
+
+    for i:=1 to RESOLUTION_COUNT do
+    begin
+      CheckBox_Options_Resolution[i]:=MyControls.AddCheckBox(KMPanel_Options,124,410+(i-1)*20,100,30,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
+      CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0);
+      CheckBox_Options_Resolution[i].OnClick:=Options_Change;
+    end;
 
     {
     @Krom: Now we need to decide how we are going to do the resolution selector. I can make it read in a list of
@@ -589,6 +598,15 @@ begin
 
   for i:=1 to LocalesCount do
     CheckBox_Options_Lang[i].Checked := LowerCase(fGameSettings.GetLocale) = LowerCase(Locales[i,1]);
+
+  for i:=1 to RESOLUTION_COUNT do
+    if Sender = CheckBox_Options_Resolution[i] then begin
+      fGameSettings.SetResolutionID := i;
+      fGame.ChangeResolution;
+    end;
+
+  for i:=1 to RESOLUTION_COUNT do
+    CheckBox_Options_Resolution[i].Checked := (i = fGameSettings.GetResolutionID);
 
 end;
 

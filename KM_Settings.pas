@@ -15,6 +15,7 @@ type
     fMusicOnOff:boolean;
     fFullScreen:boolean;
     fLocale:shortstring;
+    fResolutionID:word; //Relates to index in SupportedResolution
     SlidersMin,SlidersMax:byte;
     fNeedsSave: boolean;
     function LoadSettingsFromFile(filename:string):boolean;
@@ -26,6 +27,8 @@ type
     property GetBrightness:byte read fBrightness default 1;
     property GetLocale:shortstring read fLocale;
     property SetLocale:shortstring write fLocale;
+    property GetResolutionID:word read fResolutionID;
+    property SetResolutionID:word write fResolutionID;
     procedure IncBrightness;
     procedure DecBrightness;
     procedure SetIsAutosave(val:boolean);
@@ -125,6 +128,7 @@ begin
 
   fBrightness    := f.ReadInteger('GFX','Brightness',1);
   fFullScreen    := f.ReadBool   ('GFX','FullScreen',true);
+  fResolutionID  := f.ReadInteger('GFX','ResolutionID',1);
 
   fAutosave      := f.ReadBool   ('Game','Autosave',false);
   fFastScroll    := f.ReadBool   ('Game','FastScroll',false);
@@ -145,13 +149,14 @@ var f:TIniFile;
 begin      
   f := TIniFile.Create(filename);
 
-  f.WriteInteger('GFX','Brightness', fBrightness);
-  f.WriteBool   ('GFX','FullScreen', fFullScreen);
+  f.WriteInteger('GFX','Brightness',  fBrightness);
+  f.WriteBool   ('GFX','FullScreen',  fFullScreen);
+  f.WriteInteger('GFX','ResolutionID',fResolutionID);
 
-  f.WriteBool   ('Game','Autosave',  fAutosave);
-  f.WriteBool   ('Game','FastScroll',fFastScroll);
-  f.WriteInteger('Game','MouseSpeed',fMouseSpeed);
-  f.WriteString ('Game','Locale',    fLocale);
+  f.WriteBool   ('Game','Autosave',   fAutosave);
+  f.WriteBool   ('Game','FastScroll', fFastScroll);
+  f.WriteInteger('Game','MouseSpeed', fMouseSpeed);
+  f.WriteString ('Game','Locale',     fLocale);
 
   f.WriteInteger('SFX','SFXVolume',   fSoundFXVolume);
   f.WriteInteger('SFX','MusicVolume', fMusicVolume);

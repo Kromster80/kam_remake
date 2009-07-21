@@ -21,6 +21,7 @@ type
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale();
+    procedure ChangeResolution();
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
@@ -96,6 +97,12 @@ begin
   fResource.LoadFonts(false);
   fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX,ScreenY);
   fMainMenuInterface.ShowScreen_Options;
+end;
+
+
+procedure TKMGame.ChangeResolution();
+begin
+
 end;
 
 

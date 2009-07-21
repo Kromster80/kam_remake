@@ -674,7 +674,25 @@ type
     sfx_SiegeBuildingSmash
         );
 
+const
+  RESOLUTION_COUNT = 10;
+  SupportedResolutions: array[1..RESOLUTION_COUNT,1..2] of word=(
+  (1024,768),
+  (1152,864),
+  (1280,800),
+  (1280,960),
+  (1280,1024),
+  (1366,768),
+  (1440,900),
+  (1600,900),
+  (1680,1050),
+  (1920,1200)
+  );
+
 var
+  //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
+  SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
+
   //Players colors
   TeamColors:array[1..MAX_PLAYERS]of cardinal = (
   $FF3040FF, //Red
@@ -690,8 +708,6 @@ var
   GlobalTickCount:integer=-1; //So that first number after inc() would be 0
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
-
-  SupportedResolutions: array[1..1024,1..4] of word; //Must start at 0 so we can use EnumDisplaySettings
 
   ExeDir:string;
 

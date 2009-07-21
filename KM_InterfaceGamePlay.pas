@@ -527,7 +527,7 @@ begin
 
   for i:=1 to 4 do begin
     KMImage_RatioPic[i]:=MyControls.AddImage(KMPanel_Ratios,12,124+(i-1)*50,32,32,327);
-    KMLabel_RatioLab[i]:=MyControls.AddLabel(KMPanel_Ratios,50,116+(i-1)*50,100,30,'<<<LEER>>>',fnt_Metal,kaLeft);
+    KMLabel_RatioLab[i]:=MyControls.AddLabel(KMPanel_Ratios,50,116+(i-1)*50,100,30,'<<<LEER>>>',fnt_Grey,kaLeft);
     KMRatio_RatioRat[i]:=MyControls.AddRatioRow(KMPanel_Ratios,48,136+(i-1)*50,140,20,0,5);
     KMRatio_RatioRat[i].Tag:=i;
     KMRatio_RatioRat[i].OnChange:=RatiosChange;
@@ -549,32 +549,32 @@ begin
   case i of //This should be simplified, compacted and automated
   1: begin
         MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,56,30);
-        MyControls.AddBevel(KMPanel_Stats,70,(i-1)*IncY,56,30);
-        MyControls.AddBevel(KMPanel_Stats,132,(i-1)*IncY,56,30);
+        MyControls.AddBevel(KMPanel_Stats,74,(i-1)*IncY,56,30);
+        MyControls.AddBevel(KMPanel_Stats,140,(i-1)*IncY,56,30);
      end;
   2: begin
         MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
-        MyControls.AddBevel(KMPanel_Stats,100,(i-1)*IncY,86,30);
+        MyControls.AddBevel(KMPanel_Stats,104,(i-1)*IncY,86,30);
      end;
   3: begin
         MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
-        MyControls.AddBevel(KMPanel_Stats,100,(i-1)*IncY,86,30);
+        MyControls.AddBevel(KMPanel_Stats,104,(i-1)*IncY,86,30);
      end;
   4: begin
         MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
-        MyControls.AddBevel(KMPanel_Stats,100,(i-1)*IncY,86,30);
+        MyControls.AddBevel(KMPanel_Stats,104,(i-1)*IncY,86,30);
      end;
   5:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,116,30);
   6:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,146,30);
   7:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
   8: begin
         MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,120,30);
-        MyControls.AddBevel(KMPanel_Stats,134,(i-1)*IncY,52,30);
+        MyControls.AddBevel(KMPanel_Stats,138,(i-1)*IncY,52,30);
      end;
   end;
   for k:=1 to 8 do
   if StatCount[i,k]=0 then begin
-    inc(off,6);
+    inc(off,10);
   end else
   if StatCount[i,k]=1 then begin
     Stat_HousePic[hc]:=MyControls.AddImage(KMPanel_Stats,8+off,(i-1)*IncY,32,30,41{byte(StatHouse[hc])+300});

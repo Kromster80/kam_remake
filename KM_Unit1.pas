@@ -53,7 +53,7 @@ type
     Debug_ShowPanel1: TMenuItem;
     Button_W: TButton;
     Export_TreeAnim1: TMenuItem;
-    Export_GUIMainHRX: TMenuItem; //@Krom: What purpose does this serve?
+    Export_GUIMainHRX: TMenuItem;
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
@@ -102,7 +102,7 @@ type
     procedure Debug_ShowPanel1Click(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Button_WClick(Sender: TObject);
-    procedure SetScreenResolution(Width, Height: integer);
+    procedure SetScreenResolution(Width, Height, RefreshRate: word);
     procedure ResetResolution;
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
@@ -181,7 +181,7 @@ begin
 
   //Now decide whether we should make it full screen or not
   if fGameSettings.IsFullScreen then
-    SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y)
+    SetScreenResolution(SupportedResolutions[fGameSettings.GetResolutionID,1],SupportedResolutions[fGameSettings.GetResolutionID,2],SupportedRefreshRates[fGameSettings.GetResolutionID])
   else
     ToggleFullScreen(false,false);
 
@@ -656,7 +656,7 @@ begin
   if Toggle then begin
     Form1.BorderStyle:=bsNone;
     Form1.WindowState:=wsMaximized;
-    SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y);
+    SetScreenResolution(SupportedResolutions[fGameSettings.GetResolutionID,1],SupportedResolutions[fGameSettings.GetResolutionID,2],SupportedRefreshRates[fGameSettings.GetResolutionID]);
   end else begin
     Form1.Refresh;
     Form1.WindowState:=wsNormal;
@@ -683,7 +683,7 @@ begin
 end;
 
 
-procedure TForm1.SetScreenResolution(Width, Height: integer);
+procedure TForm1.SetScreenResolution(Width, Height, RefreshRate: word);
 var
   DeviceMode: DEVMODE;
 begin
@@ -694,7 +694,8 @@ begin
     dmPelsWidth := Width;
     dmPelsHeight := Height;
     dmBitsPerPel := 32;
-    dmFields := DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
+    dmDisplayFrequency := RefreshRate;
+    dmFields := DM_DISPLAYFREQUENCY or DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
   end;
   ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
 end;
@@ -721,21 +722,25 @@ var
   i,k : integer;
   DevMode : TDevMode;
 begin
-  i:=0; k:=0;
+  i:=0;
+  for k:=1 to RESOLUTION_COUNT do
+  begin
+    SupportedRefreshRates[k] := 0;
+  end;
   while EnumDisplaySettings(nil,i,DevMode) do
   with Devmode do
   begin
     inc(i);
-    if (dmBitsPerPel=32)and(dmPelsWidth>=800)and(dmPelsHeight>=600) then
-    begin
-      inc(k);
-      SupportedResolutions[k,1]:=dmPelsWidth;
-      SupportedResolutions[k,2]:=dmPelsHeight;
-      SupportedResolutions[k,3]:=dmBitsPerPel;
-      SupportedResolutions[k,4]:=dmDisplayFrequency;
-      ListBox1.AddItem(Format('%d. %dx%dx%d %dHz', [k,dmPelsWidth,dmPelsHeight,dmBitsPerPel,dmDisplayFrequency]),nil);
-    end;
+    if dmBitsPerPel=32 then
+      for k:=1 to RESOLUTION_COUNT do
+        if (SupportedResolutions[k,1]=dmPelsWidth)and(SupportedResolutions[k,2]=dmPelsHeight)then
+          if dmDisplayFrequency > SupportedRefreshRates[k] then
+            SupportedRefreshRates[k] := dmDisplayFrequency;
   end;
+  //Now list supported resolutions and refresh rates for debug
+  for k:=1 to RESOLUTION_COUNT do
+    //if SupportedRefreshRates[k] > 0 then
+      ListBox1.AddItem(Format('%d. %dx%d %dHz', [k,SupportedResolutions[k,1],SupportedResolutions[k,2],SupportedRefreshRates[k]]),nil);
 end;
 
 end.
