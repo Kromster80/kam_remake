@@ -111,7 +111,7 @@ type
 
   public
     procedure SetControlsVisibility(ShowCtrls:boolean);
-    procedure ToggleFullScreen(Toggle:boolean; ShowOptions:boolean=false);
+    procedure ToggleFullScreen(Toggle:boolean; ReturnToOptions:boolean);
   end;
 
 var
@@ -161,13 +161,13 @@ begin
   ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   fLog:=TKMLog.Create(ExeDir+'KaM.log'); //First thing - create a log
 
-  //ReadAvailableResolutions;    Undecided as to how this will fit in with the game, see discussion
+  ReadAvailableResolutions;    //Undecided as to how this will fit in with the game, see discussion
 
   Form1.WindowState:=wsMaximized;
   Form1.Refresh;
 
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
-  fSoundLib.PlayMenuTrack;
+  //fSoundLib.PlayMenuTrack;
 
   Application.OnIdle:=Form1.OnIdle;
 
@@ -183,7 +183,7 @@ begin
   if fGameSettings.IsFullScreen then
     SetScreenResolution(MENU_DESIGN_X,MENU_DESIGN_Y)
   else
-    ToggleFullScreen(false);
+    ToggleFullScreen(false,false);
 
   FormLoading.Hide;
   FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
@@ -651,7 +651,7 @@ begin
 end;
 
 
-procedure TForm1.ToggleFullScreen(Toggle:boolean; ShowOptions:boolean=false);
+procedure TForm1.ToggleFullScreen(Toggle:boolean; ReturnToOptions:boolean);
 begin
   if Toggle then begin
     Form1.BorderStyle:=bsNone;
@@ -678,8 +678,8 @@ begin
   Panel5.Top:=0;
   Panel5.Height:=Form1.ClientHeight;
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
-  
-  if ShowOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
+
+  if ReturnToOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
 end;
 
 
@@ -718,16 +718,23 @@ end;
 
 procedure TForm1.ReadAvailableResolutions;
 var
-  i : Integer;
+  i,k : integer;
   DevMode : TDevMode;
 begin
-  i := 0;
+  i:=0; k:=0;
   while EnumDisplaySettings(nil,i,DevMode) do
+  with Devmode do
   begin
-    with Devmode do
-      SupportedResolutions[i]:=Format('%dx%d %dHz', [dmPelsWidth,dmPelsHeight,dmDisplayFrequency]);
-    ListBox1.AddItem(SupportedResolutions[i],nil);
-    Inc(i) ;
+    inc(i);
+    if (dmBitsPerPel=32)and(dmPelsWidth>=800)and(dmPelsHeight>=600) then
+    begin
+      inc(k);
+      SupportedResolutions[k,1]:=dmPelsWidth;
+      SupportedResolutions[k,2]:=dmPelsHeight;
+      SupportedResolutions[k,3]:=dmBitsPerPel;
+      SupportedResolutions[k,4]:=dmDisplayFrequency;
+      ListBox1.AddItem(Format('%d. %dx%dx%d %dHz', [k,dmPelsWidth,dmPelsHeight,dmBitsPerPel,dmDisplayFrequency]),nil);
+    end;
   end;
 end;
 

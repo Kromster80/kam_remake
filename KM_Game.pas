@@ -23,7 +23,7 @@ type
     procedure ToggleLocale();
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
-    procedure ToggleFullScreen(aToggle:boolean; ShowOptions:boolean=false);
+    procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
@@ -125,11 +125,10 @@ begin
 end;
 
 
-procedure TKMGame.ToggleFullScreen(aToggle:boolean; ShowOptions:boolean=false);
+procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
 begin
   fGameSettings.IsFullScreen := aToggle;
-  Form1.ToggleFullScreen(aToggle,ShowOptions);
-  fMainMenuInterface.ShowScreen_Options;
+  Form1.ToggleFullScreen(aToggle, ReturnToOptions);
 end;
 
 
