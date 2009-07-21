@@ -53,12 +53,12 @@ type
     Debug_ShowPanel1: TMenuItem;
     Button_W: TButton;
     Export_TreeAnim1: TMenuItem;
-    Export_GUIMainHRX: TMenuItem;
-    MediaPlayer123: TMediaPlayer; //@Krom: What purpose does this serve?
+    Export_GUIMainHRX: TMenuItem; //@Krom: What purpose does this serve?
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
     ListBox1: TListBox;
+    MediaPlayer1: TMediaPlayer;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);

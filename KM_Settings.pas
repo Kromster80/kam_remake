@@ -212,7 +212,7 @@ begin
 end;
 
 procedure TGameSettings.SetMusicOnOff(Value:boolean);
-var OldValue: boolean;
+var OldValue: boolean; //@Lewin: Is that overcomplicated as it seems?
 begin
   OldValue:=fMusicOnOff;
   fMusicOnOff:=Value;

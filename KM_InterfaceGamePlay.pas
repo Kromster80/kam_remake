@@ -1378,8 +1378,11 @@ begin
   KMRatio_Settings_Mouse.Position:=fGameSettings.GetMouseSpeed;
   KMRatio_Settings_SFX.Position:=fGameSettings.GetSoundFXVolume;
   KMRatio_Settings_Music.Position:=fGameSettings.GetMusicVolume;
+
   if fGameSettings.IsMusic then
-  KMButton_Settings_Music.Caption:=fTextLibrary.GetTextString(201) else KMButton_Settings_Music.Caption:=fTextLibrary.GetTextString(199);
+    KMButton_Settings_Music.Caption:=fTextLibrary.GetTextString(201)
+  else
+    KMButton_Settings_Music.Caption:=fTextLibrary.GetTextString(199);
 end;
 
 

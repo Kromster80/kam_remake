@@ -87,12 +87,7 @@ begin
   IsOpenALInitialized := true;
   IsMusicInitialized := true;
 
-  MediaPlayer := TMediaPlayer.CreateParented(Form1.Handle);
-  if MediaPlayer.Error<>0 then begin
-    MessageBox(Form1.Handle,@(MediaPlayer.errormessage)[1],'OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
-    IsMusicInitialized := false;
-    exit;
-  end;
+  MediaPlayer := Form1.MediaPlayer1;
   ScanMusicTracks(ExeDir+'Music\');
 
   IsOpenALInitialized := InitOpenAL;
@@ -154,9 +149,8 @@ end;
 
 destructor TSoundLib.Destroy();
 begin
-  MediaPlayer.Stop;
-  MediaPlayer.Close;
-  FreeAndNil(MediaPlayer);
+  //MediaPlayer.Close;
+  //FreeAndNil(MediaPlayer);
 
   AlDeleteBuffers(MaxSourceCount, @ALBuffer);
   AlDeleteSources(MaxSourceCount, @ALSource);
@@ -171,9 +165,9 @@ begin
   Result:=false;
   if MediaPlayer.Error<>0 then begin
     fLog.AddToLog(MediaPlayer.errormessage);
-    MessageBox(Form1.Handle,@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
-    IsMusicInitialized := false;
-    Result:=true; //Error is there
+   // MessageBox(Form1.Handle,@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
+   // IsMusicInitialized := false;
+   // Result:=true; //Error is there
   end;
 end;
 
@@ -266,7 +260,7 @@ var
   lpstrQuality: PChar;
   end;
 begin
-  if not IsOpenALInitialized then exit; //Keep silent
+  if not IsMusicInitialized then exit; //Keep silent
   MusicGain:=Value;
   P.dwCallback := 0;
   P.dwItem := MCI_DGV_SETAUDIO_VOLUME;
@@ -368,6 +362,9 @@ procedure TSoundLib.StopMusic;
 begin
   if not IsMusicInitialized then exit;
   MediaPlayer.Close;
+  //if CheckMusicError then exit;
+  //MediaPlayer.FileName:='';
+  //if CheckMusicError then exit;
   MusicIndex := 0;
 end;
 
@@ -388,6 +385,8 @@ function TSoundLib.PlayMusicFile(FileName:string):boolean;
 begin
   Result:=false;
   if not IsMusicInitialized then exit;
+
+  if MediaPlayer.FileName<>'' then
   MediaPlayer.Close; //Cancel previous sound
   if CheckMusicError then exit;
   if not CheckFileExists(FileName) then exit;
@@ -443,7 +442,8 @@ function TSoundLib.IsMusicEnded():boolean;
 begin
   Result:=false;
   if not IsMusicInitialized then exit;
-  Result:= fGameSettings.IsMusic and ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
+  Result := fGameSettings.IsMusic and ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
+  if CheckMusicError then exit;
 end;
 
 
