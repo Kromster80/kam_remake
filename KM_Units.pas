@@ -2448,7 +2448,7 @@ end;
 procedure TUnitActionStay.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
-  if fTerrain.CheckRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
 
   case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
     ut_Worker: case ActionType of
@@ -2661,8 +2661,10 @@ procedure TKMUnitsCollection.Paint();
 var i:integer; x1,x2,y1,y2,Margin:integer;
 begin
   if TestViewportClipInset then Margin:=-3 else Margin:=3;
-  x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
-  y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
+  x1 := fViewport.GetClip.Left - Margin;
+  x2 := fViewport.GetClip.Right + Margin;
+  y1 := fViewport.GetClip.Top - Margin;
+  y2 := fViewport.GetClip.Bottom + Margin;
 
   for I := 0 to Count - 1 do
   if (InRange(TKMUnit(Items[I]).fPosition.X,x1,x2) and InRange(TKMUnit(Items[I]).fPosition.Y,y1,y2)) then

@@ -559,7 +559,7 @@ var WorkID,Step:byte;
 begin
 
   //Do not play sounds if house is invisible to MyPlayer
-  if fTerrain.CheckRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if fTerrain.CheckTileRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
 
   WorkID:=fCurrentAction.GetWorkID;
   if WorkID=0 then exit;

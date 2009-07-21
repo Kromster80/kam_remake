@@ -167,7 +167,6 @@ begin
   Form1.Refresh;
 
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
-  //fSoundLib.PlayMenuTrack;
 
   Application.OnIdle:=Form1.OnIdle;
 
@@ -175,8 +174,7 @@ begin
 
   //Show the message if user has old OpenGL drivers
   if not GL_VERSION_1_4 then
-    MessageBox(FormLoading.Handle,
-        @('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
+    Application.MessageBox(@('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
         'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
 
   //Now decide whether we should make it full screen or not
@@ -424,6 +422,7 @@ begin
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
   U.SetActionWalk(U,KMPoint(4,10),KMPoint(0,0));//}
 
+  MyPlayer.AddUnit(ut_HorseScout, KMPoint(12,12));
 
   //Walk through group
   {MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
@@ -538,12 +537,12 @@ begin
   for k:=1 to 6 do begin
     MyPlayer:=fPlayers.Player[k];
 
-    MyPlayer.AddHouse(ht_Store, KMPoint(k*4,5));
+    MyPlayer.AddHouse(ht_Store, KMPoint(10+k*4,25));
     H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
     if H<>nil then H.AddMultiResource(rt_All,30);
 
-    for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(k*4,8));
-    for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(k*4+1,8));
+    //for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(k*4,8));
+    //for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(k*4+1,8));
 
   end;
 

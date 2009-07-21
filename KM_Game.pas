@@ -312,17 +312,17 @@ begin
           cm_Road: if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
                      MyPlayer.RemPlan(P)
                    else
-                     MyPlayer.AddRoadPlan(P,mu_RoadPlan, false,MyPlayer.PlayerID);
+                     MyPlayer.AddRoadPlan(P, mu_RoadPlan, false, MyPlayer.PlayerID);
 
           cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
                       MyPlayer.RemPlan(P)
                     else
-                      MyPlayer.AddRoadPlan(P,mu_FieldPlan, false,MyPlayer.PlayerID);
+                      MyPlayer.AddRoadPlan(P, mu_FieldPlan, false, MyPlayer.PlayerID);
 
           cm_Wine: if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
                      MyPlayer.RemPlan(P)
                    else
-                     MyPlayer.AddRoadPlan(P,mu_WinePlan, false,MyPlayer.PlayerID);
+                     MyPlayer.AddRoadPlan(P, mu_WinePlan, false, MyPlayer.PlayerID);
 
           cm_Erase:
             begin

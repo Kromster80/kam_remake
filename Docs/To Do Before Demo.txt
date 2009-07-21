@@ -1,10 +1,7 @@
 Should be done into Demo:
 	Change exe icon
 	Readme	//Assigned to: Lewin
-	Set up add-on maps, choose which ones	//Assigned to: Lewin
-	Fix bug: Units are not rendered if they are standing on the right or bottom edge of the map	//Assigned to: Krom
 	Fix bug: The left and top edges of the map are always "unrevealed". This means you can't place roads/fields there, which you can in KaM	//Assigned to: Krom
-	Warning messages (e.g. OpenAL could not be initialised) appear bellow the splash screen meaning you can't see them unless you know to move it. On a side note: Should we making a nicer spash screen?
 
 Make sure these are checked:	//Assigned to: Krom
 	True/false switches in KM_Defaults

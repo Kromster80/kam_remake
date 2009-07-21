@@ -1,6 +1,6 @@
 unit KM_SoundFX;
 interface
-uses Windows, MMSystem, MPlayer, Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults, KM_CommonTypes, KM_Utils;
+uses Forms, Windows, MMSystem, MPlayer, Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxWaves = 200;
 const MaxSourceCount = 16; //Actually it depends on hardware
@@ -92,8 +92,8 @@ begin
 
   IsOpenALInitialized := InitOpenAL;
   if not IsOpenALInitialized then begin
-    fLog.AddToLog('OpenAL warning. OpenAL couldn''t be initialized.');
-    MessageBox(Form1.Handle,'OpenAL couldn''t be initialized.','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    fLog.AddToLog('OpenAL warning. OpenAL could not be initialized.');
+    Application.MessageBox('OpenAL could not be initialized. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     IsOpenALInitialized := false;
     exit;
   end;
@@ -101,8 +101,8 @@ begin
   //Open device
   Device := alcOpenDevice(nil); // this is supposed to select the "preferred device"
   if Device = nil then begin
-    fLog.AddToLog('OpenAL warning. Device couldn''t be opened.');
-    MessageBox(Form1.Handle,'Device couldn''t be opened.','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    fLog.AddToLog('OpenAL warning. Device could not be opened.');
+    Application.MessageBox('Device could not be opened. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     IsOpenALInitialized := false;
     exit;
   end;
@@ -110,24 +110,24 @@ begin
   //Create context(s)
   Context := alcCreateContext(Device, nil);  
   if Context = nil then begin
-    fLog.AddToLog('OpenAL warning. Context couldn''t be created.');
-    MessageBox(Form1.Handle,'Context couldn''t be created.','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    fLog.AddToLog('OpenAL warning. Context could not be created.');
+    Application.MessageBox('Context could not be created. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     IsOpenALInitialized := false;
     exit;
   end;
 
   //Set active context
   if alcMakeContextCurrent(Context) > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
-    fLog.AddToLog('OpenAL warning. Context couldn''t be made current.');
-    MessageBox(Form1.Handle,'Context couldn''t be made current.','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
+    fLog.AddToLog('OpenAL warning. Context could not be made current.');
+    Application.MessageBox('Context could not be made current. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
     IsOpenALInitialized := false;
     exit;
   end;
 
   ErrCode:=alcGetError(Device);
   if ErrCode <> ALC_NO_ERROR then begin
-    fLog.AddToLog('OpenAL warning. There''s OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
-    MessageBox(Form1.Handle,@('There''s OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.')[1],'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
+    fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
+    Application.MessageBox(@('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.')[1],'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
     IsOpenALInitialized := false;
     exit;
   end;
@@ -165,7 +165,7 @@ begin
   Result:=false;
   if MediaPlayer.Error<>0 then begin
     fLog.AddToLog(MediaPlayer.errormessage);
-   // MessageBox(Form1.Handle,@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
+   // Application.MessageBox(@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
    // IsMusicInitialized := false;
    // Result:=true; //Error is there
   end;
@@ -393,7 +393,7 @@ begin
   if GetFileExt(FileName)<>'MP3' then exit;
   MediaPlayer.FileName:=FileName;
   MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
-  //MessageBox(0,@FileName[1],'Now playing',MB_OK);
+  //Application.MessageBox(@FileName[1],'Now playing',MB_OK);
   MediaPlayer.Open; //Needs to be done for every new file
   if CheckMusicError then exit;
   UpdateMusicVolume(MusicGain); //Need to reset music volume after Open

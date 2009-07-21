@@ -351,22 +351,22 @@ end;
   with fTerrain do
   for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
-    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckRevelation(k,i,MyPlayer.PlayerID)/255));
+    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
     glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckRevelation(k,i+1,MyPlayer.PlayerID)/255));
+    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
     glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
     glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckRevelation(k+1,i,MyPlayer.PlayerID)/255));
+    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
     glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckRevelation(k,i,MyPlayer.PlayerID)/255));
+    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
     glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckRevelation(k,i+1,MyPlayer.PlayerID)/255));
+    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
     glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
     glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckRevelation(k+1,i,MyPlayer.PlayerID)/255));
+    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
     glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
@@ -521,7 +521,7 @@ var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
   if MapElem[Index].Count=0 then exit;
 
-  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
+  FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
   if FOW = 0 then exit; //Don't render objects which are unexplored
   if FOW <=128 then AnimStep:=0; //Stop animation
   ID:=MapElem[Index].Step[AnimStep mod MapElem[Index].Count +1]+1;
@@ -553,7 +553,7 @@ var FOW:byte;
     AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,pX,pY,true,0,-1);
   end;
 begin
-  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
+  FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
   if FOW <=128 then AnimStep:=0; //Stop animation
 
   AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  ,-0.4);
@@ -930,8 +930,9 @@ begin
   for i:=1 to RenderCount do
   if RenderList[i].NewInst then begin
     RO[i]:=i;
-    P:=KMPointRound(RenderList[i].Obj);
-    RenderList[i].FOWvalue:=fTerrain.CheckRevelation(P.X,P.Y,MyPlayer.PlayerID);
+    P.X:=round(RenderList[i].Obj.X-0.5);
+    P.Y:=round(RenderList[i].Obj.Y);
+    RenderList[i].FOWvalue := fTerrain.CheckTileRevelation(P.X,P.Y,MyPlayer.PlayerID);
     if RenderList[i].FOWvalue=0 then
       RO[i]:=0;
   end else begin
@@ -1012,7 +1013,7 @@ begin
     3: ID:=108; //Wine
     else ID:=0;
   end;
-  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
+  FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
 
   glColor3ub(FOW,FOW,FOW);
   glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
@@ -1046,7 +1047,7 @@ begin
     bt_Field:         if (Pos=dir_N) or (Pos=dir_S) then ID:=461 else ID:=465; //Fence (Stones)
   end;
 
-  FOW:=fTerrain.CheckRevelation(pX,pY,MyPlayer.PlayerID);
+  FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
 
   if Pos=dir_S then pY:=pY+1;
   if Pos=dir_W then pX:=pX+1;
@@ -1139,7 +1140,7 @@ begin
         end;
 
         //Forbid planning on unrevealed areas
-        AllowBuild := AllowBuild and (fTerrain.CheckRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
+        AllowBuild := AllowBuild and (fTerrain.CheckTileRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
 
         if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
         //Check surrounding tiles in +/- 1 range for other houses pressence
@@ -1179,16 +1180,16 @@ with fTerrain do
 case CursorMode.Mode of
   cm_None:;
   cm_Erase:if ((CanRemovePlan(CursorPos,MyPlayer.PlayerID)) or (CanRemoveHouse(CursorPos,MyPlayer.PlayerID)))
-           and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+           and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad

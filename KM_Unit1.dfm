@@ -217,6 +217,7 @@ object Form1: TForm1
     Height = 161
     ItemHeight = 13
     TabOrder = 3
+    Visible = False
   end
   object MediaPlayer1: TMediaPlayer
     Left = 112

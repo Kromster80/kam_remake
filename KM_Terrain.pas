@@ -131,7 +131,8 @@ public
 
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
-  function CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
+  function CheckVerticeRevelation(X,Y:word; PlayerID:TPlayerID):byte;
+  function CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
   procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
   procedure FlattenTerrain(Loc:TKMPoint);
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
@@ -372,8 +373,8 @@ begin
   Result := true;
 
   if (abs(A.X-B.X)<>1) or (abs(A.Y-B.Y)<>1) then exit; //Tiles are not diagonal to each other
-
-  //Implementation here..
+  
+                                                                 //Relative tiles locations
   if (A.X<B.X)and(A.Y<B.Y) then                                  //   A
     Result := not MapElem[Land[B.Y,B.X].Obj+1].DiagonalBlocked   //    B
   else
@@ -413,14 +414,27 @@ end;
 {Check if requested vertice is revealed for given player}
 {Return value of revelation is 0..255}
 //0 unrevealed, 255 revealed completely
-function TTerrain.CheckRevelation(X,Y:word; PlayerID:TPlayerID):byte;
+function TTerrain.CheckVerticeRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
-  if Land[Y,X].FogOfWar[byte(PlayerID)] >= TERRAIN_FOG_OF_WAR_ACT then
-    Result:=255
+  if not VerticeInMapCoords(X,Y) then
+    Result := 0
   else
-    Result:=EnsureRange(round(Land[Y,X].FogOfWar[byte(PlayerID)] / TERRAIN_FOG_OF_WAR_ACT * 255),0,255);
+  if Land[Y,X].FogOfWar[byte(PlayerID)] >= TERRAIN_FOG_OF_WAR_ACT then
+    Result := 255
+  else
+    Result := EnsureRange(round(Land[Y,X].FogOfWar[byte(PlayerID)] / TERRAIN_FOG_OF_WAR_ACT * 255),0,255);
+end;
+
+
+{Check if requested tile is revealed for given player}
+{Return value of revelation is 0..255}
+//0 unrevealed, 255 revealed completely
+function TTerrain.CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
+begin
+  Result := max(max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)),
+                max(CheckVerticeRevelation(X,Y-1,PlayerID),CheckVerticeRevelation(X+1,Y-1,PlayerID)));
 end;
 
 
@@ -1252,7 +1266,7 @@ Result:=true;
       end;
 
       if PlayerRevealID <> play_none then
-        Result := Result AND (CheckRevelation(Loc.X+k-3,Loc.Y+i-4,PlayerRevealID) > 0);
+        Result := Result AND (CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4,PlayerRevealID) > 0);
     end;
 end;
 
@@ -1273,14 +1287,14 @@ function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TP
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y); //Make sure it is inside map, roads can be built on edge
   case aMarkup of
-  mu_RoadPlan: Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
-  mu_FieldPlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
-  mu_WinePlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
-  else Result:=false;
+    mu_RoadPlan:  Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
+    mu_FieldPlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
+    mu_WinePlan:  Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
+    else Result:=false;
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
   if PlayerRevealID <> play_none then
-    Result := Result AND (CheckRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0);
+    Result := Result AND (CheckTileRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0);
 end;
 
 
@@ -1406,7 +1420,7 @@ procedure TTerrain.RefreshMinimapData();
 var i,k,ID:integer; Light:single; Loc:TKMPointList; FOW:byte;
 begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
-    FOW:=fTerrain.CheckRevelation(k,i,MyPlayer.PlayerID);
+    FOW:=fTerrain.CheckTileRevelation(k,i,MyPlayer.PlayerID);
     if SHOW_ALL_ON_MINIMAP then FOW := 255;
     if FOW = 0 then begin
       MM[i,k].R:=0;
@@ -1431,7 +1445,7 @@ begin
   for i:=1 to fPlayers.PlayerCount do begin
     fPlayers.Player[i].GetUnitLocations(Loc);
     for k:=1 to Loc.Count do
-    if (fTerrain.CheckRevelation(Loc.List[k].X,Loc.List[k].Y,MyPlayer.PlayerID)=255)or(SHOW_ALL_ON_MINIMAP) then
+    if (fTerrain.CheckTileRevelation(Loc.List[k].X,Loc.List[k].Y,MyPlayer.PlayerID)=255)or(SHOW_ALL_ON_MINIMAP) then
     begin
       MM[Loc.List[k].Y,Loc.List[k].X].R:=TeamColors[i] and $FF;
       MM[Loc.List[k].Y,Loc.List[k].X].G:=TeamColors[i] shr 8 and $FF;
