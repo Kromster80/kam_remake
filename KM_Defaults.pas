@@ -14,7 +14,7 @@ const
   TERRAIN_FOG_OF_WAR_MIN=8;     //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   TERRAIN_FOG_OF_WAR_ACT=16;    //Until this value FOW is not rendered at all
   TERRAIN_FOG_OF_WAR_MAX=24;    //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  TEST_MAX_WALK_PATH=8192;      //A* max test length (with max value of MapX*MapY-1 in worst case)
+  TEST_MAX_WALK_PATH=8192;      //A* max test length (with max value of MapX*MapY-1 in worst case)     //@Krom: Just to let you know, this isn't always long enough. In Ben's mission Vortamic (added to custom maps) if you tell a troop to walk from your storehouse to the very top (and middle) of the map then it doesn't work. That is a very large map though and the route zig-zags a bit. It should still work though.
   FPSLag=1;                     //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;            //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;              //This is the speed that the viewport will scroll every 100 ms, in cells
@@ -70,7 +70,7 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
         UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
-        UNIT_MIN_CONDITION = 10*600;             //If unit condition is less it will look for Inn
+        UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn (@Krom: checked from KaM, it's about 6 not 10. Let me know if you made it larger for a reason)
 
 type
   TRenderMode = (rm2D, rm3D);
@@ -188,10 +188,10 @@ const
 type TPassability = (canAll=0,
                      canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
                      canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab,
-                     canElevate);
+                     canWolf, canElevate);
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[0..12] of string = (
+const PassabilityStr:array[0..13] of string = (
     'None',
     'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
     'canWalk',      // General passability of tile for any walking units
@@ -204,6 +204,7 @@ const PassabilityStr:array[0..12] of string = (
     'canPlantTrees',// If Forester can plant a tree here, dunno if it's the same as fields
     'canFish',      // Water tiles where fish can move around
     'canCrab',      // Sand tiles where crabs can move around
+    'canWolf',      // Soil tiles where wolfs can move around
     'canElevate'    // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
   );
 
@@ -224,7 +225,7 @@ type
 
 //Defines which animal prefers which terrain
 const AnimalTerrain: array[31..38] of TPassability = (
-    canWalk, canFish, canFish, canFish, canCrab, canFish, canFish, canFish);
+    canWolf, canFish, canFish, canFish, canCrab, canFish, canFish, canFish);
 
 //Direction order used in unit placement, makes swirl around input point
 type TMoveDirection = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3);

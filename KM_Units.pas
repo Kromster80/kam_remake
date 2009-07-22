@@ -441,20 +441,8 @@ begin
 //Priority no.1 - find self a food
 //Priority no.2 - find self a home
 //Priority no.3 - find self a work
-    if fCondition<UNIT_MIN_CONDITION then begin
-      //@Lewin: Can you tweak it such a way that it returned list of available Inns and then choice
-      //        was performed by both distance and food availability? See StoneMines mission for
-      //        example - all units go to nearest Inn and it's immidiately emptied! Noone goes to second Inn
-      //@Krom:  I've done that, but it just chooses the closest inn that has food, can be walked to
-      //        and is not full. But that's all KaM ever did so I don't think it's a problem.
-      //        A few comments: - Why did you allow 10 extra invisible units in the inn? KaM always
-      //        limited it to 6, which I think was good because it meant that you needed multiple inns.
-      //        In KaM you can always see what's happenen, and invisible eaters go against this.
-      //         - We need a second UNIT_MIN_CONDITION (which will be half the current one I think)
-      //           and once units have less than that much they will show the death thought all of
-      //           the time. This could just be calculated as (UNIT_MIN_CONDITION div 2) I suppose,
-      //           although we might want to change it.
-      //        Please give me your thoughts on all of these matters.
+    //Only eat if we are not doing something else (can't go eat in the middle of a task, the task should deal with this)
+    if (fCondition<UNIT_MIN_CONDITION) and (fUnitTask=nil) then begin
       H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
       if H<>nil then
         fUnitTask:=TTaskGoEat.Create(H,Self)
@@ -464,25 +452,20 @@ begin
             fUnitTask:=TTaskGoOutShowHungry.Create(Self)
           else
             fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self);
-        //If there are no Inns available or no food in them
-        //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
-        //for now - IgnoreHunger for all
     end;
 
     if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
       if (fHome=nil) then
-        if FindHome then begin
-          fThought:=th_Home;
+        if FindHome then
           fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self) //Home found - go there
-        end else begin
+        else begin
           if random(2)=0 then fThought:=th_Quest;
           SetActionStay(120, ua_Walk) //There's no home
         end
       else
-        if fVisible then begin//Unit is not at home, still it has one
-          fThought:=th_Home;
+        if fVisible then//Unit is not at home, still it has one
           fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self)
-        end else
+        else
           fUnitTask:=InitiateMining; //Unit is at home, so go get a job
 
   if fHome <> nil then
@@ -574,13 +557,14 @@ begin
   OldThought:=fThought;
   fThought:=th_None;
 
-  if fCondition<UNIT_MIN_CONDITION then begin
+  //@Krom: I had concerns about this. (from TKMUnitSerf, TKMUnitWorker and TKMUnitCitizen) I think it was leaking memory before because it was
+  //       just overriding the previous task without freeing it. I think I've fixed it by only doing so if we don't have a task but I could have created more problems.
+
+  //Only eat if we are not doing something else (can't go eat in the middle of a task, the task should deal with this)
+  if (fCondition<UNIT_MIN_CONDITION) and (fUnitTask=nil) then begin
     H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
     if H<>nil then
-      fUnitTask:=TTaskGoEat.Create(H,Self)
-    else //If there's no Inn or no food in it
-      //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
-      //for now - IgnoreHunger for all
+      fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
@@ -649,13 +633,11 @@ begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
-  if fCondition<UNIT_MIN_CONDITION then begin
+  //Only eat if we are not doing something else (can't go eat in the middle of a task, the task should deal with this)
+  if (fCondition<UNIT_MIN_CONDITION) and (fUnitTask=nil) then begin
     H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
     if H<>nil then
-      fUnitTask:=TTaskGoEat.Create(H,Self)
-    else //If there's no Inn or no food in it
-      //StayStillAndDieSoon(Warriors) or GoOutsideShowHungryThought(Citizens) or IgnoreHunger(Workers,Serfs)
-      //for now - IgnoreHunger for all
+      fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
 
   if (fThought = th_Build)and(fUnitTask = nil) then
@@ -811,6 +793,9 @@ begin
     fUnitTask.Execute(TaskDone);
 
   if TaskDone then FreeAndNil(fUnitTask) else exit;
+
+  //@Krom: In KaM, if a crab/wolf cannot move in any direction then it just disappears. (dies) This would be useful to implement, because
+  //       Sometimes they get stuck in house plans and stuff which is annoying. Maybe the same for fish and other animals? If we can't move, then die.
 
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
@@ -1317,6 +1302,7 @@ case Phase of
    fThought := th_None;
    fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
    fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
    SetActionStay(11,ua_Work1,false);
    end;
 2: begin
@@ -1351,7 +1337,6 @@ case Phase of
    end;
 8: begin
    fTerrain.SetRoad(fLoc,fOwner);
-   fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
    SetActionStay(5,ua_Work2);
    fTerrain.RemMarkup(fLoc);
    end;
@@ -1386,6 +1371,7 @@ case Phase of
       fThought := th_None;
       fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
       SetActionStay(11,ua_Work1,false);
     end;
  2: begin
@@ -1407,7 +1393,6 @@ case Phase of
     end;  
  6: begin
       fTerrain.SetField(fLoc,fOwner,ft_Wine);
-      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
       SetActionStay(5,ua_Work2);
       fTerrain.RemMarkup(fLoc);
     end;
@@ -1442,6 +1427,7 @@ case Phase of
   1: begin
       fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
       SetActionStay(0,ua_Walk);
      end;
   2: begin
@@ -1451,7 +1437,6 @@ case Phase of
      end;
   3: begin
       fThought := th_None; //Keep thinking build until it's done
-      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID);
       fTerrain.SetField(fLoc,fOwner,ft_Corn);
       SetActionStay(5,ua_Walk);
       fTerrain.RemMarkup(fLoc);
@@ -1582,6 +1567,14 @@ end;
 procedure TTaskBuildHouse.Execute(out TaskDone:boolean);
 begin
   TaskDone:=false;
+  //If the house has been destroyed during the building process then exit immediately
+  if fHouse.IsDestroyed then
+  begin
+    TaskDone:=true; //Drop the task
+    fWorker.fThought := th_None;
+    fPlayers.Player[byte(fWorker.fOwner)].BuildList.CloseHouse(TaskID);
+    exit;
+  end;
   with fWorker do
     case Phase of
       //Pick random location and go there
@@ -1608,14 +1601,6 @@ begin
            if fHouse.IsStone then fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, fOwner); //Remove house plan when we start the stone phase (it is still required for wood)
          end;
       3: begin
-           //@Lewin: Is this right behaviour, that worker can drop building task for food?
-           //On a side note: Unit should have a CanGoEat function, cos if there are no Inns task shouldn't be dropped like that
-           //@Krom: In KaM the worker will do one set of hits and then look for another task and check food level. (normally the task chosen will be to hit the building at a different location)
-           //That's why some workers will go build road if you order it while they are making a house.
-           //The way our system works the worker is locked into building the house until either it is finished, the resources are depleted or they get hungry. Same for repairing.
-           //Although that's not nececarily a bad thing, the only consequence I can think of is that all of your workers will build the same house instead of doing other things too. (sharing the work)
-           //I added the CanGoEat thing.
-
            //Cancel building no matter progress if resource depleted or unit is hungry and is able to eat
            if ((fCondition<UNIT_MIN_CONDITION)and(CanGoEat))or(not fHouse.CheckResToBuild) then begin
              TaskDone:=true; //Drop the task
@@ -1873,9 +1858,13 @@ begin
   TaskDone:=false;
   with fUnit do
   case Phase of
-    0: SetActionWalk(fUnit,KMPointY1(fDestPos), KMPoint(0,0));
+    0: begin
+         fThought := th_Home;
+         SetActionWalk(fUnit,KMPointY1(fDestPos), KMPoint(0,0));
+       end;
     1: SetActionGoIn(ua_Walk,gid_In,fUnit.fHome.GetHouseType);
     2: begin
+        fThought := th_None;
         SetActionStay(5,ua_Walk);
         fHome.SetState(hst_Idle,0);
        end;

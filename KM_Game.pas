@@ -275,7 +275,7 @@ begin
   if GameIsRunning then begin
 
     if MOver <> nil then
-      fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
+      fGameplayInterface.MyControls.OnMouseUp(X,Y,Button)
     else begin
 
       if Button = mbRight then

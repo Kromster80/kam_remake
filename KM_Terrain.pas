@@ -954,8 +954,19 @@ begin
    if TileIsWater(Loc) then
      AddPassability(Loc, [canFish]);
 
-   if TileIsSand(Loc) then
+   if (TileIsSand(Loc))and
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
+      (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
+      (not TileIsCornField(Loc))and
+      (not TileIsWineField(Loc)) then //Can't crab on markups, fields and roads
      AddPassability(Loc, [canCrab]);
+
+   if (TileIsSoil(Loc))and
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
+      (not TileIsCornField(Loc))and
+      (not TileIsWineField(Loc)) then
+     AddPassability(Loc, [canWolf]);
 
   end;
  //Check for houses around this vertice(!) Use only with canElevate since it's vertice-based!

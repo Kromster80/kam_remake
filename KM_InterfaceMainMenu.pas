@@ -360,21 +360,6 @@ begin
       KMButton_Options_ResApply:=MyControls.AddButton(KMPanel_Options_Res,0,258,150,30,'Apply',fnt_Metal, bsMenu);
       KMButton_Options_ResApply.OnClick:=Options_Change;
       KMButton_Options_ResApply.Disable;
-    {
-    @Krom: Now we need to decide how we are going to do the resolution selector. I can make it read in a list of
-           supported resolutions and refresh rates (hz) which we could use in some kind of list.
-           Some questions to ask:
-           1. Should we only support a set list of resolutions like KaM does, or support any resolution (within reason) that people choose?
-           2. Will we allow people to choose the refresh rate, or just select (the highest?) one automatically?
-           3. Will we just have a button you click to cycle the options like KaM or a proper list?
-           4. What resolution will the menu use? Will it be locked to 1024x768? (some screens might not support that) Or will it scale?
-
-           My opinion: 1. I think that we should support any resolution >= 800x600.
-           2. I don't think the refresh rate is very important, and just adds a complication for people to choose. Just use the default or the highest or something.
-           3. I think a scrolling list would be much nicer than a cycle button, although it seems that takes quite a bit of work to setup
-           4. I think that it would be nice to support an 800x600 menu as well, because some screens might not do 1024x768. TPR always uses an 800x600 menu.
-              However, 1024x768 looks much nicer, so possibly we could support both and use.
-    }
 
     Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;
     Ratio_Options_SFX.Position  :=fGameSettings.GetSoundFXVolume;
