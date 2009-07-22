@@ -1271,7 +1271,7 @@ Result:=true;
       case aHouseType of
         ht_IronMine: Result := Result AND (CanBuildIron in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
         ht_GoldMine: Result := Result AND (CanBuildGold in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
-        ht_Wall:     Result := Result AND (CanWalk in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
+        //ht_Wall:     Result := Result AND (CanWalk in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
       else
         Result := Result AND (CanBuild in Land[Loc.Y+i-4,Loc.X+k-3].Passability);
       end;

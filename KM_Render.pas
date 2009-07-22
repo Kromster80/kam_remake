@@ -1135,7 +1135,7 @@ begin
         case aHouseType of
           ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
           ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
-          ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
+          //ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
           else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
         end;
 

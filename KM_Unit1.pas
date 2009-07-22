@@ -169,6 +169,9 @@ begin
 
   Application.OnIdle:=Form1.OnIdle;
 
+  FormLoading.Hide;
+  FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
+
   fLog.AppendLog('Form1 create is done');
 
   //Show the message if user has old OpenGL drivers
