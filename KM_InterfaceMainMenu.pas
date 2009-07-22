@@ -41,10 +41,12 @@ type TKMMainMenuInterface = class
       Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
       Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
       Button_Options_MusicOn,Button_Options_Back:TKMButton;
-      CheckBox_Options_FullScreen:TKMCheckBox;
-      KMBevel_Options_Lang_Background:TKMBevel;
-      CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
-      CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
+      KMPanel_Options_Lang:TKMPanel;
+        CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
+      KMPanel_Options_Res:TKMPanel;
+        CheckBox_Options_FullScreen:TKMCheckBox;
+        CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
+        KMButton_Options_ResApply:TKMButton;
     KMPanel_Credits:TKMPanel;
       KMImage_CreditsBG:TKMImage;
       KMLabel_Credits:TKMLabel;
@@ -329,28 +331,33 @@ begin
     Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
     Button_Options_MusicOn.OnClick:=Options_Change;
 
-    MyControls.AddLabel(KMPanel_Options,468,130,100,30,'Language',fnt_Outline,kaCenter);
-    KMBevel_Options_Lang_Background:=MyControls.AddBevel(KMPanel_Options,400,150,136,8+LocalesCount*20);
-    for i:=1 to LocalesCount do
-    begin
-      CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(KMPanel_Options,405,155+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
-      CheckBox_Options_Lang[i].OnClick:=Options_Change;
-    end;
+    KMPanel_Options_Lang:=MyControls.AddPanel(KMPanel_Options,400,130,150,40+LocalesCount*20);
+      MyControls.AddLabel(KMPanel_Options_Lang,6,0,100,30,'Language:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(KMPanel_Options_Lang,0,20,150,10+LocalesCount*20);
 
-    CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options,118,360,100,30,'Fullscreen',fnt_Metal);
-    CheckBox_Options_FullScreen.OnClick:=Options_Change;
+      for i:=1 to LocalesCount do
+      begin
+        CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(KMPanel_Options_Lang,8,27+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
+        CheckBox_Options_Lang[i].OnClick:=Options_Change;
+      end;
 
-    MyControls.AddLabel(KMPanel_Options,170,385,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaCenter);
-    //Resolution selector
-    MyControls.AddBevel(KMPanel_Options,118,405,170,8+RESOLUTION_COUNT*20);
+    KMPanel_Options_Res:=MyControls.AddPanel(KMPanel_Options,400,300,150,300);
+      //Resolution selector
+      MyControls.AddLabel(KMPanel_Options_Res,6,0,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaLeft);
+      MyControls.AddBevel(KMPanel_Options_Res,0,20,150,10+RESOLUTION_COUNT*20);
+      for i:=1 to RESOLUTION_COUNT do
+      begin
+        CheckBox_Options_Resolution[i]:=MyControls.AddCheckBox(KMPanel_Options_Res,8,27+(i-1)*20,100,30,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
+        CheckBox_Options_Resolution[i].Enabled:=(SupportedRefreshRates[i] > 0);
+        CheckBox_Options_Resolution[i].OnClick:=Options_Change;
+      end;
 
-    for i:=1 to RESOLUTION_COUNT do
-    begin
-      CheckBox_Options_Resolution[i]:=MyControls.AddCheckBox(KMPanel_Options,124,410+(i-1)*20,100,30,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
-      CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0);
-      CheckBox_Options_Resolution[i].OnClick:=Options_Change;
-    end;
+      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options_Res,8,238,100,30,'Fullscreen',fnt_Metal);
+      CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
+      KMButton_Options_ResApply:=MyControls.AddButton(KMPanel_Options_Res,0,258,150,30,'Apply',fnt_Metal, bsMenu);
+      KMButton_Options_ResApply.OnClick:=Options_Change;
+      KMButton_Options_ResApply.Disable;
     {
     @Krom: Now we need to decide how we are going to do the resolution selector. I can make it read in a list of
            supported resolutions and refresh rates (hz) which we could use in some kind of list.
@@ -579,16 +586,6 @@ begin
   if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                            else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
-  //@Krom: Yes, I think it should be a proper control in a KaM style. Just text [x] doesn't look great.
-  //       Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
-  CheckBox_Options_FullScreen.Checked := fGameSettings.IsFullScreen;
-
-  //This one should be called last since it re-inits whole fGame and the rest
-  if Sender = CheckBox_Options_FullScreen then begin
-    fGame.ToggleFullScreen(not fGameSettings.IsFullScreen,true);
-    exit;
-  end;
-
   for i:=1 to LocalesCount do
     if Sender = CheckBox_Options_Lang[i] then begin
       fGameSettings.SetLocale := Locales[i,1];
@@ -599,10 +596,26 @@ begin
   for i:=1 to LocalesCount do
     CheckBox_Options_Lang[i].Checked := LowerCase(fGameSettings.GetLocale) = LowerCase(Locales[i,1]);
 
+  //@Krom: Yes, I think it should be a proper control in a KaM style. Just text [x] doesn't look great.
+  //       Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
+  CheckBox_Options_FullScreen.Checked := fGameSettings.IsFullScreen;
+
+  if Sender = KMButton_Options_ResApply then begin //Apply resolution changes
+    fGame.ToggleFullScreen(fGameSettings.IsFullScreen,true);
+    fGame.ChangeResolution;
+  end;
+
+  //This one should be called last since it re-inits whole fGame and the rest
+  if Sender = CheckBox_Options_FullScreen then begin
+    KMButton_Options_ResApply.Enable;
+    fGameSettings.IsFullScreen := not fGameSettings.IsFullScreen;
+    exit;
+  end;
+
   for i:=1 to RESOLUTION_COUNT do
     if Sender = CheckBox_Options_Resolution[i] then begin
+      KMButton_Options_ResApply.Enable;
       fGameSettings.SetResolutionID := i;
-      fGame.ChangeResolution;
     end;
 
   for i:=1 to RESOLUTION_COUNT do
