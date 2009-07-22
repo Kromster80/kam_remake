@@ -26,10 +26,10 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
+  MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
@@ -59,7 +59,7 @@ const
   MaxHouses=255;        //Maximum houses one player can own
   MaxResInHouse=5;      //Maximum resource items allowed to be in house (it's 5, but I use 3 for testing)
   MAX_ORDER=999;        //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
-  MAX_TEX_RESOLUTION=1024;       //Maximum texture resolution client can handle (used for packing sprites)
+  MAX_TEX_RESOLUTION=512;       //Maximum texture resolution client can handle (used for packing sprites)
 
 const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna test ingame )
         MAX_PLAYERS = 8;        //Maximum players per map
@@ -69,7 +69,7 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         MAX_WARFARE_IN_BARRACKS = 20;
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
-        UNIT_MAX_CONDITION = 15*600;            //*min of life. In KaM it's 45min
+        UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
         UNIT_MIN_CONDITION = 10*600;             //If unit condition is less it will look for Inn
 
 type

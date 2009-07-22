@@ -238,7 +238,7 @@ begin
       KMButton_MainMenuTPR.Disable;
       KMButton_MainMenuLoad.Disable;
       KMButton_MainMenuMulti.Disable;
-//      KMButton_MainMenuCredit.Disable;
+      KMButton_MainMenuCredit.Disable;
 end;
 
 

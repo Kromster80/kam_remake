@@ -47,14 +47,16 @@ built by enthusiasts. Applications used: Delphi6, OpenGL, OpenAL, zLib.</font></
 		</tr>
 	</table>
 </blockquote>
-<p><font face="Calibri">Run <b>setup.exe</b> and follow the installation 
-instructions.<br>
-Package also includes OpenAL audio drivers (<b>oalinst.exe</b>). 
-You might need to install them to play the KaM Remake. <br>
+<p><font face="Calibri">Unpack all files contained in the package into new 
+folder on your PC.<br>
+Package includes OpenAL audio drivers (<b>oalinst.exe</b>). 
+You might need to install them to play the KaM Remake. Latest version can be 
+found on official OpenAl page:
+<a href="http://connect.creativelabs.com/openal/default.aspx">
+http://connect.creativelabs.com/openal/default.aspx</a> <br>
 KaM Remake uses OpenGL rendering engine, so you need to have OpenGL drivers 
 installed as well. Visit your graphics card manufacturer site to get the latest 
-drivers available.<br>Launch the game either from desktop shortcut or KaM_Remake.exe in the installation 
-folder.<BR>&nbsp;</font></p>
+drivers available.<br>Launch the game - KaM_Remake.exe.<BR>&nbsp;</font></p>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -65,26 +67,29 @@ folder.<BR>&nbsp;</font></p>
 	</table>
 </blockquote>
 <p>
-<font face="Calibri"><B>The following shortcuts are available:</B><br>
-<b>F8</b> speeds up the game pace<br>
+<font face="Calibri"><B>The following shortcuts are available in game:</B><br>
+<b>F8</b> speeds up the game pace x10 times<br>
 <b>F11 </b>will show up debugging panel and menu<br>
-<b>P</b> pauses the game<br>
+<b>Mouse wheel</b> scrolling it will zoom in/out the game<b><br>
+&#8592; </b>backspace will reset zoom back to default 100%<b><br>
+P</b> pauses the game<br>
 <b>&#8592;&#8593;&#8594;&#8595;</b> cursor keys will scroll the view in game<br>
-<b>Middle mouse click</b> will place a scout at the cursor to allow you to explore<br></font></p>
-<p><font face="Calibri"><B>Installing addon maps:</B><br>
-<B>1.</B> Create a sub-folder in Maps folder of KaM Remake, name it i.e. &quot;My New Map&quot;.<br>
-<B>2.</B> Put inside .dat and .map files of the map and name them accordingly &quot;My New 
-<B>3.</B> Map.dat&quot; and &quot;My New Map.map&quot;.<br>
-<B>4.</B> You can also make a file called &quot;My New Map.txt&quot; which will contain the 
-mission description and other information. Use the same format as in the missions provided. No official format information will be released because this file will probably be changed later on. <span style="background-color: #FF0000">(? or will we just remove the txt file for the demo?) </span> 
-<span style="background-color: #FFFF00">let's keep it, it does no harm yet. to 
-be deleted</span><br>
-<B>5.</B> File names should exactly match folder name.</font></p>
+<b>Middle mouse click</b> will place a scout at the cursor to allow you to explore 
+the map<br></font></p>
+<p><font face="Calibri"><B>Installing addon maps:</B><br><B>1.</B> Create a sub-folder in Maps folder of KaM Remake, name it i.e. &quot;My New Map&quot;.<br>
+<B>2.</B> Put inside .dat and .map files of the map and name them accordingly &quot;My New Map.dat&quot; and &quot;My New Map.map&quot;. 
+File names should match folder name exactly.<br><B>3.</B> You can also make an 
+optional file called &quot;My New Map.txt&quot; which will contain the 
+mission description and some other information. Use the same format as in the missions provided 
+with Remake. No official format information will be released because this file will probably be changed later on.
+<span style="background-color: #FF0000">(? or will we just remove the txt file for the demo?) 
+</span><span style="background-color: #FFFF00">let's keep it, it does no harm yet. to 
+be deleted</span></font></p>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
 			<td>
-	<img border="0" src="Images/GUI_0311.gif" width="26" height="21"></td>
+			<img border="0" src="Images/GUI_0311.gif" width="26" height="21"></td>
 			<td><B><FONT size="+2" face="Calibri">&nbsp;<a name="F_A_Q_0">F.A.Q.</a></FONT></B></td>
 		</tr>
 	</table>
@@ -92,13 +97,13 @@ be deleted</span><br>
 <P>
 <font face="Calibri"><B>Silent crashes:</B><br>
 KaM Remake silently crashes on loading or music track change if there are any 
-problems with sound system. Try installing latest OpenAL drivers. If that 
-doesn't help - remove &quot;Music&quot; folder from KaM Remake.<br></p>
+problems with Windows sound system. Remove &quot;Music&quot; folder from KaM Remake, 
+this should help.<br></p>
 <p><B>Low framerate:</B><br>If you have ridiculously low framerate this could mean your OpenGL drivers are 
 out of date. See OpenGL version info in main menu top-left corner. It should be 
 at least 1.4.x. If it's any less you need to update your graphics card drivers 
 (check card manufacturers website for that matter).<br></p>
-<p><B>Assertion failed:</B><br>Sometimes when something unexpectedly happen you will get a &quot;Assertion failed&quot; 
+<p><B>Assertion failed errors:</B><br>Sometimes when something unexpectedly happen you will get a &quot;Assertion failed&quot; 
 message. In this case you should terminate KaM_Remake from Task Manager (press 
 Ctrl+Alt+Del, choose KaM Remake and press End Task button). Browse to KaM Remake 
 folder and find KaM.log file containing details of the crash. Please send this 
@@ -115,7 +120,7 @@ limitations</a></FONT></B></td>
 	</table>
 </blockquote>
 <p><font face="Calibri">Main menu has fixed 1024x768 size irregardless of window 
-size or fullscreen.<br>
+size or fullscreen mode.<br>
 Only single-player maps are supported (ones with !SET_HUMAN_PLAYER line).<br>
 Units will go through one another.<br>
 Fisherman won't go for fish.<br>
@@ -135,7 +140,7 @@ Citizens won't go to eat if they are standing off the road.<br>
 us feedback. Most of the bugs are probably known, but we would love your feedback, suggestions, complements, etc.
 <br>
 Whenever you can offer some help in Delphi coding (ai, net), menu design, ideas 
-for improvements - please write in the forum.
+for improvements - please write in the forum as well.
   </font>
   <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">

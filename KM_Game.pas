@@ -265,18 +265,18 @@ begin
   //Find what control was clicked and make sound 
   if GameIsRunning then
     MOver := fGameplayInterface.MyControls.MouseOverControl() //Remember control that was clicked
-  else MOver := fMainMenuInterface.MyControls.MouseOverControl(); //Remember control that was clicked
+  else
+    MOver := fMainMenuInterface.MyControls.MouseOverControl(); //Remember control that was clicked
+
   if MOver <> nil then
     if (MOver is TKMButton) and MOver.Enabled then
       fSoundLib.Play(sfx_click);
 
   if GameIsRunning then begin
-    if fGameplayInterface.MyControls.MouseOverControl()<>nil then begin
 
+    if MOver <> nil then
       fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
-      //if Button = mbRight then fGameplayInterface.RightClickCancel; //Right clicking with the build menu open will close it
-
-    end else begin
+    else begin
 
       if Button = mbRight then
         fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
@@ -341,7 +341,8 @@ begin
     end;
 
     //These are only for testing purposes, Later on it should be changed a lot
-    if Button = mbRight then
+    if (Button = mbRight)
+    and(MOver=nil) then
       if (fPlayers <> nil)
       and(fPlayers.SelectedUnit <> nil)
       and(fPlayers.SelectedUnit.IsArmyUnit)
