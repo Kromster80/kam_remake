@@ -21,7 +21,6 @@ type
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale();
-    procedure ChangeResolution();
     procedure ResizeGameArea(X,Y:integer);
     procedure ZoomInGameArea(X:single);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
@@ -100,12 +99,6 @@ begin
 end;
 
 
-procedure TKMGame.ChangeResolution();
-begin
-
-end;
-
-
 procedure TKMGame.ResizeGameArea(X,Y:integer);
 begin
   ScreenX:=X;
@@ -134,7 +127,6 @@ end;
 
 procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
 begin
-  fGameSettings.IsFullScreen := aToggle;
   Form1.ToggleFullScreen(aToggle, ReturnToOptions);
 end;
 

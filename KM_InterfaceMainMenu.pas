@@ -11,6 +11,8 @@ type TKMMainMenuInterface = class
     SingleMap_Top:integer; //Top map in list
     SingleMap_Selected:integer; //Selected map
     SingleMapsInfo:TKMMapsInfo;
+    OldFullScreen:boolean;
+    OldResolution:shortint;
   protected
     KMPanel_Main1:TKMPanel;
       L:array[1..20]of TKMLabel;
@@ -377,7 +379,7 @@ begin
     Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;
     Ratio_Options_SFX.Position  :=fGameSettings.GetSoundFXVolume;
     Ratio_Options_Music.Position:=fGameSettings.GetMusicVolume;
-    Options_Change(nil);
+    
     if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                              else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
@@ -464,11 +466,17 @@ begin
   {Return to MainMenu}
   if (Sender=KMButton_CreditsBack)or
      (Sender=KMButton_SingleBack)or
-     (Sender=Button_Options_Back)or
      (Sender=Button_ErrorBack)or
      (Sender=KMButton_ResultsBack) then
     KMPanel_MainMenu.Show;
-                          
+
+  {Return to MainMenu and restore resolution changes}
+  if Sender=Button_Options_Back then begin
+    fGameSettings.IsFullScreen := OldFullScreen;
+    fGameSettings.SetResolutionID := OldResolution;
+    KMPanel_MainMenu.Show;
+  end;
+
   {Show SingleMap menu}
   if Sender=KMButton_MainMenuSingle then begin
     SingleMap_PopulateList();
@@ -478,6 +486,9 @@ begin
 
   {Show Options menu}
   if Sender=KMButton_MainMenuOptions then begin
+    OldFullScreen := fGameSettings.IsFullScreen;
+    OldResolution := fGameSettings.GetResolutionID;
+    Options_Change(nil);
     KMPanel_Options.Show;
   end;
 
@@ -598,28 +609,29 @@ begin
 
   //@Krom: Yes, I think it should be a proper control in a KaM style. Just text [x] doesn't look great.
   //       Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
-  CheckBox_Options_FullScreen.Checked := fGameSettings.IsFullScreen;
 
   if Sender = KMButton_Options_ResApply then begin //Apply resolution changes
+    OldFullScreen := fGameSettings.IsFullScreen; //memorize just in case (it will be niled on re-init anyway)
+    OldResolution := fGameSettings.GetResolutionID;
     fGame.ToggleFullScreen(fGameSettings.IsFullScreen,true);
-    fGame.ChangeResolution;
-  end;
-
-  //This one should be called last since it re-inits whole fGame and the rest
-  if Sender = CheckBox_Options_FullScreen then begin
-    KMButton_Options_ResApply.Enable;
-    fGameSettings.IsFullScreen := not fGameSettings.IsFullScreen;
     exit;
   end;
 
-  for i:=1 to RESOLUTION_COUNT do
-    if Sender = CheckBox_Options_Resolution[i] then begin
-      KMButton_Options_ResApply.Enable;
-      fGameSettings.SetResolutionID := i;
-    end;
+  if Sender = CheckBox_Options_FullScreen then
+    fGameSettings.IsFullScreen := not fGameSettings.IsFullScreen;
 
   for i:=1 to RESOLUTION_COUNT do
+    if Sender = CheckBox_Options_Resolution[i] then
+      fGameSettings.SetResolutionID := i;
+
+  CheckBox_Options_FullScreen.Checked := fGameSettings.IsFullScreen;
+  for i:=1 to RESOLUTION_COUNT do begin
     CheckBox_Options_Resolution[i].Checked := (i = fGameSettings.GetResolutionID);
+    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGameSettings.IsFullScreen;
+  end;
+
+  //Make button enabled only if new resolution/mode differs from old
+  KMButton_Options_ResApply.Enabled := (OldFullScreen <> fGameSettings.IsFullScreen) or (OldResolution <> fGameSettings.GetResolutionID);
 
 end;
 

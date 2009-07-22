@@ -57,7 +57,6 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
-    ListBox1: TListBox;
     MediaPlayer1: TMediaPlayer;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -541,8 +540,8 @@ begin
     H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
     if H<>nil then H.AddMultiResource(rt_All,30);
 
-    //for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(k*4,8));
-    //for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(k*4+1,8));
+    for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(10+k*4,28));
+    for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(10+k*4+1,28));
 
   end;
 
@@ -653,17 +652,26 @@ end;
 procedure TForm1.ToggleFullScreen(Toggle:boolean; ReturnToOptions:boolean);
 begin
   if Toggle then begin
-    Form1.BorderStyle:=bsNone;
-    Form1.WindowState:=wsMaximized;
     SetScreenResolution(SupportedResolutions[fGameSettings.GetResolutionID,1],SupportedResolutions[fGameSettings.GetResolutionID,2],SupportedRefreshRates[fGameSettings.GetResolutionID]);
+    Form1.Refresh;
+    Form1.BorderStyle:=bsSizeable; //if we don't set Form1 sizeable it won't expand to fullscreen
+    Form1.WindowState:=wsMaximized;
+    Form1.BorderStyle:=bsNone;     //and now we can make it borderless again
+    Form1.Refresh;
   end else begin
+    ResetResolution;
     Form1.Refresh;
     Form1.WindowState:=wsNormal;
     Form1.BorderStyle:=bsSizeable;
     Form1.ClientWidth:=1024;
     Form1.ClientHeight:=768;
-    ResetResolution;
+    Form1.Refresh;
+    Form1.Left:=max((Screen.Width-1024)div 2,0);
+    Form1.Top:=max((Screen.Height-768)div 2,0); //Center on screen and make sure titlebar is visible
   end;
+
+  Panel5.Top:=0;
+  Panel5.Height:=Form1.ClientHeight;
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   //Don't know how lame it is, but it works well
@@ -671,11 +679,6 @@ begin
   FreeAndNil(fGame); //Saves all settings into ini file in midst
   //Now re-init fGame
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
-
-  Form1.Refresh;
-
-  Panel5.Top:=0;
-  Panel5.Height:=Form1.ClientHeight;
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
 
   if ReturnToOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
@@ -722,24 +725,16 @@ var
   DevMode : TDevMode;
 begin
   i:=0;
-  for k:=1 to RESOLUTION_COUNT do
-  begin
-    SupportedRefreshRates[k] := 0;
-  end;
+  FillChar(SupportedRefreshRates,SizeOf(SupportedRefreshRates),0); //@Lewin: Thats a nice trick to fill it with zeroes ;)
   while EnumDisplaySettings(nil,i,DevMode) do
   with Devmode do
   begin
     inc(i);
     if dmBitsPerPel=32 then
-      for k:=1 to RESOLUTION_COUNT do
-        if (SupportedResolutions[k,1]=dmPelsWidth)and(SupportedResolutions[k,2]=dmPelsHeight)then
-          if dmDisplayFrequency > SupportedRefreshRates[k] then
-            SupportedRefreshRates[k] := dmDisplayFrequency;
+    for k:=1 to RESOLUTION_COUNT do
+    if (SupportedResolutions[k,1]=dmPelsWidth)and(SupportedResolutions[k,2]=dmPelsHeight)then
+      SupportedRefreshRates[k] := max(SupportedRefreshRates[k],dmDisplayFrequency);
   end;
-  //Now list supported resolutions and refresh rates for debug
-  for k:=1 to RESOLUTION_COUNT do
-    //if SupportedRefreshRates[k] > 0 then
-      ListBox1.AddItem(Format('%d. %dx%d %dHz', [k,SupportedResolutions[k,1],SupportedResolutions[k,2],SupportedRefreshRates[k]]),nil);
 end;
 
 end.

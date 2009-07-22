@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 240
-  Top = 340
+  Left = 277
+  Top = 543
   HelpType = htKeyword
   BorderStyle = bsNone
   Caption = 'q'
@@ -210,15 +210,6 @@ object Form1: TForm1
       OnChange = TB_Angle_Change
     end
   end
-  object ListBox1: TListBox
-    Left = 8
-    Top = 8
-    Width = 385
-    Height = 161
-    ItemHeight = 13
-    TabOrder = 3
-    Visible = False
-  end
   object MediaPlayer1: TMediaPlayer
     Left = 112
     Top = 192
@@ -229,7 +220,7 @@ object Form1: TForm1
     EnabledButtons = [btPlay, btPause, btStop, btNext, btPrev]
     VisibleButtons = [btPlay, btPause, btStop, btNext, btPrev]
     Visible = False
-    TabOrder = 4
+    TabOrder = 3
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'

@@ -1,7 +1,6 @@
 Should be done into Demo:
 	Change exe icon
 	Readme	//Assigned to: Lewin
-	Fix bug: The left and top edges of the map are always "unrevealed". This means you can't place roads/fields there, which you can in KaM	//Assigned to: Krom
 
 Make sure these are checked:	//Assigned to: Krom
 	True/false switches in KM_Defaults
@@ -16,7 +15,7 @@ Make sure these are checked:	//Assigned to: Krom
 Can slip to later release (aka known bugs):
 	Wrong render of houses (see GraphicFlaws folder)	//Assigned to: Krom
 	Units return to road first then go eat, home, etc.
-
+	Fix bug: The left and top edges of the map are always "unrevealed". This means you can't place roads/fields there, which you can in KaM	//Assigned to: Krom
 
 Can slip to next after later release
 	Fullscreen resolution change	//Assigned to: Lewin
