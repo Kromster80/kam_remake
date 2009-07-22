@@ -295,7 +295,7 @@ for h:=1 to 29 do begin
 blockread(f,HouseDAT[h],88+19*70+270);
 end;
 //Append info for new houses
-for ii:=30 to HOUSE_COUNT do begin
+{for ii:=30 to HOUSE_COUNT do begin
 fillChar(HouseDAT[ii],SizeOf(HouseDAT[ii]),#0);
 HouseDAT[ii].StonePic:=129-1;
 HouseDAT[ii].WoodPic:=130-1;
@@ -307,7 +307,7 @@ HouseDAT[ii].WoodCost:=1;
 HouseDAT[ii].StoneCost:=1;
 HouseDAT[ii].OwnerType:=0;
 HouseDAT[ii].MaxHealth:=100;
-end;
+end;}
 closefile(f);
 
   if WriteResourceInfoToTXT then begin

@@ -437,10 +437,11 @@ begin
   if not TestMining then
     Idle..}
 
-//Here come unit tasks in priorities
-//Priority no.1 - find self a food
-//Priority no.2 - find self a home
-//Priority no.3 - find self a work
+  //@Krom: I had concerns about this. (from TKMUnitSerf, TKMUnitWorker and TKMUnitCitizen) I think it was leaking memory before because it was
+  //       just overriding the previous task without freeing it. I think I've fixed it by only doing so if we don't have a task but I could have created more problems.
+
+  //@Lewin:  fUnitTask always nil here. If it is not nil, then Inherited UpdateState return true and function quits ;-)
+
     //Only eat if we are not doing something else (can't go eat in the middle of a task, the task should deal with this)
     if (fCondition<UNIT_MIN_CONDITION) and (fUnitTask=nil) then begin
       H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
@@ -556,9 +557,6 @@ begin
 
   OldThought:=fThought;
   fThought:=th_None;
-
-  //@Krom: I had concerns about this. (from TKMUnitSerf, TKMUnitWorker and TKMUnitCitizen) I think it was leaking memory before because it was
-  //       just overriding the previous task without freeing it. I think I've fixed it by only doing so if we don't have a task but I could have created more problems.
 
   //Only eat if we are not doing something else (can't go eat in the middle of a task, the task should deal with this)
   if (fCondition<UNIT_MIN_CONDITION) and (fUnitTask=nil) then begin
@@ -796,6 +794,9 @@ begin
 
   //@Krom: In KaM, if a crab/wolf cannot move in any direction then it just disappears. (dies) This would be useful to implement, because
   //       Sometimes they get stuck in house plans and stuff which is annoying. Maybe the same for fish and other animals? If we can't move, then die.
+
+  //@Lewin: Can you code it this way - assign a TTaskDie task and edit TTask so that we could add custom dying
+  //        sequence for an animal later on. E.g. animal would blend out  
 
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit

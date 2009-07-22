@@ -12,7 +12,7 @@ type TKMMainMenuInterface = class
     SingleMap_Selected:integer; //Selected map
     SingleMapsInfo:TKMMapsInfo;
     OldFullScreen:boolean;
-    OldResolution:shortint;
+    OldResolution:word;
   protected
     KMPanel_Main1:TKMPanel;
       L:array[1..20]of TKMLabel;

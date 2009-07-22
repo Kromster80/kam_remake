@@ -14,7 +14,13 @@ const
   TERRAIN_FOG_OF_WAR_MIN=8;     //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   TERRAIN_FOG_OF_WAR_ACT=16;    //Until this value FOW is not rendered at all
   TERRAIN_FOG_OF_WAR_MAX=24;    //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  TEST_MAX_WALK_PATH=8192;      //A* max test length (with max value of MapX*MapY-1 in worst case)     //@Krom: Just to let you know, this isn't always long enough. In Ben's mission Vortamic (added to custom maps) if you tell a troop to walk from your storehouse to the very top (and middle) of the map then it doesn't work. That is a very large map though and the route zig-zags a bit. It should still work though.
+  TEST_MAX_WALK_PATH=8192;      //A* max test length (with max value of MapX*MapY-1 in worst case)
+                                //@Krom: Just to let you know, this isn't always long enough.
+                                //In Ben's mission Vortamic (added to custom maps) if you tell a troop
+                                //to walk from your storehouse to the very top (and middle) of the map
+                                //then it doesn't work. That is a very large map though and the route
+                                //zig-zags a bit. It should still work though.
+                                //@Lewin: Perhaps this should be dynamic length after all..
   FPSLag=1;                     //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;            //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;              //This is the speed that the viewport will scroll every 100 ms, in cells
@@ -61,7 +67,7 @@ const
   MAX_ORDER=999;        //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512;       //Maximum texture resolution client can handle (used for packing sprites)
 
-const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna test ingame )
+const   HOUSE_COUNT = 29;       //Number of KaM houses is 29
         MAX_PLAYERS = 8;        //Maximum players per map
         SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
 
@@ -70,7 +76,7 @@ const   HOUSE_COUNT = 30;       //Number of KaM houses is 29. 30=Wall I wanna te
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
         UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
-        UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn (@Krom: checked from KaM, it's about 6 not 10. Let me know if you made it larger for a reason)
+        UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min (@Krom: checked from KaM, it's about 6 not 10. Let me know if you made it larger for a reason) @Lewin: I was wild guessing.. to be deleted..
 
 type
   TRenderMode = (rm2D, rm3D);
@@ -293,8 +299,8 @@ type
     ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
     ht_Metallurgists=16, ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
     ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29,
-    ht_Wall=30);
+    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29{,
+    ht_Wall=30});
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = ( hst_Empty, hst_Idle, hst_Work );
@@ -364,7 +370,7 @@ const
   (ht_School,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Store
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_Inn,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //School
-  (ht_Woodcutters,ht_WatchTower,ht_Wall,ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
+  (ht_Woodcutters,ht_WatchTower,ht_None{,ht_Wall},ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
   (ht_TownHall,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Metallurgists
   (ht_Butchers,ht_Tannery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Swine
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
@@ -378,8 +384,8 @@ const
   (ht_ArmorWorkShop,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //Tannery
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_Quary,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Inn
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
+  //,(ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
   );
 
 const
@@ -437,15 +443,15 @@ HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (
 ((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery
 ((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
 ((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2)), //Wineyard
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,1,0))  //Wall
+((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard
+//,((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,1,0))  //Wall
 );
 
 //Does house output needs to be ordered by Player or it keeps on producing by itself
 HousePlaceOrders:array[1..HOUSE_COUNT] of boolean = (
 false,false,true,false,false,false,false,false,false,false,
 true,false,false,false,false,false,false,false,false,true,
-true,false,false,true,false,false,false,false,false,false);
+true,false,false,true,false,false,false,false,false{,false});
 
 //What does house produces
 HouseOutput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
@@ -477,8 +483,8 @@ HouseOutput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
 (rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
 (rt_None,       rt_None,       rt_None,       rt_None), //Inn
-(rt_Wine,       rt_None,       rt_None,       rt_None), //Wineyard       
-(rt_None,       rt_None,       rt_None,       rt_None)  //Wall
+(rt_Wine,       rt_None,       rt_None,       rt_None){, //Wineyard
+(rt_None,       rt_None,       rt_None,       rt_None)}  //Wall
 );
 
 //What house requires
@@ -511,8 +517,8 @@ HouseInput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
 (rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery
 (rt_None,       rt_None,       rt_None,       rt_None), //N/A
 (rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish), //Inn
-(rt_None,       rt_None,       rt_None,       rt_None), //Wineyard      
-(rt_None,       rt_None,       rt_None,       rt_None)  //Wall
+(rt_None,       rt_None,       rt_None,       rt_None){, //Wineyard
+(rt_None,       rt_None,       rt_None,       rt_None)}  //Wall
 );
 
 
@@ -524,7 +530,7 @@ const
   311, 312, 313, 314, 315,
   316, 317, 318, 319, 320,
   321, 322, 323, 324, 325,
-  326, 327, 328, 329, 338);
+  326, 327, 328, 329{, 338});
 
   GUIHouseOrder:array[1..HOUSE_COUNT]of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
@@ -532,7 +538,7 @@ const
     ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
     ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
-    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_None, ht_Wall);
+    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_None{, ht_Wall});
 
 {Terrain}
 type
