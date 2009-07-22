@@ -600,6 +600,8 @@ begin
   for i:=1 to LocalesCount do
     if Sender = CheckBox_Options_Lang[i] then begin
       fGameSettings.SetLocale := Locales[i,1];
+      ShowScreen_Loading('Loading new locale');
+      fRender.Render; //Force to repaint loading screen
       fGame.ToggleLocale;
       exit;
     end;
