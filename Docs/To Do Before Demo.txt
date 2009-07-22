@@ -1,5 +1,4 @@
 Should be done into Demo:
-	Change exe icon
 	Readme	//Assigned to: Lewin
 
 Make sure these are checked:	//Assigned to: Krom
