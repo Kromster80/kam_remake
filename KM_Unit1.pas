@@ -180,10 +180,7 @@ begin
         'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
 
   //Now decide whether we should make it full screen or not
-  if fGameSettings.IsFullScreen then
-    SetScreenResolution(SupportedResolutions[fGameSettings.GetResolutionID,1],SupportedResolutions[fGameSettings.GetResolutionID,2],SupportedRefreshRates[fGameSettings.GetResolutionID])
-  else
-    ToggleFullScreen(false,false);
+  ToggleFullScreen(fGameSettings.IsFullScreen,false);
 
   FormLoading.Hide;
   FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
@@ -635,10 +632,13 @@ end;}
 procedure TForm1.SetControlsVisibility(ShowCtrls:boolean);
   var i:integer;
 begin
+  Form1.Refresh;
+
   GroupBox1.Visible:=ShowCtrls;
   StatusBar1.Visible:=ShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
     MainMenu1.Items[i-1].Visible:=ShowCtrls;
+
   GroupBox1.Enabled:=ShowCtrls;
   StatusBar1.Enabled:=ShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
