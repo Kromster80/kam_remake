@@ -41,8 +41,8 @@ type
     property DeliverList:TKMDeliverQueue read fDeliverList;
     property BuildList:TKMBuildingQueue read fBuildList;
 
-    procedure CreatedHouse(aType:THouseType);
-    procedure CreatedUnit(aType:TUnitType);
+    procedure CreatedHouse(aType:THouseType; aWasBuilt:boolean);
+    procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
     procedure UpdateReqDone(aType:THouseType);
@@ -266,14 +266,14 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.CreatedHouse(aType:THouseType);
+procedure TKMPlayerAssets.CreatedHouse(aType:THouseType; aWasBuilt:boolean);
 begin
-  fMissionSettings.CreatedHouse(aType);
+  fMissionSettings.CreatedHouse(aType,aWasBuilt);
 end;
 
-procedure TKMPlayerAssets.CreatedUnit(aType:TUnitType);
+procedure TKMPlayerAssets.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
 begin
-  fMissionSettings.CreatedUnit(aType);
+  fMissionSettings.CreatedUnit(aType,aWasTrained);
 end;
 
 procedure TKMPlayerAssets.DestroyedHouse(aType:THouseType);

@@ -60,7 +60,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
 
-    procedure Activate;
+    procedure Activate(aWasBuilt:boolean);
     procedure DemolishHouse(DoSilent:boolean);
 
     property GetPosition:TKMPoint read fPosition;
@@ -215,7 +215,7 @@ begin
   ScheduleForRemoval:=false;
 
   if aBuildState=hbs_Done then begin //House was placed on map already Built e.g. in mission maker
-    Self.Activate;
+    Self.Activate(false);
     fBuildingProgress:=HouseDAT[byte(fHouseType)].MaxHealth;
     fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner); //Sets passability
   end else
@@ -230,10 +230,10 @@ begin
   Inherited;
 end;
 
-procedure TKMHouse.Activate;
+procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
-  fPlayers.Player[byte(fOwner)].CreatedHouse(fHouseType); //Only activated houses count
+  fPlayers.Player[byte(fOwner)].CreatedHouse(fHouseType,aWasBuilt); //Only activated houses count
   fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,100,fOwner);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
@@ -325,7 +325,7 @@ begin
   end;
   if (fBuildState=hbs_Stone)and(fBuildingProgress-HouseDAT[byte(fHouseType)].WoodCost*50 = HouseDAT[byte(fHouseType)].StoneCost*50) then begin
     fBuildState:=hbs_Done;
-    Activate;
+    Activate(true);
   end;
 end;
 

@@ -418,6 +418,10 @@ function TTerrain.CheckVerticeRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
+
+  //As the top and left edges of the map are never visible, check one tile in from them
+  if X = 1 then X:=2;
+  if Y = 1 then Y:=2;
   if not VerticeInMapCoords(X,Y) then
     Result := 0
   else
@@ -433,8 +437,11 @@ end;
 //0 unrevealed, 255 revealed completely
 function TTerrain.CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
-  Result := max(max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)),
-                max(CheckVerticeRevelation(X,Y-1,PlayerID),CheckVerticeRevelation(X+1,Y-1,PlayerID)));
+  Result := CheckVerticeRevelation(X,Y,PlayerID);
+  //@Krom: I see no need for this function, everything is calculated from vertices.
+  //I fixed the left/top side issues, and it seems to be working fine without this function. Let me know what you think.
+            {max(max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)),
+                max(CheckVerticeRevelation(X,Y-1,PlayerID),CheckVerticeRevelation(X+1,Y-1,PlayerID)));}
 end;
 
 

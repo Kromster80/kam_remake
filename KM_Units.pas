@@ -837,7 +837,7 @@ begin
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   //Note: Warriors of the same group will need to be set the same if they are created at the begining of the mission
   fCondition:=UNIT_MAX_CONDITION-Random(UNIT_MAX_CONDITION div 4);
-  fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType);
+  fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,false);
   fTerrain.UnitAdd(NextPosition);
 end;
 
@@ -1135,6 +1135,7 @@ case Phase of
   6: begin
       SetActionGoIn(ua_Walk,gid_Out,ht_School);
       fSchool.UnitTrainingComplete;
+      fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,true);
      end;
   7: TaskDone:=true;
 end;

@@ -73,7 +73,7 @@ end;
 procedure TViewport.SetCenter(NewX,NewY:integer);
 begin
   XCoord:=EnsureRange(NewX, 0 + round(ViewWidth/2/CELL_SIZE_PX/Zoom),  fTerrain.MapX - round(ViewWidth /2/CELL_SIZE_PX/Zoom) - 1);
-  YCoord:=EnsureRange(NewY,-1 + round(ViewHeight/2/CELL_SIZE_PX/Zoom), fTerrain.MapY - round(ViewHeight/2/CELL_SIZE_PX/Zoom) - 1); //Top row should be visible
+  YCoord:=EnsureRange(NewY,-1 + round(ViewHeight/2/CELL_SIZE_PX/Zoom), fTerrain.MapY - round(ViewHeight/2/CELL_SIZE_PX/Zoom)); //Top row should be visible
   fSoundLib.UpdateListener(KMPoint(XCoord,YCoord));
 end;
 
@@ -97,8 +97,8 @@ function TViewport.GetMinimapClip():TRect;
 begin
   Result.Left  :=max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,1);
   Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
-  Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+1,1);
-  Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+1,fTerrain.MapY);
+  Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+2,1);
+  Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom),fTerrain.MapY);
   if not TestViewportClipInset then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);

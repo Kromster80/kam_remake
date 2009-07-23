@@ -76,7 +76,7 @@ const   HOUSE_COUNT = 29;       //Number of KaM houses is 29
         GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
         FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
         UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
-        UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min (@Krom: checked from KaM, it's about 6 not 10. Let me know if you made it larger for a reason) @Lewin: I was wild guessing.. to be deleted..
+        UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
 
 type
   TRenderMode = (rm2D, rm3D);

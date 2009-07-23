@@ -55,16 +55,16 @@ type
 type
   TMissionSettings = class
   private
-    HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of word;
-    UnitTrainedCount,UnitLostCount:array[1..40]of word;
+    HouseTotalCount,HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of word;
+    UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of word;
     ResourceRatios:array[1..4,1..4]of byte;
     MissionTimeInSec:cardinal;
   public
     AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
     BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed or assigned from script
     constructor Create;
-    procedure CreatedHouse(aType:THouseType);
-    procedure CreatedUnit(aType:TUnitType);
+    procedure CreatedHouse(aType:THouseType; aWasBuilt:boolean);
+    procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
   public
@@ -248,16 +248,18 @@ begin
 end;
 
 
-procedure TMissionSettings.CreatedHouse(aType:THouseType);
+procedure TMissionSettings.CreatedHouse(aType:THouseType; aWasBuilt:boolean);
 begin
-  inc(HouseBuiltCount[byte(aType)]);
+  inc(HouseTotalCount[byte(aType)]);
+  if aWasBuilt then inc(HouseBuiltCount[byte(aType)]);
   UpdateReqDone(aType);
 end;
 
 
-procedure TMissionSettings.CreatedUnit(aType:TUnitType);
+procedure TMissionSettings.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
 begin
-  inc(UnitTrainedCount[byte(aType)]);
+  if aWasTrained then inc(UnitTrainedCount[byte(aType)])
+  else inc(UnitTotalCount[byte(aType)]);
 end;
 
 
@@ -290,13 +292,13 @@ end;
 
 function TMissionSettings.GetHouseQty(aType:THouseType):integer;
 begin
-  Result := HouseBuiltCount[byte(aType)] - HouseLostCount[byte(aType)];
+  Result := HouseTotalCount[byte(aType)] - HouseLostCount[byte(aType)];
 end;
 
 
 function TMissionSettings.GetUnitQty(aType:TUnitType):integer;
 begin
-  Result := UnitTrainedCount[byte(aType)] - UnitLostCount[byte(aType)];
+  Result := UnitTotalCount[byte(aType)] - UnitLostCount[byte(aType)];
 end;
 
 
