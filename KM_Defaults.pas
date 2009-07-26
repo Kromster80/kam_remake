@@ -21,6 +21,7 @@ const
                                 //then it doesn't work. That is a very large map though and the route
                                 //zig-zags a bit. It should still work though.
                                 //@Lewin: Perhaps this should be dynamic length after all..
+                                //@Krom: Do you think that would cause problems? I think it sounds ok.
   FPSLag=1;                     //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;            //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;              //This is the speed that the viewport will scroll every 100 ms, in cells

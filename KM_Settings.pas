@@ -217,13 +217,13 @@ begin
 end;
 
 procedure TGameSettings.SetMusicOnOff(Value:boolean);
-var OldValue: boolean; //@Lewin: Is that overcomplicated as it seems?
 begin
-  OldValue:=fMusicOnOff;
-  fMusicOnOff:=Value;
-  if fMusicOnOff <> OldValue then
+  if fMusicOnOff <> Value then
+  begin
+    fMusicOnOff:=Value;
     if Value then fSoundLib.PlayMenuTrack //Start with the default track
     else fSoundLib.StopMusic;
+  end;
   fNeedsSave:=true;
 end;
 

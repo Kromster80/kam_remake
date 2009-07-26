@@ -210,7 +210,7 @@ begin
 
 
     if Button = mbMiddle then
-      fPlayers.Player[1].AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
+      MyPlayer.AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
 
   end else
     fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
@@ -239,8 +239,8 @@ begin
       CursorYc:=EnsureRange(round(CursorY+0.5),1,fTerrain.MapY);
 
       if CursorMode.Mode=cm_None then
-        if (fPlayers.HousesHitTest(CursorXc, CursorYc)<>nil)or
-           (fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil) then
+        if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
+           (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
           Screen.Cursor:=c_Info
         else if not Scrolling then
           Screen.Cursor:=c_Default;
@@ -257,7 +257,7 @@ end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint; FoundUnit:boolean; SelectedHouse: TKMHouse; MOver:TKMControl;
+var P:TKMPoint; FoundUnit:boolean; SelectedHouse: TKMHouse; SelectedUnit: TKMUnit; MOver:TKMControl;
 begin
   if GameIsPaused then exit; //No clicking when paused
   P:=KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
@@ -286,14 +286,15 @@ begin
         case CursorMode.Mode of
           cm_None:
             begin
-              if fPlayers.UnitsHitTest(CursorXc, CursorYc)<>nil then begin
-                fPlayers.SelectedUnit:=fPlayers.UnitsHitTest(CursorXc, CursorYc);
+              SelectedUnit:=MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+              if SelectedUnit<>nil then begin
+                fPlayers.SelectedUnit:=SelectedUnit;
                 //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
                 //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
                 if fGameplayInterface<>nil then fGamePlayInterface.ShowUnitInfo(fPlayers.SelectedUnit);
                 FoundUnit := true;
               end; //Houses have priority over units, so you can't select an occupant. However, this is only true if the house is built
-              SelectedHouse:=fPlayers.HousesHitTest(CursorXc, CursorYc);
+              SelectedHouse:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
               if SelectedHouse<>nil then
                 if (not FoundUnit)or((SelectedHouse.GetBuildingState in [hbs_Stone,hbs_Done])and FoundUnit) then begin
                   fPlayers.SelectedUnit:=nil;

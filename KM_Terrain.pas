@@ -422,6 +422,9 @@ begin
   //As the top and left edges of the map are never visible, check one tile in from them
   if X = 1 then X:=2;
   if Y = 1 then Y:=2;
+  //Same for bottom and right
+  if X = MapX then X:=MapX-1;
+  if Y = MapY then Y:=MapY-1;
   if not VerticeInMapCoords(X,Y) then
     Result := 0
   else
@@ -439,7 +442,7 @@ function TTerrain.CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
   Result := CheckVerticeRevelation(X,Y,PlayerID);
   //@Krom: I see no need for this function, everything is calculated from vertices.
-  //I fixed the left/top side issues, and it seems to be working fine without this function. Let me know what you think.
+  //I fixed the left/top and bottom/right edge issues, and it seems to be working fine without this function. Let me know what you think.
             {max(max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)),
                 max(CheckVerticeRevelation(X,Y-1,PlayerID),CheckVerticeRevelation(X+1,Y-1,PlayerID)));}
 end;
@@ -1343,6 +1346,7 @@ begin
       end;
   end;
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
+  RebuildWalkConnect(canWalk);
 end;
 
 

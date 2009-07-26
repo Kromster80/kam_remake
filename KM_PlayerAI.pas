@@ -39,6 +39,10 @@ end;
 procedure TKMPlayerAI.CheckCitizenCount();
 var i:integer; UnitType:TUnitType; H:TKMHouse; HC:TKMHousesCollection;
 begin
+  //@Krom: Problem with this: As the unit just trained is walking out of the school, before he has a house assigned to him,
+  //      this function trains another unit of the same type to fill the same house, because it takes time for it to be assigned to the unit.
+  //      Not sure how we should solve this.
+
   //Find school and make sure it's free of tasks
   H := Assets.FindHouse(ht_School,KMPoint(0,0),1);
   if H <> nil then
@@ -55,7 +59,7 @@ begin
   end;
 
   if UnitType <> ut_None then begin
-    H := Assets.FindHouse(ht_School,KMPoint(0,0),1);
+    H := Assets.FindHouse(ht_School,KMPoint(0,0),1); //@Krom: Why is this run again? Can't we use the same value from above?
     if H <> nil then TKMHouseSchool(H).AddUnitToQueue(UnitType);
   end;
 end;

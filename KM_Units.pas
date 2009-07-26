@@ -442,8 +442,9 @@ begin
 
   //@Lewin:  fUnitTask always nil here. If it is not nil, then Inherited UpdateState return true and function quits ;-)
 
-    //Only eat if we are not doing something else (can't go eat in the middle of a task, the task should deal with this)
-    if (fCondition<UNIT_MIN_CONDITION) and (fUnitTask=nil) then begin
+  //@Krom: Oops, I didn't realise that. I was trying to fix a strange issue that sometimes causes workers to abandon their work half way though. I guess it must be something else. To be deleted
+
+    if fCondition<UNIT_MIN_CONDITION then begin
       H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
       if H<>nil then
         fUnitTask:=TTaskGoEat.Create(H,Self)
@@ -460,7 +461,7 @@ begin
         if FindHome then
           fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self) //Home found - go there
         else begin
-          if random(2)=0 then fThought:=th_Quest;
+          fThought:=th_Quest; //Always show quest when idle, unlike serfs who randomly show it
           SetActionStay(120, ua_Walk) //There's no home
         end
       else
@@ -558,8 +559,7 @@ begin
   OldThought:=fThought;
   fThought:=th_None;
 
-  //Only eat if we are not doing something else (can't go eat in the middle of a task, the task should deal with this)
-  if (fCondition<UNIT_MIN_CONDITION) and (fUnitTask=nil) then begin
+  if fCondition<UNIT_MIN_CONDITION then begin
     H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
@@ -631,8 +631,7 @@ begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
-  //Only eat if we are not doing something else (can't go eat in the middle of a task, the task should deal with this)
-  if (fCondition<UNIT_MIN_CONDITION) and (fUnitTask=nil) then begin
+  if fCondition<UNIT_MIN_CONDITION then begin
     H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
