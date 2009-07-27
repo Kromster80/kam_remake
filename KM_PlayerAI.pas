@@ -45,11 +45,11 @@ begin
 
   //Find school and make sure it's free of tasks
   H := Assets.FindHouse(ht_School,KMPoint(0,0),1);
-  if H <> nil then
-    if TKMHouseSchool(H).UnitQueue[1]<>ut_None then exit;
+  if (H=nil)or(TKMHouseSchool(H).UnitQueue[1]<>ut_None) then exit;
 
   UnitType := ut_None;
-  HC:=Assets.GetHouses;
+  HC := Assets.GetHouses;
+
   for i:=0 to HC.Count-1 do
   if TKMHouse(HC.Items[i]).IsComplete then
   if not TKMHouse(HC.Items[i]).GetHasOwner then
@@ -58,10 +58,9 @@ begin
     if UnitType <> ut_None then break; //Don't need more UnitTypes yet
   end;
 
-  if UnitType <> ut_None then begin
-    H := Assets.FindHouse(ht_School,KMPoint(0,0),1); //@Krom: Why is this run again? Can't we use the same value from above?
-    if H <> nil then TKMHouseSchool(H).AddUnitToQueue(UnitType);
-  end;
+  if UnitType = ut_None then exit;
+
+  TKMHouseSchool(H).AddUnitToQueue(UnitType);
 end;
 
 
@@ -74,6 +73,8 @@ begin
   
   if Assets.PlayerType=pt_Computer then begin
   CheckCitizenCount; //Train new citizens if needed
+  //CheckSerfCount; //train more serfs according to WORKER_FACTOR?
+  //CheckArmyHunger; //issue tasks to feed troops
   //CheckHouseCount; //Build new houses if needed
   //CheckArmiesCount; //Train new soldiers if needed
   //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)

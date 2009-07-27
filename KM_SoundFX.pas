@@ -88,6 +88,7 @@ begin
   IsMusicInitialized := true;
 
   MediaPlayer := Form1.MediaPlayer1;
+  IsMusicInitialized := MediaPlayer.DeviceID<>0;
   ScanMusicTracks(ExeDir+'Music\');
 
   IsOpenALInitialized := InitOpenAL;
@@ -389,7 +390,7 @@ begin
   if MediaPlayer.FileName<>'' then
   MediaPlayer.Close; //Cancel previous sound
   if CheckMusicError then exit;
-  if not CheckFileExists(FileName) then exit;
+  if not CheckFileExists(FileName,true) then exit; //Make it silent
   if GetFileExt(FileName)<>'MP3' then exit;
   MediaPlayer.FileName:=FileName;
   MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'

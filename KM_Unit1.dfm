@@ -3,7 +3,6 @@ object Form1: TForm1
   Top = 543
   HelpType = htKeyword
   BorderStyle = bsNone
-  Caption = 'q'
   ClientHeight = 245
   ClientWidth = 867
   Color = clSkyBlue
