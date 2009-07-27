@@ -440,15 +440,18 @@ end;
 //0 unrevealed, 255 revealed completely
 function TTerrain.CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
-  Result := //CheckVerticeRevelation(X,Y,PlayerID);
+  Result := max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID));
   //@Krom: I see no need for this function, everything is calculated from vertices.
   //I fixed the left/top and bottom/right edge issues, and it seems to be working fine without this function. Let me know what you think.
-            {max(}max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)){,
-                max(CheckVerticeRevelation(X,Y-1,PlayerID),CheckVerticeRevelation(X+1,Y-1,PlayerID)))};
+
   //@Lewin: See, there's a problem at FOW edges when there are enemy units standing there.
   //        Imagine FOWed area filled with enemies and you have only 1 vertice revealed in the middle,
   //        which unit would you see? Thats why we need 2 functions - one for vertice revelation and 2nd for tiles.
   // Though I agree we could querry only 2 bottom vertices, otherwise it looks not so good.
+
+  //@Krom: Should we also query the vertice to the right and the one down and right? [X,Y+1] and [X+1,Y+1] That would be every corner of the tile.
+  //       I still don't fully understand what this function is supposed to check.
+  //       Everything still seems to be working fine, so I guess you were right. Sorry for interfering.
 end;
 
 
@@ -1291,7 +1294,7 @@ Result:=true;
       end;
 
       if PlayerRevealID <> play_none then
-        Result := Result AND (CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4,PlayerRevealID) > 0);
+        Result := Result AND (CheckVerticeRevelation(Loc.X+k-3,Loc.Y+i-4,PlayerRevealID) > 0);
     end;
 end;
 
@@ -1319,7 +1322,7 @@ begin
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
   if PlayerRevealID <> play_none then
-    Result := Result AND (CheckTileRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0);
+    Result := Result AND (CheckVerticeRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0);
 end;
 
 

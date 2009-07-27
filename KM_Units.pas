@@ -1103,6 +1103,11 @@ end;
 procedure TTaskSelfTrain.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
+if (fSchool = nil) or (fSchool.IsDestroyed) then
+begin
+  fUnit.RemoveUntrainedFromSchool; //Abort if someone has destroyed our school
+  exit;
+end;
 with fUnit do
 case Phase of
   0: begin
