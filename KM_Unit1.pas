@@ -165,6 +165,8 @@ begin
   Form1.WindowState:=wsMaximized;
   Form1.Refresh;
 
+  Panel5.Color := clBlack;
+
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
 
   Application.OnIdle:=Form1.OnIdle;

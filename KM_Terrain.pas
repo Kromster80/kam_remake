@@ -440,11 +440,15 @@ end;
 //0 unrevealed, 255 revealed completely
 function TTerrain.CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
-  Result := CheckVerticeRevelation(X,Y,PlayerID);
+  Result := //CheckVerticeRevelation(X,Y,PlayerID);
   //@Krom: I see no need for this function, everything is calculated from vertices.
   //I fixed the left/top and bottom/right edge issues, and it seems to be working fine without this function. Let me know what you think.
-            {max(max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)),
-                max(CheckVerticeRevelation(X,Y-1,PlayerID),CheckVerticeRevelation(X+1,Y-1,PlayerID)));}
+            {max(}max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)){,
+                max(CheckVerticeRevelation(X,Y-1,PlayerID),CheckVerticeRevelation(X+1,Y-1,PlayerID)))};
+  //@Lewin: See, there's a problem at FOW edges when there are enemy units standing there.
+  //        Imagine FOWed area filled with enemies and you have only 1 vertice revealed in the middle,
+  //        which unit would you see? Thats why we need 2 functions - one for vertice revelation and 2nd for tiles.
+  // Though I agree we could querry only 2 bottom vertices, otherwise it looks not so good.
 end;
 
 
