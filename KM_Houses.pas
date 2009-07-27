@@ -167,6 +167,7 @@ type
     ResourceCount:array[1..28]of word;
     NotAcceptFlag:array[1..28]of boolean;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    procedure ToggleAcceptFlag(aTagID:byte);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
   end;
 
@@ -902,6 +903,24 @@ if aResource in [rt_Trunk..rt_Fish] then begin
   end
 else
 fLog.AssertToLog(false,'Cant''t add such resource '+TypeToString(aResource));
+end;
+
+
+procedure TKMHouseStore.ToggleAcceptFlag(aTagID:byte);
+begin
+  if aTagID=0 then exit; //Dunno why thats happening sometimes..
+  if CHEATS_ENABLED then
+  if NotAcceptFlag[3]
+  and NotAcceptFlag[7] and NotAcceptFlag[9]
+  and NotAcceptFlag[11] and NotAcceptFlag[15]
+  and NotAcceptFlag[16] and NotAcceptFlag[20]
+  and NotAcceptFlag[21] and NotAcceptFlag[22] and NotAcceptFlag[23] and NotAcceptFlag[24] and NotAcceptFlag[25]
+  and (aTagID=26) then begin
+    AddMultiResource(rt_All,10);
+    exit;
+  end;
+
+  NotAcceptFlag[aTagID] := not NotAcceptFlag[aTagID];
 end;
 
 

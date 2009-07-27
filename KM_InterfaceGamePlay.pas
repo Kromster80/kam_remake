@@ -1353,8 +1353,7 @@ end;
 {Resource determined by Button.Tag property}
 procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
-  TKMHouseStore(fPlayers.SelectedHouse).NotAcceptFlag[(Sender as TKMControl).Tag]:=
-    not TKMHouseStore(fPlayers.SelectedHouse).NotAcceptFlag[(Sender as TKMControl).Tag];
+  TKMHouseStore(fPlayers.SelectedHouse).ToggleAcceptFlag((Sender as TKMControl).Tag);
 end;
 
 
