@@ -151,6 +151,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   if Sender<>nil then exit;
 
+  FormLoading.Label5.Caption := GAME_VERSION;
   FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
 
@@ -162,9 +163,6 @@ begin
 
   ReadAvailableResolutions;    //Undecided as to how this will fit in with the game, see discussion
 
-  Form1.WindowState:=wsMaximized;
-  Form1.Refresh;
-
   Panel5.Color := clBlack;
 
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
@@ -173,7 +171,7 @@ begin
 
   fLog.AppendLog('Form1 create is done');
 
-  //Show the message if user has old OpenGL drivers
+  //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then
     Application.MessageBox(@('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
         'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
@@ -203,6 +201,7 @@ end;
 procedure TForm1.FormResize(Sender:TObject);
 begin
   //Thats very stupid way to make it, but I couldn't find better solution..
+  //Hide the controls upon first run
   if Form1.GroupBox1.Tag<>999 then
     Form1.SetControlsVisibility(false);
   Form1.GroupBox1.Tag:=999;

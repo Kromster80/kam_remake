@@ -5,6 +5,10 @@ uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, Windo
 
 type TKMGamePlayInterface = class
   protected
+    ScreenX,ScreenY:word;
+    ToolBarX:word;
+
+  protected
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
     ShownHint:TObject;
@@ -21,6 +25,7 @@ type TKMGamePlayInterface = class
       KMImage_Message:array[1..256]of TKMImage; //Queue of messages
       KMImage_Clock:TKMImage; //Clock displayed when game speed is increased
       KMLabel_Clock:TKMLabel;
+    KMPanel_Pause:TKMPanel;
       KMLabel_Pause:TKMLabel;
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
     KMPanel_Ratios:TKMPanel;
@@ -107,6 +112,7 @@ type TKMGamePlayInterface = class
       KMImage_Barracks_Right,KMImage_Barracks_Train,KMImage_Barracks_Left:TKMImage;
       KMButton_Barracks_Right,KMButton_Barracks_Train,KMButton_Barracks_Left:TKMButton;
   private
+    procedure Create_Pause_Page;
     procedure Create_Build_Page;
     procedure Create_Ratios_Page;
     procedure Create_Stats_Page;
@@ -436,13 +442,9 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
 
-    //@Krom: This control should NOT be darkened when paused, because it makes it hard to read. (Antiqua is the font used in KaM, and I think it looks best expect that you can't see it because it's darkened)
-    //       It should stand out above all other things on the screen.
-    KMLabel_Pause:=MyControls.AddLabel(KMPanel_Main,(fRender.GetRenderAreaSize.X div 2)-32,(fRender.GetRenderAreaSize.Y div 2)-8,64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
-    KMLabel_Pause.Hide;
-
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
+  Create_Pause_Page();
   Create_Build_Page();
   Create_Ratios_Page();
   Create_Stats_Page();
@@ -469,6 +471,22 @@ destructor TKMGamePlayInterface.Destroy;
 begin
   FreeAndNil(MyControls);
   inherited;
+end;
+
+
+{Pause overlay page}
+procedure TKMGamePlayInterface.Create_Pause_Page;
+begin
+  KMPanel_Pause:=MyControls.AddPanel(KMPanel_Main,0,0,fRender.GetRenderAreaSize.X,fRender.GetRenderAreaSize.Y);
+    MyControls.AddBevel(KMPanel_Pause,-1,-1,fRender.GetRenderAreaSize.X+1,fRender.GetRenderAreaSize.Y+1);
+    //@Krom: This control should NOT be darkened when paused, because it makes it hard to read.
+    //(Antiqua is the font used in KaM, and I think it looks best expect that you can't see it because it's darkened)
+    //       It should stand out above all other things on the screen.
+    //@Lewin: Now it does :) to be deleted..
+    MyControls.AddImage(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
+    MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
+    MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
+    KMPanel_Pause.Hide
 end;
 
 
@@ -1552,9 +1570,7 @@ end;
 
 procedure TKMGamePlayInterface.ShowPause(DoShow,DoFast:boolean);
 begin
-  KMLabel_Pause.Visible:=DoShow;
-  KMImage_Clock.Visible:=DoShow or (DoFast and not DoShow);
-  KMImage_Clock.TexID:=556
+  KMPanel_Pause.Visible:=DoShow;
 end;
 
 

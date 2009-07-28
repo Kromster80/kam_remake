@@ -437,13 +437,6 @@ begin
   if not TestMining then
     Idle..}
 
-  //@Krom: I had concerns about this. (from TKMUnitSerf, TKMUnitWorker and TKMUnitCitizen) I think it was leaking memory before because it was
-  //       just overriding the previous task without freeing it. I think I've fixed it by only doing so if we don't have a task but I could have created more problems.
-
-  //@Lewin:  fUnitTask always nil here. If it is not nil, then Inherited UpdateState return true and function quits ;-)
-
-  //@Krom: Oops, I didn't realise that. I was trying to fix a strange issue that sometimes causes workers to abandon their work half way though. I guess it must be something else. To be deleted
-
     if fCondition<UNIT_MIN_CONDITION then begin
       H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
       if H<>nil then
@@ -702,12 +695,10 @@ function TKMUnitWarrior.UpdateState():boolean;
 begin
   inc(fFlagAnim);
 
-  //@Lewin:
   //Override current action if there's an Order in queue paying attention
   //to unit WalkTo current position (let the unit arrive on next tile first!)
   //As well let the unit finish it's curent Attack action before taking a new order
-  //This should make units response delayed, is it a good idea?
-  //@Krom: I think that sounds fine. To be deleted
+  //This should make units response a bit delayed.
 
   if fCondition <= (UNIT_MIN_CONDITION div 3) then
     fThought:=th_Death
@@ -795,7 +786,7 @@ begin
   //       Sometimes they get stuck in house plans and stuff which is annoying. Maybe the same for fish and other animals? If we can't move, then die.
 
   //@Lewin: Can you code it this way - assign a TTaskDie task and edit TTask so that we could add custom dying
-  //        sequence for an animal later on. E.g. animal would blend out  
+  //        sequence for an animal later on. E.g. animal would blend out
 
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit

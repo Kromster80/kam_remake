@@ -213,7 +213,7 @@ begin
     glLoadIdentity();
     RenderBrightness(fGameSettings.GetBrightness);
 
-  end else begin
+  end else begin //Game is not running - paint menu
 
     glLoadIdentity();             // Reset The View
     glLineWidth(1);
@@ -1208,14 +1208,6 @@ begin
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  if fGame.GameIsPaused then begin
-  glColor4f(0,0,0,0.5);
-  glBegin(GL_QUADS);
-    glkRect(0,0,RenderAreaSize.X,RenderAreaSize.Y);
-  glEnd;
-  end;
-
 end;
 
 end.

@@ -9,8 +9,6 @@ type
 TKMControl = class(TObject)
   public
     Parent: TKMControl;
-    ChildCount:word;             //Those two are actually used only for TKMPanel
-    Childs: array of TKMControl; //No other elements needs to be parented
 
     Left: Integer;
     Top: Integer;
@@ -49,7 +47,35 @@ TKMControl = class(TObject)
     property OnHint: TMouseMoveEvent read FOnHint write FOnHint;
 end;
 
-type TKMPanel = class;
+
+{Panel which should have child items on it, it's virtual and invisible}
+TKMPanel = class(TKMControl)
+  public
+    ChildCount:word;             //Those two are actually used only for TKMPanel
+    Childs: array of TKMControl; //No other elements needs to be parented
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure Paint(); override;
+end;
+
+
+{Panel which is visible, beveled area}
+TKMBevel = class(TKMControl)
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure Paint(); override;
+end;
+
+
+{Rectangle}
+TKMShape = class(TKMControl)
+  public
+    Color:TColor4; //color of rectangle
+    LineWidth:byte;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4);
+    procedure Paint(); override;
+end;
 
 
 {Text Label}
@@ -74,33 +100,6 @@ TKMImage = class(TKMControl)
     StretchImage: boolean;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
-    procedure Paint(); override;
-end;
-
-
-{Panel which should have child items on it, it's virtual and invisible}
-TKMPanel = class(TKMControl)
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    procedure Paint(); override;
-end;
-
-
-{Panel which is visible, beveled area}
-TKMBevel = class(TKMControl)
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    procedure Paint(); override;
-end;
-
-
-{Rectangle}
-TKMShape = class(TKMControl)
-  public
-    Color:TColor4; //color of rectangle
-    LineWidth:byte;
-  protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4);
     procedure Paint(); override;
 end;
 
@@ -235,7 +234,7 @@ TKMScrollBar = class(TKMControl)
 end;
 
 
-{ Minimap as stand-alone control}
+{ Minimap as stand-alone control }
 TKMMinimap = class(TKMControl)
   public
     MapSize:TKMPoint;
@@ -254,11 +253,11 @@ TKMControlsCollection = class(TKMList)
   public
     constructor Create;
     destructor Destroy; override;
-    function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
-    function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddBevel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
     function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
+    function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
+    function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
@@ -297,16 +296,19 @@ end;
 {Parent control has a list of all it's child controls}
 {Also transform child according to parent position}
 procedure TKMControl.ParentTo(aParent:TKMControl);
+var ParentPanel:TKMPanel;
 begin
   if aParent=nil then exit; //Has no parent
   fLog.AssertToLog(aParent is TKMPanel,'Let''s not parent controls to anything else except TKMPanels');
-  inc(aParent.ChildCount);
+  ParentPanel := TKMPanel(aParent);
+
+  inc(ParentPanel.ChildCount);
   {Hereby I still try to make a rule to count starting from 1, not from zero}
-  setlength(aParent.Childs,aParent.ChildCount+1);
-  aParent.Childs[aParent.ChildCount]:=Self;
-  Self.Parent:=aParent;
-  Self.Top:=aParent.Top+Self.Top;
-  Self.Left:=aParent.Left+Self.Left;
+  setlength(ParentPanel.Childs,ParentPanel.ChildCount+1);
+  ParentPanel.Childs[ParentPanel.ChildCount]:=Self;
+  Self.Parent:=ParentPanel;
+  Self.Top:=ParentPanel.Top+Self.Top;
+  Self.Left:=ParentPanel.Left+Self.Left;
 end;
 
 
@@ -318,10 +320,11 @@ begin
   if (CursorOver)and(Assigned(Self.OnMouseOver)) then
     Self.OnMouseOver(Self,AShift,X,Y);
 
-  for i:=1 to ChildCount do
-    if Childs[i].Visible then
-      if Childs[i].Enabled then
-        Childs[i].CheckCursorOver(X,Y,AShift);
+  if Self is TKMPanel then //Only Panels have childs
+  for i:=1 to TKMPanel(Self).ChildCount do
+    if TKMPanel(Self).Childs[i].Visible then
+    if TKMPanel(Self).Childs[i].Enabled then
+       TKMPanel(Self).Childs[i].CheckCursorOver(X,Y,AShift);
 end;
 
 
@@ -333,9 +336,10 @@ begin
   if (CursorOver)and(Assigned(Self.OnHint))and(Hint<>'') then
     Self.OnHint(Self,AShift,X,Y);
 
-  for i:=1 to ChildCount do
-    if Childs[i].Visible then //No hints for invisible controls
-      Childs[i].HintCheckCursorOver(X,Y,AShift);
+  if Self is TKMPanel then //Only Panels have childs
+  for i:=1 to TKMPanel(Self).ChildCount do
+    if TKMPanel(Self).Childs[i].Visible then //No hints for invisible controls
+       TKMPanel(Self).Childs[i].HintCheckCursorOver(X,Y,AShift);
 end;
 
 
@@ -343,9 +347,11 @@ end;
 procedure TKMControl.Paint();
 var i:integer;
 begin
-  for i:=1 to ChildCount do
-    if Childs[i].Visible then begin
-      Childs[i].Paint;
+  if Self is TKMPanel then //Only Panels have childs
+  for i:=1 to TKMPanel(Self).ChildCount do
+    if TKMPanel(Self).Childs[i].Visible then
+    begin
+      TKMPanel(Self).Childs[i].Paint;
       inc(CtrlPaintCount);
     end;
 end;
@@ -371,6 +377,7 @@ begin
 end;
 
 
+{ TKMPanel } //virtual panels to contain child items
 constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -413,6 +420,70 @@ end;
 procedure TKMShape.Paint();
 begin
   fRenderUI.WriteRect(Left,Top,Width,Height,LineWidth,Color);
+end;
+
+
+constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  Font:=aFont;
+  FontColor:=aColor;
+  TextAlign:=aTextAlign;
+  AutoWrap:=false;
+  Caption:=aCaption;
+end;
+
+
+{Send caption to render and recieve in result how much space did it took on screen}
+procedure TKMLabel.Paint();
+var Tmp:TKMPoint;
+begin
+  if MakeDrawPagesOverlay then
+  case TextAlign of
+    kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
+    kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
+    kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
+  end;
+  if Enabled then
+    Tmp:=fRenderUI.WriteText(Left, Top, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
+  else
+    Tmp:=fRenderUI.WriteText(Left, Top, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
+
+  if not AutoWrap then
+    Width:=Tmp.X;
+  Height:=Tmp.Y;
+end;
+
+
+{Make sure image area is at least enough to fit an image, or bigger}
+{if Width/Height are 0 then image gets centered around Left/Top}
+{if Width/Height are smaller than actual image then adjust them to fit image}
+{if Width/Height are bigger than actual image then image will be centered within bounds}
+constructor TKMImage.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
+begin
+  RXid:=aRXid;
+  TexID:=aTexID;
+  StretchImage:=false;
+  if aWidth=0 then aLeft:=aLeft - GFXData[RXid,aTexID].PxWidth div 2;
+  if aHeight=0 then aTop:=aTop - GFXData[RXid,aTexID].PxHeight div 2;
+  aWidth:=max(aWidth,GFXData[RXid,aTexID].PxWidth);
+  aHeight:=max(aHeight,GFXData[RXid,aTexID].PxHeight);
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+end;
+
+
+{If image area is bigger than image - do center image in it}
+procedure TKMImage.Paint();
+begin
+  if TexID=0 then exit;
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
+  if StretchImage then
+    fRenderUI.WritePicture(Left, Top, Width, Height, RXid, TexID, Enabled)
+  else
+    fRenderUI.WritePicture(Left + (Width-GFXData[RXid,TexID].PxWidth) div 2,
+                           Top + (Height-GFXData[RXid,TexID].PxHeight) div 2, RXid,TexID, Enabled);
 end;
 
 
@@ -526,70 +597,6 @@ begin
   
   Width:=Tmp.X+BoxWidth;
   Height:=Tmp.Y;
-end;
-
-
-constructor TKMLabel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
-begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
-  Font:=aFont;
-  FontColor:=aColor;
-  TextAlign:=aTextAlign;
-  AutoWrap:=false;
-  Caption:=aCaption;
-end;
-
-
-{Send caption to render and recieve in result how much space did it took on screen}
-procedure TKMLabel.Paint();
-var Tmp:TKMPoint;
-begin
-  if MakeDrawPagesOverlay then
-  case TextAlign of
-    kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
-    kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
-    kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
-  end;
-  if Enabled then
-    Tmp:=fRenderUI.WriteText(Left, Top, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
-  else
-    Tmp:=fRenderUI.WriteText(Left, Top, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
-
-  if not AutoWrap then
-    Width:=Tmp.X;
-  Height:=Tmp.Y;
-end;
-
-
-{Make sure image area is at least enough to fit an image, or bigger}
-{if Width/Height are 0 then image gets centered around Left/Top}
-{if Width/Height are smaller than actual image then adjust them to fit image}
-{if Width/Height are bigger than actual image then image will be centered within bounds}
-constructor TKMImage.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
-begin
-  RXid:=aRXid;
-  TexID:=aTexID;
-  StretchImage:=false;
-  if aWidth=0 then aLeft:=aLeft - GFXData[RXid,aTexID].PxWidth div 2;
-  if aHeight=0 then aTop:=aTop - GFXData[RXid,aTexID].PxHeight div 2;
-  aWidth:=max(aWidth,GFXData[RXid,aTexID].PxWidth);
-  aHeight:=max(aHeight,GFXData[RXid,aTexID].PxHeight);
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
-end;
-
-
-{If image area is bigger than image - do center image in it}
-procedure TKMImage.Paint();
-begin
-  if TexID=0 then exit;
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
-  if StretchImage then
-    fRenderUI.WritePicture(Left, Top, Width, Height, RXid, TexID, Enabled)
-  else
-    fRenderUI.WritePicture(Left + (Width-GFXData[RXid,TexID].PxWidth) div 2,
-                           Top + (Height-GFXData[RXid,TexID].PxHeight) div 2, RXid,TexID, Enabled);
 end;
 
 
@@ -886,19 +893,6 @@ begin
   Inherited Add(Sender);
 end;
 
-function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string;
-        aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4 = $FFFFFFFF):TKMLabel;
-begin
-  Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
-  AddToCollection(Result);
-end;
-
-function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
-begin
-  Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
-  AddToCollection(Result);
-end;
-
 function TKMControlsCollection.AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
 begin
   Result:=TKMPanel.Create(aParent, aLeft,aTop,aWidth,aHeight);
@@ -914,6 +908,19 @@ end;
 function TKMControlsCollection.AddShape(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
 begin
   Result:=TKMShape.Create(aParent, aLeft,aTop,aWidth,aHeight,aColor);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddLabel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string;
+        aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4 = $FFFFFFFF):TKMLabel;
+begin
+  Result:=TKMLabel.Create(aParent, aLeft,aTop,aWidth,aHeight, aFont, aTextAlign, aCaption, aColor);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
+begin
+  Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
   AddToCollection(Result);
 end;
 

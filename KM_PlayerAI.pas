@@ -48,15 +48,26 @@ begin
   if (H=nil)or(TKMHouseSchool(H).UnitQueue[1]<>ut_None) then exit;
 
   UnitType := ut_None;
-  HC := Assets.GetHouses;
 
+  //@Lewin:
+  //I think this is the way to go instead of querrying all houses:
+  //Just need to adjoin counts of houses which have same owner types
+  for i:=1 to HOUSE_COUNT do begin
+    if THouseType(i)<>ht_Barracks then //Exclude Barracks
+    if HouseDAT[i].OwnerType<>-1 then
+    if Assets.GetHouseQty(THouseType(i))>Assets.GetUnitQty(TUnitType(HouseDAT[i].OwnerType+1)) then
+      UnitType := TUnitType(HouseDAT[i].OwnerType+1);
+    if UnitType <> ut_None then break; //Don't need more UnitTypes yet
+  end;
+
+  {HC := Assets.GetHouses;
   for i:=0 to HC.Count-1 do
   if TKMHouse(HC.Items[i]).IsComplete then
   if not TKMHouse(HC.Items[i]).GetHasOwner then
   if TKMHouse(HC.Items[i]).GetHouseType <> ht_Barracks then begin
     UnitType := TUnitType(HouseDAT[byte(TKMHouse(HC.Items[i]).GetHouseType)].OwnerType+1);
     if UnitType <> ut_None then break; //Don't need more UnitTypes yet
-  end;
+  end;}
 
   if UnitType = ut_None then exit;
 

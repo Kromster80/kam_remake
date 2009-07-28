@@ -301,8 +301,7 @@ type
     ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
     ht_Metallurgists=16, ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
     ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29{,
-    ht_Wall=30});
+    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
   THouseState = ( hst_Empty, hst_Idle, hst_Work );
