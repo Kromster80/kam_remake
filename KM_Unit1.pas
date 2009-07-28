@@ -148,6 +148,7 @@ done:=false; //repeats OnIdle event
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
+var GoFull:boolean;
 begin
   if Sender<>nil then exit;
 
@@ -165,7 +166,13 @@ begin
 
   Panel5.Color := clBlack;
 
-  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
+  fGameSettings:=TGameSettings.Create; //Read settings (fullscreen property)
+  GoFull:=fGameSettings.IsFullScreen;
+  FreeAndNil(fGameSettings);           //Release memory
+  ToggleFullScreen(GoFull,false); //Now we can decide whether we should make it full screen or not
+
+  //We don't need to re-init fGame since it's already handled in ToggleFullScreen (sic!)
+  //fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
 
   Application.OnIdle:=Form1.OnIdle;
 
@@ -175,9 +182,6 @@ begin
   if not GL_VERSION_1_4 then
     Application.MessageBox(@('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
         'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
-
-  //Now decide whether we should make it full screen or not
-  ToggleFullScreen(fGameSettings.IsFullScreen,false);
 
   FormLoading.Hide;
   FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
@@ -646,7 +650,9 @@ begin
 
   Panel5.Top:=0;
   Panel5.Height:=Form1.ClientHeight;
-  fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+
+  if fGame<>nil then //Could happen on game start when Form gets resized and fGame is nil
+    fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
 end;
 
 

@@ -1048,6 +1048,7 @@ begin
   end;
 
   FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
+  //Should be Vertice-based
 
   if Pos=dir_S then pY:=pY+1;
   if Pos=dir_W then pX:=pX+1;

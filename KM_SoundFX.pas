@@ -88,7 +88,8 @@ begin
   IsMusicInitialized := true;
 
   MediaPlayer := Form1.MediaPlayer1;
-  IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
+  //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
+
   ScanMusicTracks(ExeDir + 'Music\');
 
   IsOpenALInitialized := InitOpenAL;

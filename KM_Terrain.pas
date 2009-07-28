@@ -1333,7 +1333,7 @@ begin
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
   if PlayerRevealID <> play_none then
-    Result := Result AND (CheckVerticeRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0);
+    Result := Result AND (CheckTileRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0); //We check tile revelation to place a tile-based markup, right?
 end;
 
 
