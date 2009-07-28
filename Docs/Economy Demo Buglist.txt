@@ -1,0 +1,24 @@
+KaM Remake Economy Demo 090728 (r363)
+<===================================================================================>
+Known bugs:
+
+	Tree (cut by woodcutter?) will fall down repeatedly forever
+	"979ms	Gameplay error ... done" follows "route unbuilt" error
+	See-through hills (lighting flaw)			//Assigned to Krom
+	Workers forget to build roads sometimes
+	Built road comes as unfinished "brown spot"
+	Remove debug info
+	Fisher
+	Units should return to road first then go eat, home, etc.
+	Armies group controls
+	Unit interaction
+	Destroying barracks and unfinished houses results in crash
+	Water has dark patches					//Assigned to Krom
+	Wrong render of houses (see GraphicFlaws folder)	//Assigned to Krom
+
+Make sure these are checked:	//Assigned to Krom
+	True/false switches in KM_Defaults
+	Pack EXE file
+	Include OpenAL distributive
+	Test installer and Demo
+

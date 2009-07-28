@@ -166,10 +166,9 @@ begin
 
   Panel5.Color := clBlack;
 
-  fGameSettings:=TGameSettings.Create; //Read settings (fullscreen property)
-  GoFull:=fGameSettings.IsFullScreen;
-  FreeAndNil(fGameSettings);           //Release memory
-  ToggleFullScreen(GoFull,false); //Now we can decide whether we should make it full screen or not
+  fGameSettings:=TGameSettings.Create; //Read settings (fullscreen property and resolutions)
+                                       //Don't need to free it here, it's FreeAndNil'ed at fGame re-init
+  ToggleFullScreen(fGameSettings.IsFullScreen,false); //Now we can decide whether we should make it full screen or not
 
   //We don't need to re-init fGame since it's already handled in ToggleFullScreen (sic!)
   //fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
