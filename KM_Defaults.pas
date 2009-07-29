@@ -178,6 +178,24 @@ type
     rt_Axe       =21 , rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
     rt_Bow       =25 , rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
 
+const //Using shortints make it look much more compact in code-view
+  CheatStorePattern:array[1..28]of shortint = (
+  0,0,1,0,0,
+  0,1,0,1,0,
+  1,0,0,0,1,
+  1,0,0,0,1,
+  1,1,1,1,1,
+  0,0,0);
+
+const //Using shortints make it look much more compact in code-view
+  CheatWinPattern:array[1..28]of shortint = (
+  1,0,0,0,1, //@Lewin:
+  1,0,0,0,1, //I forgot how Win pattern should look like, was it a letter 'P' ?
+  0,1,0,1,0, //I put 'V' for now, please fix it if you know how, we want to use KaM style for that, right?
+  0,1,0,1,0, //We can add more cheats if we like later on..
+  0,0,1,0,0,
+  0,0,0);
+
 const
   WarfareCosts:array[17..26,1..2]of TResourceType = (
     (rt_None,rt_Wood),    //rt_Shield

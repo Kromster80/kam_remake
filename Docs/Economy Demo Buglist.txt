@@ -11,7 +11,7 @@ Known bugs:
 	Built road comes as unfinished "brown spot"
 	Remove debug info
 	Fisher
-	Resource cheat is not strict enough
++	Resource cheat is not strict enough
 	Units should return to road first then go eat, home, etc.
 	Armies group controls
 	Unit interaction

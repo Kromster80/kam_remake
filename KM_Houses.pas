@@ -907,17 +907,20 @@ end;
 
 
 procedure TKMHouseStore.ToggleAcceptFlag(aTagID:byte);
+var i:integer; ApplyCheat:boolean;
 begin
-  if aTagID=0 then exit; //Dunno why thats happening sometimes..
-  if CHEATS_ENABLED then
-  if NotAcceptFlag[3]
-  and NotAcceptFlag[7] and NotAcceptFlag[9]
-  and NotAcceptFlag[11] and NotAcceptFlag[15]
-  and NotAcceptFlag[16] and NotAcceptFlag[20]
-  and NotAcceptFlag[21] and NotAcceptFlag[22] and NotAcceptFlag[23] and NotAcceptFlag[24] and NotAcceptFlag[25]
-  and (aTagID=26) then begin
-    AddMultiResource(rt_All,10);
-    exit;
+  if aTagID=0 then exit; //@Lewin: Dunno why thats happening sometimes..
+
+  if CHEATS_ENABLED then begin
+    ApplyCheat:=true;
+
+    for i:=1 to length(ResourceCount) do
+      ApplyCheat := ApplyCheat and (NotAcceptFlag[i] = bool(CheatStorePattern[i]));
+
+    if ApplyCheat and (aTagID=26) then begin
+      AddMultiResource(rt_All,10);
+      exit;
+    end;
   end;
 
   NotAcceptFlag[aTagID] := not NotAcceptFlag[aTagID];
