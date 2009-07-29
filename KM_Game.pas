@@ -142,7 +142,7 @@ begin
   if not IsDown then
   begin
     if Key=VK_F11 then begin
-      Form1.SetControlsVisibility(FormControlsVisible);
+      Form1.ToggleControlsVisibility(FormControlsVisible);
       FormControlsVisible := not FormControlsVisible;
     end;
     if Key=VK_BACK then begin

@@ -431,8 +431,10 @@ for i:=y1 to y2 do for k:=x1 to x2 do
   end;
 
   with fTerrain do
-  for i:=1 to FallingTrees.Count do
+  for i:=1 to FallingTrees.Count do begin
     RenderObject(FallingTrees.Tag[i]+1,AnimStep-FallingTrees.Tag2[i],FallingTrees.List[i].X,FallingTrees.List[i].Y);
+    fLog.AssertToLog(AnimStep-FallingTrees.Tag2[i] <= 100,'Falling tree overrun?');
+  end;
 
 end;
 

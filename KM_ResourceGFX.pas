@@ -1029,7 +1029,7 @@ begin
 
   ci:=0;
   for ID:=1 to MapElemQty do begin
-    for k:=1 to 1{MapElem[ID].Count} do begin
+    for k:=1 to MapElem[ID].Count do begin
       if MapElem[ID].Step[k]+1<>0 then
       ci:=MapElem[ID].Step[k]+1;
 
@@ -1043,9 +1043,9 @@ begin
         MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
       end;
       if sy>0 then MyBitmap.SaveToFile(
-      //@Lewin: insert field here and preee Export>Fonts. Rename each folder after export to 'Cuttable',
+      //@Lewin: insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
-      ExeDir+'Export\TreeAnim\'+inttostr(word(MapElem[ID].DiagonalBlocked))+'_'+int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
+      ExeDir+'Export\TreeAnim\'+{inttostr(word(MapElem[ID].DiagonalBlocked))+'_'+}int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
     end;
   end;
 

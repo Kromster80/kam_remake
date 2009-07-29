@@ -2,7 +2,8 @@ KaM Remake Economy Demo 090728 (r363)
 <===================================================================================>
 Known bugs:
 
-	Tree (cut by woodcutter?) will fall down repeatedly forever
++	Tree (cut by woodcutter?) will fall down repeatedly forever
++	Mainmenu is not shown on F11 toggle
 	"979ms	Gameplay error ... done" follows "route unbuilt" error
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	See-through hills (lighting flaw)			//Assigned to Krom

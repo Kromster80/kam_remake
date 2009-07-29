@@ -705,11 +705,9 @@ begin
   for h:=1 to length(ChopableTrees) do
     if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
     begin
-      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];
-      //Land[Loc.Y,Loc.X].TreeAge:=0;
+      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];                        //Set stump object
+      FallingTrees.AddEntry(Loc,ChopableTrees[h,5],fTerrain.AnimStep);  //along with falling tree
       fSoundLib.Play(sfx_TreeDown,Loc,true);
-      FallingTrees.AddEntry(Loc,ChopableTrees[h,5],AnimStep);
-      //RecalculatePassability(Loc); //Keep old passability until Stump
       exit;
     end;
 end;
@@ -1507,6 +1505,14 @@ var i,k,h,j:integer;
   end;
 begin
   inc(AnimStep);
+
+  for i:=1 to FallingTrees.Count do
+  if AnimStep - FallingTrees.Tag2[i] > 20 then begin
+    fLog.AssertToLog(AnimStep - FallingTrees.Tag2[i] <= 20,'Falling tree overrun?');
+    FallingTrees.RemoveEntry(FallingTrees.List[i]); //Cure the tree eventually
+    break; //Remove only 1 tree at a time, otherwise FallingTrees.Count is becoming wrong
+    //@Lewin: Genesis of this bug is yet unknown. 20 is the frame where tree should be removed anyway
+  end;
 
   for i:=1 to MapY do
   for k:=1 to MapX do

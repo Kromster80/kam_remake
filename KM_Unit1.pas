@@ -109,7 +109,7 @@ type
     procedure ReadAvailableResolutions;
 
   public
-    procedure SetControlsVisibility(ShowCtrls:boolean);
+    procedure ToggleControlsVisibility(ShowCtrls:boolean);
     procedure ToggleFullScreen(Toggle:boolean; ReturnToOptions:boolean);
   end;
 
@@ -148,7 +148,6 @@ done:=false; //repeats OnIdle event
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var GoFull:boolean;
 begin
   if Sender<>nil then exit;
 
@@ -174,6 +173,8 @@ begin
   //fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
 
   Application.OnIdle:=Form1.OnIdle;
+
+  ToggleControlsVisibility(false);
 
   fLog.AppendLog('Form1 create is done');
 
@@ -205,9 +206,9 @@ procedure TForm1.FormResize(Sender:TObject);
 begin
   //Thats very stupid way to make it, but I couldn't find better solution..
   //Hide the controls upon first run
-  if Form1.GroupBox1.Tag<>999 then
-    Form1.SetControlsVisibility(false);
-  Form1.GroupBox1.Tag:=999;
+{  if Form1.GroupBox1.Tag<>999 then
+    Form1.ToggleControlsVisibility(false);
+  Form1.GroupBox1.Tag:=999;}
 
   if fGame<>nil then //Occurs on exit
     fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
@@ -630,10 +631,16 @@ begin
 end;}
 
 
-procedure TForm1.SetControlsVisibility(ShowCtrls:boolean);
+procedure TForm1.ToggleControlsVisibility(ShowCtrls:boolean);
   var i:integer;
 begin
   Form1.Refresh;
+
+  if MainMenu1.Items[0].Visible and not ShowCtrls then //Hiding controls
+    Form1.ClientHeight := Form1.ClientHeight - 20
+  else
+  if not MainMenu1.Items[0].Visible and ShowCtrls then //Showing controls
+    Form1.ClientHeight := Form1.ClientHeight + 20;
 
   GroupBox1.Visible:=ShowCtrls;
   StatusBar1.Visible:=ShowCtrls;
@@ -645,7 +652,7 @@ begin
   for i:=1 to MainMenu1.Items.Count do
     MainMenu1.Items[i-1].Enabled:=ShowCtrls;
 
-  Form1.Refresh;
+  Form1.Refresh;   
 
   Panel5.Top:=0;
   Panel5.Height:=Form1.ClientHeight;

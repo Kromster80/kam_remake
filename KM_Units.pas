@@ -1755,10 +1755,10 @@ with fUnit do
        end;
     4: begin StillFrame := 0;
              case WorkPlan.GatheringScript of //Perform special tasks if required
-               gs_StoneCutter: fTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
-               gs_FarmerSow:   fTerrain.SowCorn(WorkPlan.Loc);
-               gs_FarmerCorn:  fTerrain.CutCorn(WorkPlan.Loc);
-               gs_FarmerWine:  fTerrain.CutGrapes(WorkPlan.Loc);
+               gs_StoneCutter:     fTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
+               gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
+               gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
+               gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
                gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,ChopableTrees[Random(length(ChopableTrees))+1,1]);
                gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
              end;
