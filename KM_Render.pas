@@ -1,7 +1,7 @@
 unit KM_Render;
 interface
 uses OpenGL, dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, JPEG, Graphics,
-  KM_TGATexture, KM_Defaults, KM_Utils;
+  KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
 type
 TRender = class
@@ -63,7 +63,7 @@ public
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderDebugWires();
   procedure RenderDebugUnitMoves();
-  procedure RenderDebugUnitRoute(Count:integer; Nodes:array of TKMPoint; Pos:integer; Col:TColor4);
+  procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
   procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean);
   procedure RenderHouseBuild(Index,pX,pY:integer);
@@ -86,7 +86,7 @@ var
 
 implementation 
 uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_PlayersCollection,
-KM_Settings, KM_InterfaceGamePlay, KM_Game, KM_CommonTypes;
+KM_Settings, KM_InterfaceGamePlay, KM_Game;
 
 
 constructor TRender.Create(RenderFrame:HWND);
@@ -491,28 +491,28 @@ begin
 end;
 
 
-procedure TRender.RenderDebugUnitRoute(Count:integer; Nodes:array of TKMPoint; Pos:integer; Col:TColor4);
+procedure TRender.RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
 var i,k:integer; x,y:single;
 begin
-  if Count = 0 then exit;
+  if NodeList.Count = 0 then exit;
 
   glColor4ubv(@Col);
-  for i:=1 to Count do
-    RenderDotOnTile(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5);
+  for i:=1 to NodeList.Count do
+    RenderDotOnTile(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5);
 
   glBegin(GL_LINE_STRIP);
-  for i:=1 to Count do
-    glVertex2f(Nodes[i-1].X-0.5,Nodes[i-1].Y-0.5-fTerrain.InterpolateLandHeight(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5)/CELL_HEIGHT_DIV);
+  for i:=1 to NodeList.Count do
+    glVertex2f(NodeList.List[i-1].X-0.5,NodeList.List[i-1].Y-0.5-fTerrain.InterpolateLandHeight(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5)/CELL_HEIGHT_DIV);
   glEnd;
 
   glColor4f(1,1,1,1); //Vector where unit is going to
   i:=Pos;
-  k:=min(Pos+1,Count);
-  x:=mix(Nodes[i-1].X-0.5,Nodes[k-1].X-0.5,0.4);
-  y:=mix(Nodes[i-1].Y-0.5,Nodes[k-1].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
-  RenderDotOnTile(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5+0.2);
+  k:=min(Pos+1,NodeList.Count);
+  x:=mix(NodeList.List[i-1].X-0.5,NodeList.List[k-1].X-0.5,0.4);
+  y:=mix(NodeList.List[i-1].Y-0.5,NodeList.List[k-1].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
+  RenderDotOnTile(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5+0.2);
   glBegin(GL_LINES);
-    glVertex2f(Nodes[i-1].X-0.5,Nodes[i-1].Y-0.5+0.2-fTerrain.InterpolateLandHeight(Nodes[i-1].X+0.5,Nodes[i-1].Y+0.5)/CELL_HEIGHT_DIV);
+    glVertex2f(NodeList.List[i-1].X-0.5,NodeList.List[i-1].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5)/CELL_HEIGHT_DIV);
     glVertex2f(x,y-fTerrain.InterpolateLandHeight(x+1,y+1)/CELL_HEIGHT_DIV);
   glEnd;
 end;

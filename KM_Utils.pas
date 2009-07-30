@@ -18,7 +18,9 @@ type
 
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
-  function KMRoute(A,B:TKMPoint): single;
+  //function KMRoute(A,B:TKMPoint): single; //Unused
+
+  procedure KMSwapPoints(var A,B:TKMPoint);
 
   function TypeToString(t:THouseType):string; overload
   function TypeToString(t:TResourceType):string; overload
@@ -94,9 +96,17 @@ end;
 
 
 //Length as route, return 0 if unwalkable
-function KMRoute(A,B:TKMPoint): single;
+{function KMRoute(A,B:TKMPoint): single;
 begin
   Result:=0;
+end;}
+
+
+procedure KMSwapPoints(var A,B:TKMPoint);
+var w:word;
+begin
+  w:=A.X; A.X:=B.X; B.X:=w;
+  w:=A.Y; A.Y:=B.Y; B.Y:=w;
 end;
 
 

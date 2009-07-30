@@ -18,6 +18,7 @@ type TKMPointList = class
     procedure AddEntry(aLoc:TKMPoint); dynamic;
     function RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
     function GetRandom():TKMPoint;
+    procedure Inverse();
   end;
 
 
@@ -192,6 +193,15 @@ function TKMPointList.GetRandom():TKMPoint;
 begin
   if Count=0 then Result:=KMPoint(0,0)
              else Result:=List[random(Count)+1];
+end;
+
+
+//Reverse the list
+procedure TKMPointList.Inverse();
+var i:integer;
+begin
+  for i:=1 to Count div 2 do
+    KMSwapPoints(List[i],List[Count-i+1]); //Do +1 since i starts from 1
 end;
 
 

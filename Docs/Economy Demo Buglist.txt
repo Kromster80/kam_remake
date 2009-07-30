@@ -11,16 +11,16 @@ Known bugs:
 	Built road comes as unfinished "brown spot"
 	Remove debug info
 	Fisher
+	Schoolhouse bug (citizen statistics acts wrong on training/cancel)
+	MediaPlayer won't play mp3s and crash
 +	Resource cheat is not strict enough
 	Units should return to road first then go eat, home, etc.
-	Armies group controls
-	Unit interaction
 	Splash screen failed to disappear
 	Placing a building plan and removing it, the game returned a "Range check error"
 	TUnitAction is being overrun for some reason - error
 	Destroying barracks and unfinished houses results in crash
 	Water has dark patches					//Assigned to Krom
-	Wrong render of houses (see GraphicFlaws folder)	//Assigned to Krom
+	Wrong render of houses, black tops (see GraphicFlaws folder)	//Assigned to Krom
 
 Make sure these are checked:	//Assigned to Krom
 	True/false switches in KM_Defaults

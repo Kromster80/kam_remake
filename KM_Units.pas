@@ -28,8 +28,9 @@ type
         fWalkToSpot:boolean;
         fPass:TPassability; //Desired passability set once on Create
         fIgnorePass:boolean;
-        NodeCount:word; //Should be positive
-        Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint; //In fact it's much shorter array
+        //NodeCount:word; //Should be positive
+        NodeList:TKMPointList;
+        //Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint; //In fact it's much shorter array
         NodePos:integer;
         DoesWalking:boolean;
         DoEvade:boolean; //Command to make exchange maneuver with other unit
@@ -396,8 +397,7 @@ AnimDir:=byte(Direction);
 
   if MakeShowUnitRoutes then
   if fCurrentAction is TUnitActionWalkTo then
-    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeCount,
-                            TUnitActionWalkTo(fCurrentAction).Nodes,
+    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
                             TUnitActionWalkTo(fCurrentAction).NodePos,
                             $FF00FFFF);
 
@@ -525,7 +525,7 @@ begin
 
   if MakeShowUnitRoutes then
   if fCurrentAction is TUnitActionWalkTo then
-    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeCount,TUnitActionWalkTo(fCurrentAction).Nodes,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFF00FF);
+    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFF00FF);
 
   fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
 
@@ -605,7 +605,7 @@ begin
 
   if MakeShowUnitRoutes then
   if fCurrentAction is TUnitActionWalkTo then
-    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeCount,TUnitActionWalkTo(fCurrentAction).Nodes,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFFFFFF);
+    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFFFFFF);
 
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
@@ -2041,6 +2041,7 @@ end;
 
 { TUnitActionWalkTo }
 constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
+var i:integer; NodeList2:TKMPointList;
 begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
@@ -2052,22 +2053,39 @@ begin
   fIgnorePass   := aIgnorePass; //Store incase we need it in DoUnitInteraction re-routing
   fPass         := ChoosePassability(fWalker, fIgnorePass);
 
+  NodeList      := TKMPointList.Create; //Will need to free it later!!!!
+
   NodePos       :=1;
-  fRouteBuilt   :=false;     
+  fRouteBuilt   :=false;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
 
-  //Build a route A*
-  fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, fPass, fWalkToSpot, NodeCount, Nodes); //Try to make the route with fPass
+  //Build a piece of route to return to nearest road piece connected to destination road network
+  if fPass = canWalkRoad then
+    if fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo) then
+    //Take into account WalkToSpot?
+    fTerrain.Route_Return(fWalkFrom, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
 
-  fRouteBuilt:=NodeCount>0;
+  //Build a route A*
+  if NodeList.Count=0 then
+    fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, fPass, fWalkToSpot, NodeList) //Try to make the route with fPass
+  else begin
+    NodeList2 := TKMPointList.Create;
+    fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, Avoid, fPass, fWalkToSpot, NodeList2); //Try to make the route with fPass
+    //Append second list
+    for i:=2 to NodeList2.Count do
+      NodeList.AddEntry(NodeList2.List[i]);
+    FreeAndNil(NodeList2);
+  end;
+
+  fRouteBuilt:=NodeList.Count>0;
   if not fRouteBuilt then
     fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with default fPass');
 
   if not fRouteBuilt then begin //Build a route with canWalk
-    fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, canWalk, fWalkToSpot, NodeCount, Nodes); //Try to make a route
-    fRouteBuilt:=NodeCount>0;
+    fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, canWalk, fWalkToSpot, NodeList); //Try to make a route
+    fRouteBuilt:=NodeList.Count>0;
   end;
 
   if not fRouteBuilt then
@@ -2098,10 +2116,10 @@ var U:TKMUnit;
 begin
   Result:=true;
   if not DO_UNIT_INTERACTION then exit;
-  if NodePos>=NodeCount then exit;                                            //Check if that the last node in route anyway
-  if fTerrain.Land[Nodes[NodePos+1].Y,Nodes[NodePos+1].X].IsUnit=0 then exit; //Check if there's a unit blocking the way
+  if NodePos>=NodeList.Count then exit;                                            //Check if that the last node in route anyway
+  if fTerrain.Land[NodeList.List[NodePos+1].Y,NodeList.List[NodePos+1].X].IsUnit=0 then exit; //Check if there's a unit blocking the way
 
-  U:=fPlayers.UnitsHitTest(Nodes[NodePos+1].X,Nodes[NodePos+1].Y);
+  U:=fPlayers.UnitsHitTest(NodeList.List[NodePos+1].X,NodeList.List[NodePos+1].Y);
 
   //If there's yet no Unit on the way but tile is pre-occupied
   if U=nil then begin
@@ -2134,7 +2152,7 @@ begin
         (
             fWalker,
             fWalkTo,
-            KMPoint(Nodes[NodePos+1].X,Nodes[NodePos+1].Y), //Avoid this tile
+            KMPoint(NodeList.List[NodePos+1].X,NodeList.List[NodePos+1].Y), //Avoid this tile
             fActionType,
             fWalkToSpot,
             fIgnorePass
@@ -2198,9 +2216,9 @@ end;
 
 function TUnitActionWalkTo.GetNextPosition():TKMPoint;
 begin
-  if NodePos > NodeCount then
+  if NodePos > NodeList.Count then
     Result:=KMPoint(0,0) //Error
-  else Result:=Nodes[NodePos];
+  else Result:=NodeList.List[NodePos];
 end;
 
 
@@ -2233,18 +2251,18 @@ begin
   Distance:= TimeDelta * fWalker.Speed;
 
   //Check if unit has arrived on tile
-  if Equals(fWalker.fPosition.X,Nodes[NodePos].X,Distance/2) and Equals(fWalker.fPosition.Y,Nodes[NodePos].Y,Distance/2) then begin
+  if Equals(fWalker.fPosition.X,NodeList.List[NodePos].X,Distance/2) and Equals(fWalker.fPosition.Y,NodeList.List[NodePos].Y,Distance/2) then begin
 
     IsStepDone:=true; //Unit stepped on a new tile
 
     //Set precise position to avoid rounding errors
-    fWalker.fPosition.X:=Nodes[NodePos].X;
-    fWalker.fPosition.Y:=Nodes[NodePos].Y;
+    fWalker.fPosition.X:=NodeList.List[NodePos].X;
+    fWalker.fPosition.Y:=NodeList.List[NodePos].Y;
 
     //Update unit direction according to next Node 
-    if NodePos+1<=NodeCount then begin
-      DX := sign(Nodes[NodePos+1].X - Nodes[NodePos].X); //-1,0,1
-      DY := sign(Nodes[NodePos+1].Y - Nodes[NodePos].Y); //-1,0,1
+    if NodePos+1<=NodeList.Count then begin
+      DX := sign(NodeList.List[NodePos+1].X - NodeList.List[NodePos].X); //-1,0,1
+      DY := sign(NodeList.List[NodePos+1].Y - NodeList.List[NodePos].Y); //-1,0,1
       fWalker.Direction:=DirectionsBitfield[DX,DY];
     end;
 
@@ -2258,21 +2276,21 @@ begin
 
     inc(NodePos);
 
-    if NodePos>NodeCount then begin
+    if NodePos>NodeList.Count then begin
       DoEnd:=true;
       exit;
     end else begin
       fWalker.PrevPosition:=fWalker.NextPosition; ////////////////
-      fWalker.NextPosition:=Nodes[NodePos];
+      fWalker.NextPosition:=NodeList.List[NodePos];
       fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
     end;
   end;
 
-  if NodePos>NodeCount then
+  if NodePos>NodeList.Count then
     fLog.AssertToLog(false,'TUnitAction is being overrun for some reason - error!');
 
-  WalkX := Nodes[NodePos].X - fWalker.fPosition.X;
-  WalkY := Nodes[NodePos].Y - fWalker.fPosition.Y;
+  WalkX := NodeList.List[NodePos].X - fWalker.fPosition.X;
+  WalkY := NodeList.List[NodePos].Y - fWalker.fPosition.Y;
   DX := sign(WalkX); //-1,0,1
   DY := sign(WalkY); //-1,0,1
 

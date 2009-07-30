@@ -104,10 +104,12 @@ public
   procedure RecalculatePassability(Loc:TKMPoint);
   procedure RecalculatePassabilityAround(Loc:TKMPoint);
   function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
+  function GetRoadConnectID(Loc:TKMPoint):byte;
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
-  procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeCount:word; out Nodes:array of TKMPoint);
+  procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
+  procedure Route_Return(LocA:TKMPoint; RoadNetworkID:byte; out NodeList:TKMPointList);
 
   procedure UnitAdd(LocTo:TKMPoint);
   procedure UnitRem(LocFrom:TKMPoint);
@@ -1019,6 +1021,16 @@ begin
 end;
 
 
+//Check which road connect ID the tile has (to which road network does it belongs to)
+function TTerrain.GetRoadConnectID(Loc:TKMPoint):byte;
+begin
+  if TileInMapCoords(Loc.X,Loc.Y) then
+    Result := Land[Loc.Y,Loc.X].WalkConnect[2]
+  else
+    Result:=0; //No network
+end;
+
+
 {Return random tile surrounding given one with aPass property except Loc2}
 {The command is used for unit interaction}
 function TTerrain.GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
@@ -1076,11 +1088,20 @@ end;
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
 {Simplification1 - ajoin nodes that don't require direction change}
-procedure TTerrain.Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeCount:word; out Nodes:array of TKMPoint);
+procedure TTerrain.Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
   fPath:=TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot);
-  fPath.ReturnRoute(NodeCount, Nodes);
+  fPath.ReturnRoute(NodeList);
+  fPath.Free;
+end;
+
+
+procedure TTerrain.Route_Return(LocA:TKMPoint; RoadNetworkID:byte; out NodeList:TKMPointList);
+var fPath:TPathFinding;
+begin
+  fPath:=TPathFinding.Create(LocA, RoadNetworkID);
+  fPath.ReturnRoute(NodeList);
   fPath.Free;
 end;
 

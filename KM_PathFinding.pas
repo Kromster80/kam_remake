@@ -1,6 +1,8 @@
 unit KM_PathFinding;
 interface            
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils;
+uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
+
+type TDestinationPoint = (dp_Location, dp_Passability);
 
 type
   { Here should be pathfinding and all associated stuff }
@@ -25,20 +27,119 @@ type
     LocB:TKMPoint;
     Avoid:TKMPoint;
     Pass:TPassability;
+    RoadNetworkID:byte;
     WalkToSpot:boolean;
+    fDestination:TDestinationPoint;
     fRouteSuccessfullyBuilt:boolean;
     function CheckRouteCanExist():boolean;
     procedure InitRoute();
     function MakeRoute():boolean;
     function IsDestinationReached():boolean;
   public
-    constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean);
-    procedure ReturnRoute(out NodeCount:word; out Nodes:array of TKMPoint);
+    constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean); overload;
+    constructor Create(aLocA:TKMPoint; aRoadNetworkID:byte); overload;
+    procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
 
 implementation
 uses KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Settings;
+
+
+constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean);
+begin
+  LocA := aLocA;
+  LocB := aLocB;
+  Avoid := aAvoid;
+  Pass := aPass;
+  RoadNetworkID := 0; //erase just in case
+  WalkToSpot := aWalkToSpot;
+  fRouteSuccessfullyBuilt := false;
+  fDestination:=dp_Location;
+
+  if not CheckRouteCanExist then exit;
+
+  InitRoute();
+  fRouteSuccessfullyBuilt := MakeRoute(); //
+end;
+
+
+constructor TPathFinding.Create(aLocA:TKMPoint; aRoadNetworkID:byte);
+begin
+  LocA := aLocA;
+  LocB := KMPoint(0,0); //erase just in case
+  Avoid := KMPoint(0,0); //erase just in case
+  Pass := canWalk; //Should be unused here
+  RoadNetworkID := aRoadNetworkID;
+  WalkToSpot := false;
+  fRouteSuccessfullyBuilt := false;
+  fDestination:=dp_Passability;
+
+  InitRoute();
+  fRouteSuccessfullyBuilt := MakeRoute(); //
+end;
+
+
+procedure TPathFinding.ReturnRoute(out NodeList:TKMPointList);
+var i,k:integer; NodesCount:integer;
+begin
+  NodeList.Clearup;
+
+  if not fRouteSuccessfullyBuilt then
+  begin
+    NodeList.Clearup; //Something went wrong
+    exit;
+  end;
+
+  //Calculate NodeCount
+  k:=MinCost.ID; NodesCount:=0;
+  repeat
+    inc(NodesCount);
+    k:=OList[k].Parent;
+  until(k=0);
+
+  {if NodeCount > length(Nodes) then begin
+    NodeCount:=0; //Something went wrong
+    Nodes[0]:=LocA;
+    exit;
+  end;}
+
+  //Assemble the route reversing the list, since path is LocB>LocA in fact
+  k:=MinCost.ID;
+  for i:=1 to NodesCount do begin
+    NodeList.AddEntry(OList[k].Pos);
+    //Nodes[NodeCount-i]:=OList[k].Pos;
+    k:=OList[k].Parent;
+  end;
+
+  NodeList.Inverse;
+    //Nodes[0]:=LocA;
+
+
+  //Should ajoin straight pieces to reduce mem usage
+  //Important rule:
+  // - First node is LocA,
+  // - next to last node is neighbour of LocB (important for delivery to workers),
+  // - last node is LocB
+
+  {if NodeCount>3 then begin
+  k:=2;
+  for i:=3 to NodeCount-1 do begin //simplify within LocA+1 .. LocB-2 range
+  // i/k are always -1 since array is [0..Count-1] range
+    if (sign(Nodes[k-1].X-Nodes[k-2].X) = sign(Nodes[i-1].X-Nodes[i-2].X))and //Direction matches
+       (sign(Nodes[k-1].Y-Nodes[k-2].Y) = sign(Nodes[i-1].Y-Nodes[i-2].Y)) then begin
+      Nodes[k-1]:=Nodes[i-1];
+    end else begin
+      inc(k);
+      Nodes[k-1]:=Nodes[i-1];
+    end;
+  end;
+  inc(k);
+  Nodes[k-1]:=Nodes[NodeCount-1];
+  NodeCount:=k;
+  end;}
+end;
+
 
 
 function TPathFinding.CheckRouteCanExist():boolean;
@@ -63,12 +164,16 @@ end;
 
 function TPathFinding.IsDestinationReached():boolean;
 begin
-  Result := KMSamePoint(MinCost.Pos,LocB) or ((not WalkToSpot) and (KMLength(MinCost.Pos,LocB)<1.5));
+  case fDestination of
+    dp_Location:    Result := KMSamePoint(MinCost.Pos,LocB) or ((not WalkToSpot) and (KMLength(MinCost.Pos,LocB)<1.5));
+    dp_Passability: Result := fTerrain.GetRoadConnectID(MinCost.Pos) = RoadNetworkID;
+    else            Result := true;
+  end;
 end;
 
 
 function TPathFinding.MakeRoute():boolean;
-const c_closed=65535; c_tempclosed=65534;
+const c_closed=65535;
 var i,x,y:integer;
 begin
 
@@ -106,7 +211,7 @@ begin
             ORef[y,x]:=OCount;
             OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
             OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(KMPoint(x,y),MinCost.Pos)*10); //
-            OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y))*10;
+            OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y)) *10 *byte(fDestination=dp_Location); //don't issue Estim if destination is Passability
           end else //If cell doen't meets Passability then mark it as Closed
             OList[OCount].Estim:=c_closed;
 
@@ -132,85 +237,6 @@ begin
   Result := IsDestinationReached;
   //fLog.AssertToLog(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
 end;
-
-
-{Public}
-
-
-constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean);
-begin
-  LocA := aLocA;
-  LocB := aLocB;
-  Avoid := aAvoid;
-  Pass := aPass;
-  WalkToSpot := aWalkToSpot;
-  fRouteSuccessfullyBuilt := false;
-
-  if not CheckRouteCanExist then exit;
-
-  InitRoute();
-  fRouteSuccessfullyBuilt := MakeRoute(); //
-
-end;
-
-
-procedure TPathFinding.ReturnRoute(out NodeCount:word; out Nodes:array of TKMPoint);
-var i,k:integer;
-begin
-  if not fRouteSuccessfullyBuilt then
-  begin
-    NodeCount:=0; //Something went wrong
-    Nodes[0]:=LocA;
-    exit;
-  end;
-
-  //Calculate NodeCount
-  k:=MinCost.ID; NodeCount:=0;
-  repeat
-    inc(NodeCount);
-    k:=OList[k].Parent;
-  until(k=0);
-
-  if NodeCount > length(Nodes) then begin
-    NodeCount:=0; //Something went wrong
-    Nodes[0]:=LocA;
-    exit;
-  end;
-
-  //Assemble the route reversing the list, since path is LocB>LocA in fact
-  k:=MinCost.ID;
-  for i:=1 to NodeCount do begin
-    Nodes[NodeCount-i]:=OList[k].Pos;
-    k:=OList[k].Parent;
-  end;
-    //Nodes[0]:=LocA;
-
-
-  //Should ajoin straight pieces to reduce mem usage
-  //Important rule:
-  // - First node is LocA,
-  // - next to last node is neighbour of LocB (important for delivery to workers),
-  // - last node is LocB
-
-  {if NodeCount>3 then begin
-  k:=2;
-  for i:=3 to NodeCount-1 do begin //simplify within LocA+1 .. LocB-2 range
-  // i/k are always -1 since array is [0..Count-1] range
-    if (sign(Nodes[k-1].X-Nodes[k-2].X) = sign(Nodes[i-1].X-Nodes[i-2].X))and //Direction matches
-       (sign(Nodes[k-1].Y-Nodes[k-2].Y) = sign(Nodes[i-1].Y-Nodes[i-2].Y)) then begin
-      Nodes[k-1]:=Nodes[i-1];
-    end else begin
-      inc(k);
-      Nodes[k-1]:=Nodes[i-1];
-    end;
-  end;
-  inc(k);
-  Nodes[k-1]:=Nodes[NodeCount-1];
-  NodeCount:=k;
-  end;}
-end;
-
-
 
 
 end.

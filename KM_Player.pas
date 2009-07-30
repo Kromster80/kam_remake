@@ -168,14 +168,17 @@ end;
 
 
 procedure TKMPlayerAssets.AutoRoadConnect(LocA,LocB:TKMPoint);
-var fPath:TPathFinding; i:integer; NodeCount:word; Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint;
+var fPath:TPathFinding; i:integer; NodeList:TKMPointList;
 begin
   fPath := TPathFinding.Create(LocA, LocB, KMPoint(0,0), canMakeRoads, true);
-  fPath.ReturnRoute(NodeCount, Nodes);
+  NodeList:=TKMPointList.Create;
+  fPath.ReturnRoute(NodeList);
   fPath.Free;
 
-  for i:=1 to NodeCount do
-    AddRoad(Nodes[i]);
+  for i:=1 to NodeList.Count do
+    AddRoad(NodeList.List[i]);
+
+  FreeAndNil(NodeList);
 end;
 
 
