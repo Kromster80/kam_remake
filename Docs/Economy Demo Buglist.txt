@@ -11,6 +11,8 @@ Known bugs:
 	Built road comes as unfinished "brown spot"
 	Remove debug info
 	Fisher
+	Time freeze bug
+	Field building on map edges
 	Schoolhouse bug (citizen statistics acts wrong on training/cancel)
 	MediaPlayer won't play mp3s and crash
 +	Resource cheat is not strict enough

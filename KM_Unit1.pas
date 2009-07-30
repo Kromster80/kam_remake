@@ -618,18 +618,6 @@ begin
   fRender.Render;
 end;
 
-{procedure TForm1.Button1Click(Sender: TObject);
-var
-  Count,h:word;
-  A:array[1..TEST_MAX_WALK_PATH]of TKMPoint;
-  T:cardinal;
-begin
-  T:=TimeGetTime;
-  for h:=1 to 1 do
-  fTerrain.Route_Make(KMPoint(1,14),KMPoint(71,2),canWalk,Count,A);
-  Button1.Caption:=inttostr(TimeGetTime-T)+'ms';
-end;}
-
 
 procedure TForm1.ToggleControlsVisibility(ShowCtrls:boolean);
   var i:integer;

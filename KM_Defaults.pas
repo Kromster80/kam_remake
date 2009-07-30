@@ -14,14 +14,6 @@ const
   TERRAIN_FOG_OF_WAR_MIN=8;     //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   TERRAIN_FOG_OF_WAR_ACT=16;    //Until this value FOW is not rendered at all
   TERRAIN_FOG_OF_WAR_MAX=24;    //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  TEST_MAX_WALK_PATH=8192;      //A* max test length (with max value of MapX*MapY-1 in worst case)
-                                //@Krom: Just to let you know, this isn't always long enough.
-                                //In Ben's mission Vortamic (added to custom maps) if you tell a troop
-                                //to walk from your storehouse to the very top (and middle) of the map
-                                //then it doesn't work. That is a very large map though and the route
-                                //zig-zags a bit. It should still work though.
-                                //@Lewin: Perhaps this should be dynamic length after all..
-                                //@Krom: Do you think that would cause problems? I think it sounds ok.
   FPSLag=1;                     //lag between frames, 1000/FPSLag = max allowed FPS
   FPS_INTERVAL=1000;            //time between FPS measurements, more=accurate
   SCROLLSPEED = 1;              //This is the speed that the viewport will scroll every 100 ms, in cells

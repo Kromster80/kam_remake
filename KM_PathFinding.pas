@@ -3,6 +3,7 @@ interface
 uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
 
 type TDestinationPoint = (dp_Location, dp_Passability);
+const TEST_MAX_WALK_PATH = 8192;
 
 type
   { Here should be pathfinding and all associated stuff }

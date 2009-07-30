@@ -18,8 +18,7 @@ type
 
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
-  //function KMRoute(A,B:TKMPoint): single; //Unused
-
+  
   procedure KMSwapPoints(var A,B:TKMPoint);
 
   function TypeToString(t:THouseType):string; overload
@@ -93,13 +92,6 @@ if abs(A.X-B.X) > abs(A.Y-B.Y) then
 else
   Result := abs(A.Y-B.Y) + abs(A.X-B.X)*0.41
 end;
-
-
-//Length as route, return 0 if unwalkable
-{function KMRoute(A,B:TKMPoint): single;
-begin
-  Result:=0;
-end;}
 
 
 procedure KMSwapPoints(var A,B:TKMPoint);

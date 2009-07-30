@@ -28,9 +28,7 @@ type
         fWalkToSpot:boolean;
         fPass:TPassability; //Desired passability set once on Create
         fIgnorePass:boolean;
-        //NodeCount:word; //Should be positive
         NodeList:TKMPointList;
-        //Nodes:array[1..TEST_MAX_WALK_PATH] of TKMPoint; //In fact it's much shorter array
         NodePos:integer;
         DoesWalking:boolean;
         DoEvade:boolean; //Command to make exchange maneuver with other unit
@@ -2063,17 +2061,17 @@ begin
 
   //Build a piece of route to return to nearest road piece connected to destination road network
   if fPass = canWalkRoad then
-    if fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo) then
+    if fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo) then //NoRoad returns 0
+    //@Lewin: this function also acts like KaM if you order army to walk inside village - troops will follow rods :D
     //Take into account WalkToSpot?
     fTerrain.Route_Return(fWalkFrom, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
 
   //Build a route A*
   if NodeList.Count=0 then
     fTerrain.Route_Make(fWalkFrom, fWalkTo, Avoid, fPass, fWalkToSpot, NodeList) //Try to make the route with fPass
-  else begin
+  else begin //Append second list
     NodeList2 := TKMPointList.Create;
     fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, Avoid, fPass, fWalkToSpot, NodeList2); //Try to make the route with fPass
-    //Append second list
     for i:=2 to NodeList2.Count do
       NodeList.AddEntry(NodeList2.List[i]);
     FreeAndNil(NodeList2);
