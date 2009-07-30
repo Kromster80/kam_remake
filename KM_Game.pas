@@ -77,6 +77,9 @@ end;
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
+  //Stop music imediently, so it doesn't keep playing and jerk while things closes
+  fSoundLib.StopMusic;
+  
   FreeAndNil(fGameSettings);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fResource);
@@ -363,6 +366,8 @@ procedure TKMGame.StartGame(MissionFile:string);
 var ResultMsg:string;
 begin
   RandSeed:=4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
+  GameIsPaused := false;
+  GameSpeed := 1; //In case it was set in last run mission
 
   if fResource.GetDataState<>dls_All then begin
     fMainMenuInterface.ShowScreen_Loading('units and houses');

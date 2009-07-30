@@ -478,11 +478,7 @@ end;
 procedure TKMGamePlayInterface.Create_Pause_Page;
 begin
   KMPanel_Pause:=MyControls.AddPanel(KMPanel_Main,0,0,fRender.GetRenderAreaSize.X,fRender.GetRenderAreaSize.Y);
-    MyControls.AddBevel(KMPanel_Pause,-1,-1,fRender.GetRenderAreaSize.X+1,fRender.GetRenderAreaSize.Y+1);
-    //@Krom: This control should NOT be darkened when paused, because it makes it hard to read.
-    //(Antiqua is the font used in KaM, and I think it looks best expect that you can't see it because it's darkened)
-    //       It should stand out above all other things on the screen.
-    //@Lewin: Now it does :) to be deleted..
+    MyControls.AddBevel(KMPanel_Pause,-1,-1,fRender.GetRenderAreaSize.X+2,fRender.GetRenderAreaSize.Y+2);
     MyControls.AddImage(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
     MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
     MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);

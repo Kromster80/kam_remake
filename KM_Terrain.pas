@@ -427,6 +427,13 @@ begin
   //Same for bottom and right
 //  if X = MapX then X:=MapX-1;
 //  if Y = MapY then Y:=MapY-1;
+
+//@Krom: Why did you disable these? We have some serious problems with revealation. We need to come to an agreement and implement it.
+//       Trouble is, you CAN build roads/field on the top/left rows, but if we check the whole tile then the top left vertice is not revealed. There are similar problems with bottom/right.
+//       That's why I added that code, because the edges do not seem to store proper revealation data. (e.g. left/top row can never be relealed!)
+//       As I see it there are two issues here: 1. Edges of the map, which we are discussing here.   2. Whether to use vertice or tile, and how the latter is implemented. (being discussed bellow)
+//       I do not really know how to fix 1. Can you please give me your thoughts? (or just fix it ;) )
+
   if not VerticeInMapCoords(X,Y) then
     Result := 0
   else
@@ -465,6 +472,10 @@ begin
   //        - etc..
   //        Perhaps we should use 2 conditions: if any 1 tile is revealed and if all 4 are revealed
   //        Cos placing roadplans requires 1st condition, but showing units looks better with 2nd
+
+  //@Krom:  I agree with you. Let's use the two condition thing.
+  //        So have a function CheckTileFullRevealation and CheckTilePartRevealation. Correct? After that we'll need to check every occourace of revelation checking and correct it.
+  //        I'm happy to do all this, it's fairly easy. Just let me know if you agree and I'll do it.
 end;
 
 
@@ -552,7 +563,7 @@ begin
   List:=TKMPointList.Create;
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+      if (TileInMapCoords(k,i))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
         if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
            ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
           if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
@@ -590,7 +601,7 @@ begin
   List:=TKMPointList.Create;
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+      if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
         if (TileIsStone(KMPoint(k,i))>0) then
           //if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
           if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,true) then

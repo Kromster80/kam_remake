@@ -37,12 +37,8 @@ end;
 
 
 procedure TKMPlayerAI.CheckCitizenCount();
-var i:integer; UnitType:TUnitType; H:TKMHouse; HC:TKMHousesCollection;
+var i:integer; UnitType:TUnitType; H:TKMHouse;
 begin
-  //@Krom: Problem with this: As the unit just trained is walking out of the school, before he has a house assigned to him,
-  //      this function trains another unit of the same type to fill the same house, because it takes time for it to be assigned to the unit.
-  //      Not sure how we should solve this.
-
   //Find school and make sure it's free of tasks
   H := Assets.FindHouse(ht_School,KMPoint(0,0),1);
   if (H=nil)or(TKMHouseSchool(H).UnitQueue[1]<>ut_None) then exit;
@@ -52,6 +48,8 @@ begin
   //@Lewin:
   //I think this is the way to go instead of querrying all houses:
   //Just need to adjoin counts of houses which have same owner types
+  //@Krom: Seems to be working perfectly! :D To be deleted
+
   for i:=1 to HOUSE_COUNT do begin
     if THouseType(i)<>ht_Barracks then //Exclude Barracks
     if HouseDAT[i].OwnerType<>-1 then
@@ -59,15 +57,6 @@ begin
       UnitType := TUnitType(HouseDAT[i].OwnerType+1);
     if UnitType <> ut_None then break; //Don't need more UnitTypes yet
   end;
-
-  {HC := Assets.GetHouses;
-  for i:=0 to HC.Count-1 do
-  if TKMHouse(HC.Items[i]).IsComplete then
-  if not TKMHouse(HC.Items[i]).GetHasOwner then
-  if TKMHouse(HC.Items[i]).GetHouseType <> ht_Barracks then begin
-    UnitType := TUnitType(HouseDAT[byte(TKMHouse(HC.Items[i]).GetHouseType)].OwnerType+1);
-    if UnitType <> ut_None then break; //Don't need more UnitTypes yet
-  end;}
 
   if UnitType = ut_None then exit;
 
@@ -84,7 +73,8 @@ begin
   
   if Assets.PlayerType=pt_Computer then begin
   CheckCitizenCount; //Train new citizens if needed
-  //CheckSerfCount; //train more serfs according to WORKER_FACTOR?
+  //CheckSerfCount; //train more serfs according to WORKER_FACTOR
+  //CheckRecruitCount //Train more recruits according to RECRUTS
   //CheckArmyHunger; //issue tasks to feed troops
   //CheckHouseCount; //Build new houses if needed
   //CheckArmiesCount; //Train new soldiers if needed

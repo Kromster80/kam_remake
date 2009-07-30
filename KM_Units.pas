@@ -35,6 +35,7 @@ type
         Explanation:string; //Debug only, explanation what unit is doing
       public
         constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
+        destructor Destroy;
         function ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
         function DoUnitInteraction():boolean;
         function GetNextPosition():TKMPoint;
@@ -2051,7 +2052,7 @@ begin
   fIgnorePass   := aIgnorePass; //Store incase we need it in DoUnitInteraction re-routing
   fPass         := ChoosePassability(fWalker, fIgnorePass);
 
-  NodeList      := TKMPointList.Create; //Will need to free it later!!!!
+  NodeList      := TKMPointList.Create; //Will need to free it later!!!! //@Krom: Done. ;)
 
   NodePos       :=1;
   fRouteBuilt   :=false;
@@ -2062,8 +2063,14 @@ begin
   //Build a piece of route to return to nearest road piece connected to destination road network
   if fPass = canWalkRoad then
     if fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo) then //NoRoad returns 0
-    //@Lewin: this function also acts like KaM if you order army to walk inside village - troops will follow rods :D
-    //Take into account WalkToSpot?
+    //@Lewin: this function also acts like KaM if you order army to walk inside village - troops will follow roads :D
+    //@Krom: I don't really think that's a good idea. Ok, we want to match KaM but not it's flaws, right? ;)
+    //       Surely this should only happen if the passability is canWalkRoad? (as decided by ChoosePassability)
+    //       That would exclude troops but keep citizens and serfs where needed.
+
+    //Take into account WalkToSpot? //@Krom: The above idea should deal with this, but it's still not a bad idea.
+                                    //       If we are walking to a spot then we will never want to follow road.
+                                    //       So I suggest you check for both. (canWalkRoad=true and WalkToSpot=false)
     fTerrain.Route_Return(fWalkFrom, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
 
   //Build a route A*
@@ -2088,6 +2095,11 @@ begin
 
   if not fRouteBuilt then
     fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with canWalk');
+end;
+
+destructor TUnitActionWalkTo.Destroy;
+begin
+  FreeAndNil(NodeList);
 end;
 
 
@@ -2249,6 +2261,7 @@ begin
   Distance:= TimeDelta * fWalker.Speed;
 
   //Check if unit has arrived on tile
+  //@Krom: It is crashing here sometimes when units get stuck under a house. Normally it pauses when the route can't be built. The unit just starts to move (shows animation and moves one step) then it crashes here. Has the CanMakeRoute check been removed or something?
   if Equals(fWalker.fPosition.X,NodeList.List[NodePos].X,Distance/2) and Equals(fWalker.fPosition.Y,NodeList.List[NodePos].Y,Distance/2) then begin
 
     IsStepDone:=true; //Unit stepped on a new tile
