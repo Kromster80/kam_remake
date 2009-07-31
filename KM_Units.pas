@@ -1175,7 +1175,7 @@ case Phase of
      AbandonDelivery;
      TaskDone:=true;
    end;
-2: SetActionStay(5,ua_Walk);
+2: SetActionStay(5,ua_Walk); //Wait a moment inside
 3: if not fFrom.IsDestroyed then
    begin
      if fFrom.ResTakeFromOut(fResourceType) then begin
@@ -1187,6 +1187,7 @@ case Phase of
      end;
      SetActionGoIn(ua_Walk,gid_Out,fFrom.GetHouseType);
    end else begin
+     fVisible:=true; //Unit was invisible while inside. Must show it
      AbandonDelivery;
      TaskDone:=true;
    end;
@@ -1215,6 +1216,7 @@ case Phase of
      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
    end else begin
+     fVisible:=true; //Unit was invisible while inside. Must show it
      AbandonDelivery;
      TaskDone:=true;
      TakeResource(Carry);
@@ -1293,50 +1295,50 @@ TaskDone:=false;
 with fWorker do
 case Phase of
 0: begin
-   SetActionWalk(fWorker,fLoc, KMPoint(0,0));
-   fThought := th_Build;
+     SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+     fThought := th_Build;
    end;
 1: begin
-   fThought := th_None;
-   fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
-   fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
-   SetActionStay(11,ua_Work1,false);
+     fThought := th_None;
+     fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+     fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+     fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
+     SetActionStay(11,ua_Work1,false);
    end;
 2: begin
-   fTerrain.IncDigState(fLoc);
-   SetActionStay(11,ua_Work1,false);
+     fTerrain.IncDigState(fLoc);
+     SetActionStay(11,ua_Work1,false);
    end;
 3: begin
-   fTerrain.IncDigState(fLoc);
-   SetActionStay(11,ua_Work1,false);
-   fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, 1, dt_Once, di_High);
+     fTerrain.IncDigState(fLoc);
+     SetActionStay(11,ua_Work1,false);
+     fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, 1, dt_Once, di_High);
    end;
 
 4: begin
-   SetActionStay(30,ua_Work1);
-   fThought:=th_Stone;
+     SetActionStay(30,ua_Work1);
+     fThought:=th_Stone;
    end;
 
 5: begin
-   SetActionStay(11,ua_Work2,false);
-   fThought:=th_None;
+     SetActionStay(11,ua_Work2,false);
+     fThought:=th_None;
    end;
 6: begin
-   fTerrain.IncDigState(fLoc);
-   SetActionStay(11,ua_Work2,false);
+     fTerrain.IncDigState(fLoc);
+     SetActionStay(11,ua_Work2,false);
    end;
 7: begin
-   fTerrain.IncDigState(fLoc);
-   fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
-   if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
-     fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields and other quads as they won't fit with road
-   SetActionStay(11,ua_Work2,false);
+     fTerrain.IncDigState(fLoc);
+     fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
+     if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
+       fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields and other quads as they won't fit with road
+     SetActionStay(11,ua_Work2,false);
    end;
 8: begin
-   fTerrain.SetRoad(fLoc,fOwner);
-   SetActionStay(5,ua_Work2);
-   fTerrain.RemMarkup(fLoc);
+     fTerrain.SetRoad(fLoc,fOwner);
+     SetActionStay(5,ua_Work2);
+     fTerrain.RemMarkup(fLoc);
    end;
 9: TaskDone:=true;
 end;
@@ -2560,10 +2562,11 @@ const DirRatio:array[TKMDirection]of single = (0,  1, 1.41,   1,  1.41,   1,  1.
 var U,Commander:TKMUnit; i,x,y,px,py:integer;
 begin
   //Add commander
-  Commander:=Add(aOwner, aUnitType, PosX, PosY);
+  Commander := Add(aOwner, aUnitType, PosX, PosY);
   Result := Commander;
 
   if Commander=nil then exit;
+  fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
 
   Commander.Direction:=aDir;
   TKMUnitWarrior(Commander).fIsCommander:=true;
@@ -2578,6 +2581,7 @@ begin
     if not ((x=0)and(y=0)) then begin//Skip commander
       U:=Add(aOwner, aUnitType, PosX + x, PosY + y);
       if U<>nil then begin
+        fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
         U.Direction:=aDir; //U will be _nil_ if unit didn't fit on map
         TKMUnitWarrior(U).fCommanderID:=Commander;
       end;
