@@ -871,7 +871,7 @@ begin
   Result:=0;
   if UnitWIP=nil then exit;
   Result:=EnsureRange(round(
-  ((fCurrentAction.GetWorkID-1)*30+30-TUnitActionStay(TKMUnit(UnitWIP).UnitAction).HowLongLeftToStay)
+  ((fCurrentAction.GetWorkID-1)*30+30-TUnitActionStay(TKMUnit(UnitWIP).GetUnitAction).HowLongLeftToStay)
   /1.5),0,100); //150 steps into 0..100 range
   //Substeps could be asked from Unit.ActionStay.TimeToStay, but it's a private field now
 end;

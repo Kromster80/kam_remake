@@ -19,7 +19,7 @@ Known bugs:
 +	Killing laborer while roadbuilding will cause a crash
 	MediaPlayer won't play mp3s and crash
 +	Resource cheat is not strict enough
-	Units should return to road first then go eat, home, etc.
++	Units should return to road first then go eat, home, etc.
 	Splash screen failed to disappear
 	Placing a building plan and removing it, the game returned a "Range check error"
 	TUnitAction is being overrun for some reason - error
