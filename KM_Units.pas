@@ -274,7 +274,7 @@ type
     procedure CancelUnitTask;
     property GetCondition: integer read fCondition;
     property IsVisible: boolean read fVisible;
-    property IsDestroyed:boolean read ScheduleForRemoval;
+    property IsDied:boolean read ScheduleForRemoval;
     function IsArmyUnit():boolean;
     procedure RemoveUntrainedFromSchool();
     function CanGoEat:boolean;
@@ -362,7 +362,7 @@ uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_SoundFX, KM_
 constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
-  WorkPlan:=TUnitWorkPlan.Create;
+  WorkPlan := TUnitWorkPlan.Create;
 end;
 
 
@@ -1251,7 +1251,7 @@ if fToUnit<>nil then
 with fSerf do
 case Phase of
 5: if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.ScheduleForRemoval) then
-     SetActionWalk(fSerf,fToUnit.GetPosition, KMPoint(0,0),ua_Walk,false)
+     SetActionWalk(fSerf, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false)
    else
    begin
      TakeResource(Carry);
@@ -1261,7 +1261,7 @@ case Phase of
    end;
 6: begin
       TakeResource(Carry);
-      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.ScheduleForRemoval) then begin
+      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.ScheduleForRemoval)and(not(fToUnit.fUnitTask is TTaskDie)) then begin
         inc(fToUnit.fUnitTask.Phase);
         fToUnit.SetActionStay(0,ua_Work1);
       end;
@@ -2064,8 +2064,11 @@ begin
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
 
+  if (fWalker is TKMUnitSerf)and(fWalker.fOwner=play_1) then
+    NodePos       :=1;
+
   //Build a piece of route to return to nearest road piece connected to destination road network
-  if fPass = canWalkRoad then
+  if (fPass = canWalkRoad) and (fWalkToSpot) then
     if fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo) then //NoRoad returns 0
     //@Lewin: this function also acts like KaM if you order army to walk inside village - troops will follow roads :D
     //@Krom: I don't really think that's a good idea. Ok, we want to match KaM but not it's flaws, right? ;)
@@ -2553,6 +2556,7 @@ begin
   end;
 
   if U=-1 then Result:=nil else Result:=TKMUnit(Items[U]);
+
 end;
 
 
@@ -2665,6 +2669,7 @@ var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
+    if not TKMUnit(Items[I]).ScheduleForRemoval then
     TKMUnit(Items[I]).UpdateState;
 
   //After all units are updated we can safely remove those that died.
@@ -2672,8 +2677,26 @@ begin
     if TKMUnit(Items[I]).ScheduleForRemoval then begin
       if TKMUnit(Items[I]) = fGame.fGamePlayInterface.GetShownUnit then
          fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
-      TKMUnit(Items[I]).Free;
-      Rem(TKMUnit(Items[I]));
+      //TKMUnit(Items[I]).Free; //We've got to free units tasks and actions to save some RAM. Can do it in TTaskDie last step before unit is marked as Killed
+      //Rem(TKMUnit(Items[I]));
+      //@Lewin:
+      //We have a big problem here. See, when unit is killed it's Freed and removed from the list all right
+      //But there's an issue - every local pointer to that unit (f.e. DeliveryList, TTaskDelivery) still exists,
+      //it's becoming so-called dangling pointer. We have no way to set all those pointers to nil.
+      //So what do we do to solve this:
+      //
+      // 1. don't remove items from list at all, just mark them as killed/unused units
+      //        a. just keep on adding new units and leave killed units in place
+      //           that means memory leaking, but thats not gonna be that big issue
+      //           as one unit takes what, 268 bytes or so
+      //        b. add new units in place of old ones. that means less memory gets leaked, but
+      //           we have no guarantee that all pointers to killed units are terminated
+      //           hence we get the same problem we were trying to avoid...
+      // 2. use some sort of layer to keep pointers to units and set them to nil if unit is killed
+      //    Local pointer > list of pointers > actual list of units
+      //
+      //I think we should use solution '1a'. Whats your opinion?
+
     end;
 
 end;
@@ -2689,6 +2712,7 @@ begin
   y2 := fViewport.GetClip.Bottom + Margin;
 
   for I := 0 to Count - 1 do
+  if not TKMUnit(Items[I]).ScheduleForRemoval then
   if (InRange(TKMUnit(Items[I]).fPosition.X,x1,x2) and InRange(TKMUnit(Items[I]).fPosition.Y,y1,y2)) then
     TKMUnit(Items[I]).Paint();
 end;

@@ -1143,6 +1143,26 @@ begin
 end;
 
 
+procedure TKMHousesCollection.UpdateState;
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
+  if not TKMHouse(Items[I]).ScheduleForRemoval then
+    TKMHouse(Items[I]).UpdateState;
+
+  //After all houses are updated we can safely remove those that were destroyed
+  for I := Count - 1 downto 0 do
+    if TKMHouse(Items[I]).ScheduleForRemoval then begin
+      //TKMHouse(Items[I]).Free;
+      //Rem(TKMHouse(Items[I]));
+      //@Lewin:
+      //See my comment in UnitsCollection.UpdateState.
+      //To be deleted..
+    end;
+end;
+
+
 procedure TKMHousesCollection.Paint();
 var i:integer; x1,x2,y1,y2,Margin:integer;
 begin
@@ -1151,23 +1171,11 @@ begin
   y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
 
   for I := 0 to Count - 1 do
+  if not TKMHouse(Items[I]).ScheduleForRemoval then
   if (InRange(TKMHouse(Items[I]).fPosition.X,x1,x2) and InRange(TKMHouse(Items[I]).fPosition.Y,y1,y2)) then
     TKMHouse(Items[I]).Paint();
 end;
 
-procedure TKMHousesCollection.UpdateState;
-var
-  I: Integer;
-begin
-  for I := 0 to Count - 1 do
-    TKMHouse(Items[I]).UpdateState;
 
-  //After all houses are updated we can safely remove those that were destroyed
-  for I := Count - 1 downto 0 do
-    if TKMHouse(Items[I]).ScheduleForRemoval then begin
-      TKMHouse(Items[I]).Free;
-      Rem(TKMHouse(Items[I]));
-    end;
-end;
 
 end.

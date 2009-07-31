@@ -16,7 +16,7 @@ Known bugs:
 +	Field building on map edges
 +	Schoolhouse bug (citizen statistics acts wrong on training/cancel)
 +	AI won't train enough citizens
-	Killing laborer while roadbuilding will cause a crash
++	Killing laborer while roadbuilding will cause a crash
 	MediaPlayer won't play mp3s and crash
 +	Resource cheat is not strict enough
 	Units should return to road first then go eat, home, etc.
