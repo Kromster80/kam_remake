@@ -25,7 +25,6 @@ type
 type
   TSoundLib = class(TObject)
   private
-    MediaPlayer: TMediaPlayer;
     Waves: array[1..MaxWaves] of record
       Head: TWAVHeaderEx;
       Data: array of char;
@@ -40,24 +39,34 @@ type
       Vel: array [1..3] of TALfloat; //Velocity, used in doppler effect calculation
       Ori: array [1..6] of TALfloat; //Orientation LookingAt and UpVector
     end;
-    MusicCount,MusicIndex:integer;
-    MusicTracks:array[1..256]of string;
     IsOpenALInitialized:boolean;
-    IsMusicInitialized:boolean;
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
-    SoundGain,MusicGain:single;
+    SoundGain:single;
     procedure LoadSoundsDAT();
-    function CheckMusicError():boolean;
   public
     constructor Create();
     destructor Destroy(); override;
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPoint);
     procedure UpdateSFXVolume(Value:single);
-    procedure UpdateMusicVolume(Value:single);
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
+end;
+
+type
+  TMusicLib = class(TObject)
+  private
+    MediaPlayer: TMediaPlayer;
+    MusicCount,MusicIndex:integer;
+    MusicTracks:array[1..256]of string;
+    IsMusicInitialized:boolean;
+    MusicGain:single;
+  public
+    constructor Create();
+    destructor Destroy(); override;
+    function CheckMusicError():boolean;
+    procedure UpdateMusicVolume(Value:single);
     procedure ScanMusicTracks(Path:string);
     procedure PlayMenuTrack();
     procedure PlayNextTrack();
@@ -66,10 +75,12 @@ type
     function PlayMusicFile(FileName:string):boolean;
     procedure StopMusic;
     function GetTrackTitle:string;
-end;
+  end;
+
 
 var
   fSoundLib: TSoundLib;
+  fMusicLib: TMusicLib;
 
 implementation
 uses
@@ -83,14 +94,6 @@ var
   ErrCode:integer;
 begin
   Inherited Create;
-
-  IsOpenALInitialized := true;
-  IsMusicInitialized := true;
-
-  MediaPlayer := Form1.MediaPlayer1;
-  //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
-
-  ScanMusicTracks(ExeDir + 'Music\');
 
   IsOpenALInitialized := InitOpenAL;
   if not IsOpenALInitialized then begin
@@ -158,19 +161,7 @@ begin
   AlDeleteSources(MaxSourceCount, @ALSource);
   AlutExit();
 
-  Inherited;  
-end;
-
-
-function TSoundLib.CheckMusicError():boolean;
-begin
-  Result:=false;
-  if MediaPlayer.Error<>0 then begin
-    fLog.AddToLog(MediaPlayer.errormessage);
-   // Application.MessageBox(@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
-   // IsMusicInitialized := false;
-   // Result:=true; //Error is there
-  end;
+  Inherited;
 end;
 
 
@@ -245,35 +236,6 @@ begin
 end;
 
 
-{Update music gain (global volume for all sounds/music)}
-procedure TSoundLib.UpdateMusicVolume(Value:single);
-const
-  MCI_SETAUDIO = $0873;
-  MCI_DGV_SETAUDIO_VOLUME = $4002;
-  MCI_DGV_SETAUDIO_ITEM = $00800000;
-  MCI_DGV_SETAUDIO_VALUE = $01000000;
-var
-  P:record
-  dwCallback: DWORD;
-  dwItem: DWORD;
-  dwValue: DWORD;
-  dwOver: DWORD;
-  lpstrAlgorithm: PChar;
-  lpstrQuality: PChar;
-  end;
-begin
-  if not IsMusicInitialized then exit; //Keep silent
-  MusicGain:=Value;
-  P.dwCallback := 0;
-  P.dwItem := MCI_DGV_SETAUDIO_VOLUME;
-  P.dwValue := round(Value*1000);
-  P.dwOver := 0;
-  P.lpstrAlgorithm := nil;
-  P.lpstrQuality := nil;
-  mciSendCommand(MediaPlayer.DeviceID, MCI_SETAUDIO, MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@P)) ;
-end;  
-
-
 {Wrapper with fewer options for non-attenuated sounds}
 procedure TSoundLib.Play(SoundID:TSoundFX; const Volume:single=1.0);
 begin
@@ -336,10 +298,70 @@ begin
 end;
 
 
-{Here goes Music lib}
+{Music Lib}
+constructor TMusicLib.Create();
+begin
+  Inherited Create;
+
+  IsMusicInitialized := true;
+
+  MediaPlayer := Form1.MediaPlayer1;
+  //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
+  ScanMusicTracks(ExeDir + 'Music\');
+end;
 
 
-procedure TSoundLib.ScanMusicTracks(Path:string);
+destructor TMusicLib.Destroy();
+begin
+  //MediaPlayer.Close;
+  //FreeAndNil(MediaPlayer);
+  Inherited;
+end;
+
+
+
+function TMusicLib.CheckMusicError():boolean;
+begin
+  Result:=false;
+  if MediaPlayer.Error<>0 then begin
+    fLog.AddToLog(MediaPlayer.errormessage);
+   // Application.MessageBox(@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
+   // IsMusicInitialized := false;
+   // Result:=true; //Error is there
+  end;
+end;
+
+
+{Update music gain (global volume for all sounds/music)}
+procedure TMusicLib.UpdateMusicVolume(Value:single);
+const
+  MCI_SETAUDIO = $0873;
+  MCI_DGV_SETAUDIO_VOLUME = $4002;
+  MCI_DGV_SETAUDIO_ITEM = $00800000;
+  MCI_DGV_SETAUDIO_VALUE = $01000000;
+var
+  P:record
+  dwCallback: DWORD;
+  dwItem: DWORD;
+  dwValue: DWORD;
+  dwOver: DWORD;
+  lpstrAlgorithm: PChar;
+  lpstrQuality: PChar;
+  end;
+begin
+  if not IsMusicInitialized then exit; //Keep silent
+  MusicGain:=Value;
+  P.dwCallback := 0;
+  P.dwItem := MCI_DGV_SETAUDIO_VOLUME;
+  P.dwValue := round(Value*1000);
+  P.dwOver := 0;
+  P.lpstrAlgorithm := nil;
+  P.lpstrQuality := nil;
+  mciSendCommand(MediaPlayer.DeviceID, MCI_SETAUDIO, MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@P)) ;
+end;
+
+
+procedure TMusicLib.ScanMusicTracks(Path:string);
 var SearchRec:TSearchRec;
 begin
   if not IsMusicInitialized then exit;
@@ -360,18 +382,18 @@ begin
 end;
 
 
-procedure TSoundLib.StopMusic;
+procedure TMusicLib.StopMusic;
 begin
   if not IsMusicInitialized then exit;
   MediaPlayer.Close;
   //if CheckMusicError then exit;
-  //MediaPlayer.FileName:='';
+  MediaPlayer.FileName:='';
   //if CheckMusicError then exit;
   MusicIndex := 0;
 end;
 
 
-function TSoundLib.GetTrackTitle:string;
+function TMusicLib.GetTrackTitle:string;
 begin
   if not IsMusicInitialized then exit;
   //May not display the correct title as not all LIBs are correct. Should also do range checking
@@ -383,7 +405,7 @@ begin
 end;
 
 
-function TSoundLib.PlayMusicFile(FileName:string):boolean;
+function TMusicLib.PlayMusicFile(FileName:string):boolean;
 begin
   Result:=false;
   if not IsMusicInitialized then exit;
@@ -406,7 +428,7 @@ begin
 end;
 
 
-procedure TSoundLib.PlayMenuTrack();
+procedure TMusicLib.PlayMenuTrack();
 begin
   if not IsMusicInitialized then exit;
   if MusicIndex = 1 then exit; //Don't change unless needed
@@ -419,7 +441,7 @@ begin
 end;
 
 
-procedure TSoundLib.PlayNextTrack();
+procedure TMusicLib.PlayNextTrack();
 begin
   if not IsMusicInitialized then exit;
   if not fGameSettings.IsMusic then exit;
@@ -429,7 +451,7 @@ begin
 end;
 
 
-procedure TSoundLib.PlayPreviousTrack();
+procedure TMusicLib.PlayPreviousTrack();
 begin
   if not IsMusicInitialized then exit;
   if not fGameSettings.IsMusic then exit;
@@ -439,13 +461,16 @@ begin
   PlayMusicFile(MusicTracks[MusicIndex]);
 end;
 
+
 //Check if Music is not playing, to know when new mp3 should be feeded
-function TSoundLib.IsMusicEnded():boolean;
+function TMusicLib.IsMusicEnded():boolean;
 begin
   Result:=false;
   if not IsMusicInitialized then exit;
-  Result := fGameSettings.IsMusic and ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
-  if CheckMusicError then exit;
+  if fGameSettings.IsMusic then begin
+    Result := ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
+    if CheckMusicError then exit;
+  end;
 end;
 
 

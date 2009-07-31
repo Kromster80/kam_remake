@@ -1429,8 +1429,8 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fSoundLib.PlayNextTrack; end;
-procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fSoundLib.PlayPreviousTrack; end;
+procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fMusicLib.PlayNextTrack; end;
+procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fMusicLib.PlayPreviousTrack; end;
 
 
 procedure TKMGamePlayInterface.Build_Fill(Sender:TObject);
@@ -1497,7 +1497,7 @@ procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
   if fGameSettings.IsMusic then
   begin
-    KMLabel_Menu_Track.Caption := fSoundLib.GetTrackTitle;
+    KMLabel_Menu_Track.Caption := fMusicLib.GetTrackTitle;
     KMLabel_Menu_Track.Enabled := true;
     KMButton_Menu_TrackUp.Enabled := true;
     KMButton_Menu_TrackDown.Enabled := true;

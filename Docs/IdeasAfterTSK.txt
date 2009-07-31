@@ -9,8 +9,12 @@ Find a way to replenish fish in seas:
 
 Introduce "Fog of war"
 
+Order to expell(?) resources out of the house
+
 Walls building
 wooden and stone
+
+Orders to plant/chop trees
 
 On/Off switch for unit (citizen) interaction
 

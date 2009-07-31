@@ -56,6 +56,7 @@ begin
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(); //Needed for button click sounds and etc?
+  fMusicLib:= TMusicLib.Create(); //Needed for button click sounds and etc?
   fGameSettings.UpdateSFXVolume;
   fLog.AppendLog('<== ReadGFX init follows ==>');
   fResource:=TResource.Create;
@@ -64,7 +65,7 @@ begin
   fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);
   fLog.AppendLog('<== Sound playback follows ==>');
 
-  if not NoMusic then fSoundLib.PlayMenuTrack;
+  if not NoMusic then fMusicLib.PlayMenuTrack;
 
   GameSpeed:=1;
   GameIsRunning:=false;
@@ -78,12 +79,13 @@ end;
 destructor TKMGame.Destroy;
 begin
   //Stop music imediently, so it doesn't keep playing and jerk while things closes
-  fSoundLib.StopMusic;
-  
+  fMusicLib.StopMusic;
+
   FreeAndNil(fGameSettings);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fResource);
   FreeAndNil(fSoundLib);
+  FreeAndNil(fMusicLib);
   FreeAndNil(fMissionParser);
   FreeAndNil(fTextLibrary);
   FreeAndNil(fRender);
@@ -468,8 +470,8 @@ begin
   if not GameIsRunning then begin
     fMainMenuInterface.UpdateState;
     if GlobalTickCount mod 10 = 0 then //Once a sec
-    if fSoundLib.IsMusicEnded then
-      fSoundLib.PlayMenuTrack(); //Menu tune
+    if fMusicLib.IsMusicEnded then
+      fMusicLib.PlayMenuTrack(); //Menu tune
     exit; //If game is not running
   end;
 
@@ -489,8 +491,8 @@ begin
     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
 
   if GlobalTickCount mod 10 = 0 then
-    if fSoundLib.IsMusicEnded then
-      fSoundLib.PlayNextTrack(); //Feed new music track
+    if fMusicLib.IsMusicEnded then
+      fMusicLib.PlayNextTrack(); //Feed new music track
 end;
 
 

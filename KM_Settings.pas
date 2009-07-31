@@ -221,8 +221,8 @@ begin
   if fMusicOnOff <> Value then
   begin
     fMusicOnOff:=Value;
-    if Value then fSoundLib.PlayMenuTrack //Start with the default track
-    else fSoundLib.StopMusic;
+    if Value then fMusicLib.PlayMenuTrack //Start with the default track
+    else fMusicLib.StopMusic;
   end;
   fNeedsSave:=true;
 end;
@@ -231,7 +231,7 @@ end;
 procedure TGameSettings.UpdateSFXVolume();
 begin
   fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
-  fSoundLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
+  fMusicLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
   fNeedsSave:=true;
 end;
 
