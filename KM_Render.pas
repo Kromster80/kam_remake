@@ -24,7 +24,7 @@ private
     Loc,Obj:TKMPointF;
     RX:byte;
     ID:word;
-    NewInst:boolean;
+    NewInst,IsUnit:boolean;
     Team:byte;
     AlphaStep:single; //Only appliable to HouseBuild
     FOWvalue:byte; // Fog of War thickness
@@ -36,7 +36,7 @@ private
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte);
   procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
-  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
+  procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
   procedure ClipRenderList();
   procedure SortRenderList;
   procedure RenderRenderList;
@@ -699,7 +699,7 @@ if ID<=0 then exit;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
-  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
 
   if not MakeShowUnitMove then exit;
   glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
@@ -907,7 +907,7 @@ end;
 
 
 {Collect all sprites into list}
-procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1);
+procedure TRender.AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
 begin
 inc(RenderCount);
 if length(RenderList)-1<RenderCount then setlength(RenderList,length(RenderList)+256); //Book some space
@@ -919,6 +919,7 @@ RenderList[RenderCount].ID:=aID;              //Texture ID
 RenderList[RenderCount].NewInst:=aNew;        //Is this a new item (can be occluded), or a child one (always on top of it's parent)
 RenderList[RenderCount].Team:=aTeam;          //Team ID (determines color)
 RenderList[RenderCount].AlphaStep:=Step;      //Alpha step for wip buildings
+RenderList[RenderCount].IsUnit:=aIsUnit;      //Because units use different FOW offsets
 
 RenderList[RenderCount].FOWvalue:=255;        //Visibility recomputed in ClipRender anyway
 end;
@@ -932,8 +933,16 @@ begin
   for i:=1 to RenderCount do
   if RenderList[i].NewInst then begin
     RO[i]:=i;
-    P.X:=round(RenderList[i].Obj.X-0.5);
-    P.Y:=round(RenderList[i].Obj.Y);
+    if RenderList[i].IsUnit then
+    begin
+      P.X:=round(RenderList[i].Obj.X-0.5);
+      P.Y:=round(RenderList[i].Obj.Y-1);
+    end else
+    begin
+      P.X:=round(RenderList[i].Obj.X);
+      P.Y:=round(RenderList[i].Obj.Y);
+    end;
+    //RenderQuad(P.X,P.Y);
     RenderList[i].FOWvalue := fTerrain.CheckTileRevelation(P.X,P.Y,MyPlayer.PlayerID);
     if RenderList[i].FOWvalue=0 then
       RO[i]:=0;
