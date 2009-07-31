@@ -421,19 +421,6 @@ begin
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
 
-  //As the top and left edges of the map are never visible, check one tile in from them
-//  if X = 1 then X:=2;
-//  if Y = 1 then Y:=2;
-  //Same for bottom and right
-//  if X = MapX then X:=MapX-1;
-//  if Y = MapY then Y:=MapY-1;
-
-//@Krom: Why did you disable these? We have some serious problems with revealation. We need to come to an agreement and implement it.
-//       Trouble is, you CAN build roads/field on the top/left rows, but if we check the whole tile then the top left vertice is not revealed. There are similar problems with bottom/right.
-//       That's why I added that code, because the edges do not seem to store proper revealation data. (e.g. left/top row can never be relealed!)
-//       As I see it there are two issues here: 1. Edges of the map, which we are discussing here.   2. Whether to use vertice or tile, and how the latter is implemented. (being discussed bellow)
-//       I do not really know how to fix 1. Can you please give me your thoughts? (or just fix it ;) )
-
   if not VerticeInMapCoords(X,Y) then
     Result := 0
   else
@@ -449,33 +436,9 @@ end;
 //0 unrevealed, 255 revealed completely
 function TTerrain.CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
 begin
-  Result := max(max(CheckVerticeRevelation(X,Y-1,PlayerID),CheckVerticeRevelation(X+1,Y-1,PlayerID)),
-            max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)));
-  //@Krom: I see no need for this function, everything is calculated from vertices.
-  //I fixed the left/top and bottom/right edge issues, and it seems to be working fine without this function. Let me know what you think.
-
-  //@Lewin: See, there's a problem at FOW edges when there are enemy units standing there.
-  //        Imagine FOWed area filled with enemies and you have only 1 vertice revealed in the middle,
-  //        which unit would you see? Thats why we need 2 functions - one for vertice revelation and 2nd for tiles.
-  // Though I agree we could querry only 2 bottom vertices, otherwise it looks not so good.
-
-  //@Krom: Should we also query the vertice to the right and the one down and right? [X,Y+1] and [X+1,Y+1] That would be every corner of the tile.
-  //       I still don't fully understand what this function is supposed to check.
-  //       Everything still seems to be working fine, so I guess you were right. Sorry for interfering.
-
-  //@Lewin: This function is supposed to check if any 1(!) corner of the tile is revealed
-  //        unlike KaM which uses vertice-based coords we need tile-based coords so that
-  //        revelation is not dependant on direction
-  //        this should be used to determine:
-  //        - visibility of enemy units,
-  //        - ability to place roadplans,
-  //        - etc..
-  //        Perhaps we should use 2 conditions: if any 1 tile is revealed and if all 4 are revealed
-  //        Cos placing roadplans requires 1st condition, but showing units looks better with 2nd
-
-  //@Krom:  I agree with you. Let's use the two condition thing.
-  //        So have a function CheckTileFullRevealation and CheckTilePartRevealation. Correct? After that we'll need to check every occourace of revelation checking and correct it.
-  //        I'm happy to do all this, it's fairly easy. Just let me know if you agree and I'll do it.
+  //Check all four corners
+  Result := max(max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)),
+            max(CheckVerticeRevelation(X,Y+1,PlayerID),CheckVerticeRevelation(X+1,Y+1,PlayerID)));
 end;
 
 
@@ -1335,7 +1298,7 @@ Result:=true;
       end;
 
       if PlayerRevealID <> play_none then
-        Result := Result AND (CheckVerticeRevelation(Loc.X+k-3,Loc.Y+i-4,PlayerRevealID) > 0);
+        Result := Result AND (CheckTileRevelation(Loc.X+k-3,Loc.Y+i-4,PlayerRevealID) > 0);
     end;
 end;
 

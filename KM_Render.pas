@@ -1143,7 +1143,7 @@ begin
         end;
 
         //Forbid planning on unrevealed areas
-        AllowBuild := AllowBuild and (fTerrain.CheckVerticeRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
+        AllowBuild := AllowBuild and (fTerrain.CheckTileRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
 
         if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
         //Check surrounding tiles in +/- 1 range for other houses pressence
@@ -1186,13 +1186,13 @@ case CursorMode.Mode of
            and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckVerticeRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+  cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckVerticeRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+  cm_Field: if (CanPlaceRoad(CursorPos,mu_FieldPlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckVerticeRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+  cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
