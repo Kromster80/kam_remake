@@ -27,8 +27,7 @@ uses KM_Unit1, KM_Terrain, KM_PlayersCollection, KM_Game;
 
 constructor TRenderUI.Create;
 begin
-  inherited;
-//
+  Inherited;
 end;
 
 

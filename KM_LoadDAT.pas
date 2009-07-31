@@ -473,6 +473,9 @@ begin
                      end;
   ct_SetGroup:       begin
                        if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
+                                                           //@Lewin: We need a sort of UnitIsArmy procedure somewhere
+                                                           //cos atm there are too many places where values input by hand
+                                                           //and if we to add e.g. new unit we'll need to fix all those manualy
                          fPlayers.Player[CurrentPlayerIndex].AddGroup(
                          TroopsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]);
                      end;

@@ -55,8 +55,8 @@ type
 type
   TMissionSettings = class
   private
-    HouseTotalCount,HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of word;
-    UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of word;
+    HouseTotalCount,HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of integer;
+    UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of integer;
     ResourceRatios:array[1..4,1..4]of byte;
     MissionTimeInSec:cardinal;
   public
@@ -100,7 +100,7 @@ uses KM_SoundFX;
 
 constructor TGameSettings.Create;
 begin
-  Inherited Create;
+  Inherited;
   SlidersMin:=0;
   SlidersMax:=20;
   LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
@@ -258,8 +258,10 @@ end;
 
 procedure TMissionSettings.CreatedUnit(aType:TUnitType; aWasTrained:boolean);
 begin
-  if aWasTrained then inc(UnitTrainedCount[byte(aType)])
-  else inc(UnitTotalCount[byte(aType)]);
+  if aWasTrained then
+    inc(UnitTrainedCount[byte(aType)]);
+
+  inc(UnitTotalCount[byte(aType)]);
 end;
 
 

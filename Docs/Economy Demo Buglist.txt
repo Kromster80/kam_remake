@@ -11,9 +11,11 @@ Known bugs:
 	Built road comes as unfinished "brown spot" (due to above bug)
 	Remove debug info
 	Fisher
+	Greyish block around mouse cursor
 	Time freeze bug
-	Field building on map edges
-	Schoolhouse bug (citizen statistics acts wrong on training/cancel)
++	Field building on map edges
++	Schoolhouse bug (citizen statistics acts wrong on training/cancel)
++	AI won't train enough citizens
 	MediaPlayer won't play mp3s and crash
 +	Resource cheat is not strict enough
 	Units should return to road first then go eat, home, etc.

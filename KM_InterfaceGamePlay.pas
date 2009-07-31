@@ -399,11 +399,11 @@ end;
 constructor TKMGamePlayInterface.Create();
 var i:integer;
 begin
-inherited;
+Inherited;
 fLog.AssertToLog(fGameSettings<>nil,'fGameSettings required to be init first');
 fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
-  MyControls:=TKMControlsCollection.Create;
+  MyControls := TKMControlsCollection.Create;
 
   ShownUnit:=nil;
   ShownHouse:=nil;

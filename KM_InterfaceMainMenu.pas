@@ -112,7 +112,7 @@ inherited Create;
   fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before MainMenuInterface');
 
   {Parent Page for whole toolbar in-game}
-  MyControls:=TKMControlsCollection.Create;
+  MyControls := TKMControlsCollection.Create;
   ScreenX:=min(X,MENU_DESIGN_X);
   ScreenY:=min(Y,MENU_DESIGN_Y);
   OffX := (X-MENU_DESIGN_X) div 2;

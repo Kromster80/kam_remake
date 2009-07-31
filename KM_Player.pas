@@ -22,6 +22,7 @@ type
     PlayerID:TPlayerID; //Which ID this player is
     PlayerType: TPlayerType; //Is it Human or AI or Animals
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
+    function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint);
@@ -87,7 +88,16 @@ end;
 
 function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true):TKMUnit;
 begin
-  Result:=fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
+  Result := fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
+  if Result = nil then exit;
+  CreatedUnit(aUnitType, false);
+end;
+
+
+function TKMPlayerAssets.TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
+begin
+  Result := fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, false);
+  //Do not add unit to statistic just yet, wait till it's training complete
 end;
 
 

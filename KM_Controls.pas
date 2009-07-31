@@ -282,6 +282,7 @@ uses KM_RenderUI;
 
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin
+  Inherited Create;
   Left:=aLeft;
   Top:=aTop;
   Width:=aWidth;
@@ -876,8 +877,8 @@ end;
 
 constructor TKMControlsCollection.Create();
 begin
-  inherited;
-  fRenderUI:= TRenderUI.Create;
+  Inherited;
+  fRenderUI := TRenderUI.Create;
 end;
 
 

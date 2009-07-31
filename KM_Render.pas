@@ -777,13 +777,12 @@ end;
 procedure TRender.RenderQuad(pX,pY:integer);
 begin
 glbegin (GL_QUADS);
-if fTerrain.TileInMapCoords(pX,pY) then
-with fTerrain do begin
-  glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV,
-          pX  ,pY-1-Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV,
-          pX  ,pY-  Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV,
-          pX-1,pY-  Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
-end;
+  if fTerrain.TileInMapCoords(pX,pY) then
+  with fTerrain do
+    glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV,
+            pX  ,pY-1-Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV,
+            pX  ,pY-  Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV,
+            pX-1,pY-  Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
 glEnd;
 end;
 

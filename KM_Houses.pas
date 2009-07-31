@@ -847,7 +847,7 @@ begin
   if UnitQueue[1]=ut_None then exit;
   if CheckResIn(rt_Gold)=0 then exit;
   HideOneGold:=true;
-  UnitWIP:=fPlayers.Player[byte(fOwner)].AddUnit(UnitQueue[1],GetEntrance(Self),false);//Create Unit
+  UnitWIP:=fPlayers.Player[byte(fOwner)].TrainUnit(UnitQueue[1],GetEntrance(Self));//Create Unit
   TKMUnit(UnitWIP).SetUnitTask:=TTaskSelfTrain.Create(UnitWIP,Self);
 end;
 

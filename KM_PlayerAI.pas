@@ -37,26 +37,32 @@ end;
 
 
 procedure TKMPlayerAI.CheckCitizenCount();
-var i:integer; UnitType:TUnitType; H:TKMHouse;
+var
+  i:integer;
+  UnitType:TUnitType;
+  H:TKMHouse;
+  UnitReq:array[1..HOUSE_COUNT]of word; //There are only ~10 unit types, but using HOUSE_COUNT is easier
 begin
   //Find school and make sure it's free of tasks
   H := Assets.FindHouse(ht_School,KMPoint(0,0),1);
-  if (H=nil)or(TKMHouseSchool(H).UnitQueue[1]<>ut_None) then exit;
+  if (H=nil)or(not(H is TKMHouseSchool))or(TKMHouseSchool(H).UnitQueue[1]<>ut_None) then exit;
 
   UnitType := ut_None;
+  FillChar(UnitReq,SizeOf(UnitReq),#0); //Clear up
 
-  //@Lewin:
-  //I think this is the way to go instead of querrying all houses:
-  //Just need to adjoin counts of houses which have same owner types
-  //@Krom: Seems to be working perfectly! :D To be deleted
-
-  for i:=1 to HOUSE_COUNT do begin
+  for i:=1 to HOUSE_COUNT do begin //Count overall unit requirement
     if THouseType(i)<>ht_Barracks then //Exclude Barracks
-    if HouseDAT[i].OwnerType<>-1 then
-    if Assets.GetHouseQty(THouseType(i))>Assets.GetUnitQty(TUnitType(HouseDAT[i].OwnerType+1)) then
-      UnitType := TUnitType(HouseDAT[i].OwnerType+1);
-    if UnitType <> ut_None then break; //Don't need more UnitTypes yet
+    if HouseDAT[i].OwnerType<>-1 then //Exclude houses without owners
+    inc(UnitReq[HouseDAT[i].OwnerType+1], Assets.GetHouseQty(THouseType(i)));
   end;
+
+  for i:=1 to length(UnitReq) do
+    if UnitReq[i] <> 0 then //Don't take into account unused elements of array
+    if UnitReq[i] > Assets.GetUnitQty(TUnitType(i)) then
+    begin
+      UnitType := TUnitType(i);
+      break; //Don't need more UnitTypes yet
+    end;
 
   if UnitType = ut_None then exit;
 

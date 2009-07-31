@@ -35,7 +35,7 @@ type
         Explanation:string; //Debug only, explanation what unit is doing
       public
         constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
-        destructor Destroy;
+        destructor Destroy; override;
         function ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
         function DoUnitInteraction():boolean;
         function GetNextPosition():TKMPoint;
@@ -826,17 +826,15 @@ begin
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   //Note: Warriors of the same group will need to be set the same if they are created at the begining of the mission
   fCondition:=UNIT_MAX_CONDITION-Random(UNIT_MAX_CONDITION div 4);
-  fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,false);
   fTerrain.UnitAdd(NextPosition);
 end;
+
 
 destructor TKMUnit.Destroy;
 begin
   fTerrain.UnitRem(NextPosition);
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
-  if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
-    fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
   Inherited;
 end;
 
@@ -858,6 +856,10 @@ begin
   //Abandon work if any
   if Self is TKMUnitWorker then
     TKMUnitWorker(Self).AbandonWork;
+
+  //Update statistics
+  if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+    fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
 
   fThought:=th_None; //Reset thought
   SetAction(nil,0); //Dispose of current action
@@ -986,8 +988,8 @@ end;
 
 procedure TKMUnit.RemoveUntrainedFromSchool();
 begin
-  if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
-    fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
+  //if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+  //  fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType); //Unused
   ScheduleForRemoval:=true;
 end;
 
@@ -2052,7 +2054,7 @@ begin
   fIgnorePass   := aIgnorePass; //Store incase we need it in DoUnitInteraction re-routing
   fPass         := ChoosePassability(fWalker, fIgnorePass);
 
-  NodeList      := TKMPointList.Create; //Will need to free it later!!!! //@Krom: Done. ;)
+  NodeList      := TKMPointList.Create; //Freed on destroy
 
   NodePos       :=1;
   fRouteBuilt   :=false;
@@ -2100,6 +2102,7 @@ end;
 destructor TUnitActionWalkTo.Destroy;
 begin
   FreeAndNil(NodeList);
+  Inherited;
 end;
 
 

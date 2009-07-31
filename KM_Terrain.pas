@@ -1065,7 +1065,7 @@ end;
 procedure TTerrain.Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath:=TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot);
+  fPath := TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot);
   fPath.ReturnRoute(NodeList);
   fPath.Free;
 end;
@@ -1074,7 +1074,7 @@ end;
 procedure TTerrain.Route_Return(LocA:TKMPoint; RoadNetworkID:byte; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath:=TPathFinding.Create(LocA, RoadNetworkID);
+  fPath := TPathFinding.Create(LocA, RoadNetworkID);
   fPath.ReturnRoute(NodeList);
   fPath.Free;
 end;
