@@ -175,6 +175,7 @@ type
       fUnit:TKMUnit;
       fInn:TKMHouseInn;
       PlaceID:byte; //Units place in Inn
+      EatCount:byte; //Number of food items eaten (max. 2)
     public
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
@@ -770,6 +771,14 @@ begin
   //@Lewin: Can you code it this way - assign a TTaskDie task and edit TTask so that we could add custom dying
   //        sequence for an animal later on. E.g. animal would blend out
 
+  //First make sure the animal isn't stuck (check passibility of our position)
+  if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(GetUnitType)]) then
+  begin
+    //Animal is stuck so it dies
+    KillUnit;
+    exit;
+  end;
+
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
@@ -999,8 +1008,14 @@ begin
 
   Result:=true;
 
-  //Make unit hungry
-  if fCondition>0 then dec(fCondition);
+  //Make unit hungry as long as they are not currently eating in the inn
+  if fCondition>0 then
+  begin
+    if not (fUnitTask is TTaskGoEat) then
+      dec(fCondition)
+    else if not (TTaskGoEat(fUnitTask).Phase in [3..6]) then
+      dec(fCondition);
+  end;
 
   //Feed the unit automatically
   if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition:=UNIT_MAX_CONDITION;
@@ -1866,6 +1881,7 @@ begin
   Phase:=0;
   fUnit.SetActionStay(0,ua_Walk);
   SequenceLength := fResource.GetUnitSequenceLength(fUnit.fUnitType,ua_Die,fUnit.Direction);
+  if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
 end;
 
 
@@ -1886,7 +1902,8 @@ case Phase of
                                          //fUnit.fHome is wrong
      end else
      SetActionStay(0,ua_Walk);
-  1: SetActionStay(SequenceLength,ua_Die,false);
+  1: if SequenceLength > 0 then SetActionStay(SequenceLength,ua_Die,false)
+     else SetActionStay(0,ua_Walk);
   2: begin
       if fHome<>nil then fHome.GetHasOwner:=false;
       //Schedule Unit for removal and remove it after fUnits.UpdateState is done
@@ -1947,6 +1964,7 @@ begin
   fUnit:=aUnit;
   PlaceID:=0;
   Phase:=0;
+  EatCount:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
@@ -1970,33 +1988,40 @@ case Phase of
       SetActionGoIn(ua_Walk,gid_In,ht_Inn); //Enter Inn
       PlaceID:=fInn.EaterGetsInside(fUnitType);
     end;
- 3: begin
-      if (fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
-        fInn.ResTakeFromIn(rt_Bread);
-        SetActionStay(29*4,ua_Eat,false);
-        Feed(UNIT_MAX_CONDITION/3);
-        fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
-      end else
-        SetActionStay(0,ua_Walk);
-    end;
+ 3: //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
+    //Bread    = +40%
+    //Sausages = +60%
+    //Wine     = +20%
+    //Fish     = +50%
+    if (fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
+      inc(EatCount);
+      fInn.ResTakeFromIn(rt_Bread);
+      SetActionStay(29*4,ua_Eat,false);
+      Feed(UNIT_MAX_CONDITION*0.4);
+      fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
+    end else
+      SetActionStay(0,ua_Walk);
  4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
+      inc(EatCount);
       fInn.ResTakeFromIn(rt_Sausages);
       SetActionStay(29*4,ua_Eat,false);
-      Feed(UNIT_MAX_CONDITION/2);
+      Feed(UNIT_MAX_CONDITION*0.6);
       fInn.UpdateEater(PlaceID,3);
     end else
       SetActionStay(0,ua_Walk);
- 5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
+ 5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0)and(EatCount<2) then begin
+      inc(EatCount);
       fInn.ResTakeFromIn(rt_Wine);
       SetActionStay(29*4,ua_Eat,false);
-      Feed(UNIT_MAX_CONDITION/4);
+      Feed(UNIT_MAX_CONDITION*0.2);
       fInn.UpdateEater(PlaceID,1);
     end else
       SetActionStay(0,ua_Walk);
- 6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
+ 6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0)and(EatCount<2) then begin
+      inc(EatCount);
       fInn.ResTakeFromIn(rt_Fish);
       SetActionStay(29*4,ua_Eat,false);
-      Feed(UNIT_MAX_CONDITION/4);
+      Feed(UNIT_MAX_CONDITION*0.5);
       fInn.UpdateEater(PlaceID,4);
     end else
       SetActionStay(0,ua_Walk);
@@ -2304,7 +2329,8 @@ var
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    if TKMUnit(Items[I]).HitTest(X, Y, UT) then
+    //Doesn't count if it has died. @Krom: Is this correct? Or should it be done a different way, e.g. set position XY=0 when it dies. How does houses do it? To be deleted, once this has been fixed.
+    if (TKMUnit(Items[I]).HitTest(X, Y, UT)) and (not TKMUnit(Items[I]).IsDied) then
     begin
       Result:= TKMUnit(Items[I]);
       Break;
@@ -2394,6 +2420,15 @@ begin
       //    Local pointer > list of pointers > actual list of units
       //
       //I think we should use solution '1a'. Whats your opinion?
+
+      //@Krom:
+      //1a sounds ok. But we need to be sure we can cope with lots of units. If we can manage say 50k or so units
+      //without significant slow downs/memory loss then I think it will be ok. (268*50k = 13.4MB)
+      //Only trouble that I forsee is that any point at which we search the entire units list will become very slow
+      //after you have had lots of fights and killed 1000s.
+      //And everytime you cancel training in the school will be another unit.
+      //I can't say it's a perfect solution but if it works then I agree.
+      //To be deleted
 
     end;
 
