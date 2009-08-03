@@ -402,7 +402,7 @@ begin
   //Work around busy unit
   {MyPlayer.AutoRoadConnect(KMPoint(5,10),KMPoint(15,10));
   U:=MyPlayer.AddUnit(ut_Serf, KMPoint(5,10));
-  U.SetActionWalk(U,KMPoint(15,10),KMPoint(0,0));
+  U.SetActionWalk(U,KMPoint(15,10));
   U:=MyPlayer.AddUnit(ut_Worker, KMPoint(10,10));
   U.SetActionStay(1000,ua_Work2);}
 

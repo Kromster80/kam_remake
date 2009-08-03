@@ -1483,8 +1483,8 @@ var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   Xc:=trunc(inX);
   Yc:=trunc(inY);
-  if not VerticeInMapCoords(Xc,Yc) then
-  exit;
+  Result:=0;
+  if not VerticeInMapCoords(Xc,Yc) then exit;
   fLog.AssertToLog(VerticeInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
   Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));

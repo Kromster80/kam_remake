@@ -696,7 +696,7 @@ begin
   //Dispatch new order when warrior finished previous action part 
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone then
   begin
-    SetActionWalk(Self,fOrderLoc,KMPoint(0,0));
+    SetActionWalk(Self,fOrderLoc);
     fOrder:=wo_Stop;
   end;
 
@@ -833,9 +833,10 @@ end;
 {Erase everything related to unit status to exclude it from being accessed by anything but the old pointers}
 procedure TKMUnit.CloseUnit;
 begin
+  if fHome<>nil then fHome.GetHasOwner := false;
+
   fIsDead       := true;
   fThought      := th_None;
-  if fHome<>nil then fHome.GetHasOwner:=false;
   fHome         := nil;
   fPosition     := KMPointF(0,0);
   PrevPosition  := KMPoint(0,0);
@@ -1207,7 +1208,7 @@ TaskDone:=false;
 with fSerf do
 case Phase of
 0: begin
-    SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance(Self)), KMPoint(0,0));
+    SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance(Self)));
    end;
 1: if not fFrom.IsDestroyed then
      SetActionGoIn(ua_Walk,gid_In,fFrom.GetHouseType)
@@ -1239,7 +1240,7 @@ if fToHouse<>nil then
 if fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)), KMPoint(0,0));
+5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)));
 6: if not fToHouse.IsDestroyed then
      SetActionGoIn(ua_Walk,gid_In,fToHouse.GetHouseType)
    else begin
@@ -1271,7 +1272,7 @@ if not fToHouse.IsDestroyed then
 begin
 with fSerf do
 case Phase of
-5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)), KMPoint(0,0), ua_Walk);
+5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)));
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
@@ -1335,7 +1336,7 @@ TaskDone:=false;
 with fWorker do
 case Phase of
 0: begin
-     SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+     SetActionWalk(fWorker,fLoc);
      fThought := th_Build;
    end;
 1: begin
@@ -1404,7 +1405,7 @@ TaskDone:=false;
 with fWorker do
 case Phase of
  0: begin
-      SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+      SetActionWalk(fWorker,fLoc);
       fThought := th_Build;
     end;
  1: begin
@@ -1461,7 +1462,7 @@ TaskDone:=false;
 with fWorker do
 case Phase of
   0: begin
-       SetActionWalk(fWorker,fLoc, KMPoint(0,0));
+       SetActionWalk(fWorker,fLoc);
        fThought := th_Build;
      end;
   1: begin
@@ -1519,7 +1520,7 @@ end;
 with fWorker do
 case Phase of
 0:  begin
-      SetActionWalk(fWorker,fHouse.GetEntrance(Self), KMPoint(0,0));
+      SetActionWalk(fWorker,fHouse.GetEntrance(Self));
       fThought := th_Build;
     end;
 1:  if not fHouse.IsDestroyed then begin //House plan was cancelled before worker has arrived on site
@@ -1637,7 +1638,7 @@ begin
            end;
            fThought := th_Build;
            CurLoc:=Random(LocCount)+1;
-           SetActionWalk(fWorker,Cells[CurLoc].Loc, KMPoint(0,0));
+           SetActionWalk(fWorker,Cells[CurLoc].Loc);
          end;
       1: begin
            Direction:=Cells[CurLoc].Dir;
@@ -1720,7 +1721,7 @@ begin
       0: begin
            fThought := th_Build;
            CurLoc:=Random(LocCount)+1;
-           SetActionWalk(fWorker,Cells[CurLoc].Loc, KMPoint(0,0));
+           SetActionWalk(fWorker,Cells[CurLoc].Loc);
          end;
       1: begin
            Direction:=Cells[CurLoc].Dir;
@@ -2033,7 +2034,7 @@ case Phase of
                            SetActionStay(0,ua_Walk); //Walk outside the house
     end;
  1: begin
-      SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance(Self)), KMPoint(0,0));
+      SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance(Self)));
     end;
  2: begin
       SetActionGoIn(ua_Walk,gid_In,ht_Inn); //Enter Inn
