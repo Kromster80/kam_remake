@@ -1800,7 +1800,7 @@ with fUnit do
                gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
                gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
                gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
-               gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,ChopableTrees[Random(length(ChopableTrees))+1,1]);
+               gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
                gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
              end;
          SetActionStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);

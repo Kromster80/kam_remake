@@ -237,7 +237,7 @@ end;
 procedure TKMHouse.CloseHouse;
 begin
   fIsDestroyed:=true;
-  if RemoveRoadWhenDemolish then fTerrain.RemRoad(Self.GetEntrance);
+  if (RemoveRoadWhenDemolish) and not (GetBuildingState in [hbs_Stone, hbs_Done]) then fTerrain.RemRoad(Self.GetEntrance);
   FreeAndNil(fCurrentAction);
   //Leave disposing of units inside the house to themselves
 end;

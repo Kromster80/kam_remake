@@ -572,14 +572,18 @@ const
   //Chopable tree, Chopdown animation,
   //Grow1, Grow2, Grow3, Grow4, Chop, Remainder
   ChopableTrees:array[1..13,1..6]of byte = (
+  //For grass
   (  88,  89,  90,  90,  91,  37), //duplicate
-  (  92,  93,  94,  95,  96,  49),
   (  97,  98,  99, 100, 101,  41),
   ( 102, 103, 104, 105, 106,  45),
   ( 107, 108, 109, 110, 111,  41),
   ( 112, 113, 114, 114, 115,  25), //duplicate
   ( 116, 117, 118, 119, 120,  25),
+  //For grass and yellow
+  (  92,  93,  94,  95,  96,  49),
+  //For yellow soil only
   ( 121, 122, 123, 124, 125,  64),
+  //For dirt (pine trees)
   ( 149, 150, 151, 151, 152,  29), //duplicate
   ( 153, 154, 155, 155, 156,  29), //duplicate
   ( 157, 158, 159, 160, 161,  33),

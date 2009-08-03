@@ -88,6 +88,7 @@ public
   function FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindOre(aPosition:TKMPoint; aRadius:integer; Rt:TResourceType):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+  function ChooseTreeToPlant(aPosition:TKMPoint):integer;
 
   procedure SetTree(Loc:TKMPoint; ID:integer);
   procedure FallTree(Loc:TKMPoint);
@@ -716,6 +717,18 @@ else
   Result:=List2.GetRandom;
 List1.Free;
 List2.Free;
+end;
+
+
+function TTerrain.ChooseTreeToPlant(aPosition:TKMPoint):integer;
+begin
+  //This function randomly chooses a tree object based on the terrain type. Values matched to KaM, using all soil tiles.
+  case Land[aPosition.Y,aPosition.X].Terrain of
+    0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: Result := ChopableTrees[1+Random(7),1]; //Grass (oaks, etc.)
+    26..28,75..80,182,190:                                                 Result := ChopableTrees[7+Random(2),1]; //Yellow dirt
+    16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+Random(5),1]; //Brown dirt (pine trees)
+    else Result := ChopableTrees[1+Random(length(ChopableTrees)),1]; //If it isn't one of those soil types then choose a random tree
+  end;
 end;
 
 
