@@ -1546,8 +1546,8 @@ begin
 
   for i:=1 to FallingTrees.Count do
   if AnimStep - FallingTrees.Tag2[i] > 20 then begin
-    fLog.AssertToLog(AnimStep - FallingTrees.Tag2[i] <= 20,'Falling tree overrun?');
-    FallingTrees.RemoveEntry(FallingTrees.List[i]); //Cure the tree eventually
+    //fLog.AssertToLog(AnimStep - FallingTrees.Tag2[i] <= 20,'Falling tree overrun?');
+    fTerrain.ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
     break; //Remove only 1 tree at a time, otherwise FallingTrees.Count is becoming wrong
     //@Lewin: Genesis of this bug is yet unknown. 20 is the frame where tree should be removed anyway
   end;

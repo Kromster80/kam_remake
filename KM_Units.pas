@@ -175,7 +175,6 @@ type
       fUnit:TKMUnit;
       fInn:TKMHouseInn;
       PlaceID:byte; //Units place in Inn
-      EatCount:byte; //Number of food items eaten (max. 2)
     public
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
@@ -1721,12 +1720,12 @@ end;
 { TTaskMining }
 constructor TTaskMining.Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
 begin
-WorkPlan:=aWorkPlan;
-fUnit:=aUnit;
-Phase:=0;
-Phase2:=0;
-BeastID:=0;
-fUnit.SetActionStay(0,ua_Walk);
+  WorkPlan:=aWorkPlan;
+  fUnit:=aUnit;
+  Phase:=0;
+  Phase2:=0;
+  BeastID:=0;
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1978,7 +1977,6 @@ begin
   fUnit:=aUnit;
   PlaceID:=0;
   Phase:=0;
-  EatCount:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
@@ -1986,6 +1984,12 @@ end;
 procedure TTaskGoEat.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
+
+if fInn.IsDestroyed then
+  TaskDone:=true;
+  //@Lewin: we need a global shortcut to make unit go out of the house if it's inside and house e.g. demolished
+  exit;
+end;
 
 with fUnit do
 case Phase of
@@ -2007,8 +2011,7 @@ case Phase of
     //Sausages = +60%
     //Wine     = +20%
     //Fish     = +50%
-    if (fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
-      inc(EatCount);
+    if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Bread);
       SetActionStay(29*4,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION*0.4);
@@ -2016,23 +2019,20 @@ case Phase of
     end else
       SetActionStay(0,ua_Walk);
  4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
-      inc(EatCount);
       fInn.ResTakeFromIn(rt_Sausages);
       SetActionStay(29*4,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION*0.6);
       fInn.UpdateEater(PlaceID,3);
     end else
       SetActionStay(0,ua_Walk);
- 5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0)and(EatCount<2) then begin
-      inc(EatCount);
+ 5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Wine);
       SetActionStay(29*4,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION*0.2);
       fInn.UpdateEater(PlaceID,1);
     end else
       SetActionStay(0,ua_Walk);
- 6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0)and(EatCount<2) then begin
-      inc(EatCount);
+ 6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
       fInn.ResTakeFromIn(rt_Fish);
       SetActionStay(29*4,ua_Eat,false);
       Feed(UNIT_MAX_CONDITION*0.5);
