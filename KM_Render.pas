@@ -502,17 +502,17 @@ begin
 
   glBegin(GL_LINE_STRIP);
   for i:=1 to NodeList.Count do
-    glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5-fTerrain.InterpolateLandHeight(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5)/CELL_HEIGHT_DIV);
+    glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5-fTerrain.InterpolateLandHeight(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5)/CELL_HEIGHT_DIV);
   glEnd;
-                     exit;
+
   glColor4f(1,1,1,1); //Vector where unit is going to
   i:=Pos;
   k:=min(Pos+1,NodeList.Count);
-  x:=mix(NodeList.List[i-1].X-0.5,NodeList.List[k-1].X-0.5,0.4);
-  y:=mix(NodeList.List[i-1].Y-0.5,NodeList.List[k-1].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
-  RenderDotOnTile(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5+0.2);
+  x:=mix(NodeList.List[i].X-0.5,NodeList.List[k].X-0.5,0.4);
+  y:=mix(NodeList.List[i].Y-0.5,NodeList.List[k].Y-0.5,0.4)+0.2; //0.2 to render vector a bit lower so it won't gets overdrawned by another route
+  RenderDotOnTile(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5+0.2);
   glBegin(GL_LINES);
-    glVertex2f(NodeList.List[i-1].X-0.5,NodeList.List[i-1].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5)/CELL_HEIGHT_DIV);
+    glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5)/CELL_HEIGHT_DIV);
     glVertex2f(x,y-fTerrain.InterpolateLandHeight(x+1,y+1)/CELL_HEIGHT_DIV);
   glEnd;
 end;
@@ -1137,46 +1137,52 @@ var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
   end;
 begin
   MarkCount := 0;
+
   for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
-    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then begin
-      P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4); //This can't be done earlier since values can be off-map 
+  if HousePlanYX[byte(aHouseType),i,k]<>0 then
+  begin
 
-        //Check house-specific conditions, e.g. allow shipyards only near water and etc..
-        case aHouseType of
-          ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
-          ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
-          //ht_Wall:     AllowBuild := (CanWalk      in fTerrain.Land[P2.Y,P2.X].Passability);
-          else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
-        end;
+    if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then
+    begin
+      //This can't be done earlier since values can be off-map
+      P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
 
-        //Forbid planning on unrevealed areas
-        AllowBuild := AllowBuild and (fTerrain.CheckTileRevelation(P2.X,P2.Y,MyPlayer.PlayerID)>0);
+      //Check house-specific conditions, e.g. allow shipyards only near water and etc..
+      case aHouseType of
+        ht_IronMine: AllowBuild := (CanBuildIron in fTerrain.Land[P2.Y,P2.X].Passability);
+        ht_GoldMine: AllowBuild := (CanBuildGold in fTerrain.Land[P2.Y,P2.X].Passability);
+        else         AllowBuild := (CanBuild     in fTerrain.Land[P2.Y,P2.X].Passability);
+      end;
 
-        if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
-        //Check surrounding tiles in +/- 1 range for other houses pressence
-        for s:=-1 to 1 do for t:=-1 to 1 do
-        if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-        if fTerrain.Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFence, mu_House] then
-        begin
-          MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
-          AllowBuild := false;
-        end;
+      //Forbid planning on unrevealed areas
+      AllowBuild := AllowBuild and (fTerrain.CheckTileRevelation(P2.X,P2.Y,MyPlayer.PlayerID) > 0);
 
-        //Mark the tile according to previous check results
-        if AllowBuild then begin
-          RenderCursorWireQuad(P2,$FFFFFF00); //Cyan
-          if HousePlanYX[byte(aHouseType),i,k]=2 then
-            MarkPoint(P2,481);
-        end else begin
-          if HousePlanYX[byte(aHouseType),i,k]=2 then
-            MarkPoint(P2,482)
+      //Check surrounding tiles in +/- 1 range for other houses pressence
+      if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
+      for s:=-1 to 1 do for t:=-1 to 1 do
+      if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
+      if fTerrain.Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFence, mu_House] then
+      begin
+        MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
+        AllowBuild := false;
+      end;
+
+      //Mark the tile according to previous check results
+      if AllowBuild then
+      begin
+        RenderCursorWireQuad(P2,$FFFFFF00); //Cyan
+        if HousePlanYX[byte(aHouseType),i,k]=2 then
+          MarkPoint(P2,481);
+      end else
+      begin
+        if HousePlanYX[byte(aHouseType),i,k]=2 then
+          MarkPoint(P2,482)
+        else
+          if aHouseType in [ht_GoldMine,ht_IronMine] then
+            MarkPoint(P2,480)
           else
-            if aHouseType in [ht_GoldMine,ht_IronMine] then
-              MarkPoint(P2,480)
-            else
-              MarkPoint(P2,479);
-        end;
+            MarkPoint(P2,479);
+      end;
 
     end else
     if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,0) then

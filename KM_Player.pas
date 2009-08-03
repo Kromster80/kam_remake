@@ -247,7 +247,7 @@ begin
    H:=TKMHouseInn(FindHouse(ht_Inn,KMPoint(0,0),1));
    repeat
      //First make sure that it is valid
-     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance(Self)),canWalkRoad,true)) then
+     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance),canWalkRoad,true)) then
      begin
         //Take the closest inn out of the ones that are suitable
         Dist := GetLength(H.GetPosition,Loc);

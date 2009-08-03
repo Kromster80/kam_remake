@@ -1114,8 +1114,8 @@ var
   bm,bm2:TBitmap;
   IconInfo:TIconInfo;
 begin
-  bm:=TBitmap.Create;  bm.PixelFormat:=pf24bit;
-  bm2:=TBitmap.Create; bm2.PixelFormat:=pf24bit;
+  bm:=TBitmap.Create;  bm.PixelFormat:=pf32bit;
+  bm2:=TBitmap.Create; bm2.PixelFormat:=pf32bit;
 
   for i:=1 to length(Cursors) do begin
 
@@ -1126,19 +1126,19 @@ begin
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[RXid].Data[Cursors[i],y*sx+x]+1;
-      bm.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+      bm.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2] shl 8 + Pal[DEF_PAL,t,3] shl 16;
       if t=1 then
-        bm2.Canvas.Pixels[x,y]:=$FFFFFF
+        bm2.Canvas.Pixels[x,y]:=clWhite
       else
-        bm2.Canvas.Pixels[x,y]:=$000000;
+        bm2.Canvas.Pixels[x,y]:=clBlack;
     end;
 
   IconInfo.fIcon:=false;
   //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
   IconInfo.xHotspot:=-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i];
   IconInfo.yHotspot:=-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i];
-  IconInfo.hbmMask:=bm2.Handle;
   IconInfo.hbmColor:=bm.Handle;
+  IconInfo.hbmMask:=bm2.Handle;
 
   Screen.Cursors[Cursors[i]]:=CreateIconIndirect(iconInfo);
   end;

@@ -51,6 +51,7 @@ type
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
 
     fIsDestroyed:boolean;
+    RemoveRoadWhenDemolish:boolean;
     procedure SetWareDelivery(AVal:boolean);
 
     procedure MakeSound();
@@ -65,7 +66,7 @@ type
     procedure DemolishHouse(DoSilent:boolean);
 
     property GetPosition:TKMPoint read fPosition;
-    function GetEntrance(DebugSender:TObject):TKMPoint;
+    function GetEntrance:TKMPoint;
     function HitTest(X, Y: Integer): Boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
@@ -216,6 +217,8 @@ begin
   fResourceOrder[4]:=0;
   fIsDestroyed:=false;
 
+  RemoveRoadWhenDemolish := fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay <> to_Road;
+
   if aBuildState=hbs_Done then begin //House was placed on map already Built e.g. in mission maker
     Self.Activate(false);
     fBuildingProgress:=HouseDAT[byte(fHouseType)].MaxHealth;
@@ -233,9 +236,9 @@ end;
 procedure TKMHouse.CloseHouse;
 begin
   fIsDestroyed:=true;
+  if RemoveRoadWhenDemolish then fTerrain.RemRoad(Self.GetEntrance);
 
   FreeAndNil(fCurrentAction);
-
 end;
 
 
@@ -282,9 +285,8 @@ end;
 
 
 {Return Entrance of the house, which is different than house position sometimes}
-function TKMHouse.GetEntrance(DebugSender:TObject):TKMPoint;
+function TKMHouse.GetEntrance():TKMPoint;
 begin
-  //fLog.AppendLog(TypeToString(GetPosition));
   Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y:=GetPosition.Y;
 end;
@@ -859,7 +861,7 @@ begin
   if UnitQueue[1]=ut_None then exit;
   if CheckResIn(rt_Gold)=0 then exit;
   HideOneGold:=true;
-  UnitWIP:=fPlayers.Player[byte(fOwner)].TrainUnit(UnitQueue[1],GetEntrance(Self));//Create Unit
+  UnitWIP:=fPlayers.Player[byte(fOwner)].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
   TKMUnit(UnitWIP).SetUnitTask:=TTaskSelfTrain.Create(UnitWIP,Self);
 end;
 

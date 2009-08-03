@@ -431,20 +431,20 @@ begin
           if not fVisible then
             fUnitTask:=TTaskGoOutShowHungry.Create(Self)
           else
-            fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self);
+            fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self);
     end;
 
     if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
       if (fHome=nil) then
         if FindHome then
-          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self) //Home found - go there
+          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self) //Home found - go there
         else begin
           fThought:=th_Quest; //Always show quest when idle, unlike serfs who randomly show it
           SetActionStay(120, ua_Walk) //There's no home
         end
       else
         if fVisible then//Unit is not at home, still it has one
-          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance(Self),Self)
+          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self)
         else
           fUnitTask:=InitiateMining; //Unit is at home, so go get a job
 
@@ -484,7 +484,7 @@ begin
   //  fViewport.SetCenter(GetPosition.X,GetPosition.Y);
   //end;
 
-  WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance(Self)));
+  WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
   if not WorkPlan.IsIssued then exit;
   if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
@@ -1208,7 +1208,7 @@ TaskDone:=false;
 with fSerf do
 case Phase of
 0: begin
-    SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance(Self)));
+    SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance));
    end;
 1: if not fFrom.IsDestroyed then
      SetActionGoIn(ua_Walk,gid_In,fFrom.GetHouseType)
@@ -1240,7 +1240,7 @@ if fToHouse<>nil then
 if fToHouse.IsComplete then
 with fSerf do
 case Phase of
-5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)));
+5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
 6: if not fToHouse.IsDestroyed then
      SetActionGoIn(ua_Walk,gid_In,fToHouse.GetHouseType)
    else begin
@@ -1272,7 +1272,7 @@ if not fToHouse.IsDestroyed then
 begin
 with fSerf do
 case Phase of
-5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance(Self)));
+5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
 6: begin
      fToHouse.ResAddToBuild(Carry);
      TakeResource(Carry);
@@ -1520,7 +1520,7 @@ end;
 with fWorker do
 case Phase of
 0:  begin
-      SetActionWalk(fWorker,fHouse.GetEntrance(Self));
+      SetActionWalk(fWorker,fHouse.GetEntrance);
       fThought := th_Build;
     end;
 1:  if not fHouse.IsDestroyed then begin //House plan was cancelled before worker has arrived on site
@@ -1550,13 +1550,13 @@ case Phase of
       SetActionStay(11,ua_Work1,false);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
       if not fHouse.IsDestroyed then
-      if KMSamePoint(fHouse.GetEntrance(Self),ListOfCells[Step]) then
-        fTerrain.SetRoad(fHouse.GetEntrance(Self), fOwner);
+      if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
+        fTerrain.SetRoad(fHouse.GetEntrance, fOwner);
 
       fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
       dec(Step);
     end;
-7:  SetActionWalk(fWorker,KMPointY1(fHouse.GetEntrance(Self)), KMPoint(0,0), ua_Walk, true, true);
+7:  SetActionWalk(fWorker,KMPointY1(fHouse.GetEntrance), KMPoint(0,0), ua_Walk, true, true);
 8:  begin
 
       fHouse.SetBuildingState(hbs_Wood);
@@ -1819,7 +1819,7 @@ with fUnit do
     5: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
-         SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance(Self)), KMPoint(0,0),WorkPlan.WalkFrom); //Go home
+         SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance), KMPoint(0,0),WorkPlan.WalkFrom); //Go home
          fThought := th_Home;
        end;
     6: SetActionGoIn(WorkPlan.WalkFrom,gid_In,fHome.GetHouseType); //Go inside
@@ -2034,7 +2034,7 @@ case Phase of
                            SetActionStay(0,ua_Walk); //Walk outside the house
     end;
  1: begin
-      SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance(Self)));
+      SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance));
     end;
  2: begin
       SetActionGoIn(ua_Walk,gid_In,ht_Inn); //Enter Inn

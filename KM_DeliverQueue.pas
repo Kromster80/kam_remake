@@ -226,12 +226,12 @@ begin
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House<>nil)and
-            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance(nil)),KMPointY1(fDemand[iD].Loc_House.GetEntrance(nil)),canWalkRoad,true))
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,true))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit<>nil)and
-            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance(nil)),fDemand[iD].Loc_Unit.GetPosition,canWalk,false))
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk,false))
             )
             or
             ( //Or maybe serfs can walk anywhere?
@@ -276,9 +276,9 @@ for iD:=1 to length(fDemand) do
 
       //Basic Bid is length of route
       if fDemand[iD].Loc_House<>nil then
-        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance(nil),fDemand[iD].Loc_House.GetEntrance(nil))
+        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
       else
-        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance(nil),fDemand[iD].Loc_Unit.GetPosition);
+        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
 
       //Modifications for bidding system
       if fDemand[iD].Resource=rt_All then //Prefer deliveries House>House instead of House>Store

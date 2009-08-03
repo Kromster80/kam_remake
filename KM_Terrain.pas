@@ -72,6 +72,7 @@ public
   procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
 
   procedure RemMarkup(Loc:TKMPoint);
+  procedure RemRoad(Loc:TKMPoint);
   procedure IncDigState(Loc:TKMPoint);
   procedure ResetDigState(Loc:TKMPoint);
 
@@ -503,6 +504,17 @@ procedure TTerrain.SetRoad(Loc:TKMPoint; aOwner:TPlayerID);
 begin
   Land[Loc.Y,Loc.X].TileOwner:=aOwner;
   Land[Loc.Y,Loc.X].TileOverlay:=to_Road;
+  Land[Loc.Y,Loc.X].FieldAge:=0;
+  UpdateBorders(Loc);
+  RecalculatePassabilityAround(Loc);
+  RebuildWalkConnect(canWalkRoad);
+end;
+
+
+procedure TTerrain.RemRoad(Loc:TKMPoint);
+begin
+  Land[Loc.Y,Loc.X].TileOwner:=play_none;
+  Land[Loc.Y,Loc.X].TileOverlay:=to_None;
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);

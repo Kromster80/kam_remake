@@ -412,7 +412,7 @@ begin
                      begin
                        Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,KMPoint(0,0),1));
                        if Storehouse<>nil then
-                         fPlayers.Player[CurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointY1(Storehouse.GetEntrance(nil)));
+                         fPlayers.Player[CurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointY1(Storehouse.GetEntrance));
                      end;
                      end;
   ct_SetRoad:        begin
