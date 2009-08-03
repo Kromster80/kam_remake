@@ -50,7 +50,7 @@ type
     FlagAnimStep: cardinal; //Used for Flags and Burning animation
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
 
-    ScheduleForRemoval:boolean;
+    fIsDestroyed:boolean;
     procedure SetWareDelivery(AVal:boolean);
 
     procedure MakeSound();
@@ -59,6 +59,7 @@ type
 
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
+    procedure CloseHouse;
 
     procedure Activate(aWasBuilt:boolean);
     procedure DemolishHouse(DoSilent:boolean);
@@ -85,7 +86,7 @@ type
     function IsStone:boolean;
     function IsComplete:boolean;
     function IsDamaged:boolean;
-    property IsDestroyed:boolean read ScheduleForRemoval;
+    property IsDestroyed:boolean read fIsDestroyed;
 
     procedure SetState(aState: THouseState; aTime:integer);
     function GetState:THouseState;
@@ -213,7 +214,7 @@ begin
   fResourceOrder[2]:=0;
   fResourceOrder[3]:=0;
   fResourceOrder[4]:=0;
-  ScheduleForRemoval:=false;
+  fIsDestroyed:=false;
 
   if aBuildState=hbs_Done then begin //House was placed on map already Built e.g. in mission maker
     Self.Activate(false);
@@ -225,11 +226,18 @@ end;
 
 destructor TKMHouse.Destroy;
 begin
-  FreeAndNil(fCurrentAction);
-  if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
-    fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
   Inherited;
 end;
+
+
+procedure TKMHouse.CloseHouse;
+begin
+  fIsDestroyed:=true;
+
+  FreeAndNil(fCurrentAction);
+
+end;
+
 
 procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
@@ -260,12 +268,16 @@ begin
   if not DoSilent then
     if GetBuildingState = hbs_Glyph then fSoundLib.Play(sfx_click)
     else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
-  ScheduleForRemoval:=true;
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveOffer(Self);
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveDemand(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
   fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
+  
+  if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+    fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
+
+  CloseHouse;
 end;
 
 
@@ -1069,7 +1081,7 @@ var
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    if TKMHouse(Items[I]).HitTest(X, Y) then
+    if TKMHouse(Items[I]).HitTest(X, Y) and (not TKMHouse(Items[I]).IsDestroyed) then
     begin
       Result:= TKMHouse(Items[I]);
       Break;
@@ -1148,7 +1160,7 @@ var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
-  if not TKMHouse(Items[I]).ScheduleForRemoval then
+  if not TKMHouse(Items[I]).IsDestroyed then
     TKMHouse(Items[I]).UpdateState;
 end;
 
@@ -1161,7 +1173,7 @@ begin
   y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
 
   for I := 0 to Count - 1 do
-  if not TKMHouse(Items[I]).ScheduleForRemoval then
+  if not TKMHouse(Items[I]).IsDestroyed then
   if (InRange(TKMHouse(Items[I]).fPosition.X,x1,x2) and InRange(TKMHouse(Items[I]).fPosition.Y,y1,y2)) then
     TKMHouse(Items[I]).Paint();
 end;

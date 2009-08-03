@@ -224,7 +224,7 @@ type
     //function UnitAtHome():boolean; Test if Unit is invisible and Pos matches fHome.GetEntrance
     //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
     //UpdateState cycle. So we need to finish the cycle and only then remove the unit. Property is public
-    ScheduleForRemoval:boolean;
+    fIsDead:boolean;
   public
     AnimStep: integer;
     Direction: TKMDirection;
@@ -233,6 +233,7 @@ type
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
+    procedure CloseUnit;
     procedure KillUnit;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
@@ -257,7 +258,7 @@ type
     procedure CancelUnitTask;
     property GetCondition: integer read fCondition;
     property IsVisible: boolean read fVisible;
-    property IsDied:boolean read ScheduleForRemoval;
+    property IsDead:boolean read fIsDead;
     function IsArmyUnit():boolean;
     procedure RemoveUntrainedFromSchool();
     function CanGoEat:boolean;
@@ -802,7 +803,7 @@ end;
 constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
-  ScheduleForRemoval:=false;
+  fIsDead:=false;
   fThought := th_None;
   fHome:=nil;
   fPosition.X:= PosX;
@@ -825,14 +826,42 @@ end;
 
 destructor TKMUnit.Destroy;
 begin
-  fTerrain.UnitRem(NextPosition);
-  FreeAndNil(fCurrentAction);
-  FreeAndNil(fUnitTask);
   Inherited;
 end;
 
 
+{Erase everything related to unit status to exclude it from being accessed by anything but the old pointers}
+procedure TKMUnit.CloseUnit;
+begin
+  fIsDead       := true;
+  fThought      := th_None;
+  if fHome<>nil then fHome.GetHasOwner:=false;
+  fHome         := nil;
+  fPosition     := KMPointF(0,0);
+  PrevPosition  := KMPoint(0,0);
+  NextPosition  := KMPoint(0,0);
+  fOwner        := play_none;
+  fUnitType     := ut_None;
+  Direction     := dir_NA;
+  fVisible      := false;
+  Speed         := 0;
+  fCondition    := 0;
+  AnimStep      := 0;
+
+  fTerrain.UnitRem(NextPosition);
+  FreeAndNil(fCurrentAction);
+  FreeAndNil(fUnitTask);
+
+  if Self = fGame.fGamePlayInterface.GetShownUnit then
+    fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
+end;
+
+
 {Call this procedure to properly kill unit}
+//killing a unit is done in 3 steps
+// Kill - release all unit-specific tasks
+// TTaskDie - perform dying animation
+// CloseUnit - erase all unit data and hide it from further access
 procedure TKMUnit.KillUnit;
 begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
@@ -995,7 +1024,7 @@ procedure TKMUnit.RemoveUntrainedFromSchool();
 begin
   //if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
   //  fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType); //Unused
-  ScheduleForRemoval:=true;
+  CloseUnit;
 end;
 
 function TKMUnit.CanGoEat:boolean;
@@ -1261,7 +1290,7 @@ end;
 if fToUnit<>nil then
 with fSerf do
 case Phase of
-5: if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.ScheduleForRemoval) then
+5: if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.IsDead) then
      SetActionWalk(fSerf, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false)
    else
    begin
@@ -1272,7 +1301,7 @@ case Phase of
    end;
 6: begin
       TakeResource(Carry);
-      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.ScheduleForRemoval)and(not(fToUnit.fUnitTask is TTaskDie)) then begin
+      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.IsDead)and(not(fToUnit.fUnitTask is TTaskDie)) then begin
         inc(fToUnit.fUnitTask.Phase);
         fToUnit.SetActionStay(0,ua_Work1);
       end;
@@ -1480,6 +1509,13 @@ end;
 procedure TTaskBuildHouseArea.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
+
+if fHouse.IsDestroyed then
+begin
+  TaskDone:=true;
+  exit;
+end;
+
 with fWorker do
 case Phase of
 0:  begin
@@ -1487,6 +1523,7 @@ case Phase of
       fThought := th_Build;
     end;
 1:  if not fHouse.IsDestroyed then begin //House plan was cancelled before worker has arrived on site
+      fPlayers.Player[byte(fOwner)].BuildList.CloseHousePlan(TaskID);
       fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, fOwner);
       fHouse.SetBuildingState(hbs_NoGlyph);
       SetActionStay(5,ua_Walk);
@@ -1520,7 +1557,7 @@ case Phase of
     end;
 7:  SetActionWalk(fWorker,KMPointY1(fHouse.GetEntrance(Self)), KMPoint(0,0), ua_Walk, true, true);
 8:  begin
-      fPlayers.Player[byte(fOwner)].BuildList.CloseHousePlan(TaskID);
+
       fHouse.SetBuildingState(hbs_Wood);
       fPlayers.Player[byte(fOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
       with HouseDAT[byte(fHouse.GetHouseType)] do begin
@@ -1918,11 +1955,7 @@ case Phase of
   1: if SequenceLength > 0 then SetActionStay(SequenceLength,ua_Die,false)
      else SetActionStay(0,ua_Walk);
   2: begin
-      if fHome<>nil then fHome.GetHasOwner:=false;
-      //Schedule Unit for removal and remove it after fUnits.UpdateState is done
-      fUnit.ScheduleForRemoval:=true;
-      //SetActionStay(0,ua_Die);
-      TaskDone:=false; //Does matter. We don't want unit to grab another task after dying is done
+      fUnit.CloseUnit;
       exit;
      end;
 end;
@@ -1986,8 +2019,8 @@ begin
 TaskDone:=false;
 
 if fInn.IsDestroyed then
+begin
   TaskDone:=true;
-  //@Lewin: we need a global shortcut to make unit go out of the house if it's inside and house e.g. demolished
   exit;
 end;
 
@@ -2346,7 +2379,7 @@ begin
   Result:= nil;
   for I := 0 to Count - 1 do
     //Doesn't count if it has died. @Krom: Is this correct? Or should it be done a different way, e.g. set position XY=0 when it dies. How does houses do it? To be deleted, once this has been fixed.
-    if (TKMUnit(Items[I]).HitTest(X, Y, UT)) and (not TKMUnit(Items[I]).IsDied) then
+    if (TKMUnit(Items[I]).HitTest(X, Y, UT)) and (not TKMUnit(Items[I]).IsDead) then
     begin
       Result:= TKMUnit(Items[I]);
       Break;
@@ -2409,16 +2442,9 @@ var
   I: Integer;
 begin
   for I := 0 to Count - 1 do
-    if not TKMUnit(Items[I]).ScheduleForRemoval then
+  if not TKMUnit(Items[I]).IsDead then
     TKMUnit(Items[I]).UpdateState;
 
-  //After all units are updated we can safely remove those that died.
-  for I := Count - 1 downto 0 do
-    if TKMUnit(Items[I]).ScheduleForRemoval then begin
-      if TKMUnit(Items[I]) = fGame.fGamePlayInterface.GetShownUnit then
-         fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
-      //TKMUnit(Items[I]).Free; //We've got to free units tasks and actions to save some RAM. Can do it in TTaskDie last step before unit is marked as Killed
-      //Rem(TKMUnit(Items[I]));
       //@Lewin:
       //We have a big problem here. See, when unit is killed it's Freed and removed from the list all right
       //But there's an issue - every local pointer to that unit (f.e. DeliveryList, TTaskDelivery) still exists,
@@ -2447,8 +2473,6 @@ begin
       //I can't say it's a perfect solution but if it works then I agree.
       //To be deleted
 
-    end;
-
 end;
 
 
@@ -2462,7 +2486,7 @@ begin
   y2 := fViewport.GetClip.Bottom + Margin;
 
   for I := 0 to Count - 1 do
-  if not TKMUnit(Items[I]).ScheduleForRemoval then
+  if not TKMUnit(Items[I]).IsDead then
   if (InRange(TKMUnit(Items[I]).fPosition.X,x1,x2) and InRange(TKMUnit(Items[I]).fPosition.Y,y1,y2)) then
     TKMUnit(Items[I]).Paint();
 end;

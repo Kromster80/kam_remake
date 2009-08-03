@@ -2,7 +2,8 @@ unit KM_DeliverQueue;
 interface
 uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
 
-  type TJobStatus = (js_Open, js_Taken);
+  type TJobStatus = (js_Empty, js_Open, js_Taken);
+  //Empty - empty spot for a new job
   //Open - job is free to take by anyone
   //Taken - job is taken by some worker
   type TDemandImportance = (di_Norm, di_High);
@@ -417,7 +418,7 @@ begin
   fFieldsQueue[aID].Loc:=KMPoint(0,0);
   fFieldsQueue[aID].FieldType:=ft_None;
   fFieldsQueue[aID].Importance:=0;
-  fFieldsQueue[aID].JobStatus:=js_Open;
+  fFieldsQueue[aID].JobStatus:=js_Empty;
   fFieldsQueue[aID].Worker:=nil;
 end;
 
@@ -434,7 +435,7 @@ procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
 begin
   fHousePlansQueue[aID].House:=nil;
   fHousePlansQueue[aID].Importance:=0;
-  fHousePlansQueue[aID].JobStatus:=js_Open;
+  fHousePlansQueue[aID].JobStatus:=js_Empty;
   fHousePlansQueue[aID].Worker:=nil;
 end;
 
@@ -449,7 +450,7 @@ end;
 procedure TKMBuildingQueue.AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
 var i:integer;
 begin
-  i:=1; while (i<MaxEntries)and(fFieldsQueue[i].Loc.X<>0) do inc(i);
+  i:=1; while (i<MaxEntries)and(fFieldsQueue[i].JobStatus<>js_Empty) do inc(i);
   fFieldsQueue[i].Loc:=aLoc;
   fFieldsQueue[i].FieldType:=aFieldType;
   fFieldsQueue[i].Importance:=1;
@@ -470,7 +471,7 @@ end;
 procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
 var i:integer;
 begin
-  i:=1; while (i<MaxEntries)and(fHousePlansQueue[i].House<>nil) do inc(i);
+  i:=1; while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Empty) do inc(i);
   fHousePlansQueue[i].House:=aHouse;
   fHousePlansQueue[i].Importance:=1;
   fHousePlansQueue[i].JobStatus:=js_Open;
@@ -496,7 +497,7 @@ begin
   Result:=false;
   for i:=1 to length(fFieldsQueue) do
   with fFieldsQueue[i] do
-  if (FieldType<>ft_None)and(KMSamePoint(aLoc,Loc)) then
+  if (JobStatus<>js_Empty)and(KMSamePoint(aLoc,Loc)) then
   begin
 
     if not Simulated then
@@ -521,7 +522,7 @@ begin
   Result:=false;
   for i:=1 to length(fHousePlansQueue) do
   with fHousePlansQueue[i] do
-  if (House<>nil)and(House.HitTest(aLoc.X,aLoc.Y)) then
+  if (JobStatus<>js_Empty)and(House<>nil)and(House.HitTest(aLoc.X,aLoc.Y)) then
   begin
 
     if not Simulated then
@@ -542,7 +543,7 @@ var i:integer;
 begin
   Result:=nil;
 
-  i:=1; while (i<MaxEntries)and((fFieldsQueue[i].Loc.x=0)or(fFieldsQueue[i].JobStatus<>js_Open)) do inc(i);
+  i:=1; while (i<MaxEntries)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
   if i=MaxEntries then exit;
 
   if fFieldsQueue[i].FieldType=ft_Road then Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
@@ -569,7 +570,7 @@ function  TKMBuildingQueue.AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint
 var i:integer;
 begin
   Result:=nil; i:=1;
-  while (i<MaxEntries)and((fHousePlansQueue[i].House=nil)or(fHousePlansQueue[i].JobStatus<>js_Open)) do inc(i);
+  while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Open) do inc(i);
   if i=MaxEntries then exit;
 
   Result:=TTaskBuildHouseArea.Create(KMWorker, fHousePlansQueue[i].House, i);
