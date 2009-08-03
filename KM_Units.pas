@@ -29,19 +29,6 @@ type
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
       end;
 
-      {This is a simple action making unit go inside/outside of house}
-      TUnitActionGoIn = class(TUnitAction)
-      private
-        fStep:single;
-        fDir:TGoInDirection;
-        fHouseType:THouseType;
-        fStartX:single;
-        fHasStarted:boolean;
-      public
-        constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
-        procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
-      end;
-
       {Stay in place for set time}
       TUnitActionStay = class(TUnitAction)
       private
@@ -258,6 +245,7 @@ type
     procedure CancelUnitTask;
     property GetCondition: integer read fCondition;
     property IsVisible: boolean read fVisible;
+    property SetVisibility:boolean write fVisible;
     property IsDead:boolean read fIsDead;
     function IsArmyUnit():boolean;
     procedure RemoveUntrainedFromSchool();
@@ -265,6 +253,7 @@ type
     //property IsAtHome: boolean read UnitAtHome;
     function GetPosition():TKMPoint;
     property PositionF:TKMPointF read fPosition write fPosition;
+    property Thought:TUnitThought read fThought write fThought;
     function UpdateState():boolean; virtual;
     procedure Paint; virtual;
   end;
@@ -341,7 +330,7 @@ type
 
 implementation
 uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game,
-KM_ResourceGFX, KM_UnitActionWalkTo;
+KM_ResourceGFX, KM_UnitActionWalkTo, KM_UnitActionGoInOut;
 
 
 { TKMUnitCitizen }
@@ -966,7 +955,7 @@ end;
 
 procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType=ht_None);
 begin
-  SetAction(TUnitActionGoIn.Create(aAction, aGoDir, aHouseType),0);
+  SetAction(TUnitActionGoInOut.Create(aAction, aGoDir, aHouseType),0);
 end;
 
 
@@ -1170,7 +1159,7 @@ case Phase of
       fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
      end;
   6: begin
-      SetActionGoIn(ua_Walk,gid_Out,ht_School);
+      SetActionGoIn(ua_Walk,gd_GoOutside,ht_School);
       fSchool.UnitTrainingComplete;
       fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,true);
      end;
@@ -1211,7 +1200,7 @@ case Phase of
     SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance));
    end;
 1: if not fFrom.IsDestroyed then
-     SetActionGoIn(ua_Walk,gid_In,fFrom.GetHouseType)
+     SetActionGoIn(ua_Walk,gd_GoInside,fFrom.GetHouseType)
    else begin
      AbandonDelivery;
      TaskDone:=true;
@@ -1226,7 +1215,7 @@ case Phase of
        fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
        fLog.AssertToLog(false,'Resource''s gone..');
      end;
-     SetActionGoIn(ua_Walk,gid_Out,fFrom.GetHouseType);
+     SetActionGoIn(ua_Walk,gd_GoOutside,fFrom.GetHouseType);
    end else begin
      fVisible:=true; //Unit was invisible while inside. Must show it
      AbandonDelivery;
@@ -1242,7 +1231,7 @@ with fSerf do
 case Phase of
 5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
 6: if not fToHouse.IsDestroyed then
-     SetActionGoIn(ua_Walk,gid_In,fToHouse.GetHouseType)
+     SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
    else begin
      AbandonDelivery;
      TaskDone:=true;
@@ -1253,7 +1242,7 @@ case Phase of
    begin
      fToHouse.ResAddToIn(Carry);
      TakeResource(Carry);
-     SetActionGoIn(ua_walk,gid_Out,fToHouse.GetHouseType);
+     SetActionGoIn(ua_walk,gd_GoOutside,fToHouse.GetHouseType);
      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
    end else begin
@@ -1777,7 +1766,7 @@ with fUnit do
   case Phase of
     0: if WorkPlan.HasToWalk then begin
          fHome.SetState(hst_Empty,0);
-         SetActionGoIn(WorkPlan.WalkTo,gid_Out,fHome.GetHouseType); //Walk outside the house
+         SetActionGoIn(WorkPlan.WalkTo,gd_GoOutside,fHome.GetHouseType); //Walk outside the house
        end else begin
          Phase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
          SetActionStay(0,ua_Walk);
@@ -1822,7 +1811,7 @@ with fUnit do
          SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance), KMPoint(0,0),WorkPlan.WalkFrom); //Go home
          fThought := th_Home;
        end;
-    6: SetActionGoIn(WorkPlan.WalkFrom,gid_In,fHome.GetHouseType); //Go inside
+    6: SetActionGoIn(WorkPlan.WalkFrom,gd_GoInside,fHome.GetHouseType); //Go inside
 
     {Unit back at home and can process its booty now}
     7: begin
@@ -1911,7 +1900,7 @@ begin
          fThought := th_Home;
          SetActionWalk(fUnit,KMPointY1(fDestPos), KMPoint(0,0));
        end;
-    1: SetActionGoIn(ua_Walk,gid_In,fUnit.fHome.GetHouseType);
+    1: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.fHome.GetHouseType);
     2: begin
         fThought := th_None;
         SetActionStay(5,ua_Walk);
@@ -1945,10 +1934,10 @@ case Phase of
        if fHome<>nil then begin
          fHome.SetState(hst_Idle,0);
          fHome.SetState(hst_Empty,0);
-         SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType);
+         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome.GetHouseType);
        end
        else
-         SetActionGoIn(ua_Walk,gid_Out); //Inn or Store or etc.. for units without home.
+         SetActionGoIn(ua_Walk,gd_GoOutside); //Inn or Store or etc.. for units without home.
                                          //Which means that our current approach to deduce housetype from
                                          //fUnit.fHome is wrong
      end else
@@ -1983,11 +1972,11 @@ begin
          SetActionStay(20,ua_Walk);
        end;
     1: begin
-         SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType);
+         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome.GetHouseType);
          fHome.SetState(hst_Empty,0);
        end;
     2: SetActionStay(4,ua_Walk);
-    3: SetActionGoIn(ua_Walk,gid_In,fUnit.fHome.GetHouseType);
+    3: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.fHome.GetHouseType);
     4: begin
          SetActionStay(20,ua_Walk);
          fHome.SetState(hst_Idle,0);
@@ -2030,14 +2019,14 @@ case Phase of
  0: begin
       fThought := th_Eat;
       if fHome<>nil then fHome.SetState(hst_Empty,0);
-      if not fVisible then SetActionGoIn(ua_Walk,gid_Out,fUnit.fHome.GetHouseType) else
+      if not fVisible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome.GetHouseType) else
                            SetActionStay(0,ua_Walk); //Walk outside the house
     end;
  1: begin
       SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance));
     end;
  2: begin
-      SetActionGoIn(ua_Walk,gid_In,ht_Inn); //Enter Inn
+      SetActionGoIn(ua_Walk,gd_GoInside,ht_Inn); //Enter Inn
       PlaceID:=fInn.EaterGetsInside(fUnitType);
     end;
  3: //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
@@ -2078,7 +2067,7 @@ case Phase of
       if fCondition<UNIT_MAX_CONDITION then
         fThought := th_Eat
       else fThought := th_None;
-      SetActionGoIn(ua_Walk,gid_Out,ht_Inn); //Exit Inn
+      SetActionGoIn(ua_Walk,gd_GoOutside,ht_Inn); //Exit Inn
       fInn.EatersGoesOut(PlaceID);
     end;
  8: TaskDone:=true;
@@ -2141,83 +2130,6 @@ begin
   KMUnit.fPosition.Y:= KMUnit.fPosition.Y + DY*min(Distance,abs(WalkY));
 
   inc(KMUnit.AnimStep);
-end;
-
-
-{ TUnitActionGoIn }
-constructor TUnitActionGoIn.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
-begin
-  Inherited Create(aAction);
-  fDir:=aDirection;
-  fHouseType:=aHouseType;
-  fHasStarted:=false;
-  if fDir=gid_In then fStep:=1  //go Inside (one cell up)
-                 else fStep:=0; //go Outside (one cell down)
-end;
-
-
-procedure TUnitActionGoIn.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
-var Distance:single;
-begin
-  if not fHasStarted then
-    fStartX := KMUnit.fPosition.X;
-
-  fHasStarted:=true;
-  DoEnd:= False;
-  TimeDelta:=0.1;
-  Distance:= TimeDelta * KMUnit.Speed;
-
-  if fDir=gid_In then
-    KMUnit.Direction:=dir_N  //go Inside (one cell up)
-  else
-    KMUnit.Direction:=dir_S; //go Outside (one cell down)
-
-  //First step on going inside
-  if fStep=1 then begin
-    KMUnit.fThought := th_None;
-    KMUnit.NextPosition:=KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
-    fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
-    if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-      TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside + 1;
-  end;
-
-  //First step on going outside
-  if fStep=0 then begin
-    KMUnit.NextPosition:=KMPointY1(KMUnit.GetPosition);
-    //if fTerrain.Land[KMUnit.NextPosition.Y,KMUnit.NextPosition.X].IsUnit<>0 then exit; //Do not exit if tile is occupied
-    fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
-    if (KMUnit.fHome<>nil)and(KMUnit.fHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-      TKMHouseBarracks(KMUnit.fHome).RecruitsInside:=TKMHouseBarracks(KMUnit.fHome).RecruitsInside - 1;
- end;
-
-  fStep := fStep - Distance * shortint(fDir);
-  KMUnit.fPosition.Y := KMUnit.fPosition.Y - Distance * shortint(fDir);
-
-  //Attempt at making unit go towards entrance. I couldn't work out the algorithm
-  //@Lewin: Try using Mix function, I sketched it for you
-  //@Krom: Thanks, I've nearly got it working. I divided the offset by 4 because otherwise they move
-  //       too much. I haven't done it for Y yet, just X. I don't know if it is like KaM though, it
-  //       is hardly noticable anyway. Are there any house that have a big offset?
-  //       What do you think?
-  //@Lewin: Don't forget the case when unit is walking out of the house ;)
-  //        Y controls position at which unit becomes invisible. So far I cut it at (KMUnit.fVisible := fStep >= 0.3;)
-  //        Stables have the biggest offset
-  //        I think TUnitActionGoIn should be split into few pieces, so each
-  //        of them would fit on one screen (30lines)
-  //@Krom:  Sounds like a good idea, I think I'll leave this mess for you to sort out,
-  //        I'm not really confident and I don't really understand what I'm doing. :P
-  if fHouseType <> ht_None then
-    KMUnit.fPosition.X := Mix(fStartX,fStartX + ((HouseDAT[byte(fHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX),fStep);
-
-  KMUnit.fVisible := fStep >= 0.3; //Make unit invisible when it's inside of House
-
-  if (fStep<=0)or(fStep>=1) then
-  begin
-    DoEnd:=true;
-    KMUnit.fPosition.X := fStartX;
-  end
-  else
-    inc(KMUnit.AnimStep);
 end;
 
 

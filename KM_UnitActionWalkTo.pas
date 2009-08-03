@@ -29,7 +29,7 @@ type
             
 
 implementation
-uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport;
+uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut;
 
 
 { TUnitActionWalkTo }
@@ -281,7 +281,7 @@ begin
     end;
   end;
 
-  if (fOpponent.GetUnitAction is TUnitActionGoIn) then begin //Unit is walking into house, we can wait
+  if (fOpponent.GetUnitAction is TUnitActionGoInOut) then begin //Unit is walking into house, we can wait
     Explanation:='Unit is walking into house, we can wait';
     Result:=false; //Temp
     exit;
