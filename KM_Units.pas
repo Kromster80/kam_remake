@@ -2438,10 +2438,11 @@ begin
       //I think we should use solution '1a'. Whats your opinion?
 
       //@Krom:
-      //1a sounds ok. But we need to be sure we can cope with lots of units. If we can manage say 50k or so units
-      //without significant slow downs/memory loss then I think it will be ok. (268*50k = 13.4MB)
-      //Only trouble that I forsee is that any point at which we search the entire units list will become very slow
-      //after you have had lots of fights and killed 1000s.
+      //1a sounds ok. But we need to be sure we can cope with lots of units. If we can manage say
+      //50k or so units without significant slow downs/memory loss then I think it will be ok.
+      //(268*50k = 13.4MB)
+      //Only trouble that I forsee is that any point at which we search the entire units list will
+      //become very slow after you have had lots of fights and killed 1000s.
       //And everytime you cancel training in the school will be another unit.
       //I can't say it's a perfect solution but if it works then I agree.
       //To be deleted

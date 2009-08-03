@@ -7,8 +7,8 @@ Known bugs:
 	"979ms	Gameplay error ... done" follows "route unbuilt" error
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	See-through hills (lighting flaw)			//Assigned to Krom
-	Workers forget to build roads sometimes (probably same as woodcutter, units sometimes abandon their task without cleaning up)
-	Built road comes as unfinished "brown spot" (due to above bug)
++	Workers forget to build roads sometimes (probably same as woodcutter, units sometimes abandon their task without cleaning up)
++	Built road comes as unfinished "brown spot" (due to above bug)
 	Remove debug info
 	Fisher
 	Units eat all kinds of food in Inn (should add threshhold for max stamina)
@@ -22,7 +22,7 @@ Known bugs:
 +	Resource cheat is not strict enough
 +	Units should return to road first then go eat, home, etc.
 	Splash screen failed to disappear
-	Placing a building plan and removing it, the game returned a "Range check error"
++	Placing a building plan and removing it, the game returned a "Range check error"
 	TUnitAction is being overrun for some reason - error
 	Destroying barracks and unfinished houses results in crash (@Krom: I cannot reproduce either of these. Can you? As for unfinished houses, I think it is probably units getting stuck again or something. (or possibily worker abandoning early just before leaving the house area?) No idea about the barracks, it destroys fine for me, even with recruits and weapons)
 	Water has dark patches					//Assigned to Krom

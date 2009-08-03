@@ -3,6 +3,8 @@ interface
 uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
 
   type TJobStatus = (js_Open, js_Taken);
+  //Open - job is free to take by anyone
+  //Taken - job is taken by some worker
   type TDemandImportance = (di_Norm, di_High);
   const MaxEntries=1024;
 
@@ -416,6 +418,7 @@ begin
   fFieldsQueue[aID].FieldType:=ft_None;
   fFieldsQueue[aID].Importance:=0;
   fFieldsQueue[aID].JobStatus:=js_Open;
+  fFieldsQueue[aID].Worker:=nil;
 end;
 
 
@@ -432,6 +435,7 @@ begin
   fHousePlansQueue[aID].House:=nil;
   fHousePlansQueue[aID].Importance:=0;
   fHousePlansQueue[aID].JobStatus:=js_Open;
+  fHousePlansQueue[aID].Worker:=nil;
 end;
 
 
@@ -492,14 +496,14 @@ begin
   Result:=false;
   for i:=1 to length(fFieldsQueue) do
   with fFieldsQueue[i] do
-  if (FieldType<>ft_None)and(Loc.X=aLoc.X)and(Loc.Y=aLoc.Y) then
+  if (FieldType<>ft_None)and(KMSamePoint(aLoc,Loc)) then
   begin
 
     if not Simulated then
     begin
-      CloseRoad(i);
       if Worker<>nil then
         Worker.CancelUnitTask;
+      CloseRoad(i);
     end;
 
     Result:=true;
@@ -522,9 +526,9 @@ begin
 
     if not Simulated then
     begin
-      CloseHousePlan(i);
       if Worker<>nil then
         Worker.CancelUnitTask;
+      CloseHousePlan(i);
     end;
 
     Result:=true;
