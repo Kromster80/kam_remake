@@ -498,13 +498,13 @@ begin
 
   glColor4ubv(@Col);
   for i:=1 to NodeList.Count do
-    RenderDotOnTile(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5);
+    RenderDotOnTile(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5);
 
   glBegin(GL_LINE_STRIP);
   for i:=1 to NodeList.Count do
-    glVertex2f(NodeList.List[i-1].X-0.5,NodeList.List[i-1].Y-0.5-fTerrain.InterpolateLandHeight(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5)/CELL_HEIGHT_DIV);
+    glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5-fTerrain.InterpolateLandHeight(NodeList.List[i-1].X+0.5,NodeList.List[i-1].Y+0.5)/CELL_HEIGHT_DIV);
   glEnd;
-
+                     exit;
   glColor4f(1,1,1,1); //Vector where unit is going to
   i:=Pos;
   k:=min(Pos+1,NodeList.Count);

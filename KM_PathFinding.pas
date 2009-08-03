@@ -28,7 +28,7 @@ type
     LocB:TKMPoint;
     Avoid:TKMPoint;
     Pass:TPassability;
-    RoadNetworkID:byte;
+    TargetRoadNetworkID:byte;
     WalkToSpot:boolean;
     fDestination:TDestinationPoint;
     fRouteSuccessfullyBuilt:boolean;
@@ -38,7 +38,7 @@ type
     function IsDestinationReached():boolean;
   public
     constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean); overload;
-    constructor Create(aLocA:TKMPoint; aRoadNetworkID:byte); overload;
+    constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte); overload;
     procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
@@ -53,7 +53,7 @@ begin
   LocB := aLocB;
   Avoid := aAvoid;
   Pass := aPass;
-  RoadNetworkID := 0; //erase just in case
+  TargetRoadNetworkID := 0; //erase just in case
   WalkToSpot := aWalkToSpot;
   fRouteSuccessfullyBuilt := false;
   fDestination:=dp_Location;
@@ -65,13 +65,13 @@ begin
 end;
 
 
-constructor TPathFinding.Create(aLocA:TKMPoint; aRoadNetworkID:byte);
+constructor TPathFinding.Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte);
 begin
   LocA := aLocA;
   LocB := KMPoint(0,0); //erase just in case
   Avoid := KMPoint(0,0); //erase just in case
   Pass := canWalk; //Should be unused here
-  RoadNetworkID := aRoadNetworkID;
+  TargetRoadNetworkID := aTargetRoadNetworkID;
   WalkToSpot := false;
   fRouteSuccessfullyBuilt := false;
   fDestination:=dp_Passability;
@@ -167,7 +167,7 @@ function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
     dp_Location:    Result := KMSamePoint(MinCost.Pos,LocB) or ((not WalkToSpot) and (KMLength(MinCost.Pos,LocB)<1.5));
-    dp_Passability: Result := fTerrain.GetRoadConnectID(MinCost.Pos) = RoadNetworkID;
+    dp_Passability: Result := fTerrain.GetRoadConnectID(MinCost.Pos) = TargetRoadNetworkID;
     else            Result := true;
   end;
 end;

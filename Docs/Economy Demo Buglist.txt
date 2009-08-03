@@ -11,6 +11,7 @@ Known bugs:
 	Built road comes as unfinished "brown spot" (due to above bug)
 	Remove debug info
 	Fisher
+	Units eat all kinds of food in Inn (should add threshhold for max stamina)
 	Greyish block around mouse cursor
 	Time freeze bug
 +	Field building on map edges

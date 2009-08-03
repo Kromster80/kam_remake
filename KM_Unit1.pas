@@ -385,50 +385,59 @@ begin
 
   //Diagonal exchange
   {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
-  U.SetActionWalk(U.GetPosition,KMPoint(9,9));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
-  U.SetActionWalk(U.GetPosition,KMPoint(9,9));
+  U.SetActionWalk(U,KMPoint(9,9));
+  //U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
+  //U.SetActionWalk(U,KMPoint(9,9));
+  //U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
+  //U.SetActionWalk(U,KMPoint(5,5));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
-  U.SetActionWalk(U.GetPosition,KMPoint(5,5));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
-  U.SetActionWalk(U.GetPosition,KMPoint(5,5)); //}
+  U.SetActionWalk(U,KMPoint(5,5)); //}
 
   //Walk in row
   {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,8));
-  U.SetActionWalk(U.GetPosition,KMPoint(5,14));
+  U.SetActionWalk(U,KMPoint(5,14));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetActionWalk(U.GetPosition,KMPoint(5,14));//}
+  U.SetActionWalk(U,KMPoint(5,14));//}
 
-  //Solve diamond
-  //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
-  //but how to maintain TTask integrity?
+  //Work around busy unit
+  {MyPlayer.AutoRoadConnect(KMPoint(5,10),KMPoint(15,10));
+  U:=MyPlayer.AddUnit(ut_Serf, KMPoint(5,10));
+  U.SetActionWalk(U,KMPoint(15,10),KMPoint(0,0));
+  U:=MyPlayer.AddUnit(ut_Worker, KMPoint(10,10));
+  U.SetActionStay(1000,ua_Work2);}
+
+  //Solve big diamond
   {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
-  U.SetActionWalk(U,KMPoint(6,8),KMPoint(0,0));
+  U.SetActionWalk(U,KMPoint(6,8));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
-  U.SetActionWalk(U,KMPoint(7,11),KMPoint(0,0));
+  U.SetActionWalk(U,KMPoint(7,11));
   U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
-  U.SetActionWalk(U,KMPoint(4,12),KMPoint(0,0));
+  U.SetActionWalk(U,KMPoint(4,12));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
-  U.SetActionWalk(U,KMPoint(3,9),KMPoint(0,0));//}
+  U.SetActionWalk(U,KMPoint(3,9));//}
+
+  //Unsolved situations:
+  //--------------------
 
   //Solve diamond with destination being blocked
   //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
   //but how to maintain TTask integrity?
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
-  U.SetActionWalk(U,KMPoint(5,9),KMPoint(0,0));
+  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
+  U.SetActionWalk(U,KMPoint(5,9));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
-  U.SetActionWalk(U,KMPoint(6,10),KMPoint(0,0));
+  U.SetActionWalk(U,KMPoint(6,10));
   U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
-  U.SetActionWalk(U,KMPoint(5,11),KMPoint(0,0));
+  U.SetActionWalk(U,KMPoint(5,11));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
-  U.SetActionWalk(U,KMPoint(4,10),KMPoint(0,0));//}
+  U.SetActionWalk(U,KMPoint(4,10));//}
+
 
   MyPlayer.AddUnit(ut_HorseScout, KMPoint(12,12));
 
-  //Walk through group
-  {MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,49);
+  //Walk through 7x50 group
+  MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,350);
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetActionWalk(U.GetPosition,KMPoint(16,8));//}
+  U.SetActionWalk(U,KMPoint(58,8));//}
 
   fTerrain.RevealWholeMap(play_1);
   fViewPort.SetCenter(10,10);

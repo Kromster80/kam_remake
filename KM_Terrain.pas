@@ -109,7 +109,7 @@ public
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
   procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
-  procedure Route_Return(LocA:TKMPoint; RoadNetworkID:byte; out NodeList:TKMPointList);
+  procedure Route_ReturnToRoad(LocA:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
 
   procedure UnitAdd(LocTo:TKMPoint);
   procedure UnitRem(LocFrom:TKMPoint);
@@ -130,6 +130,7 @@ public
 
   function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
   function CanWalkDiagonaly(A,B:TKMPoint):boolean;
+  function FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
 
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
@@ -388,6 +389,46 @@ begin
   else
   if (A.X>B.X)and(A.Y<B.Y) then                                  //    A
     Result := not MapElem[Land[A.Y+1,A.X].Obj+1].DiagonalBlocked;//   B
+end;
+
+
+{Find new node inbetween A and B}
+function TTerrain.FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
+var Options:TKMPointList;
+  function CheckTile(aA,aB:smallint):TKMPoint;
+  begin
+    if CheckPassability(KMPoint(aA,aB),aPass) then
+      Result := KMPoint(aA,aB)
+    else
+      Result := KMPoint(0,0);
+  end;
+begin
+  Options := TKMPointList.Create;
+
+  if (abs(A.X-B.X)=1) and (abs(A.Y-B.Y)=1) then //Diagonal
+  begin
+    if CheckPassability(KMPoint(A.X,B.Y),aPass) then Options.AddEntry(KMPoint(A.X,B.Y));
+    if CheckPassability(KMPoint(B.X,A.Y),aPass) then Options.AddEntry(KMPoint(B.X,A.Y));
+  end;
+
+  if (A.X=B.X) and (abs(A.Y-B.Y)=1) then //Vertical
+  begin
+    if CheckPassability(KMPoint(A.X-1,A.Y),aPass) then Options.AddEntry(KMPoint(A.X-1,A.Y));
+    if CheckPassability(KMPoint(A.X-1,B.Y),aPass) then Options.AddEntry(KMPoint(A.X-1,B.Y));
+    if CheckPassability(KMPoint(A.X+1,A.Y),aPass) then Options.AddEntry(KMPoint(A.X+1,A.Y));
+    if CheckPassability(KMPoint(A.X+1,B.Y),aPass) then Options.AddEntry(KMPoint(A.X+1,B.Y));
+  end;
+
+  if (abs(A.X-B.X)=1) and (A.Y=B.Y) then //Horizontal
+  begin
+    if CheckPassability(KMPoint(A.X,A.Y-1),aPass) then Options.AddEntry(KMPoint(A.X,A.Y-1));
+    if CheckPassability(KMPoint(B.X,A.Y-1),aPass) then Options.AddEntry(KMPoint(B.X,A.Y-1));
+    if CheckPassability(KMPoint(A.X,A.Y+1),aPass) then Options.AddEntry(KMPoint(A.X,A.Y+1));
+    if CheckPassability(KMPoint(B.X,A.Y+1),aPass) then Options.AddEntry(KMPoint(B.X,A.Y+1));
+  end;
+
+  Result := Options.GetRandom;
+  Options.Free;
 end;
 
 
@@ -1071,10 +1112,10 @@ begin
 end;
 
 
-procedure TTerrain.Route_Return(LocA:TKMPoint; RoadNetworkID:byte; out NodeList:TKMPointList);
+procedure TTerrain.Route_ReturnToRoad(LocA:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, RoadNetworkID);
+  fPath := TPathFinding.Create(LocA, TargetRoadNetworkID);
   fPath.ReturnRoute(NodeList);
   fPath.Free;
 end;
@@ -1442,6 +1483,8 @@ var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
   Xc:=trunc(inX);
   Yc:=trunc(inY);
+  if not VerticeInMapCoords(Xc,Yc) then
+  exit;
   fLog.AssertToLog(VerticeInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
   Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));

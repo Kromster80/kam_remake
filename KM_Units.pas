@@ -240,7 +240,8 @@ type
     procedure SetAction(aAction: TUnitAction; aStep:integer);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType=ht_None);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
-    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false);
+    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false); overload;
+    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false); overload;
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure AbandonWalk;
     procedure Feed(Amount:single);
@@ -248,6 +249,7 @@ type
     property GetSpeed:single read Speed;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
+    function GetUnitActionType():TUnitActionType;
     property GetUnitTask: TUnitTask read fUnitTask;
     property SetUnitTask: TUnitTask write fUnitTask;
     property GetUnitType: TUnitType read fUnitType;
@@ -870,6 +872,12 @@ begin
   Result:=KMPointRound(fPosition);
 end;
 
+function TKMUnit.GetUnitActionType():TUnitActionType;
+begin
+  Result := GetUnitAction.fActionType;
+end;
+
+
 function TKMUnit.GetUnitTaskText():string;
 begin
   Result:='Idle';
@@ -948,6 +956,12 @@ end;
 procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false);
 begin
   SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, aAvoid, aActionType, aWalkToSpot, aIgnorePass),0);
+end;
+
+
+procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false);
+begin
+  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aIgnorePass),0);
 end;
 
 
@@ -2296,7 +2310,8 @@ begin
   fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
 
   Commander.Direction:=aDir;
-  TKMUnitWarrior(Commander).fIsCommander:=true;
+  if Commander is TKMUnitWarrior then
+    TKMUnitWarrior(Commander).fIsCommander:=true;
 
   for i:=1 to aUnitCount do begin
     px:=(i-1) mod aUnitPerRow - aUnitPerRow div 2;
@@ -2310,7 +2325,8 @@ begin
       if U<>nil then begin
         fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
         U.Direction:=aDir; //U will be _nil_ if unit didn't fit on map
-        TKMUnitWarrior(U).fCommanderID:=Commander;
+        if Commander is TKMUnitWarrior then
+          TKMUnitWarrior(U).fCommanderID:=Commander;
       end;
     end;
   end;

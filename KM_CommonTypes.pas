@@ -17,6 +17,7 @@ type TKMPointList = class
     procedure Clearup; virtual;
     procedure AddEntry(aLoc:TKMPoint); dynamic;
     function RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
+    procedure InjectEntry(ID:integer; aLoc:TKMPoint);
     function GetRandom():TKMPoint;
     procedure Inverse();
   end;
@@ -186,6 +187,16 @@ begin
     end;
     if (Found) and (i < Count) then List[i] := List[i+1];
   end;
+end;
+
+{Add an entry at given place an shift everything }
+procedure TKMPointList.InjectEntry(ID:integer; aLoc:TKMPoint);
+var i:integer;
+begin
+  AddEntry(List[Count]);
+  for i:=Count downto ID+1 do
+    List[i]:=List[i-1];
+  List[ID]:=aLoc;
 end;
 
 
