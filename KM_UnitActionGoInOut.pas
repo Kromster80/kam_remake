@@ -8,9 +8,11 @@ type
   TUnitActionGoInOut = class(TUnitAction)
     private
         fStep:single;
-        fDir:TGoInDirection;
+        fDirection:TGoInDirection;
         fHouseType:THouseType;
-        fStartX:single;
+        fDoor:TKMPointF;
+        fStreet:TKMPoint;
+//        fStartX:single;
         fHasStarted:boolean;
     public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
@@ -25,66 +27,79 @@ uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport;
 constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
 begin
   Inherited Create(aAction);
-  fDir:=aDirection;
-  fHouseType:=aHouseType;
-  fHasStarted:=false;
-  if fDir=gd_GoInside then fStep:=1  //go Inside (one cell up)
-                      else fStep:=0; //go Outside (one cell down)
+  fDirection    := aDirection;
+  fHouseType    := aHouseType;
+  fHasStarted   := false;
+  
+  if fDirection = gd_GoInside then
+    fStep := 1  //go Inside (one cell up)
+  else
+    fStep := 0; //go Outside (one cell down)
 end;
 
 
 procedure TUnitActionGoInOut.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
-var Distance:single; OffX:single;
+var Distance:single;
 begin
-  if not fHasStarted then
-    fStartX := KMUnit.PositionF.X;
-
-  fHasStarted:=true;
   DoEnd:= False;
   TimeDelta:=0.1;
-  Distance:= TimeDelta * KMUnit.GetSpeed;
 
-  if fDir=gd_GoInside then
-    KMUnit.Direction:=dir_N  //one cell up
-  else
-    KMUnit.Direction:=dir_S; //one cell down
+  if not fHasStarted then //Set Door and Street locations
+  begin
+  
+    fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
+    fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
+    if byte(fHouseType) in [1..length(HouseDAT)] then
+      fDoor.X := fDoor.X + (HouseDAT[byte(fHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX;
 
-  //First step on going inside
-  if fStep=1 then begin
-    KMUnit.Thought := th_None;
-    KMUnit.NextPosition:=KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
-    fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
-    if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-      TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside + 1;
+
+    if fDirection=gd_GoInside then
+    begin
+      KMUnit.Direction:=dir_N;  //one cell up
+      KMUnit.Thought := th_None;
+      KMUnit.NextPosition := KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
+      fTerrain.UnitWalk(KMUnit.GetPosition, KMUnit.NextPosition);
+      if (KMUnit.GetHome<>nil) and (KMUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
+        TKMHouseBarracks(KMUnit.GetHome).RecruitsInside := TKMHouseBarracks(KMUnit.GetHome).RecruitsInside + 1;
+    end;
+
+    if fDirection=gd_GoOutSide then
+    begin
+      //ChooseSpotToWalkOut
+      if fTerrain.Land[fStreet.Y,fStreet.X].IsUnit = 0 then
+      begin
+        KMUnit.Direction:=dir_S;
+        //fStreet.X := fStreet.X
+      end else
+      //  if fTerrain.TileInMapCoords(fStreet.X-1,fStreet.Y) and (fTerrain.Land[fStreet.Y,fStreet.X-1].IsUnit = 0) then
+      //    fStreet.X := fStreet.X - 1
+      //  else
+      //  if fTerrain.TileInMapCoords(fStreet.X+1,fStreet.Y) and (fTerrain.Land[fStreet.Y,fStreet.X+1].IsUnit = 0) then
+      //    fStreet.X := fStreet.X - 1
+      //  else
+        exit; //Do not exit the house if all street tiles are blocked by units, just wait
+
+      KMUnit.NextPosition := fStreet;
+      fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
+      if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
+        TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
+    end;
+
+    fHasStarted:=true;
   end;
 
-  //First step on going outside
-  if fStep=0 then begin
-    KMUnit.NextPosition:=KMPointY1(KMUnit.GetPosition);
-    //if fTerrain.Land[KMUnit.NextPosition.Y,KMUnit.NextPosition.X].IsUnit<>0 then exit; //Do not exit if tile is occupied
-    fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
-    if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
-      TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
- end;
-
-  fStep := fStep - Distance * shortint(fDir);
-
-  if fHouseType <> ht_None then
-    OffX := ((HouseDAT[byte(fHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX)
-  else
-    OffX := 0;
-
-  KMUnit.PositionF := KMPointF(
-    Mix(fStartX,fStartX + OffX,fStep),
-    KMUnit.PositionF.Y - Distance * shortint(fDir)
-    );  
-
+  Distance:= TimeDelta * KMUnit.GetSpeed;
+  fStep := fStep - Distance * shortint(fDirection);
+  KMUnit.PositionF := KMPointF(Mix(fStreet.X,fDoor.X,fStep),Mix(fStreet.Y,fDoor.Y,fStep));
   KMUnit.SetVisibility := fStep >= 0.3; //Make unit invisible when it's inside of House
 
   if (fStep<=0)or(fStep>=1) then
   begin
     DoEnd:=true;
-    KMUnit.PositionF := KMPointF(fStartX,KMUnit.PositionF.Y);
+    if fDirection = gd_GoInside then
+      KMUnit.PositionF := fDoor
+    else
+      KMUnit.PositionF := KMPointF(fStreet.X,fStreet.Y);
   end
   else
     inc(KMUnit.AnimStep);

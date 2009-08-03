@@ -18,6 +18,8 @@ type
 
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
+
+  function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload
   
   procedure KMSwapPoints(var A,B:TKMPoint);
 
@@ -92,6 +94,14 @@ if abs(A.X-B.X) > abs(A.Y-B.Y) then
 else
   Result := abs(A.Y-B.Y) + abs(A.X-B.X)*0.41
 end;
+
+
+function Mix(A,B:TKMPointF; MixValue:single):TKMPointF;
+begin
+  Result.X := A.X*MixValue + B.X*(1-MixValue);
+  Result.Y := A.Y*MixValue + B.Y*(1-MixValue);
+end;
+
 
 
 procedure KMSwapPoints(var A,B:TKMPoint);

@@ -60,7 +60,7 @@ type
 
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
-    procedure CloseHouse;
+    procedure CloseHouse; virtual;
 
     procedure Activate(aWasBuilt:boolean);
     procedure DemolishHouse(DoSilent:boolean);
@@ -144,6 +144,7 @@ type
   public
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+    procedure CloseHouse; override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(id:integer); //Should remove unit from queue and shift rest up
@@ -237,8 +238,8 @@ procedure TKMHouse.CloseHouse;
 begin
   fIsDestroyed:=true;
   if RemoveRoadWhenDemolish then fTerrain.RemRoad(Self.GetEntrance);
-
   FreeAndNil(fCurrentAction);
+  //Leave disposing of units inside the house to themselves
 end;
 
 
@@ -810,6 +811,15 @@ begin
   for i:=1 to length(UnitQueue) do
     UnitQueue[i]:=ut_None;
   UnitWIP:=nil;
+end;
+
+
+procedure TKMHouseSchool.CloseHouse;
+var i:integer;
+begin
+  for i:=2 to length(UnitQueue) do UnitQueue[i]:=ut_None; //Remove all queue units
+  RemUnitFromQueue(1); //Remove WIP unit
+  Inherited;
 end;
 
 
