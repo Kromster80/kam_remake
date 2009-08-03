@@ -106,6 +106,7 @@ public
   procedure RecalculatePassability(Loc:TKMPoint);
   procedure RecalculatePassabilityAround(Loc:TKMPoint);
   function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
+  function HasUnit(Loc:TKMPoint):boolean;
   function GetRoadConnectID(Loc:TKMPoint):byte;
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
@@ -1058,6 +1059,13 @@ begin
     Result := aPass in Land[Loc.Y,Loc.X].Passability
   else
     Result := false;
+end;
+
+
+function TTerrain.HasUnit(Loc:TKMPoint):boolean;
+begin
+  if TileInMapCoords(Loc.X,Loc.Y) then
+    Result := Land[Loc.Y,Loc.X].IsUnit <> 0;
 end;
 
 

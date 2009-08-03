@@ -174,7 +174,7 @@ begin
 
   Application.OnIdle:=Form1.OnIdle;
 
-  ToggleControlsVisibility(false);
+  ToggleControlsVisibility(ShowDebugControls);
 
   fLog.AppendLog('Form1 create is done');
 

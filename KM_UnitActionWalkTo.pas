@@ -49,6 +49,7 @@ begin
   NodeList      := TKMPointList.Create; //Freed on destroy
   NodePos       := 1;
   fRouteBuilt   := false;
+  DoEvade       := false;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
@@ -124,13 +125,10 @@ begin
   Result:=true; //false = interaction yet unsolved, stay and wait
   if not DO_UNIT_INTERACTION then exit;
 
-  //Check if that the last node in route anyway
-  if NodePos >= NodeList.Count then exit;
+  //If there's no unit we can keep on walking, interaction does not need to be solved
+  if not fTerrain.HasUnit(NodeList.List[NodePos+1]) then exit;
 
-  //Check if there's a unit blocking the way
-  if fTerrain.Land[NodeList.List[NodePos+1].Y,NodeList.List[NodePos+1].X].IsUnit=0 then exit;
-
-  fOpponent:=fPlayers.UnitsHitTest(NodeList.List[NodePos+1].X,NodeList.List[NodePos+1].Y);
+  fOpponent := fPlayers.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
 
   //If there's yet no Unit on the way but tile is pre-occupied
   if fOpponent = nil then begin
@@ -162,13 +160,13 @@ begin
     if fOpponent.GetUnitActionType = ua_Walk then //Unit stays idle, not working or something
     begin 
       //Force Unit to go away
-      fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,canWalk), KMPoint(0,0));
+      fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,canWalk));
       Explanation := 'Unit was blocking the way but it''s forced to get away now';
       Result := false; //Next frame tile will be free and unit will walk there
       exit;
     end else
     begin
-    //If Unit on the way is doing something and won't move away
+      //If Unit on the way is doing something and won't move away
       if KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Target position is occupied by another unit
       begin
         Explanation := 'Target position is occupied by another Unit, can''t do nothing about it but wait. '+inttostr(random(123));
@@ -183,7 +181,7 @@ begin
           (
               fWalker,
               fWalkTo,
-              KMPoint(NodeList.List[NodePos+1].X,NodeList.List[NodePos+1].Y), //Avoid this tile
+              NodeList.List[NodePos+1], //Avoid this tile
               GetActionType,
               fWalkToSpot,
               fIgnorePass
@@ -208,11 +206,17 @@ begin
       end else
       begin
         //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
-        TUnitActionWalkTo(fOpponent.GetUnitAction).DoEvade:=true;
         TUnitActionWalkTo(fWalker.GetUnitAction).DoEvade:=true;
+        TUnitActionWalkTo(fOpponent.GetUnitAction).DoEvade:=true;
+        TUnitActionWalkTo(fWalker.GetUnitAction).DoesWalking:=true;
+        TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
         Explanation:='Unit on the way is walking opposite direction. Performing an exchange';
-        Result:=true;
+        Result:=false; //They both will exchange nest tick
         exit;
+        { UNRESOLVED ! }
+        //@Lewin:
+        //How do we make sure both units exchange but no other 3rd unit inbetween them could step
+        //on the tile as well?
       end
     end else
     //Unit walking direction is not opposite
@@ -232,7 +236,7 @@ begin
 
           //Solution A
           //Walk through 7x50 group time  ~105sec
-          {T:=KMPoint(0,0);
+          T:=KMPoint(0,0);
           //This could be potential flaw, but so far it worked out allright
           if TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1 <= TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.Count then
           T := fTerrain.FindNewNode(
@@ -248,15 +252,15 @@ begin
             // UNRESOLVED !
           end;
           TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.InjectEntry(TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1,T);
-          }
 
-          //Solution B
+
+         { //Solution B
           //Walk through 7x50 group time  ~105sec
           T:=fOpponent.GetPosition; //Elegant enough?
           TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.InjectEntry(TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1,T);
           T:=fWalker.GetPosition;
           TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.InjectEntry(TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1,T);
-          
+           }
 
           //In fact this is not very smart idea, cos fOpponent may recieve endless InjectEntries!
           Result := false;
@@ -302,7 +306,7 @@ end;
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
 var
-  DX,DY:shortint; WalkX,WalkY,Distance:single;
+  DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean;
 begin
   DoEnd := false;
   GetIsStepDone := false;
@@ -317,7 +321,6 @@ begin
   //Somehow route was not built, this is an error
   if not fRouteBuilt then begin
     fLog.AddToLog('Unable to walk a route since it''s unbuilt');
-    //DEBUG, should be wrapped somehow for the release
     fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
     fGame.PauseGame(true);
     //Pop-up some message
@@ -332,35 +335,45 @@ begin
   //Normally it pauses when the route can't be built. The unit just starts to move
   //(shows animation and moves one step) then it crashes here. Has the CanMakeRoute
   //check been removed or something?
-  if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then begin
+  if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
+  begin
 
     GetIsStepDone:=true; //Unit stepped on a new tile
 
     //Set precise position to avoid rounding errors
     fWalker.PositionF:=KMPointF(NodeList.List[NodePos].X,NodeList.List[NodePos].Y);
 
-    //Update unit direction according to next Node 
-    if NodePos+1<=NodeList.Count then begin
-      DX := sign(NodeList.List[NodePos+1].X - NodeList.List[NodePos].X); //-1,0,1
-      DY := sign(NodeList.List[NodePos+1].Y - NodeList.List[NodePos].Y); //-1,0,1
-      fWalker.Direction := DirectionsBitfield[DX,DY];
-    end;
-
-    //Perform interaction
-    if not DoUnitInteraction() then
-    begin
-      //fWalker gets nulled if DoUnitInteraction creates new path, hence we need to querry KMUnit instead
-      DoEnd := KMUnit.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
-      exit; //Do no further walking until unit interaction is solved
-    end;
-
-    inc(NodePos);
-
-    if NodePos>NodeList.Count then begin
+    //Walk complete
+    if NodePos=NodeList.Count then begin
       DoEnd:=true;
       exit;
-    end else begin
-      fWalker.PrevPosition:=fWalker.NextPosition; ////////////////
+    end;
+
+    //Update unit direction according to next Node 
+    DX := sign(NodeList.List[NodePos+1].X - NodeList.List[NodePos].X); //-1,0,1
+    DY := sign(NodeList.List[NodePos+1].Y - NodeList.List[NodePos].Y); //-1,0,1
+    fWalker.Direction := DirectionsBitfield[DX,DY];
+
+    //Perform interaction
+      //Both exchanging units have DoEvade:=true assigned by 1st unit, hence 2nd should not try
+      //doing UnitInteraction!
+    if DoEvade then begin
+      inc(NodePos);
+      fWalker.PrevPosition:=fWalker.NextPosition;
+      fWalker.NextPosition:=NodeList.List[NodePos];
+      //We don't need to perform UnitWalk since exchange means the same,
+      //but without UnitWalk there's a guarantee no other unit will step on this tile!
+      DoEvade:=false;
+    end else
+    begin
+
+      AllowToWalk := DoUnitInteraction(); //Be carefull now on - fWalker might have a new WalkTo task already!
+
+      DoEnd := KMUnit.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
+      if not AllowToWalk then exit; //Do no further walking until unit interaction is solved
+
+      inc(NodePos);
+      fWalker.PrevPosition:=fWalker.NextPosition;
       fWalker.NextPosition:=NodeList.List[NodePos];
       fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
     end;
@@ -374,16 +387,13 @@ begin
   DX := sign(WalkX); //-1,0,1
   DY := sign(WalkY); //-1,0,1
 
-  //fWalker.Direction:=DirectionsBitfield[DX,DY];
-
   if (DX <> 0) and (DY <> 0) then
-    Distance:=Distance / 1.41; {sqrt (2) = 1.41421 }
+    Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
 
   fWalker.PositionF:=KMPointF(fWalker.PositionF.X + DX*min(Distance,abs(WalkX)),
                               fWalker.PositionF.Y + DY*min(Distance,abs(WalkY)));
 
   inc(fWalker.AnimStep);
-
   DoesWalking:=true; //Now it's definitely true that unit did walked one step
 end;
 

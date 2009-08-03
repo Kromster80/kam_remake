@@ -64,19 +64,22 @@ begin
     end;
 
     if fDirection=gd_GoOutSide then
-    begin
-      //ChooseSpotToWalkOut
+    begin //ChooseSpotToWalkOut
       if fTerrain.Land[fStreet.Y,fStreet.X].IsUnit = 0 then
       begin
         KMUnit.Direction:=dir_S;
         //fStreet.X := fStreet.X
       end else
-      //  if fTerrain.TileInMapCoords(fStreet.X-1,fStreet.Y) and (fTerrain.Land[fStreet.Y,fStreet.X-1].IsUnit = 0) then
-      //    fStreet.X := fStreet.X - 1
-      //  else
-      //  if fTerrain.TileInMapCoords(fStreet.X+1,fStreet.Y) and (fTerrain.Land[fStreet.Y,fStreet.X+1].IsUnit = 0) then
-      //    fStreet.X := fStreet.X - 1
-      //  else
+        if fTerrain.TileInMapCoords(fStreet.X-1,fStreet.Y) and (fTerrain.Land[fStreet.Y,fStreet.X-1].IsUnit = 0) then
+        begin
+          KMUnit.Direction:=dir_SW;
+          fStreet.X := fStreet.X - 1
+        end else
+        if fTerrain.TileInMapCoords(fStreet.X+1,fStreet.Y) and (fTerrain.Land[fStreet.Y,fStreet.X+1].IsUnit = 0) then
+        begin
+          KMUnit.Direction:=dir_SE;
+          fStreet.X := fStreet.X + 1
+        end else
         exit; //Do not exit the house if all street tiles are blocked by units, just wait
 
       KMUnit.NextPosition := fStreet;
