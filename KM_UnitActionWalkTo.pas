@@ -76,6 +76,7 @@ begin
 
   if not DO_SERFS_WALK_ROADS then Result:=canWalk; //Reset everyone to canWalk for debug
 
+  //Delivery to unit
   if (KMUnit.GetUnitType = ut_Serf)and(KMUnit.GetUnitTask is TTaskDeliver)and
   (TTaskDeliver(KMUnit.GetUnitTask).DeliverKind=dk_Unit) then
     Result:=canWalk;
@@ -126,10 +127,18 @@ end;
 
 function TUnitActionWalkTo.CheckCanWalk():boolean;
 begin
-Result := true;
-  Result := fTerrain.CheckPassability(NodeList.List[NodePos+1],ChoosePassability(fWalker,fIgnorePass));
-  if not Result then
-    fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot,fIgnorePass);
+  Result := true;
+
+ { //If there's an unexpected obstacle
+  if not fTerrain.CheckPassability(NodeList.List[NodePos+1],ChoosePassability(fWalker,fIgnorePass)) then
+    //Try to find a walkaround
+    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,ChoosePassability(fWalker,fIgnorePass),fWalkToSpot) then
+      fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot,fIgnorePass)
+    else
+    begin
+      fWalker.GetUnitTask.Abandon; //Else stop and abandon the task
+      Result:=false; 
+    end;  }
 end;
 
 

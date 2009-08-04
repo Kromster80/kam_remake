@@ -51,6 +51,7 @@ type
     Phase2:byte;
   public
     procedure Execute(out TaskDone:boolean); virtual; abstract;
+    procedure Abandon; virtual;
   end;
 
     TTaskSelfTrain = class(TUnitTask)
@@ -73,7 +74,7 @@ type
     public
       DeliverKind:TDeliverKind;
       constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
-      procedure AbandonDelivery();
+      procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -866,7 +867,7 @@ begin
 
   //Abandon delivery if any
   if (Self is TKMUnitSerf) and (Self.fUnitTask is TTaskDeliver) then
-    TTaskDeliver(Self.fUnitTask).AbandonDelivery;
+    TTaskDeliver(Self.fUnitTask).Abandon;
 
   //Abandon work if any
   if Self is TKMUnitWorker then
@@ -1113,6 +1114,13 @@ begin
 end;
 
 
+procedure TUnitTask.Abandon;
+begin
+  //Shortcut to abandon and declare task done
+  Phase:=MAXBYTE;
+  Phase2:=MAXBYTE;
+end;
+
 { TTaskSelfTrain }
 {Train itself in school}
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
@@ -1166,7 +1174,7 @@ case Phase of
       fSchool.UnitTrainingComplete;
       fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,true);
      end;
-  7: TaskDone:=true;
+  else TaskDone:=true;
 end;
 inc(Phase);
 end;
@@ -1193,8 +1201,9 @@ begin
 end;
 
 
-procedure TTaskDeliver.AbandonDelivery();
+procedure TTaskDeliver.Abandon();
 begin
+  Inherited;
   fPlayers.Player[byte(fSerf.fOwner)].DeliverList.AbandonDelivery(fDeliverID);
 end;
 
@@ -1212,7 +1221,7 @@ case Phase of
 1: if not fFrom.IsDestroyed then
      SetActionGoIn(ua_Walk,gd_GoInside,fFrom.GetHouseType)
    else begin
-     AbandonDelivery;
+     Abandon;
      TaskDone:=true;
    end;
 2: SetActionStay(5,ua_Walk); //Wait a moment inside
@@ -1228,7 +1237,7 @@ case Phase of
      SetActionGoIn(ua_Walk,gd_GoOutside,fFrom.GetHouseType);
    end else begin
      fVisible:=true; //Unit was invisible while inside. Must show it
-     AbandonDelivery;
+     Abandon;
      TaskDone:=true;
    end;
 4: if Carry=rt_None then TaskDone:=true else SetActionStay(0,ua_Walk);
@@ -1243,7 +1252,7 @@ if DeliverKind = dk_House then
   6: if not fToHouse.IsDestroyed then
        SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
      else begin
-       AbandonDelivery;
+       Abandon;
        TaskDone:=true;
        TakeResource(Carry);
      end;
@@ -1257,11 +1266,11 @@ if DeliverKind = dk_House then
        fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
      end else begin
        fVisible:=true; //Unit was invisible while inside. Must show it
-       AbandonDelivery;
+       Abandon;
        TaskDone:=true;
        TakeResource(Carry);
      end;
-  9: TaskDone:=true;
+  else TaskDone:=true;
   end;
 
 //Deliver into wip house
@@ -1269,19 +1278,20 @@ if DeliverKind = dk_House then
   if not fToHouse.IsComplete then
   if not fToHouse.IsDestroyed then
   begin
-  with fSerf do
-  case Phase of
-  5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
-  6: begin
-       fToHouse.ResAddToBuild(Carry);
-       TakeResource(Carry);
-       fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
-       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
-       TaskDone:=true;
-     end;
-  end;
+    with fSerf do
+    case Phase of
+    5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
+    6: begin
+         fToHouse.ResAddToBuild(Carry);
+         TakeResource(Carry);
+         fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
+         fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
+         SetActionStay(1,ua_Walk);
+       end;
+    else TaskDone:=true;
+    end;
   end else begin
-    AbandonDelivery;
+    Abandon;
     TaskDone:=true;
     fSerf.TakeResource(fSerf.Carry);
   end;
@@ -1307,8 +1317,9 @@ case Phase of
       end;
       fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
-      TaskDone:=true;
+      SetActionStay(1,ua_Walk);
    end;
+else TaskDone:=true;
 end;
 
 inc(Phase);
@@ -1380,7 +1391,7 @@ case Phase of
      SetActionStay(5,ua_Work2);
      fTerrain.RemMarkup(fLoc);
    end;
-9: TaskDone:=true;
+else TaskDone:=true;
 end;
 if Phase<>4 then inc(Phase); //Phase=4 is when worker waits for rt_Stone
 end;
@@ -1436,7 +1447,7 @@ case Phase of
       SetActionStay(5,ua_Work2);
       fTerrain.RemMarkup(fLoc);
     end;
- 7: TaskDone:=true;
+ else TaskDone:=true;
 end;
 if Phase<>4 then inc(Phase); //Phase=4 is when worker waits for rt_Stone
 end;
@@ -1481,7 +1492,7 @@ case Phase of
       SetActionStay(5,ua_Walk);
       fTerrain.RemMarkup(fLoc);
      end;
-  4: TaskDone:=true;
+  else TaskDone:=true;
 end;
 if Phase2 in [0,10] then inc(Phase);
 end;
@@ -1557,15 +1568,15 @@ case Phase of
     end;
 7:  SetActionWalk(fWorker,KMPointY1(fHouse.GetEntrance), KMPoint(0,0), ua_Walk, true, true);
 8:  begin
-
       fHouse.SetBuildingState(hbs_Wood);
       fPlayers.Player[byte(fOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
       with HouseDAT[byte(fHouse.GetHouseType)] do begin
         fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, WoodCost, dt_Once, di_High);
         fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, StoneCost, dt_Once, di_High);
       end;
-      TaskDone:=true;
+      SetActionStay(1,ua_Walk);
     end;
+else TaskDone:=true;
 end;
 inc(Phase);
 if (Phase=7)and(Step>0) then Phase:=2; //Repeat with next cell
@@ -1661,9 +1672,10 @@ begin
          end;
       4: begin
            fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(TaskID);
-           TaskDone:=true;
+           SetActionStay(1,ua_Walk);
            fThought := th_None;
          end;
+      else TaskDone:=true;
     end;
   inc(Phase);
   if (Phase=4) and (not fHouse.IsComplete) then //If animation cycle is done
@@ -1742,8 +1754,9 @@ begin
       4: begin
            fThought := th_None;
            fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(TaskID);
-           TaskDone:=true;
+           SetActionStay(1,ua_Walk);
          end;
+      else TaskDone:=true;
     end;
   inc(Phase);
   if (Phase=4) and (fHouse.IsDamaged) then //If animation cycle is done
@@ -1883,7 +1896,7 @@ with fUnit do
           fHome.SetState(hst_Idle,WorkPlan.AfterWorkIdle);
           SetActionStay(WorkPlan.AfterWorkIdle-1,ua_Walk);
         end;
-    30: TaskDone:=true;
+    else TaskDone:=true;
   end;
 inc(Phase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then
@@ -1916,7 +1929,7 @@ begin
         SetActionStay(5,ua_Walk);
         fHome.SetState(hst_Idle,0);
        end;
-    3: TaskDone:=true;
+    else TaskDone:=true;
   end;
   inc(Phase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
@@ -1954,7 +1967,7 @@ case Phase of
      SetActionStay(0,ua_Walk);
   1: if SequenceLength > 0 then SetActionStay(SequenceLength,ua_Die,false)
      else SetActionStay(0,ua_Walk);
-  2: begin
+  else begin
       fUnit.CloseUnit;
       exit;
      end;
@@ -1991,7 +2004,7 @@ begin
          SetActionStay(20,ua_Walk);
          fHome.SetState(hst_Idle,0);
        end;
-    5: begin
+    else begin
          fThought := th_None;
          TaskDone := true;
        end;
@@ -2080,7 +2093,7 @@ case Phase of
       SetActionGoIn(ua_Walk,gd_GoOutside,ht_Inn); //Exit Inn
       fInn.EatersGoesOut(PlaceID);
     end;
- 8: TaskDone:=true;
+ else TaskDone:=true;
 end;
 inc(Phase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then

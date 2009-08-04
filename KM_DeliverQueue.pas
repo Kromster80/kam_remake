@@ -543,8 +543,16 @@ var i:integer;
 begin
   Result:=nil;
 
-  i:=1; while (i<MaxEntries)and(fFieldsQueue[i].JobStatus<>js_Open) do inc(i);
-  if i=MaxEntries then exit;
+  i:=1;
+  while
+    (i<=MaxEntries)and
+    ((fFieldsQueue[i].JobStatus<>js_Open)or
+    (not fTerrain.Route_CanBeMade(KMWorker.GetPosition, fFieldsQueue[i].Loc, canWalk, true))) do
+      inc(i);
+
+  if i>MaxEntries then exit;
+
+//  if not fTerrain.Route_CanBeMade(KMWorker.GetPosition, fFieldsQueue[i].Loc, canWalk, true) then exit;
 
   if fFieldsQueue[i].FieldType=ft_Road then Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
   if fFieldsQueue[i].FieldType=ft_Corn then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);

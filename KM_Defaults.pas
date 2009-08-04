@@ -38,7 +38,7 @@ var
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game
 
   //These should be ... enabled sometime
-  FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
+  FOG_OF_WAR_ENABLE     :boolean=true; //Whenever dynamic fog of war is enabled or not
 
   //These should be FALSE
   ShowDebugControls     :boolean=true; //Draw colored overlays ontop of panels, usefull for making layout

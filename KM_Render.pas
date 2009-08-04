@@ -871,6 +871,7 @@ procedure TRender.RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:si
 begin
 //if Param<1 then begin
   //NOTION: This function does not work on some GPUs will need to replace it with simplier more complicated way
+  //glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_GREATER,1-Param);
   glBlendFunc(GL_ONE,GL_ZERO);
@@ -895,6 +896,7 @@ begin
   glDisable(GL_ALPHA_TEST);
   glAlphaFunc(GL_ALWAYS,0);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
+  //glEnable(GL_BLEND);
 
   if not ShowSpriteOverlay then exit;
   glColor3f(1,1,1);
