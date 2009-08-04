@@ -27,10 +27,10 @@ type TKMMainMenuInterface = class
       KMImage_SingleBG:TKMImage;
       KMPanel_SingleList,KMPanel_SingleDesc:TKMPanel;
       KMButton_SingleHeadMode,KMButton_SingleHeadTeams,KMButton_SingleHeadTitle,KMButton_SingleHeadSize:TKMButton;
-      KMBevel_SingleBG:array[1..MENU_SINGLE_MAPS_COUNT,1..5]of TKMBevel;
-      KMButton_SingleMode:array[1..MENU_SINGLE_MAPS_COUNT]of TKMImage;
-      KMButton_SinglePlayers,KMButton_SingleSize:array[1..MENU_SINGLE_MAPS_COUNT]of TKMLabel;
-      KMLabel_SingleTitle1,KMLabel_SingleTitle2:array[1..MENU_SINGLE_MAPS_COUNT]of TKMLabel;
+      KMBevel_SingleBG:array[1..MENU_SP_MAPS_COUNT,1..5]of TKMBevel;
+      KMButton_SingleMode:array[1..MENU_SP_MAPS_COUNT]of TKMImage;
+      KMButton_SinglePlayers,KMButton_SingleSize:array[1..MENU_SP_MAPS_COUNT]of TKMLabel;
+      KMLabel_SingleTitle1,KMLabel_SingleTitle2:array[1..MENU_SP_MAPS_COUNT]of TKMLabel;
       KMScrollBar_SingleMaps:TKMScrollBar;
       KMShape_SingleMap:TKMShape;
       KMImage_SingleScroll1:TKMImage;
@@ -259,7 +259,7 @@ begin
       KMButton_SingleHeadTitle:=MyControls.AddButton(KMPanel_SingleList, 80,0,300,40,'Title',fnt_Metal,bsMenu);
       KMButton_SingleHeadSize :=MyControls.AddButton(KMPanel_SingleList,380,0, 40,40,'Size',fnt_Metal,bsMenu);
       MyControls.AddButton(KMPanel_SingleList,420,0, 25,40,'',fnt_Game,bsMenu);
-      for i:=1 to MENU_SINGLE_MAPS_COUNT do begin
+      for i:=1 to MENU_SP_MAPS_COUNT do begin
         KMBevel_SingleBG[i,1]:=MyControls.AddBevel(KMPanel_SingleList,0,  40+(i-1)*40,40,40);
         KMBevel_SingleBG[i,2]:=MyControls.AddBevel(KMPanel_SingleList,40, 40+(i-1)*40,40,40);
         KMBevel_SingleBG[i,3]:=MyControls.AddBevel(KMPanel_SingleList,80, 40+(i-1)*40,300,40);
@@ -274,7 +274,7 @@ begin
         KMButton_SingleSize[i]   :=MyControls.AddLabel(KMPanel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
       end;
 
-      KMScrollBar_SingleMaps:=MyControls.AddScrollBar(KMPanel_SingleList,420,40,25,MENU_SINGLE_MAPS_COUNT*40,bsMenu);
+      KMScrollBar_SingleMaps:=MyControls.AddScrollBar(KMPanel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40,bsMenu);
       KMScrollBar_SingleMaps.OnChange:=SingleMap_ScrollChange;
 
       KMShape_SingleMap:=MyControls.AddShape(KMPanel_SingleList,0,40,420,40,$FFFFFF00);
@@ -513,7 +513,7 @@ var i,ci:integer;
 begin
 //  SingleMapsInfo.ScanSingleMapsFolder('');
 
-  for i:=1 to MENU_SINGLE_MAPS_COUNT do begin
+  for i:=1 to MENU_SP_MAPS_COUNT do begin
     ci:=SingleMap_Top+i-1;
     if ci>SingleMapsInfo.GetMapCount then begin
       KMButton_SingleMode[i].TexID:=0;
@@ -531,7 +531,7 @@ begin
   end;
 
   KMScrollBar_SingleMaps.MinValue := 1;
-  KMScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.GetMapCount - MENU_SINGLE_MAPS_COUNT);
+  KMScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.GetMapCount - MENU_SP_MAPS_COUNT);
   KMScrollBar_SingleMaps.Position := EnsureRange(KMScrollBar_SingleMaps.Position,KMScrollBar_SingleMaps.MinValue,KMScrollBar_SingleMaps.MaxValue);
 
   SingleMap_SelectMap(KMBevel_SingleBG[1,3]); //Select first map

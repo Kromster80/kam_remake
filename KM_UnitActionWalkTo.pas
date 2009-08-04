@@ -369,8 +369,11 @@ begin
 
       AllowToWalk := DoUnitInteraction(); //Be carefull now on - fWalker might have a new WalkTo task already!
 
-      DoEnd := KMUnit.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
-      if not AllowToWalk then exit; //Do no further walking until unit interaction is solved
+      if not AllowToWalk then
+      begin
+        DoEnd := KMUnit.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
+        exit; //Do no further walking until unit interaction is solved
+      end;
 
       inc(NodePos);
       fWalker.PrevPosition:=fWalker.NextPosition;

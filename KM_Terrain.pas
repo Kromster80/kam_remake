@@ -443,7 +443,7 @@ begin
   if not InRange(byte(PlayerID),1,8) then exit;
   for i:=Pos.Y-Radius to Pos.Y+Radius do for k:=Pos.X-Radius to Pos.X+Radius do
   if (VerticeInMapCoords(k,i,1))and(GetLength(Pos,KMPoint(k,i))<=Radius) then
-    Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,TERRAIN_FOG_OF_WAR_MAX);
+    Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,FOG_OF_WAR_MAX);
 end;
 
 
@@ -453,7 +453,7 @@ var i,k:integer;
 begin
   if not InRange(byte(PlayerID),1,8) then exit;
   for i:=1 to MapY do for k:=1 to MapX do
-    Land[i,k].FogOfWar[byte(PlayerID)] := TERRAIN_FOG_OF_WAR_MAX;
+    Land[i,k].FogOfWar[byte(PlayerID)] := FOG_OF_WAR_MAX;
 end;
 
 
@@ -468,10 +468,10 @@ begin
   if not VerticeInMapCoords(X,Y) then
     Result := 0
   else
-  if Land[Y,X].FogOfWar[byte(PlayerID)] >= TERRAIN_FOG_OF_WAR_ACT then
+  if Land[Y,X].FogOfWar[byte(PlayerID)] >= FOG_OF_WAR_ACT then
     Result := 255
   else
-    Result := EnsureRange(round(Land[Y,X].FogOfWar[byte(PlayerID)] / TERRAIN_FOG_OF_WAR_ACT * 255),0,255);
+    Result := EnsureRange(round(Land[Y,X].FogOfWar[byte(PlayerID)] / FOG_OF_WAR_ACT * 255),0,255);
 end;
 
 
@@ -1064,6 +1064,7 @@ end;
 
 function TTerrain.HasUnit(Loc:TKMPoint):boolean;
 begin
+  Result := false;
   if TileInMapCoords(Loc.X,Loc.Y) then
     Result := Land[Loc.Y,Loc.X].IsUnit <> 0;
 end;
@@ -1593,7 +1594,7 @@ begin
 
     if FOG_OF_WAR_ENABLE then
     for h:=1 to 8 do
-      if Land[i,k].FogOfWar[h] > TERRAIN_FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
+      if Land[i,k].FogOfWar[h] > FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
       if InRange(Land[i,k].FieldAge,1,65534) then
       begin

@@ -129,15 +129,15 @@ begin //Counting FPS
   FrameTime:=TimeGetTime-OldTimeFPS;
   OldTimeFPS:=TimeGetTime;
 
-  if (FPSLag<>1)and(FrameTime<FPSLag) then begin
-    sleep(FPSLag-FrameTime);
-    FrameTime:=FPSLag;
+  if (FPS_LAG<>1)and(FrameTime<FPS_LAG) then begin
+    sleep(FPS_LAG-FrameTime);
+    FrameTime:=FPS_LAG;
   end;
 
   inc(OldFrameTimes,FrameTime);
   inc(FrameCount);
   if OldFrameTimes>=FPS_INTERVAL then begin
-    StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPSLag)+')';
+    StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPS_LAG)+')';
     OldFrameTimes:=0;
     FrameCount:=0;
     fLog.AppendLog('First sec frame done');

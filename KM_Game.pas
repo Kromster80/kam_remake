@@ -166,6 +166,9 @@ begin
       GameIsPaused := not GameIsPaused;
       fGameplayInterface.ShowPause(GameIsPaused,GameSpeed=10);
     end;
+    if (Key=ord('W')) and GameIsRunning then begin
+      fTerrain.RevealWholeMap(MyPlayer.PlayerID);
+    end;
     {Thats my debug example}
     {if (Key=ord('5')) and GameIsRunning then begin
       fGameplayInterface.IssueMessage(msgText,'123');

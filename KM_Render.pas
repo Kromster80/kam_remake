@@ -943,7 +943,7 @@ begin
     end;
     //RenderQuad(P.X,P.Y);
     RenderList[i].FOWvalue := fTerrain.CheckTileRevelation(P.X,P.Y,MyPlayer.PlayerID);
-    if RenderList[i].FOWvalue=0 then
+    if RenderList[i].FOWvalue<=FOG_OF_WAR_ACT then
       RO[i]:=0;
   end else begin
     RO[i]:=0;

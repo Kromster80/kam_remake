@@ -3,25 +3,27 @@ interface
 uses Windows, SysUtils, KromUtils, dglOpenGL;
 
 //Global const
-const                             
-  CELL_SIZE_PX=40;              //Single cell size in pixels (width)
-  CELL_HEIGHT_DIV=33.333;       //Height divider
-  ToolBarWidth=224;             //Toolbar width in game
-  Overlap=0.0;                  //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
-  DEF_PAL=2;                    //Default palette to use when generating full-color RGB textures
-  GAME_LOGIC_PACE=100;          //Game logic should be updated each 100ms
-  TERRAIN_PACE=1000;            //Terrain gets updated once each 1000ms
-  TERRAIN_FOG_OF_WAR_MIN=8;     //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
-  TERRAIN_FOG_OF_WAR_ACT=16;    //Until this value FOW is not rendered at all
-  TERRAIN_FOG_OF_WAR_MAX=24;    //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  FPSLag=1;                     //lag between frames, 1000/FPSLag = max allowed FPS
-  FPS_INTERVAL=1000;            //time between FPS measurements, more=accurate
-  SCROLLSPEED = 1;              //This is the speed that the viewport will scroll every 100 ms, in cells
-  SCROLLFLEX = 4;               //This is the number of pixels either side of the edge of the screen which will count as scrolling
-  GAME_VERSION = 'Economy Demo';        //Game version string displayed in menu corner
-  MENU_DESIGN_X = 1024;         //Thats the size menu was designed for. All elements are placed in this size
-  MENU_DESIGN_Y = 768;
-  MENU_SINGLE_MAPS_COUNT = 14;  //Number of single player maps to display in menu
+const
+//|===================| <- constant name length                 
+  CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
+  CELL_HEIGHT_DIV       = 33.333;       //Height divider
+  ToolBarWidth          = 224;          //Toolbar width in game
+  Overlap               = 0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
+  DEF_PAL               = 2;            //Default palette to use when generating full-color RGB textures
+  GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
+  TERRAIN_PACE          = 1000;         //Terrain gets updated once each 1000ms
+  FOG_OF_WAR_MIN        = 8;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
+  FOG_OF_WAR_ACT        = 16;           //Until this value FOW is not rendered at all
+  FOG_OF_WAR_MAX        = 24;           //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+  FPS_LAG               = 1;            //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
+  FPS_INTERVAL          = 1000;         //Time between FPS measurements, more=accurate
+  SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
+  SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
+  MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
+  MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
+  MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
+
+  GAME_VERSION          = 'Economy Demo';       //Game version string displayed in menu corner
 
 var
   //These should be TRUE
@@ -182,11 +184,20 @@ const //Using shortints make it look much more compact in code-view
 
 const //Using shortints make it look much more compact in code-view
   CheatWinPattern:array[1..28]of shortint = (
-  1,0,0,0,1, //@Lewin:
+  1,1,1,1,0, //@Lewin:
   1,0,0,0,1, //I forgot how Win pattern should look like, was it a letter 'P' ?
-  0,1,0,1,0, //I put 'V' for now, please fix it if you know how, we want to use KaM style for that, right?
-  0,1,0,1,0, //We can add more cheats if we like later on..
-  0,0,1,0,0,
+  1,0,0,0,1, //We can add more cheats if we like later on..
+  1,1,1,1,0, 
+  1,0,0,0,0,
+  0,0,0);
+
+const //Using shortints make it look much more compact in code-view
+  CheatFOWPattern:array[1..28]of shortint = (
+  1,0,0,0,1,
+  1,0,1,0,1,
+  1,0,1,0,1,
+  1,0,1,0,1,
+  0,1,0,1,0,
   0,0,0);
 
 const
