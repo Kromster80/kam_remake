@@ -15,6 +15,7 @@ type
       DoEvade:boolean; //Command to make exchange maneuver with other unit
       function ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
       function AssembleTheRoute():boolean;
+      function CheckCanWalk():boolean;
       function DoUnitInteraction():boolean;
     public
       NodeList:TKMPointList;
@@ -75,6 +76,10 @@ begin
 
   if not DO_SERFS_WALK_ROADS then Result:=canWalk; //Reset everyone to canWalk for debug
 
+  if (KMUnit.GetUnitType = ut_Serf)and(KMUnit.GetUnitTask is TTaskDeliver)and
+  (TTaskDeliver(KMUnit.GetUnitTask).DeliverKind=dk_Unit) then
+    Result:=canWalk;
+
   //Thats for 'miners' at work
   if (KMUnit.GetUnitType in [ut_Woodcutter,ut_Farmer,ut_Fisher,ut_StoneCutter]) then
   if (KMUnit.GetUnitTask is TTaskMining) then
@@ -119,6 +124,15 @@ begin
 end;
 
 
+function TUnitActionWalkTo.CheckCanWalk():boolean;
+begin
+Result := true;
+  Result := fTerrain.CheckPassability(NodeList.List[NodePos+1],ChoosePassability(fWalker,fIgnorePass));
+  if not Result then
+    fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot,fIgnorePass);
+end;
+
+
 function TUnitActionWalkTo.DoUnitInteraction():boolean;
 var fOpponent:TKMUnit; T:TKMPoint;
 begin
@@ -147,8 +161,17 @@ begin
   //
   //Now we should solve unexpected obstacles situations
   //------------------------------------------------------------------------------------------------
-
   //Abort action and task if we can't go around the obstacle
+
+  //
+  //Now we should solve fights
+  //------------------------------------------------------------------------------------------------
+
+  if fWalker is TKMUnitWarrior then
+  if fWalker.GetOwner<>fOpponent.GetOwner then
+  begin
+//    fWalker.SetActionFight
+  end;
 
   //
   //Now we try to solve different Unit-Unit situations
@@ -353,6 +376,9 @@ begin
     DX := sign(NodeList.List[NodePos+1].X - NodeList.List[NodePos].X); //-1,0,1
     DY := sign(NodeList.List[NodePos+1].Y - NodeList.List[NodePos].Y); //-1,0,1
     fWalker.Direction := DirectionsBitfield[DX,DY];
+
+    //Check if we can walk to next tile in route
+    if not CheckCanWalk then exit; //
 
     //Perform interaction
       //Both exchanging units have DoEvade:=true assigned by 1st unit, hence 2nd should not try

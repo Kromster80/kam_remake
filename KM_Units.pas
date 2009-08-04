@@ -9,6 +9,8 @@ type
   TKMUnitSerf = class;
   TKMUnitWorker = class;
 
+  TDeliverKind = (dk_House, dk_Unit);
+
   TUnitAction = class(TObject)
   private
     fActionType: TUnitActionType;
@@ -67,8 +69,9 @@ type
       fToHouse:TKMHouse;
       fToUnit:TKMUnit;
       fResourceType:TResourceType;
-      ID:integer;
+      fDeliverID:integer;
     public
+      DeliverKind:TDeliverKind;
       constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
       procedure AbandonDelivery();
       procedure Execute(out TaskDone:boolean); override;
@@ -770,7 +773,7 @@ begin
     exit;
   end;
 
-  SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
+  SpotJit:=2; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
@@ -1178,15 +1181,21 @@ begin
   fToHouse:=toHouse;
   fToUnit:=toUnit;
   fResourceType:=Res;
+  fDeliverID:=aID;
+
+  if toHouse<>nil then
+    DeliverKind:=dk_House;
+  if toUnit<>nil then
+    DeliverKind:=dk_Unit;
+
   Phase:=0;
-  ID:=aID;
   fSerf.SetActionStay(0,ua_Walk);
 end;
 
 
 procedure TTaskDeliver.AbandonDelivery();
 begin
-  fPlayers.Player[byte(fSerf.fOwner)].DeliverList.AbandonDelivery(ID);
+  fPlayers.Player[byte(fSerf.fOwner)].DeliverList.AbandonDelivery(fDeliverID);
 end;
 
 
@@ -1197,7 +1206,8 @@ TaskDone:=false;
 with fSerf do
 case Phase of
 0: begin
-    SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance));
+    if not fFrom.IsDestroyed then
+      SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance));
    end;
 1: if not fFrom.IsDestroyed then
      SetActionGoIn(ua_Walk,gd_GoInside,fFrom.GetHouseType)
@@ -1210,9 +1220,9 @@ case Phase of
    begin
      if fFrom.ResTakeFromOut(fResourceType) then begin
        GiveResource(fResourceType);
-       fPlayers.Player[byte(fOwner)].DeliverList.TakenOffer(ID);
+       fPlayers.Player[byte(fOwner)].DeliverList.TakenOffer(fDeliverID);
      end else begin
-       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
+       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
        fLog.AssertToLog(false,'Resource''s gone..');
      end;
      SetActionGoIn(ua_Walk,gd_GoOutside,fFrom.GetHouseType);
@@ -1225,59 +1235,59 @@ case Phase of
 end;
 
 //Deliver into complete house
-if fToHouse<>nil then
-if fToHouse.IsComplete then
-with fSerf do
-case Phase of
-5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
-6: if not fToHouse.IsDestroyed then
-     SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
-   else begin
-     AbandonDelivery;
-     TaskDone:=true;
-     TakeResource(Carry);
-   end;
-7: SetActionStay(5,ua_Walk);
-8: if not fToHouse.IsDestroyed then
-   begin
-     fToHouse.ResAddToIn(Carry);
-     TakeResource(Carry);
-     SetActionGoIn(ua_walk,gd_GoOutside,fToHouse.GetHouseType);
-     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
-     fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
-   end else begin
-     fVisible:=true; //Unit was invisible while inside. Must show it
-     AbandonDelivery;
-     TaskDone:=true;
-     TakeResource(Carry);
-   end;
-9: TaskDone:=true;
-end;
+if DeliverKind = dk_House then
+  if fToHouse.IsComplete then
+  with fSerf do
+  case Phase of
+  5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
+  6: if not fToHouse.IsDestroyed then
+       SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
+     else begin
+       AbandonDelivery;
+       TaskDone:=true;
+       TakeResource(Carry);
+     end;
+  7: SetActionStay(5,ua_Walk);
+  8: if not fToHouse.IsDestroyed then
+     begin
+       fToHouse.ResAddToIn(Carry);
+       TakeResource(Carry);
+       SetActionGoIn(ua_walk,gd_GoOutside,fToHouse.GetHouseType);
+       fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
+       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
+     end else begin
+       fVisible:=true; //Unit was invisible while inside. Must show it
+       AbandonDelivery;
+       TaskDone:=true;
+       TakeResource(Carry);
+     end;
+  9: TaskDone:=true;
+  end;
 
 //Deliver into wip house
-if fToHouse<>nil then
-if not fToHouse.IsComplete then
-if not fToHouse.IsDestroyed then
-begin
-with fSerf do
-case Phase of
-5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
-6: begin
-     fToHouse.ResAddToBuild(Carry);
-     TakeResource(Carry);
-     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
-     fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
-     TaskDone:=true;
-   end;
-end;
-end else begin
-  AbandonDelivery;
-  TaskDone:=true;
-  fSerf.TakeResource(fSerf.Carry);
-end;
+if DeliverKind = dk_House then
+  if not fToHouse.IsComplete then
+  if not fToHouse.IsDestroyed then
+  begin
+  with fSerf do
+  case Phase of
+  5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
+  6: begin
+       fToHouse.ResAddToBuild(Carry);
+       TakeResource(Carry);
+       fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
+       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
+       TaskDone:=true;
+     end;
+  end;
+  end else begin
+    AbandonDelivery;
+    TaskDone:=true;
+    fSerf.TakeResource(fSerf.Carry);
+  end;
 
 //Deliver to builder
-if fToUnit<>nil then
+if DeliverKind = dk_Unit then
 with fSerf do
 case Phase of
 5: if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.IsDead) then
@@ -1285,8 +1295,8 @@ case Phase of
    else
    begin
      TakeResource(Carry);
-     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
-     fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
+     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
+     fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
      TaskDone:=true;
    end;
 6: begin
@@ -1295,8 +1305,8 @@ case Phase of
         inc(fToUnit.fUnitTask.Phase);
         fToUnit.SetActionStay(0,ua_Work1);
       end;
-      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(ID);
-      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(ID);
+      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
+      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
       TaskDone:=true;
    end;
 end;
