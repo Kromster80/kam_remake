@@ -1100,9 +1100,9 @@ begin
 
     px:=ii*16+kk+1;
 
-    TileMMColor[px].R:= (R / 1024) / 255; //each tile is 32x32 px
-    TileMMColor[px].G:= (G / 1024) / 255;
-    TileMMColor[px].B:= (B / 1024) / 255;
+    TileMMColor[px].R:= round(R / 1024) ; //each tile is 32x32 px
+    TileMMColor[px].G:= round(G / 1024) ;
+    TileMMColor[px].B:= round(B / 1024) ;
 
   end;
 end;

@@ -884,7 +884,7 @@ UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
   end;
 
   //Minimap tile colors, computed on tileset loading
-  TileMMColor:array[1..256]of record R,G,B:single; end;
+  TileMMColor:array[1..256]of record R,G,B:byte; end;
 
 
 implementation

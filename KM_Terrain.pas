@@ -2,8 +2,7 @@ unit KM_Terrain;
 interface
 uses Controls, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils, KM_CommonTypes, KM_Utils;
 
-const
-MaxMapSize=256;
+const MaxMapSize=192;
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -120,8 +119,8 @@ public
   procedure UnitWalk(LocFrom,LocTo:TKMPoint);
 
   function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
-  function SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+  function EnsureTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
 
   function TileIsWater(Loc:TKMPoint):boolean;
   function TileIsSand(Loc:TKMPoint):boolean;
@@ -261,20 +260,20 @@ begin
 end;
 
 
-{Check if requested tile is within Map boundaries}
-{X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
-function TTerrain.SetTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
-begin
-  Result.X := EnsureRange(X,1+Inset,MapX-1-Inset);
-  Result.Y := EnsureRange(Y,1+Inset,MapY-1-Inset);
-end;
-
-
 {Check if requested vertice is within Map boundaries}
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TTerrain.VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
 begin
   Result := InRange(X,1+Inset,MapX-Inset) and InRange(Y,1+Inset,MapY-Inset);
+end;
+
+
+{Ensure that requested tile is within Map boundaries}
+{X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
+function TTerrain.EnsureTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
+begin
+  Result.X := EnsureRange(X,1+Inset,MapX-1-Inset);
+  Result.Y := EnsureRange(Y,1+Inset,MapY-1-Inset);
 end;
 
 
@@ -837,7 +836,7 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
     end;
   end;
 
-  function DecHeight(CurHeight,BaseHeight:byte; ReductionFactor:single):byte;
+  {function DecHeight(CurHeight,BaseHeight:byte; ReductionFactor:single):byte;
   var MyMin:byte;
   begin
     if CurHeight < BaseHeight then
@@ -863,7 +862,7 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
         RecalculatePassability(KMPoint(ix,iy));
       end;
     RebuildLighting(LowX,HighX,LowY,HighY); //Update the lighting
-  end;
+  end;}
 
 const HeightReduction = 0.75; //The amount that height will be reduced by for the decreased tile
 begin
@@ -873,20 +872,21 @@ begin
     130,135: Land[Loc.Y,Loc.X].Terrain:=129+Random(2)*5;
     129,134: Land[Loc.Y,Loc.X].Terrain:=128+Random(2)*5;
     128,133: Land[Loc.Y,Loc.X].Terrain:=0;
-    else exit; //fLog.AssertToLog(false, 'Unable to DecStoneReserve at '+TypeToString(Loc)+' for it isn''t there');
+    else exit;
   end;
   Land[Loc.Y,Loc.X].Rotation:=Random(4);
-  Land[Loc.Y,Loc.X].Height:=DecHeight(Land[Loc.Y,Loc.X].Height,Land[Loc.Y+1,Loc.X].Height,HeightReduction); //Reduce height
-  UpdateTransition(Loc.X,Loc.Y);
-  UpdateTransition(Loc.X,Loc.Y-1);
-  UpdateTransition(Loc.X+1,Loc.Y);
-  UpdateTransition(Loc.X,Loc.Y+1);
+  UpdateTransition(Loc.X,Loc.Y);   //Update these 5 transitions
+  UpdateTransition(Loc.X,Loc.Y-1); //    x
+  UpdateTransition(Loc.X+1,Loc.Y); //  x X x
+  UpdateTransition(Loc.X,Loc.Y+1); //    x
   UpdateTransition(Loc.X-1,Loc.Y);
-  ReduceHeights(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Required for height reduction
+  //Land[Loc.Y,Loc.X].Height:=DecHeight(Land[Loc.Y,Loc.X].Height,Land[Loc.Y+1,Loc.X].Height,HeightReduction); //Reduce height
+  //ReduceHeights(Loc.X,Loc.X+1,Loc.Y,Loc.Y+1); //Required for height reduction
   //Should use something simpler like flatten terrain, but needs to be modified a bit
-  //FlattenTerrain(KMPointY1(Loc));
+  FlattenTerrain(Loc);
+  RecalculatePassabilityAround(Loc);
+  //@Lewin: I did a test on StoneMines map and simple FlattenTerrain does the job well enough :)
 
-  RecalculatePassability(Loc);
   RebuildWalkConnect(canWalk);
 end;
 
@@ -1354,8 +1354,8 @@ begin
       end;
     end;
   //Recalculate Passability for tiles around the house so that they can't be built on too
-  L:=SetTileInMapCoords(Loc.X-3,Loc.Y-4);
-  H:=SetTileInMapCoords(Loc.X+2,Loc.Y+1);
+  L:=EnsureTileInMapCoords(Loc.X-3,Loc.Y-4);
+  H:=EnsureTileInMapCoords(Loc.X+2,Loc.Y+1);
   RebuildPassability(L.X,H.X,L.Y,H.Y);
   RebuildWalkConnect(canWalkRoad);
 end;
@@ -1550,7 +1550,7 @@ end;
 
 
 procedure TTerrain.RefreshMinimapData();
-var i,k,ID:integer; Light:single; Loc:TKMPointList; FOW:byte;
+var i,k,ID:integer; Light:smallint; Loc:TKMPointList; FOW:byte;
 begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
     FOW:=fTerrain.CheckTileRevelation(k,i,MyPlayer.PlayerID);
@@ -1561,12 +1561,11 @@ begin
       MM[i,k].B:=0;
     end else
       if fTerrain.Land[i,k].TileOwner=play_none then begin
-        ID:=fTerrain.Land[i,k].Terrain+1;
-        Light:=fTerrain.Land[i,k].Light/4-(1-FOW/255); //Originally it's -1..1 range
-        //Will tweak it later..
-        MM[i,k].R:=round(EnsureRange(TileMMColor[ID].R+Light,0,1)*255);
-        MM[i,k].G:=round(EnsureRange(TileMMColor[ID].G+Light,0,1)*255);
-        MM[i,k].B:=round(EnsureRange(TileMMColor[ID].B+Light,0,1)*255);
+        ID := fTerrain.Land[i,k].Terrain+1;
+        Light := round(fTerrain.Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
+        MM[i,k].R:=EnsureRange(TileMMColor[ID].R+Light,0,255);
+        MM[i,k].G:=EnsureRange(TileMMColor[ID].G+Light,0,255);
+        MM[i,k].B:=EnsureRange(TileMMColor[ID].B+Light,0,255);
       end else begin
         MM[i,k].R:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] and $FF;
         MM[i,k].G:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 8 and $FF;

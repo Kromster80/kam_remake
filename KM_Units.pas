@@ -223,9 +223,6 @@ type
     fPosition: TKMPointF;
     fLastUpdateTime: Cardinal;
     fVisible:boolean;
-    //function UnitAtHome():boolean; Test if Unit is invisible and Pos matches fHome.GetEntrance
-    //Whenever we need to remove the unit within UpdateState routine, but we can't cos it will affect
-    //UpdateState cycle. So we need to finish the cycle and only then remove the unit. Property is public
     fIsDead:boolean;
   public
     AnimStep: integer;
@@ -788,7 +785,7 @@ begin
   SpotJit:=2; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
-    Spot:=fTerrain.SetTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
+    Spot:=fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
   until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)],true)));
 
   if KMSamePoint(GetPosition,Spot) then begin
