@@ -886,10 +886,10 @@ begin
     glColor3ub(aFOW,aFOW,aFOW);
     glBindTexture(GL_TEXTURE_2D, TexID);
     glBegin (GL_QUADS);
-    glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1         );
-    glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
-    glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-    glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1         );
+      glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1         );
+      glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
+      glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
     glEnd;
     glBindTexture(GL_TEXTURE_2D, 0);
   end;

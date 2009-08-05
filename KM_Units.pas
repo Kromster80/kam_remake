@@ -50,8 +50,9 @@ type
     Phase:byte;
     Phase2:byte;
   public
-    procedure Execute(out TaskDone:boolean); virtual; abstract;
+    constructor Create;
     procedure Abandon; virtual;
+    procedure Execute(out TaskDone:boolean); virtual; abstract;
   end;
 
     TTaskSelfTrain = class(TUnitTask)
@@ -1114,6 +1115,13 @@ begin
 end;
 
 
+constructor TUnitTask.Create;
+begin
+  Inherited;
+  Phase:=0;
+  Phase2:=0;
+end;
+
 procedure TUnitTask.Abandon;
 begin
   //Shortcut to abandon and declare task done
@@ -1125,9 +1133,9 @@ end;
 {Train itself in school}
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
+  Inherited Create;
   fUnit:=aUnit;
   fSchool:=aSchool;
-  Phase:=0;
   fUnit.fVisible:=false;
   fUnit.SetActionStay(0,ua_Walk);
 end;
@@ -1183,6 +1191,7 @@ end;
 { TTaskDeliver }
 constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
+  Inherited Create;
   fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
   fSerf:=aSerf;
   fFrom:=aFrom;
@@ -1196,7 +1205,6 @@ begin
   if toUnit<>nil then
     DeliverKind:=dk_Unit;
 
-  Phase:=0;
   fSerf.SetActionStay(0,ua_Walk);
 end;
 
@@ -1248,6 +1256,7 @@ if DeliverKind = dk_House then
   if fToHouse.IsComplete then
   with fSerf do
   case Phase of
+  0..4:;
   5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
   6: if not fToHouse.IsDestroyed then
        SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
@@ -1280,6 +1289,7 @@ if DeliverKind = dk_House then
   begin
     with fSerf do
     case Phase of
+    0..4:;
     5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
     6: begin
          fToHouse.ResAddToBuild(Carry);
@@ -1300,6 +1310,7 @@ if DeliverKind = dk_House then
 if DeliverKind = dk_Unit then
 with fSerf do
 case Phase of
+0..4:;
 5: if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.IsDead) then
      SetActionWalk(fSerf, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false)
    else
@@ -1331,9 +1342,9 @@ end;
 { TTaskBuildRoad }
 constructor TTaskBuildRoad.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
+  Inherited Create;
   fWorker:=aWorker;
   fLoc:=aLoc;
-  Phase:=0;
   ID:=aID;
   fWorker.SetActionStay(0,ua_Walk);
 end;
@@ -1400,11 +1411,11 @@ end;
 { TTaskBuildWine }
 constructor TTaskBuildWine.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-fWorker:=aWorker;
-fLoc:=aLoc;
-Phase:=0;
-ID:=aID;
-fWorker.SetActionStay(0,ua_Walk);
+  Inherited Create;
+  fWorker:=aWorker;
+  fLoc:=aLoc;
+  ID:=aID;
+  fWorker.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1456,12 +1467,11 @@ end;
 { TTaskBuildField }
 constructor TTaskBuildField.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-fWorker:=aWorker;
-fLoc:=aLoc;
-Phase:=0;
-Phase2:=0;
-ID:=aID;
-fWorker.SetActionStay(0,ua_Walk);
+  Inherited Create;
+  fWorker:=aWorker;
+  fLoc:=aLoc;
+  ID:=aID;
+  fWorker.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1502,9 +1512,9 @@ end;
 constructor TTaskBuildHouseArea.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
 var i,k:integer;
 begin
+  Inherited Create;
   fWorker:=aWorker;
   fHouse:=aHouse;
-  Phase:=0;
   TaskID:=aID;
   Step:=0;
   for i:=1 to 4 do for k:=1 to 4 do
@@ -1595,11 +1605,10 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
     Cells[LocCount].Dir:=Dir;
   end;
 begin
+  Inherited Create;
   fWorker:=aWorker;
   fHouse:=aHouse;
   Loc:=fHouse.GetPosition;
-  Phase:=0;
-  Phase2:=0;
   TaskID:=aID;
   LocCount:=0;
   CurLoc:=0;
@@ -1696,11 +1705,10 @@ constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse;
     Cells[LocCount].Dir:=Dir;
   end;
 begin
+  Inherited Create;
   fWorker:=aWorker;
   fHouse:=aHouse;
   Loc:=fHouse.GetPosition;
-  Phase:=0;
-  Phase2:=0;
   TaskID:=aID;
   LocCount:=0;
   CurLoc:=0;
@@ -1770,10 +1778,9 @@ end;
 { TTaskMining }
 constructor TTaskMining.Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
 begin
+  Inherited Create;
   WorkPlan:=aWorkPlan;
   fUnit:=aUnit;
-  Phase:=0;
-  Phase2:=0;
   BeastID:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
@@ -1907,9 +1914,9 @@ end;
 { TTaskGoHome }
 constructor TTaskGoHome.Create(aTo:TKMPoint; aUnit:TKMUnit);
 begin
+  Inherited Create;
   fDestPos:=aTo;
   fUnit:=aUnit;
-  Phase:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
@@ -1940,8 +1947,8 @@ end;
 { TTaskDie }
 constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
+  Inherited Create;
   fUnit:=aUnit;
-  Phase:=0;
   fUnit.SetActionStay(0,ua_Walk);
   SequenceLength := fResource.GetUnitSequenceLength(fUnit.fUnitType,ua_Die,fUnit.Direction);
   if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
@@ -1979,8 +1986,8 @@ end;
 { TTaskGoOutShowHungry }
 constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
 begin
+  Inherited Create;
   fUnit:=aUnit;
-  Phase:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
@@ -2019,10 +2026,10 @@ end;
 { TTaskGoEat }
 constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
+  Inherited Create;
   fInn:=aInn;
   fUnit:=aUnit;
   PlaceID:=0;
-  Phase:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
