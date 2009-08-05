@@ -325,6 +325,11 @@ begin
                    else
                      MyPlayer.AddRoadPlan(P, mu_WinePlan, false, MyPlayer.PlayerID);
 
+          cm_Wall: if fTerrain.Land[P.Y,P.X].Markup = mu_WallPlan then
+                     MyPlayer.RemPlan(P)
+                   else
+                     MyPlayer.AddRoadPlan(P, mu_WallPlan, false, MyPlayer.PlayerID);
+
           cm_Erase:
             begin
               fPlayers.SelectedHouse:=MyPlayer.HousesHitTest(CursorXc, CursorYc);

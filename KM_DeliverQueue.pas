@@ -552,11 +552,13 @@ begin
 
   if i>MaxEntries then exit;
 
-//  if not fTerrain.Route_CanBeMade(KMWorker.GetPosition, fFieldsQueue[i].Loc, canWalk, true) then exit;
-
-  if fFieldsQueue[i].FieldType=ft_Road then Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
-  if fFieldsQueue[i].FieldType=ft_Corn then Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
-  if fFieldsQueue[i].FieldType=ft_Wine then Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  case fFieldsQueue[i].FieldType of
+  ft_Road: Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  ft_Corn: Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  ft_Wine: Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  ft_Wall: Result:=TTaskBuildWall.Create(KMWorker, fFieldsQueue[i].Loc, i);
+  else Result:=nil;
+  end;
   fFieldsQueue[i].JobStatus:=js_Taken;
   fFieldsQueue[i].Worker:=KMWorker;
 end;

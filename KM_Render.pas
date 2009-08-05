@@ -310,6 +310,10 @@ begin
     to_Dig2: RenderTile(252,k,i,0);
     to_Dig3: RenderTile(254,k,i,0);
     to_Dig4: RenderTile(256,k,i,0);
+    to_Wall: begin
+                glColor4f(0.5,0,0,0.5);
+                RenderQuad(k,i);
+             end;
   end;
 
   if fTerrain.Land[i,k].TileOverlay=to_Road then
@@ -412,7 +416,7 @@ for i:=y1 to y2 do for k:=x1 to x2 do
     if Land[i,k].BorderRight = true then
       RenderTerrainBorder(Land[i,k].Border,dir_W,k,i); //Vertical right
 
-    if Land[i,k].Markup in [mu_RoadPlan..mu_WinePlan] then
+    if Land[i,k].Markup in [mu_RoadPlan..mu_WallPlan] then
       RenderTerrainMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
   end;
 end;
@@ -1023,6 +1027,7 @@ begin
     1: ID:=105; //Road
     2: ID:=107; //Field
     3: ID:=108; //Wine
+    4: ID:=111; //Wall
     else ID:=0;
   end;
   FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
@@ -1209,6 +1214,9 @@ case CursorMode.Mode of
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Wine: if (CanPlaceRoad(CursorPos,mu_WinePlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+             fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+           else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
+  cm_Wall: if (CanPlaceRoad(CursorPos,mu_WallPlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad

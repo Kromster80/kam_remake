@@ -152,6 +152,7 @@ begin
     mu_RoadPlan: BuildList.AddNewRoad(aLoc, ft_Road);
     mu_FieldPlan: BuildList.AddNewRoad(aLoc, ft_Corn);
     mu_WinePlan: BuildList.AddNewRoad(aLoc, ft_Wine);
+    mu_WallPlan: BuildList.AddNewRoad(aLoc, ft_Wall);
     else fLog.AssertToLog(false,'Wrong markup');
   end;
   if not DoSilent then

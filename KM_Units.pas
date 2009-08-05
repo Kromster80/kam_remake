@@ -109,6 +109,16 @@ type
       procedure Execute(out TaskDone:boolean); override;
     end;
 
+    TTaskBuildWall = class(TUnitTask)
+    private
+      fWorker:TKMUnitWorker;
+      fLoc:TKMPoint;
+      ID:integer;
+    public
+      constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
+      procedure Execute(out TaskDone:boolean); override;
+    end;
+
     TTaskBuildHouseArea = class(TUnitTask)
     private
       fWorker:TKMUnitWorker;
@@ -1505,6 +1515,77 @@ case Phase of
   else TaskDone:=true;
 end;
 if Phase2 in [0,10] then inc(Phase);
+end;
+
+
+{ TTaskBuildWall }
+constructor TTaskBuildWall.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
+begin
+  Inherited Create;
+  fWorker:=aWorker;
+  fLoc:=aLoc;
+  ID:=aID;
+  fWorker.SetActionStay(0,ua_Walk);
+end;
+
+
+procedure TTaskBuildWall.Execute(out TaskDone:boolean);
+const Cycle=11;
+begin
+TaskDone:=false;
+with fWorker do
+case Phase of
+  0: begin
+       SetActionWalk(fWorker,fLoc);
+       fThought := th_Build;
+     end;
+  1: begin
+      fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+      fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
+      SetActionStay(0,ua_Walk);
+     end;
+  2: begin
+      fTerrain.IncDigState(fLoc);
+      SetActionStay(22,ua_Work1,false);
+    end;
+  3: begin
+      fTerrain.IncDigState(fLoc);
+      SetActionStay(22,ua_Work1,false);
+      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Wood, 1, dt_Once, di_High);
+    end;
+  4: begin
+      SetActionStay(30,ua_Work1);
+      fThought:=th_Wood;
+    end;
+  5: begin
+      fThought := th_None;
+      SetActionStay(22,ua_Work2,false);
+    end;
+  6: begin
+      fTerrain.ResetDigState(fLoc);
+      fTerrain.IncDigState(fLoc);
+      SetActionStay(22,ua_Work2,false);
+    end;
+    //Ask for 2 more wood now
+  7: begin
+      //Walk away from tile and continue building from the side
+      SetActionWalk(fWorker,fTerrain.GetOutOfTheWay(fWorker.GetPosition,KMPoint(0,0),canWalk));
+    end;
+  8: begin
+      //fTerrain.IncWallState(fLoc);
+      SetActionStay(11,ua_Work,false);
+    end;
+  9: begin
+      fTerrain.SetWall(fLoc,fOwner);
+      SetActionStay(0,ua_Work);
+      fTerrain.RemMarkup(fLoc);
+     end;
+  else TaskDone:=true;
+end;
+if (Phase<>4)and(Phase<>8) then inc(Phase); //Phase=4 is when worker waits for rt_Wood
+if Phase=8 then inc(Phase2);
+if Phase2=5 then inc(Phase); //wait 5 cycles
 end;
 
 

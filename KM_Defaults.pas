@@ -80,7 +80,7 @@ type
 
 {Cursors}
 type
-  TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Houses);
+  TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses);
   
 const
   SETTINGS_FILE = 'KaM_Remake_Settings.ini';
@@ -565,18 +565,22 @@ const
 
 {Terrain}
 type
-  TFieldType = (ft_None=0, ft_Road, ft_Corn, ft_Wine); //This is used only for querrying
+  TFieldType = (ft_None=0, ft_Road, ft_Corn, ft_Wine, ft_Wall); //This is used only for querrying
   THouseStage = (hs_None, hs_Plan, hs_Fence, hs_Built);
 
-  TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road );
+  TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall );
 
-  TMarkup = (mu_None=0, mu_RoadPlan, mu_FieldPlan, mu_WinePlan, mu_HousePlan, mu_HouseFence, mu_House, mu_UnderConstruction);
-  //Nothing
-  //Road/Corn/Wine ropes
-  //Rope outline of house area
-  //Fence outline of house area
-  //Actual house, which is not rendered and is used in here to siplify whole thing
-  //Underconstruction tile, house area being flattened and roadworks
+  TMarkup = (
+        mu_None=0,      //Nothing
+        mu_RoadPlan,    //Road/Corn/Wine ropes
+        mu_FieldPlan,   //Road/Corn/Wine ropes
+        mu_WinePlan,    //Road/Corn/Wine ropes
+        mu_WallPlan,
+        mu_HousePlan,   //Rope outline of house area
+        mu_HouseFence,  //Fence outline of house area
+        mu_House,       //Actual house, which is not rendered and is used in here to siplify whole thing
+        mu_UnderConstruction   //Underconstruction tile, house area being flattened and roadworks
+        );
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
 

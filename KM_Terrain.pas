@@ -73,6 +73,7 @@ public
 
   procedure RemMarkup(Loc:TKMPoint);
   procedure RemRoad(Loc:TKMPoint);
+  procedure SetWall(Loc:TKMPoint; aOwner:TPlayerID);
   procedure IncDigState(Loc:TKMPoint);
   procedure ResetDigState(Loc:TKMPoint);
 
@@ -524,6 +525,17 @@ begin
 end;
 
 
+procedure TTerrain.SetWall(Loc:TKMPoint; aOwner:TPlayerID);
+begin
+  Land[Loc.Y,Loc.X].TileOwner:=aOwner;
+  Land[Loc.Y,Loc.X].TileOverlay:=to_Wall;
+  Land[Loc.Y,Loc.X].FieldAge:=0;
+  UpdateBorders(Loc);
+  RecalculatePassabilityAround(Loc);
+  RebuildWalkConnect(canWalkRoad);
+end;
+
+
 {Set field on tile - corn/wine}
 procedure TTerrain.SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
 begin
@@ -956,6 +968,7 @@ begin
   if not(Land[Loc.Y,Loc.X].Markup in [mu_House,mu_HouseFence]) then begin
 
    if (TileIsWalkable(Loc))and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)then
      AddPassability(Loc, [canWalk]);
 
@@ -973,6 +986,7 @@ begin
    if (TileIsRoadable(Loc))and
       ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and //Only certain objects are excluded
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
@@ -983,6 +997,7 @@ begin
       (Land[Loc.Y,Loc.X].Rotation = 0)and //only horizontal mountain edges allowed
       ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
@@ -993,6 +1008,7 @@ begin
       (Land[Loc.Y,Loc.X].Rotation = 0)and
       ((Land[Loc.Y,Loc.X].Obj=255) or (MapElem[Land[Loc.Y,Loc.X].Obj+1].CanBeRemoved))and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
@@ -1002,18 +1018,21 @@ begin
    if (TileIsRoadable(Loc))and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked = false)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Road) then
      AddPassability(Loc, [canMakeRoads]);
 
    if (TileIsSoil(Loc))and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked = false)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
      AddPassability(Loc, [canMakeFields]);
 
    if (TileIsSoil(Loc))and
       (not IsObjectsNearby(Loc.X,Loc.Y))and //This function checks surrounding tiles
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Loc.X > 1)and(Loc.Y > 1)and //Not top/left of map, but bottom/right is ok
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
       (not HousesNearBy)and
@@ -1026,6 +1045,7 @@ begin
    if (TileIsSand(Loc))and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc)) then //Can't crab on markups, fields and roads
@@ -1034,6 +1054,7 @@ begin
    if (TileIsSoil(Loc))and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
       (not TileIsCornField(Loc))and
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (not TileIsWineField(Loc)) then
      AddPassability(Loc, [canWolf]);
 
@@ -1043,7 +1064,8 @@ begin
  for i:=-1 to 0 do
    for k:=-1 to 0 do
      if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-       if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_House]) then
+       if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_House])or
+          (Land[Loc.Y,Loc.X].TileOverlay=to_Wall) then
          HousesNearBy := true;
 
  if (VerticeInMapCoords(Loc.X,Loc.Y))and
@@ -1397,6 +1419,7 @@ begin
     mu_RoadPlan:  Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
     mu_FieldPlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
     mu_WinePlan:  Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
+    mu_WallPlan:  Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
     else Result:=false;
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
