@@ -20,17 +20,17 @@ Gameplay bugs:
 ?	TUnitAction is being overrun for some reason - error
 ?	Destroying barracks and unfinished houses results in crash
 ?	Units get stuck under houses being built and cause "route cannot be made" errors
+?	Greyish block around mouse cursor
 	Splash screen failed to disappear
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	Remove debug info
 	Fisher
-	Greyish block around mouse cursor
 
 Graphics bugs:
-	See-through hills (lighting flaw)			//Assigned to Krom
-	Water has dark patches					//Assigned to Krom
-	Wrong render of houses, black tops (see GraphicFlaws folder)	//Assigned to Krom
+	See-through hills (lighting flaw)
+	Water has dark patches
+	Wrong render of houses, black tops (see GraphicFlaws folder)
 
 Make sure these are checked:	//Assigned to Krom
 	True/false switches in KM_Defaults
