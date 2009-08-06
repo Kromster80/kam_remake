@@ -10,10 +10,9 @@ type
       fWalkFrom,fWalkTo,fAvoid:TKMPoint;
       fWalkToSpot:boolean;
       fPass:TPassability; //Desired passability set once on Create
-      fIgnorePass:boolean;
       DoesWalking:boolean;
       DoEvade:boolean; //Command to make exchange maneuver with other unit
-      function ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
+      function ChoosePassability(KMUnit: TKMUnit):TPassability;
       function AssembleTheRoute():boolean;
       function CheckCanWalk():boolean;
       function DoUnitInteraction():boolean;
@@ -22,7 +21,7 @@ type
       NodePos:integer;
       fRouteBuilt:boolean;
       Explanation:string; //Debug only, explanation what unit is doing
-      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
+      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
       destructor Destroy; override;
       function GetNextPosition():TKMPoint;
       procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
@@ -34,7 +33,7 @@ uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitA
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; const aIgnorePass:boolean=false);
+constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
 begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
@@ -44,8 +43,7 @@ begin
   fWalkTo       := LocB;
   fAvoid        := Avoid;
   fWalkToSpot   := aWalkToSpot;
-  fIgnorePass   := aIgnorePass; //Store incase we need it in DoUnitInteraction re-routing
-  fPass         := ChoosePassability(fWalker, fIgnorePass);
+  fPass         := ChoosePassability(fWalker);
 
   NodeList      := TKMPointList.Create; //Freed on destroy
   NodePos       := 1;
@@ -66,7 +64,7 @@ begin
 end;
 
 
-function TUnitActionWalkTo.ChoosePassability(KMUnit: TKMUnit; DoIgnorePass:boolean):TPassability;
+function TUnitActionWalkTo.ChoosePassability(KMUnit: TKMUnit):TPassability;
 begin
   case KMUnit.GetUnitType of //Select desired passability depending on unit type
     ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result:=canWalkRoad; //Citizens except Worker
@@ -81,12 +79,14 @@ begin
   (TTaskDeliver(KMUnit.GetUnitTask).DeliverKind=dk_Unit) then
     Result:=canWalk;
 
+  //Preparing house area
+  if (KMUnit.GetUnitType = ut_Worker)and(KMUnit.GetUnitTask is TTaskBuildHouseArea) then
+    Result:=canAll;
+
   //Thats for 'miners' at work
   if (KMUnit.GetUnitType in [ut_Woodcutter,ut_Farmer,ut_Fisher,ut_StoneCutter]) then
   if (KMUnit.GetUnitTask is TTaskMining) then
     Result:=canWalk;
-
-  if DoIgnorePass then Result:=canAll; //Thats for Workers walking on house area and maybe some other cases?
 end;
 
 
@@ -215,8 +215,7 @@ begin
               fWalkTo,
               NodeList.List[NodePos+1], //Avoid this tile
               GetActionType,
-              fWalkToSpot,
-              fIgnorePass
+              fWalkToSpot
           );
         Result := false; //Keep 'false' for the matter of Execute cycle still running
         exit;     
@@ -307,8 +306,7 @@ begin
               fWalkTo,
               fOpponent.GetPosition, //KMPoint(Nodes[NodePos+1].X,Nodes[NodePos+1].Y), //Avoid this tile
               GetActionType,
-              fWalkToSpot,
-              fIgnorePass
+              fWalkToSpot
           );
           Result := false; //Keep 'false' for the matter of Execute cycle still running
           exit;

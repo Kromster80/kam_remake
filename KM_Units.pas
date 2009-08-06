@@ -227,8 +227,8 @@ type
     procedure SetAction(aAction: TUnitAction; aStep:integer);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType=ht_None);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
-    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false); overload;
-    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false); overload;
+    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
+    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure AbandonWalk;
     procedure Feed(Amount:single);
@@ -410,6 +410,15 @@ begin
   if not TestAtHome then
   if not TestMining then
     Idle..}
+
+  //Reset unit activity if home was destroyed, except when unit is dying
+  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie)) then begin
+    fHome:=nil;
+    if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
+    FreeAndNil(fUnitTask);
+    fVisible:=true;
+  end;
+    
 
     if fCondition<UNIT_MIN_CONDITION then begin
       H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
@@ -969,15 +978,15 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false);
+procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true);
 begin
-  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, aAvoid, aActionType, aWalkToSpot, aIgnorePass),0);
+  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, aAvoid, aActionType, aWalkToSpot),0);
 end;
 
 
-procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aIgnorePass:boolean=false);
+procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true);
 begin
-  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aIgnorePass),0);
+  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot),0);
 end;
 
 
@@ -1062,13 +1071,9 @@ begin
   if fCondition=0 then
     KillUnit;
 
-  //Reset unit activity if home was destroyed, except when unit is dying
-  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie)) then begin
-    fHome:=nil;
-    if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
-    FreeAndNil(fUnitTask);
-    fVisible:=true;
-  end;
+  //
+  //Preforming Tasks and Actions now
+  //------------------------------------------------------------------------------------------------
 
   ActDone:=true;
   TaskDone:=true;
@@ -1608,7 +1613,7 @@ case fPhase of
       TaskDone:=true;
       fThought := th_None;
     end;
-2:  SetActionWalk(fUnit,ListOfCells[Step], KMPoint(0,0), ua_Walk, true, true);
+2:  SetActionWalk(fUnit,ListOfCells[Step]);
 3:  begin
       SetActionStay(11,ua_Work1,false);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
@@ -1631,7 +1636,7 @@ case fPhase of
       fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
       dec(Step);
     end;
-7:  SetActionWalk(fUnit,KMPointY1(fHouse.GetEntrance), KMPoint(0,0), ua_Walk, true, true);
+7:  SetActionWalk(fUnit,KMPointY1(fHouse.GetEntrance));
 8:  begin
       fHouse.SetBuildingState(hbs_Wood);
       fPlayers.Player[byte(fOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it

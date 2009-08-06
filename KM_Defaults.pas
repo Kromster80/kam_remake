@@ -577,7 +577,7 @@ type
         mu_WinePlan,    //Road/Corn/Wine ropes
         mu_WallPlan,
         mu_HousePlan,   //Rope outline of house area
-        mu_HouseFence,  //Fence outline of house area
+        mu_HouseFence,  //Wooden fence outline of house area
         mu_House,       //Actual house, which is not rendered and is used in here to siplify whole thing
         mu_UnderConstruction   //Underconstruction tile, house area being flattened and roadworks
         );
