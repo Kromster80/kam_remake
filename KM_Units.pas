@@ -47,17 +47,17 @@ type
 
   TUnitTask = class(TObject)
   private
-    Phase:byte;
-    Phase2:byte;
+    fUnit:TKMUnit; //Unit who's performing the Task
+    fPhase:byte;
+    fPhase2:byte;
   public
-    constructor Create;
+    constructor Create(aUnit:TKMUnit);
     procedure Abandon; virtual;
     procedure Execute(out TaskDone:boolean); virtual; abstract;
   end;
 
     TTaskSelfTrain = class(TUnitTask)
     private
-      fUnit:TKMUnit;
       fSchool:TKMHouseSchool;
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
@@ -66,7 +66,6 @@ type
 
     TTaskDeliver = class(TUnitTask)
     private
-      fSerf:TKMUnitSerf;
       fFrom:TKMHouse;
       fToHouse:TKMHouse;
       fToUnit:TKMUnit;
@@ -81,7 +80,6 @@ type
 
     TTaskBuildRoad = class(TUnitTask)
     private
-      fWorker:TKMUnitWorker;
       fLoc:TKMPoint;
       ID:integer;
     public
@@ -91,7 +89,6 @@ type
 
     TTaskBuildWine = class(TUnitTask)
     private
-      fWorker:TKMUnitWorker;
       fLoc:TKMPoint;
       ID:integer;
     public
@@ -101,7 +98,6 @@ type
 
     TTaskBuildField = class(TUnitTask)
     private
-      fWorker:TKMUnitWorker;
       fLoc:TKMPoint;
       ID:integer;
     public
@@ -111,7 +107,6 @@ type
 
     TTaskBuildWall = class(TUnitTask)
     private
-      fWorker:TKMUnitWorker;
       fLoc:TKMPoint;
       ID:integer;
     public
@@ -121,7 +116,6 @@ type
 
     TTaskBuildHouseArea = class(TUnitTask)
     private
-      fWorker:TKMUnitWorker;
       fHouse:TKMHouse;
       TaskID:integer;
       Step:byte;
@@ -133,7 +127,6 @@ type
 
     TTaskBuildHouse = class(TUnitTask)
     private
-      fWorker:TKMUnitWorker;
       fHouse:TKMHouse;
       TaskID:integer;
       LocCount:byte; //Count for locations around the house from where worker can build
@@ -149,7 +142,6 @@ type
 
     TTaskBuildHouseRepair = class(TUnitTask)
     private
-      fWorker:TKMUnitWorker;
       fHouse:TKMHouse;
       TaskID:integer;
       LocCount:byte; //Count for locations around the house from where worker can build
@@ -165,7 +157,6 @@ type
 
     TTaskGoHome = class(TUnitTask)
     private
-      fUnit:TKMUnit;
       fDestPos:TKMPoint;
     public
       constructor Create(aTo:TKMPoint; aUnit:TKMUnit);
@@ -174,7 +165,6 @@ type
 
     TTaskGoEat = class(TUnitTask)
     private
-      fUnit:TKMUnit;
       fInn:TKMHouseInn;
       PlaceID:byte; //Units place in Inn
     public
@@ -185,7 +175,6 @@ type
     TTaskMining = class(TUnitTask)
     private
       WorkPlan:TUnitWorkPlan;
-      fUnit:TKMUnit;
       BeastID:byte;
     public
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
@@ -195,7 +184,6 @@ type
     {Yep, this is a Task}
     TTaskDie = class(TUnitTask)
     private
-      fUnit:TKMUnit;
       SequenceLength:integer;
     public
       constructor Create(aUnit:TKMUnit);
@@ -204,7 +192,7 @@ type
     
     TTaskGoOutShowHungry = class(TUnitTask)
     private
-      fUnit:TKMUnit;
+      //fUnit:TKMUnit;
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
@@ -643,7 +631,7 @@ begin
   begin
     //Road, wine and field: remove the markup that disallows all other building (mu_UnderConstruction) only if we have started digging
     if (fUnitTask is TTaskBuildRoad) or (fUnitTask is TTaskBuildWine) or (fUnitTask is TTaskBuildField) then
-      if TTaskBuildRoad(fUnitTask).Phase > 0 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc);
+      if TTaskBuildRoad(fUnitTask).fPhase > 0 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc);
     //House area: remove house, restoring terrain to normal
     if fUnitTask is TTaskBuildHouseArea then
       if TTaskBuildHouseArea(fUnitTask).fHouse <> nil then
@@ -778,8 +766,9 @@ begin
     exit;
   end;
 
-  SpotJit:=2; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
+  SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
               //@Krom: Why so low? The wolf behaves oddly now, I prefered it when it was higher.
+              //@Lewin: Sorry, I forgot to restore it after testing..
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot:=fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
@@ -1051,12 +1040,8 @@ begin
 
   //Make unit hungry as long as they are not currently eating in the inn
   if fCondition>0 then
-  begin
-    if not (fUnitTask is TTaskGoEat) then
-      dec(fCondition)
-    else if not (TTaskGoEat(fUnitTask).Phase in [3..6]) then
+    if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).PlaceID<>0)) then
       dec(fCondition);
-  end;
 
   //Feed the unit automatically
   if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition:=UNIT_MAX_CONDITION;
@@ -1119,26 +1104,27 @@ begin
 end;
 
 
-constructor TUnitTask.Create;
+constructor TUnitTask.Create(aUnit:TKMUnit);
 begin
-  Inherited;
-  Phase:=0;
-  Phase2:=0;
+  Inherited Create;
+  fUnit:=aUnit;
+  fPhase:=0;
+  fPhase2:=0;
 end;
 
 procedure TUnitTask.Abandon;
 begin
   //Shortcut to abandon and declare task done
-  Phase:=MAXBYTE;
-  Phase2:=MAXBYTE;
+  fUnit:=nil;
+  fPhase:=MAXBYTE;
+  fPhase2:=MAXBYTE;
 end;
 
 { TTaskSelfTrain }
 {Train itself in school}
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
-  Inherited Create;
-  fUnit:=aUnit;
+  Inherited Create(aUnit);
   fSchool:=aSchool;
   fUnit.fVisible:=false;
   fUnit.SetActionStay(0,ua_Walk);
@@ -1154,7 +1140,7 @@ begin
   exit;
 end;
 with fUnit do
-case Phase of
+case fPhase of
   0: begin
       fSchool.SetState(hst_Work,0);
       fSchool.fCurrentAction.SubActionWork(ha_Work1,30);
@@ -1188,16 +1174,15 @@ case Phase of
      end;
   else TaskDone:=true;
 end;
-inc(Phase);
+inc(fPhase);
 end;
 
 
 { TTaskDeliver }
 constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
-  Inherited Create;
+  Inherited Create(aSerf);
   fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
-  fSerf:=aSerf;
   fFrom:=aFrom;
   fToHouse:=toHouse;
   fToUnit:=toUnit;
@@ -1209,14 +1194,14 @@ begin
   if toUnit<>nil then
     DeliverKind:=dk_Unit;
 
-  fSerf.SetActionStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
 procedure TTaskDeliver.Abandon();
 begin
   Inherited;
-  fPlayers.Player[byte(fSerf.fOwner)].DeliverList.AbandonDelivery(fDeliverID);
+  fPlayers.Player[byte(fUnit.fOwner)].DeliverList.AbandonDelivery(fDeliverID);
 end;
 
 
@@ -1224,11 +1209,11 @@ procedure TTaskDeliver.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
 
-with fSerf do
-case Phase of
+with fUnit do
+case fPhase of
 0: begin
     if not fFrom.IsDestroyed then
-      SetActionWalk(fSerf,KMPointY1(fFrom.GetEntrance));
+      SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance));
    end;
 1: if not fFrom.IsDestroyed then
      SetActionGoIn(ua_Walk,gd_GoInside,fFrom.GetHouseType)
@@ -1240,7 +1225,7 @@ case Phase of
 3: if not fFrom.IsDestroyed then
    begin
      if fFrom.ResTakeFromOut(fResourceType) then begin
-       GiveResource(fResourceType);
+       TKMUnitSerf(fUnit).GiveResource(fResourceType);
        fPlayers.Player[byte(fOwner)].DeliverList.TakenOffer(fDeliverID);
      end else begin
        fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
@@ -1252,28 +1237,28 @@ case Phase of
      Abandon;
      TaskDone:=true;
    end;
-4: if Carry=rt_None then TaskDone:=true else SetActionStay(0,ua_Walk);
+4: if TKMUnitSerf(fUnit).Carry=rt_None then TaskDone:=true else SetActionStay(0,ua_Walk);
 end;
 
 //Deliver into complete house
 if DeliverKind = dk_House then
   if fToHouse.IsComplete then
-  with fSerf do
-  case Phase of
+  with fUnit do
+  case fPhase of
   0..4:;
-  5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
+  5: SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance));
   6: if not fToHouse.IsDestroyed then
        SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
      else begin
        Abandon;
        TaskDone:=true;
-       TakeResource(Carry);
+       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
      end;
   7: SetActionStay(5,ua_Walk);
   8: if not fToHouse.IsDestroyed then
      begin
-       fToHouse.ResAddToIn(Carry);
-       TakeResource(Carry);
+       fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
+       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
        SetActionGoIn(ua_walk,gd_GoOutside,fToHouse.GetHouseType);
        fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
        fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
@@ -1281,7 +1266,7 @@ if DeliverKind = dk_House then
        fVisible:=true; //Unit was invisible while inside. Must show it
        Abandon;
        TaskDone:=true;
-       TakeResource(Carry);
+       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
      end;
   else TaskDone:=true;
   end;
@@ -1291,13 +1276,13 @@ if DeliverKind = dk_House then
   if not fToHouse.IsComplete then
   if not fToHouse.IsDestroyed then
   begin
-    with fSerf do
-    case Phase of
+    with fUnit do
+    case fPhase of
     0..4:;
-    5: SetActionWalk(fSerf,KMPointY1(fToHouse.GetEntrance));
+    5: SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance));
     6: begin
-         fToHouse.ResAddToBuild(Carry);
-         TakeResource(Carry);
+         fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
+         TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
          fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
          fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
          SetActionStay(1,ua_Walk);
@@ -1307,27 +1292,27 @@ if DeliverKind = dk_House then
   end else begin
     Abandon;
     TaskDone:=true;
-    fSerf.TakeResource(fSerf.Carry);
+    TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
   end;
 
 //Deliver to builder
 if DeliverKind = dk_Unit then
-with fSerf do
-case Phase of
+with fUnit do
+case fPhase of
 0..4:;
 5: if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.IsDead) then
-     SetActionWalk(fSerf, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false)
+     SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false)
    else
    begin
-     TakeResource(Carry);
+     TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
      TaskDone:=true;
    end;
 6: begin
-      TakeResource(Carry);
+      TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
       if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.IsDead)and(not(fToUnit.fUnitTask is TTaskDie)) then begin
-        inc(fToUnit.fUnitTask.Phase);
+        inc(fToUnit.fUnitTask.fPhase);
         fToUnit.SetActionStay(0,ua_Work1);
       end;
       fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
@@ -1337,8 +1322,8 @@ case Phase of
 else TaskDone:=true;
 end;
 
-inc(Phase);
-if (fSerf.fCurrentAction=nil)and(not TaskDone) then
+inc(fPhase);
+if (fUnit.fCurrentAction=nil)and(not TaskDone) then
   fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');
 end;
 
@@ -1346,11 +1331,10 @@ end;
 { TTaskBuildRoad }
 constructor TTaskBuildRoad.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-  Inherited Create;
-  fWorker:=aWorker;
+  Inherited Create(aWorker);
   fLoc:=aLoc;
   ID:=aID;
-  fWorker.SetActionStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1358,10 +1342,10 @@ procedure TTaskBuildRoad.Execute(out TaskDone:boolean);
 const Cycle=11;
 begin
 TaskDone:=false;
-with fWorker do
-case Phase of
+with fUnit do
+case fPhase of
 0: begin
-     SetActionWalk(fWorker,fLoc);
+     SetActionWalk(fUnit,fLoc);
      fThought := th_Build;
    end;
 1: begin
@@ -1378,7 +1362,7 @@ case Phase of
 3: begin
      fTerrain.IncDigState(fLoc);
      SetActionStay(11,ua_Work1,false);
-     fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Stone, 1, dt_Once, di_High);
+     fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
    end;
 
 4: begin
@@ -1408,18 +1392,17 @@ case Phase of
    end;
 else TaskDone:=true;
 end;
-if Phase<>4 then inc(Phase); //Phase=4 is when worker waits for rt_Stone
+if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
 end;
 
 
 { TTaskBuildWine }
 constructor TTaskBuildWine.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-  Inherited Create;
-  fWorker:=aWorker;
+  Inherited Create(aWorker);
   fLoc:=aLoc;
   ID:=aID;
-  fWorker.SetActionStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1427,10 +1410,10 @@ procedure TTaskBuildWine.Execute(out TaskDone:boolean);
 const Cycle=11;
 begin
 TaskDone:=false;
-with fWorker do
-case Phase of
+with fUnit do
+case fPhase of
  0: begin
-      SetActionWalk(fWorker,fLoc);
+      SetActionWalk(fUnit,fLoc);
       fThought := th_Build;
     end;
  1: begin
@@ -1447,7 +1430,7 @@ case Phase of
  3: begin
       fTerrain.IncDigState(fLoc);
       SetActionStay(11,ua_Work1,false);
-      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fWorker,rt_Wood, 1, dt_Once, di_High);
+      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
     end;
  4: begin
       SetActionStay(30,ua_Work1);
@@ -1464,18 +1447,17 @@ case Phase of
     end;
  else TaskDone:=true;
 end;
-if Phase<>4 then inc(Phase); //Phase=4 is when worker waits for rt_Stone
+if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
 end;
 
 
 { TTaskBuildField }
 constructor TTaskBuildField.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-  Inherited Create;
-  fWorker:=aWorker;
+  Inherited Create(aWorker);
   fLoc:=aLoc;
   ID:=aID;
-  fWorker.SetActionStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1483,10 +1465,10 @@ procedure TTaskBuildField.Execute(out TaskDone:boolean);
 const Cycle=11;
 begin
 TaskDone:=false;
-with fWorker do
-case Phase of
+with fUnit do
+case fPhase of
   0: begin
-       SetActionWalk(fWorker,fLoc);
+       SetActionWalk(fUnit,fLoc);
        fThought := th_Build;
      end;
   1: begin
@@ -1497,8 +1479,8 @@ case Phase of
      end;
   2: begin
       SetActionStay(11,ua_Work1,false);
-      inc(Phase2);
-      if Phase2 in [4,8,10] then fTerrain.IncDigState(fLoc);
+      inc(fPhase2);
+      if fPhase2 in [4,8,10] then fTerrain.IncDigState(fLoc);
      end;
   3: begin
       fThought := th_None; //Keep thinking build until it's done
@@ -1508,18 +1490,17 @@ case Phase of
      end;
   else TaskDone:=true;
 end;
-if Phase2 in [0,10] then inc(Phase);
+if fPhase2 in [0,10] then inc(fPhase);
 end;
 
 
 { TTaskBuildWall }
 constructor TTaskBuildWall.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
-  Inherited Create;
-  fWorker:=aWorker;
+  Inherited Create(aWorker);
   fLoc:=aLoc;
   ID:=aID;
-  fWorker.SetActionStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1527,10 +1508,10 @@ procedure TTaskBuildWall.Execute(out TaskDone:boolean);
 const Cycle=11;
 begin
 TaskDone:=false;
-with fWorker do
-case Phase of
+with fUnit do
+case fPhase of
   0: begin
-       SetActionWalk(fWorker,fLoc);
+       SetActionWalk(fUnit,fLoc);
        fThought := th_Build;
      end;
   1: begin
@@ -1546,7 +1527,7 @@ case Phase of
   3: begin
       fTerrain.IncDigState(fLoc);
       SetActionStay(22,ua_Work1,false);
-      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fWorker, rt_Wood, 1, dt_Once, di_High);
+      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Wood, 1, dt_Once, di_High);
     end;
   4: begin
       SetActionStay(30,ua_Work1);
@@ -1564,7 +1545,7 @@ case Phase of
     //Ask for 2 more wood now
   7: begin
       //Walk away from tile and continue building from the side
-      SetActionWalk(fWorker,fTerrain.GetOutOfTheWay(fWorker.GetPosition,KMPoint(0,0),canWalk));
+      SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),canWalk));
     end;
   8: begin
       //fTerrain.IncWallState(fLoc);
@@ -1577,9 +1558,9 @@ case Phase of
      end;
   else TaskDone:=true;
 end;
-if (Phase<>4)and(Phase<>8) then inc(Phase); //Phase=4 is when worker waits for rt_Wood
-if Phase=8 then inc(Phase2);
-if Phase2=5 then inc(Phase); //wait 5 cycles
+if (fPhase<>4)and(fPhase<>8) then inc(fPhase); //Phase=4 is when worker waits for rt_Wood
+if fPhase=8 then inc(fPhase2);
+if fPhase2=5 then inc(fPhase); //wait 5 cycles
 end;
 
 
@@ -1587,8 +1568,7 @@ end;
 constructor TTaskBuildHouseArea.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
 var i,k:integer;
 begin
-  Inherited Create;
-  fWorker:=aWorker;
+  Inherited Create(aWorker);
   fHouse:=aHouse;
   TaskID:=aID;
   Step:=0;
@@ -1597,7 +1577,7 @@ begin
     inc(Step);
     ListOfCells[Step]:=KMPoint(fHouse.GetPosition.X+k-3,fHouse.GetPosition.Y + i - 4);
   end;
-  fWorker.SetActionStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1612,10 +1592,10 @@ begin
   exit;
 end;
 
-with fWorker do
-case Phase of
+with fUnit do
+case fPhase of
 0:  begin
-      SetActionWalk(fWorker,fHouse.GetEntrance);
+      SetActionWalk(fUnit,fHouse.GetEntrance);
       fThought := th_Build;
     end;
 1:  if not fHouse.IsDestroyed then begin //House plan was cancelled before worker has arrived on site
@@ -1628,7 +1608,7 @@ case Phase of
       TaskDone:=true;
       fThought := th_None;
     end;
-2:  SetActionWalk(fWorker,ListOfCells[Step], KMPoint(0,0), ua_Walk, true, true);
+2:  SetActionWalk(fUnit,ListOfCells[Step], KMPoint(0,0), ua_Walk, true, true);
 3:  begin
       SetActionStay(11,ua_Work1,false);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
@@ -1651,7 +1631,7 @@ case Phase of
       fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
       dec(Step);
     end;
-7:  SetActionWalk(fWorker,KMPointY1(fHouse.GetEntrance), KMPoint(0,0), ua_Walk, true, true);
+7:  SetActionWalk(fUnit,KMPointY1(fHouse.GetEntrance), KMPoint(0,0), ua_Walk, true, true);
 8:  begin
       fHouse.SetBuildingState(hbs_Wood);
       fPlayers.Player[byte(fOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
@@ -1663,8 +1643,8 @@ case Phase of
     end;
 else TaskDone:=true;
 end;
-inc(Phase);
-if (Phase=7)and(Step>0) then Phase:=2; //Repeat with next cell
+inc(fPhase);
+if (fPhase=7)and(Step>0) then fPhase:=2; //Repeat with next cell
 end;
 
 
@@ -1680,8 +1660,7 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
     Cells[LocCount].Dir:=Dir;
   end;
 begin
-  Inherited Create;
-  fWorker:=aWorker;
+  Inherited Create(aWorker);
   fHouse:=aHouse;
   Loc:=fHouse.GetPosition;
   TaskID:=aID;
@@ -1702,7 +1681,7 @@ begin
       AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E);     //FromLeft
   end;
   
-  fWorker.SetActionStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1714,12 +1693,12 @@ begin
   if fHouse.IsDestroyed then
   begin
     TaskDone:=true; //Drop the task
-    fWorker.fThought := th_None;
-    fPlayers.Player[byte(fWorker.fOwner)].BuildList.CloseHouse(TaskID);
+    fUnit.fThought := th_None;
+    fPlayers.Player[byte(fUnit.fOwner)].BuildList.CloseHouse(TaskID);
     exit;
   end;
-  with fWorker do
-    case Phase of
+  with fUnit do
+    case fPhase of
       //Pick random location and go there
       0: begin
            //If house has not enough resource to be built, consider building task is done
@@ -1732,7 +1711,7 @@ begin
            end;
            fThought := th_Build;
            CurLoc:=Random(LocCount)+1;
-           SetActionWalk(fWorker,Cells[CurLoc].Loc);
+           SetActionWalk(fUnit,Cells[CurLoc].Loc);
          end;
       1: begin
            Direction:=Cells[CurLoc].Dir;
@@ -1752,7 +1731,7 @@ begin
            end;
            fHouse.IncBuildingProgress;
            SetActionStay(6,ua_Work,false,0,5); //Do building and end animation
-           inc(Phase2);
+           inc(fPhase2);
          end;
       4: begin
            fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(TaskID);
@@ -1761,12 +1740,12 @@ begin
          end;
       else TaskDone:=true;
     end;
-  inc(Phase);
-  if (Phase=4) and (not fHouse.IsComplete) then //If animation cycle is done
-    if Phase2 mod 5 = 0 then //if worker did [5] hits from same spot
-      Phase:=0 //Then goto new spot
+  inc(fPhase);
+  if (fPhase=4) and (not fHouse.IsComplete) then //If animation cycle is done
+    if fPhase2 mod 5 = 0 then //if worker did [5] hits from same spot
+      fPhase:=0 //Then goto new spot
     else
-      Phase:=2; //else do more hits
+      fPhase:=2; //else do more hits
 end;
 
 
@@ -1780,8 +1759,7 @@ constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse;
     Cells[LocCount].Dir:=Dir;
   end;
 begin
-  Inherited Create;
-  fWorker:=aWorker;
+  Inherited Create(aWorker);
   fHouse:=aHouse;
   Loc:=fHouse.GetPosition;
   TaskID:=aID;
@@ -1795,7 +1773,7 @@ begin
     if (i=4)or(HousePlanYX[ht,i+1,k]=0) then AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N) else //Down
     if (k=4)or(HousePlanYX[ht,i,k+1]=0) then AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W) else //Right
     if (k=1)or(HousePlanYX[ht,i,k-1]=0) then AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E);     //Left
-  fWorker.SetActionStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
 end;
 
 
@@ -1804,18 +1782,18 @@ procedure TTaskBuildHouseRepair.Execute(out TaskDone:boolean);
 begin
   if (not fHouse.IsDamaged)or(not fHouse.BuildingRepair) then begin
    TaskDone:=true; //Drop the task
-   fWorker.fThought := th_None;
+   fUnit.fThought := th_None;
    exit;
   end;
 
   TaskDone:=false;
-  with fWorker do
-    case Phase of
+  with fUnit do
+    case fPhase of
       //Pick random location and go there
       0: begin
            fThought := th_Build;
            CurLoc:=Random(LocCount)+1;
-           SetActionWalk(fWorker,Cells[CurLoc].Loc);
+           SetActionWalk(fUnit,Cells[CurLoc].Loc);
          end;
       1: begin
            Direction:=Cells[CurLoc].Dir;
@@ -1832,7 +1810,7 @@ begin
            end;
            fHouse.AddRepair;
            SetActionStay(6,ua_Work,false,0,5); //Do building and end animation
-           inc(Phase2);
+           inc(fPhase2);
          end;
       4: begin
            fThought := th_None;
@@ -1841,21 +1819,20 @@ begin
          end;
       else TaskDone:=true;
     end;
-  inc(Phase);
-  if (Phase=4) and (fHouse.IsDamaged) then //If animation cycle is done
-    if Phase2 mod 5 = 0 then //if worker did [5] hits from same spot
-      Phase:=0 //Then goto new spot
+  inc(fPhase);
+  if (fPhase=4) and (fHouse.IsDamaged) then //If animation cycle is done
+    if fPhase2 mod 5 = 0 then //if worker did [5] hits from same spot
+      fPhase:=0 //Then goto new spot
     else
-      Phase:=2; //else do more hits
+      fPhase:=2; //else do more hits
 end;
 
 
 { TTaskMining }
 constructor TTaskMining.Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
 begin
-  Inherited Create;
+  Inherited Create(aUnit);
   WorkPlan:=aWorkPlan;
-  fUnit:=aUnit;
   BeastID:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
@@ -1868,12 +1845,12 @@ var Dir:integer; TimeToWork, StillFrame:integer;
 begin
 TaskDone:=false;
 with fUnit do
-  case Phase of
+  case fPhase of
     0: if WorkPlan.HasToWalk then begin
          fHome.SetState(hst_Empty,0);
          SetActionGoIn(WorkPlan.WalkTo,gd_GoOutside,fHome.GetHouseType); //Walk outside the house
        end else begin
-         Phase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
+         fPhase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
          SetActionStay(0,ua_Walk);
          exit;
        end;
@@ -1921,7 +1898,7 @@ with fUnit do
     {Unit back at home and can process its booty now}
     7: begin
         fThought := th_None;
-        Phase2:=1;
+        fPhase2:=1;
         fHome.SetState(hst_Work,0); //Set house to Work state
         fHome.ResTakeFromIn(WorkPlan.Resource1); //Count should be added
         fHome.ResTakeFromIn(WorkPlan.Resource2);
@@ -1931,24 +1908,24 @@ with fUnit do
           if BeastID<>0 then
             TKMHouseSwineStable(fHome).TakeBeast(BeastID);
         end;
-        if WorkPlan.ActCount>=Phase2 then begin
-           fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[Phase2].Act,WorkPlan.HouseAct[Phase2].TimeToWork);
+        if WorkPlan.ActCount>=fPhase2 then begin
+           fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act,WorkPlan.HouseAct[fPhase2].TimeToWork);
            //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
-           SetActionStay(WorkPlan.HouseAct[Phase2].TimeToWork-1,ua_Walk);
+           SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
         end else begin
-           Phase:=SkipWork;
+           fPhase:=SkipWork;
            SetActionStay(0,ua_Walk);
            exit;
         end;
        end;
     8..28: begin //Allow for 20 different "house work" phases
-           inc(Phase2);
-           if (Phase2=2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;
-           if WorkPlan.ActCount>=Phase2 then begin
-             fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[Phase2].Act,WorkPlan.HouseAct[Phase2].TimeToWork);
-             SetActionStay(WorkPlan.HouseAct[Phase2].TimeToWork-1,ua_Walk);
+           inc(fPhase2);
+           if (fPhase2=2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;
+           if WorkPlan.ActCount>=fPhase2 then begin
+             fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act,WorkPlan.HouseAct[fPhase2].TimeToWork);
+             SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
            end else begin
-             Phase:=SkipWork;
+             fPhase:=SkipWork;
              SetActionStay(0,ua_Walk);
              exit;
            end;
@@ -1980,7 +1957,7 @@ with fUnit do
         end;
     else TaskDone:=true;
   end;
-inc(Phase);
+inc(fPhase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then
   fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
 end;
@@ -1989,9 +1966,8 @@ end;
 { TTaskGoHome }
 constructor TTaskGoHome.Create(aTo:TKMPoint; aUnit:TKMUnit);
 begin
-  Inherited Create;
+  Inherited Create(aUnit);
   fDestPos:=aTo;
-  fUnit:=aUnit;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
@@ -2000,7 +1976,7 @@ procedure TTaskGoHome.Execute(out TaskDone:boolean);
 begin
   TaskDone:=false;
   with fUnit do
-  case Phase of
+  case fPhase of
     0: begin
          fThought := th_Home;
          SetActionWalk(fUnit,KMPointY1(fDestPos), KMPoint(0,0));
@@ -2013,7 +1989,7 @@ begin
        end;
     else TaskDone:=true;
   end;
-  inc(Phase);
+  inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
     fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
 end;
@@ -2022,8 +1998,7 @@ end;
 { TTaskDie }
 constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
-  Inherited Create;
-  fUnit:=aUnit;
+  Inherited Create(aUnit);
   fUnit.SetActionStay(0,ua_Walk);
   SequenceLength := fResource.GetUnitSequenceLength(fUnit.fUnitType,ua_Die,fUnit.Direction);
   if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
@@ -2034,7 +2009,7 @@ procedure TTaskDie.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
 with fUnit do
-case Phase of
+case fPhase of
   0: if not fVisible then begin
        if fHome<>nil then begin
          fHome.SetState(hst_Idle,0);
@@ -2054,15 +2029,14 @@ case Phase of
       exit;
      end;
 end;
-inc(Phase);
+inc(fPhase);
 end;
 
 
 { TTaskGoOutShowHungry }
 constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
 begin
-  Inherited Create;
-  fUnit:=aUnit;
+  Inherited Create(aUnit);
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
@@ -2071,7 +2045,7 @@ procedure TTaskGoOutShowHungry.Execute(out TaskDone:boolean);
 begin
   TaskDone:=false;
   with fUnit do
-  case Phase of
+  case fPhase of
     0: begin
          fThought := th_Eat;
          SetActionStay(20,ua_Walk);
@@ -2092,7 +2066,7 @@ begin
        end;
   end;
   if fUnit.fHome=nil then TaskDone := true;
-  inc(Phase);
+  inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
     fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
 end;
@@ -2101,9 +2075,8 @@ end;
 { TTaskGoEat }
 constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
-  Inherited Create;
+  Inherited Create(aUnit);
   fInn:=aInn;
-  fUnit:=aUnit;
   PlaceID:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
@@ -2120,7 +2093,7 @@ begin
 end;
 
 with fUnit do
-case Phase of
+case fPhase of
  0: begin
       fThought := th_Eat;
       if fHome<>nil then fHome.SetState(hst_Empty,0);
@@ -2132,7 +2105,7 @@ case Phase of
     end;
  2: begin
       SetActionGoIn(ua_Walk,gd_GoInside,ht_Inn); //Enter Inn
-      PlaceID:=fInn.EaterGetsInside(fUnitType);
+      PlaceID := fInn.EaterGetsInside(fUnitType);
     end;
  3: //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
     //Bread    = +40%
@@ -2174,10 +2147,11 @@ case Phase of
       else fThought := th_None;
       SetActionGoIn(ua_Walk,gd_GoOutside,ht_Inn); //Exit Inn
       fInn.EatersGoesOut(PlaceID);
+      PlaceID:=0;
     end;
  else TaskDone:=true;
 end;
-inc(Phase);
+inc(fPhase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then
   fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
 end;
