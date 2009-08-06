@@ -836,35 +836,6 @@ procedure TTerrain.DecStoneDeposit(Loc:TKMPoint);
     end;
   end;
 
-  {function DecHeight(CurHeight,BaseHeight:byte; ReductionFactor:single):byte;
-  var MyMin:byte;
-  begin
-    if CurHeight < BaseHeight then
-      MyMin := 100 //This tile is low, so we should allow it to be raised
-    else
-      MyMin := CurHeight; //This tile is higher than the base, so don't allow it to be raised
-    Result := min(round(max(0,CurHeight-BaseHeight) * ReductionFactor)+BaseHeight,MyMin);
-    Result := EnsureRange(Result + RandomS(2),0,100);
-  end;
-
-  procedure ReduceHeights(LowX,HighX,LowY,HighY:word);
-  var ix, iy: word;
-  const StoneHeightReduction = 0.95; //The amount that surounding tiles height will be reduced by for the surounding tiles
-        GrassHeightReduction = 0.8; //Grass is reduced more than stone to ensure that no peaks in the grass occur
-  begin
-    for iy:=HighY downto LowY do
-      for ix:=LowX to HighX do
-      begin
-        if TileIsStone(KMPoint(ix,iy))>0 then
-          Land[iy,ix].Height:=DecHeight(Land[iy,ix].Height,Land[iy+1,ix].Height,StoneHeightReduction)
-        else
-          Land[iy,ix].Height:=DecHeight(Land[iy,ix].Height,Land[iy+1,ix].Height,GrassHeightReduction);   
-        RecalculatePassability(KMPoint(ix,iy));
-      end;
-    RebuildLighting(LowX,HighX,LowY,HighY); //Update the lighting
-  end;}
-
-const HeightReduction = 0.75; //The amount that height will be reduced by for the decreased tile
 begin
   case Land[Loc.Y,Loc.X].Terrain of
     132,137: Land[Loc.Y,Loc.X].Terrain:=131+Random(2)*5;
@@ -880,12 +851,10 @@ begin
   UpdateTransition(Loc.X+1,Loc.Y); //  x X x
   UpdateTransition(Loc.X,Loc.Y+1); //    x
   UpdateTransition(Loc.X-1,Loc.Y);
-  //Land[Loc.Y,Loc.X].Height:=DecHeight(Land[Loc.Y,Loc.X].Height,Land[Loc.Y+1,Loc.X].Height,HeightReduction); //Reduce height
-  //ReduceHeights(Loc.X,Loc.X+1,Loc.Y,Loc.Y+1); //Required for height reduction
-  //Should use something simpler like flatten terrain, but needs to be modified a bit
   FlattenTerrain(Loc);
   RecalculatePassabilityAround(Loc);
   //@Lewin: I did a test on StoneMines map and simple FlattenTerrain does the job well enough :)
+  //@Krom:  It works very well! To be deleted.
 
   RebuildWalkConnect(canWalk);
 end;

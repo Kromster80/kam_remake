@@ -694,7 +694,9 @@ begin
     else
       fThought:=th_None;
 
-  //Dispatch new order when warrior finished previous action part 
+  //Dispatch new order when warrior finished previous action part
+  if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) then
+    AbandonWalk; //If we are already walking then cancel it to make way for new command
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone then
   begin
     SetActionWalk(Self,fOrderLoc);
@@ -768,12 +770,6 @@ begin
 
   if TaskDone then FreeAndNil(fUnitTask) else exit;
 
-  //@Krom: In KaM, if a crab/wolf cannot move in any direction then it just disappears. (dies) This would be useful to implement, because
-  //       Sometimes they get stuck in house plans and stuff which is annoying. Maybe the same for fish and other animals? If we can't move, then die.
-
-  //@Lewin: Can you code it this way - assign a TTaskDie task and edit TTask so that we could add custom dying
-  //        sequence for an animal later on. E.g. animal would blend out
-
   //First make sure the animal isn't stuck (check passibility of our position)
   if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(GetUnitType)]) then
   begin
@@ -783,6 +779,7 @@ begin
   end;
 
   SpotJit:=2; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
+              //@Krom: Why so low? The wolf behaves oddly now, I prefered it when it was higher.
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot:=fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
@@ -2223,6 +2220,7 @@ begin
     KMUnit.fPosition.Y:=fWalkTo.Y;
     //We are finished
     DoEnd:=true;
+    GetIsStepDone := true;
     exit;
   end;
 
@@ -2492,7 +2490,14 @@ begin
       //become very slow after you have had lots of fights and killed 1000s.
       //And everytime you cancel training in the school will be another unit.
       //I can't say it's a perfect solution but if it works then I agree.
-      //To be deleted
+
+      //@Krom again: I talked to my father about this. He said that leaving the unused memory is really bad programming
+      //and it should be possible to make sure no one is pointing at the unit/house/delivery before we remove it. He explained the
+      //way he thinks we should do it, which I agree with. Basically, once we've finished with something from a list then it should be removed.
+      //This means units, houses, all of the delivery jobs/queues, etc.
+      //I haven't got time to explain it now, and it might be easier to do it over ICQ, (so we can discuss it rather than me telling you)
+      // but basically it is possible, as long as we know all of the places that have a pointer to the item in the list that we want to remove.
+      //It shouldn't be too hard to implement either. :)
 
 end;
 
