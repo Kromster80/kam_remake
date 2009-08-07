@@ -191,8 +191,6 @@ type
     end;
     
     TTaskGoOutShowHungry = class(TUnitTask)
-    private
-      //fUnit:TKMUnit;
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
@@ -911,11 +909,15 @@ begin
   if fUnitTask is TTaskBuildRoad then Result:='Building road';
   if fUnitTask is TTaskBuildWine then Result:='Building wine field';
   if fUnitTask is TTaskBuildField then Result:='Building corn field';
+  if fUnitTask is TTaskBuildWall then Result:='Building a wall';
   if fUnitTask is TTaskBuildHouseArea then Result:='Preparing house area';
   if fUnitTask is TTaskBuildHouse then Result:='Building house';
+  if fUnitTask is TTaskBuildHouseRepair then Result:='Repairing house';
   if fUnitTask is TTaskGoHome then Result:='Going home';
   if fUnitTask is TTaskGoEat then Result:='Going to eat';
   if fUnitTask is TTaskMining then Result:='Mining resources';
+  if fUnitTask is TTaskDie then Result:='Dying';
+  if fUnitTask is TTaskGoOutShowHungry then Result:='Showing hunger';
 end;
 
 
@@ -1089,6 +1091,13 @@ begin
     fUnitTask.Execute(TaskDone);
 
   if TaskDone then FreeAndNil(fUnitTask) else exit;
+
+  //@Lewin:
+  //Somewhere here we should check if an unwalkable tile appeared under unit and issue a task to go
+  //to nearest walkable tile, something TTaskGoToWalkable which will randomly choose nearest walkable
+  //tile and make a route to it. We need a new task to be able to set canAll passability in
+  //ActionWalkTo.ChoosePassability.
+  //If unit appears on unwalkable tile during some other Task the Task should abandon itself..
 
   //If we get to this point then it means that common part is done and now
   //we can perform unit-specific activities (ask for job, etc..)

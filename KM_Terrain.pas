@@ -1584,7 +1584,7 @@ begin
   begin
 
     if FOG_OF_WAR_ENABLE then
-    for h:=1 to 8 do
+    for h:=1 to 1 do //More can be added
       if Land[i,k].FogOfWar[h] > FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
       if InRange(Land[i,k].FieldAge,1,65534) then

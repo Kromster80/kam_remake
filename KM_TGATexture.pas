@@ -33,9 +33,10 @@ var Texture : GLuint;
 begin
   glGenTextures(1, Texture);
   glBindTexture(GL_TEXTURE_2D, Texture);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   //GL_MODULATE is our choice
   //GL_REPLACE is also available since version 1.1, maybe it can fix that flaw of houses blending into black..
+  //can't use REPLACE cos it disallows blending of texture with custom color (e.g. trees in FOW)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);

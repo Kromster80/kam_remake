@@ -275,7 +275,9 @@ for iW:=1 to 1+3*byte(MakeTerrainAnim) do begin //Each new layer inflicts 10% fp
   end;
   glbegin (GL_QUADS);
     with fTerrain do
-    for i:=y1 to y2 do for k:=x1 to x2 do begin
+    for i:=y1 to y2 do for k:=x1 to x2 do
+    if (iW=1) or (CheckTileRevelation(k,i,MyPlayer.PlayerID) > 160) then
+    begin
       xt:=fTerrain.Land[i,k].Terrain;
 
       TexC[1,1]:=(xt mod 16  )/16+Overlap; TexC[1,2]:=(xt div 16  )/16+Overlap;
@@ -949,7 +951,7 @@ begin
     end;
     //RenderQuad(P.X,P.Y);
     RenderList[i].FOWvalue := fTerrain.CheckTileRevelation(P.X,P.Y,MyPlayer.PlayerID);
-    if RenderList[i].FOWvalue<=FOG_OF_WAR_ACT then
+    if RenderList[i].FOWvalue<=128 then if RenderList[i].IsUnit then
       RO[i]:=0;
   end else begin
     RO[i]:=0;
@@ -1227,8 +1229,8 @@ end;
 //Render highlight overlay to make whole picture look brighter
 procedure TRender.RenderBrightness(Value:byte);
 begin
-  Value:=Value-1;
-  glBlendFunc(GL_DST_ALPHA,GL_DST_ALPHA);
+  if Value=1 then exit;
+  glBlendFunc(GL_ONE,GL_ONE);
   glColor4f(Value/20,Value/20,Value/20,Value/20);
   glBegin(GL_QUADS);
     glkRect(0,0,RenderAreaSize.X,RenderAreaSize.Y);
