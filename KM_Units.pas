@@ -61,6 +61,7 @@ type
       fSchool:TKMHouseSchool;
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
+      procedure Abandon();
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -137,6 +138,7 @@ type
       end;
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+      procedure Abandon();
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -1145,12 +1147,20 @@ begin
 end;
 
 
+procedure TTaskSelfTrain.Abandon();
+begin
+  fUnit.RemoveUntrainedFromSchool; //Abort if someone has destroyed our school
+  Inherited;
+end;
+
+
 procedure TTaskSelfTrain.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
-if (fSchool = nil) or (fSchool.IsDestroyed) then
+if fSchool.IsDestroyed then
 begin
-  fUnit.RemoveUntrainedFromSchool; //Abort if someone has destroyed our school
+  Abandon;
+  TaskDone:=true;
   exit;
 end;
 with fUnit do
@@ -1214,8 +1224,8 @@ end;
 
 procedure TTaskDeliver.Abandon();
 begin
-  Inherited;
   fPlayers.Player[byte(fUnit.fOwner)].DeliverList.AbandonDelivery(fDeliverID);
+  Inherited;
 end;
 
 
@@ -1602,6 +1612,7 @@ TaskDone:=false;
 
 if fHouse.IsDestroyed then
 begin
+  Abandon;
   TaskDone:=true;
   exit;
 end;
@@ -1699,6 +1710,12 @@ begin
 end;
 
 
+procedure TTaskBuildHouse.Abandon();
+begin
+  fPlayers.Player[byte(fUnit.fOwner)].BuildList.CloseHouse(TaskID);
+  Inherited;
+end;
+
 {Build the house}
 procedure TTaskBuildHouse.Execute(out TaskDone:boolean);
 begin
@@ -1706,9 +1723,8 @@ begin
   //If the house has been destroyed during the building process then exit immediately
   if fHouse.IsDestroyed then
   begin
+    Abandon;
     TaskDone:=true; //Drop the task
-    fUnit.fThought := th_None;
-    fPlayers.Player[byte(fUnit.fOwner)].BuildList.CloseHouse(TaskID);
     exit;
   end;
   with fUnit do
