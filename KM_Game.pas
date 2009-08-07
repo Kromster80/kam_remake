@@ -111,6 +111,7 @@ begin
   fRender.RenderResize(X,Y,rm2D);
   if GameIsRunning then begin //If game is running
     fViewport.SetVisibleScreenArea(X,Y);
+    fGamePlayInterface.SetScreenSize(X,Y);
     ZoomInGameArea(1);
   end else begin
     //Should resize all Controls somehow...

@@ -198,9 +198,6 @@ begin
     glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
     fGame.fGameplayInterface.Paint;
 
-    glLoadIdentity();
-    RenderBrightness(fGameSettings.GetBrightness);
-
   end else begin //Game is not running - paint menu
 
     glLoadIdentity();             // Reset The View
@@ -208,8 +205,11 @@ begin
     glPointSize(1);
     glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
     fGame.fMainMenuInterface.Paint;
-    
+
   end;
+
+  glLoadIdentity();
+  RenderBrightness(fGameSettings.GetBrightness);
 
   SwapBuffers(h_DC);
 end;

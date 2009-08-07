@@ -2,6 +2,8 @@ unit KM_Controls;
 interface
 uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
 
+type TPivotLocation = (pl_Min, pl_Avg, pl_Max);
+
 type TNotifyEvent = procedure(Sender: TObject) of object;
 
 {Base class for all TKM elements}
@@ -98,6 +100,8 @@ TKMImage = class(TKMControl)
     RXid: integer; //RX library
     TexID: integer;
     StretchImage: boolean;
+    PivotX: TPivotLocation;
+    PivotY: TPivotLocation;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
@@ -466,8 +470,10 @@ begin
   RXid:=aRXid;
   TexID:=aTexID;
   StretchImage:=false;
-  if aWidth=0 then aLeft:=aLeft - GFXData[RXid,aTexID].PxWidth div 2;
-  if aHeight=0 then aTop:=aTop - GFXData[RXid,aTexID].PxHeight div 2;
+  PivotX:=pl_Min; //by default to top-left
+  PivotY:=pl_Min;
+  if aWidth=0 then PivotX:=pl_Avg;//aLeft:=aLeft - GFXData[RXid,aTexID].PxWidth div 2;
+  if aHeight=0 then PivotY:=pl_Avg;//aTop:=aTop - GFXData[RXid,aTexID].PxHeight div 2;
   aWidth:=max(aWidth,GFXData[RXid,aTexID].PxWidth);
   aHeight:=max(aHeight,GFXData[RXid,aTexID].PxHeight);
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -477,14 +483,25 @@ end;
 
 {If image area is bigger than image - do center image in it}
 procedure TKMImage.Paint();
-begin
+var OffsetX,OffsetY:word;
+begin    
+  case PivotX of
+    pl_Min: OffsetX:=0;
+    pl_Avg: OffsetX:=Width div 2;
+    pl_Max: OffsetX:=Width;
+  end;
+  case PivotY of
+    pl_Min: OffsetY:=0;
+    pl_Avg: OffsetY:=Height div 2;
+    pl_Max: OffsetY:=Height;
+  end; 
   if TexID=0 then exit;
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left-OffsetX, Top-OffsetY, Width, Height, $4000FF00);
   if StretchImage then
-    fRenderUI.WritePicture(Left, Top, Width, Height, RXid, TexID, Enabled)
+    fRenderUI.WritePicture(Left-OffsetX, Top-OffsetY, Width, Height, RXid, TexID, Enabled)
   else
-    fRenderUI.WritePicture(Left + (Width-GFXData[RXid,TexID].PxWidth) div 2,
-                           Top + (Height-GFXData[RXid,TexID].PxHeight) div 2, RXid,TexID, Enabled);
+    fRenderUI.WritePicture(Left-OffsetX + (Width-GFXData[RXid,TexID].PxWidth) div 2,
+                           Top-OffsetY + (Height-GFXData[RXid,TexID].PxHeight) div 2, RXid,TexID, Enabled);
 end;
 
 

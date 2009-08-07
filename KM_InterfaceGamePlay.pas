@@ -5,9 +5,7 @@ uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, Windo
 
 type TKMGamePlayInterface = class
   protected
-    ScreenX,ScreenY:word;
-    ToolBarX:word;
-
+    ToolBarX:word;  
   protected
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
@@ -25,9 +23,12 @@ type TKMGamePlayInterface = class
       KMImage_Message:array[1..256]of TKMImage; //Queue of messages
       KMImage_Clock:TKMImage; //Clock displayed when game speed is increased
       KMLabel_Clock:TKMLabel;
-    KMPanel_Pause:TKMPanel;
-      KMLabel_Pause:TKMLabel;
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
+    KMPanel_Pause:TKMPanel;
+      KMBevel_Pause:TKMBevel;
+      KMImage_Pause:TKMImage;
+      KMLabel_Pause1:TKMLabel;
+      KMLabel_Pause2:TKMLabel;
     KMPanel_Ratios:TKMPanel;
       KMButton_Ratios:array[1..4]of TKMButton;
       KMImage_RatioPic0:TKMImage;
@@ -142,6 +143,7 @@ type TKMGamePlayInterface = class
     MyControls: TKMControlsCollection;
     constructor Create;
     destructor Destroy; override;
+    procedure SetScreenSize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit);
     procedure Unit_Die(Sender:TObject);
@@ -474,14 +476,32 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.SetScreenSize(X,Y:word);
+begin
+  KMBevel_Pause.Width:=X+2;
+  KMImage_Pause.Left:=X div 2;
+  KMLabel_Pause1.Left:=X div 2;
+  KMLabel_Pause2.Left:=X div 2;
+
+  KMBevel_Pause.Height:=Y+2;
+  KMImage_Pause.Top:=(Y div 2)-40; //This one is wrong, it looses center 
+  KMLabel_Pause1.Top:=(Y div 2);
+  KMLabel_Pause2.Top:=(Y div 2)+20;
+
+  //Also update Hint position and all messages..
+end;
+
+
 {Pause overlay page}
 procedure TKMGamePlayInterface.Create_Pause_Page;
 begin
   KMPanel_Pause:=MyControls.AddPanel(KMPanel_Main,0,0,fRender.GetRenderAreaSize.X,fRender.GetRenderAreaSize.Y);
-    MyControls.AddBevel(KMPanel_Pause,-1,-1,fRender.GetRenderAreaSize.X+2,fRender.GetRenderAreaSize.Y+2);
-    MyControls.AddImage(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
-    MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
-    MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
+    KMBevel_Pause:=MyControls.AddBevel(KMPanel_Pause,-1,-1,fRender.GetRenderAreaSize.X+2,fRender.GetRenderAreaSize.Y+2);
+    KMImage_Pause:=MyControls.AddImage(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
+    KMImage_Pause.PivotX:=pl_Avg;
+    KMImage_Pause.PivotY:=pl_Avg;
+    KMLabel_Pause1:=MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
+    KMLabel_Pause2:=MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
     KMPanel_Pause.Hide
 end;
 
