@@ -33,13 +33,19 @@ var Texture : GLuint;
 begin
   glGenTextures(1, Texture);
   glBindTexture(GL_TEXTURE_2D, Texture);
+
+  {Enable color blending into texture}
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   //GL_MODULATE is our choice
   //GL_REPLACE is also available since version 1.1, maybe it can fix that flaw of houses blending into black..
   //can't use REPLACE cos it disallows blending of texture with custom color (e.g. trees in FOW)
+
+  {Keep original KaM grainy look}
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+  {Clamping UVs solves edge artifacts}
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   Result := Texture;

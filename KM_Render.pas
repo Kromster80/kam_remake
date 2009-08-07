@@ -94,27 +94,15 @@ begin
   Inherited Create;
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults();
+  glDisable(GL_LIGHTING);
 
   OpenGL_Vendor:=glGetString(GL_VENDOR);     fLog.AddToLog('Vendor:  '+OpenGL_Vendor);
   OpenGL_Renderer:=glGetString(GL_RENDERER); fLog.AddToLog('Renderer:  '+OpenGL_Renderer);
   OpenGL_Version:=glGetString(GL_VERSION);   fLog.AddToLog('Version:  '+OpenGL_Version);
 
-  setlength(RenderList,512);
-
-  glDisable(GL_LIGHTING);
+  setlength(RenderList,512);  
+  
   fLog.AppendLog('Pre-texture done');
-
-  {Enable color blending into texture}
-//  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-  {Keep original KaM grainy look}
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-  {Clamping UVs solves edge artifacts}
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-//  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
 end;
 
 
@@ -875,18 +863,11 @@ end;
 
 procedure TRender.RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
 begin
-//if Param<1 then begin
   //NOTION: This function does not work on some GPUs will need to replace it with simplier more complicated way
   //glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_GREATER,1-Param);
   glBlendFunc(GL_ONE,GL_ZERO);
-
-{end else begin
-  glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_ALWAYS,0);
-  glBlendFunc(GL_ONE,GL_ZERO);}
-//end;
 
   with GFXData[RX,ID] do begin
     glColor3ub(aFOW,aFOW,aFOW);
