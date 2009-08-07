@@ -157,9 +157,8 @@ type
 
     TTaskGoHome = class(TUnitTask)
     private
-      fDestPos:TKMPoint;
     public
-      constructor Create(aTo:TKMPoint; aUnit:TKMUnit);
+      constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -427,20 +426,20 @@ begin
           if not fVisible then
             fUnitTask:=TTaskGoOutShowHungry.Create(Self)
           else
-            fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self);
+            fUnitTask:=TTaskGoHome.Create(Self);
     end;
 
     if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
       if (fHome=nil) then
         if FindHome then
-          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self) //Home found - go there
+          fUnitTask:=TTaskGoHome.Create(Self) //Home found - go there
         else begin
           fThought:=th_Quest; //Always show quest when idle, unlike serfs who randomly show it
           SetActionStay(120, ua_Walk) //There's no home
         end
       else
         if fVisible then//Unit is not at home, still it has one
-          fUnitTask:=TTaskGoHome.Create(fHome.GetEntrance,Self)
+          fUnitTask:=TTaskGoHome.Create(Self)
         else
           fUnitTask:=InitiateMining; //Unit is at home, so go get a job
 
@@ -1129,6 +1128,7 @@ end;
 procedure TUnitTask.Abandon;
 begin
   //Shortcut to abandon and declare task done
+  fUnit.Thought:=th_None; //Stop any thoughts
   fUnit:=nil;
   fPhase:=MAXBYTE;
   fPhase2:=MAXBYTE;
@@ -1794,10 +1794,10 @@ end;
 {Repair the house}
 procedure TTaskBuildHouseRepair.Execute(out TaskDone:boolean);
 begin
-  if (not fHouse.IsDamaged)or(not fHouse.BuildingRepair) then begin
-   TaskDone:=true; //Drop the task
-   fUnit.fThought := th_None;
-   exit;
+  if (fHouse.IsDestroyed)or(not fHouse.IsDamaged)or(not fHouse.BuildingRepair) then begin
+    Abandon;
+    TaskDone:=true; //Drop the task
+    exit;
   end;
 
   TaskDone:=false;
@@ -1978,10 +1978,9 @@ end;
 
 
 { TTaskGoHome }
-constructor TTaskGoHome.Create(aTo:TKMPoint; aUnit:TKMUnit);
+constructor TTaskGoHome.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
-  fDestPos:=aTo;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
@@ -1989,17 +1988,24 @@ end;
 procedure TTaskGoHome.Execute(out TaskDone:boolean);
 begin
   TaskDone:=false;
+  if fUnit.fHome.IsDestroyed then begin
+    Abandon;
+    TaskDone:=true;
+    exit;
+  end;
   with fUnit do
   case fPhase of
     0: begin
          fThought := th_Home;
-         SetActionWalk(fUnit,KMPointY1(fDestPos), KMPoint(0,0));
+         SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance));
        end;
-    1: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.fHome.GetHouseType);
+    1: begin
+        SetActionGoIn(ua_Walk,gd_GoInside,fHome.GetHouseType);
+        fThought := th_None; //@Lewin: Is this the right place for unit to stop thinking?
+       end;
     2: begin
-        fThought := th_None;
-        SetActionStay(5,ua_Walk);
         fHome.SetState(hst_Idle,0);
+        SetActionStay(5,ua_Walk);
        end;
     else TaskDone:=true;
   end;
@@ -2058,6 +2064,11 @@ end;
 procedure TTaskGoOutShowHungry.Execute(out TaskDone:boolean);
 begin
   TaskDone:=false;
+  if fUnit.fHome.IsDestroyed then begin
+    Abandon;
+    TaskDone:=true;
+    exit;
+  end;
   with fUnit do
   case fPhase of
     0: begin
@@ -2079,7 +2090,6 @@ begin
          TaskDone := true;
        end;
   end;
-  if fUnit.fHome=nil then TaskDone := true;
   inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
     fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
@@ -2102,6 +2112,7 @@ TaskDone:=false;
 
 if fInn.IsDestroyed then
 begin
+  Abandon;
   TaskDone:=true;
   exit;
 end;

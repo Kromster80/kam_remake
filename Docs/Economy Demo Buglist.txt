@@ -22,7 +22,7 @@ Gameplay bugs:
 ?	Greyish block around mouse cursor
 	Gold/coal miners have too short radius
 +	Pause panel is not fullscreen for maximized window
-	Game crashes when citizen return home and home is demolished
++	Game crashes when citizen return home and home is demolished
 	Citizen is invisible when its home is demolished for some few seconds
 	Vertical winefiel borders have no edges
 	Woodcutter should drop the task if tree is already taken by other woodcutter
