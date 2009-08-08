@@ -642,20 +642,24 @@ end;
 
 
 function TTerrain.FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k,RadX,RadY:integer; L:array[1..4]of TKMPointList;
+var i,k,RadLeft,RadRight,RadTop,RadBottom:integer; L:array[1..4]of TKMPointList;
 begin
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
-  RadX:=aRadius+3; //Should add some gradient to it later on
-  RadY:=aRadius+2; //Should add some gradient to it later on
-  for i:=aPosition.Y-RadY to aPosition.Y+RadY do
-    for k:=aPosition.X-RadX to aPosition.X+RadX do
+  RadLeft   :=aRadius+2;
+  RadRight  :=aRadius+3; //Mines one tile further to the right than other directions (match KaM, the shaft is there)
+  RadTop    :=aRadius+3;
+  RadBottom :=aRadius;
+  for i:=aPosition.Y-RadTop to aPosition.Y+RadBottom do
+    for k:=aPosition.X-RadLeft to aPosition.X+RadRight do
       if TileInMapCoords(k,i) then
         case Land[i,k].Terrain of
-        152: if abs(i-aPosition.Y)<=(RadY-3) then if abs(k-aPosition.X)<=(RadX-3) then L[1].AddEntry(KMPoint(k,i));
-        153: if abs(i-aPosition.Y)<=(RadY-2) then if abs(k-aPosition.X)<=(RadX-2) then L[2].AddEntry(KMPoint(k,i));
-        154: if abs(i-aPosition.Y)<=(RadY-1) then if abs(k-aPosition.X)<=(RadX-1) then L[3].AddEntry(KMPoint(k,i));
-        155: L[4].AddEntry(KMPoint(k,i));
+        152: if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-2))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop-2))) then
+             if abs(k-aPosition.X)<=max(RadLeft-3,RadRight-3) then L[1].AddEntry(KMPoint(k,i));
+        153: if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-1))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop-1))) then
+             if abs(k-aPosition.X)<=max(RadLeft-2,RadRight-2) then L[2].AddEntry(KMPoint(k,i));
+        154: L[3].AddEntry(KMPoint(k,i)); //Always mine second richest coal, it is never left in KaM
+        155: L[4].AddEntry(KMPoint(k,i)); //Always mine richest coal
         end;
 
   if L[4].Count<>0 then Result:=L[4].GetRandom else
