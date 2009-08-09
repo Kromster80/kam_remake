@@ -103,8 +103,8 @@ if (aUnitType=ut_LamberJack)and(aHome=ht_SawMill) then begin
   SubActAdd(ha_Work5,1);
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
-  if fTerrain.FindCoal(aLoc,2).X<>0 then begin
-    Loc:=fTerrain.FindCoal(aLoc,2);
+  if fTerrain.FindOre(aLoc,rt_Coal).X<>0 then begin
+    Loc:=fTerrain.FindOre(aLoc,rt_Coal);
     ResourcePlan(rt_None,0,rt_None,0,rt_Coal);
     GatheringScript:=gs_CoalMiner;
     SubActAdd(ha_Work1,1);
@@ -114,8 +114,8 @@ if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
     fIssued:=false;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
-  if fTerrain.FindOre(aLoc,2,rt_IronOre).X<>0 then begin
-    Loc:=fTerrain.FindOre(aLoc,2,rt_IronOre);
+  if fTerrain.FindOre(aLoc,rt_IronOre).X<>0 then begin
+    Loc:=fTerrain.FindOre(aLoc,rt_IronOre);
     ResourcePlan(rt_None,0,rt_None,0,rt_IronOre);
     GatheringScript:=gs_IronMiner;
     SubActAdd(ha_Work1,1);
@@ -125,8 +125,8 @@ if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
     fIssued:=false;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_GoldMine) then begin
-  if fTerrain.FindOre(aLoc,2,rt_GoldOre).X<>0 then begin
-    Loc:=fTerrain.FindOre(aLoc,2,rt_GoldOre);
+  if fTerrain.FindOre(aLoc,rt_GoldOre).X<>0 then begin
+    Loc:=fTerrain.FindOre(aLoc,rt_GoldOre);
     ResourcePlan(rt_None,0,rt_None,0,rt_GoldOre);
     GatheringScript:=gs_GoldMiner;
     SubActAdd(ha_Work1,1);

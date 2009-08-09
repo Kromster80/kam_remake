@@ -85,8 +85,7 @@ public
   function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
   function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-  function FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-  function FindOre(aPosition:TKMPoint; aRadius:integer; Rt:TResourceType):TKMPoint;
+  function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function ChooseTreeToPlant(aPosition:TKMPoint):integer;
 
@@ -100,7 +99,6 @@ public
 
   procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
   procedure DecStoneDeposit(Loc:TKMPoint);
-  procedure DecCoalDeposit(Loc:TKMPoint);
   procedure DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 
   procedure RecalculatePassability(Loc:TKMPoint);
@@ -641,62 +639,55 @@ begin
 end;
 
 
-function TTerrain.FindCoal(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k,RadLeft,RadRight,RadTop,RadBottom:integer; L:array[1..4]of TKMPointList;
-begin
+function TTerrain.FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
+var i,k,RadLeft,RadRight,RadTop,RadBottom,R1,R2,R3,R4:integer; L:array[1..4]of TKMPointList;
+begin   
+  fLog.AssertToLog(Rt in [rt_IronOre, rt_GoldOre, rt_Coal],'Wrong resource to find as Ore');
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
-  RadLeft   :=aRadius+2;
-  RadRight  :=aRadius+3; //Mines one tile further to the right than other directions (match KaM, the shaft is there)
-  RadTop    :=aRadius+3;
-  RadBottom :=aRadius;
+  if Rt = rt_GoldOre then
+  begin
+    RadLeft   :=7;
+    RadRight  :=6;
+    RadTop    :=10;
+    RadBottom :=2;
+    R1 := 144;
+    R2 := 145;
+    R3 := 146;
+    R4 := 147;
+  end;
+  if Rt = rt_IronOre then
+  begin
+    RadLeft   :=7;
+    RadRight  :=6;
+    RadTop    :=10;
+    RadBottom :=2;
+    R1 := 148;
+    R2 := 149;
+    R3 := 150;
+    R4 := 151;
+  end;
+  if Rt = rt_Coal then
+  begin
+    RadLeft   :=4;
+    RadRight  :=5; //Mines one tile further to the right than other directions (match KaM, the shaft is there)
+    RadTop    :=4;
+    RadBottom :=2;
+    R1 := 152;
+    R2 := 153;
+    R3 := 154;
+    R4 := 155;
+  end;
   for i:=aPosition.Y-RadTop to aPosition.Y+RadBottom do
     for k:=aPosition.X-RadLeft to aPosition.X+RadRight do
       if TileInMapCoords(k,i) then
-        case Land[i,k].Terrain of
-        152: if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-2))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop-2))) then
-             if abs(k-aPosition.X)<=max(RadLeft-3,RadRight-3) then L[1].AddEntry(KMPoint(k,i));
-        153: if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-1))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop-1))) then
-             if abs(k-aPosition.X)<=max(RadLeft-2,RadRight-2) then L[2].AddEntry(KMPoint(k,i));
-        154: L[3].AddEntry(KMPoint(k,i)); //Always mine second richest coal, it is never left in KaM
-        155: L[4].AddEntry(KMPoint(k,i)); //Always mine richest coal
-        end;
-
-  if L[4].Count<>0 then Result:=L[4].GetRandom else
-  if L[3].Count<>0 then Result:=L[3].GetRandom else
-  if L[2].Count<>0 then Result:=L[2].GetRandom else
-  if L[1].Count<>0 then Result:=L[1].GetRandom else
-  Result:=KMPoint(0,0);
-
-  for i:=1 to 4 do L[i].Free;
-end;
-
-
-function TTerrain.FindOre(aPosition:TKMPoint; aRadius:integer; Rt:TResourceType):TKMPoint; //Gold or Iron
-var i,k:integer; L:array[1..4]of TKMPointList;
-begin
-  fLog.AssertToLog(Rt in [rt_IronOre, rt_GoldOre],'Wrong resource to find as Ore');
-  for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
-
-  //aRadius:=aRadius+2; //Should add some gradient to it later on or not?
-  //Ore radius is not circular, hence -2 on top and -1 on bottom
-  for i:=aPosition.Y-aRadius-2 to aPosition.Y+aRadius-1 do
-    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      if TileInMapCoords(k,i) then begin
-        if Rt=rt_GoldOre then
-        case Land[i,k].Terrain of
-        144: L[1].AddEntry(KMPoint(k,i));
-        145: L[2].AddEntry(KMPoint(k,i));
-        146: L[3].AddEntry(KMPoint(k,i));
-        147: L[4].AddEntry(KMPoint(k,i));
-        end;
-        if Rt=rt_IronOre then
-        case Land[i,k].Terrain of
-        148: L[1].AddEntry(KMPoint(k,i));
-        149: L[2].AddEntry(KMPoint(k,i));
-        150: L[3].AddEntry(KMPoint(k,i));
-        151: L[4].AddEntry(KMPoint(k,i));
-        end;
+      begin
+        if Land[i,k].Terrain = R1 then begin if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-2))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop -1))) then
+                                             if ((k>aPosition.X) and (abs(k-aPosition.X)<=(RadRight -2))) or ((k<=aPosition.X) and (abs(k-aPosition.X)<=(RadLeft-2))) then L[1].AddEntry(KMPoint(k,i)) end else
+        if Land[i,k].Terrain = R2 then begin if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-1))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop -0))) then
+                                             if ((k>aPosition.X) and (abs(k-aPosition.X)<=(RadRight -1))) or ((k<=aPosition.X) and (abs(k-aPosition.X)<=(RadLeft-1))) then L[2].AddEntry(KMPoint(k,i)) end else
+        if Land[i,k].Terrain = R3 then L[3].AddEntry(KMPoint(k,i)) else //Always mine second richest ore, it is never left in KaM
+        if Land[i,k].Terrain = R4 then L[4].AddEntry(KMPoint(k,i));     //Always mine richest ore
       end;
 
   if L[4].Count<>0 then Result:=L[4].GetRandom else
@@ -864,36 +855,26 @@ begin
 end;
 
 
-{Extract one unit of coal}
-procedure TTerrain.DecCoalDeposit(Loc:TKMPoint);
-begin
-  case Land[Loc.Y,Loc.X].Terrain of
-  152: Land[Loc.Y,Loc.X].Terrain:=36;
-  153: Land[Loc.Y,Loc.X].Terrain:=152;
-  154: Land[Loc.Y,Loc.X].Terrain:=153;
-  155: Land[Loc.Y,Loc.X].Terrain:=154;
-  //This check is removed incase worker builds wine field ontop of coal tile
-  //else fLog.AssertToLog(false, 'Can''t DecCoalReserve');
-  end;
-  RecalculatePassability(Loc);
-end;
-
-
 {Extract one unit of ore}
 procedure TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 begin
-  fLog.AssertToLog(rt in [rt_IronOre,rt_GoldOre],'Wrong ore to decrease');
+  fLog.AssertToLog(rt in [rt_IronOre,rt_GoldOre,rt_Coal],'Wrong ore to decrease');
   case Land[Loc.Y,Loc.X].Terrain of
-  144: Land[Loc.Y,Loc.X].Terrain:=157; //Gold
+  144: Land[Loc.Y,Loc.X].Terrain:=157+random(3); //Gold
   145: Land[Loc.Y,Loc.X].Terrain:=144;
   146: Land[Loc.Y,Loc.X].Terrain:=145;
   147: Land[Loc.Y,Loc.X].Terrain:=146;
-  148: Land[Loc.Y,Loc.X].Terrain:=160; //Iron
+  148: Land[Loc.Y,Loc.X].Terrain:=160+random(4); //Iron
   149: Land[Loc.Y,Loc.X].Terrain:=148;
   150: Land[Loc.Y,Loc.X].Terrain:=149;
   151: Land[Loc.Y,Loc.X].Terrain:=150;
+  152: Land[Loc.Y,Loc.X].Terrain:=35 +random(2); //Coal
+  153: Land[Loc.Y,Loc.X].Terrain:=152;
+  154: Land[Loc.Y,Loc.X].Terrain:=153;
+  155: Land[Loc.Y,Loc.X].Terrain:=154;
   else fLog.AssertToLog(false,'Can''t DecOreReserve');
   end;
+  Land[Loc.Y,Loc.X].Rotation:=random(3);
   RecalculatePassability(Loc);
 end;
 

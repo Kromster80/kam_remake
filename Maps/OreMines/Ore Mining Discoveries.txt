@@ -14,11 +14,22 @@ COAL:
             
 
 GOLD:
-?????:
- - Will take all from radius 8
- - Will leave 1 at radius 9
- - Will leave 2 at radius 10
- - Max mine up = 9
+ - Will remove 2 from: - 3 tiles bellow house 
+                       - 6 tiles right of house
+                       - 6 tiles left of house
+                       - 10 tiles above house
+                       
+ - Will remove 3 from: - 2 tiles bellow house 
+                       - 5 tiles right of house
+                       - 5 tiles left of house
+                       - 9 tiles above house
+                       
+ - Will remove 4 from: - 1 tiles bellow house 
+                       - 4 tiles right of house
+                       - 4 tiles left of house
+                       - 8 tiles above house
+
 
 IRON:
+ Same as gold?
  

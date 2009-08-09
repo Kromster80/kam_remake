@@ -1962,7 +1962,7 @@ with fUnit do
        end;
     29: begin
           case WorkPlan.GatheringScript of
-            gs_CoalMiner: fTerrain.DecCoalDeposit(WorkPlan.Loc);
+            gs_CoalMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_Coal);
             gs_GoldMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_GoldOre);
             gs_IronMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_IronOre);
           end;
