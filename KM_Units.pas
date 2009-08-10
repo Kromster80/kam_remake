@@ -1137,8 +1137,8 @@ begin
   //Shortcut to abandon and declare task done
   fUnit.Thought:=th_None; //Stop any thoughts
   fUnit:=nil;
-  fPhase:=MAXBYTE;
-  fPhase2:=MAXBYTE;
+  fPhase:=MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
+  fPhase2:=MAXBYTE-1;
 end;
 
 { TTaskSelfTrain }
@@ -1351,8 +1351,9 @@ case fPhase of
 else TaskDone:=true;
 end;
 
+if TaskDone then exit;
 inc(fPhase);
-if (fUnit.fCurrentAction=nil)and(not TaskDone) then
+if fUnit.fCurrentAction=nil then
   fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');
 end;
 

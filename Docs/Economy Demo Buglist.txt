@@ -18,16 +18,16 @@ Gameplay bugs:
 +	Coal/gold/iron miners use incorrect radius
 +	Pause panel is not fullscreen for maximized window
 +	Game crashes when citizen return home and home is demolished
++	Field borders should fade correctly in fog of war
++	Citizen is invisible when its home is demolished for some few seconds
 ?	"979ms	Gameplay error ... done" follows "route unbuilt" error
 ?	Time freeze bug
 ?	TUnitAction is being overrun for some reason - error
 ?	Destroying barracks and unfinished houses results in crash
 ?	Greyish block around mouse cursor
-+	Field borders should fade correctly in fog of war
 	Viewport scrolling should be smooth
-+	Citizen is invisible when its home is demolished for some few seconds
 	Recruits won't go home if barracks is destroyed and then rebuilt in test mission
-?	Vertical winefiel borders have no edges //@Krom: I can't see this
+	Vertical winefiel borders have no edges
 	Woodcutter should drop the task if tree is already taken by other woodcutter
 	Units get stuck on unwalkable tiles
 	Splash screen failed to disappear
