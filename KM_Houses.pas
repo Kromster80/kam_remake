@@ -1113,6 +1113,7 @@ begin
   for I := 0 to Count - 1 do
     if (TUnitType(HouseDAT[byte(TKMHouse(Items[I]).fHouseType)].OwnerType+1)=aUnitType)and //If Unit can work in here
        (not TKMHouse(Items[I]).fHasOwner)and                              //If there's yet no owner
+       (not TKMHouse(Items[I]).IsDestroyed)and
        (TKMHouse(Items[I]).IsComplete) then                               //If house is built
     begin
 
