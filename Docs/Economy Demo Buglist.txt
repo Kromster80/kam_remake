@@ -15,17 +15,17 @@ Gameplay bugs:
 +	Resource cheat is not strict enough
 +	Units should return to road first then go eat, home, etc.
 +	Placing a building plan and removing it, the game returned a "Range check error"
++	Coal/gold/iron miners use incorrect radius
++	Pause panel is not fullscreen for maximized window
++	Game crashes when citizen return home and home is demolished
 ?	"979ms	Gameplay error ... done" follows "route unbuilt" error
 ?	Time freeze bug
 ?	TUnitAction is being overrun for some reason - error
 ?	Destroying barracks and unfinished houses results in crash
 ?	Greyish block around mouse cursor
-	Gold/iron miners have too short radius //Assigned to Lewin
-+	Coal miners use incorrect radius
-+	Pause panel is not fullscreen for maximized window
-+	Game crashes when citizen return home and home is demolished
-	Citizen is invisible when its home is demolished for some few seconds
-	Vertical winefiel borders have no edges
++ Citizen is invisible when its home is demolished for some few seconds
+	Recruits won't go home if barracks is destroyed and then rebuilt in test mission
+	Vertical winefiel borders have no edges //@Krom: I can't see this
 	Woodcutter should drop the task if tree is already taken by other woodcutter
 	Units get stuck on unwalkable tiles
 	Splash screen failed to disappear

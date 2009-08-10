@@ -649,7 +649,7 @@ begin
   begin
     RadLeft   :=7;
     RadRight  :=6;
-    RadTop    :=10;
+    RadTop    :=11;
     RadBottom :=2;
     R1 := 144;
     R2 := 145;
@@ -659,8 +659,8 @@ begin
   if Rt = rt_IronOre then
   begin
     RadLeft   :=7;
-    RadRight  :=6;
-    RadTop    :=10;
+    RadRight  :=5;
+    RadTop    :=11;
     RadBottom :=2;
     R1 := 148;
     R2 := 149;
@@ -671,7 +671,7 @@ begin
   begin
     RadLeft   :=4;
     RadRight  :=5; //Mines one tile further to the right than other directions (match KaM, the shaft is there)
-    RadTop    :=4;
+    RadTop    :=5;
     RadBottom :=2;
     R1 := 152;
     R2 := 153;
@@ -682,9 +682,9 @@ begin
     for k:=aPosition.X-RadLeft to aPosition.X+RadRight do
       if TileInMapCoords(k,i) then
       begin
-        if Land[i,k].Terrain = R1 then begin if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-2))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop -1))) then
+        if Land[i,k].Terrain = R1 then begin if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-2))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop -2))) then
                                              if ((k>aPosition.X) and (abs(k-aPosition.X)<=(RadRight -2))) or ((k<=aPosition.X) and (abs(k-aPosition.X)<=(RadLeft-2))) then L[1].AddEntry(KMPoint(k,i)) end else
-        if Land[i,k].Terrain = R2 then begin if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-1))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop -0))) then
+        if Land[i,k].Terrain = R2 then begin if ((i>aPosition.Y) and (abs(i-aPosition.Y)<=(RadBottom-1))) or ((i<=aPosition.Y) and (abs(i-aPosition.Y)<=(RadTop -1))) then
                                              if ((k>aPosition.X) and (abs(k-aPosition.X)<=(RadRight -1))) or ((k<=aPosition.X) and (abs(k-aPosition.X)<=(RadLeft-1))) then L[2].AddEntry(KMPoint(k,i)) end else
         if Land[i,k].Terrain = R3 then L[3].AddEntry(KMPoint(k,i)) else //Always mine second richest ore, it is never left in KaM
         if Land[i,k].Terrain = R4 then L[4].AddEntry(KMPoint(k,i));     //Always mine richest ore

@@ -61,7 +61,7 @@ type
       fSchool:TKMHouseSchool;
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
-      procedure Abandon();
+      procedure Abandon(); //@Krom: Is there a reason why this is not override and the next one is? (TTaskDeliver)
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -1074,6 +1074,11 @@ begin
   if fCondition=0 then
     KillUnit;
 
+  //If unit is at home and home was destroyed then make it visible
+  if fHome <> nil then
+    if fHome.IsDestroyed and KMSamePoint(KMPointRound(fPosition),fHome.GetEntrance) then
+      SetVisibility := true;
+
   //
   //Preforming Tasks and Actions now
   //------------------------------------------------------------------------------------------------
@@ -1274,9 +1279,9 @@ if DeliverKind = dk_House then
   6: if not fToHouse.IsDestroyed then
        SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
      else begin
+       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
        Abandon;
        TaskDone:=true;
-       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
      end;
   7: SetActionStay(5,ua_Walk);
   8: if not fToHouse.IsDestroyed then
@@ -1288,9 +1293,9 @@ if DeliverKind = dk_House then
        fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
      end else begin
        fVisible:=true; //Unit was invisible while inside. Must show it
+       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
        Abandon;
        TaskDone:=true;
-       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
      end;
   else TaskDone:=true;
   end;
@@ -1314,9 +1319,9 @@ if DeliverKind = dk_House then
     else TaskDone:=true;
     end;
   end else begin
+    TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
     Abandon;
     TaskDone:=true;
-    TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
   end;
 
 //Deliver to builder
@@ -1346,6 +1351,7 @@ case fPhase of
 else TaskDone:=true;
 end;
 
+if TaskDone then exit;
 inc(fPhase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then
   fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');
@@ -1874,6 +1880,12 @@ const SkipWalk=7; SkipWork=29; //Skip to certain Phases
 var Dir:integer; TimeToWork, StillFrame:integer;
 begin
 TaskDone:=false;
+if fUnit.fHome <> nil then if fUnit.fHome.IsDestroyed then
+begin
+  //Make sure we always exit if our home is destroyed
+  TaskDone := true;
+  exit;
+end;
 with fUnit do
   case fPhase of
     0: if WorkPlan.HasToWalk then begin
