@@ -20,7 +20,7 @@ public
     Rotation:byte;
 
     TileOwner:TPlayerID; //Name says it all, should simplify player related issues
-    IsUnit:byte; //Whenever there's a unit on that tile mark the tile as occupied and count the number
+    IsUnit:shortint; //Whenever there's a unit on that tile mark the tile as occupied and count the number
 
     //It can be placed independent from everything else
     //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here

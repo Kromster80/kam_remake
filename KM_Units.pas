@@ -61,7 +61,7 @@ type
       fSchool:TKMHouseSchool;
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
-      procedure Abandon(); //@Krom: Is there a reason why this is not override and the next one is? (TTaskDeliver)
+      procedure Abandon(); override;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -138,7 +138,7 @@ type
       end;
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-      procedure Abandon();
+      procedure Abandon(); override;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -1351,7 +1351,6 @@ case fPhase of
 else TaskDone:=true;
 end;
 
-if TaskDone then exit;
 inc(fPhase);
 if (fUnit.fCurrentAction=nil)and(not TaskDone) then
   fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');

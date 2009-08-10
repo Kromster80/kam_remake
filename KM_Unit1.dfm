@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 267
-  Top = 518
+  Left = 203
+  Top = 113
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 245
@@ -207,6 +207,15 @@ object Form1: TForm1
       TickMarks = tmBoth
       TickStyle = tsNone
       OnChange = TB_Angle_Change
+    end
+    object Button1: TButton
+      Left = 104
+      Top = 48
+      Width = 33
+      Height = 25
+      Caption = '|>'
+      TabOrder = 9
+      OnClick = Timer100msTimer
     end
   end
   object MediaPlayer1: TMediaPlayer

@@ -143,7 +143,8 @@ end;
 
 
 function TUnitActionWalkTo.DoUnitInteraction():boolean;
-var fOpponent:TKMUnit; T:TKMPoint;
+var
+  fOpponent:TKMUnit; T:TKMPoint;
 begin
   Result:=true; //false = interaction yet unsolved, stay and wait
   if not DO_UNIT_INTERACTION then exit;
@@ -193,6 +194,8 @@ begin
     begin 
       //Force Unit to go away
       fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,canWalk));
+      //fOpponent.SetActionWalk(fOpponent, fWalker.GetPosition); //Thats the fastest way to solve complex crowds
+      TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
       Explanation := 'Unit was blocking the way but it''s forced to get away now';
       Result := false; //Next frame tile will be free and unit will walk there
       exit;
@@ -265,7 +268,7 @@ begin
           //inject a random walkaround node
           Explanation:='Unit on the way is walking in place obstructing our target. Forcing it to go away.';
 
-          //Solution A
+          {//Solution A
           //Walk through 7x50 group time  ~105sec
           T:=KMPoint(0,0);
           //This could be potential flaw, but so far it worked out allright
@@ -273,7 +276,6 @@ begin
           T := fTerrain.FindNewNode(
             fOpponent.GetPosition,
             TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.List[TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1],
-            //fOpponent.NextPosition,
             canWalk);
           if KMSamePoint(T,KMPoint(0,0)) then
           begin
@@ -283,15 +285,18 @@ begin
             // UNRESOLVED !
           end;
           TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.InjectEntry(TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1,T);
+          TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
+          //}
 
-
-         { //Solution B
-          //Walk through 7x50 group time  ~105sec
+          {//Solution B
+          //Walk through 7x50 group time  ~143sec
+          //Make opponent to exchange places with Walker
           T:=fOpponent.GetPosition; //Elegant enough?
           TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.InjectEntry(TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1,T);
           T:=fWalker.GetPosition;
           TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.InjectEntry(TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1,T);
-           }
+          TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
+          //}
 
           //In fact this is not very smart idea, cos fOpponent may recieve endless InjectEntries!
           Result := false;

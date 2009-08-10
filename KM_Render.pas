@@ -392,19 +392,14 @@ end;
 procedure TRender.RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
 var i,k:integer;
 begin
-for i:=y1 to y2 do for k:=x1 to x2 do
-  with fTerrain do begin
-    if Land[i,k].BorderTop = true then
-      RenderTerrainBorder(Land[i,k].Border,dir_N,k,i); //Horizontal left
-
-    if Land[i,k].BorderLeft = true then
-      RenderTerrainBorder(Land[i,k].Border,dir_E,k,i); //Vertical left
-
-    if Land[i,k].BorderBottom = true then
-      RenderTerrainBorder(Land[i,k].Border,dir_S,k,i); //Horizontal right
-
-    if Land[i,k].BorderRight = true then
-      RenderTerrainBorder(Land[i,k].Border,dir_W,k,i); //Vertical right
+  for i:=y1 to y2 do
+  for k:=x1 to x2 do
+  with fTerrain do
+  begin
+    if Land[i,k].BorderTop then RenderTerrainBorder(Land[i,k].Border,dir_N,k,i);
+    if Land[i,k].BorderLeft then RenderTerrainBorder(Land[i,k].Border,dir_E,k,i);
+    if Land[i,k].BorderRight then RenderTerrainBorder(Land[i,k].Border,dir_W,k,i);
+    if Land[i,k].BorderBottom then RenderTerrainBorder(Land[i,k].Border,dir_S,k,i);
 
     if Land[i,k].Markup in [mu_RoadPlan..mu_WallPlan] then
       RenderTerrainMarkup(byte(Land[i,k].Markup),k,i); //Input in range 1..3
@@ -478,7 +473,7 @@ begin
 
   for i:=y1 to y2 do for k:=x1 to x2 do
     if fTerrain.Land[i,k].IsUnit>0 then begin
-      glColor4f(fTerrain.Land[i,k].IsUnit/6,1-fTerrain.Land[i,k].IsUnit/6,0,0.8);
+      glColor4f(fTerrain.Land[i,k].IsUnit/6,1-fTerrain.Land[i,k].IsUnit/6,-fTerrain.Land[i,k].IsUnit/6,0.8);
       RenderQuad(k,i);
     end;
 
@@ -1041,26 +1036,27 @@ var a,b:TKMPointF; ID:integer; t:single; HeightInPx:integer; FOW:byte;
 begin
   ID:=1;
   case Border of
-    bt_HouseBuilding: if (Pos=dir_N) or (Pos=dir_S) then ID:=463 else ID:=467; //WIP (Wood planks)
-    bt_HousePlan:     if (Pos=dir_N) or (Pos=dir_S) then ID:=105 else ID:=117; //Plan (Ropes)
-    bt_Wine:          if (Pos=dir_N) or (Pos=dir_S) then ID:=462 else ID:=466; //Fence (Wood)
-    bt_Field:         if (Pos=dir_N) or (Pos=dir_S) then ID:=461 else ID:=465; //Fence (Stones)
+    bt_HouseBuilding: if Pos in [dir_N,dir_S] then ID:=463 else ID:=467; //WIP (Wood planks)
+    bt_HousePlan:     if Pos in [dir_N,dir_S] then ID:=105 else ID:=117; //Plan (Ropes)
+    bt_Wine:          if Pos in [dir_N,dir_S] then ID:=462 else ID:=466; //Fence (Wood)
+    bt_Field:         if Pos in [dir_N,dir_S] then ID:=461 else ID:=465; //Fence (Stones)
   end;
-
-  FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
-  //Should be Vertice-based
 
   if Pos=dir_S then pY:=pY+1;
   if Pos=dir_W then pX:=pX+1;
-  glColor3ub(FOW,FOW,FOW);
-  if (Pos=dir_N) or (Pos=dir_S) then begin //Horizontal border
+  if Pos in [dir_N,dir_S] then
+  begin //Horizontal border
     glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
     a.x:=GFXData[4,ID].u1; a.y:=GFXData[4,ID].v1;
     b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2;
     t:=GFXData[4,ID].PxWidth/CELL_SIZE_PX; //Height of border
     glBegin(GL_QUADS);
+      FOW:=fTerrain.CheckVerticeRevelation(pX,pY,MyPlayer.PlayerID);
+      glColor3ub(FOW,FOW,FOW);
       glTexCoord2f(b.x,a.y); glvertex2f(pX-1, pY-1+t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(a.x,a.y); glvertex2f(pX-1, pY-1-t/2 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      FOW:=fTerrain.CheckVerticeRevelation(pX+1,pY,MyPlayer.PlayerID);
+      glColor3ub(FOW,FOW,FOW);
       glTexCoord2f(a.x,b.y); glvertex2f(pX  , pY-1-t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(b.x,b.y); glvertex2f(pX  , pY-1+t/2 - fTerrain.Land[pY,pX+1].Height/CELL_HEIGHT_DIV);
     glEnd;
@@ -1072,8 +1068,12 @@ begin
     b.x:=GFXData[4,ID].u2; b.y:=GFXData[4,ID].v2 * (HeightInPx / GFXData[4,ID].PxHeight);
     t:=GFXData[4,ID].PxWidth/CELL_SIZE_PX; //Width of border
     glBegin(GL_QUADS);
+      FOW:=fTerrain.CheckVerticeRevelation(pX,pY,MyPlayer.PlayerID);
+      glColor3ub(FOW,FOW,FOW);
       glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV);
+      FOW:=fTerrain.CheckVerticeRevelation(pX,pY+1,MyPlayer.PlayerID);
+      glColor3ub(FOW,FOW,FOW);
       glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
     glEnd;

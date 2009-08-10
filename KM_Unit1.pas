@@ -58,6 +58,7 @@ type
     Label3: TLabel;
     Label1: TLabel;
     MediaPlayer1: TMediaPlayer;
+    Button1: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -253,6 +254,7 @@ end;
 procedure TForm1.Timer100msTimer(Sender: TObject);
 begin
   if not Form1.Active then exit;
+  //if Sender=Button1 then //@Lewin: thats a temp to debug frame-by-frame
   fGame.UpdateState;
 end;
 
@@ -430,15 +432,15 @@ begin
   U.SetActionWalk(U,KMPoint(5,11));
   U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
   U.SetActionWalk(U,KMPoint(4,10));//}
-
-
-  MyPlayer.AddUnit(ut_HorseScout, KMPoint(12,12));
+                                                      
 
   //Walk through 7x50 group
-  MyPlayer.AddGroup(ut_Baker, KMPoint(8,8),dir_W,7,350);
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
+  MyPlayer.AddGroup(ut_Baker, KMPoint(8,8), dir_W, 7, 350);
+  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(7,8));
   U.SetActionWalk(U,KMPoint(58,8));//}
+  
 
+  MyPlayer.AddUnit(ut_HorseScout, KMPoint(12,12)); //don't let mission to be immediately lost
   fTerrain.RevealWholeMap(play_1);
   fViewPort.SetCenter(10,10);
 end;

@@ -27,7 +27,7 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
@@ -38,10 +38,10 @@ var
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game
 
   //These should be ... enabled sometime
-  FOG_OF_WAR_ENABLE     :boolean=true; //Whenever dynamic fog of war is enabled or not
+  FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
 
   //These should be FALSE
-  ShowDebugControls     :boolean=true; //Draw colored overlays ontop of panels, usefull for making layout
+  ShowDebugControls     :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
   MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
