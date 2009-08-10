@@ -748,16 +748,17 @@ end;
 procedure TKMGamePlayInterface.Create_Unit_Page;
 begin
   KMPanel_Unit:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
-    KMLabel_UnitName:=MyControls.AddLabel(KMPanel_Unit,100,30,100,30,'',fnt_Outline,kaCenter);
-    KMLabel_UnitCondition:=MyControls.AddLabel(KMPanel_Unit,130,54,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
-    KMLabel_UnitTask:=MyControls.AddLabel(KMPanel_Unit,73,89,130,30,'',fnt_Grey,kaLeft);
-    KMLabel_UnitAct:=MyControls.AddLabel(KMPanel_Unit,73,109,130,30,'',fnt_Grey,kaLeft);
+    KMLabel_UnitName:=MyControls.AddLabel(KMPanel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
+    KMImage_UnitPic:=MyControls.AddImage(KMPanel_Unit,8,38,54,100,521);
+    KMLabel_UnitCondition:=MyControls.AddLabel(KMPanel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
+    KMConditionBar_Unit:=MyControls.AddPercentBar(KMPanel_Unit,73,55,116,15,80);
+    KMLabel_UnitTask:=MyControls.AddLabel(KMPanel_Unit,73,74,130,30,'',fnt_Grey,kaLeft);
+    KMLabel_UnitAct:=MyControls.AddLabel(KMPanel_Unit,73,94,130,30,'',fnt_Grey,kaLeft);
     KMLabel_UnitAct.AutoWrap:=true;
-    KMConditionBar_Unit:=MyControls.AddPercentBar(KMPanel_Unit,73,69,116,15,80);
-    KMLabel_UnitDescription:=MyControls.AddLabel(KMPanel_Unit,8,161,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
-    KMImage_UnitPic:=MyControls.AddImage(KMPanel_Unit,8,52,54,80,521);
-    KMButton_Die:=MyControls.AddButton(KMPanel_Unit,8,140,54,20,'Die',fnt_Grey);
+    KMButton_Die:=MyControls.AddButton(KMPanel_Unit,73,112,54,20,'Die',fnt_Grey);
     KMButton_Die.OnClick:=Unit_Die;
+    KMLabel_UnitDescription:=MyControls.AddLabel(KMPanel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
+    //Military buttons start at 8.170 and are 52x38/30 (60x46)
 end;
 
 
