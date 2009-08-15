@@ -47,7 +47,7 @@ type TKMGamePlayInterface = class
       KMImage_BuildCdost_StonePic:TKMImage;
       KMLabel_BuildCost_Wood:TKMLabel;
       KMLabel_BuildCost_Stone:TKMLabel;
-      KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine,KMButton_BuildWall,KMButton_BuildCancel:TKMButtonFlat;
+      KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine{,KMButton_BuildWall},KMButton_BuildCancel:TKMButtonFlat;
       KMButton_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
 
     KMPanel_Menu:TKMPanel;
@@ -520,17 +520,17 @@ begin
     KMButton_BuildRoad   := MyControls.AddButtonFlat(KMPanel_Build,  8,80,33,33,335);
     KMButton_BuildField  := MyControls.AddButtonFlat(KMPanel_Build, 45,80,33,33,337);
     KMButton_BuildWine   := MyControls.AddButtonFlat(KMPanel_Build, 82,80,33,33,336);
-    KMButton_BuildWall   := MyControls.AddButtonFlat(KMPanel_Build,119,80,33,33,339);
+//    KMButton_BuildWall   := MyControls.AddButtonFlat(KMPanel_Build,119,80,33,33,339);
     KMButton_BuildCancel := MyControls.AddButtonFlat(KMPanel_Build,156,80,33,33,340);
     KMButton_BuildRoad.OnClick:=Build_ButtonClick;
     KMButton_BuildField.OnClick:=Build_ButtonClick;
     KMButton_BuildWine.OnClick:=Build_ButtonClick;
-    KMButton_BuildWall.OnClick:=Build_ButtonClick;
+//    KMButton_BuildWall.OnClick:=Build_ButtonClick;
     KMButton_BuildCancel.OnClick:=Build_ButtonClick;
     KMButton_BuildRoad.Hint:=fTextLibrary.GetTextString(213);
     KMButton_BuildField.Hint:=fTextLibrary.GetTextString(215);
     KMButton_BuildWine.Hint:=fTextLibrary.GetTextString(219);
-    KMButton_BuildWall.Hint:='Build a wall';
+//    KMButton_BuildWall.Hint:='Build a wall';
     KMButton_BuildCancel.Hint:=fTextLibrary.GetTextString(211);
 
     for i:=1 to HOUSE_COUNT do
@@ -984,12 +984,12 @@ begin
     KMLabel_BuildCost_Wood.Caption:='1';
     KMLabel_Build.Caption := fTextLibrary.GetTextString(218);
   end;
-  if KMButton_BuildWall.Down then begin
+{  if KMButton_BuildWall.Down then begin
     CursorMode.Mode:=cm_Wall;
     KMImage_Build_Selected.TexID := 339;
     KMLabel_BuildCost_Wood.Caption:='1';
     //KMLabel_Build.Caption := fTextLibrary.GetTextString(218);
-  end;
+  end;}
 
   for i:=1 to HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then

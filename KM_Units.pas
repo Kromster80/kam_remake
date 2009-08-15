@@ -1121,8 +1121,11 @@ begin
   TimeDelta:= TimeGetTime - fLastUpdateTime;
   fLastUpdateTime:= TimeGetTime;
 
-  if (fCurrentAction is TUnitActionWalkTo) then
-  if not fTerrain.CheckPassability(GetPosition,GetDesiredPassability) then exit;
+  if fCurrentAction is TUnitActionWalkTo then begin
+    if GetDesiredPassability = canWalkRoad then
+      if not fTerrain.CheckPassability(GetPosition, canWalk) then exit;
+    if not fTerrain.CheckPassability(GetPosition, GetDesiredPassability) then exit;
+  end;
 
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
@@ -1609,6 +1612,7 @@ case fPhase of
       SetActionStay(22,ua_Work2,false);
     end;
     //Ask for 2 more wood now
+    //@Lewin: It's yet incomplete
   7: begin
       //Walk away from tile and continue building from the side
       SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),canWalk));
