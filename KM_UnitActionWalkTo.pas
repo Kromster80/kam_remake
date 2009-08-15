@@ -12,7 +12,6 @@ type
       fPass:TPassability; //Desired passability set once on Create
       DoesWalking:boolean;
       DoEvade:boolean; //Command to make exchange maneuver with other unit
-      function ChoosePassability(KMUnit: TKMUnit):TPassability;
       function AssembleTheRoute():boolean;
       function CheckCanWalk():boolean;
       function DoUnitInteraction():boolean;
@@ -43,7 +42,7 @@ begin
   fWalkTo       := LocB;
   fAvoid        := Avoid;
   fWalkToSpot   := aWalkToSpot;
-  fPass         := ChoosePassability(fWalker);
+  fPass         := fWalker.GetDesiredPassability;
 
   NodeList      := TKMPointList.Create; //Freed on destroy
   NodePos       := 1;
@@ -65,32 +64,6 @@ begin
 end;
 
 
-function TUnitActionWalkTo.ChoosePassability(KMUnit: TKMUnit):TPassability;
-begin
-  case KMUnit.GetUnitType of //Select desired passability depending on unit type
-    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result:=canWalkRoad; //Citizens except Worker
-    ut_Wolf..ut_Duck: Result:=AnimalTerrain[byte(KMUnit.GetUnitType)] //Animals
-    else Result:=canWalk; //Worker, Warriors
-  end;
-
-  if not DO_SERFS_WALK_ROADS then Result:=canWalk; //Reset everyone to canWalk for debug
-
-  //Delivery to unit
-  if (KMUnit.GetUnitType = ut_Serf)and(KMUnit.GetUnitTask is TTaskDeliver)and
-  (TTaskDeliver(KMUnit.GetUnitTask).DeliverKind=dk_Unit) then
-    Result:=canWalk;
-
-  //Preparing house area
-  if (KMUnit.GetUnitType = ut_Worker)and(KMUnit.GetUnitTask is TTaskBuildHouseArea) then
-    Result:=canAll;
-
-  //Thats for 'miners' at work
-  if (KMUnit.GetUnitType in [ut_Woodcutter,ut_Farmer,ut_Fisher,ut_StoneCutter]) then
-  if (KMUnit.GetUnitTask is TTaskMining) then
-    Result:=canWalk;
-end;
-
-
 function TUnitActionWalkTo.AssembleTheRoute():boolean;
 var i:integer; NodeList2:TKMPointList;
 begin
@@ -109,20 +82,19 @@ begin
       NodeList.AddEntry(NodeList2.List[i]);
     FreeAndNil(NodeList2);
   end;
-
-  //If route still unbuilt..
+  
   Result := NodeList.Count > 0;
-  if not Result then
+
+  if not Result then //If route still unbuilt..
     fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with default fPass');
 
-  if not Result then begin //Build a route with canWalk
+  {if not Result then begin //Build a route with canWalk
     fTerrain.Route_Make(fWalkFrom, fWalkTo, fAvoid, canWalk, fWalkToSpot, NodeList); //Try to make a route
     Result := NodeList.Count>0;
   end;
 
   if not Result then
-    fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with canWalk');
-
+    fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with canWalk');}
 end;
 
 

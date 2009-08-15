@@ -230,6 +230,7 @@ type
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure AbandonWalk;
+    function GetDesiredPassability():TPassability;
     procedure Feed(Amount:single);
     property GetOwner:TPlayerID read fOwner;
     property GetSpeed:single read Speed;
@@ -1007,6 +1008,38 @@ begin
 end;
 
 
+function TKMUnit.GetDesiredPassability():TPassability;
+begin
+  case fUnitType of //Select desired passability depending on unit type
+    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result:=canWalkRoad; //Citizens except Worker
+    ut_Wolf..ut_Duck: Result:=AnimalTerrain[byte(fUnitType)] //Animals
+    else Result := canWalk; //Worker, Warriors
+  end;
+
+  if not DO_SERFS_WALK_ROADS then Result := canWalk; //Reset everyone to canWalk for debug
+
+  //Delivery to unit
+  if (fUnitType = ut_Serf)
+  and(fUnitTask is TTaskDeliver)
+  and(TTaskDeliver(fUnitTask).DeliverKind=dk_Unit)
+  then
+    Result := canWalk;
+
+  //Preparing house area
+  if (fUnitType = ut_Worker)
+  and(fUnitTask is TTaskBuildHouseArea)
+  and(TTaskBuildHouseArea(fUnitTask).fPhase>0) //Worker has arrived on site
+  then
+    Result := canAll;
+
+  //Thats for 'miners' at work
+  if (fUnitType in [ut_Woodcutter,ut_Farmer,ut_Fisher,ut_StoneCutter])
+  and(fUnitTask is TTaskMining)
+  then
+    Result := canWalk;
+end;
+
+
 procedure TKMUnit.Feed(Amount:single);
 begin
   fCondition:=min(fCondition+round(Amount),UNIT_MAX_CONDITION);
@@ -1080,13 +1113,16 @@ begin
       SetVisibility := true;
 
   //
-  //Preforming Tasks and Actions now
+  //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
 
   ActDone:=true;
   TaskDone:=true;
   TimeDelta:= TimeGetTime - fLastUpdateTime;
   fLastUpdateTime:= TimeGetTime;
+
+  if (fCurrentAction is TUnitActionWalkTo) then
+  if not fTerrain.CheckPassability(GetPosition,GetDesiredPassability) then exit;
 
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
