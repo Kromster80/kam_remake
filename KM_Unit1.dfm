@@ -208,15 +208,6 @@ object Form1: TForm1
       TickStyle = tsNone
       OnChange = TB_Angle_Change
     end
-    object Button1: TButton
-      Left = 104
-      Top = 48
-      Width = 33
-      Height = 25
-      Caption = '|>'
-      TabOrder = 9
-      OnClick = Timer100msTimer
-    end
   end
   object MediaPlayer1: TMediaPlayer
     Left = 112

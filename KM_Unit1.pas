@@ -58,7 +58,6 @@ type
     Label3: TLabel;
     Label1: TLabel;
     MediaPlayer1: TMediaPlayer;
-    Button1: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -141,7 +140,7 @@ begin //Counting FPS
     StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPS_LAG)+')';
     OldFrameTimes:=0;
     FrameCount:=0;
-    fLog.AppendLog('First sec frame done');
+    //fLog.AppendLog('First sec frame done');
   end; //FPS calculation complete
 
 fRender.Render;
@@ -254,7 +253,6 @@ end;
 procedure TForm1.Timer100msTimer(Sender: TObject);
 begin
   if not Form1.Active then exit;
-  //if Sender=Button1 then //@Lewin: thats a temp to debug frame-by-frame
   fGame.UpdateState;
 end;
 

@@ -904,21 +904,21 @@ end;
 
 function TKMUnit.GetUnitTaskText():string;
 begin
-  Result:='Idle';
-  if fUnitTask is TTaskSelfTrain then Result:='Self-training in school';
-  if fUnitTask is TTaskDeliver then Result:='Delivering';
-  if fUnitTask is TTaskBuildRoad then Result:='Building road';
-  if fUnitTask is TTaskBuildWine then Result:='Building wine field';
-  if fUnitTask is TTaskBuildField then Result:='Building corn field';
-  if fUnitTask is TTaskBuildWall then Result:='Building a wall';
-  if fUnitTask is TTaskBuildHouseArea then Result:='Preparing house area';
-  if fUnitTask is TTaskBuildHouse then Result:='Building house';
-  if fUnitTask is TTaskBuildHouseRepair then Result:='Repairing house';
-  if fUnitTask is TTaskGoHome then Result:='Going home';
-  if fUnitTask is TTaskGoEat then Result:='Going to eat';
-  if fUnitTask is TTaskMining then Result:='Mining resources';
-  if fUnitTask is TTaskDie then Result:='Dying';
-  if fUnitTask is TTaskGoOutShowHungry then Result:='Showing hunger';
+  Result:='Idle';                                      {----------} //Thats allowed width
+  if fUnitTask is TTaskSelfTrain        then Result := 'Self-training';
+  if fUnitTask is TTaskDeliver          then Result := 'Delivering';
+  if fUnitTask is TTaskBuildRoad        then Result := 'Building road';
+  if fUnitTask is TTaskBuildWine        then Result := 'Building wine field';
+  if fUnitTask is TTaskBuildField       then Result := 'Building corn field';
+  if fUnitTask is TTaskBuildWall        then Result := 'Building a wall';
+  if fUnitTask is TTaskBuildHouseArea   then Result := 'Preparing house area';
+  if fUnitTask is TTaskBuildHouse       then Result := 'Building house';
+  if fUnitTask is TTaskBuildHouseRepair then Result := 'Repairing house';
+  if fUnitTask is TTaskGoHome           then Result := 'Going home';
+  if fUnitTask is TTaskGoEat            then Result := 'Going to eat';
+  if fUnitTask is TTaskMining           then Result := 'Mining resources';
+  if fUnitTask is TTaskDie              then Result := 'Dying';
+  if fUnitTask is TTaskGoOutShowHungry  then Result := 'Showing hunger';
 end;
 
 
@@ -2487,6 +2487,7 @@ procedure TKMUnitsCollection.UpdateState;
 var
   I: Integer;
 begin
+  //if Count>10 then fLog.AddToLog('Tick'); //@LEwin - thats debug string
   for I := 0 to Count - 1 do
   if not TKMUnit(Items[I]).IsDead then
     TKMUnit(Items[I]).UpdateState;

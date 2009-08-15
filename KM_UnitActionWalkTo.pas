@@ -2,7 +2,7 @@ unit KM_UnitActionWalkTo;
 interface
 uses KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math;
 
-      {Walk to somewhere}
+{Walk to somewhere}
 type
   TUnitActionWalkTo = class(TUnitAction)
     private
@@ -49,6 +49,7 @@ begin
   NodePos       := 1;
   fRouteBuilt   := false;
   DoEvade       := false;
+  DoesWalking   := false;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
@@ -162,6 +163,13 @@ begin
     exit;
   end;
 
+  if TUnitActionWalkTo(fOpponent.GetUnitAction).DoEvade then begin
+    //Don't mess with DoEvade opponents
+    Explanation:='DoEv';
+    Result:=false;
+    exit;
+  end;
+
   if (fWalker.GetUnitType in [ut_Wolf..ut_Duck])and(not(fOpponent.GetUnitType in [ut_Wolf..ut_Duck])) then begin
     Explanation:='Unit is animal and therefor has no priority in movement';
     Result:=false;
@@ -191,35 +199,26 @@ begin
   if (fOpponent.GetUnitAction is TUnitActionStay) then
   begin
     if fOpponent.GetUnitActionType = ua_Walk then //Unit stays idle, not working or something
-    begin 
-      //Force Unit to go away
-      fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,canWalk));
-      //fOpponent.SetActionWalk(fOpponent, fWalker.GetPosition); //Thats the fastest way to solve complex crowds
-      TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
+    begin //Force Unit to go away
+      //fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,canWalk));
+      fOpponent.SetActionWalk(fOpponent, fWalker.GetPosition); //Thats the fastest way to solve complex crowds
+      //TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
       Explanation := 'Unit was blocking the way but it''s forced to get away now';
+      TUnitActionWalkTo(fOpponent.GetUnitAction).Explanation:='We were asked to walk away';
       Result := false; //Next frame tile will be free and unit will walk there
       exit;
-    end else
-    begin
-      //If Unit on the way is doing something and won't move away
+    end else 
+    begin //If Unit on the way is doing something and won't move away
       if KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Target position is occupied by another unit
       begin
         Explanation := 'Target position is occupied by another Unit, can''t do nothing about it but wait. '+inttostr(random(123));
         Result := false;
         exit;
-        { UNRESOLVED ! }
       end else
-      begin
+      begin //This is not our target, so we can walk around
         {StartWalkingAround}
-        Explanation:='Unit on the way is doing something and can''t be forced to go away';
-          fWalker.SetActionWalk
-          (
-              fWalker,
-              fWalkTo,
-              NodeList.List[NodePos+1], //Avoid this tile
-              GetActionType,
-              fWalkToSpot
-          );
+        Explanation := 'Unit on the way is doing something and can''t be forced to go away';
+        fWalker.SetActionWalk(fWalker,fWalkTo,NodeList.List[NodePos+1],GetActionType,fWalkToSpot);
         Result := false; //Keep 'false' for the matter of Execute cycle still running
         exit;     
       end;
@@ -227,37 +226,34 @@ begin
   end;
 
   //If Unit on the way is walking somewhere
-  if (fOpponent.GetUnitAction is TUnitActionWalkTo) then begin //Unit is walking
+  if (fOpponent.GetUnitAction is TUnitActionWalkTo) then
+  begin //Unit is walking
     //Check unit direction to be opposite and exchange, but only if the unit is staying on tile, not walking
     if (min(byte(fOpponent.Direction),byte(fWalker.Direction))+4 = max(byte(fOpponent.Direction),byte(fWalker.Direction))) then
     begin
       if TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking then
-      begin
-        //Unit yet not arrived on tile, wait till it does, otherwise there might be 2 units on one tile
+      begin //Unit yet not arrived on tile, wait till it does, otherwise there might be 2 units on one tile
         Explanation:='Unit on the way is walking '+TypeToString(fOpponent.Direction)+'. Waiting till it walks into spot and then exchange';
         Result:=false;
         exit;
       end else
       begin
-        //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
+        {//Graphically both units are walking side-by-side, but logically they simply walk through each-other.
+        Explanation:='Unit on the way is walking opposite direction. Performing an exchange';
+        TUnitActionWalkTo(fOpponent.GetUnitAction).Explanation:='We were asked to exchange places';
         TUnitActionWalkTo(fWalker.GetUnitAction).DoEvade:=true;
         TUnitActionWalkTo(fOpponent.GetUnitAction).DoEvade:=true;
-        TUnitActionWalkTo(fWalker.GetUnitAction).DoesWalking:=true;
-        TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
-        Explanation:='Unit on the way is walking opposite direction. Performing an exchange';
-        Result:=false; //They both will exchange nest tick
+        fLog.AddToLog(TypeToString(fWalker.GetPosition));
+        fLog.AddToLog(TypeToString(fOpponent.GetPosition));
+        //TUnitActionWalkTo(fWalker.GetUnitAction).DoesWalking:=true;
+        }//TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
+        Result:=false; //They both will exchange next tick
         exit;
-        { UNRESOLVED ! }
-        //@Lewin:
-        //How do we make sure both units exchange but no other 3rd unit inbetween them could step
-        //on the tile as well?
-      end
+      end;
     end else
-    //Unit walking direction is not opposite
-    begin
+    begin //Unit walking direction is not opposite
       if TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking then
-      begin
-        //Simply wait till it walks away
+      begin //Simply wait till it walks away
         Explanation:='Unit on the way is walking '+TypeToString(fOpponent.Direction)+'. Waiting till it walks away '+TypeToString(fWalker.Direction);
         Result:=false;
         exit;
@@ -291,29 +287,20 @@ begin
           {//Solution B
           //Walk through 7x50 group time  ~143sec
           //Make opponent to exchange places with Walker
-          T:=fOpponent.GetPosition; //Elegant enough?
+          T:=fOpponent.GetPosition;
           TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.InjectEntry(TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1,T);
           T:=fWalker.GetPosition;
           TUnitActionWalkTo(fOpponent.GetUnitAction).NodeList.InjectEntry(TUnitActionWalkTo(fOpponent.GetUnitAction).NodePos+1,T);
           TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
           //}
-
           //In fact this is not very smart idea, cos fOpponent may recieve endless InjectEntries!
           Result := false;
           exit;
         end else
-        begin
-          //Unit has WalkTo action, but is standing in place - don't mess with it and go around
-          Explanation:='Unit on the way is walking still. Go around it. '+inttostr(random(123));
-          fWalker.SetActionWalk
-          (
-              fWalker,
-              fWalkTo,
-              fOpponent.GetPosition, //KMPoint(Nodes[NodePos+1].X,Nodes[NodePos+1].Y), //Avoid this tile
-              GetActionType,
-              fWalkToSpot
-          );
-          Result := false; //Keep 'false' for the matter of Execute cycle still running
+        begin //Unit has WalkTo action, but is standing in place - don't mess with it and go around
+          {Explanation:='Unit on the way is walking still. Go around it. '+inttostr(random(123));
+          fWalker.SetActionWalk(fWalker,fWalkTo,fOpponent.GetPosition,GetActionType,fWalkToSpot);
+          }Result := false; //Keep 'false' for the matter of Execute cycle still running
           exit;
         end;
       end;
@@ -399,6 +386,7 @@ begin
       inc(NodePos);
       fWalker.PrevPosition:=fWalker.NextPosition;
       fWalker.NextPosition:=NodeList.List[NodePos];
+      fLog.AddToLog('DoEvade');
       //We don't need to perform UnitWalk since exchange means the same,
       //but without UnitWalk there's a guarantee no other unit will step on this tile!
       DoEvade:=false;
