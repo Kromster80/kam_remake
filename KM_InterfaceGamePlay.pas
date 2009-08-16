@@ -169,7 +169,7 @@ type TKMGamePlayInterface = class
     procedure IssueMessage(MsgTyp:TKMMessageType; Text:string);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
-    procedure ShowPause(DoShow,DoFast:boolean);
+    procedure ShowPause(DoShow:boolean);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     procedure ClearShownUnit;
@@ -1594,7 +1594,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowPause(DoShow,DoFast:boolean);
+procedure TKMGamePlayInterface.ShowPause(DoShow:boolean);
 begin
   KMPanel_Pause.Visible:=DoShow;
 end;

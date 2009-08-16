@@ -156,7 +156,7 @@ procedure TRender.Render();
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
-  if fGame.GameIsRunning then begin //If game is running
+  if fGame.GameState in [gsPaused, gsRunning, gsEditor] then begin //If game is running
   
     glLoadIdentity();                // Reset The View
     //glRotate(-15,0,0,1); //Funny thing

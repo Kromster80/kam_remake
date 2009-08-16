@@ -288,13 +288,13 @@ begin
       glEnd;
       if (AltID<>0)and(MyPlayer<>nil) then begin
         glBindTexture(GL_TEXTURE_2D, AltID);
-        if fGame.GameIsRunning then //Was causing a crash if you went to options on main menu after quitting a mission
+        if fGame.GameState in [gsPaused, gsRunning] then //Was causing a crash if you went to options on main menu after quitting a mission
           Col:=TeamColors[byte(MyPlayer.PlayerID)]
         else Col:=TeamColors[1]; //Use default player 1
         if Enabled then
-        glColor3ub(Col AND $FF, Col SHR 8 AND $FF, Col SHR 16 AND $FF)
+          glColor3ub(Col AND $FF, Col SHR 8 AND $FF, Col SHR 16 AND $FF)
         else
-        glColor3f(Col AND $FF / 768, Col SHR 8 AND $FF / 768, Col SHR 16 AND $FF / 768);
+          glColor3f(Col AND $FF / 768, Col SHR 8 AND $FF / 768, Col SHR 16 AND $FF / 768);
         glBegin(GL_QUADS);
           glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
           glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );

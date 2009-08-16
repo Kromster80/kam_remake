@@ -21,6 +21,7 @@ type TKMMainMenuInterface = class
       KMImage_MainMenuBG,KMImage_MainMenu1,KMImage_MainMenu3:TKMImage; //Menu background
       KMButton_MainMenuTutor,KMButton_MainMenuTSK,KMButton_MainMenuTPR,
       KMButton_MainMenuSingle,KMButton_MainMenuLoad,KMButton_MainMenuMulti,
+      KMButton_MainMenuMapEd,
       KMButton_MainMenuOptions,KMButton_MainMenuCredit,KMButton_MainMenuQuit:TKMButton;
       KMLabel_Version:TKMLabel;
     KMPanel_Single:TKMPanel;
@@ -69,19 +70,21 @@ type TKMMainMenuInterface = class
   private
     procedure Create_MainMenu_Page;
     procedure Create_Single_Page;
+    procedure Create_MapEditor_Page;
     procedure Create_Options_Page;
     procedure Create_Credits_Page;
     procedure Create_Loading_Page;
     procedure Create_Error_Page;
     procedure Create_Results_Page;
     procedure SwitchMenuPage(Sender: TObject);
+    procedure MainMenu_PlayTutorial(Sender: TObject);
+    procedure MainMenu_MapEditor(Sender: TObject);
     procedure SingleMap_PopulateList();
     procedure SingleMap_RefreshList();
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
     procedure Options_Change(Sender: TObject);
-    procedure MainMenu_PlayTutorial(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create(X,Y:word);
@@ -91,8 +94,8 @@ type TKMMainMenuInterface = class
     procedure ShowScreen_Error(Text:string);
     procedure ShowScreen_Main();
     procedure ShowScreen_Options();
-    procedure Fill_Results();
     procedure ShowScreen_Results(Msg:gr_Message);
+    procedure Fill_Results();
   public
     procedure UpdateState;
     procedure Paint;
@@ -183,6 +186,18 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.ShowScreen_Results(Msg:gr_Message);
+begin
+  case Msg of
+  gr_Win:    Label_Results_Result.Caption:=fTextLibrary.GetSetupString(111);
+  gr_Defeat: Label_Results_Result.Caption:=fTextLibrary.GetSetupString(112);
+  gr_Cancel: Label_Results_Result.Caption:='Mission canceled';
+  else       Label_Results_Result.Caption:='<<<LEER>>>';
+  end;
+  SwitchMenuPage(KMPanel_Results);
+end;
+
+
 procedure TKMMainMenuInterface.Fill_Results();
 begin
   if (MyPlayer=nil) or (MyPlayer.fMissionSettings=nil) then exit;
@@ -198,39 +213,30 @@ begin
   Label_Stat[9].Caption := int2time(fGame.GetMissionTime);
 end;
 
-procedure TKMMainMenuInterface.ShowScreen_Results(Msg:gr_Message);
-begin
-  case Msg of
-  gr_Win:    Label_Results_Result.Caption:=fTextLibrary.GetSetupString(111);
-  gr_Defeat: Label_Results_Result.Caption:=fTextLibrary.GetSetupString(112);
-  gr_Cancel: Label_Results_Result.Caption:='Mission canceled';
-  else       Label_Results_Result.Caption:='<<<LEER>>>';
-  end;
-  SwitchMenuPage(KMPanel_Results);
-end;
-
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   KMPanel_MainMenu:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,ScreenX,ScreenY,2,6);
     KMImage_MainMenuBG.StretchImage:=true;
-    KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,120,100,423,164,4,5);
+    KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,120,80,423,164,4,5);
     KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,635,220,round(207*1.3),round(295*1.3),6,6);
     KMImage_MainMenu3.StretchImage:=true;
 
-    KMPanel_MainButtons:=MyControls.AddPanel(KMPanel_MainMenu,155,300,350,400);
+    KMPanel_MainButtons:=MyControls.AddPanel(KMPanel_MainMenu,155,280,350,400);
       KMButton_MainMenuTutor  :=MyControls.AddButton(KMPanel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal,bsMenu);
       KMButton_MainMenuTSK    :=MyControls.AddButton(KMPanel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
       KMButton_MainMenuTPR    :=MyControls.AddButton(KMPanel_MainButtons,0, 80,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
       KMButton_MainMenuSingle :=MyControls.AddButton(KMPanel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
       KMButton_MainMenuLoad   :=MyControls.AddButton(KMPanel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
       KMButton_MainMenuMulti  :=MyControls.AddButton(KMPanel_MainButtons,0,200,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
-      KMButton_MainMenuOptions:=MyControls.AddButton(KMPanel_MainButtons,0,240,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
-      KMButton_MainMenuCredit :=MyControls.AddButton(KMPanel_MainButtons,0,280,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
-      KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,360,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
+      KMButton_MainMenuMapEd  :=MyControls.AddButton(KMPanel_MainButtons,0,240,350,30,'Map Editor',fnt_Metal,bsMenu);
+      KMButton_MainMenuOptions:=MyControls.AddButton(KMPanel_MainButtons,0,280,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
+      KMButton_MainMenuCredit :=MyControls.AddButton(KMPanel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
+      KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,400,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       KMButton_MainMenuTutor.OnClick    :=MainMenu_PlayTutorial;
       KMButton_MainMenuSingle.OnClick   :=SwitchMenuPage;
+      KMButton_MainMenuMapEd.OnClick    :=MainMenu_MapEditor; //@All: We might add new map setup page later on //@Lewin: We'll @All to make memos and notes, ok?
       KMButton_MainMenuOptions.OnClick  :=SwitchMenuPage;
       KMButton_MainMenuCredit.OnClick   :=SwitchMenuPage;
       KMButton_MainMenuQuit.OnClick     :=Form1.Exit1.OnClick;
@@ -310,6 +316,12 @@ begin
       KMButton_SingleBack.OnClick:=SwitchMenuPage;
       KMButton_SingleStart:=MyControls.AddButton(KMPanel_SingleDesc,225,570,220,30,fTextLibrary.GetSetupString(8),fnt_Metal,bsMenu);
       KMButton_SingleStart.OnClick:=SingleMap_Start;
+end;
+
+
+procedure TKMMainMenuInterface.Create_MapEditor_Page;
+begin
+  //Should contain options to make a map from scratch, load map from file, generate random preset
 end;
 
 
@@ -502,6 +514,20 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
+begin
+  fLog.AssertToLog(Sender=KMButton_MainMenuTutor,'not KMButton_MainMenuTutor');
+  fGame.StartGame(ExeDir+'data\mission\mission0.dat'); //Provide mission filename here
+end;
+
+
+procedure TKMMainMenuInterface.MainMenu_MapEditor(Sender: TObject);
+begin
+  fLog.AssertToLog(Sender=KMButton_MainMenuMapEd,'not KMButton_MainMenuMapEd');
+  fGame.StartMapEditor(''); //Provide mission filename here
+end;
+
+
 procedure TKMMainMenuInterface.SingleMap_PopulateList();
 begin
   SingleMapsInfo.ScanSingleMapsFolder('');
@@ -621,13 +647,6 @@ begin
   KMButton_Options_ResApply.Enabled := (OldFullScreen <> fGameSettings.IsFullScreen) or (OldResolution <> fGameSettings.GetResolutionID);
 
 end;
-
-procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
-begin
-  fLog.AssertToLog(Sender=KMButton_MainMenuTutor,'not KMButton_MainMenuTutor');
-  fGame.StartGame(ExeDir+'data\mission\mission0.dat'); //Provide mission filename here
-end;
-
 
 {Should update credits page mostly}
 procedure TKMMainMenuInterface.UpdateState;
