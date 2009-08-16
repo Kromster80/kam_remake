@@ -466,9 +466,9 @@ begin
 
   Res:=1;
   //Check if House has production orders
-  //Random pick from all amount;
+  //Random pick from whole amount
   if HousePlaceOrders[byte(fHome.GetHouseType)] then begin
-    Tmp:= fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
+    Tmp := fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
     if Tmp=0 then exit; //No orders
     Tmp:=Random(Tmp)+1; //Pick random from overall count
     for i:=1 to 4 do begin
@@ -639,8 +639,11 @@ begin
   if fUnitTask <> nil then
   begin
     //Road, wine and field: remove the markup that disallows all other building (mu_UnderConstruction) only if we have started digging
-    if (fUnitTask is TTaskBuildRoad) or (fUnitTask is TTaskBuildWine) or (fUnitTask is TTaskBuildField) then
-      if TTaskBuildRoad(fUnitTask).fPhase > 0 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc);
+    if (fUnitTask is TTaskBuildRoad)
+    or (fUnitTask is TTaskBuildWine)
+    or (fUnitTask is TTaskBuildField)
+    or (fUnitTask is TTaskBuildWall) then
+      if fUnitTask.fPhase > 1 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc); 
     //House area: remove house, restoring terrain to normal
     if fUnitTask is TTaskBuildHouseArea then
       if TTaskBuildHouseArea(fUnitTask).fHouse <> nil then
@@ -1028,7 +1031,7 @@ begin
   //Preparing house area
   if (fUnitType = ut_Worker)
   and(fUnitTask is TTaskBuildHouseArea)
-  and(TTaskBuildHouseArea(fUnitTask).fPhase>0) //Worker has arrived on site
+  and(TTaskBuildHouseArea(fUnitTask).fPhase>1) //Worker has arrived on site
   then
     Result := canAll;
 
@@ -1121,11 +1124,14 @@ begin
   TimeDelta:= TimeGetTime - fLastUpdateTime;
   fLastUpdateTime:= TimeGetTime;
 
-  if fCurrentAction is TUnitActionWalkTo then begin
+  if fCurrentAction is TUnitActionWalkTo then
     if GetDesiredPassability = canWalkRoad then
-      if not fTerrain.CheckPassability(GetPosition, canWalk) then exit;
-    if not fTerrain.CheckPassability(GetPosition, GetDesiredPassability) then exit;
-  end;
+    begin
+      if not fTerrain.CheckPassability(GetPosition, canWalk) then
+        exit;
+    end else
+    if not fTerrain.CheckPassability(GetPosition, GetDesiredPassability) then
+      exit;
 
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
@@ -1136,13 +1142,6 @@ begin
     fUnitTask.Execute(TaskDone);
 
   if TaskDone then FreeAndNil(fUnitTask) else exit;
-
-  //@Lewin:
-  //Somewhere here we should check if an unwalkable tile appeared under unit and issue a task to go
-  //to nearest walkable tile, something TTaskGoToWalkable which will randomly choose nearest walkable
-  //tile and make a route to it. We need a new task to be able to set canAll passability in
-  //ActionWalkTo.ChoosePassability.
-  //If unit appears on unwalkable tile during some other Task the Task should abandon itself..
 
   //If we get to this point then it means that common part is done and now
   //we can perform unit-specific activities (ask for job, etc..)
@@ -1980,10 +1979,10 @@ with fUnit do
     {Unit back at home and can process its booty now}
     7: begin
         fThought := th_None;
-        fPhase2:=1;
+        fPhase2:=1;                                  
         fHome.SetState(hst_Work,0); //Set house to Work state
-        fHome.ResTakeFromIn(WorkPlan.Resource1); //Count should be added
-        fHome.ResTakeFromIn(WorkPlan.Resource2);
+        fHome.ResTakeFromIn(WorkPlan.Resource1,WorkPlan.Count1);
+        fHome.ResTakeFromIn(WorkPlan.Resource2,WorkPlan.Count2);
         fHome.fCurrentAction.SubActionAdd([ha_Smoke]);
         if WorkPlan.GatheringScript = gs_SwineBreeder then begin
           BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;

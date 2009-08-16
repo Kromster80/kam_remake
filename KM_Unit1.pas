@@ -183,11 +183,8 @@ begin
     Application.MessageBox(@('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
         'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
 
-  FormLoading.Hide;
-  FormLoading.Hide; //FormLoading often remains visible on slow PCs Maybe this will help?
-
-  Timer100ms.Interval:=GAME_LOGIC_PACE; //100ms
-  Form1.Caption:='KaM Remake';
+  Timer100ms.Interval := GAME_LOGIC_PACE; //FormLoading gets hidden OnTimer event
+  Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
 
 
@@ -253,6 +250,7 @@ end;
 procedure TForm1.Timer100msTimer(Sender: TObject);
 begin
   if not Form1.Active then exit;
+  if FormLoading.Visible then FormLoading.Hide;
   fGame.UpdateState;
 end;
 

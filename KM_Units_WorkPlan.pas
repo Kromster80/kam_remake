@@ -223,7 +223,7 @@ if (aUnitType=ut_Lamberjack)and(aHome=ht_ArmorWorkshop)and(aProduct=rt_Shield) t
   SubActAdd(ha_Work2,0.25);
 end else
 if (aUnitType=ut_Lamberjack)and(aHome=ht_WeaponWorkshop)and(aProduct=rt_Axe) then begin
-  ResourcePlan(rt_Wood,1,rt_Wood,1,rt_Axe);
+  ResourcePlan(rt_Wood,2,rt_None,0,rt_Axe);
   SubActAdd(ha_Work1,1);
   for i:=1 to 3 do begin
     SubActAdd(ha_Work2,1);
@@ -233,7 +233,7 @@ if (aUnitType=ut_Lamberjack)and(aHome=ht_WeaponWorkshop)and(aProduct=rt_Axe) the
   SubActAdd(ha_Work5,1);
 end else
 if (aUnitType=ut_Lamberjack)and(aHome=ht_WeaponWorkshop)and(aProduct=rt_Pike) then begin
-  ResourcePlan(rt_Wood,1,rt_Wood,1,rt_Pike);
+  ResourcePlan(rt_Wood,2,rt_None,0,rt_Pike);
   SubActAdd(ha_Work1,1);
   for i:=1 to 3 do begin
     SubActAdd(ha_Work2,1);
@@ -243,7 +243,7 @@ if (aUnitType=ut_Lamberjack)and(aHome=ht_WeaponWorkshop)and(aProduct=rt_Pike) th
   SubActAdd(ha_Work5,1);
 end else
 if (aUnitType=ut_Lamberjack)and(aHome=ht_WeaponWorkshop)and(aProduct=rt_Bow) then begin
-  ResourcePlan(rt_Wood,1,rt_Wood,1,rt_Bow);
+  ResourcePlan(rt_Wood,2,rt_None,0,rt_Bow);
   SubActAdd(ha_Work1,1);
   for i:=1 to 3 do begin
     SubActAdd(ha_Work2,1);

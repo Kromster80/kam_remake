@@ -553,11 +553,11 @@ begin
   if i>MaxEntries then exit;
 
   case fFieldsQueue[i].FieldType of
-  ft_Road: Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
-  ft_Corn: Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
-  ft_Wine: Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
-  ft_Wall: Result:=TTaskBuildWall.Create(KMWorker, fFieldsQueue[i].Loc, i);
-  else Result:=nil;
+    ft_Road: Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
+    ft_Corn: Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
+    ft_Wine: Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
+    ft_Wall: Result:=TTaskBuildWall.Create(KMWorker, fFieldsQueue[i].Loc, i);
+    else Result:=nil;
   end;
   fFieldsQueue[i].JobStatus:=js_Taken;
   fFieldsQueue[i].Worker:=KMWorker;

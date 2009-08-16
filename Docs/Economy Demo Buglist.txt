@@ -21,16 +21,18 @@ Gameplay bugs:
 +	Field borders should fade correctly in fog of war
 +	Citizen is invisible when its home is demolished for some few seconds
 +	Recruits won't go home if barracks is destroyed and then rebuilt in test mission
++	It takes the carpenter only one timber to make a weapon
++	Splash screen failed to disappear
 ?	"979ms	Gameplay error ... done" follows "route unbuilt" error
 ?	Time freeze bug
 ?	TUnitAction is being overrun for some reason - error
 ?	Destroying barracks and unfinished houses results in crash
 ?	Greyish block around mouse cursor
+?	Vertical winefield borders have no edges
+	Killing a worker while it goes to build a road will cancel the markup and road plan
 	Viewport scrolling should be smooth
-	Vertical winefiel borders have no edges
 	Woodcutter should drop the task if tree is already taken by other woodcutter
 	Units get stuck on unwalkable tiles
-	Splash screen failed to disappear
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	Remove debug info

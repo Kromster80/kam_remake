@@ -99,7 +99,7 @@ type
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
-    function ResTakeFromIn(aResource:TResourceType):boolean;
+    function ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
     function ResTakeFromOut(aResource:TResourceType):boolean;
     procedure ResAddOrder(ID:byte; const Amount:byte=1);
     procedure ResRemOrder(ID:byte; const Amount:byte=1);
@@ -520,16 +520,16 @@ begin
 end;
 
 
-function TKMHouse.ResTakeFromIn(aResource:TResourceType):boolean;
+function TKMHouse.ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
 var i:integer;
 begin
 Result:=false;
 if aResource=rt_None then exit;
   for i:=1 to 4 do
   if aResource = HouseInput[byte(fHouseType),i] then begin
-    fLog.AssertToLog(fResourceIn[i]>0,'fResourceIn[i]>0');
-    dec(fResourceIn[i]);
-    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,1,dt_Once,di_Norm);
+    fLog.AssertToLog(fResourceIn[i]>=aCount,'fResourceIn[i]>0');
+    dec(fResourceIn[i],aCount);
+    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,aCount,dt_Once,di_Norm);
     Result:=true;
   end;
 end;
