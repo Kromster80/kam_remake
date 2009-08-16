@@ -1,7 +1,7 @@
 unit KM_Game;
 interface
 uses Windows, MPlayer, Forms, Controls, Classes, SysUtils, KromUtils, Math,
-  KM_Defaults, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_Defaults, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_SoundFX, KM_Viewport, KM_Units, KM_Settings, KM_Utils;
 
 type TGameState = (gsNoGame, gsPaused, gsRunning, gsEditor);
@@ -15,10 +15,9 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
-    //GameIsRunning:boolean;
-    //GameIsPaused:boolean;
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
+    fMapEditorInterface: TKMMapEditorInterface;
   public
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
     destructor Destroy; override;
@@ -38,6 +37,7 @@ type
     function GetMissionTime:cardinal;
     property GetTickCount:cardinal read GameplayTickCount;
     procedure UpdateState;
+    procedure PaintInterface;
   end;
 
   var
@@ -209,19 +209,16 @@ end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var MOver:TKMControl;
 begin
   case GameState of
+    gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
     gsPaused:   exit; //No clicking when paused
     gsRunning:  begin
-                  MOver := fGameplayInterface.MyControls.MouseOverControl(); //Remember control that was clicked
-                  if MOver<>nil then
-                    fGameplayInterface.MyControls.OnMouseDown(X,Y,Button)
-                  else
-                  if Button = mbMiddle then
-                    MyPlayer.AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc));
+                  fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
+                  if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
+                    MyPlayer.AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc)); //Add only when cursor is over the map
                 end;
-    gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
+    gsEditor:   fMapEditorInterface.MyControls.OnMouseDown(X,Y,Button);
   end;
   MouseMove(Shift,X,Y);
 end;
@@ -232,30 +229,38 @@ begin
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
   case GameState of
+    gsNoGame:   fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
     gsPaused:   exit; //No clicking when paused
     gsRunning:  begin
                   fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor:=c_Default
                   else begin
-                    CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
-                    CursorY:=fViewport.GetCenter.Y+(Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
-                    CursorY:=fTerrain.ConvertCursorToMapCoord(CursorX,CursorY);
-
-                    CursorXc:=EnsureRange(round(CursorX+0.5),1,fTerrain.MapX); //Cell below cursor
-                    CursorYc:=EnsureRange(round(CursorY+0.5),1,fTerrain.MapY);
-
+                    fTerrain.ComputeCursorPosition(X,Y);
                     if CursorMode.Mode=cm_None then
                       if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
                          (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
                         Screen.Cursor:=c_Info
                       else if not Scrolling then
                         Screen.Cursor:=c_Default;
-
                     fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
                   end;
                 end;
-    gsNoGame: fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
+    gsEditor:   begin
+                  fMapEditorInterface.MyControls.OnMouseOver(X,Y,Shift);
+                  if fMapEditorInterface.MyControls.MouseOverControl()<>nil then
+                    Screen.Cursor:=c_Default
+                  else begin
+                    fTerrain.ComputeCursorPosition(X,Y);
+                    if CursorMode.Mode=cm_None then
+                      if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
+                         (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
+                        Screen.Cursor:=c_Info
+                      else if not Scrolling then
+                        Screen.Cursor:=c_Default; 
+                    fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
+                  end;
+                end;
   end;
 
 Form1.StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '+floattostr(round(CursorY*10)/10)
@@ -264,103 +269,131 @@ end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint; FoundUnit:boolean; SelectedHouse: TKMHouse; SelectedUnit: TKMUnit; MOver:TKMControl;
+var P:TKMPoint; MOver:TKMControl;
 begin
-  case GameState of
-    gsPaused:   exit; //No clicking when paused
-    gsRunning:  MOver := fGameplayInterface.MyControls.MouseOverControl(); //Remember control that was clicked
-    gsNoGame:   MOver := fMainMenuInterface.MyControls.MouseOverControl(); //Remember control that was clicked
+  case GameState of //Remember clicked control
+    gsNoGame:   MOver := fMainMenuInterface.MyControls.MouseOverControl();
+    gsPaused:   exit; //No clicking allowed when game is paused
+    gsRunning:  MOver := fGameplayInterface.MyControls.MouseOverControl();
+    gsEditor:   MOver := fMapEditorInterface.MyControls.MouseOverControl();
+    else        MOver := nil; //MOver should always be initialized
   end;
 
   if (MOver <> nil) and (MOver is TKMButton) and MOver.Enabled then fSoundLib.Play(sfx_click);
-  P:=KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
 
   case GameState of
-    gsRunning:  begin
-                  if MOver <> nil then
-                    fGameplayInterface.MyControls.OnMouseUp(X,Y,Button)
-                  else begin
-                    if Button = mbRight then fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
+    gsNoGame:   fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
+    gsRunning:
+      begin
+        P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
+        if MOver <> nil then
+          fGameplayInterface.MyControls.OnMouseUp(X,Y,Button)
+        else begin
+          if Button = mbRight then fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
 
-                    FoundUnit := false;
-                    if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-                      case CursorMode.Mode of
-                        cm_None:
+          if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
+            case CursorMode.Mode of
+              cm_None:
+                begin
+                  //Houses have priority over units, so you can't select an occupant.
+                  //However, this is only true if the house is built
+                  fPlayers.Selected:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
+                  if (fPlayers.Selected<>nil)
+                  and(TKMHouse(fPlayers.Selected).GetBuildingState in [hbs_Stone,hbs_Done]) then
+                    fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected))
+                  else
+                  begin
+                    fPlayers.Selected:=MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+                    if (fPlayers.Selected<>nil)and(fPlayers.Selected is TKMUnit) then
+                    begin
+                      //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
+                      //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
+                      fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                    end
+                    else
+                      fPlayers.Selected:=MyPlayer.HousesHitTest(CursorXc, CursorYc); //Choose whatever house
+                  end;
+                end;
+              cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
+                          MyPlayer.RemPlan(P)
+                        else
+                          MyPlayer.AddRoadPlan(P, mu_RoadPlan, false, MyPlayer.PlayerID);
+              cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
+                          MyPlayer.RemPlan(P)
+                        else
+                          MyPlayer.AddRoadPlan(P, mu_FieldPlan, false, MyPlayer.PlayerID);
+              cm_Wine:  if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
+                          MyPlayer.RemPlan(P)
+                        else
+                          MyPlayer.AddRoadPlan(P, mu_WinePlan, false, MyPlayer.PlayerID);
+              cm_Wall:  if fTerrain.Land[P.Y,P.X].Markup = mu_WallPlan then
+                          MyPlayer.RemPlan(P)
+                        else
+                          MyPlayer.AddRoadPlan(P, mu_WallPlan, false, MyPlayer.PlayerID);
+              cm_Erase:
+                begin
+                  fPlayers.Selected := MyPlayer.HousesHitTest(CursorXc, CursorYc); //Select the house irregardless of unit below/above
+                  if MyPlayer.RemHouse(P,false,true) then //Ask wherever player wants to destroy own house
+                  begin
+                    if TKMHouse(fPlayers.Selected).GetBuildingState = hbs_Glyph then
+                      MyPlayer.RemHouse(P,false) //don't ask about houses that are not started
+                    else begin
+                      fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected),true);
+                      fSoundLib.Play(sfx_click);
+                    end;
+                  end;
+                  if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
+                    fSoundLib.Play(sfx_CantPlace,P,false,4.0);
+                end;
+
+              cm_Houses: if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false,MyPlayer.PlayerID) then
+                           fGamePlayInterface.Build_SelectRoad;
+            end; //case CursorMode.Mode of..
+        end; //if MOver<>nil then else..
+
+        //These are only for testing purposes, Later on it should be changed a lot
+        if (Button = mbRight)
+        and(MOver=nil)
+        and(fPlayers <> nil)
+        and(fPlayers.Selected <> nil)
+        and(fPlayers.Selected is TKMUnitWarrior)
+        and(TKMUnit(fPlayers.Selected).GetOwner = MyPlayer.PlayerID)
+        and(fTerrain.Route_CanBeMade(TKMUnit(fPlayers.Selected).GetPosition,P,canWalk,true))
+        then
+          TKMUnitWarrior(fPlayers.Selected).PlaceOrder(wo_walk,P);
+
+      end; //gsRunning
+    gsEditor: begin
+                if MOver <> nil then
+                  fMapEditorInterface.MyControls.OnMouseUp(X,Y,Button)
+                else begin
+                  if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
+                    case CursorMode.Mode of
+                      cm_None:
                         begin
-                          SelectedUnit:=MyPlayer.UnitsHitTest(CursorXc, CursorYc);
-                          if SelectedUnit<>nil then begin
-                            fPlayers.SelectedUnit:=SelectedUnit;
-                            //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
-                            //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
-                            if fGameplayInterface<>nil then fGamePlayInterface.ShowUnitInfo(fPlayers.SelectedUnit);
-                            FoundUnit := true;
-                          end; //Houses have priority over units, so you can't select an occupant. However, this is only true if the house is built
-                          SelectedHouse:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
-                          if SelectedHouse<>nil then
-                            if (not FoundUnit)or((SelectedHouse.GetBuildingState in [hbs_Stone,hbs_Done])and FoundUnit) then begin
-                              fPlayers.SelectedUnit:=nil;
-                              fPlayers.SelectedHouse:=SelectedHouse;
-                              if fGameplayInterface<>nil then fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse);
+                          //Houses have priority over units, so you can't select an occupant.
+                          //However, this is only true if the house is built
+                          fPlayers.Selected:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
+                          if (fPlayers.Selected<>nil)
+                          and(TKMHouse(fPlayers.Selected).GetBuildingState in [hbs_Stone,hbs_Done]) then
+                            fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected))
+                          else
+                          begin
+                            fPlayers.Selected:=MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+                            if (fPlayers.Selected<>nil)and(fPlayers.Selected is TKMUnit) then
+                            begin
+                              //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
+                              //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
+                              fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                            end
+                            else
+                              fPlayers.Selected:=MyPlayer.HousesHitTest(CursorXc, CursorYc); //Choose whatever house
                           end;
                         end;
-          cm_Road: if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
-                     MyPlayer.RemPlan(P)
-                   else
-                     MyPlayer.AddRoadPlan(P, mu_RoadPlan, false, MyPlayer.PlayerID);
+                      end;
+                    end;
+                    end;
 
-          cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
-                      MyPlayer.RemPlan(P)
-                    else
-                      MyPlayer.AddRoadPlan(P, mu_FieldPlan, false, MyPlayer.PlayerID);
-
-          cm_Wine: if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
-                     MyPlayer.RemPlan(P)
-                   else
-                     MyPlayer.AddRoadPlan(P, mu_WinePlan, false, MyPlayer.PlayerID);
-
-          cm_Wall: if fTerrain.Land[P.Y,P.X].Markup = mu_WallPlan then
-                     MyPlayer.RemPlan(P)
-                   else
-                     MyPlayer.AddRoadPlan(P, mu_WallPlan, false, MyPlayer.PlayerID);
-
-          cm_Erase:
-            begin
-              fPlayers.SelectedHouse:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
-              if (fGameplayInterface<>nil) and (MyPlayer.RemHouse(P,false,true)) then //Ask wherever player wants to destroy own house
-              begin
-                if fPlayers.SelectedHouse.GetBuildingState = hbs_Glyph then
-                  MyPlayer.RemHouse(P,false) //don't ask about houses that are not started
-                else begin
-                  fGamePlayInterface.ShowHouseInfo(fPlayers.SelectedHouse,true);
-                  fSoundLib.Play(sfx_click);
-                end;
-              end;
-              if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
-                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
-            end;
-            
-          cm_Houses:
-            begin
-              if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false,MyPlayer.PlayerID) then
-                if fGameplayInterface<>nil then fGamePlayInterface.Build_SelectRoad;
-            end;
-        end;
-    end;
-
-    //These are only for testing purposes, Later on it should be changed a lot
-    if (Button = mbRight)
-    and(MOver=nil) then
-      if (fPlayers <> nil)
-      and(fPlayers.SelectedUnit <> nil)
-      and(fPlayers.SelectedUnit.IsArmyUnit)
-      and(fPlayers.SelectedUnit.GetOwner = MyPlayer.PlayerID)
-      and(fPlayers.SelectedUnit is TKMUnitWarrior)
-      and(fTerrain.Route_CanBeMade(fPlayers.SelectedUnit.GetPosition,P,canWalk,true))
-      then
-        TKMUnitWarrior(fPlayers.SelectedUnit).PlaceOrder(wo_walk,P);
-
-                end;
-    gsNoGame:   fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
   end;
 
 end;
@@ -459,7 +492,7 @@ end;
 procedure TKMGame.StartMapEditor(MissionFile:string);
 var ResultMsg:string;
 begin
-  {RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
+  RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
 
   if fResource.GetDataState<>dls_All then begin
@@ -492,9 +525,10 @@ begin
     fLog.AppendLog('DAT Loaded');
   end else begin
     fTerrain.MakeNewMap(64,64); //For debug we use blank mission
-    fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
+    fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
     MyPlayer:=fPlayers.Player[1];
   end;
+  fTerrain.RevealWholeMap(play_1); //@All: Should be all players?
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized',true);
@@ -505,7 +539,7 @@ begin
 
   GameplayTickCount:=0; //Restart counter
 
-  GameState:=gsEditor;}
+  GameState := gsEditor;
 end;
 
 
@@ -518,9 +552,7 @@ end;
 procedure TKMGame.UpdateState;
 var i:integer;
 begin
-
   inc(GlobalTickCount);
-
   case GameState of
     gsPaused:   exit;
     gsNoGame:   begin
@@ -538,7 +570,7 @@ begin
                     if GameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                   end;
 
-                  if fGamePlayInterface<>nil then fGamePlayInterface.UpdateState;
+                  fGamePlayInterface.UpdateState;
 
                   if GlobalTickCount mod 5 = 0 then //Every 500ms
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
@@ -547,9 +579,25 @@ begin
                     if fMusicLib.IsMusicEnded then
                       fMusicLib.PlayNextTrack(); //Feed new music track
                 end;
+    gsEditor:   begin
+                  fMapEditorInterface.UpdateState;
+                  fTerrain.IncAnimStep;
+                  if GlobalTickCount mod 10 = 0 then //Every 500ms
+                    fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
+                end;
     end;
 end;
 
+
+procedure TKMGame.PaintInterface;
+begin
+  case GameState of
+    gsNoGame:  fMainMenuInterface.Paint;
+    gsPaused:  fGameplayInterface.Paint;
+    gsRunning: fGameplayInterface.Paint;
+    gsEditor:  fMapEditorInterface.Paint;
+  end;
+end;
 
 
 end.

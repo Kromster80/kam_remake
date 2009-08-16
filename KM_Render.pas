@@ -157,7 +157,6 @@ begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
   if fGame.GameState in [gsPaused, gsRunning, gsEditor] then begin //If game is running
-  
     glLoadIdentity();                // Reset The View
     //glRotate(-15,0,0,1); //Funny thing
     glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
@@ -192,21 +191,13 @@ begin
     RenderCursorHighlights(); //Will be on-top
 
     RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm2D);
-    glLoadIdentity();             // Reset The View
-    glLineWidth(1);
-    glPointSize(1);
-    glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
-    fGame.fGameplayInterface.Paint;
-
-  end else begin //Game is not running - paint menu
-
-    glLoadIdentity();             // Reset The View
-    glLineWidth(1);
-    glPointSize(1);
-    glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
-    fGame.fMainMenuInterface.Paint;
-
   end;
+
+  glLoadIdentity();             // Reset The View
+  glLineWidth(1);
+  glPointSize(1);
+  glkMoveAALines(true); //Required for outlines and points when there's AA turned on on user machine
+  fGame.PaintInterface;
 
   glLoadIdentity();
   RenderBrightness(fGameSettings.GetBrightness);

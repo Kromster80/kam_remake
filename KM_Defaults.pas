@@ -42,6 +42,7 @@ var
 
   //These should be FALSE
   ShowDebugControls     :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
+  SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
   MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
@@ -757,7 +758,7 @@ var
   Scrolling: boolean;
 
   CursorX,CursorY:single;    //Precise cursor position on map
-  CursorXc,CursorYc:integer; //Cursor position cell
+  CursorXc,CursorYc:word; //Cursor position cell
 
   //Pallete for RX bitmaps
   //There are 9 palette files Map, Pal0-5, Setup and Setup2

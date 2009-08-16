@@ -143,11 +143,13 @@ public
   procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
   procedure RebuildWalkConnect(aPass:TPassability);
 
+  procedure ComputeCursorPosition(X,Y:word);
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
 
   procedure RefreshMinimapData();
 
+  procedure IncAnimStep();
   procedure UpdateState;
   procedure UpdateCursor(aCursor:TCursorMode; Loc:TKMPoint);
   procedure Paint;
@@ -163,6 +165,7 @@ uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_Sound
 constructor TTerrain.Create;
 begin
   Inherited;
+  AnimStep:=0;
   FallingTrees := TKMPointTagList.Create;
 end;
 
@@ -1437,6 +1440,18 @@ begin
 end;
 
 
+{Compute cursor position and store it in global variables}
+procedure TTerrain.ComputeCursorPosition(X,Y:word);
+begin
+  CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
+  CursorY:=fViewport.GetCenter.Y+(Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
+  CursorY:=fTerrain.ConvertCursorToMapCoord(CursorX,CursorY);
+
+  CursorXc:=EnsureRange(round(CursorX+0.5),1,fTerrain.MapX); //Cell below cursor
+  CursorYc:=EnsureRange(round(CursorY+0.5),1,fTerrain.MapY);
+end;
+
+
 {Cursor position should be converted to tile-coords respecting tile heights}
 function TTerrain.ConvertCursorToMapCoord(inX,inY:single):single;
 var ii:integer; Xc,Yc:integer; Tmp:integer; Ycoef:array[-2..4]of single;
@@ -1517,8 +1532,14 @@ begin
 end;
 
 
+procedure TTerrain.IncAnimStep();
+begin
+  inc(AnimStep);
+end;
+
+
 { This whole thing is very CPU intesive think of it - to update all 40000tiles }
-//Don't use any advanced math here, only simpliest operations - + div * 
+//Don't use any advanced math here, only simpliest operations - + div *
 procedure TTerrain.UpdateState;
 var i,k,h,j:integer;
   procedure SetLand(x,y,tile,Obj:byte);

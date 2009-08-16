@@ -258,8 +258,7 @@ begin
      (Sender=KMButton_Menu_Settings)or(Sender=KMButton_Menu_Quit) then begin
     ShownHouse:=nil;
     ShownUnit:=nil;
-    fPlayers.SelectedUnit:=nil;
-    fPlayers.SelectedHouse:=nil;
+    fPlayers.Selected:=nil;
   end;
 
   //Reset the CursorMode, to cm_None
@@ -934,6 +933,7 @@ begin
   if KMPanel_Stats.Visible then Stats_Fill(nil);
   if KMPanel_Menu.Visible then Menu_Fill(nil);
 
+  if SHOW_SPRITE_COUNT then
   KMLabel_Stat.Caption:=
         inttostr(fPlayers.GetUnitCount)+' units'+#124+
         inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
@@ -1200,17 +1200,19 @@ end;
 
 procedure TKMGamePlayInterface.Unit_Die(Sender:TObject);
 begin
-  if fPlayers.SelectedUnit = nil then exit;
-  fPlayers.SelectedUnit.KillUnit;
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMUnit) then exit;
+  TKMUnit(fPlayers.Selected).KillUnit;
 end;
 
 
 procedure TKMGamePlayInterface.House_Demolish(Sender:TObject);
 begin
-  if fPlayers.SelectedHouse = nil then exit;
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouse) then exit;
 
   if Sender=KMButton_House_DemolishYes then begin
-    MyPlayer.RemHouse(fPlayers.SelectedHouse.GetPosition,false);
+    MyPlayer.RemHouse(TKMHouse(fPlayers.Selected).GetPosition,false);
     ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
   end else begin
     AskDemolish:=false;
@@ -1221,8 +1223,10 @@ end;
 
 procedure TKMGamePlayInterface.House_RepairToggle(Sender:TObject);
 begin
-  if fPlayers.SelectedHouse = nil then exit;
-  with fPlayers.SelectedHouse do begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouse) then exit;
+
+  with TKMHouse(fPlayers.Selected) do begin
     BuildingRepair := not BuildingRepair;
     if BuildingRepair then KMButton_House_Repair.TexID:=39
                       else KMButton_House_Repair.TexID:=40;
@@ -1234,8 +1238,10 @@ end;
 
 procedure TKMGamePlayInterface.House_WareDeliveryToggle(Sender:TObject);
 begin
-  if fPlayers.SelectedHouse = nil then exit;
-  with fPlayers.SelectedHouse do begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouse) then exit;
+
+  with TKMHouse(fPlayers.Selected) do begin
     WareDelivery := not WareDelivery;
     if WareDelivery then KMButton_House_Goods.TexID:=37
                     else KMButton_House_Goods.TexID:=38;
@@ -1246,9 +1252,12 @@ end;
 procedure TKMGamePlayInterface.House_OrderClick(Sender:TObject);
 var i:integer;
 begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouse) then exit;
+
   for i:=1 to 4 do begin
-    if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.ResRemOrder(i);
-    if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.ResAddOrder(i);
+    if Sender = KMRow_Order[i].OrderRem then TKMHouse(fPlayers.Selected).ResRemOrder(i);
+    if Sender = KMRow_Order[i].OrderAdd then TKMHouse(fPlayers.Selected).ResAddOrder(i);
   end;
 end;
 
@@ -1256,9 +1265,12 @@ end;
 procedure TKMGamePlayInterface.House_OrderClickRight(Sender:TObject);
 var i:integer;
 begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouse) then exit;
+
   for i:=1 to 4 do begin
-    if Sender = KMRow_Order[i].OrderRem then fPlayers.SelectedHouse.ResRemOrder(i,10);
-    if Sender = KMRow_Order[i].OrderAdd then fPlayers.SelectedHouse.ResAddOrder(i,10);
+    if Sender = KMRow_Order[i].OrderRem then TKMHouse(fPlayers.Selected).ResRemOrder(i,10);
+    if Sender = KMRow_Order[i].OrderAdd then TKMHouse(fPlayers.Selected).ResAddOrder(i,10);
   end;
 end;
 
@@ -1266,7 +1278,7 @@ end;
 procedure TKMGamePlayInterface.House_BarracksUnitChange(Sender:TObject);
 var i, k, Tmp: integer; Barracks:TKMHouseBarracks; CanEquip: boolean;
 begin
-  Barracks:=TKMHouseBarracks(fPlayers.SelectedHouse);
+  Barracks:=TKMHouseBarracks(fPlayers.Selected);
   if (Sender=KMButton_Barracks_Left)and(LastBarracksUnit > 1) then dec(LastBarracksUnit);
   if (Sender=KMButton_Barracks_Right)and(LastBarracksUnit < length(Barracks_Order)) then inc(LastBarracksUnit);
 
@@ -1277,8 +1289,8 @@ begin
 
   CanEquip:=true;
   for i:=1 to 12 do begin
-    if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).ResourceCount[i]
-                    else Tmp:=TKMHouseBarracks(fPlayers.SelectedHouse).RecruitsInside;
+    if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.Selected).ResourceCount[i]
+                    else Tmp:=TKMHouseBarracks(fPlayers.Selected).RecruitsInside;
     if Tmp=0 then KMButton_Barracks[i].Caption:='-'
              else KMButton_Barracks[i].Caption:=inttostr(Tmp);
     //Set highlights
@@ -1321,7 +1333,7 @@ end;
 procedure TKMGamePlayInterface.House_SchoolUnitChange(Sender:TObject);
 var i:byte; School:TKMHouseSchool;
 begin
-  School:=TKMHouseSchool(fPlayers.SelectedHouse);
+  School:=TKMHouseSchool(fPlayers.Selected);
 
   if (Sender=KMButton_School_Left)and(LastSchoolUnit > 1) then dec(LastSchoolUnit);
   if (Sender=KMButton_School_Right)and(LastSchoolUnit < length(School_Order)) then inc(LastSchoolUnit);
@@ -1381,11 +1393,11 @@ procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
 var i:integer;
 begin
   if Sender = KMButton_School_UnitWIP then
-    TKMHouseSchool(fPlayers.SelectedHouse).RemUnitFromQueue(1)
+    TKMHouseSchool(fPlayers.Selected).RemUnitFromQueue(1)
   else for i:=1 to 5 do
     if Sender = KMButton_School_UnitPlan[i] then
     begin
-      TKMHouseSchool(fPlayers.SelectedHouse).RemUnitFromQueue(i+1);
+      TKMHouseSchool(fPlayers.Selected).RemUnitFromQueue(i+1);
       fSoundLib.Play(sfx_click); //This is done for all buttons now, see fGame.OnMouseDown
       //True, but these are not buttons, they are flat buttons. They still have to make the sound though. To be deleted
     end;
@@ -1397,7 +1409,7 @@ end;
 {Resource determined by Button.Tag property}
 procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
-  TKMHouseStore(fPlayers.SelectedHouse).ToggleAcceptFlag((Sender as TKMControl).Tag);
+  TKMHouseStore(fPlayers.Selected).ToggleAcceptFlag((Sender as TKMControl).Tag);
 end;
 
 
@@ -1512,13 +1524,15 @@ end;
 procedure TKMGamePlayInterface.Store_Fill(Sender:TObject);
 var i,Tmp:integer;
 begin
-  if fPlayers.SelectedHouse=nil then exit;
+  if fPlayers.Selected=nil then exit;
+  if not (fPlayers.Selected is TKMHouseStore) then exit;
+
   for i:=1 to 28 do begin
-    Tmp:=TKMHouseStore(fPlayers.SelectedHouse).ResourceCount[i];
+    Tmp:=TKMHouseStore(fPlayers.Selected).ResourceCount[i];
     if Tmp=0 then KMButton_Store[i].Caption:='-' else
     //if Tmp>999 then KMButton_Store[i].Caption:=float2fix(round(Tmp/10)/100,2)+'k' else
                   KMButton_Store[i].Caption:=inttostr(Tmp);
-    KMImage_Store_Accept[i].Visible := TKMHouseStore(fPlayers.SelectedHouse).NotAcceptFlag[i];
+    KMImage_Store_Accept[i].Visible := TKMHouseStore(fPlayers.Selected).NotAcceptFlag[i];
   end;
 end;
 
@@ -1582,7 +1596,7 @@ end;
 procedure TKMGamePlayInterface.EnableOrDisableMenuIcons(NewValue:boolean);
 begin
   KMButtonMain[1].Enabled := NewValue;
-  //KMButtonMain[2].Enabled := NewValue; //Unimplemented yet
+  KMButtonMain[2].Enabled := NewValue;
   KMButtonMain[3].Enabled := NewValue;
 end;
 
