@@ -164,13 +164,13 @@ function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; Do
 var KMHouse:TKMHouse;
 begin
   Result:=false;
-  aLoc.X:=aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
   if not fTerrain.CanPlaceHouse(aLoc,aHouseType,PlayerRevealID) then
   begin
     if not DoSilent then
       fSoundLib.Play(sfx_CantPlace,aLoc,false,4.0);
     exit;
   end;
+  aLoc.X:=aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
   KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, PlayerID);
   fTerrain.SetHouse(aLoc, aHouseType, hs_Plan, PlayerID);
   BuildList.AddNewHousePlan(KMHouse);

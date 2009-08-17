@@ -97,7 +97,7 @@ begin
   //However, this is only true if the house is built
   H := MyPlayer.HousesHitTest(CursorXc, CursorYc);
 
-  if H.GetBuildingState in [hbs_Stone,hbs_Done] then
+  if (H<>nil)and(H.GetBuildingState in [hbs_Stone,hbs_Done]) then
     fPlayers.Selected := H
   else
     fPlayers.Selected := MyPlayer.UnitsHitTest(CursorXc, CursorYc);

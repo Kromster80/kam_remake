@@ -266,7 +266,7 @@ begin
 
 end;
 
-
+                             
 procedure TKMHouse.DemolishHouse(DoSilent:boolean);
 begin
   if not DoSilent then

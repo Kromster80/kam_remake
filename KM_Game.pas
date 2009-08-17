@@ -114,7 +114,8 @@ begin
   fRender.RenderResize(X,Y,rm2D);
   if GameState in [gsPaused, gsRunning, gsEditor] then begin //If game is running
     fViewport.SetVisibleScreenArea(X,Y);
-    fGamePlayInterface.SetScreenSize(X,Y);
+    if GameState in [gsPaused, gsRunning] then fGamePlayInterface.SetScreenSize(X,Y);
+    if GameState in [gsEditor] then fMapEditorInterface.SetScreenSize(X,Y); 
     ZoomInGameArea(1);
   end else begin
     //Should resize all Controls somehow...
@@ -225,6 +226,7 @@ end;
 
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
+var P:TKMPoint;
 begin
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
@@ -250,15 +252,32 @@ begin
                   fMapEditorInterface.MyControls.OnMouseOver(X,Y,Shift);
                   if fMapEditorInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor:=c_Default
-                  else begin
+                  else
+                  begin
                     fTerrain.ComputeCursorPosition(X,Y);
                     if CursorMode.Mode=cm_None then
                       if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
                          (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
                         Screen.Cursor:=c_Info
                       else if not Scrolling then
-                        Screen.Cursor:=c_Default; 
+                        Screen.Cursor:=c_Default;
                     fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
+
+                    if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
+                    begin
+                      P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
+                      case CursorMode.Mode of
+                        cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
+                        cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
+                        cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+                        //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+                        cm_Erase: begin
+                                    MyPlayer.RemHouse(P,false);
+                                    fTerrain.RemRoad(P);
+                                    //MyPlayer.RemField(P); //@Lewin: How do we now which tile terrain had before it became field?
+                                  end;
+                      end;
+                    end;
                   end;
                 end;
   end;
@@ -373,7 +392,8 @@ begin
                     cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
                     cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                     //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
-                    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Param)) then
+                    cm_Houses:
+                    if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Param)) then
                                 MyPlayer.AddHouse(THouseType(CursorMode.Param),P);
               cm_Erase:
                 begin

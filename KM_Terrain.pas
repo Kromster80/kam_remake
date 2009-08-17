@@ -1313,6 +1313,7 @@ function TTerrain.CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerReve
 var i,k:integer;
 begin
 Result:=true;
+  Loc.X:=Loc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX; //update offset
   for i:=1 to 4 do for k:=1 to 4 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then begin
       Result := Result AND TileInMapCoords(Loc.X+k-3,Loc.Y+i-4,1); //Inset one tile from map edges
