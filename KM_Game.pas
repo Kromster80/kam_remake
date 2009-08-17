@@ -295,24 +295,11 @@ begin
             case CursorMode.Mode of
               cm_None:
                 begin
-                  //Houses have priority over units, so you can't select an occupant.
-                  //However, this is only true if the house is built
-                  fPlayers.Selected:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
-                  if (fPlayers.Selected<>nil)
-                  and(TKMHouse(fPlayers.Selected).GetBuildingState in [hbs_Stone,hbs_Done]) then
-                    fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected))
-                  else
-                  begin
-                    fPlayers.Selected:=MyPlayer.UnitsHitTest(CursorXc, CursorYc);
-                    if (fPlayers.Selected<>nil)and(fPlayers.Selected is TKMUnit) then
-                    begin
-                      //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
-                      //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
-                      fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                    end
-                    else
-                      fPlayers.Selected:=MyPlayer.HousesHitTest(CursorXc, CursorYc); //Choose whatever house
-                  end;
+                  fPlayers.HitTest(CursorXc, CursorYc);
+                  if fPlayers.Selected is TKMHouse then
+                    fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
+                  if fPlayers.Selected is TKMUnit then
+                    fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
                           MyPlayer.RemPlan(P)
@@ -371,24 +358,13 @@ begin
                     case CursorMode.Mode of
                       cm_None:
                         begin
-                          //Houses have priority over units, so you can't select an occupant.
-                          //However, this is only true if the house is built
-                          fPlayers.Selected:=MyPlayer.HousesHitTest(CursorXc, CursorYc);
-                          if (fPlayers.Selected<>nil)
-                          and(TKMHouse(fPlayers.Selected).GetBuildingState in [hbs_Stone,hbs_Done]) then
-                            fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected))
-                          else
-                          begin
-                            fPlayers.Selected:=MyPlayer.UnitsHitTest(CursorXc, CursorYc);
-                            if (fPlayers.Selected<>nil)and(fPlayers.Selected is TKMUnit) then
-                            begin
-                              //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
-                              //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
-                              fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                            end
-                            else
-                              fPlayers.Selected:=MyPlayer.HousesHitTest(CursorXc, CursorYc); //Choose whatever house
-                          end;
+                          fPlayers.HitTest(CursorXc, CursorYc);
+                          if fPlayers.Selected is TKMHouse then
+                            fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
+                          if fPlayers.Selected is TKMUnit then
+                            fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                          //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
+                          //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
                         end;
                       end;
                     end;

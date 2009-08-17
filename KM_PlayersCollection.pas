@@ -24,6 +24,7 @@ type
     property PlayerCount:integer read fPlayerCount;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
+    function HitTest(X, Y: Integer):boolean;
     function GetUnitCount():integer;
   public
     procedure UpdateState(Tick:cardinal);
@@ -85,6 +86,25 @@ begin
     Result:= Player[i].UnitsHitTest(X,Y);
     if Result<>nil then Break; //else keep on testing
   end;
+end;
+
+
+{HitTest for houses/units altogether}
+function TKMAllPlayers.HitTest(X, Y: Integer):boolean;
+var H:TKMHouse;
+begin
+  //Houses have priority over units, so you can't select an occupant.
+  //However, this is only true if the house is built
+  H := MyPlayer.HousesHitTest(CursorXc, CursorYc);
+
+  if H.GetBuildingState in [hbs_Stone,hbs_Done] then
+    fPlayers.Selected := H
+  else
+    fPlayers.Selected := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+  if fPlayers.Selected = nil then
+    fPlayers.Selected := H;
+
+  Result := fPlayers.Selected <> nil;
 end;
 
 
