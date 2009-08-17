@@ -25,7 +25,7 @@ type
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
-    procedure AddRoad(aLoc: TKMPoint);
+    procedure AddRoad(aLoc: TKMPoint; DoFlatten:boolean=true);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
@@ -111,24 +111,25 @@ end;
 function TKMPlayerAssets.AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
 var xo,i,k:integer;
 begin
-  //First flatten the terrain at the location of the house
+  {//First flatten the terrain at the location of the house
   for i:=4 downto 1 do for k:=4 downto 1 do
     if HousePlanYX[byte(aHouseType),i,k]<>0 then
-      fTerrain.FlattenTerrain(KMPoint(Position.X+k-3,Position.Y+i-4));
+      fTerrain.FlattenTerrain(KMPoint(Position.X+k-3,Position.Y+i-4));}
 
   xo:=HouseDAT[byte(aHouseType)].EntranceOffsetX;
   Result:=fHouses.AddHouse(aHouseType, Position.X-xo, Position.Y, PlayerID);
 end;
 
 
-procedure TKMPlayerAssets.AddRoad(aLoc: TKMPoint);
+procedure TKMPlayerAssets.AddRoad(aLoc: TKMPoint; DoFlatten:boolean=true);
 begin
   //if not fTerrain.CanPlaceRoad(aLoc,aMarkup) then exit;
   //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
   //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
 
   fTerrain.SetRoad(aLoc,PlayerID);
-  fTerrain.FlattenTerrain(aLoc); //Flatten the terrain for road
+  if DoFlatten then
+    fTerrain.FlattenTerrain(aLoc); //Flatten the terrain for road
 end;
 
 

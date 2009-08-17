@@ -317,6 +317,8 @@ begin
                           MyPlayer.RemPlan(P)
                         else
                           MyPlayer.AddRoadPlan(P, mu_WallPlan, false, MyPlayer.PlayerID);
+              cm_Houses: if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false,MyPlayer.PlayerID) then
+                           fGamePlayInterface.Build_SelectRoad;
               cm_Erase:
                 begin
                   fPlayers.Selected := MyPlayer.HousesHitTest(CursorXc, CursorYc); //Select the house irregardless of unit below/above
@@ -333,8 +335,6 @@ begin
                     fSoundLib.Play(sfx_CantPlace,P,false,4.0);
                 end;
 
-              cm_Houses: if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false,MyPlayer.PlayerID) then
-                           fGamePlayInterface.Build_SelectRoad;
             end; //case CursorMode.Mode of..
         end; //if MOver<>nil then else..
 
@@ -351,24 +351,40 @@ begin
 
       end; //gsRunning
     gsEditor: begin
+                P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise        
                 if MOver <> nil then
                   fMapEditorInterface.MyControls.OnMouseUp(X,Y,Button)
-                else begin
-                  if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-                    case CursorMode.Mode of
-                      cm_None:
-                        begin
-                          fPlayers.HitTest(CursorXc, CursorYc);
-                          if fPlayers.Selected is TKMHouse then
-                            fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
-                          if fPlayers.Selected is TKMUnit then
-                            fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                          //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
-                          //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
-                        end;
+                else
+                if Button = mbRight then fMapEditorInterface.Build_RightClickCancel
+                else
+                if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
+                  case CursorMode.Mode of
+                    cm_None:
+                      begin
+                        fPlayers.HitTest(CursorXc, CursorYc);
+                        if fPlayers.Selected is TKMHouse then
+                          fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
+                        if fPlayers.Selected is TKMUnit then
+                          fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                        //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
+                        //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
                       end;
-                    end;
-                    end;
+                    cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
+                    cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
+                    cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+                    //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+                    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Param)) then
+                                MyPlayer.AddHouse(THouseType(CursorMode.Param),P);
+              cm_Erase:
+                begin
+                  MyPlayer.RemHouse(P,false); //don't ask about houses that are not started
+                  fTerrain.RemRoad(P);
+                  //MyPlayer.RemField(P);
+                end;
+
+
+                  end;
+              end;
 
   end;
 
@@ -556,6 +572,7 @@ begin
                       fMusicLib.PlayNextTrack(); //Feed new music track
                 end;
     gsEditor:   begin
+                  fViewport.DoScrolling; //Check to see if we need to scroll
                   fMapEditorInterface.UpdateState;
                   fTerrain.IncAnimStep;
                   if GlobalTickCount mod 10 = 0 then //Every 500ms
