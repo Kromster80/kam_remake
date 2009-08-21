@@ -63,7 +63,7 @@ type
     procedure CloseHouse; virtual;
 
     procedure Activate(aWasBuilt:boolean);
-    procedure DemolishHouse(DoSilent:boolean);
+    procedure DemolishHouse(DoSilent:boolean; IsEditor:boolean=false);
 
     property GetPosition:TKMPoint read fPosition;
     function GetEntrance:TKMPoint;
@@ -267,16 +267,17 @@ begin
 end;
 
                              
-procedure TKMHouse.DemolishHouse(DoSilent:boolean);
+procedure TKMHouse.DemolishHouse(DoSilent:boolean; IsEditor:boolean=false);
 begin
   if not DoSilent then
-    if GetBuildingState = hbs_Glyph then fSoundLib.Play(sfx_click)
+    if (GetBuildingState = hbs_Glyph)or(IsEditor) then fSoundLib.Play(sfx_click)
     else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveOffer(Self);
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveDemand(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
-  fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
+  if RemoveRoadWhenDemolish then fTerrain.RemRoad(GetEntrance); //Delete the road at the entrance
+  if not IsEditor then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
   
   if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
     fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);

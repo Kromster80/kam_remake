@@ -38,6 +38,8 @@ public
     //Used to display half-dug road
     TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
+    BeforeFieldTerrain,BeforeFieldRotation:byte; //Only used for map editor
+
 
     //DEDUCTED
     Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
@@ -72,6 +74,7 @@ public
 
   procedure RemMarkup(Loc:TKMPoint);
   procedure RemRoad(Loc:TKMPoint);
+  procedure RemField(Loc:TKMPoint);
   procedure SetWall(Loc:TKMPoint; aOwner:TPlayerID);
   procedure IncDigState(Loc:TKMPoint);
   procedure ResetDigState(Loc:TKMPoint);
@@ -184,6 +187,8 @@ begin
 
   for i:=1 to MapY do for k:=1 to MapX do with Land[i,k] do begin
     Terrain:=0;
+    BeforeFieldTerrain:=0; 
+    BeforeFieldRotation:=0;
     Height:=random(7);    //variation in height
     Rotation:=random(4);  //Make it random
     Obj:=255;             //none
@@ -525,6 +530,19 @@ begin
 end;
 
 
+procedure TTerrain.RemField(Loc:TKMPoint);
+begin
+  Land[Loc.Y,Loc.X].TileOwner:=play_none;
+  Land[Loc.Y,Loc.X].TileOverlay:=to_None;
+  Land[Loc.Y,Loc.X].Terrain := Land[Loc.Y,Loc.X].BeforeFieldTerrain; //Reset terrain 
+  Land[Loc.Y,Loc.X].Rotation := Land[Loc.Y,Loc.X].BeforeFieldRotation; //Reset terrain
+  if Land[Loc.Y,Loc.X].Obj in [54..59] then Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
+  Land[Loc.Y,Loc.X].FieldAge:=0;
+  UpdateBorders(Loc);
+  RecalculatePassabilityAround(Loc);
+end;
+
+
 procedure TTerrain.SetWall(Loc:TKMPoint; aOwner:TPlayerID);
 begin
   Land[Loc.Y,Loc.X].TileOwner:=aOwner;
@@ -542,6 +560,8 @@ begin
   Land[Loc.Y,Loc.X].TileOwner:=aOwner;
   Land[Loc.Y,Loc.X].TileOverlay:=to_None;
   Land[Loc.Y,Loc.X].FieldAge:=0;
+  Land[Loc.Y,Loc.X].BeforeFieldTerrain:=Land[Loc.Y,Loc.X].Terrain;  
+  Land[Loc.Y,Loc.X].BeforeFieldRotation:=Land[Loc.Y,Loc.X].Rotation;
 
   if aFieldType=ft_Corn then begin
     Land[Loc.Y,Loc.X].Terrain:=62;

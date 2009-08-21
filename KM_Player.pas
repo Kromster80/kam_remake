@@ -30,7 +30,7 @@ type
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
     procedure AutoRoadConnect(LocA,LocB:TKMPoint);
-    function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
+    function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
     procedure RemUnit(Position: TKMUnit);
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
@@ -109,7 +109,7 @@ end;
 
 
 function TKMPlayerAssets.AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
-var xo,i,k:integer;
+var xo{,i,k}:integer;
 begin
   {//First flatten the terrain at the location of the house
   for i:=4 downto 1 do for k:=4 downto 1 do
@@ -195,7 +195,7 @@ begin
 end;
 
 
-function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false):boolean;
+function TKMPlayerAssets.RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
 var fHouse:TKMHouse;
 begin
   Result := BuildList.CancelHousePlan(Position,Simulated);
@@ -203,7 +203,7 @@ begin
   if fHouse<>nil then
   begin
     if not Simulated then
-      fHouse.DemolishHouse(DoSilent);
+      fHouse.DemolishHouse(DoSilent,IsEditor);
     Result := true;
   end;
 end;

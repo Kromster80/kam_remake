@@ -1177,10 +1177,20 @@ begin
 with fTerrain do
 case CursorMode.Mode of
   cm_None:;
-  cm_Erase:if ((CanRemovePlan(CursorPos,MyPlayer.PlayerID)) or (CanRemoveHouse(CursorPos,MyPlayer.PlayerID)))
-           and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
-             fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-           else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
+  cm_Erase:if fGame.GameState = gsEditor then
+           begin
+             if ((TileIsCornField(CursorPos)) or (TileIsWineField(CursorPos))
+             or(Land[CursorPos.Y,CursorPos.X].TileOverlay=to_Road) or (CanRemoveHouse(CursorPos,MyPlayer.PlayerID)))
+             and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+               fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+             else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
+           end else
+           begin
+             if ((CanRemovePlan(CursorPos,MyPlayer.PlayerID)) or (CanRemoveHouse(CursorPos,MyPlayer.PlayerID)))
+             and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
+               fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+             else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
+           end;
   cm_Road: if (CanPlaceRoad(CursorPos,mu_RoadPlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X

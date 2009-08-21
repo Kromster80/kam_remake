@@ -275,6 +275,9 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
   ShownUnit:=nil;
   ShownHouse:=nil;
 
+
+
+
 {Parent Page for whole toolbar in-game}
   KMPanel_Main:=MyControls.AddPanel(nil,0,0,224,768);
 

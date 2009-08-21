@@ -272,10 +272,10 @@ begin
                         cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                         //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                         cm_Erase: begin
-                                    MyPlayer.RemHouse(P,false);
+                                    MyPlayer.RemHouse(P,false,false,true);
                                     fTerrain.RemRoad(P);
-                                    //MyPlayer.RemField(P); //@Lewin: How do we now which tile terrain had before it became field?
-                                  end;
+                                    fTerrain.RemField(P); //@Lewin: How do we now which tile terrain had before it became field?
+                                  end;                    //@Krom: I added extra variables to terrain to remember the tile and rotation.
                       end;
                     end;
                   end;
@@ -399,7 +399,7 @@ begin
                 begin
                   MyPlayer.RemHouse(P,false); //don't ask about houses that are not started
                   fTerrain.RemRoad(P);
-                  //MyPlayer.RemField(P);
+                  fTerrain.RemField(P);
                 end;
 
 
