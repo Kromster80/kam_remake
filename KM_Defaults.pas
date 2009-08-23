@@ -11,7 +11,10 @@ const
   Overlap               = 0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   DEF_PAL               = 2;            //Default palette to use when generating full-color RGB textures
   GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
+  //todo: read from INI
   TERRAIN_PACE          = 1000;         //Terrain gets updated once each 1000ms
+  SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
+  //todo: read from INI
   FOG_OF_WAR_MIN        = 8;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   FOG_OF_WAR_ACT        = 16;           //Until this value FOW is not rendered at all
   FOG_OF_WAR_MAX        = 24;           //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
@@ -28,8 +31,8 @@ const
 var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
-  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeUnitSprites       :boolean=false;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not

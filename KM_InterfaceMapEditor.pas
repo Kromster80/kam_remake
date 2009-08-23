@@ -15,19 +15,34 @@ type TKMMapEditorInterface = class
       KMImage_Main1,KMImage_Main2,KMImage_Main3,KMImage_Main4:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
       KMLabel_Stat,KMLabel_Hint:TKMLabel;
-      KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
-      KMImage_Message:array[1..256]of TKMImage; //Queue of messages
+      KMButton_Main:array[1..5]of TKMButton; //5 buttons
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
+
+    KMPanel_Terrain:TKMPanel;
+      KMButton_Terrain:array[1..4]of TKMButton;
+      KMPanel_Brushes:TKMPanel;
+        BrushSize:TKMRatioRow;
+        BrushCircle,BrushSquare:TKMButtonFlat;
+      KMPanel_Heights:TKMPanel;
+        HeightSize:TKMRatioRow;
+        HeightCircle,HeightSquare:TKMButtonFlat;
+      KMPanel_Tiles:TKMPanel;
+      KMPanel_Objects:TKMPanel;
+
+    KMPanel_Village:TKMPanel;
+      KMButton_Village:array[1..4]of TKMButton;
+      KMPanel_Build:TKMPanel;
+        KMLabel_Build:TKMLabel;
+        KMImage_Build_Selected:TKMImage;
+        KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine,KMButton_BuildWall,KMButton_BuildCancel:TKMButtonFlat;
+        KMButton_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
+      KMPanel_Units:TKMPanel;
+      KMPanel_Script:TKMPanel;
+
     KMPanel_Stats:TKMPanel;
       Stat_HousePic,Stat_UnitPic:array[1..32]of TKMImage;
       Stat_HouseQty,Stat_UnitQty:array[1..32]of TKMLabel;
-
-    KMPanel_Build:TKMPanel;
-      KMLabel_Build:TKMLabel;
-      KMImage_Build_Selected:TKMImage;
-      KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine{,KMButton_BuildWall},KMButton_BuildCancel:TKMButtonFlat;
-      KMButton_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
-
+      
     KMPanel_Menu:TKMPanel;
       KMButton_Menu_Save,KMButton_Menu_Load,KMButton_Menu_Settings,KMButton_Menu_Quit:TKMButton;
       KMLabel_Menu_Music, KMLabel_Menu_Track: TKMLabel;
@@ -72,7 +87,8 @@ type TKMMapEditorInterface = class
       KMImage_Barracks_Right,KMImage_Barracks_Train,KMImage_Barracks_Left:TKMImage;
       KMButton_Barracks_Right,KMButton_Barracks_Train,KMButton_Barracks_Left:TKMButton;
   private
-    procedure Create_Build_Page;
+    procedure Create_Terrain_Page;
+    procedure Create_Village_Page;
     procedure Create_Stats_Page;
     procedure Create_Menu_Page;
     procedure Create_Save_Page;
@@ -89,7 +105,6 @@ type TKMMapEditorInterface = class
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
-    procedure Build_Fill(Sender:TObject);
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
@@ -108,7 +123,6 @@ type TKMMapEditorInterface = class
     procedure Menu_QuitMission(Sender:TObject);
     procedure Build_SelectRoad;
     procedure Build_RightClickCancel;
-    procedure IssueMessage(MsgTyp:TKMMessageType; Text:string);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     procedure ClearShownUnit;
@@ -123,20 +137,12 @@ uses KM_Unit1, KM_PlayersCollection, KM_Settings, KM_Render, KM_LoadLib, KM_Terr
 
 {Switch between pages}
 procedure TKMMapEditorInterface.SwitchPage(Sender: TObject);
-var i:integer; LastVisiblePage: TKMPanel;
-
-  procedure Flip4MainButtons(ShowEm:boolean);
-  var k:integer;
-  begin
-    for k:=1 to 4 do KMButtonMain[k].Visible:=ShowEm;
-    KMButtonMain[5].Visible:=not ShowEm;
-    KMLabel_MenuTitle.Visible:=not ShowEm;
-  end;
-
+var i:integer;
 begin
 
-  if (Sender=KMButtonMain[1])or(Sender=KMButtonMain[2])or
-     (Sender=KMButtonMain[3])or(Sender=KMButtonMain[4])or
+  if (Sender=KMButton_Main[1])or(Sender=KMButton_Main[2])or
+     (Sender=KMButton_Main[3])or(Sender=KMButton_Main[4])or
+     (Sender=KMButton_Main[5])or
      (Sender=KMButton_Menu_Settings)or(Sender=KMButton_Menu_Quit) then begin
     ShownHouse:=nil;
     ShownUnit:=nil;
@@ -146,49 +152,73 @@ begin
   //Reset the CursorMode, to cm_None
   Build_ButtonClick(nil);
 
-  //Set LastVisiblePage to which ever page was last visible, out of the ones needed
-  if KMPanel_Settings.Visible then LastVisiblePage := KMPanel_Settings else
-  if KMPanel_Save.Visible     then LastVisiblePage := KMPanel_Save     else
-  if KMPanel_Load.Visible     then LastVisiblePage := KMPanel_Load     else
-    LastVisiblePage := nil;
-
-  //If they just closed settings then we should save them (if something has changed)
-  if LastVisiblePage = KMPanel_Settings then
-    if fGameSettings.GetNeedsSave then
-      fGameSettings.SaveSettings;
-
   //First thing - hide all existing pages
     for i:=1 to KMPanel_Main.ChildCount do
       if KMPanel_Main.Childs[i] is TKMPanel then
         KMPanel_Main.Childs[i].Hide;
-  //First thing - hide all existing pages
-    for i:=1 to KMPanel_House.ChildCount do
-      if KMPanel_House.Childs[i] is TKMPanel then
-        KMPanel_House.Childs[i].Hide;
 
-  //If Sender is one of 4 main buttons, then open the page, hide the buttons and show Return button
-  Flip4MainButtons(false);
-  if Sender=KMButtonMain[1] then begin
-    Build_Fill(nil);
+  //Hide Terrain sub-tabs
+    for i:=1 to KMPanel_Terrain.ChildCount do
+      if KMPanel_Terrain.Childs[i] is TKMPanel then
+        KMPanel_Terrain.Childs[i].Hide;
+
+
+  if (Sender = KMButton_Main[1])or(Sender = KMButton_Terrain[1]) then begin
+    KMPanel_Terrain.Show;
+    KMPanel_Brushes.Show;
+    KMLabel_MenuTitle.Caption:='Terrain editing - Brushes';
+  end else
+
+  if (Sender = KMButton_Main[1])or(Sender = KMButton_Terrain[2]) then begin
+    KMPanel_Terrain.Show;
+    KMPanel_Heights.Show;
+    KMLabel_MenuTitle.Caption:='Terrain editing - Heights';
+  end else
+
+  if (Sender = KMButton_Main[1])or(Sender = KMButton_Terrain[3]) then begin
+    KMPanel_Terrain.Show;
+    KMPanel_Tiles.Show;
+    KMLabel_MenuTitle.Caption:='Terrain editing - Tiles';
+  end else
+
+  if (Sender = KMButton_Main[1])or(Sender = KMButton_Terrain[4]) then begin
+    KMPanel_Terrain.Show;
+    KMPanel_Objects.Show;
+    KMLabel_MenuTitle.Caption:='Terrain editing - Objects';
+  end else
+
+  if (Sender = KMButton_Main[2])or(Sender = KMButton_Village[1]) then begin
+    KMPanel_Village.Show;
     KMPanel_Build.Show;
-    KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(166);
+    KMLabel_MenuTitle.Caption:='Village - Buildings';
     Build_SelectRoad;
   end else
 
-  if Sender=KMButtonMain[3] then begin
+  if (Sender = KMButton_Main[2])or(Sender = KMButton_Village[2]) then begin
+    KMPanel_Village.Show;
+    KMPanel_Units.Show;
+    KMLabel_MenuTitle.Caption:='Village - Units';
+  end else
+
+  if (Sender = KMButton_Main[2])or(Sender = KMButton_Village[3]) then begin
+    KMPanel_Village.Show;
+    KMPanel_Script.Show;
+    KMLabel_MenuTitle.Caption:='Village - Script';
+  end else
+
+  if Sender=KMButton_Main[3] then begin
     Stats_Fill(nil);
     KMPanel_Stats.Show;
     KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
   end else
 
-  if (Sender=KMButtonMain[4]) or (Sender=KMButton_Quit_No) or
-     ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Settings)) or
-     ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Load)) or
-     ((Sender=KMButtonMain[5]) and (LastVisiblePage=KMPanel_Save)) then begin
+  if (Sender=KMButton_Main[5]) or (Sender=KMButton_Quit_No) then begin
     Menu_Fill(Sender); //Make sure updating happens before it is shown
     KMLabel_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
     KMPanel_Menu.Show;
   end else
+
+
 
   if Sender=KMButton_Menu_Save then begin
     KMPanel_Save.Show;
@@ -207,9 +237,7 @@ begin
 
   if Sender=KMButton_Menu_Quit then begin
     KMPanel_Quit.Show;
-  end else
-    //If Sender is anything else - then show all 4 buttons and hide Return button
-    Flip4MainButtons(true);
+  end;
 
   //Now process all other kinds of pages
   if Sender=KMPanel_Unit then begin
@@ -266,47 +294,44 @@ end;
 constructor TKMMapEditorInterface.Create();
 var i:integer;
 begin
-Inherited;
-fLog.AssertToLog(fGameSettings<>nil,'fGameSettings required to be init first');
-fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
+  Inherited;
+  fLog.AssertToLog(fGameSettings<>nil,'fGameSettings required to be init first');
+  fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
   MyControls := TKMControlsCollection.Create;
 
   ShownUnit:=nil;
   ShownHouse:=nil;
 
-
-
-
 {Parent Page for whole toolbar in-game}
-  KMPanel_Main:=MyControls.AddPanel(nil,0,0,224,768);
+  KMPanel_Main := MyControls.AddPanel(nil,0,0,224,768);
 
     KMImage_Main1:=MyControls.AddImage(KMPanel_Main,0,0,224,200,407);
     KMImage_Main3:=MyControls.AddImage(KMPanel_Main,0,200,224,168,554);
-    KMImage_Main4:=MyControls.AddImage(KMPanel_Main,0,368,224,400,403);
-                   MyControls.AddImage(KMPanel_Main,0,768,224,400,403);
+    KMImage_Main4:=MyControls.AddImage(KMPanel_Main,0,368,224,400,404);
+                   MyControls.AddImage(KMPanel_Main,0,768,224,400,404);
 
     KMMinimap:=MyControls.AddMinimap(KMPanel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;
 
-    {Main 4 buttons +return button}
-    for i:=0 to 3 do begin
-      KMButtonMain[i+1]:=MyControls.AddButton(KMPanel_Main,  8+46*i, 372, 42, 36, 439+i);
-      KMButtonMain[i+1].OnClick:=SwitchPage;
-      KMButtonMain[i+1].Hint:=fTextLibrary.GetTextString(160+i);
-    end;
-    KMButtonMain[4].Hint:=fTextLibrary.GetTextString(164); //This is an exception to the rule above
-    KMButtonMain[5]:=MyControls.AddButton(KMPanel_Main,  8, 372, 42, 36, 443);
-    KMButtonMain[5].OnClick:=SwitchPage;
-    KMButtonMain[5].Hint:=fTextLibrary.GetTextString(165);
-    KMLabel_MenuTitle:=MyControls.AddLabel(KMPanel_Main,54,372,138,36,'',fnt_Metal,kaLeft);
+    {5 big tabs}
+    KMButton_Main[1] := MyControls.AddButton(KMPanel_Main,   8, 372, 36, 36, 1);
+    KMButton_Main[2] := MyControls.AddButton(KMPanel_Main,  48, 372, 36, 36, 1);
+    KMButton_Main[3] := MyControls.AddButton(KMPanel_Main,  88, 372, 36, 36, 1);
+    KMButton_Main[4] := MyControls.AddButton(KMPanel_Main, 128, 372, 36, 36, 1);
+    KMButton_Main[5] := MyControls.AddButton(KMPanel_Main, 168, 372, 36, 36, 1);
+    //KMButton_Main[i].Hint := fTextLibrary.GetTextString(160+i);
+    for i:=1 to 5 do KMButton_Main[i].OnClick := SwitchPage;
+
+    KMLabel_MenuTitle:=MyControls.AddLabel(KMPanel_Main,8,412,138,36,'',fnt_Metal,kaLeft); //Should be one-line
 
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  Create_Build_Page();
+  Create_Terrain_Page();
+  Create_Village_Page();
   Create_Stats_Page();
   Create_Menu_Page();
     Create_Save_Page();
@@ -339,35 +364,77 @@ begin
 end;
 
 
+{Terrain page}
+procedure TKMMapEditorInterface.Create_Terrain_Page;
+var i,k:integer;
+begin
+  KMPanel_Terrain := MyControls.AddPanel(KMPanel_Main,0,428,196,28);
+    KMButton_Terrain[1] := MyControls.AddButton(KMPanel_Terrain,   8, 4, 36, 24, 383);
+    KMButton_Terrain[2] := MyControls.AddButton(KMPanel_Terrain,  48, 4, 36, 24, 388);
+    KMButton_Terrain[3] := MyControls.AddButton(KMPanel_Terrain,  88, 4, 36, 24, 382);
+    KMButton_Terrain[4] := MyControls.AddButton(KMPanel_Terrain, 128, 4, 36, 24, 385);
+    for i:=1 to 4 do KMButton_Terrain[i].OnClick := SwitchPage;
+
+    KMPanel_Brushes := MyControls.AddPanel(KMPanel_Terrain,0,28,196,400);
+      BrushSize := MyControls.AddRatioRow(KMPanel_Brushes, 8, 10, 100, 20, 1, 12);
+      BrushCircle := MyControls.AddButtonFlat(KMPanel_Brushes, 114, 8, 24, 24, 359);
+      BrushSquare := MyControls.AddButtonFlat(KMPanel_Brushes, 142, 8, 24, 24, 352);
+
+    KMPanel_Heights := MyControls.AddPanel(KMPanel_Terrain,0,28,196,400);
+      HeightSize := MyControls.AddRatioRow(KMPanel_Heights, 8, 10, 100, 20, 1, 12);
+      HeightCircle := MyControls.AddButtonFlat(KMPanel_Heights, 114, 8, 24, 24, 359);
+      HeightSquare := MyControls.AddButtonFlat(KMPanel_Heights, 142, 8, 24, 24, 352);
+
+    KMPanel_Tiles := MyControls.AddPanel(KMPanel_Terrain,0,28,196,400);
+      for i:=1 to 6 do for k:=1 to 8 do
+      MyControls.AddButtonFlat(KMPanel_Tiles,8+(i-1)*32,4+(k-1)*32,32,32,43); //List of tiles 32x8
+      MyControls.AddScrollBar(KMPanel_Tiles, 176, 4, 20, 300); //Should be horizontal
+
+    KMPanel_Objects := MyControls.AddPanel(KMPanel_Terrain,0,28,196,400);
+      //List of objects
+      MyControls.AddScrollBar(KMPanel_Objects, 176, 4, 20, 300);
+end;
+
 {Build page}
-procedure TKMMapEditorInterface.Create_Build_Page;
+procedure TKMMapEditorInterface.Create_Village_Page;
 var i:integer;
 begin
-  KMPanel_Build:=MyControls.AddPanel(KMPanel_Main,0,412,196,400);
-    KMLabel_Build:=MyControls.AddLabel(KMPanel_Build,100,10,100,30,'',fnt_Outline,kaCenter);
-    KMImage_Build_Selected:=MyControls.AddImage(KMPanel_Build,8,40,32,32,335);
-    KMButton_BuildRoad   := MyControls.AddButtonFlat(KMPanel_Build,  8,80,33,33,335);
-    KMButton_BuildField  := MyControls.AddButtonFlat(KMPanel_Build, 45,80,33,33,337);
-    KMButton_BuildWine   := MyControls.AddButtonFlat(KMPanel_Build, 82,80,33,33,336);
-//    KMButton_BuildWall   := MyControls.AddButtonFlat(KMPanel_Build,119,80,33,33,339);
-    KMButton_BuildCancel := MyControls.AddButtonFlat(KMPanel_Build,156,80,33,33,340);
-    KMButton_BuildRoad.OnClick:=Build_ButtonClick;
-    KMButton_BuildField.OnClick:=Build_ButtonClick;
-    KMButton_BuildWine.OnClick:=Build_ButtonClick;
-//    KMButton_BuildWall.OnClick:=Build_ButtonClick;
-    KMButton_BuildCancel.OnClick:=Build_ButtonClick;
-    KMButton_BuildRoad.Hint:=fTextLibrary.GetTextString(213);
-    KMButton_BuildField.Hint:=fTextLibrary.GetTextString(215);
-    KMButton_BuildWine.Hint:=fTextLibrary.GetTextString(219);
-//    KMButton_BuildWall.Hint:='Build a wall';
-    KMButton_BuildCancel.Hint:=fTextLibrary.GetTextString(211);
+  KMPanel_Village := MyControls.AddPanel(KMPanel_Main,0,428,196,28);
+    KMButton_Village[1] := MyControls.AddButton(KMPanel_Village,   8, 4, 36, 24, 454);
+    KMButton_Village[2] := MyControls.AddButton(KMPanel_Village,  48, 4, 36, 24, 141);
+    KMButton_Village[3] := MyControls.AddButton(KMPanel_Village,  88, 4, 36, 24, 327);
+    KMButton_Village[4] := MyControls.AddButton(KMPanel_Village, 128, 4, 36, 24, 385);
+    KMButton_Village[4].Disable;
+    for i:=1 to 4 do KMButton_Village[i].OnClick := SwitchPage;
 
-    for i:=1 to HOUSE_COUNT do
-      if GUIHouseOrder[i] <> ht_None then begin
-        KMButton_Build[i]:=MyControls.AddButtonFlat(KMPanel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,GUIBuildIcons[byte(GUIHouseOrder[i])]);
-        KMButton_Build[i].OnClick:=Build_ButtonClick;
-        KMButton_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
-      end;
+    KMPanel_Build:=MyControls.AddPanel(KMPanel_Village,0,28,196,400);
+      KMLabel_Build:=MyControls.AddLabel(KMPanel_Build,100,10,100,30,'',fnt_Outline,kaCenter);
+      KMImage_Build_Selected:=MyControls.AddImage(KMPanel_Build,8,40,32,32,335);
+      KMButton_BuildRoad   := MyControls.AddButtonFlat(KMPanel_Build,  8,80,33,33,335);
+      KMButton_BuildField  := MyControls.AddButtonFlat(KMPanel_Build, 45,80,33,33,337);
+      KMButton_BuildWine   := MyControls.AddButtonFlat(KMPanel_Build, 82,80,33,33,336);
+      KMButton_BuildWall   := MyControls.AddButtonFlat(KMPanel_Build,119,80,33,33,339);
+      KMButton_BuildCancel := MyControls.AddButtonFlat(KMPanel_Build,156,80,33,33,340);
+      KMButton_BuildRoad.OnClick  := Build_ButtonClick;
+      KMButton_BuildField.OnClick := Build_ButtonClick;
+      KMButton_BuildWine.OnClick  := Build_ButtonClick;
+      KMButton_BuildWall.OnClick  := Build_ButtonClick;
+      KMButton_BuildCancel.OnClick:= Build_ButtonClick;
+      KMButton_BuildRoad.Hint     := fTextLibrary.GetTextString(213);
+      KMButton_BuildField.Hint    := fTextLibrary.GetTextString(215);
+      KMButton_BuildWine.Hint     := fTextLibrary.GetTextString(219);
+      KMButton_BuildWall.Hint     := 'Build a wall';
+      KMButton_BuildCancel.Hint   := fTextLibrary.GetTextString(211);
+
+      for i:=1 to HOUSE_COUNT do
+        if GUIHouseOrder[i] <> ht_None then begin
+          KMButton_Build[i]:=MyControls.AddButtonFlat(KMPanel_Build, 8+((i-1) mod 5)*37,120+((i-1) div 5)*37,33,33,GUIBuildIcons[byte(GUIHouseOrder[i])]);
+          KMButton_Build[i].OnClick:=Build_ButtonClick;
+          KMButton_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
+        end;
+
+    KMPanel_Units:=MyControls.AddPanel(KMPanel_Village,0,28,196,400);
+    KMPanel_Script:=MyControls.AddPanel(KMPanel_Village,0,28,196,400);
 end;
 
 
@@ -619,7 +686,6 @@ end;
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMMapEditorInterface.UpdateState;
-var i:integer;
 begin
   if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse);
@@ -629,14 +695,6 @@ begin
 
   Minimap_Update(nil);
 
-  for i:=low(KMImage_Message) to high(KMImage_Message) do
-    if Assigned(KMImage_Message[i]) then
-    begin
-      if KMImage_Message[i].Top < 768-48 then //Add stacking here
-        KMImage_Message[i].Top:= KMImage_Message[i].Top + 24;
-    end;
-
-  if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
   if KMPanel_Menu.Visible then Menu_Fill(nil);
 end;
@@ -833,20 +891,6 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.Build_Fill(Sender:TObject);
-var i:integer;
-begin
-  for i:=1 to HOUSE_COUNT do
-  if GUIHouseOrder[i] <> ht_None then
-  begin
-    KMButton_Build[i].Enable;
-    KMButton_Build[i].TexID:=GUIBuildIcons[byte(GUIHouseOrder[i])];
-    KMButton_Build[i].OnClick:=Build_ButtonClick;
-    KMButton_Build[i].Hint:=TypeToString(THouseType(byte(GUIHouseOrder[i])));
-  end;
-end;
-
-
 {Virtually press BuildRoad button when changing page to BuildingPage or after house plan is placed}
 procedure TKMMapEditorInterface.Build_SelectRoad;
 begin
@@ -857,21 +901,7 @@ end;
 procedure TKMMapEditorInterface.Build_RightClickCancel;
 begin
   //This function will be called if the user right clicks on the screen. We should close the build menu if it's open.
-  if KMPanel_Build.Visible = true then
-    SwitchPage(KMButtonMain[5]);
-end;
-
-
-procedure TKMMapEditorInterface.IssueMessage(MsgTyp:TKMMessageType; Text:string);
-var i:integer;
-begin
-  for i:=low(KMImage_Message) to high(KMImage_Message) do
-    if not Assigned(KMImage_Message[i]) then
-    begin
-      KMImage_Message[i]:=MyControls.AddImage(KMPanel_Main,ToolBarWidth,0,30,48,word(MsgTyp));
-      break;
-    end;
-  fSoundLib.Play(sfx_MessageNotice); //Play horn sound on new message
+  //@Lewin: what should we do on right-click?
 end;
 
 
@@ -944,16 +974,11 @@ end;
 
 procedure TKMMapEditorInterface.ShortcutPress(Key:Word; IsDown:boolean=false);
 begin
-  //1-4 game menu shortcuts
-  if Key in [49..52] then
+  //1-5 game menu shortcuts
+  if Key in [49..53] then
   begin
-    KMButtonMain[Key-48].Down := IsDown;
-    if (not IsDown) and (not KMButtonMain[5].Visible) then SwitchPage(KMButtonMain[Key-48]);
-  end;
-  if Key=VK_ESCAPE then
-  begin
-    KMButtonMain[5].Down := IsDown;
-    if (not IsDown) and (KMButtonMain[5].Visible) then SwitchPage(KMButtonMain[5]);
+    KMButton_Main[Key-48].Down := IsDown;
+    if not IsDown then SwitchPage(KMButton_Main[Key-48]);
   end;
 end;
 

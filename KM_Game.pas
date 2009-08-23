@@ -162,9 +162,9 @@ begin
       Form1.TB_Angle_Change(Form1.TB_Angle);
     end;
     if (Key = VK_F8) and (GameState = gsRunning) then begin
-      GameSpeed:=11-GameSpeed; //1 or 11
-      if not (GameSpeed in [1,10]) then GameSpeed:=1; //Reset just in case
-      fGameplayInterface.ShowClock((GameSpeed=10)or (GameState = gsPaused));
+      GameSpeed:=SPEEDUP_MULTIPLIER+1-GameSpeed; //1 or 11
+      if not (GameSpeed in [1,SPEEDUP_MULTIPLIER]) then GameSpeed:=1; //Reset just in case
+      fGameplayInterface.ShowClock(GameSpeed = SPEEDUP_MULTIPLIER);
     end;
     if (Key=ord('P')) and (GameState in [gsPaused, gsRunning]) then begin
       if GameState = gsRunning then
