@@ -1,12 +1,12 @@
 unit KM_Unit1;
 interface
 uses
-  Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl, ExtCtrls, ComCtrls,
-  Menus, Buttons, Math, SysUtils, KromUtils, OpenGL, dglOpenGL, MMSystem, Messages,
-  KM_Render, KM_RenderUI, KM_ResourceGFX, KM_Defaults,
-  KM_Form_Loading, KM_Terrain, KM_Game,
-  KM_Units, KM_Houses, KM_Viewport, KM_PlayersCollection, ColorPicker, KM_LoadLib, KM_SoundFX, KM_LoadDAT,
-  MPlayer, KM_Utils;
+  Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl,
+  ExtCtrls, ComCtrls, Menus, Buttons, Messages,
+  Math, SysUtils, KromUtils, OpenGL, dglOpenGL, MMSystem,
+  KM_Render, KM_RenderUI, KM_ResourceGFX, KM_Defaults, KM_Form_Loading, KM_Terrain,
+  KM_Game, KM_Units, KM_Houses, KM_Viewport, KM_PlayersCollection, ColorPicker,
+  KM_LoadLib, KM_SoundFX, KM_LoadDAT, MPlayer, KM_Utils;
 
 type
   TForm1 = class(TForm)
@@ -671,11 +671,11 @@ begin
     Form1.Refresh;
     Form1.WindowState:=wsNormal;
     Form1.BorderStyle:=bsSizeable;
-    Form1.ClientWidth:=1024;
-    Form1.ClientHeight:=768;
+    Form1.ClientWidth:=MENU_DESIGN_X;
+    Form1.ClientHeight:=MENU_DESIGN_Y;
     Form1.Refresh;
-    Form1.Left:=max((Screen.Width-1024)div 2,0);
-    Form1.Top:=max((Screen.Height-768)div 2,0); //Center on screen and make sure titlebar is visible
+    Form1.Left:=max((Screen.Width-MENU_DESIGN_X)div 2,0);
+    Form1.Top:=max((Screen.Height-MENU_DESIGN_Y)div 2,0); //Center on screen and make sure titlebar is visible
   end;
 
   Panel5.Top:=0;

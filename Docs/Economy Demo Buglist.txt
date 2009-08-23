@@ -30,6 +30,7 @@ Gameplay bugs:
 ?	Greyish block around mouse cursor
 ?	Vertical winefield borders have no edges
 	Killing a worker while it goes to build a road will cancel the markup and road plan
+	Destroying a house with running deliveries causes UnitSerfHasNoAction errors
 	Viewport scrolling should be smooth
 	Woodcutter should drop the task if tree is already taken by other woodcutter
 	Units get stuck on unwalkable tiles

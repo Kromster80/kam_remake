@@ -109,13 +109,8 @@ end;
 
 
 function TKMPlayerAssets.AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
-var xo{,i,k}:integer;
+var xo:integer;
 begin
-  {//First flatten the terrain at the location of the house
-  for i:=4 downto 1 do for k:=4 downto 1 do
-    if HousePlanYX[byte(aHouseType),i,k]<>0 then
-      fTerrain.FlattenTerrain(KMPoint(Position.X+k-3,Position.Y+i-4));}
-
   xo:=HouseDAT[byte(aHouseType)].EntranceOffsetX;
   Result:=fHouses.AddHouse(aHouseType, Position.X-xo, Position.Y, PlayerID);
 end;

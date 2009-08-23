@@ -7,7 +7,7 @@ type
   TUnitActionWalkTo = class(TUnitAction)
     private
       fWalker:TKMUnit;
-      fWalkFrom,fWalkTo,fAvoid:TKMPoint;
+      fWalkFrom, fWalkTo, fAvoid:TKMPoint;
       fWalkToSpot:boolean;
       fPass:TPassability; //Desired passability set once on Create
       DoesWalking:boolean;
@@ -117,7 +117,7 @@ end;
 
 function TUnitActionWalkTo.DoUnitInteraction():boolean;
 var
-  fOpponent:TKMUnit; T:TKMPoint;
+  fOpponent:TKMUnit; //T:TKMPoint;
 begin
   Result:=true; //false = interaction yet unsolved, stay and wait
   if not DO_UNIT_INTERACTION then exit;

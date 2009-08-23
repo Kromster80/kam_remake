@@ -143,11 +143,12 @@ begin
 
   if Result <> TRUE then exit;
 
+  OutputStream := nil;
   ZLibCompressed := TGAHeader.FileType=120;
 
   //TGA is compressed by ZLibEx, thats only KaM Remake custom option
   if ZLibCompressed{TGAHeader.FileType=120} then
-  begin                  
+  begin
     CloseFile(TGAFile);
     InputStream := TFileStream.Create(FileName, fmOpenRead);
     OutputStream := TMemoryStream.Create;

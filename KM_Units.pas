@@ -197,7 +197,7 @@ type
       procedure Execute(out TaskDone:boolean); override;
     end;
 
-  TKMUnit = class(TObject)
+  TKMUnit = class(TObject) //todo: actions should return enum result
   private
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
@@ -487,8 +487,8 @@ begin
   if not WorkPlan.IsIssued then exit;
   if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
   if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
-  if fHome.CheckResOut(WorkPlan.Product1)>=MaxResInHouse then exit;
-  if fHome.CheckResOut(WorkPlan.Product2)>=MaxResInHouse then exit;
+  if fHome.CheckResOut(WorkPlan.Product1)>=MAX_RES_IN_HOUSE then exit;
+  if fHome.CheckResOut(WorkPlan.Product2)>=MAX_RES_IN_HOUSE then exit;
 
   if HousePlaceOrders[byte(fHome.GetHouseType)] then
     fHome.ResRemOrder(Res);

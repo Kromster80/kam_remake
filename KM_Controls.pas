@@ -4,18 +4,21 @@ uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, Sy
 
 type TPivotLocation = (pl_Min, pl_Avg, pl_Max);
 
-type TNotifyEvent = procedure(Sender: TObject) of object;
-
 {Base class for all TKM elements}
 type
 TKMControl = class(TObject)
+  private
+    fLeft: Integer;
+    fTop: Integer;
+    fWidth: Integer;
+    fHeight: Integer;
+    Scale: Single;
+    function GetHeight: Integer;
+    function GetLeft: Integer;
+    function GetTop: Integer;
+    function GetWidth: Integer;
   public
     Parent: TKMControl;
-
-    Left: Integer;
-    Top: Integer;
-    Width: Integer;
-    Height: Integer;
 
     Enabled: boolean;
     Visible: boolean;
@@ -42,11 +45,17 @@ TKMControl = class(TObject)
     procedure Show;
     procedure Hide;
     function IsVisible():boolean;
+    function HitTest(X, Y: Integer): Boolean;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
     property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
     property OnHint: TMouseMoveEvent read FOnHint write FOnHint;
+
+    property Left: Integer read GetLeft write fLeft;
+    property Top: Integer read GetTop write fTop;
+    property Width: Integer read GetWidth write fWidth;
+    property Height: Integer read GetHeight write fHeight;
 end;
 
 
@@ -57,6 +66,7 @@ TKMPanel = class(TKMControl)
     Childs: array of TKMControl; //No other elements needs to be parented
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
 
@@ -277,6 +287,7 @@ TKMControlsCollection = class(TKMList)
     procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp         (X,Y:integer; AButton:TMouseButton);
+    //property Items[Index: Integer]: TKMControl read GetItem write Put; default; //todo: add list of TKMControls in here
     procedure Paint();
 end;
 
@@ -295,6 +306,7 @@ begin
   Visible:=true;
   Tag:=0;
   Hint:='';
+  Scale := 1;
 end;
 
 {Parentize control to another control}
@@ -318,18 +330,10 @@ end;
 
 
 procedure TKMControl.CheckCursorOver(X,Y:integer; AShift:TShiftState);
-var i:integer;
 begin
   CursorOver:=InRange(X,Left,Left+Width) and InRange(Y,Top,Top+Height);
-
   if (CursorOver)and(Assigned(Self.OnMouseOver)) then
     Self.OnMouseOver(Self,AShift,X,Y);
-
-  if Self is TKMPanel then //Only Panels have childs
-  for i:=1 to TKMPanel(Self).ChildCount do
-    if TKMPanel(Self).Childs[i].Visible then
-    if TKMPanel(Self).Childs[i].Enabled then
-       TKMPanel(Self).Childs[i].CheckCursorOver(X,Y,AShift);
 end;
 
 
@@ -348,11 +352,16 @@ begin
 end;
 
 
+function TKMControl.HitTest(X, Y: Integer): Boolean;
+begin
+  Result:= InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height) and IsVisible;
+end;
+
 {One common thing - draw childs for self}
 procedure TKMControl.Paint();
 var i:integer;
 begin
-  if Self is TKMPanel then //Only Panels have childs
+  if Self is TKMPanel then //Only Panels have childs    //todo: move to TKMPanel!
   for i:=1 to TKMPanel(Self).ChildCount do
     if TKMPanel(Self).Childs[i].Visible then
     begin
@@ -364,6 +373,27 @@ end;
 
 {Shortcuts to Controls properties}
 procedure TKMControl.Enable;  begin Enabled:=true;  end;
+
+function TKMControl.GetHeight: Integer;
+begin
+  Result := Round(fHeight * Scale);
+end;
+
+function TKMControl.GetLeft: Integer;
+begin
+  Result := Round(fLeft * Scale);
+end;
+
+function TKMControl.GetTop: Integer;
+begin
+  Result := Round(fTop * Scale);
+end;
+
+function TKMControl.GetWidth: Integer;
+begin
+  Result := Round(fWidth * Scale);
+end;
+
 procedure TKMControl.Disable; begin Enabled:=false; end;
 procedure TKMControl.Show;    begin Visible:=true;  end;
 procedure TKMControl.Hide;    begin Visible:=false; end;
@@ -383,6 +413,16 @@ end;
 
 
 { TKMPanel } //virtual panels to contain child items
+procedure TKMPanel.CheckCursorOver(X, Y: integer; AShift: TShiftState);
+var
+  I: Integer;
+begin
+  inherited;
+  for i:=1 to ChildCount do
+    if Childs[i].Visible and Childs[i].Enabled then
+       Childs[i].CheckCursorOver(X,Y,AShift);
+end;
+
 constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
@@ -489,11 +529,13 @@ begin
     pl_Min: OffsetX:=0;
     pl_Avg: OffsetX:=Width div 2;
     pl_Max: OffsetX:=Width;
+    else    OffsetX:=0;
   end;
   case PivotY of
     pl_Min: OffsetY:=0;
     pl_Avg: OffsetY:=Height div 2;
     pl_Max: OffsetY:=Height;
+    else    OffsetY:=0;
   end; 
   if TexID=0 then exit;
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left-OffsetX, Top-OffsetY, Width, Height, $4000FF00);
@@ -1050,9 +1092,7 @@ procedure TKMControlsCollection.OnMouseDown(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   for i:=0 to Count-1 do
-    if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
-       InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
-      if TKMControl(Items[I]).IsVisible then
+    if TKMControl(Items[I]).HitTest(X, Y) then
       if TKMControl(Items[I]).Enabled then
       if TKMControl(Items[i]).ClassType=TKMButton then
       TKMButton(Items[I]).Down:=true;
@@ -1063,11 +1103,9 @@ procedure TKMControlsCollection.OnMouseUp(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   for i:=0 to Count-1 do
-    if InRange(X,TKMControl(Items[I]).Left,TKMControl(Items[I]).Left+TKMControl(Items[I]).Width)and
-       InRange(Y,TKMControl(Items[I]).Top,TKMControl(Items[I]).Top+TKMControl(Items[I]).Height) then
-      if TKMControl(Items[I]).IsVisible then
+    if TKMControl(Items[I]).HitTest(X, Y) then
       if TKMControl(Items[I]).Enabled then begin
-        if TKMControl(Items[i]).ClassType=TKMButton then
+        if TKMControl(Items[i]).ClassType=TKMButton then //todo: Classtype is WRONG!
           TKMButton(Items[I]).Down:=false;
         if AButton = mbLeft then begin
           if Assigned(TKMControl(Items[I]).OnClick) then begin

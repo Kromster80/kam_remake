@@ -47,7 +47,7 @@ var
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
   MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes    :boolean=true; //Draw unit routes when they are chosen
-  MakeShowUnitMove      :boolean=true; //Draw unit movement overlay
+  MakeShowUnitMove      :boolean=true; //Draw unit movement overlay, Only if unit interaction enabled
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (very time consuming)
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
@@ -61,20 +61,26 @@ var
 
 const
   MaxHouses=255;        //Maximum houses one player can own
-  MaxResInHouse=5;      //Maximum resource items allowed to be in house
+  MAX_RES_IN_HOUSE=5;      //Maximum resource items allowed to be in house
   MAX_ORDER=999;        //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512;       //Maximum texture resolution client can handle (used for packing sprites)
 
-const   HOUSE_COUNT = 29;       //Number of KaM houses is 29
-        MAX_PLAYERS = 8;        //Maximum players per map
-        SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
+const
+  HOUSE_COUNT = 29;       //Number of KaM houses is 29
+  MAX_PLAYERS = 8;        //Maximum players per map
+  SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
 
-        //Here we store options that are hidden somewhere in code
-        MAX_WARFARE_IN_BARRACKS = 20;
-        GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
-        FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
-        UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
-        UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
+  //Here we store options that are hidden somewhere in code
+  MAX_WARFARE_IN_BARRACKS = 20;
+  GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
+  FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
+  UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
+  UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
+
+  //Unit mining ranges. (measured from KaM)
+  RANGE_WOODCUTTER  = 10;
+  RANGE_FARMER      = 8;
+  RANGE_STONECUTTER = 14;
 
 type
   TRenderMode = (rm2D, rm3D);
@@ -82,10 +88,11 @@ type
 {Cursors}
 type
   TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses);
-  
+
 const
   SETTINGS_FILE = 'KaM_Remake_Settings.ini';
 
+  //Cursor names and GUI sprite index
   c_Default=1; c_Info=452;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
   c_Scroll0=4; c_Scroll1=7; c_Scroll2=3; c_Scroll3=9; c_Scroll4=5; c_Scroll5=8; c_Scroll6=2; c_Scroll7=6;
@@ -188,7 +195,7 @@ const //Using shortints make it look much more compact in code-view
   1,1,1,1,0, //@Lewin:
   1,0,0,0,1, //I forgot how Win pattern should look like, was it a letter 'P' ?
   1,0,0,0,1, //We can add more cheats if we like later on..
-  1,1,1,1,0, 
+  1,1,1,1,0,
   1,0,0,0,0,
   0,0,0);
 
@@ -201,7 +208,7 @@ const //Using shortints make it look much more compact in code-view
   0,1,0,1,0,
   0,0,0);
 
-const
+const {Aligned to right to use them in GUI costs display as well}
   WarfareCosts:array[17..26,1..2]of TResourceType = (
     (rt_None,rt_Wood),    //rt_Shield
     (rt_Coal,rt_Steel),   //rt_MetalShield
@@ -300,11 +307,6 @@ const {Actions names}
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Spec, ua_Die, ua_Eat] //Recruit
     );
-
-  //Unit mining ranges. (measured from KaM)
-  RANGE_WOODCUTTER  = 10;
-  RANGE_FARMER      = 8;
-  RANGE_STONECUTTER = 14;
 
 type
   TGatheringScript = (

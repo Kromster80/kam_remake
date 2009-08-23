@@ -574,66 +574,67 @@ end;
 
 {Statistics page}
 procedure TKMGamePlayInterface.Create_Stats_Page;
-const IncY=34; Nil_Width=10; House_Width=30; Unit_Width=26;
+const LineHeight=34; Nil_Width=10; House_Width=30; Unit_Width=26;
 var i,k:integer; hc,uc,off:integer;
+  LineBase:integer;
 begin
   KMPanel_Stats:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
 
   hc:=1; uc:=1;
   for i:=1 to 8 do begin
-    off:=8;
-    case i of //This should be simplified, compacted and automated
+    LineBase := (i-1)*LineHeight;
+    case i of //todo: This should be simplified, compacted and automated
     1: begin
-          MyControls.AddBevel(KMPanel_Stats,  8,(i-1)*IncY,56,30);
-          MyControls.AddBevel(KMPanel_Stats, 71,(i-1)*IncY,56,30);
-          MyControls.AddBevel(KMPanel_Stats,134,(i-1)*IncY,56,30);
+          MyControls.AddBevel(KMPanel_Stats,  8,LineBase,56,30);
+          MyControls.AddBevel(KMPanel_Stats, 71,LineBase,56,30);
+          MyControls.AddBevel(KMPanel_Stats,134,LineBase,56,30);
        end;
     2: begin
-          MyControls.AddBevel(KMPanel_Stats,  8,(i-1)*IncY,86,30);
-          MyControls.AddBevel(KMPanel_Stats,104,(i-1)*IncY,86,30);
+          MyControls.AddBevel(KMPanel_Stats,  8,LineBase,86,30);
+          MyControls.AddBevel(KMPanel_Stats,104,LineBase,86,30);
        end;
     3: begin
-          MyControls.AddBevel(KMPanel_Stats,  8,(i-1)*IncY,86,30);
-          MyControls.AddBevel(KMPanel_Stats,104,(i-1)*IncY,86,30);
+          MyControls.AddBevel(KMPanel_Stats,  8,LineBase,86,30);
+          MyControls.AddBevel(KMPanel_Stats,104,LineBase,86,30);
        end;
     4: begin
-          MyControls.AddBevel(KMPanel_Stats,  8,(i-1)*IncY,86,30);
-          MyControls.AddBevel(KMPanel_Stats,104,(i-1)*IncY,86,30);
+          MyControls.AddBevel(KMPanel_Stats,  8,LineBase,86,30);
+          MyControls.AddBevel(KMPanel_Stats,104,LineBase,86,30);
        end;
-    5:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,116,30);
-    6:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,146,30);
-    7:    MyControls.AddBevel(KMPanel_Stats,8,(i-1)*IncY,86,30);
+    5:    MyControls.AddBevel(KMPanel_Stats,8,LineBase,116,30);
+    6:    MyControls.AddBevel(KMPanel_Stats,8,LineBase,146,30);
+    7:    MyControls.AddBevel(KMPanel_Stats,8,LineBase,86,30);
     8: begin
-          MyControls.AddBevel(KMPanel_Stats,  8,(i-1)*IncY,120,30);
-          MyControls.AddBevel(KMPanel_Stats,138,(i-1)*IncY,52,30);
+          MyControls.AddBevel(KMPanel_Stats,  8,LineBase,120,30);
+          MyControls.AddBevel(KMPanel_Stats,138,LineBase,52,30);
        end;
     end;
 
+    off:=8;
     for k:=1 to 8 do
-    if StatCount[i,k]=0 then begin
-      if i=1 then
-        inc(off,Nil_Width-3)
-      else
-        inc(off,Nil_Width);
-    end else
-    if StatCount[i,k]=1 then begin
-      Stat_HousePic[hc]:=MyControls.AddImage(KMPanel_Stats,off,(i-1)*IncY,House_Width,30,41{byte(StatHouse[hc])+300});
-      Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
-      Stat_HouseQty[hc]:=MyControls.AddLabel(KMPanel_Stats,off+House_Width-2,(i-1)*IncY+16,37,30,'-',fnt_Grey,kaRight);
-      Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
-      inc(hc);
-      inc(off,House_Width);
-    end else
-    if StatCount[i,k]=2 then begin
-      Stat_UnitPic[uc]:=MyControls.AddImage(KMPanel_Stats,off,(i-1)*IncY,Unit_Width,30,byte(StatUnit[uc])+140);
-      Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
-      Stat_UnitQty[uc]:=MyControls.AddLabel(KMPanel_Stats,off+Unit_Width-2,(i-1)*IncY+16,33,30,'-',fnt_Grey,kaRight);
-      Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
-      inc(uc);
-      inc(off,Unit_Width);
+    case StatCount[i,k] of
+      0: if i=1 then
+           inc(off,Nil_Width-3) //Special fix to fit first row of 3x2 items
+         else
+           inc(off,Nil_Width);
+      1: begin
+        Stat_HousePic[hc]:=MyControls.AddImage(KMPanel_Stats,off,LineBase,House_Width,30,41{byte(StatHouse[hc])+300});
+        Stat_HouseQty[hc]:=MyControls.AddLabel(KMPanel_Stats,off+House_Width-2,LineBase+16,37,30,'-',fnt_Grey,kaRight);
+        Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
+        Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
+        inc(hc);
+        inc(off,House_Width);
+         end;
+      2: begin
+        Stat_UnitPic[uc]:=MyControls.AddImage(KMPanel_Stats,off,LineBase,Unit_Width,30,byte(StatUnit[uc])+140);
+        Stat_UnitQty[uc]:=MyControls.AddLabel(KMPanel_Stats,off+Unit_Width-2,LineBase+16,33,30,'-',fnt_Grey,kaRight);
+        Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
+        Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
+        inc(uc);
+        inc(off,Unit_Width);
+         end;
     end;
   end;
-
 end;
 
 
