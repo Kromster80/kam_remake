@@ -110,7 +110,7 @@ TKMImage = class(TKMControl)
     RXid: integer; //RX library
     TexID: integer;
     StretchImage: boolean;
-    PivotX: TPivotLocation;
+    PivotX: TPivotLocation; //todo: Replace pivots with Anchors L.T.R.B.
     PivotY: TPivotLocation;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);

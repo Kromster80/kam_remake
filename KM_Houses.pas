@@ -63,7 +63,7 @@ type
     procedure CloseHouse; virtual;
 
     procedure Activate(aWasBuilt:boolean);
-    procedure DemolishHouse(DoSilent:boolean; IsEditor:boolean=false);
+    procedure DemolishHouse(DoSilent:boolean; IsEditor:boolean=false); //@Lewin: Please use self-descripting name instead of IsEditor (maybe NoRubble)
 
     property GetPosition:TKMPoint read fPosition;
     function GetEntrance:TKMPoint;

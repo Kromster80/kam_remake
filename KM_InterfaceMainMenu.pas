@@ -236,7 +236,7 @@ begin
       KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,400,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       KMButton_MainMenuTutor.OnClick    :=MainMenu_PlayTutorial;
       KMButton_MainMenuSingle.OnClick   :=SwitchMenuPage;
-      KMButton_MainMenuMapEd.OnClick    :=MainMenu_MapEditor; //@All: We might add new map setup page later on //@Lewin: We'll @All to make memos and notes, ok?
+      KMButton_MainMenuMapEd.OnClick    :=MainMenu_MapEditor; //todo: We might add new map setup page later on
       KMButton_MainMenuOptions.OnClick  :=SwitchMenuPage;
       KMButton_MainMenuCredit.OnClick   :=SwitchMenuPage;
       KMButton_MainMenuQuit.OnClick     :=Form1.Exit1.OnClick;

@@ -335,7 +335,7 @@ end;
 
 procedure TKMMapEditorInterface.SetScreenSize(X,Y:word);
 begin
-  //@All: Update Hint position and etc..
+  //todo: Update Hint position and etc..
 end;
 
 

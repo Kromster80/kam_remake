@@ -540,7 +540,7 @@ begin
     fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
     MyPlayer:=fPlayers.Player[1];
   end;
-  fTerrain.RevealWholeMap(play_1); //@All: Should be all players?
+  fTerrain.RevealWholeMap(play_1); //@Lewin: Should be all players?
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized',true);
