@@ -1278,9 +1278,11 @@ TaskDone:=false;
 
 with fUnit do
 case fPhase of
-0: begin
-    if not fFrom.IsDestroyed then
-      SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance));
+0: if not fFrom.IsDestroyed then
+      SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
+   else begin
+     Abandon;
+     TaskDone:=true;
    end;
 1: if not fFrom.IsDestroyed then
      SetActionGoIn(ua_Walk,gd_GoInside,fFrom.GetHouseType)
@@ -1313,7 +1315,13 @@ if DeliverKind = dk_House then
   with fUnit do
   case fPhase of
   0..4:;
-  5: SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance));
+  5: if not fToHouse.IsDestroyed then
+       SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance))
+     else begin
+       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+       Abandon;
+       TaskDone:=true;
+     end;
   6: if not fToHouse.IsDestroyed then
        SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
      else begin

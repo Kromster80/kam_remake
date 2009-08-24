@@ -133,6 +133,7 @@ begin
     Loc_House:=aHouse;
     Resource:=aResource;
     Count:=aCount;
+    BeingPerformed:=0; //New unique offer is available to be performed apriori
   end;
 end;
 
@@ -391,13 +392,13 @@ for i:=1 to length(fOffer) do if fOffer[i].Resource<>rt_None then begin
   Result:=Result+IntToStr(fOffer[i].Count);
   Result:=Result+eol;
 end;
-Result:=Result+eol+'Deliveries:'+eol+'---------------------------------'+eol;
-{for i:=1 to length(fQueue) do if fQueue[i].Resource<>rt_None then begin
-  //Result:=Result+TypeToString(fOffer[i].Resource);
-  //if fQueue[i].Loc_House<>nil then Result:=Result+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9;
-  Result:=Result+TypeToString(fQueue[i].Resource);
+Result:=Result+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
+for i:=1 to length(fQueue) do if fQueue[i].OfferID<>0 then begin
+  Result:=Result+TypeToString(fOffer[fQueue[i].OfferID].Resource)+#9;
+  Result:=Result+TypeToString(fOffer[fQueue[i].OfferID].Loc_House.GetHouseType)+' >>> ';
+  Result:=Result+TypeToString(fOffer[fQueue[i].DemandID].Loc_House.GetHouseType)+#9;
   Result:=Result+eol;
-end;}
+end;
 end;
 
 
