@@ -15,6 +15,8 @@ type
     fMusicOnOff:boolean;
     fFullScreen:boolean;
     fLocale:shortstring;
+    fPace:word;
+    fSpeedup:word;
     fResolutionID:word; //Relates to index in SupportedResolution
     SlidersMin,SlidersMax:byte;
     fNeedsSave: boolean;
@@ -29,6 +31,8 @@ type
     property SetLocale:shortstring write fLocale;
     property GetResolutionID:word read fResolutionID;
     property SetResolutionID:word write fResolutionID;
+    property GetPace:word read fPace;
+    property GetSpeedup:word read fSpeedup;
     procedure IncBrightness;
     procedure DecBrightness;
     procedure SetIsAutosave(val:boolean);
@@ -134,6 +138,8 @@ begin
   fFastScroll    := f.ReadBool   ('Game','FastScroll',false);
   fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
   fLocale        := f.ReadString ('Game','Locale','eng');
+  fPace          := f.ReadInteger('Game','GamePace',100);
+  fSpeedup       := f.ReadInteger('Game','Speedup',10);
 
   fSoundFXVolume := f.ReadInteger('SFX','SFXVolume',10);
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
@@ -157,6 +163,8 @@ begin
   f.WriteBool   ('Game','FastScroll', fFastScroll);
   f.WriteInteger('Game','MouseSpeed', fMouseSpeed);
   f.WriteString ('Game','Locale',     fLocale);
+  f.WriteInteger('Game','GamePace',   fPace);
+  f.WriteInteger('Game','Speedup',    fSpeedup);
 
   f.WriteInteger('SFX','SFXVolume',   fSoundFXVolume);
   f.WriteInteger('SFX','MusicVolume', fMusicVolume);

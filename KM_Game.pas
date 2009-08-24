@@ -162,9 +162,9 @@ begin
       Form1.TB_Angle_Change(Form1.TB_Angle);
     end;
     if (Key = VK_F8) and (GameState = gsRunning) then begin
-      GameSpeed:=SPEEDUP_MULTIPLIER+1-GameSpeed; //1 or 11
-      if not (GameSpeed in [1,SPEEDUP_MULTIPLIER]) then GameSpeed:=1; //Reset just in case
-      fGameplayInterface.ShowClock(GameSpeed = SPEEDUP_MULTIPLIER);
+      GameSpeed:=fGameSettings.GetSpeedup+1-GameSpeed; //1 or 11
+      if not (GameSpeed in [1,fGameSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
+      fGameplayInterface.ShowClock(GameSpeed = fGameSettings.GetSpeedup);
     end;
     if (Key=ord('P')) and (GameState in [gsPaused, gsRunning]) then begin
       if GameState = gsRunning then
@@ -557,7 +557,8 @@ end;
 
 function TKMGame.GetMissionTime:cardinal;
 begin
-  Result := MyPlayer.fMissionSettings.GetMissionTime + (GameplayTickCount div (1000 div GAME_LOGIC_PACE));
+  //Treat 10 ticks as 1 sec irregardless of user-set pace
+  Result := MyPlayer.fMissionSettings.GetMissionTime + (GameplayTickCount div 10);
 end;
 
 

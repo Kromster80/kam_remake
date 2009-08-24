@@ -10,11 +10,9 @@ const
   ToolBarWidth          = 224;          //Toolbar width in game
   Overlap               = 0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   DEF_PAL               = 2;            //Default palette to use when generating full-color RGB textures
-  GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
-  //todo: read from INI
-  TERRAIN_PACE          = 1000;         //Terrain gets updated once each 1000ms
-  SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
-  //todo: read from INI
+  //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
+  TERRAIN_PACE          = 10;         //Terrain gets updated once per 10 ticks
+  //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
   FOG_OF_WAR_MIN        = 8;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   FOG_OF_WAR_ACT        = 16;           //Until this value FOW is not rendered at all
   FOG_OF_WAR_MAX        = 24;           //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
@@ -30,17 +28,18 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
-  DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
+  MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game
 
   //These should be ... enabled sometime
+  MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
+  DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
 
   //These should be FALSE
@@ -49,12 +48,11 @@ var
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
   MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
-  MakeShowUnitRoutes    :boolean=true; //Draw unit routes when they are chosen
-  MakeShowUnitMove      :boolean=true; //Draw unit movement overlay, Only if unit interaction enabled
+  MakeShowUnitRoutes    :boolean=false; //Draw unit routes when they are chosen
+  MakeShowUnitMove      :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (very time consuming)
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
-  MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   RENDER_3D             :boolean=false; //Experimental 3D render
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap

@@ -183,7 +183,7 @@ begin
     Application.MessageBox(@('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
         'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
 
-  Timer100ms.Interval := GAME_LOGIC_PACE; //FormLoading gets hidden OnTimer event
+  Timer100ms.Interval := fGameSettings.GetPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
 

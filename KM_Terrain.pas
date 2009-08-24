@@ -163,7 +163,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding, KM_Settings;
 
 constructor TTerrain.Create;
 begin
@@ -1583,7 +1583,7 @@ begin
   for i:=1 to MapY do
   for k:=1 to MapX do
   //All those global things can be performed once a sec, or even less frequent
-  if (i*MapX+k+AnimStep) mod (TERRAIN_PACE div GAME_LOGIC_PACE) = 0 then
+  if (i*MapX+k+AnimStep) mod TERRAIN_PACE = 0 then
   begin
 
     if FOG_OF_WAR_ENABLE then
