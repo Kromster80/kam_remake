@@ -907,8 +907,8 @@ var i:integer;
 begin
   Inherited;
   for i:=1 to length(ResourceCount) do begin
-    ResourceCount[i]:=0;
-    NotAcceptFlag[i]:=false;
+    ResourceCount[i] := 0;
+    NotAcceptFlag[i] := false;
   end;
 end;
 
@@ -934,7 +934,7 @@ end;
 procedure TKMHouseStore.ToggleAcceptFlag(aTagID:byte);
 var i:integer; ApplyCheat:boolean;
 begin
-  if aTagID=0 then exit; //@Lewin: Dunno why thats happening sometimes..
+  if aTagID=0 then exit; //Dunno why thats happening sometimes..
 
   if CHEATS_ENABLED then begin
     ApplyCheat:=true;

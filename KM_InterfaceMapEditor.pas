@@ -99,7 +99,7 @@ type TKMMapEditorInterface = class
     procedure Menu_QuitMission(Sender:TObject);
     procedure Build_SelectRoad;
     procedure Build_RightClickCancel;
-    procedure ShortcutPress(Key:Word; IsDown:boolean=false);
+    procedure OnKeyUp(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     procedure ClearShownUnit;
     procedure UpdateState;
@@ -809,7 +809,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.ShortcutPress(Key:Word; IsDown:boolean=false);
+procedure TKMMapEditorInterface.OnKeyUp(Key:Word; IsDown:boolean=false);
 begin
   //1-5 game menu shortcuts
   if Key in [49..53] then

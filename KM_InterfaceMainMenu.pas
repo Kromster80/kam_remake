@@ -230,13 +230,13 @@ begin
       KMButton_MainMenuSingle :=MyControls.AddButton(KMPanel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
       KMButton_MainMenuLoad   :=MyControls.AddButton(KMPanel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
       KMButton_MainMenuMulti  :=MyControls.AddButton(KMPanel_MainButtons,0,200,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
-      KMButton_MainMenuMapEd  :=MyControls.AddButton(KMPanel_MainButtons,0,240,350,30,'Map Editor',fnt_Metal,bsMenu);
+//      KMButton_MainMenuMapEd  :=MyControls.AddButton(KMPanel_MainButtons,0,240,350,30,'Map Editor',fnt_Metal,bsMenu);
       KMButton_MainMenuOptions:=MyControls.AddButton(KMPanel_MainButtons,0,280,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
       KMButton_MainMenuCredit :=MyControls.AddButton(KMPanel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
       KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,400,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       KMButton_MainMenuTutor.OnClick    :=MainMenu_PlayTutorial;
       KMButton_MainMenuSingle.OnClick   :=SwitchMenuPage;
-      KMButton_MainMenuMapEd.OnClick    :=MainMenu_MapEditor; //todo: We might add new map setup page later on
+//      KMButton_MainMenuMapEd.OnClick    :=MainMenu_MapEditor; //todo: We might add new map setup page later on
       KMButton_MainMenuOptions.OnClick  :=SwitchMenuPage;
       KMButton_MainMenuCredit.OnClick   :=SwitchMenuPage;
       KMButton_MainMenuQuit.OnClick     :=Form1.Exit1.OnClick;

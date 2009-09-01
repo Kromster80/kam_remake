@@ -38,6 +38,7 @@ Gameplay bugs:
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	Remove debug info
 	Fisher
+	Two monitor config, scrolling works only on 1st display
 
 Graphics bugs:
 ?	Wrong render of houses, black tops (see GraphicFlaws folder)
@@ -49,4 +50,3 @@ Make sure these are checked:	//Assigned to Krom
 	Pack EXE file
 	Include OpenAL distributive
 	Test installer and Demo
-

@@ -131,7 +131,7 @@ begin
   f := TIniFile.Create(filename);
 
   fBrightness    := f.ReadInteger('GFX','Brightness',1);
-  fFullScreen    := f.ReadBool   ('GFX','FullScreen',true);
+  fFullScreen    := f.ReadBool   ('GFX','FullScreen',false);
   fResolutionID  := f.ReadInteger('GFX','ResolutionID',1);
 
   fAutosave      := f.ReadBool   ('Game','Autosave',false);
