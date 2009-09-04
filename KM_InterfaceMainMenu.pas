@@ -27,8 +27,8 @@ type TKMMainMenuInterface = class
     KMPanel_Single:TKMPanel;
       KMImage_SingleBG:TKMImage;
       KMPanel_SingleList,KMPanel_SingleDesc:TKMPanel;
-      KMButton_SingleHeadMode,KMButton_SingleHeadTeams,KMButton_SingleHeadTitle,KMButton_SingleHeadSize:TKMButton;
-      KMBevel_SingleBG:array[1..MENU_SP_MAPS_COUNT,1..5]of TKMBevel;
+      KMButton_SingleHeadMode,KMButton_SingleHeadTeams,KMButton_SingleHeadTitle,KMButton_SingleHeadSize,KMButton_SingleHeadNix:TKMButton;
+      KMBevel_SingleBG:array[1..MENU_SP_MAPS_COUNT,1..4]of TKMBevel;
       KMButton_SingleMode:array[1..MENU_SP_MAPS_COUNT]of TKMImage;
       KMButton_SinglePlayers,KMButton_SingleSize:array[1..MENU_SP_MAPS_COUNT]of TKMLabel;
       KMLabel_SingleTitle1,KMLabel_SingleTitle2:array[1..MENU_SP_MAPS_COUNT]of TKMLabel;
@@ -249,7 +249,7 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Single_Page;
-var i:integer;
+var i,k:integer;
 begin
   SingleMapsInfo:=TKMMapsInfo.Create;
 
@@ -264,16 +264,20 @@ begin
       KMButton_SingleHeadTeams:=MyControls.AddButton(KMPanel_SingleList, 40,0, 40,40,31,4,bsMenu);
       KMButton_SingleHeadTitle:=MyControls.AddButton(KMPanel_SingleList, 80,0,300,40,'Title',fnt_Metal,bsMenu);
       KMButton_SingleHeadSize :=MyControls.AddButton(KMPanel_SingleList,380,0, 40,40,'Size',fnt_Metal,bsMenu);
-      MyControls.AddButton(KMPanel_SingleList,420,0, 25,40,'',fnt_Game,bsMenu);
-      for i:=1 to MENU_SP_MAPS_COUNT do begin
+      KMButton_SingleHeadNix  :=MyControls.AddButton(KMPanel_SingleList,420,0, 25,40,'',fnt_Game,bsMenu);
+      KMButton_SingleHeadNix.Disable;
+      for i:=1 to MENU_SP_MAPS_COUNT do
+      begin
         KMBevel_SingleBG[i,1]:=MyControls.AddBevel(KMPanel_SingleList,0,  40+(i-1)*40,40,40);
         KMBevel_SingleBG[i,2]:=MyControls.AddBevel(KMPanel_SingleList,40, 40+(i-1)*40,40,40);
         KMBevel_SingleBG[i,3]:=MyControls.AddBevel(KMPanel_SingleList,80, 40+(i-1)*40,300,40);
         KMBevel_SingleBG[i,4]:=MyControls.AddBevel(KMPanel_SingleList,380,40+(i-1)*40,40,40);
-        KMBevel_SingleBG[i,3].Tag:=i;
-        KMBevel_SingleBG[i,3].OnClick:=SingleMap_SelectMap;
-
-        KMButton_SingleMode[i]   :=MyControls.AddImage(KMPanel_SingleList,  0   ,40+(i-1)*40,40,40,28+random(2)*14);
+        for k:=1 to length(KMBevel_SingleBG[i]) do
+        begin
+          KMBevel_SingleBG[i,k].Tag:=i;
+          KMBevel_SingleBG[i,k].OnClick:=SingleMap_SelectMap;
+        end;
+        KMButton_SingleMode[i]   :=MyControls.AddImage(KMPanel_SingleList,  0   ,40+(i-1)*40,40,40,28);
         KMButton_SinglePlayers[i]:=MyControls.AddLabel(KMPanel_SingleList, 40+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
         KMLabel_SingleTitle1[i]  :=MyControls.AddLabel(KMPanel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
         KMLabel_SingleTitle2[i]  :=MyControls.AddLabel(KMPanel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,'<<<LEER>>>',fnt_Game, kaLeft);

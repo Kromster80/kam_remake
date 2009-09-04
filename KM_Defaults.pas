@@ -189,25 +189,7 @@ const //Using shortints make it look much more compact in code-view
   1,0,0,0,1,
   1,0,0,0,1,
   1,1,1,1,1,
-  0,0,0);
-
-const //Using shortints make it look much more compact in code-view
-  CheatWinPattern:array[1..28]of shortint = (
-  1,1,1,1,0, //@Lewin:
-  1,0,0,0,1, //I forgot how Win pattern should look like, was it a letter 'P' ?
-  1,0,0,0,1, //We can add more cheats if we like later on..
-  1,1,1,1,0,
-  1,0,0,0,0,
-  0,0,0);
-
-const //Using shortints make it look much more compact in code-view
-  CheatFOWPattern:array[1..28]of shortint = (
-  1,0,0,0,1,
-  1,0,1,0,1,
-  1,0,1,0,1,
-  1,0,1,0,1,
-  0,1,0,1,0,
-  0,0,0);
+  0,0,0); 
 
 const {Aligned to right to use them in GUI costs display as well}
   WarfareCosts:array[17..26,1..2]of TResourceType = (

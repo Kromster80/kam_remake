@@ -10,6 +10,8 @@ Gameplay bugs:
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	Fisher does not work yet
+	Flags are always visible
+	Sometimes the taskbar stays on top in fullscreen mode
 
 Graphics bugs:
 	See-through hills (lighting flaw)
