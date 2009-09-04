@@ -1,3 +1,24 @@
+KaM Remake Economy Demo 090901 (r428)
+<===================================================================================>
+Known bugs:
+
+Gameplay bugs:
++	Alt-tabbing with School/Barracks selected causes a crash
+	Killing a worker while it goes to build a road will cancel the markup and road plan
+	Woodcutter should drop the task if tree is already taken by other woodcutter
+	Units get stuck on unwalkable tiles
+	MediaPlayer won't play mp3s and crash
+	Some texts don't fit in the left panel (e.g. "Preparing house area")
+	Fisher does not work yet
+
+Graphics bugs:
+	See-through hills (lighting flaw)
+	Water has dark patches
+
+Suggested improvements:
+	Viewport scrolling should be smooth
+	Two monitor config, scrolling works well only on 1st display
+
 KaM Remake Economy Demo 090728 (r363)
 <===================================================================================>
 Known bugs:
@@ -30,15 +51,6 @@ Gameplay bugs:
 ?	Destroying barracks and unfinished houses results in crash
 ?	Greyish block around mouse cursor
 ?	Vertical winefield borders have no edges
-	Killing a worker while it goes to build a road will cancel the markup and road plan
-	Viewport scrolling should be smooth
-	Woodcutter should drop the task if tree is already taken by other woodcutter
-	Units get stuck on unwalkable tiles
-	MediaPlayer won't play mp3s and crash
-	Some texts don't fit in the left panel (e.g. "Preparing house area")
-	Remove debug info
-	Fisher
-	Two monitor config, scrolling works only on 1st display
 
 Graphics bugs:
 ?	Wrong render of houses, black tops (see GraphicFlaws folder)

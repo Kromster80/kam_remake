@@ -712,6 +712,7 @@ end;
 procedure TKMMapEditorInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouseStore) then exit;
   TKMHouseStore(fPlayers.Selected).ToggleAcceptFlag((Sender as TKMControl).Tag);
 end;
 
@@ -759,6 +760,7 @@ procedure TKMMapEditorInterface.Store_Fill(Sender:TObject);
 var i,Tmp:integer;
 begin
   if fPlayers.Selected=nil then exit;
+  if not (fPlayers.Selected is TKMHouseStore) then exit;
   for i:=1 to 28 do begin
     Tmp:=TKMHouseStore(fPlayers.Selected).ResourceCount[i];
     if Tmp=0 then KMButton_Store[i].Caption:='-' else

@@ -1279,6 +1279,9 @@ end;
 procedure TKMGamePlayInterface.House_BarracksUnitChange(Sender:TObject);
 var i, k, Tmp: integer; Barracks:TKMHouseBarracks; CanEquip: boolean;
 begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouseBarracks) then exit;
+
   Barracks:=TKMHouseBarracks(fPlayers.Selected);
   if (Sender=KMButton_Barracks_Left)and(LastBarracksUnit > 1) then dec(LastBarracksUnit);
   if (Sender=KMButton_Barracks_Right)and(LastBarracksUnit < length(Barracks_Order)) then inc(LastBarracksUnit);
@@ -1334,6 +1337,8 @@ end;
 procedure TKMGamePlayInterface.House_SchoolUnitChange(Sender:TObject);
 var i:byte; School:TKMHouseSchool;
 begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouseSchool) then exit;
   School:=TKMHouseSchool(fPlayers.Selected);
 
   if (Sender=KMButton_School_Left)and(LastSchoolUnit > 1) then dec(LastSchoolUnit);
@@ -1410,6 +1415,8 @@ end;
 {Resource determined by Button.Tag property}
 procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMHouseStore) then exit;
   TKMHouseStore(fPlayers.Selected).ToggleAcceptFlag((Sender as TKMControl).Tag);
 end;
 
