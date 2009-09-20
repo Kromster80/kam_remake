@@ -52,6 +52,7 @@ type
 
     fIsDestroyed:boolean;
     RemoveRoadWhenDemolish:boolean;
+    fPointerCount:integer;
     procedure SetWareDelivery(AVal:boolean);
 
     procedure MakeSound();
@@ -60,10 +61,13 @@ type
 
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
+    function GetSelf:TKMHouse; virtual; //Returns self and adds one to the pointer counter
+    procedure RemovePointer; //Decreases the pointer counter
+    procedure AttemptDestroy;
     procedure CloseHouse; virtual;
 
     procedure Activate(aWasBuilt:boolean);
-    procedure DemolishHouse(DoSilent:boolean; IsEditor:boolean=false); //@Lewin: Please use self-descripting name instead of IsEditor (maybe NoRubble)
+    procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 
     property GetPosition:TKMPoint read fPosition;
     function GetEntrance:TKMPoint;
@@ -234,6 +238,30 @@ begin
 end;
 
 
+{Returns self and adds on to the pointer counter}
+function TKMHouse.GetSelf:TKMHouse;
+begin
+  inc(fPointerCount);
+  Result := Self;
+end;
+
+
+{Decreases the pointer counter}
+procedure TKMHouse.RemovePointer;
+begin
+  dec(fPointerCount);
+end;
+
+
+{Destroys the house if pointer counter is zero}
+procedure TKMHouse.AttemptDestroy;
+begin
+  //if fPointerCount = 0 then FreeAndNil(Self);
+  //@Krom: How can I destory this house and make the item in the list "available" so it will be filled with a new one?
+  //       Or am I on totally the wrong track?
+end;
+
+
 procedure TKMHouse.CloseHouse;
 begin
   fIsDestroyed:=true;
@@ -267,17 +295,17 @@ begin
 end;
 
                              
-procedure TKMHouse.DemolishHouse(DoSilent:boolean; IsEditor:boolean=false);
+procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 begin
   if not DoSilent then
-    if (GetBuildingState = hbs_Glyph)or(IsEditor) then fSoundLib.Play(sfx_click)
+    if (GetBuildingState = hbs_Glyph)or(NoRubble) then fSoundLib.Play(sfx_click)
     else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveOffer(Self);
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveDemand(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
   if RemoveRoadWhenDemolish then fTerrain.RemRoad(GetEntrance); //Delete the road at the entrance
-  if not IsEditor then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
+  if not NoRubble then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
   
   if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
     fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
@@ -1149,6 +1177,7 @@ begin
   fLog.AssertToLog((not UsePosition)or(Index=1), 'Can''t find house basing both on Position and Index');
 
   for I := 0 to Count - 1 do
+  if Items[I] <> nil then
   if (TKMHouse(Items[I]).fHouseType=aType) and (TKMHouse(Items[I]).IsComplete) then
   begin
       inc(id);
@@ -1175,7 +1204,9 @@ var
 begin
   for I := 0 to Count - 1 do
   if not TKMHouse(Items[I]).IsDestroyed then
-    TKMHouse(Items[I]).UpdateState;
+    TKMHouse(Items[I]).UpdateState
+  else //Else try to destroy the house object if all pointers are freed
+    TKMHouse(Items[I]).AttemptDestroy; //TODO: Make this happen
 end;
 
 

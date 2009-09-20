@@ -52,6 +52,7 @@ type
     fPhase2:byte;
   public
     constructor Create(aUnit:TKMUnit);
+    destructor Destroy;
     procedure Abandon; virtual;
     procedure Execute(out TaskDone:boolean); virtual; abstract;
   end;
@@ -61,6 +62,7 @@ type
       fSchool:TKMHouseSchool;
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
+      destructor Destroy;
       procedure Abandon(); override;
       procedure Execute(out TaskDone:boolean); override;
     end;
@@ -75,6 +77,7 @@ type
     public
       DeliverKind:TDeliverKind;
       constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
+      destructor Destroy;
       procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
     end;
@@ -123,6 +126,7 @@ type
       ListOfCells:array[1..4*4]of TKMPoint;
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+      destructor Destroy;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -138,6 +142,7 @@ type
       end;
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+      destructor Destroy;
       procedure Abandon(); override;
       procedure Execute(out TaskDone:boolean); override;
     end;
@@ -154,6 +159,7 @@ type
       end;
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
+      destructor Destroy;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -170,6 +176,7 @@ type
       PlaceID:byte; //Units place in Inn
     public
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
+      destructor Destroy;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -211,6 +218,7 @@ type
     fLastUpdateTime: Cardinal;
     fVisible:boolean;
     fIsDead:boolean;
+    fPointerCount:integer;
   public
     AnimStep: integer;
     Direction: TKMDirection;
@@ -219,6 +227,8 @@ type
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
+    function GetSelf:TKMUnit; //Returns self and adds one to the pointer counter
+    procedure RemovePointer;  //Decreases the pointer counter
     procedure CloseUnit;
     procedure KillUnit;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
@@ -779,8 +789,7 @@ begin
   end;
 
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
-              //@Krom: Why so low? The wolf behaves oddly now, I prefered it when it was higher.
-              //@Lewin: Sorry, I forgot to restore it after testing..
+  
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot:=fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
@@ -802,6 +811,7 @@ end;
 constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
+  fPointerCount:=0;
   fIsDead:=false;
   fThought := th_None;
   fHome:=nil;
@@ -826,6 +836,21 @@ end;
 destructor TKMUnit.Destroy;
 begin
   Inherited;
+end;
+
+
+{Returns self and adds on to the pointer counter}
+function TKMUnit.GetSelf:TKMUnit;
+begin
+  inc(fPointerCount);
+  Result := Self;
+end;
+
+
+{Decreases the pointer counter}
+procedure TKMUnit.RemovePointer;
+begin
+  dec(fPointerCount);
 end;
 
 
@@ -1165,9 +1190,15 @@ end;
 constructor TUnitTask.Create(aUnit:TKMUnit);
 begin
   Inherited Create;
-  fUnit:=aUnit;
+  if fUnit <> nil then fUnit:=aUnit.GetSelf;
   fPhase:=0;
   fPhase2:=0;
+end;
+
+destructor TUnitTask.Destroy;
+begin
+  if fUnit <> nil then fUnit.RemovePointer;
+  Inherited Destroy;
 end;
 
 procedure TUnitTask.Abandon;
@@ -1184,11 +1215,16 @@ end;
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
   Inherited Create(aUnit);
-  fSchool:=aSchool;
+  if fSchool <> nil then fSchool:=TKMHouseSchool(aSchool.GetSelf); //@Krom: Will this still return the right thing even though GetSelf is for the THouse not the TSchool?
   fUnit.fVisible:=false;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
+destructor TTaskSelfTrain.Destroy;
+begin
+  Inherited Destroy;
+  if fSchool <> nil then fSchool.RemovePointer;
+end;
 
 procedure TTaskSelfTrain.Abandon();
 begin
@@ -1250,9 +1286,9 @@ constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHo
 begin
   Inherited Create(aSerf);
   fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
-  fFrom:=aFrom;
-  fToHouse:=toHouse;
-  fToUnit:=toUnit;
+  if aFrom <> nil then fFrom:=aFrom.GetSelf;
+  if toHouse <> nil then fToHouse:=toHouse.GetSelf;
+  if toUnit <> nil then fToUnit:=toUnit.GetSelf;
   fResourceType:=Res;
   fDeliverID:=aID;
 
@@ -1264,6 +1300,13 @@ begin
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
+destructor TTaskDeliver.Destroy;
+begin  
+  Inherited Destroy;
+  if fFrom <> nil then fFrom.RemovePointer;
+  if fToHouse <> nil then fToHouse.RemovePointer;
+  if fToUnit <> nil then fToUnit.RemovePointer;
+end;
 
 procedure TTaskDeliver.Abandon();
 begin
@@ -1646,7 +1689,7 @@ constructor TTaskBuildHouseArea.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; a
 var i,k:integer;
 begin
   Inherited Create(aWorker);
-  fHouse:=aHouse;
+  fHouse:=aHouse.GetSelf;
   TaskID:=aID;
   Step:=0;
   for i:=1 to 4 do for k:=1 to 4 do
@@ -1657,6 +1700,11 @@ begin
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
+destructor TTaskBuildHouseArea.Destroy;
+begin
+  Inherited Destroy;
+  if fHouse <> nil then fHouse.RemovePointer;
+end;
 
 {Prepare building site - flatten terrain}
 procedure TTaskBuildHouseArea.Execute(out TaskDone:boolean);
@@ -1739,7 +1787,7 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
   end;
 begin
   Inherited Create(aWorker);
-  fHouse:=aHouse;
+  fHouse:=aHouse.GetSelf;
   Loc:=fHouse.GetPosition;
   TaskID:=aID;
   LocCount:=0;
@@ -1762,6 +1810,11 @@ begin
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
+destructor TTaskBuildHouse.Destroy;
+begin
+  Inherited Destroy;
+  if fHouse <> nil then fHouse.RemovePointer;
+end;
 
 procedure TTaskBuildHouse.Abandon();
 begin
@@ -1843,7 +1896,7 @@ constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse;
   end;
 begin
   Inherited Create(aWorker);
-  fHouse:=aHouse;
+  fHouse:=aHouse.GetSelf;
   Loc:=fHouse.GetPosition;
   TaskID:=aID;
   LocCount:=0;
@@ -1859,6 +1912,11 @@ begin
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
+destructor TTaskBuildHouseRepair.Destroy;
+begin
+  Inherited Destroy;
+  if fHouse <> nil then fHouse.RemovePointer;
+end;
 
 {Repair the house}
 procedure TTaskBuildHouseRepair.Execute(out TaskDone:boolean);
@@ -2076,9 +2134,12 @@ begin
        end;
     1: begin
         SetActionGoIn(ua_Walk,gd_GoInside,fHome.GetHouseType);
-        fThought := th_None; //@Lewin: Is this the right place for unit to stop thinking?
+                             //@Lewin: Is this the right place for unit to stop thinking?
+                             //@Krom:  No, I think they should stop thinking when they disappear inside,
+                             //        not once they reach the tile bellow. Therefore moved to next phase. To be deleted.
        end;
     2: begin
+        fThought := th_None; //Only stop thinking once we are right inside
         fHome.SetState(hst_Idle,0);
         SetActionStay(5,ua_Walk);
        end;
@@ -2175,11 +2236,16 @@ end;
 constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
-  fInn:=aInn;
+  fInn:=TKMHouseInn(aInn.GetSelf);
   PlaceID:=0;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
+destructor TTaskGoEat.Destroy;
+begin
+  Inherited Destroy;
+  if fInn <> nil then fInn.RemovePointer;
+end;
 
 procedure TTaskGoEat.Execute(out TaskDone:boolean);
 begin
@@ -2534,6 +2600,8 @@ procedure TKMUnitsCollection.UpdateState;
 var
   I: Integer;
 begin
+  //TODO: Destroy the unit if there are no pointers left
+
   //if Count>10 then fLog.AddToLog('Tick'); //@LEwin - thats debug string
   for I := 0 to Count - 1 do
   if not TKMUnit(Items[I]).IsDead then
@@ -2573,6 +2641,19 @@ begin
       //I haven't got time to explain it now, and it might be easier to do it over ICQ, (so we can discuss it rather than me telling you)
       // but basically it is possible, as long as we know all of the places that have a pointer to the item in the list that we want to remove.
       //It shouldn't be too hard to implement either. :)
+
+      //@Krom:
+      //Outline of pointer freeing system: (when refering to units I also mean houses, they use the same system)
+      // - Units and houses have fPointerCount, which is the number of pointers to them. (e.g. tasks, deliveries)
+      //   This is kept up to date by the thing that is using the pointer. On create it uses GetSelf to increase
+      //   the pointer count and on destroy it decreases it.
+      // - When a unit dies, the object is not destroyed. Instead a flag (boolean) is set to say that we want to
+      //   destroy but can't because there are still pointers to the unit. From then on every update state it checks
+      //   to see if the pointer count is 0 yet. If it is then the unit is destroyed.
+      // - For each place that contains a pointer, every update state (or equivelent) it checks to see if the
+      //   unit of our pointer wants to die. If it does then we free the pointer and reduce the count. (and do
+      //   any other action nececary due to the unit dying)
+      //Please give suggestions, fix mistakes and let me know what you think. :)
 
 end;
 

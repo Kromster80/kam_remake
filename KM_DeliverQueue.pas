@@ -9,6 +9,8 @@ uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtil
   type TDemandImportance = (di_Norm, di_High);
   const MaxEntries=1024;
 
+   //TODO: Keep track of house/unit pointers throughout this unit.
+
 type
   TKMDeliverQueue = class
   private
