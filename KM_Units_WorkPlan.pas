@@ -342,7 +342,14 @@ if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Stables) then begin
 end else
 
 if (aUnitType=ut_Fisher)and(aHome=ht_FisherHut) then begin
-  fIssued:=false; //Let him idle
+  if fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN).X<>0 then begin
+    ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
+    WalkStyle(fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN),ua_Walk,ua_Work,8,0,ua_WalkTool,gs_FisherCatch); //@Lewin: Please check these against KaM
+    SubActAdd(ha_Work1,1); //@Lewin: Please check these against KaM
+    SubActAdd(ha_Work2,9); //@Lewin: Please check these against KaM
+    SubActAdd(ha_Work5,1); //@Lewin: Please check these against KaM
+  end else
+    fIssued:=false;
 end else
 if (aUnitType=ut_Recruit)and(aHome=ht_Barracks) then begin
   fIssued:=false; //Let him idle

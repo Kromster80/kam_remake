@@ -4,6 +4,7 @@ Known bugs:
 
 Gameplay bugs:
 +	Alt-tabbing with School/Barracks selected causes a crash
++	Error on exit if there's no OpenAL found
 	Killing a worker while it goes to build a road will cancel the markup and road plan
 	Woodcutter should drop the task if tree is already taken by other woodcutter
 	Units get stuck on unwalkable tiles

@@ -82,6 +82,7 @@ const
   RANGE_WOODCUTTER  = 10;
   RANGE_FARMER      = 8;
   RANGE_STONECUTTER = 14;
+  RANGE_FISHERMAN   = 12;    
 
 type
   TRenderMode = (rm2D, rm3D);
@@ -296,7 +297,7 @@ type
     gs_None=0,
     gs_WoodCutterCut, gs_WoodCutterPlant,
     gs_FarmerSow, gs_FarmerCorn, gs_FarmerWine,
-    gs_Fisher,
+    gs_FisherCatch,
     gs_StoneCutter,
     gs_CoalMiner, gs_GoldMiner, gs_IronMiner,
     gs_HorseBreeder, gs_SwineBreeder);

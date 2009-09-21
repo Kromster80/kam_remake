@@ -14,8 +14,6 @@ type
   public
     Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
     PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
-    //SelectedHouse: TKMHouse;
-    //SelectedUnit: TKMUnit;
     Selected: TObject;
   public
     constructor Create(PlayerCount:integer);

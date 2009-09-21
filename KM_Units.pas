@@ -2004,7 +2004,7 @@ with fUnit do
          SetActionStay(0,ua_Walk);
          exit;
        end;
-    1: SetActionWalk(fUnit,WorkPlan.Loc, KMPoint(0,0),WorkPlan.WalkTo);
+    1: SetActionWalk(fUnit,WorkPlan.Loc, WorkPlan.WalkTo);
     2: //IF resource still exists on location
        begin //Choose direction and time to work
          Dir:=integer(Direction);
@@ -2021,7 +2021,7 @@ with fUnit do
        end; 
     3: begin if WorkPlan.GatheringScript = gs_WoodCutterCut then
              begin
-               SetActionStay(10, WorkPlan.WorkType, true, 5, 5);
+               SetActionStay(10, WorkPlan.WorkType, true, 5, 5); //Wait for the tree to start falling down
              end
              else
                SetActionStay(0, WorkPlan.WorkType);
@@ -2032,6 +2032,7 @@ with fUnit do
                gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
                gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
                gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
+               gs_FisherCatch:     { TODO : Decrease fish deposit in water};     
                gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
                gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
              end;
@@ -2040,7 +2041,7 @@ with fUnit do
     5: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
-         SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance), KMPoint(0,0),WorkPlan.WalkFrom); //Go home
+         SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance), WorkPlan.WalkFrom); //Go home
          fThought := th_Home;
        end;
     6: SetActionGoIn(WorkPlan.WalkFrom,gd_GoInside,fHome.GetHouseType); //Go inside

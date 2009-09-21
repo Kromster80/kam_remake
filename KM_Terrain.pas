@@ -90,6 +90,7 @@ public
   function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+  function FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function ChooseTreeToPlant(aPosition:TKMPoint):integer;
 
   procedure SetTree(Loc:TKMPoint; ID:integer);
@@ -726,6 +727,28 @@ List2.Free;
 end;
 
 
+{Find seaside}
+{Return walkable tile nearby}
+function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+var i,k:integer; List:TKMPointList; Temp:TKMPoint;
+begin
+  List:=TKMPointList.Create;
+  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
+    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+      if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+        if TileIsWater(KMPoint(k,i)) then
+          // { TODO : Sort out tiles without fish }
+          if Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,false) then
+          begin
+            Temp := fTerrain.GetOutOfTheWay(KMPoint(k,i),KMPoint(0,0),canWalk);
+            if not (KMSamePoint(KMPoint(k,i),Temp) or KMSamePoint(KMPoint(0,0),Temp)) then
+              List.AddEntry(Temp); //Make sure we have a true walkable tile
+          end;                             
+  Result:=List.GetRandom; //Notice: Result contains water tile neighbour that can be walked on
+  List.Free;
+end;
+
+
 function TTerrain.ChooseTreeToPlant(aPosition:TKMPoint):integer;
 begin
   //This function randomly chooses a tree object based on the terrain type. Values matched to KaM, using all soil tiles.
@@ -1060,7 +1083,7 @@ end;
 function TTerrain.GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
 var i,k:integer; L1,L2:TKMPointList;
 begin
-  //List 1 holds all available walkable positions
+  //List 1 holds all available walkable positions except self and Loc2
   L1:=TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
@@ -1206,7 +1229,7 @@ begin
 end;
 
 
-{ Rebuilds connected areas using floowd fill algorithm }
+{ Rebuilds connected areas using flood fill algorithm }
 procedure TTerrain.RebuildWalkConnect(aPass:TPassability);
 const MinSize=9; //Minimum size that is treated as new area
 var i,k{,h}:integer; AreaID:byte; Count:integer; TestMode:byte;
@@ -1243,9 +1266,9 @@ begin
 
     TestMode:=0;
     case aPass of
-    canWalk: TestMode:=1;
-    canWalkRoad: TestMode:=2;
-    else fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
+      canWalk: TestMode:=1;
+      canWalkRoad: TestMode:=2;
+      else fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 
     //Reset everything
