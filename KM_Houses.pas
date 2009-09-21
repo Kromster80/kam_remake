@@ -63,6 +63,7 @@ type
     destructor Destroy; override;
     function GetSelf:TKMHouse; virtual; //Returns self and adds one to the pointer counter
     procedure RemovePointer; //Decreases the pointer counter
+    property GetPointerCount:integer read fPointerCount;
     procedure AttemptDestroy;
     procedure CloseHouse; virtual;
 
@@ -191,6 +192,7 @@ type
     function HitTest(X, Y: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
+    function GetTotalPointers: integer;
     procedure Paint();
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
   end;
@@ -1207,6 +1209,15 @@ begin
     TKMHouse(Items[I]).UpdateState
   else //Else try to destroy the house object if all pointers are freed
     TKMHouse(Items[I]).AttemptDestroy; //TODO: Make this happen
+end;
+
+
+function TKMHousesCollection.GetTotalPointers: integer;
+var i:integer;
+begin
+  Result:=0;
+  for I := 0 to Count - 1 do
+    Result:=Result+TKMHouse(Items[I]).GetPointerCount;
 end;
 
 

@@ -12,13 +12,13 @@ type TKMGamePlayInterface = class
     ShownHint:TObject;
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
-    MessagesCount:integer; //Messages thet are on bottom 
+    MessagesCount:integer; //Messages thet are on bottom
     AskDemolish:boolean;
 
     KMPanel_Main:TKMPanel;
       KMImage_Main1,KMImage_Main2,KMImage_Main3,KMImage_Main4:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
-      KMLabel_Stat,KMLabel_Hint:TKMLabel;
+      KMLabel_Stat,KMLabel_Hint,KMLabel_PointerCount:TKMLabel;
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
       KMImage_Message:array[1..256]of TKMImage; //Queue of messages
       KMImage_Clock:TKMImage; //Clock displayed when game speed is increased
@@ -442,6 +442,7 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    KMLabel_PointerCount:=MyControls.AddLabel(KMPanel_Main,224+8,100,0,0,'',fnt_Outline,kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -922,6 +923,8 @@ begin
     KMImage_Clock.TexID := ((KMImage_Clock.TexID-556)+1)mod 16 +556;
     KMLabel_Clock.Caption := int2time(fGame.GetMissionTime); 
   end;
+
+  KMLabel_PointerCount.Caption := 'Pointers: U,H: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
 
   for i:=low(KMImage_Message) to high(KMImage_Message) do
     if Assigned(KMImage_Message[i]) then

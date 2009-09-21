@@ -52,7 +52,7 @@ type
     fPhase2:byte;
   public
     constructor Create(aUnit:TKMUnit);
-    destructor Destroy;
+    destructor Destroy; override;
     procedure Abandon; virtual;
     procedure Execute(out TaskDone:boolean); virtual; abstract;
   end;
@@ -62,7 +62,7 @@ type
       fSchool:TKMHouseSchool;
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
-      destructor Destroy;
+      destructor Destroy; override;
       procedure Abandon(); override;
       procedure Execute(out TaskDone:boolean); override;
     end;
@@ -77,7 +77,7 @@ type
     public
       DeliverKind:TDeliverKind;
       constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
-      destructor Destroy;
+      destructor Destroy; override;
       procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
     end;
@@ -126,7 +126,7 @@ type
       ListOfCells:array[1..4*4]of TKMPoint;
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-      destructor Destroy;
+      destructor Destroy; override;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -142,7 +142,7 @@ type
       end;
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-      destructor Destroy;
+      destructor Destroy; override;
       procedure Abandon(); override;
       procedure Execute(out TaskDone:boolean); override;
     end;
@@ -159,7 +159,7 @@ type
       end;
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-      destructor Destroy;
+      destructor Destroy; override;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -176,7 +176,7 @@ type
       PlaceID:byte; //Units place in Inn
     public
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
-      destructor Destroy;
+      destructor Destroy; override;
       procedure Execute(out TaskDone:boolean); override;
     end;
 
@@ -229,6 +229,7 @@ type
     destructor Destroy; override;
     function GetSelf:TKMUnit; //Returns self and adds one to the pointer counter
     procedure RemovePointer;  //Decreases the pointer counter
+    property GetPointerCount:integer read fPointerCount;
     procedure CloseUnit;
     procedure KillUnit;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
@@ -334,6 +335,7 @@ type
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+    function GetTotalPointers: integer;
     procedure UpdateState;
     procedure Paint();
   end;
@@ -1190,7 +1192,7 @@ end;
 constructor TUnitTask.Create(aUnit:TKMUnit);
 begin
   Inherited Create;
-  if fUnit <> nil then fUnit:=aUnit.GetSelf;
+  if aUnit <> nil then fUnit:=aUnit.GetSelf;
   fPhase:=0;
   fPhase2:=0;
 end;
@@ -1205,6 +1207,7 @@ procedure TUnitTask.Abandon;
 begin
   //Shortcut to abandon and declare task done
   fUnit.Thought:=th_None; //Stop any thoughts
+  if fUnit <> nil then fUnit.RemovePointer;
   fUnit:=nil;
   fPhase:=MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2:=MAXBYTE-1;
@@ -1215,15 +1218,15 @@ end;
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
   Inherited Create(aUnit);
-  if fSchool <> nil then fSchool:=TKMHouseSchool(aSchool.GetSelf); //@Krom: Will this still return the right thing even though GetSelf is for the THouse not the TSchool?
+  if aSchool <> nil then fSchool:=TKMHouseSchool(aSchool.GetSelf); //@Krom: Will this still return the right thing even though GetSelf is for the THouse not the TSchool?
   fUnit.fVisible:=false;
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
 destructor TTaskSelfTrain.Destroy;
 begin
-  Inherited Destroy;
   if fSchool <> nil then fSchool.RemovePointer;
+  Inherited Destroy;
 end;
 
 procedure TTaskSelfTrain.Abandon();
@@ -1301,11 +1304,11 @@ begin
 end;
 
 destructor TTaskDeliver.Destroy;
-begin  
-  Inherited Destroy;
+begin
   if fFrom <> nil then fFrom.RemovePointer;
   if fToHouse <> nil then fToHouse.RemovePointer;
   if fToUnit <> nil then fToUnit.RemovePointer;
+  Inherited Destroy;
 end;
 
 procedure TTaskDeliver.Abandon();
@@ -1702,8 +1705,8 @@ end;
 
 destructor TTaskBuildHouseArea.Destroy;
 begin
+  if fHouse <> nil then fHouse.RemovePointer; 
   Inherited Destroy;
-  if fHouse <> nil then fHouse.RemovePointer;
 end;
 
 {Prepare building site - flatten terrain}
@@ -1812,8 +1815,8 @@ end;
 
 destructor TTaskBuildHouse.Destroy;
 begin
-  Inherited Destroy;
   if fHouse <> nil then fHouse.RemovePointer;
+  Inherited Destroy;
 end;
 
 procedure TTaskBuildHouse.Abandon();
@@ -1914,20 +1917,20 @@ end;
 
 destructor TTaskBuildHouseRepair.Destroy;
 begin
-  Inherited Destroy;
   if fHouse <> nil then fHouse.RemovePointer;
+  Inherited Destroy;
 end;
 
 {Repair the house}
 procedure TTaskBuildHouseRepair.Execute(out TaskDone:boolean);
 begin
+  TaskDone:=false;
   if (fHouse.IsDestroyed)or(not fHouse.IsDamaged)or(not fHouse.BuildingRepair) then begin
-    Abandon;
+    Abandon; //TODO: If you destroy the house then the labourers are still locked into repairing, they just sit there forever
     TaskDone:=true; //Drop the task
     exit;
   end;
 
-  TaskDone:=false;
   with fUnit do
     case fPhase of
       //Pick random location and go there
@@ -2243,8 +2246,8 @@ end;
 
 destructor TTaskGoEat.Destroy;
 begin
-  Inherited Destroy;
   if fInn <> nil then fInn.RemovePointer;
+  Inherited Destroy;
 end;
 
 procedure TTaskGoEat.Execute(out TaskDone:boolean);
@@ -2595,6 +2598,13 @@ begin
       Loc.AddEntry(TKMUnit(Items[I]).GetPosition);
 end;
 
+function TKMUnitsCollection.GetTotalPointers: integer;
+var i:integer;
+begin
+  Result:=0;
+  for I := 0 to Count - 1 do
+    Result:=Result+TKMUnit(Items[I]).GetPointerCount;
+end;
 
 procedure TKMUnitsCollection.UpdateState;
 var
@@ -2650,9 +2660,8 @@ begin
       // - When a unit dies, the object is not destroyed. Instead a flag (boolean) is set to say that we want to
       //   destroy but can't because there are still pointers to the unit. From then on every update state it checks
       //   to see if the pointer count is 0 yet. If it is then the unit is destroyed.
-      // - For each place that contains a pointer, every update state (or equivelent) it checks to see if the
-      //   unit of our pointer wants to die. If it does then we free the pointer and reduce the count. (and do
-      //   any other action nececary due to the unit dying)
+      // - For each place that contains a pointer, it should check everytime the pointer is used to see if it has been
+      //   destroy. If it has then we free the pointer and reduce the count. (and do any other action nececary due to the unit dying)
       //Please give suggestions, fix mistakes and let me know what you think. :)
 
 end;
