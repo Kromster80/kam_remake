@@ -156,10 +156,12 @@ destructor TSoundLib.Destroy();
 begin
   //MediaPlayer.Close;
   //FreeAndNil(MediaPlayer);
-
-  AlDeleteBuffers(MaxSourceCount, @ALBuffer);
-  AlDeleteSources(MaxSourceCount, @ALSource);
-  AlutExit();
+  if IsOpenALInitialized then
+  begin
+    AlDeleteBuffers(MaxSourceCount, @ALBuffer);
+    AlDeleteSources(MaxSourceCount, @ALSource);
+    AlutExit();
+  end;
 
   Inherited;
 end;
