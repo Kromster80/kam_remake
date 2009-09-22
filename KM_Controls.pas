@@ -1105,7 +1105,7 @@ begin
   for i:=0 to Count-1 do
     if TKMControl(Items[I]).HitTest(X, Y) then
       if TKMControl(Items[I]).Enabled then begin
-        if TKMControl(Items[i]).ClassType=TKMButton then //todo: Classtype is WRONG!
+        if TKMControl(Items[i]).ClassType=TKMButton then //todo: Using Classtype is WRONG! (rework it somehow)
           TKMButton(Items[I]).Down:=false;
         if AButton = mbLeft then begin
           if Assigned(TKMControl(Items[I]).OnClick) then begin

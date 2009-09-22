@@ -329,7 +329,8 @@ begin
   //Normally it pauses when the route can't be built. The unit just starts to move
   //(shows animation and moves one step) then it crashes here. Has the CanMakeRoute
   //check been removed or something?
-  if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
+  if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and
+     Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
   begin
 
     GetIsStepDone:=true; //Unit stepped on a new tile
