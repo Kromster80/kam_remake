@@ -11,6 +11,9 @@ type
     constructor Create(aAssets:TKMPlayerAssets);
     procedure CheckDefeatConditions();
     procedure CheckCitizenCount();
+  public
+    procedure Save;
+    procedure Load;
     procedure UpdateState;
   end;
 
@@ -70,7 +73,19 @@ begin
 end;
 
 
-procedure TKMPlayerAI.UpdateState();
+procedure TKMPlayerAI.Save;
+begin
+
+end;
+
+
+procedure TKMPlayerAI.Load;
+begin
+
+end;                      
+
+
+procedure TKMPlayerAI.UpdateState;
 begin
   //Check defeat only for MyPlayer
   if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
@@ -91,4 +106,3 @@ begin
 end;
 
 end.
- 

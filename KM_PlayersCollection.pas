@@ -25,6 +25,8 @@ type
     function HitTest(X, Y: Integer):boolean;
     function GetUnitCount():integer;
   public
+    procedure Save;
+    procedure Load;
     procedure UpdateState(Tick:cardinal);
     procedure Paint;
   end;
@@ -113,6 +115,23 @@ begin
   Result:=0;
   for i:=1 to fPlayerCount do
     inc(Result,Player[i].GetUnitCount);
+end;
+
+
+procedure TKMAllPlayers.Save;
+var i:word;
+begin
+  for i:=1 to fPlayerCount do
+  begin
+    Player[i].Save;
+    PlayerAI[i].Save; //Saves AI stuff
+  end;
+end;
+
+
+procedure TKMAllPlayers.Load;
+begin
+  //Load
 end;
 
 

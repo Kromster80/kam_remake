@@ -128,6 +128,7 @@ type TKMGamePlayInterface = class
     procedure Create_School_Page;
     procedure Create_Barracks_Page;
 
+    procedure SaveGame(Sender: TObject);
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPageRatios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
@@ -236,6 +237,13 @@ begin
   HouseID:=THouseType(KMImage_RatioPic[TKMRatioRow(Sender).Tag].TexID-300);
 
   MyPlayer.fMissionSettings.SetRatio(ResID,HouseID,TKMRatioRow(Sender).Position);
+end;
+
+
+procedure TKMGamePlayInterface.SaveGame(Sender: TObject);
+begin
+  if not (Sender is TKMButton) then exit; //Just in case
+  fGame.Save(TKMControl(Sender).Tag);
 end;
 
 
@@ -646,7 +654,6 @@ begin
     KMButton_Menu_Save:=MyControls.AddButton(KMPanel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
     KMButton_Menu_Save.OnClick:=Menu_ShowLoad;
     KMButton_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
-    KMButton_Menu_Save.Disable;
     KMButton_Menu_Load:=MyControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
     KMButton_Menu_Load.OnClick:=Menu_ShowLoad;
     KMButton_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
@@ -675,8 +682,8 @@ begin
   KMPanel_Save:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
     for i:=1 to SAVEGAME_COUNT do begin
       KMButton_Save[i]:=MyControls.AddButton(KMPanel_Save,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
-      //KMButton_Save[i].OnClick:=SaveGame;
-      KMButton_Save[i].Disable;
+      KMButton_Save[i].OnClick:=SaveGame;
+      KMButton_Save[i].Tag:=i; //Simplify usage
     end;
 end;
 

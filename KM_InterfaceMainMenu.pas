@@ -39,6 +39,10 @@ type TKMMainMenuInterface = class
       KMLabel_SingleCondTyp,KMLabel_SingleCondWin,KMLabel_SingleCondDef:TKMLabel;
       KMLabel_SingleAllies,KMLabel_SingleEnemies:TKMLabel;
       KMButton_SingleBack,KMButton_SingleStart:TKMButton;
+    KMPanel_Load:TKMPanel;
+      KMImage_LoadBG:TKMImage;
+      KMButton_Load:array[1..SAVEGAME_COUNT] of TKMButton;
+      KMLabel_LoadResult:TKMLabel;
     KMPanel_Options:TKMPanel;
       Image_Options_BG:TKMImage;
       Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
@@ -70,6 +74,7 @@ type TKMMainMenuInterface = class
   private
     procedure Create_MainMenu_Page;
     procedure Create_Single_Page;
+    procedure Create_Load_Page;
     procedure Create_MapEditor_Page;
     procedure Create_Options_Page;
     procedure Create_Credits_Page;
@@ -84,6 +89,7 @@ type TKMMainMenuInterface = class
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
+    procedure Load_Click(Sender: TObject);
     procedure Options_Change(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
@@ -127,6 +133,7 @@ inherited Create;
 
   Create_MainMenu_Page;
   Create_Single_Page;
+  Create_Load_Page;
   Create_Options_Page;
   Create_Credits_Page;
   Create_Loading_Page;
@@ -236,13 +243,13 @@ begin
       KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,400,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       KMButton_MainMenuTutor.OnClick    :=MainMenu_PlayTutorial;
       KMButton_MainMenuSingle.OnClick   :=SwitchMenuPage;
+      KMButton_MainMenuLoad.OnClick     :=SwitchMenuPage;
       KMButton_MainMenuMapEd.OnClick    :=MainMenu_MapEditor; //todo: We might add new map setup page later on
       KMButton_MainMenuOptions.OnClick  :=SwitchMenuPage;
       KMButton_MainMenuCredit.OnClick   :=SwitchMenuPage;
       KMButton_MainMenuQuit.OnClick     :=Form1.Exit1.OnClick;
       KMButton_MainMenuTSK.Disable;
       KMButton_MainMenuTPR.Disable;
-      KMButton_MainMenuLoad.Disable;
       KMButton_MainMenuMulti.Disable;
       KMButton_MainMenuCredit.Disable;
 end;
@@ -320,6 +327,22 @@ begin
       KMButton_SingleBack.OnClick:=SwitchMenuPage;
       KMButton_SingleStart:=MyControls.AddButton(KMPanel_SingleDesc,225,570,220,30,fTextLibrary.GetSetupString(8),fnt_Metal,bsMenu);
       KMButton_SingleStart.OnClick:=SingleMap_Start;
+end;
+
+
+procedure TKMMainMenuInterface.Create_Load_Page;
+var i:integer;
+begin
+  KMPanel_Load:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
+    KMImage_LoadBG:=MyControls.AddImage(KMPanel_Load,0,0,ScreenX,ScreenY,2,6);
+    KMImage_LoadBG.StretchImage:=true;
+    for i:=1 to SAVEGAME_COUNT do
+    begin
+      KMButton_Load[i]:=MyControls.AddButton(KMPanel_Load,100,300+i*40,180,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
+      KMButton_Load[i].Tag:=i; //To simplify usage
+      KMButton_Load[i].OnClick:=Load_Click;
+    end;
+    KMLabel_LoadResult:=MyControls.AddLabel(KMPanel_Load,124,130,100,30,'Debug',fnt_Metal,kaLeft);
 end;
 
 
@@ -485,6 +508,12 @@ begin
     KMPanel_Single.Show;
   end;
 
+  {Show Load menu}
+  if Sender=KMButton_MainMenuLoad then begin
+    //Load_PopulateList();
+    KMPanel_Load.Show;
+  end;
+
   {Show Options menu}
   if Sender=KMButton_MainMenuOptions then begin
     OldFullScreen := fGameSettings.IsFullScreen;
@@ -600,6 +629,13 @@ begin
   MissionPath:=ExeDir+'Maps\'+SingleMapsInfo.GetFolder(SingleMap_Selected)+'\'+SingleMapsInfo.GetMissionFile(SingleMap_Selected);
   fGame.StartGame(MissionPath); //Provide mission filename here
 end;
+
+
+procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
+begin
+  KMLabel_LoadResult.Caption:=fGame.Load(TKMControl(Sender).Tag);
+end;
+
 
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
 var i:integer;

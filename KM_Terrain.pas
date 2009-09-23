@@ -1,6 +1,6 @@
 unit KM_Terrain;
 interface
-uses Controls, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils, KM_CommonTypes, KM_Utils;
+uses Controls, Classes, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils, KM_CommonTypes, KM_Utils;
 
 const MaxMapSize=192;
 
@@ -154,6 +154,8 @@ public
   procedure RefreshMinimapData();
 
   procedure IncAnimStep();
+  procedure Save(SaveStream:TMemoryStream);
+  procedure Load;
   procedure UpdateState;
   procedure UpdateCursor(aCursor:TCursorMode; Loc:TKMPoint);
   procedure Paint;
@@ -1580,6 +1582,20 @@ end;
 procedure TTerrain.IncAnimStep();
 begin
   inc(AnimStep);
+end;
+
+
+procedure TTerrain.Save(SaveStream:TMemoryStream);
+var s:string;
+begin
+  s := inttostr(MapX)+':'+inttostr(MapY);
+  SaveStream.Write(s[1],length(s));
+end;
+
+
+procedure TTerrain.Load;
+begin
+
 end;
 
 

@@ -451,6 +451,7 @@ begin
   Result:=false;
   MaxHeight:=0;
   if not CheckFileExists(filename, true) then exit;
+
   assignfile(f,filename); reset(f,1);
   blockread(f,a,2); blockread(f,b,2);
   blockread(f,c,2); blockread(f,d,2);

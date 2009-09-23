@@ -55,6 +55,8 @@ type
     property GetHouses:TKMHousesCollection read fHouses;
     property GetUnits:TKMUnitsCollection read fUnits;
   public
+    procedure Save;
+    procedure Load;
     procedure UpdateState;
     procedure Paint;
   end;
@@ -321,6 +323,18 @@ end;
 function TKMPlayerAssets.GetUnitCount():integer;
 begin
   Result:=fUnits.Count;
+end;
+
+
+procedure TKMPlayerAssets.Save;
+begin
+
+end;
+
+
+procedure TKMPlayerAssets.Load;
+begin
+
 end;
 
 

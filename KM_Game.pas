@@ -36,6 +36,8 @@ type
     procedure StartMapEditor(MissionFile:string);
     function GetMissionTime:cardinal;
     property GetTickCount:cardinal read GameplayTickCount;
+    procedure Save(SlotID:shortint);
+    function Load(SlotID:shortint):string;
     procedure UpdateState;
     procedure PaintInterface;
   end;
@@ -559,6 +561,38 @@ function TKMGame.GetMissionTime:cardinal;
 begin
   //Treat 10 ticks as 1 sec irregardless of user-set pace
   Result := MyPlayer.fMissionSettings.GetMissionTime + (GameplayTickCount div 10);
+end;
+
+
+procedure TKMGame.Save(SlotID:shortint);
+var SaveStream:TMemoryStream;
+begin
+  case GameState of
+    gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
+    gsEditor:   exit; //Don't Save MapEditor yet..  { TODO : Add MapEditor Save function here}
+    gsPaused,gsRunning:
+    begin
+      SaveStream := TMemoryStream.Create;
+      fTerrain.Save(SaveStream); //Saves the map
+      fPlayers.Save; //Saves all players properties individually
+      SaveStream.SaveToFile(ExeDir+'save'+int2fix(SlotID,2)+'.txt'); //TXT for early stages of debug
+      SaveStream.Free;
+    end;
+  end;
+end;
+
+
+function TKMGame.Load(SlotID:shortint):string; //I've declared it a string for debug, should be enum
+var LoadStream:TMemoryStream;
+s:string;
+begin
+  LoadStream := TMemoryStream.Create;
+  LoadStream.LoadFromFile(ExeDir+'save'+int2fix(SlotID,2)+'.txt'); //TXT for early stages of debug
+
+  setlength(s,7);
+  LoadStream.Read(s[1],7);
+  LoadStream.Free;
+  Result := s;
 end;
 
 
