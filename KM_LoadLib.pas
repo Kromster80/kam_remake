@@ -20,7 +20,7 @@ type
     procedure LoadLIBFile(FilePath:string; var aArray:array of string);
     procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
   public      { Public declarations } 
-    constructor Create(aLibPath: string);
+    constructor Create(aLibPath,aLocale: string);
     function GetTextString(aIndex:integer):string;
     function GetSetupString(aIndex:integer):string;
     procedure ExportTextLibraries;
@@ -31,14 +31,14 @@ var
 
 
 implementation
-uses KM_Defaults, KM_Settings;
+uses KM_Defaults, KM_Game;
 
 
-constructor TTextLibrary.Create(aLibPath: string);
+constructor TTextLibrary.Create(aLibPath,aLocale: string);
 begin
   inherited Create;
-  LoadLIBFile(aLibPath+'text.'+fGameSettings.GetLocale+'.lib',TextStrings);
-  LoadLIBFile(aLibPath+'setup.'+fGameSettings.GetLocale+'.lib',SetupStrings);
+  LoadLIBFile(aLibPath+'text.'+aLocale+'.lib',TextStrings);
+  LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib',SetupStrings);
 end;
 
 procedure TTextLibrary.LoadLIBFile(FilePath:string; var aArray:array of string);

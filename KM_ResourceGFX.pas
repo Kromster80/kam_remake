@@ -32,13 +32,13 @@ type
     function GenTexture(mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint; //This should belong to TRender?
   public
     constructor Create;
-    function LoadMenuResources():boolean;
+    function LoadMenuResources(aLocale:string):boolean;
     function LoadGameResources():boolean;
 
     property GetDataState:TDataLoadingState read DataState;
     function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):integer;
 
-    procedure LoadFonts(DoExport:boolean);
+    procedure LoadFonts(DoExport:boolean; aLocale:string);
     //procedure ExportRX2BMP(RXid:integer);
     //procedure ExportTreeAnim2BMP();
     //procedure ExportHouseAnim2BMP();
@@ -55,7 +55,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Unit1, KM_Render, KM_Game, KM_Settings, KM_CommonTypes, KM_Utils, KM_TGATexture;
+uses KromUtils, KM_Unit1, KM_Render, KM_Game, KM_CommonTypes, KM_Utils, KM_TGATexture;
 
 
 constructor TResource.Create;
@@ -83,7 +83,7 @@ begin
 end;
 
 
-function TResource.LoadMenuResources():boolean;
+function TResource.LoadMenuResources(aLocale:string):boolean;
 var i:integer;
 begin
 //  Result:=false;
@@ -112,7 +112,7 @@ begin
   end;
 
   StepCaption('Reading fonts ...');
-  LoadFonts(false);
+  LoadFonts(false, aLocale);
   fLog.AppendLog('Read fonts is done');
 
   StepRefresh();
@@ -155,11 +155,11 @@ begin
 end;
 
 
-procedure TResource.LoadFonts(DoExport:boolean);
+procedure TResource.LoadFonts(DoExport:boolean; aLocale:string);
 var i:integer;
 begin
   for i:=1 to length(FontFiles) do
-    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+fGameSettings.GetLocale+'.fnt',TKMFont(i),DoExport);
+    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt',TKMFont(i),DoExport);
 end;
 
 

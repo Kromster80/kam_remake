@@ -29,7 +29,7 @@ var
   fViewport: TViewport;
 
 implementation
-uses KM_Defaults, KM_Terrain, KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Settings;
+uses KM_Defaults, KM_Terrain, KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Game;
 
 constructor TViewport.Create;
 begin
@@ -117,7 +117,7 @@ begin
   //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
   //    9 8 12
 
-  ScrollAdv := SCROLLSPEED + byte(fGameSettings.IsFastScroll)*3; //3 times faster
+  ScrollAdv := SCROLLSPEED + byte(fGame.fGameSettings.IsFastScroll)*3; //3 times faster
 
   //Left, Top, Right, Bottom
   //Keys

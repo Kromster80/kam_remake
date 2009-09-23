@@ -180,7 +180,7 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_SoundFX, KM_CommonTypes;
+uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_SoundFX, KM_CommonTypes;
 
 
 {Switch between pages}
@@ -280,8 +280,8 @@ begin
 
   //If they just closed settings then we should save them (if something has changed)
   if LastVisiblePage = KMPanel_Settings then
-    if fGameSettings.GetNeedsSave then
-      fGameSettings.SaveSettings;
+    if fGame.fGameSettings.GetNeedsSave then
+      fGame.fGameSettings.SaveSettings;
 
   //First thing - hide all existing pages
     for i:=1 to KMPanel_Main.ChildCount do
@@ -409,7 +409,6 @@ constructor TKMGamePlayInterface.Create();
 var i:integer;
 begin
 Inherited;
-fLog.AssertToLog(fGameSettings<>nil,'fGameSettings required to be init first');
 fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
   MyControls := TKMControlsCollection.Create;
@@ -717,14 +716,14 @@ begin
     KMCheckBox_Settings_FastScroll:=MyControls.AddCheckBox(KMPanel_Settings,8,95,100,30,fTextLibrary.GetTextString(204),fnt_Metal);
     KMLabel_Settings_MouseSpeed:=MyControls.AddLabel(KMPanel_Settings,24,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     KMLabel_Settings_MouseSpeed.Disable;
-    KMRatio_Settings_Mouse:=MyControls.AddRatioRow(KMPanel_Settings,18,150,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    KMRatio_Settings_Mouse:=MyControls.AddRatioRow(KMPanel_Settings,18,150,160,20,fGame.fGameSettings.GetSlidersMin,fGame.fGameSettings.GetSlidersMax);
     KMRatio_Settings_Mouse.Disable;
     KMRatio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
     KMLabel_Settings_SFX:=MyControls.AddLabel(KMPanel_Settings,24,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-    KMRatio_Settings_SFX:=MyControls.AddRatioRow(KMPanel_Settings,18,198,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    KMRatio_Settings_SFX:=MyControls.AddRatioRow(KMPanel_Settings,18,198,160,20,fGame.fGameSettings.GetSlidersMin,fGame.fGameSettings.GetSlidersMax);
     KMRatio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
     KMLabel_Settings_Music:=MyControls.AddLabel(KMPanel_Settings,24,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-    KMRatio_Settings_Music:=MyControls.AddRatioRow(KMPanel_Settings,18,246,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    KMRatio_Settings_Music:=MyControls.AddRatioRow(KMPanel_Settings,18,246,160,20,fGame.fGameSettings.GetSlidersMin,fGame.fGameSettings.GetSlidersMax);
     KMRatio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
     KMLabel_Settings_Music2:=MyControls.AddLabel(KMPanel_Settings,100,280,100,30,fTextLibrary.GetTextString(197),fnt_Metal,kaCenter);
     KMButton_Settings_Music:=MyControls.AddButton(KMPanel_Settings,8,300,180,30,'',fnt_Metal);
@@ -1440,23 +1439,23 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
 begin
-  if Sender = KMButton_Settings_Dark then fGameSettings.DecBrightness;
-  if Sender = KMButton_Settings_Light then fGameSettings.IncBrightness;
-  if Sender = KMCheckBox_Settings_Autosave then fGameSettings.IsAutosave:=not fGameSettings.IsAutosave;
-  if Sender = KMCheckBox_Settings_FastScroll then fGameSettings.IsFastScroll:=not fGameSettings.IsFastScroll;
-  if Sender = KMRatio_Settings_Mouse then fGameSettings.SetMouseSpeed(KMRatio_Settings_Mouse.Position);
-  if Sender = KMRatio_Settings_SFX then fGameSettings.SetSoundFXVolume(KMRatio_Settings_SFX.Position);
-  if Sender = KMRatio_Settings_Music then fGameSettings.SetMusicVolume(KMRatio_Settings_Music.Position);
-  if Sender = KMButton_Settings_Music then fGameSettings.IsMusic:=not fGameSettings.IsMusic;
+  if Sender = KMButton_Settings_Dark then fGame.fGameSettings.DecBrightness;
+  if Sender = KMButton_Settings_Light then fGame.fGameSettings.IncBrightness;
+  if Sender = KMCheckBox_Settings_Autosave then fGame.fGameSettings.IsAutosave:=not fGame.fGameSettings.IsAutosave;
+  if Sender = KMCheckBox_Settings_FastScroll then fGame.fGameSettings.IsFastScroll:=not fGame.fGameSettings.IsFastScroll;
+  if Sender = KMRatio_Settings_Mouse then fGame.fGameSettings.SetMouseSpeed(KMRatio_Settings_Mouse.Position);
+  if Sender = KMRatio_Settings_SFX then fGame.fGameSettings.SetSoundFXVolume(KMRatio_Settings_SFX.Position);
+  if Sender = KMRatio_Settings_Music then fGame.fGameSettings.SetMusicVolume(KMRatio_Settings_Music.Position);
+  if Sender = KMButton_Settings_Music then fGame.fGameSettings.IsMusic:=not fGame.fGameSettings.IsMusic;
   
-  KMLabel_Settings_BrightValue.Caption:=fTextLibrary.GetTextString(185 + fGameSettings.GetBrightness);
-  KMCheckBox_Settings_Autosave.Checked:=fGameSettings.IsAutosave;
-  KMCheckBox_Settings_FastScroll.Checked:=fGameSettings.IsFastScroll;
-  KMRatio_Settings_Mouse.Position:=fGameSettings.GetMouseSpeed;
-  KMRatio_Settings_SFX.Position:=fGameSettings.GetSoundFXVolume;
-  KMRatio_Settings_Music.Position:=fGameSettings.GetMusicVolume;
+  KMLabel_Settings_BrightValue.Caption:=fTextLibrary.GetTextString(185 + fGame.fGameSettings.GetBrightness);
+  KMCheckBox_Settings_Autosave.Checked:=fGame.fGameSettings.IsAutosave;
+  KMCheckBox_Settings_FastScroll.Checked:=fGame.fGameSettings.IsFastScroll;
+  KMRatio_Settings_Mouse.Position:=fGame.fGameSettings.GetMouseSpeed;
+  KMRatio_Settings_SFX.Position:=fGame.fGameSettings.GetSoundFXVolume;
+  KMRatio_Settings_Music.Position:=fGame.fGameSettings.GetMusicVolume;
 
-  if fGameSettings.IsMusic then
+  if fGame.fGameSettings.IsMusic then
     KMButton_Settings_Music.Caption:=fTextLibrary.GetTextString(201)
   else
     KMButton_Settings_Music.Caption:=fTextLibrary.GetTextString(199);
@@ -1557,7 +1556,7 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
-  if fGameSettings.IsMusic then
+  if fGame.fGameSettings.IsMusic then
   begin
     KMLabel_Menu_Track.Caption := fMusicLib.GetTrackTitle;
     KMLabel_Menu_Track.Enabled := true;

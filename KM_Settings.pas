@@ -94,9 +94,6 @@ type
     function GetMissionTime:cardinal;
   end;
 
-var
-  fGameSettings: TGameSettings;
-
 
 implementation
 uses KM_SoundFX;
@@ -229,7 +226,7 @@ begin
   if fMusicOnOff <> Value then
   begin
     fMusicOnOff:=Value;
-    if Value then fMusicLib.PlayMenuTrack //Start with the default track
+    if Value then fMusicLib.PlayMenuTrack(not IsMusic) //Start with the default track
     else fMusicLib.StopMusic;
   end;
   fNeedsSave:=true;

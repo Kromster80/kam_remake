@@ -68,7 +68,7 @@ type
     function CheckMusicError():boolean;
     procedure UpdateMusicVolume(Value:single);
     procedure ScanMusicTracks(Path:string);
-    procedure PlayMenuTrack();
+    procedure PlayMenuTrack(JustInit:boolean);
     procedure PlayNextTrack();
     procedure PlayPreviousTrack();
     function IsMusicEnded():boolean;
@@ -84,7 +84,7 @@ var
 
 implementation
 uses
-  KM_Settings, KM_LoadLib, KM_Unit1;
+  KM_LoadLib, KM_Unit1, KM_Game;
 
 
 constructor TSoundLib.Create();
@@ -427,15 +427,15 @@ begin
 end;
 
 
-procedure TMusicLib.PlayMenuTrack();
+procedure TMusicLib.PlayMenuTrack(JustInit:boolean);
 begin
   if not IsMusicInitialized then exit;
   if MusicIndex = 1 then exit; //Don't change unless needed
   MusicIndex := 1; //First track (Spirit) is always menu music
   PlayMusicFile(MusicTracks[MusicIndex]);
-  if not fGameSettings.IsMusic then StopMusic; //This way music gets initialized irregardless of On/Off
-                                               //switch state on game launch. This means there's no 2sec
-                                               //lag when enabling music that was set to Off.
+  if JustInit then StopMusic; //This way music gets initialized irregardless of On/Off
+                              //switch state on game launch. This means there's no 2sec
+                              //lag when enabling music that was set to Off.
   //BUG: Attempt to play MPEG 1.0 Layer 3 silently crashes Remake on some PCs
 end;
 
@@ -443,7 +443,7 @@ end;
 procedure TMusicLib.PlayNextTrack();
 begin
   if not IsMusicInitialized then exit;
-  if not fGameSettings.IsMusic then exit;
+  if not fGame.fGameSettings.IsMusic then exit;
   if MusicCount=0 then exit; //no music files found
   MusicIndex := MusicIndex mod MusicCount + 1; //Set next index, looped
   PlayMusicFile(MusicTracks[MusicIndex]);
@@ -453,7 +453,7 @@ end;
 procedure TMusicLib.PlayPreviousTrack();
 begin
   if not IsMusicInitialized then exit;
-  if not fGameSettings.IsMusic then exit;
+  if not fGame.fGameSettings.IsMusic then exit;
   if MusicCount=0 then exit; //no music files found
   MusicIndex := MusicIndex - 1; //Set to previous
   if MusicIndex = 0 then MusicIndex := MusicCount; //Loop to the top
@@ -466,7 +466,7 @@ function TMusicLib.IsMusicEnded():boolean;
 begin
   Result:=false;
   if not IsMusicInitialized then exit;
-  if fGameSettings.IsMusic then begin
+  if fGame.fGameSettings.IsMusic then begin
     Result := ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
     if CheckMusicError then exit;
   end;

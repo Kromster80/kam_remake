@@ -2,7 +2,7 @@ unit KM_PlayersCollection;
 interface
 uses
   Windows, Classes, KromUtils, Math, SysUtils,
-  KM_Units, KM_Houses, KM_Defaults, KM_Settings, KM_Player, KM_PlayerAI;
+  KM_Units, KM_Houses, KM_Defaults, KM_Player, KM_PlayerAI;
 
 type
   TMissionMode = (mm_Normal, mm_Tactic);

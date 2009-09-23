@@ -1,7 +1,7 @@
 unit KM_InterfaceMainMenu;
 interface
 uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, OpenGL,
-  KM_Controls, KM_Defaults, KM_LoadDAT, Windows;
+  KM_Controls, KM_Defaults, KM_LoadDAT, Windows, KM_Settings;
 
 
 type TKMMainMenuInterface = class
@@ -76,7 +76,7 @@ type TKMMainMenuInterface = class
     procedure Create_Single_Page;
     procedure Create_Load_Page;
     procedure Create_MapEditor_Page;
-    procedure Create_Options_Page;
+    procedure Create_Options_Page(aGameSettings:TGameSettings);
     procedure Create_Credits_Page;
     procedure Create_Loading_Page;
     procedure Create_Error_Page;
@@ -93,7 +93,7 @@ type TKMMainMenuInterface = class
     procedure Options_Change(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
-    constructor Create(X,Y:word);
+    constructor Create(X,Y:word; aGameSettings:TGameSettings);
     destructor Destroy; override;
     procedure SetScreenSize(X,Y:word);
     procedure ShowScreen_Loading(Text:string);
@@ -109,15 +109,14 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Settings, KM_Render, KM_LoadLib, KM_Game, KM_SoundFX, KM_PlayersCollection, KM_CommonTypes, Forms;
+uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_SoundFX, KM_PlayersCollection, KM_CommonTypes, Forms;
 
 
-constructor TKMMainMenuInterface.Create(X,Y:word);
+constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGameSettings);
 //var i:integer;
 begin
 inherited Create;
 
-  fLog.AssertToLog(fGameSettings<>nil,'fGameSettings should be init before MainMenuInterface');
   fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before MainMenuInterface');
 
   {Parent Page for whole toolbar in-game}
@@ -134,7 +133,7 @@ inherited Create;
   Create_MainMenu_Page;
   Create_Single_Page;
   Create_Load_Page;
-  Create_Options_Page;
+  Create_Options_Page(aGameSettings);
   Create_Credits_Page;
   Create_Loading_Page;
   Create_Error_Page;
@@ -352,7 +351,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Options_Page;
+procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGameSettings);
 var i:integer;
 begin
   KMPanel_Options:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
@@ -361,12 +360,12 @@ begin
 
     Label_Options_MouseSpeed:=MyControls.AddLabel(KMPanel_Options,124,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     Label_Options_MouseSpeed.Disable;
-    Ratio_Options_Mouse:=MyControls.AddRatioRow(KMPanel_Options,118,150,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    Ratio_Options_Mouse:=MyControls.AddRatioRow(KMPanel_Options,118,150,160,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
     Ratio_Options_Mouse.Disable;
     Label_Options_SFX:=MyControls.AddLabel(KMPanel_Options,124,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-    Ratio_Options_SFX:=MyControls.AddRatioRow(KMPanel_Options,118,198,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    Ratio_Options_SFX:=MyControls.AddRatioRow(KMPanel_Options,118,198,160,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
     Label_Options_Music:=MyControls.AddLabel(KMPanel_Options,124,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-    Ratio_Options_Music:=MyControls.AddRatioRow(KMPanel_Options,118,246,160,20,fGameSettings.GetSlidersMin,fGameSettings.GetSlidersMax);
+    Ratio_Options_Music:=MyControls.AddRatioRow(KMPanel_Options,118,246,160,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
 
     Label_Options_MusicOn:=MyControls.AddLabel(KMPanel_Options,200,280,100,30,fTextLibrary.GetTextString(197),fnt_Metal,kaCenter);
     Button_Options_MusicOn:=MyControls.AddButton(KMPanel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
@@ -400,11 +399,11 @@ begin
       KMButton_Options_ResApply.OnClick:=Options_Change;
       KMButton_Options_ResApply.Disable;
 
-    Ratio_Options_Mouse.Position:=fGameSettings.GetMouseSpeed;
-    Ratio_Options_SFX.Position  :=fGameSettings.GetSoundFXVolume;
-    Ratio_Options_Music.Position:=fGameSettings.GetMusicVolume;
-    
-    if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
+    Ratio_Options_Mouse.Position:=aGameSettings.GetMouseSpeed;
+    Ratio_Options_SFX.Position  :=aGameSettings.GetSoundFXVolume;
+    Ratio_Options_Music.Position:=aGameSettings.GetMusicVolume;
+
+    if aGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                              else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
     for i:=1 to KMPanel_Options.ChildCount do
@@ -496,8 +495,8 @@ begin
 
   {Return to MainMenu and restore resolution changes}
   if Sender=Button_Options_Back then begin
-    fGameSettings.IsFullScreen := OldFullScreen;
-    fGameSettings.SetResolutionID := OldResolution;
+    fGame.fGameSettings.IsFullScreen := OldFullScreen;
+    fGame.fGameSettings.SetResolutionID := OldResolution;
     KMPanel_MainMenu.Show;
   end;
 
@@ -516,8 +515,8 @@ begin
 
   {Show Options menu}
   if Sender=KMButton_MainMenuOptions then begin
-    OldFullScreen := fGameSettings.IsFullScreen;
-    OldResolution := fGameSettings.GetResolutionID;
+    OldFullScreen := fGame.fGameSettings.IsFullScreen;
+    OldResolution := fGame.fGameSettings.GetResolutionID;
     Options_Change(nil);
     KMPanel_Options.Show;
   end;
@@ -542,8 +541,8 @@ begin
 
   { Save settings when leaving options, if needed }
   if Sender=Button_Options_Back then
-    if fGameSettings.GetNeedsSave then
-      fGameSettings.SaveSettings;
+    if fGame.fGameSettings.GetNeedsSave then
+      fGame.fGameSettings.SaveSettings;
 end;
 
 
@@ -640,17 +639,17 @@ end;
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
 var i:integer;
 begin
-  if Sender = Ratio_Options_Mouse then fGameSettings.SetMouseSpeed(Ratio_Options_Mouse.Position);
-  if Sender = Ratio_Options_SFX   then fGameSettings.SetSoundFXVolume(Ratio_Options_SFX.Position);
-  if Sender = Ratio_Options_Music then fGameSettings.SetMusicVolume(Ratio_Options_Music.Position);
-  if Sender = Button_Options_MusicOn then fGameSettings.IsMusic := not fGameSettings.IsMusic;
+  if Sender = Ratio_Options_Mouse then fGame.fGameSettings.SetMouseSpeed(Ratio_Options_Mouse.Position);
+  if Sender = Ratio_Options_SFX   then fGame.fGameSettings.SetSoundFXVolume(Ratio_Options_SFX.Position);
+  if Sender = Ratio_Options_Music then fGame.fGameSettings.SetMusicVolume(Ratio_Options_Music.Position);
+  if Sender = Button_Options_MusicOn then fGame.fGameSettings.IsMusic := not fGame.fGameSettings.IsMusic;
 
-  if fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
-                           else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
+  if fGame.fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
+                                 else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
   for i:=1 to LocalesCount do
     if Sender = CheckBox_Options_Lang[i] then begin
-      fGameSettings.SetLocale := Locales[i,1];
+      fGame.fGameSettings.SetLocale := Locales[i,1];
       ShowScreen_Loading('Loading new locale');
       fRender.Render; //Force to repaint loading screen
       fGame.ToggleLocale;
@@ -658,33 +657,33 @@ begin
     end;
 
   for i:=1 to LocalesCount do
-    CheckBox_Options_Lang[i].Checked := LowerCase(fGameSettings.GetLocale) = LowerCase(Locales[i,1]);
+    CheckBox_Options_Lang[i].Checked := LowerCase(fGame.fGameSettings.GetLocale) = LowerCase(Locales[i,1]);
 
   //@Krom: Yes, I think it should be a proper control in a KaM style. Just text [x] doesn't look great.
   //       Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 
   if Sender = KMButton_Options_ResApply then begin //Apply resolution changes
-    OldFullScreen := fGameSettings.IsFullScreen; //memorize just in case (it will be niled on re-init anyway)
-    OldResolution := fGameSettings.GetResolutionID;
-    fGame.ToggleFullScreen(fGameSettings.IsFullScreen,true);
+    OldFullScreen := fGame.fGameSettings.IsFullScreen; //memorize just in case (it will be niled on re-init anyway)
+    OldResolution := fGame.fGameSettings.GetResolutionID;
+    fGame.ToggleFullScreen(fGame.fGameSettings.IsFullScreen,true);
     exit;
   end;
 
   if Sender = CheckBox_Options_FullScreen then
-    fGameSettings.IsFullScreen := not fGameSettings.IsFullScreen;
+    fGame.fGameSettings.IsFullScreen := not fGame.fGameSettings.IsFullScreen;
 
   for i:=1 to RESOLUTION_COUNT do
     if Sender = CheckBox_Options_Resolution[i] then
-      fGameSettings.SetResolutionID := i;
+      fGame.fGameSettings.SetResolutionID := i;
 
-  CheckBox_Options_FullScreen.Checked := fGameSettings.IsFullScreen;
+  CheckBox_Options_FullScreen.Checked := fGame.fGameSettings.IsFullScreen;
   for i:=1 to RESOLUTION_COUNT do begin
-    CheckBox_Options_Resolution[i].Checked := (i = fGameSettings.GetResolutionID);
-    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGameSettings.IsFullScreen;
+    CheckBox_Options_Resolution[i].Checked := (i = fGame.fGameSettings.GetResolutionID);
+    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.fGameSettings.IsFullScreen;
   end;
 
   //Make button enabled only if new resolution/mode differs from old
-  KMButton_Options_ResApply.Enabled := (OldFullScreen <> fGameSettings.IsFullScreen) or (OldResolution <> fGameSettings.GetResolutionID);
+  KMButton_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGameSettings.IsFullScreen) or (OldResolution <> fGame.fGameSettings.GetResolutionID);
 
 end;
 

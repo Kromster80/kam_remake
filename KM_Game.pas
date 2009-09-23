@@ -15,6 +15,7 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
+    fGameSettings: TGameSettings;
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMMapEditorInterface;
@@ -59,19 +60,19 @@ begin
   fLog.AppendLog('<== Render init follows ==>');
   fRender:= TRender.Create(RenderHandle);
   fLog.AppendLog('<== TextLib init follows ==>');
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\');
+  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\', fGameSettings.GetLocale);
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(); //Needed for button click sounds and etc?
   fMusicLib:= TMusicLib.Create(); //Needed for button click sounds and etc?
   fGameSettings.UpdateSFXVolume;
   fLog.AppendLog('<== ReadGFX init follows ==>');
   fResource:=TResource.Create;
-  fResource.LoadMenuResources;
+  fResource.LoadMenuResources(fGameSettings.GetLocale);
   fLog.AppendLog('<== Main menu interface follows ==>');
-  fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY);
+  fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY,fGameSettings);
   fLog.AppendLog('<== Sound playback follows ==>');
 
-  if not NoMusic then fMusicLib.PlayMenuTrack;
+  if not NoMusic then fMusicLib.PlayMenuTrack(not fGameSettings.IsMusic);
 
   GameSpeed := 1;
   GameState := gsNoGame;
@@ -102,9 +103,9 @@ procedure TKMGame.ToggleLocale();
 begin
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fTextLibrary);
-  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\');
-  fResource.LoadFonts(false);
-  fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX,ScreenY);
+  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGameSettings.GetLocale);
+  fResource.LoadFonts(false, fGameSettings.GetLocale);
+  fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGameSettings);
   fMainMenuInterface.ShowScreen_Options;
 end;
 
@@ -123,7 +124,7 @@ begin
     //Should resize all Controls somehow...
     //Remember last page and all relevant menu settings
     FreeAndNil(fMainMenuInterface);
-    fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y);
+    fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y, fGameSettings);
     GameSpeed:=1;
     fMainMenuInterface.SetScreenSize(X,Y);
   end;
@@ -138,7 +139,7 @@ end;
 
 procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
 begin
-  Form1.ToggleFullScreen(aToggle, ReturnToOptions);
+  Form1.ToggleFullScreen(aToggle, fGameSettings.GetResolutionID, ReturnToOptions);
 end;
 
 
@@ -606,7 +607,7 @@ begin
                   fMainMenuInterface.UpdateState;
                   if GlobalTickCount mod 10 = 0 then //Once a sec
                   if fMusicLib.IsMusicEnded then
-                    fMusicLib.PlayMenuTrack(); //Menu tune
+                    fMusicLib.PlayMenuTrack(not fGameSettings.IsMusic); //Menu tune
                 end;
     gsRunning:  begin
                   fViewport.DoScrolling; //Check to see if we need to scroll

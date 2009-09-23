@@ -110,7 +110,7 @@ type
 
   public
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
-    procedure ToggleFullScreen(Toggle:boolean; ReturnToOptions:boolean);
+    procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; ReturnToOptions:boolean);
   end;
 
 var
@@ -148,6 +148,7 @@ done:=false; //repeats OnIdle event
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
+var TempSettings:TGameSettings;
 begin
   if Sender<>nil then exit;
 
@@ -165,9 +166,11 @@ begin
 
   Panel5.Color := clBlack;
 
-  fGameSettings:=TGameSettings.Create; //Read settings (fullscreen property and resolutions)
+  TempSettings:=TGameSettings.Create; //Read settings (fullscreen property and resolutions)
                                        //Don't need to free it here, it's FreeAndNil'ed at fGame re-init
-  ToggleFullScreen(fGameSettings.IsFullScreen,false); //Now we can decide whether we should make it full screen or not
+  ToggleFullScreen(TempSettings.IsFullScreen, TempSettings.GetResolutionID, false); //Now we can decide whether we should make it full screen or not
+
+  TempSettings.Free; //does not required any more
 
   //We don't need to re-init fGame since it's already handled in ToggleFullScreen (sic!)
   //fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
@@ -183,7 +186,7 @@ begin
     Application.MessageBox(@('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
         'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
 
-  Timer100ms.Interval := fGameSettings.GetPace; //FormLoading gets hidden OnTimer event
+  Timer100ms.Interval := fGame.fGameSettings.GetPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
 
@@ -330,7 +333,7 @@ procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.Expo
 procedure TForm1.Export_Fonts1Click(Sender: TObject);
 begin
   fLog.AssertToLog(fResource<>nil,'Can''t export Fonts cos they aren''t loaded yet');
-  fResource.LoadFonts(true);
+  fResource.LoadFonts(true, fGame.fGameSettings.GetLocale);
 end;
 
 
@@ -657,10 +660,10 @@ begin
 end;
 
 
-procedure TForm1.ToggleFullScreen(Toggle:boolean; ReturnToOptions:boolean);
+procedure TForm1.ToggleFullScreen(Toggle:boolean; ResolutionID:word; ReturnToOptions:boolean);
 begin
   if Toggle then begin
-    SetScreenResolution(SupportedResolutions[fGameSettings.GetResolutionID,1],SupportedResolutions[fGameSettings.GetResolutionID,2],SupportedRefreshRates[fGameSettings.GetResolutionID]);
+    SetScreenResolution(SupportedResolutions[ResolutionID,1],SupportedResolutions[ResolutionID,2],SupportedRefreshRates[ResolutionID]);
     Form1.Refresh;
     Form1.BorderStyle:=bsSizeable; //if we don't set Form1 sizeable it won't expand to fullscreen
     Form1.WindowState:=wsMaximized;
@@ -684,7 +687,6 @@ begin
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   //Don't know how lame it is, but it works well
   //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
-  FreeAndNil(fGameSettings);
   FreeAndNil(fGame); //Saves all settings into ini file in midst
   //Now re-init fGame
   fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);

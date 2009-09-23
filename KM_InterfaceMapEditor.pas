@@ -108,7 +108,7 @@ type TKMMapEditorInterface = class
 
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_Settings, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_SoundFX, KM_CommonTypes;
+uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_SoundFX, KM_CommonTypes;
 
 
 {Switch between pages}
@@ -252,7 +252,6 @@ constructor TKMMapEditorInterface.Create();
 var i:integer;
 begin
   Inherited;
-  fLog.AssertToLog(fGameSettings<>nil,'fGameSettings required to be init first');
   fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
   MyControls := TKMControlsCollection.Create;

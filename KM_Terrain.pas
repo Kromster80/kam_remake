@@ -166,7 +166,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding, KM_Settings;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding;
 
 constructor TTerrain.Create;
 begin

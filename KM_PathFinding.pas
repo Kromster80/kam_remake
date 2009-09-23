@@ -44,7 +44,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Settings;
+uses KM_Unit1, KM_PlayersCollection, KM_SoundFX;
 
 
 constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean);
