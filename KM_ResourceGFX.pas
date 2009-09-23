@@ -177,7 +177,7 @@ function TResource.LoadPalette(filename:string; PalID:byte):boolean;
 var f:file; i:integer;
 begin
   Result:=false;
-  if not CheckFileExists(filename) then exit;
+  if not CheckFileExists(filename,true) then exit;
 
   assignfile(f,filename);
   reset(f,1);
@@ -448,88 +448,88 @@ var
   TD:array of byte;
   MyBitMap:TBitMap;
 begin
-Result:=false;
-MaxHeight:=0;
-if not CheckFileExists(filename, true) then exit;
-assignfile(f,filename); reset(f,1);
-blockread(f,a,2); blockread(f,b,2);
-blockread(f,c,2); blockread(f,d,2);
-blockread(f,FontData[byte(aFont)].Pal[0],256);
+  Result:=false;
+  MaxHeight:=0;
+  if not CheckFileExists(filename, true) then exit;
+  assignfile(f,filename); reset(f,1);
+  blockread(f,a,2); blockread(f,b,2);
+  blockread(f,c,2); blockread(f,d,2);
+  blockread(f,FontData[byte(aFont)].Pal[0],256);
 
-//Read font data
-for i:=0 to 255 do
-  if FontData[byte(aFont)].Pal[i]<>0 then
-    with FontData[byte(aFont)].Letters[i] do begin
-      blockread(f,Width,4);
-      blockread(f,Add,8);
-      MaxHeight:=max(MaxHeight,Height);
-      fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Fon01.fnt seems to be damaged..
-      blockread(f,Data[1],Width*Height);
-    end;
-closefile(f);
+  //Read font data
+  for i:=0 to 255 do
+    if FontData[byte(aFont)].Pal[i]<>0 then
+      with FontData[byte(aFont)].Letters[i] do begin
+        blockread(f,Width,4);
+        blockread(f,Add,8);
+        MaxHeight:=max(MaxHeight,Height);
+        fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Fon01.fnt seems to be damaged..
+        blockread(f,Data[1],Width*Height);
+      end;
+  closefile(f);
 
-//Special fixes:
-if aFont=fnt_game then
-for i:=0 to 255 do
-  if FontData[byte(aFont)].Pal[i]<>0 then
-    for k:=1 to 4096 do
-      if FontData[byte(aFont)].Letters[i].Data[k]<>0 then
-        FontData[byte(aFont)].Letters[i].Data[k]:=218; //Light grey color in Pal2
+  //Special fixes:
+  if aFont=fnt_game then
+  for i:=0 to 255 do
+    if FontData[byte(aFont)].Pal[i]<>0 then
+      for k:=1 to 4096 do
+        if FontData[byte(aFont)].Letters[i].Data[k]<>0 then
+          FontData[byte(aFont)].Letters[i].Data[k]:=218; //Light grey color in Pal2
 
 
-//Compile texture
-AdvX:=0; AdvY:=0;
-setlength(TD,TexWidth*TexWidth+1);
-FillChar(TD[0],TexWidth*TexWidth+1,$80); //Make some background
+  //Compile texture
+  AdvX:=0; AdvY:=0;
+  setlength(TD,TexWidth*TexWidth+1);
+  FillChar(TD[0],TexWidth*TexWidth+1,$80); //Make some background
 
-for i:=0 to 255 do
-  if FontData[byte(aFont)].Pal[i]<>0 then
-    with FontData[byte(aFont)].Letters[i] do begin
+  for i:=0 to 255 do
+    if FontData[byte(aFont)].Pal[i]<>0 then
+      with FontData[byte(aFont)].Letters[i] do begin
 
-    fLog.AssertToLog(FontData[byte(aFont)].Pal[i]=1,'FontData palette <> 1');
+      fLog.AssertToLog(FontData[byte(aFont)].Pal[i]=1,'FontData palette <> 1');
 
-      if AdvX+Width+2>TexWidth then begin
-        AdvX:=0;
-        inc(AdvY,MaxHeight);
+        if AdvX+Width+2>TexWidth then begin
+          AdvX:=0;
+          inc(AdvY,MaxHeight);
+        end;
+
+        for ci:=1 to Height do for ck:=1 to Width do
+          TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=Data[(ci-1)*Width+ck];
+
+        u1:=(AdvX+1)/TexWidth;
+        v1:=AdvY/TexWidth;
+        u2:=(AdvX+1+Width)/TexWidth;
+        v2:=(AdvY+Height)/TexWidth;
+
+        inc(AdvX,1+Width+1);
       end;
 
-      for ci:=1 to Height do for ck:=1 to Width do
-        TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=Data[(ci-1)*Width+ck];
+    FontData[byte(aFont)].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
 
-      u1:=(AdvX+1)/TexWidth;
-      v1:=AdvY/TexWidth;
-      u2:=(AdvX+1+Width)/TexWidth;
-      v2:=(AdvY+Height)/TexWidth;
+    FontData[byte(aFont)].Letters[32].Width:=7; //"Space" width
 
-      inc(AdvX,1+Width+1);
+  //for i:=1 to 10 do
+  if WriteFontToBMP then begin
+    MyBitMap:=TBitMap.Create;
+    MyBitmap.PixelFormat:=pf24bit;
+    MyBitmap.Width:=TexWidth;
+    MyBitmap.Height:=TexWidth;
+
+    for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
+      p:=FontPal[byte(aFont)];
+      //p:=i;
+      t:=TD[ci*TexWidth+ck]+1;
+      MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
     end;
 
-  FontData[byte(aFont)].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
-
-  FontData[byte(aFont)].Letters[32].Width:=7; //"Space" width
-
-//for i:=1 to 10 do
-if WriteFontToBMP then begin
-  MyBitMap:=TBitMap.Create;
-  MyBitmap.PixelFormat:=pf24bit;
-  MyBitmap.Width:=TexWidth;
-  MyBitmap.Height:=TexWidth;
-
-  for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-    p:=FontPal[byte(aFont)];
-    //p:=i;
-    t:=TD[ci*TexWidth+ck]+1;
-    MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
+    CreateDir(ExeDir+'Export\');
+    CreateDir(ExeDir+'Export\Fonts\');
+    MyBitmap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
+    MyBitmap.Free;
   end;
 
-  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\Fonts\');
-  MyBitmap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
-  MyBitmap.Free;
-end;
-
-setlength(TD,0);
-Result:=true;
+  setlength(TD,0);
+  Result:=true;
 
 end;
 
