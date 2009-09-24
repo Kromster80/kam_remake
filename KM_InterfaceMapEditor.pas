@@ -30,12 +30,14 @@ type TKMMapEditorInterface = class
       KMPanel_Objects:TKMPanel;
 
     KMPanel_Village:TKMPanel;
-      KMButton_Village:array[1..4]of TKMButton;
+      KMButton_Village:array[1..3]of TKMButton;
       KMPanel_Build:TKMPanel;
         KMLabel_Build:TKMLabel;
         KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine,KMButton_BuildWall,KMButton_BuildCancel:TKMButtonFlat;
         KMButton_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
       KMPanel_Units:TKMPanel;
+        KMButton_Citizen:array[1..14]of TKMButtonFlat;
+        KMButton_Warriors:array[1..9]of TKMButtonFlat;
       KMPanel_Script:TKMPanel;
 
     KMPanel_Menu:TKMPanel;
@@ -363,12 +365,10 @@ begin
     KMButton_Village[1] := MyControls.AddButton(KMPanel_Village,   8, 4, 36, 24, 454);
     KMButton_Village[2] := MyControls.AddButton(KMPanel_Village,  48, 4, 36, 24, 141);
     KMButton_Village[3] := MyControls.AddButton(KMPanel_Village,  88, 4, 36, 24, 327);
-    KMButton_Village[4] := MyControls.AddButton(KMPanel_Village, 128, 4, 36, 24, 385);
-    KMButton_Village[4].Disable;
-    for i:=1 to 4 do KMButton_Village[i].OnClick := SwitchPage;
+    for i:=1 to 3 do KMButton_Village[i].OnClick := SwitchPage;
 
-    KMPanel_Build:=MyControls.AddPanel(KMPanel_Village,0,28,196,400);
-      KMLabel_Build:=MyControls.AddLabel(KMPanel_Build,100,10,100,30,'',fnt_Outline,kaCenter);
+    KMPanel_Build := MyControls.AddPanel(KMPanel_Village,0,28,196,400);
+      KMLabel_Build := MyControls.AddLabel(KMPanel_Build,100,10,100,30,'',fnt_Outline,kaCenter);
       KMButton_BuildRoad   := MyControls.AddButtonFlat(KMPanel_Build,  8,40,33,33,335);
       KMButton_BuildField  := MyControls.AddButtonFlat(KMPanel_Build, 45,40,33,33,337);
       KMButton_BuildWine   := MyControls.AddButtonFlat(KMPanel_Build, 82,40,33,33,336);
@@ -393,6 +393,25 @@ begin
         end;
 
     KMPanel_Units := MyControls.AddPanel(KMPanel_Village,0,28,196,400);
+
+      MyControls.AddLabel(KMPanel_Units,100,10,100,30,'Citizens',fnt_Outline,kaCenter);
+      for i:=1 to length(KMButton_Citizen) do
+      begin
+        KMButton_Citizen[i] := MyControls.AddButtonFlat(KMPanel_Units,8+((i-1) mod 5)*37,40+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 32x8
+        KMButton_Citizen[i].Hint := TypeToString(School_Order[i]);
+        KMButton_Citizen[i].Tag := byte(School_Order[i]); //Returns unit ID
+        //KMButton_Citizen[i].OnClick := Unit_ButtonClick;
+      end;
+
+      MyControls.AddLabel(KMPanel_Units,100,160,100,30,'Warriors',fnt_Outline,kaCenter);
+      for i:=1 to length(KMButton_Warriors) do
+      begin
+        KMButton_Warriors[i] := MyControls.AddButtonFlat(KMPanel_Units,8+((i-1) mod 5)*37,190+((i-1) div 5)*37,33,33,byte(Barracks_Order[i])+140); //List of tiles 32x8
+        KMButton_Warriors[i].Hint := TypeToString(Barracks_Order[i]);
+        KMButton_Warriors[i].Tag := byte(Barracks_Order[i]); //Returns unit ID
+        //KMButton_Citizen[i].OnClick := Unit_ButtonClick;
+      end;
+
     KMPanel_Script := MyControls.AddPanel(KMPanel_Village,0,28,196,400);
 end;
 
@@ -460,7 +479,7 @@ begin
   end;
 
 end;
-
+                                           
 
 {Menu page}
 procedure TKMMapEditorInterface.Create_Menu_Page;
@@ -505,7 +524,6 @@ begin
     KMLabel_UnitCondition:=MyControls.AddLabel(KMPanel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
     KMConditionBar_Unit:=MyControls.AddPercentBar(KMPanel_Unit,73,55,116,15,80);
     KMLabel_UnitDescription:=MyControls.AddLabel(KMPanel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
-    //Military buttons start at 8.170 and are 52x38/30 (60x46)
 end;
 
 
