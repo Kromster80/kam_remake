@@ -29,7 +29,7 @@ const
 var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
-  MakeUnitSprites       :boolean=false;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
@@ -89,7 +89,7 @@ type
 
 {Cursors}
 type
-  TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses);
+  TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, cm_Units);
 
 const
   SETTINGS_FILE = 'KaM_Remake_Settings.ini';

@@ -36,6 +36,7 @@ type TKMMapEditorInterface = class
         KMButton_BuildRoad,KMButton_BuildField,KMButton_BuildWine,KMButton_BuildWall,KMButton_BuildCancel:TKMButtonFlat;
         KMButton_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
       KMPanel_Units:TKMPanel;
+        KMButton_UnitCancel:TKMButtonFlat;
         KMButton_Citizen:array[1..14]of TKMButtonFlat;
         KMButton_Warriors:array[1..9]of TKMButtonFlat;
       KMPanel_Script:TKMPanel;
@@ -87,6 +88,7 @@ type TKMMapEditorInterface = class
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
+    procedure Unit_ButtonClick(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
   public
@@ -400,8 +402,11 @@ begin
         KMButton_Citizen[i] := MyControls.AddButtonFlat(KMPanel_Units,8+((i-1) mod 5)*37,40+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 32x8
         KMButton_Citizen[i].Hint := TypeToString(School_Order[i]);
         KMButton_Citizen[i].Tag := byte(School_Order[i]); //Returns unit ID
-        //KMButton_Citizen[i].OnClick := Unit_ButtonClick;
+        KMButton_Citizen[i].OnClick := Unit_ButtonClick;
       end;
+      KMButton_UnitCancel := MyControls.AddButtonFlat(KMPanel_Units,8+(length(KMButton_Citizen) mod 5)*37,40+(length(KMButton_Citizen) div 5)*37,33,33,340);
+      KMButton_UnitCancel.Hint := fTextLibrary.GetTextString(211);
+      KMButton_UnitCancel.OnClick := Unit_ButtonClick;
 
       MyControls.AddLabel(KMPanel_Units,100,160,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(KMButton_Warriors) do
@@ -409,7 +414,7 @@ begin
         KMButton_Warriors[i] := MyControls.AddButtonFlat(KMPanel_Units,8+((i-1) mod 5)*37,190+((i-1) div 5)*37,33,33,byte(Barracks_Order[i])+140); //List of tiles 32x8
         KMButton_Warriors[i].Hint := TypeToString(Barracks_Order[i]);
         KMButton_Warriors[i].Tag := byte(Barracks_Order[i]); //Returns unit ID
-        //KMButton_Citizen[i].OnClick := Unit_ButtonClick;
+        KMButton_Citizen[i].OnClick := Unit_ButtonClick;
       end;
 
     KMPanel_Script := MyControls.AddPanel(KMPanel_Village,0,28,196,400);
@@ -655,6 +660,39 @@ begin
      CursorMode.Param:=byte(GUIHouseOrder[i]);
      KMLabel_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
   end;
+end;
+
+
+procedure TKMMapEditorInterface.Unit_ButtonClick(Sender: TObject);
+var i:integer;
+begin
+  if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
+
+  //Release all buttons
+  for i:=1 to KMPanel_Units.ChildCount do
+    if KMPanel_Units.Childs[i] is TKMButtonFlat then
+      TKMButtonFlat(KMPanel_Units.Childs[i]).Down := false;
+
+  //Press the button
+  TKMButtonFlat(Sender).Down:=true;
+
+  //Reset cursor and see if it needs to be changed
+  CursorMode.Mode:=cm_None;
+  CursorMode.Param:=0;
+  //KMLabel_Build.Caption := '';
+
+  if KMButton_UnitCancel.Down then begin
+    CursorMode.Mode:=cm_Erase;
+    //KMLabel_Build.Caption := fTextLibrary.GetTextString(210);
+  end;
+
+  if TKMButtonFlat(Sender).Tag in [1..byte(ut_Cavalry)] then
+  begin
+    CursorMode.Mode:=cm_Units;
+    CursorMode.Param:=byte(TKMButtonFlat(Sender).Tag);
+    //KMLabel_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
+  end;
+
 end;
 
 

@@ -398,9 +398,12 @@ begin
                     cm_Houses:
                     if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Param)) then
                                 MyPlayer.AddHouse(THouseType(CursorMode.Param),P);
+                    cm_Units:
+                                MyPlayer.AddUnit(TUnitType(CursorMode.Param),P);
               cm_Erase:
                 begin
-                  MyPlayer.RemHouse(P,false); //don't ask about houses that are not started
+                  MyPlayer.RemHouse(P,false); { TODO : split apart according to opened page e.g. do not remove Houses if user is on Units page }
+                  //MyPlayer.RemUnit(P); //@Lewin: Need your help here - how do we remove unit according to new pointer tracking system? Simply remove it from list or.. 
                   fTerrain.RemRoad(P);
                   fTerrain.RemField(P);
                 end;

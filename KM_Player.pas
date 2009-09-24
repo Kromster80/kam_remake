@@ -31,7 +31,7 @@ type
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
     procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-    procedure RemUnit(Position: TKMUnit);
+    //procedure RemUnit(Position: TKMPoint);
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
     function FindInn(Loc:TKMPoint; UnitIsAtHome:boolean=false): TKMHouseInn;
@@ -205,10 +205,10 @@ begin
   end;
 end;
 
-procedure TKMPlayerAssets.RemUnit(Position: TKMUnit);
+{procedure TKMPlayerAssets.RemUnit(Position: TKMPoint);
 begin
   fUnits.Rem(Position);
-end;
+end;}
 
 function TKMPlayerAssets.RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
 begin

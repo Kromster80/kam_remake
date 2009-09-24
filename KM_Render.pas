@@ -1204,6 +1204,7 @@ case CursorMode.Mode of
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
+  cm_Units: fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
 end;
 end;
 
