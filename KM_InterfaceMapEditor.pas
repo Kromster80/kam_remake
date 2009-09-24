@@ -414,7 +414,7 @@ begin
         KMButton_Warriors[i] := MyControls.AddButtonFlat(KMPanel_Units,8+((i-1) mod 5)*37,190+((i-1) div 5)*37,33,33,byte(Barracks_Order[i])+140); //List of tiles 32x8
         KMButton_Warriors[i].Hint := TypeToString(Barracks_Order[i]);
         KMButton_Warriors[i].Tag := byte(Barracks_Order[i]); //Returns unit ID
-        KMButton_Citizen[i].OnClick := Unit_ButtonClick;
+        KMButton_Warriors[i].OnClick := Unit_ButtonClick;
       end;
 
     KMPanel_Script := MyControls.AddPanel(KMPanel_Village,0,28,196,400);
