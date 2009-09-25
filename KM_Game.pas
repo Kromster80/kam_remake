@@ -180,7 +180,7 @@ begin
       fTerrain.RevealWholeMap(MyPlayer.PlayerID);
     end;
     {Thats my debug example}
-    {if (Key=ord('5')) and (GameState = gsRunning) then begin
+    if (Key=ord('5')) and (GameState = gsRunning) then begin
       fGameplayInterface.IssueMessage(msgText,'123');
     end;
     if (Key=ord('6')) and (GameState = gsRunning) then begin
@@ -197,7 +197,7 @@ begin
     end;
     if (Key=ord('0')) and (GameState = gsRunning) then begin
       fGameplayInterface.IssueMessage(msgScroll,'123');
-    end;}
+    end;
   end;
 
   //Also send shortcut to GamePlayInterface if it is there

@@ -7,6 +7,28 @@ type
   TKMList = class(TList)
   public
     procedure Clear; override;
+  end;  
+
+{Messages}
+//number matches pic index in gui.rx
+type TKMMessageType = (msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
+
+type
+  TKMMessage = class
+  public
+    msgType:TKMMessageType;
+    msgText:string;
+  end;
+
+type TKMMessageList = class
+  public
+    Count:integer;
+    List:array of TKMMessage; //1..Count
+    procedure AddEntry(aMsgTyp:TKMMessageType; aText:string);
+    procedure RemoveEntry(aID:integer);
+    procedure InjectEntry(aID:integer; aMsgTyp:TKMMessageType; aText:string);
+    function GetPicID(aID:integer):word;
+    function GetText(aID:integer):string;
   end;
 
 
@@ -152,6 +174,51 @@ begin
     Items[I]:=nil;
   end;
   inherited;
+end;
+
+
+{ TKMMessageList }
+procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string);
+begin
+  inc(Count);
+  setlength(List, Count+1);
+  List[Count].msgType := aMsgTyp;
+  List[Count].msgText := aText;
+end;
+
+
+procedure TKMMessageList.RemoveEntry(aID:integer);
+var i:integer;
+begin
+  dec(Count);
+  for i := aID to Count do
+    List[i] := List[i+1];
+  setlength(List, Count+1); //to keep it neat
+end;
+
+
+//Might be of use with priority messages
+procedure TKMMessageList.InjectEntry(aID:integer; aMsgTyp:TKMMessageType; aText:string);
+var i:integer;
+begin
+  inc(Count);
+  setlength(List, Count+1);
+  for i := aID + 1 to Count do
+    List[i] := List[i-1];
+  List[aID].msgType := aMsgTyp;
+  List[aID].msgText := aText;
+end;
+
+
+function TKMMessageList.GetPicID(aID:integer):word;
+begin
+  Result := word(List[aID].msgType);
+end;
+
+
+function TKMMessageList.GetText(aID:integer):string;
+begin
+  Result := List[aID].msgText;
 end;
 
 

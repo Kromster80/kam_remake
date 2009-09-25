@@ -124,10 +124,7 @@ const
 
 type gr_Message = (gr_Win, gr_Defeat, gr_Cancel, gr_Error);
 
-{Massages}
-type
-  TKMMessageType = (msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
-                
+               
 {Palettes}
 const
  //Palette filename corresponds with pal_**** constant, except pal_lin which is generated proceduraly (filename doesn't matter for it)

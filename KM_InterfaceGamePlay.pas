@@ -1,18 +1,18 @@
 unit KM_InterfaceGamePlay;
 interface
 uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, Windows,
-  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT;
+  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT, KM_CommonTypes;
 
 type TKMGamePlayInterface = class
   protected
-    ToolBarX:word;  
+    ToolBarX:word;
   protected
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
     ShownHint:TObject;
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
-    MessagesCount:integer; //Messages thet are on bottom
+    fMessageList:TKMMessageList;
     AskDemolish:boolean;
 
     KMPanel_Main:TKMPanel;
@@ -20,7 +20,7 @@ type TKMGamePlayInterface = class
       KMMinimap:TKMMinimap;
       KMLabel_Stat,KMLabel_Hint,KMLabel_PointerCount:TKMLabel;
       KMButtonMain:array[1..5]of TKMButton; //4 common buttons + Return
-      KMImage_Message:array[1..256]of TKMImage; //Queue of messages
+      KMImage_Message:array[1..32]of TKMImage; //Queue of messages covers 32*48=1536px height
       KMImage_Clock:TKMImage; //Clock displayed when game speed is increased
       KMLabel_Clock:TKMLabel;
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
@@ -180,7 +180,7 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_SoundFX, KM_CommonTypes;
+uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_SoundFX;
 
 
 {Switch between pages}
@@ -418,7 +418,8 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
   LastSchoolUnit:=1;
   LastBarracksUnit:=1;
-  MessagesCount:=0;
+  fMessageList:=TKMMessageList.Create;
+
 {Parent Page for whole toolbar in-game}
   KMPanel_Main:=MyControls.AddPanel(nil,0,0,224,768);
 
@@ -446,6 +447,15 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     KMImage_Clock.Hide;
     KMLabel_Clock:=MyControls.AddLabel(KMPanel_Main,265,80,0,0,'mm:ss',fnt_Outline,kaCenter);
     KMLabel_Clock.Hide;
+
+    for i:=low(KMImage_Message) to high(KMImage_Message) do
+    begin
+      KMImage_Message[i] := MyControls.AddImage(KMPanel_Main,224,fRender.GetRenderAreaSize.Y-i*48,30,48,495);
+      KMImage_Message[i].Tag := i;
+      KMImage_Message[i].Disable;
+      KMImage_Message[i].Hide;
+      //KMImage_Message[i].OnClick := DisplayMessage;
+    end;
 
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
@@ -478,6 +488,7 @@ end;
 
 destructor TKMGamePlayInterface.Destroy;
 begin
+  FreeAndNil(fMessageList);
   FreeAndNil(MyControls);
   inherited;
 end;
@@ -495,7 +506,7 @@ begin
   KMLabel_Pause1.Top:=(Y div 2);
   KMLabel_Pause2.Top:=(Y div 2)+20;
 
-  //Also update Hint position and all messages..
+  //todo: Also update Hint position and all messages in queue..
 end;
 
 
@@ -916,7 +927,6 @@ end;
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMGamePlayInterface.UpdateState;
-var i:integer;
 begin
   if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse,AskDemolish);
@@ -931,13 +941,6 @@ begin
   end;
 
   KMLabel_PointerCount.Caption := 'Pointers: U,H: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
-
-  for i:=low(KMImage_Message) to high(KMImage_Message) do
-    if Assigned(KMImage_Message[i]) then
-    begin
-      if KMImage_Message[i].Top < 768-48 then //Add stacking here
-        KMImage_Message[i].Top:= KMImage_Message[i].Top + 24;
-    end;
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
@@ -1528,12 +1531,16 @@ end;
 procedure TKMGamePlayInterface.IssueMessage(MsgTyp:TKMMessageType; Text:string);
 var i:integer;
 begin
+  fMessageList.AddEntry(MsgTyp,Text);
+
+  //MassageList is unlimited, while KMImage_Message has fixed depth and samples data from the list on demand
   for i:=low(KMImage_Message) to high(KMImage_Message) do
-    if not Assigned(KMImage_Message[i]) then
-    begin
-      KMImage_Message[i]:=MyControls.AddImage(KMPanel_Main,ToolBarWidth,0,30,48,word(MsgTyp));
-      break;
-    end;
+  begin
+    KMImage_Message[i].TexID := fMessageList.GetPicID(i);
+    KMImage_Message[i].Enabled := i in [1..fMessageList.Count]; //Disable and hide at once for safety
+    KMImage_Message[i].Visible := i in [1..fMessageList.Count];
+  end;
+
   fSoundLib.Play(sfx_MessageNotice); //Play horn sound on new message
 end;
 

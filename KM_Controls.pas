@@ -287,7 +287,8 @@ TKMControlsCollection = class(TKMList)
     procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp         (X,Y:integer; AButton:TMouseButton);
-    //property Items[Index: Integer]: TKMControl read GetItem write Put; default; //todo: add list of TKMControls in here
+    //todo: use list of TKMControls in here
+    //property Items[Index: Integer]: TKMControl read GetItem write Put; default;
     procedure Paint();
 end;
 
@@ -1099,31 +1100,36 @@ begin
 end;
 
 
+{Send OnClick event to control below}
 procedure TKMControlsCollection.OnMouseUp(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   for i:=0 to Count-1 do
     if TKMControl(Items[I]).HitTest(X, Y) then
-      if TKMControl(Items[I]).Enabled then begin
+      if TKMControl(Items[I]).Enabled then
+      begin
         if TKMControl(Items[i]).ClassType=TKMButton then //todo: Using Classtype is WRONG! (rework it somehow)
           TKMButton(Items[I]).Down:=false;
-        if AButton = mbLeft then begin
-          if Assigned(TKMControl(Items[I]).OnClick) then begin
+        if AButton = mbLeft then
+        begin
+          if Assigned(TKMControl(Items[I]).OnClick) then
+          begin
             TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
             exit; //Send OnClick only to one item
           end;
         end else
           if AButton = mbRight then
-          if Assigned(TKMControl(Items[I]).OnRightClick) then begin
+          if Assigned(TKMControl(Items[I]).OnRightClick) then
+          begin
             TKMControl(Items[I]).OnRightClick(TKMControl(Items[I]));
-            exit; //Send OnClick only to one item
+            exit; //Send OnRightClick only to one item
           end;
       end;
 end;
 
 
 {Paint controls}
-{Keep painting of childs to their parent control}
+{Leave painting of childs to their parent control}
 procedure TKMControlsCollection.Paint();
   var i:integer;
 begin
