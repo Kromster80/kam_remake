@@ -182,6 +182,7 @@ procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string);
 begin
   inc(Count);
   setlength(List, Count+1);
+  List[Count] := TKMMessage.Create;
   List[Count].msgType := aMsgTyp;
   List[Count].msgText := aText;
 end;
@@ -193,6 +194,7 @@ begin
   dec(Count);
   for i := aID to Count do
     List[i] := List[i+1];
+  FreeAndNil(List[Count+1]); //
   setlength(List, Count+1); //to keep it neat
 end;
 
@@ -212,13 +214,19 @@ end;
 
 function TKMMessageList.GetPicID(aID:integer):word;
 begin
-  Result := word(List[aID].msgType);
+  if aID in [1..Count] then
+    Result := word(List[aID].msgType)
+  else
+    Result := 0;
 end;
 
 
 function TKMMessageList.GetText(aID:integer):string;
 begin
-  Result := List[aID].msgText;
+  if aID in [1..Count] then
+    Result := List[aID].msgText
+  else
+    Result := '';
 end;
 
 
