@@ -24,6 +24,8 @@ type TKMGamePlayInterface = class
       KMImage_Clock:TKMImage; //Clock displayed when game speed is increased
       KMLabel_Clock:TKMLabel;
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
+    KMPanel_Message:TKMPanel;
+      KMImage_MessageBG:TKMImage;
     KMPanel_Pause:TKMPanel;
       KMBevel_Pause:TKMBevel;
       KMImage_Pause:TKMImage;
@@ -113,6 +115,7 @@ type TKMGamePlayInterface = class
       KMImage_Barracks_Right,KMImage_Barracks_Train,KMImage_Barracks_Left:TKMImage;
       KMButton_Barracks_Right,KMButton_Barracks_Train,KMButton_Barracks_Left:TKMButton;
   private
+    procedure Create_Message_Page;
     procedure Create_Pause_Page;
     procedure Create_Build_Page;
     procedure Create_Ratios_Page;
@@ -523,6 +526,14 @@ begin
     KMPanel_Pause.Hide
 end;
 
+
+{Message page}
+procedure TKMGamePlayInterface.Create_Message_Page;
+begin
+  KMPanel_Message:=MyControls.AddPanel(KMPanel_Main,TOOLBARWIDTH,fRender.GetRenderAreaSize.Y-190,fRender.GetRenderAreaSize.X-TOOLBARWIDTH,190);
+    KMImage_MessageBG:=MyControls.AddImage(KMPanel_Message,0,20,fRender.GetRenderAreaSize.X-TOOLBARWIDTH,170,409);
+
+end;
 
 {Build page}
 procedure TKMGamePlayInterface.Create_Build_Page;
