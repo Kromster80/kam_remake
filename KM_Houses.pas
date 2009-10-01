@@ -267,6 +267,7 @@ end;
 procedure TKMHouse.CloseHouse;
 begin
   fIsDestroyed:=true;
+  BuildingRepair := false; //Otherwise labourers will take task to repair when the house is destroyed
   if (RemoveRoadWhenDemolish) and not (GetBuildingState in [hbs_Stone, hbs_Done]) then fTerrain.RemRoad(Self.GetEntrance);
   FreeAndNil(fCurrentAction);
   //Leave disposing of units inside the house to themselves

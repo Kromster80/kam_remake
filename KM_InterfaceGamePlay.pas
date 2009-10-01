@@ -1,7 +1,7 @@
 unit KM_InterfaceGamePlay;
 interface
 uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, Windows,
-  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT, KM_CommonTypes;
+  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT, KM_CommonTypes, KM_Utils;
 
 type TKMGamePlayInterface = class
   protected
@@ -10,6 +10,7 @@ type TKMGamePlayInterface = class
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
     ShownHint:TObject;
+    ShownMessage:integer;
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
@@ -26,6 +27,12 @@ type TKMGamePlayInterface = class
       KMLabel_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
     KMPanel_Message:TKMPanel;
       KMImage_MessageBG:TKMImage;
+      KMImage_MessageBGTop:TKMImage;
+      KMLabel_MessageText:TKMLabel;
+      KMButton_MessageGoTo: TKMButton;
+      KMButton_MessageDelete: TKMButton;
+      KMButton_MessageClose: TKMButton;
+      //For multiplayer: Send, reply, text area for typing, etc.
     KMPanel_Pause:TKMPanel;
       KMBevel_Pause:TKMBevel;
       KMImage_Pause:TKMImage;
@@ -138,6 +145,11 @@ type TKMGamePlayInterface = class
     procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
+    procedure UpdateMessageStack;
+    procedure DisplayMessage(Sender: TObject);
+    procedure CloseMessage(Sender: TObject);
+    procedure DeleteMessage(Sender: TObject);
+    procedure GoToMessage(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
     procedure Store_Fill(Sender:TObject);
@@ -170,7 +182,7 @@ type TKMGamePlayInterface = class
     procedure Menu_PreviousTrack(Sender:TObject);
     procedure Build_SelectRoad;
     procedure Build_RightClickCancel;
-    procedure IssueMessage(MsgTyp:TKMMessageType; Text:string);
+    procedure IssueMessage(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow:boolean);
@@ -183,7 +195,7 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_SoundFX;
+uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_SoundFX;
 
 
 {Switch between pages}
@@ -451,13 +463,15 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     KMLabel_Clock:=MyControls.AddLabel(KMPanel_Main,265,80,0,0,'mm:ss',fnt_Outline,kaCenter);
     KMLabel_Clock.Hide;
 
+    Create_Message_Page; //Must go bellow message stack
+
     for i:=low(KMImage_Message) to high(KMImage_Message) do
     begin
-      KMImage_Message[i] := MyControls.AddImage(KMPanel_Main,224,fRender.GetRenderAreaSize.Y-i*48,30,48,495);
+      KMImage_Message[i] := MyControls.AddImage(KMPanel_Main,ToolBarWidth,fRender.GetRenderAreaSize.Y-i*48,30,48,495);
       KMImage_Message[i].Tag := i;
       KMImage_Message[i].Disable;
       KMImage_Message[i].Hide;
-      //KMImage_Message[i].OnClick := DisplayMessage;
+      KMImage_Message[i].OnClick := DisplayMessage;
     end;
 
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
@@ -498,6 +512,7 @@ end;
 
 
 procedure TKMGamePlayInterface.SetScreenSize(X,Y:word);
+var i: integer;
 begin
   KMBevel_Pause.Width:=X+2;
   KMImage_Pause.Left:=X div 2;
@@ -509,7 +524,12 @@ begin
   KMLabel_Pause1.Top:=(Y div 2);
   KMLabel_Pause2.Top:=(Y div 2)+20;
 
-  //todo: Also update Hint position and all messages in queue..
+  //Update Hint position and all messages in queue
+  KMLabel_Hint.Top:=Y-16;
+  for i:=low(KMImage_Message) to high(KMImage_Message) do
+  begin
+    KMImage_Message[i].Top := Y-i*48;
+  end;
 end;
 
 
@@ -531,8 +551,18 @@ end;
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
   KMPanel_Message:=MyControls.AddPanel(KMPanel_Main,TOOLBARWIDTH,fRender.GetRenderAreaSize.Y-190,fRender.GetRenderAreaSize.X-TOOLBARWIDTH,190);
-    KMImage_MessageBG:=MyControls.AddImage(KMPanel_Message,0,20,fRender.GetRenderAreaSize.X-TOOLBARWIDTH,170,409);
-
+    KMImage_MessageBG:=MyControls.AddImage(KMPanel_Message,0,20,600,170,409);
+    KMImage_MessageBGTop:=MyControls.AddImage(KMPanel_Message,0,0,600,20,551);
+    KMLabel_MessageText:=MyControls.AddLabel(KMPanel_Message,58,64,500,480,'',fnt_Antiqua,kaLeft);
+    KMButton_MessageGoTo:=MyControls.AddButton(KMPanel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
+    KMButton_MessageGoTo.Hint := fTextLibrary.GetTextString(281);
+    KMButton_MessageGoTo.OnClick := GoToMessage;
+    KMButton_MessageDelete:=MyControls.AddButton(KMPanel_Message,490,104,100,24,fTextLibrary.GetTextString(276),fnt_Antiqua);
+    KMButton_MessageDelete.Hint := fTextLibrary.GetTextString(287);
+    KMButton_MessageDelete.OnClick := DeleteMessage;
+    KMButton_MessageClose:=MyControls.AddButton(KMPanel_Message,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
+    KMButton_MessageClose.Hint := fTextLibrary.GetTextString(283);
+    KMButton_MessageClose.OnClick := CloseMessage;
 end;
 
 {Build page}
@@ -962,6 +992,48 @@ begin
         inttostr(fPlayers.GetUnitCount)+' units'+#124+
         inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
         '';
+end;
+
+
+procedure TKMGamePlayInterface.DisplayMessage(Sender: TObject);
+var i: integer;
+begin
+  if not TKMImage(Sender).Visible then exit; //Exit if the message is not active
+
+  ShownMessage:=0;
+  for i:=low(KMImage_Message) to high(KMImage_Message) do
+    if Sender = KMImage_Message[i] then
+      ShownMessage := i;
+
+  if ShownMessage=0 then exit; //Exit if the sender cannot be found
+
+  KMLabel_MessageText.Caption := fMessageList.GetText(ShownMessage);
+  KMButton_MessageGoTo.Enabled := fMessageList.GetPicID(ShownMessage)-400 in [92..93]; //Only show Go To for house and units
+  KMPanel_Message.Show;
+  fSoundLib.Play(sfx_MessageOpen); //Play parchment sound when they open the message
+end;
+
+
+procedure TKMGamePlayInterface.CloseMessage(Sender: TObject);
+begin
+  UpdateMessageStack;
+  fSoundLib.Play(sfx_MessageClose);
+  ShownMessage := 0;
+  KMPanel_Message.Hide;
+end;
+
+
+procedure TKMGamePlayInterface.DeleteMessage(Sender: TObject);
+begin
+  fMessageList.RemoveEntry(ShownMessage);
+  CloseMessage(Sender);
+end;       
+
+
+procedure TKMGamePlayInterface.GoToMessage(Sender: TObject);
+begin
+  if (fMessageList.GetLoc(ShownMessage).X <> 0) and (fMessageList.GetLoc(ShownMessage).Y <> 0) then
+    fViewport.SetCenter(fMessageList.GetLoc(ShownMessage).X,fMessageList.GetLoc(ShownMessage).Y);
 end;
 
 
@@ -1539,11 +1611,18 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.IssueMessage(MsgTyp:TKMMessageType; Text:string);
+procedure TKMGamePlayInterface.IssueMessage(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
+begin
+  fMessageList.AddEntry(MsgTyp,Text,Loc);
+  UpdateMessageStack;
+  if fMessageList.GetPicID(fMessageList.Count)-400 in [91..93,95] then
+    fSoundLib.Play(sfx_MessageNotice); //Play horn sound on new message if it is the right type
+end;
+
+
+procedure TKMGamePlayInterface.UpdateMessageStack;
 var i:integer;
 begin
-  fMessageList.AddEntry(MsgTyp,Text);
-
   //MassageList is unlimited, while KMImage_Message has fixed depth and samples data from the list on demand
   for i:=low(KMImage_Message) to high(KMImage_Message) do
   begin
@@ -1551,8 +1630,6 @@ begin
     KMImage_Message[i].Enabled := i in [1..fMessageList.Count]; //Disable and hide at once for safety
     KMImage_Message[i].Visible := i in [1..fMessageList.Count];
   end;
-
-  fSoundLib.Play(sfx_MessageNotice); //Play horn sound on new message
 end;
 
 

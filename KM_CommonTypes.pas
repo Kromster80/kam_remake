@@ -18,17 +18,19 @@ type
   public
     msgType:TKMMessageType;
     msgText:string;
+    msgLoc:TKMPoint;
   end;
 
 type TKMMessageList = class
   public
     Count:integer;
     List:array of TKMMessage; //1..Count
-    procedure AddEntry(aMsgTyp:TKMMessageType; aText:string);
+    procedure AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
     procedure RemoveEntry(aID:integer);
     procedure InjectEntry(aID:integer; aMsgTyp:TKMMessageType; aText:string);
     function GetPicID(aID:integer):word;
     function GetText(aID:integer):string;
+    function GetLoc(aID:integer):TKMPoint;
   end;
 
 
@@ -178,13 +180,14 @@ end;
 
 
 { TKMMessageList }
-procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string);
+procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
 begin
   inc(Count);
   setlength(List, Count+1);
   List[Count] := TKMMessage.Create;
   List[Count].msgType := aMsgTyp;
   List[Count].msgText := aText;
+  List[Count].msgLoc := aLoc;
 end;
 
 
@@ -227,6 +230,15 @@ begin
     Result := List[aID].msgText
   else
     Result := '';
+end;
+
+
+function TKMMessageList.GetLoc(aID:integer):TKMPoint;
+begin
+  if aID in [1..Count] then
+    Result := List[aID].msgLoc
+  else
+    Result := KMPoint(0,0);
 end;
 
 

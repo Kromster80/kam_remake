@@ -1926,7 +1926,7 @@ procedure TTaskBuildHouseRepair.Execute(out TaskDone:boolean);
 begin
   TaskDone:=false;
   if (fHouse.IsDestroyed)or(not fHouse.IsDamaged)or(not fHouse.BuildingRepair) then begin
-    Abandon; //TODO: If you destroy the house then the labourers are still locked into repairing, they just sit there forever
+    Abandon;
     TaskDone:=true; //Drop the task
     exit;
   end;

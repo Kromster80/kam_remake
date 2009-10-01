@@ -181,22 +181,22 @@ begin
     end;
     {Thats my debug example}
     if (Key=ord('5')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgText,'123');
+      fGameplayInterface.IssueMessage(msgText,'123',KMPoint(0,0));
     end;
     if (Key=ord('6')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgHouse,'123');
+      fGameplayInterface.IssueMessage(msgHouse,'123',fViewport.GetCenter);
     end;
     if (Key=ord('7')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgUnit,'123');
+      fGameplayInterface.IssueMessage(msgUnit,'123',KMPoint(0,0));
     end;
     if (Key=ord('8')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgHorn,'123');
+      fGameplayInterface.IssueMessage(msgHorn,'123',KMPoint(0,0));
     end;
     if (Key=ord('9')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgQuill,'123');
+      fGameplayInterface.IssueMessage(msgQuill,'123',KMPoint(0,0));
     end;
     if (Key=ord('0')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgScroll,'123');
+      fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
     end;
   end;
 
