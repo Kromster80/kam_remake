@@ -184,6 +184,7 @@ type
     private
       WorkPlan:TUnitWorkPlan;
       BeastID:byte;
+      function ResourceExists():boolean;
     public
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
       procedure Execute(out TaskDone:boolean); override;
@@ -1982,6 +1983,21 @@ begin
 end;
 
 
+function TTaskMining.ResourceExists():boolean;
+begin
+  case WorkPlan.GatheringScript of
+    gs_StoneCutter:     Result := KMSamePoint(fTerrain.FindStone(WorkPlan.Loc,0), WorkPlan.Loc);
+    gs_FarmerSow:       Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Corn,false), WorkPlan.Loc);
+    gs_FarmerCorn:      Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Corn,true), WorkPlan.Loc);
+    gs_FarmerWine:      Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Wine,true), WorkPlan.Loc);
+    gs_FisherCatch:     { TODO : check fish count};
+    gs_WoodCutterPlant: Result := KMSamePoint(fTerrain.FindPlaceForTree(WorkPlan.Loc,0), WorkPlan.Loc);
+    gs_WoodCutterCut:   Result := KMSamePoint(fTerrain.FindTree(WorkPlan.Loc,0), WorkPlan.Loc);
+    else Result := true;
+  end;
+end;
+
+
 {This is execution of Resource mining}
 procedure TTaskMining.Execute(out TaskDone:boolean);
 const SkipWalk=7; SkipWork=29; //Skip to certain Phases
@@ -2006,6 +2022,7 @@ with fUnit do
        end;
     1: SetActionWalk(fUnit,WorkPlan.Loc, WorkPlan.WalkTo);
     2: //IF resource still exists on location
+       if ResourceExists then
        begin //Choose direction and time to work
          Dir:=integer(Direction);
          if UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
@@ -2014,11 +2031,16 @@ with fUnit do
          Dir:=min(Dir,8);
          //Some actions have specific directions
          if WorkPlan.GatheringScript = gs_WoodCutterPlant then Dir:=1;
-         if WorkPlan.GatheringScript = gs_WoodCutterCut   then Dir:=8; //Will need to be improved later to choose the direction based on the direction of approch. For now always cut from the bottom left.
+         if WorkPlan.GatheringScript = gs_WoodCutterCut   then Dir:=8; //todo: Will need to be improved later to choose the direction based on the direction of approch. For now always cut from the bottom left.
          Direction:=TKMDirection(Dir);
          TimeToWork:=WorkPlan.WorkCyc*max(UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
          SetActionStay(TimeToWork, WorkPlan.WorkType, false);
-       end; 
+       end
+       else
+       begin
+         TaskDone := true;
+         exit;
+       end;
     3: begin if WorkPlan.GatheringScript = gs_WoodCutterCut then
              begin
                SetActionStay(10, WorkPlan.WorkType, true, 5, 5); //Wait for the tree to start falling down
@@ -2032,7 +2054,7 @@ with fUnit do
                gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
                gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
                gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
-               gs_FisherCatch:     { TODO : Decrease fish deposit in water};     
+               gs_FisherCatch:     { TODO : Decrease fish deposit in water};
                gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
                gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
              end;

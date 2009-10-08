@@ -6,7 +6,7 @@ Gameplay bugs:
 +	Alt-tabbing with School/Barracks selected causes a crash
 +	Error on exit if there's no OpenAL found
 	Killing a worker while it goes to build a road will cancel the markup and road plan
-	Woodcutter should drop the task if tree is already taken by other woodcutter
+?	Woodcutter should drop the task if tree is already taken by other woodcutter
 	Units get stuck on unwalkable tiles
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
