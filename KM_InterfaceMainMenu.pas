@@ -195,10 +195,10 @@ end;
 procedure TKMMainMenuInterface.ShowScreen_Results(Msg:gr_Message);
 begin
   case Msg of
-  gr_Win:    Label_Results_Result.Caption:=fTextLibrary.GetSetupString(111);
-  gr_Defeat: Label_Results_Result.Caption:=fTextLibrary.GetSetupString(112);
-  gr_Cancel: Label_Results_Result.Caption:='Mission canceled';
-  else       Label_Results_Result.Caption:='<<<LEER>>>';
+    gr_Win:    Label_Results_Result.Caption:=fTextLibrary.GetSetupString(111);
+    gr_Defeat: Label_Results_Result.Caption:=fTextLibrary.GetSetupString(112);
+    gr_Cancel: Label_Results_Result.Caption:='Mission canceled';
+    else       Label_Results_Result.Caption:='<<<LEER>>>';
   end;
   SwitchMenuPage(KMPanel_Results);
 end;

@@ -482,8 +482,9 @@ procedure TKMGame.StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:
 begin
   GameState := gsNoGame;
 
+  //Fill results before data is flushed
   if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
-  fMainMenuInterface.Fill_Results;
+    fMainMenuInterface.Fill_Results;
 
   FreeAndNil(fPlayers);
   FreeAndNil(fTerrain);
@@ -503,6 +504,10 @@ begin
   if Msg = gr_Error then begin
     fLog.AppendLog('Gameplay error',true);
     fMainMenuInterface.ShowScreen_Error(TextMsg);
+  end;
+  if Msg = gr_MapEdEnd then begin
+    fLog.AppendLog('MapEd closed',true);
+    fMainMenuInterface.ShowScreen_Main;
   end;
 end;
 

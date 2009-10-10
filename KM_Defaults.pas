@@ -122,7 +122,12 @@ const
   ('rus','Russian'));
 
 
-type gr_Message = (gr_Win, gr_Defeat, gr_Cancel, gr_Error);
+type gr_Message = (     //Game result
+        gr_Win,         //Player has won the game
+        gr_Defeat,      //Player was defeated
+        gr_Cancel,      //Game was cancelled (unfinished)
+        gr_Error,       //Some known error occured
+        gr_MapEdEnd);   //Map Editor was closed
 
                
 {Palettes}

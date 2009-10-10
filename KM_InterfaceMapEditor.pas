@@ -793,7 +793,7 @@ begin
     if KMPanel_Main.Childs[i] is TKMPanel then
       KMPanel_Main.Childs[i].Hide;
 
-  fGame.StopGame(gr_Cancel);
+  fGame.StopGame(gr_MapEdEnd);
 end;
 
 
