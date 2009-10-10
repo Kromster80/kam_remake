@@ -1985,6 +1985,7 @@ end;
 
 function TTaskMining.ResourceExists():boolean;
 begin
+  Result := true;
   case WorkPlan.GatheringScript of
     gs_StoneCutter:     Result := KMSamePoint(fTerrain.FindStone(WorkPlan.Loc,0), WorkPlan.Loc);
     gs_FarmerSow:       Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Corn,false), WorkPlan.Loc);

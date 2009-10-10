@@ -43,6 +43,9 @@ type TKMMainMenuInterface = class
       KMImage_LoadBG:TKMImage;
       KMButton_Load:array[1..SAVEGAME_COUNT] of TKMButton;
       KMLabel_LoadResult:TKMLabel;
+    KMPanel_MapEd:TKMPanel;
+      Image_MapEd_BG:TKMImage;
+      Button_MapEd_Start,Button_MapEd_Back:TKMButton;
     KMPanel_Options:TKMPanel;
       Image_Options_BG:TKMImage;
       Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
@@ -133,6 +136,7 @@ inherited Create;
   Create_MainMenu_Page;
   Create_Single_Page;
   Create_Load_Page;
+  Create_MapEditor_Page;
   Create_Options_Page(aGameSettings);
   Create_Credits_Page;
   Create_Loading_Page;
@@ -243,7 +247,7 @@ begin
       KMButton_MainMenuTutor.OnClick    :=MainMenu_PlayTutorial;
       KMButton_MainMenuSingle.OnClick   :=SwitchMenuPage;
       KMButton_MainMenuLoad.OnClick     :=SwitchMenuPage;
-      KMButton_MainMenuMapEd.OnClick    :=MainMenu_MapEditor; //todo: We might add new map setup page later on
+      KMButton_MainMenuMapEd.OnClick    :=SwitchMenuPage;
       KMButton_MainMenuOptions.OnClick  :=SwitchMenuPage;
       KMButton_MainMenuCredit.OnClick   :=SwitchMenuPage;
       KMButton_MainMenuQuit.OnClick     :=Form1.Exit1.OnClick;
@@ -347,7 +351,15 @@ end;
 
 procedure TKMMainMenuInterface.Create_MapEditor_Page;
 begin
+  KMPanel_MapEd:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
+    Image_MapEd_BG:=MyControls.AddImage(KMPanel_MapEd,0,0,ScreenX,ScreenY,2,6);
+    Image_MapEd_BG.StretchImage:=true;
   //Should contain options to make a map from scratch, load map from file, generate random preset
+
+    Button_MapEd_Back := MyControls.AddButton(KMPanel_MapEd,0,570,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_MapEd_Back.OnClick := SwitchMenuPage;
+    Button_MapEd_Start := MyControls.AddButton(KMPanel_MapEd,225,570,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_MapEd_Start.OnClick := MainMenu_MapEditor;
 end;
 
 
@@ -489,6 +501,7 @@ begin
   {Return to MainMenu}
   if (Sender=KMButton_CreditsBack)or
      (Sender=KMButton_SingleBack)or
+     (Sender=Button_MapEd_Back)or
      (Sender=Button_ErrorBack)or
      (Sender=KMButton_ResultsBack) then
     KMPanel_MainMenu.Show;
@@ -511,6 +524,11 @@ begin
   if Sender=KMButton_MainMenuLoad then begin
     //Load_PopulateList();
     KMPanel_Load.Show;
+  end;
+
+  {Show MapEditor menu}
+  if Sender=KMButton_MainMenuMapEd then begin
+    KMPanel_MapEd.Show;
   end;
 
   {Show Options menu}
@@ -555,7 +573,7 @@ end;
 
 procedure TKMMainMenuInterface.MainMenu_MapEditor(Sender: TObject);
 begin
-  fLog.AssertToLog(Sender=KMButton_MainMenuMapEd,'not KMButton_MainMenuMapEd');
+  fLog.AssertToLog(Sender = Button_MapEd_Start,'not Button_MapEd_Start');
   fGame.StartMapEditor(''); //Provide mission filename here
 end;
 

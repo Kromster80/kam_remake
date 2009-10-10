@@ -493,21 +493,23 @@ begin
   FreeAndNil(fGamePlayInterface);
   FreeAndNil(fViewport);
 
-  if (Msg = gr_Win) or (Msg = gr_Defeat) then begin
-    fLog.AppendLog('Gameplay ended',true);
-    fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
-  end else
-  if Msg = gr_Cancel then begin
-    fLog.AppendLog('Gameplay canceled',true);
-    fMainMenuInterface.ShowScreen_Results(Msg);
-  end else
-  if Msg = gr_Error then begin
-    fLog.AppendLog('Gameplay error',true);
-    fMainMenuInterface.ShowScreen_Error(TextMsg);
-  end;
-  if Msg = gr_MapEdEnd then begin
-    fLog.AppendLog('MapEd closed',true);
-    fMainMenuInterface.ShowScreen_Main;
+  case Msg of
+    gr_Win,gr_Defeat: begin
+                        fLog.AppendLog('Gameplay ended',true);
+                        fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
+                      end;
+    gr_Cancel:        begin
+                        fLog.AppendLog('Gameplay canceled',true);
+                        fMainMenuInterface.ShowScreen_Results(Msg); //@Lewin: Maybe don't show nothing?
+                      end;
+    gr_Error:         begin
+                        fLog.AppendLog('Gameplay error',true);
+                        fMainMenuInterface.ShowScreen_Error(TextMsg);
+                      end;
+    gr_MapEdEnd:      begin
+                        fLog.AppendLog('MapEd closed',true);
+                        fMainMenuInterface.ShowScreen_Main;
+                      end;
   end;
 end;
 
