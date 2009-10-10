@@ -86,13 +86,13 @@ type TKMMainMenuInterface = class
     procedure Create_Results_Page;
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
-    procedure MainMenu_MapEditor(Sender: TObject);
     procedure SingleMap_PopulateList();
     procedure SingleMap_RefreshList();
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
     procedure Load_Click(Sender: TObject);
+    procedure MapEditor_Start(Sender: TObject);
     procedure Options_Change(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
@@ -358,8 +358,8 @@ begin
 
     Button_MapEd_Back := MyControls.AddButton(KMPanel_MapEd,0,570,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_MapEd_Back.OnClick := SwitchMenuPage;
-    Button_MapEd_Start := MyControls.AddButton(KMPanel_MapEd,225,570,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
-    Button_MapEd_Start.OnClick := MainMenu_MapEditor;
+    Button_MapEd_Start := MyControls.AddButton(KMPanel_MapEd,225,570,224,30,'Create New Map',fnt_Metal,bsMenu);
+    Button_MapEd_Start.OnClick := MapEditor_Start;
 end;
 
 
@@ -571,13 +571,6 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MainMenu_MapEditor(Sender: TObject);
-begin
-  fLog.AssertToLog(Sender = Button_MapEd_Start,'not Button_MapEd_Start');
-  fGame.StartMapEditor(''); //Provide mission filename here
-end;
-
-
 procedure TKMMainMenuInterface.SingleMap_PopulateList();
 begin
   SingleMapsInfo.ScanSingleMapsFolder('');
@@ -651,6 +644,13 @@ end;
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
   KMLabel_LoadResult.Caption:=fGame.Load(TKMControl(Sender).Tag);
+end;
+
+
+procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
+begin
+  fLog.AssertToLog(Sender = Button_MapEd_Start,'not Button_MapEd_Start');
+  fGame.StartMapEditor(''); //Provide mission filename here
 end;
 
 
