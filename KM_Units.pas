@@ -266,6 +266,12 @@ type
     function GetPosition():TKMPoint;
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
+  private
+    procedure UpdateHunger;
+    procedure UpdateFOW();
+    procedure UpdateThoughts();
+    procedure UpdateVisibility();
+  public
     function UpdateState():boolean; virtual;
     procedure Paint; virtual;
   end;
@@ -911,7 +917,7 @@ begin
   if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
     fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
 
-  fThought:=th_None; //Reset thought
+  fThought := th_None; //Reset thought
   SetAction(nil,0); //Dispose of current action
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
   fUnitTask:=TTaskDie.Create(Self);
@@ -925,7 +931,7 @@ end;
 
 function TKMUnit.GetPosition():TKMPoint;
 begin
-  Result:=KMPointRound(fPosition);
+  Result := KMPointRound(fPosition);
 end;
 
 function TKMUnit.GetUnitActionType():TUnitActionType;
@@ -961,6 +967,7 @@ begin
     Result:=TUnitActionWalkTo(fCurrentAction).Explanation;
 end;
 
+
 procedure TKMUnit.CancelUnitTask;
 begin
   if (fUnitTask <> nil)and(fCurrentAction is TUnitActionWalkTo) then
@@ -968,9 +975,13 @@ begin
   FreeAndNil(fUnitTask);
 end;
 
+
 function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
-  Result:= (X = GetPosition.X) and (Y = GetPosition.Y) and ((fUnitType=UT)or(UT=ut_Any)) and not (fUnitType in [ut_Wolf..ut_Duck]);
+  Result := (X = GetPosition.X) and //Keep comparing X,Y to GetPosition incase input is negative numbers
+            (Y = GetPosition.Y) and
+            ((fUnitType=UT)or(UT=ut_Any)) and
+            not (fUnitType in [ut_Wolf..ut_Duck]);
 end;
 
 
@@ -1034,17 +1045,18 @@ end;
 procedure TKMUnit.AbandonWalk;
 begin
   if GetUnitAction is TUnitActionWalkTo then
-    SetActionAbandonWalk(Self, TUnitActionWalkTo(GetUnitAction).GetNextPosition, ua_Walk)
-  else SetActionStay(0, ua_Walk); //Error
+    SetActionAbandonWalk(Self, NextPosition, ua_Walk)
+  else
+    SetActionStay(0, ua_Walk); //Error
 end;
 
 
 function TKMUnit.GetDesiredPassability():TPassability;
 begin
   case fUnitType of //Select desired passability depending on unit type
-    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result:=canWalkRoad; //Citizens except Worker
-    ut_Wolf..ut_Duck: Result:=AnimalTerrain[byte(fUnitType)] //Animals
-    else Result := canWalk; //Worker, Warriors
+    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result := canWalkRoad; //Citizens except Worker
+    ut_Wolf..ut_Duck:                              Result := AnimalTerrain[byte(fUnitType)] //Animals
+    else                                           Result := canWalk; //Worker, Warriors
   end;
 
   if not DO_SERFS_WALK_ROADS then Result := canWalk; //Reset everyone to canWalk for debug
@@ -1052,19 +1064,19 @@ begin
   //Delivery to unit
   if (fUnitType = ut_Serf)
   and(fUnitTask is TTaskDeliver)
-  and(TTaskDeliver(fUnitTask).DeliverKind=dk_Unit)
+  and(TTaskDeliver(fUnitTask).DeliverKind = dk_Unit)
   then
     Result := canWalk;
 
   //Preparing house area
   if (fUnitType = ut_Worker)
   and(fUnitTask is TTaskBuildHouseArea)
-  and(TTaskBuildHouseArea(fUnitTask).fPhase>1) //Worker has arrived on site
+  and(TTaskBuildHouseArea(fUnitTask).fPhase > 1) //Worker has arrived on site
   then
     Result := canAll;
 
   //Thats for 'miners' at work
-  if (fUnitType in [ut_Woodcutter,ut_Farmer,ut_Fisher,ut_StoneCutter])
+  if (fUnitType in [ut_Woodcutter, ut_Farmer, ut_Fisher, ut_StoneCutter])
   and(fUnitTask is TTaskMining)
   then
     Result := canWalk;
@@ -1073,7 +1085,7 @@ end;
 
 procedure TKMUnit.Feed(Amount:single);
 begin
-  fCondition:=min(fCondition+round(Amount),UNIT_MAX_CONDITION);
+  fCondition := min(fCondition + round(Amount), UNIT_MAX_CONDITION);
 end;
 
 
@@ -1086,14 +1098,54 @@ end;
 
 procedure TKMUnit.RemoveUntrainedFromSchool();
 begin
-  //if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
-  //  fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType); //Unused
   CloseUnit;
 end;
 
 function TKMUnit.CanGoEat:boolean;
 begin
   Result := fPlayers.Player[byte(fOwner)].FindInn(GetPosition) <> nil;
+end;
+
+
+procedure TKMUnit.UpdateHunger;
+begin
+  if fCondition>0 then //Make unit hungry as long as they are not currently eating in the inn
+    if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).PlaceID<>0)) then
+      dec(fCondition);
+
+  //Feed the unit automatically. Don't align it with dec(fCondition) cos FOW uses it as a timer 
+  if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition := UNIT_MAX_CONDITION;
+
+  if fCondition = 0 then
+    KillUnit;
+end;
+
+
+procedure TKMUnit.UpdateFOW;
+begin
+  //Can use fCondition as a sort of counter to reveal terrain X times a sec
+  if fCondition mod 10 = 0 then fTerrain.RevealCircle(GetPosition, UnitStat[byte(fUnitType)].Sight, 20, fOwner);
+end;
+
+
+procedure TKMUnit.UpdateThoughts;
+begin
+  if (fThought <> th_Death) and (fCondition <= UNIT_MIN_CONDITION div 3) then
+    fThought := th_Death;
+
+  if (fThought in [th_Death, th_Eat]) and (fCondition > UNIT_MIN_CONDITION) then
+    fThought := th_None;
+
+  if (fUnitTask is TTaskDie) then //Clear thought if we are in the process of dying
+    fThought := th_None;
+end;
+
+
+procedure TKMUnit.UpdateVisibility;
+begin
+  if fHome <> nil then //If unit is at home and home was destroyed then make it visible
+    if fHome.IsDestroyed and KMSamePoint(GetPosition, fHome.GetEntrance) then
+      SetVisibility := true;
 end;
 
 {Here are common Unit.UpdateState routines}
@@ -1107,41 +1159,12 @@ begin
   // - Task (Action creating layer)
   // - specific UpdateState (Task creating layer)
 
-  //Parallel to Action&Task each tick runs common UpdateState (see below)
-  // - Become hungrier
-  // - update FOW
-  // - die cos of hunger        
-
   Result:=true;
 
-  //Make unit hungry as long as they are not currently eating in the inn
-  if fCondition>0 then
-    if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).PlaceID<>0)) then
-      dec(fCondition);
-
-  //Feed the unit automatically
-  if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition:=UNIT_MAX_CONDITION;
-
-  //Can use fCondition as a sort of counter to reveal terrain X times a sec
-  if fCondition mod 10 = 0 then fTerrain.RevealCircle(GetPosition,UnitStat[byte(fUnitType)].Sight,20,fOwner);
-
-  if (fThought<>th_Death) and (fCondition <= UNIT_MIN_CONDITION div 3) then
-    fThought:=th_Death;
-
-  if ((fThought=th_Death) or (fThought=th_Eat)) and (fCondition > UNIT_MIN_CONDITION) then
-    fThought:=th_None;
-
-  //Clear thought if we are in the process of dying
-  if (fUnitTask is TTaskDie) then
-    fThought:=th_None;
-
-  if fCondition=0 then
-    KillUnit;
-
-  //If unit is at home and home was destroyed then make it visible
-  if fHome <> nil then
-    if fHome.IsDestroyed and KMSamePoint(KMPointRound(fPosition),fHome.GetEntrance) then
-      SetVisibility := true;
+  UpdateHunger();
+  UpdateFOW();
+  UpdateThoughts();
+  UpdateVisibility(); //incase units home was destroyed
 
   //
   //Performing Tasks and Actions now
