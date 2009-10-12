@@ -37,7 +37,7 @@ type
     procedure StartMapEditor(MissionFile:string);
     function GetMissionTime:cardinal;
     property GetTickCount:cardinal read GameplayTickCount;
-    procedure Save(SlotID:shortint);
+    function Save(SlotID:shortint):string;
     function Load(SlotID:shortint):string;
     procedure UpdateState;
     procedure PaintInterface;
@@ -575,7 +575,8 @@ begin
 end;
 
 
-procedure TKMGame.Save(SlotID:shortint);
+//Saves the game and returns string for savegame name OR empty if save failed
+function TKMGame.Save(SlotID:shortint):string;
 var SaveStream:TMemoryStream;
 begin
   case GameState of
@@ -585,9 +586,10 @@ begin
     begin
       SaveStream := TMemoryStream.Create;
       fTerrain.Save(SaveStream); //Saves the map
-      fPlayers.Save; //Saves all players properties individually
-      SaveStream.SaveToFile(ExeDir+'save'+int2fix(SlotID,2)+'.txt'); //TXT for early stages of debug
+      fPlayers.Save(SaveStream); //Saves all players properties individually
+      SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt'); //TXT for early stages of debug
       SaveStream.Free;
+      Result := int2time(MyPlayer.fMissionSettings.GetMissionTime);
     end;
   end;
 end;

@@ -1,6 +1,6 @@
 unit KM_PlayerAI;
 interface
-uses KM_Defaults, KromUtils, KM_Player, KM_Utils;
+uses Classes, KM_Defaults, KromUtils, KM_Player, KM_Utils;
 
 
 type
@@ -12,7 +12,7 @@ type
     procedure CheckDefeatConditions();
     procedure CheckCitizenCount();
   public
-    procedure Save;
+    procedure Save(SaveStream:TMemoryStream);
     procedure Load;
     procedure UpdateState;
   end;
@@ -73,9 +73,11 @@ begin
 end;
 
 
-procedure TKMPlayerAI.Save;
+procedure TKMPlayerAI.Save(SaveStream:TMemoryStream);
+var s:string;
 begin
-
+  s := 'PlayerAI state'+eol;
+  SaveStream.Write(s[1],length(s));
 end;
 
 

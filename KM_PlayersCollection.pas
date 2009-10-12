@@ -25,7 +25,7 @@ type
     function HitTest(X, Y: Integer):boolean;
     function GetUnitCount():integer;
   public
-    procedure Save;
+    procedure Save(SaveStream:TMemoryStream);
     procedure Load;
     procedure UpdateState(Tick:cardinal);
     procedure Paint;
@@ -118,13 +118,13 @@ begin
 end;
 
 
-procedure TKMAllPlayers.Save;
+procedure TKMAllPlayers.Save(SaveStream:TMemoryStream);
 var i:word;
 begin
   for i:=1 to fPlayerCount do
   begin
-    Player[i].Save;
-    PlayerAI[i].Save; //Saves AI stuff
+    Player[i].Save(SaveStream);
+    PlayerAI[i].Save(SaveStream); //Saves AI stuff
   end;
 end;
 

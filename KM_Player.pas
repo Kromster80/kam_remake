@@ -1,6 +1,6 @@
 unit KM_Player;
 interface
-uses KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_Settings, KM_CommonTypes, KM_Utils;
+uses Classes, KromUtils, SysUtils, KM_Defaults, KM_Units, KM_Houses, KM_DeliverQueue, KM_Settings, KM_CommonTypes, KM_Utils;
 
 
 type
@@ -51,11 +51,12 @@ type
     function GetCanBuild(aType:THouseType):boolean;
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
+    function GetHouseCount():integer;
     function GetUnitCount():integer;
     property GetHouses:TKMHousesCollection read fHouses;
     property GetUnits:TKMUnitsCollection read fUnits;
   public
-    procedure Save;
+    procedure Save(SaveStream:TMemoryStream);
     procedure Load;
     procedure UpdateState;
     procedure Paint;
@@ -320,15 +321,23 @@ begin
 end;
 
 
+function TKMPlayerAssets.GetHouseCount():integer;
+begin
+  Result:=fHouses.Count;
+end;
+
+
 function TKMPlayerAssets.GetUnitCount():integer;
 begin
   Result:=fUnits.Count;
 end;
 
 
-procedure TKMPlayerAssets.Save;
+procedure TKMPlayerAssets.Save(SaveStream:TMemoryStream);
+var s:string;
 begin
-
+  s := 'PlayerAssets H/U: '+inttostr(GetHouseCount)+':'+inttostr(GetUnitCount)+eol;
+  SaveStream.Write(s[1],length(s));
 end;
 
 

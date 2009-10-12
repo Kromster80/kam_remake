@@ -220,6 +220,7 @@ type
     fVisible:boolean;
     fIsDead:boolean;
     fPointerCount:integer;
+    procedure CloseUnit;
   public
     AnimStep: integer;
     Direction: TKMDirection;
@@ -231,7 +232,6 @@ type
     function GetSelf:TKMUnit; //Returns self and adds one to the pointer counter
     procedure RemovePointer;  //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
-    procedure CloseUnit;
     procedure KillUnit;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
@@ -241,9 +241,9 @@ type
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+    procedure Feed(Amount:single);
     procedure AbandonWalk;
     function GetDesiredPassability():TPassability;
-    procedure Feed(Amount:single);
     property GetOwner:TPlayerID read fOwner;
     property GetSpeed:single read Speed;
     property GetHome:TKMHouse read fHome;
@@ -254,8 +254,8 @@ type
     property GetUnitType: TUnitType read fUnitType;
     function GetUnitTaskText():string;
     function GetUnitActText():string;
-    procedure CancelUnitTask;
     property GetCondition: integer read fCondition;
+    procedure CancelUnitTask;
     property IsVisible: boolean read fVisible;
     property SetVisibility:boolean write fVisible;
     property IsDead:boolean read fIsDead;
@@ -431,46 +431,48 @@ begin
     Idle..}
 
   //Reset unit activity if home was destroyed, except when unit is dying
-  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie)) then begin
-    fHome:=nil;
+  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie)) then
+  begin
+    fHome := nil;
     if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
-    fVisible:=true;
+    fVisible := true;
   end;
     
 
-    if fCondition<UNIT_MIN_CONDITION then begin
-      H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
-      if H<>nil then
-        fUnitTask:=TTaskGoEat.Create(H,Self)
-      else
-        if fHome <> nil then
-          if not fVisible then
-            fUnitTask:=TTaskGoOutShowHungry.Create(Self)
-          else
-            fUnitTask:=TTaskGoHome.Create(Self);
-    end;
-
-    if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
-      if (fHome=nil) then
-        if FindHome then
-          fUnitTask:=TTaskGoHome.Create(Self) //Home found - go there
-        else begin
-          fThought:=th_Quest; //Always show quest when idle, unlike serfs who randomly show it
-          SetActionStay(120, ua_Walk) //There's no home
-        end
-      else
-        if fVisible then//Unit is not at home, still it has one
-          fUnitTask:=TTaskGoHome.Create(Self)
+  if fCondition<UNIT_MIN_CONDITION then
+  begin
+    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
+    if H<>nil then
+      fUnitTask:=TTaskGoEat.Create(H,Self)
+    else
+      if fHome <> nil then
+        if not fVisible then
+          fUnitTask:=TTaskGoOutShowHungry.Create(Self)
         else
-          fUnitTask:=InitiateMining; //Unit is at home, so go get a job
+          fUnitTask:=TTaskGoHome.Create(Self);
+  end;
+
+  if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
+    if (fHome=nil) then
+      if FindHome then
+        fUnitTask:=TTaskGoHome.Create(Self) //Home found - go there
+      else begin
+        fThought:=th_Quest; //Always show quest when idle, unlike serfs who randomly show it
+        SetActionStay(120, ua_Walk) //There's no home
+      end
+    else
+      if fVisible then//Unit is not at home, still it has one
+        fUnitTask:=TTaskGoHome.Create(Self)
+      else
+        fUnitTask:=InitiateMining; //Unit is at home, so go get a job
 
   if fHome <> nil then
        RestTime := HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10
   else RestTime := 120; //Unit may not have a home; if so, load a default value
 
   if fUnitTask=nil then begin
-    if random(2)=0 then fThought:=th_Quest;
+    if random(2) = 0 then fThought := th_Quest;
     SetActionStay(RestTime, ua_Walk); //Absolutely nothing to do ...
   end;
 
@@ -1175,6 +1177,7 @@ begin
   TimeDelta:= TimeGetTime - fLastUpdateTime;
   fLastUpdateTime:= TimeGetTime;
 
+  //Shortcut to freeze unit in place if it's on an unwalkable tile
   if fCurrentAction is TUnitActionWalkTo then
     if GetDesiredPassability = canWalkRoad then
     begin
@@ -1183,6 +1186,23 @@ begin
     end else
     if not fTerrain.CheckPassability(GetPosition, GetDesiredPassability) then
       exit;
+
+//@Lewin: I want to switch to this pattern, need your opinion on it:
+{
+  if fCurrentAction<>nil then
+  case fCurrentAction.Execute(Self, TimeDelta/1000) of
+    ActContinues: exit;
+    ActAborted: fUnitTask.Abandon; //abandon the task properly, move along to unit task-specific UpdateState
+    ActDone: ; move along to unit task
+  end;
+
+  if fUnitTask <> nil then
+  case fUnitTask.Execute() of
+    TaskContinues: exit;
+    TaskAbandoned,
+    TaskDone: ; //move along to unit-specific UpdateState
+  end;
+}
 
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);

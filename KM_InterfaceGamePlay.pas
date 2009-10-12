@@ -256,9 +256,16 @@ end;
 
 
 procedure TKMGamePlayInterface.SaveGame(Sender: TObject);
+var savename:string;
 begin
   if not (Sender is TKMButton) then exit; //Just in case
-  fGame.Save(TKMControl(Sender).Tag);
+
+  savename := fGame.Save(TKMControl(Sender).Tag);
+
+  if savename <> '' then
+    TKMButton(Sender).Caption := savename
+  else
+    TKMButton(Sender).Caption := 'Savegame #'+inttostr(TKMControl(Sender).Tag);
 end;
 
 

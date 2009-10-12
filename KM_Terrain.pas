@@ -1588,7 +1588,7 @@ end;
 procedure TTerrain.Save(SaveStream:TMemoryStream);
 var s:string;
 begin
-  s := inttostr(MapX)+':'+inttostr(MapY);
+  s := 'Map X/Y: '+inttostr(MapX)+':'+inttostr(MapY)+eol;
   SaveStream.Write(s[1],length(s));
 end;
 
