@@ -122,6 +122,7 @@ end;
 TKMButton = class(TKMControl)
   public
     Down:boolean; //Only 3DButton can be pressed down, I rename it according to Delphi VCL Controls rules, ok?
+    MakesSound:boolean;
     RXid: integer; //RX library
     TexID: integer;
     Font: TKMFont;
@@ -557,6 +558,7 @@ begin
   Caption:='';
   ParentTo(aParent);
   Style:=aStyle;
+  MakesSound:=true;
 end;
 
 {Different version of button, with caption on it instead of image}
@@ -570,6 +572,7 @@ begin
   TextAlign:=kaCenter; //Thats default everywhere in KaM
   ParentTo(aParent);
   Style:=aStyle;
+  MakesSound:=true;
 end;
 
 

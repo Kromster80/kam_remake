@@ -195,9 +195,10 @@ procedure TKMMessageList.RemoveEntry(aID:integer);
 var i:integer;
 begin
   dec(Count);
+  FreeAndNil(List[aID]); //First remove the deleted message
   for i := aID to Count do
-    List[i] := List[i+1];
-  FreeAndNil(List[Count+1]); //
+    List[i] := List[i+1]; //Then move the other message up to it
+  List[Count+1] := nil; //Set the last+1 message to be nil, because the last message already points to it. (don't want duplicate pointers)
   setlength(List, Count+1); //to keep it neat
 end;
 

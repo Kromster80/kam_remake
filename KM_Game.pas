@@ -301,7 +301,7 @@ begin
     else        MOver := nil; //MOver should always be initialized
   end;
 
-  if (MOver <> nil) and (MOver is TKMButton) and MOver.Enabled then fSoundLib.Play(sfx_click);
+  if (MOver <> nil) and (MOver is TKMButton) and MOver.Enabled and TKMButton(MOver).MakesSound then fSoundLib.Play(sfx_click);
 
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);

@@ -53,6 +53,7 @@ type
     fIsDestroyed:boolean;
     RemoveRoadWhenDemolish:boolean;
     fPointerCount:integer;
+    fTimeSinceUnoccupiedReminder:integer;
     procedure SetWareDelivery(AVal:boolean);
 
     procedure MakeSound();
@@ -198,7 +199,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_SoundFX, KM_Viewport;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game, KM_LoadLib;
 
 
 { TKMHouse }
@@ -669,6 +670,18 @@ begin
   fLastUpdateTime := TimeGetTime;
 
   if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
+
+  //Show unoccupied message if needed and house belongs to human player
+  if (not fHasOwner) and (fOwner = MyPlayer.PlayerID) then
+  begin
+    dec(fTimeSinceUnoccupiedReminder);
+    if fTimeSinceUnoccupiedReminder = 0 then
+    begin
+      fGame.fGamePlayInterface.IssueMessage(msgHouse,fTextLibrary.GetTextString(295),GetEntrance);
+      fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
+    end;
+  end
+  else fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES;
 
   MakeSound(); //Make some sound/noise along the work
 

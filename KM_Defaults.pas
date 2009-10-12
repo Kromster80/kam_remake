@@ -77,6 +77,7 @@ const
   FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
   UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
   UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
+  TIME_BETWEEN_MESSAGES = 4*600;          //Time between messages saying house is unoccupied. In KaM it's 4 minutes
 
   //Unit mining ranges. (measured from KaM)
   RANGE_WOODCUTTER  = 10;

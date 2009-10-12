@@ -298,9 +298,9 @@ begin
     if fGame.fGameSettings.GetNeedsSave then
       fGame.fGameSettings.SaveSettings;
 
-  //First thing - hide all existing pages
+  //First thing - hide all existing pages, except for message page
     for i:=1 to KMPanel_Main.ChildCount do
-      if KMPanel_Main.Childs[i] is TKMPanel then
+      if (KMPanel_Main.Childs[i] is TKMPanel) and (KMPanel_Main.Childs[i] <> KMPanel_Message) then
         KMPanel_Main.Childs[i].Hide;
   //First thing - hide all existing pages
     for i:=1 to KMPanel_House.ChildCount do
@@ -475,12 +475,11 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     end;
 
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
-    KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+32,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_PointerCount:=MyControls.AddLabel(KMPanel_Main,224+8,100,0,0,'',fnt_Outline,kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
-  Create_Pause_Page();
   Create_Build_Page();
   Create_Ratios_Page();
   Create_Stats_Page();
@@ -496,6 +495,7 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     Create_School_Page();
     Create_Barracks_Page();
     //Create_TownHall_Page();
+  Create_Pause_Page(); //Must go at the bottom so that all controls above are faded
 
   SetHintEvents(DisplayHint); //Set all OnHint events to be the correct function
 
@@ -557,12 +557,16 @@ begin
     KMButton_MessageGoTo:=MyControls.AddButton(KMPanel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
     KMButton_MessageGoTo.Hint := fTextLibrary.GetTextString(281);
     KMButton_MessageGoTo.OnClick := GoToMessage;
+    KMButton_MessageGoTo.MakesSound := false;
     KMButton_MessageDelete:=MyControls.AddButton(KMPanel_Message,490,104,100,24,fTextLibrary.GetTextString(276),fnt_Antiqua);
-    KMButton_MessageDelete.Hint := fTextLibrary.GetTextString(287);
+    KMButton_MessageDelete.Hint := fTextLibrary.GetTextString(277);
     KMButton_MessageDelete.OnClick := DeleteMessage;
+    KMButton_MessageDelete.MakesSound := false;
     KMButton_MessageClose:=MyControls.AddButton(KMPanel_Message,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
     KMButton_MessageClose.Hint := fTextLibrary.GetTextString(283);
     KMButton_MessageClose.OnClick := CloseMessage;
+    KMButton_MessageClose.MakesSound := false;
+  KMPanel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 end;
 
 {Build page}
@@ -973,7 +977,9 @@ begin
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse,AskDemolish);
 
   if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
-  if Mouse.CursorPos.X>ToolBarWidth then DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar
+  if ShownHint<>nil then
+    if (Mouse.CursorPos.X>ToolBarWidth) and (TKMControl(ShownHint).Parent<>KMPanel_Message) then
+      DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar (Message panel is an exception)
 
   Minimap_Update(nil);
   if KMImage_Clock.Visible then begin
@@ -1616,7 +1622,7 @@ begin
   fMessageList.AddEntry(MsgTyp,Text,Loc);
   UpdateMessageStack;
   if fMessageList.GetPicID(fMessageList.Count)-400 in [91..93,95] then
-    fSoundLib.Play(sfx_MessageNotice); //Play horn sound on new message if it is the right type
+    fSoundLib.Play(sfx_MessageNotice,4); //Play horn sound on new message if it is the right type
 end;
 
 
