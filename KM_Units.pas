@@ -349,7 +349,7 @@ type
 
 implementation
 uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game,
-KM_ResourceGFX, KM_UnitActionWalkTo, KM_UnitActionGoInOut;
+KM_ResourceGFX, KM_UnitActionWalkTo, KM_UnitActionGoInOut, KM_LoadLib;
 
 
 { TKMUnitCitizen }
@@ -504,6 +504,22 @@ begin
   //end;
 
   WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
+
+  //Now issue a message if we failed because the resource is depleted
+  if WorkPlan.ResourceDeplepted and not fHome.ResourceDepletedMsgIssued then
+  begin
+    case fHome.GetHouseType of
+      ht_Quary:    Tmp := 290;
+      ht_CoalMine: Tmp := 291;
+      ht_IronMine: Tmp := 292;
+      ht_GoldMine: Tmp := 293; 
+      ht_FisherHut:Tmp := 294;
+      else Tmp := 0;
+    end;
+    if Tmp <> 0 then
+      fGame.fGamePlayInterface.IssueMessage(msgHouse,fTextLibrary.GetTextString(Tmp), fHome.GetEntrance);
+    fHome.ResourceDepletedMsgIssued := true;
+  end;
 
   if not WorkPlan.IsIssued then exit;
   if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;

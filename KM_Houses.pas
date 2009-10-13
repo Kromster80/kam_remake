@@ -59,6 +59,7 @@ type
     procedure MakeSound();
   public
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
+    ResourceDepletedMsgIssued: boolean;
 
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     destructor Destroy; override;
@@ -224,6 +225,7 @@ begin
   fResourceOrder[3]:=0;
   fResourceOrder[4]:=0;
   fIsDestroyed:=false;
+  ResourceDepletedMsgIssued := false;
 
   RemoveRoadWhenDemolish := fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay <> to_Road;
 

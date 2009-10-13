@@ -26,6 +26,7 @@ type
     Product1:TResourceType; ProdCount1:byte;
     Product2:TResourceType; ProdCount2:byte;
     AfterWorkIdle:integer;
+    ResourceDeplepted:boolean;
   public
     procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
     property IsIssued:boolean read fIssued;
@@ -63,6 +64,7 @@ begin
   Product1:=rt_None; ProdCount1:=0;
   Product2:=rt_None; ProdCount2:=0;
   AfterWorkIdle:=0;
+  ResourceDeplepted:=false;
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
@@ -111,7 +113,10 @@ if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
     SubActAdd(ha_Work2,23);
     SubActAdd(ha_Work5,1);
   end else
+  begin
     fIssued:=false;
+    ResourceDeplepted:=true;
+  end;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
   if fTerrain.FindOre(aLoc,rt_IronOre).X<>0 then begin
@@ -122,7 +127,10 @@ if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
     SubActAdd(ha_Work2,24);
     SubActAdd(ha_Work5,1);
   end else
+  begin
     fIssued:=false;
+    ResourceDeplepted:=true;
+  end;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_GoldMine) then begin
   if fTerrain.FindOre(aLoc,rt_GoldOre).X<>0 then begin
@@ -133,7 +141,10 @@ if (aUnitType=ut_Miner)and(aHome=ht_GoldMine) then begin
     SubActAdd(ha_Work2,24);
     SubActAdd(ha_Work5,1);
   end else
+  begin
     fIssued:=false;
+    ResourceDeplepted:=true;
+  end;
 end else
 if (aUnitType=ut_Metallurgist)and(aHome=ht_IronSmithy) then begin
   ResourcePlan(rt_IronOre,1,rt_Coal,1,rt_Steel);
@@ -292,7 +303,10 @@ if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
     SubActAdd(ha_Work2,9);
     SubActAdd(ha_Work5,1);
   end else
+  begin
     fIssued:=false;
+    ResourceDeplepted:=true;
+  end;
 end else
 if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   if fTerrain.FindTree(aLoc,RANGE_WOODCUTTER).X<>0 then begin
