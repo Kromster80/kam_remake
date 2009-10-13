@@ -2030,7 +2030,7 @@ function TTaskMining.ResourceExists():boolean;
 begin
   Result := true;
   case WorkPlan.GatheringScript of
-    gs_StoneCutter:     Result := KMSamePoint(fTerrain.FindStone(WorkPlan.Loc,0), WorkPlan.Loc);
+    gs_StoneCutter:     Result := fTerrain.TileIsStone(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1))>0; //Check stone deposit above Loc, which is walkable tile
     gs_FarmerSow:       Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Corn,false), WorkPlan.Loc);
     gs_FarmerCorn:      Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Corn,true), WorkPlan.Loc);
     gs_FarmerWine:      Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Wine,true), WorkPlan.Loc);

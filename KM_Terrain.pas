@@ -651,7 +651,7 @@ end;
 function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 var i,k:integer; List:TKMPointList;
 begin
-  List:=TKMPointList.Create;
+  List := TKMPointList.Create;
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
