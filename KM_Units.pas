@@ -2028,15 +2028,15 @@ end;
 
 function TTaskMining.ResourceExists():boolean;
 begin
-  Result := true;
+  with fTerrain do
   case WorkPlan.GatheringScript of
-    gs_StoneCutter:     Result := fTerrain.TileIsStone(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1))>0; //Check stone deposit above Loc, which is walkable tile
-    gs_FarmerSow:       Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Corn,false), WorkPlan.Loc);
-    gs_FarmerCorn:      Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Corn,true), WorkPlan.Loc);
-    gs_FarmerWine:      Result := KMSamePoint(fTerrain.FindField(WorkPlan.Loc,0,ft_Wine,true), WorkPlan.Loc);
-    gs_FisherCatch:     { TODO : check fish count};
-    gs_WoodCutterPlant: Result := KMSamePoint(fTerrain.FindPlaceForTree(WorkPlan.Loc,0), WorkPlan.Loc);
-    gs_WoodCutterCut:   Result := KMSamePoint(fTerrain.FindTree(WorkPlan.Loc,0), WorkPlan.Loc);
+    gs_StoneCutter:     Result := TileIsStone(KMPoint(WorkPlan.Loc.X, WorkPlan.Loc.Y - 1)) > 0; //Check stone deposit above Loc, which is walkable tile
+    gs_FarmerSow:       Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 0);
+    gs_FarmerCorn:      Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
+    gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
+    gs_FisherCatch:     Result := true; //TODO: check fish count
+    gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
+    gs_WoodCutterCut:   Result := ObjectIsChopableTree(WorkPlan.Loc, 4)and(Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].TreeAge >= TreeAgeFull)
     else Result := true;
   end;
 end;
