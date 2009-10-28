@@ -2052,8 +2052,8 @@ begin
     gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
     gs_FisherCatch:     Result := true; //TODO: check fish count
     gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
-    gs_WoodCutterCut:   Result := ObjectIsChopableTree(WorkPlan.Loc, 4)and(Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].TreeAge >= TreeAgeFull)
-    else Result := true;
+    gs_WoodCutterCut:   Result := ObjectIsChopableTree(WorkPlan.Loc, 4) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].TreeAge >= TreeAgeFull)
+    else                Result := true;
   end;
 end;
 

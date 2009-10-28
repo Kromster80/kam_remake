@@ -56,9 +56,7 @@ Gameplay bugs:
 ?	Vertical winefield borders have no edges
 
 Graphics bugs:
-?	Wrong render of houses, black tops (see GraphicFlaws folder)
-	See-through hills (lighting flaw)
-	Water has dark patches
++	Wrong render of houses, black tops (see GraphicFlaws folder)
 
 Make sure these are checked:	//Assigned to Krom
 	True/false switches in KM_Defaults
