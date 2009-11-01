@@ -263,7 +263,7 @@ procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;
   fGame.StopGame(gr_Error);
-  fGame.StartGame(OpenDialog1.FileName);
+  fGame.StartGame(OpenDialog1.FileName, 'OpenDialog1 game');
 end;
 
 
@@ -381,7 +381,7 @@ procedure TForm1.Button_WClick(Sender: TObject);
 var U:TKMUnit;
 begin
   fGame.StopGame(gr_Error);
-  fGame.StartGame('');
+  fGame.StartGame('', 'W');
   MyPlayer:=fPlayers.Player[1];
 
   //Diagonal exchange
@@ -450,7 +450,7 @@ procedure TForm1.Button_VClick(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
   fGame.StopGame(gr_Error);
-  fGame.StartGame('');
+  fGame.StartGame('', 'V');
 
 fViewPort.SetCenter(11,9);
 
@@ -543,7 +543,7 @@ procedure TForm1.Button_6Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
   fGame.StopGame(gr_Error);
-  fGame.StartGame('');
+  fGame.StartGame('', '6');
 
   for k:=1 to 6 do begin
     MyPlayer:=fPlayers.Player[k];
@@ -569,7 +569,7 @@ procedure TForm1.Button_1Click(Sender: TObject);
 var H:TKMHouse; i:integer;
 begin
   fGame.StopGame(gr_Error);
-  fGame.StartGame('');
+  fGame.StartGame('', '1');
   MyPlayer:=fPlayers.Player[1];
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));

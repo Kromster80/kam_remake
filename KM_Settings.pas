@@ -91,7 +91,7 @@ type
     function GetUnitsTrained:cardinal;
     function GetWeaponsProduced:cardinal;
     function GetSoldiersTrained:cardinal;
-    function GetMissionTime:cardinal;
+    property GetMissionTime:cardinal read MissionTimeInSec;
   end;
 
 
@@ -425,10 +425,5 @@ begin
     inc(Result,UnitTrainedCount[i]);
 end;
 
-
-function TMissionSettings.GetMissionTime:cardinal;
-begin
-  Result:=MissionTimeInSec;
-end;
 
 end.

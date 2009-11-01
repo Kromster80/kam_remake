@@ -15,6 +15,7 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
+    GameName:string;
     fGameSettings: TGameSettings;
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
@@ -31,12 +32,13 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   public
-    procedure StartGame(MissionFile:string);
+    procedure StartGame(MissionFile, aGameName:string);
     procedure PauseGame(DoPause:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
     procedure StartMapEditor(MissionFile:string);
     function GetMissionTime:cardinal;
     property GetTickCount:cardinal read GameplayTickCount;
+    property GetGameName:string read GameName;
     function Save(SlotID:shortint):string;
     function Load(SlotID:shortint):string;
     procedure UpdateState;
@@ -417,7 +419,7 @@ begin
 end;
 
 
-procedure TKMGame.StartGame(MissionFile:string);
+procedure TKMGame.StartGame(MissionFile, aGameName:string);
 var ResultMsg:string;
 begin
   RandSeed:=4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
@@ -468,7 +470,8 @@ begin
 
   GameplayTickCount:=0; //Restart counter
 
-  GameState:=gsRunning;
+  GameName := aGameName;
+  GameState := gsRunning;
 end;
 
 
@@ -589,7 +592,7 @@ begin
       fPlayers.Save(SaveStream); //Saves all players properties individually
       SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt'); //TXT for early stages of debug
       SaveStream.Free;
-      Result := int2time(MyPlayer.fMissionSettings.GetMissionTime);
+      Result := GameName + ' ' + int2time(MyPlayer.fMissionSettings.GetMissionTime);
     end;
   end;
 end;

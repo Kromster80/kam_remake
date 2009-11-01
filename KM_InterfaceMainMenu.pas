@@ -567,7 +567,7 @@ end;
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=KMButton_MainMenuTutor,'not KMButton_MainMenuTutor');
-  fGame.StartGame(ExeDir+'data\mission\mission0.dat'); //Provide mission filename here
+  fGame.StartGame(ExeDir+'data\mission\mission0.dat', 'Tutorial');
 end;
 
 
@@ -635,9 +635,9 @@ procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 var MissionPath:string;
 begin
   fLog.AssertToLog(Sender=KMButton_SingleStart,'not KMButton_SingleStart');
-  if not InRange(SingleMap_Selected,1,SingleMapsInfo.GetMapCount) then exit;
-  MissionPath:=ExeDir+'Maps\'+SingleMapsInfo.GetFolder(SingleMap_Selected)+'\'+SingleMapsInfo.GetMissionFile(SingleMap_Selected);
-  fGame.StartGame(MissionPath); //Provide mission filename here
+  if not InRange(SingleMap_Selected, 1, SingleMapsInfo.GetMapCount) then exit;
+  MissionPath := ExeDir+'Maps\'+SingleMapsInfo.GetFolder(SingleMap_Selected)+'\'+SingleMapsInfo.GetMissionFile(SingleMap_Selected);
+  fGame.StartGame(MissionPath,SingleMapsInfo.GetTitle(SingleMap_Selected)); //Provide mission filename and title here
 end;
 
 
