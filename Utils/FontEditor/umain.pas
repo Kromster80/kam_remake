@@ -3,7 +3,7 @@ unit umain;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Windows, Messages, SysUtils, FileCtrl, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Buttons, KromUtils, Math;
 
 {Fonts}
@@ -39,27 +39,33 @@ type
   TfrmMain = class(TForm)
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
-    btnLoadFont: TBitBtn;
     BitBtn1: TBitBtn;
     btnExport: TBitBtn;
     btnImport: TBitBtn;
     Image1: TImage;
+    ListBox1: TListBox;
+    RefreshData: TButton;
     procedure btnLoadFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure RefreshDataClick(Sender: TObject);
+    procedure ListBox1Click(Sender: TObject);
+    procedure btnExportClick(Sender: TObject);
   private
     { Private declarations }
     fFileEditing: string;
     procedure SetFileEditing(aFile:string);
+    procedure ScanDataForPalettesAndFonts(apath:string);
     function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
     function LoadPalette(filename:string; PalID:byte):boolean;
   public
-    { Public declarations }              
+    { Public declarations }
     property FileEditing: string read fFileEditing write SetFileEditing;
   end;
 
 var
   frmMain: TfrmMain;
   ExeDir: string;
+  DataDir: string;
 
   FontData: record
     Title:TKMFont;
@@ -79,6 +85,44 @@ implementation
 
 {$R *.dfm}
 
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+  ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
+  DataDir := ExeDir;
+  if DirectoryExists('C:\Documents and Settings\Krom\Desktop\Delphi\KaM Remake\') then
+    DataDir := 'C:\Documents and Settings\Krom\Desktop\Delphi\KaM Remake\';
+    //Lewin: Add your "Data" path here
+  ScanDataForPalettesAndFonts(DataDir);
+end;
+
+
+procedure TfrmMain.RefreshDataClick(Sender: TObject);
+begin
+  ScanDataForPalettesAndFonts(DataDir);
+end;
+
+
+procedure TfrmMain.ScanDataForPalettesAndFonts(apath:string);
+var i:integer; SearchRec:TSearchRec;
+begin
+  //1. Palettes
+  for i:=1 to length(PalFiles) do
+   LoadPalette(apath+'data\gfx\'+PalFiles[i],i);
+
+  //2. Fonts
+  if not DirectoryExists(apath+'data\gfx\fonts\') then exit;
+
+  ChDir(apath+'data\gfx\fonts');
+  FindFirst('*', faAnyFile, SearchRec);
+  repeat
+  if (SearchRec.Attr and faDirectory = 0)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
+  begin
+    ListBox1.Items.Add(SearchRec.Name);
+  end;
+  until (FindNext(SearchRec)<>0);
+  FindClose(SearchRec);
+end;
+
 procedure TfrmMain.SetFileEditing(aFile:string);
 begin
   if not FileExists(aFile) then exit;
@@ -87,14 +131,10 @@ begin
 end;
 
 procedure TfrmMain.btnLoadFontClick(Sender: TObject);
-var FileName: string;
 begin
-  if OpenDialog1.Execute then
-  begin
-    FileName := OpenDialog1.FileName;
-    if not FileExists(FileName) then exit;
-    LoadFont(FileName,fnt_Outline,true)
-  end;
+  if not RunOpenDialog(OpenDialog1,'KaM fonts','','*.fnt') then exit;
+  if not FileExists(OpenDialog1.FileName) then exit;
+  LoadFont(OpenDialog1.FileName,fnt_Outline,true)
 end;
 
 
@@ -226,12 +266,14 @@ begin
 Result:=true;
 end;
 
-procedure TfrmMain.FormCreate(Sender: TObject);
-var i :integer;
+procedure TfrmMain.ListBox1Click(Sender: TObject);
 begin
-  ExeDir:=IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
-  for i:=1 to length(PalFiles) do
-   LoadPalette(ExeDir+'data\gfx\'+PalFiles[i],i);
+  LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], fnt_Outline, false);
+end;
+
+procedure TfrmMain.btnExportClick(Sender: TObject);
+begin
+  LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], fnt_Outline, true);
 end;
 
 end.
