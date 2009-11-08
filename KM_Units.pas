@@ -325,7 +325,10 @@ type
 
   //Animals
   TKMUnitAnimal = class(TKMUnit)
+    fFishCount:byte; //1-5
   public
+    constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+    function ReduceFish:boolean;
     function GetSupportedActions: TUnitActionTypeSet; override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -767,6 +770,30 @@ end;
 
 
 { TKMUnitAnimal }
+constructor TKMUnitAnimal.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+begin
+  Inherited;
+  if aUnitType = ut_Fish then fFishCount := 5;  //Always start with 5 fish in the group
+end;
+
+
+function TKMUnitAnimal.ReduceFish:boolean;
+begin
+  Result := false;
+  if fUnitType <> ut_Fish then exit;
+  if fFishCount > 1 then
+  begin
+    fFishCount := fFishCount-1;
+    Result := true;
+  end
+  else if fFishCount = 1 then
+  begin
+    KillUnit;
+    Result := true;
+  end;
+end;
+
+
 function TKMUnitAnimal.GetSupportedActions: TUnitActionTypeSet;
 begin
   Result:= [ua_Walk];
@@ -777,7 +804,10 @@ procedure TKMUnitAnimal.Paint();
 var AnimAct,AnimDir:integer;
 begin
 inherited;
-  AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
+  if fUnitType = ut_Fish then
+       AnimAct:=byte(fFishCount) //For fish the action is the number of fish in the group
+  else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
+
   AnimDir:=byte(Direction);
   fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
 end;
@@ -2060,7 +2090,7 @@ end;
 
 {This is execution of Resource mining}
 procedure TTaskMining.Execute(out TaskDone:boolean);
-const SkipWalk=7; SkipWork=29; //Skip to certain Phases
+const SkipWalk=8; SkipWork=30; //Skip to certain Phases
 var Dir:integer; TimeToWork, StillFrame:integer;
 begin
 TaskDone:=false;
@@ -2081,10 +2111,19 @@ with fUnit do
          exit;
        end;
     1: SetActionWalk(fUnit,WorkPlan.Loc, WorkPlan.WalkTo);
-    2: //IF resource still exists on location
+    2: begin //Before work tasks for specific mining jobs
+         if WorkPlan.GatheringScript = gs_FisherCatch then
+         begin
+           Direction := TKMDirection(WorkPlan.WorkDir+1);
+           SetActionStay(13, ua_Work1, false); //Throw the line out
+         end
+         else
+           SetActionStay(0, WorkPlan.WorkType);
+       end;
+    3: //IF resource still exists on location
        if ResourceExists then
        begin //Choose direction and time to work
-         Dir:=integer(Direction);
+         Dir:=integer(WorkPlan.WorkDir+1);
          if UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
            for Dir:=1 to 8 do
              if UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
@@ -2101,14 +2140,20 @@ with fUnit do
          TaskDone := true;
          exit;
        end;
-    3: begin if WorkPlan.GatheringScript = gs_WoodCutterCut then
+    4: begin //After work tasks for specific mining jobs
+             if WorkPlan.GatheringScript = gs_WoodCutterCut then
              begin
                SetActionStay(10, WorkPlan.WorkType, true, 5, 5); //Wait for the tree to start falling down
              end
              else
+             if WorkPlan.GatheringScript = gs_FisherCatch then
+             begin
+               SetActionStay(15, ua_Work, false); //Pull the line in
+             end
+             else
                SetActionStay(0, WorkPlan.WorkType);
        end;
-    4: begin StillFrame := 0;
+    5: begin StillFrame := 0;
              case WorkPlan.GatheringScript of //Perform special tasks if required
                gs_StoneCutter:     fTerrain.DecStoneDeposit(KMPoint(WorkPlan.Loc.X,WorkPlan.Loc.Y-1));
                gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
@@ -2120,16 +2165,16 @@ with fUnit do
              end;
          SetActionStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);
        end;
-    5: begin
+    6: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
          SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance), WorkPlan.WalkFrom); //Go home
          fThought := th_Home;
        end;
-    6: SetActionGoIn(WorkPlan.WalkFrom,gd_GoInside,fHome.GetHouseType); //Go inside
+    7: SetActionGoIn(WorkPlan.WalkFrom,gd_GoInside,fHome.GetHouseType); //Go inside
 
     {Unit back at home and can process its booty now}
-    7: begin
+    8: begin
         fThought := th_None;
         fPhase2:=1;                                  
         fHome.SetState(hst_Work,0); //Set house to Work state
@@ -2151,7 +2196,7 @@ with fUnit do
            exit;
         end;
        end;
-    8..28: begin //Allow for 20 different "house work" phases
+    9..29: begin //Allow for 20 different "house work" phases
            inc(fPhase2);
            if (fPhase2=2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;
            if WorkPlan.ActCount>=fPhase2 then begin
@@ -2163,7 +2208,7 @@ with fUnit do
              exit;
            end;
        end;
-    29: begin
+    30: begin
           case WorkPlan.GatheringScript of
             gs_CoalMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_Coal);
             gs_GoldMiner: fTerrain.DecOreDeposit(WorkPlan.Loc,rt_GoldOre);

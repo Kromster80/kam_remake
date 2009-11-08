@@ -90,7 +90,7 @@ public
   function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-  function FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+  function FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
   function ChooseTreeToPlant(aPosition:TKMPoint):integer;
 
   procedure SetTree(Loc:TKMPoint; ID:integer);
@@ -731,22 +731,43 @@ end;
 
 {Find seaside}
 {Return walkable tile nearby}
-function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k:integer; List:TKMPointList; Temp:TKMPoint;
+function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+  function PosToDir(X,Y:integer):byte;
+  begin
+    Result := 0;                         
+    if (X = 0) and (Y = 1)  then Result := 0;
+    if (X = -1) and (Y = 1) then Result := 1;
+    if (X = -1) and (Y = 0) then Result := 2;
+    if (X = -1) and (Y = -1)then Result := 3;
+    if (X = 0) and (Y = -1) then Result := 4;
+    if (X = 1) and (Y = -1) then Result := 5;
+    if (X = 1) and (Y = 0)  then Result := 6;
+    if (X = 1) and (Y = 1)  then Result := 7;
+  end;
+var i,k,j,l,Dir:integer; List:TKMPointDirList;
 begin
-  List:=TKMPointList.Create;
+  //Check is in stages:
+  // A) Inital checks, inside map and radius, etc.
+  // B) Limit to only tiles which are water
+  // C) Limit to tiles which have fish in the water body
+  // D) Final checks, route can be made, etc.
+
+  List:=TKMPointDirList.Create;
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if TileIsWater(KMPoint(k,i)) then
-          // { TODO : Sort out tiles without fish }
-          if Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,false) then
-          begin
-            Temp := fTerrain.GetOutOfTheWay(KMPoint(k,i),KMPoint(0,0),canWalk);
-            if not (KMSamePoint(KMPoint(k,i),Temp) or KMSamePoint(KMPoint(0,0),Temp)) then
-              List.AddEntry(Temp); //Make sure we have a true walkable tile
-          end;                             
-  Result:=List.GetRandom; //Notice: Result contains water tile neighbour that can be walked on
+      // A) Inital checks, inside map and radius, etc.
+      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+        if TileIsWater(KMPoint(k,i)) then //Limit to only tiles which are water
+          //Now find a tile around this one that can be fished from
+          for j:=-1 to 1 do
+            for l:=-1 to 1 do
+              if (l*j <> 0) and TileInMapCoords(k+j,i+l) then
+                //TODO: C) Limit to tiles which have fish in the water body
+                // D) Final check: route can be made
+                if Route_CanBeMade(aPosition,KMPoint(k+j,i+l),CanWalk,false) then
+                  List.AddEntry(KMPointDir(k+j,i+l,PosToDir(j,l)));
+                  
+  Result:=List.GetRandom;
   List.Free;
 end;
 

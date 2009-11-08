@@ -56,6 +56,18 @@ type TKMPointTagList = class (TKMPointList)
   end;
 
 
+type TKMPointDirList = class //Used for finding fishing places, fighting positions, etc.
+  public
+    Count:integer;
+    List:array of TKMPointDir; //1..Count
+    procedure Clearup; virtual;
+    procedure AddEntry(aLoc:TKMPointDir); dynamic;
+    function RemoveEntry(aLoc:TKMPointDir):cardinal; virtual;
+    procedure InjectEntry(ID:integer; aLoc:TKMPointDir);
+    function GetRandom():TKMPointDir;
+  end;
+
+
 {This is custom logging system}
 type
   TKMLog = class
@@ -334,5 +346,56 @@ begin
   end;
 end;
 
+
+{ TKMPointList }
+procedure TKMPointDirList.Clearup;
+begin
+  Count:=0;
+  setlength(List,0);
+end;
+
+
+procedure TKMPointDirList.AddEntry(aLoc:TKMPointDir);
+begin
+  inc(Count);
+  if Count>length(List)-1 then setlength(List,Count+32);
+  List[Count]:=aLoc;
+end;
+
+
+{Remove point from the list if is there. Return 'true' if succeded}
+function TKMPointDirList.RemoveEntry(aLoc:TKMPointDir):cardinal;
+var i: integer; Found: boolean;
+begin
+  Result:=0;
+  Found := false;
+  for i:=1 to Count do
+  begin
+    if (KMSamePointDir(List[i],aLoc) and (not Found)) then
+    begin
+      dec(Count);
+      Found := true;
+      Result:=i;
+    end;
+    if (Found) and (i < Count) then List[i] := List[i+1];
+  end;
+end;
+
+{Add an entry at given place an shift everything }
+procedure TKMPointDirList.InjectEntry(ID:integer; aLoc:TKMPointDir);
+var i:integer;
+begin
+  AddEntry(List[Count]);
+  for i:=Count downto ID+1 do
+    List[i]:=List[i-1];
+  List[ID]:=aLoc;
+end;
+
+
+function TKMPointDirList.GetRandom():TKMPointDir;
+begin
+  if Count=0 then Result:=KMPointDir(0,0,0)
+             else Result:=List[random(Count)+1];
+end;
 
 end.

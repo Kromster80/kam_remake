@@ -4,10 +4,13 @@ uses KromUtils, sysUtils, KM_Defaults;
 
 type
   TKMPoint = record X,Y:word; end;
+  TKMPointDir = record X,Y,Dir:word; end;
   TKMPointF = record X,Y:single; end;
 
-  function KMPoint(X, Y: word): TKMPoint;
+  function KMPoint(X, Y: word): TKMPoint; overload
+  function KMPoint(P: TKMPointDir): TKMPoint; overload
   function KMPointF(X, Y: single): TKMPointF;
+  function KMPointDir(X, Y, Dir: word): TKMPointDir;
   function KMPointX1Y1(X, Y: word): TKMPoint;
   function KMPointY1(P:TKMPoint): TKMPoint; overload
   function KMPointY1(P:TKMPointF): TKMPoint; overload
@@ -15,6 +18,7 @@ type
   function KMPointRound(P:TKMPointf): TKMPoint;
   function KMSamePoint(P1,P2:TKMPoint): boolean;
   function KMSamePointF(P1,P2:TKMPointF): boolean;
+  function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
@@ -39,10 +43,23 @@ begin
   Result.Y := Y;
 end;
 
+function KMPoint(P: TKMPointDir): TKMPoint;
+begin
+  Result.X := P.X;
+  Result.Y := P.Y;
+end;
+
 function KMPointF(X, Y: single): TKMPointF;
 begin
   Result.X := X;
   Result.Y := Y;
+end;
+
+function KMPointDir(X, Y, Dir: word): TKMPointDir;
+begin
+  Result.X := X;
+  Result.Y := Y;  
+  Result.Dir := Dir;
 end;
 
 function KMPointX1Y1(X, Y: word): TKMPoint;
@@ -79,6 +96,10 @@ begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
 
+function KMSamePointDir(P1,P2:TKMPointDir): boolean;
+begin   
+  Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y ) and ( P1.Dir = P2.Dir );
+end;
 
 function GetLength(A,B:TKMPoint): single; overload
 begin

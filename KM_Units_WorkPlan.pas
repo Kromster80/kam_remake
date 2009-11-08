@@ -13,6 +13,7 @@ type
     WalkTo:TUnitActionType;
     WorkType:TUnitActionType;
     WorkCyc:integer;
+    WorkDir:byte;
     GatheringScript:TGatheringScript;
     AfterWorkDelay:integer;
     WalkFrom:TUnitActionType;
@@ -55,6 +56,7 @@ begin
   WalkTo:=ua_Walk;
   WorkType:=ua_Work;
   WorkCyc:=0;
+  WorkDir:=0;
   GatheringScript:=gs_None;
   AfterWorkDelay:=0;
   WalkFrom:=ua_Walk;
@@ -68,7 +70,7 @@ begin
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
-  procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript); overload;
+  procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:byte=0); overload;
   begin
     Loc:=aLoc2;
     HasToWalk:=true;
@@ -78,6 +80,7 @@ procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct
     AfterWorkDelay:=aDelay;
     GatheringScript:=aScript;
     WalkFrom:=aFrom;
+    WorkDir:=aWorkDir;
   end;
   procedure SubActAdd(aAct:THouseActionType; aCycles:single);
   begin
@@ -92,7 +95,7 @@ procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct
     if Prod2=rt_None then exit;
     Product2:=Prod2; ProdCount2:=HouseDAT[byte(aHome)].ResProductionX;
   end;
-  var i:integer;
+  var i:integer; TempLocDir: TKMPointDir;
 begin
 FillDefaults;
 AfterWorkIdle := HouseDAT[byte(aHome)].WorkerRest*10;
@@ -356,12 +359,11 @@ if (aUnitType=ut_AnimalBreeder)and(aHome=ht_Stables) then begin
 end else
 
 if (aUnitType=ut_Fisher)and(aHome=ht_FisherHut) then begin
-  if fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN).X<>0 then begin
+  TempLocDir := fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN);
+  if TempLocDir.X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
-    WalkStyle(fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN),ua_Walk,ua_Work,8,0,ua_WalkTool,gs_FisherCatch); //@Lewin: Please check these against KaM
-    SubActAdd(ha_Work1,1); //@Lewin: Please check these against KaM
-    SubActAdd(ha_Work2,9); //@Lewin: Please check these against KaM
-    SubActAdd(ha_Work5,1); //@Lewin: Please check these against KaM
+    WalkStyle(KMPoint(TempLocDir),ua_Walk,ua_Work2,8,0,ua_WalkTool,gs_FisherCatch,TempLocDir.Dir); //@Lewin: Please check these against KaM
+    //No house work for fisherman
   end else
     fIssued:=false;
 end else
