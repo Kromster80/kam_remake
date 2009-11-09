@@ -70,8 +70,8 @@ object frmMain: TfrmMain
     Top = 8
     Width = 521
     Height = 541
-    ActivePage = TabSheet1
-    TabIndex = 0
+    ActivePage = TabSheet2
+    TabIndex = 1
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Preview'
@@ -91,6 +91,15 @@ object frmMain: TfrmMain
         Brush.Style = bsClear
         Pen.Color = clAqua
         Pen.Width = 2
+        OnMouseUp = Image1MouseUp
+      end
+      object Shape3: TShape
+        Left = 88
+        Top = 32
+        Width = 33
+        Height = 33
+        Brush.Style = bsClear
+        Pen.Color = clWhite
       end
     end
     object TabSheet2: TTabSheet
