@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, FileCtrl, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, Buttons, KromUtils, Math;
+  Dialogs, ExtCtrls, StdCtrls, Buttons, KromUtils, Math, ComCtrls;
 
 {Fonts}
 type //Indexing should start from 1.
@@ -42,14 +42,30 @@ type
     BitBtn1: TBitBtn;
     btnExport: TBitBtn;
     btnImport: TBitBtn;
-    Image1: TImage;
     ListBox1: TListBox;
     RefreshData: TButton;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    Image1: TImage;
+    Image2: TImage;
+    Shape1: TShape;
+    Image3: TImage;
+    Label1: TLabel;
+    Label2: TLabel;
+    Shape2: TShape;
+    Edit1: TEdit;
+    Image4: TImage;
+    Image5: TImage;
     procedure btnLoadFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnExportClick(Sender: TObject);
+    procedure Image1MouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure Image1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
     fFileEditing: string;
@@ -75,7 +91,6 @@ var
       Width,Height:word;
       Add:array[1..4]of word;
       Data:array[1..4096] of byte;
-      u1,v1,u2,v2:single;
     end;
     end;
     
@@ -91,6 +106,8 @@ begin
   DataDir := ExeDir;
   if DirectoryExists('C:\Documents and Settings\Krom\Desktop\Delphi\KaM Remake\') then
     DataDir := 'C:\Documents and Settings\Krom\Desktop\Delphi\KaM Remake\';
+  if DirectoryExists('C:\Documents and Settings\А35\Рабочий стол\castlesand\') then
+    DataDir := 'C:\Documents and Settings\А35\Рабочий стол\castlesand\';
     //Lewin: Add your "Data" path here
   ScanDataForPalettesAndFonts(DataDir);
 end;
@@ -140,14 +157,14 @@ end;
 
 function TfrmMain.LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 const
-  TexWidth=256; //Connected to TexData, don't change
+  TexWidth=512; //Connected to TexData, don't change
 var
   f:file;
   p,t:byte;
   a,b,c,d:word;
   i,k,ci,ck:integer;
-  MaxHeight:integer;
-  AdvX,AdvY:integer;
+  MaxHeight, MaxWidth:integer;
+  CellX,CellY:integer;
   TD:array of byte;
   MyBitMap:TBitMap;
   MyRect: TRect;
@@ -165,11 +182,11 @@ begin
   for i:=0 to 255 do
     if FontData.Pal[i]<>0 then
       with FontData.Letters[i] do begin
-        blockread(f,Width,4);
-        blockread(f,Add,8);
-        MaxHeight:=max(MaxHeight,Height);
-        //fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Fon01.fnt seems to be damaged..
-        blockread(f,Data[1],Width*Height);
+        blockread(f, Width, 4);
+        blockread(f, Add, 8);
+        MaxHeight := max(MaxHeight,Height);
+        MaxWidth := max(MaxWidth,Height);
+        blockread(f, Data[1], Width*Height);
       end;
   closefile(f);
 
@@ -183,61 +200,40 @@ begin
 
 
   //Compile texture
-  AdvX:=0; AdvY:=0;
-  setlength(TD,TexWidth*TexWidth+1);
-  FillChar(TD[0],TexWidth*TexWidth+1,$80); //Make some background
+  setlength(TD, TexWidth*TexWidth + 1);
+  FillChar(TD[0], TexWidth*TexWidth + 1, $80); //Make some background
 
   for i:=0 to 255 do
     if FontData.Pal[i]<>0 then
       with FontData.Letters[i] do begin
 
-      //fLog.AssertToLog(FontData.Pal[i]=1,'FontData palette <> 1');
+        CellX := ((i mod 16)*32);
+        CellY := ((i div 16)*32);
 
-        if AdvX+Width+2>TexWidth then begin
-          AdvX:=0;
-          inc(AdvY,MaxHeight);
-        end;
+        for ci:=0 to Height-1 do for ck:=0 to Width-1 do
+          TD[(CellY + ci) * TexWidth + CellX + 1 + ck] := Data[ci * Width + ck + 1];
 
-        for ci:=1 to Height do for ck:=1 to Width do
-          TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=Data[(ci-1)*Width+ck];
-
-        u1:=(AdvX+1)/TexWidth;
-        v1:=AdvY/TexWidth;
-        u2:=(AdvX+1+Width)/TexWidth;
-        v2:=(AdvY+Height)/TexWidth;
-
-        inc(AdvX,1+Width+1);
       end;
 
-    //FontData.TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal);
+  FontData.Letters[32].Width:=7; //"Space" width
 
-    FontData.Letters[32].Width:=7; //"Space" width
+  MyBitMap := TBitMap.Create;
+  MyBitmap.PixelFormat := pf24bit;
+  MyBitmap.Width := TexWidth;
+  MyBitmap.Height := TexWidth;
 
-  //for i:=1 to 10 do
-  if WriteFontToBMP then begin
-    MyBitMap:=TBitMap.Create;
-    MyBitmap.PixelFormat:=pf24bit;
-    MyBitmap.Width:=TexWidth;
-    MyBitmap.Height:=TexWidth;
-
-    for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-      p:=FontPal[byte(aFont)];
-      //p:=i;
-      t:=TD[ci*TexWidth+ck]+1;
-      MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
-    end;
-
-    MyBitmap.SaveToFile(ExeDir+ExtractFileName(filename)+inttostr(p)+'.bmp');
-    MyRect.Left := 0;
-    MyRect.Top := 0;
-    MyRect.Right := MyBitmap.Width;
-    MyRect.Bottom := MyBitmap.Height;
-
-    Image1.Picture.Bitmap.LoadFromFile(ExeDir+ExtractFileName(filename)+inttostr(p)+'.bmp');
-
-    //MyBitmap.Canvas.CopyRect(MyRect,Image1.Canvas,MyRect);
-    MyBitmap.Free;
+  for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
+    p:=FontPal[byte(aFont)];
+    //p:=i;
+    t:=TD[ci*TexWidth+ck]+1;
+    MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
   end;
+
+  if WriteFontToBMP then
+    MyBitmap.SaveToFile(ExeDir+ExtractFileName(filename)+inttostr(p)+'.bmp');
+
+  Image1.Canvas.Draw(0, 0, MyBitmap); //Draw MyBitmap into Image1
+  MyBitmap.Free;
 
   setlength(TD,0);
   Result:=true;
@@ -274,6 +270,18 @@ end;
 procedure TfrmMain.btnExportClick(Sender: TObject);
 begin
   LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], fnt_Outline, true);
+end;
+
+procedure TfrmMain.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+begin
+  Shape1.Top  := Y div 32 * 32;
+  Shape1.Left := X div 32 * 32;
+end;
+
+procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  //ActiveLetter := (Y div 32)*16 + X div 32 * 32 + 1;
+  //I couldn't find a way to select the page directly yet
 end;
 
 end.
