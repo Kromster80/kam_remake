@@ -45,7 +45,7 @@ public
     Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
     Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-    WalkConnect:array[1..2]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad
+    WalkConnect:array[1..3]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad, 3=canFish
 
     Border: TBorderType; //Borders (ropes, planks, stones)
     BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
@@ -92,6 +92,9 @@ public
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
   function ChooseTreeToPlant(aPosition:TKMPoint):integer;
+
+  function WaterHasFish(aPosition:TKMPoint):boolean;
+  procedure CatchFish(aPosition:TKMPointDir);
 
   procedure SetTree(Loc:TKMPoint; ID:integer);
   procedure FallTree(Loc:TKMPoint);
@@ -166,7 +169,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding, KM_Units;
 
 constructor TTerrain.Create;
 begin
@@ -217,6 +220,7 @@ begin
   RebuildLighting(1,MapX,1,MapY);
   RebuildPassability(1,MapX,1,MapY);
   RebuildWalkConnect(canWalk);
+  RebuildWalkConnect(canFish);
 end;
 
 
@@ -256,6 +260,7 @@ closefile(f);
 RebuildLighting(1,MapX,1,MapY);
 RebuildPassability(1,MapX,1,MapY);
 RebuildWalkConnect(canWalk);
+RebuildWalkConnect(canFish);
 fLog.AppendLog('Map file loaded');
 Result:=true;
 end;
@@ -744,7 +749,7 @@ function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir
     if (X = 1) and (Y = 0)  then Result := 6;
     if (X = 1) and (Y = 1)  then Result := 7;
   end;
-var i,k,j,l,Dir:integer; List:TKMPointDirList;
+var i,k,j,l:integer; List:TKMPointDirList;
 begin
   //Check is in stages:
   // A) Inital checks, inside map and radius, etc.
@@ -757,12 +762,11 @@ begin
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       // A) Inital checks, inside map and radius, etc.
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if TileIsWater(KMPoint(k,i)) then //Limit to only tiles which are water
+        if TileIsWater(KMPoint(k,i)) and WaterHasFish(KMPoint(k,i)) then //Limit to only tiles which are water and have fish
           //Now find a tile around this one that can be fished from
           for j:=-1 to 1 do
             for l:=-1 to 1 do
               if (l*j <> 0) and TileInMapCoords(k+j,i+l) then
-                //TODO: C) Limit to tiles which have fish in the water body
                 // D) Final check: route can be made
                 if Route_CanBeMade(aPosition,KMPoint(k+j,i+l),CanWalk,false) then
                   List.AddEntry(KMPointDir(k+j,i+l,PosToDir(j,l)));
@@ -781,6 +785,33 @@ begin
     16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+Random(5),1]; //Brown dirt (pine trees)
     else Result := ChopableTrees[1+Random(length(ChopableTrees)),1]; //If it isn't one of those soil types then choose a random tree
   end;
+end;
+
+
+function TTerrain.WaterHasFish(aPosition:TKMPoint):boolean;
+begin
+  Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3]) <> nil);
+end;
+
+
+procedure TTerrain.CatchFish(aPosition:TKMPointDir);
+var MyFish: TKMUnitAnimal;
+  function DirectionToCoorConversion(aPosition:TKMPointDir):TKMPointDir;
+  begin
+    if aPosition.Dir = 0 then begin Result.X := aPosition.X  ; Result.Y := aPosition.Y-1; end;
+    if aPosition.Dir = 1 then begin Result.X := aPosition.X+1; Result.Y := aPosition.Y-1; end;
+    if aPosition.Dir = 2 then begin Result.X := aPosition.X+1; Result.Y := aPosition.Y  ; end;
+    if aPosition.Dir = 3 then begin Result.X := aPosition.X+1; Result.Y := aPosition.Y+1; end;
+    if aPosition.Dir = 4 then begin Result.X := aPosition.X  ; Result.Y := aPosition.Y+1; end;
+    if aPosition.Dir = 5 then begin Result.X := aPosition.X-1; Result.Y := aPosition.Y+1; end;
+    if aPosition.Dir = 6 then begin Result.X := aPosition.X-1; Result.Y := aPosition.Y  ; end;
+    if aPosition.Dir = 7 then begin Result.X := aPosition.X-1; Result.Y := aPosition.Y-1; end;
+  end;
+begin
+  //Here we are catching fish in the tile 1 in the direction
+  aPosition := DirectionToCoorConversion(aPosition);
+  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3]);
+  if MyFish <> nil then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
 
 
@@ -1153,6 +1184,8 @@ begin
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[LocB.Y,LocB.X].WalkConnect[1]);
   if aPass=canWalkRoad then
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[LocB.Y,LocB.X].WalkConnect[2]);
+  if aPass=canFish then
+    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[3] = Land[LocB.Y,LocB.X].WalkConnect[3]);
 end;
 
 {Find a route from A to B which meets aPass Passability}
@@ -1259,8 +1292,7 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; TestMode:byte;
 
   procedure FillArea(x,y:word; ID:byte; out Count:integer); //Mode = 1canWalk or 2canWalkRoad
   begin
-    if ((TestMode=1)and(Land[y,x].WalkConnect[1]=0)and(aPass in Land[y,x].Passability))or
-       ((TestMode=2)and(Land[y,x].WalkConnect[2]=0)and(aPass in Land[y,x].Passability)) then //Untested area
+    if (Land[y,x].WalkConnect[TestMode]=0)and(aPass in Land[y,x].Passability) then //Untested area
     begin
       Land[y,x].WalkConnect[TestMode]:=ID;
       inc(Count);
@@ -1291,6 +1323,7 @@ begin
     case aPass of
       canWalk: TestMode:=1;
       canWalkRoad: TestMode:=2;
+      canFish: TestMode:=3;
       else fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 

@@ -62,8 +62,23 @@ type
     procedure Paint;
   end;
 
+
+type
+  TKMPlayerAnimals = class
+  private
+    fUnits: TKMUnitsCollection;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
+    function GetFishInWaterBody(aWaterID:byte): TKMUnitAnimal;
+  public
+    procedure UpdateState;
+    procedure Paint;
+  end;
+
 implementation
-uses KM_Terrain, KM_SoundFX, KM_PathFinding;
+uses KM_Terrain, KM_SoundFX, KM_PathFinding, KM_PlayersCollection;
 
 
 { TKMPlayerAssets }
@@ -91,6 +106,13 @@ end;
 
 function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true):TKMUnit;
 begin
+  //Animals must get redirected to animal player
+  if aUnitType in [ut_Wolf..ut_Duck] then
+  begin
+    Result := fPlayers.PlayerAnimals.AddUnit(aUnitType,Position,AutoPlace);
+    exit;
+  end;
+
   Result := fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
   if Result = nil then exit;
   CreatedUnit(aUnitType, false);
@@ -360,6 +382,59 @@ begin
   fHouses.Paint;
 end;
 
+
+{ TKMPlayerAnimals }
+procedure TKMPlayerAnimals.UpdateState;
+begin
+  fUnits.UpdateState;
+end;
+
+
+procedure TKMPlayerAnimals.Paint;
+begin
+  fUnits.Paint;
+end;
+
+
+constructor TKMPlayerAnimals.Create;
+begin
+  fUnits := TKMUnitsCollection.Create;
+end;
+
+
+destructor TKMPlayerAnimals.Destroy;
+begin
+  FreeAndNil(fUnits);
+  inherited;
+end;
+
+
+function TKMPlayerAnimals.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
+begin
+  Result := fUnits.Add(play_animals, aUnitType, Position.X, Position.Y, AutoPlace);
+end;
+
+
+function TKMPlayerAnimals.GetFishInWaterBody(aWaterID:byte): TKMUnitAnimal;
+var i, HighestGroupCount: integer;
+begin
+  if aWaterID = 0 then exit; //Fish should always be in valid water
+  Result := nil;
+  HighestGroupCount := 0;
+  with fUnits do
+  begin
+    for i:=0 to Count-1 do
+    if (fUnits.List[i] <> nil) and (TKMUnit(fUnits.List[i]).GetUnitType = ut_Fish) then
+    begin
+      if fTerrain.Land[TKMUnit(fUnits.List[i]).GetPosition.Y,TKMUnit(fUnits.List[i]).GetPosition.X].WalkConnect[3] = aWaterID then
+        if TKMUnitAnimal(fUnits.List[i]).fFishCount > HighestGroupCount then
+        begin
+          Result := TKMUnitAnimal(fUnits.List[i]);
+          HighestGroupCount := TKMUnitAnimal(fUnits.List[i]).fFishCount;
+        end;
+    end;
+  end;
+end;
 
 
 end.

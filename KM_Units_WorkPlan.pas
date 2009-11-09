@@ -314,10 +314,11 @@ end else
 if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   if fTerrain.FindTree(aLoc,RANGE_WOODCUTTER).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
-    WalkStyle(fTerrain.FindTree(aLoc,RANGE_WOODCUTTER),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut);
+    WalkStyle(fTerrain.FindTree(aLoc,RANGE_WOODCUTTER),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,7);
+    //todo: Will need to be improved later to choose the direction based on the direction of approch. For now always cut from the bottom left.
   end else
   if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
-    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant)
+    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant,0)
   else
     fIssued:=false;
 end else
@@ -362,10 +363,12 @@ if (aUnitType=ut_Fisher)and(aHome=ht_FisherHut) then begin
   TempLocDir := fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN);
   if TempLocDir.X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
-    WalkStyle(KMPoint(TempLocDir),ua_Walk,ua_Work2,8,0,ua_WalkTool,gs_FisherCatch,TempLocDir.Dir); //@Lewin: Please check these against KaM
-    //No house work for fisherman
+    WalkStyle(KMPoint(TempLocDir),ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch,TempLocDir.Dir);
   end else
+  begin
     fIssued:=false;
+    ResourceDeplepted:=true;
+  end;
 end else
 if (aUnitType=ut_Recruit)and(aHome=ht_Barracks) then begin
   fIssued:=false; //Let him idle

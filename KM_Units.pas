@@ -809,7 +809,7 @@ inherited;
   else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
   AnimDir:=byte(Direction);
-  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5, fPosition.Y+1,true);
 end;
 
 
@@ -962,7 +962,7 @@ begin
     TKMUnitWorker(Self).AbandonWork;
 
   //Update statistics
-  if Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
+  if Assigned(fPlayers) and (fOwner <> play_animals) and Assigned(fPlayers.Player[byte(fOwner)]) then
     fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
 
   fThought := th_None; //Reset thought
@@ -2080,7 +2080,7 @@ begin
     gs_FarmerSow:       Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 0);
     gs_FarmerCorn:      Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
     gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
-    gs_FisherCatch:     Result := true; //TODO: check fish count
+    gs_FisherCatch:     Result := WaterHasFish(WorkPlan.Loc);
     gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
     gs_WoodCutterCut:   Result := ObjectIsChopableTree(WorkPlan.Loc, 4) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].TreeAge >= TreeAgeFull)
     else                Result := true;
@@ -2128,9 +2128,6 @@ with fUnit do
            for Dir:=1 to 8 do
              if UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
          Dir:=min(Dir,8);
-         //Some actions have specific directions
-         if WorkPlan.GatheringScript = gs_WoodCutterPlant then Dir:=1;
-         if WorkPlan.GatheringScript = gs_WoodCutterCut   then Dir:=8; //todo: Will need to be improved later to choose the direction based on the direction of approch. For now always cut from the bottom left.
          Direction:=TKMDirection(Dir);
          TimeToWork:=WorkPlan.WorkCyc*max(UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
          SetActionStay(TimeToWork, WorkPlan.WorkType, false);
@@ -2159,7 +2156,7 @@ with fUnit do
                gs_FarmerSow:       fTerrain.SowCorn(WorkPlan.Loc);
                gs_FarmerCorn:      fTerrain.CutCorn(WorkPlan.Loc);
                gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
-               gs_FisherCatch:     { TODO : Decrease fish deposit in water};
+               gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc.X,WorkPlan.Loc.Y,WorkPlan.WorkDir)); WorkPlan.WorkType := ua_WalkTool; end;
                gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
                gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
              end;
@@ -2176,7 +2173,7 @@ with fUnit do
     {Unit back at home and can process its booty now}
     8: begin
         fThought := th_None;
-        fPhase2:=1;                                  
+        fPhase2:=1;
         fHome.SetState(hst_Work,0); //Set house to Work state
         fHome.ResTakeFromIn(WorkPlan.Resource1,WorkPlan.Count1);
         fHome.ResTakeFromIn(WorkPlan.Resource2,WorkPlan.Count2);

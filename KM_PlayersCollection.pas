@@ -14,6 +14,7 @@ type
   public
     Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
     PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
+    PlayerAnimals: TKMPlayerAnimals;
     Selected: TObject;
   public
     constructor Create(PlayerCount:integer);
@@ -52,6 +53,7 @@ begin
     Player[i]:=TKMPlayerAssets.Create(TPlayerID(i));
     PlayerAI[i]:=TKMPlayerAI.Create(Player[i]);
   end;
+  PlayerAnimals:=TKMPlayerAnimals.Create;
 end;
 
 destructor TKMAllPlayers.Destroy;
@@ -61,6 +63,7 @@ begin
     FreeAndNil(Player[i]);
     FreeAndNil(PlayerAI[i]);
   end;
+  FreeAndNil(PlayerAnimals);
 
   MyPlayer:=nil;
   Selected:=nil;
@@ -140,6 +143,7 @@ var i:word;
 begin
   for i:=1 to fPlayerCount do
     Player[i].UpdateState;
+  PlayerAnimals.UpdateState;
 
   //This is not ajoined with previous loop since it can result in StopGame which flushes all data
   for i:=1 to fPlayerCount do
@@ -153,6 +157,7 @@ var i:integer;
 begin
   for i:=1 to fPlayerCount do
     Player[i].Paint;
+  PlayerAnimals.Paint;
 end;
 
 
