@@ -300,7 +300,7 @@ var MyBitMap:TBitMap; ci,ck:integer; p,t:integer; aFont:byte; MyRect:TRect;
 begin
 
   aFont:=2; //todo: Should be read from file?
-  aLetter := 65;
+  //aLetter := 65;
 
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
@@ -309,7 +309,7 @@ begin
 
   for ci:=0 to FontData.Letters[aLetter].Height-1 do for ck:=0 to FontData.Letters[aLetter].Width do begin
     p := FontPal[byte(aFont)];
-    t := FontData.Letters[aLetter].Data[ci*FontData.Letters[aLetter].Height+ck+1]+1;
+    t := FontData.Letters[aLetter].Data[ci*FontData.Letters[aLetter].Width+ck+1]+1;
     MyBitmap.Canvas.Pixels[ck,ci] := PalData[p,t,1]+PalData[p,t,2]*256+PalData[p,t,3]*65536;
   end;
 

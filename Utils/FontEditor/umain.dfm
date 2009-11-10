@@ -14,7 +14,7 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   DesignSize = (
     681
-    603)
+    610)
   PixelsPerInch = 96
   TextHeight = 13
   object btnExport: TBitBtn
@@ -163,7 +163,7 @@ object frmMain: TfrmMain
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 584
+    Top = 591
     Width = 681
     Height = 19
     Panels = <
