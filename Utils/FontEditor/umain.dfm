@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 192
   Top = 113
   Width = 689
-  Height = 620
+  Height = 637
   Caption = 'KaM Font Editor'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -14,12 +14,12 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   DesignSize = (
     681
-    593)
+    603)
   PixelsPerInch = 96
   TextHeight = 13
   object btnExport: TBitBtn
     Left = 161
-    Top = 562
+    Top = 555
     Width = 120
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -29,7 +29,7 @@ object frmMain: TfrmMain
   end
   object btnImport: TBitBtn
     Left = 323
-    Top = 562
+    Top = 555
     Width = 75
     Height = 25
     Anchors = [akRight, akBottom]
@@ -57,7 +57,7 @@ object frmMain: TfrmMain
   end
   object BitBtn1: TBitBtn
     Left = 373
-    Top = 562
+    Top = 555
     Width = 97
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -70,8 +70,8 @@ object frmMain: TfrmMain
     Top = 8
     Width = 521
     Height = 541
-    ActivePage = TabSheet2
-    TabIndex = 1
+    ActivePage = TabSheet1
+    TabIndex = 0
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Preview'
@@ -160,6 +160,26 @@ object frmMain: TfrmMain
         Text = 'Sample phrase'
       end
     end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 584
+    Width = 681
+    Height = 19
+    Panels = <
+      item
+        Text = 'Font'
+        Width = 200
+      end
+      item
+        Text = 'Coordinates'
+        Width = 100
+      end
+      item
+        Text = 'Font Hex Code'
+        Width = 50
+      end>
+    SimplePanel = False
   end
   object OpenDialog1: TOpenDialog
     Left = 568

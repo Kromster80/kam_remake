@@ -70,6 +70,7 @@ type
     Image4: TImage;
     Image5: TImage;
     Shape3: TShape;
+    StatusBar1: TStatusBar;
     procedure btnLoadFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
@@ -107,7 +108,8 @@ begin
     DataDir := 'C:\Documents and Settings\Krom\Desktop\Delphi\KaM Remake\';
   if DirectoryExists('C:\Documents and Settings\А35\Рабочий стол\castlesand\') then
     DataDir := 'C:\Documents and Settings\А35\Рабочий стол\castlesand\';
-    //Lewin: Add your "Data" path here
+  if DirectoryExists('C:\Documents and Settings\lewin\My Documents\Projects\Castlesand\') then
+    DataDir := 'C:\Documents and Settings\lewin\My Documents\Projects\Castlesand\';
   ScanDataForPalettesAndFonts(DataDir);
 end;
 
@@ -121,6 +123,9 @@ end;
 procedure TfrmMain.ScanDataForPalettesAndFonts(apath:string);
 var i:integer; SearchRec:TSearchRec;
 begin
+  //0. Clear old list
+  ListBox1.Items.Clear;
+
   //1. Palettes
   for i:=1 to length(PalFiles) do
    LoadPalette(apath+'data\gfx\'+PalFiles[i],i);
@@ -265,6 +270,7 @@ procedure TfrmMain.ListBox1Click(Sender: TObject);
 begin
   LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], fnt_Outline, false);
   PageControl1.ActivePageIndex := 0;
+  StatusBar1.Panels.Items[0].Text := ListBox1.Items[ListBox1.ItemIndex];
 end;
 
 procedure TfrmMain.btnExportClick(Sender: TObject);
@@ -276,6 +282,8 @@ procedure TfrmMain.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Int
 begin
   Shape1.Top  := Y div 32 * 32;
   Shape1.Left := X div 32 * 32;
+  StatusBar1.Panels.Items[1].Text := IntToStr(Y div 32)+'; '+IntToStr(X div 32);
+  StatusBar1.Panels.Items[2].Text := IntToHex( (((Y div 32)*8)+(X div 32)) ,2);
 end;
 
 procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

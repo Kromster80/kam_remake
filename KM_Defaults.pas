@@ -36,6 +36,7 @@ var
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game
+  FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
 
   //These should be ... enabled sometime
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not

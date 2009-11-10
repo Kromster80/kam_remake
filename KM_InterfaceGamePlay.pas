@@ -560,7 +560,8 @@ begin
   KMPanel_Message:=MyControls.AddPanel(KMPanel_Main,TOOLBARWIDTH,fRender.GetRenderAreaSize.Y-190,fRender.GetRenderAreaSize.X-TOOLBARWIDTH,190);
     KMImage_MessageBG:=MyControls.AddImage(KMPanel_Message,0,20,600,170,409);
     KMImage_MessageBGTop:=MyControls.AddImage(KMPanel_Message,0,0,600,20,551);
-    KMLabel_MessageText:=MyControls.AddLabel(KMPanel_Message,58,64,500,480,'',fnt_Antiqua,kaLeft);
+    KMLabel_MessageText:=MyControls.AddLabel(KMPanel_Message,47,67,432,122,'',fnt_Antiqua,kaLeft);
+    KMLabel_MessageText.AutoWrap := true;
     KMButton_MessageGoTo:=MyControls.AddButton(KMPanel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
     KMButton_MessageGoTo.Hint := fTextLibrary.GetTextString(281);
     KMButton_MessageGoTo.OnClick := GoToMessage;

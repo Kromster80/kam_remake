@@ -418,8 +418,8 @@ end;
 function TKMPlayerAnimals.GetFishInWaterBody(aWaterID:byte): TKMUnitAnimal;
 var i, HighestGroupCount: integer;
 begin
-  if aWaterID = 0 then exit; //Fish should always be in valid water
   Result := nil;
+  if aWaterID = 0 then exit; //Fish should always be in valid water
   HighestGroupCount := 0;
   with fUnits do
   begin

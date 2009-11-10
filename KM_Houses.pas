@@ -66,7 +66,6 @@ type
     function GetSelf:TKMHouse; virtual; //Returns self and adds one to the pointer counter
     procedure RemovePointer; //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
-    procedure AttemptDestroy;
     procedure CloseHouse; virtual;
 
     procedure Activate(aWasBuilt:boolean);
@@ -258,15 +257,6 @@ begin
 end;
 
 
-{Destroys the house if pointer counter is zero}
-procedure TKMHouse.AttemptDestroy;
-begin
-  //if fPointerCount = 0 then FreeAndNil(Self);
-  //@Krom: How can I destory this house and make the item in the list "available" so it will be filled with a new one?
-  //       Or am I on totally the wrong track?
-end;
-
-
 procedure TKMHouse.CloseHouse;
 begin
   fIsDestroyed:=true;
@@ -309,6 +299,7 @@ begin
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveOffer(Self);
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveDemand(Self);
+  fPlayers.Player[byte(fOwner)].BuildList.RemoveHouseRepair(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
   if RemoveRoadWhenDemolish then fTerrain.RemRoad(GetEntrance); //Delete the road at the entrance
   if not NoRubble then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
@@ -1218,13 +1209,28 @@ end;
 
 procedure TKMHousesCollection.UpdateState;
 var
-  I: Integer;
+  I, ID: Integer;
+  IDsToDelete: array of integer;
 begin
+  ID := 0;
   for I := 0 to Count - 1 do
   if not TKMHouse(Items[I]).IsDestroyed then
     TKMHouse(Items[I]).UpdateState
   else //Else try to destroy the house object if all pointers are freed
-    TKMHouse(Items[I]).AttemptDestroy; //TODO: Make this happen
+    if FREE_POINTERS and (TKMHouse(Items[I]).GetPointerCount = 0) then
+    begin
+      TKMHouse(Items[I]).Free; //Because no one needs this anymore it must DIE!!!!! :D
+      SetLength(IDsToDelete,ID+1);
+      IDsToDelete[ID] := I;
+      inc(ID);
+    end;
+  //Must remove list entry after for loop is complete otherwise the indexes change
+  if ID <> 0 then
+    for I := 0 to ID-1 do
+    begin
+      Delete(IDsToDelete[I]);
+      //fLog.AppendLog('House sucessfully freed and removed');
+    end;
 end;
 
 

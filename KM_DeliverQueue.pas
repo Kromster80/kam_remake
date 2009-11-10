@@ -9,8 +9,6 @@ uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtil
   type TDemandImportance = (di_Norm, di_High);
   const MaxEntries=1024;
 
-   //TODO: Keep track of house/unit pointers throughout this unit.
-
 type
   TKMDeliverQueue = class
   private
@@ -101,6 +99,7 @@ type
 
     function  AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHouseRepair(aID:integer);
+    procedure RemoveHouseRepair(aHouse: TKMHouse);
   end;
 
 implementation
@@ -132,7 +131,7 @@ begin
   //Find an empty spot for new unique offer
   i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i);
   with fOffer[i] do begin //Put offer
-    Loc_House:=aHouse;
+    if aHouse <> nil then Loc_House:=aHouse.GetSelf;
     Resource:=aResource;
     Count:=aCount;
     BeingPerformed:=0; //New unique offer is available to be performed apriori
@@ -148,7 +147,10 @@ begin
   //We need to parse whole list, never knowing how many offers the house had
   for i:=1 to MaxEntries do
   if fOffer[i].Loc_House=aHouse then
+  begin
+    fOffer[i].Loc_House.RemovePointer;
     FillChar(fOffer[i],SizeOf(fDemand[i]),#0); //Remove offer
+  end;
 end;
 
 
@@ -160,7 +162,11 @@ begin
   //We need to parse whole list, never knowing how many demands the house had
   for i:=1 to MaxEntries do
   if fDemand[i].Loc_House=aHouse then
+  begin
+    fDemand[i].Loc_House.RemovePointer;
+    if fDemand[i].Loc_Unit <> nil then fDemand[i].Loc_Unit.RemovePointer;
     FillChar(fDemand[i],SizeOf(fDemand[i]),#0); //Clear up demand
+  end;
 end;
 
 
@@ -173,8 +179,8 @@ begin
     i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
 
     with fDemand[i] do begin
-      Loc_House:=aHouse;
-      Loc_Unit:=aUnit;
+      if aHouse <> nil then Loc_House:=aHouse.GetSelf;
+      if aUnit <> nil then Loc_Unit:=aUnit.GetSelf;
       DemandType:=aDemandType; //Once or Always
       Resource:=aResource;
       Importance:=aImp;
@@ -333,6 +339,7 @@ begin
   if fOffer[iO].Count=0 then
   begin
     fOffer[iO].Resource:=rt_None;
+    if fOffer[iO].Loc_House <> nil then fOffer[iO].Loc_House.RemovePointer;
     fOffer[iO].Loc_House:=nil;
   end;
 end;
@@ -349,7 +356,9 @@ begin
 
   if fDemand[iD].DemandType=dt_Once then begin//Remove resource from Demand list
     fDemand[iD].Resource:=rt_None;
+    if fDemand[iD].Loc_House <> nil then fDemand[iD].Loc_House.RemovePointer;
     fDemand[iD].Loc_House:=nil;
+    if fDemand[iD].Loc_Unit <> nil then fDemand[iD].Loc_Unit.RemovePointer;
     fDemand[iD].Loc_Unit:=nil;
   end;
 end;
@@ -422,6 +431,7 @@ begin
   fFieldsQueue[aID].FieldType:=ft_None;
   fFieldsQueue[aID].Importance:=0;
   fFieldsQueue[aID].JobStatus:=js_Empty;
+  if fFieldsQueue[aID].Worker <> nil then fFieldsQueue[aID].Worker.RemovePointer;
   fFieldsQueue[aID].Worker:=nil;
 end;
 
@@ -429,6 +439,7 @@ end;
 {Clear up}
 procedure TKMBuildingQueue.CloseHouse(aID:integer);
 begin
+  if fHousesQueue[aID].House <> nil then fHousesQueue[aID].House.RemovePointer;
   fHousesQueue[aID].House:=nil;
   fHousesQueue[aID].Importance:=0;
 end;
@@ -436,17 +447,32 @@ end;
 
 procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
 begin
+  if fHousePlansQueue[aID].House <> nil then fHousePlansQueue[aID].House.RemovePointer;
   fHousePlansQueue[aID].House:=nil;
   fHousePlansQueue[aID].Importance:=0;
   fHousePlansQueue[aID].JobStatus:=js_Empty;
+  if fHousePlansQueue[aID].Worker <> nil then fHousePlansQueue[aID].Worker.RemovePointer;
   fHousePlansQueue[aID].Worker:=nil;
 end;
 
 
 procedure TKMBuildingQueue.CloseHouseRepair(aID:integer);
 begin
+  if fHousesRepairQueue[aID].House <> nil then fHousesRepairQueue[aID].House.RemovePointer;
   fHousesRepairQueue[aID].House:=nil;
   fHousesRepairQueue[aID].Importance:=0;
+end;
+
+
+procedure TKMBuildingQueue.RemoveHouseRepair(aHouse: TKMHouse);
+var i:integer;
+begin
+  for i:=1 to MaxEntries do
+  if fHousesRepairQueue[i].House=aHouse then
+  begin
+    fHousesRepairQueue[i].House.RemovePointer;
+    FillChar(fHousesRepairQueue[i],SizeOf(fHousesRepairQueue[i]),#0); //Remove offer
+  end;
 end;
 
 
@@ -466,7 +492,7 @@ procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousesQueue[i].House<>nil) do inc(i);
-  fHousesQueue[i].House:=aHouse;
+  if aHouse <> nil then fHousesQueue[i].House := aHouse.GetSelf;
   fHousesQueue[i].Importance:=1;
 end;
 
@@ -475,7 +501,7 @@ procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Empty) do inc(i);
-  fHousePlansQueue[i].House:=aHouse;
+  if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetSelf;
   fHousePlansQueue[i].Importance:=1;
   fHousePlansQueue[i].JobStatus:=js_Open;
 end;
@@ -485,7 +511,7 @@ function TKMBuildingQueue.AddHouseRepair(aHouse: TKMHouse):integer;
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousesRepairQueue[i].House<>nil) do inc(i);
-  fHousesRepairQueue[i].House:=aHouse;
+  if aHouse <> nil then fHousesRepairQueue[i].House:=aHouse.GetSelf;
   fHousesRepairQueue[i].Importance:=1;
   Result:=i;
 end;
@@ -563,7 +589,7 @@ begin
     else Result:=nil;
   end;
   fFieldsQueue[i].JobStatus:=js_Taken;
-  fFieldsQueue[i].Worker:=KMWorker;
+  if KMWorker <> nil then fFieldsQueue[i].Worker:=KMWorker.GetSelf;
 end;
 
 
@@ -588,7 +614,7 @@ begin
 
   Result:=TTaskBuildHouseArea.Create(KMWorker, fHousePlansQueue[i].House, i);
   fHousePlansQueue[i].JobStatus:=js_Taken;
-  fHousePlansQueue[i].Worker:=KMWorker;
+  if KMWorker <> nil then fHousePlansQueue[i].Worker:=KMWorker.GetSelf;
 end;
 
 
@@ -604,9 +630,8 @@ begin
           Result :=TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
           exit;
         end
-        else
-      else
-        CloseHouseRepair(i); //House is not damaged
+
+        //CloseHouseRepair(i); //House is not damaged //@Krom: Removed because the button will still say under repair when the job has been removed. This also matches KaM. To be deleted or discussed.
 
 end;
 

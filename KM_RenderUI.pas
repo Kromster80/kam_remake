@@ -372,9 +372,8 @@ begin
   AdvX:=0; PrevX:=0; LastSpace:=-1; //Used as line width
   if Wrap then  //Reposition EOLs
     for i:=1 to length(Text) do begin
-      if Text[i]=#124 then Text[i]:=#32; //Replace old EOLs with whitespaces
-
-      if Text[i]=#32 then begin
+      //Existing EOLs should be preserved, and new ones added where needed.
+      if (Text[i]=#32) or (Text[i]=#124) then begin
         LastSpace:=i;
         PrevX:=AdvX;
       end;
@@ -382,7 +381,7 @@ begin
       inc(AdvX,FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter);
 
       //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-      if (AdvX>SizeX)and(LastSpace<>-1) then begin
+      if ((AdvX>SizeX)and(LastSpace<>-1))or(Text[i]=#124) then begin
         Text[LastSpace]:=#124; //Place EOL instead of last whitespace
         AdvX:=AdvX-PrevX; //Should subtract replaced whitespace
       end;

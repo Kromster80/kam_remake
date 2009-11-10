@@ -376,7 +376,7 @@ begin
   Result:=false;
   KMHouse:=fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
   if KMHouse<>nil then begin
-    fHome:=KMHouse;
+    fHome:=KMHouse.GetSelf;
     Result:=true;
   end;
 end;
@@ -423,6 +423,7 @@ var H:TKMHouseInn; RestTime: integer;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
+  if Self.IsDead then exit; //Caused by SelfTrain.Abandoned
 
   fThought:=th_None;
 
@@ -436,6 +437,7 @@ begin
   //Reset unit activity if home was destroyed, except when unit is dying
   if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie)) then
   begin
+    fHome.RemovePointer;
     fHome := nil;
     if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
@@ -914,7 +916,11 @@ end;
 {Erase everything related to unit status to exclude it from being accessed by anything but the old pointers}
 procedure TKMUnit.CloseUnit;
 begin
-  if fHome<>nil then fHome.GetHasOwner := false;
+  if fHome<>nil then
+  begin
+    fHome.GetHasOwner := false;
+    fHome.RemovePointer;
+  end;
 
   fIsDead       := true;
   fThought      := th_None;
@@ -1146,7 +1152,7 @@ end;
 
 procedure TKMUnit.RemoveUntrainedFromSchool();
 begin
-  CloseUnit;
+  CloseUnit; //Provide this procedure as a pointer to the private procedure CloseUnit so that CloseUnit is not run by mistake
 end;
 
 function TKMUnit.CanGoEat:boolean;
@@ -1308,7 +1314,7 @@ end;
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
   Inherited Create(aUnit);
-  if aSchool <> nil then fSchool:=TKMHouseSchool(aSchool.GetSelf); //@Krom: Will this still return the right thing even though GetSelf is for the THouse not the TSchool?
+  if aSchool <> nil then fSchool:=TKMHouseSchool(aSchool.GetSelf);
   fUnit.fVisible:=false;
   fUnit.SetActionStay(0,ua_Walk);
 end;
@@ -1320,9 +1326,11 @@ begin
 end;
 
 procedure TTaskSelfTrain.Abandon();
+var TempUnit: TKMUnit;
 begin
-  fUnit.RemoveUntrainedFromSchool; //Abort if someone has destroyed our school
+  TempUnit := fUnit; //Make local copy of the pointer because Inherited will set the pointer to nil
   Inherited;
+  TempUnit.RemoveUntrainedFromSchool; //Abort if someone has destroyed our school
 end;
 
 
@@ -2080,7 +2088,7 @@ begin
     gs_FarmerSow:       Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 0);
     gs_FarmerCorn:      Result := TileIsCornField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
     gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
-    gs_FisherCatch:     Result := WaterHasFish(WorkPlan.Loc);
+    gs_FisherCatch:     Result := CatchFish(KMPointDir(WorkPlan.Loc.X,WorkPlan.Loc.Y,WorkPlan.WorkDir),true);
     gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
     gs_WoodCutterCut:   Result := ObjectIsChopableTree(WorkPlan.Loc, 4) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].TreeAge >= TreeAgeFull)
     else                Result := true;
@@ -2733,14 +2741,29 @@ end;
 
 procedure TKMUnitsCollection.UpdateState;
 var
-  I: Integer;
+  I, ID: Integer;
+  IDsToDelete: array of integer;
 begin
-  //TODO: Destroy the unit if there are no pointers left
-
   //if Count>10 then fLog.AddToLog('Tick'); //@LEwin - thats debug string
+  ID := 0;
   for I := 0 to Count - 1 do
   if not TKMUnit(Items[I]).IsDead then
-    TKMUnit(Items[I]).UpdateState;
+    TKMUnit(Items[I]).UpdateState
+  else //Else try to destroy the unit object if all pointers are freed
+    if FREE_POINTERS and (TKMHouse(Items[I]).GetPointerCount = 0) then
+    begin
+      TKMUnit(Items[I]).Free; //Because no one needs this anymore it must DIE!!!!! :D
+      SetLength(IDsToDelete,ID+1);
+      IDsToDelete[ID] := I;
+      inc(ID);
+    end;
+  //Must remove list entry after for loop is complete otherwise the indexes change
+  if ID <> 0 then
+    for I := 0 to ID-1 do
+    begin
+      Delete(IDsToDelete[I]);
+      //fLog.AppendLog('Unit sucessfully freed and removed');
+    end;
 
       //@Lewin:
       //We have a big problem here. See, when unit is killed it's Freed and removed from the list all right
@@ -2789,6 +2812,7 @@ begin
       //   destroy. If it has then we free the pointer and reduce the count. (and do any other action nececary due to the unit dying)
       //Please give suggestions, fix mistakes and let me know what you think. :)
 
+      //@Krom: Problem solved. :D To be deleted.................................
 end;
 
 

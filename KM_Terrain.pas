@@ -94,7 +94,7 @@ public
   function ChooseTreeToPlant(aPosition:TKMPoint):integer;
 
   function WaterHasFish(aPosition:TKMPoint):boolean;
-  procedure CatchFish(aPosition:TKMPointDir);
+  function CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boolean;
 
   procedure SetTree(Loc:TKMPoint; ID:integer);
   procedure FallTree(Loc:TKMPoint);
@@ -794,7 +794,7 @@ begin
 end;
 
 
-procedure TTerrain.CatchFish(aPosition:TKMPointDir);
+function TTerrain.CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boolean;
 var MyFish: TKMUnitAnimal;
   function DirectionToCoorConversion(aPosition:TKMPointDir):TKMPointDir;
   begin
@@ -811,7 +811,8 @@ begin
   //Here we are catching fish in the tile 1 in the direction
   aPosition := DirectionToCoorConversion(aPosition);
   MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3]);
-  if MyFish <> nil then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
+  Result := (MyFish <> nil);
+  if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
 
 
