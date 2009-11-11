@@ -61,15 +61,12 @@ type
     TabSheet2: TTabSheet;
     Image1: TImage;
     Image2: TImage;
-    Shape1: TShape;
     Image3: TImage;
     Label1: TLabel;
     Label2: TLabel;
-    Shape2: TShape;
     Edit1: TEdit;
     Image4: TImage;
     Image5: TImage;
-    Shape3: TShape;
     StatusBar1: TStatusBar;
     procedure btnLoadFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -80,6 +77,7 @@ type
       Y: Integer);
     procedure Image1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure Edit1Change(Sender: TObject);
   private
     { Private declarations }
     fFileEditing: string;
@@ -90,6 +88,7 @@ type
   public
     { Public declarations }
     property FileEditing: string read fFileEditing write SetFileEditing;
+    procedure ShowPalette(aPal:integer);
     procedure ShowLetter(aLetter:integer);
   end;
 
@@ -280,19 +279,32 @@ end;
 
 procedure TfrmMain.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
-  Shape1.Top  := Y div 32 * 32;
-  Shape1.Left := X div 32 * 32;
   StatusBar1.Panels.Items[1].Text := IntToStr(Y div 32)+'; '+IntToStr(X div 32);
   StatusBar1.Panels.Items[2].Text := IntToHex( (((Y div 32)*8)+(X div 32)) ,2);
 end;
 
 procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  Shape3.Top := Shape1.Top;
-  Shape3.Left := Shape1.Left;
   PageControl1.ActivePageIndex := 1;
-  ActiveLetter := (Y div 32)*32 + X div 32 * 32 + 1;
+  ActiveLetter := (Y div 32)*16 + X div 32;
+  ShowPalette(2);
   ShowLetter(ActiveLetter);
+end;
+
+procedure TfrmMain.ShowPalette(aPal:integer);
+var MyBitMap:TBitMap; i:integer; MyRect:TRect;
+begin
+  MyBitMap := TBitMap.Create;
+  MyBitmap.PixelFormat := pf24bit;
+  MyBitmap.Width := 32;
+  MyBitmap.Height := 8;
+
+  for i:=0 to 255 do
+    MyBitmap.Canvas.Pixels[i mod 32, i div 32] := PalData[aPal,i+1,1]+PalData[aPal,i+1,2]*256+PalData[aPal,i+1,3]*65536;
+  //
+  MyRect := Image3.Canvas.ClipRect;
+  Image3.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
+  MyBitmap.Free;
 end;
 
 procedure TfrmMain.ShowLetter(aLetter:integer);
@@ -307,7 +319,7 @@ begin
   MyBitmap.Width := 32;
   MyBitmap.Height := 32;
 
-  for ci:=0 to FontData.Letters[aLetter].Height-1 do for ck:=0 to FontData.Letters[aLetter].Width do begin
+  for ci:=0 to FontData.Letters[aLetter].Height-1 do for ck:=0 to FontData.Letters[aLetter].Width-1 do begin
     p := FontPal[byte(aFont)];
     t := FontData.Letters[aLetter].Data[ci*FontData.Letters[aLetter].Width+ck+1]+1;
     MyBitmap.Canvas.Pixels[ck,ci] := PalData[p,t,1]+PalData[p,t,2]*256+PalData[p,t,3]*65536;
@@ -318,6 +330,30 @@ begin
   Image2.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
   MyBitmap.Free;
   //
+end;
+
+procedure TfrmMain.Edit1Change(Sender: TObject);
+var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,p,t:integer; aFont:byte; MyRect:TRect;
+begin
+  MyBitMap := TBitMap.Create;
+  MyBitmap.PixelFormat := pf24bit;
+  MyBitmap.Width := 512;
+  MyBitmap.Height := 32;
+
+  AdvX:=0;
+
+  for i:=1 to length(Edit1.Text) do
+  begin
+    for ci:=0 to FontData.Letters[ord(Edit1.Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Edit1.Text[i])].Width-1 do begin
+      p := FontPal[byte(aFont)];
+      t := FontData.Letters[ord(Edit1.Text[i])].Data[ci*FontData.Letters[ord(Edit1.Text[i])].Width+ck+1]+1;
+      MyBitmap.Canvas.Pixels[ck+AdvX,ci] := PalData[p,t,1]+PalData[p,t,2]*256+PalData[p,t,3]*65536;
+    end;
+    inc(AdvX,FontData.Letters[ord(Edit1.Text[i])].Width);
+  end;
+
+  Image4.Canvas.Draw(0,0, MyBitmap); //Draw MyBitmap into Image1
+  MyBitmap.Free;
 end;
 
 end.

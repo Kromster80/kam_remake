@@ -70,8 +70,8 @@ object frmMain: TfrmMain
     Top = 8
     Width = 521
     Height = 541
-    ActivePage = TabSheet1
-    TabIndex = 0
+    ActivePage = TabSheet2
+    TabIndex = 1
     TabOrder = 5
     object TabSheet1: TTabSheet
       Caption = 'Preview'
@@ -83,39 +83,21 @@ object frmMain: TfrmMain
         OnMouseMove = Image1MouseMove
         OnMouseUp = Image1MouseUp
       end
-      object Shape1: TShape
-        Left = 32
-        Top = 32
-        Width = 33
-        Height = 33
-        Brush.Style = bsClear
-        Pen.Color = clAqua
-        Pen.Width = 2
-        OnMouseUp = Image1MouseUp
-      end
-      object Shape3: TShape
-        Left = 88
-        Top = 32
-        Width = 33
-        Height = 33
-        Brush.Style = bsClear
-        Pen.Color = clWhite
-      end
     end
     object TabSheet2: TTabSheet
       Caption = 'Letters'
       ImageIndex = 1
       object Image2: TImage
         Left = 168
-        Top = 136
+        Top = 176
         Width = 161
         Height = 161
       end
       object Image3: TImage
-        Left = 8
+        Left = 0
         Top = 24
-        Width = 489
-        Height = 81
+        Width = 512
+        Height = 128
       end
       object Label1: TLabel
         Left = 16
@@ -126,38 +108,31 @@ object frmMain: TfrmMain
       end
       object Label2: TLabel
         Left = 176
-        Top = 120
+        Top = 160
         Width = 27
         Height = 13
         Caption = 'Letter'
       end
-      object Shape2: TShape
-        Left = 24
-        Top = 40
-        Width = 17
-        Height = 17
-        Brush.Style = bsClear
-        Pen.Color = clAqua
-      end
       object Image4: TImage
         Left = 8
-        Top = 328
+        Top = 352
         Width = 489
         Height = 25
       end
       object Image5: TImage
         Left = 8
-        Top = 360
+        Top = 384
         Width = 489
         Height = 41
       end
       object Edit1: TEdit
         Left = 8
-        Top = 304
+        Top = 328
         Width = 121
         Height = 21
         TabOrder = 0
         Text = 'Sample phrase'
+        OnChange = Edit1Change
       end
     end
   end
