@@ -761,15 +761,15 @@ begin
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       // A) Inital checks, inside map and radius, etc.
-      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
         if TileIsWater(KMPoint(k,i)) and WaterHasFish(KMPoint(k,i)) then //Limit to only tiles which are water and have fish
           //Now find a tile around this one that can be fished from
           for j:=-1 to 1 do
             for l:=-1 to 1 do
               if (l*j <> 0) and TileInMapCoords(k+j,i+l) then
                 // D) Final check: route can be made
-                if Route_CanBeMade(aPosition,KMPoint(k+j,i+l),CanWalk,false) then
-                  List.AddEntry(KMPointDir(k+j,i+l,PosToDir(j,l)));
+                if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, true) then
+                  List.AddEntry(KMPointDir(k+j, i+l, PosToDir(j,l)));
                   
   Result:=List.GetRandom;
   List.Free;
