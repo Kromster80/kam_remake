@@ -35,7 +35,7 @@ type
     procedure StartGame(MissionFile, aGameName:string);
     procedure PauseGame(DoPause:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
-    procedure StartMapEditor(MissionFile:string);
+    procedure StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
     function GetMissionTime:cardinal;
     property GetTickCount:cardinal read GameplayTickCount;
     property GetGameName:string read GameName;
@@ -517,7 +517,7 @@ begin
 end;
 
 
-procedure TKMGame.StartMapEditor(MissionFile:string);
+procedure TKMGame.StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
 var ResultMsg:string;
 begin
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
@@ -552,9 +552,9 @@ begin
     end;
     fLog.AppendLog('DAT Loaded');
   end else begin
-    fTerrain.MakeNewMap(64,64); //For debug we use blank mission
-    fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
-    MyPlayer:=fPlayers.Player[1];
+    fTerrain.MakeNewMap(aSizeX,aSizeY);
+    fPlayers := TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
+    MyPlayer := fPlayers.Player[1];
   end;
   fTerrain.RevealWholeMap(play_1); //@Lewin: Should be all players?
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);

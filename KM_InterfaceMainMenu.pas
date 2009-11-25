@@ -11,6 +11,7 @@ type TKMMainMenuInterface = class
     SingleMap_Top:integer; //Top map in list
     SingleMap_Selected:integer; //Selected map
     SingleMapsInfo:TKMMapsInfo;
+    MapEdSizeX,MapEdSizeY:integer; //Map Editor map size
     OldFullScreen:boolean;
     OldResolution:word;
   protected
@@ -43,9 +44,12 @@ type TKMMainMenuInterface = class
       KMImage_LoadBG:TKMImage;
       KMButton_Load:array[1..SAVEGAME_COUNT] of TKMButton;
       KMLabel_LoadResult:TKMLabel;
+      KMButton_LoadBack:TKMButton;
     KMPanel_MapEd:TKMPanel;
       Image_MapEd_BG:TKMImage;
-      Button_MapEd_Start,Button_MapEd_Back:TKMButton;
+      KMPanel_MapEd_SizeXY:TKMPanel;
+      CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZE_COUNT] of TKMCheckBox;
+      Button_MapEd_Start,Button_MapEdBack:TKMButton;
     KMPanel_Options:TKMPanel;
       Image_Options_BG:TKMImage;
       Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
@@ -94,6 +98,7 @@ type TKMMainMenuInterface = class
     procedure Load_Click(Sender: TObject);
     procedure MapEditor_Start(Sender: TObject);
     procedure Options_Change(Sender: TObject);
+    procedure MapEd_Change(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create(X,Y:word; aGameSettings:TGameSettings);
@@ -130,6 +135,8 @@ inherited Create;
   OffY := (Y-MENU_DESIGN_Y) div 2;
   SingleMap_Top:=1;
   SingleMap_Selected:=1;
+  MapEdSizeX:=64;
+  MapEdSizeY:=64;
 
   KMPanel_Main1:=MyControls.AddPanel(nil,OffX,OffY,ScreenX,ScreenY);
 
@@ -326,10 +333,10 @@ begin
       MyControls.AddBevel(KMPanel_SingleDesc,0,516,445,20);
       KMLabel_SingleEnemies:=MyControls.AddLabel(KMPanel_SingleDesc,8,519,445,20,'Enemies: ',fnt_Metal, kaLeft);
 
-      KMButton_SingleBack:=MyControls.AddButton(KMPanel_SingleDesc,0,570,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
-      KMButton_SingleBack.OnClick:=SwitchMenuPage;
-      KMButton_SingleStart:=MyControls.AddButton(KMPanel_SingleDesc,225,570,220,30,fTextLibrary.GetSetupString(8),fnt_Metal,bsMenu);
-      KMButton_SingleStart.OnClick:=SingleMap_Start;
+    KMButton_SingleBack := MyControls.AddButton(KMPanel_Single, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    KMButton_SingleBack.OnClick := SwitchMenuPage;
+    KMButton_SingleStart := MyControls.AddButton(KMPanel_Single, 270, 650, 220, 30, fTextLibrary.GetSetupString(8), fnt_Metal, bsMenu);
+    KMButton_SingleStart.OnClick := SingleMap_Start;
 end;
 
 
@@ -339,26 +346,44 @@ begin
   KMPanel_Load:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_LoadBG:=MyControls.AddImage(KMPanel_Load,0,0,ScreenX,ScreenY,2,6);
     KMImage_LoadBG.StretchImage:=true;
+
     for i:=1 to SAVEGAME_COUNT do
     begin
-      KMButton_Load[i]:=MyControls.AddButton(KMPanel_Load,100,300+i*40,180,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
+      KMButton_Load[i]:=MyControls.AddButton(KMPanel_Load,100,100+i*40,180,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
       KMButton_Load[i].Tag:=i; //To simplify usage
       KMButton_Load[i].OnClick:=Load_Click;
     end;
-    KMLabel_LoadResult:=MyControls.AddLabel(KMPanel_Load,124,130,100,30,'Debug',fnt_Metal,kaLeft);
+
+    KMLabel_LoadResult:=MyControls.AddLabel(KMPanel_Load,124,130,100,30,'Debug',fnt_Metal,kaLeft); //Debug string
+
+    KMButton_LoadBack := MyControls.AddButton(KMPanel_Load, 145, 650, 224, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    KMButton_LoadBack.OnClick := SwitchMenuPage;
 end;
 
 
 procedure TKMMainMenuInterface.Create_MapEditor_Page;
+var i:integer;
 begin
   KMPanel_MapEd:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     Image_MapEd_BG:=MyControls.AddImage(KMPanel_MapEd,0,0,ScreenX,ScreenY,2,6);
     Image_MapEd_BG.StretchImage:=true;
-  //Should contain options to make a map from scratch, load map from file, generate random preset
 
-    Button_MapEd_Back := MyControls.AddButton(KMPanel_MapEd,0,570,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
-    Button_MapEd_Back.OnClick := SwitchMenuPage;
-    Button_MapEd_Start := MyControls.AddButton(KMPanel_MapEd,225,570,224,30,'Create New Map',fnt_Metal,bsMenu);
+    //Should contain options to make a map from scratch, load map from file, generate random preset
+
+    KMPanel_MapEd_SizeXY := MyControls.AddPanel(KMPanel_MapEd, 45, 100, 150, 300);
+      MyControls.AddLabel(KMPanel_MapEd_SizeXY, 6, 0, 100, 30, 'Map size X:Y', fnt_Outline, kaLeft);
+      MyControls.AddBevel(KMPanel_MapEd_SizeXY, 0, 20, 200, 10 + MAPSIZE_COUNT*20);
+      for i:=1 to MAPSIZE_COUNT do
+      begin
+        CheckBox_MapEd_SizeX[i] := MyControls.AddCheckBox(KMPanel_MapEd_SizeXY, 8, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
+        CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(KMPanel_MapEd_SizeXY, 68, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
+        CheckBox_MapEd_SizeX[i].OnClick := MapEd_Change;
+        CheckBox_MapEd_SizeY[i].OnClick := MapEd_Change;
+      end;
+
+    Button_MapEdBack := MyControls.AddButton(KMPanel_MapEd, 145, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MapEdBack.OnClick := SwitchMenuPage;
+    Button_MapEd_Start := MyControls.AddButton(KMPanel_MapEd, 370, 650, 220, 30, 'Create New Map', fnt_Metal, bsMenu);
     Button_MapEd_Start.OnClick := MapEditor_Start;
 end;
 
@@ -425,7 +450,7 @@ begin
       TKMControl(KMPanel_Options.Childs[i]).OnChange:=Options_Change;
     end;
 
-    Button_Options_Back:=MyControls.AddButton(KMPanel_Options,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_Options_Back:=MyControls.AddButton(KMPanel_Options,145,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_Options_Back.OnClick:=SwitchMenuPage;
 end;
 
@@ -501,7 +526,8 @@ begin
   {Return to MainMenu}
   if (Sender=KMButton_CreditsBack)or
      (Sender=KMButton_SingleBack)or
-     (Sender=Button_MapEd_Back)or
+     (Sender=KMButton_LoadBack)or
+     (Sender=Button_MapEdBack)or
      (Sender=Button_ErrorBack)or
      (Sender=KMButton_ResultsBack) then
     KMPanel_MainMenu.Show;
@@ -528,6 +554,7 @@ begin
 
   {Show MapEditor menu}
   if Sender=KMButton_MainMenuMapEd then begin
+    MapEd_Change(nil);
     KMPanel_MapEd.Show;
   end;
 
@@ -650,7 +677,7 @@ end;
 procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
 begin
   fLog.AssertToLog(Sender = Button_MapEd_Start,'not Button_MapEd_Start');
-  fGame.StartMapEditor(''); //Provide mission filename here
+  fGame.StartMapEditor('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
 end;
 
 
@@ -704,6 +731,26 @@ begin
   KMButton_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGameSettings.IsFullScreen) or (OldResolution <> fGame.fGameSettings.GetResolutionID);
 
 end;
+
+
+procedure TKMMainMenuInterface.MapEd_Change(Sender: TObject);
+var i:integer;
+begin
+  //Find out new map dimensions
+  for i:=1 to MAPSIZE_COUNT do
+  begin
+    if Sender = CheckBox_MapEd_SizeX[i] then MapEdSizeX := MapSize[i];
+    if Sender = CheckBox_MapEd_SizeY[i] then MapEdSizeY := MapSize[i];
+  end;
+  //Put checkmarks
+  for i:=1 to MAPSIZE_COUNT do
+  begin
+    CheckBox_MapEd_SizeX[i].Checked := MapEdSizeX = MapSize[i];
+    CheckBox_MapEd_SizeY[i].Checked := MapEdSizeY = MapSize[i];
+  end;
+end;
+
+
 
 {Should update credits page mostly}
 procedure TKMMainMenuInterface.UpdateState;

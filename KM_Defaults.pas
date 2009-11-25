@@ -718,6 +718,10 @@ const
   (1920,1200)
   );
 
+const
+  MAPSIZE_COUNT = 10;
+  MapSize: array[1..MAPSIZE_COUNT] of word=( 32, 48, 64, 80, 96, 112, 128, 144, 160, 176 );
+
 var
   //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
   SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;

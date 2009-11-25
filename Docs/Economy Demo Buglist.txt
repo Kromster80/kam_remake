@@ -5,18 +5,18 @@ Known bugs:
 Gameplay bugs:
 +	Alt-tabbing with School/Barracks selected causes a crash
 +	Error on exit if there's no OpenAL found
++	Fisher does not work yet
++	Woodcutter should drop the task if tree is already taken by other woodcutter
 	Killing a worker while it goes to build a road will cancel the markup and road plan
-?	Woodcutter should drop the task if tree is already taken by other woodcutter
 	Units get stuck on unwalkable tiles
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
-	Fisher does not work yet
 	Flags are always visible
 	Sometimes the taskbar stays on top in fullscreen mode
 
 Graphics bugs:
+?	Water has dark patches
 	See-through hills (lighting flaw)
-	Water has dark patches
 
 Suggested improvements:
 	Viewport scrolling should be smooth
