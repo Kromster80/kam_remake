@@ -38,7 +38,7 @@ public
     //Used to display half-dug road
     TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
-    BeforeFieldTerrain,BeforeFieldRotation:byte; //Only used for map editor
+    BeforeFieldTerrain, BeforeFieldRotation:byte; //Only used for map editor
 
 
     //DEDUCTED
@@ -542,7 +542,7 @@ procedure TTerrain.RemField(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TileOwner:=play_none;
   Land[Loc.Y,Loc.X].TileOverlay:=to_None;
-  Land[Loc.Y,Loc.X].Terrain := Land[Loc.Y,Loc.X].BeforeFieldTerrain; //Reset terrain 
+  Land[Loc.Y,Loc.X].Terrain := Land[Loc.Y,Loc.X].BeforeFieldTerrain; //Reset terrain
   Land[Loc.Y,Loc.X].Rotation := Land[Loc.Y,Loc.X].BeforeFieldRotation; //Reset terrain
   if Land[Loc.Y,Loc.X].Obj in [54..59] then Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
   Land[Loc.Y,Loc.X].FieldAge:=0;
@@ -925,9 +925,6 @@ begin
   UpdateTransition(Loc.X-1,Loc.Y);
   FlattenTerrain(Loc);
   RecalculatePassabilityAround(Loc);
-  //@Lewin: I did a test on StoneMines map and simple FlattenTerrain does the job well enough :)
-  //@Krom:  It works very well! To be deleted.
-
   RebuildWalkConnect(canWalk);
 end;
 

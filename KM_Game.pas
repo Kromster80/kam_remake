@@ -279,8 +279,8 @@ begin
                         cm_Erase: begin
                                     MyPlayer.RemHouse(P,false,false,true);
                                     fTerrain.RemRoad(P);
-                                    fTerrain.RemField(P); //@Lewin: How do we now which tile terrain had before it became field?
-                                  end;                    //@Krom: I added extra variables to terrain to remember the tile and rotation.
+                                    fTerrain.RemField(P);
+                                  end;
                       end;
                     end;
                   end;

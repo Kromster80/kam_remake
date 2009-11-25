@@ -460,7 +460,7 @@ begin
   KMPanel_Credits:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,ScreenX,ScreenY,2,6);
     KMImage_CreditsBG.StretchImage:=true;
-    KMLabel_Credits:=MyControls.AddLabel(KMPanel_Credits,ScreenX div 2,ScreenY,100,30,'Credits go here'{ fTextLibrary.GetSetupString(300) @Krom: Can't handle labels with strings this long },fnt_Grey,kaCenter);
+    KMLabel_Credits:=MyControls.AddLabel(KMPanel_Credits,ScreenX div 2,ScreenY,100,30,'Credits go here'{ fTextLibrary.GetSetupString(300)},fnt_Grey,kaCenter); //todo: Can't handle labels with strings this long
     KMButton_CreditsBack:=MyControls.AddButton(KMPanel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     KMButton_CreditsBack.OnClick:=SwitchMenuPage;
 end;

@@ -621,7 +621,7 @@ end;
 function  TKMBuildingQueue.AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
 var i:integer;
 begin
-  Result:=nil;
+  Result := nil;
   for i:=1 to MaxEntries-1 do
     if fHousesRepairQueue[i].House<>nil then
       if fHousesRepairQueue[i].House.IsDamaged then
@@ -630,9 +630,6 @@ begin
           Result :=TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
           exit;
         end
-
-        //CloseHouseRepair(i); //House is not damaged //@Krom: Removed because the button will still say under repair when the job has been removed. This also matches KaM. To be deleted or discussed.
-
 end;
 
 

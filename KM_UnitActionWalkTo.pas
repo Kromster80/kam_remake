@@ -321,8 +321,8 @@ begin
   end;
 
   //Execute the route in series of moves
-  TimeDelta:=0.1;
-  Distance:= TimeDelta * fWalker.GetSpeed;
+  TimeDelta := 0.1;
+  Distance := TimeDelta * fWalker.GetSpeed;
 
   //Check if unit has arrived on tile
   //@Krom: It is crashing here sometimes when units get stuck under a house.
@@ -333,10 +333,10 @@ begin
      Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
   begin
 
-    GetIsStepDone:=true; //Unit stepped on a new tile
+    GetIsStepDone := true; //Unit stepped on a new tile
 
     //Set precise position to avoid rounding errors
-    fWalker.PositionF:=KMPointF(NodeList.List[NodePos].X,NodeList.List[NodePos].Y);
+    fWalker.PositionF := KMPointF(NodeList.List[NodePos].X,NodeList.List[NodePos].Y);
 
     //Walk complete
     if NodePos=NodeList.Count then begin

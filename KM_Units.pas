@@ -2268,12 +2268,7 @@ begin
          fThought := th_Home;
          SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance));
        end;
-    1: begin
-        SetActionGoIn(ua_Walk,gd_GoInside,fHome.GetHouseType);
-                             //@Lewin: Is this the right place for unit to stop thinking?
-                             //@Krom:  No, I think they should stop thinking when they disappear inside,
-                             //        not once they reach the tile bellow. Therefore moved to next phase. To be deleted.
-       end;
+    1: SetActionGoIn(ua_Walk, gd_GoInside, fHome.GetHouseType);
     2: begin
         fThought := th_None; //Only stop thinking once we are right inside
         fHome.SetState(hst_Idle,0);
@@ -2673,7 +2668,6 @@ var
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    //Doesn't count if it has died. @Krom: Is this correct? Or should it be done a different way, e.g. set position XY=0 when it dies. How does houses do it? To be deleted, once this has been fixed.
     if (TKMUnit(Items[I]).HitTest(X, Y, UT)) and (not TKMUnit(Items[I]).IsDead) then
     begin
       Result:= TKMUnit(Items[I]);
@@ -2765,42 +2759,6 @@ begin
       //fLog.AppendLog('Unit sucessfully freed and removed');
     end;
 
-      //@Lewin:
-      //We have a big problem here. See, when unit is killed it's Freed and removed from the list all right
-      //But there's an issue - every local pointer to that unit (f.e. DeliveryList, TTaskDelivery) still exists,
-      //it's becoming so-called dangling pointer. We have no way to set all those pointers to nil.
-      //So what do we do to solve this:
-      //
-      // 1. don't remove items from list at all, just mark them as killed/unused units
-      //        a. just keep on adding new units and leave killed units in place
-      //           that means memory leaking, but thats not gonna be that big issue
-      //           as one unit takes what, 268 bytes or so
-      //        b. add new units in place of old ones. that means less memory gets leaked, but
-      //           we have no guarantee that all pointers to killed units are terminated
-      //           hence we get the same problem we were trying to avoid...
-      // 2. use some sort of layer to keep pointers to units and set them to nil if unit is killed
-      //    Local pointer > list of pointers > actual list of units
-      //
-      //I think we should use solution '1a'. Whats your opinion?
-
-      //@Krom:
-      //1a sounds ok. But we need to be sure we can cope with lots of units. If we can manage say
-      //50k or so units without significant slow downs/memory loss then I think it will be ok.
-      //(268*50k = 13.4MB)
-      //Only trouble that I forsee is that any point at which we search the entire units list will
-      //become very slow after you have had lots of fights and killed 1000s.
-      //And everytime you cancel training in the school will be another unit.
-      //I can't say it's a perfect solution but if it works then I agree.
-
-      //@Krom again: I talked to my father about this. He said that leaving the unused memory is really bad programming
-      //and it should be possible to make sure no one is pointing at the unit/house/delivery before we remove it. He explained the
-      //way he thinks we should do it, which I agree with. Basically, once we've finished with something from a list then it should be removed.
-      //This means units, houses, all of the delivery jobs/queues, etc.
-      //I haven't got time to explain it now, and it might be easier to do it over ICQ, (so we can discuss it rather than me telling you)
-      // but basically it is possible, as long as we know all of the places that have a pointer to the item in the list that we want to remove.
-      //It shouldn't be too hard to implement either. :)
-
-      //@Krom:
       //Outline of pointer freeing system: (when refering to units I also mean houses, they use the same system)
       // - Units and houses have fPointerCount, which is the number of pointers to them. (e.g. tasks, deliveries)
       //   This is kept up to date by the thing that is using the pointer. On create it uses GetSelf to increase
@@ -2811,8 +2769,7 @@ begin
       // - For each place that contains a pointer, it should check everytime the pointer is used to see if it has been
       //   destroy. If it has then we free the pointer and reduce the count. (and do any other action nececary due to the unit dying)
       //Please give suggestions, fix mistakes and let me know what you think. :)
-
-      //@Krom: Problem solved. :D To be deleted.................................
+      //@Lewin: Please leave a sketch of how the system is working at the moment
 end;
 
 
