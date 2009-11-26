@@ -2,7 +2,7 @@ unit umain;
 interface
 uses
   Windows, Messages, SysUtils, FileCtrl, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, KromUtils, Math, ComCtrls, Buttons;
+  Dialogs, ExtCtrls, StdCtrls, KromUtils, Math, ComCtrls, Buttons, StrUtils;
 
 {Fonts}
 type //Indexing should start from 1.
@@ -16,9 +16,13 @@ const //using 0 as default, with exceptions. Only used fonts have been checked, 
   ( 0, 0, 0, 0, 1,-1, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 1, 1,-1, 0, 0);
 
+  FontFileNames: array[TKMFont] of string =
+  ( 'adam', 'antiqua', 'briefing', 'font01', 'game', 'grey', 'kmlobby0', 'kmlobby1', 'kmlobby2', 'kmlobby3',
+    'kmlobby4', 'maina', 'mainb', 'mainmapgold', 'metal', 'mini', 'mininum','outline', 'system', 'won');
+
   FontPal:array[1..20]of byte = //Those 10 are unknown Pal, no existing Pal matches them well
   (10, 2, 1,10, 2, 2, 1, 8, 8, 9,
-    9, 8,10, 8, 2, 8, 8, 2,10, 9);
+    9, 8,10, 8, 2, 8, 8, 2,10, 9); //@Krom: Can this be loaded from the file? It would make it easier and more versatile.
 
 {Palettes}
 const
@@ -68,6 +72,7 @@ type
     Image4: TImage;
     Image5: TImage;
     StatusBar1: TStatusBar;
+    imgColourSelected: TImage;
     procedure btnLoadFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
@@ -78,16 +83,25 @@ type
     procedure Image1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Edit1Change(Sender: TObject);
+    procedure Image3MouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure Image3MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     { Private declarations }
     fFileEditing: string;
+    fColourSelected: byte;
+    fCurrentFont: TKMFont;
+    function GetFontFromFileName(aFile:string):TKMFont;
     procedure SetFileEditing(aFile:string);
+    procedure SetColourSelected(aColour:byte);
     procedure ScanDataForPalettesAndFonts(apath:string);
     function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
     function LoadPalette(filename:string; PalID:byte):boolean;
   public
     { Public declarations }
     property FileEditing: string read fFileEditing write SetFileEditing;
+    property ColourSelected: byte read fColourSelected write SetColourSelected;
     procedure ShowPalette(aPal:integer);
     procedure ShowLetter(aLetter:integer);
   end;
@@ -241,6 +255,7 @@ begin
   setlength(TD,0);
   Result:=true;
 
+  fCurrentFont := aFont;
 end;
 
 function TfrmMain.LoadPalette(filename:string; PalID:byte):boolean;
@@ -267,7 +282,7 @@ end;
 
 procedure TfrmMain.ListBox1Click(Sender: TObject);
 begin
-  LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], fnt_Outline, false);
+  LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], GetFontFromFileName(ListBox1.Items[ListBox1.ItemIndex]), false);
   PageControl1.ActivePageIndex := 0;
   StatusBar1.Panels.Items[0].Text := ListBox1.Items[ListBox1.ItemIndex];
 end;
@@ -287,7 +302,7 @@ procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: T
 begin
   PageControl1.ActivePageIndex := 1;
   ActiveLetter := (Y div 32)*16 + X div 32;
-  ShowPalette(2);
+  ShowPalette(FontPal[byte(fCurrentFont)]);
   ShowLetter(ActiveLetter);
 end;
 
@@ -312,6 +327,7 @@ var MyBitMap:TBitMap; ci,ck:integer; p,t:integer; aFont:byte; MyRect:TRect;
 begin
 
   aFont:=2; //todo: Should be read from file?
+  aFont:=byte(fCurrentFont);
   //aLetter := 65;
 
   MyBitMap := TBitMap.Create;
@@ -329,11 +345,12 @@ begin
 
   Image2.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
   MyBitmap.Free;
+  Edit1Change(Edit1);
   //
 end;
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
-var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,p,t:integer; aFont:byte; MyRect:TRect;
+var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,p,t:integer; aFont:TKMFont; MyRect:TRect;
 begin
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
@@ -341,6 +358,7 @@ begin
   MyBitmap.Height := 32;
 
   AdvX:=0;
+  aFont := fCurrentFont;
 
   for i:=1 to length(Edit1.Text) do
   begin
@@ -354,6 +372,49 @@ begin
 
   Image4.Canvas.Draw(0,0, MyBitmap); //Draw MyBitmap into Image1
   MyBitmap.Free;
+end;
+
+procedure TfrmMain.Image3MouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  if ssLeft in Shift then
+  begin
+    ColourSelected := EnsureRange(((Y div 16)*32) + (X div 16),0,255);
+  end;
+end;
+
+procedure TfrmMain.Image3MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = mbLeft then Image3MouseMove(Sender,[ssLeft],X,Y);
+end;
+
+procedure TfrmMain.SetColourSelected(aColour:byte);
+var MyBitMap:TBitMap; MyRect:TRect; Pal:integer;
+begin
+  fColourSelected := aColour;
+  MyBitMap := TBitMap.Create;
+  MyBitmap.PixelFormat := pf24bit;
+  MyBitmap.Width := 1;
+  MyBitmap.Height := 1;
+  Pal := FontPal[byte(fCurrentFont)];
+
+  MyBitmap.Canvas.Pixels[0, 0] := PalData[Pal,ColourSelected+1,1]+PalData[Pal,ColourSelected+1,2]*256+PalData[Pal,ColourSelected+1,3]*65536;
+  //
+  MyRect := imgColourSelected.Canvas.ClipRect;
+  imgColourSelected.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into imgColourSelected
+  MyBitmap.Free;
+end;
+
+function TfrmMain.GetFontFromFileName(aFile:string):TKMFont;
+var i: TKMFont;
+begin
+  for i := low(TKMFont) to high(TKMFont) do
+    if LeftStr(aFile,Length(FontFileNames[i])) = FontFileNames[i] then
+    begin
+      Result := i;
+      exit;
+    end;
 end;
 
 end.

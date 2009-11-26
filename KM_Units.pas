@@ -2759,18 +2759,21 @@ begin
       //fLog.AppendLog('Unit sucessfully freed and removed');
     end;
 
-      //Outline of pointer freeing system: (when refering to units I also mean houses, they use the same system)
-      // - Units and houses have fPointerCount, which is the number of pointers to them. (e.g. tasks, deliveries)
-      //   This is kept up to date by the thing that is using the pointer. On create it uses GetSelf to increase
-      //   the pointer count and on destroy it decreases it.
-      // - When a unit dies, the object is not destroyed. Instead a flag (boolean) is set to say that we want to
-      //   destroy but can't because there are still pointers to the unit. From then on every update state it checks
-      //   to see if the pointer count is 0 yet. If it is then the unit is destroyed.
-      // - For each place that contains a pointer, it should check everytime the pointer is used to see if it has been
-      //   destroy. If it has then we free the pointer and reduce the count. (and do any other action nececary due to the unit dying)
-      //Please give suggestions, fix mistakes and let me know what you think. :)
-      //@Lewin: Please leave a sketch of how the system is working at the moment
-end;
+  //   --     POINTER FREEING SYSTEM - DESCRIPTION     --   //
+  //  This system was implemented because unit and house objects cannot be freed until all pointers to them
+  //  (in tasks, delivery queue, etc.) have been freed, otherwise we have pointer integrity issues.
+
+  //   --     ROUGH OUTLINE     --   //
+  // - Units and houses have fPointerCount, which is the number of pointers to them. (e.g. tasks, deliveries)
+  //   This is kept up to date by the thing that is using the pointer. On create it uses GetSelf to increase
+  //   the pointer count and on destroy it decreases it. (this will be a source of errors and will need to be checked when changing pointers)
+  // - When a unit dies, the object is not destroyed. Instead a flag (boolean) is set to say that we want to
+  //   destroy but can't because there are still pointers to the unit. From then on every update state it checks
+  //   to see if the pointer count is 0 yet. If it is then the unit is destroyed.
+  // - For each place that contains a pointer, it should check everytime the pointer is used to see if it has been
+  //   destroy. If it has then we free the pointer and reduce the count. (and do any other action nececary due to the unit/house dying)
+
+  end;
 
 
 procedure TKMUnitsCollection.Paint();

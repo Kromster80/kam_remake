@@ -14,7 +14,7 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   DesignSize = (
     681
-    610)
+    603)
   PixelsPerInch = 96
   TextHeight = 13
   object btnExport: TBitBtn
@@ -98,6 +98,8 @@ object frmMain: TfrmMain
         Top = 24
         Width = 512
         Height = 128
+        OnMouseDown = Image3MouseDown
+        OnMouseMove = Image3MouseMove
       end
       object Label1: TLabel
         Left = 16
@@ -125,6 +127,12 @@ object frmMain: TfrmMain
         Width = 489
         Height = 41
       end
+      object imgColourSelected: TImage
+        Left = 0
+        Top = 160
+        Width = 128
+        Height = 128
+      end
       object Edit1: TEdit
         Left = 8
         Top = 328
@@ -138,7 +146,7 @@ object frmMain: TfrmMain
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 591
+    Top = 584
     Width = 681
     Height = 19
     Panels = <
