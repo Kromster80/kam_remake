@@ -362,15 +362,8 @@ end;
 
 {One common thing - draw childs for self}
 procedure TKMControl.Paint();
-var i:integer;
 begin
-  if Self is TKMPanel then //Only Panels have childs    //todo: move to TKMPanel!
-  for i:=1 to TKMPanel(Self).ChildCount do
-    if TKMPanel(Self).Childs[i].Visible then
-    begin
-      TKMPanel(Self).Childs[i].Paint;
-      inc(CtrlPaintCount);
-    end;
+  //nothing in here
 end;
 
 
@@ -435,9 +428,16 @@ end;
 
 {Panel Paint means to Paint all its childs}
 procedure TKMPanel.Paint();
+var i:integer;
 begin
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $400000FF);
   Inherited Paint;
+  for i:=1 to TKMPanel(Self).ChildCount do
+    if TKMPanel(Self).Childs[i].Visible then
+    begin
+      TKMPanel(Self).Childs[i].Paint;
+      inc(CtrlPaintCount);
+    end;
 end;
 
 
@@ -504,14 +504,10 @@ begin
 end;
 
 
-{Make sure image area is at least enough to fit an image, or bigger}
-{if Width/Height are 0 then image gets centered around Left/Top}
-{if Width/Height are smaller than actual image then adjust them to fit image}
-{if Width/Height are bigger than actual image then image will be centered within bounds}
 constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID, aRXid:integer);
 begin
-  RXid:=aRXid;
-  TexID:=aTexID;
+  RXid := aRXid;
+  TexID := aTexID;
   Anchors := [anLeft, anTop];
   Inherited Create(aLeft, aTop, aWidth, aHeight);
   ParentTo(aParent);
@@ -532,13 +528,17 @@ end;
 
 {If image area is bigger than image - do center image in it}
 procedure TKMImage.Paint();
-var OffsetX, OffsetY, DrawWidth, DrawHeight:integer; StretchDraw:boolean;
+var
+  OffsetX, OffsetY, DrawWidth, DrawHeight:smallint; //variable parameters
+  StretchDraw:boolean; //Check if the picture should be stretched
 begin
   if (TexID=0)or(RXid=0) then exit; //No picture to draw
 
-  StretchDraw := false; //Check if the picture should be stretched
+  StretchDraw := false; 
   DrawWidth := Width;
   DrawHeight := Height;
+  OffsetX := 0;
+  OffsetY := 0;
 
   if anRight in Anchors then OffsetX := Width - GFXData[RXid, TexID].PxWidth; //First check "non-zero offset" anchor incase both anchors are set
   if anLeft in Anchors then OffsetX := 0;
