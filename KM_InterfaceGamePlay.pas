@@ -546,8 +546,7 @@ begin
   KMPanel_Pause:=MyControls.AddPanel(KMPanel_Main,0,0,fRender.GetRenderAreaSize.X,fRender.GetRenderAreaSize.Y);
     KMBevel_Pause:=MyControls.AddBevel(KMPanel_Pause,-1,-1,fRender.GetRenderAreaSize.X+2,fRender.GetRenderAreaSize.Y+2);
     KMImage_Pause:=MyControls.AddImage(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
-    KMImage_Pause.PivotX:=pl_Avg;
-    KMImage_Pause.PivotY:=pl_Avg;
+    KMImage_Pause.Center;
     KMLabel_Pause1:=MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
     KMLabel_Pause2:=MyControls.AddLabel(KMPanel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
     KMPanel_Pause.Hide
@@ -557,9 +556,11 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
-  KMPanel_Message:=MyControls.AddPanel(KMPanel_Main,TOOLBARWIDTH,fRender.GetRenderAreaSize.Y-190,fRender.GetRenderAreaSize.X-TOOLBARWIDTH,190);
+  KMPanel_Message:=MyControls.AddPanel(KMPanel_Main, TOOLBARWIDTH, fRender.GetRenderAreaSize.Y - 190, fRender.GetRenderAreaSize.X - TOOLBARWIDTH, 190);
     KMImage_MessageBG:=MyControls.AddImage(KMPanel_Message,0,20,600,170,409);
+    KMImage_MessageBG.Anchors := KMImage_MessageBG.Anchors + [anRight];
     KMImage_MessageBGTop:=MyControls.AddImage(KMPanel_Message,0,0,600,20,551);
+    KMImage_MessageBGTop.Anchors := KMImage_MessageBGTop.Anchors + [anRight];
     KMLabel_MessageText:=MyControls.AddLabel(KMPanel_Message,47,67,432,122,'',fnt_Antiqua,kaLeft);
     KMLabel_MessageText.AutoWrap := true;
     KMButton_MessageGoTo:=MyControls.AddButton(KMPanel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);

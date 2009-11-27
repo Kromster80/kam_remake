@@ -103,15 +103,16 @@ TKMLabel = class(TKMControl)
     procedure Paint(); override;
 end;
 
+TAnchors = (anLeft, anRight, anTop, anBottom);
 
 {Image}
 TKMImage = class(TKMControl)
   public
     RXid: integer; //RX library
     TexID: integer;
-    StretchImage: boolean;
-    PivotX: TPivotLocation; //todo: Replace pivots with Anchors L.T.R.B.
-    PivotY: TPivotLocation;
+    Anchors: set of TAnchors;
+    procedure FillArea;
+    procedure Center;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
@@ -507,45 +508,63 @@ end;
 {if Width/Height are 0 then image gets centered around Left/Top}
 {if Width/Height are smaller than actual image then adjust them to fit image}
 {if Width/Height are bigger than actual image then image will be centered within bounds}
-constructor TKMImage.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
+constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID, aRXid:integer);
 begin
   RXid:=aRXid;
   TexID:=aTexID;
-  StretchImage:=false;
-  PivotX:=pl_Min; //by default to top-left
-  PivotY:=pl_Min;
-  if aWidth=0 then PivotX:=pl_Avg;//aLeft:=aLeft - GFXData[RXid,aTexID].PxWidth div 2;
-  if aHeight=0 then PivotY:=pl_Avg;//aTop:=aTop - GFXData[RXid,aTexID].PxHeight div 2;
-  aWidth:=max(aWidth,GFXData[RXid,aTexID].PxWidth);
-  aHeight:=max(aHeight,GFXData[RXid,aTexID].PxHeight);
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Anchors := [anLeft, anTop];
+  Inherited Create(aLeft, aTop, aWidth, aHeight);
   ParentTo(aParent);
+end;
+
+
+procedure TKMImage.FillArea;
+begin
+  Anchors := [anLeft, anRight, anTop, anBottom]; //Stretch image to fit
+end;
+
+
+procedure TKMImage.Center; //Render image from center
+begin
+  Anchors := [];
 end;
 
 
 {If image area is bigger than image - do center image in it}
 procedure TKMImage.Paint();
-var OffsetX,OffsetY:word;
-begin    
-  case PivotX of
-    pl_Min: OffsetX:=0;
-    pl_Avg: OffsetX:=Width div 2;
-    pl_Max: OffsetX:=Width;
-    else    OffsetX:=0;
+var OffsetX, OffsetY, DrawWidth, DrawHeight:integer; StretchDraw:boolean;
+begin
+  if (TexID=0)or(RXid=0) then exit; //No picture to draw
+
+  StretchDraw := false; //Check if the picture should be stretched
+  DrawWidth := Width;
+  DrawHeight := Height;
+
+  if anRight in Anchors then OffsetX := Width - GFXData[RXid, TexID].PxWidth; //First check "non-zero offset" anchor incase both anchors are set
+  if anLeft in Anchors then OffsetX := 0;
+  if (anLeft in Anchors) and (anRight in Anchors) then //Both anchors means: stretch the image
+  begin
+    StretchDraw := true;
+    DrawWidth := Width;
   end;
-  case PivotY of
-    pl_Min: OffsetY:=0;
-    pl_Avg: OffsetY:=Height div 2;
-    pl_Max: OffsetY:=Height;
-    else    OffsetY:=0;
-  end; 
-  if TexID=0 then exit;
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left-OffsetX, Top-OffsetY, Width, Height, $4000FF00);
-  if StretchImage then
-    fRenderUI.WritePicture(Left-OffsetX, Top-OffsetY, Width, Height, RXid, TexID, Enabled)
+  if not ((anLeft in Anchors) or (anRight in Anchors)) then //No anchors means: draw the image in center
+    OffsetX := (Width - GFXData[RXid, TexID].PxWidth) div 2;
+
+  if anBottom in Anchors then OffsetY := Width - GFXData[RXid, TexID].PxHeight;
+  if anTop in Anchors then OffsetY := 0;
+  if (anTop in Anchors) and (anBottom in Anchors) then
+  begin
+    StretchDraw := true;
+    DrawHeight := Height;
+  end;
+  if not ((anTop in Anchors) or (anBottom in Anchors)) then
+    OffsetY := (Height - GFXData[RXid, TexID].PxHeight) div 2;
+
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
+  if StretchDraw then
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, Enabled)
   else
-    fRenderUI.WritePicture(Left-OffsetX + (Width-GFXData[RXid,TexID].PxWidth) div 2,
-                           Top-OffsetY + (Height-GFXData[RXid,TexID].PxHeight) div 2, RXid,TexID, Enabled);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, Enabled);
 end;
 
 

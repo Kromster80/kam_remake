@@ -48,7 +48,7 @@ var
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
-  MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
+  MakeDrawPagesOverlay  :boolean=true; //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes    :boolean=false; //Draw unit routes when they are chosen
   MakeShowUnitMove      :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading

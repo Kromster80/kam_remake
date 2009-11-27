@@ -736,15 +736,15 @@ var
   DevMode : TDevMode;
 begin
   i:=0;
-  FillChar(SupportedRefreshRates,SizeOf(SupportedRefreshRates),0); //@Lewin: Thats a nice trick to fill it with zeroes ;)
-  while EnumDisplaySettings(nil,i,DevMode) do
-  with Devmode do
+  FillChar(SupportedRefreshRates, SizeOf(SupportedRefreshRates), 0); //Thats a nice trick to fill it with zeroes ;)
+  while EnumDisplaySettings(nil, i, DevMode) do
+  with DevMode do
   begin
     inc(i);
     if dmBitsPerPel=32 then
     for k:=1 to RESOLUTION_COUNT do
-    if (SupportedResolutions[k,1]=dmPelsWidth)and(SupportedResolutions[k,2]=dmPelsHeight)then
-      SupportedRefreshRates[k] := max(SupportedRefreshRates[k],dmDisplayFrequency);
+    if (SupportedResolutions[k,1] = dmPelsWidth) and (SupportedResolutions[k,2] = dmPelsHeight)then
+      SupportedRefreshRates[k] := max(SupportedRefreshRates[k], dmDisplayFrequency);
   end;
 end;
 

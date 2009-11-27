@@ -235,10 +235,10 @@ procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   KMPanel_MainMenu:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_MainMenuBG:=MyControls.AddImage(KMPanel_MainMenu,0,0,ScreenX,ScreenY,2,6);
-    KMImage_MainMenuBG.StretchImage:=true;
+    KMImage_MainMenuBG.FillArea;
     KMImage_MainMenu1:=MyControls.AddImage(KMPanel_MainMenu,120,80,423,164,4,5);
     KMImage_MainMenu3:=MyControls.AddImage(KMPanel_MainMenu,635,220,round(207*1.3),round(295*1.3),6,6);
-    KMImage_MainMenu3.StretchImage:=true;
+    KMImage_MainMenu3.FillArea;
 
     KMPanel_MainButtons:=MyControls.AddPanel(KMPanel_MainMenu,155,280,350,400);
       KMButton_MainMenuTutor  :=MyControls.AddButton(KMPanel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal,bsMenu);
@@ -273,7 +273,7 @@ begin
   KMPanel_Single:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
 
     KMImage_SingleBG:=MyControls.AddImage(KMPanel_Single,0,0,ScreenX,ScreenY,2,6);
-    KMImage_SingleBG.StretchImage:=true;
+    KMImage_SingleBG.FillArea;
 
     KMPanel_SingleList:=MyControls.AddPanel(KMPanel_Single,512+22,84,445,600);
 
@@ -345,7 +345,7 @@ var i:integer;
 begin
   KMPanel_Load:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_LoadBG:=MyControls.AddImage(KMPanel_Load,0,0,ScreenX,ScreenY,2,6);
-    KMImage_LoadBG.StretchImage:=true;
+    KMImage_LoadBG.FillArea;
 
     for i:=1 to SAVEGAME_COUNT do
     begin
@@ -366,7 +366,7 @@ var i:integer;
 begin
   KMPanel_MapEd:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     Image_MapEd_BG:=MyControls.AddImage(KMPanel_MapEd,0,0,ScreenX,ScreenY,2,6);
-    Image_MapEd_BG.StretchImage:=true;
+    Image_MapEd_BG.FillArea;
 
     //Should contain options to make a map from scratch, load map from file, generate random preset
 
@@ -393,7 +393,7 @@ var i:integer;
 begin
   KMPanel_Options:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     Image_Options_BG:=MyControls.AddImage(KMPanel_Options,0,0,ScreenX,ScreenY,2,6);
-    Image_Options_BG.StretchImage:=true;
+    Image_Options_BG.FillArea;
 
     Label_Options_MouseSpeed:=MyControls.AddLabel(KMPanel_Options,124,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     Label_Options_MouseSpeed.Disable;
@@ -459,7 +459,7 @@ procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   KMPanel_Credits:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,ScreenX,ScreenY,2,6);
-    KMImage_CreditsBG.StretchImage:=true;
+    KMImage_CreditsBG.FillArea;
     KMLabel_Credits:=MyControls.AddLabel(KMPanel_Credits,ScreenX div 2,ScreenY,100,30,'Credits go here'{ fTextLibrary.GetSetupString(300)},fnt_Grey,kaCenter); //todo: Can't handle labels with strings this long
     KMButton_CreditsBack:=MyControls.AddButton(KMPanel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     KMButton_CreditsBack.OnClick:=SwitchMenuPage;
@@ -470,7 +470,7 @@ procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   KMPanel_Loading:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_LoadingBG:=MyControls.AddImage(KMPanel_Loading,0,0,ScreenX,ScreenY,2,6);
-    KMImage_LoadingBG.StretchImage:=true;
+    KMImage_LoadingBG.FillArea;
     MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
     KMLabel_Loading:=MyControls.AddLabel(KMPanel_Loading,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
 end;
@@ -480,7 +480,7 @@ procedure TKMMainMenuInterface.Create_Error_Page;
 begin
   KMPanel_Error:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_ErrorBG:=MyControls.AddImage(KMPanel_Error,0,0,ScreenX,ScreenY,2,6);
-    KMImage_ErrorBG.StretchImage:=true;
+    KMImage_ErrorBG.FillArea;
     MyControls.AddLabel(KMPanel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'Error has occured...',fnt_Outline,kaCenter);
     KMLabel_Error:=MyControls.AddLabel(KMPanel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack:=MyControls.AddButton(KMPanel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
@@ -493,7 +493,7 @@ var i:integer; Adv:integer;
 begin
   KMPanel_Results:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_ResultsBG:=MyControls.AddImage(KMPanel_Results,0,0,ScreenX,ScreenY,7,5);
-    KMImage_ResultsBG.StretchImage:=true;
+    KMImage_ResultsBG.FillArea;
 
     Label_Results_Result:=MyControls.AddLabel(KMPanel_Results,512,200,100,30,'<<<LEER>>>',fnt_Metal,kaCenter);
 
