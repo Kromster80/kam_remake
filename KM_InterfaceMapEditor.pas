@@ -781,6 +781,7 @@ begin
   // 2. Write our own file selection control
   // 3. Use SingleMap folder scanning technique and list only those maps that are in Maps folder
   // I prefer no.1
+  //@Krom: That sounds ok, most map editors for games use windows style controls so there's no point making our own control.
 end;
 
 
@@ -808,6 +809,7 @@ procedure TKMMapEditorInterface.Build_RightClickCancel;
 begin
   //This function will be called if the user right clicks on the screen. We should close the build menu if it's open.
   //@Lewin: what should we do on right-click?
+  //@Krom: Well, unless we give right click another function in the map editor we should probably make it close the placement menu that is open. (similar to in game, where build menu is closed by right clicking)
 end;
 
 

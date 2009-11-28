@@ -896,6 +896,7 @@ begin
         KMButton_Store[i].Tag:=i;
         KMButton_Store[i].Hint:=TypeToString(TResourceType(i));
         KMImage_Store_Accept[i]:=MyControls.AddImage(KMPanel_HouseStore, 8+((i-1)mod 5)*36+9,18+((i-1)div 5)*42-11,32,36,49);
+        KMImage_Store_Accept[i].Center;
         KMImage_Store_Accept[i].FOnClick:=House_StoreAcceptFlag;
         KMImage_Store_Accept[i].Hint:=TypeToString(TResourceType(i));
       end;

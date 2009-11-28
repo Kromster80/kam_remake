@@ -685,11 +685,18 @@ begin
     or (fUnitTask is TTaskBuildWine)
     or (fUnitTask is TTaskBuildField)
     or (fUnitTask is TTaskBuildWall) then
-      if fUnitTask.fPhase > 1 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc); 
+      if fUnitTask.fPhase > 1 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc)
+      else fPlayers.Player[byte(fOwner)].BuildList.ReOpenRoad(TTaskBuildRoad(fUnitTask).ID); //Allow other workers to take this task
+
     //House area: remove house, restoring terrain to normal
     if fUnitTask is TTaskBuildHouseArea then
-      if TTaskBuildHouseArea(fUnitTask).fHouse <> nil then
-        fPlayers.Player[Integer(fOwner)].RemHouse(TTaskBuildHouseArea(fUnitTask).fHouse.GetPosition,true)
+    begin
+      if fUnitTask.fPhase <= 1 then
+        fPlayers.Player[byte(fOwner)].BuildList.ReOpenHousePlan(TTaskBuildHouseArea(fUnitTask).TaskID) //Allow other workers to take this task
+      else //Otherwise we must destroy the house
+        if TTaskBuildHouseArea(fUnitTask).fHouse <> nil then
+          fPlayers.Player[Integer(fOwner)].RemHouse(TTaskBuildHouseArea(fUnitTask).fHouse.GetPosition,true);
+    end;
     //Build House and Repair: No action nececary, another worker will finish it automatically
   end;
 end;
@@ -1255,6 +1262,7 @@ begin
     TaskDone: ; //move along to unit-specific UpdateState
   end;
 }
+//@Krom: Looks fine to me. :)
 
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);

@@ -85,6 +85,9 @@ type
     procedure CloseHouse(aID:integer);
     procedure CloseHousePlan(aID:integer);
 
+    procedure ReOpenRoad(aID:integer);
+    procedure ReOpenHousePlan(aID:integer);
+
     procedure AddNewRoad(aLoc:TKMPoint; aFieldType:TFieldType);
     procedure AddNewHouse(aHouse: TKMHouse);
     procedure AddNewHousePlan(aHouse: TKMHouse);
@@ -222,7 +225,9 @@ begin
   weapons should never go to a store.
   After going to the store, they are soon taken to the barracks though.
   Tried to fix but was unable to. ;) I had trouble fully understanding the bidding system.
-  @Lewin: There should be new condition perhaps - if Player.hasBarracks then do not bid delivery to store}
+  @Lewin: There should be new condition perhaps - if Player.hasBarracks then do not bid delivery to store
+  @Krom: Fixed? I can't seem to reproduce this bug. Did you fix it?}
+
   //if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
   //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Store)or(
   //   (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(fPlayers.Player[byte(KMSerf.GetOwner)].fMissionSettings.GetHouseQty(ht_Barracks)=0)))) then
@@ -461,6 +466,24 @@ begin
   if fHousesRepairQueue[aID].House <> nil then fHousesRepairQueue[aID].House.RemovePointer;
   fHousesRepairQueue[aID].House:=nil;
   fHousesRepairQueue[aID].Importance:=0;
+end;
+
+
+procedure TKMBuildingQueue.ReOpenRoad(aID:integer);
+begin
+  //This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
+  fFieldsQueue[aID].JobStatus:=js_Open;
+  if fFieldsQueue[aID].Worker <> nil then fFieldsQueue[aID].Worker.RemovePointer;
+  fFieldsQueue[aID].Worker:=nil;
+end;
+
+
+procedure TKMBuildingQueue.ReOpenHousePlan(aID:integer);
+begin
+  //This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
+  fHousePlansQueue[aID].JobStatus:=js_Open;
+  if fHousePlansQueue[aID].Worker <> nil then fHousePlansQueue[aID].Worker.RemovePointer;
+  fHousePlansQueue[aID].Worker:=nil;
 end;
 
 

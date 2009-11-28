@@ -405,7 +405,10 @@ begin
               cm_Erase:
                 begin
                   MyPlayer.RemHouse(P,false); { TODO : split apart according to opened page e.g. do not remove Houses if user is on Units page }
-                  //MyPlayer.RemUnit(P); //@Lewin: Need your help here - how do we remove unit according to new pointer tracking system? Simply remove it from list or.. 
+                  //MyPlayer.RemUnit(P); //@Lewin: Need your help here - how do we remove unit according to new pointer tracking system? Simply remove it from list or..
+                                         //@Krom: Well this is different because it's the map editor. There shouldn't really be any pointers here right?
+                                         //       According to the pointer system you should run KillUnit and somehow disable the dying animation. (so IsDead gets set to true, then the memory will be removed on next player UpdateState)
+                                         //       But you probably could just remove it from the list because it's the map editor and there shouldn't be any pointer issues.
                   fTerrain.RemRoad(P);
                   fTerrain.RemField(P);
                 end;
@@ -504,7 +507,7 @@ begin
     gr_Cancel:        begin
                         fLog.AppendLog('Gameplay canceled',true);
                         fMainMenuInterface.ShowScreen_Results(Msg); //@Lewin: Maybe don't show nothing?
-                      end;
+                      end;                                          //@Krom: I think we should show the results so the user can see how they are going so far. But it probably shouldn't say DEFEAT and play the loose video.
     gr_Error:         begin
                         fLog.AppendLog('Gameplay error',true);
                         fMainMenuInterface.ShowScreen_Error(TextMsg);
