@@ -1,6 +1,6 @@
 unit KM_Utils;
 interface
-uses KromUtils, sysUtils, KM_Defaults;
+uses KromUtils, sysUtils, KM_Defaults, Math;
 
 type
   TKMPoint = record X,Y:word; end;
@@ -19,6 +19,8 @@ type
   function KMSamePoint(P1,P2:TKMPoint): boolean;
   function KMSamePointF(P1,P2:TKMPointF): boolean;
   function KMSamePointDir(P1,P2:TKMPointDir): boolean;
+
+  function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection;
 
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
@@ -97,9 +99,17 @@ begin
 end;
 
 function KMSamePointDir(P1,P2:TKMPointDir): boolean;
-begin   
+begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y ) and ( P1.Dir = P2.Dir );
 end;
+
+
+function KMGetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
+const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+begin
+  Result := DirectionsBitfield[sign(ToPos.X - FromPos.X), sign(ToPos.Y - FromPos.Y)]; //-1,0,1
+end;
+
 
 function GetLength(A,B:TKMPoint): single; overload
 begin

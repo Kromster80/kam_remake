@@ -50,16 +50,6 @@ implementation
 uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut;
 
 
-function GetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
-const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
-var DX,DY:shortint;
-begin
-  DX := sign(ToPos.X - FromPos.X); //-1,0,1
-  DY := sign(ToPos.Y - FromPos.Y); //-1,0,1
-  Result := DirectionsBitfield[DX,DY];
-end;
-
-
 { TUnitActionWalkTo }
 constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
 begin
@@ -119,7 +109,7 @@ begin
       NodeList.InjectEntry(NodePos+1,fWalker.GetPosition); //We must back-track if we cannot continue our route from the new tile
     NodeList.InjectEntry(NodePos+1,ForcedExchangePos);
     if KMSamePoint(fWalker.GetPosition,ForcedExchangePos) then fLog.AssertToLog(false,'Perform Exchange to same place?');
-    fWalker.Direction := GetDirection(fWalker.GetPosition,ForcedExchangePos);
+    fWalker.Direction := KMGetDirection(fWalker.GetPosition,ForcedExchangePos);
     DoesWalking:=true;
   end;
 end;
@@ -558,7 +548,7 @@ begin
 
 
     //Update unit direction according to next Node
-    fWalker.Direction := GetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
+    fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
     if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then fLog.AssertToLog(false,'Walk to same place?');
 
     //Check if we can walk to next tile in the route

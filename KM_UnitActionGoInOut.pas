@@ -41,13 +41,21 @@ end;
 
 procedure TUnitActionGoInOut.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var Distance:single; TempUnit: TKMUnit;
+  function ValidTile(LocX,LocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
+  begin
+    Result := fTerrain.TileInMapCoords(LocX,LocY) and (fTerrain.CheckPassability(KMPoint(LocX,LocY),canWalk));
+    if Result then
+    Result := (fTerrain.Land[LocY,LocX].IsUnit = 0) or ((aUnit <> nil)
+          and (aUnit.GetUnitAction is TUnitActionStay) and (aUnit.GetUnitActionType = ua_Walk)
+          and (not TUnitActionStay(aUnit.GetUnitAction).Locked))
+  end;
 begin
   DoEnd:= False;
   TimeDelta:=0.1;
 
   if not fHasStarted then //Set Door and Street locations
   begin
-  
+
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
     if byte(fHouseType) in [1..length(HouseDAT)] then
@@ -56,7 +64,7 @@ begin
 
     if fDirection=gd_GoInside then
     begin
-      KMUnit.Direction:=dir_N;  //one cell up
+      KMUnit.Direction := dir_N;  //one cell up
       KMUnit.Thought := th_None;
       KMUnit.NextPosition := KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
       fTerrain.UnitWalk(KMUnit.GetPosition, KMUnit.NextPosition);
@@ -67,36 +75,22 @@ begin
     if fDirection=gd_GoOutSide then
     begin //Attempt to find a tile bellow the door we can walk to. Otherwise we can push idle units away.
       TempUnit := fPlayers.UnitsHitTest(fStreet.X,fStreet.Y);
-      if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit = 0) or ((TempUnit <> nil)
-        and (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)
-        and (not TUnitActionStay(TempUnit.GetUnitAction).Locked)) then
-      begin
-        KMUnit.Direction:=dir_S;
+      if ValidTile(fStreet.X,fStreet.Y,TempUnit) then
         //fStreet.X := fStreet.X
-      end else
+      else
+      begin
+        TempUnit := fPlayers.UnitsHitTest(fStreet.X-1,fStreet.Y);
+        if ValidTile(fStreet.X-1,fStreet.Y,TempUnit) then
+          fStreet.X := fStreet.X - 1
+        else
         begin
-          TempUnit := fPlayers.UnitsHitTest(fStreet.X-1,fStreet.Y);
-          if fTerrain.TileInMapCoords(fStreet.X-1,fStreet.Y) and (fTerrain.CheckPassability(KMPoint(fStreet.X-1,fStreet.Y),canWalk))
-            and ((fTerrain.Land[fStreet.Y,fStreet.X-1].IsUnit = 0) or ((TempUnit <> nil)
-            and (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)
-            and (not TUnitActionStay(TempUnit.GetUnitAction).Locked))) then
-          begin
-            KMUnit.Direction:=dir_SW;
-            fStreet.X := fStreet.X - 1
-          end else
-          begin
-            TempUnit := fPlayers.UnitsHitTest(fStreet.X+1,fStreet.Y);
-          if fTerrain.TileInMapCoords(fStreet.X+1,fStreet.Y) and (fTerrain.CheckPassability(KMPoint(fStreet.X+1,fStreet.Y),canWalk))
-            and ((fTerrain.Land[fStreet.Y,fStreet.X+1].IsUnit = 0) or ((TempUnit <> nil)
-            and (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)
-            and (not TUnitActionStay(TempUnit.GetUnitAction).Locked))) then
-            begin
-              KMUnit.Direction:=dir_SE;
-              fStreet.X := fStreet.X + 1
-            end else
+          TempUnit := fPlayers.UnitsHitTest(fStreet.X+1,fStreet.Y);
+          if ValidTile(fStreet.X+1,fStreet.Y,TempUnit) then
+            fStreet.X := fStreet.X + 1
+          else
             exit; //Do not exit the house if all street tiles are blocked by non-idle units, just wait
-          end;
         end;
+      end; //@Lewin: I've compacted it to look neater. To be deleted..
 
       if (TempUnit <> nil)
         and (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)
@@ -113,6 +107,8 @@ begin
         exit; //Wait until my push request is delt with before we move out
       end;
 
+      //All check done and unit can walk out now
+      KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
       KMUnit.NextPosition := fStreet;
       fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
