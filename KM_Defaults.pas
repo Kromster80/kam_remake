@@ -40,7 +40,7 @@ var
 
   //These should be ... enabled sometime
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
-  DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
+  DO_UNIT_INTERACTION   :boolean=true;  //Debug for unit interaction
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
 
   //These should be FALSE
@@ -48,9 +48,9 @@ var
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
-  MakeDrawPagesOverlay  :boolean=true; //Draw colored overlays ontop of panels, usefull for making layout
-  MakeShowUnitRoutes    :boolean=false; //Draw unit routes when they are chosen
-  MakeShowUnitMove      :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
+  MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
+  MakeShowUnitRoutes    :boolean=true; //Draw unit routes when they are chosen
+  MakeShowUnitMove      :boolean=true; //Draw unit movement overlay, Only if unit interaction enabled
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (very time consuming)
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well

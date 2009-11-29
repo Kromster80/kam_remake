@@ -4,14 +4,29 @@ uses KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysU
 
 {Walk to somewhere}
 type
+  //@All: Most of these are not being used for anything, should be cleaned up later once main processes are working.
+  TInteractionStatus = (kis_None,       //We are not involved in any interaction to our knowledge (we are just walking)
+                        kis_Exchanging, //We are about to exchange positions with the other unit
+                        kis_Pushing,    //We are pushing an idle unit out of the way
+                        kis_Pushed,     //We were pushed (idle then asked to move)
+                        kis_Trying,     //We are currently stuck and trying to find a solution
+                        kis_Waiting     //We are waiting for the give up timeout. During this time other units may tell us to swap with them
+  );
+
+const
+  TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Exchanging', 'Pushing', 'Pushed', 'Trying', 'Waiting');
+
+type
   TUnitActionWalkTo = class(TUnitAction)
     private
-      fWalker:TKMUnit;
+      fWalker, fLastOpponent:TKMUnit;
       fWalkFrom, fWalkTo, fAvoid:TKMPoint;
       fWalkToSpot:boolean;
       fPass:TPassability; //Desired passability set once on Create
       DoesWalking:boolean;
-      DoEvade:boolean; //Command to make exchange maneuver with other unit
+      DoEvade:boolean; //Command to make exchange maneuver with other unit. @All: Bad name, should be changed to something like DoExchange
+      fInteractionCount, fGiveUpCount: integer;
+      fInteractionStatus: TInteractionStatus;
       function AssembleTheRoute():boolean;
       function CheckCanWalk():boolean;
       function DoUnitInteraction():boolean;
@@ -23,12 +38,26 @@ type
       constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
       destructor Destroy; override;
       function GetNextPosition():TKMPoint;
+      function GetNextNextPosition():TKMPoint;
+      property GetInteractionStatus:TInteractionStatus read fInteractionStatus;
+      procedure PerformExchange(ForcedExchangePos:TKMPoint);
+      procedure SetPushedValues;
       procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
     end;
             
 
 implementation
 uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut;
+
+
+function GetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
+const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+var DX,DY:shortint;
+begin
+  DX := sign(ToPos.X - FromPos.X); //-1,0,1
+  DY := sign(ToPos.Y - FromPos.Y); //-1,0,1
+  Result := DirectionsBitfield[DX,DY];
+end;
 
 
 { TUnitActionWalkTo }
@@ -49,6 +78,10 @@ begin
   fRouteBuilt   := false;
   DoEvade       := false;
   DoesWalking   := false;
+  fInteractionCount := 0;
+  fGiveUpCount := 0;
+  fInteractionStatus := kis_None;
+  fLastOpponent := nil;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
@@ -61,6 +94,34 @@ destructor TUnitActionWalkTo.Destroy;
 begin
   FreeAndNil(NodeList);
   Inherited;
+end;
+
+
+procedure TUnitActionWalkTo.SetPushedValues;
+begin //This is run after creation for units that were requested to get out of the way
+  fInteractionStatus:=kis_Pushed; //So that unit knows it was pushed not just walking somewhere
+  fPass:=canWalk; //Units are allowed to step off roads when they are pushed
+  Explanation:='We were asked to get out of the way';
+end;
+
+
+procedure TUnitActionWalkTo.PerformExchange(ForcedExchangePos:TKMPoint);
+begin
+  Explanation:='We were asked to exchange places';
+  fInteractionStatus := kis_Exchanging;
+  DoEvade := true;
+
+  //If we are being forced to exchange then modify our route to make the exchange, then return the tile we are currently on, then continue the route
+  if not KMSamePoint(ForcedExchangePos,KMPoint(0,0)) then
+  begin
+    Explanation:='We were forced to exchange places';
+    if KMLength(ForcedExchangePos,NodeList.List[NodePos+1]) >= 1.5 then
+      NodeList.InjectEntry(NodePos+1,fWalker.GetPosition); //We must back-track if we cannot continue our route from the new tile
+    NodeList.InjectEntry(NodePos+1,ForcedExchangePos);
+    if KMSamePoint(fWalker.GetPosition,ForcedExchangePos) then fLog.AssertToLog(false,'Perform Exchange to same place?');
+    fWalker.Direction := GetDirection(fWalker.GetPosition,ForcedExchangePos);
+    DoesWalking:=true;
+  end;
 end;
 
 
@@ -102,6 +163,8 @@ function TUnitActionWalkTo.CheckCanWalk():boolean;
 begin
   Result := true;
 
+  //TODO: Check for unexpected obstacles in walks
+
  { //If there's an unexpected obstacle
   if not fTerrain.CheckPassability(NodeList.List[NodePos+1],ChoosePassability(fWalker,fIgnorePass)) then
     //Try to find a walkaround
@@ -117,33 +180,181 @@ end;
 
 function TUnitActionWalkTo.DoUnitInteraction():boolean;
 var
-  fOpponent:TKMUnit; //T:TKMPoint;
+  fOpponent:TKMUnit; TempInt: integer;
+const //Times after which various things will happen. Will need to be tweaked later for optimal performance.
+  EXCHANGETIMEOUT = 1;
+  PUSHEDEXCHANGETIMEOUT = 60; //When pushed only exchange if there is no way to push another unit
+  PUSHTIMEOUT = 1;
+  PUSHEDTIMEOUT = 20;
+  DODGETIMEOUT = 10;
+  WAITINGTIMEOUT = 30;
+  TOTALGIVEUPTIMEOUT = 200;
 begin
-  Result:=true; //false = interaction yet unsolved, stay and wait
+  Result:=true; //false = interaction yet unsolved, stay and wait. @All: Always seems to be set to false unless first checks fail. Needs clean up.
   if not DO_UNIT_INTERACTION then exit;
 
   //If there's no unit we can keep on walking, interaction does not need to be solved
   if not fTerrain.HasUnit(NodeList.List[NodePos+1]) then exit;
+  //From now on there is a blockage, so don't allow to walk unless the problem is resolved
+  Result := false;
 
+  //Find the unit that is in our path
   fOpponent := fPlayers.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
-
-  //If there's yet no Unit on the way but tile is pre-occupied
+  //If there's currently no unit in the way but tile is pre-occupied
   if fOpponent = nil then begin
     //Do nothing and wait till unit is actually there so we can interact with it
-    Explanation:='Can''t walk. No Unit on the way but tile is occupied';
+    Explanation:='Can''t walk. No Unit in the way but tile is occupied';
     Result:=false;
     exit;
   end;
 
+  //Animals are low priority compared to other units
+  if (fWalker.GetUnitType in [ut_Wolf..ut_Duck])and(not(fOpponent.GetUnitType in [ut_Wolf..ut_Duck])) then begin
+    Explanation:='Unit is animal and therefore has no priority in movement';
+    Result:=false;
+    exit;
+  end;
+
+  if (fOpponent.GetUnitAction is TUnitActionGoInOut) then begin //Unit is walking into house, we can wait
+    Explanation:='Unit is walking into house, we can wait';
+    Result:=false;
+    exit;
+  end;
+
+  //If we are asking someone to move away then just wait until they are gone
+  if (fInteractionStatus = kis_Pushing) then
+    if (fLastOpponent = fOpponent) and //Make sure they are still the same unit and are still moving out of the way
+      (fOpponent.GetUnitAction is TUnitActionWalkTo) then
+    begin
+      Explanation := 'Unit is blocking the way and has been asked to move';
+      Result := false;
+      exit;
+    end
+    else
+    begin //We pushed a unit out of the way but someone else took it's place! Now we must start over to solve problem with this new opponent
+      fInteractionCount := 0;
+      fGiveUpCount := 0;
+      fInteractionStatus := kis_Trying;
+      Explanation := 'Someone took the pushed unit''s place';
+    end;
+
+
+  ////////////////////////////////     MAIN SECTION      //////////////////////////////////////////
+  //Try various things depending on how many times we've been here before
+  if fInteractionCount >= PUSHTIMEOUT then
+  begin
+    //Ask the other unit to step aside, only if they are idle!
+    if (fOpponent.GetUnitAction is TUnitActionStay) and (fOpponent.GetUnitActionType = ua_Walk)
+      and (not TUnitActionStay(fOpponent.GetUnitAction).Locked) then //Unit is idle, (not working or something) and not locked
+    begin //Force Unit to go away
+      fInteractionStatus := kis_Pushing;
+      fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,canWalk));
+      TUnitActionWalkTo(fOpponent.GetUnitAction).SetPushedValues;
+      fLastOpponent := fOpponent; //So we know who we are pushing later in case something changes
+      Explanation := 'Unit was blocking the way but it has been forced to go away now';
+      Result := false; //Next frame tile will be free and unit will walk there
+      exit;
+    end;
+  end;
+
+  if ((fInteractionCount >= EXCHANGETIMEOUT) and (fInteractionStatus <> kis_Pushed)) or //When pushed this timeout/counter is different
+     ((fGiveUpCount >= PUSHEDEXCHANGETIMEOUT) and (fInteractionStatus = kis_Pushed)) then
+  begin //Try to exchange with the other unit if they are willing
+    //If Unit on the way is walking somewhere and not exchanging with someone else
+    if (fOpponent.GetUnitAction is TUnitActionWalkTo) and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoEvade)
+      //Unit not yet arrived on tile, wait till it does, otherwise there might be 2 units on one tile
+      and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking) then
+    begin
+      //Check unit's future position is where we are now and exchange (use NodeList rather than direction as it's not always right)
+      if KMSamePoint(TUnitActionWalkTo(fOpponent.GetUnitAction).GetNextNextPosition, fWalker.GetPosition) then
+      begin
+        //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
+        //TODO: Make units slide sideways while passing
+        TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
+        fLastOpponent := fOpponent; //So we know who we are supposed to be exchanging with later
+
+        Explanation:='Unit in the way is walking in the opposite direction. Performing an exchange';
+        fInteractionStatus := kis_Exchanging; //Unnecessary?
+        DoEvade := true;
+        Result:=false; //They both will exchange next tick
+        exit;
+      end;
+      //Now try to force the unit to exchange IF they are in the waiting phase
+      if TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionStatus = kis_Waiting then
+      begin
+        //Because we are forcing this exchange we must inject into the other unit's nodelist by passing our current position
+        TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(fWalker.GetPosition);
+        fLastOpponent := fOpponent;
+
+        Explanation:='Unit in the way is in waiting phase. Forcing an exchange';
+        fInteractionStatus := kis_Exchanging; //Unnecessary?
+        DoEvade := true;
+        Result:=false; //They both will exchange next tick
+        exit;
+      end;
+    end;
+  end;
+
+  //If we were asked to move away then all we are allowed to do is push and exchanging, no re-routing, dodging etc. so we must exit here before any more tests
+  if fInteractionStatus = kis_Pushed then
+  begin
+    //If we've been trying to get out of the way for a while but we haven't found a solution, (i.e. other unit is stuck) try a different direction
+    if fInteractionCount >= PUSHEDTIMEOUT then
+    begin
+      TempInt := fGiveUpCount; //Carry over the give up counter
+      Create(fWalker,fTerrain.GetOutOfTheWay(fWalker.GetPosition,fWalker.GetPosition,canWalk),fAvoid,GetActionType,fWalkToSpot);
+      SetPushedValues;
+      fGiveUpCount := TempInt;
+      Result := false;
+      exit;
+    end;
+    inc(fInteractionCount);
+    inc(fGiveUpCount);
+    Explanation := 'We were pushed and are now waiting for a space to clear for us';
+    Result := false;
+    exit;
+  end;
+
+  //TO BE ADDED:
+  if fInteractionCount >= DODGETIMEOUT then
+  begin
+    //Try stepping to one of the tiles either side of the one that is blocked then returning to our inital route
+    fInteractionStatus := kis_Trying;
+  end;
+
+  if fInteractionCount >= WAITINGTIMEOUT then
+  begin
+    //We are waiting for the give up timeout to happpen OR another unit to tell us to swap with them
+    fInteractionStatus := kis_Waiting;
+  end;
+
+
+  if fGiveUpCount >= TOTALGIVEUPTIMEOUT then
+  begin
+    //Give up and re-route without using tile that is currently blocking us (if possible)
+  end;
+
+  //If we haven't exited yet we must increment the counters so we know how long we've been here
+  inc(fInteractionCount);
+  inc(fGiveUpCount);
+
+
+
+
+
+
+
+
+
+
+  ///////////////////// SOME OF THE OLD CODE TO BE COPIED FROM /////////////////////
+
+
+
+  {
   if TUnitActionWalkTo(fOpponent.GetUnitAction).DoEvade then begin
     //Don't mess with DoEvade opponents
     Explanation:='DoEv';
-    Result:=false;
-    exit;
-  end;
-
-  if (fWalker.GetUnitType in [ut_Wolf..ut_Duck])and(not(fOpponent.GetUnitType in [ut_Wolf..ut_Duck])) then begin
-    Explanation:='Unit is animal and therefor has no priority in movement';
     Result:=false;
     exit;
   end;
@@ -179,7 +390,7 @@ begin
       TUnitActionWalkTo(fOpponent.GetUnitAction).Explanation:='We were asked to walk away';
       Result := false; //Next frame tile will be free and unit will walk there
       exit;
-    end else 
+    end else
     begin //If Unit on the way is doing something and won't move away
       if KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Target position is occupied by another unit
       begin
@@ -189,10 +400,10 @@ begin
       end else
       begin //This is not our target, so we can walk around
         {StartWalkingAround}
-        Explanation := 'Unit on the way is doing something and can''t be forced to go away';
+        {Explanation := 'Unit on the way is doing something and can''t be forced to go away';
         fWalker.SetActionWalk(fWalker,fWalkTo,NodeList.List[NodePos+1],GetActionType,fWalkToSpot);
         Result := false; //Keep 'false' for the matter of Execute cycle still running
-        exit;     
+        exit;
       end;
     end;
   end;
@@ -219,7 +430,7 @@ begin
         fLog.AddToLog(TypeToString(fOpponent.GetPosition));
         //TUnitActionWalkTo(fWalker.GetUnitAction).DoesWalking:=true;
         }//TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
-        Result:=false; //They both will exchange next tick
+        {Result:=false; //They both will exchange next tick
         exit;
       end;
     end else
@@ -266,26 +477,18 @@ begin
           TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking:=true;
           //}
           //In fact this is not very smart idea, cos fOpponent may recieve endless InjectEntries!
-          Result := false;
+          {Result := false;
           exit;
         end else
         begin //Unit has WalkTo action, but is standing in place - don't mess with it and go around
           {Explanation:='Unit on the way is walking still. Go around it. '+inttostr(random(123));
           fWalker.SetActionWalk(fWalker,fWalkTo,fOpponent.GetPosition,GetActionType,fWalkToSpot);
-          }Result := false; //Keep 'false' for the matter of Execute cycle still running
+          }{Result := false; //Keep 'false' for the matter of Execute cycle still running
           exit;
         end;
       end;
     end;
-  end;
-
-  if (fOpponent.GetUnitAction is TUnitActionGoInOut) then begin //Unit is walking into house, we can wait
-    Explanation:='Unit is walking into house, we can wait';
-    Result:=false; //Temp
-    exit;
-  end;
-    //If enything else - wait
-    fLog.AssertToLog(false,'DO_UNIT_INTERACTION');
+  end;}
 end;
 
 
@@ -297,8 +500,15 @@ begin
 end;
 
 
+function TUnitActionWalkTo.GetNextNextPosition():TKMPoint;
+begin
+  if NodePos+1 > NodeList.Count then
+    Result:=KMPoint(0,0) //Error
+  else Result:=NodeList.List[NodePos+1];
+end;
+
+
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
-const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean;
 begin
@@ -320,15 +530,17 @@ begin
     //Pop-up some message
   end;
 
+  //Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)
+  if NodePos > NodeList.Count then begin
+    DoEnd:=true;
+    exit;
+  end;
+
   //Execute the route in series of moves
   TimeDelta := 0.1;
   Distance := TimeDelta * fWalker.GetSpeed;
 
   //Check if unit has arrived on tile
-  //@Krom: It is crashing here sometimes when units get stuck under a house.
-  //Normally it pauses when the route can't be built. The unit just starts to move
-  //(shows animation and moves one step) then it crashes here. Has the CanMakeRoute
-  //check been removed or something?
   if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and
      Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
   begin
@@ -344,35 +556,36 @@ begin
       exit;
     end;
 
-    //Update unit direction according to next Node 
-    DX := sign(NodeList.List[NodePos+1].X - NodeList.List[NodePos].X); //-1,0,1
-    DY := sign(NodeList.List[NodePos+1].Y - NodeList.List[NodePos].Y); //-1,0,1
-    fWalker.Direction := DirectionsBitfield[DX,DY];
 
-    //Check if we can walk to next tile in route
+    //Update unit direction according to next Node
+    fWalker.Direction := GetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
+    if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then fLog.AssertToLog(false,'Walk to same place?');
+
+    //Check if we can walk to next tile in the route
     if not CheckCanWalk then exit; //
 
-    //Perform interaction
-      //Both exchanging units have DoEvade:=true assigned by 1st unit, hence 2nd should not try
-      //doing UnitInteraction!
+    //Perform exchange
+    //Both exchanging units have DoEvade:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
     if DoEvade then begin
       inc(NodePos);
       fWalker.PrevPosition:=fWalker.NextPosition;
       fWalker.NextPosition:=NodeList.List[NodePos];
       fLog.AddToLog('DoEvade');
-      //We don't need to perform UnitWalk since exchange means the same,
-      //but without UnitWalk there's a guarantee no other unit will step on this tile!
-      DoEvade:=false;
+      //We don't need to perform UnitWalk since exchange means the same tiles will be occupied,
+      //and without UnitWalk there's a guarantee no other unit will step on this tile!
+      fInteractionStatus := kis_None;
+      DoEvade := false;
+      fInteractionCount := 0;
     end else
     begin
-
-      AllowToWalk := DoUnitInteraction(); //Be carefull now on - fWalker might have a new WalkTo task already!
+      AllowToWalk := DoUnitInteraction();
 
       if not AllowToWalk then
       begin
         DoEnd := KMUnit.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
         exit; //Do no further walking until unit interaction is solved
-      end;
+      end else fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
+      if fInteractionStatus = kis_None then fGiveUpCount := 0; //Reset the give up counter if we are walking normally (not exchanging or dodging)
 
       inc(NodePos);
       fWalker.PrevPosition:=fWalker.NextPosition;

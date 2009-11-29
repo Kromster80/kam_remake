@@ -1133,24 +1133,37 @@ end;
 {Return random tile surrounding given one with aPass property except Loc2}
 {The command is used for unit interaction}
 function TTerrain.GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
-var i,k:integer; L1,L2:TKMPointList;
+var i,k:integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit;
 begin
   //List 1 holds all available walkable positions except self and Loc2
   L1:=TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
       if (not((i=0)and(k=0)))and(not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2)) then
-        if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
-          L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+        if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
+          if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
+            L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
   //List 2 holds the best positions, ones which are not occupied
   L2:=TKMPointList.Create;
   for i:=1 to L1.Count do
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit = 0 then
       L2.AddEntry(L1.List[i]);
-       
-  if L2.Count<>0 then
+
+  //List 3 holds the second best positions, ones which are occupied with an idle unit
+  L3:=TKMPointList.Create;
+  for i:=1 to L1.Count do
+    if Land[L1.List[i].Y,L1.List[i].X].IsUnit > 0 then
+    begin
+      TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
+      if TempUnit <> nil then
+        if (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk) then
+          L3.AddEntry(L1.List[i]);
+    end;
+ if L2.Count<>0 then
     Result:=L2.GetRandom
+  else if L3.Count<>0 then
+    Result:=L3.GetRandom
   else if L1.Count<>0 then
     Result:=L1.GetRandom
   else
@@ -1158,6 +1171,7 @@ begin
 
   L1.Free;
   L2.Free;
+  L3.Free;
 end;
 
 //Test wherever the route is possible to make

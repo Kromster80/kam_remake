@@ -682,7 +682,9 @@ if ID<=0 then exit;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
 
   if not MakeShowUnitMove then exit;
-  glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
+  if InRange(Owner,1,MAX_PLAYERS) then
+    glColor3ubv(@TeamColors[Owner])  //Render dot where unit is
+  else glColor3ubv(@TeamColors[1]);   //Animals don't have team number (Owner=0) so make them team 1 colour
   RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
 end;
 
