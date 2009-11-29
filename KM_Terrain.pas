@@ -1105,18 +1105,13 @@ end;
 
 function TTerrain.CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
 begin
-  if TileInMapCoords(Loc.X,Loc.Y) then
-    Result := aPass in Land[Loc.Y,Loc.X].Passability
-  else
-    Result := false;
+  Result := TileInMapCoords(Loc.X,Loc.Y) and (aPass in Land[Loc.Y,Loc.X].Passability);
 end;
 
 
 function TTerrain.HasUnit(Loc:TKMPoint):boolean;
 begin
-  Result := false;
-  if TileInMapCoords(Loc.X,Loc.Y) then
-    Result := Land[Loc.Y,Loc.X].IsUnit <> 0;
+  Result := TileInMapCoords(Loc.X,Loc.Y) and (Land[Loc.Y,Loc.X].IsUnit <> 0); //Second condition won't get checked if first is false
 end;
 
 
