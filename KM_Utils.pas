@@ -9,7 +9,8 @@ type
 
   function KMPoint(X, Y: word): TKMPoint; overload
   function KMPoint(P: TKMPointDir): TKMPoint; overload
-  function KMPointF(X, Y: single): TKMPointF;
+  function KMPointF(X, Y: single): TKMPointF; overload
+  function KMPointF(P: TKMPoint):  TKMPointF; overload
   function KMPointDir(X, Y, Dir: word): TKMPointDir;
   function KMPointX1Y1(X, Y: word): TKMPoint;
   function KMPointY1(P:TKMPoint): TKMPoint; overload
@@ -23,6 +24,8 @@ type
   function KMGetDirection(X,Y: integer): TKMDirection; overload
   function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload
   function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
+  function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
+  function KMLoopDirection(aDir: byte): TKMDirection;
 
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
@@ -45,6 +48,12 @@ function KMPoint(X, Y: word): TKMPoint;
 begin
   Result.X := X;
   Result.Y := Y;
+end;
+
+function KMPointF(P:TKMPoint): TKMPointF;
+begin
+  Result.X := P.X;
+  Result.Y := P.Y;
 end;
 
 function KMPoint(P: TKMPointDir): TKMPoint;
@@ -108,7 +117,7 @@ end;
 
 function KMGetDirection(X,Y: integer): TKMDirection;
 const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
-        ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+        ((dir_SE,dir_E,dir_NE),(dir_S,dir_NA,dir_N),(dir_SW,dir_W,dir_NW));
 begin
   Result := DirectionsBitfield[sign(X), sign(Y)]; //-1,0,1
 end;
@@ -129,6 +138,21 @@ begin
   Result.Dir := aPos.Dir;
   Result.X := aPos.X + XYBitfield[shortint(aPos.Dir),1];
   Result.Y := aPos.Y + XYBitfield[shortint(aPos.Dir),2];
+end;
+
+
+function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
+const
+  XBitField: array[TKMDirection] of smallint = (0, 0, 1,1,1,0,-1,-1,-1);
+  YBitField: array[TKMDirection] of smallint = (0,-1,-1,0,1,1, 1, 0,-1);
+begin
+  Result := KMPoint(aPoint.X+XBitField[aDir],aPoint.Y+YBitField[aDir]);
+end;
+
+
+function KMLoopDirection(aDir: byte): TKMDirection; //Used after added or subtracting from direction so it is still 1..8
+begin
+  Result := TKMDirection(((aDir+7) mod 8)+1);
 end;
 
 

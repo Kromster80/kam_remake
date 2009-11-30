@@ -90,7 +90,7 @@ begin
           else
             exit; //Do not exit the house if all street tiles are blocked by non-idle units, just wait
         end;
-      end; //@Lewin: I've compacted it to look neater. To be deleted..
+      end;
 
       if (TempUnit <> nil)
         and (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)
@@ -123,6 +123,7 @@ begin
     if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit = 0) then
     begin
       fWaitingForPush := false;
+      KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
       KMUnit.NextPosition := fStreet;
       fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
