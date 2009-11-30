@@ -737,18 +737,6 @@ end;
 {Find seaside}
 {Return walkable tile nearby}
 function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
-  function PosToDir(X,Y:integer):byte;
-  begin
-    Result := 0;                         
-    if (X = 0) and (Y = 1)  then Result := 0;
-    if (X = -1) and (Y = 1) then Result := 1;
-    if (X = -1) and (Y = 0) then Result := 2;
-    if (X = -1) and (Y = -1)then Result := 3;
-    if (X = 0) and (Y = -1) then Result := 4;
-    if (X = 1) and (Y = -1) then Result := 5;
-    if (X = 1) and (Y = 0)  then Result := 6;
-    if (X = 1) and (Y = 1)  then Result := 7;
-  end;
 var i,k,j,l:integer; List:TKMPointDirList;
 begin
   //Check is in stages:
@@ -769,8 +757,8 @@ begin
               if (l*j <> 0) and TileInMapCoords(k+j,i+l) then
                 // D) Final check: route can be made
                 if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, true) then
-                  List.AddEntry(KMPointDir(k+j, i+l, PosToDir(j,l)));
-                  
+                  List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1)); //@Lewin: we had directions in PosToDir 0..7, while it should be 1..8
+
   Result:=List.GetRandom;
   List.Free;
 end;
@@ -796,20 +784,9 @@ end;
 
 function TTerrain.CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boolean;
 var MyFish: TKMUnitAnimal;
-  function DirectionToCoorConversion(aPosition:TKMPointDir):TKMPointDir;
-  begin
-    if aPosition.Dir = 0 then begin Result.X := aPosition.X  ; Result.Y := aPosition.Y-1; end;
-    if aPosition.Dir = 1 then begin Result.X := aPosition.X+1; Result.Y := aPosition.Y-1; end;
-    if aPosition.Dir = 2 then begin Result.X := aPosition.X+1; Result.Y := aPosition.Y  ; end;
-    if aPosition.Dir = 3 then begin Result.X := aPosition.X+1; Result.Y := aPosition.Y+1; end;
-    if aPosition.Dir = 4 then begin Result.X := aPosition.X  ; Result.Y := aPosition.Y+1; end;
-    if aPosition.Dir = 5 then begin Result.X := aPosition.X-1; Result.Y := aPosition.Y+1; end;
-    if aPosition.Dir = 6 then begin Result.X := aPosition.X-1; Result.Y := aPosition.Y  ; end;
-    if aPosition.Dir = 7 then begin Result.X := aPosition.X-1; Result.Y := aPosition.Y-1; end;
-  end;
 begin
   //Here we are catching fish in the tile 1 in the direction
-  aPosition := DirectionToCoorConversion(aPosition);
+  aPosition := KMGetCoord(aPosition);
   MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3]);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)

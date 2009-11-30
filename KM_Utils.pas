@@ -20,7 +20,9 @@ type
   function KMSamePointF(P1,P2:TKMPointF): boolean;
   function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 
-  function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection;
+  function KMGetDirection(X,Y: integer): TKMDirection; overload
+  function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload
+  function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
 
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
@@ -104,10 +106,29 @@ begin
 end;
 
 
+function KMGetDirection(X,Y: integer): TKMDirection;
+const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
+        ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+begin
+  Result := DirectionsBitfield[sign(X), sign(Y)]; //-1,0,1
+end;
+
+
 function KMGetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
-const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
+        ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
 begin
   Result := DirectionsBitfield[sign(ToPos.X - FromPos.X), sign(ToPos.Y - FromPos.Y)]; //-1,0,1
+end;
+
+
+function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
+const XYBitfield: array [0..8]of array [1..2]of shortint =
+        ((0,0),(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)); //N/A, N, NE, E, SE, S, SW, W, NW
+begin
+  Result.Dir := aPos.Dir;
+  Result.X := aPos.X + XYBitfield[shortint(aPos.Dir),1];
+  Result.Y := aPos.Y + XYBitfield[shortint(aPos.Dir),2];
 end;
 
 
