@@ -2761,8 +2761,8 @@ begin
   if not TKMUnit(Items[I]).IsDead then
     TKMUnit(Items[I]).UpdateState
   else //Else try to destroy the unit object if all pointers are freed
-    if FREE_POINTERS and (TKMHouse(Items[I]).GetPointerCount = 0) then
-    begin
+    if FREE_POINTERS and (TKMHouse(Items[I]).GetPointerCount = 0) then //@Lewin: Should it be TKMUnit instead?
+    begin                                                              //@Lewin: in TPR mission7 map it gives invalid pointer operation here
       TKMUnit(Items[I]).Free; //Because no one needs this anymore it must DIE!!!!! :D
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;
