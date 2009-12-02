@@ -10,9 +10,6 @@ TTerrain = class
 
 public
   MapX,MapY:integer; //Terrain width and height
-  MM:array[1..MaxMapSize,1..MaxMapSize]of record R,G,B:byte; end;
-
-  CursorPos:TKMPoint;
 
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
     Terrain:byte; //TILE
@@ -22,18 +19,15 @@ public
     TileOwner:TPlayerID; //Name says it all, should simplify player related issues
     IsUnit:shortint; //Whenever there's a unit on that tile mark the tile as occupied and count the number
 
-    //It can be placed independent from everything else
     //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
     Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
 
     Obj:byte;
     //Age of tree, another independent variable since trees can grow on fields
-    //Depending on this tree gets older and thus could be chopped
-    TreeAge:word;  //Not init=0 .. Full=TreeAgeFull
+    TreeAge:word;  //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
 
     //Age of field/wine, another independent variable
-    //Depending on this special object maybe rendered (straw, grapes)
-    FieldAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535
+    FieldAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
 
     //Used to display half-dug road
     TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
@@ -52,11 +46,12 @@ public
 
     //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
     FogOfWar:array[1..8]of byte;
-
   end;
 
   FallingTrees: TKMPointTagList;
 
+  MM:array[1..MaxMapSize,1..MaxMapSize]of record R,G,B:byte; end;
+  CursorPos:TKMPoint;
 private
   AnimStep:integer;
 
@@ -1624,10 +1619,24 @@ end;
 
 
 procedure TTerrain.Save(SaveStream:TMemoryStream);
-var s:string;
+var i,k:integer; TileSize:integer;
 begin
-  s := 'Map X/Y: '+inttostr(MapX)+':'+inttostr(MapY)+eol;
-  SaveStream.Write(s[1],length(s));
+  SaveStream.Write('Terrain',7);
+  SaveStream.Write(MapX,2);
+  SaveStream.Write(MapY,2);
+
+  //Write down tile size
+  //it should be compared versus tile size on loading, if they are different,
+  //then mapformat has changed and savegame will be "unsupported"
+  TileSize := SizeOf(Land[i,k]);
+  SaveStream.Write(TileSize,4);
+
+  for i:=1 to MapY do for k:=1 to MapX do
+    SaveStream.Write(Land[i,k].Terrain,TileSize);
+
+  FallingTrees.Save(SaveStream);
+
+  SaveStream.Write(AnimStep,4);
 end;
 
 

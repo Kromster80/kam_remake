@@ -73,6 +73,7 @@ type
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     function GetFishInWaterBody(aWaterID:byte): TKMUnitAnimal;
   public
+    procedure Save(SaveStream:TMemoryStream);
     procedure UpdateState;
     procedure Paint;
   end;
@@ -356,10 +357,14 @@ end;
 
 
 procedure TKMPlayerAssets.Save(SaveStream:TMemoryStream);
-var s:string;
 begin
-  s := 'PlayerAssets H/U: '+inttostr(GetHouseCount)+':'+inttostr(GetUnitCount)+eol;
-  SaveStream.Write(s[1],length(s));
+//    fUnits.Save(SaveStream);
+//    fHouses.Save(SaveStream);
+//    fDeliverList.Save(SaveStream);
+//    fBuildList.Save(SaveStream);
+//    fMissionSettings.Save(SaveStream);
+    SaveStream.Write(PlayerID,SizeOf(PlayerID));
+    SaveStream.Write(PlayerType,SizeOf(PlayerType));
 end;
 
 
@@ -384,6 +389,12 @@ end;
 
 
 { TKMPlayerAnimals }
+procedure TKMPlayerAnimals.Save(SaveStream:TMemoryStream);
+begin
+//  fUnits.Save(SaveStream);
+end;
+
+
 procedure TKMPlayerAnimals.UpdateState;
 begin
   fUnits.UpdateState;

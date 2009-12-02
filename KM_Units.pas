@@ -2742,13 +2742,15 @@ begin
       Loc.AddEntry(TKMUnit(Items[I]).GetPosition);
 end;
 
+
 function TKMUnitsCollection.GetTotalPointers: integer;
 var i:integer;
 begin
   Result:=0;
   for I := 0 to Count - 1 do
-    Result:=Result+TKMUnit(Items[I]).GetPointerCount;
+    inc(Result, TKMUnit(Items[I]).GetPointerCount);
 end;
+
 
 procedure TKMUnitsCollection.UpdateState;
 var
@@ -2790,7 +2792,7 @@ begin
   // - For each place that contains a pointer, it should check everytime the pointer is used to see if it has been
   //   destroy. If it has then we free the pointer and reduce the count. (and do any other action nececary due to the unit/house dying)
 
-  end;
+end;
 
 
 procedure TKMUnitsCollection.Paint();

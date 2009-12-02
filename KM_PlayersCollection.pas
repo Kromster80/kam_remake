@@ -165,11 +165,14 @@ end;
 procedure TKMAllPlayers.Save(SaveStream:TMemoryStream);
 var i:word;
 begin
+  SaveStream.Write('Players',7);
+  SaveStream.Write(fPlayerCount,4);
   for i:=1 to fPlayerCount do
   begin
     Player[i].Save(SaveStream);
     PlayerAI[i].Save(SaveStream); //Saves AI stuff
   end;
+  PlayerAnimals.Save(SaveStream); //Saves AI stuff
 end;
 
 

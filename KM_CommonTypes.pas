@@ -44,6 +44,7 @@ type TKMPointList = class
     procedure InjectEntry(ID:integer; aLoc:TKMPoint);
     function GetRandom():TKMPoint;
     procedure Inverse();
+    procedure Save(SaveStream:TMemoryStream); virtual;
   end;
 
 
@@ -53,6 +54,7 @@ type TKMPointTagList = class (TKMPointList)
     procedure Clearup; override;
     procedure AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal); reintroduce;
     function RemoveEntry(aLoc:TKMPoint):cardinal; override;
+    procedure Save(SaveStream:TMemoryStream); override;
   end;
 
 
@@ -316,6 +318,15 @@ begin
 end;
 
 
+procedure TKMPointList.Save(SaveStream:TMemoryStream);
+var i:integer;
+begin
+  SaveStream.Write(Count,4);
+  for i:=1 to Count do
+  SaveStream.Write(List[i],SizeOf(List[i]));
+end;
+
+
 procedure TKMPointTagList.Clearup;
 begin
   inherited;
@@ -343,6 +354,18 @@ begin
   begin
     Tag[i] := Tag[i+1];
     Tag2[i] := Tag2[i+1];
+  end;
+end;
+
+procedure TKMPointTagList.Save(SaveStream:TMemoryStream);
+var i:integer;
+begin
+  inherited;
+
+  for i:=1 to Count do
+  begin
+    SaveStream.Write(Tag[i],4);
+    SaveStream.Write(Tag2[i],4);
   end;
 end;
 

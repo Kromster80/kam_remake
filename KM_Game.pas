@@ -587,10 +587,12 @@ var SaveStream:TMemoryStream;
 begin
   case GameState of
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
-    gsEditor:   exit; //Don't Save MapEditor yet..  { TODO : Add MapEditor Save function here}
+    gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
     gsPaused,gsRunning:
     begin
       SaveStream := TMemoryStream.Create;
+      SaveStream.Write('KaM_Savegame',12);
+      SaveStream.Write('01',2); //This is savegame version
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
       SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt'); //TXT for early stages of debug
