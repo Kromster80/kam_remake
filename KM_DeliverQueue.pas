@@ -47,6 +47,7 @@ type
     procedure GaveDemand(aID:integer);
     procedure CloseDelivery(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
+    procedure Save(SaveStream:TMemoryStream);
     function WriteToText():string;
   end;
 
@@ -103,6 +104,7 @@ type
     function  AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHouseRepair(aID:integer);
     procedure RemoveHouseRepair(aHouse: TKMHouse);
+    //procedure Save(SaveStream:TMemoryStream);
   end;
 
 implementation
@@ -385,6 +387,20 @@ begin
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
   fQueue[aID].JobStatus:=js_Open; //Open slot
+end;
+
+
+//Job successfully done and we ommit it.
+procedure TKMDeliverQueue.Save(SaveStream:TMemoryStream);
+var i,Count,ItemSize:integer;
+begin
+  Count := length(fOffer);
+  SaveStream.Write(Count,4);
+  ItemSize := SizeOf(fOffer[1]);
+  SaveStream.Write(ItemSize,4);
+  for i:=1 to Count do
+  SaveStream.Write(fOffer[i],ItemSize);
+  //
 end;
 
 
