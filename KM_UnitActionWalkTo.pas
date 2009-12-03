@@ -120,8 +120,18 @@ end;
 
 procedure TUnitActionWalkTo.DodgeTo(aPos: TKMPoint);
 begin
+  if not KMSamePoint(NodeList.List[NodeList.Count],NodeList.List[NodeList.Count-1]) then
+   NodePos := NodePos;
+
+
   if (NodePos+2 <= NodeList.Count) and (KMLength(aPos,NodeList.List[NodePos+2]) < 1.5) then
-    NodeList.List[NodePos+1] := aPos //We can simply replace the entry because it is near the next tile
+  begin
+    NodeList.List[NodePos+1] := aPos; //We can simply replace the entry because it is near the next tile
+    if KMSamePoint(aPos,NodeList.List[NodePos+2]) then //If we are actually walking to the tile AFTER this one...
+      NodeList.RemoveEntry(aPos); //Remove it so we don't get Walk to same spot error.
+      //@Krom: This will be done better later on by running a procedure to "optimise" the route after we modify it, which will remove duplicate
+      //       entries like this from anywhere after NodePos. Will probably do some other stuff too, (maybe taking shortcuts if it will work) I still need to think about it.
+  end
   else //Otherwise we must inject it
     NodeList.InjectEntry(NodePos+1,aPos);
   fWalker.Direction := KMGetDirection(fWalker.GetPosition,aPos); //Face the new tile

@@ -1065,7 +1065,7 @@ begin
   SubActionRem([ha_Work1..ha_Work5]);
   fSubAction:= fSubAction + [aActionSet];
   if aTime<>0 then TimeToAct:=aTime;
-  fHouse.WorkAnimStep:=0;
+  if fHouse.fHouseType <> ht_Mill then fHouse.WorkAnimStep:=0; //Exception for mill so that the windmill doesn't jump frames
 end;
 
 function THouseAction.GetWorkID():byte;
@@ -1226,7 +1226,7 @@ begin
     end;
   //Must remove list entry after for loop is complete otherwise the indexes change
   if ID <> 0 then
-    for I := 0 to ID-1 do
+    for I := ID-1 downto 0 do
     begin
       Delete(IDsToDelete[I]);
       //fLog.AppendLog('House sucessfully freed and removed');

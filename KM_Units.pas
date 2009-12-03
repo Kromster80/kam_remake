@@ -436,8 +436,8 @@ begin
   if not TestMining then
     Idle..}
 
-  //Reset unit activity if home was destroyed, except when unit is dying
-  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie)) then
+  //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
+  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
   begin
     if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
@@ -2763,8 +2763,11 @@ begin
   if not TKMUnit(Items[I]).IsDead then
     TKMUnit(Items[I]).UpdateState
   else //Else try to destroy the unit object if all pointers are freed
-    if FREE_POINTERS and (TKMHouse(Items[I]).GetPointerCount = 0) then //@Lewin: Should it be TKMUnit instead?
+    if (Items[I] <> nil) and FREE_POINTERS and (TKMUnit(Items[I]).GetPointerCount = 0) then //@Lewin: Should it be TKMUnit instead? @Krom: That's what you get for using copy and paste :D To be deleted.
     begin                                                              //@Lewin: in TPR mission7 map it gives invalid pointer operation here
+                                                                       //@Krom: Fixed. It was caused by animals at invalid places who all killed themselves on the first tick. This meant that more than one unit had to be freed,
+                                                                       //       and, believe it or not, that has never happened before as it causes a crash due to some rather stupid coding on my part. (deleting entries from the
+                                                                       //       begining of the list changed the order so the other IDs were invalid. Starting from the end of the list fixed it) I also fixed it for houses. To be deleted.
       TKMUnit(Items[I]).Free; //Because no one needs this anymore it must DIE!!!!! :D
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;
@@ -2772,7 +2775,7 @@ begin
     end;
   //Must remove list entry after for loop is complete otherwise the indexes change
   if ID <> 0 then
-    for I := 0 to ID-1 do
+    for I := ID-1 downto 0 do
     begin
       Delete(IDsToDelete[I]);
       //fLog.AppendLog('Unit sucessfully freed and removed');
