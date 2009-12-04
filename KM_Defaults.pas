@@ -562,13 +562,15 @@ type
   TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall );
 
   TMarkup = (
-        mu_None=0,      //Nothing
-        mu_RoadPlan,    //Road/Corn/Wine ropes
-        mu_FieldPlan,   //Road/Corn/Wine ropes
-        mu_WinePlan,    //Road/Corn/Wine ropes
-        mu_WallPlan,
-        mu_HousePlan,   //Rope outline of house area
-        mu_HouseFence,  //Wooden fence outline of house area
+        mu_None=0,              //Nothing
+        mu_RoadPlan,            //Road/Corn/Wine ropes
+        mu_FieldPlan,           //Road/Corn/Wine ropes
+        mu_WinePlan,            //Road/Corn/Wine ropes
+        mu_WallPlan,            //Wall plan, how does it looks?
+        mu_HousePlan,           //Rope outline of house area, walkable
+        mu_HouseFenceCanWalk,   //Wooden fence outline of house area, undigged and walkable
+        mu_HouseFenceNoWalk,    //Wooden fence outline of house area, digged and non-walkable
+
         mu_House,       //Actual house, which is not rendered and is used in here to siplify whole thing
         mu_UnderConstruction   //Underconstruction tile, house area being flattened and roadworks
         );

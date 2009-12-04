@@ -1830,15 +1830,15 @@ constructor TTaskBuildHouseArea.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; a
 var i,k:integer;
 begin
   Inherited Create(aWorker);
-  fHouse:=aHouse.GetSelf;
-  TaskID:=aID;
-  Step:=0;
-  for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[byte(fHouse.GetHouseType),i,k]<>0 then begin
+  fHouse := aHouse.GetSelf;
+  TaskID := aID;
+  Step := 0;
+  for i := 1 to 4 do for k := 1 to 4 do
+  if HousePlanYX[byte(fHouse.GetHouseType),i,k] <> 0 then begin
     inc(Step);
-    ListOfCells[Step]:=KMPoint(fHouse.GetPosition.X+k-3,fHouse.GetPosition.Y + i - 4);
+    ListOfCells[Step] := KMPoint(fHouse.GetPosition.X + k - 3,fHouse.GetPosition.Y + i - 4);
   end;
-  fUnit.SetActionLockedStay(0,ua_Walk);
+  fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 destructor TTaskBuildHouseArea.Destroy;
@@ -1855,7 +1855,7 @@ TaskDone:=false;
 if fHouse.IsDestroyed then
 begin
   Abandon;
-  TaskDone:=true;
+  TaskDone := true;
   exit;
 end;
 
@@ -1894,8 +1894,9 @@ case fPhase of
       if not fHouse.IsDestroyed then
       if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
         fTerrain.SetRoad(fHouse.GetEntrance, fOwner);
-
       fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
+      fTerrain.SetMarkup(ListOfCells[Step],mu_HouseFenceNoWalk); //Block passability on tile
+      fTerrain.RecalculatePassability(ListOfCells[Step]); //@Lewin: I didn't test if it worked yet..
       dec(Step);
     end;
 7:  SetActionWalk(fUnit,KMPointY1(fHouse.GetEntrance));

@@ -961,11 +961,11 @@ begin
     exit;
   end;
 
-  Land[Loc.Y,Loc.X].Passability:=[];
+  Land[Loc.Y,Loc.X].Passability := [];
   AddPassability(Loc, [canAll]);
 
   //For all passability types other than canAll, houses and fenced houses are excluded
-  if not(Land[Loc.Y,Loc.X].Markup in [mu_House,mu_HouseFence]) then begin
+  if not(Land[Loc.Y,Loc.X].Markup in [mu_House, mu_HouseFenceNoWalk]) then begin
 
    if (TileIsWalkable(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
@@ -980,7 +980,7 @@ begin
    for i:=-1 to 1 do
      for k:=-1 to 1 do
        if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-         if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HousePlan,mu_HouseFence,mu_House]) then
+         if (Land[Loc.Y+i,Loc.X+k].Markup in [mu_HousePlan,mu_HouseFenceCanWalk,mu_HouseFenceNoWalk,mu_House]) then
            HousesNearBy := true;
 
    if (TileIsRoadable(Loc))and
@@ -1352,12 +1352,12 @@ begin
       begin
 
         if (HousePlanYX[byte(aHouseType),i,k]=2)and(aHouseStage=hs_Built) then
-          Land[y,x].TileOverlay:=to_Road;
+          Land[y,x].TileOverlay := to_Road;
 
         case aHouseStage of
-          hs_None:  Land[y,x].Markup:=mu_None;        
+          hs_None:  Land[y,x].Markup:=mu_None;
           hs_Plan:  Land[y,x].Markup:=mu_HousePlan;
-          hs_Fence: Land[y,x].Markup:=mu_HouseFence;
+          hs_Fence: Land[y,x].Markup:=mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
           hs_Built: begin Land[y,x].Markup:=mu_House; Land[y,x].Obj:=255; end;
         end;
 
@@ -1481,7 +1481,7 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     else
     if Land[Loc.Y,Loc.X].Markup=mu_HousePlan then Result:=bt_HousePlan
     else
-    if Land[Loc.Y,Loc.X].Markup=mu_HouseFence then Result:=bt_HouseBuilding
+    if Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk,mu_HouseFenceNoWalk] then Result:=bt_HouseBuilding
     else
     Result:=bt_None;
   end;
@@ -1491,7 +1491,7 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     if not TileInMapCoords(Loc2.X,Loc2.Y) then exit;
     if (TileIsCornField(Loc) and TileIsCornField(Loc2))or //Both are Corn
        (TileIsWineField(Loc) and TileIsWineField(Loc2))or //Both are Wine
-      ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFence]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) then //Both are same mu_House****
+      ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) then //Both are same mu_House****
       Result:=false;
   end;
 begin

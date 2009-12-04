@@ -1144,7 +1144,7 @@ begin
       if not (CanBuild in fTerrain.Land[P2.Y,P2.X].Passability) then
       for s:=-1 to 1 do for t:=-1 to 1 do
       if (s<>0)or(t<>0) then  //This is a surrounding tile, not the actual tile
-      if fTerrain.Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFence, mu_House] then
+      if fTerrain.Land[P2.Y+t,P2.X+s].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk, mu_House] then
       begin
         MarkPoint(KMPoint(P2.X+s,P2.Y+t),479);
         AllowBuild := false;
