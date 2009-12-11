@@ -1274,6 +1274,7 @@ begin
       exit;
 
 //@Lewin: I want to switch to this pattern, need your opinion on it:
+//todo: new task handling pattern
 {
   if fCurrentAction<>nil then
   case fCurrentAction.Execute(Self, TimeDelta/1000) of
@@ -1337,6 +1338,7 @@ end;
 procedure TUnitTask.Abandon;
 begin
   //Shortcut to abandon and declare task done
+  //@Lewin: bugreport: Tutorial mission gives me error here: Looks like some unit gets task abandoned, but unit is already NIL by here
   fUnit.Thought:=th_None; //Stop any thoughts
   if fUnit <> nil then fUnit.RemovePointer;
   fUnit:=nil;

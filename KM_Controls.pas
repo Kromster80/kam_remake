@@ -97,7 +97,7 @@ TKMLabel = class(TKMControl)
     FontColor: TColor4;
     TextAlign: KAlign;
     AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
-    SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
+    SmoothScrollToTop: integer; //Delta between this and TimeGetTime affects vertical position
     Caption: string;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
