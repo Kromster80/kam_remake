@@ -24,7 +24,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo';       //Game version string displayed in menu corner
+  GAME_VERSION          = 'Economy Demo #3 Beta';       //Game version string displayed in menu corner
 
 var
   //These should be TRUE
@@ -35,15 +35,16 @@ var
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
-  CHEATS_ENABLED        :boolean=true;  //Enable cheats in game
+  CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
 
-  //These should be ... enabled sometime
+  //These are under-construction things, should be ... enabled sometime
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   DO_UNIT_INTERACTION   :boolean=true;  //Debug for unit interaction
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
+  SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
 
-  //These should be FALSE
+  //These are debug things, should be FALSE
   ShowDebugControls     :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
@@ -52,7 +53,7 @@ var
   MakeShowUnitRoutes    :boolean=false; //Draw unit routes when they are chosen
   MakeShowUnitMove      :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
-  WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (very time consuming)
+  WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
   RENDER_3D             :boolean=false; //Experimental 3D render
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas

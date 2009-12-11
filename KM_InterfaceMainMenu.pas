@@ -125,20 +125,19 @@ constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGameSettings);
 begin
 inherited Create;
 
-  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before MainMenuInterface');
+  fLog.AssertToLog(fTextLibrary<>nil, 'fTextLibrary should be initialized before MainMenuInterface');
 
-  {Parent Page for whole toolbar in-game}
   MyControls := TKMControlsCollection.Create;
-  ScreenX:=min(X,MENU_DESIGN_X);
-  ScreenY:=min(Y,MENU_DESIGN_Y);
+  ScreenX := min(X,MENU_DESIGN_X);
+  ScreenY := min(Y,MENU_DESIGN_Y);
   OffX := (X-MENU_DESIGN_X) div 2;
   OffY := (Y-MENU_DESIGN_Y) div 2;
-  SingleMap_Top:=1;
-  SingleMap_Selected:=1;
-  MapEdSizeX:=64;
-  MapEdSizeY:=64;
+  SingleMap_Top := 1;
+  SingleMap_Selected := 1;
+  MapEdSizeX := 64;
+  MapEdSizeY := 64;
 
-  KMPanel_Main1:=MyControls.AddPanel(nil,OffX,OffY,ScreenX,ScreenY);
+  KMPanel_Main1 := MyControls.AddPanel(nil,OffX,OffY,ScreenX,ScreenY); //Parent Panel for whole menu
 
   Create_MainMenu_Page;
   Create_Single_Page;
@@ -155,7 +154,7 @@ inherited Create;
   //}
 
   //Show version info on every page
-  KMLabel_Version:=MyControls.AddLabel(KMPanel_Main1,5,5,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
+  KMLabel_Version := MyControls.AddLabel(KMPanel_Main1,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
@@ -170,10 +169,10 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.SetScreenSize(X,Y:word);
+procedure TKMMainMenuInterface.SetScreenSize(X, Y:word);
 begin
-  ScreenX:=X;
-  ScreenY:=Y;
+  ScreenX := X;
+  ScreenY := Y;
 end;
 
 
@@ -206,10 +205,10 @@ end;
 procedure TKMMainMenuInterface.ShowScreen_Results(Msg:gr_Message);
 begin
   case Msg of
-    gr_Win:    Label_Results_Result.Caption:=fTextLibrary.GetSetupString(111);
-    gr_Defeat: Label_Results_Result.Caption:=fTextLibrary.GetSetupString(112);
-    gr_Cancel: Label_Results_Result.Caption:='Mission canceled';
-    else       Label_Results_Result.Caption:='<<<LEER>>>';
+    gr_Win:    Label_Results_Result.Caption := fTextLibrary.GetSetupString(111);
+    gr_Defeat: Label_Results_Result.Caption := fTextLibrary.GetSetupString(112);
+    gr_Cancel: Label_Results_Result.Caption := 'Mission canceled';
+    else       Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
   end;
   SwitchMenuPage(KMPanel_Results);
 end;
@@ -251,13 +250,14 @@ begin
       KMButton_MainMenuOptions:=MyControls.AddButton(KMPanel_MainButtons,0,280,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
       KMButton_MainMenuCredit :=MyControls.AddButton(KMPanel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
       KMButton_MainMenuQuit   :=MyControls.AddButton(KMPanel_MainButtons,0,400,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
-      KMButton_MainMenuTutor.OnClick    :=MainMenu_PlayTutorial;
-      KMButton_MainMenuSingle.OnClick   :=SwitchMenuPage;
-      KMButton_MainMenuLoad.OnClick     :=SwitchMenuPage;
-      KMButton_MainMenuMapEd.OnClick    :=SwitchMenuPage;
-      KMButton_MainMenuOptions.OnClick  :=SwitchMenuPage;
-      KMButton_MainMenuCredit.OnClick   :=SwitchMenuPage;
-      KMButton_MainMenuQuit.OnClick     :=Form1.Exit1.OnClick;
+      KMButton_MainMenuTutor.OnClick    := MainMenu_PlayTutorial;
+      KMButton_MainMenuSingle.OnClick   := SwitchMenuPage;
+      KMButton_MainMenuLoad.OnClick     := SwitchMenuPage;
+      KMButton_MainMenuMapEd.OnClick    := SwitchMenuPage;
+      KMButton_MainMenuOptions.OnClick  := SwitchMenuPage;
+      KMButton_MainMenuCredit.OnClick   := SwitchMenuPage;
+      KMButton_MainMenuQuit.OnClick     := Form1.Exit1.OnClick;
+      if not SHOW_MAPED_IN_MENU then KMButton_MainMenuMapEd.Hide; //Let it be created, but hidden, I guess there's no need to seriously block it
       KMButton_MainMenuTSK.Disable;
       KMButton_MainMenuTPR.Disable;
       KMButton_MainMenuMulti.Disable;
