@@ -1,6 +1,6 @@
 unit KM_InterfaceMainMenu;
 interface
-uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, OpenGL,
+uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, OpenGL,
   KM_Controls, KM_Defaults, KM_LoadDAT, Windows, KM_Settings;
 
 
@@ -261,7 +261,7 @@ begin
       KMButton_MainMenuTSK.Disable;
       KMButton_MainMenuTPR.Disable;
       KMButton_MainMenuMulti.Disable;
-      KMButton_MainMenuCredit.Disable;
+      //KMButton_MainMenuCredit.Disable;
 end;
 
 
@@ -460,7 +460,7 @@ begin
   KMPanel_Credits:=MyControls.AddPanel(KMPanel_Main1,0,0,ScreenX,ScreenY);
     KMImage_CreditsBG:=MyControls.AddImage(KMPanel_Credits,0,0,ScreenX,ScreenY,2,6);
     KMImage_CreditsBG.FillArea;
-    KMLabel_Credits:=MyControls.AddLabel(KMPanel_Credits,ScreenX div 2,ScreenY,100,30,'Credits go here'{ fTextLibrary.GetSetupString(300)},fnt_Grey,kaCenter); //todo: Can't handle labels with strings this long
+    KMLabel_Credits:=MyControls.AddLabel(KMPanel_Credits,ScreenX div 2,ScreenY,100,30,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
     KMButton_CreditsBack:=MyControls.AddButton(KMPanel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     KMButton_CreditsBack.OnClick:=SwitchMenuPage;
 end;
@@ -569,7 +569,8 @@ begin
   {Show Credits}
   if Sender=KMButton_MainMenuCredit then begin
     KMPanel_Credits.Show;
-    KMLabel_Credits.Top:=ScreenY;
+    KMLabel_Credits.Top := ScreenY;
+    KMLabel_Credits.SmoothScrollToTop := TimeGetTime; //Set initial position
   end;
 
   {Show Loading... screen}
@@ -752,12 +753,10 @@ end;
 
 
 
-{Should update credits page mostly}
+{Should update anything we want to be updated, obviously}
 procedure TKMMainMenuInterface.UpdateState;
 begin
-  if KMPanel_Credits.Visible then
-    KMLabel_Credits.Top := KMLabel_Credits.Top - 2; //Very slow, needs to be smoothed!
-
+  //
 end;
 
 

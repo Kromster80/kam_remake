@@ -363,7 +363,7 @@ function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont;
 var
   i:integer;
   InterLetter,LineCount,AdvX,PrevX,LastSpace:integer;
-  LineWidth:array[1..64] of word; //Lets hope 64 will be enough
+  LineWidth:array[1..256] of word; //Lets hope 256 lines will be enough
 begin
   InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X:=0;
@@ -395,6 +395,7 @@ begin
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
       inc(LineCount);
+      Assert(LineCount<=256,'Line count exceeded'); //todo: optimize this place since many texts are 1 line only and don't need LineCount at all  
       LineWidth[LineCount]:=max(0,Result.X-InterLetter); //Remove last interletter space and negate double EOLs
       Result.X:=0;
     end;

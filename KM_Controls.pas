@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
+uses MMSystem, Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
 
 type TPivotLocation = (pl_Min, pl_Avg, pl_Max);
 
@@ -97,6 +97,7 @@ TKMLabel = class(TKMControl)
     FontColor: TColor4;
     TextAlign: KAlign;
     AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
+    SmoothScrollToTop: cardinal; //Delta between this and TimeGetTime affects vertical position
     Caption: string;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
@@ -479,14 +480,21 @@ begin
   FontColor:=aColor;
   TextAlign:=aTextAlign;
   AutoWrap:=false;
+  SmoothScrollToTop:=0; //means disabled
   Caption:=aCaption;
 end;
 
 
 {Send caption to render and recieve in result how much space did it took on screen}
 procedure TKMLabel.Paint();
-var Tmp:TKMPoint;
+var Tmp:TKMPoint; NewTop:integer;
 begin
+
+  if SmoothScrollToTop<>0 then
+    NewTop := Top - (integer(TimeGetTime) - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
+  else
+    NewTop := Top;
+
   if MakeDrawPagesOverlay then
   case TextAlign of
     kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
@@ -494,9 +502,9 @@ begin
     kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
   end;
   if Enabled then
-    Tmp:=fRenderUI.WriteText(Left, Top, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
+    Tmp:=fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
   else
-    Tmp:=fRenderUI.WriteText(Left, Top, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
+    Tmp:=fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
 
   if not AutoWrap then
     Width:=Tmp.X;
