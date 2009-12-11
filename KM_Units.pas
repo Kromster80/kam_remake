@@ -893,6 +893,7 @@ begin
   fVisible:=true;
   Speed:=UnitStat[byte(aUnitType)].Speed/24;
   SetActionStay(10,ua_Walk);
+  AnimStep := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   //Note: Warriors of the same group will need to be set the same if they are created at the begining of the mission
@@ -1146,7 +1147,7 @@ begin
     else                                           Result := canWalk; //Worker, Warriors
   end;
 
-  if not DO_SERFS_WALK_ROADS then Result := canWalk; //Reset everyone to canWalk for debug
+  if (not DO_SERFS_WALK_ROADS) and (fUnitType in [ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit]) then Result := canWalk; //Reset villagers to canWalk for debug (not animals!)
 
   //Delivery to unit
   if (fUnitType = ut_Serf)
@@ -2691,6 +2692,8 @@ begin
   fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
 
   Commander.Direction:=aDir;
+  //@Krom: This doesn't seem to work all the time, e.g. tutorial the big group of scouts. Any idea why?
+  Commander.AnimStep := UnitStillFrames[aDir]; //Use still frame at begining, so units don't all change frame on first tick
   if Commander is TKMUnitWarrior then
     TKMUnitWarrior(Commander).fIsCommander:=true;
 
@@ -2706,6 +2709,7 @@ begin
       if U<>nil then begin
         fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
         U.Direction:=aDir; //U will be _nil_ if unit didn't fit on map
+        U.AnimStep := UnitStillFrames[aDir]; //Use still frame at begining, so units don't all change frame on first tick
         if Commander is TKMUnitWarrior then
           TKMUnitWarrior(U).fCommanderID:=Commander;
       end;

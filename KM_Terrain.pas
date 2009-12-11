@@ -773,7 +773,7 @@ end;
 
 function TTerrain.WaterHasFish(aPosition:TKMPoint):boolean;
 begin
-  Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3]) <> nil);
+  Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3],false) <> nil);
 end;
 
 
@@ -782,7 +782,7 @@ var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
   aPosition := KMGetCoord(aPosition);
-  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3]);
+  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3],not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
@@ -1491,7 +1491,8 @@ procedure TTerrain.UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
     if not TileInMapCoords(Loc2.X,Loc2.Y) then exit;
     if (TileIsCornField(Loc) and TileIsCornField(Loc2))or //Both are Corn
        (TileIsWineField(Loc) and TileIsWineField(Loc2))or //Both are Wine
-      ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) then //Both are same mu_House****
+      ((Land[Loc.Y,Loc.X].Markup in [mu_HousePlan, mu_HouseFenceCanWalk, mu_HouseFenceNoWalk]) and (Land[Loc.Y,Loc.X].Markup=Land[Loc2.Y,Loc2.X].Markup)) or //Both are same mu_House****
+      ((Land[Loc.Y,Loc.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk]) and (Land[Loc2.Y,Loc2.X].Markup in [mu_HouseFenceCanWalk, mu_HouseFenceNoWalk])) then //Both are either house fence
       Result:=false;
   end;
 begin

@@ -175,19 +175,19 @@ end;
 function TUnitActionWalkTo.CheckCanWalk():boolean;
 begin
   Result := true;
-
-  //TODO: Check for unexpected obstacles in walks
-
- { //If there's an unexpected obstacle
-  if not fTerrain.CheckPassability(NodeList.List[NodePos+1],ChoosePassability(fWalker,fIgnorePass)) then
+  //If there's an unexpected obstacle (i.e. the terrain has changed since we calculated the route)
+  if not fTerrain.CheckPassability(NodeList.List[NodePos+1],fWalker.GetDesiredPassability) then
     //Try to find a walkaround
-    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,ChoosePassability(fWalker,fIgnorePass),fWalkToSpot) then
-      fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot,fIgnorePass)
+    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,fWalker.GetDesiredPassability,fWalkToSpot) then
+    begin
+      fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot);
+      Result:=false;
+    end
     else
     begin
       fWalker.GetUnitTask.Abandon; //Else stop and abandon the task
-      Result:=false; 
-    end;  }
+      Result:=false;
+    end;
 end;
 
 

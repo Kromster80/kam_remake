@@ -429,10 +429,10 @@ begin
         CheckBox_Options_Resolution[i].OnClick:=Options_Change;
       end;
 
-      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options_Res,8,238,100,30,'Fullscreen',fnt_Metal);
+      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(KMPanel_Options_Res,8,38+RESOLUTION_COUNT*20,100,30,'Fullscreen',fnt_Metal);
       CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
-      KMButton_Options_ResApply:=MyControls.AddButton(KMPanel_Options_Res,0,258,150,30,'Apply',fnt_Metal, bsMenu);
+      KMButton_Options_ResApply:=MyControls.AddButton(KMPanel_Options_Res,0,58+RESOLUTION_COUNT*20,150,30,'Apply',fnt_Metal, bsMenu);
       KMButton_Options_ResApply.OnClick:=Options_Change;
       KMButton_Options_ResApply.Disable;
 

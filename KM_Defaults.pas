@@ -706,7 +706,7 @@ type
         );
 
 const
-  RESOLUTION_COUNT = 10;
+  RESOLUTION_COUNT = 11;
   SupportedResolutions: array[1..RESOLUTION_COUNT,1..2] of word=(
   (1024,768),
   (1152,864),
@@ -716,6 +716,7 @@ const
   (1366,768),
   (1440,900),
   (1600,900),
+  (1600,1200), //@Krom: Used by my old laptop
   (1680,1050),
   (1920,1200)
   );

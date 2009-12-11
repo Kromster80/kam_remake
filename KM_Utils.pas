@@ -136,8 +136,8 @@ const XYBitfield: array [0..8]of array [1..2]of shortint =
         ((0,0),(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)); //N/A, N, NE, E, SE, S, SW, W, NW
 begin
   Result.Dir := aPos.Dir;
-  Result.X := aPos.X + XYBitfield[shortint(aPos.Dir),1];
-  Result.Y := aPos.Y + XYBitfield[shortint(aPos.Dir),2];
+  Result.X := aPos.X + XYBitfield[shortint(aPos.Dir+1),1]; //+1 to dir because it is 0..7 not 0..8 like TKMDirection is
+  Result.Y := aPos.Y + XYBitfield[shortint(aPos.Dir+1),2];
 end;
 
 

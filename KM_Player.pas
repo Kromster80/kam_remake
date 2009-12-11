@@ -71,7 +71,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
-    function GetFishInWaterBody(aWaterID:byte): TKMUnitAnimal;
+    function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
   public
     procedure Save(SaveStream:TMemoryStream);
     procedure UpdateState;
@@ -426,7 +426,7 @@ begin
 end;
 
 
-function TKMPlayerAnimals.GetFishInWaterBody(aWaterID:byte): TKMUnitAnimal;
+function TKMPlayerAnimals.GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
 var i, HighestGroupCount: integer;
 begin
   Result := nil;
@@ -441,6 +441,7 @@ begin
         if TKMUnitAnimal(fUnits.List[i]).fFishCount > HighestGroupCount then
         begin
           Result := TKMUnitAnimal(fUnits.List[i]);
+          if not FindHighestCount then exit; //This is for time saving when we don't actually care which group is returned
           HighestGroupCount := TKMUnitAnimal(fUnits.List[i]).fFishCount;
         end;
     end;
