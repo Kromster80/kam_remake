@@ -142,11 +142,10 @@ begin //Counting FPS
     StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPS_LAG)+')';
     OldFrameTimes:=0;
     FrameCount:=0;
-    //fLog.AppendLog('First sec frame done');
   end; //FPS calculation complete
 
-fRender.Render;
-done:=false; //repeats OnIdle event
+  fRender.Render;
+  done := false; //repeats OnIdle event
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);

@@ -6,7 +6,7 @@ uses Classes, KM_Defaults, KromUtils, KM_Player, KM_Utils;
 type
   TKMPlayerAI = class
   private
-    Assets:TKMPlayerAssets;
+    Assets:TKMPlayerAssets; //This is just alias for Players assets
   public
     constructor Create(aAssets:TKMPlayerAssets);
     procedure CheckDefeatConditions();
@@ -76,7 +76,7 @@ end;
 procedure TKMPlayerAI.Save(SaveStream:TMemoryStream);
 var s:string;
 begin
-  s := 'PlayerAI state'+eol;
+  s := 'PlayerAI state, nothing to include yet, should be some AI things'; //no idea what to put here yet
   SaveStream.Write(s[1],length(s));
 end;
 

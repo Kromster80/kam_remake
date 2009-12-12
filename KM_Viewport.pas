@@ -6,23 +6,21 @@ type
 
 { Here should be viewport routines }
 TViewport = class
-private
-XCoord,YCoord:integer;
-protected
-public
-Zoom:single;
-ViewRect:TRect;
-ViewWidth,ViewHeight:integer;
-ScrollKeyLeft,ScrollKeyRight,ScrollKeyUp,ScrollKeyDown: boolean;
-  constructor Create;
-  procedure SetZoom(aZoom:single);
-  procedure SetVisibleScreenArea(NewWidth,NewHeight:integer);
-  function GetCenter():TKMPoint;
-  procedure SetCenter(NewX,NewY:integer);
-  function GetClip():TRect; //returns visible area dimensions in map space
-  function GetMinimapClip():TRect;
-  procedure DoScrolling;
-published
+  private
+    XCoord,YCoord:integer;
+  public
+    Zoom:single;
+    ViewRect:TRect;
+    ViewWidth, ViewHeight:integer;
+    ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown: boolean;
+    constructor Create;
+    procedure SetZoom(aZoom:single);
+    procedure SetVisibleScreenArea(NewWidth,NewHeight:integer);
+    function GetCenter():TKMPoint;
+    procedure SetCenter(NewX,NewY:integer);
+    function GetClip():TRect; //returns visible area dimensions in map space
+    function GetMinimapClip():TRect;
+    procedure DoScrolling;
 end;
 
 var
@@ -33,7 +31,7 @@ uses KM_Defaults, KM_Terrain, KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Gam
 
 constructor TViewport.Create;
 begin
-  Zoom:=1;
+  Zoom := 1;
   ScrollKeyLeft  := false;
   ScrollKeyRight := false;
   ScrollKeyUp    := false;
@@ -48,7 +46,7 @@ begin
   if ViewWidth /CELL_SIZE_PX/aZoom > fTerrain.MapX then aZoom := ViewWidth /CELL_SIZE_PX/(fTerrain.MapX-1);
   if ViewHeight/CELL_SIZE_PX/aZoom > fTerrain.MapY then aZoom := ViewHeight/CELL_SIZE_PX/ fTerrain.MapY;
   Zoom := aZoom;
-  SetCenter(XCoord,YCoord); //To ensure it sets the limits smoothly
+  SetCenter(XCoord, YCoord); //To ensure it sets the limits smoothly
 end;
 
 
@@ -112,7 +110,7 @@ procedure TViewport.DoScrolling;
 const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
 var ScrollAdv: integer; Temp:byte;
 begin
-  Temp:=0; //That is our bitfield variable for directions, 0..12 range
+  Temp := 0; //That is our bitfield variable for directions, 0..12 range
   //    3 2 6  These are directions
   //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
   //    9 8 12
