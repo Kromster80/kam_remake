@@ -62,6 +62,7 @@ type
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -206,15 +207,17 @@ end;
 
 procedure TForm1.FormResize(Sender:TObject);
 begin
-  //Thats very stupid way to make it, but I couldn't find better solution..
-  //Hide the controls upon first run
-{  if Form1.GroupBox1.Tag<>999 then
-    Form1.ToggleControlsVisibility(false);
-  Form1.GroupBox1.Tag:=999;}
-
   if fGame<>nil then //Occurs on exit
     fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
   ApplyCursorRestriction;
+end;
+
+
+procedure TForm1.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
+begin
+  Resize := true; //Allow the resize, but set minimum allowed dimensions to 640x480
+  NewWidth:=max(NewWidth,640);
+  NewHeight:=max(NewHeight,480);
 end;
 
 
@@ -765,5 +768,6 @@ begin
   end
   else ClipCursor(nil); //Otherwise have no restriction
 end;
+
 
 end.

@@ -84,7 +84,6 @@ type TKMMapEditorInterface = class
     procedure Create_Barracks_Page;
 
     procedure SwitchPage(Sender: TObject);
-    procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
@@ -309,7 +308,10 @@ begin
     Create_Barracks_Page();
     //Create_TownHall_Page();
 
-  SetHintEvents(DisplayHint); //Set all OnHint events to be the correct function
+  //Here we must go through every control and set the hint event to be the parameter
+  for i := 0 to MyControls.Count - 1 do
+    if MyControls.Items[i] <> nil then
+      TKMControl(MyControls.Items[i]).OnHint := DisplayHint;
 
   SwitchPage(nil); //Update
 end;
@@ -855,16 +857,6 @@ begin
     Stat_UnitPic[i].Hint:=TypeToString(StatUnit[i]);
     Stat_UnitQty[i].Hint:=TypeToString(StatUnit[i]);
   end;
-end;
-
-procedure TKMMapEditorInterface.SetHintEvents(AHintEvent:TMouseMoveEvent);
-var
-  i: integer;
-begin
-  //Here we must go through every control and set the hint event to be the parameter
-  for i:=0 to MyControls.Count-1 do
-    if MyControls.Items[i] <> nil then
-      TKMControl(MyControls.Items[i]).OnHint := AHintEvent;
 end;
 
 

@@ -142,7 +142,6 @@ type TKMGamePlayInterface = class
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPageRatios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
-    procedure SetHintEvents(AHintEvent:TMouseMoveEvent);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
     procedure UpdateMessageStack;
@@ -504,7 +503,10 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     //Create_TownHall_Page();
   Create_Pause_Page(); //Must go at the bottom so that all controls above are faded
 
-  SetHintEvents(DisplayHint); //Set all OnHint events to be the correct function
+  //Here we must go through every control and set the hint event to be the parameter
+  for i := 0 to MyControls.Count - 1 do
+    if MyControls.Items[i] <> nil then
+      TKMControl(MyControls.Items[i]).OnHint := DisplayHint;
 
   SwitchPage(nil); //Update
 end;
@@ -527,7 +529,7 @@ begin
   KMLabel_Pause2.Left:=X div 2;
 
   KMBevel_Pause.Height:=Y+2;
-  KMImage_Pause.Top:=(Y div 2)-40; //This one is wrong, it looses center 
+  KMImage_Pause.Top:=(Y div 2)-40;
   KMLabel_Pause1.Top:=(Y div 2);
   KMLabel_Pause2.Top:=(Y div 2)+20;
 
@@ -1711,15 +1713,6 @@ begin
   end;
 end;
 
-procedure TKMGamePlayInterface.SetHintEvents(AHintEvent:TMouseMoveEvent);
-var
-  i: integer;
-begin
-  //Here we must go through every control and set the hint event to be the parameter
-  for i:=0 to MyControls.Count-1 do
-    if MyControls.Items[i] <> nil then
-      TKMControl(MyControls.Items[i]).OnHint := AHintEvent;
-end;
 
 procedure TKMGamePlayInterface.EnableOrDisableMenuIcons(NewValue:boolean);
 begin
@@ -1731,14 +1724,14 @@ end;
 
 procedure TKMGamePlayInterface.ShowClock(DoShow:boolean);
 begin
-  KMImage_Clock.Visible:=DoShow;
-  KMLabel_Clock.Visible:=DoShow;
+  KMImage_Clock.Visible := DoShow;
+  KMLabel_Clock.Visible := DoShow;
 end;
 
 
 procedure TKMGamePlayInterface.ShowPause(DoShow:boolean);
 begin
-  KMPanel_Pause.Visible:=DoShow;
+  KMPanel_Pause.Visible := DoShow;
 end;
 
 
