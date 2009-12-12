@@ -717,7 +717,7 @@ const
   (1366,768),
   (1440,900),
   (1600,900),
-  (1600,1200), //@Krom: Used by my old laptop @Lewin: thats a good resolution, outdated, but I like it =) to be deleted..
+  (1600,1200),
   (1680,1050),
   (1920,1200)
   );

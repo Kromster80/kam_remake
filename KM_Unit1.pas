@@ -107,6 +107,7 @@ type
     procedure OnIdle(Sender: TObject; var Done: Boolean);
     procedure WMSysCommand(var Msg : TWMSysCommand); message WM_SYSCOMMAND;
     procedure ReadAvailableResolutions;
+    procedure ApplyCursorRestriction;
 
   public
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
@@ -199,6 +200,7 @@ begin
   FreeAndNil(fGame);
   FreeAndNil(fLog);
   TimeEndPeriod(1);
+  ClipCursor(nil); //Release the cursor restriction
 end;
 
 
@@ -212,6 +214,7 @@ begin
 
   if fGame<>nil then //Occurs on exit
     fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+  ApplyCursorRestriction;
 end;
 
 
@@ -693,6 +696,7 @@ begin
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
 
   if ReturnToOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
+  ApplyCursorRestriction
 end;
 
 
@@ -711,6 +715,7 @@ begin
     dmFields := DM_DISPLAYFREQUENCY or DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT;
   end;
   ChangeDisplaySettings(DeviceMode, CDS_FULLSCREEN);
+  ApplyCursorRestriction;
 end;
 
 
@@ -746,6 +751,19 @@ begin
     if (SupportedResolutions[k,1] = dmPelsWidth) and (SupportedResolutions[k,2] = dmPelsHeight)then
       SupportedRefreshRates[k] := max(SupportedRefreshRates[k], dmDisplayFrequency);
   end;
+end;
+
+
+procedure TForm1.ApplyCursorRestriction;
+var
+  Rect: TRect;
+begin
+  if (fGame <> nil) and (fGame.fGameSettings <> nil) and fGame.fGameSettings.IsFullScreen then
+  begin
+    Rect := BoundsRect;
+    ClipCursor(@Rect); //Restrict the cursor movement to inside our form
+  end
+  else ClipCursor(nil); //Otherwise have no restriction
 end;
 
 end.

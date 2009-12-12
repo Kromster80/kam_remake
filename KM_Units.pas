@@ -1339,6 +1339,9 @@ procedure TUnitTask.Abandon;
 begin
   //Shortcut to abandon and declare task done
   //@Lewin: bugreport: Tutorial mission gives me error here: Looks like some unit gets task abandoned, but unit is already NIL by here
+  //@Krom: Fixed. It was caused by a unit starting a walk off the road and the obticle check abandoning the task because the passibilty failed (canWalkRoad when it was off the road)
+  //       I made it use canWalk instead because there are lots of things that can cause that and it's not really an obsticle
+  //       if we find ourselfs on a walkable off-road tile. To be deleted.
   fUnit.Thought:=th_None; //Stop any thoughts
   if fUnit <> nil then fUnit.RemovePointer;
   fUnit:=nil;

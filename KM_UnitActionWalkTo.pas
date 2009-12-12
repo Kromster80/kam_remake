@@ -173,19 +173,25 @@ end;
 
 
 function TUnitActionWalkTo.CheckCanWalk():boolean;
+  function GetOurPassability:TPassability;
+  begin //Needed mainly because of routes that start off-road but also some interaction solutions may force units off roads
+    if fPass = canWalkRoad then Result := canWalk
+    else Result := fPass;
+  end;
 begin
   Result := true;
   //If there's an unexpected obstacle (i.e. the terrain has changed since we calculated the route)
-  if not fTerrain.CheckPassability(NodeList.List[NodePos+1],fWalker.GetDesiredPassability) then
+  //Use GetOurPassability so that canWalkRoad is changed to canWalk because walking off the road does not count as an obstacle
+  if not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetOurPassability) then
     //Try to find a walkaround
-    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,fWalker.GetDesiredPassability,fWalkToSpot) then
+    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetOurPassability,fWalkToSpot) then
     begin
       fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot);
       Result:=false;
     end
     else
     begin
-      fWalker.GetUnitTask.Abandon; //Else stop and abandon the task
+      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon; //Else stop and abandon the task (if we have one)
       Result:=false;
     end;
 end;

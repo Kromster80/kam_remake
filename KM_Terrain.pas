@@ -749,7 +749,7 @@ begin
           //Now find a tile around this one that can be fished from
           for j:=-1 to 1 do
             for l:=-1 to 1 do
-              if (l*j <> 0) and TileInMapCoords(k+j,i+l) then
+              if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) then
                 // D) Final check: route can be made
                 if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, true) then
                   List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1)); //@Lewin: we had directions in PosToDir 0..7, while it should be 1..8
