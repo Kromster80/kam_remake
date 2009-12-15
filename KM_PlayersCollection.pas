@@ -28,7 +28,7 @@ type
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
   public
     procedure Save(SaveStream:TMemoryStream);
-    procedure Load;
+    procedure Load(LoadStream:TMemoryStream);
     procedure UpdateState(Tick:cardinal);
     procedure Paint;
   end;
@@ -172,13 +172,23 @@ begin
     Player[i].Save(SaveStream);
     PlayerAI[i].Save(SaveStream); //Saves AI stuff
   end;
-  PlayerAnimals.Save(SaveStream); //Saves AI stuff
+  PlayerAnimals.Save(SaveStream);
 end;
 
 
-procedure TKMAllPlayers.Load;
+procedure TKMAllPlayers.Load(LoadStream:TMemoryStream);
+var i:word; s:string; c:array[1..64]of char;
 begin
-  //Load
+  LoadStream.Read(c,7); //if s <> 'Players' then exit;
+  LoadStream.Read(fPlayerCount,4);
+
+  for i:=1 to fPlayerCount do
+  begin
+    {Player[i].Load(LoadStream);} //todo: Load
+    {PlayerAI[i].Load(LoadStream);} //todo: Load
+  end;
+  {PlayerAnimals.Load(LoadStream);} //todo: Load
+
 end;
 
 

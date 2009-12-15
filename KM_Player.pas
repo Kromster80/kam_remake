@@ -391,7 +391,8 @@ end;
 { TKMPlayerAnimals }
 procedure TKMPlayerAnimals.Save(SaveStream:TMemoryStream);
 begin
-//  fUnits.Save(SaveStream);
+  SaveStream.Write('Animals',7);
+  fUnits.Save(SaveStream);
 end;
 
 

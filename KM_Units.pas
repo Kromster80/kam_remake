@@ -275,6 +275,7 @@ type
     procedure UpdateThoughts();
     procedure UpdateVisibility();
   public
+    procedure Save(SaveStream:TMemoryStream); virtual;
     function UpdateState():boolean; virtual;
     procedure Paint; virtual;
   end;
@@ -286,8 +287,9 @@ type
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
     function FindHome():boolean;
-    function UpdateState():boolean; override;
     function InitiateMining():TUnitTask;
+    procedure Save(SaveStream:TMemoryStream); override;
+    function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
 
@@ -295,20 +297,22 @@ type
   TKMUnitSerf = class(TKMUnit)
     Carry: TResourceType;
   public
-    function UpdateState():boolean; override;
-    procedure Paint(); override;
     function GiveResource(Res:TResourceType):boolean;
     function TakeResource(Res:TResourceType):boolean;
     function GetActionFromQueue():TUnitTask;
+    procedure Save(SaveStream:TMemoryStream); override;
+    function UpdateState():boolean; override;
+    procedure Paint(); override;
   end;
 
   //Worker class - builds everything ingame
   TKMUnitWorker = class(TKMUnit)
   public
-    function UpdateState():boolean; override;
-    procedure Paint(); override;
     function GetActionFromQueue():TUnitTask;
     procedure AbandonWork;
+    procedure Save(SaveStream:TMemoryStream); override;
+    function UpdateState():boolean; override;
+    procedure Paint(); override;
   end;
 
   //Possibly melee warrior class? with Archer class separate?
@@ -322,6 +326,7 @@ type
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
+    procedure Save(SaveStream:TMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
@@ -333,6 +338,7 @@ type
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     function ReduceFish:boolean;
     function GetSupportedActions: TUnitActionTypeSet; override;
+    procedure Save(SaveStream:TMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
@@ -348,6 +354,7 @@ type
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     function GetTotalPointers: integer;
+    procedure Save(SaveStream:TMemoryStream);
     procedure UpdateState;
     procedure Paint();
   end;
@@ -417,6 +424,13 @@ end;
 
   if fThought<>th_None then
   fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
+end;
+
+
+procedure TKMUnitCitizen.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  {WorkPlan.Save(SaveStream);} //todo: save
 end;
 
 
@@ -568,6 +582,13 @@ begin
 end;
 
 
+procedure TKMUnitSerf.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(Carry, 4);
+end;
+
+
 function TKMUnitSerf.UpdateState():boolean;
 var
   H:TKMHouseInn;
@@ -641,6 +662,13 @@ begin
 
   if fThought<>th_None then
   fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
+end;
+
+
+procedure TKMUnitWorker.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  //Nothing to save yet
 end;
 
 
@@ -725,6 +753,18 @@ procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
 begin
   fOrder:=aWarriorOrder;
   fOrderLoc:=aLoc;
+end;
+
+
+procedure TKMUnitWarrior.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fIsCommander, 4);
+  SaveStream.Write(fCommanderID, 4); //Store ID
+  SaveStream.Write(fFlagAnim, 4);
+  SaveStream.Write(fUnitType, 4);
+  SaveStream.Write(fOrder, 4);
+  SaveStream.Write(fOrderLoc, 4);
 end;
 
 
@@ -821,6 +861,13 @@ inherited;
 
   AnimDir:=byte(Direction);
   fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5, fPosition.Y+1,true);
+end;
+
+
+procedure TKMUnitAnimal.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fFishCount, 4);
 end;
 
 
@@ -1235,6 +1282,31 @@ begin
     if fHome.IsDestroyed and KMSamePoint(GetPosition, fHome.GetEntrance) then
       SetVisibility := true;
 end;
+
+
+procedure TKMUnit.Save(SaveStream:TMemoryStream);
+begin
+  SaveStream.Write('Unit', 4);
+  SaveStream.Write(fUnitType, 4);
+  {fUnitTask.Save(SaveStream);} //todo: save
+  {fCurrentAction.Save(SaveStream);} //todo: save
+  SaveStream.Write(fThought, 4);
+  SaveStream.Write(fCondition, 4);
+  SaveStream.Write(Speed, 4);
+  SaveStream.Write(fOwner, 4);
+  SaveStream.Write(fHome, 4); //todo: should store house ID and use it on loading to access TKMHouse 
+  SaveStream.Write(fPosition, 8); //2floats
+  SaveStream.Write(fLastUpdateTime, 4);
+  SaveStream.Write(fVisible, 4);
+  SaveStream.Write(fIsDead, 4);
+  SaveStream.Write(fPointerCount, 4);
+
+  SaveStream.Write(AnimStep, 4);
+  SaveStream.Write(Direction, 4);
+  SaveStream.Write(PrevPosition, 4);
+  SaveStream.Write(NextPosition, 4);
+end;
+
 
 {Here are common Unit.UpdateState routines}
 function TKMUnit.UpdateState():boolean;
@@ -2755,6 +2827,16 @@ begin
   Result:=0;
   for I := 0 to Count - 1 do
     inc(Result, TKMUnit(Items[I]).GetPointerCount);
+end;
+
+
+procedure TKMUnitsCollection.Save(SaveStream:TMemoryStream);
+var i:integer;
+begin
+  SaveStream.Write('Units',5);
+  SaveStream.Write(Count,4);
+  for i := 0 to Count - 1 do
+    TKMUnit(Items[i]).Save(SaveStream);
 end;
 
 

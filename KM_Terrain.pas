@@ -153,7 +153,7 @@ public
 
   procedure IncAnimStep();
   procedure Save(SaveStream:TMemoryStream);
-  procedure Load;
+  procedure Load(LoadStream:TMemoryStream);
   procedure UpdateState;
   procedure UpdateCursor(aCursor:TCursorMode; Loc:TKMPoint);
   procedure Paint;
@@ -1633,7 +1633,7 @@ begin
   SaveStream.Write(TileSize,4);
 
   for i:=1 to MapY do for k:=1 to MapX do
-    SaveStream.Write(Land[i,k].Terrain,TileSize);
+    SaveStream.Write(Land[i,k].Terrain, TileSize);
 
   FallingTrees.Save(SaveStream);
 
@@ -1641,9 +1641,21 @@ begin
 end;
 
 
-procedure TTerrain.Load;
+procedure TTerrain.Load(LoadStream:TMemoryStream);
+var i,k:integer; TileSize:integer; s:string; c:array[1..64]of char;
 begin
+  LoadStream.Read(c,7); //if s<>'Terrain' then exit;
+  LoadStream.Read(MapX,2);
+  LoadStream.Read(MapY,2);
 
+  LoadStream.Read(TileSize,4);
+  if TileSize <> SizeOf(Land[i,k]) then Assert(false,'Wrong SizeOf Tile in TTerrain');
+
+  for i:=1 to MapY do for k:=1 to MapX do
+    LoadStream.Read(Land[i,k].Terrain, TileSize);
+
+  FallingTrees.Load(LoadStream);
+  LoadStream.Read(AnimStep,4);
 end;
 
 

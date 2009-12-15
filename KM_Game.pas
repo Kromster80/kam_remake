@@ -596,7 +596,7 @@ begin
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
-      SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt'); //TXT for early stages of debug
+      SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');
       SaveStream.Free;
       Result := GameName + ' ' + int2time(MyPlayer.fMissionSettings.GetMissionTime);
     end;
@@ -606,15 +606,35 @@ end;
 
 function TKMGame.Load(SlotID:shortint):string; //I've declared it a string for debug, should be enum
 var LoadStream:TMemoryStream;
-s:string;
+c:array[1..64]of char;
 begin
-  LoadStream := TMemoryStream.Create;
-  LoadStream.LoadFromFile(ExeDir+'save'+int2fix(SlotID,2)+'.txt'); //TXT for early stages of debug
+  Result := 'NIL';
 
-  setlength(s,7);
-  LoadStream.Read(s[1],7);
-  LoadStream.Free;
-  Result := s;
+  case GameState of
+    gsNoGame:   //Let's load only from menu for now
+    begin
+      LoadStream := TMemoryStream.Create; //Read data from file into stream
+      if not CheckFileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt') then exit;
+
+      LoadStream.LoadFromFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');
+      LoadStream.Seek(0, soFromBeginning);
+
+      LoadStream.Read(c,12); //if PasToStr(c) <> 'KaM_Savegame' then exit;
+      LoadStream.Read(c,2); //if s <> '01' then exit;
+
+      //Create empty environment
+      StartGame('',''); //todo: check for emptyness and optimize load time
+
+      //Load the data into the game
+      fTerrain.Load(LoadStream);
+      fPlayers.Load(LoadStream);
+
+      LoadStream.Free;
+    end;
+    gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
+    gsPaused:   exit;
+    gsRunning:  exit;
+  end;
 end;
 
 

@@ -671,7 +671,7 @@ end;
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
-  KMLabel_LoadResult.Caption:=fGame.Load(TKMControl(Sender).Tag);
+  KMLabel_LoadResult.Caption := fGame.Load(TKMControl(Sender).Tag);
 end;
 
 
