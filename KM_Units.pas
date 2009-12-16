@@ -302,6 +302,7 @@ type
   //This is a common class for units going out of their homes for resources
   TKMUnitCitizen = class(TKMUnit)
   public
+    WorkPlan:TUnitWorkPlan;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
     function FindHome():boolean;
@@ -386,11 +387,13 @@ KM_ResourceGFX, KM_UnitActionWalkTo, KM_UnitActionGoInOut, KM_LoadLib;
 constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
+  WorkPlan := TUnitWorkPlan.Create;
 end;
 
 
 destructor TKMUnitCitizen.Destroy;
 begin
+  FreeAndNil(WorkPlan);
   Inherited;
 end;
 
@@ -446,6 +449,7 @@ end;
 procedure TKMUnitCitizen.Save(SaveStream:TMemoryStream);
 begin
   inherited;
+  WorkPlan.Save(SaveStream);
 end;
 
 
@@ -517,7 +521,7 @@ end;
 
 
 function TKMUnitCitizen.InitiateMining():TUnitTask;
-var i,Tmp,Res:integer; WorkPlan:TUnitWorkPlan;
+var i,Tmp,Res:integer;
 begin
   Result:=nil;
 
@@ -540,7 +544,6 @@ begin
   //  fViewport.SetCenter(GetPosition.X,GetPosition.Y);
   //end;
 
-  WorkPlan := TUnitWorkPlan.Create;
   WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
   //Now issue a message if we failed because the resource is depleted
@@ -570,7 +573,6 @@ begin
     if HousePlaceOrders[byte(fHome.GetHouseType)] then
       fHome.ResRemOrder(Res);
     Result := TTaskMining.Create(WorkPlan,Self,fHome);
-    WorkPlan.Free;
   end;
 end;
 
@@ -2503,7 +2505,7 @@ end;
 procedure TTaskMining.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  WorkPlan.Save(SaveStream);
+  {SaveStream.Write(WorkPlan,4);} //todo: save reference to workplan
   SaveStream.Write(BeastID,4);
 end;
 

@@ -62,6 +62,9 @@ var
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted
 
+  //Utility
+  Zero:integer=0;
+  
 const
   MaxHouses=255;        //Maximum houses one player can own
   MAX_RES_IN_HOUSE=5;   //Maximum resource items allowed to be in house
