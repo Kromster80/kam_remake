@@ -302,7 +302,6 @@ type
   //This is a common class for units going out of their homes for resources
   TKMUnitCitizen = class(TKMUnit)
   public
-    WorkPlan:TUnitWorkPlan;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     destructor Destroy; override;
     function FindHome():boolean;
@@ -387,13 +386,11 @@ KM_ResourceGFX, KM_UnitActionWalkTo, KM_UnitActionGoInOut, KM_LoadLib;
 constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
-  WorkPlan := TUnitWorkPlan.Create;
 end;
 
 
 destructor TKMUnitCitizen.Destroy;
 begin
-  FreeAndNil(WorkPlan);
   Inherited;
 end;
 
@@ -449,7 +446,6 @@ end;
 procedure TKMUnitCitizen.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  WorkPlan.Save(SaveStream);
 end;
 
 
@@ -521,14 +517,15 @@ end;
 
 
 function TKMUnitCitizen.InitiateMining():TUnitTask;
-var i,Tmp,Res:integer;
+var i,Tmp,Res:integer; WorkPlan:TUnitWorkPlan;
 begin
   Result:=nil;
 
   Res:=1;
   //Check if House has production orders
   //Random pick from whole amount
-  if HousePlaceOrders[byte(fHome.GetHouseType)] then begin
+  if HousePlaceOrders[byte(fHome.GetHouseType)] then
+  begin
     Tmp := fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
     if Tmp=0 then exit; //No orders
     Tmp:=Random(Tmp)+1; //Pick random from overall count
@@ -543,16 +540,17 @@ begin
   //  fViewport.SetCenter(GetPosition.X,GetPosition.Y);
   //end;
 
+  WorkPlan := TUnitWorkPlan.Create;
   WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
   //Now issue a message if we failed because the resource is depleted
-  if WorkPlan.ResourceDeplepted and not fHome.ResourceDepletedMsgIssued then
+  if WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
   begin
     case fHome.GetHouseType of
       ht_Quary:    Tmp := 290;
       ht_CoalMine: Tmp := 291;
       ht_IronMine: Tmp := 292;
-      ht_GoldMine: Tmp := 293; 
+      ht_GoldMine: Tmp := 293;
       ht_FisherHut:Tmp := 294;
       else Tmp := 0;
     end;
@@ -561,16 +559,19 @@ begin
     fHome.ResourceDepletedMsgIssued := true;
   end;
 
-  if not WorkPlan.IsIssued then exit;
-  if (WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1) then exit;
-  if (WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2) then exit;
-  if fHome.CheckResOut(WorkPlan.Product1)>=MAX_RES_IN_HOUSE then exit;
-  if fHome.CheckResOut(WorkPlan.Product2)>=MAX_RES_IN_HOUSE then exit;
-
-  if HousePlaceOrders[byte(fHome.GetHouseType)] then
-    fHome.ResRemOrder(Res);
-
-  Result:=TTaskMining.Create(WorkPlan,Self,fHome);
+  if (not WorkPlan.IsIssued) or
+     ((WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1)) or
+     ((WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2)) or
+     (fHome.CheckResOut(WorkPlan.Product1)>=MAX_RES_IN_HOUSE) or
+     (fHome.CheckResOut(WorkPlan.Product2)>=MAX_RES_IN_HOUSE) then
+    WorkPlan.Free //Abandon
+  else
+  begin
+    if HousePlaceOrders[byte(fHome.GetHouseType)] then
+      fHome.ResRemOrder(Res);
+    Result := TTaskMining.Create(WorkPlan,Self,fHome);
+    WorkPlan.Free;
+  end;
 end;
 
 

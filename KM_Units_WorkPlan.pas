@@ -27,7 +27,7 @@ type
     Product1:TResourceType; ProdCount1:byte;
     Product2:TResourceType; ProdCount2:byte;
     AfterWorkIdle:integer;
-    ResourceDeplepted:boolean;
+    ResourceDepleted:boolean;
   public
     procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
     property IsIssued:boolean read fIssued;
@@ -67,7 +67,7 @@ begin
   Product1:=rt_None; ProdCount1:=0;
   Product2:=rt_None; ProdCount2:=0;
   AfterWorkIdle:=0;
-  ResourceDeplepted:=false;
+  ResourceDepleted:=false;
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
@@ -119,7 +119,7 @@ if (aUnitType=ut_Miner)and(aHome=ht_CoalMine) then begin
   end else
   begin
     fIssued:=false;
-    ResourceDeplepted:=true;
+    ResourceDepleted:=true;
   end;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
@@ -133,7 +133,7 @@ if (aUnitType=ut_Miner)and(aHome=ht_IronMine) then begin
   end else
   begin
     fIssued:=false;
-    ResourceDeplepted:=true;
+    ResourceDepleted:=true;
   end;
 end else
 if (aUnitType=ut_Miner)and(aHome=ht_GoldMine) then begin
@@ -147,7 +147,7 @@ if (aUnitType=ut_Miner)and(aHome=ht_GoldMine) then begin
   end else
   begin
     fIssued:=false;
-    ResourceDeplepted:=true;
+    ResourceDepleted:=true;
   end;
 end else
 if (aUnitType=ut_Metallurgist)and(aHome=ht_IronSmithy) then begin
@@ -309,7 +309,7 @@ if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
   end else
   begin
     fIssued:=false;
-    ResourceDeplepted:=true;
+    ResourceDepleted:=true;
   end;
 end else
 if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
@@ -368,7 +368,7 @@ if (aUnitType=ut_Fisher)and(aHome=ht_FisherHut) then begin
   end else
   begin
     fIssued:=false;
-    ResourceDeplepted:=true;
+    ResourceDepleted:=true;
   end;
 end else
 if (aUnitType=ut_Recruit)and(aHome=ht_Barracks) then begin
@@ -411,7 +411,7 @@ begin
   SaveStream.Write(Product2, 4);
   SaveStream.Write(ProdCount2, 4);
   SaveStream.Write(AfterWorkIdle, 4);
-  SaveStream.Write(ResourceDeplepted, 4);
+  SaveStream.Write(ResourceDepleted, 4);
 end;
 
 end.
