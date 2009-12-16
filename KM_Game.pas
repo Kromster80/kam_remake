@@ -603,6 +603,7 @@ begin
       SaveStream := TMemoryStream.Create;
       SaveStream.Write('KaM_Savegame',12);
       SaveStream.Write('01',2); //This is savegame version
+      SaveStream.Write(ID_Tracker,4);
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
@@ -632,14 +633,16 @@ begin
       LoadStream.Read(c,12); //if PasToStr(c) <> 'KaM_Savegame' then exit;
       LoadStream.Read(c,2); //if s <> '01' then exit;
 
+      LoadStream.Read(ID_Tracker,4);
       //Create empty environment
       StartGame('',''); //todo: check for emptyness and optimize load time
 
       //Load the data into the game
       fTerrain.Load(LoadStream);
       fPlayers.Load(LoadStream);
-
       LoadStream.Free;
+
+      fPlayers.SyncLoad(); //todo: Should synchronize all Unit-House ID references
     end;
     gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
     gsPaused:   exit;

@@ -29,6 +29,7 @@ type
   public
     procedure Save(SaveStream:TMemoryStream);
     procedure Load(LoadStream:TMemoryStream);
+    procedure SyncLoad();
     procedure UpdateState(Tick:cardinal);
     procedure Paint;
   end;
@@ -188,7 +189,17 @@ begin
     {PlayerAI[i].Load(LoadStream);} //todo: Load
   end;
   {PlayerAnimals.Load(LoadStream);} //todo: Load
+end;
 
+
+procedure TKMAllPlayers.SyncLoad();
+var i:word;
+begin
+  for i:=1 to fPlayerCount do
+  begin
+    {Player[i].SyncLoad;} //todo: SyncLoad
+    {PlayerAI[i].SyncLoad;} //todo: SyncLoad
+  end;
 end;
 
 

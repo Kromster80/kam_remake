@@ -2503,7 +2503,7 @@ end;
 procedure TTaskMining.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  {SaveStream.Write(WorkPlan,4);} //todo: save workplan
+  WorkPlan.Save(SaveStream);
   SaveStream.Write(BeastID,4);
 end;
 

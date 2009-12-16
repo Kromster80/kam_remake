@@ -358,13 +358,13 @@ end;
 
 procedure TKMPlayerAssets.Save(SaveStream:TMemoryStream);
 begin
-//    fUnits.Save(SaveStream);
-//    fHouses.Save(SaveStream);
-//    fDeliverList.Save(SaveStream);
-//    fBuildList.Save(SaveStream);
-//    fMissionSettings.Save(SaveStream);
-    SaveStream.Write(PlayerID,SizeOf(PlayerID));
-    SaveStream.Write(PlayerType,SizeOf(PlayerType));
+    fUnits.Save(SaveStream);
+    fHouses.Save(SaveStream);
+    {fDeliverList.Save(SaveStream);} //todo: save
+    {fBuildList.Save(SaveStream);} //todo: save
+    {fMissionSettings.Save(SaveStream);} //todo: save
+    SaveStream.Write(PlayerID,4);
+    SaveStream.Write(PlayerType,4);
 end;
 
 
