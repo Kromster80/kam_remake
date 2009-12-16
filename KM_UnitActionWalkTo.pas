@@ -689,8 +689,14 @@ end;
 procedure TUnitActionWalkTo.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fWalker,4);
-  SaveStream.Write(fLastOpponent,4);
+  if fWalker <> nil then
+    SaveStream.Write(fWalker.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
+  if fLastOpponent <> nil then
+    SaveStream.Write(fLastOpponent.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(fWalkFrom,4);
   SaveStream.Write(fWalkTo,4);
   SaveStream.Write(fWalkToSpot,4);

@@ -337,7 +337,7 @@ type
   //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
     fIsCommander:boolean; //Wherever the unit is a leader of a group and has a shtandart
-    fCommanderID:TKMUnit; //ID of commander unit
+    fCommander:TKMUnit; //ID of commander unit
     fFlagAnim:cardinal;
     fOrder:TWarriorOrder;
     fOrderLoc:TKMPoint;
@@ -567,7 +567,6 @@ begin
      ((WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2)) or
      (fHome.CheckResOut(WorkPlan.Product1)>=MAX_RES_IN_HOUSE) or
      (fHome.CheckResOut(WorkPlan.Product2)>=MAX_RES_IN_HOUSE) then
-    WorkPlan.Free //Abandon
   else
   begin
     if HousePlaceOrders[byte(fHome.GetHouseType)] then
@@ -759,7 +758,7 @@ begin
   Inherited;
   fFlagAnim:=0;
   fIsCommander:=false;
-  fCommanderID:=nil;
+  fCommander:=nil;
   fOrder:=wo_Stop;
   fOrderLoc:=KMPoint(0,0);
 end;
@@ -782,7 +781,10 @@ procedure TKMUnitWarrior.Save(SaveStream:TMemoryStream);
 begin
   inherited;
   SaveStream.Write(fIsCommander, 4);
-  SaveStream.Write(fCommanderID, 4); //Store ID
+  if fCommander <> nil then
+    SaveStream.Write(fCommander.ID, 4) //Store ID
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(fFlagAnim, 4);
   SaveStream.Write(fUnitType, 4);
   SaveStream.Write(fOrder, 4);
@@ -1308,16 +1310,29 @@ end;
 
 
 procedure TKMUnit.Save(SaveStream:TMemoryStream);
+var HasTask,HasAct:boolean;
 begin
   SaveStream.Write('Unit', 4);
   SaveStream.Write(fUnitType, 4);
-  fUnitTask.Save(SaveStream);
-  fCurrentAction.Save(SaveStream);
+
+  HasTask := fUnitTask <> nil;
+  SaveStream.Write(HasTask, 4);
+  if HasTask then fUnitTask.Save(SaveStream);
+
+  HasAct := fCurrentAction <> nil;
+  SaveStream.Write(HasAct, 4);
+  if HasAct then fCurrentAction.Save(SaveStream);
+
   SaveStream.Write(fThought, 4);
   SaveStream.Write(fCondition, 4);
   SaveStream.Write(Speed, 4);
   SaveStream.Write(fOwner, 4);
-  SaveStream.Write(fHome.ID, 4); //Store house ID instead, then substitute it with reference on Load
+
+  if fHome <> nil then
+    SaveStream.Write(fHome.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
+
   SaveStream.Write(fPosition, 8); //2floats
   SaveStream.Write(fLastUpdateTime, 4);
   SaveStream.Write(fVisible, 4);
@@ -1443,7 +1458,10 @@ end;
 
 procedure TUnitTask.Save(SaveStream:TMemoryStream);
 begin
-  SaveStream.Write(fUnit.ID,4);
+  if fUnit <> nil then
+    SaveStream.Write(fUnit.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(fPhase,4);
   SaveStream.Write(fPhase2,4);
 end;
@@ -1524,7 +1542,10 @@ end;
 procedure TTaskSelfTrain.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fSchool.ID,4);
+  if fSchool <> nil then
+    SaveStream.Write(fSchool.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
 end;
 
 
@@ -1703,9 +1724,18 @@ end;
 procedure TTaskDeliver.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fFrom.ID,4);
-  SaveStream.Write(fToHouse.ID,4);
-  SaveStream.Write(fToUnit.ID,4);
+  if fFrom <> nil then
+    SaveStream.Write(fFrom.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
+  if fToHouse <> nil then
+    SaveStream.Write(fToHouse.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
+  if fToUnit <> nil then
+    SaveStream.Write(fToUnit.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(fResourceType,4);
   SaveStream.Write(fDeliverID,4);
 end;
@@ -2075,7 +2105,10 @@ procedure TTaskBuildHouseArea.Save(SaveStream:TMemoryStream);
 var i:integer;
 begin
   inherited;
-  SaveStream.Write(fHouse.ID,4);
+  if fHouse <> nil then
+    SaveStream.Write(fHouse.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(TaskID,4);
   SaveStream.Write(Step,4);
   for i:=1 to length(ListOfCells) do
@@ -2214,7 +2247,10 @@ procedure TTaskBuildHouse.Save(SaveStream:TMemoryStream);
 var i:integer;
 begin
   inherited;
-  SaveStream.Write(fHouse.ID,4);
+  if fHouse <> nil then
+    SaveStream.Write(fHouse.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(TaskID,4);
   SaveStream.Write(LocCount,4);
   SaveStream.Write(CurLoc,4);
@@ -2314,7 +2350,10 @@ procedure TTaskBuildHouseRepair.Save(SaveStream:TMemoryStream);
 var i:integer;
 begin
   inherited;
-  SaveStream.Write(fHouse.ID,4);
+  if fHouse <> nil then
+    SaveStream.Write(fHouse.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(TaskID,4);
   SaveStream.Write(LocCount,4);
   SaveStream.Write(CurLoc,4);
@@ -2505,7 +2544,7 @@ end;
 procedure TTaskMining.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  {SaveStream.Write(WorkPlan,4);} //todo: save reference to workplan
+  {SaveStream.Write(WorkPlan,4);} //todo: save reference to workplan? Or just relink it to TKMUnitCitizen.WorkPlan
   SaveStream.Write(BeastID,4);
 end;
 
@@ -2741,7 +2780,10 @@ end;
 procedure TTaskGoEat.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fInn.ID,4);
+  if fInn <> nil then
+    SaveStream.Write(fInn.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(PlaceID,4);
 end;
 
@@ -2971,7 +3013,7 @@ begin
         U.Direction:=aDir; //U will be _nil_ if unit didn't fit on map
         U.AnimStep := UnitStillFrames[aDir]; //Use still frame at begining, so units don't all change frame on first tick
         if Commander is TKMUnitWarrior then
-          TKMUnitWarrior(U).fCommanderID:=Commander;
+          TKMUnitWarrior(U).fCommander:=Commander;
       end;
     end;
   end;

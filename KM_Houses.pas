@@ -1008,7 +1008,10 @@ procedure TKMHouseSchool.Save(SaveStream:TMemoryStream);
 var i:integer;
 begin
   inherited;
-  SaveStream.Write(TKMUnit(UnitWIP).ID,4);
+  if TKMUnit(UnitWIP) <> nil then
+    SaveStream.Write(TKMUnit(UnitWIP).ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(HideOneGold,4);
   SaveStream.Write(UnitTrainProgress,4);
   for i:=1 to 6 do SaveStream.Write(UnitQueue[i],4);
@@ -1314,7 +1317,10 @@ procedure TKMHousesCollection.Save(SaveStream:TMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('Houses',6);
-  SaveStream.Write(fSelectedHouse,4);
+  if fSelectedHouse <> nil then
+    SaveStream.Write(fSelectedHouse.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero, 4);
   SaveStream.Write(Count,4);
   for i := 0 to Count - 1 do
     TKMHouse(Items[i]).Save(SaveStream);
