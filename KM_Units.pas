@@ -20,6 +20,7 @@ type
     procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); virtual; abstract;
     property GetActionType: TUnitActionType read fActionType;
     property GetIsStepDone:boolean read IsStepDone write IsStepDone;
+    procedure Save(SaveStream:TMemoryStream); virtual;
   end;
 
       {Abandon the current walk, move onto next tile}
@@ -29,6 +30,7 @@ type
       public
         constructor Create(LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+        procedure Save(SaveStream:TMemoryStream); override;
       end;
 
       {Stay in place for set time}
@@ -44,6 +46,7 @@ type
         function HowLongLeftToStay():integer;
         procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+        procedure Save(SaveStream:TMemoryStream); override;
       end;
 
   TUnitTask = class(TObject)
@@ -56,6 +59,7 @@ type
     destructor Destroy; override;
     procedure Abandon; virtual;
     procedure Execute(out TaskDone:boolean); virtual; abstract;
+    procedure Save(SaveStream:TMemoryStream); virtual;
   end;
 
     TTaskSelfTrain = class(TUnitTask)
@@ -66,6 +70,7 @@ type
       destructor Destroy; override;
       procedure Abandon(); override;
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskDeliver = class(TUnitTask)
@@ -81,6 +86,7 @@ type
       destructor Destroy; override;
       procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskBuildRoad = class(TUnitTask)
@@ -90,6 +96,7 @@ type
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskBuildWine = class(TUnitTask)
@@ -99,6 +106,7 @@ type
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskBuildField = class(TUnitTask)
@@ -108,6 +116,7 @@ type
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskBuildWall = class(TUnitTask)
@@ -117,6 +126,7 @@ type
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskBuildHouseArea = class(TUnitTask)
@@ -129,6 +139,7 @@ type
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       destructor Destroy; override;
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskBuildHouse = class(TUnitTask)
@@ -137,7 +148,7 @@ type
       TaskID:integer;
       LocCount:byte; //Count for locations around the house from where worker can build
       CurLoc:byte; //Current WIP location
-      Cells:array[1..4*4]of record
+      Cells:array[1..4*4]of record //todo: Replace with TKMPointDir list
         Loc:TKMPoint; //List of surrounding cells and directions
         Dir:TKMDirection;
       end;
@@ -146,6 +157,7 @@ type
       destructor Destroy; override;
       procedure Abandon(); override;
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskBuildHouseRepair = class(TUnitTask)
@@ -154,7 +166,7 @@ type
       TaskID:integer;
       LocCount:byte; //Count for locations around the house from where worker can build
       CurLoc:byte; //Current WIP location
-      Cells:array[1..4*4]of record
+      Cells:array[1..4*4]of record //todo: Replace with TKMPointDir list
         Loc:TKMPoint; //List of surrounding cells and directions
         Dir:TKMDirection;
       end;
@@ -162,6 +174,7 @@ type
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       destructor Destroy; override;
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskGoHome = class(TUnitTask)
@@ -169,6 +182,7 @@ type
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskGoEat = class(TUnitTask)
@@ -179,6 +193,7 @@ type
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
       destructor Destroy; override;
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     TTaskMining = class(TUnitTask)
@@ -189,6 +204,7 @@ type
     public
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
     {Yep, this is a Task}
@@ -198,12 +214,14 @@ type
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
-    
+
     TTaskGoOutShowHungry = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
 
   TKMUnit = class(TObject) //todo: actions should return enum result
@@ -223,6 +241,7 @@ type
     fPointerCount:integer;
     procedure CloseUnit;
   public
+    ID:integer; //unique unit ID, used for save/load to sync to
     AnimStep: integer;
     Direction: TKMDirection;
     PrevPosition: TKMPoint;
@@ -430,7 +449,7 @@ end;
 procedure TKMUnitCitizen.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  {WorkPlan.Save(SaveStream);} //todo: save
+  WorkPlan.Save(SaveStream);
 end;
 
 
@@ -926,25 +945,26 @@ end;
 constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
-  fPointerCount:=0;
-  fIsDead:=false;
+  fPointerCount := 0;
+  fIsDead := false;
   fThought := th_None;
-  fHome:=nil;
-  fPosition.X:= PosX;
-  fPosition.Y:= PosY;
-  PrevPosition:=GetPosition;
-  NextPosition:=GetPosition;
-  fOwner:= aOwner;
-  fUnitType:=aUnitType;
-  Direction:=dir_S;
-  fVisible:=true;
-  Speed:=UnitStat[byte(aUnitType)].Speed/24;
-  SetActionStay(10,ua_Walk);
+  fHome := nil;
+  fPosition.X := PosX;
+  fPosition.Y := PosY;
+  PrevPosition := GetPosition;
+  NextPosition := GetPosition;
+  fOwner := aOwner;
+  fUnitType := aUnitType;
+  Direction := dir_S;
+  fVisible := true;
+  Speed := UnitStat[byte(aUnitType)].Speed/24;
+  SetActionStay(10, ua_Walk);
+  ID := fGame.GetNewID;
   AnimStep := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   //Note: Warriors of the same group will need to be set the same if they are created at the begining of the mission
-  fCondition:=UNIT_MAX_CONDITION-Random(UNIT_MAX_CONDITION div 4);
+  fCondition := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4);
   fTerrain.UnitAdd(NextPosition);
 end;
 
@@ -1288,19 +1308,20 @@ procedure TKMUnit.Save(SaveStream:TMemoryStream);
 begin
   SaveStream.Write('Unit', 4);
   SaveStream.Write(fUnitType, 4);
-  {fUnitTask.Save(SaveStream);} //todo: save
-  {fCurrentAction.Save(SaveStream);} //todo: save
+  fUnitTask.Save(SaveStream);
+  fCurrentAction.Save(SaveStream);
   SaveStream.Write(fThought, 4);
   SaveStream.Write(fCondition, 4);
   SaveStream.Write(Speed, 4);
   SaveStream.Write(fOwner, 4);
-  SaveStream.Write(fHome, 4); //todo: should store house ID and use it on loading to access TKMHouse 
+  SaveStream.Write(fHome.ID, 4); //Store house ID instead, then substitute it with reference on Load
   SaveStream.Write(fPosition, 8); //2floats
   SaveStream.Write(fLastUpdateTime, 4);
   SaveStream.Write(fVisible, 4);
   SaveStream.Write(fIsDead, 4);
   SaveStream.Write(fPointerCount, 4);
 
+  SaveStream.Write(ID, 4);
   SaveStream.Write(AnimStep, 4);
   SaveStream.Write(Direction, 4);
   SaveStream.Write(PrevPosition, 4);
@@ -1417,6 +1438,13 @@ begin
   fPhase2:=MAXBYTE-1;
 end;
 
+procedure TUnitTask.Save(SaveStream:TMemoryStream);
+begin
+  SaveStream.Write(fUnit.ID,4);
+  SaveStream.Write(fPhase,4);
+  SaveStream.Write(fPhase2,4);
+end;
+
 { TTaskSelfTrain }
 {Train itself in school}
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
@@ -1487,6 +1515,13 @@ case fPhase of
   else TaskDone:=true;
 end;
 inc(fPhase);
+end;
+
+
+procedure TTaskSelfTrain.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fSchool.ID,4);
 end;
 
 
@@ -1662,6 +1697,17 @@ if fUnit.fCurrentAction=nil then
 end;
 
 
+procedure TTaskDeliver.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fFrom.ID,4);
+  SaveStream.Write(fToHouse.ID,4);
+  SaveStream.Write(fToUnit.ID,4);
+  SaveStream.Write(fResourceType,4);
+  SaveStream.Write(fDeliverID,4);
+end;
+
+
 { TTaskBuildRoad }
 constructor TTaskBuildRoad.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
@@ -1730,6 +1776,14 @@ if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
 end;
 
 
+procedure TTaskBuildRoad.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fLoc,4);
+  SaveStream.Write(ID,4);
+end;
+
+
 { TTaskBuildWine }
 constructor TTaskBuildWine.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
@@ -1785,6 +1839,14 @@ if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
 end;
 
 
+procedure TTaskBuildWine.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fLoc,4);
+  SaveStream.Write(ID,4);
+end;
+
+
 { TTaskBuildField }
 constructor TTaskBuildField.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
@@ -1825,6 +1887,14 @@ case fPhase of
   else TaskDone:=true;
 end;
 if fPhase2 in [0,10] then inc(fPhase);
+end;
+
+
+procedure TTaskBuildField.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fLoc,4);
+  SaveStream.Write(ID,4);
 end;
 
 
@@ -1896,6 +1966,14 @@ end;
 if (fPhase<>4)and(fPhase<>8) then inc(fPhase); //Phase=4 is when worker waits for rt_Wood
 if fPhase=8 then inc(fPhase2);
 if fPhase2=5 then inc(fPhase); //wait 5 cycles
+end;
+
+
+procedure TTaskBuildWall.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fLoc,4);
+  SaveStream.Write(ID,4);
 end;
 
 
@@ -1987,6 +2065,18 @@ else TaskDone:=true;
 end;
 inc(fPhase);
 if (fPhase=7)and(Step>0) then fPhase:=2; //Repeat with next cell
+end;
+
+
+procedure TTaskBuildHouseArea.Save(SaveStream:TMemoryStream);
+var i:integer;
+begin
+  inherited;
+  SaveStream.Write(fHouse.ID,4);
+  SaveStream.Write(TaskID,4);
+  SaveStream.Write(Step,4);
+  for i:=1 to length(ListOfCells) do
+  SaveStream.Write(ListOfCells[i],4);
 end;
 
 
@@ -2117,6 +2207,22 @@ begin
 end;
 
 
+procedure TTaskBuildHouse.Save(SaveStream:TMemoryStream);
+var i:integer;
+begin
+  inherited;
+  SaveStream.Write(fHouse.ID,4);
+  SaveStream.Write(TaskID,4);
+  SaveStream.Write(LocCount,4);
+  SaveStream.Write(CurLoc,4);
+  for i:=1 to length(Cells) do
+  begin
+    SaveStream.Write(Cells[i].Loc,4);
+    SaveStream.Write(Cells[i].Dir,4);
+  end;
+end;
+
+
 { TTaskBuildHouseRepair }
 constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
   var i,k:integer; ht:byte; Loc:TKMPoint;
@@ -2198,6 +2304,22 @@ begin
       fPhase:=0 //Then goto new spot
     else
       fPhase:=2; //else do more hits
+end;
+
+
+procedure TTaskBuildHouseRepair.Save(SaveStream:TMemoryStream);
+var i:integer;
+begin
+  inherited;
+  SaveStream.Write(fHouse.ID,4);
+  SaveStream.Write(TaskID,4);
+  SaveStream.Write(LocCount,4);
+  SaveStream.Write(CurLoc,4);
+  for i:=1 to length(Cells) do
+  begin
+    SaveStream.Write(Cells[i].Loc,4);
+    SaveStream.Write(Cells[i].Dir,4);
+  end;
 end;
 
 
@@ -2377,6 +2499,14 @@ if (fUnit.fCurrentAction=nil)and(not TaskDone) then
 end;
 
 
+procedure TTaskMining.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  {SaveStream.Write(WorkPlan,4);} //todo: save workplan
+  SaveStream.Write(BeastID,4);
+end;
+
+
 { TTaskGoHome }
 constructor TTaskGoHome.Create(aUnit:TKMUnit);
 begin
@@ -2410,6 +2540,13 @@ begin
   inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
     fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
+end;
+
+
+procedure TTaskGoHome.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  //nothing more here yet
 end;
 
 
@@ -2451,6 +2588,12 @@ inc(fPhase);
 end;
 
 
+procedure TTaskDie.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(SequenceLength,4);
+end;
+
 { TTaskGoOutShowHungry }
 constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
 begin
@@ -2491,6 +2634,13 @@ begin
   inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
     fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
+end;
+
+
+procedure TTaskGoOutShowHungry.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  //nothing more here yet
 end;
 
 
@@ -2585,12 +2735,28 @@ if (fUnit.fCurrentAction=nil)and(not TaskDone) then
 end;
 
 
+procedure TTaskGoEat.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fInn.ID,4);
+  SaveStream.Write(PlaceID,4);
+end;
+
+
 { TUnitAction }
 constructor TUnitAction.Create(aActionType: TUnitActionType);
 begin
   Inherited Create;
   fActionType:= aActionType;
   IsStepDone:=false;
+end;
+
+
+procedure TUnitAction.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fActionType,4);
+  SaveStream.Write(IsStepDone,4);
 end;
 
 
@@ -2638,6 +2804,13 @@ begin
   KMUnit.fPosition.Y:= KMUnit.fPosition.Y + DY*min(Distance,abs(WalkY));
 
   inc(KMUnit.AnimStep);
+end;
+
+
+procedure TUnitActionAbandonWalk.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fWalkTo,4);
 end;
 
 
@@ -2707,6 +2880,17 @@ begin
 
   dec(TimeToStay);
   DoEnd := TimeToStay<=0;
+end;
+
+
+procedure TUnitActionStay.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(StayStill,4);
+  SaveStream.Write(TimeToStay,4);
+  SaveStream.Write(StillFrame,4);
+  SaveStream.Write(ActionType,4);
+  SaveStream.Write(Locked,4);
 end;
 
 

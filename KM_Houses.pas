@@ -58,6 +58,7 @@ type
 
     procedure MakeSound();
   public
+    ID:integer; //unique ID, used for save/load to sync to
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
     ResourceDepletedMsgIssued: boolean;
 
@@ -224,6 +225,7 @@ begin
   fResourceOrder[3]:=0;
   fResourceOrder[4]:=0;
   fIsDestroyed:=false;
+  ID := fGame.GetNewID;
   ResourceDepletedMsgIssued := false;
 
   RemoveRoadWhenDemolish := fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay <> to_Road;

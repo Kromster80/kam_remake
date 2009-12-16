@@ -1642,7 +1642,7 @@ end;
 
 
 procedure TTerrain.Load(LoadStream:TMemoryStream);
-var i,k:integer; TileSize:integer; s:string; c:array[1..64]of char;
+var i,k:integer; TileSize:integer; c:array[1..64]of char;
 begin
   LoadStream.Read(c,7); //if s<>'Terrain' then exit;
   LoadStream.Read(MapX,2);

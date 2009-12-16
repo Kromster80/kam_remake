@@ -1,6 +1,6 @@
 unit KM_UnitActionGoInOut;
 interface
-uses KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math;
+uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math;
 
 
 {This is a simple action making unit go inside/outside of house}
@@ -17,6 +17,7 @@ type
     public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+        procedure Save(SaveStream:TMemoryStream); override;
     end;
 
 
@@ -148,5 +149,19 @@ begin
   else
     inc(KMUnit.AnimStep);
 end;
+
+
+procedure TUnitActionGoInOut.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fStep,4);
+  SaveStream.Write(fDirection,4);
+  SaveStream.Write(fHouseType,4);
+  SaveStream.Write(fDoor,8);
+  SaveStream.Write(fStreet,4);
+  SaveStream.Write(fHasStarted,4);
+  SaveStream.Write(fWaitingForPush,4);
+end;
+
 
 end.

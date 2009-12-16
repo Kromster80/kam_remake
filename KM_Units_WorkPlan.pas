@@ -1,6 +1,6 @@
 unit KM_Units_WorkPlan;
 interface
-uses KM_Defaults, KromUtils, KM_Terrain, KM_Utils;
+uses classes, KM_Defaults, KromUtils, KM_Terrain, KM_Utils;
 
 type
   TUnitWorkPlan = class
@@ -31,21 +31,22 @@ type
   public
     procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
     property IsIssued:boolean read fIssued;
+    procedure Save(SaveStream:TMemoryStream);
   end;
 
 implementation
 uses KM_CommonTypes;
 
-{Houses are only a place on map, they should not issue or perform tasks (except Training)}
-{Everything should be issued by units!}
-{Where to go, which walking style, what to do on location, for how long}
-{How to go back in case success, incase bad luck}
-{What to take from supply, how much, take2, much2}
-{What to do, Work/Cycles, What resource to add to Output, how much}
-{E.g. CoalMine: Miner arrives at home and Idles for 5sec, then takes a work task (depending on ResOut count)
+{Houses are only a place on map, they should not issue or perform tasks (except Training)
+Everything should be issued by units!
+Where to go, which walking style, what to do on location, for how long
+How to go back in case success, incase bad luck
+What to take from supply, how much, take2, much2
+What to do, Work/Cycles, What resource to add to Output, how much
+E.g. CoalMine: Miner arrives at home and Idles for 5sec, then takes a work task (depending on ResOut count)
 Since Loc is 0,0 he immidietely skips to Phase X where he switches house to Work1 (and self busy for same framecount)
-Then Work2 and Work3 same way. Then adds resource to out and everything to Idle for 5sec.}
-{E.g. Farmer arrives at home and Idles for 5sec, then takes a work task (depending on ResOut count, HouseType and Need to sow corn)
+Then Work2 and Work3 same way. Then adds resource to out and everything to Idle for 5sec.
+E.g. Farmer arrives at home and Idles for 5sec, then takes a work task (depending on ResOut count, HouseType and Need to sow corn)
 ...... then switches house to Work1 (and self busy for same framecount)
 Then Work2 and Work3 same way. Then adds resource to out and everything to Idle for 5sec.}
 procedure TUnitWorkPlan.FillDefaults();
@@ -380,5 +381,37 @@ end else
 end;
 
 
+procedure TUnitWorkPlan.Save(SaveStream:TMemoryStream);
+var i:integer;
+begin
+  SaveStream.Write('WorkPlan', 8);
+  SaveStream.Write(fIssued, 4);
+//public
+  SaveStream.Write(HasToWalk, 4);
+  SaveStream.Write(Loc, 4);
+  SaveStream.Write(WalkTo, 4);
+  SaveStream.Write(WorkType, 4);
+  SaveStream.Write(WorkCyc, 4);
+  SaveStream.Write(WorkDir, 4);
+  SaveStream.Write(GatheringScript, 4);
+  SaveStream.Write(AfterWorkDelay, 4);
+  SaveStream.Write(WalkFrom, 4);
+  SaveStream.Write(Resource1, 4);
+  SaveStream.Write(Count1, 4);
+  SaveStream.Write(Resource2, 4);
+  SaveStream.Write(Count2, 4);
+  SaveStream.Write(ActCount, 4);
+  for i:=1 to ActCount do //Write only assigned
+  begin
+    SaveStream.Write(HouseAct[i].Act, 4);
+    SaveStream.Write(HouseAct[i].TimeToWork, 4);
+  end;
+  SaveStream.Write(Product1, 4);
+  SaveStream.Write(ProdCount1, 4);
+  SaveStream.Write(Product2, 4);
+  SaveStream.Write(ProdCount2, 4);
+  SaveStream.Write(AfterWorkIdle, 4);
+  SaveStream.Write(ResourceDeplepted, 4);
+end;
+
 end.
- 

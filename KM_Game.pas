@@ -11,6 +11,7 @@ type
   private
     FormControlsVisible:boolean;
     GameplayTickCount:cardinal; //So that first tick will be #1
+    ID_Tracker:cardinal;
   public
     ScreenX,ScreenY:word;
     GameSpeed:integer;
@@ -39,6 +40,7 @@ type
     function GetMissionTime:cardinal;
     property GetTickCount:cardinal read GameplayTickCount;
     property GetGameName:string read GameName;
+    function GetNewID():cardinal;
     function Save(SlotID:shortint):string;
     function Load(SlotID:shortint):string;
     procedure UpdateState;
@@ -56,6 +58,7 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
 begin
+  ID_Tracker := 0; //Init only once on Create
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
   fGameSettings         := TGameSettings.Create;
@@ -578,6 +581,13 @@ function TKMGame.GetMissionTime:cardinal;
 begin
   //Treat 10 ticks as 1 sec irregardless of user-set pace
   Result := MyPlayer.fMissionSettings.GetMissionTime + (GameplayTickCount div 10);
+end;
+
+
+function TKMGame.GetNewID():cardinal;
+begin
+  inc(ID_Tracker);
+  Result := ID_Tracker;
 end;
 
 

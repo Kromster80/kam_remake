@@ -1,6 +1,6 @@
 unit KM_UnitActionWalkTo;
 interface
-uses KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math;
+uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math;
 
 {Walk to somewhere}
 type
@@ -44,6 +44,7 @@ type
       procedure DodgeTo(aPos: TKMPoint);
       procedure SetPushedValues;
       procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+      procedure Save(SaveStream:TMemoryStream); override;
     end;
             
 
@@ -682,6 +683,26 @@ begin
 
   inc(fWalker.AnimStep);
   DoesWalking:=true; //Now it's definitely true that unit did walked one step
+end;
+
+
+procedure TUnitActionWalkTo.Save(SaveStream:TMemoryStream);
+begin
+  inherited;
+  SaveStream.Write(fWalker,4);
+  SaveStream.Write(fLastOpponent,4);
+  SaveStream.Write(fWalkFrom,4);
+  SaveStream.Write(fWalkTo,4);
+  SaveStream.Write(fWalkToSpot,4);
+  SaveStream.Write(DoesWalking,4);
+  SaveStream.Write(DoExchange,4);
+  SaveStream.Write(fInteractionCount,4);
+  SaveStream.Write(fGiveUpCount,4);
+  SaveStream.Write(fInteractionStatus,4);
+  NodeList.Save(SaveStream);
+  SaveStream.Write(NodePos,4);
+  SaveStream.Write(fRouteBuilt,4);
+  SaveStream.Write(Explanation, length(Explanation));
 end;
 
 

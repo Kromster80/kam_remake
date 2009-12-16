@@ -177,7 +177,7 @@ end;
 
 
 procedure TKMAllPlayers.Load(LoadStream:TMemoryStream);
-var i:word; s:string; c:array[1..64]of char;
+var i:word; c:array[1..64]of char;
 begin
   LoadStream.Read(c,7); //if s <> 'Players' then exit;
   LoadStream.Read(fPlayerCount,4);
