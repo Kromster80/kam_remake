@@ -1656,6 +1656,8 @@ begin
 
   FallingTrees.Load(LoadStream);
   LoadStream.Read(AnimStep,4);
+
+  //todo: Recompute all deduced fields
 end;
 
 

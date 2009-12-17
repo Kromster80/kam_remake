@@ -428,7 +428,7 @@ end;
 procedure TKMGame.StartGame(MissionFile, aGameName:string);
 var ResultMsg:string;
 begin
-  RandSeed:=4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
+  RandSeed := 4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
 
   if fResource.GetDataState<>dls_All then begin
@@ -603,7 +603,9 @@ begin
       SaveStream := TMemoryStream.Create;
       SaveStream.Write('KaM_Savegame',12);
       SaveStream.Write('01',2); //This is savegame version
-      SaveStream.Write(ID_Tracker,4);
+      SaveStream.Write(GameplayTickCount,4); //dunno if it's required to save, but it won't hurt anyone
+      SaveStream.Write(ID_Tracker,4); //Units-Houses ID tracker
+
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
@@ -633,20 +635,23 @@ begin
       LoadStream.Read(c,12); //if PasToStr(c) <> 'KaM_Savegame' then exit;
       LoadStream.Read(c,2); //if s <> '01' then exit;
 
-      LoadStream.Read(ID_Tracker,4);
       //Create empty environment
       StartGame('',''); //todo: check for emptyness and optimize load time
+
+      //Substitute tick counter and id tracker (and maybe random seed?)
+      LoadStream.Read(GameplayTickCount,4);
+      LoadStream.Read(ID_Tracker,4);
 
       //Load the data into the game
       fTerrain.Load(LoadStream);
       fPlayers.Load(LoadStream);
       LoadStream.Free;
 
-      fPlayers.SyncLoad(); //todo: Should synchronize all Unit-House ID references
+      fPlayers.SyncLoad(); //todo: Should parse all Unit-House ID references and replace them with actual pointers
     end;
     gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
     gsPaused:   exit;
-    gsRunning:  exit;
+    gsRunning:  exit; //@All: StopGame before loading new one
   end;
 end;
 
