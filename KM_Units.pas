@@ -1317,10 +1317,12 @@ begin
 
   HasTask := fUnitTask <> nil;
   SaveStream.Write(HasTask, 4);
+  //todo: write TaskType to know which one to load later on
   if HasTask then fUnitTask.Save(SaveStream);
 
   HasAct := fCurrentAction <> nil;
   SaveStream.Write(HasAct, 4);
+  //todo: write ActType to know which one to load later on
   if HasAct then fCurrentAction.Save(SaveStream);
 
   SaveStream.Write(fThought, 4);

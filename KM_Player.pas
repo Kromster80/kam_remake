@@ -362,7 +362,7 @@ begin
     fHouses.Save(SaveStream);
     fDeliverList.Save(SaveStream);
     fBuildList.Save(SaveStream);
-    {fMissionSettings.Save(SaveStream);} //todo: save
+    fMissionSettings.Save(SaveStream);
     SaveStream.Write(PlayerID,4);
     SaveStream.Write(PlayerType,4);
 end;
