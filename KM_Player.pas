@@ -360,8 +360,8 @@ procedure TKMPlayerAssets.Save(SaveStream:TMemoryStream);
 begin
     fUnits.Save(SaveStream);
     fHouses.Save(SaveStream);
-    {fDeliverList.Save(SaveStream);} //todo: save
-    {fBuildList.Save(SaveStream);} //todo: save
+    fDeliverList.Save(SaveStream);
+    fBuildList.Save(SaveStream);
     {fMissionSettings.Save(SaveStream);} //todo: save
     SaveStream.Write(PlayerID,4);
     SaveStream.Write(PlayerType,4);
@@ -370,7 +370,7 @@ end;
 
 procedure TKMPlayerAssets.Load;
 begin
-
+  //todo: load
 end;
 
 

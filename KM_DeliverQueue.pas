@@ -1,13 +1,13 @@
 unit KM_DeliverQueue;
 interface
-uses Windows, Math, Classes, SysUtils, KromUtils, OpenGL, dglOpenGL, KromOGLUtils, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
+uses Windows, Math, Classes, SysUtils, KromUtils, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
 
   type TJobStatus = (js_Empty, js_Open, js_Taken);
   //Empty - empty spot for a new job
   //Open - job is free to take by anyone
   //Taken - job is taken by some worker
   type TDemandImportance = (di_Norm, di_High);
-  const MaxEntries=1024;
+  const MaxEntries=1024; //todo: replace with dynamic length list
 
 type
   TKMDeliverQueue = class
@@ -104,7 +104,7 @@ type
     function  AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHouseRepair(aID:integer);
     procedure RemoveHouseRepair(aHouse: TKMHouse);
-    //procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TMemoryStream);
   end;
 
 implementation
@@ -390,17 +390,39 @@ begin
 end;
 
 
-//Job successfully done and we ommit it.
 procedure TKMDeliverQueue.Save(SaveStream:TMemoryStream);
-var i,Count,ItemSize:integer;
+var i,Count:integer;
 begin
   Count := length(fOffer);
   SaveStream.Write(Count,4);
-  ItemSize := SizeOf(fOffer[1]);
-  SaveStream.Write(ItemSize,4);
   for i:=1 to Count do
-  SaveStream.Write(fOffer[i],ItemSize);
-  //
+  begin
+    SaveStream.Write(fOffer[i].Resource,4);
+    SaveStream.Write(fOffer[i].Count,4);
+    if fOffer[i].Loc_House <> nil then SaveStream.Write(fOffer[i].Loc_House.ID,4) else SaveStream.Write(Zero,4);
+    SaveStream.Write(fOffer[i].BeingPerformed,4);
+  end;
+
+  Count := length(fDemand);
+  SaveStream.Write(Count,4);
+  for i:=1 to Count do
+  begin
+    SaveStream.Write(fDemand[i].Resource,4);
+    SaveStream.Write(fDemand[i].DemandType,4);
+    SaveStream.Write(fDemand[i].Importance,4);
+    if fDemand[i].Loc_House <> nil then SaveStream.Write(fDemand[i].Loc_House.ID,4) else SaveStream.Write(Zero,4);
+    if fDemand[i].Loc_Unit  <> nil then SaveStream.Write(fDemand[i].Loc_Unit.ID ,4) else SaveStream.Write(Zero,4);
+    SaveStream.Write(fDemand[i].BeingPerformed,4);
+  end;
+
+  Count := length(fQueue);
+  SaveStream.Write(Count,4);
+  for i:=1 to Count do
+  begin
+    SaveStream.Write(fQueue[i].OfferID,4);
+    SaveStream.Write(fQueue[i].DemandID,4);
+    SaveStream.Write(fQueue[i].JobStatus,4);
+  end;
 end;
 
 
@@ -666,11 +688,52 @@ begin
       if fHousesRepairQueue[i].House.IsDamaged then
         if fHousesRepairQueue[i].House.BuildingRepair then
         begin
-          Result :=TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
+          Result := TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
           exit;
         end
 end;
 
+
+procedure TKMBuildingQueue.Save(SaveStream:TMemoryStream);
+var i,Count:integer;
+begin
+  Count := length(fFieldsQueue);
+  SaveStream.Write(Count,4);
+  for i:=1 to Count do
+  begin
+    SaveStream.Write(fFieldsQueue[i].Loc,4);
+    SaveStream.Write(fFieldsQueue[i].FieldType,4);
+    SaveStream.Write(fFieldsQueue[i].Importance,4);
+    SaveStream.Write(fFieldsQueue[i].JobStatus,4);
+    if fFieldsQueue[i].Worker <> nil then SaveStream.Write(fFieldsQueue[i].Worker.ID,4) else SaveStream.Write(Zero,4);
+  end;
+
+  Count := length(fHousesQueue);
+  SaveStream.Write(Count,4);
+  for i:=1 to Count do
+  begin
+    if fHousesQueue[i].House <> nil then SaveStream.Write(fHousesQueue[i].House.ID,4) else SaveStream.Write(Zero,4);
+    SaveStream.Write(fHousesQueue[i].Importance,4);
+  end;
+
+  Count := length(fHousePlansQueue);
+  SaveStream.Write(Count,4);
+  for i:=1 to Count do
+  begin
+    if fHousePlansQueue[i].House <> nil then SaveStream.Write(fHousePlansQueue[i].House.ID,4) else SaveStream.Write(Zero,4);
+    SaveStream.Write(fHousePlansQueue[i].Importance,4);
+    SaveStream.Write(fHousePlansQueue[i].JobStatus,4);
+    if fHousePlansQueue[i].Worker <> nil then SaveStream.Write(fHousePlansQueue[i].Worker.ID,4) else SaveStream.Write(Zero,4);
+  end;
+
+  Count := length(fHousesRepairQueue);
+  SaveStream.Write(Count,4);
+  for i:=1 to Count do
+  begin
+    if fHousesRepairQueue[i].House <> nil then SaveStream.Write(fHousesRepairQueue[i].House.ID,4) else SaveStream.Write(Zero,4);
+    SaveStream.Write(fHousesRepairQueue[i].Importance,4);
+  end;
+end;
 
 
 
