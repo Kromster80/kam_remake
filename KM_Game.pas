@@ -649,7 +649,7 @@ begin
 
       fPlayers.SyncLoad(); //todo: Should parse all Unit-House ID references and replace them with actual pointers
     end;
-    gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
+    gsEditor:   exit;
     gsPaused:   exit;
     gsRunning:  exit; //@All: StopGame before loading new one
   end;

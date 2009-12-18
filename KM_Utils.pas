@@ -1,10 +1,10 @@
 unit KM_Utils;
 interface
-uses KromUtils, sysUtils, KM_Defaults, Math;
+uses KromUtils, SysUtils, KM_Defaults, Math;
 
 type
   TKMPoint = record X,Y:word; end;
-  TKMPointDir = record X,Y,Dir:word; end;
+  TKMPointDir = record Loc:TKMPoint; Dir:word; end;
   TKMPointF = record X,Y:single; end;
 
   function KMPoint(X, Y: word): TKMPoint; overload
@@ -58,8 +58,7 @@ end;
 
 function KMPoint(P: TKMPointDir): TKMPoint;
 begin
-  Result.X := P.X;
-  Result.Y := P.Y;
+
 end;
 
 function KMPointF(X, Y: single): TKMPointF;
@@ -70,8 +69,7 @@ end;
 
 function KMPointDir(X, Y, Dir: word): TKMPointDir;
 begin
-  Result.X := X;
-  Result.Y := Y;  
+  Result.Loc := KMPoint(X,Y);
   Result.Dir := Dir;
 end;
 
@@ -111,7 +109,7 @@ end;
 
 function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 begin
-  Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y ) and ( P1.Dir = P2.Dir );
+  Result := ( P1.Loc.X = P2.Loc.X ) and ( P1.Loc.Y = P2.Loc.Y ) and ( P1.Dir = P2.Dir );
 end;
 
 
@@ -136,8 +134,8 @@ const XYBitfield: array [0..8]of array [1..2]of shortint =
         ((0,0),(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)); //N/A, N, NE, E, SE, S, SW, W, NW
 begin
   Result.Dir := aPos.Dir;
-  Result.X := aPos.X + XYBitfield[shortint(aPos.Dir+1),1]; //+1 to dir because it is 0..7 not 0..8 like TKMDirection is
-  Result.Y := aPos.Y + XYBitfield[shortint(aPos.Dir+1),2];
+  Result.Loc.X := aPos.Loc.X + XYBitfield[shortint(aPos.Dir+1),1]; //+1 to dir because it is 0..7 not 0..8 like TKMDirection is
+  Result.Loc.Y := aPos.Loc.Y + XYBitfield[shortint(aPos.Dir+1),2];
 end;
 
 

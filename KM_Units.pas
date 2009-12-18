@@ -1,8 +1,8 @@
 unit KM_Units;
 interface
 uses
-  KM_Defaults, windows, math, classes, OpenGL, dglOpenGL, KromOGLUtils, KM_Terrain,
-  KM_Houses, KromUtils, SysUtils, MMSystem, KM_Units_WorkPlan, KM_CommonTypes, KM_Utils;
+  Classes, Math, MMSystem, SysUtils, KromUtils, Windows,
+  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Terrain, KM_Units_WorkPlan;
 
 type
   TKMUnit = class;
@@ -14,6 +14,7 @@ type
   TUnitAction = class(TObject)
   private
     fActionType: TUnitActionType;
+  protected
     IsStepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
   public
     constructor Create(aActionType: TUnitActionType);
@@ -29,22 +30,6 @@ type
         fWalkTo:TKMPoint;
       public
         constructor Create(LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
-        procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
-        procedure Save(SaveStream:TMemoryStream); override;
-      end;
-
-      {Stay in place for set time}
-      TUnitActionStay = class(TUnitAction)
-      private
-        StayStill:boolean;
-        TimeToStay:integer;
-        StillFrame:byte;
-        ActionType:TUnitActionType;
-      public
-        Locked: boolean;
-        constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0; const aLocked:boolean=false);
-        function HowLongLeftToStay():integer;
-        procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TMemoryStream); override;
       end;
@@ -148,10 +133,7 @@ type
       TaskID:integer;
       LocCount:byte; //Count for locations around the house from where worker can build
       CurLoc:byte; //Current WIP location
-      Cells:array[1..4*4]of record //todo: Replace with TKMPointDir list
-        Loc:TKMPoint; //List of surrounding cells and directions
-        Dir:TKMDirection;
-      end;
+      Cells:array[1..4*4]of TKMPointDir; //List of surrounding cells and directions
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       destructor Destroy; override;
@@ -166,10 +148,7 @@ type
       TaskID:integer;
       LocCount:byte; //Count for locations around the house from where worker can build
       CurLoc:byte; //Current WIP location
-      Cells:array[1..4*4]of record //todo: Replace with TKMPointDir list
-        Loc:TKMPoint; //List of surrounding cells and directions
-        Dir:TKMDirection;
-      end;
+      Cells:array[1..4*4]of TKMPointDir; //List of surrounding cells and directions
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       destructor Destroy; override;
@@ -379,8 +358,8 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game,
-KM_ResourceGFX, KM_UnitActionWalkTo, KM_UnitActionGoInOut, KM_LoadLib;
+uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_LoadLib, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game,
+KM_ResourceGFX, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo;
 
 
 { TKMUnitCitizen }
@@ -2127,7 +2106,7 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
     if not fTerrain.CheckPassability(KMPoint(X,Y),canWalk) then exit;
     inc(LocCount);
     Cells[LocCount].Loc:=KMPoint(X,Y);
-    Cells[LocCount].Dir:=Dir;
+    Cells[LocCount].Dir:=byte(Dir);
   end;
 begin
   Inherited Create(aWorker);
@@ -2210,12 +2189,12 @@ begin
            SetActionWalk(fUnit,Cells[CurLoc].Loc);
          end;
       1: begin
-           Direction:=Cells[CurLoc].Dir;
+           Direction:=TKMDirection(Cells[CurLoc].Dir);
            SetActionLockedStay(0,ua_Walk);
          end;
       2: begin
            SetActionStay(5,ua_Work,false,0,0); //Start animation
-           Direction:=Cells[CurLoc].Dir;
+           Direction:=TKMDirection(Cells[CurLoc].Dir);
            if fHouse.IsStone then fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, fOwner); //Remove house plan when we start the stone phase (it is still required for wood)
          end;
       3: begin
@@ -2271,7 +2250,7 @@ constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse;
   begin
     inc(LocCount);
     Cells[LocCount].Loc:=KMPoint(X,Y);
-    Cells[LocCount].Dir:=Dir;
+    Cells[LocCount].Dir:=byte(Dir);
   end;
 begin
   Inherited Create(aWorker);
@@ -2316,12 +2295,12 @@ begin
            SetActionWalk(fUnit,Cells[CurLoc].Loc);
          end;
       1: begin
-           Direction:=Cells[CurLoc].Dir;
+           Direction:=TKMDirection(Cells[CurLoc].Dir);
            SetActionLockedStay(0,ua_Walk);
          end;
       2: begin
            SetActionStay(5,ua_Work,false,0,0); //Start animation
-           Direction:=Cells[CurLoc].Dir;
+           Direction:=TKMDirection(Cells[CurLoc].Dir);
          end;
       3: begin
            if (fCondition<UNIT_MIN_CONDITION) and CanGoEat then begin
@@ -2858,86 +2837,6 @@ procedure TUnitActionAbandonWalk.Save(SaveStream:TMemoryStream);
 begin
   inherited;
   SaveStream.Write(fWalkTo,4);
-end;
-
-
-{ TUnitActionStay }
-constructor TUnitActionStay.Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0; const aLocked:boolean=false);
-begin
-  Inherited Create(aActionType);
-  StayStill:=aStayStill;
-  TimeToStay:=aTimeToStay;
-  ActionType:=aActionType;
-  StillFrame:=aStillFrame;
-  Locked := aLocked;
-end;
-
-
-//If someone whats to know how much time unit has to stay
-function TUnitActionStay.HowLongLeftToStay():integer;
-begin
-  Result:=EnsureRange(TimeToStay,0,maxint);
-end;
-
-
-procedure TUnitActionStay.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
-begin
-  //Do not play sounds if unit is invisible to MyPlayer
-  if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
-
-  case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
-    ut_Worker: case ActionType of
-                 ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
-                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
-                 ua_Work2: if Step = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
-               end;
-    ut_Farmer: case ActionType of
-                 ua_Work:  if Step = 8 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
-                 ua_Work1: if Step = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true,0.8);
-               end;
-    ut_StoneCutter: if ActionType = ua_Work then
-                           if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
-    ut_WoodCutter: case ActionType of
-                     ua_Work: if (KMUnit.AnimStep mod Cycle = 5) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true)
-                     else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
-                   end;
-  end;
-end;
-
-
-procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
-var Cycle,Step:byte;
-begin
-  if not StayStill then begin 
-
-    Cycle:=max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
-    Step:=KMUnit.AnimStep mod Cycle;
-
-    IsStepDone:=KMUnit.AnimStep mod Cycle = 0;
-
-    if TimeToStay >= 1 then MakeSound(KMUnit, Cycle, Step);
-
-    inc(KMUnit.AnimStep);
-  end
-  else
-  begin
-    KMUnit.AnimStep:=StillFrame;
-    IsStepDone:=true;
-  end;
-
-  dec(TimeToStay);
-  DoEnd := TimeToStay<=0;
-end;
-
-
-procedure TUnitActionStay.Save(SaveStream:TMemoryStream);
-begin
-  inherited;
-  SaveStream.Write(StayStill,4);
-  SaveStream.Write(TimeToStay,4);
-  SaveStream.Write(StillFrame,4);
-  SaveStream.Write(ActionType,4);
-  SaveStream.Write(Locked,4);
 end;
 
 

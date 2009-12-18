@@ -1,6 +1,6 @@
 unit KM_Units_WorkPlan;
 interface
-uses classes, KM_Defaults, KromUtils, KM_Terrain, KM_Utils;
+uses Classes, KromUtils, KM_Defaults, KM_Terrain, KM_Utils;
 
 type
   TUnitWorkPlan = class
@@ -362,7 +362,7 @@ end else
 
 if (aUnitType=ut_Fisher)and(aHome=ht_FisherHut) then begin
   TempLocDir := fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN);
-  if TempLocDir.X<>0 then begin
+  if TempLocDir.Loc.X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
     WalkStyle(KMPoint(TempLocDir),ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch,TempLocDir.Dir);
   end else

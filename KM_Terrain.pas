@@ -1,6 +1,7 @@
 unit KM_Terrain;
 interface
-uses Controls, Classes, StdCtrls, Math, KM_Defaults, KromUtils, SysUtils, KM_CommonTypes, KM_Utils;
+uses Classes, KromUtils, Math, SysUtils,
+     KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxMapSize=192;
 
@@ -164,7 +165,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding, KM_Units;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding, KM_Units, KM_UnitActionStay;
 
 constructor TTerrain.Create;
 begin
@@ -782,7 +783,7 @@ var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
   aPosition := KMGetCoord(aPosition);
-  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3],not TestOnly);
+  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Loc.Y,aPosition.Loc.X].WalkConnect[3],not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
@@ -1657,7 +1658,10 @@ begin
   FallingTrees.Load(LoadStream);
   LoadStream.Read(AnimStep,4);
 
-  //todo: Recompute all deduced fields
+  RebuildLighting(1,MapX,1,MapY);
+  RebuildPassability(1,MapX,1,MapY);
+  RebuildWalkConnect(canWalk);
+  RebuildWalkConnect(canFish);
 end;
 
 
