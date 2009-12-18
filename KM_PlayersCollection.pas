@@ -188,7 +188,7 @@ begin
     {Player[i].Load(LoadStream);} //todo: Load
     {PlayerAI[i].Load(LoadStream);} //todo: Load
   end;
-  {PlayerAnimals.Load(LoadStream);} //todo: Load
+  PlayerAnimals.Load(LoadStream);
 end;
 
 

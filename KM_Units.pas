@@ -45,6 +45,7 @@ type
     procedure Abandon; virtual;
     procedure Execute(out TaskDone:boolean); virtual; abstract;
     procedure Save(SaveStream:TMemoryStream); virtual;
+    procedure Load(LoadStream:TMemoryStream); virtual;
   end;
 
     TTaskSelfTrain = class(TUnitTask)
@@ -206,6 +207,7 @@ type
   TKMUnit = class(TObject) //todo: actions should return enum result
   private
     fUnitType: TUnitType;
+    fTaskType:TUnitTaskType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
     fThought:TUnitThought;
@@ -274,6 +276,7 @@ type
     procedure UpdateVisibility();
   public
     procedure Save(SaveStream:TMemoryStream); virtual;
+    //procedure Load(LoadStream:TMemoryStream); virtual;
     function UpdateState():boolean; virtual;
     procedure Paint; virtual;
   end;
@@ -353,6 +356,7 @@ type
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     function GetTotalPointers: integer;
     procedure Save(SaveStream:TMemoryStream);
+    procedure Load(LoadStream:TMemoryStream);
     procedure UpdateState;
     procedure Paint();
   end;
@@ -1427,6 +1431,7 @@ begin
   Inherited Destroy;
 end;
 
+
 procedure TUnitTask.Abandon;
 begin
   //Shortcut to abandon and declare task done
@@ -1436,6 +1441,7 @@ begin
   fPhase:=MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2:=MAXBYTE-1;
 end;
+
 
 procedure TUnitTask.Save(SaveStream:TMemoryStream);
 begin
@@ -1447,6 +1453,15 @@ begin
   SaveStream.Write(fPhase2,4);
 end;
 
+
+procedure TUnitTask.Load(LoadStream:TMemoryStream);
+begin
+  LoadStream.Read(fUnit,4);//Substitute it with reference on SyncLoad
+  LoadStream.Read(fPhase,4);
+  LoadStream.Read(fPhase2,4);
+end;
+
+
 { TTaskSelfTrain }
 {Train itself in school}
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
@@ -1457,11 +1472,13 @@ begin
   fUnit.SetActionStay(0,ua_Walk);
 end;
 
+
 destructor TTaskSelfTrain.Destroy;
 begin
   if fSchool <> nil then fSchool.RemovePointer;
   Inherited Destroy;
 end;
+
 
 procedure TTaskSelfTrain.Abandon();
 var TempUnit: TKMUnit;
@@ -2966,7 +2983,27 @@ begin
   SaveStream.Write('Units',5);
   SaveStream.Write(Count,4);
   for i := 0 to Count - 1 do
+  begin
+    SaveStream.Write(TKMUnit(Items[i]).GetUnitType,4);
     TKMUnit(Items[i]).Save(SaveStream);
+  end;
+end;
+
+
+procedure TKMUnitsCollection.Load(LoadStream:TMemoryStream);
+var i,UnitCount:integer; c:array[1..64]of char; UnitType:TUnitType;
+begin
+  LoadStream.Read(c,5); //if s <> 'Units' then exit;
+  LoadStream.Read(UnitCount,4);
+  for i := 0 to UnitCount - 1 do
+  begin
+    LoadStream.Read(UnitType,4);
+    case UnitType of
+      //todo: ut-dependant unit creation without altering fTerrain! 
+      ut_Serf: {Inherited Add(TKMUnitSerf.Create(aOwner, PosX, PosY, aUnitType))};
+    else fLog.AssertToLog(false, 'Uknown unit type in Savegame')
+    end;
+  end;
 end;
 
 
@@ -2975,17 +3012,14 @@ var
   I, ID: Integer;
   IDsToDelete: array of integer;
 begin
-  //if Count>10 then fLog.AddToLog('Tick'); //@LEwin - thats debug string
+  //if Count>10 then fLog.AddToLog('Tick'); //@Lewin - thats debug string
   ID := 0;
   for I := 0 to Count - 1 do
   if not TKMUnit(Items[I]).IsDead then
     TKMUnit(Items[I]).UpdateState
   else //Else try to destroy the unit object if all pointers are freed
-    if (Items[I] <> nil) and FREE_POINTERS and (TKMUnit(Items[I]).GetPointerCount = 0) then //@Lewin: Should it be TKMUnit instead? @Krom: That's what you get for using copy and paste :D To be deleted.
-    begin                                                              //@Lewin: in TPR mission7 map it gives invalid pointer operation here
-                                                                       //@Krom: Fixed. It was caused by animals at invalid places who all killed themselves on the first tick. This meant that more than one unit had to be freed,
-                                                                       //       and, believe it or not, that has never happened before as it causes a crash due to some rather stupid coding on my part. (deleting entries from the
-                                                                       //       begining of the list changed the order so the other IDs were invalid. Starting from the end of the list fixed it) I also fixed it for houses. To be deleted.
+    if (Items[I] <> nil) and FREE_POINTERS and (TKMUnit(Items[I]).GetPointerCount = 0) then
+    begin
       TKMUnit(Items[I]).Free; //Because no one needs this anymore it must DIE!!!!! :D
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;

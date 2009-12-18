@@ -269,7 +269,13 @@ const //Corresponding indices in units.rx
   ThoughtBounds:array[1..7,1..2] of word = (
   (6250,6257),(6258,6265),(6266,6273),(6274,6281),(6282,6289),(6290,6297),(6298,6305)
   );
-      
+
+type
+  TUnitTaskType = (
+        utt_SelfTrain,  utt_Deliver, utt_BuildRoad, utt_BuildWine, utt_BuildField,
+        utt_BuildWall,  utt_BuildHouseArea, utt_BuildHouse, utt_BuildHouseRepair, utt_GoHome,
+        utt_GoEat, utt_Mining, utt_Die, utt_GoOutShowHungry);
+
 type
   TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,
                      ua_Work2=6, ua_WorkEnd=7, ua_Eat=8, ua_WalkArm=9, ua_WalkTool=10,

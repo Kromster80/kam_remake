@@ -74,6 +74,7 @@ type
     function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
   public
     procedure Save(SaveStream:TMemoryStream);
+    procedure Load(LoadStream:TMemoryStream);
     procedure UpdateState;
     procedure Paint;
   end;
@@ -393,6 +394,14 @@ procedure TKMPlayerAnimals.Save(SaveStream:TMemoryStream);
 begin
   SaveStream.Write('Animals',7);
   fUnits.Save(SaveStream);
+end;
+
+
+procedure TKMPlayerAnimals.Load(LoadStream:TMemoryStream);
+var c:array[1..64]of char;
+begin
+  LoadStream.Read(c,7); //if s <> 'Animals' then exit;
+  fUnits.Load(LoadStream);
 end;
 
 
