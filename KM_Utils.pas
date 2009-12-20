@@ -58,7 +58,7 @@ end;
 
 function KMPoint(P: TKMPointDir): TKMPoint;
 begin
-
+  Result := P.Loc;
 end;
 
 function KMPointF(X, Y: single): TKMPointF;

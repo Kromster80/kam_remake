@@ -383,21 +383,16 @@ begin
   //TO BE ADDED:
   if fInteractionCount >= AVOID_TIMEOUT then
   begin
-    {//If the blockage won't go away because it's busy (not walking) then try going around it by re-routing our route and avoiding that tile
-    if (fOpponent.GetUnitAction is TUnitActionWalkTo) then
-    if KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Target position is occupied by another unit
+    //If the blockage won't go away because it's busy (not walking) then try going around it by re-routing our route and avoiding that tile
+    if not (fOpponent.GetUnitAction is TUnitActionWalkTo) then
+    if not KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Not the target position (can't go around if it is)
       begin
-        Explanation := 'Target position is occupied by another Unit, can''t do nothing about it but wait. '+inttostr(random(123));
-        Result := false;
-        exit;
-      end else
-      begin //This is not our target, so we can walk around
-        //StartWalkingAround
-        Explanation := 'Unit on the way is doing something and can''t be forced to go away';
+        //Start walking around
+        Explanation := 'Unit in the way is working so we will go around it';
         fWalker.SetActionWalk(fWalker,fWalkTo,NodeList.List[NodePos+1],GetActionType,fWalkToSpot);
         Result := false; //Keep 'false' for the matter of Execute cycle still running
         exit;
-      end;}
+      end;
   end;
 
 

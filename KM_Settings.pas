@@ -328,7 +328,7 @@ end;
 
 function TMissionSettings.GetRatio(aRes:TResourceType; aHouse:THouseType):byte;
 begin
-  Result:=0;
+  Result:=5; //Default should be 5, for house/resource combinations that don't have a setting (on a side note this should be the only place the resourse limit is defined)
   case aRes of
     rt_Steel: if aHouse=ht_WeaponSmithy   then Result:=ResourceRatios[1,1] else
               if aHouse=ht_ArmorSmithy    then Result:=ResourceRatios[1,2];
@@ -341,7 +341,6 @@ begin
     rt_Corn:  if aHouse=ht_Mill           then Result:=ResourceRatios[4,1] else
               if aHouse=ht_Swine          then Result:=ResourceRatios[4,2] else
               if aHouse=ht_Stables        then Result:=ResourceRatios[4,3];
-    else fLog.AssertToLog(false,'Unexpected resource at GetRatio');
   end;
 end;
 

@@ -44,6 +44,7 @@ type
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
     fResourceIn:array[1..4] of byte; //Resource count in input
+    fResourceDeliveryCount:array[1..4] of byte; //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut:array[1..4]of byte; //Resource count in output
 
     fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
@@ -59,6 +60,7 @@ type
     procedure SetWareDelivery(AVal:boolean);
 
     procedure MakeSound();
+    function GetResDistribution(aID:byte):byte; //Will use GetRatio from mission settings to find distribution amount
   public
     ID:integer; //unique ID, used for save/load to sync to
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
@@ -215,6 +217,7 @@ uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersColle
 
 { TKMHouse }
 constructor TKMHouse.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
+var i: byte;
 begin
   Inherited Create;
   fPosition.X:= PosX;
@@ -230,10 +233,11 @@ begin
   fBuildingRepair:=false; //Repair mode off by default
   fRepairID:=0;
   fWareDelivery:=true;
-  fResourceOrder[1]:=0;
-  fResourceOrder[2]:=0;
-  fResourceOrder[3]:=0;
-  fResourceOrder[4]:=0;
+  for i:=1 to 4 do
+  begin
+    fResourceDeliveryCount[i] := 0;
+    fResourceOrder[i]:=0;
+  end;
   fIsDestroyed:=false;
   ID := fGame.GetNewID;
   ResourceDepletedMsgIssued := false;
@@ -296,7 +300,11 @@ begin
       rt_None:    ;
       rt_Warfare: AddNewDemand(Self, nil, Res, 1, dt_Always, di_Norm);
       rt_All:     AddNewDemand(Self, nil, Res, 1, dt_Always, di_Norm);
-      else        AddNewDemand(Self, nil, Res, 5, dt_Once,   di_Norm); //Every new house needs 5 resourceunits
+      else
+      begin
+        AddNewDemand(Self, nil, Res, GetResDistribution(i), dt_Once,   di_Norm); //Every new house needs 5 resourceunits
+        inc(fResourceDeliveryCount[i],GetResDistribution(i)); //Keep track of how many resources we have on order (for distribution of wares)
+      end;
     end;
   end;
 
@@ -559,7 +567,7 @@ end;
 
 
 function TKMHouse.ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
-var i:integer;
+var i,k:integer;
 begin
 Result:=false;
 if aResource=rt_None then exit;
@@ -567,7 +575,14 @@ if aResource=rt_None then exit;
   if aResource = HouseInput[byte(fHouseType),i] then begin
     fLog.AssertToLog(fResourceIn[i]>=aCount,'fResourceIn[i]>0');
     dec(fResourceIn[i],aCount);
-    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,aCount,dt_Once,di_Norm);
+    dec(fResourceDeliveryCount[i]);
+    //Only request a new resource if it is allowed by the distribution of wares for our parent player
+    for k:=1 to aCount do
+      if fResourceDeliveryCount[i] < GetResDistribution(i) then
+      begin
+        fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,aResource,1,dt_Once,di_Norm);
+        inc(fResourceDeliveryCount[i]);
+      end;
     Result:=true;
   end;
 end;
@@ -605,6 +620,12 @@ end;
 procedure TKMHouse.ResRemOrder(ID:byte; const Amount:byte=1);
 begin
   fResourceOrder[ID]:=EnsureRange(fResourceOrder[ID]-Amount,0,MAX_ORDER);
+end;
+
+
+function TKMHouse.GetResDistribution(aID:byte):byte;
+begin
+  Result := fPlayers.Player[byte(fOwner)].fMissionSettings.GetRatio(HouseInput[byte(fHouseType),aID],fHouseType);
 end;
 
 
@@ -701,12 +722,24 @@ end;
 
 
 procedure TKMHouse.UpdateState;
+var i: byte;
 begin
   if fBuildState<>hbs_Done then exit;
 
   fLastUpdateTime := TimeGetTime;
 
   if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
+
+  //@Krom: This is probably quite inefficient for UpdateState. What's your opinion? Should we only do this when they modify the distribution settigns?
+  //Request more resources (if distribution of wares has changed)
+  for i:=1 to 4 do
+    if fResourceDeliveryCount[i] < GetResDistribution(i) then
+    begin
+      fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],
+             GetResDistribution(i)-fResourceDeliveryCount[i] ,dt_Once,di_Norm);
+
+      inc(fResourceDeliveryCount[i],GetResDistribution(i)-fResourceDeliveryCount[i]);
+    end;
 
   //Show unoccupied message if needed and house belongs to human player
   if (not fHasOwner) and (fOwner = MyPlayer.PlayerID) then

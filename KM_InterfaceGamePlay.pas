@@ -3,6 +3,10 @@ interface
 uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, Windows,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT, KM_CommonTypes, KM_Utils;
 
+
+//@Krom: Don't forget to save/load the message stack ;)
+//       Also, I think we should highlight the selected message, (make it brighter or something) so that people know which one they have open.
+
 type TKMGamePlayInterface = class
   protected
     ToolBarX:word;
@@ -642,7 +646,7 @@ begin
     KMRatio_RatioRat[i]:=MyControls.AddRatioRow(KMPanel_Ratios,48,136+(i-1)*50,140,20,0,5);
     KMRatio_RatioRat[i].Tag:=i;
     KMRatio_RatioRat[i].OnChange:=RatiosChange;
-    KMRatio_RatioRat[i].Disable;
+    //KMRatio_RatioRat[i].Disable;
   end;
 end;
 
