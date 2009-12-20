@@ -46,7 +46,6 @@ type
     fResourceIn:array[1..4] of byte; //Resource count in input
     fResourceDeliveryCount:array[1..4] of byte; //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut:array[1..4]of byte; //Resource count in output
-
     fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
 
     fLastUpdateTime: cardinal;
@@ -220,33 +219,42 @@ constructor TKMHouse.Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPl
 var i: byte;
 begin
   Inherited Create;
-  fPosition.X:= PosX;
-  fPosition.Y:= PosY;
-  fHouseType:=aHouseType;
-  fBuildState:=aBuildState;
-  fOwner:=aOwner;
-  fBuildSupplyWood:=0;
-  fBuildSupplyStone:=0;
-  fBuildingProgress:=0;
-  fDamage:=0;
-  fHasOwner:=false;
-  fBuildingRepair:=false; //Repair mode off by default
-  fRepairID:=0;
-  fWareDelivery:=true;
+  fPosition   := KMPoint (PosX, PosY);
+  fHouseType  := aHouseType;
+  fBuildState := aBuildState;
+  fOwner      := aOwner;
+
+  fBuildSupplyWood  := 0;
+  fBuildSupplyStone := 0;
+  fBuildReserve     := 0;
+  fBuildingProgress := 0;
+  fDamage           := 0; //Undamaged yet
+
+  fHasOwner         := false;
+  fBuildingRepair   := false; //Repair mode off by default
+  fRepairID         := 0;
+  fWareDelivery     := true;
+
   for i:=1 to 4 do
   begin
+    fResourceIn[i]  := 0;
     fResourceDeliveryCount[i] := 0;
+    fResourceOut[i] := 0;
     fResourceOrder[i]:=0;
   end;
-  fIsDestroyed:=false;
-  ID := fGame.GetNewID;
+
+  fIsDestroyed      := false;
+  RemoveRoadWhenDemolish := fTerrain.Land[GetEntrance.Y, GetEntrance.X].TileOverlay <> to_Road;
+  fPointerCount     := 0;
+  fTimeSinceUnoccupiedReminder   := TIME_BETWEEN_MESSAGES;
+
+  ID    := fGame.GetNewID;
   ResourceDepletedMsgIssued := false;
 
-  RemoveRoadWhenDemolish := fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay <> to_Road;
-
-  if aBuildState=hbs_Done then begin //House was placed on map already Built e.g. in mission maker
+  if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
+  begin 
     Self.Activate(false);
-    fBuildingProgress:=HouseDAT[byte(fHouseType)].MaxHealth;
+    fBuildingProgress := HouseDAT[byte(fHouseType)].MaxHealth;
     fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner); //Sets passability
   end else
     fTerrain.SetHouse(fPosition, fHouseType, hs_Plan, play_None); //Terrain remains neutral yet
@@ -741,8 +749,8 @@ begin
       inc(fResourceDeliveryCount[i],GetResDistribution(i)-fResourceDeliveryCount[i]);
     end;
 
-  //Show unoccupied message if needed and house belongs to human player
-  if (not fHasOwner) and (fOwner = MyPlayer.PlayerID) then
+  //Show unoccupied message if needed and house belongs to human player and can have owner at all
+  if (not fHasOwner) and (fOwner = MyPlayer.PlayerID) and (HouseDAT[byte(GetHouseType)].OwnerType<>-1) then
   begin
     dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
@@ -751,7 +759,8 @@ begin
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end
-  else fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES;
+  else
+    fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES;
 
   MakeSound(); //Make some sound/noise along the work
 

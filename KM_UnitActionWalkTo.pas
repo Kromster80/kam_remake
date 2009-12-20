@@ -383,7 +383,7 @@ begin
   //TO BE ADDED:
   if fInteractionCount >= AVOID_TIMEOUT then
   begin
-    //If the blockage won't go away because it's busy (not walking) then try going around it by re-routing our route and avoiding that tile
+    {//If the blockage won't go away because it's busy (not walking) then try going around it by re-routing our route and avoiding that tile
     if not (fOpponent.GetUnitAction is TUnitActionWalkTo) then
     if not KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Not the target position (can't go around if it is)
       begin
@@ -392,7 +392,7 @@ begin
         fWalker.SetActionWalk(fWalker,fWalkTo,NodeList.List[NodePos+1],GetActionType,fWalkToSpot);
         Result := false; //Keep 'false' for the matter of Execute cycle still running
         exit;
-      end;
+      end;} //@Lewin: it has a bug, please look into it
   end;
 
 
