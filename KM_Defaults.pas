@@ -271,7 +271,7 @@ const //Corresponding indices in units.rx
   );
 
 type
-  TUnitTaskType = (
+  TUnitTaskType = ( utt_Unknown=0, //Uninitialized task to detect bugs
         utt_SelfTrain,  utt_Deliver, utt_BuildRoad, utt_BuildWine, utt_BuildField,
         utt_BuildWall,  utt_BuildHouseArea, utt_BuildHouse, utt_BuildHouseRepair, utt_GoHome,
         utt_GoEat, utt_Mining, utt_Die, utt_GoOutShowHungry);
