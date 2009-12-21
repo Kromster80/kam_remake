@@ -1,11 +1,10 @@
 unit KM_UnitActionStay;
 interface
-uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math;
-
+uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Units, SysUtils, Math;
 
 {Stay in place for set time}
 type
-  TUnitActionStay = class(TUnitAction)
+TUnitActionStay = class(TUnitAction)
   private
     StayStill:boolean;
     TimeToStay:integer;
@@ -22,25 +21,25 @@ type
 
 
 implementation
-uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionWalkTo, KM_SoundFX;
+uses KM_PlayersCollection, KM_Terrain, KM_UnitActionWalkTo, KM_SoundFX;
 
 
 { TUnitActionStay }
 constructor TUnitActionStay.Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0; const aLocked:boolean=false);
 begin
   Inherited Create(aActionType);
-  StayStill:=aStayStill;
-  TimeToStay:=aTimeToStay;
-  ActionType:=aActionType;
-  StillFrame:=aStillFrame;
-  Locked := aLocked;
+  StayStill  := aStayStill;
+  TimeToStay := aTimeToStay;
+  ActionType := aActionType;
+  StillFrame := aStillFrame;
+  Locked     := aLocked;
 end;
 
 
 //If someone whats to know how much time unit has to stay
 function TUnitActionStay.HowLongLeftToStay():integer;
 begin
-  Result:=EnsureRange(TimeToStay,0,maxint);
+  Result := EnsureRange(TimeToStay, 0, maxint);
 end;
 
 
@@ -72,12 +71,12 @@ end;
 procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
 var Cycle,Step:byte;
 begin
-  if not StayStill then begin 
+  if not StayStill then
+  begin
+    Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+    Step  := KMUnit.AnimStep mod Cycle;
 
-    Cycle:=max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
-    Step:=KMUnit.AnimStep mod Cycle;
-
-    IsStepDone:=KMUnit.AnimStep mod Cycle = 0;
+    IsStepDone := KMUnit.AnimStep mod Cycle = 0;
 
     if TimeToStay >= 1 then MakeSound(KMUnit, Cycle, Step);
 
@@ -85,8 +84,8 @@ begin
   end
   else
   begin
-    KMUnit.AnimStep:=StillFrame;
-    IsStepDone:=true;
+    KMUnit.AnimStep := StillFrame;
+    IsStepDone := true;
   end;
 
   dec(TimeToStay);
@@ -103,6 +102,8 @@ begin
   SaveStream.Write(ActionType,4);
   SaveStream.Write(Locked,4);
 end;
+
+
 
 
 end.
