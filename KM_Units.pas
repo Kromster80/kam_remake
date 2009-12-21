@@ -214,7 +214,6 @@ type
     fCurrentAction: TUnitAction;
     fThought:TUnitThought;
     fCondition:integer; //Unit condition, when it reaches zero unit should die
-    Speed:single;
     fOwner:TPlayerID;
     fHome:TKMHouse;
     fPosition: TKMPointF;
@@ -251,7 +250,7 @@ type
     procedure PlaceUnitAfterHouseDestroyed();
     function GetDesiredPassability():TPassability;
     property GetOwner:TPlayerID read fOwner;
-    property GetSpeed:single read Speed;
+    function GetSpeed():single;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     function GetUnitActionType():TUnitActionType;
@@ -871,19 +870,6 @@ begin
 end;
 
 
-procedure TKMUnitAnimal.Paint();
-var AnimAct,AnimDir:integer;
-begin
-inherited;
-  if fUnitType = ut_Fish then
-       AnimAct:=byte(fFishCount) //For fish the action is the number of fish in the group
-  else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
-
-  AnimDir:=byte(Direction);
-  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5, fPosition.Y+1,true);
-end;
-
-
 procedure TKMUnitAnimal.Save(SaveStream:TMemoryStream);
 begin
   inherited;
@@ -924,7 +910,7 @@ begin
   end;
 
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
-  
+
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot:=fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
@@ -939,6 +925,19 @@ begin
   if not TUnitActionWalkTo(fCurrentAction).fRouteBuilt then SetActionStay(5, ua_Walk);
 
   fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
+end;
+
+
+procedure TKMUnitAnimal.Paint();
+var AnimAct,AnimDir:integer;
+begin
+inherited;
+  if fUnitType = ut_Fish then
+       AnimAct:=byte(fFishCount) //For fish the action is the number of fish in the group
+  else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
+
+  AnimDir:=byte(Direction);
+  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5, fPosition.Y+1,true);
 end;
 
 
@@ -958,7 +957,6 @@ begin
   fUnitType := aUnitType;
   Direction := dir_S;
   fVisible := true;
-  Speed := UnitStat[byte(aUnitType)].Speed/24;
   SetActionStay(10, ua_Walk);
   ID := fGame.GetNewID;
   AnimStep := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
@@ -1005,7 +1003,6 @@ begin
 
   LoadStream.Read(fThought, 4);
   LoadStream.Read(fCondition, 4);
-  LoadStream.Read(Speed, 4);
   LoadStream.Read(fOwner, 4);
   LoadStream.Read(fHome.ID, 4); //Substitute it with reference on SyncLoad
   LoadStream.Read(fPosition, 8); //2floats
@@ -1063,7 +1060,6 @@ begin
   fUnitType     := ut_None;
   Direction     := dir_NA;
   fVisible      := false;
-  Speed         := 0;
   fCondition    := 0;
   AnimStep      := 0;
   FreeAndNil(fCurrentAction);
@@ -1116,6 +1112,12 @@ function TKMUnit.GetPosition():TKMPoint;
 begin
   Result := KMPointRound(fPosition);
 end;
+
+function TKMUnit.GetSpeed():single;
+begin
+  Result := UnitStat[byte(fUnitType)].Speed/24;
+end;
+
 
 function TKMUnit.GetUnitActionType():TUnitActionType;
 begin
@@ -1360,12 +1362,10 @@ procedure TKMUnit.Save(SaveStream:TMemoryStream);
 var HasTask,HasAct:boolean;
 begin
   SaveStream.Write(fUnitType, 4);
-  //SaveStream.Write('Unit', 4);
 
   HasTask := fUnitTask <> nil; //Thats our switch to know if unit should write down his task.
   SaveStream.Write(HasTask, 4);
-  if HasTask then
-    fUnitTask.Save(SaveStream); //TaskType gets written first in fUnitTask.Save
+  if HasTask then fUnitTask.Save(SaveStream); //TaskType gets written first in fUnitTask.Save
 
   HasAct := fCurrentAction <> nil;
   SaveStream.Write(HasAct, 4);
@@ -1373,7 +1373,6 @@ begin
 
   SaveStream.Write(fThought, 4);
   SaveStream.Write(fCondition, 4);
-  SaveStream.Write(Speed, 4);
   SaveStream.Write(fOwner, 4);
 
   if fHome <> nil then
@@ -2918,7 +2917,7 @@ begin
 
   //Execute the route in series of moves
   TimeDelta:=0.1;
-  Distance:= TimeDelta * KMUnit.Speed;
+  Distance:= TimeDelta * KMUnit.GetSpeed;
 
   //Check if unit has arrived on tile
   if Equals(KMUnit.fPosition.X,fWalkTo.X,Distance/2) and Equals(KMUnit.fPosition.Y,fWalkTo.Y,Distance/2) then
@@ -3098,7 +3097,7 @@ begin
     LoadStream.Seek(-4, soFromCurrent); //rewind
     case UnitType of //Create some placeholder unit
       //todo: ut-dependant unit creation without altering fTerrain!
-      ut_Wolf..ut_Duck:           U:= Inherited Add(TKMUnitAnimal.Load(LoadStream));
+      ut_Wolf..ut_Duck: inherited Add(TKMUnitAnimal.Load(LoadStream));
     else fLog.AssertToLog(false, 'Uknown unit type in Savegame')
     end;
 
