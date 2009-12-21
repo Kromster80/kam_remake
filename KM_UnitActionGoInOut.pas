@@ -28,6 +28,7 @@ uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitA
 constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
 begin
   Inherited Create(aAction);
+  fActionName := uan_GoInOut;
   fDirection      := aDirection;
   fHouseType      := aHouseType;
   fHasStarted     := false;

@@ -271,10 +271,14 @@ const //Corresponding indices in units.rx
   );
 
 type
-  TUnitTaskType = ( utt_Unknown=0, //Uninitialized task to detect bugs
-        utt_SelfTrain,  utt_Deliver, utt_BuildRoad, utt_BuildWine, utt_BuildField,
-        utt_BuildWall,  utt_BuildHouseArea, utt_BuildHouse, utt_BuildHouseRepair, utt_GoHome,
-        utt_GoEat, utt_Mining, utt_Die, utt_GoOutShowHungry);
+  TUnitTaskName = ( utn_Unknown=0, //Uninitialized task to detect bugs
+        utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,
+        utn_BuildWall, utn_BuildHouseArea, utn_BuildHouse, utn_BuildHouseRepair, utn_GoHome,
+        utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry);
+
+type
+  TUnitActionName = ( uan_Unknown=0, //Uninitialized action to detect bugs
+        uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk);
 
 type
   TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,

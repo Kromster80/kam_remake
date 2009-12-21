@@ -13,6 +13,7 @@ TUnitActionStay = class(TUnitAction)
   public
     Locked: boolean;
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0; const aLocked:boolean=false);
+    constructor Load(LoadStream:TMemoryStream);
     function HowLongLeftToStay():integer;
     procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
     procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
@@ -28,11 +29,23 @@ uses KM_PlayersCollection, KM_Terrain, KM_UnitActionWalkTo, KM_SoundFX;
 constructor TUnitActionStay.Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0; const aLocked:boolean=false);
 begin
   Inherited Create(aActionType);
+  fActionName := uan_Stay;
   StayStill  := aStayStill;
   TimeToStay := aTimeToStay;
   ActionType := aActionType;
   StillFrame := aStillFrame;
   Locked     := aLocked;
+end;
+
+
+constructor TUnitActionStay.Load(LoadStream:TMemoryStream);
+begin
+  Inherited;
+  LoadStream.Read(StayStill,4);
+  LoadStream.Read(TimeToStay,4);
+  LoadStream.Read(StillFrame,4);
+  LoadStream.Read(ActionType,4);
+  LoadStream.Read(Locked,4);
 end;
 
 

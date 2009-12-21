@@ -12,12 +12,13 @@ type
   TDeliverKind = (dk_House, dk_Unit);
 
   TUnitAction = class(TObject)
-  private
-    fActionType: TUnitActionType;
   protected
+    fActionName: TUnitActionName;
+    fActionType: TUnitActionType;
     IsStepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
   public
     constructor Create(aActionType: TUnitActionType);
+    constructor Load(LoadStream:TMemoryStream);
     procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); virtual; abstract;
     property GetActionType: TUnitActionType read fActionType;
     property GetIsStepDone:boolean read IsStepDone write IsStepDone;
@@ -30,13 +31,14 @@ type
         fWalkTo:TKMPoint;
       public
         constructor Create(LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
+        constructor Load(LoadStream: TMemoryStream);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TMemoryStream); override;
       end;
 
   TUnitTask = class(TObject)
   private
-    fTaskType:TUnitTaskType;
+    fTaskName:TUnitTaskName;
     fUnit:TKMUnit; //Unit who's performing the Task
     fPhase:byte;
     fPhase2:byte;
@@ -229,6 +231,7 @@ type
     NextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Load(LoadStream:TMemoryStream);
     destructor Destroy; override;
     function GetSelf:TKMUnit; //Returns self and adds one to the pointer counter
     procedure RemovePointer;  //Decreases the pointer counter
@@ -337,7 +340,7 @@ type
     fFishCount:byte; //1-5
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType); overload;
-    {constructor Load(LoadStream:TMemoryStream); overload;} todo:
+    constructor Load(LoadStream:TMemoryStream); overload;
     function ReduceFish:boolean;
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure Save(SaveStream:TMemoryStream); override;
@@ -838,6 +841,13 @@ begin
 end;
 
 
+constructor TKMUnitAnimal.Load(LoadStream:TMemoryStream);
+begin
+  Inherited;
+  LoadStream.Read(fFishCount,4)
+end;
+
+
 function TKMUnitAnimal.ReduceFish:boolean;
 begin
   Result := false;
@@ -957,6 +967,57 @@ begin
   //Note: Warriors of the same group will need to be set the same if they are created at the begining of the mission
   fCondition := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4);
   fTerrain.UnitAdd(NextPosition);
+end;
+
+
+constructor TKMUnit.Load(LoadStream:TMemoryStream);
+var HasTask,HasAct:boolean; TaskType:TUnitTaskName; ActName: TUnitActionName; i:array[1..4]of char;
+begin
+  Inherited Create;
+  LoadStream.Read(fUnitType, 4);
+  LoadStream.Read(HasTask, 4);
+  if HasTask then
+  begin
+    //LoadStream.Read(TaskType, 4); //Save task type before anything else for it will be used on loading to create specific task type
+    //case TaskType of
+    //utn_Unknown: fUnitTask := TTaskGoHome.Create(Self) fUnitTask.Load(LoadStream);
+    //todo: load task
+  end
+  else
+    fUnitTask := nil;
+
+  LoadStream.Read(HasAct, 4);
+  if HasAct then
+  begin
+    LoadStream.Read(ActName, 4); //Save task type before anything else for it will be used on loading to create specific task type
+    LoadStream.Seek(-4, soFromCurrent); //rewind
+    case ActName of
+      uan_Unknown: fCurrentAction := nil;
+      uan_Stay: fCurrentAction := TUnitActionStay.Load(LoadStream);
+      uan_WalkTo: fCurrentAction := TUnitActionWalkTo.Load(LoadStream);
+      uan_AbandonWalk: fCurrentAction := TUnitActionAbandonWalk.Load(LoadStream);
+      //todo: add GoInOut
+      else fCurrentAction := nil;
+    end;
+  end
+  else
+    fCurrentAction := nil;
+
+  LoadStream.Read(fThought, 4);
+  LoadStream.Read(fCondition, 4);
+  LoadStream.Read(Speed, 4);
+  LoadStream.Read(fOwner, 4);
+  LoadStream.Read(fHome.ID, 4); //Substitute it with reference on SyncLoad
+  LoadStream.Read(fPosition, 8); //2floats
+  LoadStream.Read(fLastUpdateTime, 4);
+  LoadStream.Read(fVisible, 4);
+  LoadStream.Read(fIsDead, 4);
+  LoadStream.Read(fPointerCount, 4);
+  LoadStream.Read(ID, 4);
+  LoadStream.Read(AnimStep, 4);
+  LoadStream.Read(Direction, 4);
+  LoadStream.Read(PrevPosition, 4);
+  LoadStream.Read(NextPosition, 4);
 end;
 
 
@@ -1110,7 +1171,7 @@ end;
 
 procedure TKMUnit.SetAction(aAction: TUnitAction; aStep:integer);
 begin
-  AnimStep:=aStep;
+  AnimStep := aStep;
   if aAction = nil then
   begin
     FreeAndNil(fCurrentAction);
@@ -1298,16 +1359,16 @@ end;
 procedure TKMUnit.Save(SaveStream:TMemoryStream);
 var HasTask,HasAct:boolean;
 begin
-  SaveStream.Write('Unit', 4);
   SaveStream.Write(fUnitType, 4);
+  //SaveStream.Write('Unit', 4);
 
   HasTask := fUnitTask <> nil; //Thats our switch to know if unit should write down his task.
   SaveStream.Write(HasTask, 4);
-  if HasTask then fUnitTask.Save(SaveStream); //TaskType gets written first in fUnitTask.Save
+  if HasTask then
+    fUnitTask.Save(SaveStream); //TaskType gets written first in fUnitTask.Save
 
   HasAct := fCurrentAction <> nil;
   SaveStream.Write(HasAct, 4);
-  //todo: write ActType to know which one to load later on
   if HasAct then fCurrentAction.Save(SaveStream);
 
   SaveStream.Write(fThought, 4);
@@ -1423,7 +1484,7 @@ constructor TUnitTask.Create(aUnit:TKMUnit);
 begin
   Inherited Create;
   if aUnit <> nil then fUnit := aUnit.GetSelf;
-  fTaskType := utt_Unknown;
+  fTaskName := utn_Unknown;
   fPhase:=0;
   fPhase2:=0;
 end;
@@ -1448,7 +1509,7 @@ end;
 
 procedure TUnitTask.Save(SaveStream:TMemoryStream);
 begin
-  SaveStream.Write(fTaskType, 4); //Save task type before anything else for it will be used on loading to create specific task type
+  SaveStream.Write(fTaskName, 4); //Save task type before anything else for it will be used on loading to create specific task type
   if fUnit <> nil then
     SaveStream.Write(fUnit.ID, 4) //Store ID, then substitute it with reference on SyncLoad
   else
@@ -1471,7 +1532,7 @@ end;
 constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
   Inherited Create(aUnit);
-  fTaskType := utt_SelfTrain;
+  fTaskName := utn_SelfTrain;
   if aSchool <> nil then fSchool:=TKMHouseSchool(aSchool.GetSelf);
   fUnit.fVisible:=false;
   fUnit.SetActionStay(0,ua_Walk);
@@ -1556,7 +1617,7 @@ end;
 constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
   Inherited Create(aSerf);
-  fTaskType := utt_Deliver;
+  fTaskName := utn_Deliver;
   fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
   if aFrom <> nil then fFrom:=aFrom.GetSelf;
   if toHouse <> nil then fToHouse:=toHouse.GetSelf;
@@ -1749,7 +1810,7 @@ end;
 constructor TTaskBuildRoad.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
   Inherited Create(aWorker);
-  fTaskType := utt_BuildRoad;
+  fTaskName := utn_BuildRoad;
   fLoc      := aLoc;
   ID        := aID;
   fUnit.SetActionLockedStay(0,ua_Walk);
@@ -1826,7 +1887,7 @@ end;
 constructor TTaskBuildWine.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
   Inherited Create(aWorker);
-  fTaskType := utt_BuildWine;
+  fTaskName := utn_BuildWine;
   fLoc:=aLoc;
   ID:=aID;
   fUnit.SetActionLockedStay(0,ua_Walk);
@@ -1890,7 +1951,7 @@ end;
 constructor TTaskBuildField.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
   Inherited Create(aWorker);
-  fTaskType := utt_BuildField;
+  fTaskName := utn_BuildField;
   fLoc:=aLoc;
   ID:=aID;
   fUnit.SetActionLockedStay(0,ua_Walk);
@@ -1942,7 +2003,7 @@ end;
 constructor TTaskBuildWall.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
 begin
   Inherited Create(aWorker);
-  fTaskType := utt_BuildWall;
+  fTaskName := utn_BuildWall;
   fLoc:=aLoc;
   ID:=aID;
   fUnit.SetActionLockedStay(0,ua_Walk);
@@ -2023,7 +2084,7 @@ constructor TTaskBuildHouseArea.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; a
 var i,k:integer;
 begin
   Inherited Create(aWorker);
-  fTaskType := utt_BuildHouseArea;
+  fTaskName := utn_BuildHouseArea;
   fHouse := aHouse.GetSelf;
   TaskID := aID;
   Step := 0;
@@ -2138,7 +2199,7 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
   end;
 begin
   Inherited Create(aWorker);
-  fTaskType := utt_BuildHouse;
+  fTaskName := utn_BuildHouse;
   fHouse:=aHouse.GetSelf;
   Loc:=fHouse.GetPosition;
   TaskID:=aID;
@@ -2283,7 +2344,7 @@ constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse;
   end;
 begin
   Inherited Create(aWorker);
-  fTaskType := utt_BuildHouseRepair;
+  fTaskName := utn_BuildHouseRepair;
   fHouse:=aHouse.GetSelf;
   Loc:=fHouse.GetPosition;
   TaskID:=aID;
@@ -2380,7 +2441,7 @@ end;
 constructor TTaskMining.Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
 begin
   Inherited Create(aUnit);
-  fTaskType := utt_Mining;
+  fTaskName := utn_Mining;
   WorkPlan  := aWorkPlan;
   BeastID   := 0;
   fUnit.SetActionLockedStay(0,ua_Walk);
@@ -2565,7 +2626,7 @@ end;
 constructor TTaskGoHome.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
-  fTaskType := utt_GoHome;
+  fTaskName := utn_GoHome;
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -2609,7 +2670,7 @@ end;
 constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
-  fTaskType := utt_Die;
+  fTaskName := utn_Die;
   fUnit.SetActionLockedStay(0,ua_Walk);
   SequenceLength := fResource.GetUnitSequenceLength(fUnit.fUnitType,ua_Die,fUnit.Direction);
   if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
@@ -2654,7 +2715,7 @@ end;
 constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
-  fTaskType := utt_GoOutShowHungry;
+  fTaskName := utn_GoOutShowHungry;
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -2705,7 +2766,7 @@ end;
 constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
-  fTaskType := utt_GoEat;
+  fTaskName := utn_GoEat;
   fInn      := TKMHouseInn(aInn.GetSelf);
   PlaceID   := 0;
   fUnit.SetActionLockedStay(0,ua_Walk);
@@ -2808,16 +2869,26 @@ end;
 constructor TUnitAction.Create(aActionType: TUnitActionType);
 begin
   Inherited Create;
-  fActionType:= aActionType;
-  IsStepDone:=false;
+  fActionName := uan_Unknown;
+  fActionType := aActionType;
+  IsStepDone  := false;
 end;
 
+
+constructor TUnitAction.Load(LoadStream:TMemoryStream);
+begin
+  Inherited Create;
+  LoadStream.Read(fActionName, 4);
+  LoadStream.Read(fActionType, 4);
+  LoadStream.Read(IsStepDone, 4);
+end;
 
 procedure TUnitAction.Save(SaveStream:TMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fActionType,4);
-  SaveStream.Write(IsStepDone,4);
+  SaveStream.Write(fActionName, 4);
+  SaveStream.Write(fActionType, 4);
+  SaveStream.Write(IsStepDone, 4);
 end;
 
 
@@ -2826,7 +2897,15 @@ constructor TUnitActionAbandonWalk.Create(LocB:TKMPoint; const aActionType:TUnit
 begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
   Inherited Create(aActionType);
+  fActionName := uan_AbandonWalk;
   fWalkTo       := KMPoint(LocB.X,LocB.Y);
+end;
+
+
+constructor TUnitActionAbandonWalk.Load(LoadStream:TMemoryStream);
+begin
+  Inherited;
+  LoadStream.Read(fWalkTo, 4);
 end;
 
 
@@ -3002,20 +3081,21 @@ begin
   SaveStream.Write(Count,4);
   for i := 0 to Count - 1 do
   begin
-    SaveStream.Write(TKMUnit(Items[i]).GetUnitType,4);
+    //SaveStream.Write(TKMUnit(Items[i]).GetUnitType, 4);
     TKMUnit(Items[i]).Save(SaveStream);
   end;
 end;
 
 
 procedure TKMUnitsCollection.Load(LoadStream:TMemoryStream);
-var i,UnitCount:integer; c:array[1..64]of char; UnitType:TUnitType; U:TKMUnit;
+var i,UnitCount:integer; c:array[1..64]of char; UnitType:TUnitType; U:Integer;
 begin
-  LoadStream.Read(c,5); //if s <> 'Units' then exit;
+  LoadStream.Read(c, 5); //if s <> 'Units' then exit;
   LoadStream.Read(UnitCount, 4);
   for i := 0 to UnitCount - 1 do
   begin
     LoadStream.Read(UnitType, 4);
+    LoadStream.Seek(-4, soFromCurrent); //rewind
     case UnitType of //Create some placeholder unit
       //todo: ut-dependant unit creation without altering fTerrain!
       ut_Wolf..ut_Duck:           U:= Inherited Add(TKMUnitAnimal.Load(LoadStream));

@@ -170,8 +170,8 @@ begin
   SaveStream.Write(fPlayerCount,4);
   for i:=1 to fPlayerCount do
   begin
-    Player[i].Save(SaveStream);
-    PlayerAI[i].Save(SaveStream); //Saves AI stuff
+//    Player[i].Save(SaveStream);
+//    PlayerAI[i].Save(SaveStream); //Saves AI stuff
   end;
   PlayerAnimals.Save(SaveStream);
 end;
@@ -180,8 +180,8 @@ end;
 procedure TKMAllPlayers.Load(LoadStream:TMemoryStream);
 var i:word; c:array[1..64]of char;
 begin
-  LoadStream.Read(c,7); //if s <> 'Players' then exit;
-  LoadStream.Read(fPlayerCount,4);
+  LoadStream.Read(c, 7); //if s <> 'Players' then exit;
+  LoadStream.Read(fPlayerCount, 4);
 
   for i:=1 to fPlayerCount do
   begin

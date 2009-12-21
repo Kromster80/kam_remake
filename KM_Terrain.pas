@@ -1645,21 +1645,21 @@ end;
 procedure TTerrain.Load(LoadStream:TMemoryStream);
 var i,k:integer; TileSize:integer; c:array[1..64]of char;
 begin
-  LoadStream.Read(c,7); //if s<>'Terrain' then exit;
-  LoadStream.Read(MapX,2);
-  LoadStream.Read(MapY,2);
+  LoadStream.Read(c, 7); //if s<>'Terrain' then exit;
+  LoadStream.Read(MapX, 2);
+  LoadStream.Read(MapY, 2);
 
-  LoadStream.Read(TileSize,4);
-  if TileSize <> SizeOf(Land[i,k]) then Assert(false,'Wrong SizeOf Tile in TTerrain');
+  LoadStream.Read(TileSize, 4);
+  if TileSize <> SizeOf(Land[i,k]) then Assert(false, 'Wrong SizeOf Tile in TTerrain');
 
   for i:=1 to MapY do for k:=1 to MapX do
     LoadStream.Read(Land[i,k].Terrain, TileSize);
 
   FallingTrees.Load(LoadStream);
-  LoadStream.Read(AnimStep,4);
+  LoadStream.Read(AnimStep, 4);
 
-  RebuildLighting(1,MapX,1,MapY);
-  RebuildPassability(1,MapX,1,MapY);
+  RebuildLighting(1, MapX, 1, MapY);
+  RebuildPassability(1, MapX, 1, MapY);
   RebuildWalkConnect(canWalk);
   RebuildWalkConnect(canFish);
 end;

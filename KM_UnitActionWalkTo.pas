@@ -36,6 +36,7 @@ type
       fRouteBuilt:boolean;
       Explanation:string; //Debug only, explanation what unit is doing
       constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
+      constructor Load(LoadStream: TMemoryStream);
       destructor Destroy; override;
       function GetNextPosition():TKMPoint;
       function GetNextNextPosition():TKMPoint;
@@ -58,6 +59,7 @@ begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
   Inherited Create(aActionType);
+  fActionName := uan_WalkTo;
   fWalker       := KMUnit;
   fWalkFrom     := fWalker.GetPosition;
   fWalkTo       := LocB;
@@ -79,6 +81,26 @@ begin
     exit; //so we don't need to perform any more processing
 
   fRouteBuilt := AssembleTheRoute();
+end;
+
+
+constructor TUnitActionWalkTo.Load(LoadStream: TMemoryStream);
+begin
+  Inherited;
+  LoadStream.Read(fWalker.ID, 4); //substitute it with reference on SyncLoad
+  LoadStream.Read(fLastOpponent.ID, 4); //substitute it with reference on SyncLoad
+  LoadStream.Read(fWalkFrom,4);
+  LoadStream.Read(fWalkTo,4);
+  LoadStream.Read(fWalkToSpot,4);
+  LoadStream.Read(DoesWalking,4);
+  LoadStream.Read(DoExchange,4);
+  LoadStream.Read(fInteractionCount,4);
+  LoadStream.Read(fGiveUpCount,4);
+  LoadStream.Read(fInteractionStatus,4);
+  NodeList.Load(LoadStream);
+  LoadStream.Read(NodePos,4);
+  LoadStream.Read(fRouteBuilt,4);
+  LoadStream.Read(Explanation, length(Explanation));
 end;
 
 

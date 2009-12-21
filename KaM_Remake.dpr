@@ -32,7 +32,8 @@ uses
   KM_TGATexture in 'KM_TGATexture.pas',
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_UnitActionGoInOut in 'KM_UnitActionGoInOut.pas',
-  KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas';
+  KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
+  KM_UnitActionStay in 'KM_UnitActionStay.pas';
 
 {$R *.RES}
 {}
