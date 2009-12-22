@@ -37,6 +37,8 @@ type
     function FindInn(Loc:TKMPoint; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+    function GetHouseByID(aID: Integer): TKMHouse;
+    function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetUnitLocations(out Loc:TKMPointList);
     function HousesHitTest(X, Y: Integer): TKMHouse;
     property DeliverList:TKMDeliverQueue read fDeliverList;
@@ -71,10 +73,12 @@ type
     constructor Create;
     destructor Destroy; override;
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
+    function GetUnitByID(aID: Integer): TKMUnit;
     function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad();
     procedure UpdateState;
     procedure Paint;
   end;
@@ -293,6 +297,19 @@ begin
   Result:= fUnits.HitTest(X, Y, UT);
 end;
 
+
+function TKMPlayerAssets.GetHouseByID(aID: Integer): TKMHouse;
+begin
+  Result := fHouses.GetHouseByID(aID);
+end;
+
+
+function TKMPlayerAssets.GetUnitByID(aID: Integer): TKMUnit;
+begin
+  Result := fUnits.GetUnitByID(aID);
+end;
+
+
 procedure TKMPlayerAssets.GetUnitLocations(out Loc:TKMPointList);
 begin
   fUnits.GetLocations(PlayerID,Loc);
@@ -405,6 +422,12 @@ begin
 end;
 
 
+procedure TKMPlayerAnimals.SyncLoad();
+begin
+  fUnits.SyncLoad;
+end;
+
+
 procedure TKMPlayerAnimals.UpdateState;
 begin
   fUnits.UpdateState;
@@ -433,6 +456,12 @@ end;
 function TKMPlayerAnimals.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
 begin
   Result := fUnits.Add(play_animals, aUnitType, Position.X, Position.Y, AutoPlace);
+end;
+
+
+function TKMPlayerAnimals.GetUnitByID(aID: Integer): TKMUnit;
+begin
+  Result := fUnits.GetUnitByID(aID);
 end;
 
 

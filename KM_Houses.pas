@@ -201,6 +201,7 @@ type
     function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
     function Rem(aHouse:TKMHouse):boolean;
     function HitTest(X, Y: Integer): TKMHouse;
+    function GetHouseByID(aID: Integer): TKMHouse;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
     function FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
     function GetTotalPointers: integer;
@@ -1275,8 +1276,7 @@ end;
 
 
 function TKMHousesCollection.HitTest(X, Y: Integer): TKMHouse;
-var
-  I: Integer;
+var i:integer;
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
@@ -1288,10 +1288,22 @@ begin
 end;
 
 
+function TKMHousesCollection.GetHouseByID(aID: Integer): TKMHouse;
+var i:integer;
+begin
+  Result := nil;
+  for i := 0 to Count-1 do
+    if aID = TKMHouse(Items[i]).ID then
+    begin
+      Result := TKMHouse(Items[i]);
+      exit;
+    end;
+end;
+
+
 //Should find closest house to Loc
 function TKMHousesCollection.FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
-var
-  i: integer;
+var i:integer;
   Dist,Bid:single;
 begin
   Result:= nil;

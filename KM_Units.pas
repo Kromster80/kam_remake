@@ -19,6 +19,7 @@ type
   public
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad(); virtual; abstract;
     procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); virtual; abstract;
     property GetActionType: TUnitActionType read fActionType;
     property GetIsStepDone:boolean read IsStepDone write IsStepDone;
@@ -232,6 +233,7 @@ type
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad();
     destructor Destroy; override;
     function GetSelf:TKMUnit; //Returns self and adds one to the pointer counter
     procedure RemovePointer;  //Decreases the pointer counter
@@ -356,10 +358,12 @@ type
     function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     procedure Rem(aUnit:TKMUnit);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
+    function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     function GetTotalPointers: integer;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad();
     procedure UpdateState;
     procedure Paint();
   end;
@@ -968,6 +972,12 @@ begin
 end;
 
 
+destructor TKMUnit.Destroy;
+begin
+  Inherited;
+end;
+
+
 constructor TKMUnit.Load(LoadStream:TKMemoryStream);
 var HasTask,HasAct:boolean; TaskType:TUnitTaskName; ActName: TUnitActionName; i:array[1..4]of char; k:integer;
 begin
@@ -1005,9 +1015,6 @@ begin
   LoadStream.Read(fCondition);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
-
-  k:= integer(fHome);
-
   LoadStream.Read(fPosition, 8); //2floats
   LoadStream.Read(fLastUpdateTime, 4);
   LoadStream.Read(fVisible);
@@ -1021,9 +1028,11 @@ begin
 end;
 
 
-destructor TKMUnit.Destroy;
+procedure TKMUnit.SyncLoad();
 begin
-  Inherited;
+  //fUnitTask.SyncLoad;
+  fCurrentAction.SyncLoad;
+  fHome := fPlayers.GetHouseByID(integer(fHome));
 end;
 
 
@@ -1375,7 +1384,6 @@ begin
   if HasAct then fCurrentAction.Save(SaveStream);
 
   SaveStream.Write(fThought, SizeOf(fThought));
-  fCondition:=7777777;
   SaveStream.Write(fCondition);
   SaveStream.Write(fOwner, SizeOf(fOwner));
 
@@ -3058,6 +3066,19 @@ begin
 end;
 
 
+function TKMUnitsCollection.GetUnitByID(aID: Integer): TKMUnit;
+var i:integer;
+begin
+  Result := nil;
+  for i := 0 to Count-1 do
+    if aID = TKMUnit(Items[i]).ID then
+    begin
+      Result := TKMUnit(Items[i]);
+      exit;
+    end;
+end;
+
+
 procedure TKMUnitsCollection.GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
 var i:integer;
 begin
@@ -3102,6 +3123,20 @@ begin
     else fLog.AssertToLog(false, 'Uknown unit type in Savegame')
     end;
 
+  end;
+end;
+
+
+procedure TKMUnitsCollection.SyncLoad();
+var i:integer;
+begin
+  for i := 0 to Count - 1 do
+  begin
+  if i=23 then
+    fLog.AppendLog(i,i);
+  case TKMUnit(Items[I]).fUnitType of
+    ut_Wolf..ut_Duck: TKMUnitAnimal(Items[I]).SyncLoad;
+  end;
   end;
 end;
 

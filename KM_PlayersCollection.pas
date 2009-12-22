@@ -23,6 +23,8 @@ type
     property PlayerCount:integer read fPlayerCount;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
+    function GetHouseByID(aID: Integer): TKMHouse;
+    function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X, Y: Integer):boolean;
     function GetUnitCount():integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
@@ -91,6 +93,35 @@ begin
     Result:= Player[i].UnitsHitTest(X,Y);
     if Result<>nil then Break; //else keep on testing
   end;
+end;
+
+
+function TKMAllPlayers.GetHouseByID(aID: Integer): TKMHouse;
+var i:integer;
+begin
+  Result := nil;
+  if aID = 0 then exit;
+
+  for i:=1 to fPlayerCount do
+  begin
+    Result := Player[i].GetHouseByID(aID);
+    if Result<>nil then Break; //else keep on testing
+  end;
+end;
+
+
+function TKMAllPlayers.GetUnitByID(aID: Integer): TKMUnit;
+var i:integer;
+begin
+  Result := nil;
+  if aID = 0 then exit;
+
+  for i:=1 to fPlayerCount do
+  begin
+    Result := Player[i].GetUnitByID(aID);
+    if Result<>nil then Break; //else keep on testing
+  end;
+  Result := PlayerAnimals.GetUnitByID(aID);
 end;
 
 
@@ -200,6 +231,7 @@ begin
     {Player[i].SyncLoad;} //todo: SyncLoad
     {PlayerAI[i].SyncLoad;} //todo: SyncLoad
   end;
+  PlayerAnimals.SyncLoad;
 end;
 
 

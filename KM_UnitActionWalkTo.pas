@@ -37,6 +37,7 @@ type
       Explanation:string; //Debug only, explanation what unit is doing
       constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
       constructor Load(LoadStream: TKMemoryStream);
+      procedure SyncLoad(); override;
       destructor Destroy; override;
       function GetNextPosition():TKMPoint;
       function GetNextNextPosition():TKMPoint;
@@ -85,6 +86,7 @@ end;
 
 
 constructor TUnitActionWalkTo.Load(LoadStream: TKMemoryStream);
+var k:integer;
 begin
   Inherited;
   LoadStream.Read(fWalker, 4); //substitute it with reference on SyncLoad
@@ -107,6 +109,13 @@ begin
 //  LoadStream.Read(Explanation, length(Explanation));
 end;
 
+
+procedure TUnitActionWalkTo.SyncLoad();
+begin
+  inherited;
+  fWalker       := fPlayers.GetUnitByID(integer(fWalker));
+  fLastOpponent := fPlayers.GetUnitByID(integer(fLastOpponent));
+end;
 
 destructor TUnitActionWalkTo.Destroy;
 begin
@@ -726,7 +735,6 @@ begin
   SaveStream.Write(DoesWalking);
   SaveStream.Write(DoExchange);
   SaveStream.Write(fInteractionCount);
-  fGiveUpCount:=77777777;
   SaveStream.Write(fGiveUpCount);
   SaveStream.Write(fInteractionStatus,SizeOf(fInteractionStatus));
   NodeList.Save(SaveStream);
