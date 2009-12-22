@@ -33,7 +33,7 @@ public
     //Used to display half-dug road
     TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
-    BeforeFieldTerrain, BeforeFieldRotation:byte; //Only used for map editor
+    OldTerrain, OldRotation:byte; //Only used for map editor
 
 
     //DEDUCTED
@@ -184,31 +184,31 @@ end;
 procedure TTerrain.MakeNewMap(Width,Height:integer);
 var i,k,h:integer;
 begin
-  MapX:=min(Width,MaxMapSize);
-  MapY:=min(Height,MaxMapSize);
+  MapX := min(Width, MaxMapSize);
+  MapY := min(Height,MaxMapSize);
 
   for i:=1 to MapY do for k:=1 to MapX do with Land[i,k] do begin
-    Terrain:=0;
-    BeforeFieldTerrain:=0; 
-    BeforeFieldRotation:=0;
-    Height:=random(7);    //variation in height
-    Rotation:=random(4);  //Make it random
-    Obj:=255;             //none
-    if Random(16)=0 then Obj:=ChopableTrees[Random(13)+1,4];
-    TileOverlay:=to_None;
-    Markup:=mu_None;
-    Passability:=[]; //Gets recalculated later
-    TileOwner:=play_none;
-    FieldAge:=0;
-    TreeAge:=0;
+    Terrain      := 0;
+    Height       := random(7);    //variation in height
+    Rotation     := random(4);  //Make it random
+    OldTerrain   := 0;
+    OldRotation  := 0;
+    Obj          := 255;             //none
+    if Random(16)=0 then Obj := ChopableTrees[Random(13)+1,4];
+    TileOverlay  := to_None;
+    Markup       := mu_None;
+    Passability  := []; //Gets recalculated later
+    TileOwner    := play_none;
+    IsUnit       := 0;
+    FieldAge     := 0;
+    TreeAge      := 0;
     if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge:=TreeAgeFull;
-    Border:=bt_None;
-    BorderTop:=false;
-    BorderLeft:=false;
-    BorderBottom:=false;
-    BorderRight:=false;
+    Border       := bt_None;
+    BorderTop    := false;
+    BorderLeft   := false;
+    BorderBottom := false;
+    BorderRight  := false;
     for h:=1 to 8 do FogOfWar[h]:=0;
-    IsUnit:=0;
   end;
 
   //i:=SizeOf(Land[1,1]); //Shall align it manually later on for better performance and less size
@@ -538,8 +538,8 @@ procedure TTerrain.RemField(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TileOwner:=play_none;
   Land[Loc.Y,Loc.X].TileOverlay:=to_None;
-  Land[Loc.Y,Loc.X].Terrain := Land[Loc.Y,Loc.X].BeforeFieldTerrain; //Reset terrain
-  Land[Loc.Y,Loc.X].Rotation := Land[Loc.Y,Loc.X].BeforeFieldRotation; //Reset terrain
+  Land[Loc.Y,Loc.X].Terrain := Land[Loc.Y,Loc.X].OldTerrain; //Reset terrain
+  Land[Loc.Y,Loc.X].Rotation := Land[Loc.Y,Loc.X].OldRotation; //Reset terrain
   if Land[Loc.Y,Loc.X].Obj in [54..59] then Land[Loc.Y,Loc.X].Obj := 255; //Remove corn/wine
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
@@ -564,8 +564,8 @@ begin
   Land[Loc.Y,Loc.X].TileOwner:=aOwner;
   Land[Loc.Y,Loc.X].TileOverlay:=to_None;
   Land[Loc.Y,Loc.X].FieldAge:=0;
-  Land[Loc.Y,Loc.X].BeforeFieldTerrain:=Land[Loc.Y,Loc.X].Terrain;  
-  Land[Loc.Y,Loc.X].BeforeFieldRotation:=Land[Loc.Y,Loc.X].Rotation;
+  Land[Loc.Y,Loc.X].OldTerrain:=Land[Loc.Y,Loc.X].Terrain;
+  Land[Loc.Y,Loc.X].OldRotation:=Land[Loc.Y,Loc.X].Rotation;
 
   if aFieldType=ft_Corn then begin
     Land[Loc.Y,Loc.X].Terrain:=62;
