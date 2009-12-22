@@ -1,6 +1,6 @@
 unit KM_PlayerAI;
 interface
-uses Classes, KM_Defaults, KromUtils, KM_Player, KM_Utils;
+uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils;
 
 
 type
@@ -12,7 +12,7 @@ type
     procedure CheckDefeatConditions();
     procedure CheckCitizenCount();
   public
-    procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
     procedure Load;
     procedure UpdateState;
   end;
@@ -73,7 +73,7 @@ begin
 end;
 
 
-procedure TKMPlayerAI.Save(SaveStream:TMemoryStream);
+procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 var s:string;
 begin
   s := 'PlayerAI state, nothing to include yet, should be some AI things'; //no idea what to put here yet

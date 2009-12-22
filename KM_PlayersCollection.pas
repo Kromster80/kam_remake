@@ -2,7 +2,7 @@ unit KM_PlayersCollection;
 interface
 uses
   Windows, Classes, KromUtils, Math, SysUtils,
-  KM_Units, KM_Houses, KM_Defaults, KM_Player, KM_PlayerAI, KM_Utils;
+  KM_Units, KM_Houses, KM_CommonTypes, KM_Defaults, KM_Player, KM_PlayerAI, KM_Utils;
 
 type
   TMissionMode = (mm_Normal, mm_Tactic);
@@ -27,8 +27,8 @@ type
     function GetUnitCount():integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
   public
-    procedure Save(SaveStream:TMemoryStream);
-    procedure Load(LoadStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
     procedure UpdateState(Tick:cardinal);
     procedure Paint;
@@ -41,7 +41,7 @@ var
 
   
 implementation
-uses KM_CommonTypes, KM_Terrain;
+uses KM_Terrain;
 
 
 {TKMAllPlayers}
@@ -163,7 +163,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.Save(SaveStream:TMemoryStream);
+procedure TKMAllPlayers.Save(SaveStream:TKMemoryStream);
 var i:word;
 begin
   SaveStream.Write('Players',7);
@@ -177,7 +177,7 @@ begin
 end;
 
 
-procedure TKMAllPlayers.Load(LoadStream:TMemoryStream);
+procedure TKMAllPlayers.Load(LoadStream:TKMemoryStream);
 var i:word; c:array[1..64]of char;
 begin
   LoadStream.Read(c, 7); //if s <> 'Players' then exit;

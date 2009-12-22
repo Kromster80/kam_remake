@@ -7,7 +7,17 @@ type
   TKMList = class(TList)
   public
     procedure Clear; override;
-  end;  
+  end;
+
+
+type
+  TKMemoryStream = class(TMemoryStream)
+  public
+    function Write(const Value:integer): Longint; overload; //@Lewin: Any idea how do to avoid warning message here?
+    function Write(const Value:boolean): Longint; overload;
+    function Read(var Value:integer): Longint; overload;
+    function Read(var Value:boolean): Longint; overload;
+  end;
 
 {Messages}
 //number matches pic index in gui.rx
@@ -44,8 +54,8 @@ type TKMPointList = class
     procedure InjectEntry(ID:integer; aLoc:TKMPoint);
     function GetRandom():TKMPoint;
     procedure Inverse();
-    procedure Save(SaveStream:TMemoryStream); virtual;
-    procedure Load(LoadStream:TMemoryStream); virtual;
+    procedure Save(SaveStream:TKMemoryStream); virtual;
+    procedure Load(LoadStream:TKMemoryStream); virtual;
   end;
 
 
@@ -55,8 +65,8 @@ type TKMPointTagList = class (TKMPointList)
     procedure Clearup; override;
     procedure AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal); reintroduce;
     function RemoveEntry(aLoc:TKMPoint):cardinal; override;
-    procedure Save(SaveStream:TMemoryStream); override;
-    procedure Load(LoadStream:TMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
+    procedure Load(LoadStream:TKMemoryStream); override;
   end;
 
 
@@ -195,6 +205,29 @@ begin
 end;
 
 
+{ TKMemoryStream }
+function TKMemoryStream.Write(const Value:integer): Longint;
+begin
+  Result := Inherited Write(Value, SizeOf(Value));
+end;
+
+function TKMemoryStream.Write(const Value:boolean): Longint;
+begin
+  Result := Inherited Write(Value, SizeOf(Value));
+end;
+
+
+function TKMemoryStream.Read(var Value:integer): Longint;
+begin
+  Result := Inherited Read(Value, SizeOf(Value));
+end;
+
+function TKMemoryStream.Read(var Value:boolean): Longint;
+begin
+  Result := Inherited Read(Value, SizeOf(Value));
+end;
+
+
 { TKMMessageList }
 procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
 begin
@@ -320,19 +353,20 @@ begin
 end;
 
 
-procedure TKMPointList.Save(SaveStream:TMemoryStream);
+procedure TKMPointList.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  SaveStream.Write(Count,4);
+  SaveStream.Write(Count);
   for i:=1 to Count do
   SaveStream.Write(List[i], SizeOf(List[i]));
 end;
 
 
-procedure TKMPointList.Load(LoadStream:TMemoryStream);
+procedure TKMPointList.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
-  LoadStream.Read(Count,4);
+  LoadStream.Read(Count);
+  setlength(List,Count+32);
   for i:=1 to Count do
   LoadStream.Read(List[i], SizeOf(List[i]));
 end;
@@ -369,7 +403,7 @@ begin
 end;
 
 
-procedure TKMPointTagList.Save(SaveStream:TMemoryStream);
+procedure TKMPointTagList.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   inherited;
@@ -382,7 +416,7 @@ begin
 end;
 
 
-procedure TKMPointTagList.Load(LoadStream:TMemoryStream);
+procedure TKMPointTagList.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   inherited;

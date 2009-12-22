@@ -56,7 +56,7 @@ type
     property GetHouses:TKMHousesCollection read fHouses;
     property GetUnits:TKMUnitsCollection read fUnits;
   public
-    procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
     procedure Load;
     procedure UpdateState;
     procedure Paint;
@@ -73,8 +73,8 @@ type
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
   public
-    procedure Save(SaveStream:TMemoryStream);
-    procedure Load(LoadStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
     procedure UpdateState;
     procedure Paint;
   end;
@@ -357,7 +357,7 @@ begin
 end;
 
 
-procedure TKMPlayerAssets.Save(SaveStream:TMemoryStream);
+procedure TKMPlayerAssets.Save(SaveStream:TKMemoryStream);
 begin
     fUnits.Save(SaveStream);
     fHouses.Save(SaveStream);
@@ -390,14 +390,14 @@ end;
 
 
 { TKMPlayerAnimals }
-procedure TKMPlayerAnimals.Save(SaveStream:TMemoryStream);
+procedure TKMPlayerAnimals.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write('Animals',7);
   fUnits.Save(SaveStream);
 end;
 
 
-procedure TKMPlayerAnimals.Load(LoadStream:TMemoryStream);
+procedure TKMPlayerAnimals.Load(LoadStream:TKMemoryStream);
 var c:array[1..64]of char;
 begin
   LoadStream.Read(c,7); //if s <> 'Animals' then exit;

@@ -13,11 +13,11 @@ TUnitActionStay = class(TUnitAction)
   public
     Locked: boolean;
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0; const aLocked:boolean=false);
-    constructor Load(LoadStream:TMemoryStream);
+    constructor Load(LoadStream:TKMemoryStream);
     function HowLongLeftToStay():integer;
     procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
     procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
-    procedure Save(SaveStream:TMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
 
@@ -38,7 +38,7 @@ begin
 end;
 
 
-constructor TUnitActionStay.Load(LoadStream:TMemoryStream);
+constructor TUnitActionStay.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(StayStill,4);
@@ -106,7 +106,7 @@ begin
 end;
 
 
-procedure TUnitActionStay.Save(SaveStream:TMemoryStream);
+procedure TUnitActionStay.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(StayStill,4);

@@ -593,14 +593,14 @@ end;
 
 //Saves the game and returns string for savegame name OR empty if save failed
 function TKMGame.Save(SlotID:shortint):string;
-var SaveStream:TMemoryStream;
+var SaveStream:TKMemoryStream;
 begin
   case GameState of
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
     gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
     gsPaused,gsRunning: //Can't save from Paused state yet, but we could add it later
     begin
-      SaveStream := TMemoryStream.Create;
+      SaveStream := TKMemoryStream.Create;
       SaveStream.Write('KaM_Savegame',12);
       SaveStream.Write('01',2); //This is savegame version
       SaveStream.Write(GameplayTickCount,4); //dunno if it's required to save, but it won't hurt anyone
@@ -618,7 +618,7 @@ end;
 
 
 function TKMGame.Load(SlotID:shortint):string; //I've declared it a string for debug, should be enum
-var LoadStream:TMemoryStream;
+var LoadStream:TKMemoryStream;
 c:array[1..64]of char;
 begin
   Result := 'NIL';
@@ -626,7 +626,7 @@ begin
   case GameState of
     gsNoGame:   //Let's load only from menu for now
     begin
-      LoadStream := TMemoryStream.Create; //Read data from file into stream
+      LoadStream := TKMemoryStream.Create; //Read data from file into stream
       if not CheckFileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt') then exit;
 
       LoadStream.LoadFromFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');

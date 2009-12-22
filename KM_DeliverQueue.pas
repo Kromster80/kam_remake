@@ -1,6 +1,6 @@
 unit KM_DeliverQueue;
 interface
-uses Windows, Math, Classes, SysUtils, KromUtils, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
+uses Windows, Math, Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
 
   type TJobStatus = (js_Empty, js_Open, js_Taken);
   //Empty - empty spot for a new job
@@ -47,7 +47,7 @@ type
     procedure GaveDemand(aID:integer);
     procedure CloseDelivery(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
-    procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
     function WriteToText():string;
   end;
 
@@ -104,7 +104,7 @@ type
     function  AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
     procedure CloseHouseRepair(aID:integer);
     procedure RemoveHouseRepair(aHouse: TKMHouse);
-    procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
   end;
 
 implementation
@@ -390,7 +390,7 @@ begin
 end;
 
 
-procedure TKMDeliverQueue.Save(SaveStream:TMemoryStream);
+procedure TKMDeliverQueue.Save(SaveStream:TKMemoryStream);
 var i,Count:integer;
 begin
   Count := length(fOffer);
@@ -694,7 +694,7 @@ begin
 end;
 
 
-procedure TKMBuildingQueue.Save(SaveStream:TMemoryStream);
+procedure TKMBuildingQueue.Save(SaveStream:TKMemoryStream);
 var i,Count:integer;
 begin
   Count := length(fFieldsQueue);

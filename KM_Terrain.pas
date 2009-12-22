@@ -153,8 +153,8 @@ public
   procedure RefreshMinimapData();
 
   procedure IncAnimStep();
-  procedure Save(SaveStream:TMemoryStream);
-  procedure Load(LoadStream:TMemoryStream);
+  procedure Save(SaveStream:TKMemoryStream);
+  procedure Load(LoadStream:TKMemoryStream);
   procedure UpdateState;
   procedure UpdateCursor(aCursor:TCursorMode; Loc:TKMPoint);
   procedure Paint;
@@ -1620,7 +1620,7 @@ begin
 end;
 
 
-procedure TTerrain.Save(SaveStream:TMemoryStream);
+procedure TTerrain.Save(SaveStream:TKMemoryStream);
 var i,k:integer; TileSize:integer;
 begin
   SaveStream.Write('Terrain',7);
@@ -1642,7 +1642,7 @@ begin
 end;
 
 
-procedure TTerrain.Load(LoadStream:TMemoryStream);
+procedure TTerrain.Load(LoadStream:TKMemoryStream);
 var i,k:integer; TileSize:integer; c:array[1..64]of char;
 begin
   LoadStream.Read(c, 7); //if s<>'Terrain' then exit;

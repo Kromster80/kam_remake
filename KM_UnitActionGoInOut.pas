@@ -17,7 +17,7 @@ type
     public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
-        procedure Save(SaveStream:TMemoryStream); override;
+        procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
 
@@ -152,7 +152,7 @@ begin
 end;
 
 
-procedure TUnitActionGoInOut.Save(SaveStream:TMemoryStream);
+procedure TUnitActionGoInOut.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fStep,4);

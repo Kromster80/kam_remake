@@ -93,7 +93,7 @@ type
     function GetSoldiersTrained:cardinal;
     property GetMissionTime:cardinal read MissionTimeInSec;
 
-    procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
   end;
 
 
@@ -427,7 +427,7 @@ begin
 end;
 
 
-procedure TMissionSettings.Save(SaveStream:TMemoryStream);
+procedure TMissionSettings.Save(SaveStream:TKMemoryStream);
 var i,k:integer;
 begin
   for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseTotalCount[i],4);

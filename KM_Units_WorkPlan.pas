@@ -1,6 +1,6 @@
 unit KM_Units_WorkPlan;
 interface
-uses Classes, KromUtils, KM_Defaults, KM_Terrain, KM_Utils;
+uses KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
 
 type
   TUnitWorkPlan = class
@@ -31,11 +31,10 @@ type
   public
     procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
     property IsIssued:boolean read fIssued;
-    procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
   end;
 
 implementation
-uses KM_CommonTypes;
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
 Everything should be issued by units!
@@ -381,7 +380,7 @@ end else
 end;
 
 
-procedure TUnitWorkPlan.Save(SaveStream:TMemoryStream);
+procedure TUnitWorkPlan.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('WorkPlan', 8);

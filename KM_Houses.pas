@@ -21,7 +21,7 @@ type
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
     property ActionType: THouseState read fHouseState;
-    procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
   end;
 
 
@@ -114,7 +114,7 @@ type
     procedure ResAddOrder(ID:byte; const Amount:byte=1);
     procedure ResRemOrder(ID:byte; const Amount:byte=1);
 
-    procedure Save(SaveStream:TMemoryStream); virtual;
+    procedure Save(SaveStream:TKMemoryStream); virtual;
 
     procedure UpdateState;
     procedure Paint; virtual;
@@ -127,7 +127,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     function FeedBeasts():byte;
     procedure TakeBeast(ID:byte);
-    procedure Save(SaveStream:TMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
     procedure Paint; override;
   end;
 
@@ -145,7 +145,7 @@ type
     procedure EatersGoesOut(aID:byte);
     function HasFood:boolean;
     function HasSpace:boolean;
-    procedure Save(SaveStream:TMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
     procedure Paint(); override; //Render all eaters
   end;
 
@@ -165,7 +165,7 @@ type
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
     function GetTrainingProgress():byte;
-    procedure Save(SaveStream:TMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
   {Barracks has 11 resources and Recruits}
@@ -177,7 +177,7 @@ type
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
     function TakeResource(aResource:TResourceType):boolean;
-    procedure Save(SaveStream:TMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
   {Storehouse keeps all the resources and flags for them}
@@ -188,7 +188,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     procedure ToggleAcceptFlag(aTagID:byte);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
-    procedure Save(SaveStream:TMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
 
@@ -205,7 +205,7 @@ type
     function FindHouse(aType:THouseType; X,Y:word; const Index:byte=1): TKMHouse;
     function GetTotalPointers: integer;
     property SelectedHouse: TKMHouse read fSelectedHouse write fSelectedHouse;
-    procedure Save(SaveStream:TMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
     procedure UpdateState;
     procedure Paint();
   end;
@@ -697,7 +697,7 @@ begin
 end;
 
 
-procedure TKMHouse.Save(SaveStream:TMemoryStream);
+procedure TKMHouse.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write(fPosition,4);
@@ -849,7 +849,7 @@ begin
 end;
 
 
-procedure TKMHouseSwineStable.Save(SaveStream:TMemoryStream);
+procedure TKMHouseSwineStable.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   inherited;
@@ -937,7 +937,7 @@ begin
 end;
 
 
-procedure TKMHouseInn.Save(SaveStream:TMemoryStream);
+procedure TKMHouseInn.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   inherited;
@@ -1047,7 +1047,7 @@ begin
 end;
 
 
-procedure TKMHouseSchool.Save(SaveStream:TMemoryStream);
+procedure TKMHouseSchool.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   inherited;
@@ -1111,7 +1111,7 @@ begin
 end;
 
 
-procedure TKMHouseStore.Save(SaveStream:TMemoryStream);
+procedure TKMHouseStore.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   inherited;
@@ -1166,7 +1166,7 @@ begin
 end;
 
 
-procedure TKMHouseBarracks.Save(SaveStream:TMemoryStream);
+procedure TKMHouseBarracks.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   inherited;
@@ -1229,7 +1229,7 @@ begin
 end;
 
 
-procedure THouseAction.Save(SaveStream:TMemoryStream);
+procedure THouseAction.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write(fHouse.ID,4);
   SaveStream.Write(TimeToAct,4);
@@ -1356,7 +1356,7 @@ begin
 end;
 
 
-procedure TKMHousesCollection.Save(SaveStream:TMemoryStream);
+procedure TKMHousesCollection.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('Houses',6);

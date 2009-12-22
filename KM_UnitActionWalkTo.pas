@@ -36,7 +36,7 @@ type
       fRouteBuilt:boolean;
       Explanation:string; //Debug only, explanation what unit is doing
       constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
-      constructor Load(LoadStream: TMemoryStream);
+      constructor Load(LoadStream: TKMemoryStream);
       destructor Destroy; override;
       function GetNextPosition():TKMPoint;
       function GetNextNextPosition():TKMPoint;
@@ -45,7 +45,7 @@ type
       procedure DodgeTo(aPos: TKMPoint);
       procedure SetPushedValues;
       procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
-      procedure Save(SaveStream:TMemoryStream); override;
+      procedure Save(SaveStream:TKMemoryStream); override;
     end;
             
 
@@ -84,23 +84,27 @@ begin
 end;
 
 
-constructor TUnitActionWalkTo.Load(LoadStream: TMemoryStream);
+constructor TUnitActionWalkTo.Load(LoadStream: TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fWalker.ID, 4); //substitute it with reference on SyncLoad
-  LoadStream.Read(fLastOpponent.ID, 4); //substitute it with reference on SyncLoad
+  LoadStream.Read(fWalker, 4); //substitute it with reference on SyncLoad
+  LoadStream.Read(fLastOpponent, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fWalkFrom,4);
   LoadStream.Read(fWalkTo,4);
-  LoadStream.Read(fWalkToSpot,4);
-  LoadStream.Read(DoesWalking,4);
-  LoadStream.Read(DoExchange,4);
-  LoadStream.Read(fInteractionCount,4);
-  LoadStream.Read(fGiveUpCount,4);
-  LoadStream.Read(fInteractionStatus,4);
+  LoadStream.Read(fAvoid,4);
+  LoadStream.Read(fWalkToSpot);
+  LoadStream.Read(fPass,SizeOf(fPass));
+  LoadStream.Read(DoesWalking);
+  LoadStream.Read(DoExchange);
+  LoadStream.Read(fInteractionCount);
+  LoadStream.Read(fGiveUpCount);
+  LoadStream.Read(fInteractionStatus,SizeOf(fInteractionStatus));
+
+  NodeList := TKMPointList.Create; //Freed on destroy
   NodeList.Load(LoadStream);
-  LoadStream.Read(NodePos,4);
-  LoadStream.Read(fRouteBuilt,4);
-  LoadStream.Read(Explanation, length(Explanation));
+  LoadStream.Read(NodePos);
+  LoadStream.Read(fRouteBuilt);
+//  LoadStream.Read(Explanation, length(Explanation));
 end;
 
 
@@ -703,29 +707,32 @@ begin
 end;
 
 
-procedure TUnitActionWalkTo.Save(SaveStream:TMemoryStream);
+procedure TUnitActionWalkTo.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   if fWalker <> nil then
-    SaveStream.Write(fWalker.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fWalker.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero, 4);
+    SaveStream.Write(Zero);
   if fLastOpponent <> nil then
-    SaveStream.Write(fLastOpponent.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fLastOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero, 4);
+    SaveStream.Write(Zero);
   SaveStream.Write(fWalkFrom,4);
   SaveStream.Write(fWalkTo,4);
-  SaveStream.Write(fWalkToSpot,4);
-  SaveStream.Write(DoesWalking,4);
-  SaveStream.Write(DoExchange,4);
-  SaveStream.Write(fInteractionCount,4);
-  SaveStream.Write(fGiveUpCount,4);
-  SaveStream.Write(fInteractionStatus,4);
+  SaveStream.Write(fAvoid,4);
+  SaveStream.Write(fWalkToSpot);
+  SaveStream.Write(fPass,SizeOf(fPass));
+  SaveStream.Write(DoesWalking);
+  SaveStream.Write(DoExchange);
+  SaveStream.Write(fInteractionCount);
+  fGiveUpCount:=77777777;
+  SaveStream.Write(fGiveUpCount);
+  SaveStream.Write(fInteractionStatus,SizeOf(fInteractionStatus));
   NodeList.Save(SaveStream);
-  SaveStream.Write(NodePos,4);
-  SaveStream.Write(fRouteBuilt,4);
-  SaveStream.Write(Explanation, length(Explanation));
+  SaveStream.Write(NodePos);
+  SaveStream.Write(fRouteBuilt);
+//  SaveStream.Write(Explanation, length(Explanation));
 end;
 
 
