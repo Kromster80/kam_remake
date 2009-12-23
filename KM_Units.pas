@@ -1066,7 +1066,7 @@ begin
       utn_Mining:          fUnitTask := TTaskMining.Load(LoadStream);
       utn_Die:             fUnitTask := TTaskDie.Load(LoadStream);
       utn_GoOutShowHungry: fUnitTask := TTaskGoOutShowHungry.Load(LoadStream);
-      else fUnitTask := nil;
+      else                 fUnitTask := nil;
     end;
   end
   else
@@ -1078,12 +1078,12 @@ begin
     LoadStream.Read(ActName, SizeOf(ActName));
     LoadStream.Seek(-SizeOf(ActName), soFromCurrent); //rewind
     case ActName of
-      uan_Unknown: fCurrentAction := nil;
-      uan_Stay:    fCurrentAction := TUnitActionStay.Load(LoadStream);
-      uan_WalkTo:  fCurrentAction := TUnitActionWalkTo.Load(LoadStream);
+      uan_Unknown:     fCurrentAction := nil;
+      uan_Stay:        fCurrentAction := TUnitActionStay.Load(LoadStream);
+      uan_WalkTo:      fCurrentAction := TUnitActionWalkTo.Load(LoadStream);
       uan_AbandonWalk: fCurrentAction := TUnitActionAbandonWalk.Load(LoadStream);
-      uan_GoInOut: fCurrentAction := TUnitActionGoInOut.Load(LoadStream);
-      else fCurrentAction := nil;
+      uan_GoInOut:     fCurrentAction := TUnitActionGoInOut.Load(LoadStream);
+      else             fCurrentAction := nil;
     end;
   end
   else
