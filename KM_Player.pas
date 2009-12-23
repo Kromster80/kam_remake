@@ -59,7 +59,8 @@ type
     property GetUnits:TKMUnitsCollection read fUnits;
   public
     procedure Save(SaveStream:TKMemoryStream);
-    procedure Load;
+    procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad();
     procedure UpdateState;
     procedure Paint;
   end;
@@ -90,12 +91,12 @@ uses KM_Terrain, KM_SoundFX, KM_PathFinding, KM_PlayersCollection;
 { TKMPlayerAssets }
 constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 begin
-  PlayerID := aPlayerID;
+  PlayerID      := aPlayerID;
   fMissionSettings := TMissionSettings.Create;
-  fUnits := TKMUnitsCollection.Create;
-  fHouses := TKMHousesCollection.Create;
-  fDeliverList := TKMDeliverQueue.Create;
-  fBuildList := TKMBuildingQueue.Create;
+  fUnits        := TKMUnitsCollection.Create;
+  fHouses       := TKMHousesCollection.Create;
+  fDeliverList  := TKMDeliverQueue.Create;
+  fBuildList    := TKMBuildingQueue.Create;
 end;
 
 
@@ -376,19 +377,34 @@ end;
 
 procedure TKMPlayerAssets.Save(SaveStream:TKMemoryStream);
 begin
-    fUnits.Save(SaveStream);
-    fHouses.Save(SaveStream);
-    fDeliverList.Save(SaveStream);
-    fBuildList.Save(SaveStream);
-    fMissionSettings.Save(SaveStream);
-    SaveStream.Write(PlayerID,4);
-    SaveStream.Write(PlayerType,4);
+  fUnits.Save(SaveStream);
+  fHouses.Save(SaveStream);
+  fDeliverList.Save(SaveStream);
+  fBuildList.Save(SaveStream);
+  fMissionSettings.Save(SaveStream);
+  SaveStream.Write(PlayerID, SizeOf(PlayerID));
+  SaveStream.Write(PlayerType, SizeOf(PlayerType));
 end;
 
 
-procedure TKMPlayerAssets.Load;
+procedure TKMPlayerAssets.Load(LoadStream:TKMemoryStream);
 begin
-  //todo: load
+  fUnits.Load(LoadStream);
+  fHouses.Load(LoadStream);
+  fDeliverList.Load(LoadStream);
+  fBuildList.Load(LoadStream);
+  fMissionSettings.Load(LoadStream);
+  LoadStream.Read(PlayerID, SizeOf(PlayerID));
+  LoadStream.Read(PlayerType, SizeOf(PlayerType));
+end;
+
+
+procedure TKMPlayerAssets.SyncLoad();
+begin
+  fUnits.SyncLoad;
+  fHouses.SyncLoad;
+  {The rest gets SynLoaded automatically since it's loaded after units and houses
+  and hence can get pointers from IDs at once}
 end;
 
 

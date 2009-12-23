@@ -32,6 +32,7 @@ type
     procedure FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
     property IsIssued:boolean read fIssued;
     procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 implementation
@@ -380,37 +381,71 @@ end else
 end;
 
 
+procedure TUnitWorkPlan.Load(LoadStream:TKMemoryStream);
+var i:integer; c:array[1..8]of char;
+begin
+  LoadStream.Read(c, 8); // if <> then break;
+  LoadStream.Read(fIssued);
+//public
+  LoadStream.Read(HasToWalk);
+  LoadStream.Read(Loc, 4);
+  LoadStream.Read(WalkTo, 4);
+  LoadStream.Read(WorkType, SizeOf(WorkType));
+  LoadStream.Read(WorkCyc);
+  LoadStream.Read(WorkDir, SizeOf(WorkDir));
+  LoadStream.Read(GatheringScript, SizeOf(GatheringScript));
+  LoadStream.Read(AfterWorkDelay);
+  LoadStream.Read(WalkFrom, SizeOf(WalkFrom));
+  LoadStream.Read(Resource1, SizeOf(Resource1));
+  LoadStream.Read(Count1);
+  LoadStream.Read(Resource2, SizeOf(Resource2));
+  LoadStream.Read(Count2);
+  LoadStream.Read(ActCount);
+  for i:=1 to ActCount do //Write only assigned
+  begin
+    LoadStream.Read(HouseAct[i].Act, SizeOf(HouseAct[i].Act));
+    LoadStream.Read(HouseAct[i].TimeToWork, SizeOf(HouseAct[i].TimeToWork));
+  end;
+  LoadStream.Read(Product1, SizeOf(Product1));
+  LoadStream.Read(ProdCount1);
+  LoadStream.Read(Product2, SizeOf(Product2));
+  LoadStream.Read(ProdCount2);
+  LoadStream.Read(AfterWorkIdle);
+  LoadStream.Read(ResourceDepleted);
+end;
+
+  
 procedure TUnitWorkPlan.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   SaveStream.Write('WorkPlan', 8);
-  SaveStream.Write(fIssued, 4);
+  SaveStream.Write(fIssued);
 //public
-  SaveStream.Write(HasToWalk, 4);
+  SaveStream.Write(HasToWalk);
   SaveStream.Write(Loc, 4);
   SaveStream.Write(WalkTo, 4);
-  SaveStream.Write(WorkType, 4);
-  SaveStream.Write(WorkCyc, 4);
-  SaveStream.Write(WorkDir, 4);
-  SaveStream.Write(GatheringScript, 4);
-  SaveStream.Write(AfterWorkDelay, 4);
-  SaveStream.Write(WalkFrom, 4);
-  SaveStream.Write(Resource1, 4);
-  SaveStream.Write(Count1, 4);
-  SaveStream.Write(Resource2, 4);
-  SaveStream.Write(Count2, 4);
-  SaveStream.Write(ActCount, 4);
+  SaveStream.Write(WorkType, SizeOf(WorkType));
+  SaveStream.Write(WorkCyc);
+  SaveStream.Write(WorkDir, SizeOf(WorkDir));
+  SaveStream.Write(GatheringScript, SizeOf(GatheringScript));
+  SaveStream.Write(AfterWorkDelay);
+  SaveStream.Write(WalkFrom, SizeOf(WalkFrom));
+  SaveStream.Write(Resource1, SizeOf(Resource1));
+  SaveStream.Write(Count1);
+  SaveStream.Write(Resource2, SizeOf(Resource2));
+  SaveStream.Write(Count2);
+  SaveStream.Write(ActCount);
   for i:=1 to ActCount do //Write only assigned
   begin
-    SaveStream.Write(HouseAct[i].Act, 4);
-    SaveStream.Write(HouseAct[i].TimeToWork, 4);
+    SaveStream.Write(HouseAct[i].Act, SizeOf(HouseAct[i].Act));
+    SaveStream.Write(HouseAct[i].TimeToWork, SizeOf(HouseAct[i].TimeToWork));
   end;
-  SaveStream.Write(Product1, 4);
-  SaveStream.Write(ProdCount1, 4);
-  SaveStream.Write(Product2, 4);
-  SaveStream.Write(ProdCount2, 4);
-  SaveStream.Write(AfterWorkIdle, 4);
-  SaveStream.Write(ResourceDepleted, 4);
+  SaveStream.Write(Product1, SizeOf(Product1));
+  SaveStream.Write(ProdCount1);
+  SaveStream.Write(Product2, SizeOf(Product2));
+  SaveStream.Write(ProdCount2);
+  SaveStream.Write(AfterWorkIdle);
+  SaveStream.Write(ResourceDepleted);
 end;
 
 end.

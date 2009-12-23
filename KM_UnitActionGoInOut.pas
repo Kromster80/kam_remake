@@ -12,10 +12,10 @@ type
         fHouseType:THouseType;
         fDoor:TKMPointF;
         fStreet:TKMPoint;
-//        fStartX:single;
         fHasStarted, fWaitingForPush:boolean;
     public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
+        constructor Load(LoadStream:TKMemoryStream); override;
         procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -38,6 +38,19 @@ begin
     fStep := 1  //go Inside (one cell up)
   else
     fStep := 0; //go Outside (one cell down)
+end;
+
+
+constructor TUnitActionGoInOut.Load(LoadStream:TKMemoryStream);
+begin
+  Inherited;
+  LoadStream.Read(fStep, 4);
+  LoadStream.Read(fDirection, SizeOf(fDirection));
+  LoadStream.Read(fHouseType, SizeOf(fHouseType));
+  LoadStream.Read(fDoor, SizeOf(fDoor));
+  LoadStream.Read(fStreet,4);
+  LoadStream.Read(fHasStarted);
+  LoadStream.Read(fWaitingForPush);
 end;
 
 
@@ -154,14 +167,14 @@ end;
 
 procedure TUnitActionGoInOut.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
-  SaveStream.Write(fStep,4);
-  SaveStream.Write(fDirection,4);
-  SaveStream.Write(fHouseType,4);
-  SaveStream.Write(fDoor,8);
-  SaveStream.Write(fStreet,4);
-  SaveStream.Write(fHasStarted,4);
-  SaveStream.Write(fWaitingForPush,4);
+  Inherited;
+  SaveStream.Write(fStep, 4);
+  SaveStream.Write(fDirection, SizeOf(fDirection));
+  SaveStream.Write(fHouseType, SizeOf(fHouseType));
+  SaveStream.Write(fDoor, SizeOf(fDoor));
+  SaveStream.Write(fStreet, 4);
+  SaveStream.Write(fHasStarted);
+  SaveStream.Write(fWaitingForPush);
 end;
 
 

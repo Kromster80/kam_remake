@@ -48,6 +48,7 @@ type
     procedure CloseDelivery(aID:integer);
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
     procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
     function WriteToText():string;
   end;
 
@@ -105,6 +106,7 @@ type
     procedure CloseHouseRepair(aID:integer);
     procedure RemoveHouseRepair(aHouse: TKMHouse);
     procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 implementation
@@ -394,34 +396,72 @@ procedure TKMDeliverQueue.Save(SaveStream:TKMemoryStream);
 var i,Count:integer;
 begin
   Count := length(fOffer);
-  SaveStream.Write(Count,4);
+  SaveStream.Write(Count);
   for i:=1 to Count do
   begin
-    SaveStream.Write(fOffer[i].Resource,4);
-    SaveStream.Write(fOffer[i].Count,4);
-    if fOffer[i].Loc_House <> nil then SaveStream.Write(fOffer[i].Loc_House.ID,4) else SaveStream.Write(Zero,4);
-    SaveStream.Write(fOffer[i].BeingPerformed,4);
+    SaveStream.Write(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
+    SaveStream.Write(fOffer[i].Count);
+    if fOffer[i].Loc_House <> nil then SaveStream.Write(fOffer[i].Loc_House.ID) else SaveStream.Write(Zero);
+    SaveStream.Write(fOffer[i].BeingPerformed);
   end;
 
   Count := length(fDemand);
-  SaveStream.Write(Count,4);
+  SaveStream.Write(Count);
   for i:=1 to Count do
+  with fDemand[i] do
   begin
-    SaveStream.Write(fDemand[i].Resource,4);
-    SaveStream.Write(fDemand[i].DemandType,4);
-    SaveStream.Write(fDemand[i].Importance,4);
-    if fDemand[i].Loc_House <> nil then SaveStream.Write(fDemand[i].Loc_House.ID,4) else SaveStream.Write(Zero,4);
-    if fDemand[i].Loc_Unit  <> nil then SaveStream.Write(fDemand[i].Loc_Unit.ID ,4) else SaveStream.Write(Zero,4);
-    SaveStream.Write(fDemand[i].BeingPerformed,4);
+    SaveStream.Write(Resource, SizeOf(Resource));
+    SaveStream.Write(DemandType, SizeOf(DemandType));
+    SaveStream.Write(Importance, SizeOf(Importance));
+    if Loc_House <> nil then SaveStream.Write(Loc_House.ID) else SaveStream.Write(Zero);
+    if Loc_Unit  <> nil then SaveStream.Write(Loc_Unit.ID ) else SaveStream.Write(Zero);
+    SaveStream.Write(BeingPerformed);
   end;
 
   Count := length(fQueue);
-  SaveStream.Write(Count,4);
+  SaveStream.Write(Count);
   for i:=1 to Count do
   begin
-    SaveStream.Write(fQueue[i].OfferID,4);
-    SaveStream.Write(fQueue[i].DemandID,4);
-    SaveStream.Write(fQueue[i].JobStatus,4);
+    SaveStream.Write(fQueue[i].OfferID);
+    SaveStream.Write(fQueue[i].DemandID);
+    SaveStream.Write(fQueue[i].JobStatus, SizeOf(fQueue[i].JobStatus));
+  end;
+end;
+
+
+procedure TKMDeliverQueue.Load(LoadStream:TKMemoryStream);
+var i,Count:integer;
+begin
+  LoadStream.Read(Count);
+  for i:=1 to Count do
+  begin
+    LoadStream.Read(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
+    LoadStream.Read(fOffer[i].Count);
+    LoadStream.Read(fOffer[i].Loc_House, 4);
+    fOffer[i].Loc_House := fPlayers.GetHouseByID(integer(fOffer[i].Loc_House));
+    LoadStream.Read(fOffer[i].BeingPerformed);
+  end;
+
+  LoadStream.Read(Count);
+  for i:=1 to Count do
+  with fDemand[i] do
+  begin
+    LoadStream.Read(Resource, SizeOf(Resource));
+    LoadStream.Read(DemandType, SizeOf(DemandType));
+    LoadStream.Read(Importance, SizeOf(Importance));
+    LoadStream.Read(Loc_House, 4);
+    Loc_House := fPlayers.GetHouseByID(integer(Loc_House));
+    LoadStream.Read(Loc_Unit, 4);
+    Loc_Unit := fPlayers.GetUnitByID(integer(Loc_Unit));
+    LoadStream.Read(BeingPerformed);
+  end;
+
+  LoadStream.Read(Count);
+  for i:=1 to Count do
+  begin
+    LoadStream.Read(fQueue[i].OfferID);
+    LoadStream.Read(fQueue[i].DemandID);
+    LoadStream.Read(fQueue[i].JobStatus, SizeOf(fQueue[i].JobStatus));
   end;
 end;
 
@@ -698,40 +738,89 @@ procedure TKMBuildingQueue.Save(SaveStream:TKMemoryStream);
 var i,Count:integer;
 begin
   Count := length(fFieldsQueue);
-  SaveStream.Write(Count,4);
+  SaveStream.Write(Count);
   for i:=1 to Count do
+  with fFieldsQueue[i] do
   begin
-    SaveStream.Write(fFieldsQueue[i].Loc,4);
-    SaveStream.Write(fFieldsQueue[i].FieldType,4);
-    SaveStream.Write(fFieldsQueue[i].Importance,4);
-    SaveStream.Write(fFieldsQueue[i].JobStatus,4);
-    if fFieldsQueue[i].Worker <> nil then SaveStream.Write(fFieldsQueue[i].Worker.ID,4) else SaveStream.Write(Zero,4);
+    SaveStream.Write(Loc,4);
+    SaveStream.Write(FieldType, SizeOf(FieldType));
+    SaveStream.Write(Importance);
+    SaveStream.Write(JobStatus, SizeOf(JobStatus));
+    if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Zero);
   end;
 
   Count := length(fHousesQueue);
-  SaveStream.Write(Count,4);
+  SaveStream.Write(Count);
   for i:=1 to Count do
   begin
-    if fHousesQueue[i].House <> nil then SaveStream.Write(fHousesQueue[i].House.ID,4) else SaveStream.Write(Zero,4);
-    SaveStream.Write(fHousesQueue[i].Importance,4);
+    if fHousesQueue[i].House <> nil then SaveStream.Write(fHousesQueue[i].House.ID) else SaveStream.Write(Zero);
+    SaveStream.Write(fHousesQueue[i].Importance);
   end;
 
   Count := length(fHousePlansQueue);
-  SaveStream.Write(Count,4);
+  SaveStream.Write(Count);
   for i:=1 to Count do
+  with fHousePlansQueue[i] do
   begin
-    if fHousePlansQueue[i].House <> nil then SaveStream.Write(fHousePlansQueue[i].House.ID,4) else SaveStream.Write(Zero,4);
-    SaveStream.Write(fHousePlansQueue[i].Importance,4);
-    SaveStream.Write(fHousePlansQueue[i].JobStatus,4);
-    if fHousePlansQueue[i].Worker <> nil then SaveStream.Write(fHousePlansQueue[i].Worker.ID,4) else SaveStream.Write(Zero,4);
+    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Zero);
+    SaveStream.Write(Importance);
+    SaveStream.Write(JobStatus, SizeOf(JobStatus));
+    if Worker <> nil then SaveStream.Write(Worker.ID) else SaveStream.Write(Zero);
   end;
 
   Count := length(fHousesRepairQueue);
   SaveStream.Write(Count,4);
   for i:=1 to Count do
+  with fHousesRepairQueue[i] do
   begin
-    if fHousesRepairQueue[i].House <> nil then SaveStream.Write(fHousesRepairQueue[i].House.ID,4) else SaveStream.Write(Zero,4);
-    SaveStream.Write(fHousesRepairQueue[i].Importance,4);
+    if House <> nil then SaveStream.Write(House.ID) else SaveStream.Write(Zero);
+    SaveStream.Write(Importance);
+  end;
+end;
+
+
+procedure TKMBuildingQueue.Load(LoadStream:TKMemoryStream);
+var i,Count:integer;
+begin
+  LoadStream.Read(Count);
+  for i:=1 to Count do
+  with fFieldsQueue[i] do
+  begin
+    LoadStream.Read(Loc, 4);
+    LoadStream.Read(FieldType, SizeOf(FieldType));
+    LoadStream.Read(Importance);
+    LoadStream.Read(JobStatus, SizeOf(JobStatus));
+    LoadStream.Read(Worker, 4);
+    Worker := fPlayers.GetUnitByID(integer(Worker));
+  end;
+
+  LoadStream.Read(Count);
+  for i:=1 to Count do
+  begin
+    LoadStream.Read(fHousesQueue[i].House, 4);
+    fHousesQueue[i].House := fPlayers.GetHouseByID(integer(fHousesQueue[i].House));
+    LoadStream.Read(fHousesQueue[i].Importance);
+  end;
+
+  LoadStream.Read(Count);
+  for i:=1 to Count do
+  with fHousePlansQueue[i] do
+  begin
+    LoadStream.Read(House, 4);
+    House := fPlayers.GetHouseByID(integer(House));
+    LoadStream.Read(Importance);
+    LoadStream.Read(JobStatus, SizeOf(JobStatus));
+    LoadStream.Read(Worker, 4);
+    Worker := fPlayers.GetUnitByID(integer(Worker));
+  end;
+
+  LoadStream.Read(Count);
+  for i:=1 to Count do
+  with fHousesRepairQueue[i] do
+  begin
+    LoadStream.Read(House, 4);
+    House := fPlayers.GetHouseByID(integer(House));
+    LoadStream.Read(Importance);
   end;
 end;
 

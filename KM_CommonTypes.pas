@@ -14,8 +14,10 @@ type
   TKMemoryStream = class(TMemoryStream)
   public
     function Write(const Value:integer): Longint; overload; //@Lewin: Any idea how do to avoid warning message here?
+    function Write(const Value:byte): Longint; overload;
     function Write(const Value:boolean): Longint; overload;
     function Read(var Value:integer): Longint; overload;
+    function Read(var Value:byte): Longint; overload;
     function Read(var Value:boolean): Longint; overload;
   end;
 
@@ -211,6 +213,11 @@ begin
   Result := Inherited Write(Value, SizeOf(Value));
 end;
 
+function TKMemoryStream.Write(const Value:byte): Longint;
+begin
+  Result := Inherited Write(Value, SizeOf(Value));
+end;
+
 function TKMemoryStream.Write(const Value:boolean): Longint;
 begin
   Result := Inherited Write(Value, SizeOf(Value));
@@ -218,6 +225,11 @@ end;
 
 
 function TKMemoryStream.Read(var Value:integer): Longint;
+begin
+  Result := Inherited Read(Value, SizeOf(Value));
+end;
+
+function TKMemoryStream.Read(var Value:byte): Longint;
 begin
   Result := Inherited Read(Value, SizeOf(Value));
 end;

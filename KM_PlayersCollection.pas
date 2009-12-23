@@ -54,10 +54,10 @@ begin
 
   fPlayerCount:=PlayerCount; //Used internally
   for i:=1 to fPlayerCount do begin
-    Player[i]:=TKMPlayerAssets.Create(TPlayerID(i));
-    PlayerAI[i]:=TKMPlayerAI.Create(Player[i]);
+    Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
+    PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
   end;
-  PlayerAnimals:=TKMPlayerAnimals.Create;
+  PlayerAnimals := TKMPlayerAnimals.Create;
 end;
 
 destructor TKMAllPlayers.Destroy;
@@ -69,8 +69,8 @@ begin
   end;
   FreeAndNil(PlayerAnimals);
 
-  MyPlayer:=nil;
-  Selected:=nil;
+  MyPlayer := nil;
+  Selected := nil;
   inherited;
 end;
 
@@ -79,7 +79,7 @@ var i:integer;
 begin
   Result:=nil;
   for i:=1 to fPlayerCount do begin
-    Result:= Player[i].HousesHitTest(X,Y);
+    Result := Player[i].HousesHitTest(X,Y);
     if Result<>nil then Break; //else keep on testing
   end;
 end;
@@ -121,7 +121,7 @@ begin
     Result := Player[i].GetUnitByID(aID);
     if Result<>nil then Break; //else keep on testing
   end;
-  Result := PlayerAnimals.GetUnitByID(aID);
+  if Result = nil then Result := PlayerAnimals.GetUnitByID(aID);
 end;
 
 
@@ -201,8 +201,8 @@ begin
   SaveStream.Write(fPlayerCount,4);
   for i:=1 to fPlayerCount do
   begin
-//    Player[i].Save(SaveStream);
-//    PlayerAI[i].Save(SaveStream); //Saves AI stuff
+    Player[i].Save(SaveStream);
+    PlayerAI[i].Save(SaveStream); //Saves AI stuff
   end;
   PlayerAnimals.Save(SaveStream);
 end;
@@ -213,11 +213,12 @@ var i:word; c:array[1..64]of char;
 begin
   LoadStream.Read(c, 7); //if s <> 'Players' then exit;
   LoadStream.Read(fPlayerCount, 4);
+  Selected := nil;
 
   for i:=1 to fPlayerCount do
   begin
-    {Player[i].Load(LoadStream);} //todo: Load
-    {PlayerAI[i].Load(LoadStream);} //todo: Load
+    Player[i].Load(LoadStream);
+    PlayerAI[i].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);
 end;
@@ -228,8 +229,8 @@ var i:word;
 begin
   for i:=1 to fPlayerCount do
   begin
-    {Player[i].SyncLoad;} //todo: SyncLoad
-    {PlayerAI[i].SyncLoad;} //todo: SyncLoad
+    Player[i].SyncLoad;
+    PlayerAI[i].SyncLoad;
   end;
   PlayerAnimals.SyncLoad;
 end;

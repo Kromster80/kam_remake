@@ -94,6 +94,7 @@ type
     property GetMissionTime:cardinal read MissionTimeInSec;
 
     procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 
@@ -430,16 +431,32 @@ end;
 procedure TMissionSettings.Save(SaveStream:TKMemoryStream);
 var i,k:integer;
 begin
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseTotalCount[i],4);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseBuiltCount[i],4);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseLostCount[i],4);
-  for i:=1 to 40 do SaveStream.Write(UnitTotalCount[i],4);
-  for i:=1 to 40 do SaveStream.Write(UnitTrainedCount[i],4);
-  for i:=1 to 40 do SaveStream.Write(UnitLostCount[i],4);
-  for i:=1 to 4 do for k:=1 to 4 do SaveStream.Write(ResourceRatios[i,k],4);
-  SaveStream.Write(MissionTimeInSec,4);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(AllowToBuild[i],4);
-  for i:=1 to HOUSE_COUNT do SaveStream.Write(BuildReqDone[i],4);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseTotalCount[i]);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseBuiltCount[i]);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(HouseLostCount[i]);
+  for i:=1 to 40 do SaveStream.Write(UnitTotalCount[i]);
+  for i:=1 to 40 do SaveStream.Write(UnitTrainedCount[i]);
+  for i:=1 to 40 do SaveStream.Write(UnitLostCount[i]);
+  for i:=1 to 4 do for k:=1 to 4 do SaveStream.Write(ResourceRatios[i,k]);
+  SaveStream.Write(MissionTimeInSec, 4);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(AllowToBuild[i]);
+  for i:=1 to HOUSE_COUNT do SaveStream.Write(BuildReqDone[i]);
+end;
+
+
+procedure TMissionSettings.Load(LoadStream:TKMemoryStream);
+var i,k:integer;
+begin
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseTotalCount[i]);
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseBuiltCount[i]);
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseLostCount[i]);
+  for i:=1 to 40 do LoadStream.Read(UnitTotalCount[i]);
+  for i:=1 to 40 do LoadStream.Read(UnitTrainedCount[i]);
+  for i:=1 to 40 do LoadStream.Read(UnitLostCount[i]);
+  for i:=1 to 4 do for k:=1 to 4 do LoadStream.Read(ResourceRatios[i,k]);
+  LoadStream.Read(MissionTimeInSec, 4);
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(AllowToBuild[i]);
+  for i:=1 to HOUSE_COUNT do LoadStream.Read(BuildReqDone[i]);
 end;
 
 

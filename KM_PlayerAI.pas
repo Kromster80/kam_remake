@@ -13,7 +13,8 @@ type
     procedure CheckCitizenCount();
   public
     procedure Save(SaveStream:TKMemoryStream);
-    procedure Load;
+    procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad();
     procedure UpdateState;
   end;
 
@@ -77,13 +78,23 @@ procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 var s:string;
 begin
   s := 'PlayerAI state, nothing to include yet, should be some AI things'; //no idea what to put here yet
-  SaveStream.Write(s[1],length(s));
+  SaveStream.Write(s[1], length(s));
 end;
 
 
-procedure TKMPlayerAI.Load;
+//So far this whole procedure is a placeholder
+procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
+var s:string; c:array[1..128]of char;
 begin
+  s := 'PlayerAI state, nothing to include yet, should be some AI things'; //no idea what to put here yet
+  LoadStream.Read(c, length(s));
+end;                      
 
+
+//So far this whole procedure is a placeholder
+procedure TKMPlayerAI.SyncLoad();
+begin
+  //
 end;                      
 
 

@@ -1656,7 +1656,7 @@ begin
     LoadStream.Read(Land[i,k].Terrain, TileSize);
 
   FallingTrees.Load(LoadStream);
-  LoadStream.Read(AnimStep, 4);
+  LoadStream.Read(AnimStep);
 
   RebuildLighting(1, MapX, 1, MapY);
   RebuildPassability(1, MapX, 1, MapY);

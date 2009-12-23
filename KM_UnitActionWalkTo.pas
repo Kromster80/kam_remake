@@ -36,7 +36,7 @@ type
       fRouteBuilt:boolean;
       Explanation:string; //Debug only, explanation what unit is doing
       constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
-      constructor Load(LoadStream: TKMemoryStream);
+      constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
       function GetNextPosition():TKMPoint;
@@ -86,21 +86,20 @@ end;
 
 
 constructor TUnitActionWalkTo.Load(LoadStream: TKMemoryStream);
-var k:integer;
 begin
   Inherited;
   LoadStream.Read(fWalker, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fLastOpponent, 4); //substitute it with reference on SyncLoad
-  LoadStream.Read(fWalkFrom,4);
-  LoadStream.Read(fWalkTo,4);
-  LoadStream.Read(fAvoid,4);
+  LoadStream.Read(fWalkFrom, 4);
+  LoadStream.Read(fWalkTo, 4);
+  LoadStream.Read(fAvoid, 4);
   LoadStream.Read(fWalkToSpot);
   LoadStream.Read(fPass,SizeOf(fPass));
   LoadStream.Read(DoesWalking);
   LoadStream.Read(DoExchange);
   LoadStream.Read(fInteractionCount);
   LoadStream.Read(fGiveUpCount);
-  LoadStream.Read(fInteractionStatus,SizeOf(fInteractionStatus));
+  LoadStream.Read(fInteractionStatus, SizeOf(fInteractionStatus));
 
   NodeList := TKMPointList.Create; //Freed on destroy
   NodeList.Load(LoadStream);
@@ -112,9 +111,11 @@ end;
 
 procedure TUnitActionWalkTo.SyncLoad();
 begin
-  inherited;
+  Inherited;
+  fLog.AppendLog(integer(fWalker),3);
   fWalker       := fPlayers.GetUnitByID(integer(fWalker));
   fLastOpponent := fPlayers.GetUnitByID(integer(fLastOpponent));
+  fLog.AppendLog(integer(fWalker<>nil),4);
 end;
 
 destructor TUnitActionWalkTo.Destroy;
@@ -718,7 +719,7 @@ end;
 
 procedure TUnitActionWalkTo.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fWalker <> nil then
     SaveStream.Write(fWalker.ID) //Store ID, then substitute it with reference on SyncLoad
   else

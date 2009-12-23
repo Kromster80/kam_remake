@@ -227,8 +227,7 @@ fGame.KeyUp(Key, Shift);
 end;
 
 
-procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
 fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them fo fGame');
 fGame.KeyUp(Key, Shift, true);
