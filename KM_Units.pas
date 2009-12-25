@@ -383,6 +383,7 @@ type
   private
     //Groups:array of integer;
   public
+    destructor Destroy; override;
     function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
     function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
     procedure Rem(aUnit:TKMUnit);
@@ -411,11 +412,18 @@ end;
 
 
 constructor TKMUnitCitizen.Load(LoadStream:TKMemoryStream);
+var HasPlan:boolean;
 begin
   Inherited;
+
   WorkPlan := TUnitWorkPlan.Create;
-  WorkPlan.Load(LoadStream);
-  TTaskMining(fUnitTask).WorkPlan := WorkPlan; //restore reference
+  LoadStream.Read(HasPlan);
+  if HasPlan then
+  begin
+    WorkPlan.Load(LoadStream);
+    fLog.AppendLog('Workplan<>nil - ', integer(fUnitTask<>nil));
+    TTaskMining(fUnitTask).WorkPlan := WorkPlan; //restore reference
+  end;
 end;
 
 
@@ -475,9 +483,12 @@ end;
 
 
 procedure TKMUnitCitizen.Save(SaveStream:TKMemoryStream);
+var HasPlan:boolean;
 begin
-  inherited;
-  WorkPlan.Save(SaveStream);
+  Inherited;
+  HasPlan := WorkPlan<>nil;
+  SaveStream.Write(HasPlan);
+  if HasPlan then WorkPlan.Save(SaveStream);
 end;
 
 
@@ -1095,6 +1106,7 @@ begin
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
   LoadStream.Read(fPosition, 8); //2floats
   LoadStream.Read(fLastUpdateTime, 4);
+  fLastUpdateTime := TimeGetTime; //todo: here's potential bug
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
   LoadStream.Read(fPointerCount);
@@ -1497,7 +1509,7 @@ begin
   // - Task (Action creating layer)
   // - specific UpdateState (Task creating layer)
 
-  Result:=true;
+  Result := true;
 
   UpdateHunger();
   UpdateFOW();
@@ -1508,10 +1520,10 @@ begin
   //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
 
-  ActDone:=true;
-  TaskDone:=true;
-  TimeDelta:= TimeGetTime - fLastUpdateTime;
-  fLastUpdateTime:= TimeGetTime;
+  ActDone         := true;
+  TaskDone        := true;
+  TimeDelta       := TimeGetTime - fLastUpdateTime;
+  fLastUpdateTime := TimeGetTime;
 
   //Shortcut to freeze unit in place if it's on an unwalkable tile
   if fCurrentAction is TUnitActionWalkTo then
@@ -1554,7 +1566,7 @@ begin
 
   //If we get to this point then it means that common part is done and now
   //we can perform unit-specific activities (ask for job, etc..)
-  Result:=false;
+  Result := false;
 end;
 
 
@@ -1583,10 +1595,10 @@ end;
 
 constructor TUnitTask.Load(LoadStream:TKMemoryStream);
 begin
-  Create(nil);
+  Inherited Create;
   LoadStream.Read(fTaskName, SizeOf(fTaskName));//Substitute it with reference on SyncLoad
   LoadStream.Read(fUnit, 4);//Substitute it with reference on SyncLoad
-  fLog.AppendLog(inttostr(integer(fUnit)));
+  fLog.AppendLog('TUnitTask.Load - ', integer(fUnit));
   LoadStream.Read(fPhase);
   LoadStream.Read(fPhase2);
 end;
@@ -1757,6 +1769,7 @@ begin
   LoadStream.Read(fToUnit, 4);
   LoadStream.Read(fResourceType, SizeOf(fResourceType));
   LoadStream.Read(fDeliverID);
+  LoadStream.Read(DeliverKind, SizeOf(DeliverKind));
 end;
 
 
@@ -1939,6 +1952,7 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(fResourceType, SizeOf(fResourceType));
   SaveStream.Write(fDeliverID);
+  SaveStream.Write(DeliverKind, SizeOf(DeliverKind));
 end;
 
 
@@ -2692,7 +2706,7 @@ end;
 procedure TTaskMining.SyncLoad();
 begin
   Inherited;
-  fLog.AppendLog(integer(fUnit),6);
+  fLog.AppendLog('TTaskMining.SyncLoad - ', integer(fUnit));
   WorkPlan := TKMUnitCitizen(fUnit).WorkPlan; //Relink instead of reading-finding
 end;
 
@@ -3148,7 +3162,7 @@ end;
 
 constructor TUnitAction.Load(LoadStream:TKMemoryStream);
 begin
-  Create(ua_Walk);
+  Inherited Create;
   LoadStream.Read(fActionName, SizeOf(fActionName));
   LoadStream.Read(fActionType, SizeOf(fActionType));
   LoadStream.Read(IsStepDone);
@@ -3157,7 +3171,7 @@ end;
 
 procedure TUnitAction.SyncLoad();
 begin
-//nothing here, placeholder
+  //nothing here, placeholder
 end;
 
 
@@ -3232,6 +3246,15 @@ end;
 
 
 { TKMUnitsCollection }
+destructor TKMUnitsCollection.Destroy;
+//var i:integer; U:TKMUnit;
+begin
+  {for i := 0 to Count - 1 do
+    FreeAndNil(TKMUnit(Items[i]));} //todo: make it happen to free units props on destroy
+  Inherited;
+end;
+
+
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
 function TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
@@ -3394,7 +3417,6 @@ begin
       ut_Wolf..ut_Duck:         Inherited Add(TKMUnitAnimal.Load(LoadStream));
     else fLog.AssertToLog(false, 'Uknown unit type in Savegame')
     end;
-
   end;
 end;
 
@@ -3404,7 +3426,7 @@ var i:integer;
 begin
   for i := 0 to Count - 1 do
   begin
-    fLog.AppendLog(TKMUnit(Items[I]).ID, 1);
+    fLog.AppendLog('TKMUnitsCollection.SyncLoad - ', TKMUnit(Items[I]).ID);
     case TKMUnit(Items[I]).fUnitType of
       ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;
       ut_Worker:                TKMUnitWorker(Items[I]).SyncLoad;

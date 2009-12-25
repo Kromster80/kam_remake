@@ -359,19 +359,19 @@ end;
 
 function TKMPlayerAssets.GetUnitQty(aType:TUnitType):integer;
 begin
-  Result:=fMissionSettings.GetUnitQty(aType);
+  Result := fMissionSettings.GetUnitQty(aType);
 end;
 
 
 function TKMPlayerAssets.GetHouseCount():integer;
 begin
-  Result:=fHouses.Count;
+  Result := fHouses.Count;
 end;
 
 
 function TKMPlayerAssets.GetUnitCount():integer;
 begin
-  Result:=fUnits.Count;
+  Result := fUnits.Count;
 end;
 
 

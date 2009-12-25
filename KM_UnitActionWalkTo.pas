@@ -60,7 +60,7 @@ begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
   Inherited Create(aActionType);
-  fActionName := uan_WalkTo;
+  fActionName   := uan_WalkTo;
   fWalker       := KMUnit;
   fWalkFrom     := fWalker.GetPosition;
   fWalkTo       := LocB;
@@ -74,14 +74,14 @@ begin
   DoExchange    := false;
   DoesWalking   := false;
   fInteractionCount := 0;
-  fGiveUpCount := 0;
+  fGiveUpCount  := 0;
   fInteractionStatus := kis_None;
   fLastOpponent := nil;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
 
-  fRouteBuilt := AssembleTheRoute();
+  fRouteBuilt   := AssembleTheRoute();
 end;
 
 
@@ -94,7 +94,7 @@ begin
   LoadStream.Read(fWalkTo, 4);
   LoadStream.Read(fAvoid, 4);
   LoadStream.Read(fWalkToSpot);
-  LoadStream.Read(fPass,SizeOf(fPass));
+  LoadStream.Read(fPass, SizeOf(fPass));
   LoadStream.Read(DoesWalking);
   LoadStream.Read(DoExchange);
   LoadStream.Read(fInteractionCount);
@@ -112,10 +112,10 @@ end;
 procedure TUnitActionWalkTo.SyncLoad();
 begin
   Inherited;
-  fLog.AppendLog(integer(fWalker),3);
+  fLog.AppendLog('TUnitActionWalkTo.SyncLoad - ', integer(fWalker));
   fWalker       := fPlayers.GetUnitByID(integer(fWalker));
   fLastOpponent := fPlayers.GetUnitByID(integer(fLastOpponent));
-  fLog.AppendLog(integer(fWalker<>nil),4);
+  fLog.AppendLog('TUnitActionWalkTo.SyncLoad - fWalker<>nil ', integer(fWalker<>nil));
 end;
 
 destructor TUnitActionWalkTo.Destroy;

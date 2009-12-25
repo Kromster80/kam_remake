@@ -52,7 +52,7 @@ var i:integer;
 begin
   fLog.AssertToLog(InRange(PlayerCount,1,MAX_PLAYERS),'PlayerCount exceeded');
 
-  fPlayerCount:=PlayerCount; //Used internally
+  fPlayerCount := PlayerCount; //Used internally
   for i:=1 to fPlayerCount do begin
     Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
     PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
@@ -71,7 +71,7 @@ begin
 
   MyPlayer := nil;
   Selected := nil;
-  inherited;
+  Inherited;
 end;
 
 function TKMAllPlayers.HousesHitTest(X, Y: Integer): TKMHouse;
@@ -103,6 +103,7 @@ begin
   if aID = 0 then exit;
 
   for i:=1 to fPlayerCount do
+  if Player[i]<>nil then
   begin
     Result := Player[i].GetHouseByID(aID);
     if Result<>nil then Break; //else keep on testing
@@ -117,6 +118,7 @@ begin
   if aID = 0 then exit;
 
   for i:=1 to fPlayerCount do
+  if Player[i]<>nil then
   begin
     Result := Player[i].GetUnitByID(aID);
     if Result<>nil then Break; //else keep on testing
@@ -213,10 +215,14 @@ var i:word; c:array[1..64]of char;
 begin
   LoadStream.Read(c, 7); //if s <> 'Players' then exit;
   LoadStream.Read(fPlayerCount, 4);
+  fLog.AssertToLog(fPlayerCount<=MAX_PLAYERS,'Player count in savegame is exceeded');
   Selected := nil;
 
   for i:=1 to fPlayerCount do
   begin
+    if Player[i]=nil then   Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
+    if PlayerAI[i]=nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
+
     Player[i].Load(LoadStream);
     PlayerAI[i].Load(LoadStream);
   end;

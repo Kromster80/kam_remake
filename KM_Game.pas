@@ -33,7 +33,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   public
-    procedure StartGame(MissionFile, aGameName:string);
+    procedure StartGame(MissionFile, aGameName:string; const aPlayerCount:integer=MAX_PLAYERS);
     procedure PauseGame(DoPause:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
     procedure StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
@@ -425,7 +425,7 @@ begin
 end;
 
 
-procedure TKMGame.StartGame(MissionFile, aGameName:string);
+procedure TKMGame.StartGame(MissionFile, aGameName:string; const aPlayerCount:integer=MAX_PLAYERS);
 var ResultMsg:string;
 begin
   RandSeed := 4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
@@ -460,9 +460,9 @@ begin
     end;
     fLog.AppendLog('DAT Loaded');
   end else begin
-    fTerrain.MakeNewMap(64,64); //For debug we use blank mission
-    fPlayers:=TKMAllPlayers.Create(MAX_PLAYERS); //Create 6 players
-    MyPlayer:=fPlayers.Player[1];
+    fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
+    fPlayers := TKMAllPlayers.Create(aPlayerCount);
+    MyPlayer := fPlayers.Player[1];
   end;
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.EnableOrDisableMenuIcons(not (MissionMode = mm_Tactic));
@@ -629,24 +629,23 @@ begin
     begin
       LoadStream := TKMemoryStream.Create; //Read data from file into stream
       if not CheckFileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt') then exit;
-
       LoadStream.LoadFromFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');
       LoadStream.Seek(0, soFromBeginning);
 
-      LoadStream.Read(c,12); //if PasToStr(c) <> 'KaM_Savegame' then exit;
-      LoadStream.Read(c,2); //if s <> '01' then exit;
+      LoadStream.Read(c, 12); //if PasToStr(c) <> 'KaM_Savegame' then exit;
+      LoadStream.Read(c, 2); //if s <> '01' then exit;
 
       //Create empty environment
-      StartGame('',''); //todo: check for emptyness and optimize load time
+      StartGame('','',1); //todo: check for emptyness and optimize load time
 
       //Substitute tick counter and id tracker (and maybe random seed?)
-      LoadStream.Read(GameplayTickCount,4);
-      LoadStream.Read(ID_Tracker,4);
+      LoadStream.Read(GameplayTickCount, 4);
+      LoadStream.Read(ID_Tracker, 4);
 
       //Load the data into the game
       fTerrain.Load(LoadStream);
       fPlayers.Load(LoadStream);
-      fViewport.Load(LoadStream);
+      //fViewport.Load(LoadStream);
       LoadStream.Free;
 
       fPlayers.SyncLoad(); //todo: Should parse all Unit-House ID references and replace them with actual pointers

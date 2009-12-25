@@ -438,7 +438,7 @@ begin
     LoadStream.Read(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
     LoadStream.Read(fOffer[i].Count);
     LoadStream.Read(fOffer[i].Loc_House, 4);
-    fOffer[i].Loc_House := fPlayers.GetHouseByID(integer(fOffer[i].Loc_House));
+    fOffer[i].Loc_House := fPlayers.GetHouseByID(integer(fOffer[i].Loc_House)); //todo: split into SyncLoad for cases when we need to access yet unloaded players assets
     LoadStream.Read(fOffer[i].BeingPerformed);
   end;
 

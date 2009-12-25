@@ -229,8 +229,8 @@ end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them fo fGame');
-fGame.KeyUp(Key, Shift, true);
+ fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them fo fGame');
+ fGame.KeyUp(Key, Shift, true);
 end;
 
 
@@ -573,23 +573,24 @@ procedure TForm1.Button_1Click(Sender: TObject);
 var H:TKMHouse; i:integer;
 begin
   fGame.StopGame(gr_Error);
-  fGame.StartGame('', '1');
+  fGame.StartGame('', '1',1);
   MyPlayer:=fPlayers.Player[1];
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
   H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
   if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All,1300);
 
-  for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
-  MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
+  for i:=1 to 5 do
+    MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
+//  MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
   MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
   MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)),KMPointY1(KMPoint(18,8)));
   //MyPlayer.AddHousePlan(ht_Mill,KMPoint(6,12),true);
   //MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
   //MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
-  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
-  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(10,12));
+  {MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
+  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(10,12));}
 
   {MyPlayer.AddGroup(ut_Militia,KMPoint(5,14),dir_N,3,6);
   MyPlayer.AddGroup(ut_Militia,KMPoint(10,14),dir_NE,3,6);
@@ -608,7 +609,7 @@ begin
 
   fViewPort.SetCenter(10,9);
 
-  MyPlayer.AddUnit(ut_Wolf,KMPoint(5,12));
+//  MyPlayer.AddUnit(ut_Wolf,KMPoint(5,12));
 {  MyPlayer.AddUnit(ut_Fish,KMPoint(6,12));
   MyPlayer.AddUnit(ut_Watersnake,KMPoint(7,12));
   MyPlayer.AddUnit(ut_Seastar,KMPoint(8,12));
