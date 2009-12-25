@@ -601,13 +601,14 @@ begin
     gsPaused,gsRunning: //Can't save from Paused state yet, but we could add it later
     begin
       SaveStream := TKMemoryStream.Create;
-      SaveStream.Write('KaM_Savegame',12);
-      SaveStream.Write('01',2); //This is savegame version
-      SaveStream.Write(GameplayTickCount,4); //dunno if it's required to save, but it won't hurt anyone
-      SaveStream.Write(ID_Tracker,4); //Units-Houses ID tracker
+      SaveStream.Write('KaM_Savegame', 12);
+      SaveStream.Write('01', 2); //This is savegame version
+      SaveStream.Write(GameplayTickCount, 4); //dunno if it's required to save, but it won't hurt anyone
+      SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
 
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
+      fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');
       SaveStream.Free;
@@ -645,6 +646,7 @@ begin
       //Load the data into the game
       fTerrain.Load(LoadStream);
       fPlayers.Load(LoadStream);
+      fViewport.Load(LoadStream);
       LoadStream.Free;
 
       fPlayers.SyncLoad(); //todo: Should parse all Unit-House ID references and replace them with actual pointers

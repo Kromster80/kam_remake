@@ -1,6 +1,6 @@
 unit KM_Viewport;
 interface
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils, OpenGL, KM_Utils;
+uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils, OpenGL, KM_Utils, KM_CommonTypes;
 
 type
 
@@ -21,6 +21,8 @@ TViewport = class
     function GetClip():TRect; //returns visible area dimensions in map space
     function GetMinimapClip():TRect;
     procedure DoScrolling;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
 end;
 
 var
@@ -142,6 +144,23 @@ begin
 
   SetCenter(XCoord,YCoord); //EnsureRanges
 end;
+
+
+procedure TViewport.Save(SaveStream:TKMemoryStream);
+begin
+  SaveStream.Write(XCoord);
+  SaveStream.Write(YCoord);
+  SaveStream.Write(Zoom, 4);
+end;
+
+
+procedure TViewport.Load(LoadStream:TKMemoryStream);
+begin
+  LoadStream.Read(XCoord);
+  LoadStream.Read(YCoord);
+  LoadStream.Read(Zoom, 4);
+end;
+
 
 end.
 
