@@ -13,12 +13,12 @@ type
 type
   TKMemoryStream = class(TMemoryStream)
   public
-    function Write(const Value:integer): Longint; overload; //@Lewin: Any idea how do to avoid warning message here?
-    function Write(const Value:byte): Longint; overload;
-    function Write(const Value:boolean): Longint; overload;
-    function Read(var Value:integer): Longint; overload;
-    function Read(var Value:byte): Longint; overload;
-    function Read(var Value:boolean): Longint; overload;
+    function Write(const Value:integer): Longint; reintroduce; overload; //@Lewin: Any idea how do to avoid warning message here?
+    function Write(const Value:byte): Longint; reintroduce; overload;    //@Krom: 'reintroduce' does the trick :)
+    function Write(const Value:boolean): Longint; reintroduce; overload;
+    function Read(var Value:integer): Longint; reintroduce; overload;
+    function Read(var Value:byte): Longint; reintroduce; overload;
+    function Read(var Value:boolean): Longint; reintroduce; overload;
   end;
 
 {Messages}

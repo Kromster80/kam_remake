@@ -1104,7 +1104,16 @@ begin
   LoadStream.Read(fCondition);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
-  LoadStream.Read(fPosition, 8); //2floats
+  //@Krom: I'm not really happy with assigning invalid pointers. If anyone tries to access fHome before (or without)
+  //       SyncLoad happening then it will be pointing at invalid memory. I found an 'invalid pointer opperation'
+  //       crash caused by this after loading because SyncLoad didn't happen somewhere. I know, that is a bug which
+  //       can be fixed but that's not my point. Assigning integers to object pointers for the sake of saving time/effort
+  //       seems like really bad coding practice.
+  //       Can't we have another variable (of type cardinal or integer) for each pointer which is synced to the pointer on SyncLoad?
+  //       Then if someone accedently accesses the pointer then they will get nil, rather than some random piece of memory.
+  //       I know it will take more memory, code and time but I think it would be cleaner and less ambiguous. (for people reading our code)
+  //       Please let me know what you think, maybe on ICQ some time if you want to discuss it.
+  LoadStream.Read(fPosition, 8); //2 floats
   LoadStream.Read(fLastUpdateTime, 4);
   fLastUpdateTime := TimeGetTime; //todo: here's potential bug
   LoadStream.Read(fVisible);
@@ -1861,6 +1870,8 @@ if DeliverKind = dk_House then
        TaskDone:=true;
      end;
   7: SetActionStay(5,ua_Walk);
+  //@Krom: Serf should look for a new delivery from this building (when possible) rather than walking outside THEN finding a new task
+  //       At the moment serfs often walk out of the storehouse then walk straight back in again. This will help with congestion/blockages/efficiency.
   8: if not fToHouse.IsDestroyed then
      begin
        fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
@@ -2353,7 +2364,7 @@ case fPhase of
         fTerrain.SetRoad(fHouse.GetEntrance, fOwner);
       fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
       fTerrain.SetMarkup(ListOfCells[Step],mu_HouseFenceNoWalk); //Block passability on tile
-      fTerrain.RecalculatePassability(ListOfCells[Step]); //@Lewin: I didn't test if it worked yet..
+      fTerrain.RecalculatePassability(ListOfCells[Step]);
       dec(Step);
     end;
 7:  SetActionWalk(fUnit,KMPointY1(fHouse.GetEntrance));

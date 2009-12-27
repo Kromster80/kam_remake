@@ -246,12 +246,14 @@ end;
 
 { TMissionSettings }
 constructor TMissionSettings.Create;
-var i:integer;
+var i,k:integer;
 begin
   Inherited;
   for i:=1 to length(AllowToBuild) do AllowToBuild[i]:=true;
   BuildReqDone[byte(ht_Store)]:=true;
-  FillChar(ResourceRatios,SizeOf(ResourceRatios),#3); //Init all to byte=3
+  for i:=1 to 4 do
+    for k:=1 to 4 do
+      ResourceRatios[i,k] := DistributionDefaults[i,k];
   MissionTimeInSec:=0; //Init mission timer
 end;
 

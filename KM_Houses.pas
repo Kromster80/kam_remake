@@ -628,7 +628,7 @@ if aResource=rt_None then exit;
   if aResource = HouseInput[byte(fHouseType),i] then begin
     fLog.AssertToLog(fResourceIn[i]>=aCount,'fResourceIn[i]>0');
     dec(fResourceIn[i],aCount);
-    dec(fResourceDeliveryCount[i]);
+    dec(fResourceDeliveryCount[i],aCount);
     //Only request a new resource if it is allowed by the distribution of wares for our parent player
     for k:=1 to aCount do
       if fResourceDeliveryCount[i] < GetResDistribution(i) then
@@ -794,8 +794,8 @@ begin
       inc(fResourceDeliveryCount[i],GetResDistribution(i)-fResourceDeliveryCount[i]);
     end;
 
-  //Show unoccupied message if needed and house belongs to human player and can have owner at all
-  if (not fHasOwner) and (fOwner = MyPlayer.PlayerID) and (HouseDAT[byte(GetHouseType)].OwnerType<>-1) then
+  //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
+  if (not fHasOwner) and (fOwner = MyPlayer.PlayerID) and (HouseDAT[byte(GetHouseType)].OwnerType<>-1) and (fHouseType <> ht_Barracks) then
   begin
     dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then

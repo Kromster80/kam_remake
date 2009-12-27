@@ -58,6 +58,7 @@ var
   RENDER_3D             :boolean=false; //Experimental 3D render
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap
+  SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted
@@ -439,7 +440,13 @@ const
   (2, 4, 6,11)  //Knight
   );
 
-
+  //For now it is the same as KaM
+  DistributionDefaults: array[1..4,1..4]of byte = (
+  (5,4,0,0),
+  (5,3,4,5),
+  (5,3,0,0),
+  (5,3,2,0)
+  );
 const
 //1-building area //2-entrance
 HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (

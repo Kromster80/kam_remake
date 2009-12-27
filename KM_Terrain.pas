@@ -19,6 +19,7 @@ public
 
     TileOwner:TPlayerID; //Name says it all, should simplify player related issues
     IsUnit:shortint; //Whenever there's a unit on that tile mark the tile as occupied and count the number
+    IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
 
     //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
     Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
@@ -112,6 +113,7 @@ public
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
+  function Route_CanBeMadeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean):boolean;
   procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
   procedure Route_ReturnToRoad(LocA:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
 
@@ -753,7 +755,7 @@ begin
               if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) then
                 // D) Final check: route can be made
                 if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, true) then
-                  List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1)); //@Lewin: we had directions in PosToDir 0..7, while it should be 1..8
+                  List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1));
 
   Result:=List.GetRandom;
   List.Free;
@@ -1166,6 +1168,16 @@ begin
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[LocB.Y,LocB.X].WalkConnect[2]);
   if aPass=canFish then
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[3] = Land[LocB.Y,LocB.X].WalkConnect[3]);
+end;
+
+
+//Tests weather route can be made
+function TTerrain.Route_CanBeMadeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean):boolean;
+var fPath:TPathFinding;
+begin
+  fPath := TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot);
+  Result := fPath.RouteSuccessfullyBuilt;
+  fPath.Free;
 end;
 
 {Find a route from A to B which meets aPass Passability}

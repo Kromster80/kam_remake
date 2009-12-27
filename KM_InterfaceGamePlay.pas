@@ -487,6 +487,7 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     KMLabel_Stat:=MyControls.AddLabel(KMPanel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_Hint:=MyControls.AddLabel(KMPanel_Main,224+32,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
     KMLabel_PointerCount:=MyControls.AddLabel(KMPanel_Main,224+8,100,0,0,'',fnt_Outline,kaLeft);
+    KMLabel_PointerCount.Visible := SHOW_POINTER_COUNT;
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -1003,7 +1004,8 @@ begin
     KMLabel_Clock.Caption := int2time(fGame.GetMissionTime); 
   end;
 
-  KMLabel_PointerCount.Caption := 'Pointers: U,H: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
+  if SHOW_POINTER_COUNT then
+    KMLabel_PointerCount.Caption := 'Pointers: U,H: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
 
   if KMPanel_Build.Visible then Build_Fill(nil);
   if KMPanel_Stats.Visible then Stats_Fill(nil);
