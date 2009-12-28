@@ -45,11 +45,11 @@ type
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
     fResourceIn:array[1..4] of byte; //Resource count in input
-    fResourceDeliveryCount:array[1..4] of byte; //todo: add to save\load //Count of the resources we have ordered for the input (used for ware distribution)
+    fResourceDeliveryCount:array[1..4] of byte; //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut:array[1..4]of byte; //Resource count in output
     fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
 
-    fLastUpdateTime: cardinal;
+    fLastUpdateTime: cardinal; //todo: replace with fixed timer value since UpdState happens each 100ms anyway and we don't handle variations yet tbh
     FlagAnimStep: cardinal; //Used for Flags and Burning animation
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
 

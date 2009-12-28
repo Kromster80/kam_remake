@@ -50,7 +50,7 @@ type
     fPhase2:byte;
   public
     constructor Create(aUnit:TKMUnit);
-    constructor Load(LoadStream:TKMemoryStream); dynamic;
+    constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad(); dynamic;
     destructor Destroy; override;
     procedure Abandon; virtual;
@@ -185,6 +185,7 @@ type
     private
     public
       constructor Create(aUnit:TKMUnit);
+      constructor Load(LoadStream:TKMemoryStream); override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -229,6 +230,7 @@ type
     TTaskGoOutShowHungry = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
+      constructor Load(LoadStream:TKMemoryStream); override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -422,7 +424,8 @@ begin
   begin
     WorkPlan.Load(LoadStream);
     fLog.AppendLog('Workplan<>nil - ', integer(fUnitTask<>nil));
-    TTaskMining(fUnitTask).WorkPlan := WorkPlan; //restore reference
+    if fUnitTask<>nil then
+      TTaskMining(fUnitTask).WorkPlan := WorkPlan; //restore reference
   end;
 end;
 
@@ -2900,7 +2903,13 @@ constructor TTaskGoHome.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_GoHome;
-  fUnit.SetActionLockedStay(0,ua_Walk);
+  fUnit.SetActionLockedStay(0, ua_Walk);
+end;
+
+
+constructor TTaskGoHome.Load(LoadStream:TKMemoryStream);
+begin
+  Inherited;
 end;
 
 
@@ -2935,7 +2944,7 @@ end;
 procedure TTaskGoHome.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  //nothing more here yet
+  //nothing here yet
 end;
 
 
@@ -2997,6 +3006,12 @@ begin
   Inherited Create(aUnit);
   fTaskName := utn_GoOutShowHungry;
   fUnit.SetActionLockedStay(0,ua_Walk);
+end;
+
+
+constructor TTaskGoOutShowHungry.Load(LoadStream:TKMemoryStream);
+begin
+  Inherited;
 end;
 
 
@@ -3417,7 +3432,7 @@ begin
   begin
     LoadStream.Read(UnitType, SizeOf(UnitType));
     LoadStream.Seek(-SizeOf(UnitType), soFromCurrent); //rewind
-    case UnitType of //Create some placeholder unit
+    case UnitType of
       ut_Serf:                  Inherited Add(TKMUnitSerf.Load(LoadStream));
       ut_Worker:                Inherited Add(TKMUnitWorker.Load(LoadStream));
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:

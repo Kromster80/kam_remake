@@ -100,6 +100,7 @@ begin
   LoadStream.Read(fPass, SizeOf(fPass));
   LoadStream.Read(DoesWalking);
   LoadStream.Read(DoExchange);
+  LoadStream.Read(StepIsExchange);
   LoadStream.Read(fInteractionCount);
   LoadStream.Read(fGiveUpCount);
   LoadStream.Read(fInteractionStatus, SizeOf(fInteractionStatus));
@@ -742,6 +743,7 @@ begin
   SaveStream.Write(fPass,SizeOf(fPass));
   SaveStream.Write(DoesWalking);
   SaveStream.Write(DoExchange);
+  SaveStream.Write(StepIsExchange);
   SaveStream.Write(fInteractionCount);
   SaveStream.Write(fGiveUpCount);
   SaveStream.Write(fInteractionStatus,SizeOf(fInteractionStatus));
