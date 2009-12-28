@@ -45,7 +45,7 @@ type
     fWareDelivery: boolean; //If on then no wares will be delivered here
 
     fResourceIn:array[1..4] of byte; //Resource count in input
-    fResourceDeliveryCount:array[1..4] of byte; //Count of the resources we have ordered for the input (used for ware distribution)
+    fResourceDeliveryCount:array[1..4] of byte; //todo: add to save\load //Count of the resources we have ordered for the input (used for ware distribution)
     fResourceOut:array[1..4]of byte; //Resource count in output
     fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
 
@@ -289,6 +289,7 @@ begin
   LoadStream.Read(fRepairID, SizeOf(fRepairID));
   LoadStream.Read(fWareDelivery);
   for i:=1 to 4 do LoadStream.Read(fResourceIn[i]);
+  for i:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceOut[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceOrder[i], SizeOf(fResourceOrder[i]));
   LoadStream.Read(fLastUpdateTime, SizeOf(fLastUpdateTime));
@@ -759,6 +760,7 @@ begin
   SaveStream.Write(fRepairID, SizeOf(fRepairID));
   SaveStream.Write(fWareDelivery);
   for i:=1 to 4 do SaveStream.Write(fResourceIn[i]);
+  for i:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceOut[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceOrder[i], SizeOf(fResourceOrder[i]));
   SaveStream.Write(fLastUpdateTime, SizeOf(fLastUpdateTime));
