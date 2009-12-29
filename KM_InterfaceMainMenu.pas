@@ -349,12 +349,12 @@ begin
 
     for i:=1 to SAVEGAME_COUNT do
     begin
-      KMButton_Load[i]:=MyControls.AddButton(KMPanel_Load,100,100+i*40,180,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
-      KMButton_Load[i].Tag:=i; //To simplify usage
-      KMButton_Load[i].OnClick:=Load_Click;
+      KMButton_Load[i] := MyControls.AddButton(KMPanel_Load,100,100+i*40,180,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
+      KMButton_Load[i].Tag := i; //To simplify usage
+      KMButton_Load[i].OnClick := Load_Click;
     end;
 
-    KMLabel_LoadResult:=MyControls.AddLabel(KMPanel_Load,124,130,100,30,'Debug',fnt_Metal,kaLeft); //Debug string
+    KMLabel_LoadResult := MyControls.AddLabel(KMPanel_Load,124,130,100,30,'Debug',fnt_Metal,kaLeft); //Debug string
 
     KMButton_LoadBack := MyControls.AddButton(KMPanel_Load, 145, 650, 224, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     KMButton_LoadBack.OnClick := SwitchMenuPage;

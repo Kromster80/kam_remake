@@ -515,6 +515,7 @@ begin
                         fLog.AppendLog('Gameplay error',true);
                         fMainMenuInterface.ShowScreen_Error(TextMsg);
                       end;
+    gr_Silent:        fLog.AppendLog('Gameplay stopped silently',true);
     gr_MapEdEnd:      begin
                         fLog.AppendLog('MapEd closed',true);
                         fMainMenuInterface.ShowScreen_Main;
@@ -623,6 +624,8 @@ var LoadStream:TKMemoryStream;
 c:array[1..64]of char;
 begin
   Result := 'NIL';
+
+  if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent);
 
   case GameState of
     gsNoGame:   //Let's load only from menu for now

@@ -143,6 +143,7 @@ type TKMGamePlayInterface = class
     procedure Create_Barracks_Page;
 
     procedure SaveGame(Sender: TObject);
+    procedure Load_Click(Sender: TObject);
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPageRatios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
@@ -270,6 +271,13 @@ begin
   else
     TKMButton(Sender).Caption := 'Savegame #'+inttostr(TKMControl(Sender).Tag);
 end;
+
+
+procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
+begin
+  fGame.Load(TKMControl(Sender).Tag);
+end;
+
 
 
 {Switch between pages}
@@ -728,7 +736,6 @@ begin
     KMButton_Menu_Load:=MyControls.AddButton(KMPanel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
     KMButton_Menu_Load.OnClick:=Menu_ShowLoad;
     KMButton_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
-    KMButton_Menu_Load.Disable;
     KMButton_Menu_Settings:=MyControls.AddButton(KMPanel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
     KMButton_Menu_Settings.OnClick:=Menu_ShowSettings;
     KMButton_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
@@ -763,11 +770,11 @@ end;
 procedure TKMGamePlayInterface.Create_Load_Page;
 var i:integer;
 begin
-  KMPanel_Load:=MyControls.AddPanel(KMPanel_Main,0,412,200,400);
+  KMPanel_Load := MyControls.AddPanel(KMPanel_Main,0,412,200,400);
     for i:=1 to SAVEGAME_COUNT do begin
-      KMButton_Load[i]:=MyControls.AddButton(KMPanel_Load,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
-      //KMButton_Load[i].OnClick:=LoadGame;
-      KMButton_Load[i].Disable;
+      KMButton_Load[i] := MyControls.AddButton(KMPanel_Load,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
+      KMButton_Load[i].Tag := i;
+      KMButton_Load[i].OnClick := Load_Click;
     end;
 end;
 

@@ -135,6 +135,7 @@ type gr_Message = (     //Game result
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
         gr_Error,       //Some known error occured
+        gr_Silent,      //Used when loading savegame from running game 
         gr_MapEdEnd);   //Map Editor was closed
 
                

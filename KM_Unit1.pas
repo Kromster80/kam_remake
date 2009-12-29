@@ -580,17 +580,21 @@ begin
   H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
   if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All,1300);
 
-  for i:=1 to 5 do
-    MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
+  MyPlayer.AddHouse(ht_Woodcutters, KMPoint(9,8));
+  MyPlayer.AddUnit(ut_Woodcutter, KMPoint(9,13));
+  MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)), KMPointY1(KMPoint(9,9)));
+
+//  for i:=1 to 5 do
+//    MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
 //  MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
 
-  MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
-  MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)),KMPointY1(KMPoint(18,8)));
+  //MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
+//  MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)),KMPointY1(KMPoint(18,8)));
   //MyPlayer.AddHousePlan(ht_Mill,KMPoint(6,12),true);
   //MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
   //MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
-  {MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
-  MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(10,12));}
+  //MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
+  //MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(10,12));
 
   {MyPlayer.AddGroup(ut_Militia,KMPoint(5,14),dir_N,3,6);
   MyPlayer.AddGroup(ut_Militia,KMPoint(10,14),dir_NE,3,6);
@@ -602,8 +606,6 @@ begin
   MyPlayer.AddGroup(ut_Militia,KMPoint(40,14),dir_NW,3,6);}
 
   //H.AddDamage(255);
-  //MyPlayer.AddHouse(ht_Inn,KMPoint(9,8));
-  //MyPlayer.AddUnit(ut_Baker, KMPoint(9,9));
 
   //for i:=1 to 25 do MyPlayer.AddUnit(ut_Serf, KMPoint(20,20));
 

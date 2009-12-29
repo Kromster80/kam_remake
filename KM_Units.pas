@@ -182,7 +182,6 @@ type
     end;
 
     TTaskGoHome = class(TUnitTask)
-    private
     public
       constructor Create(aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -2933,7 +2932,7 @@ end;
 
 procedure TTaskGoHome.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   //nothing here yet
 end;
 
