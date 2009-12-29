@@ -47,7 +47,7 @@ type
       procedure PerformExchange(ForcedExchangePos:TKMPoint);
       procedure DodgeTo(aPos: TKMPoint);
       procedure SetPushedValues;
-      procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+      procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
             
@@ -615,7 +615,7 @@ begin
 end;
 
 
-procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
+procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean;
 begin
@@ -644,8 +644,7 @@ begin
   end;
 
   //Execute the route in series of moves
-  TimeDelta := 0.1;
-  Distance := TimeDelta * fWalker.GetSpeed;
+  Distance := ACTION_TIME_DELTA * fWalker.GetSpeed;
 
   //Check if unit has arrived on tile
   if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and

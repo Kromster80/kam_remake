@@ -6,6 +6,7 @@ uses
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
   ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
+  ZLibEx in ' Common \ZLIBEX.PAS',
   KM_Defaults in 'KM_Defaults.pas',
   KM_Render in 'KM_Render.pas',
   KM_ResourceGFX in 'KM_ResourceGFX.pas',

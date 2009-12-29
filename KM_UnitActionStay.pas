@@ -16,7 +16,7 @@ TUnitActionStay = class(TUnitAction)
     constructor Load(LoadStream:TKMemoryStream); override;
     function HowLongLeftToStay():integer;
     procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
-    procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+    procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -81,7 +81,7 @@ begin
 end;
 
 
-procedure TUnitActionStay.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
+procedure TUnitActionStay.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 var Cycle,Step:byte;
 begin
   if not StayStill then

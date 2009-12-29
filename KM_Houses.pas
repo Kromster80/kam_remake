@@ -49,7 +49,6 @@ type
     fResourceOut:array[1..4]of byte; //Resource count in output
     fResourceOrder:array[1..4]of word; //If HousePlaceOrders=true then here are production orders
 
-    fLastUpdateTime: cardinal; //todo: replace with fixed timer value since UpdState happens each 100ms anyway and we don't handle variations yet tbh
     FlagAnimStep: cardinal; //Used for Flags and Burning animation
     WorkAnimStep: cardinal; //Used for Work and etc.. which is not in sync with Flags
 
@@ -292,7 +291,6 @@ begin
   for i:=1 to 4 do LoadStream.Read(fResourceDeliveryCount[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceOut[i]);
   for i:=1 to 4 do LoadStream.Read(fResourceOrder[i], SizeOf(fResourceOrder[i]));
-  LoadStream.Read(fLastUpdateTime, SizeOf(fLastUpdateTime));
   LoadStream.Read(FlagAnimStep, SizeOf(FlagAnimStep));
   LoadStream.Read(WorkAnimStep, SizeOf(WorkAnimStep));
   LoadStream.Read(fIsDestroyed);
@@ -763,7 +761,6 @@ begin
   for i:=1 to 4 do SaveStream.Write(fResourceDeliveryCount[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceOut[i]);
   for i:=1 to 4 do SaveStream.Write(fResourceOrder[i], SizeOf(fResourceOrder[i]));
-  SaveStream.Write(fLastUpdateTime, SizeOf(fLastUpdateTime));
   SaveStream.Write(FlagAnimStep, SizeOf(FlagAnimStep));
   SaveStream.Write(WorkAnimStep, SizeOf(WorkAnimStep));
   SaveStream.Write(fIsDestroyed);
@@ -780,8 +777,6 @@ procedure TKMHouse.UpdateState;
 var i: byte;
 begin
   if fBuildState<>hbs_Done then exit;
-
-  fLastUpdateTime := TimeGetTime;
 
   if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
 

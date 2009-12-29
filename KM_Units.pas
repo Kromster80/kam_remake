@@ -25,7 +25,7 @@ type
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad(); dynamic;
-    procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); virtual; abstract;
+    procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); virtual; abstract;
     property GetActionType: TUnitActionType read fActionType;
     property GetIsStepDone:boolean read IsStepDone write IsStepDone;
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -38,7 +38,7 @@ type
       public
         constructor Create(LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
         constructor Load(LoadStream: TKMemoryStream); override;
-        procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+        procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TKMemoryStream); override;
       end;
 
@@ -245,7 +245,6 @@ type
     fOwner:TPlayerID;
     fHome:TKMHouse;
     fPosition: TKMPointF;
-    fLastUpdateTime: Cardinal;
     fVisible:boolean;
     fIsDead:boolean;
     fPointerCount:integer;
@@ -959,7 +958,6 @@ end;
 
 function TKMUnitAnimal.UpdateState():boolean;
 var
-  TimeDelta: Cardinal;
   ActDone,TaskDone: Boolean;
   Spot:TKMPoint; //Target spot where unit will go
   SpotJit:byte; 
@@ -968,11 +966,9 @@ begin
 
   ActDone:=true;
   TaskDone:=true;
-  TimeDelta:= TimeGetTime - fLastUpdateTime;
-  fLastUpdateTime:= TimeGetTime;
 
   if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
+    fCurrentAction.Execute(Self, ActDone);
 
   if ActDone then FreeAndNil(fCurrentAction) else exit;
 
@@ -1117,8 +1113,6 @@ begin
   //       I know it will take more memory, code and time but I think it would be cleaner and less ambiguous. (for people reading our code)
   //       Please let me know what you think, maybe on ICQ some time if you want to discuss it.
   LoadStream.Read(fPosition, 8); //2 floats
-  LoadStream.Read(fLastUpdateTime, 4);
-  fLastUpdateTime := TimeGetTime; //todo: here's potential bug
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
   LoadStream.Read(fPointerCount);
@@ -1497,7 +1491,6 @@ begin
     SaveStream.Write(Zero);
 
   SaveStream.Write(fPosition, 8); //2floats
-  SaveStream.Write(fLastUpdateTime, 4);
   SaveStream.Write(fVisible);
   SaveStream.Write(fIsDead);
   SaveStream.Write(fPointerCount);
@@ -1513,7 +1506,6 @@ end;
 {Here are common Unit.UpdateState routines}
 function TKMUnit.UpdateState():boolean;
 var
-  TimeDelta: Cardinal;
   ActDone,TaskDone: Boolean;
 begin
   //There are layers of unit activity (bottom to top):
@@ -1534,8 +1526,6 @@ begin
 
   ActDone         := true;
   TaskDone        := true;
-  TimeDelta       := TimeGetTime - fLastUpdateTime;
-  fLastUpdateTime := TimeGetTime;
 
   //Shortcut to freeze unit in place if it's on an unwalkable tile
   if fCurrentAction is TUnitActionWalkTo then
@@ -1551,7 +1541,7 @@ begin
 //todo: new task handling pattern
 {
   if fCurrentAction<>nil then
-  case fCurrentAction.Execute(Self, TimeDelta/1000) of
+  case fCurrentAction.Execute(Self) of
     ActContinues: exit;
     ActAborted: fUnitTask.Abandon; //abandon the task properly, move along to unit task-specific UpdateState
     ActDone: ; move along to unit task
@@ -1567,7 +1557,7 @@ begin
 //@Krom: Looks fine to me. :)
 
   if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, TimeDelta/1000, ActDone);
+    fCurrentAction.Execute(Self, ActDone);
 
   if ActDone then FreeAndNil(fCurrentAction) else exit;
 
@@ -3226,7 +3216,7 @@ begin
 end;
 
 
-procedure TUnitActionAbandonWalk.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
+procedure TUnitActionAbandonWalk.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single;
@@ -3234,8 +3224,7 @@ begin
   DoEnd:= False;
 
   //Execute the route in series of moves
-  TimeDelta:=0.1;
-  Distance:= TimeDelta * KMUnit.GetSpeed;
+  Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;
 
   //Check if unit has arrived on tile
   if Equals(KMUnit.fPosition.X,fWalkTo.X,Distance/2) and Equals(KMUnit.fPosition.Y,fWalkTo.Y,Distance/2) then

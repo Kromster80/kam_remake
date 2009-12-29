@@ -16,7 +16,7 @@ type
     public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
         constructor Load(LoadStream:TKMemoryStream); override;
-        procedure Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean); override;
+        procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -54,7 +54,7 @@ begin
 end;
 
 
-procedure TUnitActionGoInOut.Execute(KMUnit: TKMUnit; TimeDelta: single; out DoEnd: Boolean);
+procedure TUnitActionGoInOut.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 var Distance:single; TempUnit: TKMUnit;
   function ValidTile(LocX,LocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
   begin
@@ -66,7 +66,6 @@ var Distance:single; TempUnit: TKMUnit;
   end;
 begin
   DoEnd:= False;
-  TimeDelta:=0.1;
 
   if not fHasStarted then //Set Door and Street locations
   begin
@@ -147,7 +146,7 @@ begin
     else exit; //Wait until my push request is delt with before we move out
   end;
 
-  Distance:= TimeDelta * KMUnit.GetSpeed;
+  Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;
   fStep := fStep - Distance * shortint(fDirection);
   KMUnit.PositionF := KMPointF(Mix(fStreet.X,fDoor.X,fStep),Mix(fStreet.Y,fDoor.Y,fStep));
   KMUnit.SetVisibility := fStep >= 0.3; //Make unit invisible when it's inside of House

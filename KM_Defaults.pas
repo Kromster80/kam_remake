@@ -12,6 +12,7 @@ const
   DEF_PAL               = 2;            //Default palette to use when generating full-color RGB textures
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 10;         //Terrain gets updated once per 10 ticks
+  ACTION_TIME_DELTA     = 0.1;          //
   //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
   FOG_OF_WAR_MIN        = 8;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   FOG_OF_WAR_ACT        = 16;           //Until this value FOW is not rendered at all
