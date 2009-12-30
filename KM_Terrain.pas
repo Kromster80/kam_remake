@@ -109,6 +109,7 @@ public
   procedure RecalculatePassabilityAround(Loc:TKMPoint);
   function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
   function HasUnit(Loc:TKMPoint):boolean;
+  function HasVertexUnit(Loc:TKMPoint):boolean;
   function GetRoadConnectID(Loc:TKMPoint):byte;
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
@@ -120,6 +121,8 @@ public
   procedure UnitAdd(LocTo:TKMPoint);
   procedure UnitRem(LocFrom:TKMPoint);
   procedure UnitWalk(LocFrom,LocTo:TKMPoint);
+  procedure UnitVertexAdd(LocTo:TKMPoint);
+  procedure UnitVertexRem(LocFrom:TKMPoint);
 
   function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
   function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
@@ -202,6 +205,7 @@ begin
     Passability  := []; //Gets recalculated later
     TileOwner    := play_none;
     IsUnit       := 0;
+    IsVertexUnit := 0;
     FieldAge     := 0;
     TreeAge      := 0;
     if ObjectIsChopableTree(KMPoint(k,i),4) then TreeAge:=TreeAgeFull;
@@ -1090,6 +1094,12 @@ begin
 end;
 
 
+function TTerrain.HasVertexUnit(Loc:TKMPoint):boolean;
+begin
+  Result := TileInMapCoords(Loc.X,Loc.Y) and (Land[Loc.Y,Loc.X].IsVertexUnit <> 0); //Second condition won't get checked if first is false
+end;
+
+
 //Check which road connect ID the tile has (to which road network does it belongs to)
 function TTerrain.GetRoadConnectID(Loc:TKMPoint):byte;
 begin
@@ -1201,7 +1211,7 @@ begin
 end;
 
 
-{Mark previous tile as empty and next one as occupied}
+{Mark tile as occupied}
 procedure TTerrain.UnitAdd(LocTo:TKMPoint);
 begin
   if not DO_UNIT_INTERACTION then exit;
@@ -1210,7 +1220,7 @@ begin
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
 
-{Mark previous tile as empty and next one as occupied}
+{Mark tile as empty}
 procedure TTerrain.UnitRem(LocFrom:TKMPoint);
 begin
   if not DO_UNIT_INTERACTION then exit;
@@ -1223,6 +1233,20 @@ begin
   if not DO_UNIT_INTERACTION then exit;
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
+end;
+
+{Mark vertex as occupied}
+procedure TTerrain.UnitVertexAdd(LocTo:TKMPoint);
+begin
+  if not DO_UNIT_INTERACTION then exit;
+  inc(Land[LocTo.Y,LocTo.X].IsVertexUnit);
+end;
+
+{Mark vertex as empty}
+procedure TTerrain.UnitVertexRem(LocFrom:TKMPoint);
+begin
+  if not DO_UNIT_INTERACTION then exit;
+  dec(Land[LocFrom.Y,LocFrom.X].IsVertexUnit);
 end;
 
 

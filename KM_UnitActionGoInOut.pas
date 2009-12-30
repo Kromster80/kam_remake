@@ -118,10 +118,10 @@ begin
       begin
         fWaitingForPush := true;
         fHasStarted:=true;
-        exit; //Wait until my push request is delt with before we move out
+        exit; //Wait until my push request is dealt with before we move out
       end;
 
-      //All check done and unit can walk out now
+      //All checks done so unit can walk out now
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
       KMUnit.NextPosition := fStreet;
       fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
@@ -143,7 +143,7 @@ begin
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
     end
-    else exit; //Wait until my push request is delt with before we move out
+    else exit; //Wait until my push request is dealt with before we move out
   end;
 
   Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;

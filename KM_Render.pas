@@ -463,6 +463,10 @@ begin
   glColor4f(0,1,1,0.5);
 
   for i:=y1 to y2 do for k:=x1 to x2 do
+    if fTerrain.Land[i,k].IsVertexUnit<>0 then begin
+      glColor4f(1-fTerrain.Land[i,k].IsVertexUnit/6,fTerrain.Land[i,k].IsVertexUnit/6,1-fTerrain.Land[i,k].IsVertexUnit/6,0.8);
+      RenderQuad(k,i);
+    end else
     if fTerrain.Land[i,k].IsUnit>0 then begin
       glColor4f(fTerrain.Land[i,k].IsUnit/6,1-fTerrain.Land[i,k].IsUnit/6,-fTerrain.Land[i,k].IsUnit/6,0.8);
       RenderQuad(k,i);

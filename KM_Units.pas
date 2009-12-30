@@ -1597,7 +1597,7 @@ end;
 constructor TUnitTask.Load(LoadStream:TKMemoryStream);
 begin
   Inherited Create;
-  LoadStream.Read(fTaskName, SizeOf(fTaskName));//Substitute it with reference on SyncLoad
+  LoadStream.Read(fTaskName, SizeOf(fTaskName));
   LoadStream.Read(fUnit, 4);//Substitute it with reference on SyncLoad
   fLog.AppendLog('TUnitTask.Load - ', integer(fUnit));
   LoadStream.Read(fPhase);
@@ -3233,6 +3233,9 @@ begin
     KMUnit.fPosition.Y:=fWalkTo.Y;
     //We are finished
     DoEnd:=true;
+    if KMStepIsDiag(KMUnit.PrevPosition,KMUnit.NextPosition) then
+      fTerrain.UnitVertexRem(KMGetDiagVertex(KMUnit.PrevPosition,KMUnit.NextPosition)); //Unoccupy vertex
+
     GetIsStepDone := true;
     exit;
   end;

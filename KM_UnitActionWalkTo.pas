@@ -23,8 +23,8 @@ type
       fWalkFrom, fWalkTo, fAvoid:TKMPoint;
       fWalkToSpot:boolean;
       fPass:TPassability; //Desired passability set once on Create
-      DoesWalking:boolean;
-      DoExchange, StepIsExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
+      DoesWalking, WaitingOnStep:boolean;
+      DoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
       fInteractionCount, fGiveUpCount: integer;
       fInteractionStatus: TInteractionStatus;
       function AssembleTheRoute():boolean;
@@ -74,8 +74,8 @@ begin
   NodePos       := 1;
   fRouteBuilt   := false;
   DoExchange    := false;
-  StepIsExchange:= false;
   DoesWalking   := false;
+  WaitingOnStep := false;
   fInteractionCount := 0;
   fGiveUpCount  := 0;
   fInteractionStatus := kis_None;
@@ -100,7 +100,7 @@ begin
   LoadStream.Read(fPass, SizeOf(fPass));
   LoadStream.Read(DoesWalking);
   LoadStream.Read(DoExchange);
-  LoadStream.Read(StepIsExchange);
+  LoadStream.Read(WaitingOnStep);
   LoadStream.Read(fInteractionCount);
   LoadStream.Read(fGiveUpCount);
   LoadStream.Read(fInteractionStatus, SizeOf(fInteractionStatus));
@@ -241,12 +241,14 @@ end;
 procedure TUnitActionWalkTo.IncVertex;
 begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
+  fTerrain.UnitVertexAdd(KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition));
 end;
 
 
 procedure TUnitActionWalkTo.DecVertex;
 begin
   //Tell fTerrain that this vertex is not being used anymore
+  fTerrain.UnitVertexRem(KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition));
 end;
 
 
@@ -269,6 +271,14 @@ begin
   if not fTerrain.HasUnit(NodeList.List[NodePos+1]) then exit;
   //From now on there is a blockage, so don't allow to walk unless the problem is resolved
   Result := false;
+  
+  //If there's a unit using this vertex to walk diagonally then we must wait, they will be finished after this step
+  if KMStepIsDiag(fWalker.GetPosition,NodeList.List[NodePos+1]) and
+    fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,NodeList.List[NodePos+1])) then
+  begin
+    Explanation := 'Diagonal vertex is being used, we must wait';
+    exit;
+  end;
 
   //Find the unit that is in our path
   fOpponent := fPlayers.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
@@ -634,11 +644,12 @@ begin
     fLog.AddToLog('Unable to walk a route since it''s unbuilt');
     fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
     fGame.PauseGame(true);
-    //Pop-up some message
+    //todo: Pop-up some message
   end;
 
   //Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)
   if NodePos > NodeList.Count then begin
+    if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then DecVertex; //Unoccupy vertex
     DoEnd:=true;
     exit;
   end;
@@ -650,8 +661,8 @@ begin
   if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and
      Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
   begin
-    if StepIsExchange then DecVertex;
-    StepIsExchange := false;
+    if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
+    WaitingOnStep := true;
 
     GetIsStepDone := true; //Unit stepped on a new tile
 
@@ -685,8 +696,7 @@ begin
       fInteractionStatus := kis_None;
       DoExchange := false;
       fInteractionCount := 0;
-      IncVertex;
-      StepIsExchange := true; //So we know to DecVertex after this step
+      if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
       AllowToWalk := DoUnitInteraction();
@@ -702,8 +712,10 @@ begin
       fWalker.PrevPosition:=fWalker.NextPosition;
       fWalker.NextPosition:=NodeList.List[NodePos];
       fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
+      if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
     end;
   end;
+  WaitingOnStep := false;
 
   if NodePos>NodeList.Count then
     fLog.AssertToLog(false,'TUnitAction is being overrun for some reason - error!');
@@ -742,7 +754,7 @@ begin
   SaveStream.Write(fPass,SizeOf(fPass));
   SaveStream.Write(DoesWalking);
   SaveStream.Write(DoExchange);
-  SaveStream.Write(StepIsExchange);
+  SaveStream.Write(WaitingOnStep);
   SaveStream.Write(fInteractionCount);
   SaveStream.Write(fGiveUpCount);
   SaveStream.Write(fInteractionStatus,SizeOf(fInteractionStatus));

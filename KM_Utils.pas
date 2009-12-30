@@ -26,6 +26,8 @@ type
   function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
   function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
   function KMLoopDirection(aDir: byte): TKMDirection;
+  function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
+  function KMStepIsDiag(P1,P2:TKMPoint):boolean;
 
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
@@ -151,6 +153,21 @@ end;
 function KMLoopDirection(aDir: byte): TKMDirection; //Used after added or subtracting from direction so it is still 1..8
 begin
   Result := TKMDirection(((aDir+7) mod 8)+1);
+end;
+
+
+function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
+begin
+  //Returns the position of the vertex inbetween the two diagonal points (points must be diagonal)
+  Result.X := max(P1.X,P2.X);
+  Result.Y := max(P1.Y,P2.Y);
+end;
+
+
+function KMStepIsDiag(P1,P2:TKMPoint):boolean;
+begin
+  Result := ((sign(P2.X-P1.X) <> 0) and
+             (sign(P2.Y-P1.Y) <> 0));
 end;
 
 
