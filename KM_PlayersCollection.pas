@@ -200,18 +200,19 @@ procedure TKMAllPlayers.Save(SaveStream:TKMemoryStream);
 var i:word;
 begin
   SaveStream.Write('Players',7);
-  SaveStream.Write(fPlayerCount,4);
+  SaveStream.Write(fPlayerCount);
   for i:=1 to fPlayerCount do
   begin
     Player[i].Save(SaveStream);
     PlayerAI[i].Save(SaveStream); //Saves AI stuff
   end;
   PlayerAnimals.Save(SaveStream);
+  SaveStream.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
 end;
 
 
 procedure TKMAllPlayers.Load(LoadStream:TKMemoryStream);
-var i:word; c:array[1..64]of char;
+var i:word; c:array[1..64]of char; P:TPlayerID;
 begin
   LoadStream.Read(c, 7); //if s <> 'Players' then exit;
   LoadStream.Read(fPlayerCount, 4);
@@ -227,6 +228,9 @@ begin
     PlayerAI[i].Load(LoadStream);
   end;
   PlayerAnimals.Load(LoadStream);
+
+  LoadStream.Read(P, SizeOf(P));
+  MyPlayer := fPlayers.Player[integer(P)];
 end;
 
 

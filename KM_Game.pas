@@ -650,7 +650,7 @@ begin
       //Load the data into the game
       fTerrain.Load(LoadStream);
       fPlayers.Load(LoadStream);
-      //fViewport.Load(LoadStream);
+      fViewport.Load(LoadStream);
       LoadStream.Free;
 
       fPlayers.SyncLoad(); //todo: Should parse all Unit-House ID references and replace them with actual pointers
