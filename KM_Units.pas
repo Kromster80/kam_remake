@@ -14,8 +14,6 @@ type
   TKMUnitSerf = class;
   TKMUnitWorker = class;
 
-  TDeliverKind = (dk_House, dk_Unit);
-
   TUnitAction = class(TObject)
   protected
     fActionName: TUnitActionName;
@@ -43,7 +41,7 @@ type
       end;
 
   TUnitTask = class(TObject)
-  private
+  protected
     fTaskName:TUnitTaskName;
     fUnit:TKMUnit; //Unit who's performing the Task
     fPhase:byte;
@@ -54,6 +52,7 @@ type
     procedure SyncLoad(); dynamic;
     destructor Destroy; override;
     procedure Abandon; virtual;
+    property Phase:byte read fPhase write fPhase;
     procedure Execute(out TaskDone:boolean); virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
@@ -71,7 +70,7 @@ type
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
-    TTaskDeliver = class(TUnitTask)
+{    TTaskDeliver = class(TUnitTask)
     private
       fFrom:TKMHouse;
       fToHouse:TKMHouse;
@@ -87,7 +86,7 @@ type
       procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
-    end;
+    end;   }
 
     TTaskBuildRoad = class(TUnitTask)
     private
@@ -233,7 +232,7 @@ type
     end;
 
   TKMUnit = class(TObject) //todo: actions should return enum result
-  private
+  protected
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
@@ -398,7 +397,7 @@ type
 
 implementation
 uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_LoadLib, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game,
-KM_ResourceGFX, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo;
+KM_ResourceGFX, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitTaskDelivery;
 
 
 { TKMUnitCitizen }
@@ -1740,7 +1739,7 @@ begin
 end;
 
 
-{ TTaskDeliver }
+{ TTaskDeliver
 constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
   Inherited Create(aSerf);
@@ -1955,7 +1954,7 @@ begin
   SaveStream.Write(fResourceType, SizeOf(fResourceType));
   SaveStream.Write(fDeliverID);
   SaveStream.Write(DeliverKind, SizeOf(DeliverKind));
-end;
+end;}
 
 
 { TTaskBuildRoad }

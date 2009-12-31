@@ -604,6 +604,7 @@ begin
       SaveStream := TKMemoryStream.Create;
       SaveStream.Write('KaM_Savegame', 12);
       SaveStream.Write('01', 2); //This is savegame version
+      //todo: write down savegame title
       SaveStream.Write(GameplayTickCount, 4); //dunno if it's required to save, but it won't hurt anyone
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
 
@@ -653,7 +654,7 @@ begin
       fViewport.Load(LoadStream);
       LoadStream.Free;
 
-      fPlayers.SyncLoad(); //todo: Should parse all Unit-House ID references and replace them with actual pointers
+      fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
     end;
     gsEditor:   exit;
     gsPaused:   exit;

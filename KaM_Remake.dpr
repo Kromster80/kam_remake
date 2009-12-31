@@ -35,7 +35,8 @@ uses
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_UnitActionGoInOut in 'KM_UnitActionGoInOut.pas',
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
-  KM_UnitActionStay in 'KM_UnitActionStay.pas';
+  KM_UnitActionStay in 'KM_UnitActionStay.pas',
+  KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas';
 
 {$R *.RES}
 {}
