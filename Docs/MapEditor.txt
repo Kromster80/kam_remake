@@ -1,3 +1,5 @@
+These are tabs we want to have in MapEditor mode:
+
 
 MainMenu
 

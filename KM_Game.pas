@@ -611,6 +611,8 @@ begin
       fPlayers.Save(SaveStream); //Saves all players properties individually
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
+      
+      CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
       SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');
       SaveStream.Free;
       Result := GameName + ' ' + int2time(MyPlayer.fMissionSettings.GetMissionTime);

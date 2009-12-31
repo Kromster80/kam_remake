@@ -582,7 +582,7 @@ begin
 
   MyPlayer.AddHouse(ht_Woodcutters, KMPoint(9,8));
   MyPlayer.AddUnit(ut_Woodcutter, KMPoint(9,13));
-  MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)), KMPointY1(KMPoint(9,9)));
+  MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)), KMPointY1(KMPoint(9,8)));
 
 //  for i:=1 to 5 do
 //    MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));

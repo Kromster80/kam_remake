@@ -184,9 +184,7 @@ type
     TTaskGoHome = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
-      constructor Load(LoadStream:TKMemoryStream); override;
       procedure Execute(out TaskDone:boolean); override;
-      procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
     TTaskGoEat = class(TUnitTask)
@@ -422,7 +420,7 @@ begin
   begin
     WorkPlan.Load(LoadStream);
     fLog.AppendLog('Workplan<>nil - ', integer(fUnitTask<>nil));
-    if fUnitTask<>nil then
+    if fUnitTask is TTaskMining then
       TTaskMining(fUnitTask).WorkPlan := WorkPlan; //restore reference
   end;
 end;
@@ -1021,24 +1019,25 @@ constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType
 begin
   Inherited Create;
   fPointerCount := 0;
-  fIsDead := false;
-  fThought := th_None;
-  fHome := nil;
-  fPosition.X := PosX;
-  fPosition.Y := PosY;
-  PrevPosition := GetPosition;
-  NextPosition := GetPosition;
-  fOwner := aOwner;
-  fUnitType := aUnitType;
-  Direction := dir_S;
-  fVisible := true;
-  SetActionStay(10, ua_Walk);
-  ID := fGame.GetNewID;
-  AnimStep := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
+  fIsDead       := false;
+  fThought      := th_None;
+  fHome         := nil;
+  fPosition.X   := PosX;
+  fPosition.Y   := PosY;
+  PrevPosition  := GetPosition;
+  NextPosition  := GetPosition;
+  fOwner        := aOwner;
+  fUnitType     := aUnitType;
+  Direction     := dir_S;
+  fVisible      := true;
+  ID            := fGame.GetNewID;
+  AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
-  //Note: Warriors of the same group will need to be set the same if they are created at the begining of the mission
-  fCondition := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4);
+  //todo: Warriors of the same group will need to be set the same if they are created at the begining of the mission
+  fCondition    := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4);
+
+  SetActionStay(10, ua_Walk);
   fTerrain.UnitAdd(NextPosition);
 end;
 
@@ -2892,13 +2891,7 @@ constructor TTaskGoHome.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_GoHome;
-  fUnit.SetActionLockedStay(0, ua_Walk);
-end;
-
-
-constructor TTaskGoHome.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
+  if fUnit <> nil then fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 
@@ -2927,13 +2920,6 @@ begin
   inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
     fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
-end;
-
-
-procedure TTaskGoHome.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited;
-  //nothing here yet
 end;
 
 

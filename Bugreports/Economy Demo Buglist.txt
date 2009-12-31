@@ -9,6 +9,7 @@ Gameplay bugs:
 +	Woodcutter should drop the task if tree is already taken by other woodcutter
 +	Killing a worker while it goes to build a road will cancel the markup and road plan
 +	Units get stuck on unwalkable tiles
+	Citizen will try to walk home when it has no road tile below entrance
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	Flags are always visible
@@ -57,9 +58,3 @@ Gameplay bugs:
 
 Graphics bugs:
 +	Wrong render of houses, black tops (see GraphicFlaws folder)
-
-Make sure these are checked:	//Assigned to Krom
-	True/false switches in KM_Defaults
-	Pack EXE file
-	Include OpenAL distributive
-	Test installer and Demo

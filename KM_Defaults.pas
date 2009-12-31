@@ -6,19 +6,19 @@ uses Windows, SysUtils, KromUtils, dglOpenGL;
 const
 //|===================| <- constant name length                 
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
-  CELL_HEIGHT_DIV       = 33.333;       //Height divider
+  CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   ToolBarWidth          = 224;          //Toolbar width in game
   Overlap               = 0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   DEF_PAL               = 2;            //Default palette to use when generating full-color RGB textures
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
-  TERRAIN_PACE          = 10;         //Terrain gets updated once per 10 ticks
-  ACTION_TIME_DELTA     = 0.1;          //
+  TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default)
   //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
+  ACTION_TIME_DELTA     = 0.1;          //Multiplied with units speed gives distance unit walks per frame
   FOG_OF_WAR_MIN        = 8;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   FOG_OF_WAR_ACT        = 16;           //Until this value FOW is not rendered at all
   FOG_OF_WAR_MAX        = 24;           //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
   FPS_LAG               = 1;            //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
-  FPS_INTERVAL          = 1000;         //Time between FPS measurements, more=accurate
+  FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
   SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
@@ -31,7 +31,7 @@ var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
@@ -40,6 +40,7 @@ var
   FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
 
   //These are under-construction things, should be ... enabled sometime
+  FullyLoadUnitsRX      :boolean=false;  //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   DO_UNIT_INTERACTION   :boolean=true;  //Debug for unit interaction
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not

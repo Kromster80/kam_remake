@@ -215,13 +215,13 @@ var i:word; c:array[1..64]of char;
 begin
   LoadStream.Read(c, 7); //if s <> 'Players' then exit;
   LoadStream.Read(fPlayerCount, 4);
-  fLog.AssertToLog(fPlayerCount<=MAX_PLAYERS,'Player count in savegame is exceeded');
+  fLog.AssertToLog(fPlayerCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
   Selected := nil;
 
   for i:=1 to fPlayerCount do
   begin
-    if Player[i]=nil then   Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
-    if PlayerAI[i]=nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
+    if Player[i]   = nil then   Player[i] := TKMPlayerAssets.Create(TPlayerID(i));
+    if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
 
     Player[i].Load(LoadStream);
     PlayerAI[i].Load(LoadStream);
