@@ -250,6 +250,7 @@ type
     ID:integer; //unique unit ID, used for save/load to sync to
     AnimStep: integer;
     Direction: TKMDirection;
+    IsExchanging:boolean; //Current walk is an exchange, used for sliding
     PrevPosition: TKMPoint;
     NextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
   public
@@ -300,6 +301,8 @@ type
     procedure UpdateFOW();
     procedure UpdateThoughts();
     procedure UpdateVisibility();
+    function GetXSlide: single;
+    function GetYSlide: single;
   public
     procedure Save(SaveStream:TKMemoryStream); virtual;
     //procedure Load(LoadStream:TKMemoryStream); virtual;
@@ -445,13 +448,16 @@ end;
 
 
 procedure TKMUnitCitizen.Paint();
-var UnitType:integer; AnimAct,AnimDir:integer;
+var UnitType:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
-inherited;
-if not fVisible then exit;
-UnitType:=byte(fUnitType);
-AnimAct:=byte(fCurrentAction.fActionType);
-AnimDir:=byte(Direction);
+  inherited;
+  if not fVisible then exit;
+  UnitType:=byte(fUnitType);
+  AnimAct:=byte(fCurrentAction.fActionType);
+  AnimDir:=byte(Direction);
+
+  XPaintPos := fPosition.X+0.5+GetXSlide;
+  YPaintPos := fPosition.Y+ 1 +GetYSlide;
 
   if MakeShowUnitRoutes then
   if fCurrentAction is TUnitActionWalkTo then
@@ -459,24 +465,24 @@ AnimDir:=byte(Direction);
                             TUnitActionWalkTo(fCurrentAction).NodePos,
                             $FF00FFFF);
 
-case fCurrentAction.fActionType of
-ua_Walk:
-  begin
-    fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
-    if ua_WalkArm in UnitSupportedActions[byte(UnitType)] then
-    fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,false);
+  case fCurrentAction.fActionType of
+  ua_Walk:
+    begin
+      fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      if ua_WalkArm in UnitSupportedActions[byte(UnitType)] then
+      fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+    end;
+  ua_Work..ua_Eat:
+      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+  ua_WalkArm .. ua_WalkBooty2:
+    begin
+      fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+    end;
   end;
-ua_Work..ua_Eat:
-    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
-ua_WalkArm .. ua_WalkBooty2:
-  begin
-    fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
-    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,false);
-  end;
-end;
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
+  fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, fPosition.Y+1);
 end;
 
 
@@ -622,28 +628,31 @@ end;
 
 
 procedure TKMUnitSerf.Paint();
-var AnimAct,AnimDir:integer;
+var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
   inherited;
   if not fVisible then exit;
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 
+  XPaintPos := fPosition.X+0.5+GetXSlide;
+  YPaintPos := fPosition.Y+ 1 +GetYSlide;
+
   if MakeShowUnitRoutes then
   if fCurrentAction is TUnitActionWalkTo then
     fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFF00FF);
 
-  fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+  fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry<>rt_None then
-    fRender.RenderUnitCarry(integer(Carry), AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1)
+    fRender.RenderUnitCarry(integer(Carry), AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos)
   else
-    fRender.RenderUnit(byte(GetUnitType), 9, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,false);
+    fRender.RenderUnit(byte(GetUnitType), 9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
+  fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
 end;
 
 
@@ -711,7 +720,7 @@ end;
 
 { TKMWorker }
 procedure TKMUnitWorker.Paint();
-var AnimAct,AnimDir:integer;
+var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
   inherited;
   if not fVisible then exit;
@@ -723,10 +732,13 @@ begin
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 
-  fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+  XPaintPos := fPosition.X+0.5+GetXSlide;
+  YPaintPos := fPosition.Y+ 1 +GetYSlide;
+
+  fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
+  fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
 end;
 
 
@@ -891,19 +903,22 @@ end;
 
 
 procedure TKMUnitWarrior.Paint();
-var UnitType,AnimAct,AnimDir:byte;
+var UnitType,AnimAct,AnimDir:byte; XPaintPos, YPaintPos: single;
 begin
 inherited;
   UnitType:=byte(fUnitType);
   AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=byte(Direction);
+
+  XPaintPos := fPosition.X+0.5+GetXSlide;
+  YPaintPos := fPosition.Y+ 1 +GetYSlide;
   
-  fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,true);
+  fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
   if fIsCommander then
-  fRender.RenderUnitFlag(UnitType,       9, AnimDir, fFlagAnim, byte(fOwner), fPosition.X+0.5, fPosition.Y+1,false);
+  fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, byte(fOwner), XPaintPos, YPaintPos,false);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, fPosition.X+0.5, fPosition.Y+1);
+  fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
 end;
 
 
@@ -1009,7 +1024,7 @@ inherited;
   else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
   AnimDir:=byte(Direction);
-  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5, fPosition.Y+1,true);
+  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5+GetXSlide, fPosition.Y+1+GetYSlide,true);
 end;
 
 
@@ -1029,6 +1044,7 @@ begin
   fUnitType     := aUnitType;
   Direction     := dir_S;
   fVisible      := true;
+  IsExchanging  := false;
   ID            := fGame.GetNewID;
   AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 3/4 to full.
@@ -1112,6 +1128,7 @@ begin
   LoadStream.Read(fPosition, 8); //2 floats
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
+  LoadStream.Read(IsExchanging);
   LoadStream.Read(fPointerCount);
   LoadStream.Read(ID);
   LoadStream.Read(AnimStep);
@@ -1465,6 +1482,62 @@ begin
 end;
 
 
+function TKMUnit.GetXSlide: single;
+var DY,DX, PixelPos: shortint;
+begin
+  Result := 0;
+  if (not IsExchanging) or (GetUnitAction.fActionName <> uan_WalkTo) then exit;
+
+  //Uses Y because a walk in the Y means a slide in the X
+  DY := sign(NextPosition.Y-fPosition.Y);
+  DX := sign(NextPosition.X-fPosition.X);
+  if DY = 0 then exit;
+
+  PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX);
+  if (DY <> 0) and (DX <> 0) then
+  begin
+    //Diagonal movement
+    //Result := (DY*SlideLookupXDiagonal[PixelPos])/CELL_SIZE_PX;
+  end                                                     
+  else
+  begin
+    //For non-diagonal sliding, the lookup is a mirror
+    if PixelPos <= CELL_SIZE_PX/2 then
+      Result := (DY*SlideLookup[PixelPos])/CELL_SIZE_PX
+    else
+      Result := (DY*SlideLookup[CELL_SIZE_PX-PixelPos])/CELL_SIZE_PX;
+  end;
+end;
+
+
+function TKMUnit.GetYSlide: single;
+var DY,DX, PixelPos: shortint;
+begin
+  Result := 0;
+  if (not IsExchanging) or (GetUnitAction.fActionName <> uan_WalkTo) then exit;
+
+  //Uses X because a walk in the X means a slide in the Y
+  DY := sign(NextPosition.Y-fPosition.Y);
+  DX := sign(NextPosition.X-fPosition.X);
+  if DX = 0 then exit;
+
+  PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX);
+  if (DY <> 0) and (DX <> 0) then
+  begin
+    //Diagonal movement
+    //Result := (DX*SlideLookupYDiagonal[PixelPos])/CELL_SIZE_PX;
+  end
+  else
+  begin
+    //For non-diagonal sliding, the lookup is a mirror
+    if PixelPos <= CELL_SIZE_PX/2 then
+      Result := (DX*SlideLookup[PixelPos])/CELL_SIZE_PX
+    else
+      Result := (DX*SlideLookup[CELL_SIZE_PX-PixelPos])/CELL_SIZE_PX;
+  end;
+end;
+
+
 procedure TKMUnit.Save(SaveStream:TKMemoryStream);
 var HasTask,HasAct:boolean;
 begin
@@ -1490,6 +1563,7 @@ begin
   SaveStream.Write(fPosition, 8); //2floats
   SaveStream.Write(fVisible);
   SaveStream.Write(fIsDead);
+  SaveStream.Write(IsExchanging);
   SaveStream.Write(fPointerCount);
 
   SaveStream.Write(ID);

@@ -695,10 +695,12 @@ begin
       //and without UnitWalk there's a guarantee no other unit will step on this tile!
       fInteractionStatus := kis_None;
       DoExchange := false;
+      fWalker.IsExchanging := true; //So unit knows that it must slide
       fInteractionCount := 0;
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
+      fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
       AllowToWalk := DoUnitInteraction();
 
       if not AllowToWalk then
