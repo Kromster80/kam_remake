@@ -70,24 +70,6 @@ type
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
-{    TTaskDeliver = class(TUnitTask)
-    private
-      fFrom:TKMHouse;
-      fToHouse:TKMHouse;
-      fToUnit:TKMUnit;
-      fResourceType:TResourceType;
-      fDeliverID:integer;
-    public
-      DeliverKind:TDeliverKind;
-      constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
-      destructor Destroy; override;
-      procedure Abandon; override;
-      procedure Execute(out TaskDone:boolean); override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;   }
-
     TTaskBuildRoad = class(TUnitTask)
     private
       fLoc:TKMPoint;
@@ -261,7 +243,7 @@ type
     function GetSelf:TKMUnit; //Returns self and adds one to the pointer counter
     procedure RemovePointer;  //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
-    procedure KillUnit;
+    procedure KillUnit; virtual;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
@@ -349,16 +331,21 @@ type
 
   //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
-    fIsCommander:boolean; //Wherever the unit is a leader of a group and has a shtandart
-    fCommander:TKMUnit; //ID of commander unit
+  private
     fFlagAnim:cardinal;
     fOrder:TWarriorOrder;
     fOrderLoc:TKMPoint;
+    fUnitsPerRow:integer;
+    fMembers:TList;
   public
+    fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
+    destructor Destroy; override;
     procedure SyncLoad(); override;
+    procedure KillUnit; override;
     function GetSupportedActions: TUnitActionTypeSet; override;
+    procedure AddMember(aWarrior:TKMUnitWarrior);
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
@@ -814,56 +801,93 @@ end;
 constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
-  fIsCommander  := false;
   fCommander    := nil;
   fFlagAnim     := 0;
   fOrder        := wo_Stop;
   fOrderLoc     := KMPoint(0,0);
+  fUnitsPerRow  := 1;
+  fMembers       := nil; //Only commander units will have it initialized
 end;
 
 
 constructor TKMUnitWarrior.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fIsCommander); //subst on syncload
-  LoadStream.Read(fCommander, 4);
+  LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fFlagAnim, 4);
   LoadStream.Read(fOrder, SizeOf(fOrder));
-  LoadStream.Read(fOrderLoc, 4);
+  LoadStream.Read(fOrderLoc);
+end;
+
+
+destructor TKMUnitWarrior.Destroy;
+begin
+  FreeAndNil(fMembers);
+  Inherited;
 end;
 
 
 procedure TKMUnitWarrior.SyncLoad();
 begin
   Inherited;
-  fCommander := fPlayers.GetUnitByID(integer(fCommander));
+  fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fCommander)));
+end;
+
+
+procedure TKMUnitWarrior.KillUnit;
+begin
+  if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
+
+  fCommander := Self; //Remove commanders flag in a lame way
+
+  //todo: reassign commanders flag
+
+  Inherited;
 end;
 
 
 function TKMUnitWarrior.GetSupportedActions: TUnitActionTypeSet;
 begin
-  Result:= [ua_Walk, ua_Work1, ua_Die];
+  Result := [ua_Walk, ua_Work1, ua_Die];
 end;
 
 
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
+procedure TKMUnitWarrior.AddMember(aWarrior:TKMUnitWarrior);
 begin
-  fOrder:=aWarriorOrder;
-  fOrderLoc:=aLoc;
+  if fMembers = nil then fMembers := TList.Create;
+  fMembers.Add(aWarrior);
+end;
+
+
+//Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
+var i,px,py:integer; NewLoc:TKMPoint;
+begin
+  fOrder    := aWarriorOrder;
+  fOrderLoc := aLoc;
+
+  if (fMembers <> nil)and(fCommander=nil) then //Don't give group orders if unit has no crew
+  for i:=1 to fMembers.Count do
+  begin
+    px:=(i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
+    py:=(i-1) div fUnitsPerRow;
+
+    NewLoc := GetPositionInGroup(aLoc.X, aLoc.Y, dir_S, px, py);
+    TKMUnitWarrior(fMembers.Items[i-1]).PlaceOrder(aWarriorOrder, NewLoc);
+  end;
 end;
 
 
 procedure TKMUnitWarrior.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
-  SaveStream.Write(fIsCommander);
+  Inherited;
   if fCommander <> nil then
     SaveStream.Write(fCommander.ID) //Store ID
-  else                     
+  else
     SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
   SaveStream.Write(fOrder, SizeOf(fOrder));
-  SaveStream.Write(fOrderLoc, 4);
+  SaveStream.Write(fOrderLoc);
 end;
 
 
@@ -920,7 +944,7 @@ inherited;
   YPaintPos := fPosition.Y+ 1 +GetYSlide;
   
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-  if fIsCommander then
+  if fCommander=nil then
   fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, byte(fOwner), XPaintPos, YPaintPos,false);
 
   if fThought<>th_None then
@@ -1209,11 +1233,6 @@ procedure TKMUnit.KillUnit;
 begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
-  if Self is TKMUnitWarrior then begin
-    TKMUnitWarrior(Self).fIsCommander:=false; //Remove commanders flag
-    //Reassign commanders flag to another unit
-  end;
-
   //Abandon delivery if any
   if (Self is TKMUnitSerf) and (Self.fUnitTask is TTaskDeliver) then
     TTaskDeliver(Self.fUnitTask).Abandon;
@@ -1338,7 +1357,7 @@ begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
   end;
-  SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame),aStep);
+  SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame), aStep);
 end;
 
 
@@ -1827,224 +1846,6 @@ begin
   else
     SaveStream.Write(Zero, 4);
 end;
-
-
-{ TTaskDeliver
-constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
-begin
-  Inherited Create(aSerf);
-  fTaskName := utn_Deliver;
-  fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
-  if aFrom <> nil then fFrom:=aFrom.GetSelf;
-  if toHouse <> nil then fToHouse:=toHouse.GetSelf;
-  if toUnit <> nil then fToUnit:=toUnit.GetSelf;
-  fResourceType:=Res;
-  fDeliverID:=aID;
-
-  if toHouse<>nil then
-    DeliverKind:=dk_House;
-  if toUnit<>nil then
-    DeliverKind:=dk_Unit;
-
-  fUnit.SetActionLockedStay(0,ua_Walk);
-end;
-
-
-constructor TTaskDeliver.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
-  LoadStream.Read(fFrom, 4);
-  LoadStream.Read(fToHouse, 4);
-  LoadStream.Read(fToUnit, 4);
-  LoadStream.Read(fResourceType, SizeOf(fResourceType));
-  LoadStream.Read(fDeliverID);
-  LoadStream.Read(DeliverKind, SizeOf(DeliverKind));
-end;
-
-
-procedure TTaskDeliver.SyncLoad();
-begin
-  Inherited;
-  fFrom    := fPlayers.GetHouseByID(integer(fFrom));
-  fToHouse := fPlayers.GetHouseByID(integer(fToHouse));
-  fToUnit  := fPlayers.GetUnitByID(integer(fToUnit));
-end;
-
-
-destructor TTaskDeliver.Destroy;
-begin
-  if fFrom    <> nil then fFrom.RemovePointer;
-  if fToHouse <> nil then fToHouse.RemovePointer;
-  if fToUnit  <> nil then fToUnit.RemovePointer;
-  Inherited Destroy;
-end;
-
-procedure TTaskDeliver.Abandon();
-begin
-  fPlayers.Player[byte(fUnit.fOwner)].DeliverList.AbandonDelivery(fDeliverID);
-  Inherited;
-end;
-
-
-procedure TTaskDeliver.Execute(out TaskDone:boolean);
-begin
-TaskDone:=false;
-
-with fUnit do
-case fPhase of
-0: if not fFrom.IsDestroyed then
-      SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
-   else begin
-     Abandon;
-     TaskDone:=true;
-   end;
-1: if not fFrom.IsDestroyed then
-     SetActionGoIn(ua_Walk,gd_GoInside,fFrom.GetHouseType)
-   else begin
-     Abandon;
-     TaskDone:=true;
-   end;
-2: if not fFrom.IsDestroyed then
-   begin
-     if fFrom.ResTakeFromOut(fResourceType) then begin
-       TKMUnitSerf(fUnit).GiveResource(fResourceType);
-       fPlayers.Player[byte(fOwner)].DeliverList.TakenOffer(fDeliverID);
-     end else begin
-       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
-       fLog.AssertToLog(false,'Resource''s gone..');
-     end;
-     SetActionStay(5,ua_Walk); //Wait a moment inside
-   end else begin
-     PlaceUnitAfterHouseDestroyed; //Unit was invisible while inside. Must show it
-     Abandon;
-     TaskDone:=true;
-   end;
-3: if not fFrom.IsDestroyed then
-   begin
-     SetActionGoIn(ua_Walk,gd_GoOutside,fFrom.GetHouseType);
-   end else begin
-     PlaceUnitAfterHouseDestroyed(); //Unit was invisible while inside. Must show it. Delivery may still continue even though house was just destroyed
-     SetActionLockedStay(0,ua_Walk);
-   end;
-4: if TKMUnitSerf(fUnit).Carry=rt_None then TaskDone:=true else SetActionLockedStay(0,ua_Walk);
-end;
-
-//Deliver into complete house
-if DeliverKind = dk_House then
-  if fToHouse.IsComplete then
-  with fUnit do
-  case fPhase of
-  0..4:;
-  5: if not fToHouse.IsDestroyed then
-       SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance))
-     else begin
-       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-       Abandon;
-       TaskDone:=true;
-     end;
-  6: if not fToHouse.IsDestroyed then
-       SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
-     else begin
-       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-       Abandon;
-       TaskDone:=true;
-     end;
-  7: SetActionStay(5,ua_Walk);
-  //@Krom: Serf should look for a new delivery from this building (when possible) rather than walking outside THEN finding a new task
-  //       At the moment serfs often walk out of the storehouse then walk straight back in again. This will help with congestion/blockages/efficiency.
-  8: if not fToHouse.IsDestroyed then
-     begin
-       fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
-       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-       SetActionGoIn(ua_walk,gd_GoOutside,fToHouse.GetHouseType);
-       fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
-       fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
-     end else begin
-       PlaceUnitAfterHouseDestroyed; //Unit was invisible while inside. Must show it
-       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-       Abandon;
-       TaskDone:=true;
-     end;
-  else TaskDone:=true;
-  end;
-
-//Deliver into wip house
-if DeliverKind = dk_House then
-  if not fToHouse.IsComplete then
-  if not fToHouse.IsDestroyed then
-  begin
-    with fUnit do
-    case fPhase of
-    0..4:;
-    5: SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance));
-    6: begin
-         fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
-         TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-         fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
-         fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
-         SetActionStay(1,ua_Walk);
-       end;
-    else TaskDone:=true;
-    end;
-  end else begin
-    TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-    Abandon;
-    TaskDone:=true;
-  end;
-
-//Deliver to builder
-if DeliverKind = dk_Unit then
-with fUnit do
-case fPhase of
-0..4:;
-5: if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.IsDead) then
-     SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false)
-   else
-   begin
-     TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-     fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
-     fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
-     TaskDone:=true;
-   end;
-6: begin
-      TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-      if (fToUnit<>nil)and(fToUnit.fUnitTask<>nil)and(not fToUnit.IsDead)and(not(fToUnit.fUnitTask is TTaskDie)) then begin
-        inc(fToUnit.fUnitTask.fPhase);
-        fToUnit.SetActionStay(0,ua_Work1);
-      end;
-      fPlayers.Player[byte(fOwner)].DeliverList.GaveDemand(fDeliverID);
-      fPlayers.Player[byte(fOwner)].DeliverList.AbandonDelivery(fDeliverID);
-      SetActionStay(1,ua_Walk);
-   end;
-else TaskDone:=true;
-end;
-
-if TaskDone then exit;
-inc(fPhase);
-if fUnit.fCurrentAction=nil then
-  fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');
-end;
-
-
-procedure TTaskDeliver.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited;
-  if fFrom <> nil then
-    SaveStream.Write(fFrom.ID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Zero);
-  if fToHouse <> nil then
-    SaveStream.Write(fToHouse.ID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Zero);
-  if fToUnit <> nil then
-    SaveStream.Write(fToUnit.ID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Zero);
-  SaveStream.Write(fResourceType, SizeOf(fResourceType));
-  SaveStream.Write(fDeliverID);
-  SaveStream.Write(DeliverKind, SizeOf(DeliverKind));
-end;}
 
 
 { TTaskBuildRoad }
@@ -3389,38 +3190,51 @@ end;
 
 
 function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
-const DirAngle:array[TKMDirection]of word =   (0,  0,   45,  90,   135, 180,   225, 270,   315);
-const DirRatio:array[TKMDirection]of single = (0,  1, 1.41,   1,  1.41,   1,  1.41,   1,  1.41);
-var U,Commander:TKMUnit; i,x,y,px,py:integer;
+var U:TKMUnit; Commander,W:TKMUnitWarrior; i,px,py:integer; UnitPosition:TKMPoint;
 begin
-  //Add commander
-  Commander := Add(aOwner, aUnitType, PosX, PosY);
+
+  if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
+  begin
+    for i:=1 to aUnitCount do
+    begin
+      px := (i-1) mod aUnitPerRow - aUnitPerRow div 2;
+      py := (i-1) div aUnitPerRow;
+      UnitPosition := GetPositionInGroup(PosX, PosY, aDir, px, py);
+      U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
+      if U<>nil then
+      begin
+        fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
+        U.Direction := aDir;
+      end;
+    end;
+    Result := nil; //Dunno what to return here
+    exit; // Don't do anything else for citizens
+  end;
+
+  //Add commander first
+  Commander := TKMUnitWarrior(Add(aOwner, aUnitType, PosX, PosY));
   Result := Commander;
 
-  if Commander=nil then exit;
+  if Commander=nil then exit; //Don't add group without a commander
   fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
 
-  Commander.Direction:=aDir;
-  //@Krom: This doesn't seem to work all the time, e.g. tutorial the big group of scouts. Any idea why?
-  Commander.AnimStep := UnitStillFrames[aDir]; //Use still frame at begining, so units don't all change frame on first tick
-  if Commander is TKMUnitWarrior then
-    TKMUnitWarrior(Commander).fIsCommander:=true;
+  Commander.fUnitsPerRow := aUnitPerRow;
+  Commander.Direction := aDir;
 
   for i:=1 to aUnitCount do begin
-    px:=(i-1) mod aUnitPerRow - aUnitPerRow div 2;
-    py:=(i-1) div aUnitPerRow;
+    px := (i-1) mod aUnitPerRow - aUnitPerRow div 2;
+    py := (i-1) div aUnitPerRow;
+    UnitPosition := GetPositionInGroup(PosX, PosY, aDir, px, py);
 
-    x:=round( px*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - py*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
-    y:=round( px*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + py*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
-
-    if not ((x=0)and(y=0)) then begin//Skip commander
-      U:=Add(aOwner, aUnitType, PosX + x, PosY + y);
-      if U<>nil then begin
+    if not ((UnitPosition.X = PosX)and(UnitPosition.Y = PosY)) then //Skip commander
+    begin
+      W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y)); //W will be _nil_ if unit didn't fit on map
+      if W<>nil then
+      begin
         fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
-        U.Direction:=aDir; //U will be _nil_ if unit didn't fit on map
-        U.AnimStep := UnitStillFrames[aDir]; //Use still frame at begining, so units don't all change frame on first tick
-        if Commander is TKMUnitWarrior then
-          TKMUnitWarrior(U).fCommander:=Commander;
+        W.Direction := aDir;
+        W.fCommander := Commander;
+        Commander.AddMember(W);
       end;
     end;
   end;

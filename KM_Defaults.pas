@@ -249,11 +249,14 @@ type
     ut_Farmer=5,        ut_Lamberjack=6,    ut_Baker=7,         ut_Butcher=8,
     ut_Fisher=9,        ut_Worker=10,       ut_StoneCutter=11,  ut_Smith=12,
     ut_Metallurgist=13, ut_Recruit=14,
+
     ut_Militia=15,      ut_AxeFighter=16,   ut_Swordsman=17,    ut_Bowman=18,
     ut_Arbaletman=19,   ut_Pikeman=20,      ut_Hallebardman=21, ut_HorseScout=22,
     ut_Cavalry=23,      ut_Barbarian=24,
+    
     //ut_Peasant=25,    ut_Slingshot=26,    ut_MetalBarbarian=27,ut_Horseman=28,
     //ut_Catapult=29,   ut_Ballista=30,
+
     ut_Wolf=31,         ut_Fish=32,         ut_Watersnake=33,   ut_Seastar=34,
     ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38);
 

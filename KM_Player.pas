@@ -136,7 +136,7 @@ end;
 function TKMPlayerAssets.AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
 begin
   Result := fUnits.AddGroup(PlayerID, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount);
-  //Add unit to statistic inside the function for some units may not fir on map
+  //Add unit to statistic inside the function for some units may not fit on map
 end;
 
 

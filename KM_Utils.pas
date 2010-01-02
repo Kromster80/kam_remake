@@ -33,8 +33,10 @@ type
   function KMLength(A,B:TKMPoint): single;
 
   function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload
-  
+
   procedure KMSwapPoints(var A,B:TKMPoint);
+
+  function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
 
   function TypeToString(t:THouseType):string; overload
   function TypeToString(t:TResourceType):string; overload
@@ -173,7 +175,7 @@ end;
 
 function GetLength(A,B:TKMPoint): single; overload
 begin
-  Result:=sqrt(sqr(A.x-B.x)+sqr(A.y-B.y));
+  Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
 end;
 
 
@@ -194,12 +196,21 @@ begin
 end;
 
 
-
 procedure KMSwapPoints(var A,B:TKMPoint);
 var w:word;
 begin
   w:=A.X; A.X:=B.X; B.X:=w;
   w:=A.Y; A.Y:=B.Y; B.Y:=w;
+end;
+
+
+{Returns point where unit should be placed regarding direction & offset from Commanders position}
+function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
+const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
+const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
+begin
+  Result.X := OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
+  Result.Y := OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
 end;
 
 

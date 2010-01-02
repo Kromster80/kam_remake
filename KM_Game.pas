@@ -366,14 +366,17 @@ begin
 
         //These are only for testing purposes, Later on it should be changed a lot
         if (Button = mbRight)
-        and(MOver=nil)
+        and(MOver = nil)
         and(fPlayers <> nil)
         and(fPlayers.Selected <> nil)
         and(fPlayers.Selected is TKMUnitWarrior)
         and(TKMUnit(fPlayers.Selected).GetOwner = MyPlayer.PlayerID)
-        and(fTerrain.Route_CanBeMade(TKMUnit(fPlayers.Selected).GetPosition,P,canWalk,true))
+        and(fTerrain.Route_CanBeMade(TKMUnit(fPlayers.Selected).GetPosition, P, canWalk, true))
         then
-          TKMUnitWarrior(fPlayers.Selected).PlaceOrder(wo_walk,P);
+          if TKMUnitWarrior(fPlayers.Selected).fCommander<>nil then
+            TKMUnitWarrior(fPlayers.Selected).fCommander.PlaceOrder(wo_walk, P)
+          else
+            TKMUnitWarrior(fPlayers.Selected).PlaceOrder(wo_walk, P);
 
       end; //gsRunning
     gsEditor: begin
