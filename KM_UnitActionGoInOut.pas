@@ -80,7 +80,7 @@ end;
 
 
 //Defines from where to where unit will be walking
-function TUnitActionGoInOut.DefineInOutLocations(aUnit: TKMUnit):boolean; //returns false if no location was found
+{function TUnitActionGoInOut.DefineInOutLocations(aUnit: TKMUnit):boolean; //returns false if no location was found
 var TempUnit: TKMUnit;
 begin
   Result := false;
@@ -155,7 +155,7 @@ begin
 
   //if fUsingDoorway then inc(fHouse.DoorwayUse); //@Lewin: commented out since it's still crashing in Tutorial
   Result := true;
-end;
+end;}
 
 
 procedure TUnitActionGoInOut.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
@@ -163,11 +163,11 @@ var Distance:single; TempUnit:TKMUnit;
 begin
   DoEnd := false;
 
-{  if not fHasStarted then //Try to define Door and Street locations if aren't defined yet
+  {if not fHasStarted then //Try to define Door and Street locations if aren't defined yet
     fHasStarted := DefineInOutLocations(KMUnit);
 
-  if (not fHasStarted)and(fWaitingForPush) then exit; //Wait if we can't walk out yet (walking In is always ok)
-   }
+  if (not fHasStarted)and(fWaitingForPush) then exit;} //Wait if we can't walk out yet (walking In is always ok)
+
   if not fHasStarted then //Set Door and Street locations
   begin
     fUsingDoorway := true; //By default we will use the doorway rather than a diagonal entrance
@@ -182,7 +182,7 @@ begin
     begin
       KMUnit.Direction := dir_N;  //one cell up
       KMUnit.Thought := th_None;
-      KMUnit.PrevPosition := KMUnit.NextPosition; //@Krom: What do I need to do here?
+      KMUnit.PrevPosition := KMUnit.GetPosition; //@Krom: What do I need to do here?
       KMUnit.NextPosition := KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
       fTerrain.UnitWalk(KMUnit.GetPosition, KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil) and (KMUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
@@ -232,16 +232,16 @@ begin
 
       //All checks done so unit can walk out now
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
-      KMUnit.PrevPosition := fStreet; //@Krom: I don't understand w
-      KMUnit.NextPosition := KMPointRound(fDoor);
+      KMUnit.PrevPosition := KMUnit.GetPosition; //@Krom: I don't understand w
+      KMUnit.NextPosition := fStreet;
       fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
     end;
 
     //if fUsingDoorway then inc(fHouse.DoorwayUse); //@Lewin: commented out since it's still crashing in Tutorial
-    fHasStarted:=true;//}
-  end;
+    fHasStarted:=true;
+  end; //}
   //KMUnit.IsExchanging := (fHouse.DoorwayUse > 1); //@Krom: Commented out to stop crashing due to PreviousPos being wrong; @Lewin: Idon't understand it very well, you will fix it better
 
   if fWaitingForPush then
@@ -250,7 +250,7 @@ begin
     begin
       fWaitingForPush := false;
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
-      KMUnit.NextPosition := fStreet;
+      KMUnit.NextPosition := fStreet; //@Lewin: I don't like this part, Prev/Next should be different
       fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
