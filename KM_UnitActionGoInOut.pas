@@ -16,6 +16,7 @@ type
     public
         constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
         constructor Load(LoadStream:TKMemoryStream); override;
+        procedure SyncLoad; override;
         procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -44,14 +45,22 @@ end;
 
 constructor TUnitActionGoInOut.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited; //TODO: Save the right stuff and sync
+  Inherited;
   LoadStream.Read(fStep);
-  LoadStream.Read(fDirection, SizeOf(fDirection));
   LoadStream.Read(fHouse, 4);
+  LoadStream.Read(fDirection, SizeOf(fDirection));
   LoadStream.Read(fDoor, SizeOf(fDoor));
   LoadStream.Read(fStreet);
   LoadStream.Read(fHasStarted);
   LoadStream.Read(fWaitingForPush);
+  LoadStream.Read(fUsingDoorway);
+end;
+
+
+procedure TUnitActionGoInOut.SyncLoad();
+begin
+  Inherited;
+  fHouse := fPlayers.GetHouseByID(integer(fHouse));
 end;
 
 
@@ -182,12 +191,16 @@ procedure TUnitActionGoInOut.Save(SaveStream:TKMemoryStream);
 begin
   Inherited;
   SaveStream.Write(fStep);
+  if fHouse <> nil then
+    SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero);
   SaveStream.Write(fDirection, SizeOf(fDirection));
-  //SaveStream.Write(fHouseType, SizeOf(fHouseType));
   SaveStream.Write(fDoor, SizeOf(fDoor));
   SaveStream.Write(fStreet);
   SaveStream.Write(fHasStarted);
   SaveStream.Write(fWaitingForPush);
+  SaveStream.Write(fUsingDoorway);
 end;
 
 

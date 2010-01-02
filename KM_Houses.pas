@@ -303,6 +303,7 @@ begin
   fCurrentAction := THouseAction.Create(nil, hst_Empty); //Create placeholder to fill
   fCurrentAction.Load(LoadStream);
   LoadStream.Read(ResourceDepletedMsgIssued);
+  LoadStream.Read(DoorwayUse);
 end;
 
 
@@ -773,6 +774,7 @@ begin
   SaveStream.Write(ID);
   fCurrentAction.Save(SaveStream);
   SaveStream.Write(ResourceDepletedMsgIssued);
+  SaveStream.Write(DoorwayUse); 
 end;
 
 
