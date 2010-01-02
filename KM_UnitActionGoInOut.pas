@@ -83,6 +83,7 @@ end;
 function TUnitActionGoInOut.DefineInOutLocations(aUnit: TKMUnit):boolean; //returns false if no location was found
 var TempUnit: TKMUnit;
 begin
+  Result := false;
   fUsingDoorway := true; //By default we will use the doorway rather than a diagonal entrance
 
   fDoor   := KMPointF(aUnit.GetPosition.X, aUnit.GetPosition.Y - fStep);
@@ -95,7 +96,7 @@ begin
   begin
     aUnit.Direction := dir_N;  //one cell up
     aUnit.Thought := th_None;
-    aUnit.PrevPosition := aUnit.NextPosition; //@Krom: What do I need to do here?
+    aUnit.PrevPosition := KMPoint(aUnit.GetPosition.X,aUnit.GetPosition.Y); //@Krom: What do I need to do here? //@Lewin: out of logic of it
     aUnit.NextPosition := KMPoint(aUnit.GetPosition.X,aUnit.GetPosition.Y-1);
     fTerrain.UnitWalk(aUnit.GetPosition, aUnit.NextPosition);
     if (aUnit.GetHome<>nil) and (aUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
@@ -139,7 +140,7 @@ begin
     if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit <> 0) then
     begin
       fWaitingForPush := true;
-      fHasStarted:=true;
+      Result := true;
       exit; //Wait until my push request is dealt with before we move out
     end;
 
@@ -153,21 +154,23 @@ begin
   end;
 
   //if fUsingDoorway then inc(fHouse.DoorwayUse); //@Lewin: commented out since it's still crashing in Tutorial
-  fHasStarted:=true;               
+  Result := true;
 end;
 
 
 procedure TUnitActionGoInOut.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
-var Distance:single;
+var Distance:single; TempUnit:TKMUnit;
 begin
-  DoEnd:= False;
+  DoEnd := false;
 
-  if not fHasStarted then //Set Door and Street locations
+{  if not fHasStarted then //Try to define Door and Street locations if aren't defined yet
     fHasStarted := DefineInOutLocations(KMUnit);
 
+  if (not fHasStarted)and(fWaitingForPush) then exit; //Wait if we can't walk out yet (walking In is always ok)
+   }
   if not fHasStarted then //Set Door and Street locations
   begin
-  {  fUsingDoorway := true; //By default we will use the doorway rather than a diagonal entrance
+    fUsingDoorway := true; //By default we will use the doorway rather than a diagonal entrance
     
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
@@ -237,7 +240,7 @@ begin
     end;
 
     //if fUsingDoorway then inc(fHouse.DoorwayUse); //@Lewin: commented out since it's still crashing in Tutorial
-    fHasStarted:=true;}
+    fHasStarted:=true;//}
   end;
   //KMUnit.IsExchanging := (fHouse.DoorwayUse > 1); //@Krom: Commented out to stop crashing due to PreviousPos being wrong; @Lewin: Idon't understand it very well, you will fix it better
 

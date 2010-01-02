@@ -1523,8 +1523,8 @@ begin
   if (DY <> 0) and (DX <> 0) then
   begin
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*1.414);
-    PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)); //todo: @Lewin:Bug. It gives an error here in TestMission, somehow PixelPos=93 in some few seconds after start
-    //Diagonal movement
+    PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)-1); //todo: @Lewin:Bug. It gives an error here in TestMission, somehow PixelPos=93 in some few seconds after start. I had to add quickfix - RangeCheck
+    //Diagonal movement             
     if PixelPos <= length(SlideLookupDiagonal) then //Use
       Result := (DY*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
     else
@@ -1556,7 +1556,7 @@ begin
   if (DY <> 0) and (DX <> 0) then
   begin
     PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*1.414);
-    PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal));
+    PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)-1);
     //Diagonal movement
     if PixelPos <= length(SlideLookupDiagonal) then
       Result := -(DX*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
