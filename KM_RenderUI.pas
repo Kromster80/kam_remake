@@ -366,46 +366,53 @@ var
   LineWidth:array[1..256] of word; //Lets hope 256 lines will be enough
 begin
   InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
-  Result.X:=0;
-  Result.Y:=0;
+  Result.X := 0;
+  Result.Y := 0;
 
-  AdvX:=0; PrevX:=0; LastSpace:=-1; //Used as line width
-  if Wrap then  //Reposition EOLs
-    for i:=1 to length(Text) do begin
-      //Existing EOLs should be preserved, and new ones added where needed.
+  if Wrap then //Reposition EOLs
+  begin
+
+    AdvX := 0;
+    PrevX := 0;
+    LastSpace := -1; //Used as line width
+
+    for i:=1 to length(Text) do //Existing EOLs should be preserved, and new ones added where needed.
+      begin
       if (Text[i]=#32) or (Text[i]=#124) then begin
-        LastSpace:=i;
-        PrevX:=AdvX;
+        LastSpace := i;
+        PrevX := AdvX;
       end;
 
-      inc(AdvX,FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter);
+      inc(AdvX, FontData[byte(Fnt)].Letters[ord(Text[i])].Width + InterLetter);
 
       //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-      if ((AdvX>SizeX)and(LastSpace<>-1))or(Text[i]=#124) then begin
-        Text[LastSpace]:=#124; //Place EOL instead of last whitespace
-        AdvX:=AdvX-PrevX; //Should subtract replaced whitespace
+      if ((AdvX>SizeX)and(LastSpace<>-1))or(Text[i]=#124) then
+      begin
+        Text[LastSpace] := #124; //Place EOL instead of last whitespace
+        dec(AdvX, PrevX); //Should subtract replaced whitespace
       end;
     end;
+  end;
 
-  LineCount:=0;
+  LineCount := 0;
   for i:=1 to length(Text) do begin
     if Text[i]<>#124 then begin
-      Result.X:=Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
-      Result.Y:=max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
+      Result.X := Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
+      Result.Y := max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
       inc(LineCount);
-      Assert(LineCount<=256,'Line count exceeded'); //todo: optimize this place since many texts are 1 line only and don't need LineCount at all  
+      Assert(LineCount <= Length(LineWidth), 'Line count exceeded');
       LineWidth[LineCount]:=max(0,Result.X-InterLetter); //Remove last interletter space and negate double EOLs
-      Result.X:=0;
+      Result.X := 0;
     end;
   end;
 
   for i:=1 to LineCount do
-    Result.X:=max(Result.X,LineWidth[i]);
+    Result.X := max(Result.X,LineWidth[i]);
 
-  AdvX:=0;
-  LineCount:=1;
+  AdvX := 0;
+  LineCount := 1;
 
   glPushMatrix;
     glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
@@ -439,7 +446,7 @@ begin
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);
   glPopMatrix;
-  Result.Y:=Result.Y*LineCount;
+  Result.Y := Result.Y*LineCount;
 end;
 
 

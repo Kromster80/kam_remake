@@ -155,7 +155,7 @@ type
   {School has one unique property - queue of units to be trained, 1 wip + 5 in line}
   TKMHouseSchool = class(TKMHouse)
   private
-    UnitWIP:Pointer;  //todo: replace with TKMUnit
+    UnitWIP:Pointer;  //can't replace with TKMUnit since it will lead to circular reference in KM_House-KM_Units
     HideOneGold:boolean; //Hide the gold incase Player cancels the training, then we won't need to tweak DeliverQueue order
     UnitTrainProgress:byte; //Was it 150 steps in KaM?
   public
@@ -306,6 +306,7 @@ end;
 
 destructor TKMHouse.Destroy;
 begin
+  FreeAndNil(fCurrentAction);
   Inherited;
 end;
 

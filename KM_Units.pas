@@ -1059,6 +1059,8 @@ end;
 
 destructor TKMUnit.Destroy;
 begin
+  FreeAndNil(fCurrentAction);
+  FreeAndNil(fUnitTask);
   Inherited;
 end;
 
@@ -3323,10 +3325,8 @@ end;
 
 { TKMUnitsCollection }
 destructor TKMUnitsCollection.Destroy;
-//var i:integer; U:TKMUnit;
 begin
-  {for i := 0 to Count - 1 do
-    FreeAndNil(TKMUnit(Items[i]));} //todo: make it happen to free units props on destroy
+  //No need to free units individually since they are Freed by TKMList.Clear command.
   Inherited;
 end;
 
