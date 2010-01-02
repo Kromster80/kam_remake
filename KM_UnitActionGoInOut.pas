@@ -96,7 +96,7 @@ begin
   begin
     aUnit.Direction := dir_N;  //one cell up
     aUnit.Thought := th_None;
-    aUnit.PrevPosition := KMPoint(aUnit.GetPosition.X,aUnit.GetPosition.Y); //@Krom: What do I need to do here? //@Lewin: out of logic of it
+    aUnit.PrevPosition := aUnit.GetPosition; //@Krom: What do I need to do here? //@Lewin: current Unit's position out of logic of it
     aUnit.NextPosition := KMPoint(aUnit.GetPosition.X,aUnit.GetPosition.Y-1);
     fTerrain.UnitWalk(aUnit.GetPosition, aUnit.NextPosition);
     if (aUnit.GetHome<>nil) and (aUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
@@ -146,8 +146,8 @@ begin
 
     //All checks done so unit can walk out now
     aUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
-    aUnit.PrevPosition := fStreet; //@Krom: I don't understand w
-    aUnit.NextPosition := KMPointRound(fDoor);
+    aUnit.PrevPosition := aUnit.GetPosition;
+    aUnit.NextPosition := fStreet;
     fTerrain.UnitWalk(aUnit.GetPosition,aUnit.NextPosition);
     if (aUnit.GetHome<>nil)and(aUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
       TKMHouseBarracks(aUnit.GetHome).RecruitsInside:=TKMHouseBarracks(aUnit.GetHome).RecruitsInside - 1;
