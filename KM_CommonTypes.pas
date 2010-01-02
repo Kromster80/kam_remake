@@ -13,9 +13,13 @@ type
 type
   TKMemoryStream = class(TMemoryStream)
   public
-    function Write(const Value:integer): Longint; reintroduce; overload; //@Lewin: Any idea how do to avoid warning message here?
-    function Write(const Value:byte): Longint; reintroduce; overload;    //@Krom: 'reintroduce' does the trick :)
+    function Write(const Value:TKMPoint): Longint; reintroduce; overload;
+    function Write(const Value:single): Longint; reintroduce; overload;
+    function Write(const Value:integer): Longint; reintroduce; overload;
+    function Write(const Value:byte): Longint; reintroduce; overload;
     function Write(const Value:boolean): Longint; reintroduce; overload;
+    function Read(var Value:TKMPoint): Longint; reintroduce; overload;
+    function Read(var Value:single): Longint; reintroduce; overload;
     function Read(var Value:integer): Longint; reintroduce; overload;
     function Read(var Value:byte): Longint; reintroduce; overload;
     function Read(var Value:boolean): Longint; reintroduce; overload;
@@ -208,36 +212,28 @@ end;
 
 
 { TKMemoryStream }
+function TKMemoryStream.Write(const Value:TKMPoint): Longint;
+begin Result := Inherited Write(Value, SizeOf(Value)); end;
+function TKMemoryStream.Write(const Value:single): Longint;
+begin Result := Inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:integer): Longint;
-begin
-  Result := Inherited Write(Value, SizeOf(Value));
-end;
-
+begin Result := Inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:byte): Longint;
-begin
-  Result := Inherited Write(Value, SizeOf(Value));
-end;
-
+begin Result := Inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:boolean): Longint;
-begin
-  Result := Inherited Write(Value, SizeOf(Value));
-end;
+begin Result := Inherited Write(Value, SizeOf(Value)); end;
 
 
+function TKMemoryStream.Read(var Value:TKMPoint): Longint;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
+function TKMemoryStream.Read(var Value:single): Longint;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(var Value:integer): Longint;
-begin
-  Result := Inherited Read(Value, SizeOf(Value));
-end;
-
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(var Value:byte): Longint;
-begin
-  Result := Inherited Read(Value, SizeOf(Value));
-end;
-
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(var Value:boolean): Longint;
-begin
-  Result := Inherited Read(Value, SizeOf(Value));
-end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 
 
 { TKMMessageList }
@@ -370,7 +366,7 @@ var i:integer;
 begin
   SaveStream.Write(Count);
   for i:=1 to Count do
-  SaveStream.Write(List[i], SizeOf(List[i]));
+  SaveStream.Write(List[i]);
 end;
 
 
@@ -380,7 +376,7 @@ begin
   LoadStream.Read(Count);
   setlength(List,Count+32);
   for i:=1 to Count do
-  LoadStream.Read(List[i], SizeOf(List[i]));
+  LoadStream.Read(List[i]);
 end;
 
 
@@ -422,8 +418,8 @@ begin
 
   for i:=1 to Count do
   begin
-    SaveStream.Write(Tag[i],4);
-    SaveStream.Write(Tag2[i],4);
+    SaveStream.Write(Tag[i]);
+    SaveStream.Write(Tag2[i]);
   end;
 end;
 
