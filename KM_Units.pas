@@ -264,7 +264,7 @@ type
     procedure KillUnit;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
-    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType=ht_None);
+    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
@@ -868,6 +868,11 @@ end;
 
 
 function TKMUnitWarrior.UpdateState():boolean;
+  function CheckCanAbandon: boolean;
+  begin
+    if GetUnitAction is TUnitActionWalkTo then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon
+    else Result := true;
+  end;
 begin
   inc(fFlagAnim);
 
@@ -885,9 +890,10 @@ begin
       fThought:=th_None;
 
   //Dispatch new order when warrior finished previous action part
-  if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) then
+  if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and
+    TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
     AbandonWalk; //If we are already walking then cancel it to make way for new command
-  if (fOrder=wo_Walk) and GetUnitAction.IsStepDone then
+  if (fOrder=wo_Walk) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
     SetActionWalk(Self,fOrderLoc);
     fOrder:=wo_Stop;
@@ -1318,9 +1324,9 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouseType:THouseType=ht_None);
+procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
 begin
-  SetAction(TUnitActionGoInOut.Create(aAction, aGoDir, aHouseType),0);
+  SetAction(TUnitActionGoInOut.Create(aAction, aGoDir, aHouse),0);
 end;
 
 
@@ -1488,21 +1494,25 @@ function TKMUnit.GetXSlide: single;
 var DY,DX, PixelPos: shortint;
 begin
   Result := 0;
-  if (not IsExchanging) or (GetUnitAction.fActionName <> uan_WalkTo) then exit;
+  if (not IsExchanging) or not (GetUnitAction.fActionName in [uan_WalkTo,uan_GoInOut]) then exit;
 
   //Uses Y because a walk in the Y means a slide in the X
   DY := sign(NextPosition.Y-fPosition.Y);
   DX := sign(NextPosition.X-fPosition.X);
   if DY = 0 then exit;
 
-  PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX);
   if (DY <> 0) and (DX <> 0) then
   begin
+    PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*1.414);
     //Diagonal movement
-    //Result := (DY*SlideLookupXDiagonal[PixelPos])/CELL_SIZE_PX;
-  end                                                     
+    if PixelPos <= 29 then
+      Result := (DY*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
+    else
+      Result := (DY*SlideLookupDiagonal[58-PixelPos])/CELL_SIZE_PX;
+  end
   else
   begin
+    PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX);
     //For non-diagonal sliding, the lookup is a mirror
     if PixelPos <= CELL_SIZE_PX/2 then
       Result := (DY*SlideLookup[PixelPos])/CELL_SIZE_PX
@@ -1527,15 +1537,18 @@ begin
   if (DY <> 0) and (DX <> 0) then
   begin
     //Diagonal movement
-    //Result := (DX*SlideLookupYDiagonal[PixelPos])/CELL_SIZE_PX;
+    if PixelPos <= 29 then
+      Result := -(DX*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
+    else
+      Result := -(DX*SlideLookupDiagonal[58-PixelPos])/CELL_SIZE_PX;
   end
   else
   begin
     //For non-diagonal sliding, the lookup is a mirror
     if PixelPos <= CELL_SIZE_PX/2 then
-      Result := (DX*SlideLookup[PixelPos])/CELL_SIZE_PX
+      Result := -(DX*SlideLookup[PixelPos])/CELL_SIZE_PX
     else
-      Result := (DX*SlideLookup[CELL_SIZE_PX-PixelPos])/CELL_SIZE_PX;
+      Result := -(DX*SlideLookup[CELL_SIZE_PX-PixelPos])/CELL_SIZE_PX;
   end;
 end;
 
@@ -1632,7 +1645,8 @@ begin
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, ActDone);
 
-  if ActDone then FreeAndNil(fCurrentAction) else exit;
+  if ActDone then
+  FreeAndNil(fCurrentAction) else exit;
 
   if fUnitTask <> nil then
     fUnitTask.Execute(TaskDone);
@@ -1795,7 +1809,7 @@ case fPhase of
       fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
      end;
   6: begin
-      SetActionGoIn(ua_Walk,gd_GoOutside,ht_School);
+      SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
       fSchool.UnitTrainingComplete;
       fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,true);
      end;
@@ -2820,7 +2834,7 @@ with fUnit do
   case fPhase of
     0: if WorkPlan.HasToWalk then begin
          fHome.SetState(hst_Empty,0);
-         SetActionGoIn(WorkPlan.WalkTo,gd_GoOutside,fHome.GetHouseType); //Walk outside the house
+         SetActionGoIn(WorkPlan.WalkTo,gd_GoOutside,fHome); //Walk outside the house
        end else begin
          fPhase:=SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
          SetActionLockedStay(0,ua_Walk);
@@ -2884,7 +2898,7 @@ with fUnit do
          SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance), WorkPlan.WalkFrom); //Go home
          fThought := th_Home;
        end;
-    7: SetActionGoIn(WorkPlan.WalkFrom,gd_GoInside,fHome.GetHouseType); //Go inside
+    7: SetActionGoIn(WorkPlan.WalkFrom,gd_GoInside,fHome); //Go inside
 
     {Unit back at home and can process its booty now}
     8: begin
@@ -2984,7 +2998,7 @@ begin
          fThought := th_Home;
          SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance));
        end;
-    1: SetActionGoIn(ua_Walk, gd_GoInside, fHome.GetHouseType);
+    1: SetActionGoIn(ua_Walk, gd_GoInside, fHome);
     2: begin
         fThought := th_None; //Only stop thinking once we are right inside
         fHome.SetState(hst_Idle,0);
@@ -3025,10 +3039,11 @@ case fPhase of
        if fHome<>nil then begin
          fHome.SetState(hst_Idle,0);
          fHome.SetState(hst_Empty,0);
-         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome.GetHouseType);
+         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome);
        end
        else
-         SetActionGoIn(ua_Walk,gd_GoOutside); //Inn or Store or etc.. for units without home.
+         SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(fUnit.NextPosition.X,fUnit.NextPosition.Y));
+                                         //Inn or Store or etc.. for units without home.
                                          //Which means that our current approach to deduce housetype from
                                          //fUnit.fHome is wrong
      end else
@@ -3080,11 +3095,11 @@ begin
          SetActionStay(20,ua_Walk);
        end;
     1: begin
-         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome.GetHouseType);
+         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome);
          fHome.SetState(hst_Empty,0);
        end;
     2: SetActionStay(4,ua_Walk);
-    3: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.fHome.GetHouseType);
+    3: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.fHome);
     4: begin
          SetActionStay(20,ua_Walk);
          fHome.SetState(hst_Idle,0);
@@ -3155,14 +3170,14 @@ case fPhase of
  0: begin
       fThought := th_Eat;
       if fHome<>nil then fHome.SetState(hst_Empty,0);
-      if not fVisible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome.GetHouseType) else
+      if not fVisible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome) else
                            SetActionLockedStay(0,ua_Walk); //Walk outside the house
     end;
  1: begin
       SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance));
     end;
  2: begin
-      SetActionGoIn(ua_Walk,gd_GoInside,ht_Inn); //Enter Inn
+      SetActionGoIn(ua_Walk,gd_GoInside,fInn); //Enter Inn
       PlaceID := fInn.EaterGetsInside(fUnitType);
     end;
  3: //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
@@ -3203,7 +3218,7 @@ case fPhase of
       if fCondition<UNIT_MAX_CONDITION then
         fThought := th_Eat
       else fThought := th_None;
-      SetActionGoIn(ua_Walk,gd_GoOutside,ht_Inn); //Exit Inn
+      SetActionGoIn(ua_Walk,gd_GoOutside,fInn); //Exit Inn
       fInn.EatersGoesOut(PlaceID);
       PlaceID:=0;
     end;
@@ -3289,6 +3304,7 @@ begin
   //Check if unit has arrived on tile
   if Equals(KMUnit.fPosition.X,fWalkTo.X,Distance/2) and Equals(KMUnit.fPosition.Y,fWalkTo.Y,Distance/2) then
   begin
+    KMUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
     //Set precise position to avoid rounding errors
     KMUnit.fPosition.X:=fWalkTo.X;
     KMUnit.fPosition.Y:=fWalkTo.Y;

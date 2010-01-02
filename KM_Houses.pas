@@ -64,6 +64,7 @@ type
     ID:integer; //unique ID, used for save/load to sync to
     fCurrentAction: THouseAction; //Current action, withing HouseTask or idle
     ResourceDepletedMsgIssued: boolean;
+    DoorwayUse: byte; //number of units using our door way. Used for sliding.
 
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); virtual;
@@ -241,6 +242,7 @@ begin
 
   fHasOwner         := false;
   fBuildingRepair   := false; //Repair mode off by default
+  DoorwayUse        := 0;
   fRepairID         := 0;
   fWareDelivery     := true;
 

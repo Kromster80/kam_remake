@@ -1,6 +1,6 @@
 unit KM_UnitActionGoInOut;
 interface
-uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math;
+uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math, KM_Houses;
 
 
 {This is a simple action making unit go inside/outside of house}
@@ -8,13 +8,13 @@ type
   TUnitActionGoInOut = class(TUnitAction)
     private
         fStep:single;
+        fHouse:TKMHouse;
         fDirection:TGoInDirection;
-        fHouseType:THouseType;
         fDoor:TKMPointF;
         fStreet:TKMPoint;
-        fHasStarted, fWaitingForPush:boolean;
+        fHasStarted, fWaitingForPush, fUsingDoorway:boolean;
     public
-        constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
+        constructor Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
         constructor Load(LoadStream:TKMemoryStream); override;
         procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TKMemoryStream); override;
@@ -22,18 +22,19 @@ type
 
 
 implementation
-uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionStay, KM_UnitActionWalkTo;
+uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionStay, KM_UnitActionWalkTo;
 
 
-constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouseType:THouseType=ht_None);
+constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
 begin
   Inherited Create(aAction);
-  fActionName := uan_GoInOut;
+  fActionName     := uan_GoInOut;
+  fHouse          := aHouse;
   fDirection      := aDirection;
-  fHouseType      := aHouseType;
   fHasStarted     := false;
   fWaitingForPush := false;
-  
+  fUsingDoorway   := true;
+
   if fDirection = gd_GoInside then
     fStep := 1  //go Inside (one cell up)
   else
@@ -43,10 +44,10 @@ end;
 
 constructor TUnitActionGoInOut.Load(LoadStream:TKMemoryStream);
 begin
-  Inherited;
+  Inherited; //TODO: Save the right stuff and sync
   LoadStream.Read(fStep);
   LoadStream.Read(fDirection, SizeOf(fDirection));
-  LoadStream.Read(fHouseType, SizeOf(fHouseType));
+  LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDoor, SizeOf(fDoor));
   LoadStream.Read(fStreet);
   LoadStream.Read(fHasStarted);
@@ -69,17 +70,19 @@ begin
 
   if not fHasStarted then //Set Door and Street locations
   begin
-
+    fUsingDoorway := true; //By default we will use the doorway rather than a diagonal entrance
+    
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
-    if byte(fHouseType) in [1..length(HouseDAT)] then
-      fDoor.X := fDoor.X + (HouseDAT[byte(fHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX;
+    if byte(fHouse.GetHouseType) in [1..length(HouseDAT)] then
+      fDoor.X := fDoor.X + (HouseDAT[byte(fHouse.GetHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX;
 
 
     if fDirection=gd_GoInside then
     begin
       KMUnit.Direction := dir_N;  //one cell up
       KMUnit.Thought := th_None;
+      KMUnit.PrevPosition := KMUnit.NextPosition; //@Krom: What do I need to do here?
       KMUnit.NextPosition := KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
       fTerrain.UnitWalk(KMUnit.GetPosition, KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil) and (KMUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
@@ -95,12 +98,18 @@ begin
       begin
         TempUnit := fPlayers.UnitsHitTest(fStreet.X-1,fStreet.Y);
         if ValidTile(fStreet.X-1,fStreet.Y,TempUnit) then
-          fStreet.X := fStreet.X - 1
+        begin
+          fStreet.X := fStreet.X - 1;
+          fUsingDoorway := false;
+        end
         else
         begin
           TempUnit := fPlayers.UnitsHitTest(fStreet.X+1,fStreet.Y);
           if ValidTile(fStreet.X+1,fStreet.Y,TempUnit) then
-            fStreet.X := fStreet.X + 1
+          begin
+            fStreet.X := fStreet.X + 1;
+            fUsingDoorway := false;
+          end
           else
             exit; //Do not exit the house if all street tiles are blocked by non-idle units, just wait
         end;
@@ -123,14 +132,17 @@ begin
 
       //All checks done so unit can walk out now
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
-      KMUnit.NextPosition := fStreet;
+      KMUnit.PrevPosition := fStreet; //@Krom: I don't understand w
+      KMUnit.NextPosition := KMPointRound(fDoor);
       fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
     end;
 
+    if fUsingDoorway then inc(fHouse.DoorwayUse);
     fHasStarted:=true;
   end;
+  //KMUnit.IsExchanging := (fHouse.DoorwayUse > 1); //@Krom: Commented out to stop crashing due to PreviousPos being wrong
 
   if fWaitingForPush then
   begin
@@ -154,6 +166,8 @@ begin
   if (fStep<=0)or(fStep>=1) then
   begin
     DoEnd:=true;
+    KMUnit.IsExchanging := false;
+    if fUsingDoorway then dec(fHouse.DoorwayUse);
     if fDirection = gd_GoInside then
       KMUnit.PositionF := fDoor
     else
@@ -169,7 +183,7 @@ begin
   Inherited;
   SaveStream.Write(fStep);
   SaveStream.Write(fDirection, SizeOf(fDirection));
-  SaveStream.Write(fHouseType, SizeOf(fHouseType));
+  //SaveStream.Write(fHouseType, SizeOf(fHouseType));
   SaveStream.Write(fDoor, SizeOf(fDoor));
   SaveStream.Write(fStreet);
   SaveStream.Write(fHasStarted);

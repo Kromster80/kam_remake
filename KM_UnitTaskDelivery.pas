@@ -99,7 +99,7 @@ case fPhase of
      TaskDone:=true;
    end;
 1: if not fFrom.IsDestroyed then
-     SetActionGoIn(ua_Walk,gd_GoInside,fFrom.GetHouseType)
+     SetActionGoIn(ua_Walk,gd_GoInside,fFrom)
    else begin
      Abandon;
      TaskDone:=true;
@@ -121,7 +121,7 @@ case fPhase of
    end;
 3: if not fFrom.IsDestroyed then
    begin
-     SetActionGoIn(ua_Walk,gd_GoOutside,fFrom.GetHouseType);
+     SetActionGoIn(ua_Walk,gd_GoOutside,fFrom);
    end else begin
      PlaceUnitAfterHouseDestroyed(); //Unit was invisible while inside. Must show it. Delivery may still continue even though house was just destroyed
      SetActionLockedStay(0,ua_Walk);
@@ -143,20 +143,20 @@ if DeliverKind = dk_House then
        TaskDone:=true;
      end;
   6: if not fToHouse.IsDestroyed then
-       SetActionGoIn(ua_Walk,gd_GoInside,fToHouse.GetHouseType)
+       SetActionGoIn(ua_Walk,gd_GoInside,fToHouse)
      else begin
        TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
        Abandon;
        TaskDone:=true;
      end;
   7: SetActionStay(5,ua_Walk);
-  //@Krom: Serf should look for a new delivery from this building (when possible) rather than walking outside THEN finding a new task
-  //       At the moment serfs often walk out of the storehouse then walk straight back in again. This will help with congestion/blockages/efficiency.
+  //TODO: Serf should look for a new delivery from this building (when possible) rather than walking outside THEN finding a new task
+  //      At the moment serfs often walk out of the storehouse then walk straight back in again. This will help with congestion/blockages/efficiency.
   8: if not fToHouse.IsDestroyed then
      begin
        fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
        TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-       SetActionGoIn(ua_walk,gd_GoOutside,fToHouse.GetHouseType);
+       SetActionGoIn(ua_walk,gd_GoOutside,fToHouse);
        fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
        fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
      end else begin

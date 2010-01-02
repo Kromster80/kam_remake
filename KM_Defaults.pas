@@ -730,12 +730,12 @@ type
         );
 
 //Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
-//Follows a bell curve (normal distribution) shape for realistic acceleration/deceleration.
-//Generated using Wolfram Alpha, values might change later. Diagonal is the same but rotated 45 degrees.
+//Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
+//I tweaked it by hand to look similar to KaM.
 const
-  SlideLookup: array[0..20] of byte = (0,0,0,0,1,1,2,2,3,4,6,7,8,9,9,10,10,11,11,11,11);
-  //SlideLookupXDiagonal: array[0..40] of byte = ();
-  //SlideLookupYDiagonal: array[0..40] of byte = ();
+  SlideLookup: array[0..20] of byte = (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9);
+  SlideLookupDiagonal: array[0..29] of byte = (0,0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7);
+
 
 const
   RESOLUTION_COUNT = 11;

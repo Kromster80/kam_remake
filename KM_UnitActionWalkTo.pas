@@ -30,6 +30,8 @@ type
       function AssembleTheRoute():boolean;
       function CheckCanWalk():boolean;
       function DoUnitInteraction():boolean;
+      procedure DodgeTo(aPos: TKMPoint);
+      procedure PerformExchange(ForcedExchangePos:TKMPoint);
       procedure IncVertex;
       procedure DecVertex;
     public
@@ -41,12 +43,11 @@ type
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
+      function CanAbandon: boolean;
+      procedure SetPushedValues;
       function GetNextPosition():TKMPoint;
       function GetNextNextPosition():TKMPoint;
       property GetInteractionStatus:TInteractionStatus read fInteractionStatus;
-      procedure PerformExchange(ForcedExchangePos:TKMPoint);
-      procedure DodgeTo(aPos: TKMPoint);
-      procedure SetPushedValues;
       procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -126,6 +127,12 @@ destructor TUnitActionWalkTo.Destroy;
 begin
   FreeAndNil(NodeList);
   Inherited;
+end;
+
+
+function TUnitActionWalkTo.CanAbandon: boolean;
+begin
+  Result := (fInteractionStatus <> kis_Pushed) and (fInteractionStatus <> kis_Exchanging);
 end;
 
 
@@ -650,6 +657,7 @@ begin
   //Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)
   if NodePos > NodeList.Count then begin
     if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then DecVertex; //Unoccupy vertex
+    fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
     DoEnd:=true;
     exit;
   end;
@@ -662,9 +670,10 @@ begin
      Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
   begin
     if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
-    WaitingOnStep := true;
+      WaitingOnStep := true;
 
     GetIsStepDone := true; //Unit stepped on a new tile
+    fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
 
     //Set precise position to avoid rounding errors
     fWalker.PositionF := KMPointF(NodeList.List[NodePos].X,NodeList.List[NodePos].Y);
@@ -700,7 +709,6 @@ begin
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
-      fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
       AllowToWalk := DoUnitInteraction();
 
       if not AllowToWalk then
