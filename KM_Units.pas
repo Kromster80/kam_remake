@@ -1523,17 +1523,18 @@ begin
   if (DY <> 0) and (DX <> 0) then
   begin
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*1.414);
+    PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)); //todo: @Lewin:Bug. It gives an error here in TestMission, somehow PixelPos=93 in some few seconds after start
     //Diagonal movement
-    if PixelPos <= 29 then
+    if PixelPos <= length(SlideLookupDiagonal) then //Use
       Result := (DY*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
     else
-      Result := (DY*SlideLookupDiagonal[58-PixelPos])/CELL_SIZE_PX;
+      Result := (DY*SlideLookupDiagonal[length(SlideLookupDiagonal)-PixelPos])/CELL_SIZE_PX;
   end
   else
   begin
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX);
     //For non-diagonal sliding, the lookup is a mirror
-    if PixelPos <= CELL_SIZE_PX/2 then
+    if PixelPos <= CELL_SIZE_PX div 2 then
       Result := (DY*SlideLookup[PixelPos])/CELL_SIZE_PX
     else
       Result := (DY*SlideLookup[CELL_SIZE_PX-PixelPos])/CELL_SIZE_PX;
@@ -1552,19 +1553,21 @@ begin
   DX := sign(NextPosition.X-fPosition.X);
   if DX = 0 then exit;
 
-  PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX);
   if (DY <> 0) and (DX <> 0) then
   begin
+    PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*1.414);
+    PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal));
     //Diagonal movement
-    if PixelPos <= 29 then
+    if PixelPos <= length(SlideLookupDiagonal) then
       Result := -(DX*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
     else
-      Result := -(DX*SlideLookupDiagonal[58-PixelPos])/CELL_SIZE_PX;
+      Result := -(DX*SlideLookupDiagonal[length(SlideLookupDiagonal)-PixelPos])/CELL_SIZE_PX;
   end
   else
   begin
+    PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX);
     //For non-diagonal sliding, the lookup is a mirror
-    if PixelPos <= CELL_SIZE_PX/2 then
+    if PixelPos <= CELL_SIZE_PX div 2 then
       Result := -(DX*SlideLookup[PixelPos])/CELL_SIZE_PX
     else
       Result := -(DX*SlideLookup[CELL_SIZE_PX-PixelPos])/CELL_SIZE_PX;
