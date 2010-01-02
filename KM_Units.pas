@@ -11,7 +11,7 @@ uses
 
 type
   TKMUnit = class;
-  TKMUnitSerf = class;
+//  TKMUnitSerf = class;
   TKMUnitWorker = class;
 
   TUnitAction = class(TObject)
@@ -861,7 +861,7 @@ begin
     SaveStream.Write(fCommander.ID) //Store ID
   else                     
     SaveStream.Write(Zero);
-  SaveStream.Write(fFlagAnim, 4);
+  SaveStream.Write(fFlagAnim);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc, 4);
 end;

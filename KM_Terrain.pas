@@ -1660,21 +1660,21 @@ procedure TTerrain.Save(SaveStream:TKMemoryStream);
 var i,k:integer; TileSize:integer;
 begin
   SaveStream.Write('Terrain',7);
-  SaveStream.Write(MapX,2);
-  SaveStream.Write(MapY,2);
+  SaveStream.Write(MapX);
+  SaveStream.Write(MapY);
 
   //Write down tile size
   //it should be compared versus tile size on loading, if they are different,
   //then mapformat has changed and savegame will be "unsupported"
   TileSize := SizeOf(Land[i,k]);
-  SaveStream.Write(TileSize,4);
+  SaveStream.Write(TileSize);
 
   for i:=1 to MapY do for k:=1 to MapX do
     SaveStream.Write(Land[i,k].Terrain, TileSize);
 
   FallingTrees.Save(SaveStream);
 
-  SaveStream.Write(AnimStep,4);
+  SaveStream.Write(AnimStep);
 end;
 
 
@@ -1682,10 +1682,10 @@ procedure TTerrain.Load(LoadStream:TKMemoryStream);
 var i,k:integer; TileSize:integer; c:array[1..64]of char;
 begin
   LoadStream.Read(c, 7); //if s<>'Terrain' then exit;
-  LoadStream.Read(MapX, 2);
-  LoadStream.Read(MapY, 2);
+  LoadStream.Read(MapX);
+  LoadStream.Read(MapY);
 
-  LoadStream.Read(TileSize, 4);
+  LoadStream.Read(TileSize);
   if TileSize <> SizeOf(Land[i,k]) then Assert(false, 'Wrong SizeOf Tile in TTerrain');
 
   for i:=1 to MapY do for k:=1 to MapX do

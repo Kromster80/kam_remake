@@ -150,7 +150,7 @@ procedure TViewport.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write(XCoord);
   SaveStream.Write(YCoord);
-  SaveStream.Write(Zoom, 4);
+  SaveStream.Write(Zoom);
 end;
 
 
@@ -158,7 +158,7 @@ procedure TViewport.Load(LoadStream:TKMemoryStream);
 begin
   LoadStream.Read(XCoord);
   LoadStream.Read(YCoord);
-  LoadStream.Read(Zoom, 4);
+  LoadStream.Read(Zoom);
 end;
 
 

@@ -1138,7 +1138,7 @@ begin
     if TKMControl(Items[I]).HitTest(X, Y) then
       if TKMControl(Items[I]).Enabled then
       begin
-        if TKMControl(Items[i]).ClassType=TKMButton then //todo: Using Classtype is WRONG! (rework it somehow)
+        if TKMControl(Items[i]).ClassType=TKMButton then //todo: Using Classtype is not very good (rework it somehow)
           TKMButton(Items[I]).Down:=false;
         if AButton = mbLeft then
         begin

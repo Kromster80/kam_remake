@@ -44,11 +44,11 @@ end;
 constructor TUnitActionGoInOut.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fStep, 4);
+  LoadStream.Read(fStep);
   LoadStream.Read(fDirection, SizeOf(fDirection));
   LoadStream.Read(fHouseType, SizeOf(fHouseType));
   LoadStream.Read(fDoor, SizeOf(fDoor));
-  LoadStream.Read(fStreet,4);
+  LoadStream.Read(fStreet);
   LoadStream.Read(fHasStarted);
   LoadStream.Read(fWaitingForPush);
 end;
@@ -167,11 +167,11 @@ end;
 procedure TUnitActionGoInOut.Save(SaveStream:TKMemoryStream);
 begin
   Inherited;
-  SaveStream.Write(fStep, 4);
+  SaveStream.Write(fStep);
   SaveStream.Write(fDirection, SizeOf(fDirection));
   SaveStream.Write(fHouseType, SizeOf(fHouseType));
   SaveStream.Write(fDoor, SizeOf(fDoor));
-  SaveStream.Write(fStreet, 4);
+  SaveStream.Write(fStreet);
   SaveStream.Write(fHasStarted);
   SaveStream.Write(fWaitingForPush);
 end;

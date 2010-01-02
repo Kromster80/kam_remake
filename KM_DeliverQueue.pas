@@ -742,7 +742,7 @@ begin
   for i:=1 to Count do
   with fFieldsQueue[i] do
   begin
-    SaveStream.Write(Loc,4);
+    SaveStream.Write(Loc);
     SaveStream.Write(FieldType, SizeOf(FieldType));
     SaveStream.Write(Importance);
     SaveStream.Write(JobStatus, SizeOf(JobStatus));
@@ -786,7 +786,7 @@ begin
   for i:=1 to Count do
   with fFieldsQueue[i] do
   begin
-    LoadStream.Read(Loc, 4);
+    LoadStream.Read(Loc);
     LoadStream.Read(FieldType, SizeOf(FieldType));
     LoadStream.Read(Importance);
     LoadStream.Read(JobStatus, SizeOf(JobStatus));

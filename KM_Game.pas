@@ -97,7 +97,6 @@ begin
   FreeAndNil(fResource);
   FreeAndNil(fSoundLib);
   FreeAndNil(fMusicLib);
-  FreeAndNil(fMissionParser);
   FreeAndNil(fTextLibrary);
   FreeAndNil(fRender);
   inherited;
@@ -426,9 +425,9 @@ end;
 
 
 procedure TKMGame.StartGame(MissionFile, aGameName:string; const aPlayerCount:integer=MAX_PLAYERS);
-var ResultMsg:string;
+var ResultMsg:string; fMissionParser: TMissionParser;
 begin
-  RandSeed := 4; //Sets right from the start since it afects TKMAllPlayers.Create and other Types
+  RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
 
   if fResource.GetDataState<>dls_All then begin
@@ -443,23 +442,27 @@ begin
   fMainMenuInterface.ShowScreen_Loading('initializing');
   fRender.Render;
 
-  fViewport:=TViewport.Create;
-  fGamePlayInterface:= TKMGamePlayInterface.Create;
+  fViewport := TViewport.Create;
+  fGamePlayInterface := TKMGamePlayInterface.Create;
 
   //Here comes terrain/mission init
-  fMissionParser:= TMissionParser.Create;
-  fTerrain:= TTerrain.Create;
+  fTerrain := TTerrain.Create;
 
   fLog.AppendLog('Loading DAT...');
-  if CheckFileExists(MissionFile,true) then begin
+  if CheckFileExists(MissionFile,true) then
+  begin
+    fMissionParser := TMissionParser.Create;
     ResultMsg := fMissionParser.LoadDATFile(MissionFile);
     if ResultMsg<>'' then begin
       StopGame(gr_Error,ResultMsg);
       //Show all required error messages here
       exit;
     end;
+    FreeAndNil(fMissionParser);
     fLog.AppendLog('DAT Loaded');
-  end else begin
+  end
+  else
+  begin
     fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
     fPlayers := TKMAllPlayers.Create(aPlayerCount);
     MyPlayer := fPlayers.Player[1];
@@ -498,7 +501,6 @@ begin
   FreeAndNil(fPlayers);
   FreeAndNil(fTerrain);
 
-  FreeAndNil(fMissionParser);
   FreeAndNil(fGamePlayInterface);
   FreeAndNil(fViewport);
 
@@ -525,7 +527,7 @@ end;
 
 
 procedure TKMGame.StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
-var ResultMsg:string;
+var ResultMsg:string; fMissionParser:TMissionParser;
 begin
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
@@ -546,17 +548,18 @@ begin
   fMapEditorInterface:= TKMMapEditorInterface.Create;
 
   //Here comes terrain/mission init
-  fMissionParser:= TMissionParser.Create;
   fTerrain:= TTerrain.Create;
 
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(MissionFile,true) then begin
+    fMissionParser:= TMissionParser.Create;
     ResultMsg := fMissionParser.LoadDATFile(MissionFile);
     if ResultMsg<>'' then begin
       StopGame(gr_Error,ResultMsg);
       //Show all required error messages here
       exit;
     end;
+    FreeAndNil(fMissionParser);
     fLog.AppendLog('DAT Loaded');
   end else begin
     fTerrain.MakeNewMap(aSizeX,aSizeY);

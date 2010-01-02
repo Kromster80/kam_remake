@@ -93,9 +93,9 @@ begin
   Inherited;
   LoadStream.Read(fWalker, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fLastOpponent, 4); //substitute it with reference on SyncLoad
-  LoadStream.Read(fWalkFrom, 4);
-  LoadStream.Read(fWalkTo, 4);
-  LoadStream.Read(fAvoid, 4);
+  LoadStream.Read(fWalkFrom);
+  LoadStream.Read(fWalkTo);
+  LoadStream.Read(fAvoid);
   LoadStream.Read(fWalkToSpot);
   LoadStream.Read(fPass, SizeOf(fPass));
   LoadStream.Read(DoesWalking);
@@ -749,9 +749,9 @@ begin
     SaveStream.Write(fLastOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(fWalkFrom,4);
-  SaveStream.Write(fWalkTo,4);
-  SaveStream.Write(fAvoid,4);
+  SaveStream.Write(fWalkFrom);
+  SaveStream.Write(fWalkTo);
+  SaveStream.Write(fAvoid);
   SaveStream.Write(fWalkToSpot);
   SaveStream.Write(fPass,SizeOf(fPass));
   SaveStream.Write(DoesWalking);

@@ -96,11 +96,10 @@ type
     function GetDefeat(ID:integer):string;
   end;
 
-var
-  fMissionParser: TMissionParser;
 
 implementation
 uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_CommonTypes;
+
 
 function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
 var
@@ -118,11 +117,13 @@ begin
   if Result = ct_Unknown then fLog.AddToLog(ACommandText);
 end;
 
+
 constructor TMissionParser.Create;
 begin
   inherited Create;
   ErrorMessage:='';
 end;
+
 
 procedure TMissionParser.UnloadMission;
 begin
@@ -522,11 +523,11 @@ end;
 
 
 {TKMMapInfo}
-
 procedure TKMMapsInfo.ScanSingleMapsFolder(Path:string);
 var i,k:integer; SearchRec:TSearchRec; ft:textfile; s:string;
   MissionDetails: TKMMissionDetails;
   MapDetails: TKMMapDetails;
+  fMissionParser:TMissionParser;
 begin
   MapCount:=0;
   if not DirectoryExists(ExeDir+'Maps\') then exit;
@@ -540,10 +541,12 @@ begin
   //if fileexists(ExeDir+'Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then
   begin
     inc(MapCount);
-    Maps[MapCount].Folder:=SearchRec.Name;
+    Maps[MapCount].Folder := SearchRec.Name;
   end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
+
+  fMissionParser := TMissionParser.Create;
 
   for k:=1 to 1 do
   for i:=1 to MapCount do with Maps[i] do begin
@@ -588,6 +591,7 @@ begin
       closefile(ft);
     end;
   end;
+  FreeAndNil(fMissionParser);
 
 end;
 
