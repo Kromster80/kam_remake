@@ -32,10 +32,11 @@ type
       {Abandon the current walk, move onto next tile}
       TUnitActionAbandonWalk = class(TUnitAction)
       private
-        fWalkTo:TKMPoint;
+        fWalkTo, fVertexOccupied:TKMPoint;
       public
-        constructor Create(LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
+        constructor Create(LocB,aVertexOccupied :TKMPoint; const aActionType:TUnitActionType=ua_Walk);
         constructor Load(LoadStream: TKMemoryStream); override;
+        destructor Destroy; override;
         procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TKMemoryStream); override;
       end;
@@ -1386,8 +1387,15 @@ end;
 
 
 procedure TKMUnit.SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+var TempVertexOccupied: TKMPoint;
 begin
-  SetAction(TUnitActionAbandonWalk.Create(aLocB, aActionType),aKMUnit.AnimStep); //Use the current animation step, to ensure smooth transition
+  if GetUnitAction is TUnitActionWalkTo then
+  begin
+    TempVertexOccupied := TUnitActionWalkTo(GetUnitAction).fVertexOccupied;
+    TUnitActionWalkTo(GetUnitAction).fVertexOccupied := KMPoint(0,0); //So it doesn't try to DecVertex on destroy (now it's AbandonWalk's responsibility)
+  end
+  else TempVertexOccupied := KMPoint(0,0);
+  SetAction(TUnitActionAbandonWalk.Create(aLocB,TempVertexOccupied, aActionType),aKMUnit.AnimStep); //Use the current animation step, to ensure smooth transition
 end;
 
 
@@ -1522,18 +1530,26 @@ begin
 
   if (DY <> 0) and (DX <> 0) then
   begin
+    //Diagonal movement
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*1.414);
-    PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)-1); //todo: @Lewin:Bug. It gives an error here in TestMission, somehow PixelPos=93 in some few seconds after start. I had to add quickfix - RangeCheck
-    //Diagonal movement             
+
+    //PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)-1);
+    //@Lewin:Bug. It gives an error here in TestMission, somehow PixelPos=93 in some few seconds after start. I had to add quickfix - RangeCheck
+    //@Krom: That is caused by a bug in UnitActionGoInOut which means PrevPosition is not updated correctly. I have fixed all of that so it works now.
+    //       I would rather not use ensure range because without it this will detect integrity bugs in PreviousPos which need to be fixed. (i.e. if the distance between previous and next position is more than sqrt(2), like was happening for GoInOut action)
+    //       On a side note: You replaced 58 with length(SlideLookupDiagonal) which is half of that: 29. ;) All to be deleted if you are ok with this.
+
+    //The lookup is a mirror, (symmetrical) so after half way we must reverse it
     if PixelPos <= length(SlideLookupDiagonal) then //Use
       Result := (DY*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
     else
-      Result := (DY*SlideLookupDiagonal[length(SlideLookupDiagonal)-PixelPos])/CELL_SIZE_PX;
+      Result := (DY*SlideLookupDiagonal[length(SlideLookupDiagonal)*2-PixelPos])/CELL_SIZE_PX;
   end
   else
   begin
+    //Non-diagonal sliding. (left/right or up/down)
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX);
-    //For non-diagonal sliding, the lookup is a mirror
+    //The lookup is a mirror, (symmetrical) so after half way we must reverse it
     if PixelPos <= CELL_SIZE_PX div 2 then
       Result := (DY*SlideLookup[PixelPos])/CELL_SIZE_PX
     else
@@ -1555,18 +1571,19 @@ begin
 
   if (DY <> 0) and (DX <> 0) then
   begin
-    PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*1.414);
-    PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)-1);
     //Diagonal movement
+    PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*1.414);
+    //The lookup is a mirror, (symmetrical) so after half way we must reverse it
     if PixelPos <= length(SlideLookupDiagonal) then
       Result := -(DX*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
     else
-      Result := -(DX*SlideLookupDiagonal[length(SlideLookupDiagonal)-PixelPos])/CELL_SIZE_PX;
+      Result := -(DX*SlideLookupDiagonal[length(SlideLookupDiagonal)*2-PixelPos])/CELL_SIZE_PX;
   end
   else
   begin
+    //Non-diagonal sliding. (left/right or up/down)
     PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX);
-    //For non-diagonal sliding, the lookup is a mirror
+    //The lookup is a mirror, (symmetrical) so after half way we must reverse it
     if PixelPos <= CELL_SIZE_PX div 2 then
       Result := -(DX*SlideLookup[PixelPos])/CELL_SIZE_PX
     else
@@ -3079,12 +3096,24 @@ end;
 
 
 { TUnitActionAbandonWalk }
-constructor TUnitActionAbandonWalk.Create(LocB:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
+constructor TUnitActionAbandonWalk.Create(LocB,aVertexOccupied:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
 begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
   Inherited Create(aActionType);
-  fActionName := uan_AbandonWalk;
-  fWalkTo     := KMPoint(LocB.X,LocB.Y);
+  fActionName     := uan_AbandonWalk;
+  fWalkTo         := KMPoint(LocB.X,LocB.Y);
+  fVertexOccupied := KMPoint(aVertexOccupied.X,aVertexOccupied.Y);
+end;
+
+
+destructor TUnitActionAbandonWalk.Destroy;
+begin
+  if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
+  begin
+    fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
+    fVertexOccupied := KMPoint(0,0);
+  end;
+  Inherited;
 end;
 
 
@@ -3092,6 +3121,7 @@ constructor TUnitActionAbandonWalk.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fWalkTo, 4);
+  LoadStream.Read(fVertexOccupied, 4);
 end;
 
 
@@ -3114,8 +3144,11 @@ begin
     KMUnit.fPosition.Y:=fWalkTo.Y;
     //We are finished
     DoEnd:=true;
-    if KMStepIsDiag(KMUnit.PrevPosition,KMUnit.NextPosition) then
-      fTerrain.UnitVertexRem(KMGetDiagVertex(KMUnit.PrevPosition,KMUnit.NextPosition)); //Unoccupy vertex
+    if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
+    begin
+      fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
+      fVertexOccupied := KMPoint(0,0);
+    end;
 
     GetIsStepDone := true;
     exit;
@@ -3139,7 +3172,8 @@ end;
 procedure TUnitActionAbandonWalk.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fWalkTo,4);
+  SaveStream.Write(fWalkTo);
+  SaveStream.Write(fVertexOccupied);
 end;
 
 

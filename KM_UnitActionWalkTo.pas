@@ -12,6 +12,9 @@ type
                         kis_Trying,     //We are currently stuck and trying to find a solution
                         kis_Waiting     //We are waiting for the give up timeout. During this time other units may tell us to swap with them
   );
+  TCanWalk = (cnw_Yes,
+              cnw_Exit,
+              cnw_ExitNoTask);
 
 const
   TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Exchanging', 'Pushing', 'Pushed', 'Trying', 'Waiting');
@@ -28,7 +31,7 @@ type
       fInteractionCount, fGiveUpCount: integer;
       fInteractionStatus: TInteractionStatus;
       function AssembleTheRoute():boolean;
-      function CheckCanWalk():boolean;
+      function CheckCanWalk():TCanWalk;
       function DoUnitInteraction():boolean;
       procedure DodgeTo(aPos: TKMPoint);
       procedure PerformExchange(ForcedExchangePos:TKMPoint);
@@ -36,6 +39,7 @@ type
       procedure DecVertex;
     public
       NodeList:TKMPointList;
+      fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
       NodePos:integer;
       fRouteBuilt:boolean;
       Explanation:string; //Debug only, explanation what unit is doing
@@ -77,6 +81,7 @@ begin
   DoExchange    := false;
   DoesWalking   := false;
   WaitingOnStep := false;
+  fVertexOccupied := KMPoint(0,0);
   fInteractionCount := 0;
   fGiveUpCount  := 0;
   fInteractionStatus := kis_None;
@@ -97,6 +102,7 @@ begin
   LoadStream.Read(fWalkFrom);
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fAvoid);
+  LoadStream.Read(fVertexOccupied);
   LoadStream.Read(fWalkToSpot);
   LoadStream.Read(fPass, SizeOf(fPass));
   LoadStream.Read(DoesWalking);
@@ -126,6 +132,8 @@ end;
 destructor TUnitActionWalkTo.Destroy;
 begin
   FreeAndNil(NodeList);
+  if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then DecVertex;
+  fWalker.IsExchanging := false;
   Inherited;
 end;
 
@@ -220,14 +228,14 @@ begin
 end;
 
 
-function TUnitActionWalkTo.CheckCanWalk():boolean;
+function TUnitActionWalkTo.CheckCanWalk():TCanWalk;
   function GetOurPassability:TPassability;
   begin //Needed mainly because of routes that start off-road but also some interaction solutions may force units off roads
     if fPass = canWalkRoad then Result := canWalk
     else Result := fPass;
   end;
 begin
-  Result := true;
+  Result := cnw_Yes;
   //If there's an unexpected obstacle (i.e. the terrain has changed since we calculated the route)
   //Use GetOurPassability so that canWalkRoad is changed to canWalk because walking off the road does not count as an obstacle
   if not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetOurPassability) then
@@ -235,12 +243,13 @@ begin
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetOurPassability,fWalkToSpot) then
     begin
       fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot);
-      Result:=false;
+      Result:=cnw_Exit;
     end
     else
     begin
-      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon; //Else stop and abandon the task (if we have one)
-      Result:=false;
+      Result:=cnw_Exit;
+      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon //Else stop and abandon the task (if we have one)
+      else Result:=cnw_ExitNoTask;
     end;
 end;
 
@@ -248,14 +257,22 @@ end;
 procedure TUnitActionWalkTo.IncVertex;
 begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
+  fLog.AssertToLog(KMSamePoint(fVertexOccupied,KMPoint(0,0)),'Inc new vertex when old is still used?');
+  if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then exit;
+
   fTerrain.UnitVertexAdd(KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition));
+  fVertexOccupied := KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition);
 end;
 
 
 procedure TUnitActionWalkTo.DecVertex;
 begin
   //Tell fTerrain that this vertex is not being used anymore
-  fTerrain.UnitVertexRem(KMGetDiagVertex(fWalker.PrevPosition,fWalker.NextPosition));
+  fLog.AssertToLog(not KMSamePoint(fVertexOccupied,KMPoint(0,0)),'Dec unoccupied vertex?');
+  if KMSamePoint(fVertexOccupied,KMPoint(0,0)) then exit;
+
+  fTerrain.UnitVertexRem(fVertexOccupied);
+  fVertexOccupied := KMPoint(0,0);
 end;
 
 
@@ -274,18 +291,19 @@ begin
   Result:=true; //false = interaction yet unsolved, stay and wait.
   if not DO_UNIT_INTERACTION then exit;
 
-  //If there's no unit we can keep on walking, interaction does not need to be solved
-  if not fTerrain.HasUnit(NodeList.List[NodePos+1]) then exit;
-  //From now on there is a blockage, so don't allow to walk unless the problem is resolved
-  Result := false;
-  
   //If there's a unit using this vertex to walk diagonally then we must wait, they will be finished after this step
   if KMStepIsDiag(fWalker.GetPosition,NodeList.List[NodePos+1]) and
     fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,NodeList.List[NodePos+1])) then
   begin
     Explanation := 'Diagonal vertex is being used, we must wait';
+    Result := false;
     exit;
   end;
+
+  //If there's no unit we can keep on walking, interaction does not need to be solved
+  if not fTerrain.HasUnit(NodeList.List[NodePos+1]) then exit;
+  //From now on there is a blockage, so don't allow to walk unless the problem is resolved
+  Result := false;
 
   //Find the unit that is in our path
   fOpponent := fPlayers.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
@@ -353,7 +371,6 @@ begin
       if KMSamePoint(TUnitActionWalkTo(fOpponent.GetUnitAction).GetNextNextPosition, fWalker.GetPosition) then
       begin
         //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
-        //TODO: Make units slide sideways while passing
         TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
         fLastOpponent := fOpponent; //So we know who we are supposed to be exchanging with later
 
@@ -415,7 +432,10 @@ begin
       //Make sure unit really exists, is walking and has arrived on tile
       if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and 
         (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).DoExchange)
-        and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).DoesWalking) then
+        and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).DoesWalking)
+        and ((not KMStepIsDiag(fWalker.NextPosition,NodeList.List[NodePos+1])) //Isn't diagonal
+        or ((KMStepIsDiag(fWalker.NextPosition,NodeList.List[NodePos+1])       //...or is diagonal and...
+        and not fTerrain.HasVertexUnit(KMGetDiagVertex(fWalker.GetPosition,TempPos))))) then //...vertex is free
       if KMSamePoint(TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition, fWalker.GetPosition) then //Now see if they want to exchange with us
       begin
         //Perform exchange from our position to TempPos
@@ -634,7 +654,7 @@ end;
 
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 var
-  DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean;
+  DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean; CanWalk: TCanWalk;
 begin
   DoEnd := false;
   GetIsStepDone := false;
@@ -679,7 +699,10 @@ begin
     fWalker.PositionF := KMPointF(NodeList.List[NodePos].X,NodeList.List[NodePos].Y);
 
     //Walk complete
-    if NodePos=NodeList.Count then begin
+    if NodePos=NodeList.Count then
+    begin
+      if not fWalkToSpot then
+        fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
       DoEnd:=true;
       exit;
     end;
@@ -687,11 +710,22 @@ begin
 
     //Update unit direction according to next Node
     fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
+    //This is sometimes caused by unit interaction changing the route so simply ignore it
     if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then
-      fLog.AssertToLog(false,'Walk to same place?');
+    begin
+      Execute(KMUnit,DoEnd);
+    end;
+      //fLog.AssertToLog(false,'Walk to same place?');
 
     //Check if we can walk to next tile in the route
-    if not CheckCanWalk then exit; //
+    CanWalk := CheckCanWalk;
+    if CanWalk <> cnw_Yes then
+      if CanWalk = cnw_Exit then exit //Task has been abandoned, not our job to clean up
+      else
+      begin
+        DoEnd := true; //If unit has no task and so we must abandon the walk
+        exit;
+      end;
 
     //Perform exchange
     //Both exchanging units have DoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
@@ -760,6 +794,7 @@ begin
   SaveStream.Write(fWalkFrom);
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fAvoid);
+  SaveStream.Write(fVertexOccupied);
   SaveStream.Write(fWalkToSpot);
   SaveStream.Write(fPass,SizeOf(fPass));
   SaveStream.Write(DoesWalking);
