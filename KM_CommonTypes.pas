@@ -13,11 +13,13 @@ type
 type
   TKMemoryStream = class(TMemoryStream)
   public
+    procedure Write(const Value:string); reintroduce; overload;
     function Write(const Value:TKMPoint): Longint; reintroduce; overload;
     function Write(const Value:single): Longint; reintroduce; overload;
     function Write(const Value:integer): Longint; reintroduce; overload;
     function Write(const Value:byte): Longint; reintroduce; overload;
     function Write(const Value:boolean): Longint; reintroduce; overload;
+    procedure Read(var Value:string); reintroduce; overload;
     function Read(var Value:TKMPoint): Longint; reintroduce; overload;
     function Read(var Value:single): Longint; reintroduce; overload;
     function Read(var Value:integer): Longint; reintroduce; overload;
@@ -37,10 +39,11 @@ type
     msgLoc:TKMPoint;
   end;
 
-type TKMMessageList = class
+type TKMMessageList = class(TObject)
   public
     Count:integer;
     List:array of TKMMessage; //1..Count
+    destructor Destroy; override;
     procedure AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
     procedure RemoveEntry(aID:integer);
     procedure InjectEntry(aID:integer; aMsgTyp:TKMMessageType; aText:string);
@@ -214,6 +217,14 @@ end;
 
 
 { TKMemoryStream }
+procedure TKMemoryStream.Write(const Value:string);
+var i:word;
+begin
+  i := length(Value);
+  Inherited Write(i, SizeOf(i));
+  Inherited Write(Value[1], i);
+end;
+
 function TKMemoryStream.Write(const Value:TKMPoint): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:single): Longint;
@@ -225,6 +236,14 @@ begin Result := Inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:boolean): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
 
+
+procedure TKMemoryStream.Read(var Value:string);
+var i:word;
+begin
+  Read(i, SizeOf(i));
+  setlength(Value, i);
+  Read(Value[1], i);
+end;
 
 function TKMemoryStream.Read(var Value:TKMPoint): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
@@ -239,6 +258,15 @@ begin Result := Inherited Read(Value, SizeOf(Value)); end;
 
 
 { TKMMessageList }
+destructor TKMMessageList.Destroy;
+var i:integer;
+begin
+  for i := 1 to Count do
+    FreeAndNil(List[i]);
+  Inherited;
+end;
+
+
 procedure TKMMessageList.AddEntry(aMsgTyp:TKMMessageType; aText:string; aLoc:TKMPoint);
 begin
   inc(Count);
@@ -303,33 +331,30 @@ end;
 
 
 procedure TKMMessageList.Save(SaveStream:TKMemoryStream);
-var i: integer;
+var i:integer;
 begin
   SaveStream.Write(Count);
   for i:=1 to Count do
-    if List[i] <> nil then
-    begin
-      SaveStream.Write(List[i].msgType,SizeOf(List[i].msgType));
-      SaveStream.Write(integer(length(List[i].msgText))); //Save the length of the string so we know how much to read
-      SaveStream.Write(Pointer(List[i].msgText)^,length(List[i].msgText));
-      SaveStream.Write(List[i].msgLoc ,SizeOf(List[i].msgLoc ));
-    end;
+  begin
+    SaveStream.Write(List[i].msgType, SizeOf(List[i].msgType));
+    SaveStream.Write(List[i].msgText);
+    SaveStream.Write(List[i].msgLoc);
+  end;
 end;
 
 
 procedure TKMMessageList.Load(LoadStream:TKMemoryStream);
-var i, TempLength: integer;
+var i:integer;
 begin
   LoadStream.Read(Count);
   setlength(List, Count+1);
+
   for i:=1 to Count do
   begin
     List[i] := TKMMessage.Create;
-    LoadStream.Read(List[i].msgType,SizeOf(List[i].msgType));
-    LoadStream.Read(TempLength); //Read the size of the string first so we know how much to read
-    SetLength(List[i].msgText, TempLength);
-    LoadStream.Read(Pointer(List[i].msgText)^,TempLength);
-    LoadStream.Read(List[i].msgLoc ,SizeOf(List[i].msgLoc ));
+    LoadStream.Read(List[i].msgType, SizeOf(List[i].msgType));
+    LoadStream.Read(List[i].msgText);
+    LoadStream.Read(List[i].msgLoc);
   end;
 end;
 
