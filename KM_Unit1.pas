@@ -196,7 +196,7 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   //Reset the resolution
   ResetResolution;
-  fGame.StopGame(gr_Error);
+  fGame.StopGame(gr_Silent);
   FreeAndNil(fGame);
   FreeAndNil(fLog);
   TimeEndPeriod(1);
@@ -266,7 +266,7 @@ end;
 procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;
-  fGame.StopGame(gr_Error);
+  fGame.StopGame(gr_Silent);
   fGame.StartGame(OpenDialog1.FileName, 'OpenDialog1 game');
 end;
 
@@ -384,8 +384,9 @@ end;
 procedure TForm1.Button_WClick(Sender: TObject);
 var U:TKMUnit;
 begin
-  fGame.StopGame(gr_Error);
+  fGame.StopGame(gr_Silent);
   fGame.StartGame('', 'W');
+  DO_SERFS_WALK_ROADS := false;
   MyPlayer:=fPlayers.Player[1];
 
   //Diagonal exchange
@@ -453,7 +454,7 @@ end;
 procedure TForm1.Button_VClick(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
-  fGame.StopGame(gr_Error);
+  fGame.StopGame(gr_Silent);
   fGame.StartGame('', 'V');
 
 fViewPort.SetCenter(11,9);
@@ -524,7 +525,7 @@ MyPlayer.AddUnit(ut_Miner, KMPoint(13,11));
 MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
 
-H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
+H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store));
 if H<>nil then H.AddMultiResource(rt_All,250); //It had had lack of stones
 if H<>nil then H.AddMultiResource(rt_Sausages,500);
 
@@ -546,14 +547,14 @@ end;
 procedure TForm1.Button_6Click(Sender: TObject);
 var H:TKMHouseStore; i,k:integer;
 begin
-  fGame.StopGame(gr_Error);
+  fGame.StopGame(gr_Silent);
   fGame.StartGame('', '6');
 
   for k:=1 to 6 do begin
     MyPlayer:=fPlayers.Player[k];
 
     MyPlayer.AddHouse(ht_Store, KMPoint(10+k*4,25));
-    H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
+    H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store));
     if H<>nil then H.AddMultiResource(rt_All,30);
 
     for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(10+k*4,28));
@@ -572,12 +573,12 @@ end;
 procedure TForm1.Button_1Click(Sender: TObject);
 var H:TKMHouse; i:integer;
 begin
-  fGame.StopGame(gr_Error);
+  fGame.StopGame(gr_Silent);
   fGame.StartGame('', '1',1);
   MyPlayer:=fPlayers.Player[1];
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
-  H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store,KMPoint(0,0)));
+  H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store));
   if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All,1300);
 
   MyPlayer.AddHouse(ht_Woodcutters, KMPoint(9,8));

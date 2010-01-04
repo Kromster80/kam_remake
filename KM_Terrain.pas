@@ -926,7 +926,8 @@ begin
   153: Land[Loc.Y,Loc.X].Terrain:=152;
   154: Land[Loc.Y,Loc.X].Terrain:=153;
   155: Land[Loc.Y,Loc.X].Terrain:=154;
-  else fLog.AssertToLog(false,'Can''t DecOreReserve');
+  //else fLog.AssertToLog(false,'Can''t DecOreReserve');
+  //Don't show error cos sometimes two miners gather same piece of ore
   end;
   Land[Loc.Y,Loc.X].Rotation:=random(3);
   RecalculatePassability(Loc);
@@ -1696,7 +1697,7 @@ end;
 procedure TTerrain.Save(SaveStream:TKMemoryStream);
 var i,k:integer; TileSize:integer;
 begin
-  SaveStream.Write('Terrain',7);
+  SaveStream.Write('Terrain');
   SaveStream.Write(MapX);
   SaveStream.Write(MapY);
 
@@ -1716,9 +1717,9 @@ end;
 
 
 procedure TTerrain.Load(LoadStream:TKMemoryStream);
-var i,k:integer; TileSize:integer; c:array[1..64]of char;
+var i,k:integer; TileSize:integer; s:string;
 begin
-  LoadStream.Read(c, 7); //if s<>'Terrain' then exit;
+  LoadStream.Read(s); if s<>'Terrain' then exit;
   LoadStream.Read(MapX);
   LoadStream.Read(MapY);
 
@@ -1735,6 +1736,7 @@ begin
   RebuildPassability(1, MapX, 1, MapY);
   RebuildWalkConnect(canWalk);
   RebuildWalkConnect(canFish);
+  fLog.AppendLog('Terrain loaded');
 end;
 
 

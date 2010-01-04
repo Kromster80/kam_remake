@@ -1,7 +1,7 @@
 program KaM_Remake;
 
 uses
-  FastMM4,
+//  FastMM4,
   Forms,
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},

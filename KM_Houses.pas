@@ -273,7 +273,7 @@ end;
 
 
 constructor TKMHouse.Load(LoadStream:TKMemoryStream);
-var i:integer;
+var i:integer; HasAct:boolean;
 begin
   Inherited Create;
   LoadStream.Read(fHouseType, SizeOf(fHouseType));
@@ -300,8 +300,11 @@ begin
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fTimeSinceUnoccupiedReminder);
   LoadStream.Read(ID);
-  fCurrentAction := THouseAction.Create(nil, hst_Empty); //Create placeholder to fill
-  fCurrentAction.Load(LoadStream);
+  LoadStream.Read(HasAct);
+  if HasAct then begin
+    fCurrentAction := THouseAction.Create(nil, hst_Empty); //Create placeholder to fill
+    fCurrentAction.Load(LoadStream);
+  end;
   LoadStream.Read(ResourceDepletedMsgIssued);
   LoadStream.Read(DoorwayUse);
 end;
@@ -746,7 +749,7 @@ end;
 
 
 procedure TKMHouse.Save(SaveStream:TKMemoryStream);
-var i:integer;
+var i:integer; HasAct:boolean;
 begin
   SaveStream.Write(fHouseType, SizeOf(fHouseType));
   SaveStream.Write(fPosition, 4);
@@ -772,7 +775,9 @@ begin
   SaveStream.Write(fPointerCount);
   SaveStream.Write(fTimeSinceUnoccupiedReminder);
   SaveStream.Write(ID);
-  fCurrentAction.Save(SaveStream);
+  HasAct := fCurrentAction <> nil;
+  SaveStream.Write(HasAct);
+  if HasAct then fCurrentAction.Save(SaveStream);
   SaveStream.Write(ResourceDepletedMsgIssued);
   SaveStream.Write(DoorwayUse); 
 end;
@@ -785,9 +790,10 @@ begin
 
   if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
 
-  //@Krom: This is probably quite inefficient for UpdateState. What's your opinion? Should we only do this when they modify the distribution settigns?
+  //@Krom: This is probably quite inefficient for UpdateState. What's your opinion? Should we only do this when they modify the distribution settings?
   //Request more resources (if distribution of wares has changed)
   for i:=1 to 4 do
+    if not (HouseInput[byte(fHouseType),i] in [rt_All, rt_Warfare, rt_None]) then
     if fResourceDeliveryCount[i] < GetResDistribution(i) then
     begin
       fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(Self,nil,HouseInput[byte(fHouseType),i],
@@ -1485,7 +1491,7 @@ end;
 procedure TKMHousesCollection.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  SaveStream.Write('Houses',6);
+  SaveStream.Write('Houses');
   if fSelectedHouse <> nil then
     SaveStream.Write(fSelectedHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
@@ -1497,9 +1503,9 @@ end;
 
 
 procedure TKMHousesCollection.Load(LoadStream:TKMemoryStream);
-var i,HouseCount:integer; c:array[1..64]of char; HouseType:THouseType;
+var i,HouseCount:integer; s:string; HouseType:THouseType;
 begin
-  LoadStream.Read(c, 6); //if s <> 'Houses' then exit;
+  LoadStream.Read(s); if s <> 'Houses' then exit;
   LoadStream.Read(fSelectedHouse, 4);
   LoadStream.Read(HouseCount);
   for i := 0 to HouseCount - 1 do

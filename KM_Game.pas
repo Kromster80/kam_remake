@@ -456,12 +456,12 @@ begin
   begin
     fMissionParser := TMissionParser.Create;
     ResultMsg := fMissionParser.LoadDATFile(MissionFile);
+    FreeAndNil(fMissionParser);
     if ResultMsg<>'' then begin
-      StopGame(gr_Error,ResultMsg);
+      StopGame(gr_Error, ResultMsg);
       //Show all required error messages here
       exit;
     end;
-    FreeAndNil(fMissionParser);
     fLog.AppendLog('DAT Loaded');
   end
   else
@@ -471,7 +471,7 @@ begin
     MyPlayer := fPlayers.Player[1];
   end;
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
-  fGamePlayInterface.EnableOrDisableMenuIcons(not (MissionMode = mm_Tactic));
+  fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic));
 
   fLog.AppendLog('Gameplay initialized',true);
 
@@ -504,7 +504,8 @@ begin
   FreeAndNil(fPlayers);
   FreeAndNil(fTerrain);
 
-  FreeAndNil(fGamePlayInterface);
+  FreeAndNil(fGamePlayInterface);  //Free both interfaces
+  FreeAndNil(fMapEditorInterface); //Free both interfaces
   FreeAndNil(fViewport);
 
   case Msg of
@@ -520,9 +521,9 @@ begin
                         fLog.AppendLog('Gameplay error',true);
                         fMainMenuInterface.ShowScreen_Error(TextMsg);
                       end;
-    gr_Silent:        fLog.AppendLog('Gameplay stopped silently',true);
+    gr_Silent:        fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
     gr_MapEdEnd:      begin
-                        fLog.AppendLog('MapEd closed',true);
+                        fLog.AppendLog('MapEditor closed',true);
                         fMainMenuInterface.ShowScreen_Main;
                       end;
   end;
@@ -602,15 +603,16 @@ end;
 function TKMGame.Save(SlotID:shortint):string;
 var SaveStream:TKMemoryStream;
 begin
+  fLog.AppendLog('Saving game');
   case GameState of
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
     gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
     gsPaused,gsRunning: //Can't save from Paused state yet, but we could add it later
     begin
       SaveStream := TKMemoryStream.Create;
-      SaveStream.Write('KaM_Savegame', 12);
-      SaveStream.Write('01', 2); //This is savegame version
-      //todo: write down savegame title
+      SaveStream.Write('KaM_Savegame');
+      SaveStream.Write('01'); //This is savegame version
+      //todo 2: write down savegame title
       SaveStream.Write(GameplayTickCount, 4); //dunno if it's required to save, but it won't hurt anyone
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
 
@@ -619,34 +621,37 @@ begin
       fGamePlayInterface.Save(SaveStream);
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
-      
+      fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
-      SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');
+      SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt'); //Some 70ms for TPR7 map
       SaveStream.Free;
       Result := GameName + ' ' + int2time(MyPlayer.fMissionSettings.GetMissionTime);
     end;
   end;
+  fLog.AppendLog('Saving game',true);
 end;
 
 
 function TKMGame.Load(SlotID:shortint):string; //I've declared it a string for debug, should be enum
 var LoadStream:TKMemoryStream;
-c:array[1..64]of char;
+s:string;
 begin
   Result := 'NIL';
 
   if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent);
 
+  LoadStream := TKMemoryStream.Create; //Read data from file into stream
+  try
   case GameState of
     gsNoGame:   //Let's load only from menu for now
     begin
-      LoadStream := TKMemoryStream.Create; //Read data from file into stream
       if not CheckFileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt') then exit;
       LoadStream.LoadFromFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');
       LoadStream.Seek(0, soFromBeginning);
 
-      LoadStream.Read(c, 12); //if PasToStr(c) <> 'KaM_Savegame' then exit;
-      LoadStream.Read(c, 2); //if s <> '01' then exit;
+      LoadStream.Read(s); if s <> 'KaM_Savegame' then exit;
+      LoadStream.Read(s); if s <> '01' then exit;
 
       //Create empty environment
       StartGame('','',1); //todo: check for emptyness and optimize load time
@@ -661,13 +666,18 @@ begin
       fPlayers.Load(LoadStream);
       fGamePlayInterface.Load(LoadStream);
       fViewport.Load(LoadStream);
-      LoadStream.Free;
+      fGamePlayInterface.Load(LoadStream);
+      fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
 
       fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
+      fLog.AppendLog('SynLoad done');
     end;
     gsEditor:   exit;
-    gsPaused:   exit;
-    gsRunning:  exit; //@All: StopGame before loading new one
+    gsPaused:   exit; //Taken care of earlier
+    gsRunning:  exit; //Taken care of earlier
+  end;
+  finally
+    LoadStream.Free; //todo: return to menu if loading has failed
   end;
 end;
 
@@ -691,6 +701,10 @@ begin
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(GameplayTickCount); //Quite slow
                     if GameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+
+                    if GameplayTickCount mod 600 = 0 then //Each 1min of gameplay time
+                      if fGameSettings.IsAutosave then
+                        Save(10); //Autosave slot
                   end;
 
                   fGamePlayInterface.UpdateState;

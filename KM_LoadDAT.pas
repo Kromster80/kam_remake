@@ -129,7 +129,7 @@ procedure TMissionParser.UnloadMission;
 begin
   FreeAndNil(fPlayers);
   CurrentPlayerIndex := 0;
-  MissionMode:=mm_Normal;
+  //fPlayers.fMissionMode := mm_Normal; //by Default
 end;
 
 function TMissionParser.ReadMissionFile(aFileName:string):string;
@@ -360,13 +360,13 @@ begin
                          //Else abort loading and fail
                          DebugScriptError('Map file couldn''t be found');
                          exit;
-                         end;
+                       end;
                      end;
   ct_SetMaxPlayer:   begin
                        fPlayers:=TKMAllPlayers.Create(ParamList[0]); //Create players
                      end;
   ct_SetTactic:      begin
-                       MissionMode:=mm_Tactic;
+                       fPlayers.fMissionMode := mm_Tactic;
                      end;
   ct_SetCurrPlayer:  begin
                      if InRange(ParamList[0],0,fPlayers.PlayerCount-1) then
@@ -411,7 +411,7 @@ begin
   ct_SetUnitByStock: begin
                      if InRange(ParamList[0],0,31) then
                      begin
-                       Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,KMPoint(0,0),1));
+                       Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,1));
                        if Storehouse<>nil then
                          fPlayers.Player[CurrentPlayerIndex].AddUnit(UnitsRemap[ParamList[0]],KMPointY1(Storehouse.GetEntrance));
                      end;
@@ -436,7 +436,7 @@ begin
                      MyInt:=ParamList[1];
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
                      MyInt:=EnsureRange(MyInt,0,MAXWORD); //Sometimes user can define it to be 999999
-                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,KMPoint(0,0),1));
+                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,1));
                      if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_AddWareToAll:   begin
@@ -444,20 +444,20 @@ begin
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
                      for i:=1 to fPlayers.PlayerCount do
                      begin
-                       Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,KMPoint(0,0),1));
+                       Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
                        if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
                      end;
   ct_AddWareToSecond:begin
                      MyInt:=ParamList[1];
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
-                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,KMPoint(0,0),2));
+                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,2));
                      if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_AddWeapon:      begin
                      MyInt:=ParamList[1];
                      if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum weapons
-                     Barracks:=TKMHouseBarracks(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Barracks,KMPoint(0,0),1));
+                     Barracks:=TKMHouseBarracks(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Barracks,1));
                      if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then Barracks.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_BlockHouse:     begin
@@ -480,7 +480,7 @@ begin
                          fPlayers.Player[CurrentPlayerIndex].AddGroup(
                          TroopsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]);
                      end;
-  //To add:
+  //todo: To add:
   ct_EnablePlayer:   begin
 
                      end;
@@ -518,7 +518,7 @@ begin
   if ErrorMessage='' then
   ErrorMessage:=ErrorMessage+OpenedMissionName+'|';
   ErrorMessage:=ErrorMessage+ErrorMsg+'|';
-  //todo: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
+  //todo 1: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
 end;
 
 

@@ -15,7 +15,7 @@ uses Windows, Math, Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, K
   //Open - job is free to take by anyone
   //Taken - job is taken by some worker
   type TDemandImportance = (di_Norm, di_High);
-  const MaxEntries=1024; //todo: replace with dynamic length list
+  const MaxEntries=1024; //todo 1: replace with dynamic length list
 
 type
   TKMDeliverQueue = class
@@ -50,7 +50,7 @@ type
     procedure RemoveDemand(aHouse:TKMHouse);
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
     function PermitDelivery(iO,iD:integer):boolean;
-    function  AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
+    function AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
     procedure TakenOffer(aID:integer);
     procedure GaveDemand(aID:integer);
     procedure CloseDelivery(aID:integer);
@@ -106,11 +106,11 @@ type
     function CancelRoad(aLoc:TKMPoint; Simulated:boolean=false):boolean;
     function CancelHousePlan(aLoc:TKMPoint; Simulated:boolean=false):boolean;
 
-    function  AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
-    function  AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
-    function  AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+    function AskForRoad(aWorker:TKMUnitWorker):TUnitTask;
+    function AskForHousePlan(aWorker:TKMUnitWorker):TUnitTask;
+    function AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
 
-    function  AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+    function  AskForHouseRepair(aWorker:TKMUnitWorker):TUnitTask;
     procedure CloseHouseRepair(aID:integer);
     procedure RemoveHouseRepair(aHouse: TKMHouse);
     procedure Save(SaveStream:TKMemoryStream);
@@ -120,8 +120,8 @@ type
 implementation
 uses KM_Unit1, KM_Terrain, KM_PlayersCollection;
 
-{ TKMDeliverQueue }
 
+{ TKMDeliverQueue }
 constructor TKMDeliverQueue.Create();
 var i:integer;
 begin
@@ -190,6 +190,7 @@ end;
 procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
 var i,k:integer;
 begin
+  fLog.AssertToLog(aResource<>rt_None, 'Demanding rt_None');
   for k:=1 to aDemandCount do begin
     i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
 
@@ -403,6 +404,7 @@ end;
 procedure TKMDeliverQueue.Save(SaveStream:TKMemoryStream);
 var i,Count:integer;
 begin
+  SaveStream.Write('Deliveries');
   Count := length(fOffer);
   SaveStream.Write(Count);
   for i:=1 to Count do
@@ -438,8 +440,9 @@ end;
 
 
 procedure TKMDeliverQueue.Load(LoadStream:TKMemoryStream);
-var i,Count:integer;
+var i,Count:integer; s:string;
 begin
+  LoadStream.Read(s); if s <> 'Deliveries' then exit;
   LoadStream.Read(Count);
   for i:=1 to Count do
   begin
@@ -555,18 +558,18 @@ begin
 end;
 
 
+//This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
 procedure TKMBuildingQueue.ReOpenRoad(aID:integer);
 begin
-  //This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
   fFieldsQueue[aID].JobStatus:=js_Open;
   if fFieldsQueue[aID].Worker <> nil then fFieldsQueue[aID].Worker.RemovePointer;
   fFieldsQueue[aID].Worker:=nil;
 end;
 
 
+//This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
 procedure TKMBuildingQueue.ReOpenHousePlan(aID:integer);
 begin
-  //This procedure is called when a worker dies while walking to the task aID. We should allow other workers to take this task.
   fHousePlansQueue[aID].JobStatus:=js_Open;
   if fHousePlansQueue[aID].Worker <> nil then fHousePlansQueue[aID].Worker.RemovePointer;
   fHousePlansQueue[aID].Worker:=nil;
@@ -676,7 +679,7 @@ begin
 end;
 
 
-function  TKMBuildingQueue.AskForRoad(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForRoad(aWorker:TKMUnitWorker):TUnitTask;
 var i:integer;
 begin
   Result:=nil;
@@ -685,49 +688,49 @@ begin
   while
     (i<=MaxEntries)and
     ((fFieldsQueue[i].JobStatus<>js_Open)or
-    (not fTerrain.Route_CanBeMade(KMWorker.GetPosition, fFieldsQueue[i].Loc, canWalk, true))) do
+    (not fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, canWalk, true))) do
       inc(i);
 
   if i>MaxEntries then exit;
 
   case fFieldsQueue[i].FieldType of
-    ft_Road: Result:=TTaskBuildRoad.Create(KMWorker, fFieldsQueue[i].Loc, i);
-    ft_Corn: Result:=TTaskBuildField.Create(KMWorker, fFieldsQueue[i].Loc, i);
-    ft_Wine: Result:=TTaskBuildWine.Create(KMWorker, fFieldsQueue[i].Loc, i);
-    ft_Wall: Result:=TTaskBuildWall.Create(KMWorker, fFieldsQueue[i].Loc, i);
+    ft_Road: Result:=TTaskBuildRoad.Create(aWorker, fFieldsQueue[i].Loc, i);
+    ft_Corn: Result:=TTaskBuildField.Create(aWorker, fFieldsQueue[i].Loc, i);
+    ft_Wine: Result:=TTaskBuildWine.Create(aWorker, fFieldsQueue[i].Loc, i);
+    ft_Wall: Result:=TTaskBuildWall.Create(aWorker, fFieldsQueue[i].Loc, i);
     else Result:=nil;
   end;
   fFieldsQueue[i].JobStatus:=js_Taken;
-  if KMWorker <> nil then fFieldsQueue[i].Worker:=KMWorker.GetSelf;
+  if aWorker <> nil then fFieldsQueue[i].Worker:=aWorker.GetSelf;
 end;
 
 
 {Find a job for worker}
-function  TKMBuildingQueue.AskForHouse(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForHouse(aWorker:TKMUnitWorker):TUnitTask;
 var i:integer;
 begin
   Result:=nil; i:=1;
   while (i<MaxEntries)and((fHousesQueue[i].House=nil)or(not fHousesQueue[i].House.CheckResToBuild)) do inc(i);
   if i=MaxEntries then exit;
 
-  Result:=TTaskBuildHouse.Create(KMWorker, fHousesQueue[i].House, i);
+  Result:=TTaskBuildHouse.Create(aWorker, fHousesQueue[i].House, i);
 end;
 
 
-function  TKMBuildingQueue.AskForHousePlan(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForHousePlan(aWorker:TKMUnitWorker):TUnitTask;
 var i:integer;
 begin
   Result:=nil; i:=1;
   while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Open) do inc(i);
   if i=MaxEntries then exit;
 
-  Result:=TTaskBuildHouseArea.Create(KMWorker, fHousePlansQueue[i].House, i);
+  Result:=TTaskBuildHouseArea.Create(aWorker, fHousePlansQueue[i].House, i);
   fHousePlansQueue[i].JobStatus:=js_Taken;
-  if KMWorker <> nil then fHousePlansQueue[i].Worker:=KMWorker.GetSelf;
+  if aWorker <> nil then fHousePlansQueue[i].Worker:=aWorker.GetSelf;
 end;
 
 
-function  TKMBuildingQueue.AskForHouseRepair(KMWorker:TKMUnitWorker; aLoc:TKMPoint):TUnitTask;
+function  TKMBuildingQueue.AskForHouseRepair(aWorker:TKMUnitWorker):TUnitTask;
 var i:integer;
 begin
   Result := nil;
@@ -736,7 +739,7 @@ begin
       if fHousesRepairQueue[i].House.IsDamaged then
         if fHousesRepairQueue[i].House.BuildingRepair then
         begin
-          Result := TTaskBuildHouseRepair.Create(KMWorker, fHousesRepairQueue[i].House, i);
+          Result := TTaskBuildHouseRepair.Create(aWorker, fHousesRepairQueue[i].House, i);
           exit;
         end
 end;
