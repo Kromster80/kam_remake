@@ -47,6 +47,8 @@ type TKMMessageList = class
     function GetPicID(aID:integer):word;
     function GetText(aID:integer):string;
     function GetLoc(aID:integer):TKMPoint;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 
@@ -297,6 +299,38 @@ begin
     Result := List[aID].msgLoc
   else
     Result := KMPoint(0,0);
+end;
+
+
+procedure TKMMessageList.Save(SaveStream:TKMemoryStream);
+var i: integer;
+begin
+  SaveStream.Write(Count);
+  for i:=1 to Count do
+    if List[i] <> nil then
+    begin
+      SaveStream.Write(List[i].msgType,SizeOf(List[i].msgType));
+      SaveStream.Write(integer(length(List[i].msgText))); //Save the length of the string so we know how much to read
+      SaveStream.Write(Pointer(List[i].msgText)^,length(List[i].msgText));
+      SaveStream.Write(List[i].msgLoc ,SizeOf(List[i].msgLoc ));
+    end;
+end;
+
+
+procedure TKMMessageList.Load(LoadStream:TKMemoryStream);
+var i, TempLength: integer;
+begin
+  LoadStream.Read(Count);
+  setlength(List, Count+1);
+  for i:=1 to Count do
+  begin
+    List[i] := TKMMessage.Create;
+    LoadStream.Read(List[i].msgType,SizeOf(List[i].msgType));
+    LoadStream.Read(TempLength); //Read the size of the string first so we know how much to read
+    SetLength(List[i].msgText, TempLength);
+    LoadStream.Read(Pointer(List[i].msgText)^,TempLength);
+    LoadStream.Read(List[i].msgLoc ,SizeOf(List[i].msgLoc ));
+  end;
 end;
 
 

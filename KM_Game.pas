@@ -616,6 +616,7 @@ begin
 
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
+      fGamePlayInterface.Save(SaveStream);
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       
@@ -652,11 +653,13 @@ begin
 
       //Substitute tick counter and id tracker (and maybe random seed?)
       LoadStream.Read(GameplayTickCount, 4);
+      //@Krom: I think we should save/load the random seed, otherwise different things will happen after loading (e.g. AI decisions)
       LoadStream.Read(ID_Tracker, 4);
 
       //Load the data into the game
       fTerrain.Load(LoadStream);
       fPlayers.Load(LoadStream);
+      fGamePlayInterface.Load(LoadStream);
       fViewport.Load(LoadStream);
       LoadStream.Free;
 

@@ -113,6 +113,7 @@ public
   function GetRoadConnectID(Loc:TKMPoint):byte;
 
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
+  function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
   function Route_CanBeMadeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean):boolean;
   procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
@@ -1051,11 +1052,13 @@ begin
 
    if (TileIsSand(Loc))and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
-      (Land[Loc.Y,Loc.X].Markup=mu_None)and
+      (Land[Loc.Y,Loc.X].Markup<>mu_HouseFenceNoWalk)and
+      (Land[Loc.Y,Loc.X].Markup<>mu_House)and
+      (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
       (not TileIsCornField(Loc))and
-      (not TileIsWineField(Loc)) then //Can't crab on markups, fields and roads
+      (not TileIsWineField(Loc)) then //Can't crab on houses, fields and roads (can walk on markups so you can't kill them by placing a house on top of them)
      AddPassability(Loc, [canCrab]);
 
    if (TileIsSoil(Loc))and
@@ -1152,6 +1155,40 @@ begin
   L1.Free;
   L2.Free;
   L3.Free;
+end;
+
+function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
+var i,k:integer; L1,L2:TKMPointList; TempUnit: TKMUnit;
+begin
+  //Loc is our position
+  //Loc2 is next position
+  //Loc3 is position after that (try to find one that leads directly from Loc to Loc3)
+  //List 1 holds all positions next to both Loc and Loc2
+  L1:=TKMPointList.Create;
+  for i:=-1 to 1 do for k:=-1 to 1 do
+    if TileInMapCoords(Loc.X+k,Loc.Y+i) then
+      if (not((i=0)and(k=0)))and(not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2)) then
+        if canWalk in Land[Loc.Y+i,Loc.X+k].Passability then //This uses canWalk because we can step off roads for side steps
+          if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
+            if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
+              if fPlayers.UnitsHitTest(Loc.X+k,Loc.Y+i) = nil then //Doesn't have unit
+                L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+
+  //List 2 holds the best positions, ones which are also next to Loc3 (next position)
+  L2:=TKMPointList.Create;
+  for i:=1 to L1.Count do
+    if KMLength(L1.List[i],Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
+      L2.AddEntry(L1.List[i]);
+
+  if L2.Count<>0 then
+    Result:=L2.GetRandom
+  else if (not OnlyTakeBest) and (L1.Count<>0) then
+    Result:=L1.GetRandom
+  else
+    Result:=KMPoint(0,0); //No side step positions available
+
+  L1.Free;
+  L2.Free;
 end;
 
 //Test wherever the route is possible to make

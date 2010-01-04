@@ -4,8 +4,7 @@ uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, Windo
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT, KM_CommonTypes, KM_Utils;
 
 
-//@Krom: Don't forget to save/load the message stack ;)
-//       Also, I think we should highlight the selected message, (make it brighter or something) so that people know which one they have open.
+//@Krom: I think we should highlight the selected message, (make it brighter or something) so that people know which one they have open.
 
 type TKMGamePlayInterface = class
   protected
@@ -193,6 +192,8 @@ type TKMGamePlayInterface = class
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     procedure ClearShownUnit;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
     procedure UpdateState;
     procedure Paint;
   end;
@@ -270,6 +271,8 @@ begin
     TKMButton(Sender).Caption := savename
   else
     TKMButton(Sender).Caption := 'Savegame #'+inttostr(TKMControl(Sender).Tag);
+  
+  SwitchPage(nil); //Close save menu after saving
 end;
 
 
@@ -990,6 +993,19 @@ begin
       KMButton_Barracks_Train.Hint:=fTextLibrary.GetTextString(240);
       KMButton_Barracks_Right.Hint:=fTextLibrary.GetTextString(238);
       KMButton_Barracks_Train.Disable; //Unimplemented yet
+end;
+
+
+procedure TKMGamePlayInterface.Save(SaveStream:TKMemoryStream);
+begin
+  fMessageList.Save(SaveStream);
+end;
+
+
+procedure TKMGamePlayInterface.Load(LoadStream:TKMemoryStream);
+begin
+  fMessageList.Load(LoadStream);
+  UpdateMessageStack; //Refresh the visual display of the messages
 end;
 
 

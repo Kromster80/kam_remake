@@ -1334,7 +1334,7 @@ end;
 
 procedure THouseAction.Save(SaveStream:TKMemoryStream);
 begin
-  if fHouse <> nil then
+  if fHouse <> nil then //@Krom: Crashes here on save if there is a non-completed house on the map (e.g. destroyed, markup)
     SaveStream.Write(fHouse.ID)
   else
     SaveStream.Write(Zero);

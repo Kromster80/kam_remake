@@ -2,6 +2,14 @@ unit KM_DeliverQueue;
 interface
 uses Windows, Math, Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Utils, KM_UnitTaskDelivery;
 
+//@Krom: Bug report: Do the following:
+//1. Start tutorial
+//2. Order three tiles of road (doesn't matter where)
+//3. Wait and watch
+//The first worker to request a piece of stone will never recieve one. Doesn't seem to happen in all missions, but always in tutorial
+//If this is some general problem with delivery queues then it is possible it is affecting other things.
+//I had a quick look but I didn't find it.
+
   type TJobStatus = (js_Empty, js_Open, js_Taken);
   //Empty - empty spot for a new job
   //Open - job is free to take by anyone
@@ -156,7 +164,7 @@ begin
   if fOffer[i].Loc_House=aHouse then
   begin
     fOffer[i].Loc_House.RemovePointer;
-    FillChar(fOffer[i],SizeOf(fDemand[i]),#0); //Remove offer
+    FillChar(fOffer[i],SizeOf(fOffer[i]),#0); //Remove offer
   end;
 end;
 
