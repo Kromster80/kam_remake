@@ -74,7 +74,7 @@ type
     TTaskBuildRoad = class(TUnitTask)
     private
       fLoc:TKMPoint;
-      ID:integer;
+      buildID:integer;
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -85,7 +85,7 @@ type
     TTaskBuildWine = class(TUnitTask)
     private
       fLoc:TKMPoint;
-      ID:integer;
+      buildID:integer;
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -96,7 +96,7 @@ type
     TTaskBuildField = class(TUnitTask)
     private
       fLoc:TKMPoint;
-      ID:integer;
+      buildID:integer;
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -107,7 +107,7 @@ type
     TTaskBuildWall = class(TUnitTask)
     private
       fLoc:TKMPoint;
-      ID:integer;
+      buildID:integer;
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -118,7 +118,7 @@ type
     TTaskBuildHouseArea = class(TUnitTask)
     private
       fHouse:TKMHouse;
-      TaskID:integer;
+      buildID:integer;
       Step:byte;
       ListOfCells:array[1..4*4]of TKMPoint;
     public
@@ -133,7 +133,7 @@ type
     TTaskBuildHouse = class(TUnitTask)
     private
       fHouse:TKMHouse;
-      TaskID:integer;
+      buildID:integer;
       LocCount:byte; //Count for locations around the house from where worker can build
       CurLoc:byte; //Current WIP location
       Cells:array[1..4*4]of TKMPointDir; //List of surrounding cells and directions
@@ -150,7 +150,7 @@ type
     TTaskBuildHouseRepair = class(TUnitTask)
     private
       fHouse:TKMHouse;
-      TaskID:integer;
+      buildID:integer;
       LocCount:byte; //Count for locations around the house from where worker can build
       CurLoc:byte; //Current WIP location
       Cells:array[1..4*4]of TKMPointDir; //List of surrounding cells and directions
@@ -288,7 +288,6 @@ type
     function GetYSlide: single;
   public
     procedure Save(SaveStream:TKMemoryStream); virtual;
-    //procedure Load(LoadStream:TKMemoryStream); virtual;
     function UpdateState():boolean; virtual;
     procedure Paint; virtual;
   end;
@@ -764,10 +763,10 @@ end;
 
 function TKMUnitWorker.GetActionFromQueue():TUnitTask;
 begin
-                   Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouseRepair(Self,Self.GetPosition);
-if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHousePlan(Self,Self.GetPosition);
-if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForRoad(Self,Self.GetPosition);
-if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouse(Self,Self.GetPosition);
+                   Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouseRepair(Self);
+if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHousePlan(Self);
+if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForRoad(Self);
+if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouse(Self);
 end;
 
 
@@ -782,13 +781,13 @@ begin
     or (fUnitTask is TTaskBuildField)
     or (fUnitTask is TTaskBuildWall) then
       if fUnitTask.fPhase > 1 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc)
-      else fPlayers.Player[byte(fOwner)].BuildList.ReOpenRoad(TTaskBuildRoad(fUnitTask).ID); //Allow other workers to take this task
+      else fPlayers.Player[byte(fOwner)].BuildList.ReOpenRoad(TTaskBuildRoad(fUnitTask).buildID); //Allow other workers to take this task
 
     //House area: remove house, restoring terrain to normal
     if fUnitTask is TTaskBuildHouseArea then
     begin
       if fUnitTask.fPhase <= 1 then
-        fPlayers.Player[byte(fOwner)].BuildList.ReOpenHousePlan(TTaskBuildHouseArea(fUnitTask).TaskID) //Allow other workers to take this task
+        fPlayers.Player[byte(fOwner)].BuildList.ReOpenHousePlan(TTaskBuildHouseArea(fUnitTask).buildID) //Allow other workers to take this task
       else //Otherwise we must destroy the house
         if TTaskBuildHouseArea(fUnitTask).fHouse <> nil then
           fPlayers.Player[Integer(fOwner)].RemHouse(TTaskBuildHouseArea(fUnitTask).fHouse.GetPosition,true);
@@ -1080,7 +1079,6 @@ begin
   AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
-  //todo: Warriors of the same group will need to be set the same if they are created at the begining of the mission
   fCondition    := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4);
 
   SetActionStay(10, ua_Walk);
@@ -1530,7 +1528,7 @@ begin
 
   if (DY <> 0) and (DX <> 0) then
   begin
-    //Diagonal movement
+    //Diagonal movement             
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*1.414);
 
     //PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)-1);
@@ -1860,11 +1858,11 @@ end;
 
 procedure TTaskSelfTrain.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fSchool <> nil then
-    SaveStream.Write(fSchool.ID, 4) //Store ID, then substitute it with reference on SyncLoad
+    SaveStream.Write(fSchool.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero, 4);
+    SaveStream.Write(Zero);
 end;
 
 
@@ -1874,7 +1872,7 @@ begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildRoad;
   fLoc      := aLoc;
-  ID        := aID;
+  buildID   := aID;
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -1882,8 +1880,8 @@ end;
 constructor TTaskBuildRoad.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fLoc, 4);
-  LoadStream.Read(ID);
+  LoadStream.Read(fLoc);
+  LoadStream.Read(buildID);
 end;
 
 
@@ -1901,7 +1899,7 @@ case fPhase of
      fThought := th_None;
      fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
      fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-     fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
+     fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
      SetActionStay(11,ua_Work1,false);
    end;
 2: begin
@@ -1948,8 +1946,8 @@ end;
 procedure TTaskBuildRoad.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fLoc,4);
-  SaveStream.Write(ID,4);
+  SaveStream.Write(fLoc);
+  SaveStream.Write(buildID);
 end;
 
 
@@ -1958,8 +1956,8 @@ constructor TTaskBuildWine.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:inte
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildWine;
-  fLoc:=aLoc;
-  ID:=aID;
+  fLoc      := aLoc;
+  buildID   := aID;
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -1967,8 +1965,8 @@ end;
 constructor TTaskBuildWine.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fLoc, 4);
-  LoadStream.Read(ID);
+  LoadStream.Read(fLoc);
+  LoadStream.Read(buildID);
 end;
 
 
@@ -1986,7 +1984,7 @@ case fPhase of
       fThought := th_None;
       fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
       SetActionStay(11,ua_Work1,false);
     end;
  2: begin
@@ -2020,8 +2018,8 @@ end;
 procedure TTaskBuildWine.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fLoc,4);
-  SaveStream.Write(ID,4);
+  SaveStream.Write(fLoc);
+  SaveStream.Write(buildID);
 end;
 
 
@@ -2030,8 +2028,8 @@ constructor TTaskBuildField.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:int
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildField;
-  fLoc:=aLoc;
-  ID:=aID;
+  fLoc      := aLoc;
+  buildID   := aID;
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -2039,8 +2037,8 @@ end;
 constructor TTaskBuildField.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fLoc, 4);
-  LoadStream.Read(ID);
+  LoadStream.Read(fLoc);
+  LoadStream.Read(buildID);
 end;
 
 
@@ -2057,7 +2055,7 @@ case fPhase of
   1: begin
       fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
       SetActionLockedStay(0,ua_Walk);
      end;
   2: begin
@@ -2080,8 +2078,8 @@ end;
 procedure TTaskBuildField.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fLoc,4);
-  SaveStream.Write(ID,4);
+  SaveStream.Write(fLoc);
+  SaveStream.Write(buildID);
 end;
 
 
@@ -2090,8 +2088,8 @@ constructor TTaskBuildWall.Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:inte
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildWall;
-  fLoc:=aLoc;
-  ID:=aID;
+  fLoc      := aLoc;
+  buildID   := aID;
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -2099,8 +2097,8 @@ end;
 constructor TTaskBuildWall.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fLoc, 4);
-  LoadStream.Read(ID);
+  LoadStream.Read(fLoc);
+  LoadStream.Read(buildID);
 end;
 
 
@@ -2117,7 +2115,7 @@ case fPhase of
   1: begin
       fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(ID); //Close the job now because it can no longer be cancelled
+      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
       SetActionLockedStay(0,ua_Walk);
      end;
   2: begin
@@ -2168,8 +2166,8 @@ end;
 procedure TTaskBuildWall.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fLoc,4);
-  SaveStream.Write(ID,4);
+  SaveStream.Write(fLoc);
+  SaveStream.Write(buildID);
 end;
 
 
@@ -2179,9 +2177,9 @@ var i,k:integer;
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseArea;
-  fHouse := aHouse.GetSelf;
-  TaskID := aID;
-  Step := 0;
+  fHouse    := aHouse.GetSelf;
+  buildID   := aID;
+  Step      := 0;
   for i := 1 to 4 do for k := 1 to 4 do
   if HousePlanYX[byte(fHouse.GetHouseType),i,k] <> 0 then begin
     inc(Step);
@@ -2196,10 +2194,10 @@ var i:integer;
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(TaskID);
+  LoadStream.Read(buildID);
   LoadStream.Read(Step);
   for i:=1 to length(ListOfCells) do
-  LoadStream.Read(ListOfCells[i], 4);
+  LoadStream.Read(ListOfCells[i]);
 end;
 
 
@@ -2235,7 +2233,7 @@ case fPhase of
       fThought := th_Build;
     end;
 1:  if not fHouse.IsDestroyed then begin //House plan was cancelled before worker has arrived on site
-      fPlayers.Player[byte(fOwner)].BuildList.CloseHousePlan(TaskID);
+      fPlayers.Player[byte(fOwner)].BuildList.CloseHousePlan(buildID);
       fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, fOwner);
       fHouse.SetBuildingState(hbs_NoGlyph);
       SetActionStay(5,ua_Walk);
@@ -2293,10 +2291,10 @@ begin
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(TaskID);
+  SaveStream.Write(buildID);
   SaveStream.Write(Step);
   for i:=1 to length(ListOfCells) do
-  SaveStream.Write(ListOfCells[i], 4);
+  SaveStream.Write(ListOfCells[i]);
 end;
 
 
@@ -2314,12 +2312,12 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouse;
-  fHouse:=aHouse.GetSelf;
-  Loc:=fHouse.GetPosition;
-  TaskID:=aID;
-  LocCount:=0;
-  CurLoc:=0;
-  ht:=byte(fHouse.GetHouseType);
+  fHouse    := aHouse.GetSelf;
+  Loc       := fHouse.GetPosition;
+  buildID   := aID;
+  LocCount  := 0;
+  CurLoc    := 0;
+  ht        := byte(fHouse.GetHouseType);
   //Create list of surrounding tiles and directions
   for i:=1 to 4 do for k:=1 to 4 do
   if HousePlanYX[ht,i,k]<>0 then
@@ -2343,12 +2341,12 @@ var i:integer;
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(TaskID);
+  LoadStream.Read(buildID);
   LoadStream.Read(LocCount);
   LoadStream.Read(CurLoc);
   for i:=1 to length(Cells) do
   begin
-    LoadStream.Read(Cells[i].Loc, 4);
+    LoadStream.Read(Cells[i].Loc);
     LoadStream.Read(Cells[i].Dir,SizeOf(Cells[i].Dir));
   end;
 end;
@@ -2368,7 +2366,7 @@ end;
 
 procedure TTaskBuildHouse.Abandon();
 begin
-  fPlayers.Player[byte(fUnit.fOwner)].BuildList.CloseHouse(TaskID);
+  fPlayers.Player[byte(fUnit.fOwner)].BuildList.CloseHouse(buildID);
   Inherited;
 end;
 
@@ -2436,7 +2434,7 @@ begin
            inc(fPhase2);
          end;
       4: begin
-           fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(TaskID);
+           fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(buildID);
            SetActionStay(1,ua_Walk);
            fThought := th_None;
          end;
@@ -2459,12 +2457,12 @@ begin
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(TaskID);
+  SaveStream.Write(buildID);
   SaveStream.Write(LocCount);
   SaveStream.Write(CurLoc);
   for i:=1 to length(Cells) do
   begin
-    SaveStream.Write(Cells[i].Loc,4);
+    SaveStream.Write(Cells[i].Loc);
     SaveStream.Write(Cells[i].Dir,SizeOf(Cells[i].Dir));
   end;
 end;
@@ -2484,7 +2482,7 @@ begin
   fTaskName := utn_BuildHouseRepair;
   fHouse:=aHouse.GetSelf;
   Loc:=fHouse.GetPosition;
-  TaskID:=aID;
+  buildID:=aID;
   LocCount:=0;
   CurLoc:=0;
   ht:=byte(fHouse.GetHouseType);
@@ -2504,12 +2502,12 @@ var i:integer;
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(TaskID);
+  LoadStream.Read(buildID);
   LoadStream.Read(LocCount);
   LoadStream.Read(CurLoc);
   for i:=1 to length(Cells) do
   begin
-    LoadStream.Read(Cells[i].Loc, 4);
+    LoadStream.Read(Cells[i].Loc);
     LoadStream.Read(Cells[i].Dir, SizeOf(Cells[i].Dir));
   end;
 end;
@@ -2564,7 +2562,7 @@ begin
          end;
       4: begin
            fThought := th_None;
-           fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(TaskID);
+           fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(buildID);
            SetActionStay(1,ua_Walk);
          end;
       else TaskDone:=true;
@@ -2586,12 +2584,12 @@ begin
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(TaskID);
+  SaveStream.Write(buildID);
   SaveStream.Write(LocCount);
   SaveStream.Write(CurLoc);
   for i:=1 to length(Cells) do
   begin
-    SaveStream.Write(Cells[i].Loc,4);
+    SaveStream.Write(Cells[i].Loc);
     SaveStream.Write(Cells[i].Dir, SizeOf(Cells[i].Dir));
   end;
 end;
@@ -2618,7 +2616,6 @@ end;
 procedure TTaskMining.SyncLoad();
 begin
   Inherited;
-  fLog.AppendLog('TTaskMining.SyncLoad - ', integer(fUnit));
   WorkPlan := TKMUnitCitizen(fUnit).WorkPlan; //Relink instead of reading-finding
 end;
 
@@ -3100,8 +3097,8 @@ constructor TUnitActionAbandonWalk.Create(LocB,aVertexOccupied:TKMPoint; const a
 begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
   Inherited Create(aActionType);
-  fActionName     := uan_AbandonWalk;
-  fWalkTo         := KMPoint(LocB.X,LocB.Y);
+  fActionName := uan_AbandonWalk;
+  fWalkTo     := KMPoint(LocB.X,LocB.Y);
   fVertexOccupied := KMPoint(aVertexOccupied.X,aVertexOccupied.Y);
 end;
 
@@ -3173,7 +3170,6 @@ procedure TUnitActionAbandonWalk.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fWalkTo);
-  SaveStream.Write(fVertexOccupied);
 end;
 
 
@@ -3271,6 +3267,7 @@ begin
         fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
         W.Direction := aDir;
         W.fCommander := Commander;
+        W.fCondition := Commander.fCondition; //Whole group will have same condition
         Commander.AddMember(W);
       end;
     end;
@@ -3333,17 +3330,17 @@ end;
 procedure TKMUnitsCollection.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  SaveStream.Write('Units', 5);
-  SaveStream.Write(Count,4);
+  SaveStream.Write('Units');
+  SaveStream.Write(Count);
   for i := 0 to Count - 1 do
     TKMUnit(Items[i]).Save(SaveStream);
 end;
 
 
 procedure TKMUnitsCollection.Load(LoadStream:TKMemoryStream);
-var i,UnitCount:integer; c:array[1..64]of char; UnitType:TUnitType;
+var i,UnitCount:integer; s:string; UnitType:TUnitType;
 begin
-  LoadStream.Read(c, 5); //if s <> 'Units' then exit;
+  LoadStream.Read(s); if s <> 'Units' then exit;
   LoadStream.Read(UnitCount);
   for i := 0 to UnitCount - 1 do
   begin
@@ -3389,7 +3386,6 @@ var
   I, ID: Integer;
   IDsToDelete: array of integer;
 begin
-  //if Count>10 then fLog.AddToLog('Tick'); //@Lewin - thats debug string
   ID := 0;
   for I := 0 to Count - 1 do
   if not TKMUnit(Items[I]).IsDead then
