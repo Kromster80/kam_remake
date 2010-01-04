@@ -24,7 +24,7 @@ uses KM_Houses, KM_Units, KM_Game, KM_PlayersCollection;
 constructor TKMPlayerAI.Create(aAssets:TKMPlayerAssets);
 begin
   Inherited Create;
-  Assets:=aAssets;
+  Assets := aAssets;
 end;
 
 
@@ -36,7 +36,6 @@ begin
   and(Assets.fMissionSettings.GetArmyCount=0)
   then
     fGame.StopGame(gr_Defeat);
-
 end;
 
 
@@ -48,7 +47,8 @@ var
   UnitReq:array[1..HOUSE_COUNT]of word; //There are only ~10 unit types, but using HOUSE_COUNT is easier
 begin
   //Find school and make sure it's free of tasks
-  H := Assets.FindHouse(ht_School,KMPoint(0,0),1);
+  //todo 1: use all available schools
+  H := Assets.FindHouse(ht_School,1);
   if (H=nil)or(not(H is TKMHouseSchool))or(TKMHouseSchool(H).UnitQueue[1]<>ut_None) then exit;
 
   UnitType := ut_None;
@@ -75,19 +75,16 @@ end;
 
 
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
-var s:string;
 begin
-  s := 'PlayerAI state, nothing to include yet, should be some AI things'; //no idea what to put here yet
-  SaveStream.Write(s[1], length(s));
+  SaveStream.Write('PlayerAI state, nothing to include yet, should be some AI things');
 end;
 
 
 //So far this whole procedure is a placeholder
 procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
-var s:string; c:array[1..128]of char;
+var s:string;
 begin
-  s := 'PlayerAI state, nothing to include yet, should be some AI things'; //no idea what to put here yet
-  LoadStream.Read(c, length(s));
+  LoadStream.Read(s);
 end;                      
 
 
@@ -108,6 +105,7 @@ begin
   if Assets.PlayerType=pt_Computer then begin
   CheckCitizenCount; //Train new citizens if needed
   //CheckSerfCount; //train more serfs according to WORKER_FACTOR
+  //CheckWorkerCount; //train more serfs according to WORKER_FACTOR
   //CheckRecruitCount //Train more recruits according to RECRUTS
   //CheckArmyHunger; //issue tasks to feed troops
   //CheckHouseCount; //Build new houses if needed

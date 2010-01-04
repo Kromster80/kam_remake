@@ -107,7 +107,7 @@ begin
 end;
 
 //Here we must test each edge to see if we need to scroll in that direction
-//We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Global_Data
+//We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
 procedure TViewport.DoScrolling;
 const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
 var ScrollAdv: integer; Temp:byte;
@@ -148,6 +148,7 @@ end;
 
 procedure TViewport.Save(SaveStream:TKMemoryStream);
 begin
+  SaveStream.Write('Viewport');
   SaveStream.Write(XCoord);
   SaveStream.Write(YCoord);
   SaveStream.Write(Zoom);
@@ -155,10 +156,13 @@ end;
 
 
 procedure TViewport.Load(LoadStream:TKMemoryStream);
+var s:string;
 begin
+  LoadStream.Read(s); if s <> 'Viewport' then exit;
   LoadStream.Read(XCoord);
   LoadStream.Read(YCoord);
   LoadStream.Read(Zoom);
+  fLog.AppendLog('Viewport loaded');
 end;
 
 

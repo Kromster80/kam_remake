@@ -12,6 +12,7 @@ type
   private
     fPlayerCount:integer;
   public
+    fMissionMode: TMissionMode;
     Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
     PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
     PlayerAnimals: TKMPlayerAnimals;
@@ -39,7 +40,6 @@ type
 var
   fPlayers: TKMAllPlayers;
   MyPlayer: TKMPlayerAssets; //shortcut to access players player
-  MissionMode: TMissionMode;
 
   
 implementation
@@ -199,7 +199,8 @@ end;
 procedure TKMAllPlayers.Save(SaveStream:TKMemoryStream);
 var i:word;
 begin
-  SaveStream.Write('Players',7);
+  SaveStream.Write('Players');
+  SaveStream.Write(fMissionMode, SizeOf(fMissionMode));
   SaveStream.Write(fPlayerCount);
   for i:=1 to fPlayerCount do
   begin
@@ -212,10 +213,11 @@ end;
 
 
 procedure TKMAllPlayers.Load(LoadStream:TKMemoryStream);
-var i:word; c:array[1..64]of char; P:TPlayerID;
+var i:word; s:string; P:TPlayerID;
 begin
-  LoadStream.Read(c, 7); //if s <> 'Players' then exit;
-  LoadStream.Read(fPlayerCount, 4);
+  LoadStream.Read(s); if s <> 'Players' then exit;
+  LoadStream.Read(fMissionMode, SizeOf(fMissionMode));
+  LoadStream.Read(fPlayerCount);
   fLog.AssertToLog(fPlayerCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
   Selected := nil;
 
@@ -231,6 +233,7 @@ begin
 
   LoadStream.Read(P, SizeOf(P));
   MyPlayer := fPlayers.Player[integer(P)];
+  fLog.AppendLog('Players loaded');
 end;
 
 

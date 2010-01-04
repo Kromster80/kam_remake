@@ -382,13 +382,13 @@ end;
 
 
 procedure TUnitWorkPlan.Load(LoadStream:TKMemoryStream);
-var i:integer; c:array[1..8]of char;
+var i:integer; s:string;
 begin
-  LoadStream.Read(c, 8); // if <> then break;
+  LoadStream.Read(s); if s <> 'WorkPlan' then exit;
   LoadStream.Read(fIssued);
 //public
   LoadStream.Read(HasToWalk);
-  LoadStream.Read(Loc, 4);
+  LoadStream.Read(Loc);
   LoadStream.Read(WalkTo, 4);
   LoadStream.Read(WorkType, SizeOf(WorkType));
   LoadStream.Read(WorkCyc);
@@ -418,11 +418,11 @@ end;
 procedure TUnitWorkPlan.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  SaveStream.Write('WorkPlan', 8);
+  SaveStream.Write('WorkPlan');
   SaveStream.Write(fIssued);
 //public
   SaveStream.Write(HasToWalk);
-  SaveStream.Write(Loc, 4);
+  SaveStream.Write(Loc);
   SaveStream.Write(WalkTo, 4);
   SaveStream.Write(WorkType, SizeOf(WorkType));
   SaveStream.Write(WorkCyc);

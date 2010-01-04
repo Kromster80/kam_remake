@@ -35,7 +35,8 @@ type
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
     function FindInn(Loc:TKMPoint; UnitIsAtHome:boolean=false): TKMHouseInn;
-    function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
+    function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse; overload;
+    function FindHouse(aType:THouseType; const Index:byte=1): TKMHouse; overload;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
@@ -257,7 +258,12 @@ end;
 
 function TKMPlayerAssets.FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
 begin
-  Result:=fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
+  Result := fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
+end;
+
+function TKMPlayerAssets.FindHouse(aType:THouseType; const Index:byte=1): TKMHouse;
+begin
+  Result := fHouses.FindHouse(aType, 0, 0, Index);
 end;
 
 function TKMPlayerAssets.FindInn(Loc:TKMPoint; UnitIsAtHome:boolean=false): TKMHouseInn;
@@ -273,7 +279,7 @@ begin
    BestMatch := 9999;
    if UnitIsAtHome then inc(Loc.Y); //From outside the door of the house
          
-   H:=TKMHouseInn(FindHouse(ht_Inn,KMPoint(0,0),1));
+   H := TKMHouseInn(FindHouse(ht_Inn));
    repeat
      //First make sure that it is valid
      if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance),canWalk,true)) then
@@ -288,7 +294,7 @@ begin
      end;
 
      inc(i);
-     H:=TKMHouseInn(FindHouse(ht_Inn,KMPoint(0,0),i));
+     H:=TKMHouseInn(FindHouse(ht_Inn,i));
    until(H = nil);
 end;
 
@@ -425,15 +431,15 @@ end;
 { TKMPlayerAnimals }
 procedure TKMPlayerAnimals.Save(SaveStream:TKMemoryStream);
 begin
-  SaveStream.Write('Animals',7);
+  SaveStream.Write('Animals');
   fUnits.Save(SaveStream);
 end;
 
 
 procedure TKMPlayerAnimals.Load(LoadStream:TKMemoryStream);
-var c:array[1..64]of char;
+var s:string;
 begin
-  LoadStream.Read(c,7); //if s <> 'Animals' then exit;
+  LoadStream.Read(s); if s <> 'Animals' then exit;
   fUnits.Load(LoadStream);
 end;
 
