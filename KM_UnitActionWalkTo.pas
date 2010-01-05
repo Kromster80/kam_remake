@@ -33,8 +33,7 @@ type
       function AssembleTheRoute():boolean;
       function CheckCanWalk():TCanWalk;
       function DoUnitInteraction():boolean;
-      procedure DodgeTo(aPos: TKMPoint);
-      procedure SideStepTo(aPos: TKMPoint);
+      procedure ChangeStepTo(aPos: TKMPoint);
       procedure PerformExchange(ForcedExchangePos:TKMPoint);
       procedure IncVertex;
       procedure DecVertex;
@@ -148,8 +147,9 @@ begin
 end;
 
 
+//This is run after creation for units that were requested to get out of the way
 procedure TUnitActionWalkTo.SetPushedValues;
-begin //This is run after creation for units that were requested to get out of the way
+begin
   fInteractionStatus:=kis_Pushed; //So that unit knows it was pushed not just walking somewhere
   Explanation:='We were asked to get out of the way';
   fPass:=canWalk; //Units are allowed to step off roads when they are pushed
@@ -178,30 +178,18 @@ begin
 end;
 
 
-procedure TUnitActionWalkTo.DodgeTo(aPos: TKMPoint);
+//Used for dodging and side stepping
+procedure TUnitActionWalkTo.ChangeStepTo(aPos: TKMPoint);
 begin
   if (NodePos+2 <= NodeList.Count) and (KMLength(aPos,NodeList.List[NodePos+2]) < 1.5) then
   begin
     NodeList.List[NodePos+1] := aPos; //We can simply replace the entry because it is near the next tile
-      //@Krom: This will be done better later on by running a procedure to "optimise" the route after we modify it, which will remove duplicate
-      //       entries like this from anywhere after NodePos. Will probably do some other stuff too, (maybe taking shortcuts if it will work) I still need to think about it.
+    //@Krom: This will be done better later on by running a procedure to "optimise" the route after we modify it, which will remove duplicate
+    //       entries like this from anywhere after NodePos. Will probably do some other stuff too, (maybe taking shortcuts if it will work) I still need to think about it.
   end
   else //Otherwise we must inject it
     NodeList.InjectEntry(NodePos+1,aPos);
   fWalker.Direction := KMGetDirection(fWalker.GetPosition,aPos); //Face the new tile
-end;
-
-
-procedure TUnitActionWalkTo.SideStepTo(aPos: TKMPoint);
-begin
-  if (NodePos+2 <= NodeList.Count) and (KMLength(aPos,NodeList.List[NodePos+2]) < 1.5) then
-  begin
-    NodeList.List[NodePos+1] := aPos; //We can simply replace the entry because it is near the next tile
-  end
-  else //Otherwise we must inject it
-    NodeList.InjectEntry(NodePos+1,aPos);
-  fWalker.Direction := KMGetDirection(fWalker.GetPosition,aPos); //Face the new tile
-  fLastSideStepNodePos := NodePos;
 end;
 
 
@@ -465,7 +453,7 @@ begin
         Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
         fInteractionStatus := kis_Exchanging; //Unnecessary?
         DoExchange := true;
-        DodgeTo(TempPos);
+        ChangeStepTo(TempPos);
         exit; //They both will exchange next tick
       end;
     end;
@@ -516,7 +504,8 @@ begin
         begin
           //Modify our route to go via this tile
           Explanation := 'Sidestepping to a tile next to target';
-          SideStepTo(fSideStepTesting);
+          ChangeStepTo(fSideStepTesting);
+          fLastSideStepNodePos := NodePos;
           exit;
         end;
     end;
@@ -749,7 +738,7 @@ begin
     fWalker.PositionF := KMPointF(NodeList.List[NodePos].X,NodeList.List[NodePos].Y);
 
     //Walk complete
-    if NodePos=NodeList.Count then
+    if (NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) then
     begin
       if not fWalkToSpot then
         fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)

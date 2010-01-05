@@ -2203,6 +2203,7 @@ end;
 
 procedure TTaskBuildHouseArea.SyncLoad();
 begin
+  Inherited;
   fHouse := fPlayers.GetHouseByID(integer(fHouse));
 end;
 
@@ -2354,6 +2355,7 @@ end;
 
 procedure TTaskBuildHouse.SyncLoad();
 begin
+  Inherited;
   fHouse := fPlayers.GetHouseByID(integer(fHouse));
 end;
 
@@ -2515,6 +2517,7 @@ end;
 
 procedure TTaskBuildHouseRepair.SyncLoad();
 begin
+  Inherited;
   fHouse := fPlayers.GetHouseByID(integer(fHouse));
 end;
 
@@ -2961,6 +2964,7 @@ end;
 
 procedure TTaskGoEat.SyncLoad();
 begin
+  Inherited;
   fInn := TKMHouseInn(fPlayers.GetHouseByID(integer(fInn)));
 end;
 
@@ -3117,8 +3121,8 @@ end;
 constructor TUnitActionAbandonWalk.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fWalkTo, 4);
-  LoadStream.Read(fVertexOccupied, 4);
+  LoadStream.Read(fWalkTo);
+  LoadStream.Read(fVertexOccupied);
 end;
 
 
@@ -3170,6 +3174,7 @@ procedure TUnitActionAbandonWalk.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fWalkTo);
+  SaveStream.Write(fVertexOccupied);
 end;
 
 

@@ -42,7 +42,7 @@ var
   //These are under-construction things, should be ... enabled sometime
   FullyLoadUnitsRX      :boolean=false;  //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
-  DO_UNIT_INTERACTION   :boolean=false;  //Debug for unit interaction
+  DO_UNIT_INTERACTION   :boolean=true;  //Debug for unit interaction
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
 

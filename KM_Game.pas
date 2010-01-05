@@ -615,10 +615,10 @@ begin
       //todo 2: write down savegame title
       SaveStream.Write(GameplayTickCount, 4); //dunno if it's required to save, but it won't hurt anyone
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
+      SaveStream.Write(RandSeed); //Store random seed so that same events will take place after load. Otherwise people could avoid random things happening (like attacks) by saving and loading.
 
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
-      fGamePlayInterface.Save(SaveStream);
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
@@ -658,13 +658,12 @@ begin
 
       //Substitute tick counter and id tracker (and maybe random seed?)
       LoadStream.Read(GameplayTickCount, 4);
-      //@Krom: I think we should save/load the random seed, otherwise different things will happen after loading (e.g. AI decisions)
       LoadStream.Read(ID_Tracker, 4);
+      LoadStream.Read(RandSeed);
 
       //Load the data into the game
       fTerrain.Load(LoadStream);
       fPlayers.Load(LoadStream);
-      fGamePlayInterface.Load(LoadStream);
       fViewport.Load(LoadStream);
       fGamePlayInterface.Load(LoadStream);
       fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
