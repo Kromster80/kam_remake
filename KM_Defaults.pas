@@ -222,10 +222,10 @@ const {Aligned to right to use them in GUI costs display as well}
 type TPassability = (canAll=0,
                      canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
                      canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab,
-                     canWolf, canElevate);
+                     canWolf, canElevate, canWalkAvoid);
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[0..13] of string = (
+const PassabilityStr:array[0..14] of string = (
     'None',
     'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
     'canWalk',      // General passability of tile for any walking units
@@ -239,7 +239,8 @@ const PassabilityStr:array[0..13] of string = (
     'canFish',      // Water tiles where fish can move around
     'canCrab',      // Sand tiles where crabs can move around
     'canWolf',      // Soil tiles where wolfs can move around
-    'canElevate'    // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
+    'canElevate',   // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
+    'canWalkAvoid'
   );
 
 {Units}
@@ -598,8 +599,8 @@ type
         mu_HouseFenceCanWalk,   //Wooden fence outline of house area, undigged and walkable
         mu_HouseFenceNoWalk,    //Wooden fence outline of house area, digged and non-walkable
 
-        mu_House,       //Actual house, which is not rendered and is used in here to siplify whole thing
-        mu_UnderConstruction   //Underconstruction tile, house area being flattened and roadworks
+        mu_House,               //Actual house, which is not rendered and is used in here to siplify whole thing
+        mu_UnderConstruction    //Underconstruction tile, house area being flattened and roadworks
         );
 
   TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);

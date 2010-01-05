@@ -5,6 +5,10 @@ uses Classes, KromUtils, Math, SysUtils,
 
 const MaxMapSize=192;
 
+//@Krom: Bug report: I think that when in speed up mode, trees still grow at normal speed. Sounds odd, but
+//       if you run it in speed up for a while you will end up with a lot more trees planted because they aren't
+//       growing faster and the woodcutter is planting faster. (so you should see more trees or more stumps)
+
 type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class
@@ -41,7 +45,7 @@ public
     Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
     Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-    WalkConnect:array[1..3]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad, 3=canFish
+    WalkConnect:array[1..4]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad, 3=canFish, 4=canWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
 
     Border: TBorderType; //Borders (ropes, planks, stones)
     BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
@@ -115,7 +119,7 @@ public
   function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
   function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
-  function Route_CanBeMadeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean):boolean;
+  function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
   procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
   procedure Route_ReturnToRoad(LocA:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
 
@@ -1159,7 +1163,7 @@ begin
 end;
 
 function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
-var i,k:integer; L1,L2:TKMPointList; TempUnit: TKMUnit;
+var i,k:integer; L1,L2:TKMPointList;
 begin
   //Loc is our position
   //Loc2 is next position
@@ -1201,13 +1205,16 @@ begin
   //Result:=not (KMSamePoint(LocA,LocB)); //Or maybe we don't care
 
   //target point has to be walkable
-  Result := Result and CheckPassability(LocA,aPass);
-  if aWalkToSpot then
-    Result := Result and CheckPassability(LocB,aPass)
-  else
-    for i:=LocB.Y-1 to LocB.Y+1 do for k:=LocB.X-1 to LocB.X+1 do
-    if fTerrain.TileInMapCoords(k,i) then
-    Result := Result or CheckPassability(KMPoint(k,i),aPass);
+  if aPass <> canWalkAvoid then
+  begin
+    Result := Result and CheckPassability(LocA,aPass);
+    if aWalkToSpot then
+      Result := Result and CheckPassability(LocB,aPass)
+    else
+      for i:=LocB.Y-1 to LocB.Y+1 do for k:=LocB.X-1 to LocB.X+1 do
+      if fTerrain.TileInMapCoords(k,i) then
+      Result := Result or CheckPassability(KMPoint(k,i),aPass);
+  end;
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
   if aPass=canWalk then
@@ -1216,15 +1223,25 @@ begin
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[LocB.Y,LocB.X].WalkConnect[2]);
   if aPass=canFish then
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[3] = Land[LocB.Y,LocB.X].WalkConnect[3]);
+  if aPass=canWalkAvoid then
+    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[4] = Land[LocB.Y,LocB.X].WalkConnect[4]);
+
+  if not aWalkToSpot then
+    for i:=LocB.Y-1 to LocB.Y+1 do for k:=LocB.X-1 to LocB.X+1 do
+      if fTerrain.TileInMapCoords(k,i) and ((i<>LocB.Y) or (k<>LocB.X)) then
+        Result := Result or Route_CanBeMade(LocA,KMPoint(k,i),aPass,false);
 end;
 
 
 //Tests weather route can be made
-function TTerrain.Route_CanBeMadeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean):boolean;
+function TTerrain.Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot);
+  fPath := TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot, true); //True means we are using Interaction Avoid mode (go around busy units)
   Result := fPath.RouteSuccessfullyBuilt;
+  if not Result then exit;
+  if NodeList <> nil then NodeList.Clearup;
+  fPath.ReturnRoute(NodeList);
   fPath.Free;
 end;
 
@@ -1346,7 +1363,9 @@ var i,k{,h}:integer; AreaID:byte; Count:integer; TestMode:byte;
 
   procedure FillArea(x,y:word; ID:byte; out Count:integer); //Mode = 1canWalk or 2canWalkRoad
   begin
-    if (Land[y,x].WalkConnect[TestMode]=0)and(aPass in Land[y,x].Passability) then //Untested area
+    if ((Land[y,x].WalkConnect[TestMode]=0)and(aPass in Land[y,x].Passability)and //Untested area
+     ((TestMode <> 4)or
+     ((TestMode = 4)and(Land[y,x].Markup <> mu_UnderConstruction)))) then //Untested area
     begin
       Land[y,x].WalkConnect[TestMode]:=ID;
       inc(Count);
@@ -1378,6 +1397,10 @@ begin
       canWalk: TestMode:=1;
       canWalkRoad: TestMode:=2;
       canFish: TestMode:=3;
+      canWalkAvoid:
+      begin
+        TestMode:=4; aPass:=canWalk;
+      end; //Special case for unit interaction avoiding
       else fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 
@@ -1387,7 +1410,9 @@ begin
 
     AreaID:=0;
     for i:=1 to MapY do for k:=1 to MapX do
-    if (Land[i,k].WalkConnect[TestMode]=0)and(aPass in Land[i,k].Passability) then
+    if ((Land[i,k].WalkConnect[TestMode]=0)and(aPass in Land[i,k].Passability)and
+     ((TestMode <> 4)or
+     ((TestMode = 4)and(Land[i,k].Markup <> mu_UnderConstruction)))) then
     begin
       inc(AreaID);
       Count:=0;

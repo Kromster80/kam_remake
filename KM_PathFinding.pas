@@ -30,6 +30,7 @@ type
     Pass:TPassability;
     TargetRoadNetworkID:byte;
     WalkToSpot:boolean;
+    IsInteractionAvoid:boolean;
     fDestination:TDestinationPoint;
     fRouteSuccessfullyBuilt:boolean;
     function CheckRouteCanExist():boolean;
@@ -37,17 +38,17 @@ type
     function MakeRoute():boolean;
     function IsDestinationReached():boolean;
   public
-    constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean); overload;
+    constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte); overload;
     procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_SoundFX;
+uses KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Units, KM_UnitActionWalkTo, KM_UnitActionStay;
 
 
-constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean);
+constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean; aIsInteractionAvoid:boolean=false);
 begin
   LocA := aLocA;
   LocB := aLocB;
@@ -55,6 +56,7 @@ begin
   Pass := aPass;
   TargetRoadNetworkID := 0; //erase just in case
   WalkToSpot := aWalkToSpot;
+  IsInteractionAvoid := aIsInteractionAvoid;
   fRouteSuccessfullyBuilt := false;
   fDestination:=dp_Location;
 
@@ -146,7 +148,13 @@ end;
 function TPathFinding.CheckRouteCanExist():boolean;
 begin
   //Don't try to make a route if it's obviously impossible
-  Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,WalkToSpot)
+  if IsInteractionAvoid then
+  begin
+    fTerrain.RebuildWalkConnect(canWalkAvoid);
+    Result := fTerrain.Route_CanBeMade(LocA,LocB,canWalkAvoid,WalkToSpot);
+  end
+  else
+    Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,WalkToSpot);
 end;
 
 
@@ -201,6 +209,7 @@ begin
 
       if fTerrain.TileInMapCoords(x,y) then //Ignore those outside of MapCoords
       if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
+      if (not IsInteractionAvoid) or (fTerrain.Land[y,x].Markup <> mu_UnderConstruction) then //If we are in InteractionAvoid mode then don't use tiles with workers on them (under contstruction)
       if not KMSamePoint(KMPoint(x,y),Avoid) then //If there are any cells in Avoid list then avoid them
 
         if ORef[y,x]=0 then begin //Cell is new
@@ -208,7 +217,8 @@ begin
           inc(OCount);
           OList[OCount].Pos:=KMPoint(x,y);
 
-          if Pass in fTerrain.Land[y,x].Passability then begin //If cell meets Passability then estimate it
+          if (Pass in fTerrain.Land[y,x].Passability) then //If cell meets Passability then estimate it
+          begin
             ORef[y,x]:=OCount;
             OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
             OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(KMPoint(x,y),MinCost.Pos)*10); //

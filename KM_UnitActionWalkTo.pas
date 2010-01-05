@@ -26,7 +26,7 @@ type
       fWalkFrom, fWalkTo, fAvoid, fSideStepTesting:TKMPoint;
       fWalkToSpot:boolean;
       fPass:TPassability; //Desired passability set once on Create
-      DoesWalking, WaitingOnStep:boolean;
+      DoesWalking, WaitingOnStep, fZeroPriority:boolean;
       DoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
       fInteractionCount, fGiveUpCount, fLastSideStepNodePos: integer;
       fInteractionStatus: TInteractionStatus;
@@ -37,6 +37,7 @@ type
       procedure PerformExchange(ForcedExchangePos:TKMPoint);
       procedure IncVertex;
       procedure DecVertex;
+      procedure SetInitValues;
     public
       NodeList:TKMPointList;
       fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
@@ -76,22 +77,30 @@ begin
   fPass         := fWalker.GetDesiredPassability;
 
   NodeList      := TKMPointList.Create; //Freed on destroy
-  NodePos       := 1;
-  fRouteBuilt   := false;
-  DoExchange    := false;
-  DoesWalking   := false;
-  WaitingOnStep := false;
-  fLastSideStepNodePos := -2; //Start negitive so it is at least 2 less than NodePos at the start
-  fVertexOccupied := KMPoint(0,0);
-  fInteractionCount := 0;
-  fGiveUpCount  := 0;
-  fInteractionStatus := kis_None;
-  fLastOpponent := nil;
+  SetInitValues;
 
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
 
   fRouteBuilt   := AssembleTheRoute();
+end;
+
+
+procedure TUnitActionWalkTo.SetInitValues;
+begin
+  NodePos       := 1;
+  fRouteBuilt   := false;
+  DoExchange    := false;
+  DoesWalking   := false;
+  WaitingOnStep := false;
+  fZeroPriority := false;
+  fLastSideStepNodePos := -2; //Start negitive so it is at least 2 less than NodePos at the start
+  fVertexOccupied  := KMPoint(0,0);
+  fSideStepTesting := KMPoint(0,0);
+  fInteractionCount := 0;
+  fGiveUpCount  := 0;
+  fInteractionStatus := kis_None;
+  fLastOpponent := nil;
 end;
 
 
@@ -106,6 +115,7 @@ begin
   LoadStream.Read(fVertexOccupied);
   LoadStream.Read(fWalkToSpot);
   LoadStream.Read(fSideStepTesting);
+  LoadStream.Read(fZeroPriority);
   LoadStream.Read(fLastSideStepNodePos);
   LoadStream.Read(fPass, SizeOf(fPass));
   LoadStream.Read(DoesWalking);
@@ -318,7 +328,7 @@ begin
     Explanation:='Can''t walk. No Unit in the way but tile is occupied';
     exit;
   end;
-  if (fOpponent.GetUnitAction is TUnitActionWalkTo) then
+  if ((fOpponent.GetUnitAction is TUnitActionWalkTo) and not fZeroPriority) then
     HighestInteractionCount := max(fInteractionCount,TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionCount)
   else HighestInteractionCount := fInteractionCount;
 
@@ -367,8 +377,8 @@ begin
     end;
   end;
 
-  if ((HighestInteractionCount >= EXCHANGE_TIMEOUT) and (fInteractionStatus <> kis_Pushed)) or //When pushed this timeout/counter is different
-     (fInteractionStatus = kis_Pushed) then //If we get pushed then always try exchanging (if we are here then there is no free tile)
+  if not fZeroPriority and (((HighestInteractionCount >= EXCHANGE_TIMEOUT) and (fInteractionStatus <> kis_Pushed)) or //When pushed this timeout/counter is different
+     (fInteractionStatus = kis_Pushed)) then //If we get pushed then always try exchanging (if we are here then there is no free tile)
   begin //Try to exchange with the other unit if they are willing
     //If Unit on the way is walking somewhere and not exchanging with someone else
     if (fOpponent.GetUnitAction is TUnitActionWalkTo) and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoExchange)
@@ -466,17 +476,27 @@ begin
     fInteractionStatus := kis_Waiting;
   end;
 
-  if HighestInteractionCount >= AVOID_TIMEOUT then
+  if (HighestInteractionCount >= AVOID_TIMEOUT) or fZeroPriority then
   begin
     //If the blockage won't go away because it's busy (not walking) then try going around it by re-routing our route and avoiding that tile
-    if not (fOpponent.GetUnitAction is TUnitActionWalkTo) then
     if not KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Not the target position (can't go around if it is)
-    if fTerrain.Route_CanBeMadeAvoid(fWalker.GetPosition,fWalkTo,fOpponent.GetPosition,fPass,fWalkToSpot) then //Make sure the route can be made, if not, we must simply wait
+    if fZeroPriority or (not (fOpponent.GetUnitAction is TUnitActionWalkTo)) or ((fOpponent.GetUnitAction is TUnitActionStay) and ((TUnitActionStay(fOpponent.GetUnitAction).Locked) or (not (TUnitActionStay(fOpponent.GetUnitAction).GetActionType = ua_Walk)))) then
+      if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,fOpponent.GetPosition,fPass,fWalkToSpot,NodeList) then //Make sure the route can be made, if not, we must simply wait
       begin
-        //Start walking around
-        Explanation := 'Unit in the way is working so we will go around it';
-        fWalker.SetActionWalk(fWalker,fWalkTo,fOpponent.GetPosition,GetActionType,fWalkToSpot);
-        exit;
+        //NodeList has now been re-routed, so we need to re-init everything else and start walk again
+        SetInitValues;
+        Explanation := 'Unit in the way is working so we will re-route around it';
+        fRouteBuilt := true;
+        fZeroPriority := false;
+        exit; //Exit, then on next tick new walk will start
+      end
+      else
+      begin
+        if not fZeroPriority then fLastOpponent := fOpponent; //First time remember oponent
+        fZeroPriority := true;
+        fInteractionStatus := kis_Waiting; //If route cannot be made it means our destination is currently not available (workers in the way) So allow us to be pushed.
+        //fInteractionCount := -2; //Don't keep trying other methods
+        Explanation := 'Our destination is blocked by busy units';
       end;
   end;
 
@@ -838,6 +858,7 @@ begin
   SaveStream.Write(fVertexOccupied);
   SaveStream.Write(fWalkToSpot);
   SaveStream.Write(fSideStepTesting);
+  SaveStream.Write(fZeroPriority);
   SaveStream.Write(fLastSideStepNodePos);
   SaveStream.Write(fPass,SizeOf(fPass));
   SaveStream.Write(DoesWalking);
