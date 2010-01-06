@@ -402,13 +402,11 @@ constructor TKMUnitCitizen.Load(LoadStream:TKMemoryStream);
 var HasPlan:boolean;
 begin
   Inherited;
-
   WorkPlan := TUnitWorkPlan.Create;
   LoadStream.Read(HasPlan);
   if HasPlan then
   begin
     WorkPlan.Load(LoadStream);
-    fLog.AppendLog('Workplan<>nil - ', integer(fUnitTask<>nil));
     if fUnitTask is TTaskMining then
       TTaskMining(fUnitTask).WorkPlan := WorkPlan; //restore reference
   end;
@@ -1725,7 +1723,6 @@ begin
   Inherited Create;
   LoadStream.Read(fTaskName, SizeOf(fTaskName));
   LoadStream.Read(fUnit, 4);//Substitute it with reference on SyncLoad
-  fLog.AppendLog('TUnitTask.Load - ', integer(fUnit));
   LoadStream.Read(fPhase);
   LoadStream.Read(fPhase2);
 end;
@@ -3372,7 +3369,6 @@ var i:integer;
 begin
   for i := 0 to Count - 1 do
   begin
-    fLog.AppendLog('TKMUnitsCollection.SyncLoad - ', TKMUnit(Items[I]).ID);
     case TKMUnit(Items[I]).fUnitType of
       ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;
       ut_Worker:                TKMUnitWorker(Items[I]).SyncLoad;

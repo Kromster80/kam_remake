@@ -1531,11 +1531,8 @@ var i:integer;
 begin
   fSelectedHouse := fPlayers.GetHouseByID(integer(fSelectedHouse));
   for i := 0 to Count - 1 do
-  begin
-    fLog.AppendLog('TKMHousesCollection.SyncLoad - ', TKMHouse(Items[I]).ID);  
     if TKMHouse(Items[i]).fCurrentAction<>nil then
       TKMHouse(Items[i]).fCurrentAction.fHouse := fPlayers.GetHouseByID(integer(TKMHouse(Items[i]).fCurrentAction.fHouse));
-  end;
 end;
 
 

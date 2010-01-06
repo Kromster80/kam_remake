@@ -636,6 +636,7 @@ function TKMGame.Load(SlotID:shortint):string; //I've declared it a string for d
 var LoadStream:TKMemoryStream;
 s:string;
 begin
+  fLog.AppendLog('Loading game');
   Result := 'NIL';
 
   if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent);
@@ -667,7 +668,6 @@ begin
       fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
 
       fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
-      fLog.AppendLog('SynLoad done');
     end;
     gsEditor:   exit;
     gsPaused:   exit; //Taken care of earlier
@@ -676,6 +676,7 @@ begin
   finally
     LoadStream.Free; //todo: return to menu if loading has failed
   end;
+  fLog.AppendLog('Loading game',true);
 end;
 
 

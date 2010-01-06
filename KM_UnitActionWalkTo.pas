@@ -154,17 +154,14 @@ begin
   NodeList.Load(LoadStream);
   LoadStream.Read(NodePos);
   LoadStream.Read(fRouteBuilt);
-//  LoadStream.Read(Explanation, length(Explanation));
 end;
 
 
 procedure TUnitActionWalkTo.SyncLoad();
 begin
   Inherited;
-  fLog.AppendLog('TUnitActionWalkTo.SyncLoad - ', integer(fWalker));
   fWalker       := fPlayers.GetUnitByID(integer(fWalker));
   fLastOpponent := fPlayers.GetUnitByID(integer(fLastOpponent));
-  fLog.AppendLog('TUnitActionWalkTo.SyncLoad - fWalker<>nil ', integer(fWalker<>nil));
 end;
 
 destructor TUnitActionWalkTo.Destroy;
@@ -785,7 +782,6 @@ begin
   NodeList.Save(SaveStream);
   SaveStream.Write(NodePos);
   SaveStream.Write(fRouteBuilt);
-//  SaveStream.Write(Explanation, length(Explanation));
 end;
 
 

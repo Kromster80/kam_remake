@@ -9,6 +9,8 @@ Find a way to replenish fish in seas:
 
 Introduce "Fog of war"
 
+Add "demolish" task for laborers - so they could remove rocks and trees out of the buildings way
+
 Order to expell(?) resources out of the house
 
 Walls building

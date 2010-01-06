@@ -233,7 +233,6 @@ begin
 
   LoadStream.Read(P, SizeOf(P));
   MyPlayer := fPlayers.Player[integer(P)];
-  fLog.AppendLog('Players loaded');
 end;
 
 
