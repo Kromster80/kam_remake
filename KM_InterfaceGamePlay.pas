@@ -865,7 +865,9 @@ begin
     Button_House_Repair.OnClick := House_RepairToggle;
     Button_House_Repair.Hint := fTextLibrary.GetTextString(250);
     Image_House_Logo:=MyControls.AddImage(Panel_House,68,41,32,32,338);
+    Image_House_Logo.Center;
     Image_House_Worker:=MyControls.AddImage(Panel_House,98,41,32,32,141);
+    Image_House_Worker.Center;
     Label_HouseHealth:=MyControls.AddLabel(Panel_House,156,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
     HealthBar_House:=MyControls.AddPercentBar(Panel_House,129,57,55,15,50,'',fnt_Mini);
     Label_House_UnderConstruction:=MyControls.AddLabel(Panel_House,100,170,100,30,fTextLibrary.GetTextString(230),fnt_Grey,kaCenter);
