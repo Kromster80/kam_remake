@@ -248,14 +248,6 @@ begin
 
   if not Result then //If route still unbuilt..
     fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with default fPass');
-
-  {if not Result then begin //Build a route with canWalk
-    fTerrain.Route_Make(fWalkFrom, fWalkTo, fAvoid, canWalk, fWalkToSpot, NodeList); //Try to make a route
-    Result := NodeList.Count>0;
-  end;
-
-  if not Result then
-    fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with canWalk');}
 end;
 
 

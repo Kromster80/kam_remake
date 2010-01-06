@@ -654,7 +654,7 @@ begin
       LoadStream.Read(s); if s <> '01' then exit;
 
       //Create empty environment
-      StartGame('','',1); //todo: check for emptyness and optimize load time
+      StartGame('','',1);
 
       //Substitute tick counter and id tracker (and maybe random seed?)
       LoadStream.Read(GameplayTickCount, 4);

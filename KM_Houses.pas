@@ -334,7 +334,7 @@ end;
 
 procedure TKMHouse.CloseHouse;
 begin
-  fIsDestroyed:=true;
+  fIsDestroyed := true;
   BuildingRepair := false; //Otherwise labourers will take task to repair when the house is destroyed
   if (RemoveRoadWhenDemolish) and not (GetBuildingState in [hbs_Stone, hbs_Done]) then fTerrain.RemRoad(Self.GetEntrance);
   FreeAndNil(fCurrentAction);
@@ -691,11 +691,12 @@ end;
 procedure TKMHouse.MakeSound();
 var WorkID,Step:byte;
 begin
-
   //Do not play sounds if house is invisible to MyPlayer
   if fTerrain.CheckTileRevelation(fPosition.X, fPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if fCurrentAction = nil then exit; //no action means no sound ;)
 
-  WorkID:=fCurrentAction.GetWorkID;
+  WorkID := fCurrentAction.GetWorkID;
+
   if WorkID=0 then exit;
 
   Step:=HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
@@ -779,19 +780,20 @@ begin
   SaveStream.Write(HasAct);
   if HasAct then fCurrentAction.Save(SaveStream);
   SaveStream.Write(ResourceDepletedMsgIssued);
-  SaveStream.Write(DoorwayUse); 
+  SaveStream.Write(DoorwayUse);
 end;
 
 
 procedure TKMHouse.UpdateState;
 var i: byte;
 begin
-  if fBuildState<>hbs_Done then exit;
+  if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
 
   if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
 
   //@Krom: This is probably quite inefficient for UpdateState. What's your opinion? Should we only do this when they modify the distribution settings?
   //Request more resources (if distribution of wares has changed)
+  if not fIsDestroyed then
   for i:=1 to 4 do
     if not (HouseInput[byte(fHouseType),i] in [rt_All, rt_Warfare, rt_None]) then
     if fResourceDeliveryCount[i] < GetResDistribution(i) then
@@ -815,7 +817,7 @@ begin
   else
     fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES;
 
-  MakeSound(); //Make some sound/noise along the work
+  if not fIsDestroyed then MakeSound(); //Make some sound/noise along the work
 
   inc(FlagAnimStep);
   inc(WorkAnimStep);
@@ -1287,14 +1289,14 @@ constructor THouseAction.Create(aHouse:TKMHouse; aHouseState: THouseState; const
 begin
   Inherited Create;
   fHouse := aHouse;
-  SetState(aHouseState);
   TimeToAct := aTime;
+  SetState(aHouseState);
 end;
 
 
 procedure THouseAction.SetState(aHouseState: THouseState);
 begin
-fHouseState:=aHouseState;
+  fHouseState := aHouseState;
   if aHouseState=hst_Idle then begin
     SubActionRem([ha_Work1..ha_Smoke]); //remove all work attributes
     SubActionAdd([ha_Idle]);

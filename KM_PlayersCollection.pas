@@ -12,7 +12,7 @@ type
   private
     fPlayerCount:integer;
   public
-    fMissionMode: TMissionMode;
+    fMissionMode: TMissionMode; //todo: move to fGame since it's set before fPlayers is init in LoadDAT!
     Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
     PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
     PlayerAnimals: TKMPlayerAnimals;

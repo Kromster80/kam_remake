@@ -1666,13 +1666,16 @@ end;
 function TTerrain.InterpolateLandHeight(inX,inY:single):single;
 var Xc,Yc:integer; Tmp1,Tmp2:single;
 begin
-  Xc:=trunc(inX);
-  Yc:=trunc(inY);
-  Result:=0;
+  Xc := trunc(inX);
+  Yc := trunc(inY);
+  Result := 0;
   if not VerticeInMapCoords(Xc,Yc) then exit;
   fLog.AssertToLog(VerticeInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
-  Tmp1:=mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
-  Tmp2:=mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
+  Tmp1 := mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
+  if Yc >= MaxMapSize then
+    Tmp2 := 0
+  else
+    Tmp2 := mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
   Result:=mix(Tmp2, Tmp1, frac(InY));
 end;
 
