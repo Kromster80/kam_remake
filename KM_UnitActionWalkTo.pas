@@ -407,7 +407,7 @@ begin
       Create(fWalker,fTerrain.GetOutOfTheWay(fWalker.GetPosition,canWalk),fAvoid,GetActionType,fWalkToSpot);
       SetPushedValues;
       fGiveUpCount := TempInt;
-      Result := true; //Means exit DoUnitInteraction
+//      Result := true; //Means exit DoUnitInteraction
     end;
     inc(fInteractionCount);
     inc(fGiveUpCount);
@@ -544,9 +544,8 @@ end;
 
 function TUnitActionWalkTo.DoUnitInteraction():boolean;
 var
-  fOpponent, fAltOpponent:TKMUnit;
-  TempInt, i, HighestInteractionCount: integer;
-  TempPos: TKMPoint;
+  fOpponent:TKMUnit;
+  HighestInteractionCount: integer;
 begin
   //todo: Don't run CPU intensive tests every time, just first time then once every say 10 ticks after that
 

@@ -577,6 +577,7 @@ begin
   WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
   //Now issue a message if we failed because the resource is depleted
+  if fOwner=MyPlayer.PlayerID then //Don't show for AI players
   if WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
   begin
     case fHome.GetHouseType of
