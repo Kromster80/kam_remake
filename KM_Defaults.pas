@@ -11,7 +11,7 @@ const
   Overlap               = 0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   DEF_PAL               = 2;            //Default palette to use when generating full-color RGB textures
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
-  TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default)
+  TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
   //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
   ACTION_TIME_DELTA     = 0.1;          //Multiplied with units speed gives distance unit walks per frame
   FOG_OF_WAR_MIN        = 8;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness

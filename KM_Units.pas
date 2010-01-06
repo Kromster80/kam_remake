@@ -1681,8 +1681,7 @@ begin
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, ActDone);
 
-  if ActDone then
-  FreeAndNil(fCurrentAction) else exit;
+  if ActDone then FreeAndNil(fCurrentAction) else exit;
 
   if fUnitTask <> nil then
     fUnitTask.Execute(TaskDone);
