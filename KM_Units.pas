@@ -2144,7 +2144,7 @@ case fPhase of
     //@Lewin: It's yet incomplete
   7: begin
       //Walk away from tile and continue building from the side
-      SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),canWalk));
+      SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,canWalk));
     end;
   8: begin
       //fTerrain.IncWallState(fLoc);

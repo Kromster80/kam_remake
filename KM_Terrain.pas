@@ -116,7 +116,7 @@ public
   function HasVertexUnit(Loc:TKMPoint):boolean;
   function GetRoadConnectID(Loc:TKMPoint):byte;
 
-  function GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
+  function GetOutOfTheWay(Loc:TKMPoint; aPass:TPassability):TKMPoint;
   function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
   function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
@@ -1120,17 +1120,18 @@ end;
 
 {Return random tile surrounding given one with aPass property except Loc2}
 {The command is used for unit interaction}
-function TTerrain.GetOutOfTheWay(Loc,Loc2:TKMPoint; aPass:TPassability):TKMPoint;
+function TTerrain.GetOutOfTheWay(Loc:TKMPoint; aPass:TPassability):TKMPoint;
 var i,k:integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit;
 begin
-  //List 1 holds all available walkable positions except self and Loc2
+  //List 1 holds all available walkable positions except self
   L1:=TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-      if (not((i=0)and(k=0)))and(not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2)) then
+      if not((i=0)and(k=0)) then
         if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
-          if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
-            L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+          if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
+            if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
+              L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
   //List 2 holds the best positions, ones which are not occupied
   L2:=TKMPointList.Create;
@@ -1174,10 +1175,11 @@ begin
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
       if (not((i=0)and(k=0)))and(not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2)) then
         if canWalk in Land[Loc.Y+i,Loc.X+k].Passability then //This uses canWalk because we can step off roads for side steps
-          if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
-            if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
-              if fPlayers.UnitsHitTest(Loc.X+k,Loc.Y+i) = nil then //Doesn't have unit
-                L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+          if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
+            if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
+              if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
+                if fPlayers.UnitsHitTest(Loc.X+k,Loc.Y+i) = nil then //Doesn't have unit
+                  L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
   L2:=TKMPointList.Create;
@@ -1205,7 +1207,7 @@ begin
   //Result:=not (KMSamePoint(LocA,LocB)); //Or maybe we don't care
 
   //target point has to be walkable
-  if aPass <> canWalkAvoid then
+  if aPass <> canWalkAvoid then //As canWalkAvoid is never set as a passability there is no need to check it
   begin
     Result := Result and CheckPassability(LocA,aPass);
     if aWalkToSpot then
@@ -1224,12 +1226,13 @@ begin
   if aPass=canFish then
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[3] = Land[LocB.Y,LocB.X].WalkConnect[3]);
   if aPass=canWalkAvoid then
+  begin
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[4] = Land[LocB.Y,LocB.X].WalkConnect[4]);
-
-  if not aWalkToSpot then
-    for i:=LocB.Y-1 to LocB.Y+1 do for k:=LocB.X-1 to LocB.X+1 do
-      if fTerrain.TileInMapCoords(k,i) and ((i<>LocB.Y) or (k<>LocB.X)) then
-        Result := Result or Route_CanBeMade(LocA,KMPoint(k,i),aPass,false);
+    if not aWalkToSpot then //Check WalkConnect for surrounding tiles if we are not walking to spot
+      for i:=LocB.Y-1 to LocB.Y+1 do for k:=LocB.X-1 to LocB.X+1 do
+        if fTerrain.TileInMapCoords(k,i) and ((i<>LocB.Y) or (k<>LocB.X)) then
+          Result := Result or (Land[LocA.Y,LocA.X].WalkConnect[4] = Land[i,k].WalkConnect[4]);
+  end;
 end;
 
 

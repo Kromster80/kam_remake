@@ -169,7 +169,7 @@ begin
         and (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)
         and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
       begin
-        TempUnit.SetActionWalk(TempUnit, fTerrain.GetOutOfTheWay(TempUnit.GetPosition,KMUnit.GetPosition,canWalk));
+        TempUnit.SetActionWalk(TempUnit, fTerrain.GetOutOfTheWay(TempUnit.GetPosition,canWalk));
         TUnitActionWalkTo(TempUnit.GetUnitAction).SetPushedValues;
       end;
 

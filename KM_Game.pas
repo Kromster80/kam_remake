@@ -615,7 +615,6 @@ begin
       //todo 2: write down savegame title
       SaveStream.Write(GameplayTickCount, 4); //dunno if it's required to save, but it won't hurt anyone
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
-      SaveStream.Write(RandSeed); //Store random seed so that same events will take place after load. Otherwise people could avoid random things happening (like attacks) by saving and loading.
 
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
@@ -659,7 +658,6 @@ begin
       //Substitute tick counter and id tracker (and maybe random seed?)
       LoadStream.Read(GameplayTickCount, 4);
       LoadStream.Read(ID_Tracker, 4);
-      LoadStream.Read(RandSeed);
 
       //Load the data into the game
       fTerrain.Load(LoadStream);
