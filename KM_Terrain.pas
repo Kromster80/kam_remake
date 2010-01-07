@@ -9,6 +9,13 @@ const MaxMapSize=192;
 //       if you run it in speed up for a while you will end up with a lot more trees planted because they aren't
 //       growing faster and the woodcutter is planting faster. (so you should see more trees or more stumps)
 
+//@Lewin: I checked - the timing is the same - it takes approx. 15min in Planter mission for woodcutter
+//        to start chopping grown up trees. Irregardless of speedup. I guess we need to take a closer
+//        look at KaM, it has different approach to "trunk-mining". E.g. woodcutter should try to keep
+//        flow of trunks stable, unlike existing pattern where he plants-chops-plants-chops all the
+//        trees at once. As well in KaM I don't remember him working so hard, he's always resting in
+//        his house and having maybe 10 trees at all. Maybe thats a sort of limit he has in KaM?
+
 type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class
@@ -17,27 +24,29 @@ public
   MapX,MapY:integer; //Terrain width and height
 
   Land:array[1..MaxMapSize,1..MaxMapSize]of record
-    Terrain:byte; //TILE
+    Terrain:byte;
     Height:byte;
     Rotation:byte;
-
-    TileOwner:TPlayerID; //Name says it all, should simplify player related issues
-    IsUnit:shortint; //Whenever there's a unit on that tile mark the tile as occupied and count the number
-    IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
-
-    //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
-    Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
-
     Obj:byte;
+
     //Age of tree, another independent variable since trees can grow on fields
     TreeAge:word;  //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
 
     //Age of field/wine, another independent variable
     FieldAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
 
+    //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
+    Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
+
     //Used to display half-dug road
     TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
+    TileOwner:TPlayerID; //Name says it all, should simplify player related issues
+    IsUnit:shortint; //Whenever there's a unit on that tile mark the tile as occupied and count the number
+    IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
+
+
+    //MAPEDITOR
     OldTerrain, OldRotation:byte; //Only used for map editor
 
 
@@ -1739,7 +1748,7 @@ begin
   SaveStream.Write(TileSize);
 
   for i:=1 to MapY do for k:=1 to MapX do
-    SaveStream.Write(Land[i,k].Terrain, TileSize);
+    SaveStream.Write(Land[i,k].Terrain, TileSize); //todo: don't write all the fields, exclude maped and deduced
 
   FallingTrees.Save(SaveStream);
 
@@ -1755,7 +1764,7 @@ begin
   LoadStream.Read(MapY);
 
   LoadStream.Read(TileSize);
-  if TileSize <> SizeOf(Land[i,k]) then Assert(false, 'Wrong SizeOf Tile in TTerrain');
+  if TileSize <> SizeOf(Land[i,k]) then Assert(false, 'Wrong SizeOf Tile in TTerrain '+inttostr(SizeOf(Land[i,k]))+' instead of '+inttostr(TileSize));
 
   for i:=1 to MapY do for k:=1 to MapX do
     LoadStream.Read(Land[i,k].Terrain, TileSize);
