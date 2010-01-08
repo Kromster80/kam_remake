@@ -93,6 +93,7 @@ begin
     Result:= Player[i].UnitsHitTest(X,Y);
     if Result<>nil then Break; //else keep on testing
   end;
+  if Result = nil then Result:=PlayerAnimals.UnitsHitTest(X, Y);
 end;
 
 

@@ -1025,6 +1025,8 @@ begin
     exit;
   end;
 
+  //@Krom: I don't like this jitter method. Couldn't we do it differently like make animals a special case in
+  //       walkto that chooses a new tile each step or something? (which is more likely to keep currently direction)
   SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
 
   repeat //Where unit should go, keep picking until target is walkable for the unit

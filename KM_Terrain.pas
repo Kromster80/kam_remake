@@ -16,6 +16,12 @@ const MaxMapSize=192;
 //        trees at once. As well in KaM I don't remember him working so hard, he's always resting in
 //        his house and having maybe 10 trees at all. Maybe thats a sort of limit he has in KaM?
 
+//@Krom: Sorry, my mistake. It does appear to be fine. In KaM the flow of trunks is not stable, he is either
+//       planting or cutting. We could still do that however by randomly choosing to either cut or plant.
+//       As for working so hard, I think that might have been a problem with canPlantTrees. I made it so trees
+//       can be planted diagonally to each other, which KaM doesn't. I've changed that now and I think you'll
+//       find he plants far less trees. To be deleted?
+
 type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class
@@ -184,7 +190,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding, KM_Units, KM_UnitActionStay;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding, KM_Units, KM_UnitActionStay, KM_UnitActionWalkTo;
 
 constructor TTerrain.Create;
 begin
@@ -968,7 +974,7 @@ var i,k:integer;
         if TileInMapCoords(X+i,Y+k)and((i<>0)or(k<>0)) then
         begin
           //Tiles next to it can't be trees/stumps
-          if (k*i=0) and MapElem[Land[Y+k,X+i].Obj+1].DontPlantNear then Result:=true;
+          if MapElem[Land[Y+k,X+i].Obj+1].DontPlantNear then Result:=true;
           //Tiles above or to the left can't be road/field/markup
           if (i<=0)and(k<=0) then
             if (Land[Y+k,X+i].Markup<>mu_None)or(Land[Y+k,X+i].TileOverlay = to_Road)or
@@ -1155,7 +1161,9 @@ begin
     begin
       TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
-        if (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk) then
+        if ((TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)) or
+          ((TempUnit.GetUnitAction is TUnitActionWalkTo) and //If unit is walking to our position then that is good too
+          (KMSamePoint(TUnitActionWalkTo(TempUnit.GetUnitAction).GetNextNextPosition,Loc))) then
           L3.AddEntry(L1.List[i]);
     end;
  if L2.Count<>0 then

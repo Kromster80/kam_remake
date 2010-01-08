@@ -81,6 +81,7 @@ type
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
+    function UnitsHitTest(X, Y: Integer): TKMUnit;
     procedure UpdateState;
     procedure Paint;
   end;
@@ -447,6 +448,12 @@ end;
 procedure TKMPlayerAnimals.SyncLoad();
 begin
   fUnits.SyncLoad;
+end;
+
+
+function TKMPlayerAnimals.UnitsHitTest(X, Y: Integer): TKMUnit;
+begin
+  Result := fUnits.HitTest(X,Y);
 end;
 
 
