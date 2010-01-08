@@ -401,7 +401,14 @@ begin
       fGiveUpCount := TempInt;
       //@Krom: Two questions: 1: Why did you comment out the following line? (r551) If you don't do that then other solutions might be tested.
       //                      2: Is it ok to call create on self, or should I run this as SetUnitAction?
-//      Result := true; //Means exit DoUnitInteraction
+      //@Lewin: Please revise this function in terms of setting "Result:=true", it gets set to true
+      //        in either case (HighestInteractionCount >= / < PUSHED_TIMEOUT).
+      //        In its current form it can be cut to Result := fInteractionStatus = kis_Pushed;
+      //        Setting result to true does not ends the function, hence the following line is useless
+      //2.      Create returns the result that needs to be assigned! e.g.:
+      //        fCurrentAction := Create(fWalker,fTerrain.GetOutOfTheWa... and before that previous
+      //        Action should be freed! SetUnitAction is the way to go (and notice that it will rewrite current action so you need to exit current action immidiately, otherwise you get potential bug/crash);
+      //Result := true; //Means exit DoUnitInteraction
     end;
     inc(fInteractionCount);
     inc(fGiveUpCount);
