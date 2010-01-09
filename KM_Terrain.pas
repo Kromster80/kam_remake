@@ -131,7 +131,7 @@ public
   function HasVertexUnit(Loc:TKMPoint):boolean;
   function GetRoadConnectID(Loc:TKMPoint):byte;
 
-  function GetOutOfTheWay(Loc:TKMPoint; aPass:TPassability):TKMPoint;
+  function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
   function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
   function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
@@ -1135,8 +1135,8 @@ end;
 
 {Return random tile surrounding given one with aPass property except Loc2}
 {The command is used for unit interaction}
-function TTerrain.GetOutOfTheWay(Loc:TKMPoint; aPass:TPassability):TKMPoint;
-var i,k:integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit;
+function TTerrain.GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
+var i,k:integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit; Loc2IsOk: boolean;
 begin
   //List 1 holds all available walkable positions except self
   L1:=TKMPointList.Create;
@@ -1154,20 +1154,22 @@ begin
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit = 0 then
       L2.AddEntry(L1.List[i]);
 
+  Loc2IsOk := false;
   //List 3 holds the second best positions, ones which are occupied with an idle unit
   L3:=TKMPointList.Create;
   for i:=1 to L1.Count do
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit > 0 then
     begin
+      if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
       TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
-        if ((TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)) or
-          ((TempUnit.GetUnitAction is TUnitActionWalkTo) and //If unit is walking to our position then that is good too
-          (KMSamePoint(TUnitActionWalkTo(TempUnit.GetUnitAction).GetNextNextPosition,Loc))) then
+        if ((TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)) then
           L3.AddEntry(L1.List[i]);
     end;
  if L2.Count<>0 then
     Result:=L2.GetRandom
+  else if Loc2IsOk then //If there are no free tiles then the unit that pushed us is a good option
+    Result:=Loc2
   else if L3.Count<>0 then
     Result:=L3.GetRandom
   else if L1.Count<>0 then

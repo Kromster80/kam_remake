@@ -183,6 +183,7 @@ type TKMGamePlayInterface = class
     procedure Menu_QuitMission(Sender:TObject);
     procedure Menu_NextTrack(Sender:TObject);
     procedure Menu_PreviousTrack(Sender:TObject);
+    procedure Save_PopulateSaveNamesFile();
     procedure Build_SelectRoad;
     procedure Build_RightClickCancel;
     procedure IssueMessage(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
@@ -268,6 +269,8 @@ begin
     TKMButton(Sender).Caption := savename
   else
     TKMButton(Sender).Caption := 'Savegame #'+inttostr(TKMControl(Sender).Tag);
+
+  Save_PopulateSaveNamesFile;
   
   SwitchPage(nil); //Close save menu after saving
 end;
@@ -1585,14 +1588,47 @@ end;
 
 {Show list of savegames and act depending on Sender (Save or Load)}
 procedure TKMGamePlayInterface.Menu_ShowLoad(Sender: TObject);
-//var i:integer;
+var i:integer; SaveTitles: TStringList;
 begin
-{for i:=1 to SAVEGAME_COUNT do
-  if CheckSaveGameValidity(i) then begin
-    Button_Save[i].Caption:=Savegame.Title+Savegame.Time;
-    Button_Load[i].Caption:=Savegame.Title+Savegame.Time;
-  end;}
-  SwitchPage(Sender);
+  SaveTitles := TStringList.Create;
+  try
+    if FileExists(ExeDir+'Saves\savenames.txt') then
+      SaveTitles.LoadFromFile(ExeDir+'Saves\savenames.txt');
+
+    for i:=1 to SAVEGAME_COUNT do
+      if i <= SaveTitles.Count then
+      begin
+        if Sender = Button_Menu_Save then
+          Button_Save[i].Caption := SaveTitles.Strings[i-1]
+        else
+          Button_Load[i].Caption := SaveTitles.Strings[i-1];
+      end
+      else
+        if Sender = Button_Menu_Save then
+          Button_Save[i].Caption := 'Empty'
+        else
+          Button_Load[i].Caption := 'Empty';
+  finally
+    FreeAndNil(SaveTitles);
+    SwitchPage(Sender);
+  end;
+end;
+
+
+procedure TKMGamePlayInterface.Save_PopulateSaveNamesFile();
+var i:integer; SaveTitles: TStringList;
+begin
+  SaveTitles := TStringList.Create;
+  try
+    for i:=1 to SAVEGAME_COUNT do
+      SaveTitles.Add(Button_Save[i].Caption); //Just write the caption of the button as they are updated
+
+    if FileExists(ExeDir+'Saves\savenames.txt') then
+      SysUtils.DeleteFile(ExeDir+'Saves\savenames.txt');
+    SaveTitles.SaveToFile(ExeDir+'Saves\savenames.txt');
+  finally
+    FreeAndNil(SaveTitles); 
+  end;
 end;
 
 

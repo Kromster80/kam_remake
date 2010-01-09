@@ -684,11 +684,20 @@ end;
 
 
 procedure TKMMainMenuInterface.Load_PopulateList();
-var i:integer;
+var i:integer; SaveTitles: TStringList;
 begin
-  //todo: Scan Savegame titles
-  for i:=1 to SAVEGAME_COUNT do
-    Button_Load[i].Caption := 'Slot - ' + int2fix(i,2);
+  SaveTitles := TStringList.Create;
+  try
+    if FileExists(ExeDir+'Saves\savenames.txt') then
+      SaveTitles.LoadFromFile(ExeDir+'Saves\savenames.txt');
+
+    for i:=1 to SAVEGAME_COUNT do
+      if i <= SaveTitles.Count then
+        Button_Load[i].Caption := SaveTitles.Strings[i-1]
+      else Button_Load[i].Caption := 'Empty';
+  finally
+    FreeAndNil(SaveTitles);
+  end;
 end;
 
 

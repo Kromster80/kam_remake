@@ -42,7 +42,7 @@ type
     procedure RemoveDemand(aHouse:TKMHouse);
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
     function PermitDelivery(iO,iD:integer):boolean;
-    function AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
+    function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
     procedure TakenOffer(aID:integer);
     procedure GaveDemand(aID:integer);
     procedure CloseDelivery(aID:integer);
@@ -261,7 +261,7 @@ end;
 
 
 //Should issue a job based on requesters location and job importance
-function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf):TTaskDeliver;
+function TKMDeliverQueue.AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
 var i,iD,iO:integer; Bid,BestBid:single;
 begin
 Result:=nil;
@@ -288,6 +288,7 @@ for iD:=1 to length(fDemand) do
   if fDemand[iD].Resource <> rt_None then
   for iO:=1 to length(fOffer) do
    if BestBid=1 then break else //Quit loop when best bid is found
+    if (KMHouse = nil) or (fOffer[iO].Loc_House = KMHouse) then //Make sure from house is the one requested
     if fOffer[iO].Resource <> rt_None then
 
     if PermitDelivery(iO,iD) then

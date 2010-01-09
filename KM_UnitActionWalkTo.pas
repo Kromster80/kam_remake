@@ -27,14 +27,13 @@ type
 //     e.g. 10 means check when TIMEOUT is first reached then every 10 ticks after that.
 //     Lower FREQ will mean faster solutions but more CPU usage. Only solutions with time consuming checks have FREQ
 const
-  EXCHANGE_TIMEOUT = 0;                     //Pass with unit
-  PUSH_TIMEOUT = 1;                         //Push unit out of the way
-  PUSHED_TIMEOUT = 10;                      //Try a different way when pushed
-  DODGE_TIMEOUT = 5;    DODGE_FREQ = 10;    //Pass with a unit on a tile next to our target if they want to
-  AVOID_TIMEOUT = 10;   AVOID_FREQ = 20;    //Go around busy units
+  EXCHANGE_TIMEOUT = 0;                      //Pass with unit
+  PUSH_TIMEOUT = 1;                          //Push unit out of the way
+  PUSHED_TIMEOUT = 10;                       //Try a different way when pushed
+  DODGE_TIMEOUT = 5;     DODGE_FREQ = 10;    //Pass with a unit on a tile next to our target if they want to
+  AVOID_TIMEOUT = 10;    AVOID_FREQ = 20;    //Go around busy units
   SIDESTEP_TIMEOUT = 10; SIDESTEP_FREQ = 15; //Step to empty tile next to target
-  WAITING_TIMEOUT = 40;                     //After this time we can be forced to exchange
-  TOTAL_GIVEUP_TIMEOUT = 200;               //?????Re-route entire route avoiding other units?????
+  WAITING_TIMEOUT = 40;                      //After this time we can be forced to exchange
 
 
 type
@@ -46,7 +45,7 @@ type
       fPass:TPassability; //Desired passability set once on Create
       DoesWalking, WaitingOnStep, fDestBlocked:boolean;
       DoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
-      fInteractionCount, fGiveUpCount, fLastSideStepNodePos: integer;
+      fInteractionCount, fLastSideStepNodePos: integer;
       fInteractionStatus: TInteractionStatus;
       function AssembleTheRoute():boolean;
       function CheckCanWalk():TCanWalk;
@@ -60,7 +59,6 @@ type
         function IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
         function IntSolutionAvoid(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
         function IntSolutionSideStep(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-        function IntSolutionGiveUp(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
 
       procedure ChangeStepTo(aPos: TKMPoint);
       procedure PerformExchange(ForcedExchangePos:TKMPoint);
@@ -127,7 +125,6 @@ begin
   fVertexOccupied  := KMPoint(0,0);
   fSideStepTesting := KMPoint(0,0);
   fInteractionCount := 0;
-  fGiveUpCount  := 0;
   fInteractionStatus := kis_None;
 end;
 
@@ -149,7 +146,6 @@ begin
   LoadStream.Read(DoExchange);
   LoadStream.Read(WaitingOnStep);
   LoadStream.Read(fInteractionCount);
-  LoadStream.Read(fGiveUpCount);
   LoadStream.Read(fInteractionStatus, SizeOf(fInteractionStatus));
 
   NodeList := TKMPointList.Create; //Freed on destroy
@@ -321,7 +317,6 @@ begin
     else
     begin //We pushed a unit out of the way but someone else took it's place! Now we must start over to solve problem with this new opponent
       fInteractionCount := 0;
-      fGiveUpCount := 0;
       fInteractionStatus := kis_Trying;
       Explanation := 'Someone took the pushed unit''s place';
     end;
@@ -337,7 +332,7 @@ begin
     and (not TUnitActionStay(fOpponent.GetUnitAction).Locked) then //Unit is idle, (not working or something) and not locked
   begin //Force Unit to go away
     fInteractionStatus := kis_Pushing;
-    fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,canWalk));
+    fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,canWalk));
     TUnitActionWalkTo(fOpponent.GetUnitAction).SetPushedValues;
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     //Next frame tile will be free and unit will walk there
@@ -386,7 +381,6 @@ end;
 
 
 function TUnitActionWalkTo.IntCheckIfPushed(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-var TempInt: integer;
 begin
   Result := false;
   //If we were asked to move away then all we are allowed to do is push and exchanging, no re-routing, dodging etc. so we must exit here before any more tests
@@ -395,23 +389,13 @@ begin
     //If we've been trying to get out of the way for a while but we haven't found a solution, (i.e. other unit is stuck) try a different direction
     if HighestInteractionCount >= PUSHED_TIMEOUT then
     begin
-      TempInt := fGiveUpCount; //Carry over the give up counter
-      Create(fWalker,fTerrain.GetOutOfTheWay(fWalker.GetPosition,canWalk),fAvoid,GetActionType,fWalkToSpot);
-      SetPushedValues;
-      fGiveUpCount := TempInt;
-      //@Krom: Two questions: 1: Why did you comment out the following line? (r551) If you don't do that then other solutions might be tested.
-      //                      2: Is it ok to call create on self, or should I run this as SetUnitAction?
-      //@Lewin: Please revise this function in terms of setting "Result:=true", it gets set to true
-      //        in either case (HighestInteractionCount >= / < PUSHED_TIMEOUT).
-      //        In its current form it can be cut to Result := fInteractionStatus = kis_Pushed;
-      //        Setting result to true does not ends the function, hence the following line is useless
-      //2.      Create returns the result that needs to be assigned! e.g.:
-      //        fCurrentAction := Create(fWalker,fTerrain.GetOutOfTheWa... and before that previous
-      //        Action should be freed! SetUnitAction is the way to go (and notice that it will rewrite current action so you need to exit current action immidiately, otherwise you get potential bug/crash);
-      //Result := true; //Means exit DoUnitInteraction
+      //Try getting out of the way again. After this is run our object no longer exists, so we must exit everything immediately
+      fWalker.SetActionWalk(fWalker, fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),canWalk));
+      TUnitActionWalkTo(fWalker.GetUnitAction).SetPushedValues;
+      Result := true; //Means exit DoUnitInteraction
+      exit;
     end;
     inc(fInteractionCount);
-    inc(fGiveUpCount);
     Explanation := 'We were pushed and are now waiting for a space to clear for us';
     Result := true; //Means exit DoUnitInteraction
   end;
@@ -532,17 +516,6 @@ begin
 end;
 
 
-function TUnitActionWalkTo.IntSolutionGiveUp(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-begin
-  Result := false;
-  //todo: Add give up solution
-  if fGiveUpCount >= TOTAL_GIVEUP_TIMEOUT then
-  begin
-    //Give up and re-route without using tile that is currently blocking us (if possible)
-  end;
-end;
-
-
 //States whether we are allowed to run time consuming tests
 function TUnitActionWalkTo.CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
 begin
@@ -605,19 +578,17 @@ begin
   if IntCheckIfPushing(fOpponent) then exit;
   if IntSolutionPush(fOpponent,HighestInteractionCount) then exit;
   if IntSolutionExchange(fOpponent,HighestInteractionCount) then exit;
-  if IntCheckIfPushed(fOpponent,HighestInteractionCount) then exit;
+  if IntCheckIfPushed(fOpponent,fInteractionCount) then exit;
   if not fDestBlocked then fInteractionStatus := kis_Trying; //If we reach this point then we don't have a solution...
   if IntSolutionDodge(fOpponent,HighestInteractionCount) then exit;
   if IntSolutionAvoid(fOpponent,fInteractionCount) then exit;
   if IntSolutionSideStep(fOpponent,fInteractionCount) then exit;
-  if IntSolutionGiveUp(fOpponent,fGiveUpCount) then exit;
 
   //We will allow other units to force an exchange with us as we haven't found a solution or our destination is blocked
   if (fInteractionCount >= WAITING_TIMEOUT) or fDestBlocked then fInteractionStatus := kis_Waiting;
 
   //If we haven't exited yet we must increment the counters so we know how long we've been here
   inc(fInteractionCount);
-  inc(fGiveUpCount);
 end;
 
 
@@ -733,7 +704,6 @@ begin
         DoEnd := KMUnit.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
         exit; //Do no further walking until unit interaction is solved
       end else fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
-      if fInteractionStatus = kis_None then fGiveUpCount := 0; //Reset the give up counter if we are walking normally (not exchanging or dodging)
 
       inc(NodePos);
       fWalker.PrevPosition:=fWalker.NextPosition;
@@ -784,7 +754,6 @@ begin
   SaveStream.Write(DoExchange);
   SaveStream.Write(WaitingOnStep);
   SaveStream.Write(fInteractionCount);
-  SaveStream.Write(fGiveUpCount);
   SaveStream.Write(fInteractionStatus,SizeOf(fInteractionStatus));
   NodeList.Save(SaveStream);
   SaveStream.Write(NodePos);

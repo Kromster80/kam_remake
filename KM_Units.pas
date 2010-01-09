@@ -313,7 +313,8 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     function GiveResource(Res:TResourceType):boolean;
     function TakeResource(Res:TResourceType):boolean;
-    function GetActionFromQueue():TUnitTask;
+    function GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
+    procedure SetNewDelivery(aDelivery:TUnitTask);
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -698,9 +699,15 @@ begin
 end;
 
 
-function TKMUnitSerf.GetActionFromQueue():TUnitTask;
+function TKMUnitSerf.GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
 begin
-  Result:=fPlayers.Player[byte(fOwner)].DeliverList.AskForDelivery(Self);
+  Result:=fPlayers.Player[byte(fOwner)].DeliverList.AskForDelivery(Self,aHouse);
+end;
+
+
+procedure TKMUnitSerf.SetNewDelivery(aDelivery:TUnitTask);
+begin
+  fUnitTask := aDelivery;
 end;
 
 
@@ -1148,15 +1155,6 @@ begin
   LoadStream.Read(fCondition);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
-  //@Krom: I'm not really happy with assigning invalid pointers. If anyone tries to access fHome before (or without)
-  //       SyncLoad happening then it will be pointing at invalid memory. I found an 'invalid pointer opperation'
-  //       crash caused by this after loading because SyncLoad didn't happen somewhere. I know, that is a bug which
-  //       can be fixed but that's not my point. Assigning integers to object pointers for the sake of saving time/effort
-  //       seems like really bad coding practice.
-  //       Can't we have another variable (of type cardinal or integer) for each pointer which is synced to the pointer on SyncLoad?
-  //       Then if someone accedently accesses the pointer then they will get nil, rather than some random piece of memory.
-  //       I know it will take more memory, code and time but I think it would be cleaner and less ambiguous. (for people reading our code)
-  //       Please let me know what you think, maybe on ICQ some time if you want to discuss it.
   LoadStream.Read(fPosition, 8); //2 floats
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
@@ -1531,12 +1529,6 @@ begin
   begin
     //Diagonal movement             
     PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*1.414);
-
-    //PixelPos := EnsureRange(PixelPos,0,length(SlideLookupDiagonal)-1);
-    //@Lewin:Bug. It gives an error here in TestMission, somehow PixelPos=93 in some few seconds after start. I had to add quickfix - RangeCheck
-    //@Krom: That is caused by a bug in UnitActionGoInOut which means PrevPosition is not updated correctly. I have fixed all of that so it works now.
-    //       I would rather not use ensure range because without it this will detect integrity bugs in PreviousPos which need to be fixed. (i.e. if the distance between previous and next position is more than sqrt(2), like was happening for GoInOut action)
-    //       On a side note: You replaced 58 with length(SlideLookupDiagonal) which is half of that: 29. ;) All to be deleted if you are ok with this.
 
     //The lookup is a mirror, (symmetrical) so after half way we must reverse it
     if PixelPos <= length(SlideLookupDiagonal) then //Use
@@ -2143,7 +2135,7 @@ case fPhase of
     //@Lewin: It's yet incomplete
   7: begin
       //Walk away from tile and continue building from the side
-      SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,canWalk));
+      SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),canWalk));
     end;
   8: begin
       //fTerrain.IncWallState(fLoc);

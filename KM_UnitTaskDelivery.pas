@@ -87,19 +87,30 @@ end;
 
 
 procedure TTaskDeliver.Execute(out TaskDone:boolean);
+var NewDelivery: TUnitTask;
 begin
 TaskDone:=false;
 
 with fUnit do
 case fPhase of
 0: if not fFrom.IsDestroyed then
-      SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
+   begin
+      if not KMSamePoint(fUnit.GetPosition,fFrom.GetEntrance) then
+        SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
+      else
+        SetActionStay(0,ua_Walk); //We might already be in the house
+   end
    else begin
      Abandon;
      TaskDone:=true;
    end;
 1: if not fFrom.IsDestroyed then
-     SetActionGoIn(ua_Walk,gd_GoInside,fFrom)
+   begin
+     if not KMSamePoint(fUnit.GetPosition,fFrom.GetEntrance) then
+       SetActionGoIn(ua_Walk,gd_GoInside,fFrom)
+      else
+        SetActionStay(0,ua_Walk); //We might already be in the house
+   end
    else begin
      Abandon;
      TaskDone:=true;
@@ -150,15 +161,25 @@ if DeliverKind = dk_House then
        TaskDone:=true;
      end;
   7: SetActionStay(5,ua_Walk);
-  //TODO: Serf should look for a new delivery from this building (when possible) rather than walking outside THEN finding a new task
-  //      At the moment serfs often walk out of the storehouse then walk straight back in again. This will help with congestion/blockages/efficiency.
   8: if not fToHouse.IsDestroyed then
      begin
        fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
        TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-       SetActionGoIn(ua_walk,gd_GoOutside,fToHouse);
        fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
        fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
+
+       //Now look for another delivery from inside this house
+       NewDelivery := TKMUnitSerf(fUnit).GetActionFromQueue(fToHouse);
+       if NewDelivery <> nil then
+       begin
+         //Take this new delivery
+         TKMUnitSerf(fUnit).SetNewDelivery(NewDelivery);
+         Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
+         exit;
+       end
+       else //No delivery found then just step outside
+         SetActionGoIn(ua_walk,gd_GoOutside,fToHouse);
+
      end else begin
        PlaceUnitAfterHouseDestroyed; //Unit was invisible while inside. Must show it
        TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
