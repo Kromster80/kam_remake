@@ -50,16 +50,16 @@ procedure TKMPlayerAI.CheckUnitCount();
 var
   i,k:integer;
   UnitType:TUnitType;
-  H:TKMHouse;
+  HS:TKMHouseSchool;
   UnitReq:array[1..HOUSE_COUNT]of integer; //There are only ~10 unit types, but using HOUSE_COUNT is easier
-  Schools:array of TKMHouse;
+  Schools:array of TKMHouseSchool;
 
   function CheckUnitRequirements(Req:integer; aUnitType:TUnitType):boolean;
   begin
     if Assets.GetUnitQty(aUnitType) < (Req+UnitReq[integer(aUnitType)]) then
     begin
       dec(UnitReq[integer(aUnitType)]); //So other schools don't order same unit
-      TKMHouseSchool(H).AddUnitToQueue(aUnitType);
+      HS.AddUnitToQueue(aUnitType);
       Result := true;
     end
     else
@@ -80,20 +80,20 @@ begin
 
   SetLength(Schools,Assets.GetHouseQty(ht_School));
   k := 1;
-  H := Assets.FindHouse(ht_School,k);
-  while H <> nil do
+  HS := TKMHouseSchool(Assets.FindHouse(ht_School,k));
+  while HS <> nil do
   begin
-    Schools[k-1] := H;
-    if (H<>nil)and(H is TKMHouseSchool)and(TKMHouseSchool(H).UnitQueue[1]<>ut_None) then
-      dec(UnitReq[integer(TKMHouseSchool(H).UnitQueue[1])]); //Decrease requirement for each unit in training
+    Schools[k-1] := HS;
+    if HS.UnitQueue[1]<>ut_None then
+      dec(UnitReq[integer(HS.UnitQueue[1])]); //Decrease requirement for each unit in training
     inc(k);
-    H := Assets.FindHouse(ht_School,k);
+    HS := TKMHouseSchool(Assets.FindHouse(ht_School,k));
   end;
 
   for k:=1 to Length(Schools) do
   begin
-    H := Schools[k-1];
-    if (H<>nil)and(H is TKMHouseSchool)and(TKMHouseSchool(H).UnitQueue[1]=ut_None) then
+    HS := Schools[k-1];
+    if (HS<>nil)and(HS.UnitQueue[1]=ut_None) then
     begin
       for i:=1 to length(UnitReq) do
         if UnitReq[i] > Assets.GetUnitQty(TUnitType(i)) then
@@ -102,17 +102,17 @@ begin
           if UnitType <> ut_None then
           begin
             dec(UnitReq[i]); //So other schools don't order same unit
-            TKMHouseSchool(H).AddUnitToQueue(UnitType);
+            HS.AddUnitToQueue(UnitType);
             break; //Don't need more UnitTypes yet
           end;
         end;
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
-      if (TKMHouseSchool(H).UnitQueue[1] = ut_None) then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.GetTotalHouseQty),ut_Serf) then
-          if not CheckUnitRequirements(ReqWorkers,ut_Worker) then
+      if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
+        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.GetTotalHouseQty), ut_Serf) then
+          if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
-              CheckUnitRequirements(ReqRecruits,ut_Recruit);
+              CheckUnitRequirements(ReqRecruits, ut_Recruit);
     end;
   end;
 end;
