@@ -151,7 +151,7 @@ begin
   else
   
   if Assets.PlayerType=pt_Computer then begin
-  CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
+    CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
   
   //CheckArmyHunger; //issue tasks to feed troops
   //CheckHouseCount; //Build new houses if needed

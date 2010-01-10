@@ -98,6 +98,12 @@ end;
 function KMPointRound(P:TKMPointf): TKMPoint;
 begin
   //@Krom: I'm getting an occasional "Range Check Error" here... Is there something we can do to prevent that?
+  Assert((P.X>=0));
+  Assert((P.Y>=0));
+  //@Lewin: RCE mostly happens here if input position is negative. Which it should not be. Means
+  //that somewhere else is a bug. Maybe animal gets off map or something... Is that a repeatable bug?
+  //Autosave will help to check that.
+  //todo: add title to 'Autosave' savegame.
   Result.X := round(P.X);
   Result.Y := round(P.Y);
 end;
