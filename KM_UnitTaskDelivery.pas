@@ -94,23 +94,13 @@ TaskDone:=false;
 with fUnit do
 case fPhase of
 0: if not fFrom.IsDestroyed then
-   begin
-      if not KMSamePoint(fUnit.GetPosition,fFrom.GetEntrance) then
-        SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
-      else
-        SetActionStay(0,ua_Walk); //We might already be in the house
-   end
+     SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
    else begin
      Abandon;
      TaskDone:=true;
    end;
 1: if not fFrom.IsDestroyed then
-   begin
-     if not KMSamePoint(fUnit.GetPosition,fFrom.GetEntrance) then
-       SetActionGoIn(ua_Walk,gd_GoInside,fFrom)
-      else
-        SetActionStay(0,ua_Walk); //We might already be in the house
-   end
+     SetActionGoIn(ua_Walk,gd_GoInside,fFrom)
    else begin
      Abandon;
      TaskDone:=true;
@@ -173,6 +163,7 @@ if DeliverKind = dk_House then
        if NewDelivery <> nil then
        begin
          //Take this new delivery
+         NewDelivery.Phase := 2; //Skip to resource-taking part of the new task @Lewin: please confirm it's ok. To be deleted.
          TKMUnitSerf(fUnit).SetNewDelivery(NewDelivery);
          Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
          exit;
