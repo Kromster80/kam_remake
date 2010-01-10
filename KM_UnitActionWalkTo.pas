@@ -71,7 +71,7 @@ type
       NodePos:integer;
       fRouteBuilt:boolean;
       Explanation:string; //Debug only, explanation what unit is doing
-      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
+      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
@@ -90,7 +90,7 @@ uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitA
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true);
+constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false);
 begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
@@ -110,6 +110,7 @@ begin
     exit; //so we don't need to perform any more processing
 
   fRouteBuilt   := AssembleTheRoute();
+  if aSetPushed then SetPushedValues;
 end;
 
 
@@ -120,12 +121,12 @@ begin
   DoExchange    := false;
   DoesWalking   := false;
   WaitingOnStep := false;
-  fDestBlocked := false;
+  fDestBlocked  := false;
   fLastSideStepNodePos := -2; //Start negitive so it is at least 2 less than NodePos at the start
-  fVertexOccupied  := KMPoint(0,0);
-  fSideStepTesting := KMPoint(0,0);
-  fInteractionCount := 0;
-  fInteractionStatus := kis_None;
+  fVertexOccupied      := KMPoint(0,0);
+  fSideStepTesting     := KMPoint(0,0);
+  fInteractionCount    := 0;
+  fInteractionStatus   := kis_None;
 end;
 
 
@@ -390,8 +391,7 @@ begin
     if HighestInteractionCount >= PUSHED_TIMEOUT then
     begin
       //Try getting out of the way again. After this is run our object no longer exists, so we must exit everything immediately
-      fWalker.SetActionWalk(fWalker, fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),canWalk));
-      TUnitActionWalkTo(fWalker.GetUnitAction).SetPushedValues;
+      fWalker.SetActionWalk(fWalker, fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),canWalk),ua_Walk,true,true);
       Result := true; //Means exit DoUnitInteraction
       exit;
     end;

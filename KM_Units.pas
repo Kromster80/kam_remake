@@ -251,7 +251,7 @@ type
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
-    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
+    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false); overload;
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure Feed(Amount:single);
     procedure AbandonWalk;
@@ -1377,9 +1377,9 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true);
+procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false);
 begin
-  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot),0);
+  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed),0);
 end;
 
 
@@ -2665,12 +2665,17 @@ with fUnit do
     3: //IF resource still exists on location
        if ResourceExists then
        begin //Choose direction and time to work
-         Dir:=integer(WorkPlan.WorkDir+1);
-         if UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
-           for Dir:=1 to 8 do
-             if UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
-         Dir:=min(Dir,8);
-         Direction:=TKMDirection(Dir);
+         //If WorkDir is -1 it means keep direction from walk (i.e. it doesn't matter)
+         if WorkPlan.WorkDir <> -1 then
+         begin
+           Dir:=integer(WorkPlan.WorkDir+1);
+           if UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
+             for Dir:=1 to 8 do
+               if UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
+           Dir:=min(Dir,8);
+           Direction:=TKMDirection(Dir);
+         end
+         else Dir := byte(Direction); //Use direction from walk
          TimeToWork:=WorkPlan.WorkCyc*max(UnitSprite[integer(fUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
          SetActionStay(TimeToWork, WorkPlan.WorkType, false);
        end

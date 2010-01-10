@@ -9,7 +9,7 @@ type
                     ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_Set_Winefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
-                    ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon);
+                    ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter);
 
   TKMMissionDetails = record
     MapPath: string;
@@ -30,7 +30,7 @@ const
     'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
     'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
     'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
-    'ADD_WARE_TO_ALL','ADD_WEAPON');
+    'ADD_WARE_TO_ALL','ADD_WEAPON','SET_AI_CHARACTER');
     //SET_AI_NO_BUILD, SET_AI_START_POSITION, SET_AI_CHARACTER, SET_AI_DEFENSE, ...
 
   MAXPARAMS = 8;
@@ -481,6 +481,18 @@ begin
                          TroopsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]);
                      end;
   //todo: To add:
+  ct_AICharacter:    begin
+                       if fPlayers.Player[CurrentPlayerIndex].PlayerType <> pt_Computer then exit;
+                       //Setup the AI's character
+                       if TextParam = 'RECRUTS' then
+                         fPlayers.PlayerAI[CurrentPlayerIndex].ReqRecruits   := ParamList[1];
+                       if TextParam = 'CONSTRUCTORS' then
+                         fPlayers.PlayerAI[CurrentPlayerIndex].ReqWorkers    := ParamList[1];
+                       if TextParam = 'WORKER_FACTOR' then
+                         fPlayers.PlayerAI[CurrentPlayerIndex].ReqSerfFactor := ParamList[1];
+                       if TextParam = 'RECRUT_COUNT' then
+                         fPlayers.PlayerAI[CurrentPlayerIndex].RecruitTrainTimeout := ParamList[1];
+                     end;
   ct_EnablePlayer:   begin
 
                      end;

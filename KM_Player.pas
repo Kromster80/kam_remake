@@ -53,6 +53,7 @@ type
 
     function GetCanBuild(aType:THouseType):boolean;
     function GetHouseQty(aType:THouseType):integer;
+    function GetTotalHouseQty():integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetHouseCount():integer;
     function GetUnitCount():integer;
@@ -363,6 +364,13 @@ function TKMPlayerAssets.GetHouseQty(aType:THouseType):integer;
 begin
   Result:=fMissionSettings.GetHouseQty(aType);
 end;
+
+
+function TKMPlayerAssets.GetTotalHouseQty():integer;
+begin
+  Result:=fMissionSettings.GetTotalHouseQty;
+end;
+
 
 function TKMPlayerAssets.GetUnitQty(aType:TUnitType):integer;
 begin

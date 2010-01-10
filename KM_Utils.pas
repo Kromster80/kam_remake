@@ -97,6 +97,7 @@ end;
 
 function KMPointRound(P:TKMPointf): TKMPoint;
 begin
+  //@Krom: I'm getting an occasional "Range Check Error" here... Is there something we can do to prevent that?
   Result.X := round(P.X);
   Result.Y := round(P.Y);
 end;

@@ -13,7 +13,7 @@ type
     WalkTo:TUnitActionType;
     WorkType:TUnitActionType;
     WorkCyc:integer;
-    WorkDir:byte;
+    WorkDir:shortint;
     GatheringScript:TGatheringScript;
     AfterWorkDelay:integer;
     WalkFrom:TUnitActionType;
@@ -71,7 +71,7 @@ begin
 end;
 
 procedure TUnitWorkPlan.FindPlan(aUnitType:TUnitType; aHome:THouseType; aProduct:TResourceType; aLoc:TKMPoint);
-  procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:byte=0); overload;
+  procedure WalkStyle(aLoc2:TKMPoint; aTo,aWork:TUnitActionType; aCycles,aDelay:byte; aFrom:TUnitActionType; aScript:TGatheringScript; aWorkDir:shortint=-1); overload;
   begin
     Loc:=aLoc2;
     HasToWalk:=true;
@@ -302,7 +302,7 @@ end else
 if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
   if fTerrain.FindStone(aLoc,RANGE_STONECUTTER).X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Stone);
-    WalkStyle(fTerrain.FindStone(aLoc,RANGE_STONECUTTER),ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter);
+    WalkStyle(fTerrain.FindStone(aLoc,RANGE_STONECUTTER),ua_Walk,ua_Work,8,0,ua_WalkTool,gs_StoneCutter,0);
     SubActAdd(ha_Work1,1);
     SubActAdd(ha_Work2,9);
     SubActAdd(ha_Work5,1);
@@ -319,7 +319,7 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
     //todo: Will need to be improved later to choose the direction based on the direction of approch. For now always cut from the bottom left.
   end else
   if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
-    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant,0)
+    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant)
   else
     fIssued:=false;
 end else

@@ -38,6 +38,7 @@ type
     procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
     procedure StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
     function GetMissionTime:cardinal;
+    function CheckTime(aTimeTicks:cardinal):boolean;
     property GetTickCount:cardinal read GameplayTickCount;
     property GetGameName:string read GameName;
     function GetNewID():cardinal;
@@ -592,6 +593,13 @@ begin
 end;
 
 
+//Tests whether time has past
+function TKMGame.CheckTime(aTimeTicks:cardinal):boolean;
+begin
+  Result := (GameplayTickCount >= aTimeTicks);
+end;
+
+
 function TKMGame.GetNewID():cardinal;
 begin
   inc(ID_Tracker);
@@ -625,7 +633,7 @@ begin
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
       SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt'); //Some 70ms for TPR7 map
       SaveStream.Free;
-      Result := GameName + ' ' + int2time(MyPlayer.fMissionSettings.GetMissionTime);
+      Result := GameName + ' ' + int2time(GetMissionTime);
     end;
   end;
   fLog.AppendLog('Saving game',true);
