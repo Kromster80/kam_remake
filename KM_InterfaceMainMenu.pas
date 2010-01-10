@@ -43,7 +43,6 @@ type TKMMainMenuInterface = class
     Panel_Load:TKMPanel;
       Image_LoadBG:TKMImage;
       Button_Load:array[1..SAVEGAME_COUNT] of TKMButton;
-      Label_LoadResult:TKMLabel;
       Button_LoadBack:TKMButton;
     Panel_MapEd:TKMPanel;
       Image_MapEd_BG:TKMImage;
@@ -355,8 +354,6 @@ begin
       Button_Load[i].Tag := i; //To simplify usage
       Button_Load[i].OnClick := Load_Click;
     end;
-
-    Label_LoadResult := MyControls.AddLabel(Panel_Load,124,130,100,30,'Debug',fnt_Metal,kaLeft); //Debug string
 
     Button_LoadBack := MyControls.AddButton(Panel_Load, 145, 650, 224, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_LoadBack.OnClick := SwitchMenuPage;
@@ -679,7 +676,7 @@ end;
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
 begin
-  Label_LoadResult.Caption := fGame.Load(TKMControl(Sender).Tag);
+  fGame.Load(TKMControl(Sender).Tag);
 end;
 
 
