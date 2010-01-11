@@ -992,7 +992,7 @@ end;
 constructor TKMUnitAnimal.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(fFishCount,1)
+  LoadStream.Read(fFishCount)
 end;
 
 
@@ -1022,7 +1022,7 @@ end;
 procedure TKMUnitAnimal.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  SaveStream.Write(fFishCount,1);
+  SaveStream.Write(fFishCount);
 end;
 
 
@@ -1186,8 +1186,8 @@ begin
   LoadStream.Read(ID);
   LoadStream.Read(AnimStep);
   LoadStream.Read(Direction, SizeOf(Direction));
-  LoadStream.Read(PrevPosition, 4);
-  LoadStream.Read(NextPosition, 4);
+  LoadStream.Read(PrevPosition);
+  LoadStream.Read(NextPosition);
 end;
 
 
@@ -1637,8 +1637,8 @@ begin
   SaveStream.Write(ID);
   SaveStream.Write(AnimStep);
   SaveStream.Write(Direction, SizeOf(Direction));
-  SaveStream.Write(PrevPosition, 4);
-  SaveStream.Write(NextPosition, 4);
+  SaveStream.Write(PrevPosition);
+  SaveStream.Write(NextPosition);
 end;
 
 

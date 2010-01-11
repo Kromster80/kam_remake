@@ -389,7 +389,7 @@ begin
 //public
   LoadStream.Read(HasToWalk);
   LoadStream.Read(Loc);
-  LoadStream.Read(WalkTo, 4);
+  LoadStream.Read(WalkTo, SizeOf(WalkTo));
   LoadStream.Read(WorkType, SizeOf(WorkType));
   LoadStream.Read(WorkCyc);
   LoadStream.Read(WorkDir, SizeOf(WorkDir));
@@ -423,7 +423,7 @@ begin
 //public
   SaveStream.Write(HasToWalk);
   SaveStream.Write(Loc);
-  SaveStream.Write(WalkTo, 4);
+  SaveStream.Write(WalkTo, SizeOf(WalkTo));
   SaveStream.Write(WorkType, SizeOf(WorkType));
   SaveStream.Write(WorkCyc);
   SaveStream.Write(WorkDir, SizeOf(WorkDir));

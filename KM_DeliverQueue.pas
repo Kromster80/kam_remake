@@ -773,7 +773,7 @@ begin
   end;
 
   Count := length(fHousesRepairQueue);
-  SaveStream.Write(Count,4);
+  SaveStream.Write(Count);
   for i:=1 to Count do
   with fHousesRepairQueue[i] do
   begin

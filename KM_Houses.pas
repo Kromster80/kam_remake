@@ -277,7 +277,7 @@ var i:integer; HasAct:boolean;
 begin
   Inherited Create;
   LoadStream.Read(fHouseType, SizeOf(fHouseType));
-  LoadStream.Read(fPosition, 4);
+  LoadStream.Read(fPosition);
   LoadStream.Read(fBuildState, SizeOf(fBuildState));
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fBuildSupplyWood);
@@ -753,7 +753,7 @@ procedure TKMHouse.Save(SaveStream:TKMemoryStream);
 var i:integer; HasAct:boolean;
 begin
   SaveStream.Write(fHouseType, SizeOf(fHouseType));
-  SaveStream.Write(fPosition, 4);
+  SaveStream.Write(fPosition);
   SaveStream.Write(fBuildState, SizeOf(fBuildState));
   SaveStream.Write(fOwner, SizeOf(fOwner));
   SaveStream.Write(fBuildSupplyWood);
