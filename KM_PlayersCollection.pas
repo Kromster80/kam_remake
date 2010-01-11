@@ -12,15 +12,16 @@ type
   private
     fPlayerCount:integer;
   public
-    fMissionMode: TMissionMode; //todo: move to fGame since it's set before fPlayers is init in LoadDAT!
+    fMissionMode: TMissionMode;
     Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
     PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
     PlayerAnimals: TKMPlayerAnimals;
     Selected: TObject;
   public
-    constructor Create(PlayerCount:integer);
+    constructor Create(aPlayerCount:integer);
     destructor Destroy; override;
   public
+    procedure SetPlayerCount(aPlayerCount:integer);
     property PlayerCount:integer read fPlayerCount;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
@@ -47,18 +48,12 @@ uses KM_Terrain;
 
 
 {TKMAllPlayers}
-constructor TKMAllPlayers.Create(PlayerCount:integer);
-var i:integer;
+constructor TKMAllPlayers.Create(aPlayerCount:integer);
 begin
-  fLog.AssertToLog(InRange(PlayerCount,1,MAX_PLAYERS),'PlayerCount exceeded');
-
-  fPlayerCount := PlayerCount; //Used internally
-  for i:=1 to fPlayerCount do begin
-    Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
-    PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
-  end;
+  SetPlayerCount(aPlayerCount);
   PlayerAnimals := TKMPlayerAnimals.Create;
 end;
+
 
 destructor TKMAllPlayers.Destroy;
 var i:integer;
@@ -73,6 +68,24 @@ begin
   Selected := nil;
   Inherited;
 end;
+
+
+procedure TKMAllPlayers.SetPlayerCount(aPlayerCount:integer);
+var i:integer;
+begin
+  fLog.AssertToLog(InRange(PlayerCount,0,MAX_PLAYERS),'PlayerCount exceeded');
+
+  fPlayerCount := aPlayerCount; //Used internally
+  for i:=1 to fPlayerCount do begin
+    if Player[i]   = nil then Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
+    if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
+  end;
+  for i:=fPlayerCount+1 to MAX_PLAYERS do begin
+    FreeAndNil(Player[i]);
+    FreeAndNil(PlayerAI[i]);
+  end;
+end;
+
 
 function TKMAllPlayers.HousesHitTest(X, Y: Integer): TKMHouse;
 var i:integer;
