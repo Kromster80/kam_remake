@@ -1,7 +1,8 @@
 Make sure these are checked:	//Assigned to Krom
 
+	Remove FastMM from 'uses'
 	True/false switches in KM_Defaults
-	Game version string in KM_Defaults
+	Game version string in KM_Defaults (include expected revision # and commit it)
 	Pack EXE file
 	Include OpenAL distributive
 	Test installer and Demo
