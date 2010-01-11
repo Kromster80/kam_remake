@@ -99,7 +99,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_CommonTypes;
+uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_CommonTypes;
 
 
 function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
@@ -343,7 +343,9 @@ function TMissionParser.ProcessCommand(CommandType: TKMCommandType; ParamList: a
 var
   MyStr: string;
   i, MyInt: integer;
-  Storehouse:TKMHouseStore; Barracks: TKMHouseBarracks;
+  Storehouse: TKMHouseStore;
+  Barracks: TKMHouseBarracks;
+  iPlayerAI: TKMPlayerAI;
 begin
   Result:=false; //Set it right from the start
   case CommandType of
@@ -418,60 +420,59 @@ begin
                      end;
                      end;
   ct_SetRoad:        begin
-                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]));
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]));
                      end;
-  ct_SetField:      begin
-                     fPlayers.Player[CurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Corn);
+  ct_SetField:       begin
+                       fPlayers.Player[CurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Corn);
                      end;
   ct_Set_Winefield:  begin
-                     fPlayers.Player[CurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Wine);
+                       fPlayers.Player[CurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Wine);
                      end;
-  ct_SetStock:       begin
-                     //This command basically means: Put a storehouse here with road bellow it
-                     LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0]-1,ParamList[1]));
-                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]+1));
-                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1));
-                     fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1));
+  ct_SetStock:       begin //This command basically means: Put a storehouse here with road bellow it
+                       LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0]-1,ParamList[1]));
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]+1));
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1));
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1));
                      end;
   ct_AddWare:        begin
-                     MyInt:=ParamList[1];
-                     if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
-                     MyInt:=EnsureRange(MyInt,0,MAXWORD); //Sometimes user can define it to be 999999
-                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,1));
-                     if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
-                     end;
-  ct_AddWareToAll:   begin
-                     MyInt:=ParamList[1];
-                     if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
-                     for i:=1 to fPlayers.PlayerCount do
-                     begin
-                       Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
+                       MyInt:=ParamList[1];
+                       if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                       MyInt:=EnsureRange(MyInt,0,MAXWORD); //Sometimes user can define it to be 999999
+                       Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,1));
                        if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
+  ct_AddWareToAll:   begin
+                       MyInt:=ParamList[1];
+                       if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                       for i:=1 to fPlayers.PlayerCount do
+                       begin
+                         Storehouse:=TKMHouseStore(fPlayers.Player[i].FindHouse(ht_Store,1));
+                         if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
+                       end;
                      end;
   ct_AddWareToSecond:begin
-                     MyInt:=ParamList[1];
-                     if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
-                     Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,2));
-                     if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
+                       MyInt:=ParamList[1];
+                       if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum resources
+                       Storehouse:=TKMHouseStore(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Store,2));
+                       if (Storehouse<>nil) and (InRange(ParamList[0]+1,1,28)) then Storehouse.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_AddWeapon:      begin
-                     MyInt:=ParamList[1];
-                     if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum weapons
-                     Barracks:=TKMHouseBarracks(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Barracks,1));
-                     if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then Barracks.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
+                       MyInt:=ParamList[1];
+                       if MyInt = -1 then MyInt:=MAXWORD; //-1 means maximum weapons
+                       Barracks:=TKMHouseBarracks(fPlayers.Player[CurrentPlayerIndex].FindHouse(ht_Barracks,1));
+                       if (Barracks<>nil) and (InRange(ParamList[0]+1,17,27)) then Barracks.AddMultiResource(TResourceType(ParamList[0]+1),MyInt);
                      end;
   ct_BlockHouse:     begin
-                     if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                       fPlayers.Player[CurrentPlayerIndex].fMissionSettings.AllowToBuild[ParamList[0]+1]:=false;
+                       if InRange(ParamList[0],0,HOUSE_COUNT-1) then
+                         fPlayers.Player[CurrentPlayerIndex].fMissionSettings.AllowToBuild[ParamList[0]+1]:=false;
                      end;
   ct_ReleaseHouse:   begin
-                     if InRange(ParamList[0],0,HOUSE_COUNT-1) then
-                       fPlayers.Player[CurrentPlayerIndex].fMissionSettings.BuildReqDone[ParamList[0]+1]:=true;
+                       if InRange(ParamList[0],0,HOUSE_COUNT-1) then
+                         fPlayers.Player[CurrentPlayerIndex].fMissionSettings.BuildReqDone[ParamList[0]+1]:=true;
                      end;
  ct_ReleaseAllHouses:begin
-                     for i:=1 to HOUSE_COUNT do
-                       fPlayers.Player[CurrentPlayerIndex].fMissionSettings.BuildReqDone[i]:=true;
+                       for i:=1 to HOUSE_COUNT do
+                         fPlayers.Player[CurrentPlayerIndex].fMissionSettings.BuildReqDone[i]:=true;
                      end;
   ct_SetGroup:       begin
                        if InRange(ParamList[0],14,23) then //Needs changing to 29 once TPR troops are supported
@@ -483,25 +484,18 @@ begin
                      end;
   ct_AICharacter:    begin
                        if fPlayers.Player[CurrentPlayerIndex].PlayerType <> pt_Computer then exit;
-                       //Setup the AI's character
-                       if TextParam = 'RECRUTS' then
-                         fPlayers.PlayerAI[CurrentPlayerIndex].ReqRecruits   := ParamList[1];
-                       if TextParam = 'CONSTRUCTORS' then
-                         fPlayers.PlayerAI[CurrentPlayerIndex].ReqWorkers    := ParamList[1];
-                       if TextParam = 'WORKER_FACTOR' then
-                         fPlayers.PlayerAI[CurrentPlayerIndex].ReqSerfFactor := ParamList[1];
-                       if TextParam = 'RECRUT_COUNT' then
-                         fPlayers.PlayerAI[CurrentPlayerIndex].RecruitTrainTimeout := ParamList[1];
-                       if TextParam = 'TOWN_DEFENSE' then
-                         fPlayers.PlayerAI[CurrentPlayerIndex].TownDefence := ParamList[1];
-                       if TextParam = 'MAX_SOLDIER' then
-                         fPlayers.PlayerAI[CurrentPlayerIndex].MaxSoldiers := ParamList[1];
-                       if TextParam = 'ATTACK_FACTOR' then
-                         fPlayers.PlayerAI[CurrentPlayerIndex].Aggressiveness := ParamList[1];
-                       if TextParam = 'TROUP_PARAM' then
+                       iPlayerAI := fPlayers.PlayerAI[CurrentPlayerIndex]; //Setup the AI's character
+                       if TextParam = 'RECRUTS'      then iPlayerAI.ReqRecruits         := ParamList[1];
+                       if TextParam = 'CONSTRUCTORS' then iPlayerAI.ReqWorkers          := ParamList[1];
+                       if TextParam = 'WORKER_FACTOR'then iPlayerAI.ReqSerfFactor       := ParamList[1];
+                       if TextParam = 'RECRUT_COUNT' then iPlayerAI.RecruitTrainTimeout := ParamList[1];
+                       if TextParam = 'TOWN_DEFENSE' then iPlayerAI.TownDefence         := ParamList[1];
+                       if TextParam = 'MAX_SOLDIER'  then iPlayerAI.MaxSoldiers         := ParamList[1];
+                       if TextParam = 'ATTACK_FACTOR'then iPlayerAI.Aggressiveness      := ParamList[1];
+                       if TextParam = 'TROUP_PARAM'  then
                        begin
-                         fPlayers.PlayerAI[CurrentPlayerIndex].TroopFormations[TGroupType(ParamList[1]+1)].NumUnits := ParamList[2];
-                         fPlayers.PlayerAI[CurrentPlayerIndex].TroopFormations[TGroupType(ParamList[1]+1)].NumRows  := ParamList[3];
+                         iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].NumUnits := ParamList[2];
+                         iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].NumRows  := ParamList[3];
                        end;
                      end;
   ct_AINoBuild:      begin
