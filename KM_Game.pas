@@ -634,6 +634,8 @@ begin
       SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt'); //Some 70ms for TPR7 map
       SaveStream.Free;
       Result := GameName + ' ' + int2time(GetMissionTime);
+      if (fGameSettings.IsAutosave) and (SlotID = AUTOSAVE_SLOT) then
+        Result := fTextLibrary.GetTextString(203); //Autosave
     end;
   end;
   fLog.AppendLog('Saving game',true);
@@ -710,7 +712,7 @@ begin
 
                     if GameplayTickCount mod 600 = 0 then //Each 1min of gameplay time
                       if fGameSettings.IsAutosave then
-                        Save(10); //Autosave slot
+                        Save(AUTOSAVE_SLOT); //Autosave slot
                   end;
 
                   fGamePlayInterface.UpdateState;

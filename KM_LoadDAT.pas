@@ -9,7 +9,8 @@ type
                     ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
                     ct_SetUnit,ct_SetRoad,ct_SetField,ct_Set_Winefield,ct_SetStock,ct_AddWare,ct_SetAlliance,
                     ct_SetHouseDamage,ct_SetUnitByStock,ct_SetGroup,ct_SetGroupFood,ct_SendGroup,
-                    ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter);
+                    ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
+                    ct_AINoBuild,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
 
   TKMMissionDetails = record
     MapPath: string;
@@ -30,8 +31,8 @@ const
     'ADD_GOAL','ADD_LOST_GOAL','SET_UNIT','SET_STREET','SET_FIELD','SET_WINEFIELD',
     'SET_STOCK','ADD_WARE','SET_ALLIANCE','SET_HOUSE_DAMAGE','SET_UNIT_BY_STOCK',
     'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
-    'ADD_WARE_TO_ALL','ADD_WEAPON','SET_AI_CHARACTER');
-    //SET_AI_NO_BUILD, SET_AI_START_POSITION, SET_AI_CHARACTER, SET_AI_DEFENSE, ...
+    'ADD_WARE_TO_ALL','ADD_WEAPON','SET_AI_CHARACTER','SET_AI_NO_BUILD','SET_AI_START_POSITION',
+    'SET_AI_DEFENSE','SET_AI_ATTACK','COPY_AI_ATTACK');
 
   MAXPARAMS = 8;
   //This is a map of the valid values for !SET_UNIT, and the corrisponing unit that will be created (matches KaM behavior)
@@ -480,7 +481,6 @@ begin
                          fPlayers.Player[CurrentPlayerIndex].AddGroup(
                          TroopsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]);
                      end;
-  //todo: To add:
   ct_AICharacter:    begin
                        if fPlayers.Player[CurrentPlayerIndex].PlayerType <> pt_Computer then exit;
                        //Setup the AI's character
@@ -492,6 +492,33 @@ begin
                          fPlayers.PlayerAI[CurrentPlayerIndex].ReqSerfFactor := ParamList[1];
                        if TextParam = 'RECRUT_COUNT' then
                          fPlayers.PlayerAI[CurrentPlayerIndex].RecruitTrainTimeout := ParamList[1];
+                       if TextParam = 'TOWN_DEFENSE' then
+                         fPlayers.PlayerAI[CurrentPlayerIndex].TownDefence := ParamList[1];
+                       if TextParam = 'MAX_SOLDIER' then
+                         fPlayers.PlayerAI[CurrentPlayerIndex].MaxSoldiers := ParamList[1];
+                       if TextParam = 'ATTACK_FACTOR' then
+                         fPlayers.PlayerAI[CurrentPlayerIndex].Aggressiveness := ParamList[1];
+                       if TextParam = 'TROUP_PARAM' then
+                       begin
+                         fPlayers.PlayerAI[CurrentPlayerIndex].TroopFormations[TGroupType(ParamList[1]+1)].NumUnits := ParamList[2];
+                         fPlayers.PlayerAI[CurrentPlayerIndex].TroopFormations[TGroupType(ParamList[1]+1)].NumRows  := ParamList[3];
+                       end;
+                     end;
+  ct_AINoBuild:      begin
+                       fPlayers.PlayerAI[CurrentPlayerIndex].Autobuild := false;
+                     end;
+  ct_AIStartPosition:begin
+                       fPlayers.PlayerAI[CurrentPlayerIndex].StartPosition := KMPoint(ParamList[0],ParamList[1]);
+                     end;
+  //todo: To add:
+  ct_AIDefence:      begin
+
+                     end;
+  ct_AIAttack:       begin
+
+                     end;
+  ct_CopyAIAttack:   begin
+
                      end;
   ct_EnablePlayer:   begin
 

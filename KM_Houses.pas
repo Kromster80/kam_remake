@@ -221,7 +221,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game, KM_LoadLib, KM_UnitActionStay;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game, KM_LoadLib, KM_UnitActionStay, KM_Player;
 
 
 { TKMHouse }
@@ -456,7 +456,7 @@ procedure TKMHouse.AddDamage(aAmount:word);
 begin
   fDamage:= fDamage + aAmount;
   if (BuildingRepair)and(fRepairID=0) then
-    fRepairID:=MyPlayer.BuildList.AddHouseRepair(Self);
+    fRepairID:=fPlayers.Player[integer(fOwner)].BuildList.AddHouseRepair(Self);
   UpdateDamage();
 end;
 
@@ -466,7 +466,7 @@ procedure TKMHouse.AddRepair(aAmount:word=5);
 begin
   fDamage:= EnsureRange(fDamage - aAmount,0,maxword);
   if (fDamage=0)and(fRepairID<>0) then begin
-    MyPlayer.BuildList.CloseHouseRepair(fRepairID);
+    fPlayers.Player[integer(fOwner)].BuildList.CloseHouseRepair(fRepairID);
     fRepairID:=0;
   end;
   UpdateDamage();
@@ -785,11 +785,19 @@ end;
 
 
 procedure TKMHouse.UpdateState;
-var i: byte;
+var i: byte; PrevRepairMode: boolean;
 begin
   if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
 
   if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
+
+  //For AI, individual house switch does matter, there is a master switch
+  if (fPlayers.Player[integer(fOwner)].PlayerType = pt_Computer) then
+  begin
+    PrevRepairMode := fBuildingRepair;
+    fBuildingRepair := fPlayers.PlayerAI[integer(fOwner)].GetHouseRepair;
+    if PrevRepairMode <> fBuildingRepair then AddDamage(0); //So repair job is requested
+  end;
 
   //@Krom: This is probably quite inefficient for UpdateState. What's your opinion? Should we only do this when they modify the distribution settings?
   //Request more resources (if distribution of wares has changed)

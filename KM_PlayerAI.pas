@@ -2,7 +2,6 @@ unit KM_PlayerAI;
 interface
 uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils;
 
-
 type
   TKMPlayerAI = class
   private
@@ -10,10 +9,17 @@ type
   public
     ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Nunber of each unit type required
     RecruitTrainTimeout: longword; //Recruits (for barracks) can only be trained after this many ticks
+    TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not use or default
+    StartPosition: TKMPoint; //Defines roughly where to defend and build around
+    Autobuild:boolean;
+    TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
+                                            NumUnits, NumRows:integer;
+                                          end;
     constructor Create(aAssets:TKMPlayerAssets);
     procedure CheckDefeatConditions();
     procedure CheckUnitCount();
   public
+    function GetHouseRepair:boolean; //Do we automatically repair all houses?
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
@@ -27,11 +33,17 @@ constructor TKMPlayerAI.Create(aAssets:TKMPlayerAssets);
 begin
   Inherited Create;
   Assets := aAssets;
-  //Set some defaults (these are not measure from KaM)
+  //Set some defaults (these are not measured from KaM)
   ReqWorkers := 3;
-  ReqRecruits := 10; //This means the number in the barracks, watchtowers are counted seperately
-  ReqSerfFactor := 5; //Means 2 serfs per building
+  ReqRecruits := 5; //This means the number in the barracks, watchtowers are counted seperately
+  ReqSerfFactor := 10; //Means 1 serf per building
   RecruitTrainTimeout := 0; //Can train at start
+  Autobuild := true; //In KaM it is on by default, and most missions turn it off
+  StartPosition := KMPoint(0,0);
+  MaxSoldiers := high(MaxSoldiers); //No limit by default
+  TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
+  Aggressiveness := 100; //No idea what the default for this is, it's barely used
+  FillChar(TroopFormations,SizeOf(TroopFormations),#0); //Leave format unchanged unless set by the mission file
 end;
 
 
@@ -67,8 +79,6 @@ var
   end;
 begin
   //Find school and make sure it's free of tasks
-
-  UnitType := ut_None;
   FillChar(UnitReq,SizeOf(UnitReq),#0); //Clear up
 
   //Citizens
@@ -118,12 +128,27 @@ begin
 end;
 
 
+function TKMPlayerAI.GetHouseRepair:boolean;
+begin
+  //Do we automatically repair all houses?
+  //For now use Autobuild, which is what KaM does. Later we can add a script command to turn this on and off
+  //Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
+  Result := Autobuild;
+end;
+
+
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write(ReqWorkers);
   SaveStream.Write(ReqSerfFactor);
   SaveStream.Write(ReqRecruits);
   SaveStream.Write(RecruitTrainTimeout,4);
+  SaveStream.Write(TownDefence);
+  SaveStream.Write(MaxSoldiers);
+  SaveStream.Write(Aggressiveness);
+  SaveStream.Write(StartPosition);
+  SaveStream.Write(Autobuild);
+  SaveStream.Write(TroopFormations,SizeOf(TroopFormations));
 end;
 
 
@@ -133,6 +158,12 @@ begin
   LoadStream.Read(ReqSerfFactor);
   LoadStream.Read(ReqRecruits);
   LoadStream.Read(RecruitTrainTimeout,4);
+  LoadStream.Read(TownDefence);
+  LoadStream.Read(MaxSoldiers);
+  LoadStream.Read(Aggressiveness);
+  LoadStream.Read(StartPosition);
+  LoadStream.Read(Autobuild);
+  LoadStream.Read(TroopFormations,SizeOf(TroopFormations));
 end;
 
 

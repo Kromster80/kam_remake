@@ -262,6 +262,8 @@ procedure TKMGamePlayInterface.SaveGame(Sender: TObject);
 var savename:string;
 begin
   if not (Sender is TKMButton) then exit; //Just in case
+  //Don't allow saving over autosave (AUTOSAVE_SLOT)
+  if (TKMControl(Sender).Tag = AUTOSAVE_SLOT) and fGame.fGameSettings.IsAutosave then exit;
 
   savename := fGame.Save(TKMControl(Sender).Tag);
 
@@ -1605,9 +1607,15 @@ begin
       end
       else
         if Sender = Button_Menu_Save then
-          Button_Save[i].Caption := 'Empty'
+          Button_Save[i].Caption := fTextLibrary.GetTextString(202)
         else
-          Button_Load[i].Caption := 'Empty';
+          Button_Load[i].Caption := fTextLibrary.GetTextString(202);
+
+    if fGame.fGameSettings.IsAutosave then
+      if Sender = Button_Menu_Save then
+        Button_Save[AUTOSAVE_SLOT].Caption := fTextLibrary.GetTextString(203)
+      else
+        Button_Load[AUTOSAVE_SLOT].Caption := fTextLibrary.GetTextString(203);
   finally
     FreeAndNil(SaveTitles);
     SwitchPage(Sender);

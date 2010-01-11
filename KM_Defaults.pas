@@ -78,6 +78,7 @@ const
   HOUSE_COUNT = 29;       //Number of KaM houses is 29
   MAX_PLAYERS = 8;        //Maximum players per map
   SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
+  AUTOSAVE_SLOT = 10;     //Slot ID used for autosaving
 
   //Here we store options that are hidden somewhere in code
   MAX_WARFARE_IN_BARRACKS = 20;
@@ -254,12 +255,36 @@ type
     ut_Militia=15,      ut_AxeFighter=16,   ut_Swordsman=17,    ut_Bowman=18,
     ut_Arbaletman=19,   ut_Pikeman=20,      ut_Hallebardman=21, ut_HorseScout=22,
     ut_Cavalry=23,      ut_Barbarian=24,
-    
+
     //ut_Peasant=25,    ut_Slingshot=26,    ut_MetalBarbarian=27,ut_Horseman=28,
     //ut_Catapult=29,   ut_Ballista=30,
 
     ut_Wolf=31,         ut_Fish=32,         ut_Watersnake=33,   ut_Seastar=34,
     ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38);
+
+
+//Used for AI defence and linking troops
+type TGroupType = (gt_None=0,gt_Melee,gt_AntiHorse,gt_Ranged,gt_Mounted);
+
+const UnitGroups: array[TUnitType] of TGroupType = (
+    //Villagers
+    gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,
+    gt_None,gt_None,gt_None,gt_None,gt_None,gt_None, //ut_None..ut_Recruit
+    //Army
+    gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
+    gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
+    gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
+    gt_Mounted,gt_Mounted,      //ut_HorseScout, ut_Cavalry,
+    gt_Melee,                   //ut_Barbarian
+    //TPR Army
+    gt_AntiHorse,        //ut_Peasant
+    gt_Ranged,           //ut_Slingshot
+    gt_Melee,            //ut_MetalBarbarian
+    gt_Mounted,          //ut_Horseman
+    gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,
+    //Animals
+    gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None);
+
 
 //Defines which animal prefers which terrain
 const AnimalTerrain: array[31..38] of TPassability = (

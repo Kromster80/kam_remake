@@ -163,7 +163,7 @@ if DeliverKind = dk_House then
        if NewDelivery <> nil then
        begin
          //Take this new delivery
-         NewDelivery.Phase := 2; //Skip to resource-taking part of the new task @Lewin: please confirm it's ok. To be deleted.
+         NewDelivery.Phase := 2; //Skip to resource-taking part of the new task
          TKMUnitSerf(fUnit).SetNewDelivery(NewDelivery);
          Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
          exit;

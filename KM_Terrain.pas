@@ -1745,20 +1745,28 @@ end;
 
 
 procedure TTerrain.Save(SaveStream:TKMemoryStream);
-var i,k:integer; TileSize:integer;
+var i,k:integer;
 begin
   SaveStream.Write('Terrain');
   SaveStream.Write(MapX);
   SaveStream.Write(MapY);
 
-  //Write down tile size
-  //it should be compared versus tile size on loading, if they are different,
-  //then mapformat has changed and savegame will be "unsupported"
-  TileSize := SizeOf(Land[i,k]);
-  SaveStream.Write(TileSize);
-
   for i:=1 to MapY do for k:=1 to MapX do
-    SaveStream.Write(Land[i,k].Terrain, TileSize); //todo: don't write all the fields, exclude maped and deduced
+  begin
+    //Only save fields that cannot be recalculated after loading
+    SaveStream.Write(Land[i,k].Terrain);
+    SaveStream.Write(Land[i,k].Height);
+    SaveStream.Write(Land[i,k].Rotation);
+    SaveStream.Write(Land[i,k].Obj);
+    SaveStream.Write(Land[i,k].TreeAge);
+    SaveStream.Write(Land[i,k].FieldAge);
+    SaveStream.Write(Land[i,k].Markup,SizeOf(Land[i,k].Markup));
+    SaveStream.Write(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
+    SaveStream.Write(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
+    SaveStream.Write(Land[i,k].IsUnit);
+    SaveStream.Write(Land[i,k].IsVertexUnit);
+    SaveStream.Write(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
+  end;
 
   FallingTrees.Save(SaveStream);
 
@@ -1767,17 +1775,30 @@ end;
 
 
 procedure TTerrain.Load(LoadStream:TKMemoryStream);
-var i,k:integer; TileSize:integer; s:string;
+var i,k:integer; s:string;
 begin
   LoadStream.Read(s); if s<>'Terrain' then exit;
   LoadStream.Read(MapX);
   LoadStream.Read(MapY);
 
-  LoadStream.Read(TileSize);
-  if TileSize <> SizeOf(Land[i,k]) then Assert(false, 'Wrong SizeOf Tile in TTerrain '+inttostr(SizeOf(Land[i,k]))+' instead of '+inttostr(TileSize));
+  for i:=1 to MapY do for k:=1 to MapX do
+  begin
+    LoadStream.Read(Land[i,k].Terrain);
+    LoadStream.Read(Land[i,k].Height);
+    LoadStream.Read(Land[i,k].Rotation);
+    LoadStream.Read(Land[i,k].Obj);
+    LoadStream.Read(Land[i,k].TreeAge);
+    LoadStream.Read(Land[i,k].FieldAge);
+    LoadStream.Read(Land[i,k].Markup,SizeOf(Land[i,k].Markup));
+    LoadStream.Read(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
+    LoadStream.Read(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
+    LoadStream.Read(Land[i,k].IsUnit);
+    LoadStream.Read(Land[i,k].IsVertexUnit);
+    LoadStream.Read(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
+  end;
 
   for i:=1 to MapY do for k:=1 to MapX do
-    LoadStream.Read(Land[i,k].Terrain, TileSize);
+    UpdateBorders(KMPoint(k,i),false);
 
   FallingTrees.Load(LoadStream);
   LoadStream.Read(AnimStep);
@@ -1785,6 +1806,7 @@ begin
   RebuildLighting(1, MapX, 1, MapY);
   RebuildPassability(1, MapX, 1, MapY);
   RebuildWalkConnect(canWalk);
+  RebuildWalkConnect(canWalkRoad);
   RebuildWalkConnect(canFish);
   fLog.AppendLog('Terrain loaded');
 end;

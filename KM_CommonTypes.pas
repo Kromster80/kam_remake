@@ -20,6 +20,7 @@ type
     function Write(const Value:byte): Longint; reintroduce; overload;
     function Write(const Value:boolean): Longint; reintroduce; overload;
     function Write(const Value:word): Longint; reintroduce; overload;
+    function Write(const Value:shortint): Longint; reintroduce; overload;
     procedure Read(var Value:string); reintroduce; overload;
     function Read(var Value:TKMPoint): Longint; reintroduce; overload;
     function Read(var Value:single): Longint; reintroduce; overload;
@@ -27,6 +28,7 @@ type
     function Read(var Value:byte): Longint; reintroduce; overload;
     function Read(var Value:boolean): Longint; reintroduce; overload;
     function Read(var Value:word): Longint; reintroduce; overload;
+    function Read(var Value:shortint): Longint; reintroduce; overload;
   end;
 
 {Messages}
@@ -239,6 +241,8 @@ function TKMemoryStream.Write(const Value:boolean): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:word): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
+function TKMemoryStream.Write(const Value:shortint): Longint;
+begin Result := Inherited Write(Value, SizeOf(Value)); end;
 
 
 procedure TKMemoryStream.Read(var Value:string);
@@ -260,6 +264,8 @@ begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(var Value:boolean): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(var Value:word): Longint;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
+function TKMemoryStream.Read(var Value:shortint): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
 
 

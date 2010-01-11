@@ -50,7 +50,7 @@ type TKMMainMenuInterface = class
       CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZE_COUNT] of TKMCheckBox;
       Button_MapEd_Start,Button_MapEdBack:TKMButton;
     Panel_Options:TKMPanel;
-      Image_Options_BG:TKMImage;
+      Image_Options_BG, Image_Options_RightCrest:TKMImage;
       Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
       Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
       Button_Options_MusicOn,Button_Options_Back:TKMButton;
@@ -66,7 +66,7 @@ type TKMMainMenuInterface = class
       Label_Credits:TKMLabel;
       Button_CreditsBack:TKMButton;
     Panel_Loading:TKMPanel;
-      Image_LoadingBG:TKMImage;
+      Image_LoadingBG, Image_Loading_RightCrest:TKMImage;
       Label_Loading:TKMLabel;
     Panel_Error:TKMPanel;
       Image_ErrorBG:TKMImage;
@@ -347,10 +347,12 @@ begin
   Panel_Load:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_LoadBG:=MyControls.AddImage(Panel_Load,0,0,ScreenX,ScreenY,2,6);
     Image_LoadBG.FillArea;
+    Image_Loading_RightCrest:=MyControls.AddImage(Panel_Load,635,220,round(207*1.3),round(295*1.3),6,6);
+    Image_Loading_RightCrest.FillArea;
 
     for i:=1 to SAVEGAME_COUNT do
     begin
-      Button_Load[i] := MyControls.AddButton(Panel_Load,100,100+i*40,180,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
+      Button_Load[i] := MyControls.AddButton(Panel_Load,147,110+i*40,220,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
       Button_Load[i].Tag := i; //To simplify usage
       Button_Load[i].OnClick := Load_Click;
     end;
@@ -393,6 +395,8 @@ begin
   Panel_Options:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_Options_BG:=MyControls.AddImage(Panel_Options,0,0,ScreenX,ScreenY,2,6);
     Image_Options_BG.FillArea;
+    Image_Options_RightCrest:=MyControls.AddImage(Panel_Options,635,220,round(207*1.3),round(295*1.3),6,6);
+    Image_Options_RightCrest.FillArea;
 
     Label_Options_MouseSpeed:=MyControls.AddLabel(Panel_Options,124,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
     Label_Options_MouseSpeed.Disable;
@@ -691,7 +695,10 @@ begin
     for i:=1 to SAVEGAME_COUNT do
       if i <= SaveTitles.Count then
         Button_Load[i].Caption := SaveTitles.Strings[i-1]
-      else Button_Load[i].Caption := 'Empty';
+      else Button_Load[i].Caption := fTextLibrary.GetTextString(202);
+
+    if fGame.fGameSettings.IsAutosave then
+      Button_Load[AUTOSAVE_SLOT].Caption := fTextLibrary.GetTextString(203);
   finally
     FreeAndNil(SaveTitles);
   end;

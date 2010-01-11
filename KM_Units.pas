@@ -335,9 +335,10 @@ type
   private
     fFlagAnim:cardinal;
     fOrder:TWarriorOrder;
-    fOrderLoc:TKMPoint;
+    fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fUnitsPerRow:integer;
-    fMembers:TList;
+    fGroupDir:TKMDirection; //Direction the group is facing, used only by commander
+    fMembers:TList; //todo: save
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -347,7 +348,8 @@ type
     procedure KillUnit; override;
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure AddMember(aWarrior:TKMUnitWarrior);
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint); reintroduce; overload;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -810,9 +812,9 @@ begin
   fCommander    := nil;
   fFlagAnim     := 0;
   fOrder        := wo_Stop;
-  fOrderLoc     := KMPoint(0,0);
+  fOrderLoc     := KMPointDir(0,0,0);
   fUnitsPerRow  := 1;
-  fMembers       := nil; //Only commander units will have it initialized
+  fMembers      := nil; //Only commander units will have it initialized
 end;
 
 
@@ -822,7 +824,8 @@ begin
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fFlagAnim, 4);
   LoadStream.Read(fOrder, SizeOf(fOrder));
-  LoadStream.Read(fOrderLoc);
+  LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
+  LoadStream.Read(fUnitsPerRow);
 end;
 
 
@@ -866,21 +869,40 @@ end;
 
 
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
-var i,px,py:integer; NewLoc:TKMPoint;
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir);
+var i,px,py:integer; NewLoc:TKMPoint; PassedCommander: boolean;
 begin
   fOrder    := aWarriorOrder;
   fOrderLoc := aLoc;
+  fGroupDir := TKMDirection(aLoc.Dir+1);
+  PassedCommander := false;
 
   if (fMembers <> nil)and(fCommander=nil) then //Don't give group orders if unit has no crew
-  for i:=1 to fMembers.Count do
+  for i:=1 to fMembers.Count+1 do
   begin
     px:=(i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
     py:=(i-1) div fUnitsPerRow;
 
-    NewLoc := GetPositionInGroup(aLoc.X, aLoc.Y, dir_S, px, py);
-    TKMUnitWarrior(fMembers.Items[i-1]).PlaceOrder(aWarriorOrder, NewLoc);
+    if KMSamePoint(aLoc.Loc,GetPositionInGroup(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1), px, py)) then
+    begin
+      //Skip commander
+      PassedCommander := true;
+    end
+    else
+    begin
+      NewLoc := GetPositionInGroup(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1), px, py);
+      if not PassedCommander then //Compensate for the fact that i will now be +1 due to commander being skipped
+        TKMUnitWarrior(fMembers.Items[i-1]).PlaceOrder(aWarriorOrder, KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir))
+      else
+        TKMUnitWarrior(fMembers.Items[i-2]).PlaceOrder(aWarriorOrder, KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir));
+    end;
   end;
+end;
+
+
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
+begin
+  PlaceOrder(aWarriorOrder,KMPointDir(aLoc.X,aLoc.Y,Byte(fGroupDir)-1));
 end;
 
 
@@ -893,7 +915,8 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
   SaveStream.Write(fOrder, SizeOf(fOrder));
-  SaveStream.Write(fOrderLoc);
+  SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
+  SaveStream.Write(fUnitsPerRow);
 end;
 
 
@@ -925,7 +948,7 @@ begin
     AbandonWalk; //If we are already walking then cancel it to make way for new command
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
-    SetActionWalk(Self,fOrderLoc);
+    SetActionWalk(Self,KMPoint(fOrderLoc));
     fOrder:=wo_Stop;
   end;
 
@@ -3247,6 +3270,7 @@ begin
 
   //Add commander first
   Commander := TKMUnitWarrior(Add(aOwner, aUnitType, PosX, PosY));
+  Commander.fGroupDir := aDir;
   Result := Commander;
 
   if Commander=nil then exit; //Don't add group without a commander

@@ -103,7 +103,7 @@ begin
   //@Lewin: RCE mostly happens here if input position is negative. Which it should not be. Means
   //that somewhere else is a bug. Maybe animal gets off map or something... Is that a repeatable bug?
   //Autosave will help to check that.
-  //todo: add title to 'Autosave' savegame.
+  //@Krom: No, it's not repeatable, I had it happen in TPR7 a few times... I'll investigate it.
   Result.X := round(P.X);
   Result.Y := round(P.Y);
 end;
