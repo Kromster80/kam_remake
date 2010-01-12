@@ -1,9 +1,11 @@
 unit KM_Viewport;
 interface
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils, OpenGL, KM_Utils, KM_CommonTypes;
+uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils,
+  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF FPC} GL, {$ENDIF}
+  KM_Utils, KM_CommonTypes;
 
 type
-
 { Here should be viewport routines }
 TViewport = class
   private
@@ -81,10 +83,10 @@ end;
 //TestViewportClipInset is for debug, allows to see if all gets clipped well
 function TViewport.GetClip():TRect;
 begin
-  Result.Left  :=max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom),1);
-  Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
-  Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
-  Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
+  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom),1);
+  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
+  Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
+  Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
   if not TestViewportClipInset then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);
@@ -95,10 +97,10 @@ end;
 //Same as above function but with some values changed to suit minimap
 function TViewport.GetMinimapClip():TRect;
 begin
-  Result.Left  :=max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,1);
-  Result.Right :=min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
-  Result.Top   :=max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+2,1);
-  Result.Bottom:=min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom),fTerrain.MapY);
+  Result.Left  :=Math.max(round(XCoord-(ViewWidth/2-ViewRect.Left+ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,1);
+  Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
+  Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+2,1);
+  Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom),fTerrain.MapY);
   if not TestViewportClipInset then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);

@@ -1,8 +1,7 @@
 unit ColorPicker;
-
 interface
-
 uses
+  {$IFDEF FPC} LResources, {$ENDIF}
   SysUtils, Classes, Graphics, Forms, Spin, StdCtrls, ExtCtrls, Controls, Math, KromUtils;
 
 type
@@ -67,9 +66,9 @@ var
   HSBRefresh:boolean;
 
 implementation
-
-
+{$IFDEF VER140}
 {$R *.dfm}
+{$ENDIF}
 
 procedure TForm_ColorPicker.FormShow(Sender: TObject);
 begin
@@ -113,6 +112,8 @@ end;
 procedure TForm_ColorPicker.DrawHueSatQuad();
 var P : PByteArray; R,G,B:integer; ii,kk:integer;
 begin //Fill area with Hue and Saturation data respecting Brightness
+//todo: convert to Lazarus
+{$IFDEF VER140}
 for ii:=0 to 255 do begin
 P:=BitmapHueSat.ScanLine[ii];
 for kk:=0 to 359 do begin
@@ -124,6 +125,7 @@ P[kk*3+1]:=G;
 P[kk*3+2]:=R;
 end;
 end;
+{$ENDIF}
 HSImage.Canvas.Draw(0,0,BitmapHueSat);
 end;
 
@@ -344,5 +346,10 @@ begin
   BitmapHueSat.Free;
   BitmapBri.Free;
 end;
+
+{$IFDEF FPC}
+initialization
+{$I ColorPicker.lrs}
+{$ENDIF}
 
 end.

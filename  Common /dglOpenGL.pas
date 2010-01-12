@@ -450,11 +450,11 @@ type
   HGPUNV = THandle;
 
 
-{$IFDEF FPC}
-  TRect = packed record
-    Left, Top, Right, Bottom: Longint;
-  end;
-{$ENDIF}
+//{$IFDEF FPC}
+//  TRect = packed record
+//    Left, Top, Right, Bottom: Longint;
+//  end;
+//{$ENDIF}
 
 
   PGPU_DEVICE = ^GPU_DEVICE;
@@ -12358,7 +12358,7 @@ begin
   glGetMultisamplefvNV := dglGetProcAddress('glGetMultisamplefvNV');
   glSampleMaskIndexedNV := dglGetProcAddress('glSampleMaskIndexedNV');
   glTexRenderbufferNV := dglGetProcAddress('glTexRenderbufferNV');
-end;
+end;
 
 procedure Read_GL_NV_transform_feedback2;
 begin
@@ -12369,7 +12369,7 @@ begin
   glPauseTransformFeedbackNV := dglGetProcAddress('glPauseTransformFeedbackNV');
   glResumeTransformFeedbackNV := dglGetProcAddress('glResumeTransformFeedbackNV');
   glDrawTransformFeedbackNV := dglGetProcAddress('glDrawTransformFeedbackNV');
-end;
+end;
 
 procedure Read_GL_PGI_misc_hints;
 begin

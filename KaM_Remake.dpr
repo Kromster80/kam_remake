@@ -1,5 +1,9 @@
 program KaM_Remake;
 
+{$IFDEF FPC}
+  {$Mode Delphi}
+{$ENDIF}
+
 uses
 //  FastMM4,
   Forms,
@@ -7,7 +11,7 @@ uses
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
   ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
-  ZLibEx in ' Common \ZLIBEX.PAS',
+  {$IFDEF VER140} ZLibEx in ' Common \ZLIBEX.PAS', {$ENDIF}
   KM_Defaults in 'KM_Defaults.pas',
   KM_Render in 'KM_Render.pas',
   KM_ResourceGFX in 'KM_ResourceGFX.pas',
@@ -39,8 +43,11 @@ uses
   KM_UnitActionStay in 'KM_UnitActionStay.pas',
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas';
 
+
+{$IFDEF VER140}
 {$R *.RES}
-{}
+{$ENDIF}
+
 
 begin
   Application.Initialize;

@@ -59,7 +59,7 @@ begin
   InsetY:=3/SizeY; //3px
 
   glPushMatrix;
-    glTranslate(PosX,PosY,0);
+    glTranslatef(PosX,PosY,0);
 
     {//Thin black outline outside the button
     //I know, but it's the first thing I'll do when we reach TSK status - add this thin outline, it make buttons look much nicer ;-)
@@ -88,7 +88,7 @@ begin
       end else begin
         c1:=1; c2:=0;
       end;
-      glScale(SizeX,SizeY,0);
+      glScalef(SizeX,SizeY,0);
       glBegin (GL_QUADS);
         glColor4f(c1,c1,c1,0.7); glkQuad(0, 0, 1,        0,        1-InsetX, 0+InsetY, 0+InsetX, 0+InsetY);
         glColor4f(c1,c1,c1,0.6); glkQuad(0, 0, 0+InsetX, 0+InsetY, 0+InsetX, 1-InsetY, 0,        1       );
@@ -129,7 +129,7 @@ end;
 procedure TRenderUI.WriteFlatButton(PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; Caption:string; State:TFlatButtonStateSet);
 begin
   glPushMatrix;
-    glTranslate(PosX,PosY,0);
+    glTranslatef(PosX,PosY,0);
 
     //Background
     glColor4f(0,0,0,0.5);
@@ -193,7 +193,7 @@ end;
 procedure TRenderUI.WriteBevel(PosX,PosY,SizeX,SizeY:smallint; const HalfContrast:boolean=false);
 begin
   glPushMatrix;
-    glTranslate(PosX,PosY,0);
+    glTranslatef(PosX,PosY,0);
 
     //Background
     glColor4f(0,0,0,0.5);
@@ -225,7 +225,7 @@ const BarColor:TColor4=$FF00AA26;
 var BarWidth:word;
 begin
   glPushMatrix;
-    glTranslate(PosX,PosY,0);
+    glTranslatef(PosX,PosY,0);
 
     //Background
     glColor4f(0,0,0,0.5);
@@ -281,7 +281,7 @@ begin
     glBindTexture(GL_TEXTURE_2D,TexID);
     glPushMatrix;
       glkMoveAALines(false);
-      glTranslate(PosX,PosY,0);
+      glTranslatef(PosX,PosY,0);
       if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
       glBegin(GL_QUADS);
         glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
@@ -318,7 +318,7 @@ begin
     glBindTexture(GL_TEXTURE_2D,TexID);
     glPushMatrix;
       glkMoveAALines(false);
-      glTranslate(PosX,PosY,0);
+      glTranslatef(PosX,PosY,0);
       if Enabled then glColor4f(1,1,1,1) else glColor4f(0.33,0.33,0.33,1);
       glBegin(GL_QUADS);
         glTexCoord2f(u1,v1); glVertex2f(0       ,0      );
@@ -401,18 +401,18 @@ begin
   for i:=1 to length(Text) do begin
     if Text[i]<>#124 then begin
       Result.X := Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
-      Result.Y := max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
+      Result.Y := Math.max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
       inc(LineCount);
       Assert(LineCount <= Length(LineWidth), 'Line count exceeded');
-      LineWidth[LineCount]:=max(0,Result.X-InterLetter); //Remove last interletter space and negate double EOLs
+      LineWidth[LineCount]:=Math.max(0,Result.X-InterLetter); //Remove last interletter space and negate double EOLs
       Result.X := 0;
     end;
   end;
 
   for i:=1 to LineCount do
-    Result.X := max(Result.X,LineWidth[i]);
+    Result.X := Math.max(Result.X,LineWidth[i]);
 
   AdvX := 0;
   LineCount := 1;
@@ -420,9 +420,9 @@ begin
   glPushMatrix;
     glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
     glkMoveAALines(false);
-    if Align=kaLeft   then glTranslate(PosX,                  PosY, 0);
-    if Align=kaCenter then glTranslate(PosX-(Result.X div 2), PosY, 0);
-    if Align=kaRight  then glTranslate(PosX-Result.X,         PosY, 0);
+    if Align=kaLeft   then glTranslatef(PosX,                  PosY, 0);
+    if Align=kaCenter then glTranslatef(PosX-(Result.X div 2), PosY, 0);
+    if Align=kaRight  then glTranslatef(PosX-Result.X,         PosY, 0);
     glColor4ubv(@Color);
     glBegin(GL_QUADS);
       for i:=1 to length(Text) do
@@ -432,9 +432,9 @@ begin
       if Text[i]=#124 then begin
         glEnd;
         inc(LineCount);
-        if Align=kaLeft   then glTranslate(0, Result.Y, 0); //Negate previous line length
-        if Align=kaCenter then glTranslate(-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, Result.Y, 0);
-        if Align=kaRight  then glTranslate(-LineWidth[LineCount]+LineWidth[LineCount-1], Result.Y, 0);
+        if Align=kaLeft   then glTranslatef(0, Result.Y, 0); //Negate previous line length
+        if Align=kaCenter then glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, Result.Y, 0);
+        if Align=kaRight  then glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], Result.Y, 0);
         AdvX:=0;
         glBegin(GL_QUADS);
       end else begin
@@ -459,7 +459,7 @@ begin
   glPushMatrix;
 
     Scale:=1;//min(SizeX/MapX,SizeY/MapY);
-    glTranslate(PosX + round((SizeX-fTerrain.MapX*Scale)/2), PosY + round((SizeY-fTerrain.MapY*Scale)/2),0);
+    glTranslatef(PosX + round((SizeX-fTerrain.MapX*Scale)/2), PosY + round((SizeY-fTerrain.MapY*Scale)/2),0);
     glkScale(Scale);
     glPointSize(ceil(Scale));
 

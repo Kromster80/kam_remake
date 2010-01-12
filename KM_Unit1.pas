@@ -5,11 +5,13 @@ uses
   ExtCtrls, ComCtrls, Menus, Buttons, Messages,
   Math, SysUtils, KromUtils,
   {$IFDEF VER140} OpenGL, {$ENDIF}
-  {$IFDEF FPC} GL, {$ENDIF}
+  {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, MMSystem,
   KM_Render, KM_RenderUI, KM_ResourceGFX, KM_Defaults, KM_Form_Loading, KM_Terrain,
   KM_Game, KM_Units, KM_Houses, KM_Viewport, KM_PlayersCollection, ColorPicker,
-  KM_LoadLib, KM_SoundFX, KM_LoadDAT, MPlayer, KM_Utils;
+  KM_LoadLib, KM_SoundFX, KM_LoadDAT,
+  {$IFDEF VER140} MPlayer, {$ENDIF}
+  KM_Utils;
 
 type
   TForm1 = class(TForm)
@@ -60,7 +62,7 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
-    MediaPlayer1: TMediaPlayer;
+    {$IFDEF VER140} MediaPlayer1: TMediaPlayer; {$ENDIF}
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -122,7 +124,11 @@ var
   Form1: TForm1;
   FormLoading:TFormLoading;
 
-implementation  {$R *.DFM}
+implementation
+{$IFDEF VER140}
+{$R *.dfm}
+{$ENDIF}
+
 uses KM_Settings, KM_CommonTypes;
 
 
@@ -152,7 +158,7 @@ begin //Counting FPS
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var TempSettings:TGameSettings;
+var TempSettings:TGameSettings; s:string;
 begin
   if Sender<>nil then exit;
 
@@ -187,9 +193,11 @@ begin
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then
-    Application.MessageBox(@('Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
-        'Please update your graphic drivers to get better performance')[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
-
+  begin
+    s := 'Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
+         'Please update your graphic drivers to get better performance';
+    Application.MessageBox(@(s)[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
+  end;
   Timer100ms.Interval := fGame.fGameSettings.GetPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
@@ -218,8 +226,8 @@ end;
 procedure TForm1.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
 begin
   Resize := true; //Allow the resize, but set minimum allowed dimensions to 640x480
-  NewWidth:=max(NewWidth,640);
-  NewHeight:=max(NewHeight,480);
+  NewWidth:=Math.max(NewWidth,640);
+  NewHeight:=Math.max(NewHeight,480);
 end;
 
 
@@ -690,8 +698,8 @@ begin
     Form1.ClientWidth:=MENU_DESIGN_X;
     Form1.ClientHeight:=MENU_DESIGN_Y;
     Form1.Refresh;
-    Form1.Left:=max((Screen.Width-MENU_DESIGN_X)div 2,0);
-    Form1.Top:=max((Screen.Height-MENU_DESIGN_Y)div 2,0); //Center on screen and make sure titlebar is visible
+    Form1.Left:=Math.max((Screen.Width-MENU_DESIGN_X)div 2,0);
+    Form1.Top:=Math.max((Screen.Height-MENU_DESIGN_Y)div 2,0); //Center on screen and make sure titlebar is visible
   end;
 
   Panel5.Top:=0;
@@ -759,7 +767,7 @@ begin
     if dmBitsPerPel=32 then
     for k:=1 to RESOLUTION_COUNT do
     if (SupportedResolutions[k,1] = dmPelsWidth) and (SupportedResolutions[k,2] = dmPelsHeight)then
-      SupportedRefreshRates[k] := max(SupportedRefreshRates[k], dmDisplayFrequency);
+      SupportedRefreshRates[k] := Math.max(SupportedRefreshRates[k], dmDisplayFrequency);
   end;
 end;
 
@@ -776,5 +784,9 @@ begin
   else ClipCursor(nil); //Otherwise have no restriction
 end;
 
+{$IFDEF FPC}
+initialization
+{$I KM_Unit1.lrs}
+{$ENDIF}
 
 end.

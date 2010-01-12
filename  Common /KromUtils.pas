@@ -324,11 +324,11 @@ if (Ax=x3)and(Ay=y3) then if y1>y2 then begin Bx:=x1; By:=y1; Cx:=x2; Cy:=y2; en
 
 if (Ay<>Cy)and(By<>Cy) then              //Below mid-line
 for k:=trunc(Cy) to trunc(By)-1 do begin
-v1:=Cx+(Min(k+1,Ay)-Cy)*(Ax-Cx)/(Ay-Cy);
-w1:=Cx+(Min(k+1,By)-Cy)*(Bx-Cx)/(By-Cy); //upper edge limits
-v2:=Cx+(Max(k,Cy)-Cy)*(Ax-Cx)/(Ay-Cy);
-w2:=Cx+(Max(k,Cy)-Cy)*(Bx-Cx)/(By-Cy); //lower edge limits
-for j:=trunc(Min(Min(v1,w1),Min(v2,w2))) to trunc(Max(Max(v1,w1),Max(v2,w2))) do begin
+v1:=Cx+(Math.Min(k+1,Ay)-Cy)*(Ax-Cx)/(Ay-Cy);
+w1:=Cx+(Math.Min(k+1,By)-Cy)*(Bx-Cx)/(By-Cy); //upper edge limits
+v2:=Cx+(Math.Max(k,Cy)-Cy)*(Ax-Cx)/(Ay-Cy);
+w2:=Cx+(Math.Max(k,Cy)-Cy)*(Bx-Cx)/(By-Cy); //lower edge limits
+for j:=trunc(Math.Min(Math.Min(v1,w1),Math.Min(v2,w2))) to trunc(Math.Max(Math.Max(v1,w1),Math.Max(v2,w2))) do begin
 tx:=j+1; ty:=k; if ty<0 then ty:=0;
 if (tx<=SizeX)and(ty<SizeY) then begin ot[i]:=tx+ty*SizeX; inc(i);
 if i>=256 then MessageBox(0,'Too large poly in LWO, 2+ km2','Error',MB_OK or MB_ICONERROR); end;
@@ -341,20 +341,20 @@ end else begin
 
     if trunc(Ay)=trunc(By) then begin                //A-B line
     v1:=trunc(Ax); v2:=trunc(Bx); end else begin
-    v1:=Bx+(Min(trunc(By+1),Ay)-By)*(Ax-Bx)/(Ay-By); v2:=trunc(Bx); end;
+    v1:=Bx+(Math.Min(trunc(By+1),Ay)-By)*(Ax-Bx)/(Ay-By); v2:=trunc(Bx); end;
 
     if trunc(By)=trunc(Cy) then begin                //B-C line
     w1:=trunc(Bx); w2:=trunc(Cx); end else begin
-    w1:=Cx+(Max(trunc(By),Cy)-Cy)*(Bx-Cx)/(By-Cy); w2:=trunc(Bx); end;
+    w1:=Cx+(Math.Max(trunc(By),Cy)-Cy)*(Bx-Cx)/(By-Cy); w2:=trunc(Bx); end;
 
-    r1:=Min(Min(v1,w1),Min(v2,w2));
-    r2:=Max(Max(v1,w1),Max(v2,w2));
+    r1:=Math.Min(Math.Min(v1,w1),Math.Min(v2,w2));
+    r2:=Math.Max(Math.Max(v1,w1),Math.Max(v2,w2));
     v1:=r1; v2:=r2;
 
-    w1:=Cx+(Min(trunc(By+1),Ay)-Cy)*(Ax-Cx)/(Ay-Cy); //A-C line
-    w2:=Cx+(Max(trunc(By  ),Cy)-Cy)*(Ax-Cx)/(Ay-Cy);
+    w1:=Cx+(Math.Min(trunc(By+1),Ay)-Cy)*(Ax-Cx)/(Ay-Cy); //A-C line
+    w2:=Cx+(Math.Max(trunc(By  ),Cy)-Cy)*(Ax-Cx)/(Ay-Cy);
 end;
-for j:=trunc(Min(Min(v1,w1),Min(v2,w2))) to trunc(Max(Max(v1,w1),Max(v2,w2))) do begin
+for j:=trunc(Math.Min(Math.Min(v1,w1),Math.Min(v2,w2))) to trunc(Math.Max(Math.Max(v1,w1),Math.Max(v2,w2))) do begin
 tx:=j+1; ty:=trunc(By);
 if (tx<=SizeX)and(ty<SizeY) then begin ot[i]:=tx+ty*SizeX; inc(i);
 if i>=256 then MessageBox(0,'Too large poly in LWO, 2+ km2','Error',MB_OK or MB_ICONERROR); end;
@@ -363,17 +363,17 @@ end;
 if (Ay<>Cy)and(Ay<>By) then              //Above mid-line
 for k:=trunc(By)+1 to trunc(Ay) do begin                      //ceil(By)
 
-v1:=Cx+(Min(k+1,Ay)-Cy)*(Ax-Cx)/(Ay-Cy);
-w1:=Bx+(Min(k+1,Ay)-By)*(Ax-Bx)/(Ay-By);
+v1:=Cx+(Math.Min(k+1,Ay)-Cy)*(Ax-Cx)/(Ay-Cy);
+w1:=Bx+(Math.Min(k+1,Ay)-By)*(Ax-Bx)/(Ay-By);
 
-v2:=Cx+(Max(k,Cy)-Cy)*(Ax-Cx)/(Ay-Cy);
-w2:=Bx+(Max(k,By)-By)*(Ax-Bx)/(Ay-By);
+v2:=Cx+(Math.Max(k,Cy)-Cy)*(Ax-Cx)/(Ay-Cy);
+w2:=Bx+(Math.Max(k,By)-By)*(Ax-Bx)/(Ay-By);
 
 {v1:=Cx+(k-Cy)*(Ax-Cx)/(Ay-Cy);
 w1:=Bx+(k-By)*(Ax-Bx)/(Ay-By);
 if k<>trunc(Ay) then v2:=Cx+(k+1-Cy)*(Ax-Cx)/(Ay-Cy) else v2:=v1;
 if k<>trunc(Ay) then w2:=Bx+(k+1-By)*(Ax-Bx)/(Ay-By) else w2:=w1;}
-for j:=trunc(Min(Min(v1,w1),Min(v2,w2))) to trunc(Max(Max(v1,w1),Max(v2,w2))) do begin
+for j:=trunc(Math.Min(Math.Min(v1,w1),Math.Min(v2,w2))) to trunc(Math.Max(Math.Max(v1,w1),Math.Max(v2,w2))) do begin
 tx:=j+1; ty:=k;
 if (tx<=SizeX)and(ty<SizeY) then begin ot[i]:=tx+ty*SizeX; inc(i);
 if i>=256 then MessageBox(0,'Too large poly in LWO, 2+ km2','Error',MB_OK or MB_ICONERROR); end;

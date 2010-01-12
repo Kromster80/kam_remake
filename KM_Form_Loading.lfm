@@ -1,26 +1,23 @@
 object FormLoading: TFormLoading
   Left = 484
+  Height = 155
   Top = 403
+  Width = 257
   HelpType = htKeyword
   BorderStyle = bsDialog
   Caption = 'KaM Remake'
   ClientHeight = 155
   ClientWidth = 257
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  Font.Style = []
   FormStyle = fsStayOnTop
-  OldCreateOrder = False
   Position = poScreenCenter
-  PixelsPerInch = 96
+  LCLVersion = '0.9.28.2'
   object Image1: TImage
     Left = 16
+    Height = 60
     Top = 8
     Width = 60
-    Height = 60
     AutoSize = True
     Picture.Data = {
       07544269746D6170460F0000424D460F00000000000036010000280000003C00
@@ -145,77 +142,82 @@ object FormLoading: TFormLoading
       2121212121212121212121212121212100002121212121212121212121212121
       2121212121212121212121212121212121212121212121212121212121212121
       2121212121212121212121210000212121212121212121212121212121212121
-      212121212121212121212121212121212121}
+      212121212121212121212121212121212121
+    }
     Transparent = True
   end
   object Label3: TLabel
     Left = 100
+    Height = 17
     Top = 8
-    Width = 93
-    Height = 16
+    Width = 94
     Caption = 'KaM Remake'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
+    ParentColor = False
     ParentFont = False
   end
   object Bevel1: TBevel
     Left = 92
+    Height = 121
     Top = 8
     Width = 2
-    Height = 121
   end
   object Label4: TLabel
     Left = 100
+    Height = 14
     Top = 64
-    Width = 146
-    Height = 13
+    Width = 147
     Caption = 'Krom  (kromster80@gmail.com)'
+    ParentColor = False
   end
   object Label5: TLabel
     Left = 100
+    Height = 14
     Top = 28
-    Width = 34
-    Height = 13
+    Width = 35
     Caption = 'version'
+    ParentColor = False
   end
   object Label6: TLabel
     Left = 100
+    Height = 14
     Top = 48
-    Width = 48
-    Height = 13
+    Width = 49
     Caption = 'Coded by:'
+    ParentColor = False
   end
   object Label7: TLabel
     Left = 100
+    Height = 14
     Top = 96
-    Width = 20
-    Height = 13
+    Width = 21
     Caption = 'Alex'
+    ParentColor = False
   end
   object Label1: TLabel
     Left = 100
+    Height = 14
     Top = 120
-    Width = 50
-    Height = 13
+    Width = 51
     Caption = 'Loading ...'
+    ParentColor = False
   end
   object Label2: TLabel
     Left = 100
+    Height = 14
     Top = 80
-    Width = 130
-    Height = 13
+    Width = 131
     Caption = 'Lewin  (lewinjh@gmail.com)'
+    ParentColor = False
   end
   object Bar1: TProgressBar
     Left = 0
+    Height = 18
     Top = 137
     Width = 257
-    Height = 18
     Anchors = [akLeft, akBottom]
-    Min = 0
     Max = 8
     Step = 1
     TabOrder = 0

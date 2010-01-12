@@ -90,8 +90,7 @@ var
   fRender: TRender;
 
 implementation 
-uses KM_Unit1, KM_Terrain, KM_Units, KM_Houses, KM_Viewport, KM_Controls, KM_PlayersCollection,
-KM_InterfaceGamePlay, KM_Game;
+uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game;
 
 
 constructor TRender.Create(RenderFrame:HWND);
@@ -164,19 +163,19 @@ begin
   if fGame.GameState in [gsPaused, gsRunning, gsEditor] then begin //If game is running
     glLoadIdentity();                // Reset The View
     //glRotate(-15,0,0,1); //Funny thing
-    glTranslate(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
+    glTranslatef(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
     glkScale(fViewport.Zoom*CELL_SIZE_PX);
-    glTranslate(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
+    glTranslatef(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y,0);
 
     if RENDER_3D then begin
       glLoadIdentity();
       RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm3D);
 
       glkScale(-CELL_SIZE_PX/14);
-      glRotate(rHeading,1,0,0);
-      glRotate(rPitch  ,0,1,0);
-      glRotate(rBank   ,0,0,1);
-      glTranslate(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
+      glRotatef(rHeading,1,0,0);
+      glRotatef(rPitch  ,0,1,0);
+      glRotatef(rBank   ,0,0,1);
+      glTranslatef(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
       glkScale(fViewport.Zoom);
     end;
 
@@ -212,8 +211,9 @@ end;
 
 
 procedure TRender.DoPrintScreen(filename:string);
-var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
+{$IFDEF VER140} var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal; {$ENDIF}
 begin
+  {$IFDEF VER140}
   sw:=RenderAreaSize.X;
   sh:=RenderAreaSize.Y;
 
@@ -238,6 +238,7 @@ begin
 
   jpg.Free;
   mkbmp.Free;
+  {$ENDIF}
 end;
 
 
@@ -444,7 +445,12 @@ begin
     glColor4f(0,1,0,0.25);
     t:=Form1.Debug_PassabilityTrack.Position-1;
     for i:=y1 to y2 do for k:=x1 to x2 do
+      {$IFDEF VER140}
       if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
+      {$ENDIF}
+      {$IFDEF FPC}
+      if integer(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
+      {$ENDIF}
         RenderQuad(k,i);
   end;
 
@@ -974,9 +980,9 @@ if RO[i]<>0 then begin
   begin
 
     glPushMatrix;
-      glTranslate(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
-      glRotate(rHeading,-1,0,0);
-      glTranslate(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
+      glTranslatef(RenderList[h].Obj.X,RenderList[h].Obj.Y,0);
+      glRotatef(rHeading,-1,0,0);
+      glTranslatef(-RenderList[h].Obj.X,-RenderList[h].Obj.Y,0);
 
       repeat //Render child sprites only after their parent
         with RenderList[h] do begin

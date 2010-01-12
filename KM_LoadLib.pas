@@ -1,7 +1,7 @@
 unit KM_LoadLib;
 interface
 uses
-  Windows, Classes, SysUtils, KromUtils;
+  Classes, SysUtils, KromUtils;
 
 const
   MaxStrings = 999;
@@ -31,7 +31,7 @@ var
 
 
 implementation
-uses KM_Defaults, KM_Game;
+uses KM_Defaults;
 
 
 constructor TTextLibrary.Create(aLibPath,aLocale: string);

@@ -467,7 +467,7 @@ begin
       with FontData[byte(aFont)].Letters[i] do begin
         blockread(f,Width,4);
         blockread(f,Add,8);
-        MaxHeight:=max(MaxHeight,Height);
+        MaxHeight:=Math.max(MaxHeight,Height);
         fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Fon01.fnt seems to be damaged..
         blockread(f,Data[1],Width*Height);
       end;
@@ -1070,7 +1070,7 @@ var ii,kk,h,j,px:integer; c:array of byte; R,G,B:integer; f:file;
 var
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
-  DeCompressionStream: TZDecompressionStream;
+  {$IFDEF VER140} DeCompressionStream: TZDecompressionStream; {$ENDIF}
 begin
   assignfile(f,FileName);
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
@@ -1080,6 +1080,7 @@ begin
 
   if c[1]=120 then
   begin
+    {$IFDEF VER140}
     closefile(f);
     InputStream := TFileStream.Create(FileName, fmOpenRead);
     OutputStream := TMemoryStream.Create;
@@ -1090,6 +1091,7 @@ begin
     InputStream.Free;
     OutputStream.Free;
     DeCompressionStream.Free;
+    {$ENDIF};
   end
   else
   begin

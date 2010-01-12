@@ -40,7 +40,8 @@ uses
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas';
 
 //{$R *.RES}
-{$mode delphi}{$H+}
+{$mode delphi}
+{$H+}
 
 begin
   Application.Initialize;

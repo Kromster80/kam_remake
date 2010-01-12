@@ -1,0 +1,182 @@
+object Form_ColorPicker: TForm_ColorPicker
+  Left = 412
+  Height = 345
+  Top = 148
+  Width = 409
+  BorderStyle = bsDialog
+  Caption = 'Color picker'
+  ClientHeight = 345
+  ClientWidth = 409
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsStayOnTop
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poMainFormCenter
+  LCLVersion = '0.9.28.2'
+  object HSImage: TImage
+    Left = 4
+    Height = 256
+    Top = 4
+    Width = 360
+    OnMouseDown = HSImageMouseDown
+    OnMouseMove = HSImageMouseMove
+    OnMouseUp = HSImageMouseUp
+  end
+  object BriImage: TImage
+    Left = 372
+    Height = 256
+    Top = 4
+    Width = 25
+    OnMouseDown = BriImageMouseDown
+    OnMouseMove = BriImageMouseMove
+    OnMouseUp = BriImageMouseUp
+    Proportional = True
+  end
+  object Ticker: TShape
+    Left = 368
+    Height = 9
+    Top = 129
+    Width = 33
+    Brush.Style = bsClear
+    Enabled = False
+    Pen.Width = 2
+  end
+  object Shape2: TShape
+    Left = 4
+    Height = 73
+    Top = 268
+    Width = 113
+  end
+  object Shape1: TShape
+    Left = 180
+    Height = 9
+    Top = 124
+    Width = 9
+    Brush.Style = bsClear
+    Enabled = False
+    Pen.Style = psDot
+    Pen.Width = 2
+  end
+  object Label1: TLabel
+    Left = 178
+    Height = 14
+    Top = 271
+    Width = 21
+    Caption = 'Hue'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 178
+    Height = 14
+    Top = 297
+    Width = 49
+    Caption = 'Saturation'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 178
+    Height = 14
+    Top = 323
+    Width = 50
+    Caption = 'Brightness'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 290
+    Height = 14
+    Top = 271
+    Width = 21
+    Caption = 'Red'
+    ParentColor = False
+  end
+  object Label5: TLabel
+    Left = 290
+    Height = 14
+    Top = 297
+    Width = 30
+    Caption = 'Green'
+    ParentColor = False
+  end
+  object Label6: TLabel
+    Left = 290
+    Height = 14
+    Top = 323
+    Width = 22
+    Caption = 'Blue'
+    ParentColor = False
+  end
+  object Button1: TButton
+    Left = 344
+    Height = 25
+    Top = 312
+    Width = 59
+    Caption = 'Reset'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object SpinR: TSpinEdit
+    Left = 236
+    Height = 21
+    Top = 268
+    Width = 49
+    MaxValue = 255
+    OnChange = SpinRGBChange
+    TabOrder = 1
+  end
+  object SpinG: TSpinEdit
+    Left = 236
+    Height = 21
+    Top = 294
+    Width = 49
+    MaxValue = 255
+    OnChange = SpinRGBChange
+    TabOrder = 2
+  end
+  object SpinB: TSpinEdit
+    Left = 236
+    Height = 21
+    Top = 320
+    Width = 49
+    MaxValue = 255
+    OnChange = SpinRGBChange
+    TabOrder = 3
+  end
+  object SpinS: TSpinEdit
+    Left = 124
+    Height = 21
+    Top = 294
+    Width = 49
+    MaxValue = 255
+    OnChange = SpinHSBChange
+    TabOrder = 4
+  end
+  object SpinBr: TSpinEdit
+    Left = 124
+    Height = 21
+    Top = 320
+    Width = 49
+    MaxValue = 255
+    OnChange = SpinHSBChange
+    TabOrder = 5
+  end
+  object Button2: TButton
+    Left = 344
+    Height = 25
+    Top = 280
+    Width = 59
+    Caption = 'OK'
+    OnClick = Button2Click
+    TabOrder = 6
+  end
+  object SpinH: TSpinEdit
+    Left = 124
+    Height = 21
+    Top = 268
+    Width = 49
+    MaxValue = 359
+    OnChange = SpinHSBChange
+    TabOrder = 7
+  end
+end

@@ -1,6 +1,8 @@
 unit KM_InterfaceMainMenu;
 interface
-uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, OpenGL,
+uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils,
+  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF FPC} GL, {$ENDIF}
   KM_Controls, KM_Defaults, KM_LoadDAT, Windows, KM_Settings;
 
 

@@ -145,8 +145,11 @@ begin
   for i:=1 to length(s) do
   if (s[i]=#13)and(i+1<length(s)) then
   if (s[i+1]<>'W')and(s[i+1]<>'L')and(not ShowMessage) then ShowMessage:=true;
-if ShowMessage then
-if s[0]<>'' then MessageBox(HWND(nil), @(Text+s)[1],'GLSL Log', MB_OK);
+  if ShowMessage and (s[0]<>'') then
+  begin
+    s := StrPCopy(s,Text + StrPas(s));
+    MessageBox(HWND(nil), s,'GLSL Log', MB_OK);
+  end;
 end;
 
 procedure BuildFont(h_DC:HDC;FontSize:integer);

@@ -1,6 +1,8 @@
 unit KM_SoundFX;
 interface
-uses Forms, Windows, MMSystem, MPlayer, Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults, KM_CommonTypes, KM_Utils;
+uses Forms, Windows, MMSystem,
+  {$IFDEF VER140} MPlayer, {$ENDIF}
+  Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxWaves = 200;
 const MaxSourceCount = 16; //Actually it depends on hardware
@@ -57,7 +59,7 @@ end;
 type
   TMusicLib = class(TObject)
   private
-    MediaPlayer: TMediaPlayer;
+    {$IFDEF VER140} MediaPlayer: TMediaPlayer; {$ENDIF}
     MusicCount,MusicIndex:integer;
     MusicTracks:array[1..256]of string;
     IsMusicInitialized:boolean;
@@ -132,7 +134,7 @@ begin
   ErrCode:=alcGetError(Device);
   if ErrCode <> ALC_NO_ERROR then begin
     fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
-    Application.MessageBox(@('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.')[1],'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
+    Application.MessageBox(@(String('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'))[1],'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
     IsOpenALInitialized := false;
     exit;
   end;
@@ -304,7 +306,7 @@ begin
 
   IsMusicInitialized := true;
 
-  MediaPlayer := Form1.MediaPlayer1;
+  {$IFDEF VER140} MediaPlayer := Form1.MediaPlayer1; {$ENDIF}
   //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
   ScanMusicTracks(ExeDir + 'Music\');
 end;
@@ -322,12 +324,14 @@ end;
 function TMusicLib.CheckMusicError():boolean;
 begin
   Result:=false;
+  {$IFDEF VER140}
   if MediaPlayer.Error<>0 then begin
     fLog.AddToLog(MediaPlayer.errormessage);
    // Application.MessageBox(@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
    // IsMusicInitialized := false;
    // Result:=true; //Error is there
   end;
+  {$ENDIF}
 end;
 
 
@@ -348,6 +352,7 @@ var
   lpstrQuality: PChar;
   end;
 begin
+  {$IFDEF VER140}
   if not IsMusicInitialized then exit; //Keep silent
   MusicGain:=Value;
   P.dwCallback := 0;
@@ -357,6 +362,7 @@ begin
   P.lpstrAlgorithm := nil;
   P.lpstrQuality := nil;
   mciSendCommand(MediaPlayer.DeviceID, MCI_SETAUDIO, MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@P)) ;
+  {$ENDIF}
 end;
 
 
@@ -383,12 +389,14 @@ end;
 
 procedure TMusicLib.StopMusic;
 begin
+  {$IFDEF VER140}
   if not IsMusicInitialized then exit;
   MediaPlayer.Close;
   //if CheckMusicError then exit;
   MediaPlayer.FileName:='';
   //if CheckMusicError then exit;
   MusicIndex := 0;
+  {$ENDIF}
 end;
 
 
@@ -406,6 +414,7 @@ end;
 
 function TMusicLib.PlayMusicFile(FileName:string):boolean;
 begin
+  {$IFDEF VER140}
   Result:=false;
   if not IsMusicInitialized then exit;
 
@@ -424,6 +433,7 @@ begin
   MediaPlayer.Play; //Start actual playback
   if CheckMusicError then exit;
   Result:=true;
+  {$ENDIF}
 end;
 
 
@@ -464,12 +474,14 @@ end;
 //Check if Music is not playing, to know when new mp3 should be feeded
 function TMusicLib.IsMusicEnded():boolean;
 begin
+  {$IFDEF VER140}
   Result:=false;
   if not IsMusicInitialized then exit;
   if fGame.fGameSettings.IsMusic then begin
     Result := ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
     if CheckMusicError then exit;
   end;
+  {$ENDIF}
 end;
 
 

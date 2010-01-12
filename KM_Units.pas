@@ -3182,8 +3182,8 @@ begin
   if (DX <> 0) and (DY <> 0) then
     Distance:=Distance / 1.41; {sqrt (2) = 1.41421 }
 
-  KMUnit.fPosition.X:= KMUnit.fPosition.X + DX*min(Distance,abs(WalkX));
-  KMUnit.fPosition.Y:= KMUnit.fPosition.Y + DY*min(Distance,abs(WalkY));
+  KMUnit.fPosition.X:= KMUnit.fPosition.X + DX*Math.min(Distance,abs(WalkX));
+  KMUnit.fPosition.Y:= KMUnit.fPosition.Y + DY*Math.min(Distance,abs(WalkY));
 
   inc(KMUnit.AnimStep);
 end;

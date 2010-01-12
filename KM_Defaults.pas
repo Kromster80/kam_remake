@@ -1,6 +1,6 @@
 unit KM_Defaults;
 interface
-uses Windows, SysUtils, KromUtils, dglOpenGL;
+uses SysUtils, KromUtils, dglOpenGL;
 
 //Global const
 const
@@ -223,7 +223,7 @@ const {Aligned to right to use them in GUI costs display as well}
 type TPassability = (canAll=0,
                      canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
                      canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab,
-                     canWolf, canElevate, canWalkAvoid);
+                     canWolf, canElevate, canWalkAvoid); //14bits so far
      TPassabilitySet = set of TPassability;
 
 const PassabilityStr:array[0..14] of string = (
@@ -948,9 +948,6 @@ UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
 
 
 implementation
-uses KM_LoadLib;
-
-
 
 
 end.

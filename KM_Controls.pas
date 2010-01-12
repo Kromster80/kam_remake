@@ -1075,13 +1075,13 @@ end;
 
 function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle=bsGame):TKMScrollBar;
 begin
-  Result:=TKMScrollBar.Create(aParent, aLeft,aTop,aWidth,aHeight,aStyle);
+  Result := TKMScrollBar.Create(aParent, aLeft,aTop,aWidth,aHeight,aStyle);
   AddToCollection(Result);
   //These three will be added to collection themselfes
-  Result.ScrollUp :=AddButton(aParent,aLeft,aTop,aWidth,aHeight,4,4,aStyle);
-  Result.ScrollUp.OnClick:=Result.DecPosition;
-  Result.ScrollDown :=AddButton(aParent,aLeft,aTop,aWidth,aHeight,5,4,aStyle);
-  Result.ScrollDown.OnClick:=Result.IncPosition;
+  Result.ScrollUp   := AddButton(aParent,aLeft,aTop,aWidth,aHeight,4,4,aStyle);
+  Result.ScrollDown := AddButton(aParent,aLeft,aTop,aWidth,aHeight,5,4,aStyle);
+  Result.ScrollUp.OnClick   := Result.DecPosition;
+  Result.ScrollDown.OnClick := Result.IncPosition;
   Result.RefreshItems();
 end;
 
