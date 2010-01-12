@@ -7,22 +7,22 @@ type
   TKMPointDir = record Loc:TKMPoint; Dir:word; end;
   TKMPointF = record X,Y:single; end;
 
-  function KMPoint(X, Y: word): TKMPoint; overload
-  function KMPoint(P: TKMPointDir): TKMPoint; overload
-  function KMPointF(X, Y: single): TKMPointF; overload
-  function KMPointF(P: TKMPoint):  TKMPointF; overload
+  function KMPoint(X, Y: word): TKMPoint; overload;
+  function KMPoint(P: TKMPointDir): TKMPoint; overload;
+  function KMPointF(X, Y: single): TKMPointF; overload;
+  function KMPointF(P: TKMPoint):  TKMPointF; overload;
   function KMPointDir(X, Y, Dir: word): TKMPointDir;
   function KMPointX1Y1(X, Y: word): TKMPoint;
-  function KMPointY1(P:TKMPoint): TKMPoint; overload
-  function KMPointY1(P:TKMPointF): TKMPoint; overload
+  function KMPointY1(P:TKMPoint): TKMPoint; overload;
+  function KMPointY1(P:TKMPointF): TKMPoint; overload;
 
   function KMPointRound(P:TKMPointf): TKMPoint;
   function KMSamePoint(P1,P2:TKMPoint): boolean;
   function KMSamePointF(P1,P2:TKMPointF): boolean;
   function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 
-  function KMGetDirection(X,Y: integer): TKMDirection; overload
-  function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload
+  function KMGetDirection(X,Y: integer): TKMDirection; overload;
+  function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
   function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
   function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
   function KMLoopDirection(aDir: byte): TKMDirection;
@@ -32,17 +32,17 @@ type
   function GetLength(A,B:TKMPoint): single;
   function KMLength(A,B:TKMPoint): single;
 
-  function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload
+  function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload;
 
   procedure KMSwapPoints(var A,B:TKMPoint);
 
   function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
 
-  function TypeToString(t:THouseType):string; overload
-  function TypeToString(t:TResourceType):string; overload
-  function TypeToString(t:TUnitType):string; overload
-  function TypeToString(t:TKMPoint):string; overload
-  function TypeToString(t:TKMDirection):string; overload
+  function TypeToString(t:THouseType):string; overload;
+  function TypeToString(t:TResourceType):string; overload;
+  function TypeToString(t:TUnitType):string; overload;
+  function TypeToString(t:TKMPoint):string; overload;
+  function TypeToString(t:TKMDirection):string; overload;
 
 implementation
 uses KM_LoadLib;
@@ -83,13 +83,13 @@ begin
   Result.Y := Y+1;
 end;
 
-function KMPointY1(P:TKMPoint): TKMPoint; overload
+function KMPointY1(P:TKMPoint): TKMPoint; overload;
 begin
   Result.X := P.X;
   Result.Y := P.Y+1;
 end;
 
-function KMPointY1(P:TKMPointF): TKMPoint; overload
+function KMPointY1(P:TKMPointF): TKMPoint; overload;
 begin
   Result.X := round(P.X);
   Result.Y := round(P.Y)+1;
@@ -180,7 +180,7 @@ begin
 end;
 
 
-function GetLength(A,B:TKMPoint): single; overload
+function GetLength(A,B:TKMPoint): single; overload;
 begin
   Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
 end;

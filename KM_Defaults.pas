@@ -163,7 +163,7 @@ const
 
 {Fonts}
 type //Indexing should start from 1.
-  TKMFont = (fnt_Adam=1, fnt_Antiqua, fnt_Briefing, fnt_Font01, fnt_Game,
+  TKMFont = (fnt_nil, fnt_Adam, fnt_Antiqua, fnt_Briefing, fnt_Font01, fnt_Game,
              fnt_Grey, fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2, fnt_KMLobby3,
              fnt_KMLobby4, fnt_MainA, fnt_MainB, fnt_MainMapGold, fnt_Metal,
              fnt_Mini, fnt_Minimum, fnt_Outline, fnt_System, fnt_Won);
@@ -266,7 +266,7 @@ type
 //Used for AI defence and linking troops
 type TGroupType = (gt_None=0,gt_Melee,gt_AntiHorse,gt_Ranged,gt_Mounted);
 
-const UnitGroups: array[TUnitType] of TGroupType = (
+const UnitGroups: array[0..40] of TGroupType = (
     //Villagers
     gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,
     gt_None,gt_None,gt_None,gt_None,gt_None,gt_None, //ut_None..ut_Recruit
@@ -335,7 +335,7 @@ const {Actions names}
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Work, ua_Die, ua_Work..ua_WalkBooty],
+    [ua_Walk, ua_Work, ua_Die, ua_Work1..ua_WalkBooty],
     [ua_Walk, ua_Work, ua_Die, ua_Eat, ua_Work1, ua_Work2],
     [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
     [ua_Walk, ua_Die, ua_Eat],

@@ -1,6 +1,7 @@
 unit KM_ResourceGFX;
 interface
-uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes, ZLibEx;
+uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes
+{$IFDEF DELPHI}, ZLibEx {$ENDIF};
 
 type
   TByteArray2 = array of Byte;
