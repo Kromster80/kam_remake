@@ -173,7 +173,7 @@ const //Font01.fnt seems to be damaged..
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
   
 //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
-  FontCharSpacing: array[TKMFont] of shortint = (0,0,0,0,1,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
+  FontCharSpacing: array[TKMFont] of shortint = (0,0,0,0,0,1,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
 
   FontPal:array[1..20]of byte =
   //Those 10 are unknown Pal, no existing Pal matches them well

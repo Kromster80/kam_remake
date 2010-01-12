@@ -106,15 +106,15 @@ type
 
     function CheckResIn(aResource:TResourceType):word; virtual;
     function CheckResOut(aResource:TResourceType):byte;
-    function CheckResOrder(ID:byte):word;
+    function CheckResOrder(aID:byte):word;
     function CheckResToBuild():boolean;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); virtual; //override for School and etc..
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
     function ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
     function ResTakeFromOut(aResource:TResourceType):boolean;
-    procedure ResAddOrder(ID:byte; const Amount:byte=1);
-    procedure ResRemOrder(ID:byte; const Amount:byte=1);
+    procedure ResAddOrder(aID:byte; const Amount:byte=1);
+    procedure ResRemOrder(aID:byte; const Amount:byte=1);
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
 
@@ -129,7 +129,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     function FeedBeasts():byte;
-    procedure TakeBeast(ID:byte);
+    procedure TakeBeast(aID:byte);
     procedure Save(SaveStream:TKMemoryStream); override;
     procedure Paint; override;
   end;
@@ -166,7 +166,7 @@ type
     procedure CloseHouse; override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
-    procedure RemUnitFromQueue(id:integer); //Should remove unit from queue and shift rest up
+    procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
     procedure StartTrainingUnit; //This should Create new unit and start training cycle
     procedure UnitTrainingComplete; //This should shift queue filling rest with ut_None
     function GetTrainingProgress():byte;

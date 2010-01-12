@@ -1,6 +1,9 @@
 unit KM_ResourceGFX;
 interface
-uses OpenGL, Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes
+uses
+  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF FPC} GL, {$ENDIF}
+  Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes
 {$IFDEF DELPHI}, ZLibEx {$ENDIF};
 
 type
