@@ -1,6 +1,6 @@
 unit KM_UnitActionWalkTo;
 interface
-uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Player, KM_Units, SysUtils, Math;
+uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Units, SysUtils, Math;
 
 {Walk to somewhere}
 type
@@ -86,7 +86,7 @@ type
             
 
 implementation
-uses KM_Houses, KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut, KM_UnitActionStay;
+uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut, KM_UnitActionStay;
 
 
 { TUnitActionWalkTo }

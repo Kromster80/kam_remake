@@ -1,7 +1,7 @@
 unit KM_InterfaceMapEditor;
 interface
-uses Classes, Controls, KromUtils, Math, StrUtils, SysUtils, Windows, KromOGLUtils,
-     KM_Controls, KM_Defaults, KM_Houses, KM_LoadDAT, KM_Units;
+uses Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils,
+     KM_Controls, KM_Defaults, KM_Houses, KM_Units;
 
 type TKMMapEditorInterface = class
   protected
@@ -111,7 +111,7 @@ type TKMMapEditorInterface = class
 
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_SoundFX, KM_CommonTypes;
+uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes;
 
 
 {Switch between pages}

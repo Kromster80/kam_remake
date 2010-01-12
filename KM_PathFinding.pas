@@ -1,6 +1,6 @@
 unit KM_PathFinding;
 interface            
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
+uses ExtCtrls, SysUtils, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
 
 type TDestinationPoint = (dp_Location, dp_Passability);
 const TEST_MAX_WALK_PATH = 8192; //todo: 8k is too small for mission TGE #4 (192x192 map by Alanbach)
@@ -45,7 +45,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Units, KM_UnitActionWalkTo, KM_UnitActionStay;
+uses KM_Unit1, KM_UnitActionWalkTo;
 
 
 constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean; aIsInteractionAvoid:boolean=false);

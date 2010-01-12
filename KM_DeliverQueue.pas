@@ -1,6 +1,6 @@
 unit KM_DeliverQueue;
 interface
-uses Windows, Math, Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Utils, KM_UnitTaskDelivery;
+uses Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Utils, KM_UnitTaskDelivery;
 
   type TJobStatus = (js_Empty, js_Open, js_Taken);
   //Empty - empty spot for a new job

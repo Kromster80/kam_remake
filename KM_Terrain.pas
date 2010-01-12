@@ -190,7 +190,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_Houses, KM_SoundFX, KM_PathFinding, KM_Units, KM_UnitActionStay, KM_UnitActionWalkTo;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_SoundFX, KM_PathFinding, KM_Units, KM_UnitActionStay, KM_UnitActionWalkTo;
 
 constructor TTerrain.Create;
 begin

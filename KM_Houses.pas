@@ -1,6 +1,6 @@
 unit KM_Houses;
 interface
-uses Classes, KromUtils, Math, MMSystem, SysUtils, Windows,
+uses Classes, KromUtils, Math, SysUtils, Windows,
      KM_CommonTypes, KM_Defaults, KM_Utils;
 
   {Everything related to houses is here}

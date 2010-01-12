@@ -1,6 +1,6 @@
 unit KM_UnitActionStay;
 interface
-uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Units, SysUtils, Math;
+uses Classes, KM_Defaults, KromUtils, KM_CommonTypes, KM_Units, SysUtils, Math;
 
 {Stay in place for set time}
 type
@@ -22,7 +22,7 @@ TUnitActionStay = class(TUnitAction)
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_UnitActionWalkTo, KM_SoundFX;
+uses KM_PlayersCollection, KM_Terrain, KM_SoundFX;
 
 
 { TUnitActionStay }

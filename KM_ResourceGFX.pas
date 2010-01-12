@@ -59,7 +59,7 @@ type
 
 
 implementation
-uses KromUtils, KM_Unit1, KM_Render, KM_Game, KM_CommonTypes, KM_Utils, KM_TGATexture;
+uses KromUtils, KM_Unit1, KM_Render, KM_CommonTypes, KM_Utils, KM_TGATexture;
 
 
 constructor TResource.Create;

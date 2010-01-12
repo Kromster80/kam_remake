@@ -1,7 +1,7 @@
 unit KM_Units;
 interface
 uses
-  Classes, Math, MMSystem, SysUtils, KromUtils, Windows,
+  Classes, Math, SysUtils, KromUtils, Windows,
   KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Terrain, KM_Units_WorkPlan;
 
 //Memo on directives:
@@ -1900,7 +1900,6 @@ end;
 
 
 procedure TTaskBuildRoad.Execute(out TaskDone:boolean);
-const Cycle=11;
 begin
 TaskDone:=false;
 with fUnit do
@@ -1985,7 +1984,6 @@ end;
 
 
 procedure TTaskBuildWine.Execute(out TaskDone:boolean);
-const Cycle=11;
 begin
 TaskDone:=false;
 with fUnit do
@@ -2057,7 +2055,6 @@ end;
 
 
 procedure TTaskBuildField.Execute(out TaskDone:boolean);
-const Cycle=11;
 begin
 TaskDone:=false;
 with fUnit do
@@ -2117,7 +2114,6 @@ end;
 
 
 procedure TTaskBuildWall.Execute(out TaskDone:boolean);
-const Cycle=11;
 begin
 TaskDone:=false;
 with fUnit do
@@ -3146,7 +3142,6 @@ end;
 
 
 procedure TUnitActionAbandonWalk.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
-const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection = ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single;
 begin

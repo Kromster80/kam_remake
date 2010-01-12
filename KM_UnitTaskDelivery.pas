@@ -26,7 +26,7 @@ type
     end;
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_UnitActionWalkTo, KM_SoundFX;
+uses KM_PlayersCollection, KM_UnitActionWalkTo;
 
 
 { TTaskDeliver }

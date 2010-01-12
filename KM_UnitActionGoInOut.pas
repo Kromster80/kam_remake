@@ -1,7 +1,6 @@
 unit KM_UnitActionGoInOut;
 interface
-uses Classes, KromUtils, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults, KM_Houses, KM_Player, KM_Units, KM_Utils;
+uses Classes, KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Utils;
 
 
 {This is a [fairly :P] simple action making unit go inside/outside of house}
@@ -28,7 +27,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_UnitActionWalkTo;
+uses KM_PlayersCollection, KM_Terrain, KM_UnitActionStay, KM_UnitActionWalkTo;
 
 
 constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aDirection:TGoInDirection; aHouse:TKMHouse);
