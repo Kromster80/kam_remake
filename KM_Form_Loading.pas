@@ -1,6 +1,7 @@
 unit KM_Form_Loading;
 interface
-uses Forms, Controls, ComCtrls, ExtCtrls, StdCtrls, Graphics, Classes;
+uses {$IFDEF FPC} LResources, {$ENDIF} Forms, Controls,
+ComCtrls, ExtCtrls, StdCtrls, Graphics, Classes;
 
 type
   TFormLoading = class(TForm)
@@ -18,5 +19,8 @@ type
 
 implementation
 {$R *.dfm}
+
+initialization
+{$I KM_Form_Loading.lrs}
 
 end.
