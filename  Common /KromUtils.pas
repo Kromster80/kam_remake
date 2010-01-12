@@ -42,43 +42,47 @@ procedure Color2RGB(Col:integer; out R,G,B:byte);
 function Vectorize(A,B:single):Vector2f; overload;
 function Vectorize(A,B,C:single):Vector3f; overload;
 
-function Min(const A,B,C: integer):integer; overload
-function Min(const A,B,C: single):single; overload
-function Max(const A,B,C: integer):integer; overload
-function Max(const A,B,C: single):single; overload
+function Min(const A,B: integer):integer; overload;
+function Min(const A,B: single):single; overload;
+function Min(const A,B,C: integer):integer; overload;
+function Min(const A,B,C: single):single; overload;
+function Max(const A,B: integer):integer; overload;
+function Max(const A,B: single):single; overload;
+function Max(const A,B,C: integer):integer; overload;
+function Max(const A,B,C: single):single; overload;
 function Ceil(const X: Extended):Integer;
 function ArcCos(const X: Extended): Extended;
 function ArcSin(const X: Extended): Extended;
-function ArcTan2(const Y, X: Extended): Extended;
+//function ArcTan2(const Y, X: Extended): Extended;
 function Pow(const Base, Exponent: integer): integer;
 
   function GetLengthSQR(ix,iy,iz:integer): integer;
-  function GetLength(ix,iy,iz:single): single; overload
-  function GetLength(ix:Vector3f): single; overload  
-  function GetLength(ix,iy:single): single; overload
+  function GetLength(ix,iy,iz:single): single; overload;
+  function GetLength(ix:Vector3f): single; overload;
+  function GetLength(ix,iy:single): single; overload;
 
   function InBetween(A,B,X:single): boolean;
 
-  procedure Normalize(ix,iy,iz:single; nx,ny,nz:psingle); overload
-  procedure Normalize(var ix,iy,iz:single); overload
-  procedure Normalize(var v:Vector3f); overload
-  procedure Normalize(var ix,iy:single); overload
+  procedure Normalize(ix,iy,iz:single; nx,ny,nz:psingle); overload;
+  procedure Normalize(var ix,iy,iz:single); overload;
+  procedure Normalize(var v:Vector3f); overload;
+  procedure Normalize(var ix,iy:single); overload;
 
-  function Mix(x1,x2,MixValue:single):single; overload
-  function Mix(x1,x2:integer; MixValue:single):integer; overload
-  function Mix(x1,x2:Vector3f; MixValue:single):vector3f; overload
+  function Mix(x1,x2,MixValue:single):single; overload;
+  function Mix(x1,x2:integer; MixValue:single):integer; overload;
+  function Mix(x1,x2:Vector3f; MixValue:single):vector3f; overload;
 
   procedure Matrix2Angles(matrix09:array of single; Qty:integer; i1,i2,i3:pinteger);
   procedure Angles2Matrix(ax,ay,az:single; matrix:pointer; Qty:integer);
 
   procedure Angles2Vector(degreeX,degreeY,iz:single; out nx,ny,nz:single);
 
-  function DotProduct(x1,y1,z1,x2,y2,z2:single):single; overload
-  function DotProduct(v1,v2:Vector3f):single; overload
+  function DotProduct(x1,y1,z1,x2,y2,z2:single):single; overload;
+  function DotProduct(v1,v2:Vector3f):single; overload;
   function Perpendecular2D(v1,v2,v3:Vector3f; Len:single):vector3f;
-  procedure Normal2Poly(v1,v2,v3:array of single; nx,ny,nz:psingle); overload
-  procedure Normal2Poly(v1,v2,v3:Vector3f; n:PVector3f); overload
-  procedure Normal2Poly(u1,v1,u2,v2,u3,v3:single; out n:single); overload
+  procedure Normal2Poly(v1,v2,v3:array of single; nx,ny,nz:psingle); overload;
+  procedure Normal2Poly(v1,v2,v3:Vector3f; n:PVector3f); overload;
+  procedure Normal2Poly(u1,v1,u2,v2,u3,v3:single; out n:single); overload;
 
 procedure decs(var AText:string; const Len:integer=1); overload;
 procedure decs(var AText:widestring; const Len:integer=1); overload;
@@ -93,11 +97,11 @@ procedure SwapFloat(var A,B:single);
 function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 
 procedure ConvertSetToArray(iSet:integer; Ar:pointer);
-function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
+//function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
 function MakePOT(num:integer):integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
-function RandomS(Range_Both_Directions:integer):integer; overload
-function RandomS(Range_Both_Directions:single):single; overload
+function RandomS(Range_Both_Directions:integer):integer; overload;
+function RandomS(Range_Both_Directions:single):single; overload;
 procedure WriteLangFile(Sender:TForm; FileName:string; EraseWritten:boolean);
 procedure ReadLangFile(Sender:TForm; FileName:string; EraseWritten:boolean);
 function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
@@ -127,29 +131,49 @@ Result.Y:=B;
 Result.Z:=C;
 end;       
 
-function Min(const A,B,C: integer): integer; overload
+function Min(const A,B: integer): integer; overload;
+begin
+  if A < B then Result := A else Result := B;
+end;
+
+function Min(const A,B: single): single; overload;
+begin
+  if A < B then Result := A else Result := B;
+end;
+
+function Min(const A,B,C: integer): integer; overload;
 begin if A < B then if A < C then Result := A else Result := C
                else if B < C then Result := B else Result := C;
 end;
 
-function Min(const A,B,C: single): single; overload
+function Min(const A,B,C: single): single; overload;
 begin if A < B then if A < C then Result := A else Result := C
                else if B < C then Result := B else Result := C;
 end;
 
-function Max(const A,B,C: integer): integer; overload
+function Max(const A,B: integer): integer; overload;
+begin
+  if A > B then Result := A else Result := B;
+end;
+
+function Max(const A,B: single): single; overload;
+begin
+  if A > B then Result := A else Result := B;
+end;
+
+function Max(const A,B,C: integer): integer; overload;
 begin if A > B then if A > C then Result := A else Result := C
                else if B > C then Result := B else Result := C;
 end;
 
-function Max(const A,B,C: single): single; overload
+function Max(const A,B,C: single): single; overload;
 begin if A > B then if A > C then Result := A else Result := C
                else if B > C then Result := B else Result := C;
 end;
 
 
-function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
-var ft:textfile; m:integer; ii:integer; res:string[4];
+{function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
+var ft:textfile; m:integer; ii:integer; res:string[4]; s:string;
 begin
 assignfile(ft,fname); rewrite(ft);
 m:=4;
@@ -182,7 +206,7 @@ end;
 
 closefile(ft);
 result:=true;
-end;
+end;}
 
 function ElapsedTime(i1:pcardinal): string;
 begin
@@ -492,13 +516,13 @@ begin
   Result := ArcTan2(X, Sqrt(1 - X * X))
 end;
 
-function ArcTan2(const Y, X: Extended): Extended;
+{function ArcTan2(const Y, X: Extended): Extended;
 asm
         FLD     Y
         FLD     X
         FPATAN
         FWAIT
-end;
+end;}
 
 function Pow(const Base, Exponent: integer): integer;
 begin
@@ -611,17 +635,17 @@ begin
   Result:=sqr(ix)+sqr(iy)+sqr(iz);
 end;
 
-function GetLength(ix,iy,iz:single): single; overload
+function GetLength(ix,iy,iz:single): single; overload;
 begin
   Result:=sqrt(sqr(ix)+sqr(iy)+sqr(iz));
 end;
 
-function GetLength(ix:Vector3f): single; overload
+function GetLength(ix:Vector3f): single; overload;
 begin
   Result:=sqrt(sqr(ix.x)+sqr(ix.y)+sqr(ix.z));
 end;
 
-function GetLength(ix,iy:single): single; overload
+function GetLength(ix,iy:single): single; overload;
 begin
   Result:=sqrt(sqr(ix)+sqr(iy));
 end;
@@ -678,29 +702,29 @@ ix:=ix/len;
 iy:=iy/len;
 end;
 
-function Mix(x1,x2,MixValue:single):single; overload
+function Mix(x1,x2,MixValue:single):single; overload;
 begin
 Result:=x1*MixValue+x2*(1-MixValue);
 end;
 
-function Mix(x1,x2:integer; MixValue:single):integer; overload
+function Mix(x1,x2:integer; MixValue:single):integer; overload;
 begin
 Result:=round(x1*MixValue+x2*(1-MixValue));
 end;
 
-function Mix(x1,x2:Vector3f; MixValue:single):vector3f; overload
+function Mix(x1,x2:Vector3f; MixValue:single):vector3f; overload;
 begin
 Result.X:=x1.X*MixValue+x2.X*(1-MixValue);
 Result.Y:=x1.Y*MixValue+x2.Y*(1-MixValue);
 Result.Z:=x1.Z*MixValue+x2.Z*(1-MixValue);
 end;
 
-function DotProduct(x1,y1,z1,x2,y2,z2:single):single; overload
+function DotProduct(x1,y1,z1,x2,y2,z2:single):single; overload;
 begin
 Result:=x1*x2+y1*y2+z1*z2;
 end;
 
-function DotProduct(v1,v2:Vector3f):single; overload
+function DotProduct(v1,v2:Vector3f):single; overload;
 begin
 Result:=v1.X*v2.X+v1.Y*v2.Y+v1.Z*v2.Z;
 end;
@@ -715,23 +739,23 @@ Result.Y:=v2.Y;
 Result.Z:=v2.Z+Tmp.X*Len;
 end;
 
-procedure Normal2Poly(v1,v2,v3:array of single; nx,ny,nz:psingle); overload
+procedure Normal2Poly(v1,v2,v3:array of single; nx,ny,nz:psingle); overload;
 begin  //aka Cross product of 2 vectors
-nx^:= ((v1[1]-v2[1])*(v1[2]-v3[2])-(v1[2]-v2[2])*(v1[1]-v3[1]))/256;
-ny^:=-((v1[0]-v2[0])*(v1[2]-v3[2])-(v1[2]-v2[2])*(v1[0]-v3[0]))/256;
-nz^:= ((v1[0]-v2[0])*(v1[1]-v3[1])-(v1[1]-v2[1])*(v1[0]-v3[0]))/256;
+  nx^:= ((v1[1]-v2[1])*(v1[2]-v3[2])-(v1[2]-v2[2])*(v1[1]-v3[1]))/256;
+  ny^:=-((v1[0]-v2[0])*(v1[2]-v3[2])-(v1[2]-v2[2])*(v1[0]-v3[0]))/256;
+  nz^:= ((v1[0]-v2[0])*(v1[1]-v3[1])-(v1[1]-v2[1])*(v1[0]-v3[0]))/256;
 end;
 
-procedure Normal2Poly(v1,v2,v3:Vector3f; n:PVector3f); overload
+procedure Normal2Poly(v1,v2,v3:Vector3f; n:PVector3f); overload;
 begin  //aka Cross product of 2 vectors
-n.x:= ((v1.Y-v2.Y)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.Y-v3.Y))/256;
-n.y:=-((v1.X-v2.X)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.X-v3.X))/256;
-n.z:= ((v1.X-v2.X)*(v1.Y-v3.Y)-(v1.Y-v2.Y)*(v1.X-v3.X))/256;
+  n^.x:= ((v1.Y-v2.Y)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.Y-v3.Y))/256;
+  n^.y:=-((v1.X-v2.X)*(v1.Z-v3.Z)-(v1.Z-v2.Z)*(v1.X-v3.X))/256;
+  n^.z:= ((v1.X-v2.X)*(v1.Y-v3.Y)-(v1.Y-v2.Y)*(v1.X-v3.X))/256;
 end;
 
-procedure Normal2Poly(u1,v1,u2,v2,u3,v3:single; out n:single); overload
+procedure Normal2Poly(u1,v1,u2,v2,u3,v3:single; out n:single); overload;
 begin  //aka Cross product of 2 vectors
-n:=(u1-u2)*(v1-v3)-(v1-v2)*(u1-u3);
+  n:=(u1-u2)*(v1-v3)-(v1-v2)*(u1-u3);
 end;
 
 procedure decs(var AText:string; const Len:integer=1);
@@ -851,12 +875,12 @@ B:=B mod 65521;
 Adler32CRC:=B+A*65536; //reverse order for smaller numbers
 end;
 
-function RandomS(Range_Both_Directions:integer):integer; overload
+function RandomS(Range_Both_Directions:integer):integer; overload;
 begin
   Result:=Random(Range_Both_Directions*2+1)-Range_Both_Directions;
 end;
 
-function RandomS(Range_Both_Directions:single):single; overload
+function RandomS(Range_Both_Directions:single):single; overload;
 begin
 Result:=Random(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
 end;
@@ -892,12 +916,9 @@ closefile(ft);
 end;
 
 procedure ReadLangFile(Sender:TForm; FileName:string; EraseWritten:boolean);
-var ft:textfile; i,k,row:integer; capt,eng,rus:string; IsList:boolean;
+var ft:textfile; i,k,row:integer; capt,eng,rus,s:string; IsList:boolean;
 begin     
-if not fileexists(FileName) then begin
-MessageBox(Sender.Handle,@('Can''t find input file '+FileName)[1],'Error',MB_OK);
-exit;
-end;
+if not CheckFileExists(FileName) then exit;
 
 assignfile(ft,FileName); reset(ft);
 IsList:=false;
@@ -919,7 +940,8 @@ k:=1;
 repeat inc(k) until((k+1>length(capt))or(capt[k-1]+capt[k]+capt[k+1]='<=>'));
 
 if k+1>length(capt) then begin
-MessageBox(Sender.Handle,@('Error on line '+inttostr(row)+'. ')[1],'Error',MB_OK);
+s:='Error on line '+inttostr(row)+'. ';
+MessageBox(Sender.Handle,@s[1],'Error',MB_OK);
 //exit;
 end;
 
@@ -1050,7 +1072,7 @@ end;
 //By Zarko Gajic, About.com
 function BrowseURL(const URL: string) : boolean;
 var
-   Browser: string;
+   Browser: string; d:pchar;
 begin
    Result := True;
    Browser := '';
@@ -1071,7 +1093,7 @@ begin
    end;
    Browser := Copy(Browser, Pos('"', Browser) + 1, Length(Browser)) ;
    Browser := Copy(Browser, 1, Pos('"', Browser) - 1) ;
-   ShellExecute(0, 'open', PChar(Browser), PChar(URL), nil, SW_SHOW) ;
+   ShellExecute(0, 'open', PChar(StrPCopy(d,Browser)), PChar(StrPCopy(d,URL)), nil, SW_SHOW) ;
 end;
 
 
