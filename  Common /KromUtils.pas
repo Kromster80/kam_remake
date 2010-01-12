@@ -42,18 +42,15 @@ procedure Color2RGB(Col:integer; out R,G,B:byte);
 function Vectorize(A,B:single):Vector2f; overload;
 function Vectorize(A,B,C:single):Vector3f; overload;
 
-function Min(const A,B: integer):integer; overload;
-function Min(const A,B: single):single; overload;
 function Min(const A,B,C: integer):integer; overload;
 function Min(const A,B,C: single):single; overload;
-function Max(const A,B: integer):integer; overload;
-function Max(const A,B: single):single; overload;
+
 function Max(const A,B,C: integer):integer; overload;
 function Max(const A,B,C: single):single; overload;
+
 function Ceil(const X: Extended):Integer;
 function ArcCos(const X: Extended): Extended;
 function ArcSin(const X: Extended): Extended;
-//function ArcTan2(const Y, X: Extended): Extended;
 function Pow(const Base, Exponent: integer): integer;
 
   function GetLengthSQR(ix,iy,iz:integer): integer;
@@ -129,16 +126,6 @@ begin
 Result.X:=A;
 Result.Y:=B;
 Result.Z:=C;
-end;       
-
-function Min(const A,B: integer): integer; overload;
-begin
-  if A < B then Result := A else Result := B;
-end;
-
-function Min(const A,B: single): single; overload;
-begin
-  if A < B then Result := A else Result := B;
 end;
 
 function Min(const A,B,C: integer): integer; overload;
@@ -149,16 +136,6 @@ end;
 function Min(const A,B,C: single): single; overload;
 begin if A < B then if A < C then Result := A else Result := C
                else if B < C then Result := B else Result := C;
-end;
-
-function Max(const A,B: integer): integer; overload;
-begin
-  if A > B then Result := A else Result := B;
-end;
-
-function Max(const A,B: single): single; overload;
-begin
-  if A > B then Result := A else Result := B;
 end;
 
 function Max(const A,B,C: integer): integer; overload;
@@ -516,13 +493,6 @@ begin
   Result := ArcTan2(X, Sqrt(1 - X * X))
 end;
 
-{function ArcTan2(const Y, X: Extended): Extended;
-asm
-        FLD     Y
-        FLD     X
-        FPATAN
-        FWAIT
-end;}
 
 function Pow(const Base, Exponent: integer): integer;
 begin

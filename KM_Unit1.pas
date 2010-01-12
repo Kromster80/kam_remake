@@ -4,7 +4,7 @@ uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl,
   ExtCtrls, ComCtrls, Menus, Buttons, Messages,
   Math, SysUtils, KromUtils,
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   dglOpenGL, MMSystem,
   KM_Render, KM_RenderUI, KM_ResourceGFX, KM_Defaults, KM_Form_Loading, KM_Terrain,

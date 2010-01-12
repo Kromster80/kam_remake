@@ -146,7 +146,7 @@ begin
   if (s[i]=#13)and(i+1<length(s)) then
   if (s[i+1]<>'W')and(s[i+1]<>'L')and(not ShowMessage) then ShowMessage:=true;
 if ShowMessage then
-if s[0]<>'' then MessageBox(HWND(nil), @({Text}+s)[1],'GLSL Log', MB_OK);
+if s[0]<>'' then MessageBox(HWND(nil), @(Text+s)[1],'GLSL Log', MB_OK);
 end;
 
 procedure BuildFont(h_DC:HDC;FontSize:integer);

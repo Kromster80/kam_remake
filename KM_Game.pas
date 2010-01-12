@@ -1,9 +1,7 @@
 unit KM_Game;
 interface
 uses Windows,
-  {$IFDEF DELPHI}
-  MPlayer,
-  {$ENDIF}
+  {$IFDEF VER140} MPlayer, {$ENDIF}
   Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Defaults, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_SoundFX, KM_Viewport, KM_Units, KM_Settings, KM_Utils;

@@ -1,10 +1,10 @@
 unit KM_ResourceGFX;
 interface
 uses
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes
-{$IFDEF DELPHI}, ZLibEx {$ENDIF};
+  {$IFDEF VER140}, ZLibEx {$ENDIF};
 
 type
   TByteArray2 = array of Byte;

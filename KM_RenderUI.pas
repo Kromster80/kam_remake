@@ -1,7 +1,7 @@
 unit KM_RenderUI;
 interface
 uses dglOpenGL,
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   Math, KromUtils, KromOGLUtils, KM_Utils, SysUtils, KM_Defaults, Graphics;
 

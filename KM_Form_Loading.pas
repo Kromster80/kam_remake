@@ -20,7 +20,7 @@ type
 implementation
 {$R *.dfm}
 
-initialization
-{$I KM_Form_Loading.lrs}
+//initialization
+//{$I KM_Form_Loading.lrs}
 
 end.

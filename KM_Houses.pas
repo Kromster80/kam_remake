@@ -568,9 +568,9 @@ end;
 
 
 {Check amount of placed order for given ID}
-function TKMHouse.CheckResOrder(ID:byte):word;
+function TKMHouse.CheckResOrder(aID:byte):word;
 begin
-  Result:=fResourceOrder[ID];
+  Result := fResourceOrder[aID];
 end;
 
 
@@ -669,16 +669,16 @@ end;
 
 
 {Place production order}
-procedure TKMHouse.ResAddOrder(ID:byte; const Amount:byte=1);
+procedure TKMHouse.ResAddOrder(aID:byte; const Amount:byte=1);
 begin
-  fResourceOrder[ID]:=EnsureRange(fResourceOrder[ID]+Amount,0,MAX_ORDER);
+  fResourceOrder[aID] := EnsureRange(fResourceOrder[aID]+Amount,0,MAX_ORDER);
 end;
 
 
 {Reduce production order amount}
-procedure TKMHouse.ResRemOrder(ID:byte; const Amount:byte=1);
+procedure TKMHouse.ResRemOrder(aID:byte; const Amount:byte=1);
 begin
-  fResourceOrder[ID]:=EnsureRange(fResourceOrder[ID]-Amount,0,MAX_ORDER);
+  fResourceOrder[aID] := EnsureRange(fResourceOrder[aID]-Amount,0,MAX_ORDER);
 end;
 
 
@@ -900,11 +900,11 @@ begin
 end;
 
 
-procedure TKMHouseSwineStable.TakeBeast(ID:byte);
+procedure TKMHouseSwineStable.TakeBeast(aID:byte);
 begin
-  if ID<>0 then
-    if BeastAge[ID]>3 then
-      BeastAge[ID]:=0;
+  if aID<>0 then
+    if BeastAge[aID]>3 then
+      BeastAge[aID] := 0;
 end;
 
 
@@ -1088,12 +1088,12 @@ end;
 
 
 //DoCancelTraining and remove untrained unit
-procedure TKMHouseSchool.RemUnitFromQueue(id:integer);
+procedure TKMHouseSchool.RemUnitFromQueue(aID:integer);
 var i:integer;
 begin
-  if UnitQueue[id]=ut_None then exit; //Ignore clicks on empty queue items
+  if UnitQueue[aID]=ut_None then exit; //Ignore clicks on empty queue items
 
-  if id = 1 then begin
+  if aID = 1 then begin
     SetState(hst_Idle,0);
     if UnitWIP<>nil then begin
       TKMUnit(UnitWIP).RemoveUntrainedFromSchool; //Make sure unit started training
@@ -1102,10 +1102,10 @@ begin
     UnitWIP:=nil;
   end;
 
-  for i:=id to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
+  for i:=aID to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
   UnitQueue[length(UnitQueue)]:=ut_None; //Set the last one empty
 
-  if id = 1 then
+  if aID = 1 then
     if UnitQueue[1]<>ut_None then StartTrainingUnit;
 end;
 

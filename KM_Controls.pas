@@ -123,7 +123,7 @@ end;
 {3DButton}
 TKMButton = class(TKMControl)
   public
-    Down:boolean; //Only 3DButton can be pressed down, I rename it according to Delphi VCL Controls rules, ok?
+    Down:boolean; //Only 3DButton can be pressed down
     MakesSound:boolean;
     RXid: integer; //RX library
     TexID: integer;

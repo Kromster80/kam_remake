@@ -16,9 +16,9 @@ unit KM_TGATexture;
 interface
 uses
   Forms, Windows,
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  SysUtils, Classes, dglOpenGL {$IFDEF DELPHI}, ZLibEx {$ENDIF};
+  SysUtils, Classes, dglOpenGL {$IFDEF VER140}, ZLibEx {$ENDIF};
 
 function LoadTexture(Filename: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
@@ -26,7 +26,7 @@ function GenerateTextureCommon():GLuint;
 
 implementation
 
-{$IFDEF DELPHI}
+{$IFDEF VER140}
 function gluBuild2DMipmaps(Target: GLenum; Components, Width, Height: GLint; Format, atype: GLenum; Data: Pointer): GLint; stdcall; external glu32;
 {$ENDIF}
 procedure glGenTextures(n: GLsizei; var textures: GLuint); stdcall; external opengl32;
@@ -121,7 +121,7 @@ var
 var
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
-  {$IFDEF DELPHI} DeCompressionStream: TZDecompressionStream; {$ENDIF}
+  {$IFDEF VER140} DeCompressionStream: TZDecompressionStream; {$ENDIF}
 
 begin
   result :=FALSE;
@@ -154,7 +154,7 @@ begin
   //TGA is compressed by ZLibEx, thats only KaM Remake custom option
   if ZLibCompressed{TGAHeader.FileType=120} then
   begin
-  {$IFDEF DELPHI}
+  {$IFDEF VER140}
     CloseFile(TGAFile);
     InputStream := TFileStream.Create(FileName, fmOpenRead);
     OutputStream := TMemoryStream.Create;

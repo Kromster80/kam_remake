@@ -1,10 +1,11 @@
 unit KM_Render;
 interface
 uses
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-
-  dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, {JPEG,} Graphics,
+  dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls,
+  {$IFDEF VER140} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
+  Graphics,
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
 type
