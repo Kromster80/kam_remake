@@ -1,6 +1,9 @@
 unit KM_Render;
 interface
-uses OpenGL, dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, JPEG, Graphics,
+uses
+  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF FPC} GL, {$ENDIF}
+  dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, {JPEG,} Graphics,
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
 type

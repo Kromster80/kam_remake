@@ -15,7 +15,10 @@
 unit KM_TGATexture;
 interface
 uses
-  Forms, Windows, OpenGL, SysUtils, Classes, dglOpenGL, ZLibEx;
+  Forms, Windows,
+  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF FPC} GL, {$ENDIF}
+  SysUtils, Classes, dglOpenGL, ZLibEx;
 
 function LoadTexture(Filename: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;

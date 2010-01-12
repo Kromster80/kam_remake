@@ -3,7 +3,10 @@ interface
 uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl,
   ExtCtrls, ComCtrls, Menus, Buttons, Messages,
-  Math, SysUtils, KromUtils, OpenGL, dglOpenGL, MMSystem,
+  Math, SysUtils, KromUtils,
+  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF FPC} GL, {$ENDIF}
+  dglOpenGL, MMSystem,
   KM_Render, KM_RenderUI, KM_ResourceGFX, KM_Defaults, KM_Form_Loading, KM_Terrain,
   KM_Game, KM_Units, KM_Houses, KM_Viewport, KM_PlayersCollection, ColorPicker,
   KM_LoadLib, KM_SoundFX, KM_LoadDAT, MPlayer, KM_Utils;
