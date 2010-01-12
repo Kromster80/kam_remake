@@ -3,6 +3,7 @@ interface
 uses
   {$IFDEF DELPHI} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
+
   dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls, {JPEG,} Graphics,
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 

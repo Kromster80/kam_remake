@@ -1,6 +1,9 @@
 unit KromOGLUtils;
 interface
-uses dglOpenGL, OpenGL, sysutils, windows, Forms;
+uses dglOpenGL,
+  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF FPC} GL, {$ENDIF}
+  sysutils, windows, Forms;
 
 type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
 kPoly=5,kSurface=6,kObject=7,kButton=8);  //1..31 are ok
@@ -49,7 +52,7 @@ begin
   h_DC := GetDC(RenderFrame);
   if h_DC=0 then
   begin
-    MessageBox(Application.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR);
+    MessageBox(HWND(nil), 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
   if not SetDCPixelFormat(h_DC) then
@@ -57,12 +60,12 @@ begin
   h_RC := wglCreateContext(h_DC);
   if h_RC=0 then
   begin
-    MessageBox(Application.Handle, 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
+    MessageBox(HWND(nil), 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
   if not wglMakeCurrent(h_DC, h_RC) then
   begin
-    MessageBox(Application.Handle, 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
+    MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
     exit;
   end;
   ReadExtensions;
@@ -143,7 +146,7 @@ begin
   if (s[i]=#13)and(i+1<length(s)) then
   if (s[i+1]<>'W')and(s[i+1]<>'L')and(not ShowMessage) then ShowMessage:=true;
 if ShowMessage then
-if s[0]<>'' then MessageBox(FormHandle, @(Text+s)[1],'GLSL Log', MB_OK);
+if s[0]<>'' then MessageBox(HWND(nil), @({Text}+s)[1],'GLSL Log', MB_OK);
 end;
 
 procedure BuildFont(h_DC:HDC;FontSize:integer);
@@ -159,18 +162,19 @@ begin
 end;
 
 procedure glPrint(text: string);
+var d:pchar;
 begin
   if text = '' then exit;
   glPushAttrib(GL_LIST_BIT);
   glListBase(20000);
-  glCallLists(length(text),GL_UNSIGNED_BYTE,Pchar(text));
+  glCallLists(length(text),GL_UNSIGNED_BYTE,Pchar(StrPCopy(d,text)));
   glPopAttrib;
 end;
 
 function ReadClick(X, Y: word): Vector;
-var viewport:array[0..3]of GLInt;
-    projection:array[0..15]of GLDouble;
-    modelview:array[0..15]of GLdouble;
+var viewport:TVector4i;
+    projection:TMatrix4d;
+    modelview:TMatrix4d;
     vx,vy:integer;
     vz:single; //required to match GL_FLOAT - single
     wx,wy,wz:GLdouble;
@@ -190,7 +194,7 @@ begin
   Result.z:=0;
   end else begin
   //This function uses OpenGL parameters, not dglOpenGL
-  gluUnProject(vx, vy, vz, @modelview, @projection, @viewport, wx, wy, wz);
+  gluUnProject(vx, vy, vz, modelview, projection, viewport, @wx, @wy, @wz);
   Result.x:=wx;
   Result.y:=wy;
   Result.z:=wz;
@@ -212,7 +216,7 @@ end;
 
 procedure glkScale(x:single);
 begin
-  glScale(x,x,x);
+  glScalef(x,x,x);
 end;
 
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
@@ -240,8 +244,8 @@ Still it's unclear if that works on all GPUs the same..}
 procedure glkMoveAALines(DoShift:boolean);
 const Value=0.5;
 begin
-if DoShift then glTranslate(Value,Value,0)
-           else glTranslate(-Value,-Value,0);
+if DoShift then glTranslatef(Value,Value,0)
+           else glTranslatef(-Value,-Value,0);
 end;
 
 

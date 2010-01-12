@@ -18,7 +18,7 @@ uses
   Forms, Windows,
   {$IFDEF DELPHI} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  SysUtils, Classes, dglOpenGL, ZLibEx;
+  SysUtils, Classes, dglOpenGL {$IFDEF DELPHI}, ZLibEx {$ENDIF};
 
 function LoadTexture(Filename: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
@@ -26,7 +26,9 @@ function GenerateTextureCommon():GLuint;
 
 implementation
 
+{$IFDEF DELPHI}
 function gluBuild2DMipmaps(Target: GLenum; Components, Width, Height: GLint; Format, atype: GLenum; Data: Pointer): GLint; stdcall; external glu32;
+{$ENDIF}
 procedure glGenTextures(n: GLsizei; var textures: GLuint); stdcall; external opengl32;
 procedure glBindTexture(target: GLenum; texture: GLuint); stdcall; external opengl32;
 
@@ -119,7 +121,7 @@ var
 var
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
-  DeCompressionStream: TZDecompressionStream;
+  {$IFDEF DELPHI} DeCompressionStream: TZDecompressionStream; {$ENDIF}
 
 begin
   result :=FALSE;
@@ -133,7 +135,7 @@ begin
     if SizeOf(TGAHeader) <> bytesRead then begin
       Result := False;      
       CloseFile(TGAFile);
-      Application.MessageBox(PChar('Couldn''t read file header "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
+      MessageBox(HWND(nil),PChar('Couldn''t read file header "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
       Exit;
     end;
 
@@ -152,6 +154,7 @@ begin
   //TGA is compressed by ZLibEx, thats only KaM Remake custom option
   if ZLibCompressed{TGAHeader.FileType=120} then
   begin
+  {$IFDEF DELPHI}
     CloseFile(TGAFile);
     InputStream := TFileStream.Create(FileName, fmOpenRead);
     OutputStream := TMemoryStream.Create;
@@ -161,6 +164,7 @@ begin
     DeCompressionStream.Free;
     OutputStream.Position:=0;
     OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
+  {$ENDIF}
   end;
 
   // Only support 24, 32 bit uncompressed images
