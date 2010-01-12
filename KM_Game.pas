@@ -43,7 +43,7 @@ type
     property GetGameName:string read GameName;
     function GetNewID():cardinal;
     function Save(SlotID:shortint):string;
-    function Load(SlotID:shortint):string;
+    function Load(SlotID:shortint):boolean;
     procedure UpdateState;
     procedure PaintInterface;
   end;
@@ -642,12 +642,12 @@ begin
 end;
 
 
-function TKMGame.Load(SlotID:shortint):string; //I've declared it a string for debug, should be enum
+function TKMGame.Load(SlotID:shortint):boolean;
 var LoadStream:TKMemoryStream;
 s:string;
 begin
   fLog.AppendLog('Loading game');
-  Result := 'NIL';
+  Result := false;
 
   if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent);
 
@@ -678,6 +678,7 @@ begin
       fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
 
       fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
+      Result := true;
     end;
     gsEditor:   exit;
     gsPaused:   exit; //Taken care of earlier
