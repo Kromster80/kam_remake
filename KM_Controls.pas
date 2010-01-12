@@ -104,14 +104,13 @@ TKMLabel = class(TKMControl)
     procedure Paint(); override;
 end;
 
-TAnchors = (anLeft, anRight, anTop, anBottom);
 
 {Image}
 TKMImage = class(TKMControl)
   public
     RXid: integer; //RX library
     TexID: integer;
-    Anchors: set of TAnchors;
+    Anchors: TAnchors;
     procedure FillArea;
     procedure Center;
   protected
@@ -516,7 +515,7 @@ constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTex
 begin
   RXid := aRXid;
   TexID := aTexID;
-  Anchors := [anLeft, anTop];
+  Anchors := [akLeft, akTop];
   Inherited Create(aLeft, aTop, aWidth, aHeight);
   ParentTo(aParent);
 end;
@@ -524,7 +523,7 @@ end;
 
 procedure TKMImage.FillArea;
 begin
-  Anchors := [anLeft, anRight, anTop, anBottom]; //Stretch image to fit
+  Anchors := [akLeft, akRight, akTop, akBottom]; //Stretch image to fit
 end;
 
 
@@ -548,24 +547,24 @@ begin
   OffsetX := 0;
   OffsetY := 0;
 
-  if anRight in Anchors then OffsetX := Width - GFXData[RXid, TexID].PxWidth; //First check "non-zero offset" anchor incase both anchors are set
-  if anLeft in Anchors then OffsetX := 0;
-  if (anLeft in Anchors) and (anRight in Anchors) then //Both anchors means: stretch the image
+  if akRight in Anchors then OffsetX := Width - GFXData[RXid, TexID].PxWidth; //First check "non-zero offset" anchor incase both anchors are set
+  if akLeft in Anchors then OffsetX := 0;
+  if (akLeft in Anchors) and (akRight in Anchors) then //Both anchors means: stretch the image
   begin
     StretchDraw := true;
     DrawWidth := Width;
   end;
-  if not ((anLeft in Anchors) or (anRight in Anchors)) then //No anchors means: draw the image in center
+  if not ((akLeft in Anchors) or (akRight in Anchors)) then //No anchors means: draw the image in center
     OffsetX := (Width - GFXData[RXid, TexID].PxWidth) div 2;
 
-  if anBottom in Anchors then OffsetY := Width - GFXData[RXid, TexID].PxHeight;
-  if anTop in Anchors then OffsetY := 0;
-  if (anTop in Anchors) and (anBottom in Anchors) then
+  if akBottom in Anchors then OffsetY := Width - GFXData[RXid, TexID].PxHeight;
+  if akTop in Anchors then OffsetY := 0;
+  if (akTop in Anchors) and (akBottom in Anchors) then
   begin
     StretchDraw := true;
     DrawHeight := Height;
   end;
-  if not ((anTop in Anchors) or (anBottom in Anchors)) then
+  if not ((akTop in Anchors) or (akBottom in Anchors)) then
     OffsetY := (Height - GFXData[RXid, TexID].PxHeight) div 2;
 
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);

@@ -8,7 +8,7 @@
       <TargetFileExt Value=".exe"/>
       <Title Value="KaM_Remake"/>
       <UseXPManifest Value="True"/>
-      <ActiveEditorIndexAtStart Value="1"/>
+      <ActiveEditorIndexAtStart Value="4"/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
@@ -66,7 +66,7 @@
         <Filename Value="KM_Render.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Render"/>
-        <CursorPos X="66" Y="447"/>
+        <CursorPos X="22" Y="453"/>
         <TopLine Value="439"/>
         <EditorIndex Value="1"/>
         <UsageCount Value="24"/>
@@ -203,9 +203,11 @@
         <Filename Value="KM_Controls.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Controls"/>
-        <CursorPos X="50" Y="1083"/>
-        <TopLine Value="1069"/>
+        <CursorPos X="14" Y="567"/>
+        <TopLine Value="549"/>
+        <EditorIndex Value="3"/>
         <UsageCount Value="24"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit19>
       <Unit20>
@@ -260,9 +262,11 @@
         <Filename Value="KM_InterfaceGamePlay.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceGamePlay"/>
-        <CursorPos X="1" Y="1"/>
-        <TopLine Value="1"/>
+        <CursorPos X="67" Y="583"/>
+        <TopLine Value="570"/>
+        <EditorIndex Value="4"/>
         <UsageCount Value="24"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit25>
       <Unit26>
@@ -420,9 +424,11 @@
       <Unit44>
         <Filename Value=" Common \openal.pas"/>
         <UnitName Value="openal"/>
-        <CursorPos X="49" Y="1920"/>
-        <TopLine Value="1917"/>
+        <CursorPos X="63" Y="2197"/>
+        <TopLine Value="2202"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit44>
       <Unit45>
@@ -452,9 +458,11 @@
       <Unit48>
         <Filename Value="..\..\..\..\..\Lazarus\lcl\controls.pp"/>
         <UnitName Value="Controls"/>
-        <CursorPos X="28" Y="1322"/>
-        <TopLine Value="1308"/>
+        <CursorPos X="3" Y="110"/>
+        <TopLine Value="99"/>
+        <EditorIndex Value="5"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit48>
       <Unit49>
         <Filename Value="..\..\..\..\..\Lazarus\fpc\2.2.4\source\rtl\win\wininc\struct.inc"/>
@@ -485,11 +493,47 @@
         <SyntaxHighlighter Value="LFM"/>
       </Unit52>
     </Units>
-    <JumpHistory Count="1" HistoryIndex="0">
+    <JumpHistory Count="10" HistoryIndex="9">
       <Position1>
         <Filename Value=" Common \KromUtils.pas"/>
         <Caret Line="141" Column="10" TopLine="127"/>
       </Position1>
+      <Position2>
+        <Filename Value=" Common \openal.pas"/>
+        <Caret Line="1920" Column="49" TopLine="1917"/>
+      </Position2>
+      <Position3>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="1083" Column="50" TopLine="1069"/>
+      </Position3>
+      <Position4>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="107" Column="7" TopLine="93"/>
+      </Position4>
+      <Position5>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="113" Column="14" TopLine="93"/>
+      </Position5>
+      <Position6>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="518" Column="7" TopLine="504"/>
+      </Position6>
+      <Position7>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="113" Column="16" TopLine="102"/>
+      </Position7>
+      <Position8>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="518" Column="25" TopLine="507"/>
+      </Position8>
+      <Position9>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="526" Column="41" TopLine="515"/>
+      </Position9>
+      <Position10>
+        <Filename Value="KM_InterfaceGamePlay.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position10>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

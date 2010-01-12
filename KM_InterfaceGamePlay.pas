@@ -578,9 +578,9 @@ procedure TKMGamePlayInterface.Create_Message_Page;
 begin
   Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.GetRenderAreaSize.Y - 190, fRender.GetRenderAreaSize.X - TOOLBARWIDTH, 190);
     Image_MessageBG:=MyControls.AddImage(Panel_Message,0,20,600,170,409);
-    Image_MessageBG.Anchors := Image_MessageBG.Anchors + [anRight];
+    Image_MessageBG.Anchors := Image_MessageBG.Anchors + [akRight];
     Image_MessageBGTop:=MyControls.AddImage(Panel_Message,0,0,600,20,551);
-    Image_MessageBGTop.Anchors := Image_MessageBGTop.Anchors + [anRight];
+    Image_MessageBGTop.Anchors := Image_MessageBGTop.Anchors + [akRight];
     Label_MessageText:=MyControls.AddLabel(Panel_Message,47,67,432,122,'',fnt_Antiqua,kaLeft);
     Label_MessageText.AutoWrap := true;
     Button_MessageGoTo:=MyControls.AddButton(Panel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
