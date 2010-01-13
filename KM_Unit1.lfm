@@ -13,14 +13,20 @@ object Form1: TForm1
   Font.Style = []
   KeyPreview = True
   Menu = MainMenu1
+  OldCreateOrder = False
   Position = poScreenCenter
+  OnCanResize = FormCanResize
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
   OnMouseWheel = FormMouseWheel
   OnResize = FormResize
+  DesignSize = (
+    867
+    245)
   PixelsPerInch = 96
+  TextHeight = 13
   object Panel5: TPanel
     Left = 0
     Top = 0
@@ -121,7 +127,10 @@ object Form1: TForm1
       PageSize = 1
       Frequency = 1
       Position = 0
+      SelEnd = 0
+      SelStart = 0
       TabOrder = 0
+      ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
       OnChange = Debug_PassabilityTrackChange
@@ -192,13 +201,27 @@ object Form1: TForm1
       PageSize = 1
       Frequency = 1
       Position = 0
+      SelEnd = 0
+      SelStart = 0
       TabOrder = 8
+      ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone
       OnChange = TB_Angle_Change
     end
   end
-
+  object MediaPlayer1: TMediaPlayer
+    Left = 112
+    Top = 192
+    Width = 141
+    Height = 28
+    ColoredButtons = [btPlay, btPause, btStop, btNext, btPrev]
+    Enabled = False
+    EnabledButtons = [btPlay, btPause, btStop, btNext, btPrev]
+    VisibleButtons = [btPlay, btPause, btStop, btNext, btPrev]
+    Visible = False
+    TabOrder = 3
+  end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]

@@ -22,7 +22,7 @@ type
     fGameSettings: TGameSettings;
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
-    fMapEditorInterface: TKMMapEditorInterface;
+    fMapEditorInterface: TKMapEdInterface;
   public
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
     destructor Destroy; override;
@@ -552,7 +552,7 @@ begin
   fRender.Render;
 
   fViewport:=TViewport.Create;
-  fMapEditorInterface:= TKMMapEditorInterface.Create;
+  fMapEditorInterface:= TKMapEdInterface.Create;
 
   //Here comes terrain/mission init
   fTerrain:= TTerrain.Create;

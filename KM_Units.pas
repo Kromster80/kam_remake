@@ -22,7 +22,7 @@ type
   public
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
-    procedure SyncLoad(); dynamic;
+    procedure SyncLoad(); virtual; abstract;
     procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); virtual; abstract;
     property GetActionType: TUnitActionType read fActionType;
     property GetIsStepDone:boolean read IsStepDone write IsStepDone;
@@ -448,17 +448,17 @@ begin
   YPaintPos := fPosition.Y+ 1 +GetYSlide;
 
   if MakeShowUnitRoutes then
-  if fCurrentAction is TUnitActionWalkTo then
-    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
-                            TUnitActionWalkTo(fCurrentAction).NodePos,
-                            $FF00FFFF);
+    if fCurrentAction is TUnitActionWalkTo then
+      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
+                                   TUnitActionWalkTo(fCurrentAction).NodePos,
+                                   $FF00FFFF);
 
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
       fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
       if ua_WalkArm in UnitSupportedActions[byte(UnitType)] then
-      fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+        fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
     end;
   ua_Work..ua_Eat:
       fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
@@ -470,7 +470,7 @@ begin
   end;
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, fPosition.Y+1);
+    fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, fPosition.Y+1);
 end;
 
 
@@ -628,8 +628,8 @@ begin
   YPaintPos := fPosition.Y+ 1 +GetYSlide;
 
   if MakeShowUnitRoutes then
-  if fCurrentAction is TUnitActionWalkTo then
-    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFF00FF);
+    if fCurrentAction is TUnitActionWalkTo then
+      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFF00FF);
 
   fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
 
@@ -641,7 +641,7 @@ begin
     fRender.RenderUnit(byte(GetUnitType), 9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
+    fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
 end;
 
 
@@ -721,8 +721,8 @@ begin
   if not fVisible then exit;
 
   if MakeShowUnitRoutes then
-  if fCurrentAction is TUnitActionWalkTo then
-    fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFFFFFF);
+    if fCurrentAction is TUnitActionWalkTo then
+      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFFFFFF);
 
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
@@ -733,7 +733,7 @@ begin
   fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
+    fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
 end;
 
 
@@ -1824,49 +1824,50 @@ end;
 
 procedure TTaskSelfTrain.Execute(out TaskDone:boolean);
 begin
-TaskDone:=false;
-if fSchool.IsDestroyed then
-begin
-  Abandon;
-  TaskDone:=true;
-  exit;
-end;
-with fUnit do
-case fPhase of
-  0: begin
-      fSchool.SetState(hst_Work,0);
-      fSchool.fCurrentAction.SubActionWork(ha_Work1,30);
-      SetActionStay(29,ua_Walk);
+  TaskDone:=false;
+  if fSchool.IsDestroyed then
+  begin
+    Abandon;
+    TaskDone:=true;
+    exit;
+  end;
+
+  with fUnit do
+    case fPhase of
+      0: begin
+          fSchool.SetState(hst_Work,0);
+          fSchool.fCurrentAction.SubActionWork(ha_Work1,30);
+          SetActionStay(29,ua_Walk);
+        end;
+      1: begin
+          fSchool.fCurrentAction.SubActionWork(ha_Work2,30);
+          SetActionStay(29,ua_Walk);
+        end;
+      2: begin
+          fSchool.fCurrentAction.SubActionWork(ha_Work3,30);
+          SetActionStay(29,ua_Walk);
+        end;
+      3: begin
+          fSchool.fCurrentAction.SubActionWork(ha_Work4,30);
+          SetActionStay(29,ua_Walk);
+        end;
+      4: begin
+          fSchool.fCurrentAction.SubActionWork(ha_Work5,30);
+          SetActionStay(29,ua_Walk);
+        end;
+      5: begin
+          fSchool.SetState(hst_Idle,10);
+          SetActionStay(9,ua_Walk);
+          fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
+         end;
+      6: begin
+          SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
+          fSchool.UnitTrainingComplete;
+          fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,true);
+         end;
+      else TaskDone:=true;
     end;
-  1: begin
-      fSchool.fCurrentAction.SubActionWork(ha_Work2,30);
-      SetActionStay(29,ua_Walk);
-    end;
-  2: begin
-      fSchool.fCurrentAction.SubActionWork(ha_Work3,30);
-      SetActionStay(29,ua_Walk);
-    end;
-  3: begin
-      fSchool.fCurrentAction.SubActionWork(ha_Work4,30);
-      SetActionStay(29,ua_Walk);
-    end;
-  4: begin
-      fSchool.fCurrentAction.SubActionWork(ha_Work5,30);
-      SetActionStay(29,ua_Walk);
-    end;
-  5: begin
-      fSchool.SetState(hst_Idle,10);
-      SetActionStay(9,ua_Walk);
-      fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
-     end;
-  6: begin
-      SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
-      fSchool.UnitTrainingComplete;
-      fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,true);
-     end;
-  else TaskDone:=true;
-end;
-inc(fPhase);
+  inc(fPhase);
 end;
 
 
@@ -3094,12 +3095,6 @@ begin
   LoadStream.Read(fActionName, SizeOf(fActionName));
   LoadStream.Read(fActionType, SizeOf(fActionType));
   LoadStream.Read(IsStepDone);
-end;
-
-
-procedure TUnitAction.SyncLoad();
-begin
-  //nothing here, placeholder
 end;
 
 

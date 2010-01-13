@@ -22,15 +22,15 @@ type
     function Write(const Value:boolean): Longint; reintroduce; overload;
     function Write(const Value:word): Longint; reintroduce; overload;
     function Write(const Value:shortint): Longint; reintroduce; overload;
-    procedure Read(var Value:string); reintroduce; overload;
-    function Read(var Value:TKMPoint): Longint; reintroduce; overload;
-    function Read(var Value:single): Longint; reintroduce; overload;
-    function Read(var Value:integer): Longint; reintroduce; overload;
-    function Read(var Value:cardinal): Longint; reintroduce; overload;
-    function Read(var Value:byte): Longint; reintroduce; overload;
-    function Read(var Value:boolean): Longint; reintroduce; overload;
-    function Read(var Value:word): Longint; reintroduce; overload;
-    function Read(var Value:shortint): Longint; reintroduce; overload;
+    procedure Read(out Value:string); reintroduce; overload;
+    function Read(out Value:TKMPoint): Longint; reintroduce; overload;
+    function Read(out Value:single): Longint; reintroduce; overload;
+    function Read(out Value:integer): Longint; reintroduce; overload;
+    function Read(out Value:cardinal): Longint; reintroduce; overload;
+    function Read(out Value:byte): Longint; reintroduce; overload;
+    function Read(out Value:boolean): Longint; reintroduce; overload;
+    function Read(out Value:word): Longint; reintroduce; overload;
+    function Read(out Value:shortint): Longint; reintroduce; overload;
   end;
 
 {Messages}
@@ -249,7 +249,7 @@ function TKMemoryStream.Write(const Value:shortint): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
 
 
-procedure TKMemoryStream.Read(var Value:string);
+procedure TKMemoryStream.Read(out Value:string);
 var i:word;
 begin
   Read(i, SizeOf(i));
@@ -257,21 +257,21 @@ begin
   Read(Value[1], i);
 end;
 
-function TKMemoryStream.Read(var Value:TKMPoint): Longint;
+function TKMemoryStream.Read(out Value:TKMPoint): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
-function TKMemoryStream.Read(var Value:single): Longint;
+function TKMemoryStream.Read(out Value:single): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
-function TKMemoryStream.Read(var Value:integer): Longint;
+function TKMemoryStream.Read(out Value:integer): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
-function TKMemoryStream.Read(var Value:cardinal): Longint;
+function TKMemoryStream.Read(out Value:cardinal): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
-function TKMemoryStream.Read(var Value:byte): Longint;
+function TKMemoryStream.Read(out Value:byte): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
-function TKMemoryStream.Read(var Value:boolean): Longint;
+function TKMemoryStream.Read(out Value:boolean): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
-function TKMemoryStream.Read(var Value:word): Longint;
+function TKMemoryStream.Read(out Value:word): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
-function TKMemoryStream.Read(var Value:shortint): Longint;
+function TKMemoryStream.Read(out Value:shortint): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
 
 

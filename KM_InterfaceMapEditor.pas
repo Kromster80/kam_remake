@@ -3,7 +3,7 @@ interface
 uses Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils,
      KM_Controls, KM_Defaults, KM_Houses, KM_Units;
 
-type TKMMapEditorInterface = class
+type TKMapEdInterface = class
   protected
     ToolBarX:word;
   protected
@@ -115,7 +115,7 @@ uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils
 
 
 {Switch between pages}
-procedure TKMMapEditorInterface.SwitchPage(Sender: TObject);
+procedure TKMapEdInterface.SwitchPage(Sender: TObject);
 var i,k:integer;
 begin
 
@@ -221,7 +221,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
+procedure TKMapEdInterface.DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
 begin
   ShownHint:=Sender;
   if((ShownHint<>nil) and ((not TKMControl(ShownHint).CursorOver) or (not TKMControl(ShownHint).Visible)) ) then ShownHint:=nil; //only set if cursor is over and control is visible
@@ -238,20 +238,20 @@ end;
 
 
 {Update minimap data}
-procedure TKMMapEditorInterface.Minimap_Update(Sender: TObject);
+procedure TKMapEdInterface.Minimap_Update(Sender: TObject);
 begin
   if Sender=nil then begin //UpdateState loop
     KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
   end else
     if KMMinimap.CenteredAt.X*KMMinimap.CenteredAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
-    fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
+      fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
 
   KMMinimap.CenteredAt:=fViewport.GetCenter;
   KMMinimap.ViewArea:=fViewport.GetMinimapClip;
 end;
 
 
-constructor TKMMapEditorInterface.Create();
+constructor TKMapEdInterface.Create();
 var i:integer;
 begin
   Inherited;
@@ -317,21 +317,21 @@ begin
 end;
 
 
-destructor TKMMapEditorInterface.Destroy;
+destructor TKMapEdInterface.Destroy;
 begin
   FreeAndNil(MyControls);
   inherited;
 end;
 
 
-procedure TKMMapEditorInterface.SetScreenSize(X,Y:word);
+procedure TKMapEdInterface.SetScreenSize(X,Y:word);
 begin
   //todo: Update Hint position and etc..
 end;
 
 
 {Terrain page}
-procedure TKMMapEditorInterface.Create_Terrain_Page;
+procedure TKMapEdInterface.Create_Terrain_Page;
 var i,k:integer;
 begin
   Panel_Terrain := MyControls.AddPanel(Panel_Main,0,428,196,28);
@@ -362,7 +362,7 @@ begin
 end;
 
 {Build page}
-procedure TKMMapEditorInterface.Create_Village_Page;
+procedure TKMapEdInterface.Create_Village_Page;
 var i:integer;
 begin
   Panel_Village := MyControls.AddPanel(Panel_Main,0,428,196,28);
@@ -424,7 +424,7 @@ end;
 
 
 {Statistics page}
-procedure TKMMapEditorInterface.Create_Stats_Page;
+procedure TKMapEdInterface.Create_Stats_Page;
 const IncY=34; Nil_Width=10; House_Width=30; Unit_Width=26;
 var i,k:integer; hc,uc,off:integer;
 begin
@@ -489,7 +489,7 @@ end;
                                            
 
 {Menu page}
-procedure TKMMapEditorInterface.Create_Menu_Page;
+procedure TKMapEdInterface.Create_Menu_Page;
 begin
   Panel_Menu:=MyControls.AddPanel(Panel_Main,0,412,196,400);
     Button_Menu_Save:=MyControls.AddButton(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
@@ -508,7 +508,7 @@ end;
 
 
 {Quit page}
-procedure TKMMapEditorInterface.Create_Quit_Page;
+procedure TKMapEdInterface.Create_Quit_Page;
 begin
   Panel_Quit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
     MyControls.AddLabel(Panel_Quit,100,30,100,30,fTextLibrary.GetTextString(176),fnt_Outline,kaCenter);
@@ -523,7 +523,7 @@ end;
 
 
 {Unit page}
-procedure TKMMapEditorInterface.Create_Unit_Page;
+procedure TKMapEdInterface.Create_Unit_Page;
 begin
   Panel_Unit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
     Label_UnitName:=MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
@@ -535,7 +535,7 @@ end;
 
 
 {House description page}
-procedure TKMMapEditorInterface.Create_House_Page;
+procedure TKMapEdInterface.Create_House_Page;
 begin
   Panel_House:=MyControls.AddPanel(Panel_Main,0,412,200,400);
     //Thats common things
@@ -548,7 +548,7 @@ begin
 end;
 
 {Store page}
-procedure TKMMapEditorInterface.Create_Store_Page;
+procedure TKMapEdInterface.Create_Store_Page;
 var i:integer;
 begin
     Panel_HouseStore:=MyControls.AddPanel(Panel_House,0,76,200,400);
@@ -565,7 +565,7 @@ end;
 
 
 {Barracks page}
-procedure TKMMapEditorInterface.Create_Barracks_Page;
+procedure TKMapEdInterface.Create_Barracks_Page;
 var i:integer;
 begin
     Panel_HouseBarracks:=MyControls.AddPanel(Panel_House,0,76,200,400);
@@ -601,7 +601,7 @@ end;
 
 {Should update any items changed by game (resource counts, hp, etc..)}
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
-procedure TKMMapEditorInterface.UpdateState;
+procedure TKMapEdInterface.UpdateState;
 begin
   if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse);
@@ -615,7 +615,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.Build_ButtonClick(Sender: TObject);
+procedure TKMapEdInterface.Build_ButtonClick(Sender: TObject);
 var i:integer;
 begin
   if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
@@ -665,7 +665,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.Unit_ButtonClick(Sender: TObject);
+procedure TKMapEdInterface.Unit_ButtonClick(Sender: TObject);
 var i:integer;
 begin
   if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
@@ -698,7 +698,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.ShowHouseInfo(Sender:TKMHouse);
+procedure TKMapEdInterface.ShowHouseInfo(Sender:TKMHouse);
 var i:integer;
 begin
   ShownUnit:=nil;
@@ -737,7 +737,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.ShowUnitInfo(Sender:TKMUnit);
+procedure TKMapEdInterface.ShowUnitInfo(Sender:TKMUnit);
 begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
@@ -766,7 +766,7 @@ end;
 
 {That small red triangle blocking delivery of goods to Storehouse}
 {Resource determined by Button.Tag property}
-procedure TKMMapEditorInterface.House_StoreAcceptFlag(Sender:TObject);
+procedure TKMapEdInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
@@ -775,7 +775,7 @@ end;
 
 
 {Show mission loading dialogue}
-procedure TKMMapEditorInterface.Menu_Load(Sender:TObject);
+procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
   //@Lewin:
   //We have 3 options here:
@@ -788,7 +788,7 @@ end;
 
 
 {Quit the mission and return to main menu}
-procedure TKMMapEditorInterface.Menu_QuitMission(Sender:TObject);
+procedure TKMapEdInterface.Menu_QuitMission(Sender:TObject);
 var i:integer;
 begin
   Panel_Main.Hide;
@@ -801,13 +801,13 @@ end;
 
 
 {Virtually press BuildRoad button when changing page to BuildingPage or after house plan is placed}
-procedure TKMMapEditorInterface.Build_SelectRoad;
+procedure TKMapEdInterface.Build_SelectRoad;
 begin
   Build_ButtonClick(Button_BuildRoad);
 end;
 
 
-procedure TKMMapEditorInterface.Build_RightClickCancel;
+procedure TKMapEdInterface.Build_RightClickCancel;
 begin
   //This function will be called if the user right clicks on the screen. We should close the build menu if it's open.
   //@Lewin: what should we do on right-click?
@@ -815,7 +815,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.Store_Fill(Sender:TObject);
+procedure TKMapEdInterface.Store_Fill(Sender:TObject);
 var i,Tmp:integer;
 begin
   if fPlayers.Selected=nil then exit;
@@ -830,7 +830,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.Stats_Fill(Sender:TObject);
+procedure TKMapEdInterface.Stats_Fill(Sender:TObject);
 var i,Tmp:integer;
 begin
   for i:=low(StatHouse) to high(StatHouse) do
@@ -860,7 +860,7 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.OnKeyUp(Key:Word; IsDown:boolean=false);
+procedure TKMapEdInterface.OnKeyUp(Key:Word; IsDown:boolean=false);
 begin
   //1-5 game menu shortcuts
   if Key in [49..53] then
@@ -871,14 +871,14 @@ begin
 end;
 
 
-procedure TKMMapEditorInterface.ClearShownUnit;
+procedure TKMapEdInterface.ClearShownUnit;
 begin
   ShownUnit := nil;
   SwitchPage(nil);
 end;
 
 
-procedure TKMMapEditorInterface.Paint;
+procedure TKMapEdInterface.Paint;
 begin
   MyControls.Paint;
 end;
