@@ -217,7 +217,9 @@ end;
 procedure TForm1.FormResize(Sender:TObject);
 begin
   if fGame<>nil then //Occurs on exit
-    fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+    fGame.ResizeGameArea(Panel5.Width, Panel5.Height);
+  if fLog<>nil then
+    fLog.AppendLog('FormResize - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
   ApplyCursorRestriction;
 end;
 
@@ -261,6 +263,7 @@ begin
   if not Form1.Active then exit;
   if FormLoading.Visible then FormLoading.Hide;
   fGame.UpdateState;
+  Form1.Caption := inttostr(fGame.ScreenY);
 end;
 
 
@@ -646,27 +649,29 @@ procedure TForm1.ToggleControlsVisibility(ShowCtrls:boolean);
 begin
   Form1.Refresh;
 
+  {$IFDEF VER140}
   if MainMenu1.Items[0].Visible and not ShowCtrls then //Hiding controls
     Form1.ClientHeight := Form1.ClientHeight - 20
   else
   if not MainMenu1.Items[0].Visible and ShowCtrls then //Showing controls
     Form1.ClientHeight := Form1.ClientHeight + 20;
+  {$ENDIF}
 
-  GroupBox1.Visible:=ShowCtrls;
-  StatusBar1.Visible:=ShowCtrls;
+  GroupBox1.Visible  := ShowCtrls;
+  StatusBar1.Visible := ShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
-    MainMenu1.Items[i-1].Visible:=ShowCtrls;
+    MainMenu1.Items[i-1].Visible := ShowCtrls;
 
-  GroupBox1.Enabled:=ShowCtrls;
-  StatusBar1.Enabled:=ShowCtrls;
+  GroupBox1.Enabled  := ShowCtrls;
+  StatusBar1.Enabled := ShowCtrls;
   for i:=1 to MainMenu1.Items.Count do
-    MainMenu1.Items[i-1].Enabled:=ShowCtrls;
+    MainMenu1.Items[i-1].Enabled := ShowCtrls;
 
   Form1.Refresh;   
 
-  Panel5.Top:=0;
-  Panel5.Height:=Form1.ClientHeight;
-  Panel5.Width :=Form1.ClientWidth;
+  Panel5.Top    := 0;
+  Panel5.Height := Form1.ClientHeight;
+  Panel5.Width  := Form1.ClientWidth;
 
   if fGame<>nil then //Could happen on game start when Form gets resized and fGame is nil
     fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
@@ -678,32 +683,34 @@ begin
   if Toggle then begin
     SetScreenResolution(SupportedResolutions[ResolutionID,1],SupportedResolutions[ResolutionID,2],SupportedRefreshRates[ResolutionID]);
     Form1.Refresh;
-    Form1.BorderStyle:=bsSizeable; //if we don't set Form1 sizeable it won't expand to fullscreen
-    Form1.WindowState:=wsMaximized;
-    Form1.BorderStyle:=bsNone;     //and now we can make it borderless again
+    Form1.BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't expand to fullscreen
+    Form1.WindowState  := wsMaximized;
+    Form1.BorderStyle  := bsNone;     //and now we can make it borderless again
     Form1.Refresh;
   end else begin
     ResetResolution;
     Form1.Refresh;
-    Form1.WindowState:=wsNormal;
-    Form1.BorderStyle:=bsSizeable;
-    Form1.ClientWidth:=MENU_DESIGN_X;
-    Form1.ClientHeight:=MENU_DESIGN_Y;
+    Form1.WindowState  := wsNormal;
+    Form1.BorderStyle  := bsSizeable;
+    Form1.ClientWidth  := MENU_DESIGN_X;
+    Form1.ClientHeight := MENU_DESIGN_Y;
     Form1.Refresh;
-    Form1.Left:=Math.max((Screen.Width-MENU_DESIGN_X)div 2,0);
-    Form1.Top:=Math.max((Screen.Height-MENU_DESIGN_Y)div 2,0); //Center on screen and make sure titlebar is visible
+    Form1.Left := Math.max((Screen.Width  - MENU_DESIGN_X)div 2,0);
+    Form1.Top  := Math.max((Screen.Height - MENU_DESIGN_Y)div 2,0); //Center on screen and make sure titlebar is visible
   end;
 
-  Panel5.Top:=0;
-  Panel5.Height:=Form1.ClientHeight;
+  Panel5.Top    := 0;
+  Panel5.Height := Form1.ClientHeight;
+  Panel5.Width  := Form1.ClientWidth;
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   //Don't know how lame it is, but it works well
   //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
   FreeAndNil(fGame); //Saves all settings into ini file in midst
   //Now re-init fGame
-  fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
+  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height);
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+  fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
   if ReturnToOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
   ApplyCursorRestriction
