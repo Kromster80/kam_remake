@@ -666,6 +666,7 @@ begin
 
   Panel5.Top:=0;
   Panel5.Height:=Form1.ClientHeight;
+  Panel5.Width :=Form1.ClientWidth;
 
   if fGame<>nil then //Could happen on game start when Form gets resized and fGame is nil
     fGame.ResizeGameArea(Panel5.Width,Panel5.Height);

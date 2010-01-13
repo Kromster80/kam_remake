@@ -611,7 +611,7 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
 
       if Mode=tm_TexID then
         if InRange(x,24,30) then
-          col:=(byte(x-27)*42+128)*65793 OR $FF000000 //convert to greyscale B>>>>>W
+          col:=cardinal((byte(x-27)*42+128)*65793) OR $FF000000 //convert to greyscale B>>>>>W
           //Alternative method
           //col:=$FF000000
         else
