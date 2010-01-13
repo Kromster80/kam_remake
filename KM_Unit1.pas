@@ -67,7 +67,6 @@ type
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -220,14 +219,6 @@ begin
   if fGame<>nil then //Occurs on exit
     fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
   ApplyCursorRestriction;
-end;
-
-
-procedure TForm1.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
-begin
-  Resize := true; //Allow the resize, but set minimum allowed dimensions to 640x480
-  NewWidth:=Math.max(NewWidth,640);
-  NewHeight:=Math.max(NewHeight,480);
 end;
 
 

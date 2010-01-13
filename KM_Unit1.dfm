@@ -15,7 +15,6 @@ object Form1: TForm1
   Menu = MainMenu1
   OldCreateOrder = False
   Position = poScreenCenter
-  OnCanResize = FormCanResize
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
@@ -209,18 +208,6 @@ object Form1: TForm1
       TickStyle = tsNone
       OnChange = TB_Angle_Change
     end
-  end
-  object MediaPlayer1: TMediaPlayer
-    Left = 112
-    Top = 192
-    Width = 141
-    Height = 28
-    ColoredButtons = [btPlay, btPause, btStop, btNext, btPrev]
-    Enabled = False
-    EnabledButtons = [btPlay, btPause, btStop, btNext, btPrev]
-    VisibleButtons = [btPlay, btPause, btStop, btNext, btPrev]
-    Visible = False
-    TabOrder = 3
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
