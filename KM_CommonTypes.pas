@@ -218,10 +218,11 @@ procedure TKMList.Clear;
 var
   I: Integer;
 begin
-  for I := 0 to Count - 1 do begin
-    TObject(Items[I]).Free;
-    Items[I]:=nil;
-  end;
+//todo:Should not be here once Houses/Units/Controls get own lists
+//  for I := 0 to Count - 1 do begin
+//    TObject(Items[I]).Free;
+//    Items[I]:=nil;
+//  end;
   inherited;
 end;
 
@@ -232,13 +233,13 @@ begin
   SaveStream.Write(Count);
   for i:=1 to Count do
   begin
-    SaveStream.Write(intege(Items[i-1]));
+    SaveStream.Write(integer(Items[i-1]));
   end;
 end;
 
 
 procedure TKMList.Load(LoadStream:TKMemoryStream);
-var i, aCount, aItem:intege;
+var i, aCount, aItem:integer;
 begin
   LoadStream.Read(aCount);
   for i:=1 to aCount do

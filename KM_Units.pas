@@ -36,6 +36,7 @@ type
       public
         constructor Create(LocB,aVertexOccupied :TKMPoint; const aActionType:TUnitActionType=ua_Walk);
         constructor Load(LoadStream: TKMemoryStream); override;
+        procedure SyncLoad(); override;
         destructor Destroy; override;
         procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
         procedure Save(SaveStream:TKMemoryStream); override;
@@ -3150,6 +3151,13 @@ begin
   Inherited;
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fVertexOccupied);
+end;
+
+
+procedure TUnitActionAbandonWalk.SyncLoad();
+begin
+  Inherited;
+  //nothing, FPC doesn't likes it missing for some reason
 end;
 
 
