@@ -338,7 +338,7 @@ type
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fUnitsPerRow:integer;
     fGroupDir:TKMDirection; //Direction the group is facing, used only by commander
-    fMembers:TList; //todo: save
+    fMembers:TKMList;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -369,7 +369,7 @@ type
   end;
 
 
-  TKMUnitsCollection = class(TKMList) //List of TKMUnits
+  TKMUnitsCollection = class(TKMList) //todo: List of TKMUnits
   private
     //Groups:array of integer;
   public
@@ -819,13 +819,22 @@ end;
 
 
 constructor TKMUnitWarrior.Load(LoadStream:TKMemoryStream);
+var HasMembers:boolean;
 begin
   Inherited;
   LoadStream.Read(fCommander, 4); //subst on syncload
-  LoadStream.Read(fFlagAnim, 4);
+  LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
   LoadStream.Read(fUnitsPerRow);
+  LoadStream.Read(HasMembers);
+  if HasMembers then
+  begin
+    fMembers := TKMList.Create;
+    fMembers.Load(LoadStream);
+  end
+  else
+    fMembers := nil;
 end;
 
 
@@ -837,9 +846,12 @@ end;
 
 
 procedure TKMUnitWarrior.SyncLoad();
+var i:integer;
 begin
   Inherited;
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fCommander)));
+  for i:=1 to fMembers.Count do
+    fMembers[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fMembers[i-1])));
 end;
 
 
@@ -863,7 +875,7 @@ end;
 
 procedure TKMUnitWarrior.AddMember(aWarrior:TKMUnitWarrior);
 begin
-  if fMembers = nil then fMembers := TList.Create;
+  if fMembers = nil then fMembers := TKMList.Create;
   fMembers.Add(aWarrior);
 end;
 
@@ -907,6 +919,7 @@ end;
 
 
 procedure TKMUnitWarrior.Save(SaveStream:TKMemoryStream);
+var HasMembers:boolean;
 begin
   Inherited;
   if fCommander <> nil then
@@ -917,6 +930,10 @@ begin
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
   SaveStream.Write(fUnitsPerRow);
+  HasMembers := fMembers <> nil;
+  SaveStream.Write(HasMembers);
+  if HasMembers then
+    fMembers.Save(SaveStream);
 end;
 
 

@@ -4,13 +4,6 @@ uses Classes, SysUtils, KM_Utils, MMSystem;
 
 
 type
-  TKMList = class(TList)
-  public
-    procedure Clear; override;
-  end;
-
-
-type
   TKMemoryStream = class(TMemoryStream)
   public
     procedure Write(const Value:string); reintroduce; overload;
@@ -33,9 +26,20 @@ type
     function Read(out Value:shortint): Longint; reintroduce; overload;
   end;
 
+
+type
+  TKMList = class(TList)
+  public
+    procedure Clear; override;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
+  end;
+
+
 {Messages}
 //number matches pic index in gui.rx
 type TKMMessageType = (msgText=491, msgHouse, msgUnit, msgHorn, msgQuill, msgScroll);
+
 
 type
   TKMMessage = class
@@ -219,6 +223,29 @@ begin
     Items[I]:=nil;
   end;
   inherited;
+end;
+
+
+procedure TKMList.Save(SaveStream:TKMemoryStream);
+var i:integer;
+begin
+  SaveStream.Write(Count);
+  for i:=1 to Count do
+  begin
+    SaveStream.Write(intege(Items[i-1]));
+  end;
+end;
+
+
+procedure TKMList.Load(LoadStream:TKMemoryStream);
+var i, aCount, aItem:intege;
+begin
+  LoadStream.Read(aCount);
+  for i:=1 to aCount do
+  begin
+    LoadStream.Read(aItem);
+    Add(Pointer(aItem));
+  end;
 end;
 
 

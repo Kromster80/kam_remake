@@ -130,9 +130,10 @@ var i:integer;
 begin
   //Add Count of resource to old offer
   for i:=1 to length(fOffer) do
-    if (fOffer[i].Loc_House=aHouse)and(fOffer[i].Resource=aResource) then begin
+    if (fOffer[i].Loc_House=aHouse)and(fOffer[i].Resource=aResource) then
+    begin
       inc(fOffer[i].Count,aCount);
-      exit; //Done
+      exit; //we should exit now
     end;
 
   //Find an empty spot for new unique offer

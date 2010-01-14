@@ -263,7 +263,7 @@ TKMMinimap = class(TKMControl)
 end;
 
 
-TKMControlsCollection = class(TKMList)
+TKMControlsCollection = class(TKMList) //todo: List of TKMControls
   private
     procedure AddToCollection(Sender:TKMControl);
   public

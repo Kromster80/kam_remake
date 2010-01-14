@@ -199,7 +199,7 @@ type
   end;
 
 
-  TKMHousesCollection = class(TKMList)
+  TKMHousesCollection = class(TKMList) //todo: List of TKMHouses
   private
     fSelectedHouse: TKMHouse;
     function DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
