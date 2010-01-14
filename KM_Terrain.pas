@@ -207,7 +207,7 @@ end;
 
 //Reset whole map with default values
 procedure TTerrain.MakeNewMap(Width,Height:integer);
-var i,k,h:integer;
+var i,k:integer;
 begin
   MapX := min(Width, MaxMapSize);
   MapY := min(Height,MaxMapSize);

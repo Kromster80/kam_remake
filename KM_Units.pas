@@ -820,7 +820,7 @@ end;
 
 
 constructor TKMUnitWarrior.Load(LoadStream:TKMemoryStream);
-var HasMembers:boolean;
+var i,aCount:integer; W:TKMUnitWarrior;
 begin
   Inherited;
   LoadStream.Read(fCommander, 4); //subst on syncload
@@ -828,13 +828,17 @@ begin
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
   LoadStream.Read(fUnitsPerRow);
-  LoadStream.Read(HasMembers);
-  if HasMembers then
+  LoadStream.Read(fGroupDir, SizeOf(fGroupDir));
+  LoadStream.Read(aCount);
+  if aCount <> 0 then
   begin
     fMembers := TKMList.Create;
-    fMembers.Load(LoadStream);
-  end
-  else
+    for i := 1 to aCount do
+    begin
+      LoadStream.Read(W, 4); //subst on syncload
+      fMembers.Add(W);
+    end;
+  end else
     fMembers := nil;
 end;
 
@@ -851,8 +855,9 @@ var i:integer;
 begin
   Inherited;
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fCommander)));
-  for i:=1 to fMembers.Count do
-    fMembers[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fMembers[i-1])));
+  if fMembers<>nil then
+    for i:=1 to fMembers.Count do
+      fMembers.Items[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fMembers.Items[i-1])));
 end;
 
 
@@ -915,12 +920,12 @@ end;
 
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
 begin
-  PlaceOrder(aWarriorOrder,KMPointDir(aLoc.X,aLoc.Y,Byte(fGroupDir)-1));
+  PlaceOrder(aWarriorOrder, KMPointDir(aLoc.X, aLoc.Y, byte(fGroupDir)-1));
 end;
 
 
 procedure TKMUnitWarrior.Save(SaveStream:TKMemoryStream);
-var HasMembers:boolean;
+var i:integer;
 begin
   Inherited;
   if fCommander <> nil then
@@ -931,10 +936,17 @@ begin
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
   SaveStream.Write(fUnitsPerRow);
-  HasMembers := fMembers <> nil;
-  SaveStream.Write(HasMembers);
-  if HasMembers then
-    fMembers.Save(SaveStream);
+  SaveStream.Write(fGroupDir, SizeOf(fGroupDir));
+  if fMembers <> nil then
+  begin
+    SaveStream.Write(fMembers.Count);
+    for i:=1 to fMembers.Count do
+      if TKMUnitWarrior(fMembers.Items[i-1]) <> nil then
+        SaveStream.Write(TKMUnitWarrior(fMembers.Items[i-1]).ID) //Store ID
+      else
+        SaveStream.Write(Zero);
+  end else
+    SaveStream.Write(Zero);
 end;
 
 
@@ -966,8 +978,8 @@ begin
     AbandonWalk; //If we are already walking then cancel it to make way for new command
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
-    SetActionWalk(Self,KMPoint(fOrderLoc));
-    fOrder:=wo_Stop;
+    SetActionWalk(Self, KMPoint(fOrderLoc));
+    fOrder := wo_Stop;
   end;
 
   Result:=true; //Required for override compatibility

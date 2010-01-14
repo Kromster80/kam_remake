@@ -31,8 +31,6 @@ type
   TKMList = class(TList)
   public
     procedure Clear; override;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 
@@ -224,29 +222,6 @@ begin
 //    Items[I]:=nil;
 //  end;
   inherited;
-end;
-
-
-procedure TKMList.Save(SaveStream:TKMemoryStream);
-var i:integer;
-begin
-  SaveStream.Write(Count);
-  for i:=1 to Count do
-  begin
-    SaveStream.Write(integer(Items[i-1]));
-  end;
-end;
-
-
-procedure TKMList.Load(LoadStream:TKMemoryStream);
-var i, aCount, aItem:integer;
-begin
-  LoadStream.Read(aCount);
-  for i:=1 to aCount do
-  begin
-    LoadStream.Read(aItem);
-    Add(Pointer(aItem));
-  end;
 end;
 
 
