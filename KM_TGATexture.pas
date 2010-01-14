@@ -117,12 +117,11 @@ var
   Front: ^Byte;
   Back: ^Byte;
   Temp: Byte;
-
+  Errs:string;
 var
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
   {$IFDEF VER140} DeCompressionStream: TZDecompressionStream; {$ENDIF}
-
 begin
   result :=FALSE;
   if FileExists(Filename) then begin
@@ -135,14 +134,16 @@ begin
     if SizeOf(TGAHeader) <> bytesRead then begin
       Result := False;      
       CloseFile(TGAFile);
-//todo:      MessageBox(HWND(nil),PChar('Couldn''t read file header "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
+      Errs := 'Couldn''t read file header "'+ Filename +'".';
+      MessageBox(HWND(nil),PChar(Errs), PChar('TGA File Error'), MB_OK);
       Exit;
     end;
 
     result :=TRUE;
   end else
   begin
-//todo:    Application.MessageBox(PChar('File not found  - ' + Filename), PChar('TGA Texture'), MB_OK);
+    Errs := 'File not found  - ' + Filename;
+    Application.MessageBox(PChar(Errs), PChar('TGA Texture'), MB_OK);
     Exit;
   end;
 
@@ -172,7 +173,8 @@ begin
   begin
     Result := False;
     CloseFile(TGAFile);
-//todo:    Application.MessageBox(PChar('Couldn''t load "'+ Filename +'". Only 24 and 32bit TGA supported.'), PChar('TGA File Error'), MB_OK);
+    Errs := 'Couldn''t load "'+ Filename +'". Only 24 and 32bit TGA supported.';
+    Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
     Exit;
   end;
 
@@ -181,7 +183,8 @@ begin
   begin
     Result := False;
     CloseFile(TGAFile);
-//todo:    Application.MessageBox(PChar('Couldn''t load "'+ Filename +'". Colormapped TGA files not supported.'), PChar('TGA File Error'), MB_OK);
+    Errs := 'Couldn''t load "'+ Filename +'". Colormapped TGA files not supported.';
+    Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
     Exit;
   end;
 
@@ -195,7 +198,8 @@ begin
   begin
     Result := False;
     CloseFile(TGAFile);
-//todo:    Application.MessageBox(PChar('Couldn''t load "'+ Filename +'". Only 24 and 32 bit TGA files supported.'), PChar('TGA File Error'), MB_OK);
+    Errs := 'Couldn''t load "'+ Filename +'". Only 24 and 32 bit TGA files supported.';
+    Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
     Exit;
   end;
 
@@ -215,7 +219,8 @@ begin
   if bytesRead <> ImageSize then
   begin
     Result := False;
-//todo:    Application.MessageBox(PChar('Couldn''t read file "'+ Filename +'".'), PChar('TGA File Error'), MB_OK);
+    Errs := 'Couldn''t read file "'+ Filename +'".';
+    Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
     Exit;
   end;
 

@@ -234,10 +234,8 @@ begin
     BorderLeft   := false;
     BorderBottom := false;
     BorderRight  := false;
-    for h:=1 to 8 do FogOfWar[h]:=0;
+    FillChar(FogOfWar, SizeOf(FogOfWar), #0);
   end;
-
-  //i:=SizeOf(Land[1,1]); //Shall align it manually later on for better performance and less size
 
   RebuildLighting(1,MapX,1,MapY);
   RebuildPassability(1,MapX,1,MapY);
