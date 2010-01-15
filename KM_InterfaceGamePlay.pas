@@ -1044,7 +1044,7 @@ begin
   ShownMessage := 0; //Can be replaced with Tag querring, but it not important
   for i := low(Image_Message) to high(Image_Message) do begin
     Image_Message[i].Highlight := false; //dim all messages
-    if (ShownMessage=0) and (Sender = Image_Message[i]) then //I wonder how slow is that.. Alex said it might be..
+    if Sender = Image_Message[i] then
       ShownMessage := i;
   end;
 
