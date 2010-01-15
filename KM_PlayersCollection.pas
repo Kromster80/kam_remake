@@ -1,7 +1,7 @@
 unit KM_PlayersCollection;
 interface
 uses
-  Windows, Classes, KromUtils, Math, SysUtils,
+  Classes, KromUtils, Math, SysUtils,
   KM_Units, KM_Houses, KM_CommonTypes, KM_Defaults, KM_Player, KM_PlayerAI, KM_Utils;
 
 type

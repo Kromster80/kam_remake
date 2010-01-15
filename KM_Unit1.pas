@@ -1,15 +1,15 @@
 unit KM_Unit1;
 interface
 uses
-  Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, FileCtrl,
+  Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, Menus, Buttons, Messages,
   Math, SysUtils, KromUtils,
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, MMSystem,
-  KM_Render, KM_RenderUI, KM_ResourceGFX, KM_Defaults, KM_Form_Loading, KM_Terrain,
+  KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading, KM_Terrain,
   KM_Game, KM_Units, KM_Houses, KM_Viewport, KM_PlayersCollection, ColorPicker,
-  KM_LoadLib, KM_SoundFX, KM_LoadDAT,
+  KM_LoadLib, KM_SoundFX,
   {$IFDEF VER140} MPlayer, {$ENDIF}
   KM_Utils;
 

@@ -11,7 +11,6 @@ uses
 
 type
   TKMUnit = class;
-//  TKMUnitSerf = class;
   TKMUnitWorker = class;
 
   TUnitAction = class(TObject)
@@ -3167,7 +3166,7 @@ end;
 procedure TUnitActionAbandonWalk.SyncLoad();
 begin
   Inherited;
-  //nothing, FPC doesn't likes it missing for some reason
+  //nothing, FPC doesn't likes it missing for some reason?
 end;
 
 

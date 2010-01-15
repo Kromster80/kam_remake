@@ -112,21 +112,23 @@ end;
 procedure TForm_ColorPicker.DrawHueSatQuad();
 var P : PByteArray; R,G,B:integer; ii,kk:integer;
 begin //Fill area with Hue and Saturation data respecting Brightness
-//todo: convert to Lazarus
-{$IFDEF VER140}
-for ii:=0 to 255 do begin
-P:=BitmapHueSat.ScanLine[ii];
-for kk:=0 to 359 do begin
-ApplyHue2RGB(kk, R,G,B);
-ApplySat2RGB(ii, R,G,B);
-ApplyBri2RGB(R,G,B, Bri, R,G,B);
-P[kk*3+0]:=B;
-P[kk*3+1]:=G;
-P[kk*3+2]:=R;
-end;
-end;
-{$ENDIF}
-HSImage.Canvas.Draw(0,0,BitmapHueSat);
+  for ii := 0 to 255 do begin
+    {$IFDEF VER140} P := BitmapHueSat.ScanLine[ii]; {$ENDIF}
+    for kk := 0 to 359 do begin
+      ApplyHue2RGB(kk, R, G, B);
+      ApplySat2RGB(ii, R, G, B);
+      ApplyBri2RGB(R, G, B, Bri, R, G, B);
+      {$IFDEF VER140}
+        P[kk*3+0] := B;
+        P[kk*3+1] := G;
+        P[kk*3+2] := R;
+      {$ENDIF}
+      {$IFDEF FPC}
+        BitmapHueSat.Canvas.Pixels[kk, ii] := R + G shl 8 + B shl 16;
+      {$ENDIF}
+    end;
+  end;
+  HSImage.Canvas.Draw(0, 0, BitmapHueSat);
 end;
 
 procedure TForm_ColorPicker.DrawBriRow();

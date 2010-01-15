@@ -1066,11 +1066,12 @@ end;
 thus it's better to spend few ms and generate minimap colors from actual data}
 procedure TResource.MakeMiniMapColors(FileName:string);
 var ii,kk,h,j,px:integer; c:array of byte; R,G,B:integer; f:file;
-
+{$IFDEF VER140}
 var
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
-  {$IFDEF VER140} DeCompressionStream: TZDecompressionStream; {$ENDIF}
+  DeCompressionStream: TZDecompressionStream;
+{$ENDIF}
 begin
   assignfile(f,FileName);
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly

@@ -1,6 +1,6 @@
 unit KM_Viewport;
 interface
-uses StdCtrls, ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils,
+uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils,
   {$IFDEF DELPHI} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   KM_Utils, KM_CommonTypes;
@@ -31,7 +31,7 @@ var
   fViewport: TViewport;
 
 implementation
-uses KM_Defaults, KM_Terrain, KM_Unit1, KM_PlayersCollection, KM_SoundFX, KM_Game;
+uses KM_Defaults, KM_Terrain, KM_Unit1, KM_SoundFX, KM_Game;
 
 constructor TViewport.Create;
 begin

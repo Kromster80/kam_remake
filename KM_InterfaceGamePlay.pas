@@ -1,10 +1,8 @@
 unit KM_InterfaceGamePlay;
 interface
-uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, StrUtils, Windows,
-  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_LoadDAT, KM_CommonTypes, KM_Utils;
+uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
+  KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;
 
-
-//todo: @Krom: I think we should highlight the selected message, (make it brighter or something) so that people know which one they have open.
 
 type TKMGamePlayInterface = class
   protected
