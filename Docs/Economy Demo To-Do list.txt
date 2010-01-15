@@ -1,5 +1,6 @@
 3rd Demo should include:
 
-	Unit interaction [Lewin]
-	Wares distribution [Lewin]
-	Save/Load [Krom]
++	Unit interaction [Lewin]
++	Wares distribution [Lewin]
++	Save/Load [Krom]
+	Soldiers walking bug-free as groups

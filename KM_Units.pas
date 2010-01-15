@@ -812,9 +812,10 @@ begin
   Inherited;
   fCommander    := nil;
   fFlagAnim     := 0;
-  fOrder        := wo_Stop;
+  fOrder        := wo_None;
   fOrderLoc     := KMPointDir(0,0,0);
   fUnitsPerRow  := 1;
+  fGroupDir     := dir_N;
   fMembers      := nil; //Only commander units will have it initialized
 end;
 
@@ -979,7 +980,7 @@ begin
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
     SetActionWalk(Self, KMPoint(fOrderLoc));
-    fOrder := wo_Stop;
+    fOrder := wo_None;
   end;
 
   Result:=true; //Required for override compatibility
@@ -1085,9 +1086,7 @@ begin
     exit;
   end;
 
-  //@Krom: I don't like this jitter method. Couldn't we do it differently like make animals a special case in
-  //       walkto that chooses a new tile each step or something? (which is more likely to keep currently direction)
-  SpotJit:=8; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
+  SpotJit:=16; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
 
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
@@ -1368,8 +1367,7 @@ function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
   Result := (X = GetPosition.X) and //Keep comparing X,Y to GetPosition incase input is negative numbers
             (Y = GetPosition.Y) and
-            ((fUnitType=UT)or(UT=ut_Any)) and
-            not (fUnitType in [ut_Wolf..ut_Duck]);
+            ((fUnitType=UT)or(UT=ut_Any));
 end;
 
 

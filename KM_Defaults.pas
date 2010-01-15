@@ -319,7 +319,7 @@ type
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
-  TWarriorOrder = (wo_Stop, wo_Walk);
+  TWarriorOrder = (wo_None, wo_Walk);
 
 const {Actions names}
   UnitAct:array[1..14]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',

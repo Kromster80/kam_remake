@@ -131,6 +131,7 @@ public
   function HasVertexUnit(Loc:TKMPoint):boolean;
   function GetRoadConnectID(Loc:TKMPoint):byte;
 
+  function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
   function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
   function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
@@ -1128,6 +1129,23 @@ begin
     Result := Land[Loc.Y,Loc.X].WalkConnect[2]
   else
     Result:=0; //No network
+end;
+
+
+function TTerrain.CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
+var i,k: integer;
+begin
+  Result := true; //Assume we are stuck
+  for i:=-1 to 1 do for k:=-1 to 1 do
+    if TileInMapCoords(Loc.X+k,Loc.Y+i) then
+      if not((i=0)and(k=0)) then
+        if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then
+          if Land[Loc.Y+i,Loc.X+k].IsUnit = 0 then
+            if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
+            begin
+              Result := false; //at least one tile is empty, so unit is not stuck
+              exit;
+            end;
 end;
 
 

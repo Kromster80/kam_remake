@@ -559,8 +559,10 @@ begin
     HighestInteractionCount := max(fInteractionCount,TUnitActionWalkTo(fOpponent.GetUnitAction).fInteractionCount)
   else HighestInteractionCount := fInteractionCount;
 
-  //Animals are low priority compared to other units
-  if (fWalker.GetUnitType in [ut_Wolf..ut_Duck])and(not(fOpponent.GetUnitType in [ut_Wolf..ut_Duck])) then begin
+  //Animals are low priority compared to other units, unless they are stuck (surrounded by units)
+  if (fWalker.GetUnitType in [ut_Wolf..ut_Duck])and(not(fOpponent.GetUnitType in [ut_Wolf..ut_Duck]))
+    and not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
+  begin
     Explanation:='Unit is animal and therefore has no priority in movement';
     exit;
   end;
@@ -701,7 +703,8 @@ begin
 
       if not AllowToWalk then
       begin
-        DoEnd := KMUnit.GetUnitType in [ut_Wolf..ut_Duck]; //Animals have no tasks hence they can choose new WalkTo spot no problem
+        DoEnd := (KMUnit.GetUnitType in [ut_Wolf..ut_Duck]) and  //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
+                  not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass);
         exit; //Do no further walking until unit interaction is solved
       end else fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 
