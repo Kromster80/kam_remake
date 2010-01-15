@@ -198,12 +198,14 @@ begin
   AddLine(inttostr(a)+' : '+inttostr(b));
 end;
 
+
 procedure TKMLog.AssertToLog(TestValue:boolean; MessageText:string);
 begin
   if not TestValue then
   AddLine('ASSERTION FAILED! Msg: ' + MessageText);
   Assert(TestValue, 'ASSERTION FAILED! Msg: ' + MessageText);
 end;
+
 
 procedure TKMLog.AddToLog(text:string);
 begin
@@ -217,10 +219,10 @@ var
   I: Integer;
 begin
 //todo:Should not be here once Houses/Units/Controls get own lists
-//  for I := 0 to Count - 1 do begin
-//    TObject(Items[I]).Free;
-//    Items[I]:=nil;
-//  end;
+  for I := 0 to Count - 1 do begin
+    TObject(Items[I]).Free;
+    Items[I]:=nil;
+  end;
   inherited;
 end;
 
@@ -233,6 +235,7 @@ begin
   Inherited Write(i, SizeOf(i));
   Inherited Write(Value[1], i);
 end;
+
 
 function TKMemoryStream.Write(const Value:TKMPoint): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
@@ -383,8 +386,8 @@ end;
 { TKMPointList }
 procedure TKMPointList.Clearup;
 begin
-  Count:=0;
-  setlength(List,0);
+  Count := 0;
+  setlength(List, 0);
 end;
 
 

@@ -492,6 +492,7 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     begin
       Image_Message[i] := MyControls.AddImage(Panel_Main,ToolBarWidth,fRender.GetRenderAreaSize.Y-i*48,30,48,495);
       Image_Message[i].Tag := i;
+      Image_Message[i].HighlightOnMouseOver := true;
       Image_Message[i].Disable;
       Image_Message[i].Hide;
       Image_Message[i].OnClick := DisplayMessage;
@@ -1040,12 +1041,16 @@ var i: integer;
 begin
   if not TKMImage(Sender).Visible then exit; //Exit if the message is not active
 
-  ShownMessage:=0;
-  for i:=low(Image_Message) to high(Image_Message) do
-    if Sender = Image_Message[i] then
+  ShownMessage := 0; //Can be replaced with Tag querring, but it not important
+  for i := low(Image_Message) to high(Image_Message) do begin
+    Image_Message[i].Highlight := false; //dim all messages
+    if (ShownMessage=0) and (Sender = Image_Message[i]) then //I wonder how slow is that.. Alex said it might be..
       ShownMessage := i;
+  end;
 
   if ShownMessage=0 then exit; //Exit if the sender cannot be found
+
+  Image_Message[ShownMessage].Highlight := true; //make it brighter
 
   Label_MessageText.Caption := fMessageList.GetText(ShownMessage);
   Button_MessageGoTo.Enabled := fMessageList.GetPicID(ShownMessage)-400 in [92..93]; //Only show Go To for house and units

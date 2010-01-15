@@ -13,8 +13,8 @@ TRenderUI = class
     procedure WriteFlatButton   (PosX,PosY,SizeX,SizeY,RXid,ID,TexOffsetX,TexOffsetY,CapOffsetY:smallint; Caption:string; State:TFlatButtonStateSet);
     procedure WriteBevel        (PosX,PosY,SizeX,SizeY:smallint; const HalfContrast:boolean=false);
     procedure WritePercentBar   (PosX,PosY,SizeX,SizeY,Pos:smallint);
-    procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true); overload;
-    procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true); overload;
+    procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
+    procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
     procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
     function  WriteText         (PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint; //Should return text width in px
@@ -274,7 +274,7 @@ begin
 end;
 
 
-procedure TRenderUI.WritePicture(PosX,PosY,RXid,ID:smallint;Enabled:boolean=true);
+procedure TRenderUI.WritePicture(PosX,PosY,RXid,ID:smallint;Enabled:boolean=true; Highlight:boolean=false);
 var Col:TColor4;
 begin
   if ID<>0 then with GFXData[RXid,ID] do begin
@@ -305,6 +305,17 @@ begin
           glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
         glEnd;
       end;
+      if Highlight then begin
+        glBlendFunc(GL_DST_COLOR,GL_ONE);
+        glColor4f(0.5, 0.5, 0.5, 0.5);
+        glBegin(GL_QUADS);
+          glTexCoord2f(u1,v1); glVertex2f(0         ,0         );
+          glTexCoord2f(u2,v1); glVertex2f(0+PxWidth ,0         );
+          glTexCoord2f(u2,v2); glVertex2f(0+PxWidth ,0+PxHeight);
+          glTexCoord2f(u1,v2); glVertex2f(0         ,0+PxHeight);
+        glEnd;
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      end;
     glPopMatrix;
   end;
   glBindTexture(GL_TEXTURE_2D,0);
@@ -312,7 +323,7 @@ end;
 
 
 {Stretched pic}
-procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true);
+procedure TRenderUI.WritePicture(PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false);
 begin
   if ID<>0 then with GFXData[RXid,ID] do begin
     glBindTexture(GL_TEXTURE_2D,TexID);
@@ -326,6 +337,17 @@ begin
         glTexCoord2f(u2,v2); glVertex2f(0+SizeX ,0+SizeY);
         glTexCoord2f(u1,v2); glVertex2f(0       ,0+SizeY);
       glEnd;
+      if Highlight then begin
+        glBlendFunc(GL_DST_COLOR,GL_ONE);
+        glColor4f(0.5, 0.5, 0.5, 0.5);
+        glBegin(GL_QUADS);
+          glTexCoord2f(u1,v1); glVertex2f(0       ,0      );
+          glTexCoord2f(u2,v1); glVertex2f(0+SizeX ,0      );
+          glTexCoord2f(u2,v2); glVertex2f(0+SizeX ,0+SizeY);
+          glTexCoord2f(u1,v2); glVertex2f(0       ,0+SizeY);
+        glEnd;
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      end;
     glPopMatrix;
   end;
   glBindTexture(GL_TEXTURE_2D,0);

@@ -111,6 +111,8 @@ TKMImage = class(TKMControl)
     RXid: integer; //RX library
     TexID: integer;
     Anchors: TAnchors;
+    Highlight:boolean;
+    HighlightOnMouseOver:boolean;
     procedure FillArea;
     procedure Center;
   protected
@@ -516,6 +518,8 @@ begin
   RXid := aRXid;
   TexID := aTexID;
   Anchors := [akLeft, akTop];
+  Highlight := false;
+  HighlightOnMouseOver := false;
   Inherited Create(aLeft, aTop, aWidth, aHeight);
   ParentTo(aParent);
 end;
@@ -542,10 +546,10 @@ begin
   if (TexID=0)or(RXid=0) then exit; //No picture to draw
 
   StretchDraw := false; 
-  DrawWidth := Width;
-  DrawHeight := Height;
-  OffsetX := 0;
-  OffsetY := 0;
+  DrawWidth   := Width;
+  DrawHeight  := Height;
+  OffsetX     := 0;
+  OffsetY     := 0;
 
   if akRight in Anchors then OffsetX := Width - GFXData[RXid, TexID].PxWidth; //First check "non-zero offset" anchor incase both anchors are set
   if akLeft in Anchors then OffsetX := 0;
@@ -569,9 +573,9 @@ begin
 
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
   if StretchDraw then
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, Enabled)
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, Enabled, (HighlightOnMouseOver AND CursorOver) OR Highlight)
   else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, Enabled);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, Enabled, (HighlightOnMouseOver AND CursorOver) OR Highlight);
 end;
 
 

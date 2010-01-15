@@ -1,16 +1,14 @@
-1. 2 armies fight
+1. Village functioning
 
-2. Village functioning
+2. UserInterface
 
-3. UserInterface
+3. Sounds/Music
 
-4. Sounds/Music
-	Krom: I have some experience with OpenAL, I think I can make it work with WAV files. Dunno about MP3 and CDDA though.
+4. Loading of KaM maps and scripting
 
-5. Loading of KaM maps and scripting
+5. 2 armies fight
 
 6. FrontEnd menu and SP init/campaign
-	Krom: We should also foresee support for addon maps and missions/campaigns
 
 7. Multi-player
 
