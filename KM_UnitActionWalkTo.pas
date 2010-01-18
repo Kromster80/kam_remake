@@ -560,7 +560,7 @@ begin
   else HighestInteractionCount := fInteractionCount;
 
   //Animals are low priority compared to other units, unless they are stuck (surrounded by units)
-  if (fWalker.GetUnitType in [ut_Wolf..ut_Duck])and(not(fOpponent.GetUnitType in [ut_Wolf..ut_Duck]))
+  if (fWalker.GetUnitType in [ut_Wolf..ut_Duck])
     and not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
   begin
     Explanation:='Unit is animal and therefore has no priority in movement';

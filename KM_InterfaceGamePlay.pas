@@ -14,7 +14,7 @@ type TKMGamePlayInterface = class
     ShownMessage:integer;
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
-    fMessageList:TKMMessageList;
+    fMessageList:TKMMessageList; //todo: message list should be store in player, e.g. for multiplayer
     AskDemolish:boolean;
 
     Panel_Main:TKMPanel;
@@ -1061,6 +1061,8 @@ procedure TKMGamePlayInterface.CloseMessage(Sender: TObject);
 begin
   UpdateMessageStack;
   fSoundLib.Play(sfx_MessageClose);
+  if ShownMessage <> 0 then
+    Image_Message[ShownMessage].Highlight := false;
   ShownMessage := 0;
   Panel_Message.Hide;
 end;
