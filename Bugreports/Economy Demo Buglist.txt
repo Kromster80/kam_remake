@@ -3,10 +3,10 @@ KaM Remake Economy Demo 090901 (r428)
 Known bugs:
 
 Gameplay bugs:
-	support for 1920x1080 resolutions (samsung tv's, widescreens etc)
++	support for 1920x1080 resolutions (samsung tv's, widescreens etc)
 	brightness settings are wrong (looks like foggy)
-	make button in load menu "restore/restart last saved game"
-	mouse wheel sets new unit, instead of scrolling the screen
+-	make button in load menu "restore/restart last saved game"
+-	mouse wheel sets new unit, instead of scrolling the screen
 	house flags are viewed in unexposed iso map
 +	Alt-tabbing with School/Barracks selected causes a crash
 +	Error on exit if there's no OpenAL found

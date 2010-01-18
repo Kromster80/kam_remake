@@ -53,16 +53,22 @@ type TKMMainMenuInterface = class
       Button_MapEd_Start,Button_MapEdBack:TKMButton;
     Panel_Options:TKMPanel;
       Image_Options_BG, Image_Options_RightCrest:TKMImage;
-      Label_Options_MouseSpeed,Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
-      Ratio_Options_Mouse,Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
-      Button_Options_MusicOn,Button_Options_Back:TKMButton;
-      CheckBox_Options_Autosave:TKMCheckBox;
+      Panel_Options_Ctrl:TKMPanel;
+        Label_Options_MouseSpeed:TKMLabel;
+        Ratio_Options_Mouse:TKMRatioRow;
+      Panel_Options_Game:TKMPanel;
+        CheckBox_Options_Autosave:TKMCheckBox;
+      Panel_Options_Sound:TKMPanel;
+        Label_Options_SFX,Label_Options_Music,Label_Options_MusicOn:TKMLabel;
+        Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
+        Button_Options_MusicOn:TKMButton;
       Panel_Options_Lang:TKMPanel;
         CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
         CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
         Button_Options_ResApply:TKMButton;
+      Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
       Image_CreditsBG:TKMImage;
       Label_Credits:TKMLabel;
@@ -400,23 +406,36 @@ begin
     Image_Options_RightCrest:=MyControls.AddImage(Panel_Options,635,220,round(207*1.3),round(295*1.3),6,6);
     Image_Options_RightCrest.FillArea;
 
-    Label_Options_MouseSpeed:=MyControls.AddLabel(Panel_Options,124,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
-    Label_Options_MouseSpeed.Disable;
-    Ratio_Options_Mouse:=MyControls.AddRatioRow(Panel_Options,118,150,160,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
-    Ratio_Options_Mouse.Disable;
-    Label_Options_SFX:=MyControls.AddLabel(Panel_Options,124,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-    Ratio_Options_SFX:=MyControls.AddRatioRow(Panel_Options,118,198,160,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
-    Label_Options_Music:=MyControls.AddLabel(Panel_Options,124,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-    Ratio_Options_Music:=MyControls.AddRatioRow(Panel_Options,118,246,160,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+    Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,100,130,150,60);
+      MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,'Controls:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(Panel_Options_Ctrl,0,20,150,60);
 
-    Label_Options_MusicOn:=MyControls.AddLabel(Panel_Options,200,280,100,30,fTextLibrary.GetTextString(197),fnt_Metal,kaCenter);
-    Button_Options_MusicOn:=MyControls.AddButton(Panel_Options,118,300,180,30,'',fnt_Metal, bsMenu);
-    Button_Options_MusicOn.OnClick:=Options_Change;
+      Label_Options_MouseSpeed:=MyControls.AddLabel(Panel_Options_Ctrl,8,27,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
+      Label_Options_MouseSpeed.Disable;
+      Ratio_Options_Mouse:=MyControls.AddRatioRow(Panel_Options_Ctrl,0,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_Mouse.Disable;
 
-    CheckBox_Options_Autosave := MyControls.AddCheckBox(Panel_Options,118,100,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
-    CheckBox_Options_Autosave.OnClick := Options_Change;
+    Panel_Options_Game:=MyControls.AddPanel(Panel_Options,100,230,150,40);
+      MyControls.AddLabel(Panel_Options_Game,6,0,100,30,'Gameplay:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(Panel_Options_Game,0,20,150,40);
 
-    Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,400,130,150,40+LocalesCount*20);
+      CheckBox_Options_Autosave := MyControls.AddCheckBox(Panel_Options_Game,8,30,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
+      CheckBox_Options_Autosave.OnClick := Options_Change;
+
+    Panel_Options_Sound:=MyControls.AddPanel(Panel_Options,100,310,150,110);
+      MyControls.AddLabel(Panel_Options_Sound,6,0,100,30,'Sound:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(Panel_Options_Sound,0,20,150,110);
+
+      Label_Options_SFX:=MyControls.AddLabel(Panel_Options_Sound,8,27,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
+      Ratio_Options_SFX:=MyControls.AddRatioRow(Panel_Options_Sound,0,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Label_Options_Music:=MyControls.AddLabel(Panel_Options_Sound,8,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
+      Ratio_Options_Music:=MyControls.AddRatioRow(Panel_Options_Sound,0,97,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+
+      Label_Options_MusicOn:=MyControls.AddLabel(Panel_Options_Sound,8,135,100,20,fTextLibrary.GetTextString(197),fnt_Metal,kaLeft);
+      Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,0,155,150,30,'',fnt_Metal, bsMenu);
+      Button_Options_MusicOn.OnClick:=Options_Change;
+
+    Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,270,130,150,40+LocalesCount*20);
       MyControls.AddLabel(Panel_Options_Lang,6,0,100,30,'Language:',fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Lang,0,20,150,10+LocalesCount*20);
 
@@ -426,7 +445,7 @@ begin
         CheckBox_Options_Lang[i].OnClick:=Options_Change;
       end;
 
-    Panel_Options_Res:=MyControls.AddPanel(Panel_Options,400,300,150,300);
+    Panel_Options_Res:=MyControls.AddPanel(Panel_Options,270,300,150,300);
       //Resolution selector
       MyControls.AddLabel(Panel_Options_Res,6,0,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Res,0,20,150,10+RESOLUTION_COUNT*20);
@@ -719,6 +738,7 @@ var i:integer;
 begin
   if Sender = CheckBox_Options_Autosave then fGame.fGameSettings.IsAutosave := not CheckBox_Options_Autosave.Checked;
   CheckBox_Options_Autosave.Checked := fGame.fGameSettings.IsAutosave;
+
   if Sender = Ratio_Options_Mouse then fGame.fGameSettings.SetMouseSpeed(Ratio_Options_Mouse.Position);
   if Sender = Ratio_Options_SFX   then fGame.fGameSettings.SetSoundFXVolume(Ratio_Options_SFX.Position);
   if Sender = Ratio_Options_Music then fGame.fGameSettings.SetMusicVolume(Ratio_Options_Music.Position);
@@ -733,7 +753,7 @@ begin
       ShowScreen_Loading('Loading new locale');
       fRender.Render; //Force to repaint loading screen
       fGame.ToggleLocale;
-      exit;
+      exit; //Whole interface will be recreated
     end;
 
   for i:=1 to LocalesCount do
