@@ -1599,8 +1599,8 @@ var i:integer; SaveTitles: TStringList;
 begin
   SaveTitles := TStringList.Create;
   try
-    if FileExists(ExeDir+'Saves\savenames.txt') then
-      SaveTitles.LoadFromFile(ExeDir+'Saves\savenames.txt');
+    if FileExists(ExeDir+'Saves\savenames.dat') then
+      SaveTitles.LoadFromFile(ExeDir+'Saves\savenames.dat');
 
     for i:=1 to SAVEGAME_COUNT do
       if i <= SaveTitles.Count then
@@ -1636,9 +1636,9 @@ begin
     for i:=1 to SAVEGAME_COUNT do
       SaveTitles.Add(Button_Save[i].Caption); //Just write the caption of the button as they are updated
 
-    if FileExists(ExeDir+'Saves\savenames.txt') then
-      SysUtils.DeleteFile(ExeDir+'Saves\savenames.txt');
-    SaveTitles.SaveToFile(ExeDir+'Saves\savenames.txt');
+    if FileExists(ExeDir+'Saves\savenames.dat') then
+      SysUtils.DeleteFile(ExeDir+'Saves\savenames.dat');
+    SaveTitles.SaveToFile(ExeDir+'Saves\savenames.dat');
   finally
     FreeAndNil(SaveTitles); 
   end;

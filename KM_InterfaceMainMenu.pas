@@ -710,8 +710,8 @@ var i:integer; SaveTitles: TStringList;
 begin
   SaveTitles := TStringList.Create;
   try
-    if FileExists(ExeDir+'Saves\savenames.txt') then
-      SaveTitles.LoadFromFile(ExeDir+'Saves\savenames.txt');
+    if FileExists(ExeDir+'Saves\savenames.dat') then
+      SaveTitles.LoadFromFile(ExeDir+'Saves\savenames.dat');
 
     for i:=1 to SAVEGAME_COUNT do
       if i <= SaveTitles.Count then

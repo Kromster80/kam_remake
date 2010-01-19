@@ -633,7 +633,7 @@ begin
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
 
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
-      SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt'); //Some 70ms for TPR7 map
+      SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.sav'); //Some 70ms for TPR7 map
       SaveStream.Free;
       Result := GameName + ' ' + int2time(GetMissionTime);
       if (fGameSettings.IsAutosave) and (SlotID = AUTOSAVE_SLOT) then
@@ -658,8 +658,8 @@ begin
   case GameState of
     gsNoGame:   //Let's load only from menu for now
     begin
-      if not CheckFileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt') then exit;
-      LoadStream.LoadFromFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.txt');
+      if not CheckFileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.sav') then exit;
+      LoadStream.LoadFromFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.sav');
       LoadStream.Seek(0, soFromBeginning);
 
       LoadStream.Read(s); if s <> 'KaM_Savegame' then exit;

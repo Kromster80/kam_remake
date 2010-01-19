@@ -845,7 +845,7 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
-  FreeAndNil(fMembers);
+  fMembers := nil; //It's just pointer list and must not be freed/niled 
   Inherited;
 end;
 

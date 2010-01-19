@@ -157,7 +157,7 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_UnitActionWalkTo"/>
         <CursorPos X="38" Y="74"/>
-        <TopLine Value="43"/>
+        <TopLine Value="53"/>
         <EditorIndex Value="4"/>
         <UsageCount Value="34"/>
         <Loaded Value="True"/>
@@ -397,7 +397,7 @@
         <Filename Value="KM_Terrain.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Terrain"/>
-        <CursorPos X="28" Y="1475"/>
+        <CursorPos X="36" Y="1471"/>
         <TopLine Value="1456"/>
         <EditorIndex Value="5"/>
         <UsageCount Value="34"/>
