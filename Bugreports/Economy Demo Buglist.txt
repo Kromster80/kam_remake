@@ -1,19 +1,8 @@
-KaM Remake Economy Demo 090901 (r428)
+KaM Remake r565
 <===================================================================================>
 Known bugs:
 
 Gameplay bugs:
-+	support for 1920x1080 resolutions (samsung tv's, widescreens etc)
-	brightness settings are wrong (looks like foggy)
--	make button in load menu "restore/restart last saved game"
--	mouse wheel sets new unit, instead of scrolling the screen
-	house flags are viewed in unexposed iso map
-+	Alt-tabbing with School/Barracks selected causes a crash
-+	Error on exit if there's no OpenAL found
-+	Fisher does not work yet
-+	Woodcutter should drop the task if tree is already taken by other woodcutter
-+	Killing a worker while it goes to build a road will cancel the markup and road plan
-+	Units get stuck on unwalkable tiles
 	Citizen will try to walk home when it has no road tile below entrance
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
@@ -23,10 +12,36 @@ Gameplay bugs:
 Graphics bugs:
 ?	Water has dark patches
 	See-through hills (lighting flaw)
+	game in fullscreen mode flickers terrible!
+	brightness settings are wrong (looks like foggy)
+
+Translation bugs:
+	word "Language:" will be not change if I change the language in options menu
+	language in mission-load-screen ("set textures and tiles"...etc) are not translated, every time in english
+
+Sound bugs:
+	in background there is a rustle, I can hear it very good, if I set music down to "0". deactivating music is the same. (I use a creative x-fi sound card) But it's only in main menu, not in in-game! In in-game you hear a whir like from a bee.
 
 Suggested improvements:
++	support for 1920x1080 resolutions (samsung tv's, widescreens etc)
+-	make button in load menu "restore/restart last saved game"
+	word "Condition" in house menu is unreadable, bad colour, it should be white
 	Viewport scrolling should be smooth
 	Two monitor config, scrolling works well only on 1st display
+
+
+KaM Remake Economy Demo 090901 (r428)
+<===================================================================================>
+Known bugs:
+
+Gameplay bugs:
++	Alt-tabbing with School/Barracks selected causes a crash
++	Error on exit if there's no OpenAL found
++	Fisher does not work yet
++	Woodcutter should drop the task if tree is already taken by other woodcutter
++	Killing a worker while it goes to build a road will cancel the markup and road plan
++	Units get stuck on unwalkable tiles
+
 
 KaM Remake Economy Demo 090728 (r363)
 <===================================================================================>
