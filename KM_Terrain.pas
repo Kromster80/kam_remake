@@ -138,6 +138,7 @@ public
   function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
   procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
   procedure Route_ReturnToRoad(LocA:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
+  function GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoint;
 
   procedure UnitAdd(LocTo:TKMPoint);
   procedure UnitRem(LocFrom:TKMPoint);
@@ -1301,6 +1302,44 @@ begin
   fPath := TPathFinding.Create(LocA, TargetRoadNetworkID);
   fPath.ReturnRoute(NodeList);
   fPath.Free;
+end;
+
+
+//Returns the closest tile to LocA with aPass and walk connect to LocB
+function TTerrain.GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoint;
+
+  function GetPointInDir(aDir:byte; aDist:integer):TKMPoint;
+    const XBitField: array[0..7] of smallint = (0,  1,1,1,0,-1,-1,-1);
+          YBitField: array[0..7] of smallint = (-1,-1,0,1,1, 1, 0,-1);
+  begin
+    Result.X := LocA.X+(aDist*XBitField[aDir]);
+    Result.Y := LocA.Y+(aDist*YBitField[aDir]);
+  end;
+
+var
+  Dist, WalkConnectID: integer;
+  Dir, WalkConnectType: byte;
+begin
+  WalkConnectType := 1; //canWalk is default
+  if aPass = canWalkRoad then WalkConnectType := 2;
+  if aPass = canFish     then WalkConnectType := 3;
+  WalkConnectID := Land[LocB.Y,LocB.X].WalkConnect[WalkConnectType]; //Store WalkConnect ID of target
+  if CheckPassability(LocA,aPass) and (WalkConnectID = Land[LocA.Y,LocA.X].WalkConnect[WalkConnectType]) then
+  begin
+    Result := LocA; //Target is ok
+    exit;
+  end;
+  for Dist := 1 to 255 do //Do a circular check with a 255 radius
+    for Dir := 0 to 7 do
+    begin
+      //See if the tile in the direction matches pass and walk connect
+      Result := GetPointInDir(Dir,Dist);
+      if TileInMapCoords(Result.X,Result.Y) then
+        if CheckPassability(Result,aPass) and
+          (WalkConnectID = Land[Result.Y,Result.X].WalkConnect[WalkConnectType]) then
+          exit; //We have found it so exit
+    end;
+  Result := KMPoint(0,0); //If we don't find one, set to invalid (error)
 end;
 
 

@@ -251,7 +251,7 @@ type
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
-    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false); overload;
+    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure Feed(Amount:single);
     procedure AbandonWalk;
@@ -901,7 +901,7 @@ begin
     px:=(i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
     py:=(i-1) div fUnitsPerRow;
 
-    if KMSamePoint(aLoc.Loc,GetPositionInGroup(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1), px, py)) then
+    if (not PassedCommander) and (KMSamePoint(aLoc.Loc,GetPositionInGroup(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1), px, py))) then
     begin
       //Skip commander
       PassedCommander := true;
@@ -978,7 +978,10 @@ begin
     AbandonWalk; //If we are already walking then cancel it to make way for new command
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
-    SetActionWalk(Self, KMPoint(fOrderLoc));
+    if fCommander <> nil then //If we are not the commander then walk to near
+      SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,true)
+    else
+      SetActionWalk(Self, KMPoint(fOrderLoc));
     fOrder := wo_None;
   end;
 
@@ -1427,9 +1430,9 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false);
+procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false);
 begin
-  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed),0);
+  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed, aWalkToNear),0);
 end;
 
 

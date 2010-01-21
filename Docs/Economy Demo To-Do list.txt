@@ -3,6 +3,7 @@
 +	Unit interaction [Lewin]
 +	Wares distribution [Lewin]
 +	Save/Load [Krom]
-	Soldiers walking bug-free as groups
++	Soldiers walking bug-free as groups
 	Show proper error message when route cannot be built
-+	Change save file type to .sav rather than .txt?
+	Show proper error message and return to main menu/game if load fails or file doesn't exist
++	Change save file type to .sav rather than .txt

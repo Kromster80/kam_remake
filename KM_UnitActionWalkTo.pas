@@ -71,7 +71,7 @@ type
       NodePos:integer;
       fRouteBuilt:boolean;
       Explanation:string; //Debug only, explanation what unit is doing
-      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false);
+      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
@@ -90,7 +90,7 @@ uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOu
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false);
+constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false);
 begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
 
@@ -98,10 +98,13 @@ begin
   fActionName   := uan_WalkTo;
   fWalker       := KMUnit;
   fWalkFrom     := fWalker.GetPosition;
-  fWalkTo       := LocB;
   fAvoid        := Avoid;
   fWalkToSpot   := aWalkToSpot;
   fPass         := fWalker.GetDesiredPassability;
+  if not aWalkToNear then
+    fWalkTo     := LocB
+  else
+    fWalkTo     := fTerrain.GetClosestTile(LocB,KMUnit.GetPosition,fPass);
 
   NodeList      := TKMPointList.Create; //Freed on destroy
   SetInitValues;
