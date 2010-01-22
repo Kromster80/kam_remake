@@ -284,6 +284,7 @@ begin
     //lrFileNotFound: ; //Do nothing, because user clicked on a blank save
     lrParseError: fGame.fMainMenuInterface.ShowScreen_Error(LoadError); //This means an error was encountered while parsing the file (error message will be stored in LoadError)
     lrIncorrectGameState: fGame.fMainMenuInterface.ShowScreen_Error('Unable to load from current game state'); //@Krom: Should be changed to an assert?
+                                                                                                               //@Lewin: Thats not a big deal if game gets loaded from other state cos the StopGame will flush it anyway. No need to make an assert out of it. To be deleted..
   end;
 end;
 

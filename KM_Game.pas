@@ -520,8 +520,8 @@ begin
                       end;
     gr_Cancel:        begin
                         fLog.AppendLog('Gameplay canceled',true);
-                        fMainMenuInterface.ShowScreen_Results(Msg); //@Lewin: Maybe don't show nothing?
-                      end;                                          //@Krom: I think we should show the results so the user can see how they are going so far. But it probably shouldn't say DEFEAT and play the loose video.
+                        fMainMenuInterface.ShowScreen_Results(Msg); //show the results so the user can see how they are going so far
+                      end;
     gr_Error:         begin
                         fLog.AppendLog('Gameplay error',true);
                         fMainMenuInterface.ShowScreen_Error(TextMsg);

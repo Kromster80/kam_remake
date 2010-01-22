@@ -80,7 +80,7 @@ public
   procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
-  procedure RenderUnitThought(Thought:TUnitThought; StepID:integer; pX,pY:single);
+  procedure RenderUnitThought(Thought:TUnitThought; pX,pY:single);
   procedure RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
   property GetRenderAreaSize:TKMPoint read RenderAreaSize;
   property GetRendererVersion:string read OpenGL_Version;
@@ -719,7 +719,7 @@ if ID<=0 then exit;
 end;
 
 
-procedure TRender.RenderUnitThought(Thought:TUnitThought; StepID:integer; pX,pY:single);
+procedure TRender.RenderUnitThought(Thought:TUnitThought; pX,pY:single);
 var ShiftX,ShiftY:single; ID:integer;
 begin
   if byte(Thought) = 0 then exit;

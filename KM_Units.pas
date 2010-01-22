@@ -472,7 +472,7 @@ begin
   end;
 
   if fThought<>th_None then
-    fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, fPosition.Y+1);
+    fRender.RenderUnitThought(fThought, XPaintPos, fPosition.Y+1);
 end;
 
 
@@ -643,7 +643,7 @@ begin
     fRender.RenderUnit(byte(GetUnitType), 9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
 
   if fThought<>th_None then
-    fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
+    fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -735,7 +735,7 @@ begin
   fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
 
   if fThought<>th_None then
-    fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
+    fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 
 
@@ -1022,7 +1022,7 @@ inherited;
   fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, byte(fOwner), XPaintPos, YPaintPos,false);
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, AnimStep, XPaintPos, YPaintPos);
+  fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 
 

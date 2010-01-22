@@ -510,6 +510,7 @@ begin
     Image_ErrorBG:=MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6);
     Image_ErrorBG.FillArea;
     //@Krom: How come these two aren't centering properly...?
+    //@Lewin: Provide a screen with control-overlays turned on please. For me all looks well centered...
     MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'An Error Has Occured!',fnt_Antiqua,kaCenter);
     Label_Error:=MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack:=MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);

@@ -3,24 +3,9 @@ interface
 uses Classes, KromUtils, Math, SysUtils,
      KM_Defaults, KM_CommonTypes, KM_Utils;
 
+
 const MaxMapSize=192;
 
-//@Krom: Bug report: I think that when in speed up mode, trees still grow at normal speed. Sounds odd, but
-//       if you run it in speed up for a while you will end up with a lot more trees planted because they aren't
-//       growing faster and the woodcutter is planting faster. (so you should see more trees or more stumps)
-
-//@Lewin: I checked - the timing is the same - it takes approx. 15min in Planter mission for woodcutter
-//        to start chopping grown up trees. Irregardless of speedup. I guess we need to take a closer
-//        look at KaM, it has different approach to "trunk-mining". E.g. woodcutter should try to keep
-//        flow of trunks stable, unlike existing pattern where he plants-chops-plants-chops all the
-//        trees at once. As well in KaM I don't remember him working so hard, he's always resting in
-//        his house and having maybe 10 trees at all. Maybe thats a sort of limit he has in KaM?
-
-//@Krom: Sorry, my mistake. It does appear to be fine. In KaM the flow of trunks is not stable, he is either
-//       planting or cutting. We could still do that however by randomly choosing to either cut or plant.
-//       As for working so hard, I think that might have been a problem with canPlantTrees. I made it so trees
-//       can be planted diagonally to each other, which KaM doesn't. I've changed that now and I think you'll
-//       find he plants far less trees. To be deleted?
 
 type
 {Class to store all terrain data, aswell terrain routines}
