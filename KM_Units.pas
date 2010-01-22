@@ -268,6 +268,7 @@ type
     function GetUnitTaskText():string;
     function GetUnitActText():string;
     property GetCondition: integer read fCondition;
+    procedure SetFullCondition;
     procedure CancelUnitTask;
     property IsVisible: boolean read fVisible;
     property SetVisibility:boolean write fVisible;
@@ -348,6 +349,7 @@ type
     procedure KillUnit; override;
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure AddMember(aWarrior:TKMUnitWarrior);
+    procedure SetGroupFullCondition;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint); reintroduce; overload;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -886,6 +888,16 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.SetGroupFullCondition;
+var i: integer;
+begin
+  SetFullCondition;
+  if (fMembers <> nil) then //If we have members then give them full condition too
+    for i:=0 to fMembers.Count-1 do
+      TKMUnitWarrior(fMembers.Items[i]).SetFullCondition;
+end;
+
+
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir);
 var i,px,py:integer; NewLoc:TKMPoint; PassedCommander: boolean;
@@ -1354,6 +1366,12 @@ begin
   if fCurrentAction is TUnitActionWalkTo then
     Result := TInteractionStatusNames[TUnitActionWalkTo(fCurrentAction).GetInteractionStatus]+': '
              +TUnitActionWalkTo(fCurrentAction).Explanation;
+end;
+
+
+procedure TKMUnit.SetFullCondition;
+begin
+  fCondition := UNIT_MAX_CONDITION;
 end;
 
 

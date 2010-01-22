@@ -1,7 +1,7 @@
 unit KM_LoadDAT;
 interface
 uses
-  Windows, Classes, KromUtils, SysUtils, StrUtils, Dialogs, Math, KM_Defaults, KM_Houses, KM_Utils;
+  Windows, Classes, KromUtils, SysUtils, StrUtils, Dialogs, Math, KM_Defaults, KM_Houses, KM_Utils, KM_Units;
 
 type
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
@@ -58,6 +58,7 @@ type
     OpenedMissionName:string;
     CurrentPlayerIndex: integer;
     LastHouse: TKMHouse;
+    LastTroop: TKMUnitWarrior;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
     procedure DebugScriptError(ErrorMsg:string);
@@ -481,8 +482,16 @@ begin
                                                            //@Lewin: We need a sort of UnitIsArmy procedure somewhere
                                                            //cos atm there are too many places where values input by hand
                                                            //and if we to add e.g. new unit we'll need to fix all those manualy
-                         fPlayers.Player[CurrentPlayerIndex].AddGroup(
-                         TroopsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]);
+                         LastTroop := TKMUnitWarrior(fPlayers.Player[CurrentPlayerIndex].AddGroup(
+                         TroopsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]));
+                     end;
+  ct_SendGroup:      begin
+                       if LastTroop <> nil then
+                         LastTroop.PlaceOrder(wo_Walk,KMPointDir(ParamList[0],ParamList[1],ParamList[2]));
+                     end;
+  ct_SetGroupFood:   begin
+                       if LastTroop <> nil then
+                         LastTroop.SetGroupFullCondition;
                      end;
   ct_AICharacter:    begin
                        if fPlayers.Player[CurrentPlayerIndex].PlayerType <> pt_Computer then exit;
@@ -532,12 +541,6 @@ begin
 
                      end;
   ct_SetMapColor:    begin
-
-                     end;
-  ct_SetGroupFood:   begin
-
-                     end;
-  ct_SendGroup:      begin
 
                      end;
   ct_AttackPosition: begin

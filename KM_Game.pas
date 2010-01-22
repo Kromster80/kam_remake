@@ -7,6 +7,7 @@ uses Windows,
   KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_SoundFX, KM_Viewport, KM_Units, KM_Settings, KM_Utils;
 
 type TGameState = (gsNoGame, gsPaused, gsRunning, gsEditor);
+type TLoadResult = (lrIncorrectGameState,lrSuccess,lrFileNotFound,lrParseError);
 
 type
   TKMGame = class
@@ -45,7 +46,7 @@ type
     property GetGameName:string read GameName;
     function GetNewID():cardinal;
     function Save(SlotID:shortint):string;
-    function Load(SlotID:shortint):boolean;
+    function Load(SlotID:shortint; out LoadError:string):TLoadResult;
     procedure UpdateState;
     procedure PaintInterface;
   end;
@@ -457,6 +458,7 @@ begin
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(MissionFile,true) then
   begin
+    //todo: Use exception trapping and raising system here similar to that used for load
     fMissionParser := TMissionParser.Create;
     ResultMsg := fMissionParser.LoadDATFile(MissionFile);
     FreeAndNil(fMissionParser);
@@ -621,8 +623,8 @@ begin
     begin
       SaveStream := TKMemoryStream.Create;
       SaveStream.Write('KaM_Savegame');
-      SaveStream.Write('01'); //This is savegame version
-      //todo 2: write down savegame title
+      SaveStream.Write(SAVE_VERSION); //This is savegame version
+      SaveStream.Write(GameName); //Save game title
       SaveStream.Write(GameplayTickCount, 4); //dunno if it's required to save, but it won't hurt anyone
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
 
@@ -644,50 +646,72 @@ begin
 end;
 
 
-function TKMGame.Load(SlotID:shortint):boolean;
+function TKMGame.Load(SlotID:shortint; out LoadError:string):TLoadResult;
 var LoadStream:TKMemoryStream;
-s:string;
+s,FileName:string;
 begin
   fLog.AppendLog('Loading game');
-  Result := false;
+  Result := lrIncorrectGameState; //Three exit cases bellow use this
+  LoadError := '';
+  FileName := 'Saves\'+'save'+int2fix(SlotID,2)+'.sav'; //Full path is EXEDir+FileName
+
+  //Check if file exists early so that current game will not be lost if user tries to load an empty save
+  if not FileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.sav') then
+  begin
+    Result := lrFileNotFound;
+    exit;
+  end;
 
   if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent);
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  try
+  try //Make sure LoadStream is always freed, even if other processes crash/exit
   case GameState of
-    gsNoGame:   //Let's load only from menu for now
+    gsNoGame:   //Load only from menu or stopped game
     begin
-      if not CheckFileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.sav') then exit;
-      LoadStream.LoadFromFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.sav');
-      LoadStream.Seek(0, soFromBeginning);
+      try //Catch exceptions
+        LoadStream.LoadFromFile(ExeDir+FileName);
+        LoadStream.Seek(0, soFromBeginning);
 
-      LoadStream.Read(s); if s <> 'KaM_Savegame' then exit;
-      LoadStream.Read(s); if s <> '01' then exit;
+        //Raise some exceptions if the file is invalid or the wrong save version
+        LoadStream.Read(s); if s <> 'KaM_Savegame' then Raise Exception.Create('Not a valid KaM Remake save file');
+        LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
 
-      //Create empty environment
-      StartGame('','',1);
+        //Create empty environment
+        StartGame('','',1);
 
-      //Substitute tick counter and id tracker (and maybe random seed?)
-      LoadStream.Read(GameplayTickCount, 4);
-      LoadStream.Read(ID_Tracker, 4);
+        //Substitute tick counter and id tracker
+        LoadStream.Read(GameName); //Save game title
+        LoadStream.Read(GameplayTickCount, 4);
+        LoadStream.Read(ID_Tracker, 4);
 
-      //Load the data into the game
-      fTerrain.Load(LoadStream);
-      fPlayers.Load(LoadStream);
-      fViewport.Load(LoadStream);
-      fGamePlayInterface.Load(LoadStream);
-      fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
+        //Load the data into the game
+        fTerrain.Load(LoadStream);
+        fPlayers.Load(LoadStream);
+        fViewport.Load(LoadStream);
+        fGamePlayInterface.Load(LoadStream);
+        fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
 
-      fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
-      Result := true;
+        fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
+        Result := lrSuccess; //Loading has now completed successfully :)
+      except
+        on E : Exception do
+        begin
+          //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+          Result := lrParseError;
+          LoadError := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
+                        E.ClassName+' error raised with message: '+E.Message;
+          if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent); //Stop the game so that the main menu error can be shown
+          exit;
+        end;
+      end;
     end;
-    gsEditor:   exit;
-    gsPaused:   exit; //Taken care of earlier
-    gsRunning:  exit; //Taken care of earlier
+    gsEditor:   exit; //Taken care of earlier with default lrIncorrectGameState
+    gsPaused:   exit; //Taken care of earlier with default lrIncorrectGameState
+    gsRunning:  exit; //Taken care of earlier with default lrIncorrectGameState
   end;
   finally
-    LoadStream.Free; //todo: return to menu if loading has failed
+    LoadStream.Free;
   end;
   fLog.AppendLog('Loading game',true);
 end;

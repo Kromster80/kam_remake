@@ -26,12 +26,13 @@ const
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
   GAME_VERSION          = 'Economy Demo #3 Beta r565';       //Game version string displayed in menu corner
+  SAVE_VERSION          = '02';         //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads

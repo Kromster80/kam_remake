@@ -509,7 +509,8 @@ begin
   Panel_Error:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_ErrorBG:=MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6);
     Image_ErrorBG.FillArea;
-    MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'Error has occured...',fnt_Outline,kaCenter);
+    //@Krom: How come these two aren't centering properly...?
+    MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'An Error Has Occured!',fnt_Antiqua,kaCenter);
     Label_Error:=MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack:=MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_ErrorBack.OnClick:=SwitchMenuPage;
@@ -700,8 +701,14 @@ end;
 
 
 procedure TKMMainMenuInterface.Load_Click(Sender: TObject);
+var LoadError: string;
 begin
-  fGame.Load(TKMControl(Sender).Tag);
+  case fGame.Load(TKMControl(Sender).Tag,LoadError) of
+    //lrSuccess: ;      //Load was a success, continue into game
+    //lrFileNotFound: ; //Do nothing, because user clicked on a blank save
+    lrParseError: ShowScreen_Error(LoadError); //This means an error was encountered while parsing the file (error message will be stored in LoadError)
+    lrIncorrectGameState: ShowScreen_Error('Unable to load from current game state'); //@Krom: This should never happen as we are in the main menu. Should it be deleted? (or changed to assert?)
+  end;
 end;
 
 
