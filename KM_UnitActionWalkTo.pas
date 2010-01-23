@@ -86,7 +86,7 @@ type
             
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut, KM_UnitActionStay;
+uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut, KM_UnitActionStay, Dialogs, Controls;
 
 
 { TUnitActionWalkTo }
@@ -628,11 +628,20 @@ begin
   end;
 
   //Somehow route was not built, this is an error
-  if not fRouteBuilt then begin
-    fLog.AddToLog('Unable to walk a route since it''s unbuilt');
+  if not fRouteBuilt then
+  begin
+    fLog.AddToLog('Unit '+TypeToString(fWalker.GetUnitType)+' unable to walk a route from '+TypeToString(fWalker.GetPosition)+' to '+TypeToString(fWalkTo)+' during task '+fWalker.GetUnitTaskText+' since the route is unbuilt');
+    DoEnd := true; //Must exit out or this error will keep happening
     fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-    fGame.PauseGame(true);
-    //todo: Pop-up some message
+    fGame.Save(99);
+    if MessageDlg('An error has occoured due to unit '+TypeToString(fWalker.GetUnitType)+' recieving an order to walk from '
+               +TypeToString(fWalker.GetPosition)+' to the unwalkable destination '+TypeToString(fWalkTo)+' during the task '
+               +fWalker.GetUnitTaskText+'.'+#13#10+'Please send the files BugReport.sav and KaM.log from the KaM Remake main directory to the developers.'
+               +' Contact details can be found in the Readme file.'+#13#10+'Thank you very much for your kind help!'+#13#10
+               +'WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
+               ,mtWarning,[mbYes,mbNo],0) <> mrYes then
+      fGame.StopGame(gr_Error,'',false); //Exit to main menu
+    exit; //Exit either way, and the action will end
   end;
 
   //Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)

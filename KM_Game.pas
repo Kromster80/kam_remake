@@ -613,9 +613,11 @@ end;
 
 //Saves the game and returns string for savegame name OR empty if save failed
 function TKMGame.Save(SlotID:shortint):string;
-var SaveStream:TKMemoryStream;
+var SaveStream:TKMemoryStream; FileName:string;
 begin
   fLog.AppendLog('Saving game');
+  FileName := 'Saves\'+'save'+int2fix(SlotID,2)+'.sav';
+  if SlotID = 99 then FileName := 'BugReport.sav'; //99 means this is a bug crash save
   case GameState of
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
     gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
@@ -635,7 +637,7 @@ begin
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
 
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
-      SaveStream.SaveToFile(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.sav'); //Some 70ms for TPR7 map
+      SaveStream.SaveToFile(ExeDir+FileName); //Some 70ms for TPR7 map
       SaveStream.Free;
       Result := GameName + ' ' + int2time(GetMissionTime);
       if (fGameSettings.IsAutosave) and (SlotID = AUTOSAVE_SLOT) then

@@ -84,6 +84,7 @@ public
   function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
+  function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
   procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
   function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
@@ -982,10 +983,12 @@ begin
 
    if (TileIsWalkable(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)then
+      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
+      CheckHeightPass(Loc,canWalk)then
      AddPassability(Loc, [canWalk]);
 
-   if (Land[Loc.Y,Loc.X].TileOverlay=to_Road) then
+   if (Land[Loc.Y,Loc.X].TileOverlay=to_Road)and
+      CheckPassability(Loc,canWalk) then //Not all roads are walkable, they must also have canWalk passability
      AddPassability(Loc, [canWalkRoad]);
 
    //Check for houses around this tile
@@ -1003,7 +1006,8 @@ begin
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
-      (not HousesNearBy) then //No houses nearby
+      (not HousesNearBy)and
+      CheckHeightPass(Loc,canBuild) then //No houses nearby
       AddPassability(Loc, [canBuild]);
 
    if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
@@ -1014,7 +1018,8 @@ begin
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
-      (not HousesNearBy) then //No houses nearby
+      (not HousesNearBy)and //No houses nearby
+      CheckHeightPass(Loc,canBuildIron) then
      AddPassability(Loc, [canBuildIron]);
 
    if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
@@ -1025,21 +1030,24 @@ begin
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
-      (not HousesNearBy) then //No houses nearby
+      (not HousesNearBy)and //No houses nearby
+      CheckHeightPass(Loc,canBuildGold) then
      AddPassability(Loc, [canBuildGold]);
 
    if (TileIsRoadable(Loc))and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked = false)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (Land[Loc.Y,Loc.X].TileOverlay<>to_Road) then
+      (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
+      CheckHeightPass(Loc,canMakeRoads) then
      AddPassability(Loc, [canMakeRoads]);
 
    if (TileIsSoil(Loc))and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked = false)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (Land[Loc.Y,Loc.X].TileOverlay <> to_Road) then
+      (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
+      CheckHeightPass(Loc,canMakeFields) then
      AddPassability(Loc, [canMakeFields]);
 
    if (TileIsSoil(Loc))and
@@ -1049,7 +1057,8 @@ begin
       (Loc.X > 1)and(Loc.Y > 1)and //Not top/left of map, but bottom/right is ok
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
       (not HousesNearBy)and
-      ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6)) then
+      ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6))and
+      CheckHeightPass(Loc,canPlantTrees) then
      AddPassability(Loc, [canPlantTrees]);
 
    if TileIsWater(Loc) then
@@ -1063,14 +1072,16 @@ begin
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
       (not TileIsCornField(Loc))and
-      (not TileIsWineField(Loc)) then //Can't crab on houses, fields and roads (can walk on markups so you can't kill them by placing a house on top of them)
+      (not TileIsWineField(Loc))and
+      CheckHeightPass(Loc,canCrab) then //Can't crab on houses, fields and roads (can walk on markups so you can't kill them by placing a house on top of them)
      AddPassability(Loc, [canCrab]);
 
    if (TileIsSoil(Loc))and
       (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
       (not TileIsCornField(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (not TileIsWineField(Loc)) then
+      (not TileIsWineField(Loc))and
+      CheckHeightPass(Loc,canWolf) then
      AddPassability(Loc, [canWolf]);
 
   end;
@@ -1599,6 +1610,42 @@ begin
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
   if PlayerRevealID <> play_none then
     Result := Result AND (CheckTileRevelation(Loc.X,Loc.Y,PlayerRevealID) > 0); //We check tile revelation to place a tile-based markup, right?
+end;
+
+
+function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
+  function GetHgtSafe(MyLoc:TKMPoint):byte;
+  begin
+    if TileInMapCoords(MyLoc.X,MyLoc.Y) then
+      Result := Land[MyLoc.Y,MyLoc.X].Height //Use requested tile
+    else Result := Land[aLoc.Y,aLoc.X].Height; //Otherwise return height of original tile which will have no effect
+  end;
+  function GetMaxHeightDifference:byte;
+  //var mixof4,maxvar: byte;
+  begin
+    //Formula for MaxHeightDifference is: (Highest tile out of 4 surrounding tile)-(Lowest tile out of 4 surrounding tile)
+    Result := Max( max(GetHgtSafe(aLoc),GetHgtSafe(KMPointY1(aLoc))) , max(GetHgtSafe(KMPointX1(aLoc)),GetHgtSafe(KMPointX1Y1(aLoc))) )
+             -Min( min(GetHgtSafe(aLoc),GetHgtSafe(KMPointY1(aLoc))) , min(GetHgtSafe(KMPointX1(aLoc)),GetHgtSafe(KMPointX1Y1(aLoc))) );
+
+    //todo: This formula is not what KaM uses, it has very different results. @Krom: Feel free to try things and offer your suggestions.
+    //Ideas: 1. (mix of two highest)-(mix of two lowest)
+    //       2. (maximum variation from the mix of all 4)/(mix of all 4)   (this is a way of calculating % error in physics results, so it gives a good indication of the variance)
+    //2. looks promising, (see bellow) but values need to be re-estimated from KaM (6,4 looks close) I ran out of time, will continue work another day...
+
+    {mixof4 := (GetHgtSafe(aLoc)+GetHgtSafe(KMPointY1(aLoc))+GetHgtSafe(KMPointX1(aLoc))+GetHgtSafe(KMPointX1Y1(aLoc))) div 4;
+    maxvar := max(Max( max(GetHgtSafe(aLoc),GetHgtSafe(KMPointY1(aLoc))) , max(GetHgtSafe(KMPointX1(aLoc)),GetHgtSafe(KMPointX1Y1(aLoc))) )-mixof4,
+                  Min( min(GetHgtSafe(aLoc),GetHgtSafe(KMPointY1(aLoc))) , min(GetHgtSafe(KMPointX1(aLoc)),GetHgtSafe(KMPointX1Y1(aLoc))) )-mixof4);
+    if mixof4 > 0 then Result := maxvar div mixof4 else Result := 0;}
+  end;
+begin
+  //Three types tested in KaM: >=25 - unwalkable/roadable; >=18 - unbuildable
+  //These values were measured by using a single elevated vertex surrounded by unelevated ground and testing passability on the sides of the "hill"
+  Result := true;
+  if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
+  case aPass of
+    canWalk,canWalkRoad,canMakeRoads,canMakeFields,canPlantTrees,canCrab,canWolf: Result := (GetMaxHeightDifference < 25);
+    canBuild,canBuildGold,canBuildIron: Result := (GetMaxHeightDifference < 18);
+  end; //For other passabilities we ignore height (return default true)
 end;
 
 
