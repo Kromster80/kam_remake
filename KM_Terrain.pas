@@ -1620,31 +1620,25 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
       Result := Land[MyLoc.Y,MyLoc.X].Height //Use requested tile
     else Result := Land[aLoc.Y,aLoc.X].Height; //Otherwise return height of original tile which will have no effect
   end;
-  function GetMaxHeightDifference:byte;
-  //var mixof4,maxvar: byte;
+  function TestHeight(aHeight:single):boolean;
+  var Points: array[1..4] of double;
   begin
-    //Formula for MaxHeightDifference is: (Highest tile out of 4 surrounding tile)-(Lowest tile out of 4 surrounding tile)
-    Result := Max( max(GetHgtSafe(aLoc),GetHgtSafe(KMPointY1(aLoc))) , max(GetHgtSafe(KMPointX1(aLoc)),GetHgtSafe(KMPointX1Y1(aLoc))) )
-             -Min( min(GetHgtSafe(aLoc),GetHgtSafe(KMPointY1(aLoc))) , min(GetHgtSafe(KMPointX1(aLoc)),GetHgtSafe(KMPointX1Y1(aLoc))) );
-
-    //todo: This formula is not what KaM uses, it has very different results. @Krom: Feel free to try things and offer your suggestions.
-    //Ideas: 1. (mix of two highest)-(mix of two lowest)
-    //       2. (maximum variation from the mix of all 4)/(mix of all 4)   (this is a way of calculating % error in physics results, so it gives a good indication of the variance)
-    //2. looks promising, (see bellow) but values need to be re-estimated from KaM (6,4 looks close) I ran out of time, will continue work another day...
-
-    {mixof4 := (GetHgtSafe(aLoc)+GetHgtSafe(KMPointY1(aLoc))+GetHgtSafe(KMPointX1(aLoc))+GetHgtSafe(KMPointX1Y1(aLoc))) div 4;
-    maxvar := max(Max( max(GetHgtSafe(aLoc),GetHgtSafe(KMPointY1(aLoc))) , max(GetHgtSafe(KMPointX1(aLoc)),GetHgtSafe(KMPointX1Y1(aLoc))) )-mixof4,
-                  Min( min(GetHgtSafe(aLoc),GetHgtSafe(KMPointY1(aLoc))) , min(GetHgtSafe(KMPointX1(aLoc)),GetHgtSafe(KMPointX1Y1(aLoc))) )-mixof4);
-    if mixof4 > 0 then Result := maxvar div mixof4 else Result := 0;}
+    Points[1] := GetHgtSafe(aLoc)+1;
+    Points[2] := GetHgtSafe(KMPointX1(aLoc));
+    Points[3] := GetHgtSafe(KMPointY1(aLoc));
+    Points[4] := GetHgtSafe(KMPointX1Y1(aLoc));
+    //todo: StdDev is not the same formula to KaM, but it's closer than Max-Min. Will keep trying.
+    Result := (StdDev(Points) < aHeight);
   end;
 begin
   //Three types tested in KaM: >=25 - unwalkable/roadable; >=18 - unbuildable
   //These values were measured by using a single elevated vertex surrounded by unelevated ground and testing passability on the sides of the "hill"
+  //But that's not for this formula :P 12.5 and 10 work ok for StdDev (which is still the wrong formula)
   Result := true;
   if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
   case aPass of
-    canWalk,canWalkRoad,canMakeRoads,canMakeFields,canPlantTrees,canCrab,canWolf: Result := (GetMaxHeightDifference < 25);
-    canBuild,canBuildGold,canBuildIron: Result := (GetMaxHeightDifference < 18);
+    canWalk,canWalkRoad,canMakeRoads,canMakeFields,canPlantTrees,canCrab,canWolf: Result := TestHeight(12.5);
+    canBuild,canBuildGold,canBuildIron: Result := TestHeight(10);
   end; //For other passabilities we ignore height (return default true)
 end;
 

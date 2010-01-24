@@ -1821,6 +1821,11 @@ begin
     Button_Main[5].Down := IsDown;
     if (not IsDown) and (Button_Main[5].Visible) then SwitchPage(Button_Main[5]);
   end;
+  if (Key=VK_DELETE) and (ShownMessage <> 0) then
+  begin
+    Button_MessageDelete.Down := IsDown;
+    if (not IsDown) then DeleteMessage(Image_Message[ShownMessage]); //Deletes the open message
+  end;
 end;
 
 
