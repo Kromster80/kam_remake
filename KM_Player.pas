@@ -418,8 +418,8 @@ procedure TKMPlayerAssets.SyncLoad();
 begin
   fUnits.SyncLoad;
   fHouses.SyncLoad;
-  {The rest gets SynLoaded automatically since it's loaded after units and houses
-  and hence can get pointers from IDs at once}
+  fDeliverList.SyncLoad;
+  fBuildList.SyncLoad;
 end;
 
 

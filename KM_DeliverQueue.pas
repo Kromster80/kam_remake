@@ -49,6 +49,7 @@ type
     procedure AbandonDelivery(aID:integer); //Occurs when unit is killed or something alike happens
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad();
     function WriteToText():string;
   end;
 
@@ -107,6 +108,7 @@ type
     procedure RemoveHouseRepair(aHouse: TKMHouse);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad();
   end;
 
 implementation
@@ -443,7 +445,6 @@ begin
     LoadStream.Read(fOffer[i].Resource, SizeOf(fOffer[i].Resource));
     LoadStream.Read(fOffer[i].Count);
     LoadStream.Read(fOffer[i].Loc_House, 4);
-    fOffer[i].Loc_House := fPlayers.GetHouseByID(integer(fOffer[i].Loc_House)); //todo: split into SyncLoad for cases when we need to access yet unloaded players assets
     LoadStream.Read(fOffer[i].BeingPerformed);
   end;
 
@@ -455,9 +456,7 @@ begin
     LoadStream.Read(DemandType, SizeOf(DemandType));
     LoadStream.Read(Importance, SizeOf(Importance));
     LoadStream.Read(Loc_House, 4);
-    Loc_House := fPlayers.GetHouseByID(integer(Loc_House));
     LoadStream.Read(Loc_Unit, 4);
-    Loc_Unit := fPlayers.GetUnitByID(integer(Loc_Unit));
     LoadStream.Read(BeingPerformed);
   end;
 
@@ -467,6 +466,21 @@ begin
     LoadStream.Read(fQueue[i].OfferID);
     LoadStream.Read(fQueue[i].DemandID);
     LoadStream.Read(fQueue[i].JobStatus, SizeOf(fQueue[i].JobStatus));
+  end;
+end;
+
+
+procedure TKMDeliverQueue.SyncLoad();
+var i:integer;
+begin
+  for i:=1 to length(fOffer) do
+    fOffer[i].Loc_House := fPlayers.GetHouseByID(integer(fOffer[i].Loc_House));
+
+  for i:=1 to length(fDemand) do
+  with fDemand[i] do
+  begin
+    Loc_House := fPlayers.GetHouseByID(integer(Loc_House));
+    Loc_Unit := fPlayers.GetUnitByID(integer(Loc_Unit));
   end;
 end;
 
@@ -796,14 +810,12 @@ begin
     LoadStream.Read(Importance);
     LoadStream.Read(JobStatus, SizeOf(JobStatus));
     LoadStream.Read(Worker, 4);
-    Worker := fPlayers.GetUnitByID(integer(Worker));
   end;
 
   LoadStream.Read(Count);
   for i:=1 to Count do
   begin
     LoadStream.Read(fHousesQueue[i].House, 4);
-    fHousesQueue[i].House := fPlayers.GetHouseByID(integer(fHousesQueue[i].House));
     LoadStream.Read(fHousesQueue[i].Importance);
   end;
 
@@ -812,11 +824,9 @@ begin
   with fHousePlansQueue[i] do
   begin
     LoadStream.Read(House, 4);
-    House := fPlayers.GetHouseByID(integer(House));
     LoadStream.Read(Importance);
     LoadStream.Read(JobStatus, SizeOf(JobStatus));
     LoadStream.Read(Worker, 4);
-    Worker := fPlayers.GetUnitByID(integer(Worker));
   end;
 
   LoadStream.Read(Count);
@@ -824,11 +834,29 @@ begin
   with fHousesRepairQueue[i] do
   begin
     LoadStream.Read(House, 4);
-    House := fPlayers.GetHouseByID(integer(House));
     LoadStream.Read(Importance);
   end;
 end;
 
+
+procedure TKMBuildingQueue.SyncLoad();
+var i:integer;
+begin
+  for i:=1 to length(fFieldsQueue) do
+    fFieldsQueue[i].Worker := fPlayers.GetUnitByID(integer(fFieldsQueue[i].Worker));
+
+  for i:=1 to length(fHousesQueue) do
+    fHousesQueue[i].House := fPlayers.GetHouseByID(integer(fHousesQueue[i].House));
+
+  for i:=1 to length(fHousePlansQueue) do
+  begin
+    fHousePlansQueue[i].House := fPlayers.GetHouseByID(integer(fHousePlansQueue[i].House));
+    fHousePlansQueue[i].Worker := fPlayers.GetUnitByID(integer(fHousePlansQueue[i].Worker));
+  end;
+
+  for i:=1 to length(fHousesRepairQueue) do
+    fHousesRepairQueue[i].House := fPlayers.GetHouseByID(integer(fHousesRepairQueue[i].House));
+end;
 
 
 end.
