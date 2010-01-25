@@ -1623,7 +1623,7 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
   function TestHeight(aHeight:single):boolean;
   var Points: array[1..4] of double;
   begin
-    Points[1] := GetHgtSafe(aLoc)+1;
+    Points[1] := GetHgtSafe(aLoc)+1; //@Lewin: Why +1 here?
     Points[2] := GetHgtSafe(KMPointX1(aLoc));
     Points[3] := GetHgtSafe(KMPointY1(aLoc));
     Points[4] := GetHgtSafe(KMPointX1Y1(aLoc));
