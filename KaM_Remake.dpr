@@ -1,5 +1,4 @@
 program KaM_Remake;
-
 {$IFDEF FPC}
   {$Mode Delphi}
 {$ENDIF}
@@ -36,7 +35,7 @@ uses
   KM_Player in 'KM_Player.pas',
   KM_CommonTypes in 'KM_CommonTypes.pas',
   KM_Utils in 'KM_Utils.pas',
-  KM_TGATexture in 'KM_TGATexture.pas',
+  KM_TGATexture in ' Common \KM_TGATexture.pas',
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_UnitActionGoInOut in 'KM_UnitActionGoInOut.pas',
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',

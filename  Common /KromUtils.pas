@@ -1,5 +1,5 @@
-//some new lines
 unit KromUtils;
+{$mode delphi}
 interface
 uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, ShellApi;
 

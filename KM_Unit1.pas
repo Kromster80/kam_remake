@@ -113,7 +113,6 @@ type
     procedure WMSysCommand(var Msg : TWMSysCommand); message WM_SYSCOMMAND;
     procedure ReadAvailableResolutions;
     procedure ApplyCursorRestriction;
-
   public
     procedure ToggleControlsVisibility(ShowCtrls:boolean);
     procedure ToggleFullScreen(Toggle:boolean; ResolutionID:word; ReturnToOptions:boolean);
