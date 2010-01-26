@@ -1,5 +1,5 @@
 unit KM_Form_NewMap;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 
 uses

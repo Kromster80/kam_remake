@@ -10,8 +10,7 @@ uses
   KM_Form_NewMap in 'KM_Form_NewMap.pas' {FormNewMap},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
   KM_LoadDAT in 'KM_LoadDAT.pas',
-  KM_TPlayer in 'KM_TPlayer.pas',
-  KM_MapSettings in 'KM_MapSettings.pas' {Form_MapSettings};
+  KM_TPlayer in 'KM_TPlayer.pas';
 
 {$R *.RES}
 
@@ -22,7 +21,6 @@ begin
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);
   Application.CreateForm(TFormNewMap, FormNewMap);
-  Application.CreateForm(TForm_MapSettings, Form_MapSettings);
   Form1.HelpFile:=ExtractFilePath(Application.ExeName)+'KM_EDITOR.HLP';
   FormNewMap.HelpFile:=ExtractFilePath(Application.ExeName)+'KM_EDITOR.HLP';
 

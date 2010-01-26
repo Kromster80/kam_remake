@@ -1,5 +1,5 @@
 unit KM_Defaults;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 
 type bmBrushMode = (bmNone,bmTerrain,bmTiles,bmTileRotate,bmObjects,bmRelief,bmHouses,bmCopy,bmPaste);

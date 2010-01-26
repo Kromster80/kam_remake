@@ -13,7 +13,7 @@
 //
 //----------------------------------------------------------------------------
 unit KM_TGATexture;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 uses
   Forms, Windows,

@@ -1,5 +1,5 @@
 unit KM_TPlayer;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 uses KM_Defaults,SysUtils, KM_Unit1, KromUtils;
 

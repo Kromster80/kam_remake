@@ -1,5 +1,5 @@
 unit KM_Render;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 
 uses Windows, SysUtils, Forms,

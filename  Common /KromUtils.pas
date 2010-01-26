@@ -1,5 +1,5 @@
 unit KromUtils;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, ShellApi;
 

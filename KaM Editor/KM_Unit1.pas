@@ -1,5 +1,5 @@
 unit KM_Unit1;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 uses
   Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
@@ -7,7 +7,7 @@ uses
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Defaults, KM_Render,
-  KM_Form_Loading, Math, Grids, Spin;
+  KM_Form_Loading, Math, Grids, Spin, ImgList;
 
 type
   TForm1 = class(TForm)

@@ -1,5 +1,5 @@
 unit KM_ReadGFX1;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 interface
 
     function ReadGFX(text: string):boolean;
