@@ -2,8 +2,6 @@ unit KM_Controls;
 interface
 uses MMSystem, Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
 
-type TPivotLocation = (pl_Min, pl_Avg, pl_Max);
-
 {Base class for all TKM elements}
 type
 TKMControl = class(TObject)
@@ -1128,8 +1126,8 @@ begin
   for i:=0 to Count-1 do
     if TKMControl(Items[I]).HitTest(X, Y) then
       if TKMControl(Items[I]).Enabled then
-      if TKMControl(Items[i]).ClassType=TKMButton then
-      TKMButton(Items[I]).Down:=true;
+        if TKMControl(Items[i]) is TKMButton then
+          TKMButton(Items[I]).Down := true;
 end;
 
 
@@ -1141,8 +1139,8 @@ begin
     if TKMControl(Items[I]).HitTest(X, Y) then
       if TKMControl(Items[I]).Enabled then
       begin
-        if TKMControl(Items[i]).ClassType=TKMButton then //todo: Using Classtype is not very good (rework it somehow)
-          TKMButton(Items[I]).Down:=false;
+        if TKMControl(Items[i]) is TKMButton then
+          TKMButton(Items[I]).Down := false;
         if AButton = mbLeft then
         begin
           if Assigned(TKMControl(Items[I]).OnClick) then
