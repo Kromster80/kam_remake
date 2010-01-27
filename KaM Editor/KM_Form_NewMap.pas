@@ -25,10 +25,6 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ButtonHelpClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-  private
-    { Private declarations }
-  public
-    { Public declarations }
   end;
 
 

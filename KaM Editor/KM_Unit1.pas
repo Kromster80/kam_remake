@@ -7,7 +7,7 @@ uses
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Defaults, KM_Render,
-  KM_Form_Loading, Math, Grids, Spin, ImgList;
+  KM_Form_Loading, Math, Grids, Spin;
 
 type
   TForm1 = class(TForm)

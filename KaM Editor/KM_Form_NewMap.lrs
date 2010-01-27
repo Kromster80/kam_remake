@@ -1,3 +1,5 @@
+{ This is an automatically generated lazarus resource file }
+
 LazarusResources.Add('TFormNewMap','FORMDATA',[
   'TPF0'#11'TFormNewMap'#10'FormNewMap'#4'Left'#3#166#1#6'Height'#3#145#0#3'Top'
   +#3#161#1#5'Width'#3'i'#1#11'BorderIcons'#11#12'biSystemMenu'#10'biMinimize'

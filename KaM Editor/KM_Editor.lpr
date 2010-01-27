@@ -1,5 +1,5 @@
 program KM_Editor;
-{$mode delphi}
+{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
 
 uses
   Forms,
@@ -15,11 +15,9 @@ uses
   KM_TPlayer in 'KM_TPlayer.pas',
   KM_TGATexture in 'KM_TGATexture.pas';
 
-
 {$IFDEF VER140}
   {$R *.RES}
 {$ENDIF}
-
 
 begin
   Application.Initialize;

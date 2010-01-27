@@ -23,10 +23,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Label7Click(Sender: TObject);
     procedure Label4Click(Sender: TObject);
-  private
-    { Private declarations }
-  public
-    { Public declarations }
   end;
 
 
