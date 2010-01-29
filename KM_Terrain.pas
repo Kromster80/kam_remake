@@ -656,12 +656,14 @@ begin
           if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),canWalk,true) then
             List.AddEntry(KMPoint(k,i));
 
-  TreeLoc:=List.GetRandom; //Choose our tree
+  TreeLoc := List.GetRandom; //Choose our tree
 
-  //@Krom: This isn't working quite yet. If you are going to release the demo uncomment these two lines:
-  //Result := KMPointDir(TreeLoc.X,TreeLoc.Y,7);
-  //exit;
-  //       That will restore it to always cutting from bottom-left.
+  //That will restore it to always cutting from bottom-left.
+  if not CUT_TREES_FROM_ANYSIDE then
+  begin
+    Result := KMPointDir(TreeLoc.X,TreeLoc.Y,7);
+    exit;
+  end;
 
   //Now choose our direction of approch based on which on is the flatest (animation looks odd if not flat)
   Best := 255;
@@ -1662,7 +1664,7 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
     //Put points into an array like this so it's easy to understand:
     // 1 2
     // 3 4
-    Points[1] := GetHgtSafe(aLoc); //@Lewin: Why +1 here? //@Krom: Left over from some formlae that didn't work with 0. To be deleted.
+    Points[1] := GetHgtSafe(aLoc);
     Points[2] := GetHgtSafe(KMPointX1(aLoc));
     Points[3] := GetHgtSafe(KMPointY1(aLoc));
     Points[4] := GetHgtSafe(KMPointX1Y1(aLoc));

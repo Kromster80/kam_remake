@@ -40,10 +40,13 @@ var
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
 
-  //These are under-construction things, should be ... enabled sometime
-  FullyLoadUnitsRX      :boolean=false;  //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
+  //These are under-construction things, should be enabled ... sometime
+  //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
+  //Not fully implemented yet
+  CUT_TREES_FROM_ANYSIDE:boolean=false; //Allow wodcutter to cut trees from any side rther than bottom-right
+  FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   SHOW_MAPED_IN_MENU    :boolean=false; //Allows to hide all map-editor related pages from main menu
 

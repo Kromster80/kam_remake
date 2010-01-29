@@ -1724,7 +1724,6 @@ begin
     if not fTerrain.CheckPassability(GetPosition, GetDesiredPassability) then
       exit;
 
-//@Lewin: I want to switch to this pattern, need your opinion on it:
 //todo: new task handling pattern
 {
   if fCurrentAction<>nil then
@@ -1741,7 +1740,6 @@ begin
     TaskDone: ; //move along to unit-specific UpdateState
   end;
 }
-//@Krom: Looks fine to me. :)
 
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, ActDone);

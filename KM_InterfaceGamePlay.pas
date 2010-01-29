@@ -562,7 +562,10 @@ begin
   begin
     Image_Message[i].Top := Y-i*48;
   end;
-  Panel_Message.Top := Y-190; //@Krom: Why doesn't this work? Do I need to do each control individually?
+  Panel_Message.Top := Y-190;
+  //@Krom: Why doesn't this work? Do I need to do each control individually?
+  //@Lewin: Controls aren't properly rigged with Panels yet. I will add TODO item. To be deleted..
+  //todo: moving Panel should move all child Controls along with it
 end;
 
 
@@ -664,15 +667,16 @@ begin
   Label_RatioLab0 := MyControls.AddLabel(Panel_Ratios,44,72,100,30,'<<<LEER>>>',fnt_Outline,kaLeft);
 
   for i:=1 to 4 do begin
-    Image_RatioPic[i]         :=MyControls.AddImage(Panel_Ratios,12,124+(i-1)*50,32,32,327);
-    Label_RatioLab[i]         :=MyControls.AddLabel(Panel_Ratios,50,116+(i-1)*50,100,30,'<<<LEER>>>',fnt_Grey,kaLeft);
-    Ratio_RatioRat[i]         :=MyControls.AddRatioRow(Panel_Ratios,48,136+(i-1)*50,140,20,0,5);
-    Ratio_RatioRat[i].Tag     :=i;
-    Ratio_RatioRat[i].OnChange:=RatiosChange;
+    Image_RatioPic[i]         := MyControls.AddImage(Panel_Ratios,12,124+(i-1)*50,32,32,327);
+    Label_RatioLab[i]         := MyControls.AddLabel(Panel_Ratios,50,116+(i-1)*50,100,30,'<<<LEER>>>',fnt_Grey,kaLeft);
+    Ratio_RatioRat[i]         := MyControls.AddRatioRow(Panel_Ratios,48,136+(i-1)*50,140,20,0,5);
+    Ratio_RatioRat[i].Tag     := i;
+    Ratio_RatioRat[i].OnChange:= RatiosChange;
   end;
   //todo: @Lewin: We shall hide or disable ratios for blocked houses, that would make sense, right?
   //      @Krom: Yeah, maybe put ? icon for blocked houses. AFTERTHOUGHT: This might be a bad idea because sometimes
   //             you start with 1 house of a type that is blocked, so you can't build it and must protect it.
+  //@Lewin: you right, I didn't thought of that. To be deleted..
 end;
 
 

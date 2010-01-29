@@ -105,24 +105,12 @@ begin
     end;
   end;
 
-  //@Lewin: Here I suggest you organise a temp list of new strings
-  //TextStrings[1025]:='Activity';
-  //TextStrings[1026]:='Building';
-  //TextStrings[1027]:='Digging';
-  //TextStrings[1028]:='Delivering';
-  //etc..
-  //Once we settle the design and test it ingame we could either export it to lib files
-  //or make an addon lib file especially for Remake (I like that better) - addon.lib
-  //Your ideas?
-
-  //@Krom: Temp list of strings is a good idea, but only use it for things that are likely
-  //to become perminate. (not just debugging stuff)
-  //I too like the addon.lib idea better. Once we have a more complete list then I can organise that
-
-  //@Lewin: Okay, I guess it will be hardcoded until we export it to LIB.
+  //todo: remake.lib with new Remake's strings.
+  //Use it for things that are likely to become perminate. (not just debugging stuff)
+  //Maybe it will be hardcoded until we export it to LIB.
   //fTextLibrary.GetRemakeString(*)
-  // RemakeStrings[1]:='Activity';
-  // etc.. I will look into this when we have more menu options..
+  //RemakeStrings[1]:='Activity';
+  //etc.. use longer gaps between groups to allow to add new entries into appropriate groups like KaM does
 end;
            
 function TTextLibrary.GetTextString(aIndex:integer):string;
