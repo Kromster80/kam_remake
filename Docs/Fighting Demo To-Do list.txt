@@ -7,4 +7,5 @@
 	House attacks
 	Map editor saving simple maps
 	Tutorial missions from KaM
+	Scalable ingame menu
 	Lookout tower [Krom]
