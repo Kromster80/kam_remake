@@ -1,0 +1,60 @@
+This document is used for discussing ideas about the reworked terrain system.
+Please modify and discuss the proposed changes. I have just written down my basic thoughts which are probably flawed and need rethinking. Feel free to completely redesign!
+
+
+Properties of each tile:
+Terrain        - The terrain type
+		TILE byte
+		HEIGHT byte
+		ROTATION 2bits
+		OWNER 4bits //forbid any actions on enemy tiles
+		IS_UNIT byte //For unit interaction, will be 1bit later on
+		MARKUP TMarkup (road, corn, wine, houseplan, housewip) 3bits //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
+
+
+Object         - The map object. Some types are automatically drawn as quads. (this is probably defined in MapElemProperties)
+		OBJECT byte
+		OBJECT_AGE word //for growing trees, falling trees and what else?
+		FIELD_AGE word //for corn and wine (corn or wine to be determined by TILE), thus OBJECTS can still be on fields (which is nice), corn/wine objects are rendered from this parameter value, can be 4bits later on
+
+
+TerrainOverlay - This is rendered as a tile on top of the main one. Will only be used for house rubble
+		OVERLAY_FOR_ROADS_&_DIGS 4bits
+
+
+FieldSpecial   - This terrain type is overlaid on the other two. This is ONLY used for road/field building. Values: fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4
+		_REMOVE (ajoined to OVERLAY_FOR_ROADS_&_DIGS)
+		
+
+FieldType      - The type of field or road. (NOT houses) Values: fdt_None=0, fdt_Road=1, fdt_Field=2, fdt_Wine=3, fdt_RoadWIP=4, fdt_FieldWIP=5, fdt_WineWIP=6
+		_REMOVE (will be deduced from OVERLAY_FOR_ROADS_&_DIGS and OBJECT)
+
+
+HouseType      - Whether this is a house and what stage of development. Values: fdt_None=0, fdt_HousePlan=1, fdt_HouseWIP=2, fdt_House=3
+		_REMOVE (Could be removed aswell, if we set OBJECT to be invisible wall upon flattening the terrain, nice idea in fact) house_wip will be deduced either from MARKUP2 (house_N, house_E, house_S, house_W, house_NA) or 
+
+DEDUCED VALUES which are only for speedup and must not be assigned, only read
+
+		LIGHT single //computed from heights, can be byte later on
+		PASSABILITY set of TPassability //end result of RecalculatePassability function
+
+
+BorderTop,BorderLeft,BorderBottom,BorderRight - The border of the tile. Using 4 values like this allows for house development next to fields.
+		BORDERTYPE_N set of TBorder (houseplan, housewip, corn, wine) deduced from TILE (corn, wine) MARKUP (houseplan, housewip)
+		BORDERTYPE_E set of TBorder
+		BORDERTYPE_S set of TBorder
+		BORDERTYPE_W set of TBorder
+
+
+Basic FOW format as in KaM
+		FOG_OF_WAR 1bit //One for each player explored/unexplored
+
+
+Extended FOW format for Remake
+FogOfWarLastSeen - To be added later, but included in design plan. Will contain the properties last seen before this tile turned into fog. Will need to store any properties that can be changed. Possible Properties: Terrain, Object, Height, Light, Rotation, FieldType, HouseType. Will also need to store houses.
+
+
+
+Discussions:
+ - FogOfWarLastSeen: To be discussed once we are ready to implement that. (probably after all other changes)
+ - @Lewin: Looks like each player has to have own fTerrain + house locations, and use it for areas which are explored but covered with FOW instead of common fTerrain

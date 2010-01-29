@@ -1,0 +1,5 @@
+3rd Demo should include:
+
+	Unit interaction [Lewin]
+	Wares distribution [Lewin]
+	Save/Load [Krom]

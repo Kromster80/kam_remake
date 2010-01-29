@@ -1,0 +1,35 @@
+Incomplete, some notes I took while testing KaM mining.
+
+ALL:
+ - Resource does not need to be in the same hill (can be disconnected from mine)
+ - ALL mines use the gradient system
+ - In KaM they mine bottom right to top left, but we can keep it random
+ 
+COAL:
+ - Will mine one tile further on the RIGHT side (as that is where the mine shaft is?)
+ - Will remove 4 (all) from a radius of 1 from the house
+ - Will remove 3       from a radius of 2 from the house
+ - Will remove 2       from a radius of 3 from the house
+ - Never removes just 1
+            
+
+GOLD:
+ - Will remove 2 from: - 3 tiles bellow house 
+                       - 6 tiles right of house
+                       - 6 tiles left of house
+                       - 10 tiles above house
+                       
+ - Will remove 3 from: - 2 tiles bellow house 
+                       - 5 tiles right of house
+                       - 5 tiles left of house
+                       - 9 tiles above house
+                       
+ - Will remove 4 from: - 1 tiles bellow house 
+                       - 4 tiles right of house
+                       - 4 tiles left of house
+                       - 8 tiles above house
+
+
+IRON:
+ Same as gold?
+ 
