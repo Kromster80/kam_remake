@@ -7,5 +7,5 @@
 +	Show proper error message when route cannot be built [Lewin]
 +	Show proper error message and return to main menu/game if load fails or file doesn't exist [Lewin]
 +	Change save file type to .sav rather than .txt [Krom]
-	Height effects passability [Lewin]
++	Height effects passability [Lewin]
 	Update Readme file [Krom/Lewin]

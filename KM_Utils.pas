@@ -25,6 +25,8 @@ type
 
   function KMGetDirection(X,Y: integer): TKMDirection; overload;
   function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
+  function KMGetVertexDir(X,Y: integer):TKMDirection;
+  function KMGetVertexTile(X,Y:integer; Dir: TKMDirection):TKMPoint;
   function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
   function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
   function KMLoopDirection(aDir: byte): TKMDirection;
@@ -151,6 +153,23 @@ const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
         ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
 begin
   Result := DirectionsBitfield[sign(ToPos.X - FromPos.X), sign(ToPos.Y - FromPos.Y)]; //-1,0,1
+end;
+
+
+function KMGetVertexDir(X,Y: integer):TKMDirection;
+const DirectionsBitfield:array[-1..0,-1..0]of TKMDirection =
+        ((dir_SE,dir_NE),(dir_SW,dir_NW));
+begin
+  Result := DirectionsBitfield[X,Y];
+end;
+
+
+function KMGetVertexTile(X,Y:integer; Dir: TKMDirection):TKMPoint;
+const 
+  XBitField: array[TKMDirection] of smallint = (0,0,1,0,1,0,0,0,0);
+  YBitField: array[TKMDirection] of smallint = (0,0,0,0,1,0,1,0,0);
+begin
+  Result := KMPoint(X+XBitField[Dir],Y+YBitField[Dir]);
 end;
 
 

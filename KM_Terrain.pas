@@ -88,7 +88,7 @@ public
   procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
 
   function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
-  function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+  function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
   function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
@@ -121,6 +121,7 @@ public
   function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
   function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
   function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
+  function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
   function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
   procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
   procedure Route_ReturnToRoad(LocA:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
@@ -643,18 +644,40 @@ end;
 
 
 {Find closest chopable Tree around}
-function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-var i,k:integer; List:TKMPointList;
+function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint;
 begin
+  //List1 is all trees within radius
   List:=TKMPointList.Create;
   for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
     for k:=aPosition.X-aRadius to aPosition.X+aRadius do
       if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
         if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
-          if Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,true) then
+          if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),canWalk,true) then
             List.AddEntry(KMPoint(k,i));
 
-  Result:=List.GetRandom;
+  TreeLoc:=List.GetRandom; //Choose our tree
+
+  //@Krom: This isn't working quite yet. If you are going to release the demo uncomment these two lines:
+  //Result := KMPointDir(TreeLoc.X,TreeLoc.Y,7);
+  //exit;
+  //       That will restore it to always cutting from bottom-left.
+
+  //Now choose our direction of approch based on which on is the flatest (animation looks odd if not flat)
+  Best := 255;
+  Result := KMPointDir(0,0,0);
+  //Only bother choosing direction if tree is valid, otherwise just exit with invalid
+  if not KMSamePoint(TreeLoc,KMPoint(0,0)) then
+  for i:=-1 to 0 do
+    for k:=-1 to 0 do
+      if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),canWalk,true) then
+        if (abs(InterpolateLandHeight(TreeLoc.X+k+0.5,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
+          ((i<>0)or(InterpolateLandHeight(TreeLoc.X+k+0.5,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
+        begin
+          Result := KMPointDir(TreeLoc.X+k,TreeLoc.Y+i,byte(KMGetVertexDir(k,i))-1);
+          Best := abs(Round(InterpolateLandHeight(TreeLoc.X+k+0.5,TreeLoc.Y+i))-Land[TreeLoc.Y,TreeLoc.X].Height);
+        end;
+
   List.Free;
 end;
 
@@ -1230,6 +1253,7 @@ begin
   L2.Free;
 end;
 
+
 //Test wherever the route is possible to make
 function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
 var i,k:integer;
@@ -1265,6 +1289,18 @@ begin
         if fTerrain.TileInMapCoords(k,i) and ((i<>LocB.Y) or (k<>LocB.X)) then
           Result := Result or (Land[LocA.Y,LocA.X].WalkConnect[4] = Land[i,k].WalkConnect[4]);
   end;
+end;
+
+
+function TTerrain.Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
+var i,k:integer;
+begin
+  //Check if a route can be made to this vertex, from any direction (used for woodcutter cutting trees)
+  Result := false;
+  //Check from top-left of vertex to vertex tile itself
+  for i := -1 to 0 do
+    for k := -1 to 0 do
+      Result := Result or Route_CanBeMade(LocA,KMPoint(LocB.X+i,LocB.Y+k),aPass,aWalkToSpot);
 end;
 
 
@@ -1620,25 +1656,44 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
       Result := Land[MyLoc.Y,MyLoc.X].Height //Use requested tile
     else Result := Land[aLoc.Y,aLoc.X].Height; //Otherwise return height of original tile which will have no effect
   end;
-  function TestHeight(aHeight:single):boolean;
-  var Points: array[1..4] of double;
+  function TestHeight(aHeight:byte):boolean;
+  var Points: array[1..4] of byte;
   begin
-    Points[1] := GetHgtSafe(aLoc)+1; //@Lewin: Why +1 here?
+    //Put points into an array like this so it's easy to understand:
+    // 1 2
+    // 3 4
+    Points[1] := GetHgtSafe(aLoc); //@Lewin: Why +1 here? //@Krom: Left over from some formlae that didn't work with 0. To be deleted.
     Points[2] := GetHgtSafe(KMPointX1(aLoc));
     Points[3] := GetHgtSafe(KMPointY1(aLoc));
     Points[4] := GetHgtSafe(KMPointX1Y1(aLoc));
-    //todo: StdDev is not the same formula to KaM, but it's closer than Max-Min. Will keep trying.
-    Result := (StdDev(Points) < aHeight);
+
+    {KaM method checks the differences between the 4 verticies around the tile.
+    There is a special case that means it is more (twice) as tolerant to bottom-left to top right (2-3) and
+    bottom-right to top-right (4-2) slopes. This sounds very odd, but if you don't believe me then do the tests yourself. ;)
+    The reason for this probably has something to do with the fact that shaddows and stuff flow from
+    the bottom-left to the top-right in KaM.
+    This formula could be revised later, but for now it matches KaM perfectly.
+    The biggest problem with it is backwards sloping tiles which are shown as walkable.
+    But it doesn't matter that much because this system is really just a backup (it's more important for
+    building than walking) and map creators should block tiles themselves with the special invisible block object.}
+
+    //Sides of tile
+    Result :=            (abs(Points[1]-Points[2]) < aHeight);
+    Result := Result AND (abs(Points[3]-Points[4]) < aHeight);
+    Result := Result AND (abs(Points[3]-Points[1]) < aHeight);
+    Result := Result AND (abs(Points[4]-Points[2]) < aHeight*2); //Bottom-right to top-right is twice as tolerant
+
+    //Diagonals of tile
+    Result := Result AND (abs(Points[1]-Points[4]) < aHeight);
+    Result := Result AND (abs(Points[3]-Points[2]) < aHeight*2); //Bottom-left to top-right is twice as tolerant
   end;
 begin
-  //Three types tested in KaM: >=25 - unwalkable/roadable; >=18 - unbuildable
-  //These values were measured by using a single elevated vertex surrounded by unelevated ground and testing passability on the sides of the "hill"
-  //But that's not for this formula :P 12.5 and 10 work ok for StdDev (which is still the wrong formula)
+  //Three types tested in KaM: >=25 - unwalkable/roadable; >=18 - unbuildable.
   Result := true;
   if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
   case aPass of
-    canWalk,canWalkRoad,canMakeRoads,canMakeFields,canPlantTrees,canCrab,canWolf: Result := TestHeight(12.5);
-    canBuild,canBuildGold,canBuildIron: Result := TestHeight(10);
+    canWalk,canWalkRoad,canMakeRoads,canMakeFields,canPlantTrees,canCrab,canWolf: Result := TestHeight(25);
+    canBuild,canBuildGold,canBuildIron: Result := TestHeight(18);
   end; //For other passabilities we ignore height (return default true)
 end;
 

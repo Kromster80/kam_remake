@@ -2692,7 +2692,7 @@ begin
     gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = 65535);
     gs_FisherCatch:     Result := CatchFish(KMPointDir(WorkPlan.Loc.X,WorkPlan.Loc.Y,WorkPlan.WorkDir),true);
     gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
-    gs_WoodCutterCut:   Result := ObjectIsChopableTree(WorkPlan.Loc, 4) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].TreeAge >= TreeAgeFull)
+    gs_WoodCutterCut:   Result := ObjectIsChopableTree(KMGetVertexTile(WorkPlan.Loc.X,WorkPlan.Loc.Y,TKMDirection(WorkPlan.WorkDir+1)), 4) and (Land[KMGetVertexTile(WorkPlan.Loc.X,WorkPlan.Loc.Y,TKMDirection(WorkPlan.WorkDir+1)).Y, KMGetVertexTile(WorkPlan.Loc.X,WorkPlan.Loc.Y,TKMDirection(WorkPlan.WorkDir+1)).X].TreeAge >= TreeAgeFull)
     else                Result := true;
   end;
 end;
@@ -2728,7 +2728,7 @@ with fUnit do
            SetActionStay(13, ua_Work1, false); //Throw the line out
          end
          else
-           SetActionLockedStay(0, WorkPlan.WorkType);
+           SetActionLockedStay(0, WorkPlan.WalkTo);
        end;
     3: //IF resource still exists on location
        if ResourceExists then
@@ -2773,7 +2773,9 @@ with fUnit do
                gs_FarmerWine:      fTerrain.CutGrapes(WorkPlan.Loc);
                gs_FisherCatch:     begin fTerrain.CatchFish(KMPointDir(WorkPlan.Loc.X,WorkPlan.Loc.Y,WorkPlan.WorkDir)); WorkPlan.WorkType := ua_WalkTool; end;
                gs_WoodCutterPlant: fTerrain.SetTree(WorkPlan.Loc,fTerrain.ChooseTreeToPlant(WorkPlan.Loc));
-               gs_WoodCutterCut:   begin fTerrain.FallTree(WorkPlan.Loc); StillFrame := 5; end;
+               gs_WoodCutterCut:   begin
+               fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc.X,WorkPlan.Loc.Y,TKMDirection(WorkPlan.WorkDir+1))); StillFrame := 5;
+               end;
              end;
          SetActionStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);
        end;

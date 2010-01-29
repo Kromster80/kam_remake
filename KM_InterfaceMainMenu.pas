@@ -431,8 +431,8 @@ begin
       Label_Options_Music:=MyControls.AddLabel(Panel_Options_Sound,8,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
       Ratio_Options_Music:=MyControls.AddRatioRow(Panel_Options_Sound,0,97,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
 
-      Label_Options_MusicOn:=MyControls.AddLabel(Panel_Options_Sound,8,135,100,20,fTextLibrary.GetTextString(197),fnt_Metal,kaLeft);
-      Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,0,155,150,30,'',fnt_Metal, bsMenu);
+      Label_Options_MusicOn:=MyControls.AddLabel(Panel_Options_Sound,8,140,100,20,fTextLibrary.GetTextString(197),fnt_Outline,kaLeft);
+      Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,0,160,150,30,'',fnt_Metal, bsMenu);
       Button_Options_MusicOn.OnClick:=Options_Change;
 
     Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,270,130,150,40+LocalesCount*20);
@@ -511,6 +511,7 @@ begin
     Image_ErrorBG.FillArea;
     //@Krom: How come these two aren't centering properly...?
     //@Lewin: Provide a screen with control-overlays turned on please. For me all looks well centered...
+    //@Krom: Done: Off Center 2010-01-23.gif. It is the text rather than the controls themselves. The control-overlay looks fine.
     MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'An Error Has Occured!',fnt_Antiqua,kaCenter);
     Label_Error:=MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack:=MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);

@@ -283,8 +283,7 @@ begin
     //lrSuccess: ;      //Load was a success, continue into new game
     //lrFileNotFound: ; //Do nothing, because user clicked on a blank save
     lrParseError: fGame.fMainMenuInterface.ShowScreen_Error(LoadError); //This means an error was encountered while parsing the file (error message will be stored in LoadError)
-    lrIncorrectGameState: fGame.fMainMenuInterface.ShowScreen_Error('Unable to load from current game state'); //@Krom: Should be changed to an assert?
-                                                                                                               //@Lewin: Thats not a big deal if game gets loaded from other state cos the StopGame will flush it anyway. No need to make an assert out of it. To be deleted..
+    lrIncorrectGameState: fGame.fMainMenuInterface.ShowScreen_Error('Unable to load from current game state');
   end;
 end;
 
@@ -563,6 +562,7 @@ begin
   begin
     Image_Message[i].Top := Y-i*48;
   end;
+  Panel_Message.Top := Y-190; //@Krom: Why doesn't this work? Do I need to do each control individually?
 end;
 
 
@@ -671,6 +671,8 @@ begin
     Ratio_RatioRat[i].OnChange:=RatiosChange;
   end;
   //todo: @Lewin: We shall hide or disable ratios for blocked houses, that would make sense, right?
+  //      @Krom: Yeah, maybe put ? icon for blocked houses. AFTERTHOUGHT: This might be a bad idea because sometimes
+  //             you start with 1 house of a type that is blocked, so you can't build it and must protect it.
 end;
 
 
@@ -1819,7 +1821,14 @@ begin
   if Key=VK_ESCAPE then
   begin
     Button_Main[5].Down := IsDown;
+    Button_MessageClose.Down := IsDown;
     if (not IsDown) and (Button_Main[5].Visible) then SwitchPage(Button_Main[5]);
+    if (not IsDown) then CloseMessage(Button_MessageClose);
+  end;
+  if (Key=71) and (Button_MessageGoTo.Enabled) then //71 = G
+  begin
+    Button_MessageGoTo.Down := IsDown;
+    if (not IsDown) then GoToMessage(Button_MessageGoTo);
   end;
   if (Key=VK_DELETE) and (ShownMessage <> 0) then
   begin

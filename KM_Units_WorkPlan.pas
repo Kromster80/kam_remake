@@ -313,9 +313,10 @@ if (aUnitType=ut_StoneCutter)and(aHome=ht_Quary) then begin
   end;
 end else
 if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
-  if fTerrain.FindTree(aLoc,RANGE_WOODCUTTER).X<>0 then begin
+  TempLocDir := fTerrain.FindTree(aLoc,RANGE_WOODCUTTER);
+  if TempLocDir.Loc.X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
-    WalkStyle(fTerrain.FindTree(aLoc,RANGE_WOODCUTTER),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,7);
+    WalkStyle(KMPoint(TempLocDir),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,TempLocDir.Dir);
     //todo: Will need to be improved later to choose the direction based on the direction of approch. For now always cut from the bottom left.
   end else
   if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
