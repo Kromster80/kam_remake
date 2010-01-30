@@ -45,7 +45,7 @@ var
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
   //Not fully implemented yet
-  CUT_TREES_FROM_ANYSIDE:boolean=false; //Allow wodcutter to cut trees from any side rther than bottom-right
+  CUT_TREES_FROM_ANYSIDE:boolean=true; //Allow wodcutter to cut trees from any side rther than bottom-right
   FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   SHOW_MAPED_IN_MENU    :boolean=false; //Allows to hide all map-editor related pages from main menu
@@ -685,7 +685,7 @@ const UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 type
   TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_8=8, play_animals=9);
 
-  {@Lewin:If you know other names- please fill in }
+
   TSoundFX = (
     sfx_corncut=1,
     sfx_dig,

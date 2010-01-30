@@ -163,6 +163,7 @@ public
   procedure ComputeCursorPosition(X,Y:word);
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
+  function MixLandHeight(inX,inY:byte):byte;
 
   procedure RefreshMinimapData();
 
@@ -673,11 +674,11 @@ begin
   for i:=-1 to 0 do
     for k:=-1 to 0 do
       if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),canWalk,true) then
-        if (abs(InterpolateLandHeight(TreeLoc.X+k+0.5,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
-          ((i<>0)or(InterpolateLandHeight(TreeLoc.X+k+0.5,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
+        if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
+          ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
         begin
           Result := KMPointDir(TreeLoc.X+k,TreeLoc.Y+i,byte(KMGetVertexDir(k,i))-1);
-          Best := abs(Round(InterpolateLandHeight(TreeLoc.X+k+0.5,TreeLoc.Y+i))-Land[TreeLoc.Y,TreeLoc.X].Height);
+          Best := abs(Round(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i))-Land[TreeLoc.Y,TreeLoc.X].Height);
         end;
 
   List.Free;
@@ -1834,6 +1835,13 @@ begin
   else
     Tmp2 := mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
   Result:=mix(Tmp2, Tmp1, frac(InY));
+end;
+
+
+{ Like above but just a mix of the 4 cells, no factional parts }
+function TTerrain.MixLandHeight(inX,inY:byte):byte;
+begin
+  Result := (Land[inY,inX].Height+Land[inY,inX+1].Height+Land[inY+1,inX].Height+Land[inY+1,inX+1].Height) div 4;
 end;
 
 

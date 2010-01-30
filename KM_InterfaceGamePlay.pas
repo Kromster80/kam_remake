@@ -563,8 +563,6 @@ begin
     Image_Message[i].Top := Y-i*48;
   end;
   Panel_Message.Top := Y-190;
-  //@Krom: Why doesn't this work? Do I need to do each control individually?
-  //@Lewin: Controls aren't properly rigged with Panels yet. I will add TODO item. To be deleted..
   //todo: moving Panel should move all child Controls along with it
 end;
 
@@ -673,10 +671,6 @@ begin
     Ratio_RatioRat[i].Tag     := i;
     Ratio_RatioRat[i].OnChange:= RatiosChange;
   end;
-  //todo: @Lewin: We shall hide or disable ratios for blocked houses, that would make sense, right?
-  //      @Krom: Yeah, maybe put ? icon for blocked houses. AFTERTHOUGHT: This might be a bad idea because sometimes
-  //             you start with 1 house of a type that is blocked, so you can't build it and must protect it.
-  //@Lewin: you right, I didn't thought of that. To be deleted..
 end;
 
 
