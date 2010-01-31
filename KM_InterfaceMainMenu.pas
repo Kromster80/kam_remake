@@ -631,22 +631,20 @@ end;
 procedure TKMMainMenuInterface.SingleMap_RefreshList();
 var i,ci:integer;
 begin
-//  SingleMapsInfo.ScanSingleMapsFolder('');
-
   for i:=1 to MENU_SP_MAPS_COUNT do begin
     ci:=SingleMap_Top+i-1;
     if ci>SingleMapsInfo.GetMapCount then begin
-      Button_SingleMode[i].TexID:=0;
-      Button_SinglePlayers[i].Caption:='';
-      Label_SingleTitle1[i].Caption:='';
-      Label_SingleTitle2[i].Caption:='';
-      Button_SingleSize[i].Caption:='';
+      Button_SingleMode[i].TexID        := 0;
+      Button_SinglePlayers[i].Caption   := '';
+      Label_SingleTitle1[i].Caption     := '';
+      Label_SingleTitle2[i].Caption     := '';
+      Button_SingleSize[i].Caption      := '';
     end else begin
-      Button_SingleMode[i].TexID:=28+byte(not SingleMapsInfo.IsFight(ci))*14;
-      Button_SinglePlayers[i].Caption:=inttostr(SingleMapsInfo.GetPlayerCount(ci));
-      Label_SingleTitle1[i].Caption:=SingleMapsInfo.GetTitle(ci);
-      Label_SingleTitle2[i].Caption:=SingleMapsInfo.GetSmallDesc(ci);
-      Button_SingleSize[i].Caption:=SingleMapsInfo.GetMapSize(ci);
+      Button_SingleMode[i].TexID        := 28+byte(not SingleMapsInfo.IsFight(ci))*14;  //28 or 42
+      Button_SinglePlayers[i].Caption   := inttostr(SingleMapsInfo.GetPlayerCount(ci));
+      Label_SingleTitle1[i].Caption     := SingleMapsInfo.GetTitle(ci);
+      Label_SingleTitle2[i].Caption     := SingleMapsInfo.GetSmallDesc(ci);
+      Button_SingleSize[i].Caption      := SingleMapsInfo.GetMapSize(ci);
     end;
   end;
 
