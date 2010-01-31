@@ -534,14 +534,14 @@ end;
 
 procedure TKMHouse.SetState(aState: THouseState; aTime:integer);
 begin
-  fCurrentAction.TimeToAct:=aTime;
+  fCurrentAction.TimeToAct := aTime;
   fCurrentAction.SetState(aState);
 end;
 
 
 function TKMHouse.GetState:THouseState;
 begin
-  Result:=fCurrentAction.fHouseState;
+  Result := fCurrentAction.fHouseState;
 end;
 
 
@@ -1319,7 +1319,7 @@ end;
 
 procedure THouseAction.SubActionWork(aActionSet: THouseActionType; const aTime:integer=0);
 begin
-  SubActionRem([ha_Work1..ha_Work5]);
+  SubActionRem([ha_Work1..ha_Work5]); //Remove all work
   fSubAction:= fSubAction + [aActionSet];
   if aTime<>0 then TimeToAct:=aTime;
   if fHouse.fHouseType <> ht_Mill then fHouse.WorkAnimStep:=0; //Exception for mill so that the windmill doesn't jump frames

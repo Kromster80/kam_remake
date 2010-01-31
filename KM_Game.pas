@@ -44,6 +44,7 @@ type
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GetTickCount:cardinal read GameplayTickCount;
     property GetGameName:string read GameName;
+    property GetGameTick:cardinal read GameplayTickCount;
     function GetNewID():cardinal;
     function Save(SlotID:shortint):string;
     function Load(SlotID:shortint; out LoadError:string):TLoadResult;

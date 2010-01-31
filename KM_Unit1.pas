@@ -579,18 +579,19 @@ var H:TKMHouse; i:integer;
 begin
   fGame.StopGame(gr_Silent);
   fGame.StartGame('', '1',1);
-  MyPlayer:=fPlayers.Player[1];
+  MyPlayer := fPlayers.Player[1];
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
-  H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store));
-  if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All,1300);
+  H := TKMHouseStore(MyPlayer.FindHouse(ht_Store));
+  if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All, 1300);
 
-  MyPlayer.AddHouse(ht_Woodcutters, KMPoint(9,8));
-  MyPlayer.AddUnit(ut_Woodcutter, KMPoint(9,13));
+  MyPlayer.AddHouse(ht_Sawmill, KMPoint(9,8));
+  MyPlayer.AddUnit(ut_Lamberjack, KMPoint(9,13));
   MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)), KMPointY1(KMPoint(9,8)));
 
+  for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(6,6));
 
-  MyPlayer.AddGroup(ut_Pikeman, KMPoint(6,15), dir_N, 4, 12);
+//  MyPlayer.AddGroup(ut_Pikeman, KMPoint(6,15), dir_N, 4, 12);
 //  for i:=1 to 5 do
 //    MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
 //  MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));

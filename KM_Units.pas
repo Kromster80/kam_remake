@@ -2810,12 +2810,17 @@ with fUnit do
        end;
     9..29: begin //Allow for 20 different "house work" phases
            inc(fPhase2);
-           if (fPhase2=2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then BeastID:=TKMHouseSwineStable(fHome).FeedBeasts;
-           if WorkPlan.ActCount>=fPhase2 then begin
+           if (fPhase2 = 2)and(WorkPlan.GatheringScript = gs_HorseBreeder) then
+             BeastID := TKMHouseSwineStable(fHome).FeedBeasts; //Feed a horse
+           if WorkPlan.ActCount >= fPhase2 then
+           begin
              fHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act,WorkPlan.HouseAct[fPhase2].TimeToWork);
-             SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
+             if WorkPlan.ActCount > fPhase2 then
+               SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk) //-1 to compensate units UpdateState run
+             else
+               SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-2,ua_Walk) //-2 to compensate 2 UpdateStates of a unit in last Act
            end else begin
-             fPhase:=SkipWork;
+             fPhase := SkipWork;
              SetActionLockedStay(0,ua_Walk);
              exit;
            end;
