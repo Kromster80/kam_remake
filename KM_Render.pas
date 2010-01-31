@@ -835,7 +835,7 @@ begin
       glColor3ub(aFOW,aFOW,aFOW);
       glBindTexture(GL_TEXTURE_2D, TexID);
     end else
-    if h=2 then begin
+    if (h=2) and (aFOW<>0) then begin //Don't render colorflags if they aren't visible cos of FOW
       glColor4ubv(@Col);
       glBindTexture(GL_TEXTURE_2D, AltID);
       //glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR); //Alternative coloring mode

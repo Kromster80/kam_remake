@@ -3,10 +3,10 @@ KaM Remake r565
 Known bugs:
 
 Gameplay bugs:
++	Flags are always visible
 	Citizen will try to walk home when it has no road tile below entrance
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
-	Flags are always visible
 	Sometimes the taskbar stays on top in fullscreen mode
 
 Graphics bugs:

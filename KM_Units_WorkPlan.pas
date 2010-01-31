@@ -318,6 +318,7 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
     WalkStyle(KMPoint(TempLocDir),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,TempLocDir.Dir);
     //todo: Will need to be improved later to choose the direction based on the direction of approch. For now always cut from the bottom left.
+    //@Lewin: Can we remove this todo item now? To be deleted..
   end else
   if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
     WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant)
