@@ -406,62 +406,62 @@ begin
     Image_Options_RightCrest:=MyControls.AddImage(Panel_Options,635,220,round(207*1.3),round(295*1.3),6,6);
     Image_Options_RightCrest.Stretch;
 
-    Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,100,130,150,60);
+    Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,120,130,170,80);
       MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,'Controls:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Ctrl,0,20,150,60);
+      MyControls.AddBevel(Panel_Options_Ctrl,0,20,170,60);
 
-      Label_Options_MouseSpeed:=MyControls.AddLabel(Panel_Options_Ctrl,8,27,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
+      Label_Options_MouseSpeed:=MyControls.AddLabel(Panel_Options_Ctrl,18,27,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
       Label_Options_MouseSpeed.Disable;
-      Ratio_Options_Mouse:=MyControls.AddRatioRow(Panel_Options_Ctrl,0,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_Mouse:=MyControls.AddRatioRow(Panel_Options_Ctrl,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
       Ratio_Options_Mouse.Disable;
 
-    Panel_Options_Game:=MyControls.AddPanel(Panel_Options,100,230,150,40);
+    Panel_Options_Game:=MyControls.AddPanel(Panel_Options,120,230,170,50);
       MyControls.AddLabel(Panel_Options_Game,6,0,100,30,'Gameplay:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Game,0,20,150,40);
+      MyControls.AddBevel(Panel_Options_Game,0,20,170,30);
 
-      CheckBox_Options_Autosave := MyControls.AddCheckBox(Panel_Options_Game,8,30,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
+      CheckBox_Options_Autosave := MyControls.AddCheckBox(Panel_Options_Game,18,27,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
-    Panel_Options_Sound:=MyControls.AddPanel(Panel_Options,100,310,150,110);
+    Panel_Options_Sound:=MyControls.AddPanel(Panel_Options,120,300,170,130);
       MyControls.AddLabel(Panel_Options_Sound,6,0,100,30,'Sound:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Sound,0,20,150,110);
+      MyControls.AddBevel(Panel_Options_Sound,0,20,170,110);
 
-      Label_Options_SFX:=MyControls.AddLabel(Panel_Options_Sound,8,27,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-      Ratio_Options_SFX:=MyControls.AddRatioRow(Panel_Options_Sound,0,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Label_Options_SFX:=MyControls.AddLabel(Panel_Options_Sound,18,27,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
+      Ratio_Options_SFX:=MyControls.AddRatioRow(Panel_Options_Sound,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
       Ratio_Options_SFX.OnChange:=Options_Change;
-      Label_Options_Music:=MyControls.AddLabel(Panel_Options_Sound,8,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-      Ratio_Options_Music:=MyControls.AddRatioRow(Panel_Options_Sound,0,97,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Label_Options_Music:=MyControls.AddLabel(Panel_Options_Sound,18,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
+      Ratio_Options_Music:=MyControls.AddRatioRow(Panel_Options_Sound,10,97,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
       Ratio_Options_Music.OnChange:=Options_Change;
 
-      Label_Options_MusicOn:=MyControls.AddLabel(Panel_Options_Sound,8,140,100,20,fTextLibrary.GetTextString(197),fnt_Outline,kaLeft);
-      Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,0,160,150,30,'',fnt_Metal, bsMenu);
+      Label_Options_MusicOn:=MyControls.AddLabel(Panel_Options_Sound,18,140,100,20,fTextLibrary.GetTextString(197),fnt_Outline,kaLeft);
+      Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,10,160,150,30,'',fnt_Metal, bsMenu);
       Button_Options_MusicOn.OnClick:=Options_Change;
 
-    Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,270,130,150,40+LocalesCount*20);
+    Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,320,130,170,30+LocalesCount*20);
       MyControls.AddLabel(Panel_Options_Lang,6,0,100,30,'Language:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Lang,0,20,150,10+LocalesCount*20);
+      MyControls.AddBevel(Panel_Options_Lang,0,20,170,10+LocalesCount*20);
 
       for i:=1 to LocalesCount do
       begin
-        CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(Panel_Options_Lang,8,27+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
+        CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(Panel_Options_Lang,18,27+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
         CheckBox_Options_Lang[i].OnClick:=Options_Change;
       end;
 
-    Panel_Options_Res:=MyControls.AddPanel(Panel_Options,270,300,150,300);
+    Panel_Options_Res:=MyControls.AddPanel(Panel_Options,320,300,170,30+RESOLUTION_COUNT*20);
       //Resolution selector
       MyControls.AddLabel(Panel_Options_Res,6,0,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Res,0,20,150,10+RESOLUTION_COUNT*20);
+      MyControls.AddBevel(Panel_Options_Res,0,20,170,10+RESOLUTION_COUNT*20);
       for i:=1 to RESOLUTION_COUNT do
       begin
-        CheckBox_Options_Resolution[i]:=MyControls.AddCheckBox(Panel_Options_Res,8,27+(i-1)*20,100,30,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
+        CheckBox_Options_Resolution[i]:=MyControls.AddCheckBox(Panel_Options_Res,18,27+(i-1)*20,100,30,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
         CheckBox_Options_Resolution[i].Enabled:=(SupportedRefreshRates[i] > 0);
         CheckBox_Options_Resolution[i].OnClick:=Options_Change;
       end;
 
-      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(Panel_Options_Res,8,38+RESOLUTION_COUNT*20,100,30,'Fullscreen',fnt_Metal);
+      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(Panel_Options_Res,18,38+RESOLUTION_COUNT*20,100,30,'Fullscreen',fnt_Metal);
       CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
-      Button_Options_ResApply:=MyControls.AddButton(Panel_Options_Res,0,58+RESOLUTION_COUNT*20,150,30,'Apply',fnt_Metal, bsMenu);
+      Button_Options_ResApply:=MyControls.AddButton(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,150,30,'Apply',fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
       Button_Options_ResApply.Disable;
 
@@ -651,7 +651,7 @@ begin
   end;
 
   ScrollBar_SingleMaps.MinValue := 1;
-  ScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.GetMapCount - MENU_SP_MAPS_COUNT);
+  ScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.GetMapCount - MENU_SP_MAPS_COUNT + 1);
   ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
 
   SingleMap_SelectMap(Bevel_SingleBG[1,3]); //Select first map
@@ -668,15 +668,13 @@ end;
 procedure TKMMainMenuInterface.SingleMap_SelectMap(Sender: TObject);
 var i:integer;
 begin           
-  i:=TKMControl(Sender).Tag;
+  i := TKMControl(Sender).Tag;
 
-  Shape_SingleMap.Top := Bevel_SingleBG[1,3].Top+Bevel_SingleBG[i,3].Height*(i-1);
+  Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * i; // All heights are equal in fact..
 
   SingleMap_Selected        := SingleMap_Top+i-1;
   Label_SingleTitle.Caption := SingleMapsInfo.GetTitle(SingleMap_Selected);
   Label_SingleDesc.Caption  := SingleMapsInfo.GetBigDesc(SingleMap_Selected);
-
-  
 
   Label_SingleCondTyp.Caption := 'Mission type: '+SingleMapsInfo.GetTyp(SingleMap_Selected);
   Label_SingleCondWin.Caption := 'Win condition: '+SingleMapsInfo.GetWin(SingleMap_Selected);

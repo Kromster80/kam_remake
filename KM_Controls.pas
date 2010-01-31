@@ -878,31 +878,24 @@ end;
 {Refresh button sizes and etc.}
 procedure TKMScrollBar.RefreshItems();
 begin
-  if ScrollVertical then begin
-    ScrollUp.Top:=Top;
-    ScrollDown.Top:=Top+Height-Width;
-    ScrollUp.Height:=Width;
-    ScrollDown.Height:=Width;
-    ScrollUp.Width:=Width;
-    ScrollDown.Width:=Width;
-    Thumb:=(Height-2*Width) div 4;
-  end;
+  if ScrollVertical then
+    Thumb := (Height-2*Width) div 4;
 
-  ScrollUp.Enabled:=Enabled;
-  ScrollDown.Enabled:=Enabled;
+  ScrollUp.Enabled   := Enabled;
+  ScrollDown.Enabled := Enabled;
 end;
 
 
 procedure TKMScrollBar.IncPosition(Sender:TObject);
 begin
-  Position:=EnsureRange(Position+1,MinValue,MaxValue);
+  Position := EnsureRange(Position+1,MinValue,MaxValue);
   OnChange(Self);
 end;
 
 
 procedure TKMScrollBar.DecPosition(Sender:TObject);
 begin
-  Position:=EnsureRange(Position-1,MinValue,MaxValue);
+  Position := EnsureRange(Position-1,MinValue,MaxValue);
   OnChange(Self);
 end;
 
@@ -914,19 +907,19 @@ begin
     fRenderUI.WriteLayer(Left, Top, Width, Height, $40FFFF00);
 
   //Otherwise they won't be rendered
-  ScrollUp.Visible:=Visible;
-  ScrollDown.Visible:=Visible;
+  ScrollUp.Visible   := Visible;
+  ScrollDown.Visible := Visible;
 
-  fRenderUI.WriteBevel(Left, Top+Width, Width, Height-Width);
+  fRenderUI.WriteBevel(Left, Top+Width, Width, Height - Width*2);
 
-  if MinValue=MaxValue then begin
+  if MinValue = MaxValue then begin
     Pos:=(Height-Width*2-Thumb) div 2;
     State:=[bs_Disabled];
     ScrollUp.Disable;
     ScrollDown.Disable;
   end else begin
     Pos:=(Position-MinValue)*(Height-Width*2-Thumb) div (MaxValue-MinValue);
-    State:=[];   // <- looks like a smiley
+    State:=[];
     ScrollUp.Enable;
     ScrollDown.Enable;
   end;
@@ -1077,11 +1070,11 @@ end;
 
 function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle=bsGame):TKMScrollBar;
 begin
-  Result := TKMScrollBar.Create(aParent, aLeft,aTop,aWidth,aHeight,aStyle);
+  Result := TKMScrollBar.Create(aParent, aLeft, aTop, aWidth, aHeight, aStyle);
   AddToCollection(Result);
-  //These three will be added to collection themselfes
-  Result.ScrollUp   := AddButton(aParent,aLeft,aTop,aWidth,aHeight,4,4,aStyle);
-  Result.ScrollDown := AddButton(aParent,aLeft,aTop,aWidth,aHeight,5,4,aStyle);
+  //These two will be added to collection by themselfes
+  Result.ScrollUp   := AddButton(aParent, aLeft, aTop, aWidth, aWidth, 4, 4, aStyle);
+  Result.ScrollDown := AddButton(aParent, aLeft, aTop + aHeight-aWidth, aWidth, aWidth, 5, 4, aStyle);
   Result.ScrollUp.OnClick   := Result.DecPosition;
   Result.ScrollDown.OnClick := Result.IncPosition;
   Result.RefreshItems();
