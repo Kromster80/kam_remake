@@ -428,8 +428,10 @@ begin
 
       Label_Options_SFX:=MyControls.AddLabel(Panel_Options_Sound,8,27,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
       Ratio_Options_SFX:=MyControls.AddRatioRow(Panel_Options_Sound,0,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_SFX.OnChange:=Options_Change;
       Label_Options_Music:=MyControls.AddLabel(Panel_Options_Sound,8,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
       Ratio_Options_Music:=MyControls.AddRatioRow(Panel_Options_Sound,0,97,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_Music.OnChange:=Options_Change;
 
       Label_Options_MusicOn:=MyControls.AddLabel(Panel_Options_Sound,8,140,100,20,fTextLibrary.GetTextString(197),fnt_Outline,kaLeft);
       Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,0,160,150,30,'',fnt_Metal, bsMenu);
@@ -470,13 +472,6 @@ begin
 
     if aGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                              else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
-
-    for i:=1 to Panel_Options.ChildCount do
-    if TKMControl(Panel_Options.Childs[i]) is TKMRatioRow then
-    begin
-      TKMControl(Panel_Options.Childs[i]).OnClick:=Options_Change;
-      TKMControl(Panel_Options.Childs[i]).OnChange:=Options_Change;
-    end;
 
     Button_Options_Back:=MyControls.AddButton(Panel_Options,145,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_Options_Back.OnClick:=SwitchMenuPage;
