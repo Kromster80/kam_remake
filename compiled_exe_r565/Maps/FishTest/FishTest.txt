@@ -1,8 +1,0 @@
-Title
-Fish Test
-
-SmallDesc
-A mission designed to test fishing
-
-BigDesc
-Fish testing
