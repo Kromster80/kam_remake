@@ -312,6 +312,7 @@ begin
   Scale := 1;
 end;
 
+
 {Parentize control to another control}
 {Parent control has a list of all it's child controls}
 {Also transform child according to parent position}
@@ -325,10 +326,8 @@ begin
   inc(ParentPanel.ChildCount);
   {Hereby I still try to make a rule to count starting from 1, not from zero}
   setlength(ParentPanel.Childs,ParentPanel.ChildCount+1);
-  ParentPanel.Childs[ParentPanel.ChildCount]:=Self;
-  Self.Parent:=ParentPanel;
-  Self.Top:=ParentPanel.Top+Self.Top;
-  Self.Left:=ParentPanel.Left+Self.Left;
+  ParentPanel.Childs[ParentPanel.ChildCount] := Self;
+  Self.Parent := ParentPanel;
 end;
 
 
@@ -378,11 +377,13 @@ end;
 function TKMControl.GetLeft: Integer;
 begin
   Result := Round(fLeft * Scale);
+  if Parent <> nil then Result := Result + Parent.GetLeft;
 end;
 
 function TKMControl.GetTop: Integer;
 begin
   Result := Round(fTop * Scale);
+  if Parent <> nil then Result := Result + Parent.GetTop;
 end;
 
 function TKMControl.GetWidth: Integer;

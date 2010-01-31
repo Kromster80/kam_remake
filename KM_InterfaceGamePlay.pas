@@ -562,8 +562,10 @@ begin
   begin
     Image_Message[i].Top := Y-i*48;
   end;
-  Panel_Message.Top := Y-190;
-  //todo: moving Panel should move all child Controls along with it
+  Panel_Message.Top := Y-190;  
+  Panel_Message.Width := X - Panel_Message.Left;
+
+  //todo: scaling Panel should move/scale all child Controls inside of it depending on Anchors setup 
 end;
 
 
