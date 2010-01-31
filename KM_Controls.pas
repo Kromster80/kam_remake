@@ -111,7 +111,7 @@ TKMImage = class(TKMControl)
     Anchors: TAnchors;
     Highlight:boolean;
     HighlightOnMouseOver:boolean;
-    procedure FillArea;
+    procedure Stretch;
     procedure Center;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
@@ -501,9 +501,9 @@ begin
     kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
   end;
   if Enabled then
-    Tmp:=fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
+    Tmp := fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
   else
-    Tmp:=fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
+    Tmp := fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
 
   if not AutoWrap then
     Width:=Tmp.X;
@@ -523,7 +523,7 @@ begin
 end;
 
 
-procedure TKMImage.FillArea;
+procedure TKMImage.Stretch;
 begin
   Anchors := [akLeft, akRight, akTop, akBottom]; //Stretch image to fit
 end;

@@ -440,12 +440,14 @@ begin
   LineCount := 1;
 
   glPushMatrix;
-    glBindTexture(GL_TEXTURE_2D,FontData[byte(Fnt)].TexID);
-    glkMoveAALines(false);
-    if Align=kaLeft   then glTranslatef(PosX,                  PosY, 0);
-    if Align=kaCenter then glTranslatef(PosX-(Result.X div 2), PosY, 0);
-    if Align=kaRight  then glTranslatef(PosX-Result.X,         PosY, 0);
+    glBindTexture(GL_TEXTURE_2D, FontData[byte(Fnt)].TexID);
     glColor4ubv(@Color);
+    glkMoveAALines(false);
+
+    if Align=kaLeft   then glTranslatef(PosX,                      PosY, 0);
+    if Align=kaCenter then glTranslatef(PosX - LineWidth[1] div 2, PosY, 0);
+    if Align=kaRight  then glTranslatef(PosX - LineWidth[1],       PosY, 0);
+
     glBegin(GL_QUADS);
       for i:=1 to length(Text) do
       //Switch line if needed
@@ -466,7 +468,7 @@ begin
           glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height);
           glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height);
         end;
-        inc(AdvX,FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter);
+        inc(AdvX, FontData[byte(Fnt)].Letters[ord(Text[i])].Width + InterLetter);
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);

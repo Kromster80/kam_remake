@@ -243,10 +243,10 @@ procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_MainMenuBG:=MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6);
-    Image_MainMenuBG.FillArea;
+    Image_MainMenuBG.Stretch;
     Image_MainMenu1:=MyControls.AddImage(Panel_MainMenu,120,80,423,164,4,5);
     Image_MainMenu3:=MyControls.AddImage(Panel_MainMenu,635,220,round(207*1.3),round(295*1.3),6,6);
-    Image_MainMenu3.FillArea;
+    Image_MainMenu3.Stretch;
 
     Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,155,280,350,400);
       Button_MainMenuTutor  :=MyControls.AddButton(Panel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal,bsMenu);
@@ -282,7 +282,7 @@ begin
   Panel_Single:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
 
     Image_SingleBG:=MyControls.AddImage(Panel_Single,0,0,ScreenX,ScreenY,2,6);
-    Image_SingleBG.FillArea;
+    Image_SingleBG.Stretch;
 
     Panel_SingleList:=MyControls.AddPanel(Panel_Single,512+22,84,445,600);
 
@@ -354,9 +354,9 @@ var i:integer;
 begin
   Panel_Load:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_LoadBG:=MyControls.AddImage(Panel_Load,0,0,ScreenX,ScreenY,2,6);
-    Image_LoadBG.FillArea;
+    Image_LoadBG.Stretch;
     Image_Loading_RightCrest:=MyControls.AddImage(Panel_Load,635,220,round(207*1.3),round(295*1.3),6,6);
-    Image_Loading_RightCrest.FillArea;
+    Image_Loading_RightCrest.Stretch;
 
     for i:=1 to SAVEGAME_COUNT do
     begin
@@ -375,7 +375,7 @@ var i:integer;
 begin
   Panel_MapEd:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_MapEd_BG:=MyControls.AddImage(Panel_MapEd,0,0,ScreenX,ScreenY,2,6);
-    Image_MapEd_BG.FillArea;
+    Image_MapEd_BG.Stretch;
 
     //Should contain options to make a map from scratch, load map from file, generate random preset
 
@@ -402,9 +402,9 @@ var i:integer;
 begin
   Panel_Options:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_Options_BG:=MyControls.AddImage(Panel_Options,0,0,ScreenX,ScreenY,2,6);
-    Image_Options_BG.FillArea;
+    Image_Options_BG.Stretch;
     Image_Options_RightCrest:=MyControls.AddImage(Panel_Options,635,220,round(207*1.3),round(295*1.3),6,6);
-    Image_Options_RightCrest.FillArea;
+    Image_Options_RightCrest.Stretch;
 
     Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,100,130,150,60);
       MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,'Controls:',fnt_Outline,kaLeft);
@@ -487,7 +487,7 @@ procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_CreditsBG:=MyControls.AddImage(Panel_Credits,0,0,ScreenX,ScreenY,2,6);
-    Image_CreditsBG.FillArea;
+    Image_CreditsBG.Stretch;
     Label_Credits:=MyControls.AddLabel(Panel_Credits,ScreenX div 2,ScreenY,100,30,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
     Button_CreditsBack:=MyControls.AddButton(Panel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;
@@ -498,7 +498,7 @@ procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   Panel_Loading:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_LoadingBG:=MyControls.AddImage(Panel_Loading,0,0,ScreenX,ScreenY,2,6);
-    Image_LoadingBG.FillArea;
+    Image_LoadingBG.Stretch;
     MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
     Label_Loading:=MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
 end;
@@ -506,16 +506,13 @@ end;
 
 procedure TKMMainMenuInterface.Create_Error_Page;
 begin
-  Panel_Error:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
-    Image_ErrorBG:=MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6);
-    Image_ErrorBG.FillArea;
-    //@Krom: How come these two aren't centering properly...?
-    //@Lewin: Provide a screen with control-overlays turned on please. For me all looks well centered...
-    //@Krom: Done: Off Center 2010-01-23.gif. It is the text rather than the controls themselves. The control-overlay looks fine.
+  Panel_Error := MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+    Image_ErrorBG := MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6);
+    Image_ErrorBG.Stretch;
     MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'An Error Has Occured!',fnt_Antiqua,kaCenter);
-    Label_Error:=MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
-    Button_ErrorBack:=MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
-    Button_ErrorBack.OnClick:=SwitchMenuPage;
+    Label_Error := MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
+    Button_ErrorBack := MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ErrorBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -524,7 +521,7 @@ var i:integer; Adv:integer;
 begin
   Panel_Results:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_ResultsBG:=MyControls.AddImage(Panel_Results,0,0,ScreenX,ScreenY,7,5);
-    Image_ResultsBG.FillArea;
+    Image_ResultsBG.Stretch;
 
     Label_Results_Result:=MyControls.AddLabel(Panel_Results,512,200,100,30,'<<<LEER>>>',fnt_Metal,kaCenter);
 
