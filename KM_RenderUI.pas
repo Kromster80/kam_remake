@@ -306,6 +306,7 @@ begin
         glEnd;
       end;
       if Highlight then begin
+        glBindTexture(GL_TEXTURE_2D, TexID); //Replace AltID if it was used
         glBlendFunc(GL_DST_COLOR,GL_ONE);
         glColor4f(0.5, 0.5, 0.5, 0.5);
         glBegin(GL_QUADS);

@@ -583,25 +583,31 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
-  Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.GetRenderAreaSize.Y - 190, fRender.GetRenderAreaSize.X - TOOLBARWIDTH, 190);
+  Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH + 30, fRender.GetRenderAreaSize.Y - 190, fRender.GetRenderAreaSize.X - TOOLBARWIDTH, 190);
+
     Image_MessageBG:=MyControls.AddImage(Panel_Message,0,20,600,170,409);
     Image_MessageBG.Anchors := Image_MessageBG.Anchors + [akRight];
     Image_MessageBGTop:=MyControls.AddImage(Panel_Message,0,0,600,20,551);
     Image_MessageBGTop.Anchors := Image_MessageBGTop.Anchors + [akRight];
+
     Label_MessageText:=MyControls.AddLabel(Panel_Message,47,67,432,122,'',fnt_Antiqua,kaLeft);
     Label_MessageText.AutoWrap := true;
+
     Button_MessageGoTo:=MyControls.AddButton(Panel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
     Button_MessageGoTo.Hint := fTextLibrary.GetTextString(281);
     Button_MessageGoTo.OnClick := GoToMessage;
     Button_MessageGoTo.MakesSound := false;
+
     Button_MessageDelete:=MyControls.AddButton(Panel_Message,490,104,100,24,fTextLibrary.GetTextString(276),fnt_Antiqua);
     Button_MessageDelete.Hint := fTextLibrary.GetTextString(277);
     Button_MessageDelete.OnClick := DeleteMessage;
     Button_MessageDelete.MakesSound := false;
+
     Button_MessageClose:=MyControls.AddButton(Panel_Message,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
     Button_MessageClose.Hint := fTextLibrary.GetTextString(283);
     Button_MessageClose.OnClick := CloseMessage;
     Button_MessageClose.MakesSound := false;
+
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
 end;
 
