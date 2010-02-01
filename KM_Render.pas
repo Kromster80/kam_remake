@@ -1230,7 +1230,7 @@ end;
 procedure TRender.RenderBrightness(Value:byte);
 begin
   if Value=1 then exit;
-  glBlendFunc(GL_ONE,GL_ONE);
+  glBlendFunc(GL_DST_COLOR,GL_ONE);
   glColor4f(Value/20,Value/20,Value/20,Value/20);
   glBegin(GL_QUADS);
     glkRect(0,0,RenderAreaSize.X,RenderAreaSize.Y);
