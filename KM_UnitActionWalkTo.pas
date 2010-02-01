@@ -79,6 +79,7 @@ type
       procedure SetPushedValues;
       function GetNextPosition():TKMPoint;
       function GetNextNextPosition():TKMPoint;
+      function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
       property GetInteractionStatus:TInteractionStatus read fInteractionStatus;
       procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
@@ -254,18 +255,13 @@ end;
 
 
 function TUnitActionWalkTo.CheckCanWalk():TCanWalk;
-  function GetOurPassability:TPassability;
-  begin //Needed mainly because of routes that start off-road but also some interaction solutions may force units off roads
-    if fPass = canWalkRoad then Result := canWalk
-    else Result := fPass;
-  end;
 begin
   Result := cnw_Yes;
   //If there's an unexpected obstacle (i.e. the terrain has changed since we calculated the route)
   //Use GetOurPassability so that canWalkRoad is changed to canWalk because walking off the road does not count as an obstacle
-  if not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetOurPassability) then
+  if not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetEffectivePassability) then
     //Try to find a walkaround
-    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetOurPassability,fWalkToSpot) then
+    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
     begin
       fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot);
       Result:=cnw_Exit;
@@ -356,6 +352,8 @@ begin
     if (fOpponent.GetUnitAction is TUnitActionWalkTo) and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoExchange)
       //Unit not yet arrived on tile, wait till it does, otherwise there might be 2 units on one tile
       and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking) then
+    //Check that our tile is walkable for the opponent! (we could be a worker on a building site)
+    if (TUnitActionWalkTo(fOpponent.GetUnitAction).GetEffectivePassability in fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].Passability) then
     begin
       //Check unit's future position is where we are now and exchange (use NodeList rather than direction as it's not always right)
       if KMSamePoint(TUnitActionWalkTo(fOpponent.GetUnitAction).GetNextNextPosition, fWalker.GetPosition) then
@@ -422,7 +420,7 @@ begin
     begin
       TempPos := KMGetPointInDir(fWalker.GetPosition,KMLoopDirection(byte(KMGetDirection(fWalker.GetPosition,NodeList.List[NodePos+1]))+i));
       if fTerrain.TileInMapCoords(TempPos.X,TempPos.Y) and fTerrain.CanWalkDiagonaly(fWalker.GetPosition,TempPos)
-        and (fPass in fTerrain.Land[TempPos.Y,TempPos.X].Passability) then //First make sure tile is on map and walkable!
+        and (GetEffectivePassability in fTerrain.Land[TempPos.Y,TempPos.X].Passability) then //First make sure tile is on map and walkable!
       if fTerrain.HasUnit(TempPos) then //Now see if it has a unit
       begin
         //There is a unit here, first find our alternate opponent
@@ -462,7 +460,7 @@ begin
     //If the blockage won't go away because it's busy (not walking) then try going around it by re-routing our route and avoiding that tile
     if not KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Not the target position (can't go around if it is)
     if fDestBlocked or (not (fOpponent.GetUnitAction is TUnitActionWalkTo)) or ((fOpponent.GetUnitAction is TUnitActionStay) and ((TUnitActionStay(fOpponent.GetUnitAction).Locked) or (not (TUnitActionStay(fOpponent.GetUnitAction).GetActionType = ua_Walk)))) then
-      if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,fOpponent.GetPosition,fPass,fWalkToSpot,NodeList) then //Make sure the route can be made, if not, we must simply wait
+      if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,fOpponent.GetPosition,GetEffectivePassability,fWalkToSpot,NodeList) then //Make sure the route can be made, if not, we must simply wait
       begin
         //NodeList has now been re-routed, so we need to re-init everything else and start walk again
         SetInitValues;
@@ -610,6 +608,16 @@ begin
   if NodePos+1 > NodeList.Count then
     Result:=KMPoint(0,0) //Error
   else Result:=NodeList.List[NodePos+1];
+end;
+
+
+function TUnitActionWalkTo.GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
+begin
+  //Road walking is only recomended. (i.e. for route building) We are allowed to step off the road sometimes.
+  if fPass = canWalkRoad then
+    Result := canWalk
+  else
+    Result := fPass;
 end;
 
 
