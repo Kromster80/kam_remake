@@ -585,7 +585,7 @@ end;
 {Message page}
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
-  Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH + 30, fRender.GetRenderAreaSize.Y - 190, fRender.GetRenderAreaSize.X - TOOLBARWIDTH, 190);
+  Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.GetRenderAreaSize.Y - 190, fRender.GetRenderAreaSize.X - TOOLBARWIDTH, 190);
 
     Image_MessageBG:=MyControls.AddImage(Panel_Message,0,20,600,170,409);
     Image_MessageBG.Anchors := Image_MessageBG.Anchors + [akRight];
@@ -899,6 +899,7 @@ begin
     Button_House_DemolishYes.OnClick:=House_Demolish;
     Button_House_DemolishNo.OnClick:= House_Demolish;
 
+    //@Krom: BUG: Something you changed stuffed up the formatting on this page, please take a look.
     Panel_House_Common:=MyControls.AddPanel(Panel_House,0,76,200,400);
       Label_Common_Demand:=MyControls.AddLabel(Panel_House_Common,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
       Label_Common_Offer:=MyControls.AddLabel(Panel_House_Common,100,2,100,30,'',fnt_Grey,kaCenter);
