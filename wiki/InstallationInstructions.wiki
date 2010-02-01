@@ -1,8 +1,10 @@
-#summary One-sentence summary of this page.
+#summary How to make KaM Remake to work?
 
-= Introduction =
+= Installation Instructions =
 
-Add your content here.
+Download KaM Remake build EXE.
+Unpack it into a new folder.
+Put there Data Folder from KaM
 
 
 = Details =
