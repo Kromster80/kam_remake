@@ -91,6 +91,10 @@ type TKMGamePlayInterface = class
       Image_UnitPic:TKMImage;
       Button_Die:TKMButton;
 
+      Panel_Army:TKMPanel;
+        Button_Army_GoTo,Button_Army_Stop,Button_Army_Attack:TKMButton;
+        Button_Army_RotCW,Button_Army_Storm,Button_Army_RotCCW:TKMButton;
+
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
       Button_House_Goods,Button_House_Repair:TKMButton;
@@ -444,8 +448,8 @@ end;
 constructor TKMGamePlayInterface.Create();
 var i:integer;
 begin
-Inherited;
-fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
+  Inherited;
+  fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
 
   MyControls := TKMControlsCollection.Create;
 
@@ -513,11 +517,12 @@ fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
     Create_Quit_Page();
 
   Create_Unit_Page();
+
   Create_House_Page();
     Create_Store_Page();
     Create_School_Page();
     Create_Barracks_Page();
-    //Create_TownHall_Page();
+    //Create_TownHall_Page(); //I don't want to make it at all yet
   Create_Pause_Page(); //Must go at the bottom so that all controls above are faded
 
   //Here we must go through every control and set the hint event to be the parameter
@@ -849,17 +854,52 @@ end;
 procedure TKMGamePlayInterface.Create_Unit_Page;
 begin
   Panel_Unit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
-    Label_UnitName:=MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
-    Image_UnitPic:=MyControls.AddImage(Panel_Unit,8,38,54,100,521);
-    Label_UnitCondition:=MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
-    ConditionBar_Unit:=MyControls.AddPercentBar(Panel_Unit,73,55,116,15,80);
-    Label_UnitTask:=MyControls.AddLabel(Panel_Unit,73,74,130,30,'',fnt_Grey,kaLeft);
-    Label_UnitAct:=MyControls.AddLabel(Panel_Unit,73,94,130,30,'',fnt_Grey,kaLeft);
-    Label_UnitAct.AutoWrap:=true;
-    Button_Die:=MyControls.AddButton(Panel_Unit,73,112,54,20,'Die',fnt_Grey);
-    Button_Die.OnClick:=Unit_Die;
-    Label_UnitDescription:=MyControls.AddLabel(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
+    Label_UnitName        := MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
+    Image_UnitPic         := MyControls.AddImage(Panel_Unit,8,38,54,100,521);
+    Label_UnitCondition   := MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
+    ConditionBar_Unit     := MyControls.AddPercentBar(Panel_Unit,73,55,116,15,80);
+    Label_UnitTask        := MyControls.AddLabel(Panel_Unit,73,74,130,30,'',fnt_Grey,kaLeft);
+    Label_UnitAct         := MyControls.AddLabel(Panel_Unit,73,94,130,30,'',fnt_Grey,kaLeft);
+    Button_Die            := MyControls.AddButton(Panel_Unit,73,112,54,20,'Die',fnt_Grey);
+    Label_UnitDescription := MyControls.AddLabel(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
+    Label_UnitAct.AutoWrap:= true;
+    Button_Die.OnClick    := Unit_Die;
+
+  Panel_Army:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
     //Military buttons start at 8.170 and are 52x38/30 (60x46)
+    Button_Army_GoTo   := MyControls.AddButton(Panel_Army,  8,  0, 52, 38, 25);
+    Button_Army_Stop   := MyControls.AddButton(Panel_Army, 68,  0, 52, 38, 26);
+    Button_Army_Attack := MyControls.AddButton(Panel_Army,128,  0, 52, 38, 27);
+    Button_Army_RotCW  := MyControls.AddButton(Panel_Army,  8, 46, 52, 38, 23);
+    Button_Army_Storm  := MyControls.AddButton(Panel_Army, 68, 46, 52, 38, 28);
+    Button_Army_RotCCW := MyControls.AddButton(Panel_Army,128, 46, 52, 38, 24);
+    MyControls.AddButton(Panel_Army,  8, 92, 52, 38, 32);
+    //---Here go shield icons---//
+    MyControls.AddButton(Panel_Army,128, 92, 52, 38, 33);
+    MyControls.AddButton(Panel_Army,  8,138, 52, 38, 31);
+    MyControls.AddButton(Panel_Army, 68,138, 52, 38, 30);
+    MyControls.AddButton(Panel_Army,128,138, 52, 38, 29);
+
+    Button_Army_GoTo.Disable;
+    Button_Army_Stop.Disable;
+    Button_Army_Attack.Disable;
+    Button_Army_RotCW.Disable;
+    Button_Army_Storm.Disable;
+    Button_Army_RotCCW.Disable;
+
+    {Button_Army_GoTo.OnClick := Army_Goto;
+    Button_Army_Stop.OnClick := Army_Stop;
+    Button_Army_Attack.OnClick := Army_Attack;
+    Button_Army_RotCW.OnClick := Army_Rotate;
+    Button_Army_Storm.OnClick := Army_Storm;
+    Button_Army_RotCCW.OnClick := Army_Rotate;}
+
+    {Army controls...
+    Go to     Stop      Attack
+    Rotate    Storm     Rotate
+    +Column   ~Info~    -Column
+    Split     Join      Feed
+    }
 end;
 
 
@@ -1338,6 +1378,7 @@ begin
   begin
     //Warrior specific
     Label_UnitDescription.Hide;
+    Panel_Army.Show;
   end
   else
   begin
