@@ -1958,27 +1958,23 @@ begin
 end;
 
 
-{ This whole thing is very CPU intesive think of it - to update all 40000tiles }
+{ This whole thing is very CPU intesive, think of it - to update whole (192*192) tiles map }
 //Don't use any advanced math here, only simpliest operations - + div *
 procedure TTerrain.UpdateState;
 var i,k,h,j:integer;
-  procedure SetLand(x,y,tile,Obj:byte);
+  procedure SetLand(X,Y,aTile,aObj:byte);
   begin
-    Land[y,x].Terrain:=tile;
-    Land[y,x].Obj:=Obj;
+    Land[Y,X].Terrain := aTile;
+    Land[Y,X].Obj     := aObj;
   end;
 begin
   inc(AnimStep);
 
   for i:=1 to FallingTrees.Count do
   if AnimStep - FallingTrees.Tag2[i] > MapElem[FallingTrees.Tag[i]+1].Count-1 then begin
-    //fLog.AssertToLog(AnimStep - FallingTrees.Tag2[i] <= 20,'Falling tree overrun?');
     fTerrain.ChopTree(FallingTrees.List[i]); //Make the tree turn into a stump
     break; //Remove only 1 tree at a time, otherwise FallingTrees.Count is becoming wrong
-    //@Lewin: Genesis of this bug is yet unknown. 20 is the frame where tree should be removed anyway
-    //@Krom: Yes, 20 is the frame it should be removed at, (not after) but you have > 20, which means it is removed at 21. (i.e. after 20)
-    //       Frame 20 does not exist, as 0 is the first, hence it was looping the first frame again.
-    //       Anyway, it loads it from the MapElem now in case someone adds a tree with a different falling count.
+    //it loads it from the MapElem now in case someone adds a tree with a different falling count
   end;
 
   for i:=1 to MapY do
