@@ -301,15 +301,15 @@ uses KM_RenderUI;
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create;
-  Left:=aLeft;
-  Top:=aTop;
-  Width:=aWidth;
-  Height:=aHeight;
-  Enabled:=true;
-  Visible:=true;
-  Tag:=0;
-  Hint:='';
-  Scale := 1;
+  Left      := aLeft;
+  Top       := aTop;
+  Width     := aWidth;
+  Height    := aHeight;
+  Enabled   := true;
+  Visible   := true;
+  Tag       := 0;
+  Hint      := '';
+  Scale     := 1;
 end;
 
 
@@ -391,20 +391,26 @@ begin
   Result := Round(fWidth * Scale);
 end;
 
-procedure TKMControl.Disable; begin Enabled:=false; end;
-procedure TKMControl.Show;    begin Visible:=true;  end;
-procedure TKMControl.Hide;    begin Visible:=false; end;
+procedure TKMControl.Disable; begin Enabled := false; end;
+
+procedure TKMControl.Show;
+begin
+  if Self.Parent<>nil then Self.Parent.Show;
+  Visible := true;
+end;
+
+procedure TKMControl.Hide;    begin Visible := false; end;
 
 
 {Check Control including all its Parents to see if Control is actually displayed/visible}
 function TKMControl.IsVisible():boolean;
 var C:TKMControl;
 begin
-  Result:=Visible;
-  C:=Self.Parent;
+  Result := Visible;
+  C := Self.Parent;
   while C<>nil do begin
-    Result:=Result and C.Visible;
-    C:=C.Parent;
+    Result := Result and C.Visible;
+    C := C.Parent;
   end;
 end;
 
@@ -719,8 +725,8 @@ constructor TKMResourceRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:in
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  Resource:=aRes;
-  ResourceCount:=aCount;
+  Resource := aRes;
+  ResourceCount := aCount;
 end;
 
 
@@ -739,25 +745,25 @@ constructor TKMResourceOrderRow.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeig
 begin
   Inherited Create(aLeft+68,aTop,aWidth-68,aHeight);
   ParentTo(aParent);
-  Resource:=aRes;
-  ResourceCount:=aCount;
-  OrderCount:=0;
+  Resource := aRes;
+  ResourceCount := aCount;
+  OrderCount := 0;
 end;
 
 
 procedure TKMResourceOrderRow.Paint();
 var i:integer;
 begin
-  OrderRem.Top:=Top;
-  OrderLab.Top:=Top+4;
-  OrderAdd.Top:=Top;
+  OrderRem.Top := fTop; //Use internal fTop instead of GetTop (which will return absolute value)
+  OrderLab.Top := fTop + 4;
+  OrderAdd.Top := fTop;
 
   //Otherwise they won't be rendered
-  OrderRem.Visible:=Visible;
-  OrderLab.Visible:=Visible;
-  OrderAdd.Visible:=Visible;
+  OrderRem.Visible := Visible;
+  OrderLab.Visible := Visible;
+  OrderAdd.Visible := Visible;
 
-  OrderLab.Caption:=inttostr(OrderCount);
+  OrderLab.Caption := inttostr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);

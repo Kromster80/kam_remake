@@ -379,40 +379,34 @@ begin
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(179);
   end else
 
-  if Sender=Button_Menu_Quit then begin
-    Panel_Quit.Show;
-  end else
-    //If Sender is anything else - then show all 4 buttons and hide Return button
+  if Sender=Button_Menu_Quit then
+    Panel_Quit.Show
+  else //If Sender is anything else - then show all 4 buttons and hide Return button
     Flip4MainButtons(true);
 
   //Now process all other kinds of pages
-  if Sender=Panel_Unit then begin
-    TKMPanel(Sender).Show;
-  end else
+  if Sender=Panel_Unit then
+    TKMPanel(Sender).Show
+  else
 
-  if Sender=Panel_House then begin
-    TKMPanel(Sender).Show;
-  end;
+  if Sender=Panel_House then
+    TKMPanel(Sender).Show
+  else
 
-  if Sender=Panel_House_Common then begin
-    TKMPanel(Sender).Parent.Show;
-    TKMPanel(Sender).Show;
-  end else
+  if Sender=Panel_House_Common then
+    TKMPanel(Sender).Show
+  else
 
-  if Sender=Panel_House_School then begin
-    TKMPanel(Sender).Parent.Show;
-    TKMPanel(Sender).Show;
-  end else
+  if Sender=Panel_House_School then
+    TKMPanel(Sender).Show
+  else
 
-  if Sender=Panel_HouseBarracks then begin
-    TKMPanel(Sender).Parent.Show;
-    TKMPanel(Sender).Show;
-  end else
+  if Sender=Panel_HouseBarracks then
+    TKMPanel(Sender).Show
+  else
 
-  if Sender=Panel_HouseStore then begin
-    TKMPanel(Sender).Parent.Show;
+  if Sender=Panel_HouseStore then
     TKMPanel(Sender).Show;
-  end;
 
 end;
 
@@ -899,28 +893,27 @@ begin
     Button_House_DemolishYes.OnClick:=House_Demolish;
     Button_House_DemolishNo.OnClick:= House_Demolish;
 
-    //@Krom: BUG: Something you changed stuffed up the formatting on this page, please take a look.
-    Panel_House_Common:=MyControls.AddPanel(Panel_House,0,76,200,400);
-      Label_Common_Demand:=MyControls.AddLabel(Panel_House_Common,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
-      Label_Common_Offer:=MyControls.AddLabel(Panel_House_Common,100,2,100,30,'',fnt_Grey,kaCenter);
-      Label_Common_Costs:=MyControls.AddLabel(Panel_House_Common,100,2,100,30,fTextLibrary.GetTextString(248),fnt_Grey,kaCenter);
-      Row__Common_Resource[1] :=MyControls.AddResourceRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
-      Row__Common_Resource[2] :=MyControls.AddResourceRow(Panel_House_Common,  8,42,180,20,rt_Stone,5);
-      Row__Common_Resource[3] :=MyControls.AddResourceRow(Panel_House_Common,  8,62,180,20,rt_Trunk,5);
-      Row__Common_Resource[4] :=MyControls.AddResourceRow(Panel_House_Common,  8,82,180,20,rt_Stone,5);
+    Panel_House_Common := MyControls.AddPanel(Panel_House,0,76,200,400);
+      Label_Common_Demand := MyControls.AddLabel(Panel_House_Common,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
+      Label_Common_Offer  := MyControls.AddLabel(Panel_House_Common,100,2,100,30,'',fnt_Grey,kaCenter);
+      Label_Common_Costs  := MyControls.AddLabel(Panel_House_Common,100,2,100,30,fTextLibrary.GetTextString(248),fnt_Grey,kaCenter);
+      Row__Common_Resource[1] := MyControls.AddResourceRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
+      Row__Common_Resource[2] := MyControls.AddResourceRow(Panel_House_Common,  8,42,180,20,rt_Stone,5);
+      Row__Common_Resource[3] := MyControls.AddResourceRow(Panel_House_Common,  8,62,180,20,rt_Trunk,5);
+      Row__Common_Resource[4] := MyControls.AddResourceRow(Panel_House_Common,  8,82,180,20,rt_Stone,5);
       for i:=1 to 4 do begin
-        Row__Order[i] :=MyControls.AddResourceOrderRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
-        Row__Order[i].OrderRem.OnClick:=House_OrderClick;
-        Row__Order[i].OrderRem.OnRightClick:=House_OrderClickRight;
-        Row__Order[i].OrderRem.Hint:=fTextLibrary.GetTextString(234);
-        Row__Order[i].OrderAdd.OnClick:=House_OrderClick;
-        Row__Order[i].OrderAdd.OnRightClick:=House_OrderClickRight;
-        Row__Order[i].OrderAdd.Hint:=fTextLibrary.GetTextString(235);
+        Row__Order[i] := MyControls.AddResourceOrderRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
+        Row__Order[i].OrderRem.OnClick      := House_OrderClick;
+        Row__Order[i].OrderRem.OnRightClick := House_OrderClickRight;
+        Row__Order[i].OrderRem.Hint         := fTextLibrary.GetTextString(234);
+        Row__Order[i].OrderAdd.OnClick      := House_OrderClick;
+        Row__Order[i].OrderAdd.OnRightClick := House_OrderClickRight;
+        Row__Order[i].OrderAdd.Hint         := fTextLibrary.GetTextString(235);
       end;
-      Row__Costs[1] :=MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
-      Row__Costs[2] :=MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
-      Row__Costs[3] :=MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
-      Row__Costs[4] :=MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
+      Row__Costs[1] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
+      Row__Costs[2] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
+      Row__Costs[3] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
+      Row__Costs[4] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
 end;
 
 {Store page}
@@ -1253,7 +1246,7 @@ begin
       Panel_House_Common.Childs[i].Hide;
 
     //Now show only what we need
-    RowRes:=1; Line:=0; Base:=Panel_House_Common.Top+2;
+    RowRes:=1; Line:=0; Base := 2;
     //Show Demand
     if HouseInput[byte(Sender.GetHouseType),1] in [rt_Trunk..rt_Fish] then begin
       Label_Common_Demand.Show;
