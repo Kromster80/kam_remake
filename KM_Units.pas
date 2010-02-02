@@ -867,12 +867,11 @@ var i,NewCommanderID:integer; Test,Nearest:single; NewCommander:TKMUnitWarrior;
 begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
-  //fCommander := Self; //Remove commanders flag in a lame way
-
   //Kill group member
   if fCommander <> nil then
     fCommander.fMembers.Remove((Self));
 
+  //Kill group commander
   if (fCommander = nil) and(fMembers.Count <> 0) then begin
 
     //Get nearest neighbour and give him the Flag
@@ -1131,7 +1130,7 @@ inherited;
   YPaintPos := fPosition.Y+ 1 +GetYSlide;
   
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-  if fCommander=nil then
+  if (fCommander=nil) and not (fUnitTask is TTaskDie) then
   fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, byte(fOwner), XPaintPos, YPaintPos,false);
 
   if fThought<>th_None then
