@@ -134,9 +134,9 @@ end;
 
 procedure TRender.SetRotation(aH,aP,aB:integer);
 begin
-  rHeading:=aH;
-  rPitch:=aP;
-  rBank:=aB;
+  rHeading := aH;
+  rPitch   := aP;
+  rBank    := aB;
 end;
 
 procedure TRender.RenderResize(Width,Height:integer; aRenderMode:TRenderMode);

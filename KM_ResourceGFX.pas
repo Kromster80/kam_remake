@@ -1091,7 +1091,7 @@ begin
     DecompressionStream := TZDecompressionStream.Create(InputStream);
     OutputStream.CopyFrom(DecompressionStream, 0);
     OutputStream.Position := 18; //SizeOf(TGAHeader)
-    OutputStream.ReadBuffer(c[1], 512*512*4);
+    OutputStream.ReadBuffer(c[1], SizeX*SizeY*4);
     InputStream.Free;
     OutputStream.Free;
     DeCompressionStream.Free;
@@ -1118,9 +1118,9 @@ begin
 
     px := ii*16+kk+1;
 
-    TileMMColor[px].R:= round(R / (SizeY*SizeY div 256)) ; //each tile is 32x32 px
-    TileMMColor[px].G:= round(G / (SizeY*SizeY div 256)) ;
-    TileMMColor[px].B:= round(B / (SizeY*SizeY div 256)) ;
+    TileMMColor[px].R := round(R / (SizeY*SizeY div 256)) ; //each tile is 32x32 px
+    TileMMColor[px].G := round(G / (SizeY*SizeY div 256)) ;
+    TileMMColor[px].B := round(B / (SizeY*SizeY div 256)) ;
 
   end;
 end;
