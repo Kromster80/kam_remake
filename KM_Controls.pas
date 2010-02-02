@@ -919,6 +919,8 @@ begin
   ScrollDec.Visible := Visible;
   ScrollInc.Visible := Visible;
 
+  Pos := 0;
+
   case fScrollAxis of
     sa_Vertical:   fRenderUI.WriteBevel(Left, Top+Width, Width, Height - Width*2);
     sa_Horizontal: fRenderUI.WriteBevel(Left+Height, Top, Width - Height*2, Height);
