@@ -715,10 +715,10 @@ end;
 procedure TKMPercentBar.Paint();
 begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
-  if Caption <> '' then //Now draw text over bar, if required
+  if Caption <> '' then begin //Now draw text over bar, if required
     fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, Width, Caption, Font, TextAlign, false, $FF000000);
-  if Caption <> '' then //Now draw text over bar, if required
     fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, Width, Caption, Font, TextAlign, false, $FFFFFFFF);
+  end;
 end;
 
 

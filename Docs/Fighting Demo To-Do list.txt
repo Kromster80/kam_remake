@@ -9,3 +9,4 @@
 	Tutorial missions from KaM
 	Scalable ingame menu
 	Lookout tower [Krom]
+	Brightness settings as 0..20 range

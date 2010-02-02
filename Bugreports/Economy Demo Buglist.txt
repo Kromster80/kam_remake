@@ -10,10 +10,10 @@ Gameplay bugs:
 	Sometimes the taskbar stays on top in fullscreen mode
 
 Graphics bugs:
++	brightness settings are wrong (looks like foggy)
 ?	Water has dark patches
 	See-through hills (lighting flaw)
 	game in fullscreen mode flickers terrible!
-	brightness settings are wrong (looks like foggy)
 
 Translation bugs:
 	word "Language:" will be not change if I change the language in options menu

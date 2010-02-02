@@ -27,6 +27,7 @@ type TKMapEdInterface = class
         HeightSize:TKMRatioRow;
         HeightCircle,HeightSquare:TKMButtonFlat;
       Panel_Tiles:TKMPanel;
+        TilesScroll:TKMScrollBar;
       Panel_Objects:TKMPanel;
 
     Panel_Village:TKMPanel;
@@ -354,11 +355,12 @@ begin
     Panel_Tiles := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
       for i:=1 to 5 do for k:=1 to 8 do
       MyControls.AddButtonFlat(Panel_Tiles,8+(i-1)*32,4+(k-1)*32,32,32,43); //List of tiles 32x8
-      MyControls.AddScrollBar(Panel_Tiles, 176, 4, 20, 300); //todo: Should be horizontal
+      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 192, 200, 20, sa_Horizontal);
+      //TilesScroll.OnChange := Tiles_Scroll;
 
     Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
       //List of objects
-      MyControls.AddScrollBar(Panel_Objects, 176, 4, 20, 300);
+      MyControls.AddScrollBar(Panel_Objects, 176, 4, 20, 300, sa_Vertical);
 end;
 
 {Build page}
