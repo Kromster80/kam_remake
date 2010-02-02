@@ -1081,7 +1081,6 @@ begin
   SizeX := c[13]+c[14]*256;
   SizeY := c[15]+c[16]*256;
 
-  setlength(c,SizeX*SizeY*4+1);
   if c[1]=120 then
   begin
     {$IFDEF VER140}
@@ -1090,7 +1089,11 @@ begin
     OutputStream := TMemoryStream.Create;
     DecompressionStream := TZDecompressionStream.Create(InputStream);
     OutputStream.CopyFrom(DecompressionStream, 0);
-    OutputStream.Position := 18; //SizeOf(TGAHeader)
+    OutputStream.Position := 0; //SizeOf(TGAHeader)
+    OutputStream.ReadBuffer(c[1], 18);
+    SizeX := c[13]+c[14]*256;
+    SizeY := c[15]+c[16]*256;
+    setlength(c,SizeX*SizeY*4+1);
     OutputStream.ReadBuffer(c[1], SizeX*SizeY*4);
     InputStream.Free;
     OutputStream.Free;
@@ -1099,6 +1102,7 @@ begin
   end
   else
   begin
+    setlength(c,SizeX*SizeY*4+1);
     blockread(f,c[1],SizeX*SizeY*4);
     closefile(f);
   end;
