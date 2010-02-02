@@ -870,18 +870,19 @@ begin
 
   Panel_Army:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
     //Military buttons start at 8.170 and are 52x38/30 (60x46)
-    Button_Army_GoTo   := MyControls.AddButton(Panel_Army,  8,  0, 54, 40, 27);
-    Button_Army_Stop   := MyControls.AddButton(Panel_Army, 68,  0, 54, 40, 26);
-    Button_Army_Attack := MyControls.AddButton(Panel_Army,128,  0, 54, 40, 25);
-    Button_Army_RotCW  := MyControls.AddButton(Panel_Army,  8, 46, 54, 40, 23);
-    Button_Army_Storm  := MyControls.AddButton(Panel_Army, 68, 46, 54, 40, 28);
-    Button_Army_RotCCW := MyControls.AddButton(Panel_Army,128, 46, 54, 40, 24);
-    Button_Army_ForDown:= MyControls.AddButton(Panel_Army,128, 92, 54, 40, 32);
-    //todo: Here go shield icons
-    Button_Army_ForUp  := MyControls.AddButton(Panel_Army,  8, 92, 54, 40, 33);
-    Button_Army_Split  := MyControls.AddButton(Panel_Army,  8,138, 54, 30, 31);
-    Button_Army_Join   := MyControls.AddButton(Panel_Army, 68,138, 54, 30, 30);
-    Button_Army_Feed   := MyControls.AddButton(Panel_Army,128,138, 54, 30, 29);
+    //@Lewin: I made them slightly bigger, they look better that way. To be deleted..
+    Button_Army_GoTo   := MyControls.AddButton(Panel_Army,  8,  0, 56, 40, 27);
+    Button_Army_Stop   := MyControls.AddButton(Panel_Army, 70,  0, 56, 40, 26);
+    Button_Army_Attack := MyControls.AddButton(Panel_Army,132,  0, 56, 40, 25);
+    Button_Army_RotCW  := MyControls.AddButton(Panel_Army,  8, 46, 56, 40, 23);
+    Button_Army_Storm  := MyControls.AddButton(Panel_Army, 70, 46, 56, 40, 28);
+    Button_Army_RotCCW := MyControls.AddButton(Panel_Army,132, 46, 56, 40, 24);
+    Button_Army_ForUp  := MyControls.AddButton(Panel_Army,  8, 92, 56, 40, 33);
+    //todo: Here go shield icons  MyControls.AddArmyStack(Panel_Army,  70, 92, 56, 40, 33);
+    Button_Army_ForDown:= MyControls.AddButton(Panel_Army,132, 92, 56, 40, 32);
+    Button_Army_Split  := MyControls.AddButton(Panel_Army,  8,138, 56, 34, 31);
+    Button_Army_Join   := MyControls.AddButton(Panel_Army, 70,138, 56, 34, 30);
+    Button_Army_Feed   := MyControls.AddButton(Panel_Army,132,138, 56, 34, 29);
 
     //All one-click-action (i.e. not attack, move, link up) army controls have a single procedure that decides what to do based on Sender
     Button_Army_GoTo.OnClick   := Army_Issue_Order;
@@ -895,6 +896,14 @@ begin
     Button_Army_Split.OnClick  := Army_Issue_Order;
     Button_Army_Join.OnClick   := Army_Issue_Order;
     Button_Army_Feed.OnClick   := Army_Issue_Order;
+
+    //Disable not working buttons
+    Button_Army_GoTo.Disable;
+    Button_Army_Attack.Disable;
+    Button_Army_Storm.Disable;
+    Button_Army_Split.Disable;
+    Button_Army_Join.Disable;
+    Button_Army_Feed.Disable;
 
     //Hints
     Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
@@ -913,8 +922,7 @@ begin
     Go to     Stop      Attack
     Rotate    Storm     Rotate
     -Column   ~Info~    +Column
-    Split     Join      Feed
-    }
+    Split     Join      Feed}
 end;
 
 
@@ -1739,9 +1747,9 @@ begin
   else
     Commander := TKMUnitWarrior(fPlayers.Selected);
 
-  //if Sender = Button_Army_GoTo    then ;
+  //if Sender = Button_Army_GoTo    then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then Commander.Halt;
-  //if Sender = Button_Army_Attack  then ;
+  //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then Commander.Halt(-1);
   //if Sender = Button_Army_Storm   then ;
   if Sender = Button_Army_RotCCW  then Commander.Halt(1);

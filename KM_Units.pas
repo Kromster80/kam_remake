@@ -352,7 +352,7 @@ type
     function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint); reintroduce; overload;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -863,12 +863,41 @@ end;
 
 
 procedure TKMUnitWarrior.KillUnit;
+var i,NewCommanderID:integer; Test,Nearest:single; NewCommander:TKMUnitWarrior;
 begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
-  fCommander := Self; //Remove commanders flag in a lame way
+  //fCommander := Self; //Remove commanders flag in a lame way
 
-  //todo: URGENT: reassign commanders flag. This causes a crash! Must be fixed for demo.
+  //Kill group member
+  if fCommander <> nil then
+    fCommander.fMembers.Remove((Self));
+
+  if (fCommander = nil) and(fMembers.Count <> 0) then begin
+
+    //Get nearest neighbour and give him the Flag
+    NewCommanderID := 0;
+    Nearest := maxSingle;
+    for i:=1 to fMembers.Count do begin
+      Test := GetLength(GetPosition, TKMUnitWarrior(fMembers.Items[i-1]).GetPosition);
+      if Test < Nearest then begin
+        Nearest := Test;
+        NewCommanderID := i-1;
+      end;
+    end;
+
+    NewCommander := TKMUnitWarrior(fMembers.Items[NewCommanderID]);
+    NewCommander.fCommander := nil; //Become a commander
+    NewCommander.fUnitsPerRow := fUnitsPerRow; //Transfer group properties
+    NewCommander.fMembers := TKMList.Create;
+
+    //Transfer all members to new commander
+    for i:=1 to fMembers.Count do
+      if i-1 <> NewCommanderID then begin
+        TKMUnitWarrior(fMembers.Items[i-1]).fCommander := NewCommander; //Reassign new Commander
+        NewCommander.fMembers.Add(fMembers.Items[i-1]); //Reassign membership
+      end;
+  end;
 
   Inherited;
 end;
@@ -931,9 +960,9 @@ begin
   HaltPoint.Dir := byte(KMLoopDirection(HaltPoint.Dir+aTurnAmount+1))-1; //Add the turn amount, using loop in case it goes over 7
 
   if fMembers <> nil then
-    fUnitsPerRow := EnsureRange(fUnitsPerRow+aLineAmount,1,fMembers.Count+1);
+    fUnitsPerRow := EnsureRange(fUnitsPerRow+aLineAmount, 1, fMembers.Count+1); //1..TotalCount
 
-  PlaceOrder(wo_Walk,HaltPoint);
+  PlaceOrder(wo_Walk, HaltPoint);
 end;
 
 
@@ -968,9 +997,15 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA);
+var NewP:TKMPointDir;
 begin
-  PlaceOrder(aWarriorOrder, KMPointDir(aLoc.X, aLoc.Y, byte(Direction)-1));
+  //keep old direction if group had an order to walk somewhere
+  if (aNewDir=dir_NA) and (fOrderLoc.Dir <> 0) then
+    NewP := KMPointDir(aLoc.X, aLoc.Y, fOrderLoc.Dir)
+  else
+    NewP := KMPointDir(aLoc.X, aLoc.Y, byte(Direction)-1);
+    PlaceOrder(aWarriorOrder, NewP);
 end;
 
 
@@ -1076,7 +1111,8 @@ begin
     end;
     if PositioningDone then
       SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
-    else SetActionStay(5,ua_Walk);
+    else
+      SetActionStay(5,ua_Walk);
   end;
 
   fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');

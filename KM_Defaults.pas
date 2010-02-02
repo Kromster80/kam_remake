@@ -324,6 +324,13 @@ type
   TUnitActionTypeSet = set of TUnitActionType;
 
   TWarriorOrder = (wo_None, wo_Walk, wo_Walking, wo_Repositioning);
+  //WarriorOrder meant to be command from player that warrior must perform, e.g.
+  //None - no command
+  //Walk - Walk to
+  //Reposition - change lines/direction
+  //Attack
+  //Feed?
+  //@Lewin: how does Walking fits in?
 
 const {Actions names}
   UnitAct:array[1..14]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
