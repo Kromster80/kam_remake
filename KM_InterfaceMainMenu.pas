@@ -126,7 +126,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_SoundFX, KM_PlayersCollection, KM_CommonTypes, Forms;
+uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTypes, Forms;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGameSettings);
@@ -310,7 +310,7 @@ begin
         Button_SingleSize[i]   :=MyControls.AddLabel(Panel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
       end;
 
-      ScrollBar_SingleMaps:=MyControls.AddScrollBar(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40,bsMenu);
+      ScrollBar_SingleMaps:=MyControls.AddScrollBar(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
       ScrollBar_SingleMaps.OnChange:=SingleMap_ScrollChange;
 
       Shape_SingleMap:=MyControls.AddShape(Panel_SingleList,0,40,420,40,$FFFFFF00);

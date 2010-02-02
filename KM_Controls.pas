@@ -229,21 +229,23 @@ TKMRatioRow = class(TKMControl)
 end;
 
 
+type TScrollAxis = (sa_Vertical, sa_Horizontal);
+
 {Scroll bar}
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;
     MinValue:byte;
     MaxValue:byte;
-    ScrollVertical:boolean; //So far only vertical scrolls are working
+    fScrollAxis:TScrollAxis;
     Thumb:word;
-    ScrollUp:TKMButton;
-    ScrollDown:TKMButton;
+    ScrollDec:TKMButton;
+    ScrollInc:TKMButton;
     Style:TButtonStyle;
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
   protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure RefreshItems();
     procedure Paint(); override;
@@ -283,7 +285,7 @@ TKMControlsCollection = class(TKMList) //todo: List of TKMControls
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
     function AddCostsRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer):TKMRatioRow;
-    function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle=bsGame):TKMScrollBar;
+    function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     function MouseOverControl   ():TKMControl;
     procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
@@ -842,16 +844,16 @@ end;
 
 
 { TKMScrollBar }
-constructor TKMScrollBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle);
+constructor TKMScrollBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
 begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Inherited Create(aLeft, aTop, aWidth, aHeight);
   ParentTo(aParent);
-  ScrollVertical:=true;
-  Position:=5;
-  MaxValue:=10;
-  MinValue:=1;
-  Thumb:=10;
-  Style:=aStyle;
+  fScrollAxis := aScrollAxis;
+  Position := 5;
+  MaxValue := 10;
+  MinValue := 1;
+  Thumb    := 10;
+  Style    := aStyle;
 end;
 
 
@@ -860,48 +862,49 @@ var NewPos: integer;
 begin
   Inherited CheckCursorOver(X,Y,AShift);
 
-  if InRange(Y,Top+Width,Top+Height-Width) then begin
+  NewPos := Position;
 
-    NewPos := Position;
-    if (CursorOver) and (ssLeft in AShift) then
-      NewPos :=
-        EnsureRange(
-          round(
-            MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue)
-          ),
-        MinValue,MaxValue);
-
-    if NewPos <> Position then begin
-      Position := NewPos;
-      if Assigned(OnChange) then
-        OnChange(Self);
-    end;
-
+  if (CursorOver) and (ssLeft in AShift) then
+  begin
+    if fScrollAxis = sa_Vertical then
+    if InRange(Y,Top+Width,Top+Height-Width) then
+      NewPos := round( MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue) );
+    if fScrollAxis = sa_Horizontal then
+    if InRange(X,Left+Height,Left+Width-Height) then
+      NewPos := round( MinValue+((X-Left-Height-Thumb/2)/(Width-Height*2-Thumb))*(MaxValue-MinValue) );
   end;
+  if NewPos <> Position then begin
+    Position := EnsureRange(NewPos, MinValue, MaxValue);
+    if Assigned(OnChange) then
+      OnChange(Self);
+  end;
+
 end;
 
 
 {Refresh button sizes and etc.}
 procedure TKMScrollBar.RefreshItems();
 begin
-  if ScrollVertical then
-    Thumb := (Height-2*Width) div 4;
+  case fScrollAxis of
+    sa_Vertical:   Thumb := Math.max(0, (Height-2*Width)) div 4;
+    sa_Horizontal: Thumb := Math.max(0, (Width-2*Height)) div 4;
+  end;
 
-  ScrollUp.Enabled   := Enabled;
-  ScrollDown.Enabled := Enabled;
+  ScrollDec.Enabled := Enabled; //Copy property from TKMScrollBar
+  ScrollInc.Enabled := Enabled;
 end;
 
 
 procedure TKMScrollBar.IncPosition(Sender:TObject);
 begin
-  Position := EnsureRange(Position+1,MinValue,MaxValue);
+  Position := EnsureRange(Position+1, MinValue, MaxValue);
   OnChange(Self);
 end;
 
 
 procedure TKMScrollBar.DecPosition(Sender:TObject);
 begin
-  Position := EnsureRange(Position-1,MinValue,MaxValue);
+  Position := EnsureRange(Position-1, MinValue, MaxValue);
   OnChange(Self);
 end;
 
@@ -912,25 +915,37 @@ begin
   if MakeDrawPagesOverlay then
     fRenderUI.WriteLayer(Left, Top, Width, Height, $40FFFF00);
 
-  //Otherwise they won't be rendered
-  ScrollUp.Visible   := Visible;
-  ScrollDown.Visible := Visible;
+  //Copy property to child buttons. Otherwise they won't be rendered
+  ScrollDec.Visible := Visible;
+  ScrollInc.Visible := Visible;
 
-  fRenderUI.WriteBevel(Left, Top+Width, Width, Height - Width*2);
-
-  if MinValue = MaxValue then begin
-    Pos:=(Height-Width*2-Thumb) div 2;
-    State:=[bs_Disabled];
-    ScrollUp.Disable;
-    ScrollDown.Disable;
-  end else begin
-    Pos:=(Position-MinValue)*(Height-Width*2-Thumb) div (MaxValue-MinValue);
-    State:=[];
-    ScrollUp.Enable;
-    ScrollDown.Enable;
+  case fScrollAxis of
+    sa_Vertical:   fRenderUI.WriteBevel(Left, Top+Width, Width, Height - Width*2);
+    sa_Horizontal: fRenderUI.WriteBevel(Left+Height, Top, Width - Height*2, Height);
   end;
 
-  fRenderUI.Write3DButton(Left,Top+Width+Pos,Width,Thumb,0,0,State,Style);
+  if MinValue = MaxValue then begin
+    case fScrollAxis of
+      sa_Vertical:   Pos := (Height-Width*2-Thumb) div 2;
+      sa_Horizontal: Pos := (Width-Height*2-Thumb) div 2;
+    end;
+    State := [bs_Disabled];
+    ScrollDec.Disable;
+    ScrollInc.Disable;
+  end else begin
+    case fScrollAxis of
+      sa_Vertical:   Pos := (Position-MinValue)*(Height-Width*2-Thumb) div (MaxValue-MinValue);
+      sa_Horizontal: Pos := (Position-MinValue)*(Width-Height*2-Thumb) div (MaxValue-MinValue);
+    end;
+    State := [];
+    ScrollDec.Enable;
+    ScrollInc.Enable;
+  end;
+
+  case fScrollAxis of
+    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+Pos,Width,Thumb,0,0,State,Style);
+    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+Pos,Top,Thumb,Height,0,0,State,Style);
+  end;
 end;
 
 
@@ -1074,15 +1089,21 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aStyle:TButtonStyle=bsGame):TKMScrollBar;
+function TKMControlsCollection.AddScrollBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
 begin
-  Result := TKMScrollBar.Create(aParent, aLeft, aTop, aWidth, aHeight, aStyle);
+  Result := TKMScrollBar.Create(aParent, aLeft, aTop, aWidth, aHeight, aScrollAxis, aStyle);
   AddToCollection(Result);
   //These two will be added to collection by themselfes
-  Result.ScrollUp   := AddButton(aParent, aLeft, aTop, aWidth, aWidth, 4, 4, aStyle);
-  Result.ScrollDown := AddButton(aParent, aLeft, aTop + aHeight-aWidth, aWidth, aWidth, 5, 4, aStyle);
-  Result.ScrollUp.OnClick   := Result.DecPosition;
-  Result.ScrollDown.OnClick := Result.IncPosition;
+  if aScrollAxis = sa_Vertical then begin
+    Result.ScrollDec := AddButton(aParent, aLeft, aTop, aWidth, aWidth, 4, 4, aStyle);
+    Result.ScrollInc := AddButton(aParent, aLeft, aTop+aHeight-aWidth, aWidth, aWidth, 5, 4, aStyle);
+  end;
+  if aScrollAxis = sa_Horizontal then begin
+    Result.ScrollDec := AddButton(aParent, aLeft, aTop, aHeight, aHeight, 2, 4, aStyle);
+    Result.ScrollInc := AddButton(aParent, aLeft+aWidth-aHeight, aTop, aHeight, aHeight, 3, 4, aStyle);
+  end;
+  Result.ScrollDec.OnClick := Result.DecPosition;
+  Result.ScrollInc.OnClick := Result.IncPosition;
   Result.RefreshItems();
 end;
 
