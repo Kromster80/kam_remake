@@ -1367,11 +1367,12 @@ begin
   for Dist := 1 to 255 do //Do a circular check with a 255 radius
     for Dir := 0 to 7 do
     begin
-      //See if the tile in the direction matches pass and walk connect
+      //See if the tile in the direction matches pass and walk connect and has no units on it (stops low-priority troops that can't reach destination from pushing troops that can)
       Result := GetPointInDir(Dir,Dist);
       if TileInMapCoords(Result.X,Result.Y) then
         if CheckPassability(Result,aPass) and
-          (WalkConnectID = Land[Result.Y,Result.X].WalkConnect[WalkConnectType]) then
+          (WalkConnectID = Land[Result.Y,Result.X].WalkConnect[WalkConnectType]) and
+          ((not HasUnit(Result)) or KMSamePoint(Result,LocB)) then //Allow position we are currently on
           exit; //We have found it so exit
     end;
   Result := KMPoint(0,0); //If we don't find one, set to invalid (error)

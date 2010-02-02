@@ -94,6 +94,8 @@ type TKMGamePlayInterface = class
       Panel_Army:TKMPanel;
         Button_Army_GoTo,Button_Army_Stop,Button_Army_Attack:TKMButton;
         Button_Army_RotCW,Button_Army_Storm,Button_Army_RotCCW:TKMButton;
+        Button_Army_ForUp,Button_Army_ForDown:TKMButton;
+        Button_Army_Split,Button_Army_Join,Button_Army_Feed:TKMButton;
 
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
@@ -185,6 +187,7 @@ type TKMGamePlayInterface = class
     procedure Menu_QuitMission(Sender:TObject);
     procedure Menu_NextTrack(Sender:TObject);
     procedure Menu_PreviousTrack(Sender:TObject);
+    procedure Army_Issue_Order(Sender:TObject);
     procedure Save_PopulateSaveNamesFile();
     procedure Build_SelectRoad;
     procedure Build_RightClickCancel;
@@ -867,37 +870,49 @@ begin
 
   Panel_Army:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
     //Military buttons start at 8.170 and are 52x38/30 (60x46)
-    Button_Army_GoTo   := MyControls.AddButton(Panel_Army,  8,  0, 52, 38, 25);
-    Button_Army_Stop   := MyControls.AddButton(Panel_Army, 68,  0, 52, 38, 26);
-    Button_Army_Attack := MyControls.AddButton(Panel_Army,128,  0, 52, 38, 27);
-    Button_Army_RotCW  := MyControls.AddButton(Panel_Army,  8, 46, 52, 38, 23);
-    Button_Army_Storm  := MyControls.AddButton(Panel_Army, 68, 46, 52, 38, 28);
-    Button_Army_RotCCW := MyControls.AddButton(Panel_Army,128, 46, 52, 38, 24);
-    MyControls.AddButton(Panel_Army,  8, 92, 52, 38, 32);
-    //---Here go shield icons---//
-    MyControls.AddButton(Panel_Army,128, 92, 52, 38, 33);
-    MyControls.AddButton(Panel_Army,  8,138, 52, 38, 31);
-    MyControls.AddButton(Panel_Army, 68,138, 52, 38, 30);
-    MyControls.AddButton(Panel_Army,128,138, 52, 38, 29);
+    Button_Army_GoTo   := MyControls.AddButton(Panel_Army,  8,  0, 54, 40, 27);
+    Button_Army_Stop   := MyControls.AddButton(Panel_Army, 68,  0, 54, 40, 26);
+    Button_Army_Attack := MyControls.AddButton(Panel_Army,128,  0, 54, 40, 25);
+    Button_Army_RotCW  := MyControls.AddButton(Panel_Army,  8, 46, 54, 40, 23);
+    Button_Army_Storm  := MyControls.AddButton(Panel_Army, 68, 46, 54, 40, 28);
+    Button_Army_RotCCW := MyControls.AddButton(Panel_Army,128, 46, 54, 40, 24);
+    Button_Army_ForDown:= MyControls.AddButton(Panel_Army,128, 92, 54, 40, 32);
+    //todo: Here go shield icons
+    Button_Army_ForUp  := MyControls.AddButton(Panel_Army,  8, 92, 54, 40, 33);
+    Button_Army_Split  := MyControls.AddButton(Panel_Army,  8,138, 54, 30, 31);
+    Button_Army_Join   := MyControls.AddButton(Panel_Army, 68,138, 54, 30, 30);
+    Button_Army_Feed   := MyControls.AddButton(Panel_Army,128,138, 54, 30, 29);
 
-    Button_Army_GoTo.Disable;
-    Button_Army_Stop.Disable;
-    Button_Army_Attack.Disable;
-    Button_Army_RotCW.Disable;
-    Button_Army_Storm.Disable;
-    Button_Army_RotCCW.Disable;
+    //All one-click-action (i.e. not attack, move, link up) army controls have a single procedure that decides what to do based on Sender
+    Button_Army_GoTo.OnClick   := Army_Issue_Order;
+    Button_Army_Stop.OnClick   := Army_Issue_Order;
+    Button_Army_Attack.OnClick := Army_Issue_Order;
+    Button_Army_RotCW.OnClick  := Army_Issue_Order;
+    Button_Army_Storm.OnClick  := Army_Issue_Order;
+    Button_Army_RotCCW.OnClick := Army_Issue_Order;
+    Button_Army_ForDown.OnClick:= Army_Issue_Order;
+    Button_Army_ForUp.OnClick  := Army_Issue_Order;
+    Button_Army_Split.OnClick  := Army_Issue_Order;
+    Button_Army_Join.OnClick   := Army_Issue_Order;
+    Button_Army_Feed.OnClick   := Army_Issue_Order;
 
-    {Button_Army_GoTo.OnClick := Army_Goto;
-    Button_Army_Stop.OnClick := Army_Stop;
-    Button_Army_Attack.OnClick := Army_Attack;
-    Button_Army_RotCW.OnClick := Army_Rotate;
-    Button_Army_Storm.OnClick := Army_Storm;
-    Button_Army_RotCCW.OnClick := Army_Rotate;}
+    //Hints
+    Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
+    Button_Army_Stop.Hint   := fTextLibrary.GetTextString(258);
+    Button_Army_Attack.Hint := fTextLibrary.GetTextString(257);
+    //Button_Army_RotCW.Hint  := fTextLibrary.GetTextString(); //KaM has no hint, I guess the icon is enough...
+    Button_Army_Storm.Hint  := fTextLibrary.GetTextString(263);
+    //Button_Army_RotCCW.Hint := fTextLibrary.GetTextString(); //KaM has no hint, I guess the icon is enough...
+    Button_Army_ForDown.Hint:= fTextLibrary.GetTextString(264);
+    Button_Army_ForUp.Hint  := fTextLibrary.GetTextString(265);
+    Button_Army_Split.Hint  := fTextLibrary.GetTextString(261);
+    Button_Army_Join.Hint   := fTextLibrary.GetTextString(260);
+    Button_Army_Feed.Hint   := fTextLibrary.GetTextString(262);
 
     {Army controls...
     Go to     Stop      Attack
     Rotate    Storm     Rotate
-    +Column   ~Info~    -Column
+    -Column   ~Info~    +Column
     Split     Join      Feed
     }
 end;
@@ -1379,6 +1394,7 @@ begin
     //Warrior specific
     Label_UnitDescription.Hide;
     Panel_Army.Show;
+    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.GetUnitType)] = gt_Melee); //Only melee groups may charge
   end
   else
   begin
@@ -1712,6 +1728,31 @@ procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fMusicLib.P
 procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fMusicLib.PlayPreviousTrack; end;
 
 
+procedure TKMGamePlayInterface.Army_Issue_Order(Sender:TObject);
+var Commander: TKMUnitWarrior;
+begin
+  if fPlayers.Selected = nil then exit;
+  if not (fPlayers.Selected is TKMUnitWarrior) then exit;
+
+  if TKMUnitWarrior(fPlayers.Selected).fCommander<>nil then
+    Commander := TKMUnitWarrior(fPlayers.Selected).fCommander
+  else
+    Commander := TKMUnitWarrior(fPlayers.Selected);
+
+  //if Sender = Button_Army_GoTo    then ;
+  if Sender = Button_Army_Stop    then Commander.Halt;
+  //if Sender = Button_Army_Attack  then ;
+  if Sender = Button_Army_RotCW   then Commander.Halt(-1);
+  //if Sender = Button_Army_Storm   then ;
+  if Sender = Button_Army_RotCCW  then Commander.Halt(1);
+  if Sender = Button_Army_ForDown then Commander.Halt(0,1);
+  if Sender = Button_Army_ForUp   then Commander.Halt(0,-1);
+  //if Sender = Button_Army_Split   then ;
+  //if Sender = Button_Army_Join    then ;
+  //if Sender = Button_Army_Feed    then ;
+end;
+
+
 procedure TKMGamePlayInterface.Build_Fill(Sender:TObject);
 var i:integer;
 begin
@@ -1866,6 +1907,7 @@ begin
     if (not IsDown) and (Button_Main[5].Visible) then SwitchPage(Button_Main[5]);
     if (not IsDown) then CloseMessage(Button_MessageClose);
   end;
+  //Messages
   if (Key=71) and (Button_MessageGoTo.Enabled) then //71 = G
   begin
     Button_MessageGoTo.Down := IsDown;
@@ -1875,6 +1917,32 @@ begin
   begin
     Button_MessageDelete.Down := IsDown;
     if (not IsDown) then DeleteMessage(Image_Message[ShownMessage]); //Deletes the open message
+  end;
+  //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
+  if (Key=65) and (Panel_Army.Visible) then //65 = A
+  begin
+    Button_Army_Attack.Down := IsDown;
+    if (not IsDown) then Army_Issue_Order(Button_Army_Attack);
+  end;
+  if (Key=68) and (Panel_Army.Visible) then //68 = D
+  begin
+    Button_Army_GoTo.Down := IsDown;
+    if (not IsDown) then Army_Issue_Order(Button_Army_GoTo);
+  end;
+  if (Key=72) and (Panel_Army.Visible) then //72 = H
+  begin
+    Button_Army_Stop.Down := IsDown;
+    if (not IsDown) then Army_Issue_Order(Button_Army_Stop);
+  end;
+  if (Key=76) and (Panel_Army.Visible) then //76 = L
+  begin
+    Button_Army_Join.Down := IsDown;
+    if (not IsDown) then Army_Issue_Order(Button_Army_Join);
+  end;
+  if (Key=83) and (Panel_Army.Visible) then //83 = S
+  begin
+    Button_Army_Split.Down := IsDown;
+    if (not IsDown) then Army_Issue_Order(Button_Army_Split);
   end;
 end;
 

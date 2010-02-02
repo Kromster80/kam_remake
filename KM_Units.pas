@@ -338,7 +338,6 @@ type
     fOrder:TWarriorOrder;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fUnitsPerRow:integer;
-    fGroupDir:TKMDirection; //Direction the group is facing, used only by commander
     fMembers:TKMList;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
@@ -350,6 +349,8 @@ type
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure AddMember(aWarrior:TKMUnitWarrior);
     procedure SetGroupFullCondition;
+    function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
+    procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint); reintroduce; overload;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -816,7 +817,6 @@ begin
   fOrder        := wo_None;
   fOrderLoc     := KMPointDir(0,0,0);
   fUnitsPerRow  := 1;
-  fGroupDir     := dir_N;
   fMembers      := nil; //Only commander units will have it initialized
 end;
 
@@ -830,7 +830,6 @@ begin
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
   LoadStream.Read(fUnitsPerRow);
-  LoadStream.Read(fGroupDir, SizeOf(fGroupDir));
   LoadStream.Read(aCount);
   if aCount <> 0 then
   begin
@@ -869,7 +868,7 @@ begin
 
   fCommander := Self; //Remove commanders flag in a lame way
 
-  //todo: reassign commanders flag
+  //todo: URGENT: reassign commanders flag. This causes a crash! Must be fixed for demo.
 
   Inherited;
 end;
@@ -898,13 +897,52 @@ begin
 end;
 
 
+function TKMUnitWarrior.RePosition: boolean;
+begin
+  Result := true;
+  if fOrderLoc.Loc.X = 0 then exit;
+
+  //See if we are in position or if we can't reach position, because we don't retry for that cause.
+  if (fOrder = wo_None) and (KMSamePoint(GetPosition,fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk))
+    or (not KMSamePoint(fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk),fOrderLoc.Loc))) then
+    exit;
+
+  //This means we are not in position, return false and move into position (unless we are currently walking)
+  Result := false;
+  if (fOrder = wo_None) and (not (GetUnitAction is TUnitActionWalkTo)) then
+  begin
+    SetActionWalk(Self,fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk));
+    fOrder := wo_Walking;
+  end;
+end;
+
+
+procedure TKMUnitWarrior.Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
+var HaltPoint: TKMPointDir;
+begin
+  if fOrderLoc.Loc.X = 0 then //If it is invalid, use commander's values
+    HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,byte(Direction)-1)
+  else
+    if fOrder = wo_Walking then //If we are walking use commander's location, but order Direction
+      HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,fOrderLoc.Dir)
+    else
+      HaltPoint := fOrderLoc;
+
+  HaltPoint.Dir := byte(KMLoopDirection(HaltPoint.Dir+aTurnAmount+1))-1; //Add the turn amount, using loop in case it goes over 7
+
+  if fMembers <> nil then
+    fUnitsPerRow := EnsureRange(fUnitsPerRow+aLineAmount,1,fMembers.Count+1);
+
+  PlaceOrder(wo_Walk,HaltPoint);
+end;
+
+
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir);
 var i,px,py:integer; NewLoc:TKMPoint; PassedCommander: boolean;
 begin
   fOrder    := aWarriorOrder;
   fOrderLoc := aLoc;
-  fGroupDir := TKMDirection(aLoc.Dir+1);
   PassedCommander := false;
 
   if (fMembers <> nil)and(fCommander=nil) then //Don't give group orders if unit has no crew
@@ -932,7 +970,7 @@ end;
 
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint);
 begin
-  PlaceOrder(aWarriorOrder, KMPointDir(aLoc.X, aLoc.Y, byte(fGroupDir)-1));
+  PlaceOrder(aWarriorOrder, KMPointDir(aLoc.X, aLoc.Y, byte(Direction)-1));
 end;
 
 
@@ -948,7 +986,6 @@ begin
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
   SaveStream.Write(fUnitsPerRow);
-  SaveStream.Write(fGroupDir, SizeOf(fGroupDir));
   if fMembers <> nil then
   begin
     SaveStream.Write(fMembers.Count);
@@ -968,6 +1005,7 @@ function TKMUnitWarrior.UpdateState():boolean;
     if GetUnitAction is TUnitActionWalkTo then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon
     else Result := true;
   end;
+var i: integer; PositioningDone: boolean;
 begin
   inc(fFlagAnim);
 
@@ -994,13 +1032,52 @@ begin
       SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,true)
     else
       SetActionWalk(Self, KMPoint(fOrderLoc));
-    fOrder := wo_None;
+    fOrder := wo_Walking;
   end;
 
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
-  SetActionStay(50,ua_Walk);
+  //This means we are idle, so make sure our direction is right and if we are commander reposition our troops if needed
+  PositioningDone := true;
+  if fCommander = nil then
+  if (fOrder = wo_Walking) or (fOrder = wo_Repositioning) then
+  begin
+    //Wait for self and all team members to be in position before we set fOrder to None (means we no longer worry about group position)
+    if (not (GetUnitAction is TUnitActionWalkTo)) and (not KMSamePoint(GetPosition,fOrderLoc.Loc)) then
+    begin
+      SetActionWalk(Self, KMPoint(fOrderLoc)); //Walk to correct position
+      fOrder := wo_Walking;
+    end;
+
+    //If we have no crew then just exit
+    if fMembers <> nil then
+      //Tell everyone to reposition
+      for i:=0 to fMembers.Count-1 do
+        if not TKMUnitWarrior(fMembers.Items[i]).RePosition then
+          PositioningDone := false; //Must wait for unit(s) to get into position before we have truely finished walking
+  end;
+
+   //Make sure we didn't get given an action above
+  if GetUnitAction <> nil then exit;
+
+  if fOrder = wo_Walking then
+  begin
+    fOrder := wo_Repositioning; //Means we are in position
+    SetActionStay(5,ua_Walk); //Idle if we did not receive a walk action above
+  end
+  else
+  begin
+    if fOrder = wo_Repositioning then
+    begin
+      Direction := TKMDirection(fOrderLoc.Dir+1); //Face the way we were told to after our walk (this creates a short pause before we fix direction)
+      if PositioningDone then
+        fOrder := wo_None;
+    end;
+    if PositioningDone then
+      SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
+    else SetActionStay(5,ua_Walk);
+  end;
 
   fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
 end;
@@ -3335,7 +3412,6 @@ begin
 
   //Add commander first
   Commander := TKMUnitWarrior(Add(aOwner, aUnitType, PosX, PosY));
-  Commander.fGroupDir := aDir;
   Result := Commander;
 
   if Commander=nil then exit; //Don't add group without a commander
