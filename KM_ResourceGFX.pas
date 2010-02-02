@@ -1065,7 +1065,7 @@ end;
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
 procedure TResource.MakeMiniMapColors(FileName:string);
-var ii,kk,h,j,px:integer; c:array of byte; R,G,B:integer; f:file;
+var ii,kk,h,j,px:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file;
 {$IFDEF VER140}
 var
   InputStream: TFileStream;
@@ -1076,9 +1076,12 @@ begin
   assignfile(f,FileName);
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
-  setlength(c,512*512*4+1);
+  setlength(c,18+1);
   blockread(f,c[1],18); //SizeOf(TGAHeader)
+  SizeX := c[13]+c[14]*256;
+  SizeY := c[15]+c[16]*256;
 
+  setlength(c,SizeX*SizeY*4+1);
   if c[1]=120 then
   begin
     {$IFDEF VER140}
@@ -1096,7 +1099,7 @@ begin
   end
   else
   begin
-    blockread(f,c[1],512*512*4);
+    blockread(f,c[1],SizeX*SizeY*4);
     closefile(f);
   end;
 
@@ -1104,18 +1107,20 @@ begin
 
     R:=0; G:=0; B:=0;
 
-    for j:=0 to 31 do for h:=0 to 31 do begin
-      px:=((511-(ii*32+j))*512+kk*32+h)*4; //TGA comes flipped upside down
+    for j:=0 to (SizeY div 16 - 1) do
+    for h:=0 to (SizeX div 16 - 1) do
+    begin
+      px := (((SizeX-1)-(ii*(SizeY div 16)+j))*SizeX+kk*(SizeX div 16)+h)*4; //TGA comes flipped upside down
       inc(B, c[px+1]);
       inc(G, c[px+2]);
       inc(R, c[px+3]);
     end;
 
-    px:=ii*16+kk+1;
+    px := ii*16+kk+1;
 
-    TileMMColor[px].R:= round(R / 1024) ; //each tile is 32x32 px
-    TileMMColor[px].G:= round(G / 1024) ;
-    TileMMColor[px].B:= round(B / 1024) ;
+    TileMMColor[px].R:= round(R / (SizeY*SizeY div 256)) ; //each tile is 32x32 px
+    TileMMColor[px].G:= round(G / (SizeY*SizeY div 256)) ;
+    TileMMColor[px].B:= round(B / (SizeY*SizeY div 256)) ;
 
   end;
 end;
