@@ -155,6 +155,7 @@ end else out_s:='';
 Result:=out_s;
 end;
 
+//Returns file extension without dot
 function GetFileExt(const FileName: string): string;
 var k:integer; s:string;
 begin
@@ -439,7 +440,7 @@ end;
 //By Zarko Gajic, About.com
 function BrowseURL(const URL: string) : boolean;
 var
-   Browser: string; d:pchar;
+   Browser: string;
 begin
    Result := True;
    Browser := '';
@@ -460,7 +461,7 @@ begin
    end;
    Browser := Copy(Browser, Pos('"', Browser) + 1, Length(Browser)) ;
    Browser := Copy(Browser, 1, Pos('"', Browser) - 1) ;
-   ShellExecute(0, 'open', PChar(StrPCopy(d,Browser)), PChar(StrPCopy(d,URL)), nil, SW_SHOW) ;
+   ShellExecute(0, 'open', PChar(@Browser[1]), PChar(@URL[1]), nil, SW_SHOW);
 end;
 
 
