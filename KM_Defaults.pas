@@ -191,7 +191,7 @@ const
 
 {Resources}
 type
-  TResourceType = (rt_None=0, rt_All=30, rt_Warfare=31,
+  TResourceType = (rt_None=0, rt_All=30, rt_Warfare=31, rt_Food=32,
     rt_Trunk     =1  , rt_Stone      =2 , rt_Wood       =3 , rt_IronOre     =4 ,
     rt_GoldOre   =5  , rt_Coal       =6 , rt_Steel      =7 , rt_Gold        =8 ,
     rt_Wine      =9  , rt_Corn       =10, rt_Bread      =11, rt_Flour       =12,
@@ -323,7 +323,8 @@ type
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
-  TWarriorOrder = (wo_None, wo_Walk, wo_Walking, wo_Repositioning);
+  TWarriorOrder = (wo_None, wo_Walk);
+  TWarriorState = (ws_None, ws_Walking, ws_RepositionPause);
   //WarriorOrder meant to be command from player that warrior must perform, e.g.
   //None - no command
   //Walk - Walk to
@@ -331,6 +332,8 @@ type
   //Attack
   //Feed?
   //@Lewin: how does Walking fits in?
+  //@Krom: I was using it as a state, but I see it needs to be more than that. I added state seperatly. But Reposition doesn't need to be an order
+  //       because it's basically just walk. Feed is probably the same. Attack will definatly be different though.
 
 const {Actions names}
   UnitAct:array[1..14]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',

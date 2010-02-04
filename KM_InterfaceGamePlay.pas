@@ -901,9 +901,7 @@ begin
     Button_Army_GoTo.Disable;
     Button_Army_Attack.Disable;
     Button_Army_Storm.Disable;
-    Button_Army_Split.Disable;
     Button_Army_Join.Disable;
-    Button_Army_Feed.Disable;
 
     //Hints
     Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
@@ -1409,6 +1407,7 @@ begin
     //Citizen specific
     Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType));
     Label_UnitDescription.Show;
+    Panel_Army.Hide;
   end;
 end;
 
@@ -1755,9 +1754,10 @@ begin
   if Sender = Button_Army_RotCCW  then Commander.Halt(1);
   if Sender = Button_Army_ForDown then Commander.Halt(0,1);
   if Sender = Button_Army_ForUp   then Commander.Halt(0,-1);
-  //if Sender = Button_Army_Split   then ;
-  //if Sender = Button_Army_Join    then ;
-  //if Sender = Button_Army_Feed    then ;
+  if Sender = Button_Army_Split   then Commander.Split;
+  //todo: interface (panel) for choosing a group to link to
+  //if Sender = Button_Army_Join    then Commander.LinkTo(TKMUnitWarrior(MyPlayer.UnitsHitTest(62,77)));
+  if Sender = Button_Army_Feed    then Commander.Feed;
 end;
 
 

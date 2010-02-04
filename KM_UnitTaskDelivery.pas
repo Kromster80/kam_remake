@@ -204,12 +204,12 @@ if DeliverKind = dk_House then
     TaskDone:=true;
   end;
 
-//Deliver to builder
+//Deliver to builder or soldier
 if DeliverKind = dk_Unit then
 with fUnit do
 case fPhase of
 0..4:;
-5: if (fToUnit<>nil)and(fToUnit.GetUnitTask<>nil)and(not fToUnit.IsDead) then
+5: if (fToUnit<>nil)and(not fToUnit.IsDead) then
      SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false)
    else
    begin
@@ -219,14 +219,48 @@ case fPhase of
      TaskDone:=true;
    end;
 6: begin
+      //See if the unit has moved. If so we must try again
+      if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then
+      begin
+        fPhase := 5; //Walk to unit again
+        //todo: Walk action needs to know target unit's position so it can auto-correct route and detect if we meet it somewhere unexpected
+        SetActionStay(0,ua_Walk);
+        exit;
+      end;
       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-      if (fToUnit<>nil)and(fToUnit.GetUnitTask<>nil)and(not fToUnit.IsDead)and(not(fToUnit.GetUnitTask is TTaskDie)) then begin
-        fToUnit.GetUnitTask.Phase := fToUnit.GetUnitTask.Phase + 1;
-        fToUnit.SetActionStay(0,ua_Work1);
+      if (fToUnit<>nil)and(not fToUnit.IsDead)and(not(fToUnit.GetUnitTask is TTaskDie)) then begin
+        //Worker
+        if (fToUnit.GetUnitType = ut_Worker)and(fToUnit.GetUnitTask<>nil) then
+        begin
+          fToUnit.GetUnitTask.Phase := fToUnit.GetUnitTask.Phase + 1;
+          fToUnit.SetActionStay(0,ua_Work1);
+        end;
+        //Warrior
+        if (fToUnit is TKMUnitWarrior) then
+        begin
+          fToUnit.SetFullCondition; //Feed the warrior
+        end;
       end;
       fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
       fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
       SetActionStay(1,ua_Walk);
+   end;
+7: begin
+      //After feeding troops, ask for new delivery and if there is none, walk back to the place we came from so we don't leave serfs all over the battlefield
+      if (fToUnit <> nil) and (fToUnit is TKMUnitWarrior) then
+      begin
+        NewDelivery := TKMUnitSerf(fUnit).GetActionFromQueue;
+        if NewDelivery <> nil then
+        begin
+          //Take this new delivery
+          NewDelivery.Phase := 2; //Skip to resource-taking part of the new task
+          TKMUnitSerf(fUnit).SetNewDelivery(NewDelivery);
+          Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
+          exit;
+        end
+        else //No delivery found then just walk back to our from house
+          SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance),KMPoint(0,0),ua_Walk,false); //Don't walk to spot as it doesn't really matter
+      end;
    end;
 else TaskDone:=true;
 end;

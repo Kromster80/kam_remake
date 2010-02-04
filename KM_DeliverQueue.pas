@@ -211,7 +211,8 @@ begin
   //If Offer Resource matches Demand
   Result := (fDemand[iD].Resource = fOffer[iO].Resource)or
             (fDemand[iD].Resource = rt_All)or
-            ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [rt_Shield..rt_Horse]));
+            ((fDemand[iD].Resource = rt_Warfare)and(fOffer[iO].Resource in [rt_Shield..rt_Horse]))or
+            ((fDemand[iD].Resource = rt_Food)and(fOffer[iO].Resource in [rt_Bread,rt_Sausages,rt_Wine,rt_Fish]));
 
   //If Demand and Offer aren't reserved already
   Result := Result and ((not fDemand[iD].BeingPerformed) and (fOffer[iO].BeingPerformed < fOffer[iO].Count));
@@ -310,6 +311,11 @@ for iD:=1 to length(fDemand) do
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
         Bid:=Bid + Bid * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource) / 3;
+
+      //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
+      if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Loc_Unit is TKMUnitWarrior) then //Prefer delivering to houses with fewer supply
+      if (fDemand[iD].Resource = rt_Food) then
+      Bid:=Bid + Random(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
         Bid:=1;

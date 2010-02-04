@@ -336,9 +336,11 @@ type
   private
     fFlagAnim:cardinal;
     fOrder:TWarriorOrder;
+    fState:TWarriorState; //This property is individual to each unit, including commander
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fUnitsPerRow:integer;
     fMembers:TKMList;
+    function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -349,8 +351,10 @@ type
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure AddMember(aWarrior:TKMUnitWarrior);
     procedure SetGroupFullCondition;
-    function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
+    procedure LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
+    procedure Split; //Split group in half and assign another commander
+    procedure Feed;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -815,6 +819,7 @@ begin
   fCommander    := nil;
   fFlagAnim     := 0;
   fOrder        := wo_None;
+  fState        := ws_None;
   fOrderLoc     := KMPointDir(0,0,0);
   fUnitsPerRow  := 1;
   fMembers      := nil; //Only commander units will have it initialized
@@ -828,6 +833,7 @@ begin
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrder, SizeOf(fOrder));
+  LoadStream.Read(fState, SizeOf(fState));
   LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(aCount);
@@ -869,10 +875,14 @@ begin
 
   //Kill group member
   if fCommander <> nil then
+  begin
     fCommander.fMembers.Remove((Self));
+    //Now make the group reposition
+    fCommander.Halt;
+  end;
 
   //Kill group commander
-  if (fCommander = nil) and(fMembers.Count <> 0) then begin
+  if (fCommander = nil) and (fMembers <> nil) and (fMembers.Count <> 0) then begin
 
     //Get nearest neighbour and give him the Flag
     NewCommanderID := 0;
@@ -896,6 +906,16 @@ begin
         TKMUnitWarrior(fMembers.Items[i-1]).fCommander := NewCommander; //Reassign new Commander
         NewCommander.fMembers.Add(fMembers.Items[i-1]); //Reassign membership
       end;
+
+    //Make sure units per row is still valid
+    NewCommander.fUnitsPerRow := min(NewCommander.fUnitsPerRow,NewCommander.fMembers.Count+1);
+
+    //Now make the new commander reposition or keep walking where we are going (don't stop group walking because leader dies, we could be in danger)
+    //Use OrderLoc if possible
+    if fOrderLoc.Loc.X <> 0 then
+      NewCommander.PlaceOrder(wo_Walk,fOrderLoc)
+    else
+      NewCommander.PlaceOrder(wo_Walk,NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
   end;
 
   Inherited;
@@ -931,16 +951,16 @@ begin
   if fOrderLoc.Loc.X = 0 then exit;
 
   //See if we are in position or if we can't reach position, because we don't retry for that cause.
-  if (fOrder = wo_None) and (KMSamePoint(GetPosition,fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk))
+  if (fState = ws_None) and (KMSamePoint(GetPosition,fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk))
     or (not KMSamePoint(fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk),fOrderLoc.Loc))) then
     exit;
 
   //This means we are not in position, return false and move into position (unless we are currently walking)
   Result := false;
-  if (fOrder = wo_None) and (not (GetUnitAction is TUnitActionWalkTo)) then
+  if (fState = ws_None) and (not (GetUnitAction is TUnitActionWalkTo)) then
   begin
     SetActionWalk(Self,fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk));
-    fOrder := wo_Walking;
+    fState := ws_Walking;
   end;
 end;
 
@@ -948,10 +968,15 @@ end;
 procedure TKMUnitWarrior.Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
 var HaltPoint: TKMPointDir;
 begin
+  if (fCommander <> nil) and (fCommander <> Self) then
+  begin
+    fCommander.Halt(aTurnAmount,aLineAmount);
+  end;
+
   if fOrderLoc.Loc.X = 0 then //If it is invalid, use commander's values
     HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,byte(Direction)-1)
   else
-    if fOrder = wo_Walking then //If we are walking use commander's location, but order Direction
+    if fState = ws_Walking then //If we are walking use commander's location, but order Direction
       HaltPoint := KMPointDir(NextPosition.X,NextPosition.Y,fOrderLoc.Dir)
     else
       HaltPoint := fOrderLoc;
@@ -965,11 +990,118 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
+var i:integer; AddedSelf: boolean;
+begin
+  //Only link to same group type
+  if (aNewCommander = nil) or (UnitGroups[byte(fUnitType)] <> UnitGroups[byte(aNewCommander.fUnitType)]) then exit;
+  //If target is not the commander, then select the commander
+  if aNewCommander.fCommander <> nil then aNewCommander := aNewCommander.fCommander;
+
+  //Make sure we are a commander, if we are not then tell him to link
+  if (fCommander <> nil) and (fCommander <> Self) then
+  begin
+    fCommander.LinkTo(aNewCommander);
+    exit;
+  end;
+
+  //Can't link to self for obvious reasons
+  if aNewCommander = Self then exit;
+
+  fCommander := aNewCommander;
+  AddedSelf := false;
+
+  //Move our members and self to the new commander
+  for i:=0 to fMembers.Count-1 do
+  begin
+    //Put the commander in the right place, or if
+    if i = fUnitsPerRow div 2 then
+    begin
+      aNewCommander.fMembers.Add(Self);
+      AddedSelf := true;
+    end;
+
+    aNewCommander.fMembers.Add(fMembers.Items[i]);
+    TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
+  end;
+  //
+  if not AddedSelf then
+    aNewCommander.fMembers.Add(Self);
+  //Tell commander to reposition
+  fCommander.Halt;
+end;
+
+
+procedure TKMUnitWarrior.Split; //Split group in half and assign another commander
+var i, DeletedCount: integer; NewCommander:TKMUnitWarrior; MultipleTypes: boolean;
+begin
+  //Make sure we are a commander and have a crew
+  if (fCommander <> nil) or (fMembers = nil) or (fMembers.Count = 0) then exit;
+
+  //If there are different unit types in the group, split should just split them first
+  MultipleTypes := false;
+  for i := 0 to fMembers.Count-1 do
+    if TKMUnitWarrior(fMembers.Items[i]).GetUnitType <> fUnitType then
+    begin
+      MultipleTypes := true;
+      NewCommander := TKMUnitWarrior(fMembers.Items[i]); //New commander is first unit of different type, for simplicity
+      break;
+    end;
+
+  //Choose the new commander (if we haven't already due to multiple types) and remove him from members
+  if not MultipleTypes then
+    NewCommander := fMembers.Items[((fMembers.Count+1) div 2)+(min(fUnitsPerRow,(fMembers.Count+1) div 2) div 2)-1];
+  fMembers.Remove(NewCommander);
+  NewCommander.fMembers := TKMList.Create;
+  NewCommander.fUnitsPerRow := fUnitsPerRow;
+  NewCommander.fCommander := nil;
+
+  DeletedCount := 0;
+  for i := 0 to fMembers.Count-1 do
+  begin
+    //Either split evenly, or when there are multiple types, split if they are different to the commander (us)
+    if (MultipleTypes and(TKMUnitWarrior(fMembers.Items[i-DeletedCount]).GetUnitType <> fUnitType)) or
+      ((not MultipleTypes)and(i-DeletedCount >= fMembers.Count div 2)) then
+    begin
+      //Join new commander
+      NewCommander.fMembers.Add(fMembers.Items[i-DeletedCount]);
+      TKMUnitWarrior(fMembers.Items[i-DeletedCount]).fCommander := NewCommander;
+      //Leave this commander
+      fMembers.Delete(i-DeletedCount);
+      inc(DeletedCount);
+    end; //Else stay with this commander
+  end;
+  //Make sure units per row is still valid
+  fUnitsPerRow := min(fUnitsPerRow,fMembers.Count+1);
+  NewCommander.fUnitsPerRow := min(NewCommander.fUnitsPerRow,NewCommander.fMembers.Count+1);
+  //Tell both commanders to reposition
+  NewCommander.Halt;
+  Halt;
+end;
+
+
+procedure TKMUnitWarrior.Feed;
+var i:integer;
+begin
+  //Ask for some food
+  //todo: Only allow feed if less than 3/4 condition, or maybe have a seperate button for "only feed troops that are hungry"
+  fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, Self, rt_Food, 1, dt_Once, di_Norm);
+
+  //Commanders also tell troops to ask for some food
+  if (fCommander = nil) and (fMembers <> nil) then
+    for i := 0 to fMembers.Count-1 do
+    begin
+      TKMUnitWarrior(fMembers.Items[i]).Feed;
+    end;
+end;
+
+
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir);
 var i,px,py:integer; NewLoc:TKMPoint; PassedCommander: boolean;
 begin
   fOrder    := aWarriorOrder;
+  fState    := ws_None; //Clear other states
   fOrderLoc := aLoc;
   PassedCommander := false;
 
@@ -1018,6 +1150,7 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
   SaveStream.Write(fOrder, SizeOf(fOrder));
+  SaveStream.Write(fState, SizeOf(fState));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
   SaveStream.Write(fUnitsPerRow);
   if fMembers <> nil then
@@ -1066,7 +1199,8 @@ begin
       SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,true)
     else
       SetActionWalk(Self, KMPoint(fOrderLoc));
-    fOrder := wo_Walking;
+    fOrder := wo_None;
+    fState := ws_Walking;
   end;
 
   Result:=true; //Required for override compatibility
@@ -1075,13 +1209,13 @@ begin
   //This means we are idle, so make sure our direction is right and if we are commander reposition our troops if needed
   PositioningDone := true;
   if fCommander = nil then
-  if (fOrder = wo_Walking) or (fOrder = wo_Repositioning) then
+  if (fState = ws_Walking) or (fState = ws_RepositionPause) then
   begin
-    //Wait for self and all team members to be in position before we set fOrder to None (means we no longer worry about group position)
+    //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
     if (not (GetUnitAction is TUnitActionWalkTo)) and (not KMSamePoint(GetPosition,fOrderLoc.Loc)) then
     begin
       SetActionWalk(Self, KMPoint(fOrderLoc)); //Walk to correct position
-      fOrder := wo_Walking;
+      fState := ws_Walking;
     end;
 
     //If we have no crew then just exit
@@ -1095,18 +1229,18 @@ begin
    //Make sure we didn't get given an action above
   if GetUnitAction <> nil then exit;
 
-  if fOrder = wo_Walking then
+  if fState = ws_Walking then
   begin
-    fOrder := wo_Repositioning; //Means we are in position
-    SetActionStay(5,ua_Walk); //Idle if we did not receive a walk action above
+    fState := ws_RepositionPause; //Means we are in position and waiting until we turn
+    SetActionStay(4+Random(2),ua_Walk); //Pause 5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
   end
   else
   begin
-    if fOrder = wo_Repositioning then
+    if fState = ws_RepositionPause then
     begin
       Direction := TKMDirection(fOrderLoc.Dir+1); //Face the way we were told to after our walk (this creates a short pause before we fix direction)
       if PositioningDone then
-        fOrder := wo_None;
+        fState := ws_None;
     end;
     if PositioningDone then
       SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
@@ -1130,6 +1264,8 @@ inherited;
   YPaintPos := fPosition.Y+ 1 +GetYSlide;
   
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+  //todo: Flag should brighten when unit is selected
+  //todo: Flag vertical position is different for mounted vs none mounted units (i.e. so it isn't floating in the air for non-mounted units)
   if (fCommander=nil) and not (fUnitTask is TTaskDie) then
   fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, byte(fOwner), XPaintPos, YPaintPos,false);
 

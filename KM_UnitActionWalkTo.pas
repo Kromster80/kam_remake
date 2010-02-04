@@ -233,7 +233,8 @@ var i:integer; NodeList2:TKMPointList;
 begin
   //Build a piece of route to return to nearest road piece connected to destination road network
   if (fPass = canWalkRoad) and (fWalkToSpot) then //That is Citizens walking to spot
-    if fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo) then //NoRoad returns 0
+    if (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
+      (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
       fTerrain.Route_ReturnToRoad(fWalkFrom, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
 
   //Build a route A*
