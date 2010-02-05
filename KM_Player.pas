@@ -15,6 +15,7 @@ type
     fDeliverList: TKMDeliverQueue;
     fBuildList: TKMBuildingQueue;
   public
+    fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
     constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
   public
@@ -93,6 +94,7 @@ uses KM_Terrain, KM_SoundFX, KM_PathFinding, KM_PlayersCollection;
 
 { TKMPlayerAssets }
 constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
+var i: integer;
 begin
   PlayerID      := aPlayerID;
   fMissionSettings := TMissionSettings.Create;
@@ -100,6 +102,8 @@ begin
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
   fBuildList    := TKMBuildingQueue.Create;
+  for i:=1 to MAX_PLAYERS do
+    fAlliances[i] := at_Enemy; //Everyone is enemy by default
 end;
 
 
@@ -399,6 +403,7 @@ begin
   fMissionSettings.Save(SaveStream);
   SaveStream.Write(PlayerID, SizeOf(PlayerID));
   SaveStream.Write(PlayerType, SizeOf(PlayerType));
+  SaveStream.Write(fAlliances, SizeOf(fAlliances));
 end;
 
 
@@ -411,6 +416,7 @@ begin
   fMissionSettings.Load(LoadStream);
   LoadStream.Read(PlayerID, SizeOf(PlayerID));
   LoadStream.Read(PlayerType, SizeOf(PlayerType));
+  LoadStream.Read(fAlliances, SizeOf(fAlliances));
 end;
 
 

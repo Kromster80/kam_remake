@@ -355,6 +355,7 @@ type
     procedure LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
     procedure Split; //Split group in half and assign another commander
     procedure Feed;
+    function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -1093,6 +1094,22 @@ begin
     begin
       TKMUnitWarrior(fMembers.Items[i]).Feed;
     end;
+
+  Halt;
+  //todo: Keep track of food request and don't allow more than one to be ordered at once (e.g. if player click feed twice)
+  //      @Krom: How should I do that?
+end;
+
+
+//See if we are in the same group as aWarrior by comparing commanders
+function TKMUnitWarrior.IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
+begin
+  if aWarrior.fCommander <> nil then
+    aWarrior := aWarrior.fCommander;
+  if fCommander <> nil then
+    Result :=  (aWarrior = fCommander)
+  else
+    Result :=  (aWarrior = Self);
 end;
 
 
@@ -1136,7 +1153,7 @@ begin
     NewP := KMPointDir(aLoc.X, aLoc.Y, fOrderLoc.Dir)
   else
     NewP := KMPointDir(aLoc.X, aLoc.Y, byte(Direction)-1);
-    PlaceOrder(aWarriorOrder, NewP);
+  PlaceOrder(aWarriorOrder, NewP);
 end;
 
 

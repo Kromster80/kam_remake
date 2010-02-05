@@ -237,7 +237,7 @@ end;
 
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
-var P:TKMPoint;
+var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
@@ -251,11 +251,31 @@ begin
                   else begin
                     fTerrain.ComputeCursorPosition(X,Y);
                     if CursorMode.Mode=cm_None then
-                      if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
-                         (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
-                        Screen.Cursor:=c_Info
-                      else if not Scrolling then
-                        Screen.Cursor:=c_Default;
+                      if fGamePlayInterface.GetJoining and (fGamePlayInterface.GetShownUnit <> nil) and
+                        (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
+                      begin
+                        HitUnit  := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+                        if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
+                           (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
+                          Screen.Cursor:=c_JoinYes
+                        else
+                          Screen.Cursor:=c_JoinNo;
+                      end
+                      else
+                        if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
+                           (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
+                          Screen.Cursor:=c_Info
+                        else
+                        if (fGamePlayInterface.GetShownUnit <> nil) and (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
+                        begin
+                          HitUnit  := fPlayers.UnitsHitTest (CursorXc, CursorYc);
+                          HitHouse := fPlayers.HousesHitTest(CursorXc, CursorYc);
+                          if (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.Player[byte(HitUnit.GetOwner)].fAlliances[byte(MyPlayer.PlayerID)] = at_Enemy))or
+                              ((HitHouse<>nil) and (fPlayers.Player[byte(HitHouse.GetOwner)].fAlliances[byte(MyPlayer.PlayerID)] = at_Enemy))) then
+                            Screen.Cursor:=c_Attack
+                          else if not Scrolling then
+                            Screen.Cursor:=c_Default;
+                        end;
                     fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
                   end;
                 end;
@@ -299,7 +319,7 @@ end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint; MOver:TKMControl;
+var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit;
 begin
   case GameState of //Remember clicked control
     gsNoGame:   MOver := fMainMenuInterface.MyControls.MouseOverControl();
@@ -322,13 +342,14 @@ begin
           if Button = mbRight then fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
 
           if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
+          begin
             case CursorMode.Mode of
               cm_None:
                 begin
                   fPlayers.HitTest(CursorXc, CursorYc);
-                  if fPlayers.Selected is TKMHouse then
+                  if (fPlayers.Selected is TKMHouse) and not fGamePlayInterface.GetJoining then
                     fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
-                  if fPlayers.Selected is TKMUnit then
+                  if (fPlayers.Selected is TKMUnit) and not fGamePlayInterface.GetJoining then
                     fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
@@ -366,6 +387,18 @@ begin
                 end;
 
             end; //case CursorMode.Mode of..
+            if fGamePlayInterface.GetJoining and (fGamePlayInterface.GetShownUnit <> nil) and
+              (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
+            begin
+              HitUnit  := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+              if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
+                 (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
+              begin
+                TKMUnitWarrior(fGamePlayInterface.GetShownUnit.GetUnitType).LinkTo(TKMUnitWarrior(HitUnit));
+                fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit);
+              end;
+            end;
+          end;
         end; //if MOver<>nil then else..
 
         //These are only for testing purposes, Later on it should be changed a lot

@@ -84,6 +84,7 @@ type
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
     property WareDelivery:boolean read fWareDelivery write SetWareDelivery;
     property GetHasOwner:boolean read fHasOwner write fHasOwner;
+    property GetOwner:TPlayerID read fOwner;
     function GetHealth():word;
 
     procedure SetBuildingState(aState: THouseBuildState);

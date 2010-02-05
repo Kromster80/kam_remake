@@ -109,15 +109,15 @@ const
   SETTINGS_FILE = 'KaM_Remake_Settings.ini';
 
   //Cursor names and GUI sprite index
-  c_Default=1; c_Info=452;
+  c_Default=1; c_Info=452; c_Attack=457; c_JoinYes=460; c_JoinNo=450;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
   c_Scroll0=4; c_Scroll1=7; c_Scroll2=3; c_Scroll3=9; c_Scroll4=5; c_Scroll5=8; c_Scroll6=2; c_Scroll7=6;
 
-  Cursors:array[1..19]of integer = (1,452,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9);
+  Cursors:array[1..22]of integer = (1,452,457,460,450,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9);
 
   ScrollCursorOffset = 17;
-  CursorOffsetsX:array[1..19] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
-  CursorOffsetsY:array[1..19] of integer = (0,9,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
+  CursorOffsetsX:array[1..22] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
+  CursorOffsetsY:array[1..22] of integer = (0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
 
 {Controls}
 type
@@ -183,6 +183,9 @@ const //Font01.fnt seems to be damaged..
   //Those 10 are unknown Pal, no existing Pal matches them well
   (10,2,1,10,2,2,1,8,8,9,
    9,8,10,8,2,8,8,2,10,9);
+
+type
+  TAllianceType = (at_Enemy, at_Ally);
 
 type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);

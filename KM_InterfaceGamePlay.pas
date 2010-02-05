@@ -97,6 +97,9 @@ type TKMGamePlayInterface = class
         Button_Army_ForUp,Button_Army_ForDown:TKMButton;
         Button_Army_Split,Button_Army_Join,Button_Army_Feed:TKMButton;
 
+      Panel_Army_JoinGroups:TKMPanel;
+        //Button_Army_Join_Cancel:TKMButton;
+
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
       Button_House_Goods,Button_House_Repair:TKMButton;
@@ -198,6 +201,7 @@ type TKMGamePlayInterface = class
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     procedure ClearShownUnit;
+    function GetJoining: boolean;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure UpdateState;
@@ -901,7 +905,7 @@ begin
     Button_Army_GoTo.Disable;
     Button_Army_Attack.Disable;
     Button_Army_Storm.Disable;
-    Button_Army_Join.Disable;
+    //Button_Army_Join.Disable;
 
     //Hints
     Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
@@ -921,6 +925,9 @@ begin
     Rotate    Storm     Rotate
     -Column   ~Info~    +Column
     Split     Join      Feed}
+
+  Panel_Army_JoinGroups:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
+    //
 end;
 
 
@@ -1756,7 +1763,12 @@ begin
   if Sender = Button_Army_ForUp   then Commander.Halt(0,-1);
   if Sender = Button_Army_Split   then Commander.Split;
   //todo: interface (panel) for choosing a group to link to
-  //if Sender = Button_Army_Join    then Commander.LinkTo(TKMUnitWarrior(MyPlayer.UnitsHitTest(62,77)));
+  if Sender = Button_Army_Join    then
+  begin
+    Panel_Army.Hide;
+    Panel_Army_JoinGroups.Show;
+    //Commander.LinkTo(TKMUnitWarrior(MyPlayer.UnitsHitTest(62,77)));
+  end;
   if Sender = Button_Army_Feed    then Commander.Feed;
 end;
 
@@ -1959,6 +1971,13 @@ procedure TKMGamePlayInterface.ClearShownUnit;
 begin
   ShownUnit := nil;
   SwitchPage(nil);
+end;
+
+
+function TKMGamePlayInterface.GetJoining: boolean;
+begin
+  Result := Panel_Army_JoinGroups.Visible; //When this panel is shown we are in the process of linking
+  Result := false; //@Krom: Until this is working
 end;
 
 

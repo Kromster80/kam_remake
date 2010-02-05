@@ -253,7 +253,7 @@ case fPhase of
         if NewDelivery <> nil then
         begin
           //Take this new delivery
-          NewDelivery.Phase := 2; //Skip to resource-taking part of the new task
+          NewDelivery.Phase := 0; //Start at the begining of the new task
           TKMUnitSerf(fUnit).SetNewDelivery(NewDelivery);
           Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
           exit;

@@ -515,6 +515,12 @@ begin
   ct_AIStartPosition:begin
                        fPlayers.PlayerAI[CurrentPlayerIndex].StartPosition := KMPoint(ParamList[0],ParamList[1]);
                      end;
+  ct_SetAlliance:    begin
+                       if ParamList[1] = 1 then
+                         fPlayers.Player[CurrentPlayerIndex].fAlliances[ParamList[0]+1] := at_Ally
+                       else
+                         fPlayers.Player[CurrentPlayerIndex].fAlliances[ParamList[0]+1] := at_Enemy;
+                     end;
   //todo: To add:
   ct_AIDefence:      begin
 
@@ -532,9 +538,6 @@ begin
 
                      end;
   ct_AddLostGoal:    begin
-
-                     end;
-  ct_SetAlliance:    begin
 
                      end;
   ct_SetNewRemap:    begin
