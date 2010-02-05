@@ -1083,6 +1083,9 @@ begin
 
   if c[1]=120 then
   begin
+    {$IFDEF FPC}
+    exit;
+    {$ENDIF};
     {$IFDEF VER140}
     closefile(f);
     InputStream := TFileStream.Create(FileName, fmOpenRead);

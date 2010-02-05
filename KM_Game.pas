@@ -394,7 +394,7 @@ begin
               if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
                  (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
               begin
-                TKMUnitWarrior(fGamePlayInterface.GetShownUnit.GetUnitType).LinkTo(TKMUnitWarrior(HitUnit));
+                TKMUnitWarrior(fGamePlayInterface.GetShownUnit).LinkTo(TKMUnitWarrior(HitUnit));
                 fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit);
               end;
             end;
