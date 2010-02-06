@@ -1013,21 +1013,22 @@ begin
   AddedSelf := false;
 
   //Move our members and self to the new commander
+  if fMembers <> nil then
   for i:=0 to fMembers.Count-1 do
   begin
     //Put the commander in the right place, or if
     if i = fUnitsPerRow div 2 then
     begin
-      aNewCommander.fMembers.Add(Self);
+      aNewCommander.AddMember(Self);
       AddedSelf := true;
     end;
 
-    aNewCommander.fMembers.Add(fMembers.Items[i]);
+    aNewCommander.AddMember(fMembers.Items[i]);
     TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
   end;
   //
   if not AddedSelf then
-    aNewCommander.fMembers.Add(Self);
+    aNewCommander.AddMember(Self);
   //Tell commander to reposition
   fCommander.Halt;
 end;
@@ -1149,10 +1150,14 @@ procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; 
 var NewP:TKMPointDir;
 begin
   //keep old direction if group had an order to walk somewhere
+  if aNewDir <> dir_NA then
+    NewP := KMPointDir(aLoc.X, aLoc.Y, byte(aNewDir)-1)
+  else
   if (aNewDir=dir_NA) and (fOrderLoc.Dir <> 0) then
     NewP := KMPointDir(aLoc.X, aLoc.Y, fOrderLoc.Dir)
   else
     NewP := KMPointDir(aLoc.X, aLoc.Y, byte(Direction)-1);
+
   PlaceOrder(aWarriorOrder, NewP);
 end;
 

@@ -1144,24 +1144,38 @@ begin
 
   for i:=1 to length(Cursors) do begin
 
-    sx:=RXData[RXid].Size[Cursors[i],1];
-    sy:=RXData[RXid].Size[Cursors[i],2];
-    bm.Width:=sx; bm.Height:=sy;
-    bm2.Width:=sx; bm2.Height:=sy;
+    //Special case for invisible cursor
+    if Cursors[i] = 999 then
+    begin
+      sx:=1;
+      sy:=1;
+      bm.Width:=sx; bm.Height:=sy;
+      bm2.Width:=sx; bm2.Height:=sy;
+      bm2.Canvas.Pixels[0,0]:=clWhite; //invisible mask
+      IconInfo.xHotspot:=0;
+      IconInfo.yHotspot:=0;
+    end
+    else
+    begin
+      sx:=RXData[RXid].Size[Cursors[i],1];
+      sy:=RXData[RXid].Size[Cursors[i],2];
+      bm.Width:=sx; bm.Height:=sy;
+      bm2.Width:=sx; bm2.Height:=sy;
 
-    for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-      t:=RXData[RXid].Data[Cursors[i],y*sx+x]+1;
-      bm.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2] shl 8 + Pal[DEF_PAL,t,3] shl 16;
-      if t=1 then
-        bm2.Canvas.Pixels[x,y]:=clWhite
-      else
-        bm2.Canvas.Pixels[x,y]:=clBlack;
+      for y:=0 to sy-1 do for x:=0 to sx-1 do
+      begin
+        t:=RXData[RXid].Data[Cursors[i],y*sx+x]+1;
+        bm.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2] shl 8 + Pal[DEF_PAL,t,3] shl 16;
+        if t=1 then
+          bm2.Canvas.Pixels[x,y]:=clWhite
+        else
+          bm2.Canvas.Pixels[x,y]:=clBlack;
+      end;
+      //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
+      IconInfo.xHotspot:=-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i];
+      IconInfo.yHotspot:=-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i];
     end;
-
   IconInfo.fIcon:=false;
-  //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
-  IconInfo.xHotspot:=-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i];
-  IconInfo.yHotspot:=-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i];
   IconInfo.hbmColor:=bm.Handle;
   IconInfo.hbmMask:=bm2.Handle;
 

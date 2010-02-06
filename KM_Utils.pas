@@ -26,6 +26,7 @@ type
 
   function KMGetDirection(X,Y: integer): TKMDirection; overload;
   function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
+  function KMGetCursorDirection(X,Y: integer): TKMDirection;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
   function KMGetVertexTile(X,Y:integer; Dir: TKMDirection):TKMPoint;
   function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
@@ -152,6 +153,22 @@ const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
         ((dir_SE,dir_E,dir_NE),(dir_S,dir_NA,dir_N),(dir_SW,dir_W,dir_NW));
 begin
   Result := DirectionsBitfield[sign(X), sign(Y)]; //-1,0,1
+end;
+
+
+function KMGetCursorDirection(X,Y: integer): TKMDirection;
+const DirectionsBitfield:array[-3..3,-3..3]of TKMDirection =
+       ((dir_NE,dir_N ,dir_N ,dir_N ,dir_N ,dir_N ,dir_NW),
+        (dir_E ,dir_NE,dir_N ,dir_N ,dir_N ,dir_NW,dir_W ),
+        (dir_E ,dir_E ,dir_NA,dir_NA,dir_NA,dir_W ,dir_W ),
+        (dir_E ,dir_E ,dir_NA,dir_NA,dir_NA,dir_W ,dir_W ),
+        (dir_E ,dir_E ,dir_NA,dir_NA,dir_NA,dir_W ,dir_W ),
+        (dir_E ,dir_SE,dir_S ,dir_S ,dir_S ,dir_SW,dir_W ),
+        (dir_SE,dir_S ,dir_S ,dir_S ,dir_S ,dir_S ,dir_SW));
+  //Use a 7x7 grid because it works better than a smaller one.
+  //It's easy to select corners as the mouse will naturally move towards them, so edges have been made larger.
+begin
+  Result := DirectionsBitfield[EnsureRange(-Y,-3,3), EnsureRange(X,-3,3)];
 end;
 
 

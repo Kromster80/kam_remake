@@ -12,7 +12,9 @@ type TLoadResult = (lrIncorrectGameState,lrSuccess,lrFileNotFound,lrParseError);
 type
   TKMGame = class
   private
-    FormControlsVisible:boolean;
+    FormControlsVisible, SelectingDirection:boolean;
+    SelectingDirPosition: TPoint;
+    SelectedDirection: TKMDirection;
     GameplayTickCount:cardinal; //So that first tick will be #1
     ID_Tracker:cardinal;
   public
@@ -63,6 +65,8 @@ uses
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
 begin
   ID_Tracker := 0; //Init only once on Create
+  SelectingDirection := false;
+  SelectingDirPosition := Point(0,0);
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
   fGameSettings         := TGameSettings.Create;
@@ -221,6 +225,7 @@ end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var P: TKMPoint; MyRect: TRect;
 begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
@@ -229,6 +234,36 @@ begin
                   fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
                   if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
                     MyPlayer.AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc)); //Add only when cursor is over the map
+
+                  P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
+                  //These are only for testing purposes, Later on it should be changed a lot
+                  if (Button = mbRight)
+                    and(not fGamePlayInterface.JoiningGroups)
+                    and(fGamePlayInterface <> nil)
+                    and(fGamePlayInterface.GetShownUnit <> nil)
+                    and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
+                    and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
+                    and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true))
+                    then
+                  begin
+                    SelectingDirection := true; //MouseMove will take care of cursor changing
+                    //Record current cursor position so we can stop it from moving while we are setting direction
+                    GetCursorPos(SelectingDirPosition);
+                    //Restrict cursor to a 7x7 rectangle (-3 to 3 in both axes)
+                    MyRect := Rect(SelectingDirPosition.X-3,SelectingDirPosition.Y-3,SelectingDirPosition.X+4,SelectingDirPosition.Y+4);
+                    ClipCursor(@MyRect);
+                    SelectedDirection := dir_NA;
+                  end
+                  else
+                  begin
+                    if SelectingDirection then
+                      Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
+                    SelectingDirection := false;
+                    SelectingDirPosition.x := 0;
+                    SelectingDirPosition.y := 0;
+                    SelectedDirection := dir_NA;
+                    fGamePlayInterface.ShowDirectionCursor(false,SelectingDirPosition,SelectedDirection);
+                  end;
                 end;
     gsEditor:   fMapEditorInterface.MyControls.OnMouseDown(X,Y,Button);
   end;
@@ -237,7 +272,7 @@ end;
 
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
-var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse;
+var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse; CursorPos: TPoint;
 begin
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
@@ -245,13 +280,24 @@ begin
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
     gsPaused:   exit; //No clicking when paused
     gsRunning:  begin
+                  if SelectingDirection then
+                  begin
+                    GetCursorPos(CursorPos);
+                    //Compare cursor position and decide which direction it is
+                    SelectedDirection := KMGetCursorDirection(SelectingDirPosition.X-CursorPos.X,SelectingDirPosition.Y-CursorPos.Y);
+                    //Update the cursor based on this direction
+                    fGamePlayInterface.ShowDirectionCursor(true,SelectingDirPosition,SelectedDirection);
+                    Screen.Cursor := c_Invisible;
+                  end
+                  else
+                  begin
                   fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor:=c_Default
                   else begin
                     fTerrain.ComputeCursorPosition(X,Y);
                     if CursorMode.Mode=cm_None then
-                      if fGamePlayInterface.GetJoining and (fGamePlayInterface.GetShownUnit <> nil) and
+                      if fGamePlayInterface.JoiningGroups and (fGamePlayInterface.GetShownUnit <> nil) and
                         (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
                       begin
                         HitUnit  := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
@@ -275,8 +321,11 @@ begin
                             Screen.Cursor:=c_Attack
                           else if not Scrolling then
                             Screen.Cursor:=c_Default;
-                        end;
+                        end
+                        else if not Scrolling then
+                          Screen.Cursor:=c_Default;
                     fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
+                  end;
                   end;
                 end;
     gsEditor:   begin
@@ -321,6 +370,13 @@ end;
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit;
 begin
+  if SelectingDirection then
+  begin
+    Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
+    SelectingDirection := false; //As soon as mouse is released
+    fGamePlayInterface.ShowDirectionCursor(false,SelectingDirPosition,SelectedDirection);
+  end;
+
   case GameState of //Remember clicked control
     gsNoGame:   MOver := fMainMenuInterface.MyControls.MouseOverControl();
     gsPaused:   exit; //No clicking allowed when game is paused
@@ -339,17 +395,17 @@ begin
         if MOver <> nil then
           fGameplayInterface.MyControls.OnMouseUp(X,Y,Button)
         else begin
-          if Button = mbRight then fGameplayInterface.Build_RightClickCancel; //Right clicking with the build menu open will close it
 
           if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
           begin
             case CursorMode.Mode of
               cm_None:
+                if not fGamePlayInterface.JoiningGroups then
                 begin
                   fPlayers.HitTest(CursorXc, CursorYc);
-                  if (fPlayers.Selected is TKMHouse) and not fGamePlayInterface.GetJoining then
+                  if (fPlayers.Selected is TKMHouse) then
                     fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
-                  if (fPlayers.Selected is TKMUnit) and not fGamePlayInterface.GetJoining then
+                  if (fPlayers.Selected is TKMUnit) then
                     fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
@@ -387,7 +443,7 @@ begin
                 end;
 
             end; //case CursorMode.Mode of..
-            if fGamePlayInterface.GetJoining and (fGamePlayInterface.GetShownUnit <> nil) and
+            if fGamePlayInterface.JoiningGroups and (fGamePlayInterface.GetShownUnit <> nil) and
               (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
             begin
               HitUnit  := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
@@ -395,7 +451,8 @@ begin
                  (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
               begin
                 TKMUnitWarrior(fGamePlayInterface.GetShownUnit).LinkTo(TKMUnitWarrior(HitUnit));
-                fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit);
+                fGamePlayInterface.JoiningGroups := false;
+                Screen.Cursor:=c_Default; //Reset cursor when mouse released
               end;
             end;
           end;
@@ -404,16 +461,26 @@ begin
         //These are only for testing purposes, Later on it should be changed a lot
         if (Button = mbRight)
         and(MOver = nil)
-        and(fPlayers <> nil)
-        and(fPlayers.Selected <> nil)
-        and(fPlayers.Selected is TKMUnitWarrior)
-        and(TKMUnit(fPlayers.Selected).GetOwner = MyPlayer.PlayerID)
-        and(fTerrain.Route_CanBeMade(TKMUnit(fPlayers.Selected).GetPosition, P, canWalk, true))
+        and(fGamePlayInterface <> nil)
+        and(fGamePlayInterface.GetShownUnit <> nil)
+        and(SelectingDirPosition.x <> 0)
+        and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
+        and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
+        and(not fGamePlayInterface.JoiningGroups)
+        and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true))
         then
-          if TKMUnitWarrior(fPlayers.Selected).fCommander<>nil then
-            TKMUnitWarrior(fPlayers.Selected).fCommander.PlaceOrder(wo_walk, P)
+        begin
+          Screen.Cursor:=c_Default; //Reset cursor when mouse released
+          if TKMUnitWarrior(fGamePlayInterface.GetShownUnit).fCommander<>nil then
+            TKMUnitWarrior(fGamePlayInterface.GetShownUnit).fCommander.PlaceOrder(wo_walk, P, SelectedDirection)
           else
-            TKMUnitWarrior(fPlayers.Selected).PlaceOrder(wo_walk, P);
+            TKMUnitWarrior(fGamePlayInterface.GetShownUnit).PlaceOrder(wo_walk, P, SelectedDirection);
+        end;
+        if (Button = mbRight) and (MOver = nil) then
+        begin
+          fGameplayInterface.RightClickCancel; //Right clicking closes some menus
+          Screen.Cursor:=c_Default; //Reset cursor as it might have been joining
+        end;
 
       end; //gsRunning
     gsEditor: begin

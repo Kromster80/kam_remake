@@ -26,6 +26,7 @@ type TKMGamePlayInterface = class
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
       Label_Clock:TKMLabel;
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
+      Image_DirectionCursor:TKMImage;
     Panel_Message:TKMPanel;
       Image_MessageBG:TKMImage;
       Image_MessageBGTop:TKMImage;
@@ -98,7 +99,8 @@ type TKMGamePlayInterface = class
         Button_Army_Split,Button_Army_Join,Button_Army_Feed:TKMButton;
 
       Panel_Army_JoinGroups:TKMPanel;
-        //Button_Army_Join_Cancel:TKMButton;
+        Button_Army_Join_Cancel:TKMButton;
+        Label_Army_Join_Message:TKMLabel;
 
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
@@ -167,6 +169,7 @@ type TKMGamePlayInterface = class
     procedure Menu_Fill(Sender:TObject);
   public
     MyControls: TKMControlsCollection;
+    JoiningGroups: boolean;
     constructor Create;
     destructor Destroy; override;
     procedure SetScreenSize(X,Y:word);
@@ -191,17 +194,18 @@ type TKMGamePlayInterface = class
     procedure Menu_NextTrack(Sender:TObject);
     procedure Menu_PreviousTrack(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
+    procedure CancelArmyJoin(Sender:TObject);
     procedure Save_PopulateSaveNamesFile();
     procedure Build_SelectRoad;
-    procedure Build_RightClickCancel;
+    procedure RightClickCancel;
     procedure IssueMessage(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow:boolean);
+    procedure ShowDirectionCursor(Show:boolean; P:TPoint; Dir: TKMDirection);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     procedure ClearShownUnit;
-    function GetJoining: boolean;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure UpdateState;
@@ -210,7 +214,7 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_SoundFX;
+uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_SoundFX, Forms;
 
 
 {Switch between pages}
@@ -462,6 +466,7 @@ begin
 
   ShownUnit:=nil;
   ShownHouse:=nil;
+  JoiningGroups := false;
 
   LastSchoolUnit:=1;
   LastBarracksUnit:=1;
@@ -494,6 +499,9 @@ begin
     Image_Clock.Hide;
     Label_Clock:=MyControls.AddLabel(Panel_Main,265,80,0,0,'mm:ss',fnt_Outline,kaCenter);
     Label_Clock.Hide;
+
+    Image_DirectionCursor := MyControls.AddImage(Panel_Main,0,0,35,36,519);
+    Image_DirectionCursor.Hide;
 
     Create_Message_Page; //Must go bellow message stack
 
@@ -874,7 +882,6 @@ begin
 
   Panel_Army:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
     //Military buttons start at 8.170 and are 52x38/30 (60x46)
-    //@Lewin: I made them slightly bigger, they look better that way. To be deleted..
     Button_Army_GoTo   := MyControls.AddButton(Panel_Army,  8,  0, 56, 40, 27);
     Button_Army_Stop   := MyControls.AddButton(Panel_Army, 70,  0, 56, 40, 26);
     Button_Army_Attack := MyControls.AddButton(Panel_Army,132,  0, 56, 40, 25);
@@ -927,7 +934,10 @@ begin
     Split     Join      Feed}
 
   Panel_Army_JoinGroups:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
-    //
+    Label_Army_Join_Message := MyControls.AddLabel(Panel_Army_JoinGroups, 98, 30, 188, 80, fTextLibrary.GetTextString(272),fnt_Outline,kaCenter);
+    Button_Army_Join_Cancel := MyControls.AddButton(Panel_Army_JoinGroups, 8, 95, 180, 30, fTextLibrary.GetTextString(274), fnt_Metal);
+
+  Button_Army_Join_Cancel.OnClick := CancelArmyJoin;
 end;
 
 
@@ -1084,6 +1094,8 @@ procedure TKMGamePlayInterface.UpdateState;
 begin
   if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse,AskDemolish);
+
+  if ShownUnit=nil then JoiningGroups := false;
 
   if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
   if ShownHint<>nil then
@@ -1406,7 +1418,16 @@ begin
   begin
     //Warrior specific
     Label_UnitDescription.Hide;
-    Panel_Army.Show;
+    if JoiningGroups then
+    begin
+      Panel_Army_JoinGroups.Show;
+      Panel_Army.Hide;
+    end
+    else
+    begin
+      Panel_Army.Show;
+      Panel_Army_JoinGroups.Hide;
+    end;
     Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.GetUnitType)] = gt_Melee); //Only melee groups may charge
   end
   else
@@ -1415,6 +1436,7 @@ begin
     Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType));
     Label_UnitDescription.Show;
     Panel_Army.Hide;
+    Panel_Army_JoinGroups.Hide;
   end;
 end;
 
@@ -1767,9 +1789,19 @@ begin
   begin
     Panel_Army.Hide;
     Panel_Army_JoinGroups.Show;
-    //Commander.LinkTo(TKMUnitWarrior(MyPlayer.UnitsHitTest(62,77)));
+    JoiningGroups := true;
   end;
   if Sender = Button_Army_Feed    then Commander.Feed;
+end;
+
+
+procedure TKMGamePlayInterface.CancelArmyJoin(Sender:TObject);
+begin
+  JoiningGroups := false;
+  Screen.Cursor := c_Default; //In case this is run with keyboard shortcut, mouse move won't happen
+  Panel_Army_JoinGroups.Hide;
+  if ShownUnit <> nil then
+    Panel_Army.Show;
 end;
 
 
@@ -1798,11 +1830,17 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Build_RightClickCancel;
+procedure TKMGamePlayInterface.RightClickCancel;
 begin
-  //This function will be called if the user right clicks on the screen. We should close the build menu if it's open.
+  //This function will be called if the user right clicks on the screen. We should close certain things. (like build menu)
   if Panel_Build.Visible = true then
     SwitchPage(Button_Main[5]);
+  if JoiningGroups then
+  begin
+    JoiningGroups := false;
+    Panel_Army_JoinGroups.Hide;
+    Panel_Army.Show;
+  end;
 end;
 
 
@@ -1912,6 +1950,15 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.ShowDirectionCursor(Show:boolean; P:TPoint; Dir: TKMDirection);
+begin
+  Image_DirectionCursor.Visible := Show;
+  Image_DirectionCursor.Left := P.X+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].x;
+  Image_DirectionCursor.Top  := P.Y+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].y;
+  Image_DirectionCursor.TexID := TKMCursorDirections[Dir];
+end;
+
+
 procedure TKMGamePlayInterface.ShortcutPress(Key:Word; IsDown:boolean=false);
 begin
   //1-4 game menu shortcuts
@@ -1924,8 +1971,10 @@ begin
   begin
     Button_Main[5].Down := IsDown;
     Button_MessageClose.Down := IsDown;
+    Button_Army_Join_Cancel.Down := IsDown;
     if (not IsDown) and (Button_Main[5].Visible) then SwitchPage(Button_Main[5]);
     if (not IsDown) then CloseMessage(Button_MessageClose);
+    if (not IsDown) then CancelArmyJoin(Button_Army_Join_Cancel);
   end;
   //Messages
   if (Key=71) and (Button_MessageGoTo.Enabled) then //71 = G
@@ -1971,13 +2020,6 @@ procedure TKMGamePlayInterface.ClearShownUnit;
 begin
   ShownUnit := nil;
   SwitchPage(nil);
-end;
-
-
-function TKMGamePlayInterface.GetJoining: boolean;
-begin
-  Result := Panel_Army_JoinGroups.Visible; //When this panel is shown we are in the process of linking
-  Result := false; //@Krom: Until this is working
 end;
 
 

@@ -112,12 +112,13 @@ const
   c_Default=1; c_Info=452; c_Attack=457; c_JoinYes=460; c_JoinNo=450;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
   c_Scroll0=4; c_Scroll1=7; c_Scroll2=3; c_Scroll3=9; c_Scroll4=5; c_Scroll5=8; c_Scroll6=2; c_Scroll7=6;
+  c_Invisible=999;
 
-  Cursors:array[1..22]of integer = (1,452,457,460,450,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9);
+  Cursors:array[1..23]of integer = (1,452,457,460,450,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9,999);
 
   ScrollCursorOffset = 17;
-  CursorOffsetsX:array[1..22] of integer = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset);
-  CursorOffsetsY:array[1..22] of integer = (0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset);
+  CursorOffsetsX:array[1..23] of integer = (0,0,0,0,0,0,1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
+  CursorOffsetsY:array[1..23] of integer = (0,9,0,0,0,-1,-1,0,1,1,1,0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
 
 {Controls}
 type
@@ -191,6 +192,7 @@ type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 const
   TKMDirectionS: array[0..8]of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
+  TKMCursorDirections: array[TKMDirection]of integer = (c_DirN,c_Dir0,c_Dir1,c_Dir2,c_Dir3,c_Dir4,c_Dir5,c_Dir6,c_Dir7);
 
 {Resources}
 type
