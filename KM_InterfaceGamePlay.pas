@@ -1817,7 +1817,7 @@ begin
     Panel_Army_JoinGroups.Show;
     JoiningGroups := true;
   end;
-  if Sender = Button_Army_Feed    then Commander.Feed;
+  if Sender = Button_Army_Feed    then Commander.OrderFood;
 end;
 
 

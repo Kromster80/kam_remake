@@ -335,6 +335,7 @@ type
   TKMUnitWarrior = class(TKMUnit)
   private
     fFlagAnim:cardinal;
+    fOrderedFood:boolean;
     fOrder:TWarriorOrder;
     fState:TWarriorState; //This property is individual to each unit, including commander
     fAutoLinkState:TWarriorLinkState;
@@ -355,7 +356,8 @@ type
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
     procedure Split; //Split group in half and assign another commander
-    procedure Feed;
+    procedure OrderFood;
+    property SetOrderedFood:boolean write fOrderedFood;
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
@@ -821,6 +823,7 @@ constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; a
 begin
   Inherited;
   fCommander    := nil;
+  fOrderedFood  := false;
   fFlagAnim     := 0;
   fOrder        := wo_None;
   fState        := ws_None;
@@ -860,6 +863,11 @@ destructor TKMUnitWarrior.Destroy;
 begin
   fMembers := nil; //It's just pointer list and must not be freed/niled
                    //@Krom: How does that work? We create it with fMembers := TKMList.Create but don't Free it? Surely that's a memory leak?
+                   //@Lewin: See, TKMList will free all of it's members on Free command along with itself.
+                   //        That was made by Alex years ago, so that House/Units lists would free members automaticaly
+                   //        That is ok for them cos they use List.Add(Unit.Create) pattern.
+                   //        Now Member list just adds items that are already have been created.
+                   //        We shall keep that memory leak till TKMList gets updated
   Inherited;
 end;
 
@@ -1048,7 +1056,7 @@ end;
 procedure TKMUnitWarrior.Split; //Split group in half and assign another commander
 var i, DeletedCount: integer; NewCommander:TKMUnitWarrior; MultipleTypes: boolean;
 begin
-  //Make sure we are a commander and have a crew
+  //Make sure we are a commander and have a crew //Don't allow to split in following cases
   if (fCommander <> nil) or (fMembers = nil) or (fMembers.Count = 0) then exit;
 
   //If there are different unit types in the group, split should just split them first
@@ -1095,23 +1103,21 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.Feed;
+//Order some food for troops
+procedure TKMUnitWarrior.OrderFood;
 var i:integer;
 begin
-  //Ask for some food
-  //todo: Only allow feed if less than 3/4 condition, or maybe have a seperate button for "only feed troops that are hungry"
-  fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, Self, rt_Food, 1, dt_Once, di_Norm);
-
+  if (fCondition<(UNIT_MAX_CONDITION*0.75)) and not (fOrderedFood) then begin
+    fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, Self, rt_Food, 1, dt_Once, di_Norm);
+    fOrderedFood := true;
+  end;
   //Commanders also tell troops to ask for some food
   if (fCommander = nil) and (fMembers <> nil) then
     for i := 0 to fMembers.Count-1 do
     begin
-      TKMUnitWarrior(fMembers.Items[i]).Feed;
+      TKMUnitWarrior(fMembers.Items[i]).OrderFood;
     end;
-
   Halt;
-  //todo: Keep track of food request and don't allow more than one to be ordered at once (e.g. if player click feed twice)
-  //      @Krom: How should I do that?
 end;
 
 

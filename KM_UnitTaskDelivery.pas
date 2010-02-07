@@ -239,6 +239,7 @@ case fPhase of
         if (fToUnit is TKMUnitWarrior) then
         begin
           fToUnit.SetFullCondition; //Feed the warrior
+          TKMUnitWarrior(fToUnit).SetOrderedFood := false;
         end;
       end;
       fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);

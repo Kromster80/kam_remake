@@ -5,6 +5,7 @@ uses Classes, KromUtils, Math, SysUtils,
 
 //todo: @Krom: In KaM there is an extra row at the bottom that is only used for height. It allows for the bottom visible verticies on the map to have elevation.
 //             Something like that anyway. We should use it, because right now the bottom of the map looks a bit too even. (and in some maps it creates a big drop)
+//      @Lewin: Could you please attach a test map and screenshot of how it should look? 
 
 const MaxMapSize=192;
 
