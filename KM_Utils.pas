@@ -169,6 +169,7 @@ const DirectionsBitfield:array[-3..3,-3..3]of TKMDirection =
   //It's easy to select corners as the mouse will naturally move towards them, so edges have been made larger.
 begin
   Result := DirectionsBitfield[EnsureRange(-Y,-3,3), EnsureRange(X,-3,3)];
+  //todo: @Lewin: We need a larger area, maybe 9x9, cos central part of 3x3 is in fact too small
 end;
 
 

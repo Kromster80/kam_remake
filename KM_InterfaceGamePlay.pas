@@ -1952,8 +1952,8 @@ end;
 
 procedure TKMGamePlayInterface.ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
 begin
-  //@Lewin: We need to add an offset value here, Cos
   Image_DirectionCursor.Visible := Show;
+  if not Show then exit;
   Image_DirectionCursor.Left := aX+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].x;
   Image_DirectionCursor.Top  := aY+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].y;
   Image_DirectionCursor.TexID := TKMCursorDirections[Dir];
