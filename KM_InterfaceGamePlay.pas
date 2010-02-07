@@ -202,7 +202,7 @@ type TKMGamePlayInterface = class
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow:boolean);
-    procedure ShowDirectionCursor(Show:boolean; P:TPoint; Dir: TKMDirection);
+    procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     procedure ClearShownUnit;
@@ -1950,11 +1950,12 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowDirectionCursor(Show:boolean; P:TPoint; Dir: TKMDirection);
+procedure TKMGamePlayInterface.ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
 begin
+  //@Lewin: We need to add an offset value here, Cos
   Image_DirectionCursor.Visible := Show;
-  Image_DirectionCursor.Left := P.X+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].x;
-  Image_DirectionCursor.Top  := P.Y+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].y;
+  Image_DirectionCursor.Left := aX+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].x;
+  Image_DirectionCursor.Top  := aY+RXData[Image_DirectionCursor.RXid].Pivot[TKMCursorDirections[Dir]].y;
   Image_DirectionCursor.TexID := TKMCursorDirections[Dir];
 end;
 

@@ -12,7 +12,7 @@ type TLoadResult = (lrIncorrectGameState,lrSuccess,lrFileNotFound,lrParseError);
 type
   TKMGame = class
   private
-    FormControlsVisible, SelectingDirection:boolean;
+    FormControlsVisible, SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
     SelectedDirection: TKMDirection;
     GameplayTickCount:cardinal; //So that first tick will be #1
@@ -65,7 +65,7 @@ uses
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
 begin
   ID_Tracker := 0; //Init only once on Create
-  SelectingDirection := false;
+  SelectingTroopDirection := false;
   SelectingDirPosition := Point(0,0);
   ScreenX:=aScreenX;
   ScreenY:=aScreenY;
@@ -238,15 +238,14 @@ begin
                   P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
                   //These are only for testing purposes, Later on it should be changed a lot
                   if (Button = mbRight)
-                    and(not fGamePlayInterface.JoiningGroups)
                     and(fGamePlayInterface <> nil)
-                    and(fGamePlayInterface.GetShownUnit <> nil)
+                    and(not fGamePlayInterface.JoiningGroups)
                     and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
                     and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
                     and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true))
                     then
                   begin
-                    SelectingDirection := true; //MouseMove will take care of cursor changing
+                    SelectingTroopDirection := true; //MouseMove will take care of cursor changing
                     //Record current cursor position so we can stop it from moving while we are setting direction
                     GetCursorPos(SelectingDirPosition);
                     //Restrict cursor to a 7x7 rectangle (-3 to 3 in both axes)
@@ -256,13 +255,10 @@ begin
                   end
                   else
                   begin
-                    if SelectingDirection then
+                    if SelectingTroopDirection then
                       Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
-                    SelectingDirection := false;
-                    SelectingDirPosition.x := 0;
-                    SelectingDirPosition.y := 0;
-                    SelectedDirection := dir_NA;
-                    fGamePlayInterface.ShowDirectionCursor(false,SelectingDirPosition,SelectedDirection);
+                    SelectingTroopDirection := false;
+                    fGamePlayInterface.ShowDirectionCursor(false);
                   end;
                 end;
     gsEditor:   fMapEditorInterface.MyControls.OnMouseDown(X,Y,Button);
@@ -272,7 +268,7 @@ end;
 
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
-var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse; CursorPos: TPoint;
+var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse; CursorPos: TPoint; DeltaX,DeltaY:shortint;
 begin
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
@@ -280,13 +276,14 @@ begin
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
     gsPaused:   exit; //No clicking when paused
     gsRunning:  begin
-                  if SelectingDirection then
+                  if SelectingTroopDirection then
                   begin
                     GetCursorPos(CursorPos);
-                    //Compare cursor position and decide which direction it is
-                    SelectedDirection := KMGetCursorDirection(SelectingDirPosition.X-CursorPos.X,SelectingDirPosition.Y-CursorPos.Y);
+                    DeltaX := SelectingDirPosition.X-CursorPos.X;
+                    DeltaY := SelectingDirPosition.Y-CursorPos.Y;
+                    SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY); //Compare cursor position and decide which direction it is
                     //Update the cursor based on this direction
-                    fGamePlayInterface.ShowDirectionCursor(true,SelectingDirPosition,SelectedDirection);
+                    fGamePlayInterface.ShowDirectionCursor(true,X+DeltaX,Y+DeltaY,SelectedDirection);
                     Screen.Cursor := c_Invisible;
                   end
                   else
@@ -370,11 +367,11 @@ end;
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit;
 begin
-  if SelectingDirection then
+  if SelectingTroopDirection then
   begin
     Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
-    SelectingDirection := false; //As soon as mouse is released
-    fGamePlayInterface.ShowDirectionCursor(false,SelectingDirPosition,SelectedDirection);
+    SelectingTroopDirection := false; //As soon as mouse is released
+    fGamePlayInterface.ShowDirectionCursor(false);
   end;
 
   case GameState of //Remember clicked control
