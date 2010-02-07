@@ -158,36 +158,22 @@ end;
 
 function KMGetCursorDirection(X,Y: integer): TKMDirection;
 begin
-  //Use a 15x15 square
-  //Central dir_NA part is a circle with radius 4 (make origin=100;100 because KMPoint doesn't allow negitives)
   Result := dir_NA;
-  if GetLength(KMPoint(X+100,Y+100),KMPoint(100,100)) <= DirCursorNARadius then
-    exit; //Use default value dir_NA
+  if KromUtils.GetLength(X,Y) <= DirCursorNARadius then exit; //Use default value dir_NA for the middle
 
   if abs(X) > abs(Y) then
-    if X > 0 then
-      Result := dir_W
-    else
-      Result := dir_E;
-
+    if X > 0 then Result := dir_W
+             else Result := dir_E;
   if abs(Y) > abs(X) then
-    if Y > 0 then
-      Result := dir_N
-    else
-      Result := dir_S;
-
-  //Only way to select diagonals is by having X=Y (i.e. the corners)
+    if Y > 0 then Result := dir_N
+             else Result := dir_S;
+  //Only way to select diagonals is by having X=Y (i.e. the corners), that natural way works best
   if X = Y then
-    if X > 0 then
-      Result := dir_NW
-    else
-      Result := dir_SE;
-
+    if X > 0 then Result := dir_NW
+             else Result := dir_SE;
   if X = -Y then
-    if X > 0 then
-      Result := dir_SW
-    else
-      Result := dir_NE;
+    if X > 0 then Result := dir_SW
+             else Result := dir_NE;
 end;
 
 

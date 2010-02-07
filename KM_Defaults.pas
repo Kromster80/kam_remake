@@ -120,8 +120,8 @@ const
   CursorOffsetsX:array[1..23] of integer = (0,0,0, 0, 0, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
   CursorOffsetsY:array[1..23] of integer = (0,9,0,18,20,-1,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
 
-const DirCursorSqrSize  = 17; //Length of square sides
-      DirCursorNARadius = 4;  //Radius of centeral part that is dir_NA
+const DirCursorSqrSize  = 33; //Length of square sides
+      DirCursorNARadius = 12;  //Radius of centeral part that is dir_NA
 
 {Controls}
 type

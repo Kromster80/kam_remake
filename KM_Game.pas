@@ -250,7 +250,7 @@ begin
                     SelectingTroopDirection := true; //MouseMove will take care of cursor changing
                     //Record current cursor position so we can stop it from moving while we are setting direction
                     GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
-                    //Restrict cursor to a 7x7 rectangle (-3 to 3 in both axes)
+                    //Restrict cursor to a rectangle (half a rect in both axes)
                     MyRect := Rect(SelectingDirPosition.X-((DirCursorSqrSize-1) div 2),
                                    SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2),
                                    SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1,
@@ -275,7 +275,7 @@ end;
 
 
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
-var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse; CursorPos: TPoint; DeltaX,DeltaY:shortint;
+var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse; DeltaX,DeltaY:shortint;
 begin
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
@@ -285,12 +285,11 @@ begin
     gsRunning:  begin
                   if SelectingTroopDirection then
                   begin
-                    CursorPos := Point(X,Y);
-                    DeltaX := SelectingDirPosition.X-CursorPos.X;
-                    DeltaY := SelectingDirPosition.Y-CursorPos.Y;
+                    DeltaX := SelectingDirPosition.X - X;
+                    DeltaY := SelectingDirPosition.Y - Y;
                     //Compare cursor position and decide which direction it is
                     SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
-                    //Update the cursor based on this direction
+                    //Update the cursor based on this direction and negate the offset
                     fGamePlayInterface.ShowDirectionCursor(true,X+DeltaX,Y+DeltaY,SelectedDirection);
                     Screen.Cursor := c_Invisible;
                   end
