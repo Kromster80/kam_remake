@@ -821,7 +821,7 @@ begin
   fFlagAnim     := 0;
   fOrder        := wo_None;
   fState        := ws_None;
-  fOrderLoc     := KMPointDir(0,0,0);
+  fOrderLoc     := KMPointDir(PosX,PosY,0);
   fUnitsPerRow  := 1;
   fMembers      := nil; //Only commander units will have it initialized
 end;
@@ -853,7 +853,8 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
-  fMembers := nil; //It's just pointer list and must not be freed/niled 
+  fMembers := nil; //It's just pointer list and must not be freed/niled
+                   //@Krom: How does that work? We create it with fMembers := TKMList.Create but don't Free it? Surely that's a memory leak?
   Inherited;
 end;
 
@@ -931,6 +932,7 @@ end;
 
 procedure TKMUnitWarrior.AddMember(aWarrior:TKMUnitWarrior);
 begin
+  if fCommander <> nil then exit; //Only commanders may have members
   if fMembers = nil then fMembers := TKMList.Create;
   fMembers.Add(aWarrior);
 end;
@@ -951,7 +953,7 @@ begin
   Result := true;
   if fOrderLoc.Loc.X = 0 then exit;
 
-  //See if we are in position or if we can't reach position, because we don't retry for that cause.
+  //See if we are in position or if we can't reach position, because we don't retry for that case.
   if (fState = ws_None) and (KMSamePoint(GetPosition,fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk))
     or (not KMSamePoint(fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk),fOrderLoc.Loc))) then
     exit;
@@ -1014,17 +1016,20 @@ begin
 
   //Move our members and self to the new commander
   if fMembers <> nil then
-  for i:=0 to fMembers.Count-1 do
   begin
-    //Put the commander in the right place, or if
-    if i = fUnitsPerRow div 2 then
+    for i:=0 to fMembers.Count-1 do
     begin
-      aNewCommander.AddMember(Self);
-      AddedSelf := true;
-    end;
+      //Put the commander in the right place, or if
+      if i = fUnitsPerRow div 2 then
+      begin
+        aNewCommander.AddMember(Self);
+        AddedSelf := true;
+      end;
 
-    aNewCommander.AddMember(fMembers.Items[i]);
-    TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
+      aNewCommander.AddMember(TKMUnitWarrior(fMembers.Items[i]));
+      TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
+    end;
+    fMembers := nil; //We are not a commander now so nil our memebers list (they have been moved to new commander)
   end;
   //
   if not AddedSelf then
@@ -1057,6 +1062,8 @@ begin
   NewCommander.fMembers := TKMList.Create;
   NewCommander.fUnitsPerRow := fUnitsPerRow;
   NewCommander.fCommander := nil;
+  //Commander OrderLoc must always be valid, but because this guy wasn't a commander it might not be
+  NewCommander.fOrderLoc := KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir);
 
   DeletedCount := 0;
   for i := 0 to fMembers.Count-1 do
@@ -1175,7 +1182,8 @@ begin
   SaveStream.Write(fState, SizeOf(fState));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
   SaveStream.Write(fUnitsPerRow);
-  if fMembers <> nil then
+  //Only save members if we are a commander
+  if (fMembers <> nil) and (fCommander = nil) then
   begin
     SaveStream.Write(fMembers.Count);
     for i:=1 to fMembers.Count do
@@ -1191,7 +1199,9 @@ end;
 function TKMUnitWarrior.UpdateState():boolean;
   function CheckCanAbandon: boolean;
   begin
-    if GetUnitAction is TUnitActionWalkTo then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon
+    if GetUnitAction is TUnitActionWalkTo  then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
+    if GetUnitAction is TUnitActionStay    then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
+    if GetUnitAction is TUnitActionGoInOut then Result := false //Never interupt leaving barracks
     else Result := true;
   end;
 var i: integer; PositioningDone: boolean;
@@ -1211,6 +1221,14 @@ begin
     else
       fThought:=th_None;
 
+  if (fOrder=wo_WalkOut) and GetUnitAction.IsStepDone and CheckCanAbandon then
+  begin
+    //Walk out of barracks
+    SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(GetPosition.X,GetPosition.Y));
+    //todo: Set state to something so we know to try and link with nearby groups after leaving barracks
+    fOrder := wo_None;
+    fState := ws_None; //Don't need to regroup after this action so set state to None
+  end;
   //Dispatch new order when warrior finished previous action part
   if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and
     TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
@@ -3612,6 +3630,7 @@ begin
 
   Commander.fUnitsPerRow := aUnitPerRow;
   Commander.Direction := aDir;
+  Commander.fOrderLoc.Dir := byte(aDir)-1; //So when they click Halt for the first time it knows where to place them
 
   for i:=1 to aUnitCount do begin
     px := (i-1) mod aUnitPerRow - aUnitPerRow div 2;

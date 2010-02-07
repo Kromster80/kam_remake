@@ -225,19 +225,21 @@ end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P: TKMPoint; MyRect: TRect;
+var P: TKMPoint; MyRect: TRect; MOver:TKMControl;
 begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
     gsPaused:   exit; //No clicking when paused
     gsRunning:  begin
                   fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
+                  MOver := fGameplayInterface.MyControls.MouseOverControl;
                   if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
                     MyPlayer.AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc)); //Add only when cursor is over the map
 
                   P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
                   //These are only for testing purposes, Later on it should be changed a lot
                   if (Button = mbRight)
+                    and(MOver = nil)
                     and(fGamePlayInterface <> nil)
                     and(not fGamePlayInterface.JoiningGroups)
                     and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
@@ -247,10 +249,12 @@ begin
                   begin
                     SelectingTroopDirection := true; //MouseMove will take care of cursor changing
                     //Record current cursor position so we can stop it from moving while we are setting direction
-                    GetCursorPos(SelectingDirPosition);
+                    GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
                     //Restrict cursor to a 7x7 rectangle (-3 to 3 in both axes)
                     MyRect := Rect(SelectingDirPosition.X-3,SelectingDirPosition.Y-3,SelectingDirPosition.X+4,SelectingDirPosition.Y+4);
                     ClipCursor(@MyRect);
+                    //Now record it as Client XY
+                    SelectingDirPosition := Point(X,Y);
                     SelectedDirection := dir_NA;
                   end
                   else
@@ -278,7 +282,7 @@ begin
     gsRunning:  begin
                   if SelectingTroopDirection then
                   begin
-                    GetCursorPos(CursorPos);
+                    CursorPos := Point(X,Y);
                     DeltaX := SelectingDirPosition.X-CursorPos.X;
                     DeltaY := SelectingDirPosition.Y-CursorPos.Y;
                     SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY); //Compare cursor position and decide which direction it is

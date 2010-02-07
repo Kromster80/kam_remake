@@ -328,7 +328,7 @@ type
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
-  TWarriorOrder = (wo_None, wo_Walk);
+  TWarriorOrder = (wo_None, wo_Walk, wo_WalkOut); //wo_Storm, wo_Attack
   TWarriorState = (ws_None, ws_Walking, ws_RepositionPause);
   //WarriorOrder meant to be command from player that warrior must perform, e.g.
   //None - no command

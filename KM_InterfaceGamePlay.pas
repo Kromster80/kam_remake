@@ -157,6 +157,7 @@ type TKMGamePlayInterface = class
     procedure RatiosChange(Sender: TObject);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
+    procedure Minimap_RightClick(Sender: TObject);
     procedure UpdateMessageStack;
     procedure DisplayMessage(Sender: TObject);
     procedure CloseMessage(Sender: TObject);
@@ -456,6 +457,30 @@ begin
 end;
 
 
+procedure TKMGamePlayInterface.Minimap_RightClick(Sender: TObject);
+var
+P: TPoint;
+KMP: TKMPoint;
+begin
+  //Send move order, if applicable
+  //Convert cursor position to KMPoint
+  GetCursorPos(P);
+  P := Form1.Panel5.ScreenToClient(P);
+  KMP.X := EnsureRange(P.X - (KMMinimap.Left+(KMMinimap.Width -KMMinimap.MapSize.X) div 2),0,KMMinimap.MapSize.X+1);
+  KMP.Y := EnsureRange(P.Y - (KMMinimap.Top +(KMMinimap.Height-KMMinimap.MapSize.Y) div 2),0,KMMinimap.MapSize.Y+1);
+
+  //Must be inside map
+  if (KMP.X*KMP.Y = 0) or (KMP.X > KMMinimap.MapSize.X) or (KMP.Y > KMMinimap.MapSize.Y) then exit;
+
+  if (ShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
+    if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, canWalk, true) then
+      if TKMUnitWarrior(GetShownUnit).fCommander<>nil then
+        TKMUnitWarrior(GetShownUnit).fCommander.PlaceOrder(wo_walk, KMP)
+      else
+        TKMUnitWarrior(GetShownUnit).PlaceOrder(wo_walk, KMP);
+end;
+
+
 constructor TKMGamePlayInterface.Create();
 var i:integer;
 begin
@@ -482,6 +507,7 @@ begin
 
     KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;
+    KMMinimap.OnRightClick:=Minimap_RightClick;
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
@@ -1530,7 +1556,7 @@ begin
 
   if Sender=Button_Barracks_Train then //Equip unit
   begin
-    //Barracks.Equip;
+    Barracks.Equip(TUnitType(14+LastBarracksUnit));
   end;
 
   CanEquip:=true;

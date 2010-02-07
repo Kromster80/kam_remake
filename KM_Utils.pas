@@ -274,9 +274,10 @@ function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,
 const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
 const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
 begin
-  //If it is < 1 then set it to 1 (troops will stand on edge of map but not past it)
-  Result.X := max(OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) ),1);
-  Result.Y := max(OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) ),1);
+  //If it is < 1 (off map) then set it to 0 (invalid) and GetClosestTile will correct it when walk action is created.
+  //GetClosestTile needs to know if the position is not the actual position in the formation
+  Result.X := max(OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) ),0);
+  Result.Y := max(OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) ),0);
 end;
 
 

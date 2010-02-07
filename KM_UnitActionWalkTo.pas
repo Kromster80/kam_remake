@@ -93,8 +93,6 @@ uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOu
 { TUnitActionWalkTo }
 constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false);
 begin
-  fLog.AssertToLog(LocB.X*LocB.Y<>0,'Illegal WalkTo 0;0');
-
   Inherited Create(aActionType);
   fActionName   := uan_WalkTo;
   fWalker       := KMUnit;
@@ -106,6 +104,8 @@ begin
     fWalkTo     := LocB
   else
     fWalkTo     := fTerrain.GetClosestTile(LocB,KMUnit.GetPosition,fPass);
+
+  fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal WalkTo 0;0');
 
   NodeList      := TKMPointList.Create; //Freed on destroy
   SetInitValues;
@@ -260,7 +260,8 @@ begin
   Result := cnw_Yes;
   //If there's an unexpected obstacle (i.e. the terrain has changed since we calculated the route)
   //Use GetOurPassability so that canWalkRoad is changed to canWalk because walking off the road does not count as an obstacle
-  if not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetEffectivePassability) then
+  if (not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetEffectivePassability)) or
+     (not fTerrain.CanWalkDiagonaly(fWalker.GetPosition,NodeList.List[NodePos+1])) then
     //Try to find a walkaround
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
     begin

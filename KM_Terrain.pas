@@ -1349,19 +1349,37 @@ function TTerrain.GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoi
     const XBitField: array[0..7] of smallint = (0,  1,1,1,0,-1,-1,-1);
           YBitField: array[0..7] of smallint = (-1,-1,0,1,1, 1, 0,-1);
   begin
-    Result.X := LocA.X+(aDist*XBitField[aDir]);
-    Result.Y := LocA.Y+(aDist*YBitField[aDir]);
+    //If it is < 0 set it to 0 so that TileInMapCoords will disallow it
+    Result.X := max(LocA.X+(aDist*XBitField[aDir]),0);
+    Result.Y := max(LocA.Y+(aDist*YBitField[aDir]),0);
   end;
 
 var
   Dist, WalkConnectID: integer;
   Dir, WalkConnectType: byte;
+  IsMapEdge: boolean;
 begin
   WalkConnectType := 1; //canWalk is default
   if aPass = canWalkRoad then WalkConnectType := 2;
   if aPass = canFish     then WalkConnectType := 3;
+
+  //Special case for edge of map. If it is passed the edge of the map coordinates will be 0.
+  //It is used to decide whether to allow the position they were going to use anyway, (LocA) because it is not the originally requested position.
+  IsMapEdge := false;
+  if (LocA.X = 0) then
+  begin
+    LocA.X := 1;
+    IsMapEdge := true;
+  end;
+  if (LocA.Y = 0) then
+  begin
+    LocA.Y := 1;
+    IsMapEdge := true;
+  end;
+
   WalkConnectID := Land[LocB.Y,LocB.X].WalkConnect[WalkConnectType]; //Store WalkConnect ID of target
-  if CheckPassability(LocA,aPass) and (WalkConnectID = Land[LocA.Y,LocA.X].WalkConnect[WalkConnectType]) then
+  if CheckPassability(LocA,aPass) and (WalkConnectID = Land[LocA.Y,LocA.X].WalkConnect[WalkConnectType]) and
+    ((not IsMapEdge) or (IsMapEdge and ((not HasUnit(LocA)) or KMSamePoint(LocA,LocB)))) then
   begin
     Result := LocA; //Target is ok
     exit;
