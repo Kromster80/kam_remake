@@ -1332,7 +1332,7 @@ begin
   Soldier.SetActionLockedStay(10,ua_Walk);
 
   //Make him invisible as he is inside the barracks
-  Soldier.SetVisibility := true;
+  Soldier.SetVisibility := false;
 
   TKMUnitWarrior(Soldier).PlaceOrder(wo_WalkOut,KMPointY1(GetEntrance),dir_N);
 end;

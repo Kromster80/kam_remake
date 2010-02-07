@@ -1334,6 +1334,7 @@ procedure TKMUnitWarrior.Paint();
 var UnitType,AnimAct,AnimDir:byte; XPaintPos, YPaintPos: single;
 begin
 inherited;
+  if not fVisible then exit;
   UnitType:=byte(fUnitType);
   AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=byte(Direction);
