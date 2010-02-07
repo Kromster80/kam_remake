@@ -251,7 +251,10 @@ begin
                     //Record current cursor position so we can stop it from moving while we are setting direction
                     GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
                     //Restrict cursor to a 7x7 rectangle (-3 to 3 in both axes)
-                    MyRect := Rect(SelectingDirPosition.X-3,SelectingDirPosition.Y-3,SelectingDirPosition.X+4,SelectingDirPosition.Y+4);
+                    MyRect := Rect(SelectingDirPosition.X-((DirCursorSqrSize-1) div 2),
+                                   SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2),
+                                   SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1,
+                                   SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1);
                     ClipCursor(@MyRect);
                     //Now record it as Client XY
                     SelectingDirPosition := Point(X,Y);

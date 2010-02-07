@@ -117,8 +117,11 @@ const
   Cursors:array[1..23]of integer = (1,452,457,460,450,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9,999);
 
   ScrollCursorOffset = 17;
-  CursorOffsetsX:array[1..23] of integer = (0,0,0,0,0,0,1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
-  CursorOffsetsY:array[1..23] of integer = (0,9,0,0,0,-1,-1,0,1,1,1,0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
+  CursorOffsetsX:array[1..23] of integer = (0,0,0, 0, 0, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
+  CursorOffsetsY:array[1..23] of integer = (0,9,0,18,20,-1,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
+
+const DirCursorSqrSize  = 17; //Length of square sides
+      DirCursorNARadius = 4;  //Radius of centeral part that is dir_NA
 
 {Controls}
 type
@@ -329,16 +332,11 @@ type
   TUnitActionTypeSet = set of TUnitActionType;
 
   TWarriorOrder = (wo_None, wo_Walk, wo_WalkOut); //wo_Storm, wo_Attack
-  TWarriorState = (ws_None, ws_Walking, ws_RepositionPause);
-  //WarriorOrder meant to be command from player that warrior must perform, e.g.
-  //None - no command
-  //Walk - Walk to
-  //Reposition - change lines/direction
-  //Attack
-  //Feed?
-  //@Lewin: how does Walking fits in?
-  //@Krom: I was using it as a state, but I see it needs to be more than that. I added state seperatly. But Reposition doesn't need to be an order
-  //       because it's basically just walk. Feed is probably the same. Attack will definatly be different though.
+  TWarriorState = (ws_None, ws_Walking, ws_RepositionPause, ws_InitalLinkReposition);
+  TWarriorLinkState = (wl_None, wl_LeavingBarracks, wl_Linkable);
+
+const
+  LinkRadius = 8; //Radius to search for groups to link to after being trained at the barracks
 
 const {Actions names}
   UnitAct:array[1..14]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',

@@ -157,19 +157,37 @@ end;
 
 
 function KMGetCursorDirection(X,Y: integer): TKMDirection;
-const DirectionsBitfield:array[-3..3,-3..3]of TKMDirection =
-       ((dir_NE,dir_N ,dir_N ,dir_N ,dir_N ,dir_N ,dir_NW),
-        (dir_E ,dir_NE,dir_N ,dir_N ,dir_N ,dir_NW,dir_W ),
-        (dir_E ,dir_E ,dir_NA,dir_NA,dir_NA,dir_W ,dir_W ),
-        (dir_E ,dir_E ,dir_NA,dir_NA,dir_NA,dir_W ,dir_W ),
-        (dir_E ,dir_E ,dir_NA,dir_NA,dir_NA,dir_W ,dir_W ),
-        (dir_E ,dir_SE,dir_S ,dir_S ,dir_S ,dir_SW,dir_W ),
-        (dir_SE,dir_S ,dir_S ,dir_S ,dir_S ,dir_S ,dir_SW));
-  //Use a 7x7 grid because it works better than a smaller one.
-  //It's easy to select corners as the mouse will naturally move towards them, so edges have been made larger.
 begin
-  Result := DirectionsBitfield[EnsureRange(-Y,-3,3), EnsureRange(X,-3,3)];
-  //todo: @Lewin: We need a larger area, maybe 9x9, cos central part of 3x3 is in fact too small
+  //Use a 15x15 square
+  //Central dir_NA part is a circle with radius 4 (make origin=100;100 because KMPoint doesn't allow negitives)
+  Result := dir_NA;
+  if GetLength(KMPoint(X+100,Y+100),KMPoint(100,100)) <= DirCursorNARadius then
+    exit; //Use default value dir_NA
+
+  if abs(X) > abs(Y) then
+    if X > 0 then
+      Result := dir_W
+    else
+      Result := dir_E;
+
+  if abs(Y) > abs(X) then
+    if Y > 0 then
+      Result := dir_N
+    else
+      Result := dir_S;
+
+  //Only way to select diagonals is by having X=Y (i.e. the corners)
+  if X = Y then
+    if X > 0 then
+      Result := dir_NW
+    else
+      Result := dir_SE;
+
+  if X = -Y then
+    if X > 0 then
+      Result := dir_SW
+    else
+      Result := dir_NE;
 end;
 
 

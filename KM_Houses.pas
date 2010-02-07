@@ -1319,10 +1319,10 @@ begin
     for k:=1 to 4 do
       if i = TroopCost[aUnitType,k] then
       begin
-        if i in [1..11] then dec(ResourceCount[i])
-                        else dec(RecruitsInside);
+        if i in [1..11] then dec(ResourceCount[i]);
       end;
   end;
+  dec(RecruitsInside); //All units take a recruit
 
   //Make new unit
   Soldier := fPlayers.Player[byte(fOwner)].GetUnits.Add(fOwner,aUnitType,GetEntrance.X,GetEntrance.Y,false);
@@ -1334,7 +1334,7 @@ begin
   //Make him invisible as he is inside the barracks
   Soldier.SetVisibility := true;
 
-  TKMUnitWarrior(Soldier).PlaceOrder(wo_WalkOut,KMPointY1(GetEntrance));
+  TKMUnitWarrior(Soldier).PlaceOrder(wo_WalkOut,KMPointY1(GetEntrance),dir_N);
 end;
 
 

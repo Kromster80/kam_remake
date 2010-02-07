@@ -337,6 +337,7 @@ type
     fFlagAnim:cardinal;
     fOrder:TWarriorOrder;
     fState:TWarriorState; //This property is individual to each unit, including commander
+    fAutoLinkState:TWarriorLinkState;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fUnitsPerRow:integer;
     fMembers:TKMList;
@@ -352,12 +353,14 @@ type
     procedure AddMember(aWarrior:TKMUnitWarrior);
     procedure SetGroupFullCondition;
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
-    procedure LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
+    procedure LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
     procedure Split; //Split group in half and assign another commander
     procedure Feed;
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
+    function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
+    property GetOrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -821,6 +824,7 @@ begin
   fFlagAnim     := 0;
   fOrder        := wo_None;
   fState        := ws_None;
+  fAutoLinkState:= wl_None;
   fOrderLoc     := KMPointDir(PosX,PosY,0);
   fUnitsPerRow  := 1;
   fMembers      := nil; //Only commander units will have it initialized
@@ -835,6 +839,7 @@ begin
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
+  LoadStream.Read(fState, SizeOf(fAutoLinkState));
   LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(aCount);
@@ -993,7 +998,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
+procedure TKMUnitWarrior.LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
 var i:integer; AddedSelf: boolean;
 begin
   //Only link to same group type
@@ -1036,6 +1041,7 @@ begin
     aNewCommander.AddMember(Self);
   //Tell commander to reposition
   fCommander.Halt;
+  if InitialLink then fState := ws_InitalLinkReposition;
 end;
 
 
@@ -1121,6 +1127,24 @@ begin
 end;
 
 
+function TKMUnitWarrior.FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
+var i,k:integer; FoundUnit: TKMUnit;
+begin
+  Result := nil;
+  for i:=-LinkRadius to LinkRadius do
+    for k:=-LinkRadius to LinkRadius do
+    begin
+      FoundUnit := fPlayers.Player[byte(fOwner)].UnitsHitTest(aLoc.X+i,aLoc.Y+k);
+      if (FoundUnit is TKMUnitWarrior) and (TKMUnitWarrior(FoundUnit).fAutoLinkState = wl_Linkable) and
+         (FoundUnit.GetUnitType = GetUnitType) then //For initial linking they must be the same type, not just same group type
+      begin
+        Result := TKMUnitWarrior(FoundUnit);
+        break;
+      end;
+    end
+end;
+
+
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir);
 var i,px,py:integer; NewLoc:TKMPoint; PassedCommander: boolean;
@@ -1180,6 +1204,7 @@ begin
   SaveStream.Write(fFlagAnim);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));
+  SaveStream.Write(fState, SizeOf(fAutoLinkState));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
   SaveStream.Write(fUnitsPerRow);
   //Only save members if we are a commander
@@ -1204,7 +1229,7 @@ function TKMUnitWarrior.UpdateState():boolean;
     if GetUnitAction is TUnitActionGoInOut then Result := false //Never interupt leaving barracks
     else Result := true;
   end;
-var i: integer; PositioningDone: boolean;
+var i: integer; PositioningDone: boolean; LinkUnit: TKMUnitWarrior;
 begin
   inc(fFlagAnim);
 
@@ -1225,9 +1250,9 @@ begin
   begin
     //Walk out of barracks
     SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(GetPosition.X,GetPosition.Y));
-    //todo: Set state to something so we know to try and link with nearby groups after leaving barracks
     fOrder := wo_None;
-    fState := ws_None; //Don't need to regroup after this action so set state to None
+    fState := ws_Walking; //Reposition after action
+    fAutoLinkState := wl_LeavingBarracks; //So we know to link to nearby groups once we've finished this action
   end;
   //Dispatch new order when warrior finished previous action part
   if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and
@@ -1240,11 +1265,24 @@ begin
     else
       SetActionWalk(Self, KMPoint(fOrderLoc));
     fOrder := wo_None;
+    if not (fState = ws_InitalLinkReposition) then
+      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     fState := ws_Walking;
   end;
 
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
+
+  //Allow initial linking until player gives the group an order
+  if fAutoLinkState = wl_LeavingBarracks then
+  begin
+    //This means we've just left the barracks and should look for another group to link with
+    LinkUnit := FindLinkUnit(KMPoint(fOrderLoc));
+    if LinkUnit <> nil then LinkTo(LinkUnit,true);
+    //We are now ready to be linked with. Doesn't matter much as we are not commander,
+    //what's more important is that it's changed from wl_LeavingBarracks so we won't auto link anymore
+    fAutoLinkState := wl_Linkable;
+  end;
 
   //This means we are idle, so make sure our direction is right and if we are commander reposition our troops if needed
   PositioningDone := true;
