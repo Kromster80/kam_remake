@@ -285,7 +285,8 @@ begin
                     CursorPos := Point(X,Y);
                     DeltaX := SelectingDirPosition.X-CursorPos.X;
                     DeltaY := SelectingDirPosition.Y-CursorPos.Y;
-                    SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY); //Compare cursor position and decide which direction it is
+                    //Compare cursor position and decide which direction it is
+                    SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
                     //Update the cursor based on this direction
                     fGamePlayInterface.ShowDirectionCursor(true,X+DeltaX,Y+DeltaY,SelectedDirection);
                     Screen.Cursor := c_Invisible;
@@ -294,38 +295,39 @@ begin
                   begin
                   fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
-                    Screen.Cursor:=c_Default
+                    Screen.Cursor := c_Default
                   else begin
                     fTerrain.ComputeCursorPosition(X,Y);
                     if CursorMode.Mode=cm_None then
-                      if fGamePlayInterface.JoiningGroups and (fGamePlayInterface.GetShownUnit <> nil) and
+                      if fGamePlayInterface.JoiningGroups and
                         (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
                       begin
                         HitUnit  := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
                         if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
                            (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
-                          Screen.Cursor:=c_JoinYes
+                          Screen.Cursor := c_JoinYes
                         else
-                          Screen.Cursor:=c_JoinNo;
+                          Screen.Cursor := c_JoinNo;
                       end
                       else
                         if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
                            (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
-                          Screen.Cursor:=c_Info
+                          Screen.Cursor := c_Info
                         else
-                        if (fGamePlayInterface.GetShownUnit <> nil) and (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
+                        if fGamePlayInterface.GetShownUnit is TKMUnitWarrior then
                         begin
                           HitUnit  := fPlayers.UnitsHitTest (CursorXc, CursorYc);
                           HitHouse := fPlayers.HousesHitTest(CursorXc, CursorYc);
-                          if (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.Player[byte(HitUnit.GetOwner)].fAlliances[byte(MyPlayer.PlayerID)] = at_Enemy))or
+                          if (fTerrain.CheckTileRevelation(CursorXc, CursorYc, MyPlayer.PlayerID)>0) and
+                             (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.Player[byte(HitUnit.GetOwner)].fAlliances[byte(MyPlayer.PlayerID)] = at_Enemy))or
                               ((HitHouse<>nil) and (fPlayers.Player[byte(HitHouse.GetOwner)].fAlliances[byte(MyPlayer.PlayerID)] = at_Enemy))) then
-                            Screen.Cursor:=c_Attack
+                            Screen.Cursor := c_Attack
                           else if not Scrolling then
-                            Screen.Cursor:=c_Default;
+                            Screen.Cursor := c_Default;
                         end
                         else if not Scrolling then
-                          Screen.Cursor:=c_Default;
-                    fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
+                          Screen.Cursor := c_Default;
+                    fTerrain.UpdateCursor(CursorMode.Mode, KMPoint(CursorXc,CursorYc));
                   end;
                   end;
                 end;
