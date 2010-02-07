@@ -840,6 +840,7 @@ begin
   Inherited;
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
+  LoadStream.Read(fOrderedFood);
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
   LoadStream.Read(fState, SizeOf(fAutoLinkState));
@@ -1208,6 +1209,7 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
+  SaveStream.Write(fOrderedFood);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));
   SaveStream.Write(fState, SizeOf(fAutoLinkState));
@@ -1347,7 +1349,7 @@ inherited;
 
   XPaintPos := fPosition.X+0.5+GetXSlide;
   YPaintPos := fPosition.Y+ 1 +GetYSlide;
-  
+
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
   //todo: Flag should brighten when unit is selected
   //todo: Flag vertical position is different for mounted vs none mounted units (i.e. so it isn't floating in the air for non-mounted units)
