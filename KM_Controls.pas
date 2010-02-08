@@ -119,6 +119,19 @@ TKMImage = class(TKMControl)
 end;
 
 
+TKMImageStack = class(TKMControl)
+  public
+    RXid: integer; //RX library
+    TexID: integer;
+    Count: integer;
+    Columns: integer;
+    procedure SetCount(aCount,aColumns:integer);
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
+    procedure Paint(); override;
+end;
+
+
 {3DButton}
 TKMButton = class(TKMControl)
   public
@@ -276,6 +289,7 @@ TKMControlsCollection = class(TKMList) //todo: List of TKMControls
     function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
     function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
+    function AddImageStack      (aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; const aRXid:integer=4):TKMImageStack;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
@@ -583,6 +597,45 @@ begin
     fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, Enabled, (HighlightOnMouseOver AND CursorOver) OR Highlight)
   else
     fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, Enabled, (HighlightOnMouseOver AND CursorOver) OR Highlight);
+end;
+
+
+constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID, aRXid:integer);
+begin
+  RXid  := aRXid;
+  TexID := aTexID;
+  Count := 0;
+  Columns  := 0;
+  Inherited Create(aLeft, aTop, aWidth, aHeight);
+  ParentTo(aParent);
+end;
+
+
+procedure TKMImageStack.SetCount(aCount,aColumns:integer);
+begin
+  Count := aCount;
+  Columns := aColumns;
+end;
+
+
+{If image area is bigger than image - do center image in it}
+procedure TKMImageStack.Paint();
+var
+  i:integer;
+  OffsetX, OffsetY, DrawWidth, DrawHeight:smallint; //variable parameters
+begin
+  if (TexID=0)or(RXid=0) then exit; //No picture to draw
+
+  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4080FF00);
+
+  DrawWidth := min(GFXData[RXid, TexID].PxWidth, Width div Columns);
+  DrawHeight := round (DrawHeight * (GFXData[RXid, TexID].PxWidth / DrawWidth)); //todo: wrong
+
+  OffsetX := Width div Columns;
+  OffsetY := Height div ceil(Count/Columns);
+
+  for i:=1 to Count do 
+    fRenderUI.WritePicture(Left + OffsetX*((i-1) mod Columns), Top + OffsetY*((i-1) div Columns), DrawWidth, DrawHeight, RXid, TexID, Enabled);
 end;
 
 
@@ -1030,6 +1083,12 @@ end;
 function TKMControlsCollection.AddImage(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
 begin
   Result:=TKMImage.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
+  AddToCollection(Result);
+end;
+
+function TKMControlsCollection.AddImageStack(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; const aRXid:integer=4):TKMImageStack;
+begin
+  Result:=TKMImageStack.Create(aParent, aLeft, aTop, aWidth, aHeight, aTexID, aRXid);
   AddToCollection(Result);
 end;
 

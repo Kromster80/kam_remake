@@ -96,6 +96,7 @@ type TKMGamePlayInterface = class
         Button_Army_GoTo,Button_Army_Stop,Button_Army_Attack:TKMButton;
         Button_Army_RotCW,Button_Army_Storm,Button_Army_RotCCW:TKMButton;
         Button_Army_ForUp,Button_Army_ForDown:TKMButton;
+        ImageStack_Army:TKMImageStack;
         Button_Army_Split,Button_Army_Join,Button_Army_Feed:TKMButton;
 
       Panel_Army_JoinGroups:TKMPanel;
@@ -916,7 +917,7 @@ begin
     Button_Army_Storm  := MyControls.AddButton(Panel_Army, 70, 46, 56, 40, 28);
     Button_Army_RotCCW := MyControls.AddButton(Panel_Army,132, 46, 56, 40, 24);
     Button_Army_ForUp  := MyControls.AddButton(Panel_Army,  8, 92, 56, 40, 33);
-    //todo: Here go shield icons  MyControls.AddArmyStack(Panel_Army,  70, 92, 56, 40, 33);
+    ImageStack_Army    := MyControls.AddImageStack(Panel_Army,  70, 92, 56, 40, 43);
     Button_Army_ForDown:= MyControls.AddButton(Panel_Army,132, 92, 56, 40, 32);
     Button_Army_Split  := MyControls.AddButton(Panel_Army,  8,138, 56, 34, 31);
     Button_Army_Join   := MyControls.AddButton(Panel_Army, 70,138, 56, 34, 30);
@@ -1455,6 +1456,7 @@ begin
     else
     begin
       Panel_Army.Show;
+      ImageStack_Army.SetCount(6,3); //todo: send real numbers
       Panel_Army_JoinGroups.Hide;
     end;
     Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.GetUnitType)] = gt_Melee); //Only melee groups may charge
