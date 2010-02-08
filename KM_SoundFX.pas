@@ -287,10 +287,17 @@ begin
   if Attenuated then begin
     Dif[1]:=Loc.X; Dif[2]:=Loc.Y; Dif[3]:=0;
     AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Dif[1]);
+    AlSourcei ( ALSource[FreeBuf], AL_SOURCE_RELATIVE, AL_FALSE); //If Attenuated then it is not relative to the listener
   end else
-    AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Listener.Pos);
+  begin
+    //For sounds that do not change over distance, set to SOURCE_RELATIVE and make the position be 0,0,0 which means it will follow the listener
+    //Do not simply set position to the listener as the listener could change while the sound is playing
+    Dif[1]:=0; Dif[2]:=0; Dif[3]:=0;
+    AlSourcefv( ALSource[FreeBuf], AL_POSITION, @Dif[1]);
+    AlSourcei ( ALSource[FreeBuf], AL_SOURCE_RELATIVE, AL_TRUE); //Relative to the listener, meaning it follows us
+  end;
   AlSourcef ( ALSource[FreeBuf], AL_REFERENCE_DISTANCE, 4.0 );
-  AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, 20.0 );
+  AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, 35.0 );
   AlSourcef ( ALSource[FreeBuf], AL_ROLLOFF_FACTOR, 1.0 );
   AlSourcei ( ALSource[FreeBuf], AL_LOOPING, AL_FALSE );
 

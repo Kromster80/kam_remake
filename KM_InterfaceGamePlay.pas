@@ -18,7 +18,7 @@ type TKMGamePlayInterface = class
     AskDemolish:boolean;
 
     Panel_Main:TKMPanel;
-      Image_Main1,Image_Main2,Image_Main3,Image_Main4:TKMImage; //Toolbar background
+      Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5,Image_Main6:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
       Label_Stat,Label_Hint,Label_PointerCount:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
@@ -503,7 +503,8 @@ begin
     Image_Main1:=MyControls.AddImage(Panel_Main,0,0,224,200,407);
     Image_Main3:=MyControls.AddImage(Panel_Main,0,200,224,168,554);
     Image_Main4:=MyControls.AddImage(Panel_Main,0,368,224,400,404);
-                   MyControls.AddImage(Panel_Main,0,768,224,400,404);
+    Image_Main5:=MyControls.AddImage(Panel_Main,0,768,224,400,404);
+    Image_Main6:=MyControls.AddImage(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
 
     KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;
@@ -1175,9 +1176,11 @@ end;
 procedure TKMGamePlayInterface.CloseMessage(Sender: TObject);
 begin
   UpdateMessageStack;
-  fSoundLib.Play(sfx_MessageClose);
   if ShownMessage <> 0 then
+  begin
     Image_Message[ShownMessage].Highlight := false;
+    fSoundLib.Play(sfx_MessageClose);
+  end;
   ShownMessage := 0;
   Panel_Message.Hide;
 end;
@@ -1810,7 +1813,6 @@ begin
   if Sender = Button_Army_ForDown then Commander.Halt(0,1);
   if Sender = Button_Army_ForUp   then Commander.Halt(0,-1);
   if Sender = Button_Army_Split   then Commander.Split;
-  //todo: interface (panel) for choosing a group to link to
   if Sender = Button_Army_Join    then
   begin
     Panel_Army.Hide;

@@ -18,6 +18,7 @@ type
     constructor Create(aAssets:TKMPlayerAssets);
     procedure CheckDefeatConditions();
     procedure CheckUnitCount();
+    procedure CheckArmy();
   public
     function GetHouseRepair:boolean; //Do we automatically repair all houses?
     procedure Save(SaveStream:TKMemoryStream);
@@ -128,6 +129,40 @@ begin
 end;
 
 
+procedure TKMPlayerAI.CheckArmy();
+var i: integer;
+    NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
+begin
+  //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
+  for i:=0 to Assets.GetUnits.Count-1 do
+  begin
+    if TKMUnit(Assets.GetUnits.Items[i]) is TKMUnitWarrior then
+      with TKMUnitWarrior(Assets.GetUnits.Items[i]) do
+        if (fCommander = nil) and not IsDead then
+        begin
+          //Check hunger and feed
+          if (GetCondition < UNIT_MIN_CONDITION) then
+            OrderFood;
+
+          //If we are newly trained then link us up to a group which doesn't have enough members
+          //...
+
+          //Check formation
+          if UnitGroups[byte(GetUnitType)] <> gt_None then
+          begin
+            UnitsPerRow := TroopFormations[UnitGroups[byte(GetUnitType)]].NumRows;
+            //If this group doesn't have enough members, flag us as needing to be added to (this should not happen if we are attacking though)
+            if (GetMemberCount < TroopFormations[UnitGroups[byte(GetUnitType)]].NumUnits) and
+              (NeedsLinkingTo[UnitGroups[byte(GetUnitType)]] = nil) then
+              NeedsLinkingTo[UnitGroups[byte(GetUnitType)]] := TKMUnitWarrior(Assets.GetUnits.Items[i]);
+          end;
+
+          //todo: Check position and arrange groups according to Defence Positions from mission file
+        end;
+  end;
+end;
+
+
 function TKMPlayerAI.GetHouseRepair:boolean;
 begin
   //Do we automatically repair all houses?
@@ -183,8 +218,8 @@ begin
   
   if Assets.PlayerType=pt_Computer then begin
     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
-  
-  //CheckArmyHunger; //issue tasks to feed troops
+
+  CheckArmy; //todo: Should not run every update state, it takes too long and doesn't need to anyway
   //CheckHouseCount; //Build new houses if needed
   //CheckArmiesCount; //Train new soldiers if needed
   //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)

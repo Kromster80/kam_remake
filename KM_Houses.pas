@@ -1255,7 +1255,6 @@ end;
 
 
 procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; const aCount:word=1);
-//const MAX_WARFARE_IN_BARRACKS:=200;  //Has to influence ware delivery
 var i:integer;
 begin
 if aResource=rt_Warfare then
@@ -1333,6 +1332,7 @@ begin
 
   //Make him invisible as he is inside the barracks
   Soldier.SetVisibility := false;
+  Soldier.SetCondition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time 
 
   TKMUnitWarrior(Soldier).PlaceOrder(wo_WalkOut,KMPointY1(GetEntrance),dir_N);
 end;

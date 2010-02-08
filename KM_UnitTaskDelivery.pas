@@ -210,7 +210,7 @@ with fUnit do
 case fPhase of
 0..4:;
 5: if (fToUnit<>nil)and(not fToUnit.IsDead) then
-     SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false)
+     SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false, fToUnit) //Pass a pointer to the Target Unit to the walk action so it can track it
    else
    begin
      TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
@@ -219,16 +219,15 @@ case fPhase of
      TaskDone:=true;
    end;
 6: begin
-      //See if the unit has moved. If so we must try again
-      if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then
+      if (fToUnit<>nil)and(not fToUnit.IsDead)and(not(fToUnit.GetUnitTask is TTaskDie)) then
       begin
-        fPhase := 5; //Walk to unit again
-        //todo: Walk action needs to know target unit's position so it can auto-correct route and detect if we meet it somewhere unexpected
-        SetActionStay(0,ua_Walk);
-        exit;
-      end;
-      TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-      if (fToUnit<>nil)and(not fToUnit.IsDead)and(not(fToUnit.GetUnitTask is TTaskDie)) then begin
+        //See if the unit has moved. If so we must try again
+        if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then
+        begin
+          fPhase := 5; //Walk to unit again
+          SetActionStay(0,ua_Walk);
+          exit;
+        end;
         //Worker
         if (fToUnit.GetUnitType = ut_Worker)and(fToUnit.GetUnitTask<>nil) then
         begin
@@ -242,9 +241,10 @@ case fPhase of
           TKMUnitWarrior(fToUnit).SetOrderedFood := false;
         end;
       end;
+      TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
       fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
       fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
-      SetActionStay(1,ua_Walk);
+      SetActionLockedStay(5,ua_Walk); //Pause breifly (like we are handing over the goods)
    end;
 7: begin
       //After feeding troops, ask for new delivery and if there is none, walk back to the place we came from so we don't leave serfs all over the battlefield
@@ -261,7 +261,9 @@ case fPhase of
         end
         else //No delivery found then just walk back to our from house
           SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance),KMPoint(0,0),ua_Walk,false); //Don't walk to spot as it doesn't really matter
-      end;
+      end
+      else
+        SetActionStay(0,ua_Walk); //If we're not feeding a warrior then ignore this step
    end;
 else TaskDone:=true;
 end;

@@ -319,7 +319,7 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
     WalkStyle(KMPoint(TempLocDir),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,TempLocDir.Dir);
   end else
   if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
-    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant)
+    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant,0)
   else
     fIssued:=false;
 end else

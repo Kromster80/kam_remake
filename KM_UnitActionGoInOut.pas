@@ -191,7 +191,8 @@ begin
     if fUsingDoorway then IncDoorway;
     fHasStarted:=true;
   end;
-  KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
+  if fUsingDoorway then
+    KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
   if fWaitingForPush then
   begin
@@ -209,6 +210,10 @@ begin
   end;
 
   Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;
+  //Actual speed is slower if we are moving diagonally, due to the fact we are moving in X and Y
+  if (fStreet.X-fDoor.X <> 0) then
+    Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
+
   fStep := fStep - Distance * shortint(fDirection);
   KMUnit.PositionF := KMPointF(Mix(fStreet.X,fDoor.X,fStep),Mix(fStreet.Y,fDoor.Y,fStep));
   KMUnit.SetVisibility := fStep >= 0.3; //Make unit invisible when it's inside of House

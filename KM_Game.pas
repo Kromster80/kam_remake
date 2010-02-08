@@ -377,6 +377,8 @@ var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit;
 begin
   if SelectingTroopDirection then
   begin
+    //Reset the cursor position as it will have moved during direction selection
+    SetCursorPos(Form1.Panel5.ClientToScreen(SelectingDirPosition).X,Form1.Panel5.ClientToScreen(SelectingDirPosition).Y);
     Form1.ApplyCursorRestriction; //Reset the cursor restrictions from selecting direction
     SelectingTroopDirection := false; //As soon as mouse is released
     fGamePlayInterface.ShowDirectionCursor(false);

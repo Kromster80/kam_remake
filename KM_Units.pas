@@ -250,7 +250,7 @@ type
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
-    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true); overload;
+    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil); overload;
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure Feed(Amount:single);
@@ -268,6 +268,7 @@ type
     function GetUnitTaskText():string;
     function GetUnitActText():string;
     property GetCondition: integer read fCondition;
+    property SetCondition: integer write fCondition;
     procedure SetFullCondition;
     procedure CancelUnitTask;
     property IsVisible: boolean read fVisible;
@@ -336,6 +337,7 @@ type
   private
     fFlagAnim:cardinal;
     fOrderedFood:boolean;
+    fTimeSinceHungryReminder: integer;
     fOrder:TWarriorOrder;
     fState:TWarriorState; //This property is individual to each unit, including commander
     fAutoLinkState:TWarriorLinkState;
@@ -343,6 +345,7 @@ type
     fUnitsPerRow:integer;
     fMembers:TKMList;
     function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
+    procedure SetUnitsPerRow(aVal:integer);
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -353,11 +356,13 @@ type
     function GetSupportedActions: TUnitActionTypeSet; override;
     procedure AddMember(aWarrior:TKMUnitWarrior);
     procedure SetGroupFullCondition;
+    function GetMemberCount:integer;
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
     procedure Split; //Split group in half and assign another commander
     procedure OrderFood;
     property SetOrderedFood:boolean write fOrderedFood;
+    property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
@@ -825,6 +830,7 @@ begin
   fCommander    := nil;
   fOrderedFood  := false;
   fFlagAnim     := 0;
+  fTimeSinceHungryReminder := 0;
   fOrder        := wo_None;
   fState        := ws_None;
   fAutoLinkState:= wl_None;
@@ -841,6 +847,7 @@ begin
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrderedFood);
+  LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
   LoadStream.Read(fState, SizeOf(fAutoLinkState));
@@ -962,6 +969,15 @@ begin
 end;
 
 
+function TKMUnitWarrior.GetMemberCount:integer;
+begin
+  if (fCommander <> nil) or (fMembers = nil) then
+    Result := 0
+  else
+    Result := fMembers.Count;
+end;
+
+
 function TKMUnitWarrior.RePosition: boolean;
 begin
   Result := true;
@@ -1001,7 +1017,7 @@ begin
   HaltPoint.Dir := byte(KMLoopDirection(HaltPoint.Dir+aTurnAmount+1))-1; //Add the turn amount, using loop in case it goes over 7
 
   if fMembers <> nil then
-    fUnitsPerRow := EnsureRange(fUnitsPerRow+aLineAmount, 1, fMembers.Count+1); //1..TotalCount
+    SetUnitsPerRow(fUnitsPerRow+aLineAmount);
 
   PlaceOrder(wo_Walk, HaltPoint);
 end;
@@ -1076,6 +1092,7 @@ begin
   fMembers.Remove(NewCommander);
   NewCommander.fMembers := TKMList.Create;
   NewCommander.fUnitsPerRow := fUnitsPerRow;
+  NewCommander.fTimeSinceHungryReminder := fTimeSinceHungryReminder; //If we are hungry then don't repeat message each time we split, give new commander our counter
   NewCommander.fCommander := nil;
   //Commander OrderLoc must always be valid, but because this guy wasn't a commander it might not be
   NewCommander.fOrderLoc := KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir);
@@ -1108,7 +1125,7 @@ end;
 procedure TKMUnitWarrior.OrderFood;
 var i:integer;
 begin
-  if (fCondition<(UNIT_MAX_CONDITION*0.75)) and not (fOrderedFood) then begin
+  if (fCondition<(UNIT_MAX_CONDITION*TROOPS_FEED_MAX)) and not (fOrderedFood) then begin
     fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, Self, rt_Food, 1, dt_Once, di_Norm);
     fOrderedFood := true;
   end;
@@ -1152,6 +1169,13 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.SetUnitsPerRow(aVal:integer);
+begin
+  if (fCommander = nil) and (fMembers <> nil) then
+    fUnitsPerRow := EnsureRange(aVal,1,fMembers.Count+1);
+end;
+
+
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir);
 var i,px,py:integer; NewLoc:TKMPoint; PassedCommander: boolean;
@@ -1191,7 +1215,7 @@ begin
   if aNewDir <> dir_NA then
     NewP := KMPointDir(aLoc.X, aLoc.Y, byte(aNewDir)-1)
   else
-  if (aNewDir=dir_NA) and (fOrderLoc.Dir <> 0) then
+  if (aNewDir=dir_NA) and (fOrderLoc.Loc.X <> 0) then
     NewP := KMPointDir(aLoc.X, aLoc.Y, fOrderLoc.Dir)
   else
     NewP := KMPointDir(aLoc.X, aLoc.Y, byte(Direction)-1);
@@ -1210,6 +1234,7 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
   SaveStream.Write(fOrderedFood);
+  SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));
   SaveStream.Write(fState, SizeOf(fAutoLinkState));
@@ -1237,7 +1262,7 @@ function TKMUnitWarrior.UpdateState():boolean;
     if GetUnitAction is TUnitActionGoInOut then Result := false //Never interupt leaving barracks
     else Result := true;
   end;
-var i: integer; PositioningDone: boolean; LinkUnit: TKMUnitWarrior;
+var i: integer; PositioningDone, SomeoneHungry: boolean; LinkUnit: TKMUnitWarrior;
 begin
   inc(fFlagAnim);
 
@@ -1254,6 +1279,31 @@ begin
     else
       fThought:=th_None;
 
+  //Tell the player to feed us if we are hungry and a commander
+  //todo: This shouldn't run every tick
+  if (fOwner = MyPlayer.PlayerID) and (fCommander = nil) then
+  begin
+    SomeoneHungry := (fCondition < UNIT_MIN_CONDITION);
+    if (fMembers <> nil) and (not SomeoneHungry) then
+      for i:=0 to fMembers.Count-1 do
+      begin
+        SomeoneHungry := SomeoneHungry or (TKMUnitWarrior(fMembers.List[i]).GetCondition < UNIT_MIN_CONDITION);
+        if SomeoneHungry then break;
+      end;
+
+    if SomeoneHungry then
+    begin
+      dec(fTimeSinceHungryReminder);
+      if fTimeSinceHungryReminder < 1 then
+      begin
+        fGame.fGamePlayInterface.IssueMessage(msgUnit,fTextLibrary.GetTextString(296),GetPosition);
+        fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
+      end;
+    end
+    else
+      fTimeSinceHungryReminder := 0;
+  end;
+
   if (fOrder=wo_WalkOut) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
     //Walk out of barracks
@@ -1263,9 +1313,20 @@ begin
     fAutoLinkState := wl_LeavingBarracks; //So we know to link to nearby groups once we've finished this action
   end;
   //Dispatch new order when warrior finished previous action part
-  if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and
+  if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and //If we are already walking then change the walk to the new location
     TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
-    AbandonWalk; //If we are already walking then cancel it to make way for new command
+  begin
+    if fCommander <> nil then //If we are not the commander then walk to near
+      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), true)
+    else
+      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc));
+
+    fOrder := wo_None;
+    if not (fState = ws_InitalLinkReposition) then
+      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
+    fState := ws_Walking;
+  end;
+
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
     if fCommander <> nil then //If we are not the commander then walk to near
@@ -1777,9 +1838,9 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true);
+procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil);
 begin
-  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, aAvoid, aActionType, aWalkToSpot),0);
+  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, aAvoid, aActionType, aWalkToSpot, false, false, aTargetUnit),0);
 end;
 
 
