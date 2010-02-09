@@ -41,7 +41,8 @@ uses
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
   KM_UnitActionStay in 'KM_UnitActionStay.pas',
-  KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas';
+  KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas',
+  KM_UnitTaskMining in 'KM_UnitTaskMining.pas';
 
 
 {$IFDEF VER140}
