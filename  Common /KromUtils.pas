@@ -391,7 +391,7 @@ end;
 
 function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 begin
-Result := abs(A-B) <= Epsilon;
+  Result := abs(A-B) <= Epsilon;
 end;
 
 function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;

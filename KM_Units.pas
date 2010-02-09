@@ -28,18 +28,6 @@ type
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
-      {Abandon the current walk, move onto next tile}
-      TUnitActionAbandonWalk = class(TUnitAction)
-      private
-        fWalkTo, fVertexOccupied:TKMPoint;
-      public
-        constructor Create(LocB,aVertexOccupied :TKMPoint; const aActionType:TUnitActionType=ua_Walk);
-        constructor Load(LoadStream: TKMemoryStream); override;
-        procedure SyncLoad(); override;
-        destructor Destroy; override;
-        procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
-        procedure Save(SaveStream:TKMemoryStream); override;
-      end;
 
   TUnitTask = class(TObject)
   protected
@@ -408,7 +396,7 @@ type
 
 implementation
 uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_LoadLib, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game,
-KM_ResourceGFX, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitTaskDelivery;
+KM_ResourceGFX, KM_UnitActionAbandonWalk, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo, KM_UnitTaskDelivery;
 
 
 { TKMUnitCitizen }
@@ -1075,6 +1063,8 @@ var i, DeletedCount: integer; NewCommander:TKMUnitWarrior; MultipleTypes: boolea
 begin
   //Make sure we are a commander and have a crew //Don't allow to split in following cases
   if (fCommander <> nil) or (fMembers = nil) or (fMembers.Count = 0) then exit;
+
+  NewCommander := nil; //init
 
   //If there are different unit types in the group, split should just split them first
   MultipleTypes := false;
@@ -3567,94 +3557,6 @@ begin
   SaveStream.Write(fActionName, SizeOf(fActionName));
   SaveStream.Write(fActionType, SizeOf(fActionType));
   SaveStream.Write(IsStepDone);
-end;
-
-
-{ TUnitActionAbandonWalk }
-constructor TUnitActionAbandonWalk.Create(LocB,aVertexOccupied:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
-begin
-  fLog.AssertToLog(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
-  Inherited Create(aActionType);
-  fActionName := uan_AbandonWalk;
-  fWalkTo     := KMPoint(LocB.X,LocB.Y);
-  fVertexOccupied := KMPoint(aVertexOccupied.X,aVertexOccupied.Y);
-end;
-
-
-destructor TUnitActionAbandonWalk.Destroy;
-begin
-  if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
-  begin
-    fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
-    fVertexOccupied := KMPoint(0,0);
-  end;
-  Inherited;
-end;
-
-
-constructor TUnitActionAbandonWalk.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
-  LoadStream.Read(fWalkTo);
-  LoadStream.Read(fVertexOccupied);
-end;
-
-
-procedure TUnitActionAbandonWalk.SyncLoad();
-begin
-  Inherited;
-  //nothing, FPC doesn't likes it missing for some reason?
-end;
-
-
-procedure TUnitActionAbandonWalk.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
-var
-  DX,DY:shortint; WalkX,WalkY,Distance:single;
-begin
-  DoEnd:= False;
-
-  //Execute the route in series of moves
-  Distance:= ACTION_TIME_DELTA * KMUnit.GetSpeed;
-
-  //Check if unit has arrived on tile
-  if Equals(KMUnit.fPosition.X,fWalkTo.X,Distance/2) and Equals(KMUnit.fPosition.Y,fWalkTo.Y,Distance/2) then
-  begin
-    KMUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
-    //Set precise position to avoid rounding errors
-    KMUnit.fPosition.X:=fWalkTo.X;
-    KMUnit.fPosition.Y:=fWalkTo.Y;
-    //We are finished
-    DoEnd:=true;
-    if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
-    begin
-      fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
-      fVertexOccupied := KMPoint(0,0);
-    end;
-
-    GetIsStepDone := true;
-    exit;
-  end;
-
-  WalkX := fWalkTo.X - KMUnit.fPosition.X;
-  WalkY := fWalkTo.Y - KMUnit.fPosition.Y;
-  DX := sign(WalkX); //-1,0,1
-  DY := sign(WalkY); //-1,0,1
-
-  if (DX <> 0) and (DY <> 0) then
-    Distance:=Distance / 1.41; {sqrt (2) = 1.41421 }
-
-  KMUnit.fPosition.X:= KMUnit.fPosition.X + DX*Math.min(Distance,abs(WalkX));
-  KMUnit.fPosition.Y:= KMUnit.fPosition.Y + DY*Math.min(Distance,abs(WalkY));
-
-  inc(KMUnit.AnimStep);
-end;
-
-
-procedure TUnitActionAbandonWalk.Save(SaveStream:TKMemoryStream);
-begin
-  inherited;
-  SaveStream.Write(fWalkTo);
-  SaveStream.Write(fVertexOccupied);
 end;
 
 
