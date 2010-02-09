@@ -947,6 +947,7 @@ begin
 end;
 
 
+{Note that this function returns Members count, Groups count with commander is +1}
 function TKMUnitWarrior.GetMemberCount:integer;
 begin
   if (fCommander <> nil) or (fMembers = nil) then
@@ -956,6 +957,7 @@ begin
 end;
 
 
+{Return Commander or Self if unit is single}
 function TKMUnitWarrior.GetCommander:TKMUnitWarrior;
 begin
   if fCommander <> nil then
@@ -966,20 +968,23 @@ end;
 
 
 function TKMUnitWarrior.RePosition: boolean;
+var ClosestTile:TKMPoint;
 begin
   Result := true;
   if fOrderLoc.Loc.X = 0 then exit;
 
+  if fState = ws_None then
+    ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk);
+
   //See if we are in position or if we can't reach position, because we don't retry for that case.
-  if (fState = ws_None) and (KMSamePoint(GetPosition,fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk))
-    or (not KMSamePoint(fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk),fOrderLoc.Loc))) then
+  if (fState = ws_None) and (KMSamePoint(GetPosition,ClosestTile) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
     exit;
 
   //This means we are not in position, return false and move into position (unless we are currently walking)
   Result := false;
   if (fState = ws_None) and (not (GetUnitAction is TUnitActionWalkTo)) then
   begin
-    SetActionWalk(Self,fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk));
+    SetActionWalk(Self, ClosestTile);
     fState := ws_Walking;
   end;
 end;

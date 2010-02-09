@@ -1458,7 +1458,7 @@ begin
     begin
       Panel_Army.Show;
       Commander := TKMUnitWarrior(Sender).GetCommander;
-      ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count, Columns
+      ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
     end;
     Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.GetUnitType)] = gt_Melee); //Only melee groups may charge
