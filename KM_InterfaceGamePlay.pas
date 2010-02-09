@@ -1427,6 +1427,7 @@ end;
 
 
 procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit);
+var Commander:TKMUnitWarrior;
 begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
@@ -1456,7 +1457,9 @@ begin
     else
     begin
       Panel_Army.Show;
-      ImageStack_Army.SetCount(6,3); //todo: send real numbers
+      Commander := TKMUnitWarrior(Sender);
+      if Commander.fCommander <> nil then Commander := Commander.fCommander;
+      ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count, Columns
       Panel_Army_JoinGroups.Hide;
     end;
     Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.GetUnitType)] = gt_Melee); //Only melee groups may charge

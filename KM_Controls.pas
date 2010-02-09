@@ -125,6 +125,8 @@ TKMImageStack = class(TKMControl)
     TexID: integer;
     Count: integer;
     Columns: integer;
+    DrawWidth: integer;
+    DrawHeight: integer;
     procedure SetCount(aCount,aColumns:integer);
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
@@ -605,16 +607,27 @@ begin
   RXid  := aRXid;
   TexID := aTexID;
   Count := 0;
-  Columns  := 0;
+  Columns := 0;
+  DrawWidth := 0;
+  DrawHeight := 0;
   Inherited Create(aLeft, aTop, aWidth, aHeight);
   ParentTo(aParent);
 end;
 
 
 procedure TKMImageStack.SetCount(aCount,aColumns:integer);
+var Aspect: single;
 begin
   Count := aCount;
-  Columns := aColumns;
+  Columns := Math.max(1,aColumns);
+  DrawWidth  := EnsureRange(Width div Columns, 8, GFXData[RXid, TexID].PxWidth);
+  DrawHeight := EnsureRange(Height div ceil(Count/Columns), 6, GFXData[RXid, TexID].PxHeight);
+
+  Aspect := GFXData[RXid, TexID].PxWidth / GFXData[RXid, TexID].PxHeight;
+  if DrawHeight * Aspect <= DrawWidth then
+    DrawWidth  := round(DrawHeight * Aspect)
+  else
+    DrawHeight := round(DrawWidth / Aspect);
 end;
 
 
@@ -622,20 +635,22 @@ end;
 procedure TKMImageStack.Paint();
 var
   i:integer;
-  OffsetX, OffsetY, DrawWidth, DrawHeight:smallint; //variable parameters
+  OffsetX, OffsetY, CenterX, CenterY:smallint; //variable parameters
 begin
   if (TexID=0)or(RXid=0) then exit; //No picture to draw
 
   if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4080FF00);
 
-  DrawWidth := min(GFXData[RXid, TexID].PxWidth, Width div Columns);
-  DrawHeight := round (DrawHeight * (GFXData[RXid, TexID].PxWidth / DrawWidth)); //todo: wrong
-
   OffsetX := Width div Columns;
   OffsetY := Height div ceil(Count/Columns);
 
-  for i:=1 to Count do 
-    fRenderUI.WritePicture(Left + OffsetX*((i-1) mod Columns), Top + OffsetY*((i-1) div Columns), DrawWidth, DrawHeight, RXid, TexID, Enabled);
+  CenterX := (Width - OffsetX * (Columns-1) - DrawWidth) div 2;
+  CenterY := (Height - OffsetY * (ceil(Count/Columns)-1) - DrawHeight) div 2;
+
+  for i := 1 to Count do
+    fRenderUI.WritePicture(Left + CenterX + OffsetX*((i-1) mod Columns),
+                            Top + CenterY + OffsetY*((i-1) div Columns),
+                            DrawWidth, DrawHeight, RXid, TexID, Enabled);
 end;
 
 
