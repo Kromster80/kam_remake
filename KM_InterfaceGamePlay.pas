@@ -196,7 +196,7 @@ type TKMGamePlayInterface = class
     procedure Menu_NextTrack(Sender:TObject);
     procedure Menu_PreviousTrack(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
-    procedure CancelArmyJoin(Sender:TObject);
+    procedure Army_CancelJoin(Sender:TObject);
     procedure Save_PopulateSaveNamesFile();
     procedure Build_SelectRoad;
     procedure RightClickCancel;
@@ -965,7 +965,7 @@ begin
     Label_Army_Join_Message := MyControls.AddLabel(Panel_Army_JoinGroups, 98, 30, 188, 80, fTextLibrary.GetTextString(272),fnt_Outline,kaCenter);
     Button_Army_Join_Cancel := MyControls.AddButton(Panel_Army_JoinGroups, 8, 95, 180, 30, fTextLibrary.GetTextString(274), fnt_Metal);
 
-  Button_Army_Join_Cancel.OnClick := CancelArmyJoin;
+  Button_Army_Join_Cancel.OnClick := Army_CancelJoin;
 end;
 
 
@@ -1457,8 +1457,7 @@ begin
     else
     begin
       Panel_Army.Show;
-      Commander := TKMUnitWarrior(Sender);
-      if Commander.fCommander <> nil then Commander := Commander.fCommander;
+      Commander := TKMUnitWarrior(Sender).GetCommander;
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count, Columns
       Panel_Army_JoinGroups.Hide;
     end;
@@ -1828,7 +1827,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.CancelArmyJoin(Sender:TObject);
+procedure TKMGamePlayInterface.Army_CancelJoin(Sender:TObject);
 begin
   JoiningGroups := false;
   Screen.Cursor := c_Default; //In case this is run with keyboard shortcut, mouse move won't happen
@@ -2008,7 +2007,7 @@ begin
     Button_Army_Join_Cancel.Down := IsDown;
     if (not IsDown) and (Button_Main[5].Visible) then SwitchPage(Button_Main[5]);
     if (not IsDown) then CloseMessage(Button_MessageClose);
-    if (not IsDown) then CancelArmyJoin(Button_Army_Join_Cancel);
+    if (not IsDown) then Army_CancelJoin(Button_Army_Join_Cancel);
   end;
   //Messages
   if (Key=71) and (Button_MessageGoTo.Enabled) then //71 = G

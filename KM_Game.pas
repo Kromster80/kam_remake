@@ -478,10 +478,7 @@ begin
         then
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
-          if TKMUnitWarrior(fGamePlayInterface.GetShownUnit).fCommander<>nil then
-            TKMUnitWarrior(fGamePlayInterface.GetShownUnit).fCommander.PlaceOrder(wo_walk, P, SelectedDirection)
-          else
-            TKMUnitWarrior(fGamePlayInterface.GetShownUnit).PlaceOrder(wo_walk, P, SelectedDirection);
+          TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_walk, P, SelectedDirection);
         end;
         if (Button = mbRight) and (MOver = nil) then
         begin

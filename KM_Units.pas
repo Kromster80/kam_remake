@@ -333,6 +333,7 @@ type
     procedure AddMember(aWarrior:TKMUnitWarrior);
     procedure SetGroupFullCondition;
     function GetMemberCount:integer;
+    function GetCommander:TKMUnitWarrior;
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
     procedure Split; //Split group in half and assign another commander
@@ -955,6 +956,15 @@ begin
 end;
 
 
+function TKMUnitWarrior.GetCommander:TKMUnitWarrior;
+begin
+  if fCommander <> nil then
+    Result := fCommander
+  else
+    Result := Self;
+end;
+
+
 function TKMUnitWarrior.RePosition: boolean;
 begin
   Result := true;
@@ -1006,7 +1016,8 @@ begin
   //Only link to same group type
   if (aNewCommander = nil) or (UnitGroups[byte(fUnitType)] <> UnitGroups[byte(aNewCommander.fUnitType)]) then exit;
   //If target is not the commander, then select the commander
-  if aNewCommander.fCommander <> nil then aNewCommander := aNewCommander.fCommander;
+
+  aNewCommander := aNewCommander.GetCommander;
 
   //Make sure we are a commander, if we are not then tell him to link
   if (fCommander <> nil) and (fCommander <> Self) then
@@ -1121,12 +1132,7 @@ end;
 //See if we are in the same group as aWarrior by comparing commanders
 function TKMUnitWarrior.IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
 begin
-  if aWarrior.fCommander <> nil then
-    aWarrior := aWarrior.fCommander;
-  if fCommander <> nil then
-    Result :=  (aWarrior = fCommander)
-  else
-    Result :=  (aWarrior = Self);
+  Result := (aWarrior.GetCommander = Self.GetCommander);
 end;
 
 
