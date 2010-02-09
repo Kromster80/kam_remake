@@ -28,7 +28,7 @@ type
   function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
-  function KMGetVertexTile(X,Y:integer; Dir: TKMDirection):TKMPoint;
+  function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
   function KMGetCoord(aPos:TKMPointDir):TKMPointDir;
   function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
   function KMLoopDirection(aDir: byte): TKMDirection;
@@ -193,12 +193,12 @@ begin
 end;
 
 
-function KMGetVertexTile(X,Y:integer; Dir: TKMDirection):TKMPoint;
+function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
 const 
   XBitField: array[TKMDirection] of smallint = (0,0,1,0,1,0,0,0,0);
   YBitField: array[TKMDirection] of smallint = (0,0,0,0,1,0,1,0,0);
 begin
-  Result := KMPoint(X+XBitField[Dir],Y+YBitField[Dir]);
+  Result := KMPoint(P.X+XBitField[Dir], P.Y+YBitField[Dir]);
 end;
 
 
