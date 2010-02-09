@@ -1066,10 +1066,9 @@ begin
   //Make sure we are a commander and have a crew //Don't allow to split in following cases
   if (fCommander <> nil) or (fMembers = nil) or (fMembers.Count = 0) then exit;
 
-  NewCommander := nil; //init
-
   //If there are different unit types in the group, split should just split them first
   MultipleTypes := false;
+  NewCommander  := nil; //init
   for i := 0 to fMembers.Count-1 do
     if TKMUnitWarrior(fMembers.Items[i]).GetUnitType <> fUnitType then
     begin
@@ -1082,7 +1081,7 @@ begin
   if not MultipleTypes then
     NewCommander := fMembers.Items[((fMembers.Count+1) div 2)+(min(fUnitsPerRow,(fMembers.Count+1) div 2) div 2)-1];
   fMembers.Remove(NewCommander);
-  NewCommander.fMembers := TKMList.Create;
+
   NewCommander.fUnitsPerRow := fUnitsPerRow;
   NewCommander.fTimeSinceHungryReminder := fTimeSinceHungryReminder; //If we are hungry then don't repeat message each time we split, give new commander our counter
   NewCommander.fCommander := nil;
@@ -1096,20 +1095,18 @@ begin
     if (MultipleTypes and(TKMUnitWarrior(fMembers.Items[i-DeletedCount]).GetUnitType <> fUnitType)) or
       ((not MultipleTypes)and(i-DeletedCount >= fMembers.Count div 2)) then
     begin
-      //Join new commander
-      NewCommander.fMembers.Add(fMembers.Items[i-DeletedCount]);
+      NewCommander.AddMember(fMembers.Items[i-DeletedCount]); //Join new commander
       TKMUnitWarrior(fMembers.Items[i-DeletedCount]).fCommander := NewCommander;
-      //Leave this commander
-      fMembers.Delete(i-DeletedCount);
+      fMembers.Delete(i-DeletedCount); //Leave this commander
       inc(DeletedCount);
     end; //Else stay with this commander
   end;
   //Make sure units per row is still valid
-  fUnitsPerRow := min(fUnitsPerRow,fMembers.Count+1);
-  NewCommander.fUnitsPerRow := min(NewCommander.fUnitsPerRow,NewCommander.fMembers.Count+1);
+  fUnitsPerRow := min(fUnitsPerRow, fMembers.Count+1);
+  NewCommander.fUnitsPerRow := min(fUnitsPerRow, NewCommander.fMembers.Count+1);
   //Tell both commanders to reposition
-  NewCommander.Halt;
   Halt;
+  NewCommander.Halt;
 end;
 
 
@@ -1124,9 +1121,7 @@ begin
   //Commanders also tell troops to ask for some food
   if (fCommander = nil) and (fMembers <> nil) then
     for i := 0 to fMembers.Count-1 do
-    begin
       TKMUnitWarrior(fMembers.Items[i]).OrderFood;
-    end;
   Halt;
 end;
 
@@ -1145,12 +1140,12 @@ begin
   for i:=-LinkRadius to LinkRadius do
     for k:=-LinkRadius to LinkRadius do
     begin
-      FoundUnit := fPlayers.Player[byte(fOwner)].UnitsHitTest(aLoc.X+i,aLoc.Y+k);
+      FoundUnit := fPlayers.Player[byte(fOwner)].UnitsHitTest(aLoc.X+i, aLoc.Y+k);
       if (FoundUnit is TKMUnitWarrior) and (TKMUnitWarrior(FoundUnit).fAutoLinkState = wl_Linkable) and
          (FoundUnit.GetUnitType = GetUnitType) then //For initial linking they must be the same type, not just same group type
       begin
         Result := TKMUnitWarrior(FoundUnit);
-        break;
+        exit; //@Lewin: I guess it's 'exit' instead of 'break', right?
       end;
     end
 end;
@@ -1172,17 +1167,14 @@ begin
   fOrderLoc := aLoc;
   PassedCommander := false;
 
-  if (fMembers <> nil)and(fCommander=nil) then //Don't give group orders if unit has no crew
+  if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
   for i:=1 to fMembers.Count+1 do
   begin
-    px:=(i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
-    py:=(i-1) div fUnitsPerRow;
+    px := (i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
+    py := (i-1) div fUnitsPerRow;
 
     if (not PassedCommander) and (KMSamePoint(aLoc.Loc,GetPositionInGroup(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1), px, py))) then
-    begin
-      //Skip commander
-      PassedCommander := true;
-    end
+      PassedCommander := true //Skip commander
     else
     begin
       NewLoc := GetPositionInGroup(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1), px, py);
@@ -1266,11 +1258,11 @@ begin
     else
       fThought:=th_None;
 
-  //Tell the player to feed us if we are hungry and a commander
+  //Tell the player to feed us if we are hungry
   //todo: This shouldn't run every tick
   if (fOwner = MyPlayer.PlayerID) and (fCommander = nil) then
   begin
-    SomeoneHungry := (fCondition < UNIT_MIN_CONDITION);
+    SomeoneHungry := (fCondition < UNIT_MIN_CONDITION); //Check commander
     if (fMembers <> nil) and (not SomeoneHungry) then
       for i:=0 to fMembers.Count-1 do
       begin
