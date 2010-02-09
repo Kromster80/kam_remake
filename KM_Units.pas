@@ -993,9 +993,11 @@ end;
 procedure TKMUnitWarrior.Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
 var HaltPoint: TKMPointDir;
 begin
+  //Pass command to Commander unit, but avoid recursively passing command to Self
   if (fCommander <> nil) and (fCommander <> Self) then
   begin
     fCommander.Halt(aTurnAmount,aLineAmount);
+    exit; //@Lewin: we should exit here, right?
   end;
 
   if fOrderLoc.Loc.X = 0 then //If it is invalid, use commander's values
@@ -1018,18 +1020,14 @@ end;
 procedure TKMUnitWarrior.LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
 var i:integer; AddedSelf: boolean;
 begin
-  //Only link to same group type
-  if (aNewCommander = nil) or (UnitGroups[byte(fUnitType)] <> UnitGroups[byte(aNewCommander.fUnitType)]) then exit;
-  //If target is not the commander, then select the commander
-
-  aNewCommander := aNewCommander.GetCommander;
-
-  //Make sure we are a commander, if we are not then tell him to link
-  if (fCommander <> nil) and (fCommander <> Self) then
-  begin
-    fCommander.LinkTo(aNewCommander);
+  //Try to redirect command so that both units are Commanders
+  if (GetCommander<>Self) or (aNewCommander.GetCommander<>aNewCommander) then begin
+    GetCommander.LinkTo(aNewCommander.GetCommander);
     exit;
   end;
+
+  //Only link to same group type
+  if UnitGroups[byte(fUnitType)] <> UnitGroups[byte(aNewCommander.fUnitType)] then exit;
 
   //Can't link to self for obvious reasons
   if aNewCommander = Self then exit;
@@ -1042,13 +1040,12 @@ begin
   begin
     for i:=0 to fMembers.Count-1 do
     begin
-      //Put the commander in the right place, or if
+      //Put the commander in the right place (in to the middle of his members)
       if i = fUnitsPerRow div 2 then
       begin
         aNewCommander.AddMember(Self);
         AddedSelf := true;
       end;
-
       aNewCommander.AddMember(TKMUnitWarrior(fMembers.Items[i]));
       TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
     end;
