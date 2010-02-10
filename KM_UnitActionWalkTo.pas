@@ -28,12 +28,12 @@ type
 //     Lower FREQ will mean faster solutions but more CPU usage. Only solutions with time consuming checks have FREQ
 const
   EXCHANGE_TIMEOUT = 0;                      //Pass with unit
-  PUSH_TIMEOUT = 1;                          //Push unit out of the way
-  PUSHED_TIMEOUT = 10;                       //Try a different way when pushed
-  DODGE_TIMEOUT = 5;     DODGE_FREQ = 8;     //Pass with a unit on a tile next to our target if they want to
-  AVOID_TIMEOUT = 10;    AVOID_FREQ = 20;    //Go around busy units
+  PUSH_TIMEOUT     = 1;                      //Push unit out of the way
+  PUSHED_TIMEOUT   = 10;                     //Try a different way when pushed
+  DODGE_TIMEOUT    = 5;     DODGE_FREQ = 8;  //Pass with a unit on a tile next to our target if they want to
+  AVOID_TIMEOUT    = 10;    AVOID_FREQ = 20; //Go around busy units
   SIDESTEP_TIMEOUT = 10; SIDESTEP_FREQ = 15; //Step to empty tile next to target
-  WAITING_TIMEOUT = 40;                      //After this time we can be forced to exchange
+  WAITING_TIMEOUT  = 40;                     //After this time we can be forced to exchange
 
 
 type

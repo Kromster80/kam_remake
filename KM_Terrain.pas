@@ -3,20 +3,6 @@ interface
 uses Classes, KromUtils, Math, SysUtils,
      KM_Defaults, KM_CommonTypes, KM_Utils;
 
-//todo: @Krom: In KaM there is an extra row at the bottom that is only used for height. It allows for the bottom visible verticies on the map to have elevation.
-//             Something like that anyway. We should use it, because right now the bottom of the map looks a bit too even. (and in some maps it creates a big drop)
-//      @Lewin: Could you please attach a test map and screenshot of how it should look?
-
-//      @Krom: Look at the file "Height Row 08-02-2010.gif" from your map editor. (mission 3 TSK) See how the far bottom and right rows are even. That is because
-//             verticies are for the top left of a tile but the verticies there have no tile, because it is off the map.
-//             However, in KaM there is an extra row and column that is only used to store the height of these far verticies. (none of the other fields are used)
-//             Have you noticed that a 64x64 map only shows 63x63 in your editor? (1-63,1-63)
-//             So all I'm saying to change is to make the thing that renders the height look for these extra rows (+1 to map size X and Y for that case I guess)
-//             If you need me to I can take more screenshots and make test maps.
-//             EDIT: Ok never mind all this, I just checked in KaM and it turns out I was wrong. None of the original maps seem to use the extra row for height.
-//                   I have no idea what it is for. (do you?) Makes sense I suppose, because otherwise the bottom edge wouldn't line up with the screen.
-//             Sorry for bothering you, I should have checked it first. To be deleted.
-
 
 const MaxMapSize=192;
 

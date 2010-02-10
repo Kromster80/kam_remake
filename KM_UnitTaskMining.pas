@@ -121,11 +121,11 @@ with fUnit do
            if UnitSprite[byte(GetUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
              for Dir:=1 to 8 do
                if UnitSprite[byte(GetUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
-           Dir:=min(Dir,8);
+           Dir:=Math.min(Dir,8);
            Direction:=TKMDirection(Dir);
          end
          else Dir := byte(Direction); //Use direction from walk
-         TimeToWork:=WorkPlan.WorkCyc*max(UnitSprite[byte(GetUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
+         TimeToWork:=WorkPlan.WorkCyc*Math.max(UnitSprite[byte(GetUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
          SetActionStay(TimeToWork, WorkPlan.WorkType, false);
        end
        else

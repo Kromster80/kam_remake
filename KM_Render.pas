@@ -100,9 +100,9 @@ begin
   SetRenderDefaults();
   glDisable(GL_LIGHTING);
 
-  OpenGL_Vendor:=glGetString(GL_VENDOR);     fLog.AddToLog('Vendor:  '+OpenGL_Vendor);
-  OpenGL_Renderer:=glGetString(GL_RENDERER); fLog.AddToLog('Renderer:  '+OpenGL_Renderer);
-  OpenGL_Version:=glGetString(GL_VERSION);   fLog.AddToLog('Version:  '+OpenGL_Version);
+  OpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('Vendor:  '+OpenGL_Vendor);
+  OpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('Renderer:  '+OpenGL_Renderer);
+  OpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('Version:  '+OpenGL_Version);
 
   setlength(RenderList,512);  
   
@@ -139,6 +139,7 @@ begin
   rBank    := aB;
 end;
 
+
 procedure TRender.RenderResize(Width,Height:integer; aRenderMode:TRenderMode);
 begin
   if Height=0 then Height:=1;
@@ -155,6 +156,7 @@ begin
   RenderAreaSize.X:=Width;
   RenderAreaSize.Y:=Height;
 end;
+
 
 procedure TRender.Render();
 begin
