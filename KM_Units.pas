@@ -322,6 +322,7 @@ type
     fMembers:TKMList;
     function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
+    procedure UpdateHungerMessage();
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -1233,33 +1234,10 @@ begin
 end;
 
 
-function TKMUnitWarrior.UpdateState():boolean;
-  function CheckCanAbandon: boolean;
-  begin
-    if GetUnitAction is TUnitActionWalkTo  then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
-    if GetUnitAction is TUnitActionStay    then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
-    if GetUnitAction is TUnitActionGoInOut then Result := false //Never interupt leaving barracks
-    else Result := true;
-  end;
-var i: integer; PositioningDone, SomeoneHungry: boolean; LinkUnit: TKMUnitWarrior;
+//Tell the player to feed us if we are hungry
+procedure TKMUnitWarrior.UpdateHungerMessage();
+var i:integer; SomeoneHungry:boolean;
 begin
-  inc(fFlagAnim);
-
-  //Override current action if there's an Order in queue paying attention
-  //to unit WalkTo current position (let the unit arrive on next tile first!)
-  //As well let the unit finish it's curent Attack action before taking a new order
-  //This should make units response a bit delayed.
-
-  if fCondition <= (UNIT_MIN_CONDITION div 3) then
-    fThought:=th_Death
-  else
-    if fCondition < UNIT_MIN_CONDITION then
-      fThought:=th_Eat
-    else
-      fThought:=th_None;
-
-  //Tell the player to feed us if we are hungry
-  //todo: This shouldn't run every tick
   if (fOwner = MyPlayer.PlayerID) and (fCommander = nil) then
   begin
     SomeoneHungry := (fCondition < UNIT_MIN_CONDITION); //Check commander
@@ -1282,25 +1260,47 @@ begin
     else
       fTimeSinceHungryReminder := 0;
   end;
+end;
 
+
+function TKMUnitWarrior.UpdateState():boolean;
+  function CheckCanAbandon: boolean;
+  begin
+    if GetUnitAction is TUnitActionWalkTo  then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
+    if GetUnitAction is TUnitActionStay    then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
+    if GetUnitAction is TUnitActionGoInOut then Result := false //Never interupt leaving barracks
+    else Result := true;
+  end;
+var i: integer; PositioningDone: boolean; LinkUnit: TKMUnitWarrior;
+begin
+  inc(fFlagAnim);
+
+  //Override current action if there's an Order in queue paying attention
+  //to unit WalkTo current position (let the unit arrive on next tile first!)
+  //As well let the unit finish it's curent Attack action before taking a new order
+  //This should make units response a bit delayed.
+
+  //Death thought is checked in parent UpdateState
+  if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat;
+
+  if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
+
+  //Walk out of barracks
   if (fOrder=wo_WalkOut) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
-    //Walk out of barracks
     SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(GetPosition.X,GetPosition.Y));
     fOrder := wo_None;
     fState := ws_Walking; //Reposition after action
     fAutoLinkState := wl_LeavingBarracks; //So we know to link to nearby groups once we've finished this action
   end;
+
   //Dispatch new order when warrior finished previous action part
   if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and //If we are already walking then change the walk to the new location
     TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
   begin
     fAutoLinkState := wl_None; 
-    if fCommander <> nil then //If we are not the commander then walk to near
-      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), true)
-    else
-      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc));
-
+    //If we are not the commander then walk to near
+    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), fCommander <> nil)
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
@@ -1309,10 +1309,8 @@ begin
 
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
-    if fCommander <> nil then //If we are not the commander then walk to near
-      SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,true)
-    else
-      SetActionWalk(Self, KMPoint(fOrderLoc));
+    //If we are not the commander then walk to near
+    SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,fCommander <> nil)
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)

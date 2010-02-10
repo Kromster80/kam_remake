@@ -1314,13 +1314,9 @@ begin
 
   //Take resources
   for i:=1 to 12 do
-  begin
     for k:=1 to 4 do
       if i = TroopCost[aUnitType,k] then
-      begin
         if i in [1..11] then dec(ResourceCount[i]);
-      end;
-  end;
   dec(RecruitsInside); //All units take a recruit
 
   //Make new unit
