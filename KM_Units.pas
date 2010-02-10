@@ -9,6 +9,7 @@ uses
 //Virtual - declared and used (overriden) always
 //Abstract - declared but used only in child classes
 
+type TCheckAxis = (ax_X, ax_Y);
 type
   TKMUnit = class;
   TKMUnitWorker = class;
@@ -262,8 +263,7 @@ type
     procedure UpdateFOW();
     procedure UpdateThoughts();
     procedure UpdateVisibility();
-    function GetXSlide: single;
-    function GetYSlide: single;
+    function GetSlide(aCheck:TCheckAxis): single;
   public
     procedure Save(SaveStream:TKMemoryStream); virtual;
     function UpdateState():boolean; virtual;
@@ -441,8 +441,8 @@ begin
   AnimAct:=byte(fCurrentAction.fActionType);
   AnimDir:=byte(Direction);
 
-  XPaintPos := fPosition.X+0.5+GetXSlide;
-  YPaintPos := fPosition.Y+ 1 +GetYSlide;
+  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
+  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
   if MakeShowUnitRoutes then
     if fCurrentAction is TUnitActionWalkTo then
@@ -621,8 +621,8 @@ begin
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 
-  XPaintPos := fPosition.X+0.5+GetXSlide;
-  YPaintPos := fPosition.Y+ 1 +GetYSlide;
+  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
+  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
   if MakeShowUnitRoutes then
     if fCurrentAction is TUnitActionWalkTo then
@@ -724,8 +724,8 @@ begin
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
 
-  XPaintPos := fPosition.X+0.5+GetXSlide;
-  YPaintPos := fPosition.Y+ 1 +GetYSlide;
+  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
+  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
   fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
 
@@ -1300,7 +1300,7 @@ begin
   begin
     fAutoLinkState := wl_None; 
     //If we are not the commander then walk to near
-    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), fCommander <> nil)
+    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), fCommander <> nil);
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
@@ -1310,7 +1310,7 @@ begin
   if (fOrder=wo_Walk) and GetUnitAction.IsStepDone and CheckCanAbandon then
   begin
     //If we are not the commander then walk to near
-    SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,fCommander <> nil)
+    SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,fCommander <> nil);
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
@@ -1386,8 +1386,8 @@ inherited;
   AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=byte(Direction);
 
-  XPaintPos := fPosition.X+0.5+GetXSlide;
-  YPaintPos := fPosition.Y+ 1 +GetYSlide;
+  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
+  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
   //todo: Flag should brighten when unit is selected
@@ -1502,7 +1502,7 @@ inherited;
   else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
   AnimDir:=byte(Direction);
-  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5+GetXSlide, fPosition.Y+1+GetYSlide,true);
+  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y),true);
 end;
 
 
@@ -1959,71 +1959,27 @@ begin
 end;
 
 
-function TKMUnit.GetXSlide: single;
-var DY,DX, PixelPos: shortint;
+function TKMUnit.GetSlide(aCheck:TCheckAxis): single;
+var DY,DX, PixelPos, LookupDiagonal: shortint;
 begin
   Result := 0;
   if (not IsExchanging) or not (GetUnitAction.fActionName in [uan_WalkTo,uan_GoInOut]) then exit;
 
   //Uses Y because a walk in the Y means a slide in the X
-  DY := sign(NextPosition.Y-fPosition.Y);
-  DX := sign(NextPosition.X-fPosition.X);
-  if DY = 0 then exit;
+  DX := sign(NextPosition.X - fPosition.X);
+  DY := sign(NextPosition.Y - fPosition.Y);
+  if (aCheck = ax_X) and (DY = 0) then exit; //Unit is not shifted
+  if (aCheck = ax_Y) and (DX = 0) then exit;
 
-  if (DY <> 0) and (DX <> 0) then
-  begin
-    //Diagonal movement             
-    PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*1.414);
+  LookupDiagonal := abs(DX) + abs(DY); //which gives us swith: 1-straight, 2-diagonal.
 
-    //The lookup is a mirror, (symmetrical) so after half way we must reverse it
-    if PixelPos <= length(SlideLookupDiagonal) then //Use
-      Result := (DY*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
-    else
-      Result := (DY*SlideLookupDiagonal[length(SlideLookupDiagonal)*2-PixelPos])/CELL_SIZE_PX;
-  end
-  else
-  begin
-    //Non-diagonal sliding. (left/right or up/down)
-    PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX);
-    //The lookup is a mirror, (symmetrical) so after half way we must reverse it
-    if PixelPos <= CELL_SIZE_PX div 2 then
-      Result := (DY*SlideLookup[PixelPos])/CELL_SIZE_PX
-    else
-      Result := (DY*SlideLookup[CELL_SIZE_PX-PixelPos])/CELL_SIZE_PX;
+  if aCheck = ax_X then begin
+    PixelPos := Round(abs(fPosition.Y-PrevPosition.Y)*CELL_SIZE_PX*sqrt(LookupDiagonal)); //Diagonal movement *sqrt(2)
+    Result := (DY*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
   end;
-end;
-
-
-function TKMUnit.GetYSlide: single;
-var DY,DX, PixelPos: shortint;
-begin
-  Result := 0;
-  if (not IsExchanging) or (GetUnitAction.fActionName <> uan_WalkTo) then exit;
-
-  //Uses X because a walk in the X means a slide in the Y
-  DY := sign(NextPosition.Y-fPosition.Y);
-  DX := sign(NextPosition.X-fPosition.X);
-  if DX = 0 then exit;
-
-  if (DY <> 0) and (DX <> 0) then
-  begin
-    //Diagonal movement
-    PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*1.414);
-    //The lookup is a mirror, (symmetrical) so after half way we must reverse it
-    if PixelPos <= length(SlideLookupDiagonal) then
-      Result := -(DX*SlideLookupDiagonal[PixelPos])/CELL_SIZE_PX
-    else
-      Result := -(DX*SlideLookupDiagonal[length(SlideLookupDiagonal)*2-PixelPos])/CELL_SIZE_PX;
-  end
-  else
-  begin
-    //Non-diagonal sliding. (left/right or up/down)
-    PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX);
-    //The lookup is a mirror, (symmetrical) so after half way we must reverse it
-    if PixelPos <= CELL_SIZE_PX div 2 then
-      Result := -(DX*SlideLookup[PixelPos])/CELL_SIZE_PX
-    else
-      Result := -(DX*SlideLookup[CELL_SIZE_PX-PixelPos])/CELL_SIZE_PX;
+  if aCheck = ax_Y then begin
+    PixelPos := Round(abs(fPosition.X-PrevPosition.X)*CELL_SIZE_PX*sqrt(LookupDiagonal)); //Diagonal movement *sqrt(2)
+    Result := -(DX*SlideLookup[LookupDiagonal,PixelPos])/CELL_SIZE_PX;
   end;
 end;
 

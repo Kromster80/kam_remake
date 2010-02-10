@@ -780,10 +780,11 @@ type
 //Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
 //Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
 //I tweaked it by hand to look similar to KaM.
-//Whenever CELL_SIZE_PX will change we'll need to update the values here. Div2 means that curve is symmetrical
+//1st row for straight, 2nd for diagonal sliding
 const
-  SlideLookup: array[0..(CELL_SIZE_PX div 2)] of byte = (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9);
-  SlideLookupDiagonal: array[0..round((CELL_SIZE_PX div 2)*1.41)] of byte = (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7);
+  SlideLookup: array[1..2, 0..round(CELL_SIZE_PX*1.41)] of byte = (
+    (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0));
 
 
 const
