@@ -173,7 +173,8 @@ end;
 destructor TUnitActionWalkTo.Destroy;
 begin
   FreeAndNil(NodeList);
-  if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then DecVertex;
+  if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
+    DecVertex;
   fWalker.IsExchanging := false;
   if fTargetUnit <> nil then
     fTargetUnit.RemovePointer;
@@ -709,7 +710,7 @@ begin
     //If NodeList.List[0] <> 0;0 then we have changed our walk path and NodePos=1 no longer means it is the start of the walk
     if ((NodePos > 1) or not KMSamePoint(NodeList.List[0],KMPoint(0,0))) and
       (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
-      WaitingOnStep := true;
+    WaitingOnStep := true;
 
     GetIsStepDone := true; //Unit stepped on a new tile
     fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)

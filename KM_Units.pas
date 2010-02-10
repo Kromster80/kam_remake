@@ -997,7 +997,7 @@ begin
   if (fCommander <> nil) and (fCommander <> Self) then
   begin
     fCommander.Halt(aTurnAmount,aLineAmount);
-    exit; //@Lewin: we should exit here, right?
+    exit;
   end;
 
   if fOrderLoc.Loc.X = 0 then //If it is invalid, use commander's values
@@ -1145,7 +1145,7 @@ begin
          (FoundUnit.GetUnitType = GetUnitType) then //For initial linking they must be the same type, not just same group type
       begin
         Result := TKMUnitWarrior(FoundUnit);
-        exit; //@Lewin: I guess it's 'exit' instead of 'break', right?
+        exit;
       end;
     end
 end;
@@ -1295,6 +1295,7 @@ begin
   if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and //If we are already walking then change the walk to the new location
     TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
   begin
+    fAutoLinkState := wl_None; 
     if fCommander <> nil then //If we are not the commander then walk to near
       TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), true)
     else
