@@ -689,6 +689,11 @@ begin
   if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and
      Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
   begin
+
+    //@Lewin: This is a WIP sketch
+    //My idea is to check surrounding tiles for enemies of any kind
+
+
     //First of all make changes to our route if we are supposed to be tracking a unit
     if (fTargetUnit <> nil) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
       ChangeWalkTo(fTargetUnit.GetPosition); //If target unit has moved then change course and follow it

@@ -37,6 +37,7 @@ uses
   KM_Utils in 'KM_Utils.pas',
   KM_TGATexture in ' Common \KM_TGATexture.pas',
   KM_UnitActionAbandonWalk in 'KM_UnitActionAbandonWalk.pas',
+  KM_UnitActionFight in 'KM_UnitActionFight.pas',
   KM_UnitActionGoInOut in 'KM_UnitActionGoInOut.pas',
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
