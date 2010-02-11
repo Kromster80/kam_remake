@@ -53,6 +53,8 @@ type TKMMainMenuInterface = class
       Button_MapEd_Start,Button_MapEdBack:TKMButton;
     Panel_Options:TKMPanel;
       Image_Options_BG, Image_Options_RightCrest:TKMImage;
+      Panel_Options_GFX:TKMPanel;
+        Ratio_Options_Brightness:TKMRatioRow;
       Panel_Options_Ctrl:TKMPanel;
         Label_Options_MouseSpeed:TKMLabel;
         Ratio_Options_Mouse:TKMRatioRow;
@@ -406,6 +408,13 @@ begin
     Image_Options_RightCrest:=MyControls.AddImage(Panel_Options,635,220,round(207*1.3),round(295*1.3),6,6);
     Image_Options_RightCrest.Stretch;
 
+    Panel_Options_GFX:=MyControls.AddPanel(Panel_Options,520,130,170,80);
+      MyControls.AddLabel(Panel_Options_GFX,6,0,100,30,'Graphics:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(Panel_Options_GFX,0,20,170,60);
+      MyControls.AddLabel(Panel_Options_GFX,18,27,100,30,'Brightness',fnt_Metal,kaLeft);
+      Ratio_Options_Brightness:=MyControls.AddRatioRow(Panel_Options_GFX,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_Brightness.OnChange:=Options_Change;
+
     Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,120,130,170,80);
       MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,'Controls:',fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Ctrl,0,20,170,60);
@@ -466,6 +475,7 @@ begin
       Button_Options_ResApply.Disable;
 
     CheckBox_Options_Autosave.Checked := aGameSettings.IsAutosave;
+    Ratio_Options_Brightness.Position := aGameSettings.GetBrightness;
     Ratio_Options_Mouse.Position      := aGameSettings.GetMouseSpeed;
     Ratio_Options_SFX.Position        := aGameSettings.GetSoundFXVolume;
     Ratio_Options_Music.Position      := aGameSettings.GetMusicVolume;
@@ -736,6 +746,7 @@ begin
   if Sender = CheckBox_Options_Autosave then fGame.fGameSettings.IsAutosave := not CheckBox_Options_Autosave.Checked;
   CheckBox_Options_Autosave.Checked := fGame.fGameSettings.IsAutosave;
 
+  if Sender = Ratio_Options_Brightness then fGame.fGameSettings.SetBrightness(Ratio_Options_Brightness.Position);
   if Sender = Ratio_Options_Mouse then fGame.fGameSettings.SetMouseSpeed(Ratio_Options_Mouse.Position);
   if Sender = Ratio_Options_SFX   then fGame.fGameSettings.SetSoundFXVolume(Ratio_Options_SFX.Position);
   if Sender = Ratio_Options_Music then fGame.fGameSettings.SetMusicVolume(Ratio_Options_Music.Position);

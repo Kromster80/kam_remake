@@ -35,6 +35,7 @@ type
     property GetSpeedup:word read fSpeedup;
     procedure IncBrightness;
     procedure DecBrightness;
+    procedure SetBrightness(aValue:integer);
     procedure SetIsAutosave(val:boolean);
     procedure SetIsFastScroll(val:boolean);
     procedure SetIsFullScreen(val:boolean);
@@ -135,7 +136,7 @@ begin
   fFullScreen    := f.ReadBool   ('GFX','FullScreen',false);
   fResolutionID  := f.ReadInteger('GFX','ResolutionID',1);
 
-  fAutosave      := f.ReadBool   ('Game','Autosave',false);
+  fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
   fFastScroll    := f.ReadBool   ('Game','FastScroll',false);
   fMouseSpeed    := f.ReadInteger('Game','MouseSpeed',10);
   fLocale        := f.ReadString ('Game','Locale','eng');
@@ -177,14 +178,20 @@ end;
 
 procedure TGameSettings.IncBrightness;
 begin
-  fBrightness:= EnsureRange(fBrightness+1,1,6);
-  fNeedsSave:=true;
+  fBrightness := EnsureRange(fBrightness+1,1,6);
+  fNeedsSave  := true;
 end;
 
 procedure TGameSettings.DecBrightness;
 begin
-  fBrightness:= EnsureRange(fBrightness-1,1,6);
-  fNeedsSave:=true;
+  fBrightness := EnsureRange(fBrightness-1,1,6);
+  fNeedsSave  := true;
+end;
+
+procedure TGameSettings.SetBrightness(aValue:integer);
+begin
+  fBrightness := EnsureRange(aValue,0,20);
+  fNeedsSave  := true;
 end;
 
 procedure TGameSettings.SetIsAutosave(val:boolean);
