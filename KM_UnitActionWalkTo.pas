@@ -40,7 +40,7 @@ type
   TUnitActionWalkTo = class(TUnitAction)
     private
       fWalker, fTargetUnit:TKMUnit;
-      fWalkFrom, fWalkTo, fAvoid, fSideStepTesting:TKMPoint;
+      fWalkFrom, fWalkTo, fAvoid, fSideStepTesting, fNewWalkTo:TKMPoint;
       fWalkToSpot:boolean;
       fPass:TPassability; //Desired passability set once on Create
       DoesWalking, WaitingOnStep, fDestBlocked:boolean;
@@ -101,6 +101,7 @@ begin
   fWalkFrom     := fWalker.GetPosition;
   fAvoid        := Avoid;
   fWalkToSpot   := aWalkToSpot;
+  fNewWalkTo    := KMPoint(0,0);
   fPass         := fWalker.GetDesiredPassability;
   if not aWalkToNear then
     fWalkTo     := LocB
@@ -145,6 +146,7 @@ begin
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fAvoid);
   LoadStream.Read(fVertexOccupied);
+  LoadStream.Read(fNewWalkTo);
   LoadStream.Read(fWalkToSpot);
   LoadStream.Read(fSideStepTesting);
   LoadStream.Read(fDestBlocked);
@@ -621,29 +623,13 @@ end;
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false);
-var NextPos, LastPos: TKMPoint;
 begin
-  fWalkFrom := fWalker.GetPosition;
   if not aWalkToNear then
-    fWalkTo := aLoc
+    fNewWalkTo := aLoc
   else
-    fWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass);
+    fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass);
 
   fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal ChangeWalkTo 0;0');
-
-  NextPos := NodeList.List[NodePos];
-  LastPos := NodeList.List[NodePos-1];
-  FreeAndNil(NodeList);
-  NodeList      := TKMPointList.Create;
-  NodePos       := 1;
-  NodeList.AddEntry(NextPos);  //Remember where we are about to step to
-  NodeList.List[0] := LastPos; //...and our last position
-  fRouteBuilt   := false;
-
-  if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
-    exit; //so we don't need to perform any more processing
-
-  fRouteBuilt := AssembleTheRoute();
 end;
 
 
@@ -707,9 +693,19 @@ begin
     if (fTargetUnit <> nil) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
       ChangeWalkTo(fTargetUnit.GetPosition); //If target unit has moved then change course and follow it
 
-    //If NodeList.List[0] <> 0;0 then we have changed our walk path and NodePos=1 no longer means it is the start of the walk
-    if ((NodePos > 1) or not KMSamePoint(NodeList.List[0],KMPoint(0,0))) and
-      (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
+    //See if we have a request to change our route from ChangeWalkTo
+    if not KMSamePoint(fNewWalkTo,KMPoint(0,0)) then
+    begin
+      fWalkTo := fNewWalkTo;
+      fWalkFrom := NodeList.List[NodePos];
+      fNewWalkTo := KMPoint(0,0);
+      //Don't clear NodeList, just delete everything past NodePos and continue to add new route from there
+      NodeList.Count := NodePos; //This leaves the item at NodePos but nothing past that (because TKMPoints are records we can simply reduce the count, no freeing is needed)
+      fRouteBuilt := AssembleTheRoute(); //If NodeList.Count > 0 (which it is in this case) then this function will append to it rather than overriding
+      if not fRouteBuilt then exit; //Next execute will report error to user
+    end;
+
+    if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
     WaitingOnStep := true;
 
     GetIsStepDone := true; //Unit stepped on a new tile
@@ -803,6 +799,7 @@ begin
                               fWalker.PositionF.Y + DY*min(Distance,abs(WalkY)));
 
   inc(fWalker.AnimStep);
+  GetIsStepDone := false; //We are not actually done because now we have just taken another step
   DoesWalking:=true; //Now it's definitely true that unit did walked one step
 end;
 
@@ -822,6 +819,7 @@ begin
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fAvoid);
   SaveStream.Write(fVertexOccupied);
+  SaveStream.Write(fNewWalkTo);
   SaveStream.Write(fWalkToSpot);
   SaveStream.Write(fSideStepTesting);
   SaveStream.Write(fDestBlocked);

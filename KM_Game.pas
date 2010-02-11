@@ -459,6 +459,7 @@ begin
               begin
                 TKMUnitWarrior(fGamePlayInterface.GetShownUnit).LinkTo(TKMUnitWarrior(HitUnit));
                 fGamePlayInterface.JoiningGroups := false;
+                fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit); //Refresh unit display
                 Screen.Cursor:=c_Default; //Reset cursor when mouse released
               end;
             end;
@@ -616,6 +617,7 @@ begin
   FreeAndNil(fGamePlayInterface);  //Free both interfaces
   FreeAndNil(fMapEditorInterface); //Free both interfaces
   FreeAndNil(fViewport);
+  ID_Tracker := 0; //Reset ID tracker
 
   case Msg of
     gr_Win,gr_Defeat: begin

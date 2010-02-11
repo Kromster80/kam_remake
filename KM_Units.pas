@@ -972,6 +972,9 @@ function TKMUnitWarrior.RePosition: boolean;
 var ClosestTile:TKMPoint;
 begin
   Result := true;
+  if (fState = ws_None) and (Direction <> TKMDirection(fOrderLoc.Dir+1)) then
+    fState := ws_RepositionPause; //Make sure we always face the right way if somehow state is gets to None without doing this
+
   if fOrderLoc.Loc.X = 0 then exit;
 
   if fState = ws_None then
@@ -1266,9 +1269,10 @@ end;
 function TKMUnitWarrior.UpdateState():boolean;
   function CheckCanAbandon: boolean;
   begin
-    if GetUnitAction is TUnitActionWalkTo  then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
-    if GetUnitAction is TUnitActionStay    then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
-    if GetUnitAction is TUnitActionGoInOut then Result := false //Never interupt leaving barracks
+    if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
+    if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
+    if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
+    if GetUnitAction is TUnitActionGoInOut     then Result := false //Never interupt leaving barracks
     else Result := true;
   end;
 var i: integer; PositioningDone: boolean; LinkUnit: TKMUnitWarrior;
@@ -2234,7 +2238,8 @@ begin
       5: begin
           fSchool.SetState(hst_Idle,10);
           SetActionStay(9,ua_Walk);
-          fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
+          if fTerrain.CheckTileRevelation(GetPosition.X, GetPosition.Y, MyPlayer.PlayerID) >= 255 then
+            fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12 if the location is visible
          end;
       6: begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
