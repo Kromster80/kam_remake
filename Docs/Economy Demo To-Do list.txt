@@ -1,4 +1,4 @@
-4th "Bug Fix" Demo should include/fix:
+"Bug Fix" Demo should include/fix:
 
 -	Buggy stone mining - in some maps, e.g. 15 TSK, stonemasons get stuck after grabbing a stone, because of the changing elevation and angle (the tile below them becomes unwalkable). Building a road near the trapped stonemason causes an error message like the described before, but then nothing bad happens - he just go home and keep working. [To Discuss]
 -	Rectangle below cursor is not fixed (happens on GeForce GT240M, 195.62 drivers, no problem on older 6800XT / 91.47) [Krom]
@@ -21,4 +21,4 @@
 +	Show proper error message and return to main menu/game if load fails or file doesn't exist [Lewin]
 +	Change save file type to .sav rather than .txt [Krom]
 +	Height effects passability [Lewin]
-	Update Readme file [Krom/Lewin]
++	Update Readme file [Krom/Lewin]
