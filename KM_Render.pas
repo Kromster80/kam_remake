@@ -467,15 +467,16 @@ end;
 procedure TRender.RenderDebugUnitMoves(x1,x2,y1,y2:integer);
 var i,k:integer;
 begin
-  for i:=y1 to y2 do for k:=x1 to x2 do
+  for i:=y1 to y2 do for k:=x1 to x2 do begin
     if fTerrain.Land[i,k].IsVertexUnit<>0 then begin
       glColor4f(1-fTerrain.Land[i,k].IsVertexUnit/6,fTerrain.Land[i,k].IsVertexUnit/6,1-fTerrain.Land[i,k].IsVertexUnit/6,0.8);
       RenderDot(k,i-fTerrain.InterpolateLandHeight(k,i)/CELL_HEIGHT_DIV,0.3);
-    end else
+    end;
     if fTerrain.Land[i,k].IsUnit>0 then begin
       glColor4f(fTerrain.Land[i,k].IsUnit/6,1-fTerrain.Land[i,k].IsUnit/6,-fTerrain.Land[i,k].IsUnit/6,0.8);
       RenderQuad(k,i);
-    end;   
+    end;
+  end;
 end;
 
 
