@@ -13,3 +13,5 @@
 7. Multi-player
 
 8. Self-sufficient AI for single-player
+
+9. Mac/Linux builds through Lazarus (Lewin: I can do Linux)

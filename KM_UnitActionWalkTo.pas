@@ -117,6 +117,15 @@ begin
     exit; //so we don't need to perform any more processing
 
   fRouteBuilt   := AssembleTheRoute();
+  //Due to rare circumstances (e.g. floodfill doesn't take notice of CanWalkDiagonally i.e. trees on road corners)
+  // there are times when trying to build a route along roads will fail.
+  // To reduce crash errors, try rebuilding it with just canWalk. This will normally fix the problem and
+  // It's not a big deal if occasionally units walk off the road.
+  if (not fRouteBuilt) and (fPass = canWalkRoad) then
+  begin
+    fPass := canWalk;
+    fRouteBuilt := AssembleTheRoute();
+  end;
   if aSetPushed then SetPushedValues;
 end;
 

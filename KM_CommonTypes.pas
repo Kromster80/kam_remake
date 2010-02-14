@@ -512,10 +512,13 @@ var i:integer;
 begin
   inherited;
 
+  //Make space in lists to write data to, otherwise we get "Range Check Error"
+  setlength(Tag,Count+32);
+  setlength(Tag2,Count+32);
   for i:=1 to Count do
   begin
-    LoadStream.Read(Tag[i],4);
-    LoadStream.Read(Tag2[i],4);
+    LoadStream.Read(Tag[i]);
+    LoadStream.Read(Tag2[i]);
   end;
 end;
 

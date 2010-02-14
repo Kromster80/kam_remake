@@ -794,12 +794,12 @@ end;
 procedure TKMGamePlayInterface.Create_Menu_Page;
 begin
   Panel_Menu:=MyControls.AddPanel(Panel_Main,0,412,196,400);
-    Button_Menu_Save:=MyControls.AddButton(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
-    Button_Menu_Save.OnClick:=Menu_ShowLoad;
-    Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
-    Button_Menu_Load:=MyControls.AddButton(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
+    Button_Menu_Load:=MyControls.AddButton(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
     Button_Menu_Load.OnClick:=Menu_ShowLoad;
     Button_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
+    Button_Menu_Save:=MyControls.AddButton(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
+    Button_Menu_Save.OnClick:=Menu_ShowLoad;
+    Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
     Button_Menu_Settings:=MyControls.AddButton(Panel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
     Button_Menu_Settings.OnClick:=Menu_ShowSettings;
     Button_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
@@ -1490,6 +1490,7 @@ begin
   if Sender=Button_House_DemolishYes then begin
     MyPlayer.RemHouse(TKMHouse(fPlayers.Selected).GetPosition,false);
     ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
+    SwitchPage(Button_Main[1]); //Return to build menu after demolishing
   end else begin
     AskDemolish:=false;
     SwitchPage(Button_Main[1]); //Cancel and return to build menu
