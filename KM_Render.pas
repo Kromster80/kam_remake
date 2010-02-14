@@ -35,7 +35,7 @@ private
     FOWvalue:byte; // Fog of War thickness
   end;
   
-  procedure RenderDot(pX,pY:single);
+  procedure RenderDot(pX,pY:single; Size:single = 0.05);
   procedure RenderDotOnTile(pX,pY:single);
   procedure RenderQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
@@ -66,8 +66,8 @@ public
   procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
-  procedure RenderDebugWires();
-  procedure RenderDebugUnitMoves();
+  procedure RenderDebugWires(x1,x2,y1,y2:integer);
+  procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
   procedure RenderObject(Index,AnimStep,pX,pY:integer);
   procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean);
@@ -427,12 +427,9 @@ for i:=y1 to y2 do for k:=x1 to x2 do
 end;
 
 
-procedure TRender.RenderDebugWires();
-var i,k,t:integer; x1,x2,y1,y2:integer;
+procedure TRender.RenderDebugWires(x1,x2,y1,y2:integer);
+var i,k,t:integer;
 begin
-  x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
-  y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
-
   for i:=y1 to y2 do begin
     glbegin (GL_LINE_STRIP);
     for k:=x1 to x2 do begin
@@ -467,24 +464,18 @@ begin
 end;
 
 
-procedure TRender.RenderDebugUnitMoves();
-var i,k:integer; x1,x2,y1,y2:integer;
+procedure TRender.RenderDebugUnitMoves(x1,x2,y1,y2:integer);
+var i,k:integer;
 begin
-  x1:=fViewport.GetClip.Left; x2:=fViewport.GetClip.Right;
-  y1:=fViewport.GetClip.Top;  y2:=fViewport.GetClip.Bottom;
-
-  glColor4f(0,1,1,0.5);
-
   for i:=y1 to y2 do for k:=x1 to x2 do
     if fTerrain.Land[i,k].IsVertexUnit<>0 then begin
       glColor4f(1-fTerrain.Land[i,k].IsVertexUnit/6,fTerrain.Land[i,k].IsVertexUnit/6,1-fTerrain.Land[i,k].IsVertexUnit/6,0.8);
-      RenderQuad(k,i);
+      RenderDot(k,i-fTerrain.InterpolateLandHeight(k,i)/CELL_HEIGHT_DIV,0.3);
     end else
     if fTerrain.Land[i,k].IsUnit>0 then begin
       glColor4f(fTerrain.Land[i,k].IsUnit/6,1-fTerrain.Land[i,k].IsUnit/6,-fTerrain.Land[i,k].IsUnit/6,0.8);
       RenderQuad(k,i);
-    end;
-
+    end;   
 end;
 
 
@@ -754,11 +745,11 @@ end;
 
 
 {Simple dot to know where it actualy is}
-procedure TRender.RenderDot(pX,pY:single);
+procedure TRender.RenderDot(pX,pY:single; Size:single = 0.05);
 begin
   glBindTexture(GL_TEXTURE_2D, 0);
   glBegin (GL_QUADS);
-    glkRect(pX-1,pY-1,pX-1+0.1,pY-1-0.1);
+    glkRect(pX-1-Size,pY-1+Size,pX-1+Size,pY-1-Size);
   glEnd;
 end;
 
