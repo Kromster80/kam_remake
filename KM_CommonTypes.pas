@@ -474,8 +474,8 @@ end;
 procedure TKMPointTagList.AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal);
 begin
   inherited AddEntry(aLoc);
-  if Count>length(Tag)-1 then setlength(Tag,Count+32);
-  if Count>length(Tag2)-1 then setlength(Tag2,Count+32);
+  if Count>length(Tag)-1 then setlength(Tag,Count+32); //Expand the list
+  if Count>length(Tag2)-1 then setlength(Tag2,Count+32); //+32 is just a way to avoid further expansions
   Tag[Count]:=aTag;
   Tag2[Count]:=aTag2;
 end;
@@ -497,7 +497,7 @@ end;
 procedure TKMPointTagList.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  inherited;
+  inherited; //Writes Count
 
   for i:=1 to Count do
   begin
@@ -510,10 +510,9 @@ end;
 procedure TKMPointTagList.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
-  inherited;
+  inherited; //Reads Count
 
-  //Make space in lists to write data to, otherwise we get "Range Check Error"
-  setlength(Tag,Count+32);
+  setlength(Tag,Count+32); //Make space in lists to write data to, otherwise we get "Range Check Error"
   setlength(Tag2,Count+32);
   for i:=1 to Count do
   begin
