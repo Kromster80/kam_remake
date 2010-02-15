@@ -540,15 +540,16 @@ var FOW:byte;
   procedure AddSpriteToListBy(ID:integer; AnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
   begin
     ID := MapElem[ID].Step[ AnimStep mod MapElem[ID].Count +1 ] +1;
-    ShiftY := ShiftY + (RXData[1].Size[ID,2]) / CELL_SIZE_PX-fTerrain.Land[pY,pX].Height / CELL_HEIGHT_DIV;
-    AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,pX,pY,true,0,-1);
+    ShiftY := ShiftY + (RXData[1].Size[ID,2]) / CELL_SIZE_PX;
+    ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX+ShiftX, pY+ShiftY)/CELL_HEIGHT_DIV;
+    AddSpriteToList(1, ID, pX+ShiftX, pY+ShiftY, pX, pY, true);
   end;
 begin
-  FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
+  FOW := fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
   if FOW <=128 then AnimStep:=0; //Stop animation
 
-  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  ,-0.4);
-  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0.5,-0.4);
+  AddSpriteToListBy(Index, AnimStep  , pX, pY, 0  , -0.4);
+  AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0.5, -0.4);
   if IsDouble then exit;
   AddSpriteToListBy(Index, AnimStep+1, pX, pY, 0  , 0.1);
   AddSpriteToListBy(Index, AnimStep  , pX, pY, 0.5, 0.1);
