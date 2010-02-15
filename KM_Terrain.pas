@@ -33,7 +33,7 @@ public
     TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
     TileOwner:TPlayerID; //Name says it all, should simplify player related issues
-    IsUnit:shortint; //Whenever there's a unit on that tile mark the tile as occupied and count the number
+    IsUnit:byte; //Whenever there's a unit on that tile mark the tile as occupied and count the number
     IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
 
 
@@ -938,6 +938,9 @@ begin
   UpdateTransition(Loc.X,Loc.Y+1); //    x
   UpdateTransition(Loc.X-1,Loc.Y);
   FlattenTerrain(Loc);
+  //If tile stonemason is standing on becomes unwalkable, flatten it too so he doesn't get stuck all the time
+  if not CheckHeightPass(KMPointY1(Loc),canWalk) then
+    FlattenTerrain(KMPointY1(Loc));
   RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(canWalk);
 end;

@@ -1,10 +1,11 @@
 "Bug Fix" Demo should include/fix:
 
--	Buggy stone mining - in some maps, e.g. 15 TSK, stonemasons get stuck after grabbing a stone, because of the changing elevation and angle (the tile below them becomes unwalkable). Building a road near the trapped stonemason causes an error message like the described before, but then nothing bad happens - he just go home and keep working. [To Discuss]
+
 -	Rectangle below cursor is not fixed (happens on GeForce GT240M, 195.62 drivers, no problem on older 6800XT / 91.47) [Krom]
--	Various reported instabilities regarding troop movement
+-	Troop buttons not working sometimes
 -	Troop voices
 
++	Buggy stone mining - in some maps, e.g. 15 TSK, stonemasons get stuck after grabbing a stone, because of the changing elevation and angle (the tile below them becomes unwalkable). Building a road near the trapped stonemason causes an error message like the described before, but then nothing bad happens - he just go home and keep working.
 +	Some saves are impossible to load due to the range check error (bug in TKMPointTagList.Load) [Lewin]
 +	Instabilities due to rare circumstances causing routes with canWalkRoad to fail when floodfill succeeds [Lewin]
 +	Demolishing the building manually exits from the building menu, unlike in KaM, where it takes back to the building selection [Lewin]
