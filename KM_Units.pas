@@ -197,6 +197,7 @@ type
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
     fThought:TUnitThought;
+    fHitPoints:byte;
     fCondition:integer; //Unit condition, when it reaches zero unit should die
     fOwner:TPlayerID;
     fHome:TKMHouse;
@@ -224,6 +225,7 @@ type
     procedure KillUnit; virtual;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
+    procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
@@ -247,6 +249,8 @@ type
     property GetCondition: integer read fCondition;
     property SetCondition: integer write fCondition;
     procedure SetFullCondition;
+    procedure HitPointsDecrease(aAmount:integer);
+    property GetHitPoints:byte read fHitPoints;
     procedure CancelUnitTask;
     property IsVisible: boolean read fVisible;
     property SetVisibility:boolean write fVisible;
@@ -386,7 +390,7 @@ type
 
 implementation
 uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_LoadLib, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game,
-KM_ResourceGFX, KM_UnitActionAbandonWalk, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
+KM_ResourceGFX, KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
 KM_UnitTaskDelivery, KM_UnitTaskMining;
 
 
@@ -926,7 +930,7 @@ end;
 
 function TKMUnitWarrior.GetSupportedActions: TUnitActionTypeSet;
 begin
-  Result := [ua_Walk, ua_Work1, ua_Die];
+  Result := [ua_Walk, ua_Work, ua_Die];
 end;
 
 
@@ -1275,7 +1279,11 @@ function TKMUnitWarrior.UpdateState():boolean;
     if GetUnitAction is TUnitActionGoInOut     then Result := false //Never interupt leaving barracks
     else Result := true;
   end;
-var i: integer; PositioningDone: boolean; LinkUnit: TKMUnitWarrior;
+var
+  i: integer;
+  PositioningDone: boolean;
+  LinkUnit: TKMUnitWarrior;
+  U: TKMUnit; //Any unit, well maybe except animals
 begin
   inc(fFlagAnim);
 
@@ -1375,6 +1383,20 @@ begin
       SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
     else
       SetActionStay(5,ua_Walk);
+  end;
+
+  if ENABLE_FIGHTING then
+  if fState = ws_None then begin
+    U := fPlayers.UnitsHitTest(GetPosition.X+1,GetPosition.Y);
+    if (U = nil) or (U.GetOwner = GetOwner) then
+      U := fPlayers.UnitsHitTest(GetPosition.X,GetPosition.Y+1);
+    if (U = nil) or (U.GetOwner = GetOwner) then
+      U := fPlayers.UnitsHitTest(GetPosition.X-1,GetPosition.Y);
+    if (U = nil) or (U.GetOwner = GetOwner) then
+      U := fPlayers.UnitsHitTest(GetPosition.X,GetPosition.Y-1);
+
+    if (U <> nil) and (U.GetOwner <> GetOwner) then
+      SetActionFight(ua_Work, U);
   end;
 
   fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
@@ -1532,6 +1554,7 @@ begin
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   fCondition    := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4);
+  fHitPoints    := 10; //todo: use real hitpoints here
 
   SetActionStay(10, ua_Walk);
   fTerrain.UnitAdd(NextPosition);
@@ -1597,6 +1620,7 @@ begin
 
   LoadStream.Read(fThought, SizeOf(fThought));
   LoadStream.Read(fCondition);
+  LoadStream.Read(fHitPoints);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
   LoadStream.Read(fPosition, 8); //2 floats
@@ -1753,6 +1777,13 @@ begin
 end;
 
 
+procedure TKMUnit.HitPointsDecrease(aAmount:integer);
+begin
+  fHitPoints := EnsureRange(fHitPoints-aAmount,0,255); //todo: use real MAX_HP here
+  if fHitPoints = 0 then KillUnit;
+end;
+
+
 procedure TKMUnit.CancelUnitTask;
 begin
   if (fUnitTask <> nil)and(fCurrentAction is TUnitActionWalkTo) then
@@ -1787,6 +1818,12 @@ begin
     fCurrentAction.Free;
     fCurrentAction := aAction;
   end;
+end;
+
+
+procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
+begin
+  SetAction(TUnitActionFight.Create(aAction, aOpponent),0);
 end;
 
 
@@ -2003,6 +2040,7 @@ begin
 
   SaveStream.Write(fThought, SizeOf(fThought));
   SaveStream.Write(fCondition);
+  SaveStream.Write(fHitPoints);
   SaveStream.Write(fOwner, SizeOf(fOwner));
 
   if fHome <> nil then
@@ -3049,7 +3087,7 @@ end;
 
 procedure TTaskDie.Execute(out TaskDone:boolean);
 begin
-TaskDone:=false;
+TaskDone := false;
 with fUnit do
 case fPhase of
   0: if not fVisible then begin

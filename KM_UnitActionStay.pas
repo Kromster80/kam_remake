@@ -9,7 +9,6 @@ TUnitActionStay = class(TUnitAction)
     StayStill:boolean;
     TimeToStay:integer;
     StillFrame:byte;
-    ActionType:TUnitActionType;
   public
     Locked: boolean;
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; const aStayStill:boolean=true; const aStillFrame:byte=0; const aLocked:boolean=false);
@@ -33,7 +32,6 @@ begin
   fActionName := uan_Stay;
   StayStill  := aStayStill;
   TimeToStay := aTimeToStay;
-  ActionType := aActionType;
   StillFrame := aStillFrame;
   Locked     := aLocked;
 end;
@@ -45,7 +43,6 @@ begin
   LoadStream.Read(StayStill);
   LoadStream.Read(TimeToStay);
   LoadStream.Read(StillFrame,SizeOf(StillFrame));
-  LoadStream.Read(ActionType,SizeOf(ActionType));
   LoadStream.Read(Locked);
 end;
 
@@ -70,18 +67,18 @@ begin
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
 
   case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
-    ut_Worker: case ActionType of
+    ut_Worker: case GetActionType of
                  ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
                  ua_Work2: if Step = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
                end;
-    ut_Farmer: case ActionType of
+    ut_Farmer: case GetActionType of
                  ua_Work:  if Step = 8 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true,0.8);
                end;
-    ut_StoneCutter: if ActionType = ua_Work then
+    ut_StoneCutter: if GetActionType = ua_Work then
                            if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
-    ut_WoodCutter: case ActionType of
+    ut_WoodCutter: case GetActionType of
                      ua_Work: if (KMUnit.AnimStep mod Cycle = 5) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true)
                      else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
                    end;
@@ -94,7 +91,7 @@ var Cycle,Step:byte;
 begin
   if not StayStill then
   begin
-    Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+    Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
     Step  := KMUnit.AnimStep mod Cycle;
 
     IsStepDone := KMUnit.AnimStep mod Cycle = 0;
@@ -120,7 +117,6 @@ begin
   SaveStream.Write(StayStill);
   SaveStream.Write(TimeToStay);
   SaveStream.Write(StillFrame,SizeOf(StillFrame));
-  SaveStream.Write(ActionType,SizeOf(ActionType));
   SaveStream.Write(Locked);
 end;
 

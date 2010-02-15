@@ -244,11 +244,11 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
-    Image_MainMenuBG:=MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6);
+    {Image_MainMenuBG:=MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6);
     Image_MainMenuBG.Stretch;
     Image_MainMenu1:=MyControls.AddImage(Panel_MainMenu,120,80,423,164,4,5);
     Image_MainMenu3:=MyControls.AddImage(Panel_MainMenu,635,220,round(207*1.3),round(295*1.3),6,6);
-    Image_MainMenu3.Stretch;
+    Image_MainMenu3.Stretch;}
 
     Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,155,280,350,400);
       Button_MainMenuTutor  :=MyControls.AddButton(Panel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal,bsMenu);

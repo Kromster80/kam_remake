@@ -8,8 +8,6 @@ type TFightType = (ft_Melee, ft_Ranged); //Dunno if we really need it?
 type
 TUnitActionFight = class(TUnitAction)
   private
-    ActionType:TUnitActionType; //Unused?
-    fUnit:TKMUnit; //Fighter
     fOpponent:TKMUnit; //Who we are fighting with
   public
     constructor Create(aActionType:TUnitActionType; aOpponent:TKMUnit);
@@ -53,18 +51,18 @@ begin
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
 
   case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
-    ut_Worker: case ActionType of
+    ut_Worker: case GetActionType of
                  ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
                  ua_Work2: if Step = 8 then fSoundLib.Play(sfx_pave,KMUnit.GetPosition,true);
                end;
-    ut_Farmer: case ActionType of
+    ut_Farmer: case GetActionType of
                  ua_Work:  if Step = 8 then fSoundLib.Play(sfx_corncut,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_cornsow,KMUnit.GetPosition,true,0.8);
                end;
-    ut_StoneCutter: if ActionType = ua_Work then
+    ut_StoneCutter: if GetActionType = ua_Work then
                            if Step = 3 then fSoundLib.Play(sfx_minestone,KMUnit.GetPosition,true,1.4);
-    ut_WoodCutter: case ActionType of
+    ut_WoodCutter: case GetActionType of
                      ua_Work: if (KMUnit.AnimStep mod Cycle = 5) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true)
                      else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
                    end;
@@ -76,20 +74,31 @@ procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 var Cycle,Step:byte;
 begin
 
-  Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(ActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+  Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
   Step  := KMUnit.AnimStep mod Cycle;
-  IsStepDone := KMUnit.AnimStep mod Cycle = 0;
+
   MakeSound(KMUnit, Cycle, Step);
+
+  if Step = 5 then fOpponent.HitPointsDecrease(1 + random(5)); //todo: put real formula here
+
+  IsStepDone := KMUnit.AnimStep mod Cycle = 0;
   inc(KMUnit.AnimStep);
 
-  DoEnd := fOpponent.IsDead or (GetLength(fUnit.GetPosition, fOpponent.GetPosition) > 1.5);
+  DoEnd := (fOpponent.GetUnitTask is TTaskDie) or //Unit is Killed
+  //         (GetLength(fUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
+           (fOpponent.GetHitPoints<=0) or //same as Killed?
+           fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
+
 end;
 
 
 procedure TUnitActionFight.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
-  //
+  if fOpponent <> nil then
+    SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero);
 end;
 
 
