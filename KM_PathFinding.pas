@@ -39,7 +39,7 @@ type
     function IsDestinationReached():boolean;
   public
     constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean; aIsInteractionAvoid:boolean=false); overload;
-    constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte); overload;
+    constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; aLocB:TKMPoint); overload;
     procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
@@ -67,10 +67,10 @@ begin
 end;
 
 
-constructor TPathFinding.Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte);
+constructor TPathFinding.Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; aLocB:TKMPoint);
 begin
   LocA := aLocA;
-  LocB := KMPoint(0,0); //erase just in case
+  LocB := aLocB; //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
   Avoid := KMPoint(0,0); //erase just in case
   Pass := canWalk; //Should be unused here
   TargetRoadNetworkID := aTargetRoadNetworkID;
@@ -222,7 +222,7 @@ begin
             ORef[y,x]:=OCount;
             OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
             OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(KMPoint(x,y),MinCost.Pos)*10); //
-            OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y)) *10 *byte(fDestination=dp_Location); //don't issue Estim if destination is Passability
+            OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y)) *10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
           end else //If cell doen't meets Passability then mark it as Closed
             OList[OCount].Estim:=c_closed;
 

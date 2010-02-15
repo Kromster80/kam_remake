@@ -2379,33 +2379,35 @@ case fPhase of
       fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
       fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
-      SetActionStay(11,ua_Work1,false);
+      SetActionStay(12*4,ua_Work1,false);
     end;
  2: begin
       fTerrain.IncDigState(fLoc);
-      SetActionStay(11,ua_Work1,false);
+      SetActionStay(24,ua_Work1,false);
     end;
  3: begin
       fTerrain.IncDigState(fLoc);
-      SetActionStay(11,ua_Work1,false);
+      SetActionStay(24,ua_Work1,false);
       fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
     end;
  4: begin
+      fTerrain.ResetDigState(fLoc);
+      fTerrain.SetField(fLoc,fOwner,ft_InitWine);
       SetActionStay(30,ua_Work1);
       fThought:=th_Wood;
     end;
  5: begin
-      SetActionStay(11*4,ua_Work2,false);
+      SetActionStay(11*8,ua_Work2,false);
       fThought:=th_None;
     end;  
  6: begin
       fTerrain.SetField(fLoc,fOwner,ft_Wine);
-      SetActionStay(5,ua_Work2);
+      SetActionStay(3,ua_Work2);
       fTerrain.RemMarkup(fLoc);
     end;
  else TaskDone:=true;
 end;
-if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
+if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Wood
 end;
 
 
@@ -2454,7 +2456,7 @@ case fPhase of
   2: begin
       SetActionStay(11,ua_Work1,false);
       inc(fPhase2);
-      if fPhase2 in [4,8,10] then fTerrain.IncDigState(fLoc);
+      if fPhase2 in [6,8,10] then fTerrain.IncDigState(fLoc);
      end;
   3: begin
       fThought := th_None; //Keep thinking build until it's done

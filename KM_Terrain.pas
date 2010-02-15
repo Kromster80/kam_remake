@@ -124,7 +124,7 @@ public
   function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
   function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
   procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
-  procedure Route_ReturnToRoad(LocA:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
+  procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
   function GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoint;
 
   procedure UnitAdd(LocTo:TKMPoint);
@@ -379,6 +379,7 @@ function TTerrain.TileIsWineField(Loc:TKMPoint):boolean;
 begin
   Result := Land[Loc.Y,Loc.X].Terrain in [55];
   Result := Result and (Land[Loc.Y,Loc.X].TileOverlay <> to_Road); //Can't be if there is road here
+  Result := Result and (Land[Loc.Y,Loc.X].Obj in [54..57]); //Must have object (e.g. for init when labourer is building it)
 end;
 
 
@@ -596,9 +597,11 @@ begin
           end;
     end;
   end else
-  if aFieldType=ft_Wine  then begin
+  if (aFieldType=ft_Wine) or (aFieldType=ft_InitWine) then begin
     Land[Loc.Y,Loc.X].Terrain:=55;
     Land[Loc.Y,Loc.X].Rotation:=0;
+  end;
+  if aFieldType=ft_Wine then begin
     CutGrapes(Loc);
   end;
   UpdateBorders(Loc);
@@ -1331,10 +1334,10 @@ begin
 end;
 
 
-procedure TTerrain.Route_ReturnToRoad(LocA:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
+procedure TTerrain.Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, TargetRoadNetworkID);
+  fPath := TPathFinding.Create(LocA, TargetRoadNetworkID, LocB);
   fPath.ReturnRoute(NodeList);
   fPath.Free;
 end;

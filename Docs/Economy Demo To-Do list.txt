@@ -9,6 +9,8 @@
 +	Instabilities due to rare circumstances causing routes with canWalkRoad to fail when floodfill succeeds [Lewin]
 +	Demolishing the building manually exits from the building menu, unlike in KaM, where it takes back to the building selection [Lewin]
 +	Load/Save buttons have different order [to KaM], it's a bit confusing [Lewin]
++	Stuck (trapped) fish (especially in "Across the Desert") would try to use canWalk to solve interaction resulting in crashes [Lewin]
++	Returning to road did not use A* efficiently and so would fail over long distances [Lewin]
 
 
 3rd Demo should include:

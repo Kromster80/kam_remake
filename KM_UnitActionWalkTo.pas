@@ -204,7 +204,7 @@ procedure TUnitActionWalkTo.SetPushedValues;
 begin
   fInteractionStatus:=kis_Pushed; //So that unit knows it was pushed not just walking somewhere
   Explanation:='We were asked to get out of the way';
-  fPass:=canWalk; //Units are allowed to step off roads when they are pushed
+  fPass:=GetEffectivePassability; //Units are allowed to step off roads when they are pushed
   //Because the passability has changed we might need to reassemble the route if it failed in create
   if not fRouteBuilt then fRouteBuilt := AssembleTheRoute();
 end;
@@ -253,7 +253,7 @@ begin
   if (fPass = canWalkRoad) and (fWalkToSpot) then //That is Citizens walking to spot
     if (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
       (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
-      fTerrain.Route_ReturnToRoad(fWalkFrom, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
+      fTerrain.Route_ReturnToRoad(fWalkFrom, fWalkTo, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
 
   //Build a route A*
   if NodeList.Count=0 then //Build a route from scratch
@@ -344,6 +344,7 @@ end;
 
 
 function TUnitActionWalkTo.IntSolutionPush(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+var OpponentPassability: TPassability;
 begin
   Result := false;
   if HighestInteractionCount < PUSH_TIMEOUT then exit;
@@ -352,7 +353,11 @@ begin
     and (not TUnitActionStay(fOpponent.GetUnitAction).Locked) then //Unit is idle, (not working or something) and not locked
   begin //Force Unit to go away
     fInteractionStatus := kis_Pushing;
-    fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,canWalk));
+    if fOpponent.GetDesiredPassability = canWalkRoad then
+      OpponentPassability := canWalk
+    else
+      OpponentPassability := fOpponent.GetDesiredPassability;
+    fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability));
     TUnitActionWalkTo(fOpponent.GetUnitAction).SetPushedValues;
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     //Next frame tile will be free and unit will walk there
@@ -412,7 +417,7 @@ begin
     if HighestInteractionCount >= PUSHED_TIMEOUT then
     begin
       //Try getting out of the way again. After this is run our object no longer exists, so we must exit everything immediately
-      fWalker.SetActionWalk(fWalker, fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),canWalk),ua_Walk,true,true);
+      fWalker.SetActionWalk(fWalker, fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability),ua_Walk,true,true);
       Result := true; //Means exit DoUnitInteraction
       exit;
     end;
@@ -654,7 +659,7 @@ end;
 
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 var
-  DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean; CanWalk: TCanWalk;
+  DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean; OurCanWalk: TCanWalk;
 begin
   DoEnd := false;
   GetIsStepDone := false;
@@ -755,9 +760,9 @@ begin
     fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
 
     //Check if we can walk to next tile in the route
-    CanWalk := CheckCanWalk;
-    if CanWalk <> cnw_Yes then
-      if CanWalk = cnw_Exit then exit //Task has been abandoned, not our job to clean up
+    OurCanWalk := CheckCanWalk;
+    if OurCanWalk <> cnw_Yes then
+      if OurCanWalk = cnw_Exit then exit //Task has been abandoned, not our job to clean up
       else
       begin
         DoEnd := true; //If unit has no task and so we must abandon the walk

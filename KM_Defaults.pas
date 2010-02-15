@@ -627,7 +627,7 @@ const
 
 {Terrain}
 type
-  TFieldType = (ft_None=0, ft_Road, ft_Corn, ft_Wine, ft_Wall); //This is used only for querrying
+  TFieldType = (ft_None=0, ft_Road, ft_Corn, ft_Wine, ft_InitWine, ft_Wall); //This is used only for querrying
   THouseStage = (hs_None, hs_Plan, hs_Fence, hs_Built);
 
   TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall );
