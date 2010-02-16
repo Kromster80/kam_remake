@@ -8,7 +8,7 @@ type
 {Perform delivery}
 type
     TTaskDeliver = class(TUnitTask)
-    private
+    public
       fFrom:TKMHouse;
       fToHouse:TKMHouse;
       fToUnit:TKMUnit;
@@ -46,6 +46,9 @@ begin
   if toUnit<>nil then
     DeliverKind:=dk_Unit;
 
+  if fDeliverID=11 then
+    fLog.AppendLog('CreatedTask DeliverID', fDeliverID);
+
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -81,6 +84,7 @@ end;
 
 procedure TTaskDeliver.Abandon();
 begin
+  //Task 11 Abandoned by dying unit!
   fLog.AppendLog('Task Abandoned', fDeliverID);
   fLog.AppendLog('Task Abandoned Phase', fPhase);
   fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
@@ -92,6 +96,11 @@ procedure TTaskDeliver.Execute(out TaskDone:boolean);
 var NewDelivery: TUnitTask;
 begin
 TaskDone:=false;
+
+NewDelivery := nil;
+
+if fDeliverID = 11 then
+  fLog.AppendLog('Performing Delivery' + inttostr(fDeliverID), fPhase);
 
 with fUnit do
 case fPhase of

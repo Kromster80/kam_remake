@@ -313,7 +313,7 @@ for iD:=1 to length(fDemand) do
         Bid:=Bid + Bid * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource) / 3;
 
       //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
-      if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Loc_Unit is TKMUnitWarrior) then //Prefer delivering to houses with fewer supply
+      if (fDemand[iD].Loc_Unit is TKMUnitWarrior) then
       if (fDemand[iD].Resource = rt_Food) then
       Bid:=Bid + Random(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
 
@@ -341,10 +341,8 @@ for iD:=1 to length(fDemand) do
   //Store never has enough demand performed
   if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].DemandType = dt_Always) then fDemand[iD].BeingPerformed:=false;
 
-//  if i = 11 then
-//    i:= 10+1;
-
-  fLog.AppendLog('Taken Job', i);
+  if i=11 then
+    fLog.AppendLog('Taken Job', i);
   //Now we have best job and can perform it
   Result := TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 end;
@@ -357,6 +355,7 @@ begin
   iO:=fQueue[aID].OfferID;
   fQueue[aID].OfferID:=0; //We don't need it any more
 
+  if aID = 11 then
   fLog.AppendLog('Taken Offer', aID);
 
   dec(fOffer[iO].BeingPerformed); //Remove reservation
@@ -378,7 +377,8 @@ begin
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
-  fLog.AppendLog('Gave Demand', aID);
+  if aID = 11 then
+    fLog.AppendLog('Gave Demand', aID);
 
   fDemand[iD].BeingPerformed:=false; //Remove reservation
 
@@ -396,7 +396,8 @@ end;
 procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
   //Remove reservations without removing items from lists
-  fLog.AppendLog('Abandoning Delivery', aID);
+  if aID=11 then
+    fLog.AppendLog('Abandoning Delivery', aID);
   if fQueue[aID].OfferID <> 0 then dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
   if fQueue[aID].DemandID <> 0 then fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
   CloseDelivery(aID);
@@ -406,7 +407,7 @@ end;
 //Job successfully done and we ommit it.
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
-  fLog.AppendLog('Closed Delivery', aID);
+  //fLog.AppendLog('Closed Delivery', aID);
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
   fQueue[aID].JobStatus:=js_Open; //Open slot

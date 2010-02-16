@@ -31,7 +31,7 @@ type
 
 
   TUnitTask = class(TObject)
-  protected
+  public
     fTaskName:TUnitTaskName;
     fUnit:TKMUnit; //Unit who's performing the Task
     fPhase:byte;
@@ -1673,6 +1673,9 @@ end;
 // CloseUnit - erase all unit data and hide it from further access
 procedure TKMUnit.KillUnit;
 begin
+  if fUnitTask <> nil then
+    fLog.AppendLog('KillUnit',fUnitTask.Phase);
+
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
   //Abandon delivery if any
@@ -2078,7 +2081,13 @@ begin
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, ActDone);
 
+  if fUnitTask  is  TTaskDeliver then
+  if TTaskDeliver(fUnitTask).fDeliverID = 11 then
+    fLog.AppendLog('Unit doing Delivery 11',ID);
+
+    
   if ActDone then FreeAndNil(fCurrentAction) else exit;
+
 
   if fUnitTask <> nil then
     fUnitTask.Execute(TaskDone);
@@ -3505,10 +3514,12 @@ begin
     if (Items[I] <> nil) and FREE_POINTERS and (TKMUnit(Items[I]).GetPointerCount = 0) then
     begin
       TKMUnit(Items[I]).Free; //Because no one needs this anymore it must DIE!!!!! :D
+      fLog.AppendLog('Died', TKMUnit(Items[I]).ID);
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;
       inc(ID);
     end;
+
   //Must remove list entry after for loop is complete otherwise the indexes change
   if ID <> 0 then
     for I := ID-1 downto 0 do
