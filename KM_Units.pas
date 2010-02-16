@@ -1921,10 +1921,11 @@ begin
 
   //Preparing house area
   if (fUnitType = ut_Worker)
-  and(fUnitTask is TTaskBuildHouseArea)
-  and(TTaskBuildHouseArea(fUnitTask).fPhase > 1) //Worker has arrived on site
+  and(((fUnitTask is TTaskBuildHouseArea)
+  and(TTaskBuildHouseArea(fUnitTask).fPhase > 1)) //Worker has arrived on site
+  or (mu_HouseFenceNoWalk = fTerrain.Land[GetPosition.Y,GetPosition.X].Markup)) //If we are standing on site after building
   then
-    Result := canAll;
+    Result := canWorker; //Special mode that allows us to walk on building sites
 
   //Thats for 'miners' at work
   if (fUnitType in [ut_Woodcutter, ut_Farmer, ut_Fisher, ut_StoneCutter])
@@ -2331,11 +2332,11 @@ case fPhase of
 1: begin
      fThought := th_None;
      fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
-     fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
      fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
      SetActionStay(11,ua_Work1,false);
    end;
 2: begin
+     fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house) after first dig
      fTerrain.IncDigState(fLoc);
      SetActionStay(11,ua_Work1,false);
    end;
@@ -2367,7 +2368,7 @@ case fPhase of
    end;
 8: begin
      fTerrain.SetRoad(fLoc,fOwner);
-     SetActionStay(5,ua_Work2);
+     SetActionStay(5,ua_Walk);
      fTerrain.RemMarkup(fLoc);
    end;
 else TaskDone:=true;
@@ -2440,7 +2441,7 @@ case fPhase of
     end;  
  6: begin
       fTerrain.SetField(fLoc,fOwner,ft_Wine);
-      SetActionStay(3,ua_Work2);
+      SetActionStay(5,ua_Walk);
       fTerrain.RemMarkup(fLoc);
     end;
  else TaskDone:=true;
@@ -2487,14 +2488,14 @@ case fPhase of
      end;
   1: begin
       fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
-      fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
       fPlayers.Player[byte(fOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
       SetActionLockedStay(0,ua_Walk);
      end;
   2: begin
       SetActionStay(11,ua_Work1,false);
       inc(fPhase2);
-      if fPhase2 in [6,8,10] then fTerrain.IncDigState(fLoc);
+      if fPhase2 = 2 then fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+      if fPhase2 in [6,8] then fTerrain.IncDigState(fLoc);
      end;
   3: begin
       fThought := th_None; //Keep thinking build until it's done
@@ -2677,8 +2678,7 @@ case fPhase of
     end;
 2:  SetActionWalk(fUnit,ListOfCells[Step]);
 3:  begin
-      SetActionStay(11,ua_Work1,false);
-      fTerrain.FlattenTerrain(ListOfCells[Step]);
+      SetActionStay(11,ua_Work1,false); //Don't flatten terrain here as we haven't started digging yet
     end;
 4:  begin
       SetActionStay(11,ua_Work1,false);
@@ -2691,6 +2691,7 @@ case fPhase of
 6:  begin
       SetActionStay(11,ua_Work1,false);
       fTerrain.FlattenTerrain(ListOfCells[Step]);
+      fTerrain.FlattenTerrain(ListOfCells[Step]); //Flatten the terrain twice now to ensure it really is flat
       if not fHouse.IsDestroyed then
       if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
         fTerrain.SetRoad(fHouse.GetEntrance, fOwner);
@@ -2699,7 +2700,7 @@ case fPhase of
       fTerrain.RecalculatePassability(ListOfCells[Step]);
       dec(Step);
     end;
-7:  SetActionWalk(fUnit,KMPointY1(fHouse.GetEntrance));
+7:  SetActionStay(0,ua_Walk);
 8:  begin
       fHouse.SetBuildingState(hbs_Wood);
       fPlayers.Player[byte(fOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
@@ -2813,7 +2814,7 @@ procedure TTaskBuildHouse.Execute(out TaskDone:boolean);
     for i:=1 to LocCount do
       if not KMSamePoint(Cells[i].Loc,fUnit.GetPosition) then
         if fTerrain.TileInMapCoords(Cells[i].Loc.X,Cells[i].Loc.Y) then
-          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells[i].Loc ,canWalk, true) then
+          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells[i].Loc ,fUnit.GetDesiredPassability, true) then
           begin
             inc(MyCount);
             Spots[MyCount] := i;
@@ -2852,7 +2853,7 @@ begin
            SetActionLockedStay(0,ua_Walk);
          end;
       2: begin
-           SetActionStay(5,ua_Work,false,0,0); //Start animation
+           SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
            Direction:=TKMDirection(Cells[CurLoc].Dir);
            if fHouse.IsStone then fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, fOwner); //Remove house plan when we start the stone phase (it is still required for wood)
          end;
@@ -2864,12 +2865,12 @@ begin
              exit;
            end;
            fHouse.IncBuildingProgress;
-           SetActionStay(6,ua_Work,false,0,5); //Do building and end animation
+           SetActionLockedStay(6,ua_Work,false,0,5); //Do building and end animation
            inc(fPhase2);
          end;
       4: begin
            fPlayers.Player[byte(fOwner)].BuildList.CloseHouse(buildID);
-           SetActionStay(1,ua_Walk);
+           SetActionLockedStay(1,ua_Walk);
            fThought := th_None;
          end;
       else TaskDone:=true;

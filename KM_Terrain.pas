@@ -180,7 +180,7 @@ var
 
 implementation
 
-uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_SoundFX, KM_PathFinding, KM_Units, KM_UnitActionStay, KM_UnitActionWalkTo;
+uses KM_Unit1, KM_Viewport, KM_Render, KM_PlayersCollection, KM_SoundFX, KM_PathFinding, KM_Units, KM_UnitActionStay, KM_UnitActionWalkTo, KM_Houses;
 
 constructor TTerrain.Create;
 begin
@@ -865,6 +865,7 @@ end;
 procedure TTerrain.SowCorn(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].FieldAge:=1;
+  Land[Loc.Y,Loc.X].Terrain := 61; //Plant it right away, don't wait for update state
   RecalculatePassability(Loc);
 end;
 
@@ -1117,6 +1118,13 @@ begin
      AddPassability(Loc, [canWolf]);
 
   end;
+  if (TileIsWalkable(Loc))and
+    (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
+    (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
+    CheckHeightPass(Loc,canWalk)and
+    not(Land[Loc.Y,Loc.X].Markup = mu_House) then
+    AddPassability(Loc, [canWorker]);
+
  //Check for houses around this vertice(!) Use only with canElevate since it's vertice-based!
  HousesNearBy := false;
  for i:=-1 to 0 do
@@ -1265,11 +1273,21 @@ end;
 
 //Test wherever the route is possible to make
 function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
-var i,k:integer;
+var i,k:integer; aHouse:TKMHouse;
 begin
   Result := true;
   //target has to be different point than source
   //Result:=not (KMSamePoint(LocA,LocB)); //Or maybe we don't care
+  //If we are in worker mode then use the house entrance passability if we are still standing in a house
+  if aPass=canWorker then
+  begin
+    aHouse := fPlayers.HousesHitTest(LocA.X,LocA.Y);
+    if aHouse <> nil then
+    begin
+      LocA := KMPointY1(aHouse.GetEntrance);
+      aPass := canWalk;
+    end;
+  end;
 
   //target point has to be walkable
   if aPass <> canWalkAvoid then //As canWalkAvoid is never set as a passability there is no need to check it
@@ -1285,9 +1303,21 @@ begin
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
   if aPass=canWalk then
-    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[LocB.Y,LocB.X].WalkConnect[1]);
+  begin
+    if aWalkToSpot then //Check WalkConnect for surrounding tiles if we are not walking to spot
+      Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[LocB.Y,LocB.X].WalkConnect[1])
+    else
+      for i:=LocB.Y-1 to LocB.Y+1 do for k:=LocB.X-1 to LocB.X+1 do
+        if fTerrain.TileInMapCoords(k,i) and ((i<>LocB.Y) or (k<>LocB.X)) then
+          Result := Result or (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[i,k].WalkConnect[1]);
+  end;
   if aPass=canWalkRoad then
-    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[LocB.Y,LocB.X].WalkConnect[2]);
+    if aWalkToSpot then //Check WalkConnect for surrounding tiles if we are not walking to spot
+      Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[LocB.Y,LocB.X].WalkConnect[2])
+    else
+      for i:=LocB.Y-1 to LocB.Y+1 do for k:=LocB.X-1 to LocB.X+1 do
+        if fTerrain.TileInMapCoords(k,i) and ((i<>LocB.Y) or (k<>LocB.X)) then
+          Result := Result or (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[i,k].WalkConnect[2]);
   if aPass=canFish then
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[3] = Land[LocB.Y,LocB.X].WalkConnect[3]);
   if aPass=canWalkAvoid then

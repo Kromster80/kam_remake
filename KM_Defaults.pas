@@ -237,10 +237,10 @@ const {Aligned to right to use them in GUI costs display as well}
 type TPassability = (canAll=0,
                      canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
                      canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab,
-                     canWolf, canElevate, canWalkAvoid); //14bits so far
+                     canWolf, canElevate, canWalkAvoid, canWorker); //16bits so far
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[0..14] of string = (
+const PassabilityStr:array[0..15] of string = (
     'None',
     'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
     'canWalk',      // General passability of tile for any walking units
@@ -255,7 +255,8 @@ const PassabilityStr:array[0..14] of string = (
     'canCrab',      // Sand tiles where crabs can move around
     'canWolf',      // Soil tiles where wolfs can move around
     'canElevate',   // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
-    'canWalkAvoid'
+    'canWalkAvoid',
+    'canWorker'     //Like canWalk but allows walking on building sites
   );
 
 {Units}

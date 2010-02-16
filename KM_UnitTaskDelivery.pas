@@ -188,7 +188,7 @@ if DeliverKind = dk_House then
     with fUnit do
     case fPhase of
     0..4:;
-    5: SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance));
+    5: SetActionWalk(fUnit,fToHouse.GetEntrance,ua_Walk,false); //Any tile next to entrance will do
     6: begin
          fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
          TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
