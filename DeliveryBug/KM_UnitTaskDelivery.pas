@@ -81,6 +81,8 @@ end;
 
 procedure TTaskDeliver.Abandon();
 begin
+  fLog.AppendLog('Task Abandoned', fDeliverID);
+  fLog.AppendLog('Task Abandoned Phase', fPhase);
   fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
   Inherited;
 end;
@@ -175,6 +177,7 @@ if DeliverKind = dk_House then
        PlaceUnitAfterHouseDestroyed; //Unit was invisible while inside. Must show it
        TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
        Abandon;
+       //Bug here ?
        TaskDone:=true;
      end;
   else TaskDone:=true;

@@ -396,6 +396,7 @@ end;
 procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
   //Remove reservations without removing items from lists
+  fLog.AppendLog('Abandoning Delivery', aID);
   if fQueue[aID].OfferID <> 0 then dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
   if fQueue[aID].DemandID <> 0 then fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
   CloseDelivery(aID);
@@ -405,6 +406,7 @@ end;
 //Job successfully done and we ommit it.
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
+  fLog.AppendLog('Closed Delivery', aID);
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
   fQueue[aID].JobStatus:=js_Open; //Open slot
