@@ -1,0 +1,32 @@
+These are tabs we want to have in MapEditor mode:
+
+
+MainMenu
+
+	Terrain (PerMission)
+		Terrain
+		Tiles
+		Heights
+		Objects
+
+	Visuals (PerPlayer)
+		Houses/roads/fields (click on houses to edit damage and wares count)
+		Units/troops/animals (click on troops to set count/direction)
+		Visual scripts (Start location, defense positions, revealers, center screen)
+
+	Non-Visuals (PerPlayer)
+		AI mode (NoBuild, unit count restrictions, town defence mode)
+		House restrictions
+		Messages
+
+	Mission settings (PerMission)
+		Players, player colors, alliances, team modes
+		Goals
+
+	Menu (PerMission)
+		Save/Load
+
+SideMenu
+
+	Highlights/Grid toggles
+	Player selection

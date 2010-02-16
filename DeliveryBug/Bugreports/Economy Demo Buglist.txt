@@ -1,0 +1,80 @@
+KaM Remake r565
+<===================================================================================>
+Known bugs:
+
+Gameplay bugs:
++	Flags are always visible
+	Citizen will try to walk home when it has no road tile below entrance
+	MediaPlayer won't play mp3s and crash
+	Some texts don't fit in the left panel (e.g. "Preparing house area")
+	Sometimes the taskbar stays on top in fullscreen mode
+
+Graphics bugs:
++	brightness settings are wrong (looks like foggy)
+?	Water has dark patches
+	See-through hills (lighting flaw)
+	game in fullscreen mode flickers terrible!
+
+Translation bugs:
+	word "Language:" will be not change if I change the language in options menu
+	language in mission-load-screen ("set textures and tiles"...etc) are not translated, every time in english
+
+Sound bugs:
+	in background there is a rustle, I can hear it very good, if I set music down to "0". deactivating music is the same. (I use a creative x-fi sound card) But it's only in main menu, not in in-game! In in-game you hear a whir like from a bee.
+
+Suggested improvements:
++	support for 1920x1080 resolutions (samsung tv's, widescreens etc)
+-	make button in load menu "restore/restart last saved game"
+	word "Condition" in house menu is unreadable, bad colour, it should be white
+	Viewport scrolling should be smooth
+	Two monitor config, scrolling works well only on 1st display
+
+
+KaM Remake Economy Demo 090901 (r428)
+<===================================================================================>
+Known bugs:
+
+Gameplay bugs:
++	Alt-tabbing with School/Barracks selected causes a crash
++	Error on exit if there's no OpenAL found
++	Fisher does not work yet
++	Woodcutter should drop the task if tree is already taken by other woodcutter
++	Killing a worker while it goes to build a road will cancel the markup and road plan
++	Units get stuck on unwalkable tiles
+
+
+KaM Remake Economy Demo 090728 (r363)
+<===================================================================================>
+Known bugs:
+
+Gameplay bugs:
++	Tree (cut by woodcutter?) will fall down repeatedly forever
++	Mainmenu is not shown on F11 toggle
++	Workers forget to build roads sometimes
++	Built road comes as unfinished "brown spot" (due to above bug)
++	Units should not eat all kinds of food in Inn
++	Field building on map edges
++	Schoolhouse bug (citizen statistics acts wrong on training/cancel)
++	AI won't train enough citizens
++	Killing laborer while roadbuilding will cause a crash
++	Resource cheat is not strict enough
++	Units should return to road first then go eat, home, etc.
++	Placing a building plan and removing it, the game returned a "Range check error"
++	Coal/gold/iron miners use incorrect radius
++	Pause panel is not fullscreen for maximized window
++	Game crashes when citizen return home and home is demolished
++	Field borders should fade correctly in fog of war
++	Citizen is invisible when its home is demolished for some few seconds
++	Recruits won't go home if barracks is destroyed and then rebuilt in test mission
++	It takes the carpenter only one timber to make a weapon
++	Splash screen failed to disappear
++	Destroying a house with running deliveries causes UnitSerfHasNoAction errors
+?	"979ms	Gameplay error ... done" follows "route unbuilt" error
+?	Time freeze bug
+?	TUnitAction is being overrun for some reason - error
+?	Destroying barracks and unfinished houses results in crash
+?	Greyish block around mouse cursor
+?	Vertical winefield borders have no edges
+
+Graphics bugs:
++	Wrong render of houses, black tops (see GraphicFlaws folder)

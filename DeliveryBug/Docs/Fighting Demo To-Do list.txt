@@ -1,0 +1,12 @@
+4th Demo should include:
+
+	Army controls in UI
+	Units fighting
+	Tower throwing rocks at enemies
+	Ranged attacks
+	House attacks
+	Map editor saving simple maps
+	Tutorial missions from KaM
+	Scalable ingame menu
+	Lookout tower [Krom]
+	Brightness settings as 0..20 range

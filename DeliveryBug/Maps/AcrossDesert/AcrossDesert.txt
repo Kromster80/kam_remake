@@ -1,0 +1,8 @@
+Title
+Across the Desert
+
+SmallDesc
+Fight your way across the desert!
+
+BigDesc
+This is a remade version of the single map shipped with TPR
