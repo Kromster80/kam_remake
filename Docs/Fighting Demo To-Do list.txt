@@ -1,7 +1,7 @@
 Demo #4 should include:
 
 +	Army controls in UI [Krom]
-+	Army movementa [Lewin]
++	Army movements [Lewin]
 	Units fighting
 	Tower throwing rocks at enemies
 	Ranged attacks

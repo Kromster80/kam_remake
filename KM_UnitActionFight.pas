@@ -71,7 +71,7 @@ end;
 
 
 procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
-var Cycle,Step:byte;
+var Cycle,Step:byte; Damage:byte;
 begin
 
   Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
@@ -79,13 +79,17 @@ begin
 
   MakeSound(KMUnit, Cycle, Step);
 
-  if Step = 5 then fOpponent.HitPointsDecrease(1 + random(5)); //todo: put real formula here
+  KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Always face the opponent
+
+  Damage := 5;//(BaseAttack * Random) * Unit_Specific_Modifiers * AttackDirection ?
+
+  if Step = 5 then fOpponent.HitPointsDecrease(max(1,Damage)); //todo: put real formula here
 
   IsStepDone := KMUnit.AnimStep mod Cycle = 0;
   inc(KMUnit.AnimStep);
 
   DoEnd := (fOpponent.GetUnitTask is TTaskDie) or //Unit is Killed
-  //         (GetLength(fUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
+           (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
            (fOpponent.GetHitPoints<=0) or //same as Killed?
            fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
 
