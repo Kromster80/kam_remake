@@ -2011,7 +2011,7 @@ begin
   begin
 
     if FOG_OF_WAR_ENABLE then
-    for h:=1 to 1 do //More can be added
+    //for h:=1 to 1 do //More can be added
       if Land[i,k].FogOfWar[h] > FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
 
       if InRange(Land[i,k].FieldAge,1,65534) then
@@ -2019,20 +2019,18 @@ begin
         inc(Land[i,k].FieldAge);
         if TileIsCornField(KMPoint(k,i)) then
           case Land[i,k].FieldAge of
-             45: SetLand(k,i,61,255);  //Numbers are measured from KaM, ~195sec
-            240: SetLand(k,i,59,255);
-            435: SetLand(k,i,60,58);
-            630: SetLand(k,i,60,59);
-            650: Land[i,k].FieldAge:=65535; //Skip to the end
+            CORN_AGE1: SetLand(k,i,61,255);
+            CORN_AGE2: SetLand(k,i,59,255);
+            CORN_AGE3: SetLand(k,i,60,58);
+            CORN_AGEFULL: begin SetLand(k,i,60,59); Land[i,k].FieldAge:=65535; end; //Skip to the end
           end
         else
         if TileIsWineField(KMPoint(k,i)) then
           case Land[i,k].FieldAge of
-            45: SetLand(k,i,55,54);
-           240: SetLand(k,i,55,55);
-           435: SetLand(k,i,55,56);
-           630: SetLand(k,i,55,57);
-           650: Land[i,k].FieldAge:=65535; //Skip to the end
+            WINE_AGE1: SetLand(k,i,55,54); //54=naked weeds
+            WINE_AGE2: SetLand(k,i,55,55);
+            WINE_AGE3: SetLand(k,i,55,56);
+            WINE_AGEFULL: begin SetLand(k,i,55,57); Land[i,k].FieldAge:=65535; end;//Skip to the end
           end;
       end;
 

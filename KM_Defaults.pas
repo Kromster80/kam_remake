@@ -677,6 +677,17 @@ TreeAge2 = 400;
 TreeAge3 = 600;
 TreeAgeFull = 800; //Tree is old enough to be chopped
 
+CORN_AGE1 = 10; //When Corn reaches this age - seeds appear, 0 means unplanted field
+CORN_AGE2 = 220;   //Numbers are measured from KaM, ~195sec
+CORN_AGE3 = 430;
+CORN_AGEFULL = 640; //Corn ready to be harvested
+
+WINE_AGE1 = 10; //When Wine reaches this age - seeds appear, 0 means unplanted field
+WINE_AGE2 = 220;   //Numbers are measured from KaM, ~195sec
+WINE_AGE3 = 430;
+WINE_AGEFULL = 640; //Corn ready to be harvested
+
+
 //   1      //Select road tile and rotation
 //  8*2     //depending on surrounding tiles
 //   4      //Bitfield
