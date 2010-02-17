@@ -300,49 +300,51 @@ for iD:=1 to length(fDemand) do
 
       //Basic Bid is length of route
       if fDemand[iD].Loc_House<>nil then
-        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_House.GetEntrance)
+        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_House.GetEntrance)
       else
-        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance,fDemand[iD].Loc_Unit.GetPosition);
+        Bid := GetLength(fOffer[iO].Loc_House.GetEntrance, fDemand[iD].Loc_Unit.GetPosition);
 
       //Modifications for bidding system
       if fDemand[iD].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
-        Bid:=Bid*3+5;
+        Bid := Bid*3+5;
 
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
-        Bid:=Bid + Bid * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource) / 3;
+        Bid := Bid + Bid * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource) / 3;
 
       //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
       if (fDemand[iD].Loc_Unit is TKMUnitWarrior) then
       if (fDemand[iD].Resource = rt_Food) then
-      Bid:=Bid + Random(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
+        Bid := Bid + Random(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
-        Bid:=1;
+        Bid := 1;
+
+      Assert(Bid <> 0, 'Delivery Bid = 0!'); //Do not take deliveries with Bid=0 (no route found)
 
       //Take first one incase there's nothing better to be found
-      //Do not take deliveries with Bid=0 (no route found)
-      if (Bid<>0)and((fQueue[i].JobStatus=js_Open)or(Bid<BestBid)) then begin
-        fQueue[i].DemandID:=iD;
-        fQueue[i].OfferID:=iO;
-        fQueue[i].JobStatus:=js_Taken; //The job is found, at least something
-        BestBid:=Bid;
+      if (fQueue[i].JobStatus = js_Open) or (Bid < BestBid) then begin
+        fQueue[i].DemandID  := iD;
+        fQueue[i].OfferID   := iO;
+        fQueue[i].JobStatus := js_Taken; //The job is found, at least something
+        BestBid := Bid;
       end;
 
     end;
 
-  if BestBid=0 then exit; //No suitable delivery has been found
+  if BestBid = 0 then exit; //No suitable delivery has been found
 
-  iD:=fQueue[i].DemandID;
-  iO:=fQueue[i].OfferID;
+  iD := fQueue[i].DemandID;
+  iO := fQueue[i].OfferID;
   inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on an Offer
-  fDemand[iD].BeingPerformed:=true; //Places a virtual "Reserved" sign on Demand
+  fDemand[iD].BeingPerformed := true; //Places a virtual "Reserved" sign on Demand
 
   //Store never has enough demand performed
-  if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].DemandType = dt_Always) then fDemand[iD].BeingPerformed:=false;
+  if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].DemandType = dt_Always) then
+    fDemand[iD].BeingPerformed := false;
 
   if i=11 then
-    fLog.AppendLog('Taken Job', i);
+    fLog.AppendLog('Issued delivery', i);
   //Now we have best job and can perform it
   Result := TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 end;
