@@ -1,8 +1,0 @@
-Title
-Planter
-
-SmallDesc
-A mission designed to test the planting algorithm
-
-BigDesc
-This mission is designed to test which trees are planted on which soil types.

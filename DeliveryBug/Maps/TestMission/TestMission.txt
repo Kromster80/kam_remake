@@ -1,8 +1,0 @@
-Title
-TestMission
-
-SmallDesc
-This is a test map for KaM Remake
-
-BigDesc
-This test mission uses the map from mission 7 TSK and contains a functional village

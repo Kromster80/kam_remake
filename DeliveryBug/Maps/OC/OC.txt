@@ -1,8 +1,0 @@
-Title
-The Outer Colony
-
-SmallDesc
-Mission 3 from Thunderwolf's campaign
-
-BigDesc
-Uses the map from mission 3 of Thunderwolf's campaign, "The Outer Colony".
