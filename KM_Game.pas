@@ -724,7 +724,9 @@ function TKMGame.Save(SlotID:shortint):string;
     Result := 'Saves\'+'save'+int2fix(Num,2)+'.sav';
     if Num = 99 then Result := 'BugReport.sav'; //99 means this is a bug crash save
   end;
-  var SaveStream:TKMemoryStream; FileName:string; i:integer;
+var
+  SaveStream:TKMemoryStream;
+  i:integer;
 begin
   fLog.AppendLog('Saving game');
   case GameState of
@@ -747,11 +749,12 @@ begin
 
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
 
-      if SlotID = AUTOSAVE_SLOT then //Backup earlier autosaves
-      for i:=AUTOSAVE_SLOT+5 downto AUTOSAVE_SLOT do begin
-        DeleteFile(ExeDir+GetSaveName(i));
-        RenameFile(ExeDir+GetSaveName(i-1), ExeDir+GetSaveName(i)); //We don't need Result here
+      if SlotID = AUTOSAVE_SLOT then begin //Backup earlier autosaves
+        DeleteFile(ExeDir+GetSaveName(AUTOSAVE_SLOT+5));
+        for i:=AUTOSAVE_SLOT+5 downto AUTOSAVE_SLOT+1 do //15 to 11
+          RenameFile(ExeDir+GetSaveName(i-1), ExeDir+GetSaveName(i)); //We don't need Result here
       end;
+
       SaveStream.SaveToFile(ExeDir+GetSaveName(SlotID)); //Some 70ms for TPR7 map
       SaveStream.Free;
       Result := GameName + ' ' + int2time(GetMissionTime);
