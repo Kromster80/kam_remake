@@ -32,7 +32,7 @@ var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
@@ -57,7 +57,7 @@ var
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
   MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes    :boolean=false; //Draw unit routes when they are chosen
-  MakeShowUnitMove      :boolean=true; //Draw unit movement overlay, Only if unit interaction enabled
+  MakeShowUnitMove      :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   WriteResourceInfoToTXT:boolean=true; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well

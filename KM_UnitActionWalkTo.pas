@@ -773,15 +773,8 @@ begin
     //Both exchanging units have DoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
     if DoExchange then begin
       inc(NodePos);
-      
-      if(KMLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5) then
-        fLog.AssertToLog(false,'Prev/Next Pos already over run!');
 
-      fWalker.PrevPosition:=fWalker.NextPosition;
-      fWalker.NextPosition:=NodeList.List[NodePos];
-
-      if(KMLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5) then
-        fLog.AssertToLog(false,'Prev/Next Pos has been set to over run!');
+      fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
       //We don't need to perform UnitWalk since exchange means the same tiles will be occupied,
       //and without UnitWalk there's a guarantee no other unit will step on this tile!
@@ -803,14 +796,7 @@ begin
 
       inc(NodePos);
 
-      if(KMLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5) then
-        fLog.AssertToLog(false,'Prev/Next Pos already over run!');
-
-      fWalker.PrevPosition:=fWalker.NextPosition;
-      fWalker.NextPosition:=NodeList.List[NodePos];
-
-      if(KMLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5) then
-        fLog.AssertToLog(false,'Prev/Next Pos has been set to over run!');
+      fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
       fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex

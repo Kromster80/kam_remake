@@ -131,8 +131,7 @@ begin
     begin
       KMUnit.Direction := dir_N;  //one cell up
       KMUnit.Thought := th_None;
-      KMUnit.PrevPosition := KMUnit.GetPosition;
-      KMUnit.NextPosition := KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1);
+      KMUnit.UpdateNextPosition(KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1));
       fTerrain.UnitWalk(KMUnit.GetPosition, KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil) and (KMUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside := TKMHouseBarracks(KMUnit.GetHome).RecruitsInside + 1;
@@ -181,8 +180,7 @@ begin
 
       //All checks done so unit can walk out now
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
-      KMUnit.PrevPosition := KMUnit.GetPosition;
-      KMUnit.NextPosition := fStreet;
+      KMUnit.UpdateNextPosition(fStreet);
       fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
@@ -200,8 +198,7 @@ begin
     begin
       fWaitingForPush := false;
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
-      KMUnit.PrevPosition := KMUnit.GetPosition;
-      KMUnit.NextPosition := fStreet;
+      KMUnit.UpdateNextPosition(fStreet);
       fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;

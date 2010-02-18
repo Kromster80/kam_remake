@@ -205,6 +205,8 @@ type
     fVisible:boolean;
     fIsDead:boolean;
     fPointerCount:integer;
+    fPrevPosition: TKMPoint;
+    fNextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
     procedure CloseUnit;
     procedure SetAction(aAction: TUnitAction; aStep:integer);
   public
@@ -212,8 +214,8 @@ type
     AnimStep: integer;
     Direction: TKMDirection;
     IsExchanging:boolean; //Current walk is an exchange, used for sliding
-    PrevPosition: TKMPoint;
-    NextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
+    property PrevPosition: TKMPoint read fPrevPosition;
+    property NextPosition: TKMPoint read fNextPosition;
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); dynamic;
@@ -225,6 +227,7 @@ type
     procedure KillUnit; virtual;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
+    procedure UpdateNextPosition(aLoc:TKMPoint);
     procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
@@ -1542,8 +1545,8 @@ begin
   fHome         := nil;
   fPosition.X   := PosX;
   fPosition.Y   := PosY;
-  PrevPosition  := GetPosition;
-  NextPosition  := GetPosition;
+  fPrevPosition := GetPosition; //Init values
+  fNextPosition := GetPosition; //Init values
   fOwner        := aOwner;
   fUnitType     := aUnitType;
   Direction     := dir_S;
@@ -1631,8 +1634,8 @@ begin
   LoadStream.Read(ID);
   LoadStream.Read(AnimStep);
   LoadStream.Read(Direction, SizeOf(Direction));
-  LoadStream.Read(PrevPosition);
-  LoadStream.Read(NextPosition);
+  LoadStream.Read(fPrevPosition);
+  LoadStream.Read(fNextPosition);
 end;
 
 
@@ -1674,8 +1677,8 @@ begin
   fThought      := th_None;
   fHome         := nil;
   fPosition     := KMPointF(0,0);
-  PrevPosition  := KMPoint(0,0);
-  NextPosition  := KMPoint(0,0);
+  fPrevPosition := KMPoint(0,0);
+  fNextPosition := KMPoint(0,0);
   fOwner        := play_none;
   fUnitType     := ut_None;
   Direction     := dir_NA;
@@ -1797,6 +1800,15 @@ begin
   Result := (X = GetPosition.X) and //Keep comparing X,Y to GetPosition incase input is negative numbers
             (Y = GetPosition.Y) and
             ((fUnitType=UT)or(UT=ut_Any));
+end;
+
+
+procedure TKMUnit.UpdateNextPosition(aLoc:TKMPoint);
+begin
+  //As long as we only ever set PrevPos to NextPos and do so everytime before NextPos changes, there can be no problems (as were occouring in GetSlide)
+  //This procedure ensures that these values always get updated correctly so we don't get a problem where GetLength(PrevPosition,NextPosition) > sqrt(2)
+  fPrevPosition := NextPosition;
+  fNextPosition := aLoc;
 end;
 
 
