@@ -1123,7 +1123,7 @@ begin
   end;
   //Make sure units per row is still valid
   fUnitsPerRow := min(fUnitsPerRow, fMembers.Count+1);
-  NewCommander.fUnitsPerRow := min(fUnitsPerRow, NewCommander.fMembers.Count+1);
+  NewCommander.fUnitsPerRow := min(fUnitsPerRow, NewCommander.GetMemberCount+1);
   //Tell both commanders to reposition
   Halt;
   NewCommander.Halt;

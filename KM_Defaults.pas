@@ -25,8 +25,8 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo #3 r697';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r697';         //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Economy Demo #3 r698';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r698';         //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
@@ -65,7 +65,7 @@ var
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
-  WRITE_DETAILED_LOG    :boolean=true; //Write even more output into log
+  WRITE_DETAILED_LOG    :boolean=true; //Write even more output into log + slows down game noticably
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted
