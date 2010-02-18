@@ -156,8 +156,8 @@ if DeliverKind = dk_House then
   7: SetActionStay(5,ua_Walk); //wait a bit inside
   8: if not fToHouse.IsDestroyed then
      begin
-       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
        fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
+       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
        fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
        fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
 
@@ -192,8 +192,8 @@ if DeliverKind = dk_House then
     0..4:;
     5: SetActionWalk(fUnit,fToHouse.GetEntrance,ua_Walk,false); //Any tile next to entrance will do
     6: begin
-         TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
          fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
+         TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
          fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
          fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
          SetActionStay(1,ua_Walk);
