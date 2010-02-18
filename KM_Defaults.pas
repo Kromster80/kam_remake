@@ -31,8 +31,8 @@ const
 var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
-  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeUnitSprites       :boolean=false;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
@@ -58,13 +58,14 @@ var
   MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
   MakeShowUnitRoutes    :boolean=false; //Draw unit routes when they are chosen
   MakeShowUnitMove      :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
-  WriteResourceInfoToTXT:boolean=true; //Whenever to write txt files with defines data properties on loading
+  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
   RENDER_3D             :boolean=false; //Experimental 3D render
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
+  WRITE_DETAILED_LOG    :boolean=true; //Write even more output into log
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted
@@ -84,7 +85,7 @@ const
   SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
   AUTOSAVE_SLOT = 10;     //Slot ID used for autosaving
 
-  //Here we store options that are hidden somewhere in code
+const //Here we store options that are hidden somewhere in code
   MAX_WARFARE_IN_BARRACKS = 20;
   GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
   FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important

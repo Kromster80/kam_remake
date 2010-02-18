@@ -46,6 +46,7 @@ begin
   if toUnit<>nil then
     DeliverKind:=dk_Unit;
 
+  if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -81,6 +82,7 @@ end;
 
 procedure TTaskDeliver.Abandon();
 begin
+  if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
   fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
   Inherited;
 end;

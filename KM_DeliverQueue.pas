@@ -274,6 +274,8 @@ Result:=nil;
 i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
 if i=MaxEntries then exit;
 
+if WRITE_DETAILED_LOG then fLog.AppendLog('Reserved delivery ID', i);
+
 //Cleanup for destroyed houses
 {for iD:=1 to length(fDemand) do
   if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].Loc_House.IsDestroyed) then fDemand[iD].Resource:=rt_None
@@ -341,6 +343,8 @@ for iD:=1 to length(fDemand) do
   //Store never has enough demand performed
   if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].DemandType = dt_Always) then fDemand[iD].BeingPerformed:=false;
 
+  if WRITE_DETAILED_LOG then fLog.AppendLog('Creating delivery ID', i);
+
   //Now we have best job and can perform it
   Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 end;
@@ -350,6 +354,8 @@ end;
 procedure TKMDeliverQueue.TakenOffer(aID:integer);
 var iO:integer;
 begin
+  if WRITE_DETAILED_LOG then fLog.AppendLog('Taken offer from delivery ID', aID);
+
   iO:=fQueue[aID].OfferID;
   fQueue[aID].OfferID:=0; //We don't need it any more
 
@@ -369,6 +375,7 @@ end;
 procedure TKMDeliverQueue.GaveDemand(aID:integer);
 var iD:integer;
 begin
+  if WRITE_DETAILED_LOG then fLog.AppendLog('Gave demand from delivery ID', aID);
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
