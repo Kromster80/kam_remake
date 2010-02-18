@@ -635,24 +635,41 @@ end;
 
 
 procedure TRender.RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
-var ShiftX,ShiftY:single; ID,i:integer;
+var ShiftX,ShiftY:single; ID,i,k:integer;
+
+  procedure AddHouseSupplySprite(aID:integer);
+  begin
+    if aID>0 then
+    begin
+      ShiftX:=RXData[2].Pivot[aID].x/CELL_SIZE_PX;
+      ShiftY:=(RXData[2].Pivot[aID].y+RXData[2].Size[aID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+      AddSpriteToList(2,aID,pX+ShiftX,pY+ShiftY,pX,pY,false);
+    end;
+  end;
+
 begin
-for i:=1 to 4 do if (R1[i-1])>0 then begin
-    ID:=HouseDAT[Index].SupplyIn[i,min(R1[i-1],5)]+1;
-    if ID>0 then begin
-    ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-    ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
+  for i:=1 to 4 do if (R1[i-1])>0 then
+    begin
+      ID:=HouseDAT[Index].SupplyIn[i,min(R1[i-1],5)]+1;
+      AddHouseSupplySprite(ID);
     end;
+  for i:=1 to 4 do if (R2[i-1])>0 then
+  begin
+    //Exception for some houses that render layered
+    if THouseType(Index) in [ht_WeaponSmithy,ht_ArmorSmithy,ht_WeaponWorkshop,ht_ArmorWorkshop] then
+    begin
+      for k := 1 to min(R2[i-1],5) do
+      begin
+        ID:=HouseDAT[Index].SupplyOut[i,k]+1;
+        AddHouseSupplySprite(ID);
+      end
+    end
+    else
+    begin
+      ID:=HouseDAT[Index].SupplyOut[i,min(R2[i-1],5)]+1;
+      AddHouseSupplySprite(ID);
     end;
-for i:=1 to 4 do if (R2[i-1])>0 then begin
-    ID:=HouseDAT[Index].SupplyOut[i,min(R2[i-1],5)]+1;
-    if ID>0 then begin
-    ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-    ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
-    AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
-    end;
-    end;
+  end
 end;
 
 

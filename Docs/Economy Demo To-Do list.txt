@@ -4,8 +4,10 @@
 -	Rectangle below cursor is not fixed (happens on GeForce GT240M, 195.62 drivers, no problem on older 6800XT / 91.47) [Krom]
 -	Troop buttons not working sometimes (unconfirmed)
 -	Troop voices
--	Confusing fish run-out messages
 
++	Confusing fish run-out messages
++	"Unknown unit type in Savegame" due to dead but not yet destroyed units not saving unit type [Lewin]
++	Weapons producing houses did not show produced weapons correctly, only one weapon of each type was displayed
 +	Range Check Error in GetSlide function due to PrevPos being two tiles away from NextPos (fix unconfirmed, but 99% certain) [Lewin]
 +	Buggy stone mining - in some maps, e.g. 15 TSK, stonemasons get stuck after grabbing a stone, because of the changing elevation and angle (the tile below them becomes unwalkable). Building a road near the trapped stonemason causes an error message like the described before, but then nothing bad happens - he just go home and keep working.
 +	Some saves are impossible to load due to the range check error (bug in TKMPointTagList.Load) [Lewin]

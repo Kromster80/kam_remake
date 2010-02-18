@@ -25,15 +25,15 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo #3 r673+';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r673+';         //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Economy Demo #3 r697';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r697';         //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
-  MakeUnitSprites       :boolean=false;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
+  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
+  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
@@ -45,7 +45,7 @@ var
   DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
   CUT_TREES_FROM_ANYSIDE:boolean=true; //Allow wodcutter to cut trees from any side rther than bottom-right
   //Not fully implemented yet
-  ENABLE_FIGHTING       :boolean=true; //Allow fighting
+  ENABLE_FIGHTING       :boolean=false; //Allow fighting
   FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   SHOW_MAPED_IN_MENU    :boolean=false; //Allows to hide all map-editor related pages from main menu
@@ -86,7 +86,8 @@ const
   AUTOSAVE_SLOT = 10;     //Slot ID used for autosaving
 
 const //Here we store options that are hidden somewhere in code
-  MAX_WARFARE_IN_BARRACKS = 20;
+  MAX_WARFARE_IN_BARRACKS = 255;          //Maximum number of weapons in the barracks from producers. Not a big problem as they are not from the store.
+  MAX_WARFARE_IN_BARRACKS_FROM_STORE = 32;//Maximum number of weapons in the barracks from storehouse. e.g. AI starts with 999 axes, don't spend entire game filling up the barracks.
   GOLD_TO_SCHOOLS_IMPORTANT = true;       //Whenever gold delivery to schools is highly important
   FOOD_TO_INN_IMPORTANT = true;           //Whenever food delivery to inns is highly important
   UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min

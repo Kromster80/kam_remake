@@ -584,13 +584,22 @@ begin
   //Now issue a message if we failed because the resource is depleted
   if fOwner=MyPlayer.PlayerID then //Don't show for AI players
   if WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
+  if fHome.GetHouseType = ht_FisherHut then
+  begin
+    //todo: Put these messages into LIB file (use one from original KaM once final has been decided on for SR3 which has changed this message)
+    if not fTerrain.CanFindFishingWater(KMPointY1(fHome.GetEntrance),RANGE_FISHERMAN) then
+      fGame.fGamePlayInterface.IssueMessage(msgHouse,'Your fisherman''s hut is too far away from the water.', fHome.GetEntrance)
+    else
+      fGame.fGamePlayInterface.IssueMessage(msgHouse,'Your fisherman cannot catch any further fish in the nearby water bodies.', fHome.GetEntrance);
+    fHome.ResourceDepletedMsgIssued := true;
+  end
+  else
   begin
     case fHome.GetHouseType of
       ht_Quary:    Tmp := 290;
       ht_CoalMine: Tmp := 291;
       ht_IronMine: Tmp := 292;
       ht_GoldMine: Tmp := 293;
-      ht_FisherHut:Tmp := 294;
       else Tmp := 0;
     end;
     if Tmp <> 0 then
@@ -1680,7 +1689,8 @@ begin
   fPrevPosition := KMPoint(0,0);
   fNextPosition := KMPoint(0,0);
   fOwner        := play_none;
-  fUnitType     := ut_None;
+  //Do not reset the unit type when they die as we still need to know during Load
+  //fUnitType     := ut_None;
   Direction     := dir_NA;
   fVisible      := false;
   fCondition    := 0;
@@ -2070,8 +2080,8 @@ begin
   SaveStream.Write(ID);
   SaveStream.Write(AnimStep);
   SaveStream.Write(Direction, SizeOf(Direction));
-  SaveStream.Write(PrevPosition);
-  SaveStream.Write(NextPosition);
+  SaveStream.Write(fPrevPosition);
+  SaveStream.Write(fNextPosition);
 end;
 
 
@@ -3520,7 +3530,7 @@ begin
       ut_Militia..ut_Barbarian: Inherited Add(TKMUnitWarrior.Load(LoadStream));
       //ut_Bowman:   Inherited Add(TKMUnitArcher.Load(LoadStream)); //I guess it will be stand-alone
       ut_Wolf..ut_Duck:         Inherited Add(TKMUnitAnimal.Load(LoadStream));
-    else fLog.AssertToLog(false, 'Uknown unit type in Savegame')
+    else fLog.AssertToLog(false, 'Unknown unit type in Savegame')
     end;
   end;
 end;

@@ -438,15 +438,21 @@ begin
                   fPlayers.Selected := MyPlayer.HousesHitTest(CursorXc, CursorYc); //Select the house irregardless of unit below/above
                   if MyPlayer.RemHouse(P,false,true) then //Ask wherever player wants to destroy own house
                   begin
-                    if TKMHouse(fPlayers.Selected).GetBuildingState = hbs_Glyph then
-                      MyPlayer.RemHouse(P,false) //don't ask about houses that are not started
-                    else begin
+                    //don't ask about houses that are not started, they are removed bellow
+                    if TKMHouse(fPlayers.Selected).GetBuildingState <> hbs_Glyph then
+                    begin
                       fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected),true);
                       fSoundLib.Play(sfx_click);
                     end;
                   end;
                   if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
-                    fSoundLib.Play(sfx_CantPlace,P,false,4.0);
+                    fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
+                  //Now remove houses that are not started
+                  if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).GetBuildingState = hbs_Glyph) then
+                  begin
+                    MyPlayer.RemHouse(P,false);
+                    fSoundLib.Play(sfx_click);
+                  end;
                 end;
 
             end; //case CursorMode.Mode of..

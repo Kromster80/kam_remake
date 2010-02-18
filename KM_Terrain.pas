@@ -93,6 +93,7 @@ public
   function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
   function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
   function FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+  function CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
   function ChooseTreeToPlant(aPosition:TKMPoint):integer;
 
   function WaterHasFish(aPosition:TKMPoint):boolean;
@@ -798,6 +799,21 @@ begin
 
   Result:=List.GetRandom;
   List.Free;
+end;
+
+
+function TTerrain.CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
+var i,k:integer;
+begin
+  Result := false;
+  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
+    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
+      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
+        if TileIsWater(KMPoint(k,i)) then
+        begin
+          Result := true;
+          exit;
+        end;
 end;
 
 

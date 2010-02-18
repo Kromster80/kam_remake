@@ -225,9 +225,19 @@ begin
                         (TKMHouseStore(fDemand[iD].Loc_House).NotAcceptFlag[byte(fOffer[iO].Resource)]=false));
 
   //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
-  //How do we know how many resource are on-route already??
+  //How do we know how many resource are on-route already?? We don't, but it's not that important.
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Barracks)or
-                       (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<=MAX_WARFARE_IN_BARRACKS));
+                       (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<MAX_WARFARE_IN_BARRACKS));
+
+  //If Demand is a Barracks, Offer is a store and barracks has resource count below MAX_WARFARE_IN_BARRACKS_FROM_STORE
+  //Use < rather than <= as this delivery will be the last
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Barracks)or
+                      (fOffer[iO].Loc_House=nil)or(fOffer[iO].Loc_House.GetHouseType<>ht_Store)or
+                      (TKMHouseBarracks(fDemand[iD].Loc_House).CheckResIn(fOffer[iO].Resource)<MAX_WARFARE_IN_BARRACKS_FROM_STORE));
+
+  //NEVER deliver weapons to the storehouse when player has a barracks
+  Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Store)or
+                       (not (fOffer[iO].Resource in [rt_Shield..rt_Horse]))or(fPlayers.Player[byte(fDemand[iD].Loc_House.GetOwner)].fMissionSettings.GetHouseQty(ht_Barracks)=0));
 
   {@Krom: BUG REPORT:
   Weapons are delivered from houses to store instead of barracks. If there is a barracks then
