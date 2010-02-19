@@ -319,7 +319,14 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
     WalkStyle(KMPoint(TempLocDir),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,TempLocDir.Dir);
   end else
   if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
-    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work1,12,0,ua_Walk,gs_WoodCutterPlant,0)
+  begin
+    //In some unit defines plant is ua_Work1, in others it is ua_Work?
+    //todo: Test and confirm this.
+    if UnitSprite[byte(ut_Woodcutter)].Act[byte(ua_Work1)].Dir[1].Count > 1 then
+      WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work1,12,0,ua_Walk,gs_WoodCutterPlant,0)
+    else
+      WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant,0);
+  end
   else
     fIssued:=false;
 end else

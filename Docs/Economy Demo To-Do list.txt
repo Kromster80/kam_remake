@@ -1,9 +1,27 @@
 "Bug Fix" Demo should include/fix:
 
++	The woodcutters planting animation is not visible, he simply disappears and reappears when he is done planting.
++	The woodcutter doesn't cut down trees, until all the available spots have been planted. In the original KaM a woodcutter would always cut down fullgrown trees in the first place, and only plant trees when there is nothing to cut down. (TRB 2010-02-19 Wood and Swine save01.sav) (trees appeared to be fully grown a few minutes before they can be cut)
+
+
+-	Because the delivery queue prefers closer deliveries, wares will always be delivered to closer buildings. (e.g. with two swine farms, closer one will get all the corn) Same with coal mines. (coal mines in Kuba 2010-02-19 Stuck Workers save09.sav, swine farms in TRB 2010-02-19 Wood and Swine save01.sav)
+-	Laborers are sometimes being trapped inside a digged construction plan (Kuba 2010-02-19 Stuck Workers save09.sav)
+-	Not fixed buttons bug, it also happens on other menus, e.g. school house (it's impossible to send the save, as it becomes "fixed" after clicking the building again). Also, one time the whole school house menu has frozen (+ no progressbar animation) without any reason.
+-	I got a access violation when I was deleting my fisherman.
+-	Range check error in TPR7 (TRB 2010-02-19 Range Check Error.rar)
+-	Walk failed in TPR7 "Unit Laborer unable to walk a route from (97;29) to (98;30) during task Idle since the route is unbuilt" (TRB 2010-02-19 Walk Failed.rar)
+
+
+
+Remaining from r698:
 
 -	Rectangle below cursor is not fixed (happens on GeForce GT240M, 195.62 drivers, no problem on older 6800XT / 91.47) [Krom]
 -	Troop buttons not working sometimes (unconfirmed)
 -	Troop voices
+
+
+
+Fixed in r698:
 
 +	Confusing fish run-out messages
 +	"Unknown unit type in Savegame" due to dead but not yet destroyed units not saving unit type [Lewin]

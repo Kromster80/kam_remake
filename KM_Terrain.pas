@@ -2084,14 +2084,14 @@ begin
       begin
         inc(Land[i,k].TreeAge);
         if (Land[i,k].TreeAge=TreeAge1)or(Land[i,k].TreeAge=TreeAge2)or
-           (Land[i,k].TreeAge=TreeAge3)or(Land[i,k].TreeAge=TreeAgeFull) then //Speedup
+           (Land[i,k].TreeAge=TreeAgeFull) then //Speedup
         for h:=1 to length(ChopableTrees) do
           for j:=1 to 3 do
             if Land[i,k].Obj=ChopableTrees[h,j] then
               case Land[i,k].TreeAge of
-                TreeAge1: Land[i,k].Obj:=ChopableTrees[h,2];
-                TreeAge2: Land[i,k].Obj:=ChopableTrees[h,3];
-                TreeAge3: Land[i,k].Obj:=ChopableTrees[h,4];
+                TreeAge1:    Land[i,k].Obj:=ChopableTrees[h,2];
+                TreeAge2:    Land[i,k].Obj:=ChopableTrees[h,3];
+                TreeAgeFull: Land[i,k].Obj:=ChopableTrees[h,4];
               end;
       end;
 

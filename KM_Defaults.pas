@@ -675,9 +675,8 @@ const
   ( 167, 168, 169, 170, 171,  33));
 
 //Ages at which tree grows up / changes sprite
-TreeAge1 = 200;  //I did measured only corn, and it was ~195sec
-TreeAge2 = 400;
-TreeAge3 = 600;
+TreeAge1 = 250;  //I did measured only corn, and it was ~195sec
+TreeAge2 = 500;
 TreeAgeFull = 800; //Tree is old enough to be chopped
 
 CORN_AGE1 = 10; //When Corn reaches this age - seeds appear, 0 means unplanted field
