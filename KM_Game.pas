@@ -373,7 +373,7 @@ end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit;
+var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit; OldSelected: TObject;
 begin
   if SelectingTroopDirection then
   begin
@@ -409,7 +409,12 @@ begin
               cm_None:
                 if not fGamePlayInterface.JoiningGroups then
                 begin
-                  fPlayers.HitTest(CursorXc, CursorYc);
+                  //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
+                  OldSelected := fPlayers.Selected;
+                  if (not fPlayers.HitTest(CursorXc, CursorYc)) or
+                    ((fPlayers.Selected is TKMHouse) and (TKMHouse(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID))or
+                    ((fPlayers.Selected is TKMUnit) and (TKMUnit(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID)) then
+                    fPlayers.Selected := OldSelected;
                   if (fPlayers.Selected is TKMHouse) then
                     fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
                   if (fPlayers.Selected is TKMUnit) then

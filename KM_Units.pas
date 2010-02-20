@@ -238,7 +238,7 @@ type
     procedure Feed(Amount:single);
     procedure AbandonWalk;
     procedure PlaceUnitAfterHouseDestroyed();
-    function GetDesiredPassability():TPassability;
+    function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
     property GetOwner:TPlayerID read fOwner;
     function GetSpeed():single;
     property GetHome:TKMHouse read fHome;
@@ -517,7 +517,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then
   begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,not fVisible);
+    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self,not fVisible);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self)
     else
@@ -677,7 +677,7 @@ begin
   fThought:=th_None;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
+    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
@@ -765,7 +765,7 @@ begin
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition);
+    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
@@ -895,7 +895,7 @@ begin
   if fCommander <> nil then
   begin
     fCommander.fMembers.Remove((Self));
-    //Now make the group reposition
+    //Now make the group reposition (halt has IsDead check in case commander is dead too)
     fCommander.Halt;
   end;
 
@@ -1013,6 +1013,7 @@ end;
 procedure TKMUnitWarrior.Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
 var HaltPoint: TKMPointDir;
 begin
+  if IsDead then exit; //Can happen e.g. when entire group dies at once due to hunger
   //Pass command to Commander unit, but avoid recursively passing command to Self
   if (fCommander <> nil) and (fCommander <> Self) then
   begin
@@ -1924,7 +1925,7 @@ begin
 end;
 
 
-function TKMUnit.GetDesiredPassability():TPassability;
+function TKMUnit.GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
 begin
   case fUnitType of //Select desired passability depending on unit type
     ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result := canWalkRoad; //Citizens except Worker
@@ -1954,6 +1955,10 @@ begin
   and(fUnitTask is TTaskMining)
   then
     Result := canWalk;
+
+  //aUseCanWalk means use canWalk unless we are a worker on a building site
+  if aUseCanWalk and (Result <> canWorker) then
+    Result := canWalk;
 end;
 
 
@@ -1977,7 +1982,7 @@ end;
 
 function TKMUnit.CanGoEat:boolean;
 begin
-  Result := fPlayers.Player[byte(fOwner)].FindInn(GetPosition) <> nil;
+  Result := fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self) <> nil;
 end;
 
 
@@ -2599,7 +2604,7 @@ case fPhase of
     //@Lewin: It's yet incomplete
   7: begin
       //Walk away from tile and continue building from the side
-      SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),canWalk));
+      SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetDesiredPassability));
     end;
   8: begin
       //fTerrain.IncWallState(fLoc);
@@ -2760,7 +2765,7 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
   procedure AddLoc(X,Y:word; Dir:TKMDirection);
   begin
     //First check that the passabilty is correct, as the house may be placed against blocked terrain
-    if not fTerrain.CheckPassability(KMPoint(X,Y),canWalk) then exit;
+    if not fTerrain.CheckPassability(KMPoint(X,Y),aWorker.GetDesiredPassability) then exit;
     inc(LocCount);
     Cells[LocCount].Loc:=KMPoint(X,Y);
     Cells[LocCount].Dir:=byte(Dir);

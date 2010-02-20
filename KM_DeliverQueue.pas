@@ -719,7 +719,7 @@ begin
   while
     (i<=MaxEntries)and
     ((fFieldsQueue[i].JobStatus<>js_Open)or
-    (not fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, canWalk, true))) do
+    (not fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, aWorker.GetDesiredPassability, true))) do
       inc(i);
 
   if i>MaxEntries then exit;

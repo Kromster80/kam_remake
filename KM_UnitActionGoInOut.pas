@@ -20,7 +20,7 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
-      function ValidTileToGo(LocX, LocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
+      function ValidTileToGo(LocX, LocY:word; aUnit, WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
       procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -101,10 +101,10 @@ end;
 
 
 //Check that tile is walkable and there's no unit blocking it or that unit can be pushed away
-function TUnitActionGoInOut.ValidTileToGo(LocX, LocY:word; aUnit:TKMUnit):boolean; //using X,Y looks more clear
+function TUnitActionGoInOut.ValidTileToGo(LocX, LocY:word; aUnit, WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
 begin
   Result := fTerrain.TileInMapCoords(LocX, LocY)
-        and (fTerrain.CheckPassability(KMPoint(LocX, LocY), canWalk));
+        and (fTerrain.CheckPassability(KMPoint(LocX, LocY), WalkUnit.GetDesiredPassability(true)));
   if Result then
   Result := (fTerrain.Land[LocY,LocX].IsUnit = 0) or ((aUnit <> nil)
         and (aUnit.GetUnitAction is TUnitActionStay) and (aUnit.GetUnitActionType = ua_Walk)
@@ -140,12 +140,12 @@ begin
     if fDirection=gd_GoOutSide then
     begin //Attempt to find a tile bellow the door we can walk to. Otherwise we can push idle units away.
       TempUnit := fPlayers.UnitsHitTest(fStreet.X,fStreet.Y);
-      if ValidTileToGo(fStreet.X,fStreet.Y,TempUnit) then
+      if ValidTileToGo(fStreet.X,fStreet.Y,TempUnit,KMUnit) then
         //fStreet.X := fStreet.X
       else
       begin
         TempUnit := fPlayers.UnitsHitTest(fStreet.X-1,fStreet.Y);
-        if ValidTileToGo(fStreet.X-1,fStreet.Y,TempUnit) then
+        if ValidTileToGo(fStreet.X-1,fStreet.Y,TempUnit,KMUnit) then
         begin
           fStreet.X := fStreet.X - 1;
           fUsingDoorway := false;
@@ -153,7 +153,7 @@ begin
         else
         begin
           TempUnit := fPlayers.UnitsHitTest(fStreet.X+1,fStreet.Y);
-          if ValidTileToGo(fStreet.X+1,fStreet.Y,TempUnit) then
+          if ValidTileToGo(fStreet.X+1,fStreet.Y,TempUnit,KMUnit) then
           begin
             fStreet.X := fStreet.X + 1;
             fUsingDoorway := false;

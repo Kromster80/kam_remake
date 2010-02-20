@@ -35,7 +35,7 @@ type
     //procedure RemUnit(Position: TKMPoint);
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
-    function FindInn(Loc:TKMPoint; UnitIsAtHome:boolean=false): TKMHouseInn;
+    function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse; overload;
     function FindHouse(aType:THouseType; const Index:byte=1): TKMHouse; overload;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
@@ -272,7 +272,7 @@ begin
   Result := fHouses.FindHouse(aType, 0, 0, Index);
 end;
 
-function TKMPlayerAssets.FindInn(Loc:TKMPoint; UnitIsAtHome:boolean=false): TKMHouseInn;
+function TKMPlayerAssets.FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
 var
   H: TKMHouseInn;
   i: integer;
@@ -288,7 +288,7 @@ begin
    H := TKMHouseInn(FindHouse(ht_Inn));
    repeat
      //First make sure that it is valid
-     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance),canWalk,true)) then
+     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance),aUnit.GetDesiredPassability(true),true)) then
      begin
         //Take the closest inn out of the ones that are suitable
         Dist := GetLength(H.GetPosition,Loc);
