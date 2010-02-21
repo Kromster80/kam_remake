@@ -150,7 +150,8 @@ begin
           //Check formation
           if UnitGroups[byte(GetUnitType)] <> gt_None then
           begin
-            UnitsPerRow := TroopFormations[UnitGroups[byte(GetUnitType)]].NumRows;
+            if TroopFormations[UnitGroups[byte(GetUnitType)]].NumRows > 1 then
+              UnitsPerRow := TroopFormations[UnitGroups[byte(GetUnitType)]].NumRows;
             //If this group doesn't have enough members, flag us as needing to be added to (this should not happen if we are attacking though)
             if (GetMemberCount < TroopFormations[UnitGroups[byte(GetUnitType)]].NumUnits) and
               (NeedsLinkingTo[UnitGroups[byte(GetUnitType)]] = nil) then

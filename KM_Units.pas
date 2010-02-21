@@ -3131,7 +3131,7 @@ case fPhase of
                                          //fUnit.fHome is wrong
      end else
      SetActionLockedStay(0,ua_Walk);
-  1: if SequenceLength > 0 then SetActionStay(SequenceLength,ua_Die,false)
+  1: if SequenceLength > 0 then SetActionLockedStay(SequenceLength,ua_Die,false)
      else SetActionLockedStay(0,ua_Walk);
   else begin
       fUnit.CloseUnit;

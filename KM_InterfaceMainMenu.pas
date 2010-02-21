@@ -752,6 +752,12 @@ begin
   if Sender = Ratio_Options_Music then fGame.fGameSettings.SetMusicVolume(Ratio_Options_Music.Position);
   if Sender = Button_Options_MusicOn then fGame.fGameSettings.IsMusic := not fGame.fGameSettings.IsMusic;
 
+  //This is called when the options page is shown, so update all the values
+  CheckBox_Options_Autosave.Checked := fGame.fGameSettings.IsAutosave;
+  Ratio_Options_Brightness.Position := fGame.fGameSettings.GetBrightness;
+  Ratio_Options_Mouse.Position      := fGame.fGameSettings.GetMouseSpeed;
+  Ratio_Options_SFX.Position        := fGame.fGameSettings.GetSoundFXVolume;
+  Ratio_Options_Music.Position      := fGame.fGameSettings.GetMusicVolume;
   if fGame.fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                                  else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 

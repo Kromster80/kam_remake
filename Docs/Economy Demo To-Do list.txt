@@ -5,15 +5,19 @@
 +	Troop/house buttons not working after clicking on terrain with them selected
 +	Laborers are sometimes being trapped inside a digged construction plan (Kuba 2010-02-19 Stuck Workers save09.sav)
 +	Range check error in TPR7, (TRB 2010-02-19 Range Check Error.rar) caused by group dying
++	Death task should not wait for action to finish, it should override any action under any circumstances. Otherwise strange things can happen visually e.g. dead units can be "pushed" using interaction sometimes not showing death animation.
++	In game settings uses old sytle brightness control.
++	Main menu options page doesn't refresh if you change the settings in game.
++	After digging house area workers will not continue to walk over other construction sites after leaving the one they made
 
 
 -	Because the delivery queue prefers closer deliveries, wares will always be delivered to closer buildings. (e.g. with two swine farms, closer one will get all the corn) Same with coal mines. (coal mines in Kuba 2010-02-19 Stuck Workers save09.sav, swine farms in TRB 2010-02-19 Wood and Swine save01.sav)
 -	I got a access violation when I was deleting my fisherman.
--	Walk failed in TPR7 "Unit Laborer unable to walk a route from (97;29) to (98;30) during task Idle since the route is unbuilt" (TRB 2010-02-19 Walk Failed.rar)
 - when starting the game first time after system boot-up the Windows Explorer stops responding for a minute (Windows 7 x64)
-- F11 statusbar shows wrong map size (look at my previous save, it says 64*64 on 176*176 map)
--	Death task should not wait for action to finish, it should override any action under any circumstances. Otherwise strange things can happen visually e.g. dead units can be "pushed" using interaction sometimes not showing death animation.
 
+
+? (Probably fixed, can't test because statusbar doesn't show for me) F11 statusbar shows wrong map size (look at my previous save, it says 64*64 on 176*176 map)
+?	(Can't reproduce, probably caused by worker-construction site issues that have been fixed now) Walk failed in TPR7 "Unit Laborer unable to walk a route from (97;29) to (98;30) during task Idle since the route is unbuilt" (TRB 2010-02-19 Walk Failed.rar)
 
 
 Remaining from r698:

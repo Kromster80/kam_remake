@@ -72,8 +72,7 @@ type TKMGamePlayInterface = class
         Button_Load:array[1..SAVEGAME_COUNT]of TKMButton;
 
       Panel_Settings:TKMPanel;
-        Label_Settings_BrightValue:TKMLabel;
-        Button_Settings_Dark,Button_Settings_Light:TKMButton;
+        Ratio_Settings_Brightness:TKMRatioRow;
         CheckBox_Settings_Autosave,CheckBox_Settings_FastScroll:TKMCheckBox;
         Label_Settings_MouseSpeed,Label_Settings_SFX,Label_Settings_Music,Label_Settings_Music2:TKMLabel;
         Ratio_Settings_Mouse,Ratio_Settings_SFX,Ratio_Settings_Music:TKMRatioRow;
@@ -848,12 +847,9 @@ procedure TKMGamePlayInterface.Create_Settings_Page;
 var i:integer;
 begin
   Panel_Settings:=MyControls.AddPanel(Panel_Main,0,412,200,400);
-    MyControls.AddLabel(Panel_Settings,100,10,100,30,fTextLibrary.GetTextString(181),fnt_Metal,kaCenter);
-    Button_Settings_Dark:=MyControls.AddButton(Panel_Settings,8,30,36,24,fTextLibrary.GetTextString(183),fnt_Metal);
-    Button_Settings_Light:=MyControls.AddButton(Panel_Settings,154,30,36,24,fTextLibrary.GetTextString(182),fnt_Metal);
-    Button_Settings_Dark.Hint:=fTextLibrary.GetTextString(185);
-    Button_Settings_Light.Hint:=fTextLibrary.GetTextString(184);
-    Label_Settings_BrightValue:=MyControls.AddLabel(Panel_Settings,100,34,100,30,'',fnt_Grey,kaCenter);
+    MyControls.AddLabel(Panel_Settings,24,10,100,30,fTextLibrary.GetTextString(181),fnt_Metal,kaLeft);
+    Ratio_Settings_Brightness:=MyControls.AddRatioRow(Panel_Settings,18,30,160,20,fGame.fGameSettings.GetSlidersMin,fGame.fGameSettings.GetSlidersMax);
+    Ratio_Settings_Brightness.OnChange := Menu_Settings_Change;
     CheckBox_Settings_Autosave:=MyControls.AddCheckBox(Panel_Settings,8,70,100,30,fTextLibrary.GetTextString(203),fnt_Metal);
     CheckBox_Settings_FastScroll:=MyControls.AddCheckBox(Panel_Settings,8,95,100,30,fTextLibrary.GetTextString(204),fnt_Metal);
     Label_Settings_MouseSpeed:=MyControls.AddLabel(Panel_Settings,24,130,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
@@ -1706,8 +1702,7 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Settings_Change(Sender:TObject);
 begin
-  if Sender = Button_Settings_Dark then fGame.fGameSettings.DecBrightness;
-  if Sender = Button_Settings_Light then fGame.fGameSettings.IncBrightness;
+  if Sender = Ratio_Settings_Brightness then fGame.fGameSettings.SetBrightness(Ratio_Settings_Brightness.Position);
   if Sender = CheckBox_Settings_Autosave then fGame.fGameSettings.IsAutosave:=not fGame.fGameSettings.IsAutosave;
   if Sender = CheckBox_Settings_FastScroll then fGame.fGameSettings.IsFastScroll:=not fGame.fGameSettings.IsFastScroll;
   if Sender = Ratio_Settings_Mouse then fGame.fGameSettings.SetMouseSpeed(Ratio_Settings_Mouse.Position);
@@ -1715,7 +1710,7 @@ begin
   if Sender = Ratio_Settings_Music then fGame.fGameSettings.SetMusicVolume(Ratio_Settings_Music.Position);
   if Sender = Button_Settings_Music then fGame.fGameSettings.IsMusic:=not fGame.fGameSettings.IsMusic;
   
-  Label_Settings_BrightValue.Caption:=fTextLibrary.GetTextString(185 + fGame.fGameSettings.GetBrightness);
+  Ratio_Settings_Brightness.Position := fGame.fGameSettings.GetBrightness;
   CheckBox_Settings_Autosave.Checked:=fGame.fGameSettings.IsAutosave;
   CheckBox_Settings_FastScroll.Checked:=fGame.fGameSettings.IsFastScroll;
   Ratio_Settings_Mouse.Position:=fGame.fGameSettings.GetMouseSpeed;

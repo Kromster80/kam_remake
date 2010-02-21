@@ -825,6 +825,7 @@ begin
 
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
         Result := lrSuccess; //Loading has now completed successfully :)
+        Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
       except
         on E : Exception do
         begin

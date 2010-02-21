@@ -247,20 +247,30 @@ end;
 
 
 function TUnitActionWalkTo.AssembleTheRoute():boolean;
-var i:integer; NodeList2:TKMPointList;
+var i:integer; NodeList2:TKMPointList; TmpPass: TPassability;
 begin
+  TmpPass := fPass;
   //Build a piece of route to return to nearest road piece connected to destination road network
   if (fPass = canWalkRoad) and (fWalkToSpot) then //That is Citizens walking to spot
     if (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
       (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
       fTerrain.Route_ReturnToRoad(fWalkFrom, fWalkTo, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
 
+  //If we are a worker on a construction site, build a piece of route to return to nearest walkable tile on the
+  if fPass = canWorker then //That is Workers on a construction site
+    if (fTerrain.GetWalkConnectID(fWalkFrom) <> fTerrain.GetWalkConnectID(fWalkTo)) and  //Not walkable returns 0
+      (fTerrain.GetWalkConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is not walkable
+    begin
+      fTerrain.Route_ReturnToWalkable(fWalkFrom, fWalkTo, fTerrain.GetWalkConnectID(fWalkTo), NodeList);
+      TmpPass := canWalk; //After this piece of route we are in walk mode
+    end;
+
   //Build a route A*
   if NodeList.Count=0 then //Build a route from scratch
     fTerrain.Route_Make(fWalkFrom, fWalkTo, fAvoid, fPass, fWalkToSpot, NodeList) //Try to make the route with fPass
   else begin //Append route to existing part
     NodeList2 := TKMPointList.Create;
-    fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, fAvoid, fPass, fWalkToSpot, NodeList2); //Try to make the route with fPass
+    fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, fAvoid, TmpPass, fWalkToSpot, NodeList2); //Try to make the route with fPass
     for i:=2 to NodeList2.Count do
       NodeList.AddEntry(NodeList2.List[i]);
     FreeAndNil(NodeList2);
@@ -706,6 +716,7 @@ begin
 
     //@Lewin: This is a WIP sketch
     //My idea is to check surrounding tiles for enemies of any kind
+    //@Krom: This check shouldn't only be in the walk action, what if the warrior is idle when the enemy arrives?
 
 
     //First of all make changes to our route if we are supposed to be tracking a unit
@@ -756,6 +767,12 @@ begin
       inc(NodePos); //Inc the node pos and exit so this step is simply skipped
       exit; //Will take next step during next execute
     end;
+
+    //If we were in Worker mode but have now reached the walk network of our destination switch to canWalk mode to avoid walking on other building sites
+    if (fPass = canWorker) and (fTerrain.GetWalkConnectID(fWalkTo) <> 0) and
+      (fTerrain.GetWalkConnectID(fWalkTo) = fTerrain.GetWalkConnectID(NodeList.List[NodePos])) then
+      fPass := canWalk;
+
     //Update unit direction according to next Node
     fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
 
