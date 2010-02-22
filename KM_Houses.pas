@@ -269,7 +269,7 @@ begin
   begin 
     Self.Activate(false);
     fBuildingProgress := HouseDAT[byte(fHouseType)].MaxHealth;
-    fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner); //Sets passability
+    fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, true); //Sets passability and flattens terrain
   end else
     fTerrain.SetHouse(fPosition, fHouseType, hs_Plan, play_None); //Terrain remains neutral yet
 end;
@@ -339,7 +339,16 @@ procedure TKMHouse.CloseHouse;
 begin
   fIsDestroyed := true;
   BuildingRepair := false; //Otherwise labourers will take task to repair when the house is destroyed
-  if (RemoveRoadWhenDemolish) and not (GetBuildingState in [hbs_Stone, hbs_Done]) then fTerrain.RemRoad(Self.GetEntrance);
+  if (RemoveRoadWhenDemolish) and not (GetBuildingState in [hbs_Stone, hbs_Done]) then
+  begin
+    if fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay = to_Road then
+    begin
+      fTerrain.RemRoad(Self.GetEntrance);
+      fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
+    end
+    else
+      fTerrain.RemRoad(Self.GetEntrance);
+  end;
   FreeAndNil(fCurrentAction);
   //Leave disposing of units inside the house to themselves
 end;
@@ -375,6 +384,9 @@ end;
                              
 procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 begin
+  if fPlayers.Selected = Self then fPlayers.Selected := nil;
+  if fGame.fGamePlayInterface.GetShownHouse = Self then fGame.fGamePlayInterface.ShowHouseInfo(nil);
+
   if not DoSilent then
     if (GetBuildingState = hbs_Glyph)or(NoRubble) then fSoundLib.Play(sfx_click)
     else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
@@ -383,7 +395,7 @@ begin
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveDemand(Self);
   fPlayers.Player[byte(fOwner)].BuildList.RemoveHouseRepair(Self);
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
-  if RemoveRoadWhenDemolish then fTerrain.RemRoad(GetEntrance); //Delete the road at the entrance
+  //Road is removed in CloseHouse
   if not NoRubble then fTerrain.AddHouseRemainder(fPosition,fHouseType,fBuildState);
   
   if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then

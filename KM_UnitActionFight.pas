@@ -4,16 +4,18 @@ uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, 
 
 type TFightType = (ft_Melee, ft_Ranged); //Dunno if we really need it?
 
-{Stay in place for set time}
+{Fight until we die or the opponent dies}
 type
 TUnitActionFight = class(TUnitAction)
   private
     fOpponent:TKMUnit; //Who we are fighting with
+    fOpponentHitPoints: byte; //Opponent hit points are specific for each fight to match KaM
   public
-    constructor Create(aActionType:TUnitActionType; aOpponent:TKMUnit);
+    constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
+    destructor Destroy; override;
     procedure SyncLoad(); override;
-    procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
+    procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte; IsHit:boolean);
     procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -24,10 +26,19 @@ uses KM_PlayersCollection, KM_Terrain, KM_SoundFX;
 
 
 { TUnitActionFight }
-constructor TUnitActionFight.Create(aActionType:TUnitActionType; aOpponent:TKMUnit);
+constructor TUnitActionFight.Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
 begin
   Inherited Create(aActionType);
-  fOpponent := aOpponent;
+  fOpponent := aOpponent.GetSelf; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
+  fOpponentHitPoints := UnitStat[byte(aOpponent.GetUnitType)].HitPoints; //Initialise to full hit points at start of fight
+  aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
+end;
+
+
+destructor TUnitActionFight.Destroy;
+begin
+  fOpponent.RemovePointer;
+  Inherited;
 end;
 
 
@@ -35,6 +46,7 @@ constructor TUnitActionFight.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fOpponent, 4);
+  LoadStream.Read(fOpponentHitPoints);
 end;
 
 
@@ -45,7 +57,7 @@ begin
 end;
 
 
-procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
+procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte; IsHit:boolean);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
@@ -71,28 +83,54 @@ end;
 
 
 procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
-var Cycle,Step:byte; Damage:byte;
+
+  function GetDirModifier(OurDir,OpponentDir:TKMDirection): byte;
+  begin
+    Result := abs(byte(OurDir)-byte(KMLoopDirection(byte(OpponentDir)+4)))+1;
+    if Result > 5 then
+      Result := abs(Result-10); //Inverse it, as the range must always be 1..5
+  end;
+
+  function CheckDoEnd:boolean;
+  begin
+    Result := (fOpponent.GetUnitTask is TTaskDie) or //Unit is Killed
+              (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
+              (fOpponentHitPoints = 0) or //same as Killed?
+               fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
+  end;
+
+var Cycle,Step:byte; DirectionModifier:byte; IsHit: boolean; Damage: word;
 begin
+  DoEnd := CheckDoEnd;
+  if DoEnd then
+    exit; //e.g. if other unit kills opponent, exit now
 
   Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
   Step  := KMUnit.AnimStep mod Cycle;
 
-  MakeSound(KMUnit, Cycle, Step);
-
   KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Always face the opponent
 
-  Damage := 5;//(BaseAttack * Random) * Unit_Specific_Modifiers * AttackDirection ?
+  IsHit := false;
+  //Only hit unit on step 5
+  if Step = 5 then
+  begin
+    DirectionModifier := GetDirModifier(KMUnit.Direction,fOpponent.Direction);
+    Damage := ((UnitStat[byte(KMUnit.GetUnitType)].Attack+(UnitStat[byte(KMUnit.GetUnitType)].AttackHorseBonus)*byte(UnitGroups[byte(fOpponent.GetUnitType)] = gt_Mounted)) * DirectionModifier)
+              div max(UnitStat[byte(fOpponent.GetUnitType)].Defence,1); //Not needed, but animals have 0 defence
 
-  if Step = 5 then fOpponent.HitPointsDecrease(max(1,Damage)); //todo: put real formula here
+    IsHit := (Damage > RandomRange(0,100));
+    if IsHit then
+      dec(fOpponentHitPoints);
+    
+    if fOpponentHitPoints = 0 then fOpponent.KillUnit;
+  end;
+
+  MakeSound(KMUnit, Cycle, Step, IsHit);
 
   IsStepDone := KMUnit.AnimStep mod Cycle = 0;
   inc(KMUnit.AnimStep);
 
-  DoEnd := (fOpponent.GetUnitTask is TTaskDie) or //Unit is Killed
-           (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
-           (fOpponent.GetHitPoints<=0) or //same as Killed?
-           fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
-
+  DoEnd := CheckDoEnd;
 end;
 
 
@@ -103,6 +141,7 @@ begin
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
+  SaveStream.Write(fOpponentHitPoints);
 end;
 
 

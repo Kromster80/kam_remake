@@ -392,11 +392,11 @@ closefile(f);
     writeln(ft,'Name;x1;Attack;AttackHorseBonus;x4;HitPoints;Speed;x7;Sight;x9;x10;CanWalkOut;0;');
     for ii:=1 to 40 do begin
       write(ft,fTextLibrary.GetTextString(siUnitNames+ii)+';');
-      write(ft,inttostr(UnitStat[ii].x1)+';');
+      write(ft,inttostr(UnitStat[ii].HitPoints)+';');
       write(ft,inttostr(UnitStat[ii].Attack)+';');
       write(ft,inttostr(UnitStat[ii].AttackHorseBonus)+';');
       write(ft,inttostr(UnitStat[ii].x4)+';');
-      write(ft,inttostr(UnitStat[ii].HitPoints)+'hp;');
+      write(ft,inttostr(UnitStat[ii].Defence)+';');
       write(ft,inttostr(UnitStat[ii].Speed)+';');
       write(ft,inttostr(UnitStat[ii].x7)+';');
       write(ft,inttostr(UnitStat[ii].Sight)+';');

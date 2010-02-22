@@ -713,12 +713,6 @@ begin
   if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and
      Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
   begin
-
-    //@Lewin: This is a WIP sketch
-    //My idea is to check surrounding tiles for enemies of any kind
-    //@Krom: This check shouldn't only be in the walk action, what if the warrior is idle when the enemy arrives?
-
-
     //First of all make changes to our route if we are supposed to be tracking a unit
     if (fTargetUnit <> nil) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
       ChangeWalkTo(fTargetUnit.GetPosition); //If target unit has moved then change course and follow it
@@ -760,6 +754,14 @@ begin
       DoEnd:=true;
       exit;
     end;
+
+    //Check for units nearby to fight
+    if (fWalker is TKMUnitWarrior) then
+      if TKMUnitWarrior(fWalker).CheckForEnemy then
+      begin
+        //If we've picked a fight it means this action no longer exists, so we must exit out (don't set DoEnd as that will now apply to fight action)
+        exit;
+      end;
 
     //This is sometimes caused by unit interaction changing the route so simply ignore it
     if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then

@@ -197,7 +197,7 @@ type
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
     fThought:TUnitThought;
-    fHitPoints:byte;
+    fHitPoints:byte; //@Krom: In KaM the hit points are stored in the fight action. Think about it, if they weren't a serf could die with only 1 hit from 2 units. But in KaM no matter how many units are attacking, it always takes 2 hits to kill a serf. (2 is serfs hit points) Let me know if you'd like to discuss this before I removed it.
     fCondition:integer; //Unit condition, when it reaches zero unit should die
     fOwner:TPlayerID;
     fHome:TKMHouse;
@@ -352,6 +352,7 @@ type
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
+    function CheckForEnemy:boolean;
     property GetOrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
@@ -942,7 +943,7 @@ end;
 
 function TKMUnitWarrior.GetSupportedActions: TUnitActionTypeSet;
 begin
-  Result := [ua_Walk, ua_Work, ua_Die];
+  Result := [ua_Walk, ua_Work, ua_Spec, ua_Die]; //ua_Spec is storm attack available to some units
 end;
 
 
@@ -1283,20 +1284,80 @@ begin
 end;
 
 
+function TKMUnitWarrior.CheckForEnemy: boolean;
+  function CheckCanFight: boolean;
+  begin
+    if GetUnitAction is TUnitActionWalkTo      then Result := GetUnitAction.IsStepDone else //As long as step is done we can always abandon a walk to fight
+    if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
+    if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
+    if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks
+    if GetUnitAction is TUnitActionFight       then Result := false //Never interupt a fight
+    else Result := true;
+  end;
+var i,k,WCount,OCount:shortint;
+    U: TKMUnit;
+    Warriors,Others: array[1..8] of TKMUnit;
+begin
+  WCount := 0;
+  OCount := 0;
+  //We don't care about state, override any action that can be abandoned
+  Result := false; //Did we pick a fight?
+  if ENABLE_FIGHTING then
+  if CheckCanFight then
+  begin
+    for i := -1 to 1 do
+      for k := -1 to 1 do
+      if (i<>0) or (k<>0) then
+      begin
+        U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
+        //Must be enemy
+        if (U <> nil) and (not U.IsDead) and (U.GetOwner <> GetOwner) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
+        begin
+          //We'd rather fight a warrior, so store them seperatly
+          if U is TKMUnitWarrior then
+          begin
+            inc(WCount);
+            Warriors[WCount] := U;
+          end
+          else
+          begin
+            inc(OCount);
+            Others[OCount] := U;
+          end
+        end;
+      end;
+  end;
+  //Choose random unit, prefering warriors to e.g. serfs
+  U := nil;
+  if WCount > 0 then
+    U := Warriors[RandomRange(1,WCount+1)]
+  else
+    if OCount > 0 then
+      U := Others[RandomRange(1,OCount+1)];
+  if U <> nil then
+  begin
+    SetActionFight(ua_Work, U);
+    //Let the opponent know they are being attacked so they can attack back if necessary
+    if U is TKMUnitWarrior then TKMUnitWarrior(U).CheckForEnemy;
+    Result := true; //We found someone to fight
+  end;
+end;
+
+
 function TKMUnitWarrior.UpdateState():boolean;
   function CheckCanAbandon: boolean;
   begin
     if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
     if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
     if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
-    if GetUnitAction is TUnitActionGoInOut     then Result := false //Never interupt leaving barracks
+    if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks
+    if GetUnitAction is TUnitActionFight       then Result := false //Never interupt a fight
     else Result := true;
   end;
 var
   i: integer;
   PositioningDone: boolean;
   LinkUnit: TKMUnitWarrior;
-  U: TKMUnit; //Any unit, well maybe except animals
 begin
   inc(fFlagAnim);
 
@@ -1341,6 +1402,8 @@ begin
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     fState := ws_Walking;
   end;
+
+  if fFlagAnim mod 10 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -1396,20 +1459,6 @@ begin
       SetActionStay(50,ua_Walk) //Idle if we did not receive a walk action above
     else
       SetActionStay(5,ua_Walk);
-  end;
-
-  if ENABLE_FIGHTING then
-  if fState = ws_None then begin
-    U := fPlayers.UnitsHitTest(GetPosition.X+1,GetPosition.Y);
-    if (U = nil) or (U.GetOwner = GetOwner) then
-      U := fPlayers.UnitsHitTest(GetPosition.X,GetPosition.Y+1);
-    if (U = nil) or (U.GetOwner = GetOwner) then
-      U := fPlayers.UnitsHitTest(GetPosition.X-1,GetPosition.Y);
-    if (U = nil) or (U.GetOwner = GetOwner) then
-      U := fPlayers.UnitsHitTest(GetPosition.X,GetPosition.Y-1);
-
-    if (U <> nil) and (U.GetOwner <> GetOwner) then
-      SetActionFight(ua_Work, U);
   end;
 
   fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
@@ -1711,6 +1760,8 @@ end;
 // CloseUnit - erase all unit data and hide it from further access
 procedure TKMUnit.KillUnit;
 begin
+  if fPlayers.Selected = Self then fPlayers.Selected := nil;
+  if fGame.fGamePlayInterface.GetShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
   //Abandon delivery if any
@@ -1846,7 +1897,7 @@ end;
 
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
-  SetAction(TUnitActionFight.Create(aAction, aOpponent),0);
+  SetAction(TUnitActionFight.Create(aAction, aOpponent, Self),0);
 end;
 
 
@@ -3612,7 +3663,7 @@ begin
   y2 := fViewport.GetClip.Bottom + Margin;
 
   for I := 0 to Count - 1 do
-  if not TKMUnit(Items[I]).IsDead then
+  if (Items[I] <> nil) and (not TKMUnit(Items[I]).IsDead) then
   if (InRange(TKMUnit(Items[I]).fPosition.X,x1,x2) and InRange(TKMUnit(Items[I]).fPosition.Y,y1,y2)) then
     TKMUnit(Items[I]).Paint();
 end;

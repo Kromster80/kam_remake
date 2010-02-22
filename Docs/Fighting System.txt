@@ -1,0 +1,26 @@
+Information about the Knights and Merchants fighting system
+General damage formula
+
+bool hit = ((Unit.Strength * PositionalModifier) / Opponent.Defence) > random(0, 100)
+
+A unit can take up to (but excluding) HitPoints hits.
+Positional modifier
+
+Assuming unit X is looking towards the north
+2	1	2
+3	X	3
+4	5	4	
+Strength, Hit Points and Defence
+Unit	Hit Points	Strength	Horse Bonus	Defence
+Militia	3	35	0	1
+Axe Fighter	3	35	0	2
+Swordman	3	55	0	3
+Barbarian	4	75	0	1
+Lance Carrier	3	25	55	2
+Pikeman	3	35	80	3
+Bowman	1	60	0	2
+Crossbowman	1	120	0	3
+Scout	4	35	0	2
+Knight	4	55	0	3
+
+Retrived on 21/02/2010 from http://www.xp-dev.com/wiki/65851/FightingSystemInformation

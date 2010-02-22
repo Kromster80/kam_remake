@@ -70,7 +70,7 @@ public
   procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
   procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerID);
   procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
-  procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID);
+  procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; aFlattenTerrain:boolean=false);
   procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
 
   procedure RemMarkup(Loc:TKMPoint);
@@ -1643,7 +1643,7 @@ end;
 
 
 {Place house plan on terrain and change terrain properties accordingly}
-procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID);
+procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; aFlattenTerrain:boolean=false);
 var i,k,x,y:word; L,H:TKMPoint;
 begin
 
@@ -1666,7 +1666,12 @@ begin
           hs_None:  Land[y,x].Markup:=mu_None;
           hs_Plan:  Land[y,x].Markup:=mu_HousePlan;
           hs_Fence: Land[y,x].Markup:=mu_HouseFenceCanWalk; //Initial state, Laborer should assign NoWalk to each tile he digs
-          hs_Built: begin Land[y,x].Markup:=mu_House; Land[y,x].Obj:=255; end;
+          hs_Built: begin
+                      Land[y,x].Markup:=mu_House;
+                      Land[y,x].Obj:=255;
+                      //If house was set e.g. in mission file we must flatten the terrain as no one else has
+                      if aFlattenTerrain then FlattenTerrain(KMPoint(x,y));
+                    end;
         end;
 
         UpdateBorders(KMPoint(x,y));

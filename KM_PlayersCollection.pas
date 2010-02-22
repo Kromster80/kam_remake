@@ -30,6 +30,7 @@ type
     function HitTest(X, Y: Integer):boolean;
     function GetUnitCount():integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
+    function CheckAlliance(Player1ID,Player2ID:TPlayerID):TAllianceType;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -207,6 +208,15 @@ begin
   until(TryOut(X,Y) or (Span=10)); //Catch the end
 
   Result:=KMPoint(X,Y);
+end;
+
+
+function TKMAllPlayers.CheckAlliance(Player1ID,Player2ID:TPlayerID):TAllianceType;
+begin
+  if InRange(byte(Player1ID),1,8) and InRange(byte(Player2ID),1,8) and (Player[byte(Player1ID)] <> nil) then
+    Result := Player[byte(Player1ID)].fAlliances[byte(Player2ID)]
+  else
+    Result := at_Ally; //Default if there's an error (e.g. they ask for animals)
 end;
 
 

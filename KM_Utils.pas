@@ -121,6 +121,7 @@ end;
 
 function KMPointRound(P:TKMPointf): TKMPoint;
 begin
+  //@Krom: Access violation here during fights. :( It's on the line "begin" so it probably means P is invalid memory or something
   //@Krom: I'm getting an occasional "Range Check Error" here... Is there something we can do to prevent that?
   Assert((P.X>=0));
   Assert((P.Y>=0));
