@@ -1241,7 +1241,7 @@ end;
 //Render highlight overlay to make whole picture look brighter
 procedure TRender.RenderBrightness(Value:byte);
 begin
-  if Value=1 then exit;
+  if Value=0 then exit;
   glBlendFunc(GL_DST_COLOR,GL_ONE);
   glColor4f(Value/20,Value/20,Value/20,Value/20);
   glBegin(GL_QUADS);

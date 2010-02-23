@@ -33,8 +33,6 @@ type
     property SetResolutionID:word write fResolutionID;
     property GetPace:word read fPace;
     property GetSpeedup:word read fSpeedup;
-    procedure IncBrightness;
-    procedure DecBrightness;
     procedure SetBrightness(aValue:integer);
     procedure SetIsAutosave(val:boolean);
     procedure SetIsFastScroll(val:boolean);
@@ -174,18 +172,6 @@ begin
 
   FreeAndNil(f);
   fNeedsSave:=false;
-end;
-
-procedure TGameSettings.IncBrightness;
-begin
-  fBrightness := EnsureRange(fBrightness+1,1,6);
-  fNeedsSave  := true;
-end;
-
-procedure TGameSettings.DecBrightness;
-begin
-  fBrightness := EnsureRange(fBrightness-1,1,6);
-  fNeedsSave  := true;
 end;
 
 procedure TGameSettings.SetBrightness(aValue:integer);

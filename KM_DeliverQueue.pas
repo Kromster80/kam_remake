@@ -414,7 +414,7 @@ begin
 end;
 
 
-//Job successfully done and we ommit it.
+//Job successfully done and we ommit it
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
   if WRITE_DETAILED_LOG then fLog.AppendLog('Closed delivery ID', aID);
