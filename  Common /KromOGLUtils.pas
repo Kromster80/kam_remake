@@ -165,12 +165,11 @@ begin
 end;
 
 procedure glPrint(text: string);
-var d:pchar;
 begin
   if text = '' then exit;
   glPushAttrib(GL_LIST_BIT);
   glListBase(20000);
-  glCallLists(length(text),GL_UNSIGNED_BYTE,Pchar(StrPCopy(d,text)));
+  glCallLists(length(text),GL_UNSIGNED_BYTE,Pchar(@text[1]));
   glPopAttrib;
 end;
 

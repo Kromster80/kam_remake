@@ -17,7 +17,7 @@ type
       Resource:TResourceType;
       Count:integer;
       Loc_House:TKMHouse;
-      BeingPerformed:integer; //How many items are being delivered atm from total Count offered
+      BeingPerformed:cardinal; //How many items are being delivered atm from total Count offered
     end;
     fDemand:array[1..MaxEntries]of
     record
@@ -139,7 +139,7 @@ begin
     end;
 
   //Find an empty spot for new unique offer
-  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i);
+  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None)and(fOffer[i].BeingPerformed<>0) do inc(i);
   with fOffer[i] do begin //Put offer
     if aHouse <> nil then Loc_House:=aHouse.GetSelf;
     Resource:=aResource;
@@ -158,8 +158,10 @@ begin
   for i:=1 to MaxEntries do
   if fOffer[i].Loc_House=aHouse then
   begin
+    fOffer[i].Resource := rt_None;
+    fOffer[i].Count := 0;
     fOffer[i].Loc_House.RemovePointer;
-    FillChar(fOffer[i],SizeOf(fOffer[i]),#0); //Remove offer
+    //fOffer[i].BeingPerformed //Keep it until all associated deliveries are abandoned
   end;
 end;
 
@@ -284,7 +286,7 @@ Result:=nil;
 i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
 if i=MaxEntries then exit;
 
-if WRITE_DETAILED_LOG then fLog.AppendLog('Reserved delivery ID', i);
+//if WRITE_DETAILED_LOG then fLog.AppendLog('Reserved delivery ID', i);
 
 //Cleanup for destroyed houses
 {for iD:=1 to length(fDemand) do
@@ -404,6 +406,7 @@ end;
 //AbandonDelivery
 procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
+  if WRITE_DETAILED_LOG then fLog.AppendLog('Abandoned delivery ID', aID);
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
   if fQueue[aID].DemandID <> 0 then fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
@@ -414,6 +417,7 @@ end;
 //Job successfully done and we ommit it.
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
+  if WRITE_DETAILED_LOG then fLog.AppendLog('Closed delivery ID', aID);
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
   fQueue[aID].JobStatus:=js_Open; //Open slot
@@ -531,8 +535,16 @@ end;
 Result:=Result+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
 for i:=1 to length(fQueue) do if fQueue[i].OfferID<>0 then begin
   Result:=Result+TypeToString(fOffer[fQueue[i].OfferID].Resource)+#9;
-  Result:=Result+TypeToString(fOffer[fQueue[i].OfferID].Loc_House.GetHouseType)+' >>> ';
-  Result:=Result+TypeToString(fOffer[fQueue[i].DemandID].Loc_House.GetHouseType)+#9;
+
+  if fOffer[fQueue[i].OfferID].Loc_House = nil then
+    Result:=Result+'Destroyed'+' >>> '
+  else
+    Result:=Result+TypeToString(fOffer[fQueue[i].OfferID].Loc_House.GetHouseType)+' >>> ';
+
+  if fDemand[fQueue[i].DemandID].Loc_House = nil then
+    Result:=Result+'Destroyed'+#9
+  else
+    Result:=Result+TypeToString(fDemand[fQueue[i].DemandID].Loc_House.GetHouseType)+#9;
   Result:=Result+eol;
 end;
 end;

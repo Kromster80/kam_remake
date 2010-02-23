@@ -95,20 +95,23 @@ TaskDone:=false;
 
 with fUnit do
 case fPhase of
-0: if not fFrom.IsDestroyed then
+0: if not fFrom.IsDestroyed then begin
+     if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going to take '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
      SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
-   else begin
+   end else begin
      Abandon;
      TaskDone:=true;
    end;
-1: if not fFrom.IsDestroyed then
+1: if not fFrom.IsDestroyed then begin
+     if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
      SetActionGoIn(ua_Walk,gd_GoInside,fFrom)
-   else begin
+   end else begin
      Abandon;
      TaskDone:=true;
    end;
 2: if not fFrom.IsDestroyed then
    begin
+     if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
      if fFrom.ResTakeFromOut(fResourceType) then begin
        TKMUnitSerf(fUnit).GiveResource(fResourceType);
        fPlayers.Player[byte(GetOwner)].DeliverList.TakenOffer(fDeliverID);
