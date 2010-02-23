@@ -325,11 +325,13 @@ type
     fState:TWarriorState; //This property is individual to each unit, including commander
     fAutoLinkState:TWarriorLinkState;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
+    fOrderTarget: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
     fUnitsPerRow:integer;
     fMembers:TKMList;
     function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
     procedure UpdateHungerMessage();
+    procedure ClearOrderTarget;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -346,12 +348,16 @@ type
     procedure LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
     procedure Split; //Split group in half and assign another commander
     procedure OrderFood;
+    procedure SetOrderTarget(aUnit:TKMUnit);
+    function GetOrderTarget:TKMUnit;
     property SetOrderedFood:boolean write fOrderedFood;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
+    property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit); reintroduce; overload;
     function CheckForEnemy:boolean;
     property GetOrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -841,6 +847,7 @@ var i,aCount:integer; W:TKMUnitWarrior;
 begin
   Inherited;
   LoadStream.Read(fCommander, 4); //subst on syncload
+  LoadStream.Read(fOrderTarget, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrderedFood);
   LoadStream.Read(fTimeSinceHungryReminder);
@@ -881,6 +888,7 @@ var i:integer;
 begin
   Inherited;
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fCommander)));
+  fOrderTarget := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fOrderTarget)));
   if fMembers<>nil then
     for i:=1 to fMembers.Count do
       fMembers.Items[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fMembers.Items[i-1])));
@@ -935,6 +943,9 @@ begin
       NewCommander.PlaceOrder(wo_Walk,fOrderLoc)
     else
       NewCommander.PlaceOrder(wo_Walk,NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
+
+    //Now set our commander to be the new commander, so that we have some way of referencing units after they die
+    fCommander := NewCommander;
   end;
 
   Inherited;
@@ -1148,6 +1159,33 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.ClearOrderTarget;
+begin
+  //Set fOrderTarget to nil, removing pointer if it's still valid
+  if fOrderTarget <> nil then
+  begin
+    fOrderTarget.RemovePointer;
+    fOrderTarget := nil;
+  end;
+end;
+
+
+procedure TKMUnitWarrior.SetOrderTarget(aUnit:TKMUnit);
+begin
+  //Remove previous value
+  ClearOrderTarget;
+  fOrderTarget := aUnit.GetSelf;
+end;
+
+
+function TKMUnitWarrior.GetOrderTarget:TKMUnit;
+begin
+  //If the target unit has died then clear it
+  if (fOrderTarget <> nil) and (fOrderTarget.IsDead) then ClearOrderTarget;
+  Result := fOrderTarget;
+end;
+
+
 //See if we are in the same group as aWarrior by comparing commanders
 function TKMUnitWarrior.IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
 begin
@@ -1225,12 +1263,31 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit);
+var i: integer;
+begin
+  if aWarriorOrder <> wo_Attack then exit; //Only allow attacks with target units
+
+  fOrder    := aWarriorOrder;
+  fState    := ws_None; //Clear other states
+  SetOrderTarget(aTargetUnit);
+
+  if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
+    for i:=1 to fMembers.Count+1 do
+      TKMUnitWarrior(fMembers.Items[i-1]).PlaceOrder(aWarriorOrder, aTargetUnit);
+end;
+
+
 procedure TKMUnitWarrior.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
   Inherited;
   if fCommander <> nil then
     SaveStream.Write(fCommander.ID) //Store ID
+  else
+    SaveStream.Write(Zero);
+  if fOrderTarget <> nil then
+    SaveStream.Write(fOrderTarget.ID) //Store ID
   else
     SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
@@ -1298,6 +1355,7 @@ var i,k,WCount,OCount:shortint;
     U: TKMUnit;
     Warriors,Others: array[1..8] of TKMUnit;
 begin
+  //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
   WCount := 0;
   OCount := 0;
   //We don't care about state, override any action that can be abandoned
@@ -1308,10 +1366,11 @@ begin
     for i := -1 to 1 do
       for k := -1 to 1 do
       if (i<>0) or (k<>0) then
+      if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through a tree trunk
       begin
         U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
         //Must be enemy
-        if (U <> nil) and (not U.IsDead) and (U.GetOwner <> GetOwner) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
+        if (U <> nil) and (not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (U.GetOwner <> GetOwner) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
         begin
           //We'd rather fight a warrior, so store them seperatly
           if U is TKMUnitWarrior then

@@ -749,10 +749,21 @@ begin
     end;
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
-    if (fTargetUnit <> nil) and (fTargetUnit.IsDead) then
+    if (fTargetUnit <> nil) and ((fTargetUnit.IsDead) or (fTargetUnit.GetUnitTask is TTaskDie)) then
     begin
-      DoEnd:=true;
-      exit;
+      if (fWalker is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) then
+      begin
+        //If a warrior is following a unit it means we are attacking it. (for now anyway) So if this unit dies we must now follow it's commander
+        fTargetUnit := TKMUnitWarrior(fTargetUnit).fCommander; //Will be nil if there are no members from the group left
+      end
+      else
+        fTargetUnit := nil;
+
+      if fTargetUnit = nil then
+      begin
+        DoEnd:=true;
+        exit;
+      end;
     end;
 
     //Check for units nearby to fight

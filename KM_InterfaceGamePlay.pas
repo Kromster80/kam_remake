@@ -2007,7 +2007,7 @@ begin
     if (not IsDown) then Army_CancelJoin(Button_Army_Join_Cancel);
   end;
   //Messages
-  if (Key=71) and (Button_MessageGoTo.Enabled) then //71 = G
+  if (Key=VK_SPACE) and (Button_MessageGoTo.Enabled) then //In KaM spacebar centers you on the message
   begin
     Button_MessageGoTo.Down := IsDown;
     if (not IsDown) then GoToMessage(Button_MessageGoTo);
