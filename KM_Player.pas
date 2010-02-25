@@ -191,7 +191,7 @@ begin
     else fLog.AssertToLog(false,'Wrong markup');
   end;
   if not DoSilent then
-    fSoundLib.Play(sfx_placemarker,aLoc,false);
+    fSoundLib.Play(sfx_placemarker);
 end;
 
 function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
@@ -210,7 +210,7 @@ begin
   BuildList.AddNewHousePlan(KMHouse);
   Result:=true;
   if not DoSilent then
-    fSoundLib.Play(sfx_placemarker,aLoc,false);
+    fSoundLib.Play(sfx_placemarker);
 end;
 
 

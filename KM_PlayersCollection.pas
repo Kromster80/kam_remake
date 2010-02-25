@@ -213,10 +213,10 @@ end;
 
 function TKMAllPlayers.CheckAlliance(Player1ID,Player2ID:TPlayerID):TAllianceType;
 begin
-  if InRange(byte(Player1ID),1,8) and InRange(byte(Player2ID),1,8) and (Player[byte(Player1ID)] <> nil) then
+  if InRange(byte(Player1ID),1,8) and InRange(byte(Player2ID),1,8) and (Player[byte(Player1ID)] <> nil) and (Player1ID <> Player2ID) then
     Result := Player[byte(Player1ID)].fAlliances[byte(Player2ID)]
   else
-    Result := at_Ally; //Default if there's an error (e.g. they ask for animals)
+    Result := at_Ally; //Default if there's an error (e.g. they ask for animals) or both IDs are the same (always allied with self)
 end;
 
 

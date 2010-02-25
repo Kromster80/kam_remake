@@ -81,7 +81,7 @@ type
       function GetNextNextPosition():TKMPoint;
       function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
       property GetInteractionStatus:TInteractionStatus read fInteractionStatus;
-      procedure ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false); //Modify route to go to this destination instead
+      procedure ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aResetTargetUnit:boolean=true; aNewTargetUnit: TKMUnit=nil); //Modify route to go to this destination instead
       procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -646,12 +646,15 @@ begin
 end;
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
-procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false);
+procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aResetTargetUnit:boolean=true; aNewTargetUnit: TKMUnit=nil);
 begin
   if not aWalkToNear then
     fNewWalkTo := aLoc
   else
     fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass);
+
+  if aResetTargetUnit then fTargetUnit := nil;
+  if aNewTargetUnit <> nil then fTargetUnit := aNewTargetUnit; //Change target
 
   fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal ChangeWalkTo 0;0');
 end;
@@ -715,7 +718,12 @@ begin
   begin
     //First of all make changes to our route if we are supposed to be tracking a unit
     if (fTargetUnit <> nil) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
-      ChangeWalkTo(fTargetUnit.GetPosition); //If target unit has moved then change course and follow it
+    begin
+      ChangeWalkTo(fTargetUnit.GetPosition,false,false); //If target unit has moved then change course and follow it (don't reset target unit)
+      //If we are a warrior commander tell our memebers to use this new position
+      if (fWalker is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).fCommander = nil) then
+        TKMUnitWarrior(fWalker).PlaceOrder(wo_Attack,fTargetUnit,true); //Give members new position
+    end;
 
     //See if we have a request to change our route from ChangeWalkTo
     if not KMSamePoint(fNewWalkTo,KMPoint(0,0)) then
@@ -737,6 +745,14 @@ begin
 
     //Set precise position to avoid rounding errors
     fWalker.PositionF := KMPointF(NodeList.List[NodePos].X,NodeList.List[NodePos].Y);
+    
+    //Check for units nearby to fight
+    if (fWalker is TKMUnitWarrior) then
+      if TKMUnitWarrior(fWalker).CheckForEnemy then
+      begin
+        //If we've picked a fight it means this action no longer exists, so we must exit out (don't set DoEnd as that will now apply to fight action)
+        exit;
+      end;
 
     //Walk complete
     if ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
@@ -755,24 +771,15 @@ begin
       begin
         //If a warrior is following a unit it means we are attacking it. (for now anyway) So if this unit dies we must now follow it's commander
         fTargetUnit := TKMUnitWarrior(fTargetUnit).fCommander; //Will be nil if there are no members from the group left
+        //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
+        TKMUnitWarrior(fWalker).GetOrderLoc := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).GetOrderLoc.Dir);
       end
       else
-        fTargetUnit := nil;
-
-      if fTargetUnit = nil then
       begin
         DoEnd:=true;
         exit;
       end;
     end;
-
-    //Check for units nearby to fight
-    if (fWalker is TKMUnitWarrior) then
-      if TKMUnitWarrior(fWalker).CheckForEnemy then
-      begin
-        //If we've picked a fight it means this action no longer exists, so we must exit out (don't set DoEnd as that will now apply to fight action)
-        exit;
-      end;
 
     //This is sometimes caused by unit interaction changing the route so simply ignore it
     if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then

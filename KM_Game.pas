@@ -225,7 +225,7 @@ end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P: TKMPoint; MyRect: TRect; MOver:TKMControl;
+var P: TKMPoint; MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit;
 begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
@@ -247,18 +247,29 @@ begin
                     and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true))
                     then
                   begin
-                    SelectingTroopDirection := true; //MouseMove will take care of cursor changing
-                    //Record current cursor position so we can stop it from moving while we are setting direction
-                    GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
-                    //Restrict cursor to a rectangle (half a rect in both axes)
-                    MyRect := Rect(SelectingDirPosition.X-((DirCursorSqrSize-1) div 2),
-                                   SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2),
-                                   SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1,
-                                   SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1);
-                    ClipCursor(@MyRect);
-                    //Now record it as Client XY
-                    SelectingDirPosition := Point(X,Y);
-                    SelectedDirection := dir_NA;
+                    //See if we are moving or attacking
+                    HitUnit := fPlayers.UnitsHitTest(CursorXc, CursorYc);
+                    if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
+                       (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) then
+                    begin
+                      //Place attack order here rather than in mouse up
+                      TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_Attack, HitUnit);
+                    end
+                    else
+                    begin
+                      SelectingTroopDirection := true; //MouseMove will take care of cursor changing
+                      //Record current cursor position so we can stop it from moving while we are setting direction
+                      GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
+                      //Restrict cursor to a rectangle (half a rect in both axes)
+                      MyRect := Rect(SelectingDirPosition.X-((DirCursorSqrSize-1) div 2),
+                                     SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2),
+                                     SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1,
+                                     SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1);
+                      ClipCursor(@MyRect);
+                      //Now record it as Client XY
+                      SelectingDirPosition := Point(X,Y);
+                      SelectedDirection := dir_NA;
+                    end;
                   end
                   else
                   begin
@@ -321,8 +332,8 @@ begin
                           HitUnit  := fPlayers.UnitsHitTest (CursorXc, CursorYc);
                           HitHouse := fPlayers.HousesHitTest(CursorXc, CursorYc);
                           if (fTerrain.CheckTileRevelation(CursorXc, CursorYc, MyPlayer.PlayerID)>0) and
-                             (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.Player[byte(HitUnit.GetOwner)].fAlliances[byte(MyPlayer.PlayerID)] = at_Enemy))or
-                              ((HitHouse<>nil) and (fPlayers.Player[byte(HitHouse.GetOwner)].fAlliances[byte(MyPlayer.PlayerID)] = at_Enemy))) then
+                             (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy))or
+                              ((HitHouse<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy))) then
                             Screen.Cursor := c_Attack
                           else if not Scrolling then
                             Screen.Cursor := c_Default;
@@ -373,8 +384,9 @@ end;
 
 
 procedure TKMGame.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit; OldSelected: TObject;
+var P:TKMPoint; MOver:TKMControl; HitUnit: TKMUnit; OldSelected: TObject; OldDirSelecting: boolean;
 begin
+  OldDirSelecting := SelectingTroopDirection;
   if SelectingTroopDirection then
   begin
     //Reset the cursor position as it will have moved during direction selection
@@ -482,6 +494,7 @@ begin
         and(MOver = nil)
         and(fGamePlayInterface <> nil)
         and(fGamePlayInterface.GetShownUnit <> nil)
+        and(OldDirSelecting) //If this is false then we are not moving, possibly attacking
         and(SelectingDirPosition.x <> 0)
         and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
         and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
@@ -495,7 +508,8 @@ begin
         if (Button = mbRight) and (MOver = nil) then
         begin
           fGameplayInterface.RightClickCancel; //Right clicking closes some menus
-          Screen.Cursor:=c_Default; //Reset cursor as it might have been joining
+          if (Screen.Cursor = c_JoinYes) or (Screen.Cursor = c_JoinNo) then
+            Screen.Cursor:=c_Default; //Reset cursor if it was joining
         end;
 
       end; //gsRunning

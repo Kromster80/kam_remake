@@ -97,6 +97,9 @@ procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
               (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
               (fOpponentHitPoints = 0) or //same as Killed?
                fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
+    //Before exiting we must Halt so we reposition after the fight. Will need to change later when fight correctly involves entire group.
+    if Result and (TKMUnitWarrior(KMUnit).fCommander = nil) then
+      TKMUnitWarrior(KMUnit).Halt;
   end;
 
 var Cycle,Step:byte; DirectionModifier:byte; IsHit: boolean; Damage: word;
@@ -118,7 +121,7 @@ begin
     Damage := ((UnitStat[byte(KMUnit.GetUnitType)].Attack+(UnitStat[byte(KMUnit.GetUnitType)].AttackHorseBonus)*byte(UnitGroups[byte(fOpponent.GetUnitType)] = gt_Mounted)) * DirectionModifier)
               div max(UnitStat[byte(fOpponent.GetUnitType)].Defence,1); //Not needed, but animals have 0 defence
 
-    IsHit := (Damage > RandomRange(0,100));
+    IsHit := (Damage >= RandomRange(0,100));
     if IsHit then
       dec(fOpponentHitPoints);
     

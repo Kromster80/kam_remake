@@ -251,10 +251,14 @@ end;
 {Attenuated means if sound should fade over distance or not}
 procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0);
 var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
+const MAX_DISTANCE = 35.0;
 begin
   if not IsOpenALInitialized then exit;
 
   //fLog.AddToLog('SoundPlay ID'+inttostr(byte(SoundID))+' at '+TypeToString(Loc));
+
+  //If sound source is further than MAX_DISTANCE away then don't play it. This stops the buffer being fill with sounds on the other side of the map.
+  if Attenuated and (GetLength(Loc,KMPoint(Round(Listener.Pos[1]),Round(Listener.Pos[2]))) > MAX_DISTANCE) then exit;
 
   //Here should be some sort of RenderQueue/List/Clip
 
@@ -298,7 +302,7 @@ begin
     AlSourcei ( ALSource[FreeBuf], AL_SOURCE_RELATIVE, AL_TRUE); //Relative to the listener, meaning it follows us
   end;
   AlSourcef ( ALSource[FreeBuf], AL_REFERENCE_DISTANCE, 4.0 );
-  AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, 35.0 );
+  AlSourcef ( ALSource[FreeBuf], AL_MAX_DISTANCE, MAX_DISTANCE );
   AlSourcef ( ALSource[FreeBuf], AL_ROLLOFF_FACTOR, 1.0 );
   AlSourcei ( ALSource[FreeBuf], AL_LOOPING, AL_FALSE );
 

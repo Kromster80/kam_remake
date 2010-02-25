@@ -318,6 +318,7 @@ type
   //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
+    fPrivatePointerCommander:TKMUnitWarrior; //NOT to be used! Use fCommander instead!
     fFlagAnim:cardinal;
     fOrderedFood:boolean;
     fTimeSinceHungryReminder: integer;
@@ -333,7 +334,8 @@ type
     procedure UpdateHungerMessage();
     procedure ClearOrderTarget;
   public
-    fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
+    procedure SetfCommander(aNewCommander:TKMUnitWarrior);
+    property fCommander:TKMUnitWarrior read fPrivatePointerCommander write SetfCommander; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
@@ -353,11 +355,12 @@ type
     property SetOrderedFood:boolean write fOrderedFood;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
+    property GetOrderLoc:TKMPointDir read fOrderLoc write fOrderLoc;
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir); reintroduce; overload;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit); reintroduce; overload;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
     function CheckForEnemy:boolean;
     property GetOrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -846,7 +849,7 @@ constructor TKMUnitWarrior.Load(LoadStream:TKMemoryStream);
 var i,aCount:integer; W:TKMUnitWarrior;
 begin
   Inherited;
-  LoadStream.Read(fCommander, 4); //subst on syncload
+  LoadStream.Read(fPrivatePointerCommander, 4); //subst on syncload
   LoadStream.Read(fOrderTarget, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrderedFood);
@@ -887,8 +890,8 @@ procedure TKMUnitWarrior.SyncLoad();
 var i:integer;
 begin
   Inherited;
-  fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fCommander)));
-  fOrderTarget := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fOrderTarget)));
+  fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fPrivatePointerCommander))); //Using public access will update pointer usage
+  OrderTarget := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fOrderTarget))); //Using public access will update pointer usage
   if fMembers<>nil then
     for i:=1 to fMembers.Count do
       fMembers.Items[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fMembers.Items[i-1])));
@@ -948,7 +951,21 @@ begin
     fCommander := NewCommander;
   end;
 
+  if fCommander <> nil then fCommander.RemovePointer; //From now on NOTHING will change fCommander, so we can remove the pointer
+  ClearOrderTarget; //This ensures that pointer usage tracking is reset
+
   Inherited;
+end;
+
+
+procedure TKMUnitWarrior.SetfCommander(aNewCommander:TKMUnitWarrior);
+begin
+  if fPrivatePointerCommander <> nil then
+    fPrivatePointerCommander.RemovePointer;
+  if aNewCommander <> nil then
+    fPrivatePointerCommander := TKMUnitWarrior(aNewCommander.GetSelf)
+  else
+    fPrivatePointerCommander := nil;
 end;
 
 
@@ -1174,7 +1191,8 @@ procedure TKMUnitWarrior.SetOrderTarget(aUnit:TKMUnit);
 begin
   //Remove previous value
   ClearOrderTarget;
-  fOrderTarget := aUnit.GetSelf;
+  if aUnit <> nil then
+    fOrderTarget := aUnit.GetSelf; //Else it will be nil from ClearOrderTarget
 end;
 
 
@@ -1219,13 +1237,16 @@ end;
 
 
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir);
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false);
 var i,px,py:integer; NewLoc:TKMPoint; PassedCommander: boolean;
 begin
-  fOrder    := aWarriorOrder;
-  fState    := ws_None; //Clear other states
-  fOrderLoc := aLoc;
-  PassedCommander := false;
+  if (fCommander <> nil) or (not aOnlySetMemebers) then
+  begin
+    fOrder    := aWarriorOrder;
+    fState    := ws_None; //Clear other states
+    fOrderLoc := aLoc;
+    PassedCommander := false;
+  end;
 
   if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
   for i:=1 to fMembers.Count+1 do
@@ -1263,18 +1284,20 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit);
-var i: integer;
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false);
 begin
-  if aWarriorOrder <> wo_Attack then exit; //Only allow attacks with target units
+  if (aWarriorOrder <> wo_Attack) or (aTargetUnit = nil) then exit; //Only allow attacks with target units for now
 
-  fOrder    := aWarriorOrder;
-  fState    := ws_None; //Clear other states
-  SetOrderTarget(aTargetUnit);
+  //Attack works like this: Commander tracks target unit in walk action. Members are ordered to walk to formation with commaner at target unit's location.
+  //If target moves in WalkAction, commander will reissue PlaceOrder with aOnlySetMemebers = true, so memebers will walk to new location.
 
-  if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
-    for i:=1 to fMembers.Count+1 do
-      TKMUnitWarrior(fMembers.Items[i-1]).PlaceOrder(aWarriorOrder, aTargetUnit);
+  if (fCommander <> nil) or (not aOnlySetMemebers) then
+  begin
+    fOrder := aWarriorOrder; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
+    fState := ws_None; //Clear other states
+    SetOrderTarget(aTargetUnit);
+  end;
+  PlaceOrder(wo_Walk,KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give memebers order to walk to approperiate positions
 end;
 
 
@@ -1396,6 +1419,8 @@ begin
   if U <> nil then
   begin
     SetActionFight(ua_Work, U);
+    //Change our OrderLoc so that after the fight we stay where we are
+    fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir);
     //Let the opponent know they are being attacked so they can attack back if necessary
     if U is TKMUnitWarrior then TKMUnitWarrior(U).CheckForEnemy;
     Result := true; //We found someone to fight
@@ -1460,6 +1485,32 @@ begin
     if not (fState = ws_InitalLinkReposition) then
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     fState := ws_Walking;
+  end;
+
+  //Make sure attack order is still valid
+  if (fOrder=wo_Attack) and (GetOrderTarget = nil) then fOrder := wo_None;
+
+  //Change walk in order to attack
+  if (fOrder=wo_Attack) and (GetUnitAction is TUnitActionWalkTo) and //If we are already walking then change the walk to the new location
+    TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
+  begin
+    fAutoLinkState := wl_None; 
+    //If we are not the commander then walk to near
+    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, fCommander <> nil, false, GetOrderTarget);
+    fOrder := wo_None;
+    if not (fState = ws_InitalLinkReposition) then
+      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
+    fState := ws_Walking;
+  end;
+
+  //Take attack order
+  if (fOrder=wo_Attack) and GetUnitAction.IsStepDone and CheckCanAbandon then
+  begin
+    SetActionWalk(Self, GetOrderTarget.NextPosition, KMPoint(0,0), ua_Walk, true, GetOrderTarget);
+    fOrder := wo_None;
+    if not (fState = ws_InitalLinkReposition) then
+      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
+    fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
 
   if fFlagAnim mod 10 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places
