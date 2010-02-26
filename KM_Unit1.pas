@@ -649,11 +649,13 @@ procedure TForm1.ToggleControlsVisibility(ShowCtrls:boolean);
 begin
   Form1.Refresh;
 
+  {$IFDEF VER140} //Lazarus can't operate with ClientSize for it's not multi-platform property
   if MainMenu1.Items[0].Visible and not ShowCtrls then //Hiding controls
     Form1.ClientHeight := Form1.ClientHeight - 20
   else
   if not MainMenu1.Items[0].Visible and ShowCtrls then //Showing controls
     Form1.ClientHeight := Form1.ClientHeight + 20;
+  {$ENDIF}
 
   GroupBox1.Visible  := ShowCtrls;
   StatusBar1.Visible := ShowCtrls;
@@ -665,7 +667,7 @@ begin
   for i:=1 to MainMenu1.Items.Count do
     MainMenu1.Items[i-1].Enabled := ShowCtrls;
 
-  Form1.Refresh;   
+  Form1.Refresh;
 
   Panel5.Top    := 0;
   Panel5.Height := Form1.ClientHeight;

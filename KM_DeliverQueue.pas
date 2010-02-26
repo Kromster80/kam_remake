@@ -136,12 +136,12 @@ begin
   for i:=1 to length(fOffer) do
     if (fOffer[i].Loc_House=aHouse)and(fOffer[i].Resource=aResource) then
     begin
-      inc(fOffer[i].Count,aCount);
+      inc(fOffer[i].Count, aCount);
       exit; //we should exit now
     end;
 
   //Find an empty spot for new unique offer
-  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None)and(fOffer[i].BeingPerformed<>0) do inc(i);
+  i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i);
   with fOffer[i] do begin //Put offer
     if aHouse <> nil then Loc_House:=aHouse.GetSelf;
     Resource:=aResource;
@@ -151,8 +151,8 @@ begin
 end;
 
 
-//Remove Offer from the list. List is stored without sorting
-//so we parse it to find that entry..
+//Remove Offer from the list. E.G on house demolish
+//List is stored without sorting so we have to parse it to find that entry..
 procedure TKMDeliverQueue.RemoveOffer(aHouse:TKMHouse);
 var i:integer;
 begin

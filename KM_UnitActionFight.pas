@@ -121,7 +121,7 @@ begin
     Damage := ((UnitStat[byte(KMUnit.GetUnitType)].Attack+(UnitStat[byte(KMUnit.GetUnitType)].AttackHorseBonus)*byte(UnitGroups[byte(fOpponent.GetUnitType)] = gt_Mounted)) * DirectionModifier)
               div max(UnitStat[byte(fOpponent.GetUnitType)].Defence,1); //Not needed, but animals have 0 defence
 
-    IsHit := (Damage >= RandomRange(0,100));
+    IsHit := (Damage >= Random(100){RandomRange(0,100)}); //@Lewin: FPC has no such function, is it the same?
     if IsHit then
       dec(fOpponentHitPoints);
     

@@ -1412,10 +1412,10 @@ begin
   //Choose random unit, prefering warriors to e.g. serfs
   U := nil;
   if WCount > 0 then
-    U := Warriors[RandomRange(1,WCount+1)]
+    U := Warriors[Random(WCount)+1]
   else
     if OCount > 0 then
-      U := Others[RandomRange(1,OCount+1)];
+      U := Others[Random(OCount)+1];
   if U <> nil then
   begin
     SetActionFight(ua_Work, U);
