@@ -588,15 +588,15 @@ end;
 procedure TKMGamePlayInterface.SetScreenSize(X,Y:word);
 var i: integer;
 begin
-  Bevel_Pause.Width:=X+2;
-  Image_Pause.Left:=X div 2;
-  Label_Pause1.Left:=X div 2;
-  Label_Pause2.Left:=X div 2;
+  Bevel_Pause.Width := X + 2;
+  Image_Pause.Left  := X div 2;
+  Label_Pause1.Left := X div 2;
+  Label_Pause2.Left := X div 2;
 
-  Bevel_Pause.Height:=Y+2;
-  Image_Pause.Top:=(Y div 2)-40;
-  Label_Pause1.Top:=(Y div 2);
-  Label_Pause2.Top:=(Y div 2)+20;
+  Bevel_Pause.Height:= Y + 2;
+  Image_Pause.Top   := Y div 2 - 40;
+  Label_Pause1.Top  := Y div 2;
+  Label_Pause2.Top  := Y div 2 + 20;
 
   //Update Hint position and all messages in queue
   Label_Hint.Top:=Y-16;
@@ -604,7 +604,7 @@ begin
   begin
     Image_Message[i].Top := Y-i*48;
   end;
-  Panel_Message.Top := Y-190;  
+  Panel_Message.Top   := Y - 190;
   Panel_Message.Width := X - Panel_Message.Left;
 
   //todo: scaling Panel should move/scale all child Controls inside of it depending on Anchors setup 
@@ -737,28 +737,28 @@ begin
     LineBase := (i-1)*LineHeight;
     case i of //todo 1: This should be simplified, compacted and automated
     1: begin
-          MyControls.AddBevel(Panel_Stats,  8,LineBase,56,30);
-          MyControls.AddBevel(Panel_Stats, 71,LineBase,56,30);
-          MyControls.AddBevel(Panel_Stats,134,LineBase,56,30);
+          MyControls.AddBevel(Panel_Stats,  8,LineBase, 56,30);
+          MyControls.AddBevel(Panel_Stats, 71,LineBase, 56,30);
+          MyControls.AddBevel(Panel_Stats,134,LineBase, 56,30);
        end;
     2: begin
-          MyControls.AddBevel(Panel_Stats,  8,LineBase,86,30);
-          MyControls.AddBevel(Panel_Stats,104,LineBase,86,30);
+          MyControls.AddBevel(Panel_Stats,  8,LineBase, 86,30);
+          MyControls.AddBevel(Panel_Stats,104,LineBase, 86,30);
        end;
     3: begin
-          MyControls.AddBevel(Panel_Stats,  8,LineBase,86,30);
-          MyControls.AddBevel(Panel_Stats,104,LineBase,86,30);
+          MyControls.AddBevel(Panel_Stats,  8,LineBase, 86,30);
+          MyControls.AddBevel(Panel_Stats,104,LineBase, 86,30);
        end;
     4: begin
-          MyControls.AddBevel(Panel_Stats,  8,LineBase,86,30);
-          MyControls.AddBevel(Panel_Stats,104,LineBase,86,30);
+          MyControls.AddBevel(Panel_Stats,  8,LineBase, 86,30);
+          MyControls.AddBevel(Panel_Stats,104,LineBase, 86,30);
        end;
-    5:    MyControls.AddBevel(Panel_Stats,8,LineBase,116,30);
-    6:    MyControls.AddBevel(Panel_Stats,8,LineBase,146,30);
-    7:    MyControls.AddBevel(Panel_Stats,8,LineBase,86,30);
+    5:    MyControls.AddBevel(Panel_Stats,  8,LineBase,116,30);
+    6:    MyControls.AddBevel(Panel_Stats,  8,LineBase,146,30);
+    7:    MyControls.AddBevel(Panel_Stats,  8,LineBase, 86,30);
     8: begin
           MyControls.AddBevel(Panel_Stats,  8,LineBase,120,30);
-          MyControls.AddBevel(Panel_Stats,138,LineBase,52,30);
+          MyControls.AddBevel(Panel_Stats,138,LineBase, 52,30);
        end;
     end;
 
@@ -770,20 +770,20 @@ begin
          else
            inc(off,Nil_Width);
       1: begin
-        Stat_HousePic[hc]:=MyControls.AddImage(Panel_Stats,off,LineBase,House_Width,30,41{byte(StatHouse[hc])+300});
-        Stat_HouseQty[hc]:=MyControls.AddLabel(Panel_Stats,off+House_Width-2,LineBase+16,37,30,'-',fnt_Grey,kaRight);
-        Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
-        Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
-        inc(hc);
-        inc(off,House_Width);
+          Stat_HousePic[hc]:=MyControls.AddImage(Panel_Stats,off,LineBase,House_Width,30,41{byte(StatHouse[hc])+300});
+          Stat_HouseQty[hc]:=MyControls.AddLabel(Panel_Stats,off+House_Width-2,LineBase+16,37,30,'-',fnt_Grey,kaRight);
+          Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
+          Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
+          inc(hc);
+          inc(off,House_Width);
          end;
       2: begin
-        Stat_UnitPic[uc]:=MyControls.AddImage(Panel_Stats,off,LineBase,Unit_Width,30,byte(StatUnit[uc])+140);
-        Stat_UnitQty[uc]:=MyControls.AddLabel(Panel_Stats,off+Unit_Width-2,LineBase+16,33,30,'-',fnt_Grey,kaRight);
-        Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
-        Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
-        inc(uc);
-        inc(off,Unit_Width);
+          Stat_UnitPic[uc]:=MyControls.AddImage(Panel_Stats,off,LineBase,Unit_Width,30,byte(StatUnit[uc])+140);
+          Stat_UnitQty[uc]:=MyControls.AddLabel(Panel_Stats,off+Unit_Width-2,LineBase+16,33,30,'-',fnt_Grey,kaRight);
+          Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
+          Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
+          inc(uc);
+          inc(off,Unit_Width);
          end;
     end;
   end;

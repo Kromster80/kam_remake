@@ -33,7 +33,7 @@ var
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
+  MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
@@ -826,7 +826,7 @@ var
   SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
 
   //Players colors
-  TeamColors:array[1..MAX_PLAYERS]of cardinal = (
+  TeamColors:array[1..MAX_PLAYERS+1]of cardinal = (
   $FF3040FF, //Red
   $FF00C0FF, //Orange
   $FF00FFFF, //Yellow
@@ -834,7 +834,8 @@ var
   $FFC0C040, //Cyan
   $FFC00000, //Blue
   $FFFF00FF, //Violet
-  $FF282828  //Black
+  $FF282828, //Black
+  $FFFFFFFF //White, used for highlighting army flag on selection, team_animals
   );
 
   GlobalTickCount:integer=-1; //So that first number after inc() would be 0

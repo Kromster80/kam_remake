@@ -197,7 +197,12 @@ type
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
     fThought:TUnitThought;
-    fHitPoints:byte; //@Krom: In KaM the hit points are stored in the fight action. Think about it, if they weren't a serf could die with only 1 hit from 2 units. But in KaM no matter how many units are attacking, it always takes 2 hits to kill a serf. (2 is serfs hit points) Let me know if you'd like to discuss this before I removed it.
+    fHitPoints:byte;
+    //@Krom: In KaM the hit points are stored in the fight action.
+    //Think about it, if they weren't a serf could die with only 1 hit from 2 units.
+    //But in KaM no matter how many units are attacking, it always takes 2 hits to kill a serf.
+    //(2 is serfs hit points) Let me know if you'd like to discuss this before I removed it.
+    //@Lewin: Sounds a lot more complicated than per-unit-HP ...
     fCondition:integer; //Unit condition, when it reaches zero unit should die
     fOwner:TPlayerID;
     fHome:TKMHouse;
@@ -1576,7 +1581,9 @@ end;
 
 
 procedure TKMUnitWarrior.Paint();
-var UnitType,AnimAct,AnimDir:byte; XPaintPos, YPaintPos: single;
+var
+  UnitType, AnimAct, AnimDir, TeamColor:byte;
+  XPaintPos, YPaintPos: single;
 begin
 inherited;
   if not fVisible then exit;
@@ -1584,17 +1591,19 @@ inherited;
   AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=byte(Direction);
 
-  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
-  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
+  XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
+  YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
 
-  fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-  //todo: Flag should brighten when unit is selected
+  fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
   //todo: Flag vertical position is different for mounted vs none mounted units (i.e. so it isn't floating in the air for non-mounted units)
-  if (fCommander=nil) and not (fUnitTask is TTaskDie) then
-  fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, byte(fOwner), XPaintPos, YPaintPos,false);
+  if (fCommander=nil) and not (fUnitTask is TTaskDie) then begin
+    TeamColor := byte(fOwner);
+    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals);
+    fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);
+  end;
 
   if fThought<>th_None then
-  fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
+    fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
 end;
 
 

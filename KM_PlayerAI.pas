@@ -8,7 +8,7 @@ type
     Assets:TKMPlayerAssets; //This is just alias for Players assets
   public
     ReqWorkers, ReqSerfFactor, ReqRecruits: word; //Nunber of each unit type required
-    RecruitTrainTimeout: longword; //Recruits (for barracks) can only be trained after this many ticks
+    RecruitTrainTimeout: longword; //Recruits (for barracks) can only be trained after this many ticks //@Lewin: this is CARDINAL, right?
     TownDefence, MaxSoldiers, Aggressiveness: integer; //-1 means not use or default
     StartPosition: TKMPoint; //Defines roughly where to defend and build around
     Autobuild:boolean;

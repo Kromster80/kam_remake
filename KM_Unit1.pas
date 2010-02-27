@@ -564,12 +564,15 @@ begin
     for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(10+k*4,28));
     for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(10+k*4+1,28));
 
+    MyPlayer.AddGroup(ut_HorseScout, KMPoint(10+k*4+1,32),dir_N,3,6);
+    MyPlayer.AddGroup(ut_Arbaletman, KMPoint(10+k*4+1,36),dir_N,3,6);
+
   end;
 
   RGPlayer.ItemIndex:=2;
   RGPlayerClick(nil); //Update
 
-  fViewPort.SetCenter(13,11);
+  fViewPort.SetCenter(22,30);
 end;
 
 
