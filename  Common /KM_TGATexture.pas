@@ -19,7 +19,10 @@ uses
   Forms, Windows,
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  SysUtils, Classes, dglOpenGL {$IFDEF VER140}, ZLibEx {$ENDIF};
+  SysUtils, Classes, dglOpenGL
+  {$IFDEF VER140}, ZLibEx {$ENDIF}
+  {$IFDEF FPC}, paszlib {$ENDIF}
+  ;
 
 function LoadTexture(Filename: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
@@ -123,6 +126,7 @@ var
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
   {$IFDEF VER140} DeCompressionStream: TZDecompressionStream; {$ENDIF}
+  DestSize:cardinal;
 begin
   result :=FALSE;
   if FileExists(Filename) then begin
@@ -164,6 +168,16 @@ begin
     OutputStream.CopyFrom(DecompressionStream, 0);
     InputStream.Free;
     DeCompressionStream.Free;
+    OutputStream.Position:=0;
+    OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
+  {$ENDIF}
+  {$IFDEF FPC}
+    CloseFile(TGAFile);
+    InputStream := TFileStream.Create(FileName, fmOpenRead);
+
+    OutputStream := TMemoryStream.Create;
+    uncompress(@OutputStream, DestSize, @InputStream, InputStream.Size);
+    InputStream.Free;
     OutputStream.Position:=0;
     OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
   {$ENDIF}
