@@ -322,6 +322,9 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   begin
     //In some unit defines plant is ua_Work1, in others it is ua_Work?
     //todo: Test and confirm this.
+    //@Lewin: See KM_ResourceGFX line 410:415, maybe it's relevant to the case
+    //        But we should choose one stable set of files ans use them. So far we were consistent with beta6 files
+    //        and if anyone got a bug it means they used different DAT/RX files!
     if UnitSprite[byte(ut_Woodcutter)].Act[byte(ua_Work1)].Dir[1].Count > 1 then
       WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work1,12,0,ua_Walk,gs_WoodCutterPlant,0)
     else
