@@ -22,7 +22,7 @@ type TKMMainMenuInterface = class
     Panel_MainMenu:TKMPanel;
       Panel_MainButtons:TKMPanel;
       Image_MainMenuBG,Image_MainMenu1,Image_MainMenu3:TKMImage; //Menu background
-      Button_MainMenuTutor,Button_MainMenuTSK,Button_MainMenuTPR,
+      Button_MainMenuTutor,Button_MainMenuFight,Button_MainMenuTSK,Button_MainMenuTPR,
       Button_MainMenuSingle,Button_MainMenuLoad,Button_MainMenuMulti,
       Button_MainMenuMapEd,
       Button_MainMenuOptions,Button_MainMenuCredit,Button_MainMenuQuit:TKMButton;
@@ -100,6 +100,7 @@ type TKMMainMenuInterface = class
     procedure Create_Results_Page;
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
+    procedure MainMenu_PlayBattle(Sender: TObject);
     procedure SingleMap_PopulateList();
     procedure SingleMap_RefreshList();
     procedure SingleMap_ScrollChange(Sender: TObject);
@@ -251,17 +252,19 @@ begin
     Image_MainMenu3.Stretch;
 
     Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,155,280,350,400);
-      Button_MainMenuTutor  :=MyControls.AddButton(Panel_MainButtons,0,  0,350,30,fTextLibrary.GetSetupString( 3),fnt_Metal,bsMenu);
-      Button_MainMenuTSK    :=MyControls.AddButton(Panel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
-      Button_MainMenuTPR    :=MyControls.AddButton(Panel_MainButtons,0, 80,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
-      Button_MainMenuSingle :=MyControls.AddButton(Panel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
-      Button_MainMenuLoad   :=MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
-      Button_MainMenuMulti  :=MyControls.AddButton(Panel_MainButtons,0,200,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
-      Button_MainMenuMapEd  :=MyControls.AddButton(Panel_MainButtons,0,240,350,30,'Map Editor',fnt_Metal,bsMenu);
-      Button_MainMenuOptions:=MyControls.AddButton(Panel_MainButtons,0,280,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
-      Button_MainMenuCredit :=MyControls.AddButton(Panel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
+      Button_MainMenuTutor  :=MyControls.AddButton(Panel_MainButtons,0,  0,350,30,'Town Tutorial',fnt_Metal,bsMenu);
+      Button_MainMenuFight  :=MyControls.AddButton(Panel_MainButtons,0, 40,350,30,'Battle Tutorial',fnt_Metal,bsMenu);
+      Button_MainMenuTSK    :=MyControls.AddButton(Panel_MainButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
+      Button_MainMenuTPR    :=MyControls.AddButton(Panel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
+      Button_MainMenuSingle :=MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
+      Button_MainMenuLoad   :=MyControls.AddButton(Panel_MainButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
+      Button_MainMenuMulti  :=MyControls.AddButton(Panel_MainButtons,0,240,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
+      Button_MainMenuMapEd  :=MyControls.AddButton(Panel_MainButtons,0,280,350,30,'Map Editor',fnt_Metal,bsMenu);
+      Button_MainMenuOptions:=MyControls.AddButton(Panel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
+      Button_MainMenuCredit :=MyControls.AddButton(Panel_MainButtons,0,360,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
       Button_MainMenuQuit   :=MyControls.AddButton(Panel_MainButtons,0,400,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       Button_MainMenuTutor.OnClick    := MainMenu_PlayTutorial;
+      Button_MainMenuFight.OnClick    := MainMenu_PlayBattle;
       Button_MainMenuSingle.OnClick   := SwitchMenuPage;
       Button_MainMenuLoad.OnClick     := SwitchMenuPage;
       Button_MainMenuMapEd.OnClick    := SwitchMenuPage;
@@ -627,8 +630,13 @@ end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
-  fLog.AssertToLog(Sender=Button_MainMenuTutor,'not Button_MainMenuTutor');
-  fGame.StartGame(ExeDir+'data\mission\mission0.dat', 'Tutorial');
+  fGame.StartGame(ExeDir+'data\mission\mission0.dat', 'Town Tutorial');
+end;
+
+
+procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
+begin
+  fGame.StartGame(ExeDir+'data\mission\mission99.dat', 'Battle Tutorial');
 end;
 
 
