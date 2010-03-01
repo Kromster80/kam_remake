@@ -323,7 +323,6 @@ type
   //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
-    fPrivatePointerCommander:TKMUnitWarrior; //NOT to be used! Use fCommander instead!
     fFlagAnim:cardinal;
     fOrderedFood:boolean;
     fTimeSinceHungryReminder: integer;
@@ -339,8 +338,7 @@ type
     procedure UpdateHungerMessage();
     procedure ClearOrderTarget;
   public
-    procedure SetfCommander(aNewCommander:TKMUnitWarrior);
-    property fCommander:TKMUnitWarrior read fPrivatePointerCommander write SetfCommander; //ID of commander unit, if nil then unit is commander itself and has a shtandart
+    fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
@@ -838,6 +836,7 @@ constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; a
 begin
   Inherited;
   fCommander    := nil;
+  fOrderTarget  := nil;
   fOrderedFood  := false;
   fFlagAnim     := 0;
   fTimeSinceHungryReminder := 0;
@@ -854,7 +853,7 @@ constructor TKMUnitWarrior.Load(LoadStream:TKMemoryStream);
 var i,aCount:integer; W:TKMUnitWarrior;
 begin
   Inherited;
-  LoadStream.Read(fPrivatePointerCommander, 4); //subst on syncload
+  LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fOrderTarget, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrderedFood);
@@ -895,8 +894,8 @@ procedure TKMUnitWarrior.SyncLoad();
 var i:integer;
 begin
   Inherited;
-  fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fPrivatePointerCommander))); //Using public access will update pointer usage
-  OrderTarget := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fOrderTarget))); //Using public access will update pointer usage
+  fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fCommander)));
+  fOrderTarget := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fOrderTarget)));
   if fMembers<>nil then
     for i:=1 to fMembers.Count do
       fMembers.Items[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fMembers.Items[i-1])));
@@ -955,22 +954,9 @@ begin
     //Now set our commander to be the new commander, so that we have some way of referencing units after they die
     fCommander := NewCommander;
   end;
-
-  if fCommander <> nil then fCommander.RemovePointer; //From now on NOTHING will change fCommander, so we can remove the pointer
   ClearOrderTarget; //This ensures that pointer usage tracking is reset
 
   Inherited;
-end;
-
-
-procedure TKMUnitWarrior.SetfCommander(aNewCommander:TKMUnitWarrior);
-begin
-  if fPrivatePointerCommander <> nil then
-    fPrivatePointerCommander.RemovePointer;
-  if aNewCommander <> nil then
-    fPrivatePointerCommander := TKMUnitWarrior(aNewCommander.GetSelf)
-  else
-    fPrivatePointerCommander := nil;
 end;
 
 
@@ -1250,8 +1236,8 @@ begin
     fOrder    := aWarriorOrder;
     fState    := ws_None; //Clear other states
     fOrderLoc := aLoc;
-    PassedCommander := false;
   end;
+  PassedCommander := false;
 
   if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
   for i:=1 to fMembers.Count+1 do
