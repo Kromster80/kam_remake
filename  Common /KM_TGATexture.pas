@@ -124,8 +124,10 @@ var
   Errs:string;
 var
   InputStream: TFileStream;
+  InStream: TMemoryStream;
   OutputStream: TMemoryStream;
   {$IFDEF VER140} DeCompressionStream: TZDecompressionStream; {$ENDIF}
+  Comp:Pointer;
   DestSize:cardinal;
 begin
   result :=FALSE;
@@ -160,8 +162,8 @@ begin
   //TGA is compressed by ZLibEx, thats only KaM Remake custom option
   if ZLibCompressed{TGAHeader.FileType=120} then
   begin
-  {$IFDEF VER140}
     CloseFile(TGAFile);
+  {$IFDEF VER140}
     InputStream := TFileStream.Create(FileName, fmOpenRead);
     OutputStream := TMemoryStream.Create;
     DecompressionStream := TZDecompressionStream.Create(InputStream);
@@ -172,14 +174,14 @@ begin
     OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
   {$ENDIF}
   {$IFDEF FPC}
-    CloseFile(TGAFile);
-    InputStream := TFileStream.Create(FileName, fmOpenRead);
+    InStream := TMemoryStream.Create;
+    InStream.LoadFromFile(FileName);
 
-    OutputStream := TMemoryStream.Create;
-    uncompress(@OutputStream, DestSize, @InputStream, InputStream.Size);
-    InputStream.Free;
-    OutputStream.Position:=0;
-    OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
+    GetMem(Comp, InStream.Size);
+    InStream.Read(Comp^, InStream.Size);
+
+    DestSize := SizeOf(TGAHeader);
+    i := uncompress(@TGAHeader, DestSize, Comp, InStream.Size);
   {$ENDIF}
   end;
 
@@ -218,12 +220,23 @@ begin
     Exit;
   end;
 
-  GetMem(Image, ImageSize);
+  //allocate slightly more space for PasZLib which I don't know how to force to decode from given offset
+  GetMem(Image, ImageSize+SizeOf(TGAHeader));
 
   if ZLibCompressed then
   begin
+    {$IFDEF VER140}
     bytesRead := OutputStream.Read(Image^, ImageSize);
     OutputStream.Free;
+    {$ENDIF}
+
+    {$IFDEF FPC}
+    DestSize := ImageSize;
+    i := uncompress(Image, DestSize, Comp, InStream.Size);
+    Image := Pointer (Cardinal(Image) + SizeOf(TGAHeader)); //Skip tga header? possibly memory-leak?
+    bytesRead := ImageSize;
+    InStream.Free;
+    {$ENDIF}
   end
   else
   begin
@@ -253,7 +266,7 @@ begin
       Front^ := Back^;
       Back^ := Temp;
     end;
-    Texture :=CreateTexture(Width, Height, GL_RGB, Image);
+    Texture := CreateTexture(Width, Height, GL_RGB, Image);
   end
   else
   begin
@@ -265,7 +278,8 @@ begin
       Front^ := Back^;
       Back^ := Temp;
     end;
-    Texture :=CreateTexture(Width, Height, GL_RGBA, Image);
+
+    Texture := CreateTexture(Width, Height, GL_RGBA, Image);
   end;
 
   Result :=TRUE;

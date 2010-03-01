@@ -121,13 +121,14 @@ type
 var
   Form1: TForm1;
   FormLoading:TFormLoading;
+  TextT:GLuint; //Tiles
 
 implementation
 {$IFDEF VER140}
 {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_CommonTypes;
+uses KM_Settings, KM_CommonTypes, KM_TGATexture;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
@@ -156,7 +157,9 @@ begin //Counting FPS
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var TempSettings:TGameSettings; s:string;
+var
+  TempSettings:TGameSettings;
+  s:string;
 begin
   if Sender<>nil then exit;
 
@@ -188,6 +191,10 @@ begin
   ToggleControlsVisibility(ShowDebugControls);
 
   fLog.AppendLog('Form1 create is done');
+
+  {$IFDEF FPC}
+  LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT, 0); //todo: fix this workaround for Lazarus
+  {$ENDIF}
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then

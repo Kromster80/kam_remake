@@ -3,9 +3,10 @@ interface
 uses
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  dglOpenGL, windows, sysutils, Forms, KromOGLUtils, KromUtils, math, ExtCtrls,
+  Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ExtCtrls, ComCtrls, Menus, Buttons, Messages,
+  dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
   {$IFDEF VER140} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
-  Graphics,
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
 type
@@ -15,7 +16,7 @@ private
   h_RC: HGLRC;
   OpenGL_Vendor, OpenGL_Renderer, OpenGL_Version:string;
   TextG:GLuint; //Shading gradient
-  TextT:GLuint; //Tiles
+  //TextT:GLuint; //Tiles
   TextW:array[1..8]of GLuint; //Water
   TextS:array[1..3]of GLuint; //Swamps
   TextF:array[1..5]of GLuint; //WaterFalls
@@ -124,7 +125,9 @@ procedure TRender.LoadTileSet();
 var i:integer;
 begin
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);
+  {$IFDEF VER140}
   LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT,0);
+  {$ENDIF}
   if not MakeTerrainAnim then exit;
   for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i],0);
   for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i],0);
