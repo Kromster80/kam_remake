@@ -48,7 +48,7 @@ var
   ENABLE_FIGHTING       :boolean=true; //Allow fighting
   FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
-  SHOW_MAPED_IN_MENU    :boolean=false; //Allows to hide all map-editor related pages from main menu
+  SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
 
   //These are debug things, should be FALSE
   ShowDebugControls     :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout

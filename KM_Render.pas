@@ -3,8 +3,8 @@ interface
 uses
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, Menus, Buttons, Messages,
+  Windows, Classes, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, ComCtrls, Menus, Buttons,
   dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
   {$IFDEF VER140} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
@@ -303,8 +303,8 @@ begin
     to_Dig3: RenderTile(254,k,i,0);
     to_Dig4: RenderTile(256,k,i,0);
     to_Wall: begin
-                glColor4f(0.5,0,0,0.5);
-                RenderQuad(k,i);
+               glColor4f(0.5,0,0,0.5);
+               RenderQuad(k,i);
              end;
   end;
 

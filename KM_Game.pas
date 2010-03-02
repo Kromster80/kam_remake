@@ -67,15 +67,15 @@ begin
   ID_Tracker := 0; //Init only once on Create
   SelectingTroopDirection := false;
   SelectingDirPosition := Point(0,0);
-  ScreenX:=aScreenX;
-  ScreenY:=aScreenY;
-  fGameSettings         := TGameSettings.Create;
+  ScreenX := aScreenX;
+  ScreenY := aScreenY;
+  fGameSettings := TGameSettings.Create;
   fLog.AppendLog('<== Render init follows ==>');
-  fRender:= TRender.Create(RenderHandle);
+  fRender := TRender.Create(RenderHandle);
   fLog.AppendLog('<== TextLib init follows ==>');
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\', fGameSettings.GetLocale);
   fLog.AppendLog('<== SoundLib init follows ==>');
-  fSoundLib:= TSoundLib.Create(); //Needed for button click sounds and etc?
+  fSoundLib:= TSoundLib.Create(); //Required for button click sounds
   fMusicLib:= TMusicLib.Create(); //Needed for button click sounds and etc?
   fGameSettings.UpdateSFXVolume;
   fLog.AppendLog('<== ReadGFX init follows ==>');

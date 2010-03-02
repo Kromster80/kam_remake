@@ -10,7 +10,6 @@ uses
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
   ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
-  {$IFDEF VER140} ZLibEx in ' Common \ZLIBEX.PAS', {$ENDIF}
   KM_Defaults in 'KM_Defaults.pas',
   KM_Render in 'KM_Render.pas',
   KM_ResourceGFX in 'KM_ResourceGFX.pas',
@@ -20,8 +19,9 @@ uses
   KM_PlayersCollection in 'KM_PlayersCollection.pas',
   KM_Houses in 'KM_Houses.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
-  KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas',
   KM_InterfaceGamePlay in 'KM_InterfaceGamePlay.pas',
+  KM_InterfaceMainMenu in 'KM_InterfaceMainMenu.pas',
+  KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Controls in 'KM_Controls.pas',
   KM_LoadLib in 'KM_LoadLib.pas',
@@ -39,9 +39,8 @@ uses
   KM_UnitActionAbandonWalk in 'KM_UnitActionAbandonWalk.pas',
   KM_UnitActionFight in 'KM_UnitActionFight.pas',
   KM_UnitActionGoInOut in 'KM_UnitActionGoInOut.pas',
-  KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
-  KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
   KM_UnitActionStay in 'KM_UnitActionStay.pas',
+  KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas',
   KM_UnitTaskMining in 'KM_UnitTaskMining.pas';
 

@@ -22,11 +22,23 @@ type TKMMainMenuInterface = class
     Panel_MainMenu:TKMPanel;
       Panel_MainButtons:TKMPanel;
       Image_MainMenuBG,Image_MainMenu1,Image_MainMenu3:TKMImage; //Menu background
-      Button_MainMenuTutor,Button_MainMenuFight,Button_MainMenuTSK,Button_MainMenuTPR,
-      Button_MainMenuSingle,Button_MainMenuLoad,Button_MainMenuMulti,
+      Button_MainMenuSinglePlayer,
+      Button_MainMenuMultiPlayer,
       Button_MainMenuMapEd,
-      Button_MainMenuOptions,Button_MainMenuCredit,Button_MainMenuQuit:TKMButton;
+      Button_MainMenuOptions,
+      Button_MainMenuCredit,
+      Button_MainMenuQuit:TKMButton;
       Label_Version:TKMLabel;
+    Panel_SinglePlayer:TKMPanel;
+      Image_SinglePlayerBG,Image_SinglePlayer1,Image_SinglePlayer3:TKMImage; //Background
+      Panel_SinglePlayerButtons:TKMPanel;
+      Button_SinglePlayerTutor,
+      Button_SinglePlayerFight,
+      Button_SinglePlayerTSK,
+      Button_SinglePlayerTPR,
+      Button_SinglePlayerSingle,
+      Button_SinglePlayerLoad:TKMButton;
+      Button_SinglePlayerBack:TKMButton;
     Panel_Single:TKMPanel;
       Image_SingleBG:TKMImage;
       Panel_SingleList,Panel_SingleDesc:TKMPanel;
@@ -90,6 +102,7 @@ type TKMMainMenuInterface = class
       Button_ResultsBack:TKMButton;
   private
     procedure Create_MainMenu_Page;
+    procedure Create_SinglePlayer_Page;
     procedure Create_Single_Page;
     procedure Create_Load_Page;
     procedure Create_MapEditor_Page;
@@ -152,8 +165,9 @@ inherited Create;
   Panel_Main1 := MyControls.AddPanel(nil,OffX,OffY,ScreenX,ScreenY); //Parent Panel for whole menu
 
   Create_MainMenu_Page;
-  Create_Single_Page;
-  Create_Load_Page;
+  Create_SinglePlayer_Page;
+    Create_Single_Page;
+    Create_Load_Page;
   Create_MapEditor_Page;
   Create_Options_Page(aGameSettings);
   Create_Credits_Page;
@@ -252,30 +266,50 @@ begin
     Image_MainMenu3.Stretch;
 
     Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,155,280,350,400);
-      Button_MainMenuTutor  :=MyControls.AddButton(Panel_MainButtons,0,  0,350,30,'Town Tutorial',fnt_Metal,bsMenu);
-      Button_MainMenuFight  :=MyControls.AddButton(Panel_MainButtons,0, 40,350,30,'Battle Tutorial',fnt_Metal,bsMenu);
-      Button_MainMenuTSK    :=MyControls.AddButton(Panel_MainButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
-      Button_MainMenuTPR    :=MyControls.AddButton(Panel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
-      Button_MainMenuSingle :=MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
-      Button_MainMenuLoad   :=MyControls.AddButton(Panel_MainButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
-      Button_MainMenuMulti  :=MyControls.AddButton(Panel_MainButtons,0,240,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
-      Button_MainMenuMapEd  :=MyControls.AddButton(Panel_MainButtons,0,280,350,30,'Map Editor',fnt_Metal,bsMenu);
-      Button_MainMenuOptions:=MyControls.AddButton(Panel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
-      Button_MainMenuCredit :=MyControls.AddButton(Panel_MainButtons,0,360,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
-      Button_MainMenuQuit   :=MyControls.AddButton(Panel_MainButtons,0,400,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
-      Button_MainMenuTutor.OnClick    := MainMenu_PlayTutorial;
-      Button_MainMenuFight.OnClick    := MainMenu_PlayBattle;
-      Button_MainMenuSingle.OnClick   := SwitchMenuPage;
-      Button_MainMenuLoad.OnClick     := SwitchMenuPage;
+      Button_MainMenuSinglePlayer := MyControls.AddButton(Panel_MainButtons,0,0,350,30,'Single Player',fnt_Metal,bsMenu);
+      Button_MainMenuMultiPlayer  := MyControls.AddButton(Panel_MainButtons,0,40,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
+      Button_MainMenuMapEd        := MyControls.AddButton(Panel_MainButtons,0,80,350,30,'Map Editor',fnt_Metal,bsMenu);
+      Button_MainMenuOptions      := MyControls.AddButton(Panel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
+      Button_MainMenuCredit       := MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
+      Button_MainMenuQuit         := MyControls.AddButton(Panel_MainButtons,0,360,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
+      Button_MainMenuSinglePlayer.OnClick    := SwitchMenuPage;
+      //Button_MainMenuMultiPlayer.OnClick     := SwitchMenuPage;
       Button_MainMenuMapEd.OnClick    := SwitchMenuPage;
       Button_MainMenuOptions.OnClick  := SwitchMenuPage;
       Button_MainMenuCredit.OnClick   := SwitchMenuPage;
       Button_MainMenuQuit.OnClick     := Form1.Exit1.OnClick;
       if not SHOW_MAPED_IN_MENU then Button_MainMenuMapEd.Hide; //Let it be created, but hidden, I guess there's no need to seriously block it
-      Button_MainMenuTSK.Disable;
-      Button_MainMenuTPR.Disable;
-      Button_MainMenuMulti.Disable;
+      Button_MainMenuMultiPlayer.Disable;
       //Button_MainMenuCredit.Disable;
+end;
+
+
+procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
+begin
+  Panel_SinglePlayer:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+    Image_SinglePlayerBG:=MyControls.AddImage(Panel_SinglePlayer,0,0,ScreenX,ScreenY,2,6);
+    Image_SinglePlayerBG.Stretch;
+    Image_SinglePlayer1:=MyControls.AddImage(Panel_SinglePlayer,120,80,423,164,4,5);
+    Image_SinglePlayer3:=MyControls.AddImage(Panel_SinglePlayer,635,220,round(207*1.3),round(295*1.3),6,6);
+    Image_SinglePlayer3.Stretch;
+
+    Panel_SinglePlayerButtons:=MyControls.AddPanel(Panel_SinglePlayer,155,280,350,400);
+      Button_SinglePlayerTutor  :=MyControls.AddButton(Panel_SinglePlayerButtons,0,  0,350,30,'Town Tutorial',fnt_Metal,bsMenu);
+      Button_SinglePlayerFight  :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 40,350,30,'Battle Tutorial',fnt_Metal,bsMenu);
+      Button_SinglePlayerTSK    :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
+      Button_SinglePlayerTPR    :=MyControls.AddButton(Panel_SinglePlayerButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
+      Button_SinglePlayerSingle :=MyControls.AddButton(Panel_SinglePlayerButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
+      Button_SinglePlayerLoad   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
+
+      Button_SinglePlayerTutor.OnClick    := MainMenu_PlayTutorial;
+      Button_SinglePlayerFight.OnClick    := MainMenu_PlayBattle;
+      Button_SinglePlayerSingle.OnClick   := SwitchMenuPage;
+      Button_SinglePlayerLoad.OnClick     := SwitchMenuPage;
+      Button_SinglePlayerTSK.Disable;
+      Button_SinglePlayerTPR.Disable;
+
+    Button_SinglePlayerBack := MyControls.AddButton(Panel_SinglePlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_SinglePlayerBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -560,13 +594,17 @@ begin
   if Sender=nil then Panel_MainMenu.Show;
 
   {Return to MainMenu}
-  if (Sender=Button_CreditsBack)or
-     (Sender=Button_SingleBack)or
-     (Sender=Button_LoadBack)or
+  if (Sender=Button_SinglePlayerBack)or
+     (Sender=Button_CreditsBack)or
      (Sender=Button_MapEdBack)or
      (Sender=Button_ErrorBack)or
      (Sender=Button_ResultsBack) then
     Panel_MainMenu.Show;
+
+  {Return to SinglePlayerMenu}
+  if (Sender=Button_SingleBack)or
+     (Sender=Button_LoadBack) then
+    Panel_SinglePlayer.Show;
 
   {Return to MainMenu and restore resolution changes}
   if Sender=Button_Options_Back then begin
@@ -575,15 +613,20 @@ begin
     Panel_MainMenu.Show;
   end;
 
+  {Show SinglePlayer menu}
+  if Sender=Button_MainMenuSinglePlayer then begin
+    Panel_SinglePlayer.Show;
+  end;
+
   {Show SingleMap menu}
-  if Sender=Button_MainMenuSingle then begin
+  if Sender=Button_SinglePlayerSingle then begin
     SingleMap_PopulateList();
     SingleMap_RefreshList();
     Panel_Single.Show;
   end;
 
   {Show Load menu}
-  if Sender=Button_MainMenuLoad then begin
+  if Sender=Button_SinglePlayerLoad then begin
     Load_PopulateList();
     Panel_Load.Show;
   end;
