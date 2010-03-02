@@ -499,7 +499,7 @@ end;
 
 
 constructor TKMGamePlayInterface.Create();
-var i:integer;
+var i:integer; Ctrl:TKMControl;
 begin
   Inherited;
   fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
@@ -589,6 +589,11 @@ begin
   for i := 0 to MyControls.Count - 1 do
     if MyControls.Items[i] <> nil then
       TKMControl(MyControls.Items[i]).OnHint := DisplayHint;
+
+  if SHOW_1024_768_OVERLAY then begin
+    MyControls.AddShape(nil, 1024, 0, 0, 768, $FF00FF00);
+    MyControls.AddShape(nil, 0, 768, 1024, 0, $FF00FF00);
+  end;
 
   SwitchPage(nil); //Update
 end;
@@ -808,6 +813,7 @@ begin
           Stat_HouseQty[hc]:=MyControls.AddLabel(Panel_Stats,off+House_Width-2,LineBase+16,37,30,'-',fnt_Grey,kaRight);
           Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
           Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
+          Stat_HousePic[hc].Center;
           inc(hc);
           inc(off,House_Width);
          end;
@@ -816,6 +822,7 @@ begin
           Stat_UnitQty[uc]:=MyControls.AddLabel(Panel_Stats,off+Unit_Width-2,LineBase+16,33,30,'-',fnt_Grey,kaRight);
           Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
           Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
+          Stat_UnitPic[uc].Center;
           inc(uc);
           inc(off,Unit_Width);
          end;

@@ -162,7 +162,7 @@ inherited Create;
   MapEdSizeX := 64;
   MapEdSizeY := 64;
 
-  Panel_Main1 := MyControls.AddPanel(nil,OffX,OffY,ScreenX,ScreenY); //Parent Panel for whole menu
+  Panel_Main1 := MyControls.AddPanel(nil, OffX, OffY, ScreenX, ScreenY); //Parent Panel for whole menu
 
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
@@ -181,6 +181,8 @@ inherited Create;
 
   //Show version info on every page
   Label_Version := MyControls.AddLabel(Panel_Main1,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
+
+  if SHOW_1024_768_OVERLAY then MyControls.AddShape(nil, OffX, OffY, 1024, 768, $FF00FF00);
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
