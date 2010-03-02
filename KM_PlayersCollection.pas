@@ -281,8 +281,10 @@ begin
 
   //This is not ajoined with previous loop since it can result in StopGame which flushes all data
   for i:=1 to fPlayerCount do
-    if (Tick+i) mod 20 = 0 then //Do only one player per Tick
+    if (Tick+i) mod 20 = 0 then
+    begin//Do only one player per Tick
       PlayerAI[i].UpdateState;
+    end;
 end;
 
 

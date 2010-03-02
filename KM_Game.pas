@@ -6,7 +6,12 @@ uses Windows,
   KM_Defaults, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_SoundFX, KM_Viewport, KM_Units, KM_Settings, KM_Utils;
 
-type TGameState = (gsNoGame, gsPaused, gsRunning, gsEditor);
+type TGameState = ( gsNoGame, //No game running at all, MainMenu
+                    gsPaused, //Game is paused and responds to 'P' key only
+                    gsVictory, //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
+                    gsRunning, //Game is running normally
+                    gsEditor);
+
 type TLoadResult = (lrIncorrectGameState,lrSuccess,lrFileNotFound,lrParseError);
 
 type
@@ -40,6 +45,7 @@ type
   public
     procedure StartGame(MissionFile, aGameName:string; const aPlayerCount:integer=MAX_PLAYERS);
     procedure PauseGame(DoPause:boolean);
+    procedure HoldGame(DoHold:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
     procedure StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
     function GetMissionTime:cardinal;
@@ -162,6 +168,7 @@ begin
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
   //others.. unknown
+  if (GameState = gsVictory) then exit; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
   if (GameState = gsPaused) and not (Key=ord('P')) then exit; //Ignore all keys if game is on 'Pause'
   if not IsDown then
   begin
@@ -182,11 +189,8 @@ begin
       fGameplayInterface.ShowClock(GameSpeed = fGameSettings.GetSpeedup);
     end;
     if (Key=ord('P')) and (GameState in [gsPaused, gsRunning]) then begin
-      if GameState = gsRunning then
-        GameState := gsPaused
-      else
-        GameState := gsRunning;
-      fGameplayInterface.ShowPause(GameState = gsPaused);
+      PauseGame(GameState = gsRunning); //if running then pause and vice versa
+      fGameplayInterface.ShowPause(GameState = gsPaused); //Display pause overlay
     end;
     if (Key=ord('W')) and (GameState = gsRunning) then begin
       fTerrain.RevealWholeMap(MyPlayer.PlayerID);
@@ -230,6 +234,7 @@ begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
     gsPaused:   exit; //No clicking when paused
+    gsVictory:  exit; //No clicking when on hold
     gsRunning:  begin
                   fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
                   MOver := fGameplayInterface.MyControls.MouseOverControl;
@@ -292,7 +297,13 @@ begin
 
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
-    gsPaused:   exit; //No clicking when paused
+    gsPaused:   exit;
+    gsVictory:  begin
+                  //@Lewin: any idea how do we send MouseOver to controls, but don't let them be pressed down
+                  fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
+                  if fGameplayInterface.MyControls.MouseOverControl()<>nil then
+                    Screen.Cursor := c_Default
+                end;
     gsRunning:  begin
                   if SelectingTroopDirection then
                   begin
@@ -398,7 +409,8 @@ begin
 
   case GameState of //Remember clicked control
     gsNoGame:   MOver := fMainMenuInterface.MyControls.MouseOverControl();
-    gsPaused:   exit; //No clicking allowed when game is paused
+    gsPaused:   MOver := nil;
+    gsVictory:  MOver := fGameplayInterface.MyControls.MouseOverControl();
     gsRunning:  MOver := fGameplayInterface.MyControls.MouseOverControl();
     gsEditor:   MOver := fMapEditorInterface.MyControls.MouseOverControl();
     else        MOver := nil; //MOver should always be initialized
@@ -408,6 +420,8 @@ begin
 
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
+    gsPaused:   exit;
+    gsVictory:  if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
     gsRunning:
       begin
         P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
@@ -624,10 +638,25 @@ end;
 
 procedure TKMGame.PauseGame(DoPause:boolean);
 begin
-  GameSpeed:=1-byte(DoPause);
+  if GameState in [gsPaused, gsRunning] then
+  if DoPause then
+    GameState := gsPaused
+  else
+    GameState := gsRunning;
 end;
 
-                     
+
+//Put the game on Hold for Victory screen
+procedure TKMGame.HoldGame(DoHold:boolean);
+begin
+  if GameState in [gsVictory, gsRunning] then
+  if DoHold then
+    GameState := gsVictory
+  else
+    GameState := gsRunning;
+end;
+
+
 procedure TKMGame.StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
 begin
   GameState := gsNoGame;
@@ -757,6 +786,7 @@ begin
   case GameState of
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
     gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
+    gsVictory:  exit; //No sense to save from victory?
     gsPaused,gsRunning: //Can't save from Paused state yet, but we could add it later
     begin
       SaveStream := TKMemoryStream.Create;
@@ -854,6 +884,7 @@ begin
     end;
     gsEditor:   exit; //Taken care of earlier with default lrIncorrectGameState
     gsPaused:   exit; //Taken care of earlier with default lrIncorrectGameState
+    gsVictory:  exit;
     gsRunning:  exit; //Taken care of earlier with default lrIncorrectGameState
   end;
   finally
@@ -869,6 +900,7 @@ begin
   inc(GlobalTickCount);
   case GameState of
     gsPaused:   exit;
+    gsVictory:  exit;
     gsNoGame:   begin
                   fMainMenuInterface.UpdateState;
                   if GlobalTickCount mod 10 = 0 then //Once a sec
@@ -877,7 +909,8 @@ begin
                 end;
     gsRunning:  begin
                   fViewport.DoScrolling; //Check to see if we need to scroll
-                  for i:=1 to GameSpeed do begin
+                  for i:=1 to GameSpeed do
+                  begin
                     inc(GameplayTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(GameplayTickCount); //Quite slow
@@ -913,6 +946,7 @@ begin
   case GameState of
     gsNoGame:  fMainMenuInterface.Paint;
     gsPaused:  fGameplayInterface.Paint;
+    gsVictory: fGameplayInterface.Paint;
     gsRunning: fGameplayInterface.Paint;
     gsEditor:  fMapEditorInterface.Paint;
   end;

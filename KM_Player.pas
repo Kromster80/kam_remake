@@ -16,6 +16,7 @@ type
     fBuildList: TKMBuildingQueue;
   public
     fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
+    SkipWinConditionCheck: boolean;
     constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
   public
@@ -104,6 +105,7 @@ begin
   fBuildList    := TKMBuildingQueue.Create;
   for i:=1 to MAX_PLAYERS do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
+  SkipWinConditionCheck := false;
 end;
 
 
@@ -404,6 +406,7 @@ begin
   SaveStream.Write(PlayerID, SizeOf(PlayerID));
   SaveStream.Write(PlayerType, SizeOf(PlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
+  SaveStream.Write(SkipWinConditionCheck);
 end;
 
 
@@ -417,6 +420,7 @@ begin
   LoadStream.Read(PlayerID, SizeOf(PlayerID));
   LoadStream.Read(PlayerType, SizeOf(PlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
+  LoadStream.Read(SkipWinConditionCheck);
 end;
 
 

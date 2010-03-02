@@ -25,8 +25,8 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo #3 r698+';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r698+';         //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Economy Demo #3 r715';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r715';         //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
@@ -45,6 +45,7 @@ var
   DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
   CUT_TREES_FROM_ANYSIDE:boolean=true; //Allow wodcutter to cut trees from any side rther than bottom-right
   //Not fully implemented yet
+  CHECK_WIN_CONDITIONS  :boolean=false; //Disable for debug missions where enemies aren't properly set
   ENABLE_FIGHTING       :boolean=true; //Allow fighting
   FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not

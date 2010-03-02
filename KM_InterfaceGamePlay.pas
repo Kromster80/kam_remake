@@ -40,6 +40,11 @@ type TKMGamePlayInterface = class
       Image_Pause:TKMImage;
       Label_Pause1:TKMLabel;
       Label_Pause2:TKMLabel;
+    Panel_PlayMore:TKMPanel;
+      Bevel_PlayMore:TKMBevel;
+      Image_PlayMore:TKMImage;
+      Label_PlayMore1:TKMLabel;
+      Button_PlayMore,Button_PlayWin:TKMButton;
     Panel_Ratios:TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
       Image_RatioPic0:TKMImage;
@@ -136,6 +141,7 @@ type TKMGamePlayInterface = class
   private
     procedure Create_Message_Page;
     procedure Create_Pause_Page;
+    procedure Create_PlayMore_Page;
     procedure Create_Build_Page;
     procedure Create_Ratios_Page;
     procedure Create_Stats_Page;
@@ -203,6 +209,9 @@ type TKMGamePlayInterface = class
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow:boolean);
+    procedure ShowPlayMore(DoShow:boolean);
+    procedure PlayMore(Sender:TObject);
+    function ActiveWhenPause(aCheck:TKMControl):boolean;
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
@@ -428,6 +437,13 @@ begin
 end;
 
 
+//Special list of controls which can be interacted in gsPaused mode.
+function TKMGamePlayInterface.ActiveWhenPause(aCheck:TKMControl):boolean;
+begin
+  Result := (aCheck = Button_PlayMore) or (aCheck = Button_PlayWin);
+end;
+
+
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
 begin
   ShownHint:=Sender;
@@ -567,6 +583,7 @@ begin
     Create_Barracks_Page();
     //Create_TownHall_Page(); //I don't want to make it at all yet
   Create_Pause_Page(); //Must go at the bottom so that all controls above are faded
+  Create_PlayMore_Page(); //Must go at the bottom so that all controls above are faded
 
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
@@ -621,6 +638,23 @@ begin
     Label_Pause1:=MyControls.AddLabel(Panel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
     Label_Pause2:=MyControls.AddLabel(Panel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
     Panel_Pause.Hide
+end;
+
+
+{Play More overlay page}
+procedure TKMGamePlayInterface.Create_PlayMore_Page;
+begin
+  Panel_PlayMore:=MyControls.AddPanel(Panel_Main,0,0,fRender.GetRenderAreaSize.X,fRender.GetRenderAreaSize.Y);
+    Bevel_PlayMore:=MyControls.AddBevel(Panel_PlayMore,-1,-1,fRender.GetRenderAreaSize.X+2,fRender.GetRenderAreaSize.Y+2);
+    Image_PlayMore:=MyControls.AddImage(Panel_PlayMore,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
+    Image_PlayMore.Center;
+
+    Label_PlayMore1 := MyControls.AddLabel(Panel_PlayMore,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,64,16,'You''ve won!',fnt_Antiqua,kaCenter);
+    Button_PlayMore := MyControls.AddButton(Panel_PlayMore,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),100,30,'Continue playing',fnt_Outline);
+    Button_PlayWin  := MyControls.AddButton(Panel_PlayMore,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+40,100,30,'Victory!',fnt_Outline);
+    Button_PlayMore.OnClick := PlayMore;
+    Button_PlayWin.OnClick := PlayMore;
+    Panel_PlayMore.Hide
 end;
 
 
@@ -1786,7 +1820,11 @@ begin
     if Panel_Main.Childs[i] is TKMPanel then
       Panel_Main.Childs[i].Hide;
 
-  fGame.StopGame(gr_Cancel);
+  //Show outcome depending on actual situation
+  if fPlayers.PlayerAI[byte(MyPlayer.PlayerID)].CheckWinConditions(true) then
+    fGame.StopGame(gr_Win)
+  else
+    fGame.StopGame(gr_Cancel);
 end;
 
 
@@ -1976,6 +2014,25 @@ end;
 procedure TKMGamePlayInterface.ShowPause(DoShow:boolean);
 begin
   Panel_Pause.Visible := DoShow;
+end;
+
+
+procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean);
+begin
+  Panel_PlayMore.Visible := DoShow;
+end;
+
+
+procedure TKMGamePlayInterface.PlayMore(Sender:TObject);
+begin
+  ShowPlayMore(false); //Hide anyways
+  if Sender = Button_PlayWin then
+    fGame.StopGame(gr_Win);
+  if Sender = Button_PlayMore then
+  begin
+    MyPlayer.SkipWinConditionCheck := true;
+    fGame.HoldGame(false); //Release Hold
+  end;
 end;
 
 

@@ -16,7 +16,8 @@ type
                                             NumUnits, NumRows:integer;
                                           end;
     constructor Create(aAssets:TKMPlayerAssets);
-    procedure CheckDefeatConditions();
+    function CheckDefeatConditions():boolean;
+    function CheckWinConditions(DoFullCheck:boolean = false):boolean;
     procedure CheckUnitCount();
     procedure CheckArmy();
   public
@@ -48,14 +49,31 @@ begin
 end;
 
 
-procedure TKMPlayerAI.CheckDefeatConditions();
+function TKMPlayerAI.CheckDefeatConditions():boolean;
 begin
-  if (Assets.fMissionSettings.GetHouseQty(ht_Store)=0)
+  Result :=
+     (Assets.fMissionSettings.GetHouseQty(ht_Store)=0)
   and(Assets.fMissionSettings.GetHouseQty(ht_School)=0)
   and(Assets.fMissionSettings.GetHouseQty(ht_Barracks)=0)
-  and(Assets.fMissionSettings.GetArmyCount=0)
-  then
-    fGame.StopGame(gr_Defeat);
+  and(Assets.fMissionSettings.GetArmyCount=0);
+end;
+
+
+function TKMPlayerAI.CheckWinConditions(DoFullCheck:boolean = false):boolean;
+var i:integer;
+begin
+  //FullCheck is called when quitting the mission and actual game result is important, unlike as in usual UpdateState loop
+  if not DoFullCheck then
+  begin
+    Result := false;
+    if not CHECK_WIN_CONDITIONS then exit;
+    if Assets.SkipWinConditionCheck then exit;
+  end;
+
+  Result := true; //No players = we won
+  for i:=1 to fPlayers.PlayerCount do //if Player in question is our Enemy
+  if (fPlayers.Player[i] <> MyPlayer)and(fPlayers.CheckAlliance(Assets.PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
+    Result := Result and fPlayers.PlayerAI[i].CheckDefeatConditions;
 end;
 
 
@@ -214,8 +232,15 @@ procedure TKMPlayerAI.UpdateState;
 begin
   //Check defeat only for MyPlayer
   if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
-    CheckDefeatConditions //Store+Barracks+School+Armies = 0
-  else
+  begin
+    if CheckDefeatConditions then fGame.StopGame(gr_Defeat); //Store+Barracks+School+Armies = 0
+    if CheckWinConditions then begin
+     fGame.PauseGame(false); //Unpause game just in case
+     fGame.fGameplayInterface.ShowPause(false);
+     fGame.HoldGame(true); //Enemies Store+Barracks+School+Armies = 0
+     fGame.fGamePlayInterface.ShowPlayMore(true);
+    end;
+  end else
   
   if Assets.PlayerType=pt_Computer then begin
     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed

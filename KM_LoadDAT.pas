@@ -1,7 +1,7 @@
 unit KM_LoadDAT;
 interface
 uses
-  Windows, Classes, KromUtils, SysUtils, StrUtils, Dialogs, Math, KM_Defaults, KM_Houses, KM_Utils, KM_Units;
+  Windows, Classes, KromUtils, SysUtils, Dialogs, Math, KM_Defaults, KM_Houses, KM_Utils, KM_Units;
 
 type
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
