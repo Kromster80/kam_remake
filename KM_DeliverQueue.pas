@@ -2,8 +2,6 @@ unit KM_DeliverQueue;
 interface
 uses Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Utils, KM_UnitTaskDelivery;
 
-//@Krom: Something you changed has seriously stuffed up the deliveries. Only a few things are being delivered, please take a look.
-
   type TJobStatus = (js_Empty, js_Open, js_Taken);
   //Empty - empty spot for a new job
   //Open - job is free to take by anyone

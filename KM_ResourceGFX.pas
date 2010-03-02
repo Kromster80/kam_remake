@@ -4,7 +4,8 @@ uses
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes
-  {$IFDEF VER140}, ZLibEx {$ENDIF};
+  {$IFDEF VER140}, ZLibEx {$ENDIF}
+  {$IFDEF FPC}, PasZLib {$ENDIF};
 
 type
   TByteArray2 = array of Byte;
@@ -1066,12 +1067,16 @@ end;
 thus it's better to spend few ms and generate minimap colors from actual data}
 procedure TResource.MakeMiniMapColors(FileName:string);
 var ii,kk,h,j,px:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file;
-{$IFDEF VER140}
-var
+  {$IFDEF VER140}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
   DeCompressionStream: TZDecompressionStream;
-{$ENDIF}
+  {$ENDIF}
+  {$IFDEF FPC}
+  {InStream: TMemoryStream;
+  Comp:Pointer;
+  DestSize:cardinal;}
+  {$ENDIF}
 begin
   assignfile(f,FileName);
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
@@ -1083,9 +1088,6 @@ begin
 
   if c[1]=120 then
   begin
-    {$IFDEF FPC}
-    exit;
-    {$ENDIF};
     {$IFDEF VER140}
     closefile(f);
     InputStream := TFileStream.Create(FileName, fmOpenRead);
@@ -1101,6 +1103,17 @@ begin
     InputStream.Free;
     OutputStream.Free;
     DeCompressionStream.Free;
+    {$ENDIF};
+    {$IFDEF FPC}
+{    InStream := TMemoryStream.Create;
+    InStream.LoadFromFile(FileName);
+    GetMem(Comp, InStream.Size);
+    InStream.Read(Comp^, InStream.Size);
+    setlength(c,SizeX*SizeY*4+1);
+    DestSize := SizeX*SizeY*4 + 18; //SizeOf(TGAHeader)
+    uncompress(@c[1], DestSize, Comp, InStream.Size);
+    InStream.Free;}
+    exit;
     {$ENDIF};
   end
   else

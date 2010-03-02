@@ -1491,6 +1491,7 @@ end;
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
+  //@Lewin: Still occasional Errors here
   if not DO_UNIT_INTERACTION then exit;
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);

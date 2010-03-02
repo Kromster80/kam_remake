@@ -123,12 +123,16 @@ var
   Temp: Byte;
   Errs:string;
 var
+  {$IFDEF VER140}
   InputStream: TFileStream;
-  InStream: TMemoryStream;
   OutputStream: TMemoryStream;
-  {$IFDEF VER140} DeCompressionStream: TZDecompressionStream; {$ENDIF}
+  DeCompressionStream: TZDecompressionStream;
+  {$ENDIF}
+  {$IFDEF FPC}
+  InStream: TMemoryStream;
   Comp:Pointer;
   DestSize:cardinal;
+  {$ENDIF}
 begin
   result :=FALSE;
   if FileExists(Filename) then begin
@@ -156,7 +160,6 @@ begin
 
   if Result <> TRUE then exit;
 
-  OutputStream := nil;
   ZLibCompressed := TGAHeader.FileType=120;
 
   //TGA is compressed by ZLibEx, thats only KaM Remake custom option
