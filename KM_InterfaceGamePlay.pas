@@ -499,7 +499,7 @@ end;
 
 
 constructor TKMGamePlayInterface.Create();
-var i:integer; Ctrl:TKMControl;
+var i:integer;
 begin
   Inherited;
   fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
