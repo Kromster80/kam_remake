@@ -111,7 +111,7 @@ type
 type
   TCursorMode = (
                   cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
-                  cm_Height, cm_Tiles, cm_Units); //MapEditor
+                  cm_Height, cm_Tiles, cm_Objects, cm_Units); //MapEditor
 
 const
   MAPED_HEIGHT_CIRCLE = 0;
@@ -966,6 +966,8 @@ UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
 
   //Trees and other terrain elements properties
   MapElemQty:integer=254; //Default qty
+  ActualMapElemQty:integer; //Usable qty read from RX file
+  ActualMapElem:array[1..254]of integer; //pointers to usable MapElem's
   MapElem:array[1..512]of packed record
     Step:array[1..30]of smallint;           //60
     Count:word;                             //62

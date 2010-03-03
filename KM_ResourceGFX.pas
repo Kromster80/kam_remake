@@ -210,14 +210,22 @@ begin
   Result:=false;
   if not CheckFileExists(filename) then exit;
   assignfile(f,filename); reset(f,1);
-  blockread(f,MapElem[1],MapElemQty*99); //256*3
+  blockread(f,MapElem[1],MapElemQty*99);
   closefile(f);
+
+  ActualMapElemQty:=0;
+  for ii:=1 to MapElemQty do
+  if (MapElem[ii].Count>0)and(MapElem[ii].Step[1]>0) then
+  begin
+    inc(ActualMapElemQty);
+    ActualMapElem[ActualMapElemQty] := ii; //pointer
+  end;
 
   if WriteResourceInfoToTXT then begin
     assignfile(ft,ExeDir+'Trees.txt'); rewrite(ft);
     for ii:=1 to MapElemQty do begin
     writeln(ft);
-    writeln(ft,ii);
+    writeln(ft,inttostr(ii)+' :'+inttostr(MapElem[ii].Count));
       for kk:=1 to 30 do if MapElem[ii].Step[kk]>0 then
       write(ft,MapElem[ii].Step[kk],'.') else write(ft,'_.');
 

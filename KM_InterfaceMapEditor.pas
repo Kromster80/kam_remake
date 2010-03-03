@@ -30,6 +30,8 @@ type TKMapEdInterface = class
         TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
         TilesScroll:TKMScrollBar;
       Panel_Objects:TKMPanel;
+        ObjectsTable:array[1..10] of TKMButtonFlat;
+        ObjectsScroll:TKMScrollBar;
 
     Panel_Village:TKMPanel;
       Button_Village:array[1..3]of TKMButton;
@@ -90,6 +92,7 @@ type TKMapEdInterface = class
     procedure Minimap_Update(Sender: TObject);
     procedure TerrainHeight_Change(Sender: TObject);
     procedure TerrainTiles_Change(Sender: TObject);
+    procedure TerrainObjects_Change(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
@@ -377,8 +380,16 @@ begin
       TilesScroll.OnChange := TerrainTiles_Change;
 
     Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      //List of objects
-      MyControls.AddScrollBar(Panel_Objects, 176, 4, 20, 300, sa_Vertical);
+      for i:=1 to 1 do begin
+        ObjectsTable[i] := MyControls.AddButtonFlat(Panel_Objects,8,80,120,120,1,1); //RXid=1
+        ObjectsTable[i].Tag := i; //Store ID
+        ObjectsTable[i].OnClick := TerrainObjects_Change;
+      end;
+      ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 264, 200, 20, sa_Horizontal);
+      ObjectsScroll.MinValue := 1;
+      ObjectsScroll.MaxValue := ActualMapElemQty;
+      ObjectsScroll.Position := 0;
+      ObjectsScroll.OnChange := TerrainObjects_Change;
 end;
 
 {Build page}
@@ -663,6 +674,24 @@ begin
   begin
     CursorMode.Mode := cm_Tiles;
     CursorMode.Tag1 := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
+    CursorMode.Tag2 := 0;
+  end;
+end;
+
+
+procedure TKMapEdInterface.TerrainObjects_Change(Sender: TObject);
+var i,k:integer;
+begin
+  if Sender = ObjectsScroll then
+  begin//Shift tiles
+    fLog.AddToLog(inttostr(ObjectsScroll.Position)+':'+inttostr(ActualMapElem[ObjectsScroll.Position])+':'+inttostr(MapElem[ActualMapElem[ObjectsScroll.Position]].Step[1]));
+    ObjectsTable[1].TexID := MapElem[ActualMapElem[ObjectsScroll.Position]].Step[1];
+    ObjectsTable[1].Caption := inttostr(ObjectsScroll.Position);
+  end;
+  if Sender is TKMButtonFlat then
+  begin
+    CursorMode.Mode := cm_Objects;
+    CursorMode.Tag1 := EnsureRange(ObjectsScroll.Position + TKMButtonFlat(Sender).Tag, 0, 255); //Offset+Tag
     CursorMode.Tag2 := 0;
   end;
 end;
