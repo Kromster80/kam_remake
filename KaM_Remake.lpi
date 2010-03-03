@@ -8,7 +8,7 @@
       <TargetFileExt Value=".exe"/>
       <Title Value="KaM_Remake"/>
       <UseXPManifest Value="True"/>
-      <ActiveEditorIndexAtStart Value="3"/>
+      <ActiveEditorIndexAtStart Value="7"/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
@@ -68,8 +68,8 @@
         <Filename Value="KM_Render.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Render"/>
-        <CursorPos X="32" Y="809"/>
-        <TopLine Value="800"/>
+        <CursorPos X="91" Y="1239"/>
+        <TopLine Value="1217"/>
         <EditorIndex Value="3"/>
         <UsageCount Value="144"/>
         <Loaded Value="True"/>
@@ -218,9 +218,11 @@
         <Filename Value="KM_Defaults.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Defaults"/>
-        <CursorPos X="3" Y="11"/>
-        <TopLine Value="1"/>
+        <CursorPos X="9" Y="861"/>
+        <TopLine Value="841"/>
+        <EditorIndex Value="9"/>
         <UsageCount Value="144"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit20>
       <Unit21>
@@ -248,8 +250,8 @@
         <Filename Value="KM_Game.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Game"/>
-        <CursorPos X="45" Y="956"/>
-        <TopLine Value="933"/>
+        <CursorPos X="82" Y="959"/>
+        <TopLine Value="938"/>
         <EditorIndex Value="4"/>
         <UsageCount Value="144"/>
         <Loaded Value="True"/>
@@ -268,9 +270,11 @@
         <Filename Value="KM_InterfaceGamePlay.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceGamePlay"/>
-        <CursorPos X="54" Y="806"/>
-        <TopLine Value="792"/>
+        <CursorPos X="21" Y="1297"/>
+        <TopLine Value="1277"/>
+        <EditorIndex Value="5"/>
         <UsageCount Value="144"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit25>
       <Unit26>
@@ -286,9 +290,9 @@
         <Filename Value="KM_InterfaceMapEditor.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceMapEditor"/>
-        <CursorPos X="45" Y="647"/>
-        <TopLine Value="633"/>
-        <EditorIndex Value="7"/>
+        <CursorPos X="36" Y="636"/>
+        <TopLine Value="619"/>
+        <EditorIndex Value="8"/>
         <UsageCount Value="144"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -362,7 +366,7 @@
         <UnitName Value="KM_ResourceGFX"/>
         <CursorPos X="33" Y="465"/>
         <TopLine Value="442"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <UsageCount Value="144"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -389,9 +393,9 @@
         <Filename Value="KM_Terrain.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Terrain"/>
-        <CursorPos X="33" Y="1957"/>
+        <CursorPos X="80" Y="1973"/>
         <TopLine Value="1953"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <UsageCount Value="144"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -739,119 +743,127 @@
         <UsageCount Value="10"/>
       </Unit86>
     </Units>
-    <JumpHistory Count="28" HistoryIndex="27">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="654" Column="86" TopLine="629"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="802" Column="1" TopLine="794"/>
       </Position1>
       <Position2>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="370" Column="51" TopLine="352"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="1239" Column="33" TopLine="1212"/>
       </Position2>
       <Position3>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="633" Column="32" TopLine="629"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="1240" Column="80" TopLine="1211"/>
       </Position3>
       <Position4>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="92" Column="15" TopLine="71"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="122" Column="17" TopLine="105"/>
       </Position4>
       <Position5>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="655" Column="10" TopLine="635"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="1240" Column="28" TopLine="1210"/>
       </Position5>
       <Position6>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="30" Column="17" TopLine="10"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position6>
       <Position7>
         <Filename Value="KM_Render.pas"/>
-        <Caret Line="437" Column="48" TopLine="419"/>
+        <Caret Line="814" Column="10" TopLine="791"/>
       </Position7>
       <Position8>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="364" Column="44" TopLine="348"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="337" Column="106" TopLine="299"/>
       </Position8>
       <Position9>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="92" Column="34" TopLine="71"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="319" Column="7" TopLine="278"/>
       </Position9>
       <Position10>
-        <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="647" Column="31" TopLine="633"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="304" Column="28" TopLine="281"/>
       </Position10>
       <Position11>
-        <Filename Value="KM_Game.pas"/>
-        <Caret Line="956" Column="45" TopLine="933"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="317" Column="23" TopLine="293"/>
       </Position11>
       <Position12>
-        <Filename Value="KM_Terrain.pas"/>
-        <Caret Line="172" Column="16" TopLine="152"/>
+        <Filename Value="KM_Render.pas"/>
+        <Caret Line="803" Column="5" TopLine="792"/>
       </Position12>
       <Position13>
         <Filename Value="KM_Render.pas"/>
-        <Caret Line="124" Column="101" TopLine="105"/>
+        <Caret Line="815" Column="37" TopLine="793"/>
       </Position13>
       <Position14>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="KM_Game.pas"/>
+        <Caret Line="956" Column="45" TopLine="933"/>
       </Position14>
       <Position15>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="1219" Column="27" TopLine="1208"/>
+        <Filename Value="KM_Game.pas"/>
+        <Caret Line="469" Column="77" TopLine="449"/>
       </Position15>
       <Position16>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="802" Column="1" TopLine="794"/>
+        <Filename Value="KM_Game.pas"/>
+        <Caret Line="557" Column="86" TopLine="537"/>
       </Position16>
       <Position17>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="1239" Column="33" TopLine="1212"/>
+        <Filename Value="KM_Game.pas"/>
+        <Caret Line="560" Column="73" TopLine="538"/>
       </Position17>
       <Position18>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="1240" Column="80" TopLine="1211"/>
+        <Filename Value="KM_Game.pas"/>
+        <Caret Line="956" Column="83" TopLine="936"/>
       </Position18>
       <Position19>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="122" Column="17" TopLine="105"/>
+        <Filename Value="KM_InterfaceGamePlay.pas"/>
+        <Caret Line="806" Column="54" TopLine="792"/>
       </Position19>
       <Position20>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="1240" Column="28" TopLine="1210"/>
+        <Filename Value="KM_InterfaceGamePlay.pas"/>
+        <Caret Line="1258" Column="18" TopLine="1237"/>
       </Position20>
       <Position21>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="647" Column="45" TopLine="633"/>
       </Position21>
       <Position22>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="814" Column="10" TopLine="791"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="128" Column="18" TopLine="108"/>
       </Position22>
       <Position23>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="337" Column="106" TopLine="299"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="652" Column="1" TopLine="624"/>
       </Position23>
       <Position24>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="319" Column="7" TopLine="278"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="666" Column="20" TopLine="646"/>
       </Position24>
       <Position25>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="304" Column="28" TopLine="281"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="684" Column="18" TopLine="664"/>
       </Position25>
       <Position26>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="317" Column="23" TopLine="293"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="714" Column="21" TopLine="694"/>
       </Position26>
       <Position27>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="803" Column="5" TopLine="792"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="735" Column="18" TopLine="715"/>
       </Position27>
       <Position28>
         <Filename Value="KM_Render.pas"/>
-        <Caret Line="815" Column="37" TopLine="793"/>
+        <Caret Line="814" Column="39" TopLine="800"/>
       </Position28>
+      <Position29>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="746" Column="21" TopLine="727"/>
+      </Position29>
+      <Position30>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="667" Column="26" TopLine="638"/>
+      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

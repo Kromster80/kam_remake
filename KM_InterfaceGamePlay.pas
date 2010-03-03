@@ -1254,7 +1254,8 @@ begin
 
   //Reset cursor and see if it needs to be changed
   CursorMode.Mode:=cm_None;
-  CursorMode.Param:=0;
+  CursorMode.Tag1:=0;
+  CursorMode.Tag2:=0;
   Label_BuildCost_Wood.Caption:='-';
   Label_BuildCost_Stone.Caption:='-';
   Label_Build.Caption := '';
@@ -1293,7 +1294,7 @@ begin
   if GUIHouseOrder[i] <> ht_None then
   if Button_Build[i].Down then begin
      CursorMode.Mode:=cm_Houses;
-     CursorMode.Param:=byte(GUIHouseOrder[i]);
+     CursorMode.Tag1:=byte(GUIHouseOrder[i]);
      Image_Build_Selected.TexID := GUIBuildIcons[byte(GUIHouseOrder[i])]; //Now update the selected icon
      Label_BuildCost_Wood.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].WoodCost);
      Label_BuildCost_Stone.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].StoneCost);

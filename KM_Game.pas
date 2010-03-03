@@ -466,7 +466,7 @@ begin
                           MyPlayer.RemPlan(P)
                         else
                           MyPlayer.AddRoadPlan(P, mu_WallPlan, false, MyPlayer.PlayerID);
-              cm_Houses: if MyPlayer.AddHousePlan(THouseType(CursorMode.Param),P,false,MyPlayer.PlayerID) then
+              cm_Houses: if MyPlayer.AddHousePlan(THouseType(CursorMode.Tag1),P,false,MyPlayer.PlayerID) then
                            fGamePlayInterface.Build_SelectRoad;
               cm_Erase:
                 begin
@@ -554,10 +554,10 @@ begin
                     cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
                     cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                     //cm_Wall:
-                    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Param)) then
-                                MyPlayer.AddHouse(THouseType(CursorMode.Param),P);
+                    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Tag1)) then
+                                MyPlayer.AddHouse(THouseType(CursorMode.Tag1),P);
                     cm_Height:; //todo: Freeze height change into 0..100 range instead of 0.0..100.0 (floating-point)
-                    cm_Units: MyPlayer.AddUnit(TUnitType(CursorMode.Param),P);
+                    cm_Units: MyPlayer.AddUnit(TUnitType(CursorMode.Tag1),P);
               cm_Erase:
                 begin
                   MyPlayer.RemHouse(P,false); { TODO : split apart according to opened page e.g. do not remove Houses if user is on Units page }
@@ -953,10 +953,10 @@ begin
                   case CursorMode.Mode of
                     cm_Height:
                               if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
-                              fTerrain.MapEdHeight(GameCursor.Float, CursorMode.Param mod 64, CursorMode.Param shr 6, ssLeft in GameCursor.SState); //6size.2shape
+                              fTerrain.MapEdHeight(GameCursor.Float, CursorMode.Tag1, CursorMode.Tag2, ssLeft in GameCursor.SState); //6size.2shape
                     cm_Tiles:
                               if (ssLeft in GameCursor.SState) then
-                              fTerrain.MapEdTile(GameCursor.Cell, CursorMode.Param);
+                              fTerrain.MapEdTile(GameCursor.Cell, CursorMode.Tag1);
                   end;
                 end;
   end;

@@ -858,7 +858,8 @@ var
 
   CursorMode:record //It's easier to store it in record
     Mode:TCursorMode;
-    Param:byte;
+    Tag1:byte;
+    Tag2:byte;
   end;
 
   Scrolling: boolean;

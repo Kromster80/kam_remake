@@ -1970,7 +1970,7 @@ begin
       else Tmp := 0;
     end;
     //Compute resulting floating-point height
-    Tmp := EnsureRange(Land[i,k].Height + Land[i,k].HeightAdd/255 + Tmp * (byte(aRaise)*2-1), 0, 100);
+    Tmp := EnsureRange(Land[i,k].Height + Land[i,k].HeightAdd/255 + Math.max(0,Tmp) * (byte(aRaise)*2-1), 0, 100);
     Land[i,k].Height := trunc(Tmp);
     Land[i,k].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1byte) to save us mem
   end;

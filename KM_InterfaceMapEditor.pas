@@ -125,7 +125,8 @@ begin
 
   //Reset cursor mode
   CursorMode.Mode := cm_None;
-  CursorMode.Param := 0;
+  CursorMode.Tag1 := 0;
+  CursorMode.Tag2 := 0;
 
   //Reset shown item if user clicked on any of the main buttons
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
@@ -635,17 +636,18 @@ end;
 
 
 procedure TKMapEdInterface.TerrainHeight_Change(Sender: TObject);
-var i:integer;
 begin
   if Sender = HeightCircle then
   begin
     CursorMode.Mode  := cm_Height;
-    CursorMode.Param := HeightSize.Position mod 64 + MAPED_HEIGHT_CIRCLE shl 6; //6bits.2bits
+    CursorMode.Tag1 := HeightSize.Position;
+    CursorMode.Tag2 := MAPED_HEIGHT_CIRCLE;
   end;
   if Sender = HeightSquare then
   begin
     CursorMode.Mode  := cm_Height;
-    CursorMode.Param := HeightSize.Position mod 64 + MAPED_HEIGHT_SQUARE shl 6; //6bits.2bits
+    CursorMode.Tag1 := HeightSize.Position;
+    CursorMode.Tag2 := MAPED_HEIGHT_SQUARE;
   end;
 end;
 
@@ -660,7 +662,8 @@ begin
   if Sender is TKMButtonFlat then
   begin
     CursorMode.Mode := cm_Tiles;
-    CursorMode.Param := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
+    CursorMode.Tag1 := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
+    CursorMode.Tag2 := 0;
   end;
 end;
 
@@ -678,7 +681,8 @@ begin
 
   //Reset cursor and see if it needs to be changed
   CursorMode.Mode:=cm_None;
-  CursorMode.Param:=0;
+  CursorMode.Tag1:=0;
+  CursorMode.Tag2:=0;
   Label_Build.Caption := '';
 
   if Button_BuildCancel.Down then begin
@@ -707,7 +711,7 @@ begin
   if GUIHouseOrder[i] <> ht_None then
   if Button_Build[i].Down then begin
      CursorMode.Mode:=cm_Houses;
-     CursorMode.Param:=byte(GUIHouseOrder[i]);
+     CursorMode.Tag1:=byte(GUIHouseOrder[i]);
      Label_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
   end;
 end;
@@ -728,7 +732,8 @@ begin
 
   //Reset cursor and see if it needs to be changed
   CursorMode.Mode:=cm_None;
-  CursorMode.Param:=0;
+  CursorMode.Tag1:=0;
+  CursorMode.Tag2:=0;
   //Label_Build.Caption := '';
 
   if Button_UnitCancel.Down then begin
@@ -738,8 +743,8 @@ begin
 
   if TKMButtonFlat(Sender).Tag in [1..byte(ut_Cavalry)] then
   begin
-    CursorMode.Mode:=cm_Units;
-    CursorMode.Param:=byte(TKMButtonFlat(Sender).Tag);
+    CursorMode.Mode := cm_Units;
+    CursorMode.Tag1 := byte(TKMButtonFlat(Sender).Tag);
     //Label_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
   end;
 

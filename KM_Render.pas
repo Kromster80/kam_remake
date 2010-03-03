@@ -1234,9 +1234,9 @@ case CursorMode.Mode of
   cm_Wall: if (CanPlaceRoad(CursorPos,mu_WallPlan)) and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
+  cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Tag1)); //Cyan quad
 
-  cm_Tiles:  fRender.RenderTile(CursorMode.Param, CursorPos.X, CursorPos.Y, 0);
+  cm_Tiles:  fRender.RenderTile(CursorMode.Tag1, CursorPos.X, CursorPos.Y, CursorMode.Tag2);
   cm_Units: fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
 end;
 end;
