@@ -70,7 +70,7 @@ public
   procedure RenderDebugWires(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
-  procedure RenderObject(Index,AnimStep,pX,pY:integer);
+  procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false);
   procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean);
   procedure RenderHouseBuild(Index,pX,pY:integer);
   procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
@@ -510,7 +510,7 @@ begin
 end;
 
 
-procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer);
+procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
   if MapElem[Index].Count=0 then exit;
@@ -534,6 +534,9 @@ begin
     glRasterPos2f(pX-1+0.1,pY-1+0.1);
     glPrint(inttostr(Index)+':'+inttostr(ID));}
   end;
+
+  if DoImmediateRender then RenderSprite(1,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255);
+
 end;
 
 
@@ -1235,9 +1238,9 @@ case CursorMode.Mode of
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Tag1)); //Cyan quad
-
   cm_Tiles:  fRender.RenderTile(CursorMode.Tag1, CursorPos.X, CursorPos.Y, CursorMode.Tag2);
-  cm_Units: fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+  cm_Objects:fRender.RenderObject(CursorMode.Tag1+1, 0, CursorPos.X, CursorPos.Y, true);
+  cm_Units:  fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
 end;
 end;
 

@@ -30,7 +30,7 @@ type TKMapEdInterface = class
         TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
         TilesScroll:TKMScrollBar;
       Panel_Objects:TKMPanel;
-        ObjectsTable:array[1..10] of TKMButtonFlat;
+        ObjectsTable:array[1..4] of TKMButtonFlat;
         ObjectsScroll:TKMScrollBar;
 
     Panel_Village:TKMPanel;
@@ -380,15 +380,18 @@ begin
       TilesScroll.OnChange := TerrainTiles_Change;
 
     Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      for i:=1 to 1 do begin
-        ObjectsTable[i] := MyControls.AddButtonFlat(Panel_Objects,8,80,120,120,1,1); //RXid=1
+      ObjectsTable[1] := MyControls.AddButtonFlat(Panel_Objects, 8,  8,90,110,1,1); //RXid=1  // 1 2
+      ObjectsTable[2] := MyControls.AddButtonFlat(Panel_Objects, 8,118,90,110,1,1); //RXid=1  // 3 4
+      ObjectsTable[3] := MyControls.AddButtonFlat(Panel_Objects,98,  8,90,110,1,1); //RXid=1
+      ObjectsTable[4] := MyControls.AddButtonFlat(Panel_Objects,98,118,90,110,1,1); //RXid=1
+      for i:=1 to 4 do begin
         ObjectsTable[i].Tag := i; //Store ID
         ObjectsTable[i].OnClick := TerrainObjects_Change;
       end;
       ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 264, 200, 20, sa_Horizontal);
       ObjectsScroll.MinValue := 1;
-      ObjectsScroll.MaxValue := ActualMapElemQty;
-      ObjectsScroll.Position := 0;
+      ObjectsScroll.MaxValue := ActualMapElemQty div 2;
+      ObjectsScroll.Position := 1;
       ObjectsScroll.OnChange := TerrainObjects_Change;
 end;
 
@@ -680,18 +683,26 @@ end;
 
 
 procedure TKMapEdInterface.TerrainObjects_Change(Sender: TObject);
-var i,k:integer;
+var i,ObjID:integer;
 begin
   if Sender = ObjectsScroll then
-  begin//Shift tiles
-    fLog.AddToLog(inttostr(ObjectsScroll.Position)+':'+inttostr(ActualMapElem[ObjectsScroll.Position])+':'+inttostr(MapElem[ActualMapElem[ObjectsScroll.Position]].Step[1]));
-    ObjectsTable[1].TexID := MapElem[ActualMapElem[ObjectsScroll.Position]].Step[1];
-    ObjectsTable[1].Caption := inttostr(ObjectsScroll.Position);
-  end;
+    for i:=1 to 4 do
+    begin
+      ObjID := ObjectsScroll.Position*2 - 2 + i;
+      if ActualMapElem[ObjID]<>0 then
+        ObjectsTable[i].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1
+      else
+        ObjectsTable[i].TexID := 0;
+      ObjectsTable[i].Caption := inttostr(ObjID);
+    end;
   if Sender is TKMButtonFlat then
   begin
     CursorMode.Mode := cm_Objects;
-    CursorMode.Tag1 := EnsureRange(ObjectsScroll.Position + TKMButtonFlat(Sender).Tag, 0, 255); //Offset+Tag
+    ObjID := ObjectsScroll.Position*2-1 + (TKMButtonFlat(Sender).Tag-1); //1..n
+    if ActualMapElem[ObjID]>0 then
+      CursorMode.Tag1 := ActualMapElem[ObjID]-1 //0..n
+    else
+      CursorMode.Tag1 := 0;
     CursorMode.Tag2 := 0;
   end;
 end;

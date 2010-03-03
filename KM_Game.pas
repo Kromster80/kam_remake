@@ -557,17 +557,18 @@ begin
                     cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Tag1)) then
                                 MyPlayer.AddHouse(THouseType(CursorMode.Tag1),P);
                     cm_Height:; //todo: Freeze height change into 0..100 range instead of 0.0..100.0 (floating-point)
+                    cm_Objects: fTerrain.SetTree(P, CursorMode.Tag1);
                     cm_Units: MyPlayer.AddUnit(TUnitType(CursorMode.Tag1),P);
-              cm_Erase:
-                begin
-                  MyPlayer.RemHouse(P,false); { TODO : split apart according to opened page e.g. do not remove Houses if user is on Units page }
-                  //MyPlayer.RemUnit(P); //@Lewin: Need your help here - how do we remove unit according to new pointer tracking system? Simply remove it from list or..
-                                         //@Krom: Well this is different because it's the map editor. There shouldn't really be any pointers here right?
-                                         //       According to the pointer system you should run KillUnit and somehow disable the dying animation. (so IsDead gets set to true, then the memory will be removed on next player UpdateState)
-                                         //       But you probably could just remove it from the list because it's the map editor and there shouldn't be any pointer issues.
-                  fTerrain.RemRoad(P);
-                  fTerrain.RemField(P);
-                end;
+                    cm_Erase:
+                              begin
+                                MyPlayer.RemHouse(P,false); { TODO : split apart according to opened page e.g. do not remove Houses if user is on Units page }
+                                //MyPlayer.RemUnit(P); //@Lewin: Need your help here - how do we remove unit according to new pointer tracking system? Simply remove it from list or..
+                                                       //@Krom: Well this is different because it's the map editor. There shouldn't really be any pointers here right?
+                                                       //       According to the pointer system you should run KillUnit and somehow disable the dying animation. (so IsDead gets set to true, then the memory will be removed on next player UpdateState)
+                                                       //       But you probably could just remove it from the list because it's the map editor and there shouldn't be any pointer issues.
+                                fTerrain.RemRoad(P);
+                                fTerrain.RemField(P);
+                              end;
 
 
                   end;
