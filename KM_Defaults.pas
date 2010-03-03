@@ -1,6 +1,6 @@
 unit KM_Defaults;
 interface
-uses SysUtils, KromUtils, dglOpenGL;
+uses Classes, SysUtils, KromUtils, dglOpenGL, KM_CommonTypes;
 
 //Global const
 const
@@ -109,7 +109,13 @@ type
 
 {Cursors}
 type
-  TCursorMode = (cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, cm_Units);
+  TCursorMode = (
+                  cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
+                  cm_Height, cm_Units); //MapEditor
+
+const
+  MAPED_HEIGHT_CIRCLE = 0;
+  MAPED_HEIGHT_SQUARE = 1;
 
 const
   SETTINGS_FILE = 'KaM_Remake_Settings.ini';
@@ -853,8 +859,11 @@ var
 
   Scrolling: boolean;
 
-  CursorX,CursorY:single;    //Precise cursor position on map
-  CursorXc,CursorYc:word; //Cursor position cell
+  GameCursor: record
+    Float:TKMPointF;    //Precise cursor position on map
+    Cell:TKMPoint;      //Cursor position cell
+    SState:TShiftState;
+  end;
 
   //Pallete for RX bitmaps
   //There are 9 palette files Map, Pal0-5, Setup and Setup2

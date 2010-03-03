@@ -39,6 +39,7 @@ public
 
     //MAPEDITOR
     OldTerrain, OldRotation:byte; //Only used for map editor
+    HeightAdd:byte;
 
 
     //DEDUCTED
@@ -163,10 +164,12 @@ public
   procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
   procedure RebuildWalkConnect(aPass:TPassability);
 
-  procedure ComputeCursorPosition(X,Y:word);
+  procedure ComputeCursorPosition(X,Y:word; Shift: TShiftState);
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
   function MixLandHeight(inX,inY:byte):byte;
+
+  procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
 
   procedure RefreshMinimapData();
 
@@ -1885,14 +1888,18 @@ end;
 
 
 {Compute cursor position and store it in global variables}
-procedure TTerrain.ComputeCursorPosition(X,Y:word);
+procedure TTerrain.ComputeCursorPosition(X,Y:word; Shift: TShiftState);
 begin
-  CursorX:=fViewport.GetCenter.X+(X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
-  CursorY:=fViewport.GetCenter.Y+(Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
-  CursorY:=fTerrain.ConvertCursorToMapCoord(CursorX,CursorY);
+  with GameCursor do begin
+    Float.X := fViewport.GetCenter.X + (X-fViewport.ViewRect.Right/2-ToolBarWidth/2)/CELL_SIZE_PX/fViewport.Zoom;
+    Float.Y := fViewport.GetCenter.Y + (Y-fViewport.ViewRect.Bottom/2)/CELL_SIZE_PX/fViewport.Zoom;
+    Float.Y := fTerrain.ConvertCursorToMapCoord(Float.X,Float.Y);
 
-  CursorXc:=EnsureRange(round(CursorX+0.5),1,fTerrain.MapX); //Cell below cursor
-  CursorYc:=EnsureRange(round(CursorY+0.5),1,fTerrain.MapY);
+    Cell.X := EnsureRange(round(Float.X+0.5), 1, fTerrain.MapX); //Cell below cursor in map bounds
+    Cell.Y := EnsureRange(round(Float.Y+0.5), 1, fTerrain.MapY);
+
+    SState := Shift;
+  end;
 end;
 
 
@@ -1944,6 +1951,31 @@ end;
 function TTerrain.MixLandHeight(inX,inY:byte):byte;
 begin
   Result := (Land[inY,inX].Height+Land[inY,inX+1].Height+Land[inY+1,inX].Height+Land[inY+1,inX+1].Height) div 4;
+end;
+
+
+procedure TTerrain.MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
+var
+  i,k:shortint; //-127..128
+  Tmp:single;
+begin
+  for i := (round(aLoc.Y) - aSize div 2) to (round(aLoc.Y) + aSize div 2) do
+  for k := (round(aLoc.X) - aSize div 2) to (round(aLoc.X) + aSize div 2) do
+  if VerticeInMapCoords(k,i) then
+  begin
+    case aShape of
+      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(i-aLoc.Y, k-aLoc.X) / (aSize div 2);
+      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(i-aLoc.Y), abs(k-aLoc.X)) / (aSize div 2);
+      else Tmp := 0;
+    end;
+    //Compute resulting floating-point height
+    Tmp := EnsureRange(Land[i,k].Height + Land[i,k].HeightAdd/255 + Tmp * (byte(aRaise)*2-1), 0, 100);
+    Land[i,k].Height := trunc(Tmp);
+    Land[i,k].HeightAdd := round(frac(Tmp)*255); //write fractional part in 0..255 range (1byte) to save us mem
+  end;
+
+  RebuildLighting(round(aLoc.X) - aSize div 2,round(aLoc.X) + aSize div 2,round(aLoc.Y) - aSize div 2,round(aLoc.Y) + aSize div 2);
+  RebuildPassability(round(aLoc.X) - aSize div 2,round(aLoc.X) + aSize div 2,round(aLoc.Y) - aSize div 2,round(aLoc.Y) + aSize div 2);
 end;
 
 

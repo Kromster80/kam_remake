@@ -133,25 +133,29 @@ uses KM_Settings, KM_CommonTypes, KM_TGATexture;
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
 var FrameTime:cardinal;
-begin //Counting FPS
+begin
   if not Form1.Active then exit;
 
-  FrameTime:=TimeGetTime-OldTimeFPS;
-  OldTimeFPS:=TimeGetTime;
+  //Counting FPS
+  begin
+    FrameTime:=TimeGetTime-OldTimeFPS;
+    OldTimeFPS:=TimeGetTime;
 
-  if (FPS_LAG<>1)and(FrameTime<FPS_LAG) then begin
-    sleep(FPS_LAG-FrameTime);
-    FrameTime:=FPS_LAG;
-  end;
+    if (FPS_LAG<>1)and(FrameTime<FPS_LAG) then begin
+      sleep(FPS_LAG-FrameTime);
+      FrameTime:=FPS_LAG;
+    end;
 
-  inc(OldFrameTimes,FrameTime);
-  inc(FrameCount);
-  if OldFrameTimes>=FPS_INTERVAL then begin
-    StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPS_LAG)+')';
-    OldFrameTimes:=0;
-    FrameCount:=0;
+    inc(OldFrameTimes,FrameTime);
+    inc(FrameCount);
+    if OldFrameTimes>=FPS_INTERVAL then begin
+      StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPS_LAG)+')';
+      OldFrameTimes:=0;
+      FrameCount:=0;
+    end;
   end; //FPS calculation complete
 
+  fGame.UpdateStateIdle;
   fRender.Render;
   done := false; //repeats OnIdle event
 end;

@@ -148,12 +148,12 @@ var H:TKMHouse;
 begin
   //Houses have priority over units, so you can't select an occupant.
   //However, this is only true if the house is built
-  H := MyPlayer.HousesHitTest(CursorXc, CursorYc);
+  H := MyPlayer.HousesHitTest(X, Y);
 
   if (H<>nil)and(H.GetBuildingState in [hbs_Stone,hbs_Done]) then
     fPlayers.Selected := H
   else
-    fPlayers.Selected := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+    fPlayers.Selected := MyPlayer.UnitsHitTest(X, Y);
   if fPlayers.Selected = nil then
     fPlayers.Selected := H;
 

@@ -436,7 +436,7 @@ begin
   for i:=y1 to y2 do begin
     glbegin (GL_LINE_STRIP);
     for k:=x1 to x2 do begin
-      glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-CursorYc)+sqr(k-CursorXc))/10); //Smooth circle gradient blending
+      glColor4f(0.8,1,0.6,1.2-sqrt(sqr(i-GameCursor.Cell.Y)+sqr(k-GameCursor.Cell.X))/10); //Smooth circle gradient blending
       glvertex2f(k-1,i-1-fTerrain.Land[i,k].Height/CELL_HEIGHT_DIV);
     end;
     glEnd;

@@ -87,6 +87,7 @@ type TKMapEdInterface = class
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
+    procedure TerrainHeight_Change(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
@@ -343,14 +344,20 @@ begin
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
     Panel_Brushes := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      BrushSize := MyControls.AddRatioRow(Panel_Brushes, 8, 10, 100, 20, 1, 12);
+      BrushSize   := MyControls.AddRatioRow(Panel_Brushes, 8, 10, 100, 20, 1, 12);
       BrushCircle := MyControls.AddButtonFlat(Panel_Brushes, 114, 8, 24, 24, 359);
       BrushSquare := MyControls.AddButtonFlat(Panel_Brushes, 142, 8, 24, 24, 352);
+      {BrushSize.OnChange   := TerrainBrush_Change;
+      BrushCircle.OnChange := TerrainBrush_Change;
+      BrushSquare.OnChange := TerrainBrush_Change;}
 
     Panel_Heights := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      HeightSize  := MyControls.AddRatioRow(Panel_Heights, 8, 10, 100, 20, 1, 12);
+      HeightSize   := MyControls.AddRatioRow(Panel_Heights, 8, 10, 100, 20, 1, 12);
       HeightCircle := MyControls.AddButtonFlat(Panel_Heights, 114, 8, 24, 24, 359);
       HeightSquare := MyControls.AddButtonFlat(Panel_Heights, 142, 8, 24, 24, 352);
+      HeightSize.OnChange   := TerrainHeight_Change;
+      HeightCircle.OnClick  := TerrainHeight_Change;
+      HeightSquare.OnClick  := TerrainHeight_Change;
 
     Panel_Tiles := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
       for i:=1 to 5 do for k:=1 to 8 do
@@ -614,6 +621,22 @@ begin
   Minimap_Update(nil);
 
   if Panel_Stats.Visible then Stats_Fill(nil);
+end;
+
+
+procedure TKMapEdInterface.TerrainHeight_Change(Sender: TObject);
+var i:integer;
+begin
+  if Sender = HeightCircle then
+  begin
+    CursorMode.Mode  := cm_Height;
+    CursorMode.Param := HeightSize.Position mod 64 + MAPED_HEIGHT_CIRCLE shl 6; //6bits.2bits
+  end;
+  if Sender = HeightSquare then
+  begin
+    CursorMode.Mode  := cm_Height;
+    CursorMode.Param := HeightSize.Position mod 64 + MAPED_HEIGHT_SQUARE shl 6; //6bits.2bits
+  end;
 end;
 
 

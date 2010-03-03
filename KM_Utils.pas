@@ -1,11 +1,6 @@
 unit KM_Utils;
 interface
-uses KromUtils, SysUtils, KM_Defaults, Math;
-
-type
-  TKMPoint = record X,Y:word; end;
-  TKMPointDir = record Loc:TKMPoint; Dir:word; end;
-  TKMPointF = record X,Y:single; end;
+uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function KMPoint(X, Y: word): TKMPoint; overload;
   function KMPoint(P: TKMPointDir): TKMPoint; overload;

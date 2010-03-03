@@ -56,6 +56,7 @@ type
     function Save(SlotID:shortint):string;
     function Load(SlotID:shortint; out LoadError:string):TLoadResult;
     procedure UpdateState;
+    procedure UpdateStateIdle;
     procedure PaintInterface;
   end;
 
@@ -239,9 +240,9 @@ begin
                   fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
                   MOver := fGameplayInterface.MyControls.MouseOverControl;
                   if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
-                    MyPlayer.AddUnit(ut_HorseScout, KMPoint(CursorXc,CursorYc)); //Add only when cursor is over the map
+                    MyPlayer.AddUnit(ut_HorseScout, GameCursor.Cell); //Add only when cursor is over the map
 
-                  P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
+                  P := GameCursor.Cell; //Get cursor position tile-wise
                   //These are only for testing purposes, Later on it should be changed a lot
                   if (Button = mbRight)
                     and(MOver = nil)
@@ -253,7 +254,7 @@ begin
                     then
                   begin
                     //See if we are moving or attacking
-                    HitUnit := fPlayers.UnitsHitTest(CursorXc, CursorYc);
+                    HitUnit := fPlayers.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                     if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
                        (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) then
                     begin
@@ -321,12 +322,12 @@ begin
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor := c_Default
                   else begin
-                    fTerrain.ComputeCursorPosition(X,Y);
+                    fTerrain.ComputeCursorPosition(X,Y,Shift);
                     if CursorMode.Mode=cm_None then
                       if fGamePlayInterface.JoiningGroups and
                         (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
                       begin
-                        HitUnit  := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+                        HitUnit  := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                         if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
                            (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
                           Screen.Cursor := c_JoinYes
@@ -334,15 +335,15 @@ begin
                           Screen.Cursor := c_JoinNo;
                       end
                       else
-                        if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
-                           (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
+                        if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
+                           (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
                           Screen.Cursor := c_Info
                         else
                         if fGamePlayInterface.GetShownUnit is TKMUnitWarrior then
                         begin
-                          HitUnit  := fPlayers.UnitsHitTest (CursorXc, CursorYc);
-                          HitHouse := fPlayers.HousesHitTest(CursorXc, CursorYc);
-                          if (fTerrain.CheckTileRevelation(CursorXc, CursorYc, MyPlayer.PlayerID)>0) and
+                          HitUnit  := fPlayers.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
+                          HitHouse := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                          if (fTerrain.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, MyPlayer.PlayerID)>0) and
                              (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy))or
                               ((HitHouse<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy))) then
                             Screen.Cursor := c_Attack
@@ -351,7 +352,7 @@ begin
                         end
                         else if not Scrolling then
                           Screen.Cursor := c_Default;
-                    fTerrain.UpdateCursor(CursorMode.Mode, KMPoint(CursorXc,CursorYc));
+                    fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                   end;
                   end;
                 end;
@@ -361,18 +362,18 @@ begin
                     Screen.Cursor:=c_Default
                   else
                   begin
-                    fTerrain.ComputeCursorPosition(X,Y);
+                    fTerrain.ComputeCursorPosition(X,Y,Shift);
                     if CursorMode.Mode=cm_None then
-                      if (MyPlayer.HousesHitTest(CursorXc, CursorYc)<>nil)or
-                         (MyPlayer.UnitsHitTest(CursorXc, CursorYc)<>nil) then
+                      if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
+                         (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
                         Screen.Cursor:=c_Info
                       else if not Scrolling then
                         Screen.Cursor:=c_Default;
-                    fTerrain.UpdateCursor(CursorMode.Mode,KMPoint(CursorXc,CursorYc));
+                    fTerrain.UpdateCursor(CursorMode.Mode,GameCursor.Cell);
 
                     if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
                     begin
-                      P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
+                      P := GameCursor.Cell; //Get cursor position tile-wise
                       case CursorMode.Mode of
                         cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
                         cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
@@ -389,8 +390,11 @@ begin
                 end;
   end;
 
-Form1.StatusBar1.Panels.Items[1].Text:='Cursor: '+floattostr(round(CursorX*10)/10)+' '+floattostr(round(CursorY*10)/10)
-+' | '+inttostr(CursorXc)+' '+inttostr(CursorYc);
+Form1.StatusBar1.Panels.Items[1].Text := 'Cursor: '+
+                                         floattostr(round(GameCursor.Float.X*10)/10)+' '+
+                                         floattostr(round(GameCursor.Float.Y*10)/10)+' | '+
+                                         inttostr(GameCursor.Cell.X)+' '+
+                                         inttostr(GameCursor.Cell.Y);
 end;
 
 
@@ -424,7 +428,7 @@ begin
     gsVictory:  if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
     gsRunning:
       begin
-        P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise
+        P := GameCursor.Cell; //Get cursor position tile-wise
         if MOver <> nil then
           fGameplayInterface.MyControls.OnMouseUp(X,Y,Button)
         else begin
@@ -437,7 +441,7 @@ begin
                 begin
                   //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
                   OldSelected := fPlayers.Selected;
-                  if (not fPlayers.HitTest(CursorXc, CursorYc)) or
+                  if (not fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y)) or
                     ((fPlayers.Selected is TKMHouse) and (TKMHouse(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID))or
                     ((fPlayers.Selected is TKMUnit) and (TKMUnit(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID)) then
                     fPlayers.Selected := OldSelected;
@@ -466,7 +470,7 @@ begin
                            fGamePlayInterface.Build_SelectRoad;
               cm_Erase:
                 begin
-                  fPlayers.Selected := MyPlayer.HousesHitTest(CursorXc, CursorYc); //Select the house irregardless of unit below/above
+                  fPlayers.Selected := MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y); //Select the house irregardless of unit below/above
                   if MyPlayer.RemHouse(P,false,true) then //Ask wherever player wants to destroy own house
                   begin
                     //don't ask about houses that are not started, they are removed bellow
@@ -490,7 +494,7 @@ begin
             if fGamePlayInterface.JoiningGroups and (fGamePlayInterface.GetShownUnit <> nil) and
               (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
             begin
-              HitUnit  := MyPlayer.UnitsHitTest(CursorXc, CursorYc);
+              HitUnit  := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
               if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
                  (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
               begin
@@ -528,33 +532,32 @@ begin
 
       end; //gsRunning
     gsEditor: begin
-                P := KMPoint(CursorXc,CursorYc); //Get cursor position tile-wise        
+                P := GameCursor.Cell; //Get cursor position tile-wise
                 if MOver <> nil then
                   fMapEditorInterface.MyControls.OnMouseUp(X,Y,Button)
                 else
-                if Button = mbRight then fMapEditorInterface.Build_RightClickCancel
+                if Button = mbRight then
+                  fMapEditorInterface.Build_RightClickCancel
                 else
                 if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
                   case CursorMode.Mode of
-                    cm_None:
-                      begin
-                        fPlayers.HitTest(CursorXc, CursorYc);
-                        if fPlayers.Selected is TKMHouse then
-                          fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
-                        if fPlayers.Selected is TKMUnit then
-                          fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                        //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
-                        //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
-                      end;
+                    cm_None:  begin
+                                fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                                if fPlayers.Selected is TKMHouse then
+                                  fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
+                                if fPlayers.Selected is TKMUnit then
+                                  fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                                //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
+                                //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
+                              end;
                     cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
                     cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
                     cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
-                    //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
-                    cm_Houses:
-                    if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Param)) then
+                    //cm_Wall:
+                    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Param)) then
                                 MyPlayer.AddHouse(THouseType(CursorMode.Param),P);
-                    cm_Units:
-                                MyPlayer.AddUnit(TUnitType(CursorMode.Param),P);
+                    cm_Height:; //todo: Freeze height change into 0..100 range instead of 0.0..100.0 (floating-point)
+                    cm_Units: MyPlayer.AddUnit(TUnitType(CursorMode.Param),P);
               cm_Erase:
                 begin
                   MyPlayer.RemHouse(P,false); { TODO : split apart according to opened page e.g. do not remove Houses if user is on Units page }
@@ -938,6 +941,20 @@ begin
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
                 end;
     end;
+end;
+
+
+{This is our real-time thread, use it wisely}
+procedure TKMGame.UpdateStateIdle;
+var i:integer;
+begin
+  case GameState of
+    gsEditor:   begin
+                  if CursorMode.Mode = cm_Height then
+                  if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
+                    fTerrain.MapEdHeight(GameCursor.Float, CursorMode.Param mod 64, CursorMode.Param shr 6, ssLeft in GameCursor.SState); //6size.2shape
+                end;
+  end;
 end;
 
 

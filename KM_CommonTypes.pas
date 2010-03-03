@@ -1,6 +1,12 @@
 unit KM_CommonTypes;
 interface
-uses Classes, SysUtils, KM_Utils, MMSystem;
+uses Classes, SysUtils, MMSystem;
+
+
+type
+  TKMPoint = record X,Y:word; end;
+  TKMPointDir = record Loc:TKMPoint; Dir:word; end;
+  TKMPointF = record X,Y:single; end;
 
 
 type
@@ -129,6 +135,8 @@ type
     fLog: TKMLog;
 
 implementation
+
+uses KM_Utils;
 
 
 {Reset log file}
