@@ -170,6 +170,7 @@ public
   function MixLandHeight(inX,inY:byte):byte;
 
   procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
+  procedure MapEdTile(aLoc:TKMPoint; aTile:byte);
 
   procedure RefreshMinimapData();
 
@@ -1976,6 +1977,13 @@ begin
 
   RebuildLighting(round(aLoc.X) - aSize div 2,round(aLoc.X) + aSize div 2,round(aLoc.Y) - aSize div 2,round(aLoc.Y) + aSize div 2);
   RebuildPassability(round(aLoc.X) - aSize div 2,round(aLoc.X) + aSize div 2,round(aLoc.Y) - aSize div 2,round(aLoc.Y) + aSize div 2);
+end;
+
+
+procedure TTerrain.MapEdTile(aLoc:TKMPoint; aTile:byte);
+begin
+  if TileInMapCoords(aLoc.X, aLoc.Y) then
+  Land[aLoc.Y, aLoc.X].Terrain := aTile;
 end;
 
 

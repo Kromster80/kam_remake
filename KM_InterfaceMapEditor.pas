@@ -27,6 +27,7 @@ type TKMapEdInterface = class
         HeightSize:TKMRatioRow;
         HeightCircle,HeightSquare:TKMButtonFlat;
       Panel_Tiles:TKMPanel;
+        TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
         TilesScroll:TKMScrollBar;
       Panel_Objects:TKMPanel;
 
@@ -88,6 +89,7 @@ type TKMapEdInterface = class
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
     procedure TerrainHeight_Change(Sender: TObject);
+    procedure TerrainTiles_Change(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
@@ -121,6 +123,11 @@ procedure TKMapEdInterface.SwitchPage(Sender: TObject);
 var i,k:integer;
 begin
 
+  //Reset cursor mode
+  CursorMode.Mode := cm_None;
+  CursorMode.Param := 0;
+
+  //Reset shown item if user clicked on any of the main buttons
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
      (Sender=Button_Main[5])or
@@ -130,10 +137,7 @@ begin
     fPlayers.Selected:=nil;
   end;
 
-  //Reset the CursorMode, to cm_None
-  Build_ButtonClick(nil);
-
-  //First thing - hide all existing pages
+  //Now hide all existing pages
     for i:=1 to Panel_Main.ChildCount do
       if Panel_Main.Childs[i] is TKMPanel then
       begin
@@ -146,25 +150,25 @@ begin
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[1]) then begin
     Panel_Terrain.Show;
     Panel_Brushes.Show;
-    Label_MenuTitle.Caption:='Terrain editing - Brushes';
+    Label_MenuTitle.Caption:='Terrain - Brushes';
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[2]) then begin
     Panel_Terrain.Show;
     Panel_Heights.Show;
-    Label_MenuTitle.Caption:='Terrain editing - Heights';
+    Label_MenuTitle.Caption:='Terrain - Heights';
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[3]) then begin
     Panel_Terrain.Show;
     Panel_Tiles.Show;
-    Label_MenuTitle.Caption:='Terrain editing - Tiles';
+    Label_MenuTitle.Caption:='Terrain - Tiles';
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[4]) then begin
     Panel_Terrain.Show;
     Panel_Objects.Show;
-    Label_MenuTitle.Caption:='Terrain editing - Objects';
+    Label_MenuTitle.Caption:='Terrain - Objects';
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[1]) then begin
@@ -360,10 +364,16 @@ begin
       HeightSquare.OnClick  := TerrainHeight_Change;
 
     Panel_Tiles := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      for i:=1 to 5 do for k:=1 to 8 do
-      MyControls.AddButtonFlat(Panel_Tiles,8+(i-1)*32,4+(k-1)*32,32,32,43); //List of tiles 32x8
-      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 192, 200, 20, sa_Horizontal);
-      //TilesScroll.OnChange := Tiles_Scroll;
+      for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := MyControls.AddButtonFlat(Panel_Tiles,8+(i-1)*32,4+(k-1)*32,32,32,((i-1)*MAPED_TILES_ROWS+k)mod 8+2); //2..9
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (i-1)*MAPED_TILES_ROWS+k; //Store ID
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := TerrainTiles_Change;
+      end;
+      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 4 + 4 + MAPED_TILES_ROWS * 32, 200, 20, sa_Horizontal);
+      TilesScroll.MinValue := 0;
+      TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
+      TilesScroll.Position := 0;
+      TilesScroll.OnChange := TerrainTiles_Change;
 
     Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
       //List of objects
@@ -640,18 +650,31 @@ begin
 end;
 
 
+procedure TKMapEdInterface.TerrainTiles_Change(Sender: TObject);
+var i,k:integer;
+begin
+  if Sender = TilesScroll then //Shift tiles
+    for i:=1 to MAPED_TILES_COLS do
+    for k:=1 to MAPED_TILES_ROWS do
+      TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := (TilesScroll.Position*MAPED_TILES_ROWS+(i-1)*MAPED_TILES_ROWS+k)mod 8+2; //icons are in 2..9
+  if Sender is TKMButtonFlat then
+  begin
+    CursorMode.Mode := cm_Tiles;
+    CursorMode.Param := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
+  end;
+end;
+
+
 procedure TKMapEdInterface.Build_ButtonClick(Sender: TObject);
 var i:integer;
 begin
-  if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
-
   //Release all buttons
   for i:=1 to Panel_Build.ChildCount do
     if Panel_Build.Childs[i] is TKMButtonFlat then
       TKMButtonFlat(Panel_Build.Childs[i]).Down:=false;
 
   //Press the button
-  TKMButtonFlat(Sender).Down:=true;
+  TKMButtonFlat(Sender).Down := true;
 
   //Reset cursor and see if it needs to be changed
   CursorMode.Mode:=cm_None;

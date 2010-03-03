@@ -298,10 +298,10 @@ end;
 for i:=y1 to y2 do for k:=x1 to x2 do
 begin
   case fTerrain.Land[i,k].TileOverlay of
-    to_Dig1: RenderTile(250,k,i,0);
-    to_Dig2: RenderTile(252,k,i,0);
-    to_Dig3: RenderTile(254,k,i,0);
-    to_Dig4: RenderTile(256,k,i,0);
+    to_Dig1: RenderTile(249,k,i,0);
+    to_Dig2: RenderTile(251,k,i,0);
+    to_Dig3: RenderTile(253,k,i,0);
+    to_Dig4: RenderTile(255,k,i,0);
     to_Wall: begin
                glColor4f(0.5,0,0,0.5);
                RenderQuad(k,i);
@@ -800,23 +800,22 @@ end;
 
 {Render one terrian cell}
 procedure TRender.RenderTile(Index,pX,pY,Rot:integer);
-var xt,k,i,a:integer;
+var k,i,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
   TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
 begin
 if (pX<1)or(pX>fTerrain.MapX) then exit;
 if (pY<1)or(pY>fTerrain.MapY) then exit;
 
-if not InRange(Index,1,256) then fLog.AssertToLog(false,'Wrong tile index');
+if not InRange(Index,0,255) then fLog.AssertToLog(false,'Wrong tile index, should be 0..255');
 
 glColor4f(1,1,1,1);
 glBindTexture(GL_TEXTURE_2D, TextT);
-xt:=Index-1;
 
-TexC[1,1]:=(xt mod 16  )/16+Overlap; TexC[1,2]:=(xt div 16  )/16+Overlap;
-TexC[2,1]:=(xt mod 16  )/16+Overlap; TexC[2,2]:=(xt div 16+1)/16-Overlap;
-TexC[3,1]:=(xt mod 16+1)/16-Overlap; TexC[3,2]:=(xt div 16+1)/16-Overlap;
-TexC[4,1]:=(xt mod 16+1)/16-Overlap; TexC[4,2]:=(xt div 16  )/16+Overlap;
+TexC[1,1]:=(Index mod 16  )/16+Overlap; TexC[1,2]:=(Index div 16  )/16+Overlap;
+TexC[2,1]:=(Index mod 16  )/16+Overlap; TexC[2,2]:=(Index div 16+1)/16-Overlap;
+TexC[3,1]:=(Index mod 16+1)/16-Overlap; TexC[3,2]:=(Index div 16+1)/16-Overlap;
+TexC[4,1]:=(Index mod 16+1)/16-Overlap; TexC[4,2]:=(Index div 16  )/16+Overlap;
 TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
 if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
@@ -1236,6 +1235,8 @@ case CursorMode.Mode of
              fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
            else fRender.RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Houses: fRender.RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Param)); //Cyan quad
+
+  cm_Tiles:  fRender.RenderTile(CursorMode.Param, CursorPos.X, CursorPos.Y, 0);
   cm_Units: fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
 end;
 end;

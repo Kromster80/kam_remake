@@ -950,9 +950,14 @@ var i:integer;
 begin
   case GameState of
     gsEditor:   begin
-                  if CursorMode.Mode = cm_Height then
-                  if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
-                    fTerrain.MapEdHeight(GameCursor.Float, CursorMode.Param mod 64, CursorMode.Param shr 6, ssLeft in GameCursor.SState); //6size.2shape
+                  case CursorMode.Mode of
+                    cm_Height:
+                              if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
+                              fTerrain.MapEdHeight(GameCursor.Float, CursorMode.Param mod 64, CursorMode.Param shr 6, ssLeft in GameCursor.SState); //6size.2shape
+                    cm_Tiles:
+                              if (ssLeft in GameCursor.SState) then
+                              fTerrain.MapEdTile(GameCursor.Cell, CursorMode.Param);
+                  end;
                 end;
   end;
 end;
