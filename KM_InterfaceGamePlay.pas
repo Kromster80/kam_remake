@@ -18,7 +18,7 @@ type TKMGamePlayInterface = class
     AskDemolish:boolean;
 
     Panel_Main:TKMPanel;
-      Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5,Image_Main6:TKMImage; //Toolbar background
+      Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
       Label_Stat,Label_Hint,Label_PointerCount:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
@@ -518,10 +518,10 @@ begin
   Panel_Main:=MyControls.AddPanel(nil,0,0,224,768);
 
     Image_Main1:=MyControls.AddImage(Panel_Main,0,0,224,200,407);
-    Image_Main3:=MyControls.AddImage(Panel_Main,0,200,224,168,554);
-    Image_Main4:=MyControls.AddImage(Panel_Main,0,368,224,400,404);
-    Image_Main5:=MyControls.AddImage(Panel_Main,0,768,224,400,404);
-    Image_Main6:=MyControls.AddImage(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
+    Image_Main2:=MyControls.AddImage(Panel_Main,0,200,224,168,554);
+    Image_Main3:=MyControls.AddImage(Panel_Main,0,368,224,400,404);
+    Image_Main4:=MyControls.AddImage(Panel_Main,0,768,224,400,404);
+    Image_Main5:=MyControls.AddImage(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
 
     KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;

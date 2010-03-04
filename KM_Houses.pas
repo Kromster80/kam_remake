@@ -269,7 +269,7 @@ begin
   begin 
     Self.Activate(false);
     fBuildingProgress := HouseDAT[byte(fHouseType)].MaxHealth;
-    fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, true); //Sets passability and flattens terrain
+    fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
   end else
     fTerrain.SetHouse(fPosition, fHouseType, hs_Plan, play_None); //Terrain remains neutral yet
 end;
@@ -385,7 +385,7 @@ end;
 procedure TKMHouse.DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 begin
   if fPlayers.Selected = Self then fPlayers.Selected := nil;
-  if fGame.fGamePlayInterface.GetShownHouse = Self then fGame.fGamePlayInterface.ShowHouseInfo(nil);
+  if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.GetShownHouse = Self) then fGame.fGamePlayInterface.ShowHouseInfo(nil);
 
   if not DoSilent then
     if (GetBuildingState = hbs_Glyph)or(NoRubble) then fSoundLib.Play(sfx_click)

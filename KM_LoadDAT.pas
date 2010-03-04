@@ -12,6 +12,9 @@ type
                     ct_AttackPosition,ct_AddWareToSecond,ct_AddWareToAll,ct_AddWeapon,ct_AICharacter,
                     ct_AINoBuild,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
 
+  TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
+                         cpt_MaxSoldier,cpt_AttackFactor,cpt_TroopParam);
+
   TKMMissionDetails = record
     MapPath: string;
     IsFight: boolean;
@@ -33,6 +36,10 @@ const
     'SET_GROUP','SET_GROUP_FOOD','SEND_GROUP','ATTACK_POSITION','ADD_WARE_TO_SECOND',
     'ADD_WARE_TO_ALL','ADD_WEAPON','SET_AI_CHARACTER','SET_AI_NO_BUILD','SET_AI_START_POSITION',
     'SET_AI_DEFENSE','SET_AI_ATTACK','COPY_AI_ATTACK');
+
+  PARAMVALUES: array[TKMCommandParamType] of shortstring = (
+    '','RECRUTS','CONSTRUCTORS','WORKER_FACTOR','RECRUT_COUNT','TOWN_DEFENSE',
+    'MAX_SOLDIER','ATTACK_FACTOR','TROUP_PARAM');
 
   MAXPARAMS = 8;
   //This is a map of the valid values for !SET_UNIT, and the corrisponing unit that will be created (matches KaM behavior)
@@ -67,6 +74,7 @@ type
   public      { Public declarations }
     constructor Create;
     function LoadDATFile(aFileName:string):string;
+    function SaveDATFile(aFileName:string; aMissionName:string):string;
     function GetMissionDetails(aFileName:string):TKMMissionDetails;
     function GetMapDetails(aFileName:string):TKMMapDetails;
 end;
@@ -496,14 +504,14 @@ begin
   ct_AICharacter:    begin
                        if fPlayers.Player[CurrentPlayerIndex].PlayerType <> pt_Computer then exit;
                        iPlayerAI := fPlayers.PlayerAI[CurrentPlayerIndex]; //Setup the AI's character
-                       if TextParam = 'RECRUTS'      then iPlayerAI.ReqRecruits         := ParamList[1];
-                       if TextParam = 'CONSTRUCTORS' then iPlayerAI.ReqWorkers          := ParamList[1];
-                       if TextParam = 'WORKER_FACTOR'then iPlayerAI.ReqSerfFactor       := ParamList[1];
-                       if TextParam = 'RECRUT_COUNT' then iPlayerAI.RecruitTrainTimeout := ParamList[1];
-                       if TextParam = 'TOWN_DEFENSE' then iPlayerAI.TownDefence         := ParamList[1];
-                       if TextParam = 'MAX_SOLDIER'  then iPlayerAI.MaxSoldiers         := ParamList[1];
-                       if TextParam = 'ATTACK_FACTOR'then iPlayerAI.Aggressiveness      := ParamList[1];
-                       if TextParam = 'TROUP_PARAM'  then
+                       if TextParam = PARAMVALUES[cpt_Recruits]     then iPlayerAI.ReqRecruits         := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_Constructors] then iPlayerAI.ReqWorkers          := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_WorkerFactor] then iPlayerAI.ReqSerfFactor       := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_RecruitCount] then iPlayerAI.RecruitTrainTimeout := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_TownDefence]  then iPlayerAI.TownDefence         := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_MaxSoldier]   then iPlayerAI.MaxSoldiers         := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_AttackFactor] then iPlayerAI.Aggressiveness      := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_TroopParam]   then
                        begin
                          iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].NumUnits := ParamList[2];
                          iPlayerAI.TroopFormations[TGroupType(ParamList[1]+1)].NumRows  := ParamList[3];
@@ -560,6 +568,80 @@ begin
   ErrorMessage:=ErrorMessage+OpenedMissionName+'|';
   ErrorMessage:=ErrorMessage+ErrorMsg+'|';
   //todo 1: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
+end;
+
+
+function TMissionParser.SaveDATFile(aFileName:string; aMissionName:string):string;
+var
+  i: integer;
+  SaveStream: TStringList; //@Krom: Is there any reason why a string list is a bad variable to use? Is is less efficient than a Stream?
+
+  procedure AddData(aText:string);
+  begin
+    SaveStream.Add(aText);
+  end;
+
+  procedure AddCommand(aCommand:TKMCommandType; ParamCount:byte=0; aParam1:integer = 0; aParam2:integer = 0; aParam3:integer = 0;
+                                                                   aParam4:integer = 0; aParam5:integer = 0; aParam6:integer = 0);
+  var OutData: string;
+  begin
+    OutData := COMMANDVALUES[aCommand];
+    if ParamCount >= 1 then
+      OutData := OutData + ' ' + IntToStr(aParam1);
+    if ParamCount >= 2 then
+      OutData := OutData + ' ' + IntToStr(aParam2);
+    if ParamCount >= 3 then
+      OutData := OutData + ' ' + IntToStr(aParam3);
+    if ParamCount >= 4 then
+      OutData := OutData + ' ' + IntToStr(aParam4);
+    if ParamCount >= 5 then
+      OutData := OutData + ' ' + IntToStr(aParam5);
+    if ParamCount >= 6 then
+      OutData := OutData + ' ' + IntToStr(aParam6);
+
+    SaveStream.Add(OutData);
+  end;
+begin
+  //Write out a KaM format mission file to aFileName
+
+  //Put data into stream
+  SaveStream := TStringList.Create;
+
+  //Main header
+  AddData(COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + aMissionName + '.map"');
+  AddCommand(ct_SetMaxPlayer,1,fPlayers.PlayerCount);
+  AddData(''); //NL
+
+  //Player loop
+  for i:=1 to fPlayers.PlayerCount do
+  begin
+    //Player header, using same order of commands as KaM
+    AddCommand(ct_SetCurrPlayer,1,i-1); //In script player 0 is the first
+    if fPlayers.Player[i].PlayerType = pt_Human then
+      AddCommand(ct_SetHumanPlayer,1,i-1);
+    AddCommand(ct_EnablePlayer,1,i-1);
+    if fPlayers.Player[i].PlayerType = pt_Computer then
+      AddCommand(ct_AIPlayer);
+    AddData(''); //NL
+    //Human specific, e.g. center screen
+
+    //Computer specific, e.g. AI commands
+
+    //General, e.g. units, roads, houses, etc.
+
+    AddData(''); //NL
+    AddData(''); //NL
+  end; //Player loop
+
+  //Main footer
+
+  //Animals, wares to all, etc. go here
+
+  //Similar advertising footer to one in Lewin's Editor, useful so we know what mission was made with. This info can be very useful
+  AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+DateTimeToStr(Now));
+
+  //Save file if it doesn't exist
+  SaveStream.SaveToFile(aFileName);
 end;
 
 

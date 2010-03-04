@@ -175,6 +175,7 @@ public
   procedure RefreshMinimapData();
 
   procedure IncAnimStep();
+  procedure SaveToMapFile(aFile:string);
   procedure Save(SaveStream:TKMemoryStream);
   procedure Load(LoadStream:TKMemoryStream);
   procedure UpdateState;
@@ -2029,6 +2030,12 @@ end;
 procedure TTerrain.IncAnimStep();
 begin
   inc(AnimStep);
+end;
+
+
+procedure TTerrain.SaveToMapFile(aFile:string);
+begin
+  //Save (export) map in KaM .map format with additional tile information on the end?
 end;
 
 

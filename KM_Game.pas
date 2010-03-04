@@ -532,6 +532,7 @@ begin
 
       end; //gsRunning
     gsEditor: begin
+                fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
                 P := GameCursor.Cell; //Get cursor position tile-wise
                 if MOver <> nil then
                   fMapEditorInterface.MyControls.OnMouseUp(X,Y,Button)
