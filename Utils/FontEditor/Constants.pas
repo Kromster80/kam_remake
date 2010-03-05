@@ -1,5 +1,5 @@
 unit Constants;
-{$MODE Delphi}
+{$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 
 interface
 uses Classes, Graphics, Controls, Forms, ExtCtrls, KromUtils;
@@ -32,6 +32,7 @@ const //using 0 as default, with exceptions. Only used fonts have been checked, 
   ( 'adam', 'antiqua', 'briefing', 'font01', 'game', 'grey', 'kmlobby0', 'kmlobby1', 'kmlobby2', 'kmlobby3',
     'kmlobby4', 'maina', 'mainb', 'mainmapgold', 'metal', 'mini', 'mininum','outline', 'system', 'won');
 
+var
   FontPal:array[1..20]of byte = //Those 10 are unknown Pal, no existing Pal matches them well
   (10, 2, 1,10, 2, 2, 1, 8, 8, 9,
     9, 8,10, 8, 2, 8, 8, 2,10, 9); //@Krom: Can this be loaded from the file? It would make it easier and more versatile.

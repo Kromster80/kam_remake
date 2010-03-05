@@ -181,11 +181,11 @@ object frmMain: TfrmMain
     SimplePanel = False
   end
   object OpenDialog1: TOpenDialog
-    left = 568
-    top = 8
+    Left = 568
+    Top = 8
   end
   object SaveDialog1: TSaveDialog
-    left = 608
-    top = 8
+    Left = 608
+    Top = 8
   end
 end

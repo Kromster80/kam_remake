@@ -1,10 +1,11 @@
 unit umain;
-{$MODE Delphi}
+{$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 
 interface
 uses
-  LCLIntf, Messages, SysUtils, FileCtrl, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, Math, ComCtrls, Buttons, LResources, StrUtils, KromUtils, Constants;
+  {$IFDEF FPC} LCLIntf, LResources, {$ENDIF}
+  Windows, Messages, SysUtils, FileCtrl, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, StdCtrls, Math, ComCtrls, Buttons, StrUtils, KromUtils, Constants;
 
 
 {Globals}
@@ -52,9 +53,9 @@ type
     Image5: TImage;
     StatusBar1: TStatusBar;
     imgColourSelected: TImage;
+    RadioGroup1: TRadioGroup;
     procedure btnLoadFontClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure Image1Click(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnExportClick(Sender: TObject);
@@ -67,6 +68,7 @@ type
       Y: Integer);
     procedure Image3MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure RadioGroup1Click(Sender: TObject);
   private
     { Private declarations }
     fFileEditing: string;
@@ -90,6 +92,9 @@ type
   frmMain: TfrmMain;
 
 implementation
+{$IFDEF VER140}
+{$R *.dfm}
+{$ENDIF}
 
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -100,12 +105,6 @@ begin
     DataDir := ExeDir+'..\..\';  //I wonder if it's correct syntax, but it works well [.\Utils\FontEd\..\..\]
   ScanDataForPalettesAndFonts(DataDir);
 end;
-
-procedure TfrmMain.Image1Click(Sender: TObject);
-begin
-
-end;
-
 
 procedure TfrmMain.RefreshDataClick(Sender: TObject);
 begin
@@ -175,11 +174,12 @@ var
   CellX,CellY:integer;
   TD:array of byte;
   MyBitMap:TBitMap;
-  MyRect: TRect;
 begin
-  Result:=false;
-  MaxHeight:=0;
+  Result := false;
   if not CheckFileExists(filename, true) then exit;
+
+  MaxWidth  := 0;
+  MaxHeight := 0;
 
   assignfile(f,filename); reset(f,1);
   blockread(f,a,2); blockread(f,b,2);
@@ -248,12 +248,10 @@ begin
   end;
 
   if PageControl1.ActivePageIndex = 1 then begin
-
     ActiveLetter := 65; //Letter "A"
+    RadioGroup1.ItemIndex := FontPal[byte(fCurrentFont)] -1;
     ShowPalette(FontPal[byte(fCurrentFont)]);
     ShowLetter(ActiveLetter);
-
-
   end;
 
   setlength(TD,0);
@@ -331,13 +329,12 @@ var
   aFont:byte;
   MyRect:TRect;
 begin
-
   aFont := byte(fCurrentFont);
 
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
-  MyBitmap.Width := 32;
-  MyBitmap.Height := 32;
+  MyBitmap.Width := 24;
+  MyBitmap.Height := 24;
 
   for i:=0 to FontData.Letters[aLetter].Height-1 do for k:=0 to FontData.Letters[aLetter].Width-1 do begin
     Pal := FontPal[byte(aFont)];
@@ -354,27 +351,47 @@ end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
-var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,p,t:integer; aFont:TKMFont; MyRect:TRect;
+var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,Pal,t:integer; aFont:TKMFont; MyRect:TRect;
 begin
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
   MyBitmap.Width := 512;
-  MyBitmap.Height := 32;
+  MyBitmap.Height := 40;
 
-  AdvX:=0;
+  AdvX := 0;
   aFont := fCurrentFont;
+
+  //Fill area
+  Pal := FontPal[byte(aFont)];
+  MyBitmap.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
+  MyBitmap.Canvas.FillRect(MyBitmap.Canvas.ClipRect);
 
   for i:=1 to length(Edit1.Text) do
   begin
     for ci:=0 to FontData.Letters[ord(Edit1.Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Edit1.Text[i])].Width-1 do begin
-      p := FontPal[byte(aFont)];
       t := FontData.Letters[ord(Edit1.Text[i])].Data[ci*FontData.Letters[ord(Edit1.Text[i])].Width+ck+1]+1;
-      MyBitmap.Canvas.Pixels[ck+AdvX,ci] := PalData[p,t,1]+PalData[p,t,2]*256+PalData[p,t,3]*65536;
+      MyBitmap.Canvas.Pixels[ck+AdvX,ci] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
     end;
     inc(AdvX,FontData.Letters[ord(Edit1.Text[i])].Width);
   end;
 
-  Image4.Canvas.Draw(0,0, MyBitmap); //Draw MyBitmap into Image1
+  //Match phrase bounds
+  MyBitmap.Width := AdvX;
+  MyBitmap.Height := 20;
+
+  Image4.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
+  Image4.Canvas.FillRect(Image4.Canvas.ClipRect);
+  Image4.Canvas.Draw( (Image4.Width - MyBitmap.Width) div 2 , (Image4.Height - MyBitmap.Height) div 2 , MyBitmap); //Draw MyBitmap into Image1
+
+  MyRect.Left := (Image5.Width  - MyBitmap.Width*2 ) div 2;
+  MyRect.Top  := (Image5.Height - MyBitmap.Height*2) div 2;
+  MyRect.Right  := MyRect.Left + MyBitmap.Width*2;
+  MyRect.Bottom := MyRect.Top + MyBitmap.Height*2;
+
+  Image5.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
+  Image5.Canvas.FillRect(Image5.Canvas.ClipRect);
+  Image5.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
+
   MyBitmap.Free;
 end;
 
@@ -425,7 +442,19 @@ begin
 end;
 
 
+procedure TfrmMain.RadioGroup1Click(Sender: TObject);
+begin
+  ActiveLetter := 65; //Letter "A"
+  FontPal[byte(fCurrentFont)] := RadioGroup1.ItemIndex +1;
+  ShowPalette(FontPal[byte(fCurrentFont)]);
+  ShowLetter(ActiveLetter);
+end;
+
+
+
+{$IFDEF FPC}
 initialization
-  {$i umain.lrs}
+{$I umain.lrs}
+{$ENDIF}
 
 end.
