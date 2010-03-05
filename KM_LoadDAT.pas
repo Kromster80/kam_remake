@@ -573,45 +573,36 @@ end;
 
 function TMissionParser.SaveDATFile(aFileName:string; aMissionName:string):string;
 var
+  f:textfile;
   i: longint;
-  SaveStream: string; //@Krom: Is there any reason why a string list is a bad variable to use? Is is less efficient than a Stream?
-  f:file;
-
+  SaveString: string; //@Krom: Is there any reason why a string list is a bad variable to use? Is is less efficient than a Stream?
+                      //@Lewin: I got used to "string", it's very simple and straightforward ;)
   procedure AddData(aText:string);
-  begin
-    //Add to the string
-    SaveStream := SaveStream+aText+#13#10;
-  end;
+  begin SaveString := SaveString + aText + #13#10; end; //Add to the string
 
   procedure AddCommand(aCommand:TKMCommandType; ParamCount:byte=0; aParam1:integer = 0; aParam2:integer = 0; aParam3:integer = 0;
                                                                    aParam4:integer = 0; aParam5:integer = 0; aParam6:integer = 0);
-  var OutData: string;
+  var OutData: string; i:byte;
   begin
     OutData := '!'+COMMANDVALUES[aCommand];
-    if ParamCount >= 1 then
-      OutData := OutData + ' ' + IntToStr(aParam1);
-    if ParamCount >= 2 then
-      OutData := OutData + ' ' + IntToStr(aParam2);
-    if ParamCount >= 3 then
-      OutData := OutData + ' ' + IntToStr(aParam3);
-    if ParamCount >= 4 then
-      OutData := OutData + ' ' + IntToStr(aParam4);
-    if ParamCount >= 5 then
-      OutData := OutData + ' ' + IntToStr(aParam5);
-    if ParamCount >= 6 then
-      OutData := OutData + ' ' + IntToStr(aParam6);
-
+    write(f,i);
+    if ParamCount >= 1 then OutData := OutData + ' ' + IntToStr(aParam1);
+    if ParamCount >= 2 then OutData := OutData + ' ' + IntToStr(aParam2);
+    if ParamCount >= 3 then OutData := OutData + ' ' + IntToStr(aParam3);
+    if ParamCount >= 4 then OutData := OutData + ' ' + IntToStr(aParam4);
+    if ParamCount >= 5 then OutData := OutData + ' ' + IntToStr(aParam5);
+    if ParamCount >= 6 then OutData := OutData + ' ' + IntToStr(aParam6);
     AddData(OutData);
   end;
 begin
   //Write out a KaM format mission file to aFileName
 
   //Put data into stream
-  SaveStream := '';
+  SaveString := '';
 
   //Main header
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + aMissionName + '.map"');
-  AddCommand(ct_SetMaxPlayer,1,fPlayers.PlayerCount);
+  AddCommand(ct_SetMaxPlayer, 1, fPlayers.PlayerCount);
   AddData(''); //NL
 
   //Player loop
@@ -642,13 +633,12 @@ begin
   //Similar advertising footer to one in Lewin's Editor, useful so we know what mission was made with. This info can be very useful
   AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+DateTimeToStr(Now));
 
-  //Save file if it doesn't exist
   //Encode it
   //for i:=1 to length(SaveStream) do
   //  SaveStream[i]:=chr(ord(SaveStream[i]) xor 239);
   //Write it
-  assignfile(f,aFileName); rewrite(f,1);
-  BlockWrite(f,SaveStream,Length(SaveStream));
+  assignfile(f, aFileName); rewrite(f);
+  write(f, SaveString);
   closefile(f);
 end;
 

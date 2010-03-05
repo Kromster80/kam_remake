@@ -62,8 +62,8 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
-    {$IFDEF VER140} MediaPlayer1: TMediaPlayer;
-    Button1: TButton; {$ENDIF}
+    {$IFDEF VER140} MediaPlayer1: TMediaPlayer; {$ENDIF}
+    Button1: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
