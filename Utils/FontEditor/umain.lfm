@@ -1,0 +1,191 @@
+object frmMain: TfrmMain
+  Left = 192
+  Height = 637
+  Top = 113
+  Width = 689
+  Caption = 'KaM Font Editor'
+  ClientHeight = 637
+  ClientWidth = 689
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  LCLVersion = '0.9.28.2'
+  object btnExport: TBitBtn
+    Left = 161
+    Height = 25
+    Top = 555
+    Width = 120
+    Anchors = [akLeft, akBottom]
+    Caption = 'Export BMP'
+    OnClick = btnExportClick
+    TabOrder = 1
+  end
+  object btnImport: TBitBtn
+    Left = 323
+    Height = 25
+    Top = 555
+    Width = 75
+    Anchors = [akRight, akBottom]
+    Caption = 'Import BMP'
+    Enabled = False
+    TabOrder = 2
+  end
+  object ListBox1: TListBox
+    Left = 8
+    Height = 345
+    Top = 40
+    Width = 145
+    ItemHeight = 0
+    OnClick = ListBox1Click
+    TabOrder = 3
+  end
+  object RefreshData: TButton
+    Left = 8
+    Height = 21
+    Top = 8
+    Width = 97
+    Caption = 'Refresh'
+    OnClick = RefreshDataClick
+    TabOrder = 4
+  end
+  object BitBtn1: TBitBtn
+    Left = 373
+    Height = 25
+    Top = 555
+    Width = 97
+    Anchors = [akLeft, akBottom]
+    Caption = 'Save Font File'
+    Enabled = False
+    TabOrder = 0
+  end
+  object PageControl1: TPageControl
+    Left = 160
+    Height = 541
+    Top = 8
+    Width = 521
+    ActivePage = TabSheet2
+    TabIndex = 1
+    TabOrder = 5
+    object TabSheet1: TTabSheet
+      Caption = 'Preview'
+      ClientHeight = 515
+      ClientWidth = 513
+      object Image1: TImage
+        Left = 0
+        Height = 512
+        Top = 0
+        Width = 512
+        OnMouseMove = Image1MouseMove
+        OnMouseUp = Image1MouseUp
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Letters'
+      ClientHeight = 515
+      ClientWidth = 513
+      ImageIndex = 1
+      object Image2: TImage
+        Left = 168
+        Height = 161
+        Top = 176
+        Width = 161
+      end
+      object Image3: TImage
+        Left = 0
+        Height = 128
+        Top = 24
+        Width = 512
+        OnMouseDown = Image3MouseDown
+        OnMouseMove = Image3MouseMove
+      end
+      object Label1: TLabel
+        Left = 16
+        Height = 14
+        Top = 8
+        Width = 62
+        Caption = 'Work palette'
+        ParentColor = False
+      end
+      object Label2: TLabel
+        Left = 176
+        Height = 14
+        Top = 160
+        Width = 28
+        Caption = 'Letter'
+        ParentColor = False
+      end
+      object Image4: TImage
+        Left = 8
+        Height = 25
+        Top = 352
+        Width = 489
+      end
+      object Image5: TImage
+        Left = 8
+        Height = 41
+        Top = 384
+        Width = 489
+      end
+      object imgColourSelected: TImage
+        Left = 348
+        Height = 48
+        Top = 176
+        Width = 48
+      end
+      object Label3: TLabel
+        Left = 356
+        Height = 14
+        Top = 160
+        Width = 28
+        Caption = 'Brush'
+        ParentColor = False
+      end
+      object Shape1: TShape
+        Left = 0
+        Height = 18
+        Top = 24
+        Width = 18
+        Brush.Style = bsClear
+        Pen.Color = clLime
+        Pen.Width = 2
+      end
+      object Edit1: TEdit
+        Left = 8
+        Height = 21
+        Top = 328
+        Width = 121
+        OnChange = Edit1Change
+        TabOrder = 0
+        Text = 'Sample phrase'
+      end
+    end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 20
+    Top = 617
+    Width = 689
+    Panels = <    
+      item
+        Text = 'Font'
+        Width = 200
+      end    
+      item
+        Text = 'Coordinates'
+        Width = 100
+      end    
+      item
+        Text = 'Font Hex Code'
+        Width = 50
+      end>
+    SimplePanel = False
+  end
+  object OpenDialog1: TOpenDialog
+    left = 568
+    top = 8
+  end
+  object SaveDialog1: TSaveDialog
+    left = 608
+    top = 8
+  end
+end
