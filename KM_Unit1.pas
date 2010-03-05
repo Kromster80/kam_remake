@@ -62,11 +62,13 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
-    {$IFDEF VER140} MediaPlayer1: TMediaPlayer; {$ENDIF}
+    {$IFDEF VER140} MediaPlayer1: TMediaPlayer;
+    Button1: TButton; {$ENDIF}
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Button1Click(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -128,7 +130,7 @@ implementation
 {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_CommonTypes, KM_TGATexture;
+uses KM_Settings, KM_CommonTypes, KM_TGATexture, KM_LoadDAT;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
@@ -797,7 +799,17 @@ begin
   else ClipCursor(nil); //Otherwise have no restriction
 end;
 
+
+procedure TForm1.Button1Click(Sender: TObject);
+var fMissionParser: TMissionParser;
+begin
+  fMissionParser := TMissionParser.Create;
+  fMissionParser.SaveDATFile(ExeDir+'Test.dat','Test');
+  FreeAndNil(fMissionParser);
+end;
+
 {$IFDEF FPC}
+
 initialization
 {$I KM_Unit1.lrs}
 {$ENDIF}

@@ -573,19 +573,21 @@ end;
 
 function TMissionParser.SaveDATFile(aFileName:string; aMissionName:string):string;
 var
-  i: integer;
-  SaveStream: TStringList; //@Krom: Is there any reason why a string list is a bad variable to use? Is is less efficient than a Stream?
+  i: longint;
+  SaveStream: string; //@Krom: Is there any reason why a string list is a bad variable to use? Is is less efficient than a Stream?
+  f:file;
 
   procedure AddData(aText:string);
   begin
-    SaveStream.Add(aText);
+    //Add to the string
+    SaveStream := SaveStream+aText+#13#10;
   end;
 
   procedure AddCommand(aCommand:TKMCommandType; ParamCount:byte=0; aParam1:integer = 0; aParam2:integer = 0; aParam3:integer = 0;
                                                                    aParam4:integer = 0; aParam5:integer = 0; aParam6:integer = 0);
   var OutData: string;
   begin
-    OutData := COMMANDVALUES[aCommand];
+    OutData := '!'+COMMANDVALUES[aCommand];
     if ParamCount >= 1 then
       OutData := OutData + ' ' + IntToStr(aParam1);
     if ParamCount >= 2 then
@@ -599,16 +601,16 @@ var
     if ParamCount >= 6 then
       OutData := OutData + ' ' + IntToStr(aParam6);
 
-    SaveStream.Add(OutData);
+    AddData(OutData);
   end;
 begin
   //Write out a KaM format mission file to aFileName
 
   //Put data into stream
-  SaveStream := TStringList.Create;
+  SaveStream := '';
 
   //Main header
-  AddData(COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + aMissionName + '.map"');
+  AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + aMissionName + '.map"');
   AddCommand(ct_SetMaxPlayer,1,fPlayers.PlayerCount);
   AddData(''); //NL
 
@@ -623,7 +625,7 @@ begin
     if fPlayers.Player[i].PlayerType = pt_Computer then
       AddCommand(ct_AIPlayer);
     AddData(''); //NL
-    //Human specific, e.g. center screen
+    //Human specific, e.g. goals, center screen
 
     //Computer specific, e.g. AI commands
 
@@ -641,7 +643,13 @@ begin
   AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+DateTimeToStr(Now));
 
   //Save file if it doesn't exist
-  SaveStream.SaveToFile(aFileName);
+  //Encode it
+  //for i:=1 to length(SaveStream) do
+  //  SaveStream[i]:=chr(ord(SaveStream[i]) xor 239);
+  //Write it
+  assignfile(f,aFileName); rewrite(f,1);
+  BlockWrite(f,SaveStream,Length(SaveStream));
+  closefile(f);
 end;
 
 
