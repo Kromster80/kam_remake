@@ -84,6 +84,7 @@ public
   function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
   function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+  function CanRemoveUnit(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
   function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
   procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
@@ -165,6 +166,7 @@ public
   procedure RebuildWalkConnect(aPass:TPassability);
 
   procedure ComputeCursorPosition(X,Y:word; Shift: TShiftState);
+  function GetVertexCursorPosition:TKMPoint;
   function ConvertCursorToMapCoord(inX,inY:single):single;
   function InterpolateLandHeight(inX,inY:single):single;
   function MixLandHeight(inX,inY:byte):byte;
@@ -1743,6 +1745,12 @@ begin
 end;
 
 
+function TTerrain.CanRemoveUnit(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+begin
+   Result := fPlayers.Player[integer(PlayerID)].RemUnit(Loc,true);
+end;
+
+
 function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y); //Make sure it is inside map, roads can be built on edge
@@ -1886,6 +1894,14 @@ begin
     UpdateBorders(KMPoint(Loc.X,Loc.Y-1),false);
     UpdateBorders(KMPoint(Loc.X,Loc.Y+1),false);
   end;
+end;
+
+
+{ @Krom: I made this and then ended up not using it. Useful if you want a rounded vertex based cursor position, maybe we'll need it later. }
+function TTerrain.GetVertexCursorPosition:TKMPoint;
+begin
+  Result.X := EnsureRange(round(GameCursor.Float.X+1),1,MapX);
+  Result.Y := EnsureRange(round(GameCursor.Float.Y+1),1,MapY);
 end;
 
 

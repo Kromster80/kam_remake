@@ -1213,8 +1213,9 @@ case CursorMode.Mode of
   cm_None:;
   cm_Erase:if fGame.GameState = gsEditor then
            begin
-             if ((TileIsCornField(CursorPos)) or (TileIsWineField(CursorPos))
-             or(Land[CursorPos.Y,CursorPos.X].TileOverlay=to_Road) or (CanRemoveHouse(CursorPos,MyPlayer.PlayerID)))
+             if (((fGame.fMapEditorInterface.GetShownPage = esp_Buildings) and ((TileIsCornField(CursorPos)) or (TileIsWineField(CursorPos))
+             or(Land[CursorPos.Y,CursorPos.X].TileOverlay=to_Road) or (CanRemoveHouse(CursorPos,MyPlayer.PlayerID))))
+             or((fGame.fMapEditorInterface.GetShownPage = esp_Units) and (CanRemoveUnit(CursorPos,MyPlayer.PlayerID))))
              and (CheckTileRevelation(CursorPos.X,CursorPos.Y,MyPlayer.PlayerID)>0) then
                fRender.RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
              else fRender.RenderCursorBuildIcon(CursorPos);       //Red X

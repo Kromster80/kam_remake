@@ -397,6 +397,8 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
     function GetTotalPointers: integer;
+    function GetUnitCount: integer;
+    function GetUnitByIndex(aIndex:integer): TKMUnit;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
@@ -3660,6 +3662,18 @@ begin
   Result:=0;
   for I := 0 to Count - 1 do
     inc(Result, TKMUnit(Items[I]).GetPointerCount);
+end;
+
+
+function TKMUnitsCollection.GetUnitCount: integer;
+begin
+  Result := Count;
+end;
+
+
+function TKMUnitsCollection.GetUnitByIndex(aIndex:integer): TKMUnit;
+begin
+  Result := TKMUnit(Items[aIndex]);
 end;
 
 

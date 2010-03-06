@@ -219,6 +219,7 @@ begin
   begin
     inc(ActualMapElemQty);
     ActualMapElem[ActualMapElemQty] := ii; //pointer
+    OriginalMapElem[ii] := ActualMapElemQty; //Reverse lookup
   end;
 
   if WriteResourceInfoToTXT then begin

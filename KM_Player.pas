@@ -33,7 +33,7 @@ type
     function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
     procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
-    //procedure RemUnit(Position: TKMPoint);
+    function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
     function FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
@@ -80,6 +80,8 @@ type
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
+    function GetUnitCount: integer;
+    function GetUnitByIndex(aIndex:integer): TKMUnit;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -244,10 +246,18 @@ begin
   end;
 end;
 
-{procedure TKMPlayerAssets.RemUnit(Position: TKMPoint);
+function TKMPlayerAssets.RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+var FoundUnit:TKMUnit;
 begin
-  fUnits.Rem(Position);
-end;}
+  Result := false;
+  FoundUnit := fUnits.HitTest(Position.X, Position.Y);
+  if FoundUnit<>nil then
+  begin
+    if not Simulated then
+      fUnits.Rem(FoundUnit);
+    Result := true;
+  end;
+end;
 
 function TKMPlayerAssets.RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
 begin
@@ -532,6 +542,18 @@ begin
         end;
     end;
   end;
+end;
+
+
+function TKMPlayerAnimals.GetUnitCount: integer;
+begin
+  Result := fUnits.GetUnitCount;
+end;
+
+
+function TKMPlayerAnimals.GetUnitByIndex(aIndex:integer): TKMUnit;
+begin
+  Result := fUnits.GetUnitByIndex(aIndex);
 end;
 
 

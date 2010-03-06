@@ -111,6 +111,7 @@ type TKMapEdInterface = class
     procedure Build_RightClickCancel;
     procedure OnKeyUp(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
+    function GetShownPage:TKMMapEdShownPage;
     procedure ClearShownUnit;
     procedure UpdateState;
     procedure Paint;
@@ -161,6 +162,7 @@ begin
     Panel_Terrain.Show;
     Panel_Heights.Show;
     Label_MenuTitle.Caption:='Terrain - Heights';
+    TerrainHeight_Change(HeightCircle); //Select the default mode
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[3]) then begin
@@ -172,7 +174,9 @@ begin
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[4]) then begin
     Panel_Terrain.Show;
     Panel_Objects.Show;
-    Label_MenuTitle.Caption:='Terrain - Objects';
+    Label_MenuTitle.Caption:='Terrain - Objects'; 
+    TerrainObjects_Change(ObjectsTable[1]);
+    TerrainObjects_Change(ObjectsScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[1]) then begin
@@ -186,6 +190,7 @@ begin
     Panel_Village.Show;
     Panel_Units.Show;
     Label_MenuTitle.Caption:='Village - Units';
+    Unit_ButtonClick(Button_Citizen[1]);
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[3]) then begin
@@ -276,6 +281,8 @@ begin
   Panel_Main := MyControls.AddPanel(nil,0,0,224,768);
 
     Image_Main1 := MyControls.AddImage(Panel_Main,0,0,224,200,407);
+
+    //@Krom: For the map editor mode, can we not show this space wasting swords/logo and instead have player selection and other "universal" stuff? (i.e. which player are we placing for)
     Image_Main2 := MyControls.AddImage(Panel_Main,0,200,224,168,554);
     Image_Main3 := MyControls.AddImage(Panel_Main,0,368,224,400,404);
     Image_Main4 := MyControls.AddImage(Panel_Main,0,768,224,400,404);
@@ -445,6 +452,11 @@ begin
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
+      //@Krom: I vote to put warriors on a seperate tab, because we need extra controls that won't fit, such as
+      //       direction, number of men, number of rows, etc. If these are done with controls rather than dialouges
+      //       it will save time and look simpler for the user. (WYSIWYG) Take a look at the Troops placement tab
+      //       in my editor if you don't understand.
+      //       I think we can put animals here where the warriors are currently. Let me know what you think.
       MyControls.AddLabel(Panel_Units,100,160,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
@@ -654,16 +666,22 @@ procedure TKMapEdInterface.TerrainHeight_Change(Sender: TObject);
 begin
   if Sender = HeightCircle then
   begin
+    HeightCircle.Down := true;
+    HeightSquare.Down := false;
     CursorMode.Mode  := cm_Height;
     CursorMode.Tag1 := HeightSize.Position;
     CursorMode.Tag2 := MAPED_HEIGHT_CIRCLE;
   end;
   if Sender = HeightSquare then
   begin
+    HeightSquare.Down := true;
+    HeightCircle.Down := false;
     CursorMode.Mode  := cm_Height;
     CursorMode.Tag1 := HeightSize.Position;
     CursorMode.Tag2 := MAPED_HEIGHT_SQUARE;
   end;
+  if Sender = HeightSize then
+    CursorMode.Tag1 := HeightSize.Position;
 end;
 
 
@@ -694,6 +712,9 @@ begin
         ObjectsTable[i].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1
       else
         ObjectsTable[i].TexID := 0;
+      ObjectsTable[i].Down := false;
+      if ObjID = OriginalMapElem[CursorMode.Tag1+1] then //Use reverse lookup to convert Object Tag to "Actual ID"
+        ObjectsTable[i].Down := true; //Mark the selected one
       ObjectsTable[i].Caption := inttostr(ObjID);
     end;
   if Sender is TKMButtonFlat then
@@ -705,6 +726,12 @@ begin
     else
       CursorMode.Tag1 := 0;
     CursorMode.Tag2 := 0;
+    for i:=1 to 4 do
+    begin
+      ObjectsTable[i].Down := false;
+      if Sender = ObjectsTable[i] then
+        ObjectsTable[i].Down := true; //Mark the selected one
+    end;
   end;
 end;
 
@@ -972,6 +999,18 @@ procedure TKMapEdInterface.ClearShownUnit;
 begin
   ShownUnit := nil;
   SwitchPage(nil);
+end;
+
+
+function TKMapEdInterface.GetShownPage:TKMMapEdShownPage;
+begin
+  Result := esp_Unknown;
+  if Panel_Terrain.Visible then
+    Result := esp_Terrain;
+  if Panel_Build.Visible then
+    Result := esp_Buildings;
+  if Panel_Units.Visible then
+    Result := esp_Units;
 end;
 
 

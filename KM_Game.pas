@@ -301,6 +301,7 @@ begin
     gsPaused:   exit;
     gsVictory:  begin
                   //@Lewin: any idea how do we send MouseOver to controls, but don't let them be pressed down
+                  //@Krom: Could we modify the shift state so it doesn't see it as being pressed? I'm not sure I understand what you mean though.
                   fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor := c_Default
@@ -380,9 +381,16 @@ begin
                         cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                         //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                         cm_Erase: begin
-                                    MyPlayer.RemHouse(P,false,false,true);
-                                    fTerrain.RemRoad(P);
-                                    fTerrain.RemField(P);
+                                    if fMapEditorInterface.GetShownPage = esp_Units then
+                                      MyPlayer.RemUnit(P);
+                                    if fMapEditorInterface.GetShownPage = esp_Buildings then
+                                    begin
+                                      MyPlayer.RemHouse(P,true,false,true);
+                                      if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                        fTerrain.RemRoad(P);
+                                      if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                                        fTerrain.RemField(P);
+                                    end;
                                   end;
                       end;
                     end;
@@ -556,19 +564,29 @@ begin
                     cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                     //cm_Wall:
                     cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Tag1)) then
+                              begin
                                 MyPlayer.AddHouse(THouseType(CursorMode.Tag1),P);
+                                fMapEditorInterface.Build_SelectRoad;
+                              end;
                     cm_Height:; //todo: Freeze height change into 0..100 range instead of 0.0..100.0 (floating-point)
                     cm_Objects: fTerrain.SetTree(P, CursorMode.Tag1);
                     cm_Units: MyPlayer.AddUnit(TUnitType(CursorMode.Tag1),P);
                     cm_Erase:
                               begin
-                                MyPlayer.RemHouse(P,false); { TODO : split apart according to opened page e.g. do not remove Houses if user is on Units page }
                                 //MyPlayer.RemUnit(P); //@Lewin: Need your help here - how do we remove unit according to new pointer tracking system? Simply remove it from list or..
                                                        //@Krom: Well this is different because it's the map editor. There shouldn't really be any pointers here right?
                                                        //       According to the pointer system you should run KillUnit and somehow disable the dying animation. (so IsDead gets set to true, then the memory will be removed on next player UpdateState)
                                                        //       But you probably could just remove it from the list because it's the map editor and there shouldn't be any pointer issues.
-                                fTerrain.RemRoad(P);
-                                fTerrain.RemField(P);
+                                if fMapEditorInterface.GetShownPage = esp_Units then
+                                  MyPlayer.RemUnit(P);
+                                if fMapEditorInterface.GetShownPage = esp_Buildings then
+                                begin
+                                  MyPlayer.RemHouse(P,true,false,true);
+                                  if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                    fTerrain.RemRoad(P);
+                                  if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                                    fTerrain.RemField(P);
+                                end;
                               end;
 
 
@@ -701,7 +719,7 @@ end;
 
 
 procedure TKMGame.StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
-var ResultMsg:string; fMissionParser:TMissionParser;
+var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
 begin
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
@@ -740,7 +758,11 @@ begin
     fPlayers := TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[1];
   end;
-  fTerrain.RevealWholeMap(play_1); //@Lewin: Should be all players?
+  //@Lewin: Should be all players?
+  //@Krom: Yes, because we are going to use MyPlayer to decide which player we are placing for.
+  //       Therefore MyPlayer must change so all players must have the map revealed. To be deleted.
+  for i:=1 to MAX_PLAYERS do
+    fTerrain.RevealWholeMap(TPlayerID(i));
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized',true);

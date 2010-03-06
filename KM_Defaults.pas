@@ -31,8 +31,8 @@ const
 var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
-  MakeUnitSprites       :boolean=false;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=false;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
@@ -66,7 +66,7 @@ var
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
-  SHOW_1024_768_OVERLAY :boolean=true; //Render constraining frame
+  SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
 
   //Statistics
@@ -204,8 +204,11 @@ const //Font01.fnt seems to be damaged..
   (10,2,1,10,2,2,1,8,8,9,
    9,8,10,8,2,8,8,2,10,9);
 
+//Which MapEditor page is being shown. Add more as they are needed.
+type TKMMapEdShownPage = (esp_Unknown,esp_Terrain,esp_Buildings,esp_Units);
+
 type
-  TAllianceType = (at_Enemy, at_Ally);
+  TAllianceType = (at_Enemy=0, at_Ally=1);
 
 type
   TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
@@ -968,6 +971,7 @@ UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
   MapElemQty:integer=254; //Default qty
   ActualMapElemQty:integer; //Usable qty read from RX file
   ActualMapElem:array[1..254]of integer; //pointers to usable MapElem's
+  OriginalMapElem:array[1..254]of integer; //pointers of usable MapElem's back to map objects (reverse lookup to one above)
   MapElem:array[1..512]of packed record
     Step:array[1..30]of smallint;           //60
     Count:word;                             //62

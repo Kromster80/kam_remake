@@ -72,7 +72,7 @@ type
     function GetSelf:TKMHouse; virtual; //Returns self and adds one to the pointer counter
     procedure RemovePointer; //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
-    procedure CloseHouse; virtual;
+    procedure CloseHouse(IsEditor:boolean=false); virtual;
 
     procedure Activate(aWasBuilt:boolean);
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
@@ -101,6 +101,7 @@ type
     function IsComplete:boolean;
     function IsDamaged:boolean;
     property IsDestroyed:boolean read fIsDestroyed;
+    property GetDamage:word read fDamage;
 
     procedure SetState(aState: THouseState; aTime:integer);
     function GetState:THouseState;
@@ -164,7 +165,7 @@ type
     UnitQueue:array[1..6]of TUnitType; //Also used in UI
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
-    procedure CloseHouse; override;
+    procedure CloseHouse(IsEditor:boolean=false); override;
     procedure ResAddToIn(aResource:TResourceType; const aCount:integer=1); override;
     procedure AddUnitToQueue(aUnit:TUnitType); //Should add unit to queue if there's a place
     procedure RemUnitFromQueue(aID:integer); //Should remove unit from queue and shift rest up
@@ -335,16 +336,17 @@ begin
 end;
 
 
-procedure TKMHouse.CloseHouse;
+procedure TKMHouse.CloseHouse(IsEditor:boolean=false);
 begin
   fIsDestroyed := true;
   BuildingRepair := false; //Otherwise labourers will take task to repair when the house is destroyed
-  if (RemoveRoadWhenDemolish) and not (GetBuildingState in [hbs_Stone, hbs_Done]) then
+  if (RemoveRoadWhenDemolish) and (not (GetBuildingState in [hbs_Stone, hbs_Done]) or IsEditor) then
   begin
     if fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay = to_Road then
     begin
       fTerrain.RemRoad(Self.GetEntrance);
-      fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
+      if not IsEditor then
+        fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
     end
     else
       fTerrain.RemRoad(Self.GetEntrance);
@@ -401,7 +403,7 @@ begin
   if (fBuildState=hbs_Done) and Assigned(fPlayers) and Assigned(fPlayers.Player[byte(fOwner)]) then
     fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
 
-  CloseHouse;
+  CloseHouse(NoRubble);
 end;
 
 
@@ -1078,7 +1080,7 @@ begin
 end;
 
 
-procedure TKMHouseSchool.CloseHouse;
+procedure TKMHouseSchool.CloseHouse(IsEditor:boolean=false);
 var i:integer;
 begin
   for i:=2 to length(UnitQueue) do UnitQueue[i]:=ut_None; //Remove all queue units

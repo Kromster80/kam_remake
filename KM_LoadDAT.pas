@@ -66,6 +66,7 @@ type
     CurrentPlayerIndex: integer;
     LastHouse: TKMHouse;
     LastTroop: TKMUnitWarrior;
+    function GetUnitScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
     procedure DebugScriptError(ErrorMsg:string);
@@ -521,7 +522,7 @@ begin
                        fPlayers.PlayerAI[CurrentPlayerIndex].Autobuild := false;
                      end;
   ct_AIStartPosition:begin
-                       fPlayers.PlayerAI[CurrentPlayerIndex].StartPosition := KMPoint(ParamList[0],ParamList[1]);
+                       fPlayers.PlayerAI[CurrentPlayerIndex].StartPosition := KMPointX1Y1(ParamList[0],ParamList[1]);
                      end;
   ct_SetAlliance:    begin
                        if ParamList[1] = 1 then
@@ -571,21 +572,53 @@ begin
 end;
 
 
+function TMissionParser.GetUnitScriptID(aUnitType:TUnitType):integer;
+var i:integer;
+begin
+  Result := -1;
+  for i:=low(UnitsRemap) to high(UnitsRemap) do
+    if UnitsRemap[i] = aUnitType then
+    begin
+      Result := i;
+      exit;
+    end;
+end;
+
+
 function TMissionParser.SaveDATFile(aFileName:string; aMissionName:string):string;
+const
+  COMMANDLAYERS = 4;
 var
   f:textfile;
-  i: longint;
-  SaveString: string; //@Krom: Is there any reason why a string list is a bad variable to use? Is is less efficient than a Stream?
-                      //@Lewin: I got used to "string", it's very simple and straightforward ;)
+  i: longint; //lonint because it is used for encoding entire output, which will limit the file size
+  k,iX,iY,CommandLayerCount: integer;
+  Group: TGroupType;
+  CurUnit: TKMUnit;
+  CurHouse: TKMHouse;
+  ReleaseAllHouses: boolean;
+  SaveString: string;
   procedure AddData(aText:string);
-  begin SaveString := SaveString + aText + #13#10; end; //Add to the string
+  begin
+    if CommandLayerCount <> -1 then
+    begin
+      if (CommandLayerCount mod COMMANDLAYERS) = 0 then
+        SaveString :=  SaveString + #13#10 + aText //Put a line break every 4 commands
+      else
+        SaveString := SaveString + ' ' + aText; //Just put spaces so commands "layer"
+      inc(CommandLayerCount);
+    end
+    else
+      SaveString := SaveString + aText + #13#10; //Add to the string normally
+  end;
 
   procedure AddCommand(aCommand:TKMCommandType; ParamCount:byte=0; aParam1:integer = 0; aParam2:integer = 0; aParam3:integer = 0;
-                                                                   aParam4:integer = 0; aParam5:integer = 0; aParam6:integer = 0);
-  var OutData: string; i:byte;
+                       aParam4:integer = 0; aParam5:integer = 0; aParam6:integer = 0; aComParam:TKMCommandParamType=cpt_Unknown);
+  var OutData: string; //i:byte;
   begin
     OutData := '!'+COMMANDVALUES[aCommand];
-    write(f,i);
+    if aComParam <> cpt_Unknown then
+      OutData := OutData+' '+PARAMVALUES[aComParam];
+    //write(f,i); //@Krom: ?????
     if ParamCount >= 1 then OutData := OutData + ' ' + IntToStr(aParam1);
     if ParamCount >= 2 then OutData := OutData + ' ' + IntToStr(aParam2);
     if ParamCount >= 3 then OutData := OutData + ' ' + IntToStr(aParam3);
@@ -594,11 +627,15 @@ var
     if ParamCount >= 6 then OutData := OutData + ' ' + IntToStr(aParam6);
     AddData(OutData);
   end;
+
+  procedure AddCommandParam(aCommand:TKMCommandType; aComParam:TKMCommandParamType=cpt_Unknown; ParamCount:byte=0; aParam1:integer = 0; aParam2:integer = 0; aParam3:integer = 0);
+  begin AddCommand(aCommand,ParamCount,aParam1,aParam2,aParam3,0,0,0,aComParam); end;
 begin
   //Write out a KaM format mission file to aFileName
 
   //Put data into stream
   SaveString := '';
+  CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
 
   //Main header
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + aMissionName + '.map"');
@@ -619,8 +656,90 @@ begin
     //Human specific, e.g. goals, center screen
 
     //Computer specific, e.g. AI commands
+    if fPlayers.Player[i].PlayerType = pt_Computer then
+    begin
+      AddCommand(ct_AIStartPosition,2,fPlayers.PlayerAI[i].StartPosition.X,fPlayers.PlayerAI[i].StartPosition.Y);
+      if not fPlayers.PlayerAI[i].Autobuild then
+        AddCommand(ct_AINoBuild);
+      AddCommandParam(ct_AICharacter,cpt_Recruits,1,fPlayers.PlayerAI[i].ReqRecruits);
+      AddCommandParam(ct_AICharacter,cpt_WorkerFactor,1,fPlayers.PlayerAI[i].ReqSerfFactor);
+      AddCommandParam(ct_AICharacter,cpt_Constructors,1,fPlayers.PlayerAI[i].ReqWorkers);
+      AddCommandParam(ct_AICharacter,cpt_TownDefence,1,fPlayers.PlayerAI[i].TownDefence);
+      //Only store if a limit is in place (high is the default)
+      if fPlayers.PlayerAI[i].MaxSoldiers <> high(fPlayers.PlayerAI[i].MaxSoldiers) then
+        AddCommandParam(ct_AICharacter,cpt_MaxSoldier,1,fPlayers.PlayerAI[i].MaxSoldiers);
+      AddCommandParam(ct_AICharacter,cpt_AttackFactor,1,fPlayers.PlayerAI[i].Aggressiveness);
+      AddCommandParam(ct_AICharacter,cpt_RecruitCount,1,fPlayers.PlayerAI[i].RecruitTrainTimeout);
+      for Group:=low(TGroupType) to high(TGroupType) do
+        if (Group <> gt_None) and (fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits <> 0) then //Must be valid and used
+          AddCommandParam(ct_AICharacter,cpt_TroopParam,3,byte(Group)-1,fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits,fPlayers.PlayerAI[i].TroopFormations[Group].NumRows);
+      AddData(''); //NL
+    end;
 
     //General, e.g. units, roads, houses, etc.
+    //Alliances
+    for k:=1 to fPlayers.PlayerCount do
+      if k<>i then
+        AddCommand(ct_SetAlliance,2,k-1,byte(fPlayers.Player[i].fAlliances[k])); //0=enemy, 1=ally
+    AddData(''); //NL
+    //Release/block houses
+    ReleaseAllHouses := true;
+    for k:=1 to HOUSE_COUNT do
+    begin
+      if not fPlayers.Player[i].fMissionSettings.AllowToBuild[k] then
+      begin
+        AddCommand(ct_BlockHouse,1,k-1);
+        ReleaseAllHouses := false;
+      end
+      else
+        if fPlayers.Player[i].fMissionSettings.BuildReqDone[k] then
+          AddCommand(ct_ReleaseHouse,1,k-1)
+        else
+          ReleaseAllHouses := false;
+    end;
+    if ReleaseAllHouses then
+      AddCommand(ct_ReleaseAllHouses);
+    //Houses
+    for k:=0 to fPlayers.Player[i].GetHouses.Count-1 do
+    begin
+      CurHouse := TKMHouse(fPlayers.Player[i].GetHouses.Items[k]);
+      AddCommand(ct_SetHouse,3,byte(CurHouse.GetHouseType)-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1);
+      if CurHouse.IsDamaged then
+        AddCommand(ct_SetHouseDamage,1,CurHouse.GetDamage);
+    end;
+    AddData(''); //NL
+    //Roads and fields. We must check EVERY terrain tile
+    CommandLayerCount := 0; //Enable command layering
+    for iY := 1 to fTerrain.MapY do
+      for iX := 1 to fTerrain.MapX do
+        if fTerrain.Land[iY,iX].TileOwner = fPlayers.Player[i].PlayerID then
+        begin
+          if fTerrain.Land[iY,iX].TileOverlay = to_Road then
+            AddCommand(ct_SetRoad,2,iX-1,iY-1);
+          if fTerrain.TileIsCornField(KMPoint(iX,iY)) then
+            AddCommand(ct_SetField,2,iX-1,iY-1);
+          if fTerrain.TileIsWineField(KMPoint(iX,iY)) then
+            AddCommand(ct_Set_Winefield,2,iX-1,iY-1);
+        end;
+    CommandLayerCount := -1; //Disable command layering
+    AddData(''); //Extra NL because command layering doesn't put one
+    AddData(''); //NL
+    //Units
+    for k:=0 to fPlayers.Player[i].GetUnits.Count-1 do
+    begin
+      CurUnit := TKMUnit(fPlayers.Player[i].GetUnits.Items[k]);
+      if CurUnit is TKMUnitWarrior then
+      begin
+        if TKMUnitWarrior(CurUnit).fCommander = nil then
+        begin
+          AddCommand(ct_SetGroup,6,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).GetMemberCount+1);
+          if CurUnit.GetCondition = UNIT_MAX_CONDITION then //@Krom: I assume that the map editor will not decrease unit condition?
+            AddCommand(ct_SetGroupFood);
+        end;
+      end
+      else
+        AddCommand(ct_SetUnit,3,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1);
+    end;
 
     AddData(''); //NL
     AddData(''); //NL
@@ -629,13 +748,20 @@ begin
   //Main footer
 
   //Animals, wares to all, etc. go here
+  AddData('//Animals');
+  for i:=0 to fPlayers.PlayerAnimals.GetUnitCount-1 do
+  begin
+    CurUnit := fPlayers.PlayerAnimals.GetUnitByIndex(i);
+    AddCommand(ct_SetUnit,3,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1);
+  end;
+  AddData(''); //NL
 
   //Similar advertising footer to one in Lewin's Editor, useful so we know what mission was made with. This info can be very useful
   AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+DateTimeToStr(Now));
 
   //Encode it
-  //for i:=1 to length(SaveStream) do
-  //  SaveStream[i]:=chr(ord(SaveStream[i]) xor 239);
+  for i:=1 to length(SaveString) do
+    SaveString[i]:=chr(ord(SaveString[i]) xor 239);
   //Write it
   assignfile(f, aFileName); rewrite(f);
   write(f, SaveString);
