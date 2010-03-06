@@ -302,6 +302,8 @@ begin
     gsVictory:  begin
                   //@Lewin: any idea how do we send MouseOver to controls, but don't let them be pressed down
                   //@Krom: Could we modify the shift state so it doesn't see it as being pressed? I'm not sure I understand what you mean though.
+                  //@Lewin: Here's the thing: in Victory state I want only 2 controls to be enabled, others should be disabled,
+                  //but.. every control recieves MouseOver event, just try to move mouse with pressed button over any button while having a Victory and you see my concern 
                   fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor := c_Default
@@ -573,10 +575,6 @@ begin
                     cm_Units: MyPlayer.AddUnit(TUnitType(CursorMode.Tag1),P);
                     cm_Erase:
                               begin
-                                //MyPlayer.RemUnit(P); //@Lewin: Need your help here - how do we remove unit according to new pointer tracking system? Simply remove it from list or..
-                                                       //@Krom: Well this is different because it's the map editor. There shouldn't really be any pointers here right?
-                                                       //       According to the pointer system you should run KillUnit and somehow disable the dying animation. (so IsDead gets set to true, then the memory will be removed on next player UpdateState)
-                                                       //       But you probably could just remove it from the list because it's the map editor and there shouldn't be any pointer issues.
                                 if fMapEditorInterface.GetShownPage = esp_Units then
                                   MyPlayer.RemUnit(P);
                                 if fMapEditorInterface.GetShownPage = esp_Buildings then
@@ -758,11 +756,10 @@ begin
     fPlayers := TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[1];
   end;
-  //@Lewin: Should be all players?
-  //@Krom: Yes, because we are going to use MyPlayer to decide which player we are placing for.
-  //       Therefore MyPlayer must change so all players must have the map revealed. To be deleted.
-  for i:=1 to MAX_PLAYERS do
+
+  for i:=1 to MAX_PLAYERS do //Reveal all players since we'll swap between them in MapEd
     fTerrain.RevealWholeMap(TPlayerID(i));
+
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized',true);

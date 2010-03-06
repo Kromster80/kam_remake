@@ -282,7 +282,9 @@ begin
 
     Image_Main1 := MyControls.AddImage(Panel_Main,0,0,224,200,407);
 
-    //@Krom: For the map editor mode, can we not show this space wasting swords/logo and instead have player selection and other "universal" stuff? (i.e. which player are we placing for)
+    //@Krom: For the map editor mode, can we not show this space wasting swords/logo and instead have
+    //player selection and other "universal" stuff? (i.e. which player are we placing for)
+    //@Lewin: Right.
     Image_Main2 := MyControls.AddImage(Panel_Main,0,200,224,168,554);
     Image_Main3 := MyControls.AddImage(Panel_Main,0,368,224,400,404);
     Image_Main4 := MyControls.AddImage(Panel_Main,0,768,224,400,404);
@@ -457,6 +459,7 @@ begin
       //       it will save time and look simpler for the user. (WYSIWYG) Take a look at the Troops placement tab
       //       in my editor if you don't understand.
       //       I think we can put animals here where the warriors are currently. Let me know what you think.
+      //@Lewin: I agree, but I think it could be separate menu when you click on Commander, rather than preset on creation..
       MyControls.AddLabel(Panel_Units,100,160,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
@@ -551,6 +554,8 @@ begin
     Button_Menu_Quit:=MyControls.AddButton(Panel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     Button_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     Button_Menu_Quit.OnClick:=SwitchPage;
+    Button_Menu_Save.Disable;
+    Button_Menu_Load.Disable;
 end;
 
 

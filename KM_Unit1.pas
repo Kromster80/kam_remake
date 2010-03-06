@@ -809,7 +809,6 @@ begin
 end;
 
 {$IFDEF FPC}
-
 initialization
 {$I KM_Unit1.lrs}
 {$ENDIF}

@@ -613,12 +613,11 @@ var
 
   procedure AddCommand(aCommand:TKMCommandType; ParamCount:byte=0; aParam1:integer = 0; aParam2:integer = 0; aParam3:integer = 0;
                        aParam4:integer = 0; aParam5:integer = 0; aParam6:integer = 0; aComParam:TKMCommandParamType=cpt_Unknown);
-  var OutData: string; //i:byte;
+  var OutData: string;
   begin
     OutData := '!'+COMMANDVALUES[aCommand];
     if aComParam <> cpt_Unknown then
       OutData := OutData+' '+PARAMVALUES[aComParam];
-    //write(f,i); //@Krom: ?????
     if ParamCount >= 1 then OutData := OutData + ' ' + IntToStr(aParam1);
     if ParamCount >= 2 then OutData := OutData + ' ' + IntToStr(aParam2);
     if ParamCount >= 3 then OutData := OutData + ' ' + IntToStr(aParam3);
@@ -733,7 +732,7 @@ begin
         if TKMUnitWarrior(CurUnit).fCommander = nil then
         begin
           AddCommand(ct_SetGroup,6,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).GetMemberCount+1);
-          if CurUnit.GetCondition = UNIT_MAX_CONDITION then //@Krom: I assume that the map editor will not decrease unit condition?
+          if CurUnit.GetCondition = UNIT_MAX_CONDITION then //@Krom: I assume that the map editor will not decrease unit condition? //@Lewin: Of course :D, to be deleted..
             AddCommand(ct_SetGroupFood);
         end;
       end
