@@ -325,6 +325,8 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
     //@Lewin: See KM_ResourceGFX line 410:415, maybe it's relevant to the case
     //        But we should choose one stable set of files ans use them. So far we were consistent with beta6 files
     //        and if anyone got a bug it means they used different DAT/RX files!
+    //@Krom: I think I was using incorrect files on one of my computers, which lead me to think this was a bug. (with the check below it now works on both computers)
+    //       I think we can still leave this check in case someone else is also using the wrong files, it won't slow it down or anything. To be deleted but with explanation. (unless you object)
     if UnitSprite[byte(ut_Woodcutter)].Act[byte(ua_Work1)].Dir[1].Count > 1 then
       WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work1,12,0,ua_Walk,gs_WoodCutterPlant,0)
     else

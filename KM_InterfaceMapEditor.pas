@@ -460,6 +460,7 @@ begin
       //       in my editor if you don't understand.
       //       I think we can put animals here where the warriors are currently. Let me know what you think.
       //@Lewin: I agree, but I think it could be separate menu when you click on Commander, rather than preset on creation..
+      //@Krom: Ok, so when you place a squad it "selects" the commander and lets you set further options from his selection menu. Sounds good. :) Warriors can probably stay in this tab then if we don't need extra controls, animals can else where.
       MyControls.AddLabel(Panel_Units,100,160,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
@@ -941,6 +942,7 @@ begin
   //we should probably make it close the placement menu that is open.
   //(similar to in game, where build menu is closed by right clicking)
   //@Lewin: maybe it should drop the tool but don't close opened tab.
+  //@Krom: Yes, that sounds right. I was playing with it and actually right clicked without thinking expecting the tool to close. ;)
 end;
 
 

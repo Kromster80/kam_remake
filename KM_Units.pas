@@ -203,6 +203,13 @@ type
     //But in KaM no matter how many units are attacking, it always takes 2 hits to kill a serf.
     //(2 is serfs hit points) Let me know if you'd like to discuss this before I removed it.
     //@Lewin: Sounds a lot more complicated than per-unit-HP ...
+    //@Krom: I've been thinking about it and I've decided that I agree, HP should be for units not fights.
+    //       A few things to consider:
+    //1) Unless we restore hit points this means that units will be injured and die sooner after fights. This is ok and realistic, and probably won't affect game play too much. However,
+    //2) I DO NOT want KaM to show the player hit-points and have a way to "heal" them. That is not what KaM is about in my opinion. I think that the lack of hit points and ablitity to control your troops during combat are the two best things about the KaM fighting system. It would make it like every other Age of Empires statergy game clone, we could even have priests that wave sticks at your troops to restore hit points. :P
+    //3) If we don't show the player hit points then they will still "know" that a certain injured squad will fight worse than a fresh one. It might then become nececary to remember which squads are injured because they will die faster than others and weaken your defence if place in the front line. Without an indication of this that task might be difficult. This might not be such an issue, but it's worth considering.
+    //4) We could have hit points auto restore after not being in a fight for a minute, which is less realistic but fixes the potential problems above and makes it similar to KaM, in which hit points restore after each fight.
+    //       I think we could have hit-points be specific to units (not fights) and restore them after a time without combat. Please let me know what you think about the issues/solutions I have raised, and please state your opinions even if they're different to mine. :)
     fCondition:integer; //Unit condition, when it reaches zero unit should die
     fOwner:TPlayerID;
     fHome:TKMHouse;

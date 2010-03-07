@@ -121,7 +121,9 @@ begin
     Damage := ((UnitStat[byte(KMUnit.GetUnitType)].Attack+(UnitStat[byte(KMUnit.GetUnitType)].AttackHorseBonus)*byte(UnitGroups[byte(fOpponent.GetUnitType)] = gt_Mounted)) * DirectionModifier)
               div max(UnitStat[byte(fOpponent.GetUnitType)].Defence,1); //Not needed, but animals have 0 defence
 
-    IsHit := (Damage >= Random(100){RandomRange(0,100)}); //@Lewin: FPC has no such function, is it the same?
+    IsHit := (Damage >= Random(101)); //0..100
+    //@Lewin: FPC has no such function, is it the same?
+    //@Krom: Yes, to be deleted. (note that it was 0-99 though, so I made it 101)
     if IsHit then
       dec(fOpponentHitPoints);
     

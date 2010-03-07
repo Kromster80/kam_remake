@@ -1897,8 +1897,7 @@ begin
 end;
 
 
-{ @Krom: I made this and then ended up not using it. Useful if you want a rounded vertex based cursor position, maybe we'll need it later. }
-//@Lewin: Ok, conversation to be deleted :)
+{ Returns a rounded vertex based cursor position, maybe we'll need it later. }
 function TTerrain.GetVertexCursorPosition:TKMPoint;
 begin
   Result.X := EnsureRange(round(GameCursor.Float.X+1),1,MapX);

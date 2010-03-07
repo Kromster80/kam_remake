@@ -304,6 +304,10 @@ begin
                   //@Krom: Could we modify the shift state so it doesn't see it as being pressed? I'm not sure I understand what you mean though.
                   //@Lewin: Here's the thing: in Victory state I want only 2 controls to be enabled, others should be disabled,
                   //but.. every control recieves MouseOver event, just try to move mouse with pressed button over any button while having a Victory and you see my concern 
+                  //@Krom: Yeah, I see the difficulty. Looks like we'll have to add an exception for this case.
+                  //       Idea: Perhaps we could set some kind of focus panel (normally nil, in this case the victory panel)
+                  //       so events etc. will only be noticed for controls of that panel? (or all controls if it's nil) It could be a property of MyControls.
+                  //       We'll probably find a use for that later so we can force the player to only use certain controls.
                   fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor := c_Default
