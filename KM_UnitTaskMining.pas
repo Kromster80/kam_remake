@@ -2,7 +2,8 @@ unit KM_UnitTaskMining;
 interface
 uses Math, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Workplan;
 
-
+//@Krom: Is there a use for abandoning walk here? We can check if the resource still exists, but it would be nice to know if another unit has claimed it. Using HitTest every time is probably too CPU intensive... or maybe not? (it will be called once per node of walk, not each tick) What do you think?
+//       Also e.g. it might look odd if another fisherman catches the last fish and your fisherman is on his way to the water but suddenly stops and goes back home for no obvious reason. Only some gathering plans need this feature.
 {Perform resource mining}
 type
   TTaskMining = class(TUnitTask)

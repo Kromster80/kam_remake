@@ -42,6 +42,7 @@ type
     procedure SyncLoad(); dynamic;
     destructor Destroy; override;
     procedure Abandon; virtual;
+    function WalkShouldAbandon:boolean; dynamic;
     property Phase:byte read fPhase write fPhase;
     procedure Execute(out TaskDone:boolean); virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -132,6 +133,7 @@ type
       procedure SyncLoad(); override;
       destructor Destroy; override;
       procedure Abandon(); override;
+      function WalkShouldAbandon:boolean; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -148,16 +150,19 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
+      function WalkShouldAbandon:boolean; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
+    //@Krom: Should GoHome abandon the walk if the home is destroyed? I think it's sort of funny and KaM-like that the citizens still try to return home when it's destroyed.
     TTaskGoHome = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
     end;
 
+    //@Krom: Don't abandon walk here when the inn becomes empty because it might have food when we get there? Then again, if we abandon and look for another inn is might stop 100 units all rushing to the one inn for a single piece of bread. What do you think? I reckon we should abandon the walk if the inn is empty, then return to the begining and look for a inn again.
     TTaskGoEat = class(TUnitTask)
     private
       fInn:TKMHouseInn;
@@ -2379,6 +2384,12 @@ begin
 end;
 
 
+function TUnitTask.WalkShouldAbandon:boolean;
+begin
+  Result := false; //Only used in some child classes
+end;
+
+
 procedure TUnitTask.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write(fTaskName, SizeOf(fTaskName)); //Save task type before anything else for it will be used on loading to create specific task type
@@ -2997,6 +3008,12 @@ begin
   Inherited;
 end;
 
+function TTaskBuildHouse.WalkShouldAbandon:boolean;
+begin
+  //If we are walking to the house but the house is destroyed or has run out of resources we should abandon
+  Result := (fHouse.IsDestroyed or (not fHouse.CheckResToBuild));
+end;
+
 {Build the house}
 procedure TTaskBuildHouse.Execute(out TaskDone:boolean);
   function PickRandomSpot(): byte;
@@ -3041,6 +3058,12 @@ begin
            SetActionWalk(fUnit,Cells[CurLoc].Loc);
          end;
       1: begin
+           //Remember that we could be here because the walk abandoned, so this is definatly needed
+           if not fHouse.CheckResToBuild then begin
+             TaskDone:=true; //Drop the task
+             fThought := th_None;
+             exit;
+           end;
            Direction:=TKMDirection(Cells[CurLoc].Dir);
            SetActionLockedStay(0,ua_Walk);
          end;
@@ -3151,6 +3174,11 @@ destructor TTaskBuildHouseRepair.Destroy;
 begin
   if fHouse <> nil then fHouse.RemovePointer;
   Inherited Destroy;
+end;
+
+function TTaskBuildHouseRepair.WalkShouldAbandon:boolean;
+begin
+  Result := (fHouse.IsDestroyed)or(not fHouse.IsDamaged)or(not fHouse.BuildingRepair);
 end;
 
 {Repair the house}

@@ -756,9 +756,10 @@ begin
 
     //Walk complete
     if ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
-      ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5))) then //If we are walking to a unit check to see if we've met the unit early
+      ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5)) or //If we are walking to a unit check to see if we've met the unit early
+      ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon)) then //See if task wants us to abandon
     begin
-      if not fWalkToSpot then
+      if (not fWalkToSpot) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon)) then //Don't update direction if we are abandoning because of task request
         fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
       DoEnd:=true;
       exit;

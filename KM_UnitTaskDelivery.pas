@@ -21,6 +21,7 @@ type
       procedure SyncLoad(); override;
       destructor Destroy; override;
       procedure Abandon; override;
+      function WalkShouldAbandon:boolean; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -87,6 +88,16 @@ begin
   Inherited;
 end;
 
+function TTaskDeliver.WalkShouldAbandon:boolean;
+begin
+  //Note: Phase is -1 because it will have been increased at the end of last Execute
+  Result := false;
+  if (Phase-1 = 0) then
+    Result := fFrom.IsDestroyed; //We are walking to fFromHouse. Check if it's destroyed
+  if (Phase-1 = 5) and (DeliverKind = dk_House) then
+    Result := fToHouse.IsDestroyed; //We are walking to fToHouse. Check if it's destroyed
+  //If we are delivering to a unit we don't care because if it dies action will abandon anyway (units are tracked by walk action)
+end;
 
 procedure TTaskDeliver.Execute(out TaskDone:boolean);
 var NewDelivery: TUnitTask;
