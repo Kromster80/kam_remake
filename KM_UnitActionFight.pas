@@ -122,8 +122,7 @@ begin
               div max(UnitStat[byte(fOpponent.GetUnitType)].Defence,1); //Not needed, but animals have 0 defence
 
     IsHit := (Damage >= Random(101)); //0..100
-    //@Lewin: FPC has no such function, is it the same?
-    //@Krom: Yes, to be deleted. (note that it was 0-99 though, so I made it 101)
+
     if IsHit then
       dec(fOpponentHitPoints);
     

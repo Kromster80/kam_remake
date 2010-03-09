@@ -308,6 +308,7 @@ begin
                   //       Idea: Perhaps we could set some kind of focus panel (normally nil, in this case the victory panel)
                   //       so events etc. will only be noticed for controls of that panel? (or all controls if it's nil) It could be a property of MyControls.
                   //       We'll probably find a use for that later so we can force the player to only use certain controls.
+                  //@Lewin: I'd like to solve the case with minimal changes in code, or no at all.
                   fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor := c_Default

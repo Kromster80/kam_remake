@@ -681,7 +681,7 @@ ht_Store: if TKMHouseStore(Self).ResourceCount[byte(aResource)]>0 then begin
 else
           for i:=1 to 4 do
           if aResource = HouseOutput[byte(fHouseType),i] then begin
-            dec(fResourceOut[i]); //@Krom: TRB's "Integer Overflow" happens here (in r698 that is) when a serf tries to remove corn from an empty farm. Yet another issue in the delivery queue. :( We definatly need to refactor it, talk to me on ICQ some time.
+            dec(fResourceOut[i]);
             Result:=true;
             exit;
           end;

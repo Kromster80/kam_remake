@@ -460,7 +460,10 @@ begin
       //       in my editor if you don't understand.
       //       I think we can put animals here where the warriors are currently. Let me know what you think.
       //@Lewin: I agree, but I think it could be separate menu when you click on Commander, rather than preset on creation..
-      //@Krom: Ok, so when you place a squad it "selects" the commander and lets you set further options from his selection menu. Sounds good. :) Warriors can probably stay in this tab then if we don't need extra controls, animals can else where.
+      //@Krom: Ok, so when you place a squad it "selects" the commander and lets you set further
+      //       options from his selection menu. Sounds good. :) Warriors can probably stay in this
+      //       tab then if we don't need extra controls, animals can else where.
+      //@Lewin: Ok.
       MyControls.AddLabel(Panel_Units,100,160,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
@@ -910,7 +913,9 @@ begin
   // 2. Write our own file selection control
   // 3. Use SingleMap folder scanning technique and list only those maps that are in Maps folder
   // I prefer no.1
-  //@Krom: That sounds ok, most map editors for games use windows style controls so there's no point making our own control.
+  //@Krom: That sounds ok, most map editors for games use windows style controls so there's no point
+  //       in making our own control.
+  //@Lewin: Lil update, I prefer 1. until we implement 3. ;)
 end;
 
 
@@ -934,15 +939,10 @@ begin
 end;
 
 
+//This function will be called if the user right clicks on the screen.
 procedure TKMapEdInterface.Build_RightClickCancel;
 begin
-  //This function will be called if the user right clicks on the screen. We should close the build menu if it's open.
-  //@Lewin: what should we do on right-click?
-  //@Krom: Well, unless we give right click another function in the map editor
-  //we should probably make it close the placement menu that is open.
-  //(similar to in game, where build menu is closed by right clicking)
-  //@Lewin: maybe it should drop the tool but don't close opened tab.
-  //@Krom: Yes, that sounds right. I was playing with it and actually right clicked without thinking expecting the tool to close. ;)
+  //We should drop the tool but don't close opened tab
 end;
 
 
