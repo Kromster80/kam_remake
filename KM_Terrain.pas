@@ -1492,6 +1492,7 @@ end;
 procedure TTerrain.UnitRem(LocFrom:TKMPoint);
 begin
   if not DO_UNIT_INTERACTION then exit;
+  //todo: @Lewin: (self) Crashed here once from occupant of a house after destroying it...
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
 end;
 

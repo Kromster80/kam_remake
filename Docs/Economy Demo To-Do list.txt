@@ -13,8 +13,10 @@
 +	Demolished houses now leave a dug tile where the road used to be, rather than it just disappearing which looked odd (TK's suggestion)
 +	F11 statusbar shows wrong map size in loaded games
 
++	Because the delivery queue prefers closer deliveries, wares will always be delivered to closer buildings. (e.g. with two swine farms, closer one will get all the corn) Same with coal mines. (coal mines in Kuba 2010-02-19 Stuck Workers save09.sav, swine farms in TRB 2010-02-19 Wood and Swine save01.sav)
 
--	Because the delivery queue prefers closer deliveries, wares will always be delivered to closer buildings. (e.g. with two swine farms, closer one will get all the corn) Same with coal mines. (coal mines in Kuba 2010-02-19 Stuck Workers save09.sav, swine farms in TRB 2010-02-19 Wood and Swine save01.sav)
+
+
 -	I got a access violation when I was deleting my fisherman.
 -	when starting the game first time after system boot-up the Windows Explorer stops responding for a minute (Windows 7 x64)
 -	If you destroy a house, odd things happen to the occupant(s). e.g. not appearing, jittering, appearing at wrong spot

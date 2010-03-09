@@ -18,6 +18,7 @@ type
       Count:integer;
       Loc_House:TKMHouse;
       BeingPerformed:cardinal; //How many items are being delivered atm from total Count offered
+      IsDeleted:boolean; //So we don't get pointer issues
     end;
     fDemand:array[1..MaxEntries]of
     record
@@ -145,6 +146,7 @@ begin
     Resource:=aResource;
     Count:=aCount;
     BeingPerformed:=0; //New unique offer is available to be performed apriori
+    IsDeleted := false;
   end;
 end;
 
@@ -157,12 +159,19 @@ begin
   //We need to parse whole list, never knowing how many offers the house had
   for i:=1 to MaxEntries do
   if fOffer[i].Loc_House=aHouse then
-  begin
-    fOffer[i].Resource := rt_None;
-    fOffer[i].Count := 0;
-    fOffer[i].Loc_House.RemovePointer;
-    //fOffer[i].BeingPerformed //Keep it until all associated deliveries are abandoned
-  end;
+    if fOffer[i].BeingPerformed > 0 then
+    begin
+      //Keep it until all associated deliveries are abandoned
+      fOffer[i].IsDeleted := true; //Don't reset it until serfs performing this offer are done with it
+      fOffer[i].Count := 0; //Make the count 0 so no one else tries to take this offer
+    end
+    else
+    begin
+      fOffer[i].IsDeleted := false;
+      fOffer[i].Resource := rt_None;
+      fOffer[i].Count := 0;
+      fOffer[i].Loc_House.RemovePointer;
+    end;
 end;
 
 
@@ -324,7 +333,8 @@ for iD:=1 to length(fDemand) do
 
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
-        Bid:=Bid + Bid * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource) / 3;
+        //Bid = Bid + 20 * (ResourceDistribution - ResourceStock)
+        Bid:=Bid + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource);
 
       //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
       if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Loc_Unit is TKMUnitWarrior) then //Prefer delivering to houses with fewer supply
@@ -408,7 +418,18 @@ procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
   if WRITE_DETAILED_LOG then fLog.AppendLog('Abandoned delivery ID', aID);
   //Remove reservations without removing items from lists
-  if fQueue[aID].OfferID <> 0 then dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
+  if fQueue[aID].OfferID <> 0 then
+  begin
+    dec(fOffer[fQueue[aID].OfferID].BeingPerformed);
+    //Now see if we need to delete the Offer as we are the last remaining pointer
+    if fOffer[fQueue[aID].OfferID].IsDeleted and (fOffer[fQueue[aID].OfferID].BeingPerformed = 0) then
+    begin
+      fOffer[fQueue[aID].OfferID].IsDeleted := false;
+      fOffer[fQueue[aID].OfferID].Resource := rt_None;
+      fOffer[fQueue[aID].OfferID].Count := 0;
+      fOffer[fQueue[aID].OfferID].Loc_House.RemovePointer;
+    end;
+  end;
   if fQueue[aID].DemandID <> 0 then fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
   CloseDelivery(aID);
 end;
@@ -436,6 +457,7 @@ begin
     SaveStream.Write(fOffer[i].Count);
     if fOffer[i].Loc_House <> nil then SaveStream.Write(fOffer[i].Loc_House.ID) else SaveStream.Write(Zero);
     SaveStream.Write(fOffer[i].BeingPerformed);
+    SaveStream.Write(fOffer[i].IsDeleted);
   end;
 
   Count := length(fDemand);
@@ -473,6 +495,7 @@ begin
     LoadStream.Read(fOffer[i].Count);
     LoadStream.Read(fOffer[i].Loc_House, 4);
     LoadStream.Read(fOffer[i].BeingPerformed);
+    LoadStream.Read(fOffer[i].IsDeleted);
   end;
 
   LoadStream.Read(Count);

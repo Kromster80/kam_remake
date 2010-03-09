@@ -25,15 +25,15 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo #3 r715';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r715';         //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Economy Demo #3 r734';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r734';         //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=false;  //Whenever to make team colors or not, saves RAM for debug
+  MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
@@ -49,7 +49,7 @@ var
   ENABLE_FIGHTING       :boolean=true; //Allow fighting
   FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
-  SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
+  SHOW_MAPED_IN_MENU    :boolean=false; //Allows to hide all map-editor related pages from main menu
 
   //These are debug things, should be FALSE
   ShowDebugControls     :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
@@ -67,7 +67,7 @@ var
   SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
-  WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
+  WRITE_DETAILED_LOG    :boolean=true; //Write even more output into log + slows down game noticably
 
   //Statistics
   CtrlPaintCount:integer;               //How many Controls were painted
