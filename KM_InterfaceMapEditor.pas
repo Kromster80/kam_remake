@@ -108,7 +108,7 @@ type TKMapEdInterface = class
     procedure Menu_Load(Sender:TObject);
     procedure Menu_QuitMission(Sender:TObject);
     procedure Build_SelectRoad;
-    procedure Build_RightClickCancel;
+    procedure RightClick_Cancel;
     procedure OnKeyUp(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     function GetShownPage:TKMMapEdShownPage;
@@ -175,8 +175,8 @@ begin
     Panel_Terrain.Show;
     Panel_Objects.Show;
     Label_MenuTitle.Caption:='Terrain - Objects'; 
-    TerrainObjects_Change(ObjectsTable[1]);
     TerrainObjects_Change(ObjectsScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
+    TerrainObjects_Change(ObjectsTable[1]);
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[1]) then begin
@@ -383,7 +383,7 @@ begin
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (i-1)*MAPED_TILES_ROWS+k; //Store ID
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := TerrainTiles_Change;
       end;
-      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 4 + 4 + MAPED_TILES_ROWS * 32, 200, 20, sa_Horizontal);
+      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 4 + 4 + MAPED_TILES_ROWS * 32, 180, 20, sa_Horizontal);
       TilesScroll.MinValue := 0;
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
       TilesScroll.Position := 0;
@@ -398,7 +398,7 @@ begin
         ObjectsTable[i].Tag := i; //Store ID
         ObjectsTable[i].OnClick := TerrainObjects_Change;
       end;
-      ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 264, 200, 20, sa_Horizontal);
+      ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 264, 180, 20, sa_Horizontal);
       ObjectsScroll.MinValue := 1;
       ObjectsScroll.MaxValue := ActualMapElemQty div 2;
       ObjectsScroll.Position := 1;
@@ -602,6 +602,7 @@ begin
     Label_HouseHealth:=MyControls.AddLabel(Panel_House,156,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
     KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,129,57,55,15,50,'',fnt_Mini);
 end;
+
 
 {Store page}
 procedure TKMapEdInterface.Create_Store_Page;
@@ -940,7 +941,7 @@ end;
 
 
 //This function will be called if the user right clicks on the screen.
-procedure TKMapEdInterface.Build_RightClickCancel;
+procedure TKMapEdInterface.RightClick_Cancel;
 begin
   //We should drop the tool but don't close opened tab
 end;

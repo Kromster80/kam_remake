@@ -553,7 +553,7 @@ begin
                   fMapEditorInterface.MyControls.OnMouseUp(X,Y,Button)
                 else
                 if Button = mbRight then
-                  fMapEditorInterface.Build_RightClickCancel
+                  fMapEditorInterface.RightClick_Cancel
                 else
                 if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
                   case CursorMode.Mode of
