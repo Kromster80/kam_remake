@@ -14,7 +14,11 @@ uses
   KM_Utils;
 
 type
+
+  { TForm1 }
+
   TForm1 = class(TForm)
+    MenuItem1: TMenuItem;
     N2: TMenuItem;
     Debug_ShowUnits: TMenuItem;
     OpenDialog1: TOpenDialog;
@@ -65,6 +69,7 @@ type
     {$IFDEF VER140} MediaPlayer1: TMediaPlayer; {$ENDIF}
     Button1: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
+    procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -282,9 +287,17 @@ end;
 //Open
 procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
-  if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants Mission (*.dat)|*.dat') then exit;
+  if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
   fGame.StopGame(gr_Silent);
   fGame.StartGame(OpenDialog1.FileName, 'OpenDialog1 game');
+end;
+
+
+procedure TForm1.MenuItem1Click(Sender: TObject);
+begin
+  if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
+  fGame.StopGame(gr_Silent);
+  fGame.StartMapEditor(OpenDialog1.FileName, 64,128);
 end;
 
 

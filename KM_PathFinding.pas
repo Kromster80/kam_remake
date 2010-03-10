@@ -225,6 +225,8 @@ begin
             ORef[y,x]:=OCount;
             OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
             OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(KMPoint(x,y),MinCost.Pos)*10); //
+            if DO_WEIGHT_ROUTES then
+              inc(OList[OCount].CostTo, fTerrain.Land[y,x].IsUnit*10); //Unit=1tile
             OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y)) *10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
           end else //If cell doen't meets Passability then mark it as Closed
             OList[OCount].Estim:=c_closed;
@@ -237,6 +239,8 @@ begin
             if OList[MinCost.ID].CostTo + NewCost < OList[ORef[y,x]].CostTo then begin
               OList[ORef[y,x]].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
               OList[ORef[y,x]].CostTo:=OList[MinCost.ID].CostTo + NewCost;
+            if DO_WEIGHT_ROUTES then
+              inc(OList[ORef[y,x]].CostTo, fTerrain.Land[y,x].IsUnit*10); //Unit=1tile
               //OList[ORef[y,x]].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y))*10;
             end;
           end;

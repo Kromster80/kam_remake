@@ -31,6 +31,7 @@ type TKMapEdInterface = class
         TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
         TilesScroll:TKMScrollBar;
       Panel_Objects:TKMPanel;
+        ObjectErase:TKMButtonFlat;
         ObjectsTable:array[1..4] of TKMButtonFlat;
         ObjectsScroll:TKMScrollBar;
 
@@ -398,15 +399,18 @@ begin
       TilesScroll.OnChange := TerrainTiles_Change;
 
     Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      ObjectsTable[1] := MyControls.AddButtonFlat(Panel_Objects, 8,  8,90,110,1,1); //RXid=1  // 1 2
-      ObjectsTable[2] := MyControls.AddButtonFlat(Panel_Objects, 8,118,90,110,1,1); //RXid=1  // 3 4
-      ObjectsTable[3] := MyControls.AddButtonFlat(Panel_Objects,98,  8,90,110,1,1); //RXid=1
-      ObjectsTable[4] := MyControls.AddButtonFlat(Panel_Objects,98,118,90,110,1,1); //RXid=1
+      ObjectErase := MyControls.AddButtonFlat(Panel_Objects, 8, 8,32,32,340);
+      ObjectsTable[1] := MyControls.AddButtonFlat(Panel_Objects, 8, 40,90,110,1,1); //RXid=1  // 1 2
+      ObjectsTable[2] := MyControls.AddButtonFlat(Panel_Objects, 8,150,90,110,1,1); //RXid=1  // 3 4
+      ObjectsTable[3] := MyControls.AddButtonFlat(Panel_Objects,98, 40,90,110,1,1); //RXid=1
+      ObjectsTable[4] := MyControls.AddButtonFlat(Panel_Objects,98,150,90,110,1,1); //RXid=1
       for i:=1 to 4 do begin
         ObjectsTable[i].Tag := i; //Store ID
         ObjectsTable[i].OnClick := TerrainObjects_Change;
       end;
-      ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 264, 180, 20, sa_Horizontal);
+      ObjectErase.Tag := 255; //no object
+      ObjectErase.OnClick := TerrainObjects_Change;
+      ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 268, 180, 20, sa_Horizontal);
       ObjectsScroll.MinValue := 1;
       ObjectsScroll.MaxValue := ActualMapElemQty div 2;
       ObjectsScroll.Position := 1;
@@ -739,6 +743,10 @@ end;
 procedure TKMapEdInterface.TerrainObjects_Change(Sender: TObject);
 var i,ObjID:integer;
 begin
+  for i:=1 to 4 do
+    ObjectsTable[i].Down := false;
+  ObjectErase.Down := false;
+
   if Sender = ObjectsScroll then
     for i:=1 to 4 do
     begin
@@ -747,26 +755,22 @@ begin
         ObjectsTable[i].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1
       else
         ObjectsTable[i].TexID := 0;
-      ObjectsTable[i].Down := false;
-      if ObjID = OriginalMapElem[CursorMode.Tag1+1] then //Use reverse lookup to convert Object Tag to "Actual ID"
-        ObjectsTable[i].Down := true; //Mark the selected one
+      ObjectsTable[i].Down := ObjID = OriginalMapElem[CursorMode.Tag1+1]; //Mark the selected one using reverse lookup
       ObjectsTable[i].Caption := inttostr(ObjID);
     end;
+
   if Sender is TKMButtonFlat then
   begin
     CursorMode.Mode := cm_Objects;
     ObjID := ObjectsScroll.Position*2-1 + (TKMButtonFlat(Sender).Tag-1); //1..n
-    if ActualMapElem[ObjID]>0 then
-      CursorMode.Tag1 := ActualMapElem[ObjID]-1 //0..n
+    if TKMButtonFlat(Sender).Tag = 255 then
+      CursorMode.Tag1 := 255 //erase object
     else
-      CursorMode.Tag1 := 0;
+      CursorMode.Tag1 := ActualMapElem[ObjID]-1; //0..n
     CursorMode.Tag2 := 0;
     for i:=1 to 4 do
-    begin
-      ObjectsTable[i].Down := false;
-      if Sender = ObjectsTable[i] then
-        ObjectsTable[i].Down := true; //Mark the selected one
-    end;
+      ObjectsTable[i].Down := (Sender = ObjectsTable[i]); //Mark the selected one
+    ObjectErase.Down := (Sender = ObjectErase); //or delete button
   end;
 end;
 

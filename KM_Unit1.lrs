@@ -61,37 +61,39 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +#15'ofFileMustExist'#14'ofEnableSizing'#0#4'left'#2'0'#3'top'#3#192#0#0#0#9
   +'TMainMenu'#9'MainMenu1'#4'left'#2#16#3'top'#3#192#0#0#9'TMenuItem'#5'File1'
   +#7'Caption'#6#4'File'#0#9'TMenuItem'#15'OpenMissionMenu'#7'Caption'#6#15'Ope'
-  +'n mission...'#7'OnClick'#7#21'Open_MissionMenuClick'#0#0#9'TMenuItem'#2'N1'
-  +#7'Caption'#6#1'-'#0#0#9'TMenuItem'#5'Exit1'#7'Caption'#6#4'Exit'#7'OnClick'
-  +#7#9'ExitClick'#0#0#0#9'TMenuItem'#6'Debug1'#7'Caption'#6#5'Debug'#0#9'TMenu'
-  +'Item'#15'Debug_ShowWires'#7'Caption'#6#10'Show wires'#7'OnClick'#7#20'Debug'
-  ,'_ShowWiresClick'#0#0#9'TMenuItem'#17'Debug_PrintScreen'#7'Caption'#6#11'Pri'
-  +'ntScreen'#7'OnClick'#7#22'Debug_PrintScreenClick'#0#0#9'TMenuItem'#17'Debug'
-  +'_ShowOverlay'#7'Caption'#6#12'Show Overlay'#7'OnClick'#7#22'Debug_ShowOverl'
-  +'ayClick'#0#0#9'TMenuItem'#16'Debug_ShowPanel1'#7'Caption'#6#16'Show Debug p'
-  +'anel'#7'OnClick'#7#21'Debug_ShowPanel1Click'#0#0#9'TMenuItem'#15'Debug_Show'
-  +'Units'#7'Caption'#6#10'Show Units'#7'OnClick'#7#19'Debug_ShowUnitClick'#0#0
-  +#0#9'TMenuItem'#7'Export1'#7'Caption'#6#11'Export Data'#0#9'TMenuItem'#14'Ex'
-  +'port_TreesRX'#7'Caption'#6#8'Trees.rx'#7'OnClick'#7#19'Export_TreesRXClick'
-  +#0#0#9'TMenuItem'#15'Export_HousesRX'#7'Caption'#6#9'Houses.rx'#7'OnClick'#7
-  +#20'Export_HousesRXClick'#0#0#9'TMenuItem'#14'Export_UnitsRX'#7'Caption'#6#8
-  +'Units.rx'#7'OnClick'#7#19'Export_UnitsRXClick'#0#0#9'TMenuItem'#12'Export_G'
-  +'UIRX'#7'Caption'#6#6'GUI.rx'#7'OnClick'#7#17'Export_GUIRXClick'#0#0#9'TMenu'
-  +'Item'#16'Export_GUIMainRX'#7'Caption'#6#11'GUI Main.rx'#7'OnClick'#7#21'Exp'
-  +'ort_GUIMainRXClick'#0#0#9'TMenuItem'#17'Export_GUIMainHRX'#7'Caption'#6#12
-  +'GUI MainH.rx'#7'OnClick'#7#22'Export_GUIMainHRXClick'#0#0#9'TMenuItem'#9'An'
-  +'imData1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#16'Export_TreeAnim'
-  +'1'#7'Caption'#6#9'Tree Anim'#7'OnClick'#7#21'Export_TreeAnim1Click'#0#0#9'T'
-  +'MenuItem'#17'Export_HouseAnim1'#7'Caption'#6#10'House Anim'#7'OnClick'#7#22
-  +'Export_HouseAnim1Click'#0#0#9'TMenuItem'#16'Export_UnitAnim1'#7'Caption'#6#9
-  +'Unit Anim'#7'OnClick'#7#21'Export_UnitAnim1Click'#0#0#9'TMenuItem'#6'Other1'
-  +#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#13'Export_Fonts1'#7'Caption'
-  +#6#5'Fonts'#7'OnClick'#7#18'Export_Fonts1Click'#0#0#9'TMenuItem'#11'Export_T'
-  +'ext'#7'Caption'#6#5'Texts'#7'OnClick'#7#16'Export_TextClick'#0#0#9'TMenuIte'
-  +'m'#14'Export_Sounds1'#7'Caption'#6#6'Sounds'#7'OnClick'#7#19'Export_Sounds1'
-  +'Click'#0#0#9'TMenuItem'#2'N2'#7'Caption'#6#1'-'#0#0#9'TMenuItem'#20'Export_'
-  +'Deliverlists1'#7'Caption'#6#20'Export Deliver lists'#7'OnClick'#7#25'Export'
-  +'_Deliverlists1Click'#0#0#0#9'TMenuItem'#6'About1'#7'Caption'#6#7'About..'#7
-  +'OnClick'#7#10'AboutClick'#0#0#0#6'TTimer'#10'Timer100ms'#8'Interval'#2'd'#7
-  +'OnTimer'#7#15'Timer100msTimer'#4'left'#2'P'#3'top'#3#192#0#0#0#0
+  +'n mission...'#7'OnClick'#7#21'Open_MissionMenuClick'#0#0#9'TMenuItem'#9'Men'
+  +'uItem1'#7'Caption'#6#15'Edit mission...'#7'OnClick'#7#14'MenuItem1Click'#0#0
+  +#9'TMenuItem'#2'N1'#7'Caption'#6#1'-'#0#0#9'TMenuItem'#5'Exit1'#7'Caption'#6
+  +#4'Exit'#7'OnClick'#7#9'ExitClick'#0#0#0#9'TMenuItem'#6'Debug1'#7'Caption'#6
+  ,#5'Debug'#0#9'TMenuItem'#15'Debug_ShowWires'#7'Caption'#6#10'Show wires'#7'O'
+  +'nClick'#7#20'Debug_ShowWiresClick'#0#0#9'TMenuItem'#17'Debug_PrintScreen'#7
+  +'Caption'#6#11'PrintScreen'#7'OnClick'#7#22'Debug_PrintScreenClick'#0#0#9'TM'
+  +'enuItem'#17'Debug_ShowOverlay'#7'Caption'#6#12'Show Overlay'#7'OnClick'#7#22
+  +'Debug_ShowOverlayClick'#0#0#9'TMenuItem'#16'Debug_ShowPanel1'#7'Caption'#6
+  +#16'Show Debug panel'#7'OnClick'#7#21'Debug_ShowPanel1Click'#0#0#9'TMenuItem'
+  +#15'Debug_ShowUnits'#7'Caption'#6#10'Show Units'#7'OnClick'#7#19'Debug_ShowU'
+  +'nitClick'#0#0#0#9'TMenuItem'#7'Export1'#7'Caption'#6#11'Export Data'#0#9'TM'
+  +'enuItem'#14'Export_TreesRX'#7'Caption'#6#8'Trees.rx'#7'OnClick'#7#19'Export'
+  +'_TreesRXClick'#0#0#9'TMenuItem'#15'Export_HousesRX'#7'Caption'#6#9'Houses.r'
+  +'x'#7'OnClick'#7#20'Export_HousesRXClick'#0#0#9'TMenuItem'#14'Export_UnitsRX'
+  +#7'Caption'#6#8'Units.rx'#7'OnClick'#7#19'Export_UnitsRXClick'#0#0#9'TMenuIt'
+  +'em'#12'Export_GUIRX'#7'Caption'#6#6'GUI.rx'#7'OnClick'#7#17'Export_GUIRXCli'
+  +'ck'#0#0#9'TMenuItem'#16'Export_GUIMainRX'#7'Caption'#6#11'GUI Main.rx'#7'On'
+  +'Click'#7#21'Export_GUIMainRXClick'#0#0#9'TMenuItem'#17'Export_GUIMainHRX'#7
+  +'Caption'#6#12'GUI MainH.rx'#7'OnClick'#7#22'Export_GUIMainHRXClick'#0#0#9'T'
+  +'MenuItem'#9'AnimData1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#16'E'
+  +'xport_TreeAnim1'#7'Caption'#6#9'Tree Anim'#7'OnClick'#7#21'Export_TreeAnim1'
+  +'Click'#0#0#9'TMenuItem'#17'Export_HouseAnim1'#7'Caption'#6#10'House Anim'#7
+  +'OnClick'#7#22'Export_HouseAnim1Click'#0#0#9'TMenuItem'#16'Export_UnitAnim1'
+  +#7'Caption'#6#9'Unit Anim'#7'OnClick'#7#21'Export_UnitAnim1Click'#0#0#9'TMen'
+  +'uItem'#6'Other1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#13'Export_'
+  +'Fonts1'#7'Caption'#6#5'Fonts'#7'OnClick'#7#18'Export_Fonts1Click'#0#0#9'TMe'
+  +'nuItem'#11'Export_Text'#7'Caption'#6#5'Texts'#7'OnClick'#7#16'Export_TextCl'
+  +'ick'#0#0#9'TMenuItem'#14'Export_Sounds1'#7'Caption'#6#6'Sounds'#7'OnClick'#7
+  +#19'Export_Sounds1Click'#0#0#9'TMenuItem'#2'N2'#7'Caption'#6#1'-'#0#0#9'TMen'
+  +'uItem'#20'Export_Deliverlists1'#7'Caption'#6#20'Export Deliver lists'#7'OnC'
+  +'lick'#7#25'Export_Deliverlists1Click'#0#0#0#9'TMenuItem'#6'About1'#7'Captio'
+  +'n'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#6'TTimer'#10'Timer100ms'#8
+  +'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'left'#2'P'#3'top'#3#192#0
+  +#0#0#0
 ]);

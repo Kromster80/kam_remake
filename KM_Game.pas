@@ -575,21 +575,21 @@ begin
                                 MyPlayer.AddHouse(THouseType(CursorMode.Tag1),P);
                                 fMapEditorInterface.Build_SelectRoad;
                               end;
-                    cm_Height:; //todo: Freeze height change into 0..100 range instead of 0.0..100.0 (floating-point)
+                    cm_Height:; //handled in UpdateStateIdle
                     cm_Objects: fTerrain.SetTree(P, CursorMode.Tag1);
                     cm_Units: MyPlayer.AddUnit(TUnitType(CursorMode.Tag1),P);
                     cm_Erase:
-                              begin
-                                if fMapEditorInterface.GetShownPage = esp_Units then
-                                  MyPlayer.RemUnit(P);
-                                if fMapEditorInterface.GetShownPage = esp_Buildings then
-                                begin
-                                  MyPlayer.RemHouse(P,true,false,true);
-                                  if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                    fTerrain.RemRoad(P);
-                                  if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                                    fTerrain.RemField(P);
-                                end;
+                              case fMapEditorInterface.GetShownPage of
+                                esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
+                                esp_Units:      MyPlayer.RemUnit(P);
+                                esp_Buildings:
+                                                begin
+                                                  MyPlayer.RemHouse(P,true,false,true);
+                                                  if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                                    fTerrain.RemRoad(P);
+                                                  if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                                                    fTerrain.RemField(P);
+                                                end;
                               end;
                   end;
               end;

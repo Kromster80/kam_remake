@@ -10,7 +10,7 @@ type
   THouseAction = class(TObject)
   private
     fHouse:TKMHouse;
-    TimeToAct:integer; //This one is unused in fact. All house states are controlled by Units
+    TimeToAct:integer; //todo: remove. This one is unused in fact. All house states are controlled by Units
     fHouseState: THouseState;
     fSubAction: THouseActionSet;
   public

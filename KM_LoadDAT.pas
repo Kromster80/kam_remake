@@ -698,15 +698,26 @@ begin
     end;
     if ReleaseAllHouses then
       AddCommand(ct_ReleaseAllHouses);
+
     //Houses
     for k:=0 to fPlayers.Player[i].GetHouses.Count-1 do
     begin
       CurHouse := TKMHouse(fPlayers.Player[i].GetHouses.Items[k]);
-      AddCommand(ct_SetHouse,3,byte(CurHouse.GetHouseType)-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1);
-      if CurHouse.IsDamaged then
-        AddCommand(ct_SetHouseDamage,1,CurHouse.GetDamage);
+      if not CurHouse.IsDestroyed then
+      begin
+        AddCommand(ct_SetHouse,3,byte(CurHouse.GetHouseType)-1,CurHouse.GetPosition.X-1,CurHouse.GetPosition.Y-1);
+        if CurHouse.IsDamaged then
+          AddCommand(ct_SetHouseDamage,1,CurHouse.GetDamage);
+      end;
     end;
     AddData(''); //NL
+
+    //Wares
+    //@Lewin:Please fix it properly
+    AddCommand(ct_AddWare,2,22,500); //Ware, Count
+    AddData(''); //NL
+
+
     //Roads and fields. We must check EVERY terrain tile
     CommandLayerCount := 0; //Enable command layering
     for iY := 1 to fTerrain.MapY do

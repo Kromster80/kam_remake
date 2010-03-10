@@ -284,8 +284,11 @@ end;
 procedure TKMAllPlayers.UpdateState(Tick:cardinal);
 var i:byte;
 begin
-  for i:=1 to fPlayerCount do
+  for i:=1 to fPlayerCount do begin
+    DO_WEIGHT_ROUTES := i=1;
     Player[i].UpdateState;
+
+  end;
   PlayerAnimals.UpdateState;
 
   //This is not ajoined with previous loop since it can result in StopGame which flushes all data
