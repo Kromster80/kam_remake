@@ -803,8 +803,9 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var fMissionParser: TMissionParser;
 begin
+  fTerrain.SaveToMapFile(ExeDir+'Maps\Test\Test.map');
   fMissionParser := TMissionParser.Create;
-  fMissionParser.SaveDATFile(ExeDir+'Test.dat','Test');
+  fMissionParser.SaveDATFile(ExeDir+'Maps\Test\Test.dat','Test');
   FreeAndNil(fMissionParser);
 end;
 

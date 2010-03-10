@@ -259,9 +259,9 @@ begin
 
   for i:=1 to ResQty[TKMButton(Sender).Tag] do begin
     HouseID:=ResHouse[TKMButton(Sender).Tag,i];
-    Image_RatioPic[i].TexID:=GUIBuildIcons[byte(HouseID)];
-    Label_RatioLab[i].Caption:=fTextLibrary.GetTextString(GUIBuildIcons[byte(HouseID)]-300);
-    Ratio_RatioRat[i].Position:=MyPlayer.fMissionSettings.GetRatio(ResID,HouseID);
+    Image_RatioPic[i].TexID := GUIBuildIcons[byte(HouseID)];
+    Label_RatioLab[i].Caption := fTextLibrary.GetTextString(GUIBuildIcons[byte(HouseID)]-300);
+    Ratio_RatioRat[i].Position := MyPlayer.fMissionSettings.GetRatio(ResID,HouseID);
     Image_RatioPic[i].Show;
     Label_RatioLab[i].Show;
     Ratio_RatioRat[i].Show;
@@ -517,15 +517,15 @@ begin
 {Parent Page for whole toolbar in-game}
   Panel_Main:=MyControls.AddPanel(nil,0,0,224,768);
 
-    Image_Main1:=MyControls.AddImage(Panel_Main,0,0,224,200,407);
-    Image_Main2:=MyControls.AddImage(Panel_Main,0,200,224,168,554);
-    Image_Main3:=MyControls.AddImage(Panel_Main,0,368,224,400,404);
-    Image_Main4:=MyControls.AddImage(Panel_Main,0,768,224,400,404);
-    Image_Main5:=MyControls.AddImage(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
+    Image_Main1 := MyControls.AddImage(Panel_Main,0,   0,224,200,407);
+    Image_Main2 := MyControls.AddImage(Panel_Main,0, 200,224,168,554);
+    Image_Main3 := MyControls.AddImage(Panel_Main,0, 368,224,400,404);
+    Image_Main4 := MyControls.AddImage(Panel_Main,0, 768,224,400,404);
+    Image_Main5 := MyControls.AddImage(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
 
-    KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
-    KMMinimap.OnChange:=Minimap_Update;
-    KMMinimap.OnRightClick:=Minimap_RightClick;
+    KMMinimap := MyControls.AddMinimap(Panel_Main,10,10,176,176);
+    KMMinimap.OnChange := Minimap_Update;
+    KMMinimap.OnRightClick := Minimap_RightClick;
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
@@ -1029,13 +1029,13 @@ begin
     HealthBar_House:=MyControls.AddPercentBar(Panel_House,129,57,55,15,50,'',fnt_Mini);
     Label_House_UnderConstruction:=MyControls.AddLabel(Panel_House,100,170,100,30,fTextLibrary.GetTextString(230),fnt_Grey,kaCenter);
 
-    Label_House_Demolish:=MyControls.AddLabel(Panel_House,100,130,100,30,fTextLibrary.GetTextString(232),fnt_Grey,kaCenter);
-    Button_House_DemolishYes:=MyControls.AddButton(Panel_House,8,185,180,30,fTextLibrary.GetTextString(231),fnt_Metal);
-    Button_House_DemolishNo :=MyControls.AddButton(Panel_House,8,220,180,30,fTextLibrary.GetTextString(224),fnt_Metal);
-    Button_House_DemolishYes.Hint:=fTextLibrary.GetTextString(233);
-    Button_House_DemolishNo.Hint:= fTextLibrary.GetTextString(224);
-    Button_House_DemolishYes.OnClick:=House_Demolish;
-    Button_House_DemolishNo.OnClick:= House_Demolish;
+    Label_House_Demolish := MyControls.AddLabel(Panel_House,100,130,100,30,fTextLibrary.GetTextString(232),fnt_Grey,kaCenter);
+    Button_House_DemolishYes := MyControls.AddButton(Panel_House,8,185,180,30,fTextLibrary.GetTextString(231),fnt_Metal);
+    Button_House_DemolishNo  := MyControls.AddButton(Panel_House,8,220,180,30,fTextLibrary.GetTextString(224),fnt_Metal);
+    Button_House_DemolishYes.Hint := fTextLibrary.GetTextString(233);
+    Button_House_DemolishNo.Hint  := fTextLibrary.GetTextString(224);
+    Button_House_DemolishYes.OnClick := House_Demolish;
+    Button_House_DemolishNo.OnClick  := House_Demolish;
 
     Panel_House_Common := MyControls.AddPanel(Panel_House,0,76,200,400);
       Label_Common_Demand := MyControls.AddLabel(Panel_House_Common,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);

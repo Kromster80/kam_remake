@@ -758,6 +758,11 @@ begin
   //Similar advertising footer to one in Lewin's Editor, useful so we know what mission was made with. This info can be very useful
   AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+DateTimeToStr(Now));
 
+  //Write uncoded file for debug
+  assignfile(f, aFileName+'.txt'); rewrite(f);
+  write(f, SaveString);
+  closefile(f);
+
   //Encode it
   for i:=1 to length(SaveString) do
     SaveString[i]:=chr(ord(SaveString[i]) xor 239);

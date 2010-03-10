@@ -65,7 +65,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Controls, KM_Houses, KM_CommonTypes;
+  KM_Unit1, KM_Controls, KM_Houses, KM_CommonTypes, KM_Player;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -560,9 +560,9 @@ begin
                     cm_None:  begin
                                 fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                                 if fPlayers.Selected is TKMHouse then
-                                  fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
+                                  fMapEditorInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
                                 if fPlayers.Selected is TKMUnit then
-                                  fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                                  fMapEditorInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
                                 //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
                                 //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
                               end;
@@ -591,11 +591,8 @@ begin
                                     fTerrain.RemField(P);
                                 end;
                               end;
-
-
                   end;
               end;
-
   end;
 
 end;
@@ -760,6 +757,7 @@ begin
     fTerrain.MakeNewMap(aSizeX,aSizeY);
     fPlayers := TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[1];
+    MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
   end;
 
   for i:=1 to MAX_PLAYERS do //Reveal all players since we'll swap between them in MapEd
@@ -963,6 +961,7 @@ begin
                   fViewport.DoScrolling; //Check to see if we need to scroll
                   fMapEditorInterface.UpdateState;
                   fTerrain.IncAnimStep;
+                  fPlayers.IncAnimStep;
                   if GlobalTickCount mod 10 = 0 then //Every 500ms
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
                 end;

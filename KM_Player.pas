@@ -65,6 +65,7 @@ type
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
+    procedure IncAnimStep;
     procedure UpdateState;
     procedure Paint;
   end;
@@ -100,6 +101,7 @@ constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 var i: integer;
 begin
   PlayerID      := aPlayerID;
+  PlayerType    := pt_Computer; //@Lewin: I'm not sure if default should be pt_Computer though
   fMissionSettings := TMissionSettings.Create;
   fUnits        := TKMUnitsCollection.Create;
   fHouses       := TKMHousesCollection.Create;
@@ -440,6 +442,12 @@ begin
   fHouses.SyncLoad;
   fDeliverList.SyncLoad;
   fBuildList.SyncLoad;
+end;
+
+
+procedure TKMPlayerAssets.IncAnimStep;
+begin
+  fHouses.IncAnimStep;
 end;
 
 

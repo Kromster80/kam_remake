@@ -65,12 +65,12 @@ type TKMapEdInterface = class
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
       Image_House_Logo,Image_House_Worker:TKMImage;
-      KMHealthBar_House:TKMPercentBar;
       Label_HouseHealth:TKMLabel;
+      KMHealthBar_House:TKMPercentBar;
+      Button_HouseHealthDec,Button_HouseHealthInc:TKMButton;
 
     Panel_HouseStore:TKMPanel;
       Button_Store:array[1..28]of TKMButtonFlat;
-      Image_Store_Accept:array[1..28]of TKMImage;
     Panel_HouseBarracks:TKMPanel;
       Button_Barracks:array[1..12]of TKMButtonFlat;
       Label_Barracks_Unit:TKMLabel;
@@ -97,6 +97,8 @@ type TKMapEdInterface = class
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
+    procedure House_HealthChange(Sender:TObject);
+    procedure House_HealthChangeRight(Sender:TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create;
@@ -104,7 +106,6 @@ type TKMapEdInterface = class
     procedure SetScreenSize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
-    procedure House_StoreAcceptFlag(Sender:TObject);
     procedure Menu_Load(Sender:TObject);
     procedure Menu_QuitMission(Sender:TObject);
     procedure Build_SelectRoad;
@@ -595,12 +596,19 @@ procedure TKMapEdInterface.Create_House_Page;
 begin
   Panel_House:=MyControls.AddPanel(Panel_Main,0,412,200,400);
     //Thats common things
-    //Custom things come in fixed size blocks (more smaller Panels?), and to be shown upon need
     Label_House:=MyControls.AddLabel(Panel_House,100,14,100,30,'',fnt_Outline,kaCenter);
-    Image_House_Logo:=MyControls.AddImage(Panel_House,68,41,32,32,338);
-    Image_House_Worker:=MyControls.AddImage(Panel_House,98,41,32,32,141);
-    Label_HouseHealth:=MyControls.AddLabel(Panel_House,156,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
-    KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,129,57,55,15,50,'',fnt_Mini);
+    Image_House_Logo:=MyControls.AddImage(Panel_House,8,41,32,32,338);
+    Image_House_Logo.Center;
+    Image_House_Worker:=MyControls.AddImage(Panel_House,38,41,32,32,141);
+    Image_House_Worker.Center;
+    Label_HouseHealth:=MyControls.AddLabel(Panel_House,130,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
+    KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,100,57,60,20,50,'',fnt_Mini);
+    Button_HouseHealthDec := MyControls.AddButton(Panel_House,80,57,20,20,'-', fnt_Metal);
+    Button_HouseHealthInc := MyControls.AddButton(Panel_House,160,57,20,20,'+', fnt_Metal);
+    Button_HouseHealthDec.OnClick := House_HealthChange;
+    Button_HouseHealthInc.OnClick := House_HealthChange;
+    Button_HouseHealthDec.OnRightClick := House_HealthChangeRight;
+    Button_HouseHealthInc.OnRightClick := House_HealthChangeRight;
 end;
 
 
@@ -609,15 +617,12 @@ procedure TKMapEdInterface.Create_Store_Page;
 var i:integer;
 begin
     Panel_HouseStore:=MyControls.AddPanel(Panel_House,0,76,200,400);
-      for i:=1 to 28 do begin
-        Button_Store[i]:=MyControls.AddButtonFlat(Panel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,350+i);
-        Button_Store[i].OnClick:=House_StoreAcceptFlag;
-        Button_Store[i].Tag:=i;
-        Button_Store[i].Hint:=TypeToString(TResourceType(i));
-        Image_Store_Accept[i]:=MyControls.AddImage(Panel_HouseStore, 8+((i-1)mod 5)*36+9,18+((i-1)div 5)*42-11,32,36,49);
-        Image_Store_Accept[i].FOnClick:=House_StoreAcceptFlag;
-        Image_Store_Accept[i].Hint:=TypeToString(TResourceType(i));
-      end;
+    for i:=1 to 28 do begin
+      Button_Store[i]:=MyControls.AddButtonFlat(Panel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,350+i);
+      Button_Store[i].Tag:=i;
+      Button_Store[i].Hint:=TypeToString(TResourceType(i));
+    end;
+
 end;
 
 
@@ -895,16 +900,6 @@ begin
 end;
 
 
-{That small red triangle blocking delivery of goods to Storehouse}
-{Resource determined by Button.Tag property}
-procedure TKMapEdInterface.House_StoreAcceptFlag(Sender:TObject);
-begin
-  if fPlayers.Selected = nil then exit;
-  if not (fPlayers.Selected is TKMHouseStore) then exit;
-  TKMHouseStore(fPlayers.Selected).ToggleAcceptFlag((Sender as TKMControl).Tag);
-end;
-
-
 {Show mission loading dialogue}
 procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
@@ -944,6 +939,10 @@ end;
 procedure TKMapEdInterface.RightClick_Cancel;
 begin
   //We should drop the tool but don't close opened tab
+  if GetShownPage = esp_Terrain then exit; //Terrain uses both buttons for relief changing
+  CursorMode.Mode:=cm_None;
+  CursorMode.Tag1:=0;
+  CursorMode.Tag2:=0;
 end;
 
 
@@ -957,7 +956,6 @@ begin
     if Tmp=0 then Button_Store[i].Caption:='-' else
     //if Tmp>999 then Button_Store[i].Caption:=float2fix(round(Tmp/10)/100,2)+'k' else
                   Button_Store[i].Caption:=inttostr(Tmp);
-    Image_Store_Accept[i].Visible := TKMHouseStore(fPlayers.Selected).NotAcceptFlag[i];
   end;
 end;
 
@@ -989,6 +987,22 @@ begin
     Stat_UnitPic[i].Hint:=TypeToString(StatUnit[i]);
     Stat_UnitQty[i].Hint:=TypeToString(StatUnit[i]);
   end;
+end;
+
+
+procedure TKMapEdInterface.House_HealthChange(Sender:TObject);
+begin
+  if ShownHouse = nil then exit;
+  if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(1);
+  if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(1);
+end;
+
+
+procedure TKMapEdInterface.House_HealthChangeRight(Sender:TObject);
+begin
+  if ShownHouse = nil then exit;
+  if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(50);
+  if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(50);
 end;
 
 

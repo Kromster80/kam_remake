@@ -286,6 +286,47 @@ Result:=true;
 end;
 
 
+//Save (export) map in KaM .map format with additional tile information on the end?
+procedure TTerrain.SaveToMapFile(aFile:string);
+var f:file; i,k,t:integer;
+begin
+  assignfile(f,aFile); rewrite(f,1);
+
+  blockwrite(f,MapX,4);
+  blockwrite(f,MapY,4);
+
+  t := 0;
+  for i:=1 to MapY do for k:=1 to MapX do
+  begin
+    blockwrite(f,Land[i,k].Terrain,1);
+    blockwrite(f,t,1); //Light
+    blockwrite(f,Land[i,k].Height,1);
+    blockwrite(f,Land[i,k].Rotation,1);
+    blockwrite(f,t,1); //unknown
+    blockwrite(f,Land[i,k].Obj,1);
+    blockwrite(f,t,1); //Passability?
+
+    blockwrite(f,t,4); //unknown
+    blockwrite(f,t,4); //unknown
+    blockwrite(f,t,4); //unknown
+    blockwrite(f,t,4); //unknown
+  end;
+
+  {blockwrite(f,ResHead,22);
+  for i:=1 to ResHead.Allocated do blockwrite(f,Res[i],17);
+
+  blockwrite(f,'ADDN',4);
+  blockwrite(f,'TILE',4); //Chunk name
+  i := 4 + MapY*MapX;
+  blockwrite(f,i,4); //Chunk size
+  i := 0; //contained lock in older version
+  blockwrite(f,i,4);
+  for i:=1 to Map.Y do for k:=1 to Map.X do blockwrite(f,Land2[i,k].TPoint,1);}
+
+  closefile(f);
+end;
+
+
 {Check if requested tile (X,Y) is within Map boundaries}
 {X,Y are unsigned int, usually called from loops, hence no TKMPoint can be used}
 function TTerrain.TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
@@ -2047,12 +2088,6 @@ end;
 procedure TTerrain.IncAnimStep();
 begin
   inc(AnimStep);
-end;
-
-
-procedure TTerrain.SaveToMapFile(aFile:string);
-begin
-  //Save (export) map in KaM .map format with additional tile information on the end?
 end;
 
 

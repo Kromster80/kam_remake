@@ -90,6 +90,7 @@ type
     procedure SetBuildingState(aState: THouseBuildState);
     property GetBuildingState: THouseBuildState read fBuildState;
     procedure IncBuildingProgress;
+    function GetMaxHealth():word;
     procedure AddDamage(aAmount:word);
     procedure AddRepair(aAmount:word=5);
     procedure UpdateDamage();
@@ -120,6 +121,7 @@ type
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
 
+    procedure IncAnimStep;
     procedure UpdateState;
     procedure Paint; virtual;
   end;
@@ -220,6 +222,7 @@ type
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
+    procedure IncAnimStep;
     procedure UpdateState;
     procedure Paint();
   end;
@@ -466,10 +469,15 @@ begin
 end;
 
 
+function TKMHouse.GetMaxHealth():word;
+begin
+  Result := HouseDAT[byte(fHouseType)].WoodCost*50 + HouseDAT[byte(fHouseType)].StoneCost*50;
+end;
+
 {Add damage to the house}
 procedure TKMHouse.AddDamage(aAmount:word);
 begin
-  fDamage:= fDamage + aAmount;
+  fDamage := Math.min(fDamage + aAmount, GetMaxHealth);
   if (BuildingRepair)and(fRepairID=0) then
     fRepairID:=fPlayers.Player[integer(fOwner)].BuildList.AddHouseRepair(Self);
   UpdateDamage();
@@ -803,6 +811,15 @@ begin
 end;
 
 
+procedure TKMHouse.IncAnimStep;
+begin
+  inc(FlagAnimStep);
+  inc(WorkAnimStep);
+  //FlagAnimStep is a sort of counter to reveal terrain once a sec
+  if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,10,fOwner);
+end;
+
+
 procedure TKMHouse.UpdateState;
 var i: byte; PrevRepairMode: boolean;
 begin
@@ -846,11 +863,7 @@ begin
 
   if not fIsDestroyed then MakeSound(); //Make some sound/noise along the work
 
-  inc(FlagAnimStep);
-  inc(WorkAnimStep);
-
-  //FlagAnimStep is a sort of counter to reveal terrain once a sec
-  if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,10,fOwner);
+  IncAnimStep;
 end;
 
 
@@ -1635,6 +1648,14 @@ begin
     end;
 end;
 
+
+procedure TKMHousesCollection.IncAnimStep;
+var
+  i:integer;
+begin
+  for i := 0 to Count - 1 do
+    TKMHouse(Items[i]).IncAnimStep;
+end;
 
 function TKMHousesCollection.GetTotalPointers: integer;
 var i:integer;

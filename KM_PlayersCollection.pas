@@ -35,6 +35,7 @@ type
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
+    procedure IncAnimStep;
     procedure UpdateState(Tick:cardinal);
     procedure Paint;
   end;
@@ -261,7 +262,7 @@ end;
 
 
 procedure TKMAllPlayers.SyncLoad();
-var i:word;
+var i:byte;
 begin
   for i:=1 to fPlayerCount do
   begin
@@ -272,8 +273,16 @@ begin
 end;
 
 
+procedure TKMAllPlayers.IncAnimStep();
+var i:byte;
+begin
+  for i:=1 to fPlayerCount do
+    Player[i].IncAnimStep;
+end;
+
+
 procedure TKMAllPlayers.UpdateState(Tick:cardinal);
-var i:word;
+var i:byte;
 begin
   for i:=1 to fPlayerCount do
     Player[i].UpdateState;
