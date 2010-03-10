@@ -115,7 +115,7 @@ type
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
     function ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
-    function ResTakeFromOut(aResource:TResourceType):boolean;
+    function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
     procedure ResAddOrder(aID:byte; const Amount:byte=1);
     procedure ResRemOrder(aID:byte; const Amount:byte=1);
 
@@ -617,7 +617,7 @@ var i:integer;
 begin
   if aResource=rt_None then exit;
   if HouseInput[byte(fHouseType),1]=rt_All then
-    TKMHouseStore(Self).AddMultiResource(aResource)
+    TKMHouseStore(Self).AddMultiResource(aResource, aCount)
   else
   if HouseInput[byte(fHouseType),1]=rt_Warfare then
     TKMHouseBarracks(Self).AddMultiResource(aResource)
@@ -674,20 +674,20 @@ if aResource=rt_None then exit;
 end;
 
 
-function TKMHouse.ResTakeFromOut(aResource:TResourceType):boolean;
+function TKMHouse.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
 var i:integer;
 begin
 Result:=false;
 if aResource=rt_None then exit;
 case fHouseType of
 ht_Store: if TKMHouseStore(Self).ResourceCount[byte(aResource)]>0 then begin
-            dec(TKMHouseStore(Self).ResourceCount[byte(aResource)]);
+            TKMHouseStore(Self).ResourceCount[byte(aResource)] := Math.max(TKMHouseStore(Self).ResourceCount[byte(aResource)] - aCount, 0);
             Result:=true;
           end;
 else
           for i:=1 to 4 do
           if aResource = HouseOutput[byte(fHouseType),i] then begin
-            dec(fResourceOut[i]);
+            fResourceOut[i] := Math.max(fResourceOut[i] - aCount, 0);
             Result:=true;
             exit;
           end;

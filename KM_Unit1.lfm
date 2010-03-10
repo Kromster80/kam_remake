@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 122
+  Left = 301
   Height = 245
-  Top = 116
+  Top = 90
   Width = 867
   HelpType = htKeyword
   BorderStyle = bsNone

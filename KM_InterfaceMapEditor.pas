@@ -10,6 +10,7 @@ type TKMapEdInterface = class
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
     ShownHint:TObject;
+    StorehouseItem:byte; //Selected ware in storehouse
 
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
@@ -71,6 +72,9 @@ type TKMapEdInterface = class
 
     Panel_HouseStore:TKMPanel;
       Button_Store:array[1..28]of TKMButtonFlat;
+      Label_Store_WareCount:TKMLabel;
+      Button_StoreDec100,Button_StoreDec:TKMButton;
+      Button_StoreInc100,Button_StoreInc:TKMButton;
     Panel_HouseBarracks:TKMPanel;
       Button_Barracks:array[1..12]of TKMButtonFlat;
       Label_Barracks_Unit:TKMLabel;
@@ -99,6 +103,8 @@ type TKMapEdInterface = class
     procedure Stats_Fill(Sender:TObject);
     procedure House_HealthChange(Sender:TObject);
     procedure House_HealthChangeRight(Sender:TObject);
+    procedure Store_SelectWare(Sender:TObject);
+    procedure Store_EditWareCount(Sender:TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create;
@@ -277,6 +283,7 @@ begin
 
   ShownUnit:=nil;
   ShownHouse:=nil;
+  StorehouseItem := 0;
 
 {Parent Page for whole toolbar in-game}
   Panel_Main := MyControls.AddPanel(nil,0,0,224,768);
@@ -601,10 +608,10 @@ begin
     Image_House_Logo.Center;
     Image_House_Worker:=MyControls.AddImage(Panel_House,38,41,32,32,141);
     Image_House_Worker.Center;
-    Label_HouseHealth:=MyControls.AddLabel(Panel_House,130,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
-    KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,100,57,60,20,50,'',fnt_Mini);
-    Button_HouseHealthDec := MyControls.AddButton(Panel_House,80,57,20,20,'-', fnt_Metal);
-    Button_HouseHealthInc := MyControls.AddButton(Panel_House,160,57,20,20,'+', fnt_Metal);
+    Label_HouseHealth:=MyControls.AddLabel(Panel_House,130,41,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
+    KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,100,53,60,20,50,'',fnt_Mini);
+    Button_HouseHealthDec := MyControls.AddButton(Panel_House,80,53,20,20,'-', fnt_Metal);
+    Button_HouseHealthInc := MyControls.AddButton(Panel_House,160,53,20,20,'+', fnt_Metal);
     Button_HouseHealthDec.OnClick := House_HealthChange;
     Button_HouseHealthInc.OnClick := House_HealthChange;
     Button_HouseHealthDec.OnRightClick := House_HealthChangeRight;
@@ -618,11 +625,24 @@ var i:integer;
 begin
     Panel_HouseStore:=MyControls.AddPanel(Panel_House,0,76,200,400);
     for i:=1 to 28 do begin
-      Button_Store[i]:=MyControls.AddButtonFlat(Panel_HouseStore, 8+((i-1)mod 5)*36,19+((i-1)div 5)*42,32,36,350+i);
+      Button_Store[i]:=MyControls.AddButtonFlat(Panel_HouseStore, 8+((i-1)mod 5)*36,8+((i-1)div 5)*42,32,36,350+i);
       Button_Store[i].Tag:=i;
       Button_Store[i].Hint:=TypeToString(TResourceType(i));
+      Button_Store[i].OnClick := Store_SelectWare;
     end;
-
+    Button_StoreDec100   := MyControls.AddButton(Panel_HouseStore,116,218,20,20,'<', fnt_Metal);
+    Button_StoreDec      := MyControls.AddButton(Panel_HouseStore,116,238,20,20,'-', fnt_Metal);
+    Label_Store_WareCount:= MyControls.AddLabel (Panel_HouseStore,156,230,100,30,'',fnt_Metal,kaCenter);
+    Button_StoreInc100   := MyControls.AddButton(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
+    Button_StoreInc      := MyControls.AddButton(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
+    Button_StoreDec100.OnClick := Store_EditWareCount;
+    Button_StoreDec.OnClick    := Store_EditWareCount;
+    Button_StoreInc100.OnClick := Store_EditWareCount;
+    Button_StoreInc.OnClick    := Store_EditWareCount;
+    {Button_StoreDec100.OnRightClick := Store_EditWareCountRight; //x10
+    Button_StoreDec.OnRightClick    := Store_EditWareCountRight;
+    Button_StoreInc100.OnRightClick := Store_EditWareCountRight;
+    Button_StoreInc.OnRightClick    := Store_EditWareCountRight;}
 end;
 
 
@@ -1003,6 +1023,37 @@ begin
   if ShownHouse = nil then exit;
   if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(50);
   if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(50);
+end;
+
+
+procedure TKMapEdInterface.Store_SelectWare(Sender:TObject);
+var i:integer;
+begin
+  if not Panel_HouseStore.Visible then exit;
+  if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
+  if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
+  for i:=1 to length(Button_Store) do
+    Button_Store[i].Down:=false;
+  TKMButtonFlat(Sender).Down := true;
+  StorehouseItem := TKMButtonFlat(Sender).Tag;
+  Store_EditWareCount(Sender);
+end;
+
+
+procedure TKMapEdInterface.Store_EditWareCount(Sender:TObject);
+var Res:TResourceType; Store:TKMHouseStore;
+begin
+  if not Panel_HouseStore.Visible then exit;
+
+  Res := TResourceType(StorehouseItem);
+  Store := TKMHouseStore(ShownHouse);
+
+  if Sender = Button_StoreDec100 then Store.ResTakeFromOut(Res, 100);
+  if Sender = Button_StoreDec    then Store.ResTakeFromOut(Res, 1);
+  if Sender = Button_StoreInc    then Store.ResAddToIn(Res, 1);
+  if Sender = Button_StoreInc100 then Store.ResAddToIn(Res, 100);
+
+  Label_Store_WareCount.Caption := inttostr(Store.ResourceCount[byte(Res)]);
 end;
 
 
