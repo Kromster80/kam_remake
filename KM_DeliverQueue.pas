@@ -329,11 +329,10 @@ for iD:=1 to length(fDemand) do
 
       //Modifications for bidding system
       if fDemand[iD].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
-        Bid:=Bid*3+5;
+        Bid:=Bid+20;
 
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
-        //Bid = Bid + 20 * (ResourceDistribution - ResourceStock)
         Bid:=Bid + 20 * fDemand[iD].Loc_House.CheckResIn(fDemand[iD].Resource);
 
       //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.

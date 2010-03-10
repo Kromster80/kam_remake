@@ -21,6 +21,7 @@ type
       procedure SyncLoad; override;
       destructor Destroy; override;
       function ValidTileToGo(LocX, LocY:word; aUnit, WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
+      property GetHasStarted: boolean read fHasStarted;
       procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -213,7 +214,7 @@ begin
 
   fStep := fStep - Distance * shortint(fDirection);
   KMUnit.PositionF := KMPointF(Mix(fStreet.X,fDoor.X,fStep),Mix(fStreet.Y,fDoor.Y,fStep));
-  KMUnit.SetVisibility := fStep >= 0.3; //Make unit invisible when it's inside of House
+  KMUnit.SetVisibility := (fHouse.IsDestroyed) or (fStep >= 0.3); //Make unit invisible when it's inside of House
 
   if (fStep<=0)or(fStep>=1) then
   begin
@@ -221,9 +222,16 @@ begin
     KMUnit.IsExchanging := false;
     if fUsedDoorway then DecDoorway;
     if fDirection = gd_GoInside then
-      KMUnit.PositionF := fDoor
+    begin
+      KMUnit.PositionF := fDoor;
+      if not fHouse.IsDestroyed then
+        KMUnit.GetInHouse := fHouse;
+    end
     else
+    begin
       KMUnit.PositionF := KMPointF(fStreet.X,fStreet.Y);
+      KMUnit.GetInHouse := nil; //We are not in a house any longer
+    end;
   end
   else
     inc(KMUnit.AnimStep);

@@ -133,17 +133,14 @@ case fPhase of
      end;
      SetActionStay(5,ua_Walk); //Wait a moment inside
    end else begin
-     PlaceUnitAfterHouseDestroyed; //Unit was invisible while inside. Must show it
      Abandon;
      TaskDone:=true;
    end;
 3: if not fFrom.IsDestroyed then
    begin
      SetActionGoIn(ua_Walk,gd_GoOutside,fFrom);
-   end else begin
-     PlaceUnitAfterHouseDestroyed(); //Unit was invisible while inside. Must show it. Delivery may still continue even though house was just destroyed
+   end else
      SetActionLockedStay(0,ua_Walk);
-   end;
 4: if TKMUnitSerf(fUnit).Carry=rt_None then TaskDone:=true else SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -188,7 +185,6 @@ if DeliverKind = dk_House then
          SetActionGoIn(ua_walk,gd_GoOutside,fToHouse);
 
      end else begin
-       PlaceUnitAfterHouseDestroyed; //Unit was invisible while inside. Must show it
        TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
        Abandon;
        TaskDone:=true;

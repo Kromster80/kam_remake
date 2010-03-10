@@ -347,9 +347,7 @@ begin
       fTerrain.RemRoad(Self.GetEntrance);
       if not IsEditor then
         fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
-    end
-    else
-      fTerrain.RemRoad(Self.GetEntrance);
+    end;
   end;
   FreeAndNil(fCurrentAction);
   //Leave disposing of units inside the house to themselves

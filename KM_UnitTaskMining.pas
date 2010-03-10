@@ -2,8 +2,6 @@ unit KM_UnitTaskMining;
 interface
 uses Math, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Workplan;
 
-//@Krom: Is there a use for abandoning walk here? We can check if the resource still exists, but it would be nice to know if another unit has claimed it. Using HitTest every time is probably too CPU intensive... or maybe not? (it will be called once per node of walk, not each tick) What do you think?
-//       Also e.g. it might look odd if another fisherman catches the last fish and your fisherman is on his way to the water but suddenly stops and goes back home for no obvious reason. Only some gathering plans need this feature.
 {Perform resource mining}
 type
   TTaskMining = class(TUnitTask)
@@ -102,7 +100,14 @@ with fUnit do
          SetActionLockedStay(0,ua_Walk);
          exit;
        end;
-    1: SetActionWalk(fUnit, WorkPlan.Loc, WorkPlan.WalkTo);
+       //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
+    1: if fTerrain.Route_CanBeMade(fUnit.GetPosition, WorkPlan.Loc, canWalk, true) then
+         SetActionWalk(fUnit, WorkPlan.Loc, WorkPlan.WalkTo)
+       else
+       begin
+         TaskDone := true;
+         exit;
+       end;
     2: begin //Before work tasks for specific mining jobs
          if WorkPlan.GatheringScript = gs_FisherCatch then
          begin

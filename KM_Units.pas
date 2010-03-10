@@ -155,14 +155,12 @@ type
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
-    //@Krom: Should GoHome abandon the walk if the home is destroyed? I think it's sort of funny and KaM-like that the citizens still try to return home when it's destroyed.
     TTaskGoHome = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
     end;
 
-    //@Krom: Don't abandon walk here when the inn becomes empty because it might have food when we get there? Then again, if we abandon and look for another inn is might stop 100 units all rushing to the one inn for a single piece of bread. What do you think? I reckon we should abandon the walk if the inn is empty, then return to the begining and look for a inn again.
     TTaskGoEat = class(TUnitTask)
     private
       fInn:TKMHouseInn;
@@ -222,6 +220,7 @@ type
     fVisible:boolean;
     fIsDead:boolean;
     fPointerCount:integer;
+    fInHouse: TKMHouse; //House we are currently in
     fPrevPosition: TKMPoint;
     fNextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
     procedure CloseUnit;
@@ -254,7 +253,6 @@ type
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure Feed(Amount:single);
     procedure AbandonWalk;
-    procedure PlaceUnitAfterHouseDestroyed();
     function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
     property GetOwner:TPlayerID read fOwner;
     function GetSpeed():single;
@@ -274,6 +272,8 @@ type
     procedure CancelUnitTask;
     property IsVisible: boolean read fVisible;
     property SetVisibility:boolean write fVisible;
+    procedure SetInHouse(aInHouse:TKMHouse);
+    property GetInHouse:TKMHouse read fInHouse write SetInHouse;
     property IsDead:boolean read fIsDead;
     function IsArmyUnit():boolean;
     procedure RemoveUntrainedFromSchool();
@@ -536,7 +536,6 @@ begin
   begin
     if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
-    if KMSamePoint(GetPosition,fHome.GetEntrance) then PlaceUnitAfterHouseDestroyed;
     fHome.RemovePointer;
     fHome := nil;
   end;
@@ -1397,8 +1396,8 @@ begin
       if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through a tree trunk
       begin
         U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
-        //Must be enemy
-        if (U <> nil) and (not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (U.GetOwner <> GetOwner) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
+        //Must not dead/dying, not inside a house, not from our team and an enemy
+        if (U <> nil) and (U.fVisible) and(not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (U.GetOwner <> GetOwner) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
         begin
           //We'd rather fight a warrior, so store them seperatly
           if U is TKMUnitWarrior then
@@ -1721,6 +1720,7 @@ begin
   fIsDead       := false;
   fThought      := th_None;
   fHome         := nil;
+  fInHouse      := nil;
   fPosition.X   := PosX;
   fPosition.Y   := PosY;
   fPrevPosition := GetPosition; //Init values
@@ -1746,6 +1746,7 @@ destructor TKMUnit.Destroy;
 begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
+  SetInHouse(nil); //Free pointer
   Inherited;
 end;
 
@@ -1976,6 +1977,17 @@ begin
 end;
 
 
+procedure TKMUnit.SetInHouse(aInHouse:TKMHouse);
+begin
+  if fInHouse <> nil then
+    fInHouse.RemovePointer;
+  if aInHouse <> nil then
+    fInHouse := aInHouse.GetSelf
+  else
+    fInHouse := nil;
+end;
+
+
 function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
   Result := (X = GetPosition.X) and //Keep comparing X,Y to GetPosition incase input is negative numbers
@@ -2084,17 +2096,6 @@ begin
 end;
 
 
-procedure TKMUnit.PlaceUnitAfterHouseDestroyed();
-begin
-  //Assume: 1. We are currently in a house
-  //        2. That house was just destroyed and so now we must sort ourselves out and reappear for the user
-  fTerrain.UnitRem(GetPosition);
-  fPosition := KMPointF(fPlayers.FindPlaceForUnit(GetPosition.X,GetPosition.Y,GetUnitType)); //Reposition in case there are other units in the house
-  fTerrain.UnitAdd(GetPosition);
-  fVisible:=true; //Become visible
-end;
-
-
 function TKMUnit.GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
 begin
   case fUnitType of //Select desired passability depending on unit type
@@ -2192,9 +2193,25 @@ end;
 
 procedure TKMUnit.UpdateVisibility;
 begin
-  if fHome <> nil then //If unit is at home and home was destroyed then make it visible
-    if fHome.IsDestroyed and KMSamePoint(GetPosition, fHome.GetEntrance) then
+  if GetInHouse <> nil then
+    if GetInHouse.IsDestroyed then
+    begin
       SetVisibility := true;
+      //If we are walking into/out of the house then don't set our position, ActionGoInOut will sort it out
+      if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) then
+      begin
+        //Position in a spiral nearest to center of house, updating IsUnit.
+        fTerrain.UnitRem(GetPosition);
+        fPosition := KMPointF(fPlayers.FindPlaceForUnit(GetInHouse.GetPosition.X,GetInHouse.GetPosition.Y,GetUnitType));
+        fTerrain.UnitAdd(GetPosition);
+        //Make sure these are reset properly
+        IsExchanging := false;
+        fPrevPosition := GetPosition;
+        fNextPosition := GetPosition;
+        if GetUnitAction is TUnitActionGoInOut then SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
+      end;
+      GetInHouse := nil; //Can't be in a destroyed house
+    end;
 end;
 
 
