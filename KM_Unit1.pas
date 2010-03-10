@@ -297,7 +297,7 @@ procedure TForm1.MenuItem1Click(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
   fGame.StopGame(gr_Silent);
-  fGame.StartMapEditor(OpenDialog1.FileName, 64,128);
+  fGame.StartMapEditor(OpenDialog1.FileName);
 end;
 
 

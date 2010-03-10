@@ -245,6 +245,10 @@ object Form1: TForm1
         Caption = 'Open mission...'
         OnClick = Open_MissionMenuClick
       end
+      object MenuItem1: TMenuItem
+        Caption = 'Edit mission...'
+        OnClick = MenuItem1Click
+      end
       object N1: TMenuItem
         Caption = '-'
       end

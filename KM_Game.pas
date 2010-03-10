@@ -47,7 +47,7 @@ type
     procedure PauseGame(DoPause:boolean);
     procedure HoldGame(DoHold:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
-    procedure StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
+    procedure StartMapEditor(MissionFile:string; aSizeX:integer=64; aSizeY:integer=64);
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GetTickCount:cardinal read GameplayTickCount;
@@ -718,7 +718,7 @@ begin
 end;
 
 
-procedure TKMGame.StartMapEditor(MissionFile:string; aSizeX,aSizeY:integer);
+procedure TKMGame.StartMapEditor(MissionFile:string; aSizeX:integer=64; aSizeY:integer=64);
 var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
 begin
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
@@ -971,7 +971,6 @@ end;
 
 {This is our real-time thread, use it wisely}
 procedure TKMGame.UpdateStateIdle;
-var i:integer;
 begin
   case GameState of
     gsEditor:   begin
