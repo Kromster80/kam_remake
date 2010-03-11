@@ -1,5 +1,3 @@
-{ This is an automatically generated lazarus resource file }
-
 LazarusResources.Add('TForm1','FORMDATA',[
   'TPF0'#6'TForm1'#5'Form1'#4'Left'#3'-'#1#6'Height'#3#245#0#3'Top'#2'Z'#5'Widt'
   +'h'#3'c'#3#8'HelpType'#7#9'htKeyword'#11'BorderStyle'#7#6'bsNone'#7'Caption'
@@ -55,11 +53,11 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +#8'TB_Angle'#4'Left'#2#2#6'Height'#2#17#3'Top'#2' '#5'Width'#2'_'#3'Max'#2'Z'
   +#8'OnChange'#7#15'TB_Angle_Change'#8'PageSize'#2#1#8'Position'#2#0#9'TickMar'
   +'ks'#7#6'tmBoth'#9'TickStyle'#7#6'tsNone'#8'TabOrder'#2#8#0#0#7'TButton'#7'B'
-  +'utton1'#4'Left'#3#240#0#6'Height'#2#25#3'Top'#2'('#5'Width'#2'K'#7'Caption'
-  +#6#7'Button1'#7'OnClick'#7#12'Button1Click'#8'TabOrder'#2#9#0#0#0#11'TOpenDi'
+  +'utton1'#4'Left'#3#240#0#3'Top'#2'('#5'Width'#2'K'#6'Height'#2#25#7'Caption'
+  +#6#7'Button1'#8'TabOrder'#2#9#7'OnClick'#7#12'Button1Click'#0#0#0#11'TOpenDi'
   +'alog'#11'OpenDialog1'#10'InitialDir'#6#1'.'#7'Options'#11#14'ofHideReadOnly'
-  +#15'ofFileMustExist'#14'ofEnableSizing'#0#4'left'#2'0'#3'top'#3#192#0#0#0#9
-  +'TMainMenu'#9'MainMenu1'#4'left'#2#16#3'top'#3#192#0#0#9'TMenuItem'#5'File1'
+  +#15'ofFileMustExist'#14'ofEnableSizing'#0#4'Left'#2'0'#3'Top'#3#192#0#0#0#9
+  +'TMainMenu'#9'MainMenu1'#4'Left'#2#16#3'Top'#3#192#0#0#9'TMenuItem'#5'File1'
   +#7'Caption'#6#4'File'#0#9'TMenuItem'#15'OpenMissionMenu'#7'Caption'#6#15'Ope'
   +'n mission...'#7'OnClick'#7#21'Open_MissionMenuClick'#0#0#9'TMenuItem'#9'Men'
   +'uItem1'#7'Caption'#6#15'Edit mission...'#7'OnClick'#7#14'MenuItem1Click'#0#0
@@ -94,6 +92,6 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +'uItem'#20'Export_Deliverlists1'#7'Caption'#6#20'Export Deliver lists'#7'OnC'
   +'lick'#7#25'Export_Deliverlists1Click'#0#0#0#9'TMenuItem'#6'About1'#7'Captio'
   +'n'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#6'TTimer'#10'Timer100ms'#8
-  +'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'left'#2'P'#3'top'#3#192#0
+  +'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'Left'#2'P'#3'Top'#3#192#0
   +#0#0#0
 ]);

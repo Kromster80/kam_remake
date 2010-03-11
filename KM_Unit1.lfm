@@ -217,7 +217,6 @@ object Form1: TForm1
       TabOrder = 9
       OnClick = Button1Click
     end
-    end
   end
   object OpenDialog1: TOpenDialog
     InitialDir = '.'
