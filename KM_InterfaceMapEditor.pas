@@ -284,7 +284,7 @@ begin
 
   ShownUnit:=nil;
   ShownHouse:=nil;
-  StorehouseItem := 0;
+  StorehouseItem := 1; //First ware selected by default
 
 {Parent Page for whole toolbar in-game}
   Panel_Main := MyControls.AddPanel(nil,0,0,224,768);
@@ -748,6 +748,7 @@ begin
   ObjectErase.Down := false;
 
   if Sender = ObjectsScroll then
+  begin
     for i:=1 to 4 do
     begin
       ObjID := ObjectsScroll.Position*2 - 2 + i;
@@ -758,6 +759,8 @@ begin
       ObjectsTable[i].Down := ObjID = OriginalMapElem[CursorMode.Tag1+1]; //Mark the selected one using reverse lookup
       ObjectsTable[i].Caption := inttostr(ObjID);
     end;
+    ObjectErase.Down := (CursorMode.Tag1 = 255); //or delete button
+  end;
 
   if Sender is TKMButtonFlat then
   begin
@@ -859,7 +862,7 @@ end;
 
 
 procedure TKMapEdInterface.ShowHouseInfo(Sender:TKMHouse);
-var i:integer;
+var i:integer; WasShown: boolean;
 begin
   ShownUnit:=nil;
   ShownHouse:=Sender;
@@ -885,7 +888,10 @@ begin
   case Sender.GetHouseType of
     ht_Store: begin
           Store_Fill(nil);
+          WasShown := Panel_HouseStore.Visible;
           SwitchPage(Panel_HouseStore);
+          if not WasShown then
+            Store_SelectWare(Button_Store[StorehouseItem]); //Reselect the ware so the display is updated
         end;
 
     ht_Barracks: begin

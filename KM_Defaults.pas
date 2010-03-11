@@ -972,7 +972,7 @@ UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
   MapElemQty:integer=254; //Default qty
   ActualMapElemQty:integer; //Usable qty read from RX file
   ActualMapElem:array[1..254]of integer; //pointers to usable MapElem's
-  OriginalMapElem:array[1..254]of integer; //pointers of usable MapElem's back to map objects (reverse lookup to one above)
+  OriginalMapElem:array[1..256]of integer; //pointers of usable MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
   MapElem:array[1..512]of packed record
     Step:array[1..30]of smallint;           //60
     Count:word;                             //62

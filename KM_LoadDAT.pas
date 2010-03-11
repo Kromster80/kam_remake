@@ -591,7 +591,7 @@ const
 var
   f:textfile;
   i: longint; //lonint because it is used for encoding entire output, which will limit the file size
-  k,iX,iY,CommandLayerCount: integer;
+  k,j,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
   Group: TGroupType;
   CurUnit: TKMUnit;
   CurHouse: TKMHouse;
@@ -712,9 +712,35 @@ begin
     end;
     AddData(''); //NL
 
-    //Wares
-    //@Lewin:Please fix it properly
-    AddCommand(ct_AddWare,2,22,500); //Ware, Count
+    //Wares. Check every house to see if it's a store or barracks
+    StoreCount := 0;
+    BarracksCount := 0;
+    for k:=0 to fPlayers.Player[i].GetHouses.Count-1 do
+    begin
+      CurHouse := TKMHouse(fPlayers.Player[i].GetHouses.Items[k]);
+      if not CurHouse.IsDestroyed then
+      begin
+        if CurHouse is TKMHouseStore then
+        begin
+          inc(StoreCount);
+          if StoreCount <= 2 then //For now only handle 2 storehouses, we can add a new command later
+            for j := 1 to 28 do
+              if TKMHouseStore(CurHouse).ResourceCount[j] > 0 then
+                if StoreCount = 1 then
+                  AddCommand(ct_AddWare,2,j-1,TKMHouseStore(CurHouse).ResourceCount[j]) //Ware, Count
+                else
+                  AddCommand(ct_AddWareToSecond,2,j-1,TKMHouseStore(CurHouse).ResourceCount[j]); //Ware, Count
+        end;
+        if CurHouse is TKMHouseBarracks then
+        begin
+          inc(BarracksCount);
+          if BarracksCount <= 1 then //For now only handle 1 barracks, we can add a new command later
+            for j := 1 to 11 do
+              if TKMHouseBarracks(CurHouse).ResourceCount[j] > 0 then
+                AddCommand(ct_AddWeapon,2,j+15,TKMHouseBarracks(CurHouse).ResourceCount[j]); //Ware, Count
+        end;
+      end;
+    end;
     AddData(''); //NL
 
 
