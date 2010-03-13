@@ -2,12 +2,12 @@ Demo #4 should include:
 
 +	Army controls in UI [Krom]
 +	Army movements [Lewin]
-	Units fighting
+	Units fighting [Lewin]
 	Tower throwing rocks at enemies
 	Ranged attacks
 	House attacks
-	Map editor saving simple maps
++	Map editor saving simple maps [Krom/Lewin]
 	Tutorial missions from KaM
 	Scalable ingame menu
 	Lookout tower [Krom]
-	Brightness settings as 0..20 range [Krom]
++	Brightness settings as 0..20 range [Krom]
