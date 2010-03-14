@@ -687,17 +687,23 @@ begin
   //Somehow route was not built, this is an error
   if not fRouteBuilt then
   begin
-    fLog.AddToLog('Unit '+TypeToString(fWalker.GetUnitType)+' unable to walk a route from '+TypeToString(fWalker.GetPosition)+' to '+TypeToString(fWalkTo)+' during task '+fWalker.GetUnitTaskText+' since the route is unbuilt');
+    //Animals may sometimes ask for routes that cannot exist, in this case we just exit without alerting user, and a new route will be chosen.
+    //The reason why this happens is because WalkConnect is not available for canCrab and canWolf meaning Route_CanBeMade will sometimes return true when it shouldn't. (because it is using canWalk instead)
+    //@Krom: Does that sound ok to you? Or should we add floodfill for wolfs and crabs? Obviously using WalkConnect is a better option because it is possible that the unit is totally stuck, in which case the walk will keep failing repeatedly. Does floodfill take long to compute?
+    if not (fWalker.GetUnitType in [ut_Wolf..ut_Duck]) then
+    begin
+      fLog.AddToLog('Unit '+TypeToString(fWalker.GetUnitType)+' unable to walk a route from '+TypeToString(fWalker.GetPosition)+' to '+TypeToString(fWalkTo)+' during task '+fWalker.GetUnitTaskText+' since the route is unbuilt');
+      fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
+      fGame.Save(99);
+      if MessageDlg('An error has occoured due to unit '+TypeToString(fWalker.GetUnitType)+' recieving an order to walk from '
+                 +TypeToString(fWalker.GetPosition)+' to the unwalkable destination '+TypeToString(fWalkTo)+' during the task '
+                 +fWalker.GetUnitTaskText+'.'+#13#10+'Please send the files BugReport.sav and KaM.log from the KaM Remake main directory to the developers.'
+                 +' Contact details can be found in the Readme file.'+#13#10+'Thank you very much for your kind help!'+#13#10
+                 +'WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
+                 ,mtWarning,[mbYes,mbNo],0) <> mrYes then
+        fGame.StopGame(gr_Error,'',false); //Exit to main menu
+    end;
     DoEnd := true; //Must exit out or this error will keep happening
-    fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-    fGame.Save(99);
-    if MessageDlg('An error has occoured due to unit '+TypeToString(fWalker.GetUnitType)+' recieving an order to walk from '
-               +TypeToString(fWalker.GetPosition)+' to the unwalkable destination '+TypeToString(fWalkTo)+' during the task '
-               +fWalker.GetUnitTaskText+'.'+#13#10+'Please send the files BugReport.sav and KaM.log from the KaM Remake main directory to the developers.'
-               +' Contact details can be found in the Readme file.'+#13#10+'Thank you very much for your kind help!'+#13#10
-               +'WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
-               ,mtWarning,[mbYes,mbNo],0) <> mrYes then
-      fGame.StopGame(gr_Error,'',false); //Exit to main menu
     exit; //Exit either way, and the action will end
   end;
 
