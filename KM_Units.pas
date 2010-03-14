@@ -404,7 +404,7 @@ type
     destructor Destroy; override;
     function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
     function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
-    procedure Rem(aUnit:TKMUnit);
+    procedure RemoveUnit(aUnit:TKMUnit);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
@@ -1868,12 +1868,13 @@ begin
   FreeAndNil(fCurrentAction);
   FreeAndNil(fUnitTask);
 
-  if Self = fGame.fGamePlayInterface.GetShownUnit then
+  if (fGame.fGamePlayInterface <> nil) and (Self = fGame.fGamePlayInterface.GetShownUnit) then
     fGame.fGamePlayInterface.ClearShownUnit; //If this unit is being shown then we must clear it otherwise it sometimes crashes
+  //MapEd doesn't need this yet
 end;
 
 
-{Call this procedure to properly kill unit}
+{Call this procedure to properly kill a unit}
 //killing a unit is done in 3 steps
 // Kill - release all unit-specific tasks
 // TTaskDie - perform dying animation
@@ -3665,8 +3666,10 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.Rem(aUnit:TKMUnit);
+procedure TKMUnitsCollection.RemoveUnit(aUnit:TKMUnit);
 begin
+  aUnit.CloseUnit; //Should free up the unit properly (freeing terrain usage and memory)
+  aUnit.Free;
   Remove(aUnit);
 end;
 
@@ -3799,13 +3802,10 @@ begin
       IDsToDelete[ID] := I;
       inc(ID);
     end;
+
   //Must remove list entry after for loop is complete otherwise the indexes change
-  if ID <> 0 then
-    for I := ID-1 downto 0 do
-    begin
-      Delete(IDsToDelete[I]);
-      //fLog.AppendLog('Unit sucessfully freed and removed');
-    end;
+  for I := ID-1 downto 0 do
+    Delete(IDsToDelete[I]);
 
   //   --     POINTER FREEING SYSTEM - DESCRIPTION     --   //
   //  This system was implemented because unit and house objects cannot be freed until all pointers to them

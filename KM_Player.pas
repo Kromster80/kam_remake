@@ -248,6 +248,7 @@ begin
   end;
 end;
 
+
 function TKMPlayerAssets.RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
 var FoundUnit:TKMUnit;
 begin
@@ -256,10 +257,11 @@ begin
   if FoundUnit<>nil then
   begin
     if not Simulated then
-      fUnits.Rem(FoundUnit);
+      fUnits.RemoveUnit(FoundUnit);
     Result := true;
   end;
 end;
+
 
 function TKMPlayerAssets.RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
 begin
@@ -271,20 +273,24 @@ begin
   end;
 end;
 
+
 function TKMPlayerAssets.FindEmptyHouse(aUnitType:TUnitType; Loc:TKMPoint): TKMHouse;
 begin
   Result:=fHouses.FindEmptyHouse(aUnitType, Loc);
 end;
+
 
 function TKMPlayerAssets.FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse;
 begin
   Result := fHouses.FindHouse(aType, aPosition.X, aPosition.Y, Index);
 end;
 
+
 function TKMPlayerAssets.FindHouse(aType:THouseType; const Index:byte=1): TKMHouse;
 begin
   Result := fHouses.FindHouse(aType, 0, 0, Index);
 end;
+
 
 function TKMPlayerAssets.FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
 var
