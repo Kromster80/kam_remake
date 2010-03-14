@@ -1,6 +1,6 @@
 object frmMain: TfrmMain
-  Left = 192
-  Top = 113
+  Left = 190
+  Top = 131
   Width = 689
   Height = 637
   Caption = 'KaM Font Editor'
@@ -17,33 +17,13 @@ object frmMain: TfrmMain
     610)
   PixelsPerInch = 96
   TextHeight = 13
-  object btnExport: TBitBtn
-    Left = 161
-    Top = 555
-    Width = 120
-    Height = 25
-    Anchors = [akLeft, akBottom]
-    Caption = 'Export BMP'
-    TabOrder = 1
-    OnClick = btnExportClick
-  end
-  object btnImport: TBitBtn
-    Left = 323
-    Top = 555
-    Width = 75
-    Height = 25
-    Anchors = [akRight, akBottom]
-    Caption = 'Import BMP'
-    Enabled = False
-    TabOrder = 2
-  end
   object ListBox1: TListBox
     Left = 8
     Top = 40
     Width = 145
     Height = 345
     ItemHeight = 13
-    TabOrder = 3
+    TabOrder = 1
     OnClick = ListBox1Click
   end
   object RefreshData: TButton
@@ -52,12 +32,12 @@ object frmMain: TfrmMain
     Width = 97
     Height = 21
     Caption = 'Refresh'
-    TabOrder = 4
+    TabOrder = 2
     OnClick = RefreshDataClick
   end
   object BitBtn1: TBitBtn
-    Left = 373
-    Top = 555
+    Left = 5
+    Top = 491
     Width = 97
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -69,19 +49,51 @@ object frmMain: TfrmMain
     Left = 160
     Top = 8
     Width = 521
-    Height = 541
-    ActivePage = TabSheet2
-    TabIndex = 1
-    TabOrder = 5
+    Height = 569
+    ActivePage = TabSheet1
+    TabIndex = 0
+    TabOrder = 3
     object TabSheet1: TTabSheet
       Caption = 'Preview'
+      DesignSize = (
+        513
+        541)
       object Image1: TImage
         Left = 0
-        Top = 0
+        Top = 28
         Width = 512
         Height = 512
         OnMouseMove = Image1MouseMove
         OnMouseUp = Image1MouseUp
+      end
+      object btnExportBig: TBitBtn
+        Left = 120
+        Top = 0
+        Width = 120
+        Height = 25
+        Anchors = [akLeft, akBottom]
+        Caption = 'Export BMP'
+        TabOrder = 0
+        OnClick = btnExportBigClick
+      end
+      object CheckCells: TCheckBox
+        Left = 4
+        Top = 4
+        Width = 69
+        Height = 17
+        Caption = 'Show cells'
+        TabOrder = 1
+        OnClick = CheckCellsClick
+      end
+      object btnImportBig: TBitBtn
+        Left = 240
+        Top = 0
+        Width = 120
+        Height = 25
+        Anchors = [akLeft, akBottom]
+        Caption = 'Import BMP'
+        TabOrder = 2
+        OnClick = btnImportBigClick
       end
     end
     object TabSheet2: TTabSheet
