@@ -17,24 +17,24 @@ const
 
 {Fonts}
 type //Indexing should start from 1.
-  TKMFont =
-  (fnt_Adam=1,   fnt_Antiqua,  fnt_Briefing, fnt_Font01,      fnt_Game,
+  TKMFont = ( fnt_Nil=0,
+   fnt_Adam,     fnt_Antiqua,  fnt_Briefing, fnt_Font01,      fnt_Game,
    fnt_Grey,     fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2,    fnt_KMLobby3,
    fnt_KMLobby4, fnt_MainA,    fnt_MainB,    fnt_MainMapGold, fnt_Metal,
    fnt_Mini,     fnt_Minimum,  fnt_Outline,  fnt_System,      fnt_Won);
 
 const //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
-  FontCharSpacing: array[TKMFont] of shortint =
-  ( 0, 0, 0, 0, 1,-1, 0, 0, 0, 0,
+  FontCharSpacing: array[TKMFont] of shortint = ( 0,
+    0, 0, 0, 0, 1,-1, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 1, 1,-1, 0, 0);
 
-  FontFileNames: array[TKMFont] of string =
-  ( 'adam', 'antiqua', 'briefing', 'font01', 'game', 'grey', 'kmlobby0', 'kmlobby1', 'kmlobby2', 'kmlobby3',
+  FontFileNames: array[TKMFont] of string = ( 'nil',
+    'adam', 'antiqua', 'briefing', 'font01', 'game', 'grey', 'kmlobby0', 'kmlobby1', 'kmlobby2', 'kmlobby3',
     'kmlobby4', 'maina', 'mainb', 'mainmapgold', 'metal', 'mini', 'mininum','outline', 'system', 'won');
 
 var
-  FontPal:array[1..20]of byte = //Those 10 are unknown Pal, no existing Pal matches them well
-  (10, 2, 1,10, 2, 2, 1, 8, 8, 9,
+  FontPal:array[TKMFont]of byte = ( 10, //Those 10 are unknown Pal, no existing Pal matches them well
+   10, 2, 1,10, 2, 2, 1, 8, 8, 9,
     9, 8,10, 8, 2, 8, 8, 2,10, 9); //@Krom: Can this be loaded from the file? It would make it easier and more versatile.
 
 

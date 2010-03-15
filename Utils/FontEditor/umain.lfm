@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 192
+  Left = 190
   Height = 637
-  Top = 113
+  Top = 131
   Width = 689
   Caption = 'KaM Font Editor'
   ClientHeight = 637
@@ -10,25 +10,13 @@ object frmMain: TfrmMain
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   LCLVersion = '0.9.28.2'
-  object btnExport: TBitBtn
-    Left = 161
-    Height = 25
-    Top = 555
-    Width = 120
-    Anchors = [akLeft, akBottom]
-    Caption = 'Export BMP'
-    OnClick = btnExportClick
-    TabOrder = 1
-  end
-  object btnImport: TBitBtn
-    Left = 323
-    Height = 25
-    Top = 555
-    Width = 75
-    Anchors = [akRight, akBottom]
-    Caption = 'Import BMP'
-    Enabled = False
-    TabOrder = 2
+  object Label4: TLabel
+    Left = 8
+    Height = 14
+    Top = 392
+    Width = 69
+    Caption = 'Active palette:'
+    ParentColor = False
   end
   object ListBox1: TListBox
     Left = 8
@@ -37,7 +25,7 @@ object frmMain: TfrmMain
     Width = 145
     ItemHeight = 0
     OnClick = ListBox1Click
-    TabOrder = 3
+    TabOrder = 1
   end
   object RefreshData: TButton
     Left = 8
@@ -46,12 +34,12 @@ object frmMain: TfrmMain
     Width = 97
     Caption = 'Refresh'
     OnClick = RefreshDataClick
-    TabOrder = 4
+    TabOrder = 2
   end
   object BitBtn1: TBitBtn
-    Left = 373
+    Left = 8
     Height = 25
-    Top = 555
+    Top = 491
     Width = 97
     Anchors = [akLeft, akBottom]
     Caption = 'Save Font File'
@@ -60,40 +48,69 @@ object frmMain: TfrmMain
   end
   object PageControl1: TPageControl
     Left = 160
-    Height = 541
+    Height = 569
     Top = 8
     Width = 521
     ActivePage = TabSheet2
     TabIndex = 1
-    TabOrder = 5
+    TabOrder = 3
     object TabSheet1: TTabSheet
       Caption = 'Preview'
-      ClientHeight = 515
+      ClientHeight = 543
       ClientWidth = 513
       object Image1: TImage
         Left = 0
         Height = 512
-        Top = 0
+        Top = 28
         Width = 512
         OnMouseMove = Image1MouseMove
         OnMouseUp = Image1MouseUp
       end
+      object btnExportBig: TBitBtn
+        Left = 120
+        Height = 25
+        Top = 1
+        Width = 120
+        Anchors = [akLeft, akBottom]
+        Caption = 'Export BMP'
+        OnClick = btnExportBigClick
+        TabOrder = 0
+      end
+      object CheckCells: TCheckBox
+        Left = 4
+        Height = 17
+        Top = 4
+        Width = 71
+        Caption = 'Show cells'
+        OnClick = CheckCellsClick
+        TabOrder = 1
+      end
+      object btnImportBig: TBitBtn
+        Left = 240
+        Height = 25
+        Top = 1
+        Width = 120
+        Anchors = [akLeft, akBottom]
+        Caption = 'Import BMP'
+        OnClick = btnImportBigClick
+        TabOrder = 2
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'Letters'
-      ClientHeight = 515
+      ClientHeight = 543
       ClientWidth = 513
       ImageIndex = 1
       object Image2: TImage
         Left = 168
         Height = 161
-        Top = 176
+        Top = 208
         Width = 161
       end
       object Image3: TImage
         Left = 0
         Height = 128
-        Top = 24
+        Top = 56
         Width = 512
         OnMouseDown = Image3MouseDown
         OnMouseMove = Image3MouseMove
@@ -101,49 +118,55 @@ object frmMain: TfrmMain
       object Label1: TLabel
         Left = 16
         Height = 14
-        Top = 8
+        Top = 40
         Width = 62
         Caption = 'Work palette'
+        Color = clBtnFace
         ParentColor = False
+        Transparent = False
       end
       object Label2: TLabel
         Left = 176
         Height = 14
-        Top = 160
+        Top = 192
         Width = 28
         Caption = 'Letter'
+        Color = clBtnFace
         ParentColor = False
+        Transparent = False
       end
       object Image4: TImage
         Left = 8
-        Height = 25
-        Top = 352
+        Height = 40
+        Top = 376
         Width = 489
       end
       object Image5: TImage
         Left = 8
-        Height = 41
-        Top = 384
+        Height = 80
+        Top = 424
         Width = 489
       end
       object imgColourSelected: TImage
-        Left = 348
+        Left = 4
         Height = 48
-        Top = 176
+        Top = 208
         Width = 48
       end
       object Label3: TLabel
-        Left = 356
+        Left = 12
         Height = 14
-        Top = 160
+        Top = 192
         Width = 28
         Caption = 'Brush'
+        Color = clBtnFace
         ParentColor = False
+        Transparent = False
       end
       object Shape1: TShape
         Left = 0
         Height = 18
-        Top = 24
+        Top = 56
         Width = 18
         Brush.Style = bsClear
         Pen.Color = clLime
@@ -152,11 +175,43 @@ object frmMain: TfrmMain
       object Edit1: TEdit
         Left = 8
         Height = 21
-        Top = 328
+        Top = 352
         Width = 121
         OnChange = Edit1Change
         TabOrder = 0
         Text = 'Sample phrase'
+      end
+      object RadioGroup1: TRadioGroup
+        Left = 0
+        Height = 35
+        Top = 0
+        Width = 513
+        AutoFill = True
+        Caption = ' Palette  '
+        ChildSizing.LeftRightSpacing = 6
+        ChildSizing.TopBottomSpacing = 6
+        ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+        ChildSizing.EnlargeVertical = crsHomogenousChildResize
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 9
+        ClientHeight = 17
+        ClientWidth = 509
+        Columns = 9
+        Items.Strings = (
+          'map'
+          'pal0'
+          'pal1'
+          'pal2'
+          'pal3'
+          'pal4'
+          'pal5'
+          'setup'
+          'setup2'
+        )
+        OnClick = RadioGroup1Click
+        TabOrder = 1
       end
     end
   end
@@ -181,11 +236,11 @@ object frmMain: TfrmMain
     SimplePanel = False
   end
   object OpenDialog1: TOpenDialog
-    Left = 568
-    Top = 8
+    left = 568
+    top = 8
   end
   object SaveDialog1: TSaveDialog
-    Left = 608
-    Top = 8
+    left = 608
+    top = 8
   end
 end

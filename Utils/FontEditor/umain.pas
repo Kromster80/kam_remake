@@ -32,6 +32,7 @@ type
 
   TfrmMain = class(TForm)
     Label3: TLabel;
+    Label4: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     BitBtn1: TBitBtn;
@@ -52,8 +53,8 @@ type
     StatusBar1: TStatusBar;
     imgColourSelected: TImage;
     RadioGroup1: TRadioGroup;
-    btnExportBig: TBitBtn;
     CheckCells: TCheckBox;
+    btnExportBig: TBitBtn;
     btnImportBig: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
@@ -210,7 +211,7 @@ var
 begin
   //Compile texture
   setlength(TD, TexWidth*TexWidth + 1);
-  FillChar(TD[0], TexWidth*TexWidth + 1, $05); //Make some background to see real offsets
+  FillChar(TD[0], TexWidth*TexWidth + 1, $00); //Make some background to see real offsets
 
   for i:=0 to 255 do
     if FontData.Pal[i]<>0 then
@@ -229,12 +230,12 @@ begin
   MyBitmap.Height := TexWidth;
 
   for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-    p:=FontPal[byte(fCurrentFont)];
+    p:=FontPal[fCurrentFont];
     //p:=i;
     t:=TD[ci*TexWidth+ck]+1;
 
     //Draw grid lines
-    if ShowCells and ((ci mod 32 = 0) or (ck mod 32 = 0)) and (t=1) then
+    if ShowCells and ((ci mod 32 = 0) or (ck mod 32 = 0)) then
       MyBitmap.Canvas.Pixels[ck,ci] := $00FF00
     else
       MyBitmap.Canvas.Pixels[ck,ci] := PalData[p,t,1]+PalData[p,t,2]*256+PalData[p,t,3]*65536;
@@ -242,6 +243,10 @@ begin
 
   if WriteFontToBMP then begin
     RunSaveDialog(SaveDialog1, '', ExeDir, 'Bitmaps|*.bmp', 'bmp');
+    {MyBitmap.Height := MyBitmap.Height + 8*16;
+    for i:=1 to 64 do for k:=1 to TexWidth do
+    MyBitmap.Canvas.Pixels[k,TexWidth+i] := PalData[aPal,i+1,1]+PalData[aPal,i+1,2]*256+PalData[aPal,i+1,3]*65536;}
+
     MyBitmap.SaveToFile(SaveDialog1.FileName);
   end;
 
@@ -298,7 +303,7 @@ procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: T
 begin
   PageControl1.ActivePageIndex := 1;
   ActiveLetter := (Y div 32)*16 + X div 32;
-  ShowPalette(FontPal[byte(fCurrentFont)]);
+  ShowPalette(FontPal[fCurrentFont]);
   ShowLetter(ActiveLetter);
 end;
 
@@ -325,10 +330,8 @@ var
   MyBitMap:TBitMap;
   i,k:integer;
   Pal,Col:integer;
-  aFont:byte;
   MyRect:TRect;
 begin
-  aFont := byte(fCurrentFont);
 
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
@@ -336,7 +339,7 @@ begin
   MyBitmap.Height := 24;
 
   for i:=0 to FontData.Letters[aLetter].Height-1 do for k:=0 to FontData.Letters[aLetter].Width-1 do begin
-    Pal := FontPal[byte(aFont)];
+    Pal := FontPal[fCurrentFont];
     Col := FontData.Letters[aLetter].Data[i*FontData.Letters[aLetter].Width+k+1]+1;
     MyBitmap.Canvas.Pixels[k,i] := PalData[Pal,Col,1] + PalData[Pal,Col,2] shl 8 + PalData[Pal,Col,3] shl 16;
   end;
@@ -350,7 +353,7 @@ end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
-var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,Pal,t:integer; aFont:TKMFont; MyRect:TRect;
+var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,Pal,t:integer; MyRect:TRect;
 begin
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
@@ -358,10 +361,9 @@ begin
   MyBitmap.Height := 40;
 
   AdvX := 0;
-  aFont := fCurrentFont;
 
   //Fill area
-  Pal := FontPal[byte(aFont)];
+  Pal := FontPal[fCurrentFont];
   MyBitmap.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
   MyBitmap.Canvas.FillRect(MyBitmap.Canvas.ClipRect);
 
@@ -419,7 +421,7 @@ begin
   MyBitmap.PixelFormat := pf24bit;
   MyBitmap.Width := 1;
   MyBitmap.Height := 1;
-  Pal := FontPal[byte(fCurrentFont)];
+  Pal := FontPal[fCurrentFont];
 
   MyBitmap.Canvas.Pixels[0, 0] := PalData[Pal,ColourSelected+1,1]+PalData[Pal,ColourSelected+1,2]*256+PalData[Pal,ColourSelected+1,3]*65536;
   //
@@ -432,6 +434,7 @@ end;
 function TfrmMain.GetFontFromFileName(aFile:string):TKMFont;
 var i: TKMFont;
 begin
+  Result := fnt_Nil; //Deliberate error
   for i := low(TKMFont) to high(TKMFont) do
     if LeftStr(aFile,Length(FontFileNames[i])) = FontFileNames[i] then
     begin
@@ -444,8 +447,8 @@ end;
 procedure TfrmMain.RadioGroup1Click(Sender: TObject);
 begin
   ActiveLetter := 65; //Letter "A"
-  FontPal[byte(fCurrentFont)] := RadioGroup1.ItemIndex +1;
-  ShowPalette(FontPal[byte(fCurrentFont)]);
+  FontPal[fCurrentFont] := RadioGroup1.ItemIndex +1;
+  ShowPalette(FontPal[fCurrentFont]);
   ShowLetter(ActiveLetter);
 end;
 
@@ -458,14 +461,46 @@ end;
 
 procedure TfrmMain.btnImportBigClick(Sender: TObject);
 var
-  i,k,ci,ck,id:integer;
+  i,k,ci,ck,x,y:integer;
   MyBitmap:TBitmap;
-  LetterW,LetterH:integer;
+  LetterID,LetterW,LetterH:integer;
+  Pixels:array[1..512,1..512]of byte;
+
+  function FindBestPaletteColor(aCol:TColor):byte;
+  var
+    i:integer;
+    usePal:byte; //What palette to use?
+    tRMS, RMS:integer; //How different is sampled color vs. used one
+  begin
+    usePal := FontPal[fCurrentFont]; //Use palette from current font
+    for i:=1 to 256 do begin
+      tRMS := GetLengthSQR(PalData[usePal, i, 1] - Red(aCol), PalData[usePal, i, 2] - Green(aCol), PalData[usePal, i, 3] - Blue(aCol));
+      if (i=1) or (tRMS<RMS) then begin
+        Result := i-1; //byte = 0..255
+        RMS := tRMS;
+        if RMS = 0 then exit;
+      end;
+    end;
+  end;
 begin
   RunOpenDialog(OpenDialog1, '', ExeDir, 'Bitmaps|*.bmp');
+  if not FileExists(OpenDialog1.FileName) then exit;
 
   MyBitmap := TBitmap.Create;
   MyBitmap.LoadFromFile(OpenDialog1.FileName);
+  MyBitmap.PixelFormat := pf24bit; //Superflous?
+
+  if (MyBitmap.Height<>512)or(MyBitmap.Width<>512) then begin
+    MessageBox(frmMain.Handle,'Image should be 512x512 pixels!','Error',MB_OK);
+    MyBitmap.Free;
+    exit;
+  end;
+
+  //Convert 24bit to palette colors
+  for i:=1 to 512 do for k:=1 to 512 do
+    Pixels[i,k] := FindBestPaletteColor(MyBitmap.Canvas.Pixels[k-1,i-1]); //Canvas uses [X:Y] addressing, while I prefer [Y:X] order
+
+  MyBitmap.Free;
 
   //Scan all letter-boxes
   for i:=1 to 16 do for k:=1 to 16 do
@@ -478,13 +513,40 @@ begin
     //Excluding 1/1 coords which are for grid lines (irregardless of visibility)
     for ci:=2 to 32 do for ck:=2 to 32 do
     begin
-      //if MyBitmap
 
+      x := (k-1)*32 + ck; //Pixel coords
+      y := (i-1)*32 + ci;
+
+      if Pixels[y,x] <> 0 then begin
+        LetterW := math.max(LetterW, ck);
+        LetterH := math.max(LetterH, ci);
+      end;
     end;
 
-    id := (i-1)*16 + k; //1..256
+    //Remove offset that grid lines have added
+    LetterW := math.max(LetterW-1,0);
+    LetterH := math.max(LetterH-1,0);
+    LetterID := (i-1)*16 + k - 1; //0..255
+
+    FontData.Pal[LetterID] := byte(LetterW*LetterH<>0); //switch
+
+    with FontData.Letters[LetterID] do begin
+      Width  := LetterW;
+      Height := LetterH;
+      for ci:=1 to LetterH do for ck:=1 to LetterW do
+      begin
+        x := (k-1)*32 + ck + 1; //Pixel coords
+        y := (i-1)*32 + ci + 1;
+        Data[(ci-1)*LetterW + ck] := Pixels[y,x];
+      end;
+    end;
 
   end;
+
+  //Special fixes:
+  FontData.Letters[32].Width:=7; //"Space" width
+
+  ShowBigImage(CheckCells.Checked, false); //Show the result
 end;
 
 
