@@ -1,22 +1,21 @@
 LazarusResources.Add('TfrmMain','FORMDATA',[
-  'TPF0'#8'TfrmMain'#7'frmMain'#4'Left'#3#190#0#6'Height'#3'}'#2#3'Top'#3#131#0
+  'TPF0'#8'TfrmMain'#7'frmMain'#4'Left'#3#150#0#6'Height'#3'}'#2#3'Top'#3#149#0
   +#5'Width'#3#177#2#7'Caption'#6#15'KaM Font Editor'#12'ClientHeight'#3'}'#2#11
   +'ClientWidth'#3#177#2#11'Font.Height'#2#245#9'Font.Name'#6#13'MS Sans Serif'
-  +#8'OnCreate'#7#10'FormCreate'#10'LCLVersion'#6#8'0.9.28.2'#0#6'TLabel'#6'Lab'
-  +'el4'#4'Left'#2#8#6'Height'#2#14#3'Top'#3#136#1#5'Width'#2'E'#7'Caption'#6#15
-  +'Active palette:'#11'ParentColor'#8#0#0#8'TListBox'#8'ListBox1'#4'Left'#2#8#6
-  +'Height'#3'Y'#1#3'Top'#2'('#5'Width'#3#145#0#10'ItemHeight'#2#0#7'OnClick'#7
-  +#13'ListBox1Click'#8'TabOrder'#2#1#0#0#7'TButton'#11'RefreshData'#4'Left'#2#8
-  +#6'Height'#2#21#3'Top'#2#8#5'Width'#2'a'#7'Caption'#6#7'Refresh'#7'OnClick'#7
-  +#16'RefreshDataClick'#8'TabOrder'#2#2#0#0#7'TBitBtn'#7'BitBtn1'#4'Left'#2#8#6
-  +'Height'#2#25#3'Top'#3#235#1#5'Width'#2'a'#7'Anchors'#11#6'akLeft'#8'akBotto'
-  +'m'#0#7'Caption'#6#14'Save Font File'#7'Enabled'#8#8'TabOrder'#2#0#0#0#12'TP'
-  +'ageControl'#12'PageControl1'#4'Left'#3#160#0#6'Height'#3'9'#2#3'Top'#2#8#5
-  +'Width'#3#9#2#10'ActivePage'#7#9'TabSheet2'#8'TabIndex'#2#1#8'TabOrder'#2#3#0
-  +#9'TTabSheet'#9'TabSheet1'#7'Caption'#6#7'Preview'#12'ClientHeight'#3#31#2#11
-  +'ClientWidth'#3#1#2#0#6'TImage'#6'Image1'#4'Left'#2#0#6'Height'#3#0#2#3'Top'
-  +#2#28#5'Width'#3#0#2#11'OnMouseMove'#7#15'Image1MouseMove'#9'OnMouseUp'#7#13
-  +'Image1MouseUp'#0#0#7'TBitBtn'#12'btnExportBig'#4'Left'#2'x'#6'Height'#2#25#3
+  +#8'OnCreate'#7#10'FormCreate'#10'LCLVersion'#6#8'0.9.28.2'#0#8'TListBox'#8'L'
+  +'istBox1'#4'Left'#2#8#6'Height'#3'Y'#1#3'Top'#2'('#5'Width'#3#145#0#10'ItemH'
+  +'eight'#2#0#7'OnClick'#7#13'ListBox1Click'#8'TabOrder'#2#1#0#0#7'TButton'#11
+  +'RefreshData'#4'Left'#2#8#6'Height'#2#21#3'Top'#2#8#5'Width'#2'a'#7'Caption'
+  +#6#7'Refresh'#7'OnClick'#7#16'RefreshDataClick'#8'TabOrder'#2#2#0#0#7'TBitBt'
+  +'n'#7'BitBtn1'#4'Left'#2#8#6'Height'#2#25#3'Top'#3#235#1#5'Width'#2'a'#7'Anc'
+  +'hors'#11#6'akLeft'#8'akBottom'#0#7'Caption'#6#14'Save Font File'#7'Enabled'
+  +#8#8'TabOrder'#2#0#0#0#12'TPageControl'#12'PageControl1'#4'Left'#3#160#0#6'H'
+  +'eight'#3'9'#2#3'Top'#2#8#5'Width'#3#9#2#10'ActivePage'#7#9'TabSheet1'#8'Tab'
+  +'Index'#2#0#8'TabOrder'#2#3#13'OnPageChanged'#7#18'PageControl1Change'#0#9'T'
+  +'TabSheet'#9'TabSheet1'#7'Caption'#6#7'Preview'#12'ClientHeight'#3#31#2#11'C'
+  +'lientWidth'#3#1#2#0#6'TImage'#6'Image1'#4'Left'#2#0#6'Height'#3#0#2#3'Top'#2
+  +#28#5'Width'#3#0#2#11'OnMouseMove'#7#15'Image1MouseMove'#9'OnMouseUp'#7#13'I'
+  +'mage1MouseUp'#0#0#7'TBitBtn'#12'btnExportBig'#4'Left'#2'x'#6'Height'#2#25#3
   +'Top'#2#1#5'Width'#2'x'#7'Anchors'#11#6'akLeft'#8'akBottom'#0#7'Caption'#6#10
   +'Export BMP'#7'OnClick'#7#17'btnExportBigClick'#8'TabOrder'#2#0#0#0#9'TCheck'
   +'Box'#10'CheckCells'#4'Left'#2#4#6'Height'#2#17#3'Top'#2#4#5'Width'#2'G'#7'C'
@@ -57,5 +56,5 @@ LazarusResources.Add('TfrmMain','FORMDATA',[
   +'t'#6#4'Font'#5'Width'#3#200#0#0#1#4'Text'#6#11'Coordinates'#5'Width'#2'd'#0
   +#1#4'Text'#6#13'Font Hex Code'#5'Width'#2'2'#0#0#11'SimplePanel'#8#0#0#11'TO'
   +'penDialog'#11'OpenDialog1'#4'left'#3'8'#2#3'top'#2#8#0#0#11'TSaveDialog'#11
-  +'SaveDialog1'#4'left'#3'`'#2#3'top'#2#8#0#0#0
+  +'SaveDialog1'#4'left'#3'x'#2#3'top'#2#8#0#0#0
 ]);

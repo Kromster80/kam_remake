@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 190
+  Left = 150
   Height = 637
-  Top = 131
+  Top = 149
   Width = 689
   Caption = 'KaM Font Editor'
   ClientHeight = 637
@@ -10,14 +10,6 @@ object frmMain: TfrmMain
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   LCLVersion = '0.9.28.2'
-  object Label4: TLabel
-    Left = 8
-    Height = 14
-    Top = 392
-    Width = 69
-    Caption = 'Active palette:'
-    ParentColor = False
-  end
   object ListBox1: TListBox
     Left = 8
     Height = 345
@@ -51,9 +43,10 @@ object frmMain: TfrmMain
     Height = 569
     Top = 8
     Width = 521
-    ActivePage = TabSheet2
-    TabIndex = 1
+    ActivePage = TabSheet1
+    TabIndex = 0
     TabOrder = 3
+    OnPageChanged = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Preview'
       ClientHeight = 543
@@ -240,7 +233,7 @@ object frmMain: TfrmMain
     top = 8
   end
   object SaveDialog1: TSaveDialog
-    left = 608
+    left = 632
     top = 8
   end
 end

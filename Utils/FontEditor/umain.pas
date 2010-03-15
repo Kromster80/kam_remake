@@ -4,7 +4,7 @@ unit umain;
 interface
 uses
   {$IFDEF FPC} LCLIntf, LResources, {$ENDIF}
-  Windows, Messages, SysUtils, FileCtrl, Classes, Graphics, Controls, Forms,
+  Windows, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Math, ComCtrls, Buttons, StrUtils, KromUtils, Constants;
 
 
@@ -32,7 +32,6 @@ type
 
   TfrmMain = class(TForm)
     Label3: TLabel;
-    Label4: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     BitBtn1: TBitBtn;
@@ -57,6 +56,7 @@ type
     btnExportBig: TBitBtn;
     btnImportBig: TBitBtn;
     procedure FormCreate(Sender: TObject);
+    procedure PageControl1Change(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnExportBigClick(Sender: TObject);
@@ -106,6 +106,18 @@ begin
   ScanDataForPalettesAndFonts(DataDir);
 end;
 
+procedure TfrmMain.PageControl1Change(Sender: TObject);
+begin
+  if PageControl1.ActivePageIndex = 0 then
+    ShowBigImage(CheckCells.Checked, false); //Show the result
+
+  if PageControl1.ActivePageIndex = 1 then begin
+    ShowPalette(FontPal[fCurrentFont]);
+    ShowLetter(ActiveLetter);
+  end;
+end;
+
+
 procedure TfrmMain.RefreshDataClick(Sender: TObject);
 begin
   if not DirectoryExists(DataDir) then MessageBox(Self.Handle, 'Data folder not found', 'Error', 0);
@@ -142,7 +154,6 @@ procedure TfrmMain.ListBox1Click(Sender: TObject);
 begin
   LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], GetFontFromFileName(ListBox1.Items[ListBox1.ItemIndex]));
   if PageControl1.ActivePageIndex = 0 then ShowBigImage(CheckCells.Checked, false);
-  //PageControl1.ActivePageIndex := 0;
   StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex];
 end;
 
@@ -159,7 +170,7 @@ function TfrmMain.LoadFont(filename:string; aFont:TKMFont):boolean;
 var
   f:file;
   a,b,c,d:word;
-  i,k,ci,ck:integer;
+  i:integer;
   MaxHeight, MaxWidth:integer;
 begin
   Result := false;
@@ -301,10 +312,10 @@ end;
 
 procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  PageControl1.ActivePageIndex := 1;
+  {PageControl1.ActivePageIndex := 1;
   ActiveLetter := (Y div 32)*16 + X div 32;
   ShowPalette(FontPal[fCurrentFont]);
-  ShowLetter(ActiveLetter);
+  ShowLetter(ActiveLetter);}
 end;
 
 
@@ -318,7 +329,7 @@ begin
 
   for i:=0 to 255 do
     MyBitmap.Canvas.Pixels[i mod 32, i div 32] := PalData[aPal,i+1,1]+PalData[aPal,i+1,2]*256+PalData[aPal,i+1,3]*65536;
-  //
+
   MyRect := Image3.Canvas.ClipRect;
   Image3.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
   MyBitmap.Free;
@@ -465,6 +476,7 @@ var
   MyBitmap:TBitmap;
   LetterID,LetterW,LetterH:integer;
   Pixels:array[1..512,1..512]of byte;
+  ErrS:string;
 
   function FindBestPaletteColor(aCol:TColor):byte;
   var
@@ -472,6 +484,7 @@ var
     usePal:byte; //What palette to use?
     tRMS, RMS:integer; //How different is sampled color vs. used one
   begin
+    RMS := maxint;
     usePal := FontPal[fCurrentFont]; //Use palette from current font
     for i:=1 to 256 do begin
       tRMS := GetLengthSQR(PalData[usePal, i, 1] - Red(aCol), PalData[usePal, i, 2] - Green(aCol), PalData[usePal, i, 3] - Blue(aCol));
@@ -484,11 +497,15 @@ var
   end;
 begin
   RunOpenDialog(OpenDialog1, '', ExeDir, 'Bitmaps|*.bmp');
-  if not FileExists(OpenDialog1.FileName) then exit;
+  if not FileExists(OpenDialog1.FileName) then begin
+    ErrS := OpenDialog1.FileName+' couldn''t be found';
+    MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
+    exit;
+  end;
 
   MyBitmap := TBitmap.Create;
   MyBitmap.LoadFromFile(OpenDialog1.FileName);
-  MyBitmap.PixelFormat := pf24bit; //Superflous?
+  MyBitmap.PixelFormat := pf24bit;
 
   if (MyBitmap.Height<>512)or(MyBitmap.Width<>512) then begin
     MessageBox(frmMain.Handle,'Image should be 512x512 pixels!','Error',MB_OK);
