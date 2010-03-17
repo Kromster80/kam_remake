@@ -319,6 +319,26 @@ const UnitGroups: array[0..40] of TGroupType = (
     gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None);
 
 
+const FlagHeight: array[0..40] of shortint = (
+    //Villagers
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0, //ut_None..ut_Recruit
+    //Army
+    12,12,12, //ut_Militia, ut_AxeFighter, ut_Swordsman
+    12,12,    //ut_Bowman, ut_Arbaletman
+    0,0,      //ut_Pikeman, ut_Hallebardman,
+    -6,-6,    //ut_HorseScout, ut_Cavalry,
+    12,       //ut_Barbarian
+    //TPR Army
+    0,        //ut_Peasant
+    12,           //ut_Slingshot
+    12,            //ut_MetalBarbarian
+    -6,          //ut_Horseman
+    0,0, //ut_Catapult, ut_Ballista,
+    //Animals
+    0,0,0,0,0,0,0,0,0,0);
+
+
 //Defines which animal prefers which terrain
 const AnimalTerrain: array[31..38] of TPassability = (
     canWolf, canFish, canFish, canFish, canCrab, canFish, canFish, canFish);
@@ -496,6 +516,10 @@ const
   Barracks_Order:array[1..9] of TUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry);
+
+  MapEd_Order:array[1..10] of TUnitType = (
+    ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
+    ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian);
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
   TroopCost:array[ut_Militia..ut_Cavalry,1..4] of byte = (

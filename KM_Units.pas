@@ -1594,8 +1594,9 @@ inherited;
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
 
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
-  //todo: Flag vertical position is different for mounted vs none mounted units (i.e. so it isn't floating in the air for non-mounted units)
+
   if (fCommander=nil) and not (fUnitTask is TTaskDie) then begin
+    YPaintPos := YPaintPos + FlagHeight[UnitType]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight
     TeamColor := byte(fOwner);
     if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals);
     fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);

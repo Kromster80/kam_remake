@@ -44,7 +44,7 @@ type TKMapEdInterface = class
       Panel_Units:TKMPanel;
         Button_UnitCancel:TKMButtonFlat;
         Button_Citizen:array[1..14]of TKMButtonFlat;
-        Button_Warriors:array[1..9]of TKMButtonFlat;
+        Button_Warriors:array[1..10]of TKMButtonFlat;
       Panel_Script:TKMPanel;
 
     Panel_Menu:TKMPanel;
@@ -457,12 +457,12 @@ begin
       MyControls.AddLabel(Panel_Units,100,10,100,30,'Citizens',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Citizen) do
       begin
-        Button_Citizen[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,40+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 32x8
+        Button_Citizen[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,30+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 32x8
         Button_Citizen[i].Hint := TypeToString(School_Order[i]);
         Button_Citizen[i].Tag := byte(School_Order[i]); //Returns unit ID
         Button_Citizen[i].OnClick := Unit_ButtonClick;
       end;
-      Button_UnitCancel := MyControls.AddButtonFlat(Panel_Units,8+(length(Button_Citizen) mod 5)*37,40+(length(Button_Citizen) div 5)*37,33,33,340);
+      Button_UnitCancel := MyControls.AddButtonFlat(Panel_Units,8+(length(Button_Citizen) mod 5)*37,30+(length(Button_Citizen) div 5)*37,33,33,340);
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
@@ -476,14 +476,16 @@ begin
       //       options from his selection menu. Sounds good. :) Warriors can probably stay in this
       //       tab then if we don't need extra controls, animals can else where.
       //@Lewin: Ok.
-      MyControls.AddLabel(Panel_Units,100,160,100,30,'Warriors',fnt_Outline,kaCenter);
+      MyControls.AddLabel(Panel_Units,100,150,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
-        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,190+((i-1) div 5)*37,33,33,byte(Barracks_Order[i])+140); //List of tiles 32x8
-        Button_Warriors[i].Hint := TypeToString(Barracks_Order[i]);
-        Button_Warriors[i].Tag := byte(Barracks_Order[i]); //Returns unit ID
+        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,170+((i-1) div 5)*37,33,33,byte(MapEd_Order[i])+140);
+        Button_Warriors[i].Hint := TypeToString(MapEd_Order[i]);
+        Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
       end;
+
+      MyControls.AddLabel(Panel_Units,100,250,100,30,'Animals',fnt_Outline,kaCenter);
 
     Panel_Script := MyControls.AddPanel(Panel_Village,0,28,196,400);
 end;
@@ -851,7 +853,7 @@ begin
     //Label_Build.Caption := fTextLibrary.GetTextString(210);
   end;
 
-  if TKMButtonFlat(Sender).Tag in [1..byte(ut_Cavalry)] then
+  if TKMButtonFlat(Sender).Tag in [byte(MapEd_Order[1])..byte(MapEd_Order[length(MapEd_Order)])] then
   begin
     CursorMode.Mode := cm_Units;
     CursorMode.Tag1 := byte(TKMButtonFlat(Sender).Tag);

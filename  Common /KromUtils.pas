@@ -43,6 +43,7 @@ function Max(const A,B,C: single):single; overload;
 function Ceil(const X: Extended):Integer;
 function Pow(const Base, Exponent: integer): integer;
 
+  function GetLengthSQR(ix,iy,iz:integer): integer; //Length without SQRT
   function GetLength(ix,iy,iz:single): single; overload;
   function GetLength(ix,iy:single): single; overload;
 
@@ -292,6 +293,12 @@ num := num OR (num SHR 4);
 num := num OR (num SHR 8);
 num := num OR (num SHR 16); //32bit needs no more
 Result := num+1;
+end;
+
+
+function GetLengthSQR(ix,iy,iz:integer): integer;
+begin
+  Result:=sqr(ix)+sqr(iy)+sqr(iz);
 end;
 
 
