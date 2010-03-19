@@ -10,6 +10,14 @@ object frmMain: TfrmMain
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
   LCLVersion = '0.9.28.2'
+  object Label4: TLabel
+    Left = 8
+    Height = 14
+    Top = 408
+    Width = 33
+    Caption = 'Label4'
+    ParentColor = False
+  end
   object ListBox1: TListBox
     Left = 8
     Height = 345

@@ -15,10 +15,11 @@ uses
 
   FontData: record
     Title:TKMFont;
-    Pal:array[0..255]of byte;
+    Unk1,Unk2,CharOffset,Unk3:smallint; //@Lewin: Unknown, Unknown, CharOffset, LineOffset?
+    Pal:array[0..255]of byte; //Switch to determine if letter is there
     Letters:array[0..255]of record
       Width,Height:word;
-      Add:array[1..4]of word;
+      Add:array[1..4]of word; //Always zero
       Data:array[1..4096] of byte;
     end;
   end;
@@ -32,6 +33,7 @@ type
 
   TfrmMain = class(TForm)
     Label3: TLabel;
+    Label4: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     BitBtn1: TBitBtn;
@@ -72,7 +74,6 @@ type
     { Private declarations }
     fFileEditing: string;
     fColourSelected: byte;
-    fCurrentFont: TKMFont;
     function GetFontFromFileName(aFile:string):TKMFont;
     procedure SetFileEditing(aFile:string);
     procedure SetColourSelected(aColour:byte);
@@ -112,7 +113,7 @@ begin
     ShowBigImage(CheckCells.Checked, false); //Show the result
 
   if PageControl1.ActivePageIndex = 1 then begin
-    ShowPalette(FontPal[fCurrentFont]);
+    ShowPalette(FontPal[FontData.Title]);
     ShowLetter(ActiveLetter);
   end;
 end;
@@ -169,7 +170,6 @@ end;
 function TfrmMain.LoadFont(filename:string; aFont:TKMFont):boolean;
 var
   f:file;
-  a,b,c,d:word;
   i:integer;
   MaxHeight, MaxWidth:integer;
 begin
@@ -180,8 +180,7 @@ begin
   MaxHeight := 0;
 
   assignfile(f,filename); reset(f,1);
-  blockread(f,a,2); blockread(f,b,2);
-  blockread(f,c,2); blockread(f,d,2);
+  blockread(f,FontData.Unk1,8);
   blockread(f,FontData.Pal[0],256);
 
   //Read font data
@@ -196,6 +195,10 @@ begin
       end;
   closefile(f);
 
+  Label4.Caption := inttostr(FontData.Unk1)+' . '+inttostr(FontData.CharOffset)+' . '+inttostr(FontData.Unk2)+' . '+inttostr(FontData.Unk3)
+  +' . H'+inttostr(MaxHeight)+' . W'+inttostr(MaxWidth);
+
+
   //Special fixes:
   FontData.Letters[32].Width:=7; //"Space" width
 
@@ -206,7 +209,8 @@ begin
         if FontData.Letters[i].Data[k]<>0 then
           FontData.Letters[i].Data[k]:=218; //Light grey color in Pal2}
 
-  fCurrentFont := aFont;
+  //Remember the font
+  FontData.Title := aFont;
 end;
 
 
@@ -214,9 +218,9 @@ procedure TfrmMain.ShowBigImage(ShowCells, WriteFontToBMP:boolean);
 const
   TexWidth=512; //Connected to TexData, don't change
 var
-  i,ci,ck:integer;
+  i,k,ci,ck:integer;
   CellX,CellY:integer;
-  p,t:byte;
+  Pal,t:byte;
   TD:array of byte;
   MyBitMap:TBitMap;
 begin
@@ -240,23 +244,26 @@ begin
   MyBitmap.Width := TexWidth;
   MyBitmap.Height := TexWidth;
 
+  Pal := FontPal[FontData.Title];
   for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-    p:=FontPal[fCurrentFont];
-    //p:=i;
     t:=TD[ci*TexWidth+ck]+1;
 
     //Draw grid lines
     if ShowCells and ((ci mod 32 = 0) or (ck mod 32 = 0)) then
       MyBitmap.Canvas.Pixels[ck,ci] := $00FF00
     else
-      MyBitmap.Canvas.Pixels[ck,ci] := PalData[p,t,1]+PalData[p,t,2]*256+PalData[p,t,3]*65536;
+      MyBitmap.Canvas.Pixels[ck,ci] := PalData[Pal,t,1]+PalData[Pal,t,2]*256+PalData[Pal,t,3]*65536;
   end;
 
   if WriteFontToBMP then begin
     RunSaveDialog(SaveDialog1, '', ExeDir, 'Bitmaps|*.bmp', 'bmp');
-    {MyBitmap.Height := MyBitmap.Height + 8*16;
-    for i:=1 to 64 do for k:=1 to TexWidth do
-    MyBitmap.Canvas.Pixels[k,TexWidth+i] := PalData[aPal,i+1,1]+PalData[aPal,i+1,2]*256+PalData[aPal,i+1,3]*65536;}
+
+    //Append used palette to ease up editing, with color samples 16x16px
+    MyBitmap.Height := MyBitmap.Height + 8*16; //32x8 cells
+    for i:=1 to 128 do for k:=1 to TexWidth do begin
+      t := ((i-1) div 16)*32 + ((k-1) div 16 mod 32) + 1;
+      MyBitmap.Canvas.Pixels[k-1,TexWidth+i-1] := PalData[Pal, t, 1] + PalData[Pal, t, 2] shl 8 + PalData[Pal, t, 3] shl 16;
+    end;
 
     MyBitmap.SaveToFile(SaveDialog1.FileName);
   end;
@@ -306,7 +313,12 @@ end;
 procedure TfrmMain.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
   StatusBar1.Panels.Items[1].Text := 'Coordinates: ' + IntToStr(Y div 32)+'; '+IntToStr(X div 32);
-  StatusBar1.Panels.Items[2].Text := 'Hex code: ' + IntToHex( (((Y div 32)*8)+(X div 32)) ,2);
+  StatusBar1.Panels.Items[2].Text := 'Hex code: ' + IntToHex( (((Y div 32)*8)+(X div 32)) ,2)+'    '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[1])+' . '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[2])+' . '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[3])+' . '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[4])
+  ;
 end;
 
 
@@ -350,7 +362,7 @@ begin
   MyBitmap.Height := 24;
 
   for i:=0 to FontData.Letters[aLetter].Height-1 do for k:=0 to FontData.Letters[aLetter].Width-1 do begin
-    Pal := FontPal[fCurrentFont];
+    Pal := FontPal[FontData.Title];
     Col := FontData.Letters[aLetter].Data[i*FontData.Letters[aLetter].Width+k+1]+1;
     MyBitmap.Canvas.Pixels[k,i] := PalData[Pal,Col,1] + PalData[Pal,Col,2] shl 8 + PalData[Pal,Col,3] shl 16;
   end;
@@ -374,7 +386,7 @@ begin
   AdvX := 0;
 
   //Fill area
-  Pal := FontPal[fCurrentFont];
+  Pal := FontPal[FontData.Title];
   MyBitmap.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
   MyBitmap.Canvas.FillRect(MyBitmap.Canvas.ClipRect);
 
@@ -382,9 +394,10 @@ begin
   begin
     for ci:=0 to FontData.Letters[ord(Edit1.Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Edit1.Text[i])].Width-1 do begin
       t := FontData.Letters[ord(Edit1.Text[i])].Data[ci*FontData.Letters[ord(Edit1.Text[i])].Width+ck+1]+1;
+      if t<>1 then //don't bother for clear pixels, speed-up
       MyBitmap.Canvas.Pixels[ck+AdvX,ci] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
     end;
-    inc(AdvX,FontData.Letters[ord(Edit1.Text[i])].Width);
+    inc(AdvX,FontData.Letters[ord(Edit1.Text[i])].Width+FontData.CharOffset);
   end;
 
   //Match phrase bounds
@@ -432,7 +445,7 @@ begin
   MyBitmap.PixelFormat := pf24bit;
   MyBitmap.Width := 1;
   MyBitmap.Height := 1;
-  Pal := FontPal[fCurrentFont];
+  Pal := FontPal[FontData.Title];
 
   MyBitmap.Canvas.Pixels[0, 0] := PalData[Pal,ColourSelected+1,1]+PalData[Pal,ColourSelected+1,2]*256+PalData[Pal,ColourSelected+1,3]*65536;
   //
@@ -458,8 +471,8 @@ end;
 procedure TfrmMain.RadioGroup1Click(Sender: TObject);
 begin
   ActiveLetter := 65; //Letter "A"
-  FontPal[fCurrentFont] := RadioGroup1.ItemIndex +1;
-  ShowPalette(FontPal[fCurrentFont]);
+  FontPal[FontData.Title] := RadioGroup1.ItemIndex +1;
+  ShowPalette(FontPal[FontData.Title]);
   ShowLetter(ActiveLetter);
 end;
 
@@ -485,7 +498,7 @@ var
     tRMS, RMS:integer; //How different is sampled color vs. used one
   begin
     RMS := maxint;
-    usePal := FontPal[fCurrentFont]; //Use palette from current font
+    usePal := FontPal[FontData.Title]; //Use palette from current font
     for i:=1 to 256 do begin
       tRMS := GetLengthSQR(PalData[usePal, i, 1] - Red(aCol), PalData[usePal, i, 2] - Green(aCol), PalData[usePal, i, 3] - Blue(aCol));
       if (i=1) or (tRMS<RMS) then begin
