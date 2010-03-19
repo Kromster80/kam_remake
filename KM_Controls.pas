@@ -2,6 +2,11 @@ unit KM_Controls;
 interface
 uses MMSystem, Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
 
+type
+  TNotifyEvent = procedure(Sender: TObject) of object;
+  TNotifyEvent2 = procedure(Sender: TObject; AButton:TMouseButton) of object;
+
+
 {Base class for all TKM elements}
 type
 TKMControl = class(TObject)
@@ -26,9 +31,10 @@ TKMControl = class(TObject)
 
     CursorOver:boolean;
 
-    FOnClick:TNotifyEvent;
     FOnChange:TNotifyEvent;
-    FOnRightClick:TNotifyEvent;
+    FOnClick:TNotifyEvent;
+    FOnClickEither:TNotifyEvent2;
+    FOnClickRight:TNotifyEvent;
     FOnMouseOver:TMouseMoveEvent;
     FOnHint:TMouseMoveEvent;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
@@ -44,9 +50,10 @@ TKMControl = class(TObject)
     procedure Hide;
     function IsVisible():boolean;
     function HitTest(X, Y: Integer): Boolean;
-    property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    property OnRightClick: TNotifyEvent read FOnRightClick write FOnRightClick;
+    property OnClick: TNotifyEvent read FOnClick write FOnClick;
+    property OnClickEither: TNotifyEvent2 read FOnClickEither write FOnClickEither;
+    property OnClickRight: TNotifyEvent read FOnClickRight write FOnClickRight;
     property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
     property OnHint: TMouseMoveEvent read FOnHint write FOnHint;
 
@@ -1233,26 +1240,30 @@ procedure TKMControlsCollection.OnMouseUp(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   for i:=0 to Count-1 do
-    if TKMControl(Items[I]).HitTest(X, Y) then
-      if TKMControl(Items[I]).Enabled then
-      begin
-        if TKMControl(Items[i]) is TKMButton then
-          TKMButton(Items[I]).Down := false;
-        if AButton = mbLeft then
-        begin
-          if Assigned(TKMControl(Items[I]).OnClick) then
-          begin
-            TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
-            exit; //Send OnClick only to one item
-          end;
-        end else
-          if AButton = mbRight then
-          if Assigned(TKMControl(Items[I]).OnRightClick) then
-          begin
-            TKMControl(Items[I]).OnRightClick(TKMControl(Items[I]));
-            exit; //Send OnRightClick only to one item
-          end;
-      end;
+  if TKMControl(Items[I]).HitTest(X, Y) then
+  if TKMControl(Items[I]).Enabled then
+  begin
+    if TKMControl(Items[i]) is TKMButton then
+      TKMButton(Items[I]).Down := false;
+
+    if (AButton = mbLeft) and Assigned(TKMControl(Items[I]).OnClick) then
+    begin
+      TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
+      exit; //Send OnClick only to one item
+    end;
+
+    if (AButton = mbRight) and Assigned(TKMControl(Items[I]).OnClickRight) then
+    begin
+      TKMControl(Items[I]).OnClickRight(TKMControl(Items[I]));
+      exit; //Send OnClickRight only to one item
+    end;
+
+    if Assigned(TKMControl(Items[I]).OnClickEither) then
+    begin
+      TKMControl(Items[I]).OnClickEither(TKMControl(Items[I]), AButton);
+      exit; //Send OnClickRight only to one item
+    end;
+  end;
 end;
 
 

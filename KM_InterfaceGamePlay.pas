@@ -186,12 +186,9 @@ type TKMGamePlayInterface = class
     procedure House_Demolish(Sender:TObject);
     procedure House_RepairToggle(Sender:TObject);
     procedure House_WareDeliveryToggle(Sender:TObject);
-    procedure House_OrderClick(Sender:TObject);
-    procedure House_OrderClickRight(Sender:TObject);
-    procedure House_BarracksUnitChange(Sender:TObject);
-    procedure House_BarracksUnitChangeRight(Sender:TObject);
-    procedure House_SchoolUnitChange(Sender:TObject);
-    procedure House_SchoolUnitChangeRight(Sender:TObject);
+    procedure House_OrderClick(Sender:TObject; AButton:TMouseButton);
+    procedure House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
+    procedure House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
     procedure House_SchoolUnitRemove(Sender:TObject);
     procedure House_StoreAcceptFlag(Sender:TObject);
     procedure Menu_ShowSettings(Sender: TObject);
@@ -525,7 +522,7 @@ begin
 
     KMMinimap := MyControls.AddMinimap(Panel_Main,10,10,176,176);
     KMMinimap.OnChange := Minimap_Update;
-    KMMinimap.OnRightClick := Minimap_RightClick;
+    KMMinimap.OnClickRight := Minimap_RightClick;
 
     {Main 4 buttons +return button}
     for i:=0 to 3 do begin
@@ -1047,12 +1044,10 @@ begin
       Row__Common_Resource[4] := MyControls.AddResourceRow(Panel_House_Common,  8,82,180,20,rt_Stone,5);
       for i:=1 to 4 do begin
         Row__Order[i] := MyControls.AddResourceOrderRow(Panel_House_Common,  8,22,180,20,rt_Trunk,5);
-        Row__Order[i].OrderRem.OnClick      := House_OrderClick;
-        Row__Order[i].OrderRem.OnRightClick := House_OrderClickRight;
-        Row__Order[i].OrderRem.Hint         := fTextLibrary.GetTextString(234);
-        Row__Order[i].OrderAdd.OnClick      := House_OrderClick;
-        Row__Order[i].OrderAdd.OnRightClick := House_OrderClickRight;
-        Row__Order[i].OrderAdd.Hint         := fTextLibrary.GetTextString(235);
+        Row__Order[i].OrderRem.OnClickEither := House_OrderClick;
+        Row__Order[i].OrderAdd.OnClickEither := House_OrderClick;
+        Row__Order[i].OrderRem.Hint          := fTextLibrary.GetTextString(234);
+        Row__Order[i].OrderAdd.Hint          := fTextLibrary.GetTextString(235);
       end;
       Row__Costs[1] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
       Row__Costs[2] := MyControls.AddCostsRow(Panel_House_Common,  8,22,180,20, 1);
@@ -1103,11 +1098,9 @@ begin
       Button_School_Left :=MyControls.AddButton(Panel_House_School,  8,226,54,40,35);
       Button_School_Train:=MyControls.AddButton(Panel_House_School, 70,226,54,40,42);
       Button_School_Right:=MyControls.AddButton(Panel_House_School,132,226,54,40,36);
-      Button_School_Left.OnClick:=House_SchoolUnitChange;
-      Button_School_Train.OnClick:=House_SchoolUnitChange;
-      Button_School_Right.OnClick:=House_SchoolUnitChange;
-      Button_School_Left.OnRightClick:=House_SchoolUnitChangeRight;
-      Button_School_Right.OnRightClick:=House_SchoolUnitChangeRight;
+      Button_School_Left.OnClickEither:=House_SchoolUnitChange;
+      Button_School_Train.OnClickEither:=House_SchoolUnitChange;
+      Button_School_Right.OnClickEither:=House_SchoolUnitChange;
       Button_School_Left.Hint :=fTextLibrary.GetTextString(242);
       Button_School_Train.Hint:=fTextLibrary.GetTextString(243);
       Button_School_Right.Hint:=fTextLibrary.GetTextString(241);
@@ -1142,11 +1135,9 @@ begin
       Button_Barracks_Left :=MyControls.AddButton(Panel_HouseBarracks,  8,226,54,40,35);
       Button_Barracks_Train:=MyControls.AddButton(Panel_HouseBarracks, 70,226,54,40,42);
       Button_Barracks_Right:=MyControls.AddButton(Panel_HouseBarracks,132,226,54,40,36);
-      Button_Barracks_Left.OnClick:=House_BarracksUnitChange;
-      Button_Barracks_Train.OnClick:=House_BarracksUnitChange;
-      Button_Barracks_Right.OnClick:=House_BarracksUnitChange;
-      Button_Barracks_Left.OnRightClick:=House_BarracksUnitChangeRight;
-      Button_Barracks_Right.OnRightClick:=House_BarracksUnitChangeRight;
+      Button_Barracks_Left.OnClickEither:=House_BarracksUnitChange;
+      Button_Barracks_Train.OnClickEither:=House_BarracksUnitChange;
+      Button_Barracks_Right.OnClickEither:=House_BarracksUnitChange;
       Button_Barracks_Left.Hint :=fTextLibrary.GetTextString(237);
       Button_Barracks_Train.Hint:=fTextLibrary.GetTextString(240);
       Button_Barracks_Right.Hint:=fTextLibrary.GetTextString(238);
@@ -1378,13 +1369,13 @@ begin
 
     ht_School: begin
           ResRow_School_Resource.ResourceCount:=Sender.CheckResIn(rt_Gold);
-          House_SchoolUnitChange(nil);
+          House_SchoolUnitChange(nil, mbLeft);
           SwitchPage(Panel_House_School);
         end;
 
     ht_Barracks: begin
           Image_House_Worker.Enabled := true; //In the barrack the recruit icon is always enabled
-          House_BarracksUnitChange(nil);
+          House_BarracksUnitChange(nil, mbLeft);
           SwitchPage(Panel_HouseBarracks);
           end;
     ht_TownHall:;
@@ -1565,39 +1556,33 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.House_OrderClick(Sender:TObject);
-var i:integer;
+procedure TKMGamePlayInterface.House_OrderClick(Sender:TObject; AButton:TMouseButton);
+var i:integer; Amt:byte;
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouse) then exit;
 
+  if AButton = mbLeft then Amt := 1;
+  if AButton = mbRight then Amt := 10;
+
   for i:=1 to 4 do begin
-    if Sender = Row__Order[i].OrderRem then TKMHouse(fPlayers.Selected).ResRemOrder(i);
-    if Sender = Row__Order[i].OrderAdd then TKMHouse(fPlayers.Selected).ResAddOrder(i);
+    if Sender = Row__Order[i].OrderRem then TKMHouse(fPlayers.Selected).ResRemOrder(i,Amt);
+    if Sender = Row__Order[i].OrderAdd then TKMHouse(fPlayers.Selected).ResAddOrder(i,Amt);
   end;
 end;
 
 
-procedure TKMGamePlayInterface.House_OrderClickRight(Sender:TObject);
-var i:integer;
-begin
-  if fPlayers.Selected = nil then exit;
-  if not (fPlayers.Selected is TKMHouse) then exit;
-
-  for i:=1 to 4 do begin
-    if Sender = Row__Order[i].OrderRem then TKMHouse(fPlayers.Selected).ResRemOrder(i,10);
-    if Sender = Row__Order[i].OrderAdd then TKMHouse(fPlayers.Selected).ResAddOrder(i,10);
-  end;
-end;
-
-
-procedure TKMGamePlayInterface.House_BarracksUnitChange(Sender:TObject);
+procedure TKMGamePlayInterface.House_BarracksUnitChange(Sender:TObject; AButton:TMouseButton);
 var i, k, Tmp: integer; Barracks:TKMHouseBarracks; CanEquip: boolean;
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseBarracks) then exit;
 
   Barracks:=TKMHouseBarracks(fPlayers.Selected);
+
+  if (AButton = mbRight) and (Sender=Button_Barracks_Left) then LastBarracksUnit := 1;
+  if (AButton = mbRight) and (Sender=Button_Barracks_Right) then LastBarracksUnit := Length(Barracks_Order);
+
   if (Sender=Button_Barracks_Left)and(LastBarracksUnit > 1) then dec(LastBarracksUnit);
   if (Sender=Button_Barracks_Right)and(LastBarracksUnit < length(Barracks_Order)) then inc(LastBarracksUnit);
 
@@ -1640,21 +1625,16 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.House_BarracksUnitChangeRight(Sender:TObject);
-begin
-  if Sender=Button_Barracks_Left  then LastBarracksUnit := 1;
-  if Sender=Button_Barracks_Right then LastBarracksUnit := Length(Barracks_Order);
-  House_BarracksUnitChange(nil);
-end;
-
-
 {Process click on Left-Train-Right buttons of School}
-procedure TKMGamePlayInterface.House_SchoolUnitChange(Sender:TObject);
+procedure TKMGamePlayInterface.House_SchoolUnitChange(Sender:TObject; AButton:TMouseButton);
 var i:byte; School:TKMHouseSchool;
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseSchool) then exit;
   School:=TKMHouseSchool(fPlayers.Selected);
+
+  if (AButton = mbRight) and (Sender=Button_School_Left) then LastSchoolUnit := 1;
+  if (AButton = mbRight) and (Sender=Button_School_Right) then LastSchoolUnit := Length(School_Order);
 
   if (Sender=Button_School_Left)and(LastSchoolUnit > 1) then dec(LastSchoolUnit);
   if (Sender=Button_School_Right)and(LastSchoolUnit < length(School_Order)) then inc(LastSchoolUnit);
@@ -1700,15 +1680,6 @@ begin
 end;
 
 
-{Process right click on Left-Right buttons of School}
-procedure TKMGamePlayInterface.House_SchoolUnitChangeRight(Sender:TObject);
-begin
-  if Sender=Button_School_Left then LastSchoolUnit := 1;
-  if Sender=Button_School_Right then LastSchoolUnit := Length(School_Order);
-  House_SchoolUnitChange(nil);
-end;
-
-
 {Process click on Remove-from-queue buttons of School}
 procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
 var i:integer;
@@ -1722,7 +1693,7 @@ begin
       fSoundLib.Play(sfx_click); //This is done for all buttons now, see fGame.OnMouseDown
       //True, but these are not buttons, they are flat buttons. They still have to make the sound though. To be deleted
     end;
-  House_SchoolUnitChange(nil);
+  House_SchoolUnitChange(nil, mbLeft);
 end;
 
 

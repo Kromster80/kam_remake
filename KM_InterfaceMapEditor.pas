@@ -103,10 +103,9 @@ type TKMapEdInterface = class
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
-    procedure House_HealthChange(Sender:TObject);
-    procedure House_HealthChangeRight(Sender:TObject);
+    procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
     procedure Store_SelectWare(Sender:TObject);
-    procedure Store_EditWareCount(Sender:TObject);
+    procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
   public
     MyControls: TKMControlsCollection;
     constructor Create;
@@ -621,10 +620,8 @@ begin
     KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,100,53,60,20,50,'',fnt_Mini);
     Button_HouseHealthDec := MyControls.AddButton(Panel_House,80,53,20,20,'-', fnt_Metal);
     Button_HouseHealthInc := MyControls.AddButton(Panel_House,160,53,20,20,'+', fnt_Metal);
-    Button_HouseHealthDec.OnClick := House_HealthChange;
-    Button_HouseHealthInc.OnClick := House_HealthChange;
-    Button_HouseHealthDec.OnRightClick := House_HealthChangeRight;
-    Button_HouseHealthInc.OnRightClick := House_HealthChangeRight;
+    Button_HouseHealthDec.OnClickEither := House_HealthChange;
+    Button_HouseHealthInc.OnClickEither := House_HealthChange;
 end;
 
 
@@ -644,14 +641,10 @@ begin
     Label_Store_WareCount:= MyControls.AddLabel (Panel_HouseStore,156,230,100,30,'',fnt_Metal,kaCenter);
     Button_StoreInc100   := MyControls.AddButton(Panel_HouseStore,176,218,20,20,'>', fnt_Metal);
     Button_StoreInc      := MyControls.AddButton(Panel_HouseStore,176,238,20,20,'+', fnt_Metal);
-    Button_StoreDec100.OnClick := Store_EditWareCount;
-    Button_StoreDec.OnClick    := Store_EditWareCount;
-    Button_StoreInc100.OnClick := Store_EditWareCount;
-    Button_StoreInc.OnClick    := Store_EditWareCount;
-    {Button_StoreDec100.OnRightClick := Store_EditWareCountRight; //x10
-    Button_StoreDec.OnRightClick    := Store_EditWareCountRight;
-    Button_StoreInc100.OnRightClick := Store_EditWareCountRight;
-    Button_StoreInc.OnRightClick    := Store_EditWareCountRight;}
+    Button_StoreDec100.OnClickEither := Store_EditWareCount;
+    Button_StoreDec.OnClickEither    := Store_EditWareCount;
+    Button_StoreInc100.OnClickEither := Store_EditWareCount;
+    Button_StoreInc.OnClickEither    := Store_EditWareCount;
 end;
 
 
@@ -1025,19 +1018,14 @@ begin
 end;
 
 
-procedure TKMapEdInterface.House_HealthChange(Sender:TObject);
+procedure TKMapEdInterface.House_HealthChange(Sender:TObject; AButton:TMouseButton);
+var Amt:byte;
 begin
   if ShownHouse = nil then exit;
-  if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(1);
-  if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(1);
-end;
-
-
-procedure TKMapEdInterface.House_HealthChangeRight(Sender:TObject);
-begin
-  if ShownHouse = nil then exit;
-  if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(50);
-  if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(50);
+  if AButton = mbLeft then Amt:=1;
+  if AButton = mbRight then Amt:=50;
+  if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(Amt);
+  if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(Amt);
 end;
 
 
@@ -1051,22 +1039,24 @@ begin
     Button_Store[i].Down:=false;
   TKMButtonFlat(Sender).Down := true;
   StorehouseItem := TKMButtonFlat(Sender).Tag;
-  Store_EditWareCount(Sender);
+  Store_EditWareCount(Sender, mbLeft);
 end;
 
 
-procedure TKMapEdInterface.Store_EditWareCount(Sender:TObject);
-var Res:TResourceType; Store:TKMHouseStore;
+procedure TKMapEdInterface.Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
+var Res:TResourceType; Store:TKMHouseStore; Amt:byte;
 begin
   if not Panel_HouseStore.Visible then exit;
 
   Res := TResourceType(StorehouseItem);
   Store := TKMHouseStore(ShownHouse);
+  if AButton = mbLeft then Amt := 1;
+  if AButton = mbRight then Amt := 10;
 
-  if Sender = Button_StoreDec100 then Store.ResTakeFromOut(Res, 100);
-  if Sender = Button_StoreDec    then Store.ResTakeFromOut(Res, 1);
-  if Sender = Button_StoreInc    then Store.ResAddToIn(Res, 1);
-  if Sender = Button_StoreInc100 then Store.ResAddToIn(Res, 100);
+  if Sender = Button_StoreDec100 then Store.ResTakeFromOut(Res, Amt*100);
+  if Sender = Button_StoreDec    then Store.ResTakeFromOut(Res, Amt*1);
+  if Sender = Button_StoreInc    then Store.ResAddToIn(Res, Amt*1);
+  if Sender = Button_StoreInc100 then Store.ResAddToIn(Res, Amt*100);
 
   Label_Store_WareCount.Caption := inttostr(Store.ResourceCount[byte(Res)]);
 end;
