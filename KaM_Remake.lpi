@@ -8,7 +8,7 @@
       <TargetFileExt Value=".exe"/>
       <Title Value="KaM_Remake"/>
       <UseXPManifest Value="True"/>
-      <ActiveEditorIndexAtStart Value="2"/>
+      <ActiveEditorIndexAtStart Value="8"/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
@@ -32,14 +32,14 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="74">
+    <Units Count="75">
       <Unit0>
         <Filename Value="KaM_Remake.dpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KaM_Remake"/>
         <CursorPos X="12" Y="38"/>
         <TopLine Value="6"/>
-        <UsageCount Value="173"/>
+        <UsageCount Value="186"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
@@ -49,10 +49,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="KM_Unit1"/>
-        <CursorPos X="16" Y="384"/>
-        <TopLine Value="382"/>
-        <EditorIndex Value="3"/>
-        <UsageCount Value="171"/>
+        <CursorPos X="5" Y="28"/>
+        <TopLine Value="8"/>
+        <EditorIndex Value="7"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit1>
@@ -61,7 +61,7 @@
         <UnitName Value="KromUtils"/>
         <CursorPos X="18" Y="519"/>
         <TopLine Value="511"/>
-        <UsageCount Value="26"/>
+        <UsageCount Value="25"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
@@ -70,8 +70,8 @@
         <UnitName Value="KM_Render"/>
         <CursorPos X="110" Y="1230"/>
         <TopLine Value="1199"/>
-        <EditorIndex Value="8"/>
-        <UsageCount Value="171"/>
+        <EditorIndex Value="10"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit3>
@@ -80,7 +80,7 @@
         <UnitName Value="KromOGLUtils"/>
         <CursorPos X="1" Y="6"/>
         <TopLine Value="1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
@@ -89,7 +89,7 @@
         <UnitName Value="KM_TGATexture"/>
         <CursorPos X="22" Y="66"/>
         <TopLine Value="48"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
@@ -97,7 +97,7 @@
         <UnitName Value="ZLibEx"/>
         <CursorPos X="5" Y="199"/>
         <TopLine Value="172"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
@@ -106,14 +106,16 @@
         <UnitName Value="KM_CommonTypes"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="171"/>
+        <EditorIndex Value="6"/>
+        <UsageCount Value="184"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\inc\systemh.inc"/>
         <CursorPos X="13" Y="665"/>
         <TopLine Value="645"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit8>
       <Unit9>
         <Filename Value="KM_UnitActionGoInOut.pas"/>
@@ -121,7 +123,7 @@
         <UnitName Value="KM_UnitActionGoInOut"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
@@ -130,7 +132,7 @@
         <UnitName Value="KM_UnitActionStay"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
@@ -139,17 +141,17 @@
         <UnitName Value="KM_UnitActionWalkTo"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit11>
       <Unit12>
         <Filename Value="KM_Units.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Units"/>
-        <CursorPos X="51" Y="1787"/>
-        <TopLine Value="1769"/>
+        <CursorPos X="104" Y="1599"/>
+        <TopLine Value="1583"/>
         <EditorIndex Value="0"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit12>
@@ -157,9 +159,11 @@
         <Filename Value="KM_Units_WorkPlan.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Units_WorkPlan"/>
-        <CursorPos X="24" Y="314"/>
-        <TopLine Value="304"/>
-        <UsageCount Value="171"/>
+        <CursorPos X="47" Y="312"/>
+        <TopLine Value="307"/>
+        <EditorIndex Value="9"/>
+        <UsageCount Value="184"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit13>
       <Unit14>
@@ -168,7 +172,7 @@
         <UnitName Value="KM_UnitTaskDelivery"/>
         <CursorPos X="23" Y="208"/>
         <TopLine Value="196"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit14>
       <Unit15>
@@ -177,7 +181,7 @@
         <UnitName Value="KM_Utils"/>
         <CursorPos X="1" Y="3"/>
         <TopLine Value="1"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
@@ -185,26 +189,28 @@
         <UnitName Value="KM_Viewport"/>
         <CursorPos X="16" Y="6"/>
         <TopLine Value="6"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
         <Filename Value="KM_Controls.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Controls"/>
-        <CursorPos X="167" Y="296"/>
-        <TopLine Value="275"/>
-        <UsageCount Value="171"/>
+        <CursorPos X="27" Y="8"/>
+        <TopLine Value="4"/>
+        <EditorIndex Value="4"/>
+        <UsageCount Value="184"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
         <Filename Value="KM_Defaults.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Defaults"/>
-        <CursorPos X="42" Y="93"/>
-        <TopLine Value="93"/>
+        <CursorPos X="1" Y="295"/>
+        <TopLine Value="272"/>
         <EditorIndex Value="2"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit18>
@@ -214,7 +220,7 @@
         <UnitName Value="KM_DeliverQueue"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit19>
       <Unit20>
@@ -226,17 +232,17 @@
         <UnitName Value="KM_Form_Loading"/>
         <CursorPos X="37" Y="10"/>
         <TopLine Value="3"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit20>
       <Unit21>
         <Filename Value="KM_Game.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_Game"/>
-        <CursorPos X="49" Y="583"/>
-        <TopLine Value="563"/>
-        <EditorIndex Value="4"/>
-        <UsageCount Value="171"/>
+        <CursorPos X="30" Y="607"/>
+        <TopLine Value="590"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit21>
@@ -246,8 +252,8 @@
         <UnitName Value="KM_Houses"/>
         <CursorPos X="3" Y="1632"/>
         <TopLine Value="1614"/>
-        <EditorIndex Value="9"/>
-        <UsageCount Value="171"/>
+        <EditorIndex Value="11"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit22>
@@ -257,26 +263,28 @@
         <UnitName Value="KM_InterfaceGamePlay"/>
         <CursorPos X="32" Y="262"/>
         <TopLine Value="262"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit23>
       <Unit24>
         <Filename Value="KM_InterfaceMainMenu.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceMainMenu"/>
-        <CursorPos X="81" Y="185"/>
-        <TopLine Value="168"/>
-        <UsageCount Value="171"/>
+        <CursorPos X="49" Y="277"/>
+        <TopLine Value="257"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="184"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit24>
       <Unit25>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_InterfaceMapEditor"/>
-        <CursorPos X="41" Y="751"/>
-        <TopLine Value="746"/>
-        <EditorIndex Value="7"/>
-        <UsageCount Value="171"/>
+        <CursorPos X="61" Y="298"/>
+        <TopLine Value="288"/>
+        <EditorIndex Value="8"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit25>
@@ -286,8 +294,8 @@
         <UnitName Value="KM_LoadDAT"/>
         <CursorPos X="60" Y="702"/>
         <TopLine Value="688"/>
-        <EditorIndex Value="10"/>
-        <UsageCount Value="171"/>
+        <EditorIndex Value="12"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit26>
@@ -297,7 +305,7 @@
         <UnitName Value="KM_LoadLib"/>
         <CursorPos X="93" Y="113"/>
         <TopLine Value="100"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit27>
       <Unit28>
@@ -307,7 +315,7 @@
         <CursorPos X="53" Y="233"/>
         <TopLine Value="208"/>
         <EditorIndex Value="1"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit28>
@@ -317,9 +325,7 @@
         <UnitName Value="KM_Player"/>
         <CursorPos X="23" Y="246"/>
         <TopLine Value="238"/>
-        <EditorIndex Value="5"/>
-        <UsageCount Value="171"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit29>
       <Unit30>
@@ -328,7 +334,7 @@
         <UnitName Value="KM_PlayerAI"/>
         <CursorPos X="115" Y="55"/>
         <TopLine Value="35"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit30>
       <Unit31>
@@ -337,9 +343,7 @@
         <UnitName Value="KM_PlayersCollection"/>
         <CursorPos X="61" Y="288"/>
         <TopLine Value="271"/>
-        <EditorIndex Value="6"/>
-        <UsageCount Value="171"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit31>
       <Unit32>
@@ -348,16 +352,16 @@
         <UnitName Value="KM_RenderUI"/>
         <CursorPos X="1" Y="375"/>
         <TopLine Value="355"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit32>
       <Unit33>
         <Filename Value="KM_ResourceGFX.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="KM_ResourceGFX"/>
-        <CursorPos X="1" Y="1"/>
+        <CursorPos X="24" Y="16"/>
         <TopLine Value="1"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit33>
       <Unit34>
@@ -366,7 +370,7 @@
         <UnitName Value="KM_Settings"/>
         <CursorPos X="1" Y="302"/>
         <TopLine Value="282"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit34>
       <Unit35>
@@ -375,7 +379,7 @@
         <UnitName Value="KM_SoundFX"/>
         <CursorPos X="3" Y="8"/>
         <TopLine Value="1"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit35>
       <Unit36>
@@ -384,7 +388,7 @@
         <UnitName Value="KM_Terrain"/>
         <CursorPos X="105" Y="296"/>
         <TopLine Value="286"/>
-        <UsageCount Value="171"/>
+        <UsageCount Value="184"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit36>
       <Unit37>
@@ -395,68 +399,68 @@
         <UnitName Value="ColorPicker"/>
         <CursorPos X="1" Y="354"/>
         <TopLine Value="327"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit37>
       <Unit38>
         <Filename Value="KM_Unit1.lfm"/>
         <IsPartOfProject Value="True"/>
-        <CursorPos X="1" Y="1"/>
-        <TopLine Value="1"/>
-        <UsageCount Value="167"/>
+        <CursorPos X="59" Y="204"/>
+        <TopLine Value="189"/>
+        <UsageCount Value="180"/>
         <SyntaxHighlighter Value="LFM"/>
       </Unit38>
       <Unit39>
         <Filename Value="KM_Unit1.dfm"/>
         <CursorPos X="21" Y="2"/>
         <TopLine Value="1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <SyntaxHighlighter Value="LFM"/>
       </Unit39>
       <Unit40>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\objpas\classes\classesh.inc"/>
-        <CursorPos X="26" Y="797"/>
-        <TopLine Value="786"/>
-        <UsageCount Value="5"/>
+        <CursorPos X="55" Y="120"/>
+        <TopLine Value="100"/>
+        <UsageCount Value="10"/>
       </Unit40>
       <Unit41>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\objpas\math.pp"/>
         <UnitName Value="math"/>
         <CursorPos X="10" Y="165"/>
         <TopLine Value="149"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit41>
       <Unit42>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\win\wininc\struct.inc"/>
         <CursorPos X="6" Y="3772"/>
         <TopLine Value="3754"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit42>
       <Unit43>
         <Filename Value="..\..\Lazarus\lcl\graphics.pp"/>
         <UnitName Value="Graphics"/>
         <CursorPos X="19" Y="53"/>
         <TopLine Value="41"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit43>
       <Unit44>
         <Filename Value="..\..\Lazarus\lcl\graphtype.pp"/>
         <UnitName Value="GraphType"/>
         <CursorPos X="43" Y="39"/>
         <TopLine Value="19"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit44>
       <Unit45>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\win\wininc\redef.inc"/>
         <CursorPos X="10" Y="344"/>
         <TopLine Value="324"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit45>
       <Unit46>
         <Filename Value="KaM_Remake.lpi"/>
         <CursorPos X="46" Y="402"/>
         <TopLine Value="385"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <SyntaxHighlighter Value="XML"/>
       </Unit46>
       <Unit47>
@@ -464,7 +468,7 @@
         <UnitName Value="KaM_Remake"/>
         <CursorPos X="1" Y="40"/>
         <TopLine Value="4"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="6"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit47>
       <Unit48>
@@ -473,7 +477,7 @@
         <UnitName Value="KM_UnitActionFight"/>
         <CursorPos X="99" Y="149"/>
         <TopLine Value="111"/>
-        <UsageCount Value="100"/>
+        <UsageCount Value="113"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit48>
       <Unit49>
@@ -481,7 +485,7 @@
         <UnitName Value="Win32WSButtons"/>
         <CursorPos X="1" Y="495"/>
         <TopLine Value="477"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="2"/>
       </Unit49>
       <Unit50>
         <Filename Value="KM_UnitActionAbandonWalk.pas"/>
@@ -489,7 +493,7 @@
         <UnitName Value="KM_UnitActionAbandonWalk"/>
         <CursorPos X="5" Y="104"/>
         <TopLine Value="69"/>
-        <UsageCount Value="100"/>
+        <UsageCount Value="113"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit50>
       <Unit51>
@@ -497,14 +501,14 @@
         <UnitName Value="Menus"/>
         <CursorPos X="3" Y="288"/>
         <TopLine Value="275"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="2"/>
       </Unit51>
       <Unit52>
         <Filename Value="..\..\Lazarus\lcl\forms.pp"/>
         <UnitName Value="Forms"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="2"/>
       </Unit52>
       <Unit53>
         <Filename Value="KM_UnitTaskMining.pas"/>
@@ -512,7 +516,7 @@
         <UnitName Value="KM_UnitTaskMining"/>
         <CursorPos X="61" Y="29"/>
         <TopLine Value="1"/>
-        <UsageCount Value="91"/>
+        <UsageCount Value="104"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit53>
       <Unit54>
@@ -520,7 +524,7 @@
         <UnitName Value="KM_TGATexture"/>
         <CursorPos X="1" Y="185"/>
         <TopLine Value="163"/>
-        <UsageCount Value="18"/>
+        <UsageCount Value="17"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit54>
       <Unit55>
@@ -528,7 +532,7 @@
         <UnitName Value="ZLibExFPC"/>
         <CursorPos X="29" Y="6"/>
         <TopLine Value="1"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit55>
       <Unit56>
@@ -536,114 +540,114 @@
         <UnitName Value="zbase"/>
         <CursorPos X="4" Y="331"/>
         <TopLine Value="304"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit56>
       <Unit57>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\packages\paszlib\src\paszlib.pas"/>
         <UnitName Value="paszlib"/>
         <CursorPos X="30" Y="195"/>
         <TopLine Value="189"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit57>
       <Unit58>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\packages\paszlib\src\zuncompr.pas"/>
         <UnitName Value="zuncompr"/>
         <CursorPos X="26" Y="54"/>
         <TopLine Value="41"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit58>
       <Unit59>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\objpas\classes\streams.inc"/>
         <CursorPos X="18" Y="452"/>
         <TopLine Value="434"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit59>
       <Unit60>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\objpas\sysutils\filutilh.inc"/>
         <CursorPos X="10" Y="74"/>
         <TopLine Value="54"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit60>
       <Unit61>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\objpas\objpas.pp"/>
         <UnitName Value="objpas"/>
         <CursorPos X="13" Y="158"/>
         <TopLine Value="154"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit61>
       <Unit62>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\inc\text.inc"/>
         <CursorPos X="3" Y="110"/>
         <TopLine Value="108"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit62>
       <Unit63>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\packages\paszlib\src\zinflate.pas"/>
         <UnitName Value="zinflate"/>
         <CursorPos X="3" Y="332"/>
         <TopLine Value="326"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="6"/>
       </Unit63>
       <Unit64>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\packages\paszlib\src\gzio.pas"/>
         <UnitName Value="gzio"/>
         <CursorPos X="3" Y="544"/>
         <TopLine Value="534"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit64>
       <Unit65>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\packages\amunits\src\otherlibs\zlib.pas"/>
         <UnitName Value="zlib"/>
         <CursorPos X="1" Y="31"/>
         <TopLine Value="31"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit65>
       <Unit66>
         <Filename Value=" Common \paszlib\UCompressFile.pas"/>
         <UnitName Value="UCompressFile"/>
         <CursorPos X="42" Y="123"/>
         <TopLine Value="100"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit66>
       <Unit67>
         <Filename Value=" Common \paszlib\UtilityPasZlib.pas"/>
         <UnitName Value="UtilityPasZlib"/>
         <CursorPos X="43" Y="16"/>
         <TopLine Value="1"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit67>
       <Unit68>
         <Filename Value="..\..\Lazarus\lcl\include\canvas.inc"/>
         <CursorPos X="1" Y="121"/>
         <TopLine Value="121"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit68>
       <Unit69>
         <Filename Value="Utils\FontEditor\umain.pas"/>
         <UnitName Value="umain"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit69>
       <Unit70>
         <Filename Value="..\..\Lazarus\fpc\2.2.4\source\rtl\inc\mathh.inc"/>
         <CursorPos X="14" Y="81"/>
         <TopLine Value="61"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit70>
       <Unit71>
         <Filename Value="KaM Editor\KM_Render.pas"/>
         <UnitName Value="KM_Render"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit71>
       <Unit72>
         <Filename Value="KaM Editor\KM_ReadGFX1.pas"/>
         <UnitName Value="KM_ReadGFX1"/>
         <CursorPos X="13" Y="70"/>
         <TopLine Value="88"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit72>
       <Unit73>
         <Filename Value="KaM Editor\KM_Unit1.pas"/>
@@ -653,129 +657,136 @@
         <UnitName Value="KM_Unit1"/>
         <CursorPos X="1" Y="1241"/>
         <TopLine Value="1238"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit73>
+      <Unit74>
+        <Filename Value="..\..\Lazarus\lcl\controls.pp"/>
+        <UnitName Value="Controls"/>
+        <CursorPos X="26" Y="764"/>
+        <TopLine Value="761"/>
+        <UsageCount Value="9"/>
+      </Unit74>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="KM_LoadDAT.pas"/>
-        <Caret Line="456" Column="18" TopLine="436"/>
+        <Filename Value="KM_InterfaceMainMenu.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position1>
       <Position2>
-        <Filename Value="KM_LoadDAT.pas"/>
-        <Caret Line="713" Column="31" TopLine="693"/>
+        <Filename Value="KM_InterfaceMainMenu.pas"/>
+        <Caret Line="277" Column="49" TopLine="257"/>
       </Position2>
       <Position3>
-        <Filename Value="KM_LoadDAT.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="KM_InterfaceMainMenu.pas"/>
+        <Caret Line="2" Column="1" TopLine="1"/>
       </Position3>
       <Position4>
-        <Filename Value="KM_LoadDAT.pas"/>
-        <Caret Line="12" Column="73" TopLine="1"/>
+        <Filename Value="KM_Controls.pas"/>
+        <Caret Line="6" Column="44" TopLine="1"/>
       </Position4>
       <Position5>
-        <Filename Value="KM_LoadDAT.pas"/>
-        <Caret Line="447" Column="10" TopLine="436"/>
+        <Filename Value="KM_Defaults.pas"/>
+        <Caret Line="54" Column="55" TopLine="33"/>
       </Position5>
       <Position6>
-        <Filename Value="KM_LoadDAT.pas"/>
-        <Caret Line="456" Column="18" TopLine="436"/>
+        <Filename Value="KM_Game.pas"/>
+        <Caret Line="583" Column="49" TopLine="563"/>
       </Position6>
       <Position7>
         <Filename Value="KM_Game.pas"/>
-        <Caret Line="721" Column="33" TopLine="710"/>
+        <Caret Line="607" Column="30" TopLine="590"/>
       </Position7>
       <Position8>
         <Filename Value="KM_Game.pas"/>
-        <Caret Line="587" Column="48" TopLine="576"/>
+        <Caret Line="727" Column="30" TopLine="710"/>
       </Position8>
       <Position9>
-        <Filename Value="KM_Player.pas"/>
-        <Caret Line="246" Column="23" TopLine="238"/>
+        <Filename Value="KM_Units_WorkPlan.pas"/>
+        <Caret Line="314" Column="24" TopLine="304"/>
       </Position9>
       <Position10>
-        <Filename Value="KM_Houses.pas"/>
-        <Caret Line="407" Column="9" TopLine="388"/>
+        <Filename Value="KM_Defaults.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position10>
       <Position11>
-        <Filename Value="KM_Houses.pas"/>
-        <Caret Line="344" Column="3" TopLine="342"/>
+        <Filename Value="KM_Units.pas"/>
+        <Caret Line="1787" Column="51" TopLine="1769"/>
       </Position11>
       <Position12>
-        <Filename Value="KM_Houses.pas"/>
-        <Caret Line="1644" Column="5" TopLine="1604"/>
+        <Filename Value="KM_Units.pas"/>
+        <Caret Line="1600" Column="61" TopLine="1577"/>
       </Position12>
       <Position13>
-        <Filename Value="KM_Houses.pas"/>
-        <Caret Line="382" Column="21" TopLine="377"/>
+        <Filename Value="KM_Defaults.pas"/>
+        <Caret Line="311" Column="48" TopLine="310"/>
       </Position13>
       <Position14>
-        <Filename Value="KM_Houses.pas"/>
-        <Caret Line="342" Column="1" TopLine="322"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="763" Column="22" TopLine="828"/>
       </Position14>
       <Position15>
-        <Filename Value="KM_PlayersCollection.pas"/>
-        <Caret Line="122" Column="65" TopLine="103"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="594" Column="1" TopLine="577"/>
       </Position15>
       <Position16>
-        <Filename Value="KM_PlayersCollection.pas"/>
-        <Caret Line="288" Column="61" TopLine="271"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="483" Column="56" TopLine="465"/>
       </Position16>
       <Position17>
-        <Filename Value="KM_Game.pas"/>
-        <Caret Line="583" Column="77" TopLine="563"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="480" Column="36" TopLine="465"/>
       </Position17>
       <Position18>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="81" Column="1" TopLine="81"/>
+        <Caret Line="47" Column="23" TopLine="30"/>
       </Position18>
       <Position19>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="402" Column="13" TopLine="375"/>
+        <Caret Line="480" Column="41" TopLine="463"/>
       </Position19>
       <Position20>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="34" Column="20" TopLine="14"/>
+        <Caret Line="482" Column="24" TopLine="463"/>
       </Position20>
       <Position21>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="411" Column="58" TopLine="382"/>
+        <Caret Line="483" Column="24" TopLine="463"/>
       </Position21>
       <Position22>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="409" Column="13" TopLine="377"/>
+        <Caret Line="484" Column="24" TopLine="463"/>
       </Position22>
       <Position23>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="758" Column="5" TopLine="736"/>
+        <Caret Line="482" Column="120" TopLine="463"/>
       </Position23>
       <Position24>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="531" Column="1" TopLine="511"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="480" Column="34" TopLine="463"/>
       </Position24>
       <Position25>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="747" Column="32" TopLine="738"/>
+        <Caret Line="478" Column="39" TopLine="463"/>
       </Position25>
       <Position26>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="411" Column="42" TopLine="385"/>
+        <Caret Line="854" Column="96" TopLine="837"/>
       </Position26>
       <Position27>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="532" Column="48" TopLine="511"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="504" Column="25" TopLine="497"/>
       </Position27>
       <Position28>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="531" Column="1" TopLine="511"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="474" Column="33" TopLine="463"/>
       </Position28>
       <Position29>
         <Filename Value="KM_InterfaceMapEditor.pas"/>
-        <Caret Line="755" Column="47" TopLine="746"/>
+        <Caret Line="47" Column="21" TopLine="30"/>
       </Position29>
       <Position30>
-        <Filename Value="KM_Render.pas"/>
-        <Caret Line="531" Column="1" TopLine="511"/>
+        <Filename Value="KM_InterfaceMapEditor.pas"/>
+        <Caret Line="416" Column="12" TopLine="399"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>

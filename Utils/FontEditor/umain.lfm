@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 150
+  Left = 297
   Height = 637
-  Top = 149
+  Top = 140
   Width = 689
   Caption = 'KaM Font Editor'
   ClientHeight = 637
@@ -13,7 +13,7 @@ object frmMain: TfrmMain
   object Label4: TLabel
     Left = 8
     Height = 14
-    Top = 408
+    Top = 400
     Width = 33
     Caption = 'Label4'
     ParentColor = False
@@ -39,11 +39,11 @@ object frmMain: TfrmMain
   object BitBtn1: TBitBtn
     Left = 8
     Height = 25
-    Top = 491
+    Top = 432
     Width = 97
     Anchors = [akLeft, akBottom]
     Caption = 'Save Font File'
-    Enabled = False
+    OnClick = BitBtn1Click
     TabOrder = 0
   end
   object PageControl1: TPageControl
@@ -109,7 +109,7 @@ object frmMain: TfrmMain
         Width = 161
       end
       object Image3: TImage
-        Left = 0
+        Left = 1
         Height = 128
         Top = 56
         Width = 512
@@ -139,13 +139,13 @@ object frmMain: TfrmMain
       object Image4: TImage
         Left = 8
         Height = 40
-        Top = 376
+        Top = 386
         Width = 489
       end
       object Image5: TImage
         Left = 8
         Height = 80
-        Top = 424
+        Top = 426
         Width = 489
       end
       object imgColourSelected: TImage

@@ -15,7 +15,7 @@ uses
 
   FontData: record
     Title:TKMFont;
-    Unk1,Unk2,CharOffset,Unk3:smallint; //@Lewin: Unknown, Unknown, CharOffset, LineOffset?
+    Unk1,Unk2,CharOffset,Unk3:smallint; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal:array[0..255]of byte; //Switch to determine if letter is there
     Letters:array[0..255]of record
       Width,Height:word;
@@ -57,6 +57,7 @@ type
     CheckCells: TCheckBox;
     btnExportBig: TBitBtn;
     btnImportBig: TBitBtn;
+    procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
@@ -72,17 +73,14 @@ type
     procedure btnImportBigClick(Sender: TObject);
   private
     { Private declarations }
-    fFileEditing: string;
     fColourSelected: byte;
     function GetFontFromFileName(aFile:string):TKMFont;
-    procedure SetFileEditing(aFile:string);
     procedure SetColourSelected(aColour:byte);
     procedure ScanDataForPalettesAndFonts(aPath:string);
     function LoadFont(filename:string; aFont:TKMFont):boolean;
     function LoadPalette(filename:string; PalID:byte):boolean;
   public
     { Public declarations }
-    property FileEditing: string read fFileEditing write SetFileEditing;
     property ColourSelected: byte read fColourSelected write SetColourSelected;
     procedure ShowBigImage(ShowCells, WriteFontToBMP:boolean);
     procedure ShowPalette(aPal:integer);
@@ -102,9 +100,34 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   ExeDir := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName));
   DataDir := ExeDir;
-  if DirectoryExists(ExeDir+'..\..\Data\gfx\Fonts\') then //Default location
+  if DirectoryExists(ExeDir+'..\..\Data\gfx\Fonts\') then //Remake project location
     DataDir := ExeDir+'..\..\';  //I wonder if it's correct syntax, but it works well [.\Utils\FontEd\..\..\]
+  if DirectoryExists(ExeDir+'Data\gfx\Fonts\') then //Default location
+    DataDir := ExeDir;
   ScanDataForPalettesAndFonts(DataDir);
+end;
+
+procedure TfrmMain.BitBtn1Click(Sender: TObject);
+var
+  f:file;
+  i:integer;
+begin
+  if not RunSaveDialog(SaveDialog1, ListBox1.Items[ListBox1.ItemIndex], DataDir+'Data\Gfx\Fonts\', 'KaM Fonts|*.fnt', 'fnt') then exit;
+
+  assignfile(f,SaveDialog1.FileName); rewrite(f,1);
+  blockwrite(f,FontData.Unk1,8);
+  blockwrite(f,FontData.Pal[0],256);
+
+  //Write font data
+  for i:=0 to 255 do
+    if FontData.Pal[i]<>0 then
+      with FontData.Letters[i] do begin
+        blockwrite(f, Width, 4);
+        blockwrite(f, Add[1], 8);
+        blockwrite(f, Data[1], Width*Height);
+      end;
+
+  closefile(f);
 end;
 
 procedure TfrmMain.PageControl1Change(Sender: TObject);
@@ -159,14 +182,6 @@ begin
 end;
 
 
-procedure TfrmMain.SetFileEditing(aFile:string);
-begin
-  if not FileExists(aFile) then exit;
-  fFileEditing := aFile;
-  Caption := 'KaM Font Editor - '+aFile;
-end;
-
-
 function TfrmMain.LoadFont(filename:string; aFont:TKMFont):boolean;
 var
   f:file;
@@ -188,7 +203,7 @@ begin
     if FontData.Pal[i]<>0 then
       with FontData.Letters[i] do begin
         blockread(f, Width, 4);
-        blockread(f, Add, 8);
+        blockread(f, Add[1], 8);
         MaxHeight := Math.max(MaxHeight,Height);
         MaxWidth := Math.max(MaxWidth,Height);
         blockread(f, Data[1], Width*Height);
@@ -256,7 +271,7 @@ begin
   end;
 
   if WriteFontToBMP then begin
-    RunSaveDialog(SaveDialog1, '', ExeDir, 'Bitmaps|*.bmp', 'bmp');
+    if not RunSaveDialog(SaveDialog1, '', ExeDir, 'Bitmaps|*.bmp', 'bmp') then exit;
 
     //Append used palette to ease up editing, with color samples 16x16px
     MyBitmap.Height := MyBitmap.Height + 8*16; //32x8 cells
@@ -317,8 +332,7 @@ begin
   inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[1])+' . '+
   inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[2])+' . '+
   inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[3])+' . '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[4])
-  ;
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[4]);
 end;
 
 
@@ -406,7 +420,7 @@ begin
 
   Image4.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
   Image4.Canvas.FillRect(Image4.Canvas.ClipRect);
-  Image4.Canvas.Draw( (Image4.Width - MyBitmap.Width) div 2 , (Image4.Height - MyBitmap.Height) div 2 , MyBitmap); //Draw MyBitmap into Image1
+  Image4.Canvas.Draw( (Image4.Width - MyBitmap.Width) div 2 , (Image4.Height - MyBitmap.Height) div 2 + 5, MyBitmap); //Draw MyBitmap into Image1
 
   MyRect.Left := (Image5.Width  - MyBitmap.Width*2 ) div 2;
   MyRect.Top  := (Image5.Height - MyBitmap.Height*2) div 2;
@@ -511,7 +525,7 @@ var
 begin
   RunOpenDialog(OpenDialog1, '', ExeDir, 'Bitmaps|*.bmp');
   if not FileExists(OpenDialog1.FileName) then begin
-    ErrS := OpenDialog1.FileName+' couldn''t be found';
+    ErrS := OpenDialog1.FileName + ' couldn''t be found';
     MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
     exit;
   end;
@@ -520,8 +534,8 @@ begin
   MyBitmap.LoadFromFile(OpenDialog1.FileName);
   MyBitmap.PixelFormat := pf24bit;
 
-  if (MyBitmap.Height<>512)or(MyBitmap.Width<>512) then begin
-    MessageBox(frmMain.Handle,'Image should be 512x512 pixels!','Error',MB_OK);
+  if MyBitmap.Width<>512 then begin
+    MessageBox(frmMain.Handle,'Image should be 512 pixels wide.','Error',MB_OK);
     MyBitmap.Free;
     exit;
   end;

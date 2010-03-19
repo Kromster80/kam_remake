@@ -45,6 +45,7 @@ type TKMapEdInterface = class
         Button_UnitCancel:TKMButtonFlat;
         Button_Citizen:array[1..14]of TKMButtonFlat;
         Button_Warriors:array[1..10]of TKMButtonFlat;
+        Button_Animals:array[1..8]of TKMButtonFlat;
       Panel_Script:TKMPanel;
 
     Panel_Menu:TKMPanel;
@@ -466,12 +467,6 @@ begin
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
-      //@Krom: I vote to put warriors on a seperate tab, because we need extra controls that won't fit, such as
-      //       direction, number of men, number of rows, etc. If these are done with controls rather than dialouges
-      //       it will save time and look simpler for the user. (WYSIWYG) Take a look at the Troops placement tab
-      //       in my editor if you don't understand.
-      //       I think we can put animals here where the warriors are currently. Let me know what you think.
-      //@Lewin: I agree, but I think it could be separate menu when you click on Commander, rather than preset on creation..
       //@Krom: Ok, so when you place a squad it "selects" the commander and lets you set further
       //       options from his selection menu. Sounds good. :) Warriors can probably stay in this
       //       tab then if we don't need extra controls, animals can else where.
@@ -479,13 +474,21 @@ begin
       MyControls.AddLabel(Panel_Units,100,150,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
-        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,170+((i-1) div 5)*37,33,33,byte(MapEd_Order[i])+140);
+        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,170+((i-1) div 5)*37,33,33,370+i);
         Button_Warriors[i].Hint := TypeToString(MapEd_Order[i]);
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
       end;
 
+      //WIP
       MyControls.AddLabel(Panel_Units,100,250,100,30,'Animals',fnt_Outline,kaCenter);
+      for i:=1 to length(Button_Animals) do
+      begin
+        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,270+((i-1) div 5)*37,33,33,370+i);
+        Button_Animals[i].Hint := TypeToString(MapEd_Order[i]);
+        //Button_Animals[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
+        Button_Animals[i].OnClick := Unit_ButtonClick;
+      end;
 
     Panel_Script := MyControls.AddPanel(Panel_Village,0,28,196,400);
 end;
@@ -501,7 +504,7 @@ begin
   hc:=1; uc:=1;
   for i:=1 to 8 do begin
     off:=8;
-    case i of //This should be simplified, compacted and automated
+    case i of
     1: begin
           MyControls.AddBevel(Panel_Stats,  8,(i-1)*IncY,56,30);
           MyControls.AddBevel(Panel_Stats, 71,(i-1)*IncY,56,30);

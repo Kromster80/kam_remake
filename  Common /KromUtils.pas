@@ -436,11 +436,12 @@ end;
 
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 begin
-Sender.FileName:=FileName;
-Sender.InitialDir:=FilePath;
-Sender.Filter:=Filter;
-Result:=Sender.Execute; //Returns "false" if user pressed "Cancel"
-Sender.FileName:=AssureFileExt(Sender.FileName,FileExt);
+  Sender.FileName   := FileName;
+  Sender.InitialDir := FilePath;
+  Sender.Filter     := Filter;
+  Result            := Sender.Execute; //Returns "false" if user pressed "Cancel"
+  if not Result then exit;
+  Sender.FileName   := AssureFileExt(Sender.FileName, FileExt);
 end;
 
 
