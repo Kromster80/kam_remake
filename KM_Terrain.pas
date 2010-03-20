@@ -290,6 +290,10 @@ end;
 procedure TTerrain.SaveToMapFile(aFile:string);
 var f:file; i,k,t:integer;
 begin
+
+  if not DirectoryExists(ExtractFilePath(aFile)) then
+  CreateDir(ExtractFilePath(aFile));
+
   assignfile(f,aFile); rewrite(f,1);
 
   blockwrite(f,MapX,4);

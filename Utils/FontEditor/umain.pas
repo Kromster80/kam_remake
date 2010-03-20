@@ -32,59 +32,38 @@ type
   { TfrmMain }
 
   TfrmMain = class(TForm)
-    Label3: TLabel;
     Label4: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     BitBtn1: TBitBtn;
     ListBox1: TListBox;
     RefreshData: TButton;
-    PageControl1: TPageControl;
-    Shape1: TShape;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    Image1: TImage;
-    Image2: TImage;
+    StatusBar1: TStatusBar;
     Image3: TImage;
-    Label1: TLabel;
-    Label2: TLabel;
     Edit1: TEdit;
     Image4: TImage;
-    Image5: TImage;
-    StatusBar1: TStatusBar;
-    imgColourSelected: TImage;
-    RadioGroup1: TRadioGroup;
+    btnImportBig: TBitBtn;
     CheckCells: TCheckBox;
     btnExportBig: TBitBtn;
-    btnImportBig: TBitBtn;
+    Image1: TImage;
+    Image5: TImage;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure PageControl1Change(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnExportBigClick(Sender: TObject);
     procedure Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-    procedure Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Edit1Change(Sender: TObject);
-    procedure Image3MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
-    procedure Image3MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure RadioGroup1Click(Sender: TObject);
     procedure CheckCellsClick(Sender: TObject);
     procedure btnImportBigClick(Sender: TObject);
   private
-    { Private declarations }
-    fColourSelected: byte;
     function GetFontFromFileName(aFile:string):TKMFont;
-    procedure SetColourSelected(aColour:byte);
     procedure ScanDataForPalettesAndFonts(aPath:string);
     function LoadFont(filename:string; aFont:TKMFont):boolean;
     function LoadPalette(filename:string; PalID:byte):boolean;
   public
-    { Public declarations }
-    property ColourSelected: byte read fColourSelected write SetColourSelected;
     procedure ShowBigImage(ShowCells, WriteFontToBMP:boolean);
     procedure ShowPalette(aPal:integer);
-    procedure ShowLetter(aLetter:integer);
   end;
 
  var
@@ -105,13 +84,22 @@ begin
   if DirectoryExists(ExeDir+'Data\gfx\Fonts\') then //Default location
     DataDir := ExeDir;
   ScanDataForPalettesAndFonts(DataDir);
+
+  FontData.Title := fnt_Nil;
 end;
 
 procedure TfrmMain.BitBtn1Click(Sender: TObject);
 var
   f:file;
   i:integer;
+  ErrS:string;
 begin
+  if FontData.Title = fnt_Nil then begin
+    ErrS := 'Please select editing font first';
+    MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
+    exit;
+  end;
+
   if not RunSaveDialog(SaveDialog1, ListBox1.Items[ListBox1.ItemIndex], DataDir+'Data\Gfx\Fonts\', 'KaM Fonts|*.fnt', 'fnt') then exit;
 
   assignfile(f,SaveDialog1.FileName); rewrite(f,1);
@@ -129,18 +117,6 @@ begin
 
   closefile(f);
 end;
-
-procedure TfrmMain.PageControl1Change(Sender: TObject);
-begin
-  if PageControl1.ActivePageIndex = 0 then
-    ShowBigImage(CheckCells.Checked, false); //Show the result
-
-  if PageControl1.ActivePageIndex = 1 then begin
-    ShowPalette(FontPal[FontData.Title]);
-    ShowLetter(ActiveLetter);
-  end;
-end;
-
 
 procedure TfrmMain.RefreshDataClick(Sender: TObject);
 begin
@@ -177,7 +153,9 @@ end;
 procedure TfrmMain.ListBox1Click(Sender: TObject);
 begin
   LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], GetFontFromFileName(ListBox1.Items[ListBox1.ItemIndex]));
-  if PageControl1.ActivePageIndex = 0 then ShowBigImage(CheckCells.Checked, false);
+  ShowBigImage(CheckCells.Checked, false);
+  ShowPalette(FontPal[FontData.Title]);
+  Edit1Change(nil);
   StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex];
 end;
 
@@ -204,6 +182,10 @@ begin
       with FontData.Letters[i] do begin
         blockread(f, Width, 4);
         blockread(f, Add[1], 8);
+
+        Width := Width and $FF;
+        Height := Height and $FF;
+
         MaxHeight := Math.max(MaxHeight,Height);
         MaxWidth := Math.max(MaxWidth,Height);
         blockread(f, Data[1], Width*Height);
@@ -235,7 +217,7 @@ const
 var
   i,k,ci,ck:integer;
   CellX,CellY:integer;
-  Pal,t:byte;
+  Pal,t:word;
   TD:array of byte;
   MyBitMap:TBitMap;
 begin
@@ -286,13 +268,6 @@ begin
   Image1.Canvas.Draw(0, 0, MyBitmap); //Draw MyBitmap into Image1
   MyBitmap.Free;
   setlength(TD,0);
-
-  {if PageControl1.ActivePageIndex = 1 then begin
-    ActiveLetter := 65; //Letter "A"
-    RadioGroup1.ItemIndex := FontPal[byte(fCurrentFont)] -1;
-    ShowPalette(FontPal[byte(fCurrentFont)]);
-    ShowLetter(ActiveLetter);
-  end;}
 end;
 
 
@@ -329,19 +304,10 @@ procedure TfrmMain.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Int
 begin
   StatusBar1.Panels.Items[1].Text := 'Coordinates: ' + IntToStr(Y div 32)+'; '+IntToStr(X div 32);
   StatusBar1.Panels.Items[2].Text := 'Hex code: ' + IntToHex( (((Y div 32)*8)+(X div 32)) ,2)+'    '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[1])+' . '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[2])+' . '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Width)+' . '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Height)+' . '+
   inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[3])+' . '+
   inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[4]);
-end;
-
-
-procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  {PageControl1.ActivePageIndex := 1;
-  ActiveLetter := (Y div 32)*16 + X div 32;
-  ShowPalette(FontPal[fCurrentFont]);
-  ShowLetter(ActiveLetter);}
 end;
 
 
@@ -350,42 +316,15 @@ var MyBitMap:TBitMap; i:integer; MyRect:TRect;
 begin
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
-  MyBitmap.Width := 32;
-  MyBitmap.Height := 8;
+  MyBitmap.Width := 8;
+  MyBitmap.Height := 32;
 
   for i:=0 to 255 do
-    MyBitmap.Canvas.Pixels[i mod 32, i div 32] := PalData[aPal,i+1,1]+PalData[aPal,i+1,2]*256+PalData[aPal,i+1,3]*65536;
+    MyBitmap.Canvas.Pixels[i mod 8, i div 8] := PalData[aPal,i+1,1]+PalData[aPal,i+1,2]*256+PalData[aPal,i+1,3]*65536;
 
   MyRect := Image3.Canvas.ClipRect;
   Image3.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
   MyBitmap.Free;
-end;
-
-
-procedure TfrmMain.ShowLetter(aLetter:integer);
-var
-  MyBitMap:TBitMap;
-  i,k:integer;
-  Pal,Col:integer;
-  MyRect:TRect;
-begin
-
-  MyBitMap := TBitMap.Create;
-  MyBitmap.PixelFormat := pf24bit;
-  MyBitmap.Width := 24;
-  MyBitmap.Height := 24;
-
-  for i:=0 to FontData.Letters[aLetter].Height-1 do for k:=0 to FontData.Letters[aLetter].Width-1 do begin
-    Pal := FontPal[FontData.Title];
-    Col := FontData.Letters[aLetter].Data[i*FontData.Letters[aLetter].Width+k+1]+1;
-    MyBitmap.Canvas.Pixels[k,i] := PalData[Pal,Col,1] + PalData[Pal,Col,2] shl 8 + PalData[Pal,Col,3] shl 16;
-  end;
-
-  MyRect := Image2.Canvas.ClipRect;
-
-  Image2.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
-  MyBitmap.Free;
-  Edit1Change(Edit1);
 end;
 
 
@@ -395,7 +334,7 @@ begin
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
   MyBitmap.Width := 512;
-  MyBitmap.Height := 40;
+  MyBitmap.Height := 20;
 
   AdvX := 0;
 
@@ -420,7 +359,7 @@ begin
 
   Image4.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
   Image4.Canvas.FillRect(Image4.Canvas.ClipRect);
-  Image4.Canvas.Draw( (Image4.Width - MyBitmap.Width) div 2 , (Image4.Height - MyBitmap.Height) div 2 + 5, MyBitmap); //Draw MyBitmap into Image1
+  Image4.Canvas.Draw( (Image4.Width - MyBitmap.Width) div 2 , (Image4.Height - MyBitmap.Height) div 2 + 2, MyBitmap); //Draw MyBitmap into Image1
 
   MyRect.Left := (Image5.Width  - MyBitmap.Width*2 ) div 2;
   MyRect.Top  := (Image5.Height - MyBitmap.Height*2) div 2;
@@ -435,40 +374,6 @@ begin
 end;
 
 
-procedure TfrmMain.Image3MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-begin
-  if not (ssLeft in Shift) then exit;
-
-  ColourSelected := EnsureRange(((Y div 16)*32) + (X div 16),0,255);
-  Shape1.Left := Image3.Left + (X div 16)*16 -1; //-1 to compensate outline width
-  Shape1.Top  := Image3.Top  + (Y div 16)*16 -1;
-end;
-
-
-procedure TfrmMain.Image3MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  if Button = mbLeft then Image3MouseMove(Sender,[ssLeft],X,Y);
-end;
-
-
-procedure TfrmMain.SetColourSelected(aColour:byte);
-var MyBitMap:TBitMap; MyRect:TRect; Pal:integer;
-begin
-  fColourSelected := aColour;
-  MyBitMap := TBitMap.Create;
-  MyBitmap.PixelFormat := pf24bit;
-  MyBitmap.Width := 1;
-  MyBitmap.Height := 1;
-  Pal := FontPal[FontData.Title];
-
-  MyBitmap.Canvas.Pixels[0, 0] := PalData[Pal,ColourSelected+1,1]+PalData[Pal,ColourSelected+1,2]*256+PalData[Pal,ColourSelected+1,3]*65536;
-  //
-  MyRect := imgColourSelected.Canvas.ClipRect;
-  imgColourSelected.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into imgColourSelected
-  MyBitmap.Free;
-end;
-
-
 function TfrmMain.GetFontFromFileName(aFile:string):TKMFont;
 var i: TKMFont;
 begin
@@ -479,15 +384,6 @@ begin
       Result := i;
       exit;
     end;
-end;
-
-
-procedure TfrmMain.RadioGroup1Click(Sender: TObject);
-begin
-  ActiveLetter := 65; //Letter "A"
-  FontPal[FontData.Title] := RadioGroup1.ItemIndex +1;
-  ShowPalette(FontPal[FontData.Title]);
-  ShowLetter(ActiveLetter);
 end;
 
 
@@ -512,9 +408,10 @@ var
     tRMS, RMS:integer; //How different is sampled color vs. used one
   begin
     RMS := maxint;
+    Result := 0;
     usePal := FontPal[FontData.Title]; //Use palette from current font
     for i:=1 to 256 do begin
-      tRMS := GetLengthSQR(PalData[usePal, i, 1] - Red(aCol), PalData[usePal, i, 2] - Green(aCol), PalData[usePal, i, 3] - Blue(aCol));
+      tRMS := GetLengthSQR(PalData[usePal, i, 1] - (aCol and $FF), PalData[usePal, i, 2] - ((aCol shr 8) and $FF), PalData[usePal, i, 3] - (aCol shr 16) and $FF);
       if (i=1) or (tRMS<RMS) then begin
         Result := i-1; //byte = 0..255
         RMS := tRMS;
@@ -523,6 +420,13 @@ var
     end;
   end;
 begin
+
+  if FontData.Title = fnt_Nil then begin
+    ErrS := 'Please select editing font first';
+    MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
+    exit;
+  end;
+
   RunOpenDialog(OpenDialog1, '', ExeDir, 'Bitmaps|*.bmp');
   if not FileExists(OpenDialog1.FileName) then begin
     ErrS := OpenDialog1.FileName + ' couldn''t be found';
