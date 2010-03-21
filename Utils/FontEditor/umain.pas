@@ -47,6 +47,9 @@ type
     btnExportBig: TBitBtn;
     Image1: TImage;
     Image5: TImage;
+    RGPalette: TRadioGroup;
+    Label1: TLabel;
+    Label2: TLabel;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
@@ -56,6 +59,7 @@ type
     procedure Edit1Change(Sender: TObject);
     procedure CheckCellsClick(Sender: TObject);
     procedure btnImportBigClick(Sender: TObject);
+    procedure RGPaletteClick(Sender: TObject);
   private
     function GetFontFromFileName(aFile:string):TKMFont;
     procedure ScanDataForPalettesAndFonts(aPath:string);
@@ -153,10 +157,11 @@ end;
 procedure TfrmMain.ListBox1Click(Sender: TObject);
 begin
   LoadFont(DataDir+'data\gfx\fonts\'+ListBox1.Items[ListBox1.ItemIndex], GetFontFromFileName(ListBox1.Items[ListBox1.ItemIndex]));
+  RGPalette.ItemIndex := FontPal[FontData.Title] - 1;
   ShowBigImage(CheckCells.Checked, false);
   ShowPalette(FontPal[FontData.Title]);
   Edit1Change(nil);
-  StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex];
+  StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+' Palette: '+PalFiles[FontPal[FontData.Title]];
 end;
 
 
@@ -192,8 +197,9 @@ begin
       end;
   closefile(f);
 
-  Label4.Caption := inttostr(FontData.Unk1)+' . '+inttostr(FontData.CharOffset)+' . '+inttostr(FontData.Unk2)+' . '+inttostr(FontData.Unk3)
-  +' . H'+inttostr(MaxHeight)+' . W'+inttostr(MaxWidth);
+  Label4.Caption := 'Unk1 '+inttostr(FontData.Unk1)+'   CharOffset '+inttostr(FontData.CharOffset);
+  Label1.Caption := 'Unk2 '+inttostr(FontData.Unk2)+'   Unk3 '+inttostr(FontData.Unk3);
+  Label2.Caption := 'Max Height/Width ' +inttostr(MaxHeight)+'/'+inttostr(MaxWidth);
 
 
   //Special fixes:
@@ -302,12 +308,15 @@ end;
 
 procedure TfrmMain.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
-  StatusBar1.Panels.Items[1].Text := 'Coordinates: ' + IntToStr(Y div 32)+'; '+IntToStr(X div 32);
-  StatusBar1.Panels.Items[2].Text := 'Hex code: ' + IntToHex( (((Y div 32)*8)+(X div 32)) ,2)+'    '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Width)+' . '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Height)+' . '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[3])+' . '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[4]);
+  StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(Y div 32)+':'+IntToStr(X div 32) + ' ('+
+                                     IntToHex( (((Y div 32)*16)+(X div 32)) ,2)+'h)';
+  StatusBar1.Panels.Items[2].Text :=
+  'Width '+inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Width)+', '+
+  'Height '+inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Height)+', '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[1])+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[2])+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[3])+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[4])+'?';
 end;
 
 
@@ -497,6 +506,22 @@ begin
   ShowBigImage(CheckCells.Checked, false); //Show the result
 end;
 
+
+procedure TfrmMain.RGPaletteClick(Sender: TObject);
+var
+  ErrS:string;
+begin
+  if FontData.Title = fnt_Nil then begin
+    ErrS := 'Please select editing font first';
+    MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
+    exit;
+  end;
+  FontPal[FontData.Title] := RGPalette.ItemIndex + 1;
+  ShowBigImage(CheckCells.Checked, false);
+  ShowPalette(FontPal[FontData.Title]);
+  Edit1Change(nil);
+  StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+' Palette: '+PalFiles[FontPal[FontData.Title]];
+end;
 
 
 initialization

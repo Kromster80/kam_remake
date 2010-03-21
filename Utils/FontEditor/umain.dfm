@@ -1,6 +1,6 @@
 object frmMain: TfrmMain
-  Left = 190
-  Top = 131
+  Left = 428
+  Top = 135
   Width = 825
   Height = 680
   Caption = 'KaM Font Editor'
@@ -23,7 +23,7 @@ object frmMain: TfrmMain
   end
   object Label4: TLabel
     Left = 8
-    Top = 392
+    Top = 432
     Width = 32
     Height = 13
     Caption = 'Label4'
@@ -48,11 +48,29 @@ object frmMain: TfrmMain
     Width = 649
     Height = 60
   end
+  object Label1: TLabel
+    Left = 8
+    Top = 448
+    Width = 32
+    Height = 13
+    Caption = 'Label4'
+    Color = clBtnFace
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 8
+    Top = 464
+    Width = 32
+    Height = 13
+    Caption = 'Label4'
+    Color = clBtnFace
+    ParentColor = False
+  end
   object ListBox1: TListBox
     Left = 8
     Top = 40
     Width = 145
-    Height = 345
+    Height = 257
     ItemHeight = 13
     TabOrder = 1
     OnClick = ListBox1Click
@@ -68,7 +86,7 @@ object frmMain: TfrmMain
   end
   object BitBtn1: TBitBtn
     Left = 8
-    Top = 496
+    Top = 564
     Width = 145
     Height = 25
     Caption = 'Save Font File'
@@ -83,11 +101,11 @@ object frmMain: TfrmMain
     Panels = <
       item
         Text = 'Font'
-        Width = 200
+        Width = 240
       end
       item
         Text = 'Coordinates'
-        Width = 100
+        Width = 120
       end
       item
         Text = 'Font Hex Code'
@@ -97,7 +115,7 @@ object frmMain: TfrmMain
   end
   object Edit1: TEdit
     Left = 8
-    Top = 536
+    Top = 604
     Width = 145
     Height = 21
     TabOrder = 4
@@ -106,16 +124,18 @@ object frmMain: TfrmMain
   end
   object CheckCells: TCheckBox
     Left = 8
-    Top = 412
+    Top = 480
     Width = 69
     Height = 17
     Caption = 'Show cells'
+    Checked = True
+    State = cbChecked
     TabOrder = 6
     OnClick = CheckCellsClick
   end
   object btnExportBig: TBitBtn
     Left = 8
-    Top = 432
+    Top = 500
     Width = 145
     Height = 25
     Caption = 'Export BMP'
@@ -124,12 +144,36 @@ object frmMain: TfrmMain
   end
   object btnImportBig: TBitBtn
     Left = 8
-    Top = 456
+    Top = 524
     Width = 145
     Height = 25
     Caption = 'Import BMP'
     TabOrder = 5
     OnClick = btnImportBigClick
+  end
+  object RGPalette: TRadioGroup
+    Left = 8
+    Top = 304
+    Width = 145
+    Height = 121
+    Caption = ' Preview palette  '
+    Columns = 2
+    Items.Strings = (
+      'map.bbm'
+      'pal0.bbm'
+      'pal1.bbm'
+      'pal2.bbm'
+      'pal3.bbm'
+      'pal4.bbm'
+      'pal5.bbm'
+      'setup.bbm'
+      'setup2.bbm'
+      'linear'
+      'mapgold.lbm'
+      'setup.lbm'
+      'pal1.lbm')
+    TabOrder = 8
+    OnClick = RGPaletteClick
   end
   object OpenDialog1: TOpenDialog
     Left = 88
