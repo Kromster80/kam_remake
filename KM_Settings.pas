@@ -23,6 +23,9 @@ type
     function LoadSettingsFromFile(filename:string):boolean;
     procedure SaveSettingsToFile(filename:string);
   public
+    //Temp for fight simulator
+    fHitPointRestorePace:word;
+    fHitPointRestoreInFights:boolean;
     constructor Create;
     destructor Destroy; override;
     procedure SaveSettings;
@@ -145,6 +148,9 @@ begin
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
   fMusicOnOff    := f.ReadBool   ('SFX','MusicEnabled',true);
 
+  fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);   
+  fHitPointRestoreInFights := f.ReadBool('Fights','HitPointRestoreInFights',true);
+
   FreeAndNil(f);
   fNeedsSave:=false;
 end;
@@ -169,6 +175,9 @@ begin
   f.WriteInteger('SFX','SFXVolume',   fSoundFXVolume);
   f.WriteInteger('SFX','MusicVolume', fMusicVolume);
   f.WriteBool   ('SFX','MusicEnabled',fMusicOnOff);
+
+  f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace); 
+  f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
 
   FreeAndNil(f);
   fNeedsSave:=false;

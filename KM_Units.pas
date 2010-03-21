@@ -201,18 +201,7 @@ type
     fCurrentAction: TUnitAction;
     fThought:TUnitThought;
     fHitPoints:byte;
-    //@Krom: In KaM the hit points are stored in the fight action.
-    //Think about it, if they weren't a serf could die with only 1 hit from 2 units.
-    //But in KaM no matter how many units are attacking, it always takes 2 hits to kill a serf.
-    //(2 is serfs hit points) Let me know if you'd like to discuss this before I removed it.
-    //@Lewin: Sounds a lot more complicated than per-unit-HP ...
-    //@Krom: I've been thinking about it and I've decided that I agree, HP should be for units not fights.
-    //       A few things to consider:
-    //1) Unless we restore hit points this means that units will be injured and die sooner after fights. This is ok and realistic, and probably won't affect game play too much. However,
-    //2) I DO NOT want KaM to show the player hit-points and have a way to "heal" them. That is not what KaM is about in my opinion. I think that the lack of hit points and ablitity to control your troops during combat are the two best things about the KaM fighting system. It would make it like every other Age of Empires statergy game clone, we could even have priests that wave sticks at your troops to restore hit points. :P
-    //3) If we don't show the player hit points then they will still "know" that a certain injured squad will fight worse than a fresh one. It might then become nececary to remember which squads are injured because they will die faster than others and weaken your defence if place in the front line. Without an indication of this that task might be difficult. This might not be such an issue, but it's worth considering.
-    //4) We could have hit points auto restore after not being in a fight for a minute, which is less realistic but fixes the potential problems above and makes it similar to KaM, in which hit points restore after each fight.
-    //       I think we could have hit-points be specific to units (not fights) and restore them after a time without combat. Please let me know what you think about the issues/solutions I have raised, and please state your opinions even if they're different to mine. :)
+    fHitPointCounter: cardinal;
     fCondition:integer; //Unit condition, when it reaches zero unit should die
     fOwner:TPlayerID;
     fHome:TKMHouse;
@@ -267,8 +256,9 @@ type
     property GetCondition: integer read fCondition;
     property SetCondition: integer write fCondition;
     procedure SetFullCondition;
-    procedure HitPointsDecrease(aAmount:integer);
+    procedure HitPointsDecrease(aAmount:integer=1);
     property GetHitPoints:byte read fHitPoints;
+    function GetMaxHitPoints:byte;
     procedure CancelUnitTask;
     property IsVisible: boolean read fVisible;
     property SetVisibility:boolean write fVisible;
@@ -287,6 +277,7 @@ type
     procedure UpdateFOW();
     procedure UpdateThoughts();
     procedure UpdateVisibility();
+    procedure UpdateHitPoints();
     function GetSlide(aCheck:TCheckAxis): single;
   public
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -1736,7 +1727,8 @@ begin
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   fCondition    := UNIT_MAX_CONDITION - Random(UNIT_MAX_CONDITION div 4);
-  fHitPoints    := 10; //todo: use real hitpoints here
+  fHitPoints    := GetMaxHitPoints;
+  fHitPointCounter := 1;
 
   SetActionStay(10, ua_Walk);
   fTerrain.UnitAdd(NextPosition);
@@ -1804,6 +1796,8 @@ begin
   LoadStream.Read(fThought, SizeOf(fThought));
   LoadStream.Read(fCondition);
   LoadStream.Read(fHitPoints);
+  LoadStream.Read(fHitPointCounter, 4);
+  LoadStream.Read(fInHouse, 4);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
   LoadStream.Read(fPosition, 8); //2 floats
@@ -1824,6 +1818,7 @@ begin
   if fUnitTask<>nil then fUnitTask.SyncLoad;
   if fCurrentAction<>nil then fCurrentAction.SyncLoad;
   fHome := fPlayers.GetHouseByID(integer(fHome));
+  fInHouse := fPlayers.GetHouseByID(integer(fInHouse));
 end;
 
 
@@ -1964,10 +1959,19 @@ begin
 end;
 
 
-procedure TKMUnit.HitPointsDecrease(aAmount:integer);
+procedure TKMUnit.HitPointsDecrease(aAmount:integer=1);
 begin
-  fHitPoints := EnsureRange(fHitPoints-aAmount,0,255); //todo: use real MAX_HP here
+  //When we are first hit reset the counter
+  if (aAmount > 0) and (fHitPoints = GetMaxHitPoints) then fHitPointCounter := 1;
+  fHitPoints := EnsureRange(fHitPoints-aAmount,0,GetMaxHitPoints);
   if fHitPoints = 0 then KillUnit;
+end;
+
+
+function TKMUnit.GetMaxHitPoints:byte;
+begin
+  fLog.AssertToLog(byte(GetUnitType) in [1..41],'GetHP: Unit type must be in 1..41 range');
+  Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints,0,255);
 end;
 
 
@@ -2217,6 +2221,16 @@ begin
 end;
 
 
+procedure TKMUnit.UpdateHitPoints;
+begin
+  //Use fHitPointCounter as a counter to restore hit points every X ticks
+  if (GetUnitAction is TUnitActionFight) and not fGame.fGameSettings.fHitPointRestoreInFights then exit;
+  if fGame.fGameSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
+  if fHitPointCounter mod fGame.fGameSettings.fHitPointRestorePace = 0 then HitPointsDecrease(-1); //Add 1 hit point
+  inc(fHitPointCounter);
+end;
+
+
 function TKMUnit.GetSlide(aCheck:TCheckAxis): single;
 var DY,DX, PixelPos, LookupDiagonal: shortint;
 begin
@@ -2258,6 +2272,13 @@ begin
   SaveStream.Write(fThought, SizeOf(fThought));
   SaveStream.Write(fCondition);
   SaveStream.Write(fHitPoints);
+  SaveStream.Write(fHitPointCounter, 4);
+
+  if fInHouse <> nil then
+    SaveStream.Write(fInHouse.ID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero);
+
   SaveStream.Write(fOwner, SizeOf(fOwner));
 
   if fHome <> nil then
@@ -2294,6 +2315,7 @@ begin
   UpdateHunger();
   UpdateFOW();
   UpdateThoughts();
+  UpdateHitPoints();
   UpdateVisibility(); //incase units home was destroyed
 
   //
@@ -3089,7 +3111,9 @@ begin
       2: begin
            SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
            Direction:=TKMDirection(Cells[CurLoc].Dir);
-           if fHouse.IsStone then fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, fOwner); //Remove house plan when we start the stone phase (it is still required for wood)
+           //Remove house plan when we start the stone phase (it is still required for wood) But don't do it every time we hit if it's already done!
+           if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y,fHouse.GetPosition.X].Markup <> mu_House) then
+             fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, fOwner);
          end;
       3: begin
            //Cancel building no matter progress if resource depleted or unit is hungry and is able to eat

@@ -9,7 +9,6 @@ type
 TUnitActionFight = class(TUnitAction)
   private
     fOpponent:TKMUnit; //Who we are fighting with
-    fOpponentHitPoints: byte; //Opponent hit points are specific for each fight to match KaM
   public
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
@@ -30,7 +29,6 @@ constructor TUnitActionFight.Create(aActionType:TUnitActionType; aOpponent, aUni
 begin
   Inherited Create(aActionType);
   fOpponent := aOpponent.GetSelf; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
-  fOpponentHitPoints := UnitStat[byte(aOpponent.GetUnitType)].HitPoints; //Initialise to full hit points at start of fight
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
 
@@ -46,7 +44,6 @@ constructor TUnitActionFight.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fOpponent, 4);
-  LoadStream.Read(fOpponentHitPoints);
 end;
 
 
@@ -95,7 +92,6 @@ procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
   begin
     Result := (fOpponent.GetUnitTask is TTaskDie) or //Unit is Killed
               (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
-              (fOpponentHitPoints = 0) or //same as Killed?
                fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
     //Before exiting we must Halt so we reposition after the fight. Will need to change later when fight correctly involves entire group.
     if Result and (TKMUnitWarrior(KMUnit).fCommander = nil) then
@@ -124,9 +120,7 @@ begin
     IsHit := (Damage >= Random(101)); //0..100
 
     if IsHit then
-      dec(fOpponentHitPoints);
-    
-    if fOpponentHitPoints = 0 then fOpponent.KillUnit;
+      fOpponent.HitPointsDecrease;
   end;
 
   MakeSound(KMUnit, Cycle, Step, IsHit);
@@ -145,7 +139,6 @@ begin
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(fOpponentHitPoints);
 end;
 
 

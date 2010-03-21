@@ -820,7 +820,7 @@ begin
       SaveStream.Write('KaM_Savegame');
       SaveStream.Write(SAVE_VERSION); //This is savegame version
       SaveStream.Write(GameName); //Save game title
-      SaveStream.Write(GameplayTickCount, 4); //dunno if it's required to save, but it won't hurt anyone
+      SaveStream.Write(GameplayTickCount, 4); //Required to be saved, e.g. messages being shown after a time
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
 
       fTerrain.Save(SaveStream); //Saves the map

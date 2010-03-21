@@ -25,12 +25,12 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo #3 r734';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r734';         //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Economy Demo FightSim r756';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r756';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
