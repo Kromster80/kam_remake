@@ -83,6 +83,7 @@ begin
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\', fGameSettings.GetLocale);
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(); //Required for button click sounds
+  //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
   fMusicLib:= TMusicLib.Create(); //Needed for button click sounds and etc?
   fGameSettings.UpdateSFXVolume;
   fLog.AppendLog('<== ReadGFX init follows ==>');

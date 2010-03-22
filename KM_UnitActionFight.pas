@@ -28,6 +28,7 @@ uses KM_PlayersCollection, KM_Terrain, KM_SoundFX;
 constructor TUnitActionFight.Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
 begin
   Inherited Create(aActionType);
+  fActionName := uan_Fight;
   fOpponent := aOpponent.GetSelf; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
@@ -93,9 +94,6 @@ procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
     Result := (fOpponent.GetUnitTask is TTaskDie) or //Unit is Killed
               (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
                fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
-    //Before exiting we must Halt so we reposition after the fight. Will need to change later when fight correctly involves entire group.
-    if Result and (TKMUnitWarrior(KMUnit).fCommander = nil) then
-      TKMUnitWarrior(KMUnit).Halt;
   end;
 
 var Cycle,Step:byte; DirectionModifier:byte; IsHit: boolean; Damage: word;
@@ -129,12 +127,15 @@ begin
   inc(KMUnit.AnimStep);
 
   DoEnd := CheckDoEnd;
+  if (not DoEnd) and (fOpponent is TKMUnitWarrior) then
+    TKMUnitWarrior(KMUnit).GetCommander.Foe := TKMUnitWarrior(fOpponent); //Set our group's foe to this enemy, thus making it constantly change in large fights so no specific unit will be targeted
+    //todo: That isn't very efficient because pointer tracking is constantly changing... should only happen every second or something.
 end;
 
 
 procedure TUnitActionFight.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fOpponent <> nil then
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else

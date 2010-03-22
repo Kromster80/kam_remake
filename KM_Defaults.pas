@@ -26,7 +26,7 @@ const
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
   GAME_VERSION          = 'Economy Demo FightSim r756';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r756';       //Should be updated for every release (each time save format is changed)
+  SAVE_VERSION          = 'r758';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
@@ -50,7 +50,7 @@ var
   FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
-  DO_WEIGHT_ROUTES      :boolean=false; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
+  DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
 
   //These are debug things, should be FALSE
   ShowDebugControls     :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
@@ -364,7 +364,7 @@ type
 
 type
   TUnitActionName = ( uan_Unknown=0, //Uninitialized action to detect bugs
-        uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk);
+        uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight);
 
 type
   TUnitActionType = (ua_Walk=1, ua_Work=2, ua_Spec=3, ua_Die=4, ua_Work1=5,
@@ -373,7 +373,7 @@ type
   TUnitActionTypeSet = set of TUnitActionType;
 
   TWarriorOrder = (wo_None, wo_Walk, wo_WalkOut, wo_Attack); //wo_Storm
-  TWarriorState = (ws_None, ws_Walking, ws_RepositionPause, ws_InitalLinkReposition);
+  TWarriorState = (ws_None, ws_Walking, ws_RepositionPause, ws_InitalLinkReposition, ws_Engage);
   TWarriorLinkState = (wl_None, wl_LeavingBarracks, wl_Linkable);
 
 const

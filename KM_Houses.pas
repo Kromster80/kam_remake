@@ -1634,7 +1634,6 @@ begin
   else //Else try to destroy the house object if all pointers are freed
     if FREE_POINTERS and (TKMHouse(Items[I]).GetPointerCount = 0) then
     begin
-      TKMHouse(Items[I]).Free; //Because no one needs this anymore it must DIE!!!!! :D
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;
       inc(ID);
@@ -1643,8 +1642,8 @@ begin
   if ID <> 0 then
     for I := ID-1 downto 0 do
     begin
+      TKMHouse(Items[IDsToDelete[I]]).Free; //Because no one needs this anymore it must DIE!!!!! :D
       Delete(IDsToDelete[I]);
-      //fLog.AppendLog('House sucessfully freed and removed');
     end;
 end;
 

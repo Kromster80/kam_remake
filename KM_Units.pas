@@ -209,7 +209,7 @@ type
     fVisible:boolean;
     fIsDead:boolean;
     fPointerCount:integer;
-    fInHouse: TKMHouse; //House we are currently in
+    fInHouse: TKMHouse; //House we are currently in //todo: This is WIP and is causing weird errors. To fix.
     fPrevPosition: TKMPoint;
     fNextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
     procedure CloseUnit;
@@ -334,12 +334,14 @@ type
     fAutoLinkState:TWarriorLinkState;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fOrderTarget: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
+    fFoe:TKMUnitWarrior; //An enemy unit which is currently in combat with one of our memebers (commander use only!) Use only public Foe property!
     fUnitsPerRow:integer;
     fMembers:TKMList;
     function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
     procedure UpdateHungerMessage();
     procedure ClearOrderTarget;
+    procedure ClearFoe;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -358,9 +360,13 @@ type
     procedure OrderFood;
     procedure SetOrderTarget(aUnit:TKMUnit);
     function GetOrderTarget:TKMUnit;
+    procedure SetFoe(aUnit:TKMUnitWarrior);
+    function GetFoe:TKMUnitWarrior;
     property SetOrderedFood:boolean write fOrderedFood;
+    property GetWarriorState: TWarriorState read fState;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
+    property Foe:TKMUnitWarrior read GetFoe write SetFoe;
     property GetOrderLoc:TKMPointDir read fOrderLoc write fOrderLoc;
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
@@ -841,6 +847,7 @@ begin
   Inherited;
   fCommander    := nil;
   fOrderTarget  := nil;
+  fFoe          := nil;
   fOrderedFood  := false;
   fFlagAnim     := 0;
   fTimeSinceHungryReminder := 0;
@@ -859,12 +866,13 @@ begin
   Inherited;
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fOrderTarget, 4); //subst on syncload
+  LoadStream.Read(fFoe, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrderedFood);
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
-  LoadStream.Read(fState, SizeOf(fAutoLinkState));
+  LoadStream.Read(fAutoLinkState, SizeOf(fAutoLinkState));
   LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(aCount);
@@ -900,6 +908,7 @@ begin
   Inherited;
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fCommander)));
   fOrderTarget := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fOrderTarget)));
+  fFoe := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fFoe)));
   if fMembers<>nil then
     for i:=1 to fMembers.Count do
       fMembers.Items[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(integer(fMembers.Items[i-1])));
@@ -959,6 +968,7 @@ begin
     fCommander := NewCommander;
   end;
   ClearOrderTarget; //This ensures that pointer usage tracking is reset
+  ClearFoe; //This ensures that pointer usage tracking is reset
 
   Inherited;
 end;
@@ -1182,6 +1192,17 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.ClearFoe;
+begin
+  //Set fFoe to nil, removing pointer if it's still valid
+  if fFoe <> nil then
+  begin
+    fFoe.RemovePointer;
+    fFoe := nil;
+  end;
+end;
+
+
 procedure TKMUnitWarrior.SetOrderTarget(aUnit:TKMUnit);
 begin
   //Remove previous value
@@ -1196,6 +1217,23 @@ begin
   //If the target unit has died then clear it
   if (fOrderTarget <> nil) and (fOrderTarget.IsDead) then ClearOrderTarget;
   Result := fOrderTarget;
+end;
+
+
+procedure TKMUnitWarrior.SetFoe(aUnit:TKMUnitWarrior);
+begin
+  //Remove previous value
+  ClearFoe;
+  if aUnit <> nil then
+    fFoe := TKMUnitWarrior(aUnit.GetSelf); //Else it will be nil from ClearFoe
+end;
+
+
+function TKMUnitWarrior.GetFoe:TKMUnitWarrior;
+begin
+  //If the target unit has died then clear it
+  if (fFoe <> nil) and (fFoe.IsDead) then ClearOrderTarget;
+  Result := fFoe;
 end;
 
 
@@ -1308,12 +1346,16 @@ begin
     SaveStream.Write(fOrderTarget.ID) //Store ID
   else
     SaveStream.Write(Zero);
+  if fFoe <> nil then
+    SaveStream.Write(fFoe.ID) //Store ID
+  else
+    SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
   SaveStream.Write(fOrderedFood);
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));
-  SaveStream.Write(fState, SizeOf(fAutoLinkState));
+  SaveStream.Write(fAutoLinkState, SizeOf(fAutoLinkState));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
   SaveStream.Write(fUnitsPerRow);
   //Only save members if we are a commander
@@ -1435,10 +1477,40 @@ function TKMUnitWarrior.UpdateState():boolean;
   end;
 var
   i: integer;
-  PositioningDone: boolean;
+  PositioningDone, FoundFight: boolean;
   LinkUnit: TKMUnitWarrior;
 begin
   inc(fFlagAnim);
+
+  //See if a member is still in combat and if not set Foe to nil
+  if (fCommander = nil) and (Foe <> nil) then
+  begin
+    FoundFight := (GetUnitAction is TUnitActionFight);
+    if (not FoundFight) and (fMembers <> nil) then
+      for i:=0 to fMembers.Count-1 do
+        if TKMUnit(fMembers.Items[i]).GetUnitAction is TUnitActionFight then
+        begin
+          FoundFight := true;
+          break;
+        end;
+    if not FoundFight then
+    begin
+      Foe := nil; //Nil foe because no one is fighting
+      Halt; //Reposition because the fight has just finished
+    end;
+  end;
+  if (fState = ws_Engage) and ((GetCommander.Foe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
+    fState := ws_None; //As soon as combat is over set the state back
+
+  //Help out our fellow group memebers in combat if we are not fighting and someone else is
+  if (not (GetUnitAction is TUnitActionFight)) and (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
+  begin
+    //Join fight (engage)
+    //todo: Higher weighting for tiles with units when we are in Engage state. (this could be a parameter in PathFinding used by Walk Action if we are warrior in Engage state)
+    fOrder := wo_Attack;
+    fState := ws_Engage; //Special state so we don't issue this order continuously
+    SetOrderTarget(GetCommander.Foe);
+  end;
 
   //Override current action if there's an Order in queue paying attention
   //to unit WalkTo current position (let the unit arrive on next tile first!)
@@ -1495,7 +1567,7 @@ begin
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
-    fState := ws_Walking;
+    if (fState <> ws_Engage) then fState := ws_Walking;
   end;
 
   //Take attack order
@@ -1505,7 +1577,7 @@ begin
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
-    fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
+    if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
 
   if fFlagAnim mod 10 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places
@@ -1787,6 +1859,7 @@ begin
       uan_WalkTo:      fCurrentAction := TUnitActionWalkTo.Load(LoadStream);
       uan_AbandonWalk: fCurrentAction := TUnitActionAbandonWalk.Load(LoadStream);
       uan_GoInOut:     fCurrentAction := TUnitActionGoInOut.Load(LoadStream);
+      uan_Fight:       fCurrentAction := TUnitActionFight.Load(LoadStream);
       else             fCurrentAction := nil;
     end;
   end
@@ -3822,7 +3895,6 @@ begin
   else //Else try to destroy the unit object if all pointers are freed
     if (Items[I] <> nil) and FREE_POINTERS and (TKMUnit(Items[I]).GetPointerCount = 0) then
     begin
-      TKMUnit(Items[I]).Free; //Because no one needs this anymore it must DIE!!!!! :D
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;
       inc(ID);
@@ -3830,7 +3902,10 @@ begin
 
   //Must remove list entry after for loop is complete otherwise the indexes change
   for I := ID-1 downto 0 do
+  begin
+    TKMUnit(Items[IDsToDelete[I]]).Free; //Because no one needs this anymore it must DIE!!!!! :D
     Delete(IDsToDelete[I]);
+  end;
 
   //   --     POINTER FREEING SYSTEM - DESCRIPTION     --   //
   //  This system was implemented because unit and house objects cannot be freed until all pointers to them
