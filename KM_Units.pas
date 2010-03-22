@@ -1677,6 +1677,7 @@ Inherited;
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
 
   //Paint members in MapEd mode
+  if fMapEdMembersCount<>0 then
   for i:=1 to fMapEdMembersCount+1 do begin //+1 for Commander gets skipped
     px := (i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
     py := (i-1) div fUnitsPerRow;
