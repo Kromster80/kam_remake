@@ -760,15 +760,16 @@ begin
     CommandLayerCount := -1; //Disable command layering
     AddData(''); //Extra NL because command layering doesn't put one
     AddData(''); //NL
+
     //Units
     for k:=0 to fPlayers.Player[i].GetUnits.Count-1 do
     begin
       CurUnit := TKMUnit(fPlayers.Player[i].GetUnits.Items[k]);
       if CurUnit is TKMUnitWarrior then
       begin
-        if TKMUnitWarrior(CurUnit).fCommander = nil then
+        if TKMUnitWarrior(CurUnit).fCommander = nil then //Parse only Commanders
         begin
-          AddCommand(ct_SetGroup,6,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).GetMemberCount+1);
+          AddCommand(ct_SetGroup,6,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1);
           if CurUnit.GetCondition = UNIT_MAX_CONDITION then
             AddCommand(ct_SetGroupFood);
         end;

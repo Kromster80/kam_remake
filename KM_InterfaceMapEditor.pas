@@ -65,6 +65,12 @@ type TKMapEdInterface = class
       KMConditionBar_Unit:TKMPercentBar;
       Image_UnitPic:TKMImage;
 
+      Panel_Army:TKMPanel;
+        Button_Army_RotCW,Button_Army_RotCCW:TKMButton;
+        Button_Army_ForUp,Button_Army_ForDown:TKMButton;
+        ImageStack_Army:TKMImageStack;
+        Button_ArmyDec,Button_ArmyInc:TKMButton;
+
     Panel_House:TKMPanel;
       Label_House:TKMLabel;
       Image_House_Logo,Image_House_Worker:TKMImage;
@@ -104,6 +110,7 @@ type TKMapEdInterface = class
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
+    procedure Unit_ArmyChange(Sender:TObject; AButton:TMouseButton);
     procedure Store_SelectWare(Sender:TObject);
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
   public
@@ -598,11 +605,27 @@ end;
 procedure TKMapEdInterface.Create_Unit_Page;
 begin
   Panel_Unit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
-    Label_UnitName:=MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
-    Image_UnitPic:=MyControls.AddImage(Panel_Unit,8,38,54,100,521);
-    Label_UnitCondition:=MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
-    KMConditionBar_Unit:=MyControls.AddPercentBar(Panel_Unit,73,55,116,15,80);
-    Label_UnitDescription:=MyControls.AddLabel(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
+    Label_UnitName        := MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
+    Image_UnitPic         := MyControls.AddImage(Panel_Unit,8,38,54,100,521);
+    Label_UnitCondition   := MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
+    KMConditionBar_Unit   := MyControls.AddPercentBar(Panel_Unit,73,55,116,15,80);
+    Label_UnitDescription := MyControls.AddLabel(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
+
+  Panel_Army:=MyControls.AddPanel(Panel_Unit,0,160,200,400);
+    Button_Army_RotCW   := MyControls.AddButton(Panel_Army,  8, 0, 56, 40, 23);
+    Button_Army_RotCCW  := MyControls.AddButton(Panel_Army,132, 0, 56, 40, 24);
+    Button_Army_ForUp   := MyControls.AddButton(Panel_Army,  8, 46, 56, 40, 33);
+    ImageStack_Army     := MyControls.AddImageStack(Panel_Army, 70, 46, 56, 40, 43);
+    Button_Army_ForDown := MyControls.AddButton(Panel_Army,132, 46, 56, 40, 32);
+    Button_Army_RotCW.OnClickEither   := Unit_ArmyChange;
+    Button_Army_RotCCW.OnClickEither  := Unit_ArmyChange;
+    Button_Army_ForUp.OnClickEither   := Unit_ArmyChange;
+    Button_Army_ForDown.OnClickEither := Unit_ArmyChange;
+
+    Button_ArmyDec      := MyControls.AddButton(Panel_Army, 80,92,20,20,'-', fnt_Metal);
+    Button_ArmyInc      := MyControls.AddButton(Panel_Army,160,92,20,20,'+', fnt_Metal);
+    Button_ArmyDec.OnClickEither := Unit_ArmyChange;
+    Button_ArmyInc.OnClickEither := Unit_ArmyChange;
 end;
 
 
@@ -902,6 +925,7 @@ end;
 
 
 procedure TKMapEdInterface.ShowUnitInfo(Sender:TKMUnit);
+var Commander:TKMUnitWarrior;
 begin
   ShownUnit:=Sender;
   ShownHouse:=nil;
@@ -918,6 +942,10 @@ begin
   begin
     //Warrior specific
     Label_UnitDescription.Hide;
+    Commander := TKMUnitWarrior(Sender).GetCommander;
+    if Commander<>nil then
+      ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
+    Panel_Army.Show;
   end
   else
   begin
@@ -1022,10 +1050,39 @@ procedure TKMapEdInterface.House_HealthChange(Sender:TObject; AButton:TMouseButt
 var Amt:byte;
 begin
   if ShownHouse = nil then exit;
+  Amt := 0;
   if AButton = mbLeft then Amt:=1;
   if AButton = mbRight then Amt:=50;
   if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(Amt);
   if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(Amt);
+end;
+
+
+procedure TKMapEdInterface.Unit_ArmyChange(Sender:TObject; AButton:TMouseButton);
+var Amt:shortint; Commander:TKMUnitWarrior;
+begin
+  if ShownUnit = nil then exit;
+  if not (ShownUnit is TKMUnitWarrior) then exit;
+
+  Commander := TKMUnitWarrior(ShownUnit).GetCommander;
+
+  Amt := 0;
+  if Sender = Button_ArmyDec then Amt := -1; //Decrease
+  if Sender = Button_ArmyInc then Amt := 1; //Increase
+  if AButton = mbLeft then Amt  := Amt * 1;
+  if AButton = mbRight then Amt := Amt * 10;
+
+  Commander.fMapEdMembersCount := EnsureRange(Commander.fMapEdMembersCount + Amt, 0, 200); //max members
+
+  if Sender = Button_Army_ForUp then Commander.UnitsPerRow := max(Commander.UnitsPerRow-1,1);
+  if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
+
+  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
+
+
+  if Sender = Button_Army_RotCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)-1);
+  if Sender = Button_Army_RotCCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)+1);
+
 end;
 
 

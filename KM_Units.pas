@@ -334,6 +334,7 @@ type
     fAutoLinkState:TWarriorLinkState;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fOrderTarget: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
+  {Commander properties}
     fFoe:TKMUnitWarrior; //An enemy unit which is currently in combat with one of our memebers (commander use only!) Use only public Foe property!
     fUnitsPerRow:integer;
     fMembers:TKMList;
@@ -344,6 +345,8 @@ type
     procedure ClearFoe;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
+  {MapEdProperties} //Don't need to be accessed nor saved during gameplay
+    fMapEdMembersCount:integer;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
@@ -857,6 +860,7 @@ begin
   fOrderLoc     := KMPointDir(PosX,PosY,0);
   fUnitsPerRow  := 1;
   fMembers      := nil; //Only commander units will have it initialized
+  fMapEdMembersCount := 0; //Used only in MapEd
 end;
 
 
@@ -1266,6 +1270,8 @@ procedure TKMUnitWarrior.SetUnitsPerRow(aVal:integer);
 begin
   if (fCommander = nil) and (fMembers <> nil) then
     fUnitsPerRow := EnsureRange(aVal,1,fMembers.Count+1);
+  if (fCommander = nil) and (fMembers = nil) and (fMapEdMembersCount<>0) then //Special case for MapEd
+    fUnitsPerRow := EnsureRange(aVal,1,fMapEdMembersCount+1);
 end;
 
 
@@ -1646,8 +1652,10 @@ procedure TKMUnitWarrior.Paint();
 var
   UnitType, AnimAct, AnimDir, TeamColor:byte;
   XPaintPos, YPaintPos: single;
+  i, px, py:integer;
+  UnitPosition: TKMPoint;
 begin
-inherited;
+Inherited;
   if not fVisible then exit;
   UnitType:=byte(fUnitType);
   AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
@@ -1659,14 +1667,26 @@ inherited;
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
   if (fCommander=nil) and not (fUnitTask is TTaskDie) then begin
-    YPaintPos := YPaintPos + FlagHeight[UnitType]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight
+    YPaintPos := YPaintPos + FlagHeight[UnitType]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)
     TeamColor := byte(fOwner);
-    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals);
+    if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals); //Highlight with White color
     fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);
   end;
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
+
+  //Paint members in MapEd mode
+  for i:=1 to fMapEdMembersCount+1 do begin //+1 for Commander gets skipped
+    px := (i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
+    py := (i-1) div fUnitsPerRow;
+    UnitPosition := GetPositionInGroup(GetPosition.X, GetPosition.Y, Direction, px, py);
+    if not KMSamePoint(UnitPosition, GetPosition) then begin
+      XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
+      YPaintPos := UnitPosition.Y + 1  ;
+      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
+    end;
+  end;
 end;
 
 
