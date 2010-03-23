@@ -397,9 +397,13 @@ type
   end;
 
 
-  TKMUnitsCollection = class(TKMList) //todo: List of TKMUnits
+  TKMUnitsCollection = class(TList)
   private
     //Groups:array of integer;
+    procedure Clear; override;
+    function GetUnit(Index: Integer): TKMUnit;
+    procedure SetUnit(Index: Integer; Item: TKMUnit);
+    property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; //Use instead of Items[.]
   public
     destructor Destroy; override;
     function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
@@ -3690,6 +3694,30 @@ begin
 end;
 
 
+procedure TKMUnitsCollection.Clear;
+var i:integer;
+begin
+  for i:=0 to Count-1 do begin
+    Units[i].Free;
+    Units[i]:=nil;
+  end;
+  inherited;
+end;
+
+
+function TKMUnitsCollection.GetUnit(Index: Integer): TKMUnit;
+begin
+  Result := TKMUnit(Items[Index])
+end;
+
+
+procedure TKMUnitsCollection.SetUnit(Index: Integer; Item: TKMUnit);
+begin
+  Items[Index] := Item;
+end;
+
+
+
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
 function TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
@@ -3726,7 +3754,7 @@ begin
     fLog.AssertToLog(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
   end;
 
-  if U=-1 then Result:=nil else Result:=TKMUnit(Items[U]);
+  if U=-1 then Result:=nil else Result:=Units[U];
 
 end;
 
@@ -3799,9 +3827,9 @@ var
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    if (TKMUnit(Items[I]).HitTest(X, Y, UT)) and (not TKMUnit(Items[I]).IsDead) then
+    if Units[I].HitTest(X, Y, UT) and (not Units[I].IsDead) then
     begin
-      Result:= TKMUnit(Items[I]);
+      Result:= Units[I];
       Break;
     end;
 end;
@@ -3812,9 +3840,9 @@ var i:integer;
 begin
   Result := nil;
   for i := 0 to Count-1 do
-    if aID = TKMUnit(Items[i]).ID then
+    if aID = Units[i].ID then
     begin
-      Result := TKMUnit(Items[i]);
+      Result := Units[i];
       exit;
     end;
 end;
@@ -3825,8 +3853,8 @@ var i:integer;
 begin
   Loc.Clearup;
   for I := 0 to Count - 1 do
-    if (TKMUnit(Items[I]).fOwner=aOwner)and not(TKMUnit(Items[I]).fUnitType in [ut_Wolf..ut_Duck]) then
-      Loc.AddEntry(TKMUnit(Items[I]).GetPosition);
+    if (Units[i].fOwner = aOwner) and not(Units[i].fUnitType in [ut_Wolf..ut_Duck]) then
+      Loc.AddEntry(Units[i].GetPosition);
 end;
 
 
@@ -3835,7 +3863,7 @@ var i:integer;
 begin
   Result:=0;
   for I := 0 to Count - 1 do
-    inc(Result, TKMUnit(Items[I]).GetPointerCount);
+    inc(Result, Units[i].GetPointerCount);
 end;
 
 
@@ -3847,7 +3875,7 @@ end;
 
 function TKMUnitsCollection.GetUnitByIndex(aIndex:integer): TKMUnit;
 begin
-  Result := TKMUnit(Items[aIndex]);
+  Result := Units[aIndex];
 end;
 
 
@@ -3857,7 +3885,7 @@ begin
   SaveStream.Write('Units');
   SaveStream.Write(Count);
   for i := 0 to Count - 1 do
-    TKMUnit(Items[i]).Save(SaveStream);
+    Units[i].Save(SaveStream);
 end;
 
 
@@ -3890,7 +3918,7 @@ var i:integer;
 begin
   for i := 0 to Count - 1 do
   begin
-    case TKMUnit(Items[I]).fUnitType of
+    case Units[i].fUnitType of
       ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;
       ut_Worker:                TKMUnitWorker(Items[I]).SyncLoad;
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
@@ -3911,10 +3939,10 @@ var
 begin
   ID := 0;
   for I := 0 to Count - 1 do
-  if not TKMUnit(Items[I]).IsDead then
-    TKMUnit(Items[I]).UpdateState
+  if not Units[i].IsDead then
+    Units[i].UpdateState
   else //Else try to destroy the unit object if all pointers are freed
-    if (Items[I] <> nil) and FREE_POINTERS and (TKMUnit(Items[I]).GetPointerCount = 0) then
+    if (Items[I] <> nil) and FREE_POINTERS and (Units[i].GetPointerCount = 0) then
     begin
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;
@@ -3924,7 +3952,7 @@ begin
   //Must remove list entry after for loop is complete otherwise the indexes change
   for I := ID-1 downto 0 do
   begin
-    TKMUnit(Items[IDsToDelete[I]]).Free; //Because no one needs this anymore it must DIE!!!!! :D
+    Units[IDsToDelete[I]].Free; //Because no one needs this anymore it must DIE!!!!! :D
     Delete(IDsToDelete[I]);
   end;
 
@@ -3955,9 +3983,9 @@ begin
   y2 := fViewport.GetClip.Bottom + Margin;
 
   for I := 0 to Count - 1 do
-  if (Items[I] <> nil) and (not TKMUnit(Items[I]).IsDead) then
-  if (InRange(TKMUnit(Items[I]).fPosition.X,x1,x2) and InRange(TKMUnit(Items[I]).fPosition.Y,y1,y2)) then
-    TKMUnit(Items[I]).Paint();
+  if (Items[I] <> nil) and (not Units[i].IsDead) then
+  if (InRange(Units[i].fPosition.X,x1,x2) and InRange(Units[i].fPosition.Y,y1,y2)) then
+    Units[i].Paint();
 end;
 
 
