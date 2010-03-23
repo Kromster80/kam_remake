@@ -56,7 +56,7 @@ type
     function Save(SlotID:shortint):string;
     function Load(SlotID:shortint; out LoadError:string):TLoadResult;
     procedure UpdateState;
-    procedure UpdateStateIdle;
+    procedure UpdateStateIdle(aFrameTime:cardinal);
     procedure PaintInterface;
   end;
 
@@ -202,7 +202,7 @@ begin
       fGameplayInterface.IssueMessage(msgText,'123',KMPoint(0,0));
     end;
     if (Key=ord('6')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgHouse,'123',fViewport.GetCenter);
+      fGameplayInterface.IssueMessage(msgHouse,'123',KMPointRound(fViewport.GetCenter));
     end;
     if (Key=ord('7')) and (GameState = gsRunning) then begin
       fGameplayInterface.IssueMessage(msgUnit,'123',KMPoint(0,0));
@@ -356,10 +356,10 @@ begin
                              (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy))or
                               ((HitHouse<>nil) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy))) then
                             Screen.Cursor := c_Attack
-                          else if not Scrolling then
+                          else if not fViewport.Scrolling then
                             Screen.Cursor := c_Default;
                         end
-                        else if not Scrolling then
+                        else if not fViewport.Scrolling then
                           Screen.Cursor := c_Default;
                     fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                   end;
@@ -376,7 +376,7 @@ begin
                       if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
                          (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
                         Screen.Cursor:=c_Info
-                      else if not Scrolling then
+                      else if not fViewport.Scrolling then
                         Screen.Cursor:=c_Default;
                     fTerrain.UpdateCursor(CursorMode.Mode,GameCursor.Cell);
 
@@ -936,7 +936,6 @@ begin
                     fMusicLib.PlayMenuTrack(not fGameSettings.IsMusic); //Menu tune
                 end;
     gsRunning:  begin
-                  fViewport.DoScrolling; //Check to see if we need to scroll
                   for i:=1 to GameSpeed do
                   begin
                     inc(GameplayTickCount); //Thats our tick counter for gameplay events
@@ -959,7 +958,6 @@ begin
                       fMusicLib.PlayNextTrack(); //Feed new music track
                 end;
     gsEditor:   begin
-                  fViewport.DoScrolling; //Check to see if we need to scroll
                   fMapEditorInterface.UpdateState;
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;
@@ -971,14 +969,18 @@ end;
 
 
 {This is our real-time thread, use it wisely}
-procedure TKMGame.UpdateStateIdle;
+procedure TKMGame.UpdateStateIdle(aFrameTime:cardinal);
 begin
   case GameState of
+    gsRunning:  begin
+                  fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
+                end;
     gsEditor:   begin
+                  fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
                   case CursorMode.Mode of
                     cm_Height:
                               if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
-                              fTerrain.MapEdHeight(GameCursor.Float, CursorMode.Tag1, CursorMode.Tag2, ssLeft in GameCursor.SState); //6size.2shape
+                              fTerrain.MapEdHeight(GameCursor.Float, CursorMode.Tag1, CursorMode.Tag2, ssLeft in GameCursor.SState);
                     cm_Tiles:
                               if (ssLeft in GameCursor.SState) then
                               fTerrain.MapEdTile(GameCursor.Cell, CursorMode.Tag1);

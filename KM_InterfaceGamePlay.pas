@@ -466,8 +466,8 @@ begin
     if KMMinimap.CenteredAt.X*KMMinimap.CenteredAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
     fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
 
-  KMMinimap.CenteredAt:=fViewport.GetCenter;
-  KMMinimap.ViewArea:=fViewport.GetMinimapClip;
+  KMMinimap.CenteredAt := fViewport.GetCenter;
+  KMMinimap.ViewArea   := fViewport.GetMinimapClip;
 end;
 
 

@@ -16,7 +16,7 @@ Sound bugs:
 
 Suggested improvements:
 	word "Condition" in house menu is unreadable, bad colour, it should be white
-	Viewport scrolling should be smooth
++	Viewport scrolling should be smooth
 	Two monitor config, scrolling works well only on 1st display
 
 

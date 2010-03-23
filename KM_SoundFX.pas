@@ -51,7 +51,7 @@ type
     constructor Create();
     destructor Destroy(); override;
     procedure ExportSounds();
-    procedure UpdateListener(Pos:TKMPoint);
+    procedure UpdateListener(Pos:TKMPointF);
     procedure UpdateSFXVolume(Value:single);
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
@@ -219,7 +219,7 @@ end;
 
 
 {Update listener position in 3D space}
-procedure TSoundLib.UpdateListener(Pos:TKMPoint);
+procedure TSoundLib.UpdateListener(Pos:TKMPointF);
 begin
   if not IsOpenALInitialized then exit;
   Listener.Pos[1]:=Pos.X;

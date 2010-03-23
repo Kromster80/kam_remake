@@ -9,20 +9,21 @@ type
 { Here should be viewport routines }
 TViewport = class
   private
-    XCoord,YCoord:integer;
+    XCoord,YCoord:single;
   public
     Zoom:single;
     ViewRect:TRect;
     ViewWidth, ViewHeight:integer;
     ScrollKeyLeft, ScrollKeyRight, ScrollKeyUp, ScrollKeyDown: boolean;
+    Scrolling: boolean;
     constructor Create;
     procedure SetZoom(aZoom:single);
     procedure SetVisibleScreenArea(NewWidth,NewHeight:integer);
-    function GetCenter():TKMPoint;
-    procedure SetCenter(NewX,NewY:integer);
+    function GetCenter():TKMPointF;
+    procedure SetCenter(NewX,NewY:single);
     function GetClip():TRect; //returns visible area dimensions in map space
     function GetMinimapClip():TRect;
-    procedure DoScrolling;
+    procedure DoScrolling(aFrameTime:cardinal);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
 end;
@@ -65,18 +66,20 @@ begin
   ViewHeight      := ViewRect.Bottom-ViewRect.Top;
 end;
 
-function TViewport.GetCenter():TKMPoint;
+function TViewport.GetCenter():TKMPointF;
 begin
-  Result.X:=EnsureRange(XCoord,1,fTerrain.MapX);
-  Result.Y:=EnsureRange(YCoord,1,fTerrain.MapY);
-  fSoundLib.UpdateListener(KMPoint(XCoord,YCoord));
+  Result.X := EnsureRange(XCoord, 1, fTerrain.MapX);
+  Result.Y := EnsureRange(YCoord, 1, fTerrain.MapY);
+  if not SMOOTH_SCROLLING then Result.X := round(Result.X);
+  if not SMOOTH_SCROLLING then Result.Y := round(Result.Y);
+  fSoundLib.UpdateListener(Result);
 end;
 
-procedure TViewport.SetCenter(NewX,NewY:integer);
+procedure TViewport.SetCenter(NewX,NewY:single);
 begin
   XCoord:=EnsureRange(NewX, 0 + round(ViewWidth/2/CELL_SIZE_PX/Zoom),  fTerrain.MapX - round(ViewWidth /2/CELL_SIZE_PX/Zoom) - 1);
   YCoord:=EnsureRange(NewY,-1 + round(ViewHeight/2/CELL_SIZE_PX/Zoom), fTerrain.MapY - round(ViewHeight/2/CELL_SIZE_PX/Zoom)); //Top row should be visible
-  fSoundLib.UpdateListener(KMPoint(XCoord,YCoord));
+  fSoundLib.UpdateListener(KMPointF(XCoord,YCoord));
 end;
 
 //Acquire boundaries of area visible to user
@@ -110,32 +113,33 @@ end;
 
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
-procedure TViewport.DoScrolling;
+procedure TViewport.DoScrolling(aFrameTime:cardinal);
 const DirectionsBitfield:array[0..12]of byte = (0,c_Scroll6,c_Scroll0,c_Scroll7,c_Scroll2,0,c_Scroll1,0,c_Scroll4,c_Scroll5,0,0,c_Scroll3);
-var ScrollAdv: integer; Temp:byte;
+var
+  ScrollAdv:single;
+  Temp:byte;
 begin
   Temp := 0; //That is our bitfield variable for directions, 0..12 range
   //    3 2 6  These are directions
   //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
   //    9 8 12
 
-  ScrollAdv := SCROLLSPEED + byte(fGame.fGameSettings.IsFastScroll)*3; //3 times faster
+  ScrollAdv := (SCROLLSPEED + byte(fGame.fGameSettings.IsFastScroll)*3)*aFrameTime/100; //1 vs 4 tiles per second
 
   //Left, Top, Right, Bottom
   //Keys
-  if ScrollKeyLeft  then dec(XCoord,ScrollAdv);
-  if ScrollKeyUp    then dec(YCoord,ScrollAdv);
-  if ScrollKeyRight then inc(XCoord,ScrollAdv);
-  if ScrollKeyDown  then inc(YCoord,ScrollAdv);
+  if ScrollKeyLeft  then XCoord := XCoord - ScrollAdv;
+  if ScrollKeyUp    then YCoord := YCoord - ScrollAdv;
+  if ScrollKeyRight then XCoord := XCoord + ScrollAdv;
+  if ScrollKeyDown  then YCoord := YCoord + ScrollAdv;
   //Mouse
-  if Mouse.CursorPos.X < SCROLLFLEX then begin inc(Temp,1); dec(XCoord,ScrollAdv); end;
-  if Mouse.CursorPos.Y < SCROLLFLEX then begin inc(Temp,2); dec(YCoord,ScrollAdv); end;
-  if Mouse.CursorPos.X > Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); inc(XCoord,ScrollAdv); end;
-  if Mouse.CursorPos.Y > Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); inc(YCoord,ScrollAdv); end;
+  if Mouse.CursorPos.X <= SCROLLFLEX then begin inc(Temp,1); XCoord := XCoord - ScrollAdv*(1-Mouse.CursorPos.X/SCROLLFLEX); end;
+  if Mouse.CursorPos.Y <= SCROLLFLEX then begin inc(Temp,2); YCoord := YCoord - ScrollAdv*(1-Mouse.CursorPos.Y/SCROLLFLEX); end;
+  if Mouse.CursorPos.X >= Screen.Width -1-SCROLLFLEX then begin inc(Temp,4); XCoord := XCoord + ScrollAdv*(1-(Screen.Width -1-Mouse.CursorPos.X)/SCROLLFLEX); end;
+  if Mouse.CursorPos.Y >= Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); YCoord := YCoord + ScrollAdv*(1-(Screen.Height-1-Mouse.CursorPos.Y)/SCROLLFLEX); end;
 
   //Now do actual the scrolling, if needed
-  if Temp<>0 then
-  begin
+  if Temp<>0 then begin
     Screen.Cursor :=DirectionsBitfield[Temp]; //Sample cursor type from bitfield value
     Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
   end else begin

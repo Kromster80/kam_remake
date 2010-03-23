@@ -44,6 +44,7 @@ var
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
   CUT_TREES_FROM_ANYSIDE:boolean=true; //Allow wodcutter to cut trees from any side rther than bottom-right
+  SMOOTH_SCROLLING      :boolean=true; //Smooth viewport scrolling
   //Not fully implemented yet
   CHECK_WIN_CONDITIONS  :boolean=false; //Disable for debug missions where enemies aren't properly set
   ENABLE_FIGHTING       :boolean=true; //Allow fighting
@@ -889,8 +890,6 @@ var
     Tag1:byte;
     Tag2:byte;
   end;
-
-  Scrolling: boolean;
 
   GameCursor: record
     Float:TKMPointF;    //Precise cursor position on map

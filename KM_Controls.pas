@@ -278,7 +278,7 @@ end;
 TKMMinimap = class(TKMControl)
   public
     MapSize:TKMPoint;
-    CenteredAt:TKMPoint;
+    CenteredAt:TKMPointF;
     ViewArea:TRect;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
@@ -1032,7 +1032,7 @@ constructor TKMMinimap.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:intege
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  CenteredAt:=KMPoint(0,0);
+  CenteredAt:=KMPointF(0,0);
 end;
 
 

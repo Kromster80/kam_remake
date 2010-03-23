@@ -162,7 +162,7 @@ begin
     end;
   end; //FPS calculation complete
 
-  fGame.UpdateStateIdle;
+  fGame.UpdateStateIdle(FrameTime);
   fRender.Render;
   done := false; //repeats OnIdle event
 end;
