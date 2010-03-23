@@ -1061,14 +1061,16 @@ end;
 constructor TKMControlsCollection.Create();
 begin
   Inherited;
+  if fRenderUI <> nil then
   fRenderUI := TRenderUI.Create;
 end;
 
 
 destructor TKMControlsCollection.Destroy();
 begin
+  if fRenderUI <> nil then
   FreeAndNil(fRenderUI);
-  inherited;
+  Inherited;
 end;
 
 
