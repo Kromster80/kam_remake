@@ -205,10 +205,13 @@ type
   end;
 
 
-  TKMHousesCollection = class(TKMList) //todo: List of TKMHouses
+  TKMHousesCollection = class(TKMList)
   private
     fSelectedHouse: TKMHouse;
-    function DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
+    function AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
+    function GetHouse(Index: Integer): TKMHouse;
+    procedure SetHouse(Index: Integer; Item: TKMHouse);
+    property Houses[Index: Integer]: TKMHouse read GetHouse write SetHouse; //Use instead of Items[.]
   public
     function AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
     function AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
@@ -1446,7 +1449,7 @@ end;
 
 
 { TKMHousesCollection }
-function TKMHousesCollection.DoAddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
+function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
 var T:integer;
 begin
   case aHouseType of
@@ -1461,16 +1464,29 @@ begin
     if T=-1 then Result := nil else Result := Items[T];
 end;
 
+
+function TKMHousesCollection.GetHouse(Index: Integer): TKMHouse;
+begin
+  Result := TKMHouse(Items[Index])
+end;
+
+
+procedure TKMHousesCollection.SetHouse(Index: Integer; Item: TKMHouse);
+begin
+  Items[Index] := Item;
+end;
+
+
 function TKMHousesCollection.AddHouse(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
 begin
-  Result:=DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Done);
+  Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_Done);
 end;
 
 
 {Add a plan for house}
 function TKMHousesCollection.AddPlan(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID):TKMHouse;
 begin
-  Result:=DoAddHouse(aHouseType,PosX,PosY,aOwner,hbs_Glyph);
+  Result := AddToCollection(aHouseType,PosX,PosY,aOwner,hbs_Glyph);
 end;
 
 
@@ -1486,7 +1502,7 @@ var i:integer;
 begin
   Result:= nil;
   for I := 0 to Count - 1 do
-    if TKMHouse(Items[I]).HitTest(X, Y) and (not TKMHouse(Items[I]).IsDestroyed) then
+    if Houses[i].HitTest(X, Y) and (not Houses[i].IsDestroyed) then
     begin
       Result:= TKMHouse(Items[I]);
       Break;
@@ -1499,9 +1515,9 @@ var i:integer;
 begin
   Result := nil;
   for i := 0 to Count-1 do
-    if aID = TKMHouse(Items[i]).ID then
+    if aID = Houses[i].ID then
     begin
-      Result := TKMHouse(Items[i]);
+      Result := Houses[i];
       exit;
     end;
 end;
@@ -1516,21 +1532,21 @@ begin
   Bid:=0;
 
   for I := 0 to Count - 1 do
-    if (TUnitType(HouseDAT[byte(TKMHouse(Items[I]).fHouseType)].OwnerType+1)=aUnitType)and //If Unit can work in here
-       (not TKMHouse(Items[I]).fHasOwner)and                              //If there's yet no owner
-       (not TKMHouse(Items[I]).IsDestroyed)and
-       (TKMHouse(Items[I]).IsComplete) then                               //If house is built
+    if (TUnitType(HouseDAT[byte(Houses[i].fHouseType)].OwnerType+1)=aUnitType)and //If Unit can work in here
+       (not Houses[i].fHasOwner)and                              //If there's yet no owner
+       (not Houses[i].IsDestroyed)and
+       (Houses[i].IsComplete) then                               //If house is built
     begin
 
-      Dist:=KMLength(Loc,TKMHouse(Items[I]).GetPosition);
+      Dist:=KMLength(Loc,Houses[i].GetPosition);
 
       //Always prefer Towers to Barracks by making Barracks Bid much less attractive
-      if TKMHouse(Items[I]).GetHouseType = ht_Barracks then Dist:=Dist*1000;
+      if Houses[i].GetHouseType = ht_Barracks then Dist:=Dist*1000;
 
       if (Bid=0)or(Bid>Dist) then
       begin
         Bid:=Dist;
-        Result := TKMHouse(Items[I]);
+        Result := Houses[i];
       end;
 
     end;
@@ -1554,20 +1570,20 @@ begin
 
   for I := 0 to Count - 1 do
   if Items[I] <> nil then
-  if (TKMHouse(Items[I]).fHouseType=aType) and (TKMHouse(Items[I]).IsComplete) then
+  if (Houses[i].fHouseType=aType) and (Houses[i].IsComplete) then
   begin
       inc(id);
       if UsePosition then
       begin
-          Dist := GetLength(TKMHouse(Items[I]).GetPosition,KMPoint(X,Y));
+          Dist := GetLength(Houses[i].GetPosition,KMPoint(X,Y));
           if BestMatch = -1 then BestMatch := Dist; //Initialize for first use
           if Dist < BestMatch then begin
             BestMatch := Dist;
-            Result := TKMHouse(Items[I]);
+            Result := Houses[i];
           end;
       end else
           if Index = id then begin//Take the N-th result
-            Result := TKMHouse(Items[I]);
+            Result := Houses[i];
             exit;
           end;
   end;
@@ -1584,7 +1600,7 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(Count);
   for i := 0 to Count - 1 do
-    TKMHouse(Items[i]).Save(SaveStream);
+    Houses[i].Save(SaveStream);
 end;
 
 
@@ -1617,8 +1633,8 @@ var i:integer;
 begin
   fSelectedHouse := fPlayers.GetHouseByID(integer(fSelectedHouse));
   for i := 0 to Count - 1 do
-    if TKMHouse(Items[i]).fCurrentAction<>nil then
-      TKMHouse(Items[i]).fCurrentAction.fHouse := fPlayers.GetHouseByID(integer(TKMHouse(Items[i]).fCurrentAction.fHouse));
+    if Houses[i].fCurrentAction<>nil then
+      Houses[i].fCurrentAction.fHouse := fPlayers.GetHouseByID(integer(Houses[i].fCurrentAction.fHouse));
 end;
 
 
@@ -1629,10 +1645,10 @@ var
 begin
   ID := 0;
   for I := 0 to Count - 1 do
-  if not TKMHouse(Items[I]).IsDestroyed then
-    TKMHouse(Items[I]).UpdateState
+  if not Houses[i].IsDestroyed then
+    Houses[i].UpdateState
   else //Else try to destroy the house object if all pointers are freed
-    if FREE_POINTERS and (TKMHouse(Items[I]).GetPointerCount = 0) then
+    if FREE_POINTERS and (Houses[i].GetPointerCount = 0) then
     begin
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;
@@ -1653,7 +1669,7 @@ var
   i:integer;
 begin
   for i := 0 to Count - 1 do
-    TKMHouse(Items[i]).IncAnimStep;
+    Houses[i].IncAnimStep;
 end;
 
 function TKMHousesCollection.GetTotalPointers: integer;
@@ -1661,7 +1677,7 @@ var i:integer;
 begin
   Result:=0;
   for I := 0 to Count - 1 do
-    Result:=Result+TKMHouse(Items[I]).GetPointerCount;
+    Result:=Result+Houses[i].GetPointerCount;
 end;
 
 
@@ -1673,9 +1689,9 @@ begin
   y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
 
   for I := 0 to Count - 1 do
-  if not TKMHouse(Items[I]).IsDestroyed then
-  if (InRange(TKMHouse(Items[I]).fPosition.X,x1,x2) and InRange(TKMHouse(Items[I]).fPosition.Y,y1,y2)) then
-    TKMHouse(Items[I]).Paint();
+  if not Houses[i].IsDestroyed then
+  if (InRange(Houses[i].fPosition.X,x1,x2) and InRange(Houses[i].fPosition.Y,y1,y2)) then
+    Houses[i].Paint();
 end;
 
 

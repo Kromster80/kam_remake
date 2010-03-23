@@ -34,6 +34,7 @@ type
 
 
 type
+  {List that clears up its items, used only in Units/Houses/Controls}
   TKMList = class(TList)
   public
     procedure Clear; override;
@@ -226,7 +227,6 @@ procedure TKMList.Clear;
 var
   I: Integer;
 begin
-//todo:Should not be here once Houses/Units/Controls get own lists
   for I := 0 to Count - 1 do begin
     TObject(Items[I]).Free;
     Items[I]:=nil;

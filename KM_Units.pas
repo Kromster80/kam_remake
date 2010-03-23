@@ -337,7 +337,7 @@ type
   {Commander properties}
     fFoe:TKMUnitWarrior; //An enemy unit which is currently in combat with one of our memebers (commander use only!) Use only public Foe property!
     fUnitsPerRow:integer;
-    fMembers:TKMList;
+    fMembers:TList;
     function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
     procedure UpdateHungerMessage();
@@ -397,10 +397,9 @@ type
   end;
 
 
-  TKMUnitsCollection = class(TList)
+  TKMUnitsCollection = class(TKMList)
   private
     //Groups:array of integer;
-    procedure Clear; override;
     function GetUnit(Index: Integer): TKMUnit;
     procedure SetUnit(Index: Integer; Item: TKMUnit);
     property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; //Use instead of Items[.]
@@ -886,7 +885,7 @@ begin
   LoadStream.Read(aCount);
   if aCount <> 0 then
   begin
-    fMembers := TKMList.Create;
+    fMembers := TList.Create;
     for i := 1 to aCount do
     begin
       LoadStream.Read(W, 4); //subst on syncload
@@ -899,13 +898,7 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
-  fMembers := nil; //It's just pointer list and must not be freed/niled
-                   //@Krom: How does that work? We create it with fMembers := TKMList.Create but don't Free it? Surely that's a memory leak?
-                   //@Lewin: See, TKMList will free all of it's members on Free command along with itself.
-                   //        That was made by Alex years ago, so that House/Units lists would free members automaticaly
-                   //        That is ok for them cos they use List.Add(Unit.Create) pattern.
-                   //        Now Member list just adds items that are already have been created.
-                   //        We shall keep that memory leak till TKMList gets updated
+  FreeAndNil(fMembers);
   Inherited;
 end;
 
@@ -953,7 +946,7 @@ begin
     NewCommander := TKMUnitWarrior(fMembers.Items[NewCommanderID]);
     NewCommander.fCommander := nil; //Become a commander
     NewCommander.fUnitsPerRow := fUnitsPerRow; //Transfer group properties
-    NewCommander.fMembers := TKMList.Create;
+    NewCommander.fMembers := TList.Create;
 
     //Transfer all members to new commander
     for i:=1 to fMembers.Count do
@@ -991,7 +984,7 @@ end;
 procedure TKMUnitWarrior.AddMember(aWarrior:TKMUnitWarrior);
 begin
   if fCommander <> nil then exit; //Only commanders may have members
-  if fMembers = nil then fMembers := TKMList.Create;
+  if fMembers = nil then fMembers := TList.Create;
   fMembers.Add(aWarrior);
 end;
 
@@ -3694,17 +3687,6 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.Clear;
-var i:integer;
-begin
-  for i:=0 to Count-1 do begin
-    Units[i].Free;
-    Units[i]:=nil;
-  end;
-  inherited;
-end;
-
-
 function TKMUnitsCollection.GetUnit(Index: Integer): TKMUnit;
 begin
   Result := TKMUnit(Items[Index])
@@ -3715,7 +3697,6 @@ procedure TKMUnitsCollection.SetUnit(Index: Integer; Item: TKMUnit);
 begin
   Items[Index] := Item;
 end;
-
 
 
 { AutoPlace means should we find a spot for this unit or just place it where we are told.

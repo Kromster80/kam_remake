@@ -287,10 +287,9 @@ TKMMinimap = class(TKMControl)
 end;
 
 
-TKMControlsCollection = class(TList) //Making list of true TKMControls involves much coding for no visible result
+TKMControlsCollection = class(TKMList) //Making list of true TKMControls involves much coding for no visible result
   private
     procedure AddToCollection(Sender:TKMControl);
-    procedure Clear; override;
     function GetControl(Index: Integer): TKMControl;
     procedure SetControl(Index: Integer; Item: TKMControl);
     property Controls[Index: Integer]: TKMControl read GetControl write SetControl; //Use instead of Items[.]
@@ -1079,16 +1078,6 @@ end;
 procedure TKMControlsCollection.AddToCollection(Sender:TKMControl);
 begin
   Inherited Add(Sender);
-end;
-
-procedure TKMControlsCollection.Clear;
-var i:integer;
-begin
-  for i:=0 to Count-1 do begin
-    Controls[i].Free;
-    Controls[i]:=nil;
-  end;
-  inherited;
 end;
 
 
