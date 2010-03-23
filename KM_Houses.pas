@@ -10,13 +10,12 @@ type
   THouseAction = class(TObject)
   private
     fHouse:TKMHouse;
-    TimeToAct:integer; //todo: remove. This one is unused in fact. All house states are controlled by Units
     fHouseState: THouseState;
     fSubAction: THouseActionSet;
   public
-    constructor Create(aHouse:TKMHouse; aHouseState: THouseState; const aTime:integer=0);
+    constructor Create(aHouse:TKMHouse; aHouseState: THouseState);
     procedure SetState(aHouseState: THouseState);
-    procedure SubActionWork(aActionSet: THouseActionType; const aTime:integer=0);
+    procedure SubActionWork(aActionSet: THouseActionType);
     function GetWorkID():byte;
     procedure SubActionAdd(aActionSet: THouseActionSet);
     procedure SubActionRem(aActionSet: THouseActionSet);
@@ -104,7 +103,7 @@ type
     property IsDestroyed:boolean read fIsDestroyed;
     property GetDamage:word read fDamage;
 
-    procedure SetState(aState: THouseState; aTime:integer);
+    procedure SetState(aState: THouseState);
     function GetState:THouseState;
 
     function CheckResIn(aResource:TResourceType):word; virtual;
@@ -558,9 +557,8 @@ begin
 end;
 
 
-procedure TKMHouse.SetState(aState: THouseState; aTime:integer);
+procedure TKMHouse.SetState(aState: THouseState);
 begin
-  fCurrentAction.TimeToAct := aTime;
   fCurrentAction.SetState(aState);
 end;
 
@@ -1129,7 +1127,7 @@ begin
   if UnitQueue[aID]=ut_None then exit; //Ignore clicks on empty queue items
 
   if aID = 1 then begin
-    SetState(hst_Idle,0);
+    SetState(hst_Idle);
     if UnitWIP<>nil then begin
       TKMUnit(UnitWIP).RemoveUntrainedFromSchool; //Make sure unit started training
       HideOneGold:=false;
@@ -1372,11 +1370,10 @@ end;
 
 
 { THouseAction }
-constructor THouseAction.Create(aHouse:TKMHouse; aHouseState: THouseState; const aTime:integer=0);
+constructor THouseAction.Create(aHouse:TKMHouse; aHouseState: THouseState);
 begin
   Inherited Create;
   fHouse := aHouse;
-  TimeToAct := aTime;
   SetState(aHouseState);
 end;
 
@@ -1396,13 +1393,14 @@ begin
   end;
 end;
 
-procedure THouseAction.SubActionWork(aActionSet: THouseActionType; const aTime:integer=0);
+
+procedure THouseAction.SubActionWork(aActionSet: THouseActionType);
 begin
   SubActionRem([ha_Work1..ha_Work5]); //Remove all work
   fSubAction:= fSubAction + [aActionSet];
-  if aTime<>0 then TimeToAct:=aTime;
   if fHouse.fHouseType <> ht_Mill then fHouse.WorkAnimStep:=0; //Exception for mill so that the windmill doesn't jump frames
 end;
+
 
 function THouseAction.GetWorkID():byte;
 begin
@@ -1433,7 +1431,6 @@ begin
     SaveStream.Write(fHouse.ID)
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(TimeToAct);
   SaveStream.Write(fHouseState, SizeOf(fHouseState));
   SaveStream.Write(fSubAction, SizeOf(fSubAction));
 end;
@@ -1442,7 +1439,6 @@ end;
 procedure THouseAction.Load(LoadStream:TKMemoryStream);
 begin
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(TimeToAct);
   LoadStream.Read(fHouseState, SizeOf(fHouseState));
   LoadStream.Read(fSubAction, SizeOf(fSubAction));
 end;

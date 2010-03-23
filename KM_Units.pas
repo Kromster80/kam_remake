@@ -2589,28 +2589,28 @@ begin
   with fUnit do
     case fPhase of
       0: begin
-          fSchool.SetState(hst_Work,0);
-          fSchool.fCurrentAction.SubActionWork(ha_Work1,30);
+          fSchool.SetState(hst_Work);
+          fSchool.fCurrentAction.SubActionWork(ha_Work1);
           SetActionStay(29,ua_Walk);
         end;
       1: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work2,30);
+          fSchool.fCurrentAction.SubActionWork(ha_Work2);
           SetActionStay(29,ua_Walk);
         end;
       2: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work3,30);
+          fSchool.fCurrentAction.SubActionWork(ha_Work3);
           SetActionStay(29,ua_Walk);
         end;
       3: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work4,30);
+          fSchool.fCurrentAction.SubActionWork(ha_Work4);
           SetActionStay(29,ua_Walk);
         end;
       4: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work5,30);
+          fSchool.fCurrentAction.SubActionWork(ha_Work5);
           SetActionStay(29,ua_Walk);
         end;
       5: begin
-          fSchool.SetState(hst_Idle,10);
+          fSchool.SetState(hst_Idle);
           SetActionStay(9,ua_Walk);
           if fTerrain.CheckTileRevelation(GetPosition.X, GetPosition.Y, MyPlayer.PlayerID) >= 255 then
             fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12 if the location is visible
@@ -3411,7 +3411,7 @@ begin
     1: SetActionGoIn(ua_Walk, gd_GoInside, fHome);
     2: begin
         fThought := th_None; //Only stop thinking once we are right inside
-        fHome.SetState(hst_Idle,0);
+        fHome.SetState(hst_Idle);
         SetActionStay(5,ua_Walk);
        end;
     else TaskDone:=true;
@@ -3447,8 +3447,8 @@ with fUnit do
 case fPhase of
   0: if not fVisible then begin
        if fHome<>nil then begin
-         fHome.SetState(hst_Idle,0);
-         fHome.SetState(hst_Empty,0);
+         fHome.SetState(hst_Idle);
+         fHome.SetState(hst_Empty);
          SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome);
        end
        else
@@ -3506,13 +3506,13 @@ begin
        end;
     1: begin
          SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome);
-         fHome.SetState(hst_Empty,0);
+         fHome.SetState(hst_Empty);
        end;
     2: SetActionStay(4,ua_Walk);
     3: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.fHome);
     4: begin
          SetActionStay(20,ua_Walk);
-         fHome.SetState(hst_Idle,0);
+         fHome.SetState(hst_Idle);
        end;
     else begin
          fThought := th_None;
@@ -3580,7 +3580,7 @@ with fUnit do
 case fPhase of
  0: begin
       fThought := th_Eat;
-      if fHome<>nil then fHome.SetState(hst_Empty,0);
+      if fHome<>nil then fHome.SetState(hst_Empty);
       if not fVisible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome) else
                            SetActionLockedStay(0,ua_Walk); //Walk outside the house
     end;

@@ -93,7 +93,7 @@ begin
 with fUnit do
   case fPhase of
     0: if WorkPlan.HasToWalk then begin
-         GetHome.SetState(hst_Empty, 0);
+         GetHome.SetState(hst_Empty);
          SetActionGoIn(WorkPlan.WalkTo, gd_GoOutside, GetHome); //Walk outside the house
        end else begin
          fPhase := SkipWalk; //Skip walking part if there's no need in it, e.g. CoalMiner or Baker
@@ -173,7 +173,7 @@ with fUnit do
     8: begin
         Thought := th_None;
         fPhase2 := 1;
-        GetHome.SetState(hst_Work, 0); //Set house to Work state
+        GetHome.SetState(hst_Work); //Set house to Work state
         GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
         GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
@@ -183,7 +183,7 @@ with fUnit do
             TKMHouseSwineStable(GetHome).TakeBeast(BeastID);
         end;
         if WorkPlan.ActCount >= fPhase2 then begin
-           GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act,WorkPlan.HouseAct[fPhase2].TimeToWork);
+           GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
            //Keep unit idling till next Phase, Idle time is -1 to compensate TaskExecution Phase
            SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk);
         end else begin
@@ -198,7 +198,7 @@ with fUnit do
              BeastID := TKMHouseSwineStable(GetHome).FeedBeasts; //Feed a horse
            if WorkPlan.ActCount >= fPhase2 then
            begin
-             GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act,WorkPlan.HouseAct[fPhase2].TimeToWork);
+             GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
              if WorkPlan.ActCount > fPhase2 then
                SetActionStay(WorkPlan.HouseAct[fPhase2].TimeToWork-1,ua_Walk) //-1 to compensate units UpdateState run
              else
@@ -231,7 +231,7 @@ with fUnit do
             GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2); //This is unused tbh
           end;
 
-          GetHome.SetState(hst_Idle,WorkPlan.AfterWorkIdle);
+          GetHome.SetState(hst_Idle);
           SetActionStay(WorkPlan.AfterWorkIdle-1,ua_Walk);
         end;
     else TaskDone:=true;
