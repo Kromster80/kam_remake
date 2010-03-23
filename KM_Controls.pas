@@ -287,9 +287,13 @@ TKMMinimap = class(TKMControl)
 end;
 
 
-TKMControlsCollection = class(TKMList) //todo: List of TKMControls
+TKMControlsCollection = class(TList) //Making list of true TKMControls involves much coding for no visible result
   private
     procedure AddToCollection(Sender:TKMControl);
+    procedure Clear; override;
+    function GetControl(Index: Integer): TKMControl;
+    procedure SetControl(Index: Integer; Item: TKMControl);
+    property Controls[Index: Integer]: TKMControl read GetControl write SetControl; //Use instead of Items[.]
   public
     constructor Create;
     destructor Destroy; override;
@@ -298,7 +302,7 @@ TKMControlsCollection = class(TKMList) //todo: List of TKMControls
     function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
     function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
-    function AddImageStack      (aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID:integer; const aRXid:integer=4):TKMImageStack;
+    function AddImageStack      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImageStack;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
@@ -314,8 +318,6 @@ TKMControlsCollection = class(TKMList) //todo: List of TKMControls
     procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp         (X,Y:integer; AButton:TMouseButton);
-    //todo: use list of TKMControls in here
-    //property Items[Index: Integer]: TKMControl read GetItem write Put; default;
     procedure Paint();
 end;
 
@@ -1079,6 +1081,29 @@ begin
   Inherited Add(Sender);
 end;
 
+procedure TKMControlsCollection.Clear;
+var i:integer;
+begin
+  for i:=0 to Count-1 do begin
+    Controls[i].Free;
+    Controls[i]:=nil;
+  end;
+  inherited;
+end;
+
+
+function TKMControlsCollection.GetControl(Index: Integer): TKMControl;
+begin
+  Result := TKMControl(Items[Index])
+end;
+
+
+procedure TKMControlsCollection.SetControl(Index: Integer; Item: TKMControl);
+begin
+  Items[Index] := Item;
+end;
+
+
 function TKMControlsCollection.AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
 begin
   Result:=TKMPanel.Create(aParent, aLeft,aTop,aWidth,aHeight);
@@ -1203,10 +1228,10 @@ var i:integer;
 begin
   Result:=nil;
   for i:=Count-1 downto 1 do //This will return last created cursor
-    if not (TKMControl(Items[I]) is TKMPanel) then //Do not check Panels
-      if TKMControl(Items[I]).IsVisible then
-          if TKMControl(Items[I]).CursorOver then begin
-            Result:=TKMControl(Items[I]);
+    if not (Controls[I] is TKMPanel) then //Do not check Panels
+      if Controls[I].IsVisible then
+          if Controls[I].CursorOver then begin
+            Result:=Controls[i];
             break;
           end;
 end;
@@ -1216,12 +1241,12 @@ procedure TKMControlsCollection.OnMouseOver(X,Y:integer; AShift:TShiftState);
 var i:integer;
 begin
   for i:=0 to Count-1 do
-    if TKMControl(Items[I]).Parent=nil then
-      if TKMControl(Items[I]).IsVisible then
+    if Controls[i].Parent=nil then
+      if Controls[i].IsVisible then
       begin
-        if TKMControl(Items[I]).Enabled then
-          TKMControl(Items[I]).CheckCursorOver(X,Y,AShift);
-        TKMControl(Items[I]).HintCheckCursorOver(X,Y,AShift);
+        if Controls[i].Enabled then
+          Controls[i].CheckCursorOver(X,Y,AShift);
+        Controls[i].HintCheckCursorOver(X,Y,AShift);
       end;
 end;
 
@@ -1230,10 +1255,10 @@ procedure TKMControlsCollection.OnMouseDown(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   for i:=0 to Count-1 do
-    if TKMControl(Items[I]).HitTest(X, Y) then
-      if TKMControl(Items[I]).Enabled then
-        if TKMControl(Items[i]) is TKMButton then
-          TKMButton(Items[I]).Down := true;
+    if Controls[i].HitTest(X, Y) then
+      if Controls[i].Enabled then
+        if Controls[i] is TKMButton then
+          TKMButton(Controls[i]).Down := true;
 end;
 
 
@@ -1242,27 +1267,27 @@ procedure TKMControlsCollection.OnMouseUp(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   for i:=0 to Count-1 do
-  if TKMControl(Items[I]).HitTest(X, Y) then
-  if TKMControl(Items[I]).Enabled then
+  if Controls[i].HitTest(X, Y) then
+  if Controls[i].Enabled then
   begin
-    if TKMControl(Items[i]) is TKMButton then
-      TKMButton(Items[I]).Down := false;
+    if Controls[i] is TKMButton then
+      TKMButton(Controls[i]).Down := false;
 
-    if (AButton = mbLeft) and Assigned(TKMControl(Items[I]).OnClick) then
+    if (AButton = mbLeft) and Assigned(Controls[i].OnClick) then
     begin
-      TKMControl(Items[I]).OnClick(TKMControl(Items[I]));
+      Controls[i].OnClick(Controls[i]);
       exit; //Send OnClick only to one item
     end;
 
-    if (AButton = mbRight) and Assigned(TKMControl(Items[I]).OnClickRight) then
+    if (AButton = mbRight) and Assigned(Controls[i].OnClickRight) then
     begin
-      TKMControl(Items[I]).OnClickRight(TKMControl(Items[I]));
+      Controls[i].OnClickRight(Controls[i]);
       exit; //Send OnClickRight only to one item
     end;
 
-    if Assigned(TKMControl(Items[I]).OnClickEither) then
+    if Assigned(Controls[i].OnClickEither) then
     begin
-      TKMControl(Items[I]).OnClickEither(TKMControl(Items[I]), AButton);
+      Controls[i].OnClickEither(Controls[i], AButton);
       exit; //Send OnClickRight only to one item
     end;
   end;
@@ -1276,9 +1301,9 @@ procedure TKMControlsCollection.Paint();
 begin
   CtrlPaintCount:=0;
   for i:=0 to Count-1 do
-    if TKMControl(Items[I]).Parent=nil then
-      if TKMControl(Items[I]).IsVisible then
-        TKMControl(Items[I]).Paint;
+    if Controls[i].Parent=nil then
+      if Controls[i].IsVisible then
+        Controls[i].Paint;
   CtrlPaintCount:=0; //Counter
 end;
 
