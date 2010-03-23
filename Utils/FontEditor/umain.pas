@@ -229,7 +229,7 @@ var
 begin
   //Compile texture
   setlength(TD, TexWidth*TexWidth + 1);
-  FillChar(TD[0], TexWidth*TexWidth + 1, $00); //Make some background to see real offsets
+  FillChar(TD[0], TexWidth*TexWidth + 1, $05); //Make some background to see real offsets
 
   for i:=0 to 255 do
     if FontData.Pal[i]<>0 then
@@ -311,12 +311,12 @@ begin
   StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(Y div 32)+':'+IntToStr(X div 32) + ' ('+
                                      IntToHex( (((Y div 32)*16)+(X div 32)) ,2)+'h)';
   StatusBar1.Panels.Items[2].Text :=
-  'Width '+inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Width)+', '+
-  'Height '+inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Height)+', '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[1])+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[2])+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[3])+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*8)+(X div 32))].Add[4])+'?';
+  'Width '+inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Width)+', '+
+  'Height '+inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Height)+', '+
+  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add[1])+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add[2])+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add[3])+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add[4])+'?';
 end;
 
 
