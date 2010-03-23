@@ -3,7 +3,7 @@ interface
 uses Windows,
   {$IFDEF VER140} MPlayer, {$ENDIF}
   Forms, Controls, Classes, SysUtils, KromUtils, Math,
-  KM_Defaults, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_Defaults, KM_Controls, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_SoundFX, KM_Viewport, KM_Units, KM_Settings, KM_Utils;
 
 type TGameState = ( gsNoGame, //No game running at all, MainMenu
@@ -17,7 +17,8 @@ type TLoadResult = (lrIncorrectGameState,lrSuccess,lrFileNotFound,lrParseError);
 type
   TKMGame = class
   private
-    FormControlsVisible, SelectingTroopDirection:boolean;
+    FormControlsVisible:boolean;
+    SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
     SelectedDirection: TKMDirection;
     GameplayTickCount:cardinal; //So that first tick will be #1
@@ -65,7 +66,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Controls, KM_Houses, KM_CommonTypes, KM_Player;
+  KM_Unit1, KM_Houses, KM_CommonTypes, KM_Player;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -170,63 +171,59 @@ begin
   //F10 sets focus on MainMenu1
   //F9 is the default key in Fraps for video capture
   //others.. unknown
-  if (GameState = gsVictory) then exit; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
-  if (GameState = gsPaused) and not (Key=ord('P')) then exit; //Ignore all keys if game is on 'Pause'
-  if not IsDown then
-  begin
-    if Key=VK_F11 then begin
-      Form1.ToggleControlsVisibility(FormControlsVisible);
-      FormControlsVisible := not FormControlsVisible;
-    end;
-    if Key=VK_BACK then begin
-      //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
-      //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-      fViewport.SetZoom(1);
-      Form1.TB_Angle.Position := 0;
-      Form1.TB_Angle_Change(Form1.TB_Angle);
-    end;
-    if (Key = VK_F8) and (GameState = gsRunning) then begin
-      GameSpeed:=fGameSettings.GetSpeedup+1-GameSpeed; //1 or 11
-      if not (GameSpeed in [1,fGameSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
-      fGameplayInterface.ShowClock(GameSpeed = fGameSettings.GetSpeedup);
-    end;
-    if (Key=ord('P')) and (GameState in [gsPaused, gsRunning]) then begin
-      PauseGame(GameState = gsRunning); //if running then pause and vice versa
-      fGameplayInterface.ShowPause(GameState = gsPaused); //Display pause overlay
-    end;
-    if (Key=ord('W')) and (GameState = gsRunning) then begin
-      fTerrain.RevealWholeMap(MyPlayer.PlayerID);
-    end;
-    {Thats my debug example}
-    if (Key=ord('5')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgText,'123',KMPoint(0,0));
-    end;
-    if (Key=ord('6')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgHouse,'123',KMPointRound(fViewport.GetCenter));
-    end;
-    if (Key=ord('7')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgUnit,'123',KMPoint(0,0));
-    end;
-    if (Key=ord('8')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgHorn,'123',KMPoint(0,0));
-    end;
-    if (Key=ord('9')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgQuill,'123',KMPoint(0,0));
-    end;
-    if (Key=ord('0')) and (GameState = gsRunning) then begin
-      fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
-    end;
+
+  case GameState of
+    gsNoGame:   if fMainMenuInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit; //Exit if handled
+    gsPaused:   if Key=ord('P') then begin //Ignore all keys if game is on 'Pause'
+                  if IsDown then exit;
+                  PauseGame(false);
+                  fGameplayInterface.ShowPause(false); //Hide pause overlay
+                end;
+    gsVictory:  ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
+    gsRunning:  begin //Game is running normally
+                  if IsDown then exit;
+                  if Key = VK_BACK then begin
+                    //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
+                    //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
+                    fViewport.SetZoom(1);
+                    Form1.TB_Angle.Position := 0;
+                    Form1.TB_Angle_Change(Form1.TB_Angle);
+                  end;
+                  if Key = VK_F8 then begin
+                    GameSpeed := fGameSettings.GetSpeedup+1-GameSpeed; //1 or 11
+                    if not (GameSpeed in [1,fGameSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
+                    fGameplayInterface.ShowClock(GameSpeed = fGameSettings.GetSpeedup);
+                  end;
+                  if Key = ord('P') then begin
+                    PauseGame(true); //if running then pause
+                    fGameplayInterface.ShowPause(true); //Display pause overlay
+                  end;
+                  if Key=ord('W') then
+                    fTerrain.RevealWholeMap(MyPlayer.PlayerID);
+                  if fGamePlayInterface <> nil then //Also send shortcut to GamePlayInterface if it is there
+                    fGamePlayInterface.ShortcutPress(Key, IsDown);
+                  //Scrolling
+                  if Key=VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
+                  if Key=VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
+                  if Key=VK_UP    then fViewport.ScrollKeyUp    := IsDown;
+                  if Key=VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
+                end;
+    gsEditor:   ;
   end;
 
-  //Also send shortcut to GamePlayInterface if it is there
-  if (GameState = gsRunning) and (fGamePlayInterface <> nil) then
-    fGamePlayInterface.ShortcutPress(Key,IsDown);
+  {Global hotkey for menu}
+  if not IsDown and (Key=VK_F11) then begin
+    Form1.ToggleControlsVisibility(FormControlsVisible);
+    FormControlsVisible := not FormControlsVisible;
+  end;
 
-  //Scrolling
-  if (GameState = gsRunning) and (Key=VK_LEFT)  then fViewport.ScrollKeyLeft  := IsDown;
-  if (GameState = gsRunning) and (Key=VK_RIGHT) then fViewport.ScrollKeyRight := IsDown;
-  if (GameState = gsRunning) and (Key=VK_UP)    then fViewport.ScrollKeyUp    := IsDown;
-  if (GameState = gsRunning) and (Key=VK_DOWN)  then fViewport.ScrollKeyDown  := IsDown;
+  {Thats my debug example}
+  if (Key=ord('5')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgText,'123',KMPoint(0,0));
+  if (Key=ord('6')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgHouse,'123',KMPointRound(fViewport.GetCenter));
+  if (Key=ord('7')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgUnit,'123',KMPoint(0,0));
+  if (Key=ord('8')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgHorn,'123',KMPoint(0,0));
+  if (Key=ord('9')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgQuill,'123',KMPoint(0,0));
+  if (Key=ord('0')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 end;
 
 
@@ -298,7 +295,13 @@ begin
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
   case GameState of
-    gsNoGame:   fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
+    gsNoGame:   begin
+                  fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
+                  if fMainMenuInterface.MyControls.MouseOverControl is TKMTextEdit then // Show "CanEdit" cursor
+                    Screen.Cursor := c_Info //@Lewin: Should be something else, any ideas?
+                  else
+                    Screen.Cursor := c_Default;
+                end;
     gsPaused:   exit;
     gsVictory:  begin
                   //@Lewin: any idea how do we send MouseOver to controls, but don't let them be pressed down

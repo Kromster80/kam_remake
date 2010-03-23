@@ -1,6 +1,6 @@
 unit KM_Controls;
 interface
-uses MMSystem, Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
+uses Windows, MMSystem, Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
 
 type
   TNotifyEvent = procedure(Sender: TObject) of object;
@@ -25,6 +25,7 @@ TKMControl = class(TObject)
 
     Enabled: boolean;
     Visible: boolean;
+    HasFocus: boolean;
 
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
@@ -44,6 +45,10 @@ TKMControl = class(TObject)
     procedure HintCheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
     procedure Paint(); virtual;
   public
+    property Left: Integer read GetLeft write fLeft;
+    property Top: Integer read GetTop write fTop;
+    property Width: Integer read GetWidth write fWidth;
+    property Height: Integer read GetHeight write fHeight;
     procedure Enable;
     procedure Disable;
     procedure Show;
@@ -56,11 +61,6 @@ TKMControl = class(TObject)
     property OnClickRight: TNotifyEvent read FOnClickRight write FOnClickRight;
     property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
     property OnHint: TMouseMoveEvent read FOnHint write FOnHint;
-
-    property Left: Integer read GetLeft write fLeft;
-    property Top: Integer read GetTop write fTop;
-    property Width: Integer read GetWidth write fWidth;
-    property Height: Integer read GetHeight write fHeight;
 end;
 
 
@@ -177,6 +177,17 @@ TKMButtonFlat = class(TKMControl)
 end;
 
 
+{EditField}
+TKMTextEdit = class(TKMControl)
+  public
+    Text: string;
+    Font: TKMFont;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    procedure Paint(); override;
+end;
+
+
 {Checkbox}
 TKMCheckBox = class(TKMControl)
   public
@@ -289,6 +300,7 @@ end;
 
 TKMControlsCollection = class(TKMList) //Making list of true TKMControls involves much coding for no visible result
   private
+    fFocusedControl:TKMControl;
     procedure AddToCollection(Sender:TKMControl);
     function GetControl(Index: Integer): TKMControl;
     procedure SetControl(Index: Integer; Item: TKMControl);
@@ -305,6 +317,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
+    function AddTextEdit        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont):TKMTextEdit;
     function AddCheckBox        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
     function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
@@ -313,6 +326,8 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer):TKMRatioRow;
     function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
+    property GetFocusedControl:TKMControl read fFocusedControl;
+    function KeyUp              (Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
     function MouseOverControl   ():TKMControl;
     procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
@@ -331,6 +346,7 @@ begin
   Top       := aTop;
   Width     := aWidth;
   Height    := aHeight;
+  HasFocus  := false;
   Enabled   := true;
   Visible   := true;
   Tag       := 0;
@@ -733,7 +749,6 @@ begin
 end;
 
 
-{Render}
 procedure TKMButtonFlat.Paint();
 var State:TFlatButtonStateSet;
 begin
@@ -743,6 +758,28 @@ begin
   //if not Enabled then State:=State+[fbs_Disabled];
 
   fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,State);
+end;
+
+
+{TKMTextEdit}
+constructor TKMTextEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Text := 'Test';
+  Font := aFont;
+  ParentTo(aParent);
+end;
+
+
+procedure TKMTextEdit.Paint();
+var Col:TColor4;
+begin
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+  if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then
+    fRenderUI.WriteText(Left+4, Top+4, Width-8, Text+'[', Font, kaLeft, false, Col)
+  else
+    fRenderUI.WriteText(Left+4, Top+4, Width-8, Text, Font, kaLeft, false, Col);
 end;
 
 
@@ -1062,6 +1099,7 @@ end;
 constructor TKMControlsCollection.Create();
 begin
   Inherited;
+  fFocusedControl := nil;
   if fRenderUI <> nil then
   fRenderUI := TRenderUI.Create;
 end;
@@ -1148,6 +1186,12 @@ begin
   AddToCollection(Result);
 end;
 
+function TKMControlsCollection.AddTextEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont):TKMTextEdit;
+begin
+  Result:=TKMTextEdit.Create(aParent, aLeft,aTop,aWidth,aHeight,aFont);
+  AddToCollection(Result);
+end;
+
 function TKMControlsCollection.AddCheckBox(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
 begin
   Result:=TKMCheckBox.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont);
@@ -1212,15 +1256,36 @@ begin
   AddToCollection(Result);
 end;
 
+
+//Might be moved to individual control later on
+function TKMControlsCollection.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
+var TE:TKMTextEdit;
+begin
+  Result := false; //Sending KeyUp to TKMTextEdit automatically means it's handled
+  if not (fFocusedControl is TKMTextEdit) then exit;
+
+  TE := TKMTextEdit(fFocusedControl);
+
+  if (not IsDown) and (chr(Key) in [' ', '0'..'9', 'A'..'Z', 'a'..'z']) then //Letters don't auto-repeat
+    if ssShift in Shift then TE.Text := TE.Text + UpperCase(chr(Key))
+                        else TE.Text := TE.Text + LowerCase(chr(Key))
+  else
+    if Key = VK_BACK    then TE.Text := decs(TE.Text,1,1); //Allow fast delete if IsDown
+
+  Result := true;
+end;
+
+
 function TKMControlsCollection.MouseOverControl():TKMControl;
 var i:integer;
 begin
   Result:=nil;
+
   for i:=Count-1 downto 1 do //This will return last created cursor
     if not (Controls[I] is TKMPanel) then //Do not check Panels
       if Controls[I].IsVisible then
           if Controls[I].CursorOver then begin
-            Result:=Controls[i];
+            Result := Controls[i];
             break;
           end;
 end;
@@ -1255,12 +1320,19 @@ end;
 procedure TKMControlsCollection.OnMouseUp(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
+  if fFocusedControl <> nil then fFocusedControl.HasFocus := false; //Release focus in any case of OnMouseUp
   for i:=0 to Count-1 do
   if Controls[i].HitTest(X, Y) then
   if Controls[i].Enabled then
   begin
     if Controls[i] is TKMButton then
       TKMButton(Controls[i]).Down := false;
+
+    if (AButton = mbLeft) then //Set focus irregardless of assigned OnClick events
+    begin
+      fFocusedControl := Controls[i]; //Only LMB can set focus
+      fFocusedControl.HasFocus := true; //Set Focus
+    end;
 
     if (AButton = mbLeft) and Assigned(Controls[i].OnClick) then
     begin

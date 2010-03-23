@@ -184,6 +184,9 @@ inherited Create;
 
   if SHOW_1024_768_OVERLAY then MyControls.AddShape(nil, OffX, OffY, 1024, 768, $FF00FF00);
 
+  //@Lewin: TextEdit example. To be deleted..
+  MyControls.AddTextEdit(nil, 32, 32, 200, 20, fnt_Grey);
+
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
 end;
