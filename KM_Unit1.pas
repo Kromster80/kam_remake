@@ -297,7 +297,8 @@ procedure TForm1.MenuItem1Click(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
   fGame.StopGame(gr_Silent);
-  fGame.StartMapEditor(OpenDialog1.FileName);
+  OpenDialog1.FileName := ExtractFileName(OpenDialog1.FileName);
+  fGame.StartMapEditor(Copy(OpenDialog1.FileName,1,length(OpenDialog1.FileName)-4));
 end;
 
 
@@ -814,12 +815,8 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
-var fMissionParser: TMissionParser;
 begin
-  fTerrain.SaveToMapFile(ExeDir+'Maps\Test\Test.map');
-  fMissionParser := TMissionParser.Create;
-  fMissionParser.SaveDATFile(ExeDir+'Maps\Test\Test.dat','Test');
-  FreeAndNil(fMissionParser);
+  fGame.SaveMapEditor('Test');
 end;
 
 {$IFDEF FPC}

@@ -39,6 +39,8 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
 
+  function KMRemakeMapPath(aMapName, aExtension:string):string;
+
   function TypeToString(t:THouseType):string; overload;
   function TypeToString(t:TResourceType):string; overload;
   function TypeToString(t:TUnitType):string; overload;
@@ -283,6 +285,14 @@ begin
   //GetClosestTile needs to know if the position is not the actual position in the formation
   Result.X := max(OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) ),0);
   Result.Y := max(OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) ),0);
+end;
+
+
+function KMRemakeMapPath(aMapName, aExtension:string):string;
+begin
+  Result := ExeDir+'Maps\'+aMapName+'\'+aMapName;
+  if aExtension<>'' then
+  Result := Result+'.'+aExtension;
 end;
 
 

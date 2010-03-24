@@ -142,7 +142,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTypes, Forms;
+uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTypes, Forms, KM_Utils;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGameSettings);
@@ -690,7 +690,7 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_PopulateList();
 begin
-  SingleMapsInfo.ScanSingleMapsFolder('');
+  SingleMapsInfo.ScanSingleMapsFolder();
 end;
 
 
@@ -747,12 +747,10 @@ end;
 
 
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
-var MissionPath:string;
 begin
   fLog.AssertToLog(Sender=Button_SingleStart,'not Button_SingleStart');
   if not InRange(SingleMap_Selected, 1, SingleMapsInfo.GetMapCount) then exit;
-  MissionPath := ExeDir+'Maps\'+SingleMapsInfo.GetFolder(SingleMap_Selected)+'\'+SingleMapsInfo.GetMissionFile(SingleMap_Selected);
-  fGame.StartGame(MissionPath,SingleMapsInfo.GetTitle(SingleMap_Selected)); //Provide mission filename and title here
+  fGame.StartGame(KMRemakeMapPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetTitle(SingleMap_Selected)); //Provide mission filename mask and title here
 end;
 
 

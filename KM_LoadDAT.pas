@@ -92,7 +92,7 @@ type
       MapSize:string; //S,M,L,XL
     end;
   public
-    procedure ScanSingleMapsFolder(Path:string);
+    procedure ScanSingleMapsFolder();
     property GetMapCount:byte read MapCount;
     function IsFight(ID:integer):boolean;
     function GetPlayerCount(ID:integer):byte;
@@ -812,7 +812,7 @@ end;
 
 
 {TKMMapInfo}
-procedure TKMMapsInfo.ScanSingleMapsFolder(Path:string);
+procedure TKMMapsInfo.ScanSingleMapsFolder();
 var i,k:integer; SearchRec:TSearchRec; ft:textfile; s:string;
   MissionDetails: TKMMissionDetails;
   MapDetails: TKMMapDetails;
@@ -824,14 +824,15 @@ begin
   ChDir(ExeDir+'Maps\');
   FindFirst('*', faDirectory, SearchRec);
   repeat
-  if (SearchRec.Attr and faDirectory = faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
-  if fileexists(ExeDir+'Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.dat') then
-  if fileexists(ExeDir+'Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.map') then
-  //if fileexists(ExeDir+'Maps\'+SearchRec.Name+'\'+SearchRec.Name+'.txt') then
-  begin
-    inc(MapCount);
-    Maps[MapCount].Folder := SearchRec.Name;
-  end;
+    if (SearchRec.Attr and faDirectory = faDirectory)
+    and(SearchRec.Name<>'.')
+    and(SearchRec.Name<>'..')
+    and fileexists(KMRemakeMapPath(SearchRec.Name,'dat'))
+    and fileexists(KMRemakeMapPath(SearchRec.Name,'map')) then
+    begin
+      inc(MapCount);
+      Maps[MapCount].Folder := SearchRec.Name;
+    end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
 
@@ -840,41 +841,35 @@ begin
   for k:=1 to 1 do
   for i:=1 to MapCount do with Maps[i] do begin
 
-    MissionDetails := fMissionParser.GetMissionDetails(ExeDir+'Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.dat');
-    MapDetails := fMissionParser.GetMapDetails(ExeDir+'Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.map');
+    MissionDetails := fMissionParser.GetMissionDetails(KMRemakeMapPath(Maps[i].Folder,'dat'));
+    MapDetails := fMissionParser.GetMapDetails(KMRemakeMapPath(Maps[i].Folder,'map'));
     IsFight := MissionDetails.IsFight;
     PlayerCount := MissionDetails.TeamCount;
 
     case MapDetails.MapSize.X*MapDetails.MapSize.Y of
-              1.. 48* 48: MapSize:='XS';
-       48* 48+1.. 72* 72: MapSize:='S';
-       72* 72+1..112*112: MapSize:='M';
-      112*112+1..176*176: MapSize:='L';
-      176*176+1..256*256: MapSize:='XL';
-      256*256+1..320*320: MapSize:='XXL';
+              1.. 48* 48: MapSize := 'XS';
+       48* 48+1.. 72* 72: MapSize := 'S';
+       72* 72+1..112*112: MapSize := 'M';
+      112*112+1..176*176: MapSize := 'L';
+      176*176+1..256*256: MapSize := 'XL';
+      256*256+1..320*320: MapSize := 'XXL';
       else fLog.AssertToLog(false,'Unexpected MapDetail size');
     end;
 
-    Title:=Maps[i].Folder;
-    SmallDesc:='-';
-    BigDesc:='-';
+    Title     := Maps[i].Folder;
+    SmallDesc := '-';
+    BigDesc   := '-';
 
-    if fileexists(ExeDir+'Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt') then begin
-      assignfile(ft,ExeDir+'Maps\'+Maps[i].Folder+'\'+Maps[i].Folder+'.txt');
+    if fileexists(KMRemakeMapPath(Maps[i].Folder,'txt')) then
+    begin
+      assignfile(ft,KMRemakeMapPath(Maps[i].Folder,'txt'));
       reset(ft);
 
       repeat
-      readln(ft,s);
-
-      if UpperCase(s)=UpperCase('Title') then
-        readln(ft,Title);
-
-      if UpperCase(s)=UpperCase('SmallDesc') then
-        readln(ft,SmallDesc);
-
-      if UpperCase(s)=UpperCase('BigDesc') then
-        readln(ft,BigDesc);
-
+        readln(ft,s);
+        if UpperCase(s)=UpperCase('Title') then readln(ft,Title);
+        if UpperCase(s)=UpperCase('SmallDesc') then readln(ft,SmallDesc);
+        if UpperCase(s)=UpperCase('BigDesc') then readln(ft,BigDesc);
       until(eof(ft));
 
       closefile(ft);

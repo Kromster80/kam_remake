@@ -27,12 +27,12 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
-    GameName:string;
+    fGameName:string;
     fGameSettings: TGameSettings;
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
-  public
+
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale();
@@ -43,19 +43,21 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-  public
+
     procedure StartGame(MissionFile, aGameName:string; const aPlayerCount:integer=MAX_PLAYERS);
     procedure PauseGame(DoPause:boolean);
     procedure HoldGame(DoHold:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
-    procedure StartMapEditor(MissionFile:string; aSizeX:integer=64; aSizeY:integer=64);
+    procedure StartMapEditor(MissionName:string; aSizeX:integer=64; aSizeY:integer=64);
+    procedure SaveMapEditor(MissionName:string);
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GetTickCount:cardinal read GameplayTickCount;
-    property GetGameName:string read GameName;
+    property GameName:string read fGameName;
     function GetNewID():cardinal;
     function Save(SlotID:shortint):string;
     function Load(SlotID:shortint; out LoadError:string):TLoadResult;
+
     procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime:cardinal);
     procedure PaintInterface;
@@ -77,6 +79,7 @@ begin
   SelectingDirPosition := Point(0,0);
   ScreenX := aScreenX;
   ScreenY := aScreenY;
+
   fGameSettings := TGameSettings.Create;
   fLog.AppendLog('<== Render init follows ==>');
   fRender := TRender.Create(RenderHandle);
@@ -659,7 +662,7 @@ begin
 
   GameplayTickCount:=0; //Restart counter
 
-  GameName := aGameName;
+  fGameName := aGameName;
   GameState := gsRunning;
 end;
 
@@ -723,8 +726,8 @@ begin
 end;
 
 
-procedure TKMGame.StartMapEditor(MissionFile:string; aSizeX:integer=64; aSizeY:integer=64);
-var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
+procedure TKMGame.StartMapEditor(MissionName:string; aSizeX:integer=64; aSizeY:integer=64);
+var ResultMsg:string; fMissionParser:TMissionParser; i: integer; MapInfo:TKMMapsInfo;
 begin
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
@@ -741,28 +744,30 @@ begin
   fMainMenuInterface.ShowScreen_Loading('initializing');
   fRender.Render;
 
-  fViewport:=TViewport.Create;
-  fMapEditorInterface:= TKMapEdInterface.Create;
+  fViewport := TViewport.Create;
+  fMapEditorInterface := TKMapEdInterface.Create;
 
   //Here comes terrain/mission init
-  fTerrain:= TTerrain.Create;
+  fTerrain := TTerrain.Create;
 
   fLog.AppendLog('Loading DAT...');
-  if CheckFileExists(MissionFile,true) then begin
-    fMissionParser:= TMissionParser.Create;
-    ResultMsg := fMissionParser.LoadDATFile(MissionFile);
+  if CheckFileExists(KMRemakeMapPath(MissionName,'dat'),true) then begin
+    fMissionParser := TMissionParser.Create;
+    ResultMsg := fMissionParser.LoadDATFile(KMRemakeMapPath(MissionName,'dat'));
     if ResultMsg<>'' then begin
-      StopGame(gr_Error,ResultMsg);
+      StopGame(gr_Error, ResultMsg);
       //Show all required error messages here
       exit;
     end;
     FreeAndNil(fMissionParser);
     fLog.AppendLog('DAT Loaded');
+    fGameName := MissionName;
   end else begin
-    fTerrain.MakeNewMap(aSizeX,aSizeY);
+    fTerrain.MakeNewMap(aSizeX, aSizeY);
     fPlayers := TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
     MyPlayer := fPlayers.Player[1];
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
+    fGameName := 'New Mission';
   end;
 
   for i:=1 to MAX_PLAYERS do //Reveal all players since we'll swap between them in MapEd
@@ -779,6 +784,19 @@ begin
   GameplayTickCount:=0; //Restart counter
 
   GameState := gsEditor;
+end;
+
+
+procedure TKMGame.SaveMapEditor(MissionName:string);
+var fMissionParser: TMissionParser;
+begin
+  if MissionName = '' then exit;
+  CreateDir(ExeDir+'Maps');
+  CreateDir(ExeDir+'Maps\'+MissionName);
+  fTerrain.SaveToMapFile(KMRemakeMapPath(MissionName,'map'));
+  fMissionParser := TMissionParser.Create;
+  fMissionParser.SaveDATFile(KMRemakeMapPath(MissionName,'dat'),MissionName);
+  FreeAndNil(fMissionParser);
 end;
 
 
@@ -817,7 +835,7 @@ begin
   fLog.AppendLog('Saving game');
   case GameState of
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
-    gsEditor:   exit; {Don't Save MapEditor yet..}  { TODO : Add MapEditor Save function here}
+    gsEditor:   exit; //MapEd gets saved differently from SaveMapEd
     gsVictory:  exit; //No sense to save from victory?
     gsPaused,gsRunning: //Can't save from Paused state yet, but we could add it later
     begin

@@ -18,6 +18,7 @@ type TKMapEdInterface = class
       Label_Stat,Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu below
+      Label_MissionName: TKMLabel;
 
     Panel_Terrain:TKMPanel;
       Button_Terrain:array[1..4]of TKMButton;
@@ -278,6 +279,8 @@ begin
 
   KMMinimap.CenteredAt := fViewport.GetCenter;
   KMMinimap.ViewArea   := fViewport.GetMinimapClip;
+
+  Label_MissionName.Caption := fGame.GameName;
 end;
 
 
@@ -343,6 +346,8 @@ begin
     Create_Store_Page();
     Create_Barracks_Page();
     //Create_TownHall_Page();
+
+  Label_MissionName := MyControls.AddLabel(Panel_Main, 8, 350, 100, 10, '', fnt_Metal, kaLeft);
 
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
