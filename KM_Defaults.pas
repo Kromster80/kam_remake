@@ -198,13 +198,10 @@ const //Font01.fnt seems to be damaged..
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
   
-//using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
-  FontCharSpacing: array[TKMFont] of shortint = (0,0,0,0,0,1,-1,0,0,0,0,0,0,0,0,1,1,1,-1,0,0);
-
   FontPal:array[1..20]of byte =
   //Those 10 are unknown Pal, no existing Pal matches them well
-  (10,2,1,10,2,2,1,8,8,9,
-   9,8,10,8,2,8,8,2,10,9);
+  (10, 2, 1,10, 2, 2,12,12,12,12,
+   12, 8,10, 8, 2, 8, 8, 2,10, 9);
 
 //Which MapEditor page is being shown. Add more as they are needed.
 type TKMMapEdShownPage = (esp_Unknown,esp_Terrain,esp_Buildings,esp_Units);
@@ -922,6 +919,7 @@ var
   FontData:array[1..32]of record
     Title:TKMFont;
     TexID:GLUint;
+    Unk1,WordSpacing,CharOffset,Unk3:smallint; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal:array[0..255]of byte;
     Letters:array[0..255]of record
       Width,Height:word;

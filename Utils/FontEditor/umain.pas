@@ -4,8 +4,8 @@ unit umain;
 interface
 uses
   {$IFDEF FPC} LCLIntf, LResources, {$ENDIF}
-  Windows, SysUtils, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, Math, ComCtrls, Buttons, StrUtils, KromUtils, Constants;
+  Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, ExtCtrls,
+  StdCtrls, Math, ComCtrls, Buttons, Spin, StrUtils, KromUtils, Constants;
 
 
 {Globals}
@@ -15,7 +15,7 @@ uses
 
   FontData: record
     Title:TKMFont;
-    Unk1,Unk2,CharOffset,Unk3:smallint; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
+    Unk1,WordSpacing,CharOffset,Unk3:smallint; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal:array[0..255]of byte; //Switch to determine if letter is there
     Letters:array[0..255]of record
       Width,Height:word;
@@ -32,12 +32,19 @@ type
   { TfrmMain }
 
   TfrmMain = class(TForm)
+    Label3: TLabel;
     Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     BitBtn1: TBitBtn;
     ListBox1: TListBox;
     RefreshData: TButton;
+    SpinEdit1: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    SpinEdit3: TSpinEdit;
+    SpinEdit4: TSpinEdit;
     StatusBar1: TStatusBar;
     Image3: TImage;
     Edit1: TEdit;
@@ -48,8 +55,6 @@ type
     Image1: TImage;
     Image5: TImage;
     RGPalette: TRadioGroup;
-    Label1: TLabel;
-    Label2: TLabel;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
@@ -197,10 +202,10 @@ begin
       end;
   closefile(f);
 
-  Label4.Caption := 'Unk1 '+inttostr(FontData.Unk1)+'   CharOffset '+inttostr(FontData.CharOffset);
-  Label1.Caption := 'Unk2 '+inttostr(FontData.Unk2)+'   Unk3 '+inttostr(FontData.Unk3);
-  Label2.Caption := 'Max Height/Width ' +inttostr(MaxHeight)+'/'+inttostr(MaxWidth);
-
+  SpinEdit1.Value := FontData.Unk1;
+  SpinEdit2.Value := FontData.WordSpacing;
+  SpinEdit3.Value := FontData.CharOffset;
+  SpinEdit4.Value := FontData.Unk3;
 
   //Special fixes:
   FontData.Letters[32].Width:=7; //"Space" width
@@ -354,6 +359,7 @@ begin
   MyBitmap.Canvas.FillRect(MyBitmap.Canvas.ClipRect);
 
   for i:=1 to length(Text) do
+  if Text[i]<>' ' then
   begin
     for ci:=0 to FontData.Letters[ord(Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Text[i])].Width-1 do begin
       t := FontData.Letters[ord(Text[i])].Data[ci*FontData.Letters[ord(Text[i])].Width+ck+1]+1;
@@ -361,7 +367,9 @@ begin
       MyBitmap.Canvas.Pixels[ck+AdvX,ci] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
     end;
     inc(AdvX,FontData.Letters[ord(Text[i])].Width+FontData.CharOffset);
-  end;
+  end else
+    inc(AdvX,FontData.WordSpacing);
+
 
   //Match phrase bounds
   MyBitmap.Width := AdvX;
@@ -509,18 +517,12 @@ end;
 
 
 procedure TfrmMain.RGPaletteClick(Sender: TObject);
-var
-  ErrS:string;
 begin
-  if FontData.Title = fnt_Nil then begin
-    ErrS := 'Please select editing font first';
-    MessageBox(frmMain.Handle,@ErrS[1],'Error',MB_OK);
-    exit;
-  end;
   FontPal[FontData.Title] := RGPalette.ItemIndex + 1;
   ShowBigImage(CheckCells.Checked, false);
   ShowPalette(FontPal[FontData.Title]);
   Edit1Change(nil);
+  if ListBox1.ItemIndex<>-1 then
   StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+' Palette: '+PalFiles[FontPal[FontData.Title]];
 end;
 

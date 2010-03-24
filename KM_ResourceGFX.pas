@@ -467,8 +467,7 @@ begin
   if not CheckFileExists(filename, true) then exit;
 
   assignfile(f,filename); reset(f,1);
-  blockread(f,a,2); blockread(f,b,2);
-  blockread(f,c,2); blockread(f,d,2);
+  blockread(f,FontData[byte(aFont)].Unk1,8);
   blockread(f,FontData[byte(aFont)].Pal[0],256);
 
   //Read font data
@@ -520,8 +519,6 @@ begin
       end;
 
     FontData[byte(aFont)].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
-
-    FontData[byte(aFont)].Letters[32].Width:=7; //"Space" width
 
   //for i:=1 to 10 do
   if WriteFontToBMP then begin

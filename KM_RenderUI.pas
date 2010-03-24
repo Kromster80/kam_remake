@@ -391,7 +391,7 @@ var
   InterLetter,LineCount,AdvX,PrevX,LastSpace:integer;
   LineWidth:array[1..256] of word; //Lets hope 256 lines will be enough
 begin
-  InterLetter := FontCharSpacing[Fnt]; //Spacing between letters, this varies between fonts
+  InterLetter := FontData[byte(Fnt)].CharOffset;// CharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X := 0;
   Result.Y := 0;
 
@@ -409,7 +409,10 @@ begin
         PrevX := AdvX;
       end;
 
-      inc(AdvX, FontData[byte(Fnt)].Letters[ord(Text[i])].Width + InterLetter);
+      if Text[i]=#32 then
+        inc(AdvX, FontData[byte(Fnt)].WordSpacing)
+      else
+        inc(AdvX, FontData[byte(Fnt)].Letters[ord(Text[i])].Width + InterLetter);
 
       //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
       if ((AdvX>SizeX)and(LastSpace<>-1))or(Text[i]=#124) then
@@ -423,7 +426,10 @@ begin
   LineCount := 0;
   for i:=1 to length(Text) do begin
     if Text[i]<>#124 then begin
-      Result.X := Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
+      if Text[i]=#32 then
+        Result.X := Result.X+FontData[byte(Fnt)].WordSpacing
+      else
+        Result.X := Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
       Result.Y := Math.max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
@@ -462,7 +468,10 @@ begin
         if Align=kaRight  then glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], Result.Y, 0);
         AdvX:=0;
         glBegin(GL_QUADS);
-      end else begin
+      end else
+      if Text[i]=#32 then
+        inc(AdvX, FontData[byte(Fnt)].WordSpacing)
+      else begin
         with FontData[byte(Fnt)].Letters[ord(Text[i])] do begin
           glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       );
           glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       );

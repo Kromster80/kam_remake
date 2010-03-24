@@ -1,11 +1,11 @@
 object frmMain: TfrmMain
-  Left = 428
-  Height = 680
-  Top = 135
-  Width = 825
+  Left = 185
+  Height = 653
+  Top = 94
+  Width = 817
   Caption = 'KaM Font Editor'
-  ClientHeight = 680
-  ClientWidth = 825
+  ClientHeight = 653
+  ClientWidth = 817
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   OnCreate = FormCreate
@@ -16,16 +16,6 @@ object frmMain: TfrmMain
     Top = 16
     Width = 512
     OnMouseMove = Image1MouseMove
-  end
-  object Label4: TLabel
-    Left = 8
-    Height = 14
-    Top = 432
-    Width = 33
-    Caption = 'Label4'
-    Color = clBtnFace
-    ParentColor = False
-    Transparent = False
   end
   object Image3: TImage
     Left = 680
@@ -45,22 +35,42 @@ object frmMain: TfrmMain
     Top = 565
     Width = 649
   end
-  object Label1: TLabel
-    Left = 8
+  object Label3: TLabel
+    Left = 64
     Height = 14
-    Top = 448
-    Width = 33
-    Caption = 'Label4'
+    Top = 439
+    Width = 84
+    Caption = 'BaseCharHeight?'
     Color = clBtnFace
     ParentColor = False
     Transparent = False
   end
-  object Label2: TLabel
-    Left = 8
+  object Label4: TLabel
+    Left = 64
     Height = 14
-    Top = 464
-    Width = 33
-    Caption = 'Label4'
+    Top = 463
+    Width = 73
+    Caption = 'Word spacing?'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object Label5: TLabel
+    Left = 64
+    Height = 14
+    Top = 487
+    Width = 63
+    Caption = 'Char spacing'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object Label6: TLabel
+    Left = 64
+    Height = 14
+    Top = 511
+    Width = 67
+    Caption = 'Line spacing?'
     Color = clBtnFace
     ParentColor = False
     Transparent = False
@@ -86,7 +96,7 @@ object frmMain: TfrmMain
   object BitBtn1: TBitBtn
     Left = 8
     Height = 25
-    Top = 564
+    Top = 600
     Width = 145
     Caption = 'Save Font File'
     OnClick = BitBtn1Click
@@ -95,8 +105,8 @@ object frmMain: TfrmMain
   object StatusBar1: TStatusBar
     Left = 0
     Height = 20
-    Top = 660
-    Width = 825
+    Top = 633
+    Width = 817
     Panels = <    
       item
         Text = 'Font'
@@ -115,7 +125,7 @@ object frmMain: TfrmMain
   object Edit1: TEdit
     Left = 8
     Height = 21
-    Top = 604
+    Top = 545
     Width = 145
     OnChange = Edit1Change
     TabOrder = 4
@@ -124,7 +134,7 @@ object frmMain: TfrmMain
   object CheckCells: TCheckBox
     Left = 8
     Height = 17
-    Top = 480
+    Top = 528
     Width = 71
     Caption = 'Show cells'
     Checked = True
@@ -135,24 +145,24 @@ object frmMain: TfrmMain
   object btnExportBig: TBitBtn
     Left = 8
     Height = 25
-    Top = 500
-    Width = 145
+    Top = 572
+    Width = 73
     Caption = 'Export BMP'
     OnClick = btnExportBigClick
     TabOrder = 7
   end
   object btnImportBig: TBitBtn
-    Left = 8
+    Left = 80
     Height = 25
-    Top = 524
-    Width = 145
+    Top = 572
+    Width = 73
     Caption = 'Import BMP'
     OnClick = btnImportBigClick
     TabOrder = 5
   end
   object RGPalette: TRadioGroup
     Left = 8
-    Height = 121
+    Height = 120
     Top = 304
     Width = 145
     AutoFill = True
@@ -163,10 +173,11 @@ object frmMain: TfrmMain
     ChildSizing.EnlargeVertical = crsHomogenousChildResize
     ChildSizing.ShrinkHorizontal = crsScaleChilds
     ChildSizing.ShrinkVertical = crsScaleChilds
-    ChildSizing.Layout = cclLeftToRightThenTopToBottom
-    ChildSizing.ControlsPerLine = 2
-    ClientHeight = 103
+    ChildSizing.Layout = cclTopToBottomThenLeftToRight
+    ChildSizing.ControlsPerLine = 7
+    ClientHeight = 102
     ClientWidth = 141
+    ColumnLayout = clVerticalThenHorizontal
     Columns = 2
     Items.Strings = (
       'map.bbm'
@@ -185,6 +196,42 @@ object frmMain: TfrmMain
     )
     OnClick = RGPaletteClick
     TabOrder = 8
+  end
+  object SpinEdit1: TSpinEdit
+    Left = 8
+    Height = 21
+    Top = 432
+    Width = 50
+    MaxValue = 255
+    MinValue = -255
+    TabOrder = 9
+  end
+  object SpinEdit2: TSpinEdit
+    Left = 8
+    Height = 21
+    Top = 456
+    Width = 50
+    MaxValue = 255
+    MinValue = -255
+    TabOrder = 10
+  end
+  object SpinEdit3: TSpinEdit
+    Left = 8
+    Height = 21
+    Top = 480
+    Width = 50
+    MaxValue = 255
+    MinValue = -255
+    TabOrder = 11
+  end
+  object SpinEdit4: TSpinEdit
+    Left = 8
+    Height = 21
+    Top = 504
+    Width = 50
+    MaxValue = 255
+    MinValue = -255
+    TabOrder = 12
   end
   object OpenDialog1: TOpenDialog
     left = 88

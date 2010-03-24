@@ -23,19 +23,19 @@ type //Indexing should start from 1.
    fnt_KMLobby4, fnt_MainA,    fnt_MainB,    fnt_MainMapGold, fnt_Metal,
    fnt_Mini,     fnt_Minimum,  fnt_Outline,  fnt_System,      fnt_Won);
 
-const //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
+{const //using 0 as default, with exceptions. Only used fonts have been checked, so this will need to be updated as we add new ones.
   FontCharSpacing: array[TKMFont] of shortint = ( 0,
     0, 0, 0, 0, 1,-1, 0, 0, 0, 0,
-    0, 0, 0, 0, 1, 1, 1,-2, 0, 0);
-
+    0, 0, 0, 0, 1, 1, 1,-2, 0, 0);}
+const
   FontFileNames: array[TKMFont] of string = ( 'nil',
     'adam', 'antiqua', 'briefing', 'font01', 'game', 'grey', 'kmlobby0', 'kmlobby1', 'kmlobby2', 'kmlobby3',
     'kmlobby4', 'maina', 'mainb', 'mainmapgold', 'metal', 'mini', 'mininum','outline', 'system', 'won');
 
 var
   FontPal:array[TKMFont]of byte = ( 10, //Those 10 are unknown Pal, no existing Pal matches them well
-   10, 2, 1,10, 2, 2, 1, 8, 8, 9,
-    9, 8,10, 8, 2, 8, 8, 2,10, 9); //@Krom: Can this be loaded from the file? It would make it easier and more versatile.
+   10, 2, 1,10, 2, 2, 12,12,12,12,
+   12, 8,10, 8, 2, 8,  8, 2,10, 9); //@Krom: Can this be loaded from the file? It would make it easier and more versatile.
 
 
 implementation
