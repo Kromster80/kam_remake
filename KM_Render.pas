@@ -341,7 +341,7 @@ end;
   glEnd;
 
   //Render shadows
-  glBlendFunc(GL_ZERO,GL_ONE_MINUS_SRC_COLOR);
+  glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, TextG);
   glbegin (GL_QUADS);
   with fTerrain do

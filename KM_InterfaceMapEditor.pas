@@ -52,6 +52,12 @@ type TKMapEdInterface = class
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
 
+      Panel_Save:TKMPanel;
+        TextEdit_SaveName:TKMTextEdit;
+        Label_SaveExists:TKMLabel;
+        CheckBox_SaveExists:TKMCheckBox;
+        Button_SaveSave:TKMButton;
+
       Panel_Quit:TKMPanel;
         Button_Quit_Yes,Button_Quit_No:TKMButton;
 
@@ -94,6 +100,7 @@ type TKMapEdInterface = class
     procedure Create_Village_Page;
     procedure Create_Stats_Page;
     procedure Create_Menu_Page;
+    procedure Create_Save_Page;
     procedure Create_Quit_Page;
     procedure Create_Unit_Page;
     procedure Create_House_Page;
@@ -121,6 +128,7 @@ type TKMapEdInterface = class
     procedure SetScreenSize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
+    procedure Menu_Save(Sender:TObject);
     procedure Menu_Load(Sender:TObject);
     procedure Menu_QuitMission(Sender:TObject);
     procedure Build_SelectRoad;
@@ -228,6 +236,11 @@ begin
 
   if Sender=Button_Menu_Quit then begin
     Panel_Quit.Show;
+  end;
+
+  if Sender = Button_Menu_Save then begin
+    Menu_Save(TextEdit_SaveName);
+    Panel_Save.Show;
   end;
 
   //Now process all other kinds of pages
@@ -339,6 +352,7 @@ begin
   Create_Stats_Page();
 
   Create_Menu_Page();
+    Create_Save_Page();
     Create_Quit_Page();
 
   Create_Unit_Page();
@@ -576,7 +590,7 @@ procedure TKMapEdInterface.Create_Menu_Page;
 begin
   Panel_Menu:=MyControls.AddPanel(Panel_Main,0,412,196,400);
     Button_Menu_Save:=MyControls.AddButton(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
-//    Button_Menu_Save.OnClick:=Menu_Save;
+    Button_Menu_Save.OnClick:=SwitchPage;
     Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
     Button_Menu_Load:=MyControls.AddButton(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
     Button_Menu_Load.OnClick:=Menu_Load;
@@ -587,10 +601,23 @@ begin
     Button_Menu_Quit:=MyControls.AddButton(Panel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     Button_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     Button_Menu_Quit.OnClick:=SwitchPage;
-    Button_Menu_Save.Disable;
     Button_Menu_Load.Disable;
 end;
 
+
+{Save page}
+procedure TKMapEdInterface.Create_Save_Page;
+begin
+  Panel_Save := MyControls.AddPanel(Panel_Main,0,412,196,400);
+    MyControls.AddLabel(Panel_Save,100,30,100,30,'Save map',fnt_Outline,kaCenter);
+    TextEdit_SaveName   := MyControls.AddTextEdit(Panel_Save,8,50,180,20, fnt_Grey);
+    Label_SaveExists    := MyControls.AddLabel(Panel_Save,100,80,100,30,'Map already exists',fnt_Outline,kaCenter);
+    CheckBox_SaveExists := MyControls.AddCheckBox(Panel_Save,12,100,100,20,'Overwrite', fnt_Metal);
+    Button_SaveSave     := MyControls.AddButton(Panel_Save,8,120,180,30,'Save',fnt_Metal);
+    TextEdit_SaveName.OnChange  := Menu_Save;
+    CheckBox_SaveExists.OnClick := Menu_Save;
+    Button_SaveSave.OnClick     := Menu_Save;
+end;
 
 {Quit page}
 procedure TKMapEdInterface.Create_Quit_Page;
@@ -959,6 +986,25 @@ begin
     Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType));
     Label_UnitDescription.Show;
   end;
+end;
+
+
+procedure TKMapEdInterface.Menu_Save(Sender:TObject);
+begin
+  if Sender = TextEdit_SaveName then begin
+    CheckBox_SaveExists.Enabled := CheckFileExists(KMRemakeMapPath(TextEdit_SaveName.Text,'dat'), true);
+    Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
+    CheckBox_SaveExists.Checked := false;
+    Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
+  end;
+
+  if Sender = CheckBox_SaveExists then begin
+    CheckBox_SaveExists.Checked := not CheckBox_SaveExists.Checked;
+    Button_SaveSave.Enabled := CheckBox_SaveExists.Checked;
+  end;
+
+  if Sender = Button_SaveSave then
+    fGame.SaveMapEditor(TextEdit_SaveName.Text);
 end;
 
 
