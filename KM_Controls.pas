@@ -403,8 +403,27 @@ end;
 
 {One common thing - draw childs for self}
 procedure TKMControl.Paint();
+var sColor:TColor4;
 begin
-  //nothing in here
+  if not MakeDrawPagesOverlay then exit;
+  if Self is TKMPanel then sColor := $400000FF;
+  if Self is TKMBevel then ;
+  if Self is TKMShape then ;
+
+  if Self is TKMLabel then //Special case for aligned text
+  case TKMLabel(Self).TextAlign of
+    kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
+    kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
+    kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
+  end;
+
+  if Self is TKMImage      then sColor := $4000FF00;
+  if Self is TKMImageStack then sColor := $4080FF00;
+  if Self is TKMCheckBox   then sColor := $40FF00FF;
+  if Self is TKMRatioRow   then sColor := $4000FF00;
+  if Self is TKMScrollBar  then sColor := $40FFFF00;
+
+  fRenderUI.WriteLayer(Left, Top, Width, Height, sColor);
 end;
 
 
@@ -479,8 +498,7 @@ end;
 procedure TKMPanel.Paint();
 var i:integer;
 begin
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $400000FF);
-  Inherited Paint;
+  Inherited;
   for i:=1 to TKMPanel(Self).ChildCount do
     if TKMPanel(Self).Childs[i].Visible then
     begin
@@ -500,6 +518,7 @@ end;
 
 procedure TKMBevel.Paint();
 begin
+  Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
 end;
 
@@ -516,6 +535,7 @@ end;
 
 procedure TKMShape.Paint();
 begin
+  Inherited;
   fRenderUI.WriteRect(Left,Top,Width,Height,LineWidth,Color);
 end;
 
@@ -537,18 +557,12 @@ end;
 procedure TKMLabel.Paint();
 var Tmp:TKMPoint; NewTop:integer;
 begin
-
+  Inherited;
   if SmoothScrollToTop<>0 then
     NewTop := Top - (integer(TimeGetTime) - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
   else
     NewTop := Top;
 
-  if MakeDrawPagesOverlay then
-  case TextAlign of
-    kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
-    kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
-    kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
-  end;
   if Enabled then
     Tmp := fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
   else
@@ -590,6 +604,7 @@ var
   OffsetX, OffsetY, DrawWidth, DrawHeight:smallint; //variable parameters
   StretchDraw:boolean; //Check if the picture should be stretched
 begin
+  Inherited;
   if (TexID=0)or(RXid=0) then exit; //No picture to draw
 
   StretchDraw := false; 
@@ -618,7 +633,6 @@ begin
   if not ((akTop in Anchors) or (akBottom in Anchors)) then
     OffsetY := (Height - GFXData[RXid, TexID].PxHeight) div 2;
 
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
   if StretchDraw then
     fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, Enabled, (HighlightOnMouseOver AND CursorOver) OR Highlight)
   else
@@ -661,9 +675,8 @@ var
   i:integer;
   OffsetX, OffsetY, CenterX, CenterY:smallint; //variable parameters
 begin
+  Inherited;
   if (TexID=0)or(RXid=0) then exit; //No picture to draw
-
-  if MakeDrawPagesOverlay then fRenderUI.WriteLayer(Left, Top, Width, Height, $4080FF00);
 
   OffsetX := Width div Columns;
   OffsetY := Height div ceil(Count/Columns);
@@ -719,6 +732,7 @@ end;
 procedure TKMButton.Paint();
 var State:T3DButtonStateSet;
 begin
+  Inherited;
   State:=[];
   if CursorOver and Enabled then State:=State+[bs_Highlight];
   if Down then State:=State+[bs_Down];
@@ -752,6 +766,7 @@ end;
 procedure TKMButtonFlat.Paint();
 var State:TFlatButtonStateSet;
 begin
+  Inherited;
   State:=[];
   if CursorOver and Enabled and not HideHighlight then State:=State+[fbs_Highlight];
   if Down then State:=State+[fbs_Selected];
@@ -774,6 +789,7 @@ end;
 procedure TKMTextEdit.Paint();
 var Col:TColor4;
 begin
+  Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
   if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then
@@ -797,9 +813,7 @@ procedure TKMCheckBox.Paint();
 const BoxWidth=25;
 var Tmp:TKMPoint; Col:TColor4;
 begin
-  if MakeDrawPagesOverlay then
-    fRenderUI.WriteLayer(Left, Top, Width, Height, $40FF00FF);
-
+  Inherited;
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
   //We can replace it with something better later on. For now [x] fits just fine
@@ -827,6 +841,7 @@ end;
 
 procedure TKMPercentBar.Paint();
 begin
+  Inherited;
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then begin //Now draw text over bar, if required
     fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, Width, Caption, Font, TextAlign, false, $FF000000);
@@ -848,6 +863,7 @@ end;
 procedure TKMResourceRow.Paint();
 var i:integer;
 begin
+  Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
   fLog.AssertToLog(ResourceCount<=7,'Resource count in this house is exceeded'); //4+3 for Stonecutter
@@ -869,6 +885,7 @@ end;
 procedure TKMResourceOrderRow.Paint();
 var i:integer;
 begin
+  Inherited;
   OrderRem.Top := fTop; //Use internal fTop instead of GetTop (which will return absolute value)
   OrderLab.Top := fTop + 4;
   OrderAdd.Top := fTop;
@@ -900,6 +917,7 @@ end;
 procedure TKMCostsRow.Paint();
 var TexID:byte;
 begin
+  Inherited;
   fRenderUI.WriteText(Left, Top + 4, Width, TypeToString(TResourceType(CostID)), fnt_Grey, kaLeft, false, $FFFFFFFF);
   if WarfareCosts[CostID,1] in [rt_Trunk..rt_Fish] then begin
     TexID:=byte(WarfareCosts[CostID,1]);
@@ -943,9 +961,7 @@ end;
 procedure TKMRatioRow.Paint();
 var Pos:word;
 begin
-  if MakeDrawPagesOverlay then
-    fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FF00);
-
+  Inherited;
   fRenderUI.WriteBevel(Left+2,Top+2,Width-4,Height-4);
   Pos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
   fRenderUI.WritePicture(Left+Pos+2, Top, 4,132);
@@ -1025,9 +1041,7 @@ end;
 procedure TKMScrollBar.Paint();
 var Pos:word; State:T3DButtonStateSet;
 begin
-  if MakeDrawPagesOverlay then
-    fRenderUI.WriteLayer(Left, Top, Width, Height, $40FFFF00);
-
+  Inherited;
   //Copy property to child buttons. Otherwise they won't be rendered
   ScrollDec.Visible := Visible;
   ScrollInc.Visible := Visible;
@@ -1087,6 +1101,7 @@ end;
 
 procedure TKMMinimap.Paint();
 begin
+  Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.RenderMinimap(Left,Top,Width,Height);
   fRenderUI.WriteRect(Left + (Width-MapSize.X) div 2 + ViewArea.Left,

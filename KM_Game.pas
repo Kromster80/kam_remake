@@ -181,6 +181,7 @@ begin
                 end;
     gsVictory:  ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
+                  if fGameplayInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
                   if IsDown then exit;
                   if Key = VK_BACK then begin
                     //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
@@ -208,7 +209,7 @@ begin
                   if Key=VK_UP    then fViewport.ScrollKeyUp    := IsDown;
                   if Key=VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
                 end;
-    gsEditor:   ;
+    gsEditor:   if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
   end;
 
   {Global hotkey for menu}

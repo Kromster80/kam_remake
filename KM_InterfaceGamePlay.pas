@@ -771,7 +771,7 @@ begin
   hc:=1; uc:=1;
   for i:=1 to 8 do begin
     LineBase := (i-1)*LineHeight;
-    case i of //todo 1: This should be simplified, compacted and automated
+    case i of
     1: begin
           MyControls.AddBevel(Panel_Stats,  8,LineBase, 56,30);
           MyControls.AddBevel(Panel_Stats, 71,LineBase, 56,30);

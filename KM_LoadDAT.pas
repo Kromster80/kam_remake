@@ -566,7 +566,7 @@ end;
 procedure TMissionParser.DebugScriptError(ErrorMsg:string);
 begin
   if ErrorMessage='' then
-  ErrorMessage:=ErrorMessage+OpenedMissionName+'|';
+    ErrorMessage:=ErrorMessage+OpenedMissionName+'|';
   ErrorMessage:=ErrorMessage+ErrorMsg+'|';
   //todo 1: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
 end;

@@ -4,7 +4,7 @@ uses
   Classes, SysUtils, KromUtils;
 
 const
-  MaxStrings = 999;
+  MaxStrings = 600; //Text.lib has the most entries - 590
   //Here are some indexes into the files for different items. (e.g. unit names) si is for "String Index"
   siHouseNames = 0;
   siResourceNames = 39;
@@ -20,9 +20,9 @@ type
     procedure LoadLIBFile(FilePath:string; var aArray:array of string);
     procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
   public      { Public declarations } 
-    constructor Create(aLibPath,aLocale: string);
-    function GetTextString(aIndex:integer):string;
-    function GetSetupString(aIndex:integer):string;
+    constructor Create(aLibPath, aLocale: string);
+    function GetTextString(aIndex:word):string;
+    function GetSetupString(aIndex:word):string;
     procedure ExportTextLibraries;
 end;
 
@@ -40,6 +40,7 @@ begin
   LoadLIBFile(aLibPath+'text.'+aLocale+'.lib',TextStrings);
   LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib',SetupStrings);
 end;
+
 
 procedure TTextLibrary.LoadLIBFile(FilePath:string; var aArray:array of string);
 var             
@@ -59,7 +60,7 @@ begin
   if not CheckFileExists(FilePath) then exit;
 
   assignfile(f,FilePath); reset(f,1);
-  blockread(f,FileData,100000,NumRead);
+  blockread(f,FileData,100000,NumRead); //100kb should be enough
   closefile(f);
 
   //Load string count from first two bytes
@@ -77,7 +78,7 @@ begin
     Byte1 := FileData[8+((i3-1)*2)];
     Byte2 := FileData[9+((i3-1)*2)];
     //Check for FF byte pars
-    if (Byte1 = 255) and (Byte2 = 255) then
+    if (Byte1 = $FF) and (Byte2 = $FF) then
     begin
       //This string is unused, meaning we must store it as blank, but also for some extreamly
       //annoying reason they also change the order of bytes around them (don't ask...)
@@ -112,16 +113,19 @@ begin
   //RemakeStrings[1]:='Activity';
   //etc.. use longer gaps between groups to allow to add new entries into appropriate groups like KaM does
 end;
-           
-function TTextLibrary.GetTextString(aIndex:integer):string;
+
+
+function TTextLibrary.GetTextString(aIndex:word):string;
 begin
-  if aIndex < MaxStrings then Result := TextStrings[aIndex];
+  if aIndex <= MaxStrings then Result := TextStrings[aIndex] else Result := '~~~TextString out of range!~~~';
 end;
 
-function TTextLibrary.GetSetupString(aIndex:integer):string;
+
+function TTextLibrary.GetSetupString(aIndex:word):string;
 begin
-  if aIndex < MaxStrings then Result := SetupStrings[aIndex];
+  if aIndex <= MaxStrings then Result := SetupStrings[aIndex] else Result := '~~~SetupString out of range!~~~';
 end;
+
 
 procedure TTextLibrary.ExportTextLibrary(var aLibrary: array of string; aFileName:string);
 var
@@ -137,11 +141,13 @@ begin
   FileData.Free;
 end;
 
+
 procedure TTextLibrary.ExportTextLibraries;
 begin
   CreateDir(ExeDir+'Export\');
   ExportTextLibrary(SetupStrings,ExeDir+'Export\LIB_Setup.txt');
   ExportTextLibrary(TextStrings,ExeDir+'Export\LIB_Text.txt');
 end;
+
 
 end.
