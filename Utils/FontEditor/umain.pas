@@ -338,7 +338,7 @@ end;
 
 
 procedure TfrmMain.Edit1Change(Sender: TObject);
-var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,Pal,t:integer; MyRect:TRect;
+var MyBitMap:TBitMap; i,ci,ck:integer; AdvX,Pal,t:integer; MyRect:TRect; Text:string;
 begin
   MyBitMap := TBitMap.Create;
   MyBitmap.PixelFormat := pf24bit;
@@ -346,20 +346,21 @@ begin
   MyBitmap.Height := 20;
 
   AdvX := 0;
+  Text := UTF8ToAnsi(Edit1.Text);
 
   //Fill area
   Pal := FontPal[FontData.Title];
   MyBitmap.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
   MyBitmap.Canvas.FillRect(MyBitmap.Canvas.ClipRect);
 
-  for i:=1 to length(Edit1.Text) do
+  for i:=1 to length(Text) do
   begin
-    for ci:=0 to FontData.Letters[ord(Edit1.Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Edit1.Text[i])].Width-1 do begin
-      t := FontData.Letters[ord(Edit1.Text[i])].Data[ci*FontData.Letters[ord(Edit1.Text[i])].Width+ck+1]+1;
+    for ci:=0 to FontData.Letters[ord(Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Text[i])].Width-1 do begin
+      t := FontData.Letters[ord(Text[i])].Data[ci*FontData.Letters[ord(Text[i])].Width+ck+1]+1;
       if t<>1 then //don't bother for clear pixels, speed-up
       MyBitmap.Canvas.Pixels[ck+AdvX,ci] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
     end;
-    inc(AdvX,FontData.Letters[ord(Edit1.Text[i])].Width+FontData.CharOffset);
+    inc(AdvX,FontData.Letters[ord(Text[i])].Width+FontData.CharOffset);
   end;
 
   //Match phrase bounds
