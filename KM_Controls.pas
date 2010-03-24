@@ -1281,11 +1281,11 @@ begin
 
   TE := TKMTextEdit(fFocusedControl);
 
-  if (not IsDown) and (chr(Key) in [' ', '0'..'9', 'A'..'Z', 'a'..'z']) then //Letters don't auto-repeat
+  if (not IsDown) and (chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', 'A'..'Z']) then //Letters don't auto-repeat
     if ssShift in Shift then TE.Text := TE.Text + UpperCase(chr(Key))
                         else TE.Text := TE.Text + LowerCase(chr(Key))
   else
-    if Key = VK_BACK    then TE.Text := decs(TE.Text,1,1); //Allow fast delete if IsDown
+    if Key = VK_BACK    then decs(TE.Text); //Allow fast delete if IsDown
 
   Result := true;
 end;

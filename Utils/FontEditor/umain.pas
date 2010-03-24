@@ -19,12 +19,12 @@ uses
     Pal:array[0..255]of byte; //Switch to determine if letter is there
     Letters:array[0..255]of record
       Width,Height:word;
-      Add1,Add2,YOffset,Add4:word;
+      Add1,Add2,YOffset,Add4:word; //Add1-4 always 0
       Data:array[1..4096] of byte;
     end;
   end;
 
-  PalData:array[1..13,1..256,1..3]of byte;
+  PalData:array[1..12,1..256,1..3]of byte;
   ActiveLetter:integer;
 
 type
@@ -210,9 +210,6 @@ begin
   SpinEdit2.Value := FontData.WordSpacing;
   SpinEdit3.Value := FontData.CharOffset;
   SpinEdit4.Value := FontData.Unk3;
-
-  //Special fixes:
-  FontData.Letters[32].Width:=7; //"Space" width
 
   {if aFont=fnt_game then
   for i:=0 to 255 do

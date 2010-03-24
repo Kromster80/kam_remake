@@ -367,7 +367,8 @@ end;
 
 procedure TKMapEdInterface.SetScreenSize(X,Y:word);
 begin
-  //todo: Update Hint position and etc..
+  //Update Hint position and etc..
+  Label_Hint.Top:=Y-16;
 end;
 
 

@@ -30,7 +30,7 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
+  MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
@@ -923,7 +923,7 @@ var
     Pal:array[0..255]of byte;
     Letters:array[0..255]of record
       Width,Height:word;
-      Add1,Add2,YOffset,Add4:word;
+      Add1,Add2,YOffset,Add4:word; //Add1-4 always 0
       Data:array[1..4096] of byte;
       u1,v1,u2,v2:single;
     end;

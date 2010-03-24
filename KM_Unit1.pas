@@ -277,8 +277,11 @@ end;
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
 begin
-  if not Form1.Active then exit;
-  if FormLoading.Visible then FormLoading.Hide;
+  if not (Form1.Active or FormLoading.Active) then exit;
+  if FormLoading.Visible then begin
+    FormLoading.Hide;
+    Form1.SetFocus;
+  end;
   fGame.UpdateState;
   Form1.Caption := inttostr(fGame.ScreenY);
 end;
