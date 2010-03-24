@@ -84,8 +84,8 @@ var ii,kk:integer;
 begin
 for kk:=0 to (H div 2)-1 do
 for ii:=0 to W*bpp-1 do begin
-          Front := Pointer(integer(Image)+kk*W*bpp+ii);
-          Back := Pointer(integer(Image)+(H-kk-1)*W*bpp+ii);
+          Front := Pointer(cardinal(Image)+kk*W*bpp+ii);
+          Back := Pointer(cardinal(Image)+(H-kk-1)*W*bpp+ii);
           Temp := Front^;
           Front^ := Back^;
           Back^ := Temp;
@@ -263,8 +263,8 @@ begin
   begin
     for I :=0 to Width * Height - 1 do
     begin
-      Front := Pointer(Integer(Image) + I*3);
-      Back := Pointer(Integer(Image) + I*3 + 2);
+      Front := Pointer(cardinal(Image) + I*3);
+      Back := Pointer(cardinal(Image) + I*3 + 2);
       Temp := Front^;
       Front^ := Back^;
       Back^ := Temp;
@@ -275,8 +275,8 @@ begin
   begin
     for I :=0 to Width * Height - 1 do
     begin
-      Front := Pointer(Integer(Image) + I*4);
-      Back := Pointer(Integer(Image) + I*4 + 2);
+      Front := Pointer(cardinal(Image) + I*4);
+      Back := Pointer(cardinal(Image) + I*4 + 2);
       Temp := Front^;
       Front^ := Back^;
       Back^ := Temp;

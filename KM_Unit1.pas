@@ -135,7 +135,7 @@ implementation
 {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_CommonTypes, KM_TGATexture, KM_LoadDAT;
+uses KM_Settings, KM_CommonTypes, KM_TGATexture;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);

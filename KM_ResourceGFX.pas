@@ -610,7 +610,7 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
     x:=Data[i*mx+k];
     col:=0;
     if (x<>0) then begin
-      by:=pointer(integer(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
+      by:=pointer(cardinal(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
 
       if Mode=tm_NoCol then
           col:=Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000

@@ -212,8 +212,8 @@ end;
 
 procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
 begin
-IndexNum:=pword(integer(RGBColor))^+((pbyte(integer(RGBColor)+2)^)mod 8)*65536;
-TypeOfValue:=KCode((pbyte(integer(RGBColor)+2)^)div 8);
+IndexNum:=pword(cardinal(RGBColor))^+((pbyte(cardinal(RGBColor)+2)^)mod 8)*65536;
+TypeOfValue:=KCode((pbyte(cardinal(RGBColor)+2)^)div 8);
 end;
 
 procedure glkScale(x:single);

@@ -275,11 +275,11 @@ k:=1;
 for i:=1 to 24 do
   if iSet and pow(2,i) = pow(2,i) then
     begin
-      A:=pointer(integer(Ar)+k*4);
+      A:=pointer(cardinal(Ar)+k*4);
       A^:=i;
       inc(k);
     end;
-A:=pointer(integer(Ar));
+A:=pointer(cardinal(Ar));
 A^:=k-1;
 end;
 
@@ -406,7 +406,7 @@ var i,A,B:integer;
 begin
   A:=1; B:=0; //A is initialized to 1, B to 0
   for i:=1 to TextLength do begin
-  inc(A,pbyte(integer(TextPointer)+i-1)^);
+  inc(A,pbyte(cardinal(TextPointer)+i-1)^);
   inc(B,A);
   end;
   A:=A mod 65521; //65521 (the largest prime number smaller than 2^16)

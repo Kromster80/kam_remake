@@ -727,7 +727,7 @@ end;
 
 
 procedure TKMGame.StartMapEditor(MissionName:string; aSizeX:integer=64; aSizeY:integer=64);
-var ResultMsg:string; fMissionParser:TMissionParser; i: integer; MapInfo:TKMMapsInfo;
+var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
 begin
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
