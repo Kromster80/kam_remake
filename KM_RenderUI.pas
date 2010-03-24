@@ -473,10 +473,10 @@ begin
         inc(AdvX, FontData[byte(Fnt)].WordSpacing)
       else begin
         with FontData[byte(Fnt)].Letters[ord(Text[i])] do begin
-          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       );
-          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       );
-          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height);
-          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height);
+          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +FontData[byte(Fnt)].Letters[ord(Text[i])].YOffset);
+          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +FontData[byte(Fnt)].Letters[ord(Text[i])].YOffset);
+          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+FontData[byte(Fnt)].Letters[ord(Text[i])].YOffset);
+          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+FontData[byte(Fnt)].Letters[ord(Text[i])].YOffset);
         end;
         inc(AdvX, FontData[byte(Fnt)].Letters[ord(Text[i])].Width + InterLetter);
       end;

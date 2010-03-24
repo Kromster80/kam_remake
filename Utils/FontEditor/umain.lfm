@@ -38,7 +38,7 @@ object frmMain: TfrmMain
   object Label3: TLabel
     Left = 64
     Height = 14
-    Top = 439
+    Top = 431
     Width = 84
     Caption = 'BaseCharHeight?'
     Color = clBtnFace
@@ -48,7 +48,7 @@ object frmMain: TfrmMain
   object Label4: TLabel
     Left = 64
     Height = 14
-    Top = 463
+    Top = 455
     Width = 73
     Caption = 'Word spacing?'
     Color = clBtnFace
@@ -58,7 +58,7 @@ object frmMain: TfrmMain
   object Label5: TLabel
     Left = 64
     Height = 14
-    Top = 487
+    Top = 479
     Width = 63
     Caption = 'Char spacing'
     Color = clBtnFace
@@ -68,7 +68,7 @@ object frmMain: TfrmMain
   object Label6: TLabel
     Left = 64
     Height = 14
-    Top = 511
+    Top = 503
     Width = 67
     Caption = 'Line spacing?'
     Color = clBtnFace
@@ -134,7 +134,7 @@ object frmMain: TfrmMain
   object CheckCells: TCheckBox
     Left = 8
     Height = 17
-    Top = 528
+    Top = 524
     Width = 71
     Caption = 'Show cells'
     Checked = True
@@ -162,7 +162,7 @@ object frmMain: TfrmMain
   end
   object RGPalette: TRadioGroup
     Left = 8
-    Height = 120
+    Height = 112
     Top = 304
     Width = 145
     AutoFill = True
@@ -174,8 +174,8 @@ object frmMain: TfrmMain
     ChildSizing.ShrinkHorizontal = crsScaleChilds
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclTopToBottomThenLeftToRight
-    ChildSizing.ControlsPerLine = 7
-    ClientHeight = 102
+    ChildSizing.ControlsPerLine = 6
+    ClientHeight = 94
     ClientWidth = 141
     ColumnLayout = clVerticalThenHorizontal
     Columns = 2
@@ -192,7 +192,6 @@ object frmMain: TfrmMain
       'linear'
       'mapgold.lbm'
       'setup.lbm'
-      'pal1.lbm'
     )
     OnClick = RGPaletteClick
     TabOrder = 8
@@ -200,37 +199,41 @@ object frmMain: TfrmMain
   object SpinEdit1: TSpinEdit
     Left = 8
     Height = 21
-    Top = 432
+    Top = 424
     Width = 50
-    MaxValue = 255
-    MinValue = -255
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit1Change
     TabOrder = 9
   end
   object SpinEdit2: TSpinEdit
     Left = 8
     Height = 21
-    Top = 456
+    Top = 448
     Width = 50
-    MaxValue = 255
-    MinValue = -255
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit1Change
     TabOrder = 10
   end
   object SpinEdit3: TSpinEdit
     Left = 8
     Height = 21
-    Top = 480
+    Top = 472
     Width = 50
-    MaxValue = 255
-    MinValue = -255
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit1Change
     TabOrder = 11
   end
   object SpinEdit4: TSpinEdit
     Left = 8
     Height = 21
-    Top = 504
+    Top = 496
     Width = 50
-    MaxValue = 255
-    MinValue = -255
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit1Change
     TabOrder = 12
   end
   object OpenDialog1: TOpenDialog

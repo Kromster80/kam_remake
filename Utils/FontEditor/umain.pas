@@ -19,7 +19,7 @@ uses
     Pal:array[0..255]of byte; //Switch to determine if letter is there
     Letters:array[0..255]of record
       Width,Height:word;
-      Add:array[1..4]of word; //Always zero
+      Add1,Add2,YOffset,Add4:word;
       Data:array[1..4096] of byte;
     end;
   end;
@@ -65,6 +65,7 @@ type
     procedure CheckCellsClick(Sender: TObject);
     procedure btnImportBigClick(Sender: TObject);
     procedure RGPaletteClick(Sender: TObject);
+    procedure SpinEdit1Change(Sender: TObject);
   private
     function GetFontFromFileName(aFile:string):TKMFont;
     procedure ScanDataForPalettesAndFonts(aPath:string);
@@ -120,7 +121,7 @@ begin
     if FontData.Pal[i]<>0 then
       with FontData.Letters[i] do begin
         blockwrite(f, Width, 4);
-        blockwrite(f, Add[1], 8);
+        blockwrite(f, Add1, 8);
         blockwrite(f, Data[1], Width*Height);
       end;
 
@@ -191,7 +192,7 @@ begin
     if FontData.Pal[i]<>0 then
       with FontData.Letters[i] do begin
         blockread(f, Width, 4);
-        blockread(f, Add[1], 8);
+        blockread(f, Add1, 8);
 
         Width := Width and $FF;
         Height := Height and $FF;
@@ -199,7 +200,10 @@ begin
         MaxHeight := Math.max(MaxHeight,Height);
         MaxWidth := Math.max(MaxWidth,Height);
         blockread(f, Data[1], Width*Height);
-      end;
+      end
+    else
+      FillChar(FontData.Letters[i], SizeOf(FontData.Letters[i]), #0);
+
   closefile(f);
 
   SpinEdit1.Value := FontData.Unk1;
@@ -316,12 +320,12 @@ begin
   StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(Y div 32)+':'+IntToStr(X div 32) + ' ('+
                                      IntToHex( (((Y div 32)*16)+(X div 32)) ,2)+'h)';
   StatusBar1.Panels.Items[2].Text :=
-  'Width '+inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Width)+', '+
-  'Height '+inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Height)+', '+
-  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add[1])+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add[2])+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add[3])+'? . '+
-  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add[4])+'?';
+  'Width '+int2fix(FontData.Letters[(((Y div 32)*16)+(X div 32))].Width,2)+', '+
+  'Height '+int2fix(FontData.Letters[(((Y div 32)*16)+(X div 32))].Height,2)+', '+
+  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add1)+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add2)+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].YOffset)+'? . '+
+  inttostr(FontData.Letters[(((Y div 32)*16)+(X div 32))].Add4)+'?';
 end;
 
 
@@ -364,7 +368,7 @@ begin
     for ci:=0 to FontData.Letters[ord(Text[i])].Height-1 do for ck:=0 to FontData.Letters[ord(Text[i])].Width-1 do begin
       t := FontData.Letters[ord(Text[i])].Data[ci*FontData.Letters[ord(Text[i])].Width+ck+1]+1;
       if t<>1 then //don't bother for clear pixels, speed-up
-      MyBitmap.Canvas.Pixels[ck+AdvX,ci] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
+      MyBitmap.Canvas.Pixels[ck+AdvX,ci+FontData.Letters[ord(Text[i])].YOffset] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
     end;
     inc(AdvX,FontData.Letters[ord(Text[i])].Width+FontData.CharOffset);
   end else
@@ -524,6 +528,15 @@ begin
   Edit1Change(nil);
   if ListBox1.ItemIndex<>-1 then
   StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+' Palette: '+PalFiles[FontPal[FontData.Title]];
+end;
+
+procedure TfrmMain.SpinEdit1Change(Sender: TObject);
+begin
+  FontData.Unk1        := SpinEdit1.Value;
+  FontData.WordSpacing := SpinEdit2.Value ;
+  FontData.CharOffset  := SpinEdit3.Value;
+  FontData.Unk3        := SpinEdit4.Value;
+  Edit1Change(nil);
 end;
 
 

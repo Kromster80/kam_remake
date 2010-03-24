@@ -475,7 +475,7 @@ begin
     if FontData[byte(aFont)].Pal[i]<>0 then
       with FontData[byte(aFont)].Letters[i] do begin
         blockread(f,Width,4);
-        blockread(f,Add,8);
+        blockread(f,Add1,8);
         MaxHeight:=Math.max(MaxHeight,Height);
         fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Fon01.fnt seems to be damaged..
         blockread(f,Data[1],Width*Height);

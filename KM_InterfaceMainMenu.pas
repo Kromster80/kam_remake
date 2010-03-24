@@ -146,7 +146,7 @@ uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTy
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGameSettings);
-//var i:integer;
+var i:integer;
 begin
 inherited Create;
 
@@ -175,8 +175,8 @@ inherited Create;
   Create_Error_Page;
   Create_Results_Page;
 
-  {for i:=1 to length(FontFiles) do
-    L[i]:=MyControls.AddLabel(Panel_Main1,550,280+i*20,160,30,FontFiles[i]+' This is a test string for KaM Remake',TKMFont(i),kaLeft);
+  for i:=1 to length(FontFiles) do
+    L[i]:=MyControls.AddLabel(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);
   //}
 
   //Show version info on every page
