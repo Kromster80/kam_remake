@@ -1,4 +1,5 @@
 Gameplay bugs:
++	If you destroy a house, odd things happen to the occupant(s). e.g. not appearing, jittering, appearing at wrong spot
 	Citizen will try to walk home when it has no road tile below entrance
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
@@ -16,7 +17,7 @@ Sound bugs:
 
 Suggested improvements:
 	word "Condition" in house menu is unreadable, bad colour, it should be white
-+	Viewport scrolling should be smooth
++	Viewport scrolling should be smooth @Krom: It's still a bit jittery if you ask me, do we need to wait for VSync or something? It's not that smooth yet, I found it easier to watch before.
 	Two monitor config, scrolling works well only on 1st display
 
 
@@ -26,11 +27,9 @@ Remaining from r734:
 
 -	I got a access violation when I was deleting my fisherman.
 -	when starting the game first time after system boot-up the Windows Explorer stops responding for a minute (Windows 7 x64)
--	If you destroy a house, odd things happen to the occupant(s). e.g. not appearing, jittering, appearing at wrong spot
--	Houses/units from the mission file should not place if they are on unwalkable terrain (including height test)
+-	Houses/units from the mission file should not place if they are on unwalkable terrain (including height test and proximity test for houses)
 -	Serfs shouldn't drop wares if the destination is destroyed, they should be taken back to the storehouse (or any other suitable destination)
 -	Rectangle below cursor is not fixed (happens on GeForce GT240M, 195.62 drivers, no problem on older 6800XT / 91.47) [Krom]
--	Troop voices
 
 
 

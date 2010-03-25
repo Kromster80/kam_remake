@@ -1664,7 +1664,8 @@ Inherited;
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
   if (fCommander=nil) and not (fUnitTask is TTaskDie) then begin
-    YPaintPos := YPaintPos + FlagHeight[UnitType]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)
+    XPaintPos := XPaintPos + FlagXOffset[UnitType]/CELL_SIZE_PX;
+    YPaintPos := YPaintPos + FlagYOffset[UnitType]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)
     TeamColor := byte(fOwner);
     if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals); //Highlight with White color
     fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);

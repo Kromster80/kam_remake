@@ -906,7 +906,7 @@ begin
         StartGame('','',1);
 
         //Substitute tick counter and id tracker
-        LoadStream.Read(GameName); //Save game title
+        LoadStream.Read(fGameName); //Save game title
         LoadStream.Read(GameplayTickCount, 4);
         LoadStream.Read(ID_Tracker, 4);
 

@@ -316,23 +316,42 @@ const UnitGroups: array[0..40] of TGroupType = (
     //Animals
     gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None);
 
-
-const FlagHeight: array[0..40] of shortint = (
+const FlagXOffset: array[0..40] of shortint = (
     //Villagers
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0, //ut_None..ut_Recruit
     //Army
-    12,12,12, //ut_Militia, ut_AxeFighter, ut_Swordsman
-    12,12,    //ut_Bowman, ut_Arbaletman
-    0,0,      //ut_Pikeman, ut_Hallebardman,
-    -6,-6,    //ut_HorseScout, ut_Cavalry,
-    12,       //ut_Barbarian
+    10,10,10,  //ut_Militia, ut_AxeFighter, ut_Swordsman
+    8,8,       //ut_Bowman, ut_Arbaletman
+    6,6,       //ut_Pikeman, ut_Hallebardman,
+    6,6,       //ut_HorseScout, ut_Cavalry,
+    10,        //ut_Barbarian
     //TPR Army
-    0,        //ut_Peasant
-    12,           //ut_Slingshot
-    12,            //ut_MetalBarbarian
-    -6,          //ut_Horseman
-    0,0, //ut_Catapult, ut_Ballista,
+    0,         //ut_Peasant
+    0,         //ut_Slingshot
+    0,         //ut_MetalBarbarian
+    0,         //ut_Horseman
+    0,0,       //ut_Catapult, ut_Ballista,
+    //Animals
+    0,0,0,0,0,0,0,0,0,0);
+
+
+const FlagYOffset: array[0..40] of shortint = (
+    //Villagers
+    0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0, //ut_None..ut_Recruit
+    //Army
+    21,23,27,  //ut_Militia, ut_AxeFighter, ut_Swordsman
+    27,28,     //ut_Bowman, ut_Arbaletman
+    20,23,     //ut_Pikeman, ut_Hallebardman,
+    4,3,       //ut_HorseScout, ut_Cavalry,
+    28,        //ut_Barbarian
+    //TPR Army
+    0,         //ut_Peasant
+    0,         //ut_Slingshot
+    0,         //ut_MetalBarbarian
+    0,         //ut_Horseman
+    0,0,       //ut_Catapult, ut_Ballista,
     //Animals
     0,0,0,0,0,0,0,0,0,0);
 

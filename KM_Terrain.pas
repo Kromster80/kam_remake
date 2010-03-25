@@ -1890,6 +1890,7 @@ begin
   end;
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
   RebuildWalkConnect(canWalk);
+  RebuildWalkConnect(canWalkRoad);
 end;
 
 
