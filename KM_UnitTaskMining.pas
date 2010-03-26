@@ -10,7 +10,7 @@ type
     function ResourceExists():boolean;
   public
     WorkPlan:TUnitWorkPlan;
-    constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
+    constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure SyncLoad(); override;
     procedure Execute(out TaskDone:boolean); override;
@@ -23,7 +23,7 @@ uses KM_Terrain;
 
 
 { TTaskMining }
-constructor TTaskMining.Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit; aHouse:TKMHouse);
+constructor TTaskMining.Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_Mining;

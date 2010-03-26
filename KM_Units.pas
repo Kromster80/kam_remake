@@ -645,7 +645,7 @@ begin
   begin
     if HousePlaceOrders[byte(fHome.GetHouseType)] then
       fHome.ResRemOrder(Res);
-    Result := TTaskMining.Create(WorkPlan,Self,fHome);
+    Result := TTaskMining.Create(WorkPlan,Self);
   end;
 end;
 
