@@ -14,7 +14,7 @@ TUnitActionFight = class(TUnitAction)
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
     procedure SyncLoad(); override;
-    procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte; IsHit:boolean);
+    procedure MakeSound(KMUnit: TKMUnit; IsHit:boolean);
     procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -55,12 +55,12 @@ begin
 end;
 
 
-procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte; IsHit:boolean);
+procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
 
-  case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
+{  case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
     ut_Worker: case GetActionType of
                  ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
@@ -76,18 +76,11 @@ begin
                      ua_Work: if (KMUnit.AnimStep mod Cycle = 5) and (KMUnit.Direction <> dir_N) then fSoundLib.Play(sfx_choptree,KMUnit.GetPosition,true)
                      else     if (KMUnit.AnimStep mod Cycle = 0) and (KMUnit.Direction =  dir_N) then fSoundLib.Play(sfx_WoodcutterDig,KMUnit.GetPosition,true);
                    end;
-  end;
+  end;}
 end;
 
 
 procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
-
-  function GetDirModifier(OurDir,OpponentDir:TKMDirection): byte;
-  begin
-    Result := abs(byte(OurDir)-byte(KMLoopDirection(byte(OpponentDir)+4)))+1;
-    if Result > 5 then
-      Result := abs(Result-10); //Inverse it, as the range must always be 1..5
-  end;
 
   function CheckDoEnd:boolean;
   begin
@@ -119,9 +112,9 @@ begin
 
     if IsHit then
       fOpponent.HitPointsDecrease;
-  end;
 
-  MakeSound(KMUnit, Cycle, Step, IsHit);
+    MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
+  end;
 
   IsStepDone := KMUnit.AnimStep mod Cycle = 0;
   inc(KMUnit.AnimStep);

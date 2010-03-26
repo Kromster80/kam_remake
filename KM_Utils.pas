@@ -21,6 +21,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function KMGetDirection(X,Y: integer): TKMDirection; overload;
   function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
+  function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
   function KMGetVertexTile(P:TKMPoint; Dir: TKMDirection):TKMPoint;
@@ -159,6 +160,22 @@ begin
 end;
 
 
+function KMGetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
+const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
+        ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+begin
+  Result := DirectionsBitfield[sign(ToPos.X - FromPos.X), sign(ToPos.Y - FromPos.Y)]; //-1,0,1
+end;
+
+
+function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
+begin
+  Result := abs(byte(Dir1)-byte(KMLoopDirection(byte(Dir2)+4)))+1;
+  if Result > 5 then
+    Result := 10 - Result; //Inverse it, as the range must always be 1..5
+end;
+
+
 function KMGetCursorDirection(X,Y: integer): TKMDirection;
 begin
   Result := dir_NA;
@@ -177,14 +194,6 @@ begin
   if X = -Y then
     if X > 0 then Result := dir_SW
              else Result := dir_NE;
-end;
-
-
-function KMGetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
-const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
-        ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
-begin
-  Result := DirectionsBitfield[sign(ToPos.X - FromPos.X), sign(ToPos.Y - FromPos.Y)]; //-1,0,1
 end;
 
 
