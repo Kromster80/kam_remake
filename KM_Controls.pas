@@ -1287,7 +1287,8 @@ begin
   else
     if Key = VK_BACK    then decs(TE.Text); //Allow fast delete if IsDown
 
-  fFocusedControl.OnChange(fFocusedControl);
+  if Assigned(fFocusedControl.OnChange) then fFocusedControl.OnChange(fFocusedControl);
+
   Result := true;
 end;
 
