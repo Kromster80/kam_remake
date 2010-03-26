@@ -384,18 +384,27 @@ end;
 function TResource.LoadUnitDAT(filename:string):boolean;
 var ii,kk,jj,hh:integer; ft:textfile; f:file;
 begin
-Result:=false;
-if not CheckFileExists(filename) then exit;
-assignfile(f,filename); reset(f,1);
-for ii:=1 to 28 do begin
-blockread(f,SerfCarry[ii],8*70);
-end;
-for ii:=1 to 41 do begin
-blockread(f,UnitStat[ii],22);
-blockread(f,UnitSprite[ii],112*70);
-blockread(f,UnitSprite2[ii],36);
-end;
-closefile(f);
+  Result:=false;
+
+  if not CheckFileExists(filename) then exit;
+  assignfile(f,filename); reset(f,1);
+
+  for ii:=1 to 28 do
+    blockread(f,SerfCarry[ii],8*70);
+
+  for ii:=1 to 41 do begin
+    blockread(f,UnitStat[ii],22);
+    blockread(f,UnitSprite[ii],112*70);
+    blockread(f,UnitSprite2[ii],36);
+  end;
+
+  closefile(f);
+
+  //This is a bad idea to fix anything here, but at the time it's the simplest solution
+  //Woodcutter(2) needs to shuffle actions
+  //Split planting from chopping
+  UnitSprite[2].Act[5].Dir[1]:=UnitSprite[2].Act[2].Dir[1];
+  UnitSprite[2].Act[2].Dir[1]:=UnitSprite[2].Act[5].Dir[2];
 
   if WriteResourceInfoToTXT then begin
     assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
@@ -417,12 +426,6 @@ closefile(f);
       writeln(ft);
     end;
     closefile(ft);
-
-    //This is a bad idea to fix anything here, but at the time it's the simplest solution
-    //Woodcutter(2) needs to shuffle actions
-    //Split planting from chopping
-    UnitSprite[2].Act[5].Dir[1]:=UnitSprite[2].Act[2].Dir[1];
-    UnitSprite[2].Act[2].Dir[1]:=UnitSprite[2].Act[5].Dir[2];
 
     assignfile(ft,ExeDir+'Units.txt'); rewrite(ft);
     for ii:=1 to 40 do begin
@@ -901,7 +904,7 @@ begin
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
 
   ci:=0;
-  for iUnit:=15 to 15 do begin
+  for iUnit:=byte(ut_Woodcutter) to byte(ut_Woodcutter) do begin
     for iAct:=1 to 14 do begin
       for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
         for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do begin
