@@ -16,7 +16,7 @@ uses
   FontData: record
     Title:TKMFont;
     Unk1,WordSpacing,CharOffset,Unk3:smallint; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
-    Pal:array[0..255]of byte; //Switch to determine if letter is there
+    Pal:array[0..65000]of byte; //Switch to determine if letter is there
     Letters:array[0..255]of record
       Width,Height:word;
       Add1,Add2,YOffset,Add4:word; //Add1-4 always 0
@@ -26,11 +26,9 @@ uses
 
   PalData:array[1..12,1..256,1..3]of byte;
   ActiveLetter:integer;
+  SettingFromFont:boolean;
 
 type
-
-  { TfrmMain }
-
   TfrmMain = class(TForm)
     Label3: TLabel;
     Label4: TLabel;
@@ -55,6 +53,8 @@ type
     Image1: TImage;
     Image5: TImage;
     RGPalette: TRadioGroup;
+    Label1: TLabel;
+    SpinEdit5: TSpinEdit;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
@@ -184,8 +184,15 @@ begin
   MaxHeight := 0;
 
   assignfile(f,filename); reset(f,1);
+
   blockread(f,FontData.Unk1,8);
-  blockread(f,FontData.Pal[0],256);
+  blockread(f,FontData.Pal[0],65000,i);
+
+  if i <> 65000 then begin //Determine if Font is unicode and has 65k characters
+    reset(f,1);
+    blockread(f,FontData.Unk1,8);
+    blockread(f,FontData.Pal[0],256);
+  end;
 
   //Read font data
   for i:=0 to 255 do
@@ -206,17 +213,13 @@ begin
 
   closefile(f);
 
+  SettingFromFont := true;
   SpinEdit1.Value := FontData.Unk1;
   SpinEdit2.Value := FontData.WordSpacing;
   SpinEdit3.Value := FontData.CharOffset;
   SpinEdit4.Value := FontData.Unk3;
-
-  {if aFont=fnt_game then
-  for i:=0 to 255 do
-    if FontData.Pal[i]<>0 then
-      for k:=1 to 4096 do
-        if FontData.Letters[i].Data[k]<>0 then
-          FontData.Letters[i].Data[k]:=218; //Light grey color in Pal2}
+  SpinEdit5.Value := FontData.Letters[127].Width;
+  SettingFromFont := false;
 
   //Remember the font
   FontData.Title := aFont;
@@ -235,7 +238,7 @@ var
 begin
   //Compile texture
   setlength(TD, TexWidth*TexWidth + 1);
-  FillChar(TD[0], TexWidth*TexWidth + 1, $05); //Make some background to see real offsets
+  FillChar(TD[0], TexWidth*TexWidth + 1, $00); //Make some background to see real offsets
 
   for i:=0 to 255 do
     if FontData.Pal[i]<>0 then
@@ -314,7 +317,7 @@ end;
 
 procedure TfrmMain.Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
 begin
-  StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr(Y div 32)+':'+IntToStr(X div 32) + ' ('+
+  StatusBar1.Panels.Items[1].Text := 'Character: ' + IntToStr((Y div 32) *16 + X div 32) + ' ('+
                                      IntToHex( (((Y div 32)*16)+(X div 32)) ,2)+'h)';
   StatusBar1.Panels.Items[2].Text :=
   'Width '+int2fix(FontData.Letters[(((Y div 32)*16)+(X div 32))].Width,2)+', '+
@@ -352,7 +355,13 @@ begin
   MyBitmap.Height := 20;
 
   AdvX := 0;
-  Text := UTF8ToAnsi(Edit1.Text);
+
+  {$IFDEF FPC} //FPC uses unicode strings in Edit1
+    Text := UTF8ToAnsi(Edit1.Text);
+  {$ENDIF}
+  {$IFDEF VER140} //Delphi uses ansi strings
+    Text := Edit1.Text;
+  {$ENDIF}
 
   //Fill area
   Pal := FontPal[FontData.Title];
@@ -373,7 +382,7 @@ begin
 
 
   //Match phrase bounds
-  MyBitmap.Width := AdvX;
+  MyBitmap.Width := AdvX+1;
   MyBitmap.Height := 20;
 
   Image4.Canvas.Brush.Color := PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16;
@@ -527,12 +536,25 @@ begin
   StatusBar1.Panels.Items[0].Text := 'Font: '+ListBox1.Items[ListBox1.ItemIndex]+' Palette: '+PalFiles[FontPal[FontData.Title]];
 end;
 
+
 procedure TfrmMain.SpinEdit1Change(Sender: TObject);
 begin
+  if SettingFromFont then exit;
+
+  if (Sender is TSpinEdit) and (TSpinEdit(Sender).Text = '') then exit;
+
   FontData.Unk1        := SpinEdit1.Value;
-  FontData.WordSpacing := SpinEdit2.Value ;
+  FontData.WordSpacing := SpinEdit2.Value;
   FontData.CharOffset  := SpinEdit3.Value;
   FontData.Unk3        := SpinEdit4.Value;
+
+  if Sender = SpinEdit5 then begin
+    FontData.Letters[127].Height := 10;
+    FontData.Letters[127].Width := SpinEdit5.Value;
+    FillChar(FontData.Letters[127].Data[1], 4096, #0);
+    FontData.Letters[127].YOffset := 0;
+    ShowBigImage(CheckCells.Checked, false);
+  end;
   Edit1Change(nil);
 end;
 
