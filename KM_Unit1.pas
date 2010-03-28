@@ -67,13 +67,11 @@ type
     Label3: TLabel;
     Label1: TLabel;
     {$IFDEF VER140} MediaPlayer1: TMediaPlayer; {$ENDIF}
-    Button1: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure Button1Click(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -321,21 +319,21 @@ end;
 //Debug Options
 procedure TForm1.Debug_ShowWiresClick(Sender: TObject);
 begin
-  Debug_ShowWires.Checked:=not Debug_ShowWires.Checked;
-  ShowTerrainWires:=Debug_ShowWires.Checked;
+  Debug_ShowWires.Checked := not Debug_ShowWires.Checked;
+  ShowTerrainWires := Debug_ShowWires.Checked;
 end;
 
 procedure TForm1.Debug_ShowOverlayClick(Sender: TObject);
 begin
-  Debug_ShowOverlay.Checked:= not Debug_ShowOverlay.Checked;
-  MakeDrawPagesOverlay:=Debug_ShowOverlay.Checked;
+  Debug_ShowOverlay.Checked := not Debug_ShowOverlay.Checked;
+  SHOW_CONTROLS_OVERLAY := Debug_ShowOverlay.Checked;
 end;
 
 procedure TForm1.Debug_ShowUnitClick(Sender: TObject);
 begin
-  Debug_ShowUnits.Checked:= not Debug_ShowUnits.Checked;
-  MakeShowUnitMove:=Debug_ShowUnits.Checked;
-  MakeShowUnitRoutes:=Debug_ShowUnits.Checked;
+  Debug_ShowUnits.Checked := not Debug_ShowUnits.Checked;
+  SHOW_UNIT_MOVEMENT := Debug_ShowUnits.Checked;
+  SHOW_UNIT_ROUTES   := Debug_ShowUnits.Checked;
 end;
 
 procedure TForm1.Debug_PrintScreenClick(Sender: TObject);
@@ -346,7 +344,7 @@ begin
 end;
 
 procedure TForm1.Debug_ShowPanel1Click(Sender: TObject);
-begin GroupBox1.Visible:=not GroupBox1.Visible; end;
+begin GroupBox1.Visible := not GroupBox1.Visible; end;
 
 procedure TForm1.Debug_PassabilityTrackChange(Sender: TObject);
 begin
@@ -816,11 +814,6 @@ begin
   else ClipCursor(nil); //Otherwise have no restriction
 end;
 
-
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  fGame.SaveMapEditor('Test');
-end;
 
 {$IFDEF FPC}
 initialization

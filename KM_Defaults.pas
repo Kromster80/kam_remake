@@ -54,29 +54,34 @@ var
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
 
   //These are debug things, should be FALSE
-  ShowDebugControls     :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
-  SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
+  {User interface options}
+  ShowDebugControls     :boolean=false; //Show debug panel / Form1 menu (F11)
+  ENABLE_DESIGN_CONTORLS:boolean=true; //Enable special mode to allow to move/edit controls
+    SHOW_CONTROLS_OVERLAY :boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
+    MODE_DESIGN_CONTORLS  :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+  SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
+  {Gameplay variables}
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
+  SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
+  SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
+  SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
+  SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
+  SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
+  {Gameplay display}
+  TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
-  MakeDrawPagesOverlay  :boolean=false; //Draw colored overlays ontop of panels, usefull for making layout
-  MakeShowUnitRoutes    :boolean=false; //Draw unit routes when they are chosen
-  MakeShowUnitMove      :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
+  RENDER_3D             :boolean=false; //Experimental 3D render
+  {Data output}
+  WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
-  TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
-  RENDER_3D             :boolean=false; //Experimental 3D render
-  SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
-  SHOW_ALL_ON_MINIMAP   :boolean=false; //Whenever to display other players on minimap
-  SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
-  SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
-  WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
 
-  //Statistics
-  CtrlPaintCount:integer;               //How many Controls were painted
+  //Statistic
+  CtrlPaintCount:word; //How many Controls were painted
 
   //Utility
   Zero:integer=0;
-  
+
 const
   MaxHouses=255;        //Maximum houses one player can own
   MAX_RES_IN_HOUSE=5;   //Maximum resource items allowed to be in house
@@ -104,7 +109,26 @@ const //Here we store options that are hidden somewhere in code
   RANGE_WOODCUTTER  = 10;
   RANGE_FARMER      = 8;
   RANGE_STONECUTTER = 14;
-  RANGE_FISHERMAN   = 12;    
+  RANGE_FISHERMAN   = 12;
+
+type
+  TCampaign = (cmp_TSK, cmp_TPR, cmp_Custom);
+
+const
+  //Maps count in Campaigns
+  MAX_MAPS = 32;
+  TSK_MAPS = 20;
+  TPR_MAPS = 14;
+
+  //X/Y locations of battlefields on campaign map in menu
+  TSK_Campaign_Maps: array [1..TSK_MAPS,1..2] of word = (
+  (0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),
+  (0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0));
+  TPR_Campaign_Maps: array [1..TPR_MAPS,1..2] of word = (
+  (0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),
+  (0,0),(0,0),(0,0),(0,0));
+
+  CampIntermediate = 20; //Place intermediate nodes every N pixels
 
 type
   TRenderMode = (rm2D, rm3D);

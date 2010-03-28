@@ -55,6 +55,7 @@ TKMControl = class(TObject)
     procedure Hide;
     function IsVisible():boolean;
     function HitTest(X, Y: Integer): Boolean;
+    function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; virtual;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnClickEither: TNotifyEvent2 read FOnClickEither write FOnClickEither;
@@ -185,6 +186,8 @@ TKMTextEdit = class(TKMControl)
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     procedure Paint(); override;
+  public
+    function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; override;
 end;
 
 
@@ -396,6 +399,24 @@ begin
 end;
 
 
+function TKMControl.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
+var Amt:byte;
+begin
+  Result := false;
+  if not MODE_DESIGN_CONTORLS then exit;
+  if IsDown then exit;
+
+  Amt := 1;
+  if ssCtrl in Shift then Amt := 10;
+  if ssShift in Shift then Amt := 100;
+
+  if Key = VK_LEFT then fLeft := fLeft - Amt;
+  if Key = VK_RIGHT then fLeft := fLeft + Amt;
+  if Key = VK_UP then fTop := fTop - Amt;
+  if Key = VK_DOWN then fTop := fTop + Amt;
+end;
+
+
 function TKMControl.HitTest(X, Y: Integer): Boolean;
 begin
   Result:= InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height) and IsVisible;
@@ -405,16 +426,21 @@ end;
 procedure TKMControl.Paint();
 var sColor:TColor4;
 begin
-  if not MakeDrawPagesOverlay then exit;
+  if not SHOW_CONTROLS_OVERLAY then exit;
+
+  sColor := $FFFFFFFF;
+
   if Self is TKMPanel then sColor := $400000FF;
   if Self is TKMBevel then ;
   if Self is TKMShape then ;
 
-  if Self is TKMLabel then //Special case for aligned text
-  case TKMLabel(Self).TextAlign of
-    kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
-    kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
-    kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
+  if Self is TKMLabel then begin //Special case for aligned text
+    case TKMLabel(Self).TextAlign of
+      kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
+      kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
+      kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
+    end;
+    exit;
   end;
 
   if Self is TKMImage      then sColor := $4000FF00;
@@ -786,6 +812,21 @@ begin
 end;
 
 
+function TKMTextEdit.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
+begin
+  Result := true;
+  if Inherited KeyUp(Key, Shift, IsDown) then exit;
+
+  if (not IsDown) and (chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', 'A'..'Z']) then //Letters don't auto-repeat
+    if ssShift in Shift then Text := Text + UpperCase(chr(Key))
+                        else Text := Text + LowerCase(chr(Key))
+  else
+    if IsDown and (Key = VK_BACK) then decs(Text); //Allow fast delete if IsDown
+
+  if Assigned(OnChange) then OnChange(Self);
+end;
+
+
 procedure TKMTextEdit.Paint();
 var Col:TColor4;
 begin
@@ -1114,6 +1155,7 @@ end;
 constructor TKMControlsCollection.Create();
 begin
   Inherited;
+  CtrlPaintCount := 0;
   fFocusedControl := nil;
   if fRenderUI <> nil then
   fRenderUI := TRenderUI.Create;
@@ -1272,24 +1314,11 @@ begin
 end;
 
 
-//Might be moved to individual control later on
 function TKMControlsCollection.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
-var TE:TKMTextEdit;
 begin
-  Result := false; //Sending KeyUp to TKMTextEdit automatically means it's handled
-  if not (fFocusedControl is TKMTextEdit) then exit;
-
-  TE := TKMTextEdit(fFocusedControl);
-
-  if (not IsDown) and (chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', 'A'..'Z']) then //Letters don't auto-repeat
-    if ssShift in Shift then TE.Text := TE.Text + UpperCase(chr(Key))
-                        else TE.Text := TE.Text + LowerCase(chr(Key))
-  else
-    if Key = VK_BACK    then decs(TE.Text); //Allow fast delete if IsDown
-
-  if Assigned(fFocusedControl.OnChange) then fFocusedControl.OnChange(fFocusedControl);
-
-  Result := true;
+  Result := false;
+  if fFocusedControl = nil then exit;
+  Result := fFocusedControl.KeyUp(Key, Shift, IsDown);
 end;
 
 
@@ -1311,6 +1340,7 @@ end;
 procedure TKMControlsCollection.OnMouseOver(X,Y:integer; AShift:TShiftState);
 var i:integer;
 begin
+  if MODE_DESIGN_CONTORLS then exit; //Don't do
   for i:=0 to Count-1 do
     if Controls[i].Parent=nil then
       if Controls[i].IsVisible then
@@ -1325,6 +1355,7 @@ end;
 procedure TKMControlsCollection.OnMouseDown(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
+  if MODE_DESIGN_CONTORLS then exit; //Don't do
   for i:=0 to Count-1 do
     if Controls[i].HitTest(X, Y) then
       if Controls[i].Enabled then
@@ -1340,7 +1371,7 @@ begin
   if fFocusedControl <> nil then fFocusedControl.HasFocus := false; //Release focus in any case of OnMouseUp
   for i:=0 to Count-1 do
   if Controls[i].HitTest(X, Y) then
-  if Controls[i].Enabled then
+  if Controls[i].Enabled or MODE_DESIGN_CONTORLS then //Allow selecting of disabled Controls
   begin
     if Controls[i] is TKMButton then
       TKMButton(Controls[i]).Down := false;
@@ -1351,19 +1382,24 @@ begin
       fFocusedControl.HasFocus := true; //Set Focus
     end;
 
-    if (AButton = mbLeft) and Assigned(Controls[i].OnClick) then
+    if (AButton = mbLeft)
+    and Assigned(Controls[i].OnClick)
+    and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
     begin
       Controls[i].OnClick(Controls[i]);
       exit; //Send OnClick only to one item
     end;
 
-    if (AButton = mbRight) and Assigned(Controls[i].OnClickRight) then
+    if (AButton = mbRight)
+    and Assigned(Controls[i].OnClickRight) 
+    and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
     begin
       Controls[i].OnClickRight(Controls[i]);
       exit; //Send OnClickRight only to one item
     end;
 
-    if Assigned(Controls[i].OnClickEither) then
+    if Assigned(Controls[i].OnClickEither)
+    and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
     begin
       Controls[i].OnClickEither(Controls[i], AButton);
       exit; //Send OnClickRight only to one item
@@ -1382,7 +1418,10 @@ begin
     if Controls[i].Parent=nil then
       if Controls[i].IsVisible then
         Controls[i].Paint;
-  CtrlPaintCount:=0; //Counter
+
+  if MODE_DESIGN_CONTORLS and (fFocusedControl<>nil) then
+  with fFocusedControl do
+    fRenderUI.WriteText(Left, Top-14, Width, inttostr(Left)+':'+inttostr(Top), fnt_Grey, kaLeft, false, $FFFFFFFF);
 end;
 
 

@@ -1159,6 +1159,8 @@ begin
 
   Res := TResourceType(StorehouseItem);
   Store := TKMHouseStore(ShownHouse);
+
+  Amt := 0;
   if AButton = mbLeft then Amt := 1;
   if AButton = mbRight then Amt := 10;
 

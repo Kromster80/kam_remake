@@ -458,7 +458,6 @@ const
 var
   f:file;
   p,t:byte;
-  a,b,c,d:word;
   i,k,ci,ck:integer;
   MaxHeight:integer;
   AdvX,AdvY:integer;

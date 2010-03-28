@@ -2055,7 +2055,6 @@ var i,k,ID:integer; Light:smallint; Loc:TKMPointList; FOW:byte;
 begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
     FOW:=fTerrain.CheckTileRevelation(k,i,MyPlayer.PlayerID);
-    if SHOW_ALL_ON_MINIMAP then FOW := 255;
     if FOW = 0 then begin
       MM[i,k].R:=0;
       MM[i,k].G:=0;
@@ -2078,7 +2077,7 @@ begin
   for i:=1 to fPlayers.PlayerCount do begin
     fPlayers.Player[i].GetUnitLocations(Loc);
     for k:=1 to Loc.Count do
-    if (fTerrain.CheckTileRevelation(Loc.List[k].X,Loc.List[k].Y,MyPlayer.PlayerID)=255)or(SHOW_ALL_ON_MINIMAP) then
+    if (fTerrain.CheckTileRevelation(Loc.List[k].X,Loc.List[k].Y,MyPlayer.PlayerID)=255) then
     begin
       MM[Loc.List[k].Y,Loc.List[k].X].R:=TeamColors[i] and $FF;
       MM[Loc.List[k].Y,Loc.List[k].X].G:=TeamColors[i] shr 8 and $FF;
@@ -2249,7 +2248,7 @@ begin
   fRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep);
 
   if ShowTerrainWires then fRender.RenderDebugWires(x1,x2,y1,y2);
-  if MakeShowUnitMove then fRender.RenderDebugUnitMoves(x1,x2,y1,y2);
+  if SHOW_UNIT_MOVEMENT then fRender.RenderDebugUnitMoves(x1,x2,y1,y2);
 
 end;
 

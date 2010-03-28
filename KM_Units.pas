@@ -481,7 +481,7 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  if MakeShowUnitRoutes then
+  if SHOW_UNIT_ROUTES then
     if fCurrentAction is TUnitActionWalkTo then
       fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
                                    TUnitActionWalkTo(fCurrentAction).NodePos,
@@ -669,7 +669,7 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  if MakeShowUnitRoutes then
+  if SHOW_UNIT_ROUTES then
     if fCurrentAction is TUnitActionWalkTo then
       fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFF00FF);
 
@@ -762,7 +762,7 @@ begin
   inherited;
   if not fVisible then exit;
 
-  if MakeShowUnitRoutes then
+  if SHOW_UNIT_ROUTES then
     if fCurrentAction is TUnitActionWalkTo then
       fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFFFFFF);
 

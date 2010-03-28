@@ -39,6 +39,10 @@ type TKMMainMenuInterface = class
       Button_SinglePlayerSingle,
       Button_SinglePlayerLoad:TKMButton;
       Button_SinglePlayerBack:TKMButton;
+    Panel_Campaign:TKMPanel;
+      Image_CampaignBG:TKMImage;
+      Campaign_Nodes:array[1..MAX_MAPS] of TKMImage;
+      Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
       Image_SingleBG:TKMImage;
       Panel_SingleList,Panel_SingleDesc:TKMPanel;
@@ -103,6 +107,7 @@ type TKMMainMenuInterface = class
   private
     procedure Create_MainMenu_Page;
     procedure Create_SinglePlayer_Page;
+    procedure Create_Campaign_Page;
     procedure Create_Single_Page;
     procedure Create_Load_Page;
     procedure Create_MapEditor_Page;
@@ -114,6 +119,8 @@ type TKMMainMenuInterface = class
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
+    procedure Campaign_Set(aCampaign:TCampaign);
+    //procedure Campaign_SelectMap(Sender: TObject);
     procedure SingleMap_PopulateList();
     procedure SingleMap_RefreshList();
     procedure SingleMap_ScrollChange(Sender: TObject);
@@ -122,8 +129,8 @@ type TKMMainMenuInterface = class
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList();
     procedure MapEditor_Start(Sender: TObject);
+    procedure MapEditor_Change(Sender: TObject);
     procedure Options_Change(Sender: TObject);
-    procedure MapEd_Change(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create(X,Y:word; aGameSettings:TGameSettings);
@@ -146,7 +153,7 @@ uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTy
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGameSettings);
-var i:integer;
+{var i:integer;}
 begin
 inherited Create;
 
@@ -166,6 +173,7 @@ inherited Create;
 
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
+    Create_Campaign_Page;
     Create_Single_Page;
     Create_Load_Page;
   Create_MapEditor_Page;
@@ -175,8 +183,8 @@ inherited Create;
   Create_Error_Page;
   Create_Results_Page;
 
-  //for i:=1 to length(FontFiles) do
-  //  L[i]:=MyControls.AddLabel(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);
+  {for i:=1 to length(FontFiles) do
+    L[i]:=MyControls.AddLabel(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);
   //}
 
   //Show version info on every page
@@ -185,7 +193,7 @@ inherited Create;
   if SHOW_1024_768_OVERLAY then MyControls.AddShape(nil, OffX, OffY, 1024, 768, $FF00FF00);
 
   //@Lewin: TextEdit example. To be deleted..
-  MyControls.AddTextEdit(nil, 32, 32, 200, 20, fnt_Grey);
+  MyControls.AddTextEdit(nil, 32, 32, 200, 20, fnt_Grey);//}
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
@@ -308,13 +316,32 @@ begin
 
       Button_SinglePlayerTutor.OnClick    := MainMenu_PlayTutorial;
       Button_SinglePlayerFight.OnClick    := MainMenu_PlayBattle;
+      Button_SinglePlayerTSK.OnClick      := SwitchMenuPage;
+      Button_SinglePlayerTPR.OnClick      := SwitchMenuPage;
       Button_SinglePlayerSingle.OnClick   := SwitchMenuPage;
       Button_SinglePlayerLoad.OnClick     := SwitchMenuPage;
-      Button_SinglePlayerTSK.Disable;
-      Button_SinglePlayerTPR.Disable;
 
     Button_SinglePlayerBack := MyControls.AddButton(Panel_SinglePlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_SinglePlayerBack.OnClick := SwitchMenuPage;
+end;
+
+
+procedure TKMMainMenuInterface.Create_Campaign_Page;
+var i:integer;
+begin
+  Panel_Campaign:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+    Image_CampaignBG:=MyControls.AddImage(Panel_Campaign,0,0,ScreenX,ScreenY,12,6);
+    Image_CampaignBG.Stretch;
+
+    for i:=1 to length(Campaign_Nodes) do begin
+      Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23,29,10,6);
+      Campaign_Nodes[i].Center; //I guess it's easier to position them this way
+      Campaign_Nodes[i].Hide; //Campaign_Set will show required ones
+      //TSK_Nodes[i].OnClick := Campaign_SelectMap;
+    end;
+
+    Button_CampaignBack := MyControls.AddButton(Panel_Campaign, 20, ScreenY-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_CampaignBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -423,15 +450,15 @@ begin
 
     //Should contain options to make a map from scratch, load map from file, generate random preset
 
-    Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 45, 100, 150, 300);
+    Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 245, 200, 150, 300);
       MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'Map size X:Y', fnt_Outline, kaLeft);
       MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 10 + MAPSIZE_COUNT*20);
       for i:=1 to MAPSIZE_COUNT do
       begin
         CheckBox_MapEd_SizeX[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 8, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
         CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 68, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
-        CheckBox_MapEd_SizeX[i].OnClick := MapEd_Change;
-        CheckBox_MapEd_SizeY[i].OnClick := MapEd_Change;
+        CheckBox_MapEd_SizeX[i].OnClick := MapEditor_Change;
+        CheckBox_MapEd_SizeY[i].OnClick := MapEditor_Change;
       end;
 
     Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 145, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
@@ -607,7 +634,8 @@ begin
     Panel_MainMenu.Show;
 
   {Return to SinglePlayerMenu}
-  if (Sender=Button_SingleBack)or
+  if (Sender=Button_CampaignBack)or
+     (Sender=Button_SingleBack)or
      (Sender=Button_LoadBack) then
     Panel_SinglePlayer.Show;
 
@@ -621,6 +649,18 @@ begin
   {Show SinglePlayer menu}
   if Sender=Button_MainMenuSinglePlayer then begin
     Panel_SinglePlayer.Show;
+  end;
+
+  {Show TSK campaign menu}
+  if Sender=Button_SinglePlayerTSK then begin
+    Campaign_Set(cmp_TSK);
+    Panel_Campaign.Show;
+  end;
+
+  {Show TSK campaign menu}
+  if Sender=Button_SinglePlayerTPR then begin
+    Campaign_Set(cmp_TPR);
+    Panel_Campaign.Show;
   end;
 
   {Show SingleMap menu}
@@ -638,7 +678,7 @@ begin
 
   {Show MapEditor menu}
   if Sender=Button_MainMenuMapEd then begin
-    MapEd_Change(nil);
+    MapEditor_Change(nil);
     Panel_MapEd.Show;
   end;
 
@@ -685,6 +725,25 @@ end;
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
   fGame.StartGame(ExeDir+'data\mission\mission99.dat', 'Battle Tutorial');
+end;
+
+
+procedure TKMMainMenuInterface.Campaign_Set(aCampaign:TCampaign);
+var i,Top:integer;
+begin
+
+  //todo: Ask fGame which maps are revealed
+
+  case aCampaign of
+    cmp_TSK: Top := TSK_MAPS;
+    cmp_TPR: Top := TPR_MAPS;
+    else Top := 32;
+  end;
+  for i:=1 to Top do begin //todo: set real locations here
+    Campaign_Nodes[i].Left := 50 + random(ScreenX-100);
+    Campaign_Nodes[i].Top := 50 + random(ScreenY-100);
+    Campaign_Nodes[i].Show;
+  end;
 end;
 
 
@@ -794,6 +853,24 @@ begin
 end;
 
 
+procedure TKMMainMenuInterface.MapEditor_Change(Sender: TObject);
+var i:integer;
+begin
+  //Find out new map dimensions
+  for i:=1 to MAPSIZE_COUNT do
+  begin
+    if Sender = CheckBox_MapEd_SizeX[i] then MapEdSizeX := MapSize[i];
+    if Sender = CheckBox_MapEd_SizeY[i] then MapEdSizeY := MapSize[i];
+  end;
+  //Put checkmarks
+  for i:=1 to MAPSIZE_COUNT do
+  begin
+    CheckBox_MapEd_SizeX[i].Checked := MapEdSizeX = MapSize[i];
+    CheckBox_MapEd_SizeY[i].Checked := MapEdSizeY = MapSize[i];
+  end;
+end;
+
+
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
 var i:integer;
 begin
@@ -854,25 +931,6 @@ begin
   Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGameSettings.IsFullScreen) or (OldResolution <> fGame.fGameSettings.GetResolutionID);
 
 end;
-
-
-procedure TKMMainMenuInterface.MapEd_Change(Sender: TObject);
-var i:integer;
-begin
-  //Find out new map dimensions
-  for i:=1 to MAPSIZE_COUNT do
-  begin
-    if Sender = CheckBox_MapEd_SizeX[i] then MapEdSizeX := MapSize[i];
-    if Sender = CheckBox_MapEd_SizeY[i] then MapEdSizeY := MapSize[i];
-  end;
-  //Put checkmarks
-  for i:=1 to MAPSIZE_COUNT do
-  begin
-    CheckBox_MapEd_SizeX[i].Checked := MapEdSizeX = MapSize[i];
-    CheckBox_MapEd_SizeY[i].Checked := MapEdSizeY = MapSize[i];
-  end;
-end;
-
 
 
 {Should update anything we want to be updated, obviously}

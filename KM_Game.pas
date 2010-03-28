@@ -175,6 +175,11 @@ begin
   //F9 is the default key in Fraps for video capture
   //others.. unknown
 
+  if not IsDown and ENABLE_DESIGN_CONTORLS and (Key = VK_F7) then
+    MODE_DESIGN_CONTORLS := not MODE_DESIGN_CONTORLS;
+  if not IsDown and ENABLE_DESIGN_CONTORLS and (Key = VK_F6) then
+    SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
+
   case GameState of
     gsNoGame:   if fMainMenuInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit; //Exit if handled
     gsPaused:   if Key=ord('P') then begin //Ignore all keys if game is on 'Pause'
@@ -211,6 +216,15 @@ begin
                   if Key=VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
                   if Key=VK_UP    then fViewport.ScrollKeyUp    := IsDown;
                   if Key=VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
+
+                  {Thats my debug example}
+                  if Key=ord('5') then fGameplayInterface.IssueMessage(msgText,'123',KMPoint(0,0));
+                  if Key=ord('6') then fGameplayInterface.IssueMessage(msgHouse,'123',KMPointRound(fViewport.GetCenter));
+                  if Key=ord('7') then fGameplayInterface.IssueMessage(msgUnit,'123',KMPoint(0,0));
+                  if Key=ord('8') then fGameplayInterface.IssueMessage(msgHorn,'123',KMPoint(0,0));
+                  if Key=ord('9') then fGameplayInterface.IssueMessage(msgQuill,'123',KMPoint(0,0));
+                  if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
+
                 end;
     gsEditor:   if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
   end;
@@ -221,13 +235,6 @@ begin
     FormControlsVisible := not FormControlsVisible;
   end;
 
-  {Thats my debug example}
-  if (Key=ord('5')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgText,'123',KMPoint(0,0));
-  if (Key=ord('6')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgHouse,'123',KMPointRound(fViewport.GetCenter));
-  if (Key=ord('7')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgUnit,'123',KMPoint(0,0));
-  if (Key=ord('8')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgHorn,'123',KMPoint(0,0));
-  if (Key=ord('9')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgQuill,'123',KMPoint(0,0));
-  if (Key=ord('0')) and (GameState = gsRunning) then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 end;
 
 

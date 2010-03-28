@@ -522,6 +522,8 @@ begin
   if ID<=0 then exit;
 
   if Index=61 then begin //Invisible wall
+    ShiftX := 0; //Required if DoImmediateRender = true
+    ShiftY := 0;
     glBindTexture(GL_TEXTURE_2D,0);
     glColor4f(1,0,0,0.33);
     RenderQuad(pX,pY);
@@ -714,7 +716,7 @@ if ID<=0 then exit;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
 
-  if not MakeShowUnitMove then exit;
+  if not SHOW_UNIT_MOVEMENT then exit;
   if InRange(Owner,1,MAX_PLAYERS) then
     glColor3ubv(@TeamColors[Owner])  //Render dot where unit is
   else glColor3ubv(@TeamColors[1]);   //Animals don't have team number (Owner=0) so make them team 1 colour
@@ -762,7 +764,7 @@ if ID<=0 then exit;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 -2.25;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
 
-  if not MakeShowUnitMove then exit;
+  if not SHOW_UNIT_MOVEMENT then exit;
   glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
   RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
 end;

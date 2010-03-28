@@ -1174,9 +1174,9 @@ begin
 
   if SHOW_SPRITE_COUNT then
   Label_Stat.Caption:=
-        inttostr(fPlayers.GetUnitCount)+' units'+#124+
+        inttostr(fPlayers.GetUnitCount)+' units on map'+#124+
         inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
-        '';
+        inttostr(CtrlPaintCount)+' controls rendered';
 end;
 
 
@@ -1562,6 +1562,7 @@ begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouse) then exit;
 
+  Amt := 0;
   if AButton = mbLeft then Amt := 1;
   if AButton = mbRight then Amt := 10;
 
