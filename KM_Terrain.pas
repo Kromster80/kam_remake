@@ -1537,14 +1537,13 @@ end;
 procedure TTerrain.UnitRem(LocFrom:TKMPoint);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  //todo: @Lewin: (self) Crashed here once from occupant of a house after destroying it...
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
 end;
 
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
-  //@Lewin: Still occasional Errors here
+  //@Lewin: Still occasional Errors here, sometimes during fights
   if not DO_UNIT_INTERACTION then exit;
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);

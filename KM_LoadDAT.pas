@@ -496,7 +496,7 @@ begin
                      end;
   ct_SendGroup:      begin
                        if LastTroop <> nil then
-                         LastTroop.PlaceOrder(wo_Walk,KMPointDir(ParamList[0],ParamList[1],ParamList[2]));
+                         LastTroop.PlaceOrder(wo_Walk,KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]));
                      end;
   ct_SetGroupFood:   begin
                        if LastTroop <> nil then

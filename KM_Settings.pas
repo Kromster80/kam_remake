@@ -25,7 +25,7 @@ type
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
-    fHitPointRestoreInFights:boolean;
+    fHitPointRestoreInFights, fUseSimpleHitpoints:boolean;
     constructor Create;
     destructor Destroy; override;
     procedure SaveSettings;
@@ -148,8 +148,9 @@ begin
   fMusicVolume   := f.ReadInteger('SFX','MusicVolume',10);
   fMusicOnOff    := f.ReadBool   ('SFX','MusicEnabled',true);
 
-  fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);   
+  fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);
   fHitPointRestoreInFights := f.ReadBool('Fights','HitPointRestoreInFights',true);
+  fUseSimpleHitpoints := f.ReadBool('Fights','UseSimpleHitpoints',false);
 
   FreeAndNil(f);
   fNeedsSave:=false;
@@ -176,8 +177,9 @@ begin
   f.WriteInteger('SFX','MusicVolume', fMusicVolume);
   f.WriteBool   ('SFX','MusicEnabled',fMusicOnOff);
 
-  f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace); 
+  f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
   f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
+  f.WriteBool   ('Fights','UseSimpleHitpoints',fUseSimpleHitpoints);
 
   FreeAndNil(f);
   fNeedsSave:=false;

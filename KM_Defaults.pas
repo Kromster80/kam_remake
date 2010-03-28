@@ -25,8 +25,8 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo FightSim r766';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r766';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Economy Demo FightSim r784';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r784';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE

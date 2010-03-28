@@ -9,6 +9,7 @@ type
 TUnitActionFight = class(TUnitAction)
   private
     fOpponent:TKMUnit; //Who we are fighting with
+    fOpponentHitPoints: byte;
   public
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
@@ -21,7 +22,7 @@ TUnitActionFight = class(TUnitAction)
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_SoundFX;
+uses KM_PlayersCollection, KM_Terrain, KM_SoundFX, KM_Game;
 
 
 { TUnitActionFight }
@@ -30,6 +31,7 @@ begin
   Inherited Create(aActionType);
   fActionName := uan_Fight;
   fOpponent := aOpponent.GetSelf; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
+  fOpponentHitPoints := UnitStat[byte(aOpponent.GetUnitType)].HitPoints; //Initialise to full hit points at start of fight
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
 
@@ -45,6 +47,7 @@ constructor TUnitActionFight.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fOpponent, 4);
+  LoadStream.Read(fOpponentHitPoints);
 end;
 
 
@@ -100,7 +103,6 @@ begin
 
   KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Always face the opponent
 
-  IsHit := false;
   //Only hit unit on step 5
   if Step = 5 then
   begin
@@ -110,8 +112,19 @@ begin
 
     IsHit := (Damage >= Random(101)); //0..100
 
-    if IsHit then
-      fOpponent.HitPointsDecrease;
+    //Testing two hitpoint systems: First hitpoints belong to unit, second hitpoints belong to fight.
+    if not fGame.fGameSettings.fUseSimpleHitpoints then
+      if IsHit then
+        fOpponent.HitPointsDecrease;
+
+    if fGame.fGameSettings.fUseSimpleHitpoints then
+    begin
+      if IsHit then
+        dec(fOpponentHitPoints);
+      if fOpponentHitPoints = 0 then fOpponent.KillUnit;
+    end;
+
+    if fOpponentHitPoints = 0 then fOpponent.KillUnit;
 
     MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
   end;
@@ -133,6 +146,7 @@ begin
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
+  SaveStream.Write(fOpponentHitPoints);
 end;
 
 
