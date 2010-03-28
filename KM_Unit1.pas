@@ -14,9 +14,6 @@ uses
   KM_Utils;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     MenuItem1: TMenuItem;
     N2: TMenuItem;
