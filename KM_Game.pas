@@ -23,12 +23,15 @@ type
     SelectedDirection: TKMDirection;
     GameplayTickCount:cardinal; //So that first tick will be #1
     ID_Tracker:cardinal;
+    ActiveCampaign:TCampaign; //Campaign we are playing
+    ActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
   public
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
     fGameName:string;
-    fGameSettings: TGameSettings;
+    fGlobalSettings: TGlobalSettings;
+    fCampaignSettings: TCampaignSettings;
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
@@ -44,7 +47,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 
-    procedure StartGame(MissionFile, aGameName:string; const aPlayerCount:integer=MAX_PLAYERS);
+    procedure StartGame(MissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; MapID:byte=1);
     procedure PauseGame(DoPause:boolean);
     procedure HoldGame(DoHold:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
@@ -54,6 +57,7 @@ type
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GetTickCount:cardinal read GameplayTickCount;
     property GameName:string read fGameName;
+    property GetCampaignMap:byte read ActiveCampaignMap;
     function GetNewID():cardinal;
     function Save(SlotID:shortint):string;
     function Load(SlotID:shortint; out LoadError:string):TLoadResult;
@@ -80,25 +84,26 @@ begin
   ScreenX := aScreenX;
   ScreenY := aScreenY;
 
-  fGameSettings := TGameSettings.Create;
+  fGlobalSettings := TGlobalSettings.Create;
   fLog.AppendLog('<== Render init follows ==>');
   fRender := TRender.Create(RenderHandle);
   fLog.AppendLog('<== TextLib init follows ==>');
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\', fGameSettings.GetLocale);
+  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(); //Required for button click sounds
   //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
   fMusicLib:= TMusicLib.Create(); //Needed for button click sounds and etc?
-  fGameSettings.UpdateSFXVolume;
+  fGlobalSettings.UpdateSFXVolume;
   fLog.AppendLog('<== ReadGFX init follows ==>');
   fResource:=TResource.Create;
-  fResource.LoadMenuResources(fGameSettings.GetLocale);
+  fResource.LoadMenuResources(fGlobalSettings.GetLocale);
   fLog.AppendLog('<== Main menu interface follows ==>');
-  fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY,fGameSettings);
+  fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
   fLog.AppendLog('<== Sound playback follows ==>');
 
-  if not NoMusic then fMusicLib.PlayMenuTrack(not fGameSettings.IsMusic);
+  if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic);
 
+  fCampaignSettings := TCampaignSettings.Create; //Init
   GameSpeed := 1;
   GameState := gsNoGame;
   FormControlsVisible:=true;
@@ -112,7 +117,7 @@ begin
   //Stop music imediently, so it doesn't keep playing and jerk while things closes
   fMusicLib.StopMusic;
 
-  FreeAndNil(fGameSettings);
+  FreeAndNil(fGlobalSettings);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fResource);
   FreeAndNil(fSoundLib);
@@ -127,9 +132,9 @@ procedure TKMGame.ToggleLocale();
 begin
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fTextLibrary);
-  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGameSettings.GetLocale);
-  fResource.LoadFonts(false, fGameSettings.GetLocale);
-  fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGameSettings);
+  fTextLibrary := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
+  fResource.LoadFonts(false, fGlobalSettings.GetLocale);
+  fMainMenuInterface := TKMMainMenuInterface.Create(ScreenX, ScreenY, fGlobalSettings);
   fMainMenuInterface.ShowScreen_Options;
 end;
 
@@ -148,7 +153,7 @@ begin
     //Should resize all Controls somehow...
     //Remember last page and all relevant menu settings
     FreeAndNil(fMainMenuInterface);
-    fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y, fGameSettings);
+    fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y, fGlobalSettings);
     GameSpeed:=1;
     fMainMenuInterface.SetScreenSize(X,Y);
   end;
@@ -163,7 +168,7 @@ end;
 
 procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
 begin
-  Form1.ToggleFullScreen(aToggle, fGameSettings.GetResolutionID, ReturnToOptions);
+  Form1.ToggleFullScreen(aToggle, fGlobalSettings.GetResolutionID, ReturnToOptions);
 end;
 
 
@@ -199,9 +204,9 @@ begin
                     Form1.TB_Angle_Change(Form1.TB_Angle);
                   end;
                   if Key = VK_F8 then begin
-                    GameSpeed := fGameSettings.GetSpeedup+1-GameSpeed; //1 or 11
-                    if not (GameSpeed in [1,fGameSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
-                    fGameplayInterface.ShowClock(GameSpeed = fGameSettings.GetSpeedup);
+                    GameSpeed := fGlobalSettings.GetSpeedup+1-GameSpeed; //1 or 11
+                    if not (GameSpeed in [1,fGlobalSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
+                    fGameplayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
                   end;
                   if Key = ord('P') then begin
                     PauseGame(true); //if running then pause
@@ -613,7 +618,7 @@ begin
 end;
 
 
-procedure TKMGame.StartGame(MissionFile, aGameName:string; const aPlayerCount:integer=MAX_PLAYERS);
+procedure TKMGame.StartGame(MissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; MapID:byte=1);
 var ResultMsg:string; fMissionParser: TMissionParser;
 begin
   RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
@@ -627,6 +632,9 @@ begin
     fRender.Render;
     fRender.LoadTileSet();
   end;
+
+  ActiveCampaign := aCamp;
+  ActiveCampaignMap := MapID;
 
   fMainMenuInterface.ShowScreen_Loading('initializing');
   fRender.Render;
@@ -654,7 +662,7 @@ begin
   else
   begin
     fTerrain.MakeNewMap(64, 64); //For debug we use blank mission
-    fPlayers := TKMAllPlayers.Create(aPlayerCount);
+    fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[1];
   end;
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
@@ -712,23 +720,28 @@ begin
   ID_Tracker := 0; //Reset ID tracker
 
   case Msg of
-    gr_Win,gr_Defeat: begin
-                        fLog.AppendLog('Gameplay ended',true);
-                        fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
-                      end;
-    gr_Cancel:        begin
-                        fLog.AppendLog('Gameplay canceled',true);
-                        fMainMenuInterface.ShowScreen_Results(Msg); //show the results so the user can see how they are going so far
-                      end;
-    gr_Error:         begin
-                        fLog.AppendLog('Gameplay error',true);
-                        fMainMenuInterface.ShowScreen_Error(TextMsg);
-                      end;
-    gr_Silent:        fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
-    gr_MapEdEnd:      begin
-                        fLog.AppendLog('MapEditor closed',true);
-                        fMainMenuInterface.ShowScreen_Main;
-                      end;
+    gr_Win    :  begin
+                   fLog.AppendLog('Gameplay ended - Win',true);
+                   fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
+                   fCampaignSettings.RevealMap(ActiveCampaign, ActiveCampaignMap+1);
+                 end;
+    gr_Defeat:   begin
+                   fLog.AppendLog('Gameplay ended - Defeat',true);
+                   fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
+                 end;
+    gr_Cancel:   begin
+                   fLog.AppendLog('Gameplay canceled',true);
+                   fMainMenuInterface.ShowScreen_Results(Msg); //show the results so the user can see how they are going so far
+                 end;
+    gr_Error:    begin
+                   fLog.AppendLog('Gameplay error',true);
+                   fMainMenuInterface.ShowScreen_Error(TextMsg);
+                 end;
+    gr_Silent:   fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
+    gr_MapEdEnd: begin
+                   fLog.AppendLog('MapEditor closed',true);
+                   fMainMenuInterface.ShowScreen_Main;
+                 end;
   end;
 end;
 
@@ -858,6 +871,7 @@ begin
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+      fCampaignSettings.Save(SaveStream);
 
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
 
@@ -870,7 +884,7 @@ begin
       SaveStream.SaveToFile(ExeDir+GetSaveName(SlotID)); //Some 70ms for TPR7 map
       SaveStream.Free;
       Result := GameName + ' ' + int2time(GetMissionTime);
-      if (fGameSettings.IsAutosave) and (SlotID = AUTOSAVE_SLOT) then
+      if (fGlobalSettings.IsAutosave) and (SlotID = AUTOSAVE_SLOT) then
         Result := fTextLibrary.GetTextString(203); //Autosave
     end;
   end;
@@ -910,7 +924,7 @@ begin
         LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
 
         //Create empty environment
-        StartGame('','',1);
+        StartGame('','');
 
         //Substitute tick counter and id tracker
         LoadStream.Read(fGameName); //Save game title
@@ -922,8 +936,9 @@ begin
         fPlayers.Load(LoadStream);
         fViewport.Load(LoadStream);
         fGamePlayInterface.Load(LoadStream);
-        fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
+        fCampaignSettings.Load(LoadStream);
 
+        fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
         Result := lrSuccess; //Loading has now completed successfully :)
         Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
@@ -962,7 +977,7 @@ begin
                   fMainMenuInterface.UpdateState;
                   if GlobalTickCount mod 10 = 0 then //Once a sec
                   if fMusicLib.IsMusicEnded then
-                    fMusicLib.PlayMenuTrack(not fGameSettings.IsMusic); //Menu tune
+                    fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic); //Menu tune
                 end;
     gsRunning:  begin
                   for i:=1 to GameSpeed do
@@ -973,7 +988,7 @@ begin
                     if GameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
 
                     if GameplayTickCount mod 600 = 0 then //Each 1min of gameplay time
-                      if fGameSettings.IsAutosave then
+                      if fGlobalSettings.IsAutosave then
                         Save(AUTOSAVE_SLOT); //Autosave slot
                   end;
 

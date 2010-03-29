@@ -112,7 +112,7 @@ const //Here we store options that are hidden somewhere in code
   RANGE_FISHERMAN   = 12;
 
 type
-  TCampaign = (cmp_TSK, cmp_TPR, cmp_Custom);
+  TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
 
 const
   //Maps count in Campaigns
@@ -122,8 +122,8 @@ const
 
   //X/Y locations of battlefields on campaign map in menu
   TSK_Campaign_Maps: array [1..TSK_MAPS,1..2] of word = (
-  (0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),
-  (0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0));
+  (170,650),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),
+  (0,0),(0,0),(0,0),(0,0),(580,290),(820,180),(695,150),(590, 45),(720, 80),(820, 30));
   TPR_Campaign_Maps: array [1..TPR_MAPS,1..2] of word = (
   (0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),
   (0,0),(0,0),(0,0),(0,0));

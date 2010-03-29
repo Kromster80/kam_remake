@@ -113,11 +113,11 @@ begin
     IsHit := (Damage >= Random(101)); //0..100
 
     //Testing two hitpoint systems: First hitpoints belong to unit, second hitpoints belong to fight.
-    if not fGame.fGameSettings.fUseSimpleHitpoints then
+    if not fGame.fGlobalSettings.fUseSimpleHitpoints then
       if IsHit then
         fOpponent.HitPointsDecrease;
 
-    if fGame.fGameSettings.fUseSimpleHitpoints then
+    if fGame.fGlobalSettings.fUseSimpleHitpoints then
     begin
       if IsHit then
         dec(fOpponentHitPoints);

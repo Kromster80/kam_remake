@@ -164,7 +164,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-  TempSettings:TGameSettings;
+  TempSettings:TGlobalSettings;
   s:string;
 begin
   if Sender<>nil then exit;
@@ -183,7 +183,7 @@ begin
 
   Panel5.Color := clBlack;
 
-  TempSettings:=TGameSettings.Create; //Read settings (fullscreen property and resolutions)
+  TempSettings:=TGlobalSettings.Create; //Read settings (fullscreen property and resolutions)
                                        //Don't need to free it here, it's FreeAndNil'ed at fGame re-init
   ToggleFullScreen(TempSettings.IsFullScreen, TempSettings.GetResolutionID, false); //Now we can decide whether we should make it full screen or not
 
@@ -209,7 +209,7 @@ begin
          'Please update your graphic drivers to get better performance';
     Application.MessageBox(@(s)[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
   end;
-  Timer100ms.Interval := fGame.fGameSettings.GetPace; //FormLoading gets hidden OnTimer event
+  Timer100ms.Interval := fGame.fGlobalSettings.GetPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
 
@@ -366,7 +366,7 @@ procedure TForm1.Export_TextClick(Sender: TObject);      begin fTextLibrary.Expo
 procedure TForm1.Export_Fonts1Click(Sender: TObject);
 begin
   fLog.AssertToLog(fResource<>nil,'Can''t export Fonts cos they aren''t loaded yet');
-  fResource.LoadFonts(true, fGame.fGameSettings.GetLocale);
+  fResource.LoadFonts(true, fGame.fGlobalSettings.GetLocale);
 end;
 
 
@@ -606,7 +606,7 @@ procedure TForm1.Button_1Click(Sender: TObject);
 var H:TKMHouse; i:integer;
 begin
   fGame.StopGame(gr_Silent);
-  fGame.StartGame('', '1',1);
+  fGame.StartGame('', '1');
   MyPlayer := fPlayers.Player[1];
 
   MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
@@ -803,7 +803,7 @@ procedure TForm1.ApplyCursorRestriction;
 var
   Rect: TRect;
 begin
-  if (fGame <> nil) and (fGame.fGameSettings <> nil) and fGame.fGameSettings.IsFullScreen then
+  if (fGame <> nil) and (fGame.fGlobalSettings <> nil) and fGame.fGlobalSettings.IsFullScreen then
   begin
     Rect := BoundsRect;
     ClipCursor(@Rect); //Restrict the cursor movement to inside our form

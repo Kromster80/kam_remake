@@ -1324,9 +1324,9 @@ end;
 procedure TKMUnit.UpdateHitPoints;
 begin
   //Use fHitPointCounter as a counter to restore hit points every X ticks
-  if (GetUnitAction is TUnitActionFight) and not fGame.fGameSettings.fHitPointRestoreInFights then exit;
-  if fGame.fGameSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
-  if fHitPointCounter mod fGame.fGameSettings.fHitPointRestorePace = 0 then HitPointsDecrease(-1); //Add 1 hit point
+  if (GetUnitAction is TUnitActionFight) and not fGame.fGlobalSettings.fHitPointRestoreInFights then exit;
+  if fGame.fGlobalSettings.fHitPointRestorePace = 0 then exit; //0 pace means don't restore
+  if fHitPointCounter mod fGame.fGlobalSettings.fHitPointRestorePace = 0 then HitPointsDecrease(-1); //Add 1 hit point
   inc(fHitPointCounter);
 end;
 

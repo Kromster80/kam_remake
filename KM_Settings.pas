@@ -4,7 +4,7 @@ uses Classes, SysUtils, KromUtils, Math, KM_Defaults, inifiles, KM_CommonTypes;
 
 {Global game settings}
 type
-  TGameSettings = class
+  TGlobalSettings = class
   private
     fBrightness:byte;
     fAutosave:boolean;
@@ -57,6 +57,23 @@ type
     property IsFullScreen:boolean read fFullScreen write SetIsFullScreen default true;
   end;
 
+
+{These are campaign settings }
+type
+  TCampaignSettings = class
+  private
+    fRevealedMapsTSK:byte; //When player wins campaign mission this should be increased
+    fRevealedMapsTPR:byte;
+  public
+    constructor Create;
+    procedure RevealMap(aCamp:TCampaign; aMap:byte);
+    property GetMapsTSK:byte read fRevealedMapsTSK;
+    property GetMapsTPR:byte read fRevealedMapsTPR;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
+  end;
+
+
 {These are mission specific settings and stats for each player}
 type
   TMissionSettings = class
@@ -64,7 +81,7 @@ type
     HouseTotalCount,HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of integer;
     UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of integer;
     ResourceRatios:array[1..4,1..4]of byte;
-    MissionTimeInSec:cardinal;
+    fMissionTimeInSec:cardinal;
   public
     AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
     BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed or assigned from script
@@ -94,7 +111,7 @@ type
     function GetUnitsTrained:cardinal;
     function GetWeaponsProduced:cardinal;
     function GetSoldiersTrained:cardinal;
-    property GetMissionTime:cardinal read MissionTimeInSec;
+    property GetMissionTime:cardinal read fMissionTimeInSec;
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -105,7 +122,7 @@ implementation
 uses KM_SoundFX;
 
 
-constructor TGameSettings.Create;
+constructor TGlobalSettings.Create;
 begin
   Inherited;
   SlidersMin:=0;
@@ -115,18 +132,18 @@ begin
   fNeedsSave:=false;
 end;
 
-destructor TGameSettings.Destroy;
+destructor TGlobalSettings.Destroy;
 begin
   SaveSettingsToFile(ExeDir+SETTINGS_FILE);
   Inherited;
 end;
 
-procedure TGameSettings.SaveSettings;
+procedure TGlobalSettings.SaveSettings;
 begin
   SaveSettingsToFile(ExeDir+SETTINGS_FILE);
 end;
 
-function TGameSettings.LoadSettingsFromFile(filename:string):boolean;
+function TGlobalSettings.LoadSettingsFromFile(filename:string):boolean;
 var f:TIniFile;
 begin
   Result := FileExists(filename);
@@ -157,7 +174,7 @@ begin
 end;
 
 
-procedure TGameSettings.SaveSettingsToFile(filename:string);
+procedure TGlobalSettings.SaveSettingsToFile(filename:string);
 var f:TIniFile;
 begin      
   f := TIniFile.Create(filename);
@@ -185,51 +202,51 @@ begin
   fNeedsSave:=false;
 end;
 
-procedure TGameSettings.SetBrightness(aValue:integer);
+procedure TGlobalSettings.SetBrightness(aValue:integer);
 begin
   fBrightness := EnsureRange(aValue,0,20);
   fNeedsSave  := true;
 end;
 
-procedure TGameSettings.SetIsAutosave(val:boolean);
+procedure TGlobalSettings.SetIsAutosave(val:boolean);
 begin
   fAutosave:=val;
   fNeedsSave:=true;
 end;
 
-procedure TGameSettings.SetIsFastScroll(val:boolean);
+procedure TGlobalSettings.SetIsFastScroll(val:boolean);
 begin
   fFastScroll:=val;
   fNeedsSave:=true;
 end;
 
-procedure TGameSettings.SetIsFullScreen(val:boolean);
+procedure TGlobalSettings.SetIsFullScreen(val:boolean);
 begin
   fFullScreen:=val;
   fNeedsSave:=true;
 end;
 
-procedure TGameSettings.SetMouseSpeed(Value:integer);
+procedure TGlobalSettings.SetMouseSpeed(Value:integer);
 begin
   fMouseSpeed:=EnsureRange(Value,SlidersMin,SlidersMax);
   fNeedsSave:=true;
 end;
 
-procedure TGameSettings.SetSoundFXVolume(Value:integer);
+procedure TGlobalSettings.SetSoundFXVolume(Value:integer);
 begin
   fSoundFXVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
   UpdateSFXVolume();
   fNeedsSave:=true;
 end;
 
-procedure TGameSettings.SetMusicVolume(Value:integer);
+procedure TGlobalSettings.SetMusicVolume(Value:integer);
 begin
   fMusicVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
   UpdateSFXVolume();
   fNeedsSave:=true;
 end;
 
-procedure TGameSettings.SetMusicOnOff(Value:boolean);
+procedure TGlobalSettings.SetMusicOnOff(Value:boolean);
 begin
   if fMusicOnOff <> Value then
   begin
@@ -241,11 +258,45 @@ begin
 end;
 
 
-procedure TGameSettings.UpdateSFXVolume();
+procedure TGlobalSettings.UpdateSFXVolume();
 begin
   fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
   fMusicLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
   fNeedsSave:=true;
+end;
+
+
+{ TCampaignSettings }
+constructor TCampaignSettings.Create;
+begin
+  Inherited;
+  fRevealedMapsTSK := 1; //Reveal first map
+  fRevealedMapsTPR := 1;
+end;
+
+
+procedure TCampaignSettings.RevealMap(aCamp:TCampaign; aMap:byte);
+begin
+  case aCamp of
+    cmp_Nil: ;
+    cmp_TSK: fRevealedMapsTSK := aMap;
+    cmp_TPR: fRevealedMapsTPR := aMap;
+    cmp_Custom: ; //Yet unknown
+  end;
+end;
+
+
+procedure TCampaignSettings.Save(SaveStream:TKMemoryStream);
+begin
+  SaveStream.Write(fRevealedMapsTSK);
+  SaveStream.Write(fRevealedMapsTPR);
+end;
+
+
+procedure TCampaignSettings.Load(LoadStream:TKMemoryStream);
+begin
+  LoadStream.Read(fRevealedMapsTSK);
+  LoadStream.Read(fRevealedMapsTPR);
 end;
 
 
@@ -259,7 +310,7 @@ begin
   for i:=1 to 4 do
     for k:=1 to 4 do
       ResourceRatios[i,k] := DistributionDefaults[i,k];
-  MissionTimeInSec:=0; //Init mission timer
+  fMissionTimeInSec:=0; //Init mission timer
 end;
 
 
@@ -291,7 +342,7 @@ end;
 
 procedure TMissionSettings.IncreaseMissionTime(aSeconds:cardinal);
 begin
-  inc(MissionTimeInSec,aSeconds);
+  inc(fMissionTimeInSec,aSeconds);
 end;
 
 
@@ -454,7 +505,7 @@ begin
   for i:=1 to 40 do SaveStream.Write(UnitTrainedCount[i]);
   for i:=1 to 40 do SaveStream.Write(UnitLostCount[i]);
   for i:=1 to 4 do for k:=1 to 4 do SaveStream.Write(ResourceRatios[i,k]);
-  SaveStream.Write(MissionTimeInSec, 4);
+  SaveStream.Write(fMissionTimeInSec);
   for i:=1 to HOUSE_COUNT do SaveStream.Write(AllowToBuild[i]);
   for i:=1 to HOUSE_COUNT do SaveStream.Write(BuildReqDone[i]);
 end;
@@ -470,7 +521,7 @@ begin
   for i:=1 to 40 do LoadStream.Read(UnitTrainedCount[i]);
   for i:=1 to 40 do LoadStream.Read(UnitLostCount[i]);
   for i:=1 to 4 do for k:=1 to 4 do LoadStream.Read(ResourceRatios[i,k]);
-  LoadStream.Read(MissionTimeInSec, 4);
+  LoadStream.Read(fMissionTimeInSec);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(AllowToBuild[i]);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(BuildReqDone[i]);
 end;

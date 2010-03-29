@@ -124,7 +124,7 @@ begin
   //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
   //    9 8 12
 
-  ScrollAdv := (SCROLLSPEED + byte(fGame.fGameSettings.IsFastScroll)*3)*aFrameTime/100; //1 vs 4 tiles per second
+  ScrollAdv := (SCROLLSPEED + byte(fGame.fGlobalSettings.IsFastScroll)*3)*aFrameTime/100; //1 vs 4 tiles per second
 
   //Left, Top, Right, Bottom
   //Keys

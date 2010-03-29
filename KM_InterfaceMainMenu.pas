@@ -111,7 +111,7 @@ type TKMMainMenuInterface = class
     procedure Create_Single_Page;
     procedure Create_Load_Page;
     procedure Create_MapEditor_Page;
-    procedure Create_Options_Page(aGameSettings:TGameSettings);
+    procedure Create_Options_Page(aGameSettings:TGlobalSettings);
     procedure Create_Credits_Page;
     procedure Create_Loading_Page;
     procedure Create_Error_Page;
@@ -133,7 +133,7 @@ type TKMMainMenuInterface = class
     procedure Options_Change(Sender: TObject);
   public
     MyControls: TKMControlsCollection;
-    constructor Create(X,Y:word; aGameSettings:TGameSettings);
+    constructor Create(X,Y:word; aGameSettings:TGlobalSettings);
     destructor Destroy; override;
     procedure SetScreenSize(X,Y:word);
     procedure ShowScreen_Loading(Text:string);
@@ -152,7 +152,7 @@ implementation
 uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTypes, Forms, KM_Utils;
 
 
-constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGameSettings);
+constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
 {var i:integer;}
 begin
 inherited Create;
@@ -336,7 +336,6 @@ begin
     for i:=1 to length(Campaign_Nodes) do begin
       Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23,29,10,6);
       Campaign_Nodes[i].Center; //I guess it's easier to position them this way
-      Campaign_Nodes[i].Hide; //Campaign_Set will show required ones
       //TSK_Nodes[i].OnClick := Campaign_SelectMap;
     end;
 
@@ -468,7 +467,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGameSettings);
+procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings);
 var i:integer;
 begin
   Panel_Options:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
@@ -641,8 +640,8 @@ begin
 
   {Return to MainMenu and restore resolution changes}
   if Sender=Button_Options_Back then begin
-    fGame.fGameSettings.IsFullScreen := OldFullScreen;
-    fGame.fGameSettings.SetResolutionID := OldResolution;
+    fGame.fGlobalSettings.IsFullScreen := OldFullScreen;
+    fGame.fGlobalSettings.SetResolutionID := OldResolution;
     Panel_MainMenu.Show;
   end;
 
@@ -684,8 +683,8 @@ begin
 
   {Show Options menu}
   if Sender=Button_MainMenuOptions then begin
-    OldFullScreen := fGame.fGameSettings.IsFullScreen;
-    OldResolution := fGame.fGameSettings.GetResolutionID;
+    OldFullScreen := fGame.fGlobalSettings.IsFullScreen;
+    OldResolution := fGame.fGlobalSettings.GetResolutionID;
     Options_Change(nil);
     Panel_Options.Show;
   end;
@@ -711,8 +710,8 @@ begin
 
   { Save settings when leaving options, if needed }
   if Sender=Button_Options_Back then
-    if fGame.fGameSettings.GetNeedsSave then
-      fGame.fGameSettings.SaveSettings;
+    if fGame.fGlobalSettings.GetNeedsSave then
+      fGame.fGlobalSettings.SaveSettings;
 end;
 
 
@@ -729,20 +728,32 @@ end;
 
 
 procedure TKMMainMenuInterface.Campaign_Set(aCampaign:TCampaign);
-var i,Top:integer;
+var i,Top,Revealed:integer;
 begin
 
-  //todo: Ask fGame which maps are revealed
-
+  //Ask fGame which maps are revealed of total amount
   case aCampaign of
-    cmp_TSK: Top := TSK_MAPS;
-    cmp_TPR: Top := TPR_MAPS;
-    else Top := 32;
+    cmp_TSK: begin
+               Top := TSK_MAPS;
+               Revealed := 2;//fGame.fCampaignSettings.GetMapsTSK;
+             end;
+    cmp_TPR: begin
+               Top := TPR_MAPS;
+               Revealed := fGame.fCampaignSettings.GetMapsTPR;
+             end;
+    else     begin
+               Top := 1;
+               Revealed := 1;
+             end;
   end;
+
   for i:=1 to Top do begin //todo: set real locations here
-    Campaign_Nodes[i].Left := 50 + random(ScreenX-100);
-    Campaign_Nodes[i].Top := 50 + random(ScreenY-100);
-    Campaign_Nodes[i].Show;
+    Campaign_Nodes[i].Left := TSK_Campaign_Maps[i,1];
+    Campaign_Nodes[i].Top := TSK_Campaign_Maps[i,2];
+    if i<=Revealed then
+      Campaign_Nodes[i].TexID := 11
+    else
+     Campaign_Nodes[i].TexID := 10;
   end;
 end;
 
@@ -838,7 +849,7 @@ begin
         Button_Load[i].Caption := SaveTitles.Strings[i-1]
       else Button_Load[i].Caption := fTextLibrary.GetTextString(202);
 
-    if fGame.fGameSettings.IsAutosave then
+    if fGame.fGlobalSettings.IsAutosave then
       Button_Load[AUTOSAVE_SLOT].Caption := fTextLibrary.GetTextString(203);
   finally
     FreeAndNil(SaveTitles);
@@ -874,27 +885,27 @@ end;
 procedure TKMMainMenuInterface.Options_Change(Sender: TObject);
 var i:integer;
 begin
-  if Sender = CheckBox_Options_Autosave then fGame.fGameSettings.IsAutosave := not CheckBox_Options_Autosave.Checked;
-  CheckBox_Options_Autosave.Checked := fGame.fGameSettings.IsAutosave;
+  if Sender = CheckBox_Options_Autosave then fGame.fGlobalSettings.IsAutosave := not CheckBox_Options_Autosave.Checked;
+  CheckBox_Options_Autosave.Checked := fGame.fGlobalSettings.IsAutosave;
 
-  if Sender = Ratio_Options_Brightness then fGame.fGameSettings.SetBrightness(Ratio_Options_Brightness.Position);
-  if Sender = Ratio_Options_Mouse then fGame.fGameSettings.SetMouseSpeed(Ratio_Options_Mouse.Position);
-  if Sender = Ratio_Options_SFX   then fGame.fGameSettings.SetSoundFXVolume(Ratio_Options_SFX.Position);
-  if Sender = Ratio_Options_Music then fGame.fGameSettings.SetMusicVolume(Ratio_Options_Music.Position);
-  if Sender = Button_Options_MusicOn then fGame.fGameSettings.IsMusic := not fGame.fGameSettings.IsMusic;
+  if Sender = Ratio_Options_Brightness then fGame.fGlobalSettings.SetBrightness(Ratio_Options_Brightness.Position);
+  if Sender = Ratio_Options_Mouse then fGame.fGlobalSettings.SetMouseSpeed(Ratio_Options_Mouse.Position);
+  if Sender = Ratio_Options_SFX   then fGame.fGlobalSettings.SetSoundFXVolume(Ratio_Options_SFX.Position);
+  if Sender = Ratio_Options_Music then fGame.fGlobalSettings.SetMusicVolume(Ratio_Options_Music.Position);
+  if Sender = Button_Options_MusicOn then fGame.fGlobalSettings.IsMusic := not fGame.fGlobalSettings.IsMusic;
 
   //This is called when the options page is shown, so update all the values
-  CheckBox_Options_Autosave.Checked := fGame.fGameSettings.IsAutosave;
-  Ratio_Options_Brightness.Position := fGame.fGameSettings.GetBrightness;
-  Ratio_Options_Mouse.Position      := fGame.fGameSettings.GetMouseSpeed;
-  Ratio_Options_SFX.Position        := fGame.fGameSettings.GetSoundFXVolume;
-  Ratio_Options_Music.Position      := fGame.fGameSettings.GetMusicVolume;
-  if fGame.fGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
+  CheckBox_Options_Autosave.Checked := fGame.fGlobalSettings.IsAutosave;
+  Ratio_Options_Brightness.Position := fGame.fGlobalSettings.GetBrightness;
+  Ratio_Options_Mouse.Position      := fGame.fGlobalSettings.GetMouseSpeed;
+  Ratio_Options_SFX.Position        := fGame.fGlobalSettings.GetSoundFXVolume;
+  Ratio_Options_Music.Position      := fGame.fGlobalSettings.GetMusicVolume;
+  if fGame.fGlobalSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                                  else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
   for i:=1 to LocalesCount do
     if Sender = CheckBox_Options_Lang[i] then begin
-      fGame.fGameSettings.SetLocale := Locales[i,1];
+      fGame.fGlobalSettings.SetLocale := Locales[i,1];
       ShowScreen_Loading('Loading new locale');
       fRender.Render; //Force to repaint loading screen
       fGame.ToggleLocale;
@@ -902,33 +913,33 @@ begin
     end;
 
   for i:=1 to LocalesCount do
-    CheckBox_Options_Lang[i].Checked := LowerCase(fGame.fGameSettings.GetLocale) = LowerCase(Locales[i,1]);
+    CheckBox_Options_Lang[i].Checked := LowerCase(fGame.fGlobalSettings.GetLocale) = LowerCase(Locales[i,1]);
 
   //@Krom: Yes, I think it should be a proper control in a KaM style. Just text [x] doesn't look great.
   //       Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
-    OldFullScreen := fGame.fGameSettings.IsFullScreen; //memorize just in case (it will be niled on re-init anyway)
-    OldResolution := fGame.fGameSettings.GetResolutionID;
-    fGame.ToggleFullScreen(fGame.fGameSettings.IsFullScreen,true);
+    OldFullScreen := fGame.fGlobalSettings.IsFullScreen; //memorize just in case (it will be niled on re-init anyway)
+    OldResolution := fGame.fGlobalSettings.GetResolutionID;
+    fGame.ToggleFullScreen(fGame.fGlobalSettings.IsFullScreen,true);
     exit;
   end;
 
   if Sender = CheckBox_Options_FullScreen then
-    fGame.fGameSettings.IsFullScreen := not fGame.fGameSettings.IsFullScreen;
+    fGame.fGlobalSettings.IsFullScreen := not fGame.fGlobalSettings.IsFullScreen;
 
   for i:=1 to RESOLUTION_COUNT do
     if Sender = CheckBox_Options_Resolution[i] then
-      fGame.fGameSettings.SetResolutionID := i;
+      fGame.fGlobalSettings.SetResolutionID := i;
 
-  CheckBox_Options_FullScreen.Checked := fGame.fGameSettings.IsFullScreen;
+  CheckBox_Options_FullScreen.Checked := fGame.fGlobalSettings.IsFullScreen;
   for i:=1 to RESOLUTION_COUNT do begin
-    CheckBox_Options_Resolution[i].Checked := (i = fGame.fGameSettings.GetResolutionID);
-    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.fGameSettings.IsFullScreen;
+    CheckBox_Options_Resolution[i].Checked := (i = fGame.fGlobalSettings.GetResolutionID);
+    CheckBox_Options_Resolution[i].Enabled := (SupportedRefreshRates[i] > 0) AND fGame.fGlobalSettings.IsFullScreen;
   end;
 
   //Make button enabled only if new resolution/mode differs from old
-  Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGameSettings.IsFullScreen) or (OldResolution <> fGame.fGameSettings.GetResolutionID);
+  Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGlobalSettings.IsFullScreen) or (OldResolution <> fGame.fGlobalSettings.GetResolutionID);
 
 end;
 
