@@ -30,10 +30,10 @@ constructor TUnitActionStay.Create(aTimeToStay:integer; aActionType:TUnitActionT
 begin
   Inherited Create(aActionType);
   fActionName := uan_Stay;
-  StayStill  := aStayStill;
-  TimeToStay := aTimeToStay;
-  StillFrame := aStillFrame;
-  Locked     := aLocked;
+  StayStill   := aStayStill;
+  TimeToStay  := aTimeToStay;
+  StillFrame  := aStillFrame;
+  Locked      := aLocked;
 end;
 
 

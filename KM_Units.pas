@@ -269,7 +269,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Render, KM_DeliverQueue, KM_LoadLib, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game,
+uses KM_Unit1, KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_ResourceGFX,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
 KM_Units_Warrior, KM_UnitTask_Build, KM_UnitTaskDelivery, KM_UnitTaskMining;
@@ -584,6 +584,7 @@ end;
 function TKMUnitSerf.TakeResource(Res:TResourceType):boolean;
 begin
   Result:=true;
+  Assert(Carry = Res, 'Taking wrong resource from Serf');
   if Carry=rt_None then
     Result:=false
   else
@@ -1254,6 +1255,7 @@ procedure TKMUnit.RemoveUntrainedFromSchool();
 begin
   CloseUnit; //Provide this procedure as a pointer to the private procedure CloseUnit so that CloseUnit is not run by mistake
 end;
+
 
 function TKMUnit.CanGoEat:boolean;
 begin
