@@ -143,7 +143,7 @@ type TKMapEdInterface = class
 
 
 implementation
-uses KM_Unit1, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes;
+uses KM_Unit1, KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes;
 
 
 {Switch between pages}

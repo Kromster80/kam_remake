@@ -88,7 +88,7 @@ type
             
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut, KM_UnitActionStay, Dialogs, Controls;
+uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut, KM_UnitActionStay, Dialogs, Controls, KM_Units_Warrior;
 
 
 { TUnitActionWalkTo }

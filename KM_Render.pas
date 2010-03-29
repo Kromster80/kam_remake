@@ -122,7 +122,7 @@ end;
 
 // Load the Textures
 procedure TRender.LoadTileSet();
-var i:integer;
+{$IFDEF VER140} var i:integer; {$ENDIF}
 begin
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);
   {$IFDEF VER140} //Lazarus can't handle zlib packed

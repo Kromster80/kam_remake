@@ -29,7 +29,7 @@ type
   end;
 
 implementation
-uses KM_Houses, KM_Units, KM_Game, KM_PlayersCollection;
+uses KM_Houses, KM_Units, KM_Units_Warrior, KM_Game, KM_PlayersCollection;
 
 constructor TKMPlayerAI.Create(aAssets:TKMPlayerAssets);
 begin

@@ -68,7 +68,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Houses, KM_CommonTypes, KM_Player;
+  KM_Unit1, KM_Houses, KM_CommonTypes, KM_Player, KM_Units_Warrior;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }

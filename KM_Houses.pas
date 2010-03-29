@@ -230,7 +230,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game, KM_LoadLib, KM_UnitActionStay, KM_Player;
+uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_SoundFX, KM_Viewport, KM_Game, KM_LoadLib, KM_UnitActionStay, KM_Player;
 
 
 { TKMHouse }
