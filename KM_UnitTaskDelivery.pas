@@ -67,9 +67,9 @@ end;
 procedure TTaskDeliver.SyncLoad();
 begin
   Inherited;
-  fFrom    := fPlayers.GetHouseByID(integer(fFrom));
-  fToHouse := fPlayers.GetHouseByID(integer(fToHouse));
-  fToUnit  := fPlayers.GetUnitByID(integer(fToUnit));
+  fFrom    := fPlayers.GetHouseByID(cardinal(fFrom));
+  fToHouse := fPlayers.GetHouseByID(cardinal(fToHouse));
+  fToUnit  := fPlayers.GetUnitByID(cardinal(fToUnit));
 end;
 
 
@@ -81,6 +81,7 @@ begin
   Inherited Destroy;
 end;
 
+
 procedure TTaskDeliver.Abandon();
 begin
   if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
@@ -88,16 +89,16 @@ begin
   Inherited;
 end;
 
+
 function TTaskDeliver.WalkShouldAbandon:boolean;
 begin
   //Note: Phase is -1 because it will have been increased at the end of last Execute
   Result := false;
-  if (Phase-1 = 0) then
-    Result := fFrom.IsDestroyed; //We are walking to fFromHouse. Check if it's destroyed
-  if (Phase-1 = 5) and (DeliverKind = dk_House) then
-    Result := fToHouse.IsDestroyed; //We are walking to fToHouse. Check if it's destroyed
+  if (Phase-1 = 0) then Result := fFrom.IsDestroyed; //We are walking to fFromHouse. Check if it's destroyed
+  if (Phase-1 = 5) and (DeliverKind = dk_House) then Result := fToHouse.IsDestroyed; //We are walking to fToHouse. Check if it's destroyed
   //If we are delivering to a unit we don't care because if it dies action will abandon anyway (units are tracked by walk action)
 end;
+
 
 procedure TTaskDeliver.Execute(out TaskDone:boolean);
 var NewDelivery: TUnitTask;
@@ -280,10 +281,10 @@ case fPhase of
 else TaskDone:=true;
 end;
 
-if TaskDone then exit;
-inc(fPhase);
-if fUnit.GetUnitAction=nil then
-  fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');
+  if TaskDone then exit;
+  inc(fPhase);
+  if fUnit.GetUnitAction=nil then
+    fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');
 end;
 
 

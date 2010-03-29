@@ -52,20 +52,18 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +#6#4'Stop'#7'OnClick'#7#16'Button_StopClick'#8'TabOrder'#2#7#0#0#9'TTrackBar'
   +#8'TB_Angle'#4'Left'#2#2#6'Height'#2#17#3'Top'#2' '#5'Width'#2'_'#3'Max'#2'Z'
   +#8'OnChange'#7#15'TB_Angle_Change'#8'PageSize'#2#1#8'Position'#2#0#9'TickMar'
-  +'ks'#7#6'tmBoth'#9'TickStyle'#7#6'tsNone'#8'TabOrder'#2#8#0#0#7'TButton'#7'B'
-  +'utton1'#4'Left'#3#240#0#3'Top'#2'('#5'Width'#2'K'#6'Height'#2#25#7'Caption'
-  +#6#7'Button1'#8'TabOrder'#2#9#7'OnClick'#7#12'Button1Click'#0#0#0#11'TOpenDi'
-  +'alog'#11'OpenDialog1'#10'InitialDir'#6#1'.'#7'Options'#11#14'ofHideReadOnly'
-  +#15'ofFileMustExist'#14'ofEnableSizing'#0#4'Left'#2'0'#3'Top'#3#192#0#0#0#9
-  +'TMainMenu'#9'MainMenu1'#4'Left'#2#16#3'Top'#3#192#0#0#9'TMenuItem'#5'File1'
+  +'ks'#7#6'tmBoth'#9'TickStyle'#7#6'tsNone'#8'TabOrder'#2#8#0#0#0#11'TOpenDial'
+  +'og'#11'OpenDialog1'#10'InitialDir'#6#1'.'#7'Options'#11#14'ofHideReadOnly'
+  +#15'ofFileMustExist'#14'ofEnableSizing'#0#4'left'#2'0'#3'top'#3#192#0#0#0#9
+  +'TMainMenu'#9'MainMenu1'#4'left'#2#16#3'top'#3#192#0#0#9'TMenuItem'#5'File1'
   +#7'Caption'#6#4'File'#0#9'TMenuItem'#15'OpenMissionMenu'#7'Caption'#6#15'Ope'
   +'n mission...'#7'OnClick'#7#21'Open_MissionMenuClick'#0#0#9'TMenuItem'#9'Men'
   +'uItem1'#7'Caption'#6#15'Edit mission...'#7'OnClick'#7#14'MenuItem1Click'#0#0
   +#9'TMenuItem'#2'N1'#7'Caption'#6#1'-'#0#0#9'TMenuItem'#5'Exit1'#7'Caption'#6
   +#4'Exit'#7'OnClick'#7#9'ExitClick'#0#0#0#9'TMenuItem'#6'Debug1'#7'Caption'#6
-  ,#5'Debug'#0#9'TMenuItem'#15'Debug_ShowWires'#7'Caption'#6#10'Show wires'#7'O'
+  +#5'Debug'#0#9'TMenuItem'#15'Debug_ShowWires'#7'Caption'#6#10'Show wires'#7'O'
   +'nClick'#7#20'Debug_ShowWiresClick'#0#0#9'TMenuItem'#17'Debug_PrintScreen'#7
-  +'Caption'#6#11'PrintScreen'#7'OnClick'#7#22'Debug_PrintScreenClick'#0#0#9'TM'
+  ,'Caption'#6#11'PrintScreen'#7'OnClick'#7#22'Debug_PrintScreenClick'#0#0#9'TM'
   +'enuItem'#17'Debug_ShowOverlay'#7'Caption'#6#12'Show Overlay'#7'OnClick'#7#22
   +'Debug_ShowOverlayClick'#0#0#9'TMenuItem'#16'Debug_ShowPanel1'#7'Caption'#6
   +#16'Show Debug panel'#7'OnClick'#7#21'Debug_ShowPanel1Click'#0#0#9'TMenuItem'
@@ -92,6 +90,6 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +'uItem'#20'Export_Deliverlists1'#7'Caption'#6#20'Export Deliver lists'#7'OnC'
   +'lick'#7#25'Export_Deliverlists1Click'#0#0#0#9'TMenuItem'#6'About1'#7'Captio'
   +'n'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#6'TTimer'#10'Timer100ms'#8
-  +'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'Left'#2'P'#3'Top'#3#192#0
+  +'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'left'#2'P'#3'top'#3#192#0
   +#0#0#0
 ]);

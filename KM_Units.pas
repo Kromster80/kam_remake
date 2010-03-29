@@ -1479,6 +1479,7 @@ begin
 end;
 
 
+{ TUnitTask }
 constructor TUnitTask.Create(aUnit:TKMUnit);
 begin
   Inherited Create;
@@ -1547,9 +1548,9 @@ constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_SelfTrain;
-  if aSchool <> nil then fSchool:=TKMHouseSchool(aSchool.GetSelf);
-  fUnit.fVisible:=false;
-  fUnit.SetActionStay(0,ua_Walk);
+  fSchool   := TKMHouseSchool(aSchool.GetSelf); //GetSelf returnes TKMHouse, not TKMHouseSchool
+  fUnit.fVisible := false;
+  fUnit.SetActionStay(0, ua_Walk);
 end;
 
 
@@ -1563,7 +1564,7 @@ end;
 procedure TTaskSelfTrain.SyncLoad();
 begin
   Inherited;
-  fSchool := TKMHouseSchool(fPlayers.GetHouseByID(integer(fSchool)));
+  fSchool := TKMHouseSchool(fPlayers.GetHouseByID(cardinal(fSchool)));
 end;
 
 
@@ -1574,18 +1575,20 @@ begin
 end;
 
 
+//Abort if someone has destroyed our school
 procedure TTaskSelfTrain.Abandon();
 var TempUnit: TKMUnit;
 begin
   TempUnit := fUnit; //Make local copy of the pointer because Inherited will set the pointer to nil
   Inherited;
-  TempUnit.RemoveUntrainedFromSchool; //Abort if someone has destroyed our school
+  TempUnit.RemoveUntrainedFromSchool; //CloseUnit at last, cos it will FreeAndNil TTask
 end;
 
 
 procedure TTaskSelfTrain.Execute(out TaskDone:boolean);
 begin
-  TaskDone:=false;
+  TaskDone := false;
+
   if fSchool.IsDestroyed then
   begin
     Abandon;
@@ -1619,8 +1622,6 @@ begin
       5: begin
           fSchool.SetState(hst_Idle);
           SetActionStay(9,ua_Walk);
-          if fTerrain.CheckTileRevelation(GetPosition.X, GetPosition.Y, MyPlayer.PlayerID) >= 255 then
-            fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12 if the location is visible
          end;
       6: begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);

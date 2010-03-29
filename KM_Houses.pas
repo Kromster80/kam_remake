@@ -68,7 +68,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     destructor Destroy; override;
-    function GetSelf:TKMHouse; virtual; //Returns self and adds one to the pointer counter
+    function GetSelf:TKMHouse; //Returns self and adds one to the pointer counter
     procedure RemovePointer; //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
     procedure CloseHouse(IsEditor:boolean=false); virtual;
@@ -732,6 +732,7 @@ begin
   Step:=WorkAnimStep mod Step;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
+    ht_School:        if (WorkID = 5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
     ht_Mill:          if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_mill,GetPosition);
     ht_CoalMine:      if (WorkID = 1)and(Step = 5) then fSoundLib.Play(sfx_coaldown,GetPosition)
                       else if (WorkID = 1)and(Step = 24) then fSoundLib.Play(sfx_CoalMineThud,GetPosition,true,0.8)
