@@ -54,7 +54,7 @@ TKMControl = class(TObject)
     procedure Show;
     procedure Hide;
     function IsVisible():boolean;
-    function HitTest(X, Y: Integer): Boolean;
+    function HitTest(X, Y: Integer): Boolean; virtual;
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; virtual;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
@@ -107,6 +107,7 @@ TKMLabel = class(TKMControl)
     Caption: string;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
+    function HitTest(X, Y: Integer): Boolean; override;
     procedure Paint(); override;
 end;
 
@@ -576,6 +577,16 @@ begin
   AutoWrap:=false;
   SmoothScrollToTop:=0; //means disabled
   Caption:=aCaption;
+end;
+
+
+function TKMLabel.HitTest(X, Y: Integer): Boolean;
+begin
+  case TextAlign of
+    kaLeft: Result := InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height) and IsVisible;
+    kaCenter: Result := InRange(X, Left - Width div 2, Left + Width div 2) and InRange(Y, Top, Top + Height) and IsVisible;
+    kaRight: Result := InRange(X, Left - Width, Left) and InRange(Y, Top, Top + Height) and IsVisible;
+  end;
 end;
 
 

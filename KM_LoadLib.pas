@@ -11,6 +11,8 @@ const
   siUnitNames = 69;
   siUnitDescriptions = 99;
   siTrackNames = 570;
+  siCampTSKTexts = 250;
+  siCampTPRTexts = 350;
 
 type
   TTextLibrary = class(TObject)

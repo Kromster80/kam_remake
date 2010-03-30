@@ -62,13 +62,13 @@ type
 type
   TCampaignSettings = class
   private
-    fRevealedMapsTSK:byte; //When player wins campaign mission this should be increased
-    fRevealedMapsTPR:byte;
+    fUnlockedMapsTSK:byte; //When player wins campaign mission this should be increased
+    fUnlockedMapsTPR:byte;
   public
     constructor Create;
     procedure RevealMap(aCamp:TCampaign; aMap:byte);
-    property GetMapsTSK:byte read fRevealedMapsTSK;
-    property GetMapsTPR:byte read fRevealedMapsTPR;
+    property GetUnlockedMapsTSK:byte read fUnlockedMapsTSK;
+    property GetUnlockedMapsTPR:byte read fUnlockedMapsTPR;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
   end;
@@ -270,8 +270,8 @@ end;
 constructor TCampaignSettings.Create;
 begin
   Inherited;
-  fRevealedMapsTSK := 1; //Reveal first map
-  fRevealedMapsTPR := 1;
+  fUnlockedMapsTSK := 1; //Reveal first map
+  fUnlockedMapsTPR := 1;
 end;
 
 
@@ -279,8 +279,8 @@ procedure TCampaignSettings.RevealMap(aCamp:TCampaign; aMap:byte);
 begin
   case aCamp of
     cmp_Nil: ;
-    cmp_TSK: fRevealedMapsTSK := aMap;
-    cmp_TPR: fRevealedMapsTPR := aMap;
+    cmp_TSK: fUnlockedMapsTSK := aMap;
+    cmp_TPR: fUnlockedMapsTPR := aMap;
     cmp_Custom: ; //Yet unknown
   end;
 end;
@@ -288,15 +288,15 @@ end;
 
 procedure TCampaignSettings.Save(SaveStream:TKMemoryStream);
 begin
-  SaveStream.Write(fRevealedMapsTSK);
-  SaveStream.Write(fRevealedMapsTPR);
+  SaveStream.Write(fUnlockedMapsTSK);
+  SaveStream.Write(fUnlockedMapsTPR);
 end;
 
 
 procedure TCampaignSettings.Load(LoadStream:TKMemoryStream);
 begin
-  LoadStream.Read(fRevealedMapsTSK);
-  LoadStream.Read(fRevealedMapsTPR);
+  LoadStream.Read(fUnlockedMapsTSK);
+  LoadStream.Read(fUnlockedMapsTPR);
 end;
 
 

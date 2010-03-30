@@ -42,6 +42,9 @@ type TKMMainMenuInterface = class
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
       Campaign_Nodes:array[1..MAX_MAPS] of TKMImage;
+      Image_ScrollTop,Image_Scroll:TKMImage;
+      Label_CampaignText:TKMLabel;
+      Label_CampaignStart:TKMLabel; //A button ;)
       Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
       Image_SingleBG:TKMImage;
@@ -120,6 +123,7 @@ type TKMMainMenuInterface = class
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
     procedure Campaign_Set(aCampaign:TCampaign);
+    procedure Campaign_StartMap(Sender: TObject);
     //procedure Campaign_SelectMap(Sender: TObject);
     procedure SingleMap_PopulateList();
     procedure SingleMap_RefreshList();
@@ -336,8 +340,14 @@ begin
     for i:=1 to length(Campaign_Nodes) do begin
       Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23,29,10,6);
       Campaign_Nodes[i].Center; //I guess it's easier to position them this way
-      //TSK_Nodes[i].OnClick := Campaign_SelectMap;
     end;
+
+    Image_Scroll := MyControls.AddImage(Panel_Campaign, ScreenX-360, ScreenY-397,360,397,15,6);
+    Label_CampaignText := MyControls.AddLabel(Panel_Campaign, ScreenX-340, ScreenY-330,320,310, '', fnt_Briefing, kaLeft);
+    Label_CampaignText.AutoWrap := true;
+
+    Label_CampaignStart := MyControls.AddLabel(Panel_Campaign, ScreenX-30, ScreenY-30,100,20, fTextLibrary.GetSetupString(17), fnt_Briefing, kaRight);
+    Label_CampaignStart.OnClick := Campaign_StartMap;
 
     Button_CampaignBack := MyControls.AddButton(Panel_Campaign, 20, ScreenY-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_CampaignBack.OnClick := SwitchMenuPage;
@@ -730,16 +740,17 @@ end;
 procedure TKMMainMenuInterface.Campaign_Set(aCampaign:TCampaign);
 var i,Top,Revealed:integer;
 begin
-
   //Ask fGame which maps are revealed of total amount
   case aCampaign of
     cmp_TSK: begin
                Top := TSK_MAPS;
-               Revealed := 2;//fGame.fCampaignSettings.GetMapsTSK;
+               Revealed := fGame.fCampaignSettings.GetUnlockedMapsTSK;
+               Label_CampaignText.Caption := fTextLibrary.GetSetupString(siCampTSKTexts + Revealed - 1);
              end;
     cmp_TPR: begin
                Top := TPR_MAPS;
-               Revealed := fGame.fCampaignSettings.GetMapsTPR;
+               Revealed := fGame.fCampaignSettings.GetUnlockedMapsTPR;
+               Label_CampaignText.Caption := fTextLibrary.GetSetupString(siCampTPRTexts + Revealed - 1);
              end;
     else     begin
                Top := 1;
@@ -747,14 +758,53 @@ begin
              end;
   end;
 
-  for i:=1 to Top do begin //todo: set real locations here
-    Campaign_Nodes[i].Left := TSK_Campaign_Maps[i,1];
-    Campaign_Nodes[i].Top := TSK_Campaign_Maps[i,2];
-    if i<=Revealed then
-      Campaign_Nodes[i].TexID := 11
-    else
-     Campaign_Nodes[i].TexID := 10;
+  Label_CampaignStart.Tag := byte(aCampaign);
+
+  for i:=1 to length(Campaign_Nodes) do
+    Campaign_Nodes[i].Hide;
+
+  for i:=1 to Top do
+  begin
+    case aCampaign of
+      cmp_TSK:  begin
+                  Campaign_Nodes[i].Left := TSK_Campaign_Maps[i,1];
+                  Campaign_Nodes[i].Top  := TSK_Campaign_Maps[i,2];
+                end;
+      cmp_TPR:  begin
+                  Campaign_Nodes[i].Left := TPR_Campaign_Maps[i,1];
+                  Campaign_Nodes[i].Top  := TPR_Campaign_Maps[i,2];
+                end;
+    end;
+
+    if i<=Revealed then Campaign_Nodes[i].TexID := 11
+                   else Campaign_Nodes[i].TexID := 10;
+
+    Campaign_Nodes[i].Show;
+    Campaign_Nodes[i].Highlight := i=Revealed;
   end;
+
+end;
+
+
+procedure TKMMainMenuInterface.Campaign_StartMap();
+var aCampaign:TCampaign;
+begin
+  fLog.AssertToLog(Sender=Label_CampaignStart,'not Label_CampaignStart');
+  aCampaign := TCampaign(Label_CampaignStart.Tag);
+
+  case aCampaign of
+    cmp_TSK: fGame.StartGame(
+               ExeDir+'Data\mission\mission'+inttostr(fGame.fCampaignSettings.GetUnlockedMapsTSK)+'.dat',
+               'TSK mission '+inttostr(fGame.fCampaignSettings.GetUnlockedMapsTSK),
+               aCampaign,
+               fGame.fCampaignSettings.GetUnlockedMapsTSK);
+    cmp_TPR: fGame.StartGame(
+               ExeDir+'Data\mission\dmission'+inttostr(fGame.fCampaignSettings.GetUnlockedMapsTPR)+'.dat',
+               'TPR mission '+inttostr(fGame.fCampaignSettings.GetUnlockedMapsTPR),
+               aCampaign,
+               fGame.fCampaignSettings.GetUnlockedMapsTPR);
+  end;
+
 end;
 
 
