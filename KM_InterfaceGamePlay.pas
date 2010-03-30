@@ -214,6 +214,7 @@ type TKMGamePlayInterface = class
     property GetShownUnit: TKMUnit read ShownUnit;
     property GetShownHouse: TKMHouse read ShownHouse;
     procedure ClearShownUnit;
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure UpdateState;
@@ -1142,41 +1143,6 @@ begin
       Button_Barracks_Train.Hint:=fTextLibrary.GetTextString(240);
       Button_Barracks_Right.Hint:=fTextLibrary.GetTextString(238);
       Button_Barracks_Train.Disable; //Unimplemented yet
-end;
-
-
-{Should update any items changed by game (resource counts, hp, etc..)}
-{If it ever gets a bottleneck then some static Controls may be excluded from update}
-procedure TKMGamePlayInterface.UpdateState;
-begin
-  if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
-  if ShownHouse<>nil then ShowHouseInfo(ShownHouse,AskDemolish);
-
-  if ShownUnit=nil then JoiningGroups := false;
-
-  if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
-  if ShownHint<>nil then
-    if (Mouse.CursorPos.X>ToolBarWidth) and (TKMControl(ShownHint).Parent<>Panel_Message) then
-      DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar (Message panel is an exception)
-
-  Minimap_Update(nil);
-  if Image_Clock.Visible then begin
-    Image_Clock.TexID := ((Image_Clock.TexID-556)+1)mod 16 +556;
-    Label_Clock.Caption := int2time(fGame.GetMissionTime); 
-  end;
-
-  if SHOW_POINTER_COUNT then
-    Label_PointerCount.Caption := 'Pointers: U,H: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
-
-  if Panel_Build.Visible then Build_Fill(nil);
-  if Panel_Stats.Visible then Stats_Fill(nil);
-  if Panel_Menu.Visible then Menu_Fill(nil);
-
-  if SHOW_SPRITE_COUNT then
-  Label_Stat.Caption:=
-        inttostr(fPlayers.GetUnitCount)+' units on map'+#124+
-        inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
-        inttostr(CtrlPaintCount)+' controls rendered';
 end;
 
 
@@ -2109,6 +2075,41 @@ begin
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
   UpdateMessageStack;
   fLog.AppendLog('Interface loaded');
+end;
+
+
+{Should update any items changed by game (resource counts, hp, etc..)}
+{If it ever gets a bottleneck then some static Controls may be excluded from update}
+procedure TKMGamePlayInterface.UpdateState;
+begin
+  if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
+  if ShownHouse<>nil then ShowHouseInfo(ShownHouse,AskDemolish);
+
+  if ShownUnit=nil then JoiningGroups := false;
+
+  if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
+  if ShownHint<>nil then
+    if (Mouse.CursorPos.X>ToolBarWidth) and (TKMControl(ShownHint).Parent<>Panel_Message) then
+      DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar (Message panel is an exception)
+
+  Minimap_Update(nil);
+  if Image_Clock.Visible then begin
+    Image_Clock.TexID := ((Image_Clock.TexID-556)+1)mod 16 +556;
+    Label_Clock.Caption := int2time(fGame.GetMissionTime); 
+  end;
+
+  if SHOW_POINTER_COUNT then
+    Label_PointerCount.Caption := 'Pointers: U,H: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
+
+  if Panel_Build.Visible then Build_Fill(nil);
+  if Panel_Stats.Visible then Stats_Fill(nil);
+  if Panel_Menu.Visible then Menu_Fill(nil);
+
+  if SHOW_SPRITE_COUNT then
+  Label_Stat.Caption:=
+        inttostr(fPlayers.GetUnitCount)+' units on map'+#124+
+        inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
+        inttostr(CtrlPaintCount)+' controls rendered';
 end;
 
 
