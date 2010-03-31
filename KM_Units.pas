@@ -2032,7 +2032,7 @@ begin
 
   Commander.UnitsPerRow := aUnitPerRow;
   Commander.Direction := aDir;
-  Commander.GetOrderLoc.Dir := byte(aDir)-1; //So when they click Halt for the first time it knows where to place them
+  Commander.GetOrderLoc := KMPointDir(Commander.GetOrderLoc.Loc,byte(aDir)-1); //So when they click Halt for the first time it knows where to place them
 
   for i:=1 to aUnitCount do begin
     px := (i-1) mod aUnitPerRow - aUnitPerRow div 2;

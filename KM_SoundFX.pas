@@ -489,7 +489,7 @@ begin
   {$IFDEF VER140}
   Result:=false;
   if not IsMusicInitialized then exit;
-  if fGame.fGameSettings.IsMusic then begin
+  if fGame.fGlobalSettings.IsMusic then begin
     Result := ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
     if CheckMusicError then exit;
   end;

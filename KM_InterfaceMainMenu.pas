@@ -201,8 +201,9 @@ inherited Create;
   //@Lewin: TextEdit example. To be deleted..
   MyControls.AddTextEdit(nil, 32, 32, 200, 20, fnt_Grey);//}
 
-  FL := MyControls.AddFileList(nil, 550, 300, 200, 200);
-  FL.RefreshList(ExeDir,'pas');
+  //@Lewin: FileList example. To be deleted..
+  FL := MyControls.AddFileList(nil, 550, 300, 320, 220);
+  FL.RefreshList(ExeDir+'Maps\','dat',true);
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
@@ -798,7 +799,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.Campaign_StartMap();
+procedure TKMMainMenuInterface.Campaign_StartMap(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=Label_CampaignStart,'not Label_CampaignStart');
   if Campaign_Selected = cmp_TSK then

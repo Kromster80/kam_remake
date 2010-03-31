@@ -41,6 +41,7 @@ TKMControl = class(TObject)
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     procedure ParentTo (aParent:TKMControl);
+    function HitTest(X, Y: Integer): Boolean; virtual;
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
     procedure HintCheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
     procedure Paint(); virtual;
@@ -54,7 +55,6 @@ TKMControl = class(TObject)
     procedure Show;
     procedure Hide;
     function IsVisible():boolean;
-    function HitTest(X, Y: Integer): Boolean; virtual;
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; virtual;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
@@ -307,14 +307,19 @@ end;
 TKMFileList = class(TKMControl)
   private
     ItemHeight:byte;
+    fPath:string;
+    ScrollBar:TKMScrollBar;
+    procedure ChangeScrollPosition (Sender:TObject);
   public
     TopIndex:word; //up to 65k files
-    ItemIndex:word;
+    ItemIndex:smallint;
+    fPaths:TStringList;
     fFiles:TStringList;
     procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+    function FileName:string;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState);
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
 
@@ -605,6 +610,7 @@ begin
     kaLeft: Result := InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height) and IsVisible;
     kaCenter: Result := InRange(X, Left - Width div 2, Left + Width div 2) and InRange(Y, Top, Top + Height) and IsVisible;
     kaRight: Result := InRange(X, Left - Width, Left) and InRange(Y, Top, Top + Height) and IsVisible;
+    else Result := false;
   end;
 end;
 
@@ -1188,41 +1194,82 @@ begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
   ItemHeight := 20;
+  TopIndex := 0;
+  ItemIndex := -1;
+  fPaths := TStringList.Create;
   fFiles := TStringList.Create;
+  fPath := ExeDir;
+end;
+
+
+procedure TKMFileList.ChangeScrollPosition(Sender:TObject);
+begin
+  TopIndex := TKMScrollBar(Sender).Position;
 end;
 
 
 procedure TKMFileList.RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
 var
-  i:integer;
+  DirID:integer;
   SearchRec:TSearchRec;
+  DirList:TStringList;
 begin
   if not DirectoryExists(aPath) then begin
     fFiles.Clear;
     exit;
   end;
 
-  if fFiles = nil then exit;
+  fPath := aPath;
   fFiles.Clear;
+  DirList := TStringList.Create;
 
-  ChDir(aPath);
-  FindFirst('*', faAnyFile, SearchRec);
+  DirList.Add(''); //Initialize
+  DirID := 0;
+
   repeat
-    if (SearchRec.Name<>'.')and(SearchRec.Name<>'..')
-    and(SearchRec.Attr and faDirectory <> faDirectory)
-    and((aExtension='') or (GetFileExt(SearchRec.Name) = UpperCase(aExtension))) then
-      fFiles.Add(SearchRec.Name);
-  until (FindNext(SearchRec)<>0);
-  FindClose(SearchRec);
+    ChDir(fPath+DirList[DirID]);
+    FindFirst('*', faAnyFile, SearchRec);
+    repeat
+      if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
+        if SearchRec.Attr and faDirectory = faDirectory then begin
+          if ScanSubFolders then
+            DirList.Add(DirList[DirID]+SearchRec.Name+'\')
+        end else
+        if (aExtension='') or (GetFileExt(SearchRec.Name) = UpperCase(aExtension)) then begin
+          fPaths.Add(DirList[DirID]);
+          fFiles.Add(SearchRec.Name);
+        end;
+    until (FindNext(SearchRec)<>0);
+    inc(DirID);
+    FindClose(SearchRec);
+  until(DirID = DirList.Count);
+
+  ScrollBar.MinValue := 0;
+  ScrollBar.MaxValue := fFiles.Count - (fHeight div ItemHeight);
+  ScrollBar.Position := 0;
+  ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
+end;
+
+
+function TKMFileList.FileName():string;
+begin
+  if InRange(ItemIndex,0,fFiles.Count) then
+    Result := {fPath +} fPaths.Strings[ItemIndex]+fFiles.Strings[ItemIndex]
+  else
+    Result := '';
 end;
 
 
 procedure TKMFileList.CheckCursorOver(X,Y:integer; AShift:TShiftState);
 begin
   Inherited CheckCursorOver(X,Y,AShift);
-  if (CursorOver) and (ssLeft in AShift) then begin
-    ItemIndex := TopIndex + Y div ItemHeight;
-  end;
+  //if InRange(X,Left+Width - ScrollBar.Width, Left+Width) then exit;
+
+  if (CursorOver) and (ssLeft in AShift) then
+    ItemIndex := TopIndex + (Y-Top) div ItemHeight;
+
+  if ItemIndex > fFiles.Count then ItemIndex := -1;
+
   if Assigned(OnChange) and (ssLeft in AShift) then
     OnChange(Self);
 end;
@@ -1231,12 +1278,16 @@ end;
 procedure TKMFileList.Paint();
 var i:integer;
 begin
+  Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
 
-  fRenderUI.WriteLayer(Left, Top+i*ItemIndex, Width, ItemHeight, $88888888);
+  if ItemIndex <> -1 then
+  fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width, ItemHeight, $88888888);
 
-  for i:=0 to fFiles.Count-1 do
-    fRenderUI.WriteText(Left+8, Top+i*ItemHeight, Width, fFiles.Strings[i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
+  for i:=0 to min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
+    fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, fPaths.Strings[TopIndex+i]+fFiles.Strings[TopIndex+i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
+
+  fRenderUI.WriteText(Left+8, Top+Height+4, Width, FileName, fnt_Grey, kaLeft, false, $FFFFFFFF);
 end;
 
 
@@ -1405,9 +1456,13 @@ end;
 
 
 function TKMControlsCollection.AddFileList(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
+const ScrollWidth = 20;
 begin
-  Result:=TKMFileList.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  Result := TKMFileList.Create(aParent, aLeft,aTop,aWidth-ScrollWidth,aHeight);
   AddToCollection(Result);
+
+  Result.ScrollBar := AddScrollBar(aParent, aLeft+aWidth-ScrollWidth, aTop, ScrollWidth, aHeight, sa_Vertical);
+  Result.ScrollBar.OnChange := Result.ChangeScrollPosition;
 end;
 
 
