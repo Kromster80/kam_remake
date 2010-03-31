@@ -67,8 +67,9 @@ type
   public
     constructor Create;
     procedure RevealMap(aCamp:TCampaign; aMap:byte);
-    property GetUnlockedMapsTSK:byte read fUnlockedMapsTSK;
-    property GetUnlockedMapsTPR:byte read fUnlockedMapsTPR;
+    function GetMapsCount(aCamp:TCampaign):byte;
+    function GetUnlockedMaps(aCamp:TCampaign):byte;
+    function GetMapText(aCamp:TCampaign; MapID:byte):string;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
   end;
@@ -119,7 +120,7 @@ type
 
 
 implementation
-uses KM_SoundFX;
+uses KM_LoadLib, KM_SoundFX;
 
 
 constructor TGlobalSettings.Create;
@@ -262,7 +263,7 @@ procedure TGlobalSettings.UpdateSFXVolume();
 begin
   fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
   fMusicLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
-  fNeedsSave:=true;
+  fNeedsSave := true;
 end;
 
 
@@ -270,7 +271,7 @@ end;
 constructor TCampaignSettings.Create;
 begin
   Inherited;
-  fUnlockedMapsTSK := 1; //Reveal first map
+  fUnlockedMapsTSK := 21; //Reveal first map
   fUnlockedMapsTPR := 1;
 end;
 
@@ -278,10 +279,40 @@ end;
 procedure TCampaignSettings.RevealMap(aCamp:TCampaign; aMap:byte);
 begin
   case aCamp of
-    cmp_Nil: ;
-    cmp_TSK: fUnlockedMapsTSK := aMap;
-    cmp_TPR: fUnlockedMapsTPR := aMap;
-    cmp_Custom: ; //Yet unknown
+    cmp_TSK: fUnlockedMapsTSK := min(aMap, GetMapsCount(aCamp)+1);
+    cmp_TPR: fUnlockedMapsTPR := min(aMap, GetMapsCount(aCamp)+1);
+  end;
+end;
+
+
+function TCampaignSettings.GetMapsCount(aCamp:TCampaign):byte;
+begin
+  case aCamp of
+    cmp_Nil: Result := 0;
+    cmp_TSK: Result := TSK_MAPS;
+    cmp_TPR: Result := TPR_MAPS;
+    cmp_Custom: Result := 1; //Yet unknown
+  end;
+end;
+
+
+function TCampaignSettings.GetUnlockedMaps(aCamp:TCampaign):byte;
+begin
+  case aCamp of
+    cmp_Nil: Result := 1;
+    cmp_TSK: Result := fUnlockedMapsTSK;
+    cmp_TPR: Result := fUnlockedMapsTPR;
+    cmp_Custom: Result := 1; //Yet unknown
+  end;
+end;
+
+function TCampaignSettings.GetMapText(aCamp:TCampaign; MapID:byte):string;
+begin
+  case aCamp of
+    cmp_Nil: Result := '';
+    cmp_TSK: Result := fTextLibrary.GetSetupString(siCampTSKTexts + MapID - 1);
+    cmp_TPR: Result := fTextLibrary.GetSetupString(siCampTPRTexts + MapID - 1);
+    cmp_Custom: Result := '';
   end;
 end;
 
