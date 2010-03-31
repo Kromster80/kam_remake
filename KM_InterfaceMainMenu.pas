@@ -20,6 +20,7 @@ type TKMMainMenuInterface = class
   protected
     Panel_Main1:TKMPanel;
       L:array[1..20]of TKMLabel;
+      FL:TKMFileList;
     Panel_MainMenu:TKMPanel;
       Panel_MainButtons:TKMPanel;
       Image_MainMenuBG,Image_MainMenu1,Image_MainMenu3:TKMImage; //Menu background
@@ -199,6 +200,9 @@ inherited Create;
 
   //@Lewin: TextEdit example. To be deleted..
   MyControls.AddTextEdit(nil, 32, 32, 200, 20, fnt_Grey);//}
+
+  FL := MyControls.AddFileList(nil, 550, 300, 200, 200);
+  FL.RefreshList(ExeDir,'pas');
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
@@ -751,7 +755,6 @@ begin
 
   for i:=1 to length(Campaign_Nodes) do begin
     Campaign_Nodes[i].Visible   := i <= Top;
-    Campaign_Nodes[i].Highlight := i =  Revealed;
     Campaign_Nodes[i].TexID     := 10 + byte(i<=Revealed);
     Campaign_Nodes[i].HighlightOnMouseOver := Revealed > Top; //All maps completed
   end;
@@ -768,6 +771,11 @@ begin
               end;
   end;
   //Place intermediate nodes
+
+  if Revealed>Top then
+    Campaign_SelectMap(Campaign_Nodes[Revealed])
+  else
+    Campaign_SelectMap(Campaign_Nodes[1]);
 end;
 
 
@@ -799,7 +807,7 @@ begin
     'TSK mission '+inttostr(Label_CampaignStart.Tag), Campaign_Selected, Label_CampaignStart.Tag);
   if Campaign_Selected = cmp_TPR then
     fGame.StartGame(
-    ExeDir+'Data\mission\mission'+inttostr(Label_CampaignStart.Tag)+'.dat',
+    ExeDir+'Data\mission\dmission'+inttostr(Label_CampaignStart.Tag)+'.dat',
     'TPR mission '+inttostr(Label_CampaignStart.Tag), Campaign_Selected, Label_CampaignStart.Tag);
 end;
 

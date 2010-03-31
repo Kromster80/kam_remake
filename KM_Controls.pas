@@ -128,6 +128,7 @@ TKMImage = class(TKMControl)
 end;
 
 
+{Image stack - for army formation view}
 TKMImageStack = class(TKMControl)
   public
     RXid: integer; //RX library
@@ -302,6 +303,23 @@ TKMMinimap = class(TKMControl)
 end;
 
 
+{ Files list } //Possible solution for MapEd and Save/Load
+TKMFileList = class(TKMControl)
+  private
+    ItemHeight:byte;
+  public
+    TopIndex:word; //up to 65k files
+    ItemIndex:word;
+    fFiles:TStringList;
+    procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState);
+    procedure Paint(); override;
+end;
+
+
+{ TKMControlsCollection }
 TKMControlsCollection = class(TKMList) //Making list of true TKMControls involves much coding for no visible result
   private
     fFocusedControl:TKMControl;
@@ -330,6 +348,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer):TKMRatioRow;
     function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
+    function AddFileList        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
     property GetFocusedControl:TKMControl read fFocusedControl;
     function KeyUp              (Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
     function MouseOverControl   ():TKMControl;
@@ -1163,6 +1182,65 @@ begin
 end;
 
 
+{ Files list } //Possible solution for MapEd and Save/Load
+constructor TKMFileList.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  ItemHeight := 20;
+  fFiles := TStringList.Create;
+end;
+
+
+procedure TKMFileList.RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+var
+  i:integer;
+  SearchRec:TSearchRec;
+begin
+  if not DirectoryExists(aPath) then begin
+    fFiles.Clear;
+    exit;
+  end;
+
+  if fFiles = nil then exit;
+  fFiles.Clear;
+
+  ChDir(aPath);
+  FindFirst('*', faAnyFile, SearchRec);
+  repeat
+    if (SearchRec.Name<>'.')and(SearchRec.Name<>'..')
+    and(SearchRec.Attr and faDirectory <> faDirectory)
+    and((aExtension='') or (GetFileExt(SearchRec.Name) = UpperCase(aExtension))) then
+      fFiles.Add(SearchRec.Name);
+  until (FindNext(SearchRec)<>0);
+  FindClose(SearchRec);
+end;
+
+
+procedure TKMFileList.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+begin
+  Inherited CheckCursorOver(X,Y,AShift);
+  if (CursorOver) and (ssLeft in AShift) then begin
+    ItemIndex := TopIndex + Y div ItemHeight;
+  end;
+  if Assigned(OnChange) and (ssLeft in AShift) then
+    OnChange(Self);
+end;
+
+
+procedure TKMFileList.Paint();
+var i:integer;
+begin
+  fRenderUI.WriteBevel(Left, Top, Width, Height);
+
+  fRenderUI.WriteLayer(Left, Top+i*ItemIndex, Width, ItemHeight, $88888888);
+
+  for i:=0 to fFiles.Count-1 do
+    fRenderUI.WriteText(Left+8, Top+i*ItemHeight, Width, fFiles.Strings[i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
+end;
+
+
+{ TKMControlsCollection }
 constructor TKMControlsCollection.Create();
 begin
   Inherited;
@@ -1318,9 +1396,17 @@ begin
   Result.RefreshItems();
 end;
 
+
 function TKMControlsCollection.AddMinimap(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
 begin
   Result:=TKMMinimap.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  AddToCollection(Result);
+end;
+
+
+function TKMControlsCollection.AddFileList(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
+begin
+  Result:=TKMFileList.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
 end;
 

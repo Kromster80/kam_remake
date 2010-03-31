@@ -271,7 +271,7 @@ end;
 constructor TCampaignSettings.Create;
 begin
   Inherited;
-  fUnlockedMapsTSK := 21; //Reveal first map
+  fUnlockedMapsTSK := 1; //Reveal first map
   fUnlockedMapsTPR := 1;
 end;
 
