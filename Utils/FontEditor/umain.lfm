@@ -16,6 +16,7 @@ object frmMain: TfrmMain
     Top = 16
     Width = 512
     OnMouseMove = Image1MouseMove
+    OnMouseUp = Image1MouseUp
   end
   object Image3: TImage
     Left = 680
@@ -24,10 +25,10 @@ object frmMain: TfrmMain
     Width = 128
   end
   object Image4: TImage
-    Left = 160
+    Left = 312
     Height = 30
     Top = 536
-    Width = 649
+    Width = 497
   end
   object Image5: TImage
     Left = 160
@@ -36,9 +37,9 @@ object frmMain: TfrmMain
     Width = 649
   end
   object Label3: TLabel
-    Left = 64
+    Left = 62
     Height = 14
-    Top = 431
+    Top = 427
     Width = 84
     Caption = 'BaseCharHeight?'
     Color = clBtnFace
@@ -46,9 +47,9 @@ object frmMain: TfrmMain
     Transparent = False
   end
   object Label4: TLabel
-    Left = 64
+    Left = 62
     Height = 14
-    Top = 455
+    Top = 451
     Width = 73
     Caption = 'Word spacing?'
     Color = clBtnFace
@@ -56,9 +57,9 @@ object frmMain: TfrmMain
     Transparent = False
   end
   object Label5: TLabel
-    Left = 64
+    Left = 62
     Height = 14
-    Top = 479
+    Top = 475
     Width = 63
     Caption = 'Char spacing'
     Color = clBtnFace
@@ -66,11 +67,30 @@ object frmMain: TfrmMain
     Transparent = False
   end
   object Label6: TLabel
-    Left = 64
+    Left = 62
     Height = 14
-    Top = 503
+    Top = 499
     Width = 67
     Caption = 'Line spacing?'
+    Color = clBtnFace
+    ParentColor = False
+    Transparent = False
+  end
+  object Shape1: TShape
+    Left = 160
+    Height = 32
+    Top = 16
+    Width = 32
+    Brush.Style = bsClear
+    Pen.Color = clWhite
+    Pen.Width = 2
+  end
+  object Label7: TLabel
+    Left = 62
+    Height = 14
+    Top = 523
+    Width = 108
+    Caption = 'Selected letter Y offset'
     Color = clBtnFace
     ParentColor = False
     Transparent = False
@@ -123,9 +143,9 @@ object frmMain: TfrmMain
     SimplePanel = False
   end
   object Edit1: TEdit
-    Left = 8
+    Left = 160
     Height = 21
-    Top = 545
+    Top = 540
     Width = 145
     OnChange = Edit1Change
     TabOrder = 4
@@ -134,7 +154,7 @@ object frmMain: TfrmMain
   object CheckCells: TCheckBox
     Left = 8
     Height = 17
-    Top = 524
+    Top = 549
     Width = 71
     Caption = 'Show cells'
     Checked = True
@@ -235,6 +255,16 @@ object frmMain: TfrmMain
     MinValue = -65535
     OnChange = SpinEdit1Change
     TabOrder = 12
+  end
+  object SpinEdit5: TSpinEdit
+    Left = 8
+    Height = 21
+    Top = 520
+    Width = 50
+    MaxValue = 65535
+    MinValue = -65535
+    OnChange = SpinEdit5Change
+    TabOrder = 13
   end
   object OpenDialog1: TOpenDialog
     left = 88

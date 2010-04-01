@@ -25,47 +25,54 @@ uses
   end;
 
   PalData:array[1..12,1..256,1..3]of byte;
-  ActiveLetter:integer;
+  SelectedLetter:integer;
   SettingFromFont:boolean;
 
 type
+
+  { TfrmMain }
+
   TfrmMain = class(TForm)
+    Label1: TLabel;
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
+    Label7: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
-    BitBtn1: TBitBtn;
     ListBox1: TListBox;
-    RefreshData: TButton;
+    Shape1: TShape;
     SpinEdit1: TSpinEdit;
     SpinEdit2: TSpinEdit;
     SpinEdit3: TSpinEdit;
     SpinEdit4: TSpinEdit;
-    StatusBar1: TStatusBar;
-    Image3: TImage;
-    Edit1: TEdit;
-    Image4: TImage;
-    btnImportBig: TBitBtn;
-    CheckCells: TCheckBox;
-    btnExportBig: TBitBtn;
-    Image1: TImage;
-    Image5: TImage;
-    RGPalette: TRadioGroup;
-    Label1: TLabel;
     SpinEdit5: TSpinEdit;
+    StatusBar1: TStatusBar;
+    Image1: TImage;
+    Image3: TImage;
+    Image4: TImage;
+    Image5: TImage;
+    Edit1: TEdit;
+    CheckCells: TCheckBox;
+    RGPalette: TRadioGroup;
+    RefreshData: TButton;
+    BitBtn1: TBitBtn;
+    btnImportBig: TBitBtn;
+    btnExportBig: TBitBtn;
     procedure BitBtn1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RefreshDataClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnExportBigClick(Sender: TObject);
     procedure Image1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
+    procedure Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Edit1Change(Sender: TObject);
     procedure CheckCellsClick(Sender: TObject);
     procedure btnImportBigClick(Sender: TObject);
     procedure RGPaletteClick(Sender: TObject);
     procedure SpinEdit1Change(Sender: TObject);
+    procedure SpinEdit5Change(Sender: TObject);
   private
     function GetFontFromFileName(aFile:string):TKMFont;
     procedure ScanDataForPalettesAndFonts(aPath:string);
@@ -96,7 +103,9 @@ begin
   ScanDataForPalettesAndFonts(DataDir);
 
   FontData.Title := fnt_Nil;
+  SelectedLetter := 0;
 end;
+
 
 procedure TfrmMain.BitBtn1Click(Sender: TObject);
 var
@@ -329,6 +338,16 @@ begin
 end;
 
 
+procedure TfrmMain.Image1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  Shape1.Left := Image1.Left + (X div 32) * 32;
+  Shape1.Top := Image1.Top + (Y div 32) * 32;
+  SelectedLetter := (Y div 32) *16 + X div 32;
+
+  SpinEdit5.Value := FontData.Letters[SelectedLetter].YOffset;
+end;
+
+
 procedure TfrmMain.ShowPalette(aPal:integer);
 var MyBitMap:TBitMap; i:integer; MyRect:TRect;
 begin
@@ -555,6 +574,13 @@ begin
     FontData.Letters[127].YOffset := 0;
     ShowBigImage(CheckCells.Checked, false);
   end;
+  Edit1Change(nil);
+end;
+
+procedure TfrmMain.SpinEdit5Change(Sender: TObject);
+begin
+  if SelectedLetter = 0 then exit;
+  FontData.Letters[SelectedLetter].YOffset := SpinEdit5.Value;
   Edit1Change(nil);
 end;
 
