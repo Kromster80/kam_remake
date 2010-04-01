@@ -8,7 +8,7 @@ uses Windows,
 
 type TGameState = ( gsNoGame, //No game running at all, MainMenu
                     gsPaused, //Game is paused and responds to 'P' key only
-                    gsVictory, //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
+                    gsOnHold, //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
                     gsRunning, //Game is running normally
                     gsEditor);
 
@@ -29,6 +29,7 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
+    fMissionFile:string; //Remember waht we are playing incase we might want to replay
     fGameName:string;
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
@@ -47,7 +48,7 @@ type
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 
-    procedure StartGame(MissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; MapID:byte=1);
+    procedure StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure PauseGame(DoPause:boolean);
     procedure HoldGame(DoHold:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string='');
@@ -56,7 +57,9 @@ type
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GetTickCount:cardinal read GameplayTickCount;
-    property GameName:string read fGameName;
+    property GetMissionFile:string read fMissionFile;
+    property GetGameName:string read fGameName;
+    property GetCampaign:TCampaign read ActiveCampaign;
     property GetCampaignMap:byte read ActiveCampaignMap;
     function GetNewID():cardinal;
     function Save(SlotID:shortint):string;
@@ -192,7 +195,7 @@ begin
                   PauseGame(false);
                   fGameplayInterface.ShowPause(false); //Hide pause overlay
                 end;
-    gsVictory:  ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
+    gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
                   if fGameplayInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
                   if IsDown then exit;
@@ -230,6 +233,8 @@ begin
                   if Key=ord('9') then fGameplayInterface.IssueMessage(msgQuill,'123',KMPoint(0,0));
                   if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 
+                  if Key=ord('V') then begin fGame.HoldGame(true); exit; end; //Instant victory
+
                 end;
     gsEditor:   if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
   end;
@@ -249,7 +254,7 @@ begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
     gsPaused:   exit; //No clicking when paused
-    gsVictory:  exit; //No clicking when on hold
+    gsOnHold:   exit; //No clicking when on hold
     gsRunning:  begin
                   fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
                   MOver := fGameplayInterface.MyControls.MouseOverControl;
@@ -319,7 +324,7 @@ begin
                     Screen.Cursor := c_Default;
                 end;
     gsPaused:   exit;
-    gsVictory:  begin
+    gsOnHold:   begin
                   //@Lewin: any idea how do we send MouseOver to controls, but don't let them be pressed down
                   //@Krom: Could we modify the shift state so it doesn't see it as being pressed? I'm not sure I understand what you mean though.
                   //@Lewin: Here's the thing: in Victory state I want only 2 controls to be enabled, others should be disabled,
@@ -449,7 +454,7 @@ begin
   case GameState of //Remember clicked control
     gsNoGame:   MOver := fMainMenuInterface.MyControls.MouseOverControl();
     gsPaused:   MOver := nil;
-    gsVictory:  MOver := fGameplayInterface.MyControls.MouseOverControl();
+    gsOnHold:   MOver := fGameplayInterface.MyControls.MouseOverControl();
     gsRunning:  MOver := fGameplayInterface.MyControls.MouseOverControl();
     gsEditor:   MOver := fMapEditorInterface.MyControls.MouseOverControl();
     else        MOver := nil; //MOver should always be initialized
@@ -460,7 +465,7 @@ begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
     gsPaused:   exit;
-    gsVictory:  if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
+    gsOnHold:   if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
     gsRunning:
       begin
         P := GameCursor.Cell; //Get cursor position tile-wise
@@ -618,7 +623,7 @@ begin
 end;
 
 
-procedure TKMGame.StartGame(MissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; MapID:byte=1);
+procedure TKMGame.StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
 var ResultMsg:string; fMissionParser: TMissionParser;
 begin
   RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
@@ -633,8 +638,13 @@ begin
     fRender.LoadTileSet();
   end;
 
-  ActiveCampaign := aCamp;
-  ActiveCampaignMap := MapID;
+  //If input is empty - replay last map
+  if aMissionFile <> '' then begin
+    fMissionFile := aMissionFile;
+    fGameName := aGameName;
+    ActiveCampaign := aCamp;
+    ActiveCampaignMap := aCampMap; //MapID is incremented in CampSettings and passed on to here from outside
+  end;
 
   fMainMenuInterface.ShowScreen_Loading('initializing');
   fRender.Render;
@@ -646,11 +656,11 @@ begin
   fTerrain := TTerrain.Create;
 
   fLog.AppendLog('Loading DAT...');
-  if CheckFileExists(MissionFile,true) then
+  if CheckFileExists(aMissionFile,true) then
   begin
     //todo: Use exception trapping and raising system here similar to that used for load
     fMissionParser := TMissionParser.Create;
-    ResultMsg := fMissionParser.LoadDATFile(MissionFile);
+    ResultMsg := fMissionParser.LoadDATFile(aMissionFile);
     FreeAndNil(fMissionParser);
     if ResultMsg<>'' then begin
       StopGame(gr_Error, ResultMsg);
@@ -677,7 +687,6 @@ begin
 
   GameplayTickCount:=0; //Restart counter
 
-  fGameName := aGameName;
   GameState := gsRunning;
 end;
 
@@ -695,10 +704,16 @@ end;
 //Put the game on Hold for Victory screen
 procedure TKMGame.HoldGame(DoHold:boolean);
 begin
-  if GameState in [gsVictory, gsRunning] then
-  if DoHold then
-    GameState := gsVictory
-  else
+  if DoHold then begin
+    fGame.PauseGame(false); //Unpause game just in case
+    fGame.fGameplayInterface.ShowPause(false);
+  end;
+
+  if GameState in [gsOnHold, gsRunning] then
+  if DoHold then begin
+    GameState := gsOnHold;
+    fGame.fGamePlayInterface.ShowPlayMore(true);
+  end else
     GameState := gsRunning;
 end;
 
@@ -856,13 +871,14 @@ begin
   case GameState of
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
     gsEditor:   exit; //MapEd gets saved differently from SaveMapEd
-    gsVictory:  exit; //No sense to save from victory?
+    gsOnHold:   exit; //No sense to save from victory?
     gsPaused,gsRunning: //Can't save from Paused state yet, but we could add it later
     begin
       SaveStream := TKMemoryStream.Create;
       SaveStream.Write('KaM_Savegame');
       SaveStream.Write(SAVE_VERSION); //This is savegame version
-      SaveStream.Write(GameName); //Save game title
+      SaveStream.Write(GetMissionFile); //Save game title
+      SaveStream.Write(GetGameName); //Save game title
       SaveStream.Write(GameplayTickCount, 4); //Required to be saved, e.g. messages being shown after a time
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
 
@@ -871,7 +887,6 @@ begin
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
-      fCampaignSettings.Save(SaveStream);
 
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
 
@@ -883,7 +898,7 @@ begin
 
       SaveStream.SaveToFile(ExeDir+GetSaveName(SlotID)); //Some 70ms for TPR7 map
       SaveStream.Free;
-      Result := GameName + ' ' + int2time(GetMissionTime);
+      Result := GetGameName + ' ' + int2time(GetMissionTime);
       if (fGlobalSettings.IsAutosave) and (SlotID = AUTOSAVE_SLOT) then
         Result := fTextLibrary.GetTextString(203); //Autosave
     end;
@@ -936,7 +951,6 @@ begin
         fPlayers.Load(LoadStream);
         fViewport.Load(LoadStream);
         fGamePlayInterface.Load(LoadStream);
-        fCampaignSettings.Load(LoadStream);
 
         fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
@@ -956,7 +970,7 @@ begin
     end;
     gsEditor:   exit; //Taken care of earlier with default lrIncorrectGameState
     gsPaused:   exit; //Taken care of earlier with default lrIncorrectGameState
-    gsVictory:  exit;
+    gsOnHold:   exit;
     gsRunning:  exit; //Taken care of earlier with default lrIncorrectGameState
   end;
   finally
@@ -972,7 +986,7 @@ begin
   inc(GlobalTickCount);
   case GameState of
     gsPaused:   exit;
-    gsVictory:  exit;
+    gsOnHold:   exit;
     gsNoGame:   begin
                   fMainMenuInterface.UpdateState;
                   if GlobalTickCount mod 10 = 0 then //Once a sec
@@ -1039,7 +1053,7 @@ begin
   case GameState of
     gsNoGame:  fMainMenuInterface.Paint;
     gsPaused:  fGameplayInterface.Paint;
-    gsVictory: fGameplayInterface.Paint;
+    gsOnHold:  fGameplayInterface.Paint;
     gsRunning: fGameplayInterface.Paint;
     gsEditor:  fMapEditorInterface.Paint;
   end;

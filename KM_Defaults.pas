@@ -837,29 +837,29 @@ type
     sfx_Melee42, //Clung?
     sfx_Melee43,
     sfx_Melee44, //Killed
-    sfx_Melee45,
-    sfx_Melee46,
+    sfx_Melee45, //Killed
+    sfx_Melee46, //Killed
     sfx_Melee47, //House hit
-    sfx_Melee48,
-    sfx_Melee49,
+    sfx_Melee48, //injured?
+    sfx_Melee49, //injured?
     sfx_Melee50,
-    sfx_Melee51, //Sword-sword
-    sfx_Melee52, //Sword-sword
-    sfx_Melee53, //Sword-sword
-    sfx_Melee54, //Sword-sword
-    sfx_Melee55,
-    sfx_Melee56,
-    sfx_Melee57,
+    sfx_Melee51, //Sword-sword, hit blocked?
+    sfx_Melee52, //Sword-sword, hit blocked?
+    sfx_Melee53, //Sword-sword, hit blocked?
+    sfx_Melee54, //Sword-sword, hit blocked?
+    sfx_Melee55, //Killed?
+    sfx_Melee56, //Barbarian Killed?
+    sfx_Melee57, //House hit?
     sfx_BowDraw,
     sfx_ArrowHit,
-    sfx_CrossbowShoot,
+    sfx_CrossbowShoot,  //60
     sfx_CrossbowDraw,
-    sfx_BowShoot,
+    sfx_BowShoot,       //62
     sfx_BlacksmithBang,
     sfx_BlacksmithFire,
-    sfx_CarpenterHammer,
+    sfx_CarpenterHammer, //65
     sfx_Horse1,sfx_Horse2,sfx_Horse3,sfx_Horse4,
-    sfx_unknown70,
+    sfx_unknown70, //TSK Catapult?
     sfx_HouseDestroy,
     sfx_SchoolDing,
     //Below are TPR sounds ...

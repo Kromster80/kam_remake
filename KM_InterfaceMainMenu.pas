@@ -108,7 +108,7 @@ type TKMMainMenuInterface = class
       Label_Results_Result:TKMLabel;
       Panel_Stats:TKMPanel;
       Label_Stat:array[1..9]of TKMLabel;
-      Button_ResultsBack:TKMButton;
+      Button_ResultsBack,Button_ResultsRepeat,Button_ResultsContinue:TKMButton;
   private
     procedure Create_MainMenu_Page;
     procedure Create_SinglePlayer_Page;
@@ -124,6 +124,7 @@ type TKMMainMenuInterface = class
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
+    procedure MainMenu_ReplayLastMap(Sender: TObject);
     procedure Campaign_Set(aCampaign:TCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
@@ -259,6 +260,13 @@ begin
     gr_Cancel: Label_Results_Result.Caption := 'Mission canceled';
     else       Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
   end;
+
+  Button_ResultsRepeat.Enabled := Msg = gr_Defeat;
+
+  //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
+  Button_ResultsContinue.Visible := fGame.GetCampaign in [cmp_TSK, cmp_TPR];
+  Button_ResultsContinue.Enabled := Msg = gr_Win;
+
   SwitchMenuPage(Panel_Results);
 end;
 
@@ -626,8 +634,12 @@ begin
       Label_Stat[i]:=MyControls.AddLabel(Panel_Stats,340,Adv,100,30,'00',fnt_Metal,kaRight);
     end;
 
-    Button_ResultsBack:=MyControls.AddButton(Panel_Results,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ResultsBack:=MyControls.AddButton(Panel_Results,100,640,200,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_ResultsBack.OnClick:=SwitchMenuPage;
+    Button_ResultsRepeat:=MyControls.AddButton(Panel_Results,320,640,200,30,fTextLibrary.GetSetupString(18),fnt_Metal,bsMenu);
+    Button_ResultsRepeat.OnClick:=MainMenu_ReplayLastMap;
+    Button_ResultsContinue:=MyControls.AddButton(Panel_Results,540,640,200,30,fTextLibrary.GetSetupString(17),fnt_Metal,bsMenu);
+    Button_ResultsContinue.OnClick:=SwitchMenuPage;
 end;
 
 
@@ -669,13 +681,13 @@ begin
   end;
 
   {Show TSK campaign menu}
-  if Sender=Button_SinglePlayerTSK then begin
+  if (Sender=Button_SinglePlayerTSK) or ((Sender=Button_ResultsContinue) and (fGame.GetCampaign=cmp_TSK)) then begin
     Campaign_Set(cmp_TSK);
     Panel_Campaign.Show;
   end;
 
   {Show TSK campaign menu}
-  if Sender=Button_SinglePlayerTPR then begin
+  if (Sender=Button_SinglePlayerTPR) or ((Sender=Button_ResultsContinue) and (fGame.GetCampaign=cmp_TPR)) then begin
     Campaign_Set(cmp_TPR);
     Panel_Campaign.Show;
   end;
@@ -742,6 +754,12 @@ end;
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
   fGame.StartGame(ExeDir+'data\mission\mission99.dat', 'Battle Tutorial');
+end;
+
+
+procedure TKMMainMenuInterface.MainMenu_ReplayLastMap(Sender: TObject);
+begin
+  fGame.StartGame('', ''); //Means replay last map
 end;
 
 
@@ -833,7 +851,7 @@ begin
     end else begin
       Button_SingleMode[i].TexID        := 28+byte(not SingleMapsInfo.IsFight(ci))*14;  //28 or 42
       Button_SinglePlayers[i].Caption   := inttostr(SingleMapsInfo.GetPlayerCount(ci));
-      Label_SingleTitle1[i].Caption     := SingleMapsInfo.GetTitle(ci);
+      Label_SingleTitle1[i].Caption     := SingleMapsInfo.GetFolder(ci);
       Label_SingleTitle2[i].Caption     := SingleMapsInfo.GetSmallDesc(ci);
       Button_SingleSize[i].Caption      := SingleMapsInfo.GetMapSize(ci);
     end;
@@ -862,7 +880,7 @@ begin
   Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * i; // All heights are equal in fact..
 
   SingleMap_Selected        := SingleMap_Top+i-1;
-  Label_SingleTitle.Caption := SingleMapsInfo.GetTitle(SingleMap_Selected);
+  Label_SingleTitle.Caption := SingleMapsInfo.GetFolder(SingleMap_Selected);
   Label_SingleDesc.Caption  := SingleMapsInfo.GetBigDesc(SingleMap_Selected);
 
   Label_SingleCondTyp.Caption := 'Mission type: '+SingleMapsInfo.GetTyp(SingleMap_Selected);
@@ -875,7 +893,7 @@ procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=Button_SingleStart,'not Button_SingleStart');
   if not InRange(SingleMap_Selected, 1, SingleMapsInfo.GetMapCount) then exit;
-  fGame.StartGame(KMRemakeMapPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetTitle(SingleMap_Selected)); //Provide mission filename mask and title here
+  fGame.StartGame(KMRemakeMapPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetFolder(SingleMap_Selected)); //Provide mission filename mask and title here
 end;
 
 

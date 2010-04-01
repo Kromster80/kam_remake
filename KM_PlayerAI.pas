@@ -234,12 +234,8 @@ begin
   if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
   begin
     if CheckDefeatConditions then fGame.StopGame(gr_Defeat); //Store+Barracks+School+Armies = 0
-    if CheckWinConditions then begin
-     fGame.PauseGame(false); //Unpause game just in case
-     fGame.fGameplayInterface.ShowPause(false);
+    if CheckWinConditions then
      fGame.HoldGame(true); //Enemies Store+Barracks+School+Armies = 0
-     fGame.fGamePlayInterface.ShowPlayMore(true);
-    end;
   end else
   
   if Assets.PlayerType=pt_Computer then begin

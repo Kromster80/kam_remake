@@ -70,8 +70,8 @@ type
     function GetMapsCount(aCamp:TCampaign):byte;
     function GetUnlockedMaps(aCamp:TCampaign):byte;
     function GetMapText(aCamp:TCampaign; MapID:byte):string;
-    procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
+    function LoadINI(filename:string):boolean;
+    procedure SaveINI(filename:string);
   end;
 
 
@@ -177,7 +177,7 @@ end;
 
 procedure TGlobalSettings.SaveSettingsToFile(filename:string);
 var f:TIniFile;
-begin      
+begin
   f := TIniFile.Create(filename);
 
   f.WriteInteger('GFX','Brightness',  fBrightness);
@@ -317,17 +317,24 @@ begin
 end;
 
 
-procedure TCampaignSettings.Save(SaveStream:TKMemoryStream);
+procedure TCampaignSettings.SaveINI(filename:string);
+var f:TIniFile;
 begin
-  SaveStream.Write(fUnlockedMapsTSK);
-  SaveStream.Write(fUnlockedMapsTPR);
+  f := TIniFile.Create(filename);
+  f.WriteInteger('Campaign', 'TSK', fUnlockedMapsTSK);
+  f.WriteInteger('Campaign', 'TPR', fUnlockedMapsTPR);
+  FreeAndNil(f);
 end;
 
 
-procedure TCampaignSettings.Load(LoadStream:TKMemoryStream);
+function TCampaignSettings.LoadINI(filename:string):boolean;
+var f:TIniFile;
 begin
-  LoadStream.Read(fUnlockedMapsTSK);
-  LoadStream.Read(fUnlockedMapsTPR);
+  Result := FileExists(filename);
+  f := TIniFile.Create(filename);
+  fUnlockedMapsTSK := f.ReadInteger('Campaign', 'TSK', 1);
+  fUnlockedMapsTPR := f.ReadInteger('Campaign', 'TPR', 1);
+  FreeAndNil(f);
 end;
 
 

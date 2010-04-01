@@ -1,6 +1,6 @@
 unit KM_InterfaceGamePlay;
 interface
-uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
+uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 
@@ -1452,6 +1452,7 @@ begin
     end
     else
     begin
+      sndPlaySound('E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav', SND_NODEFAULT or SND_ASYNC or SND_NOSTOP);
       Panel_Army.Show;
       Commander := TKMUnitWarrior(Sender).GetCommander;
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns

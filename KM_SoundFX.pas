@@ -210,6 +210,7 @@ begin
   CreateDir(ExeDir+'Export\Sounds.dat\');
   for i:=1 to MaxWaves do if length(Waves[i].Data)>0 then begin
     assignfile(f,ExeDir+'Export\Sounds.dat\sound_'+int2fix(i,3)+'.wav'); rewrite(f,1);
+    Waves[i].Head.SampleRate := Waves[i].Head.SampleRate div 2;
     blockwrite(f,Waves[i].Head,SizeOf(Waves[i].Head));
     blockwrite(f,Waves[i].Data[0],length(Waves[i].Data));
     blockwrite(f,Waves[i].Foot[0],length(Waves[i].Foot));

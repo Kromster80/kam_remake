@@ -89,7 +89,7 @@ type
       Folder:string; //Map folder
       IsFight:boolean; //Fight or Build map
       PlayerCount:byte;
-      Title,SmallDesc,BigDesc:string;
+      SmallDesc,BigDesc:string;
       MapSize:string; //S,M,L,XL
     end;
   public
@@ -97,7 +97,6 @@ type
     property GetMapCount:byte read MapCount;
     function IsFight(ID:integer):boolean;
     function GetPlayerCount(ID:integer):byte;
-    function GetTitle(ID:integer):string;
     function GetSmallDesc(ID:integer):string;
     function GetBigDesc(ID:integer):string;
     function GetMapSize(ID:integer):string;
@@ -853,7 +852,6 @@ begin
     IsFight        := MissionDetails.IsFight;
     PlayerCount    := MissionDetails.TeamCount;
     MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
-    Title          := Maps[i].Folder;
     SmallDesc      := '-';
     BigDesc        := '-';
 
@@ -863,7 +861,6 @@ begin
       reset(ft);
       repeat
         readln(ft,s);
-        if UpperCase(s)=UpperCase('Title') then readln(ft,Title);
         if UpperCase(s)=UpperCase('SmallDesc') then readln(ft,SmallDesc);
         if UpperCase(s)=UpperCase('BigDesc') then readln(ft,BigDesc);
       until(eof(ft));
@@ -878,7 +875,6 @@ end;
 { Get map properties}
 function TKMMapsInfo.IsFight(ID:integer):boolean;        begin Result:=Maps[ID].IsFight;         end;
 function TKMMapsInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].PlayerCount;     end;
-function TKMMapsInfo.GetTitle(ID:integer):string;        begin Result:=Maps[ID].Title;           end;
 
 //Remove any EOLs and limit length
 function TKMMapsInfo.GetSmallDesc(ID:integer):string;

@@ -293,7 +293,7 @@ begin
   KMMinimap.CenteredAt := fViewport.GetCenter;
   KMMinimap.ViewArea   := fViewport.GetMinimapClip;
 
-  Label_MissionName.Caption := fGame.GameName;
+  Label_MissionName.Caption := fGame.GetGameName;
 end;
 
 
