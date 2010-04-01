@@ -701,7 +701,7 @@ begin
                  +' Contact details can be found in the Readme file.'+#13#10+'Thank you very much for your kind help!'+#13#10
                  +'WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
                  ,mtWarning,[mbYes,mbNo],0) <> mrYes then
-        fGame.StopGame(gr_Error,'',false); //Exit to main menu
+        fGame.StopGame(gr_Error,''); //Exit to main menu
     end;
     DoEnd := true; //Must exit out or this error will keep happening
     exit; //Exit either way, and the action will end

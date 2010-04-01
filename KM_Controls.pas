@@ -1,10 +1,9 @@
 unit KM_Controls;
 interface
-uses Windows, MMSystem, Controls, Math, KromOGLUtils, Classes, KM_Defaults, KromUtils, Graphics, SysUtils, Types, KM_CommonTypes, KM_Utils;
+uses Classes, Controls, Graphics, MMSystem, Windows, KromUtils, Math, KromOGLUtils, KM_Defaults, SysUtils, KM_CommonTypes, KM_Utils;
 
 type
-  TNotifyEvent = procedure(Sender: TObject) of object;
-  TNotifyEvent2 = procedure(Sender: TObject; AButton:TMouseButton) of object;
+  TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
 
 
 {Base class for all TKM elements}
@@ -34,7 +33,7 @@ TKMControl = class(TObject)
 
     FOnChange:TNotifyEvent;
     FOnClick:TNotifyEvent;
-    FOnClickEither:TNotifyEvent2;
+    FOnClickEither:TNotifyEventMB;
     FOnClickRight:TNotifyEvent;
     FOnMouseOver:TMouseMoveEvent;
     FOnHint:TMouseMoveEvent;
@@ -58,7 +57,7 @@ TKMControl = class(TObject)
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; virtual;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
-    property OnClickEither: TNotifyEvent2 read FOnClickEither write FOnClickEither;
+    property OnClickEither: TNotifyEventMB read FOnClickEither write FOnClickEither;
     property OnClickRight: TNotifyEvent read FOnClickRight write FOnClickRight;
     property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
     property OnHint: TMouseMoveEvent read FOnHint write FOnHint;

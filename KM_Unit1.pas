@@ -677,6 +677,9 @@ procedure TForm1.ToggleControlsVisibility(ShowCtrls:boolean);
 begin
   Form1.Refresh;
 
+  {if ShowCtrls then Form1.Menu := MainMenu1
+                else Form1.Menu := nil; //Not working as intended yet}
+
   {$IFDEF VER140} //Lazarus can't operate with ClientSize for it's not multi-platform property
   if MainMenu1.Items[0].Visible and not ShowCtrls then //Hiding controls
     Form1.ClientHeight := Form1.ClientHeight - 20
@@ -741,7 +744,7 @@ begin
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
   if ReturnToOptions then fGame.fMainMenuInterface.ShowScreen_Options; //Return to the options screen
-  ApplyCursorRestriction
+  ApplyCursorRestriction;
 end;
 
 
@@ -776,7 +779,7 @@ begin
   if (Msg.CmdType = SC_SCREENSAVE) or (Msg.CmdType = SC_MONITORPOWER) then
     Msg.Result := -1
   else
-    inherited;
+    Inherited;
 end;
 
 
@@ -785,13 +788,13 @@ var
   i,k : integer;
   DevMode : TDevMode;
 begin
-  i:=0;
+  i := 0;
   FillChar(SupportedRefreshRates, SizeOf(SupportedRefreshRates), 0); //Thats a nice trick to fill it with zeroes ;)
   while EnumDisplaySettings(nil, i, DevMode) do
   with DevMode do
   begin
     inc(i);
-    if dmBitsPerPel=32 then
+    if dmBitsPerPel=32 then //List only 32bpp modes
     for k:=1 to RESOLUTION_COUNT do
     if (SupportedResolutions[k,1] = dmPelsWidth) and (SupportedResolutions[k,2] = dmPelsHeight)then
       SupportedRefreshRates[k] := Math.max(SupportedRefreshRates[k], dmDisplayFrequency);
@@ -800,8 +803,7 @@ end;
 
 
 procedure TForm1.ApplyCursorRestriction;
-var
-  Rect: TRect;
+var Rect: TRect;
 begin
   if (fGame <> nil) and (fGame.fGlobalSettings <> nil) and fGame.fGlobalSettings.IsFullScreen then
   begin

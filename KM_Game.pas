@@ -50,7 +50,7 @@ type
     procedure StartGame(MissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; MapID:byte=1);
     procedure PauseGame(DoPause:boolean);
     procedure HoldGame(DoHold:boolean);
-    procedure StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
+    procedure StopGame(const Msg:gr_Message; TextMsg:string='');
     procedure StartMapEditor(MissionName:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure SaveMapEditor(MissionName:string);
     function GetMissionTime:cardinal;
@@ -703,7 +703,7 @@ begin
 end;
 
 
-procedure TKMGame.StopGame(const Msg:gr_Message; TextMsg:string=''; ShowResults:boolean=true);
+procedure TKMGame.StopGame(const Msg:gr_Message; TextMsg:string='');
 begin
   GameState := gsNoGame;
 

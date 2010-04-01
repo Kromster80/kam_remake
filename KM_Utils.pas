@@ -42,6 +42,8 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function KMRemakeMapPath(aMapName, aExtension:string):string;
 
+  function MapSizeToString(X,Y:integer):string;
+
   function TypeToString(t:THouseType):string; overload;
   function TypeToString(t:TResourceType):string; overload;
   function TypeToString(t:TUnitType):string; overload;
@@ -302,6 +304,20 @@ begin
   Result := ExeDir+'Maps\'+aMapName+'\'+aMapName;
   if aExtension<>'' then
   Result := Result+'.'+aExtension;
+end;
+
+
+function MapSizeToString(X,Y:integer):string;
+begin
+  case X*Y of
+            1.. 48* 48: Result := 'XS';
+     48* 48+1.. 72* 72: Result := 'S';
+     72* 72+1..112*112: Result := 'M';
+    112*112+1..176*176: Result := 'L';
+    176*176+1..256*256: Result := 'XL';
+    256*256+1..320*320: Result := 'XXL';
+    else                Result := '???';
+  end;
 end;
 
 

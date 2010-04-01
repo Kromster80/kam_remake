@@ -76,7 +76,7 @@ type
   public      { Public declarations }
     constructor Create;
     function LoadDATFile(aFileName:string):string;
-    function SaveDATFile(aFileName:string; aMissionName:string):string;
+    function SaveDATFile(aFileName:string; aMissionName:string):boolean;
     function GetMissionDetails(aFileName:string):TKMMissionDetails;
     function GetMapDetails(aFileName:string):TKMMapDetails;
 end;
@@ -586,7 +586,7 @@ begin
 end;
 
 
-function TMissionParser.SaveDATFile(aFileName:string; aMissionName:string):string;
+function TMissionParser.SaveDATFile(aFileName:string; aMissionName:string):boolean;
 const
   COMMANDLAYERS = 4;
 var
@@ -809,12 +809,18 @@ begin
   assignfile(f, aFileName); rewrite(f);
   write(f, SaveString);
   closefile(f);
+
+  Result := true; //Success
 end;
 
 
-{TKMMapInfo}
+{ TKMMapInfo }
 procedure TKMMapsInfo.ScanSingleMapsFolder();
-var i,k:integer; SearchRec:TSearchRec; ft:textfile; s:string;
+var
+  i,k:integer;
+  SearchRec:TSearchRec;
+  ft:textfile;
+  s:string;
   MissionDetails: TKMMissionDetails;
   MapDetails: TKMMapDetails;
   fMissionParser:TMissionParser;
@@ -843,41 +849,29 @@ begin
   for i:=1 to MapCount do with Maps[i] do begin
 
     MissionDetails := fMissionParser.GetMissionDetails(KMRemakeMapPath(Maps[i].Folder,'dat'));
-    MapDetails := fMissionParser.GetMapDetails(KMRemakeMapPath(Maps[i].Folder,'map'));
-    IsFight := MissionDetails.IsFight;
-    PlayerCount := MissionDetails.TeamCount;
-
-    case MapDetails.MapSize.X*MapDetails.MapSize.Y of
-              1.. 48* 48: MapSize := 'XS';
-       48* 48+1.. 72* 72: MapSize := 'S';
-       72* 72+1..112*112: MapSize := 'M';
-      112*112+1..176*176: MapSize := 'L';
-      176*176+1..256*256: MapSize := 'XL';
-      256*256+1..320*320: MapSize := 'XXL';
-      else fLog.AssertToLog(false,'Unexpected MapDetail size');
-    end;
-
-    Title     := Maps[i].Folder;
-    SmallDesc := '-';
-    BigDesc   := '-';
+    MapDetails     := fMissionParser.GetMapDetails(KMRemakeMapPath(Maps[i].Folder,'map'));
+    IsFight        := MissionDetails.IsFight;
+    PlayerCount    := MissionDetails.TeamCount;
+    MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
+    Title          := Maps[i].Folder;
+    SmallDesc      := '-';
+    BigDesc        := '-';
 
     if fileexists(KMRemakeMapPath(Maps[i].Folder,'txt')) then
     begin
       assignfile(ft,KMRemakeMapPath(Maps[i].Folder,'txt'));
       reset(ft);
-
       repeat
         readln(ft,s);
         if UpperCase(s)=UpperCase('Title') then readln(ft,Title);
         if UpperCase(s)=UpperCase('SmallDesc') then readln(ft,SmallDesc);
         if UpperCase(s)=UpperCase('BigDesc') then readln(ft,BigDesc);
       until(eof(ft));
-
       closefile(ft);
     end;
   end;
-  FreeAndNil(fMissionParser);
 
+  FreeAndNil(fMissionParser);
 end;
 
 
