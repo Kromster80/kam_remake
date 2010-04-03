@@ -25,7 +25,7 @@ type
   public
     //Temp for fight simulator
     fHitPointRestorePace:word;
-    fHitPointRestoreInFights, fUseSimpleHitpoints:boolean;
+    fHitPointRestoreInFights:boolean;
     constructor Create;
     destructor Destroy; override;
     procedure SaveSettings;
@@ -168,7 +168,6 @@ begin
 
   fHitPointRestorePace := f.ReadInteger('Fights','HitPointRestorePace',0);
   fHitPointRestoreInFights := f.ReadBool('Fights','HitPointRestoreInFights',true);
-  fUseSimpleHitpoints := f.ReadBool('Fights','UseSimpleHitpoints',false);
 
   FreeAndNil(f);
   fNeedsSave:=false;
@@ -197,7 +196,6 @@ begin
 
   f.WriteInteger('Fights','HitPointRestorePace',fHitPointRestorePace);
   f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
-  f.WriteBool   ('Fights','UseSimpleHitpoints',fUseSimpleHitpoints);
 
   FreeAndNil(f);
   fNeedsSave:=false;

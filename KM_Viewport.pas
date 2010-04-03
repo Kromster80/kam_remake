@@ -128,6 +128,7 @@ begin
 
   //Left, Top, Right, Bottom
   //Keys
+  //@Krom: Keys not working anymore... And also, smooth scrolling isn't actually that smooth, it sort of hurts my eyes. Do we need vsync or something?
   if ScrollKeyLeft  then XCoord := XCoord - ScrollAdv;
   if ScrollKeyUp    then YCoord := YCoord - ScrollAdv;
   if ScrollKeyRight then XCoord := XCoord + ScrollAdv;

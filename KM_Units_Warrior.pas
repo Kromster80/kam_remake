@@ -638,7 +638,7 @@ function TKMUnitWarrior.CheckForEnemy: boolean;
     else Result := true;
   end;
 var i,k,WCount,OCount:shortint;
-    U: TKMUnit;
+    U, BestU: TKMUnit;
     Warriors,Others: array[1..8] of TKMUnit;
 begin
   //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
@@ -646,6 +646,7 @@ begin
   OCount := 0;
   //We don't care about state, override any action that can be abandoned
   Result := false; //Did we pick a fight?
+  BestU := nil;
   if ENABLE_FIGHTING then
   if CheckCanFight then
   begin
@@ -663,6 +664,9 @@ begin
           begin
             inc(WCount);
             Warriors[WCount] := U;
+            //If they are a warrior right in front of us then choose them to fight rather than turning
+            if KMSamePoint(KMGetPointInDir(GetPosition,Direction),U.GetPosition) then
+              BestU := U;
           end
           else
           begin
@@ -674,11 +678,14 @@ begin
   end;
   //Choose random unit, prefering warriors to e.g. serfs
   U := nil;
-  if WCount > 0 then
-    U := Warriors[Random(WCount)+1]
+  if BestU <> nil then
+    U := BestU //Warrior directly in front is first preference
   else
-    if OCount > 0 then
-      U := Others[Random(OCount)+1];
+    if WCount > 0 then
+      U := Warriors[Random(WCount)+1]
+    else
+      if OCount > 0 then
+        U := Others[Random(OCount)+1];
   if U <> nil then
   begin
     SetActionFight(ua_Work, U);

@@ -269,6 +269,7 @@ end;
 type TScrollAxis = (sa_Vertical, sa_Horizontal);
 
 {Scroll bar}
+//todo: scroll wheel work for scollbar
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;
@@ -1280,7 +1281,7 @@ begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
 
-  if ItemIndex <> -1 then
+  if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
   fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width, ItemHeight, $88888888);
 
   for i:=0 to min(fFiles.Count-1, (fHeight div ItemHeight)-1) do

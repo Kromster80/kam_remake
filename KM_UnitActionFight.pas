@@ -9,7 +9,6 @@ type
 TUnitActionFight = class(TUnitAction)
   private
     fOpponent:TKMUnit; //Who we are fighting with
-    fOpponentHitPoints: byte;
   public
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
@@ -31,7 +30,6 @@ begin
   Inherited Create(aActionType);
   fActionName := uan_Fight;
   fOpponent := aOpponent.GetSelf; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
-  fOpponentHitPoints := UnitStat[byte(aOpponent.GetUnitType)].HitPoints; //Initialise to full hit points at start of fight
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
 
@@ -47,7 +45,6 @@ constructor TUnitActionFight.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fOpponent, 4);
-  LoadStream.Read(fOpponentHitPoints);
 end;
 
 
@@ -112,19 +109,8 @@ begin
 
     IsHit := (Damage >= Random(101)); //0..100
 
-    //Testing two hitpoint systems: First hitpoints belong to unit, second hitpoints belong to fight.
-    if not fGame.fGlobalSettings.fUseSimpleHitpoints then
-      if IsHit then
-        fOpponent.HitPointsDecrease;
-
-    if fGame.fGlobalSettings.fUseSimpleHitpoints then
-    begin
-      if IsHit then
-        dec(fOpponentHitPoints);
-      if fOpponentHitPoints = 0 then fOpponent.KillUnit;
-    end;
-
-    if fOpponentHitPoints = 0 then fOpponent.KillUnit;
+    if IsHit then
+      fOpponent.HitPointsDecrease;
 
     MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
   end;
@@ -146,7 +132,6 @@ begin
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(fOpponentHitPoints);
 end;
 
 
