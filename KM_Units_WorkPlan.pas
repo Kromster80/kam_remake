@@ -316,12 +316,12 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   TempLocDir := fTerrain.FindTree(aLoc,RANGE_WOODCUTTER);
   if TempLocDir.Loc.X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
+    //Cutting uses diagonals (DirNW,DirSW,DirSE,DirNE or 1,3,5,7 in 0 base) of ua_Work
     WalkStyle(KMPoint(TempLocDir),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,TempLocDir.Dir);
   end else
   if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
-    //In some unit defines plant is ua_Work1, in others it is ua_Work?
-    //Dunno, but see KM_ResourceGFX line 406:407 for the explanation of the case
-    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work1,12,0,ua_Walk,gs_WoodCutterPlant,0)
+    //Planting uses DirN (0) of ua_Work, thus not interfering with the diagonals used by the cutting action
+    WalkStyle(fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER),ua_WalkTool,ua_Work,12,0,ua_Walk,gs_WoodCutterPlant,0)
   else
     fIssued:=false;
 end else

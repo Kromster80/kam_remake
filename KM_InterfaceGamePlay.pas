@@ -174,6 +174,7 @@ type TKMGamePlayInterface = class
     procedure Store_Fill(Sender:TObject);
     procedure Stats_Fill(Sender:TObject);
     procedure Menu_Fill(Sender:TObject);
+    procedure SetArmyControlsActive(aActive:boolean);
   public
     MyControls: TKMControlsCollection;
     JoiningGroups: boolean;
@@ -1445,6 +1446,8 @@ begin
   begin
     //Warrior specific
     Label_UnitDescription.Hide;
+    Commander := TKMUnitWarrior(Sender).GetCommander;
+    if Commander.Foe <> nil then Army_CancelJoin(nil); //Cannot be joining while in combat
     if JoiningGroups then
     begin
       Panel_Army_JoinGroups.Show;
@@ -1454,11 +1457,12 @@ begin
     begin
       sndPlaySound('E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav', SND_NODEFAULT or SND_ASYNC or SND_NOSTOP);
       Panel_Army.Show;
-      Commander := TKMUnitWarrior(Sender).GetCommander;
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;
+      SetArmyControlsActive(Commander.Foe = nil);
+      Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and(Commander.Foe = nil);
     end;
-    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.GetUnitType)] = gt_Melee); //Only melee groups may charge
+    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.GetUnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
   end
   else
   begin
@@ -1940,6 +1944,22 @@ begin
     Stat_UnitPic[i].Hint:=TypeToString(StatUnit[i]);
     Stat_UnitQty[i].Hint:=TypeToString(StatUnit[i]);
   end;
+end;
+
+
+procedure TKMGamePlayInterface.SetArmyControlsActive(aActive:boolean);
+begin
+  //Button_Army_GoTo.Enabled := aActive;
+  Button_Army_Stop.Enabled := aActive;
+  //Button_Army_Attack.Enabled := aActive;
+  Button_Army_RotCW.Enabled := aActive;
+  Button_Army_Storm.Enabled := aActive;
+  Button_Army_RotCCW.Enabled := aActive;
+  Button_Army_ForUp.Enabled := aActive;
+  Button_Army_ForDown.Enabled := aActive;
+  Button_Army_Split.Enabled := aActive;
+  Button_Army_Join.Enabled := aActive;
+  Button_Army_Feed.Enabled := aActive;
 end;
 
 

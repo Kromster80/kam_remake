@@ -403,8 +403,12 @@ begin
   //This is a bad idea to fix anything here, but at the time it's the simplest solution
   //Woodcutter(2) needs to shuffle actions
   //Split planting from chopping
-  UnitSprite[2].Act[5].Dir[1]:=UnitSprite[2].Act[2].Dir[1];
-  UnitSprite[2].Act[2].Dir[1]:=UnitSprite[2].Act[5].Dir[2];
+  //@Krom: Why? It does no harm for them to be in the one action since cutting only uses dir2,4,6,8 and planting only uses dir1.
+  //       This was the cause of the confusion in WorkPlan by the way, I couldn't understand why our internal data didn't match the DAT file.
+  //       I have removed them and changed WorkPlan to use the orignal values as they are read from the DAT. I see no problem with it, do you?
+  //       To be deleted along with these two lines unless you can explain why we need them.
+  //UnitSprite[2].Act[5].Dir[1]:=UnitSprite[2].Act[2].Dir[1];
+  //UnitSprite[2].Act[2].Dir[1]:=UnitSprite[2].Act[5].Dir[2];
 
   if WriteResourceInfoToTXT then begin
     assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);

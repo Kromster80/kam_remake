@@ -877,7 +877,7 @@ begin
       SaveStream := TKMemoryStream.Create;
       SaveStream.Write('KaM_Savegame');
       SaveStream.Write(SAVE_VERSION); //This is savegame version
-      SaveStream.Write(GetMissionFile); //Save game title
+      SaveStream.Write(GetMissionFile); //Save game mission file
       SaveStream.Write(GetGameName); //Save game title
       SaveStream.Write(GameplayTickCount, 4); //Required to be saved, e.g. messages being shown after a time
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
@@ -942,6 +942,7 @@ begin
         StartGame('','');
 
         //Substitute tick counter and id tracker
+        LoadStream.Read(fMissionFile); //Save game mission file
         LoadStream.Read(fGameName); //Save game title
         LoadStream.Read(GameplayTickCount, 4);
         LoadStream.Read(ID_Tracker, 4);

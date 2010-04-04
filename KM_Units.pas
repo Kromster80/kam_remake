@@ -2030,7 +2030,6 @@ begin
   if Commander=nil then exit; //Don't add group without a commander
   fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
 
-  Commander.UnitsPerRow := aUnitPerRow;
   Commander.Direction := aDir;
   Commander.GetOrderLoc := KMPointDir(Commander.GetOrderLoc.Loc,byte(aDir)-1); //So when they click Halt for the first time it knows where to place them
 
@@ -2052,6 +2051,7 @@ begin
       end;
     end;
   end;
+  Commander.UnitsPerRow := aUnitPerRow; //Must be set at the end AFTER adding members
 end;
 
 

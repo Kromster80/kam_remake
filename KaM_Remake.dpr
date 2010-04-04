@@ -42,7 +42,8 @@ uses
   KM_UnitActionStay in 'KM_UnitActionStay.pas',
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas',
-  KM_UnitTaskMining in 'KM_UnitTaskMining.pas';
+  KM_UnitTaskMining in 'KM_UnitTaskMining.pas',
+  KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas';
 
 
 {$IFDEF VER140}
