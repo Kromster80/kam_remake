@@ -10,6 +10,8 @@ type
 TViewport = class
   private
     XCoord,YCoord:single;
+    PrevScrollAdv:array [1..24]of single;
+    PrevScrollPos:byte;
   public
     Zoom:single;
     ViewRect:TRect;
@@ -36,6 +38,8 @@ uses KM_Defaults, KM_Terrain, KM_Unit1, KM_SoundFX, KM_Game;
 
 constructor TViewport.Create;
 begin
+  FillChar(PrevScrollAdv, SizeOf(PrevScrollAdv), #0);
+  PrevScrollPos := 0;
   Zoom := 1;
   ScrollKeyLeft  := false;
   ScrollKeyRight := false;
@@ -119,16 +123,30 @@ var
   ScrollAdv:single;
   Temp:byte;
 begin
+  if not ScrollKeyLeft  and
+     not ScrollKeyUp    and
+     not ScrollKeyRight and
+     not ScrollKeyDown  and
+     not (Mouse.CursorPos.X <= SCROLLFLEX) and
+     not (Mouse.CursorPos.Y <= SCROLLFLEX) and
+     not (Mouse.CursorPos.X >= Screen.Width -1-SCROLLFLEX) and
+     not (Mouse.CursorPos.Y >= Screen.Height-1-SCROLLFLEX) then exit;
+
+  ScrollAdv := (SCROLLSPEED + byte(fGame.fGlobalSettings.IsFastScroll)*3)*aFrameTime/100; //1 vs 4 tiles per second
+
+  PrevScrollPos := (PrevScrollPos + 1) mod length(PrevScrollAdv) + 1; //Position in ring-buffer
+  PrevScrollAdv[PrevScrollPos] := ScrollAdv; //Replace oldest value
+  for Temp := 1 to length(PrevScrollAdv) do //Compute average
+    ScrollAdv := ScrollAdv + PrevScrollAdv[Temp];
+  ScrollAdv := ScrollAdv / length(PrevScrollAdv);//}
+
   Temp := 0; //That is our bitfield variable for directions, 0..12 range
   //    3 2 6  These are directions
   //    1 * 4  They are converted from bitfield to actual cursor constants, see Arr array
   //    9 8 12
 
-  ScrollAdv := (SCROLLSPEED + byte(fGame.fGlobalSettings.IsFastScroll)*3)*aFrameTime/100; //1 vs 4 tiles per second
-
-  //Left, Top, Right, Bottom
   //Keys
-  //@Krom: Keys not working anymore... And also, smooth scrolling isn't actually that smooth, it sort of hurts my eyes. Do we need vsync or something?
+  //@Krom: Smooth scrolling isn't actually that smooth, it sort of hurts my eyes. Do we need vsync or something?
   if ScrollKeyLeft  then XCoord := XCoord - ScrollAdv;
   if ScrollKeyUp    then YCoord := YCoord - ScrollAdv;
   if ScrollKeyRight then XCoord := XCoord + ScrollAdv;

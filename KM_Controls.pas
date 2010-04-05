@@ -270,6 +270,7 @@ type TScrollAxis = (sa_Vertical, sa_Horizontal);
 
 {Scroll bar}
 //todo: scroll wheel work for scollbar
+//+make it work only if it has MouseOver=true
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;

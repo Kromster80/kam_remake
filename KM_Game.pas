@@ -198,6 +198,13 @@ begin
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
                   if fGameplayInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
+
+                  //Scrolling
+                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
+                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
+                  if Key = VK_UP    then fViewport.ScrollKeyUp    := IsDown;
+                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
+
                   if IsDown then exit;
                   if Key = VK_BACK then begin
                     //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
@@ -219,11 +226,6 @@ begin
                     fTerrain.RevealWholeMap(MyPlayer.PlayerID);
                   if fGamePlayInterface <> nil then //Also send shortcut to GamePlayInterface if it is there
                     fGamePlayInterface.ShortcutPress(Key, IsDown);
-                  //Scrolling
-                  if Key=VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
-                  if Key=VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
-                  if Key=VK_UP    then fViewport.ScrollKeyUp    := IsDown;
-                  if Key=VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
 
                   {Thats my debug example}
                   if Key=ord('5') then fGameplayInterface.IssueMessage(msgText,'123',KMPoint(0,0));
@@ -234,7 +236,6 @@ begin
                   if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 
                   if Key=ord('V') then begin fGame.HoldGame(true); exit; end; //Instant victory
-
                 end;
     gsEditor:   if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
   end;
@@ -877,8 +878,8 @@ begin
       SaveStream := TKMemoryStream.Create;
       SaveStream.Write('KaM_Savegame');
       SaveStream.Write(SAVE_VERSION); //This is savegame version
-      SaveStream.Write(GetMissionFile); //Save game mission file
-      SaveStream.Write(GetGameName); //Save game title
+      SaveStream.Write(fMissionFile); //Save game mission file
+      SaveStream.Write(fGameName); //Save game title
       SaveStream.Write(GameplayTickCount, 4); //Required to be saved, e.g. messages being shown after a time
       SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
 
