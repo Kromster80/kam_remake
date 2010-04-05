@@ -73,7 +73,7 @@ var
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Data output}
   WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
-  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
+  WriteResourceInfoToTXT:boolean=true; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
 
   //Statistic
@@ -192,9 +192,16 @@ type gr_Message = (     //Game result
 
                
 {Palettes}
+
+const
+  PAL_COUNT=12;
+
+var //There are 9 palette files Map, Pal0-5, Setup and Setup2 +1 linear +2lbm
+Pal:array[1..PAL_COUNT,1..256,1..3]of byte;
+
 const
  //Palette filename corresponds with pal_**** constant, except pal_lin which is generated proceduraly (filename doesn't matter for it)
- PalFiles:array[1..12]of string = (
+ PalFiles:array[1..PAL_COUNT]of string = (
  'map.bbm', 'pal0.bbm', 'pal1.bbm', 'pal2.bbm', 'pal3.bbm', 'pal4.bbm', 'pal5.bbm', 'setup.bbm', 'setup2.bbm', 'map.bbm',
  'mapgold.lbm', 'setup.lbm');
  pal_map=1; pal_0=2; pal_1=3; pal_2=4; pal_3=5; pal_4=6; pal_5=7; pal_set=8; pal_set2=9; pal_lin=10;
@@ -321,63 +328,36 @@ type
 //Used for AI defence and linking troops
 type TGroupType = (gt_None=0,gt_Melee,gt_AntiHorse,gt_Ranged,gt_Mounted);
 
-const UnitGroups: array[0..40] of TGroupType = (
-    //Villagers
-    gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,
-    gt_None,gt_None,gt_None,gt_None,gt_None,gt_None, //ut_None..ut_Recruit
-    //Army
+const UnitGroups: array[byte(ut_Militia)..byte(ut_Barbarian)] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
     gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
     gt_Mounted,gt_Mounted,      //ut_HorseScout, ut_Cavalry,
-    gt_Melee,                   //ut_Barbarian
+    gt_Melee                    //ut_Barbarian
     //TPR Army
-    gt_AntiHorse,        //ut_Peasant
+    {gt_AntiHorse,        //ut_Peasant
     gt_Ranged,           //ut_Slingshot
     gt_Melee,            //ut_MetalBarbarian
     gt_Mounted,          //ut_Horseman
-    gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,
-    //Animals
-    gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None,gt_None);
+    gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,}
+    );
 
-const FlagXOffset: array[0..40] of shortint = (
-    //Villagers
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0, //ut_None..ut_Recruit
-    //Army
+const FlagXOffset: array[byte(ut_Militia)..byte(ut_Barbarian)] of shortint = (
     10,10,10,  //ut_Militia, ut_AxeFighter, ut_Swordsman
     8,8,       //ut_Bowman, ut_Arbaletman
     6,6,       //ut_Pikeman, ut_Hallebardman,
     6,6,       //ut_HorseScout, ut_Cavalry,
-    10,        //ut_Barbarian
-    //TPR Army
-    0,         //ut_Peasant
-    0,         //ut_Slingshot
-    0,         //ut_MetalBarbarian
-    0,         //ut_Horseman
-    0,0,       //ut_Catapult, ut_Ballista,
-    //Animals
-    0,0,0,0,0,0,0,0,0,0);
+    10         //ut_Barbarian
+    );
 
 
-const FlagYOffset: array[0..40] of shortint = (
-    //Villagers
-    0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0, //ut_None..ut_Recruit
-    //Army
+const FlagYOffset: array[byte(ut_Militia)..byte(ut_Barbarian)] of shortint = (
     21,23,27,  //ut_Militia, ut_AxeFighter, ut_Swordsman
     27,28,     //ut_Bowman, ut_Arbaletman
     20,23,     //ut_Pikeman, ut_Hallebardman,
     4,3,       //ut_HorseScout, ut_Cavalry,
-    28,        //ut_Barbarian
-    //TPR Army
-    0,         //ut_Peasant
-    0,         //ut_Slingshot
-    0,         //ut_MetalBarbarian
-    0,         //ut_Horseman
-    0,0,       //ut_Catapult, ut_Ballista,
-    //Animals
-    0,0,0,0,0,0,0,0,0,0);
+    28         //ut_Barbarian
+    );
 
 
 //Defines which animal prefers which terrain
@@ -619,9 +599,9 @@ HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (
 
 //Does house output needs to be ordered by Player or it keeps on producing by itself
 HousePlaceOrders:array[1..HOUSE_COUNT] of boolean = (
-false,false,true,false,false,false,false,false,false,false,
-true,false,false,false,false,false,false,false,false,true,
-true,false,false,true,false,false,false,false,false{,false});
+false,false,true ,false,false,false,false,false,false,false,
+true ,false,false,false,false,false,false,false,false,true ,
+true ,false,false,true ,false,false,false,false,false{,false});
 
 //What does house produces
 HouseOutput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
@@ -936,12 +916,6 @@ var
     Cell:TKMPoint;      //Cursor position cell
     SState:TShiftState;
   end;
-
-  //Pallete for RX bitmaps
-  //There are 9 palette files Map, Pal0-5, Setup and Setup2
-  //+1 linear
-  //+2lbm
-  Pal:array[1..13,1..256,1..3]of byte;
 
   RXData:array [1..6]of record
     Title:string;

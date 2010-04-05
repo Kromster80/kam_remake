@@ -96,7 +96,7 @@ begin
   fLog.AssertToLog(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
-  for i:=1 to length(PalFiles) do
+  for i:=1 to PAL_COUNT do
    LoadPalette(ExeDir+'data\gfx\'+PalFiles[i],i);
   fLog.AppendLog('Reading palettes',true);
 
@@ -417,6 +417,8 @@ begin
       write(ft,inttostr(UnitStat[ii].x10)+';');
       write(ft,inttostr(UnitStat[ii].CanWalkOut)+';');
       write(ft,inttostr(UnitStat[ii].x11)+';');
+      for kk:=1 to 18 do
+        write(ft,inttostr(UnitSprite2[ii,kk])+';');
       writeln(ft);
     end;
     closefile(ft);
