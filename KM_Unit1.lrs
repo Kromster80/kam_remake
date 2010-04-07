@@ -8,17 +8,17 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +#8'OnCreate'#7#10'FormCreate'#9'OnDestroy'#7#11'FormDestroy'#9'OnKeyDown'#7
   +#11'FormKeyDown'#7'OnKeyUp'#7#9'FormKeyUp'#12'OnMouseWheel'#7#14'FormMouseWh'
   +'eel'#8'OnResize'#7#10'FormResize'#8'Position'#7#14'poScreenCenter'#10'LCLVe'
-  +'rsion'#6#8'0.9.28.2'#0#6'TPanel'#6'Panel5'#4'Left'#2#0#6'Height'#3#206#0#3
-  +'Top'#2#0#5'Width'#3'c'#3#7'Anchors'#11#5'akTop'#6'akLeft'#7'akRight'#8'akBo'
-  +'ttom'#0#10'BevelOuter'#7#6'bvNone'#5'Color'#7#8'clMaroon'#11'ParentColor'#8
-  +#8'TabOrder'#2#0#14'UseDockManager'#8#11'OnMouseDown'#7#15'Panel1MouseDown'
-  +#11'OnMouseMove'#7#15'Panel1MouseMove'#9'OnMouseUp'#7#13'Panel1MouseUp'#0#0
-  +#10'TStatusBar'#10'StatusBar1'#4'Left'#2#0#6'Height'#2#20#3'Top'#3#206#0#5'W'
-  +'idth'#3'c'#3#6'Panels'#14#1#4'Text'#6#11'Map size: -'#5'Width'#2'n'#0#1#4'T'
-  +'ext'#6#17'Cursor: 46.1 47.2'#5'Width'#3#180#0#0#1#4'Text'#6#13'50.0 fps (50'
-  +')'#5'Width'#2'P'#0#0#11'SimplePanel'#8#0#0#9'TGroupBox'#9'GroupBox1'#4'Left'
-  +#3#152#1#6'Height'#2'I'#3'Top'#2#8#5'Width'#3#169#1#7'Caption'#6'B  Addition'
-  +'al controls   ..   Press F11 to swap controls visibility'#12'ClientHeight'#2
+  +'rsion'#6#6'0.9.29'#0#6'TPanel'#6'Panel5'#4'Left'#2#0#6'Height'#3#206#0#3'To'
+  +'p'#2#0#5'Width'#3'c'#3#7'Anchors'#11#5'akTop'#6'akLeft'#7'akRight'#8'akBott'
+  +'om'#0#10'BevelOuter'#7#6'bvNone'#5'Color'#7#8'clMaroon'#11'ParentColor'#8#8
+  +'TabOrder'#2#0#14'UseDockManager'#8#11'OnMouseDown'#7#15'Panel1MouseDown'#11
+  +'OnMouseMove'#7#15'Panel1MouseMove'#9'OnMouseUp'#7#13'Panel1MouseUp'#0#0#10
+  +'TStatusBar'#10'StatusBar1'#4'Left'#2#0#6'Height'#2#20#3'Top'#3#206#0#5'Widt'
+  +'h'#3'c'#3#6'Panels'#14#1#4'Text'#6#11'Map size: -'#5'Width'#2'n'#0#1#4'Text'
+  +#6#17'Cursor: 46.1 47.2'#5'Width'#3#180#0#0#1#4'Text'#6#13'50.0 fps (50)'#5
+  +'Width'#2'P'#0#0#11'SimplePanel'#8#0#0#9'TGroupBox'#9'GroupBox1'#4'Left'#3
+  +#152#1#6'Height'#2'I'#3'Top'#2#8#5'Width'#3#169#1#7'Caption'#6'B  Additional'
+  +' controls   ..   Press F11 to swap controls visibility'#12'ClientHeight'#2
   +'7'#11'ClientWidth'#3#165#1#8'TabOrder'#2#2#0#6'TShape'#15'TeamColorPicker'#4
   +'Left'#3#144#0#6'Height'#2#22#3'Top'#2'('#5'Width'#2#22#10'OnDragDrop'#7#23
   +'TeamColorPickerDragDrop'#9'OnMouseUp'#7#22'TeamColorPickerMouseUp'#0#0#6'TL'

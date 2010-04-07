@@ -210,7 +210,7 @@ const
  //I couldn't find matching palettes for several entries, so I marked them 0 
  RX5Pal:array[1..40]of byte = (
  12,12,12,12,12,12,9,9,9,1,
- 1,1,1,1,1,1,12,12,12,13,
+ 1,1,1,1,1,1,12,12,12,0,
  0,0,0,0,12,1,1,1,1,1,
  12,12,12,12,12,12,12,0,0,0);
  //I couldn't find matching palettes for several entries, so I marked them 0 
@@ -220,10 +220,12 @@ const
 
 {Fonts}
 type //Indexing should start from 1.
-  TKMFont = (fnt_nil, fnt_Adam, fnt_Antiqua, fnt_Briefing, fnt_Font01, fnt_Game,
-             fnt_Grey, fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2, fnt_KMLobby3,
-             fnt_KMLobby4, fnt_MainA, fnt_MainB, fnt_MainMapGold, fnt_Metal,
-             fnt_Mini, fnt_Minimum, fnt_Outline, fnt_System, fnt_Won);
+  TKMFont = (fnt_nil,
+             fnt_Adam,     fnt_Antiqua,  fnt_Briefing, fnt_Font01,      fnt_Game,
+             fnt_Grey,     fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2,    fnt_KMLobby3,
+             fnt_KMLobby4, fnt_MainA,    fnt_MainB,    fnt_MainMapGold, fnt_Metal,
+             fnt_Mini,     fnt_Minimum,  fnt_Outline,  fnt_System,      fnt_Won);
+
 const //Font01.fnt seems to be damaged..
   FontFiles: array[1..20]of string = (
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
@@ -235,7 +237,7 @@ const //Font01.fnt seems to be damaged..
    12, 8,10,11, 2, 8, 8, 2,10, 9);
 
 //Which MapEditor page is being shown. Add more as they are needed.
-type TKMMapEdShownPage = (esp_Unknown,esp_Terrain,esp_Buildings,esp_Units);
+type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
 
 type
   TAllianceType = (at_Enemy=0, at_Ally=1);
