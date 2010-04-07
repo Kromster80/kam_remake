@@ -419,9 +419,9 @@ begin
     Self.OnHint(Self,AShift,X,Y);
 
   if Self is TKMPanel then //Only Panels have childs
-  for i:=1 to TKMPanel(Self).ChildCount do
-    if TKMPanel(Self).Childs[i].Visible then //No hints for invisible controls
-       TKMPanel(Self).Childs[i].HintCheckCursorOver(X,Y,AShift);
+    for i:=1 to TKMPanel(Self).ChildCount do
+      if TKMPanel(Self).Childs[i].Visible then //No hints for invisible controls
+         TKMPanel(Self).Childs[i].HintCheckCursorOver(X,Y,AShift);
 end;
 
 
@@ -1074,11 +1074,11 @@ begin
   if (CursorOver) and (ssLeft in AShift) then
   begin
     if fScrollAxis = sa_Vertical then
-    if InRange(Y,Top+Width,Top+Height-Width) then
-      NewPos := round( MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue) );
+      if InRange(Y,Top+Width,Top+Height-Width) then
+        NewPos := round( MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue) );
     if fScrollAxis = sa_Horizontal then
-    if InRange(X,Left+Height,Left+Width-Height) then
-      NewPos := round( MinValue+((X-Left-Height-Thumb/2)/(Width-Height*2-Thumb))*(MaxValue-MinValue) );
+      if InRange(X,Left+Height,Left+Width-Height) then
+        NewPos := round( MinValue+((X-Left-Height-Thumb/2)/(Width-Height*2-Thumb))*(MaxValue-MinValue) );
   end;
   if NewPos <> Position then begin
     Position := EnsureRange(NewPos, MinValue, MaxValue);
@@ -1283,7 +1283,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, Width, Height);
 
   if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
-  fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width, ItemHeight, $88888888);
+    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width, ItemHeight, $88888888);
 
   for i:=0 to min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, fPaths.Strings[TopIndex+i]+fFiles.Strings[TopIndex+i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
@@ -1299,14 +1299,14 @@ begin
   CtrlPaintCount := 0;
   fFocusedControl := nil;
   if fRenderUI <> nil then
-  fRenderUI := TRenderUI.Create;
+    fRenderUI := TRenderUI.Create;
 end;
 
 
 destructor TKMControlsCollection.Destroy();
 begin
   if fRenderUI <> nil then
-  FreeAndNil(fRenderUI);
+    FreeAndNil(fRenderUI);
   Inherited;
 end;
 
@@ -1523,41 +1523,40 @@ var i:integer;
 begin
   if fFocusedControl <> nil then fFocusedControl.HasFocus := false; //Release focus in any case of OnMouseUp
   for i:=0 to Count-1 do
-  if Controls[i].HitTest(X, Y) then
-  if Controls[i].Enabled or MODE_DESIGN_CONTORLS then //Allow selecting of disabled Controls
-  begin
-    if Controls[i] is TKMButton then
-      TKMButton(Controls[i]).Down := false;
-
-    if (AButton = mbLeft) then //Set focus irregardless of assigned OnClick events
+    if Controls[i].HitTest(X, Y) and (Controls[i].Enabled or MODE_DESIGN_CONTORLS) then //Allow selecting of disabled Controls
     begin
-      fFocusedControl := Controls[i]; //Only LMB can set focus
-      fFocusedControl.HasFocus := true; //Set Focus
-    end;
+      if Controls[i] is TKMButton then
+        TKMButton(Controls[i]).Down := false;
 
-    if (AButton = mbLeft)
-    and Assigned(Controls[i].OnClick)
-    and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
-    begin
-      Controls[i].OnClick(Controls[i]);
-      exit; //Send OnClick only to one item
-    end;
+      if (AButton = mbLeft) then //Set focus irregardless of assigned OnClick events
+      begin
+        fFocusedControl := Controls[i]; //Only LMB can set focus
+        fFocusedControl.HasFocus := true; //Set Focus
+      end;
 
-    if (AButton = mbRight)
-    and Assigned(Controls[i].OnClickRight) 
-    and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
-    begin
-      Controls[i].OnClickRight(Controls[i]);
-      exit; //Send OnClickRight only to one item
-    end;
+      if (AButton = mbLeft)
+      and Assigned(Controls[i].OnClick)
+      and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
+      begin
+        Controls[i].OnClick(Controls[i]);
+        exit; //Send OnClick only to one item
+      end;
 
-    if Assigned(Controls[i].OnClickEither)
-    and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
-    begin
-      Controls[i].OnClickEither(Controls[i], AButton);
-      exit; //Send OnClickRight only to one item
+      if (AButton = mbRight)
+      and Assigned(Controls[i].OnClickRight)
+      and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
+      begin
+        Controls[i].OnClickRight(Controls[i]);
+        exit; //Send OnClickRight only to one item
+      end;
+
+      if Assigned(Controls[i].OnClickEither)
+      and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
+      begin
+        Controls[i].OnClickEither(Controls[i], AButton);
+        exit; //Send OnClickRight only to one item
+      end;
     end;
-  end;
 end;
 
 
@@ -1573,8 +1572,8 @@ begin
         Controls[i].Paint;
 
   if MODE_DESIGN_CONTORLS and (fFocusedControl<>nil) then
-  with fFocusedControl do
-    fRenderUI.WriteText(Left, Top-14, Width, inttostr(Left)+':'+inttostr(Top), fnt_Grey, kaLeft, false, $FFFFFFFF);
+    with fFocusedControl do
+      fRenderUI.WriteText(Left, Top-14, Width, inttostr(Left)+':'+inttostr(Top), fnt_Grey, kaLeft, false, $FFFFFFFF);
 end;
 
 

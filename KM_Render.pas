@@ -53,7 +53,6 @@ private
   procedure RenderCursorWireHousePlan(P:TKMPoint; aHouseType:THouseType);
   procedure RenderCursorHighlights;
   procedure RenderBrightness(Value:byte);
-protected
 public
   Stat_Sprites:integer; //Total sprites in queue
   Stat_Sprites2:integer;//Rendered sprites
@@ -1031,9 +1030,10 @@ begin
     2: ID:=107; //Field
     3: ID:=108; //Wine
     4: ID:=111; //Wall
-    else ID:=0;
+    else exit;  //WTF?
   end;
-  FOW:=fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
+
+  FOW := fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
 
   glColor3ub(FOW,FOW,FOW);
   glBindTexture(GL_TEXTURE_2D,GFXData[4,ID].TexID);
@@ -1114,18 +1114,17 @@ begin
 end;
 
 
-
 procedure TRender.RenderCursorWireQuad(P:TKMPoint; Col:TColor4);
 begin
+  if not fTerrain.TileInMapCoords(P.X, P.Y) then exit;
   glColor4ubv(@Col);
-  glbegin (GL_LINE_LOOP);
-  if fTerrain.TileInMapCoords(P.X,P.Y) then
-  with fTerrain do begin
-    glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/CELL_HEIGHT_DIV);
-    glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/CELL_HEIGHT_DIV);
-    glvertex2f(p.X  ,p.Y-  Land[p.Y+1,p.X+1].Height/CELL_HEIGHT_DIV);
-    glvertex2f(p.X-1,p.Y-  Land[p.Y+1,p.X  ].Height/CELL_HEIGHT_DIV);
-  end;
+  glBegin(GL_LINE_LOOP);
+    with fTerrain do begin
+      glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/CELL_HEIGHT_DIV);
+      glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/CELL_HEIGHT_DIV);
+      glvertex2f(p.X  ,p.Y-  Land[p.Y+1,p.X+1].Height/CELL_HEIGHT_DIV);
+      glvertex2f(p.X-1,p.Y-  Land[p.Y+1,p.X  ].Height/CELL_HEIGHT_DIV);
+    end;
   glEnd;
 end;
 
@@ -1258,5 +1257,6 @@ begin
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 end;
+
 
 end.

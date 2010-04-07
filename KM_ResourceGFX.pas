@@ -141,14 +141,14 @@ begin
   fLog.AppendLog('Reading unit.dat',   LoadUnitDAT(ExeDir+'data\defines\unit.dat'));       StepRefresh();
 
   for i:=1 to 3 do
-  if (i=1) or ((i=2) and MakeHouseSprites) or ((i=3) and MakeUnitSprites) then
-  begin
-    StepCaption('Reading '+RXData[i].Title+' GFX ...');
-    fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-    MakeGFX(nil,i);
-    if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
-    StepRefresh();
-  end;
+    if (i=1) or ((i=2) and MakeHouseSprites) or ((i=3) and MakeUnitSprites) then
+    begin
+      StepCaption('Reading '+RXData[i].Title+' GFX ...');
+      fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
+      MakeGFX(nil,i);
+      if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
+      StepRefresh();
+    end;
 
   StepCaption('Making minimap colors ...');
   MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
@@ -681,54 +681,58 @@ var
   TD:array of byte;
 begin
 
-for ID:=1 to HOUSE_COUNT do
-if HouseDAT[ID].StonePic<>-1 then //Exlude House27 which is unused
-  for h:=1 to 2 do begin
+  for ID:=1 to HOUSE_COUNT do
+    if HouseDAT[ID].StonePic<>-1 then //Exlude House27 which is unused
+      for h:=1 to 2 do begin
 
-    if h=1 then begin
-      ID1:=HouseDAT[ID].WoodPic+1; ID2:=HouseDAT[ID].WoodPal+1; StepCount:=HouseDAT[ID].WoodPicSteps;
-    end else begin
-      ID1:=HouseDAT[ID].StonePic+1; ID2:=HouseDAT[ID].StonePal+1; StepCount:=HouseDAT[ID].StonePicSteps;
-    end;
-
-    WidthPOT:=MakePOT(RXData[RXid].Size[ID1,1]);
-    HeightPOT:=MakePOT(RXData[RXid].Size[ID1,2]);
-    setlength(TD,WidthPOT*HeightPOT*4+1);
-
-    for i:=1 to HeightPOT do begin
-      ci:=-1;
-      for k:=1 to RXData[RXid].Size[ID1,1] do begin
-        inc(ci);
-        if i<=RXData[RXid].Size[ID1,2] then begin
-          t:=((i-1)*WidthPOT+ci)*4;
-          col:=RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1,1]+k-1]+1;
-          TD[t+0]:=Pal[DEF_PAL,col,1];
-          TD[t+1]:=Pal[DEF_PAL,col,2];
-          TD[t+2]:=Pal[DEF_PAL,col,3];
-          if i<=RXData[RXid].Size[ID2,2] then
-          if k<=RXData[RXid].Size[ID2,1] then begin//Cos someimes ID2 is smaller by few pixels
-            t2:=t+(RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x)*4; //Shift by pivot, always positive
-            t2:=t2+(RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT*4; //Shift by pivot, always positive
-            TD[t2+3]:=255-round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2,1]+k-1]*(255/StepCount));
-          end;
-          if col=1 then TD[t+3]:=0;
+        if h=1 then begin
+          ID1:=HouseDAT[ID].WoodPic+1;
+          ID2:=HouseDAT[ID].WoodPal+1;
+          StepCount:=HouseDAT[ID].WoodPicSteps;
+        end else begin
+          ID1:=HouseDAT[ID].StonePic+1;
+          ID2:=HouseDAT[ID].StonePal+1;
+          StepCount:=HouseDAT[ID].StonePicSteps;
         end;
+
+        WidthPOT:=MakePOT(RXData[RXid].Size[ID1,1]);
+        HeightPOT:=MakePOT(RXData[RXid].Size[ID1,2]);
+        setlength(TD,WidthPOT*HeightPOT*4+1);
+
+        for i:=1 to HeightPOT do begin
+          ci:=-1;
+          for k:=1 to RXData[RXid].Size[ID1,1] do begin
+            inc(ci);
+            if i<=RXData[RXid].Size[ID1,2] then begin
+              t:=((i-1)*WidthPOT+ci)*4;
+              col:=RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1,1]+k-1]+1;
+              TD[t+0]:=Pal[DEF_PAL,col,1];
+              TD[t+1]:=Pal[DEF_PAL,col,2];
+              TD[t+2]:=Pal[DEF_PAL,col,3];
+              if i<=RXData[RXid].Size[ID2,2] then
+              if k<=RXData[RXid].Size[ID2,1] then begin//Cos someimes ID2 is smaller by few pixels
+                t2:=t+(RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x)*4; //Shift by pivot, always positive
+                t2:=t2+(RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT*4; //Shift by pivot, always positive
+                TD[t2+3]:=255-round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2,1]+k-1]*(255/StepCount));
+              end;
+              if col=1 then TD[t+3]:=0;
+            end;
+          end;
+        end;
+
+        GFXData[RXid,ID1].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
+        setlength(TD,0);
+        GFXData[RXid,ID1].AltID := 0;
+        GFXData[RXid,ID1].u1    := 0;
+        GFXData[RXid,ID1].v1    := 0;
+        GFXData[RXid,ID1].u2    := RXData[RXid].Size[ID1,1]/WidthPOT;
+        GFXData[RXid,ID1].v2    := RXData[RXid].Size[ID1,2]/HeightPOT;
+        GFXData[RXid,ID1].PxWidth:=RXData[RXid].Size[ID1,1];
+        GFXData[RXid,ID1].PxHeight:=RXData[RXid].Size[ID1,2];
       end;
-    end;
 
-    GFXData[RXid,ID1].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
-    setlength(TD,0);
-    GFXData[RXid,ID1].AltID:=0;
-    GFXData[RXid,ID1].u1:=0;
-    GFXData[RXid,ID1].v1:=0;
-    GFXData[RXid,ID1].u2:=RXData[RXid].Size[ID1,1]/WidthPOT;
-    GFXData[RXid,ID1].v2:=RXData[RXid].Size[ID1,2]/HeightPOT;
-    GFXData[RXid,ID1].PxWidth:=RXData[RXid].Size[ID1,1];
-    GFXData[RXid,ID1].PxHeight:=RXData[RXid].Size[ID1,2];
-  end;
-
-//Now we can safely dispose of RXData[RXid].Data to save us some more RAM
-for i:=1 to RXData[RXid].Qty do setlength(RXData[RXid].Data[i],0);
+  //Now we can safely dispose of RXData[RXid].Data to save us some more RAM
+  for i:=1 to RXData[RXid].Qty do setlength(RXData[RXid].Data[i],0);
 end;
 
 
@@ -1109,7 +1113,8 @@ begin
     DeCompressionStream.Free;
     {$ENDIF};
     {$IFDEF FPC}
-{    InStream := TMemoryStream.Create;
+    //todo: Read zlib packed texture to minimap color
+    {InStream := TMemoryStream.Create;
     InStream.LoadFromFile(FileName);
     GetMem(Comp, InStream.Size);
     InStream.Read(Comp^, InStream.Size);
