@@ -130,7 +130,7 @@ var
   {$ENDIF}
   {$IFDEF FPC}
   InStream: TMemoryStream;
-  Comp:Pointer;
+  DeComp, Comp:Pointer;
   DestSize:cardinal;
   {$ENDIF}
 begin
@@ -163,7 +163,7 @@ begin
   ZLibCompressed := TGAHeader.FileType=120;
 
   //TGA is compressed by ZLibEx, thats only KaM Remake custom option
-  if ZLibCompressed{TGAHeader.FileType=120} then
+  if ZLibCompressed then
   begin
     CloseFile(TGAFile);
   {$IFDEF VER140}
@@ -224,25 +224,28 @@ begin
   end;
 
   //allocate slightly more space for PasZLib which I don't know how to force to decode from given offset
-  GetMem(Image, ImageSize+SizeOf(TGAHeader));
 
   if ZLibCompressed then
   begin
     {$IFDEF VER140}
+    GetMem(Image, ImageSize);
     bytesRead := OutputStream.Read(Image^, ImageSize);
     OutputStream.Free;
     {$ENDIF}
 
     {$IFDEF FPC}
-    DestSize := ImageSize;
-    i := uncompress(Image, DestSize, Comp, InStream.Size);
-    Image := Pointer (Cardinal(Image) + SizeOf(TGAHeader)); //Skip tga header? possibly memory-leak?
+    DestSize := ImageSize + SizeOf(TGAHeader);
+    GetMem(DeComp, DestSize);
+    i := uncompress(DeComp, DestSize, Comp, InStream.Size);
+    Image := DeComp + 18; //Just a pointer offset by 18
     bytesRead := ImageSize;
     InStream.Free;
+    FreeMem(Comp); //Cleanup after use
     {$ENDIF}
   end
   else
   begin
+    GetMem(Image, ImageSize);
     BlockRead(TGAFile, image^, ImageSize, bytesRead);
     CloseFile(TGAFile);
   end;
@@ -281,13 +284,22 @@ begin
       Front^ := Back^;
       Back^ := Temp;
     end;
-
     Texture := CreateTexture(Width, Height, GL_RGBA, Image);
   end;
 
   Result :=TRUE;
-  FreeMem(Image);
-
+  if ZLibCompressed then
+  begin
+    {$IFDEF VER140}
+    FreeMem(Image);
+    {$ENDIF}
+    {$IFDEF FPC}
+    Image := nil;
+    FreeMem(DeComp);
+    {$ENDIF}
+  end
+  else
+    FreeMem(Image);
 end;
 
 end.

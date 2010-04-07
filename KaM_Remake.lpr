@@ -6,7 +6,7 @@ uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
-  ColorPicker in ' Common \ColorPicker.pas' {Form_ColorPicker},
+  ColorPicker in 'Common\ColorPicker.pas' {Form_ColorPicker},
   KM_Defaults in 'KM_Defaults.pas',
   KM_Render in 'KM_Render.pas',
   KM_ResourceGFX in 'KM_ResourceGFX.pas',
@@ -32,7 +32,7 @@ uses
   KM_Player in 'KM_Player.pas',
   KM_CommonTypes in 'KM_CommonTypes.pas',
   KM_Utils in 'KM_Utils.pas',
-  KM_TGATexture in 'KM_TGATexture.pas',
+  KM_TGATexture in 'Common\KM_TGATexture.pas',
   KM_UnitActionAbandonWalk in 'KM_UnitActionAbandonWalk.pas',
   KM_UnitActionFight in 'KM_UnitActionFight.pas',
   KM_UnitActionGoInOut in 'KM_UnitActionGoInOut.pas',

@@ -122,16 +122,14 @@ end;
 
 // Load the Textures
 procedure TRender.LoadTileSet();
-{$IFDEF VER140} var i:integer; {$ENDIF}
+var i:integer;
 begin
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);
-  {$IFDEF VER140} //Lazarus can't handle zlib packed
   LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT,0);
   if not MakeTerrainAnim then exit;
   for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i],0);
   for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i],0);
   for i:=1 to 5 do LoadTexture(ExeDir+'Resource\Falls'+inttostr(i)+'.tga', TextF[i],0);
-  {$ENDIF}
 end;
 
 

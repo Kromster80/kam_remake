@@ -198,10 +198,6 @@ begin
 
   fLog.AppendLog('Form1 create is done');
 
-  {$IFDEF FPC}
-  LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT, 0); //todo: fix this workaround for Lazarus
-  {$ENDIF}
-
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then
   begin
