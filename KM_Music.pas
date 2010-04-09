@@ -1,8 +1,8 @@
 unit KM_Music;
 interface
-uses Forms,
+uses Forms, Windows, MMSystem,
   {$IFDEF VER140} MPlayer, {$ENDIF}
-  Classes, SysUtils, KromUtils, Math, KM_Defaults;
+  Classes, SysUtils, KromUtils, Math, KM_Defaults, KM_CommonTypes;
 
 type
   TMusicLib = class(TObject)

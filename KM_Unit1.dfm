@@ -105,7 +105,6 @@ object Form1: TForm1
       Height = 17
       Caption = 'W'
       TabOrder = 3
-      OnClick = Button_WClick
     end
     object CheckBox2: TCheckBox
       Left = 8
@@ -161,7 +160,6 @@ object Form1: TForm1
       Height = 17
       Caption = 'V'
       TabOrder = 4
-      OnClick = Button_VClick
     end
     object Button_6: TButton
       Left = 192
@@ -170,7 +168,6 @@ object Form1: TForm1
       Height = 17
       Caption = '6'
       TabOrder = 5
-      OnClick = Button_6Click
     end
     object Button_1: TButton
       Left = 216
@@ -179,7 +176,6 @@ object Form1: TForm1
       Height = 17
       Caption = '1'
       TabOrder = 6
-      OnClick = Button_1Click
     end
     object Button_Stop: TButton
       Left = 240

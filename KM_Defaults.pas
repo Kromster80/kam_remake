@@ -330,7 +330,7 @@ type
 //Used for AI defence and linking troops
 type TGroupType = (gt_None=0,gt_Melee,gt_AntiHorse,gt_Ranged,gt_Mounted);
 
-const UnitGroups: array[byte(ut_Militia)..byte(ut_Barbarian)] of TGroupType = (
+const UnitGroups: array[15..24] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
     gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
     gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
@@ -344,7 +344,7 @@ const UnitGroups: array[byte(ut_Militia)..byte(ut_Barbarian)] of TGroupType = (
     gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,}
     );
 
-const FlagXOffset: array[byte(ut_Militia)..byte(ut_Barbarian)] of shortint = (
+const FlagXOffset: array[15..24] of shortint = (
     10,10,10,  //ut_Militia, ut_AxeFighter, ut_Swordsman
     8,8,       //ut_Bowman, ut_Arbaletman
     6,6,       //ut_Pikeman, ut_Hallebardman,
@@ -353,7 +353,7 @@ const FlagXOffset: array[byte(ut_Militia)..byte(ut_Barbarian)] of shortint = (
     );
 
 
-const FlagYOffset: array[byte(ut_Militia)..byte(ut_Barbarian)] of shortint = (
+const FlagYOffset: array[15..24] of shortint = (
     21,23,27,  //ut_Militia, ut_AxeFighter, ut_Swordsman
     27,28,     //ut_Bowman, ut_Arbaletman
     20,23,     //ut_Pikeman, ut_Hallebardman,
