@@ -10,9 +10,7 @@ type TGameState = ( gsNoGame, //No game running at all, MainMenu
                     gsPaused, //Game is paused and responds to 'P' key only
                     gsOnHold, //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
                     gsRunning, //Game is running normally
-                    gsEditor);
-
-type TLoadResult = (lrIncorrectGameState,lrSuccess,lrFileNotFound,lrParseError);
+                    gsEditor); //Game is in MapEditor mode
 
 type
   TKMGame = class
@@ -58,6 +56,7 @@ type
     procedure StopGame(const Msg:gr_Message; TextMsg:string='');
     procedure StartMapEditor(MissionName:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure SaveMapEditor(MissionName:string);
+
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GetTickCount:cardinal read GameplayTickCount;
@@ -66,8 +65,9 @@ type
     property GetCampaign:TCampaign read ActiveCampaign;
     property GetCampaignMap:byte read ActiveCampaignMap;
     function GetNewID():cardinal;
+
     function Save(SlotID:shortint):string;
-    function Load(SlotID:shortint; out LoadError:string):TLoadResult;
+    function Load(SlotID:shortint):string;
 
     procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime:cardinal);
@@ -914,19 +914,18 @@ begin
 end;
 
 
-function TKMGame.Load(SlotID:shortint; out LoadError:string):TLoadResult;
+function TKMGame.Load(SlotID:shortint):string;
 var LoadStream:TKMemoryStream;
 s,FileName:string;
 begin
   fLog.AppendLog('Loading game');
-  Result := lrIncorrectGameState; //Three exit cases bellow use this
-  LoadError := '';
+  Result := '';
   FileName := 'Saves\'+'save'+int2fix(SlotID,2)+'.sav'; //Full path is EXEDir+FileName
 
   //Check if file exists early so that current game will not be lost if user tries to load an empty save
-  if not FileExists(ExeDir+'Saves\'+'save'+int2fix(SlotID,2)+'.sav') then
+  if not FileExists(ExeDir+FileName) then
   begin
-    Result := lrFileNotFound;
+    Result := 'Savegame file not found';
     exit;
   end;
 
@@ -962,14 +961,13 @@ begin
 
         fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
-        Result := lrSuccess; //Loading has now completed successfully :)
+        Result := ''; //Loading has now completed successfully :)
         Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
       except
         on E : Exception do
         begin
           //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-          Result := lrParseError;
-          LoadError := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
+          Result := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
                         E.ClassName+' error raised with message: '+E.Message;
           if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent); //Stop the game so that the main menu error can be shown
           exit;

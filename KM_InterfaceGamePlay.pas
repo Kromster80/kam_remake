@@ -304,12 +304,8 @@ end;
 procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 var LoadError:string;
 begin
-  case fGame.Load(TKMControl(Sender).Tag,LoadError) of
-    //lrSuccess: ;      //Load was a success, continue into new game
-    //lrFileNotFound: ; //Do nothing, because user clicked on a blank save
-    lrParseError: fGame.fMainMenuInterface.ShowScreen_Error(LoadError); //This means an error was encountered while parsing the file (error message will be stored in LoadError)
-    lrIncorrectGameState: fGame.fMainMenuInterface.ShowScreen_Error('Unable to load from current game state');
-  end;
+  LoadError := fGame.Load(TKMControl(Sender).Tag);
+  if LoadError <> '' then fGame.fMainMenuInterface.ShowScreen_Error(LoadError); //This will show an option to return back to menu
 end;
 
 
