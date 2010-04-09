@@ -20,78 +20,70 @@ LazarusResources.Add('TForm1','FORMDATA',[
   +#152#1#6'Height'#2'I'#3'Top'#2#8#5'Width'#3#169#1#7'Caption'#6'B  Additional'
   +' controls   ..   Press F11 to swap controls visibility'#12'ClientHeight'#2
   +'7'#11'ClientWidth'#3#165#1#8'TabOrder'#2#2#0#6'TShape'#15'TeamColorPicker'#4
-  +'Left'#3#144#0#6'Height'#2#22#3'Top'#2'('#5'Width'#2#22#10'OnDragDrop'#7#23
+  +'Left'#3#174#0#6'Height'#2#22#3'Top'#2#15#5'Width'#2#22#10'OnDragDrop'#7#23
   +'TeamColorPickerDragDrop'#9'OnMouseUp'#7#22'TeamColorPickerMouseUp'#0#0#6'TL'
   +'abel'#6'Label2'#4'Left'#2'U'#6'Height'#2#14#3'Top'#2#15#5'Width'#2'2'#7'Cap'
   +'tion'#6#11'Passability'#11'ParentColor'#8#0#0#6'TLabel'#6'Label3'#4'Left'#2
   +'e'#6'Height'#2#14#3'Top'#2'#'#5'Width'#2#7#7'Caption'#6#1'0'#11'ParentColor'
-  +#8#0#0#6'TLabel'#6'Label1'#4'Left'#3#169#0#6'Height'#2#14#3'Top'#2'/'#5'Widt'
-  +'h'#2'>'#7'Caption'#6#13'Player1 color'#11'ParentColor'#8#0#0#7'TButton'#8'B'
-  +'utton_W'#4'Left'#3#144#0#6'Height'#2#17#3'Top'#2#16#5'Width'#2#25#7'Caption'
-  +#6#1'W'#7'OnClick'#7#13'Button_WClick'#8'TabOrder'#2#3#0#0#9'TCheckBox'#9'Ch'
-  +'eckBox2'#4'Left'#2#8#6'Height'#2#17#3'Top'#2'4'#5'Width'#2'G'#7'Caption'#6#9
-  +'Speed x50'#7'OnClick'#7#14'CheckBox2Click'#8'TabOrder'#2#1#0#0#9'TTrackBar'
-  +#22'Debug_PassabilityTrack'#4'Left'#2#2#6'Height'#2#17#3'Top'#2#14#5'Width'#2
-  +'S'#3'Max'#2#9#8'OnChange'#7#28'Debug_PassabilityTrackChange'#8'PageSize'#2#1
-  +#8'Position'#2#0#9'TickMarks'#7#6'tmBoth'#9'TickStyle'#7#6'tsNone'#8'TabOrde'
-  +'r'#2#0#0#0#11'TRadioGroup'#8'RGPlayer'#4'Left'#3'0'#1#6'Height'#2'='#3'Top'
-  +#2#8#5'Width'#2'i'#8'AutoFill'#9#7'Caption'#6#8' Player '#28'ChildSizing.Lef'
-  +'tRightSpacing'#2#6#28'ChildSizing.TopBottomSpacing'#2#6#29'ChildSizing.Enla'
-  +'rgeHorizontal'#7#24'crsHomogenousChildResize'#27'ChildSizing.EnlargeVertica'
-  +'l'#7#24'crsHomogenousChildResize'#28'ChildSizing.ShrinkHorizontal'#7#14'crs'
-  +'ScaleChilds'#26'ChildSizing.ShrinkVertical'#7#14'crsScaleChilds'#18'ChildSi'
-  +'zing.Layout'#7#29'cclLeftToRightThenTopToBottom'#27'ChildSizing.ControlsPer'
-  +'Line'#2#3#12'ClientHeight'#2'+'#11'ClientWidth'#2'e'#7'Columns'#2#3#9'ItemI'
-  +'ndex'#2#0#13'Items.Strings'#1#6#1'1'#6#1'2'#6#1'3'#6#1'4'#6#1'5'#6#1'6'#6#1
-  +'7'#6#1'8'#0#7'OnClick'#7#13'RGPlayerClick'#8'TabOrder'#2#2#0#0#7'TButton'#8
-  +'Button_V'#4'Left'#3#168#0#6'Height'#2#17#3'Top'#2#16#5'Width'#2#25#7'Captio'
-  +'n'#6#1'V'#7'OnClick'#7#13'Button_VClick'#8'TabOrder'#2#4#0#0#7'TButton'#8'B'
-  +'utton_6'#4'Left'#3#192#0#6'Height'#2#17#3'Top'#2#16#5'Width'#2#25#7'Caption'
-  +#6#1'6'#7'OnClick'#7#13'Button_6Click'#8'TabOrder'#2#5#0#0#7'TButton'#8'Butt'
-  +'on_1'#4'Left'#3#216#0#6'Height'#2#17#3'Top'#2#16#5'Width'#2#25#7'Caption'#6
-  +#1'1'#7'OnClick'#7#13'Button_1Click'#8'TabOrder'#2#6#0#0#7'TButton'#11'Butto'
-  +'n_Stop'#4'Left'#3#240#0#6'Height'#2#17#3'Top'#2#16#5'Width'#2#25#7'Caption'
-  +#6#4'Stop'#7'OnClick'#7#16'Button_StopClick'#8'TabOrder'#2#7#0#0#9'TTrackBar'
-  +#8'TB_Angle'#4'Left'#2#2#6'Height'#2#17#3'Top'#2' '#5'Width'#2'_'#3'Max'#2'Z'
-  +#8'OnChange'#7#15'TB_Angle_Change'#8'PageSize'#2#1#8'Position'#2#0#9'TickMar'
-  +'ks'#7#6'tmBoth'#9'TickStyle'#7#6'tsNone'#8'TabOrder'#2#8#0#0#0#11'TOpenDial'
-  +'og'#11'OpenDialog1'#10'InitialDir'#6#1'.'#7'Options'#11#14'ofHideReadOnly'
-  +#15'ofFileMustExist'#14'ofEnableSizing'#0#4'left'#2'0'#3'top'#3#192#0#0#0#9
-  +'TMainMenu'#9'MainMenu1'#4'left'#2#16#3'top'#3#192#0#0#9'TMenuItem'#5'File1'
-  +#7'Caption'#6#4'File'#0#9'TMenuItem'#15'OpenMissionMenu'#7'Caption'#6#15'Ope'
-  +'n mission...'#7'OnClick'#7#21'Open_MissionMenuClick'#0#0#9'TMenuItem'#9'Men'
-  +'uItem1'#7'Caption'#6#15'Edit mission...'#7'OnClick'#7#14'MenuItem1Click'#0#0
-  +#9'TMenuItem'#2'N1'#7'Caption'#6#1'-'#0#0#9'TMenuItem'#5'Exit1'#7'Caption'#6
-  +#4'Exit'#7'OnClick'#7#9'ExitClick'#0#0#0#9'TMenuItem'#6'Debug1'#7'Caption'#6
-  +#5'Debug'#0#9'TMenuItem'#15'Debug_ShowWires'#7'Caption'#6#10'Show wires'#7'O'
-  +'nClick'#7#20'Debug_ShowWiresClick'#0#0#9'TMenuItem'#17'Debug_PrintScreen'#7
-  ,'Caption'#6#11'PrintScreen'#7'OnClick'#7#22'Debug_PrintScreenClick'#0#0#9'TM'
-  +'enuItem'#17'Debug_ShowOverlay'#7'Caption'#6#12'Show Overlay'#7'OnClick'#7#22
-  +'Debug_ShowOverlayClick'#0#0#9'TMenuItem'#16'Debug_ShowPanel1'#7'Caption'#6
-  +#16'Show Debug panel'#7'OnClick'#7#21'Debug_ShowPanel1Click'#0#0#9'TMenuItem'
-  +#15'Debug_ShowUnits'#7'Caption'#6#10'Show Units'#7'OnClick'#7#19'Debug_ShowU'
-  +'nitClick'#0#0#0#9'TMenuItem'#7'Export1'#7'Caption'#6#11'Export Data'#0#9'TM'
-  +'enuItem'#14'Export_TreesRX'#7'Caption'#6#8'Trees.rx'#7'OnClick'#7#19'Export'
-  +'_TreesRXClick'#0#0#9'TMenuItem'#15'Export_HousesRX'#7'Caption'#6#9'Houses.r'
-  +'x'#7'OnClick'#7#20'Export_HousesRXClick'#0#0#9'TMenuItem'#14'Export_UnitsRX'
-  +#7'Caption'#6#8'Units.rx'#7'OnClick'#7#19'Export_UnitsRXClick'#0#0#9'TMenuIt'
-  +'em'#12'Export_GUIRX'#7'Caption'#6#6'GUI.rx'#7'OnClick'#7#17'Export_GUIRXCli'
-  +'ck'#0#0#9'TMenuItem'#16'Export_GUIMainRX'#7'Caption'#6#11'GUI Main.rx'#7'On'
-  +'Click'#7#21'Export_GUIMainRXClick'#0#0#9'TMenuItem'#17'Export_GUIMainHRX'#7
-  +'Caption'#6#12'GUI MainH.rx'#7'OnClick'#7#22'Export_GUIMainHRXClick'#0#0#9'T'
-  +'MenuItem'#9'AnimData1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#16'E'
-  +'xport_TreeAnim1'#7'Caption'#6#9'Tree Anim'#7'OnClick'#7#21'Export_TreeAnim1'
-  +'Click'#0#0#9'TMenuItem'#17'Export_HouseAnim1'#7'Caption'#6#10'House Anim'#7
-  +'OnClick'#7#22'Export_HouseAnim1Click'#0#0#9'TMenuItem'#16'Export_UnitAnim1'
-  +#7'Caption'#6#9'Unit Anim'#7'OnClick'#7#21'Export_UnitAnim1Click'#0#0#9'TMen'
-  +'uItem'#6'Other1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'#13'Export_'
-  +'Fonts1'#7'Caption'#6#5'Fonts'#7'OnClick'#7#18'Export_Fonts1Click'#0#0#9'TMe'
-  +'nuItem'#11'Export_Text'#7'Caption'#6#5'Texts'#7'OnClick'#7#16'Export_TextCl'
-  +'ick'#0#0#9'TMenuItem'#14'Export_Sounds1'#7'Caption'#6#6'Sounds'#7'OnClick'#7
-  +#19'Export_Sounds1Click'#0#0#9'TMenuItem'#2'N2'#7'Caption'#6#1'-'#0#0#9'TMen'
-  +'uItem'#20'Export_Deliverlists1'#7'Caption'#6#20'Export Deliver lists'#7'OnC'
-  +'lick'#7#25'Export_Deliverlists1Click'#0#0#0#9'TMenuItem'#6'About1'#7'Captio'
-  +'n'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#6'TTimer'#10'Timer100ms'#8
-  +'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'left'#2'P'#3'top'#3#192#0
-  +#0#0#0
+  +#8#0#0#6'TLabel'#6'Label1'#4'Left'#3#199#0#6'Height'#2#14#3'Top'#2#22#5'Widt'
+  +'h'#2'>'#7'Caption'#6#13'Player1 color'#11'ParentColor'#8#0#0#9'TCheckBox'#9
+  +'CheckBox2'#4'Left'#2#8#6'Height'#2#17#3'Top'#2'4'#5'Width'#2'G'#7'Caption'#6
+  +#9'Speed x50'#7'OnClick'#7#14'CheckBox2Click'#8'TabOrder'#2#1#0#0#9'TTrackBa'
+  +'r'#22'Debug_PassabilityTrack'#4'Left'#2#2#6'Height'#2#17#3'Top'#2#14#5'Widt'
+  +'h'#2'S'#3'Max'#2#9#8'OnChange'#7#28'Debug_PassabilityTrackChange'#8'PageSiz'
+  +'e'#2#1#8'Position'#2#0#9'TickMarks'#7#6'tmBoth'#9'TickStyle'#7#6'tsNone'#8
+  +'TabOrder'#2#0#0#0#11'TRadioGroup'#8'RGPlayer'#4'Left'#3'0'#1#6'Height'#2'='
+  +#3'Top'#2#8#5'Width'#2'i'#8'AutoFill'#9#7'Caption'#6#8' Player '#28'ChildSiz'
+  +'ing.LeftRightSpacing'#2#6#28'ChildSizing.TopBottomSpacing'#2#6#29'ChildSizi'
+  +'ng.EnlargeHorizontal'#7#24'crsHomogenousChildResize'#27'ChildSizing.Enlarge'
+  +'Vertical'#7#24'crsHomogenousChildResize'#28'ChildSizing.ShrinkHorizontal'#7
+  +#14'crsScaleChilds'#26'ChildSizing.ShrinkVertical'#7#14'crsScaleChilds'#18'C'
+  +'hildSizing.Layout'#7#29'cclLeftToRightThenTopToBottom'#27'ChildSizing.Contr'
+  +'olsPerLine'#2#3#12'ClientHeight'#2'+'#11'ClientWidth'#2'e'#7'Columns'#2#3#9
+  +'ItemIndex'#2#0#13'Items.Strings'#1#6#1'1'#6#1'2'#6#1'3'#6#1'4'#6#1'5'#6#1'6'
+  +#6#1'7'#6#1'8'#0#7'OnClick'#7#13'RGPlayerClick'#8'TabOrder'#2#2#0#0#7'TButto'
+  +'n'#11'Button_Stop'#4'Left'#3#144#0#6'Height'#2#17#3'Top'#2#14#5'Width'#2#25
+  +#7'Caption'#6#4'Stop'#7'OnClick'#7#16'Button_StopClick'#8'TabOrder'#2#3#0#0#9
+  +'TTrackBar'#8'TB_Angle'#4'Left'#2#2#6'Height'#2#17#3'Top'#2' '#5'Width'#2'_'
+  +#3'Max'#2'Z'#8'OnChange'#7#15'TB_Angle_Change'#8'PageSize'#2#1#8'Position'#2
+  +#0#9'TickMarks'#7#6'tmBoth'#9'TickStyle'#7#6'tsNone'#8'TabOrder'#2#4#0#0#0#11
+  +'TOpenDialog'#11'OpenDialog1'#10'InitialDir'#6#1'.'#7'Options'#11#14'ofHideR'
+  +'eadOnly'#15'ofFileMustExist'#14'ofEnableSizing'#0#4'left'#2'0'#3'top'#3#192
+  +#0#0#0#9'TMainMenu'#9'MainMenu1'#4'left'#2#16#3'top'#3#192#0#0#9'TMenuItem'#5
+  +'File1'#7'Caption'#6#4'File'#0#9'TMenuItem'#15'OpenMissionMenu'#7'Caption'#6
+  +#15'Open mission...'#7'OnClick'#7#21'Open_MissionMenuClick'#0#0#9'TMenuItem'
+  +#9'MenuItem1'#7'Caption'#6#15'Edit mission...'#7'OnClick'#7#14'MenuItem1Clic'
+  +'k'#0#0#9'TMenuItem'#2'N1'#7'Caption'#6#1'-'#0#0#9'TMenuItem'#5'Exit1'#7'Cap'
+  +'tion'#6#4'Exit'#7'OnClick'#7#9'ExitClick'#0#0#0#9'TMenuItem'#6'Debug1'#7'Ca'
+  +'ption'#6#5'Debug'#0#9'TMenuItem'#15'Debug_ShowWires'#7'Caption'#6#10'Show w'
+  +'ires'#7'OnClick'#7#20'Debug_ShowWiresClick'#0#0#9'TMenuItem'#17'Debug_Print'
+  +'Screen'#7'Caption'#6#11'PrintScreen'#7'OnClick'#7#22'Debug_PrintScreenClick'
+  +#0#0#9'TMenuItem'#17'Debug_ShowOverlay'#7'Caption'#6#12'Show Overlay'#7'OnCl'
+  +'ick'#7#22'Debug_ShowOverlayClick'#0#0#9'TMenuItem'#16'Debug_ShowPanel1'#7'C'
+  +'aption'#6#16'Show Debug panel'#7'OnClick'#7#21'Debug_ShowPanel1Click'#0#0#9
+  +'TMenuItem'#15'Debug_ShowUnits'#7'Caption'#6#10'Show Units'#7'OnClick'#7#19
+  +'Debug_ShowUnitClick'#0#0#0#9'TMenuItem'#7'Export1'#7'Caption'#6#11'Export D'
+  +'ata'#0#9'TMenuItem'#14'Export_TreesRX'#7'Caption'#6#8'Trees.rx'#7'OnClick'#7
+  +#19'Export_TreesRXClick'#0#0#9'TMenuItem'#15'Export_HousesRX'#7'Caption'#6#9
+  ,'Houses.rx'#7'OnClick'#7#20'Export_HousesRXClick'#0#0#9'TMenuItem'#14'Export'
+  +'_UnitsRX'#7'Caption'#6#8'Units.rx'#7'OnClick'#7#19'Export_UnitsRXClick'#0#0
+  +#9'TMenuItem'#12'Export_GUIRX'#7'Caption'#6#6'GUI.rx'#7'OnClick'#7#17'Export'
+  +'_GUIRXClick'#0#0#9'TMenuItem'#16'Export_GUIMainRX'#7'Caption'#6#11'GUI Main'
+  +'.rx'#7'OnClick'#7#21'Export_GUIMainRXClick'#0#0#9'TMenuItem'#17'Export_GUIM'
+  +'ainHRX'#7'Caption'#6#12'GUI MainH.rx'#7'OnClick'#7#22'Export_GUIMainHRXClic'
+  +'k'#0#0#9'TMenuItem'#9'AnimData1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenu'
+  +'Item'#16'Export_TreeAnim1'#7'Caption'#6#9'Tree Anim'#7'OnClick'#7#21'Export'
+  +'_TreeAnim1Click'#0#0#9'TMenuItem'#17'Export_HouseAnim1'#7'Caption'#6#10'Hou'
+  +'se Anim'#7'OnClick'#7#22'Export_HouseAnim1Click'#0#0#9'TMenuItem'#16'Export'
+  +'_UnitAnim1'#7'Caption'#6#9'Unit Anim'#7'OnClick'#7#21'Export_UnitAnim1Click'
+  +#0#0#9'TMenuItem'#6'Other1'#7'Caption'#6#1'-'#7'Enabled'#8#0#0#9'TMenuItem'
+  +#13'Export_Fonts1'#7'Caption'#6#5'Fonts'#7'OnClick'#7#18'Export_Fonts1Click'
+  +#0#0#9'TMenuItem'#11'Export_Text'#7'Caption'#6#5'Texts'#7'OnClick'#7#16'Expo'
+  +'rt_TextClick'#0#0#9'TMenuItem'#14'Export_Sounds1'#7'Caption'#6#6'Sounds'#7
+  +'OnClick'#7#19'Export_Sounds1Click'#0#0#9'TMenuItem'#2'N2'#7'Caption'#6#1'-'
+  +#0#0#9'TMenuItem'#20'Export_Deliverlists1'#7'Caption'#6#20'Export Deliver li'
+  +'sts'#7'OnClick'#7#25'Export_Deliverlists1Click'#0#0#0#9'TMenuItem'#6'About1'
+  +#7'Caption'#6#7'About..'#7'OnClick'#7#10'AboutClick'#0#0#0#6'TTimer'#10'Time'
+  +'r100ms'#8'Interval'#2'd'#7'OnTimer'#7#15'Timer100msTimer'#4'left'#2'P'#3'to'
+  +'p'#3#192#0#0#0#0
 ]);

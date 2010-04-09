@@ -1,13 +1,8 @@
 unit KM_Music;
 interface
-uses Forms, Windows, MMSystem,
+uses Forms,
   {$IFDEF VER140} MPlayer, {$ENDIF}
-  Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults, KM_CommonTypes, KM_Utils;
-
-const MaxWaves = 200;
-//@Krom: On large maps lots of sounds get skipped. Would it be possible to make this larger, as 16 sounds at once isn't very much.
-const MaxSourceCount = 16; //Actually it depends on hardware
-
+  Classes, SysUtils, KromUtils, Math, KM_Defaults;
 
 type
   TMusicLib = class(TObject)
@@ -17,28 +12,26 @@ type
     MusicTracks:array[1..256]of string;
     IsMusicInitialized:boolean;
     MusicGain:single;
+    function CheckMusicError():boolean;
+    function PlayMusicFile(FileName:string):boolean;
   public
     constructor Create();
     destructor Destroy(); override;
-    function CheckMusicError():boolean;
     procedure UpdateMusicVolume(Value:single);
     procedure ScanMusicTracks(Path:string);
     procedure PlayMenuTrack(JustInit:boolean);
     procedure PlayNextTrack();
     procedure PlayPreviousTrack();
     function IsMusicEnded():boolean;
-    function PlayMusicFile(FileName:string):boolean;
     procedure StopMusic;
     function GetTrackTitle:string;
   end;
 
 
-var
-  fMusicLib: TMusicLib;
-
 implementation
 uses
-  KM_LoadLib, KM_Unit1, KM_Game;
+  KM_Unit1, {Access to MediaPlayer?}
+  KM_Game;
 
 
 {Music Lib}
@@ -47,7 +40,6 @@ begin
   Inherited Create;
 
   IsMusicInitialized := true;
-
   {$IFDEF VER140} MediaPlayer := Form1.MediaPlayer1; {$ENDIF}
   //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
   ScanMusicTracks(ExeDir + 'Music\');
@@ -65,7 +57,7 @@ end;
 
 function TMusicLib.CheckMusicError():boolean;
 begin
-  Result:=false;
+  Result := false;
   {$IFDEF VER140}
   if MediaPlayer.Error<>0 then begin
     fLog.AddToLog(MediaPlayer.errormessage);
@@ -77,8 +69,34 @@ begin
 end;
 
 
+function TMusicLib.PlayMusicFile(FileName:string):boolean;
+begin
+  Result:=false;
+  {$IFDEF VER140}
+  if not IsMusicInitialized then exit;
+
+  if MediaPlayer.FileName<>'' then
+  MediaPlayer.Close; //Cancel previous sound
+  if CheckMusicError then exit;
+  if not CheckFileExists(FileName,true) then exit; //Make it silent
+  if GetFileExt(FileName)<>'MP3' then exit;
+  MediaPlayer.FileName:=FileName;
+  MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
+  //Application.MessageBox(@FileName[1],'Now playing',MB_OK);
+  MediaPlayer.Open; //Needs to be done for every new file
+  if CheckMusicError then exit;
+  UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
+  if CheckMusicError then exit;
+  MediaPlayer.Play; //Start actual playback
+  if CheckMusicError then exit;
+  Result:=true;
+  {$ENDIF}
+end;
+
+
 {Update music gain (global volume for all sounds/music)}
 procedure TMusicLib.UpdateMusicVolume(Value:single);
+{$IFDEF VER140}
 const
   MCI_SETAUDIO = $0873;
   MCI_DGV_SETAUDIO_VOLUME = $4002;
@@ -93,6 +111,7 @@ var
   lpstrAlgorithm: PChar;
   lpstrQuality: PChar;
   end;
+{$ENDIF}
 begin
   {$IFDEF VER140}
   if not IsMusicInitialized then exit; //Keep silent
@@ -121,61 +140,11 @@ begin
     if (SearchRec.Attr and faDirectory <> faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
     if GetFileExt(SearchRec.Name)='MP3' then begin
       inc(MusicCount);
-      MusicTracks[MusicCount]:=Path+SearchRec.Name;
+      MusicTracks[MusicCount] := Path + SearchRec.Name;
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
   MusicIndex:=0;
-end;
-
-
-procedure TMusicLib.StopMusic;
-begin
-  {$IFDEF VER140}
-  if not IsMusicInitialized then exit;
-  MediaPlayer.Close;
-  //if CheckMusicError then exit;
-  MediaPlayer.FileName:='';
-  //if CheckMusicError then exit;
-  MusicIndex := 0;
-  {$ENDIF}
-end;
-
-
-function TMusicLib.GetTrackTitle:string;
-begin
-  if not IsMusicInitialized then exit;
-  //May not display the correct title as not all LIBs are correct. Should also do range checking
-  if InRange(MusicIndex,1,256) then
-    Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex)
-  else Result := 'Unknown';
-
-  Result:=ExtractFileName(MusicTracks[MusicIndex]); //@Lewin: I think we should do it this way eventually
-end;
-
-
-function TMusicLib.PlayMusicFile(FileName:string):boolean;
-begin
-  {$IFDEF VER140}
-  Result:=false;
-  if not IsMusicInitialized then exit;
-
-  if MediaPlayer.FileName<>'' then
-  MediaPlayer.Close; //Cancel previous sound
-  if CheckMusicError then exit;
-  if not CheckFileExists(FileName,true) then exit; //Make it silent
-  if GetFileExt(FileName)<>'MP3' then exit;
-  MediaPlayer.FileName:=FileName;
-  MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
-  //Application.MessageBox(@FileName[1],'Now playing',MB_OK);
-  MediaPlayer.Open; //Needs to be done for every new file
-  if CheckMusicError then exit;
-  UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
-  if CheckMusicError then exit;
-  MediaPlayer.Play; //Start actual playback
-  if CheckMusicError then exit;
-  Result:=true;
-  {$ENDIF}
 end;
 
 
@@ -216,14 +185,38 @@ end;
 //Check if Music is not playing, to know when new mp3 should be feeded
 function TMusicLib.IsMusicEnded():boolean;
 begin
-  {$IFDEF VER140}
   Result:=false;
+  {$IFDEF VER140}
   if not IsMusicInitialized then exit;
   if fGame.fGlobalSettings.IsMusic then begin
     Result := ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
     if CheckMusicError then exit;
   end;
   {$ENDIF}
+end;
+
+
+procedure TMusicLib.StopMusic;
+begin
+  {$IFDEF VER140}
+  if not IsMusicInitialized then exit;
+  MediaPlayer.Close;
+  //if CheckMusicError then exit;
+  MediaPlayer.FileName:='';
+  //if CheckMusicError then exit;
+  MusicIndex := 0;
+  {$ENDIF}
+end;
+
+
+function TMusicLib.GetTrackTitle:string;
+begin
+  if not IsMusicInitialized then exit;
+  if not InRange(MusicIndex, low(MusicTracks), high(MusicTracks)) then exit;
+  //May not display the correct title as not all LIBs are correct. Should also do range checking
+  //Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex);
+
+  Result := ExtractFileName(MusicTracks[MusicIndex]); //@Lewin: I think we should do it this way eventually
 end;
 
 

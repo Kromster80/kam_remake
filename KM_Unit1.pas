@@ -48,16 +48,12 @@ type
     Export_HouseAnim1: TMenuItem;
     Export_UnitAnim1: TMenuItem;
     RGPlayer: TRadioGroup;
-    Button_V: TButton;
-    Button_6: TButton;
     Button_Stop: TButton;
     OpenMissionMenu: TMenuItem;
-    Button_1: TButton;
     Debug_ShowOverlay: TMenuItem;
     AnimData1: TMenuItem;
     Other1: TMenuItem;
     Debug_ShowPanel1: TMenuItem;
-    Button_W: TButton;
     Export_TreeAnim1: TMenuItem;
     Export_GUIMainHRX: TMenuItem;
     TB_Angle: TTrackBar;
@@ -80,8 +76,6 @@ type
     procedure ExitClick(Sender: TObject);
     procedure Debug_ShowWiresClick(Sender: TObject);
     procedure Timer100msTimer(Sender: TObject);
-    procedure Button_VClick(Sender: TObject);
-    procedure Button_6Click(Sender: TObject);
     procedure Debug_PrintScreenClick(Sender: TObject);
     procedure Export_TreesRXClick(Sender: TObject);
     procedure Export_HousesRXClick(Sender: TObject);
@@ -102,12 +96,10 @@ type
     procedure Button_StopClick(Sender: TObject);
     procedure RGPlayerClick(Sender: TObject);
     procedure Open_MissionMenuClick(Sender: TObject);
-    procedure Button_1Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
     procedure Debug_ShowUnitClick(Sender: TObject);
     procedure Debug_ShowPanel1Click(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure Button_WClick(Sender: TObject);
     procedure SetScreenResolution(Width, Height, RefreshRate: word);
     procedure ResetResolution;
   private
@@ -405,259 +397,11 @@ begin
 end;      
 
 
-{Walk tests}
-procedure TForm1.Button_WClick(Sender: TObject);
-var U:TKMUnit;
-begin
-  fGame.StopGame(gr_Silent);
-  fGame.StartGame('', 'W');
-  DO_SERFS_WALK_ROADS := false;
-  MyPlayer:=fPlayers.Player[1];
-
-  //Diagonal exchange
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
-  U.SetActionWalk(U,KMPoint(9,9));
-  //U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,5));
-  //U.SetActionWalk(U,KMPoint(9,9));
-  //U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
-  //U.SetActionWalk(U,KMPoint(5,5));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(9,9));
-  U.SetActionWalk(U,KMPoint(5,5)); //}
-
-  //Walk in row
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(5,8));
-  U.SetActionWalk(U,KMPoint(5,14));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,8));
-  U.SetActionWalk(U,KMPoint(5,14));//}
-
-  //Work around busy unit
-  {MyPlayer.AutoRoadConnect(KMPoint(5,10),KMPoint(15,10));
-  U:=MyPlayer.AddUnit(ut_Serf, KMPoint(5,10));
-  U.SetActionWalk(U,KMPoint(15,10));
-  U:=MyPlayer.AddUnit(ut_Worker, KMPoint(10,10));
-  U.SetActionStay(1000,ua_Work2);}
-
-  //Solve big diamond
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
-  U.SetActionWalk(U,KMPoint(6,8));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
-  U.SetActionWalk(U,KMPoint(7,11));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
-  U.SetActionWalk(U,KMPoint(4,12));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
-  U.SetActionWalk(U,KMPoint(3,9));//}
-
-  //Unsolved situations:
-  //--------------------
-
-  //Solve diamond with destination being blocked
-  //Idea: If unit can't move then it should be no problem to GetOutOfTheWay and recompute WalkRoute from new spot
-  //but how to maintain TTask integrity?
-  {U:=MyPlayer.AddUnit(ut_Baker, KMPoint(4,10));
-  U.SetActionWalk(U,KMPoint(5,9));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,9));
-  U.SetActionWalk(U,KMPoint(6,10));
-  U:=MyPlayer.AddUnit(ut_Baker, KMPoint(6,10));
-  U.SetActionWalk(U,KMPoint(5,11));
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(5,11));
-  U.SetActionWalk(U,KMPoint(4,10));//}
-                                                      
-
-  //Walk through 7x50 group
-  MyPlayer.AddGroup(ut_Baker, KMPoint(8,8), dir_W, 7, 350);
-  U:=MyPlayer.AddUnit(ut_Miner, KMPoint(7,8));
-  U.SetActionWalk(U,KMPoint(58,8));//}
-  
-
-  MyPlayer.AddUnit(ut_HorseScout, KMPoint(12,12)); //don't let mission to be immediately lost
-  fTerrain.RevealWholeMap(play_1);
-  fViewPort.SetCenter(10,10);
-end;
-
-
-{Village tests}
-procedure TForm1.Button_VClick(Sender: TObject);
-var H:TKMHouseStore; i,k:integer;
-begin
-  fGame.StopGame(gr_Silent);
-  fGame.StartGame('', 'V');
-
-fViewPort.SetCenter(11,9);
-
-for k:=-6 to 5 do for i:=-5 to 6 do
-fTerrain.SetResourceDeposit(KMPoint(8+i,14+k),rt_Coal);
-
-for k:=-4 to 0 do for i:=-3 to 3 do
-fTerrain.SetResourceDeposit(KMPoint(21+i,6+k),rt_IronOre);
-
-for k:=0 to 1 do for i:=0 to 1 do
-fTerrain.SetResourceDeposit(KMPoint(15+i,8+k),rt_Stone);
-
-MyPlayer.AddRoadPlan(KMPoint(2,6),mu_RoadPlan,true);
-
-MyPlayer.AddRoadPlan(KMPoint(2,7),mu_FieldPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(3,7),mu_FieldPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(4,7),mu_FieldPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(5,7),mu_FieldPlan,true);
-
-MyPlayer.AddHouse(ht_Farm, KMPoint(3,5));
-MyPlayer.AddHouse(ht_Mill, KMPoint(8,5));
-MyPlayer.AddHouse(ht_Bakery, KMPoint(13,5));
-MyPlayer.AddUnit(ut_Farmer, KMPoint(3,7));
-MyPlayer.AddUnit(ut_Baker, KMPoint(4,7));
-MyPlayer.AddUnit(ut_Baker, KMPoint(5,7));
-
-MyPlayer.AddHouse(ht_Store, KMPoint(17,5));
-
-MyPlayer.AddHouse(ht_WoodCutters, KMPoint(24,9));
-MyPlayer.AddHouse(ht_SawMill, KMPoint(7,9));
-MyPlayer.AddHouse(ht_Quary, KMPoint(12,9));
-MyPlayer.AddUnit(ut_WoodCutter, KMPoint(7,11));                                                 
-MyPlayer.AddUnit(ut_StoneCutter, KMPoint(6,9));
-
-MyPlayer.AddRoadPlan(KMPoint(2,14),mu_WinePlan,true);
-MyPlayer.AddRoadPlan(KMPoint(3,14),mu_WinePlan,true);
-MyPlayer.AddRoadPlan(KMPoint(4,14),mu_WinePlan,true);
-MyPlayer.AddRoadPlan(KMPoint(5,14),mu_WinePlan,true);
-MyPlayer.AddHouse(ht_WineYard, KMPoint(4,13));
-MyPlayer.AddUnit(ut_Farmer, KMPoint(15,9));
-MyPlayer.AddHouse(ht_CoalMine, KMPoint(8,13));
-MyPlayer.AddUnit(ut_Miner, KMPoint(10,9));
-MyPlayer.AddHouse(ht_FisherHut, KMPoint(12,13)); //Added to demonstrate a house without an occupant in the building page
-
-MyPlayer.AddHouse(ht_WeaponSmithy, KMPoint(16,13));
-MyPlayer.AddHouse(ht_WeaponWorkshop, KMPoint(16,16));
-
-MyPlayer.AddHouse(ht_ArmorSmithy, KMPoint(20,13));
-MyPlayer.AddHouse(ht_ArmorWorkshop, KMPoint(20,17));
-
-MyPlayer.AddHouse(ht_IronMine, KMPoint(21,6));
-MyPlayer.AddHouse(ht_IronSmithy, KMPoint(21,9));
-
-MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
-MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
-MyPlayer.AddUnit(ut_Lamberjack, KMPoint(8,11));
-
-for i:=1 to 16 do
-MyPlayer.AddUnit(ut_Serf, KMPoint(2,11));
-
-for i:=1 to 3 do
-MyPlayer.AddUnit(ut_Worker, KMPoint(3,11));
-
-MyPlayer.AddUnit(ut_Recruit, KMPoint(12,11));
-MyPlayer.AddUnit(ut_Metallurgist, KMPoint(13,11));
-MyPlayer.AddUnit(ut_Miner, KMPoint(13,11));
-MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
-MyPlayer.AddUnit(ut_Smith, KMPoint(13,11));
-
-H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store));
-if H<>nil then H.AddMultiResource(rt_All,250); //It had had lack of stones
-if H<>nil then H.AddMultiResource(rt_Sausages,500);
-
-MyPlayer.AddRoadPlan(KMPoint(3,6),mu_RoadPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(4,6),mu_RoadPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(5,6),mu_RoadPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(6,6),mu_RoadPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(7,6),mu_RoadPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(8,6),mu_RoadPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(9,6),mu_RoadPlan,true);
-MyPlayer.AddRoadPlan(KMPoint(10,6),mu_RoadPlan,true);
-
-MyPlayer.AddHouse(ht_School, KMPoint(4,17));
-MyPlayer.AddHouse(ht_Inn, KMPoint(9,18));
-end;
-
-
-{Maxplayer tests}
-procedure TForm1.Button_6Click(Sender: TObject);
-var H:TKMHouseStore; i,k:integer;
-begin
-  fGame.StopGame(gr_Silent);
-  fGame.StartGame('', '6');
-
-  for k:=1 to 6 do begin
-    MyPlayer:=fPlayers.Player[k];
-
-    MyPlayer.AddHouse(ht_Store, KMPoint(10+k*4,25));
-    H:=TKMHouseStore(MyPlayer.FindHouse(ht_Store));
-    if H<>nil then H.AddMultiResource(rt_All,30);
-
-    for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(10+k*4,28));
-    for i:=1 to 3 do MyPlayer.AddUnit(ut_Worker, KMPoint(10+k*4+1,28));
-
-    MyPlayer.AddGroup(ut_HorseScout, KMPoint(10+k*4+1,32),dir_N,3,6);
-    MyPlayer.AddGroup(ut_Arbaletman, KMPoint(10+k*4+1,36),dir_N,3,6);
-
-  end;
-
-  RGPlayer.ItemIndex:=2;
-  RGPlayerClick(nil); //Update
-
-  fViewPort.SetCenter(22,30);
-end;
-
-
-{Single house tests}
-procedure TForm1.Button_1Click(Sender: TObject);
-var H:TKMHouse; i:integer;
-begin
-  fGame.StopGame(gr_Silent);
-  fGame.StartGame('', '1');
-  MyPlayer := fPlayers.Player[1];
-
-  MyPlayer.AddHouse(ht_Store, KMPoint(4,5));
-  H := TKMHouseStore(MyPlayer.FindHouse(ht_Store));
-  if H<>nil then TKMHouseStore(H).AddMultiResource(rt_All, 1300);
-
-  MyPlayer.AddHouse(ht_Sawmill, KMPoint(9,8));
-  MyPlayer.AddUnit(ut_Lamberjack, KMPoint(9,13));
-  MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)), KMPointY1(KMPoint(9,8)));
-
-  for i:=1 to 5 do MyPlayer.AddUnit(ut_Serf, KMPoint(6,6));
-
-//  MyPlayer.AddGroup(ut_Pikeman, KMPoint(6,15), dir_N, 4, 12);
-//  for i:=1 to 5 do
-//    MyPlayer.AddUnit(ut_Serf, KMPoint(4,8));
-//  MyPlayer.AddUnit(ut_Worker, KMPoint(5,8));
-
-  //MyPlayer.AddHouse(ht_Inn,KMPoint(18,8));
-//  MyPlayer.AutoRoadConnect(KMPointY1(KMPoint(4,5)),KMPointY1(KMPoint(18,8)));
-  //MyPlayer.AddHousePlan(ht_Mill,KMPoint(6,12),true);
-  //MyPlayer.AddHouse(ht_Stables,KMPoint(9,8));
-  //MyPlayer.AddHouse(ht_Swine,KMPoint(15,8));
-  //MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(9,12));
-  //MyPlayer.AddUnit(ut_AnimalBreeder, KMPoint(10,12));
-
-  {MyPlayer.AddGroup(ut_Militia,KMPoint(5,14),dir_N,3,6);
-  MyPlayer.AddGroup(ut_Militia,KMPoint(10,14),dir_NE,3,6);
-  MyPlayer.AddGroup(ut_Militia,KMPoint(15,14),dir_E,3,6);
-  MyPlayer.AddGroup(ut_Militia,KMPoint(20,14),dir_SE,3,6);
-  MyPlayer.AddGroup(ut_Militia,KMPoint(25,14),dir_S,3,6);
-  MyPlayer.AddGroup(ut_Militia,KMPoint(30,14),dir_SW,3,6);
-  MyPlayer.AddGroup(ut_Militia,KMPoint(35,14),dir_W,3,6);
-  MyPlayer.AddGroup(ut_Militia,KMPoint(40,14),dir_NW,3,6);}
-
-  //H.AddDamage(255);
-
-  //for i:=1 to 25 do MyPlayer.AddUnit(ut_Serf, KMPoint(20,20));
-
-  fViewPort.SetCenter(10,9);
-
-//  MyPlayer.AddUnit(ut_Wolf,KMPoint(5,12));
-{  MyPlayer.AddUnit(ut_Fish,KMPoint(6,12));
-  MyPlayer.AddUnit(ut_Watersnake,KMPoint(7,12));
-  MyPlayer.AddUnit(ut_Seastar,KMPoint(8,12));
-  MyPlayer.AddUnit(ut_Crab,KMPoint(9,12));
-  MyPlayer.AddUnit(ut_Waterflower,KMPoint(10,12));
-  MyPlayer.AddUnit(ut_Waterleaf,KMPoint(11,12));
-  MyPlayer.AddUnit(ut_Duck,KMPoint(12,12)); }
-end;
-
-
 procedure TForm1.Button_StopClick(Sender: TObject);
 begin
   fGame.StopGame(gr_Cancel);
 end;
+
 
 procedure TForm1.TB_Angle_Change(Sender: TObject);
 begin

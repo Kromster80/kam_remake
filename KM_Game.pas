@@ -4,7 +4,7 @@ uses Windows,
   {$IFDEF VER140} MPlayer, {$ENDIF}
   Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Defaults, KM_Controls, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Sound, KM_Music, KM_Viewport, KM_Units, KM_Settings, KM_Utils;
+  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Utils, KM_Music;
 
 type TGameState = ( gsNoGame, //No game running at all, MainMenu
                     gsPaused, //Game is paused and responds to 'P' key only
@@ -31,8 +31,12 @@ type
     GameState:TGameState;
     fMissionFile:string; //Remember waht we are playing incase we might want to replay
     fGameName:string;
+
+    fMusicLib: TMusicLib;
+
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
+
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;

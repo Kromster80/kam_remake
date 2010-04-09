@@ -120,7 +120,7 @@ type
 
 
 implementation
-uses KM_LoadLib, KM_Sound, KM_Music;
+uses KM_LoadLib, KM_Sound, KM_Game;
 
 
 constructor TGlobalSettings.Create;
@@ -238,6 +238,7 @@ begin
   fNeedsSave:=true;
 end;
 
+
 procedure TGlobalSettings.SetMusicVolume(Value:integer);
 begin
   fMusicVolume:=EnsureRange(Value,SlidersMin,SlidersMax);
@@ -245,13 +246,16 @@ begin
   fNeedsSave:=true;
 end;
 
+
 procedure TGlobalSettings.SetMusicOnOff(Value:boolean);
 begin
   if fMusicOnOff <> Value then
   begin
     fMusicOnOff:=Value;
-    if Value then fMusicLib.PlayMenuTrack(not IsMusic) //Start with the default track
-    else fMusicLib.StopMusic;
+    if Value then
+      fGame.fMusicLib.PlayMenuTrack(not IsMusic) //Start with the default track
+    else
+      fGame.fMusicLib.StopMusic;
   end;
   fNeedsSave:=true;
 end;
@@ -260,7 +264,7 @@ end;
 procedure TGlobalSettings.UpdateSFXVolume();
 begin
   fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
-  fMusicLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
+  fGame.fMusicLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
   fNeedsSave := true;
 end;
 

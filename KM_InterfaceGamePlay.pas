@@ -1,6 +1,6 @@
 unit KM_InterfaceGamePlay;
 interface
-uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
+uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 
@@ -224,7 +224,7 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_Sound, KM_Music, Forms;
+uses KM_Unit1, KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_Sound, Forms;
 
 
 {Switch between pages}
@@ -311,7 +311,6 @@ begin
     lrIncorrectGameState: fGame.fMainMenuInterface.ShowScreen_Error('Unable to load from current game state');
   end;
 end;
-
 
 
 {Switch between pages}
@@ -466,7 +465,7 @@ begin
     KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
   end else
     if KMMinimap.CenteredAt.X*KMMinimap.CenteredAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
-    fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
+      fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
 
   KMMinimap.CenteredAt := fViewport.GetCenter;
   KMMinimap.ViewArea   := fViewport.GetMinimapClip;
@@ -475,8 +474,8 @@ end;
 
 procedure TKMGamePlayInterface.Minimap_RightClick(Sender: TObject);
 var
-P: TPoint;
-KMP: TKMPoint;
+  P: TPoint;
+  KMP: TKMPoint;
 begin
   //Send move order, if applicable
   //Convert cursor position to KMPoint
@@ -490,10 +489,7 @@ begin
 
   if (ShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
     if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, canWalk, true) then
-      if TKMUnitWarrior(GetShownUnit).fCommander<>nil then
-        TKMUnitWarrior(GetShownUnit).fCommander.PlaceOrder(wo_walk, KMP)
-      else
-        TKMUnitWarrior(GetShownUnit).PlaceOrder(wo_walk, KMP);
+      TKMUnitWarrior(GetShownUnit).GetCommander.PlaceOrder(wo_walk, KMP)
 end;
 
 
@@ -1778,8 +1774,8 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fMusicLib.PlayNextTrack; end;
-procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fMusicLib.PlayPreviousTrack; end;
+procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fGame.fMusicLib.PlayNextTrack; end;
+procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fGame.fMusicLib.PlayPreviousTrack; end;
 
 
 procedure TKMGamePlayInterface.Army_Issue_Order(Sender:TObject);
@@ -1903,7 +1899,7 @@ procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
   if fGame.fGlobalSettings.IsMusic then
   begin
-    Label_Menu_Track.Caption := fMusicLib.GetTrackTitle;
+    Label_Menu_Track.Caption := fGame.fMusicLib.GetTrackTitle;
     Label_Menu_Track.Enabled := true;
     Button_Menu_TrackUp.Enabled := true;
     Button_Menu_TrackDown.Enabled := true;
