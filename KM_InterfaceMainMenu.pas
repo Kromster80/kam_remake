@@ -775,7 +775,7 @@ begin
   for i:=1 to length(Campaign_Nodes) do begin
     Campaign_Nodes[i].Visible   := i <= Top;
     Campaign_Nodes[i].TexID     := 10 + byte(i<=Revealed);
-    Campaign_Nodes[i].HighlightOnMouseOver := Revealed > Top; //All maps completed
+    Campaign_Nodes[i].HighlightOnMouseOver := i <= Revealed;
   end;
 
   for i:=1 to Top do
@@ -789,12 +789,11 @@ begin
                 Campaign_Nodes[i].Top  := TPR_Campaign_Maps[i,2];
               end;
   end;
-  //Place intermediate nodes
 
-  if Revealed>Top then
-    Campaign_SelectMap(Campaign_Nodes[Revealed])
-  else
-    Campaign_SelectMap(Campaign_Nodes[1]);
+  //todo: Place intermediate nodes
+
+  //Select map to play
+  Campaign_SelectMap(Campaign_Nodes[Revealed])
 end;
 
 
@@ -803,11 +802,7 @@ var i:integer;
 begin
   if not (Sender is TKMImage) then exit;
 
-  with fGame.fCampaignSettings do //Don't allow selecting if Player didn't complete all maps
-  if (GetUnlockedMaps(Campaign_Selected) <= GetMapsCount(Campaign_Selected))
-     or (TKMImage(Sender).Tag=0) then exit;
-
-  //Place highlight
+   //Place highlight
   for i:=1 to length(Campaign_Nodes) do
     Campaign_Nodes[i].Highlight := false;
   TKMImage(Sender).Highlight := true;

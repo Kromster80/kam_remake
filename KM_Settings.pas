@@ -126,12 +126,13 @@ uses KM_LoadLib, KM_Sound, KM_Game;
 constructor TGlobalSettings.Create;
 begin
   Inherited;
-  SlidersMin:=0;
-  SlidersMax:=20;
+  SlidersMin := 0;
+  SlidersMax := 20;
   LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
 
-  fNeedsSave:=false;
+  fNeedsSave := false;
 end;
+
 
 destructor TGlobalSettings.Destroy;
 begin
@@ -139,10 +140,12 @@ begin
   Inherited;
 end;
 
+
 procedure TGlobalSettings.SaveSettings;
 begin
   SaveSettingsToFile(ExeDir+SETTINGS_FILE);
 end;
+
 
 function TGlobalSettings.LoadSettingsFromFile(filename:string):boolean;
 var f:TIniFile;
@@ -198,8 +201,9 @@ begin
   f.WriteBool   ('Fights','HitPointRestoreInFights',fHitPointRestoreInFights);
 
   FreeAndNil(f);
-  fNeedsSave:=false;
+  fNeedsSave := false;
 end;
+
 
 procedure TGlobalSettings.SetBrightness(aValue:integer);
 begin
@@ -207,11 +211,13 @@ begin
   fNeedsSave  := true;
 end;
 
+
 procedure TGlobalSettings.SetIsAutosave(val:boolean);
 begin
   fAutosave:=val;
   fNeedsSave:=true;
 end;
+
 
 procedure TGlobalSettings.SetIsFastScroll(val:boolean);
 begin
@@ -219,17 +225,20 @@ begin
   fNeedsSave:=true;
 end;
 
+
 procedure TGlobalSettings.SetIsFullScreen(val:boolean);
 begin
   fFullScreen:=val;
   fNeedsSave:=true;
 end;
 
+
 procedure TGlobalSettings.SetMouseSpeed(Value:integer);
 begin
   fMouseSpeed:=EnsureRange(Value,SlidersMin,SlidersMax);
   fNeedsSave:=true;
 end;
+
 
 procedure TGlobalSettings.SetSoundFXVolume(Value:integer);
 begin
@@ -263,8 +272,9 @@ end;
 
 procedure TGlobalSettings.UpdateSFXVolume();
 begin
-  fSoundLib.UpdateSFXVolume(fSoundFXVolume/SlidersMax);
-  fGame.fMusicLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
+  fSoundLib.UpdateSoundVolume(fSoundFXVolume/SlidersMax);
+  if fGame<>nil then
+    fGame.fMusicLib.UpdateMusicVolume(fMusicVolume/SlidersMax);
   fNeedsSave := true;
 end;
 
@@ -273,16 +283,18 @@ end;
 constructor TCampaignSettings.Create;
 begin
   Inherited;
-  fUnlockedMapsTSK := 1; //Reveal first map
+  fUnlockedMapsTSK := 10; //Reveal first map
   fUnlockedMapsTPR := 1;
 end;
 
 
+{When player completes one map we allow to reveal the next one, note that
+player may be replaying previous maps, in that case his progress remains the same}
 procedure TCampaignSettings.RevealMap(aCamp:TCampaign; aMap:byte);
 begin
   case aCamp of
-    cmp_TSK: fUnlockedMapsTSK := min(aMap, GetMapsCount(aCamp)+1);
-    cmp_TPR: fUnlockedMapsTPR := min(aMap, GetMapsCount(aCamp)+1);
+    cmp_TSK: fUnlockedMapsTSK := EnsureRange(aMap, fUnlockedMapsTSK, TSK_MAPS);
+    cmp_TPR: fUnlockedMapsTPR := EnsureRange(aMap, fUnlockedMapsTPR, TPR_MAPS);
   end;
 end;
 
@@ -308,6 +320,8 @@ begin
   end;
 end;
 
+
+{Get mission text description}
 function TCampaignSettings.GetMapText(aCamp:TCampaign; MapID:byte):string;
 begin
   case aCamp of

@@ -729,7 +729,7 @@ procedure TKMGame.StopGame(const Msg:gr_Message; TextMsg:string='');
 begin
   GameState := gsNoGame;
 
-  //Fill results before data is flushed
+  //Take results from MyPlayer before data is flushed
   if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
     fMainMenuInterface.Fill_Results;
 
@@ -886,8 +886,8 @@ begin
       SaveStream.Write(SAVE_VERSION); //This is savegame version
       SaveStream.Write(fMissionFile); //Save game mission file
       SaveStream.Write(fGameName); //Save game title
-      SaveStream.Write(GameplayTickCount, 4); //Required to be saved, e.g. messages being shown after a time
-      SaveStream.Write(ID_Tracker, 4); //Units-Houses ID tracker
+      SaveStream.Write(GameplayTickCount); //Required to be saved, e.g. messages being shown after a time
+      SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
 
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
@@ -950,8 +950,8 @@ begin
         //Substitute tick counter and id tracker
         LoadStream.Read(fMissionFile); //Save game mission file
         LoadStream.Read(fGameName); //Save game title
-        LoadStream.Read(GameplayTickCount, 4);
-        LoadStream.Read(ID_Tracker, 4);
+        LoadStream.Read(GameplayTickCount);
+        LoadStream.Read(ID_Tracker);
 
         //Load the data into the game
         fTerrain.Load(LoadStream);

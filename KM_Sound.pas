@@ -2,7 +2,7 @@ unit KM_Sound;
 interface
 uses Forms, Windows, MMSystem,
   {$IFDEF VER140} MPlayer, {$ENDIF}
-  Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults, KM_CommonTypes, KM_Utils;
+  Classes, SysUtils, KromUtils, OpenAL, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxWaves = 200;
 //@Krom: On large maps lots of sounds get skipped. Would it be possible to make this larger, as 16 sounds at once isn't very much.
@@ -52,7 +52,7 @@ type
     destructor Destroy(); override;
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPointF);
-    procedure UpdateSFXVolume(Value:single);
+    procedure UpdateSoundVolume(Value:single);
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay); overload;
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
@@ -65,7 +65,7 @@ var
 
 implementation
 uses
-  KM_LoadLib, KM_Unit1, KM_Game;
+  KM_Unit1;
 
 
 constructor TSoundLib.Create();
@@ -209,10 +209,10 @@ end;
 
 
 {Update sound gain (global volume for all sounds/music)}
-procedure TSoundLib.UpdateSFXVolume(Value:single);
+procedure TSoundLib.UpdateSoundVolume(Value:single);
 begin
   if not IsOpenALInitialized then exit;
-  SoundGain:=Value;
+  SoundGain := Value;
 //  alListenerf ( AL_GAIN, SoundGain );
 end;
 
@@ -291,8 +291,11 @@ end;
 
 
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
+var wave:string;
 begin
-  sndPlaySound('E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav', SND_NODEFAULT or SND_ASYNC or SND_NOSTOP);
+  wave := 'E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav';
+  if FileExists(wave) then
+  sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC or SND_NOSTOP);
 end;
 
 
