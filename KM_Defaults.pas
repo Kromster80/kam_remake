@@ -853,6 +853,11 @@ type
     sfx_SiegeBuildingSmash
         );
 
+
+//Sounds to play on different warrior orders
+type TSoundToPlay = (sp_Select, sp_Eat, sp_Rotate, sp_Halt, sp_Attack, sp_Formation);
+
+
 //Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
 //Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
 //I tweaked it by hand to look similar to KaM.

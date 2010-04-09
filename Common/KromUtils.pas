@@ -230,7 +230,7 @@ end;
 
 function float2fix(Number:single; Digits:integer):string;
 begin
-  Result := FloatToStrF(Number,ffGeneral,3,2);
+  Result := FloatToStrF(Number, ffGeneral, Digits+1, Digits);
 end;
 
 function int2time(Time:integer):string;
@@ -269,18 +269,18 @@ end;
 
 
 procedure ConvertSetToArray(iSet:integer; Ar:pointer);
-var i,k:integer; A:^integer;
+var i,k:cardinal; A:^integer;
 begin
-k:=1;
-for i:=1 to 24 do
-  if iSet and pow(2,i) = pow(2,i) then
-    begin
-      A:=pointer(cardinal(Ar)+k*4);
-      A^:=i;
-      inc(k);
-    end;
-A:=pointer(cardinal(Ar));
-A^:=k-1;
+  k:=1;
+  for i:=1 to 24 do
+    if iSet and pow(2,i) = pow(2,i) then
+      begin
+        A:=pointer(cardinal(Ar)+k*4);
+        A^:=i;
+        inc(k);
+      end;
+  A:=pointer(cardinal(Ar));
+  A^:=k-1;
 end;
 
 

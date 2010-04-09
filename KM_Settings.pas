@@ -120,7 +120,7 @@ type
 
 
 implementation
-uses KM_LoadLib, KM_SoundFX;
+uses KM_LoadLib, KM_Sound, KM_Music;
 
 
 constructor TGlobalSettings.Create;

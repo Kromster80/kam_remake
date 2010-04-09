@@ -25,7 +25,8 @@ uses
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Controls in 'KM_Controls.pas',
   KM_LoadLib in 'KM_LoadLib.pas',
-  KM_SoundFX in 'KM_SoundFX.pas',
+  KM_Sound in 'KM_Sound.pas',
+  KM_Music in 'KM_Music.pas',
   KM_Settings in 'KM_Settings.pas',
   KM_LoadDAT in 'KM_LoadDAT.pas',
   KM_Game in 'KM_Game.pas',
@@ -43,7 +44,7 @@ uses
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas',
   KM_UnitTaskMining in 'KM_UnitTaskMining.pas',
-  KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas';
+  KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas', KM_Units_Warrior;
 
 
 {$IFDEF VER140}

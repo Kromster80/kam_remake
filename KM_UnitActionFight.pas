@@ -21,7 +21,7 @@ TUnitActionFight = class(TUnitAction)
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_SoundFX, KM_Game, KM_Units_Warrior;
+uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Game, KM_Units_Warrior;
 
 
 { TUnitActionFight }

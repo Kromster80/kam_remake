@@ -1,7 +1,7 @@
-unit KM_SoundFX;
+unit KM_Sound;
 interface
-uses Forms, Windows,
-  {$IFDEF VER140} MMSystem, MPlayer, {$ENDIF}
+uses Forms, Windows, MMSystem,
+  {$IFDEF VER140} MPlayer, {$ENDIF}
   Classes, SysUtils, KromUtils, OpenAL, Math, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxWaves = 200;
@@ -53,37 +53,15 @@ type
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPointF);
     procedure UpdateSFXVolume(Value:single);
+    procedure PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay); overload;
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
 end;
 
-type
-  TMusicLib = class(TObject)
-  private
-    {$IFDEF VER140} MediaPlayer: TMediaPlayer; {$ENDIF}
-    MusicCount,MusicIndex:integer;
-    MusicTracks:array[1..256]of string;
-    IsMusicInitialized:boolean;
-    MusicGain:single;
-  public
-    constructor Create();
-    destructor Destroy(); override;
-    function CheckMusicError():boolean;
-    procedure UpdateMusicVolume(Value:single);
-    procedure ScanMusicTracks(Path:string);
-    procedure PlayMenuTrack(JustInit:boolean);
-    procedure PlayNextTrack();
-    procedure PlayPreviousTrack();
-    function IsMusicEnded():boolean;
-    function PlayMusicFile(FileName:string):boolean;
-    procedure StopMusic;
-    function GetTrackTitle:string;
-  end;
-
 
 var
   fSoundLib: TSoundLib;
-  fMusicLib: TMusicLib;
+
 
 implementation
 uses
@@ -312,189 +290,9 @@ begin
 end;
 
 
-{Music Lib}
-constructor TMusicLib.Create();
+procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
 begin
-  Inherited Create;
-
-  IsMusicInitialized := true;
-
-  {$IFDEF VER140} MediaPlayer := Form1.MediaPlayer1; {$ENDIF}
-  //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
-  ScanMusicTracks(ExeDir + 'Music\');
-end;
-
-
-destructor TMusicLib.Destroy();
-begin
-  //MediaPlayer.Close;
-  //FreeAndNil(MediaPlayer);
-  Inherited;
-end;
-
-
-
-function TMusicLib.CheckMusicError():boolean;
-begin
-  Result:=false;
-  {$IFDEF VER140}
-  if MediaPlayer.Error<>0 then begin
-    fLog.AddToLog(MediaPlayer.errormessage);
-   // Application.MessageBox(@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
-   // IsMusicInitialized := false;
-   // Result:=true; //Error is there
-  end;
-  {$ENDIF}
-end;
-
-
-{Update music gain (global volume for all sounds/music)}
-procedure TMusicLib.UpdateMusicVolume(Value:single);
-const
-  MCI_SETAUDIO = $0873;
-  MCI_DGV_SETAUDIO_VOLUME = $4002;
-  MCI_DGV_SETAUDIO_ITEM = $00800000;
-  MCI_DGV_SETAUDIO_VALUE = $01000000;
-var
-  P:record
-  dwCallback: DWORD;
-  dwItem: DWORD;
-  dwValue: DWORD;
-  dwOver: DWORD;
-  lpstrAlgorithm: PChar;
-  lpstrQuality: PChar;
-  end;
-begin
-  {$IFDEF VER140}
-  if not IsMusicInitialized then exit; //Keep silent
-  MusicGain:=Value;
-  P.dwCallback := 0;
-  P.dwItem := MCI_DGV_SETAUDIO_VOLUME;
-  P.dwValue := round(Value*1000);
-  P.dwOver := 0;
-  P.lpstrAlgorithm := nil;
-  P.lpstrQuality := nil;
-  mciSendCommand(MediaPlayer.DeviceID, MCI_SETAUDIO, MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@P)) ;
-  {$ENDIF}
-end;
-
-
-procedure TMusicLib.ScanMusicTracks(Path:string);
-var SearchRec:TSearchRec;
-begin
-  if not IsMusicInitialized then exit;
-  MusicCount:=0;
-  if not DirectoryExists(Path) then exit;
-
-  ChDir(Path);
-  FindFirst('*', faDirectory, SearchRec);
-  repeat
-    if (SearchRec.Attr and faDirectory <> faDirectory)and(SearchRec.Name<>'.')and(SearchRec.Name<>'..') then
-    if GetFileExt(SearchRec.Name)='MP3' then begin
-      inc(MusicCount);
-      MusicTracks[MusicCount]:=Path+SearchRec.Name;
-    end;
-  until (FindNext(SearchRec)<>0);
-  FindClose(SearchRec);
-  MusicIndex:=0;
-end;
-
-
-procedure TMusicLib.StopMusic;
-begin
-  {$IFDEF VER140}
-  if not IsMusicInitialized then exit;
-  MediaPlayer.Close;
-  //if CheckMusicError then exit;
-  MediaPlayer.FileName:='';
-  //if CheckMusicError then exit;
-  MusicIndex := 0;
-  {$ENDIF}
-end;
-
-
-function TMusicLib.GetTrackTitle:string;
-begin
-  if not IsMusicInitialized then exit;
-  //May not display the correct title as not all LIBs are correct. Should also do range checking
-  if InRange(MusicIndex,1,256) then
-    Result := fTextLibrary.GetTextString(siTrackNames+MusicIndex)
-  else Result := 'Unknown';
-
-  Result:=ExtractFileName(MusicTracks[MusicIndex]); //@Lewin: I think we should do it this way eventually
-end;
-
-
-function TMusicLib.PlayMusicFile(FileName:string):boolean;
-begin
-  {$IFDEF VER140}
-  Result:=false;
-  if not IsMusicInitialized then exit;
-
-  if MediaPlayer.FileName<>'' then
-  MediaPlayer.Close; //Cancel previous sound
-  if CheckMusicError then exit;
-  if not CheckFileExists(FileName,true) then exit; //Make it silent
-  if GetFileExt(FileName)<>'MP3' then exit;
-  MediaPlayer.FileName:=FileName;
-  MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
-  //Application.MessageBox(@FileName[1],'Now playing',MB_OK);
-  MediaPlayer.Open; //Needs to be done for every new file
-  if CheckMusicError then exit;
-  UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
-  if CheckMusicError then exit;
-  MediaPlayer.Play; //Start actual playback
-  if CheckMusicError then exit;
-  Result:=true;
-  {$ENDIF}
-end;
-
-
-procedure TMusicLib.PlayMenuTrack(JustInit:boolean);
-begin
-  if not IsMusicInitialized then exit;
-  if MusicIndex = 1 then exit; //Don't change unless needed
-  MusicIndex := 1; //First track (Spirit) is always menu music
-  PlayMusicFile(MusicTracks[MusicIndex]);
-  if JustInit then StopMusic; //This way music gets initialized irregardless of On/Off
-                              //switch state on game launch. This means there's no 2sec
-                              //lag when enabling music that was set to Off.
-  //BUG: Attempt to play MPEG 1.0 Layer 3 silently crashes Remake on some PCs
-end;
-
-
-procedure TMusicLib.PlayNextTrack();
-begin
-  if not IsMusicInitialized then exit;
-  if not fGame.fGlobalSettings.IsMusic then exit;
-  if MusicCount=0 then exit; //no music files found
-  MusicIndex := MusicIndex mod MusicCount + 1; //Set next index, looped
-  PlayMusicFile(MusicTracks[MusicIndex]);
-end;
-
-
-procedure TMusicLib.PlayPreviousTrack();
-begin
-  if not IsMusicInitialized then exit;
-  if not fGame.fGlobalSettings.IsMusic then exit;
-  if MusicCount=0 then exit; //no music files found
-  MusicIndex := MusicIndex - 1; //Set to previous
-  if MusicIndex = 0 then MusicIndex := MusicCount; //Loop to the top
-  PlayMusicFile(MusicTracks[MusicIndex]);
-end;
-
-
-//Check if Music is not playing, to know when new mp3 should be feeded
-function TMusicLib.IsMusicEnded():boolean;
-begin
-  {$IFDEF VER140}
-  Result:=false;
-  if not IsMusicInitialized then exit;
-  if fGame.fGlobalSettings.IsMusic then begin
-    Result := ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
-    if CheckMusicError then exit;
-  end;
-  {$ENDIF}
+  sndPlaySound('E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav', SND_NODEFAULT or SND_ASYNC or SND_NOSTOP);
 end;
 
 

@@ -223,8 +223,6 @@ begin
     Exit;
   end;
 
-  //allocate slightly more space for PasZLib which I don't know how to force to decode from given offset
-
   if ZLibCompressed then
   begin
     {$IFDEF VER140}
@@ -287,7 +285,7 @@ begin
     Texture := CreateTexture(Width, Height, GL_RGBA, Image);
   end;
 
-  Result :=TRUE;
+  Result := true;
   if ZLibCompressed then
   begin
     {$IFDEF VER140}

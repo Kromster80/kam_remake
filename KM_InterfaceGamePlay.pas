@@ -224,7 +224,7 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_SoundFX, Forms;
+uses KM_Unit1, KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_Sound, KM_Music, Forms;
 
 
 {Switch between pages}
@@ -1455,7 +1455,6 @@ begin
     end
     else
     begin
-      sndPlaySound('E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav', SND_NODEFAULT or SND_ASYNC or SND_NOSTOP);
       Panel_Army.Show;
       ImageStack_Army.SetCount(Commander.GetMemberCount + 1,Commander.UnitsPerRow); //Count+commander, Columns
       Panel_Army_JoinGroups.Hide;

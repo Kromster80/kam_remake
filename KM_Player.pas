@@ -93,7 +93,7 @@ type
   end;
 
 implementation
-uses KM_Terrain, KM_SoundFX, KM_PathFinding, KM_PlayersCollection;
+uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection;
 
 
 { TKMPlayerAssets }

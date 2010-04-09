@@ -4,7 +4,7 @@ uses Windows,
   {$IFDEF VER140} MPlayer, {$ENDIF}
   Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Defaults, KM_Controls, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_SoundFX, KM_Viewport, KM_Units, KM_Settings, KM_Utils;
+  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Sound, KM_Music, KM_Viewport, KM_Units, KM_Settings, KM_Utils;
 
 type TGameState = ( gsNoGame, //No game running at all, MainMenu
                     gsPaused, //Game is paused and responds to 'P' key only
@@ -95,7 +95,7 @@ begin
   fLog.AppendLog('<== SoundLib init follows ==>');
   fSoundLib:= TSoundLib.Create(); //Required for button click sounds
   //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
-  fMusicLib:= TMusicLib.Create(); //Needed for button click sounds and etc?
+  fMusicLib:= TMusicLib.Create();
   fGlobalSettings.UpdateSFXVolume;
   fLog.AppendLog('<== ReadGFX init follows ==>');
   fResource:=TResource.Create;
@@ -488,8 +488,10 @@ begin
                     fPlayers.Selected := OldSelected;
                   if (fPlayers.Selected is TKMHouse) then
                     fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
-                  if (fPlayers.Selected is TKMUnit) then
+                  if (fPlayers.Selected is TKMUnit) then begin
                     fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                    if fPlayers.Selected is TKMUnitWarrior then fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).GetUnitType, sp_Select);
+                  end;
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
                           MyPlayer.RemPlan(P)

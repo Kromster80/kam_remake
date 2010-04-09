@@ -9,7 +9,7 @@ uses
   dglOpenGL, MMSystem,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading, KM_Terrain,
   KM_Game, KM_Units, KM_Houses, KM_Viewport, KM_PlayersCollection, ColorPicker,
-  KM_LoadLib, KM_SoundFX,
+  KM_LoadLib, KM_Sound,
   {$IFDEF VER140} MPlayer, {$ENDIF}
   KM_Utils;
 

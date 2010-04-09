@@ -22,7 +22,7 @@ TUnitActionStay = class(TUnitAction)
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_SoundFX;
+uses KM_PlayersCollection, KM_Terrain, KM_Sound;
 
 
 { TUnitActionStay }
