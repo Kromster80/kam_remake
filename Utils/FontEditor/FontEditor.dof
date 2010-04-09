@@ -45,7 +45,7 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=..\..\ Common 
+SearchPath=..\..\Common
 Packages=vcl;rtl;dbrtl;adortl;vcldb;vclx;bdertl;vcldbx;ibxpress;dsnap;cds;bdecds;qrpt;teeui;teedb;tee;dss;teeqr;visualclx;visualdbclx;dsnapcrba;dsnapcon;VclSmp;vclshlctrls;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;inetdb;nmfast;webdsnap;websnap;soaprtl;dbexpress;dbxcds;indy;dclOffice2k;A306_R60;dxmdsd6;dxdbtrD6;dxtrmdD6;dxcomnd6;dxBarD6;dxBarDBNavD6;dxBarExtItemsD6;dxBarExtDBItemsD6;dxsbD6;dws2CLXRuntime;dws2VCLRuntime;dxInsD6;dxDBEdD6;dxEdtrD6;dxObjInsD6;dxorgcD6;dxdborD6;EQTLD6;ECQDBCD6;EQDBTLD6;EQGridD6;dxGrEdD6;dxExELD6;dxELibD6;elpkdbD6;elpproD6;elpackD6;LT13D6Ad;LT13D6Mn;LT13D6Nt;LT13D6Sn;RxCtl6;RxDB6;RxBDE6;VCLZipD6;madHelp_;madRemote_;madKernel_;madCodeHook_;madBasic_;madDisAsm_;dws2Runtime;ThemeManager6;NamCompsLib_R6
 Conditionals=
 DebugSourceDirs=
@@ -77,7 +77,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=
 FileDescription=
-FileVersion=
+FileVersion=1.2.3.0
 InternalName=
 LegalCopyright=
 LegalTrademarks=
@@ -92,5 +92,6 @@ Item0=USE_DIGIMIX;madExcept
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;NamMessageClientGFX=NamMessageClientGFX_Delphi6;NamMessageServerGFX=NamMessageServerGFX_Delphi6
 [HistoryLists\hlSearchPath]
-Count=1
-Item0=..\..\ Common 
+Count=2
+Item0=..\..\Common
+Item1=..\..\ Common 
