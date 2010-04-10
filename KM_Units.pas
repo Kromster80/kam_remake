@@ -2,7 +2,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils, Windows,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Terrain, KM_Units_WorkPlan;
+  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Terrain, KM_Units_WorkPlan, KM_Sound;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
@@ -1719,7 +1719,12 @@ case fPhase of
                                          //fUnit.fHome is wrong
      end else
      SetActionLockedStay(0,ua_Walk);
-  1: if SequenceLength > 0 then SetActionLockedStay(SequenceLength,ua_Die,false)
+  1: if SequenceLength > 0 then
+     begin
+       SetActionLockedStay(SequenceLength,ua_Die,false);
+       if fUnit is TKMUnitWarrior then
+         fSoundLib.PlayWarrior(fUnit.GetUnitType, sp_Death);
+     end
      else SetActionLockedStay(0,ua_Walk);
   else begin
       fUnit.CloseUnit;

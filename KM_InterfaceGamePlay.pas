@@ -485,7 +485,10 @@ begin
 
   if (ShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
     if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, canWalk, true) then
-      TKMUnitWarrior(GetShownUnit).GetCommander.PlaceOrder(wo_walk, KMP)
+    begin
+      TKMUnitWarrior(GetShownUnit).GetCommander.PlaceOrder(wo_walk, KMP);
+      fSoundLib.PlayWarrior(GetShownUnit.GetUnitType, sp_Move);
+    end;
 end;
 
 
@@ -1786,21 +1789,49 @@ begin
     Commander := TKMUnitWarrior(fPlayers.Selected);
 
   //if Sender = Button_Army_GoTo    then ; //This command makes no sense unless player has no right-mouse-button
-  if Sender = Button_Army_Stop    then Commander.Halt;
+  if Sender = Button_Army_Stop    then
+  begin
+    Commander.Halt;
+    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Halt);
+  end;
   //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
-  if Sender = Button_Army_RotCW   then Commander.Halt(-1);
+  if Sender = Button_Army_RotCW   then
+  begin
+    Commander.Halt(-1);
+    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_RotLeft);
+  end;
   //if Sender = Button_Army_Storm   then ;
-  if Sender = Button_Army_RotCCW  then Commander.Halt(1);
-  if Sender = Button_Army_ForDown then Commander.Halt(0,1);
-  if Sender = Button_Army_ForUp   then Commander.Halt(0,-1);
-  if Sender = Button_Army_Split   then Commander.Split;
+  if Sender = Button_Army_RotCCW  then 
+  begin
+    Commander.Halt(1);
+    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_RotRight);
+  end;
+  if Sender = Button_Army_ForDown then 
+  begin
+    Commander.Halt(0,1);
+    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Formation);
+  end;
+  if Sender = Button_Army_ForUp   then 
+  begin
+    Commander.Halt(0,-1);
+    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Formation);
+  end;
+  if Sender = Button_Army_Split   then 
+  begin
+    Commander.Split;
+    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Split);
+  end;
   if Sender = Button_Army_Join    then
   begin
     Panel_Army.Hide;
     Panel_Army_JoinGroups.Show;
     JoiningGroups := true;
   end;
-  if Sender = Button_Army_Feed    then Commander.OrderFood;
+  if Sender = Button_Army_Feed    then 
+  begin
+    Commander.OrderFood;
+    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Eat);
+  end;
 end;
 
 

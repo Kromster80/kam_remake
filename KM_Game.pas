@@ -97,7 +97,7 @@ begin
   fLog.AppendLog('<== TextLib init follows ==>');
   fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
   fLog.AppendLog('<== SoundLib init follows ==>');
-  fSoundLib:= TSoundLib.Create(); //Required for button click sounds
+  fSoundLib:= TSoundLib.Create(fGlobalSettings.GetLocale); //Required for button click sounds
   //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
   fMusicLib:= TMusicLib.Create();
   fGlobalSettings.UpdateSFXVolume;
@@ -284,6 +284,7 @@ begin
                     begin
                       //Place attack order here rather than in mouse up
                       TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_Attack, HitUnit);
+                      fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Attack);
                     end
                     else
                     begin
@@ -494,7 +495,8 @@ begin
                     fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
                   if (fPlayers.Selected is TKMUnit) then begin
                     fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                    if fPlayers.Selected is TKMUnitWarrior then fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).GetUnitType, sp_Select);
+                    if (fPlayers.Selected is TKMUnitWarrior) and (OldSelected <> fPlayers.Selected) then
+                      fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).GetUnitType, sp_Select);
                   end;
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
@@ -546,6 +548,7 @@ begin
                  (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
               begin
                 TKMUnitWarrior(fGamePlayInterface.GetShownUnit).LinkTo(TKMUnitWarrior(HitUnit));
+                fSoundLib.PlayWarrior(HitUnit.GetUnitType, sp_Join);
                 fGamePlayInterface.JoiningGroups := false;
                 fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit); //Refresh unit display
                 Screen.Cursor:=c_Default; //Reset cursor when mouse released
@@ -569,6 +572,7 @@ begin
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
           TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_walk, P, SelectedDirection);
+          fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Move);
         end;
         if (Button = mbRight) and (MOver = nil) then
         begin

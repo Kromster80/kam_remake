@@ -855,7 +855,8 @@ type
 
 
 //Sounds to play on different warrior orders
-type TSoundToPlay = (sp_Select, sp_Eat, sp_Rotate, sp_Halt, sp_Attack, sp_Formation);
+type TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
+                     sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
 
 
 //Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.

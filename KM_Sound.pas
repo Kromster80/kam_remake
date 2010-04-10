@@ -8,6 +8,15 @@ const MaxWaves = 200;
 //@Krom: On large maps lots of sounds get skipped. Would it be possible to make this larger, as 16 sounds at once isn't very much.
 const MaxSourceCount = 16; //Actually it depends on hardware
 
+const WarriorSFXFolder: array[15..24] of string = (
+  'MILITIA','AXEMAN','SWORDMAN',
+  'BOWMAN','CROSSBOWMAN','LANCEMAN',
+  'PIKEMAN','CAVALRY','KNIGHTS','BARBARIAN');
+
+const WarriorSFX: array[TSoundToPlay] of string = (
+  'SELECT','EAT','LEFT','RIGHT','HALVE','JOIN','HALT','SEND', 'ATTACK',
+  'FORMAT','DEATH','BATTLE','STORM');
+
 type
   TWAVHeaderEx = record
     RIFFHeader: array [1..4] of Char;
@@ -46,9 +55,11 @@ type
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
     SoundGain:single;
+    WarriorSoundCount: array[15..24,TSoundToPlay] of byte;
     procedure LoadSoundsDAT();
+    function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
   public
-    constructor Create();
+    constructor Create(aLocale:string);
     destructor Destroy(); override;
     procedure ExportSounds();
     procedure UpdateListener(Pos:TKMPointF);
@@ -65,16 +76,27 @@ var
 
 implementation
 uses
-  KM_Unit1;
+  KM_Unit1, KM_Game, Dialogs;
 
 
-constructor TSoundLib.Create();
+constructor TSoundLib.Create(aLocale:string);
 var
   Context: PALCcontext;
   Device: PALCdevice;
-  ErrCode:integer;
+  i,k,ErrCode:integer;
+  s:TSoundToPlay;
 begin
   Inherited Create;
+
+  //Scan and count the number of warrior sounds
+  for i:=15 to 24 do
+    for s:=low(TSoundToPlay) to high(TSoundToPlay) do
+      for k:=0 to 255 do
+        if not FileExists(GetWarriorSoundFile(TUnitType(i),s,k,aLocale)) then
+        begin
+          WarriorSoundCount[i,s] := k;
+          break;
+        end;
 
   IsOpenALInitialized := InitOpenAL;
   if not IsOpenALInitialized then begin
@@ -290,12 +312,26 @@ begin
 end;
 
 
+function TSoundLib.GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
+begin
+  if (aLocale = '') and (fGame <> nil) and (fGame.fGlobalSettings <> nil) then
+    aLocale := fGame.fGlobalSettings.GetLocale;
+  if (byte(aUnitType) < 15) or (byte(aUnitType) > 24) then
+    Result := ''
+  else
+    Result := ExeDir + 'data\Sfx\Speech.'+aLocale+'\' + WarriorSFXFolder[byte(aUnitType)] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.snd';
+end;
+
+
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
 var wave:string;
 begin
-  wave := 'E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav';
+  //wave := 'E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav';
+  if (byte(aUnitType) < 15) or (byte(aUnitType) > 24) then exit;
+  wave := GetWarriorSoundFile(aUnitType,aSound,Random(WarriorSoundCount[byte(aUnitType),aSound]));
   if FileExists(wave) then
-  sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC or SND_NOSTOP);
+    ShowMessage(wave);
+    //sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC or SND_NOSTOP); //@Krom: This isn't playing anything for me :(
 end;
 
 
