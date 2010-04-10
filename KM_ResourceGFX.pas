@@ -676,7 +676,7 @@ var
   ID,ID1,ID2:integer; //RGB and A index
   ci,i,k,h,StepCount:integer;
   t,t2:integer;
-  col:byte;
+  ColorID:byte;
   WidthPOT,HeightPOT:integer;
   TD:array of byte;
 begin
@@ -686,36 +686,40 @@ begin
       for h:=1 to 2 do begin
 
         if h=1 then begin
-          ID1:=HouseDAT[ID].WoodPic+1;
-          ID2:=HouseDAT[ID].WoodPal+1;
+          ID1 := HouseDAT[ID].WoodPic+1;
+          ID2 := HouseDAT[ID].WoodPal+1;
           StepCount:=HouseDAT[ID].WoodPicSteps;
         end else begin
-          ID1:=HouseDAT[ID].StonePic+1;
-          ID2:=HouseDAT[ID].StonePal+1;
+          ID1 := HouseDAT[ID].StonePic+1;
+          ID2 := HouseDAT[ID].StonePal+1;
           StepCount:=HouseDAT[ID].StonePicSteps;
         end;
 
-        WidthPOT:=MakePOT(RXData[RXid].Size[ID1,1]);
-        HeightPOT:=MakePOT(RXData[RXid].Size[ID1,2]);
-        setlength(TD,WidthPOT*HeightPOT*4+1);
+        WidthPOT  := MakePOT(RXData[RXid].Size[ID1,1]);
+        HeightPOT := MakePOT(RXData[RXid].Size[ID1,2]);
+        setlength(TD, WidthPOT*HeightPOT*4+1);
 
-        for i:=1 to HeightPOT do begin
-          ci:=-1;
-          for k:=1 to RXData[RXid].Size[ID1,1] do begin
+        for i := 1 to HeightPOT do begin
+          ci := -1;
+
+          for k := 1 to RXData[RXid].Size[ID1,1] do begin
             inc(ci);
-            if i<=RXData[RXid].Size[ID1,2] then begin
-              t:=((i-1)*WidthPOT+ci)*4;
-              col:=RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1,1]+k-1]+1;
-              TD[t+0]:=Pal[DEF_PAL,col,1];
-              TD[t+1]:=Pal[DEF_PAL,col,2];
-              TD[t+2]:=Pal[DEF_PAL,col,3];
-              if i<=RXData[RXid].Size[ID2,2] then
-              if k<=RXData[RXid].Size[ID2,1] then begin//Cos someimes ID2 is smaller by few pixels
-                t2:=t+(RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x)*4; //Shift by pivot, always positive
-                t2:=t2+(RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT*4; //Shift by pivot, always positive
-                TD[t2+3]:=255-round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2,1]+k-1]*(255/StepCount));
-              end;
-              if col=1 then TD[t+3]:=0;
+            if i <= RXData[RXid].Size[ID1,2] then begin
+
+              t   := ((i-1)*WidthPOT+ci)*4;
+              ColorID := RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1,1]+k-1]; //0..255
+              TD[t+0] := Pal[DEF_PAL, ColorID+1, 1];
+              TD[t+1] := Pal[DEF_PAL, ColorID+1, 2];
+              TD[t+2] := Pal[DEF_PAL, ColorID+1, 3];
+              if ColorID = 0 then
+                TD[t+3] := 0
+              else
+                if i<=RXData[RXid].Size[ID2,2] then
+                if k<=RXData[RXid].Size[ID2,1] then begin//Cos someimes ID2 is smaller by few pixels
+                  t2 := t  + (RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x)*4; //Shift by pivot, always positive
+                  t2 := t2 + (RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT*4; //Shift by pivot, always positive
+                  TD[t2+3] := 255 - round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2,1]+k-1]*(255/StepCount));
+                end;
             end;
           end;
         end;

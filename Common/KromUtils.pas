@@ -286,13 +286,13 @@ end;
 
 function MakePOT(num:integer):integer;
 begin
-num := num - 1; //Took this rather smart code from Net
-num := num OR (num SHR 1);
-num := num OR (num SHR 2);
-num := num OR (num SHR 4);
-num := num OR (num SHR 8);
-num := num OR (num SHR 16); //32bit needs no more
-Result := num+1;
+  num := num - 1; //Took this rather smart code from Net
+  num := num OR (num SHR 1);
+  num := num OR (num SHR 2);
+  num := num OR (num SHR 4);
+  num := num OR (num SHR 8);
+  num := num OR (num SHR 16); //32bit needs no more
+  Result := num+1;
 end;
 
 
