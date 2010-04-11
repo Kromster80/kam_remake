@@ -44,9 +44,10 @@ type TKMMainMenuInterface = class
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
       Campaign_Nodes:array[1..MAX_MAPS] of TKMImage;
-      Image_ScrollTop,Image_Scroll:TKMImage;
-      Label_CampaignTitle,Label_CampaignText:TKMLabel;
-      Label_CampaignStart:TKMLabel; //A button ;)
+      Panel_CampScroll:TKMPanel;
+        Image_ScrollTop,Image_Scroll:TKMImage;
+        Label_CampaignTitle,Label_CampaignText:TKMLabel;
+        Label_CampaignStart:TKMLabel; //A button ;)
       Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
       Image_SingleBG:TKMImage;
@@ -346,23 +347,25 @@ begin
     Image_CampaignBG.Stretch;
 
     for i:=1 to length(Campaign_Nodes) do begin
-      Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23,29,10,5);
+      Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23*2,29*2,10,5);
       Campaign_Nodes[i].Center; //I guess it's easier to position them this way
       Campaign_Nodes[i].OnClick := Campaign_SelectMap;
       Campaign_Nodes[i].Tag := i;
     end;
 
-    Image_Scroll := MyControls.AddImage(Panel_Campaign, ScreenX-360, ScreenY-397,360,397,15,6);
-    Label_CampaignTitle := MyControls.AddLabel(Panel_Campaign, ScreenX-170, ScreenY-380,320,310, '', fnt_Outline, kaCenter);
+  Panel_CampScroll:=MyControls.AddPanel(Panel_Campaign,ScreenX-360,ScreenY-397,360,397);
 
-    Label_CampaignText := MyControls.AddLabel(Panel_Campaign, ScreenX-340, ScreenY-330,320,310, '', fnt_Briefing, kaLeft);
+    Image_Scroll := MyControls.AddImage(Panel_CampScroll, 0, 0,360,397,{15}2,6);
+    Label_CampaignTitle := MyControls.AddLabel(Panel_CampScroll, 170, 18,100,20, '', fnt_Outline, kaCenter);
+
+    Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 15, 65, 320, 310, '', fnt_Briefing, kaLeft);
     Label_CampaignText.AutoWrap := true;
 
-    Label_CampaignStart := MyControls.AddLabel(Panel_Campaign, ScreenX-30, ScreenY-30,100,20, fTextLibrary.GetSetupString(17), fnt_Briefing, kaRight);
+    Label_CampaignStart := MyControls.AddLabel(Panel_CampScroll, 330, 370, 100, 20, fTextLibrary.GetSetupString(17), fnt_Briefing, kaRight);
     Label_CampaignStart.OnClick := Campaign_StartMap;
 
-    Button_CampaignBack := MyControls.AddButton(Panel_Campaign, 20, ScreenY-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_CampaignBack.OnClick := SwitchMenuPage;
+  Button_CampaignBack := MyControls.AddButton(Panel_Campaign, 20, ScreenY-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+  Button_CampaignBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -766,21 +769,20 @@ begin
   Top := fGame.fCampaignSettings.GetMapsCount(Campaign_Selected);
   Revealed := fGame.fCampaignSettings.GetUnlockedMaps(Campaign_Selected);
 
+  //Choose background
   case Campaign_Selected of
     cmp_TSK: Image_CampaignBG.TexID := 12;
     cmp_TPR: Image_CampaignBG.TexID := 20;
   end;
 
-//  Label_CampaignText.Caption := fGame.fCampaignSettings.GetMapText(Campaign_Selected, Revealed);
-  Label_CampaignStart.Tag := Revealed;
-
+  //Setup sites
   for i:=1 to length(Campaign_Nodes) do begin
     Campaign_Nodes[i].Visible   := i <= Top;
     Campaign_Nodes[i].TexID     := 10 + byte(i<=Revealed);
     Campaign_Nodes[i].HighlightOnMouseOver := i <= Revealed;
-    //Campaign_Nodes[i].Enabled   := i <= Revealed;
   end;
 
+  //Place sites
   for i:=1 to Top do
   case Campaign_Selected of
     cmp_TSK:  begin
@@ -807,9 +809,13 @@ begin
   if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
 
    //Place highlight
-  for i:=1 to length(Campaign_Nodes) do
+  for i:=1 to length(Campaign_Nodes) do begin
     Campaign_Nodes[i].Highlight := false;
+    Campaign_Nodes[i].Center;
+  end;
+
   TKMImage(Sender).Highlight := true;
+  TKMImage(Sender).Stretch;
 
   Label_CampaignTitle.Caption := 'Mission '+inttostr(TKMImage(Sender).Tag);
 
