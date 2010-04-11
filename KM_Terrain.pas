@@ -1544,6 +1544,7 @@ end;
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
   //@Lewin: Still occasional Errors here, sometimes during fights
+  //@Lewin: Mission6 TSK, do no actions, just watch, shows an error here
   if not DO_UNIT_INTERACTION then exit;
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);

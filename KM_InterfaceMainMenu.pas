@@ -45,7 +45,7 @@ type TKMMainMenuInterface = class
       Image_CampaignBG:TKMImage;
       Campaign_Nodes:array[1..MAX_MAPS] of TKMImage;
       Image_ScrollTop,Image_Scroll:TKMImage;
-      Label_CampaignText:TKMLabel;
+      Label_CampaignTitle,Label_CampaignText:TKMLabel;
       Label_CampaignStart:TKMLabel; //A button ;)
       Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
@@ -190,21 +190,15 @@ inherited Create;
   Create_Error_Page;
   Create_Results_Page;
 
-  {for i:=1 to length(FontFiles) do
-    L[i]:=MyControls.AddLabel(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);
-  //}
+    {for i:=1 to length(FontFiles) do L[i]:=MyControls.AddLabel(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);//}
+    //MyControls.AddTextEdit(nil, 32, 32, 200, 20, fnt_Grey);
+    //FL := MyControls.AddFileList(nil, 550, 300, 320, 220);
+    //FL.RefreshList(ExeDir+'Maps\','dat',true);
 
   //Show version info on every page
   Label_Version := MyControls.AddLabel(Panel_Main1,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
 
   if SHOW_1024_768_OVERLAY then MyControls.AddShape(nil, OffX, OffY, 1024, 768, $FF00FF00);
-
-  //@Lewin: TextEdit example. To be deleted..
-  MyControls.AddTextEdit(nil, 32, 32, 200, 20, fnt_Grey);//}
-
-  //@Lewin: FileList example. To be deleted..
-  FL := MyControls.AddFileList(nil, 550, 300, 320, 220);
-  FL.RefreshList(ExeDir+'Maps\','dat',true);
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
@@ -348,17 +342,19 @@ procedure TKMMainMenuInterface.Create_Campaign_Page;
 var i:integer;
 begin
   Panel_Campaign:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
-    Image_CampaignBG:=MyControls.AddImage(Panel_Campaign,0,0,ScreenX,ScreenY,12,6);
+    Image_CampaignBG:=MyControls.AddImage(Panel_Campaign,0,0,ScreenX,ScreenY,12,5);
     Image_CampaignBG.Stretch;
 
     for i:=1 to length(Campaign_Nodes) do begin
-      Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23,29,10,6);
+      Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23,29,10,5);
       Campaign_Nodes[i].Center; //I guess it's easier to position them this way
       Campaign_Nodes[i].OnClick := Campaign_SelectMap;
       Campaign_Nodes[i].Tag := i;
     end;
 
     Image_Scroll := MyControls.AddImage(Panel_Campaign, ScreenX-360, ScreenY-397,360,397,15,6);
+    Label_CampaignTitle := MyControls.AddLabel(Panel_Campaign, ScreenX-170, ScreenY-380,320,310, '', fnt_Outline, kaCenter);
+
     Label_CampaignText := MyControls.AddLabel(Panel_Campaign, ScreenX-340, ScreenY-330,320,310, '', fnt_Briefing, kaLeft);
     Label_CampaignText.AutoWrap := true;
 
@@ -769,13 +765,20 @@ begin
   Campaign_Selected := aCampaign;
   Top := fGame.fCampaignSettings.GetMapsCount(Campaign_Selected);
   Revealed := fGame.fCampaignSettings.GetUnlockedMaps(Campaign_Selected);
-  Label_CampaignText.Caption := fGame.fCampaignSettings.GetMapText(Campaign_Selected, Revealed);
+
+  case Campaign_Selected of
+    cmp_TSK: Image_CampaignBG.TexID := 12;
+    cmp_TPR: Image_CampaignBG.TexID := 20;
+  end;
+
+//  Label_CampaignText.Caption := fGame.fCampaignSettings.GetMapText(Campaign_Selected, Revealed);
   Label_CampaignStart.Tag := Revealed;
 
   for i:=1 to length(Campaign_Nodes) do begin
     Campaign_Nodes[i].Visible   := i <= Top;
     Campaign_Nodes[i].TexID     := 10 + byte(i<=Revealed);
     Campaign_Nodes[i].HighlightOnMouseOver := i <= Revealed;
+    //Campaign_Nodes[i].Enabled   := i <= Revealed;
   end;
 
   for i:=1 to Top do
@@ -801,11 +804,14 @@ procedure TKMMainMenuInterface.Campaign_SelectMap(Sender:TObject);
 var i:integer;
 begin
   if not (Sender is TKMImage) then exit;
+  if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
 
    //Place highlight
   for i:=1 to length(Campaign_Nodes) do
     Campaign_Nodes[i].Highlight := false;
   TKMImage(Sender).Highlight := true;
+
+  Label_CampaignTitle.Caption := 'Mission '+inttostr(TKMImage(Sender).Tag);
 
   Label_CampaignText.Caption := fGame.fCampaignSettings.GetMapText(Campaign_Selected, TKMImage(Sender).Tag);
   Label_CampaignStart.Tag := TKMImage(Sender).Tag;

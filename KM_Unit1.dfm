@@ -98,14 +98,6 @@ object Form1: TForm1
       Height = 13
       Caption = 'Player1 color'
     end
-    object Button_W: TButton
-      Left = 144
-      Top = 16
-      Width = 25
-      Height = 17
-      Caption = 'W'
-      TabOrder = 3
-    end
     object CheckBox2: TCheckBox
       Left = 8
       Top = 52
@@ -153,37 +145,13 @@ object Form1: TForm1
       TabOrder = 2
       OnClick = RGPlayerClick
     end
-    object Button_V: TButton
-      Left = 168
-      Top = 16
-      Width = 25
-      Height = 17
-      Caption = 'V'
-      TabOrder = 4
-    end
-    object Button_6: TButton
-      Left = 192
-      Top = 16
-      Width = 25
-      Height = 17
-      Caption = '6'
-      TabOrder = 5
-    end
-    object Button_1: TButton
-      Left = 216
-      Top = 16
-      Width = 25
-      Height = 17
-      Caption = '1'
-      TabOrder = 6
-    end
     object Button_Stop: TButton
       Left = 240
       Top = 16
       Width = 25
       Height = 17
       Caption = 'Stop'
-      TabOrder = 7
+      TabOrder = 3
       OnClick = Button_StopClick
     end
     object TB_Angle: TTrackBar
@@ -198,7 +166,7 @@ object Form1: TForm1
       Position = 0
       SelEnd = 0
       SelStart = 0
-      TabOrder = 8
+      TabOrder = 4
       ThumbLength = 14
       TickMarks = tmBoth
       TickStyle = tsNone

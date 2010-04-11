@@ -649,15 +649,16 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
   end;
 
 if WriteAllTexturesToBMP then begin
-  CreateDir(ExeDir+'GenTextures\');
+  CreateDir(ExeDir+'Export\GenTextures\');
   MyBitMap:=TBitMap.Create;
   MyBitmap.PixelFormat:=pf32bit;
   MyBitmap.Width:=DestX;
   MyBitmap.Height:=DestY;
-    for i:=0 to DestY-1 do for k:=0 to DestX-1 do begin
-      MyBitmap.Canvas.Pixels[k,i]:=((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
-    end;
-    MyBitmap.SaveToFile(ExeDir+'GenTextures\'+int2fix(Result,4)+'.bmp');
+  
+  for i:=0 to DestY-1 do for k:=0 to DestX-1 do
+    MyBitmap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
+
+  MyBitmap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
   MyBitMap.Free;
 end;
 
@@ -753,6 +754,7 @@ var
   WidthPOT,HeightPOT:integer;
   TD:array of byte;
 begin
+
   LeftIndex:=0; AllocatedRAM:=0; RequiredRAM:=0; ColorsRAM:=0; TexCount:=0;
   repeat
     inc(LeftIndex);
@@ -771,10 +773,9 @@ begin
           (WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount,1]<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
     do begin
       inc(WidthPOT,RXData[RXid].Size[LeftIndex+SpanCount,1]);
-      inc(SpanCount);
-//      if (RXid=4)and(LeftIndex+SpanCount = 49) then break; //Don't align
       if (RXid=5)and(RX5pal[LeftIndex]<>RX5pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
       if (RXid=6)and(RX6pal[LeftIndex]<>RX6pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
+      inc(SpanCount);
     end;
 
     RightIndex:=LeftIndex+SpanCount-1;

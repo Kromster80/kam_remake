@@ -207,11 +207,10 @@ const
  pal_map=1; pal_0=2; pal_1=3; pal_2=4; pal_3=5; pal_4=6; pal_5=7; pal_set=8; pal_set2=9; pal_lin=10;
  pal2_mapgold=11; pal2_setup=12;
 
- //I couldn't find matching palettes for several entries, so I marked them 0 
  RX5Pal:array[1..40]of byte = (
  12,12,12,12,12,12,9,9,9,1,
- 1,1,1,1,1,1,12,12,12,0,
- 0,0,0,0,12,1,1,1,1,1,
+ 1,1,1,1,1,1,12,12,12,11,
+ 11,11,11,11,12,1,1,1,1,1,
  12,12,12,12,12,12,12,0,0,0);
  //I couldn't find matching palettes for several entries, so I marked them 0 
  RX6Pal:array[1..20]of byte = (
