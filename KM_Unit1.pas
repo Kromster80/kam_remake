@@ -158,52 +158,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
   TempSettings:TGlobalSettings;
   s:string;
-  function PlayMidiFile (FileName: string): word;
-  var
-  wdeviceid: integer;
-
-  mciOpen: tmci_open_parms;
-  mciPlay: tmci_play_parms;
-  mciStat: tmci_status_parms;
-  begin
-    // Open the device by specifying the device and filename.
-    // MCI will attempt to choose the MIDI mapper as the output port.
-    mciopen.lpstrDeviceType := 'sequencer';
-    mciopen.lpstrElementName := pchar (filename);
-    Result := mciSendCommand ($0, mci_open , mci_open_type or mci_open_element, longint (@mciopen));
-    if Result <> 0 then exit;
-
-    // The device opened successfully; get the device ID.
-    // Check if the output port is the MIDI mapper.
-    wDeviceID := mciOpen.wDeviceID;
-    mciStat.dwItem := MCI_SEQ_STATUS_PORT;
-    Result := mciSendCommand (wDeviceID, MCI_STATUS, MCI_STATUS_ITEM, longint (@mciStat));
-    if Result <> 0 then begin
-      mciSendCommand (wDeviceID, MCI_CLOSE, 0, 0);
-      exit;
-    end;
-
-    // Begin playback. The window procedure function for the parent
-    // Window will be notified with an MM_MCINOTIFY message when
-    // Playback is complete. At this time, the window procedure closes
-    // The device.
-    mciPlay.dwCallback := application.Handle;
-    Result := mciSendCommand (wDeviceID, MCI_PLAY,
-    MCI_NOTIFY, longint (@mciPlay));
-    if Result <> 0 then begin
-      mciSendCommand (wDeviceID, MCI_CLOSE, 0, 0);
-      exit;
-    end;
-  end;
-
 begin
   if Sender<>nil then exit;
-
-  //Doesn't work unless you change volume in Windows?
-  s:= ExeDir + 'Music\SpiritOrig.mid';
-  {PlayMidiFile(s);
-  {StartSound(Form1.Handle, s);}
-  MCISendString(PChar('play ' + s), nil, 0, 0);
 
   FormLoading.Label5.Caption := GAME_VERSION;
   FormLoading.Show; //This is our splash screen
