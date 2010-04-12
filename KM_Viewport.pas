@@ -130,7 +130,13 @@ begin
      not (Mouse.CursorPos.X <= SCROLLFLEX) and
      not (Mouse.CursorPos.Y <= SCROLLFLEX) and
      not (Mouse.CursorPos.X >= Screen.Width -1-SCROLLFLEX) and
-     not (Mouse.CursorPos.Y >= Screen.Height-1-SCROLLFLEX) then exit;
+     not (Mouse.CursorPos.Y >= Screen.Height-1-SCROLLFLEX) then
+  begin
+    Scrolling := false;
+    if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
+      Screen.Cursor := c_Default;
+    exit;
+  end;
 
   ScrollAdv := (SCROLLSPEED + byte(fGame.fGlobalSettings.IsFastScroll)*3)*aFrameTime/100; //1 vs 4 tiles per second
 

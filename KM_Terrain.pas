@@ -1545,6 +1545,7 @@ procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
   //@Lewin: Still occasional Errors here, sometimes during fights
   //@Lewin: Mission6 TSK, do no actions, just watch, shows an error here
+  //@Krom: Thanks for the report, but I can't reproduce it :( I'm using SR3 B7 mission files. Can you send me a save please? I'd really like to fix this bug.
   if not DO_UNIT_INTERACTION then exit;
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
