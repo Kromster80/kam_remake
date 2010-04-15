@@ -47,7 +47,7 @@ type
   TTaskBuildHouseArea = class(TUnitTask)
     private
       Step:byte;
-      ListOfCells:array[1..4*4]of TKMPoint;
+      Cells:array[1..4*4]of TKMPoint;
     public
       fHouse:TKMHouse;
       buildID:integer;
@@ -61,9 +61,8 @@ type
 
   TTaskBuildHouse = class(TUnitTask)
     private
-      LocCount:byte; //Count for locations around the house from where worker can build
       CurLoc:byte; //Current WIP location
-      Cells:array[1..4*4]of TKMPointDir; //List of surrounding cells and directions
+      Cells:TKMPointDirList; //List of surrounding cells and directions
     public
       fHouse:TKMHouse;
       buildID:integer;
@@ -79,9 +78,8 @@ type
 
   TTaskBuildHouseRepair = class(TUnitTask)
     private
-      LocCount:byte; //Count for locations around the house from where worker can build
       CurLoc:byte; //Current WIP location
-      Cells:array[1..4*4]of TKMPointDir; //List of surrounding cells and directions
+      Cells:TKMPointDirList; //List of surrounding cells and directions
     public
       fHouse:TKMHouse;
       buildID:integer;
@@ -414,7 +412,7 @@ begin
   for i := 1 to 4 do for k := 1 to 4 do
   if HousePlanYX[byte(fHouse.GetHouseType),i,k] <> 0 then begin
     inc(Step);
-    ListOfCells[Step] := KMPoint(fHouse.GetPosition.X + k - 3,fHouse.GetPosition.Y + i - 4);
+    Cells[Step] := KMPoint(fHouse.GetPosition.X + k - 3,fHouse.GetPosition.Y + i - 4);
   end;
   fUnit.SetActionLockedStay(0, ua_Walk);
 end;
@@ -427,8 +425,8 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(buildID);
   LoadStream.Read(Step);
-  for i:=1 to length(ListOfCells) do
-  LoadStream.Read(ListOfCells[i]);
+  for i:=1 to length(Cells) do
+  LoadStream.Read(Cells[i]);
 end;
 
 
@@ -474,28 +472,28 @@ case fPhase of
       TaskDone:=true;
       Thought := th_None;
     end;
-2:  SetActionWalk(fUnit,ListOfCells[Step]);
+2:  SetActionWalk(fUnit,Cells[Step]);
 3:  begin
       SetActionStay(11,ua_Work1,false); //Don't flatten terrain here as we haven't started digging yet
     end;
 4:  begin
       SetActionStay(11,ua_Work1,false);
-      fTerrain.FlattenTerrain(ListOfCells[Step]);
+      fTerrain.FlattenTerrain(Cells[Step]);
     end;
 5:  begin
       SetActionStay(11,ua_Work1,false);
-      fTerrain.FlattenTerrain(ListOfCells[Step]);
+      fTerrain.FlattenTerrain(Cells[Step]);
     end;
 6:  begin
       SetActionStay(11,ua_Work1,false);
-      fTerrain.FlattenTerrain(ListOfCells[Step]);
-      fTerrain.FlattenTerrain(ListOfCells[Step]); //Flatten the terrain twice now to ensure it really is flat
+      fTerrain.FlattenTerrain(Cells[Step]);
+      fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
       if not fHouse.IsDestroyed then
-      if KMSamePoint(fHouse.GetEntrance,ListOfCells[Step]) then
+      if KMSamePoint(fHouse.GetEntrance,Cells[Step]) then
         fTerrain.SetRoad(fHouse.GetEntrance, GetOwner);
-      fTerrain.Land[ListOfCells[Step].Y,ListOfCells[Step].X].Obj:=255; //All objects are removed
-      fTerrain.SetMarkup(ListOfCells[Step],mu_HouseFenceNoWalk); //Block passability on tile
-      fTerrain.RecalculatePassability(ListOfCells[Step]);
+      fTerrain.Land[Cells[Step].Y,Cells[Step].X].Obj:=255; //All objects are removed
+      fTerrain.SetMarkup(Cells[Step],mu_HouseFenceNoWalk); //Block passability on tile
+      fTerrain.RecalculatePassability(Cells[Step]);
       dec(Step);
     end;
 7:  SetActionStay(0,ua_Walk);
@@ -525,46 +523,23 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(buildID);
   SaveStream.Write(Step);
-  for i:=1 to length(ListOfCells) do
-  SaveStream.Write(ListOfCells[i]);
+  for i:=1 to length(Cells) do
+  SaveStream.Write(Cells[i]);
 end;
 
 
 { TTaskBuildHouse }
 constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-  var i,k:integer; ht:byte; Loc:TKMPoint;
-  procedure AddLoc(X,Y:word; Dir:TKMDirection);
-  begin
-    //First check that the passabilty is correct, as the house may be placed against blocked terrain
-    if not fTerrain.CheckPassability(KMPoint(X,Y),aWorker.GetDesiredPassability) then exit;
-    inc(LocCount);
-    Cells[LocCount].Loc:=KMPoint(X,Y);
-    Cells[LocCount].Dir:=byte(Dir);
-  end;
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouse;
   fHouse    := aHouse.GetSelf;
-  Loc       := fHouse.GetPosition;
   buildID   := aID;
-  LocCount  := 0;
-  CurLoc    := 0;
-  ht        := byte(fHouse.GetHouseType);
-  //Create list of surrounding tiles and directions
-  for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[ht,i,k]<>0 then
-  begin
-    if (i=1)or(HousePlanYX[ht,i-1,k]=0) then
-      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S); //Above
-    if (i=4)or(HousePlanYX[ht,i+1,k]=0) then
-      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N); //Below
-    if (k=4)or(HousePlanYX[ht,i,k+1]=0) then
-      AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W); //FromRight
-    if (k=1)or(HousePlanYX[ht,i,k-1]=0) then
-      AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E);     //FromLeft
-  end;
 
-  fUnit.SetActionLockedStay(0,ua_Walk);
+  Cells := TKMPointDirList.Create;
+  fHouse.GetListOfCellsAround(Cells, aWorker.GetDesiredPassability);
+
+  fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 
@@ -574,13 +549,9 @@ begin
   Inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(buildID);
-  LoadStream.Read(LocCount);
   LoadStream.Read(CurLoc);
-  for i:=1 to length(Cells) do
-  begin
-    LoadStream.Read(Cells[i].Loc);
-    LoadStream.Read(Cells[i].Dir,SizeOf(Cells[i].Dir));
-  end;
+  Cells := TKMPointDirList.Create;
+  Cells.Load(LoadStream);
 end;
 
 
@@ -615,10 +586,10 @@ procedure TTaskBuildHouse.Execute(out TaskDone:boolean);
   var i, MyCount: integer; Spots: array[1..16] of byte;
   begin
     MyCount := 0;
-    for i:=1 to LocCount do
-      if not KMSamePoint(Cells[i].Loc,fUnit.GetPosition) then
-        if fTerrain.TileInMapCoords(Cells[i].Loc.X,Cells[i].Loc.Y) then
-          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells[i].Loc ,fUnit.GetDesiredPassability, true) then
+    for i:=1 to Cells.Count do
+      if not KMSamePoint(Cells.List[i].Loc,fUnit.GetPosition) then
+        if fTerrain.TileInMapCoords(Cells.List[i].Loc.X,Cells.List[i].Loc.Y) then
+          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc ,fUnit.GetDesiredPassability, true) then
           begin
             inc(MyCount);
             Spots[MyCount] := i;
@@ -650,7 +621,7 @@ begin
            end;
            Thought := th_Build;
            CurLoc := PickRandomSpot();
-           SetActionWalk(fUnit,Cells[CurLoc].Loc);
+           SetActionWalk(fUnit,Cells.List[CurLoc].Loc);
          end;
       1: begin
            //Remember that we could be here because the walk abandoned, so this is definatly needed
@@ -659,12 +630,12 @@ begin
              Thought := th_None;
              exit;
            end;
-           Direction:=TKMDirection(Cells[CurLoc].Dir);
+           Direction:=TKMDirection(Cells.List[CurLoc].Dir);
            SetActionLockedStay(0,ua_Walk);
          end;
       2: begin
            SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
-           Direction:=TKMDirection(Cells[CurLoc].Dir);
+           Direction:=TKMDirection(Cells.List[CurLoc].Dir);
            //Remove house plan when we start the stone phase (it is still required for wood) But don't do it every time we hit if it's already done!
            if fHouse.IsStone and (fTerrain.Land[fHouse.GetPosition.Y,fHouse.GetPosition.X].Markup <> mu_House) then
              fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, GetOwner);
@@ -705,41 +676,24 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(buildID);
-  SaveStream.Write(LocCount);
   SaveStream.Write(CurLoc);
-  for i:=1 to length(Cells) do
-  begin
-    SaveStream.Write(Cells[i].Loc);
-    SaveStream.Write(Cells[i].Dir,SizeOf(Cells[i].Dir));
-  end;
+  Cells.Save(SaveStream);
 end;
 
 
 { TTaskBuildHouseRepair }
 constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-  var i,k:integer; ht:byte; Loc:TKMPoint;
-  procedure AddLoc(X,Y:word; Dir:TKMDirection);
-  begin
-    inc(LocCount);
-    Cells[LocCount].Loc:=KMPoint(X,Y);
-    Cells[LocCount].Dir:=byte(Dir);
-  end;
+var i,k:integer;
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseRepair;
   fHouse:=aHouse.GetSelf;
-  Loc:=fHouse.GetPosition;
   buildID:=aID;
-  LocCount:=0;
   CurLoc:=0;
-  ht:=byte(fHouse.GetHouseType);
-  //Create list of surrounding tiles and directions
-  for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[ht,i,k]<>0 then
-    if (i=1)or(HousePlanYX[ht,i-1,k]=0) then AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S) else //Up
-    if (i=4)or(HousePlanYX[ht,i+1,k]=0) then AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N) else //Down
-    if (k=4)or(HousePlanYX[ht,i,k+1]=0) then AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W) else //Right
-    if (k=1)or(HousePlanYX[ht,i,k-1]=0) then AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E);     //Left
+
+  Cells := TKMPointDirList.Create;
+  fHouse.GetListOfCellsAround(Cells, aWorker.GetDesiredPassability);
+
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -750,13 +704,9 @@ begin
   Inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(buildID);
-  LoadStream.Read(LocCount);
   LoadStream.Read(CurLoc);
-  for i:=1 to length(Cells) do
-  begin
-    LoadStream.Read(Cells[i].Loc);
-    LoadStream.Read(Cells[i].Dir, SizeOf(Cells[i].Dir));
-  end;
+  Cells := TKMPointDirList.Create;
+  Cells.Load(LoadStream);
 end;
 
 
@@ -793,16 +743,16 @@ begin
       //Pick random location and go there
       0: begin
            Thought := th_Build;
-           CurLoc:=Random(LocCount)+1;
-           SetActionWalk(fUnit,Cells[CurLoc].Loc);
+           CurLoc := Random(Cells.Count)+1;
+           SetActionWalk(fUnit,Cells.List[CurLoc].Loc);
          end;
       1: begin
-           Direction:=TKMDirection(Cells[CurLoc].Dir);
+           Direction:=TKMDirection(Cells.List[CurLoc].Dir);
            SetActionLockedStay(0,ua_Walk);
          end;
       2: begin
            SetActionStay(5,ua_Work,false,0,0); //Start animation
-           Direction:=TKMDirection(Cells[CurLoc].Dir);
+           Direction:=TKMDirection(Cells.List[CurLoc].Dir);
          end;
       3: begin
            if (GetCondition<UNIT_MIN_CONDITION) and CanGoEat then begin
@@ -838,13 +788,8 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(buildID);
-  SaveStream.Write(LocCount);
   SaveStream.Write(CurLoc);
-  for i:=1 to length(Cells) do
-  begin
-    SaveStream.Write(Cells[i].Loc);
-    SaveStream.Write(Cells[i].Dir, SizeOf(Cells[i].Dir));
-  end;
+  Cells.Save(SaveStream);
 end;
 
 end.

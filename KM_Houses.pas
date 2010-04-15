@@ -78,6 +78,7 @@ type
 
     property GetPosition:TKMPoint read fPosition;
     function GetEntrance:TKMPoint;
+    procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
     function HitTest(X, Y: Integer): Boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
@@ -415,6 +416,40 @@ function TKMHouse.GetEntrance():TKMPoint;
 begin
   Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
   Result.Y:=GetPosition.Y;
+end;
+
+
+procedure TKMHouse.GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
+var
+  i,k:integer;
+  ht:byte;
+  Loc:TKMPoint;
+
+  procedure AddLoc(X,Y:word; Dir:TKMDirection);
+  begin
+    //First check that the passabilty is correct, as the house may be placed against blocked terrain
+    if not fTerrain.CheckPassability(KMPoint(X,Y),aPassability) then exit;
+    Cells.AddEntry(KMPointDir(KMPoint(X,Y),word(Dir)));
+  end;
+
+begin
+
+  Cells.Clearup;
+  ht := byte(fHouseType); //array needs byte id
+  Loc := fPosition;
+
+  for i:=1 to 4 do for k:=1 to 4 do
+  if HousePlanYX[ht,i,k]<>0 then
+  begin
+    if (i=1)or(HousePlanYX[ht,i-1,k]=0) then
+      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S); //Above
+    if (i=4)or(HousePlanYX[ht,i+1,k]=0) then
+      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N); //Below
+    if (k=4)or(HousePlanYX[ht,i,k+1]=0) then
+      AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W); //FromRight
+    if (k=1)or(HousePlanYX[ht,i,k-1]=0) then
+      AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E); //FromLeft
+  end;
 end;
 
 

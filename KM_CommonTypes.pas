@@ -105,6 +105,8 @@ type TKMPointDirList = class //Used for finding fishing places, fighting positio
     function RemoveEntry(aLoc:TKMPointDir):cardinal; virtual;
     procedure InjectEntry(ID:integer; aLoc:TKMPointDir);
     function GetRandom():TKMPointDir;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 
@@ -580,5 +582,30 @@ begin
   if Count=0 then Result:=KMPointDir(0,0,0)
              else Result:=List[random(Count)+1];
 end;
+
+procedure TKMPointDirList.Save(SaveStream:TKMemoryStream);
+var i:integer;
+begin
+  SaveStream.Write(Count);
+  for i:=1 to Count do
+  begin
+    SaveStream.Write(List[i].Loc);
+    SaveStream.Write(List[i].Dir);
+  end;
+end;
+
+
+procedure TKMPointDirList.Load(LoadStream:TKMemoryStream);
+var i:integer;
+begin
+  LoadStream.Read(Count);
+  setlength(List,Count+32); //Make space in lists to write data to, otherwise we get "Range Check Error"
+  for i:=1 to Count do
+  begin
+    LoadStream.Read(List[i].Loc);
+    LoadStream.Read(List[i].Dir);
+  end;
+end;
+
 
 end.

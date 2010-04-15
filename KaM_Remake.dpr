@@ -1,6 +1,6 @@
 program KaM_Remake;
 {$IFDEF FPC}
-  {$Mode Delphi} {$H+}
+  {$Mode Delphi}
 {$ENDIF}
 
 uses
@@ -53,7 +53,6 @@ uses
 
 begin
   Application.Initialize;
-  Application.Title := 'KaM Remake';
   Application.HelpFile := '';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);

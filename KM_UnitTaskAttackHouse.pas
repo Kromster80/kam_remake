@@ -8,8 +8,7 @@ type
     TTaskAttackHouse = class(TUnitTask)
     private
       fHouse:TKMHouse;
-      Cells:array[1..4*4]of TKMPointDir; //List of surrounding cells and directions
-      LocCount:byte; //Count for locations around the house from where warrior can attack
+      Cells:TKMPointDirList; //List of surrounding cells and directions
       CurLoc:byte; //Current attack location
       function PosUsed(aPos: TKMPoint):boolean;
     public
@@ -29,33 +28,13 @@ uses KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo, KM_Terrain;
 
 { TTaskAttackHouse }
 constructor TTaskAttackHouse.Create(aWarrior: TKMUnit; aHouse:TKMHouse);
-var i,k:integer; ht:byte; Loc:TKMPoint;
-  procedure AddLoc(X,Y:word; Dir:TKMDirection);
-  begin
-    //First check that the passabilty is correct, as the house may be placed against blocked terrain
-    if not fTerrain.CheckPassability(KMPoint(X,Y),aWarrior.GetDesiredPassability) then exit;
-    inc(LocCount);
-    Cells[LocCount].Loc:=KMPoint(X,Y);
-    Cells[LocCount].Dir:=byte(Dir);
-  end;
 begin
   Inherited Create(aWarrior);
-  if aHouse <> nil then fHouse:=aHouse.GetSelf;
+  if aHouse <> nil then fHouse := aHouse.GetSelf;
 
-  ht  := byte(fHouse.GetHouseType);
-  Loc := fHouse.GetPosition;
-  for i:=1 to 4 do for k:=1 to 4 do
-  if HousePlanYX[ht,i,k]<>0 then
-  begin
-    if (i=1)or(HousePlanYX[ht,i-1,k]=0) then
-      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 - 1, dir_S); //Above
-    if (i=4)or(HousePlanYX[ht,i+1,k]=0) then
-      AddLoc(Loc.X + k - 3, Loc.Y + i - 4 + 1, dir_N); //Below
-    if (k=4)or(HousePlanYX[ht,i,k+1]=0) then
-      AddLoc(Loc.X + k - 3 + 1, Loc.Y + i - 4, dir_W); //FromRight
-    if (k=1)or(HousePlanYX[ht,i,k-1]=0) then
-      AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E);     //FromLeft
-  end;
+  Cells := TKMPointDirList.Create;
+  //Pass created list to make sure we Free it in the same unit
+  fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability);
 
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
@@ -78,6 +57,7 @@ end;
 destructor TTaskAttackHouse.Destroy;
 begin
   if fHouse <> nil then fHouse.RemovePointer;
+  FreeAndNil(Cells);
   Inherited Destroy;
 end;
 
@@ -93,7 +73,8 @@ var HitUnit: TKMUnit;
 begin
   HitUnit := fPlayers.UnitsHitTest(aPos.X,aPos.Y);
   Result := (HitUnit <> nil) and (HitUnit.GetUnitTask is TTaskAttackHouse) and
-    (KMSamePoint(TTaskAttackHouse(HitUnit.GetUnitTask).Cells[TTaskAttackHouse(HitUnit.GetUnitTask).CurLoc].Loc,aPos));
+    (KMSamePoint(TTaskAttackHouse(HitUnit.GetUnitTask).Cells.List[TTaskAttackHouse(HitUnit.GetUnitTask).CurLoc].Loc,aPos));
+
 end;
 
 
@@ -101,7 +82,7 @@ function TTaskAttackHouse.WalkShouldAbandon:boolean;
 begin
   Result := fHouse.IsDestroyed; //Stop walking if the house has been destroyed already
   //See if someone beat us to this location
-  if PosUsed(Cells[CurLoc].Loc) then
+  if PosUsed(Cells.List[CurLoc].Loc) then
   begin
     Result := true;
     fPhase := 0; //Start again with a new spot
@@ -114,14 +95,14 @@ procedure TTaskAttackHouse.Execute(out TaskDone:boolean);
   var i, MyCount: integer; Spots: array[1..16] of byte;
   begin
     MyCount := 0;
-    for i:=1 to LocCount do
-      if fTerrain.TileInMapCoords(Cells[i].Loc.X,Cells[i].Loc.Y) and (not PosUsed(Cells[i].Loc)) then //Is someone else is using it
-        if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells[i].Loc ,fUnit.GetDesiredPassability, true) then
+    for i:=1 to Cells.Count do
+      if fTerrain.TileInMapCoords(Cells.List[i].Loc.X,Cells.List[i].Loc.Y) and (not PosUsed(Cells.List[i].Loc)) then //Is someone else is using it
+        if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc ,fUnit.GetDesiredPassability, true) then
         begin
           inc(MyCount);
           Spots[MyCount] := i;
           //ALWAYS choose our current location if it is available to save walking
-          if KMSamePoint(Cells[i].Loc,fUnit.GetPosition) then
+          if KMSamePoint(Cells.List[i].Loc,fUnit.GetPosition) then
           begin
             Result := i;
             exit;
@@ -153,11 +134,11 @@ begin
          TaskDone:=true; //Drop the task
          exit;
        end;
-       SetActionWalk(fUnit,Cells[CurLoc].Loc);
+       SetActionWalk(fUnit,Cells.List[CurLoc].Loc);
      end;
   1: begin
        //Hit/shoot the house (possibly using Fight action modified to be in house rather than unit mode? Should be pretty much the same otherwise...
-       Direction:=TKMDirection(Cells[CurLoc].Dir); //Face target
+       Direction:=TKMDirection(Cells.List[CurLoc].Dir); //Face target
        TaskDone := true;
      end;
      //...anything else?
