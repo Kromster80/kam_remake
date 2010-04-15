@@ -1,7 +1,10 @@
 ﻿program KaM_Remake;
+{$IFDEF FPC}
+  {$Mode Delphi} {$H+}
+{$ENDIF}
 
 uses
-//  FastMM4,
+  //FastMM4, //Can be used only in Delphi, not Lazarus
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
@@ -41,11 +44,12 @@ uses
   KM_UnitActionWalkTo in 'KM_UnitActionWalkTo.pas',
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas',
   KM_UnitTaskMining in 'KM_UnitTaskMining.pas',
-  KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas';
+  KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas',
+  KM_Units_Warrior in 'KM_Units_Warrior.pas';
 
-//{$R *.RES}
-{$mode delphi}
-{$H+}
+{$IFDEF VER140}
+  {$R *.RES}
+{$ENDIF}
 
 begin
   Application.Initialize;

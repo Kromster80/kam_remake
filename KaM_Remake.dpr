@@ -1,6 +1,6 @@
 program KaM_Remake;
 {$IFDEF FPC}
-  {$Mode Delphi}
+  {$Mode Delphi} {$H+}
 {$ENDIF}
 
 uses
@@ -45,16 +45,15 @@ uses
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas',
   KM_UnitTaskMining in 'KM_UnitTaskMining.pas',
   KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas',
-  KM_Units_Warrior;
-
+  KM_Units_Warrior in 'KM_Units_Warrior.pas';
 
 {$IFDEF VER140}
-{$R *.RES}
+  {$R *.RES}
 {$ENDIF}
-
 
 begin
   Application.Initialize;
+  Application.Title := 'KaM Remake';
   Application.HelpFile := '';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);
