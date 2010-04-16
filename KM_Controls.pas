@@ -4,6 +4,7 @@ uses Classes, Controls, Graphics, MMSystem, Windows, KromUtils, Math, KromOGLUti
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
+  TNotifyEventMW = procedure(Sender: TObject; AWheelDelta:integer) of object;
 
 
 {Base class for all TKM elements}
@@ -35,6 +36,7 @@ TKMControl = class(TObject)
     FOnClick:TNotifyEvent;
     FOnClickEither:TNotifyEventMB;
     FOnClickRight:TNotifyEvent;
+    FOnMouseWheel:TNotifyEventMW;
     FOnMouseOver:TMouseMoveEvent;
     FOnHint:TMouseMoveEvent;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
@@ -59,6 +61,7 @@ TKMControl = class(TObject)
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnClickEither: TNotifyEventMB read FOnClickEither write FOnClickEither;
     property OnClickRight: TNotifyEvent read FOnClickRight write FOnClickRight;
+    property OnMouseWheel: TNotifyEventMW read FOnMouseWheel write FOnMouseWheel;
     property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
     property OnHint: TMouseMoveEvent read FOnHint write FOnHint;
 end;
@@ -271,6 +274,7 @@ type TScrollAxis = (sa_Vertical, sa_Horizontal);
 {Scroll bar}
 //todo: scroll wheel work for scollbar
 //+make it work only if it has MouseOver=true
+//Correction: scrolling should happen when mouse is over some List control, not over ScrollBar itself
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;
@@ -364,6 +368,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
     procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp         (X,Y:integer; AButton:TMouseButton);
+    procedure OnMouseWheel      (X,Y:integer; WheelDelta:integer);
     procedure Paint();
 end;
 
@@ -1572,6 +1577,24 @@ begin
       begin
         Controls[i].OnClickEither(Controls[i], AButton);
         exit; //Send OnClickRight only to one item
+      end;
+    end;
+end;
+
+
+procedure TKMControlsCollection.OnMouseWheel(X,Y:integer; WheelDelta:integer);
+var i:integer;
+begin
+  for i:=0 to Count-1 do
+    if Controls[i].HitTest(X, Y)
+    and Controls[i].Enabled then begin
+      if Controls[i] is TKMFileList then
+        TKMFileList(Controls[i]).TopIndex := EnsureRange(TKMFileList(Controls[i]).TopIndex + WheelDelta div 120, 0, 3);
+
+      if Assigned(Controls[i].OnMouseWheel) then
+      begin
+        Controls[i].OnMouseWheel(Controls[i], WheelDelta);
+        exit; //Send OnClick only to one item
       end;
     end;
 end;

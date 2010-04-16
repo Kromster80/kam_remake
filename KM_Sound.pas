@@ -1,7 +1,7 @@
 unit KM_Sound;
 interface
-uses Forms, Windows, MMSystem,
-  {$IFDEF VER140} MPlayer, {$ENDIF}
+uses Forms, Windows,
+  {$IFDEF VER140}MMSystem,  MPlayer, {$ENDIF}
   Classes, SysUtils, KromUtils, OpenAL, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxWaves = 200;

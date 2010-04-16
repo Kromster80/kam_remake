@@ -250,11 +250,7 @@ begin fGame.MouseUp(Button, Shift, X, Y); end;
 
 
 procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin
-  if (MOUSEWHEEL_ZOOM_ENABLE) and (fGame.GameState in [gsRunning,gsEditor]) then
-  if fViewport<>nil then
-  fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
-end;
+begin fGame.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
 
 
 procedure TForm1.Timer100msTimer(Sender: TObject);

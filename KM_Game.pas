@@ -49,6 +49,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
 
     procedure StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure PauseGame(DoPause:boolean);
@@ -627,6 +628,22 @@ begin
                               end;
                   end;
               end;
+  end;
+
+end;
+
+
+procedure TKMGame.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
+begin
+  if (MOUSEWHEEL_ZOOM_ENABLE) and (fGame.GameState in [gsRunning,gsEditor]) and (fViewport<>nil) then
+    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
+
+  case GameState of //Remember clicked control
+    gsNoGame:   fMainMenuInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
+    gsPaused:   ;
+    gsOnHold:   fGameplayInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
+    gsRunning:  fGameplayInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
+    gsEditor:   fMapEditorInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
   end;
 
 end;
