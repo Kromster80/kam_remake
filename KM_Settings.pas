@@ -129,8 +129,8 @@ begin
   SlidersMin := 0;
   SlidersMax := 20;
   LoadSettingsFromFile(ExeDir+SETTINGS_FILE);
-
   fNeedsSave := false;
+  fLog.AppendLog('Global settings init from '+SETTINGS_FILE);
 end;
 
 
@@ -285,6 +285,7 @@ begin
   Inherited;
   fUnlockedMapsTSK := 10; //Reveal first map
   fUnlockedMapsTPR := 1;
+  fLog.AppendLog('Campaign init done');
 end;
 
 

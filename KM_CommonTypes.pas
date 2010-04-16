@@ -54,6 +54,7 @@ type
     msgLoc:TKMPoint;
   end;
 
+
 type TKMMessageList = class(TObject)
   public
     Count:integer;

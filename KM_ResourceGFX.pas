@@ -66,9 +66,8 @@ uses KromUtils, KM_Unit1, KM_Render, KM_CommonTypes, KM_Utils, KM_TGATexture;
 constructor TResource.Create;
 begin
   Inherited;
-  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
-  fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
-  DataState:=dls_None;
+  DataState := dls_None;
+  fLog.AppendLog('Resource loading state - None');
 end;
 
 
@@ -123,6 +122,7 @@ begin
   StepRefresh();
   fLog.AppendLog('ReadGFX is done');
   DataState:=dls_Menu;
+  fLog.AppendLog('Resource loading state - Menu');
   Result:=true;
 end;
 
@@ -154,8 +154,8 @@ begin
   MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
   fLog.AppendLog('Prepared MiniMap colors...');
   StepRefresh();
-  fLog.AppendLog('ReadGFX is done');
   DataState:=dls_All;
+  fLog.AppendLog('Resource loading state - Game');
   Result:=true;
 end;
 

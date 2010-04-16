@@ -460,11 +460,11 @@ begin
   if Sender=nil then begin //UpdateState loop
     KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
   end else
-    if KMMinimap.CenteredAt.X*KMMinimap.CenteredAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
-      fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
+    if KMMinimap.BoundRectAt.X*KMMinimap.BoundRectAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
+      fViewport.SetCenter(KMMinimap.BoundRectAt.X,KMMinimap.BoundRectAt.Y);
 
-  KMMinimap.CenteredAt := fViewport.GetCenter;
-  KMMinimap.ViewArea   := fViewport.GetMinimapClip;
+  KMMinimap.BoundRectAt := KMPointRound(fViewport.GetCenter);
+  KMMinimap.ViewArea    := fViewport.GetMinimapClip;
 end;
 
 
@@ -473,16 +473,13 @@ var
   P: TPoint;
   KMP: TKMPoint;
 begin
-  //Send move order, if applicable
-  //Convert cursor position to KMPoint
-  GetCursorPos(P);
+  GetCursorPos(P); //Convert cursor position to KMPoint within Game render area
   P := Form1.Panel5.ScreenToClient(P);
-  KMP.X := EnsureRange(P.X - (KMMinimap.Left+(KMMinimap.Width -KMMinimap.MapSize.X) div 2),0,KMMinimap.MapSize.X+1);
-  KMP.Y := EnsureRange(P.Y - (KMMinimap.Top +(KMMinimap.Height-KMMinimap.MapSize.Y) div 2),0,KMMinimap.MapSize.Y+1);
 
-  //Must be inside map
-  if (KMP.X*KMP.Y = 0) or (KMP.X > KMMinimap.MapSize.X) or (KMP.Y > KMMinimap.MapSize.Y) then exit;
+  KMP := KMMinimap.GetMapCoords(P.X, P.Y, -1); //Outset by 1 pixel to catch cases "outside of map"
+  if not KMMinimap.InMapCoords(KMP.X,KMP.Y) then exit; //Must be inside map
 
+  //Send move order, if applicable
   if (ShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
     if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, canWalk, true) then
     begin
@@ -518,7 +515,7 @@ begin
     Image_Main5 := MyControls.AddImage(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
 
     KMMinimap := MyControls.AddMinimap(Panel_Main,10,10,176,176);
-    KMMinimap.OnChange := Minimap_Update;
+    KMMinimap.OnChange := Minimap_Update; //Allow dragging with LMB pressed
     KMMinimap.OnClickRight := Minimap_RightClick;
 
     {Main 4 buttons +return button}
@@ -2142,7 +2139,7 @@ begin
   end;
 
   if SHOW_POINTER_COUNT then
-    Label_PointerCount.Caption := 'Pointers: U,H: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
+    Label_PointerCount.Caption := 'Pointers: Units,Houses: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
 
   if Panel_Build.Visible then Build_Fill(nil);
   if Panel_Stats.Visible then Stats_Fill(nil);

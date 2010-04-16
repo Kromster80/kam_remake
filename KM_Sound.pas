@@ -152,6 +152,8 @@ begin
   Listener.Ori[1]:=0; Listener.Ori[2]:=1; Listener.Ori[3]:=0; //Look-at vector
   Listener.Ori[4]:=0; Listener.Ori[5]:=0; Listener.Ori[6]:=1; //Up vector
   AlListenerfv ( AL_ORIENTATION, @Listener.Ori);
+
+  fLog.AppendLog('OpenAL init done');
 end;
 
 

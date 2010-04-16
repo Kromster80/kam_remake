@@ -203,6 +203,7 @@ inherited Create;
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
+  fLog.AppendLog('Main menu init done');
 end;
 
 

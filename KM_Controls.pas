@@ -295,12 +295,15 @@ end;
 TKMMinimap = class(TKMControl)
   public
     MapSize:TKMPoint;
-    CenteredAt:TKMPointF;
+    BoundRectAt:TKMPoint;
     ViewArea:TRect;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
+  public
+    function GetMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
+    function  InMapCoords(X,Y:integer):boolean;
 end;
 
 
@@ -1161,19 +1164,33 @@ constructor TKMMinimap.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:intege
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  CenteredAt:=KMPointF(0,0);
+  BoundRectAt := KMPoint(0,0);
 end;
 
 
 procedure TKMMinimap.CheckCursorOver(X,Y:integer; AShift:TShiftState);
 begin
   Inherited CheckCursorOver(X,Y,AShift);
-  if (CursorOver) and (ssLeft in AShift) then begin
-    CenteredAt.X := EnsureRange(X - Left - (Width-MapSize.X) div 2,1,MapSize.X);
-    CenteredAt.Y := EnsureRange(Y - Top - (Height-MapSize.Y) div 2,1,MapSize.Y);
+  if ssLeft in AShift then begin
+    if CursorOver then
+      BoundRectAt := GetMapCoords(X,Y);
+    if Assigned(OnChange) then
+      OnChange(Self);
   end;
-  if Assigned(OnChange) and (ssLeft in AShift) then
-    OnChange(Self);
+end;
+
+
+function TKMMinimap.GetMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
+begin
+  Assert(Inset>=-1, 'Min allowed inset is -1, to be within TKMPoint range of 0..n');
+  Result.X := EnsureRange(X - (Left+(Width -MapSize.X) div 2), 1-Inset, MapSize.X+Inset);
+  Result.Y := EnsureRange(Y - (Top +(Height-MapSize.Y) div 2), 1-Inset, MapSize.Y+Inset);
+end;
+
+
+function TKMMinimap.InMapCoords(X,Y:integer):boolean;
+begin
+  Result := InRange(X, 1, MapSize.X) and InRange(Y, 1, MapSize.Y);
 end;
 
 

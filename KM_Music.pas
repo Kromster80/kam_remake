@@ -1,7 +1,7 @@
 unit KM_Music;
 interface
-uses Forms, Windows, MMSystem,
-  {$IFDEF VER140} MPlayer, {$ENDIF}
+uses Forms,
+  {$IFDEF VER140}MMSystem, Windows, MPlayer, {$ENDIF}
   Classes, SysUtils, KromUtils, Math, KM_Defaults, KM_CommonTypes;
 
 type
@@ -32,7 +32,7 @@ type
 
 implementation
 uses
-  KM_Unit1, {Access to MediaPlayer?}
+  KM_Unit1, {Access to MediaPlayer?} //todo:reference MP through .Create
   KM_Game;
 
 
@@ -40,11 +40,11 @@ uses
 constructor TMusicLib.Create();
 begin
   Inherited Create;
-
   IsMusicInitialized := true;
+  ScanMusicTracks(ExeDir + 'Music\');
   {$IFDEF VER140} MediaPlayer := Form1.MediaPlayer1; {$ENDIF}
   //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
-  ScanMusicTracks(ExeDir + 'Music\');
+  fLog.AppendLog('Music init done, '+inttostr(MusicCount)+' mp3 tracks found');
 end;
 
 

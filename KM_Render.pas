@@ -98,15 +98,13 @@ begin
   Inherited Create;
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults();
-  glDisable(GL_LIGHTING);
+  glDisable(GL_LIGHTING); //We don't need it
 
-  OpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('Vendor:  '+OpenGL_Vendor);
-  OpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('Renderer:  '+OpenGL_Renderer);
-  OpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('Version:  '+OpenGL_Version);
+  OpenGL_Vendor   := glGetString(GL_VENDOR);   fLog.AddToLog('OpenGL Vendor:  '  +OpenGL_Vendor);
+  OpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer:  '+OpenGL_Renderer);
+  OpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version:  ' +OpenGL_Version);
 
-  setlength(RenderList,512);  
-  
-  fLog.AppendLog('Pre-texture done');
+  setlength(RenderList,512);
 end;
 
 

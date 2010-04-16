@@ -27,7 +27,7 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
-    fMissionFile:string; //Remember waht we are playing incase we might want to replay
+    fMissionFile:string; //Remember want we are playing incase we might want to replay
     fGameName:string;
 
     fMusicLib: TMusicLib;
@@ -92,25 +92,19 @@ begin
   ScreenY := aScreenY;
 
   fGlobalSettings := TGlobalSettings.Create;
-  fLog.AppendLog('<== Render init follows ==>');
-  fRender := TRender.Create(RenderHandle);
-  fLog.AppendLog('<== TextLib init follows ==>');
-  fTextLibrary:= TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
-  fLog.AppendLog('<== SoundLib init follows ==>');
-  fSoundLib:= TSoundLib.Create(fGlobalSettings.GetLocale); //Required for button click sounds
-  //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
-  fMusicLib:= TMusicLib.Create();
+  fRender         := TRender.Create(RenderHandle);
+  fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
+  fSoundLib       := TSoundLib.Create(fGlobalSettings.GetLocale); //Required for button click sounds
+  fMusicLib       := TMusicLib.Create(); //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
   fGlobalSettings.UpdateSFXVolume;
-  fLog.AppendLog('<== ReadGFX init follows ==>');
-  fResource:=TResource.Create;
+  fResource       := TResource.Create;
   fResource.LoadMenuResources(fGlobalSettings.GetLocale);
-  fLog.AppendLog('<== Main menu interface follows ==>');
-  fMainMenuInterface    := TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
-  fLog.AppendLog('<== Sound playback follows ==>');
+
+  fMainMenuInterface:= TKMMainMenuInterface.Create(ScreenX,ScreenY,fGlobalSettings);
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic);
 
-  fCampaignSettings := TCampaignSettings.Create; //Init
+  fCampaignSettings := TCampaignSettings.Create; //todo: Init from INI
   GameSpeed := 1;
   GameState := gsNoGame;
   FormControlsVisible:=true;
@@ -263,8 +257,8 @@ begin
     gsRunning:  begin
                   fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
                   MOver := fGameplayInterface.MyControls.MouseOverControl;
-                  if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
-                    MyPlayer.AddUnit(ut_HorseScout, GameCursor.Cell); //Add only when cursor is over the map
+
+
 
                   P := GameCursor.Cell; //Get cursor position tile-wise
                   //These are only for testing purposes, Later on it should be changed a lot
@@ -479,6 +473,9 @@ begin
           fGameplayInterface.MyControls.OnMouseUp(X,Y,Button)
         else begin
 
+          if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
+            MyPlayer.AddUnit(ut_HorseScout, GameCursor.Cell); //Add only when cursor is over the map
+
           if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
           begin
             case CursorMode.Mode of
@@ -574,6 +571,7 @@ begin
           TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_walk, P, SelectedDirection);
           fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Move);
         end;
+
         if (Button = mbRight) and (MOver = nil) then
         begin
           fGameplayInterface.RightClickCancel; //Right clicking closes some menus

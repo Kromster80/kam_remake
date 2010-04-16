@@ -33,7 +33,7 @@ var
 
 
 implementation
-uses KM_Defaults;
+uses KM_Defaults, KM_CommonTypes;
 
 
 constructor TTextLibrary.Create(aLibPath,aLocale: string);
@@ -41,6 +41,7 @@ begin
   inherited Create;
   LoadLIBFile(aLibPath+'text.'+aLocale+'.lib',TextStrings);
   LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib',SetupStrings);
+  fLog.AppendLog('TextLib init done');
 end;
 
 

@@ -287,10 +287,10 @@ begin
   if Sender=nil then begin //UpdateState loop
     KMMinimap.MapSize:=KMPoint(fTerrain.MapX,fTerrain.MapY);
   end else
-    if KMMinimap.CenteredAt.X*KMMinimap.CenteredAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
-      fViewport.SetCenter(KMMinimap.CenteredAt.X,KMMinimap.CenteredAt.Y);
+    if KMMinimap.BoundRectAt.X*KMMinimap.BoundRectAt.Y <> 0 then //Quick bugfix incase minimap yet not inited it will center vp on 0;0
+      fViewport.SetCenter(KMMinimap.BoundRectAt.X,KMMinimap.BoundRectAt.Y);
 
-  KMMinimap.CenteredAt := fViewport.GetCenter;
+  KMMinimap.BoundRectAt := KMPointRound(fViewport.GetCenter);
   KMMinimap.ViewArea   := fViewport.GetMinimapClip;
 
   Label_MissionName.Caption := fGame.GetGameName;
