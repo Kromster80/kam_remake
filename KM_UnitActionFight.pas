@@ -21,7 +21,7 @@ TUnitActionFight = class(TUnitAction)
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Game, KM_Units_Warrior;
+uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior;
 
 
 { TUnitActionFight }
@@ -89,7 +89,7 @@ procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
                fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
   end;
 
-var Cycle,Step:byte; DirectionModifier:byte; IsHit: boolean; Damage: word;
+var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
   DoEnd := CheckDoEnd;
   if DoEnd then
@@ -103,9 +103,13 @@ begin
   //Only hit unit on step 5
   if Step = 5 then
   begin
-    DirectionModifier := GetDirModifier(KMUnit.Direction,fOpponent.Direction);
-    Damage := ((UnitStat[byte(KMUnit.GetUnitType)].Attack+(UnitStat[byte(KMUnit.GetUnitType)].AttackHorseBonus)*byte(UnitGroups[byte(fOpponent.GetUnitType)] = gt_Mounted)) * DirectionModifier)
-              div max(UnitStat[byte(fOpponent.GetUnitType)].Defence,1); //Not needed, but animals have 0 defence
+    ut := byte(KMUnit.GetUnitType);
+    ot := byte(fOpponent.GetUnitType);
+    Damage := UnitStat[ut].Attack; //Base damage
+    if InRange(ot, low(UnitGroups), high(UnitGroups)) then
+      Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
+    Damage := Damage * GetDirModifier(KMUnit.Direction,fOpponent.Direction); //Direction modifier
+    Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
 
     IsHit := (Damage >= Random(101)); //0..100
 
