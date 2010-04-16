@@ -22,6 +22,7 @@ type
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
+
 implementation
 uses KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo, KM_Terrain;
 

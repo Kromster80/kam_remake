@@ -273,8 +273,13 @@ type TScrollAxis = (sa_Vertical, sa_Horizontal);
 
 {Scroll bar}
 //todo: scroll wheel work for scollbar
-//+make it work only if it has MouseOver=true
 //Correction: scrolling should happen when mouse is over some List control, not over ScrollBar itself
+//Additionaly: Only active control recieves OnMouseWheel event, but TPanel has no such event, hence
+//             it's a problem to pass this event to fGame, which will then pass it to ControlsCollection
+//             @Lewin: I don't know how to solve it. Form1.OnMouseWheel works only when Mouse is over
+//                     Form1 specifically. Trapping WM_Mouse message does works the same way.
+//                     The only solution I see - remove Panel5 and render on some other surface that has
+//                     OnMouseWheel event
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;
