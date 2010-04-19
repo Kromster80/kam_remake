@@ -193,12 +193,11 @@ type gr_Message = (     //Game result
 
                
 {Palettes}
-
 const
   PAL_COUNT=12;
 
 var //There are 9 palette files Map, Pal0-5, Setup and Setup2 +1 linear +2lbm
-Pal:array[1..PAL_COUNT,1..256,1..3]of byte;
+  Pal:array[1..PAL_COUNT,1..256,1..3]of byte;
 
 const
  //Palette filename corresponds with pal_**** constant, except pal_lin which is generated proceduraly (filename doesn't matter for it)
@@ -210,7 +209,7 @@ const
 
  RX5Pal:array[1..40]of byte = (
  12,12,12,12,12,12, 9, 9, 9, 1,
-  1, 1, 1, 1, 1, 1,12,12,12, 11,
+  1, 1, 1, 1, 1, 1,12,12,12,11,
  11,11,11,11,12, 1, 1, 1, 1, 1,
  12,12,12,12,12,12,12, 0, 0, 0);
  //I couldn't find matching palettes for several entries, so I marked them 0 
@@ -219,6 +218,9 @@ const
  1,1,1,1,1,1,0,0,0,0);
 
 {Fonts}
+const
+  FONT_COUNT = 20;
+
 type //Indexing should start from 1.
   TKMFont = (fnt_nil,
              fnt_Adam,     fnt_Antiqua,  fnt_Briefing, fnt_Font01,      fnt_Game,
@@ -227,11 +229,11 @@ type //Indexing should start from 1.
              fnt_Mini,     fnt_Minimum,  fnt_Outline,  fnt_System,      fnt_Won);
 
 const //Font01.fnt seems to be damaged..
-  FontFiles: array[1..20]of string = (
+  FontFiles: array[1..FONT_COUNT]of string = (
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
   
-  FontPal:array[1..20]of byte =
+  FontPal:array[1..FONT_COUNT]of byte =
   //Those 10 are unknown Pal, no existing Pal matches them well
   (10, 2, 1,10, 2, 2,12,12,12,12,
    12, 8,10,11, 2, 8, 8, 2,10, 9);
@@ -941,7 +943,7 @@ var
     PxWidth,PxHeight:word;
   end;
 
-  FontData:array[1..32]of record
+  FontData:array[1..FONT_COUNT]of record
     Title:TKMFont;
     TexID:GLUint;
     Unk1,WordSpacing,CharOffset,Unk3:smallint; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?

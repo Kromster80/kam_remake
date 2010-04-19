@@ -18,6 +18,7 @@ type
       destructor Destroy; override;
       procedure Abandon; override;
       function WalkShouldAbandon:boolean; override;
+      procedure HitTheHouse();
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -34,8 +35,8 @@ begin
   if aHouse <> nil then fHouse := aHouse.GetSelf;
 
   LocID := 0;
+  //Pass pre-made list to make sure we Free it in the same unit
   Cells := TKMPointDirList.Create;
-  //Pass created list to make sure we Free it in the same unit
   fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability);
 
   fUnit.SetActionLockedStay(0,ua_Walk);
@@ -46,7 +47,7 @@ constructor TTaskAttackHouse.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(LocID, 4);
+  LoadStream.Read(LocID);
   Cells := TKMPointDirList.Create;
   Cells.Load(LoadStream);
 end;
@@ -103,6 +104,12 @@ begin
 end;
 
 
+procedure TTaskAttackHouse.HitTheHouse();
+begin
+  //fHouse.AddDamage...
+end;
+
+
 procedure TTaskAttackHouse.Execute(out TaskDone:boolean);
   function PickRandomSpot(): byte;
   var i, MyCount: integer; Spots: array[1..16] of byte;
@@ -151,6 +158,7 @@ begin
      end;
   1: begin
        //Hit/shoot the house (possibly using Fight action modified to be in house rather than unit mode? Should be pretty much the same otherwise...
+       HitTheHouse();
        Direction:=TKMDirection(Cells.List[LocID].Dir); //Face target
        TaskDone := true;
      end;
