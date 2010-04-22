@@ -153,6 +153,7 @@ begin
 
   //Keys
   //@Krom: Smooth scrolling isn't actually that smooth, it sort of hurts my eyes. Do we need vsync or something?
+  //@Lewin: I did smoothed it by averaging from previous frames times.
   if ScrollKeyLeft  then XCoord := XCoord - ScrollAdv;
   if ScrollKeyUp    then YCoord := YCoord - ScrollAdv;
   if ScrollKeyRight then XCoord := XCoord + ScrollAdv;

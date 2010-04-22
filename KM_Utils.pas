@@ -113,24 +113,16 @@ begin
   Result.Y := P.Y+1;
 end;
 
+
 function KMPointY1(P:TKMPointF): TKMPoint; overload;
 begin
   Result.X := round(P.X);
   Result.Y := round(P.Y)+1;
 end;
 
+
 function KMPointRound(P:TKMPointf): TKMPoint;
 begin
-  //@All: Fixed in r758? Please report if it crashes in this function again.
-
-  //Old conversations:
-  //@Krom: I'm getting an occasional "Range Check Error" here... Is there something we can do to prevent that?
-  //@Lewin: RCE mostly happens here if input position is negative. Which it should not be. Means
-  //that somewhere else is a bug. Maybe animal gets off map or something... Is that a repeatable bug?
-  //Autosave will help to check that.
-  //@Krom: No, it's not repeatable, I had it happen in TPR7 a few times... I'll investigate it.
-  //@Krom: Access violation here during fights. :( It's on the line "begin" so it probably means P is invalid memory or something
-  // Edit: It seems to happen after the commander dies, so it's probably because commander can be deleted causing invalid pointers. Commander is now tracked as a pointer, so hopefully this is fixed :)
   Assert((P.X>=0));
   Assert((P.Y>=0));
 
@@ -138,10 +130,12 @@ begin
   Result.Y := round(P.Y);
 end;
 
+
 function KMSamePoint(P1,P2:TKMPoint): boolean;
 begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
+
 
 function KMSamePointF(P1,P2:TKMPointF): boolean;
 begin

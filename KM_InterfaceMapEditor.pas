@@ -314,9 +314,8 @@ begin
 
     Image_Main1 := MyControls.AddImage(Panel_Main,0,0,224,200,407);
 
-    //@Krom: For the map editor mode, can we not show this space wasting swords/logo and instead have
+    //todo: For the map editor mode, remove swords/logo and instead have
     //player selection and other "universal" stuff? (i.e. which player are we placing for)
-    //@Lewin: Right.
     Image_Main2 := MyControls.AddImage(Panel_Main,0,200,224,168,554);
     Image_Main3 := MyControls.AddImage(Panel_Main,0,368,224,400,404);
     Image_Main4 := MyControls.AddImage(Panel_Main,0,768,224,400,404);
@@ -493,10 +492,6 @@ begin
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
-      //@Krom: Ok, so when you place a squad it "selects" the commander and lets you set further
-      //       options from his selection menu. Sounds good. :) Warriors can probably stay in this
-      //       tab then if we don't need extra controls, animals can else where.
-      //@Lewin: Ok.
       MyControls.AddLabel(Panel_Units,100,150,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
