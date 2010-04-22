@@ -5,8 +5,9 @@ uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, Krom
   {$IFDEF FPC} GL, {$ENDIF}
   KM_Utils, KM_CommonTypes;
 
+{ YET UNUSED, JUST AN IDEA}
 
-{ This unit takes and adjoins players input from TGame and T**Interfaces clicks and keys
+{ This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
   Then passes it on to game events. 
   E.g. there are 2 ways player can place an order to selected Warrior:
   1. Click on map
