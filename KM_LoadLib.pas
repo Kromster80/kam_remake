@@ -39,8 +39,15 @@ uses KM_Defaults, KM_CommonTypes;
 constructor TTextLibrary.Create(aLibPath,aLocale: string);
 begin
   inherited Create;
-  LoadLIBFile(aLibPath+'text.'+aLocale+'.lib',TextStrings);
-  LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib',SetupStrings);
+  if FileExists(aLibPath+'text.'+aLocale+'.lib') then
+    LoadLIBFile(aLibPath+'text.'+aLocale+'.lib', TextStrings)
+  else
+    LoadLIBFile(aLibPath+'text.lib', TextStrings);
+  if FileExists(aLibPath+'setup.'+aLocale+'.lib') then
+    LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib', SetupStrings)
+  else
+    LoadLIBFile(aLibPath+'setup.lib', SetupStrings);
+
   fLog.AppendLog('TextLib init done');
 end;
 

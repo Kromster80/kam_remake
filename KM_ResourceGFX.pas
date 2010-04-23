@@ -164,7 +164,10 @@ procedure TResource.LoadFonts(DoExport:boolean; aLocale:string);
 var i:integer;
 begin
   for i:=1 to length(FontFiles) do
-    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt',TKMFont(i),DoExport);
+  if FileExists(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt') then
+    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt', TKMFont(i), DoExport)
+  else
+    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt', TKMFont(i), DoExport);
 end;
 
 
@@ -1079,7 +1082,7 @@ end;
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
 procedure TResource.MakeMiniMapColors(FileName:string);
-var ii,kk,h,j,px:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file;
+var ii,kk,h,j,px:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {ft:textfile;}
   {$IFDEF VER140}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
@@ -1091,6 +1094,7 @@ var ii,kk,h,j,px:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file;
   DestSize:cardinal;}
   {$ENDIF}
 begin
+  if not FileExists(FileName) then exit;
   assignfile(f,FileName);
   FileMode:=0; Reset(f,1); FileMode:=2; //Open ReadOnly
 
@@ -1157,6 +1161,13 @@ begin
     TileMMColor[px].B := round(B / (SizeY*SizeY div 256)) ;
 
   end;
+
+  {assignfile(ft,ExeDir+'mm.txt'); rewrite(ft);
+  for ii:=1 to 256 do begin
+    write(ft, '$'+inttohex(TileMMColor[ii].B,2)+inttohex(TileMMColor[ii].G,2)+inttohex(TileMMColor[ii].R,2)+',');
+    if ii mod 8 = 0 then writeln(ft);
+  end;
+  closefile(ft);}
 end;
 
 
