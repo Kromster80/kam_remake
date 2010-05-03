@@ -212,7 +212,7 @@ begin
   CreateDir(ExeDir+'Export\Sounds.dat\');
   for i:=1 to MaxWaves do if length(Waves[i].Data)>0 then begin
     assignfile(f,ExeDir+'Export\Sounds.dat\sound_'+int2fix(i,3)+'.wav'); rewrite(f,1);
-    Waves[i].Head.SampleRate := Waves[i].Head.SampleRate div 2;
+    //Waves[i].Head.SampleRate := Waves[i].Head.SampleRate div 2; //Make it half speed?
     blockwrite(f,Waves[i].Head,SizeOf(Waves[i].Head));
     blockwrite(f,Waves[i].Data[0],length(Waves[i].Data));
     blockwrite(f,Waves[i].Foot[0],length(Waves[i].Foot));
@@ -321,19 +321,22 @@ begin
   if (byte(aUnitType) < 15) or (byte(aUnitType) > 24) then
     Result := ''
   else
-    Result := ExeDir + 'data\Sfx\Speech.'+aLocale+'\' + WarriorSFXFolder[byte(aUnitType)] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.snd';
+    Result := ExeDir + 'data\Sfx\Speech.'+aLocale+'\' + WarriorSFXFolder[byte(aUnitType)] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
 end;
 
 
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
 var wave:string;
 begin
-  //wave := 'E:\KnightsAndMerchants\data\Sfx\Speech.eng\Axeman\SELECT0.wav';
+  //todo: Use sound playing system that allows for multiple sounds at once and a listener position (e.g. deaths and cries in a battle)
+  //@Krom: Why can't we simply use OpenAL? Because it needs a listener position so you don't hear battles from the other side of the map. Do the sounds need to be stored in memory? Can we buffer them or something?
   if (byte(aUnitType) < 15) or (byte(aUnitType) > 24) then exit;
+ //File extension must be .wav as well as the file contents itself
   wave := GetWarriorSoundFile(aUnitType,aSound,Random(WarriorSoundCount[byte(aUnitType),aSound]));
   if FileExists(wave) then
-    ShowMessage(wave);
-    //sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC or SND_NOSTOP); //@Krom: This isn't playing anything for me :(
+    sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC) //Override any previous voice playing
+  else
+    fLog.AppendLog('Speech file not found for '+TypeToString(aUnitType)+' sound ID '+IntToStr(byte(aSound))+': '+wave);
 end;
 
 
