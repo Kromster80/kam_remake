@@ -812,9 +812,10 @@ begin
   fTerrain := TTerrain.Create;
 
   fLog.AppendLog('Loading DAT...');
-  if CheckFileExists(KMRemakeMapPath(MissionName,'dat'),true) then begin
+//todo: should accept both absolute and KaM Remake relative paths
+  if CheckFileExists(MissionName, true) then begin
     fMissionParser := TMissionParser.Create;
-    ResultMsg := fMissionParser.LoadDATFile(KMRemakeMapPath(MissionName,'dat'));
+    ResultMsg := fMissionParser.LoadDATFile(MissionName);
     if ResultMsg<>'' then begin
       StopGame(gr_Error, ResultMsg);
       //Show all required error messages here
@@ -822,7 +823,7 @@ begin
     end;
     FreeAndNil(fMissionParser);
     fLog.AppendLog('DAT Loaded');
-    fGameName := MissionName;
+    fGameName := MissionName; //todo: Use filename here?
   end else begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
     fPlayers := TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players

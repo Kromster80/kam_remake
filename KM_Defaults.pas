@@ -232,7 +232,7 @@ const //Font01.fnt seems to be damaged..
   FontFiles: array[1..FONT_COUNT]of string = (
   'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
   'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
-  
+
   FontPal:array[1..FONT_COUNT]of byte =
   //Those 10 are unknown Pal, no existing Pal matches them well
   (10, 2, 1,10, 2, 2,12,12,12,12,
@@ -546,6 +546,10 @@ const
   MapEd_Order:array[1..10] of TUnitType = (
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian);
+
+  Animal_Order:array[1..8] of TUnitType = (
+    ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
+    ut_Crab, ut_Waterflower, ut_Waterleaf,  ut_Duck);
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
   TroopCost:array[ut_Militia..ut_Cavalry,1..4] of byte = (

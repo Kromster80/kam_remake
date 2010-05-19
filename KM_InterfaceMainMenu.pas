@@ -72,7 +72,8 @@ type TKMMainMenuInterface = class
       Image_MapEd_BG:TKMImage;
       Panel_MapEd_SizeXY:TKMPanel;
       CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZE_COUNT] of TKMCheckBox;
-      Button_MapEd_Start,Button_MapEdBack:TKMButton;
+      FileList_MapEd:TKMFileList;
+      Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
     Panel_Options:TKMPanel;
       Image_Options_BG, Image_Options_RightCrest:TKMImage;
       Panel_Options_GFX:TKMPanel;
@@ -486,10 +487,16 @@ begin
         CheckBox_MapEd_SizeY[i].OnClick := MapEditor_Change;
       end;
 
+    FileList_MapEd := MyControls.AddFileList(Panel_MapEd, 420, 200, 320, 220);
+    FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true);
+//todo: show only mission names
+
     Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 145, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MapEdBack.OnClick := SwitchMenuPage;
-    Button_MapEd_Start := MyControls.AddButton(Panel_MapEd, 370, 650, 220, 30, 'Create New Map', fnt_Metal, bsMenu);
-    Button_MapEd_Start.OnClick := MapEditor_Start;
+    Button_MapEd_Create := MyControls.AddButton(Panel_MapEd, 370, 650, 220, 30, 'Create New Map', fnt_Metal, bsMenu);
+    Button_MapEd_Create.OnClick := MapEditor_Start;
+    Button_MapEd_Load := MyControls.AddButton(Panel_MapEd, 595, 650, 220, 30, 'Load Existing Map', fnt_Metal, bsMenu);
+    Button_MapEd_Load.OnClick := MapEditor_Start;
 end;
 
 
@@ -937,8 +944,10 @@ end;
 
 procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
 begin
-  fLog.AssertToLog(Sender = Button_MapEd_Start,'not Button_MapEd_Start');
-  fGame.StartMapEditor('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
+  if Sender = Button_MapEd_Create then
+    fGame.StartMapEditor('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
+  if Sender = Button_MapEd_Load then
+    fGame.StartMapEditor(FileList_MapEd.FileName, 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
 end;
 
 

@@ -900,7 +900,7 @@ begin
     //Label_Build.Caption := fTextLibrary.GetTextString(210);
   end;
 
-  if TKMButtonFlat(Sender).Tag in [byte(MapEd_Order[1])..byte(MapEd_Order[length(MapEd_Order)])] then
+  if (TKMButtonFlat(Sender).Tag in [byte(ut_Serf)..byte(ut_Duck)]) then
   begin
     CursorMode.Mode := cm_Units;
     CursorMode.Tag1 := byte(TKMButtonFlat(Sender).Tag);
@@ -1000,6 +1000,8 @@ begin
 
   if Sender = Button_SaveSave then
     fGame.SaveMapEditor(TextEdit_SaveName.Text);
+
+  //todo: Now return to previous menu
 end;
 
 
