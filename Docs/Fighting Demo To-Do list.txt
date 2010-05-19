@@ -8,8 +8,9 @@ Demo #4 should include:
 	Ranged attacks
 	House attacks
 +	Map editor saving simple maps [Krom/Lewin]
-	UI for saving maps from MapEd [Krom]
-	Tutorial missions from KaM
++	UI for saving maps from MapEd [Krom]
+	Tutorial missions and texts from KaM
 	Scalable ingame menu
 	Lookout tower [Krom]
 +	Brightness settings as 0..20 range [Krom]
+	Working mission result (win/defeat) conditions
