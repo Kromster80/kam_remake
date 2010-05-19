@@ -502,13 +502,6 @@ begin
     Image_Options_RightCrest:=MyControls.AddImage(Panel_Options,635,220,round(207*1.3),round(295*1.3),6,6);
     Image_Options_RightCrest.Stretch;
 
-    Panel_Options_GFX:=MyControls.AddPanel(Panel_Options,520,130,170,80);
-      MyControls.AddLabel(Panel_Options_GFX,6,0,100,30,'Graphics:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_GFX,0,20,170,60);
-      MyControls.AddLabel(Panel_Options_GFX,18,27,100,30,'Brightness',fnt_Metal,kaLeft);
-      Ratio_Options_Brightness:=MyControls.AddRatioRow(Panel_Options_GFX,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
-      Ratio_Options_Brightness.OnChange:=Options_Change;
-
     Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,120,130,170,80);
       MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,'Controls:',fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Ctrl,0,20,170,60);
@@ -517,6 +510,23 @@ begin
       Label_Options_MouseSpeed.Disable;
       Ratio_Options_Mouse:=MyControls.AddRatioRow(Panel_Options_Ctrl,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
       Ratio_Options_Mouse.Disable;
+
+    Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,520,130,170,30+LocalesCount*20);
+      MyControls.AddLabel(Panel_Options_Lang,6,0,100,30,'Language:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(Panel_Options_Lang,0,20,170,10+LocalesCount*20);
+
+      for i:=1 to LocalesCount do
+      begin
+        CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(Panel_Options_Lang,18,27+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
+        CheckBox_Options_Lang[i].OnClick:=Options_Change;
+      end;
+
+    Panel_Options_GFX:=MyControls.AddPanel(Panel_Options,320,130,170,80);
+      MyControls.AddLabel(Panel_Options_GFX,6,0,100,30,'Graphics:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(Panel_Options_GFX,0,20,170,60);
+      MyControls.AddLabel(Panel_Options_GFX,18,27,100,30,'Brightness',fnt_Metal,kaLeft);
+      Ratio_Options_Brightness:=MyControls.AddRatioRow(Panel_Options_GFX,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_Brightness.OnChange:=Options_Change;
 
     Panel_Options_Game:=MyControls.AddPanel(Panel_Options,120,230,170,50);
       MyControls.AddLabel(Panel_Options_Game,6,0,100,30,'Gameplay:',fnt_Outline,kaLeft);
@@ -540,17 +550,8 @@ begin
       Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,10,160,150,30,'',fnt_Metal, bsMenu);
       Button_Options_MusicOn.OnClick:=Options_Change;
 
-    Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,320,130,170,30+LocalesCount*20);
-      MyControls.AddLabel(Panel_Options_Lang,6,0,100,30,'Language:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Lang,0,20,170,10+LocalesCount*20);
 
-      for i:=1 to LocalesCount do
-      begin
-        CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(Panel_Options_Lang,18,27+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
-        CheckBox_Options_Lang[i].OnClick:=Options_Change;
-      end;
-
-    Panel_Options_Res:=MyControls.AddPanel(Panel_Options,320,300,170,30+RESOLUTION_COUNT*20);
+    Panel_Options_Res:=MyControls.AddPanel(Panel_Options,320,230,170,30+RESOLUTION_COUNT*20);
       //Resolution selector
       MyControls.AddLabel(Panel_Options_Res,6,0,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Res,0,20,170,10+RESOLUTION_COUNT*20);

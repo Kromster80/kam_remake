@@ -159,7 +159,7 @@ const
   Cursors:array[1..23]of integer = (1,452,457,460,450,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9,999);
 
   ScrollCursorOffset = 17;
-  CursorOffsetsX:array[1..23] of integer = (0,0,0, 0, 0, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
+  CursorOffsetsX:array[1..23] of integer = (0,0, 0, 0, 0, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
   CursorOffsetsY:array[1..23] of integer = (0,9,10,18,20,-1,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
 
 const DirCursorSqrSize  = 33; //Length of square sides
@@ -174,13 +174,13 @@ type
 const
   LocalesCount = 7;
   Locales:array[1..LocalesCount, 1..2]of shortstring = (
-  ('eng','English'),
-  ('ger','German'),
-  ('pol','Polish'),
-  ('svk','Slovak'),
-  ('hun','Hungarian'),
-  ('dut','Dutch'),
-  ('rus','Russian'));
+  ('eng', 'English'),
+  ('ger', 'German'),
+  ('pol', 'Polish'),
+  ('svk', 'Slovak'),
+  ('hun', 'Hungarian'),
+  ('dut', 'Dutch'),
+  ('rus', 'Russian'));
 
 
 type gr_Message = (     //Game result

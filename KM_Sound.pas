@@ -334,7 +334,9 @@ begin
  //File extension must be .wav as well as the file contents itself
   wave := GetWarriorSoundFile(aUnitType,aSound,Random(WarriorSoundCount[byte(aUnitType),aSound]));
   if FileExists(wave) then
+    {$IFDEF VER140}
     sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC) //Override any previous voice playing
+    {$ENDIF}
   else
     fLog.AppendLog('Speech file not found for '+TypeToString(aUnitType)+' sound ID '+IntToStr(byte(aSound))+': '+wave);
 end;
