@@ -55,8 +55,8 @@ type
     procedure PauseGame(DoPause:boolean);
     procedure HoldGame(DoHold:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string='');
-    procedure StartMapEditor(MissionName:string; aSizeX:integer=64; aSizeY:integer=64);
-    procedure SaveMapEditor(MissionName:string);
+    procedure StartMapEditor(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+    procedure SaveMapEditor(aMissionPath:string);
 
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
@@ -787,7 +787,10 @@ begin
 end;
 
 
-procedure TKMGame.StartMapEditor(MissionName:string; aSizeX:integer=64; aSizeY:integer=64);
+{Mission name accepted in 2 formats:
+- absolute path, when opening a map from Form1.Menu
+- relative, from Maps folder}
+procedure TKMGame.StartMapEditor(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
 var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
 begin
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
@@ -812,10 +815,9 @@ begin
   fTerrain := TTerrain.Create;
 
   fLog.AppendLog('Loading DAT...');
-//todo: should accept both absolute and KaM Remake relative paths
-  if CheckFileExists(MissionName, true) then begin
+  if CheckFileExists(aMissionPath,true) then begin
     fMissionParser := TMissionParser.Create;
-    ResultMsg := fMissionParser.LoadDATFile(MissionName);
+    ResultMsg := fMissionParser.LoadDATFile(aMissionPath);
     if ResultMsg<>'' then begin
       StopGame(gr_Error, ResultMsg);
       //Show all required error messages here
@@ -823,7 +825,7 @@ begin
     end;
     FreeAndNil(fMissionParser);
     fLog.AppendLog('DAT Loaded');
-    fGameName := MissionName; //todo: Use filename here?
+    fGameName := TruncateExt(ExtractFileName(aMissionPath));
   end else begin
     fTerrain.MakeNewMap(aSizeX, aSizeY);
     fPlayers := TKMAllPlayers.Create(MAX_PLAYERS); //Create MAX players
@@ -849,15 +851,15 @@ begin
 end;
 
 
-procedure TKMGame.SaveMapEditor(MissionName:string);
+procedure TKMGame.SaveMapEditor(aMissionPath:string);
 var fMissionParser: TMissionParser;
 begin
-  if MissionName = '' then exit;
-  CreateDir(ExeDir+'Maps');
-  CreateDir(ExeDir+'Maps\'+MissionName);
-  fTerrain.SaveToMapFile(KMRemakeMapPath(MissionName,'map'));
+  if aMissionPath = '' then exit;
+  //CreateDir(ExeDir+'Maps');
+  //CreateDir(ExeDir+'Maps\'+MissionName);
+  fTerrain.SaveToMapFile(aMissionPath);
   fMissionParser := TMissionParser.Create;
-  fMissionParser.SaveDATFile(KMRemakeMapPath(MissionName,'dat'),MissionName);
+  fMissionParser.SaveDATFile(aMissionPath, TruncateExt(ExtractFileName(aMissionPath));
   FreeAndNil(fMissionParser);
 end;
 

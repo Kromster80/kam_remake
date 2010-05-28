@@ -1281,7 +1281,7 @@ end;
 
 function TKMFileList.FileName():string;
 begin
-  if InRange(ItemIndex,0,fFiles.Count) then
+  if InRange(ItemIndex, 0, fFiles.Count) then
     Result := fPath + fPaths.Strings[ItemIndex] + fFiles.Strings[ItemIndex]
   else
     Result := '';

@@ -297,7 +297,7 @@ function KMRemakeMapPath(aMapName, aExtension:string):string;
 begin
   Result := ExeDir+'Maps\'+aMapName+'\'+aMapName;
   if aExtension<>'' then
-  Result := Result+'.'+aExtension;
+    Result := Result+'.'+aExtension;
 end;
 
 
