@@ -10,8 +10,8 @@ type
     {$IFDEF VER140} MediaPlayer: TMediaPlayer; {$ENDIF}
     MusicCount,MusicIndex:integer;
     MusicTracks:array[1..256]of string;
-    MIDICount,MIDIIndex:integer;
-    MIDITracks:array[1..256]of string;
+    //MIDICount,MIDIIndex:integer;
+    //MIDITracks:array[1..256]of string;
     IsMusicInitialized:boolean;
     MusicGain:single;
     function CheckMusicError():boolean;
@@ -144,10 +144,10 @@ begin
       inc(MusicCount);
       MusicTracks[MusicCount] := Path + SearchRec.Name;
     end;
-    if GetFileExt(SearchRec.Name)='MID' then begin
+    {if GetFileExt(SearchRec.Name)='MID' then begin
       inc(MIDICount);
       MIDITracks[MIDICount] := Path + SearchRec.Name;
-    end;
+    end;}
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
   MusicIndex:=0;

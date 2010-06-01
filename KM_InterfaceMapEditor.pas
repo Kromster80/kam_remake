@@ -239,6 +239,7 @@ begin
   end;
 
   if Sender = Button_Menu_Save then begin
+    TextEdit_SaveName.Text := fGame.GetGameName;
     Menu_Save(TextEdit_SaveName);
     Panel_Save.Show;
   end;
@@ -998,8 +999,10 @@ begin
     Button_SaveSave.Enabled := CheckBox_SaveExists.Checked;
   end;
 
-  if Sender = Button_SaveSave then
-    fGame.SaveMapEditor(TextEdit_SaveName.Text);
+  if Sender = Button_SaveSave then begin
+    //Should we expand the path here?
+    fGame.SaveMapEditor(TextEdit_SaveName.Text, true);
+  end;
 
   //todo: Now return to previous menu
 end;

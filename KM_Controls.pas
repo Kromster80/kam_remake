@@ -635,7 +635,7 @@ var Tmp:TKMPoint; NewTop:integer;
 begin
   Inherited;
   if SmoothScrollToTop<>0 then
-    NewTop := Top - (integer(TimeGetTime) - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
+    NewTop := Top + Height - (integer(TimeGetTime) - SmoothScrollToTop) div 50 //Compute delta and shift by it upwards (Credits page)
   else
     NewTop := Top;
 
@@ -646,7 +646,9 @@ begin
 
   if not AutoWrap then
     Width:=Tmp.X;
-  Height:=Tmp.Y;
+
+  if SmoothScrollToTop=0 then
+    Height:=Tmp.Y;
 end;
 
 
@@ -856,7 +858,7 @@ end;
 constructor TKMTextEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
-  Text := 'Test';
+  Text := '<<<LEER>>>';
   Font := aFont;
   ParentTo(aParent);
 end;

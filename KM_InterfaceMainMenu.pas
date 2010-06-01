@@ -72,6 +72,7 @@ type TKMMainMenuInterface = class
       Image_MapEd_BG:TKMImage;
       Panel_MapEd_SizeXY:TKMPanel;
       CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZE_COUNT] of TKMCheckBox;
+      Panel_MapEd_Load:TKMPanel;
       FileList_MapEd:TKMFileList;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
     Panel_Options:TKMPanel;
@@ -476,8 +477,8 @@ begin
 
     //Should contain options to make a map from scratch, load map from file, generate random preset
 
-    Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 245, 200, 150, 300);
-      MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'Map size X:Y', fnt_Outline, kaLeft);
+    Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 512-210, 200, 200, 300);
+      MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'New map size', fnt_Outline, kaLeft);
       MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 10 + MAPSIZE_COUNT*20);
       for i:=1 to MAPSIZE_COUNT do
       begin
@@ -487,9 +488,10 @@ begin
         CheckBox_MapEd_SizeY[i].OnClick := MapEditor_Change;
       end;
 
-    FileList_MapEd := MyControls.AddFileList(Panel_MapEd, 420, 200, 320, 220);
+    Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 512+10, 200, 320, 300);
+    MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
+    FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 320, 200);
     FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true);
-//todo: show only mission names
 
     Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 145, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MapEdBack.OnClick := SwitchMenuPage;
@@ -595,7 +597,13 @@ begin
   Panel_Credits:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
     Image_CreditsBG:=MyControls.AddImage(Panel_Credits,0,0,ScreenX,ScreenY,2,6);
     Image_CreditsBG.Stretch;
-    Label_Credits:=MyControls.AddLabel(Panel_Credits,ScreenX div 2,ScreenY,100,30,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
+    MyControls.AddLabel(Panel_Credits,ScreenX div 2,100,100,30,'Knights & Merchants Credits',fnt_Outline,kaCenter);
+    Label_Credits:=MyControls.AddLabel(Panel_Credits,ScreenX div 2,140,200,ScreenY-140,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
+//    Label_Credits.SmoothScrollToTop := 1;
+
+    MyControls.AddLabel(Panel_Credits,200,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
+    MyControls.AddLabel(Panel_Credits,200,140,100,30,'PROGRAMMING|Krom|Lewin||ADDITIONAL PROGRAMMING|Alex||SLOVAK TRANSLATION|Some guy||SPECIAL THANKS|KaM Community members',fnt_Grey,kaCenter);
+
     Button_CreditsBack:=MyControls.AddButton(Panel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;
 end;
@@ -715,6 +723,8 @@ begin
 
   {Show MapEditor menu}
   if Sender=Button_MainMenuMapEd then begin
+    if FileList_MapEd.fFiles.Count > 0 then
+      FileList_MapEd.ItemIndex := 0; //Select first map by default
     MapEditor_Change(nil);
     Panel_MapEd.Show;
   end;
@@ -730,7 +740,6 @@ begin
   {Show Credits}
   if Sender=Button_MainMenuCredit then begin
     Panel_Credits.Show;
-    Label_Credits.Top := ScreenY;
     Label_Credits.SmoothScrollToTop := TimeGetTime; //Set initial position
   end;
 

@@ -56,7 +56,7 @@ type
     procedure HoldGame(DoHold:boolean);
     procedure StopGame(const Msg:gr_Message; TextMsg:string='');
     procedure StartMapEditor(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
-    procedure SaveMapEditor(aMissionPath:string);
+    procedure SaveMapEditor(aMissionName:string; DoExpandPath:boolean);
 
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
@@ -793,6 +793,8 @@ end;
 procedure TKMGame.StartMapEditor(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
 var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
 begin
+  if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
+
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
 
@@ -851,16 +853,22 @@ begin
 end;
 
 
-procedure TKMGame.SaveMapEditor(aMissionPath:string);
+//DoExpandPath means that input is a mission name which should be expanded into:
+//ExeDir+'Maps\'+MissionName+'\'+MissionName.dat
+//ExeDir+'Maps\'+MissionName+'\'+MissionName.map
+procedure TKMGame.SaveMapEditor(aMissionName:string; DoExpandPath:boolean);
 var fMissionParser: TMissionParser;
 begin
-  if aMissionPath = '' then exit;
-  //CreateDir(ExeDir+'Maps');
-  //CreateDir(ExeDir+'Maps\'+MissionName);
-  fTerrain.SaveToMapFile(aMissionPath);
-  fMissionParser := TMissionParser.Create;
-  fMissionParser.SaveDATFile(aMissionPath, TruncateExt(ExtractFileName(aMissionPath));
-  FreeAndNil(fMissionParser);
+  if aMissionName = '' then exit;
+  if DoExpandPath then begin
+    CreateDir(ExeDir+'Maps');
+    CreateDir(ExeDir+'Maps\'+aMissionName);
+    fTerrain.SaveToMapFile(KMRemakeMapPath(aMissionName, 'map'));
+    fMissionParser := TMissionParser.Create;
+    fMissionParser.SaveDATFile(KMRemakeMapPath(aMissionName, 'dat'));
+    FreeAndNil(fMissionParser);
+  end else
+    Assert(false,'SaveMapEditor call with DoExpandPath=false');
 end;
 
 

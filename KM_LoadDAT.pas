@@ -76,7 +76,7 @@ type
   public      { Public declarations }
     constructor Create;
     function LoadDATFile(aFileName:string):string;
-    function SaveDATFile(aFileName:string; aMissionName:string):boolean;
+    function SaveDATFile(aFileName:string):boolean;
     function GetMissionDetails(aFileName:string):TKMMissionDetails;
     function GetMapDetails(aFileName:string):TKMMapDetails;
 end;
@@ -585,7 +585,7 @@ begin
 end;
 
 
-function TMissionParser.SaveDATFile(aFileName:string; aMissionName:string):boolean;
+function TMissionParser.SaveDATFile(aFileName:string):boolean;
 const
   COMMANDLAYERS = 4;
 var
@@ -636,8 +636,8 @@ begin
   SaveString := '';
   CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
 
-  //Main header
-  AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + aMissionName + '.map"');
+  //Main header, use same filename for MAP
+  AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + ExtractFileName(TruncateExt(aFileName)) + '.map"');
   AddCommand(ct_SetMaxPlayer, 1, fPlayers.PlayerCount);
   AddData(''); //NL
 
