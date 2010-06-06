@@ -1613,6 +1613,8 @@ end;
 procedure TTerrain.RebuildPassability(LowX,HighX,LowY,HighY:integer);
 var i,k:integer;
 begin
+  //todo: During load this should only run once if possible to save time
+  //if fGame.GameState = gsNoGame then exit; //Only calculate once during load (not everytime a tile of road is placed, etc.)
   for i:=LowY to HighY do for k:=LowX to HighX do
     if TileInMapCoords(k,i) then
       RecalculatePassability(KMPoint(k,i));
@@ -1654,6 +1656,8 @@ begin
   {fLog.AppendLog('FloodFill for '+TypeToString(KMPoint(MapX,MapY))+' map');
   for h:=1 to 200 do
   begin}
+  //todo: During load this should only run once if possible to save time (not everytime a tile of road is placed, etc.)
+  //if fGame.GameState = gsNoGame then exit; //Only calculate once during load
 
     TestMode:=0;
     case aPass of

@@ -249,7 +249,7 @@ end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P: TKMPoint; MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit;
+var P: TKMPoint; MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
@@ -269,13 +269,13 @@ begin
                     and(not fGamePlayInterface.JoiningGroups)
                     and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
                     and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
-                    and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true))
                     then
                   begin
                     //See if we are moving or attacking
                     HitUnit := fPlayers.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                     if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
-                       (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) then
+                       (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) and
+                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
                     begin
                       //Place attack order here rather than in mouse up
                       TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_Attack, HitUnit);
@@ -283,18 +283,30 @@ begin
                     end
                     else
                     begin
-                      SelectingTroopDirection := true; //MouseMove will take care of cursor changing
-                      //Record current cursor position so we can stop it from moving while we are setting direction
-                      GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
-                      //Restrict cursor to a rectangle (half a rect in both axes)
-                      MyRect := Rect(SelectingDirPosition.X-((DirCursorSqrSize-1) div 2),
-                                     SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2),
-                                     SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1,
-                                     SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1);
-                      ClipCursor(@MyRect);
-                      //Now record it as Client XY
-                      SelectingDirPosition := Point(X,Y);
-                      SelectedDirection := dir_NA;
+                      HitHouse := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                      if (HitHouse <> nil) and (not (HitHouse.IsDestroyed)) and
+                         (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy) then
+                      begin
+                        //Place attack order here rather than in mouse up
+                        TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_AttackHouse, HitHouse);
+                        fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Attack);
+                      end
+                      else
+                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
+                      begin
+                        SelectingTroopDirection := true; //MouseMove will take care of cursor changing
+                        //Record current cursor position so we can stop it from moving while we are setting direction
+                        GetCursorPos(SelectingDirPosition); //First record it in referance to the screen pos for the clipcursor function
+                        //Restrict cursor to a rectangle (half a rect in both axes)
+                        MyRect := Rect(SelectingDirPosition.X-((DirCursorSqrSize-1) div 2),
+                                       SelectingDirPosition.Y-((DirCursorSqrSize-1) div 2),
+                                       SelectingDirPosition.X+((DirCursorSqrSize-1) div 2)+1,
+                                       SelectingDirPosition.Y+((DirCursorSqrSize-1) div 2)+1);
+                        ClipCursor(@MyRect);
+                        //Now record it as Client XY
+                        SelectingDirPosition := Point(X,Y);
+                        SelectedDirection := dir_NA;
+                      end;
                     end;
                   end
                   else

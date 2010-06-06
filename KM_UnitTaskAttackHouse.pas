@@ -18,7 +18,6 @@ type
       destructor Destroy; override;
       procedure Abandon; override;
       function WalkShouldAbandon:boolean; override;
-      procedure HitTheHouse();
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -104,12 +103,6 @@ begin
 end;
 
 
-procedure TTaskAttackHouse.HitTheHouse();
-begin
-  //fHouse.AddDamage...
-end;
-
-
 procedure TTaskAttackHouse.Execute(out TaskDone:boolean);
   function PickRandomSpot(): byte;
   var i, MyCount: integer; Spots: array[1..16] of byte;
@@ -157,12 +150,14 @@ begin
        SetActionWalk(fUnit,Cells.List[LocID].Loc);
      end;
   1: begin
-       //Hit/shoot the house (possibly using Fight action modified to be in house rather than unit mode? Should be pretty much the same otherwise...
-       HitTheHouse();
+       SetActionLockedStay(6,ua_Work,false,0,0); //Start animation
        Direction:=TKMDirection(Cells.List[LocID].Dir); //Face target
-       TaskDone := true;
      end;
-     //...anything else?
+  2: begin
+       SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
+       fHouse.AddDamage(2); //All melee units do 1 damage per strike
+       fPhase := 0; //Do another hit (will be 1 after inc below)
+     end;
   end;
 
   if TaskDone then exit;

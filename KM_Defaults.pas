@@ -398,7 +398,7 @@ type
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
-  TWarriorOrder = (wo_None, wo_Walk, wo_WalkOut, wo_Attack); //wo_Storm
+  TWarriorOrder = (wo_None, wo_Walk, wo_WalkOut, wo_Attack, wo_AttackHouse); //wo_Storm
   TWarriorState = (ws_None, ws_Walking, ws_RepositionPause, ws_InitalLinkReposition, ws_Engage);
   TWarriorLinkState = (wl_None, wl_LeavingBarracks, wl_Linkable);
 

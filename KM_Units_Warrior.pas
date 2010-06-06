@@ -1,7 +1,7 @@
 unit KM_Units_Warrior;
 interface
 uses Classes, SysUtils, KromUtils, Math,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units;
+  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units, KM_Houses;
 
 
 type //Possibly melee warrior class? with Archer class separate?
@@ -15,6 +15,7 @@ type //Possibly melee warrior class? with Archer class separate?
     fAutoLinkState:TWarriorLinkState;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fOrderTarget: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
+    fOrderHouseTarget: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
   {Commander properties}
     fFoe:TKMUnitWarrior; //An enemy unit which is currently in combat with one of our memebers (commander use only!) Use only public Foe property!
     fUnitsPerRow:integer;
@@ -44,6 +45,8 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure OrderFood;
     procedure SetOrderTarget(aUnit:TKMUnit);
     function GetOrderTarget:TKMUnit;
+    procedure SetOrderHouseTarget(aHouse:TKMHouse);
+    function GetOrderHouseTarget:TKMHouse;
     procedure SetFoe(aUnit:TKMUnitWarrior);
     function GetFoe:TKMUnitWarrior;
     property SetOrderedFood:boolean write fOrderedFood;
@@ -57,6 +60,7 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse); reintroduce; overload;
     function CheckForEnemy:boolean;
     property GetOrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -66,7 +70,7 @@ type //Possibly melee warrior class? with Archer class separate?
 
 
 implementation
-uses KM_DeliverQueue, KM_Game, KM_LoadLib, KM_PlayersCollection, KM_Render, KM_Terrain,
+uses KM_DeliverQueue, KM_Game, KM_LoadLib, KM_PlayersCollection, KM_Render, KM_Terrain, KM_UnitTaskAttackHouse,
   KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionWalkTo, KM_UnitActionStay;
 
 
@@ -76,6 +80,7 @@ begin
   Inherited;
   fCommander    := nil;
   fOrderTarget  := nil;
+  fOrderHouseTarget := nil;
   fFoe          := nil;
   fOrderedFood  := false;
   fFlagAnim     := 0;
@@ -96,6 +101,7 @@ begin
   Inherited;
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fOrderTarget, 4); //subst on syncload
+  LoadStream.Read(fOrderHouseTarget, 4); //subst on syncload
   LoadStream.Read(fFoe, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fOrderedFood);
@@ -132,6 +138,7 @@ begin
   Inherited;
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCommander)));
   fOrderTarget := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTarget)));
+  fOrderHouseTarget := TKMHouse(fPlayers.GetHouseByID(cardinal(fOrderHouseTarget)));
   fFoe := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fFoe)));
   if fMembers<>nil then
     for i:=1 to fMembers.Count do
@@ -413,6 +420,11 @@ begin
     fOrderTarget.RemovePointer;
     fOrderTarget := nil;
   end;
+  if fOrderHouseTarget <> nil then
+  begin
+    fOrderHouseTarget.RemovePointer;
+    fOrderHouseTarget := nil;
+  end;
 end;
 
 
@@ -441,6 +453,23 @@ begin
   //If the target unit has died then clear it
   if (fOrderTarget <> nil) and (fOrderTarget.IsDead) then ClearOrderTarget;
   Result := fOrderTarget;
+end;
+
+
+procedure TKMUnitWarrior.SetOrderHouseTarget(aHouse:TKMHouse);
+begin
+  //Remove previous value
+  ClearOrderTarget;
+  if aHouse <> nil then
+    fOrderHouseTarget := aHouse.GetSelf; //Else it will be nil from ClearOrderTarget
+end;
+
+
+function TKMUnitWarrior.GetOrderHouseTarget:TKMHouse;
+begin
+  //If the target house has been destroyed then clear it
+  if (fOrderHouseTarget <> nil) and (fOrderHouseTarget.IsDestroyed) then ClearOrderTarget;
+  Result := fOrderHouseTarget;
 end;
 
 
@@ -545,7 +574,7 @@ end;
 
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false);
 begin
-  if (aWarriorOrder <> wo_Attack) or (aTargetUnit = nil) then exit; //Only allow attacks with target units for now
+  if (aWarriorOrder <> wo_Attack) or (aTargetUnit = nil) then exit; //Only allow house attacks with target unit for now
 
   //Attack works like this: Commander tracks target unit in walk action. Members are ordered to walk to formation with commaner at target unit's location.
   //If target moves in WalkAction, commander will reissue PlaceOrder with aOnlySetMemebers = true, so memebers will walk to new location.
@@ -560,6 +589,23 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse);
+var i: integer;
+begin
+  if (aWarriorOrder <> wo_AttackHouse) or (aTargetHouse = nil) then exit; //Only allow house attacks with target house
+
+  //Attack House works like this: All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.)
+
+  fOrder := aWarriorOrder; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
+  fState := ws_None; //Clear other states
+  SetOrderHouseTarget(aTargetHouse);
+
+  if (fCommander=nil) and (fMembers <> nil) then //Don't give group orders if unit has no crew
+    for i:=0 to fMembers.Count-1 do
+      TKMUnitWarrior(fMembers.Items[i]).PlaceOrder(aWarriorOrder, aTargetHouse);
+end;
+
+
 procedure TKMUnitWarrior.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
@@ -570,6 +616,10 @@ begin
     SaveStream.Write(Zero);
   if fOrderTarget <> nil then
     SaveStream.Write(fOrderTarget.ID) //Store ID
+  else
+    SaveStream.Write(Zero);
+  if fOrderHouseTarget <> nil then
+    SaveStream.Write(fOrderHouseTarget.ID) //Store ID
   else
     SaveStream.Write(Zero);
   if fFoe <> nil then
@@ -701,6 +751,7 @@ end;
 function TKMUnitWarrior.UpdateState():boolean;
   function CheckCanAbandon: boolean;
   begin
+    if GetUnitTask   is TTaskAttackHouse       then Result := false else //Never interupt attacking a house. //todo: Interupt when we (our group) attacked
     if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
     if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
     if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
@@ -813,6 +864,16 @@ begin
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
 
+  //Take attack house order
+  if (fOrder=wo_AttackHouse) and GetUnitAction.GetIsStepDone and CheckCanAbandon then
+  begin
+    SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
+    fOrder := wo_None;
+    if not (fState = ws_InitalLinkReposition) then
+      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
+    fState := ws_Walking; //Reposition after task exits
+  end;
+
   if fFlagAnim mod 10 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
   Result:=true; //Required for override compatibility
@@ -835,7 +896,8 @@ begin
   if (fState = ws_Walking) or (fState = ws_RepositionPause) then
   begin
     //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
-    if (not (GetUnitAction is TUnitActionWalkTo)) and (not KMSamePoint(GetPosition,fOrderLoc.Loc)) then
+    if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
+       (not KMSamePoint(GetPosition,fOrderLoc.Loc)) then
     begin
       SetActionWalk(Self, KMPoint(fOrderLoc)); //Walk to correct position
       fState := ws_Walking;
