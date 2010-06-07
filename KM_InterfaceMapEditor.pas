@@ -14,6 +14,7 @@ type TKMapEdInterface = class
 
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
+      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMButton;
       KMMinimap:TKMMinimap;
       Label_Stat,Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
@@ -315,14 +316,20 @@ begin
 {Parent Page for whole toolbar in-game}
   Panel_Main := MyControls.AddPanel(nil,0,0,224,768);
 
-    Image_Main1 := MyControls.AddImage(Panel_Main,0,0,224,200,407);
+    Image_Main1 := MyControls.AddImage(Panel_Main,0,0,224,200,407); //Minimap place
 
     //todo: For the map editor mode, remove swords/logo and instead have
     //player selection and other "universal" stuff? (i.e. which player are we placing for)
-    Image_Main2 := MyControls.AddImage(Panel_Main,0,200,224,168,554);
-    Image_Main3 := MyControls.AddImage(Panel_Main,0,368,224,400,404);
-    Image_Main4 := MyControls.AddImage(Panel_Main,0,768,224,400,404);
-    Image_Main5 := MyControls.AddImage(Panel_Main,0,1168,224,400,404); //For 1600x1200 this is needed
+    //
+    Image_Main3 := MyControls.AddImage(Panel_Main,0, 200,224,400,404);
+    Image_Main4 := MyControls.AddImage(Panel_Main,0, 600,224,400,404);
+    Image_Main5 := MyControls.AddImage(Panel_Main,0,1000,224,400,404); //For 1600x1200 this is needed
+
+    MyControls.AddLabel(Panel_Main,8,200,100,30,'Player',fnt_Metal,kaLeft);
+    for i:=1 to MAX_PLAYERS do begin
+      Button_PlayerSelect[i] := MyControls.AddButton(Panel_Main, 8 + (i-1)*23, 220, 21, 21, 70);
+      Button_PlayerSelect[i].Tag := i;
+    end;
 
     KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
     KMMinimap.OnChange:=Minimap_Update;

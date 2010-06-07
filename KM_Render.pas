@@ -1214,47 +1214,50 @@ begin
 with fTerrain do
 case CursorMode.Mode of
   cm_None:   ;
-  cm_Erase:  if fGame.GameState = gsEditor then
-             begin
-               //What are we checking here?
-               if (
-                    ( //With Buildings tab see if we can remove Fields or Houses
-                      (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
-                      and (TileIsCornField(CursorPos) or TileIsWineField(CursorPos) or (Land[CursorPos.Y,CursorPos.X].TileOverlay=to_Road) or CanRemoveHouse(CursorPos,MyPlayer.PlayerID))
+  cm_Erase:  begin
+               if fGame.GameState = gsEditor then
+               begin
+                 if (
+                      ( //With Buildings tab see if we can remove Fields or Houses
+                        (fGame.fMapEditorInterface.GetShownPage = esp_Buildings)
+                        and (TileIsCornField(CursorPos) or TileIsWineField(CursorPos) or (Land[CursorPos.Y,CursorPos.X].TileOverlay=to_Road) or CanRemoveHouse(CursorPos,MyPlayer.PlayerID))
+                      )
+                      or
+                      ( //With Units tab see if there's a unit below cursor
+                        (fGame.fMapEditorInterface.GetShownPage = esp_Units)
+                        and CanRemoveUnit(CursorPos,MyPlayer.PlayerID)
+                      )
                     )
-                    or
-                    ( //With Units tab see if there's a unit below cursor
-                      (fGame.fMapEditorInterface.GetShownPage = esp_Units)
-                      and CanRemoveUnit(CursorPos,MyPlayer.PlayerID)
-                    )
-                  )
-               //And ofcourse it it's visible
-               and TileVisible then
-                 RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-               else RenderCursorBuildIcon(CursorPos);       //Red X
-             end else
-             begin
-               if ((CanRemovePlan(CursorPos,MyPlayer.PlayerID)) or (CanRemoveHouse(CursorPos,MyPlayer.PlayerID)))
-               and TileVisible then
-                 RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
-               else RenderCursorBuildIcon(CursorPos);       //Red X
+                 //And ofcourse it it's visible
+                 and TileVisible then
+                   RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+                 else RenderCursorBuildIcon(CursorPos);       //Red X
+               end;
+
+               if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
+               begin
+                 if (CanRemovePlan(CursorPos, MyPlayer.PlayerID) or CanRemoveHouse(CursorPos, MyPlayer.PlayerID))
+                 and TileVisible then
+                   RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+                 else RenderCursorBuildIcon(CursorPos);       //Red X
+               end;
              end;
-  cm_Road:   if CanPlaceRoad(CursorPos,mu_RoadPlan) and TileVisible then
+  cm_Road:   if CanPlaceRoad(CursorPos, mu_RoadPlan) and TileVisible then
                RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
              else RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Field:  if CanPlaceRoad(CursorPos,mu_FieldPlan) and TileVisible then
+  cm_Field:  if CanPlaceRoad(CursorPos, mu_FieldPlan) and TileVisible then
                RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
              else RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Wine:   if CanPlaceRoad(CursorPos,mu_WinePlan) and TileVisible then
+  cm_Wine:   if CanPlaceRoad(CursorPos, mu_WinePlan) and TileVisible then
                RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
              else RenderCursorBuildIcon(CursorPos);       //Red X
-  cm_Wall:   if CanPlaceRoad(CursorPos,mu_WallPlan) and TileVisible then
+  cm_Wall:   if CanPlaceRoad(CursorPos, mu_WallPlan) and TileVisible then
                RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
              else RenderCursorBuildIcon(CursorPos);       //Red X
   cm_Houses: RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Tag1)); //Cyan quad
   cm_Tiles:  RenderTile(CursorMode.Tag1, CursorPos.X, CursorPos.Y, CursorMode.Tag2);
   cm_Objects:RenderObject(CursorMode.Tag1+1, 0, CursorPos.X, CursorPos.Y, true);
-  cm_Units:  RenderCursorWireQuad(CursorPos, $FFFFFF00) //Cyan quad
+  cm_Units:  RenderCursorWireQuad(CursorPos, $FFFFFF00) //todo: render unit graphics here?
 end;
 end;
 
