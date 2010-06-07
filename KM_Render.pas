@@ -62,7 +62,9 @@ public
   procedure SetRotation(aH,aP,aB:integer);
   procedure RenderResize(Width,Height:integer; aRenderMode:TRenderMode);
   procedure Render();
+  {$IFDEF VER140}
   procedure DoPrintScreen(filename:string);
+  {$ENDIF}
   procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
@@ -210,10 +212,10 @@ begin
 end;
 
 
+{$IFDEF VER140}
 procedure TRender.DoPrintScreen(filename:string);
-{$IFDEF VER140} var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal; {$ENDIF}
+ var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
-  {$IFDEF VER140}
   sw:=RenderAreaSize.X;
   sh:=RenderAreaSize.Y;
 
@@ -238,8 +240,8 @@ begin
 
   jpg.Free;
   mkbmp.Free;
-  {$ENDIF}
 end;
+{$ENDIF}
 
 
 procedure TRender.RenderTerrain(x1,x2,y1,y2,AnimStep:integer);

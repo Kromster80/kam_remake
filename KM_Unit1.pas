@@ -315,15 +315,20 @@ begin
   SHOW_UNIT_ROUTES   := Debug_ShowUnits.Checked;
 end;
 
+
 procedure TForm1.Debug_PrintScreenClick(Sender: TObject);
-var s:string;
+{$IFDEF VER140} var s:string; {$ENDIF}
 begin
+  {$IFDEF VER140}
   DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
   if fRender<>nil then fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
+  {$ENDIF}
 end;
+
 
 procedure TForm1.Debug_ShowPanel1Click(Sender: TObject);
 begin GroupBox1.Visible := not GroupBox1.Visible; end;
+
 
 procedure TForm1.Debug_PassabilityTrackChange(Sender: TObject);
 begin

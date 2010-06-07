@@ -57,6 +57,7 @@ type TKMapEdInterface = class
         Label_SaveExists:TKMLabel;
         CheckBox_SaveExists:TKMCheckBox;
         Button_SaveSave:TKMButton;
+        Button_SaveCancel:TKMButton;
 
       Panel_Quit:TKMPanel;
         Button_Quit_Yes,Button_Quit_No:TKMButton;
@@ -229,7 +230,7 @@ begin
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
   end else
 
-  if (Sender=Button_Main[5]) or (Sender=Button_Quit_No) then begin
+  if (Sender=Button_Main[5]) or (Sender=Button_Quit_No) or (Sender = Button_SaveCancel) then begin
     Panel_Menu.Show;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
   end else
@@ -610,9 +611,11 @@ begin
     Label_SaveExists    := MyControls.AddLabel(Panel_Save,100,80,100,30,'Map already exists',fnt_Outline,kaCenter);
     CheckBox_SaveExists := MyControls.AddCheckBox(Panel_Save,12,100,100,20,'Overwrite', fnt_Metal);
     Button_SaveSave     := MyControls.AddButton(Panel_Save,8,120,180,30,'Save',fnt_Metal);
+    Button_SaveCancel   := MyControls.AddButton(Panel_Save,8,160,180,30,'Cancel',fnt_Metal);
     TextEdit_SaveName.OnChange  := Menu_Save;
     CheckBox_SaveExists.OnClick := Menu_Save;
     Button_SaveSave.OnClick     := Menu_Save;
+    Button_SaveCancel.OnClick   := Menu_Save;
 end;
 
 {Quit page}
@@ -1002,9 +1005,12 @@ begin
   if Sender = Button_SaveSave then begin
     //Should we expand the path here?
     fGame.SaveMapEditor(TextEdit_SaveName.Text, true);
+    SwitchPage(Button_SaveCancel); //return to previous menu
   end;
 
-  //todo: Now return to previous menu
+  if Sender = Button_SaveCancel then begin
+    SwitchPage(Button_SaveCancel);
+  end;
 end;
 
 
