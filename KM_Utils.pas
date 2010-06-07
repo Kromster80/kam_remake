@@ -319,11 +319,19 @@ end;
 function TypeToString(t:TUnitType):string;
 var s:string;
 begin
-if byte(t) in [1..29] then
-  s:=fTextLibrary.GetTextString(siUnitNames+byte(t))
-else
-  s:='N/A';
-Result:=s;
+  case byte(t) of
+    1..30: s := fTextLibrary.GetTextString(siUnitNames+byte(t));
+    31:    s := 'Wolf';
+    32:    s := 'Fish';
+    33:    s := 'Watersnake';
+    34:    s := 'Seastar';
+    35:    s := 'Crab';
+    36:    s := 'Waterflower';
+    37:    s := 'Waterleaf';
+    38:    s := 'Duck';
+    else   s := 'N/A';
+  end;
+  Result := s;
 end;
 
 

@@ -43,6 +43,7 @@ type TKMapEdInterface = class
         Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildWall,Button_BuildCancel:TKMButtonFlat;
         Button_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
       Panel_Units:TKMPanel;
+        Label_Units:TKMLabel;
         Button_UnitCancel:TKMButtonFlat;
         Button_Citizen:array[1..14]of TKMButtonFlat;
         Button_Warriors:array[1..10]of TKMButtonFlat;
@@ -481,8 +482,8 @@ begin
         end;
 
     Panel_Units := MyControls.AddPanel(Panel_Village,0,28,196,400);
+      Label_Units := MyControls.AddLabel(Panel_Units,100,10,100,30,'',fnt_Outline,kaCenter);
 
-      MyControls.AddLabel(Panel_Units,100,10,100,30,'Citizens',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Citizen) do
       begin
         Button_Citizen[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,30+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 32x8
@@ -494,22 +495,19 @@ begin
       Button_UnitCancel.Hint := fTextLibrary.GetTextString(211);
       Button_UnitCancel.OnClick := Unit_ButtonClick;
 
-      MyControls.AddLabel(Panel_Units,100,150,100,30,'Warriors',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Warriors) do
       begin
-        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,170+((i-1) div 5)*37,33,33,370+i);
+        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,160+((i-1) div 5)*37,33,33,370+i);
         Button_Warriors[i].Hint := TypeToString(MapEd_Order[i]);
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
       end;
 
-      //WIP
-      MyControls.AddLabel(Panel_Units,100,250,100,30,'Animals',fnt_Outline,kaCenter);
       for i:=1 to length(Button_Animals) do
       begin
-        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,270+((i-1) div 5)*37,33,33,370+i);
-        Button_Animals[i].Hint := TypeToString(MapEd_Order[i]);
-        //Button_Animals[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
+        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,250+((i-1) div 5)*37,33,33,370+i);
+        Button_Animals[i].Hint := TypeToString(Animal_Order[i]);
+        Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;
       end;
 
@@ -618,13 +616,13 @@ begin
     Button_SaveCancel.OnClick   := Menu_Save;
 end;
 
+
 {Quit page}
 procedure TKMapEdInterface.Create_Quit_Page;
 begin
   Panel_Quit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
-    MyControls.AddLabel(Panel_Quit,100,30,100,30,fTextLibrary.GetTextString(176),fnt_Outline,kaCenter);
-    //todo: add offer to save changes here
-    Button_Quit_Yes   := MyControls.AddButton(Panel_Quit,8,100,180,30,fTextLibrary.GetTextString(177),fnt_Metal);
+    MyControls.AddLabel(Panel_Quit,100,40,100,30,'Any unsaved|changes will be lost',fnt_Outline,kaCenter);
+    Button_Quit_Yes   := MyControls.AddButton(Panel_Quit,8,100,180,30,'Quit',fnt_Metal);
     Button_Quit_No    := MyControls.AddButton(Panel_Quit,8,140,180,30,fTextLibrary.GetTextString(178),fnt_Metal);
     Button_Quit_Yes.Hint      := fTextLibrary.GetTextString(177);
     Button_Quit_No.Hint       := fTextLibrary.GetTextString(178);
@@ -908,7 +906,7 @@ begin
   begin
     CursorMode.Mode := cm_Units;
     CursorMode.Tag1 := byte(TKMButtonFlat(Sender).Tag);
-    //Label_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
+    Label_Units.Caption := TypeToString(TUnitType(byte(TKMButtonFlat(Sender).Tag)));
   end;
 
 end;

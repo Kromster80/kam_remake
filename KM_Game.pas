@@ -624,7 +624,11 @@ begin
                               end;
                     cm_Height:; //handled in UpdateStateIdle
                     cm_Objects: fTerrain.SetTree(P, CursorMode.Tag1);
-                    cm_Units: MyPlayer.AddUnit(TUnitType(CursorMode.Tag1),P);
+                    cm_Units: //todo: if fTerrain.CanPlaceUnit(P, TUnitType(CursorMode.Tag1)) then
+                              begin
+                                //Check if we can really add a unit
+                                MyPlayer.AddUnit(TUnitType(CursorMode.Tag1), P, false);
+                              end;
                     cm_Erase:
                               case fMapEditorInterface.GetShownPage of
                                 esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
