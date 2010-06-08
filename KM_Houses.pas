@@ -122,6 +122,7 @@ type
     procedure Save(SaveStream:TKMemoryStream); virtual;
 
     procedure IncAnimStep;
+    procedure UpdateResRequest;
     procedure UpdateState;
     procedure Paint; virtual;
   end;
@@ -859,17 +860,12 @@ begin
 end;
 
 
-procedure TKMHouse.UpdateState;
-var
-  i: byte;
+//@Krom: Should we only do this when they modify the distribution settings?
+//todo: sort this out for cases when distribution increases and decreases(!)
+//Request more resources (if distribution of wares has changed)
+procedure TKMHouse.UpdateResRequest;
+var i:byte;
 begin
-  if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
-
-  if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
-
-  //@Krom: This is probably quite inefficient for UpdateState. What's your opinion? Should we only do this when they modify the distribution settings?
-  //Request more resources (if distribution of wares has changed)
-  if not fIsDestroyed then
   for i:=1 to 4 do
     if not (HouseInput[byte(fHouseType),i] in [rt_All, rt_Warfare, rt_None]) then
     if fResourceDeliveryCount[i] < GetResDistribution(i) then
@@ -879,6 +875,17 @@ begin
 
       inc(fResourceDeliveryCount[i],GetResDistribution(i)-fResourceDeliveryCount[i]);
     end;
+end;
+
+
+procedure TKMHouse.UpdateState;
+begin
+  if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
+
+  if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
+
+  if not fIsDestroyed then
+    UpdateResRequest; //Request more resources (if distribution of wares has changed)
 
   //Show unoccupied message if needed and house belongs to human player and can have owner at all and not a barracks
   if (not fHasOwner) and (fOwner = MyPlayer.PlayerID) and (HouseDAT[byte(GetHouseType)].OwnerType<>-1) and (fHouseType <> ht_Barracks) then
