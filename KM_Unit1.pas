@@ -261,7 +261,6 @@ begin
     Form1.SetFocus;
   end;
   fGame.UpdateState;
-  Form1.Caption := inttostr(fGame.ScreenY);
 end;
 
 

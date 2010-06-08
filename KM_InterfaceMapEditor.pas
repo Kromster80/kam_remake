@@ -61,6 +61,11 @@ type TKMapEdInterface = class
         Button_SaveSave:TKMButton;
         Button_SaveCancel:TKMButton;
 
+      Panel_Load:TKMPanel;
+        FileList_Load:TKMFileList;
+        Button_LoadLoad:TKMButton;
+        Button_LoadCancel:TKMButton;
+
       Panel_Quit:TKMPanel;
         Button_Quit_Yes,Button_Quit_No:TKMButton;
 
@@ -104,6 +109,7 @@ type TKMapEdInterface = class
     procedure Create_Stats_Page;
     procedure Create_Menu_Page;
     procedure Create_Save_Page;
+    procedure Create_Load_Page;
     procedure Create_Quit_Page;
     procedure Create_Unit_Page;
     procedure Create_House_Page;
@@ -232,7 +238,10 @@ begin
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
   end else
 
-  if (Sender=Button_Main[5]) or (Sender=Button_Quit_No) or (Sender = Button_SaveCancel) then begin
+  if (Sender=Button_Main[5]) or
+     (Sender=Button_Quit_No) or
+     (Sender = Button_LoadCancel) or
+     (Sender = Button_SaveCancel) then begin
     Panel_Menu.Show;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(170);
   end else
@@ -245,6 +254,11 @@ begin
     TextEdit_SaveName.Text := fGame.GetGameName;
     Menu_Save(TextEdit_SaveName);
     Panel_Save.Show;
+  end;
+
+  if Sender = Button_Menu_Load then begin
+    FileList_Load.RefreshList(ExeDir+'Maps\', 'dat', true);
+    Panel_Load.Show;
   end;
 
   //Now process all other kinds of pages
@@ -327,7 +341,7 @@ begin
 
     MyControls.AddLabel(Panel_Main,8,200,100,30,'Player',fnt_Metal,kaLeft);
     for i:=1 to MAX_PLAYERS do begin
-      Button_PlayerSelect[i] := MyControls.AddButton(Panel_Main, 8 + (i-1)*23, 220, 21, 21, 70);
+      Button_PlayerSelect[i] := MyControls.AddButton(Panel_Main, 8 + (i-1)*23, 220, 21, 21, inttostr(i), fnt_Metal);
       Button_PlayerSelect[i].Tag := i;
     end;
 
@@ -362,6 +376,7 @@ begin
 
   Create_Menu_Page();
     Create_Save_Page();
+    Create_Load_Page();
     Create_Quit_Page();
 
   Create_Unit_Page();
@@ -595,7 +610,7 @@ begin
     Button_Menu_Save.OnClick:=SwitchPage;
     Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
     Button_Menu_Load:=MyControls.AddButton(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
-    Button_Menu_Load.OnClick:=Menu_Load;
+    Button_Menu_Load.OnClick:=SwitchPage;
     Button_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
     Button_Menu_Settings:=MyControls.AddButton(Panel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
     Button_Menu_Settings.Hint:=fTextLibrary.GetTextString(179);
@@ -603,7 +618,6 @@ begin
     Button_Menu_Quit:=MyControls.AddButton(Panel_Menu,8,180,180,30,fTextLibrary.GetTextString(180),fnt_Metal);
     Button_Menu_Quit.Hint:=fTextLibrary.GetTextString(180);
     Button_Menu_Quit.OnClick:=SwitchPage;
-    Button_Menu_Load.Disable;
 end;
 
 
@@ -620,7 +634,20 @@ begin
     TextEdit_SaveName.OnChange  := Menu_Save;
     CheckBox_SaveExists.OnClick := Menu_Save;
     Button_SaveSave.OnClick     := Menu_Save;
-    Button_SaveCancel.OnClick   := Menu_Save;
+    Button_SaveCancel.OnClick   := SwitchPage;
+end;
+
+
+{Load page}
+procedure TKMapEdInterface.Create_Load_Page;
+begin
+  Panel_Load := MyControls.AddPanel(Panel_Main,0,412,196,400);
+    MyControls.AddLabel(Panel_Load, 16, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
+    FileList_Load := MyControls.AddFileList(Panel_Load, 8, 20, 200, 200);
+    Button_LoadLoad     := MyControls.AddButton(Panel_Load,8,240,180,30,'Load',fnt_Metal);
+    Button_LoadCancel   := MyControls.AddButton(Panel_Load,8,280,180,30,'Cancel',fnt_Metal);
+    Button_LoadLoad.OnClick     := Menu_Load;
+    Button_LoadCancel.OnClick   := SwitchPage;
 end;
 
 
@@ -1012,25 +1039,13 @@ begin
     fGame.SaveMapEditor(TextEdit_SaveName.Text, true);
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;
-
-  if Sender = Button_SaveCancel then begin
-    SwitchPage(Button_SaveCancel);
-  end;
 end;
 
 
 {Show mission loading dialogue}
 procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
-  //@Lewin:
-  //We have 3 options here:
-  // 1. Use VCL FileOpen dialogue
-  // 2. Write our own file selection control
-  // 3. Use SingleMap folder scanning technique and list only those maps that are in Maps folder
-  // I prefer no.1
-  //@Krom: That sounds ok, most map editors for games use windows style controls so there's no point
-  //       in making our own control.
-  //@Lewin: Lil update, I prefer 1. until we implement 3. ;)
+  fGame.StartMapEditor(FileList_Load.FileName, 0, 0);
 end;
 
 

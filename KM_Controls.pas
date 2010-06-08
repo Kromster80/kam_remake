@@ -348,6 +348,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
   public
     constructor Create;
     destructor Destroy; override;
+
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddBevel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
     function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
@@ -367,6 +368,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     function AddFileList        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
+
     property GetFocusedControl:TKMControl read fFocusedControl;
     function KeyUp              (Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
     function MouseOverControl   ():TKMControl;
@@ -1315,7 +1317,7 @@ begin
     fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width, ItemHeight, $88888888);
 
   for i:=0 to min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
-    fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, fPaths.Strings[TopIndex+i]+fFiles.Strings[TopIndex+i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
+    fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, TruncateExt(fFiles.Strings[TopIndex+i]) , fnt_Metal, kaLeft, false, $FFFFFFFF);
 
   fRenderUI.WriteText(Left+8, Top+Height+4, Width, FileName, fnt_Grey, kaLeft, false, $FFFFFFFF);
 end;
