@@ -1824,11 +1824,11 @@ function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TP
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y); //Make sure it is inside map, roads can be built on edge
   case aMarkup of
-    mu_RoadPlan:  Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
+    mu_RoadPlan:  Result := Result AND (canMakeRoads  in Land[Loc.Y,Loc.X].Passability);
     mu_FieldPlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
     mu_WinePlan:  Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
-    mu_WallPlan:  Result := Result AND (canMakeRoads in Land[Loc.Y,Loc.X].Passability);
-    else Result:=false;
+    mu_WallPlan:  Result := Result AND (canMakeRoads  in Land[Loc.Y,Loc.X].Passability);
+    else          Result := false;
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
   if PlayerRevealID <> play_none then

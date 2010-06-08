@@ -335,6 +335,7 @@ begin
                     Screen.Cursor := c_Info //@Lewin: Should be something else, any ideas?
                   else
                     Screen.Cursor := c_Default;
+                  fMainMenuInterface.MouseMove(X,Y);
                 end;
     gsPaused:   exit;
     gsOnHold:   begin

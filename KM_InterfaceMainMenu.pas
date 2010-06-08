@@ -10,7 +10,10 @@ type TKMMainMenuInterface = class
   private
     ScreenX,ScreenY:word;
     OffX,OffY:integer;
+
     Campaign_Selected:TCampaign;
+    Campaign_Mission_Choice:integer;
+
     SingleMap_Top:integer; //Top map in list
     SingleMap_Selected:integer; //Selected map
     SingleMapsInfo:TKMMapsInfo;
@@ -47,8 +50,7 @@ type TKMMainMenuInterface = class
       Panel_CampScroll:TKMPanel;
         Image_ScrollTop,Image_Scroll:TKMImage;
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
-        Label_CampaignStart:TKMLabel; //A button ;)
-      Button_CampaignBack:TKMButton;
+      Button_CampaignStart,Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
       Image_SingleBG:TKMImage;
       Panel_SingleList,Panel_SingleDesc:TKMPanel;
@@ -153,6 +155,7 @@ type TKMMainMenuInterface = class
     procedure ShowScreen_Results(Msg:gr_Message);
     procedure Fill_Results();
   public
+    procedure MouseMove(X,Y:integer);
     procedure UpdateState;
     procedure Paint;
 end;
@@ -174,6 +177,7 @@ inherited Create;
   ScreenY := min(Y,MENU_DESIGN_Y);
   OffX := (X-MENU_DESIGN_X) div 2;
   OffY := (Y-MENU_DESIGN_Y) div 2;
+  Campaign_Mission_Choice := 1;
   SingleMap_Top := 1;
   SingleMap_Selected := 1;
   MapEdSizeX := 64;
@@ -359,13 +363,14 @@ begin
   Panel_CampScroll:=MyControls.AddPanel(Panel_Campaign,ScreenX-360,ScreenY-397,360,397);
 
     Image_Scroll := MyControls.AddImage(Panel_CampScroll, 0, 0,360,397,{15}2,6);
+    Image_Scroll.Stretch;
     Label_CampaignTitle := MyControls.AddLabel(Panel_CampScroll, 170, 18,100,20, '', fnt_Outline, kaCenter);
 
     Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 15, 65, 320, 310, '', fnt_Briefing, kaLeft);
     Label_CampaignText.AutoWrap := true;
 
-    Label_CampaignStart := MyControls.AddLabel(Panel_CampScroll, 330, 370, 100, 20, fTextLibrary.GetSetupString(17), fnt_Briefing, kaRight);
-    Label_CampaignStart.OnClick := Campaign_StartMap;
+  Button_CampaignStart := MyControls.AddButton(Panel_Campaign, ScreenX-220-20, ScreenY-50, 220, 30, 'Start mission', fnt_Metal, bsMenu);
+  Button_CampaignStart.OnClick := Campaign_StartMap;
 
   Button_CampaignBack := MyControls.AddButton(Panel_Campaign, 20, ScreenY-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
   Button_CampaignBack.OnClick := SwitchMenuPage;
@@ -813,10 +818,10 @@ begin
               end;
   end;
 
-  //todo: Place intermediate nodes
+  //todo: Place intermediate nodes between previous and selected mission nodes
 
-  //Select map to play
-  Campaign_SelectMap(Campaign_Nodes[Revealed])
+  //Select last map to play by 'clicking' last node
+  Campaign_SelectMap(Campaign_Nodes[Revealed]);
 end;
 
 
@@ -838,21 +843,21 @@ begin
   Label_CampaignTitle.Caption := 'Mission '+inttostr(TKMImage(Sender).Tag);
 
   Label_CampaignText.Caption := fGame.fCampaignSettings.GetMapText(Campaign_Selected, TKMImage(Sender).Tag);
-  Label_CampaignStart.Tag := TKMImage(Sender).Tag;
+  Campaign_Mission_Choice := TKMImage(Sender).Tag;
 end;
 
 
 procedure TKMMainMenuInterface.Campaign_StartMap(Sender: TObject);
 begin
-  fLog.AssertToLog(Sender=Label_CampaignStart,'not Label_CampaignStart');
+  fLog.AssertToLog(Sender=Button_CampaignStart,'not Button_CampaignStart');
   if Campaign_Selected = cmp_TSK then
     fGame.StartGame(
-    ExeDir+'Data\mission\mission'+inttostr(Label_CampaignStart.Tag)+'.dat',
-    'TSK mission '+inttostr(Label_CampaignStart.Tag), Campaign_Selected, Label_CampaignStart.Tag);
+    ExeDir+'Data\mission\mission'+inttostr(Campaign_Mission_Choice)+'.dat',
+    'TSK mission '+inttostr(Campaign_Mission_Choice), Campaign_Selected, Campaign_Mission_Choice);
   if Campaign_Selected = cmp_TPR then
     fGame.StartGame(
-    ExeDir+'Data\mission\dmission'+inttostr(Label_CampaignStart.Tag)+'.dat',
-    'TPR mission '+inttostr(Label_CampaignStart.Tag), Campaign_Selected, Label_CampaignStart.Tag);
+    ExeDir+'Data\mission\dmission'+inttostr(Campaign_Mission_Choice)+'.dat',
+    'TPR mission '+inttostr(Campaign_Mission_Choice), Campaign_Selected, Campaign_Mission_Choice);
 end;
 
 
@@ -1037,6 +1042,22 @@ begin
   //Make button enabled only if new resolution/mode differs from old
   Button_Options_ResApply.Enabled := (OldFullScreen <> fGame.fGlobalSettings.IsFullScreen) or (OldResolution <> fGame.fGlobalSettings.GetResolutionID);
 
+end;
+
+
+//Do something related to mouse movement in menu
+procedure TKMMainMenuInterface.MouseMove(X,Y:integer);
+begin
+  if Panel_Campaign.Visible then begin
+    if X < ScreenX / 2 then
+      Panel_CampScroll.Left := ScreenX - Panel_CampScroll.Width
+    else
+      Panel_CampScroll.Left := 0;
+    if Y < ScreenY / 2 then
+      Panel_CampScroll.Top := ScreenY - Panel_CampScroll.Height
+    else
+      Panel_CampScroll.Top := 0;
+  end;
 end;
 
 
