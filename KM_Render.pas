@@ -1225,7 +1225,7 @@ case CursorMode.Mode of
                       or
                       ( //With Units tab see if there's a unit below cursor
                         (fGame.fMapEditorInterface.GetShownPage = esp_Units)
-                        and CanRemoveUnit(CursorPos,MyPlayer.PlayerID)
+                        and CanRemoveUnit(CursorPos, MyPlayer.PlayerID)
                       )
                     )
                  //And ofcourse it it's visible
@@ -1257,7 +1257,9 @@ case CursorMode.Mode of
   cm_Houses: RenderCursorWireHousePlan(CursorPos, THouseType(CursorMode.Tag1)); //Cyan quad
   cm_Tiles:  RenderTile(CursorMode.Tag1, CursorPos.X, CursorPos.Y, CursorMode.Tag2);
   cm_Objects:RenderObject(CursorMode.Tag1+1, 0, CursorPos.X, CursorPos.Y, true);
-  cm_Units:  RenderCursorWireQuad(CursorPos, $FFFFFF00) //todo: render unit graphics here?
+  cm_Units:  if CanPlaceUnit(CursorPos, TUnitType(CursorMode.Tag1)) then
+               RenderCursorWireQuad(CursorPos, $FFFFFF00) //todo: render unit graphics here?
+             else RenderCursorBuildIcon(CursorPos);       //Red X
 end;
 end;
 

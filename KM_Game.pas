@@ -624,7 +624,7 @@ begin
                               end;
                     cm_Height:; //handled in UpdateStateIdle
                     cm_Objects: fTerrain.SetTree(P, CursorMode.Tag1);
-                    cm_Units: //todo: if fTerrain.CanPlaceUnit(P, TUnitType(CursorMode.Tag1)) then
+                    cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(CursorMode.Tag1)) then
                               begin
                                 //Check if we can really add a unit
                                 MyPlayer.AddUnit(TUnitType(CursorMode.Tag1), P, false);
@@ -810,6 +810,8 @@ procedure TKMGame.StartMapEditor(aMissionPath:string; aSizeX:integer=64; aSizeY:
 var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
 begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
+
+  StopGame(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
 
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission

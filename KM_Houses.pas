@@ -251,7 +251,8 @@ begin
   fDamage           := 0; //Undamaged yet
 
   fHasOwner         := false;
-  fBuildingRepair   := false; //Repair mode off by default
+  //Initially repair is [off]. But for PC it's controlled by a command in DAT script
+  fBuildingRepair   := (fPlayers.Player[byte(fOwner)].PlayerType = pt_Computer) and (fPlayers.PlayerAI[byte(fOwner)].GetHouseRepair);
   DoorwayUse        := 0;
   fRepairID         := 0;
   fWareDelivery     := true;
@@ -511,12 +512,13 @@ begin
   Result := HouseDAT[byte(fHouseType)].WoodCost*50 + HouseDAT[byte(fHouseType)].StoneCost*50;
 end;
 
-{Add damage to the house}
+
+{Add damage to the house, positive number}
 procedure TKMHouse.AddDamage(aAmount:word);
 begin
   fDamage := Math.min(fDamage + aAmount, GetMaxHealth);
-  if (BuildingRepair)and(fRepairID=0) then
-    fRepairID:=fPlayers.Player[integer(fOwner)].BuildList.AddHouseRepair(Self);
+  if BuildingRepair and (fRepairID = 0) then
+    fRepairID := fPlayers.Player[byte(fOwner)].BuildList.AddHouseRepair(Self);
   UpdateDamage();
 end;
 
@@ -858,19 +860,12 @@ end;
 
 
 procedure TKMHouse.UpdateState;
-var i: byte; PrevRepairMode: boolean;
+var
+  i: byte;
 begin
   if fBuildState<>hbs_Done then exit; //Don't update unbuilt houses
 
   if (GetHealth=0)and(fBuildState>=hbs_Wood) then DemolishHouse(false);
-
-  //For AI, individual house switch does matter, there is a master switch
-  if (fPlayers.Player[integer(fOwner)].PlayerType = pt_Computer) then
-  begin
-    PrevRepairMode := fBuildingRepair;
-    fBuildingRepair := fPlayers.PlayerAI[integer(fOwner)].GetHouseRepair;
-    if PrevRepairMode <> fBuildingRepair then AddDamage(0); //So repair job is requested
-  end;
 
   //@Krom: This is probably quite inefficient for UpdateState. What's your opinion? Should we only do this when they modify the distribution settings?
   //Request more resources (if distribution of wares has changed)
@@ -1433,31 +1428,31 @@ end;
 procedure THouseAction.SubActionWork(aActionSet: THouseActionType);
 begin
   SubActionRem([ha_Work1..ha_Work5]); //Remove all work
-  fSubAction:= fSubAction + [aActionSet];
-  if fHouse.fHouseType <> ht_Mill then fHouse.WorkAnimStep:=0; //Exception for mill so that the windmill doesn't jump frames
+  fSubAction := fSubAction + [aActionSet];
+  if fHouse.fHouseType <> ht_Mill then fHouse.WorkAnimStep := 0; //Exception for mill so that the windmill doesn't jump frames
 end;
 
 
 function THouseAction.GetWorkID():byte;
 begin
-  if ha_Work1 in fSubAction then Result:=1 else
-  if ha_Work2 in fSubAction then Result:=2 else
-  if ha_Work3 in fSubAction then Result:=3 else
-  if ha_Work4 in fSubAction then Result:=4 else
-  if ha_Work5 in fSubAction then Result:=5 else
-    Result:=0;
+  if ha_Work1 in fSubAction then Result := 1 else
+  if ha_Work2 in fSubAction then Result := 2 else
+  if ha_Work3 in fSubAction then Result := 3 else
+  if ha_Work4 in fSubAction then Result := 4 else
+  if ha_Work5 in fSubAction then Result := 5 else
+    Result := 0;
 end;
 
 
 procedure THouseAction.SubActionAdd(aActionSet: THouseActionSet);
 begin
-  fSubAction:= fSubAction + aActionSet;
+  fSubAction := fSubAction + aActionSet;
 end;
 
 
 procedure THouseAction.SubActionRem(aActionSet: THouseActionSet);
 begin
-  fSubAction:= fSubAction - aActionSet;
+  fSubAction := fSubAction - aActionSet;
 end;
 
 

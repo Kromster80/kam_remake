@@ -395,7 +395,7 @@ begin
   Visible   := true;
   Tag       := 0;
   Hint      := '';
-  Scale     := 1;
+  Scale     := CONTROLS_SCALE;
 end;
 
 
@@ -1511,7 +1511,7 @@ var i:integer;
 begin
   Result:=nil;
 
-  for i:=Count-1 downto 1 do //This will return last created cursor
+  for i:=Count-1 downto 1 do //This will return last created control
     if not (Controls[I] is TKMPanel) then //Do not check Panels
       if Controls[I].IsVisible then
           if Controls[I].CursorOver then begin

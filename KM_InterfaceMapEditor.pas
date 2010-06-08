@@ -119,6 +119,7 @@ type TKMapEdInterface = class
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
     procedure Minimap_Update(Sender: TObject);
+    procedure Global_PlayerSelect(Sender: TObject);
     procedure TerrainHeight_Change(Sender: TObject);
     procedure TerrainTiles_Change(Sender: TObject);
     procedure TerrainObjects_Change(Sender: TObject);
@@ -258,6 +259,8 @@ begin
 
   if Sender = Button_Menu_Load then begin
     FileList_Load.RefreshList(ExeDir+'Maps\', 'dat', true);
+    if FileList_Load.fFiles.Count > 0 then
+      FileList_Load.ItemIndex := 0; //Select first map by default
     Panel_Load.Show;
   end;
 
@@ -341,8 +344,9 @@ begin
 
     MyControls.AddLabel(Panel_Main,8,200,100,30,'Player',fnt_Metal,kaLeft);
     for i:=1 to MAX_PLAYERS do begin
-      Button_PlayerSelect[i] := MyControls.AddButton(Panel_Main, 8 + (i-1)*23, 220, 21, 21, inttostr(i), fnt_Metal);
-      Button_PlayerSelect[i].Tag := i;
+      Button_PlayerSelect[i]         := MyControls.AddButton(Panel_Main, 8 + (i-1)*23, 220, 21, 21, inttostr(i), fnt_Metal);
+      Button_PlayerSelect[i].Tag     := i;
+      Button_PlayerSelect[i].OnClick := Global_PlayerSelect;
     end;
 
     KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
@@ -783,6 +787,14 @@ begin
   Minimap_Update(nil);
 
   if Panel_Stats.Visible then Stats_Fill(nil);
+end;
+
+
+
+procedure TKMapEdInterface.Global_PlayerSelect(Sender: TObject);
+begin
+  if fPlayers.Player[TKMControl(Sender).Tag] <> nil then
+    MyPlayer := fPlayers.Player[TKMControl(Sender).Tag];
 end;
 
 

@@ -81,6 +81,7 @@ public
   procedure IncDigState(Loc:TKMPoint);
   procedure ResetDigState(Loc:TKMPoint);
 
+  function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
   function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
   function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
@@ -1756,6 +1757,23 @@ begin
 
   if aHouseType=ht_None then
     Land[Loc.Y,Loc.X].TileOwner:=aOwner;
+end;
+
+
+{Check if Unit can be placed here}
+function TTerrain.CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
+var DesiredPass:TPassability;
+begin
+  Result := true;
+  Result := Result and (Land[Loc.Y, Loc.X].IsUnit = 0); //Check for no unit below
+
+  case aUnitType of
+    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: DesiredPass := canWalkRoad; //Citizens except Worker
+    ut_Wolf..ut_Duck:                              DesiredPass := AnimalTerrain[byte(aUnitType)] //Animals
+    else                                           DesiredPass := canWalk; //Worker, Warriors
+  end;
+
+  Result := Result and (DesiredPass in Land[Loc.Y, Loc.X].Passability);
 end;
 
 

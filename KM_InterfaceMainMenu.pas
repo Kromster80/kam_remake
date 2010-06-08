@@ -491,7 +491,6 @@ begin
     Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 512+10, 200, 320, 300);
     MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
     FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 320, 200);
-    FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true);
 
     Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 145, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MapEdBack.OnClick := SwitchMenuPage;
@@ -723,6 +722,7 @@ begin
 
   {Show MapEditor menu}
   if Sender=Button_MainMenuMapEd then begin
+    FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
     if FileList_MapEd.fFiles.Count > 0 then
       FileList_MapEd.ItemIndex := 0; //Select first map by default
     MapEditor_Change(nil);

@@ -23,6 +23,7 @@ const
   SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
+  CONTROLS_SCALE        = 1;            //Scale controls to this size, highly experimantal and imperfect
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
   GAME_VERSION          = 'Economy Demo FightSim r822';       //Game version string displayed in menu corner
@@ -122,8 +123,8 @@ const
 
   //X/Y locations of battlefields on campaign map in menu
   TSK_Campaign_Maps: array [1..TSK_MAPS,1..2] of word = ( //todo: set real locations here
-  (170,670),(160,455),(320,595),(442,625),(395,525),(350,420),(95,345),(145,185),(550,520),(0,0),
-  (0,0),(305,290),(380,270),(475,285),(580,290),(820,180),(695,150),(590, 45),(720, 80),(820, 50));
+  (170,670),(160,455),(320,595),(442,625),(395,525),(350,420),( 95,345),(145,185),(550,520),(735,510),
+  (885,550),(305,290),(380,270),(475,285),(580,290),(820,180),(695,150),(590, 45),(720, 80),(820, 50));
   TPR_Campaign_Maps: array [1..TPR_MAPS,1..2] of word = (
   (0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),
   (0,0),(0,0),(0,0),(0,0));
