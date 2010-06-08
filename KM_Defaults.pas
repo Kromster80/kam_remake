@@ -178,7 +178,7 @@ const
   ('eng', 'English'),
   ('ger', 'German'),
   ('pol', 'Polish'),
-  ('svk', 'Slovak'),
+  ('svk', 'Slovak'), //New one
   ('hun', 'Hungarian'),
   ('dut', 'Dutch'),
   ('rus', 'Russian'));
@@ -263,7 +263,7 @@ type
     rt_Axe       =21, rt_Sword      =22, rt_Pike       =23, rt_Hallebard   =24,
     rt_Bow       =25, rt_Arbalet    =26, rt_Horse      =27, rt_Fish        =28);
 
-const //Using shortints make it look much more compact in code-view
+const //Using shortints instead of bools makes it look much neater in code-view
   CheatStorePattern:array[1..28]of shortint = (
   0,0,1,0,0,
   0,1,0,1,0,
@@ -311,6 +311,7 @@ const PassabilityStr:array[0..15] of string = (
     'canWalkAvoid',
     'canWorker'     //Like canWalk but allows walking on building sites
   );
+  //todo: needs revising for canAll-canWalkAvoid-canWorker items
 
 {Units}
 type
