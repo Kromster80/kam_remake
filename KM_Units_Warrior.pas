@@ -596,7 +596,7 @@ begin
 
   //Attack House works like this: All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.)
 
-  fOrder := aWarriorOrder; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
+  fOrder := aWarriorOrder;
   fState := ws_None; //Clear other states
   SetOrderHouseTarget(aTargetHouse);
 
@@ -751,7 +751,10 @@ end;
 function TKMUnitWarrior.UpdateState():boolean;
   function CheckCanAbandon: boolean;
   begin
-    if GetUnitTask   is TTaskAttackHouse       then Result := false else //Never interupt attacking a house. //todo: Interupt when we (our group) attacked
+    if GetUnitTask   is TTaskAttackHouse       then Result := false else
+    //Never interupt attacking a house.
+    //@Lewin: We should be able to interrupt house attack
+    //todo: Interupt when we (our group) attacked, or recieved a new order
     if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
     if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
     if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway

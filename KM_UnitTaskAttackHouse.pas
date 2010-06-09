@@ -31,14 +31,17 @@ uses KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo, KM_Terrain;
 constructor TTaskAttackHouse.Create(aWarrior: TKMUnit; aHouse:TKMHouse);
 begin
   Inherited Create(aWarrior);
-  if aHouse <> nil then fHouse := aHouse.GetSelf;
 
-  LocID := 0;
-  //Pass pre-made list to make sure we Free it in the same unit
-  Cells := TKMPointDirList.Create;
+  if aHouse=nil then begin //This is unacceptable
+    fLog.AssertToLog(aHouse<>nil, 'Trying to attack NIL house?');
+    exit;
+  end;
+
+  fHouse := aHouse.GetSelf;
+  LocID  := 0;
+  Cells  := TKMPointDirList.Create; //Pass pre-made list to make sure we Free it in the same unit
   fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability);
-
-  fUnit.SetActionLockedStay(0,ua_Walk);
+  fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 
@@ -78,8 +81,11 @@ function TTaskAttackHouse.PosUsed(aPos: TKMPoint):boolean;
 var HitUnit: TKMUnit;
 begin
   HitUnit := fPlayers.UnitsHitTest(aPos.X,aPos.Y);
-  Result := (HitUnit <> nil) and (HitUnit.GetUnitTask is TTaskAttackHouse) and
-    (KMSamePoint(TTaskAttackHouse(HitUnit.GetUnitTask).Cells.List[TTaskAttackHouse(HitUnit.GetUnitTask).LocID].Loc,aPos));
+  Result :=
+    (HitUnit <> nil)and //Unit below
+    (HitUnit.GetUnitTask is TTaskAttackHouse)and //Attacking the same house
+    (TTaskAttackHouse(HitUnit.GetUnitTask).LocID <> 0)and //Attack is in progress
+    (KMSamePoint(TTaskAttackHouse(HitUnit.GetUnitTask).Cells.List[TTaskAttackHouse(HitUnit.GetUnitTask).LocID].Loc,aPos)); //Attacks from the same spot that we want to use
 end;
 
 
@@ -104,29 +110,33 @@ end;
 
 
 procedure TTaskAttackHouse.Execute(out TaskDone:boolean);
-  function PickRandomSpot(): byte;
-  var i, MyCount: integer; Spots: array[1..16] of byte;
-  begin
-    MyCount := 0;
-    for i:=1 to Cells.Count do
-    if fTerrain.TileInMapCoords(Cells.List[i].Loc.X,Cells.List[i].Loc.Y) and (not PosUsed(Cells.List[i].Loc)) then //Is someone else is using it
-    if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc ,fUnit.GetDesiredPassability, true) then
+
+    function PickRandomSpot(): byte;
+    var i, MyCount: integer; Spots: array[1..16] of byte;
     begin
-      inc(MyCount);
-      Spots[MyCount] := i;
-      //ALWAYS choose our current location if it is available to save walking
-      if KMSamePoint(Cells.List[i].Loc,fUnit.GetPosition) then
+      MyCount := 0;
+      for i:=1 to Cells.Count do
+      if fTerrain.TileInMapCoords(Cells.List[i].Loc.X,Cells.List[i].Loc.Y) and (not PosUsed(Cells.List[i].Loc)) then //Is someone else is using it
+      if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc ,fUnit.GetDesiredPassability, true) then
       begin
-        Result := i;
-        exit;
+        inc(MyCount);
+        Spots[MyCount] := i;
+        //ALWAYS choose our current location if it is available to save walking
+        if KMSamePoint(Cells.List[i].Loc,fUnit.GetPosition) then
+        begin
+          Result := i;
+          exit;
+        end;
       end;
+      if MyCount > 0 then
+        Result := Spots[Random(MyCount)+1]
+      else
+        Result := 0;
     end;
-    if MyCount > 0 then
-      Result := Spots[Random(MyCount)+1]
-    else Result := 0;
-  end;
+
 begin
-  TaskDone:=false;
+  TaskDone := false;
+
   //If the house is destroyed drop the task
   if fHouse.IsDestroyed then
   begin
@@ -144,14 +154,14 @@ begin
        begin
          //All cells are taken/inaccessable
          Abandon;
-         TaskDone:=true; //Drop the task
+         TaskDone := true; //Drop the task
          exit;
        end;
        SetActionWalk(fUnit,Cells.List[LocID].Loc);
      end;
   1: begin
        SetActionLockedStay(6,ua_Work,false,0,0); //Start animation
-       Direction:=TKMDirection(Cells.List[LocID].Dir); //Face target
+       Direction := TKMDirection(Cells.List[LocID].Dir); //Face target
      end;
   2: begin
        SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack

@@ -20,7 +20,7 @@ type
     SelectingDirPosition: TPoint;
     SelectedDirection: TKMDirection;
     GameplayTickCount:cardinal; //So that first tick will be #1
-    ID_Tracker:cardinal;
+    ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     ActiveCampaign:TCampaign; //Campaign we are playing
     ActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
   public
