@@ -702,7 +702,7 @@ begin
   if CheckFileExists(aMissionFile,true) then
   begin
     //todo: Use exception trapping and raising system here similar to that used for load
-    fMissionParser := TMissionParser.Create;
+    fMissionParser := TMissionParser.Create(mpm_Game);
     ResultMsg := fMissionParser.LoadDATFile(aMissionFile);
     FreeAndNil(fMissionParser);
     if ResultMsg<>'' then begin
@@ -836,8 +836,8 @@ begin
   fTerrain := TTerrain.Create;
 
   fLog.AppendLog('Loading DAT...');
-  if CheckFileExists(aMissionPath,true) then begin
-    fMissionParser := TMissionParser.Create;
+  if FileExists(aMissionPath) then begin
+    fMissionParser := TMissionParser.Create(mpm_Editor);
     ResultMsg := fMissionParser.LoadDATFile(aMissionPath);
     if ResultMsg<>'' then begin
       StopGame(gr_Error, ResultMsg);
@@ -883,7 +883,7 @@ begin
     CreateDir(ExeDir+'Maps');
     CreateDir(ExeDir+'Maps\'+aMissionName);
     fTerrain.SaveToMapFile(KMRemakeMapPath(aMissionName, 'map'));
-    fMissionParser := TMissionParser.Create;
+    fMissionParser := TMissionParser.Create(mpm_Editor);
     fMissionParser.SaveDATFile(KMRemakeMapPath(aMissionName, 'dat'));
     FreeAndNil(fMissionParser);
   end else

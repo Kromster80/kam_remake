@@ -5,6 +5,8 @@ uses
   KM_Houses, KM_Units, KM_Units_Warrior;
 
 type
+  TMissionParserMode = (mpm_Game, mpm_Editor);
+
   TKMCommandType = (ct_Unknown=0,ct_SetMap,ct_SetMaxPlayer,ct_SetCurrPlayer,ct_SetHumanPlayer,ct_SetHouse,
                     ct_SetTactic,ct_AIPlayer,ct_EnablePlayer,ct_SetNewRemap,ct_SetMapColor,ct_CenterScreen,
                     ct_ClearUp,ct_BlockHouse,ct_ReleaseHouse,ct_ReleaseAllHouses,ct_AddGoal,ct_AddLostGoal,
@@ -62,6 +64,7 @@ const
 type
   TMissionParser = class(TObject)
   private     { Private declarations }
+    fParserMode:TMissionParserMode; //Data gets sent to Game differently depending on Game/Editor mode
     ErrorMessage:string; //Should be blank
     OpenedMissionName:string;
     CurrentPlayerIndex: integer;
@@ -74,7 +77,7 @@ type
     procedure UnloadMission;
     function ReadMissionFile(aFileName:string):string;
   public      { Public declarations }
-    constructor Create;
+    constructor Create(aMode:TMissionParserMode);
     function LoadDATFile(aFileName:string):string;
     function SaveDATFile(aFileName:string):boolean;
     function GetMissionDetails(aFileName:string):TKMMissionDetails;
@@ -129,9 +132,10 @@ begin
 end;
 
 
-constructor TMissionParser.Create;
+constructor TMissionParser.Create(aMode:TMissionParserMode);
 begin
   inherited Create;
+  fParserMode := aMode;
   ErrorMessage:='';
 end;
 
@@ -492,7 +496,13 @@ begin
                                                            //cos atm there are too many places where values input by hand
                                                            //and if we to add e.g. new unit we'll need to fix all those manualy
                          LastTroop := TKMUnitWarrior(fPlayers.Player[CurrentPlayerIndex].AddGroup(
-                         TroopsRemap[ParamList[0]],KMPointX1Y1(ParamList[1],ParamList[2]),TKMDirection(ParamList[3]+1),ParamList[4],ParamList[5]));
+                           TroopsRemap[ParamList[0]],
+                           KMPointX1Y1(ParamList[1],ParamList[2]),
+                           TKMDirection(ParamList[3]+1),
+                           ParamList[4],
+                           ParamList[5],
+                           fParserMode=mpm_Editor //Editor mode = true
+                           ));
                      end;
   ct_SendGroup:      begin
                        if LastTroop <> nil then
@@ -842,7 +852,7 @@ begin
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
 
-  fMissionParser := TMissionParser.Create;
+  fMissionParser := TMissionParser.Create(mpm_Game);
 
   for k:=1 to 1 do
   for i:=1 to MapCount do with Maps[i] do begin

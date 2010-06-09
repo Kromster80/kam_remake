@@ -253,7 +253,7 @@ type
   public
     destructor Destroy; override;
     function Add(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; AutoPlace:boolean=true):TKMUnit;
-    function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
+    function AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     procedure RemoveUnit(aUnit:TKMUnit);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
@@ -2006,7 +2006,7 @@ begin
 end;
 
 
-function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
+function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 var U:TKMUnit; Commander,W:TKMUnitWarrior; i,px,py:integer; UnitPosition:TKMPoint;
 begin
   aUnitPerRow := min(aUnitPerRow,aUnitCount); //Can have more rows than units
@@ -2037,6 +2037,13 @@ begin
 
   Commander.Direction := aDir;
   Commander.GetOrderLoc := KMPointDir(Commander.GetOrderLoc.Loc,byte(aDir)-1); //So when they click Halt for the first time it knows where to place them
+
+  //In MapEditor we need only fMapEdMembersCount property, without actual members
+  if aMapEditor then begin
+    Commander.fMapEdMembersCount := aUnitCount-1; //Skip commander
+    Commander.UnitsPerRow := aUnitPerRow; //Must be set at the end AFTER adding members
+    exit;
+  end;
 
   for i:=1 to aUnitCount do begin
     px := (i-1) mod aUnitPerRow - aUnitPerRow div 2;

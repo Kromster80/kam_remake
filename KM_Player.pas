@@ -25,7 +25,7 @@ type
     PlayerType: TPlayerType; //Is it Human or AI or Animals
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
-    function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
+    function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint; DoFlatten:boolean=true);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
@@ -146,9 +146,9 @@ begin
 end;
 
 
-function TKMPlayerAssets.AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word):TKMUnit;
+function TKMPlayerAssets.AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 begin
-  Result := fUnits.AddGroup(PlayerID, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount);
+  Result := fUnits.AddGroup(PlayerID, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
   //Add unit to statistic inside the function for some units may not fit on map
 end;
 
