@@ -67,6 +67,17 @@ type
       procedure Execute(out TaskDone:boolean); override;
     end;
 
+    TTaskThrowRock = class(TUnitTask)
+    private
+      fTarget:TKMUnit;
+    public
+      constructor Create(aUnit,aTarget:TKMUnit);
+      constructor Load(LoadStream:TKMemoryStream); override;
+      procedure SyncLoad(); override;
+      procedure Execute(out TaskDone:boolean); override;
+      procedure Save(SaveStream:TKMemoryStream); override;
+    end;
+
     TTaskGoEat = class(TUnitTask)
     private
       fInn:TKMHouseInn;
@@ -175,7 +186,7 @@ type
     procedure RemoveUntrainedFromSchool();
     function CanGoEat:boolean;
     //property IsAtHome: boolean read UnitAtHome;
-    function GetPosition():TKMPoint;
+    function GetPosition:TKMPoint;
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
   protected
@@ -200,6 +211,19 @@ type
     destructor Destroy; override;
     function FindHome():boolean;
     function InitiateMining():TUnitTask;
+    procedure Save(SaveStream:TKMemoryStream); override;
+    function UpdateState():boolean; override;
+    procedure Paint(); override;
+  end;
+
+
+  TKMUnitRecruit = class(TKMUnit)
+  public
+    constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+    constructor Load(LoadStream:TKMemoryStream); override;
+    destructor Destroy; override;
+    function FindHome():boolean;
+    function InitiateActivity():TUnitTask;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -390,7 +414,7 @@ begin
     fHome.RemovePointer;
     fHome := nil;
   end;
-    
+
 
   if fCondition<UNIT_MIN_CONDITION then
   begin
@@ -495,6 +519,179 @@ begin
       fHome.ResRemOrder(Res);
     Result := TTaskMining.Create(WorkPlan,Self);
   end;
+end;
+
+
+{ TKMUnitRecruit }
+constructor TKMUnitRecruit.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
+begin
+  Inherited;
+  //Nothing
+end;
+
+
+constructor TKMUnitRecruit.Load(LoadStream:TKMemoryStream);
+var HasPlan:boolean;
+begin
+  Inherited;
+  //Nothing means nothing
+end;
+
+
+destructor TKMUnitRecruit.Destroy;
+begin
+  //Nothing-nothing
+  Inherited;
+end;
+
+
+function TKMUnitRecruit.FindHome():boolean;
+var KMHouse:TKMHouse;
+begin
+  Result  := false;
+  KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
+  if KMHouse<>nil then begin
+    fHome  := KMHouse.GetSelf;
+    Result := true;
+  end;
+end;
+
+
+procedure TKMUnitRecruit.Paint();
+var UnitType:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+begin
+  inherited;
+  if not fVisible then exit;
+  UnitType:=byte(fUnitType);
+  AnimAct:=byte(fCurrentAction.fActionType);
+  AnimDir:=byte(Direction);
+
+  XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
+  YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
+
+  if SHOW_UNIT_ROUTES then
+    if fCurrentAction is TUnitActionWalkTo then
+      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
+                                   TUnitActionWalkTo(fCurrentAction).NodePos,
+                                   $FF00FFFF);
+
+  case fCurrentAction.fActionType of
+  ua_Walk:
+    begin
+      fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      if ua_WalkArm in UnitSupportedActions[byte(UnitType)] then
+        fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+    end;
+  ua_Work..ua_Eat:
+      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+  ua_WalkArm .. ua_WalkBooty2:
+    begin
+      fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+    end;
+  end;
+
+  if fThought<>th_None then
+    fRender.RenderUnitThought(fThought, XPaintPos, fPosition.Y+1);
+end;
+
+
+procedure TKMUnitRecruit.Save(SaveStream:TKMemoryStream);
+begin
+  Inherited;
+  //Nothing yet
+end;
+
+
+function TKMUnitRecruit.UpdateState():boolean;
+var H:TKMHouseInn; RestTime: integer;
+begin
+  Result:=true; //Required for override compatibility
+  if Inherited UpdateState then exit;
+  if Self.IsDead then exit; //Caused by SelfTrain.Abandoned
+
+  fThought := th_None;
+
+  //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
+  if (fHome<>nil)and(fHome.IsDestroyed)and(not(fUnitTask is TTaskDie))and(not(fUnitTask is TTaskGoEat)) then
+  begin
+    if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
+    FreeAndNil(fUnitTask);
+    fHome.RemovePointer;
+    fHome := nil;
+  end;
+
+
+  if fCondition<UNIT_MIN_CONDITION then
+  begin
+    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self,not fVisible);
+    if H<>nil then
+      fUnitTask:=TTaskGoEat.Create(H,Self)
+    else
+      if fHome <> nil then
+        if not fVisible then
+          fUnitTask:=TTaskGoOutShowHungry.Create(Self)
+        else
+          fUnitTask:=TTaskGoHome.Create(Self);
+  end;
+
+  if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
+    if (fHome=nil) then
+      if FindHome then
+        fUnitTask:=TTaskGoHome.Create(Self) //Home found - go there
+      else begin
+        fThought:=th_Quest; //Always show quest when idle, unlike serfs who randomly show it
+        SetActionStay(120, ua_Walk) //There's no home
+      end
+    else
+      if fVisible then//Unit is not at home, still it has one
+        fUnitTask:=TTaskGoHome.Create(Self)
+      else
+        fUnitTask:=InitiateActivity; //Unit is at home and ready to work
+
+  if fHome <> nil then
+    RestTime := HouseDAT[byte(fHome.GetHouseType)].WorkerRest*10 //Whats it for WatchTower?
+  else
+    RestTime := 120; //Unit may have no home; if so, load a default value
+
+  if fUnitTask=nil then begin
+    if random(2) = 0 then fThought := th_Quest;
+    SetActionStay(RestTime, ua_Walk); //Absolutely nothing to do ...
+  end;
+
+  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
+end;
+
+
+function TKMUnitRecruit.InitiateActivity():TUnitTask;
+var
+  i,k:integer;
+  FoundEnemy, BestEnemy:TKMUnit;
+begin
+  Result := nil;
+  if Self.GetHome.CheckResIn(rt_Stone)<=0 then exit; //Nothing to throw
+  BestEnemy := nil;
+
+  //Look for an enemy within some radius
+  for i:=-8 to 8 do
+  for k:=-8 to 8 do
+  if GetLength(i,k)<=8 then begin
+    FoundEnemy := fPlayers.UnitsHitTest(Self.GetPosition.X+k,Self.GetPosition.Y+i);
+    if (FoundEnemy<>nil)and //Found someone
+       not (FoundEnemy.GetUnitTask is TTaskDie)and //not being killed already
+       (FoundEnemy.GetOwner <> Self.GetOwner) then //it's an enemy
+      begin
+        if BestEnemy=nil then BestEnemy := FoundEnemy; //Make sure we have in filled before further comparison
+        if GetLength(FoundEnemy.GetPosition,Self.GetPosition) < GetLength(BestEnemy.GetPosition,Self.GetPosition) then
+          BestEnemy := FoundEnemy;
+      end;
+  end;
+  //Choose closest one, to get best accuracy
+
+  if BestEnemy = nil then
+    Result := nil
+  else
+    Result := TTaskThrowRock.Create(Self, BestEnemy);
 end;
 
 
@@ -864,6 +1061,7 @@ begin
       utn_BuildHouse:      fUnitTask := TTaskBuildHouse.Load(LoadStream);
       utn_BuildHouseRepair:fUnitTask := TTaskBuildHouseRepair.Load(LoadStream);
       utn_GoHome:          fUnitTask := TTaskGoHome.Load(LoadStream);
+      utn_ThrowRock:       fUnitTask := TTaskThrowRock.Load(LoadStream);
       utn_GoEat:           fUnitTask := TTaskGoEat.Load(LoadStream);
       utn_Mining:          fUnitTask := TTaskMining.Load(LoadStream);
       utn_Die:             fUnitTask := TTaskDie.Load(LoadStream);
@@ -1683,6 +1881,71 @@ begin
 end;
 
 
+{ TTaskThrowRock }
+constructor TTaskThrowRock.Create(aUnit,aTarget:TKMUnit);
+begin
+  Inherited Create(aUnit);
+  fTaskName := utn_ThrowRock;
+  fTarget := aTarget;
+  if fUnit <> nil then fUnit.SetActionLockedStay(0, ua_Walk);
+end;
+
+
+constructor TTaskThrowRock.Load(LoadStream:TKMemoryStream);
+begin
+  Inherited;
+  LoadStream.Read(fTarget, 4);
+end;
+
+
+procedure TTaskThrowRock.SyncLoad();
+begin
+  Inherited;
+  fTarget := fPlayers.GetUnitByID(cardinal(fTarget));
+end;
+
+
+procedure TTaskThrowRock.Execute(out TaskDone:boolean);
+begin
+  TaskDone := false;
+
+  if fUnit.fHome.IsDestroyed then begin
+    Abandon;
+    TaskDone := true;
+    exit;
+  end;
+
+  with fUnit do
+  case fPhase of
+    0: begin
+        GetHome.SetState(hst_Work); //Set house to Work state
+        GetHome.ResTakeFromIn(rt_Stone, 1);
+        SetActionStay(5,ua_Walk);
+       end;
+    1: SetActionStay(15,ua_Walk); //Do some rock throwing
+    2: begin
+         SetActionStay(1,ua_Walk);
+         if fTarget <> nil then fTarget.KillUnit; //It might be killed by now
+         GetHome.SetState(hst_Idle);
+       end;
+    else TaskDone := true;
+  end;
+  inc(fPhase);
+  if (fUnit.fCurrentAction=nil)and(not TaskDone) then
+    fLog.AssertToLog(false,'(TTaskThrowRock.fCurrentAction=nil)and(not TaskDone)');
+end;
+
+
+procedure TTaskThrowRock.Save(SaveStream:TKMemoryStream);
+begin
+  Inherited;
+  if fTarget <> nil then
+    SaveStream.Write(fTarget.ID) //Store ID, then substitute it with reference on SyncLoad
+  else
+    SaveStream.Write(Zero);
+end;
+
+
 { TTaskDie }
 constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
@@ -1990,7 +2253,7 @@ begin
     ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
                 U:= Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
 
-    ut_Recruit: U:= Inherited Add(TKMUnitCitizen.Create(aOwner,PosX,PosY,aUnitType));
+    ut_Recruit: U:= Inherited Add(TKMUnitRecruit.Create(aOwner,PosX,PosY,aUnitType));
 
     ut_Militia..ut_Barbarian:   U:= Inherited Add(TKMUnitWarrior.Create(aOwner,PosX,PosY,aUnitType));
     //ut_Bowman:   Inherited Add(TKMUnitArcher.Create(aOwner,PosX,PosY,aUnitType)); //I guess it will be stand-alone

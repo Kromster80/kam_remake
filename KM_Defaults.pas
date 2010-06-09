@@ -388,7 +388,7 @@ type
   TUnitTaskName = ( utn_Unknown=0, //Uninitialized task to detect bugs
         utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,
         utn_BuildWall, utn_BuildHouseArea, utn_BuildHouse, utn_BuildHouseRepair, utn_GoHome,
-        utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry);
+        utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry,  utn_ThrowRock);
 
 type
   TUnitActionName = ( uan_Unknown=0, //Uninitialized action to detect bugs
