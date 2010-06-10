@@ -46,10 +46,10 @@ type
     procedure ZoomInGameArea(X:single);
     procedure ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
     procedure KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false);
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseMove(Shift: TShiftState; X,Y: Integer);
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
     procedure StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure PauseGame(DoPause:boolean);
@@ -626,16 +626,20 @@ begin
                     cm_Height:; //handled in UpdateStateIdle
                     cm_Objects: fTerrain.SetTree(P, CursorMode.Tag1);
                     cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(CursorMode.Tag1)) then
-                              begin
-                                //Check if we can really add a unit
-                                MyPlayer.AddUnit(TUnitType(CursorMode.Tag1), P, false);
+                              begin //Check if we can really add a unit
+                                if TUnitType(CursorMode.Tag1) in [ut_Serf..ut_Barbarian] then
+                                  MyPlayer.AddUnit(TUnitType(CursorMode.Tag1), P, false)
+                                else
+                                  fPlayers.PlayerAnimals.AddUnit(TUnitType(CursorMode.Tag1), P, false);
                               end;
                     cm_Erase:
                               case fMapEditorInterface.GetShownPage of
                                 esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
-                                esp_Units:      MyPlayer.RemUnit(P);
-                                esp_Buildings:
-                                                begin
+                                esp_Units:      begin
+                                                  MyPlayer.RemUnit(P);
+                                                  fPlayers.PlayerAnimals.RemUnit(P); //Animals are common for all
+                                                end;
+                                esp_Buildings:  begin
                                                   MyPlayer.RemHouse(P,true,false,true);
                                                   if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
                                                     fTerrain.RemRoad(P);

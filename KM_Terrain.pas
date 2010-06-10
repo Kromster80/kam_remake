@@ -1761,6 +1761,7 @@ end;
 
 
 {Check if Unit can be placed here}
+//Serfs and Workers can be placed off-road since player might want to have a lot of them.
 function TTerrain.CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
 var DesiredPass:TPassability;
 begin
@@ -1768,9 +1769,9 @@ begin
   Result := Result and (Land[Loc.Y, Loc.X].IsUnit = 0); //Check for no unit below
 
   case aUnitType of
-    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: DesiredPass := canWalkRoad; //Citizens except Worker
+    ut_Woodcutter..ut_Fisher,ut_StoneCutter..ut_Recruit: DesiredPass := canWalkRoad; //Citizens except Worker
     ut_Wolf..ut_Duck:                              DesiredPass := AnimalTerrain[byte(aUnitType)] //Animals
-    else                                           DesiredPass := canWalk; //Worker, Warriors
+    else                                           DesiredPass := canWalk; //Serf, Worker, Warriors
   end;
 
   Result := Result and (DesiredPass in Land[Loc.Y, Loc.X].Passability);
@@ -1814,9 +1815,10 @@ begin
 end;
 
 
+//Check for current player and PlayerAnimals
 function TTerrain.CanRemoveUnit(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
 begin
-   Result := fPlayers.Player[integer(PlayerID)].RemUnit(Loc,true);
+  Result := fPlayers.Player[integer(PlayerID)].RemUnit(Loc,true) or fPlayers.PlayerAnimals.RemUnit(Loc,true);
 end;
 
 

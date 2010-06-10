@@ -14,7 +14,7 @@ type TKMapEdInterface = class
 
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
-      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMButton;
+      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMButton; //Animals are common for all
       KMMinimap:TKMMinimap;
       Label_Stat,Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
@@ -793,7 +793,7 @@ end;
 
 procedure TKMapEdInterface.Global_PlayerSelect(Sender: TObject);
 begin
-  if fPlayers.Player[TKMControl(Sender).Tag] <> nil then
+  if (TKMControl(Sender).Tag in [1..MAX_PLAYERS]) and (fPlayers.Player[TKMControl(Sender).Tag] <> nil) then
     MyPlayer := fPlayers.Player[TKMControl(Sender).Tag];
 end;
 

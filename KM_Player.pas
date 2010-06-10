@@ -79,6 +79,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
+    function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
     function GetUnitCount: integer;
@@ -527,6 +528,20 @@ end;
 function TKMPlayerAnimals.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
 begin
   Result := fUnits.Add(play_animals, aUnitType, Position.X, Position.Y, AutoPlace);
+end;
+
+
+function TKMPlayerAnimals.RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+var FoundUnit:TKMUnit;
+begin
+  Result := false;
+  FoundUnit := fUnits.HitTest(Position.X, Position.Y);
+  if FoundUnit<>nil then
+  begin
+    if not Simulated then
+      fUnits.RemoveUnit(FoundUnit);
+    Result := true;
+  end;
 end;
 
 
