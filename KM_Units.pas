@@ -67,17 +67,6 @@ type
       procedure Execute(out TaskDone:boolean); override;
     end;
 
-    TTaskThrowRock = class(TUnitTask)
-    private
-      fTarget:TKMUnit;
-    public
-      constructor Create(aUnit,aTarget:TKMUnit);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
-      procedure Execute(out TaskDone:boolean); override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
-
     TTaskGoEat = class(TUnitTask)
     private
       fInn:TKMHouseInn;
@@ -296,7 +285,7 @@ implementation
 uses KM_Unit1, KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_ResourceGFX,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
-KM_Units_Warrior, KM_UnitTask_Build, KM_UnitTaskDelivery, KM_UnitTaskMining;
+KM_Units_Warrior, KM_UnitTask_Build, KM_UnitTaskDelivery, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 
 
 { TKMUnitCitizen }
@@ -1878,71 +1867,6 @@ begin
   inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
     fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
-end;
-
-
-{ TTaskThrowRock }
-constructor TTaskThrowRock.Create(aUnit,aTarget:TKMUnit);
-begin
-  Inherited Create(aUnit);
-  fTaskName := utn_ThrowRock;
-  fTarget := aTarget;
-  if fUnit <> nil then fUnit.SetActionLockedStay(0, ua_Walk);
-end;
-
-
-constructor TTaskThrowRock.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
-  LoadStream.Read(fTarget, 4);
-end;
-
-
-procedure TTaskThrowRock.SyncLoad();
-begin
-  Inherited;
-  fTarget := fPlayers.GetUnitByID(cardinal(fTarget));
-end;
-
-
-procedure TTaskThrowRock.Execute(out TaskDone:boolean);
-begin
-  TaskDone := false;
-
-  if fUnit.fHome.IsDestroyed then begin
-    Abandon;
-    TaskDone := true;
-    exit;
-  end;
-
-  with fUnit do
-  case fPhase of
-    0: begin
-        GetHome.SetState(hst_Work); //Set house to Work state
-        GetHome.ResTakeFromIn(rt_Stone, 1);
-        SetActionStay(5,ua_Walk);
-       end;
-    1: SetActionStay(15,ua_Walk); //Do some rock throwing
-    2: begin
-         SetActionStay(1,ua_Walk);
-         if fTarget <> nil then fTarget.KillUnit; //It might be killed by now
-         GetHome.SetState(hst_Idle);
-       end;
-    else TaskDone := true;
-  end;
-  inc(fPhase);
-  if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-    fLog.AssertToLog(false,'(TTaskThrowRock.fCurrentAction=nil)and(not TaskDone)');
-end;
-
-
-procedure TTaskThrowRock.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited;
-  if fTarget <> nil then
-    SaveStream.Write(fTarget.ID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Zero);
 end;
 
 

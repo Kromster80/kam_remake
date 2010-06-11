@@ -384,6 +384,11 @@ const //Corresponding indices in units.rx
   (6250,6257),(6258,6265),(6266,6273),(6274,6281),(6282,6289),(6290,6297),(6298,6305)
   );
 
+const //Corresponding indices in units.rx
+  ProjectileBounds:array[1..2,1..2] of word = (
+  (1,1),(4186,4190)
+  );
+
 type
   TUnitTaskName = ( utn_Unknown=0, //Uninitialized task to detect bugs
         utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,

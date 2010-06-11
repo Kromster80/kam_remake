@@ -986,7 +986,7 @@ begin
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
 
   ci:=0;
-  for ID:=byte(ht_School) to byte(ht_School) do begin
+  for ID:=byte(ht_WatchTower) to byte(ht_WatchTower) do begin
     for Ac:=1 to 5 do begin //Work1..Work5
       for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
         CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\');

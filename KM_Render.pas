@@ -7,7 +7,7 @@ uses
   ExtCtrls, ComCtrls, Menus, Buttons,
   dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
   {$IFDEF VER140} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
-  KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
+  KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes, KM_Projectiles;
 
 type
 TRender = class
@@ -71,6 +71,7 @@ public
   procedure RenderDebugWires(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
+  procedure RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
   procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false);
   procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean);
   procedure RenderHouseBuild(Index,pX,pY:integer);
@@ -187,8 +188,8 @@ begin
     RenderCount:=0; //Init RenderList
 
     fTerrain.Paint;
-
     fPlayers.Paint; //Quite slow           //Units and houses
+    fGame.fProjectiles.Paint; //Render all arrows and etc..
 
     ClipRenderList();
     SortRenderList();
@@ -504,6 +505,19 @@ begin
     glVertex2f(NodeList.List[i].X-0.5,NodeList.List[i].Y-0.5+0.2-fTerrain.InterpolateLandHeight(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5)/CELL_HEIGHT_DIV);
     glVertex2f(x,y-fTerrain.InterpolateLandHeight(x+1,y+1)/CELL_HEIGHT_DIV);
   glEnd;
+end;
+
+
+procedure TRender.RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
+var ID:integer; FOW:byte;
+begin
+  FOW:=fTerrain.CheckTileRevelation(round(pX),round(pY),MyPlayer.PlayerID);
+  if FOW <= 128 then exit; //Don't render objects which are behind FOW
+
+  //ID := ( + AnimStep) mod ;
+  ID := ProjectileBounds[byte(aProj),1]+1;
+
+  AddSpriteToList(3,ID,pX,pY,pX,pY,true);
 end;
 
 

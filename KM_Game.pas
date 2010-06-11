@@ -4,7 +4,7 @@ uses Windows,
   {$IFDEF VER140} MPlayer, {$ENDIF}
   Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Defaults, KM_Controls, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Utils, KM_Music;
+  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Utils, KM_Music;
 
 type TGameState = ( gsNoGame, //No game running at all, MainMenu
                     gsPaused, //Game is paused and responds to 'P' key only
@@ -29,6 +29,8 @@ type
     GameState:TGameState;
     fMissionFile:string; //Remember want we are playing incase we might want to replay
     fGameName:string;
+
+    fProjectiles:TKMProjectiles;
 
     fMusicLib: TMusicLib;
 
@@ -701,6 +703,7 @@ begin
 
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
+  fProjectiles := TKMProjectiles.Create;
 
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(aMissionFile,true) then
@@ -774,6 +777,7 @@ begin
     fMainMenuInterface.Fill_Results;
 
   FreeAndNil(fPlayers);
+  FreeAndNil(fProjectiles);
   FreeAndNil(fTerrain);
 
   FreeAndNil(fGamePlayInterface);  //Free both interfaces
@@ -944,6 +948,8 @@ begin
 
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
+      fProjectiles.Save(SaveStream);
+
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
@@ -1009,6 +1015,8 @@ begin
         //Load the data into the game
         fTerrain.Load(LoadStream);
         fPlayers.Load(LoadStream);
+        fProjectiles.Load(LoadStream);
+
         fViewport.Load(LoadStream);
         fGamePlayInterface.Load(LoadStream);
 
@@ -1058,6 +1066,7 @@ begin
                     inc(GameplayTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(GameplayTickCount); //Quite slow
+                    fProjectiles.UpdateState;
                     if GameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
 
                     if GameplayTickCount mod 600 = 0 then //Each 1min of gameplay time
