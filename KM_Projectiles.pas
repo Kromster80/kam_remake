@@ -21,7 +21,7 @@ type
 
   public
     constructor Create;
-    procedure AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType);
+    function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType):word;
 
     procedure UpdateState;
     procedure Paint;
@@ -43,8 +43,8 @@ begin
 end;
 
 
-procedure TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType);
-var i:integer;
+function TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType):word;
+var i:integer; Jitter:single;
 begin
   //Find empty spot or add one
   i := 0;
@@ -57,28 +57,31 @@ begin
   //Route for Arrow is parabola of some kind
   //Route for TowerRock is 2nd half of that parabola
 
+  Jitter              := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_WATCHTOWER;
+  fItems[i].fTarget.X := aEnd.X + RandomS(Jitter); //Thats logical target in tile-coords
+  fItems[i].fTarget.Y := aEnd.Y + RandomS(Jitter);
 
   //Converting tile-coords into screen coords
   case aProjType of
     pt_Arrow, pt_Bolt: begin
-                    fItems[i].fStart.X := aStart.X; //Recruit stands in entrance, Tower middleline is X-0.75
+                    fItems[i].fStart.X := aStart.X + 0.5; //Recruit stands in entrance, Tower middleline is X-0.75
                     fItems[i].fStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.5; //Recruit stands in entrance, Tower middleline is X-0.5
                   end;
     pt_TowerRock: begin
-                    fItems[i].fStart.X := aStart.X - 0.75; //Recruit stands in entrance, Tower middleline is X-0.75
+                    fItems[i].fStart.X := aStart.X - 0.25; //Recruit stands in entrance, Tower middleline is X-0.75
                     fItems[i].fStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 1.75; //Recruit stands in entrance, Tower middleline is X-0.5
                   end;
   end;
-  fItems[i].fEnd.X      := aEnd.X;
-  fItems[i].fEnd.Y      := aEnd.Y + 0.5; //projectile hits on Unit's chest height
-
-  fItems[i].fTarget   := aEnd; //Thats logical target in tile-coords
+  fItems[i].fEnd.X    := fItems[i].fTarget.X + 0.5;
+  fItems[i].fEnd.Y    := fItems[i].fTarget.Y - fTerrain.InterpolateLandHeight(aEnd.X,aEnd.Y)/CELL_HEIGHT_DIV + 0.5; //projectile hits on Unit's chest height
 
   fItems[i].fProjType := aProjType;
   fItems[i].fSpeed    := 0.3 + randomS(0.05);
   fItems[i].fArc      := 1 + randomS(0.3);
   fItems[i].fPosition := 0; //projectile position on its route
   fItems[i].fLength   := GetLength(fItems[i].fStart.X - fItems[i].fEnd.X, fItems[i].fStart.Y - fItems[i].fEnd.Y); //route length
+
+  Result := round(fItems[i].fLength / fItems[i].fSpeed);
 end;
 
 
@@ -93,7 +96,7 @@ begin
 
       if fItems[i].fPosition >= fItems[i].fLength then begin
         fItems[i].fSpeed := 0; //remove projectile
-        U := fPlayers.UnitsHitTest(round(fItems[i].fEnd.X), round(fItems[i].fEnd.Y));
+        U := fPlayers.UnitsHitTest(round(fItems[i].fTarget.X), round(fItems[i].fTarget.Y));
         if U <> nil then
           U.KillUnit;
       end;
@@ -113,14 +116,15 @@ begin
       fRender.RenderProjectile(
                                  fItems[i].fProjType,
                                  0,
-                                 mix(fItems[i].fStart.X, fItems[i].fEnd.X, MixValue) + 0.5,
-                                 mix(fItems[i].fStart.Y, fItems[i].fEnd.Y, MixValue) + 0.5
+                                 mix(fItems[i].fStart.X, fItems[i].fEnd.X, MixValue),
+                                 mix(fItems[i].fStart.Y, fItems[i].fEnd.Y, MixValue)
                                  );
       fRender.RenderDebugLine(
-                                 fItems[i].fStart.X + 0.5,
-                                 fItems[i].fStart.Y + 0.5,
-                                 fItems[i].fEnd.X + 0.5,
-                                 fItems[i].fEnd.Y + 0.5);
+                                 fItems[i].fStart.X,
+                                 fItems[i].fStart.Y,
+                                 fItems[i].fEnd.X,
+                                 fItems[i].fEnd.Y);
+      fRender.RenderDebugLine(fItems[i].fTarget.X,fItems[i].fTarget.Y,fItems[i].fTarget.X+0.1,fItems[i].fTarget.Y+0.1);
     end;
 end;
 

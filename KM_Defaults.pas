@@ -113,6 +113,8 @@ const //Here we store options that are hidden somewhere in code
   RANGE_STONECUTTER = 14;
   RANGE_FISHERMAN   = 12;
 
+  RANGE_WATCHTOWER  = 7;
+
 type
   TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
 

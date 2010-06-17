@@ -200,6 +200,8 @@ begin
 
     RenderCursorHighlights(); //Will be on-top
 
+    fGame.fProjectiles.Paint; //Render all arrows and etc..
+
     RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm2D);
   end;
 
@@ -434,8 +436,8 @@ end;
 procedure TRender.RenderDebugLine(x1,y1,x2,y2:single);
 begin
   glColor4f(1.0, 0.75, 1.0, 1.0);
-  RenderDot(x1,y1-fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV);
-  RenderDot(x2,y2-fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV);
+  RenderDot(x1,y1);
+  RenderDot(x2,y2);
   RenderLine(x1,y1,x2,y2);
 end;
 
@@ -823,8 +825,8 @@ procedure TRender.RenderLine(x1,y1,x2,y2:single);
 begin
   glBindTexture(GL_TEXTURE_2D, 0);
   glBegin (GL_LINES);
-    glVertex2f(x1, y1 - fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV);
-    glVertex2f(x2, y2 - fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV);
+    glVertex2f(x1-1, y1-1 - fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV);
+    glVertex2f(x2-1, y2-1 - fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV);
   glEnd;
 end;
 

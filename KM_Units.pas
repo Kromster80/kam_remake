@@ -662,12 +662,12 @@ begin
   BestEnemy := nil;
 
   //Look for an enemy within some radius
-  for i:=-8 to 8 do
-  for k:=-8 to 8 do
-  if GetLength(i,k)<=8 then begin
+  for i:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
+  for k:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
+  if GetLength(i,k)<=RANGE_WATCHTOWER then begin
     FoundEnemy := fPlayers.UnitsHitTest(Self.GetPosition.X+k,Self.GetPosition.Y+i);
     if (FoundEnemy<>nil)and //Found someone
-       not (FoundEnemy.GetUnitTask is TTaskDie)and //not being killed already
+       not(FoundEnemy.GetUnitTask is TTaskDie)and //not being killed already
        (FoundEnemy.GetOwner <> Self.GetOwner) then //it's an enemy
       begin
         if BestEnemy=nil then BestEnemy := FoundEnemy; //Make sure we have in filled before further comparison
@@ -676,6 +676,9 @@ begin
       end;
   end;
   //Choose closest one, to get best accuracy
+
+  //Notice: In actual game there might be two Towers nearby, both throwing a stone into the same enemy.
+  //We should not negate that fact, thats real-life situation.
 
   if BestEnemy = nil then
     Result := nil

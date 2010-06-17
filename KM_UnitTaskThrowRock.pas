@@ -8,6 +8,7 @@ type
   TTaskThrowRock = class(TUnitTask)
     private
       fTarget:TKMUnit;
+      fFlightTime:word; //Thats how long it will take a stone to hit it's target
     public
       constructor Create(aUnit,aTarget:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -61,12 +62,12 @@ begin
          //for debug GetHome.ResTakeFromIn(rt_Stone, 1);
          GetHome.SetState(hst_Work); //Set house to Work state
          GetHome.fCurrentAction.SubActionWork(ha_Work2); //show Recruits back
-         SetActionStay(20,ua_Walk); //take the stone
+         fFlightTime := fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);
+         SetActionStay(5,ua_Walk); //take the stone
        end;
     1: begin
-        GetHome.SetState(hst_Idle);
-        SetActionStay(20,ua_Walk); //throw it
-        fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);
+         GetHome.SetState(hst_Idle);
+         SetActionStay(fFlightTime + 5,ua_Walk); //look how it goes
        end;
     else TaskDone := true;
   end;
