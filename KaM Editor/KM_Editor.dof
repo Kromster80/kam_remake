@@ -45,7 +45,7 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=..\ Common 
+SearchPath=..\Common
 Packages=vcl;rtl;dbrtl;adortl;vcldb;vclx;bdertl;vcldbx;ibxpress;dsnap;cds;bdecds;qrpt;teeui;teedb;tee;dss;teeqr;visualclx;visualdbclx;dsnapcrba;dsnapcon;VclSmp;vclshlctrls;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;inetdb;nmfast;webdsnap;websnap;dbexpress;dbxcds;indy;dclOffice2k;Krom
 Conditionals=
 DebugSourceDirs=
@@ -78,11 +78,14 @@ Private=0
 DLL=0
 Locale=1049
 CodePage=1251
+[Version Info Keys]
+FileVersion=1.0.0.0
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=3
-Item0=..\ Common 
-Item1=C:\Documents and Settings\Krom\Desktop\Delphi\ Common ;E:\Delphi\ Common 
-Item2=C:\Documents and Settings\Krom\Desktop\Delphi\ Common 
+Count=4
+Item0=..\Common
+Item1=..\ Common 
+Item2=C:\Documents and Settings\Krom\Desktop\Delphi\ Common ;E:\Delphi\ Common 
+Item3=C:\Documents and Settings\Krom\Desktop\Delphi\ Common 

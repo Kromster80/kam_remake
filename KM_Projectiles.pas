@@ -3,16 +3,14 @@ interface
 uses Classes, SysUtils, KromUtils, Math, KM_Utils, KM_Defaults, KM_CommonTypes;
 
 
-type TProjectileType = (pt_Arrow=1, pt_Rock);
-
 {Projectiles in-game: arrows, bolts, rocks, etc..}
 //Once launched they are on their own
 type
   TKMProjectiles = class
   private
     fItems:array of record
-      fStart:Vector3f;
-      fEnd:Vector3f;
+      fStart:TKMPointF;
+      fEnd:TKMPointF;
       fProjType:TProjectileType;
       fSpeed:single; //Projectile speed may vary a little bit
       fArc:single; //Thats how high projectile will go along parabola
@@ -55,12 +53,12 @@ begin
 
   //todo: Speed, Arc, Target jitter depends on projectile type
   //Route for Arrow is parabola of some kind
-  //Route for Rock is 2nd half of that parabola
+  //Route for TowerRock is 2nd half of that parabola
 
-  fItems[i].fStart    := Vectorize(aStart.X, aStart.Y, 0.5); //Z faces up!
-  fItems[i].fEnd      := Vectorize(aEnd.X + randomS(0.5), aEnd.Y + randomS(0.5), 0.5); //0.5 for units height
+  fItems[i].fStart    := aStart; //todo: add height
+  fItems[i].fEnd      := aEnd;
   fItems[i].fProjType := aProjType;
-  fItems[i].fSpeed    := 0.7 + randomS(0.1);
+  fItems[i].fSpeed    := 0.3 + randomS(0.05);
   fItems[i].fArc      := 1 + randomS(0.3);
   fItems[i].fPosition := 0; //projectile position on its route
   fItems[i].fLength   := GetLength(fItems[i].fStart.X - fItems[i].fEnd.X, fItems[i].fStart.Y - fItems[i].fEnd.Y); //route length
@@ -92,16 +90,17 @@ var
   MixValue:single;
 begin
   for i:=1 to length(fItems)-1 do
-  if fItems[i].fSpeed <> 0 then
-  begin
-    MixValue := 1 - fItems[i].fPosition / fItems[i].fLength;
-    fRender.RenderProjectile(
-                               fItems[i].fProjType,
-                               0,
-                               mix(fItems[i].fStart.X, fItems[i].fEnd.X, MixValue),
-                               mix(fItems[i].fStart.Y, fItems[i].fEnd.Y, MixValue)
-                               );
-  end;
+    if fItems[i].fSpeed <> 0 then
+    begin
+      MixValue := 1 - fItems[i].fPosition / fItems[i].fLength;
+      fRender.RenderProjectile(
+                                 fItems[i].fProjType,
+                                 0,
+                                 mix(fItems[i].fStart.X, fItems[i].fEnd.X, MixValue),
+                                 mix(fItems[i].fStart.Y, fItems[i].fEnd.Y, MixValue)
+                                 );
+      fRender.RenderDebugLine(fItems[i].fStart.X, fItems[i].fStart.Y, fItems[i].fEnd.X, fItems[i].fEnd.Y);
+    end;
 end;
 
 

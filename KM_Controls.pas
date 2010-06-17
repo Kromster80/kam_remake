@@ -1252,6 +1252,7 @@ begin
   end;
 
   fPath := aPath;
+  fPaths.Clear;
   fFiles.Clear;
   DirList := TStringList.Create;
 

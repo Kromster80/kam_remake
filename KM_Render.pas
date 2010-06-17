@@ -38,6 +38,7 @@ private
   
   procedure RenderDot(pX,pY:single; Size:single = 0.05);
   procedure RenderDotOnTile(pX,pY:single);
+  procedure RenderLine(x1,y1,x2,y2:single);
   procedure RenderQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
   procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte);
@@ -68,6 +69,7 @@ public
   procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
+  procedure RenderDebugLine(x1,y1,x2,y2:single);
   procedure RenderDebugWires(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
@@ -163,7 +165,7 @@ procedure TRender.Render();
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
-  if fGame.GameState in [gsPaused, gsRunning, gsEditor] then begin //If game is running
+  if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsEditor] then begin //If game is running
     glLoadIdentity();                // Reset The View
     //glRotate(-15,0,0,1); //Funny thing
     glTranslatef(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
@@ -189,7 +191,8 @@ begin
 
     fTerrain.Paint;
     fPlayers.Paint; //Quite slow           //Units and houses
-    fGame.fProjectiles.Paint; //Render all arrows and etc..
+    if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
+      fGame.fProjectiles.Paint; //Render all arrows and etc..
 
     ClipRenderList();
     SortRenderList();
@@ -428,6 +431,16 @@ for i:=y1 to y2 do for k:=x1 to x2 do
 end;
 
 
+procedure TRender.RenderDebugLine(x1,y1,x2,y2:single);
+var i,k:integer;
+begin
+  glColor4f(1.0, 0.75, 0.0, 1.0);
+  RenderDot(x1,y1-fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV,0.1);
+  RenderDot(x2,y2-fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV,0.1);
+  RenderLine(x1,y1,x2,y2);
+end;
+
+
 procedure TRender.RenderDebugWires(x1,x2,y1,y2:integer);
 var i,k,t:integer;
 begin
@@ -509,13 +522,18 @@ end;
 
 
 procedure TRender.RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
-var ID:integer; FOW:byte;
+var
+  FOW:byte;
+  ID:integer;
+  ShiftX,ShiftY:single;
 begin
   FOW:=fTerrain.CheckTileRevelation(round(pX),round(pY),MyPlayer.PlayerID);
   if FOW <= 128 then exit; //Don't render objects which are behind FOW
 
   //ID := ( + AnimStep) mod ;
-  ID := ProjectileBounds[byte(aProj),1]+1;
+  ID := ProjectileBounds[aProj,1]+1;
+  ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
 
   AddSpriteToList(3,ID,pX,pY,pX,pY,true);
 end;
@@ -791,12 +809,23 @@ begin
   glEnd;
 end;
 
+
 procedure TRender.RenderDotOnTile(pX,pY:single);
 begin
   pY:=pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV;
   glBindTexture(GL_TEXTURE_2D, 0);
   glBegin (GL_QUADS);
     glkRect(pX-1,pY-1,pX-1+0.1,pY-1-0.1);
+  glEnd;
+end;
+
+
+procedure TRender.RenderLine(x1,y1,x2,y2:single);
+begin
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glBegin (GL_LINES);
+    glVertex2f(x1, y1 - fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV);
+    glVertex2f(x2, y2 - fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV);
   glEnd;
 end;
 

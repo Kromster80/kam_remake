@@ -7,7 +7,7 @@ uses
   {$IFDEF VER140} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Defaults, KM_Render,
-  KM_Form_Loading, Math, Grids, Spin;
+  KM_Form_Loading, Math, Grids, Spin, ImgList;
 
 type
   TForm1 = class(TForm)
@@ -843,17 +843,22 @@ ImageList1.Draw(ObjPallete.Canvas,
                 ObjPalleteTable[ARow+1,ACol+1]-1);
 end;
 
+
 procedure TForm1.ObjPalleteScrollChange(Sender: TObject);
-begin ObjPallete.TopRow:=ObjPalleteScroll.Position; end;
+begin
+  ObjPallete.TopRow := ObjPalleteScroll.Position;
+end;
+
 
 procedure TForm1.ObjPalleteClick(Sender: TObject);
 begin
-ObjBlock.Down:=false;
-ObjErase.Down:=false;
-LandBrush:=ObjPalleteTable[ObjPallete.Row+1,ObjPallete.Col+1];
-BrushMode:=bmObjects;
-StatusBar1.Panels[3].Text:='Object: '+inttostr(LandBrush)+' '+inttostr(ObjIndexGFX[LandBrush])+' ('+inttostr(ObjIndex[LandBrush])+')';
+  ObjBlock.Down:=false;
+  ObjErase.Down:=false;
+  LandBrush:=ObjPalleteTable[ObjPallete.Row+1,ObjPallete.Col+1];
+  BrushMode:=bmObjects;
+  StatusBar1.Panels[3].Text:='Object: '+inttostr(LandBrush)+' '+inttostr(ObjIndexGFX[LandBrush])+' ('+inttostr(ObjIndex[LandBrush])+')';
 end;
+
 
 procedure TForm1.AboutClick(Sender: TObject);
 begin FormLoading.Bar1.Position:=0; FormLoading.Show; end;

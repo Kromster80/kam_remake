@@ -61,13 +61,12 @@ begin
          GetHome.ResTakeFromIn(rt_Stone, 1);
          GetHome.SetState(hst_Work); //Set house to Work state
          GetHome.fCurrentAction.SubActionWork(ha_Work2); //show Recruits back
-         SetActionStay(20,ua_Walk); //2sec?
-         fGame.fProjectiles.AddItem(KMPointF(GetPosition.X - 0.5, GetPosition.Y - 1), fTarget.PositionF, pt_Rock);
+         SetActionStay(20,ua_Walk); //take the stone
        end;
     1: begin
-         SetActionStay(1,ua_Walk);
-         //if fTarget <> nil then fTarget.KillUnit; //It might be killed by now
-         GetHome.SetState(hst_Idle);
+        GetHome.SetState(hst_Idle);
+        SetActionStay(20,ua_Walk); //throw it
+        fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);
        end;
     else TaskDone := true;
   end;

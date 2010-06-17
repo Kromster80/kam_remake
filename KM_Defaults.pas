@@ -58,12 +58,13 @@ var
   {User interface options}
   ShowDebugControls     :boolean=false; //Show debug panel / Form1 menu (F11)
   ENABLE_DESIGN_CONTORLS:boolean=true; //Enable special mode to allow to move/edit controls
-    SHOW_CONTROLS_OVERLAY :boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
-    MODE_DESIGN_CONTORLS  :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+   SHOW_CONTROLS_OVERLAY:boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
+   MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   {Gameplay variables}
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
+  SHOW_PROJECTILES      :boolean=true; //Shows projectiles trajectory
   SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
@@ -74,7 +75,7 @@ var
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Data output}
   WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
-  WriteResourceInfoToTXT:boolean=true; //Whenever to write txt files with defines data properties on loading
+  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
 
   //Statistic
@@ -384,9 +385,11 @@ const //Corresponding indices in units.rx
   (6250,6257),(6258,6265),(6266,6273),(6274,6281),(6282,6289),(6290,6297),(6298,6305)
   );
 
+type TProjectileType = (pt_Arrow=1, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
+
 const //Corresponding indices in units.rx
-  ProjectileBounds:array[1..2,1..2] of word = (
-  (1,1),(4186,4190)
+  ProjectileBounds:array[TProjectileType,1..2] of word = (
+  (1,1),(4186,4190),(1,1)
   );
 
 type
