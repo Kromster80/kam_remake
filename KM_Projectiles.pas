@@ -9,13 +9,14 @@ type
   TKMProjectiles = class
   private
     fItems:array of record
-      fStart:TKMPointF;
-      fEnd:TKMPointF;
+      fStart:TKMPointF; //Screen-space trajectory start
+      fEnd:TKMPointF; //Screen-space trajectory end
+      fTarget:TKMPointF; //Logical tile-coords target
       fProjType:TProjectileType;
       fSpeed:single; //Projectile speed may vary a little bit
       fArc:single; //Thats how high projectile will go along parabola
-      fPosition:single;
-      fLength:single;
+      fPosition:single; //Projectiles position along the route Start--End
+      fLength:single; //Route length to look-up for hit
     end;
 
   public
@@ -31,7 +32,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Game, KM_Render, KM_PlayersCollection, KM_Units;
+uses KM_Sound, KM_Game, KM_Render, KM_PlayersCollection, KM_Units, KM_Terrain;
 
 
 { TMissionSettings }
@@ -46,6 +47,7 @@ procedure TKMProjectiles.AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileTyp
 var i:integer;
 begin
   //Find empty spot or add one
+  i := 0;
   repeat
     inc(i);
     if i>=length(fItems) then setlength(fItems,i+10); //Add new
@@ -55,8 +57,23 @@ begin
   //Route for Arrow is parabola of some kind
   //Route for TowerRock is 2nd half of that parabola
 
-  fItems[i].fStart    := aStart; //todo: add height
-  fItems[i].fEnd      := aEnd;
+
+  //Converting tile-coords into screen coords
+  case aProjType of
+    pt_Arrow, pt_Bolt: begin
+                    fItems[i].fStart.X := aStart.X; //Recruit stands in entrance, Tower middleline is X-0.75
+                    fItems[i].fStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.5; //Recruit stands in entrance, Tower middleline is X-0.5
+                  end;
+    pt_TowerRock: begin
+                    fItems[i].fStart.X := aStart.X - 0.75; //Recruit stands in entrance, Tower middleline is X-0.75
+                    fItems[i].fStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 1.75; //Recruit stands in entrance, Tower middleline is X-0.5
+                  end;
+  end;
+  fItems[i].fEnd.X      := aEnd.X;
+  fItems[i].fEnd.Y      := aEnd.Y + 0.5; //projectile hits on Unit's chest height
+
+  fItems[i].fTarget   := aEnd; //Thats logical target in tile-coords
+
   fItems[i].fProjType := aProjType;
   fItems[i].fSpeed    := 0.3 + randomS(0.05);
   fItems[i].fArc      := 1 + randomS(0.3);
@@ -96,16 +113,20 @@ begin
       fRender.RenderProjectile(
                                  fItems[i].fProjType,
                                  0,
-                                 mix(fItems[i].fStart.X, fItems[i].fEnd.X, MixValue),
-                                 mix(fItems[i].fStart.Y, fItems[i].fEnd.Y, MixValue)
+                                 mix(fItems[i].fStart.X, fItems[i].fEnd.X, MixValue) + 0.5,
+                                 mix(fItems[i].fStart.Y, fItems[i].fEnd.Y, MixValue) + 0.5
                                  );
-      fRender.RenderDebugLine(fItems[i].fStart.X, fItems[i].fStart.Y, fItems[i].fEnd.X, fItems[i].fEnd.Y);
+      fRender.RenderDebugLine(
+                                 fItems[i].fStart.X + 0.5,
+                                 fItems[i].fStart.Y + 0.5,
+                                 fItems[i].fEnd.X + 0.5,
+                                 fItems[i].fEnd.Y + 0.5);
     end;
 end;
 
 
 procedure TKMProjectiles.Save(SaveStream:TKMemoryStream);
-var i,Count:integer;
+//var i,Count:integer;
 begin
 {  SaveStream.Write('Projectiles');
 
@@ -131,7 +152,7 @@ end;
 
 
 procedure TKMProjectiles.Load(LoadStream:TKMemoryStream);
-var i:integer;
+//var i:integer;
 begin
 {  for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseTotalCount[i]);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(HouseBuiltCount[i]);

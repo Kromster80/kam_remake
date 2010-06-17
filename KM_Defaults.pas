@@ -65,7 +65,7 @@ var
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
   SHOW_PROJECTILES      :boolean=true; //Shows projectiles trajectory
-  SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
+  SHOW_UNIT_MOVEMENT    :boolean=true; //Draw unit movement overlay, Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
@@ -389,7 +389,7 @@ type TProjectileType = (pt_Arrow=1, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
 
 const //Corresponding indices in units.rx
   ProjectileBounds:array[TProjectileType,1..2] of word = (
-  (1,1),(4186,4190),(1,1)
+  (1,1),(1,1),(4186,4190)
   );
 
 type

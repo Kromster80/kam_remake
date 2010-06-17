@@ -432,11 +432,10 @@ end;
 
 
 procedure TRender.RenderDebugLine(x1,y1,x2,y2:single);
-var i,k:integer;
 begin
-  glColor4f(1.0, 0.75, 0.0, 1.0);
-  RenderDot(x1,y1-fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV,0.1);
-  RenderDot(x2,y2-fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV,0.1);
+  glColor4f(1.0, 0.75, 1.0, 1.0);
+  RenderDot(x1,y1-fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV);
+  RenderDot(x2,y2-fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV);
   RenderLine(x1,y1,x2,y2);
 end;
 
