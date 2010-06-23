@@ -520,7 +520,6 @@ end;
 
 
 constructor TKMUnitRecruit.Load(LoadStream:TKMemoryStream);
-var HasPlan:boolean;
 begin
   Inherited;
   //Nothing means nothing

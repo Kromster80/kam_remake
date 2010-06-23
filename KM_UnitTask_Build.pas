@@ -544,7 +544,6 @@ end;
 
 
 constructor TTaskBuildHouse.Load(LoadStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
@@ -668,7 +667,6 @@ end;
 
 
 procedure TTaskBuildHouse.Save(SaveStream:TKMemoryStream);
-var i:integer;
 begin
   inherited;
   if fHouse <> nil then
@@ -683,7 +681,6 @@ end;
 
 { TTaskBuildHouseRepair }
 constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
-var i,k:integer;
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseRepair;
@@ -699,7 +696,6 @@ end;
 
 
 constructor TTaskBuildHouseRepair.Load(LoadStream:TKMemoryStream);
-var i:integer;
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
@@ -780,7 +776,6 @@ end;
 
 
 procedure TTaskBuildHouseRepair.Save(SaveStream:TKMemoryStream);
-var i:integer;
 begin
   inherited;
   if fHouse <> nil then

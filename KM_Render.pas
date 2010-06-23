@@ -536,7 +536,7 @@ begin
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
 
-  AddSpriteToList(3,ID,pX,pY,pX,pY,true);
+  AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
 end;
 
 

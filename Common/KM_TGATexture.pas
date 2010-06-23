@@ -122,7 +122,7 @@ var
   Back: ^Byte;
   Temp: Byte;
   Errs:string;
-var
+
   {$IFDEF VER140}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
