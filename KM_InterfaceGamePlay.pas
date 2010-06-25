@@ -1,4 +1,5 @@
 unit KM_InterfaceGamePlay;
+{$I KaM_Remake.inc}
 interface
 uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
   KM_Controls, KM_Houses, KM_Units, KM_Defaults, KM_CommonTypes, KM_Utils;

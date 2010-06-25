@@ -1,4 +1,5 @@
 unit KM_CommonTypes;
+{$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, MMSystem;
 

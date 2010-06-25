@@ -1,7 +1,9 @@
 unit KromOGLUtils;
+{$IFDEF VER140} {$DEFINE WDC} {$ENDIF}  // Delphi 6
+{$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
 interface
-uses dglOpenGL,
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+uses
+  {$IFDEF WDC} OpenGL, {$ENDIF}  dglOpenGL,
   {$IFDEF FPC} GL, {$ENDIF}
   sysutils, windows, Forms;
 

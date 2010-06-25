@@ -1,7 +1,8 @@
 unit KM_Sound;
+{$I KaM_Remake.inc}
 interface
 uses Forms, Windows,
-  {$IFDEF VER140}MMSystem,  MPlayer, {$ENDIF}
+  {$IFDEF WDC} MMSystem,  MPlayer, {$ENDIF}
   Classes, SysUtils, KromUtils, OpenAL, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxWaves = 200;
@@ -41,6 +42,7 @@ type
       Head: TWAVHeaderEx;
       Data: array of char;
       Foot: array of char;
+      IsLoaded:boolean;
     end;
     Props: array[1..MaxWaves] of packed record
       SampleRate,Volume,a,b:integer;
@@ -195,6 +197,7 @@ begin
       setlength(Waves[i].Foot,Tab1[i]-SizeOf(Waves[i].Head)-Waves[i].Head.DataSize);
       BlockRead(f,Waves[i].Foot[0],Tab1[i]-SizeOf(Waves[i].Head)-Waves[i].Head.DataSize);
     end;
+    Waves[i].IsLoaded := true;
   end;
 
   BlockRead(f,c,20);
@@ -279,7 +282,9 @@ begin
 
   if i>=MaxSourceCount then exit;//Don't play if there's no room left, will need to replace with better scheme sometime
 
-  ID:=word(SoundID);
+  ID := word(SoundID);
+
+  if not Waves[ID].IsLoaded then exit;
 
   //Stop previously playing sound and release buffer
   AlSourceStop(ALSource[FreeBuf]);
@@ -334,7 +339,7 @@ begin
  //File extension must be .wav as well as the file contents itself
   wave := GetWarriorSoundFile(aUnitType,aSound,Random(WarriorSoundCount[byte(aUnitType),aSound]));
   if FileExists(wave) then
-    {$IFDEF VER140}
+    {$IFDEF WDC}
     sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC) //Override any previous voice playing
     {$ENDIF}
   else

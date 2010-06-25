@@ -1,4 +1,5 @@
 unit KM_Projectiles;
+{$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math, KM_Utils, KM_Defaults, KM_CommonTypes;
 

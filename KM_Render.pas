@@ -1,12 +1,13 @@
 unit KM_Render;
+{$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF VER140} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   Windows, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Menus, Buttons,
   dglOpenGL, sysutils, KromOGLUtils, KromUtils, math,
-  {$IFDEF VER140} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
+  {$IFDEF WDC} JPEG, {$ENDIF} //Lazarus doesn't have JPEG library yet
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes, KM_Projectiles;
 
 type
@@ -63,7 +64,7 @@ public
   procedure SetRotation(aH,aP,aB:integer);
   procedure RenderResize(Width,Height:integer; aRenderMode:TRenderMode);
   procedure Render();
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   procedure DoPrintScreen(filename:string);
   {$ENDIF}
   procedure RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
@@ -218,7 +219,7 @@ begin
 end;
 
 
-{$IFDEF VER140}
+{$IFDEF WDC}
 procedure TRender.DoPrintScreen(filename:string);
  var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
@@ -459,7 +460,7 @@ begin
     glColor4f(0,1,0,0.25);
     t:=Form1.Debug_PassabilityTrack.Position-1;
     for i:=y1 to y2 do for k:=x1 to x2 do
-      {$IFDEF VER140}
+      {$IFDEF WDC}
       if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then
       {$ENDIF}
       {$IFDEF FPC}

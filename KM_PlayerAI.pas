@@ -1,4 +1,5 @@
 unit KM_PlayerAI;
+{$I KaM_Remake.inc}
 interface
 uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils;
 

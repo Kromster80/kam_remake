@@ -1,10 +1,11 @@
 unit KM_ResourceGFX;
+{$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF VER140} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes
-  {$IFDEF VER140}, ZLibEx {$ENDIF}
+  {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, PasZLib {$ENDIF};
 
 type
@@ -1083,7 +1084,7 @@ end;
 thus it's better to spend few ms and generate minimap colors from actual data}
 procedure TResource.MakeMiniMapColors(FileName:string);
 var ii,kk,h,j,px:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {ft:textfile;}
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
   DeCompressionStream: TZDecompressionStream;
@@ -1105,7 +1106,7 @@ begin
 
   if c[1]=120 then
   begin
-    {$IFDEF VER140}
+    {$IFDEF WDC}
     closefile(f);
     InputStream := TFileStream.Create(FileName, fmOpenRead);
     OutputStream := TMemoryStream.Create;
@@ -1210,8 +1211,8 @@ begin
           bm2.Canvas.Pixels[x,y]:=clBlack;
       end;
       //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
-      IconInfo.xHotspot:=-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i];
-      IconInfo.yHotspot:=-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i];
+      IconInfo.xHotspot:=max(-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i],0);
+      IconInfo.yHotspot:=max(-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i],0);
     end;
   IconInfo.fIcon:=false;
   IconInfo.hbmColor:=bm.Handle;

@@ -13,14 +13,16 @@
 //
 //----------------------------------------------------------------------------
 unit KM_TGATexture;
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
+{$IFDEF VER140} {$DEFINE WDC} {$ENDIF}  // Delphi 6
+{$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
+{$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
 uses
   Forms, Windows,
-  {$IFDEF VER140} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   SysUtils, Classes, dglOpenGL
-  {$IFDEF VER140}, ZLibEx {$ENDIF}
+  {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, paszlib {$ENDIF}
   ;
 
@@ -30,7 +32,7 @@ function GenerateTextureCommon():GLuint;
 
 implementation
 
-{$IFDEF VER140}
+{$IFDEF WDC}
 function gluBuild2DMipmaps(Target: GLenum; Components, Width, Height: GLint; Format, atype: GLenum; Data: Pointer): GLint; stdcall; external glu32;
 {$ENDIF}
 procedure glGenTextures(n: GLsizei; var textures: GLuint); stdcall; external opengl32;
@@ -123,7 +125,7 @@ var
   Temp: Byte;
   Errs:string;
 
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
   DeCompressionStream: TZDecompressionStream;
@@ -166,7 +168,7 @@ begin
   if ZLibCompressed then
   begin
     CloseFile(TGAFile);
-  {$IFDEF VER140}
+  {$IFDEF WDC}
     InputStream := TFileStream.Create(FileName, fmOpenRead);
     OutputStream := TMemoryStream.Create;
     DecompressionStream := TZDecompressionStream.Create(InputStream);
@@ -225,7 +227,7 @@ begin
 
   if ZLibCompressed then
   begin
-    {$IFDEF VER140}
+    {$IFDEF WDC}
     GetMem(Image, ImageSize);
     bytesRead := OutputStream.Read(Image^, ImageSize);
     OutputStream.Free;
@@ -288,7 +290,7 @@ begin
   Result := true;
   if ZLibCompressed then
   begin
-    {$IFDEF VER140}
+    {$IFDEF WDC}
     FreeMem(Image);
     {$ENDIF}
     {$IFDEF FPC}

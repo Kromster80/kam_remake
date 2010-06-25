@@ -1,4 +1,5 @@
 unit KM_UnitTaskThrowRock;
+{$I KaM_Remake.inc}
 interface
 uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KromUtils, SysUtils;
 

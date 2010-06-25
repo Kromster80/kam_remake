@@ -1,4 +1,5 @@
 unit KM_GameInputProcess;
+{$I KaM_Remake.inc}
 interface
 uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils,
   {$IFDEF DELPHI} OpenGL, {$ENDIF}

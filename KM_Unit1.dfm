@@ -58,7 +58,6 @@ object Form1: TForm1
         Text = '50.0 fps (50)'
         Width = 80
       end>
-    SimplePanel = False
   end
   object GroupBox1: TGroupBox
     Left = 408
@@ -113,12 +112,7 @@ object Form1: TForm1
       Width = 83
       Height = 17
       Max = 9
-      Orientation = trHorizontal
       PageSize = 1
-      Frequency = 1
-      Position = 0
-      SelEnd = 0
-      SelStart = 0
       TabOrder = 0
       ThumbLength = 14
       TickMarks = tmBoth
@@ -160,12 +154,7 @@ object Form1: TForm1
       Width = 95
       Height = 17
       Max = 90
-      Orientation = trHorizontal
       PageSize = 1
-      Frequency = 1
-      Position = 0
-      SelEnd = 0
-      SelStart = 0
       TabOrder = 4
       ThumbLength = 14
       TickMarks = tmBoth

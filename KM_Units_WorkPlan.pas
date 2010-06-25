@@ -1,4 +1,5 @@
 unit KM_Units_WorkPlan;
+{$I KaM_Remake.inc}
 interface
 uses KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
 

@@ -1,4 +1,5 @@
 unit KM_Terrain;
+{$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
      KM_Defaults, KM_CommonTypes, KM_Utils;

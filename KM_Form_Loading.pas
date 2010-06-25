@@ -1,4 +1,5 @@
 unit KM_Form_Loading;
+{$I KaM_Remake.inc}
 interface
 uses
   {$IFDEF FPC} LResources, {$ENDIF}
@@ -19,8 +20,8 @@ type
   end;
 
 implementation
-{$IFDEF VER140}
-{$R *.dfm}
+{$IFDEF WDC}
+  {$R *.dfm}
 {$ENDIF}
 
 {$IFDEF FPC}

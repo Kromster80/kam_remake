@@ -1,4 +1,5 @@
 unit KM_Utils;
+{$I KaM_Remake.inc}
 interface
 uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 

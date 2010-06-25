@@ -1,4 +1,5 @@
 unit KM_PlayersCollection;
+{$I KaM_Remake.inc}
 interface
 uses
   Classes, KromUtils, Math, SysUtils,

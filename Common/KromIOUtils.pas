@@ -1,4 +1,6 @@
 unit KromIOUtils;
+{$IFDEF VER140} {$DEFINE WDC} {$ENDIF}  // Delphi 6
+{$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
 interface
 uses ShellAPI, SysUtils;
 

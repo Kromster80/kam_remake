@@ -1,4 +1,5 @@
 unit KM_Units_Warrior;
+{$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units, KM_Houses;

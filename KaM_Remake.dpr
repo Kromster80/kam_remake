@@ -1,4 +1,5 @@
 program KaM_Remake;
+{$I KaM_Remake.inc}
 {$IFDEF FPC}
   {$Mode Delphi}
 {$ENDIF}
@@ -47,7 +48,7 @@ uses
   KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas',
   KM_Units_Warrior in 'KM_Units_Warrior.pas';
 
-{$IFDEF VER140}
+{$IFDEF WDC}
   {$R *.RES}
 {$ENDIF}
 

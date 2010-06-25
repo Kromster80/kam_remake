@@ -1,7 +1,8 @@
 unit KM_RenderUI;
+{$I KaM_Remake.inc}
 interface
 uses dglOpenGL,
-  {$IFDEF VER140} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   Math, KromUtils, KromOGLUtils, SysUtils, KM_CommonTypes, KM_Defaults, Graphics;
 

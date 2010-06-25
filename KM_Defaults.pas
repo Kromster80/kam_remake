@@ -1,4 +1,5 @@
 unit KM_Defaults;
+{$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils, KromUtils, dglOpenGL, KM_CommonTypes;
 

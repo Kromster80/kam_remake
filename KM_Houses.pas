@@ -1,4 +1,5 @@
 unit KM_Houses;
+{$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils, Windows,
      KM_CommonTypes, KM_Defaults, KM_Utils;

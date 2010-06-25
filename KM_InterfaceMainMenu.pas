@@ -1,7 +1,8 @@
 unit KM_InterfaceMainMenu;
+{$I KaM_Remake.inc}
 interface
 uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   KM_Controls, KM_Defaults, KM_LoadDAT, Windows, KM_Settings;
 

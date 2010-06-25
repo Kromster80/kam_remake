@@ -1,4 +1,5 @@
 unit KM_PathFinding;
+{$I KaM_Remake.inc}
 interface            
 uses ExtCtrls, SysUtils, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
 

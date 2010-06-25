@@ -1,7 +1,8 @@
 unit KM_Game;
+{$I KaM_Remake.inc}
 interface
 uses Windows,
-  {$IFDEF VER140} MPlayer, {$ENDIF}
+  {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, SysUtils, KromUtils, Math,
   KM_Defaults, KM_Controls, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Utils, KM_Music;

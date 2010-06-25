@@ -1,12 +1,12 @@
 unit KM_Unit1;
+{$I KaM_Remake.inc}
 interface
 uses
   Windows, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, Menus, Buttons, Messages,
   Math, SysUtils, KromUtils,
-  {$IFDEF VER140} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, MPlayer, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
-  {$IFDEF VER140} MPlayer, {$ENDIF}
   dglOpenGL, MMSystem,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
   KM_Game, KM_Viewport, KM_PlayersCollection, ColorPicker,
@@ -58,7 +58,7 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
-    {$IFDEF VER140} MediaPlayer1: TMediaPlayer; {$ENDIF}
+    {$IFDEF WDC} MediaPlayer1: TMediaPlayer; {$ENDIF}
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -117,8 +117,8 @@ var
   TextT:GLuint; //Tiles
 
 implementation
-{$IFDEF VER140}
-{$R *.dfm}
+{$IFDEF WDC}
+  {$R *.dfm}
 {$ENDIF}
 
 uses KM_Settings, KM_CommonTypes, KM_TGATexture;
@@ -316,9 +316,9 @@ end;
 
 
 procedure TForm1.Debug_PrintScreenClick(Sender: TObject);
-{$IFDEF VER140} var s:string; {$ENDIF}
+{$IFDEF WDC} var s:string; {$ENDIF}
 begin
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   DateTimeToString(s,'yyyy-mm-dd hh-nn-ss',Now); //2007-12-23 15-24-33
   if fRender<>nil then fRender.DoPrintScreen(ExeDir+'KaM '+s+'.jpg');
   {$ENDIF}
@@ -418,7 +418,7 @@ begin
   {if ShowCtrls then Form1.Menu := MainMenu1
                 else Form1.Menu := nil; //Not working as intended yet}
 
-  {$IFDEF VER140} //Lazarus can't operate with ClientSize for it's not multi-platform property
+  {$IFDEF WDC} //Lazarus can't operate with ClientSize for it's not multi-platform property
   if MainMenu1.Items[0].Visible and not ShowCtrls then //Hiding controls
     Form1.ClientHeight := Form1.ClientHeight - 20
   else

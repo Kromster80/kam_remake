@@ -1,7 +1,8 @@
 unit KM_Viewport;
+{$I KaM_Remake.inc}
 interface
 uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils,
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
+  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   KM_Utils, KM_CommonTypes;
 

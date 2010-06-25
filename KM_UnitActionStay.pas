@@ -1,4 +1,5 @@
 unit KM_UnitActionStay;
+{$I KaM_Remake.inc}
 interface
 uses Classes, KM_Defaults, KromUtils, KM_CommonTypes, KM_Units, SysUtils, Math;
 

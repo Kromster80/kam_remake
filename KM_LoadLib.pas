@@ -1,4 +1,5 @@
 unit KM_LoadLib;
+{$I KaM_Remake.inc}
 interface
 uses
   Classes, SysUtils, KromUtils;

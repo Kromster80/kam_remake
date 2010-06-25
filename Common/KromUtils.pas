@@ -1,5 +1,7 @@
 unit KromUtils;
-{$IFDEF FPC} {$MODE DELPHI} {$ENDIF}
+{$IFDEF VER140} {$DEFINE WDC} {$ENDIF}  // Delphi 6
+{$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
+{$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
 uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, ShellApi;
 

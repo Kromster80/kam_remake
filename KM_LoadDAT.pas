@@ -1,4 +1,5 @@
 unit KM_LoadDAT;
+{$I KaM_Remake.inc}
 interface
 uses
   Windows, Classes, KromUtils, SysUtils, Dialogs, Math, KM_CommonTypes, KM_Defaults, KM_Utils,

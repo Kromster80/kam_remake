@@ -1,4 +1,5 @@
 unit KM_InterfaceMapEditor;
+{$I KaM_Remake.inc}
 interface
 uses Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils,
      KM_Controls, KM_Defaults, KM_Houses, KM_Units;

@@ -1,4 +1,5 @@
 unit KM_Units;
+{$I KaM_Remake.inc}
 interface
 uses
   Classes, Math, SysUtils, KromUtils, Windows,

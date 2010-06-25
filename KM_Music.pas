@@ -1,13 +1,14 @@
 unit KM_Music;
+{$I KaM_Remake.inc}
 interface
 uses Forms,
-  {$IFDEF VER140}MMSystem, Windows, MPlayer, {$ENDIF}
+  {$IFDEF WDC}MMSystem, Windows, MPlayer, {$ENDIF}
   Classes, SysUtils, KromUtils, Math, KM_Defaults, KM_CommonTypes;
 
 type
   TMusicLib = class(TObject)
   private
-    {$IFDEF VER140} MediaPlayer: TMediaPlayer; {$ENDIF}
+    {$IFDEF WDC} MediaPlayer: TMediaPlayer; {$ENDIF}
     MusicCount,MusicIndex:integer;
     MusicTracks:array[1..256]of string;
     //MIDICount,MIDIIndex:integer;
@@ -42,7 +43,7 @@ begin
   Inherited Create;
   IsMusicInitialized := true;
   ScanMusicTracks(ExeDir + 'Music\');
-  {$IFDEF VER140} MediaPlayer := Form1.MediaPlayer1; {$ENDIF}
+  {$IFDEF WDC} MediaPlayer := Form1.MediaPlayer1; {$ENDIF}
   //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
   fLog.AppendLog('Music init done, '+inttostr(MusicCount)+' mp3 tracks found');
 end;
@@ -60,7 +61,7 @@ end;
 function TMusicLib.CheckMusicError():boolean;
 begin
   Result := false;
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   if MediaPlayer.Error<>0 then begin
     fLog.AddToLog(MediaPlayer.errormessage);
    // Application.MessageBox(@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
@@ -74,7 +75,7 @@ end;
 function TMusicLib.PlayMusicFile(FileName:string):boolean;
 begin
   Result:=false;
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   if not IsMusicInitialized then exit;
 
   if MediaPlayer.FileName<>'' then
@@ -98,7 +99,7 @@ end;
 
 {Update music gain (global volume for all sounds/music)}
 procedure TMusicLib.UpdateMusicVolume(Value:single);
-{$IFDEF VER140}
+{$IFDEF WDC}
 const
   MCI_SETAUDIO = $0873;
   MCI_DGV_SETAUDIO_VOLUME = $4002;
@@ -115,7 +116,7 @@ var
   end;
 {$ENDIF}
 begin
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   if not IsMusicInitialized then exit; //Keep silent
   MusicGain:=Value;
   P.dwCallback := 0;
@@ -192,7 +193,7 @@ end;
 function TMusicLib.IsMusicEnded():boolean;
 begin
   Result:=false;
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   if not IsMusicInitialized then exit;
   if fGame.fGlobalSettings.IsMusic then begin
     Result := ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
@@ -204,7 +205,7 @@ end;
 
 procedure TMusicLib.StopMusic;
 begin
-  {$IFDEF VER140}
+  {$IFDEF WDC}
   if not IsMusicInitialized then exit;
   MediaPlayer.Close;
   //if CheckMusicError then exit;

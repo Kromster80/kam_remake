@@ -1,4 +1,5 @@
 unit KM_UnitTask_Build;
+{$I KaM_Remake.inc}
 interface
 uses KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units;
 
