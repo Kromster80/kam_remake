@@ -83,7 +83,7 @@ UnsafeCast=0
 MapFile=3
 OutputObjs=0
 ConsoleApp=1
-DebugInfo=0
+DebugInfo=1
 RemoteSymbols=0
 MinStackSize=16384
 MaxStackSize=1048576
@@ -129,16 +129,6 @@ Locale=1049
 CodePage=1251
 [Version Info Keys]
 FileVersion=1.0.0.0
-[Excluded Packages]
-C:\Program Files\Borland\Delphi7\Projects\Bpl\JvMMD7D.bpl=JVCL Multimedia and Image Components
-[HistoryLists\hlConditionals]
-Count=6
-Item0={$I KaM_Remake.inc}
-Item1=WDC
-Item2=DELPHI
-Item3="{$IFNDEF FPC} ($DEFINE DELPHI) {$ENDIF}"
-Item4={$IFNDEF FPC} ($DEFINE DELPHI) {$ENDIF}
-Item5={$IFNDEF FPC} (DEFINE DELPHI) {$ENDIF}
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;

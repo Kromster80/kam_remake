@@ -78,8 +78,8 @@ begin
 end;
 
 
-procedure FlipImageVertical(W,H,bpp:integer; Image:pointer);
-var ii,kk:integer;
+procedure FlipImageVertical(W,H,bpp:word; Image:pointer);
+var ii,kk:cardinal;
   Front: ^Byte;
   Back: ^Byte;
   Temp: Byte;
@@ -119,7 +119,7 @@ var
   Width, Height : Integer;
   ColorDepth    : Integer;
   ImageSize     : Integer;
-  I : Integer;
+  I : cardinal;
   Front: ^Byte;
   Back: ^Byte;
   Temp: Byte;
