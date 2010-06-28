@@ -201,8 +201,6 @@ begin
 
     RenderCursorHighlights(); //Will be on-top
 
-    fGame.fProjectiles.Paint; //Render all arrows and etc..
-
     RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm2D);
   end;
 
