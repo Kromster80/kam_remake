@@ -658,7 +658,7 @@ var
   FoundEnemy, BestEnemy:TKMUnit;
 begin
   Result := nil;
-  if Self.GetHome.CheckResIn(rt_Stone)<=0 then exit; //Nothing to throw
+  if (not FREE_ROCK_THROWING) and (Self.GetHome.CheckResIn(rt_Stone)<=0) then exit; //Nothing to throw
   BestEnemy := nil;
 
   //Look for an enemy within some radius

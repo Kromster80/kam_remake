@@ -26,6 +26,7 @@ type
     property PlayerCount:integer read fPlayerCount;
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
+    function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X, Y: Integer):boolean;
@@ -104,12 +105,36 @@ end;
 function TKMAllPlayers.UnitsHitTest(X, Y: Integer): TKMUnit;
 var i:integer;
 begin
-  Result:=nil;
+  Result := nil;
   for i:=1 to fPlayerCount do begin
-    Result:= Player[i].UnitsHitTest(X,Y);
+    Result := Player[i].UnitsHitTest(X,Y);
     if Result<>nil then Break; //else keep on testing
   end;
-  if Result = nil then Result:=PlayerAnimals.UnitsHitTest(X, Y);
+  if Result = nil then
+    Result := PlayerAnimals.UnitsHitTest(X,Y);
+end;
+
+
+//Floating-point hit test version, required for Projectiles
+//Return unit within range of 1 from aLoc
+function TKMAllPlayers.UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
+var i,X,Y:integer; U:TKMUnit;
+begin
+  Result := nil;
+
+  for i:=1 to fPlayerCount do
+  for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
+  for X:=trunc(aLoc.X) to ceil(aLoc.X) do begin
+    U := Player[i].UnitsHitTest(X,Y);
+    if U<>nil then
+      if (Result=nil) or (GetLength(U.PositionF,aLoc)<GetLength(U.PositionF,Result.PositionF)) then
+        Result := U;
+  end;
+
+  if Result = nil then
+  for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
+  for X:=trunc(aLoc.X) to ceil(aLoc.X) do
+    Result := PlayerAnimals.UnitsHitTest(X,Y);
 end;
 
 

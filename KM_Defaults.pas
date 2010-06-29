@@ -33,7 +33,7 @@ const
 var
   //These should be TRUE
   MakeTerrainAnim       :boolean=false;  //Should we animate water and swamps
-  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MakeUnitSprites       :boolean=false;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
@@ -62,9 +62,10 @@ var
    SHOW_CONTROLS_OVERLAY:boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
+  FREE_ROCK_THROWING    :boolean=true;
   {Gameplay variables}
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
-  SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
+  SHOW_UNIT_ROUTES      :boolean=true; //Draw unit routes when they are chosen
   SHOW_PROJECTILES      :boolean=true; //Shows projectiles trajectory
   SHOW_UNIT_MOVEMENT    :boolean=true; //Draw unit movement overlay, Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas

@@ -32,7 +32,8 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   function KMGetDiagVertex(P1,P2:TKMPoint): TKMPoint;
   function KMStepIsDiag(P1,P2:TKMPoint):boolean;
 
-  function GetLength(A,B:TKMPoint): single;
+  function GetLength(A,B:TKMPoint): single; overload;
+  function GetLength(A,B:TKMPointF): single; overload;
   function KMLength(A,B:TKMPoint): single;
 
   function Mix(A,B:TKMPointF; MixValue:single):TKMPointF; overload;
@@ -252,6 +253,12 @@ end;
 
 
 function GetLength(A,B:TKMPoint): single; overload;
+begin
+  Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
+end;
+
+
+function GetLength(A,B:TKMPointF): single; overload;
 begin
   Result := sqrt(sqr(A.x-B.x) + sqr(A.y-B.y));
 end;

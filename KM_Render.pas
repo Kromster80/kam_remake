@@ -71,6 +71,7 @@ public
   procedure RenderTerrainFieldBorders(x1,x2,y1,y2:integer);
   procedure RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
   procedure RenderDebugLine(x1,y1,x2,y2:single);
+  procedure RenderDebugProjectile(x1,y1,x2,y2:single);
   procedure RenderDebugWires(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
@@ -188,15 +189,15 @@ begin
     glLineWidth(fViewport.Zoom*2);
     glPointSize(fViewport.Zoom*5);
 
-    RenderCount:=0; //Init RenderList
+    RenderCount := 0; //Init RenderList
 
     fTerrain.Paint;
     fPlayers.Paint; //Quite slow           //Units and houses
     if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
       fGame.fProjectiles.Paint; //Render all arrows and etc..
 
-    ClipRenderList();
-    SortRenderList();
+    ClipRenderList(); //drop items that are outside of viewport
+    SortRenderList(); //sort items overlaying
     RenderRenderList();
 
     RenderCursorHighlights(); //Will be on-top
@@ -437,6 +438,16 @@ begin
   glColor4f(1.0, 0.75, 1.0, 1.0);
   RenderDot(x1,y1);
   RenderDot(x2,y2);
+  RenderLine(x1,y1,x2,y2);
+end;
+
+
+procedure TRender.RenderDebugProjectile(x1,y1,x2,y2:single);
+begin
+  glColor4f(1, 1, 0, 1);
+  RenderDot(x1,y1);
+  glColor4f(1, 0, 0, 1);
+  RenderDot(x2,y2,0.1);
   RenderLine(x1,y1,x2,y2);
 end;
 
@@ -749,7 +760,7 @@ if ID<=0 then exit;
   if InRange(Owner,1,MAX_PLAYERS) then
     glColor3ubv(@TeamColors[Owner])  //Render dot where unit is
   else glColor3ubv(@TeamColors[1]);   //Animals don't have team number (Owner=0) so make them team 1 colour
-  RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
+  RenderDot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
 end;
 
 

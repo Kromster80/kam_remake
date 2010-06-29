@@ -60,7 +60,7 @@ begin
   with fUnit do
   case fPhase of
     0: begin
-         //for debug GetHome.ResTakeFromIn(rt_Stone, 1);
+         if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
          GetHome.SetState(hst_Work); //Set house to Work state
          GetHome.fCurrentAction.SubActionWork(ha_Work2); //show Recruits back
          fFlightTime := fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);

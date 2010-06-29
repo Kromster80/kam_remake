@@ -10,9 +10,12 @@ type
   TKMProjectiles = class
   private
     fItems:array of record
-      fStart:TKMPointF; //Screen-space trajectory start
-      fEnd:TKMPointF; //Screen-space trajectory end
+      fScreenStart:TKMPointF; //Screen-space trajectory start
+      fScreenEnd:TKMPointF; //Screen-space trajectory end
+
       fTarget:TKMPointF; //Logical tile-coords target
+      fTargetJ:TKMPointF; //Logical tile-coords target
+
       fProjType:TProjectileType;
       fSpeed:single; //Projectile speed may vary a little bit
       fArc:single; //Thats how high projectile will go along parabola
@@ -58,29 +61,31 @@ begin
   //Route for Arrow is parabola of some kind
   //Route for TowerRock is 2nd half of that parabola
 
-  Jitter              := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_WATCHTOWER;
-  fItems[i].fTarget.X := aEnd.X + RandomS(Jitter); //Thats logical target in tile-coords
-  fItems[i].fTarget.Y := aEnd.Y + RandomS(Jitter);
+  Jitter              := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_WATCHTOWER / 1.5;
+  fItems[i].fTarget.X := aEnd.X; //Thats logical target in tile-coords
+  fItems[i].fTarget.Y := aEnd.Y;
+  fItems[i].fTargetJ.X := aEnd.X + RandomS(Jitter); //Thats logical target in tile-coords
+  fItems[i].fTargetJ.Y := aEnd.Y + RandomS(Jitter);
 
   //Converting tile-coords into screen coords
   case aProjType of
     pt_Arrow, pt_Bolt: begin
-                    fItems[i].fStart.X := aStart.X + 0.5; //Recruit stands in entrance, Tower middleline is X-0.75
-                    fItems[i].fStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.5; //Recruit stands in entrance, Tower middleline is X-0.5
+                    fItems[i].fScreenStart.X := aStart.X + 0.5; //Recruit stands in entrance, Tower middleline is X-0.75
+                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.5; //Recruit stands in entrance, Tower middleline is X-0.5
                   end;
     pt_TowerRock: begin
-                    fItems[i].fStart.X := aStart.X - 0.25; //Recruit stands in entrance, Tower middleline is X-0.75
-                    fItems[i].fStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 1.75; //Recruit stands in entrance, Tower middleline is X-0.5
+                    fItems[i].fScreenStart.X := aStart.X - 0.25; //Recruit stands in entrance, Tower middleline is X-0.75
+                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 1.75; //Recruit stands in entrance, Tower middleline is X-0.5
                   end;
   end;
-  fItems[i].fEnd.X    := fItems[i].fTarget.X + 0.5;
-  fItems[i].fEnd.Y    := fItems[i].fTarget.Y - fTerrain.InterpolateLandHeight(aEnd.X,aEnd.Y)/CELL_HEIGHT_DIV + 0.5; //projectile hits on Unit's chest height
+  fItems[i].fScreenEnd.X    := fItems[i].fTargetJ.X + 0.5;
+  fItems[i].fScreenEnd.Y    := fItems[i].fTargetJ.Y + 0.5 - fTerrain.InterpolateLandHeight(aEnd.X,aEnd.Y)/CELL_HEIGHT_DIV; //projectile hits on Unit's chest height
 
   fItems[i].fProjType := aProjType;
   fItems[i].fSpeed    := 0.3 + randomS(0.05);
   fItems[i].fArc      := 1 + randomS(0.3);
   fItems[i].fPosition := 0; //projectile position on its route
-  fItems[i].fLength   := GetLength(fItems[i].fStart.X - fItems[i].fEnd.X, fItems[i].fStart.Y - fItems[i].fEnd.Y); //route length
+  fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length
 
   Result := round(fItems[i].fLength / fItems[i].fSpeed);
 end;
@@ -97,7 +102,7 @@ begin
 
       if fItems[i].fPosition >= fItems[i].fLength then begin
         fItems[i].fSpeed := 0; //remove projectile
-        U := fPlayers.UnitsHitTest(round(fItems[i].fTarget.X), round(fItems[i].fTarget.Y));
+        U := fPlayers.UnitsHitTestF(fItems[i].fTargetJ);
         if U <> nil then
           U.KillUnit;
       end;
@@ -112,20 +117,21 @@ var
 begin
   for i:=1 to length(fItems)-1 do
     if fItems[i].fSpeed <> 0 then
+    if fItems[i].fPosition >= 0.2 then //fly off Tower a bit
     begin
       MixValue := 1 - fItems[i].fPosition / fItems[i].fLength;
       fRender.RenderProjectile(
                                  fItems[i].fProjType,
                                  0,
-                                 mix(fItems[i].fStart.X, fItems[i].fEnd.X, MixValue),
-                                 mix(fItems[i].fStart.Y, fItems[i].fEnd.Y, MixValue)
+                                 mix(fItems[i].fScreenStart.X, fItems[i].fScreenEnd.X, MixValue),
+                                 mix(fItems[i].fScreenStart.Y, fItems[i].fScreenEnd.Y, MixValue)
                                  );
-      fRender.RenderDebugLine(
-                                 fItems[i].fStart.X,
-                                 fItems[i].fStart.Y,
-                                 fItems[i].fEnd.X,
-                                 fItems[i].fEnd.Y);
-      fRender.RenderDebugLine(fItems[i].fTarget.X,fItems[i].fTarget.Y,fItems[i].fTarget.X+0.1,fItems[i].fTarget.Y+0.1);
+      fRender.RenderDebugProjectile(
+                                    fItems[i].fScreenStart.X,
+                                    fItems[i].fScreenStart.Y,
+                                    fItems[i].fScreenEnd.X,
+                                    fItems[i].fScreenEnd.Y);
+      fRender.RenderDebugProjectile(fItems[i].fTarget.X,fItems[i].fTarget.Y,fItems[i].fTargetJ.X,fItems[i].fTargetJ.Y);
     end;
 end;
 
