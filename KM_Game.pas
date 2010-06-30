@@ -1008,8 +1008,8 @@ begin
         StartGame('','');
 
         //Substitute tick counter and id tracker
-        LoadStream.Read(fMissionFile); //Save game mission file
-        LoadStream.Read(fGameName); //Save game title
+        LoadStream.Read(fMissionFile); //Savegame mission file
+        LoadStream.Read(fGameName); //Savegame title
         LoadStream.Read(GameplayTickCount);
         LoadStream.Read(ID_Tracker);
 

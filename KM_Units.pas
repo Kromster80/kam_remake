@@ -1042,7 +1042,7 @@ begin
     LoadStream.Read(TaskName, SizeOf(TaskName)); //Save task type before anything else for it will be used on loading to create specific task type
     LoadStream.Seek(-SizeOf(TaskName), soFromCurrent); //rewind
     case TaskName of
-      utn_Unknown:         fUnitTask := nil;
+      utn_Unknown:         Assert(false, 'TaskName can''t be handled');
       utn_SelfTrain:       fUnitTask := TTaskSelfTrain.Load(LoadStream);
       utn_Deliver:         fUnitTask := TTaskDeliver.Load(LoadStream);
       utn_BuildRoad:       fUnitTask := TTaskBuildRoad.Load(LoadStream);
@@ -1058,7 +1058,7 @@ begin
       utn_Mining:          fUnitTask := TTaskMining.Load(LoadStream);
       utn_Die:             fUnitTask := TTaskDie.Load(LoadStream);
       utn_GoOutShowHungry: fUnitTask := TTaskGoOutShowHungry.Load(LoadStream);
-      else                 fUnitTask := nil;
+      else                 Assert(false, 'TaskName can''t be handled');
     end;
   end
   else
@@ -1070,13 +1070,13 @@ begin
     LoadStream.Read(ActName, SizeOf(ActName));
     LoadStream.Seek(-SizeOf(ActName), soFromCurrent); //rewind
     case ActName of
-      uan_Unknown:     fCurrentAction := nil;
+      uan_Unknown:     Assert(false, 'ActName can''t be handled');
       uan_Stay:        fCurrentAction := TUnitActionStay.Load(LoadStream);
       uan_WalkTo:      fCurrentAction := TUnitActionWalkTo.Load(LoadStream);
       uan_AbandonWalk: fCurrentAction := TUnitActionAbandonWalk.Load(LoadStream);
       uan_GoInOut:     fCurrentAction := TUnitActionGoInOut.Load(LoadStream);
       uan_Fight:       fCurrentAction := TUnitActionFight.Load(LoadStream);
-      else             fCurrentAction := nil;
+      else             Assert(false, 'ActName can''t be handled');
     end;
   end
   else
@@ -2347,11 +2347,12 @@ begin
       ut_Worker:                Inherited Add(TKMUnitWorker.Load(LoadStream));
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
                                 Inherited Add(TKMUnitCitizen.Load(LoadStream));
-      ut_Recruit:               Inherited Add(TKMUnitCitizen.Load(LoadStream));
+      ut_Recruit:               Inherited Add(TKMUnitRecruit.Load(LoadStream));
       ut_Militia..ut_Barbarian: Inherited Add(TKMUnitWarrior.Load(LoadStream));
       //ut_Bowman:   Inherited Add(TKMUnitArcher.Load(LoadStream)); //I guess it will be stand-alone
       ut_Wolf..ut_Duck:         Inherited Add(TKMUnitAnimal.Load(LoadStream));
-    else fLog.AssertToLog(false, 'Unknown unit type in Savegame')
+    else
+      fLog.AssertToLog(false, 'Unknown unit type in Savegame')
     end;
   end;
 end;

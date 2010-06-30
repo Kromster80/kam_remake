@@ -607,7 +607,12 @@ begin
 //    Label_Credits.SmoothScrollToTop := 1;
 
     MyControls.AddLabel(Panel_Credits,200,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
-    MyControls.AddLabel(Panel_Credits,200,140,100,30,'PROGRAMMING|Krom|Lewin||ADDITIONAL PROGRAMMING|Alex||SLOVAK TRANSLATION|Some guy||SPECIAL THANKS|KaM Community members',fnt_Grey,kaCenter);
+    MyControls.AddLabel(Panel_Credits,200,140,100,30,
+    'PROGRAMMING|Krom|Lewin||'+
+    'ADDITIONAL PROGRAMMING|Alex||'+
+    'SLOVAK TRANSLATION|Robert Marko||'+
+    'SPECIAL THANKS|KaM Community members'
+    ,fnt_Grey,kaCenter);
 
     Button_CreditsBack:=MyControls.AddButton(Panel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;

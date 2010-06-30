@@ -1279,7 +1279,7 @@ begin
   until(DirID = DirList.Count);
 
   ScrollBar.MinValue := 0;
-  ScrollBar.MaxValue := fFiles.Count - (fHeight div ItemHeight);
+  ScrollBar.MaxValue := max(fFiles.Count - (fHeight div ItemHeight),0);
   ScrollBar.Position := 0;
   ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
 end;
