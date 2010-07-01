@@ -810,7 +810,7 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+  fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -1668,6 +1668,9 @@ begin
   end;
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
+
+  if SHOW_POINTER_COUNTS then
+    fRender.RenderDebugUnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), GetPointerCount);
 end;
 
 

@@ -128,6 +128,10 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
+  if fOrderTarget<>nil then fOrderTarget.RemovePointer;
+  if fOrderHouseTarget<>nil then fOrderHouseTarget.RemovePointer;
+  if fFoe<>nil then fFoe.RemovePointer;
+
   FreeAndNil(fMembers);
   Inherited;
 end;

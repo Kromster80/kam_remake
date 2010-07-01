@@ -37,7 +37,7 @@ end;
 
 destructor TUnitActionFight.Destroy;
 begin
-  fOpponent.RemovePointer;
+  if fOpponent<>nil then fOpponent.RemovePointer;
   Inherited;
 end;
 

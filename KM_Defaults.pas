@@ -67,6 +67,7 @@ var
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
+  SHOW_POINTER_COUNTS   :boolean=true; //Show pointer count as small dots below unit
   SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count

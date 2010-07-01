@@ -185,9 +185,12 @@ end;
 destructor TUnitActionWalkTo.Destroy;
 begin
   FreeAndNil(NodeList);
+
   if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
     DecVertex;
+
   fWalker.IsExchanging := false;
+
   if fTargetUnit <> nil then
     fTargetUnit.RemovePointer;
   Inherited;
@@ -660,8 +663,11 @@ begin
     fTargetUnit := nil;
   end;
 
-  if aNewTargetUnit <> nil then
+  if aNewTargetUnit <> nil then begin
+    if fTargetUnit <> nil then
+      fTargetUnit.RemovePointer; //release the unit
     fTargetUnit := aNewTargetUnit.GetSelf; //Change target
+  end;
 
   fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal ChangeWalkTo 0;0');
 end;

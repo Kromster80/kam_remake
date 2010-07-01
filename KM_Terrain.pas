@@ -1542,6 +1542,7 @@ begin
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
 end;
 
+
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
@@ -1552,6 +1553,7 @@ begin
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
+
 
 {Mark vertex as occupied}
 procedure TTerrain.UnitVertexAdd(LocTo:TKMPoint);

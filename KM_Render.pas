@@ -73,6 +73,7 @@ public
   procedure RenderDebugLine(x1,y1,x2,y2:single);
   procedure RenderDebugProjectile(x1,y1,x2,y2:single);
   procedure RenderDebugWires(x1,x2,y1,y2:integer);
+  procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
   procedure RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
@@ -489,6 +490,14 @@ begin
 end;
 
 
+procedure TRender.RenderDebugUnitPointers(pX,pY:single; Count:integer);
+var i:integer;
+begin
+  for i:=1 to Count do
+    RenderDot(pX+i/5,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
+end;
+
+
 procedure TRender.RenderDebugUnitMoves(x1,x2,y1,y2:integer);
 var i,k:integer;
 begin
@@ -756,11 +765,12 @@ if ID<=0 then exit;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
 
-  if not SHOW_UNIT_MOVEMENT then exit;
-  if InRange(Owner,1,MAX_PLAYERS) then
-    glColor3ubv(@TeamColors[Owner])  //Render dot where unit is
-  else glColor3ubv(@TeamColors[1]);   //Animals don't have team number (Owner=0) so make them team 1 colour
-  RenderDot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
+  if SHOW_UNIT_MOVEMENT then begin
+    if InRange(Owner,1,MAX_PLAYERS) then
+      glColor3ubv(@TeamColors[Owner])  //Render dot where unit is
+    else glColor3ubv(@TeamColors[1]);   //Animals don't have team number (Owner=0) so make them team 1 colour
+    RenderDot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
+  end;
 end;
 
 
