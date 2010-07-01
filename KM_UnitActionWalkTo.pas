@@ -654,8 +654,14 @@ begin
   else
     fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass);
 
-  if aResetTargetUnit then fTargetUnit := nil;
-  if aNewTargetUnit <> nil then fTargetUnit := aNewTargetUnit; //Change target
+  if aResetTargetUnit then begin
+    if fTargetUnit <> nil then
+      fTargetUnit.RemovePointer; //release the unit
+    fTargetUnit := nil;
+  end;
+
+  if aNewTargetUnit <> nil then
+    fTargetUnit := aNewTargetUnit.GetSelf; //Change target
 
   fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal ChangeWalkTo 0;0');
 end;
