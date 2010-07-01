@@ -32,7 +32,7 @@ const
 
 var
   //These should be TRUE
-  MakeTerrainAnim       :boolean=true;  //Should we animate water and swamps
+  MAKE_ANIM_TERRAIN     :boolean=true;  //Should we animate water and swamps
   MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
   MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
   MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
@@ -63,7 +63,7 @@ var
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   FREE_ROCK_THROWING    :boolean=false;
-  {Gameplay variables}
+  {Gameplay display}
   ShowTerrainWires      :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
@@ -72,9 +72,9 @@ var
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
-  {Gameplay display}
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
+  KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Data output}
   WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably

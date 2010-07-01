@@ -131,10 +131,11 @@ var i:integer;
 begin
   LoadTexture(ExeDir+'Resource\gradient.tga', TextG,0);
   LoadTexture(ExeDir+'Resource\Tiles1.tga', TextT,0);
-  if not MakeTerrainAnim then exit;
-  for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i],0);
-  for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i],0);
-  for i:=1 to 5 do LoadTexture(ExeDir+'Resource\Falls'+inttostr(i)+'.tga', TextF[i],0);
+  if MAKE_ANIM_TERRAIN then begin
+    for i:=1 to 8 do LoadTexture(ExeDir+'Resource\Water'+inttostr(i)+'.tga', TextW[i],0);
+    for i:=1 to 3 do LoadTexture(ExeDir+'Resource\Swamp'+inttostr(i)+'.tga', TextS[i],0);
+    for i:=1 to 5 do LoadTexture(ExeDir+'Resource\Falls'+inttostr(i)+'.tga', TextF[i],0);
+  end;
 end;
 
 
@@ -253,6 +254,7 @@ end;
 
 procedure TRender.RenderTerrain(x1,x2,y1,y2,AnimStep:integer);
 var
+  Lay2:boolean;
   i,k,iW:integer; ID,Rot,rd:integer;
   xt,a:integer;
   TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
@@ -260,19 +262,25 @@ var
 begin
 glColor4f(1,1,1,1);
 
-for iW:=1 to 1+3*byte(MakeTerrainAnim) do begin //Each new layer inflicts 10% fps drop
+for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
   case iW of
     1: glBindTexture(GL_TEXTURE_2D, TextT);
     2: glBindTexture(GL_TEXTURE_2D, TextW[AnimStep mod 8 + 1]); 
     3: glBindTexture(GL_TEXTURE_2D, TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
     4: glBindTexture(GL_TEXTURE_2D, TextF[AnimStep mod 5 + 1]);
   end;
-  glbegin (GL_QUADS);
+  glBegin (GL_QUADS);
     with fTerrain do
     for i:=y1 to y2 do for k:=x1 to x2 do
     if (iW=1) or (CheckTileRevelation(k,i,MyPlayer.PlayerID) > 160) then
     begin
-      xt:=fTerrain.Land[i,k].Terrain;
+      xt:=fTerrain.Land[i,k].Terrain; 
+
+      if KAM_WATER_DRAW and (iW=1) and (xt in [192,193,196]) then begin
+        Lay2:=true;
+        xt:=32;
+      end else
+        Lay2:=false;
 
       TexC[1,1]:=(xt mod 16  )/16+Overlap; TexC[1,2]:=(xt div 16  )/16+Overlap;
       TexC[2,1]:=(xt mod 16  )/16+Overlap; TexC[2,2]:=(xt div 16+1)/16-Overlap;
@@ -290,9 +298,17 @@ for iW:=1 to 1+3*byte(MakeTerrainAnim) do begin //Each new layer inflicts 10% fp
         glTexCoord2fv(@TexC[TexO[3]]); glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
         glTexCoord2fv(@TexC[TexO[4]]); glvertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
       end else begin
+      if Lay2 then glColor4f(1,1,1,Land[i,k].Height/CELL_HEIGHT_DIV+0.5)
+      else glColor4f(1,1,1,1);
         glTexCoord2fv(@TexC[TexO[1]]); glvertex2f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV);
+      if Lay2 then glColor4f(1,1,1,Land[i+1,k].Height/CELL_HEIGHT_DIV+0.5)
+      else glColor4f(1,1,1,1);
         glTexCoord2fv(@TexC[TexO[2]]); glvertex2f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV);
+      if Lay2 then glColor4f(1,1,1,Land[i+1,k+1].Height/CELL_HEIGHT_DIV+0.5)
+      else glColor4f(1,1,1,1);
         glTexCoord2fv(@TexC[TexO[3]]); glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      if Lay2 then glColor4f(1,1,1,Land[i,k+1].Height/CELL_HEIGHT_DIV+0.5)
+      else glColor4f(1,1,1,1);
         glTexCoord2fv(@TexC[TexO[4]]); glvertex2f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV);
       end;
     end;
@@ -390,8 +406,7 @@ begin
             byte(PatternDAT[Land[i,k].Terrain+1].u2 and 2 = 2),
             byte(PatternDAT[Land[i,k].Terrain+1].u2 and 4 = 4),0.5);
   RenderQuad(k,i)
-end;}
-
+end;} 
 end;
 
 
