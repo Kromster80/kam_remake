@@ -333,6 +333,8 @@ TKMFileList = class(TKMControl)
     function FileName:string;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    destructor Destroy; override;
+
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
@@ -1232,6 +1234,14 @@ begin
   fPaths := TStringList.Create;
   fFiles := TStringList.Create;
   fPath := ExeDir;
+end;
+
+
+destructor TKMFileList.Destroy();
+begin
+  FreeAndNil(fFiles);
+  FreeAndNil(fPaths);
+  Inherited;
 end;
 
 

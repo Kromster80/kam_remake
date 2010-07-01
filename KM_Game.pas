@@ -122,6 +122,7 @@ begin
   //Stop music imediently, so it doesn't keep playing and jerk while things closes
   fMusicLib.StopMusic;
 
+  FreeAndNil(fCampaignSettings);
   FreeAndNil(fGlobalSettings);
   FreeAndNil(fMainMenuInterface);
   FreeAndNil(fResource);
