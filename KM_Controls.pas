@@ -1288,6 +1288,8 @@ begin
     FindClose(SearchRec);
   until(DirID = DirList.Count);
 
+  DirList.Free;
+
   ScrollBar.MinValue := 0;
   ScrollBar.MaxValue := max(fFiles.Count - (fHeight div ItemHeight),0);
   ScrollBar.Position := 0;
