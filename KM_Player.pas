@@ -24,7 +24,7 @@ type
     fMissionSettings: TMissionSettings; //Required to be public so it can be accessed from LoadDAT
     PlayerID:TPlayerID; //Which ID this player is
     PlayerType: TPlayerType; //Is it Human or AI or Animals
-    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true): TKMUnit;
+    function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
@@ -126,7 +126,7 @@ begin
 end;
 
 
-function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true):TKMUnit;
+function TKMPlayerAssets.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false):TKMUnit;
 begin
   //Animals must get redirected to animal player
   if aUnitType in [ut_Wolf..ut_Duck] then
@@ -136,8 +136,8 @@ begin
   end;
 
   Result := fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
-  if Result = nil then exit;
-  CreatedUnit(aUnitType, false);
+  if Result <> nil then
+    CreatedUnit(aUnitType, WasTrained);
 end;
 
 

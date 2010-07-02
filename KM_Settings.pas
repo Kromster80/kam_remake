@@ -303,22 +303,26 @@ end;
 
 function TCampaignSettings.GetMapsCount(aCamp:TCampaign):byte;
 begin
+  Result := 1;
   case aCamp of
     cmp_Nil: Result := 0;
     cmp_TSK: Result := TSK_MAPS;
     cmp_TPR: Result := TPR_MAPS;
     cmp_Custom: Result := 1; //Yet unknown
+    else Assert(false,'Unknown campaign');
   end;
 end;
 
 
 function TCampaignSettings.GetUnlockedMaps(aCamp:TCampaign):byte;
 begin
+  Result := 1;
   case aCamp of
-    cmp_Nil: Result := 1;
+    cmp_Nil: Result := 0;
     cmp_TSK: Result := fUnlockedMapsTSK;
     cmp_TPR: Result := fUnlockedMapsTPR;
     cmp_Custom: Result := 1; //Yet unknown
+    else Assert(false,'Unknown campaign');
   end;
 end;
 

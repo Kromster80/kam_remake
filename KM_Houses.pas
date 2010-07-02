@@ -1386,8 +1386,7 @@ begin
   dec(RecruitsInside); //All units take a recruit
 
   //Make new unit
-  Soldier := fPlayers.Player[byte(fOwner)].GetUnits.Add(fOwner,aUnitType,GetEntrance.X,GetEntrance.Y,false);
-  fPlayers.Player[byte(fOwner)].CreatedUnit(aUnitType,true);
+  Soldier := fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true);
 
   //Make him pause then walk out of the barracks
   Soldier.SetActionLockedStay(10,ua_Walk);

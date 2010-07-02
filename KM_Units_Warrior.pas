@@ -32,17 +32,20 @@ type //Possibly melee warrior class? with Archer class separate?
     fMapEdMembersCount:integer;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
-    destructor Destroy; override;
     procedure SyncLoad(); override;
-    procedure KillUnit; override;
+    destructor Destroy; override;
+
     function GetSupportedActions: TUnitActionTypeSet; override;
+    procedure KillUnit; override;
+  //Commands
     procedure AddMember(aWarrior:TKMUnitWarrior);
-    procedure SetGroupFullCondition;
-    function GetMemberCount:integer;
     function GetCommander:TKMUnitWarrior;
+    function GetMemberCount:integer;
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
     procedure Split; //Split group in half and assign another commander
+
+    procedure SetGroupFullCondition;
     procedure OrderFood;
     procedure SetOrderTarget(aUnit:TKMUnit);
     function GetOrderTarget:TKMUnit;
@@ -50,6 +53,7 @@ type //Possibly melee warrior class? with Archer class separate?
     function GetOrderHouseTarget:TKMHouse;
     procedure SetFoe(aUnit:TKMUnitWarrior);
     function GetFoe:TKMUnitWarrior;
+
     property SetOrderedFood:boolean write fOrderedFood;
     property GetWarriorState: TWarriorState read fState;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
@@ -64,6 +68,7 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse); reintroduce; overload;
     function CheckForEnemy:boolean;
     property GetOrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
+
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -126,17 +131,6 @@ begin
 end;
 
 
-destructor TKMUnitWarrior.Destroy;
-begin
-  if fOrderTarget<>nil then fOrderTarget.RemovePointer;
-  if fOrderHouseTarget<>nil then fOrderHouseTarget.RemovePointer;
-  if fFoe<>nil then fFoe.RemovePointer;
-
-  FreeAndNil(fMembers);
-  Inherited;
-end;
-
-
 procedure TKMUnitWarrior.SyncLoad();
 var i:integer;
 begin
@@ -148,6 +142,17 @@ begin
   if fMembers<>nil then
     for i:=1 to fMembers.Count do
       fMembers.Items[i-1] := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fMembers.Items[i-1])));
+end;
+
+
+destructor TKMUnitWarrior.Destroy;
+begin
+  if fOrderTarget<>nil then fOrderTarget.RemovePointer;
+  if fOrderHouseTarget<>nil then fOrderHouseTarget.RemovePointer;
+  if fFoe<>nil then fFoe.RemovePointer;
+
+  FreeAndNil(fMembers);
+  Inherited;
 end;
 
 
@@ -165,7 +170,8 @@ begin
   end;
 
   //Kill group commander
-  if (fCommander = nil) and (fMembers <> nil) and (fMembers.Count <> 0) then begin
+  if (fCommander = nil) and (fMembers <> nil) and (fMembers.Count <> 0) then
+  begin
 
     //Get nearest neighbour and give him the Flag
     NewCommanderID := 0;
@@ -200,9 +206,10 @@ begin
     else
       NewCommander.PlaceOrder(wo_Walk,NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
 
-    //Now set our commander to be the new commander, so that we have some way of referencing units after they die
+    //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
     fCommander := NewCommander;
   end;
+
   ClearOrderTarget; //This ensures that pointer usage tracking is reset
   ClearFoe; //This ensures that pointer usage tracking is reset
 
