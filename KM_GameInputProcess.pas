@@ -8,11 +8,19 @@ uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, Krom
 
 { YET UNUSED, JUST AN IDEA}
 
-{ This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
-  Then passes it on to game events. 
+{ A. This unit takes and adjoins players input from TGame and TGamePlayInterfaces clicks and keys
+  Then passes it on to game events.
   E.g. there are 2 ways player can place an order to selected Warrior:
   1. Click on map
-  2. Click on minimap  }
+  2. Click on minimap
+
+  B. And most important, it accumulates and feeds player input to the game.
+  Thus making possible to:
+   - record gameplay
+   - playback replays
+   - send input through LAN to make multiplayer games
+  }
+
 type
 TGameInputProcess = class
   public

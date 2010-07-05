@@ -896,6 +896,7 @@ begin
     fMissionParser := TMissionParser.Create(mpm_Editor);
     fMissionParser.SaveDATFile(KMRemakeMapPath(aMissionName, 'dat'));
     FreeAndNil(fMissionParser);
+    fGameName := aMissionName;
   end else
     Assert(false,'SaveMapEditor call with DoExpandPath=false');
 end;
