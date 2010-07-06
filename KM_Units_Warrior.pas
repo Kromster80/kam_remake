@@ -4,13 +4,20 @@ interface
 uses Classes, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units, KM_Houses;
 
+type
+  TOrder = class
+    Order:TWarriorOrder;
+    OrderLoc:TKMPointDir; //Dir is the direction to face after order
+    OrderTarget: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
+    OrderHouseTarget: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
+  end;
 
 type //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
     fFlagAnim:cardinal;
-    fOrderedFood:boolean;
-    fTimeSinceHungryReminder: integer;
+    fRequestedFood:boolean;
+    fTimeSinceHungryReminder:integer;
     fOrder:TWarriorOrder;
     fState:TWarriorState; //This property is individual to each unit, including commander
     fAutoLinkState:TWarriorLinkState;
@@ -26,6 +33,9 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure UpdateHungerMessage();
     procedure ClearOrderTarget;
     procedure ClearFoe;
+    procedure SetFoe(aUnit:TKMUnitWarrior);
+    function GetFoe:TKMUnitWarrior;
+    function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
@@ -51,17 +61,14 @@ type //Possibly melee warrior class? with Archer class separate?
     function GetOrderTarget:TKMUnit;
     procedure SetOrderHouseTarget(aHouse:TKMHouse);
     function GetOrderHouseTarget:TKMHouse;
-    procedure SetFoe(aUnit:TKMUnitWarrior);
-    function GetFoe:TKMUnitWarrior;
 
-    property SetOrderedFood:boolean write fOrderedFood;
+    property RequestedFood:boolean write fRequestedFood; //Cleared by Serf delivering food
     property GetWarriorState: TWarriorState read fState;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property Foe:TKMUnitWarrior read GetFoe write SetFoe;
-    property GetOrderLoc:TKMPointDir read fOrderLoc write fOrderLoc;
+    property OrderLocation:TKMPointDir read fOrderLoc write fOrderLoc;
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
-    function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
@@ -88,7 +95,7 @@ begin
   fOrderTarget  := nil;
   fOrderHouseTarget := nil;
   fFoe          := nil;
-  fOrderedFood  := false;
+  fRequestedFood  := false;
   fFlagAnim     := 0;
   fTimeSinceHungryReminder := 0;
   fOrder        := wo_None;
@@ -110,7 +117,7 @@ begin
   LoadStream.Read(fOrderHouseTarget, 4); //subst on syncload
   LoadStream.Read(fFoe, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
-  LoadStream.Read(fOrderedFood);
+  LoadStream.Read(fRequestedFood);
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
@@ -412,9 +419,9 @@ end;
 procedure TKMUnitWarrior.OrderFood;
 var i:integer;
 begin
-  if (fCondition<(UNIT_MAX_CONDITION*TROOPS_FEED_MAX)) and not (fOrderedFood) then begin
+  if (fCondition<(UNIT_MAX_CONDITION*TROOPS_FEED_MAX)) and not (fRequestedFood) then begin
     fPlayers.Player[byte(fOwner)].DeliverList.AddNewDemand(nil, Self, rt_Food, 1, dt_Once, di_Norm);
-    fOrderedFood := true;
+    fRequestedFood := true;
   end;
   //Commanders also tell troops to ask for some food
   if (fCommander = nil) and (fMembers <> nil) then
@@ -487,8 +494,7 @@ end;
 
 procedure TKMUnitWarrior.SetFoe(aUnit:TKMUnitWarrior);
 begin
-  //Remove previous value
-  ClearFoe;
+  ClearFoe; //Remove previous value
   if aUnit <> nil then
     fFoe := TKMUnitWarrior(aUnit.GetSelf); //Else it will be nil from ClearFoe
 end;
@@ -513,17 +519,18 @@ function TKMUnitWarrior.FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
 var i,k:integer; FoundUnit: TKMUnit;
 begin
   Result := nil;
-  for i:=-LinkRadius to LinkRadius do
-    for k:=-LinkRadius to LinkRadius do
+  for i:=-LINK_RADIUS to LINK_RADIUS do
+  for k:=-LINK_RADIUS to LINK_RADIUS do
+  if GetLength(i,k) <= LINK_RADIUS then //Check circle area
+  begin
+    FoundUnit := fPlayers.Player[byte(fOwner)].UnitsHitTest(aLoc.X+i, aLoc.Y+k);
+    if (FoundUnit is TKMUnitWarrior) and (TKMUnitWarrior(FoundUnit).fAutoLinkState = wl_Linkable) and
+       (FoundUnit.GetUnitType = GetUnitType) then //For initial linking they must be the same type, not just same group type
     begin
-      FoundUnit := fPlayers.Player[byte(fOwner)].UnitsHitTest(aLoc.X+i, aLoc.Y+k);
-      if (FoundUnit is TKMUnitWarrior) and (TKMUnitWarrior(FoundUnit).fAutoLinkState = wl_Linkable) and
-         (FoundUnit.GetUnitType = GetUnitType) then //For initial linking they must be the same type, not just same group type
-      begin
-        Result := TKMUnitWarrior(FoundUnit);
-        exit;
-      end;
-    end
+      Result := TKMUnitWarrior(FoundUnit);
+      exit;
+    end;
+  end;
 end;
 
 
@@ -639,7 +646,7 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(fFlagAnim);
-  SaveStream.Write(fOrderedFood);
+  SaveStream.Write(fRequestedFood);
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));

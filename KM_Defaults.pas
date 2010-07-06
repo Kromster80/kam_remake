@@ -438,7 +438,7 @@ type
   );
 
 const
-  LinkRadius = 8; //Radius to search for groups to link to after being trained at the barracks
+  LINK_RADIUS = 8; //Radius to search for groups to link to after being trained at the barracks
 
 const {Actions names}
   UnitAct:array[1..14]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',

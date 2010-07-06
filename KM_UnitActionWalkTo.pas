@@ -792,7 +792,7 @@ begin
         //If a warrior is following a unit it means we are attacking it. (for now anyway) So if this unit dies we must now follow it's commander
         fTargetUnit := TKMUnitWarrior(fTargetUnit).fCommander; //Will be nil if there are no members from the group left
         //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
-        TKMUnitWarrior(fWalker).GetOrderLoc := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).GetOrderLoc.Dir);
+        TKMUnitWarrior(fWalker).OrderLocation := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).OrderLocation.Dir);
       end
       else
       begin

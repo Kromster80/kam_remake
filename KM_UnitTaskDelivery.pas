@@ -252,7 +252,7 @@ case fPhase of
         if (fToUnit is TKMUnitWarrior) then
         begin
           fToUnit.SetFullCondition; //Feed the warrior
-          TKMUnitWarrior(fToUnit).SetOrderedFood := false;
+          TKMUnitWarrior(fToUnit).RequestedFood := false;
         end;
       end;
       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
