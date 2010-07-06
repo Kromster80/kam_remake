@@ -1,14 +1,16 @@
 Single-Player
+	Town tutorial
+	Battle tutorial
 	Campaign TSK
 	Campaign TPR
 	Single map
-	Town tutorial
-	Battle tutorial
 	Load game
 
 Multi-Player
 	Single-map
 	Load game
+
+Map Editor
 
 Options
 

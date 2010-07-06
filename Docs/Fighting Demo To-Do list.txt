@@ -4,7 +4,7 @@ Demo #4 should include:
 +	Army movements [Lewin]
 	Units fighting [Lewin]
 	Unit voices
-	Tower throwing rocks at enemies
+	Tower throwing rocks at enemies [Krom]
 	Ranged attacks
 	House attacks
 +	Map editor saving simple maps [Krom/Lewin]
