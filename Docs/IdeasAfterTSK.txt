@@ -27,6 +27,7 @@ Add new house: LookoutTower
 Sight range = 20+
 Owner=recruit
 Reveals FOW while owner is inside
+Recruit warns player on enemy troops in sight. (atm there's a warning only if player already attacked)
 
 Add new house: Fish-dryers, it will take fish in buckets and dry it up on the sun (similar to Tannery)
 Add new resource - dried fish
