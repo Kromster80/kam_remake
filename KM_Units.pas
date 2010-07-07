@@ -2229,7 +2229,7 @@ begin
   fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
 
   Commander.Direction := aDir;
-  Commander.OrderLocation := KMPointDir(Commander.OrderLocation.Loc,byte(aDir)-1); //So when they click Halt for the first time it knows where to place them
+  Commander.OrderLocDir := KMPointDir(Commander.OrderLocDir.Loc,byte(aDir)-1); //So when they click Halt for the first time it knows where to place them
 
   //In MapEditor we need only fMapEdMembersCount property, without actual members
   if aMapEditor then begin

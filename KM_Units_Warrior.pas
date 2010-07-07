@@ -36,6 +36,9 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure SetFoe(aUnit:TKMUnitWarrior);
     function GetFoe:TKMUnitWarrior;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
+    procedure SetOrderTarget(aUnit:TKMUnit);
+    function GetOrderTarget:TKMUnit;
+    function CheckForEnemyAround: TKMUnit;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
@@ -57,8 +60,6 @@ type //Possibly melee warrior class? with Archer class separate?
 
     procedure SetGroupFullCondition;
     procedure OrderFood;
-    procedure SetOrderTarget(aUnit:TKMUnit);
-    function GetOrderTarget:TKMUnit;
     procedure SetOrderHouseTarget(aHouse:TKMHouse);
     function GetOrderHouseTarget:TKMHouse;
 
@@ -67,14 +68,14 @@ type //Possibly melee warrior class? with Archer class separate?
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property Foe:TKMUnitWarrior read GetFoe write SetFoe;
-    property OrderLocation:TKMPointDir read fOrderLoc write fOrderLoc;
+    property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
+
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse); reintroduce; overload;
     function CheckForEnemy:boolean;
-    property GetOrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
 
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
@@ -745,6 +746,7 @@ begin
         end;
       end;
   end;
+
   //Choose random unit, prefering warriors to e.g. serfs
   U := nil;
   if BestU <> nil then
@@ -767,6 +769,61 @@ begin
 end;
 
 
+//This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
+function TKMUnitWarrior.CheckForEnemyAround: TKMUnit;
+var
+  i,k:shortint;
+  U: TKMUnit;
+  WarCount,CivCount:byte;
+  Warriors,Civil: array[1..8] of TKMUnit;
+begin
+  Result := nil;
+  if not ENABLE_FIGHTING then exit; //Nobody to fight
+
+  WarCount := 0;
+  CivCount := 0;
+  for i := -1 to 1 do
+  for k := -1 to 1 do
+  if (i<>0) or (k<>0) then
+  if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through a tree trunk
+  begin
+    U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
+    //Must not dead/dying, not inside a house, not from our team and an enemy
+    if (U <> nil)and
+       (U.IsVisible)and
+       (not (U.GetUnitTask is TTaskDie))and
+       (not U.IsDead)and
+       (U.GetOwner <> GetOwner)and
+       (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
+    begin
+      //We'd rather fight a warrior, so store them seperatly
+      if U is TKMUnitWarrior then
+      begin
+        inc(WarCount);
+        Warriors[WarCount] := U;
+        //If they is a warrior right in front of us then choose him to fight rather than turning
+        if KMSamePoint(KMGetPointInDir(GetPosition,Direction),U.GetPosition) then begin
+          Result := U;
+          exit;
+        end;
+      end
+      else
+      begin
+          inc(CivCount);
+          Civil[CivCount] := U;
+      end
+    end;
+  end;
+
+  //Choose random unit, prefering warriors to e.g. serfs
+  if WarCount > 0 then
+    Result := Warriors[Random(WarCount)+1]
+  else
+  if CivCount > 0 then
+    Result := Civil[Random(CivCount)+1];
+end;
+
+
 function TKMUnitWarrior.UpdateState():boolean;
   function CheckCanAbandon: boolean;
   begin
@@ -785,8 +842,64 @@ var
   i: integer;
   PositioningDone, FoundFight: boolean;
   LinkUnit: TKMUnitWarrior;
+  NewEnemy:TKMUnit; //Can be Warrior or Citizen
 begin
   inc(fFlagAnim);
+
+  //NEW WARRIOR PATTERN
+
+  //Warrior orders from player:
+  //1. Attack enemy unit
+  //2. Attack enemy house
+  //3. Reposition (incl walking, turning, formation change)
+  //4. Order food
+  //5. Split
+  //6. Join
+  //7. Storm (only footmen)
+  //8. possibly some other actions (guard, patrol, etc..)
+  //Group Commander recieves order from player and handles / transmits it to group members
+  //All goes down to UnitActions: Fight, AttackHouse, WalkTo, Stay, etc..
+
+  //UpdateState consists of doing basic duties
+  //1. if we have a fight - do fighting
+  //2. Check for enemy within attack range (fight or cancel fight)
+  //3. Check if any group members is in fight and help him
+  //4. Perform autolinking if we are near barracks
+  //5. Process player orders (abandon previous action)
+  //6. if we attack a house - do attack
+  //7. if we walking or staying - do it
+  //8. Keep formation
+
+
+  //Do fighting
+  if GetUnitAction is TUnitActionFight then begin
+    Result:=true; //Required for override compatibility
+    if Inherited UpdateState then exit;
+  end;
+
+  //Check for enemies nearby
+  NewEnemy := CheckForEnemyAround;
+
+  //......?
+  if NewEnemy <> nil then
+  begin
+    SetActionFight(ua_Work, NewEnemy);
+    //Change our OrderLoc so that after the fight we stay where we are
+    fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir);
+    //Let the opponent know they are being attacked so they can attack back if necessary
+    if NewEnemy is TKMUnitWarrior then TKMUnitWarrior(NewEnemy).CheckForEnemy;
+    Result := true; //We found someone to fight
+  end;
+
+
+
+  exit;
+
+
+  // if CheckHunger then AskForFood;
+
+  //  if GoingOutOfBarracks then
+
 
   //See if a member is still in combat and if not set Foe to nil
   if (fCommander = nil) and (Foe <> nil) then
