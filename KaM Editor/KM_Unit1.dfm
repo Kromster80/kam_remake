@@ -118,12 +118,9 @@ object Form1: TForm1
     Height = 21
     Max = 32
     Min = 6
-    Orientation = trHorizontal
     PageSize = 4
     Frequency = 10
     Position = 20
-    SelEnd = 0
-    SelStart = 0
     TabOrder = 6
     ThumbLength = 14
     TickMarks = tmBoth
@@ -139,7 +136,6 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akBottom]
     MultiLine = True
     TabHeight = 20
-    TabIndex = 3
     TabOrder = 7
     TabWidth = 41
     OnChange = PalletePageChange
@@ -3027,16 +3023,10 @@ object Form1: TForm1
         Top = 20
         Width = 117
         Height = 29
-        Orientation = trHorizontal
         PageSize = 4
-        Frequency = 1
         Position = 4
-        SelEnd = 0
-        SelStart = 0
         TabOrder = 1
         ThumbLength = 16
-        TickMarks = tmBottomRight
-        TickStyle = tsAuto
       end
       object RG_Terrain: TRadioGroup
         Left = 114
@@ -11430,16 +11420,10 @@ object Form1: TForm1
           Width = 109
           Height = 25
           Min = 1
-          Orientation = trHorizontal
           PageSize = 4
-          Frequency = 1
           Position = 4
-          SelEnd = 0
-          SelStart = 0
           TabOrder = 0
           ThumbLength = 16
-          TickMarks = tmBottomRight
-          TickStyle = tsAuto
         end
       end
       object GroupBox3: TGroupBox
@@ -11456,16 +11440,11 @@ object Form1: TForm1
           Height = 25
           Max = 20
           Min = 5
-          Orientation = trHorizontal
           PageSize = 4
           Frequency = 5
           Position = 5
-          SelEnd = 0
-          SelStart = 0
           TabOrder = 0
           ThumbLength = 16
-          TickMarks = tmBottomRight
-          TickStyle = tsAuto
         end
       end
       object GroupBox4: TGroupBox
@@ -13073,7 +13052,6 @@ object Form1: TForm1
       item
         Width = 50
       end>
-    SimplePanel = False
   end
   object Panel2: TPanel
     Left = 4

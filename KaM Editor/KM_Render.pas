@@ -4,6 +4,7 @@ interface
 
 uses Windows, SysUtils, Forms,
   {$IFDEF VER140} OpenGL, {$ENDIF}
+  {$IFDEF VER150} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   dglOpenGL, KromOGLUtils, Math, ExtCtrls;
 

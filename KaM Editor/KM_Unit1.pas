@@ -5,6 +5,7 @@ uses
   Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, KromUtils,
   {$IFDEF VER140} OpenGL, {$ENDIF}
+  {$IFDEF VER150} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, Menus, ComCtrls, Buttons, KM_Defaults, KM_Render,
   KM_Form_Loading, Math, Grids, Spin, ImgList;
@@ -335,9 +336,8 @@ end;
 
 
 implementation
-{$IFDEF VER140}
-  {$R *.dfm}
-{$ENDIF}
+{$IFDEF VER140} {$R *.dfm} {$ENDIF}
+{$IFDEF VER150} {$R *.dfm} {$ENDIF}
 
 
 uses KM_Form_NewMap, KM_LoadDAT, KM_TPlayer, KM_TGATexture;
@@ -566,8 +566,11 @@ begin
 end;
 
 procedure BuildMiniMap();
-var i,k,j:integer; MyBitmap:TBitmap; {$IFDEF VER140}P:PByteArray;{$ENDIF}
-
+var
+  i,k,j:integer;
+  MyBitmap:TBitmap;
+  {$IFDEF VER140}P:PByteArray;{$ENDIF}
+  {$IFDEF VER150}P:PByteArray;{$ENDIF}
 begin
   MyBitmap:=TBitmap.Create;
   MyBitmap.PixelFormat:=pf24bit;
@@ -577,8 +580,14 @@ begin
 
   for i:=1 to Map.Y-1 do begin
     {$IFDEF VER140} P:=MyBitmap.ScanLine[i-1]; {$ENDIF}
+    {$IFDEF VER150} P:=MyBitmap.ScanLine[i-1]; {$ENDIF}
     for k:=1 to Map.X-1 do begin
       {$IFDEF VER140}
+      P[k*3-1]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF + Land2[i,k].Light*4-64,0,255);
+      P[k*3-2]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF00 SHR 8 + Land2[i,k].Light*4-64,0,255);
+      P[k*3-3]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF0000 SHR 16 + Land2[i,k].Light*4-64,0,255);
+      {$ENDIF}
+      {$IFDEF VER150}
       P[k*3-1]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF + Land2[i,k].Light*4-64,0,255);
       P[k*3-2]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF00 SHR 8 + Land2[i,k].Light*4-64,0,255);
       P[k*3-3]:=EnsureRange(MMap[Land[i,k].Terrain+1] AND $FF0000 SHR 16 + Land2[i,k].Light*4-64,0,255);
@@ -1208,8 +1217,7 @@ for i:=1 to Map.Y do for k:=1 to Map.X do begin
     if not RemWrong then
     begin
       ErrS := 'Wrong object used at '+inttostr(k)+':'+inttostr(i)+' it will be removed'+eol+'Remove all wrong objects silently?';
-      {$IFDEF VER140} if MessageBox(Form1.Handle,@(ErrS[1]),'Warning', mb_yesno)=id_yes then RemWrong:=true; {$ENDIF}
-      {$IFDEF FPC} if MessageBox(Form1.Handle,@(ErrS[1]),'Warning', mb_yesno)=IDYES then RemWrong:=true; {$ENDIF}
+      if MessageBox(Form1.Handle,@(ErrS[1]),'Warning', mb_yesno)=IDYES then RemWrong:=true;
     end;
     Land[i,k].Obj:=255
   end;

@@ -10,6 +10,7 @@ implementation
 
 uses KM_Unit1, KM_Defaults, KM_Form_Loading,  Graphics, Sysutils, Dialogs, math,
   {$IFDEF VER140} OpenGL, {$ENDIF}
+  {$IFDEF VER150} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
   dglOpenGL, KromUtils;
 

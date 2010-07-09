@@ -32,9 +32,8 @@ var
   FormNewMap: TFormNewMap;
 
 implementation
-{$IFDEF VER140}
-  {$R *.dfm}
-{$ENDIF}
+{$IFDEF VER140} {$R *.dfm} {$ENDIF}
+{$IFDEF VER150} {$R *.dfm} {$ENDIF}
 
 uses KM_Defaults;
 
@@ -114,9 +113,8 @@ end;
 
 procedure TFormNewMap.ButtonHelpClick(Sender: TObject);
 begin
-  {$IFDEF VER140}
-  Application.HelpJump('CreatingNewMap');
-  {$ENDIF}
+  {$IFDEF VER140} Application.HelpJump('CreatingNewMap'); {$ENDIF}
+  {$IFDEF VER150} Application.HelpJump('CreatingNewMap'); {$ENDIF}
 end;
 
 
