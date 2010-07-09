@@ -16,7 +16,7 @@ TKMControl = class(TObject)
     fTop: Integer;
     fWidth: Integer;
     fHeight: Integer;
-    Scale: Single;
+    fScale: Single;
     function GetHeight: Integer;
     function GetLeft: Integer;
     function GetTop: Integer;
@@ -26,7 +26,7 @@ TKMControl = class(TObject)
 
     Enabled: boolean;
     Visible: boolean;
-    HasFocus: boolean;
+    HasFocus: boolean; //Occurs when cursor recieves focus and remains till new Ctrl HasFocus
 
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
@@ -398,7 +398,7 @@ begin
   Visible   := true;
   Tag       := 0;
   Hint      := '';
-  Scale     := CONTROLS_SCALE;
+  fScale    := CONTROLS_SCALE;
 end;
 
 
@@ -502,24 +502,24 @@ procedure TKMControl.Enable;  begin Enabled:=true;  end;
 
 function TKMControl.GetHeight: Integer;
 begin
-  Result := Round(fHeight * Scale);
+  Result := Round(fHeight * fScale);
 end;
 
 function TKMControl.GetLeft: Integer;
 begin
-  Result := Round(fLeft * Scale);
+  Result := Round(fLeft * fScale);
   if Parent <> nil then Result := Result + Parent.GetLeft;
 end;
 
 function TKMControl.GetTop: Integer;
 begin
-  Result := Round(fTop * Scale);
+  Result := Round(fTop * fScale);
   if Parent <> nil then Result := Result + Parent.GetTop;
 end;
 
 function TKMControl.GetWidth: Integer;
 begin
-  Result := Round(fWidth * Scale);
+  Result := Round(fWidth * fScale);
 end;
 
 procedure TKMControl.Disable; begin Enabled := false; end;
