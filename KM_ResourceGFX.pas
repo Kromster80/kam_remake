@@ -1211,8 +1211,8 @@ begin
           bm2.Canvas.Pixels[x,y]:=clBlack;
       end;
       //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
-      IconInfo.xHotspot:=max(-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i],0);
-      IconInfo.yHotspot:=max(-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i],0);
+      IconInfo.xHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i],0);
+      IconInfo.yHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i],0);
     end;
   IconInfo.fIcon:=false;
   IconInfo.hbmColor:=bm.Handle;

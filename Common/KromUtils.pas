@@ -3,7 +3,7 @@ unit KromUtils;
 {$IFDEF VER150} {$DEFINE WDC} {$ENDIF}  // Delphi 7
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
-uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, ShellApi;
+uses sysutils,windows,forms,typinfo,ExtCtrls,Math, Dialogs, Registry, ShellApi, Controls;
 
 type
   PSingleArray = ^TSingleArray;
@@ -72,6 +72,8 @@ function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
 function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
+
+procedure DoSafeResize(aForm:TForm);
 
 function BrowseURL(const URL: string) : boolean;
 procedure MailTo(Address,Subject,Body:string);
@@ -459,6 +461,24 @@ begin
   Result            := Sender.Execute; //Returns "false" if user pressed "Cancel"
   if not Result then exit;
   Sender.FileName   := AssureFileExt(Sender.FileName, FileExt);
+end;
+
+
+procedure DoSafeResize(aForm:TForm);
+const DesignHeight = 18;
+var
+  HeightDif:integer;
+  i:integer;
+begin
+  HeightDif := GetSystemMetrics(SM_CYCAPTION) - DesignHeight;
+
+  for i:=0 to aForm.ControlCount-1 do
+    if (akBottom in aForm.Controls[i].Anchors) and
+       (akTop in aForm.Controls[i].Anchors) then
+      aForm.Controls[i].Height := aForm.Controls[i].Height - HeightDif
+    else
+    if (akBottom in aForm.Controls[i].Anchors) then
+      aForm.Controls[i].Top := aForm.Controls[i].Top - HeightDif;
 end;
 
 
