@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 297
-  Top = 112
-  Width = 910
-  Height = 728
+  Left = 372
+  Top = 232
+  Width = 908
+  Height = 700
   HelpType = htKeyword
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -19,8 +19,8 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   OnResize = RenderResize
   DesignSize = (
-    902
-    682)
+    900
+    654)
   PixelsPerInch = 96
   TextHeight = 13
   object Image3: TImage
@@ -131,8 +131,8 @@ object Form1: TForm1
     Left = 4
     Top = 268
     Width = 210
-    Height = 387
-    ActivePage = TabSheet2
+    Height = 359
+    ActivePage = TabSheet3
     Anchors = [akLeft, akTop, akBottom]
     MultiLine = True
     TabHeight = 20
@@ -11471,7 +11471,7 @@ object Form1: TForm1
       ImageIndex = 1
       DesignSize = (
         202
-        357)
+        329)
       object ObjBlock: TSpeedButton
         Left = 4
         Top = 4
@@ -11522,7 +11522,7 @@ object Form1: TForm1
         Left = 0
         Top = 40
         Width = 185
-        Height = 317
+        Height = 289
         Anchors = [akLeft, akTop, akBottom]
         BiDiMode = bdLeftToRight
         ColCount = 10
@@ -11544,7 +11544,7 @@ object Form1: TForm1
         Left = 184
         Top = 40
         Width = 16
-        Height = 316
+        Height = 288
         Anchors = [akLeft, akTop, akBottom]
         Ctl3D = False
         Kind = sbVertical
@@ -13029,8 +13029,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 663
-    Width = 902
+    Top = 635
+    Width = 900
     Height = 19
     Panels = <
       item
@@ -13402,21 +13402,21 @@ object Form1: TForm1
   object Panel5: TPanel
     Left = 218
     Top = 8
-    Width = 680
-    Height = 647
+    Width = 678
+    Height = 619
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelInner = bvLowered
     BevelOuter = bvLowered
     Caption = 'Panel5'
     TabOrder = 9
     DesignSize = (
-      680
-      647)
+      678
+      619)
     object Panel1: TPanel
       Left = 2
       Top = 2
-      Width = 660
-      Height = 627
+      Width = 658
+      Height = 599
       Cursor = crCross
       Anchors = [akLeft, akTop, akRight, akBottom]
       BevelOuter = bvNone
@@ -13428,10 +13428,10 @@ object Form1: TForm1
       OnMouseUp = Panel1MouseUp
     end
     object ScrollBar2: TScrollBar
-      Left = 662
+      Left = 660
       Top = 2
       Width = 16
-      Height = 628
+      Height = 600
       Anchors = [akTop, akRight, akBottom]
       Ctl3D = False
       Kind = sbVertical
@@ -13446,8 +13446,8 @@ object Form1: TForm1
     end
     object ScrollBar1: TScrollBar
       Left = 2
-      Top = 629
-      Width = 661
+      Top = 601
+      Width = 659
       Height = 16
       Anchors = [akLeft, akRight, akBottom]
       Ctl3D = False
@@ -13461,7 +13461,7 @@ object Form1: TForm1
       OnChange = ScrollBarChange
     end
     object Button1: TButton
-      Left = 559
+      Left = 557
       Top = 8
       Width = 97
       Height = 17
@@ -13488,7 +13488,7 @@ object Form1: TForm1
     Left = 224
     Top = 16
     Width = 209
-    Height = 176
+    Height = 148
     Anchors = [akLeft, akTop, akBottom]
     BiDiMode = bdLeftToRight
     ColCount = 1
@@ -13510,7 +13510,7 @@ object Form1: TForm1
     Left = 432
     Top = 16
     Width = 16
-    Height = 176
+    Height = 148
     Anchors = [akLeft, akTop, akBottom]
     Ctl3D = False
     Kind = sbVertical

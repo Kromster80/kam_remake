@@ -399,6 +399,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  DoSafeResize(Form1);
   Pallete.ActivePageIndex:=0;
   Application.OnIdle := Form1.OnIdle;
 end;
