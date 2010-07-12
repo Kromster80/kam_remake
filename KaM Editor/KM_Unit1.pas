@@ -872,7 +872,10 @@ end;
 
 
 procedure TForm1.AboutClick(Sender: TObject);
-begin FormLoading.Bar1.Position:=0; FormLoading.Show; end;
+begin
+  FormLoading.Bar1.Position:=0;
+  FormLoading.Show;
+end;
 
 procedure TForm1.ScrollBarChange(Sender: TObject);
 begin
