@@ -286,14 +286,14 @@ var
     y1,y2,y3,Border,y5,y6,y7,y8,y9,y10,y11,y12:byte;
   end;
   Land2:array[1..MaxMapSize+1,1..MaxMapSize+1]of record
-    TPoint:shortint; //Stores terrain type per node
+    TerType:shortint; //Stores terrain type per node
     Tiles:smallint;  //Stores kind of transition tile used, no need to save into MAP footer
     Height:single;   //Floating-point height for smoother elevation, temp value only for editing
     Light:byte;
   end;
   LandCopy:array[1..MaxMapSize+1,1..MaxMapSize+1]of packed record
     Terrain,Height1,Rot,Obj:byte;
-    TPoint:shortint;
+    TerType:shortint;
   end;    
 
   UndoStep:integer=1;
@@ -301,7 +301,7 @@ var
   UndoCounter:integer=0;
   UndoLand:array[1..MaxUndoSteps,1..MaxMapSize,1..MaxMapSize]of record
   Terrain,Height,Rot,Obj:byte;
-  TPoint:shortint;
+  TerType:shortint;
   Tiles:smallint;
   end;
 
@@ -411,39 +411,40 @@ begin
 end;
 
 procedure TForm1.OpenMap(filename:string);
-var i,k:integer;
-  Head:record
-    X,Y:integer;
-  end;
+var
+  i,k:integer;
+  Head:record X,Y:integer; end;
 begin
 
-assignfile(f,filename); reset(f,1);
-blockread(f, Head, 8);
-if (Head.X>MaxMapSize)or(Head.Y>MaxMapSize) then begin
-  closefile(f);
-  MessageBox(Form1.Handle,'Too big map or not a KaM map.', 'Error', MB_OK);
-  exit;
-end;
-reset(f,1);
-blockread(f,Map,8);
-for i:=1 to Map.Y do blockread(f,Land[i],Map.X*23);
-blockread(f,ResHead,22);
-for i:=1 to ResHead.Allocated do
-blockread(f,Res[i],17);
-
-blockread(f,c,4,NumRead);
-if NumRead=4 then begin
-  blockread(f,c,4,NumRead); c[5]:=#0; //ADDN
-  if StrPas(@c)='TILE' then begin
-    blockread(f,i,4,NumRead); //Chunk size
-    blockread(f,i,4,NumRead); //Cypher - ommited
-    for i:=1 to Map.Y do for k:=1 to Map.X do
-      blockread(f,Land2[i,k].TPoint,1);
+  assignfile(f,filename);
+  reset(f,1);
+  blockread(f, Head, 8);
+  if (Head.X > MaxMapSize) or (Head.Y > MaxMapSize) then begin
+    closefile(f);
+    MessageBox(Form1.Handle,'Too big map or not a KaM map.', 'Error', MB_OK);
+    exit;
   end;
-end;
-closefile(f);
+  reset(f,1);
+  blockread(f,Map,8);
+  for i:=1 to Map.Y do blockread(f,Land[i],Map.X*23);
+  blockread(f,ResHead,22);
+  for i:=1 to ResHead.Allocated do
+  blockread(f,Res[i],17);
 
-PrepareLoadedMap(filename);
+  blockread(f,c,4,NumRead);
+  if NumRead=4 then begin
+    blockread(f,c,4,NumRead); c[5]:=#0; //ADDN
+    if StrPas(@c)='TILE' then begin
+      blockread(f,i,4,NumRead); //Chunk size
+      blockread(f,i,4,NumRead); //Cypher - ommited
+      for i:=1 to Map.Y do
+      for k:=1 to Map.X do
+        blockread(f,Land2[i,k].TerType,1);
+    end;
+  end;
+  closefile(f);
+
+  PrepareLoadedMap(filename);
 end;
 
 procedure TForm1.RenderInit();
@@ -722,7 +723,7 @@ if (BrushMode=bmTerrain)and(LandBrush<>0) then
   begin
   Rad:=BrushSize.Position;
   if (Rad=0)and((MapXn2<>MapXn)or(MapYn2<>MapYn)) then
-  Land2[MapYn,MapXn].TPoint:=LandBrush
+  Land2[MapYn,MapXn].TerType:=LandBrush
   else
   if (MapXc2<>MapXc)or(MapYc2<>MapYc) then
   if Rad mod 2 = 1 then
@@ -745,7 +746,7 @@ if (BrushMode=bmTerrain)and(LandBrush<>0) then
 if BrushMode=bmTiles then
 if ((MapXc2<>MapXc)or(MapYc2<>MapYc))and(LandBrush in [1..255]) then begin
 Land[MapYc,MapXc].Terrain:=LandBrush-1;
-Land2[MapYc,MapXc].TPoint:=-abs(Land2[MapYc,MapXc].TPoint);
+Land2[MapYc,MapXc].TerType:=-abs(Land2[MapYc,MapXc].TerType);
 if RG_Angle.ItemIndex=4 then Land[MapYc,MapXc].Rot:=random(4)
                         else Land[MapYc,MapXc].Rot:=RG_Angle.ItemIndex;
 //special fix for tiles, which are placed upside down
@@ -796,7 +797,7 @@ ID:=(UndoCounter+1-1) mod MaxUndoSteps + 1; //1..Max //Looks like we are making 
   UndoLand[ID,i,k].Height:=round(EnsureRange(Land2[i,k].Height,0,100));
   UndoLand[ID,i,k].Rot:=Land[i,k].Rot;
   UndoLand[ID,i,k].Obj:=Land[i,k].Obj;
-  UndoLand[ID,i,k].TPoint:=Land2[i,k].TPoint;
+  UndoLand[ID,i,k].TerType:=Land2[i,k].TerType;
   UndoLand[ID,i,k].Tiles:=Land2[i,k].Tiles;
   end;
   UpdateLight(0,0);
@@ -890,10 +891,10 @@ if (Y>Map.Y)or(X>Map.X) then exit;
 Land[Y,X].Terrain:=Index;
 xx:=EnsureRange(X,1,Map.X-1);
 yy:=EnsureRange(Y,1,Map.Y-1);
-Land2[yy,  xx].TPoint:=Index;
-Land2[yy,  xx+1].TPoint:=Index;
-Land2[yy+1,xx+1].TPoint:=Index;
-Land2[yy+1,xx].TPoint:=Index;
+Land2[yy,  xx].TerType:=Index;
+Land2[yy,  xx+1].TerType:=Index;
+Land2[yy+1,xx+1].TerType:=Index;
+Land2[yy+1,xx].TerType:=Index;
 
     T:=abs(Combo[Index,Index,1]); //Pick a tile ID from table
     if (CBRandomizeTiling.Checked) then
@@ -912,11 +913,11 @@ for i:=-Rad to Rad do for k:=-Rad to Rad do if sqrt(sqr(i)+sqr(k))<Rad then
   begin
   pX:=EnsureRange(X+k,1,Map.X);
   pY:=EnsureRange(Y+i,1,Map.Y);
-  if (Land2[pY  ,pX].TPoint>0)and(Land2[pY  ,pX+1].TPoint>0)
-  and(Land2[pY+1,pX].TPoint>0)and(Land2[pY+1,pX+1].TPoint>0) then //don't touch custom placed tiles (with negative values)
+  if (Land2[pY  ,pX].TerType>0)and(Land2[pY  ,pX+1].TerType>0)
+  and(Land2[pY+1,pX].TerType>0)and(Land2[pY+1,pX+1].TerType>0) then //don't touch custom placed tiles (with negative values)
     begin
-    A:=abs(Land2[pY  ,pX].TPoint); B:=abs(Land2[pY  ,pX+1].TPoint);
-    C:=abs(Land2[pY+1,pX].TPoint); D:=abs(Land2[pY+1,pX+1].TPoint);
+    A:=abs(Land2[pY  ,pX].TerType); B:=abs(Land2[pY  ,pX+1].TerType);
+    C:=abs(Land2[pY+1,pX].TerType); D:=abs(Land2[pY+1,pX+1].TerType);
     Rot:=0; Nodes:=1;// Ter1:=1; Ter2:=1;
 
     if (A=B)or(C=D)  then begin Ter1:=A; Ter2:=C; Nodes:=2; if A<C then Rot:=2 else Rot:=0; end;
@@ -1036,7 +1037,7 @@ ID:=(UndoCounter-1) mod MaxUndoSteps + 1; //1..Max
   Land2[i,k].Height:=UndoLand[ID,i,k].Height;
   Land[i,k].Rot:=UndoLand[ID,i,k].Rot;
   Land[i,k].Obj:=UndoLand[ID,i,k].Obj;
-  Land2[i,k].TPoint:=UndoLand[ID,i,k].TPoint;
+  Land2[i,k].TerType:=UndoLand[ID,i,k].TerType;
   Land2[i,k].Tiles:=UndoLand[ID,i,k].Tiles;
   end;
   UpdateLight(0,0);
@@ -1058,7 +1059,7 @@ ID:=(UndoCounter+1-1) mod MaxUndoSteps + 1; //1..Max
   Land2[i,k].Height:=UndoLand[ID,i,k].Height;
   Land[i,k].Rot:=UndoLand[ID,i,k].Rot;
   Land[i,k].Obj:=UndoLand[ID,i,k].Obj;
-  Land2[i,k].TPoint:=UndoLand[ID,i,k].TPoint;
+  Land2[i,k].TerType:=UndoLand[ID,i,k].TerType;
   Land2[i,k].Tiles:=UndoLand[ID,i,k].Tiles;
   end;
   UpdateLight(0,0);
@@ -1106,7 +1107,7 @@ ID:=(UndoCounter-1) mod MaxUndoSteps + 1; //1..Max
   UndoLand[ID,i,k].Height:=round(EnsureRange(Land2[i,k].Height,0,100));
   UndoLand[ID,i,k].Rot:=Land[i,k].Rot;
   UndoLand[ID,i,k].Obj:=Land[i,k].Obj;
-  UndoLand[ID,i,k].TPoint:=Land2[i,k].TPoint;
+  UndoLand[ID,i,k].TerType:=Land2[i,k].TerType;
   UndoLand[ID,i,k].Tiles:=Land2[i,k].Tiles;
   end;
 end;              
@@ -1170,7 +1171,7 @@ Land[i,k].y9:=0;
 Land[i,k].y10:=0;
 Land[i,k].y11:=0;
 Land[i,k].y12:=0;
-blockread(f,Land2[i,k].TPoint,1);
+blockread(f,Land2[i,k].TerType,1);
 blockread(f,c,7);
 end;
 closefile(f);
@@ -1252,24 +1253,32 @@ end;
 procedure TForm1.SaveMapClick(Sender: TObject);
 var i,k:integer;
 begin
-if not RunSaveDialog(SaveDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
-assignfile(f,SaveDialog1.FileName); rewrite(f,1);
-PrepareMapToSave(nil);
-blockwrite(f,Map,8);
-//KaM seems to recompute passability, but there's a bug making some troops disappear on save00.map
-for i:=1 to Map.Y do blockwrite(f,Land[i],Map.X*23);
-blockwrite(f,ResHead,22);
-for i:=1 to ResHead.Allocated do blockwrite(f,Res[i],17);
+  if not RunSaveDialog(SaveDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
 
-blockwrite(f,'ADDN',4);
-blockwrite(f,'TILE',4); //Chunk name
-i:=4+Map.Y*Map.X;
-blockwrite(f,i,4); //Chunk size
-i:=0;
-blockwrite(f,i,4);
-for i:=1 to Map.Y do for k:=1 to Map.X do blockwrite(f,Land2[i,k].TPoint,1);
-closefile(f);
-Form1.Caption:='KaM Editor - '+SaveDialog1.FileName;
+  assignfile(f,SaveDialog1.FileName);
+  rewrite(f,1);
+
+  PrepareMapToSave(nil);
+
+  blockwrite(f,Map,8);
+  //KaM seems to recompute passability, but there's a bug making some troops disappear on save00.map
+  for i:=1 to Map.Y do blockwrite(f,Land[i],Map.X*23);
+  blockwrite(f,ResHead,22);
+  for i:=1 to ResHead.Allocated do blockwrite(f,Res[i],17);
+
+  blockwrite(f,'ADDN',4);
+  blockwrite(f,'TILE',4); //Chunk name
+  i:=4+Map.Y*Map.X;
+  blockwrite(f,i,4); //Chunk size
+  i:=0;
+  blockwrite(f,i,4);
+  for i:=1 to Map.Y do
+  for k:=1 to Map.X do
+  blockwrite(f,Land2[i,k].TerType,1);
+
+  closefile(f);
+  
+  Form1.Caption:='KaM Editor - '+SaveDialog1.FileName;
 end;
 
 procedure TForm1.ExitClick(Sender: TObject);
@@ -1308,7 +1317,7 @@ for ii:=y1 to y2+1 do for kk:=x1 to x2+1 do
     LandCopy[ii-y1+1,kk-x1+1].Height1:=round(Land2[ii,kk].Height);
     LandCopy[ii-y1+1,kk-x1+1].Rot:=Land[ii,kk].Rot;
     LandCopy[ii-y1+1,kk-x1+1].Obj:=Land[ii,kk].Obj;
-    LandCopy[ii-y1+1,kk-x1+1].TPoint:=Land2[ii,kk].TPoint;
+    LandCopy[ii-y1+1,kk-x1+1].TerType:=Land2[ii,kk].TerType;
     end;
 end;
 
@@ -1322,7 +1331,7 @@ for kk:=MapXc to min(MapXc+abs(CopyArea[2,1]-CopyArea[1,1]),Map.X-1) do //x..X
     Land2[ii,kk].Height :=LandCopy[ii-MapYc+1,kk-MapXc+1].Height1;
     Land [ii,kk].Rot    :=LandCopy[ii-MapYc+1,kk-MapXc+1].Rot;
     Land [ii,kk].Obj    :=LandCopy[ii-MapYc+1,kk-MapXc+1].Obj;
-    Land2[ii,kk].TPoint:=LandCopy[ii-MapYc+1,kk-MapXc+1].TPoint;
+    Land2[ii,kk].TerType:=LandCopy[ii-MapYc+1,kk-MapXc+1].TerType;
     end;
 end;
 

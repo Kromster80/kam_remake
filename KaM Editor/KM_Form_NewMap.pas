@@ -55,7 +55,7 @@ Map.X:=MapX;
 Map.Y:=MapY;
 
 for i:=1 to Map.Y do for k:=1 to Map.X do with Land[i,k] do begin
-  Land2[i,k].TPoint:=1;
+  Land2[i,k].TerType:=1;
   Terrain:=0;
   Light:=16;
   Height1:=random(4); //small variation in height

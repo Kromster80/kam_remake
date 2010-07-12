@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 372
-  Top = 232
+  Left = 263
+  Top = 81
   Width = 908
   Height = 700
   HelpType = htKeyword
@@ -132,7 +132,7 @@ object Form1: TForm1
     Top = 268
     Width = 210
     Height = 359
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Anchors = [akLeft, akTop, akBottom]
     MultiLine = True
     TabHeight = 20
@@ -13336,7 +13336,6 @@ object Form1: TForm1
     Top = 8
     Width = 33
     Height = 33
-    Enabled = False
     TabOrder = 3
     OnClick = SaveMapClick
     Glyph.Data = {
