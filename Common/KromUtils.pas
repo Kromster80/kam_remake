@@ -73,7 +73,7 @@ function RandomS(Range_Both_Directions:single):single; overload;
 function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 
-procedure DoSafeResize(aForm:TForm);
+procedure DoClientAreaResize(aForm:TForm);
 
 function BrowseURL(const URL: string) : boolean;
 procedure MailTo(Address,Subject,Body:string);
@@ -464,7 +464,7 @@ begin
 end;
 
 
-procedure DoSafeResize(aForm:TForm);
+procedure DoClientAreaResize(aForm:TForm);
 const DesignHeight = 18;
 var
   HeightDif:integer;
@@ -479,6 +479,8 @@ begin
     else
     if (akBottom in aForm.Controls[i].Anchors) then
       aForm.Controls[i].Top := aForm.Controls[i].Top - HeightDif;
+
+  aForm.ClientHeight := aForm.ClientHeight + HeightDif;
 end;
 
 
