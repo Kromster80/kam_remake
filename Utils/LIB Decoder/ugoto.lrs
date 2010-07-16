@@ -1,0 +1,24 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TfrmGoTo','FORMDATA',[
+  'TPF0'#8'TfrmGoTo'#7'frmGoTo'#4'Left'#3#230#1#6'Height'#3#147#0#3'Top'#3'b'#1
+  +#5'Width'#3#184#0#18'HorzScrollBar.Page'#3#183#0#18'VertScrollBar.Page'#3#146
+  +#0#13'ActiveControl'#7#7'seIndex'#11'BorderIcons'#11#0#11'BorderStyle'#7#8'b'
+  +'sDialog'#7'Caption'#6#5'Go To'#6'OnShow'#7#8'FormShow'#8'Position'#7#16'poM'
+  +'ainFormCenter'#0#6'TLabel'#8'lblseCap'#4'Left'#2'9'#6'Height'#2#14#3'Top'#2
+  +#8#5'Width'#2'<'#7'Caption'#6#12'String Index'#5'Color'#7#6'clNone'#11'Paren'
+  +'tColor'#8#0#0#6'TLabel'#7'lblType'#4'Left'#2'F'#6'Height'#2#14#3'Top'#2'7'#5
+  +'Width'#2#25#7'Caption'#6#4'Type'#5'Color'#7#6'clNone'#11'ParentColor'#8#0#0
+  +#9'TSpinEdit'#7'seIndex'#4'Left'#2'='#6'Height'#2#23#3'Top'#2#24#5'Width'#2
+  +'2'#8'MaxValue'#3#15''''#8'TabOrder'#2#0#0#0#7'TBitBtn'#5'btnGo'#4'Left'#2#9
+  +#6'Height'#2#30#3'Top'#2'h'#5'Width'#2'K'#7'Caption'#6#2'Go'#7'Default'#9#4
+  +'Kind'#7#4'bkOK'#11'ModalResult'#2#1#9'NumGlyphs'#2#0#7'OnClick'#7#10'btnGoC'
+  +'lick'#8'TabOrder'#2#1#0#0#7'TBitBtn'#9'btnCancel'#4'Left'#2'a'#6'Height'#2
+  +#30#3'Top'#2'h'#5'Width'#2'K'#6'Cancel'#9#7'Caption'#6#6'Cancel'#4'Kind'#7#8
+  +'bkCancel'#11'ModalResult'#2#2#9'NumGlyphs'#2#0#8'TabOrder'#2#2#0#0#9'TCombo'
+  +'Box'#6'cbType'#4'Left'#2'('#6'Height'#2#21#3'Top'#2'H'#5'Width'#2'd'#16'Aut'
+  +'oCompleteText'#11#22'cbactEndOfLineComplete'#20'cbactSearchAscending'#0#9'I'
+  +'temIndex'#2#0#13'Items.Strings'#1#6#12'String Index'#6#13'String Number'#0#9
+  +'MaxLength'#2#0#5'Style'#7#14'csDropDownList'#8'TabOrder'#2#3#4'Text'#6#12'S'
+  +'tring Index'#0#0#0
+]);

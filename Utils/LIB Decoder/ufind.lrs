@@ -1,0 +1,83 @@
+{ This is an automatically generated lazarus resource file }
+
+LazarusResources.Add('TfrmFind','FORMDATA',[
+  'TPF0'#8'TfrmFind'#7'frmFind'#4'Left'#3#209#1#6'Height'#3#220#0#3'Top'#3#4#1#5
+  +'Width'#3''''#1#18'HorzScrollBar.Page'#3'&'#1#18'VertScrollBar.Page'#3#219#0
+  +#13'ActiveControl'#7#7'edtText'#11'BorderIcons'#11#0#11'BorderStyle'#7#8'bsD'
+  +'ialog'#7'Caption'#6#4'Find'#6'OnShow'#7#8'FormShow'#13'ShowInTaskBar'#7#7's'
+  +'tNever'#0#6'TLabel'#7'lblFind'#4'Left'#2#2#6'Height'#2#14#3'Top'#2#15#5'Wid'
+  +'th'#2#21#7'Caption'#6#4'Find'#5'Color'#7#6'clNone'#11'ParentColor'#8#0#0#5
+  +'TEdit'#7'edtText'#4'Left'#2#2#6'Height'#2#23#3'Top'#2#30#5'Width'#3'!'#1#10
+  +'OnKeyPress'#7#15'edtTextKeyPress'#8'TabOrder'#2#0#0#0#7'TBitBtn'#7'btnFind'
+  +#4'Left'#2'8'#6'Height'#2'!'#3'Top'#3#184#0#5'Width'#2'K'#8'AutoSize'#9#7'Ca'
+  +'ption'#6#5' Find'#10'Glyph.Data'#10#137#10#0#0#133#10#0#0'/* XPM */'#13#10
+  +'static char * findbig_xpm[] = {'#13#10'"21 21 97 2",'#13#10'"  '#9'c None",'
+  +#13#10'". '#9'c #010101",'#13#10'"+ '#9'c #000000",'#13#10'"@ '#9'c #0B0B0B"'
+  +','#13#10'"# '#9'c #0D0D0D",'#13#10'"$ '#9'c #040404",'#13#10'"% '#9'c #8282'
+  +'82",'#13#10'"& '#9'c #7E7E7E",'#13#10'"* '#9'c #7D7D7D",'#13#10'"= '#9'c #8'
+  +'08080",'#13#10'"- '#9'c #8B8B8B",'#13#10'"; '#9'c #020202",'#13#10'"> '#9'c'
+  +' #070707",'#13#10'", '#9'c #878787",'#13#10'"'' '#9'c #898989",'#13#10'") '
+  +#9'c #0A0A0A",'#13#10'"! '#9'c #717171",'#13#10'"~ '#9'c #909090",'#13#10'"{'
+  +' '#9'c #090909",'#13#10'"] '#9'c #030303",'#13#10'"^ '#9'c #111111",'#13#10
+  +'"/ '#9'c #050505",'#13#10'"( '#9'c #D2D2D2",'#13#10'"_ '#9'c #C5C5C5",'#13
+  +#10'": '#9'c #B2B2B2",'#13#10'"< '#9'c #767676",'#13#10'"[ '#9'c #787878",'
+  +#13#10'"} '#9'c #101010",'#13#10'"| '#9'c #CACACA",'#13#10'"1 '#9'c #BFBFBF"'
+  +','#13#10'"2 '#9'c #DADADA",'#13#10'"3 '#9'c #C6C6C6",'#13#10'"4 '#9'c #7A7A'
+  +'7A",'#13#10'"5 '#9'c #757575",'#13#10'"6 '#9'c #151515",'#13#10'"7 '#9'c #1'
+  +'61616",'#13#10'"8 '#9'c #060606",'#13#10'"9 '#9'c #202020",'#13#10'"0 '#9'c'
+  +' #BEBEBE",'#13#10'"a '#9'c #CBCBCB",'#13#10'"b '#9'c #7B7B7B",'#13#10'"c '#9
+  +'c #686868",'#13#10'"d '#9'c #989898",'#13#10'"e '#9'c #1C1C1C",'#13#10'"f '
+  +#9'c #ADADAD",'#13#10'"g '#9'c #C8C8C8",'#13#10'"h '#9'c #7F7F7F",'#13#10'"i'
+  +' '#9'c #707070",'#13#10'"j '#9'c #939393",'#13#10'"k '#9'c #D6D6D6",'#13#10
+  +'"l '#9'c #797979",'#13#10'"m '#9'c #8D8D8D",'#13#10'"n '#9'c #919191",'#13
+  +#10'"o '#9'c #0C0C0C",'#13#10'"p '#9'c #848484",'#13#10'"q '#9'c #8F8F8F",'
+  +#13#10'"r '#9'c #BCBCBC",'#13#10'"s '#9'c #777777",'#13#10'"t '#9'c #818181"'
+  +','#13#10'"u '#9'c #C2C2C2",'#13#10'"v '#9'c #8C8C8C",'#13#10'"w '#9'c #6565'
+  +'65",'#13#10'"x '#9'c #838383",'#13#10'"y '#9'c #131313",'#13#10'"z '#9'c #7'
+  +'C7C7C",'#13#10'"A '#9'c #C1C1C1",'#13#10'"B '#9'c #949494",'#13#10'"C '#9'c'
+  +' #858585",'#13#10'"D '#9'c #C7C7C7",'#13#10'"E '#9'c #080808",'#13#10'"F '#9
+  +'c #CDCDCD",'#13#10'"G '#9'c #868686",'#13#10'"H '#9'c #888888",'#13#10'"I '
+  +#9'c #232323",'#13#10'"J '#9'c #191919",'#13#10'"K '#9'c #B7B7B7",'#13#10'"L'
+  +' '#9'c #6A6A6A",'#13#10'"M '#9'c #C9C9C9",'#13#10'"N '#9'c #BABABA",'#13#10
+  +'"O '#9'c #8A8A8A",'#13#10'"P '#9'c #CCCCCC",'#13#10'"Q '#9'c #C4C4C4",'#13
+  +#10'"R '#9'c #C3C3C3",'#13#10'"S '#9'c #6F6F6F",'#13#10'"T '#9'c #929292",'
+  +#13#10'"U '#9'c #B5B5B5",'#13#10'"V '#9'c #969696",'#13#10'"W '#9'c #1E1E1E"'
+  +','#13#10'"X '#9'c #B1B1B1",'#13#10'"Y '#9'c #171717",'#13#10'"Z '#9'c #ACAC'
+  +'AC",'#13#10'"` '#9'c #C0C0C0",'#13#10'" .'#9'c #D1D1D1",'#13#10'"..'#9'c #0'
+  +'E0E0E",'#13#10'"+.'#9'c #BBBBBB",'#13#10'"@.'#9'c #0F0F0F",'#13#10'"#.'#9'c'
+  +' #141414",'#13#10'"      . + + + @ + #   . + + + @ + #       ",'#13#10'"   '
+  +'   $ % & * = - +   $ % & * = - +       ",'#13#10'"        + ; > + +       +'
+  +' ; > + +         ",'#13#10'"        + , - '' +       ) ! ~ , +         ",'
+  +#13#10'"    + > @ + { + ) ]   $ + ^ + + ; / +     ",'#13#10'"    > ( _ : < ,'
+  +' [ }   > | 1 2 3 4 5 )     ",'#13#10'"6 / + + + > 7 + ] +   + 8 + + @ + 9 +'
+  +' # + ",'#13#10'"+ 0 a % - b c d ) ) $ + e f g < h i '' j ] ",'#13#10'"+ k |'
+  +' l m h n + + 8 + o + + g , p q b 4 + ",'#13#10'"+ r _ s '' t % . k u v w x '
+  +'y 1 = 4 z , = + ",'#13#10'"o u 0 ~ % t & / + $ + o ; + A 4 B & x C / ",'#13
+  +#10'". D A z t h z l # < x x E 3 F * = % v 5 + ",'#13#10'"+ _ D G t z H q + '
+  +'I + J + K K '' L '' t 4 / ",'#13#10'"+ M N t m O 5 h o       > | M t x t 5 '
+  +'< + ",'#13#10'"E P Q b = - 5 l +       + R A S T % '' v $ ",'#13#10'"] U R '
+  +'G h = % V +       W D r v b 4 4 = + ",'#13#10'"E M u H p p & * 8       + X '
+  +'a H , , % h + ",'#13#10'"Y Z 3 % & '' C w {       > `  .w H * & z o ",'#13
+  +#10'"+ ..$ + { + + # 8       + E ] + @ + + Y + ",'#13#10'"; Q 1 h * x = z ] '
+  +'      ; +.M , b p % b + ",'#13#10'"$ > + + ] + + E #       @.$ + + $ / + #.'
+  +'} "};'#13#10#9'NumGlyphs'#2#0#7'OnClick'#7#12'btnFindClick'#8'TabOrder'#2#1
+  +#0#0#7'TBitBtn'#8'btnClose'#4'Left'#3#146#0#6'Height'#2#30#3'Top'#3#184#0#5
+  +'Width'#2'M'#8'AutoSize'#9#7'Caption'#6#5'Close'#4'Kind'#7#7'bkClose'#11'Mod'
+  +'alResult'#2#2#9'NumGlyphs'#2#0#8'TabOrder'#2#2#0#0#11'TCheckGroup'#9'cgOpti'
+  +'ons'#6'Height'#2'p'#3'Top'#2'@'#5'Width'#3'('#1#8'AutoFill'#9#7'Caption'#6#7
+  ,'Options'#28'ChildSizing.LeftRightSpacing'#2#6#28'ChildSizing.TopBottomSpaci'
+  +'ng'#2#6#29'ChildSizing.EnlargeHorizontal'#7#24'crsHomogenousChildResize'#27
+  +'ChildSizing.EnlargeVertical'#7#24'crsHomogenousChildResize'#28'ChildSizing.'
+  +'ShrinkHorizontal'#7#14'crsScaleChilds'#26'ChildSizing.ShrinkVertical'#7#14
+  +'crsScaleChilds'#18'ChildSizing.Layout'#7#29'cclLeftToRightThenTopToBottom'
+  +#27'ChildSizing.ControlsPerLine'#2#1#8'TabOrder'#2#3#0#9'TCheckBox'#11'cbMat'
+  +'chCase'#4'Left'#2#6#6'Height'#2#21#3'Top'#2#6#5'Width'#3#24#1#7'Caption'#6
+  +#10'Match Case'#8'TabOrder'#2#0#0#0#9'TCheckBox'#12'cbFromCursor'#4'Left'#2#6
+  +#6'Height'#2#21#3'Top'#2#27#5'Width'#3#24#1#7'Caption'#6#11'From Cursor'#8'T'
+  +'abOrder'#2#1#0#0#9'TCheckBox'#11'cbBackwards'#4'Left'#2#6#6'Height'#2#21#3
+  +'Top'#2'0'#5'Width'#3#24#1#7'Caption'#6#16'Search Backwards'#8'TabOrder'#2#2
+  +#0#0#9'TCheckBox'#15'cbTreatAsSpaces'#4'Left'#2#6#6'Height'#2#19#3'Top'#2'E'
+  +#5'Width'#3#24#1#8'AutoSize'#8#7'Caption'#6'1Treat Non-Breaking Spaces and N'
+  +'ew Lines as spaces'#7'Checked'#9#5'State'#7#9'cbChecked'#8'TabOrder'#2#3#0#0
+  +#0#0
+]);

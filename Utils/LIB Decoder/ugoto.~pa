@@ -1,0 +1,57 @@
+unit uGoTo;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, Spin,
+  StdCtrls, Buttons;
+
+type
+
+  { TfrmGoTo }
+
+  TfrmGoTo = class(TForm)
+    btnGo: TBitBtn;
+    btnCancel: TBitBtn;
+    lblseCap: TLabel;
+    seIndex: TSpinEdit;
+    procedure FormShow(Sender: TObject);
+  private
+    { private declarations }
+  public
+    { public declarations }
+    procedure SetType(IsGoToIndex: Boolean);
+  end; 
+
+var
+  frmGoTo: TfrmGoTo;
+
+implementation
+
+procedure TfrmGoTo.FormShow(Sender: TObject);
+begin
+  //seIndex.Focus;
+  //seIndex.SelectAll;
+end;
+
+procedure TfrmGoTo.SetType(IsGoToIndex: Boolean);
+begin
+  if IsGoToIndex = true then
+  begin
+    Caption := 'Go to Index';
+    lblseCap.Caption := 'String Index';
+  end
+  else
+  begin
+    Caption := 'Go to Line Number';
+    lblseCap.Caption := 'Line Number';
+  end;
+end;
+
+initialization
+  {$I ugoto.lrs}
+
+end.
+

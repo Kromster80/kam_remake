@@ -1,0 +1,102 @@
+unit ufind;
+
+{$MODE objfpc}{$H+}
+
+interface
+
+uses
+  Classes,
+  SysUtils,
+  LResources,
+  Forms,
+  Controls,
+  Graphics,
+  Dialogs,
+  StdCtrls,
+  Buttons,
+  ExtCtrls,
+  SynEditTypes,
+  translations,
+  gettext,
+  utypes,
+  uStrings;
+
+type
+
+  { TfrmFind }
+
+  TfrmFind = class(TForm)
+    btnFind : TBitBtn;
+    btnClose : TBitBtn;
+    cbMatchCase : TCheckBox;
+    cgOptions : TCheckGroup;
+    cbFromCursor : TCheckBox;
+    edtText : TEdit;
+    lblFind : TLabel;
+    procedure btnFindClick(Sender : TObject);
+    procedure edtTextKeyPress(Sender : TObject; var Key : char);
+    procedure FormShow(Sender : TObject);
+    procedure Activate_Form(ALang : string);
+    procedure UpdateCaptions;
+  private
+    { private declarations }
+  public
+    { public declarations }
+    TheOptions : TSynSearchOptions;
+    OutputString : string;
+  end;
+
+var
+  frmFind : TfrmFind;
+
+implementation
+
+{ TfrmFind }
+
+procedure TfrmFind.btnFindClick(Sender : TObject);
+begin
+  TheOptions := [];
+
+  if cbMatchCase.Checked then
+    TheOptions := TheOptions + [ssoMatchCase];
+
+  if cbFromCursor.Checked = false then
+    TheOptions := TheOptions + [ssoEntireScope];
+
+  OutputString := edtText.Text;
+  ModalResult := mrOK;
+end;
+
+procedure TfrmFind.edtTextKeyPress(Sender : TObject; var Key : char);
+begin
+  // if they press enter
+  if ord(Key) = 13 then
+    btnFindClick(Sender);
+end;
+
+procedure TfrmFind.FormShow(Sender : TObject);
+begin
+  edtText.SetFocus;
+end;
+
+procedure TfrmFind.Activate_Form(ALang : string);
+begin
+  TranslateResourceStrings(LangFolder + '\' + TranslationFile + '.' + ALang + '.mo');
+  UpdateCaptions;
+end;
+
+procedure TfrmFind.UpdateCaptions;
+begin
+  Caption := rsFindTitle;
+  lblFind.Caption := rslblFind;
+  cgOptions.Caption := rsOptions;
+  cbMatchCase.Caption := rsMatchCase;
+  cbFromCursor.Caption := rsFromCursor;
+  btnFind.Caption := rsbtnFind;
+  btnClose.Caption := rsbtnClose;
+end;
+
+initialization
+  {$I ufind.lrs}
+
+end.

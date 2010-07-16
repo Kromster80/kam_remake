@@ -1,0 +1,765 @@
+unit umain;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  Buttons, ComCtrls, Spin, Menus, uGoTo;
+  
+type
+  TStringData = class(TObject)
+  private
+  public
+    Index, Number : integer; //number does not count FF bytes
+    EndsInNL: Boolean;
+  end;
+
+type
+
+  { TfrmMain }
+
+  TfrmMain = class(TForm)
+    btnNBS: TBitBtn;
+    btnAutoFormat: TBitBtn;
+    btnLoad: TBitBtn;
+    btnSave: TBitBtn;
+    btnSaveAs: TBitBtn;
+    lblAutoComment: TLabel;
+    lblStrIndex: TLabel;
+    lblNumChar: TLabel;
+    lblStrNum: TLabel;
+    MainMenu1: TMainMenu;
+    Memo: TMemo;
+    mmiShowEmptyStrings: TMenuItem;
+    mmiGoToLineNumber: TMenuItem;
+    mmiGoToIndex: TMenuItem;
+    mmiEdit: TMenuItem;
+    mmiExit: TMenuItem;
+    mmiSaveAs: TMenuItem;
+    mmiSave: TMenuItem;
+    mmiLoad: TMenuItem;
+    mmiAbout: TMenuItem;
+    mmiRealHelp: TMenuItem;
+    mmiHelp: TMenuItem;
+    mmiFile: TMenuItem;
+    OpenDialog: TOpenDialog;
+    SaveDialog: TSaveDialog;
+    seAutoFormatLineNum: TSpinEdit;
+    TreeView: TTreeView;
+    procedure btnAutoFormatClick(Sender: TObject);
+    procedure btnNBSClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure mmiAboutClick(Sender: TObject);
+    procedure mmiExitClick(Sender: TObject);
+    procedure mmiGoToIndexClick(Sender: TObject);
+    procedure mmiGoToLineNumberClick(Sender: TObject);
+    procedure mmiLoadClick(Sender: TObject);
+    procedure mmiRealHelpClick(Sender: TObject);
+    procedure mmiSaveAsClick(Sender: TObject);
+    procedure mmiSaveClick(Sender: TObject);
+    procedure mmiShowEmptyStringsClick(Sender: TObject);
+    procedure SetFileHasSaved(AHasSave : boolean);
+    procedure SetCurrentFileName(ACFN : string);
+    procedure btnLoadClick(Sender: TObject);
+    procedure btnSaveAsClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure LoadLIBFile(AFileName: string);
+    procedure SaveLIBFile(AFileName: string);
+    procedure MemoChange(Sender: TObject);
+    procedure TreeViewSelectionChanged(Sender: TObject);
+    procedure ReportError(AMainSection : string; AErrorTypeMsg : string; ALastThingDone : string; ANotes : string = '');
+  private
+    { private declarations }
+    FHasSaved: Boolean;
+    FCurrentFileName: string;
+  public
+    { public declarations }
+    StringsData: array[1..100000] of string;
+    StringIsFF: array[1..100000] of boolean;
+    StrCount: integer;
+    //these are unknow things so we set them as the same on write out
+    Byte3: integer;
+    Byte4: integer;
+    Byte5: integer;
+    Byte6: integer;
+    Byte7: integer;
+    Byte8: integer;
+    property CurrentFileName : string read FCurrentFileName write SetCurrentFileName;
+    property FileHasSaved : boolean read FHasSaved write SetFileHasSaved;
+  end; 
+
+var
+  frmMain: TfrmMain;
+
+implementation
+
+{ TfrmMain }
+
+function EncodeString(AString:string):string;
+var
+Str: string;
+begin
+  Str := AString;
+  Str := StringReplace(Str,'&NBS;',#127,[rfReplaceAll]);
+  Result := Str;
+end;
+
+function UnencodeString(AString:string):string;
+var
+Str: string;
+begin
+  Str := AString;
+  Str := StringReplace(Str,#127,'&NBS;',[rfReplaceAll]);
+  Result := Str;
+end;
+
+procedure TfrmMain.SetCurrentFileName(ACFN : string);
+begin
+  FCurrentFileName := ACFN;
+  SetFileHasSaved(FileHasSaved);
+end;
+
+procedure TfrmMain.SetFileHasSaved(AHasSave : boolean);
+begin
+  FHasSaved := AHasSave;
+
+  if FileHasSaved then
+  begin
+    frmMain.Caption := 'LIB Decoder' + ' [' + CurrentFileName + '] ';
+  end
+  else
+  begin
+    frmMain.Caption := 'LIB Decoder' + ' [' + CurrentFileName + '] *';
+  end;
+end;
+
+procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+var
+DlgResult: integer;
+begin
+  CanClose := false;
+  if FileHasSaved then
+  begin
+    CanClose := true;
+  end
+  else
+  begin
+    // Not saved!
+    DlgResult := MessageDlg(CurrentFileName + ' has not been saved. Do you want to save it now?', mtConfirmation, mbYesNoCancel, 1);
+    if DlgResult = mrYes then //Yes (I want to save, then close)
+    begin
+      btnSaveClick(Sender);
+      if FileHasSaved then
+        CanClose := true
+      else
+        CanClose := false;
+    end;
+    if DlgResult = mrCancel then //Cancel (I don't won't to do anything at all!)
+    begin
+      CanClose := false;
+    end;
+    if DlgResult = mrNo then //No, forget about the file and close!
+    begin
+      CanClose := true;
+    end;
+  end;
+end;
+
+procedure TfrmMain.mmiAboutClick(Sender: TObject);
+begin
+  MessageDlg('Made by Lewin Hodgman.'+#13#10+' Version 0.6.5 (27/05/2008)',mtInformation,[mbOK],0);
+end;
+
+procedure TfrmMain.mmiExitClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmMain.mmiGoToIndexClick(Sender: TObject);
+var
+FrmResult : integer;
+Node : TTreeNode;
+//FoundMatch: Boolean;
+begin
+  //FoundMatch := false;
+  //first setup the goto form to look right (true = index)
+  frmGoTo.SetType(true);
+  FrmResult := frmGoTo.ShowModal;
+  if FrmResult = mrOK then
+  begin
+    //ShowMessage('got ok');
+    //select the right one on the tree view
+    Node := TreeView.Items[0];
+    while Node <> nil do
+    begin
+      //ShowMessage('comparing strings value of '+IntToStr(TStringData(Node.Data).Index-1)+' with se value of '+IntToStr(frmGoTo.seIndex.Value));
+      if TStringData(Node.Data).Index-1 = frmGoTo.seIndex.Value then
+      begin
+      //ShowMessage('Matched!');
+        //FoundMatch := true;
+        TreeView.Selected := Node;
+        Break;
+      end;
+      Node := Node.GetNext;
+    end;
+    //if FoundMatch = false then
+    //  ShowMessage('no match found...');
+  end;
+end;
+
+procedure TfrmMain.mmiGoToLineNumberClick(Sender: TObject);
+var
+FrmResult : integer;
+Node : TTreeNode;
+FoundMatch: Boolean;
+begin
+  FoundMatch := false;
+  //first setup the goto form to look right (true = index)
+  frmGoTo.SetType(false);
+  FrmResult := frmGoTo.ShowModal;
+  if FrmResult = mrOK then
+  begin
+    //select the right one on the tree view
+    Node := TreeView.Items[0];
+    while Node <> nil do
+    begin
+      if TStringData(Node.Data).Number = frmGoTo.seIndex.Value then
+      begin
+        FoundMatch := true;
+        TreeView.Selected := Node;
+        Break;
+      end;
+      Node := Node.GetNext;
+    end;
+  end;
+end;
+
+procedure TfrmMain.mmiLoadClick(Sender: TObject);
+begin
+  btnLoadClick(Sender);
+end;
+
+procedure TfrmMain.mmiRealHelpClick(Sender: TObject);
+begin
+  MessageDlg('Not done yet. Thanks for clicking!!',mtWarning,[mbOK],0);
+end;
+
+procedure TfrmMain.mmiSaveAsClick(Sender: TObject);
+begin
+  btnSaveAsClick(Sender);
+end;
+
+procedure TfrmMain.mmiSaveClick(Sender: TObject);
+begin
+  btnSaveClick(Sender);
+end;
+
+procedure TfrmMain.mmiShowEmptyStringsClick(Sender: TObject);
+begin
+
+end;
+
+procedure TfrmMain.btnAutoFormatClick(Sender: TObject);
+var
+ MemText, TempText : string;
+ Done, Done2 : boolean;
+ i, i2, i3 : integer;
+begin
+  //go through the memo text and add new line where they should be
+
+  MemText := Memo.Text;
+  //first remove all the current new lines and put spaces there
+  MemText := StringReplace(MemText,#10,' ',[rfReplaceAll]);
+  MemText := StringReplace(MemText,#13,'',[rfReplaceAll]);
+  
+  //now
+  Done := false;
+  i := 1;
+  i2 := 1;
+  TempText := '';
+  Memo.Text := '';
+  Memo.Clear;
+  while Done <> true do
+  begin
+    TempText := TempText+MemText[i];
+    if i2 = seAutoFormatLineNum.Value then
+    begin
+      //ShowMessage('stepping backwards');
+      //step backward to the last space
+      i3 := Length(TempText)-1;
+      Done2 := false;
+      while Done2 <> true do
+      begin
+      //ShowMessage('looping test '+IntToStr(i3)+': '+TempText[i3]);
+        if TempText[i3] = ' ' then
+        begin
+          //ShowMessage('changing i from '+IntToStr(i)+' to '+IntToStr(i-(Length(TempText)-i3)));
+          i := i-(Length(TempText)-i3);
+          TempText := LeftStr(TempText,i3-1);
+          Done2 := true;
+        end;
+        i3 := i3-1;
+        if i3 <= 1 then
+          Done2 := true;
+      end;
+      //ShowMessage('loop done');
+      if Memo.Text = '' then
+        Memo.Lines.Text := TempText
+      else
+        //place a new line
+        Memo.Lines.Add(TempText);
+      //ShowMessage('Adding: "'+TempText+'"');
+      TempText := '';
+      //reset i2
+      i2 := 0;
+    end;
+    //counter stuff
+    i := i+1;
+    i2 := i2+1;
+    if i = Length(MemText)+1 then
+    begin
+      Memo.Lines.Add(TempText);
+      Done := true;
+    end;
+  end;
+  //ShowMessage(TempText);
+  //Memo.Text := TempText;
+end;
+
+procedure TfrmMain.btnNBSClick(Sender: TObject);
+var
+ TempSelStart: integer;
+begin
+  //ShowMessage(IntToStr(Memo.SelStart)+','+IntToStr(Memo.SelLength));
+  TempSelStart := Memo.SelStart;
+  Memo.Text := LeftStr(Memo.Text,Memo.SelStart)+'&NBS;'+RightStr(Memo.Text,Length(Memo.Text)-Memo.SelStart);
+
+  Memo.SelStart := TempSelStart+Length('&NBS;');
+end;
+
+procedure TfrmMain.btnLoadClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+  begin
+    TreeView.Items.Clear;
+    Memo.Lines.Clear;
+    LoadLIBFile(OpenDialog.FileName);
+    CurrentFileName := OpenDialog.FileName;
+    FileHasSaved := true;
+  end;
+end;
+
+procedure TfrmMain.btnSaveAsClick(Sender: TObject);
+begin
+  SaveDialog.FileName := CurrentFileName;
+  if SaveDialog.Execute then
+  begin
+    SaveLIBFile(SaveDialog.FileName);
+    if FileExists(SaveDialog.FileName) then
+    begin
+      CurrentFileName := SaveDialog.FileName;
+      FileHasSaved := true;
+    end;
+  end;
+end;
+
+procedure TfrmMain.btnSaveClick(Sender: TObject);
+begin
+  if CurrentFileName <> '' then
+    //save it as the same name as the one we opened
+    SaveLIBFile(CurrentFileName);
+    FileHasSaved := true;
+end;
+
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+  //parse params
+  if Application.ParamCount > 0 then
+  begin
+    //they have passed somthing in, assume it is a file
+    if FileExists(Application.Params[1]) then
+    begin
+      TreeView.Items.Clear;
+      Memo.Lines.Clear;
+      LoadLIBFile(Application.Params[1]);
+      CurrentFileName := Application.Params[1];
+    end;
+  end;
+  FileHasSaved := true;
+end;
+
+procedure TfrmMain.LoadLIBFile(AFileName: string);
+var
+  LIBFile : file of char;
+  i, Bytetwo, FFCount : integer;
+  c : char;
+  i2, i3, ExtraCount: integer;
+  TempStr: string;
+  FileData: array[0..100000] of byte;
+  FileLength: integer;
+  b : byte;
+  TempNode: TTreeNode;
+  TempStringData: TStringData;
+  LastThingDone, ErrorTypeMsg: String;
+begin
+  if FileExists(AFileName) then
+  begin
+   try
+    //ShowMessage('start');
+    LastThingDone := 'Opening File';
+    //first load the entire file into a string
+    AssignFile(LIBFile, AFileName);
+    Reset(LIBFile);
+    LastThingDone := 'Loading bytes into array';
+    //ShowMessage('about to loop');
+    i2 := 0;
+    while not EOF(LIBFile) do
+    begin
+      Read(LIBFile, c);
+      b := ord(c);
+      FileData[i2] := b;
+      i2 := i2+1;
+    end;
+    FileLength := i2;
+
+    LastThingDone := 'Reopening File';
+    CloseFile(LIBFile);
+    AssignFile(LIBFile, AFileName);
+    Reset(LIBFile);
+
+    LastThingDone := 'Loading Length';
+    //load string count from first two bytes
+    Read(LIBFile, c);
+    i := ord(c);
+    Read(LIBFile, c);
+    StrCount := i+(ord(c)*256);
+
+    LastThingDone := 'Loading unknown bytes';
+    //load 6 unknown bytes to be written out at the end
+    Read(LIBFile, c);
+    Byte3 := ord(c);
+    Read(LIBFile, c);
+    Byte4 := ord(c);
+    Read(LIBFile, c);
+    Byte5 := ord(c);
+    Read(LIBFile, c);
+    Byte6 := ord(c);
+    Read(LIBFile, c);
+    Byte7 := ord(c);
+    Read(LIBFile, c);
+    Byte8 := ord(c);
+
+    LastThingDone := 'Starting proccessing loop';
+    ExtraCount := 1;
+    FFCount := 0;
+    for i3:=1 to StrCount do
+    begin
+    LastThingDone := 'Loop '+IntToStr(i3)+': Loading index bytes';
+    Read(LIBFile, c);
+    i := ord(c);
+    Read(LIBFile, c);
+    Bytetwo := ord(c);
+    //skip FF byte pars
+    if (i <> 255) or (Bytetwo <> 255) then
+    begin
+    LastThingDone := 'Loop '+IntToStr(i3)+': Finding length and location';
+    i := i+(Bytetwo*256);
+    //load the text of the string
+    TempStr := '';
+    //for the last string we must just go to the end of the file
+    if i3 = StrCount then
+    begin
+    LastThingDone := 'Loop '+IntToStr(i3)+': LAST STRING';
+      i := FileLength-(StrCount*2)-5;
+    end;
+    LastThingDone := 'Loop '+IntToStr(i3)+': Loading string';
+    for i2 := ExtraCount to i-1 do
+    begin
+      TempStr := TempStr+char(FileData[(StrCount*2)+5+i2]);
+    end;
+    ExtraCount := i+1;
+    //skip empty strings
+    if (TempStr = '') or (i = 0) then
+    begin
+      TempStr := ' ';
+    end;
+    //fix non-breaking space
+    TempStr := UnencodeString(TempStr);
+    
+    LastThingDone := 'Loop '+IntToStr(i3)+': Adding string to tree view';
+    //string is now in tempstr
+    TempNode := TreeView.Items.Add(TreeView.Items.GetFirstNode,TempStr);
+    TempStringData := TStringData.Create;
+    TempStringData.Index := i3;
+    TempStringData.Number := i3-FFCount;
+    TempStringData.EndsInNL := false;
+    if TempStr[Length(TempStr)] = '|' then
+    begin
+      TempStringData.EndsInNL := true;
+    end;
+    TempNode.Data := TempStringData;
+    StringsData[i3] := TempStr;
+    end
+    else
+      if i = 255 then
+      begin
+        StringIsFF[i3] := true;
+        FFCount := FFCount+1;
+      end;
+    end;
+    LastThingDone := 'Closing file';
+    CloseFile(LIBFile);
+    //try to make the scroll bar look ok
+    TreeView.Selected := TreeView.Items.GetFirstNode;
+    except
+      on EZeroDivide do
+      begin
+        ErrorTypeMsg := 'Division by 0';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EInterror do
+      begin
+        ErrorTypeMsg := 'Invalid integer';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on ERangeError do
+      begin
+        ErrorTypeMsg := 'Out of range';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EIntOverflow do
+      begin
+        ErrorTypeMsg := 'Integer over flow';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EMathError do
+      begin
+        ErrorTypeMsg := 'Mathamatical error';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EInvalidOp do
+      begin
+        ErrorTypeMsg := 'Invalid operator';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EOverflow do
+      begin
+        ErrorTypeMsg := 'Over flow';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EUnderflow do
+      begin
+        ErrorTypeMsg := 'Under flow';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EInOutError do
+      begin
+        ErrorTypeMsg := 'Input output error';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EHeapMemoryError do
+      begin
+        ErrorTypeMsg := 'Memory heap error';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EHeapException do
+      begin
+        ErrorTypeMsg := 'Heap exception';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EExternalException do
+      begin
+        ErrorTypeMsg := 'External exception';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EInvalidPointer do
+      begin
+        ErrorTypeMsg := 'Invalid pointer';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EOutOfMemory do
+      begin
+        ErrorTypeMsg := 'Out of memory';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EAccessViolation do
+      begin
+        ErrorTypeMsg := 'Access Violation';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EConvertError do
+      begin
+        ErrorTypeMsg := 'Conversion error';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EFormatError do
+      begin
+        ErrorTypeMsg := 'Format error';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EOSError do
+      begin
+        ErrorTypeMsg := 'OS error';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+      on EConvertError do
+      begin
+        ErrorTypeMsg := 'Conversion error';
+        ReportError('Load Function', ErrorTypeMsg, LastThingDone);
+
+      end;
+    end;
+  end
+  else
+  begin
+    MessageDlg('File not found!',mtError,[mbOK],0);
+  end;
+end;
+
+
+procedure TfrmMain.SaveLIBFile(AFileName: string);
+var
+  TheFile : File;
+  ToWrite: String;
+  i, ExtraCount : integer;
+  b: byte;
+begin
+  if FileExists(AFileName) then
+  begin
+    DeleteFile(AFileName);
+  end;
+  ToWrite := '';
+  //8 byte header, containing the total number of strings
+  ToWrite := ToWrite+char(StrCount mod 256);
+  ToWrite := ToWrite+char(StrCount div 256);
+  //the next two will just we what we found them as. I'm not sure what they mean
+  ToWrite := ToWrite+char(Byte3);
+  ToWrite := ToWrite+char(Byte4);
+  ToWrite := ToWrite+char(Byte5);
+  ToWrite := ToWrite+char(Byte6);
+  ToWrite := ToWrite+char(Byte7);
+  ToWrite := ToWrite+char(Byte8);
+  //now start the real header
+  
+  ExtraCount := 0;
+  for i := 1 to StrCount-1 do
+  begin
+    //if it's a space (blank) string then write out a 0 length
+    if StringsData[i] = ' ' then
+    begin
+    ToWrite := ToWrite+char(0);
+    ToWrite := ToWrite+char(0);
+    end
+    else
+    begin
+    if StringIsFF[i] = true then
+    begin
+    //write out an FF byte par
+    ToWrite := ToWrite+char(255);
+    ToWrite := ToWrite+char(255);
+    end
+    else
+    begin
+    ToWrite := ToWrite+char((Length(StringsData[i])+1+ExtraCount) mod 256);
+    ToWrite := ToWrite+char((Length(StringsData[i])+1+ExtraCount) div 256);
+    ExtraCount := ExtraCount+Length(StringsData[i])+1;
+    end;
+    end;
+  end;
+  //now write the actual strings
+  //don't do FF byte pars
+  for i := 1 to StrCount-1 do
+  begin
+    //don't do space strings (blank) either
+    if (StringIsFF[i] = false) and (StringsData[i] <> ' ') then
+    begin
+      ToWrite := ToWrite+StringsData[i]+char(0);
+    end;
+  end;
+  //write the last string without a seperator
+  if (StringIsFF[StrCount] = false) and (StringsData[StrCount] <> ' ') then
+  begin
+    ToWrite := ToWrite+StringsData[StrCount];
+  end;
+  ToWrite := EncodeString(ToWrite);
+  
+  //save the file
+  AssignFile(TheFile, AFileName);
+  i := 1;
+  Rewrite(TheFile, 1);
+  while i <= Length(ToWrite) do
+  begin
+    b := ord(char(ToWrite[i]));
+    Blockwrite(TheFile, char(b), 1);
+    inc(i);
+  end;
+  CloseFile(TheFile);
+end;
+
+procedure TfrmMain.MemoChange(Sender: TObject);
+begin
+  if TreeView.Selected <> nil then
+  begin
+  if TStringData(TreeView.Selected.Data).EndsInNL = true then
+    StringsData[TStringData(TreeView.Selected.Data).Index] := StringReplace(Memo.Lines.Text,#10,'|',[rfReplaceAll])
+  else
+    StringsData[TStringData(TreeView.Selected.Data).Index] := StringReplace(TrimRight(Memo.Lines.Text),#10,'|',[rfReplaceAll]);
+  TreeView.Selected.Text := StringsData[TStringData(TreeView.Selected.Data).Index];
+  FileHasSaved := false;
+  end;
+end;
+
+procedure TfrmMain.TreeViewSelectionChanged(Sender: TObject);
+begin
+  if TreeView.Selected <> nil then
+  begin
+    //ShowMessage(IntToStr(TStringData(TreeView.Selected.Data).Number));
+    //now update the indexes
+    lblStrIndex.Caption := 'String Index: '+IntToStr(TStringData(TreeView.Selected.Data).Index-1)+' (Also used for in-game messages)';
+    lblStrNum.Caption := 'String Number: '+IntToStr(TStringData(TreeView.Selected.Data).Number);
+    //put the text for this string in the box on the left
+    Memo.Lines.Clear;
+    Memo.Lines.Text := TrimRight(StringReplace(UnencodeString(StringsData[TStringData(TreeView.Selected.Data).Index]),'|',#10,[rfReplaceAll]));
+  end;
+end;
+
+procedure TfrmMain.ReportError(AMainSection : string; AErrorTypeMsg : string; ALastThingDone : string; ANotes : string = '');
+var
+  NL : string;
+begin
+  if ANotes = '' then
+    ANotes := 'If you think this is a bug then please send me these details and the file you were working with at the time. My email: lewinjh@gmail.com';
+
+  NL := #13#10;
+  MessageDlg('An error has occoured. What ever was currently being processed will not have completed succesfully. Error Details:' + NL +
+    NL + 'Function: ' + AMainSection + NL + 'Type: ' + AErrorTypeMsg + NL + 'Section: ' + ALastThingDone + NL +
+    NL + ANotes +
+    NL + 'It is highly recommended for you to close the application before you continue to use it, to aviod memory leaks', mtError, [mbOK], 0);
+end;
+
+initialization
+  {$I umain.lrs}
+
+end.
+
