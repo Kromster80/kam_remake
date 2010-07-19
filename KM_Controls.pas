@@ -275,12 +275,6 @@ type TScrollAxis = (sa_Vertical, sa_Horizontal);
 {Scroll bar}
 //todo: scroll wheel work for scollbar
 //Correction: scrolling should happen when mouse is over some List control, not over ScrollBar itself
-//Additionaly: Only active control recieves OnMouseWheel event, but TPanel has no such event, hence
-//             it's a problem to pass this event to fGame, which will then pass it to ControlsCollection
-//             @Lewin: I don't know how to solve it. Form1.OnMouseWheel works only when Mouse is over
-//                     Form1 specifically. Trapping WM_Mouse message does works the same way.
-//                     The only solution I see - remove Panel5 and render on some other surface that has
-//                     OnMouseWheel event
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;
@@ -463,7 +457,7 @@ end;
 
 function TKMControl.HitTest(X, Y: Integer): Boolean;
 begin
-  Result:= IsVisible and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
+  Result := IsVisible and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
 end;
 
 {One common thing - draw childs for self}
@@ -474,24 +468,27 @@ begin
 
   sColor := $FFFFFFFF;
 
-  if Self is TKMPanel then sColor := $400000FF;
+  if Self is TKMPanel then exit;//sColor := $000000FF;
   if Self is TKMBevel then ;
   if Self is TKMShape then ;
 
   if Self is TKMLabel then begin //Special case for aligned text
     case TKMLabel(Self).TextAlign of
-      kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $4000FFFF);
-      kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $4000FFFF);
-      kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $4000FFFF);
+      kaLeft:   fRenderUI.WriteLayer(Left, Top, Width, Height, $2000FFFF);
+      kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $2000FFFF);
+      kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $2000FFFF);
     end;
     exit;
   end;
 
-  if Self is TKMImage      then sColor := $4000FF00;
-  if Self is TKMImageStack then sColor := $4080FF00;
-  if Self is TKMCheckBox   then sColor := $40FF00FF;
-  if Self is TKMRatioRow   then sColor := $4000FF00;
-  if Self is TKMScrollBar  then sColor := $40FFFF00;
+  if Self is TKMImage      then sColor := $2000FF00;
+  if Self is TKMImageStack then sColor := $2080FF00;
+  if Self is TKMCheckBox   then sColor := $20FF00FF;
+  if Self is TKMRatioRow   then sColor := $2000FF00;
+  if Self is TKMScrollBar  then sColor := $20FFFF00;
+  if Self is TKMFileList   then sColor := $200080FF;
+
+  if CursorOver then sColor := sColor OR $30000000; //Highlight on mouse over
 
   fRenderUI.WriteLayer(Left, Top, Width, Height, sColor);
 end;
@@ -722,6 +719,7 @@ begin
 end;
 
 
+{ TKMImageStack }
 constructor TKMImageStack.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTexID, aRXid:integer);
 begin
   RXid  := aRXid;
@@ -1324,7 +1322,7 @@ procedure TKMFileList.Paint();
 var i:integer;
 begin
   Inherited;
-  fRenderUI.WriteBevel(Left, Top, Width, Height);
+  fRenderUI.WriteBevel(Left, Top, Width-ScrollBar.Width, Height);
 
   if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
     fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width, ItemHeight, $88888888);
@@ -1503,7 +1501,7 @@ end;
 function TKMControlsCollection.AddFileList(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
 const ScrollWidth = 20;
 begin
-  Result := TKMFileList.Create(aParent, aLeft,aTop,aWidth-ScrollWidth,aHeight);
+  Result := TKMFileList.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
 
   Result.ScrollBar := AddScrollBar(aParent, aLeft+aWidth-ScrollWidth, aTop, ScrollWidth, aHeight, sa_Vertical);
@@ -1611,12 +1609,12 @@ begin
     if Controls[i].HitTest(X, Y)
     and Controls[i].Enabled then begin
       if Controls[i] is TKMFileList then
-        TKMFileList(Controls[i]).TopIndex := EnsureRange(TKMFileList(Controls[i]).TopIndex + WheelDelta div 120, 0, 3);
+        TKMFileList(Controls[i]).TopIndex := EnsureRange(TKMFileList(Controls[i]).TopIndex - WheelDelta div 120, 0, 3);
 
       if Assigned(Controls[i].OnMouseWheel) then
       begin
         Controls[i].OnMouseWheel(Controls[i], WheelDelta);
-        exit; //Send OnClick only to one item
+        exit; //Send OnWheel only to one item
       end;
     end;
 end;

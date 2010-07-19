@@ -250,7 +250,7 @@ begin fGame.MouseUp(Button, Shift, X, Y); end;
 
 
 procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin fGame.MouseWheel(Shift, WheelDelta, MousePos.X, MousePos.Y); end;
+begin fGame.MouseWheel(Shift, WheelDelta, Panel5.ScreenToClient(MousePos).X, Panel5.ScreenToClient(MousePos).Y); end;
 
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
