@@ -588,7 +588,6 @@ var
   x:byte;
   by:^cardinal;
   DestX, DestY:word;
-  col:cardinal;
   TD:Pointer;
 begin
 
@@ -605,40 +604,33 @@ if Mode=tm_AlphaTest then begin
   exit;
 end;
 
-//Convert palette bitmap data to 32bit RGBA texture data
-TD:=AllocMem(DestX*DestY*4); //same as GetMem+FillChar(0)
-for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
-  if (i<my)and(k<mx) then begin
-    x:=Data[i*mx+k];
-    col:=0;
+  //Convert palette bitmap data to 32bit RGBA texture data
+  TD:=AllocMem(DestX*DestY*4); //same as GetMem+FillChar(0)
+  for i:=0 to my-1{(DestY-1)} do for k:=0 to mx-1{(DestX-1)} do begin
+    x := Data[i*mx+k];
     if (x<>0) then begin
-      by:=pointer(cardinal(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
+      by := pointer(cardinal(TD)+((i+DestY-my)*DestX+k)*4); //Get pointer
 
-      if Mode=tm_NoCol then
-          col:=Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000
-      else
-
-      if Mode=tm_TexID then
-        if InRange(x,24,30) then
-          col:=cardinal((byte(x-27)*42+128)*65793) OR $FF000000 //convert to greyscale B>>>>>W
-          //Alternative method
-          //col:=$FF000000
-        else
-          col:=Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000
-      else
-
-      if Mode=tm_AltID then
-        case x of
-          24,30: col:=$70FFFFFF;   //7
-          25,29: col:=$B0FFFFFF;   //11
-          26,28: col:=$E0FFFFFF;   //14
-          27:    col:=$FFFFFFFF;   //16
-          else   col:=0;
-        end;
+      case Mode of
+        tm_NoCol: by^ := Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000;
+        tm_TexID: begin
+                    if InRange(x,24,30) then
+                      by^ := cardinal((byte(x-27)*42+128)*65793) OR $FF000000 //convert to greyscale B>>>>>W
+                      //Alternative method
+                      //by^:=$FF000000
+                    else
+                      by^ := Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000;
+                  end;
+        tm_AltID: case x of
+                    24,30: by^ := $70FFFFFF;   //7
+                    25,29: by^ := $B0FFFFFF;   //11
+                    26,28: by^ := $E0FFFFFF;   //14
+                    27:    by^ := $FFFFFFFF;   //16
+                    else   by^ := 0;
+                  end;
         //Alternative method
-        //if InRange(x,24,30) then col:= ((x-24)*21+128) + ((x-24)*21+128) SHL 8 + ((x-24)*21+128) SHL 16 OR $FF000000;
-
-      by^:=col;
+        //if InRange(x,24,30) then by^ := ((x-24)*21+128) + ((x-24)*21+128) SHL 8 + ((x-24)*21+128) SHL 16 OR $FF000000;
+      end;
     end;
   end;
 
@@ -652,21 +644,21 @@ for i:=0 to (DestY-1) do for k:=0 to (DestX-1) do
     tm_AltID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
   end;
 
-if WriteAllTexturesToBMP then begin
-  CreateDir(ExeDir+'Export\GenTextures\');
-  MyBitMap:=TBitMap.Create;
-  MyBitmap.PixelFormat:=pf32bit;
-  MyBitmap.Width:=DestX;
-  MyBitmap.Height:=DestY;
+  if WriteAllTexturesToBMP then begin
+    CreateDir(ExeDir+'Export\GenTextures\');
+    MyBitMap:=TBitMap.Create;
+    MyBitmap.PixelFormat:=pf32bit;
+    MyBitmap.Width:=DestX;
+    MyBitmap.Height:=DestY;
   
-  for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-    MyBitmap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
+    for i:=0 to DestY-1 do for k:=0 to DestX-1 do
+      MyBitmap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
 
-  MyBitmap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
-  MyBitMap.Free;
-end;
+    MyBitmap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
+    MyBitMap.Free;
+  end;
 
-FreeMem(TD);
+  FreeMem(TD);
 end;
 
 
