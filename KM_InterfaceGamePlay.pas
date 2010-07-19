@@ -1334,7 +1334,7 @@ begin
         end;
 
     ht_Barracks: begin
-          Image_House_Worker.Enabled := true; //In the barrack the recruit icon is always enabled
+          Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
           House_BarracksUnitChange(nil, mbLeft);
           SwitchPage(Panel_HouseBarracks);
           end;
@@ -1925,15 +1925,15 @@ begin
   if fGame.fGlobalSettings.IsMusic then
   begin
     Label_Menu_Track.Caption := fGame.fMusicLib.GetTrackTitle;
-    Label_Menu_Track.Enabled := true;
-    Button_Menu_TrackUp.Enabled := true;
-    Button_Menu_TrackDown.Enabled := true;
+    Label_Menu_Track.Enable;
+    Button_Menu_TrackUp.Enable;
+    Button_Menu_TrackDown.Enable;
   end
   else begin
     Label_Menu_Track.Caption := '-';
-    Label_Menu_Track.Enabled := false;
-    Button_Menu_TrackUp.Enabled := false;
-    Button_Menu_TrackDown.Enabled := false;
+    Label_Menu_Track.Disable;
+    Button_Menu_TrackUp.Disable;
+    Button_Menu_TrackDown.Disable;
   end;
 end;
 

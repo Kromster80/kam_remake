@@ -463,7 +463,7 @@ end;
 
 function TKMControl.HitTest(X, Y: Integer): Boolean;
 begin
-  Result:= InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height) and IsVisible;
+  Result:= IsVisible and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
 end;
 
 {One common thing - draw childs for self}
@@ -498,8 +498,6 @@ end;
 
 
 {Shortcuts to Controls properties}
-procedure TKMControl.Enable;  begin Enabled:=true;  end;
-
 function TKMControl.GetHeight: Integer;
 begin
   Result := Round(fHeight * fScale);
@@ -522,8 +520,10 @@ begin
   Result := Round(fWidth * fScale);
 end;
 
+procedure TKMControl.Enable;  begin Enabled := true;  end;
 procedure TKMControl.Disable; begin Enabled := false; end;
 
+{Will show up entire branch in which control resodes}
 procedure TKMControl.Show;
 begin
   if Self.Parent<>nil then Self.Parent.Show;
@@ -548,10 +548,9 @@ end;
 
 { TKMPanel } //virtual panels to contain child items
 procedure TKMPanel.CheckCursorOver(X, Y: integer; AShift: TShiftState);
-var
-  I: Integer;
+var i:integer;
 begin
-  inherited;
+  Inherited;
   for i:=1 to ChildCount do
     if Childs[i].Visible and Childs[i].Enabled then
        Childs[i].CheckCursorOver(X,Y,AShift);
@@ -569,10 +568,10 @@ procedure TKMPanel.Paint();
 var i:integer;
 begin
   Inherited;
-  for i:=1 to TKMPanel(Self).ChildCount do
-    if TKMPanel(Self).Childs[i].Visible then
+  for i:=1 to ChildCount do
+    if Childs[i].Visible then
     begin
-      TKMPanel(Self).Childs[i].Paint;
+      Childs[i].Paint;
       inc(CtrlPaintCount);
     end;
 end;
@@ -1555,7 +1554,7 @@ var i:integer;
 begin
   if MODE_DESIGN_CONTORLS then exit; //Don't do
   for i:=0 to Count-1 do
-    if Controls[i].HitTest(X, Y) then
+    if Controls[i].HitTest(X,Y) then
       if Controls[i].Enabled then
         if Controls[i] is TKMButton then
           TKMButton(Controls[i]).Down := true;
@@ -1626,11 +1625,11 @@ end;
 {Paint controls}
 {Leave painting of childs to their parent control}
 procedure TKMControlsCollection.Paint();
-  var i:integer;
+var i:integer;
 begin
-  CtrlPaintCount:=0;
+  CtrlPaintCount := 0;
   for i:=0 to Count-1 do
-    if Controls[i].Parent=nil then
+    if Controls[i].Parent = nil then
       if Controls[i].IsVisible then
         Controls[i].Paint;
 

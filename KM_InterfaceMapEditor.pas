@@ -992,7 +992,7 @@ begin
         end;
 
     ht_Barracks: begin
-          Image_House_Worker.Enabled := true; //In the barrack the recruit icon is always enabled
+          Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
           SwitchPage(Panel_HouseBarracks);
           end;
     ht_TownHall:;
