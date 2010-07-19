@@ -139,7 +139,6 @@ object frmMain: TfrmMain
         Text = 'Font Hex Code'
         Width = 50
       end>
-    SimplePanel = False
   end
   object Edit1: TEdit
     Left = 160

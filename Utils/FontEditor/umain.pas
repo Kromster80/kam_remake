@@ -1,4 +1,5 @@
 unit umain;
+{$I FontEditor.inc}
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 
 interface
@@ -19,7 +20,7 @@ uses
     Pal:array[0..65000]of byte; //Switch to determine if letter is there
     Letters:array[0..255]of record
       Width,Height:word;
-      Add1,Add2,YOffset,Add4:word; //Add1-4 always 0
+      Add1,Add2,YOffset,Add4:smallint; //Add1-4 always 0, YOffset could be negative?
       Data:array[1..4096] of byte;
     end;
   end;
@@ -86,7 +87,7 @@ type
   frmMain: TfrmMain;
 
 implementation
-{$IFDEF VER140}
+{$IFDEF WDC}
 {$R *.dfm}
 {$ENDIF}
 
@@ -270,9 +271,9 @@ begin
 
     //Draw grid lines
     if ShowCells and ((ci mod 32 = 0) or (ck mod 32 = 0)) then
-      MyBitmap.Canvas.Pixels[ck,ci] := $00FF00
+      MyBitmap.Canvas.Pixels[ck,ci] := $FFFFFF - (PalData[Pal,1,1] + PalData[Pal,1,2] shl 8 + PalData[Pal,1,3] shl 16)
     else
-      MyBitmap.Canvas.Pixels[ck,ci] := PalData[Pal,t,1]+PalData[Pal,t,2]*256+PalData[Pal,t,3]*65536;
+      MyBitmap.Canvas.Pixels[ck,ci] := PalData[Pal,t,1] + PalData[Pal,t,2] shl 8 + PalData[Pal,t,3] shl 16;
   end;
 
   if WriteFontToBMP then begin
@@ -356,7 +357,7 @@ begin
   MyBitmap.Height := 32;
 
   for i:=0 to 255 do
-    MyBitmap.Canvas.Pixels[i mod 8, i div 8] := PalData[aPal,i+1,1]+PalData[aPal,i+1,2]*256+PalData[aPal,i+1,3]*65536;
+    MyBitmap.Canvas.Pixels[i mod 8, i div 8] := PalData[aPal,i+1,1] + PalData[aPal,i+1,2] shl 8 + PalData[aPal,i+1,3] shl 16;
 
   MyRect := Image3.Canvas.ClipRect;
   Image3.Canvas.StretchDraw(MyRect, MyBitmap); //Draw MyBitmap into Image1
@@ -377,7 +378,7 @@ begin
   {$IFDEF FPC} //FPC uses unicode strings in Edit1
     Text := UTF8ToAnsi(Edit1.Text);
   {$ENDIF}
-  {$IFDEF VER140} //Delphi uses ansi strings
+  {$IFDEF WDC} //Delphi uses ansi strings
     Text := Edit1.Text;
   {$ENDIF}
 
@@ -590,3 +591,4 @@ initialization
 {$ENDIF}
 
 end.
+
