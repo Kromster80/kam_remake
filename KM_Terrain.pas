@@ -1768,7 +1768,7 @@ end;
 function TTerrain.CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
 var DesiredPass:TPassability;
 begin
-  Result := true;
+  Result := TileInMapCoords(Loc.X, Loc.Y); //Only within map coords
   Result := Result and (Land[Loc.Y, Loc.X].IsUnit = 0); //Check for no unit below
 
   case aUnitType of

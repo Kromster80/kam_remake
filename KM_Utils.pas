@@ -41,6 +41,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   procedure KMSwapPoints(var A,B:TKMPoint);
 
   function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
+  function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer):TKMPoint;
 
   function KMRemakeMapPath(aMapName, aExtension:string):string;
 
@@ -294,6 +295,31 @@ function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,
 const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
 const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
 begin
+  //If it is < 1 (off map) then set it to 0 (invalid) and GetClosestTile will correct it when walk action is created.
+  //GetClosestTile needs to know if the position is not the actual position in the formation
+  Result.X := max(OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) ),0);
+  Result.Y := max(OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) ),0);
+end;
+
+
+{Returns point where unit should be placed regarding direction & offset from Commanders position}
+// 23145     231456
+// 6789X     789xxx
+function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer):TKMPoint;
+const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
+const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
+var PlaceX, PlaceY:integer;
+begin
+  Assert(aUnitPerRow>0);
+  if aI=1 then begin
+    PlaceX := 0;
+    PlaceY := 0;
+  end else begin
+    if aI <= aUnitPerRow div 2 + 1 then
+      dec(aI);
+    PlaceX := (aI-1) mod aUnitPerRow - aUnitPerRow div 2;
+    PlaceY := (aI-1) div aUnitPerRow;
+  end;
   //If it is < 1 (off map) then set it to 0 (invalid) and GetClosestTile will correct it when walk action is created.
   //GetClosestTile needs to know if the position is not the actual position in the formation
   Result.X := max(OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) ),0);
