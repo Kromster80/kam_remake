@@ -1300,7 +1300,7 @@ begin
       if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
       TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
-        if ((TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
+        if (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
           L3.AddEntry(L1.List[i]);
     end;
 
@@ -1534,8 +1534,6 @@ end;
 procedure TTerrain.UnitAdd(LocTo:TKMPoint);
 begin
   if not DO_UNIT_INTERACTION then exit;
-//  if not TileInMapCoords(LocTo.Y,LocTo.X) then
-//    break;
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
 
@@ -1550,9 +1548,6 @@ end;
 {Mark previous tile as empty and next one as occupied}
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
-  //@Lewin: Still occasional Errors here, sometimes during fights
-  //@Lewin: Mission6 TSK, do no actions, just watch, shows an error here
-  //@Krom: Thanks for the report, but I can't reproduce it :( I'm using SR3 B7 mission files. Can you send me a save please? I'd really like to fix this bug.
   if not DO_UNIT_INTERACTION then exit;
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
