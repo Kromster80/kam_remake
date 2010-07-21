@@ -1278,8 +1278,8 @@ begin
   //List 1 holds all available walkable positions except self
   L1:=TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
-    if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-      if not((i=0)and(k=0)) then
+    if not((i=0)and(k=0)) then
+      if TileInMapCoords(Loc.X+k,Loc.Y+i) then
         if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
           if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
             if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
@@ -1300,16 +1300,20 @@ begin
       if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
       TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
-        if ((TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)) then
+        if ((TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
           L3.AddEntry(L1.List[i]);
     end;
- if L2.Count<>0 then
+
+  if L2.Count<>0 then
     Result:=L2.GetRandom
-  else if Loc2IsOk then //If there are no free tiles then the unit that pushed us is a good option
+  else
+  if Loc2IsOk then //If there are no free tiles then the unit that pushed us is a good option
     Result:=Loc2
-  else if L3.Count<>0 then
+  else
+  if L3.Count<>0 then
     Result:=L3.GetRandom
-  else if L1.Count<>0 then
+  else
+  if L1.Count<>0 then
     Result:=L1.GetRandom
   else
     Result:=Loc;
