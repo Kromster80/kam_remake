@@ -17,7 +17,8 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function KMPointRound(P:TKMPointf): TKMPoint;
   function KMSamePoint(P1,P2:TKMPoint): boolean;
-  function KMSamePointF(P1,P2:TKMPointF): boolean;
+  function KMSamePointF(P1,P2:TKMPointF): boolean; overload;
+  function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean; overload;
   function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 
   function KMGetDirection(X,Y: integer): TKMDirection; overload;
@@ -41,7 +42,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   procedure KMSwapPoints(var A,B:TKMPoint);
 
   function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
-  function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer):TKMPoint;
+  function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer):TKMPoint;
 
   function KMRemakeMapPath(aMapName, aExtension:string):string;
 
@@ -144,6 +145,12 @@ function KMSamePointF(P1,P2:TKMPointF): boolean;
 begin
   Result := ( P1.X = P2.X ) and ( P1.Y = P2.Y );
 end;
+
+function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean;
+begin
+  Result := (abs(P1.X - P2.X) < Epsilon) and (abs(P1.Y - P2.Y) < Epsilon);
+end;
+
 
 function KMSamePointDir(P1,P2:TKMPointDir): boolean;
 begin
@@ -305,7 +312,7 @@ end;
 {Returns point where unit should be placed regarding direction & offset from Commanders position}
 // 23145     231456
 // 6789X     789xxx
-function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer):TKMPoint;
+function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer):TKMPoint;
 const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
 const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
 var PlaceX, PlaceY:integer;
@@ -320,10 +327,15 @@ begin
     PlaceX := (aI-1) mod aUnitPerRow - aUnitPerRow div 2;
     PlaceY := (aI-1) div aUnitPerRow;
   end;
-  //If it is < 1 (off map) then set it to 0 (invalid) and GetClosestTile will correct it when walk action is created.
+
+  PlaceX := OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
+  PlaceY := OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
+
+  //Fit to bounds
+  //If it is off map then GetClosestTile will correct it when walk action is created.
   //GetClosestTile needs to know if the position is not the actual position in the formation
-  Result.X := max(OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) ),0);
-  Result.Y := max(OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) ),0);
+  Result.X := EnsureRange(PlaceX, 0, MapX);
+  Result.Y := EnsureRange(PlaceY, 0, MapY);
 end;
 
 
