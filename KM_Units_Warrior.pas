@@ -842,7 +842,6 @@ var
   i: integer;
   PositioningDone, FoundFight: boolean;
   LinkUnit: TKMUnitWarrior;
-  NewEnemy:TKMUnit; //Can be Warrior or Citizen
 begin
   inc(fFlagAnim);
 

@@ -18,9 +18,9 @@ const
   TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
 
 type
-  TCanWalk = (cnw_Yes,
-              cnw_Exit,
-              cnw_ExitNoTask);
+  TObstacleCheck = (oc_NoObstacle,
+                    oc_ReRouteMade,
+                    oc_NoRoute);
 
 //INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
 //TIMEOUT is the time after which each solution things will be checked.
@@ -49,7 +49,7 @@ type
       fInteractionCount, fLastSideStepNodePos: integer;
       fInteractionStatus: TInteractionStatus;
       function AssembleTheRoute():boolean;
-      function CheckCanWalk():TCanWalk;
+      function CheckForObstacle():TObstacleCheck;
       function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
       function DoUnitInteraction():boolean;
         //Sub functions split out of DoUnitInteraction (these are the solutions)
@@ -287,9 +287,9 @@ begin
 end;
 
 
-function TUnitActionWalkTo.CheckCanWalk():TCanWalk;
+function TUnitActionWalkTo.CheckForObstacle():TObstacleCheck;
 begin
-  Result := cnw_Yes;
+  Result := oc_NoObstacle;
   //If there's an unexpected obstacle (i.e. the terrain has changed since we calculated the route)
   //Use GetOurPassability so that canWalkRoad is changed to canWalk because walking off the road does not count as an obstacle
   if (not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetEffectivePassability)) or
@@ -297,14 +297,13 @@ begin
     //Try to find a walkaround
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
     begin
-      fWalker.SetActionWalk(fWalker,fWalkTo,KMPoint(0,0),GetActionType,fWalkToSpot);
-      Result:=cnw_Exit;
+      fWalker.SetActionWalk(fWalker,fWalkTo,GetActionType,fWalkToSpot);
+      Result:= oc_ReRouteMade;
     end
     else
     begin
-      Result:=cnw_Exit;
-      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon //Else stop and abandon the task (if we have one)
-      else Result:=cnw_ExitNoTask;
+      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon; //Else stop and abandon the task (if we have one)
+      Result:=oc_NoRoute;
     end;
 end;
 
@@ -685,7 +684,7 @@ end;
 
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 var
-  DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean; OurCanWalk: TCanWalk;
+  DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean;
 begin
   DoEnd := false;
   GetIsStepDone := false;
@@ -817,14 +816,12 @@ begin
     fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
 
     //Check if we can walk to next tile in the route
-    OurCanWalk := CheckCanWalk;
-    if OurCanWalk <> cnw_Yes then
-      if OurCanWalk = cnw_Exit then exit //Task has been abandoned, not our job to clean up
-      else
-      begin
-        DoEnd := true; //If unit has no task and so we must abandon the walk
-        exit;
-      end;
+    case CheckForObstacle of
+      oc_NoObstacle:;
+      oc_ReRouteMade: exit; //New route will pick-up
+      oc_NoRoute: begin DoEnd:=true; exit; end; //
+    end;
+
 
     //Perform exchange
     //Both exchanging units have DoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
