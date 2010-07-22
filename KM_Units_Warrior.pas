@@ -692,7 +692,7 @@ end;
 function TKMUnitWarrior.CheckForEnemy: boolean;
   function CheckCanFight: boolean;
   begin
-    if GetUnitAction is TUnitActionWalkTo      then Result := GetUnitAction.StepDone else //As long as step is done we can always abandon a walk to fight
+    if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else //Can't interrupt interaction 
     if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
     if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
     if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks

@@ -1177,6 +1177,12 @@ begin
   if Self is TKMUnitWorker then
     TKMUnitWorker(Self).AbandonWork;
 
+    //todo: fix this!
+  //Should we Abandon interaction things ?
+  if (fCurrentAction is TUnitActionWalkTo) then
+    if not TUnitActionWalkTo(fCurrentAction).CanAbandon then
+      Assert(false); //
+
   //Update statistics
   if Assigned(fPlayers) and (fOwner <> play_animals) and Assigned(fPlayers.Player[byte(fOwner)]) then
     fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
@@ -1322,6 +1328,16 @@ end;
 
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
+  if (Self.GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(Self.GetUnitAction).CanAbandon then begin
+        fViewport.SetCenter(GetPosition.X,GetPosition.Y);
+        fGame.PauseGame(true);
+        SHOW_UNIT_ROUTES := true;
+        SHOW_UNIT_MOVEMENT := true;
+        Self.ID := 8888;
+        fTerrain.Land[GetPosition.Y,GetPosition.X].IsUnit := 128;
+        TUnitActionWalkTo(Self.GetUnitAction).Explanation := 'Error';
+        exit;
+      end;
   SetAction(TUnitActionFight.Create(aAction, aOpponent, Self),0);
 end;
 

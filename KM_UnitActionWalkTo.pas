@@ -878,8 +878,18 @@ begin
       end else fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 
       inc(NodePos);
-
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
+
+      if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then begin
+        fViewport.SetCenter(fWalker.PrevPosition.X,fWalker.PrevPosition.Y);
+        fGame.PauseGame(true);
+        SHOW_UNIT_ROUTES := true;
+        SHOW_UNIT_MOVEMENT := true;
+        fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit := 128;
+        fWalker.ID := 8888;
+        Self.Explanation := 'Error';
+        exit;
+      end;
 
       if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = 0 then begin
         fViewport.SetCenter(fWalker.PrevPosition.X,fWalker.PrevPosition.Y);
