@@ -297,6 +297,12 @@ begin
     //Try to find a walkaround
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
     begin
+      if not CanAbandon then begin
+        fGame.PauseGame(true);
+        Self.Explanation := 't';
+        fWalker.ID := 888888;
+        exit;
+      end;
       fWalker.SetActionWalk(fWalker,fWalkTo,GetActionType,fWalkToSpot);
       Result:= oc_ReRouteMade;
     end
@@ -370,6 +376,12 @@ begin
       OpponentPassability := canWalk
     else
       OpponentPassability := fOpponent.GetDesiredPassability;
+    if not CanAbandon then begin
+      fGame.PauseGame(true);
+      Self.Explanation := 't';
+      fWalker.ID := 888888;
+      exit;
+    end;
     fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability));
     TUnitActionWalkTo(fOpponent.GetUnitAction).SetPushedValues;
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
@@ -430,6 +442,16 @@ begin
     if HighestInteractionCount >= PUSHED_TIMEOUT then
     begin
       //Try getting out of the way again. After this is run our object no longer exists, so we must exit everything immediately
+
+      fInteractionStatus := kis_None;
+
+      if not CanAbandon then begin
+        fGame.PauseGame(true);
+        Self.Explanation := 't';
+        fWalker.ID := 888888;
+        exit;
+      end;
+
       fWalker.SetActionWalk(fWalker, fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability),ua_Walk,true,true);
       Result := true; //Means exit DoUnitInteraction
       exit;
@@ -777,7 +799,7 @@ begin
       end;
 
     //Walk complete
-    if CanAbandon and ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
+    if ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
       ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5)) or //If we are walking to a unit check to see if we've met the unit early
       ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon)) then //See if task wants us to abandon
     begin
@@ -825,6 +847,7 @@ begin
       oc_ReRouteMade: exit; //New route will pick-up
       oc_NoRoute: begin DoEnd:=true; exit; end; //
     end;
+
 
 
     //Perform exchange

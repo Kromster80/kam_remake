@@ -783,7 +783,8 @@ if ID<=0 then exit;
   if SHOW_UNIT_MOVEMENT then begin
     if InRange(Owner,1,MAX_PLAYERS) then
       glColor3ubv(@TeamColors[Owner])  //Render dot where unit is
-    else glColor3ubv(@TeamColors[1]);   //Animals don't have team number (Owner=0) so make them team 1 colour
+    else
+      glColor3ubv(@TeamColors[MAX_PLAYERS+1]);
     RenderDot(pX-0.5,pY-1-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
   end;
 end;
@@ -829,9 +830,10 @@ if ID<=0 then exit;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 -2.25;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
 
-  if not SHOW_UNIT_MOVEMENT then exit;
-  glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
-  RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
+  if SHOW_UNIT_MOVEMENT then begin
+    glColor3ubv(@TeamColors[Owner]);  //Render dot where unit is
+    RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
+  end;
 end;
 
 

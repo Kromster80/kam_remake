@@ -1358,12 +1358,16 @@ end;
 
 procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil);
 begin
+  if (aKMUnit.GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(aKMUnit.GetUnitAction).CanAbandon then
+    Assert(false);
   SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, aAvoid, aActionType, aWalkToSpot, false, false, aTargetUnit),0);
 end;
 
 
 procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false);
 begin
+  if (aKMUnit.GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(aKMUnit.GetUnitAction).CanAbandon then
+    Assert(false);
   SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed, aWalkToNear),0);
 end;
 

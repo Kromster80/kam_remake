@@ -152,7 +152,7 @@ begin
   //todo: Remove?
   if fOrderTargetUnit<>nil then fOrderTargetUnit.RemovePointer;
   if fOrderTargetHouse<>nil then fOrderTargetHouse.RemovePointer;
-  if Foe<>nil then fFoe.RemovePointer;
+  if fFoe<>nil then fFoe.RemovePointer;
 
   FreeAndNil(fMembers);
   Inherited;
