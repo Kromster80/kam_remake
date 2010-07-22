@@ -120,7 +120,7 @@ begin
     MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
   end;
 
-  IsStepDone := KMUnit.AnimStep mod Cycle = 0;
+  StepDone := KMUnit.AnimStep mod Cycle = 0;
   inc(KMUnit.AnimStep);
 
   DoEnd := CheckDoEnd;

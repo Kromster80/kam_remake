@@ -81,7 +81,7 @@ begin
       fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
       fVertexOccupied := KMPoint(0,0);
     end;
-    GetIsStepDone := true;
+    StepDone := true;
     exit;
   end;
 

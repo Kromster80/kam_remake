@@ -19,14 +19,13 @@ type
   protected
     fActionName: TUnitActionName;
     fActionType: TUnitActionType;
-    IsStepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
   public
+    StepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad(); virtual; abstract;
     procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); virtual; abstract;
     property GetActionType: TUnitActionType read fActionType;
-    property GetIsStepDone:boolean read IsStepDone write IsStepDone;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
@@ -2117,7 +2116,7 @@ begin
   Inherited Create;
   fActionName := uan_Unknown;
   fActionType := aActionType;
-  IsStepDone  := false;
+  StepDone  := false;
 end;
 
 
@@ -2126,7 +2125,7 @@ begin
   Inherited Create;
   LoadStream.Read(fActionName, SizeOf(fActionName));
   LoadStream.Read(fActionType, SizeOf(fActionType));
-  LoadStream.Read(IsStepDone);
+  LoadStream.Read(StepDone);
 end;
 
 
@@ -2134,7 +2133,7 @@ procedure TUnitAction.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write(fActionName, SizeOf(fActionName));
   SaveStream.Write(fActionType, SizeOf(fActionType));
-  SaveStream.Write(IsStepDone);
+  SaveStream.Write(StepDone);
 end;
 
 

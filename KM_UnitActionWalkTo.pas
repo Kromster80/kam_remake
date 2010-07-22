@@ -687,7 +687,7 @@ var
   DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean;
 begin
   DoEnd := false;
-  GetIsStepDone := false;
+  StepDone := false;
   DoesWalking := false; //Set it to false at start of update
 
   //Happens whe e.g. Serf stays in front of Store and gets Deliver task
@@ -739,7 +739,7 @@ begin
     if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
     WaitingOnStep := true;
 
-    GetIsStepDone := true; //Unit stepped on a new tile
+    StepDone := true; //Unit stepped on a new tile
     fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
 
 
@@ -878,7 +878,7 @@ begin
                               fWalker.PositionF.Y + DY*min(Distance,abs(WalkY)));
 
   inc(fWalker.AnimStep);
-  GetIsStepDone := false; //We are not actually done because now we have just taken another step
+  StepDone := false; //We are not actually done because now we have just taken another step
   DoesWalking:=true; //Now it's definitely true that unit did walked one step
 end;
 

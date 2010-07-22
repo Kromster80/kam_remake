@@ -700,7 +700,7 @@ end;
 function TKMUnitWarrior.CheckForEnemy: boolean;
   function CheckCanFight: boolean;
   begin
-    if GetUnitAction is TUnitActionWalkTo      then Result := GetUnitAction.GetIsStepDone else //As long as step is done we can always abandon a walk to fight
+    if GetUnitAction is TUnitActionWalkTo      then Result := GetUnitAction.StepDone else //As long as step is done we can always abandon a walk to fight
     if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
     if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
     if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks
@@ -886,7 +886,7 @@ begin
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
   //Walk out of barracks
-  if (fOrder=wo_WalkOut) and GetUnitAction.GetIsStepDone and CheckCanAbandon then
+  if (fOrder=wo_WalkOut) and GetUnitAction.StepDone and CheckCanAbandon then
   begin
     SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(GetPosition.X,GetPosition.Y));
     fOrder := wo_None;
@@ -907,7 +907,7 @@ begin
     fState := ws_Walking;
   end;
 
-  if (fOrder=wo_Walk) and GetUnitAction.GetIsStepDone and CheckCanAbandon then
+  if (fOrder=wo_Walk) and GetUnitAction.StepDone and CheckCanAbandon then
   begin
     //If we are not the commander then walk to near
     SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,fCommander <> nil);
@@ -934,7 +934,7 @@ begin
   end;
 
   //Take attack order
-  if (fOrder=wo_Attack) and GetUnitAction.GetIsStepDone and CheckCanAbandon then
+  if (fOrder=wo_Attack) and GetUnitAction.StepDone and CheckCanAbandon then
   begin
     SetActionWalk(Self, GetOrderTarget.NextPosition, KMPoint(0,0), ua_Walk, true, GetOrderTarget);
     fOrder := wo_None;
@@ -944,7 +944,7 @@ begin
   end;
 
   //Take attack house order
-  if (fOrder=wo_AttackHouse) and GetUnitAction.GetIsStepDone and CheckCanAbandon then
+  if (fOrder=wo_AttackHouse) and GetUnitAction.StepDone and CheckCanAbandon then
   begin
     SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
     fOrder := wo_None;

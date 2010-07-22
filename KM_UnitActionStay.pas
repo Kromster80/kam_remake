@@ -95,7 +95,7 @@ begin
     Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
     Step  := KMUnit.AnimStep mod Cycle;
 
-    IsStepDone := KMUnit.AnimStep mod Cycle = 0;
+    StepDone := KMUnit.AnimStep mod Cycle = 0;
 
     if TimeToStay >= 1 then MakeSound(KMUnit, Cycle, Step);
 
@@ -104,7 +104,7 @@ begin
   else
   begin
     KMUnit.AnimStep := StillFrame;
-    IsStepDone := true;
+    StepDone := true;
   end;
 
   dec(TimeToStay);
