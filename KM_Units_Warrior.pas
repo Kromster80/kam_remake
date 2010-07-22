@@ -4,26 +4,18 @@ interface
 uses Classes, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units, KM_Houses;
 
-type
-  TOrder = class
-    Order:TWarriorOrder;
-    OrderLoc:TKMPointDir; //Dir is the direction to face after order
-    OrderTarget: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
-    OrderHouseTarget: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
-  end;
-
 type //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
     fFlagAnim:cardinal;
     fRequestedFood:boolean;
     fTimeSinceHungryReminder:integer;
-    fOrder:TWarriorOrder;
     fState:TWarriorState; //This property is individual to each unit, including commander
     fAutoLinkState:TWarriorLinkState;
+    fOrder:TWarriorOrder;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
-    fOrderTarget: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
-    fOrderHouseTarget: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
+    fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
+    fOrderTargetHouse: TKMHouse; //House we are ordered to attack. This property should never be accessed, use public OrderHouseTarget instead.
   {Commander properties}
     fFoe:TKMUnitWarrior; //An enemy unit which is currently in combat with one of our memebers (commander use only!) Use only public Foe property!
     fUnitsPerRow:integer;
@@ -31,11 +23,12 @@ type //Possibly melee warrior class? with Archer class separate?
     function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
     procedure UpdateHungerMessage();
-    procedure ClearOrderTarget;
-    procedure ClearFoe;
+
     procedure SetFoe(aUnit:TKMUnitWarrior);
     function GetFoe:TKMUnitWarrior;
+
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
+    procedure ClearOrderTarget;
     procedure SetOrderTarget(aUnit:TKMUnit);
     function GetOrderTarget:TKMUnit;
     function CheckForEnemyAround: TKMUnit;
@@ -71,6 +64,7 @@ type //Possibly melee warrior class? with Archer class separate?
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
+
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
@@ -93,8 +87,8 @@ constructor TKMUnitWarrior.Create(const aOwner: TPlayerID; PosX, PosY:integer; a
 begin
   Inherited;
   fCommander    := nil;
-  fOrderTarget  := nil;
-  fOrderHouseTarget := nil;
+  fOrderTargetUnit  := nil;
+  fOrderTargetHouse := nil;
   fFoe          := nil;
   fRequestedFood  := false;
   fFlagAnim     := 0;
@@ -114,8 +108,8 @@ var i,aCount:integer; W:TKMUnitWarrior;
 begin
   Inherited;
   LoadStream.Read(fCommander, 4); //subst on syncload
-  LoadStream.Read(fOrderTarget, 4); //subst on syncload
-  LoadStream.Read(fOrderHouseTarget, 4); //subst on syncload
+  LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
+  LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
   LoadStream.Read(fFoe, 4); //subst on syncload
   LoadStream.Read(fFlagAnim);
   LoadStream.Read(fRequestedFood);
@@ -144,8 +138,8 @@ var i:integer;
 begin
   Inherited;
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCommander)));
-  fOrderTarget := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTarget)));
-  fOrderHouseTarget := TKMHouse(fPlayers.GetHouseByID(cardinal(fOrderHouseTarget)));
+  fOrderTargetUnit := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
+  fOrderTargetHouse := TKMHouse(fPlayers.GetHouseByID(cardinal(fOrderTargetHouse)));
   fFoe := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fFoe)));
   if fMembers<>nil then
     for i:=1 to fMembers.Count do
@@ -155,9 +149,10 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
-  if fOrderTarget<>nil then fOrderTarget.RemovePointer;
-  if fOrderHouseTarget<>nil then fOrderHouseTarget.RemovePointer;
-  if fFoe<>nil then fFoe.RemovePointer;
+  //todo: Remove?
+  if fOrderTargetUnit<>nil then fOrderTargetUnit.RemovePointer;
+  if fOrderTargetHouse<>nil then fOrderTargetHouse.RemovePointer;
+  if Foe<>nil then fFoe.RemovePointer;
 
   FreeAndNil(fMembers);
   Inherited;
@@ -219,7 +214,7 @@ begin
   end;
 
   ClearOrderTarget; //This ensures that pointer usage tracking is reset
-  ClearFoe; //This ensures that pointer usage tracking is reset
+  SetFoe(nil); //This ensures that pointer usage tracking is reset
 
   Inherited;
 end;
@@ -326,7 +321,7 @@ end;
 procedure TKMUnitWarrior.LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
 var i:integer; AddedSelf: boolean;
 begin
-  //Try to redirect command so that both units are Commanders
+  //Redirect command so that both units are Commanders
   if (GetCommander<>Self) or (aNewCommander.GetCommander<>aNewCommander) then begin
     GetCommander.LinkTo(aNewCommander.GetCommander);
     exit;
@@ -435,26 +430,15 @@ end;
 procedure TKMUnitWarrior.ClearOrderTarget;
 begin
   //Set fOrderTarget to nil, removing pointer if it's still valid
-  if fOrderTarget <> nil then
+  if fOrderTargetUnit <> nil then
   begin
-    fOrderTarget.RemovePointer;
-    fOrderTarget := nil;
+    fOrderTargetUnit.RemovePointer;
+    fOrderTargetUnit := nil;
   end;
-  if fOrderHouseTarget <> nil then
+  if fOrderTargetHouse <> nil then
   begin
-    fOrderHouseTarget.RemovePointer;
-    fOrderHouseTarget := nil;
-  end;
-end;
-
-
-procedure TKMUnitWarrior.ClearFoe;
-begin
-  //Set fFoe to nil, removing pointer if it's still valid
-  if fFoe <> nil then
-  begin
-    fFoe.RemovePointer;
-    fFoe := nil;
+    fOrderTargetHouse.RemovePointer;
+    fOrderTargetHouse := nil;
   end;
 end;
 
@@ -464,15 +448,15 @@ begin
   //Remove previous value
   ClearOrderTarget;
   if aUnit <> nil then
-    fOrderTarget := aUnit.GetSelf; //Else it will be nil from ClearOrderTarget
+    fOrderTargetUnit := aUnit.GetSelf; //Else it will be nil from ClearOrderTarget
 end;
 
 
 function TKMUnitWarrior.GetOrderTarget:TKMUnit;
 begin
   //If the target unit has died then clear it
-  if (fOrderTarget <> nil) and (fOrderTarget.IsDead) then ClearOrderTarget;
-  Result := fOrderTarget;
+  if (fOrderTargetUnit <> nil) and (fOrderTargetUnit.IsDead) then ClearOrderTarget;
+  Result := fOrderTargetUnit;
 end;
 
 
@@ -481,30 +465,38 @@ begin
   //Remove previous value
   ClearOrderTarget;
   if aHouse <> nil then
-    fOrderHouseTarget := aHouse.GetSelf; //Else it will be nil from ClearOrderTarget
+    fOrderTargetHouse := aHouse.GetSelf; //Else it will be nil from ClearOrderTarget
 end;
 
 
 function TKMUnitWarrior.GetOrderHouseTarget:TKMHouse;
 begin
   //If the target house has been destroyed then clear it
-  if (fOrderHouseTarget <> nil) and (fOrderHouseTarget.IsDestroyed) then ClearOrderTarget;
-  Result := fOrderHouseTarget;
+  if (fOrderTargetHouse <> nil) and (fOrderTargetHouse.IsDestroyed) then ClearOrderTarget;
+  Result := fOrderTargetHouse;
 end;
 
 
+//Set fFoe to nil, removing pointer if it's still valid
 procedure TKMUnitWarrior.SetFoe(aUnit:TKMUnitWarrior);
 begin
-  ClearFoe; //Remove previous value
+  if fFoe <> nil then
+    fFoe.RemovePointer;
+
   if aUnit <> nil then
-    fFoe := TKMUnitWarrior(aUnit.GetSelf); //Else it will be nil from ClearFoe
+    fFoe := TKMUnitWarrior(aUnit.GetSelf) //Else it will be nil from ClearFoe
+  else
+    fFoe := nil;
 end;
 
 
+//If the target unit has died then clear it
 function TKMUnitWarrior.GetFoe:TKMUnitWarrior;
 begin
-  //If the target unit has died then clear it
-  if (fFoe <> nil) and (fFoe.IsDead) then ClearOrderTarget;
+  if (fFoe <> nil) and (fFoe.IsDead) then begin
+    fFoe.RemovePointer;
+    fFoe := nil;
+  end;
   Result := fFoe;
 end;
 
@@ -634,12 +626,12 @@ begin
     SaveStream.Write(fCommander.ID) //Store ID
   else
     SaveStream.Write(Zero);
-  if fOrderTarget <> nil then
-    SaveStream.Write(fOrderTarget.ID) //Store ID
+  if fOrderTargetUnit <> nil then
+    SaveStream.Write(fOrderTargetUnit.ID) //Store ID
   else
     SaveStream.Write(Zero);
-  if fOrderHouseTarget <> nil then
-    SaveStream.Write(fOrderHouseTarget.ID) //Store ID
+  if fOrderTargetHouse <> nil then
+    SaveStream.Write(fOrderTargetHouse.ID) //Store ID
   else
     SaveStream.Write(Zero);
   if fFoe <> nil then
@@ -986,8 +978,8 @@ begin
     if fMembers <> nil then
       //Tell everyone to reposition
       for i:=0 to fMembers.Count-1 do
-        if not TKMUnitWarrior(fMembers.Items[i]).RePosition then
-          PositioningDone := false; //Must wait for unit(s) to get into position before we have truely finished walking
+        //Must wait for unit(s) to get into position before we have truely finished walking
+        PositioningDone := PositioningDone and TKMUnitWarrior(fMembers.Items[i]).RePosition;
   end;
 
    //Make sure we didn't get given an action above

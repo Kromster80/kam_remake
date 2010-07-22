@@ -1845,7 +1845,8 @@ function TTerrain.CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
   begin
     if TileInMapCoords(MyLoc.X,MyLoc.Y) then
       Result := Land[MyLoc.Y,MyLoc.X].Height //Use requested tile
-    else Result := Land[aLoc.Y,aLoc.X].Height; //Otherwise return height of original tile which will have no effect
+    else
+      Result := Land[aLoc.Y,aLoc.X].Height; //Otherwise return height of original tile which will have no effect
   end;
   function TestHeight(aHeight:byte):boolean;
   var Points: array[1..4] of byte;

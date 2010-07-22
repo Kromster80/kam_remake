@@ -105,7 +105,7 @@ begin
   if PosUsed(Cells.List[LocID].Loc) then
   begin
     Result := true;
-    fPhase := 0; //Start again with a new spot
+    fPhase := 0; //Try to start again with a new spot
   end;
 end;
 
