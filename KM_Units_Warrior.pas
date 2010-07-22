@@ -846,61 +846,6 @@ var
 begin
   inc(fFlagAnim);
 
-  //NEW WARRIOR PATTERN
-
-  //Warrior orders from player:
-  //1. Attack enemy unit
-  //2. Attack enemy house
-  //3. Reposition (incl walking, turning, formation change)
-  //4. Order food
-  //5. Split
-  //6. Join
-  //7. Storm (only footmen)
-  //8. possibly some other actions (guard, patrol, etc..)
-  //Group Commander recieves order from player and handles / transmits it to group members
-  //All goes down to UnitActions: Fight, AttackHouse, WalkTo, Stay, etc..
-
-  //UpdateState consists of doing basic duties
-  //1. if we have a fight - do fighting
-  //2. Check for enemy within attack range (fight or cancel fight)
-  //3. Check if any group members is in fight and help him
-  //4. Perform autolinking if we are near barracks
-  //5. Process player orders (abandon previous action)
-  //6. if we attack a house - do attack
-  //7. if we walking or staying - do it
-  //8. Keep formation
-
-
-  //Do fighting
-  if GetUnitAction is TUnitActionFight then begin
-    Result:=true; //Required for override compatibility
-    if Inherited UpdateState then exit;
-  end;
-
-  //Check for enemies nearby
-  NewEnemy := CheckForEnemyAround;
-
-  //......?
-  if NewEnemy <> nil then
-  begin
-    SetActionFight(ua_Work, NewEnemy);
-    //Change our OrderLoc so that after the fight we stay where we are
-    fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir);
-    //Let the opponent know they are being attacked so they can attack back if necessary
-    if NewEnemy is TKMUnitWarrior then TKMUnitWarrior(NewEnemy).CheckForEnemy;
-    Result := true; //We found someone to fight
-  end;
-
-
-
-  exit;
-
-
-  // if CheckHunger then AskForFood;
-
-  //  if GoingOutOfBarracks then
-
-
   //See if a member is still in combat and if not set Foe to nil
   if (fCommander = nil) and (Foe <> nil) then
   begin
