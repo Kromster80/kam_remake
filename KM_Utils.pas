@@ -315,7 +315,7 @@ end;
 function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer):TKMPoint;
 const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
 const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
-var PlaceX, PlaceY:integer;
+var PlaceX, PlaceY, ResultX, ResultY:integer;
 begin
   Assert(aUnitPerRow>0);
   if aI=1 then begin
@@ -328,14 +328,14 @@ begin
     PlaceY := (aI-1) div aUnitPerRow;
   end;
 
-  PlaceX := OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
-  PlaceY := OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
+  ResultX := OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
+  ResultY := OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
 
   //Fit to bounds
   //If it is off map then GetClosestTile will correct it when walk action is created.
   //GetClosestTile needs to know if the position is not the actual position in the formation
-  Result.X := EnsureRange(PlaceX, 0, MapX);
-  Result.Y := EnsureRange(PlaceY, 0, MapY);
+  Result.X := EnsureRange(ResultX, 0, MapX);
+  Result.Y := EnsureRange(ResultY, 0, MapY);
 end;
 
 
