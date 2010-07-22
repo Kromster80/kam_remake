@@ -731,11 +731,22 @@ begin
   Distance := ACTION_TIME_DELTA * fWalker.GetSpeed;
 
   //Check if unit has arrived on tile
-  if Equals(fWalker.PositionF.X,NodeList.List[NodePos].X,Distance/2) and
-     Equals(fWalker.PositionF.Y,NodeList.List[NodePos].Y,Distance/2) then
+  if KMSamePointF(fWalker.PositionF, KMPointF(NodeList.List[NodePos]), Distance/2) then
   begin
-    //First of all make changes to our route if we are supposed to be tracking a unit
-    if (fTargetUnit <> nil) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
+
+    //Set precise position to avoid rounding errors
+    fWalker.PositionF := KMPointF(NodeList.List[NodePos]);
+    if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
+    WaitingOnStep := true;
+
+    GetIsStepDone := true; //Unit stepped on a new tile
+    fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
+
+
+    { Update destination point }
+
+    //Make changes to our route if we are supposed to be tracking a unit
+    if CanAbandon and (fTargetUnit <> nil) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
     begin
       ChangeWalkTo(fTargetUnit.GetPosition,false,false); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
@@ -744,7 +755,7 @@ begin
     end;
 
     //See if we have a request to change our route from ChangeWalkTo
-    if not KMSamePoint(fNewWalkTo,KMPoint(0,0)) then
+    if CanAbandon and not KMSamePoint(fNewWalkTo,KMPoint(0,0)) then
     begin
       fWalkTo := fNewWalkTo;
       fWalkFrom := NodeList.List[NodePos];
@@ -755,17 +766,10 @@ begin
       if not fRouteBuilt then exit; //Next execute will report error to user
     end;
 
-    if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
-    WaitingOnStep := true;
 
-    GetIsStepDone := true; //Unit stepped on a new tile
-    fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
 
-    //Set precise position to avoid rounding errors
-    fWalker.PositionF := KMPointF(NodeList.List[NodePos].X,NodeList.List[NodePos].Y);
-    
     //Check for units nearby to fight
-    if (fWalker is TKMUnitWarrior) then
+    if CanAbandon and (fWalker is TKMUnitWarrior) then
       if TKMUnitWarrior(fWalker).CheckForEnemy then
       begin
         //If we've picked a fight it means this action no longer exists, so we must exit out (don't set DoEnd as that will now apply to fight action)
@@ -773,7 +777,7 @@ begin
       end;
 
     //Walk complete
-    if ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
+    if CanAbandon and ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
       ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5)) or //If we are walking to a unit check to see if we've met the unit early
       ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon)) then //See if task wants us to abandon
     begin
@@ -784,7 +788,7 @@ begin
     end;
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
-    if (fTargetUnit <> nil) and ((fTargetUnit.IsDead) or (fTargetUnit.GetUnitTask is TTaskDie)) then
+    if CanAbandon and (fTargetUnit <> nil) and ((fTargetUnit.IsDead) or (fTargetUnit.GetUnitTask is TTaskDie)) then
     begin
       if (fWalker is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).GetWarriorState <> ws_Engage) then
       begin
