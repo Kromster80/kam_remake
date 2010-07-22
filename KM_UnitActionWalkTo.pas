@@ -109,6 +109,8 @@ begin
   else
     fWalkTo     := fTerrain.GetClosestTile(LocB,KMUnit.GetPosition,fPass);
 
+  Explanation := 'Walk action created';
+
   fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal WalkTo 0;0');
 
   NodeList      := TKMPointList.Create; //Freed on destroy
@@ -299,7 +301,7 @@ begin
     begin
       if not CanAbandon then begin
         fGame.PauseGame(true);
-        Self.Explanation := 't';
+        Self.Explanation := 'Error';
         fWalker.ID := 888888;
         exit;
       end;
@@ -378,7 +380,7 @@ begin
       OpponentPassability := fOpponent.GetDesiredPassability;
     if not CanAbandon then begin
       fGame.PauseGame(true);
-      Self.Explanation := 't';
+      Self.Explanation := 'Error';
       fWalker.ID := 888888;
       exit;
     end;
@@ -447,7 +449,7 @@ begin
 
       if not CanAbandon then begin
         fGame.PauseGame(true);
-        Self.Explanation := 't';
+        Self.Explanation := 'Error';
         fWalker.ID := 888888;
         exit;
       end;
@@ -878,6 +880,17 @@ begin
       inc(NodePos);
 
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
+
+      if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = 0 then begin
+        fViewport.SetCenter(fWalker.PrevPosition.X,fWalker.PrevPosition.Y);
+        fGame.PauseGame(true);
+        SHOW_UNIT_ROUTES := true;
+        SHOW_UNIT_MOVEMENT := true;
+        fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit := 128;
+        fWalker.ID := 8888;
+        Self.Explanation := 'Error';
+        exit;
+      end;
 
       fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex

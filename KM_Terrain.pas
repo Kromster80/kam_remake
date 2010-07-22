@@ -1549,16 +1549,6 @@ end;
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
 begin
   if not DO_UNIT_INTERACTION then exit;
-
-  if Land[LocFrom.Y,LocFrom.X].IsUnit = 0 then begin
-    fViewport.SetCenter(LocFrom.X,LocFrom.Y);
-    fGame.PauseGame(true);
-    SHOW_UNIT_ROUTES := true;
-    SHOW_UNIT_MOVEMENT := true;
-    Land[LocFrom.Y,LocFrom.X].IsUnit := 128;
-    exit;
-  end;
-
   dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
   inc(Land[LocTo.Y,LocTo.X].IsUnit);
 end;
