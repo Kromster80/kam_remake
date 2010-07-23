@@ -818,10 +818,6 @@ end;
 function TKMUnitWarrior.UpdateState():boolean;
   function CheckCanAbandon: boolean;
   begin
-//    if GetUnitTask   is TTaskAttackHouse       then Result := true else
-    //Never interupt attacking a house.
-    //@Lewin: We should be able to interrupt house attack
-    //todo: Interupt when we (our group) attacked, or recieved a new order
     if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
     if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
     if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
@@ -861,6 +857,7 @@ begin
   begin
     //Join fight (engage)
     //todo: Higher weighting for tiles with units when we are in Engage state. (this could be a parameter in PathFinding used by Walk Action if we are warrior in Engage state)
+    //note: This should not interfere with Pathfinding in any way, TTerrain has no idea of ws_Engage and should not
     fOrder := wo_Attack;
     fState := ws_Engage; //Special state so we don't issue this order continuously
     SetOrderTarget(GetCommander.Foe);

@@ -1308,7 +1308,7 @@ begin
   Inherited CheckCursorOver(X,Y,AShift);
   //if InRange(X,Left+Width - ScrollBar.Width, Left+Width) then exit;
 
-  if (CursorOver) and (ssLeft in AShift) then
+  if (CursorOver) and (ssLeft in AShift) and (InRange(X, Left, Left+Width-ScrollBar.Width))then
     ItemIndex := TopIndex + (Y-Top) div ItemHeight;
 
   if ItemIndex > fFiles.Count then ItemIndex := -1;
@@ -1325,7 +1325,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, Width-ScrollBar.Width, Height);
 
   if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
-    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width, ItemHeight, $88888888);
+    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-ScrollBar.Width, ItemHeight, $88888888);
 
   for i:=0 to min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, TruncateExt(fFiles.Strings[TopIndex+i]) , fnt_Metal, kaLeft, false, $FFFFFFFF);

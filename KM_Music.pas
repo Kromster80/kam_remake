@@ -8,7 +8,7 @@ uses Forms,
 type
   TMusicLib = class(TObject)
   private
-    {$IFDEF WDC} MediaPlayer: TMediaPlayer; {$ENDIF}
+    {$IFDEF WDC} fMediaPlayer: TMediaPlayer; {$ENDIF}
     MusicCount,MusicIndex:integer;
     MusicTracks:array[1..256]of string;
     //MIDICount,MIDIIndex:integer;
@@ -18,7 +18,7 @@ type
     function CheckMusicError():boolean;
     function PlayMusicFile(FileName:string):boolean;
   public
-    constructor Create();
+    constructor Create(aMediaPlayer:TMediaPlayer);
     destructor Destroy(); override;
     procedure UpdateMusicVolume(Value:single);
     procedure ScanMusicTracks(Path:string);
@@ -33,17 +33,16 @@ type
 
 implementation
 uses
-  KM_Unit1, {Access to MediaPlayer?} //todo:reference MP through .Create
   KM_Game;
 
 
 {Music Lib}
-constructor TMusicLib.Create();
+constructor TMusicLib.Create(aMediaPlayer:TMediaPlayer);
 begin
   Inherited Create;
   IsMusicInitialized := true;
   ScanMusicTracks(ExeDir + 'Music\');
-  {$IFDEF WDC} MediaPlayer := Form1.MediaPlayer1; {$ENDIF}
+  {$IFDEF WDC} fMediaPlayer := aMediaPlayer; {$ENDIF}
   //IsMusicInitialized := MediaPlayer.DeviceID <> 0; //Is this true, that if there's no soundcard then DeviceID = -1 ? I doubt..
   fLog.AppendLog('Music init done, '+inttostr(MusicCount)+' mp3 tracks found');
 end;
@@ -62,8 +61,8 @@ function TMusicLib.CheckMusicError():boolean;
 begin
   Result := false;
   {$IFDEF WDC}
-  if MediaPlayer.Error<>0 then begin
-    fLog.AddToLog(MediaPlayer.errormessage);
+  if fMediaPlayer.Error<>0 then begin
+    fLog.AddToLog(fMediaPlayer.errormessage);
    // Application.MessageBox(@(MediaPlayer.errormessage)[1],'MediaPlayer error', MB_OK + MB_ICONSTOP);
    // IsMusicInitialized := false;
    // Result:=true; //Error is there
@@ -78,19 +77,19 @@ begin
   {$IFDEF WDC}
   if not IsMusicInitialized then exit;
 
-  if MediaPlayer.FileName<>'' then
-  MediaPlayer.Close; //Cancel previous sound
+  if fMediaPlayer.FileName<>'' then
+  fMediaPlayer.Close; //Cancel previous sound
   if CheckMusicError then exit;
   if not CheckFileExists(FileName,true) then exit; //Make it silent
   if GetFileExt(FileName)<>'MP3' then exit;
-  MediaPlayer.FileName:=FileName;
-  MediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
+  fMediaPlayer.FileName:=FileName;
+  fMediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'
   //Application.MessageBox(@FileName[1],'Now playing',MB_OK);
-  MediaPlayer.Open; //Needs to be done for every new file
+  fMediaPlayer.Open; //Needs to be done for every new file
   if CheckMusicError then exit;
   UpdateMusicVolume(MusicGain); //Need to reset music volume after Open
   if CheckMusicError then exit;
-  MediaPlayer.Play; //Start actual playback
+  fMediaPlayer.Play; //Start actual playback
   if CheckMusicError then exit;
   Result:=true;
   {$ENDIF}
@@ -125,7 +124,7 @@ begin
   P.dwOver := 0;
   P.lpstrAlgorithm := nil;
   P.lpstrQuality := nil;
-  mciSendCommand(MediaPlayer.DeviceID, MCI_SETAUDIO, MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@P)) ;
+  mciSendCommand(fMediaPlayer.DeviceID, MCI_SETAUDIO, MCI_DGV_SETAUDIO_VALUE or MCI_DGV_SETAUDIO_ITEM, Cardinal(@P)) ;
   {$ENDIF}
 end;
 
@@ -196,7 +195,7 @@ begin
   {$IFDEF WDC}
   if not IsMusicInitialized then exit;
   if fGame.fGlobalSettings.IsMusic then begin
-    Result := ((MediaPlayer.Mode=mpStopped)or(MediaPlayer.FileName=''));
+    Result := ((fMediaPlayer.Mode=mpStopped)or(fMediaPlayer.FileName=''));
     if CheckMusicError then exit;
   end;
   {$ENDIF}
@@ -207,9 +206,9 @@ procedure TMusicLib.StopMusic;
 begin
   {$IFDEF WDC}
   if not IsMusicInitialized then exit;
-  MediaPlayer.Close;
+  fMediaPlayer.Close;
   //if CheckMusicError then exit;
-  MediaPlayer.FileName:='';
+  fMediaPlayer.FileName:='';
   //if CheckMusicError then exit;
   MusicIndex := 0;
   {$ENDIF}

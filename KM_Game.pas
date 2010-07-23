@@ -42,7 +42,7 @@ type
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
 
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale();
     procedure ResizeGameArea(X,Y:integer);
@@ -87,7 +87,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; NoMusic:boolean=false);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
 begin
   ID_Tracker := 0; //Init only once on Create
   SelectingTroopDirection := false;
@@ -99,7 +99,7 @@ begin
   fRender         := TRender.Create(RenderHandle);
   fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
   fSoundLib       := TSoundLib.Create(fGlobalSettings.GetLocale); //Required for button click sounds
-  fMusicLib       := TMusicLib.Create(); //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
+  fMusicLib       := TMusicLib.Create(aMediaPlayer); //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
   fGlobalSettings.UpdateSFXVolume;
   fResource       := TResource.Create;
   fResource.LoadMenuResources(fGlobalSettings.GetLocale);
