@@ -285,7 +285,7 @@ implementation
 uses KM_Unit1, KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_ResourceGFX,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
-KM_Units_Warrior, KM_UnitTask_Build, KM_UnitTaskDelivery, KM_UnitTaskThrowRock, KM_UnitTaskMining;
+KM_Units_Warrior, KM_UnitTask_Build, KM_UnitTaskDelivery, KM_UnitTaskAttackHouse, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 
 
 { TKMUnitCitizen }
@@ -1177,11 +1177,11 @@ begin
   if Self is TKMUnitWorker then
     TKMUnitWorker(Self).AbandonWork;
 
-    //todo: fix this!
+  //todo: fix this!
   //Should we Abandon interaction things ?
-  if (fCurrentAction is TUnitActionWalkTo) then
+  {if (fCurrentAction is TUnitActionWalkTo) then
     if not TUnitActionWalkTo(fCurrentAction).CanAbandon then
-      Assert(false); //
+      Assert(false);} //
 
   //Update statistics
   if Assigned(fPlayers) and (fOwner <> play_animals) and Assigned(fPlayers.Player[byte(fOwner)]) then
@@ -1234,6 +1234,7 @@ begin
   if fUnitTask is TTaskGoEat            then Result := 'Going to eat';
   if fUnitTask is TTaskMining           then Result := 'Mining resources';
   if fUnitTask is TTaskDie              then Result := 'Dying';
+  if fUnitTask is TTaskAttackHouse      then Result := 'Attacking House';
   if fUnitTask is TTaskGoOutShowHungry  then Result := 'Showing hunger';
 end;
 
@@ -1320,6 +1321,9 @@ begin
   end;
   if fCurrentAction <> aAction then
   begin
+{    if fCurrentAction.fActionType is TUnitActionWalkTo then begin
+      TUnitActionWalkTo(fCurrentAction).Explanation := 'Destroying'
+    end;}
     fCurrentAction.Free;
     fCurrentAction := aAction;
   end;
@@ -1666,7 +1670,7 @@ begin
 
   if ActDone then FreeAndNil(fCurrentAction) else exit;
 
-  if fUnitTask <> nil then
+  if (fUnitTask <> nil) and (fUnitTask.fUnit <> nil) then
     fUnitTask.Execute(TaskDone);
 
   if TaskDone then FreeAndNil(fUnitTask) else exit;

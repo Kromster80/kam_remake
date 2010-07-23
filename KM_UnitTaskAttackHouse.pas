@@ -32,6 +32,7 @@ uses KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo, KM_Terrain;
 constructor TTaskAttackHouse.Create(aWarrior: TKMUnit; aHouse:TKMHouse);
 begin
   Inherited Create(aWarrior);
+  fTaskName := utn_AttackHouse;
 
   if aHouse=nil then begin //This is unacceptable
     fLog.AssertToLog(aHouse<>nil, 'Trying to attack NIL house?');
@@ -161,11 +162,11 @@ begin
        SetActionWalk(fUnit,Cells.List[LocID].Loc);
      end;
   1: begin
-       SetActionLockedStay(6,ua_Work,false,0,0); //Start animation
+       SetActionStay(6,ua_Work,false,0,0); //Start animation
        Direction := TKMDirection(Cells.List[LocID].Dir); //Face target
      end;
   2: begin
-       SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
+       SetActionStay(6,ua_Work,false,0,6); //Pause for next attack
        fHouse.AddDamage(2); //All melee units do 1 damage per strike
        fPhase := 0; //Do another hit (will be 1 after inc below)
      end;

@@ -149,7 +149,6 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
-  //todo: Remove?
   if fOrderTargetUnit<>nil then fOrderTargetUnit.RemovePointer;
   if fOrderTargetHouse<>nil then fOrderTargetHouse.RemovePointer;
   if fFoe<>nil then fFoe.RemovePointer;
@@ -692,7 +691,7 @@ end;
 function TKMUnitWarrior.CheckForEnemy: boolean;
   function CheckCanFight: boolean;
   begin
-    if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else //Can't interrupt interaction 
+    if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else //Can't interrupt interaction
     if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
     if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
     if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks
@@ -819,7 +818,7 @@ end;
 function TKMUnitWarrior.UpdateState():boolean;
   function CheckCanAbandon: boolean;
   begin
-    if GetUnitTask   is TTaskAttackHouse       then Result := false else
+//    if GetUnitTask   is TTaskAttackHouse       then Result := true else
     //Never interupt attacking a house.
     //@Lewin: We should be able to interrupt house attack
     //todo: Interupt when we (our group) attacked, or recieved a new order
@@ -892,6 +891,7 @@ begin
   begin
     fAutoLinkState := wl_None;
     //If we are not the commander then walk to near
+    if GetUnitTask <> nil then FreeAndNil(fUnitTask);
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), fCommander <> nil);
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
@@ -901,8 +901,9 @@ begin
 
   if (fOrder=wo_Walk) and GetUnitAction.StepDone and CheckCanAbandon then
   begin
+    if GetUnitTask <> nil then FreeAndNil(fUnitTask);
     //If we are not the commander then walk to near
-    SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk,true,false,fCommander <> nil);
+    SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk, true, false, fCommander <> nil);
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
