@@ -116,8 +116,9 @@ type
     fIsDead:boolean;
     fPointerCount:integer;
     fInHouse: TKMHouse; //House we are currently in //todo: This is WIP and is causing weird errors. To fix.
-    fPrevPosition: TKMPoint;
-    fNextPosition: TKMPoint; //Thats where unit is going to. Next tile in route or same tile if stay on place
+    fCurrPosition: TKMPoint; //Where we are now
+    fPrevPosition: TKMPoint; //Where we were
+    fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
     procedure CloseUnit;
     procedure SetAction(aAction: TUnitAction; aStep:integer);
   public
@@ -1001,8 +1002,9 @@ begin
   fInHouse      := nil;
   fPosition.X   := PosX;
   fPosition.Y   := PosY;
-  fPrevPosition := GetPosition; //Init values
-  fNextPosition := GetPosition; //Init values
+  fCurrPosition := KMPoint(PosX,PosY);
+  fPrevPosition := fCurrPosition; //Init values
+  fNextPosition := fCurrPosition; //Init values
   fOwner        := aOwner;
   fUnitType     := aUnitType;
   Direction     := dir_S;
@@ -1096,6 +1098,7 @@ begin
   LoadStream.Read(ID);
   LoadStream.Read(AnimStep);
   LoadStream.Read(Direction, SizeOf(Direction));
+  LoadStream.Read(fCurrPosition);
   LoadStream.Read(fPrevPosition);
   LoadStream.Read(fNextPosition);
 end;
@@ -1122,6 +1125,13 @@ end;
 procedure TKMUnit.RemovePointer;
 begin
   dec(fPointerCount);
+  if Self.fPointerCount < 0 then begin
+        fViewport.SetCenter(PrevPosition.X,PrevPosition.Y);
+        fGame.PauseGame(true);
+        SHOW_UNIT_ROUTES := true;
+        SHOW_UNIT_MOVEMENT := true;
+        fTerrain.Land[PrevPosition.Y,PrevPosition.X].IsUnit := 128;
+  end;
 end;
 
 
@@ -1140,8 +1150,9 @@ begin
   fThought      := th_None;
   fHome         := nil;
   fPosition     := KMPointF(0,0);
-  fPrevPosition := KMPoint(0,0);
-  fNextPosition := KMPoint(0,0);
+  fCurrPosition := KMPoint(0,0);
+  fPrevPosition := fCurrPosition;
+  fNextPosition := fCurrPosition;
   fOwner        := play_none;
   //Do not reset the unit type when they die as we still need to know during Load
   //fUnitType     := ut_None;
@@ -1202,7 +1213,7 @@ end;
 
 function TKMUnit.GetPosition():TKMPoint;
 begin
-  Result := KMPointRound(fPosition);
+  Result := fCurrPosition;//KMPointRound(fPosition);
 end;
 
 
@@ -1525,8 +1536,9 @@ begin
         fTerrain.UnitAdd(GetPosition);
         //Make sure these are reset properly
         IsExchanging := false;
-        fPrevPosition := GetPosition;
-        fNextPosition := GetPosition;
+        fCurrPosition := KMPointRound(fPosition);
+        fPrevPosition := fCurrPosition;
+        fNextPosition := fCurrPosition;
         if GetUnitAction is TUnitActionGoInOut then SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
       end;
       GetInHouse := nil; //Can't be in a destroyed house
@@ -1608,6 +1620,7 @@ begin
   SaveStream.Write(ID);
   SaveStream.Write(AnimStep);
   SaveStream.Write(Direction, SizeOf(Direction));
+  SaveStream.Write(fCurrPosition);
   SaveStream.Write(fPrevPosition);
   SaveStream.Write(fNextPosition);
 end;
@@ -1677,6 +1690,7 @@ begin
 
   //If we get to this point then it means that common part is done and now
   //we can perform unit-specific activities (ask for job, etc..)
+  fCurrPosition := KMPointRound(fPosition);
   Result := false;
 end;
 

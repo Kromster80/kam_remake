@@ -135,7 +135,7 @@ end;
 
 constructor TMissionParser.Create(aMode:TMissionParserMode);
 begin
-  inherited Create;
+  Inherited Create;
   fParserMode := aMode;
   ErrorMessage:='';
 end;
@@ -354,6 +354,7 @@ begin
   Result:=ErrorMessage; //If we have reach here without exiting then it must have worked
 end;
 
+
 function TMissionParser.ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
 var
   MyStr: string;
@@ -437,7 +438,7 @@ begin
                      end;
                      end;
   ct_SetRoad:        begin
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]));
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]), false);
                      end;
   ct_SetField:       begin
                        fPlayers.Player[CurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Corn);
@@ -447,9 +448,9 @@ begin
                      end;
   ct_SetStock:       begin //This command basically means: Put a storehouse here with road bellow it
                        LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0]-1,ParamList[1]));
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]+1));
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1));
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1));
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]+1), false);
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1), false);
+                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1), false);
                      end;
   ct_AddWare:        begin
                        MyInt:=ParamList[1];

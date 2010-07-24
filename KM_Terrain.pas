@@ -162,7 +162,8 @@ public
   function CheckVerticeRevelation(X,Y:word; PlayerID:TPlayerID):byte;
   function CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
   procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
-  procedure FlattenTerrain(Loc:TKMPoint);
+  procedure FlattenTerrain(Loc:TKMPoint); overload;
+  procedure FlattenTerrain(LocList:TKMPointList); overload;
   procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
   procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
   procedure RebuildWalkConnect(aPass:TPassability);
@@ -1595,6 +1596,35 @@ begin
 end;
 
 
+{Take 4 neighbour heights and approach it}
+procedure TTerrain.FlattenTerrain(LocList:TKMPointList);
+var TempH:byte; i:integer; Loc:TKMPoint;
+begin
+  for i:=1 to LocList.Count do begin
+    Loc := LocList.List[i];
+    TempH:=(
+      Land[Loc.Y,Loc.X].Height+
+      Land[Loc.Y+1,Loc.X].Height+
+      Land[Loc.Y,Loc.X+1].Height+
+      Land[Loc.Y+1,Loc.X+1].Height
+    )div 4;
+    if CheckPassability(KMPoint(Loc.X,Loc.Y),canElevate) then
+    Land[Loc.Y,Loc.X].Height:=mix(Land[Loc.Y,Loc.X].Height,TempH,0.5);
+    if CheckPassability(KMPoint(Loc.X,Loc.Y+1),canElevate) then
+    Land[Loc.Y+1,Loc.X].Height:=mix(Land[Loc.Y+1,Loc.X].Height,TempH,0.5);
+    if CheckPassability(KMPoint(Loc.X+1,Loc.Y),canElevate) then
+    Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
+    if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),canElevate) then
+    Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
+    RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
+    RecalculatePassability(Loc);
+  end;
+
+  RebuildWalkConnect(canWalk);
+  RebuildWalkConnect(canWalkRoad);
+end;
+
+
 { Rebuilds lighting values for given bounds.
 These values are used to draw highlights/shadows on terrain.}
 procedure TTerrain.RebuildLighting(LowX,HighX,LowY,HighY:integer);
@@ -1706,8 +1736,9 @@ end;
 
 {Place house plan on terrain and change terrain properties accordingly}
 procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; aFlattenTerrain:boolean=false);
-var i,k,x,y:word; L,H:TKMPoint;
+var i,k,x,y:word; L,H:TKMPoint; ToFlatten:TKMPointList;
 begin
+  if aFlattenTerrain then ToFlatten := TKMPointList.Create;
 
   if aHouseStage in [hs_None, hs_Plan] then
     SetHouseAreaOwner(Loc, aHouseType, play_none)
@@ -1732,13 +1763,16 @@ begin
                       Land[y,x].Markup:=mu_House;
                       Land[y,x].Obj:=255;
                       //If house was set e.g. in mission file we must flatten the terrain as no one else has
-                      if aFlattenTerrain then FlattenTerrain(KMPoint(x,y));
+                      if aFlattenTerrain then ToFlatten.AddEntry(KMPoint(x,y));
                     end;
         end;
 
         UpdateBorders(KMPoint(x,y));
       end;
     end;
+
+  if aFlattenTerrain then FlattenTerrain(ToFlatten);
+  if aFlattenTerrain then ToFlatten.Free;
   //Recalculate Passability for tiles around the house so that they can't be built on too
   L:=EnsureTileInMapCoords(Loc.X-3,Loc.Y-4);
   H:=EnsureTileInMapCoords(Loc.X+2,Loc.Y+1);
