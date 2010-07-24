@@ -941,8 +941,10 @@ begin
   ActDone:=true;
   TaskDone:=true;
 
+  fCurrPosition := KMPointRound(fPosition);
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, ActDone);
+  fCurrPosition := KMPointRound(fPosition);
 
   if ActDone then FreeAndNil(fCurrentAction) else exit;
 
@@ -1677,9 +1679,12 @@ begin
     TaskDone: ; //move along to unit-specific UpdateState
   end;
 }
+  fCurrPosition := KMPointRound(fPosition);
 
   if fCurrentAction <> nil then
     fCurrentAction.Execute(Self, ActDone);
+
+  fCurrPosition := KMPointRound(fPosition);
 
   if ActDone then FreeAndNil(fCurrentAction) else exit;
 
@@ -1690,7 +1695,6 @@ begin
 
   //If we get to this point then it means that common part is done and now
   //we can perform unit-specific activities (ask for job, etc..)
-  fCurrPosition := KMPointRound(fPosition);
   Result := false;
 end;
 

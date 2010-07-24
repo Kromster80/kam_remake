@@ -20,7 +20,7 @@ type
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
     SelectedDirection: TKMDirection;
-    GameplayTickCount:cardinal; //So that first tick will be #1
+    fGameplayTickCount:cardinal;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     ActiveCampaign:TCampaign; //Campaign we are playing
     ActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
@@ -63,7 +63,7 @@ type
 
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
-    property GetTickCount:cardinal read GameplayTickCount;
+    property GetTickCount:cardinal read fGameplayTickCount;
     property GetMissionFile:string read fMissionFile;
     property GetGameName:string read fGameName;
     property GetCampaign:TCampaign read ActiveCampaign;
@@ -737,7 +737,7 @@ begin
   fViewport.SetZoom(1);
   //fSoundLib.PlayNextTrack();  //Discussed. No need to feed new music track.
 
-  GameplayTickCount:=0; //Restart counter
+  fGameplayTickCount := 0; //Restart counter
 
   GameState := gsRunning;
 end;
@@ -876,7 +876,7 @@ begin
   fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
 
-  GameplayTickCount:=0; //Restart counter
+  fGameplayTickCount := 0; //Restart counter
 
   GameState := gsEditor;
 end;
@@ -905,14 +905,14 @@ end;
 function TKMGame.GetMissionTime:cardinal;
 begin
   //Treat 10 ticks as 1 sec irregardless of user-set pace
-  Result := MyPlayer.fMissionSettings.GetMissionTime + (GameplayTickCount div 10);
+  Result := MyPlayer.fMissionSettings.GetMissionTime + (GetTickCount div 10);
 end;
 
 
 //Tests whether time has past
 function TKMGame.CheckTime(aTimeTicks:cardinal):boolean;
 begin
-  Result := (GameplayTickCount >= aTimeTicks);
+  Result := (GetTickCount >= aTimeTicks);
 end;
 
 
@@ -946,7 +946,7 @@ begin
       SaveStream.Write(SAVE_VERSION); //This is savegame version
       SaveStream.Write(fMissionFile); //Save game mission file
       SaveStream.Write(fGameName); //Save game title
-      SaveStream.Write(GameplayTickCount); //Required to be saved, e.g. messages being shown after a time
+      SaveStream.Write(fGameplayTickCount); //Required to be saved, e.g. messages being shown after a time
       SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
 
       fTerrain.Save(SaveStream); //Saves the map
@@ -1012,7 +1012,7 @@ begin
         //Substitute tick counter and id tracker
         LoadStream.Read(fMissionFile); //Savegame mission file
         LoadStream.Read(fGameName); //Savegame title
-        LoadStream.Read(GameplayTickCount);
+        LoadStream.Read(fGameplayTickCount);
         LoadStream.Read(ID_Tracker);
 
         //Load the data into the game
@@ -1066,13 +1066,13 @@ begin
     gsRunning:  begin
                   for i:=1 to GameSpeed do
                   begin
-                    inc(GameplayTickCount); //Thats our tick counter for gameplay events
+                    inc(fGameplayTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
-                    fPlayers.UpdateState(GameplayTickCount); //Quite slow
+                    fPlayers.UpdateState(fGameplayTickCount); //Quite slow
                     fProjectiles.UpdateState;
                     if GameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
 
-                    if GameplayTickCount mod 600 = 0 then //Each 1min of gameplay time
+                    if fGameplayTickCount mod 600 = 0 then //Each 1min of gameplay time
                       if fGlobalSettings.IsAutosave then
                         Save(AUTOSAVE_SLOT); //Autosave slot
                   end;

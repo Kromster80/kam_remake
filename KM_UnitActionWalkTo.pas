@@ -336,9 +336,12 @@ begin
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
     begin
       if not CanAbandon then begin
+        fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
         fGame.PauseGame(true);
+        SHOW_UNIT_ROUTES := true;
+        SHOW_UNIT_MOVEMENT := true;
+        fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
         Self.Explanation := 'Error';
-        fWalker.ID := 888888;
         exit;
       end;
       fWalker.SetActionWalk(fWalker,fWalkTo,GetActionType,fWalkToSpot);
@@ -417,9 +420,12 @@ begin
     else
       OpponentPassability := fOpponent.GetDesiredPassability;
     if not CanAbandon then begin
-      fGame.PauseGame(true);
+        fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
+        fGame.PauseGame(true);
+        SHOW_UNIT_ROUTES := true;
+        SHOW_UNIT_MOVEMENT := true;
+        fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
       Self.Explanation := 'Error';
-      fWalker.ID := 888888;
       exit;
     end;
     fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability));
@@ -489,9 +495,12 @@ begin
       fInteractionStatus := kis_None;
 
       if not CanAbandon then begin
+        fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
         fGame.PauseGame(true);
+        SHOW_UNIT_ROUTES := true;
+        SHOW_UNIT_MOVEMENT := true;
+        fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
         Self.Explanation := 'Error';
-        fWalker.ID := 888888;
         exit;
       end;
 
@@ -931,7 +940,7 @@ begin
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
       if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then begin
-        ExplanationLog.SaveToFile(ExeDir+'ExplanationLog error.txt');
+        //ExplanationLog.SaveToFile(ExeDir+'ExplanationLog error.txt');
         fViewport.SetCenter(fWalker.PrevPosition.X,fWalker.PrevPosition.Y);
         fGame.PauseGame(true);
         SHOW_UNIT_ROUTES := true;
