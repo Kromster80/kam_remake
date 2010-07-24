@@ -111,9 +111,11 @@ begin
   else
     fWalkTo     := fTerrain.GetClosestTile(LocB,KMUnit.GetPosition,fPass);
 
-  ExplanationLog := TStringList.Create;
-  if FileExists(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt') then
-    ExplanationLog.LoadFromFile(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt');
+  if WRITE_DETAILED_LOG then begin
+    ExplanationLog := TStringList.Create;
+    if FileExists(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt') then
+      ExplanationLog.LoadFromFile(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt');
+  end;
 
   Explanation := 'Walk action created';
   ExplanationLogAdd;
@@ -142,6 +144,7 @@ end;
 
 procedure TUnitActionWalkTo.ExplanationLogAdd;
 begin
+  if not WRITE_DETAILED_LOG then exit;
   ExplanationLog.Add(Format(
   '%d'+#9+'%d:%d > %d:%d > %d:%d'+#9+Explanation+'',
   [
@@ -210,10 +213,11 @@ end;
 
 destructor TUnitActionWalkTo.Destroy;
 begin
-  Explanation := 'Walkto destroyed at'+floattostr(fWalker.PositionF.X)+':'+floattostr(fWalker.PositionF.Y);
-  ExplanationLogAdd;
-  ExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt');
-
+  if WRITE_DETAILED_LOG then begin
+    Explanation := 'Walkto destroyed at'+floattostr(fWalker.PositionF.X)+':'+floattostr(fWalker.PositionF.Y);
+    ExplanationLogAdd;
+    ExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt');
+  end;
   FreeAndNil(NodeList);
 
   if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
