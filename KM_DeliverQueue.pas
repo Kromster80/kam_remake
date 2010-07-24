@@ -114,7 +114,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTask_Build;
+uses KM_Unit1, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild;
 
 
 { TKMDeliverQueue }

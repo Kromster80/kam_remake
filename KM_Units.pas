@@ -285,7 +285,7 @@ implementation
 uses KM_Unit1, KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_ResourceGFX,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
-KM_Units_Warrior, KM_UnitTask_Build, KM_UnitTaskDelivery, KM_UnitTaskAttackHouse, KM_UnitTaskThrowRock, KM_UnitTaskMining;
+KM_Units_Warrior, KM_UnitTaskBuild, KM_UnitTaskDelivery, KM_UnitTaskAttackHouse, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 
 
 { TKMUnitCitizen }
