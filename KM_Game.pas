@@ -20,6 +20,7 @@ type
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
     SelectedDirection: TKMDirection;
+    GlobalTickCount:cardinal; //Not affected by Pause and anything
     fGameplayTickCount:cardinal;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     ActiveCampaign:TCampaign; //Campaign we are playing
@@ -1053,7 +1054,6 @@ end;
 procedure TKMGame.UpdateState;
 var i:integer;
 begin
-  inc(GlobalTickCount);
   case GameState of
     gsPaused:   exit;
     gsOnHold:   exit;
@@ -1094,6 +1094,7 @@ begin
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
                 end;
     end;
+  inc(GlobalTickCount);
 end;
 
 

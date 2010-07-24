@@ -950,42 +950,6 @@ var
   $FFFFFFFF //White, used for highlighting army flag on selection, team_animals
   );
 
-{Unused}
-TileColors: array[0..255] of cardinal = (
-$068F78,$05826F,$128E7C,$029680,$C69163,$05977C,$059B7E,$1D7FCE,
-$027A68,$037D6B,$D79578,$03826E,$808455,$057A6C,$09746E,$3E7AA9,
-$137D82,$117D86,$037E6B,$058470,$2A636D,$235F68,$AE9059,$7D8454,
-$4D6E79,$557F8E,$0E8D93,$14A5B1,$1CA8CA,$23A5E1,$22A3DF,$4D99BF,
-$5AA6CA,$5A9EC1,$0E6B6F,$135862,$15575F,$1A5B65,$1C5D69,$21606E,
-$0B5659,$0B575A,$0B585A,$0B5F5E,$B89153,$FFC2C2,$EDA7A7,$A7939A,
-$358854,$A5939A,$0B313F,$72818B,$D4A0A3,$145068,$50768E,$11636A,
-$097D73,$0F6C6C,$125F66,$136F77,$17839A,$155C6D,$155766,$186C89,
-$6F7C88,$968B94,$098C80,$0C8582,$108288,$1F948C,$3B98A7,$499AB6,
-$098F80,$0B8E8A,$0D8E90,$0F959C,$129BA6,$13A1AD,$17A6B9,$19A7C2,
-$1CA8C8,$1EA7D2,$20A6D7,$21A5DD,$098576,$0B7A72,$0D7270,$10656B,
-$116067,$135A64,$097D72,$0C6A68,$0C5D60,$0D9793,$159EAD,$1AA5C2,
-$0E7378,$0F7A80,$117E87,$48A5D1,$37A6D8,$29A5DE,$43A5C1,$2EA5BB,
-$1CA5B4,$39664A,$1E5550,$134F56,$509DC1,$3E8AAD,$1F688C,$256F88,
-$3683A5,$4591B7,$458756,$588655,$5DA3BD,$619BA0,$68907A,$658455,
-$188D6B,$26895E,$308857,$3D867D,$568B7F,$488978,$788D65,$788D65,
-$23605F,$2F5056,$2C4E53,$2C4C51,$4A6D76,$1F635F,$2F5056,$2D5056,
-$32525A,$42656F,$276B69,$128373,$1F766E,$23706C,$56735B,$5B775E,
-$597984,$5A7B88,$557B88,$537E8D,$1D6080,$255F7D,$336883,$406F8A,
-$19545B,$154B53,$154046,$17383D,$576E77,$476167,$42616B,$556D79,
-$186082,$195E80,$246A8C,$21698B,$247198,$020D10,$AD959E,$13576A,
-$0B7A79,$3E8AAD,$14869D,$918C95,$29867C,$5A94AE,$2D929E,$30646D,
-$467B7D,$5A7F8F,$497F8B,$4A6F78,$198E7D,$5BA1C2,$1DA1AD,$215D67,
-$126880,$1F688C,$146986,$155C7C,$08897A,$509DC1,$149CAC,$135765,
-$6C8254,$627E50,$526A36,$286462,$61864A,$2B6376,$789798,$3D5857,
-$78915D,$3E555E,$4D707A,$F3AFAF,$F9B7B7,$FDBEBE,$54757E,$3F6E7D,
-$6C8253,$6C8254,$77905C,$77905C,$D7A1A3,$E6A5A6,$3C7089,$2B6376,
-$BBCEAA,$C8DCBF,$EDFBD6,$F1FBE0,$BF999E,$407D9C,$3F7188,$407182,
-$ABC0A6,$CBDBD3,$D7E8D1,$D8E9CC,$AEC7AF,$D5E5CE,$9CB484,$070B0D,
-$B4CA9E,$B2C994,$69836D,$6C8453,$6B8352,$6C866F,$4D7C72,$517E72,
-$6B8153,$448563,$20938C,$159FA8,$698050,$000000,$58A4D1,$416979,
-$638792,$B0C6CE,$799AA2,$3A6F80,$4B7682,$396B7A,$396A76,$5B828E);
-
-  GlobalTickCount:integer=-1; //So that first number after inc() would be 0
 
   OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
 
@@ -1039,58 +1003,58 @@ $638792,$B0C6CE,$799AA2,$3A6F80,$4B7682,$396B7A,$396A76,$5B828E);
     MoveX,MoveY:integer;
   end;
 
-HouseDAT:array[1..HOUSE_COUNT] of packed record
-  StonePic,WoodPic,WoodPal,StonePal:smallint;
-  SupplyIn:array[1..4,1..5]of smallint;
-  SupplyOut:array[1..4,1..5]of smallint;
-  Anim:array[1..19] of record
-    Step:array[1..30]of smallint;
-    Count:smallint;
-    MoveX,MoveY:integer;
+  HouseDAT:array[1..HOUSE_COUNT] of packed record
+    StonePic,WoodPic,WoodPal,StonePal:smallint;
+    SupplyIn:array[1..4,1..5]of smallint;
+    SupplyOut:array[1..4,1..5]of smallint;
+    Anim:array[1..19] of record
+      Step:array[1..30]of smallint;
+      Count:smallint;
+      MoveX,MoveY:integer;
+    end;
+    WoodPicSteps,StonePicSteps:word;
+    a1:smallint;
+    EntranceOffsetX,EntranceOffsetY:shortint;
+    EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
+    BuildArea:array[1..10,1..10]of shortint;
+    WoodCost,StoneCost:byte;
+    BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
+    a5,SizeArea:smallint;
+    SizeX,SizeY,sx2,sy2:shortint;
+    WorkerWork,WorkerRest:smallint;
+    ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
+    ResProductionX:shortint;
+    MaxHealth,Sight:smallint;
+    OwnerType:shortint;
+    Foot:array[1..36]of shortint; //Sound indices vs sprite ID
   end;
-  WoodPicSteps,StonePicSteps:word;
-  a1:smallint;
-  EntranceOffsetX,EntranceOffsetY:shortint;
-  EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
-  BuildArea:array[1..10,1..10]of shortint;
-  WoodCost,StoneCost:byte;
-  BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
-  a5,SizeArea:smallint;
-  SizeX,SizeY,sx2,sy2:shortint;
-  WorkerWork,WorkerRest:smallint;
-  ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
-  ResProductionX:shortint;
-  MaxHealth,Sight:smallint;
-  OwnerType:shortint;
-  Foot:array[1..36]of shortint; //Sound indices vs sprite ID
-end;
 
-//Resource types serf carries around
-SerfCarry:array[1..28] of packed record
-  Dir:array[1..8]of packed record
-    Step:array[1..30]of smallint;
-    Count:smallint;
-    MoveX,MoveY:integer;
-  end;
-end;
-
-//
-UnitStat:array[1..41]of record
-  HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,x7,Sight:smallint;
-  x9,x10:shortint;
-  CanWalkOut,x11:smallint;
-end;
-
-UnitSprite:array[1..41]of packed record
-  Act:array[1..14]of packed record
+  //Resource types serf carries around
+  SerfCarry:array[1..28] of packed record
     Dir:array[1..8]of packed record
       Step:array[1..30]of smallint;
       Count:smallint;
       MoveX,MoveY:integer;
     end;
   end;
-end;
-UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
+
+  //
+  UnitStat:array[1..41]of record
+    HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,x7,Sight:smallint;
+    x9,x10:shortint;
+    CanWalkOut,x11:smallint;
+  end;
+
+  UnitSprite:array[1..41]of packed record
+    Act:array[1..14]of packed record
+      Dir:array[1..8]of packed record
+        Step:array[1..30]of smallint;
+        Count:smallint;
+        MoveX,MoveY:integer;
+      end;
+    end;
+  end;
+  UnitSprite2:array[1..41,1..18]of smallint; //Sound indices vs sprite ID
 
   //Trees and other terrain elements properties
   MapElemQty:integer=254; //Default qty
