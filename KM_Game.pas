@@ -22,6 +22,7 @@ type
     SelectedDirection: TKMDirection;
     GlobalTickCount:cardinal; //Not affected by Pause and anything
     fGameplayTickCount:cardinal;
+    fGameName:string;
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     ActiveCampaign:TCampaign; //Campaign we are playing
     ActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
@@ -29,20 +30,14 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
-    fMissionFile:string; //Remember want we are playing incase we might want to replay
-    fGameName:string;
-
+    fMissionFile:string; //Remember what we are playing incase we might want to replay
     fProjectiles:TKMProjectiles;
-
     fMusicLib: TMusicLib;
-
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
-
     fMainMenuInterface: TKMMainMenuInterface;
     fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
-
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale();
@@ -90,7 +85,7 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
 begin
-  ID_Tracker := 0; //Init only once on Create
+  ID_Tracker := 0;
   SelectingTroopDirection := false;
   SelectingDirPosition := Point(0,0);
   ScreenX := aScreenX;
@@ -263,10 +258,9 @@ begin
     gsRunning:  begin
                   fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
                   MOver := fGameplayInterface.MyControls.MouseOverControl;
-
-
-
                   P := GameCursor.Cell; //Get cursor position tile-wise
+
+                  fGameInputProcess
                   //These are only for testing purposes, Later on it should be changed a lot
                   if (Button = mbRight)
                     and(MOver = nil)
@@ -1054,6 +1048,7 @@ end;
 procedure TKMGame.UpdateState;
 var i:integer;
 begin
+  inc(GlobalTickCount);
   case GameState of
     gsPaused:   exit;
     gsOnHold:   exit;
@@ -1094,7 +1089,6 @@ begin
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
                 end;
     end;
-  inc(GlobalTickCount);
 end;
 
 

@@ -1,10 +1,7 @@
 unit KM_GameInputProcess;
 {$I KaM_Remake.inc}
 interface
-uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils,
-  {$IFDEF DELPHI} OpenGL, {$ENDIF}
-  {$IFDEF FPC} GL, {$ENDIF}
-  KM_Utils, KM_CommonTypes;
+uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KM_Utils, KM_CommonTypes;
 
 { YET UNUSED, JUST AN IDEA}
 
@@ -19,15 +16,22 @@ uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, Krom
    - record gameplay
    - playback replays
    - send input through LAN to make multiplayer games
+
+  Player commands are:
+  I.   Unit commands, only warriors (TKMUnitWarrior, OrderInfo)
+  II.  House production orders (TKMHouse, PlaceOrder(warfare, troops, citizens))
+  III. House repair/delivery options (TKMHouse, Toggle(repair, delivery, storehouse))
+  IV.  Building/road plans (build what, Location)
+  V.   Delivery ratios
+  VI.  Cheatcodes affecting gameplay (goods, props)
+
   }
 
 type
 TGameInputProcess = class
   public
     constructor Create;
-    procedure MouseDown(P:TKMPoint; Button: TMouseButton; Shift: TShiftState);
-    procedure MouseMove(P:TKMPoint; Shift: TShiftState);
-    procedure MouseUp  (P:TKMPoint; Button: TMouseButton; Shift: TShiftState);
+    procedure WarriorCommand
 end;
 
 
