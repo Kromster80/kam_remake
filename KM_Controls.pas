@@ -319,7 +319,7 @@ TKMFileList = class(TKMControl)
     ScrollBar:TKMScrollBar;
     procedure ChangeScrollPosition (Sender:TObject);
   public
-    TopIndex:word; //up to 65k files
+    TopIndex:smallint; //up to 32k files
     ItemIndex:smallint;
     fPaths:TStringList;
     fFiles:TStringList;
