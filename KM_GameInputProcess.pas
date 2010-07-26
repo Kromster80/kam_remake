@@ -1,7 +1,10 @@
 unit KM_GameInputProcess;
 {$I KaM_Remake.inc}
 interface
-uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KM_Utils, KM_CommonTypes;
+uses SysUtils, Math, Controls, KromUtils,
+    KM_CommonTypes, KM_Defaults, KM_Utils,
+    KM_Houses, KM_Units, KM_Units_Warrior
+    ;
 
 { YET UNUSED, JUST AN IDEA}
 
@@ -27,40 +30,177 @@ uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KM_U
 
   }
 
+type TBuildOrder = (bo_RoadPlan, bo_FieldPlan, bo_WinePlan, bo_WallPlan, bo_RemovePlan, bo_RemoveHouse);
+
+type TGameInputCommand = (
+  gic_BuildRoadPlan,
+  gic_BuildFieldPlan,
+  gic_BuildWinePlan,
+  gic_BuildWallPlan,
+  gic_BuildRemovePlan,  //Removal of a plan
+  gic_BuildRemoveHouse, //Removal of house
+  gic_BuildHousePlan,   //Build HouseType
+
+  gic_ArmyFeed,
+  gic_ArmySplit,
+  gic_ArmyLink,
+  gic_ArmyAttackUnit,
+  gic_ArmyAttackHouse,
+  gic_ArmyHouse,        //House-dependant command
+  gic_ArmyHalt,         //Formation commands
+  gic_ArmyWalk          //Walking
+  );
+
 type
 TGameInputProcess = class
+  private
+    fCount:integer;
+    fQueue: array of packed record
+      Tick:cardinal;
+      Command:TGameInputCommand;
+      params:array[1..8]of integer;
+    end;
+
+    procedure SaveToFile();
+
+    procedure SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
   public
     constructor Create;
-    procedure WarriorCommand
+    destructor Destroy; override;
+    procedure BuildCommand(aOrder:TBuildOrder; aLoc:TKMPoint); overload;
+    procedure BuildCommand(aHouse:THouseType; aLoc:TKMPoint); overload;
+    procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand); overload;
+    procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aUnit:TKMUnit); overload;
+    procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
+    procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint); overload;
+    procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
 end;
 
 
 
 implementation
-uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Sound, KM_Game;
+uses KM_Terrain, KM_Unit1, KM_Sound, KM_Game, KM_PlayersCollection;
 
 
-constructor TInputProcess.Create;
-begin  
+constructor TGameInputProcess.Create;
+begin
+  Inherited;
+  setlength(fQueue, 1024);
+  fCount := 0;
+end;
+
+
+destructor TGameInputProcess.Destroy;
+begin
+  SaveToFile();
   Inherited;
 end;
 
 
-procedure MouseDown(P:TKMPoint; Button: TMouseButton; Shift: TShiftState);
+procedure TGameInputProcess.SaveToFile();
+var f:file; i:integer;
 begin
-
+  AssignFile(f, ExeDir+'Log.sav');
+  Rewrite(f, 1);
+  BlockWrite(f, fCount, 4);
+  for i:=1 to fCount do
+    BlockWrite(f, fQueue[i].Tick, SizeOf(fQueue[i]));
+  CloseFile(f);
 end;
 
 
-procedure MouseMove(P:TKMPoint; Shift: TShiftState);
+procedure TGameInputProcess.SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
 begin
+  inc(fCount);
+  if length(fQueue) <= fCount then setlength(fQueue, fCount+128);
 
+  with fQueue[fCount] do begin
+    Tick    := fGame.GetTickCount;
+    Command := aGIC;
+    Params[1] := aParam1;
+    Params[2] := aParam2;
+    Params[3] := aParam3;
+    Params[4] := aParam4;
+  end;
 end;
 
 
-procedure MouseUp  (P:TKMPoint; Button: TMouseButton; Shift: TShiftState);
+procedure TGameInputProcess.BuildCommand(aOrder:TBuildOrder; aLoc:TKMPoint);
 begin
+  case aOrder of
+    bo_RoadPlan:    MyPlayer.AddRoadPlan(aLoc, mu_RoadPlan,  false, MyPlayer.PlayerID);
+    bo_FieldPlan:   MyPlayer.AddRoadPlan(aLoc, mu_FieldPlan, false, MyPlayer.PlayerID);
+    bo_WinePlan:    MyPlayer.AddRoadPlan(aLoc, mu_WinePlan,  false, MyPlayer.PlayerID);
+    bo_WallPlan:    MyPlayer.AddRoadPlan(aLoc, mu_WallPlan,  false, MyPlayer.PlayerID);
+    bo_RemovePlan:  MyPlayer.RemPlan(aLoc);
+    bo_RemoveHouse: MyPlayer.RemHouse(aLoc, false);
+    else Assert(false, 'Unknown BuildCommand');
+  end;
 
+  case aOrder of
+    bo_RoadPlan:    SaveCommand(gic_BuildRoadPlan, aLoc.X, aLoc.Y);
+    bo_FieldPlan:   SaveCommand(gic_BuildFieldPlan, aLoc.X, aLoc.Y);
+    bo_WinePlan:    SaveCommand(gic_BuildWinePlan, aLoc.X, aLoc.Y);
+    bo_WallPlan:    SaveCommand(gic_BuildWallPlan, aLoc.X, aLoc.Y);
+    bo_RemovePlan:  SaveCommand(gic_BuildRemovePlan, aLoc.X, aLoc.Y);
+    bo_RemoveHouse: SaveCommand(gic_BuildRemoveHouse, aLoc.X, aLoc.Y);
+    else Assert(false, 'Unknown BuildCommand');
+  end;
+end;
+
+
+procedure TGameInputProcess.BuildCommand(aHouse:THouseType; aLoc:TKMPoint);
+begin
+  MyPlayer.AddHousePlan(aHouse, aLoc, MyPlayer.PlayerID);
+  SaveCommand(gic_BuildHousePlan, aLoc.X, aLoc.Y, integer(aHouse));
+end;
+
+
+procedure TGameInputProcess.WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand);
+begin
+  Assert(aCommand in [gic_ArmyFeed, gic_ArmySplit]);
+  case aCommand of
+    gic_ArmyFeed:  aWarrior.OrderFood;
+    gic_ArmySplit: aWarrior.Split;
+  end;
+
+  SaveCommand(aCommand, aWarrior.ID);
+end;
+
+
+procedure TGameInputProcess.WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aUnit:TKMUnit);
+begin
+  Assert(aCommand in [gic_ArmyLink, gic_ArmyAttackUnit]);
+  case aCommand of
+    gic_ArmyLink:       aWarrior.LinkTo(TKMUnitWarrior(aUnit));
+    gic_ArmyAttackUnit: aWarrior.GetCommander.PlaceOrder(wo_Attack, aUnit);
+  end;
+
+  SaveCommand(aCommand, aWarrior.ID, aUnit.ID);
+end;
+
+
+procedure TGameInputProcess.WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse);
+begin
+  Assert(aCommand = gic_ArmyAttackHouse);
+  aWarrior.GetCommander.PlaceOrder(wo_Attack, aHouse);
+  SaveCommand(aCommand, aWarrior.ID, aHouse.ID);
+end;
+
+
+procedure TGameInputProcess.WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint);
+begin
+  Assert(aCommand = gic_ArmyHalt);
+  aWarrior.Halt(aTurnAmount, aLineAmount);
+  SaveCommand(aCommand, aWarrior.ID, aTurnAmount, aLineAmount);
+end;
+
+
+procedure TGameInputProcess.WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
+begin
+  Assert(aCommand = gic_ArmyWalk);
+  aWarrior.GetCommander.PlaceOrder(wo_Walk, aLoc, aDirection);
+  SaveCommand(aCommand, aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection));
 end;
 
 

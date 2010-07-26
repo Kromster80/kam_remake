@@ -225,7 +225,9 @@ type TKMGamePlayInterface = class
 
 
 implementation
-uses KM_Unit1, KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game, KM_Sound, Forms;
+uses KM_Unit1, KM_Units_Warrior, KM_GameInputProcess,
+KM_PlayersCollection, KM_Render, KM_LoadLib, KM_Terrain, KM_Viewport, KM_Game,
+KM_Sound, Forms;
 
 
 {Switch between pages}
@@ -484,7 +486,7 @@ begin
   if (ShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
     if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, canWalk, true) then
     begin
-      TKMUnitWarrior(GetShownUnit).GetCommander.PlaceOrder(wo_walk, KMP);
+      fGame.fGameInputProcess.WarriorCommand(TKMUnitWarrior(GetShownUnit), gic_ArmyWalk, KMP);
       fSoundLib.PlayWarrior(GetShownUnit.GetUnitType, sp_Move);
     end;
 end;
@@ -1481,7 +1483,7 @@ begin
   if not (fPlayers.Selected is TKMHouse) then exit;
 
   if Sender=Button_House_DemolishYes then begin
-    MyPlayer.RemHouse(TKMHouse(fPlayers.Selected).GetPosition,false);
+    fGame.fGameInputProcess.BuildCommand(bo_RemoveHouse, TKMHouse(fPlayers.Selected).GetPosition);
     ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
     SwitchPage(Button_Main[1]); //Return to build menu after demolishing
   end else begin
@@ -1789,34 +1791,34 @@ begin
   //if Sender = Button_Army_GoTo    then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then
   begin
-    Commander.Halt;
+    fGame.fGameInputProcess.WarriorCommand(Commander, gic_ArmyHalt, 0, 0);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Halt);
   end;
   //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then
   begin
-    Commander.Halt(-1);
+    fGame.fGameInputProcess.WarriorCommand(Commander, gic_ArmyHalt, -1, 0);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_RotLeft);
   end;
   //if Sender = Button_Army_Storm   then ;
-  if Sender = Button_Army_RotCCW  then 
+  if Sender = Button_Army_RotCCW  then
   begin
-    Commander.Halt(1);
+    fGame.fGameInputProcess.WarriorCommand(Commander, gic_ArmyHalt, 1, 0);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_RotRight);
   end;
-  if Sender = Button_Army_ForDown then 
+  if Sender = Button_Army_ForDown then
   begin
-    Commander.Halt(0,1);
+    fGame.fGameInputProcess.WarriorCommand(Commander, gic_ArmyHalt, 0, 1);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Formation);
   end;
-  if Sender = Button_Army_ForUp   then 
+  if Sender = Button_Army_ForUp   then
   begin
-    Commander.Halt(0,-1);
+    fGame.fGameInputProcess.WarriorCommand(Commander, gic_ArmyHalt, 0, -1);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Formation);
   end;
-  if Sender = Button_Army_Split   then 
+  if Sender = Button_Army_Split   then
   begin
-    Commander.Split;
+    fGame.fGameInputProcess.WarriorCommand(Commander, gic_ArmySplit);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Split);
   end;
   if Sender = Button_Army_Join    then
@@ -1827,7 +1829,7 @@ begin
   end;
   if Sender = Button_Army_Feed    then 
   begin
-    Commander.OrderFood;
+    fGame.fGameInputProcess.WarriorCommand(Commander, gic_ArmyFeed);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Eat);
   end;
 end;

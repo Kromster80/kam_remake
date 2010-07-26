@@ -4,7 +4,7 @@ interface
 uses Windows,
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, SysUtils, KromUtils, Math,
-  KM_Defaults, KM_Controls, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_Defaults, KM_Controls, KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Utils, KM_Music;
 
 type TGameState = ( gsNoGame, //No game running at all, MainMenu
@@ -30,6 +30,7 @@ type
     ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
+    fGameInputProcess:TGameInputProcess;
     fMissionFile:string; //Remember what we are playing incase we might want to replay
     fProjectiles:TKMProjectiles;
     fMusicLib: TMusicLib;
@@ -260,7 +261,6 @@ begin
                   MOver := fGameplayInterface.MyControls.MouseOverControl;
                   P := GameCursor.Cell; //Get cursor position tile-wise
 
-                  fGameInputProcess
                   //These are only for testing purposes, Later on it should be changed a lot
                   if (Button = mbRight)
                     and(MOver = nil)
@@ -276,8 +276,8 @@ begin
                        (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) and
                       (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
                     begin
-                      //Place attack order here rather than in mouse up
-                      TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_Attack, HitUnit);
+                      //Place attack order here rather than in mouse up; why here??
+                      fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
                       fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Attack);
                     end
                     else
@@ -286,8 +286,7 @@ begin
                       if (HitHouse <> nil) and (not (HitHouse.IsDestroyed)) and
                          (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy) then
                       begin
-                        //Place attack order here rather than in mouse up
-                        TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_AttackHouse, HitHouse);
+                        fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
                         fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Attack);
                       end
                       else
@@ -421,9 +420,9 @@ begin
                     begin
                       P := GameCursor.Cell; //Get cursor position tile-wise
                       case CursorMode.Mode of
-                        cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
+                        cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan)  then MyPlayer.AddRoad(P,false);
                         cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
-                        cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+                        cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan)  then MyPlayer.AddField(P,ft_Wine);
                         //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                         cm_Erase: begin
                                     if fMapEditorInterface.GetShownPage = esp_Units then
@@ -510,23 +509,28 @@ begin
                   end;
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
-                          MyPlayer.RemPlan(P)
+                          fGameInputProcess.BuildCommand(bo_RemovePlan, P)
                         else
-                          MyPlayer.AddRoadPlan(P, mu_RoadPlan, false, MyPlayer.PlayerID);
+                          fGameInputProcess.BuildCommand(bo_RoadPlan, P);
+
               cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
-                          MyPlayer.RemPlan(P)
+                          fGameInputProcess.BuildCommand(bo_RemovePlan, P)
                         else
-                          MyPlayer.AddRoadPlan(P, mu_FieldPlan, false, MyPlayer.PlayerID);
+                          fGameInputProcess.BuildCommand(bo_FieldPlan, P);
               cm_Wine:  if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
-                          MyPlayer.RemPlan(P)
+                          fGameInputProcess.BuildCommand(bo_RemovePlan, P)
                         else
-                          MyPlayer.AddRoadPlan(P, mu_WinePlan, false, MyPlayer.PlayerID);
+                          fGameInputProcess.BuildCommand(bo_WinePlan, P);
               cm_Wall:  if fTerrain.Land[P.Y,P.X].Markup = mu_WallPlan then
-                          MyPlayer.RemPlan(P)
+                          fGameInputProcess.BuildCommand(bo_RemovePlan, P)
                         else
-                          MyPlayer.AddRoadPlan(P, mu_WallPlan, false, MyPlayer.PlayerID);
-              cm_Houses: if MyPlayer.AddHousePlan(THouseType(CursorMode.Tag1),P,false,MyPlayer.PlayerID) then
+                          fGameInputProcess.BuildCommand(bo_WallPlan, P);
+              cm_Houses: if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Tag1)) then begin
+                           fGameInputProcess.BuildCommand(THouseType(CursorMode.Tag1), P);
+                           fSoundLib.Play(sfx_placemarker);
                            fGamePlayInterface.Build_SelectRoad;
+                         end else
+                           fSoundLib.Play(sfx_CantPlace,P,false,4.0);
               cm_Erase:
                 begin
                   fPlayers.Selected := MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y); //Select the house irregardless of unit below/above
@@ -544,7 +548,7 @@ begin
                   //Now remove houses that are not started
                   if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).GetBuildingState = hbs_Glyph) then
                   begin
-                    MyPlayer.RemHouse(P,false);
+                    fGameInputProcess.BuildCommand(bo_RemoveHouse, P);
                     fSoundLib.Play(sfx_click);
                   end;
                 end;
@@ -557,7 +561,7 @@ begin
               if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
                  (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
               begin
-                TKMUnitWarrior(fGamePlayInterface.GetShownUnit).LinkTo(TKMUnitWarrior(HitUnit));
+                fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyLink, HitUnit);
                 fSoundLib.PlayWarrior(HitUnit.GetUnitType, sp_Join);
                 fGamePlayInterface.JoiningGroups := false;
                 fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit); //Refresh unit display
@@ -581,7 +585,7 @@ begin
         then
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
-          TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander.PlaceOrder(wo_walk, P, SelectedDirection);
+          fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyWalk, P, SelectedDirection);
           fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Move);
         end;
 
@@ -727,6 +731,11 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
+  fGameInputProcess := TGameInputProcess.Create;
+  Save(99); //Thats our base for a game record
+
+  fLog.AppendLog('Gameplay recording initialized',true);
+
   fRender.RenderResize(ScreenX,ScreenY,rm2D);
   fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
@@ -773,6 +782,7 @@ begin
   if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
     fMainMenuInterface.Fill_Results;
 
+  FreeAndNil(fGameInputProcess);
   FreeAndNil(fPlayers);
   FreeAndNil(fProjectiles);
   FreeAndNil(fTerrain);

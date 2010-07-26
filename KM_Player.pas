@@ -31,7 +31,7 @@ type
     procedure AddRoad(aLoc: TKMPoint; DoFlatten:boolean=true);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
-    function AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
+    procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; PlayerRevealID:TPlayerID=play_none);
     procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
@@ -202,23 +202,13 @@ begin
     fSoundLib.Play(sfx_placemarker);
 end;
 
-function TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none):boolean;
+procedure TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; PlayerRevealID:TPlayerID=play_none);
 var KMHouse:TKMHouse;
 begin
-  Result:=false;
-  if not fTerrain.CanPlaceHouse(aLoc,aHouseType,PlayerRevealID) then
-  begin
-    if not DoSilent then
-      fSoundLib.Play(sfx_CantPlace,aLoc,false,4.0);
-    exit;
-  end;
   aLoc.X:=aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
   KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, PlayerID);
   fTerrain.SetHouse(aLoc, aHouseType, hs_Plan, PlayerID);
   BuildList.AddNewHousePlan(KMHouse);
-  Result:=true;
-  if not DoSilent then
-    fSoundLib.Play(sfx_placemarker);
 end;
 
 
