@@ -16,6 +16,7 @@ type TGameState = ( gsNoGame, //No game running at all, MainMenu
 type
   TKMGame = class
   private
+    ViewingReplay:boolean;
     FormControlsVisible:boolean;
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
@@ -58,6 +59,8 @@ type
     procedure StartMapEditor(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure SaveMapEditor(aMissionName:string; DoExpandPath:boolean);
 
+    procedure ViewReplay(Sender:TObject);
+
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
     property GetTickCount:cardinal read fGameplayTickCount;
@@ -86,6 +89,7 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
 begin
+  ViewingReplay := false;
   ID_Tracker := 0;
   SelectingTroopDirection := false;
   SelectingDirPosition := Point(0,0);
@@ -731,11 +735,6 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
-  fGameInputProcess := TGameInputProcess.Create;
-  Save(99); //Thats our base for a game record
-
-  fLog.AppendLog('Gameplay recording initialized',true);
-
   fRender.RenderResize(ScreenX,ScreenY,rm2D);
   fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
   fViewport.SetZoom(1);
@@ -744,6 +743,13 @@ begin
   fGameplayTickCount := 0; //Restart counter
 
   GameState := gsRunning;
+
+  if aMissionFile+aGameName <> '' then begin //don't start when Loading
+    fGameInputProcess := TGameInputProcess.Create;
+    Save(99); //Thats our base for a game record
+    //todo: thats a bad idea, need to solve it!
+  end;
+  fLog.AppendLog('Gameplay recording initialized',true);
 end;
 
 
@@ -782,6 +788,7 @@ begin
   if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
     fMainMenuInterface.Fill_Results;
 
+  fGameInputProcess.SaveToFile;
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fPlayers);
   FreeAndNil(fProjectiles);
@@ -907,6 +914,16 @@ begin
 end;
 
 
+procedure TKMGame.ViewReplay(Sender:TObject);
+begin
+  Load(99); //We load what was saved right before launching Recording
+  fGameInputProcess := TGameInputProcess.Create;
+  fGameInputProcess.LoadFromFile;
+
+  ViewingReplay := true;
+end;
+
+
 function TKMGame.GetMissionTime:cardinal;
 begin
   //Treat 10 ticks as 1 sec irregardless of user-set pace
@@ -933,7 +950,6 @@ function TKMGame.Save(SlotID:shortint):string;
   function GetSaveName(Num:integer):string;
   begin
     Result := 'Saves\'+'save'+int2fix(Num,2)+'.sav';
-    if Num = 99 then Result := 'BugReport.sav'; //99 means this is a bug crash save
   end;
 var
   SaveStream:TKMemoryStream;
@@ -1090,6 +1106,9 @@ begin
                   if GlobalTickCount mod 10 = 0 then
                     if fMusicLib.IsMusicEnded then
                       fMusicLib.PlayNextTrack(); //Feed new music track
+
+                  if ViewingReplay then
+                    fGameInputProcess.Tick(fGameplayTickCount);
                 end;
     gsEditor:   begin
                   fMapEditorInterface.UpdateState;
@@ -1099,6 +1118,7 @@ begin
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
                 end;
     end;
+
 end;
 
 

@@ -21,10 +21,10 @@ uses SysUtils, Math, Controls, KromUtils,
    - send input through LAN to make multiplayer games
 
   Player commands are:
-  I.   Unit commands, only warriors (TKMUnitWarrior, OrderInfo)
+ +I.   Unit commands, only warriors (TKMUnitWarrior, OrderInfo)
   II.  House production orders (TKMHouse, PlaceOrder(warfare, troops, citizens))
   III. House repair/delivery options (TKMHouse, Toggle(repair, delivery, storehouse))
-  IV.  Building/road plans (build what, Location)
+ +IV.  Building/road plans (build what, Location)
   V.   Delivery ratios
   VI.  Cheatcodes affecting gameplay (goods, props)
 
@@ -49,24 +49,30 @@ type TGameInputCommand = (
   gic_ArmyHouse,        //House-dependant command
   gic_ArmyHalt,         //Formation commands
   gic_ArmyWalk          //Walking
+
+  //gic_House
+
+  //gic_Settings
   );
 
 type
 TGameInputProcess = class
   private
     fCount:integer;
+    fCursor:integer;
     fQueue: array of packed record
       Tick:cardinal;
       Command:TGameInputCommand;
       params:array[1..8]of integer;
     end;
 
-    procedure SaveToFile();
-
     procedure SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
+    procedure ExecCommand(aIndex:integer);
   public
     constructor Create;
     destructor Destroy; override;
+    procedure SaveToFile();
+    procedure LoadFromFile();
     procedure BuildCommand(aOrder:TBuildOrder; aLoc:TKMPoint); overload;
     procedure BuildCommand(aHouse:THouseType; aLoc:TKMPoint); overload;
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand); overload;
@@ -74,6 +80,8 @@ TGameInputProcess = class
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint); overload;
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
+
+    procedure Tick(aTick:integer);
 end;
 
 
@@ -87,12 +95,12 @@ begin
   Inherited;
   setlength(fQueue, 1024);
   fCount := 0;
+  fCursor := 1;
 end;
 
 
 destructor TGameInputProcess.Destroy;
 begin
-  SaveToFile();
   Inherited;
 end;
 
@@ -109,6 +117,23 @@ begin
 end;
 
 
+procedure TGameInputProcess.LoadFromFile();
+var f:file; i,NumRead:integer;
+begin
+  if not FileExists(ExeDir+'Log.sav') then exit;
+  AssignFile(f, ExeDir+'Log.sav');
+  Reset(f, 1);
+  BlockRead(f, fCount, 4, NumRead);
+  if NumRead=0 then begin
+    CloseFile(f);
+    exit;
+  end;
+  for i:=1 to fCount do
+    BlockRead(f, fQueue[i].Tick, SizeOf(fQueue[i]));
+  CloseFile(f);
+end;
+
+
 procedure TGameInputProcess.SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
 begin
   inc(fCount);
@@ -121,6 +146,17 @@ begin
     Params[2] := aParam2;
     Params[3] := aParam3;
     Params[4] := aParam4;
+  end;
+end;
+
+
+procedure TGameInputProcess.ExecCommand(aIndex:integer);
+begin
+  with fQueue[aIndex] do
+  case Command of
+    gic_ArmyHalt:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).Halt(Params[2],Params[3]);
+    gic_ArmyWalk:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.PlaceOrder(wo_Walk, KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+    else Assert(false);
   end;
 end;
 
@@ -202,6 +238,16 @@ begin
   aWarrior.GetCommander.PlaceOrder(wo_Walk, aLoc, aDirection);
   SaveCommand(aCommand, aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection));
 end;
+
+
+procedure TGameInputProcess.Tick(aTick:integer);
+begin
+  while (aTick = fQueue[fCursor].Tick) do begin
+    ExecCommand(fCursor);
+    inc(fCursor);
+  end;
+end;
+
 
 
 end.
