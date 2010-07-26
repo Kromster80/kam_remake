@@ -854,16 +854,21 @@ end;
 
 
 procedure TKMMainMenuInterface.Campaign_StartMap(Sender: TObject);
+var MissString,NameString:string;
 begin
   fLog.AssertToLog(Sender=Button_CampaignStart,'not Button_CampaignStart');
-  if Campaign_Selected = cmp_TSK then
-    fGame.StartGame(
-    ExeDir+'Data\mission\mission'+inttostr(Campaign_Mission_Choice)+'.dat',
-    'TSK mission '+inttostr(Campaign_Mission_Choice), Campaign_Selected, Campaign_Mission_Choice);
-  if Campaign_Selected = cmp_TPR then
-    fGame.StartGame(
-    ExeDir+'Data\mission\dmission'+inttostr(Campaign_Mission_Choice)+'.dat',
-    'TPR mission '+inttostr(Campaign_Mission_Choice), Campaign_Selected, Campaign_Mission_Choice);
+  case Campaign_Selected of
+    cmp_TSK: begin
+      MissString := ExeDir+'Data\mission\mission'+inttostr(Campaign_Mission_Choice)+'.dat';
+      NameString := 'TSK mission '+inttostr(Campaign_Mission_Choice);
+    end;
+    cmp_TPR: begin
+      MissString := ExeDir+'Data\mission\dmission'+inttostr(Campaign_Mission_Choice)+'.dat';
+      NameString := 'TPR mission '+inttostr(Campaign_Mission_Choice);
+    end;
+    else Assert(false,'Unknown Campaign');
+  end;
+  fGame.StartGame(MissString, NameString, Campaign_Selected, Campaign_Mission_Choice);
 end;
 
 
