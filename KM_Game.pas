@@ -297,7 +297,6 @@ begin
                     begin
                       //Place attack order here rather than in mouse up; why here??
                       fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
-                      fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Attack);
                     end
                     else
                     begin
@@ -306,7 +305,6 @@ begin
                          (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy) then
                       begin
                         fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
-                        fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Attack);
                       end
                       else
                       if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
@@ -528,8 +526,10 @@ begin
                     ((fPlayers.Selected is TKMHouse) and (TKMHouse(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID))or
                     ((fPlayers.Selected is TKMUnit) and (TKMUnit(fPlayers.Selected).GetOwner <> MyPlayer.PlayerID)) then
                     fPlayers.Selected := OldSelected;
+
                   if (fPlayers.Selected is TKMHouse) then
                     fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
+
                   if (fPlayers.Selected is TKMUnit) then begin
                     fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
                     if (fPlayers.Selected is TKMUnitWarrior) and (OldSelected <> fPlayers.Selected) then
@@ -590,7 +590,6 @@ begin
                  (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
               begin
                 fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyLink, HitUnit);
-                fSoundLib.PlayWarrior(HitUnit.GetUnitType, sp_Join);
                 fGamePlayInterface.JoiningGroups := false;
                 fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit); //Refresh unit display
                 Screen.Cursor:=c_Default; //Reset cursor when mouse released
@@ -614,7 +613,6 @@ begin
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
           fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyWalk, P, SelectedDirection);
-          fSoundLib.PlayWarrior(fGamePlayInterface.GetShownUnit.GetUnitType, sp_Move);
         end;
 
         if (Button = mbRight) and (MOver = nil) then
@@ -776,8 +774,8 @@ begin
 
   fGameInputProcess := TGameInputProcess.Create(gipRecording);
   Save(99); //Thats our base for a game record
-
   fLog.AppendLog('Gameplay recording initialized',true);
+  RandSeed := 4; //Random after StartGame and ViewReplay should match
 end;
 
 
@@ -953,6 +951,7 @@ begin
   fGameInputProcess := TGameInputProcess.Create(gipReplaying);
   fGameInputProcess.LoadFromFile;
 
+  RandSeed := 4; //Random after StartGame and ViewReplay should match
   GameState := gsReplay;
 end;
 
@@ -1138,9 +1137,8 @@ begin
                     fProjectiles.UpdateState;
                     if GameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
 
-                    if fGameplayTickCount mod 600 = 0 then //Each 1min of gameplay time
-                      if fGlobalSettings.IsAutosave then
-                        Save(AUTOSAVE_SLOT); //Autosave slot
+                    if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.IsAutosave then //Each 1min of gameplay time
+                      Save(AUTOSAVE_SLOT); //Autosave slot
                         
                     if GameState = gsReplay then
                       fGameInputProcess.Tick(fGameplayTickCount);
@@ -1154,6 +1152,9 @@ begin
                   if GlobalTickCount mod 10 = 0 then
                     if fMusicLib.IsMusicEnded then
                       fMusicLib.PlayNextTrack(); //Feed new music track
+
+                  if GlobalTickCount mod 20 = 0 then
+                    Form1.Caption := inttostr(Random(100));
                 end;
     gsEditor:   begin
                   fMapEditorInterface.UpdateState;

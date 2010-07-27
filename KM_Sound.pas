@@ -57,7 +57,7 @@ type
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
     SoundGain:single;
-    WarriorSoundCount: array[15..24,TSoundToPlay] of byte;
+    WarriorSoundCount: array[15..24, TSoundToPlay] of byte;
     procedure LoadSoundsDAT();
     function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
   public
@@ -323,27 +323,27 @@ function TSoundLib.GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay;
 begin
   if (aLocale = '') and (fGame <> nil) and (fGame.fGlobalSettings <> nil) then
     aLocale := fGame.fGlobalSettings.GetLocale;
-  if (byte(aUnitType) < 15) or (byte(aUnitType) > 24) then
+  if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
     Result := ''
   else
     Result := ExeDir + 'data\Sfx\Speech.'+aLocale+'\' + WarriorSFXFolder[byte(aUnitType)] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
 end;
 
 
+//todo: Use sound playing system that allows for multiple sounds at once and a listener position (e.g. deaths and cries in a battle)
+//@Krom: Why can't we simply use OpenAL? Because it needs a listener position so you don't hear battles from the other side of the map. Do the sounds need to be stored in memory? Can we buffer them or something?
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
 var wave:string;
-begin
-  //todo: Use sound playing system that allows for multiple sounds at once and a listener position (e.g. deaths and cries in a battle)
-  //@Krom: Why can't we simply use OpenAL? Because it needs a listener position so you don't hear battles from the other side of the map. Do the sounds need to be stored in memory? Can we buffer them or something?
-  if (byte(aUnitType) < 15) or (byte(aUnitType) > 24) then exit;
- //File extension must be .wav as well as the file contents itself
-  wave := GetWarriorSoundFile(aUnitType,aSound,Random(WarriorSoundCount[byte(aUnitType),aSound]));
+begin                 
+  if not (aUnitType in [ut_Militia .. ut_Barbarian]) then exit;
+  //File extension must be .wav as well as the file contents itself
+  wave := GetWarriorSoundFile(aUnitType, aSound, PseudoRandom(WarriorSoundCount[byte(aUnitType),aSound]));
+  {$IFDEF WDC}
   if FileExists(wave) then
-    {$IFDEF WDC}
     sndPlaySound(@wave[1], SND_NODEFAULT or SND_ASYNC) //Override any previous voice playing
-    {$ENDIF}
   else
     fLog.AppendLog('Speech file not found for '+TypeToString(aUnitType)+' sound ID '+IntToStr(byte(aSound))+': '+wave);
+  {$ENDIF}
 end;
 
 

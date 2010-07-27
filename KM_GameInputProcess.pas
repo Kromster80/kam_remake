@@ -262,8 +262,14 @@ procedure TGameInputProcess.WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGa
 begin
   Assert(aCommand in [gic_ArmyLink, gic_ArmyAttackUnit]);
   case aCommand of
-    gic_ArmyLink:       aWarrior.LinkTo(TKMUnitWarrior(aUnit));
-    gic_ArmyAttackUnit: aWarrior.GetCommander.PlaceOrder(wo_Attack, aUnit);
+    gic_ArmyLink:       begin
+                          aWarrior.LinkTo(TKMUnitWarrior(aUnit));
+                          fSoundLib.PlayWarrior(aWarrior.GetUnitType, sp_Join);
+                        end;
+    gic_ArmyAttackUnit: begin
+                          aWarrior.GetCommander.PlaceOrder(wo_Attack, aUnit);
+                          fSoundLib.PlayWarrior(aWarrior.GetUnitType, sp_Attack);
+                        end;
   end;
 
   SaveCommand(aCommand, aWarrior.ID, aUnit.ID);
@@ -274,6 +280,7 @@ procedure TGameInputProcess.WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGa
 begin
   Assert(aCommand = gic_ArmyAttackHouse);
   aWarrior.GetCommander.PlaceOrder(wo_Attack, aHouse);
+  fSoundLib.PlayWarrior(aWarrior.GetUnitType, sp_Attack);
   SaveCommand(aCommand, aWarrior.ID, aHouse.ID);
 end;
 
@@ -290,6 +297,7 @@ procedure TGameInputProcess.WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGa
 begin
   Assert(aCommand = gic_ArmyWalk);
   aWarrior.GetCommander.PlaceOrder(wo_Walk, aLoc, aDirection);
+  fSoundLib.PlayWarrior(aWarrior.GetUnitType, sp_Move);
   SaveCommand(aCommand, aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection));
 end;
 

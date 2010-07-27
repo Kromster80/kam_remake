@@ -32,7 +32,7 @@ type TKMMainMenuInterface = class
       Button_MainMenuMultiPlayer,
       Button_MainMenuMapEd,
       Button_MainMenuOptions,
-      Button_MainMenuCredit,
+      Button_MainMenuCredits,
       Button_MainMenuQuit:TKMButton;
       Label_Version:TKMLabel;
     Panel_SinglePlayer:TKMPanel;
@@ -304,19 +304,19 @@ begin
       Button_MainMenuMultiPlayer  := MyControls.AddButton(Panel_MainButtons,0,40,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
       Button_MainMenuMapEd        := MyControls.AddButton(Panel_MainButtons,0,80,350,30,'Map Editor',fnt_Metal,bsMenu);
       Button_MainMenuOptions      := MyControls.AddButton(Panel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
-      Button_MainMenuCredit       := MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
+      Button_MainMenuCredits      := MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
       Button_MainMenuQuit         := MyControls.AddButton(Panel_MainButtons,0,360,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       Button_MainMenuSinglePlayer.OnClick    := SwitchMenuPage;
       //Button_MainMenuMultiPlayer.OnClick     := SwitchMenuPage;
       Button_MainMenuMapEd.OnClick    := SwitchMenuPage;
       Button_MainMenuOptions.OnClick  := SwitchMenuPage;
-      Button_MainMenuCredit.OnClick   := SwitchMenuPage;
+      Button_MainMenuCredits.OnClick  := SwitchMenuPage;
       Button_MainMenuQuit.OnClick     := Form1.Exit1.OnClick;
       if not SHOW_MAPED_IN_MENU then Button_MainMenuMapEd.Hide; //Let it be created, but hidden, I guess there's no need to seriously block it
       Button_MainMenuMultiPlayer.Disable;
       //Button_MainMenuCredit.Disable;
 
-      with MyControls.AddButton(Panel_MainMenu,600,200,150,30,'Replay',fnt_Metal,bsMenu) do
+      with MyControls.AddButton(Panel_MainMenu,600,200,150,30,'Replay last',fnt_Metal,bsMenu) do
         OnClick := fGame.ViewReplay;
 
 
@@ -754,7 +754,7 @@ begin
   end;
 
   {Show Credits}
-  if Sender=Button_MainMenuCredit then begin
+  if Sender=Button_MainMenuCredits then begin
     Panel_Credits.Show;
     Label_Credits.SmoothScrollToTop := TimeGetTime; //Set initial position
   end;

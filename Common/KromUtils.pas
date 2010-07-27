@@ -70,6 +70,7 @@ function MakePOT(num:integer):integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
+function PseudoRandom(aMax:integer):integer;
 function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 
@@ -438,12 +439,26 @@ end;
 
 function RandomS(Range_Both_Directions:integer):integer; overload;
 begin
-  Result:=Random(Range_Both_Directions*2+1)-Range_Both_Directions;
+  Result := Random(Range_Both_Directions*2+1)-Range_Both_Directions;
 end;
+
 
 function RandomS(Range_Both_Directions:single):single; overload;
 begin
-Result:=Random(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
+  Result := Random(round(Range_Both_Directions*20000)+1)/10000-Range_Both_Directions;
+end;
+
+
+//Return Random number without disturbing RandomNumberGenerator
+//we need to use it in case where Random should return repeating series of numbers
+//from time to time with the same RandSeed, e.g. when AI logic depends on Randoms
+//and some of player input needs Random too, but it should not affect AI
+function PseudoRandom(aMax:integer):integer;
+begin
+  if aMax <=0 then
+    Result := 0
+  else
+    Result := GetTickCount mod aMax;
 end;
 
 

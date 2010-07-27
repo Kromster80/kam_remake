@@ -1133,7 +1133,7 @@ begin
         fGame.PauseGame(true);
         SHOW_UNIT_ROUTES := true;
         SHOW_UNIT_MOVEMENT := true;
-        fTerrain.Land[PrevPosition.Y,PrevPosition.X].IsUnit := 128;
+        fTerrain.Land[GetPosition.Y,GetPosition.X].IsUnit := 128;
   end;
 end;
 
