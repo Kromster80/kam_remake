@@ -420,18 +420,21 @@ begin
   Result := abs(A-B) <= Epsilon;
 end;
 
+
 function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
-var i,A,B:integer;
+var i,A,B:cardinal;
 begin
-  A:=1; B:=0; //A is initialized to 1, B to 0
+  A := 1;
+  B := 0; //A is initialized to 1, B to 0
   for i:=1 to TextLength do begin
-  inc(A,pbyte(cardinal(TextPointer)+i-1)^);
-  inc(B,A);
+    inc(A,pbyte(cardinal(TextPointer)+i-1)^);
+    inc(B,A);
   end;
-  A:=A mod 65521; //65521 (the largest prime number smaller than 2^16)
-  B:=B mod 65521;
-  Adler32CRC:=B+A*65536; //reverse order for smaller numbers
+  A := A mod 65521; //65521 (the largest prime number smaller than 2^16)
+  B := B mod 65521;
+  Adler32CRC := B + A shl 16; //reverse order for smaller numbers
 end;
+
 
 function RandomS(Range_Both_Directions:integer):integer; overload;
 begin

@@ -52,7 +52,7 @@ end;
 procedure TUnitActionFight.SyncLoad();
 begin
   Inherited;
-  fOpponent := fPlayers.GetUnitByID(integer(fOpponent));
+  fOpponent := fPlayers.GetUnitByID(cardinal(fOpponent));
 end;
 
 

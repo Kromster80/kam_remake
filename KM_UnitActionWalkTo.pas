@@ -40,7 +40,8 @@ const
 type
   TUnitActionWalkTo = class(TUnitAction)
     private
-      fWalker, fTargetUnit:TKMUnit;
+      fWalker:TKMUnit;
+      fTargetUnit:TKMUnit;
       fWalkFrom, fWalkTo, fAvoid, fSideStepTesting, fNewWalkTo:TKMPoint;
       fWalkToSpot:boolean;
       fPass:TPassability; //Desired passability set once on Create
@@ -206,8 +207,8 @@ end;
 procedure TUnitActionWalkTo.SyncLoad();
 begin
   Inherited;
-  fWalker       := fPlayers.GetUnitByID(integer(fWalker));
-  fTargetUnit   := fPlayers.GetUnitByID(integer(fTargetUnit));
+  fWalker       := fPlayers.GetUnitByID(cardinal(fWalker));
+  fTargetUnit   := fPlayers.GetUnitByID(cardinal(fTargetUnit));
 end;
 
 
@@ -730,6 +731,7 @@ begin
     Result:=KMPoint(0,0) //Error
   else Result:=NodeList.List[NodePos+1];
 end;
+
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aResetTargetUnit:boolean=true; aNewTargetUnit: TKMUnit=nil);

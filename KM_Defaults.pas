@@ -27,8 +27,8 @@ const
   CONTROLS_SCALE        = 1;            //Scale controls to this size, highly experimantal and imperfect
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo FightSim r864';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r864';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Economy Demo FightSim r917';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r917';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE

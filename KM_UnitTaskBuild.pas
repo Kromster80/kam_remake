@@ -434,7 +434,7 @@ end;
 procedure TTaskBuildHouseArea.SyncLoad();
 begin
   Inherited;
-  fHouse := fPlayers.GetHouseByID(integer(fHouse));
+  fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
 end;
 
 
@@ -558,7 +558,7 @@ end;
 procedure TTaskBuildHouse.SyncLoad();
 begin
   Inherited;
-  fHouse := fPlayers.GetHouseByID(integer(fHouse));
+  fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
 end;
 
 
@@ -710,7 +710,7 @@ end;
 procedure TTaskBuildHouseRepair.SyncLoad();
 begin
   Inherited;
-  fHouse := fPlayers.GetHouseByID(integer(fHouse));
+  fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
 end;
 
 

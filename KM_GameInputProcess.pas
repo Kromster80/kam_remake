@@ -27,6 +27,8 @@ uses SysUtils, Math, Controls, KromUtils,
  +IV.  Building/road plans (build what, Location)
   V.   Delivery ratios
   VI.  Cheatcodes affecting gameplay (goods, props)
+  VII. Viewport settings for replay (place, zoom)
+  IIX. Message queue handling in gameplay interface
 
   }
  const MAX_PARAMS = 8;
@@ -36,25 +38,23 @@ type TBuildOrder = (bo_RoadPlan, bo_FieldPlan, bo_WinePlan, bo_WallPlan, bo_Remo
 type TGIPState = (gipRecording, gipReplaying);
 
 type TGameInputCommand = (
+  gic_ArmyFeed,
+  gic_ArmySplit,
+  gic_ArmyLink,
+  gic_ArmyAttackUnit,
+  gic_ArmyAttackHouse,
+  gic_ArmyHalt,         //Formation commands
+  gic_ArmyWalk,          //Walking
+
   gic_BuildRoadPlan,
   gic_BuildFieldPlan,
   gic_BuildWinePlan,
   gic_BuildWallPlan,
   gic_BuildRemovePlan,  //Removal of a plan
   gic_BuildRemoveHouse, //Removal of house
-  gic_BuildHousePlan,   //Build HouseType
-
-  gic_ArmyFeed,
-  gic_ArmySplit,
-  gic_ArmyLink,
-  gic_ArmyAttackUnit,
-  gic_ArmyAttackHouse,
-  gic_ArmyHouse,        //House-dependant command
-  gic_ArmyHalt,         //Formation commands
-  gic_ArmyWalk          //Walking
+  gic_BuildHousePlan   //Build HouseType
 
   //gic_House
-
   //gic_Settings
   );
 
@@ -68,9 +68,7 @@ TGameInputProcess = class
       Command:TGameInputCommand;
       params:array[1..MAX_PARAMS]of integer;
     end;
-
     fState:TGIPState;
-
     procedure SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
     procedure ExecCommand(aIndex:integer);
   public
@@ -87,7 +85,7 @@ TGameInputProcess = class
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint); overload;
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
-    procedure Tick(aTick:integer);
+    procedure Tick(aTick:cardinal);
 
     property Count:integer read fCount;
     property State:TGIPState read fState;
@@ -148,7 +146,7 @@ end;
 procedure TGameInputProcess.SaveToFile();
 var f:file; i:integer;
 begin
-  AssignFile(f, ExeDir+'Log.sav');
+  AssignFile(f, ExeDir+'Saves\save99.gil');
   Rewrite(f, 1);
   BlockWrite(f, fCount, 4);
   for i:=1 to fCount do
@@ -160,8 +158,8 @@ end;
 procedure TGameInputProcess.LoadFromFile();
 var f:file; i,NumRead:integer;
 begin
-  if not FileExists(ExeDir+'Log.sav') then exit;
-  AssignFile(f, ExeDir+'Log.sav');
+  if not FileExists(ExeDir+'Saves\save99.gil') then exit;
+  AssignFile(f, ExeDir+'Saves\save99.gil');
   Reset(f, 1);
   BlockRead(f, fCount, 4, NumRead);
   if NumRead=0 then begin
@@ -196,8 +194,22 @@ begin
   Assert(fState=gipReplaying);
   with fQueue[aIndex] do
   case Command of
-    gic_ArmyHalt:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).Halt(Params[2],Params[3]);
-    gic_ArmyWalk:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.PlaceOrder(wo_Walk, KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+    gic_ArmyFeed:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).Split;
+    gic_ArmySplit:        TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderFood;
+    gic_ArmyLink:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).LinkTo(TKMUnitWarrior(fPlayers.GetUnitByID(Params[2])));
+    gic_ArmyAttackUnit:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.PlaceOrder(wo_Attack, fPlayers.GetUnitByID(Params[2]));
+    gic_ArmyAttackHouse:  TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.PlaceOrder(wo_Attack, fPlayers.GetHouseByID(Params[2]));
+    gic_ArmyHalt:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).Halt(Params[2],Params[3]);
+    gic_ArmyWalk:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.PlaceOrder(wo_Walk, KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+
+    gic_BuildRoadPlan:    MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_RoadPlan,  false, MyPlayer.PlayerID);
+    gic_BuildFieldPlan:   MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_FieldPlan,  false, MyPlayer.PlayerID);
+    gic_BuildWinePlan:    MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WinePlan,  false, MyPlayer.PlayerID);
+    gic_BuildWallPlan:    MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_WallPlan,  false, MyPlayer.PlayerID);
+    gic_BuildRemovePlan:  MyPlayer.RemPlan(KMPoint(Params[1],Params[2]));
+    gic_BuildRemoveHouse: MyPlayer.RemHouse(KMPoint(Params[1],Params[2]), false);
+    gic_BuildHousePlan:   MyPlayer.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]), MyPlayer.PlayerID);
+
     else Assert(false);
   end;
 end;
@@ -230,7 +242,7 @@ end;
 procedure TGameInputProcess.BuildCommand(aHouse:THouseType; aLoc:TKMPoint);
 begin
   MyPlayer.AddHousePlan(aHouse, aLoc, MyPlayer.PlayerID);
-  SaveCommand(gic_BuildHousePlan, aLoc.X, aLoc.Y, integer(aHouse));
+  SaveCommand(gic_BuildHousePlan, integer(aHouse), aLoc.X, aLoc.Y);
 end;
 
 
@@ -282,7 +294,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.Tick(aTick:integer);
+procedure TGameInputProcess.Tick(aTick:cardinal);
 begin
   while (aTick = fQueue[fCursor].Tick) do begin
     ExecCommand(fCursor);

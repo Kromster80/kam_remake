@@ -1125,7 +1125,7 @@ var i:integer;
 begin
   Inherited;
   LoadStream.Read(UnitWIP, 4);
-  UnitWIP := fPlayers.GetUnitByID(integer(UnitWIP)); //Units get loaded before houses ;)
+  UnitWIP := fPlayers.GetUnitByID(cardinal(UnitWIP)); //Units get loaded before houses ;)
   LoadStream.Read(HideOneGold);
   LoadStream.Read(UnitTrainProgress);
   for i:=1 to 6 do LoadStream.Read(UnitQueue[i], SizeOf(UnitQueue[i]));
@@ -1666,10 +1666,10 @@ end;
 procedure TKMHousesCollection.SyncLoad();
 var i:integer;
 begin
-  fSelectedHouse := fPlayers.GetHouseByID(integer(fSelectedHouse));
+  fSelectedHouse := fPlayers.GetHouseByID(cardinal(fSelectedHouse));
   for i := 0 to Count - 1 do
     if Houses[i].fCurrentAction<>nil then
-      Houses[i].fCurrentAction.fHouse := fPlayers.GetHouseByID(integer(Houses[i].fCurrentAction.fHouse));
+      Houses[i].fCurrentAction.fHouse := fPlayers.GetHouseByID(cardinal(Houses[i].fCurrentAction.fHouse));
 end;
 
 

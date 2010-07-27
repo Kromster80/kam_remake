@@ -524,13 +524,13 @@ procedure TKMDeliverQueue.SyncLoad();
 var i:integer;
 begin
   for i:=1 to length(fOffer) do
-    fOffer[i].Loc_House := fPlayers.GetHouseByID(integer(fOffer[i].Loc_House));
+    fOffer[i].Loc_House := fPlayers.GetHouseByID(cardinal(fOffer[i].Loc_House));
 
   for i:=1 to length(fDemand) do
   with fDemand[i] do
   begin
-    Loc_House := fPlayers.GetHouseByID(integer(Loc_House));
-    Loc_Unit := fPlayers.GetUnitByID(integer(Loc_Unit));
+    Loc_House := fPlayers.GetHouseByID(cardinal(Loc_House));
+    Loc_Unit := fPlayers.GetUnitByID(cardinal(Loc_Unit));
   end;
 end;
 
@@ -901,19 +901,19 @@ procedure TKMBuildingQueue.SyncLoad();
 var i:integer;
 begin
   for i:=1 to length(fFieldsQueue) do
-    fFieldsQueue[i].Worker := fPlayers.GetUnitByID(integer(fFieldsQueue[i].Worker));
+    fFieldsQueue[i].Worker := fPlayers.GetUnitByID(cardinal(fFieldsQueue[i].Worker));
 
   for i:=1 to length(fHousesQueue) do
-    fHousesQueue[i].House := fPlayers.GetHouseByID(integer(fHousesQueue[i].House));
+    fHousesQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousesQueue[i].House));
 
   for i:=1 to length(fHousePlansQueue) do
   begin
-    fHousePlansQueue[i].House := fPlayers.GetHouseByID(integer(fHousePlansQueue[i].House));
-    fHousePlansQueue[i].Worker := fPlayers.GetUnitByID(integer(fHousePlansQueue[i].Worker));
+    fHousePlansQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousePlansQueue[i].House));
+    fHousePlansQueue[i].Worker := fPlayers.GetUnitByID(cardinal(fHousePlansQueue[i].Worker));
   end;
 
   for i:=1 to length(fHousesRepairQueue) do
-    fHousesRepairQueue[i].House := fPlayers.GetHouseByID(integer(fHousesRepairQueue[i].House));
+    fHousesRepairQueue[i].House := fPlayers.GetHouseByID(cardinal(fHousesRepairQueue[i].House));
 end;
 
 

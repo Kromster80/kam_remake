@@ -1056,6 +1056,7 @@ begin
       utn_BuildHouse:      fUnitTask := TTaskBuildHouse.Load(LoadStream);
       utn_BuildHouseRepair:fUnitTask := TTaskBuildHouseRepair.Load(LoadStream);
       utn_GoHome:          fUnitTask := TTaskGoHome.Load(LoadStream);
+      utn_AttackHouse:     fUnitTask := TTaskAttackHouse.Load(LoadStream);
       utn_ThrowRock:       fUnitTask := TTaskThrowRock.Load(LoadStream);
       utn_GoEat:           fUnitTask := TTaskGoEat.Load(LoadStream);
       utn_Mining:          fUnitTask := TTaskMining.Load(LoadStream);
@@ -1088,7 +1089,7 @@ begin
   LoadStream.Read(fThought, SizeOf(fThought));
   LoadStream.Read(fCondition);
   LoadStream.Read(fHitPoints);
-  LoadStream.Read(fHitPointCounter, 4);
+  LoadStream.Read(fHitPointCounter);
   LoadStream.Read(fInHouse, 4);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
@@ -1110,8 +1111,8 @@ procedure TKMUnit.SyncLoad();
 begin
   if fUnitTask<>nil then fUnitTask.SyncLoad;
   if fCurrentAction<>nil then fCurrentAction.SyncLoad;
-  fHome := fPlayers.GetHouseByID(integer(fHome));
-  fInHouse := fPlayers.GetHouseByID(integer(fInHouse));
+  fHome := fPlayers.GetHouseByID(cardinal(fHome));
+  fInHouse := fPlayers.GetHouseByID(cardinal(fInHouse));
 end;
 
 
@@ -1738,7 +1739,7 @@ end;
 
 procedure TUnitTask.SyncLoad();
 begin
-  fUnit := fPlayers.GetUnitByID(integer(fUnit));
+  fUnit := fPlayers.GetUnitByID(cardinal(fUnit));
 end;
 
 
@@ -2054,7 +2055,7 @@ end;
 procedure TTaskGoEat.SyncLoad();
 begin
   Inherited;
-  fInn := TKMHouseInn(fPlayers.GetHouseByID(integer(fInn)));
+  fInn := TKMHouseInn(fPlayers.GetHouseByID(cardinal(fInn)));
 end;
 
 

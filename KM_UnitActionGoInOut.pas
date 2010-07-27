@@ -67,7 +67,7 @@ end;
 procedure TUnitActionGoInOut.SyncLoad();
 begin
   Inherited;
-  fHouse := fPlayers.GetHouseByID(integer(fHouse));
+  fHouse := fPlayers.GetHouseByID(cardinal(fHouse));
 end;
 
 
