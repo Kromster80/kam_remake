@@ -315,6 +315,11 @@ begin
       if not SHOW_MAPED_IN_MENU then Button_MainMenuMapEd.Hide; //Let it be created, but hidden, I guess there's no need to seriously block it
       Button_MainMenuMultiPlayer.Disable;
       //Button_MainMenuCredit.Disable;
+
+      with MyControls.AddButton(Panel_MainMenu,600,200,150,30,'Replay',fnt_Metal,bsMenu) do
+        OnClick := fGame.ViewReplay;
+
+
 end;
 
 

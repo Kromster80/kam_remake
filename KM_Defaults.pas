@@ -33,9 +33,9 @@ const
 var
   //These should be TRUE
   MAKE_ANIM_TERRAIN     :boolean=true;  //Should we animate water and swamps
-  MakeUnitSprites       :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
-  MakeHouseSprites      :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
-  MakeTeamColors        :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
+  MAKE_UNIT_SPRITES     :boolean=true;  //Whenever to make Units graphics or not, saves time for GUI debug
+  MAKE_HOUSE_SPRITES    :boolean=true;  //Whenever to make Houses graphics or not, saves time for GUI debug
+  MAKE_TEAM_COLORS      :boolean=true;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :boolean=true;  //Wherever units get hungry or not
   DO_SERFS_WALK_ROADS   :boolean=true;  //Wherever serfs should walk only on roads
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
@@ -64,14 +64,15 @@ var
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   FREE_ROCK_THROWING    :boolean=false;
   {Gameplay display}
-  ShowTerrainWires      :boolean=false; //Makes terrain height visible
+  SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
   SHOW_POINTER_COUNTS   :boolean=true; //Show pointer count as small dots below unit
   SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
-  SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
-  SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
+  SHOW_SPRITE_COUNT     :boolean=true; //display rendered controls/sprites count
+  SHOW_POINTER_COUNT    :boolean=true; //Show debug total count of unit/house pointers being tracked
+  SHOW_CMDQUEUE_COUNT   :boolean=true; //Show how many commands were processed and stored by TGameInputProcess
   TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater

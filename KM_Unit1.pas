@@ -298,7 +298,7 @@ end;
 procedure TForm1.Debug_ShowWiresClick(Sender: TObject);
 begin
   Debug_ShowWires.Checked := not Debug_ShowWires.Checked;
-  ShowTerrainWires := Debug_ShowWires.Checked;
+  SHOW_TERRAIN_WIRES := Debug_ShowWires.Checked;
 end;
 
 procedure TForm1.Debug_ShowOverlayClick(Sender: TObject);
@@ -331,7 +331,7 @@ begin GroupBox1.Visible := not GroupBox1.Visible; end;
 
 procedure TForm1.Debug_PassabilityTrackChange(Sender: TObject);
 begin
-  ShowTerrainWires:=Debug_PassabilityTrack.Position<>0;
+  SHOW_TERRAIN_WIRES:=Debug_PassabilityTrack.Position<>0;
   Debug_PassabilityTrack.Max:=length(PassabilityStr)-1; //Reserve 0 as Off
   Label2.Caption:= PassabilityStr[Debug_PassabilityTrack.Position];
 end;

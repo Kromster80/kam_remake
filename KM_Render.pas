@@ -169,7 +169,7 @@ procedure TRender.Render();
 begin
   glClear(GL_COLOR_BUFFER_BIT);    // Clear The Screen, can save some FPS on this one
 
-  if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsEditor] then begin //If game is running
+  if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay, gsEditor] then begin //If game is running
     glLoadIdentity();                // Reset The View
     //glRotate(-15,0,0,1); //Funny thing
     glTranslatef(fViewport.ViewWidth/2,fViewport.ViewHeight/2,0);
@@ -195,7 +195,7 @@ begin
 
     fTerrain.Paint;
     fPlayers.Paint; //Quite slow           //Units and houses
-    if fGame.GameState in [gsPaused, gsOnHold, gsRunning] then
+    if fGame.GameState in [gsPaused, gsOnHold, gsRunning, gsReplay] then
       fGame.fProjectiles.Paint; //Render all arrows and etc..
 
     ClipRenderList(); //drop items that are outside of viewport
@@ -1068,10 +1068,10 @@ if RO[i]<>0 then begin
 
   h:=RO[i];
   //Incase no sprites were made
-  if (RenderList[h].RX=2) and not MakeHouseSprites then
+  if (RenderList[h].RX=2) and not MAKE_HOUSE_SPRITES then
     RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
   else
-  if (RenderList[h].RX=3) and not MakeUnitSprites then
+  if (RenderList[h].RX=3) and not MAKE_UNIT_SPRITES then
     RenderDot(RenderList[h].Loc.X,RenderList[h].Loc.Y)
   else
   begin

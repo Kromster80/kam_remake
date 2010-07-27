@@ -2310,7 +2310,7 @@ begin
   fRender.RenderTerrainFieldBorders(x1,x2,y1,y2);
   fRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep);
 
-  if ShowTerrainWires then fRender.RenderDebugWires(x1,x2,y1,y2);
+  if SHOW_TERRAIN_WIRES then fRender.RenderDebugWires(x1,x2,y1,y2);
   if SHOW_UNIT_MOVEMENT then fRender.RenderDebugUnitMoves(x1,x2,y1,y2);
 
 end;

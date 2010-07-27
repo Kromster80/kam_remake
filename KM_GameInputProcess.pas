@@ -29,8 +29,11 @@ uses SysUtils, Math, Controls, KromUtils,
   VI.  Cheatcodes affecting gameplay (goods, props)
 
   }
+ const MAX_PARAMS = 8;
 
 type TBuildOrder = (bo_RoadPlan, bo_FieldPlan, bo_WinePlan, bo_WallPlan, bo_RemovePlan, bo_RemoveHouse);
+
+type TGIPState = (gipRecording, gipReplaying);
 
 type TGameInputCommand = (
   gic_BuildRoadPlan,
@@ -63,14 +66,18 @@ TGameInputProcess = class
     fQueue: array of packed record
       Tick:cardinal;
       Command:TGameInputCommand;
-      params:array[1..8]of integer;
+      params:array[1..MAX_PARAMS]of integer;
     end;
+
+    fState:TGIPState;
 
     procedure SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
     procedure ExecCommand(aIndex:integer);
   public
-    constructor Create;
+    constructor Create(aState:TGIPState);
     destructor Destroy; override;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
     procedure SaveToFile();
     procedure LoadFromFile();
     procedure BuildCommand(aOrder:TBuildOrder; aLoc:TKMPoint); overload;
@@ -80,8 +87,10 @@ TGameInputProcess = class
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint); overload;
     procedure WarriorCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
-
     procedure Tick(aTick:integer);
+
+    property Count:integer read fCount;
+    property State:TGIPState read fState;
 end;
 
 
@@ -90,18 +99,49 @@ implementation
 uses KM_Terrain, KM_Unit1, KM_Sound, KM_Game, KM_PlayersCollection;
 
 
-constructor TGameInputProcess.Create;
+constructor TGameInputProcess.Create(aState:TGIPState);
 begin
-  Inherited;
+  Inherited Create;
   setlength(fQueue, 1024);
   fCount := 0;
   fCursor := 1;
+  fState := aState;
 end;
 
 
 destructor TGameInputProcess.Destroy;
 begin
   Inherited;
+end;
+
+
+procedure TGameInputProcess.Save(SaveStream:TKMemoryStream);
+var i,k:integer;
+begin
+  SaveStream.Write('Game input process data');
+  SaveStream.Write(fCount);
+  for i:=1 to fCount do begin
+    SaveStream.Write(fQueue[i].Tick);
+    SaveStream.Write(fQueue[i].Command, SizeOf(fQueue[i].Command));
+    for k:=1 to MAX_PARAMS do
+      SaveStream.Write(fQueue[i].params[k]);
+  end;
+end;
+
+
+procedure TGameInputProcess.Load(LoadStream:TKMemoryStream);
+var i,k:integer; s:string;
+begin
+  LoadStream.Read(s);
+  Assert(s='Game input process data');
+  LoadStream.Read(fCount);
+  setlength(fQueue, fCount+1);
+  for i:=1 to fCount do begin
+    LoadStream.Read(fQueue[i].Tick);
+    LoadStream.Read(fQueue[i].Command, SizeOf(fQueue[i].Command));
+    for k:=1 to MAX_PARAMS do
+      LoadStream.Read(fQueue[i].params[k]);
+  end;
 end;
 
 
@@ -136,6 +176,7 @@ end;
 
 procedure TGameInputProcess.SaveCommand(aGIC:TGameInputCommand; aParam1:integer=maxint; aParam2:integer=maxint; aParam3:integer=maxint; aParam4:integer=maxint);
 begin
+  Assert(fState=gipRecording);
   inc(fCount);
   if length(fQueue) <= fCount then setlength(fQueue, fCount+128);
 
@@ -152,6 +193,7 @@ end;
 
 procedure TGameInputProcess.ExecCommand(aIndex:integer);
 begin
+  Assert(fState=gipReplaying);
   with fQueue[aIndex] do
   case Command of
     gic_ArmyHalt:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).Halt(Params[2],Params[3]);

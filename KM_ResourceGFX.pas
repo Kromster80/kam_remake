@@ -142,7 +142,7 @@ begin
   fLog.AppendLog('Reading unit.dat',   LoadUnitDAT(ExeDir+'data\defines\unit.dat'));       StepRefresh();
 
   for i:=1 to 3 do
-    if (i=1) or ((i=2) and MakeHouseSprites) or ((i=3) and MakeUnitSprites) then
+    if (i=1) or ((i=2) and MAKE_HOUSE_SPRITES) or ((i=3) and MAKE_UNIT_SPRITES) then
     begin
       StepCaption('Reading '+RXData[i].Title+' GFX ...');
       fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
@@ -791,7 +791,7 @@ begin
     end;
 
     //If we need to prepare textures for TeamColors
-    if MakeTeamColors and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
+    if MAKE_TEAM_COLORS and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
     begin
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
       //TeamColors are done through alternative plain colored texture

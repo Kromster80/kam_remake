@@ -11,12 +11,12 @@ type TGameState = ( gsNoGame, //No game running at all, MainMenu
                     gsPaused, //Game is paused and responds to 'P' key only
                     gsOnHold, //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
                     gsRunning, //Game is running normally
+                    gsReplay,  //Game is showing replay, no player input allowed
                     gsEditor); //Game is in MapEditor mode
 
 type
   TKMGame = class
   private
-    ViewingReplay:boolean;
     FormControlsVisible:boolean;
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
@@ -52,6 +52,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
+    procedure InitGame();
     procedure StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure PauseGame(DoPause:boolean);
     procedure HoldGame(DoHold:boolean);
@@ -89,7 +90,6 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
 begin
-  ViewingReplay := false;
   ID_Tracker := 0;
   SelectingTroopDirection := false;
   SelectingDirPosition := Point(0,0);
@@ -151,9 +151,9 @@ begin
   ScreenX:=X;
   ScreenY:=Y;
   fRender.RenderResize(X,Y,rm2D);
-  if GameState in [gsPaused, gsRunning, gsEditor] then begin //If game is running
+  if GameState in [gsPaused, gsRunning, gsReplay, gsEditor] then begin //If game is running
     fViewport.SetVisibleScreenArea(X,Y);
-    if GameState in [gsPaused, gsRunning] then fGamePlayInterface.SetScreenSize(X,Y);
+    if GameState in [gsPaused, gsRunning, gsReplay] then fGamePlayInterface.SetScreenSize(X,Y);
     if GameState in [gsEditor] then fMapEditorInterface.SetScreenSize(X,Y); 
     ZoomInGameArea(1);
   end else begin
@@ -169,7 +169,7 @@ end;
 
 procedure TKMGame.ZoomInGameArea(X:single);
 begin
-  if GameState in [gsRunning, gsEditor] then fViewport.SetZoom(X);
+  if GameState in [gsRunning, gsReplay, gsEditor] then fViewport.SetZoom(X);
 end;
 
 
@@ -240,6 +240,21 @@ begin
                   if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 
                   if Key=ord('V') then begin fGame.HoldGame(true); exit; end; //Instant victory
+                end;
+    gsReplay:   begin
+                  if IsDown then exit;
+                  if Key = VK_BACK then begin
+                    //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
+                    //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
+                    fViewport.SetZoom(1);
+                    Form1.TB_Angle.Position := 0;
+                    Form1.TB_Angle_Change(Form1.TB_Angle);
+                  end;
+                  if Key = VK_F8 then begin
+                    GameSpeed := fGlobalSettings.GetSpeedup+1-GameSpeed; //1 or 11
+                    if not (GameSpeed in [1,fGlobalSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
+                    fGameplayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
+                  end;
                 end;
     gsEditor:   if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
   end;
@@ -403,6 +418,15 @@ begin
                           Screen.Cursor := c_Default;
                     fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                   end;
+                  end;
+                end;
+    gsReplay:   begin
+                  fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
+                  if fGameplayInterface.MyControls.MouseOverControl()<>nil then
+                    Screen.Cursor := c_Default
+                  else begin
+                    fTerrain.ComputeCursorPosition(X,Y,Shift);
+                    fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                   end;
                 end;
     gsEditor:   begin
@@ -671,14 +695,14 @@ begin
     gsPaused:   ;
     gsOnHold:   fGameplayInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
     gsRunning:  fGameplayInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
+    gsReplay:   fGameplayInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
     gsEditor:   fMapEditorInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
   end;
 
 end;
 
 
-procedure TKMGame.StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
-var ResultMsg:string; fMissionParser: TMissionParser;
+procedure TKMGame.InitGame();
 begin
   RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
@@ -692,14 +716,6 @@ begin
     fRender.LoadTileSet();
   end;
 
-  //If input is empty - replay last map
-  if aMissionFile <> '' then begin
-    fMissionFile := aMissionFile;
-    fGameName := aGameName;
-    ActiveCampaign := aCamp;
-    ActiveCampaignMap := aCampMap; //MapID is incremented in CampSettings and passed on to here from outside
-  end;
-
   fMainMenuInterface.ShowScreen_Loading('initializing');
   fRender.Render;
 
@@ -709,6 +725,27 @@ begin
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
+
+  fViewport.SetZoom(1);
+  fRender.RenderResize(ScreenX,ScreenY,rm2D);
+  fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
+
+  fGameplayTickCount := 0; //Restart counter
+end;
+
+
+procedure TKMGame.StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
+var ResultMsg:string; fMissionParser: TMissionParser;
+begin
+  InitGame;
+
+  //If input is empty - replay last map
+  if aMissionFile <> '' then begin
+    fMissionFile := aMissionFile;
+    fGameName := aGameName;
+    ActiveCampaign := aCamp;
+    ActiveCampaignMap := aCampMap; //MapID is incremented in CampSettings and passed on to here from outside
+  end;
 
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(aMissionFile,true) then
@@ -735,20 +772,11 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
-  fRender.RenderResize(ScreenX,ScreenY,rm2D);
-  fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
-  fViewport.SetZoom(1);
-  //fSoundLib.PlayNextTrack();  //Discussed. No need to feed new music track.
-
-  fGameplayTickCount := 0; //Restart counter
-
   GameState := gsRunning;
 
-  if aMissionFile+aGameName <> '' then begin //don't start when Loading
-    fGameInputProcess := TGameInputProcess.Create;
-    Save(99); //Thats our base for a game record
-    //todo: thats a bad idea, need to solve it!
-  end;
+  fGameInputProcess := TGameInputProcess.Create(gipRecording);
+  Save(99); //Thats our base for a game record
+
   fLog.AppendLog('Gameplay recording initialized',true);
 end;
 
@@ -782,13 +810,16 @@ end;
 
 procedure TKMGame.StopGame(const Msg:gr_Message; TextMsg:string='');
 begin
+
   GameState := gsNoGame;
 
   //Take results from MyPlayer before data is flushed
   if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
     fMainMenuInterface.Fill_Results;
 
-  fGameInputProcess.SaveToFile;
+  if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
+    fGameInputProcess.SaveToFile;
+    
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fPlayers);
   FreeAndNil(fProjectiles);
@@ -916,11 +947,13 @@ end;
 
 procedure TKMGame.ViewReplay(Sender:TObject);
 begin
-  Load(99); //We load what was saved right before launching Recording
-  fGameInputProcess := TGameInputProcess.Create;
+  Load(99); //We load what was saved right before starting Recording
+  FreeAndNil(fGameInputProcess); //Override GIP from savegame
+  
+  fGameInputProcess := TGameInputProcess.Create(gipReplaying);
   fGameInputProcess.LoadFromFile;
 
-  ViewingReplay := true;
+  GameState := gsReplay;
 end;
 
 
@@ -960,6 +993,7 @@ begin
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
     gsEditor:   exit; //MapEd gets saved differently from SaveMapEd
     gsOnHold:   exit; //No sense to save from victory?
+    gsReplay:   exit;
     gsPaused,gsRunning: //Can't save from Paused state yet, but we could add it later
     begin
       SaveStream := TKMemoryStream.Create;
@@ -977,6 +1011,7 @@ begin
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
+      fGameInputProcess.Save(SaveStream); //Saves command queue
 
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
 
@@ -1028,13 +1063,16 @@ begin
         LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
 
         //Create empty environment
-        StartGame('','');
+        InitGame();
 
         //Substitute tick counter and id tracker
         LoadStream.Read(fMissionFile); //Savegame mission file
         LoadStream.Read(fGameName); //Savegame title
         LoadStream.Read(fGameplayTickCount);
         LoadStream.Read(ID_Tracker);
+
+        fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
+        MyPlayer := fPlayers.Player[1];
 
         //Load the data into the game
         fTerrain.Load(LoadStream);
@@ -1043,6 +1081,9 @@ begin
 
         fViewport.Load(LoadStream);
         fGamePlayInterface.Load(LoadStream);
+
+        fGameInputProcess := TGameInputProcess.Create(gipRecording);
+        fGameInputProcess.Load(LoadStream);
 
         fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
@@ -1063,10 +1104,13 @@ begin
     gsPaused:   exit; //Taken care of earlier with default lrIncorrectGameState
     gsOnHold:   exit;
     gsRunning:  exit; //Taken care of earlier with default lrIncorrectGameState
+    gsReplay:   exit;
   end;
   finally
     LoadStream.Free;
   end;
+
+  GameState := gsRunning;
   fLog.AppendLog('Loading game',true);
 end;
 
@@ -1084,7 +1128,8 @@ begin
                   if fMusicLib.IsMusicEnded then
                     fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic); //Menu tune
                 end;
-    gsRunning:  begin
+    gsRunning,
+    gsReplay:   begin
                   for i:=1 to GameSpeed do
                   begin
                     inc(fGameplayTickCount); //Thats our tick counter for gameplay events
@@ -1096,6 +1141,9 @@ begin
                     if fGameplayTickCount mod 600 = 0 then //Each 1min of gameplay time
                       if fGlobalSettings.IsAutosave then
                         Save(AUTOSAVE_SLOT); //Autosave slot
+                        
+                    if GameState = gsReplay then
+                      fGameInputProcess.Tick(fGameplayTickCount);
                   end;
 
                   fGamePlayInterface.UpdateState;
@@ -1106,9 +1154,6 @@ begin
                   if GlobalTickCount mod 10 = 0 then
                     if fMusicLib.IsMusicEnded then
                       fMusicLib.PlayNextTrack(); //Feed new music track
-
-                  if ViewingReplay then
-                    fGameInputProcess.Tick(fGameplayTickCount);
                 end;
     gsEditor:   begin
                   fMapEditorInterface.UpdateState;
@@ -1126,7 +1171,8 @@ end;
 procedure TKMGame.UpdateStateIdle(aFrameTime:cardinal);
 begin
   case GameState of
-    gsRunning:  begin
+    gsRunning,
+    gsReplay:   begin
                   fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
                 end;
     gsEditor:   begin
@@ -1151,6 +1197,7 @@ begin
     gsPaused:  fGameplayInterface.Paint;
     gsOnHold:  fGameplayInterface.Paint;
     gsRunning: fGameplayInterface.Paint;
+    gsReplay:  fGameplayInterface.Paint;
     gsEditor:  fMapEditorInterface.Paint;
   end;
 end;

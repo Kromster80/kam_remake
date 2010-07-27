@@ -21,7 +21,7 @@ type TKMGamePlayInterface = class
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
-      Label_Stat,Label_Hint,Label_PointerCount:TKMLabel;
+      Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //4 common buttons + Return
       Image_Message:array[1..32]of TKMImage; //Queue of messages covers 32*48=1536px height
       Image_Clock:TKMImage; //Clock displayed when game speed is increased
@@ -554,9 +554,13 @@ begin
     end;
 
     Label_Stat:=MyControls.AddLabel(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint:=MyControls.AddLabel(Panel_Main,224+32,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
-    Label_PointerCount:=MyControls.AddLabel(Panel_Main,224+8,100,0,0,'',fnt_Outline,kaLeft);
+    Label_Stat.Visible := SHOW_SPRITE_COUNT;
+    Label_PointerCount :=MyControls.AddLabel(Panel_Main,224+8,80,0,0,'',fnt_Outline,kaLeft);
     Label_PointerCount.Visible := SHOW_POINTER_COUNT;
+    Label_CmdQueueCount := MyControls.AddLabel(Panel_Main,224+8,110,0,0,'',fnt_Outline,kaLeft);
+    Label_CmdQueueCount.Visible := SHOW_CMDQUEUE_COUNT;
+
+    Label_Hint:=MyControls.AddLabel(Panel_Main,224+32,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -2141,9 +2145,6 @@ begin
     Label_Clock.Caption := int2time(fGame.GetMissionTime); 
   end;
 
-  if SHOW_POINTER_COUNT then
-    Label_PointerCount.Caption := 'Pointers: Units,Houses: '+IntToStr(MyPlayer.GetUnits.GetTotalPointers)+','+IntToStr(MyPlayer.GetHouses.GetTotalPointers);
-
   if Panel_Build.Visible then Build_Fill(nil);
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
@@ -2153,6 +2154,12 @@ begin
         inttostr(fPlayers.GetUnitCount)+' units on map'+#124+
         inttostr(fRender.Stat_Sprites)+'/'+inttostr(fRender.Stat_Sprites2)+' sprites/rendered'+#124+
         inttostr(CtrlPaintCount)+' controls rendered';
+
+  if SHOW_POINTER_COUNT then
+    Label_PointerCount.Caption := Format('Pointers: %d units, %d houses', [MyPlayer.GetUnits.GetTotalPointers, MyPlayer.GetHouses.GetTotalPointers]);
+
+  if SHOW_CMDQUEUE_COUNT then
+    Label_CmdQueueCount.Caption := inttostr(fGame.fGameInputProcess.Count)+' commands stored';
 end;
 
 
