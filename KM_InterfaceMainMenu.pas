@@ -486,7 +486,7 @@ begin
     Image_MapEd_BG:=MyControls.AddImage(Panel_MapEd,0,0,ScreenX,ScreenY,2,6);
     Image_MapEd_BG.Stretch;
 
-    //Should contain options to make a map from scratch, load map from file, generate random preset
+    //Should contain options to make a map from scratch, load map from file, generate new one
 
     Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 512-210, 200, 200, 300);
       MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'New map size', fnt_Outline, kaLeft);

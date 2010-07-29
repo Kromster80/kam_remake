@@ -296,7 +296,7 @@ begin
                       (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
                     begin
                       //Place attack order here rather than in mouse up; why here??
-                      fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
+                      fGameInputProcess.ArmyCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
                     end
                     else
                     begin
@@ -304,7 +304,7 @@ begin
                       if (HitHouse <> nil) and (not (HitHouse.IsDestroyed)) and
                          (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy) then
                       begin
-                        fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
+                        fGameInputProcess.ArmyCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
                       end
                       else
                       if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
@@ -537,24 +537,24 @@ begin
                   end;
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
-                          fGameInputProcess.BuildCommand(bo_RemovePlan, P)
+                          fGameInputProcess.BuildCommand(gic_BuildRemovePlan, P)
                         else
-                          fGameInputProcess.BuildCommand(bo_RoadPlan, P);
+                          fGameInputProcess.BuildCommand(gic_BuildRoadPlan, P);
 
               cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
-                          fGameInputProcess.BuildCommand(bo_RemovePlan, P)
+                          fGameInputProcess.BuildCommand(gic_BuildRemovePlan, P)
                         else
-                          fGameInputProcess.BuildCommand(bo_FieldPlan, P);
+                          fGameInputProcess.BuildCommand(gic_BuildFieldPlan, P);
               cm_Wine:  if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
-                          fGameInputProcess.BuildCommand(bo_RemovePlan, P)
+                          fGameInputProcess.BuildCommand(gic_BuildRemovePlan, P)
                         else
-                          fGameInputProcess.BuildCommand(bo_WinePlan, P);
+                          fGameInputProcess.BuildCommand(gic_BuildWinePlan, P);
               cm_Wall:  if fTerrain.Land[P.Y,P.X].Markup = mu_WallPlan then
-                          fGameInputProcess.BuildCommand(bo_RemovePlan, P)
+                          fGameInputProcess.BuildCommand(gic_BuildRemovePlan, P)
                         else
-                          fGameInputProcess.BuildCommand(bo_WallPlan, P);
+                          fGameInputProcess.BuildCommand(gic_BuildWallPlan, P);
               cm_Houses: if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Tag1)) then begin
-                           fGameInputProcess.BuildCommand(THouseType(CursorMode.Tag1), P);
+                           fGameInputProcess.BuildCommand(gic_BuildHousePlan, P, THouseType(CursorMode.Tag1));
                            fSoundLib.Play(sfx_placemarker);
                            fGamePlayInterface.Build_SelectRoad;
                          end else
@@ -576,7 +576,7 @@ begin
                   //Now remove houses that are not started
                   if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).GetBuildingState = hbs_Glyph) then
                   begin
-                    fGameInputProcess.BuildCommand(bo_RemoveHouse, P);
+                    fGameInputProcess.BuildCommand(gic_BuildRemoveHouse, P);
                     fSoundLib.Play(sfx_click);
                   end;
                 end;
@@ -589,7 +589,7 @@ begin
               if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
                  (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
               begin
-                fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyLink, HitUnit);
+                fGameInputProcess.ArmyCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyLink, HitUnit);
                 fGamePlayInterface.JoiningGroups := false;
                 fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit); //Refresh unit display
                 Screen.Cursor:=c_Default; //Reset cursor when mouse released
@@ -612,7 +612,7 @@ begin
         then
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
-          fGameInputProcess.WarriorCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyWalk, P, SelectedDirection);
+          fGameInputProcess.ArmyCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyWalk, P, SelectedDirection);
         end;
 
         if (Button = mbRight) and (MOver = nil) then
@@ -781,7 +781,7 @@ end;
 
 procedure TKMGame.PauseGame(DoPause:boolean);
 begin
-  if GameState in [gsPaused, gsRunning] then
+  if GameState in [gsPaused, gsRunning, gsReplay] then
   if DoPause then
     GameState := gsPaused
   else
@@ -1142,6 +1142,9 @@ begin
                         
                     if GameState = gsReplay then
                       fGameInputProcess.Tick(fGameplayTickCount);
+
+                    //if fGameplayTickCount mod 20 = 0 then
+                    //  Form1.Caption := Form1.Caption + inttostr(Random(10));
                   end;
 
                   fGamePlayInterface.UpdateState;
@@ -1152,9 +1155,6 @@ begin
                   if GlobalTickCount mod 10 = 0 then
                     if fMusicLib.IsMusicEnded then
                       fMusicLib.PlayNextTrack(); //Feed new music track
-
-                  if GlobalTickCount mod 20 = 0 then
-                    Form1.Caption := inttostr(Random(100));
                 end;
     gsEditor:   begin
                   fMapEditorInterface.UpdateState;

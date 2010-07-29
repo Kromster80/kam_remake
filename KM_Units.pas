@@ -1129,11 +1129,11 @@ procedure TKMUnit.RemovePointer;
 begin
   dec(fPointerCount);
   if Self.fPointerCount < 0 then begin
-        fViewport.SetCenter(PrevPosition.X,PrevPosition.Y);
-        fGame.PauseGame(true);
-        SHOW_UNIT_ROUTES := true;
-        SHOW_UNIT_MOVEMENT := true;
-        fTerrain.Land[GetPosition.Y,GetPosition.X].IsUnit := 128;
+    fViewport.SetCenter(PrevPosition.X,PrevPosition.Y);
+    fGame.PauseGame(true);
+    SHOW_UNIT_ROUTES := true;
+    SHOW_UNIT_MOVEMENT := true;
+    //fTerrain.Land[GetPosition.Y,GetPosition.X].IsUnit := 128;
   end;
 end;
 
