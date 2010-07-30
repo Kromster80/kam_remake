@@ -44,6 +44,7 @@ type TGameInputCommand = (
   gic_HouseRepairToggle,
   gic_HouseDeliveryToggle,  //Including storehouse. (On/Off, ResourceType)
   gic_HouseOrderProduct,    //Place an order to manufacture warfare
+  gic_HouseStoreAcceptFlag, 
   gic_HouseTrain,           //Place an order to train citizen/warrior
   gic_HouseRemoveTrain      //Remove unit being trained from School
 
@@ -87,10 +88,9 @@ TGameInputProcess = class
 
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand); overload;
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem, aAmount:integer); overload;
+    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer); overload;
 
-    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aRes:TResourceType); overload;
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType); overload;
-    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aIndex:integer); overload;
 
     procedure Tick(aTick:cardinal);
 
@@ -225,6 +225,7 @@ begin
     gic_HouseDeliveryToggle:    with MyPlayer.GetHouseByID(Params[1]) do
                                   WareDelivery := not WareDelivery;
     gic_HouseOrderProduct:      MyPlayer.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
+    gic_HouseStoreAcceptFlag:   TKMHouseStore(MyPlayer.GetHouseByID(Params[1])).ToggleAcceptFlag(Params[1])
 
     else Assert(false);
   end;
@@ -335,13 +336,11 @@ begin
 end;
 
 
-procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aRes:TResourceType);
+procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer);
 begin
-{  case aCommand of
-    else Assert(false, 'Unknown HouseCommand');
-  end;}
-
-  SaveCommand(aCommand, aHouse.ID, integer(aRes));
+  Assert(aCommand = gic_HouseStoreAcceptFlag);
+  TKMHouseStore(aHouse).ToggleAcceptFlag(aItem);
+  SaveCommand(aCommand, aHouse.ID, aItem);
 end;
 
 
@@ -350,14 +349,6 @@ begin
   Assert(aCommand = gic_HouseTrain);
 
   SaveCommand(aCommand, aHouse.ID, integer(aUnitType));
-end;
-
-
-procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aIndex:integer);
-begin
-  Assert(aCommand = gic_HouseRemoveTrain);
-
-  SaveCommand(aCommand, aHouse.ID, aIndex);
 end;
 
 
