@@ -1501,13 +1501,10 @@ procedure TKMGamePlayInterface.House_RepairToggle(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouse) then exit;
-
-  with TKMHouse(fPlayers.Selected) do begin
-    BuildingRepair := not BuildingRepair;
-    if BuildingRepair then Button_House_Repair.TexID:=39
-                      else Button_House_Repair.TexID:=40;
-    if BuildingRepair then EnableRepair
-                      else DisableRepair;
+  fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseRepairToggle);
+  case TKMHouse(fPlayers.Selected).BuildingRepair of
+    true:   Button_House_Repair.TexID := 39;
+    false:  Button_House_Repair.TexID := 40;
   end;
 end;
 
@@ -1516,12 +1513,11 @@ procedure TKMGamePlayInterface.House_WareDeliveryToggle(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouse) then exit;
-
-  with TKMHouse(fPlayers.Selected) do begin
-    WareDelivery := not WareDelivery;
-    if WareDelivery then Button_House_Goods.TexID:=37
-                    else Button_House_Goods.TexID:=38;
-    end;
+  fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseDeliveryToggle);
+  case TKMHouse(fPlayers.Selected).WareDelivery of
+    true:   Button_House_Goods.TexID := 37;
+    false:  Button_House_Goods.TexID := 38;
+  end;
 end;
 
 
@@ -1536,8 +1532,10 @@ begin
   if AButton = mbRight then Amt := 10;
 
   for i:=1 to 4 do begin
-    if Sender = Row__Order[i].OrderRem then TKMHouse(fPlayers.Selected).ResRemOrder(i,Amt);
-    if Sender = Row__Order[i].OrderAdd then TKMHouse(fPlayers.Selected).ResAddOrder(i,Amt);
+    if Sender = Row__Order[i].OrderRem then
+      fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseOrderProduct, i, -Amt);
+    if Sender = Row__Order[i].OrderAdd then
+      fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseOrderProduct, i, Amt);
   end;
 end;
 

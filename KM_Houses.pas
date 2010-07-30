@@ -117,8 +117,7 @@ type
     procedure ResAddToBuild(aResource:TResourceType);
     function ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
     function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
-    procedure ResAddOrder(aID:byte; const Amount:byte=1);
-    procedure ResRemOrder(aID:byte; const Amount:byte=1);
+    procedure ResEditOrder(aID:byte; Amount:integer);
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
 
@@ -735,17 +734,10 @@ end;
 end;
 
 
-{Place production order}
-procedure TKMHouse.ResAddOrder(aID:byte; const Amount:byte=1);
+{ Edit production order as + / - }
+procedure TKMHouse.ResEditOrder(aID:byte; Amount:integer);
 begin
   fResourceOrder[aID] := EnsureRange(fResourceOrder[aID]+Amount,0,MAX_ORDER);
-end;
-
-
-{Reduce production order amount}
-procedure TKMHouse.ResRemOrder(aID:byte; const Amount:byte=1);
-begin
-  fResourceOrder[aID] := EnsureRange(fResourceOrder[aID]-Amount,0,MAX_ORDER);
 end;
 
 

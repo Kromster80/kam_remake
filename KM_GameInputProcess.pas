@@ -86,6 +86,8 @@ TGameInputProcess = class
     procedure BuildCommand(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType); overload;
 
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand); overload;
+    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem, aAmount:integer); overload;
+
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aRes:TResourceType); overload;
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType); overload;
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aIndex:integer); overload;
@@ -216,6 +218,14 @@ begin
     gic_BuildRemoveHouse: MyPlayer.RemHouse(KMPoint(Params[1],Params[2]), false);
     gic_BuildHousePlan:   MyPlayer.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]), MyPlayer.PlayerID);
 
+    gic_HouseRepairToggle:      with MyPlayer.GetHouseByID(Params[1]) do begin
+                                  BuildingRepair := not BuildingRepair;
+                                  if BuildingRepair then EnableRepair else DisableRepair;
+                                end;
+    gic_HouseDeliveryToggle:    with MyPlayer.GetHouseByID(Params[1]) do
+                                  WareDelivery := not WareDelivery;
+    gic_HouseOrderProduct:      MyPlayer.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
+
     else Assert(false);
   end;
 
@@ -305,19 +315,31 @@ end;
 
 procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand);
 begin
-  Assert(aCommand = gic_HouseRepairToggle);
-
+  case aCommand of
+    gic_HouseRepairToggle:  with aHouse do begin
+                              BuildingRepair := not BuildingRepair;
+                              if BuildingRepair then EnableRepair else DisableRepair;
+                            end;
+    gic_HouseDeliveryToggle: aHouse.WareDelivery := not aHouse.WareDelivery;
+    else Assert(false, 'Unknown HouseCommand');
+  end;
   SaveCommand(aCommand, aHouse.ID);
+end;
+
+
+procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem, aAmount:integer);
+begin
+  Assert(aCommand = gic_HouseOrderProduct);
+  aHouse.ResEditOrder(aItem, aAmount);
+  SaveCommand(aCommand, aHouse.ID, aItem, aAmount);
 end;
 
 
 procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aRes:TResourceType);
 begin
-  case aCommand of
-    gic_HouseDeliveryToggle:;
-    gic_HouseOrderProduct:;
+{  case aCommand of
     else Assert(false, 'Unknown HouseCommand');
-  end;
+  end;}
 
   SaveCommand(aCommand, aHouse.ID, integer(aRes));
 end;
