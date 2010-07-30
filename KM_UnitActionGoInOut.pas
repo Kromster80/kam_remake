@@ -109,17 +109,18 @@ begin
   Result := fTerrain.TileInMapCoords(LocX, LocY)
         and (fTerrain.CheckPassability(KMPoint(LocX, LocY), WalkUnit.GetDesiredPassability(true)));
 
-  if Result then
-    if fTerrain.Land[LocY,LocX].IsUnit <> 0 then begin
-      aUnit := fPlayers.UnitsHitTest(LocX, LocY);
-      Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
-                               and (aUnit.GetUnitActionType = ua_Walk)
-                               and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
-      if Result then begin
-        aUnit.SetActionWalk(aUnit, fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk));
-        TUnitActionWalkTo(aUnit.GetUnitAction).SetPushedValues;
-      end;
+  if not Result then exit;
+
+  if not fTerrain.Land[LocY,LocX].IsUnit = 0 then begin
+    aUnit := fPlayers.UnitsHitTest(LocX, LocY); //Let's see who is standing there
+    Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
+                             and (aUnit.GetUnitActionType = ua_Walk)
+                             and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
+    if Result then begin
+      aUnit.SetActionWalk(aUnit, fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk));
+      TUnitActionWalkTo(aUnit.GetUnitAction).SetPushedValues;
     end;
+  end;
 end;
 
 
