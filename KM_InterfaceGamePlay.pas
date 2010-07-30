@@ -553,11 +553,11 @@ begin
       Image_Message[i].OnClick := DisplayMessage;
     end;
 
-    Label_Stat:=MyControls.AddLabel(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
+    Label_Stat:=MyControls.AddLabel(Panel_Main,224+80,16,0,0,'',fnt_Outline,kaLeft);
     Label_Stat.Visible := SHOW_SPRITE_COUNT;
-    Label_PointerCount :=MyControls.AddLabel(Panel_Main,224+8,80,0,0,'',fnt_Outline,kaLeft);
+    Label_PointerCount :=MyControls.AddLabel(Panel_Main,224+80,80,0,0,'',fnt_Outline,kaLeft);
     Label_PointerCount.Visible := SHOW_POINTER_COUNT;
-    Label_CmdQueueCount := MyControls.AddLabel(Panel_Main,224+8,110,0,0,'',fnt_Outline,kaLeft);
+    Label_CmdQueueCount := MyControls.AddLabel(Panel_Main,224+80,110,0,0,'',fnt_Outline,kaLeft);
     Label_CmdQueueCount.Visible := SHOW_CMDQUEUE_COUNT;
 
     Label_Hint:=MyControls.AddLabel(Panel_Main,224+32,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);

@@ -125,10 +125,9 @@ begin
 end;
 
 
-function KMPointRound(P:TKMPointf): TKMPoint;
+function KMPointRound(P:TKMPointF): TKMPoint;
 begin
-  Assert((P.X>=0));
-  Assert((P.Y>=0));
+  Assert((P.X >= 0) and (P.Y>=0));
 
   Result.X := round(P.X);
   Result.Y := round(P.Y);

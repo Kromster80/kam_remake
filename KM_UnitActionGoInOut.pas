@@ -21,7 +21,7 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       destructor Destroy; override;
-      function ValidTileToGo(LocX, LocY:word; aUnit, WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
+      function ValidTileToGo(LocX, LocY:word; WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
       property GetHasStarted: boolean read fHasStarted;
       procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
@@ -103,26 +103,35 @@ end;
 
 
 //Check that tile is walkable and there's no unit blocking it or that unit can be pushed away
-function TUnitActionGoInOut.ValidTileToGo(LocX, LocY:word; aUnit, WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
+function TUnitActionGoInOut.ValidTileToGo(LocX, LocY:word; WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
+var aUnit:TKMUnit;
 begin
   Result := fTerrain.TileInMapCoords(LocX, LocY)
         and (fTerrain.CheckPassability(KMPoint(LocX, LocY), WalkUnit.GetDesiredPassability(true)));
+
   if Result then
-  Result := (fTerrain.Land[LocY,LocX].IsUnit = 0) or ((aUnit <> nil)
-        and (aUnit.GetUnitAction is TUnitActionStay) and (aUnit.GetUnitActionType = ua_Walk)
-        and (not TUnitActionStay(aUnit.GetUnitAction).Locked))
+    if fTerrain.Land[LocY,LocX].IsUnit <> 0 then begin
+      aUnit := fPlayers.UnitsHitTest(LocX, LocY);
+      Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
+                               and (aUnit.GetUnitActionType = ua_Walk)
+                               and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
+      if Result then begin
+        aUnit.SetActionWalk(aUnit, fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk));
+        TUnitActionWalkTo(aUnit.GetUnitAction).SetPushedValues;
+      end;
+    end;
 end;
 
 
 procedure TUnitActionGoInOut.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
-var Distance:single; TempUnit:TKMUnit;
+var Distance:single;
 begin
   DoEnd := false;
 
   if not fHasStarted then //Set Door and Street locations
   begin
     fUsingDoorway := true; //By default we will use the doorway rather than a diagonal entrance
-    
+
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
     if byte(fHouse.GetHouseType) in [1..length(HouseDAT)] then
@@ -139,39 +148,22 @@ begin
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside := TKMHouseBarracks(KMUnit.GetHome).RecruitsInside + 1;
     end;
 
-    if fDirection=gd_GoOutSide then
-    begin //Attempt to find a tile bellow the door we can walk to. Otherwise we can push idle units away.
-      TempUnit := fPlayers.UnitsHitTest(fStreet.X,fStreet.Y);
-      if ValidTileToGo(fStreet.X,fStreet.Y,TempUnit,KMUnit) then
-        //fStreet.X := fStreet.X
-      else
-      begin
-        TempUnit := fPlayers.UnitsHitTest(fStreet.X-1,fStreet.Y);
-        if ValidTileToGo(fStreet.X-1,fStreet.Y,TempUnit,KMUnit) then
-        begin
-          fStreet.X := fStreet.X - 1;
-          fUsingDoorway := false;
-        end
-        else
-        begin
-          TempUnit := fPlayers.UnitsHitTest(fStreet.X+1,fStreet.Y);
-          if ValidTileToGo(fStreet.X+1,fStreet.Y,TempUnit,KMUnit) then
-          begin
-            fStreet.X := fStreet.X + 1;
-            fUsingDoorway := false;
-          end
-          else
-            exit; //Do not exit the house if all street tiles are blocked by non-idle units, just wait
-        end;
-      end;
+    //Attempt to find a tile bellow the door we can walk to. Otherwise we can push idle units away.
+    if fDirection=gd_GoOutSide then begin
 
-      if (TempUnit <> nil)
-        and (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk)
-        and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
-      begin
-        TempUnit.SetActionWalk(TempUnit, fTerrain.GetOutOfTheWay(TempUnit.GetPosition,KMPoint(0,0),canWalk));
-        TUnitActionWalkTo(TempUnit.GetUnitAction).SetPushedValues;
-      end;
+      if ValidTileToGo(fStreet.X, fStreet.Y, KMUnit) then begin
+        fStreet.X := fStreet.X;
+        fUsingDoorway := true;
+      end else
+      if ValidTileToGo(fStreet.X-1, fStreet.Y, KMUnit) then begin
+        fStreet.X := fStreet.X - 1;
+        fUsingDoorway := false;
+      end else
+      if ValidTileToGo(fStreet.X+1, fStreet.Y, KMUnit) then begin
+        fStreet.X := fStreet.X + 1;
+        fUsingDoorway := false;
+      end else
+        exit; //Do not exit the house if all street tiles are blocked by non-idle units, just wait
 
       if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit <> 0) then
       begin
@@ -191,6 +183,7 @@ begin
     if fUsingDoorway then IncDoorway;
     fHasStarted:=true;
   end;
+
   if fUsingDoorway then
     KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 

@@ -1143,13 +1143,13 @@ begin
                     if GameState = gsReplay then
                       fGameInputProcess.Tick(fGameplayTickCount);
 
-                    //if fGameplayTickCount mod 20 = 0 then
-                    //  Form1.Caption := Form1.Caption + inttostr(Random(10));
+                    if DO_PERF_TEST and (fGameplayTickCount >= 1800) then
+                      Form1.Close;
                   end;
 
                   fGamePlayInterface.UpdateState;
 
-                  if GlobalTickCount mod 5 = 0 then //Every 500ms
+                  if GlobalTickCount mod 10 = 0 then //Every 1000ms
                     fTerrain.RefreshMinimapData(); //Since this belongs to UI it should refresh at UI refresh rate, not Terrain refresh (which is affected by game speed-up)
 
                   if GlobalTickCount mod 10 = 0 then

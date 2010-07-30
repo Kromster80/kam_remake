@@ -58,7 +58,7 @@ public
 
   FallingTrees: TKMPointTagList;
 
-  MM:array[1..MaxMapSize,1..MaxMapSize]of record R,G,B:byte; end;
+  MM:array[1..MaxMapSize,1..MaxMapSize]of record RGB:cardinal; end;
   CursorPos:TKMPoint;
 private
   AnimStep:integer;
@@ -159,8 +159,8 @@ public
 
   procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
   procedure RevealWholeMap(PlayerID:TPlayerID);
-  function CheckVerticeRevelation(X,Y:word; PlayerID:TPlayerID):byte;
-  function CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
+  function CheckVerticeRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
+  function CheckTileRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
   procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
   procedure FlattenTerrain(Loc:TKMPoint); overload;
   procedure FlattenTerrain(LocList:TKMPointList); overload;
@@ -523,8 +523,8 @@ end;
 procedure TTerrain.RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
 var i,k:integer;
 begin
-  if not InRange(byte(PlayerID),1,8) then exit;
-  for i:=Pos.Y-Radius to Pos.Y+Radius do for k:=Pos.X-Radius to Pos.X+Radius do
+  if not InRange(byte(PlayerID),1,MAX_PLAYERS) then exit;
+  for i := Pos.Y-Radius to Pos.Y+Radius do for k:=Pos.X-Radius to Pos.X+Radius do
   if (VerticeInMapCoords(k,i,1))and(GetLength(Pos,KMPoint(k,i))<=Radius) then
     Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,FOG_OF_WAR_MAX);
 end;
@@ -543,29 +543,31 @@ end;
 {Check if requested vertice is revealed for given player}
 {Return value of revelation is 0..255}
 //0 unrevealed, 255 revealed completely
-function TTerrain.CheckVerticeRevelation(X,Y:word; PlayerID:TPlayerID):byte;
+function TTerrain.CheckVerticeRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
 begin
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
 
-  if not VerticeInMapCoords(X,Y) then
-    Result := 0
-  else
   if Land[Y,X].FogOfWar[byte(PlayerID)] >= FOG_OF_WAR_ACT then
     Result := 255
   else
-    Result := EnsureRange(round(Land[Y,X].FogOfWar[byte(PlayerID)] / FOG_OF_WAR_ACT * 255),0,255);
+    Result := (Land[Y,X].FogOfWar[byte(PlayerID)] shl 8) div FOG_OF_WAR_ACT;
 end;
 
 
 {Check if requested tile is revealed for given player}
 {Return value of revelation is 0..255}
 //0 unrevealed, 255 revealed completely
-function TTerrain.CheckTileRevelation(X,Y:word; PlayerID:TPlayerID):byte;
+function TTerrain.CheckTileRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
 begin
-  //Check all four corners
-  Result := max(max(CheckVerticeRevelation(X,Y,PlayerID),CheckVerticeRevelation(X+1,Y,PlayerID)),
-            max(CheckVerticeRevelation(X,Y+1,PlayerID),CheckVerticeRevelation(X+1,Y+1,PlayerID)));
+  //Check all four corners and choose max
+  Result := CheckVerticeRevelation(X,Y,PlayerID);
+  if Result = 255 then exit;
+  Result := max(Result, CheckVerticeRevelation(X+1,Y,PlayerID));
+  if Result = 255 then exit;
+  Result := max(Result, CheckVerticeRevelation(X+1,Y+1,PlayerID));
+  if Result = 255 then exit;
+  Result := max(Result, CheckVerticeRevelation(X,Y+1,PlayerID));
 end;
 
 
@@ -2117,35 +2119,26 @@ procedure TTerrain.RefreshMinimapData();
 var i,k,ID:integer; Light:smallint; Loc:TKMPointList; FOW:byte;
 begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
-    FOW:=fTerrain.CheckTileRevelation(k,i,MyPlayer.PlayerID);
-    if FOW = 0 then begin
-      MM[i,k].R:=0;
-      MM[i,k].G:=0;
-      MM[i,k].B:=0;
-    end else
-      if fTerrain.Land[i,k].TileOwner=play_none then begin
+    FOW := fTerrain.CheckTileRevelation(k,i,MyPlayer.PlayerID);
+    if FOW = 0 then
+      MM[i,k].RGB := 0
+    else
+      if fTerrain.Land[i,k].TileOwner = play_none then begin
         ID := fTerrain.Land[i,k].Terrain+1;
         Light := round(fTerrain.Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
-        MM[i,k].R:=EnsureRange(TileMMColor[ID].R+Light,0,255);
-        MM[i,k].G:=EnsureRange(TileMMColor[ID].G+Light,0,255);
-        MM[i,k].B:=EnsureRange(TileMMColor[ID].B+Light,0,255);
-      end else begin
-        MM[i,k].R:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] and $FF;
-        MM[i,k].G:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 8 and $FF;
-        MM[i,k].B:=TeamColors[byte(fTerrain.Land[i,k].TileOwner)] shr 16 and $FF;
-      end;
+        MM[i,k].RGB :=  EnsureRange(TileMMColor[ID].R+Light,0,255) +
+                        EnsureRange(TileMMColor[ID].G+Light,0,255) shl 8 +
+                        EnsureRange(TileMMColor[ID].B+Light,0,255) shl 16;
+      end else
+        MM[i,k].RGB :=  TeamColors[byte(fTerrain.Land[i,k].TileOwner)];
   end;
 
-  Loc:=TKMPointList.Create;
+  Loc := TKMPointList.Create;
   for i:=1 to fPlayers.PlayerCount do begin
     fPlayers.Player[i].GetUnitLocations(Loc);
     for k:=1 to Loc.Count do
-    if (fTerrain.CheckTileRevelation(Loc.List[k].X,Loc.List[k].Y,MyPlayer.PlayerID)=255) then
-    begin
-      MM[Loc.List[k].Y,Loc.List[k].X].R:=TeamColors[i] and $FF;
-      MM[Loc.List[k].Y,Loc.List[k].X].G:=TeamColors[i] shr 8 and $FF;
-      MM[Loc.List[k].Y,Loc.List[k].X].B:=TeamColors[i] shr 16 and $FF;
-    end;
+    if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
+      MM[Loc.List[k].Y,Loc.List[k].X].RGB := TeamColors[i];
   end;
   Loc.Free;
 end;
@@ -2252,7 +2245,7 @@ begin
 
     if FOG_OF_WAR_ENABLE then
     for h:=1 to 1 do //More can be added
-      if Land[i,k].FogOfWar[h] > FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h]);
+      if Land[i,k].FogOfWar[h] > FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h], FOG_OF_WAR_DEC);
 
       if InRange(Land[i,k].FieldAge,1,65534) then
       begin

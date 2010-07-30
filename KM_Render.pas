@@ -272,7 +272,7 @@ for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% 
   glBegin (GL_QUADS);
     with fTerrain do
     for i:=y1 to y2 do for k:=x1 to x2 do
-    if (iW=1) or (CheckTileRevelation(k,i,MyPlayer.PlayerID) > 160) then
+    if (iW=1) or (CheckTileRevelation(k,i,MyPlayer.PlayerID) > FOG_OF_WAR_ACT) then //No animation in FOW
     begin
       xt:=fTerrain.Land[i,k].Terrain; 
 
@@ -330,12 +330,12 @@ begin
 
   if fTerrain.Land[i,k].TileOverlay=to_Road then
     begin
-      rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].TileOverlay=to_Road)*1 +
-          byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].TileOverlay=to_Road)*2 +
-          byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].TileOverlay=to_Road)*4 +
-          byte(fTerrain.Land[i                  ,max(k-1,1)         ].TileOverlay=to_Road)*8;
-      ID:=RoadsConnectivity[rd,1];
-      Rot:=RoadsConnectivity[rd,2];
+      rd:=byte(fTerrain.Land[max(i-1,1)         ,k                  ].TileOverlay=to_Road) shl 0 +
+          byte(fTerrain.Land[i                  ,min(k+1,MaxMapSize)].TileOverlay=to_Road) shl 1 +
+          byte(fTerrain.Land[min(i+1,MaxMapSize),k                  ].TileOverlay=to_Road) shl 2 +
+          byte(fTerrain.Land[i                  ,max(k-1,1)         ].TileOverlay=to_Road) shl 3;
+      ID  := RoadsConnectivity[rd,1];
+      Rot := RoadsConnectivity[rd,2];
       RenderTile(ID,k,i,Rot);
     end;
 end;
@@ -360,53 +360,53 @@ end;
     end;
   glEnd;
 
-  //Render shadows
+  //Render shadows and FOW at once
   glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
   glBindTexture(GL_TEXTURE_2D, TextG);
   glbegin (GL_QUADS);
-  with fTerrain do
-  for i:=y1 to y2 do for k:=x1 to x2 do
+    with fTerrain do
+    for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
-    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
-    glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
-    glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
-    glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
-    glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,-Land[i  ,k  ].Light,1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
+      glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,-Land[i+1,k  ].Light,1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
+      glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,-Land[i+1,k+1].Light,1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+      glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0,-Land[i  ,k+1].Light,1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
+      glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-    glTexCoord1f(max(max(0,-Land[i  ,k  ].Light),1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
-    glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k  ].Light),1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
-    glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i+1,k+1].Light),1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
-    glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-    glTexCoord1f(max(max(0,-Land[i  ,k+1].Light),1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
-    glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0, -Land[i  ,k  ].Light, 1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
+      glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0, -Land[i+1,k  ].Light, 1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
+      glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0, -Land[i+1,k+1].Light, 1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+      glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(max(0, -Land[i  ,k+1].Light, 1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
+      glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glBindTexture(GL_TEXTURE_2D,0);
 
-if SHOW_WALK_CONNECT then
-for i:=y1 to y2 do for k:=x1 to x2 do
-with fTerrain do
-begin
-  glColor4f(Land[i,k].WalkConnect[1]/8,Land[i,k].WalkConnect[2]/8,0,0.5);
-  RenderQuad(k,i)
-end;
+  if SHOW_WALK_CONNECT then
+  for i:=y1 to y2 do for k:=x1 to x2 do
+  with fTerrain do
+  begin
+    glColor4f(Land[i,k].WalkConnect[1]/8,Land[i,k].WalkConnect[2]/8,0,0.5);
+    RenderQuad(k,i)
+  end;
 
-//if SHOW_MAP_AREAS then
-{for i:=y1 to y2 do for k:=x1 to x2 do
-with fTerrain do
-begin
-  glColor4f(byte(PatternDAT[Land[i,k].Terrain+1].u2 and 1 = 1),
-            byte(PatternDAT[Land[i,k].Terrain+1].u2 and 2 = 2),
-            byte(PatternDAT[Land[i,k].Terrain+1].u2 and 4 = 4),0.5);
-  RenderQuad(k,i)
-end;} 
+  //if SHOW_MAP_AREAS then
+  {for i:=y1 to y2 do for k:=x1 to x2 do
+  with fTerrain do
+  begin
+    glColor4f(byte(PatternDAT[Land[i,k].Terrain+1].u2 and 1 = 1),
+              byte(PatternDAT[Land[i,k].Terrain+1].u2 and 2 = 2),
+              byte(PatternDAT[Land[i,k].Terrain+1].u2 and 4 = 4),0.5);
+    RenderQuad(k,i)
+  end;}
 end;
 
 

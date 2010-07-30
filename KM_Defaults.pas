@@ -15,9 +15,13 @@ const
   TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
   //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
   ACTION_TIME_DELTA     = 0.1;          //Multiplied with units speed gives distance unit walks per frame
-  FOG_OF_WAR_MIN        = 8;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
-  FOG_OF_WAR_ACT        = 16;           //Until this value FOW is not rendered at all
-  FOG_OF_WAR_MAX        = 24;           //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+
+  FOG_OF_WAR_MIN        = 80;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
+  FOG_OF_WAR_ACT        = 160;           //Until this value FOW is not rendered at all
+  FOG_OF_WAR_MAX        = 255;           //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+  FOG_OF_WAR_INC        = 128;            //Increment for FOW
+  FOG_OF_WAR_DEC        = 12;            //Decrement for FOW
+
   FPS_LAG               = 1;            //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
@@ -77,6 +81,7 @@ var
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
   RENDER_3D             :boolean=false; //Experimental 3D render
+  DO_PERF_TEST          :boolean=true;
   {Data output}
   WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
