@@ -52,13 +52,14 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
     procedure MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
 
-    procedure InitGame();
-    procedure StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
-    procedure PauseGame(DoPause:boolean);
-    procedure HoldGame(DoHold:boolean);
-    procedure StopGame(const Msg:gr_Message; TextMsg:string='');
-    procedure StartMapEditor(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
-    procedure SaveMapEditor(aMissionName:string; DoExpandPath:boolean);
+    procedure GameInit();
+    procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
+    procedure GamePause(DoPause:boolean);
+    procedure GameHold(DoHold:boolean);
+    procedure GameStop(const Msg:gr_Message; TextMsg:string='');
+
+    procedure MapEditorStart(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+    procedure MapEditorSave(aMissionName:string; DoExpandPath:boolean);
 
     procedure ViewReplay(Sender:TObject);
 
@@ -196,7 +197,7 @@ begin
     gsNoGame:   if fMainMenuInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit; //Exit if handled
     gsPaused:   if Key=ord('P') then begin //Ignore all keys if game is on 'Pause'
                   if IsDown then exit;
-                  PauseGame(false);
+                  GamePause(false);
                   fGameplayInterface.ShowPause(false); //Hide pause overlay
                 end;
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
@@ -223,7 +224,7 @@ begin
                     fGameplayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
                   end;
                   if Key = ord('P') then begin
-                    PauseGame(true); //if running then pause
+                    GamePause(true); //if running then pause
                     fGameplayInterface.ShowPause(true); //Display pause overlay
                   end;
                   if Key=ord('W') then
@@ -239,7 +240,7 @@ begin
                   if Key=ord('9') then fGameplayInterface.IssueMessage(msgQuill,'123',KMPoint(0,0));
                   if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 
-                  if Key=ord('V') then begin fGame.HoldGame(true); exit; end; //Instant victory
+                  if Key=ord('V') then begin fGame.GameHold(true); exit; end; //Instant victory
                 end;
     gsReplay:   begin
                   if IsDown then exit;
@@ -700,7 +701,7 @@ begin
 end;
 
 
-procedure TKMGame.InitGame();
+procedure TKMGame.GameInit();
 begin
   RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
@@ -732,10 +733,10 @@ begin
 end;
 
 
-procedure TKMGame.StartGame(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
+procedure TKMGame.GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
 var ResultMsg:string; fMissionParser: TMissionParser;
 begin
-  InitGame;
+  GameInit;
 
   //If input is empty - replay last map
   if aMissionFile <> '' then begin
@@ -753,7 +754,7 @@ begin
     ResultMsg := fMissionParser.LoadDATFile(aMissionFile);
     FreeAndNil(fMissionParser);
     if ResultMsg<>'' then begin
-      StopGame(gr_Error, ResultMsg);
+      GameStop(gr_Error, ResultMsg);
       //Show all required error messages here
       exit;
     end;
@@ -779,7 +780,7 @@ begin
 end;
 
 
-procedure TKMGame.PauseGame(DoPause:boolean);
+procedure TKMGame.GamePause(DoPause:boolean);
 begin
   if GameState in [gsPaused, gsRunning, gsReplay] then
   if DoPause then
@@ -790,10 +791,10 @@ end;
 
 
 //Put the game on Hold for Victory screen
-procedure TKMGame.HoldGame(DoHold:boolean);
+procedure TKMGame.GameHold(DoHold:boolean);
 begin
   if DoHold then begin
-    fGame.PauseGame(false); //Unpause game just in case
+    fGame.GamePause(false); //Unpause game just in case
     fGame.fGameplayInterface.ShowPause(false);
   end;
 
@@ -806,7 +807,7 @@ begin
 end;
 
 
-procedure TKMGame.StopGame(const Msg:gr_Message; TextMsg:string='');
+procedure TKMGame.GameStop(const Msg:gr_Message; TextMsg:string='');
 begin
 
   GameState := gsNoGame;
@@ -858,12 +859,12 @@ end;
 {Mission name accepted in 2 formats:
 - absolute path, when opening a map from Form1.Menu
 - relative, from Maps folder}
-procedure TKMGame.StartMapEditor(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+procedure TKMGame.MapEditorStart(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
 var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
 begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
 
-  StopGame(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
+  GameStop(gr_Silent); //Stop MapEd if we are loading from existing MapEd session
 
   RandSeed:=4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
@@ -891,7 +892,7 @@ begin
     fMissionParser := TMissionParser.Create(mpm_Editor);
     ResultMsg := fMissionParser.LoadDATFile(aMissionPath);
     if ResultMsg<>'' then begin
-      StopGame(gr_Error, ResultMsg);
+      GameStop(gr_Error, ResultMsg);
       //Show all required error messages here
       exit;
     end;
@@ -926,7 +927,7 @@ end;
 //DoExpandPath means that input is a mission name which should be expanded into:
 //ExeDir+'Maps\'+MissionName+'\'+MissionName.dat
 //ExeDir+'Maps\'+MissionName+'\'+MissionName.map
-procedure TKMGame.SaveMapEditor(aMissionName:string; DoExpandPath:boolean);
+procedure TKMGame.MapEditorSave(aMissionName:string; DoExpandPath:boolean);
 var fMissionParser: TMissionParser;
 begin
   if aMissionName = '' then exit;
@@ -1046,7 +1047,7 @@ begin
     exit;
   end;
 
-  if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent);
+  if GameState in [gsRunning, gsPaused] then GameStop(gr_Silent);
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
   try //Make sure LoadStream is always freed, even if other processes crash/exit
@@ -1062,7 +1063,7 @@ begin
         LoadStream.Read(s); if s <> SAVE_VERSION then Raise Exception.CreateFmt('Incompatible save version ''%s''. This version is ''%s''',[s,SAVE_VERSION]);
 
         //Create empty environment
-        InitGame();
+        GameInit();
 
         //Substitute tick counter and id tracker
         LoadStream.Read(fMissionFile); //Savegame mission file
@@ -1094,7 +1095,7 @@ begin
           //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
           Result := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
                         E.ClassName+' error raised with message: '+E.Message;
-          if GameState in [gsRunning, gsPaused] then StopGame(gr_Silent); //Stop the game so that the main menu error can be shown
+          if GameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
           exit;
         end;
       end;

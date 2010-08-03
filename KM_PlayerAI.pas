@@ -234,9 +234,9 @@ begin
   //Check defeat only for MyPlayer
   if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
   begin
-    if CheckDefeatConditions then fGame.StopGame(gr_Defeat); //Store+Barracks+School+Armies = 0
+    if CheckDefeatConditions then fGame.GameStop(gr_Defeat); //Store+Barracks+School+Armies = 0
     if CheckWinConditions then
-     fGame.HoldGame(true); //Enemies Store+Barracks+School+Armies = 0
+     fGame.GameHold(true); //Enemies Store+Barracks+School+Armies = 0
   end else
   
   if Assets.PlayerType=pt_Computer then begin

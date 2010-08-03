@@ -338,7 +338,7 @@ begin
     begin
       if not CanAbandon then begin
         fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-        fGame.PauseGame(true);
+        fGame.GamePause(true);
         SHOW_UNIT_ROUTES := true;
         SHOW_UNIT_MOVEMENT := true;
         fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
@@ -422,7 +422,7 @@ begin
       OpponentPassability := fOpponent.GetDesiredPassability;
     if not CanAbandon then begin
         fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-        fGame.PauseGame(true);
+        fGame.GamePause(true);
         SHOW_UNIT_ROUTES := true;
         SHOW_UNIT_MOVEMENT := true;
         fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
@@ -497,7 +497,7 @@ begin
 
       if not CanAbandon then begin
         fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-        fGame.PauseGame(true);
+        fGame.GamePause(true);
         SHOW_UNIT_ROUTES := true;
         SHOW_UNIT_MOVEMENT := true;
         fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
@@ -769,7 +769,9 @@ end;
 
 procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 var
-  DX,DY:shortint; WalkX,WalkY,Distance:single; AllowToWalk:boolean;
+  DX,DY:shortint;
+  WalkX,WalkY,Distance:single;
+  AllowToWalk:boolean;
 begin
   DoEnd := false;
   StepDone := false;
@@ -798,7 +800,7 @@ begin
                  +' Contact details can be found in the Readme file.'+#13#10+'Thank you very much for your kind help!'+#13#10
                  +'WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
                  ,mtWarning,[mbYes,mbNo],0) <> mrYes then
-        fGame.StopGame(gr_Error,''); //Exit to main menu
+        fGame.GameStop(gr_Error,''); //Exit to main menu
     end;
     DoEnd := true; //Must exit out or this error will keep happening
     exit; //Exit either way, and the action will end
@@ -944,7 +946,7 @@ begin
       if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then begin
         //ExplanationLog.SaveToFile(ExeDir+'ExplanationLog error.txt');
         fViewport.SetCenter(fWalker.PrevPosition.X,fWalker.PrevPosition.Y);
-        fGame.PauseGame(true);
+        fGame.GamePause(true);
         SHOW_UNIT_ROUTES := true;
         SHOW_UNIT_MOVEMENT := true;
         fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit := 128;
@@ -955,7 +957,7 @@ begin
 
       if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = 0 then begin
         fViewport.SetCenter(fWalker.PrevPosition.X,fWalker.PrevPosition.Y);
-        fGame.PauseGame(true);
+        fGame.GamePause(true);
         SHOW_UNIT_ROUTES := true;
         SHOW_UNIT_MOVEMENT := true;
         fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit := 128;

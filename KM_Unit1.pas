@@ -205,7 +205,7 @@ procedure TForm1.FormDestroy(Sender: TObject);
 begin
   //Reset the resolution
   ResetResolution;
-  fGame.StopGame(gr_Silent);
+  fGame.GameStop(gr_Silent);
   FreeAndNil(fGame);
   FreeAndNil(fLog);
   TimeEndPeriod(1);
@@ -268,16 +268,16 @@ end;
 procedure TForm1.Open_MissionMenuClick(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
-  fGame.StopGame(gr_Silent);
-  fGame.StartGame(OpenDialog1.FileName, 'OpenDialog1 game');
+  fGame.GameStop(gr_Silent);
+  fGame.GameStart(OpenDialog1.FileName, 'OpenDialog1 game');
 end;
 
 
 procedure TForm1.MenuItem1Click(Sender: TObject);
 begin
   if not RunOpenDialog(OpenDialog1,'',ExeDir,'Knights & Merchants Mission (*.dat)|*.dat') then exit;
-  fGame.StopGame(gr_Silent);
-  fGame.StartMapEditor(OpenDialog1.FileName, 0, 0);
+  fGame.GameStop(gr_Silent);
+  fGame.MapEditorStart(OpenDialog1.FileName, 0, 0);
 end;
 
 
@@ -397,7 +397,7 @@ end;
 
 procedure TForm1.Button_StopClick(Sender: TObject);
 begin
-  fGame.StopGame(gr_Cancel);
+  fGame.GameStop(gr_Cancel);
 end;
 
 

@@ -1769,9 +1769,9 @@ begin
 
   //Show outcome depending on actual situation
   if fPlayers.PlayerAI[byte(MyPlayer.PlayerID)].CheckWinConditions(true) then
-    fGame.StopGame(gr_Win)
+    fGame.GameStop(gr_Win)
   else
-    fGame.StopGame(gr_Cancel);
+    fGame.GameStop(gr_Cancel);
 end;
 
 
@@ -2018,11 +2018,11 @@ procedure TKMGamePlayInterface.PlayMore(Sender:TObject);
 begin
   ShowPlayMore(false); //Hide anyways
   if Sender = Button_PlayWin then
-    fGame.StopGame(gr_Win);
+    fGame.GameStop(gr_Win);
   if Sender = Button_PlayMore then
   begin
     MyPlayer.SkipWinConditionCheck := true;
-    fGame.HoldGame(false); //Release Hold
+    fGame.GameHold(false); //Release Hold
   end;
 end;
 

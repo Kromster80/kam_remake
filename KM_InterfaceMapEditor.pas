@@ -1048,7 +1048,7 @@ begin
 
   if Sender = Button_SaveSave then begin
     //Should we expand the path here?
-    fGame.SaveMapEditor(TextEdit_SaveName.Text, true);
+    fGame.MapEditorSave(TextEdit_SaveName.Text, true);
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;
 end;
@@ -1057,7 +1057,7 @@ end;
 {Show mission loading dialogue}
 procedure TKMapEdInterface.Menu_Load(Sender:TObject);
 begin
-  fGame.StartMapEditor(FileList_Load.FileName, 0, 0);
+  fGame.MapEditorStart(FileList_Load.FileName, 0, 0);
 end;
 
 
@@ -1070,7 +1070,7 @@ begin
     if Panel_Main.Childs[i] is TKMPanel then
       Panel_Main.Childs[i].Hide;
 
-  fGame.StopGame(gr_MapEdEnd);
+  fGame.GameStop(gr_MapEdEnd);
 end;
 
 

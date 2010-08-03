@@ -780,19 +780,19 @@ end;
 
 procedure TKMMainMenuInterface.MainMenu_PlayTutorial(Sender: TObject);
 begin
-  fGame.StartGame(ExeDir+'data\mission\mission0.dat', 'Town Tutorial');
+  fGame.GameStart(ExeDir+'data\mission\mission0.dat', 'Town Tutorial');
 end;
 
 
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
-  fGame.StartGame(ExeDir+'data\mission\mission99.dat', 'Battle Tutorial');
+  fGame.GameStart(ExeDir+'data\mission\mission99.dat', 'Battle Tutorial');
 end;
 
 
 procedure TKMMainMenuInterface.MainMenu_ReplayLastMap(Sender: TObject);
 begin
-  fGame.StartGame('', ''); //Means replay last map
+  fGame.GameStart('', ''); //Means replay last map
 end;
 
 
@@ -873,7 +873,7 @@ begin
     end;
     else Assert(false,'Unknown Campaign');
   end;
-  fGame.StartGame(MissString, NameString, Campaign_Selected, Campaign_Mission_Choice);
+  fGame.GameStart(MissString, NameString, Campaign_Selected, Campaign_Mission_Choice);
 end;
 
 
@@ -939,7 +939,7 @@ procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=Button_SingleStart,'not Button_SingleStart');
   if not InRange(SingleMap_Selected, 1, SingleMapsInfo.GetMapCount) then exit;
-  fGame.StartGame(KMRemakeMapPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetFolder(SingleMap_Selected)); //Provide mission filename mask and title here
+  fGame.GameStart(KMRemakeMapPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetFolder(SingleMap_Selected)); //Provide mission filename mask and title here
 end;
 
 
@@ -975,9 +975,9 @@ end;
 procedure TKMMainMenuInterface.MapEditor_Start(Sender: TObject);
 begin
   if Sender = Button_MapEd_Create then
-    fGame.StartMapEditor('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
+    fGame.MapEditorStart('', MapEdSizeX, MapEdSizeY); //Provide mission filename here, Mapsize will be ignored if map exists
   if Sender = Button_MapEd_Load then
-    fGame.StartMapEditor(FileList_MapEd.FileName, 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
+    fGame.MapEditorStart(FileList_MapEd.FileName, 0, 0); //Provide mission filename here, Mapsize will be ignored if map exists
 end;
 
 
