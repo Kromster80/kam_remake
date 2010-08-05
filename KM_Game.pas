@@ -3,9 +3,10 @@ unit KM_Game;
 interface
 uses Windows,
   {$IFDEF WDC} MPlayer, {$ENDIF}
-  Forms, Controls, Classes, SysUtils, KromUtils, Math,
-  KM_Defaults, KM_Controls, KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Utils, KM_Music;
+  Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
+  KM_CommonTypes, KM_Defaults, KM_Utils, 
+  KM_Controls, KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
+  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Music;
 
 type TGameState = ( gsNoGame, //No game running at all, MainMenu
                     gsPaused, //Game is paused and responds to 'P' key only
@@ -54,8 +55,9 @@ type
 
     procedure GameInit();
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
-    procedure GamePause(DoPause:boolean);
-    procedure GameHold(DoHold:boolean);
+    procedure GameError(aLoc:TKMPoint); //Stop the game because of an error ()
+    procedure GamePause(DoPause:boolean); //Set game on pause during gameplay
+    procedure GameHold(DoHold:boolean); //Hold the game to ask if player wants to play after Victory
     procedure GameStop(const Msg:gr_Message; TextMsg:string='');
 
     procedure MapEditorStart(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
@@ -85,7 +87,7 @@ type
 
 implementation
 uses
-  KM_Unit1, KM_Houses, KM_CommonTypes, KM_Player, KM_Units_Warrior;
+  KM_Unit1, KM_Houses, KM_Player, KM_Units_Warrior;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -241,6 +243,7 @@ begin
                   if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 
                   if Key=ord('V') then begin fGame.GameHold(true); exit; end; //Instant victory
+                  if Key=ord('C') then begin fGame.GameError(KMPoint(12,12)); exit; end;
                 end;
     gsReplay:   begin
                   if IsDown then exit;
@@ -779,6 +782,25 @@ begin
   RandSeed := 4; //Random after StartGame and ViewReplay should match
 end;
 
+{ Set viewport and save command log }
+procedure TKMGame.GameError(aLoc:TKMPoint);
+begin
+  fViewport.SetCenter(aLoc.X, aLoc.Y);
+  GamePause(true);
+  SHOW_UNIT_ROUTES := true;
+  SHOW_UNIT_MOVEMENT := true;
+  if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
+    fTerrain.Land[aLoc.Y, aLoc.X].IsUnit := 128;
+
+  if MessageDlg(
+  '  An error has occoured during gameplay.'+eol+
+  '  Please send the files ..\Saves\save99.sav and ..\Saves\save99.gil from your KaM Remake folder to the developers. '+
+  'Contact details can be found in the Readme file. Thank you very much for your kind help!'+eol+eol+
+  '  WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
+  , mtWarning, [mbYes, mbNo], 0) <> mrYes then
+    fGame.GameStop(gr_Error,''); //Exit to main menu will save the Replay data
+end;
+
 
 procedure TKMGame.GamePause(DoPause:boolean);
 begin
@@ -1011,7 +1033,7 @@ begin
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
-      fGameInputProcess.Save(SaveStream); //Saves command queue
+      fGameInputProcess.Save(SaveStream); //Adds command queue to savegame
 
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
 
@@ -1033,15 +1055,20 @@ end;
 
 
 function TKMGame.Load(SlotID:shortint):string;
-var LoadStream:TKMemoryStream;
-s,FileName:string;
+  function SlotToFileName(aNum:integer):string;
+  begin
+    Result := ExeDir+'Saves\'+'save'+int2fix(aNum,2)+'.sav'
+  end;
+var
+  LoadStream:TKMemoryStream;
+  s,FileName:string;
 begin
   fLog.AppendLog('Loading game');
   Result := '';
-  FileName := 'Saves\'+'save'+int2fix(SlotID,2)+'.sav'; //Full path is EXEDir+FileName
+  FileName := SlotToFileName(SlotID); //Full path
 
   //Check if file exists early so that current game will not be lost if user tries to load an empty save
-  if not FileExists(ExeDir+FileName) then
+  if not FileExists(FileName) then
   begin
     Result := 'Savegame file not found';
     exit;
@@ -1050,12 +1077,11 @@ begin
   if GameState in [gsRunning, gsPaused] then GameStop(gr_Silent);
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  try //Make sure LoadStream is always freed, even if other processes crash/exit
   case GameState of
-    gsNoGame:   //Load only from menu or stopped game
-    begin
+    gsEditor, gsPaused, gsOnHold, gsRunning, gsReplay:   exit;
+    gsNoGame: begin  //Load only from menu or stopped game
       try //Catch exceptions
-        LoadStream.LoadFromFile(ExeDir+FileName);
+        LoadStream.LoadFromFile(FileName);
         LoadStream.Seek(0, soFromBeginning);
 
         //Raise some exceptions if the file is invalid or the wrong save version
@@ -1084,6 +1110,9 @@ begin
 
         fGameInputProcess := TGameInputProcess.Create(gipRecording);
         fGameInputProcess.Load(LoadStream);
+        LoadStream.Free;
+
+        CopyFile(PChar(FileName), PChar(SlotToFileName(99)), false); //replace Replay base savegame
 
         fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
@@ -1100,14 +1129,6 @@ begin
         end;
       end;
     end;
-    gsEditor:   exit; //Taken care of earlier with default lrIncorrectGameState
-    gsPaused:   exit; //Taken care of earlier with default lrIncorrectGameState
-    gsOnHold:   exit;
-    gsRunning:  exit; //Taken care of earlier with default lrIncorrectGameState
-    gsReplay:   exit;
-  end;
-  finally
-    LoadStream.Free;
   end;
 
   GameState := gsRunning;

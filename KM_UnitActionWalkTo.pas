@@ -92,7 +92,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut, KM_UnitActionStay, Dialogs, Controls, KM_Units_Warrior;
+uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOut, KM_UnitActionStay, Controls, KM_Units_Warrior;
 
 
 { TUnitActionWalkTo }
@@ -337,12 +337,7 @@ begin
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
     begin
       if not CanAbandon then begin
-        fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-        fGame.GamePause(true);
-        SHOW_UNIT_ROUTES := true;
-        SHOW_UNIT_MOVEMENT := true;
-        fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
-        Self.Explanation := 'Error';
+        fGame.GameError(fWalker.GetPosition);
         exit;
       end;
       fWalker.SetActionWalk(fWalker,fWalkTo,GetActionType,fWalkToSpot);
@@ -421,12 +416,7 @@ begin
     else
       OpponentPassability := fOpponent.GetDesiredPassability;
     if not CanAbandon then begin
-        fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-        fGame.GamePause(true);
-        SHOW_UNIT_ROUTES := true;
-        SHOW_UNIT_MOVEMENT := true;
-        fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
-      Self.Explanation := 'Error';
+      fGame.GameError(fWalker.GetPosition);
       exit;
     end;
     fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability));
@@ -496,12 +486,7 @@ begin
       fInteractionStatus := kis_None;
 
       if not CanAbandon then begin
-        fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-        fGame.GamePause(true);
-        SHOW_UNIT_ROUTES := true;
-        SHOW_UNIT_MOVEMENT := true;
-        fTerrain.Land[fWalker.GetPosition.Y,fWalker.GetPosition.X].IsUnit := 128;
-        Self.Explanation := 'Error';
+        fGame.GameError(fWalker.GetPosition);
         exit;
       end;
 
@@ -790,18 +775,7 @@ begin
     //The reason why this happens is because WalkConnect is not available for canCrab and canWolf meaning Route_CanBeMade will sometimes return true when it shouldn't. (because it is using canWalk instead)
     //@Krom: Does that sound ok to you? Or should we add floodfill for wolfs and crabs? Obviously using WalkConnect is a better option because it is possible that the unit is totally stuck, in which case the walk will keep failing repeatedly. Does floodfill take long to compute?
     if not (fWalker.GetUnitType in [ut_Wolf..ut_Duck]) then
-    begin
-      fLog.AddToLog('Unit '+TypeToString(fWalker.GetUnitType)+' unable to walk a route from '+TypeToString(fWalker.GetPosition)+' to '+TypeToString(fWalkTo)+' during task '+fWalker.GetUnitTaskText+' since the route is unbuilt');
-      fViewport.SetCenter(fWalker.GetPosition.X,fWalker.GetPosition.Y);
-      fGame.Save(99);
-      if MessageDlg('An error has occoured due to unit '+TypeToString(fWalker.GetUnitType)+' recieving an order to walk from '
-                 +TypeToString(fWalker.GetPosition)+' to the unwalkable destination '+TypeToString(fWalkTo)+' during the task '
-                 +fWalker.GetUnitTaskText+'.'+#13#10+'Please send the files BugReport.sav and KaM.log from the KaM Remake main directory to the developers.'
-                 +' Contact details can be found in the Readme file.'+#13#10+'Thank you very much for your kind help!'+#13#10
-                 +'WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
-                 ,mtWarning,[mbYes,mbNo],0) <> mrYes then
-        fGame.GameStop(gr_Error,''); //Exit to main menu
-    end;
+      fGame.GameError(fWalker.GetPosition);
     DoEnd := true; //Must exit out or this error will keep happening
     exit; //Exit either way, and the action will end
   end;
@@ -944,25 +918,12 @@ begin
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
       if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then begin
-        //ExplanationLog.SaveToFile(ExeDir+'ExplanationLog error.txt');
-        fViewport.SetCenter(fWalker.PrevPosition.X,fWalker.PrevPosition.Y);
-        fGame.GamePause(true);
-        SHOW_UNIT_ROUTES := true;
-        SHOW_UNIT_MOVEMENT := true;
-        fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit := 128;
-        fWalker.ID := 8888;
-        Self.Explanation := 'Error';
+        fGame.GameError(fWalker.PrevPosition);
         exit;
       end;
 
       if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = 0 then begin
-        fViewport.SetCenter(fWalker.PrevPosition.X,fWalker.PrevPosition.Y);
-        fGame.GamePause(true);
-        SHOW_UNIT_ROUTES := true;
-        SHOW_UNIT_MOVEMENT := true;
-        fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit := 128;
-        fWalker.ID := 8888;
-        Self.Explanation := 'Error';
+        fGame.GameError(fWalker.PrevPosition);
         exit;
       end;
 

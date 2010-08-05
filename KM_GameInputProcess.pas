@@ -130,6 +130,7 @@ begin
     SaveStream.Write(fQueue[i].Command, SizeOf(fQueue[i].Command));
     for k:=1 to MAX_PARAMS do
       SaveStream.Write(fQueue[i].params[k]);
+    SaveStream.Write(fQueue[i].Rand);
   end;
 end;
 
@@ -146,6 +147,7 @@ begin
     LoadStream.Read(fQueue[i].Command, SizeOf(fQueue[i].Command));
     for k:=1 to MAX_PARAMS do
       LoadStream.Read(fQueue[i].params[k]);
+    LoadStream.Read(fQueue[i].Rand);
   end;
 end;
 
@@ -153,7 +155,7 @@ end;
 procedure TGameInputProcess.SaveToFile();
 var f:file; i:integer;
 begin
-  AssignFile(f, ExeDir+'Saves\save99.gil');
+  AssignFile(f, ExeDir+'Saves\save99.rpl');
   Rewrite(f, 1);
   BlockWrite(f, fCount, 4);
   for i:=1 to fCount do
@@ -165,8 +167,8 @@ end;
 procedure TGameInputProcess.LoadFromFile();
 var f:file; i,NumRead:integer;
 begin
-  if not FileExists(ExeDir+'Saves\save99.gil') then exit;
-  AssignFile(f, ExeDir+'Saves\save99.gil');
+  if not FileExists(ExeDir+'Saves\save99.rpl') then exit;
+  AssignFile(f, ExeDir+'Saves\save99.rpl');
   Reset(f, 1);
   BlockRead(f, fCount, 4, NumRead);
   if NumRead=0 then begin
@@ -347,13 +349,16 @@ end;
 procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType);
 begin
   Assert(aCommand = gic_HouseTrain);
-
+  //todo:
   SaveCommand(aCommand, aHouse.ID, integer(aUnitType));
 end;
 
 
 procedure TGameInputProcess.Tick(aTick:cardinal);
 begin
+  while aTick > fQueue[fCursor].Tick do
+    inc(fCursor);
+
   while (aTick = fQueue[fCursor].Tick) do begin
     ExecCommand(fCursor);
     inc(fCursor);

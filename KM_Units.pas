@@ -1128,13 +1128,8 @@ end;
 procedure TKMUnit.RemovePointer;
 begin
   dec(fPointerCount);
-  if Self.fPointerCount < 0 then begin
-    fViewport.SetCenter(PrevPosition.X,PrevPosition.Y);
-    fGame.GamePause(true);
-    SHOW_UNIT_ROUTES := true;
-    SHOW_UNIT_MOVEMENT := true;
-    //fTerrain.Land[GetPosition.Y,GetPosition.X].IsUnit := 128;
-  end;
+  if Self.fPointerCount < 0 then
+    fGame.GameError(PrevPosition);
 end;
 
 
@@ -1347,15 +1342,9 @@ end;
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
   if (Self.GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(Self.GetUnitAction).CanAbandon then begin
-        fViewport.SetCenter(GetPosition.X,GetPosition.Y);
-        fGame.GamePause(true);
-        SHOW_UNIT_ROUTES := true;
-        SHOW_UNIT_MOVEMENT := true;
-        Self.ID := 8888;
-        fTerrain.Land[GetPosition.Y,GetPosition.X].IsUnit := 128;
-        TUnitActionWalkTo(Self.GetUnitAction).Explanation := 'Error';
-        exit;
-      end;
+    fGame.GameError(GetPosition);
+    exit;
+  end;
   SetAction(TUnitActionFight.Create(aAction, aOpponent, Self),0);
 end;
 

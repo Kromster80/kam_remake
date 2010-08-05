@@ -127,7 +127,7 @@ uses KM_Settings, KM_CommonTypes, KM_TGATexture;
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
 var FrameTime:cardinal;
 begin
-  if not Form1.Active then exit;
+  //if not Form1.Active then exit;
 
   //Counting FPS
   begin
@@ -152,6 +152,7 @@ begin
   fRender.Render;
   done := false; //repeats OnIdle event
 end;
+
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
