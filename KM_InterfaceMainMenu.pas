@@ -397,7 +397,7 @@ begin
       Edit_Login := MyControls.AddTextEdit(Panel_WWWLogin2,100,20,200,20,fnt_Grey);
       Edit_Login.Text := '';
       MyControls.AddLabel(Panel_WWWLogin2, 108, 50, 100, 20, 'Password', fnt_Outline, kaLeft);
-      Edit_Pass  := MyControls.AddTextEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey);
+      Edit_Pass  := MyControls.AddTextEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey,true);
       Edit_Pass.Text := '';
       Button_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, 'Login', fnt_Metal, bsMenu);
       Button_Login.OnClick := MultiPlayerLoginQuerry;

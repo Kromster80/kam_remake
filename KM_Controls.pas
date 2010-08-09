@@ -188,9 +188,9 @@ TKMTextEdit = class(TKMControl)
   public
     Text: string;
     Font: TKMFont;
-    IsPassword:boolean; 
+    Masked:boolean;
   protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
     procedure Paint(); override;
   public
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; override;
@@ -355,7 +355,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
-    function AddTextEdit        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aIsPassword:boolean=false):TKMTextEdit;
+    function AddTextEdit        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMTextEdit;
     function AddCheckBox        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
     function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
@@ -857,11 +857,12 @@ end;
 
 
 {TKMTextEdit}
-constructor TKMTextEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
+constructor TKMTextEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   Text := '<<<LEER>>>';
   Font := aFont;
+  Masked := aMasked;
   ParentTo(aParent);
 end;
 
@@ -888,7 +889,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
   RText:='*************************';
-  if IsPassword then setlength(RText, length(Text)) else RText:=Text;
+  if Masked then setlength(RText, length(Text)) else RText:=Text;
   if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then
     fRenderUI.WriteText(Left+4, Top+4, Width-8, RText+'[', Font, kaLeft, false, Col)
   else
@@ -1431,9 +1432,9 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddTextEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aIsPassword:boolean=false):TKMTextEdit;
+function TKMControlsCollection.AddTextEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMTextEdit;
 begin
-  Result:=TKMTextEdit.Create(aParent, aLeft,aTop,aWidth,aHeight,aFont);
+  Result:=TKMTextEdit.Create(aParent, aLeft,aTop,aWidth,aHeight,aFont,aMasked);
   AddToCollection(Result);
 end;
 
