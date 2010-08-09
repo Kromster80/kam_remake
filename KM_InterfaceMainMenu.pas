@@ -939,7 +939,7 @@ procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=Button_SingleStart,'not Button_SingleStart');
   if not InRange(SingleMap_Selected, 1, SingleMapsInfo.GetMapCount) then exit;
-  fGame.GameStart(KMRemakeMapPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetFolder(SingleMap_Selected)); //Provide mission filename mask and title here
+  fGame.GameStart(KMMapNameToPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetFolder(SingleMap_Selected)); //Provide mission filename mask and title here
 end;
 
 

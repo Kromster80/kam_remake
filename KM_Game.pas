@@ -958,9 +958,9 @@ begin
   if DoExpandPath then begin
     CreateDir(ExeDir+'Maps');
     CreateDir(ExeDir+'Maps\'+aMissionName);
-    fTerrain.SaveToMapFile(KMRemakeMapPath(aMissionName, 'map'));
+    fTerrain.SaveToMapFile(KMMapNameToPath(aMissionName, 'map'));
     fMissionParser := TMissionParser.Create(mpm_Editor);
-    fMissionParser.SaveDATFile(KMRemakeMapPath(aMissionName, 'dat'));
+    fMissionParser.SaveDATFile(KMMapNameToPath(aMissionName, 'dat'));
     FreeAndNil(fMissionParser);
     fGameName := aMissionName;
   end else

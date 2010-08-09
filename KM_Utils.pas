@@ -44,8 +44,8 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
   function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer):TKMPoint;
 
-  function KMRemakeMapPath(aMapName, aExtension:string):string;
-  function KMSlotToSaveName(aSlot:integer; aExt:string):string;
+  function KMMapNameToPath(aMapName, aExtension:string):string;
+  function KMSlotToSaveName(aSlot:integer; aExtension:string):string;
 
   function MapSizeToString(X,Y:integer):string;
 
@@ -339,17 +339,15 @@ begin
 end;
 
 
-function KMRemakeMapPath(aMapName, aExtension:string):string;
+function KMMapNameToPath(aMapName, aExtension:string):string;
 begin
-  Result := ExeDir+'Maps\'+aMapName+'\'+aMapName;
-  if aExtension<>'' then
-    Result := Result+'.'+aExtension;
+  Result := ExeDir+'Maps\'+aMapName+'\'+aMapName+'.'+aExtension;
 end;
 
 
-function KMSlotToSaveName(aSlot:integer; aExt:string):string;
+function KMSlotToSaveName(aSlot:integer; aExtension:string):string;
 begin
-  Result := ExeDir+'Saves\save'+int2fix(aSlot,2)+'.'+aExt;
+  Result := ExeDir+'Saves\save'+int2fix(aSlot,2)+'.'+aExtension;
 end;
 
 

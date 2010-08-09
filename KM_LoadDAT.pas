@@ -845,8 +845,8 @@ begin
     if (SearchRec.Attr and faDirectory = faDirectory)
     and(SearchRec.Name<>'.')
     and(SearchRec.Name<>'..')
-    and fileexists(KMRemakeMapPath(SearchRec.Name,'dat'))
-    and fileexists(KMRemakeMapPath(SearchRec.Name,'map')) then
+    and fileexists(KMMapNameToPath(SearchRec.Name,'dat'))
+    and fileexists(KMMapNameToPath(SearchRec.Name,'map')) then
     begin
       inc(MapCount);
       Maps[MapCount].Folder := SearchRec.Name;
@@ -859,17 +859,17 @@ begin
   for k:=1 to 1 do
   for i:=1 to MapCount do with Maps[i] do begin
 
-    MissionDetails := fMissionParser.GetMissionDetails(KMRemakeMapPath(Maps[i].Folder,'dat'));
-    MapDetails     := fMissionParser.GetMapDetails(KMRemakeMapPath(Maps[i].Folder,'map'));
+    MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(Maps[i].Folder,'dat'));
+    MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(Maps[i].Folder,'map'));
     IsFight        := MissionDetails.IsFight;
     PlayerCount    := MissionDetails.TeamCount;
     MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
     SmallDesc      := '-';
     BigDesc        := '-';
 
-    if fileexists(KMRemakeMapPath(Maps[i].Folder,'txt')) then
+    if fileexists(KMMapNameToPath(Maps[i].Folder,'txt')) then
     begin
-      assignfile(ft,KMRemakeMapPath(Maps[i].Folder,'txt'));
+      assignfile(ft,KMMapNameToPath(Maps[i].Folder,'txt'));
       reset(ft);
       repeat
         readln(ft,s);

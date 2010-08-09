@@ -1035,7 +1035,7 @@ end;
 procedure TKMapEdInterface.Menu_Save(Sender:TObject);
 begin
   if Sender = TextEdit_SaveName then begin
-    CheckBox_SaveExists.Enabled := CheckFileExists(KMRemakeMapPath(TextEdit_SaveName.Text,'dat'), true);
+    CheckBox_SaveExists.Enabled := CheckFileExists(KMMapNameToPath(TextEdit_SaveName.Text,'dat'), true);
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := false;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
