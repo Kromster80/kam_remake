@@ -486,27 +486,27 @@ begin
 
     //Should contain options to make a map from scratch, load map from file, generate new one
 
-    Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 512-210, 200, 200, 300);
+    Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 412-160, 200, 200, 300);
       MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'New map size', fnt_Outline, kaLeft);
-      MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 10 + MAPSIZE_COUNT*20);
+      MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 150, 10 + MAPSIZE_COUNT*20);
       for i:=1 to MAPSIZE_COUNT do
       begin
         CheckBox_MapEd_SizeX[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 8, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
-        CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 68, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
+        CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 78, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
         CheckBox_MapEd_SizeX[i].OnClick := MapEditor_Change;
         CheckBox_MapEd_SizeY[i].OnClick := MapEditor_Change;
       end;
+    Button_MapEd_Create := MyControls.AddButton(Panel_MapEd_SizeXY, 0, 260, 150, 30, 'Create New Map', fnt_Metal, bsMenu);
+    Button_MapEd_Create.OnClick := MapEditor_Start;
 
-    Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 512+10, 200, 320, 300);
+    Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 412+10, 200, 320, 300);
     MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
-    FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 320, 200);
+    FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 320, 210);
+    Button_MapEd_Load := MyControls.AddButton(Panel_MapEd_Load, 0, 260, 320, 30, 'Load Existing Map', fnt_Metal, bsMenu);
+    Button_MapEd_Load.OnClick := MapEditor_Start;
 
     Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 145, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MapEdBack.OnClick := SwitchMenuPage;
-    Button_MapEd_Create := MyControls.AddButton(Panel_MapEd, 370, 650, 220, 30, 'Create New Map', fnt_Metal, bsMenu);
-    Button_MapEd_Create.OnClick := MapEditor_Start;
-    Button_MapEd_Load := MyControls.AddButton(Panel_MapEd, 595, 650, 220, 30, 'Load Existing Map', fnt_Metal, bsMenu);
-    Button_MapEd_Load.OnClick := MapEditor_Start;
 end;
 
 
