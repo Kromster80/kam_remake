@@ -196,6 +196,7 @@ TKMTextEdit = class(TKMControl)
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; override;
 end;
 
+
 {Checkbox}
 TKMCheckBox = class(TKMControl)
   public
@@ -373,7 +374,10 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
     procedure OnMouseUp         (X,Y:integer; AButton:TMouseButton);
     procedure OnMouseWheel      (X,Y:integer; WheelDelta:integer);
+
     procedure Paint();
+
+    procedure SaveToFile(aFileName:string);
 end;
 
 
@@ -1642,5 +1646,22 @@ begin
       fRenderUI.WriteText(Left, Top-14, Width, inttostr(Left)+':'+inttostr(Top), fnt_Grey, kaLeft, false, $FFFFFFFF);
 end;
 
+
+procedure TKMControlsCollection.SaveToFile(aFileName:string);
+var i:integer; ft:textfile;
+begin
+  assignfile(ft,aFileName); rewrite (ft);
+
+  for i:=0 to Count-1 do
+  with Controls[i] do
+  if Parent = nil then begin
+    writeln(ft, i, '.');
+    writeln(ft, ClassName);
+    writeln(ft, Format('{%d %d %d %d}', [fLeft, fTop, fWidth, fHeight]));
+    writeln(ft);
+  end;
+
+  closefile(ft);
+end;
 
 end.

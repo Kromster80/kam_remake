@@ -509,7 +509,7 @@ begin
   fMessageList:=TKMMessageList.Create;
 
 {Parent Page for whole toolbar in-game}
-  Panel_Main:=MyControls.AddPanel(nil,0,0,224,768);
+  Panel_Main := MyControls.AddPanel(nil,0,0,224,768);
 
     Image_Main1 := MyControls.AddImage(Panel_Main,0,   0,224,200,407);
     Image_Main2 := MyControls.AddImage(Panel_Main,0, 200,224,168,554);
@@ -589,8 +589,8 @@ begin
       TKMControl(MyControls.Items[i]).OnHint := DisplayHint;
 
   if SHOW_1024_768_OVERLAY then begin
-    MyControls.AddShape(nil, 1024, 0, 0, 768, $FF00FF00);
-    MyControls.AddShape(nil, 0, 768, 1024, 0, $FF00FF00);
+    MyControls.AddShape(Panel_Main, 1024, 0, 0, 768, $FF00FF00);
+    MyControls.AddShape(Panel_Main, 0, 768, 1024, 0, $FF00FF00);
   end;
 
   SwitchPage(nil); //Update

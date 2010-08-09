@@ -58,12 +58,14 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
-    {$IFDEF WDC} MediaPlayer1: TMediaPlayer; {$ENDIF}
+    {$IFDEF WDC} MediaPlayer1: TMediaPlayer;
+    ExportMainMenu1: TMenuItem; {$ENDIF}
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure ExportMainMenu1Click(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -551,6 +553,13 @@ begin
   end
   else ClipCursor(nil); //Otherwise have no restriction
 end;
+
+
+procedure TForm1.ExportMainMenu1Click(Sender: TObject);
+begin
+  fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir+'MainMenu.txt');
+end;
+
 
 
 {$IFDEF FPC}

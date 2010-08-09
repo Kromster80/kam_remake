@@ -22,7 +22,7 @@ type TKMMainMenuInterface = class
     OldFullScreen:boolean;
     OldResolution:word;
   protected
-    Panel_Main1:TKMPanel;
+    Panel_Main:TKMPanel;
       L:array[1..20]of TKMLabel;
       FL:TKMFileList;
     Panel_MainMenu:TKMPanel;
@@ -202,7 +202,7 @@ inherited Create;
   MapEdSizeX := 64;
   MapEdSizeY := 64;
 
-  Panel_Main1 := MyControls.AddPanel(nil, OffX, OffY, ScreenX, ScreenY); //Parent Panel for whole menu
+  Panel_Main := MyControls.AddPanel(nil, OffX, OffY, ScreenX, ScreenY); //Parent Panel for whole menu
 
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
@@ -219,14 +219,14 @@ inherited Create;
   Create_Results_Page;
 
     {for i:=1 to length(FontFiles) do L[i]:=MyControls.AddLabel(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);//}
-    //MyControls.AddTextEdit(nil, 32, 32, 200, 20, fnt_Grey);
-    //FL := MyControls.AddFileList(nil, 550, 300, 320, 220);
+    //MyControls.AddTextEdit(Panel_Main1, 32, 32, 200, 20, fnt_Grey);
+    //FL := MyControls.AddFileList(Panel_Main1, 550, 300, 320, 220);
     //FL.RefreshList(ExeDir+'Maps\','dat',true);
 
   //Show version info on every page
-  Label_Version := MyControls.AddLabel(Panel_Main1,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
+  Label_Version := MyControls.AddLabel(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
 
-  if SHOW_1024_768_OVERLAY then MyControls.AddShape(nil, OffX, OffY, 1024, 768, $FF00FF00);
+  if SHOW_1024_768_OVERLAY then MyControls.AddShape(Panel_Main, OffX, OffY, 1024, 768, $FF00FF00);
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
@@ -312,7 +312,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
-  Panel_MainMenu:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_MainMenu:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_MainMenuBG:=MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6);
     Image_MainMenuBG.Stretch;
     Image_MainMenu1:=MyControls.AddImage(Panel_MainMenu,120,80,423,164,4,5);
@@ -342,7 +342,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
-  Panel_SinglePlayer:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_SinglePlayer:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_SinglePlayerBG:=MyControls.AddImage(Panel_SinglePlayer,0,0,ScreenX,ScreenY,2,6);
     Image_SinglePlayerBG.Stretch;
     Image_SinglePlayer1:=MyControls.AddImage(Panel_SinglePlayer,120,80,423,164,4,5);
@@ -371,7 +371,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
 begin
-  Panel_MultiPlayer := MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_MultiPlayer := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     with MyControls.AddImage(Panel_MultiPlayer,0,0,ScreenX,ScreenY,2,6) do Stretch;
     with MyControls.AddImage(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
 
@@ -389,7 +389,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_WWWLogin_Page;
 begin
-  Panel_WWWLogin := MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_WWWLogin := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     with MyControls.AddImage(Panel_WWWLogin,0,0,ScreenX,ScreenY,2,6) do Stretch;
 
     Panel_WWWLogin2 := MyControls.AddPanel(Panel_WWWLogin,312,280,400,400);
@@ -412,7 +412,7 @@ end;
 procedure TKMMainMenuInterface.Create_Campaign_Page;
 var i:integer;
 begin
-  Panel_Campaign:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_Campaign:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_CampaignBG:=MyControls.AddImage(Panel_Campaign,0,0,ScreenX,ScreenY,12,5);
     Image_CampaignBG.Stretch;
 
@@ -445,7 +445,7 @@ var i,k:integer;
 begin
   SingleMapsInfo:=TKMMapsInfo.Create;
 
-  Panel_Single:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_Single:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
 
     Image_SingleBG:=MyControls.AddImage(Panel_Single,0,0,ScreenX,ScreenY,2,6);
     Image_SingleBG.Stretch;
@@ -518,7 +518,7 @@ end;
 procedure TKMMainMenuInterface.Create_Load_Page;
 var i:integer;
 begin
-  Panel_Load:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_Load:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_LoadBG:=MyControls.AddImage(Panel_Load,0,0,ScreenX,ScreenY,2,6);
     Image_LoadBG.Stretch;
     Image_Loading_RightCrest:=MyControls.AddImage(Panel_Load,635,220,round(207*1.3),round(295*1.3),6,6);
@@ -539,7 +539,7 @@ end;
 procedure TKMMainMenuInterface.Create_MapEditor_Page;
 var i:integer;
 begin
-  Panel_MapEd:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_MapEd:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_MapEd_BG:=MyControls.AddImage(Panel_MapEd,0,0,ScreenX,ScreenY,2,6);
     Image_MapEd_BG.Stretch;
 
@@ -572,7 +572,7 @@ end;
 procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings);
 var i:integer;
 begin
-  Panel_Options:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_Options:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_Options_BG:=MyControls.AddImage(Panel_Options,0,0,ScreenX,ScreenY,2,6);
     Image_Options_BG.Stretch;
     Image_Options_RightCrest:=MyControls.AddImage(Panel_Options,635,220,round(207*1.3),round(295*1.3),6,6);
@@ -661,7 +661,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
-  Panel_Credits:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_Credits:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_CreditsBG:=MyControls.AddImage(Panel_Credits,0,0,ScreenX,ScreenY,2,6);
     Image_CreditsBG.Stretch;
     MyControls.AddLabel(Panel_Credits,ScreenX div 2,100,100,30,'Knights & Merchants Credits',fnt_Outline,kaCenter);
@@ -683,7 +683,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
-  Panel_Loading:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_Loading:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_LoadingBG:=MyControls.AddImage(Panel_Loading,0,0,ScreenX,ScreenY,2,6);
     Image_LoadingBG.Stretch;
     MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
@@ -693,7 +693,7 @@ end;
 
 procedure TKMMainMenuInterface.Create_Error_Page;
 begin
-  Panel_Error := MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_Error := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_ErrorBG := MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6);
     Image_ErrorBG.Stretch;
     MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'An Error Has Occured!',fnt_Antiqua,kaCenter);
@@ -706,7 +706,7 @@ end;
 procedure TKMMainMenuInterface.Create_Results_Page;
 var i:integer; Adv:integer;
 begin
-  Panel_Results:=MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+  Panel_Results:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_ResultsBG:=MyControls.AddImage(Panel_Results,0,0,ScreenX,ScreenY,7,5);
     Image_ResultsBG.Stretch;
 
@@ -735,9 +735,9 @@ procedure TKMMainMenuInterface.SwitchMenuPage(Sender: TObject);
 var i:integer;
 begin
   //First thing - hide all existing pages
-  for i:=1 to Panel_Main1.ChildCount do
-    if Panel_Main1.Childs[i] is TKMPanel then
-      Panel_Main1.Childs[i].Hide;
+  for i:=1 to Panel_Main.ChildCount do
+    if Panel_Main.Childs[i] is TKMPanel then
+      Panel_Main.Childs[i].Hide;
 
   {Return to MainMenu if Sender unspecified}
   if Sender=nil then Panel_MainMenu.Show;

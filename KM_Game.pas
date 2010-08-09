@@ -1152,6 +1152,8 @@ begin
                   if GlobalTickCount mod 10 = 0 then //Once a sec
                   if fMusicLib.IsMusicEnded then
                     fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic); //Menu tune
+                  if DO_PERF_TEST and (GlobalTickCount >= 180) then
+                    Form1.Close;
                 end;
     gsRunning,
     gsReplay:   begin

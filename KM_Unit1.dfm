@@ -223,6 +223,10 @@ object Form1: TForm1
         Caption = 'Show Units'
         OnClick = Debug_ShowUnitClick
       end
+      object ExportMainMenu1: TMenuItem
+        Caption = 'Export MainMenu'
+        OnClick = ExportMainMenu1Click
+      end
     end
     object Export1: TMenuItem
       Caption = 'Export Data'
