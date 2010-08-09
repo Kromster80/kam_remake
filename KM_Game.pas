@@ -750,11 +750,11 @@ begin
   end;
 
   fLog.AppendLog('Loading DAT...');
-  if CheckFileExists(aMissionFile,true) then
+  if CheckFileExists(fMissionFile,true) then
   begin
     //todo: Use exception trapping and raising system here similar to that used for load
     fMissionParser := TMissionParser.Create(mpm_Game);
-    ResultMsg := fMissionParser.LoadDATFile(aMissionFile);
+    ResultMsg := fMissionParser.LoadDATFile(fMissionFile);
     FreeAndNil(fMissionParser);
     if ResultMsg<>'' then begin
       GameStop(gr_Error, ResultMsg);

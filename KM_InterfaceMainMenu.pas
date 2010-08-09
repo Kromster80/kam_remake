@@ -251,14 +251,14 @@ end;
 
 procedure TKMMainMenuInterface.ShowScreen_Loading(Text:string);
 begin
-  Label_Loading.Caption:=Text;
+  Label_Loading.Caption := Text;
   SwitchMenuPage(Panel_Loading);
 end;
 
 
 procedure TKMMainMenuInterface.ShowScreen_Error(Text:string);
 begin
-  Label_Error.Caption:=Text;
+  Label_Error.Caption := Text;
   SwitchMenuPage(Panel_Error);
 end;
 
@@ -284,7 +284,7 @@ begin
     else       Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
   end;
 
-  Button_ResultsRepeat.Enabled := Msg = gr_Defeat;
+  Button_ResultsRepeat.Enabled := Msg in [gr_Defeat, gr_Cancel];
 
   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
   Button_ResultsContinue.Visible := fGame.GetCampaign in [cmp_TSK, cmp_TPR];
