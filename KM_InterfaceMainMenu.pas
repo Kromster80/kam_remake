@@ -316,10 +316,8 @@ begin
       Button_MainMenuMultiPlayer.Disable;
       //Button_MainMenuCredit.Disable;
 
-      with MyControls.AddButton(Panel_MainMenu,600,200,150,30,'Replay last',fnt_Metal,bsMenu) do
-        OnClick := fGame.ViewReplay;
-
-
+      with MyControls.AddButton(Panel_MainMenu,600,200,150,30,'Replay 99 save',fnt_Metal,bsMenu) do
+        OnClick := fGame.ViewReplay;                                         
 end;
 
 

@@ -17,11 +17,12 @@ uses SysUtils, Math, Controls, KromUtils,
    - playback replays
    - send input through LAN to make multiplayer games }
 
-const MAX_PARAMS = 4;  
+const MAX_PARAMS = 4;
 
 type TGIPState = (gipRecording, gipReplaying);
 
 type TGameInputCommand = (
+  gic_None,
   //I.      Army commands, only warriors (TKMUnitWarrior, OrderInfo)
   gic_ArmyFeed,
   gic_ArmySplit,
@@ -171,10 +172,6 @@ begin
   AssignFile(f, aFileName);
   Reset(f, 1);
   BlockRead(f, fCount, 4, NumRead);
-  if NumRead=0 then begin
-    CloseFile(f);
-    exit;
-  end;
   for i:=1 to fCount do
     BlockRead(f, fQueue[i].Tick, SizeOf(fQueue[i]));
   CloseFile(f);
@@ -356,7 +353,7 @@ end;
 
 procedure TGameInputProcess.Tick(aTick:cardinal);
 begin
-  while aTick > fQueue[fCursor].Tick do
+  while (aTick > fQueue[fCursor].Tick) and (fQueue[fCursor].Command <> gic_None) do
     inc(fCursor);
 
   while (aTick = fQueue[fCursor].Tick) do begin

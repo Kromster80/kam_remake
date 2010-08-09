@@ -787,6 +787,9 @@ end;
 { Set viewport and save command log }
 procedure TKMGame.GameError(aLoc:TKMPoint);
 begin
+  //Negotiate duplicate calls for GameError
+  if GameState = gsNoGame then exit;
+
   fViewport.SetCenter(aLoc.X, aLoc.Y);
   GamePause(true);
   SHOW_UNIT_ROUTES := true;
@@ -796,7 +799,7 @@ begin
 
   if MessageDlg(
   '  An error has occoured during gameplay.'+eol+
-  '  Please send the files ..\Saves\save99.sav and ..\Saves\save99.gil from your KaM Remake folder to the developers. '+
+  '  Please send the files save99.bas, save99.sav and save99.rpl from your KaM Remake\Save folder to the developers. '+
   'Contact details can be found in the Readme file. Thank you very much for your kind help!'+eol+eol+
   '  WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
   , mtWarning, [mbYes, mbNo], 0) <> mrYes then
@@ -833,7 +836,6 @@ end;
 
 procedure TKMGame.GameStop(const Msg:gr_Message; TextMsg:string='');
 begin
-
   GameState := gsNoGame;
 
   //Take results from MyPlayer before data is flushed
