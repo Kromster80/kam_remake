@@ -45,6 +45,21 @@ type TKMMainMenuInterface = class
       Button_SinglePlayerSingle,
       Button_SinglePlayerLoad:TKMButton;
       Button_SinglePlayerBack:TKMButton;
+    Panel_MultiPlayer:TKMPanel;
+      Panel_MultiPlayerButtons:TKMPanel;
+      Button_MultiPlayerLAN,
+      Button_MultiPlayerWWW,
+      Button_MultiPlayerBack:TKMButton;
+
+    Panel_WWWLogin:TKMPanel;
+      Panel_WWWLogin2:TKMPanel;
+        Edit_Login:TKMTextEdit;
+        Edit_Pass:TKMTextEdit;
+        Button_Login:TKMButton;
+        Label_Status:TKMLabel;
+
+      Button_WWWLoginBack:TKMButton;
+
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
       Campaign_Nodes:array[1..MAX_MAPS] of TKMImage;
@@ -121,6 +136,8 @@ type TKMMainMenuInterface = class
     procedure Create_Campaign_Page;
     procedure Create_Single_Page;
     procedure Create_Load_Page;
+    procedure Create_MultiPlayer_Page;
+    procedure Create_WWWLogin_Page;
     procedure Create_MapEditor_Page;
     procedure Create_Options_Page(aGameSettings:TGlobalSettings);
     procedure Create_Credits_Page;
@@ -139,6 +156,7 @@ type TKMMainMenuInterface = class
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
+    procedure MultiPlayerLoginQuerry(Sender: TObject);
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList();
     procedure MapEditor_Start(Sender: TObject);
@@ -191,6 +209,8 @@ inherited Create;
     Create_Campaign_Page;
     Create_Single_Page;
     Create_Load_Page;
+  Create_MultiPlayer_Page;
+    Create_WWWLogin_Page;
   Create_MapEditor_Page;
   Create_Options_Page(aGameSettings);
   Create_Credits_Page;
@@ -307,13 +327,12 @@ begin
       Button_MainMenuCredits      := MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
       Button_MainMenuQuit         := MyControls.AddButton(Panel_MainButtons,0,360,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       Button_MainMenuSinglePlayer.OnClick    := SwitchMenuPage;
-      //Button_MainMenuMultiPlayer.OnClick     := SwitchMenuPage;
+      Button_MainMenuMultiPlayer.OnClick     := SwitchMenuPage;
       Button_MainMenuMapEd.OnClick    := SwitchMenuPage;
       Button_MainMenuOptions.OnClick  := SwitchMenuPage;
       Button_MainMenuCredits.OnClick  := SwitchMenuPage;
       Button_MainMenuQuit.OnClick     := Form1.Exit1.OnClick;
       if not SHOW_MAPED_IN_MENU then Button_MainMenuMapEd.Hide; //Let it be created, but hidden, I guess there's no need to seriously block it
-      Button_MainMenuMultiPlayer.Disable;
       //Button_MainMenuCredit.Disable;
 
       with MyControls.AddButton(Panel_MainMenu,600,200,150,30,'Replay 99 save',fnt_Metal,bsMenu) do
@@ -347,6 +366,46 @@ begin
 
     Button_SinglePlayerBack := MyControls.AddButton(Panel_SinglePlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_SinglePlayerBack.OnClick := SwitchMenuPage;
+end;
+
+
+procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
+begin
+  Panel_MultiPlayer := MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+    with MyControls.AddImage(Panel_MultiPlayer,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
+
+    Panel_MultiPlayerButtons:=MyControls.AddPanel(Panel_MultiPlayer,155,280,350,400);
+      Button_MultiPlayerLAN  :=MyControls.AddButton(Panel_MultiPlayerButtons,0,  0,350,30,'Play over LAN',fnt_Metal,bsMenu);
+      Button_MultiPlayerWWW  :=MyControls.AddButton(Panel_MultiPlayerButtons,0, 40,350,30,'Play over Internet',fnt_Metal,bsMenu);
+      Button_MultiPlayerLAN.Disable;
+      Button_MultiPlayerLAN.OnClick      := SwitchMenuPage;
+      Button_MultiPlayerWWW.OnClick      := SwitchMenuPage;
+
+    Button_MultiPlayerBack := MyControls.AddButton(Panel_MultiPlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MultiPlayerBack.OnClick := SwitchMenuPage;
+end;
+
+
+procedure TKMMainMenuInterface.Create_WWWLogin_Page;
+begin
+  Panel_WWWLogin := MyControls.AddPanel(Panel_Main1,0,0,ScreenX,ScreenY);
+    with MyControls.AddImage(Panel_WWWLogin,0,0,ScreenX,ScreenY,2,6) do Stretch;
+
+    Panel_WWWLogin2 := MyControls.AddPanel(Panel_WWWLogin,312,280,400,400);
+      MyControls.AddLabel(Panel_WWWLogin2, 108, 0, 100, 20, 'Login', fnt_Outline, kaLeft);
+      Edit_Login := MyControls.AddTextEdit(Panel_WWWLogin2,100,20,200,20,fnt_Grey);
+      Edit_Login.Text := '';
+      MyControls.AddLabel(Panel_WWWLogin2, 108, 50, 100, 20, 'Password', fnt_Outline, kaLeft);
+      Edit_Pass  := MyControls.AddTextEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey);
+      Edit_Pass.Text := '';
+      Button_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, 'Login', fnt_Metal, bsMenu);
+      Button_Login.OnClick := MultiPlayerLoginQuerry;
+
+      Label_Status := MyControls.AddLabel(Panel_WWWLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
+
+    Button_WWWLoginBack := MyControls.AddButton(Panel_WWWLogin, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_WWWLoginBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -685,6 +744,7 @@ begin
 
   {Return to MainMenu}
   if (Sender=Button_SinglePlayerBack)or
+     (Sender=Button_MultiPlayerBack)or
      (Sender=Button_CreditsBack)or
      (Sender=Button_MapEdBack)or
      (Sender=Button_ErrorBack)or
@@ -696,6 +756,10 @@ begin
      (Sender=Button_SingleBack)or
      (Sender=Button_LoadBack) then
     Panel_SinglePlayer.Show;
+
+  {Return to MultiPlayerMenu}
+  if (Sender=Button_WWWLoginBack) then
+    Panel_MultiPlayer.Show;
 
   {Return to MainMenu and restore resolution changes}
   if Sender=Button_Options_Back then begin
@@ -732,6 +796,16 @@ begin
   if Sender=Button_SinglePlayerLoad then begin
     Load_PopulateList();
     Panel_Load.Show;
+  end;
+
+  {Show MultiPlayer menu}
+  if Sender=Button_MainMenuMultiPlayer then begin
+    Panel_MultiPlayer.Show;
+  end;
+
+  {Show MultiPlayer menu}
+  if Sender=Button_MultiPlayerWWW then begin
+    Panel_WWWLogin.Show;
   end;
 
   {Show MapEditor menu}
@@ -938,6 +1012,16 @@ begin
   fLog.AssertToLog(Sender=Button_SingleStart,'not Button_SingleStart');
   if not InRange(SingleMap_Selected, 1, SingleMapsInfo.GetMapCount) then exit;
   fGame.GameStart(KMMapNameToPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetFolder(SingleMap_Selected)); //Provide mission filename mask and title here
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayerLoginQuerry(Sender: TObject);
+begin
+  //Construct server querry
+
+  //Wait
+
+  //Write response to Label_Status
 end;
 
 
