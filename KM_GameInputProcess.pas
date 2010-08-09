@@ -61,7 +61,7 @@ type
 TGameInputProcess = class
   private
     fCount:integer;
-    fCursor:integer;
+    fCursor:integer; //Used only in gipReplaying
     fQueue: array of packed record
       Tick:cardinal;
       Command:TGameInputCommand;
@@ -76,8 +76,8 @@ TGameInputProcess = class
     destructor Destroy; override;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
-    procedure SaveToFile();
-    procedure LoadFromFile();
+    procedure SaveToFile(aFileName:string);
+    procedure LoadFromFile(aFileName:string);
     procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand); overload;
     procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aUnit:TKMUnit); overload;
     procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
@@ -152,10 +152,10 @@ begin
 end;
 
 
-procedure TGameInputProcess.SaveToFile();
+procedure TGameInputProcess.SaveToFile(aFileName:string);
 var f:file; i:integer;
 begin
-  AssignFile(f, ExeDir+'Saves\save99.rpl');
+  AssignFile(f, aFileName);
   Rewrite(f, 1);
   BlockWrite(f, fCount, 4);
   for i:=1 to fCount do
@@ -164,11 +164,11 @@ begin
 end;
 
 
-procedure TGameInputProcess.LoadFromFile();
+procedure TGameInputProcess.LoadFromFile(aFileName:string);
 var f:file; i,NumRead:integer;
 begin
-  if not FileExists(ExeDir+'Saves\save99.rpl') then exit;
-  AssignFile(f, ExeDir+'Saves\save99.rpl');
+  if not FileExists(aFileName) then exit;
+  AssignFile(f, aFileName);
   Reset(f, 1);
   BlockRead(f, fCount, 4, NumRead);
   if NumRead=0 then begin

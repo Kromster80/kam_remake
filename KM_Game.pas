@@ -18,6 +18,7 @@ type TGameState = ( gsNoGame, //No game running at all, MainMenu
 type
   TKMGame = class
   private
+    ScreenX,ScreenY:word;
     FormControlsVisible:boolean;
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
@@ -25,15 +26,14 @@ type
     GlobalTickCount:cardinal; //Not affected by Pause and anything
     fGameplayTickCount:cardinal;
     fGameName:string;
+    fMissionFile:string; //Remember what we are playing incase we might want to replay
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     ActiveCampaign:TCampaign; //Campaign we are playing
     ActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
   public
-    ScreenX,ScreenY:word;
     GameSpeed:integer;
     GameState:TGameState;
     fGameInputProcess:TGameInputProcess;
-    fMissionFile:string; //Remember what we are playing incase we might want to replay
     fProjectiles:TKMProjectiles;
     fMusicLib: TMusicLib;
     fGlobalSettings: TGlobalSettings;
@@ -778,6 +778,8 @@ begin
 
   fGameInputProcess := TGameInputProcess.Create(gipRecording);
   Save(99); //Thats our base for a game record
+  CopyFile(PChar(KMSlotToSaveName(99,'sav')), PChar(KMSlotToSaveName(99,'bas')), false);
+
   fLog.AppendLog('Gameplay recording initialized',true);
   RandSeed := 4; //Random after StartGame and ViewReplay should match
 end;
@@ -839,7 +841,7 @@ begin
     fMainMenuInterface.Fill_Results;
 
   if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
-    fGameInputProcess.SaveToFile;
+    fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl'));
     
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fPlayers);
@@ -972,7 +974,7 @@ begin
   FreeAndNil(fGameInputProcess); //Override GIP from savegame
   
   fGameInputProcess := TGameInputProcess.Create(gipReplaying);
-  fGameInputProcess.LoadFromFile;
+  fGameInputProcess.LoadFromFile(KMSlotToSaveName(99,'rpl'));
 
   RandSeed := 4; //Random after StartGame and ViewReplay should match
   GameState := gsReplay;
@@ -1001,11 +1003,9 @@ end;
 
 
 //Saves the game and returns string for savegame name OR empty if save failed
+//Base savegame gets copied from save99.bas
+//Saves command log to RPL file
 function TKMGame.Save(SlotID:shortint):string;
-  function GetSaveName(Num:integer):string;
-  begin
-    Result := 'Saves\'+'save'+int2fix(Num,2)+'.sav';
-  end;
 var
   SaveStream:TKMemoryStream;
   i:integer;
@@ -1033,18 +1033,23 @@ begin
       fViewport.Save(SaveStream); //Saves viewed area settings
       //Don't include fGameSettings.Save it's not required for settings are Game-global, not mission
       fGamePlayInterface.Save(SaveStream); //Saves message queue and school/barracks selected units
-      fGameInputProcess.Save(SaveStream); //Adds command queue to savegame
 
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
 
       if SlotID = AUTOSAVE_SLOT then begin //Backup earlier autosaves
-        DeleteFile(ExeDir+GetSaveName(AUTOSAVE_SLOT+5));
+        DeleteFile(KMSlotToSaveName(AUTOSAVE_SLOT+5,'sav'));
         for i:=AUTOSAVE_SLOT+5 downto AUTOSAVE_SLOT+1 do //15 to 11
-          RenameFile(ExeDir+GetSaveName(i-1), ExeDir+GetSaveName(i)); //We don't need Result here
+          RenameFile(KMSlotToSaveName(i-1,'sav'), KMSlotToSaveName(i,'sav'));
       end;
 
-      SaveStream.SaveToFile(ExeDir+GetSaveName(SlotID)); //Some 70ms for TPR7 map
+      SaveStream.SaveToFile(KMSlotToSaveName(SlotID,'sav')); //Some 70ms for TPR7 map
       SaveStream.Free;
+
+      if SlotID <> AUTOSAVE_SLOT then begin //Backup earlier autosaves
+        CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(SlotID,'bas')), false); //replace Replay base savegame
+        fGameInputProcess.SaveToFile(KMSlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame
+      end;//
+
       Result := GetGameName + ' ' + int2time(GetMissionTime);
       if (fGlobalSettings.IsAutosave) and (SlotID = AUTOSAVE_SLOT) then
         Result := fTextLibrary.GetTextString(203); //Autosave
@@ -1055,17 +1060,13 @@ end;
 
 
 function TKMGame.Load(SlotID:shortint):string;
-  function SlotToFileName(aNum:integer):string;
-  begin
-    Result := ExeDir+'Saves\'+'save'+int2fix(aNum,2)+'.sav'
-  end;
 var
   LoadStream:TKMemoryStream;
   s,FileName:string;
 begin
   fLog.AppendLog('Loading game');
   Result := '';
-  FileName := SlotToFileName(SlotID); //Full path
+  FileName := KMSlotToSaveName(SlotID,'sav'); //Full path
 
   //Check if file exists early so that current game will not be lost if user tries to load an empty save
   if not FileExists(FileName) then
@@ -1108,11 +1109,12 @@ begin
         fViewport.Load(LoadStream);
         fGamePlayInterface.Load(LoadStream);
 
-        fGameInputProcess := TGameInputProcess.Create(gipRecording);
-        fGameInputProcess.Load(LoadStream);
         LoadStream.Free;
 
-        CopyFile(PChar(FileName), PChar(SlotToFileName(99)), false); //replace Replay base savegame
+        fGameInputProcess := TGameInputProcess.Create(gipRecording);
+        fGameInputProcess.LoadFromFile(KMSlotToSaveName(99,'rpl'));
+
+        CopyFile(PChar(KMSlotToSaveName(SlotID,'bas')), PChar(KMSlotToSaveName(99,'bas')), false); //replace Replay base savegame
 
         fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
