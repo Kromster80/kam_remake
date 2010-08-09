@@ -188,13 +188,13 @@ TKMTextEdit = class(TKMControl)
   public
     Text: string;
     Font: TKMFont;
+    IsPassword:boolean; 
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont);
     procedure Paint(); override;
   public
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; override;
 end;
-
 
 {Checkbox}
 TKMCheckBox = class(TKMControl)
@@ -355,7 +355,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
-    function AddTextEdit        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont):TKMTextEdit;
+    function AddTextEdit        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aIsPassword:boolean=false):TKMTextEdit;
     function AddCheckBox        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
     function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
@@ -882,15 +882,17 @@ end;
 
 
 procedure TKMTextEdit.Paint();
-var Col:TColor4;
+var Col:TColor4; RText:String;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
+  RText:='*************************';
+  if IsPassword then setlength(RText, length(Text)) else RText:=Text;
   if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then
-    fRenderUI.WriteText(Left+4, Top+4, Width-8, Text+'[', Font, kaLeft, false, Col)
+    fRenderUI.WriteText(Left+4, Top+4, Width-8, RText+'[', Font, kaLeft, false, Col)
   else
-    fRenderUI.WriteText(Left+4, Top+4, Width-8, Text, Font, kaLeft, false, Col);
+    fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
 end;
 
 
@@ -1429,7 +1431,7 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddTextEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont):TKMTextEdit;
+function TKMControlsCollection.AddTextEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aIsPassword:boolean=false):TKMTextEdit;
 begin
   Result:=TKMTextEdit.Create(aParent, aLeft,aTop,aWidth,aHeight,aFont);
   AddToCollection(Result);
