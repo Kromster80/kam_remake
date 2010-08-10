@@ -28,11 +28,11 @@ const
   SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
-  CONTROLS_SCALE        = 1;            //Scale controls to this size, highly experimantal and imperfect
+  CONTROLS_SCALE        = 1;            //Scale controls to this size, highly experimental and imperfect
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Economy Demo FightSim r917';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r917';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Fighting Demo r940';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r940';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE
@@ -51,13 +51,13 @@ var
   DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
   CUT_TREES_FROM_ANYSIDE:boolean=true; //Allow wodcutter to cut trees from any side rther than bottom-right
   SMOOTH_SCROLLING      :boolean=true; //Smooth viewport scrolling
-  //Not fully implemented yet
-  CHECK_WIN_CONDITIONS  :boolean=false; //Disable for debug missions where enemies aren't properly set
   ENABLE_FIGHTING       :boolean=true; //Allow fighting
-  FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
-  FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
+  //Not fully implemented yet
+  CHECK_WIN_CONDITIONS  :boolean=false; //Disable for debug missions where enemies aren't properly set
+  FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
+  FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
 
   //These are debug things, should be FALSE
@@ -66,20 +66,22 @@ var
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
    SHOW_CONTROLS_OVERLAY:boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
-  SHOW_1024_768_OVERLAY :boolean=true; //Render constraining frame
+  SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   {Gameplay display}
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
-  SHOW_POINTER_COUNTS   :boolean=true; //Show pointer count as small dots below unit
+  SHOW_POINTER_DOTS     :boolean=false; //Show pointer count as small dots below unit
   SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
-  SHOW_SPRITE_COUNT     :boolean=true; //display rendered controls/sprites count
-  SHOW_POINTER_COUNT    :boolean=true; //Show debug total count of unit/house pointers being tracked
-  SHOW_CMDQUEUE_COUNT   :boolean=true; //Show how many commands were processed and stored by TGameInputProcess
+
+  SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
+  SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
+  SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
+
   TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
-  ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
+  SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
   RENDER_3D             :boolean=false; //Experimental 3D render
   DO_PERF_TEST          :boolean=false; //Close Application after certain period of time to compare performance between runs
   {Data output}
@@ -88,13 +90,12 @@ var
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
 
   //Statistic
-  CtrlPaintCount:word; //How many Controls were painted
+  CtrlPaintCount:word; //How many Controls were painted in last frame
 
   //Utility
-  Zero:integer=0;
+  Zero:integer=0; //used in SaveStream to represent NIL
 
 const
-  MaxHouses=255;        //Maximum houses one player can own
   MAX_RES_IN_HOUSE=5;   //Maximum resource items allowed to be in house
   MAX_ORDER=999;        //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
   MAX_TEX_RESOLUTION=512;       //Maximum texture resolution client can handle (used for packing sprites)

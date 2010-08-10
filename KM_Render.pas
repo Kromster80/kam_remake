@@ -951,7 +951,7 @@ begin
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  if not ShowSpriteOverlay then exit;
+  if not SHOW_SPRITES_RECT then exit;
   glColor3f(1,1,1);
   glBegin (GL_LINE_LOOP);
     with GFXData[RX,ID] do
@@ -985,7 +985,7 @@ begin
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
   //glEnable(GL_BLEND);
 
-  if not ShowSpriteOverlay then exit;
+  if not SHOW_SPRITES_RECT then exit;
   glColor3f(1,1,1);
   glBegin (GL_LINE_LOOP);
     with GFXData[RX,ID] do

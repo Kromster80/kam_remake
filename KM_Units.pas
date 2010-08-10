@@ -1187,8 +1187,8 @@ begin
     TKMUnitWorker(Self).AbandonWork;
 
   //todo: fix this!
-  //Should we Abandon interaction things ?
-  if (fCurrentAction is TUnitActionWalkTo) then
+  //Should we Abandon interaction things?
+  {if (fCurrentAction is TUnitActionWalkTo) then
     if not TUnitActionWalkTo(fCurrentAction).CanAbandon then
       fGame.GameError(GetPosition, 'Unit killed in walk'); //}
 
@@ -1700,7 +1700,7 @@ begin
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
 
-  if SHOW_POINTER_COUNTS then
+  if SHOW_POINTER_DOTS then
     fRender.RenderDebugUnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), GetPointerCount);
 end;
 

@@ -802,7 +802,10 @@ begin
   'Contact details can be found in the Readme file. Thank you very much for your kind help!'+eol+eol+
   '  WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
   , mtWarning, [mbYes, mbNo], 0) <> mrYes then
-    fGame.GameStop(gr_Error,''); //Exit to main menu will save the Replay data
+    fGame.GameStop(gr_Error,'') //Exit to main menu will save the Replay data
+  else
+    if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
+      fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl')); //Save replay data ourselves
 end;
 
 
