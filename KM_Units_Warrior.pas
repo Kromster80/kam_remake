@@ -600,18 +600,20 @@ begin
 end;
 
 
+{ Attack House works like this:
+All units are assigned TTaskAttackHouse which does everything for us
+(move to position, hit house, abandon, etc.) }
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse);
 var i: integer;
 begin
-  if (aWarriorOrder <> wo_AttackHouse) or (aTargetHouse = nil) then exit; //Only allow house attacks with target house
-
-  //Attack House works like this: All units are assigned TTaskAttackHouse which does everything for us (move to position, hit house, abandon, etc.)
+  Assert((aWarriorOrder=wo_AttackHouse)and(aTargetHouse<>nil));
 
   fOrder := aWarriorOrder;
   fState := ws_None; //Clear other states
   SetOrderHouseTarget(aTargetHouse);
 
-  if (fCommander=nil) and (fMembers <> nil) then //Don't give group orders if unit has no crew
+  //Transmit order to all memmber if we have any
+  if (fCommander = nil) and (fMembers <> nil) then
     for i:=0 to fMembers.Count-1 do
       TKMUnitWarrior(fMembers.Items[i]).PlaceOrder(aWarriorOrder, aTargetHouse);
 end;

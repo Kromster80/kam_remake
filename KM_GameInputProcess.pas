@@ -266,7 +266,7 @@ end;
 procedure TGameInputProcess.ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse);
 begin
   Assert(aCommand = gic_ArmyAttackHouse);
-  aWarrior.GetCommander.PlaceOrder(wo_Attack, aHouse);
+  aWarrior.GetCommander.PlaceOrder(wo_AttackHouse, aHouse);
   fSoundLib.PlayWarrior(aWarrior.GetUnitType, sp_Attack);
   SaveCommand(aCommand, aWarrior.ID, aHouse.ID);
 end;
