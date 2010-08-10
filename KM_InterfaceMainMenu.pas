@@ -226,7 +226,7 @@ inherited Create;
   //Show version info on every page
   Label_Version := MyControls.AddLabel(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
 
-  if SHOW_1024_768_OVERLAY then MyControls.AddShape(Panel_Main, OffX, OffY, 1024, 768, $FF00FF00);
+  if SHOW_1024_768_OVERLAY then MyControls.AddShape(Panel_Main, 0, 0, 1024, 768, $FF00FF00);
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug

@@ -1654,7 +1654,7 @@ begin
 
   for i:=0 to Count-1 do
   with Controls[i] do
-  if Parent = nil then begin
+  {if Parent = nil then} begin
     writeln(ft, i, '.');
     writeln(ft, ClassName);
     writeln(ft, Format('{%d %d %d %d}', [fLeft, fTop, fWidth, fHeight]));

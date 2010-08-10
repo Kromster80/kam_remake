@@ -95,7 +95,7 @@ begin
   Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX-1);
   Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom),1);
   Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom)+4,fTerrain.MapY-1);
-  if not TestViewportClipInset then exit;
+  if not TEST_VIEW_CLIP_INSET then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);
   inc(Result.Top,4);
@@ -109,7 +109,7 @@ begin
   Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
   Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+2,1);
   Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom),fTerrain.MapY);
-  if not TestViewportClipInset then exit;
+  if not TEST_VIEW_CLIP_INSET then exit;
   inc(Result.Left,4);
   dec(Result.Right,4);
   inc(Result.Top,4);

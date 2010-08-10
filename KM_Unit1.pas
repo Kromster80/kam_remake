@@ -66,6 +66,7 @@ type
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ExportMainMenu1Click(Sender: TObject);
+    procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -159,13 +160,14 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 var
   TempSettings:TGlobalSettings;
-  s:string;
 begin
   if Sender<>nil then exit;
 
   FormLoading.Label5.Caption := GAME_VERSION;
   FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
+  Panel5.Color := clBlack;
+  ToggleControlsVisibility(ShowDebugControls);
 
   //Randomize; //Randomize the random seed to ensure that we don't get repeditive patterns,
   //but we need this to be Off to reproduce bugs
@@ -175,29 +177,23 @@ begin
 
   ReadAvailableResolutions;    //Undecided as to how this will fit in with the game, see discussion
 
-  Panel5.Color := clBlack;
-
-  TempSettings:=TGlobalSettings.Create; //Read settings (fullscreen property and resolutions)
-                                       //Don't need to free it here, it's FreeAndNil'ed at fGame re-init
+  TempSettings := TGlobalSettings.Create; //Read settings (fullscreen property and resolutions)
   ToggleFullScreen(TempSettings.IsFullScreen, TempSettings.GetResolutionID, false); //Now we can decide whether we should make it full screen or not
-
-  TempSettings.Free; //does not required any more
+  TempSettings.Free;
 
   //We don't need to re-init fGame since it's already handled in ToggleFullScreen (sic!)
   //fGame:=TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height, true);
 
   Application.OnIdle:=Form1.OnIdle;
-
-  ToggleControlsVisibility(ShowDebugControls);
-
   fLog.AppendLog('Form1 create is done');
 
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then
   begin
-    s := 'Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
-         'Please update your graphic drivers to get better performance';
-    Application.MessageBox(@(s)[1],'Warning',MB_OK + MB_ICONEXCLAMATION);
+    Application.MessageBox(PChar(
+        'Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
+        'Please update your graphic drivers to get better performance'),
+        'Warning', MB_OK or MB_ICONWARNING);
   end;
   Timer100ms.Interval := fGame.fGlobalSettings.GetPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
@@ -560,6 +556,19 @@ begin
   fGame.fMainMenuInterface.MyControls.SaveToFile(ExeDir+'MainMenu.txt');
 end;
 
+
+//Restrict minimum Form ClientArea size to MENU_DESIGN_X/Y
+procedure TForm1.FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
+var Margin:TPoint;
+begin
+  Margin.X := Width - ClientWidth;
+  Margin.Y := Height - ClientHeight;
+
+  NewWidth := max(NewWidth, MENU_DESIGN_X + Margin.X);
+  NewHeight:= max(NewHeight, MENU_DESIGN_Y + Margin.Y);
+
+  Resize := true;
+end;
 
 
 {$IFDEF FPC}

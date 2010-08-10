@@ -58,6 +58,7 @@ var
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
+  KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
 
   //These are debug things, should be FALSE
   {User interface options}
@@ -65,8 +66,8 @@ var
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
    SHOW_CONTROLS_OVERLAY:boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
-  SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
-  FREE_ROCK_THROWING    :boolean=false;
+  SHOW_1024_768_OVERLAY :boolean=true; //Render constraining frame
+  FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   {Gameplay display}
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
@@ -77,11 +78,10 @@ var
   SHOW_SPRITE_COUNT     :boolean=true; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :boolean=true; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :boolean=true; //Show how many commands were processed and stored by TGameInputProcess
-  TestViewportClipInset :boolean=false; //Renders smaller area to see if everything gets clipped well
+  TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
   ShowSpriteOverlay     :boolean=false; //Render outline around every sprite
-  KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
   RENDER_3D             :boolean=false; //Experimental 3D render
-  DO_PERF_TEST          :boolean=true;
+  DO_PERF_TEST          :boolean=false; //Close Application after certain period of time to compare performance between runs
   {Data output}
   WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading

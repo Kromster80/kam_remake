@@ -1712,7 +1712,7 @@ end;
 procedure TKMHousesCollection.Paint();
 var i:integer; x1,x2,y1,y2,Margin:integer;
 begin
-  if TestViewportClipInset then Margin:=-3 else Margin:=3;
+  if TEST_VIEW_CLIP_INSET then Margin:=-3 else Margin:=3;
   x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
   y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
 
