@@ -133,7 +133,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); dynamic;
     procedure SyncLoad(); virtual;
     destructor Destroy; override;
-    function GetSelf:TKMUnit; //Returns self and adds one to the pointer counter
+    function GetUnit:TKMUnit; //Returns self and adds one to the pointer counter
     procedure RemovePointer;  //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
     procedure KillUnit; virtual;
@@ -325,7 +325,7 @@ begin
   Result:=false;
   KMHouse:=fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
   if KMHouse<>nil then begin
-    fHome:=KMHouse.GetSelf;
+    fHome:=KMHouse.GetHouse;
     Result:=true;
   end;
 end;
@@ -540,7 +540,7 @@ begin
   Result  := false;
   KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
   if KMHouse<>nil then begin
-    fHome  := KMHouse.GetSelf;
+    fHome  := KMHouse.GetHouse;
     Result := true;
   end;
 end;
@@ -1117,7 +1117,7 @@ end;
 
 
 {Returns self and adds on to the pointer counter}
-function TKMUnit.GetSelf:TKMUnit;
+function TKMUnit.GetUnit:TKMUnit;
 begin
   inc(fPointerCount);
   Result := Self;
@@ -1292,7 +1292,7 @@ begin
   if fInHouse <> nil then
     fInHouse.RemovePointer;
   if aInHouse <> nil then
-    fInHouse := aInHouse.GetSelf
+    fInHouse := aInHouse.GetHouse
   else
     fInHouse := nil;
 end;
@@ -1710,7 +1710,7 @@ constructor TUnitTask.Create(aUnit:TKMUnit);
 begin
   Inherited Create;
   fTaskName := utn_Unknown;
-  if aUnit <> nil then fUnit := aUnit.GetSelf;
+  if aUnit <> nil then fUnit := aUnit.GetUnit;
   fPhase    := 0;
   fPhase2   := 0;
 end;
@@ -1774,7 +1774,7 @@ constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_SelfTrain;
-  fSchool   := TKMHouseSchool(aSchool.GetSelf); //GetSelf returnes TKMHouse, not TKMHouseSchool
+  fSchool   := TKMHouseSchool(aSchool.GetHouse); //GetHouse returnes TKMHouse, not TKMHouseSchool
   fUnit.fVisible := false;
   fUnit.SetActionStay(0, ua_Walk);
 end;
@@ -2027,7 +2027,7 @@ constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_GoEat;
-  fInn      := TKMHouseInn(aInn.GetSelf);
+  fInn      := TKMHouseInn(aInn.GetHouse);
   PlaceID   := 0;
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;

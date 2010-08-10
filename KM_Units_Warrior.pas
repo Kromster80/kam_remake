@@ -447,7 +447,7 @@ begin
   //Remove previous value
   ClearOrderTarget;
   if aUnit <> nil then
-    fOrderTargetUnit := aUnit.GetSelf; //Else it will be nil from ClearOrderTarget
+    fOrderTargetUnit := aUnit.GetUnit; //Else it will be nil from ClearOrderTarget
 end;
 
 
@@ -464,7 +464,7 @@ begin
   //Remove previous value
   ClearOrderTarget;
   if aHouse <> nil then
-    fOrderTargetHouse := aHouse.GetSelf; //Else it will be nil from ClearOrderTarget
+    fOrderTargetHouse := aHouse.GetHouse; //Else it will be nil from ClearOrderTarget
 end;
 
 
@@ -483,7 +483,7 @@ begin
     fFoe.RemovePointer;
 
   if aUnit <> nil then
-    fFoe := TKMUnitWarrior(aUnit.GetSelf) //Else it will be nil from ClearFoe
+    fFoe := TKMUnitWarrior(aUnit.GetUnit) //Else it will be nil from ClearFoe
   else
     fFoe := nil;
 end;

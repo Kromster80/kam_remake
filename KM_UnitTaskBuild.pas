@@ -407,7 +407,7 @@ var i,k:integer;
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseArea;
-  fHouse    := aHouse.GetSelf;
+  fHouse    := aHouse.GetHouse;
   buildID   := aID;
   Step      := 0;
   for i := 1 to 4 do for k := 1 to 4 do
@@ -534,7 +534,7 @@ constructor TTaskBuildHouse.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:i
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouse;
-  fHouse    := aHouse.GetSelf;
+  fHouse    := aHouse.GetHouse;
   buildID   := aID;
 
   Cells := TKMPointDirList.Create;
@@ -685,7 +685,7 @@ constructor TTaskBuildHouseRepair.Create(aWorker:TKMUnitWorker; aHouse:TKMHouse;
 begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseRepair;
-  fHouse:=aHouse.GetSelf;
+  fHouse:=aHouse.GetHouse;
   buildID:=aID;
   CurLoc:=0;
 

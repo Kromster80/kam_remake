@@ -101,7 +101,7 @@ begin
   Inherited Create(aActionType);
   fActionName   := uan_WalkTo;
   fWalker       := KMUnit;
-  if aTargetUnit <> nil then fTargetUnit := aTargetUnit.GetSelf;
+  if aTargetUnit <> nil then fTargetUnit := aTargetUnit.GetUnit;
   fWalkFrom     := fWalker.GetPosition;
   fAvoid        := Avoid;
   fWalkToSpot   := aWalkToSpot;
@@ -735,7 +735,7 @@ begin
   if aNewTargetUnit <> nil then begin
     if fTargetUnit <> nil then
       fTargetUnit.RemovePointer; //release the unit
-    fTargetUnit := aNewTargetUnit.GetSelf; //Change target
+    fTargetUnit := aNewTargetUnit.GetUnit; //Change target
   end;
 
   fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal ChangeWalkTo 0;0');

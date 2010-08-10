@@ -143,7 +143,7 @@ begin
   //Find an empty spot for new unique offer
   i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i);
   with fOffer[i] do begin //Put offer
-    if aHouse <> nil then Loc_House:=aHouse.GetSelf;
+    if aHouse <> nil then Loc_House:=aHouse.GetHouse;
     Resource:=aResource;
     Count:=aCount;
     BeingPerformed:=0; //New unique offer is available to be performed apriori
@@ -202,8 +202,8 @@ begin
     i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
 
     with fDemand[i] do begin
-      if aHouse <> nil then Loc_House:=aHouse.GetSelf;
-      if aUnit <> nil then Loc_Unit:=aUnit.GetSelf;
+      if aHouse <> nil then Loc_House:=aHouse.GetHouse;
+      if aUnit <> nil then Loc_Unit:=aUnit.GetUnit;
       DemandType:=aDemandType; //Once or Always
       Resource:=aResource;
       Importance:=aImp;
@@ -670,7 +670,7 @@ procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousesQueue[i].House<>nil) do inc(i);
-  if aHouse <> nil then fHousesQueue[i].House := aHouse.GetSelf;
+  if aHouse <> nil then fHousesQueue[i].House := aHouse.GetHouse;
   fHousesQueue[i].Importance:=1;
 end;
 
@@ -679,7 +679,7 @@ procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Empty) do inc(i);
-  if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetSelf;
+  if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetHouse;
   fHousePlansQueue[i].Importance:=1;
   fHousePlansQueue[i].JobStatus:=js_Open;
 end;
@@ -689,7 +689,7 @@ function TKMBuildingQueue.AddHouseRepair(aHouse: TKMHouse):integer;
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousesRepairQueue[i].House<>nil) do inc(i);
-  if aHouse <> nil then fHousesRepairQueue[i].House:=aHouse.GetSelf;
+  if aHouse <> nil then fHousesRepairQueue[i].House:=aHouse.GetHouse;
   fHousesRepairQueue[i].Importance:=1;
   Result:=i;
 end;
@@ -767,7 +767,7 @@ begin
     else Result:=nil;
   end;
   fFieldsQueue[i].JobStatus:=js_Taken;
-  if aWorker <> nil then fFieldsQueue[i].Worker:=aWorker.GetSelf;
+  if aWorker <> nil then fFieldsQueue[i].Worker:=aWorker.GetUnit;
 end;
 
 
@@ -792,7 +792,7 @@ begin
 
   Result:=TTaskBuildHouseArea.Create(aWorker, fHousePlansQueue[i].House, i);
   fHousePlansQueue[i].JobStatus:=js_Taken;
-  if aWorker <> nil then fHousePlansQueue[i].Worker:=aWorker.GetSelf;
+  if aWorker <> nil then fHousePlansQueue[i].Worker:=aWorker.GetUnit;
 end;
 
 
