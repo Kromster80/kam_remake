@@ -644,8 +644,6 @@ begin
                                   fMapEditorInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected));
                                 if fPlayers.Selected is TKMUnit then
                                   fMapEditorInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                                //if (fPlayers.SelectedUnit is TKMUnitWarrior) and (not TKMUnitWarrior(fPlayers.SelectedUnit).fIsCommander) then
-                                //  fPlayers.SelectedUnit:=TKMUnitWarrior(fPlayers.SelectedUnit).fCommanderID;
                               end;
                     cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P,false);
                     cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);

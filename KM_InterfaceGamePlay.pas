@@ -1785,10 +1785,7 @@ begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMUnitWarrior) then exit;
 
-  if TKMUnitWarrior(fPlayers.Selected).fCommander<>nil then
-    Commander := TKMUnitWarrior(fPlayers.Selected).fCommander
-  else
-    Commander := TKMUnitWarrior(fPlayers.Selected);
+  Commander := TKMUnitWarrior(fPlayers.Selected).GetCommander;
 
   //if Sender = Button_Army_GoTo    then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then
