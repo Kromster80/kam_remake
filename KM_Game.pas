@@ -55,7 +55,7 @@ type
 
     procedure GameInit();
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
-    procedure GameError(aLoc:TKMPoint); //Stop the game because of an error ()
+    procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error ()
     procedure GamePause(DoPause:boolean); //Set game on pause during gameplay
     procedure GameHold(DoHold:boolean); //Hold the game to ask if player wants to play after Victory
     procedure GameStop(const Msg:gr_Message; TextMsg:string='');
@@ -243,7 +243,7 @@ begin
                   if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 
                   if Key=ord('V') then begin fGame.GameHold(true); exit; end; //Instant victory
-                  if Key=ord('C') then begin fGame.GameError(KMPoint(12,12)); exit; end;
+                  if Key=ord('C') then begin fGame.GameError(KMPoint(12,12), 'Intentional crash'); exit; end; //Crash
                 end;
     gsReplay:   begin
                   if IsDown then exit;
@@ -784,8 +784,9 @@ begin
   RandSeed := 4; //Random after StartGame and ViewReplay should match
 end;
 
+
 { Set viewport and save command log }
-procedure TKMGame.GameError(aLoc:TKMPoint);
+procedure TKMGame.GameError(aLoc:TKMPoint; aText:string);
 begin
   //Negotiate duplicate calls for GameError
   if GameState = gsNoGame then exit;
@@ -798,7 +799,7 @@ begin
     fTerrain.Land[aLoc.Y, aLoc.X].IsUnit := 128;
 
   if MessageDlg(
-  '  An error has occoured during gameplay.'+eol+
+  '  An error has occoured during gameplay. '+UpperCase(aText)+eol+
   '  Please send the files save99.bas, save99.sav and save99.rpl from your KaM Remake\Save folder to the developers. '+
   'Contact details can be found in the Readme file. Thank you very much for your kind help!'+eol+eol+
   '  WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'

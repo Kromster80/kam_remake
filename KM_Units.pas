@@ -1129,7 +1129,7 @@ procedure TKMUnit.RemovePointer;
 begin
   dec(fPointerCount);
   if Self.fPointerCount < 0 then
-    fGame.GameError(PrevPosition);
+    fGame.GameError(PrevPosition, 'Unit remove pointer');
 end;
 
 
@@ -1188,9 +1188,9 @@ begin
 
   //todo: fix this!
   //Should we Abandon interaction things ?
-  {if (fCurrentAction is TUnitActionWalkTo) then
+  if (fCurrentAction is TUnitActionWalkTo) then
     if not TUnitActionWalkTo(fCurrentAction).CanAbandon then
-      Assert(false);} //
+      fGame.GameError(GetPosition, 'Unit killed in walk'); //}
 
   //Update statistics
   if Assigned(fPlayers) and (fOwner <> play_animals) and Assigned(fPlayers.Player[byte(fOwner)]) then
@@ -1342,7 +1342,7 @@ end;
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
   if (Self.GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(Self.GetUnitAction).CanAbandon then begin
-    fGame.GameError(GetPosition);
+    fGame.GameError(GetPosition, 'Unit fight overrides walk');
     exit;
   end;
   SetAction(TUnitActionFight.Create(aAction, aOpponent, Self),0);

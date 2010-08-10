@@ -337,7 +337,7 @@ begin
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
     begin
       if not CanAbandon then begin
-        fGame.GameError(fWalker.GetPosition);
+        fGame.GameError(fWalker.GetPosition, 'Unit walk check for obstacle');
         exit;
       end;
       fWalker.SetActionWalk(fWalker,fWalkTo,GetActionType,fWalkToSpot);
@@ -416,7 +416,7 @@ begin
     else
       OpponentPassability := fOpponent.GetDesiredPassability;
     if not CanAbandon then begin
-      fGame.GameError(fWalker.GetPosition);
+      fGame.GameError(fWalker.GetPosition, 'Unit walk IntSolutionPush');
       exit;
     end;
     fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability));
@@ -486,7 +486,7 @@ begin
       fInteractionStatus := kis_None;
 
       if not CanAbandon then begin
-        fGame.GameError(fWalker.GetPosition);
+        fGame.GameError(fWalker.GetPosition, 'Unit walk IntCheckIfPushed');
         exit;
       end;
 
@@ -775,7 +775,7 @@ begin
     //The reason why this happens is because WalkConnect is not available for canCrab and canWolf meaning Route_CanBeMade will sometimes return true when it shouldn't. (because it is using canWalk instead)
     //@Krom: Does that sound ok to you? Or should we add floodfill for wolfs and crabs? Obviously using WalkConnect is a better option because it is possible that the unit is totally stuck, in which case the walk will keep failing repeatedly. Does floodfill take long to compute?
     if not (fWalker.GetUnitType in [ut_Wolf..ut_Duck]) then
-      fGame.GameError(fWalker.GetPosition);
+      fGame.GameError(fWalker.GetPosition, 'Unit walk not fRouteBuilt');
     DoEnd := true; //Must exit out or this error will keep happening
     exit; //Exit either way, and the action will end
   end;
@@ -918,12 +918,12 @@ begin
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
       if GetLength(fWalker.PrevPosition,fWalker.NextPosition) > 1.5 then begin
-        fGame.GameError(fWalker.PrevPosition);
+        fGame.GameError(fWalker.PrevPosition, 'Unit walk length>1.5');
         exit;
       end;
 
       if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = 0 then begin
-        fGame.GameError(fWalker.PrevPosition);
+        fGame.GameError(fWalker.PrevPosition, 'Unit walk Prev position IsUnit = 0');
         exit;
       end;
 
