@@ -101,7 +101,7 @@ begin
   Inherited Create(aActionType);
   fActionName   := uan_WalkTo;
   fWalker       := KMUnit;
-  if aTargetUnit <> nil then fTargetUnit := aTargetUnit.GetUnit;
+  if aTargetUnit <> nil then fTargetUnit := aTargetUnit.GetUnitPointer;
   fWalkFrom     := fWalker.GetPosition;
   fAvoid        := Avoid;
   fWalkToSpot   := aWalkToSpot;
@@ -721,6 +721,8 @@ end;
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aResetTargetUnit:boolean=true; aNewTargetUnit: TKMUnit=nil);
 begin
+  fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal ChangeWalkTo 0;0');
+
   if not aWalkToNear then
     fNewWalkTo := aLoc
   else
@@ -735,10 +737,8 @@ begin
   if aNewTargetUnit <> nil then begin
     if fTargetUnit <> nil then
       fTargetUnit.RemovePointer; //release the unit
-    fTargetUnit := aNewTargetUnit.GetUnit; //Change target
+    fTargetUnit := aNewTargetUnit.GetUnitPointer; //Change target
   end;
-
-  fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal ChangeWalkTo 0;0');
 end;
 
 
@@ -853,8 +853,9 @@ begin
     begin
       if (fWalker is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).GetWarriorState <> ws_Engage) then
       begin
-        //If a warrior is following a unit it means we are attacking it. (for now anyway) So if this unit dies we must now follow it's commander
-        fTargetUnit := TKMUnitWarrior(fTargetUnit).fCommander; //Will be nil if there are no members from the group left
+        //If a warrior is following a unit it means we are attacking it. (for now anyway)
+        //So if this unit dies we must now follow it's commander
+        fTargetUnit := TKMUnitWarrior(fTargetUnit).GetCommander.GetUnitPointer;
         //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
         TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).OrderLocDir.Dir);
       end

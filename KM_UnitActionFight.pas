@@ -30,7 +30,7 @@ constructor TUnitActionFight.Create(aActionType:TUnitActionType; aOpponent, aUni
 begin
   Inherited Create(aActionType);
   fActionName := uan_Fight;
-  fOpponent := aOpponent.GetUnit; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
+  fOpponent := aOpponent.GetUnitPointer; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
 

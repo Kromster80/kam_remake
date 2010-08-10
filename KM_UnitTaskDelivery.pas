@@ -39,7 +39,7 @@ begin
   fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
   if aFrom <> nil then fFrom:=aFrom.GetHouse;
   if toHouse <> nil then fToHouse:=toHouse.GetHouse;
-  if toUnit <> nil then fToUnit:=toUnit.GetUnit;
+  if toUnit <> nil then fToUnit:=toUnit.GetUnitPointer;
   fResourceType:=Res;
   fDeliverID:=aID;
 

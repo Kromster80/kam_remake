@@ -133,7 +133,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); dynamic;
     procedure SyncLoad(); virtual;
     destructor Destroy; override;
-    function GetUnit:TKMUnit; //Returns self and adds one to the pointer counter
+    function GetUnitPointer:TKMUnit; //Returns self and adds one to the pointer counter
     procedure RemovePointer;  //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
     procedure KillUnit; virtual;
@@ -1117,7 +1117,7 @@ end;
 
 
 {Returns self and adds on to the pointer counter}
-function TKMUnit.GetUnit:TKMUnit;
+function TKMUnit.GetUnitPointer:TKMUnit;
 begin
   inc(fPointerCount);
   Result := Self;
@@ -1710,7 +1710,7 @@ constructor TUnitTask.Create(aUnit:TKMUnit);
 begin
   Inherited Create;
   fTaskName := utn_Unknown;
-  if aUnit <> nil then fUnit := aUnit.GetUnit;
+  if aUnit <> nil then fUnit := aUnit.GetUnitPointer;
   fPhase    := 0;
   fPhase2   := 0;
 end;

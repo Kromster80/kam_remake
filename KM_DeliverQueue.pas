@@ -203,7 +203,7 @@ begin
 
     with fDemand[i] do begin
       if aHouse <> nil then Loc_House:=aHouse.GetHouse;
-      if aUnit <> nil then Loc_Unit:=aUnit.GetUnit;
+      if aUnit <> nil then Loc_Unit:=aUnit.GetUnitPointer;
       DemandType:=aDemandType; //Once or Always
       Resource:=aResource;
       Importance:=aImp;
@@ -767,7 +767,7 @@ begin
     else Result:=nil;
   end;
   fFieldsQueue[i].JobStatus:=js_Taken;
-  if aWorker <> nil then fFieldsQueue[i].Worker:=aWorker.GetUnit;
+  if aWorker <> nil then fFieldsQueue[i].Worker:=aWorker.GetUnitPointer;
 end;
 
 
@@ -792,7 +792,7 @@ begin
 
   Result:=TTaskBuildHouseArea.Create(aWorker, fHousePlansQueue[i].House, i);
   fHousePlansQueue[i].JobStatus:=js_Taken;
-  if aWorker <> nil then fHousePlansQueue[i].Worker:=aWorker.GetUnit;
+  if aWorker <> nil then fHousePlansQueue[i].Worker:=aWorker.GetUnitPointer;
 end;
 
 
