@@ -645,11 +645,11 @@ end;
 {Load page}
 procedure TKMapEdInterface.Create_Load_Page;
 begin
-  Panel_Load := MyControls.AddPanel(Panel_Main,0,412,196,400);
+  Panel_Load := MyControls.AddPanel(Panel_Main,0,432,196,400);
     MyControls.AddLabel(Panel_Load, 16, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
     FileList_Load := MyControls.AddFileList(Panel_Load, 8, 20, 200, 200);
-    Button_LoadLoad     := MyControls.AddButton(Panel_Load,8,240,180,30,'Load',fnt_Metal);
-    Button_LoadCancel   := MyControls.AddButton(Panel_Load,8,280,180,30,'Cancel',fnt_Metal);
+    Button_LoadLoad     := MyControls.AddButton(Panel_Load,8,250,180,30,'Load',fnt_Metal);
+    Button_LoadCancel   := MyControls.AddButton(Panel_Load,8,290,180,30,'Cancel',fnt_Metal);
     Button_LoadLoad.OnClick     := Menu_Load;
     Button_LoadCancel.OnClick   := SwitchPage;
 end;
