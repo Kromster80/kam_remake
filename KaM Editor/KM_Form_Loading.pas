@@ -73,6 +73,7 @@ FormLoading.Bar1.Position:=0; FormLoading.Refresh;
   Form1.ObjPalleteScroll.Enabled:=false;
   end;
 FormLoading.Hide;
+DoClientAreaResize(Form1);
 Form1.Show;
 Form1.WindowState:=wsMaximized;
 
@@ -87,6 +88,8 @@ if FileExists(InputParam) then
       FormNewMap.InitializeNewMap(96,96)
 else
   FormNewMap.InitializeNewMap(96,96);
+
+
 
 //Form1.OpenMap('save01.map');
 //LoadDAT('mission1.dat');

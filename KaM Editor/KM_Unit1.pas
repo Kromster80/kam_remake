@@ -335,6 +335,8 @@ end;
   AnyChangesMade:boolean=false;
 
 
+
+
 implementation
 {$IFDEF VER140} {$R *.dfm} {$ENDIF}
 {$IFDEF VER150} {$R *.dfm} {$ENDIF}
@@ -397,12 +399,13 @@ RenderFrame(nil);
 done:=false; //repeats OnIdle event
 end;
 
+
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  DoClientAreaResize(Form1);
   Pallete.ActivePageIndex:=0;
   Application.OnIdle := Form1.OnIdle;
 end;
+
 
 procedure TForm1.OpenMapClick(Sender: TObject);
 begin
@@ -473,6 +476,7 @@ procedure TForm1.RenderResize(Sender:TObject);
 begin
   if Panel1.Height=0 then Panel1.Height:=1;
   if Panel1.Width=0  then Panel1.Width :=1;        // Panel1.Height/Panel1.Width
+//  if not then exit;
   glViewport(0, 0, Panel1.Width, Panel1.Height);
   glMatrixMode(GL_PROJECTION);        // Change Matrix Mode to Projection
   glLoadIdentity();                   // Reset View
