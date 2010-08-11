@@ -974,6 +974,7 @@ end;
 
 procedure TKMGame.ViewReplay(Sender:TObject);
 begin
+  CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(99,'sav')), false);
   Load(99); //We load what was saved right before starting Recording
   FreeAndNil(fGameInputProcess); //Override GIP from savegame
   
