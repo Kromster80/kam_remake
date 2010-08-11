@@ -70,7 +70,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); virtual;
     destructor Destroy; override;
     function GetHousePointer:TKMHouse; //Returns self and adds one to the pointer counter
-    procedure RemovePointer; //Decreases the pointer counter
+    procedure ReleaseHousePointer; //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
     procedure CloseHouse(IsEditor:boolean=false); virtual;
 
@@ -338,7 +338,7 @@ end;
 
 
 {Decreases the pointer counter}
-procedure TKMHouse.RemovePointer;
+procedure TKMHouse.ReleaseHousePointer;
 begin
   dec(fPointerCount);
 end;

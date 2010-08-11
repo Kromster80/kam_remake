@@ -441,7 +441,7 @@ end;
 
 destructor TTaskBuildHouseArea.Destroy;
 begin
-  if fHouse <> nil then fHouse.RemovePointer;
+  if fHouse <> nil then fHouse.ReleaseHousePointer;
   Inherited Destroy;
 end;
 
@@ -565,7 +565,7 @@ end;
 
 destructor TTaskBuildHouse.Destroy;
 begin
-  if fHouse <> nil then fHouse.RemovePointer;
+  if fHouse <> nil then fHouse.ReleaseHousePointer;
   Inherited Destroy;
 end;
 
@@ -717,7 +717,7 @@ end;
 
 destructor TTaskBuildHouseRepair.Destroy;
 begin
-  if fHouse <> nil then fHouse.RemovePointer;
+  if fHouse <> nil then fHouse.ReleaseHousePointer;
   Inherited Destroy;
 end;
 

@@ -401,7 +401,7 @@ begin
   begin
     if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
-    fHome.RemovePointer;
+    fHome.ReleaseHousePointer;
     fHome := nil;
   end;
 
@@ -604,7 +604,7 @@ begin
   begin
     if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
-    fHome.RemovePointer;
+    fHome.ReleaseHousePointer;
     fHome := nil;
   end;
 
@@ -1138,7 +1138,7 @@ begin
   if fHome<>nil then
   begin
     fHome.GetHasOwner := false;
-    fHome.RemovePointer;
+    fHome.ReleaseHousePointer;
   end;
 
   fTerrain.UnitRem(NextPosition); //Must happen before we nil NextPosition
@@ -1291,7 +1291,7 @@ end;
 procedure TKMUnit.SetInHouse(aInHouse:TKMHouse);
 begin
   if fInHouse <> nil then
-    fInHouse.RemovePointer;
+    fInHouse.ReleaseHousePointer;
   if aInHouse <> nil then
     fInHouse := aInHouse.GetHousePointer
   else
@@ -1796,7 +1796,7 @@ end;
 
 destructor TTaskSelfTrain.Destroy;
 begin
-  if fSchool <> nil then fSchool.RemovePointer;
+  if fSchool <> nil then fSchool.ReleaseHousePointer;
   Inherited Destroy;
 end;
 
@@ -2050,7 +2050,7 @@ end;
 
 destructor TTaskGoEat.Destroy;
 begin
-  if fInn <> nil then fInn.RemovePointer;
+  if fInn <> nil then fInn.ReleaseHousePointer;
   Inherited Destroy;
 end;
 

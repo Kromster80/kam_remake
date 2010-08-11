@@ -150,7 +150,7 @@ end;
 destructor TKMUnitWarrior.Destroy;
 begin
   if fOrderTargetUnit<>nil then fOrderTargetUnit.ReleaseUnitPointer;
-  if fOrderTargetHouse<>nil then fOrderTargetHouse.RemovePointer;
+  if fOrderTargetHouse<>nil then fOrderTargetHouse.ReleaseHousePointer;
   if fFoe<>nil then fFoe.ReleaseUnitPointer;
 
   FreeAndNil(fMembers);
@@ -436,7 +436,7 @@ begin
   end;
   if fOrderTargetHouse <> nil then
   begin
-    fOrderTargetHouse.RemovePointer;
+    fOrderTargetHouse.ReleaseHousePointer;
     fOrderTargetHouse := nil;
   end;
 end;

@@ -171,7 +171,7 @@ begin
       fOffer[i].IsDeleted := false;
       fOffer[i].Resource := rt_None;
       fOffer[i].Count := 0;
-      fOffer[i].Loc_House.RemovePointer;
+      if fOffer[i].Loc_House <> nil then fOffer[i].Loc_House.ReleaseHousePointer;
     end;
 end;
 
@@ -185,7 +185,7 @@ begin
   for i:=1 to MaxEntries do
   if fDemand[i].Loc_House=aHouse then
   begin
-    fDemand[i].Loc_House.RemovePointer;
+    if fDemand[i].Loc_House <> nil then fDemand[i].Loc_House.ReleaseHousePointer;
     if fDemand[i].Loc_Unit <> nil then fDemand[i].Loc_Unit.ReleaseUnitPointer;
     FillChar(fDemand[i],SizeOf(fDemand[i]),#0); //Clear up demand
   end;
@@ -381,7 +381,7 @@ begin
   if fOffer[iO].Count=0 then
   begin
     fOffer[iO].Resource:=rt_None;
-    if fOffer[iO].Loc_House <> nil then fOffer[iO].Loc_House.RemovePointer;
+    if fOffer[iO].Loc_House <> nil then fOffer[iO].Loc_House.ReleaseHousePointer;
     fOffer[iO].Loc_House:=nil;
   end;
 end;
@@ -399,7 +399,7 @@ begin
 
   if fDemand[iD].DemandType=dt_Once then begin//Remove resource from Demand list
     fDemand[iD].Resource:=rt_None;
-    if fDemand[iD].Loc_House <> nil then fDemand[iD].Loc_House.RemovePointer;
+    if fDemand[iD].Loc_House <> nil then fDemand[iD].Loc_House.ReleaseHousePointer;
     fDemand[iD].Loc_House:=nil;
     if fDemand[iD].Loc_Unit <> nil then fDemand[iD].Loc_Unit.ReleaseUnitPointer;
     fDemand[iD].Loc_Unit:=nil;
@@ -421,7 +421,7 @@ begin
       fOffer[fQueue[aID].OfferID].IsDeleted := false;
       fOffer[fQueue[aID].OfferID].Resource := rt_None;
       fOffer[fQueue[aID].OfferID].Count := 0;
-      fOffer[fQueue[aID].OfferID].Loc_House.RemovePointer;
+      fOffer[fQueue[aID].OfferID].Loc_House.ReleaseHousePointer;
     end;
   end;
   if fQueue[aID].DemandID <> 0 then fDemand[fQueue[aID].DemandID].BeingPerformed:=false;
@@ -593,7 +593,7 @@ end;
 {Clear up}
 procedure TKMBuildingQueue.CloseHouse(aID:integer);
 begin
-  if fHousesQueue[aID].House <> nil then fHousesQueue[aID].House.RemovePointer;
+  if fHousesQueue[aID].House <> nil then fHousesQueue[aID].House.ReleaseHousePointer;
   fHousesQueue[aID].House:=nil;
   fHousesQueue[aID].Importance:=0;
 end;
@@ -601,7 +601,7 @@ end;
 
 procedure TKMBuildingQueue.CloseHousePlan(aID:integer);
 begin
-  if fHousePlansQueue[aID].House <> nil then fHousePlansQueue[aID].House.RemovePointer;
+  if fHousePlansQueue[aID].House <> nil then fHousePlansQueue[aID].House.ReleaseHousePointer;
   fHousePlansQueue[aID].House:=nil;
   fHousePlansQueue[aID].Importance:=0;
   fHousePlansQueue[aID].JobStatus:=js_Empty;
@@ -612,7 +612,7 @@ end;
 
 procedure TKMBuildingQueue.CloseHouseRepair(aID:integer);
 begin
-  if fHousesRepairQueue[aID].House <> nil then fHousesRepairQueue[aID].House.RemovePointer;
+  if fHousesRepairQueue[aID].House <> nil then fHousesRepairQueue[aID].House.ReleaseHousePointer;
   fHousesRepairQueue[aID].House:=nil;
   fHousesRepairQueue[aID].Importance:=0;
 end;
@@ -642,7 +642,7 @@ begin
   for i:=1 to MaxEntries do
   if fHousesRepairQueue[i].House=aHouse then
   begin
-    fHousesRepairQueue[i].House.RemovePointer;
+    fHousesRepairQueue[i].House.ReleaseHousePointer;
     FillChar(fHousesRepairQueue[i],SizeOf(fHousesRepairQueue[i]),#0); //Remove offer
   end;
 end;

@@ -76,8 +76,8 @@ end;
 
 destructor TTaskDeliver.Destroy;
 begin
-  if fFrom    <> nil then fFrom.RemovePointer;
-  if fToHouse <> nil then fToHouse.RemovePointer;
+  if fFrom    <> nil then fFrom.ReleaseHousePointer;
+  if fToHouse <> nil then fToHouse.ReleaseHousePointer;
   if fToUnit  <> nil then fToUnit.ReleaseUnitPointer;
   Inherited Destroy;
 end;
