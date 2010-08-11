@@ -1329,23 +1329,21 @@ end;
 function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
 var i,k:integer; L1,L2:TKMPointList;
 begin
-  //Loc is our position
-  //Loc2 is next position
-  //Loc3 is position after that (try to find one that leads directly from Loc to Loc3)
   //List 1 holds all positions next to both Loc and Loc2
-  L1:=TKMPointList.Create;
+  L1 := TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
-    if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-      if (not((i=0)and(k=0)))and(not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2)) then
-        if canWalk in Land[Loc.Y+i,Loc.X+k].Passability then //This uses canWalk because we can step off roads for side steps
-          if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
-            if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
-              if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
-                if fPlayers.UnitsHitTest(Loc.X+k,Loc.Y+i) = nil then //Doesn't have unit
-                  L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
+  if not((i=0)and(k=0)) and TileInMapCoords(Loc.X+k,Loc.Y+i) then //Valid tile for test
+  if not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2) then
+  if canWalk in Land[Loc.Y+i,Loc.X+k].Passability then //This uses canWalk because we can step off roads for side steps
+  if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
+  if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
+  if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
+  if fPlayers.UnitsHitTest(Loc.X+k,Loc.Y+i) = nil then //Doesn't have unit
+    L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
-  L2:=TKMPointList.Create;
+  L2 := TKMPointList.Create;
+  if not KMSamePoint(Loc3, KMPoint(0,0)) then //No Loc3 was given
   for i:=1 to L1.Count do
     if KMLength(L1.List[i],Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
       L2.AddEntry(L1.List[i]);

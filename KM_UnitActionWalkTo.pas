@@ -42,7 +42,7 @@ type
     private
       fWalker:TKMUnit;
       fTargetUnit:TKMUnit;
-      fWalkFrom, fWalkTo, fAvoid, fSideStepTesting, fNewWalkTo:TKMPoint;
+      fWalkFrom, fWalkTo, fAvoid, fNewWalkTo:TKMPoint;
       fWalkToSpot:boolean;
       fPass:TPassability; //Desired passability set once on Create
       DoesWalking, WaitingOnStep, fDestBlocked:boolean;
@@ -170,7 +170,6 @@ begin
   fDestBlocked  := false;
   fLastSideStepNodePos := -2; //Start negitive so it is at least 2 less than NodePos at the start
   fVertexOccupied      := KMPoint(0,0);
-  fSideStepTesting     := KMPoint(0,0);
   fInteractionCount    := 0;
   fInteractionStatus   := kis_None;
 end;
@@ -187,7 +186,6 @@ begin
   LoadStream.Read(fVertexOccupied);
   LoadStream.Read(fNewWalkTo);
   LoadStream.Read(fWalkToSpot);
-  LoadStream.Read(fSideStepTesting);
   LoadStream.Read(fDestBlocked);
   LoadStream.Read(fLastSideStepNodePos);
   LoadStream.Read(fPass, SizeOf(fPass));
@@ -285,6 +283,8 @@ begin
   else //Otherwise we must inject it
     NodeList.InjectEntry(NodePos+1,aPos);
 
+  //todo: add route verification here, cos sometimes algo works wrong or input data is wrong
+
   fWalker.Direction := KMGetDirection(fWalker.GetPosition,aPos); //Face the new tile
 end;
 
@@ -318,7 +318,7 @@ begin
       NodeList.AddEntry(NodeList2.List[i]);
     FreeAndNil(NodeList2);
   end;
-  
+
   Result := NodeList.Count > 0;
 
   if not Result then //If route still unbuilt..
@@ -582,40 +582,34 @@ begin
 end;
 
 
+{This solution tries to find an unoccupied tile where unit can side-step}
 function TUnitActionWalkTo.IntSolutionSideStep(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
+var SideStepTest:TKMPoint;
 begin
   Result := false;
-  if HighestInteractionCount >= SIDESTEP_TIMEOUT then
+  if (HighestInteractionCount < SIDESTEP_TIMEOUT) or DoExchange then exit;
+  if KMSamePoint(fOpponent.GetPosition, fWalkTo) then exit; //Someone stays right on target, no point in side-stepping
+  if not CheckInteractionFreq(HighestInteractionCount, SIDESTEP_TIMEOUT, SIDESTEP_FREQ) then exit; //FindSideStepPosition is CPU intensive, so don't run it every time
+
+  //Find a node
+  if NodePos+2 > NodeList.Count then //Tell Terrain about our next position if we can
+    SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,fOpponent.GetPosition, KMPoint(0,0), NodePos-fLastSideStepNodePos < 2)
+  else
+    SideStepTest := fTerrain.FindSideStepPosition(fWalker.GetPosition,fOpponent.GetPosition, NodeList.List[NodePos+2], NodePos-fLastSideStepNodePos < 2);
+
+  if KMSamePoint(SideStepTest, KMPoint(0,0)) then exit; //It could be 0,0 if all tiles were blocked
+
+  //Someone took it, so exit out and hope for better luck next time
+  if fTerrain.HasUnit(SideStepTest) then
+    Result := true //Means exit DoUnitInteraction without change
+  else
   begin
-    //Try moving to a tile next to our target, if that tile is walkable and unoccupied. If we just did that then we cannot do it again
-    if (not DoExchange) and (not KMSamePoint(fOpponent.GetPosition,fWalkTo)) then //Not the target position (no point if it is)
-    begin
-      if not KMSamePoint(fSideStepTesting,KMPoint(0,0)) then
-      begin
-        //We must check the tile that we chose last time to see if it is still free (side stepping is only for when no one is or wants to use tile)
-        if fTerrain.HasUnit(fSideStepTesting) then
-          //Someone took it, so exit out and hope for better luck next time
-          Result := true //Means exit DoUnitInteraction
-        else
-        begin
-          //Modify our route to go via this tile
-          Explanation := 'Sidestepping to a tile next to target';
-          ExplanationLogAdd;
-          ChangeStepTo(fSideStepTesting);
-          fLastSideStepNodePos := NodePos;
-          Result := true; //Means exit DoUnitInteraction
-        end;
-      end
-      else //FindSideStepPosition is CPU intensive, so don't run it every time
-      if CheckInteractionFreq(HighestInteractionCount,SIDESTEP_TIMEOUT,SIDESTEP_FREQ) then
-      begin
-        //Ask Terrain to give us a side step position. Tell it about our next position if we can
-        if NodePos+2 > NodeList.Count then
-          fSideStepTesting := fTerrain.FindSideStepPosition(fWalker.GetPosition,fOpponent.GetPosition,KMPoint(0,0),(NodePos-fLastSideStepNodePos < 2))
-        else
-          fSideStepTesting := fTerrain.FindSideStepPosition(fWalker.GetPosition,fOpponent.GetPosition,NodeList.List[NodePos+2],(NodePos-fLastSideStepNodePos < 2));
-      end;
-    end;
+    //Modify our route to go via this tile
+    Explanation := 'Sidestepping to a tile next to target';
+    ExplanationLogAdd;
+    ChangeStepTo(SideStepTest);
+    fLastSideStepNodePos := NodePos;
+    Result := true; //Means exit DoUnitInteraction
   end;
 end;
 
@@ -931,7 +925,7 @@ begin
       fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
     end;
-    fSideStepTesting := KMPoint(0,0); //Reset it because now we are taking a new step (this interaction is solved)
+
   end;
   WaitingOnStep := false;
 
@@ -972,7 +966,6 @@ begin
   SaveStream.Write(fVertexOccupied);
   SaveStream.Write(fNewWalkTo);
   SaveStream.Write(fWalkToSpot);
-  SaveStream.Write(fSideStepTesting);
   SaveStream.Write(fDestBlocked);
   SaveStream.Write(fLastSideStepNodePos);
   SaveStream.Write(fPass,SizeOf(fPass));
