@@ -113,9 +113,11 @@ TilePassability:array[1..256]of byte = (
 255,255,255,255,255,255,255,255
 );
 
-// 812
-// 703
-// 654
+//Lookup table
+// 8 1 2
+// 7 0 3
+// 6 5 4
+//todo: Add ice
 TileDirection:array[1..256]of byte = (
 0,0,0,0,0,0,0,0,
 0,0,0,0,1,0,0,0,

@@ -8,7 +8,7 @@ Version: 0.6b
 Instructions: Unpack all files into KaM folder. KaM Editor needs to access KaM resource files.
 
 Version history:
-0.6b	2010.07.12	Hopefully fixed controls off-screen caused by WinXP/7 themes
+0.6b	2010.08.11	Hopefully fixed controls off-screen caused by WinXP/7 themes
 			Removed password stuff
 0.6	2009.04.16	Added support for extra large maps up to 1024x1024 tiles (not compatible with KaM)
 			Improved minimap display, now it displays height and stretches according to map size

@@ -243,7 +243,6 @@ begin
                   if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
 
                   if Key=ord('V') then begin fGame.GameHold(true); exit; end; //Instant victory
-                  if Key=ord('C') then begin fGame.GameError(KMPoint(12,12), 'Intentional crash'); exit; end; //Crash
                 end;
     gsReplay:   begin
                   if IsDown then exit;
