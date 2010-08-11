@@ -771,8 +771,10 @@ end;
 
 function TTerrain.FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
 var i,k,RadLeft,RadRight,RadTop,RadBottom,R1,R2,R3,R4:integer; L:array[1..4]of TKMPointList;
-begin   
-  fLog.AssertToLog(Rt in [rt_IronOre, rt_GoldOre, rt_Coal],'Wrong resource to find as Ore');
+begin
+  if not (Rt in [rt_IronOre, rt_GoldOre, rt_Coal]) then
+    fGame.GameError(aPosition, 'Wrong resource as Ore');
+
   for i:=1 to 4 do L[i]:=TKMPointList.Create; //4 densities
 
   case Rt of
@@ -971,8 +973,8 @@ begin
     rt_Coal:    Land[Loc.Y,Loc.X].Terrain:=155;
     rt_IronOre: Land[Loc.Y,Loc.X].Terrain:=151;
     rt_GoldOre: Land[Loc.Y,Loc.X].Terrain:=147;
-    else fLog.AssertToLog(false, 'Trying to set wrong resource deposit');
-  end;                           
+    else        fGame.GameError(Loc, 'Wrong resource deposit');
+  end;
   RecalculatePassability(Loc);
 end;
 
@@ -1027,22 +1029,23 @@ end;
 {Extract one unit of ore}
 procedure TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
 begin
-  fLog.AssertToLog(rt in [rt_IronOre,rt_GoldOre,rt_Coal],'Wrong ore to decrease');
+  if not (rt in [rt_IronOre,rt_GoldOre,rt_Coal]) then
+    fGame.GameError(Loc, 'Wrong ore decrease');
+
   case Land[Loc.Y,Loc.X].Terrain of
-  144: Land[Loc.Y,Loc.X].Terrain:=157+random(3); //Gold
-  145: Land[Loc.Y,Loc.X].Terrain:=144;
-  146: Land[Loc.Y,Loc.X].Terrain:=145;
-  147: Land[Loc.Y,Loc.X].Terrain:=146;
-  148: Land[Loc.Y,Loc.X].Terrain:=160+random(4); //Iron
-  149: Land[Loc.Y,Loc.X].Terrain:=148;
-  150: Land[Loc.Y,Loc.X].Terrain:=149;
-  151: Land[Loc.Y,Loc.X].Terrain:=150;
-  152: Land[Loc.Y,Loc.X].Terrain:=35 +random(2); //Coal
-  153: Land[Loc.Y,Loc.X].Terrain:=152;
-  154: Land[Loc.Y,Loc.X].Terrain:=153;
-  155: Land[Loc.Y,Loc.X].Terrain:=154;
-  //else fLog.AssertToLog(false,'Can''t DecOreReserve');
-  //Don't show error cos sometimes two miners gather same piece of ore
+    144: Land[Loc.Y,Loc.X].Terrain:=157+random(3); //Gold
+    145: Land[Loc.Y,Loc.X].Terrain:=144;
+    146: Land[Loc.Y,Loc.X].Terrain:=145;
+    147: Land[Loc.Y,Loc.X].Terrain:=146;
+    148: Land[Loc.Y,Loc.X].Terrain:=160+random(4); //Iron
+    149: Land[Loc.Y,Loc.X].Terrain:=148;
+    150: Land[Loc.Y,Loc.X].Terrain:=149;
+    151: Land[Loc.Y,Loc.X].Terrain:=150;
+    152: Land[Loc.Y,Loc.X].Terrain:=35 +random(2); //Coal
+    153: Land[Loc.Y,Loc.X].Terrain:=152;
+    154: Land[Loc.Y,Loc.X].Terrain:=153;
+    155: Land[Loc.Y,Loc.X].Terrain:=154;
+    else; //Don't show error cos sometimes two miners gather same piece of ore
   end;
   Land[Loc.Y,Loc.X].Rotation:=random(3);
   RecalculatePassability(Loc);
@@ -1081,7 +1084,7 @@ var i,k:integer;
 begin
   //First of all exclude all tiles outside of actual map
   if not TileInMapCoords(Loc.X,Loc.Y) then begin
-    fLog.AssertToLog(false, 'Failed to recalculate passability at: '+TypeToString(loc));
+    fGame.GameError(Loc, 'Failed to recalculate passability');
     exit;
   end;
 

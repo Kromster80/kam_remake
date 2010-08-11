@@ -28,7 +28,7 @@ type
     end;
 
 implementation
-uses KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo;
+uses KM_Game, KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo;
 
 
 { TTaskDeliver }
@@ -285,7 +285,7 @@ end;
   if TaskDone then exit;
   inc(fPhase);
   if fUnit.GetUnitAction=nil then
-    fLog.AssertToLog(false,'fSerf.fCurrentAction=nil)and(not TaskDone)');
+    fGame.GameError(fUnit.GetPosition, 'Delivery No action, no TaskDone!');
 end;
 
 

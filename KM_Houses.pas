@@ -686,7 +686,7 @@ begin
   case aResource of
     rt_Wood: inc(fBuildSupplyWood);
     rt_Stone: inc(fBuildSupplyStone);
-  else fLog.AssertToLog(false,'WIP house is not supposed to recieve '+TypeToString(aResource)+', right?');
+  else fGame.GameError(GetPosition, 'WIP house is not supposed to recieve '+TypeToString(aResource)+', right?');
   end;
 end;
 
@@ -1249,18 +1249,18 @@ end;
 procedure TKMHouseStore.AddMultiResource(aResource:TResourceType; const aCount:word=1);
 var i:integer;
 begin
-if aResource=rt_All then
-  for i:=1 to length(ResourceCount) do begin
-    ResourceCount[i]:=EnsureRange(ResourceCount[i]+aCount,0,MAXWORD);
-    fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
-  end
-else
-if aResource in [rt_Trunk..rt_Fish] then begin
-    ResourceCount[byte(aResource)]:=EnsureRange(ResourceCount[byte(aResource)]+aCount,0,MAXWORD);
-    fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
-  end
-else
-fLog.AssertToLog(false,'Cant''t add such resource '+TypeToString(aResource));
+  case aResource of
+    rt_All:     for i:=1 to length(ResourceCount) do begin
+                  ResourceCount[i]:=EnsureRange(ResourceCount[i]+aCount,0,MAXWORD);
+                  fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
+                end;
+    rt_Trunk..
+    rt_Fish:    begin
+                  ResourceCount[byte(aResource)]:=EnsureRange(ResourceCount[byte(aResource)]+aCount,0,MAXWORD);
+                  fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,aResource,aCount);
+                end;
+    else        fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
+  end;
 end;
 
 
@@ -1323,7 +1323,7 @@ else
 if aResource in [rt_Shield..rt_Horse] then
   ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,MAXWORD)
 else
-  fLog.AssertToLog(false,'Cant''t add such resource '+TypeToString(aResource));
+  fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
 end;
 
 
@@ -1344,7 +1344,7 @@ begin
       dec(ResourceCount[byte(aResource)-16]);
       Result:=true;
     end else
-      fLog.AssertToLog(false,'ResourceCount[byte(aResource)-16]<0');
+      fGame.GameError(GetPosition, 'ResourceCount < 0');
 end;
 
 

@@ -31,8 +31,8 @@ const
   CONTROLS_SCALE        = 1;            //Scale controls to this size, highly experimental and imperfect
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r940';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r940';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Fighting Demo r947';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r947';       //Should be updated for every release (each time save format is changed)
 
 var
   //These should be TRUE

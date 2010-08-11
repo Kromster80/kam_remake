@@ -114,7 +114,7 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild;
+uses KM_Game, KM_Unit1, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild;
 
 
 { TKMDeliverQueue }
@@ -197,7 +197,9 @@ end;
 procedure TKMDeliverQueue.AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
 var i,k:integer;
 begin
-  fLog.AssertToLog(aResource<>rt_None, 'Demanding rt_None');
+  if aResource = rt_None then
+    fGame.GameError(KMPoint(0,0), 'Demanding rt_None');
+
   for k:=1 to aDemandCount do begin
     i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
 

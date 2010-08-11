@@ -442,7 +442,7 @@ begin
     SetActionStay(RestTime, ua_Walk); //Absolutely nothing to do ...
   end;
 
-  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
 
 
@@ -465,10 +465,8 @@ begin
     end;
   end;
 
-  //if not KMSamePoint(GetPosition,fHome.GetEntrance) then begin
-  //  fLog.AssertToLog(KMSamePoint(GetPosition,fHome.GetEntrance),'Asking for work from wrong spot');
-  //  fViewport.SetCenter(GetPosition.X,GetPosition.Y);
-  //end;
+  if not KMSamePoint(GetPosition, fHome.GetEntrance) then
+    fGame.GameError(GetPosition, 'Mining from wrong spot');
 
   WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
@@ -648,7 +646,7 @@ begin
     SetActionStay(RestTime, ua_Walk); //Absolutely nothing to do ...
   end;
 
-  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
 
 
@@ -757,7 +755,7 @@ begin
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
-  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
 
 
@@ -845,7 +843,7 @@ begin
 
   if fUnitTask=nil then SetActionStay(20,ua_Walk);
 
-  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
 
 
@@ -976,7 +974,7 @@ begin
   SetActionWalk(Self, Spot, KMPoint(0,0));
   if not TUnitActionWalkTo(fCurrentAction).fRouteBuilt then SetActionStay(5, ua_Walk);
 
-  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
 
 
@@ -1274,7 +1272,9 @@ end;
 
 function TKMUnit.GetMaxHitPoints:byte;
 begin
-  fLog.AssertToLog(byte(GetUnitType) in [1..41],'GetHP: Unit type must be in 1..41 range');
+  if not (byte(GetUnitType) in [1..length(UnitStat)]) then
+    fGame.GameError(GetPosition, 'GetMaxHitPoints for wrong unit');
+
   Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints,0,255);
 end;
 
@@ -1691,11 +1691,10 @@ end;
 
 procedure TKMUnit.Paint();
 begin
-  //fLog.AssertToLog(fUnitTask<>nil,'Unit '+TypeToString(fUnitType)+' has no task!');
   if fCurrentAction=nil then
   begin
-    fLog.AssertToLog(fCurrentAction<>nil,'Unit '+TypeToString(fUnitType)+' has no action!');
-    SetActionStay(10, ua_Walk);
+    fGame.GameError(GetPosition, TypeToString(fUnitType)+' has no action!');
+    exit;
   end;
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
@@ -1903,7 +1902,7 @@ begin
   end;
   inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-    fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
+    fGame.GameError(fUnit.GetPosition, 'Go home No action, no TaskDone!');
 end;
 
 
@@ -2011,7 +2010,7 @@ begin
   end;
   inc(fPhase);
   if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-    fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
+    fGame.GameError(fUnit.GetPosition, 'Show hungry No action, no TaskDone!');
 end;
 
 
@@ -2125,9 +2124,9 @@ case fPhase of
     end;
  else TaskDone:=true;
 end;
-inc(fPhase);
-if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-  fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
+  inc(fPhase);
+  if (fUnit.fCurrentAction=nil)and(not TaskDone) then
+    fGame.GameError(fUnit.GetPosition, 'GoEat No action, no TaskDone!');
 end;
 
 
@@ -2221,8 +2220,7 @@ begin
 
     ut_Wolf..ut_Duck:           U:= Inherited Add(TKMUnitAnimal.Create(aOwner,PosX,PosY,aUnitType));
 
-    else
-    fLog.AssertToLog(false,'Such unit doesn''t exist yet - '+TypeToString(aUnitType));
+    else                        fGame.GameError(KMPoint(PosX, PosY), 'Add '+TypeToString(aUnitType));
   end;
 
   if U=-1 then Result:=nil else Result:=Units[U];
@@ -2385,8 +2383,7 @@ begin
       ut_Militia..ut_Barbarian: Inherited Add(TKMUnitWarrior.Load(LoadStream));
       //ut_Bowman:   Inherited Add(TKMUnitArcher.Load(LoadStream)); //I guess it will be stand-alone
       ut_Wolf..ut_Duck:         Inherited Add(TKMUnitAnimal.Load(LoadStream));
-    else
-      fLog.AssertToLog(false, 'Unknown unit type in Savegame')
+      else fLog.AssertToLog(false, 'Unknown unit type in Savegame')
     end;
   end;
 end;
@@ -2395,7 +2392,7 @@ end;
 procedure TKMUnitsCollection.SyncLoad();
 var i:integer;
 begin
-  for i := 0 to Count - 1 do
+  for i:=0 to Count-1 do
   begin
     case Units[i].fUnitType of
       ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;

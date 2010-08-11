@@ -1004,7 +1004,8 @@ begin
       SetActionStay(5,ua_Walk);
   end;
 
-  fLog.AssertToLog(fCurrentAction<>nil,'Unit has no action!');
+  if fCurrentAction = nil then
+    fGame.GameError(GetPosition, 'Warrior has no action');
 end;
 
 

@@ -38,6 +38,8 @@ type
 
 implementation
 
+uses KM_Game;
+
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
 Everything should be issued by units
 Where to go, which walking style, what to do on location, for how long
@@ -380,7 +382,7 @@ end else
 if (aUnitType=ut_Recruit)and(aHome=ht_WatchTower) then begin
   fIssued:=false; //Let him idle
 end else
-  fLog.AssertToLog(false,'There''s yet no working plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
+  fGame.GameError(KMPoint(0,0), 'No work plan for '+TypeToString(aUnitType)+' in '+TypeToString(aHome));
 end;
 
 

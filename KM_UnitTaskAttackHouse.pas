@@ -25,7 +25,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo, KM_Terrain;
+uses KM_Game, KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo, KM_Terrain;
 
 
 { TTaskAttackHouse }
@@ -174,8 +174,8 @@ begin
 
   if TaskDone then exit;
   inc(fPhase);
-  if fUnit.GetUnitAction=nil then
-    fLog.AssertToLog(false,'fWarrior.fCurrentAction=nil)and(not TaskDone)');
+
+  if fUnit.GetUnitAction=nil then fGame.GameError(fUnit.GetPosition, 'fWarrior.fCurrentAction=nil)and(not TaskDone)');
 end;
 
 

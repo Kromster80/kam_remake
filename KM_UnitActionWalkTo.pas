@@ -121,7 +121,8 @@ begin
   Explanation := 'Walk action created';
   ExplanationLogAdd;
 
-  fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal WalkTo 0;0');
+  if fWalkTo.X*fWalkTo.Y = 0 then
+    fGame.GameError(fWalkTo, 'WalkTo 0:0');
 
   NodeList      := TKMPointList.Create; //Freed on destroy
   SetInitValues;
@@ -261,7 +262,8 @@ begin
     if KMLength(ForcedExchangePos,NodeList.List[NodePos+1]) >= 1.5 then
       NodeList.InjectEntry(NodePos+1,fWalker.GetPosition); //We must back-track if we cannot continue our route from the new tile
     NodeList.InjectEntry(NodePos+1,ForcedExchangePos);
-    if KMSamePoint(fWalker.GetPosition,ForcedExchangePos) then fLog.AssertToLog(false,'Perform Exchange to same place?');
+    if KMSamePoint(fWalker.GetPosition, ForcedExchangePos) then
+      fGame.GameError(fWalker.GetPosition, 'Exchange to same place');
     fWalker.Direction := KMGetDirection(fWalker.GetPosition,ForcedExchangePos);
     DoesWalking:=true;
   end
@@ -354,9 +356,9 @@ end;
 procedure TUnitActionWalkTo.IncVertex;
 begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
-  if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
+  if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
   begin
-    fLog.AssertToLog(false,'Inc new vertex when old is still used?');
+    fGame.GameError(fVertexOccupied, 'IncVertex');
     exit;
   end;
 
@@ -368,9 +370,9 @@ end;
 procedure TUnitActionWalkTo.DecVertex;
 begin
   //Tell fTerrain that this vertex is not being used anymore
-  if KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
+  if KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
   begin
-    fLog.AssertToLog(false,'Dec unoccupied vertex?');
+    fGame.GameError(fVertexOccupied, 'DecVertex 0:0');
     exit;
   end;
 
@@ -715,7 +717,8 @@ end;
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aResetTargetUnit:boolean=true; aNewTargetUnit: TKMUnit=nil);
 begin
-  fLog.AssertToLog(fWalkTo.X*fWalkTo.Y<>0,'Illegal ChangeWalkTo 0;0');
+  if fWalkTo.X*fWalkTo.Y = 0 then
+   fGame.GameError(fWalkTo, 'ChangeWalkTo 0:0');
 
   if not aWalkToNear then
     fNewWalkTo := aLoc
@@ -930,7 +933,7 @@ begin
   WaitingOnStep := false;
 
   if NodePos>NodeList.Count then
-    fLog.AssertToLog(false,'TUnitAction is being overrun for some reason - error!');
+    fGame.GameError(fWalker.GetPosition, 'WalkTo overrun');
 
   WalkX := NodeList.List[NodePos].X - fWalker.PositionF.X;
   WalkY := NodeList.List[NodePos].Y - fWalker.PositionF.Y;

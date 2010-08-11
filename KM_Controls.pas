@@ -968,7 +968,6 @@ begin
   Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
-  fLog.AssertToLog(ResourceCount<=7,'Resource count in this house is exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top, 4,350+byte(Resource));
 end;
@@ -1001,7 +1000,6 @@ begin
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
-  fLog.AssertToLog(ResourceCount<=7,'Resource count exceeded'); //4+3 for Stonecutter
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, 4,350+byte(Resource));
 end;

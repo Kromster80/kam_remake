@@ -74,7 +74,7 @@ begin
   end;
   inc(fPhase);
   if (fUnit.GetUnitAction=nil)and(not TaskDone) then
-    fLog.AssertToLog(false,'(TTaskThrowRock.fCurrentAction=nil)and(not TaskDone)');
+    fGame.GameError(fUnit.GetPosition, 'ThrowRock No action, no TaskDone!');
 end;
 
 

@@ -20,7 +20,7 @@ type
 
 
 implementation
-uses KM_Terrain;
+uses KM_Game, KM_Terrain;
 
 
 { TTaskMining }
@@ -239,7 +239,7 @@ with fUnit do
   end;
   inc(fPhase);
   if (fUnit.GetUnitAction=nil)and(not TaskDone) then
-    fLog.AssertToLog(false,'(fUnit.fCurrentAction=nil)and(not TaskDone)');
+    fGame.GameError(fUnit.GetPosition, 'Mining No action, no TaskDone!');
 end;
 
 
