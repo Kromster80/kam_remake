@@ -482,6 +482,7 @@ begin
       kaCenter: fRenderUI.WriteLayer(Left - Width div 2, Top, Width, Height, $2000FFFF);
       kaRight:  fRenderUI.WriteLayer(Left - Width, Top, Width, Height, $2000FFFF);
     end;
+    fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
     exit;
   end;
 
@@ -495,6 +496,7 @@ begin
   if CursorOver then sColor := sColor OR $30000000; //Highlight on mouse over
 
   fRenderUI.WriteLayer(Left, Top, Width, Height, sColor);
+  fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
 end;
 
 

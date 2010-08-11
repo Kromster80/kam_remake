@@ -1125,9 +1125,9 @@ end;
 {Decreases the pointer counter}
 procedure TKMUnit.RemovePointer;
 begin
-  dec(fPointerCount);
-  if Self.fPointerCount < 0 then
+  if fPointerCount < 1 then
     fGame.GameError(PrevPosition, 'Unit remove pointer');
+  dec(fPointerCount);
 end;
 
 

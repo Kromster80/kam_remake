@@ -1165,8 +1165,8 @@ begin
                     inc(fGameplayTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameplayTickCount); //Quite slow
-                    fProjectiles.UpdateState;
                     if GameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+                    fProjectiles.UpdateState; //If game has stopped it's NIL
 
                     if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.IsAutosave then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
