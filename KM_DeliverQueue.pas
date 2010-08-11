@@ -186,7 +186,7 @@ begin
   if fDemand[i].Loc_House=aHouse then
   begin
     fDemand[i].Loc_House.RemovePointer;
-    if fDemand[i].Loc_Unit <> nil then fDemand[i].Loc_Unit.RemovePointer;
+    if fDemand[i].Loc_Unit <> nil then fDemand[i].Loc_Unit.ReleaseUnitPointer;
     FillChar(fDemand[i],SizeOf(fDemand[i]),#0); //Clear up demand
   end;
 end;
@@ -401,7 +401,7 @@ begin
     fDemand[iD].Resource:=rt_None;
     if fDemand[iD].Loc_House <> nil then fDemand[iD].Loc_House.RemovePointer;
     fDemand[iD].Loc_House:=nil;
-    if fDemand[iD].Loc_Unit <> nil then fDemand[iD].Loc_Unit.RemovePointer;
+    if fDemand[iD].Loc_Unit <> nil then fDemand[iD].Loc_Unit.ReleaseUnitPointer;
     fDemand[iD].Loc_Unit:=nil;
   end;
 end;
@@ -585,7 +585,7 @@ begin
   fFieldsQueue[aID].FieldType:=ft_None;
   fFieldsQueue[aID].Importance:=0;
   fFieldsQueue[aID].JobStatus:=js_Empty;
-  if fFieldsQueue[aID].Worker <> nil then fFieldsQueue[aID].Worker.RemovePointer;
+  if fFieldsQueue[aID].Worker <> nil then fFieldsQueue[aID].Worker.ReleaseUnitPointer;
   fFieldsQueue[aID].Worker:=nil;
 end;
 
@@ -605,7 +605,7 @@ begin
   fHousePlansQueue[aID].House:=nil;
   fHousePlansQueue[aID].Importance:=0;
   fHousePlansQueue[aID].JobStatus:=js_Empty;
-  if fHousePlansQueue[aID].Worker <> nil then fHousePlansQueue[aID].Worker.RemovePointer;
+  if fHousePlansQueue[aID].Worker <> nil then fHousePlansQueue[aID].Worker.ReleaseUnitPointer;
   fHousePlansQueue[aID].Worker:=nil;
 end;
 
@@ -622,7 +622,7 @@ end;
 procedure TKMBuildingQueue.ReOpenRoad(aID:integer);
 begin
   fFieldsQueue[aID].JobStatus:=js_Open;
-  if fFieldsQueue[aID].Worker <> nil then fFieldsQueue[aID].Worker.RemovePointer;
+  if fFieldsQueue[aID].Worker <> nil then fFieldsQueue[aID].Worker.ReleaseUnitPointer;
   fFieldsQueue[aID].Worker:=nil;
 end;
 
@@ -631,7 +631,7 @@ end;
 procedure TKMBuildingQueue.ReOpenHousePlan(aID:integer);
 begin
   fHousePlansQueue[aID].JobStatus:=js_Open;
-  if fHousePlansQueue[aID].Worker <> nil then fHousePlansQueue[aID].Worker.RemovePointer;
+  if fHousePlansQueue[aID].Worker <> nil then fHousePlansQueue[aID].Worker.ReleaseUnitPointer;
   fHousePlansQueue[aID].Worker:=nil;
 end;
 

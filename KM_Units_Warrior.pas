@@ -149,9 +149,9 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
-  if fOrderTargetUnit<>nil then fOrderTargetUnit.RemovePointer;
+  if fOrderTargetUnit<>nil then fOrderTargetUnit.ReleaseUnitPointer;
   if fOrderTargetHouse<>nil then fOrderTargetHouse.RemovePointer;
-  if fFoe<>nil then fFoe.RemovePointer;
+  if fFoe<>nil then fFoe.ReleaseUnitPointer;
 
   FreeAndNil(fMembers);
   Inherited;
@@ -431,7 +431,7 @@ begin
   //Set fOrderTarget to nil, removing pointer if it's still valid
   if fOrderTargetUnit <> nil then
   begin
-    fOrderTargetUnit.RemovePointer;
+    fOrderTargetUnit.ReleaseUnitPointer;
     fOrderTargetUnit := nil;
   end;
   if fOrderTargetHouse <> nil then
@@ -480,7 +480,7 @@ end;
 procedure TKMUnitWarrior.SetFoe(aUnit:TKMUnitWarrior);
 begin
   if fFoe <> nil then
-    fFoe.RemovePointer;
+    fFoe.ReleaseUnitPointer;
 
   if aUnit <> nil then
     fFoe := TKMUnitWarrior(aUnit.GetUnitPointer) //Else it will be nil from ClearFoe
@@ -493,7 +493,7 @@ end;
 function TKMUnitWarrior.GetFoe:TKMUnitWarrior;
 begin
   if (fFoe <> nil) and (fFoe.IsDead) then begin
-    fFoe.RemovePointer;
+    fFoe.ReleaseUnitPointer;
     fFoe := nil;
   end;
   Result := fFoe;

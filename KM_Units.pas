@@ -134,7 +134,7 @@ type
     procedure SyncLoad(); virtual;
     destructor Destroy; override;
     function GetUnitPointer:TKMUnit; //Returns self and adds one to the pointer counter
-    procedure RemovePointer;  //Decreases the pointer counter
+    procedure ReleaseUnitPointer;  //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
     procedure KillUnit; virtual;
     function GetSupportedActions: TUnitActionTypeSet; virtual;
@@ -1124,7 +1124,7 @@ end;
 
 
 {Decreases the pointer counter}
-procedure TKMUnit.RemovePointer;
+procedure TKMUnit.ReleaseUnitPointer;
 begin
   if fPointerCount < 1 then
     fGame.GameError(PrevPosition, 'Unit remove pointer');
@@ -1734,7 +1734,7 @@ end;
 
 destructor TUnitTask.Destroy;
 begin
-  if fUnit <> nil then fUnit.RemovePointer;
+  if fUnit <> nil then fUnit.ReleaseUnitPointer;
   Inherited Destroy;
 end;
 
@@ -1743,7 +1743,7 @@ procedure TUnitTask.Abandon;
 begin
   //Shortcut to abandon and declare task done
   fUnit.Thought := th_None; //Stop any thoughts
-  if fUnit <> nil then fUnit.RemovePointer;
+  if fUnit <> nil then fUnit.ReleaseUnitPointer;
   fUnit         := nil;
   fPhase        := MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2       := MAXBYTE-1;

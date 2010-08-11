@@ -225,8 +225,7 @@ begin
 
   fWalker.IsExchanging := false;
 
-  if fTargetUnit <> nil then
-    fTargetUnit.RemovePointer;
+  if fTargetUnit <> nil then fTargetUnit.ReleaseUnitPointer;
   Inherited;
 end;
 
@@ -725,13 +724,13 @@ begin
 
   if aResetTargetUnit then begin
     if fTargetUnit <> nil then
-      fTargetUnit.RemovePointer; //release the unit
+      fTargetUnit.ReleaseUnitPointer;
     fTargetUnit := nil;
   end;
 
   if aNewTargetUnit <> nil then begin
     if fTargetUnit <> nil then
-      fTargetUnit.RemovePointer; //release the unit
+      fTargetUnit.ReleaseUnitPointer; //release the unit
     fTargetUnit := aNewTargetUnit.GetUnitPointer; //Change target
   end;
 end;
