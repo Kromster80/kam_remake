@@ -37,8 +37,8 @@ begin
   Inherited Create(aSerf);
   fTaskName := utn_Deliver;
   fLog.AssertToLog((toHouse=nil)or(toUnit=nil),'Deliver to House AND Unit?');
-  if aFrom <> nil then fFrom:=aFrom.GetHouse;
-  if toHouse <> nil then fToHouse:=toHouse.GetHouse;
+  if aFrom <> nil then fFrom:=aFrom.GetHousePointer;
+  if toHouse <> nil then fToHouse:=toHouse.GetHousePointer;
   if toUnit <> nil then fToUnit:=toUnit.GetUnitPointer;
   fResourceType:=Res;
   fDeliverID:=aID;

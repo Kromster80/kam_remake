@@ -69,7 +69,7 @@ type
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     destructor Destroy; override;
-    function GetHouse:TKMHouse; //Returns self and adds one to the pointer counter
+    function GetHousePointer:TKMHouse; //Returns self and adds one to the pointer counter
     procedure RemovePointer; //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
     procedure CloseHouse(IsEditor:boolean=false); virtual;
@@ -330,7 +330,7 @@ end;
 
 
 {Returns self and adds on to the pointer counter}
-function TKMHouse.GetHouse:TKMHouse;
+function TKMHouse.GetHousePointer:TKMHouse;
 begin
   inc(fPointerCount);
   Result := Self;

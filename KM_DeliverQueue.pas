@@ -143,7 +143,7 @@ begin
   //Find an empty spot for new unique offer
   i:=1; while (i<MaxEntries)and(fOffer[i].Resource<>rt_None) do inc(i);
   with fOffer[i] do begin //Put offer
-    if aHouse <> nil then Loc_House:=aHouse.GetHouse;
+    if aHouse <> nil then Loc_House:=aHouse.GetHousePointer;
     Resource:=aResource;
     Count:=aCount;
     BeingPerformed:=0; //New unique offer is available to be performed apriori
@@ -204,7 +204,7 @@ begin
     i:=1; while (i<MaxEntries)and(fDemand[i].Resource<>rt_None) do inc(i);
 
     with fDemand[i] do begin
-      if aHouse <> nil then Loc_House:=aHouse.GetHouse;
+      if aHouse <> nil then Loc_House:=aHouse.GetHousePointer;
       if aUnit <> nil then Loc_Unit:=aUnit.GetUnitPointer;
       DemandType:=aDemandType; //Once or Always
       Resource:=aResource;
@@ -664,7 +664,7 @@ procedure TKMBuildingQueue.AddNewHouse(aHouse: TKMHouse);
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousesQueue[i].House<>nil) do inc(i);
-  if aHouse <> nil then fHousesQueue[i].House := aHouse.GetHouse;
+  if aHouse <> nil then fHousesQueue[i].House := aHouse.GetHousePointer;
   fHousesQueue[i].Importance:=1;
 end;
 
@@ -673,7 +673,7 @@ procedure TKMBuildingQueue.AddNewHousePlan(aHouse: TKMHouse);
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousePlansQueue[i].JobStatus<>js_Empty) do inc(i);
-  if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetHouse;
+  if aHouse <> nil then fHousePlansQueue[i].House:=aHouse.GetHousePointer;
   fHousePlansQueue[i].Importance:=1;
   fHousePlansQueue[i].JobStatus:=js_Open;
 end;
@@ -683,7 +683,7 @@ function TKMBuildingQueue.AddHouseRepair(aHouse: TKMHouse):integer;
 var i:integer;
 begin
   i:=1; while (i<MaxEntries)and(fHousesRepairQueue[i].House<>nil) do inc(i);
-  if aHouse <> nil then fHousesRepairQueue[i].House:=aHouse.GetHouse;
+  if aHouse <> nil then fHousesRepairQueue[i].House:=aHouse.GetHousePointer;
   fHousesRepairQueue[i].Importance:=1;
   Result:=i;
 end;

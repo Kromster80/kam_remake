@@ -325,8 +325,8 @@ begin
   Result:=false;
   KMHouse:=fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
   if KMHouse<>nil then begin
-    fHome:=KMHouse.GetHouse;
-    Result:=true;
+    fHome  := KMHouse.GetHousePointer;
+    Result := true;
   end;
 end;
 
@@ -538,7 +538,7 @@ begin
   Result  := false;
   KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
   if KMHouse<>nil then begin
-    fHome  := KMHouse.GetHouse;
+    fHome  := KMHouse.GetHousePointer;
     Result := true;
   end;
 end;
@@ -666,7 +666,8 @@ begin
     FoundEnemy := fPlayers.UnitsHitTest(Self.GetPosition.X+k,Self.GetPosition.Y+i);
     if (FoundEnemy<>nil)and //Found someone
        not(FoundEnemy.GetUnitTask is TTaskDie)and //not being killed already
-       (FoundEnemy.GetOwner <> Self.GetOwner) then //it's an enemy
+       (fPlayers.CheckAlliance(FoundEnemy.GetOwner, Self.GetOwner) = at_Enemy)
+       then
       begin
         if BestEnemy=nil then BestEnemy := FoundEnemy; //Make sure we have in filled before further comparison
         if GetLength(FoundEnemy.GetPosition,Self.GetPosition) < GetLength(BestEnemy.GetPosition,Self.GetPosition) then
@@ -1292,7 +1293,7 @@ begin
   if fInHouse <> nil then
     fInHouse.RemovePointer;
   if aInHouse <> nil then
-    fInHouse := aInHouse.GetHouse
+    fInHouse := aInHouse.GetHousePointer
   else
     fInHouse := nil;
 end;
@@ -1773,7 +1774,7 @@ constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_SelfTrain;
-  fSchool   := TKMHouseSchool(aSchool.GetHouse); //GetHouse returnes TKMHouse, not TKMHouseSchool
+  fSchool   := TKMHouseSchool(aSchool.GetHousePointer); //GetHouse returnes TKMHouse, not TKMHouseSchool
   fUnit.fVisible := false;
   fUnit.SetActionStay(0, ua_Walk);
 end;
@@ -2026,7 +2027,7 @@ constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_GoEat;
-  fInn      := TKMHouseInn(aInn.GetHouse);
+  fInn      := TKMHouseInn(aInn.GetHousePointer);
   PlaceID   := 0;
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;

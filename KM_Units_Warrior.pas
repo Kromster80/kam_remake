@@ -464,7 +464,7 @@ begin
   //Remove previous value
   ClearOrderTarget;
   if aHouse <> nil then
-    fOrderTargetHouse := aHouse.GetHouse; //Else it will be nil from ClearOrderTarget
+    fOrderTargetHouse := aHouse.GetHousePointer; //Else it will be nil from ClearOrderTarget
 end;
 
 
@@ -720,7 +720,7 @@ begin
       begin
         U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
         //Must not dead/dying, not inside a house, not from our team and an enemy
-        if (U <> nil) and (U.IsVisible) and(not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (U.GetOwner <> GetOwner) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
+        if (U <> nil) and (U.IsVisible) and(not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
         begin
           //We'd rather fight a warrior, so store them seperatly
           if U is TKMUnitWarrior then
@@ -786,8 +786,7 @@ begin
        (U.IsVisible)and
        (not (U.GetUnitTask is TTaskDie))and
        (not U.IsDead)and
-       (U.GetOwner <> GetOwner)and
-       (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
+       (fPlayers.CheckAlliance(GetOwner, U.GetOwner) = at_Enemy) then
     begin
       //We'd rather fight a warrior, so store them seperatly
       if U is TKMUnitWarrior then

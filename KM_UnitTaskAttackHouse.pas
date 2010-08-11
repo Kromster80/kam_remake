@@ -39,7 +39,7 @@ begin
     exit;
   end;
 
-  fHouse := aHouse.GetHouse;
+  fHouse := aHouse.GetHousePointer;
   LocID  := 0;
   Cells  := TKMPointDirList.Create; //Pass pre-made list to make sure we Free it in the same unit
   fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability);
