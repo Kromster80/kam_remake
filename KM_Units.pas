@@ -1184,7 +1184,7 @@ begin
   if Self is TKMUnitWorker then
     TKMUnitWorker(Self).AbandonWork;
 
-  //todo: fix this!
+  //todo: This is probably a source of some bugs in interaction, check this
   //Should we Abandon interaction things?
   {if (fCurrentAction is TUnitActionWalkTo) then
     if not TUnitActionWalkTo(fCurrentAction).CanAbandon then

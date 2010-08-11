@@ -333,6 +333,7 @@ begin
 end;
 
 
+//todo: Need an idea for how to make it work
 procedure TTaskBuildWall.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;

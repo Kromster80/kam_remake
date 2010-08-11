@@ -911,6 +911,8 @@ begin
 end;
 
 
+//todo: We can replace it with something better later on. For now [x] fits just fine
+//Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMCheckBox.Paint();
 const BoxWidth=25;
 var Tmp:TKMPoint; Col:TColor4;
@@ -918,7 +920,6 @@ begin
   Inherited;
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  //We can replace it with something better later on. For now [x] fits just fine
   fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
   if Checked then
     fRenderUI.WriteText(Left+4, Top, Width, 'x', Font, kaLeft, false, Col);

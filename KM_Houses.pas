@@ -855,7 +855,6 @@ begin
 end;
 
 
-//@Krom: Should we only do this when they modify the distribution settings?
 //todo: sort this out for cases when distribution increases and decreases(!)
 //Request more resources (if distribution of wares has changed)
 procedure TKMHouse.UpdateResRequest;

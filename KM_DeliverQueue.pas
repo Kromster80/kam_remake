@@ -253,14 +253,6 @@ begin
   Result := Result and ((fDemand[iD].Loc_House=nil)or(fDemand[iD].Loc_House.GetHouseType<>ht_Store)or
                        (not (fOffer[iO].Resource in [rt_Shield..rt_Horse]))or(fPlayers.Player[byte(fDemand[iD].Loc_House.GetOwner)].fMissionSettings.GetHouseQty(ht_Barracks)=0));
 
-  {@Krom: BUG REPORT:
-  Weapons are delivered from houses to store instead of barracks. If there is a barracks then
-  weapons should never go to a store.
-  After going to the store, they are soon taken to the barracks though.
-  Tried to fix but was unable to. ;) I had trouble fully understanding the bidding system.
-  @Lewin: There should be new condition perhaps - if Player.hasBarracks then do not bid delivery to store
-  @Krom: Fixed? I can't seem to reproduce this bug. Did you fix it?}
-
   //if (fDemand[iD].Loc_House=nil)or //If Demand is a Barracks and it has resource count below MAX_WARFARE_IN_BARRACKS
   //   ((fDemand[iD].Loc_House<>nil)and((fDemand[iD].Loc_House.GetHouseType<>ht_Store)or(
   //   (fDemand[iD].Loc_House.GetHouseType=ht_Store)and(fPlayers.Player[byte(KMSerf.GetOwner)].fMissionSettings.GetHouseQty(ht_Barracks)=0)))) then

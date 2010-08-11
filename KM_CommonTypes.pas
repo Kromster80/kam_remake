@@ -429,7 +429,9 @@ begin
   end;
 end;
 
-{Add an entry at given place an shift everything }
+
+{ Insert an entry and check if list is still walkable
+  Walkable means that every point is next to neighbour points }
 procedure TKMPointList.InjectEntry(ID:integer; aLoc:TKMPoint);
 var i:integer;
 begin
@@ -437,6 +439,9 @@ begin
   for i:=Count downto ID+1 do
     List[i]:=List[i-1];
   List[ID]:=aLoc;
+
+  if ID = 1 then Assert(GetLength(List[ID],List[ID+1])<1.5); //Inject first
+  if ID = Count then Assert(GetLength(List[ID-1],List[ID])<1.5); //Inject last
 end;
 
 

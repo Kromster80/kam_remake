@@ -805,7 +805,7 @@ begin
   end;
   AddData(''); //NL
 
-  //Similar advertising footer to one in Lewin's Editor, useful so we know what mission was made with. This info can be very useful
+  //Similar footer to one in Lewin's Editor, useful so ppl know what mission was made with.
   AddData('//This mission was made with KaM Remake Map Editor version '+GAME_VERSION+' at '+DateTimeToStr(Now));
 
   //Write uncoded file for debug

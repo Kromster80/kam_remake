@@ -185,7 +185,7 @@ end;
 function KMGetCursorDirection(X,Y: integer): TKMDirection;
 begin
   Result := dir_NA;
-  if KromUtils.GetLength(X,Y) <= DirCursorNARadius then exit; //Use default value dir_NA for the middle
+  if GetLength(X,Y) <= DirCursorNARadius then exit; //Use default value dir_NA for the middle
 
   if abs(X) > abs(Y) then
     if X > 0 then Result := dir_W

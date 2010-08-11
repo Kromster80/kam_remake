@@ -1114,9 +1114,6 @@ begin
   for i:=1 to LocalesCount do
     CheckBox_Options_Lang[i].Checked := LowerCase(fGame.fGlobalSettings.GetLocale) = LowerCase(Locales[i,1]);
 
-  //@Krom: Yes, I think it should be a proper control in a KaM style. Just text [x] doesn't look great.
-  //       Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
-
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
     OldFullScreen := fGame.fGlobalSettings.IsFullScreen; //memorize just in case (it will be niled on re-init anyway)
     OldResolution := fGame.fGlobalSettings.GetResolutionID;

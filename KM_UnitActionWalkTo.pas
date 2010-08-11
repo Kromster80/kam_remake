@@ -285,8 +285,6 @@ begin
   else //Otherwise we must inject it
     NodeList.InjectEntry(NodePos+1,aPos);
 
-  //todo: add route verification here, cos sometimes algo works wrong or input data is wrong
-
   fWalker.Direction := KMGetDirection(fWalker.GetPosition,aPos); //Face the new tile
 end;
 

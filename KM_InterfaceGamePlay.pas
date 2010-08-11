@@ -15,7 +15,7 @@ type TKMGamePlayInterface = class
     ShownMessage:integer;
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
-    fMessageList:TKMMessageList; //todo: low-priority: message list should be store in player, e.g. for multiplayer
+    fMessageList:TKMMessageList;
     AskDemolish:boolean;
 
     Panel_Main:TKMPanel;

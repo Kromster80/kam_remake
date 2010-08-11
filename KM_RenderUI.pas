@@ -356,10 +356,10 @@ begin
 end;
 
 
+//todo: it looks a bit wrong on corners and with AA turned On
 procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
 var i:single;
 begin
-  //@Lewin: I know it looks a bit wrong on corners and if coupled with AA turned On, I'll fix it later
   glGetFloatv(GL_LINE_WIDTH,@i); //Memorize
   glLineWidth(LineWidth);
   glColor4ubv(@Col);
