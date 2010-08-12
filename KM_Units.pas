@@ -660,6 +660,7 @@ begin
   BestEnemy := nil;
 
   //Look for an enemy within some radius
+  //todo: optimize scanning procedure cos scanning 2pR tiles with UnitHitTest is very inefficient
   for i:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
   for k:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
   if GetLength(i,k)<=RANGE_WATCHTOWER then begin

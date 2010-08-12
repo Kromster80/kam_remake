@@ -718,6 +718,7 @@ begin
       if (i<>0) or (k<>0) then
       if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through a tree trunk
       begin
+        //todo: Maybe check IsUnit first and also avoid hittesting allies and group members?
         U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
         //Must not dead/dying, not inside a house, not from our team and an enemy
         if (U <> nil) and (U.IsVisible) and(not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then

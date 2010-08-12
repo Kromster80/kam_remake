@@ -27,12 +27,13 @@ type
     function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer): TKMUnit;
     function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
+    function UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X, Y: Integer):boolean;
     function GetUnitCount():integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
-    function CheckAlliance(Player1ID,Player2ID:TPlayerID):TAllianceType;
+    function CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -108,7 +109,7 @@ begin
   Result := nil;
   for i:=1 to fPlayerCount do begin
     Result := Player[i].UnitsHitTest(X,Y);
-    if Result<>nil then Break; //else keep on testing
+    if Result<>nil then Break; //Assuming that there can't be 2 units on one tile
   end;
   if Result = nil then
     Result := PlayerAnimals.UnitsHitTest(X,Y);
@@ -135,6 +136,24 @@ begin
   for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
   for X:=trunc(aLoc.X) to ceil(aLoc.X) do
     Result := PlayerAnimals.UnitsHitTest(X,Y);
+end;
+
+
+//todo: New function to use with WatchTowers/Archers/AutoLinking/
+{ Should scan withing given radius and return unit with given Aliance status
+  Note: Excluding animals. }
+function TKMAllPlayers.UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
+var i:integer;
+begin
+  Result := nil;
+
+  for i:=1 to fPlayerCount do
+  if CheckAlliance(aPlay, Player[i].PlayerID) = aAlliance then begin
+
+
+  end;
+
+  //Don't test animals
 end;
 
 
@@ -238,12 +257,15 @@ begin
 end;
 
 
-function TKMAllPlayers.CheckAlliance(Player1ID,Player2ID:TPlayerID):TAllianceType;
+{ Check how Player1 feels towards Player2. Note: this is position dependant,
+e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1
+@Lewin: Need to discuss that sometime }
+function TKMAllPlayers.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
 begin
-  if InRange(byte(Player1ID),1,8) and InRange(byte(Player2ID),1,8) and (Player[byte(Player1ID)] <> nil) and (Player1ID <> Player2ID) then
-    Result := Player[byte(Player1ID)].fAlliances[byte(Player2ID)]
-  else
-    Result := at_Ally; //Default if there's an error (e.g. they ask for animals) or both IDs are the same (always allied with self)
+  Assert(InRange(byte(aPlay1),1,MAX_PLAYERS) and InRange(byte(aPlay2),1,MAX_PLAYERS));
+  Assert((Player[byte(aPlay1)] <> nil) and (Player[byte(aPlay2)] <> nil));
+
+  Result := Player[byte(aPlay1)].fAlliances[byte(aPlay2)]
 end;
 
 

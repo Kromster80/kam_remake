@@ -423,6 +423,7 @@ begin
                   end;
                 end;
     gsReplay:   begin
+                  fGameplayInterface.MyControls.MouseMove(X,Y,Shift); //To control minimap                  
                   fTerrain.ComputeCursorPosition(X,Y,Shift); //To show coords in status bar
                   fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                 end;
