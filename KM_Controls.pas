@@ -58,6 +58,7 @@ TKMControl = class(TObject)
     procedure Hide;
     function IsVisible():boolean;
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; virtual;
+    procedure MouseWheel(X,Y:integer; WheelDelta:integer); virtual;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnClickEither: TNotifyEventMB read FOnClickEither write FOnClickEither;
@@ -73,9 +74,9 @@ TKMPanel = class(TKMControl)
   public
     ChildCount:word;             //Those two are actually used only for TKMPanel
     Childs: array of TKMControl; //No other elements needs to be parented
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
+    procedure MouseWheel(X,Y:integer; WheelDelta:integer); override;
     procedure Paint(); override;
 end;
 
@@ -326,6 +327,7 @@ TKMFileList = class(TKMControl)
     fFiles:TStringList;
     procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
     function FileName:string;
+    procedure MouseWheel(X,Y:integer; WheelDelta:integer); override;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     destructor Destroy; override;
@@ -459,6 +461,12 @@ begin
 end;
 
 
+procedure TKMControl.MouseWheel(X,Y:integer; WheelDelta:integer);
+begin
+  if Assigned(OnMouseWheel) then OnMouseWheel(Self, WheelDelta);
+end;
+
+
 function TKMControl.HitTest(X, Y: Integer): Boolean;
 begin
   Result := IsVisible and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
@@ -558,6 +566,17 @@ begin
     if Childs[i].Visible and Childs[i].Enabled then
        Childs[i].CheckCursorOver(X,Y,AShift);
 end;
+
+
+procedure TKMPanel.MouseWheel(X,Y:integer; WheelDelta:integer);
+var i:integer;
+begin
+  Inherited;
+  for i:=1 to ChildCount do
+    if Childs[i].Visible and Childs[i].HitTest(X,Y) and Childs[i].Enabled then
+      Childs[i].MouseWheel(X,Y,WheelDelta);
+end;
+
 
 constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
@@ -1302,6 +1321,13 @@ begin
 end;
 
 
+procedure TKMFileList.MouseWheel(X,Y:integer; WheelDelta:integer);
+begin
+  Inherited;
+  TopIndex := EnsureRange(TopIndex - WheelDelta div 120, 0, 3);
+end;
+
+
 function TKMFileList.FileName():string;
 begin
   if InRange(ItemIndex, 0, fFiles.Count) then
@@ -1614,20 +1640,8 @@ end;
 
 
 procedure TKMControlsCollection.MouseWheel(X,Y:integer; WheelDelta:integer);
-var i:integer;
 begin
-  for i:=0 to Count-1 do
-    if Controls[i].HitTest(X, Y)
-    and Controls[i].Enabled then begin
-      if Controls[i] is TKMFileList then
-        TKMFileList(Controls[i]).TopIndex := EnsureRange(TKMFileList(Controls[i]).TopIndex - WheelDelta div 120, 0, 3);
-
-      if Assigned(Controls[i].OnMouseWheel) then
-      begin
-        Controls[i].OnMouseWheel(Controls[i], WheelDelta);
-        exit; //Send OnWheel only to one item
-      end;
-    end;
+  Controls[0].MouseWheel(X,Y,WheelDelta);
 end;
 
 
