@@ -45,7 +45,7 @@ type TGameInputCommand = (
   gic_HouseRepairToggle,
   gic_HouseDeliveryToggle,  //Including storehouse. (On/Off, ResourceType)
   gic_HouseOrderProduct,    //Place an order to manufacture warfare
-  gic_HouseStoreAcceptFlag, 
+  gic_HouseStoreAcceptFlag,
   gic_HouseTrain,           //Place an order to train citizen/warrior
   gic_HouseRemoveTrain      //Remove unit being trained from School
 
@@ -79,19 +79,21 @@ TGameInputProcess = class
     procedure Load(LoadStream:TKMemoryStream);
     procedure SaveToFile(aFileName:string);
     procedure LoadFromFile(aFileName:string);
+
     procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand); overload;
     procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aUnit:TKMUnit); overload;
     procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
     procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint); overload;
     procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
+
     procedure BuildCommand(aCommand:TGameInputCommand; aLoc:TKMPoint); overload;
     procedure BuildCommand(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType); overload;
 
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand); overload;
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem, aAmount:integer); overload;
-    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer); overload;
-
+    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:TResourceType); overload;
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType); overload;
+    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer); overload;
 
     procedure Tick(aTick:cardinal);
 
@@ -197,6 +199,7 @@ end;
 
 
 procedure TGameInputProcess.ExecCommand(aIndex:integer);
+var H:TKMHouse;
 begin
   Assert(fState=gipReplaying);
   with fQueue[aIndex] do
@@ -221,10 +224,18 @@ begin
                                   BuildingRepair := not BuildingRepair;
                                   if BuildingRepair then EnableRepair else DisableRepair;
                                 end;
-    gic_HouseDeliveryToggle:    with MyPlayer.GetHouseByID(Params[1]) do
-                                  WareDelivery := not WareDelivery;
+    gic_HouseDeliveryToggle:    with MyPlayer.GetHouseByID(Params[1]) do WareDelivery := not WareDelivery;
     gic_HouseOrderProduct:      MyPlayer.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
-    gic_HouseStoreAcceptFlag:   TKMHouseStore(MyPlayer.GetHouseByID(Params[1])).ToggleAcceptFlag(Params[1])
+    gic_HouseStoreAcceptFlag:   TKMHouseStore(MyPlayer.GetHouseByID(Params[1])).ToggleAcceptFlag(TResourceType(Params[1]));
+    gic_HouseTrain:             begin
+                                  H := MyPlayer.GetHouseByID(Params[1]);
+                                  case H.GetHouseType of
+                                    ht_Barracks:  TKMHouseBarracks(H).Equip(TUnitType(Params[2]));
+                                    ht_School:    TKMHouseSchool(H).AddUnitToQueue(TUnitType(Params[2]));
+                                    else          Assert(false, 'Only Schools and Barracks supported yet');
+                                  end;
+                                end;
+    gic_HouseRemoveTrain:       TKMHouseSchool(MyPlayer.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
 
     else Assert(false);
   end;
@@ -335,19 +346,34 @@ begin
 end;
 
 
-procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer);
+procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:TResourceType);
 begin
   Assert(aCommand = gic_HouseStoreAcceptFlag);
   TKMHouseStore(aHouse).ToggleAcceptFlag(aItem);
-  SaveCommand(aCommand, aHouse.ID, aItem);
+  SaveCommand(aCommand, aHouse.ID, integer(aItem));
 end;
 
 
 procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType);
 begin
   Assert(aCommand = gic_HouseTrain);
-  //todo:
+  //It might not be the best idea to rely on GetHouseType here,
+  //but it will serve as additional data integrity check. Besides it looks better than pile of IF ELSEs
+  case aHouse.GetHouseType of
+    ht_Barracks:  TKMHouseBarracks(aHouse).Equip(aUnitType);
+    ht_School:    TKMHouseSchool(aHouse).AddUnitToQueue(aUnitType);
+    else          Assert(false, 'Only Schools and Barracks supported yet');
+  end;
   SaveCommand(aCommand, aHouse.ID, integer(aUnitType));
+end;
+
+
+procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer);
+begin
+  Assert(aCommand = gic_HouseRemoveTrain);
+  Assert(aHouse is TKMHouseSchool);
+  TKMHouseSchool(aHouse).RemUnitFromQueue(aItem);
+  SaveCommand(aCommand, aHouse.ID, aItem);
 end;
 
 

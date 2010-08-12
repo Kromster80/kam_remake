@@ -333,10 +333,6 @@ begin
       Button_MainMenuCredits.OnClick  := SwitchMenuPage;
       Button_MainMenuQuit.OnClick     := Form1.Exit1.OnClick;
       if not SHOW_MAPED_IN_MENU then Button_MainMenuMapEd.Hide; //Let it be created, but hidden, I guess there's no need to seriously block it
-      //Button_MainMenuCredit.Disable;
-
-      with MyControls.AddButton(Panel_MainMenu,600,200,150,30,'Replay 99 save',fnt_Metal,bsMenu) do
-        OnClick := fGame.ViewReplay;                                         
 end;
 
 
@@ -356,6 +352,9 @@ begin
       Button_SinglePlayerTPR    :=MyControls.AddButton(Panel_SinglePlayerButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
       Button_SinglePlayerSingle :=MyControls.AddButton(Panel_SinglePlayerButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
       Button_SinglePlayerLoad   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
+
+    with MyControls.AddButton(Panel_SinglePlayerButtons,0,240,350,30,'Replay last game',fnt_Metal,bsMenu) do
+      OnClick := fGame.ViewReplay;
 
       Button_SinglePlayerTutor.OnClick    := MainMenu_PlayTutorial;
       Button_SinglePlayerFight.OnClick    := MainMenu_PlayBattle;

@@ -200,7 +200,7 @@ type
     NotAcceptFlag:array[1..28]of boolean;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
-    procedure ToggleAcceptFlag(aTagID:byte);
+    procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -1263,24 +1263,24 @@ begin
 end;
 
 
-procedure TKMHouseStore.ToggleAcceptFlag(aTagID:byte);
+procedure TKMHouseStore.ToggleAcceptFlag(aRes:TResourceType);
 var i:integer; ApplyCheat:boolean;
 begin
-  if aTagID=0 then exit; //Dunno why thats happening sometimes..
+  Assert(aRes in [rt_Trunk .. rt_Fish]); //Dunno why thats happening sometimes..
 
   if CHEATS_ENABLED then begin
-    ApplyCheat:=true;
+    ApplyCheat := true;
 
     for i:=1 to length(ResourceCount) do
       ApplyCheat := ApplyCheat and (NotAcceptFlag[i] = bool(CheatStorePattern[i]));
 
-    if ApplyCheat and (aTagID=26) then begin
-      AddMultiResource(rt_All,10);
+    if ApplyCheat and (aRes = rt_Arbalet) then begin
+      AddMultiResource(rt_All, 10);
       exit;
     end;
   end;
 
-  NotAcceptFlag[aTagID] := not NotAcceptFlag[aTagID];
+  NotAcceptFlag[byte(aRes)] := not NotAcceptFlag[byte(aRes)];
 end;
 
 

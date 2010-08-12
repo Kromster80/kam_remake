@@ -1080,15 +1080,17 @@ var i:integer;
 begin
     Panel_House_School:=MyControls.AddPanel(Panel_House,0,76,200,400);
       Label_School_Res:=MyControls.AddLabel(Panel_House_School,100,2,100,30,fTextLibrary.GetTextString(227),fnt_Grey,kaCenter);
-      ResRow_School_Resource :=MyControls.AddResourceRow(Panel_House_School,  8,22,180,20,rt_Gold,5);
+      ResRow_School_Resource := MyControls.AddResourceRow(Panel_House_School,  8,22,180,20,rt_Gold,5);
       ResRow_School_Resource.Hint :=TypeToString(rt_Gold);
-      Button_School_UnitWIP :=MyControls.AddButton(Panel_House_School,  8,48,32,32,0);
-      Button_School_UnitWIP.Hint:=fTextLibrary.GetTextString(225);
-      Button_School_UnitWIPBar:=MyControls.AddPercentBar(Panel_House_School,42,54,138,20,0);
-      Button_School_UnitWIP.OnClick:= House_SchoolUnitRemove;
+      Button_School_UnitWIPBar :=MyControls.AddPercentBar(Panel_House_School,42,54,138,20,0);
+      Button_School_UnitWIP := MyControls.AddButton(Panel_House_School,  8,48,32,32,0);
+      Button_School_UnitWIP.Hint := fTextLibrary.GetTextString(225);
+      Button_School_UnitWIP.Tag := 1;
+      Button_School_UnitWIP.OnClick := House_SchoolUnitRemove;
       for i:=1 to 5 do begin
-        Button_School_UnitPlan[i]:= MyControls.AddButtonFlat(Panel_House_School, 8+(i-1)*36,80,32,32,0);
-        Button_School_UnitPlan[i].OnClick:= House_SchoolUnitRemove;
+        Button_School_UnitPlan[i] := MyControls.AddButtonFlat(Panel_House_School, 8+(i-1)*36,80,32,32,0);
+        Button_School_UnitPlan[i].Tag := i+1;
+        Button_School_UnitPlan[i].OnClick := House_SchoolUnitRemove;
       end;
       Label_School_Unit:=MyControls.AddLabel(Panel_House_School,100,116,100,30,'',fnt_Outline,kaCenter);
       Image_School_Left :=MyControls.AddImage(Panel_House_School,  8,136,54,80,521);
@@ -1556,7 +1558,7 @@ begin
 
   if Sender=Button_Barracks_Train then //Equip unit
   begin
-    Barracks.Equip(TUnitType(14+LastBarracksUnit));
+    fGame.fGameInputProcess.HouseCommand(Barracks, gic_HouseTrain, TUnitType(14+LastBarracksUnit));
   end;
 
   CanEquip:=true;
@@ -1609,7 +1611,7 @@ begin
 
   if Sender=Button_School_Train then //Add unit to training queue
   begin
-    School.AddUnitToQueue(TUnitType(School_Order[LastSchoolUnit]));
+    fGame.fGameInputProcess.HouseCommand(School, gic_HouseTrain, TUnitType(School_Order[LastSchoolUnit]));
   end;
 
   if School.UnitQueue[1]<>ut_None then
@@ -1650,17 +1652,10 @@ end;
 
 {Process click on Remove-from-queue buttons of School}
 procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
-var i:integer;
 begin
-  if Sender = Button_School_UnitWIP then
-    TKMHouseSchool(fPlayers.Selected).RemUnitFromQueue(1)
-  else for i:=1 to 5 do
-    if Sender = Button_School_UnitPlan[i] then
-    begin
-      TKMHouseSchool(fPlayers.Selected).RemUnitFromQueue(i+1);
-      fSoundLib.Play(sfx_click); //This is done for all buttons now, see fGame.OnMouseDown
-      //True, but these are not buttons, they are flat buttons. They still have to make the sound though. To be deleted
-    end;
+  if not (TKMControl(Sender).Tag in [1..6]) then exit;
+  fGame.fGameInputProcess.HouseCommand(TKMHouseSchool(fPlayers.Selected), gic_HouseRemoveTrain, TKMControl(Sender).Tag);
+  fSoundLib.Play(sfx_click); //todo: move click sound to flatbuttons property
   House_SchoolUnitChange(nil, mbLeft);
 end;
 

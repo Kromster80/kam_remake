@@ -278,6 +278,7 @@ begin
     gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
     gsPaused:   exit; //No clicking when paused
     gsOnHold:   exit; //No clicking when on hold
+    gsReplay:   exit; //No clicking when replay goes .. ?
     gsRunning:  begin
                   fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
                   MOver := fGameplayInterface.MyControls.MouseOverControl;
@@ -422,13 +423,8 @@ begin
                   end;
                 end;
     gsReplay:   begin
-                  fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
-                  if fGameplayInterface.MyControls.MouseOverControl()<>nil then
-                    Screen.Cursor := c_Default
-                  else begin
-                    fTerrain.ComputeCursorPosition(X,Y,Shift);
-                    fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
-                  end;
+                  fTerrain.ComputeCursorPosition(X,Y,Shift); //To show coords in status bar
+                  fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                 end;
     gsEditor:   begin
                   fMapEditorInterface.MyControls.OnMouseOver(X,Y,Shift);
