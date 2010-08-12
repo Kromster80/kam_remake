@@ -43,9 +43,10 @@ type TKMGamePlayInterface = class
       Label_Pause2:TKMLabel;
     Panel_PlayMore:TKMPanel;
       Bevel_PlayMore:TKMBevel;
-      Image_PlayMore:TKMImage;
-      Label_PlayMore1:TKMLabel;
-      Button_PlayMore,Button_PlayWin:TKMButton;
+      Panel_PlayMoreMsg:TKMPanel;
+        Image_PlayMore:TKMImage;
+        Label_PlayMore1:TKMLabel;
+        Button_PlayMore,Button_PlayWin:TKMButton;
     Panel_Ratios:TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
       Image_RatioPic0:TKMImage;
@@ -646,15 +647,20 @@ end;
 
 {Play More overlay page}
 procedure TKMGamePlayInterface.Create_PlayMore_Page;
+var sx,sy:integer;
 begin
-  Panel_PlayMore:=MyControls.AddPanel(Panel_Main,0,0,fRender.GetRenderAreaSize.X,fRender.GetRenderAreaSize.Y);
-    Bevel_PlayMore:=MyControls.AddBevel(Panel_PlayMore,-1,-1,fRender.GetRenderAreaSize.X+2,fRender.GetRenderAreaSize.Y+2);
-    Image_PlayMore:=MyControls.AddImage(Panel_PlayMore,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
+  sx := fRender.GetRenderAreaSize.X;
+  sy := fRender.GetRenderAreaSize.Y;
+  Panel_PlayMore := MyControls.AddPanel(Panel_Main,0,0,sx,sy);
+    Bevel_PlayMore := MyControls.AddBevel(Panel_PlayMore,-1,-1,sx+2,sy+2);
+
+    Panel_PlayMoreMsg := MyControls.AddPanel(Panel_PlayMore,(sx div 2)-100,(sy div 2)-100,200,200);
+    Image_PlayMore:=MyControls.AddImage(Panel_PlayMoreMsg,100,40,0,0,556);
     Image_PlayMore.Center;
 
-    Label_PlayMore1 := MyControls.AddLabel(Panel_PlayMore,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,64,16,'You''ve won!',fnt_Antiqua,kaCenter);
-    Button_PlayMore := MyControls.AddButton(Panel_PlayMore,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),100,30,'Continue playing',fnt_Outline);
-    Button_PlayWin  := MyControls.AddButton(Panel_PlayMore,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+40,100,30,'Victory!',fnt_Outline);
+    Label_PlayMore1 := MyControls.AddLabel(Panel_PlayMoreMsg,100,80,64,16,'You''ve won!',fnt_Outline,kaCenter);
+    Button_PlayMore := MyControls.AddButton(Panel_PlayMoreMsg,0,100,200,30,'Continue playing',fnt_Metal);
+    Button_PlayWin  := MyControls.AddButton(Panel_PlayMoreMsg,0,140,200,30,'Victory!',fnt_Metal);
     Button_PlayMore.OnClick := PlayMore;
     Button_PlayWin.OnClick := PlayMore;
     Panel_PlayMore.Hide

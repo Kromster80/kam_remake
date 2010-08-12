@@ -2141,6 +2141,12 @@ begin
     if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
       MM[Loc.List[k].Y,Loc.List[k].X].RGB := TeamColors[i];
   end;
+
+  fPlayers.PlayerAnimals.GetFishLocations(Loc);
+  for k:=1 to Loc.Count do
+  if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
+    MM[Loc.List[k].Y,Loc.List[k].X].RGB := $FF4444;
+
   Loc.Free;
 end;
 

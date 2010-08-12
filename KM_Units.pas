@@ -271,7 +271,7 @@ type
     procedure RemoveUnit(aUnit:TKMUnit);
     function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetUnitByID(aID: Integer): TKMUnit;
-    procedure GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+    procedure GetLocations(out Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
     function GetTotalPointers: integer;
     function GetUnitCount: integer;
     function GetUnitByIndex(aIndex:integer): TKMUnit;
@@ -2325,20 +2325,21 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.GetLocations(aOwner:TPlayerID; out Loc:TKMPointList);
+procedure TKMUnitsCollection.GetLocations(out Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
 var i:integer;
 begin
   Loc.Clearup;
   for I := 0 to Count - 1 do
-    if (Units[i].fOwner = aOwner) and not(Units[i].fUnitType in [ut_Wolf..ut_Duck]) then
-      Loc.AddEntry(Units[i].GetPosition);
+    if aUnitType in [ut_Any, Units[i].fUnitType] then
+    if Units[i].fVisible then //Excludes units inside of houses and recently died ones
+      Loc.AddEntry(Units[i].GetPosition)
 end;
 
 
 function TKMUnitsCollection.GetTotalPointers: integer;
 var i:integer;
 begin
-  Result:=0;
+  Result := 0;
   for I := 0 to Count - 1 do
     inc(Result, Units[i].GetPointerCount);
 end;

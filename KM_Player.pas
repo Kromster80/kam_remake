@@ -83,6 +83,7 @@ type
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
+    procedure GetFishLocations(out Loc:TKMPointList);
     function GetUnitCount: integer;
     function GetUnitByIndex(aIndex:integer): TKMUnit;
   public
@@ -337,7 +338,7 @@ end;
 
 procedure TKMPlayerAssets.GetUnitLocations(out Loc:TKMPointList);
 begin
-  fUnits.GetLocations(PlayerID,Loc);
+  fUnits.GetLocations(Loc, ut_Any);
 end;
 
 function TKMPlayerAssets.HousesHitTest(X, Y: Integer): TKMHouse;
@@ -562,6 +563,12 @@ begin
         end;
     end;
   end;
+end;
+
+
+procedure TKMPlayerAnimals.GetFishLocations(out Loc:TKMPointList);
+begin
+  fUnits.GetLocations(Loc, ut_Fish);
 end;
 
 
