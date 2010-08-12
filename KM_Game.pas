@@ -275,12 +275,12 @@ procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Inte
 var P: TKMPoint; MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
   case GameState of
-    gsNoGame:   fMainMenuInterface.MyControls.OnMouseDown(X,Y,Button);
+    gsNoGame:   fMainMenuInterface.MyControls.MouseDown(X,Y,Button);
     gsPaused:   exit; //No clicking when paused
     gsOnHold:   exit; //No clicking when on hold
     gsReplay:   exit; //No clicking when replay goes .. ?
     gsRunning:  begin
-                  fGameplayInterface.MyControls.OnMouseDown(X,Y,Button);
+                  fGameplayInterface.MyControls.MouseDown(X,Y,Button);
                   MOver := fGameplayInterface.MyControls.MouseOverControl;
                   P := GameCursor.Cell; //Get cursor position tile-wise
 
@@ -336,7 +336,7 @@ begin
                     fGamePlayInterface.ShowDirectionCursor(false);
                   end;
                 end;
-    gsEditor:   fMapEditorInterface.MyControls.OnMouseDown(X,Y,Button);
+    gsEditor:   fMapEditorInterface.MyControls.MouseDown(X,Y,Button);
   end;
   MouseMove(Shift,X,Y);
 end;
@@ -349,7 +349,7 @@ begin
 
   case GameState of
     gsNoGame:   begin
-                  fMainMenuInterface.MyControls.OnMouseOver(X,Y,Shift);
+                  fMainMenuInterface.MyControls.MouseMove(X,Y,Shift);
                   if fMainMenuInterface.MyControls.MouseOverControl is TKMTextEdit then // Show "CanEdit" cursor
                     Screen.Cursor := c_Info //@Lewin: Should be something else, any ideas?
                   else
@@ -367,7 +367,7 @@ begin
                   //       so events etc. will only be noticed for controls of that panel? (or all controls if it's nil) It could be a property of MyControls.
                   //       We'll probably find a use for that later so we can force the player to only use certain controls.
                   //@Lewin: I'd like to solve the case with minimal changes in code, or no at all.
-                  fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
+                  fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor := c_Default
                 end;
@@ -384,7 +384,7 @@ begin
                   end
                   else
                   begin
-                  fGameplayInterface.MyControls.OnMouseOver(X,Y,Shift);
+                  fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
                   if fGameplayInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor := c_Default
                   else begin
@@ -427,7 +427,7 @@ begin
                   fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                 end;
     gsEditor:   begin
-                  fMapEditorInterface.MyControls.OnMouseOver(X,Y,Shift);
+                  fMapEditorInterface.MyControls.MouseMove(X,Y,Shift);
                   if fMapEditorInterface.MyControls.MouseOverControl()<>nil then
                     Screen.Cursor:=c_Default
                   else
@@ -500,14 +500,14 @@ begin
   if (MOver <> nil) and (MOver is TKMButton) and MOver.Enabled and TKMButton(MOver).MakesSound then fSoundLib.Play(sfx_click);
 
   case GameState of
-    gsNoGame:   fMainMenuInterface.MyControls.OnMouseUp(X,Y,Button);
+    gsNoGame:   fMainMenuInterface.MyControls.MouseUp(X,Y,Button);
     gsPaused:   exit;
-    gsOnHold:   if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.OnMouseUp(X,Y,Button);
+    gsOnHold:   if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.MouseUp(X,Y,Button);
     gsRunning:
       begin
         P := GameCursor.Cell; //Get cursor position tile-wise
         if MOver <> nil then
-          fGameplayInterface.MyControls.OnMouseUp(X,Y,Button)
+          fGameplayInterface.MyControls.MouseUp(X,Y,Button)
         else begin
 
           if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
@@ -626,7 +626,7 @@ begin
                 fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
                 P := GameCursor.Cell; //Get cursor position tile-wise
                 if MOver <> nil then
-                  fMapEditorInterface.MyControls.OnMouseUp(X,Y,Button)
+                  fMapEditorInterface.MyControls.MouseUp(X,Y,Button)
                 else
                 if Button = mbRight then
                   fMapEditorInterface.RightClick_Cancel
@@ -686,12 +686,12 @@ begin
     fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
 
   case GameState of //Remember clicked control
-    gsNoGame:   fMainMenuInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
+    gsNoGame:   fMainMenuInterface.MyControls.MouseWheel(X, Y, WheelDelta);
     gsPaused:   ;
-    gsOnHold:   fGameplayInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
-    gsRunning:  fGameplayInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
-    gsReplay:   fGameplayInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
-    gsEditor:   fMapEditorInterface.MyControls.OnMouseWheel(X, Y, WheelDelta);
+    gsOnHold:   ;
+    gsRunning:  fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
+    gsReplay:   fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
+    gsEditor:   fMapEditorInterface.MyControls.MouseWheel(X, Y, WheelDelta);
   end;
 
 end;

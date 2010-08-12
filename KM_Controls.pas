@@ -370,10 +370,10 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     property GetFocusedControl:TKMControl read fFocusedControl;
     function KeyUp              (Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
     function MouseOverControl   ():TKMControl;
-    procedure OnMouseOver       (X,Y:integer; AShift:TShiftState);
-    procedure OnMouseDown       (X,Y:integer; AButton:TMouseButton);
-    procedure OnMouseUp         (X,Y:integer; AButton:TMouseButton);
-    procedure OnMouseWheel      (X,Y:integer; WheelDelta:integer);
+    procedure MouseDown       (X,Y:integer; AButton:TMouseButton);
+    procedure MouseMove       (X,Y:integer; AShift:TShiftState);
+    procedure MouseUp         (X,Y:integer; AButton:TMouseButton);
+    procedure MouseWheel      (X,Y:integer; WheelDelta:integer);
 
     procedure Paint();
 
@@ -1543,7 +1543,19 @@ begin
 end;
 
 
-procedure TKMControlsCollection.OnMouseOver(X,Y:integer; AShift:TShiftState);
+procedure TKMControlsCollection.MouseDown(X,Y:integer; AButton:TMouseButton);
+var i:integer;
+begin
+  if MODE_DESIGN_CONTORLS then exit; //Don't do
+  for i:=0 to Count-1 do
+    if Controls[i].HitTest(X,Y) then
+      if Controls[i].Enabled then
+        if Controls[i] is TKMButton then
+          TKMButton(Controls[i]).Down := true;
+end;
+
+
+procedure TKMControlsCollection.MouseMove(X,Y:integer; AShift:TShiftState);
 var i:integer;
 begin
   if MODE_DESIGN_CONTORLS then exit; //Don't do
@@ -1558,20 +1570,8 @@ begin
 end;
 
 
-procedure TKMControlsCollection.OnMouseDown(X,Y:integer; AButton:TMouseButton);
-var i:integer;
-begin
-  if MODE_DESIGN_CONTORLS then exit; //Don't do
-  for i:=0 to Count-1 do
-    if Controls[i].HitTest(X,Y) then
-      if Controls[i].Enabled then
-        if Controls[i] is TKMButton then
-          TKMButton(Controls[i]).Down := true;
-end;
-
-
 {Send OnClick event to control below}
-procedure TKMControlsCollection.OnMouseUp(X,Y:integer; AButton:TMouseButton);
+procedure TKMControlsCollection.MouseUp(X,Y:integer; AButton:TMouseButton);
 var i:integer;
 begin
   if fFocusedControl <> nil then fFocusedControl.HasFocus := false; //Release focus in any case of OnMouseUp
@@ -1613,7 +1613,7 @@ begin
 end;
 
 
-procedure TKMControlsCollection.OnMouseWheel(X,Y:integer; WheelDelta:integer);
+procedure TKMControlsCollection.MouseWheel(X,Y:integer; WheelDelta:integer);
 var i:integer;
 begin
   for i:=0 to Count-1 do

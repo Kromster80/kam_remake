@@ -1114,9 +1114,9 @@ begin
     CheckBox_Options_Lang[i].Checked := LowerCase(fGame.fGlobalSettings.GetLocale) = LowerCase(Locales[i,1]);
 
   if Sender = Button_Options_ResApply then begin //Apply resolution changes
-    OldFullScreen := fGame.fGlobalSettings.IsFullScreen; //memorize just in case (it will be niled on re-init anyway)
+    OldFullScreen := fGame.fGlobalSettings.IsFullScreen; //memorize (it will be niled on re-init anyway, but we might change that in future)
     OldResolution := fGame.fGlobalSettings.GetResolutionID;
-    fGame.ToggleFullScreen(fGame.fGlobalSettings.IsFullScreen,true);
+    fGame.ToggleFullScreen(fGame.fGlobalSettings.IsFullScreen, true);
     exit;
   end;
 
