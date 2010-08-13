@@ -31,8 +31,10 @@ const
   CONTROLS_SCALE        = 1;            //Scale controls to this size, highly experimental and imperfect
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r947';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r947';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Fighting Demo r966';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r966';       //Should be updated for every release (each time save format is changed)
+var
+  REPLAY_VERSION:integer= 966;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -59,6 +61,7 @@ var
   FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
+  ENABLE_MP_IN_MENU     :boolean=false; //Keep it disable until it's rigged
 
   //These are debug things, should be FALSE
   {User interface options}

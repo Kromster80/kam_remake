@@ -163,6 +163,7 @@ var f:file; i:integer;
 begin
   AssignFile(f, aFileName);
   Rewrite(f, 1);
+  BlockWrite(f, REPLAY_VERSION, 4);
   BlockWrite(f, fCount, 4);
   for i:=1 to fCount do
     BlockWrite(f, fQueue[i].Tick, SizeOf(fQueue[i]));
@@ -171,11 +172,13 @@ end;
 
 
 procedure TGameInputProcess.LoadFromFile(aFileName:string);
-var f:file; i,NumRead:integer;
+var f:file; Version,i,NumRead:integer;
 begin
   if not FileExists(aFileName) then exit;
   AssignFile(f, aFileName);
   Reset(f, 1);
+  BlockRead(f, Version, 4);
+  Assert(Version=REPLAY_VERSION, 'Old or unexpected replay file');
   BlockRead(f, fCount, 4, NumRead);
   for i:=1 to fCount do
     BlockRead(f, fQueue[i].Tick, SizeOf(fQueue[i]));

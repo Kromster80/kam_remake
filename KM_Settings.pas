@@ -284,8 +284,8 @@ end;
 constructor TCampaignSettings.Create;
 begin
   Inherited;
-  fUnlockedMapsTSK := 20; //Reveal first map
-  fUnlockedMapsTPR := 14;
+  fUnlockedMapsTSK := 1; //Reveal first map
+  fUnlockedMapsTPR := 1;
   fLog.AppendLog('Campaign init done');
 end;
 

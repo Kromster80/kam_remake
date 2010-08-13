@@ -3,8 +3,9 @@ Demo #4 should include:
 +	Army controls in UI [Krom]
 +	Army movements [Lewin]
 +	Units fighting [Lewin]
++	Unit interaction bugfixes [Krom]
 	Unit voices
-	Tower throwing rocks at enemies [Krom]
++	Tower throwing rocks at enemies [Krom]
 	Ranged attacks
 +	House attacks
 +	Map editor saving simple maps [Krom/Lewin]

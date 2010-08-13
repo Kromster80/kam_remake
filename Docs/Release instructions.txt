@@ -2,9 +2,9 @@ Make sure these are checked:	//Assigned to Krom
 
 	Remove FastMM from 'uses'
 	True/false switches in KM_Defaults
-	Game version string in KM_Defaults (include expected revision # and commit it)
-	Update savegame format string
-	Compile in Delphi6
+	Game version strings in KM_Defaults (include expected revision # and commit it)
+	Turn off debug data in compilation options
+	Compile in Delphi6/7
 	Pack EXE file
 	Include OpenAL distributive
 	Test installer and Demo

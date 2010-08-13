@@ -63,7 +63,9 @@ type
     procedure MapEditorStart(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure MapEditorSave(aMissionName:string; DoExpandPath:boolean);
 
-    procedure ViewReplay(Sender:TObject);
+
+    function  ReplayExists():boolean;
+    procedure ReplayView(Sender:TObject);
 
     function GetMissionTime:cardinal;
     function CheckTime(aTimeTicks:cardinal):boolean;
@@ -968,12 +970,21 @@ begin
 end;
 
 
-procedure TKMGame.ViewReplay(Sender:TObject);
+{ Check if replay files exist at location }
+//todo: May as well check replays for version compatibility and other issues
+function TKMGame.ReplayExists():boolean;
+begin
+  Result := FileExists(KMSlotToSaveName(99,'bas')) and
+            FileExists(KMSlotToSaveName(99,'rpl'));
+end;
+
+
+procedure TKMGame.ReplayView(Sender:TObject);
 begin
   CopyFile(PChar(KMSlotToSaveName(99,'bas')), PChar(KMSlotToSaveName(99,'sav')), false);
   Load(99); //We load what was saved right before starting Recording
   FreeAndNil(fGameInputProcess); //Override GIP from savegame
-  
+
   fGameInputProcess := TGameInputProcess.Create(gipReplaying);
   fGameInputProcess.LoadFromFile(KMSlotToSaveName(99,'rpl'));
 

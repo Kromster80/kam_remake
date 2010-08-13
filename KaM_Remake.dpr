@@ -45,13 +45,11 @@ uses
   KM_Units in 'KM_Units.pas',
   KM_Units_Warrior in 'KM_Units_Warrior.pas',
   KM_Units_WorkPlan in 'KM_Units_WorkPlan.pas',
-
   KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas',
   KM_UnitTaskBuild in 'KM_UnitTaskBuild.pas',
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas',
   KM_UnitTaskMining in 'KM_UnitTaskMining.pas',
   KM_UnitTaskThrowRock in 'KM_UnitTaskThrowRock.pas',
-
   KM_Utils in 'KM_Utils.pas',
   KM_Viewport in 'KM_Viewport.pas';
 

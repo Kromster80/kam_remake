@@ -43,7 +43,8 @@ type TKMMainMenuInterface = class
       Button_SinglePlayerTSK,
       Button_SinglePlayerTPR,
       Button_SinglePlayerSingle,
-      Button_SinglePlayerLoad:TKMButton;
+      Button_SinglePlayerLoad,
+      Button_SinglePlayerReplay:TKMButton;
       Button_SinglePlayerBack:TKMButton;
     Panel_MultiPlayer:TKMPanel;
       Panel_MultiPlayerButtons:TKMPanel;
@@ -332,7 +333,9 @@ begin
       Button_MainMenuOptions.OnClick  := SwitchMenuPage;
       Button_MainMenuCredits.OnClick  := SwitchMenuPage;
       Button_MainMenuQuit.OnClick     := Form1.Exit1.OnClick;
-      if not SHOW_MAPED_IN_MENU then Button_MainMenuMapEd.Hide; //Let it be created, but hidden, I guess there's no need to seriously block it
+
+      Button_MainMenuMapEd.Visible := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
+      Button_MainMenuMultiPlayer.Enabled :=  ENABLE_MP_IN_MENU
 end;
 
 
@@ -352,9 +355,7 @@ begin
       Button_SinglePlayerTPR    :=MyControls.AddButton(Panel_SinglePlayerButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
       Button_SinglePlayerSingle :=MyControls.AddButton(Panel_SinglePlayerButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
       Button_SinglePlayerLoad   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
-
-    with MyControls.AddButton(Panel_SinglePlayerButtons,0,240,350,30,'Replay last game',fnt_Metal,bsMenu) do
-      OnClick := fGame.ViewReplay;
+      Button_SinglePlayerReplay :=MyControls.AddButton(Panel_SinglePlayerButtons,0,240,350,30,'View last replay',fnt_Metal,bsMenu);
 
       Button_SinglePlayerTutor.OnClick    := MainMenu_PlayTutorial;
       Button_SinglePlayerFight.OnClick    := MainMenu_PlayBattle;
@@ -362,6 +363,7 @@ begin
       Button_SinglePlayerTPR.OnClick      := SwitchMenuPage;
       Button_SinglePlayerSingle.OnClick   := SwitchMenuPage;
       Button_SinglePlayerLoad.OnClick     := SwitchMenuPage;
+      Button_SinglePlayerReplay.OnClick   := fGame.ReplayView;
 
     Button_SinglePlayerBack := MyControls.AddButton(Panel_SinglePlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_SinglePlayerBack.OnClick := SwitchMenuPage;
@@ -750,12 +752,6 @@ begin
      (Sender=Button_ResultsBack) then
     Panel_MainMenu.Show;
 
-  {Return to SinglePlayerMenu}
-  if (Sender=Button_CampaignBack)or
-     (Sender=Button_SingleBack)or
-     (Sender=Button_LoadBack) then
-    Panel_SinglePlayer.Show;
-
   {Return to MultiPlayerMenu}
   if (Sender=Button_WWWLoginBack) then
     Panel_MultiPlayer.Show;
@@ -768,8 +764,13 @@ begin
   end;
 
   {Show SinglePlayer menu}
-  if Sender=Button_MainMenuSinglePlayer then begin
+  {Return to SinglePlayerMenu}
+  if (Sender=Button_MainMenuSinglePlayer)or
+     (Sender=Button_CampaignBack)or
+     (Sender=Button_SingleBack)or
+     (Sender=Button_LoadBack) then begin
     Panel_SinglePlayer.Show;
+    Button_SinglePlayerReplay.Enabled := fGame.ReplayExists;
   end;
 
   {Show TSK campaign menu}
