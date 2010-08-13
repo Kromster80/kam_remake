@@ -26,14 +26,16 @@ Brought to you by Krom and Lewin</font></P><hr>
 	</table>
 </blockquote>
 <p><font face="Calibri">KaM Remake (we don't have a fancy title yet) is an attempt to reinvigorate the original &quot;Knights and Merchants: The Shattered Kingdom&quot; strategy game. Our goals are to make it work on today's computers and operating systems, as well as to fix the many bugs in the game engine. To do this we have started from scratch, writing our own code for the game engine but still relying on many original resource files.
-This is third public limited technology preview (demo) featuring the economic side of the game; referred as &quot;mod&quot; or &quot;Remake&quot; from now on. Our aim is to demonstrate the 
+This is our public limited technology preview (demo) featuring the economic and 
+fighting side of the game; referred as &quot;mod&quot; or &quot;Remake&quot; from now on. Our aim is to demonstrate the 
 potential and get feedback on functionality. All included &quot;assets&quot; borrowed from 
 KaM (graphics, music, sounds, etc.) are there for testing purposes only, and the final release will not include any of the 
 copyrighted &quot;assets&quot;.<br>
 We assume that you own the original KaM game, otherwise you should buy it - 
 it's available in a number of online gaming stores.<br>
 The KaM Remake executable is freeware and is 
-built by enthusiasts. Applications used: Delphi6, Lazarus, OpenGL, OpenAL, zLib.</font><BR>&nbsp;</p>
+built by enthusiasts. Applications used: Delphi6, FastMM4, Lazarus, OpenGL, 
+OpenAL, zLib.</font><BR>&nbsp;</p>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -43,7 +45,7 @@ built by enthusiasts. Applications used: Delphi6, Lazarus, OpenGL, OpenAL, zLib.
 		</tr>
 	</table>
 </blockquote>
-<p><font face="Calibri">KaM Remake requires: <br>&nbsp;&nbsp;&nbsp; - Windows 98, XP, Vista or Seven;
+<p><font face="Calibri">KaM Remake requires: <br>&nbsp;&nbsp;&nbsp; - Microsoft Windows 98, XP, Vista or Seven;
 <br>&nbsp;&nbsp;&nbsp; - 500MHz or faster processor;<br>&nbsp;&nbsp;&nbsp; - 256MB or more of RAM;
 <br>&nbsp;&nbsp;&nbsp; - 3D graphics accelerator OpenGL 1.4 compliant;<br>&nbsp;&nbsp;&nbsp; 
 - Sound card.<br>&nbsp;</font></p>
@@ -52,13 +54,13 @@ built by enthusiasts. Applications used: Delphi6, Lazarus, OpenGL, OpenAL, zLib.
 		<tr>
 			<td>
 	<img border="0" src="Readme/GUI_0303.gif"></td>
-			<td><B><FONT size="+2" face="Calibri">&nbsp;<a name="Installing">Installing</a></FONT></B></td>
+			<td><B><FONT size="+2" face="Calibri">&nbsp;<a name="Installing">Installation</a></FONT></B></td>
 		</tr>
 	</table>
 </blockquote>
 <p><font face="Calibri"><B>1.</B> Unpack all files contained in the package into a new 
 folder on your PC.<br>
-<B>2.</B> The package includes the OpenAL audio drivers (<b>oalinst.exe</b>), which you should install in order to play the KaM Remake. The latest version can be found on the official OpenAl page:
+<B>2.</B> The package includes the OpenAL audio drivers (<b>oalinst.exe</b>), which you should install in order to play the KaM Remake. The latest version can be found on the official OpenAL page:
 <a href="http://connect.creativelabs.com/openal/default.aspx">
 http://connect.creativelabs.com/openal/default.aspx</a> <br>
 <B>3.</B> The KaM Remake uses the OpenGL rendering engine, so you need to have OpenGL drivers 
@@ -79,7 +81,7 @@ drivers available.
 <b>The following shortcuts are available in the game:</b><br>
 <b>F8</b> speeds up the game pace x10<br>
 <b>F11 </b>will show debugging panel and menu<br>
-<b>1-4</b> opens corresponding tab in the game menu<br>
+<b>1-4</b> opens corresponding tab in the gameplay menu<br>
 <b>P</b> pauses the game<br>
 <b>W</b> reveals the whole map in game<br>
 <b>Esc</b> closes the open message or active tab in the game menu.<br>
@@ -88,11 +90,11 @@ drivers available.
 <b>&#8592;&#8593;&#8594;&#8595;</b> cursor keys will move you around the map<br>
 Scrolling the <b>Mouse wheel</b> will zoom in and out<br>
 <b>&#8592; </b>backspace will reset zoom back to 100%<br>
-<b>Middle mouse click</b> will place a horseman (scout) at the cursor to allow you to explore 
+<b>Middle mouse click</b> will place a horseman (scout) at the cursor position to allow you to explore 
 the map<br>
 </font></p>
 <p><font face="Calibri"><B>Installing add-on maps:</B><br><B>1.</B> Create a sub-folder in the Maps folder of the KaM Remake and name it, for example, &quot;My New Map&quot;.<br>
-<B>2.</B> Put inside .dat and .map files of the map and name them accordingly &quot;My New Map.dat&quot; and &quot;My New Map.map&quot;. 
+<B>2.</B> Put inside .dat and .map files of the map and rename them accordingly &quot;My New Map.dat&quot; and &quot;My New Map.map&quot;. 
 File names should match folder name exactly.<br><B>3.</B> You can also make an 
 optional file called &quot;My New Map.txt&quot; which will contain the 
 mission description and other information. Use the same format as the missions provided 
@@ -113,15 +115,25 @@ included into the playlist automatically.<br>&nbsp;</font></p>
 <font face="Calibri"><B>Silent crashes:</B><br>
 KaM Remake silently crashes on loading or music track change if there are any 
 problems with the Windows sound system. Removing the &quot;Music&quot; folder from the KaM Remake should fix this.<br></p>
-<p><B>Low framerate:</B><br>If you have ridiculously low framerate it be because your OpenGL drivers are 
+<p><B>Low framerate:</B><br>If you have ridiculously low framerate in game it 
+might be because your OpenGL drivers are 
 out of date. See the OpenGL version information in the top-left corner of the main menu, it should be 
 at least 1.4.x. If it is less you need to update your graphics card drivers 
 (check your card manufacturers website).<br></p>
-<p><B>Assertion failed errors:</B><br>Sometimes when something unexpected happens you will get an &quot;Assertion failed&quot; 
+<p><B>Game errors:</B><br>Sometimes when something unexpected happens you will get an &quot;<i>An 
+error has occoured during gameplay</i>&quot; 
+message. Please read the message details and send recorded replay files from 
+Saves folder (save99.bas, save99.sav, save99.rpl) by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) 
+along with details of what you did to make it crash and any other information 
+that might be of use. Having these replay files will help us to fix the bug.<br></p>
+<p><B>Assertion failed errors:</B><br>Sometimes when something unexpected happens you will get an &quot;<i>Assertion failed</i>&quot; 
 message. In this case you should terminate the KaM_Remake from the Task Manager (press 
 Ctrl+Alt+Del, choose KaM Remake and press End Task button).
 <BR>Then browse to the KaM Remake folder and find the file &quot;KaM.log&quot; containing details of the crash. Please send this 
-file by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) along with details of what you did to make it crash and any other information that might be of use. If possible please also provide a saved game file from before or after the crash. If you have autosave turned on then it will create a saved game every minute in the 10th (last) slot. Saved games can be found under the "Saves" folder of the Remake. Numbers are the save order as in the game menus, e.g. save01.sav will be the top save. Providing a saved game - even if it is just an autosave - will make it far easier for us to trace the bug.</font><br>&nbsp;</P>
+file by email either to Krom (<a href="mailto:kromster80@gmail.com">kromster80@gmail.com</a>) or Lewin (<a href="mailto:lewinjh@gmail.com">lewinjh@gmail.com</a>) 
+along with details of what you did to make it crash and any other information 
+that might be of use. If possible please also provide game replay files as 
+explained in previous case.</font><br>&nbsp;</P>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -132,11 +144,12 @@ limitations</a></FONT></B></td>
 		</tr>
 	</table>
 </blockquote>
-<p><font face="Calibri">Main menu has fixed size of 1024x768 regardless of window 
+<p><font face="Calibri">Main menu has fixed design size of 1024x768 regardless of window 
 size or fullscreen mode.<br>
 Only single-player maps are supported (ones with !SET_HUMAN_PLAYER line).<br>
-Unit training in the Barracks, Town Hall and Siege Workshop is not functioning.<br>
-Troop user interface and behaviour is limited.<br>&nbsp;</font></p>
+Unit training in Town Hall and Siege Workshop is not functioning.<br>
+Troop user interface and behaviour is yet limited.<br>
+Archers don't use arrows in attack.<br>&nbsp;</font></p>
 <blockquote>
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
@@ -148,7 +161,8 @@ Troop user interface and behaviour is limited.<br>&nbsp;</font></p>
 </blockquote>
 <font face="Calibri">Please use <A href="http://www.atfreeforum.com/knights/viewtopic.php?t=233&mforum=knights">the forum</A> or email (see below) to give us feedback. Most of the bugs are probably known, but we would love your comments, suggestions, compliments, etc.
 <br>
-If you can offer some help in Delphi coding, menu design, ideas 
+If you can offer some help in Delphi coding, menu design, documentation, 
+translation or ideas 
 for improvement - please drop us an email or write on the forum.</font>
 <br>&nbsp;
 <blockquote>
