@@ -78,9 +78,9 @@ begin
   if not IsMusicInitialized then exit;
 
   if fMediaPlayer.FileName<>'' then
-  fMediaPlayer.Close; //Cancel previous sound
+    fMediaPlayer.Close; //Cancel previous sound
   if CheckMusicError then exit;
-  if not CheckFileExists(FileName,true) then exit; //Make it silent
+  if not FileExists(FileName) then exit; //Make it silent
   if GetFileExt(FileName)<>'MP3' then exit;
   fMediaPlayer.FileName:=FileName;
   fMediaPlayer.DeviceType:=dtAutoSelect; //Plays mp3's only in this mode, which works only if file extension is 'mp3'

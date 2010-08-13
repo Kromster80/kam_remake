@@ -560,8 +560,10 @@ var
   i:integer;
   RX,ID:integer;
 begin
-  FileList := TStringList.Create;
 
+if not DirectoryExists(ExeDir + 'Sprites\') then exit;
+
+  FileList := TStringList.Create;
   ChDir(ExeDir + 'Sprites\');
   FindFirst('*', faAnyFile, SearchRec);
   repeat

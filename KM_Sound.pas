@@ -90,16 +90,6 @@ var
 begin
   Inherited Create;
 
-  //Scan and count the number of warrior sounds
-  for i:=15 to 24 do
-    for s:=low(TSoundToPlay) to high(TSoundToPlay) do
-      for k:=0 to 255 do
-        if not FileExists(GetWarriorSoundFile(TUnitType(i),s,k,aLocale)) then
-        begin
-          WarriorSoundCount[i,s] := k;
-          break;
-        end;
-
   IsOpenALInitialized := InitOpenAL;
   if not IsOpenALInitialized then begin
     fLog.AddToLog('OpenAL warning. OpenAL could not be initialized.');
@@ -118,7 +108,7 @@ begin
   end;
 
   //Create context(s)
-  Context := alcCreateContext(Device, nil);  
+  Context := alcCreateContext(Device, nil);
   if Context = nil then begin
     fLog.AddToLog('OpenAL warning. Context could not be created.');
     Application.MessageBox('Context could not be created. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
@@ -156,6 +146,16 @@ begin
   AlListenerfv ( AL_ORIENTATION, @Listener.Ori);
 
   fLog.AppendLog('OpenAL init done');
+
+  //Scan and count the number of warrior sounds
+  for i:=15 to 24 do
+    for s:=low(TSoundToPlay) to high(TSoundToPlay) do
+      for k:=0 to 255 do
+        if not FileExists(GetWarriorSoundFile(TUnitType(i),s,k,aLocale)) then
+        begin
+          WarriorSoundCount[i,s] := k;
+          break;
+        end;
 end;
 
 
@@ -321,6 +321,7 @@ end;
 
 function TSoundLib.GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
 begin
+  if not IsOpenALInitialized then exit;
   if (aLocale = '') and (fGame <> nil) and (fGame.fGlobalSettings <> nil) then
     aLocale := fGame.fGlobalSettings.GetLocale;
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
@@ -334,7 +335,8 @@ end;
 //@Krom: Why can't we simply use OpenAL? Because it needs a listener position so you don't hear battles from the other side of the map. Do the sounds need to be stored in memory? Can we buffer them or something?
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
 var wave:string;
-begin                 
+begin
+  if not IsOpenALInitialized then exit;
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then exit;
   //File extension must be .wav as well as the file contents itself
   wave := GetWarriorSoundFile(aUnitType, aSound, PseudoRandom(WarriorSoundCount[byte(aUnitType),aSound]));

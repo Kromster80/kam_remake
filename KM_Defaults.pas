@@ -31,10 +31,10 @@ const
   CONTROLS_SCALE        = 1;            //Scale controls to this size, highly experimental and imperfect
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r966';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r966';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Fighting Demo r970';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r970';       //Should be updated for every release (each time save format is changed)
 var
-  REPLAY_VERSION:integer= 966;          //Used in replay file format
+  REPLAY_VERSION:integer= 970;          //Used in replay file format
 
 var
   //These should be TRUE
