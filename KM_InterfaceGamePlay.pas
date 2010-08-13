@@ -1672,7 +1672,7 @@ procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
-  fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseStoreAcceptFlag, (Sender as TKMControl).Tag);
+  fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseStoreAcceptFlag, TResourceType((Sender as TKMControl).Tag));
 end;
 
 

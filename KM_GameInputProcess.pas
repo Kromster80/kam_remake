@@ -226,7 +226,7 @@ begin
                                 end;
     gic_HouseDeliveryToggle:    with MyPlayer.GetHouseByID(Params[1]) do WareDelivery := not WareDelivery;
     gic_HouseOrderProduct:      MyPlayer.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
-    gic_HouseStoreAcceptFlag:   TKMHouseStore(MyPlayer.GetHouseByID(Params[1])).ToggleAcceptFlag(TResourceType(Params[1]));
+    gic_HouseStoreAcceptFlag:   TKMHouseStore(MyPlayer.GetHouseByID(Params[1])).ToggleAcceptFlag(TResourceType(Params[2]));
     gic_HouseTrain:             begin
                                   H := MyPlayer.GetHouseByID(Params[1]);
                                   case H.GetHouseType of

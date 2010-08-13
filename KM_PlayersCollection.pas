@@ -265,7 +265,10 @@ begin
   Assert(InRange(byte(aPlay1),1,MAX_PLAYERS) and InRange(byte(aPlay2),1,MAX_PLAYERS));
   Assert((Player[byte(aPlay1)] <> nil) and (Player[byte(aPlay2)] <> nil));
 
-  Result := Player[byte(aPlay1)].fAlliances[byte(aPlay2)]
+  if aPlay1 = aPlay2 then
+    Result := at_Ally
+  else
+    Result := Player[byte(aPlay1)].fAlliances[byte(aPlay2)];
 end;
 
 
