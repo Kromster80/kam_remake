@@ -943,7 +943,7 @@ begin
 
   fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
   if Checked then
-    fRenderUI.WriteText(Left+4, Top, Width, 'x', Font, kaLeft, false, Col);
+    fRenderUI.WriteText(Left+3, Top-1, Width, 'x', Font, kaLeft, false, Col);
 
   Tmp:=fRenderUI.WriteText(Left+BoxWidth, Top, Width, Caption, Font, kaLeft, false, Col);
   
