@@ -27,7 +27,6 @@ type TKMMainMenuInterface = class
       FL:TKMFileList;
     Panel_MainMenu:TKMPanel;
       Panel_MainButtons:TKMPanel;
-      Image_MainMenuBG,Image_MainMenu1,Image_MainMenu3:TKMImage; //Menu background
       Button_MainMenuSinglePlayer,
       Button_MainMenuMultiPlayer,
       Button_MainMenuMapEd,
@@ -36,7 +35,6 @@ type TKMMainMenuInterface = class
       Button_MainMenuQuit:TKMButton;
       Label_Version:TKMLabel;
     Panel_SinglePlayer:TKMPanel;
-      Image_SinglePlayerBG,Image_SinglePlayer1,Image_SinglePlayer3:TKMImage; //Background
       Panel_SinglePlayerButtons:TKMPanel;
       Button_SinglePlayerTutor,
       Button_SinglePlayerFight,
@@ -69,7 +67,6 @@ type TKMMainMenuInterface = class
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
       Button_CampaignStart,Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
-      Image_SingleBG:TKMImage;
       Panel_SingleList,Panel_SingleDesc:TKMPanel;
       Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize,Button_SingleHeadNix:TKMButton;
       Bevel_SingleBG:array[1..MENU_SP_MAPS_COUNT,1..4]of TKMBevel;
@@ -84,18 +81,15 @@ type TKMMainMenuInterface = class
       Label_SingleAllies,Label_SingleEnemies:TKMLabel;
       Button_SingleBack,Button_SingleStart:TKMButton;
     Panel_Load:TKMPanel;
-      Image_LoadBG:TKMImage;
       Button_Load:array[1..SAVEGAME_COUNT] of TKMButton;
       Button_LoadBack:TKMButton;
     Panel_MapEd:TKMPanel;
-      Image_MapEd_BG:TKMImage;
       Panel_MapEd_SizeXY:TKMPanel;
       CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZE_COUNT] of TKMCheckBox;
       Panel_MapEd_Load:TKMPanel;
       FileList_MapEd:TKMFileList;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
     Panel_Options:TKMPanel;
-      Image_Options_BG, Image_Options_RightCrest:TKMImage;
       Panel_Options_GFX:TKMPanel;
         Ratio_Options_Brightness:TKMRatioRow;
       Panel_Options_Ctrl:TKMPanel;
@@ -108,25 +102,21 @@ type TKMMainMenuInterface = class
         Ratio_Options_SFX,Ratio_Options_Music:TKMRatioRow;
         Button_Options_MusicOn:TKMButton;
       Panel_Options_Lang:TKMPanel;
-        CheckBox_Options_Lang:array[1..LocalesCount] of TKMCheckBox;
+        CheckBox_Options_Lang:array[1..LOCALES_COUNT] of TKMCheckBox;
       Panel_Options_Res:TKMPanel;
         CheckBox_Options_FullScreen:TKMCheckBox;
         CheckBox_Options_Resolution:array[1..RESOLUTION_COUNT] of TKMCheckBox;
         Button_Options_ResApply:TKMButton;
       Button_Options_Back:TKMButton;
     Panel_Credits:TKMPanel;
-      Image_CreditsBG:TKMImage;
       Label_Credits:TKMLabel;
       Button_CreditsBack:TKMButton;
     Panel_Loading:TKMPanel;
-      Image_LoadingBG, Image_Loading_RightCrest:TKMImage;
       Label_Loading:TKMLabel;
     Panel_Error:TKMPanel;
-      Image_ErrorBG:TKMImage;
       Label_Error:TKMLabel;
       Button_ErrorBack:TKMButton;
     Panel_Results:TKMPanel;
-      Image_ResultsBG:TKMImage;
       Label_Results_Result:TKMLabel;
       Panel_Stats:TKMPanel;
       Label_Stat:array[1..9]of TKMLabel;
@@ -314,19 +304,19 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_MainMenuBG:=MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6);
-    Image_MainMenuBG.Stretch;
-    Image_MainMenu1:=MyControls.AddImage(Panel_MainMenu,120,80,423,164,4,5);
-    Image_MainMenu3:=MyControls.AddImage(Panel_MainMenu,635,220,round(207*1.3),round(295*1.3),6,6);
-    Image_MainMenu3.Stretch;
+    with MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    MyControls.AddImage(Panel_MainMenu,300,60,423,164,4,5);
+    MyControls.AddLabel(Panel_MainMenu, 512, 240, 100, 20, 'Remake', fnt_Metal, kaCenter);
+    with MyControls.AddImage(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do Stretch;
+    with MyControls.AddImage(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
 
-    Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,155,280,350,400);
-      Button_MainMenuSinglePlayer := MyControls.AddButton(Panel_MainButtons,0,0,350,30,'Single Player',fnt_Metal,bsMenu);
-      Button_MainMenuMultiPlayer  := MyControls.AddButton(Panel_MainButtons,0,40,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
-      Button_MainMenuMapEd        := MyControls.AddButton(Panel_MainButtons,0,80,350,30,'Map Editor',fnt_Metal,bsMenu);
+    Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,337,290,350,400);
+      Button_MainMenuSinglePlayer := MyControls.AddButton(Panel_MainButtons,0,  0,350,30,'Single Player',fnt_Metal,bsMenu);
+      Button_MainMenuMultiPlayer  := MyControls.AddButton(Panel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
+      Button_MainMenuMapEd        := MyControls.AddButton(Panel_MainButtons,0, 80,350,30,'Map Editor',fnt_Metal,bsMenu);
       Button_MainMenuOptions      := MyControls.AddButton(Panel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
       Button_MainMenuCredits      := MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
-      Button_MainMenuQuit         := MyControls.AddButton(Panel_MainButtons,0,360,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
+      Button_MainMenuQuit         := MyControls.AddButton(Panel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
       Button_MainMenuSinglePlayer.OnClick    := SwitchMenuPage;
       Button_MainMenuMultiPlayer.OnClick     := SwitchMenuPage;
       Button_MainMenuMapEd.OnClick    := SwitchMenuPage;
@@ -342,13 +332,13 @@ end;
 procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
   Panel_SinglePlayer:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_SinglePlayerBG:=MyControls.AddImage(Panel_SinglePlayer,0,0,ScreenX,ScreenY,2,6);
-    Image_SinglePlayerBG.Stretch;
-    Image_SinglePlayer1:=MyControls.AddImage(Panel_SinglePlayer,120,80,423,164,4,5);
-    Image_SinglePlayer3:=MyControls.AddImage(Panel_SinglePlayer,635,220,round(207*1.3),round(295*1.3),6,6);
-    Image_SinglePlayer3.Stretch;
+    with MyControls.AddImage(Panel_SinglePlayer,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    MyControls.AddImage(Panel_SinglePlayer,300,60,423,164,4,5);
+    MyControls.AddLabel(Panel_SinglePlayer, 512, 240, 100, 20, 'Remake', fnt_Metal, kaCenter);
+    with MyControls.AddImage(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,6) do Stretch;
+    with MyControls.AddImage(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
 
-    Panel_SinglePlayerButtons:=MyControls.AddPanel(Panel_SinglePlayer,155,280,350,400);
+    Panel_SinglePlayerButtons:=MyControls.AddPanel(Panel_SinglePlayer,337,290,350,400);
       Button_SinglePlayerTutor  :=MyControls.AddButton(Panel_SinglePlayerButtons,0,  0,350,30,'Town Tutorial',fnt_Metal,bsMenu);
       Button_SinglePlayerFight  :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 40,350,30,'Battle Tutorial',fnt_Metal,bsMenu);
       Button_SinglePlayerTSK    :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
@@ -356,6 +346,7 @@ begin
       Button_SinglePlayerSingle :=MyControls.AddButton(Panel_SinglePlayerButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
       Button_SinglePlayerLoad   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
       Button_SinglePlayerReplay :=MyControls.AddButton(Panel_SinglePlayerButtons,0,240,350,30,'View last replay',fnt_Metal,bsMenu);
+      Button_SinglePlayerBack   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,320,350,30,fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
 
       Button_SinglePlayerTutor.OnClick    := MainMenu_PlayTutorial;
       Button_SinglePlayerFight.OnClick    := MainMenu_PlayBattle;
@@ -364,9 +355,7 @@ begin
       Button_SinglePlayerSingle.OnClick   := SwitchMenuPage;
       Button_SinglePlayerLoad.OnClick     := SwitchMenuPage;
       Button_SinglePlayerReplay.OnClick   := fGame.ReplayView;
-
-    Button_SinglePlayerBack := MyControls.AddButton(Panel_SinglePlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_SinglePlayerBack.OnClick := SwitchMenuPage;
+      Button_SinglePlayerBack.OnClick     := SwitchMenuPage;
 end;
 
 
@@ -448,8 +437,7 @@ begin
 
   Panel_Single:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
 
-    Image_SingleBG:=MyControls.AddImage(Panel_Single,0,0,ScreenX,ScreenY,2,6);
-    Image_SingleBG.Stretch;
+    with MyControls.AddImage(Panel_Single,0,0,ScreenX,ScreenY,2,6) do Stretch;
 
     Panel_SingleList:=MyControls.AddPanel(Panel_Single,512+22,84,445,600);
 
@@ -520,19 +508,18 @@ procedure TKMMainMenuInterface.Create_Load_Page;
 var i:integer;
 begin
   Panel_Load:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_LoadBG:=MyControls.AddImage(Panel_Load,0,0,ScreenX,ScreenY,2,6);
-    Image_LoadBG.Stretch;
-    Image_Loading_RightCrest:=MyControls.AddImage(Panel_Load,635,220,round(207*1.3),round(295*1.3),6,6);
-    Image_Loading_RightCrest.Stretch;
+    with MyControls.AddImage(Panel_Load,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_Load,50,220,round(218*1.3),round(291*1.3),5,6) do Stretch;
+    with MyControls.AddImage(Panel_Load,705,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
 
     for i:=1 to SAVEGAME_COUNT do
     begin
-      Button_Load[i] := MyControls.AddButton(Panel_Load,147,110+i*40,220,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
+      Button_Load[i] := MyControls.AddButton(Panel_Load,337,110+i*40,350,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
       Button_Load[i].Tag := i; //To simplify usage
       Button_Load[i].OnClick := Load_Click;
     end;
 
-    Button_LoadBack := MyControls.AddButton(Panel_Load, 145, 650, 224, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_LoadBack := MyControls.AddButton(Panel_Load, 337, 650, 350, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_LoadBack.OnClick := SwitchMenuPage;
 end;
 
@@ -541,31 +528,30 @@ procedure TKMMainMenuInterface.Create_MapEditor_Page;
 var i:integer;
 begin
   Panel_MapEd:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_MapEd_BG:=MyControls.AddImage(Panel_MapEd,0,0,ScreenX,ScreenY,2,6);
-    Image_MapEd_BG.Stretch;
+    with MyControls.AddImage(Panel_MapEd,0,0,ScreenX,ScreenY,2,6) do Stretch;
 
     //Should contain options to make a map from scratch, load map from file, generate new one
 
-    Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 412-160, 200, 200, 300);
+    Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 462-210, 200, 200, 300);
       MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'New map size', fnt_Outline, kaLeft);
-      MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 150, 10 + MAPSIZE_COUNT*20);
+      MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 10 + MAPSIZE_COUNT*20);
       for i:=1 to MAPSIZE_COUNT do
       begin
         CheckBox_MapEd_SizeX[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 8, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
-        CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 78, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
+        CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 108, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
         CheckBox_MapEd_SizeX[i].OnClick := MapEditor_Change;
         CheckBox_MapEd_SizeY[i].OnClick := MapEditor_Change;
       end;
-    Button_MapEd_Create := MyControls.AddButton(Panel_MapEd_SizeXY, 0, 260, 150, 30, 'Create New Map', fnt_Metal, bsMenu);
-    Button_MapEd_Create.OnClick := MapEditor_Start;
+      Button_MapEd_Create := MyControls.AddButton(Panel_MapEd_SizeXY, 0, 260, 200, 30, 'Create New Map', fnt_Metal, bsMenu);
+      Button_MapEd_Create.OnClick := MapEditor_Start;
 
-    Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 412+10, 200, 320, 300);
-    MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
-    FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 320, 210);
-    Button_MapEd_Load := MyControls.AddButton(Panel_MapEd_Load, 0, 260, 320, 30, 'Load Existing Map', fnt_Metal, bsMenu);
-    Button_MapEd_Load.OnClick := MapEditor_Start;
+    Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 462+10, 200, 300, 300);
+      MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
+      FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 300, 210);
+      Button_MapEd_Load := MyControls.AddButton(Panel_MapEd_Load, 0, 260, 300, 30, 'Load Existing Map', fnt_Metal, bsMenu);
+      Button_MapEd_Load.OnClick := MapEditor_Start;
 
-    Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 145, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 120, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_MapEdBack.OnClick := SwitchMenuPage;
 end;
 
@@ -574,77 +560,77 @@ procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings
 var i:integer;
 begin
   Panel_Options:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_Options_BG:=MyControls.AddImage(Panel_Options,0,0,ScreenX,ScreenY,2,6);
-    Image_Options_BG.Stretch;
-    Image_Options_RightCrest:=MyControls.AddImage(Panel_Options,635,220,round(207*1.3),round(295*1.3),6,6);
-    Image_Options_RightCrest.Stretch;
+    with MyControls.AddImage(Panel_Options,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
 
-    Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,120,130,170,80);
+    Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,120,130,200,80);
       MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,'Controls:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Ctrl,0,20,170,60);
+      MyControls.AddBevel(Panel_Options_Ctrl,0,20,200,60);
 
       Label_Options_MouseSpeed:=MyControls.AddLabel(Panel_Options_Ctrl,18,27,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
       Label_Options_MouseSpeed.Disable;
-      Ratio_Options_Mouse:=MyControls.AddRatioRow(Panel_Options_Ctrl,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_Mouse:=MyControls.AddRatioRow(Panel_Options_Ctrl,10,47,180,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
       Ratio_Options_Mouse.Disable;
 
-    Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,520,130,170,30+LocalesCount*20);
-      MyControls.AddLabel(Panel_Options_Lang,6,0,100,30,'Language:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Lang,0,20,170,10+LocalesCount*20);
-
-      for i:=1 to LocalesCount do
-      begin
-        CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(Panel_Options_Lang,18,27+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
-        CheckBox_Options_Lang[i].OnClick:=Options_Change;
-      end;
-
-    Panel_Options_GFX:=MyControls.AddPanel(Panel_Options,320,130,170,80);
-      MyControls.AddLabel(Panel_Options_GFX,6,0,100,30,'Graphics:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_GFX,0,20,170,60);
-      MyControls.AddLabel(Panel_Options_GFX,18,27,100,30,'Brightness',fnt_Metal,kaLeft);
-      Ratio_Options_Brightness:=MyControls.AddRatioRow(Panel_Options_GFX,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
-      Ratio_Options_Brightness.OnChange:=Options_Change;
-
-    Panel_Options_Game:=MyControls.AddPanel(Panel_Options,120,230,170,50);
+    Panel_Options_Game:=MyControls.AddPanel(Panel_Options,120,230,200,50);
       MyControls.AddLabel(Panel_Options_Game,6,0,100,30,'Gameplay:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Game,0,20,170,30);
+      MyControls.AddBevel(Panel_Options_Game,0,20,200,30);
 
-      CheckBox_Options_Autosave := MyControls.AddCheckBox(Panel_Options_Game,18,27,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
+      CheckBox_Options_Autosave := MyControls.AddCheckBox(Panel_Options_Game,12,27,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
-    Panel_Options_Sound:=MyControls.AddPanel(Panel_Options,120,300,170,130);
+    Panel_Options_Sound:=MyControls.AddPanel(Panel_Options,120,300,200,130);
       MyControls.AddLabel(Panel_Options_Sound,6,0,100,30,'Sound:',fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Sound,0,20,170,110);
+      MyControls.AddBevel(Panel_Options_Sound,0,20,200,110);
 
       Label_Options_SFX:=MyControls.AddLabel(Panel_Options_Sound,18,27,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
-      Ratio_Options_SFX:=MyControls.AddRatioRow(Panel_Options_Sound,10,47,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_SFX:=MyControls.AddRatioRow(Panel_Options_Sound,10,47,180,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
       Ratio_Options_SFX.OnChange:=Options_Change;
       Label_Options_Music:=MyControls.AddLabel(Panel_Options_Sound,18,77,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
-      Ratio_Options_Music:=MyControls.AddRatioRow(Panel_Options_Sound,10,97,150,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_Music:=MyControls.AddRatioRow(Panel_Options_Sound,10,97,180,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
       Ratio_Options_Music.OnChange:=Options_Change;
 
       Label_Options_MusicOn:=MyControls.AddLabel(Panel_Options_Sound,18,140,100,20,fTextLibrary.GetTextString(197),fnt_Outline,kaLeft);
-      Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,10,160,150,30,'',fnt_Metal, bsMenu);
+      Button_Options_MusicOn:=MyControls.AddButton(Panel_Options_Sound,10,160,180,30,'',fnt_Metal, bsMenu);
       Button_Options_MusicOn.OnClick:=Options_Change;
 
 
-    Panel_Options_Res:=MyControls.AddPanel(Panel_Options,320,230,170,30+RESOLUTION_COUNT*20);
+    Panel_Options_GFX:=MyControls.AddPanel(Panel_Options,340,130,200,80);
+      MyControls.AddLabel(Panel_Options_GFX,6,0,100,30,'Graphics:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(Panel_Options_GFX,0,20,200,60);
+      MyControls.AddLabel(Panel_Options_GFX,18,27,100,30,'Brightness',fnt_Metal,kaLeft);
+      Ratio_Options_Brightness:=MyControls.AddRatioRow(Panel_Options_GFX,10,47,180,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
+      Ratio_Options_Brightness.OnChange:=Options_Change;
+
+    Panel_Options_Res:=MyControls.AddPanel(Panel_Options,340,230,200,30+RESOLUTION_COUNT*20);
       //Resolution selector
       MyControls.AddLabel(Panel_Options_Res,6,0,100,30,fTextLibrary.GetSetupString(20),fnt_Outline,kaLeft);
-      MyControls.AddBevel(Panel_Options_Res,0,20,170,10+RESOLUTION_COUNT*20);
+      MyControls.AddBevel(Panel_Options_Res,0,20,200,10+RESOLUTION_COUNT*20);
       for i:=1 to RESOLUTION_COUNT do
       begin
-        CheckBox_Options_Resolution[i]:=MyControls.AddCheckBox(Panel_Options_Res,18,27+(i-1)*20,100,30,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
+        CheckBox_Options_Resolution[i]:=MyControls.AddCheckBox(Panel_Options_Res,12,27+(i-1)*20,100,30,Format('%dx%d',[SupportedResolutions[i,1],SupportedResolutions[i,2],SupportedRefreshRates[i]]),fnt_Metal);
         CheckBox_Options_Resolution[i].Enabled:=(SupportedRefreshRates[i] > 0);
         CheckBox_Options_Resolution[i].OnClick:=Options_Change;
       end;
 
-      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(Panel_Options_Res,18,38+RESOLUTION_COUNT*20,100,30,'Fullscreen',fnt_Metal);
+      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,100,30,'Fullscreen',fnt_Metal);
       CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
-      Button_Options_ResApply:=MyControls.AddButton(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,150,30,'Apply',fnt_Metal, bsMenu);
+      Button_Options_ResApply:=MyControls.AddButton(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,'Apply',fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
       Button_Options_ResApply.Disable;
+
+
+    Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,560,130,200,30+LOCALES_COUNT*20);
+      MyControls.AddLabel(Panel_Options_Lang,6,0,100,30,'Language:',fnt_Outline,kaLeft);
+      MyControls.AddBevel(Panel_Options_Lang,0,20,200,10+LOCALES_COUNT*20);
+
+      for i:=1 to LOCALES_COUNT do
+      begin
+        CheckBox_Options_Lang[i]:=MyControls.AddCheckBox(Panel_Options_Lang,12,27+(i-1)*20,100,30,Locales[i,2],fnt_Metal);
+        CheckBox_Options_Lang[i].OnClick:=Options_Change;
+      end;
+
 
     CheckBox_Options_Autosave.Checked := aGameSettings.IsAutosave;
     Ratio_Options_Brightness.Position := aGameSettings.GetBrightness;
@@ -655,7 +641,7 @@ begin
     if aGameSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                              else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
-    Button_Options_Back:=MyControls.AddButton(Panel_Options,145,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_Options_Back:=MyControls.AddButton(Panel_Options,120,650,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_Options_Back.OnClick:=SwitchMenuPage;
 end;
 
@@ -663,11 +649,7 @@ end;
 procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_CreditsBG:=MyControls.AddImage(Panel_Credits,0,0,ScreenX,ScreenY,2,6);
-    Image_CreditsBG.Stretch;
-    MyControls.AddLabel(Panel_Credits,ScreenX div 2,100,100,30,'Knights & Merchants Credits',fnt_Outline,kaCenter);
-    Label_Credits:=MyControls.AddLabel(Panel_Credits,ScreenX div 2,140,200,ScreenY-140,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
-//    Label_Credits.SmoothScrollToTop := 1;
+    with MyControls.AddImage(Panel_Credits,0,0,ScreenX,ScreenY,2,6) do Stretch;
 
     MyControls.AddLabel(Panel_Credits,200,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
     MyControls.AddLabel(Panel_Credits,200,140,100,30,
@@ -677,7 +659,10 @@ begin
     'SPECIAL THANKS|KaM Community members'
     ,fnt_Grey,kaCenter);
 
-    Button_CreditsBack:=MyControls.AddButton(Panel_Credits,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    MyControls.AddLabel(Panel_Credits,ScreenX div 2+150,100,100,30,'Knights & Merchants Credits',fnt_Outline,kaCenter);
+    Label_Credits:=MyControls.AddLabel(Panel_Credits,ScreenX div 2+150,140,200,ScreenY-140,fTextLibrary.GetSetupString(300),fnt_Grey,kaCenter);
+
+    Button_CreditsBack:=MyControls.AddButton(Panel_Credits,120,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_CreditsBack.OnClick:=SwitchMenuPage;
 end;
 
@@ -685,8 +670,7 @@ end;
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   Panel_Loading:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_LoadingBG:=MyControls.AddImage(Panel_Loading,0,0,ScreenX,ScreenY,2,6);
-    Image_LoadingBG.Stretch;
+    with MyControls.AddImage(Panel_Loading,0,0,ScreenX,ScreenY,2,6) do Stretch;
     MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
     Label_Loading:=MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
 end;
@@ -695,8 +679,7 @@ end;
 procedure TKMMainMenuInterface.Create_Error_Page;
 begin
   Panel_Error := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_ErrorBG := MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6);
-    Image_ErrorBG.Stretch;
+    with MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6) do Stretch;
     MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'An Error Has Occured!',fnt_Antiqua,kaCenter);
     Label_Error := MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack := MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
@@ -708,8 +691,7 @@ procedure TKMMainMenuInterface.Create_Results_Page;
 var i:integer; Adv:integer;
 begin
   Panel_Results:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_ResultsBG:=MyControls.AddImage(Panel_Results,0,0,ScreenX,ScreenY,7,5);
-    Image_ResultsBG.Stretch;
+    with MyControls.AddImage(Panel_Results,0,0,ScreenX,ScreenY,7,5) do Stretch;
 
     Label_Results_Result:=MyControls.AddLabel(Panel_Results,512,200,100,30,'<<<LEER>>>',fnt_Metal,kaCenter);
 
@@ -1102,7 +1084,7 @@ begin
   if fGame.fGlobalSettings.IsMusic then Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(201)
                                  else Button_Options_MusicOn.Caption:=fTextLibrary.GetTextString(199);
 
-  for i:=1 to LocalesCount do
+  for i:=1 to LOCALES_COUNT do
     if Sender = CheckBox_Options_Lang[i] then begin
       fGame.fGlobalSettings.SetLocale := Locales[i,1];
       ShowScreen_Loading('Loading new locale');
@@ -1111,7 +1093,7 @@ begin
       exit; //Whole interface will be recreated
     end;
 
-  for i:=1 to LocalesCount do
+  for i:=1 to LOCALES_COUNT do
     CheckBox_Options_Lang[i].Checked := LowerCase(fGame.fGlobalSettings.GetLocale) = LowerCase(Locales[i,1]);
 
   if Sender = Button_Options_ResApply then begin //Apply resolution changes

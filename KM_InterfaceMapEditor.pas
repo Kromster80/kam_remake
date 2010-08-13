@@ -70,10 +70,6 @@ type TKMapEdInterface = class
       Panel_Quit:TKMPanel;
         Button_Quit_Yes,Button_Quit_No:TKMButton;
 
-    Panel_Stats:TKMPanel;
-      Stat_HousePic,Stat_UnitPic:array[1..32]of TKMImage;
-      Stat_HouseQty,Stat_UnitQty:array[1..32]of TKMLabel;
-
     Panel_Unit:TKMPanel;
       Label_UnitName:TKMLabel;
       Label_UnitCondition:TKMLabel;
@@ -107,7 +103,6 @@ type TKMapEdInterface = class
   private
     procedure Create_Terrain_Page;
     procedure Create_Village_Page;
-    procedure Create_Stats_Page;
     procedure Create_Menu_Page;
     procedure Create_Save_Page;
     procedure Create_Load_Page;
@@ -127,7 +122,6 @@ type TKMapEdInterface = class
     procedure Build_ButtonClick(Sender: TObject);
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
-    procedure Stats_Fill(Sender:TObject);
     procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
     procedure Unit_ArmyChange(Sender:TObject; AButton:TMouseButton);
     procedure Store_SelectWare(Sender:TObject);
@@ -235,8 +229,6 @@ begin
   end else
 
   if Sender=Button_Main[3] then begin
-    Stats_Fill(nil);
-    Panel_Stats.Show;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
   end else
 
@@ -376,7 +368,7 @@ begin
   Create_Terrain_Page();
   Create_Village_Page();
 
-  Create_Stats_Page();
+  //Create_Stats_Page();
 
   Create_Menu_Page();
     Create_Save_Page();
@@ -540,71 +532,6 @@ begin
     Panel_Script := MyControls.AddPanel(Panel_Village,0,28,196,400);
 end;
 
-
-{Statistics page}
-procedure TKMapEdInterface.Create_Stats_Page;
-const IncY=34; Nil_Width=10; House_Width=30; Unit_Width=26;
-var i,k:integer; hc,uc,off:integer;
-begin
-  Panel_Stats:=MyControls.AddPanel(Panel_Main,0,412,200,400);
-
-  hc:=1; uc:=1;
-  for i:=1 to 8 do begin
-    off:=8;
-    case i of
-    1: begin
-          MyControls.AddBevel(Panel_Stats,  8,(i-1)*IncY,56,30);
-          MyControls.AddBevel(Panel_Stats, 71,(i-1)*IncY,56,30);
-          MyControls.AddBevel(Panel_Stats,134,(i-1)*IncY,56,30);
-       end;
-    2: begin
-          MyControls.AddBevel(Panel_Stats,  8,(i-1)*IncY,86,30);
-          MyControls.AddBevel(Panel_Stats,104,(i-1)*IncY,86,30);
-       end;
-    3: begin
-          MyControls.AddBevel(Panel_Stats,  8,(i-1)*IncY,86,30);
-          MyControls.AddBevel(Panel_Stats,104,(i-1)*IncY,86,30);
-       end;
-    4: begin
-          MyControls.AddBevel(Panel_Stats,  8,(i-1)*IncY,86,30);
-          MyControls.AddBevel(Panel_Stats,104,(i-1)*IncY,86,30);
-       end;
-    5:    MyControls.AddBevel(Panel_Stats,8,(i-1)*IncY,116,30);
-    6:    MyControls.AddBevel(Panel_Stats,8,(i-1)*IncY,146,30);
-    7:    MyControls.AddBevel(Panel_Stats,8,(i-1)*IncY,86,30);
-    8: begin
-          MyControls.AddBevel(Panel_Stats,  8,(i-1)*IncY,120,30);
-          MyControls.AddBevel(Panel_Stats,138,(i-1)*IncY,52,30);
-       end;
-    end;
-
-    for k:=1 to 8 do
-    if StatCount[i,k]=0 then begin
-      if i=1 then
-        inc(off,Nil_Width-3)
-      else
-        inc(off,Nil_Width);
-    end else
-    if StatCount[i,k]=1 then begin
-      Stat_HousePic[hc]:=MyControls.AddImage(Panel_Stats,off,(i-1)*IncY,House_Width,30,41{byte(StatHouse[hc])+300});
-      Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
-      Stat_HouseQty[hc]:=MyControls.AddLabel(Panel_Stats,off+House_Width-2,(i-1)*IncY+16,37,30,'-',fnt_Grey,kaRight);
-      Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
-      inc(hc);
-      inc(off,House_Width);
-    end else
-    if StatCount[i,k]=2 then begin
-      Stat_UnitPic[uc]:=MyControls.AddImage(Panel_Stats,off,(i-1)*IncY,Unit_Width,30,byte(StatUnit[uc])+140);
-      Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
-      Stat_UnitQty[uc]:=MyControls.AddLabel(Panel_Stats,off+Unit_Width-2,(i-1)*IncY+16,33,30,'-',fnt_Grey,kaRight);
-      Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
-      inc(uc);
-      inc(off,Unit_Width);
-    end;
-  end;
-
-end;
-                                           
 
 {Menu page}
 procedure TKMapEdInterface.Create_Menu_Page;
@@ -785,8 +712,6 @@ begin
   if Mouse.CursorPos.X>ToolBarWidth then DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar
 
   Minimap_Update(nil);
-
-  if Panel_Stats.Visible then Stats_Fill(nil);
 end;
 
 
@@ -1102,36 +1027,6 @@ begin
     if Tmp=0 then Button_Store[i].Caption:='-' else
     //if Tmp>999 then Button_Store[i].Caption:=float2fix(round(Tmp/10)/100,2)+'k' else
                   Button_Store[i].Caption:=inttostr(Tmp);
-  end;
-end;
-
-
-procedure TKMapEdInterface.Stats_Fill(Sender:TObject);
-var i,Tmp:integer;
-begin
-  for i:=low(StatHouse) to high(StatHouse) do
-  begin
-    Tmp:=MyPlayer.GetHouseQty(StatHouse[i]);
-    if Tmp=0 then Stat_HouseQty[i].Caption:='-' else Stat_HouseQty[i].Caption:=inttostr(Tmp);
-    if MyPlayer.GetCanBuild(StatHouse[i]) or (Tmp>0) then
-    begin
-      Stat_HousePic[i].TexID:=byte(StatHouse[i])+300;
-      Stat_HousePic[i].Hint:=TypeToString(StatHouse[i]);
-      Stat_HouseQty[i].Hint:=TypeToString(StatHouse[i]);
-    end
-    else
-    begin
-      Stat_HousePic[i].TexID:=41;
-      Stat_HousePic[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
-      Stat_HouseQty[i].Hint:=fTextLibrary.GetTextString(251); //Building not available
-    end;
-  end;
-  for i:=low(StatUnit) to high(StatUnit) do
-  begin
-    Tmp:=MyPlayer.GetUnitQty(StatUnit[i]);
-    if Tmp=0 then Stat_UnitQty[i].Caption:='-' else Stat_UnitQty[i].Caption:=inttostr(Tmp);
-    Stat_UnitPic[i].Hint:=TypeToString(StatUnit[i]);
-    Stat_UnitQty[i].Hint:=TypeToString(StatUnit[i]);
   end;
 end;
 

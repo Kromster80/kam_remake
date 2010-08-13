@@ -476,6 +476,7 @@ end;
 procedure TKMControl.Paint();
 var sColor:TColor4;
 begin
+  inc(CtrlPaintCount);
   if not SHOW_CONTROLS_OVERLAY then exit;
 
   sColor := $FFFFFFFF;
@@ -592,10 +593,7 @@ begin
   Inherited;
   for i:=1 to ChildCount do
     if Childs[i].Visible then
-    begin
       Childs[i].Paint;
-      inc(CtrlPaintCount);
-    end;
 end;
 
 
@@ -1651,10 +1649,7 @@ procedure TKMControlsCollection.Paint();
 var i:integer;
 begin
   CtrlPaintCount := 0;
-  for i:=0 to Count-1 do
-    if Controls[i].Parent = nil then
-      if Controls[i].IsVisible then
-        Controls[i].Paint;
+  Controls[0].Paint;
 
   if MODE_DESIGN_CONTORLS and (fFocusedControl<>nil) then
     with fFocusedControl do

@@ -70,7 +70,6 @@ var
    SHOW_CONTROLS_OVERLAY:boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
-  FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   {Gameplay display}
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
   SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
@@ -87,6 +86,10 @@ var
   SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
   RENDER_3D             :boolean=false; //Experimental 3D render
   DO_PERF_TEST          :boolean=false; //Close Application after certain period of time to compare performance between runs
+
+  {Gameplay cheats}
+  FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
+
   {Data output}
   WRITE_DETAILED_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
@@ -190,8 +193,8 @@ type
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
 const
-  LocalesCount = 7;
-  Locales:array[1..LocalesCount, 1..2]of shortstring = (
+  LOCALES_COUNT = 7;
+  Locales:array[1..LOCALES_COUNT, 1..2]of shortstring = (
   ('eng', 'English'),
   ('ger', 'German'),
   ('pol', 'Polish'),
