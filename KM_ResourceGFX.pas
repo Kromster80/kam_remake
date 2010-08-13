@@ -28,6 +28,7 @@ type
     function LoadUnitDAT(filename:string):boolean;
     function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
+    procedure LoadRX7();
     function LoadRX(filename:string; ID:integer):boolean;
     procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
     procedure MakeGFX(Sender: TObject; RXid:integer);
@@ -103,7 +104,7 @@ begin
   RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
   RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
   RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
-  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls, etc.
+  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and stat icons
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
   RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
 
@@ -115,6 +116,8 @@ begin
     MakeGFX(nil,i);
     StepRefresh();
   end;
+
+  LoadRX7; //Something fancy to Load RX7 data (custom bitmaps and overrides)
 
   StepCaption('Reading fonts ...');
   LoadFonts(false, aLocale);
@@ -548,18 +551,72 @@ begin
 end;
 
 
+{ This function should parse all valid files in Sprites folder and load them
+  additionaly to or replacing original sprites }
+procedure TResource.LoadRX7();
+var
+  FileList:TStringList;
+  SearchRec:TSearchRec;
+  i:integer;
+  RX,ID:integer;
+begin
+  FileList := TStringList.Create;
+
+  ChDir(ExeDir + 'Sprites\');
+  FindFirst('*', faAnyFile, SearchRec);
+  repeat
+    if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
+      if SearchRec.Attr and faDirectory <> faDirectory then
+      if GetFileExt(SearchRec.Name) = 'TGA' then begin
+        FileList.Add(SearchRec.Name);
+      end;
+  until (FindNext(SearchRec)<>0);
+  FindClose(SearchRec);
+
+  //#-####.tga - default texture
+  //#-####a.tga - alternative texture
+  for i:=0 to FileList.Count-1 do begin
+    RX := strtoint(FileList.Strings[0][1]);
+    ID := strtoint(Copy(FileList.Strings[0], 3, 4));
+    if InRange(RX,1,6) and InRange(ID,1,RxData[ID].Qty) then begin
+      if FileList.Strings[0][7] = '.' then
+        LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[0], GFXData[RX,ID].TexID, 0)
+      else
+        LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[0], GFXData[RX,ID].AltID, 0);
+
+      GFXData[RX,ID].PxWidth := 64;  //
+      GFXData[RX,ID].PxHeight := 64;
+
+      GFXData[RX,ID].u1 := 0;
+      GFXData[RX,ID].u2 := 1;
+      GFXData[RX,ID].v1 := 0;
+      GFXData[RX,ID].v2 := 1;
+    end;
+  end;
+
+  FileList.Free;
+end;
+
+
 //=============================================
 //Reading RX Data
 //=============================================
 function TResource.LoadRX(filename:string; ID:integer):boolean;
-  var i:integer; f:file;
+var i:integer; f:file;
 begin
   Result:=false;
   if not CheckFileExists(filename) then exit;
 
   assignfile(f,filename); reset(f,1);
   blockread(f, RXData[ID].Qty, 4);
-  blockread(f, RXData[ID].Pal, RXData[ID].Qty);
+
+  setlength(GFXData[ID],      RXData[ID].Qty + 1);
+  setlength(RXData[ID].Pal,   RXData[ID].Qty + 1);
+  setlength(RXData[ID].Size,  RXData[ID].Qty + 1);
+  setlength(RXData[ID].Pivot, RXData[ID].Qty + 1);
+  setlength(RXData[ID].Data,  RXData[ID].Qty + 1);
+
+  blockread(f, RXData[ID].Pal[1], RXData[ID].Qty);
 
   if (not FullyLoadUnitsRX)and(RXData[ID].Title = 'Units') then RXData[ID].Qty:=7885;
 
@@ -591,21 +648,22 @@ var
   TD:Pointer;
 begin
 
-Result := 0;
+  Result := 0;
 
-DestX := MakePOT(mx);
-DestY := MakePOT(my);
+  DestX := MakePOT(mx);
+  DestY := MakePOT(my);
 
-if DestX*DestY = 0 then exit; //Do not generate zeroed textures
+  if DestX*DestY = 0 then exit; //Do not generate zeroed textures
 
-if Mode=tm_AlphaTest then begin
-  Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-  exit;
-end;
+  if Mode=tm_AlphaTest then begin
+    Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    exit;
+  end;
 
-  //Convert palette bitmap data to 32bit RGBA texture data
+
   TD:=AllocMem(DestX*DestY*4); //same as GetMem+FillChar(0)
+  //Convert palette bitmap data to 32bit RGBA texture data
   for i:=0 to my-1{(DestY-1)} do for k:=0 to mx-1{(DestX-1)} do begin
     x := Data[i*mx+k];
     if (x<>0) then begin
@@ -650,7 +708,7 @@ end;
     MyBitmap.PixelFormat:=pf32bit;
     MyBitmap.Width:=DestX;
     MyBitmap.Height:=DestY;
-  
+
     for i:=0 to DestY-1 do for k:=0 to DestX-1 do
       MyBitmap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
 
@@ -755,9 +813,9 @@ begin
   repeat
     inc(LeftIndex);
 
-    WidthPOT:=RXData[RXid].Size[LeftIndex,1];
-    HeightPOT:=MakePOT(RXData[RXid].Size[LeftIndex,2]);
-    SpanCount:=1;
+    WidthPOT  := RXData[RXid].Size[LeftIndex,1];
+    HeightPOT := MakePOT(RXData[RXid].Size[LeftIndex,2]);
+    SpanCount := 1;
 
     //Pack textures with same POT height into rows to save memory
     //This also means fewer textures for GPU RAM == better performance
@@ -790,7 +848,7 @@ begin
         end;
     end;
 
-    //If we need to prepare textures for TeamColors
+    //If we need to prepare textures for TeamColors                              //special fix fol iron mine logo
     if MAKE_TEAM_COLORS and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
     begin
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
@@ -803,17 +861,11 @@ begin
         end;
     end
     else
-      if RXid=5 then
-        if RX5Pal[LeftIndex]<>0 then
-          GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[LeftIndex])
-        else
-          GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,10)
+      if RXid=5 then //Use individual palettes for each image in GUIMain.rx
+        GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[LeftIndex])
       else
-      if RXid=6 then
-        if RX6Pal[LeftIndex]<>0 then
-          GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX6Pal[LeftIndex])
-        else
-          GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,10)
+      if RXid=6 then //Use individual palettes for each image in GUIMainH.rx
+        GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX6Pal[LeftIndex])
       else
         GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol);
 

@@ -233,10 +233,10 @@ const
   1, 1, 1, 1, 1, 1,12,12,12,11,
  11,11,11,11,12, 1, 1, 1, 1, 1,
  12,12,12,12,12,12,12, 0, 0, 0);
- //I couldn't find matching palettes for several entries, so I marked them 0 
+ //todo: I couldn't find matching palettes for the 17th and 18th entries 
  RX6Pal:array[1..20]of byte = (
  8,8,8,8,8,8,9,9,9,1,
- 1,1,1,1,1,1,0,0,0,0);
+ 1,1,1,1,1,1,10,10,0,0);
 
 {Fonts}
 const
@@ -944,8 +944,8 @@ const
   );
 
 const
-  MAPSIZE_COUNT = 10;
-  MapSize: array[1..MAPSIZE_COUNT] of word=( 32, 48, 64, 80, 96, 112, 128, 144, 160, 176 );
+  MAPSIZES_COUNT = 10;
+  MapSize: array[1..MAPSIZES_COUNT] of word=( 32, 48, 64, 80, 96, 112, 128, 144, 160, 176 );
 
 var
   //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
@@ -955,7 +955,7 @@ var
   TeamColors:array[1..MAX_PLAYERS+1]of cardinal = (
   $FF3040FF, //Red
   $FF00C0FF, //Orange
-  $FF00FFFF, //Yellow
+  $FF00DDFF, //Yellow
   $FF28C840, //Green
   $FFC0C040, //Cyan
   $FFC00000, //Blue
@@ -984,14 +984,14 @@ var
   RXData:array [1..6]of record
     Title:string;
     Qty:integer;
-    Pal:array[1..9500] of byte;
-    Size:array[1..9500,1..2] of word;
-    Pivot:array[1..9500] of record x,y:integer; end;
-    Data:array[1..9500] of array of byte;
+    Pal:array of byte;
+    Size:array of array[1..2] of word;
+    Pivot:array of record x,y:integer; end;
+    Data:array of array of byte;
     NeedTeamColors:boolean;
   end;
 
-  GFXData: array [1..6,1..9500] of record
+  GFXData: array [1..6] of array of record
     TexID,AltID: GLUint; //AltID used for team colors
     u1,v1,u2,v2: single;
     PxWidth,PxHeight:word;

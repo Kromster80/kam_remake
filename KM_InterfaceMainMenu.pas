@@ -85,7 +85,7 @@ type TKMMainMenuInterface = class
       Button_LoadBack:TKMButton;
     Panel_MapEd:TKMPanel;
       Panel_MapEd_SizeXY:TKMPanel;
-      CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZE_COUNT] of TKMCheckBox;
+      CheckBox_MapEd_SizeX,CheckBox_MapEd_SizeY:array[1..MAPSIZES_COUNT] of TKMCheckBox;
       Panel_MapEd_Load:TKMPanel;
       FileList_MapEd:TKMFileList;
       Button_MapEdBack,Button_MapEd_Create,Button_MapEd_Load:TKMButton;
@@ -534,8 +534,8 @@ begin
 
     Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 462-210, 200, 200, 300);
       MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'New map size', fnt_Outline, kaLeft);
-      MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 10 + MAPSIZE_COUNT*20);
-      for i:=1 to MAPSIZE_COUNT do
+      MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 10 + MAPSIZES_COUNT*20);
+      for i:=1 to MAPSIZES_COUNT do
       begin
         CheckBox_MapEd_SizeX[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 8, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
         CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 108, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
@@ -1049,13 +1049,13 @@ procedure TKMMainMenuInterface.MapEditor_Change(Sender: TObject);
 var i:integer;
 begin
   //Find out new map dimensions
-  for i:=1 to MAPSIZE_COUNT do
+  for i:=1 to MAPSIZES_COUNT do
   begin
     if Sender = CheckBox_MapEd_SizeX[i] then MapEdSizeX := MapSize[i];
     if Sender = CheckBox_MapEd_SizeY[i] then MapEdSizeY := MapSize[i];
   end;
   //Put checkmarks
-  for i:=1 to MAPSIZE_COUNT do
+  for i:=1 to MAPSIZES_COUNT do
   begin
     CheckBox_MapEd_SizeX[i].Checked := MapEdSizeX = MapSize[i];
     CheckBox_MapEd_SizeY[i].Checked := MapEdSizeY = MapSize[i];
