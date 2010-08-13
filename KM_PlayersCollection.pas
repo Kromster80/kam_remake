@@ -262,10 +262,10 @@ e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1
 @Lewin: Need to discuss that sometime }
 function TKMAllPlayers.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
 begin
-  Assert(InRange(byte(aPlay1),1,MAX_PLAYERS) and InRange(byte(aPlay2),1,MAX_PLAYERS));
   Assert((Player[byte(aPlay1)] <> nil) and (Player[byte(aPlay2)] <> nil));
+  Assert(InRange(byte(aPlay1),1,MAX_PLAYERS+1) and InRange(byte(aPlay2),1,MAX_PLAYERS+1)); //Max_players + Animals
 
-  if aPlay1 = aPlay2 then
+  if (aPlay1 = aPlay2) or (aPlay1 = play_Animals) or (aPlay2 = play_Animals) then
     Result := at_Ally
   else
     Result := Player[byte(aPlay1)].fAlliances[byte(aPlay2)];

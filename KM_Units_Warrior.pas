@@ -704,41 +704,42 @@ var i,k,WCount,OCount:shortint;
     U, BestU: TKMUnit;
     Warriors,Others: array[1..8] of TKMUnit;
 begin
+  if not ENABLE_FIGHTING then exit;
+  if not CheckCanFight then exit;
+
   //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
   WCount := 0;
   OCount := 0;
-  //We don't care about state, override any action that can be abandoned
   Result := false; //Did we pick a fight?
   BestU := nil;
-  if ENABLE_FIGHTING then
-  if CheckCanFight then
+
+  for i := -1 to 1 do
+  for k := -1 to 1 do
+  if (i<>0) or (k<>0) then
+  if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through tree trunks
   begin
-    for i := -1 to 1 do
-      for k := -1 to 1 do
-      if (i<>0) or (k<>0) then
-      if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through a tree trunk
+    //todo: Maybe check IsUnit first and also avoid hittesting allies and group members?
+    U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
+    //Must not dead/dying, not inside a house, not from our team and an enemy
+    if (U <> nil) and (U.IsVisible) and(not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
+    begin
+      //We'd rather fight a warrior, so store them seperatly
+      if U is TKMUnitWarrior then
       begin
-        //todo: Maybe check IsUnit first and also avoid hittesting allies and group members?
-        U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
-        //Must not dead/dying, not inside a house, not from our team and an enemy
-        if (U <> nil) and (U.IsVisible) and(not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
-        begin
-          //We'd rather fight a warrior, so store them seperatly
-          if U is TKMUnitWarrior then
-          begin
-            inc(WCount);
-            Warriors[WCount] := U;
-            //If they are a warrior right in front of us then choose them to fight rather than turning
-            if KMSamePoint(KMGetPointInDir(GetPosition,Direction),U.GetPosition) then
-              BestU := U;
-          end
-          else
-          begin
-            inc(OCount);
-            Others[OCount] := U;
-          end
+        inc(WCount);
+        Warriors[WCount] := U;
+        //If they is a warrior right in front of us then choose him to fight rather than turning
+        if KMSamePoint(KMGetPointInDir(GetPosition,Direction),U.GetPosition) then begin
+          BestU := U;
+          break;
         end;
+      end
+      else
+      begin
+        inc(OCount);
+        Others[OCount] := U;
       end;
+    end;
   end;
 
   //Choose random unit, prefering warriors to e.g. serfs
@@ -751,6 +752,7 @@ begin
     else
       if OCount > 0 then
         U := Others[Random(OCount)+1];
+
   if U <> nil then
   begin
     SetActionFight(ua_Work, U);
