@@ -278,10 +278,10 @@ begin
   if (MyPlayer=nil)or(MyPlayer.fMissionSettings=nil) then exit; //We need to be able to access these
   if not (Sender is TKMRatioRow) then exit;
 
-  ResID:=TResourceType(Image_RatioPic0.TexID-350);
-  HouseID:=THouseType(Image_RatioPic[TKMRatioRow(Sender).Tag].TexID-300);
+  ResID   := TResourceType(Image_RatioPic0.TexID-350);
+  HouseID := THouseType(Image_RatioPic[TKMRatioRow(Sender).Tag].TexID-300);
 
-  MyPlayer.fMissionSettings.SetRatio(ResID,HouseID,TKMRatioRow(Sender).Position);
+  fGame.fGameInputProcess.RatioCommand(gic_RatioChange, ResID, HouseID, TKMRatioRow(Sender).Position);
 end;
 
 

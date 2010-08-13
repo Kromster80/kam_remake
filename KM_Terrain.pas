@@ -1265,7 +1265,7 @@ begin
   Result := true; //Assume we are stuck
   for i:=-1 to 1 do for k:=-1 to 1 do
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
-      if not((i=0)and(k=0)) then
+      if (i<>0)or(k<>0) then
         if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then
           if Land[Loc.Y+i,Loc.X+k].IsUnit = 0 then
             if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
@@ -1284,7 +1284,7 @@ begin
   //List 1 holds all available walkable positions except self
   L1:=TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
-    if not((i=0)and(k=0)) then
+    if (i<>0)or(k<>0) then
       if TileInMapCoords(Loc.X+k,Loc.Y+i) then
         if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
           if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
@@ -1335,7 +1335,7 @@ begin
   //List 1 holds all positions next to both Loc and Loc2
   L1 := TKMPointList.Create;
   for i:=-1 to 1 do for k:=-1 to 1 do
-  if not((i=0)and(k=0)) and TileInMapCoords(Loc.X+k,Loc.Y+i) then //Valid tile for test
+  if ((i<>0)or(k<>0)) and TileInMapCoords(Loc.X+k,Loc.Y+i) then //Valid tile for test
   if not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2) then
   if canWalk in Land[Loc.Y+i,Loc.X+k].Passability then //This uses canWalk because we can step off roads for side steps
   if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!

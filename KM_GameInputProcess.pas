@@ -30,7 +30,7 @@ type TGameInputCommand = (
   gic_ArmyAttackUnit,
   gic_ArmyAttackHouse,
   gic_ArmyHalt,         //Formation commands
-  gic_ArmyWalk,          //Walking
+  gic_ArmyWalk,         //Walking
 
   //II.     Building/road plans (what to build and where)
   gic_BuildRoadPlan,
@@ -47,11 +47,12 @@ type TGameInputCommand = (
   gic_HouseOrderProduct,    //Place an order to manufacture warfare
   gic_HouseStoreAcceptFlag,
   gic_HouseTrain,           //Place an order to train citizen/warrior
-  gic_HouseRemoveTrain      //Remove unit being trained from School
+  gic_HouseRemoveTrain,     //Remove unit being trained from School
 
   //IV.     Delivery ratios changes (and other game-global settings)
+  gic_RatioChange
 
-  //V.      Cheatcodes affecting gameplay (goods, props)
+  //V.      Cheatcodes affecting gameplay (props)
 
   { Optional input }
   //VI.     Viewport settings for replay (location, zoom)
@@ -94,6 +95,8 @@ TGameInputProcess = class
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:TResourceType); overload;
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType); overload;
     procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer); overload;
+
+    procedure RatioCommand(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
 
     procedure Tick(aTick:cardinal);
 
@@ -237,6 +240,8 @@ begin
                                 end;
     gic_HouseRemoveTrain:       TKMHouseSchool(MyPlayer.GetHouseByID(Params[1])).RemUnitFromQueue(Params[2]);
 
+    gic_RatioChange:            MyPlayer.fMissionSettings.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
+
     else Assert(false);
   end;
 
@@ -374,6 +379,14 @@ begin
   Assert(aHouse is TKMHouseSchool);
   TKMHouseSchool(aHouse).RemUnitFromQueue(aItem);
   SaveCommand(aCommand, aHouse.ID, aItem);
+end;
+
+
+procedure TGameInputProcess.RatioCommand(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
+begin
+  Assert(aCommand = gic_RatioChange);
+  MyPlayer.fMissionSettings.SetRatio(aRes, aHouse, aValue);
+  SaveCommand(aCommand, integer(aRes), integer(aHouse), aValue);
 end;
 
 
