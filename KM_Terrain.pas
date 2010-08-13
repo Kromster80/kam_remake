@@ -547,11 +547,16 @@ function TTerrain.CheckVerticeRevelation(const X,Y:word; const PlayerID:TPlayerI
 begin
   //I like how "alive" fog looks with some tweaks
   //pulsating around units and slowly thickening when they leave :)
-
-  if Land[Y,X].FogOfWar[byte(PlayerID)] >= FOG_OF_WAR_ACT then
-    Result := 255
+  if FOG_OF_WAR_ENABLE then
+    if (Land[Y,X].FogOfWar[byte(PlayerID)] >= FOG_OF_WAR_ACT) then
+      Result := 255
+    else
+      Result := (Land[Y,X].FogOfWar[byte(PlayerID)] shl 8) div FOG_OF_WAR_ACT
   else
-    Result := (Land[Y,X].FogOfWar[byte(PlayerID)] shl 8) div FOG_OF_WAR_ACT;
+    if (Land[Y,X].FogOfWar[byte(PlayerID)] >= FOG_OF_WAR_MIN) then
+      Result := 255
+    else
+      Result := 0;
 end;
 
 

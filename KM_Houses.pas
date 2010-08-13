@@ -366,7 +366,7 @@ procedure TKMHouse.Activate(aWasBuilt:boolean);
 var i:integer; Res:TResourceType;
 begin
   fPlayers.Player[byte(fOwner)].CreatedHouse(fHouseType,aWasBuilt); //Only activated houses count
-  fTerrain.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, 128, fOwner);
+  fTerrain.RevealCircle(fPosition, HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
 
   fCurrentAction:=THouseAction.Create(Self, hst_Empty);
   fCurrentAction.SubActionAdd([ha_FlagShtok,ha_Flag1..ha_Flag3]);
@@ -851,7 +851,7 @@ begin
   inc(WorkAnimStep);
   //FlagAnimStep is a sort of counter to reveal terrain once a sec
   if FOG_OF_WAR_ENABLE then
-  if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight,FOG_OF_WAR_INC,fOwner);
+  if FlagAnimStep mod 10 = 0 then fTerrain.RevealCircle(fPosition,HouseDAT[byte(fHouseType)].Sight, FOG_OF_WAR_INC, fOwner);
 end;
 
 

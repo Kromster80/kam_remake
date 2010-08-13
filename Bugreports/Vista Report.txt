@@ -42,22 +42,6 @@ Display Devices
           Monitor: Generic PnP Monitor
       Driver Name: nvd3dum.dll,nvwgf2um.dll
    Driver Version: 7.15.0011.7644 (English)
-
----------------
-Display Devices
----------------
-        Card name: NVIDIA GeForce 8600M GT    
-     Manufacturer: NVIDIA
-        Chip type: GeForce 8600M GT
-         DAC type: Integrated RAMDAC
-       Device Key: Enum\PCI\VEN_10DE&DEV_0407&SUBSYS_022E1028&REV_A1
-   Display Memory: 1776 MB
- Dedicated Memory: 241 MB
-    Shared Memory: 1535 MB
-     Current Mode: 1680 x 1050 (32 bit) (60Hz)
-          Monitor: Generic PnP Monitor
-      Driver Name: nvd3dum.dll,nvwgf2um.dll
-   Driver Version: 7.15.0011.7644 (English)
       DDI Version: 10
 Driver Attributes: Final Retail
  Driver Date/Size: 9/3/2008 10:54:00, 5898240 bytes
