@@ -534,21 +534,23 @@ begin
 
     Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 462-210, 200, 200, 300);
       MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'New map size', fnt_Outline, kaLeft);
-      MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 10 + MAPSIZES_COUNT*20);
+      MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 40 + MAPSIZES_COUNT*20);
+      MyControls.AddLabel(Panel_MapEd_SizeXY, 8, 27, 100, 30, 'Width', fnt_Outline, kaLeft);
+      MyControls.AddLabel(Panel_MapEd_SizeXY, 108, 27, 100, 30, 'Height', fnt_Outline, kaLeft);
       for i:=1 to MAPSIZES_COUNT do
       begin
-        CheckBox_MapEd_SizeX[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 8, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
-        CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 108, 27+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
+        CheckBox_MapEd_SizeX[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 8, 52+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
+        CheckBox_MapEd_SizeY[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 108, 52+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
         CheckBox_MapEd_SizeX[i].OnClick := MapEditor_Change;
         CheckBox_MapEd_SizeY[i].OnClick := MapEditor_Change;
       end;
-      Button_MapEd_Create := MyControls.AddButton(Panel_MapEd_SizeXY, 0, 260, 200, 30, 'Create New Map', fnt_Metal, bsMenu);
+      Button_MapEd_Create := MyControls.AddButton(Panel_MapEd_SizeXY, 0, 285, 200, 30, 'Create New Map', fnt_Metal, bsMenu);
       Button_MapEd_Create.OnClick := MapEditor_Start;
 
     Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 462+10, 200, 300, 300);
       MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
-      FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 300, 210);
-      Button_MapEd_Load := MyControls.AddButton(Panel_MapEd_Load, 0, 260, 300, 30, 'Load Existing Map', fnt_Metal, bsMenu);
+      FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 300, 240);
+      Button_MapEd_Load := MyControls.AddButton(Panel_MapEd_Load, 0, 285, 300, 30, 'Load Existing Map', fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
 
     Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 120, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);

@@ -765,6 +765,7 @@ begin
 end;
 
 
+//@Krom: What purpose does this function serve? It is never used and is almost the same as above....
 //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
 function TKMUnitWarrior.CheckForEnemyAround: TKMUnit;
 var
@@ -1030,6 +1031,7 @@ Inherited;
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
   if (fCommander=nil) and not (fUnitTask is TTaskDie) then begin
+    //todo: Fix flag offsets
     //XPaintPos := XPaintPos + FlagXOffset[UnitType]/CELL_SIZE_PX;
     YPaintPos := YPaintPos + FlagYOffset[UnitType]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)
     TeamColor := byte(fOwner);

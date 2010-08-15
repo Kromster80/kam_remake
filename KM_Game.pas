@@ -354,6 +354,7 @@ begin
                   fMainMenuInterface.MyControls.MouseMove(X,Y,Shift);
                   if fMainMenuInterface.MyControls.MouseOverControl is TKMTextEdit then // Show "CanEdit" cursor
                     Screen.Cursor := c_Info //@Lewin: Should be something else, any ideas?
+                                            //@Krom We could make our own 'I' cursor using textures from other cursors, shouldn't be hard. Shall I?
                   else
                     Screen.Cursor := c_Default;
                   fMainMenuInterface.MouseMove(X,Y);
@@ -684,19 +685,27 @@ end;
 
 
 procedure TKMGame.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X, Y: Integer);
+var AllowZoom: boolean;
 begin
-  if (MOUSEWHEEL_ZOOM_ENABLE) and (fGame.GameState in [gsRunning,gsEditor]) and (fViewport<>nil) then
-    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
-
+  //e.g. if we're over a scrollbar it shouldn't zoom map, but this can apply for all controls (i.e. only zoom when over the map not controls)
+  AllowZoom := true;
   case GameState of //Remember clicked control
     gsNoGame:   fMainMenuInterface.MyControls.MouseWheel(X, Y, WheelDelta);
     gsPaused:   ;
     gsOnHold:   ;
-    gsRunning:  fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
+    gsRunning:  begin
+                  fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
+                  AllowZoom := (fGameplayInterface.MyControls.MouseOverControl = nil);
+                end;
     gsReplay:   fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
-    gsEditor:   fMapEditorInterface.MyControls.MouseWheel(X, Y, WheelDelta);
+    gsEditor:   begin
+                  fMapEditorInterface.MyControls.MouseWheel(X, Y, WheelDelta);
+                  AllowZoom := (fMapEditorInterface.MyControls.MouseOverControl = nil);
+                end;
   end;
 
+  if (MOUSEWHEEL_ZOOM_ENABLE) and (fGame.GameState in [gsRunning,gsEditor]) and (AllowZoom) then
+    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
 end;
 
 

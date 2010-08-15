@@ -166,15 +166,7 @@ begin
   setlength(FileText,FileSize);
   closefile(f);
 
-  //@Lewin: ENCODED := c[1] = chr(206); //That is encoded first char
-  //@Krom: We can't use that method. Some mission editors (e.g. Thunderwolf's) put a comment at the
-  //top of the file stating that it was made with his editor. And we don't want to force people to
-  //start with a command. I vote we use: If file text contains !SET_MAX_PLAYERS then it is real.
-  //Because every mission must have that command. That's what I'm using for my mission editor, and
-  //it works well. (1 string search won't take long, will it?)
-  //@Lewin: Okay, then we could grab 100bytes from the middle and estimate if they are in a..Z range or XORed.
-  //@Krom: Yes, that sounds ok to me. I'll add it at some point, but it's low prioraty IMO, I'd rather
-  //get the game engine working. If you think it's urgent then feel free to write it yourself.
+  //todo: Detect whether mission is encoded so we can support decoded/encoded .DAT files
 
   i:=1; k:=1;
   repeat
@@ -568,7 +560,12 @@ begin
 
                      end;
   ct_AttackPosition: begin
+                       //If target is building: Attack building
+                       //If target is unit: Chase/attack unit
+                       //If target is nothing: move to position
 
+                       //@Krom: At the time this command is processed target building/unit may not exist as team won't have loaded.
+                       //       How do you suggest we get around this? Some way of executing generic "attack" on first tick that decides if it's a house or unit or location?
                      end;
   end;
   Result := true; //Must have worked if we haven't exited by now

@@ -259,7 +259,9 @@ end;
 
 { Check how Player1 feels towards Player2. Note: this is position dependant,
 e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1
-@Lewin: Need to discuss that sometime }
+@Lewin: Need to discuss that sometime
+@Krom: Yes, that is right players may view each other differently. A few (fan made) missions used this so you can't attack/be attacked by certain enemies.
+       This was the wrong way around for rock throwing but I fixed it. What do we need to discuss? }
 function TKMAllPlayers.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
 begin
   Assert(InRange(byte(aPlay1),1,MAX_PLAYERS+1) and InRange(byte(aPlay2),1,MAX_PLAYERS+1)); //Max_players + Animals

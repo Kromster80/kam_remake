@@ -277,6 +277,7 @@ type TScrollAxis = (sa_Vertical, sa_Horizontal);
 {Scroll bar}
 //todo: scroll wheel work for scollbar
 //Correction: scrolling should happen when mouse is over some List control, not over ScrollBar itself
+//@Krom: Done? To be deleted...?
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;
@@ -911,10 +912,9 @@ begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
-  RText:='*************************';
-  if Masked then setlength(RText, length(Text)) else RText:=Text;
+  if Masked then RText := StringOfChar('*', Length(Text)) else RText:=Text;
   if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then
-    fRenderUI.WriteText(Left+4, Top+4, Width-8, RText+'[', Font, kaLeft, false, Col)
+    fRenderUI.WriteText(Left+4, Top+4, Width-8, RText+'[', Font, kaLeft, false, Col) //todo: render custom | and allow it to move within edit ('[' isn't great)
   else
     fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
 end;
@@ -1322,7 +1322,8 @@ end;
 procedure TKMFileList.MouseWheel(X,Y:integer; WheelDelta:integer);
 begin
   Inherited;
-  TopIndex := EnsureRange(TopIndex - WheelDelta div 120, 0, 3);
+  TopIndex := EnsureRange(TopIndex - WheelDelta div 120, 0, ScrollBar.MaxValue);
+  ScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
 

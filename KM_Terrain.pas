@@ -82,7 +82,7 @@ public
   procedure IncDigState(Loc:TKMPoint);
   procedure ResetDigState(Loc:TKMPoint);
 
-  function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
+  function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizensOffRoad:boolean=true):boolean;
   function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
   function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
   function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
@@ -1806,7 +1806,7 @@ end;
 
 {Check if Unit can be placed here}
 //Serfs and Workers can be placed off-road since player might want to have a lot of them.
-function TTerrain.CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType):boolean;
+function TTerrain.CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizensOffRoad:boolean=true):boolean;
 var DesiredPass:TPassability;
 begin
   Result := TileInMapCoords(Loc.X, Loc.Y); //Only within map coords
@@ -1817,6 +1817,10 @@ begin
     ut_Wolf..ut_Duck:                              DesiredPass := AnimalTerrain[byte(aUnitType)] //Animals
     else                                           DesiredPass := canWalk; //Serf, Worker, Warriors
   end;
+
+  //In e.g. map editor mode we are allowed to place citizens off roads
+  if aAllowCitizensOffRoad and (DesiredPass = canWalkRoad) then
+    DesiredPass := canWalk;
 
   Result := Result and (DesiredPass in Land[Loc.Y, Loc.X].Passability);
 end;

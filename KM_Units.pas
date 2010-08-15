@@ -667,7 +667,7 @@ begin
     FoundEnemy := fPlayers.UnitsHitTest(Self.GetPosition.X+k,Self.GetPosition.Y+i);
     if (FoundEnemy<>nil)and //Found someone
        not(FoundEnemy.GetUnitTask is TTaskDie)and //not being killed already
-       (fPlayers.CheckAlliance(FoundEnemy.GetOwner, Self.GetOwner) = at_Enemy)
+       (fPlayers.CheckAlliance(Self.GetOwner, FoundEnemy.GetOwner) = at_Enemy) //How do WE feel about enemy, not how they feel about us
        then
       begin
         if BestEnemy=nil then BestEnemy := FoundEnemy; //Make sure we have in filled before further comparison

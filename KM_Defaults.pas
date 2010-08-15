@@ -22,6 +22,8 @@ const
   FOG_OF_WAR_INC        = 128;            //Increment for FOW
   FOG_OF_WAR_DEC        = 12;            //Decrement for FOW
 
+  //@Krom: After playing for a minute on my laptop the graphics card is at about 65 degrees and the fans are going really loudly because it's rendering at minimum 130 FPS and 1920x1080 resolution. (300+ FPS with not much on the screen)
+  //       This is okay because the fans stop it getting hotter but it's not necessary and very noisy while playing. Is it standard to impose a limit in games or should we make it a setting? Or maybe it doesn't matter much...
   FPS_LAG               = 1;            //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
@@ -438,12 +440,13 @@ type
   );
 
 //@Lewin: Please write descriptions of states down here
+//@Krom: Good enough? To be deleted
   TWarriorState = (
-    ws_None,
-    ws_Walking,
-    ws_RepositionPause,
-    ws_InitalLinkReposition,
-    ws_Engage
+    ws_None, //Warrior is idle
+    ws_Walking, //Warrior is in the process of walking by player instruction (could have been ordered to attack too because there is no difference)
+    ws_RepositionPause, //Warrior has just finished walking and is pausing breifly before repositioning (i.e. rotating to the final facing direction) Without this pause it looks too quick odd.
+    ws_InitalLinkReposition, //This warrior was just trained and has not had any orders issued, meaning he is available to link with other warriors in the barrack area
+    ws_Engage //One or more of our group members are in combat and we are on our way to help them.
   );
 
   TWarriorLinkState = (
@@ -898,7 +901,7 @@ type
     sfx_BlacksmithFire,
     sfx_CarpenterHammer, //65
     sfx_Horse1,sfx_Horse2,sfx_Horse3,sfx_Horse4,
-    sfx_unknown70, //TSK Catapult?
+    sfx_RockThrow,
     sfx_HouseDestroy,
     sfx_SchoolDing,
     //Below are TPR sounds ...
