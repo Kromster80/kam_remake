@@ -10,9 +10,12 @@ Fixed:
  + Zooming with the scroll wheel now only works when over the map (not a control)
  
 Known:
+ - "Unit walk not fRouteBuilt" error. (Issue 28)
+ - Occupied tile has no unit on it (Issue 27)
+
  - Menu buttons in replay don't work, no way to exit other than F11
  - Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
-- Briefings: on fullscreen (1366*768) the message jumps over the right edge of the screen, so it's only partially visible, it keeps on screen on 1024*768 in windowed mode
+ - Briefings: on fullscreen (1366*768) the message jumps over the right edge of the screen, so it's only partially visible, it keeps on screen on 1024*768 in windowed mode
  - Dots and lines displaying on tile edges. For an example go to town tutorial, reveal entire map, go to the chasom (black with bridge) and scroll past it. 1px dots and lines of color appear through out it. It happens on other terrain but it's most noticable there. [assigned to Krom]
  
 
