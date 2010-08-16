@@ -758,23 +758,12 @@ begin
     exit;
   end;
 
+  //Route was not built
   if NodeList.Count = 0 then begin
     if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon;
     fWalker.SetActionStay(20, ua_Walk);
     exit;
   end;
-
-  //Somehow route was not built, this is an error
-  {if not fRouteBuilt then
-  begin
-    //Animals may sometimes ask for routes that cannot exist, in this case we just exit without alerting user, and a new route will be chosen.
-    //The reason why this happens is because WalkConnect is not available for canCrab and canWolf meaning Route_CanBeMade will sometimes return true when it shouldn't. (because it is using canWalk instead)
-    //@Krom: Does that sound ok to you? Or should we add floodfill for wolfs and crabs? Obviously using WalkConnect is a better option because it is possible that the unit is totally stuck, in which case the walk will keep failing repeatedly. Does floodfill take long to compute?
-    if not (fWalker.GetUnitType in [ut_Wolf..ut_Duck]) then
-      fGame.GameError(fWalker.GetPosition, 'Unit walk not fRouteBuilt');
-    DoEnd := true; //Must exit out or this error will keep happening
-    exit; //Exit either way, and the action will end
-  end;}
 
   //Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)
   if NodePos > NodeList.Count then begin
