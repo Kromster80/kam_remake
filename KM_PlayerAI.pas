@@ -78,6 +78,7 @@ begin
 end;
 
 
+{ Check existing unit count vs house count and train missing citizens }
 procedure TKMPlayerAI.CheckUnitCount();
 var
   i,k:integer;

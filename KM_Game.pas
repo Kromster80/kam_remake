@@ -1133,7 +1133,7 @@ begin
         LoadStream.Free;
 
         fGameInputProcess := TGameInputProcess.Create(gipRecording);
-        fGameInputProcess.LoadFromFile(KMSlotToSaveName(99,'rpl'));
+        fGameInputProcess.LoadFromFile(KMSlotToSaveName(SlotID,'rpl'));
 
         CopyFile(PChar(KMSlotToSaveName(SlotID,'bas')), PChar(KMSlotToSaveName(99,'bas')), false); //replace Replay base savegame
 

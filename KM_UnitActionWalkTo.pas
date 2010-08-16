@@ -71,7 +71,6 @@ type
       NodeList:TKMPointList;
       fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
       NodePos:integer;
-      fRouteBuilt:boolean;
       Explanation:string; //Debug only, explanation what unit is doing
       ExplanationLog:TStringList;
       constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false; aTargetUnit:TKMUnit=nil);
@@ -80,7 +79,6 @@ type
       destructor Destroy; override;
       procedure ExplanationLogAdd;
       function CanAbandon: boolean;
-      procedure SetPushedValues;
       function GetNextPosition():TKMPoint;
       function GetNextNextPosition():TKMPoint;
       function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
@@ -97,6 +95,7 @@ uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_UnitActionGoInOu
 
 { TUnitActionWalkTo }
 constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false; aTargetUnit:TKMUnit=nil);
+var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
   fActionName   := uan_WalkTo;
@@ -130,17 +129,30 @@ begin
   if KMSamePoint(fWalkFrom,fWalkTo) then //We don't care for this case, Execute will report action is done immediately
     exit; //so we don't need to perform any more processing
 
-  fRouteBuilt   := AssembleTheRoute();
+  RouteBuilt := AssembleTheRoute();
   //Due to rare circumstances (e.g. floodfill doesn't take notice of CanWalkDiagonally i.e. trees on road corners)
   // there are times when trying to build a route along roads will fail.
   // To reduce crash errors, try rebuilding it with just canWalk. This will normally fix the problem and
   // It's not a big deal if occasionally units walk off the road.
-  if (not fRouteBuilt) and (fPass = canWalkRoad) then
+  if (not RouteBuilt) and (fPass = canWalkRoad) then
   begin
     fPass := canWalk;
-    fRouteBuilt := AssembleTheRoute();
+    RouteBuilt := AssembleTheRoute();
   end;
-  if aSetPushed then SetPushedValues;
+
+  if aSetPushed then begin
+    fInteractionStatus:=kis_Pushed; //So that unit knows it was pushed not just walking somewhere
+    Explanation:='We were asked to get out of the way';
+    ExplanationLogAdd;
+    fPass := GetEffectivePassability; //Units are allowed to step off roads when they are pushed
+    //Because the passability has changed we might need to reassemble the route if it failed in create
+    if not RouteBuilt then RouteBuilt := AssembleTheRoute();
+  end;
+
+  if not RouteBuilt then
+  begin
+    exit; //NoList.Count = 0, means it will exit in Execute
+  end;
 end;
 
 
@@ -164,7 +176,6 @@ end;
 procedure TUnitActionWalkTo.SetInitValues;
 begin
   NodePos       := 1;
-  fRouteBuilt   := false;
   DoExchange    := false;
   DoesWalking   := false;
   WaitingOnStep := false;
@@ -199,7 +210,6 @@ begin
   NodeList := TKMPointList.Create; //Freed on destroy
   NodeList.Load(LoadStream);
   LoadStream.Read(NodePos);
-  LoadStream.Read(fRouteBuilt);
 end;
 
 
@@ -234,18 +244,6 @@ function TUnitActionWalkTo.CanAbandon: boolean;
 begin
   Result := (fInteractionStatus <> kis_Pushed) and (not DoExchange) and
   KMSamePointF(KMPointF(fWalker.GetPosition),fWalker.PositionF);
-end;
-
-
-//This is run after creation for units that were requested to get out of the way
-procedure TUnitActionWalkTo.SetPushedValues;
-begin
-  fInteractionStatus:=kis_Pushed; //So that unit knows it was pushed not just walking somewhere
-  Explanation:='We were asked to get out of the way';
-  ExplanationLogAdd;
-  fPass:=GetEffectivePassability; //Units are allowed to step off roads when they are pushed
-  //Because the passability has changed we might need to reassemble the route if it failed in create
-  if not fRouteBuilt then fRouteBuilt := AssembleTheRoute();
 end;
 
 
@@ -418,8 +416,7 @@ begin
       fGame.GameError(fWalker.GetPosition, 'Unit walk IntSolutionPush');
       exit;
     end;
-    fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability));
-    TUnitActionWalkTo(fOpponent.GetUnitAction).SetPushedValues;
+    fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability), ua_Walk, true, true);
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     ExplanationLogAdd;
     //Next frame tile will be free and unit will walk there
@@ -565,7 +562,6 @@ begin
         SetInitValues;
         Explanation := 'Unit in the way is working so we will re-route around it';
         ExplanationLogAdd;
-        fRouteBuilt := true;
         fDestBlocked := false;
         //Exit, then on next tick new walk will start
         Result := true; //Means exit DoUnitInteraction
@@ -762,8 +758,14 @@ begin
     exit;
   end;
 
+  if NodeList.Count = 0 then begin
+    if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon;
+    fWalker.SetActionStay(20, ua_Walk);
+    exit;
+  end;
+
   //Somehow route was not built, this is an error
-  if not fRouteBuilt then
+  {if not fRouteBuilt then
   begin
     //Animals may sometimes ask for routes that cannot exist, in this case we just exit without alerting user, and a new route will be chosen.
     //The reason why this happens is because WalkConnect is not available for canCrab and canWolf meaning Route_CanBeMade will sometimes return true when it shouldn't. (because it is using canWalk instead)
@@ -772,7 +774,7 @@ begin
       fGame.GameError(fWalker.GetPosition, 'Unit walk not fRouteBuilt');
     DoEnd := true; //Must exit out or this error will keep happening
     exit; //Exit either way, and the action will end
-  end;
+  end;}
 
   //Walk complete - NodePos cannot be greater than NodeCount (this should not happen, cause is unknown but for now this check stops crashes)
   if NodePos > NodeList.Count then begin
@@ -791,7 +793,10 @@ begin
 
     //Set precise position to avoid rounding errors
     fWalker.PositionF := KMPointF(NodeList.List[NodePos]);
-    if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then DecVertex; //Unoccupy vertex
+
+    if (NodePos > 1) and (not WaitingOnStep) and KMStepIsDiag(NodeList.List[NodePos-1],NodeList.List[NodePos]) then
+      DecVertex; //Unoccupy vertex
+
     WaitingOnStep := true;
 
     StepDone := true; //Unit stepped on a new tile
@@ -817,8 +822,12 @@ begin
       fNewWalkTo := KMPoint(0,0);
       //Don't clear NodeList, just delete everything past NodePos and continue to add new route from there
       NodeList.Count := NodePos; //This leaves the item at NodePos but nothing past that (because TKMPoints are records we can simply reduce the count, no freeing is needed)
-      fRouteBuilt := AssembleTheRoute(); //If NodeList.Count > 0 (which it is in this case) then this function will append to it rather than overriding
-      if not fRouteBuilt then exit; //Next execute will report error to user
+      //If NodeList.Count > 0 (which it is in this case) then this function will append to it rather than overriding
+      if not AssembleTheRoute() then begin
+        if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon;
+        fWalker.SetActionStay(20, ua_Walk);
+        exit;
+      end;
     end;
 
 
@@ -976,7 +985,6 @@ begin
   SaveStream.Write(fInteractionStatus,SizeOf(fInteractionStatus));
   NodeList.Save(SaveStream);
   SaveStream.Write(NodePos);
-  SaveStream.Write(fRouteBuilt);
 end;
 
 

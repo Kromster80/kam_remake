@@ -116,10 +116,8 @@ begin
     Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
                              and (aUnit.GetUnitActionType = ua_Walk)
                              and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
-    if Result then begin
-      aUnit.SetActionWalk(aUnit, fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk));
-      TUnitActionWalkTo(aUnit.GetUnitAction).SetPushedValues;
-    end;
+    if Result then
+      aUnit.SetActionWalk(aUnit, fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk), ua_Walk, true, true);
   end;
 end;
 

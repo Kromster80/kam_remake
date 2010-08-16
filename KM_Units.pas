@@ -974,9 +974,10 @@ begin
   end;
 
   SetActionWalk(Self, Spot, KMPoint(0,0));
-  if not TUnitActionWalkTo(fCurrentAction).fRouteBuilt then SetActionStay(5, ua_Walk);
+  //if not TUnitActionWalkTo(fCurrentAction).fRouteBuilt then SetActionStay(5, ua_Walk);
 
-  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
+  if fCurrentAction=nil then
+    fGame.GameError(GetPosition, 'Unit has no action!');
 end;
 
 
