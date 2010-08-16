@@ -71,6 +71,7 @@ begin
   ViewHeight      := ViewRect.Bottom-ViewRect.Top;
 end;
 
+
 function TViewport.GetCenter():TKMPointF;
 begin
   Result.X := EnsureRange(XCoord, 1, fTerrain.MapX);
@@ -80,12 +81,14 @@ begin
   fSoundLib.UpdateListener(Result);
 end;
 
+
 procedure TViewport.SetCenter(NewX,NewY:single);
 begin
-  XCoord:=EnsureRange(NewX, 0 + round(ViewWidth/2/CELL_SIZE_PX/Zoom),  fTerrain.MapX - round(ViewWidth /2/CELL_SIZE_PX/Zoom) - 1);
-  YCoord:=EnsureRange(NewY,-1 + round(ViewHeight/2/CELL_SIZE_PX/Zoom), fTerrain.MapY - round(ViewHeight/2/CELL_SIZE_PX/Zoom)); //Top row should be visible
+  XCoord := EnsureRange(NewX, 0 + ViewWidth/2/CELL_SIZE_PX/Zoom,  fTerrain.MapX - ViewWidth /2/CELL_SIZE_PX/Zoom - 1);
+  YCoord := EnsureRange(NewY,-1 + ViewHeight/2/CELL_SIZE_PX/Zoom, fTerrain.MapY - ViewHeight/2/CELL_SIZE_PX/Zoom); //Top row should be visible
   fSoundLib.UpdateListener(KMPointF(XCoord,YCoord));
 end;
+
 
 //Acquire boundaries of area visible to user
 //TestViewportClipInset is for debug, allows to see if all gets clipped well

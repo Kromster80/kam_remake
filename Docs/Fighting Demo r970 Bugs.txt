@@ -10,6 +10,7 @@ Fixed:
  + Zooming with the scroll wheel now only works when over the map (not a control)
  + Briefings: on fullscreen (1366*768) the message jumps over the right edge of the screen
  + "Unit walk not fRouteBuilt" error. (Issue 28)
+ + Clicking on anything during gameplay will shift viewport a little
  
 Known:
  - Occupied tile has no unit on it (Issue 27)

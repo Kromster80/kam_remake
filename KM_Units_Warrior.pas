@@ -704,13 +704,13 @@ var i,k,WCount,OCount:shortint;
     U, BestU: TKMUnit;
     Warriors,Others: array[1..8] of TKMUnit;
 begin
+  Result := false; //Did we pick a fight?
   if not ENABLE_FIGHTING then exit;
   if not CheckCanFight then exit;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
   WCount := 0;
   OCount := 0;
-  Result := false; //Did we pick a fight?
   BestU := nil;
 
   for i := -1 to 1 do

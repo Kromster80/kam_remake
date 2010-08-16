@@ -1210,12 +1210,12 @@ end;
 procedure TKMMinimap.CheckCursorOver(X,Y:integer; AShift:TShiftState);
 begin
   Inherited CheckCursorOver(X,Y,AShift);
-  if ssLeft in AShift then begin
-    if CursorOver then
+  if ssLeft in AShift then
+    if CursorOver then begin
       BoundRectAt := GetMapCoords(X,Y);
-    if Assigned(OnChange) then
-      OnChange(Self);
-  end;
+      if Assigned(OnChange) then
+        OnChange(Self);
+    end;
 end;
 
 
