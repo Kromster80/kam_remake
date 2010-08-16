@@ -1,0 +1,10 @@
+This folder contains replacement images for original KaM sprites.
+In order to replace some sprite you should name it in following format:
+
+#-####.tga	Standard sprite
+#-####a.tga	Alternative sprite (used for team colors)
+
+First digit is RX library index. Second array of 4 digits is sprite index.
+For example to replace main menu logo use: 5-0004.tga
+
+Images whose indexes are outside of original ranges will be ignored.

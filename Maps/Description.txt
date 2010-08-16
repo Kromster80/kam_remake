@@ -1,26 +1,24 @@
-Each folder represent a single map (named MAP_NAME through this convention).
+Each folder represents a single map (named MAP_NAME through this document).
 
 Folder name should match MAP_NAME
 
 Folder contains all required map files. So far these are:
  - MAP_NAME.txt which contains map properties and description shown in menu
- - MAP_NAME.dat which is a script file for the map
+ - MAP_NAME.dat which is a script file of the map
  - MAP_NAME.map which is map terrain
-others may be included
+other files may be included later
 
 ________________________________________________________________________________________
 
 MAP_NAME.txt notes
 
- - contents are to be questioned and updated, most of them will be determined from 
-DAT file
-
- - Few options will remain or maybe appended to DAT format 
-	Title - map title in menu (may be different from MAP_NAME)
-	SmallDesc - few words description of map
+ - 	Following options will remain and maybe get changed a little
+	Title - map title in menu (may be different from MAP_NAME, e.g. longer name)
+	SmallDesc - map description given in few words
 	MapDesc - large description shown in SingleMap menu when player chooses the map
 
- - Few options will be added (these are undecided!, feel free to criticize and suggest)
+ - 	Few other options could be added (these are undecided yet, feel free to make 
+	suggestions)
 	MapDifficulty - default or restrictions or options ...
 	Win/DefCond - custom text conditions for win/defeat
 	PlayerColor - player color selector
@@ -30,11 +28,11 @@ ________________________________________________________________________________
 
 MAP_NAME.dat notes
 
- - map name specified in DAT file will be deprecated in KaM Remake. Instead KaM Remake 
-will access MAP_NAME.map
+ - 	Map name specified in DAT file will be ignored by KaM Remake. Instead KaM Remake 
+	will access MAP_NAME.map from the map folder
 
 ________________________________________________________________________________________
 
 MAP_NAME.map notes
 
-
+ -	None yet
