@@ -1098,7 +1098,7 @@ begin
   Inherited Create(aLeft, aTop, aWidth, aHeight);
   ParentTo(aParent);
   fScrollAxis := aScrollAxis;
-  Position := 5;
+  Position := 1;
   MaxValue := 10;
   MinValue := 1;
   Thumb    := 10;

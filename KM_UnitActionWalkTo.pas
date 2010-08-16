@@ -151,6 +151,7 @@ begin
 
   if not RouteBuilt then
   begin
+    fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with default fPass');
     exit; //NoList.Count = 0, means it will exit in Execute
   end;
 end;
@@ -317,9 +318,6 @@ begin
   end;
 
   Result := NodeList.Count > 0;
-
-  if not Result then //If route still unbuilt..
-    fLog.AddToLog('Unable to make a route '+TypeToString(fWalkFrom)+' > '+TypeToString(fWalkTo)+'with default fPass');
 end;
 
 

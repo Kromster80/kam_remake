@@ -63,7 +63,7 @@ end;
 destructor TKMAllPlayers.Destroy;
 var i:integer;
 begin
-  for i:=1 to fPlayerCount do begin
+  for i:=1 to MAX_PLAYERS do begin //Free all just in case
     FreeAndNil(Player[i]);
     FreeAndNil(PlayerAI[i]);
   end;
