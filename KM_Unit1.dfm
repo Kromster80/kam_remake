@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 122
-  Top = 116
+  Left = 187
+  Top = 99
   HelpType = htKeyword
   BorderStyle = bsNone
   ClientHeight = 245
@@ -53,7 +53,11 @@ object Form1: TForm1
       end
       item
         Text = 'Cursor: 46.1 47.2'
-        Width = 180
+        Width = 160
+      end
+      item
+        Text = 'Time: 02:15'
+        Width = 90
       end
       item
         Text = '50.0 fps (50)'

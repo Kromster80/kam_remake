@@ -1547,9 +1547,10 @@ end;
 
 function TKMControlsCollection.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
 begin
-  Result := false;
-  if fFocusedControl = nil then exit;
-  Result := fFocusedControl.KeyUp(Key, Shift, IsDown);
+  if fFocusedControl <> nil then
+    Result := fFocusedControl.KeyUp(Key, Shift, IsDown)
+  else
+    Result := false;
 end;
 
 

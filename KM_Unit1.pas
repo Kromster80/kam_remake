@@ -145,7 +145,7 @@ begin
     inc(OldFrameTimes,FrameTime);
     inc(FrameCount);
     if OldFrameTimes>=FPS_INTERVAL then begin
-      StatusBar1.Panels[2].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPS_LAG)+')';
+      StatusBar1.Panels[3].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPS_LAG)+')';
       OldFrameTimes:=0;
       FrameCount:=0;
     end;

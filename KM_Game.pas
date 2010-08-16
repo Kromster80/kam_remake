@@ -471,11 +471,9 @@ begin
                 end;
   end;
 
-Form1.StatusBar1.Panels.Items[1].Text := 'Cursor: '+
-                                         floattostr(round(GameCursor.Float.X*10)/10)+' '+
-                                         floattostr(round(GameCursor.Float.Y*10)/10)+' | '+
-                                         inttostr(GameCursor.Cell.X)+' '+
-                                         inttostr(GameCursor.Cell.Y);
+Form1.StatusBar1.Panels.Items[1].Text := Format('Cursor: %.1f:%.1f [%d:%d]', [
+                                         GameCursor.Float.X, GameCursor.Float.Y,
+                                         GameCursor.Cell.X, GameCursor.Cell.Y]);
 end;
 
 
@@ -1202,6 +1200,9 @@ begin
                   if GlobalTickCount mod 10 = 0 then
                     if fMusicLib.IsMusicEnded then
                       fMusicLib.PlayNextTrack(); //Feed new music track
+
+                  if GlobalTickCount mod 10 = 0 then
+                    Form1.StatusBar1.Panels[2].Text:='Time: '+int2time(GetMissionTime);
                 end;
     gsEditor:   begin
                   fMapEditorInterface.UpdateState;

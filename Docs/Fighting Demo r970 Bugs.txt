@@ -13,6 +13,7 @@ Fixed:
  
 Known:
  - Occupied tile has no unit on it (Issue 27)
+ - StoneMines mission in r977 crashes on 39min for some delivery being performed twice
 
  - Menu buttons in replay don't work, no way to exit other than F11
  - Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
