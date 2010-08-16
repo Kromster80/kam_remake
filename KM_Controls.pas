@@ -1647,7 +1647,6 @@ end;
 {Paint controls}
 {Leave painting of childs to their parent control}
 procedure TKMControlsCollection.Paint();
-var i:integer;
 begin
   CtrlPaintCount := 0;
   Controls[0].Paint;

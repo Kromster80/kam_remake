@@ -1129,11 +1129,11 @@ procedure TKMMainMenuInterface.MouseMove(X,Y:integer);
 begin
   if Panel_Campaign.Visible then begin
     if X < ScreenX / 2 then
-      Panel_CampScroll.Left := ScreenX - Panel_CampScroll.Width
+      Panel_CampScroll.Left := Panel_Campaign.Width - Panel_CampScroll.Width
     else
       Panel_CampScroll.Left := 0;
     if Y < ScreenY / 2 then
-      Panel_CampScroll.Top := ScreenY - Panel_CampScroll.Height
+      Panel_CampScroll.Top := Panel_Campaign.Height - Panel_CampScroll.Height
     else
       Panel_CampScroll.Top := 0;
   end;
