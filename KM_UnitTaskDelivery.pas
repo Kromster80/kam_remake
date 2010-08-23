@@ -48,7 +48,7 @@ begin
   if toUnit<>nil then
     DeliverKind:=dk_Unit;
 
-  if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
+  if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' created delivery task '+inttostr(fDeliverID));
   fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
@@ -85,7 +85,7 @@ end;
 
 procedure TTaskDeliver.Abandon();
 begin
-  if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
+  if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
   fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
   Inherited;
 end;
@@ -109,14 +109,14 @@ TaskDone:=false;
 with fUnit do
 case fPhase of
 0: if not fFrom.IsDestroyed then begin
-     if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going to take '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
+     if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going to take '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
      SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
    end else begin
      Abandon;
      TaskDone:=true;
    end;
 1: if not fFrom.IsDestroyed then begin
-     if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
+     if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
      SetActionGoIn(ua_Walk,gd_GoInside,fFrom)
    end else begin
      Abandon;
@@ -124,7 +124,7 @@ case fPhase of
    end;
 2: if not fFrom.IsDestroyed then
    begin
-     if WRITE_DETAILED_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
+     if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
      if fFrom.ResTakeFromOut(fResourceType) then begin
        TKMUnitSerf(fUnit).GiveResource(fResourceType);
        fPlayers.Player[byte(GetOwner)].DeliverList.TakenOffer(fDeliverID);

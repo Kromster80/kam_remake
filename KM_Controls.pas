@@ -326,12 +326,13 @@ TKMFileList = class(TKMControl)
     ItemIndex:smallint;
     fPaths:TStringList;
     fFiles:TStringList;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    destructor Destroy; override;
+
     procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
     function FileName:string;
     procedure MouseWheel(X,Y:integer; WheelDelta:integer); override;
   protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    destructor Destroy; override;
 
     procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;

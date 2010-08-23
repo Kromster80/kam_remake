@@ -36,7 +36,7 @@ type
     procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
 
-    function GenTexture(mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint; //This should belong to TRender?
+    function GenTexture(mx, my:word; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint; //This should belong to TRender?
   public
     constructor Create;
     function LoadMenuResources(aLocale:string):boolean;
@@ -640,7 +640,7 @@ end;
 //=============================================
 //Make texture
 //=============================================
-function TResource.GenTexture(mx, my:integer; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint;
+function TResource.GenTexture(mx, my:word; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint;
 var
   MyBitMap:TBitMap;
   i,k:word;

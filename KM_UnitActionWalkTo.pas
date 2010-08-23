@@ -111,7 +111,7 @@ begin
   else
     fWalkTo     := fTerrain.GetClosestTile(LocB,KMUnit.GetPosition,fPass);
 
-  if WRITE_DETAILED_LOG then begin
+  if WRITE_WALKTO_LOG then begin
     ExplanationLog := TStringList.Create;
     if FileExists(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt') then
       ExplanationLog.LoadFromFile(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt');
@@ -159,7 +159,7 @@ end;
 
 procedure TUnitActionWalkTo.ExplanationLogAdd;
 begin
-  if not WRITE_DETAILED_LOG then exit;
+  if not WRITE_WALKTO_LOG then exit;
   ExplanationLog.Add(Format(
   '%d'+#9+'%d:%d > %d:%d > %d:%d'+#9+Explanation+'',
   [
@@ -224,7 +224,7 @@ end;
 
 destructor TUnitActionWalkTo.Destroy;
 begin
-  if WRITE_DETAILED_LOG then begin
+  if WRITE_WALKTO_LOG then begin
     Explanation := 'Walkto destroyed at'+floattostr(fWalker.PositionF.X)+':'+floattostr(fWalker.PositionF.Y);
     ExplanationLogAdd;
     ExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt');

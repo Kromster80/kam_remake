@@ -72,7 +72,7 @@ public
   procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
   procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerID);
   procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
-  procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; aFlattenTerrain:boolean=false);
+  procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; const aFlattenTerrain:boolean=false);
   procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
 
   procedure RemMarkup(Loc:TKMPoint);
@@ -1743,10 +1743,13 @@ end;
 
 
 {Place house plan on terrain and change terrain properties accordingly}
-procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; aFlattenTerrain:boolean=false);
+procedure TTerrain.SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; const aFlattenTerrain:boolean=false);
 var i,k,x,y:word; L,H:TKMPoint; ToFlatten:TKMPointList;
 begin
-  if aFlattenTerrain then ToFlatten := TKMPointList.Create;
+  if aFlattenTerrain then //We will check aFlattenTerrain only once, otherwise there are compiler warnings
+    ToFlatten := TKMPointList.Create
+  else
+    ToFlatten := nil;
 
   if aHouseStage in [hs_None, hs_Plan] then
     SetHouseAreaOwner(Loc, aHouseType, play_none)
@@ -1771,7 +1774,7 @@ begin
                       Land[y,x].Markup:=mu_House;
                       Land[y,x].Obj:=255;
                       //If house was set e.g. in mission file we must flatten the terrain as no one else has
-                      if aFlattenTerrain then ToFlatten.AddEntry(KMPoint(x,y));
+                      if ToFlatten<>nil then ToFlatten.AddEntry(KMPoint(x,y));
                     end;
         end;
 
@@ -1779,8 +1782,8 @@ begin
       end;
     end;
 
-  if aFlattenTerrain then FlattenTerrain(ToFlatten);
-  if aFlattenTerrain then ToFlatten.Free;
+  if ToFlatten<>nil then FlattenTerrain(ToFlatten);
+  if ToFlatten<>nil then ToFlatten.Free;
   //Recalculate Passability for tiles around the house so that they can't be built on too
   L:=EnsureTileInMapCoords(Loc.X-3,Loc.Y-4);
   H:=EnsureTileInMapCoords(Loc.X+2,Loc.Y+1);

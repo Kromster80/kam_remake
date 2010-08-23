@@ -16,7 +16,7 @@ type
     fOffer:array[1..MaxEntries]of
     record
       Resource:TResourceType;
-      Count:integer;
+      Count:cardinal;
       Loc_House:TKMHouse;
       BeingPerformed:cardinal; //How many items are being delivered atm from total Count offered
       IsDeleted:boolean; //So we don't get pointer issues
@@ -359,7 +359,7 @@ for iD:=1 to length(fDemand) do
   //Store never has enough demand performed
   if (fDemand[iD].Loc_House<>nil)and(fDemand[iD].DemandType = dt_Always) then fDemand[iD].BeingPerformed:=false;
 
-  if WRITE_DETAILED_LOG then fLog.AppendLog('Creating delivery ID', i);
+  if WRITE_DELIVERY_LOG then fLog.AppendLog('Creating delivery ID', i);
 
   //Now we have best job and can perform it
   Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
@@ -370,7 +370,7 @@ end;
 procedure TKMDeliverQueue.TakenOffer(aID:integer);
 var iO:integer;
 begin
-  if WRITE_DETAILED_LOG then fLog.AppendLog('Taken offer from delivery ID', aID);
+  if WRITE_DELIVERY_LOG then fLog.AppendLog('Taken offer from delivery ID', aID);
 
   iO:=fQueue[aID].OfferID;
   fQueue[aID].OfferID:=0; //We don't need it any more
@@ -391,7 +391,7 @@ end;
 procedure TKMDeliverQueue.GaveDemand(aID:integer);
 var iD:integer;
 begin
-  if WRITE_DETAILED_LOG then fLog.AppendLog('Gave demand from delivery ID', aID);
+  if WRITE_DELIVERY_LOG then fLog.AppendLog('Gave demand from delivery ID', aID);
   iD:=fQueue[aID].DemandID;
   fQueue[aID].DemandID:=0; //We don't need it any more
 
@@ -410,7 +410,7 @@ end;
 //AbandonDelivery
 procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
-  if WRITE_DETAILED_LOG then fLog.AppendLog('Abandoned delivery ID', aID);
+  if WRITE_DELIVERY_LOG then fLog.AppendLog('Abandoned delivery ID', aID);
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
   begin
@@ -432,7 +432,7 @@ end;
 //Job successfully done and we ommit it
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
-  if WRITE_DETAILED_LOG then fLog.AppendLog('Closed delivery ID', aID);
+  if WRITE_DELIVERY_LOG then fLog.AppendLog('Closed delivery ID', aID);
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
   fQueue[aID].JobStatus:=js_Open; //Open slot
