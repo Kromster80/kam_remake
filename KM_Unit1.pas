@@ -356,14 +356,11 @@ end;
 
 
 procedure TForm1.Export_DeliverLists1Click(Sender: TObject);
-var f:textfile; i:integer;
+var i:integer;
 begin
   if fPlayers=nil then exit;
-
-  assignfile(f,ExeDir+'DeliverLists.txt'); Rewrite(f);
   for i:=1 to fPlayers.PlayerCount do
-    writeln(f,'Player_'+inttostr(i)+eol+fPlayers.Player[i].DeliverList.WriteToText+eol+eol);
-  closefile(f);
+    fPlayers.Player[i].DeliverList.SaveToFile('Player_'+inttostr(i)+'_Deliver_List.txt');
 end;
 
 
@@ -390,7 +387,7 @@ end;
 
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
-  if CheckBox2.Checked then fGame.GameSpeed:=50 else fGame.GameSpeed:=1;
+  if CheckBox2.Checked then fGame.GameSpeed:=75 else fGame.GameSpeed:=1;
 end;      
 
 

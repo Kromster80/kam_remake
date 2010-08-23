@@ -8,7 +8,7 @@ uses Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Un
   //Open - job is free to take by anyone
   //Taken - job is taken by some worker
   type TDemandImportance = (di_Norm, di_High);
-  const MaxEntries=1024; //todo 1: replace with dynamic length list
+  const MaxEntries=1024; //todo: replace with dynamic length list
 
 type
   TKMDeliverQueue = class
@@ -52,7 +52,7 @@ type
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
-    function WriteToText():string;
+    procedure SaveToFile(aFileName:string);
   end;
 
   TKMBuildingQueue = class
@@ -286,7 +286,7 @@ var i,iD,iO:integer; Bid,BestBid:single;
 begin
 Result:=nil;
 
-//Find place for new Delivery to be written to after Offer-Demand pair is found
+//Find a place where Delivery will be written to after Offer-Demand pair is found
 i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
 if i=MaxEntries then exit;
 
@@ -324,7 +324,7 @@ for iD:=1 to length(fDemand) do
 
       //Modifications for bidding system
       if fDemand[iD].Resource=rt_All then //Prefer deliveries House>House instead of House>Store
-        Bid:=Bid+20;
+        Bid:=Bid + 20;
 
       if fDemand[iD].Loc_House<>nil then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource <> rt_All)and(fDemand[iD].Resource <> rt_Warfare) then //Except Barracks and Store, where supply doesn't matter or matter less
@@ -333,7 +333,7 @@ for iD:=1 to length(fDemand) do
       //When delivering food to warriors, add a random amount to bid to ensure that a variety of food is taken. Also prefer food which is more abundant.
       if (fDemand[iD].Loc_Unit<>nil) and (fDemand[iD].Loc_Unit is TKMUnitWarrior) then //Prefer delivering to houses with fewer supply
       if (fDemand[iD].Resource = rt_Food) then
-      Bid:=Bid + Random(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
+        Bid:=Bid + Random(5+(100 div fOffer[iO].Count)); //The more resource there is, the smaller Random can be. >100 we no longer care, it's just random 5.
 
       if fDemand[iD].Importance=di_High then //If Demand importance is high - make it done ASAP
         Bid:=1;
@@ -349,11 +349,11 @@ for iD:=1 to length(fDemand) do
 
     end;
 
-  if BestBid=0 then exit; //No suitable delivery has been found
+  if BestBid=0 then exit; //No suitable delivery has been found at all
 
   iD:=fQueue[i].DemandID;
   iO:=fQueue[i].OfferID;
-  inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on an Offer
+  inc(fOffer[iO].BeingPerformed); //Places a virtual "Reserved" sign on Offer
   fDemand[iD].BeingPerformed:=true; //Places a virtual "Reserved" sign on Demand
 
   //Store never has enough demand performed
@@ -374,6 +374,8 @@ begin
 
   iO:=fQueue[aID].OfferID;
   fQueue[aID].OfferID:=0; //We don't need it any more
+
+  if iO=0 then SaveToFile(ExeDir+'Delivery Crash.txt');
 
   dec(fOffer[iO].BeingPerformed); //Remove reservation
   dec(fOffer[iO].Count); //Remove resource from Offer list
@@ -529,41 +531,48 @@ begin
 end;
 
 
-function TKMDeliverQueue.WriteToText():string;
-var i:integer;
+procedure TKMDeliverQueue.SaveToFile(aFileName:string);
+var i:integer; f:textfile; s:string;
 begin
-Result:='Demand:'+eol+'---------------------------------'+eol;
-for i:=1 to length(fDemand) do if fDemand[i].Resource<>rt_None then begin
-  Result:=Result+#9;
-  if fDemand[i].Loc_House<>nil then Result:=Result+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9+#9;
-  if fDemand[i].Loc_Unit<>nil then Result:=Result+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9+#9;
-  Result:=Result+TypeToString(fDemand[i].Resource);
-  if fDemand[i].Importance=di_High then Result:=Result+'^';
-  Result:=Result+eol;
-end;
-Result:=Result+eol+'Offer:'+eol+'---------------------------------'+eol;
-for i:=1 to length(fOffer) do if fOffer[i].Resource<>rt_None then begin
-  Result:=Result+#9;
-  if fOffer[i].Loc_House<>nil then Result:=Result+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9+#9;
-  Result:=Result+TypeToString(fOffer[i].Resource)+#9;
-  Result:=Result+IntToStr(fOffer[i].Count);
-  Result:=Result+eol;
-end;
-Result:=Result+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
-for i:=1 to length(fQueue) do if fQueue[i].OfferID<>0 then begin
-  Result:=Result+TypeToString(fOffer[fQueue[i].OfferID].Resource)+#9;
+  assignfile(f,aFileName); Rewrite(f);
 
-  if fOffer[fQueue[i].OfferID].Loc_House = nil then
-    Result:=Result+'Destroyed'+' >>> '
-  else
-    Result:=Result+TypeToString(fOffer[fQueue[i].OfferID].Loc_House.GetHouseType)+' >>> ';
+  s:='Demand:'+eol+'---------------------------------'+eol;
+  for i:=1 to length(fDemand) do if fDemand[i].Resource<>rt_None then begin
+    s:=s+#9;
+    if fDemand[i].Loc_House<>nil then s:=s+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9+#9;
+    if fDemand[i].Loc_Unit<>nil then s:=s+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9+#9;
+    s:=s+TypeToString(fDemand[i].Resource);
+    if fDemand[i].Importance=di_High then s:=s+'^';
+    s:=s+eol;
+  end;
+  s:=s+eol+'Offer:'+eol+'---------------------------------'+eol;
+  for i:=1 to length(fOffer) do if fOffer[i].Resource<>rt_None then begin
+    s:=s+#9;
+    if fOffer[i].Loc_House<>nil then s:=s+TypeToString(fOffer[i].Loc_House.GetHouseType)+#9+#9;
+    s:=s+TypeToString(fOffer[i].Resource)+#9;
+    s:=s+IntToStr(fOffer[i].Count);
+    s:=s+eol;
+  end;
+  s:=s+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
+  for i:=1 to length(fQueue) do if fQueue[i].OfferID<>0 then begin
 
-  if fDemand[fQueue[i].DemandID].Loc_House = nil then
-    Result:=Result+'Destroyed'+#9
-  else
-    Result:=Result+TypeToString(fDemand[fQueue[i].DemandID].Loc_House.GetHouseType)+#9;
-  Result:=Result+eol;
-end;
+    s:=s+'id '+inttostr(i)+'.'+#9;
+    s:=s+TypeToString(fOffer[fQueue[i].OfferID].Resource)+#9;
+
+    if fOffer[fQueue[i].OfferID].Loc_House = nil then
+      s:=s+'Destroyed'+' >>> '
+    else
+      s:=s+TypeToString(fOffer[fQueue[i].OfferID].Loc_House.GetHouseType)+' >>> ';
+
+    if fDemand[fQueue[i].DemandID].Loc_House = nil then
+      s:=s+'Destroyed'
+    else
+      s:=s+TypeToString(fDemand[fQueue[i].DemandID].Loc_House.GetHouseType);
+    s:=s+eol;
+  end;
+
+  write(f,s);
+  closefile(f);
 end;
 
 
