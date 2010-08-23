@@ -15,7 +15,8 @@ Fixed:
 Known:
  - Occupied tile has no unit on it (Issue 27)
  - StoneMines mission in r977 crashes on 39min for some delivery being performed twice
-
+ - Send troops from A to B, they start walking. If send them to C while they walk, they continue walking to B first and then to C instead of changing their way to C immediately.
+ - While destroying a building, soldier can start attacking a citizen walking nearby - he should do that only with soldiers
  - Menu buttons in replay don't work, no way to exit other than F11
  - Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
  - Dots and lines displaying on tile edges. For an example go to town tutorial, reveal entire map, go to the chasom (black with bridge) and scroll past it. 1px dots and lines of color appear through out it. It happens on other terrain but it's most noticable there. [assigned to Krom]
