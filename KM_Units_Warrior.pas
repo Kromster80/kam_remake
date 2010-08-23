@@ -31,7 +31,6 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure ClearOrderTarget;
     procedure SetOrderTarget(aUnit:TKMUnit);
     function GetOrderTarget:TKMUnit;
-    function CheckForEnemyAround: TKMUnit;
   public
     fCommander:TKMUnitWarrior; //ID of commander unit, if nil then unit is commander itself and has a shtandart
   {MapEdProperties} //Don't need to be accessed nor saved during gameplay
@@ -70,6 +69,7 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse); reintroduce; overload;
     function CheckForEnemy:boolean;
+    function CheckForEnemyAround: TKMUnit;
 
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
@@ -716,9 +716,10 @@ begin
   for i := -1 to 1 do
   for k := -1 to 1 do
   if (i<>0) or (k<>0) then
+  if fTerrain.TileInMapCoords(GetPosition.X+i, GetPosition.Y+k) then
   if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through tree trunks
   begin
-    //todo: Maybe check IsUnit first and also avoid hittesting allies and group members?
+    //todo: Maybe check IsUnit first and also avoid hittesting allies and group members somehow?
     U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
     //Must not dead/dying, not inside a house, not from our team and an enemy
     if (U <> nil) and (U.IsVisible) and(not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
@@ -782,8 +783,10 @@ begin
   for i := -1 to 1 do
   for k := -1 to 1 do
   if (i<>0) or (k<>0) then
-  if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through a tree trunk
+  if fTerrain.TileInMapCoords(GetPosition.X+i, GetPosition.Y+k) then
+  if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i, GetPosition.Y+k)) then //Don't fight through a tree trunk
   begin
+    //todo: Maybe check IsUnit first and also avoid hittesting allies and group members somehow?
     U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
     //Must not dead/dying, not inside a house, not from our team and an enemy
     if (U <> nil)and

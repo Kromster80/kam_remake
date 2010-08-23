@@ -822,8 +822,8 @@ begin
     if CanAbandon and (fWalker is TKMUnitWarrior) then
       if TKMUnitWarrior(fWalker).CheckForEnemy then
       begin
-        //If we've picked a fight it means this action no longer exists, so we must exit out (don't set DoEnd as that will now apply to fight action)
-
+        //If we've picked a fight it means this action no longer exists,
+        //so we must exit out (don't set DoEnd as that will now apply to fight action)
         exit;
       end;
 

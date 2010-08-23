@@ -465,15 +465,15 @@ begin
   
                                                                  //Relative tiles locations
   if (A.X<B.X)and(A.Y<B.Y) then                                  //   A
-    Result := not MapElem[Land[B.Y,B.X].Obj+1].DiagonalBlocked   //    B
+    Result := not MapElem[Land[B.Y,B.X].Obj+1].DiagonalBlocked   //     B
   else
-  if (A.X<B.X)and(A.Y>B.Y) then                                  //    B
+  if (A.X<B.X)and(A.Y>B.Y) then                                  //     B
     Result := not MapElem[Land[B.Y+1,B.X].Obj+1].DiagonalBlocked //   A
   else
   if (A.X>B.X)and(A.Y>B.Y) then                                  //   B
-    Result := not MapElem[Land[A.Y,A.X].Obj+1].DiagonalBlocked   //    A
+    Result := not MapElem[Land[A.Y,A.X].Obj+1].DiagonalBlocked   //     A
   else
-  if (A.X>B.X)and(A.Y<B.Y) then                                  //    A
+  if (A.X>B.X)and(A.Y<B.Y) then                                  //     A
     Result := not MapElem[Land[A.Y+1,A.X].Obj+1].DiagonalBlocked;//   B
 end;
 
