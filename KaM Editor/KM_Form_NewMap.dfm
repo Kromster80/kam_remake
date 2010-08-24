@@ -4,7 +4,7 @@ object FormNewMap: TFormNewMap
   BorderIcons = [biSystemMenu, biMinimize, biMaximize, biHelp]
   BorderStyle = bsDialog
   Caption = 'Create New Map'
-  ClientHeight = 145
+  ClientHeight = 161
   ClientWidth = 361
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -23,7 +23,7 @@ object FormNewMap: TFormNewMap
   TextHeight = 13
   object ButtonOK: TButton
     Left = 216
-    Top = 80
+    Top = 96
     Width = 137
     Height = 25
     Caption = 'OK'
@@ -32,7 +32,7 @@ object FormNewMap: TFormNewMap
   end
   object ButtonCancel: TButton
     Left = 216
-    Top = 112
+    Top = 128
     Width = 137
     Height = 25
     Caption = 'Cancel'
@@ -43,13 +43,14 @@ object FormNewMap: TFormNewMap
     Left = 8
     Top = 72
     Width = 201
-    Height = 65
+    Height = 81
     Caption = ' Map format  '
     Enabled = False
     ItemIndex = 1
     Items.Strings = (
       'Original KaM TSK'
       'Original KaM TPR/TSK'
+      'KaM Remake'
       'KaM TKE')
     TabOrder = 3
   end

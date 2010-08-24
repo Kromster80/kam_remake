@@ -345,7 +345,8 @@ implementation
 uses KM_Form_NewMap, KM_LoadDAT, KM_TPlayer, KM_TGATexture;
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
-var FrameTime,i,k,Rad:integer;
+var FrameTime:cardinal;
+    i,k,Rad:integer;
     x1,x2,y1,y2:integer;
     Tmp:single;
 begin //Counting FPS
@@ -409,6 +410,9 @@ end;
 
 procedure TForm1.OpenMapClick(Sender: TObject);
 begin
+  if AnyChangesMade then
+  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL or MB_APPLMODAL) <> IDOK then exit;
+
   if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map (*.map)|*.map') then exit;
   OpenMap(OpenDialog1.FileName);
 end;
@@ -888,7 +892,11 @@ begin
 end;
 
 procedure TForm1.NewMapClick(Sender: TObject);
-begin FormNewMap.Show; end;
+begin
+  if AnyChangesMade then
+  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL or MB_APPLMODAL) <> IDOK then exit;
+  FormNewMap.Show;
+end;
 
 procedure TForm1.BrushTerrainTile(Y,X,Index:integer);
 var xx,yy,T:integer;
@@ -1080,7 +1088,7 @@ end;
 procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if AnyChangesMade then
-    CanClose := MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL)=IDOK;
+    CanClose := MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL or MB_APPLMODAL) = IDOK;
 end;
 
 procedure TForm1.LoadReliefFromBMPClick(Sender: TObject);
@@ -1136,8 +1144,11 @@ end;
 
 procedure TForm1.OpenProClick(Sender: TObject);
 begin
-if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map project (*.pro)|*.pro') then exit;
-OpenPro(OpenDialog1.FileName);
+  if AnyChangesMade then
+  if MessageBox(Form1.Handle,'Any unsaved changes will be lost. Proceed?', 'Warning', MB_ICONWARNING or MB_OKCANCEL or MB_APPLMODAL) <> IDOK then exit;
+
+  if not RunOpenDialog(OpenDialog1,'','','Knights & Merchants map project (*.pro)|*.pro') then exit;
+  OpenPro(OpenDialog1.FileName);
 end;
 
 procedure TForm1.OpenPro(filename:string);

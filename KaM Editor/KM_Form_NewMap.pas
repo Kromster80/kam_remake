@@ -40,7 +40,7 @@ uses KM_Defaults;
 procedure TFormNewMap.CreateMap(Sender: TObject);
 begin
   if not (InRange(MapSizes[RGX.ItemIndex+1],32,192) and InRange(MapSizes[RGY.ItemIndex+1],32,192)) then
-    MessageBox(FormNewMap.Handle,'KaM won''t be able to handle such big map','Warning',MB_OK);
+    MessageBox(FormNewMap.Handle,'KaM won''t be able to handle such a big map. It can be used only as reference.','Warning',MB_OK or MB_ICONWARNING or MB_APPLMODAL);
   Map.X:=MapSizes[RGX.ItemIndex+1]; //0..10 -> 32..192
   Map.Y:=MapSizes[RGY.ItemIndex+1]; //0..10 -> 32..192
   InitializeNewMap(Map.X,Map.Y);
