@@ -379,6 +379,7 @@ var iO:integer;
 begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Taken offer from delivery ID', aID);
 
+  iO:=fQueue[aID].OfferID;
   fQueue[aID].OfferID:=0; //We don't need it any more
 
   dec(fOffer[iO].BeingPerformed); //Remove reservation

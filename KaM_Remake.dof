@@ -80,10 +80,10 @@ UnsafeType=0
 UnsafeCode=0
 UnsafeCast=0
 [Linker]
-MapFile=3
+MapFile=0
 OutputObjs=0
 ConsoleApp=1
-DebugInfo=1
+DebugInfo=0
 RemoteSymbols=0
 MinStackSize=16384
 MaxStackSize=1048576
@@ -129,9 +129,6 @@ Locale=1049
 CodePage=1251
 [Version Info Keys]
 FileVersion=1.0.0.0
-[Excluded Packages]
-C:\Program Files\Borland\Delphi7\Projects\Bpl\JvCtrlsD7D.bpl=JVCL Visual Controls
-C:\Program Files\Borland\Delphi7\Projects\Bpl\JvMMD7D.bpl=JVCL Multimedia and Image Components
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
