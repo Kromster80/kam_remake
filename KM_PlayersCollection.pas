@@ -251,9 +251,12 @@ begin
       mdNegY: for i:=Y-1 downto Y-Span do begin dec(Y); if TryOut(X,Y) then break; end;
     end;
     if mDir in [mdPosY,mdNegY] then inc(Span); //increase span every second turn
-  until(TryOut(X,Y) or (Span=10)); //Catch the end
+  until(TryOut(X,Y) or (Span=SWIRL_AROUND_MAX)); //Catch the end
 
-  Result:=KMPoint(X,Y);
+  if TryOut(X,Y) then //Catch the case with Span=SWIRL_AROUND_MAX and TryOut(X,Y)
+    Result:=KMPoint(X,Y)
+  else
+    Result:=KMPoint(0,0);
 end;
 
 

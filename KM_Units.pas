@@ -1749,6 +1749,9 @@ begin
   fUnit         := nil;
   fPhase        := MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2       := MAXBYTE-1;
+
+{  Self.Free;
+  Self:=nil; }
 end;
 
 
@@ -2197,9 +2200,9 @@ function TKMUnitsCollection.Add(aOwner: TPlayerID; aUnitType: TUnitType; PosX, P
 var U:Integer; P:TKMPoint;
 begin
   if AutoPlace then begin
-    P:=fPlayers.FindPlaceForUnit(PosX,PosY,aUnitType);
-    PosX:=P.X;
-    PosY:=P.Y;
+    P := fPlayers.FindPlaceForUnit(PosX,PosY,aUnitType); //Will have 0:0 if no place found
+    PosX := P.X;
+    PosY := P.Y;
   end;
 
   if not fTerrain.TileInMapCoords(PosX, PosY) then begin

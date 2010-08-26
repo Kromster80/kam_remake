@@ -254,7 +254,7 @@ begin fGame.MouseWheel(Shift, WheelDelta, Panel5.ScreenToClient(MousePos).X, Pan
 
 procedure TForm1.Timer100msTimer(Sender: TObject);
 begin
-  if not (Form1.Active or FormLoading.Active) then exit;
+  //if not (Form1.Active or FormLoading.Active) then exit;
   if FormLoading.Visible then begin
     FormLoading.Hide;
     Form1.SetFocus;
@@ -387,7 +387,7 @@ end;
 
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
-  if CheckBox2.Checked then fGame.GameSpeed:=75 else fGame.GameSpeed:=1;
+  if CheckBox2.Checked then fGame.GameSpeed:=120 else fGame.GameSpeed:=1;
 end;      
 
 

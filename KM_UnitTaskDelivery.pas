@@ -79,13 +79,15 @@ begin
   if fFrom    <> nil then fFrom.ReleaseHousePointer;
   if fToHouse <> nil then fToHouse.ReleaseHousePointer;
   if fToUnit  <> nil then fToUnit.ReleaseUnitPointer;
-  Inherited Destroy;
+  Inherited Destroy;       
 end;
 
 
 procedure TTaskDeliver.Abandon();
 begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
+  if (fDeliverID=4) then fLog.AppendLog(Format ('Unit %d abandoned delivery 4', [fUnit.ID]));
+  if fDeliverID<>0 then //It is set to 0 when delivery is closed, to avoid double-abandoning
   fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
   Inherited;
 end;
@@ -106,11 +108,14 @@ var NewDelivery: TUnitTask;
 begin
 TaskDone:=false;
 
+if ((fUnit.ID=143)or(fUnit.ID=88)) and (fDeliverID=4) then
+  fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.TakenOffer(999);
+
 with fUnit do
 case fPhase of
 0: if not fFrom.IsDestroyed then begin
      if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going to take '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
-     SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance))
+     SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance));
    end else begin
      Abandon;
      TaskDone:=true;
@@ -171,8 +176,11 @@ if DeliverKind = dk_House then
      begin
        fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
        TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+
        fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
+       if (fDeliverID=4) then fLog.AppendLog(Format ('Unit %d closed delivery 4', [fUnit.ID]));
        fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
+       fDeliverID := 0; //So that it can't be abandoned if unit dies while trying to GoOut
 
        //Now look for another delivery from inside this house
        NewDelivery := TKMUnitSerf(fUnit).GetActionFromQueue(fToHouse);
@@ -208,6 +216,7 @@ if DeliverKind = dk_House then
          TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
          fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
          fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
+         fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
          SetActionStay(1,ua_Walk);
        end;
     else TaskDone:=true;
@@ -228,8 +237,7 @@ case fPhase of
    else
    begin
      TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
-     fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
-     fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
+     Abandon;
      TaskDone:=true;
    end;
 6: begin
@@ -246,7 +254,7 @@ case fPhase of
         if (fToUnit.GetUnitType = ut_Worker)and(fToUnit.GetUnitTask<>nil) then
         begin
           fToUnit.GetUnitTask.Phase := fToUnit.GetUnitTask.Phase + 1;
-          fToUnit.SetActionStay(0,ua_Work1);
+          fToUnit.SetActionStay(0,ua_Work1); //Tell the worker to resume work
         end;
         //Warrior
         if (fToUnit is TKMUnitWarrior) then
@@ -258,17 +266,15 @@ case fPhase of
       TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
       fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
       fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
-      SetActionLockedStay(5,ua_Walk); //Pause breifly (like we are handing over the goods)
+      fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
+      SetActionLockedStay(5, ua_Walk); //Pause breifly (like we are handing over the goods)
    end;
 7: begin
       //After feeding troops, ask for new delivery and if there is none, walk back to the place we came from so we don't leave serfs all over the battlefield
       if (fToUnit <> nil) and (fToUnit is TKMUnitWarrior) then
       begin
         NewDelivery := TKMUnitSerf(fUnit).GetActionFromQueue;
-        if NewDelivery <> nil then
-        begin
-          //Take this new delivery
-          NewDelivery.Phase := 0; //Start at the begining of the new task
+        if NewDelivery <> nil then begin
           TKMUnitSerf(fUnit).SetNewDelivery(NewDelivery);
           Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
           exit;

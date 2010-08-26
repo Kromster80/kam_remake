@@ -290,7 +290,7 @@ Result:=nil;
 i:=1; while (i<MaxEntries)and(fQueue[i].JobStatus<>js_Open) do inc(i);
 if i=MaxEntries then exit;
 
-//if WRITE_DETAILED_LOG then fLog.AppendLog('Reserved delivery ID', i);
+  //if WRITE_DETAILED_LOG then fLog.AppendLog('Reserved delivery ID', i);
 
 //Cleanup for destroyed houses
 {for iD:=1 to length(fDemand) do
@@ -341,6 +341,10 @@ for iD:=1 to length(fDemand) do
       //Take first one incase there's nothing better to be found
       //Do not take deliveries with Bid=0 (no route found)
       if (Bid<>0)and((fQueue[i].JobStatus=js_Open)or(Bid<BestBid)) then begin
+
+        if ((KMSerf.ID=143)or(KMSerf.ID=88)) and (i=4) then
+          i:=i;
+
         fQueue[i].DemandID:=iD;
         fQueue[i].OfferID:=iO;
         fQueue[i].JobStatus:=js_Taken; //The job is found, at least something
@@ -361,6 +365,9 @@ for iD:=1 to length(fDemand) do
 
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Creating delivery ID', i);
 
+
+  if (i=4) then fLog.AppendLog(Format ('Unit %d opened delivery 4', [KMSerf.ID]));
+                        
   //Now we have best job and can perform it
   Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 end;
@@ -372,10 +379,7 @@ var iO:integer;
 begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Taken offer from delivery ID', aID);
 
-  iO:=fQueue[aID].OfferID;
   fQueue[aID].OfferID:=0; //We don't need it any more
-
-  if iO=0 then SaveToFile(ExeDir+'Delivery Crash.txt');
 
   dec(fOffer[iO].BeingPerformed); //Remove reservation
   dec(fOffer[iO].Count); //Remove resource from Offer list
@@ -413,6 +417,7 @@ end;
 procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Abandoned delivery ID', aID);
+  //if (aID=4) then fLog.AppendLog('8Closed delivery ID', aID);
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
   begin
@@ -435,6 +440,9 @@ end;
 procedure TKMDeliverQueue.CloseDelivery(aID:integer);
 begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Closed delivery ID', aID);
+
+  //if (aID=4) then fLog.AppendLog('9Closed delivery ID', aID);
+
   fQueue[aID].OfferID:=0;
   fQueue[aID].DemandID:=0;
   fQueue[aID].JobStatus:=js_Open; //Open slot
@@ -553,6 +561,7 @@ begin
     s:=s+IntToStr(fOffer[i].Count);
     s:=s+eol;
   end;
+
   s:=s+eol+'Running deliveries:'+eol+'---------------------------------'+eol;
   for i:=1 to length(fQueue) do if fQueue[i].OfferID<>0 then begin
 
