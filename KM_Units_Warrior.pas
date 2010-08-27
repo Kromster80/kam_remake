@@ -7,6 +7,7 @@ uses Classes, SysUtils, KromUtils, Math,
 type //Possibly melee warrior class? with Archer class separate?
   TKMUnitWarrior = class(TKMUnit)
   private
+  {Individual properties}
     fFlagAnim:cardinal;
     fRequestedFood:boolean;
     fTimeSinceHungryReminder:integer;
@@ -40,7 +41,6 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure SyncLoad(); override;
     destructor Destroy; override;
 
-    function GetSupportedActions: TUnitActionTypeSet; override;
     procedure KillUnit; override;
   //Commands
     procedure AddMember(aWarrior:TKMUnitWarrior);
@@ -221,12 +221,6 @@ begin
 end;
 
 
-function TKMUnitWarrior.GetSupportedActions: TUnitActionTypeSet;
-begin
-  Result := [ua_Walk, ua_Work, ua_Spec, ua_Die]; //ua_Spec is storm attack available to some units
-end;
-
-
 procedure TKMUnitWarrior.AddMember(aWarrior:TKMUnitWarrior);
 begin
   if fCommander <> nil then exit; //Only commanders may have members
@@ -236,7 +230,7 @@ end;
 
 
 procedure TKMUnitWarrior.SetGroupFullCondition;
-var i: integer;
+var i:integer;
 begin
   SetFullCondition;
   if (fMembers <> nil) then //If we have members then give them full condition too
@@ -365,8 +359,7 @@ end;
 procedure TKMUnitWarrior.Split; //Split group in half and assign another commander
 var i, DeletedCount: integer; NewCommander:TKMUnitWarrior; MultipleTypes: boolean;
 begin
-  //Make sure we are a commander and have a crew //Don't allow to split in following cases
-  if (fCommander <> nil) or (fMembers = nil) or (fMembers.Count = 0) then exit;
+  if GetMemberCount = 0 then exit; //Only commanders have members
 
   //If there are different unit types in the group, split should just split them first
   MultipleTypes := false;
@@ -388,7 +381,7 @@ begin
   NewCommander.fTimeSinceHungryReminder := fTimeSinceHungryReminder; //If we are hungry then don't repeat message each time we split, give new commander our counter
   NewCommander.fCommander := nil;
   //Commander OrderLoc must always be valid, but because this guy wasn't a commander it might not be
-  NewCommander.fOrderLoc := KMPointDir(NewCommander.GetPosition,fOrderLoc.Dir);
+  NewCommander.fOrderLoc := KMPointDir(NewCommander.GetPosition, fOrderLoc.Dir);
 
   DeletedCount := 0;
   for i := 0 to fMembers.Count-1 do
@@ -403,9 +396,11 @@ begin
       inc(DeletedCount);
     end; //Else stay with this commander
   end;
-  //Make sure units per row is still valid
+
+  //Make sure units per row is still valid for both groups
   fUnitsPerRow := min(fUnitsPerRow, GetMemberCount+1);
   NewCommander.fUnitsPerRow := min(fUnitsPerRow, NewCommander.GetMemberCount+1);
+
   //Tell both commanders to reposition
   Halt;
   NewCommander.Halt;

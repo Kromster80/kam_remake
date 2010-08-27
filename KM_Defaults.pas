@@ -465,7 +465,7 @@ const {Actions names}
              'ua_Work2', 'ua_WorkEnd', 'ua_Eat', 'ua_WalkArm', 'ua_WalkTool',
              'ua_WalkBooty', 'ua_WalkTool2', 'ua_WalkBooty2', 'ua_Unknown');
   //specifies what actions unit can perform, should be ajoined with speeds and other tables
-  UnitSupportedActions:array[1..14]of TUnitActionTypeSet = (
+  UnitSupportedActions:array[ut_Serf .. ut_Barbarian]of TUnitActionTypeSet = (
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkTool2],
     [ua_Walk, ua_Die, ua_Eat],
@@ -479,7 +479,17 @@ const {Actions names}
     [ua_Walk, ua_Work, ua_Die, ua_Work1, ua_Eat..ua_WalkBooty],
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat] //Recruit
+    [ua_Walk, ua_Spec, ua_Die, ua_Eat], //Recruit
+    [ua_Walk, ua_Spec, ua_Die, ua_Eat], //Militia
+    [ua_Walk, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat],
+    [ua_Walk, ua_Die, ua_Eat]
     );
 
 type

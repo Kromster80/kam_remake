@@ -353,7 +353,7 @@ begin
   ua_Walk:
     begin
       fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-      if ua_WalkArm in UnitSupportedActions[byte(UnitType)] then
+      if ua_WalkArm in UnitSupportedActions[fUnitType] then
         fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
     end;
   ua_Work..ua_Eat:
@@ -566,7 +566,7 @@ begin
   ua_Walk:
     begin
       fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-      if ua_WalkArm in UnitSupportedActions[byte(UnitType)] then
+      if ua_WalkArm in UnitSupportedActions[fUnitType] then
         fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
     end;
   ua_Work..ua_Eat:
@@ -1206,7 +1206,7 @@ end;
 
 function TKMUnit.GetSupportedActions: TUnitActionTypeSet;
 begin
-  Result := UnitSupportedActions[integer(fUnitType)];
+  Result := UnitSupportedActions[fUnitType];
 end;
 
 
