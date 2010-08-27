@@ -1328,6 +1328,7 @@ begin
   end;
   if not (aAction.GetActionType in GetSupportedActions) then
   begin
+    Assert(false, 'Unit '+TypeToString(GetUnitType)+' was asked to do unsupported action');
     FreeAndNil(aAction);
     exit;
   end;
@@ -2184,7 +2185,7 @@ end;
 
 function TKMUnitsCollection.GetUnit(Index: Integer): TKMUnit;
 begin
-  Result := TKMUnit(Items[Index])
+  Result := TKMUnit(Items[Index]);
 end;
 
 

@@ -480,16 +480,16 @@ const {Actions names}
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Die, ua_Eat],
     [ua_Walk, ua_Spec, ua_Die, ua_Eat], //Recruit
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat], //Militia
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Spec, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat],
-    [ua_Walk, ua_Die, ua_Eat]
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat], //Militia
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat],
+    [ua_Walk, ua_Work, ua_Die, ua_Eat]
     );
 
 type

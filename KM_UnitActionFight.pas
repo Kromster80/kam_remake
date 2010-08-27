@@ -99,7 +99,7 @@ begin
   Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
   Step  := KMUnit.AnimStep mod Cycle;
 
-  KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Always face the opponent
+  KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Since opponent can walk
 
   //Only hit unit on step 5
   if Step = 5 then
