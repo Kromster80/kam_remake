@@ -353,8 +353,9 @@ begin
     gsNoGame:   begin
                   fMainMenuInterface.MyControls.MouseMove(X,Y,Shift);
                   if fMainMenuInterface.MyControls.MouseOverControl is TKMTextEdit then // Show "CanEdit" cursor
-                    Screen.Cursor := c_Info //@Lewin: Should be something else, any ideas?
-                                            //@Krom We could make our own 'I' cursor using textures from other cursors, shouldn't be hard. Shall I?
+                    Screen.Cursor := c_Default  //@Lewin: Should be something else, any ideas?
+                                                //@Krom: We could make our own 'I' cursor using textures from other cursors, shouldn't be hard. Shall I?
+                                                //@Lewin: That would be great!
                   else
                     Screen.Cursor := c_Default;
                   fMainMenuInterface.MouseMove(X,Y);

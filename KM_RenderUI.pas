@@ -17,7 +17,7 @@ TRenderUI = class
     procedure WritePicture      (PosX,PosY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WritePicture      (PosX,PosY,SizeX,SizeY,RXid,ID:smallint; Enabled:boolean=true; Highlight:boolean=false); overload;
     procedure WriteRect         (PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
-    procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
+    procedure WriteLayer        (PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
     function  WriteText         (PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint; //Should return text width in px
     procedure RenderMinimap     (PosX,PosY,SizeX,SizeY:smallint);
   end;
@@ -371,16 +371,20 @@ end;
 
 
 {Renders plane with given color}
-procedure TRenderUI.WriteLayer(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4);
+procedure TRenderUI.WriteLayer(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
+var i:single;
 begin
+  glGetFloatv(GL_LINE_WIDTH,@i); //Memorize
+  glLineWidth(1);
   glColor4ubv(@Col);
   glBegin(GL_QUADS);
     glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
-  glColor4f(1,1,1,1);
+  glColor4ubv(@Outline);
   glBegin(GL_LINE_LOOP);
     glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
+  glLineWidth(i); //Restore
 end;
 
 

@@ -190,6 +190,7 @@ TKMTextEdit = class(TKMControl)
     Text: string;
     Font: TKMFont;
     Masked:boolean;
+    CursorPos:integer;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
     procedure Paint(); override;
@@ -275,9 +276,6 @@ end;
 type TScrollAxis = (sa_Vertical, sa_Horizontal);
 
 {Scroll bar}
-//todo: scroll wheel work for scollbar
-//Correction: scrolling should happen when mouse is over some List control, not over ScrollBar itself
-//@Krom: Done? To be deleted...?
 TKMScrollBar = class(TKMControl)
   public
     Position:byte;
@@ -888,36 +886,52 @@ begin
   Text := '<<<LEER>>>';
   Font := aFont;
   Masked := aMasked;
+  CursorPos := length(Text);
   ParentTo(aParent);
 end;
 
 
 function TKMTextEdit.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
+var s:string;
 begin
   Result := true;
   if Inherited KeyUp(Key, Shift, IsDown) then exit;
 
-  if (not IsDown) and (chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', 'A'..'Z']) then //Letters don't auto-repeat
-    if ssShift in Shift then Text := Text + UpperCase(chr(Key))
-                        else Text := Text + LowerCase(chr(Key))
+  if (not IsDown) and (chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', 'A'..'Z']) then begin//Letters don't auto-repeat
+    s := GetCharFromVirtualKey(Key);
+    Insert(s, Text, CursorPos+1);
+    inc(CursorPos,length(s)); //GetCharFromVirtualKey might be 1 or 2 chars
+  end
   else
-    if IsDown and (Key = VK_BACK) then decs(Text); //Allow fast delete if IsDown
+    if IsDown then //Allow repeated delete if IsDown
+    case Key of
+      VK_BACK:  begin decs(Text); dec(CursorPos); end;
+      //VK_LEFT:  dec(CursorPos);
+      //VK_RIGHT: inc(CursorPos);
+    end;
+
+  CursorPos := EnsureRange(CursorPos, 0, length(Text));
 
   if Assigned(OnChange) then OnChange(Self);
 end;
 
 
 procedure TKMTextEdit.Paint();
-var Col:TColor4; RText:String;
+var Col:TColor4; RText:String; OffX:integer;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left, Top, Width, Height);
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
   if Masked then RText := StringOfChar('*', Length(Text)) else RText:=Text;
+
+  fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
+
+  setlength(RText,CursorPos);
+  OffX := Left + 3 + fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col).X;
+
+  //todo: render custom | and allow it to move within edit ('[' isn't great)
   if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then
-    fRenderUI.WriteText(Left+4, Top+4, Width-8, RText+'[', Font, kaLeft, false, Col) //todo: render custom | and allow it to move within edit ('[' isn't great)
-  else
-    fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
+    fRenderUI.WriteLayer(OffX-1, Top+2, 3, Height-4, Col, $FF000000);
 end;
 
 
