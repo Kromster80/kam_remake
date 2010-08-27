@@ -71,6 +71,8 @@ type //Possibly melee warrior class? with Archer class separate?
     function CheckForEnemy:boolean;
     function CheckForEnemyAround: TKMUnit;
 
+    function CanInterruptAction:boolean;
+
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -691,22 +693,13 @@ end;
 
 
 function TKMUnitWarrior.CheckForEnemy: boolean;
-  function CheckCanFight: boolean;
-  begin
-    if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else //Can't interrupt interaction
-    if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
-    if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
-    if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks
-    if GetUnitAction is TUnitActionFight       then Result := false //Never interupt a fight
-    else Result := true;
-  end;
 var i,k,WCount,OCount:shortint;
     U, BestU: TKMUnit;
     Warriors,Others: array[1..8] of TKMUnit;
 begin
   Result := false; //Did we pick a fight?
   if not ENABLE_FIGHTING then exit;
-  if not CheckCanFight then exit;
+  if not CanInterruptAction then exit;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
   WCount := 0;
@@ -823,16 +816,19 @@ begin
 end;
 
 
+{ See if we can abandon other actions in favor of more important things }
+function TKMUnitWarrior.CanInterruptAction:boolean;
+begin
+  if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
+  if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
+  if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
+  if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks
+  if GetUnitAction is TUnitActionFight       then Result := false //Never interupt a fight
+  else Result := true;
+end;
+
+
 function TKMUnitWarrior.UpdateState():boolean;
-  function CheckCanAbandon: boolean;
-  begin
-    if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandon else
-    if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
-    if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
-    if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks
-    if GetUnitAction is TUnitActionFight       then Result := false //Never interupt a fight
-    else Result := true;
-  end;
 var
   i: integer;
   PositioningDone, FoundFight: boolean;
@@ -882,7 +878,7 @@ begin
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
   //Walk out of barracks
-  if (fOrder=wo_WalkOut) and GetUnitAction.StepDone and CheckCanAbandon then
+  if (fOrder=wo_WalkOut) and GetUnitAction.StepDone and CanInterruptAction then
   begin
     SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(GetPosition.X,GetPosition.Y));
     fOrder := wo_None;
@@ -904,7 +900,7 @@ begin
     fState := ws_Walking;
   end;
 
-  if (fOrder=wo_Walk) and GetUnitAction.StepDone and CheckCanAbandon then
+  if (fOrder=wo_Walk) and GetUnitAction.StepDone and CanInterruptAction then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask);
     //If we are not the commander then walk to near
@@ -932,7 +928,7 @@ begin
   end;
 
   //Take attack order
-  if (fOrder=wo_Attack) and GetUnitAction.StepDone and CheckCanAbandon then
+  if (fOrder=wo_Attack) and GetUnitAction.StepDone and CanInterruptAction then
   begin
     SetActionWalk(Self, GetOrderTarget.NextPosition, KMPoint(0,0), ua_Walk, true, GetOrderTarget);
     fOrder := wo_None;
@@ -942,7 +938,7 @@ begin
   end;
 
   //Take attack house order
-  if (fOrder=wo_AttackHouse) and GetUnitAction.StepDone and CheckCanAbandon then
+  if (fOrder=wo_AttackHouse) and GetUnitAction.StepDone and CanInterruptAction then
   begin
     SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
     fOrder := wo_None;
