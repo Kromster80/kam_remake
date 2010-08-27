@@ -1433,7 +1433,7 @@ begin
   //Delivery to unit
   if (fUnitType = ut_Serf)
   and(fUnitTask is TTaskDeliver)
-  and(TTaskDeliver(fUnitTask).DeliverKind = dk_Unit)
+  and(TTaskDeliver(fUnitTask).DeliverKind = dk_ToUnit)
   then
     Result := canWalk;
 

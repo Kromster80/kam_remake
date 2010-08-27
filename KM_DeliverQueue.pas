@@ -365,9 +365,6 @@ for iD:=1 to length(fDemand) do
 
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Creating delivery ID', i);
 
-
-  if (i=4) then fLog.AppendLog(Format ('Unit %d opened delivery 4', [KMSerf.ID]));
-                        
   //Now we have best job and can perform it
   Result:=TTaskDeliver.Create(KMSerf, fOffer[iO].Loc_House, fDemand[iD].Loc_House, fDemand[iD].Loc_Unit, fOffer[iO].Resource, i);
 end;
