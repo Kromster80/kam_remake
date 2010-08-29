@@ -104,7 +104,7 @@ constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 var i: integer;
 begin
   PlayerID      := aPlayerID;
-  PlayerType    := pt_Computer; //@Lewin: I'm not sure if default should be pt_Computer though
+  PlayerType    := pt_Computer;
   fMissionSettings := TMissionSettings.Create;
   fUnits        := TKMUnitsCollection.Create;
   fHouses       := TKMHousesCollection.Create;

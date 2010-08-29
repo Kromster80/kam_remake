@@ -441,8 +441,6 @@ type
     //wo_Storm
   );
 
-//@Lewin: Please write descriptions of states down here
-//@Krom: Good enough? To be deleted
   TWarriorState = (
     ws_None, //Warrior is idle
     ws_Walking, //Warrior is in the process of walking by player instruction (could have been ordered to attack too because there is no difference)
@@ -1031,7 +1029,7 @@ var
   FontData:array[1..FONT_COUNT]of record
     Title:TKMFont;
     TexID:GLUint;
-    Unk1,WordSpacing,CharOffset,Unk3:smallint; //@Lewin: BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
+    Unk1,WordSpacing,CharOffset,Unk3:smallint; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal:array[0..255]of byte;
     Letters:array[0..255]of record
       Width,Height:word;
