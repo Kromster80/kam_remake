@@ -9,7 +9,8 @@ uses Math, KromUtils,
 type
   TUnitActionAbandonWalk = class(TUnitAction)
   private
-    fWalkTo, fVertexOccupied:TKMPoint;
+    fWalkTo:TKMPoint;
+    fVertexOccupied:TKMPoint;
   public
     constructor Create(LocB,aVertexOccupied :TKMPoint; const aActionType:TUnitActionType=ua_Walk);
     constructor Load(LoadStream: TKMemoryStream); override;
@@ -71,16 +72,17 @@ begin
   Distance := ACTION_TIME_DELTA * KMUnit.GetSpeed;
 
   //Check if unit has arrived on tile
-  if Equals(KMUnit.PositionF.X,fWalkTo.X,Distance/2) and Equals(KMUnit.PositionF.Y,fWalkTo.Y,Distance/2) then
+
+  if KMSamePointF(KMUnit.PositionF, KMPointF(fWalkTo), Distance/2) then
   begin
-    KMUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
     KMUnit.PositionF := KMPointF(fWalkTo.X,fWalkTo.Y); //Set precise position to avoid rounding errors
-    DoEnd := true; //We are finished
+    KMUnit.IsExchanging := false; //Disable sliding (in case it was set in previous step)
     if not KMSamePoint(fVertexOccupied,KMPoint(0,0)) then
     begin
       fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
       fVertexOccupied := KMPoint(0,0);
     end;
+    DoEnd := true; //We are finished
     StepDone := true;
     exit;
   end;

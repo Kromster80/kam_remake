@@ -457,6 +457,22 @@ type
     wl_Linkable
   );
 
+
+{Walk to somewhere}
+type
+  //Status of interaction
+  TInteractionStatus = (kis_None,       //We have not yet encountered an interaction (we are just walking)
+                        kis_Pushing,    //We are pushing an idle unit out of the way
+                        kis_Pushed,     //We were pushed (idle then asked to move)
+                        kis_Trying,     //We are or have been stuck (difference between this and kis_None is only for debug)
+                        kis_Waiting     //We have been stuck for a while so allow other units to swap with us
+  );
+
+//These are only for debug
+const
+  TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
+  
+
 const
   LINK_RADIUS = 8; //Radius to search for groups to link to after being trained at the barracks
 
