@@ -34,4 +34,9 @@ Add new resource - dried fish
 
 Add new house - retirement houses, unemployed/homeless citizens will spend their time there. In return their condition will decrease x3 slower, hence they will need less food.
 
-Add new houses - clocktower (with working clocks and bell), well (no idea), tavern (shows gossip info on enemies), training grounds for army (promote soldiers to veterans without combat), marketplace (converts resources at rediculously high ratios, e.g. 10wood=1gold), 
+Add new houses - 
+clocktower (with working clocks showing real time and a bell), 
+well (no idea),
+tavern (shows gossip info on enemies),
+training grounds for army (promote soldiers to veterans without combat),
+marketplace (converts resources at rediculously high ratios, e.g. 10wood=1gold), 
