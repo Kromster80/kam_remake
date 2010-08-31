@@ -28,7 +28,7 @@ type
     function LoadUnitDAT(filename:string):boolean;
     function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
-    procedure LoadRX7();
+    procedure LoadRX7(aID:integer);
     function LoadRX(filename:string; ID:integer):boolean;
     procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
     procedure MakeGFX(Sender: TObject; RXid:integer);
@@ -112,12 +112,11 @@ begin
   begin
     StepCaption('Reading '+RXData[i].Title+' GFX ...');
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-    if i=4 then MakeCursors(4); //Make GUI items before they are flushed
+    if i=4 then MakeCursors(4); //Make GUI items before they are flushed in MakeGFX
     MakeGFX(nil,i);
+    LoadRX7(i); //Something fancy to Load RX7 data (custom bitmaps and overrides)
     StepRefresh();
   end;
-
-  LoadRX7; //Something fancy to Load RX7 data (custom bitmaps and overrides)
 
   StepCaption('Reading fonts ...');
   LoadFonts(false, aLocale);
@@ -151,6 +150,7 @@ begin
       fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
       MakeGFX(nil,i);
       if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
+      LoadRX7(i);
       StepRefresh();
     end;
 
@@ -553,7 +553,7 @@ end;
 
 { This function should parse all valid files in Sprites folder and load them
   additionaly to or replacing original sprites }
-procedure TResource.LoadRX7();
+procedure TResource.LoadRX7(aID:integer);
 var
   FileList:TStringList;
   SearchRec:TSearchRec;
@@ -578,16 +578,16 @@ if not DirectoryExists(ExeDir + 'Sprites\') then exit;
   //#-####.tga - default texture
   //#-####a.tga - alternative texture
   for i:=0 to FileList.Count-1 do begin
-    RX := strtoint(FileList.Strings[0][1]);
-    ID := strtoint(Copy(FileList.Strings[0], 3, 4));
-    if InRange(RX,1,6) and InRange(ID,1,RxData[ID].Qty) then begin
-      if FileList.Strings[0][7] = '.' then
-        LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[0], GFXData[RX,ID].TexID, 0)
+    RX := strtoint(FileList.Strings[i][1]);
+    ID := strtoint(Copy(FileList.Strings[i], 3, 4));
+    if (RX=aID) and InRange(ID,1,RxData[RX].Qty) then begin //Replace only certain sprites
+      if FileList.Strings[i][7] = '.' then
+        LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[i], GFXData[RX,ID].TexID, 0)
       else
-        LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[0], GFXData[RX,ID].AltID, 0);
+        LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[i], GFXData[RX,ID].AltID, 0);
 
-      GFXData[RX,ID].PxWidth := 64;  //
-      GFXData[RX,ID].PxHeight := 64;
+      GFXData[RX,ID].PxWidth := 144;  //
+      GFXData[RX,ID].PxHeight := 136;
 
       GFXData[RX,ID].u1 := 0;
       GFXData[RX,ID].u2 := 1;
