@@ -105,7 +105,9 @@ begin
   fRender         := TRender.Create(RenderHandle);
   fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
   fSoundLib       := TSoundLib.Create(fGlobalSettings.GetLocale); //Required for button click sounds
-  fMusicLib       := TMusicLib.Create(aMediaPlayer); //todo: @Krom: When I start the game with music disabled there is about 100ms of music which then cuts off. I assume the INI file is read after starting playback or something?
+  fMusicLib       := TMusicLib.Create(aMediaPlayer);
+  //todo: @Krom: When I start the game with music disabled there is about 100ms of music
+  //which then cuts off. I assume the INI file is read after starting playback or something?
   fGlobalSettings.UpdateSFXVolume;
   fResource       := TResource.Create;
   fResource.LoadMenuResources(fGlobalSettings.GetLocale);

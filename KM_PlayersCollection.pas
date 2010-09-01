@@ -140,7 +140,8 @@ end;
 
 
 //todo: New function to use with WatchTowers/Archers/AutoLinking/
-{ Should scan withing given radius and return unit with given Aliance status
+{ Should scan withing given radius and return unit with given Alliance status
+  Should be optimized versus usual UnitsHitTest
   Note: Excluding animals. }
 function TKMAllPlayers.UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
 var i:integer;

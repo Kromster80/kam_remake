@@ -144,11 +144,12 @@ const
   TPR_MAPS = 14;
 
   //X/Y locations of battlefields on campaign map in menu
-  TSK_Campaign_Maps: array [1..TSK_MAPS,1..2] of word = ( //todo: set real locations here
+  TSK_Campaign_Maps: array [1..TSK_MAPS,1..2] of word = (
   (170,670),(160,455),(320,595),(442,625),(395,525),(350,420),( 95,345),(145,185),(550,520),(735,510),
   (885,550),(305,290),(380,270),(475,285),(580,290),(820,180),(695,150),(590, 45),(720, 80),(820, 50));
 
-  TPR_Campaign_Maps: array [1..TPR_MAPS,1..2] of word = ( //todo: set locations here
+  //todo: Set TPR missions coordinates onto campaign map 
+  TPR_Campaign_Maps: array [1..TPR_MAPS,1..2] of word = (
   ( 50,500),(100,500),(150,500),(200,500),(250,500),(300,500),(350,500),(400,500),(450,500),(500,500),
   (550,500),(600,500),(650,500),(700,500));
 

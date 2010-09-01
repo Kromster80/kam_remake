@@ -909,6 +909,8 @@ begin
       //VK_LEFT:  dec(CursorPos);
       //VK_RIGHT: inc(CursorPos);
     end;
+  //todo: allow cursor to move within TKMTextEdit
+  //Including delete of letters in words and setting cursor on clicked position
 
   CursorPos := EnsureRange(CursorPos, 0, length(Text));
 
@@ -926,12 +928,11 @@ begin
 
   fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
 
-  setlength(RText,CursorPos);
-  OffX := Left + 3 + fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col).X;
-
-  //todo: render custom | and allow it to move within edit ('[' isn't great)
-  if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then
+  if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then begin
+    setlength(RText,CursorPos);
+    OffX := Left + 3 + fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col).X;
     fRenderUI.WriteLayer(OffX-1, Top+2, 3, Height-4, Col, $FF000000);
+  end;
 end;
 
 
@@ -946,6 +947,7 @@ end;
 
 
 //todo: We can replace it with something better later on. For now [x] fits just fine
+//Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMCheckBox.Paint();
 const BoxWidth=25;
