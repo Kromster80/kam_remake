@@ -64,7 +64,7 @@ type
     constructor Create(aLocale:string);
     destructor Destroy(); override;
     procedure ExportSounds();
-    procedure UpdateListener(Pos:TKMPointF);
+    procedure UpdateListener(X,Y:single);
     procedure UpdateSoundVolume(Value:single);
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay); overload;
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
@@ -225,12 +225,12 @@ end;
 
 
 {Update listener position in 3D space}
-procedure TSoundLib.UpdateListener(Pos:TKMPointF);
+procedure TSoundLib.UpdateListener(X,Y:single);
 begin
   if not IsOpenALInitialized then exit;
-  Listener.Pos[1]:=Pos.X;
-  Listener.Pos[2]:=Pos.Y;
-  Listener.Pos[3]:=12; //Place Listener above the surface
+  Listener.Pos[1] := X;
+  Listener.Pos[2] := Y;
+  Listener.Pos[3] := 12; //Place Listener above the surface
   AlListenerfv ( AL_POSITION, @Listener.Pos);
 end;
 

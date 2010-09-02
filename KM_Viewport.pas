@@ -1,10 +1,7 @@
 unit KM_Viewport;
 {$I KaM_Remake.inc}
 interface
-uses ExtCtrls, SysUtils, Math, Types, Graphics, Controls, Forms, KromUtils, KromOGLUtils,
-  {$IFDEF WDC} OpenGL, {$ENDIF}
-  {$IFDEF FPC} GL, {$ENDIF}
-  KM_Utils, KM_CommonTypes;
+uses Math, Types, Controls, Forms, KromUtils, KM_CommonTypes;
 
 type
 { Here should be viewport routines }
@@ -36,6 +33,7 @@ var
 
 implementation
 uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Sound, KM_Game;
+
 
 constructor TViewport.Create;
 begin
@@ -78,7 +76,7 @@ begin
   Result.Y := EnsureRange(YCoord, 1, fTerrain.MapY);
   if not SMOOTH_SCROLLING then Result.X := round(Result.X);
   if not SMOOTH_SCROLLING then Result.Y := round(Result.Y);
-  fSoundLib.UpdateListener(Result);
+  fSoundLib.UpdateListener(Result.X, Result.Y);
 end;
 
 
@@ -86,11 +84,11 @@ procedure TViewport.SetCenter(NewX,NewY:single);
 begin
   XCoord := EnsureRange(NewX, 0 + ViewWidth/2/CELL_SIZE_PX/Zoom,  fTerrain.MapX - ViewWidth /2/CELL_SIZE_PX/Zoom - 1);
   YCoord := EnsureRange(NewY,-1 + ViewHeight/2/CELL_SIZE_PX/Zoom, fTerrain.MapY - ViewHeight/2/CELL_SIZE_PX/Zoom); //Top row should be visible
-  fSoundLib.UpdateListener(KMPointF(XCoord,YCoord));
+  fSoundLib.UpdateListener(XCoord, YCoord);
 end;
 
 
-//Acquire boundaries of area visible to user
+//Acquire boundaries of area visible to user (including mountain tops from the lower tiles)
 //TestViewportClipInset is for debug, allows to see if all gets clipped well
 function TViewport.GetClip():TRect;
 begin
@@ -105,6 +103,7 @@ begin
   dec(Result.Bottom,7);
 end;
 
+
 //Same as above function but with some values changed to suit minimap
 function TViewport.GetMinimapClip():TRect;
 begin
@@ -112,12 +111,8 @@ begin
   Result.Right :=Math.min(round(XCoord+(ViewWidth/2+ViewRect.Left-ToolBarWidth)/CELL_SIZE_PX/Zoom)+1,fTerrain.MapX);
   Result.Top   :=Math.max(round(YCoord-ViewHeight/2/CELL_SIZE_PX/Zoom)+2,1);
   Result.Bottom:=Math.min(round(YCoord+ViewHeight/2/CELL_SIZE_PX/Zoom),fTerrain.MapY);
-  if not TEST_VIEW_CLIP_INSET then exit;
-  inc(Result.Left,4);
-  dec(Result.Right,4);
-  inc(Result.Top,4);
-  dec(Result.Bottom,7);
 end;
+
 
 //Here we must test each edge to see if we need to scroll in that direction
 //We scroll at SCROLLSPEED per 100 ms. That constant is defined in KM_Defaults
