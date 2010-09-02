@@ -1029,8 +1029,8 @@ begin
     Image_House_Logo.Center;
     Image_House_Worker:=MyControls.AddImage(Panel_House,98,41,32,32,141);
     Image_House_Worker.Center;
-    Label_HouseHealth:=MyControls.AddLabel(Panel_House,156,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
-    HealthBar_House:=MyControls.AddPercentBar(Panel_House,129,57,55,15,50,'',fnt_Mini);
+    Label_HouseHealth:=MyControls.AddLabel(Panel_House,156,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFE0E0E0);
+    HealthBar_House:=MyControls.AddPercentBar(Panel_House,129,57,55,15,50);
     Label_House_UnderConstruction:=MyControls.AddLabel(Panel_House,100,170,100,30,fTextLibrary.GetTextString(230),fnt_Grey,kaCenter);
 
     Label_House_Demolish := MyControls.AddLabel(Panel_House,100,130,100,30,fTextLibrary.GetTextString(232),fnt_Grey,kaCenter);
@@ -1072,6 +1072,7 @@ begin
         Button_Store[i].OnClick:=House_StoreAcceptFlag;
         Button_Store[i].Tag:=i;
         Button_Store[i].Hint:=TypeToString(TResourceType(i));
+        Button_Store[i].FontColor := $FFE0E0E0;
         Image_Store_Accept[i]:=MyControls.AddImage(Panel_HouseStore, 8+((i-1)mod 5)*36+9,18+((i-1)div 5)*42-11,32,36,49);
         Image_Store_Accept[i].Center;
         Image_Store_Accept[i].FOnClick:=House_StoreAcceptFlag;

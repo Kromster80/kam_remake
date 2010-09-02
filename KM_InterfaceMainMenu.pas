@@ -445,7 +445,7 @@ begin
       Button_SingleHeadTeams:=MyControls.AddButton(Panel_SingleList, 40,0, 40,40,31,4,bsMenu);
       Button_SingleHeadTitle:=MyControls.AddButton(Panel_SingleList, 80,0,300,40,'Title',fnt_Metal,bsMenu);
       Button_SingleHeadSize :=MyControls.AddButton(Panel_SingleList,380,0, 40,40,'Size',fnt_Metal,bsMenu);
-      Button_SingleHeadNix  :=MyControls.AddButton(Panel_SingleList,420,0, 25,40,'',fnt_Game,bsMenu);
+      Button_SingleHeadNix  :=MyControls.AddButton(Panel_SingleList,420,0, 25,40,'',fnt_Metal,bsMenu);
       Button_SingleHeadNix.Disable;
       for i:=1 to MENU_SP_MAPS_COUNT do
       begin
@@ -461,7 +461,7 @@ begin
         Button_SingleMode[i]   :=MyControls.AddImage(Panel_SingleList,  0   ,40+(i-1)*40,40,40,28);
         Button_SinglePlayers[i]:=MyControls.AddLabel(Panel_SingleList, 40+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
         Label_SingleTitle1[i]  :=MyControls.AddLabel(Panel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
-        Label_SingleTitle2[i]  :=MyControls.AddLabel(Panel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,'<<<LEER>>>',fnt_Game, kaLeft);
+        Label_SingleTitle2[i]  :=MyControls.AddLabel(Panel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,'<<<LEER>>>',fnt_Game, kaLeft, $FFD0D0D0);
         Button_SingleSize[i]   :=MyControls.AddLabel(Panel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
       end;
 

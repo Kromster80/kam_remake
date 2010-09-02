@@ -161,9 +161,9 @@ begin
     end;
 
     if fbs_Disabled in State then
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, false, $FF888888)
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, false, $FF808080)
     else
-      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, false, $FFFFFFFF);
+      fRenderUI.WriteText(SizeX div 2, (SizeY div 2)+4+CapOffsetY, SizeX, Caption, fnt_Game, kaCenter, false, $FFE0E0E0);
 
     if fbs_Highlight in State then begin
       glColor4f(1,1,1,0.25);
@@ -396,7 +396,7 @@ var
   InterLetter,LineCount,AdvX,PrevX,LastSpace:integer;
   LineWidth:array[1..256] of word; //Lets hope 256 lines will be enough
 begin
-  InterLetter := FontData[byte(Fnt)].CharOffset;// CharSpacing[Fnt]; //Spacing between letters, this varies between fonts
+  InterLetter := FontData[Fnt].CharOffset;// CharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X := 0;
   Result.Y := 0;
 
@@ -415,9 +415,9 @@ begin
       end;
 
       if Text[i]=#32 then
-        inc(AdvX, FontData[byte(Fnt)].WordSpacing)
+        inc(AdvX, FontData[Fnt].WordSpacing)
       else
-        inc(AdvX, FontData[byte(Fnt)].Letters[ord(Text[i])].Width + InterLetter);
+        inc(AdvX, FontData[Fnt].Letters[ord(Text[i])].Width + InterLetter);
 
       //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
       if ((AdvX>SizeX)and(LastSpace<>-1))or(Text[i]=#124) then
@@ -432,10 +432,10 @@ begin
   for i:=1 to length(Text) do begin
     if Text[i]<>#124 then begin
       if Text[i]=#32 then
-        Result.X := Result.X+FontData[byte(Fnt)].WordSpacing
+        Result.X := Result.X+FontData[Fnt].WordSpacing
       else
-        Result.X := Result.X+FontData[byte(Fnt)].Letters[ord(Text[i])].Width+InterLetter;
-      Result.Y := Math.max(Result.Y,FontData[byte(Fnt)].Letters[ord(Text[i])].Height);
+        Result.X := Result.X+FontData[Fnt].Letters[ord(Text[i])].Width+InterLetter;
+      Result.Y := Math.max(Result.Y,FontData[Fnt].Letters[ord(Text[i])].Height);
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
       inc(LineCount);
@@ -452,7 +452,7 @@ begin
   LineCount := 1;
 
   glPushMatrix;
-    glBindTexture(GL_TEXTURE_2D, FontData[byte(Fnt)].TexID);
+    glBindTexture(GL_TEXTURE_2D, FontData[Fnt].TexID);
     glColor4ubv(@Color);
     glkMoveAALines(false);
 
@@ -475,15 +475,15 @@ begin
         glBegin(GL_QUADS);
       end else
       if Text[i]=#32 then
-        inc(AdvX, FontData[byte(Fnt)].WordSpacing)
+        inc(AdvX, FontData[Fnt].WordSpacing)
       else begin
-        with FontData[byte(Fnt)].Letters[ord(Text[i])] do begin
-          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +FontData[byte(Fnt)].Letters[ord(Text[i])].YOffset);
-          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +FontData[byte(Fnt)].Letters[ord(Text[i])].YOffset);
-          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+FontData[byte(Fnt)].Letters[ord(Text[i])].YOffset);
-          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+FontData[byte(Fnt)].Letters[ord(Text[i])].YOffset);
+        with FontData[Fnt].Letters[ord(Text[i])] do begin
+          glTexCoord2f(u1,v1); glVertex2f(AdvX       ,0       +FontData[Fnt].Letters[ord(Text[i])].YOffset);
+          glTexCoord2f(u2,v1); glVertex2f(AdvX+Width ,0       +FontData[Fnt].Letters[ord(Text[i])].YOffset);
+          glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+FontData[Fnt].Letters[ord(Text[i])].YOffset);
+          glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+FontData[Fnt].Letters[ord(Text[i])].YOffset);
         end;
-        inc(AdvX, FontData[byte(Fnt)].Letters[ord(Text[i])].Width + InterLetter);
+        inc(AdvX, FontData[Fnt].Letters[ord(Text[i])].Width + InterLetter);
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);

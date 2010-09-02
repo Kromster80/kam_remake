@@ -175,6 +175,7 @@ TKMButtonFlat = class(TKMControl)
     TexOffsetX,TexOffsetY,CapOffsetY:shortint;
     Caption: string;
     Font: TKMFont;
+    FontColor:TColor4;
     TextAlign: KAlign;
     Down:boolean;
     HideHighlight:boolean;
@@ -217,9 +218,10 @@ TKMPercentBar = class(TKMControl)
     Position: integer;
     Caption: string;
     Font: TKMFont;
+    FontColor:TColor4;
     TextAlign: KAlign;
   protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont; aColor:TColor4=$FFFFFFFF);
     procedure Paint(); override;
 end;
 
@@ -360,7 +362,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
     function AddTextEdit        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMTextEdit;
     function AddCheckBox        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
-    function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
+    function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini):TKMPercentBar;
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
     function AddResourceOrderRow(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceOrderRow;
     function AddCostsRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
@@ -967,12 +969,13 @@ begin
 end;
 
 
-constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont);
+constructor TKMPercentBar.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aPos:integer; aCaption:string; aFont:TKMFont; aColor:TColor4=$FFFFFFFF);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
   Position:=EnsureRange(aPos,0,100);
   Font:=aFont;
+  FontColor:=aColor;
   TextAlign:=kaCenter;
   Caption:=aCaption;
 end;
@@ -984,7 +987,7 @@ begin
   fRenderUI.WritePercentBar(Left,Top,Width,Height,Position);
   if Caption <> '' then begin //Now draw text over bar, if required
     fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)-4, Width, Caption, Font, TextAlign, false, $FF000000);
-    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, Width, Caption, Font, TextAlign, false, $FFFFFFFF);
+    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)-5, Width, Caption, Font, TextAlign, false, FontColor);
   end;
 end;
 
@@ -1004,7 +1007,7 @@ var i:integer;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top, 4,350+byte(Resource));
 end;
@@ -1036,7 +1039,7 @@ begin
   OrderLab.Caption := inttostr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFFFFFFF);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width, TypeToString(Resource), fnt_Game, kaLeft, false, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, 4,350+byte(Resource));
 end;
@@ -1491,7 +1494,7 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Minimum):TKMPercentBar;
+function TKMControlsCollection.AddPercentBar(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini):TKMPercentBar;
 begin
   Result:=TKMPercentBar.Create(aParent, aLeft,aTop,aWidth,aHeight, aPos,aCaption,aFont);
   AddToCollection(Result);

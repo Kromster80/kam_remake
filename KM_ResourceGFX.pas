@@ -165,9 +165,9 @@ end;
 
 
 procedure TResource.LoadFonts(DoExport:boolean; aLocale:string);
-var i:integer;
+var i:TKMFont;
 begin
-  for i:=1 to length(FontFiles) do
+  for i:=low(TKMFont) to high(TKMFont) do
   if FileExists(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt') then
     LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt', TKMFont(i), DoExport)
   else
@@ -472,28 +472,28 @@ begin
   if not CheckFileExists(filename, true) then exit;
 
   assignfile(f,filename); reset(f,1);
-  blockread(f,FontData[byte(aFont)].Unk1,8);
-  blockread(f,FontData[byte(aFont)].Pal[0],256);
+  blockread(f,FontData[aFont].Unk1,8);
+  blockread(f,FontData[aFont].Pal[0],256);
 
   //Read font data
   for i:=0 to 255 do
-    if FontData[byte(aFont)].Pal[i]<>0 then
-      with FontData[byte(aFont)].Letters[i] do begin
+    if FontData[aFont].Pal[i]<>0 then
+      with FontData[aFont].Letters[i] do begin
         blockread(f,Width,4);
         blockread(f,Add1,8);
         MaxHeight:=Math.max(MaxHeight,Height);
-        fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Fon01.fnt seems to be damaged..
+        fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Font01.fnt seems to be damaged..
         blockread(f,Data[1],Width*Height);
       end;
   closefile(f);
 
-  //Special fixes:
-  if aFont=fnt_game then
+  //Special fixes: for monochrome fonts
+  if FontPal[aFont]=10 then
   for i:=0 to 255 do
-    if FontData[byte(aFont)].Pal[i]<>0 then
+    if FontData[aFont].Pal[i]<>0 then //see if letterspace is used
       for k:=1 to 4096 do
-        if FontData[byte(aFont)].Letters[i].Data[k]<>0 then
-          FontData[byte(aFont)].Letters[i].Data[k]:=218; //Light grey color in Pal2
+        if FontData[aFont].Letters[i].Data[k]<>0 then
+          FontData[aFont].Letters[i].Data[k]:=255; //Full white
 
 
   //Compile texture
@@ -502,10 +502,10 @@ begin
   FillChar(TD[0],TexWidth*TexWidth+1,$80); //Make some background
 
   for i:=0 to 255 do
-    if FontData[byte(aFont)].Pal[i]<>0 then
-      with FontData[byte(aFont)].Letters[i] do begin
+    if FontData[aFont].Pal[i]<>0 then
+      with FontData[aFont].Letters[i] do begin
 
-      fLog.AssertToLog(FontData[byte(aFont)].Pal[i]=1,'FontData palette <> 1');
+      fLog.AssertToLog(FontData[aFont].Pal[i]=1,'FontData palette <> 1');
 
         if AdvX+Width+2>TexWidth then begin
           AdvX:=0;
@@ -523,7 +523,7 @@ begin
         inc(AdvX,1+Width+1);
       end;
 
-    FontData[byte(aFont)].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[byte(aFont)]);
+    FontData[aFont].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[aFont]);
 
   //for i:=1 to 10 do
   if WriteFontToBMP then begin
@@ -533,7 +533,7 @@ begin
     MyBitmap.Height:=TexWidth;
 
     for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-      p:=FontPal[byte(aFont)];
+      p:=FontPal[aFont];
       //p:=i;
       t:=TD[ci*TexWidth+ck]+1;
       MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;

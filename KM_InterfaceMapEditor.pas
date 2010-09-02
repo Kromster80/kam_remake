@@ -635,7 +635,7 @@ begin
     Image_House_Worker:=MyControls.AddImage(Panel_House,38,41,32,32,141);
     Image_House_Worker.Center;
     Label_HouseHealth:=MyControls.AddLabel(Panel_House,130,41,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
-    KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,100,53,60,20,50,'',fnt_Mini);
+    KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,100,53,60,20,50);
     Button_HouseHealthDec := MyControls.AddButton(Panel_House,80,53,20,20,'-', fnt_Metal);
     Button_HouseHealthInc := MyControls.AddButton(Panel_House,160,53,20,20,'+', fnt_Metal);
     Button_HouseHealthDec.OnClickEither := House_HealthChange;

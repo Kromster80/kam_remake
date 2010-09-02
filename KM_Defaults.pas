@@ -237,31 +237,36 @@ const
   1, 1, 1, 1, 1, 1,12,12,12,11,
  11,11,11,11,12, 1, 1, 1, 1, 1,
  12,12,12,12,12,12,12, 0, 0, 0);
- //todo: I couldn't find matching palettes for the 17th and 18th entries 
+ //todo: I couldn't find matching palettes for the 17th and 18th entries
  RX6Pal:array[1..20]of byte = (
  8,8,8,8,8,8,9,9,9,1,
  1,1,1,1,1,1,10,10,0,0);
 
 {Fonts}
 const
-  FONT_COUNT = 20;
+  FONT_COUNT = 17;
 
 type //Indexing should start from 1.
-  TKMFont = (fnt_nil,
-             fnt_Adam,     fnt_Antiqua,  fnt_Briefing, fnt_Font01,      fnt_Game,
-             fnt_Grey,     fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2,    fnt_KMLobby3,
-             fnt_KMLobby4, fnt_MainA,    fnt_MainB,    fnt_MainMapGold, fnt_Metal,
-             fnt_Mini,     fnt_Minimum,  fnt_Outline,  fnt_System,      fnt_Won);
+  TKMFont = (fnt_Antiqua=1,fnt_Briefing, fnt_Game,     fnt_Grey,
+             fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2, fnt_KMLobby3,
+             fnt_KMLobby4, fnt_MainA,    fnt_MainB,    fnt_MainMapGold,
+             fnt_Metal,    fnt_Mini,     fnt_Outline,  fnt_System,
+             fnt_Won);
 
 const //Font01.fnt seems to be damaged..
-  FontFiles: array[1..FONT_COUNT]of string = (
-  'adam','antiqua','briefing','font01-damaged','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3',
-  'kmlobby4','maina','mainb','mainmapgold','metal','mini','mininum','outline','system','won');
+  FontFiles: array[TKMFont]of string = (
+  'antiqua','briefing','game','grey','kmlobby0','kmlobby1','kmlobby2','kmlobby3','kmlobby4','maina',
+  'mainb','mainmapgold','metal','mini','outline','system','won');
 
-  FontPal:array[1..FONT_COUNT]of byte =
-  //Those 10 are unknown Pal, no existing Pal matches them well
-  (10, 2, 1,10, 2, 2,12,12,12,12,
-   12, 8,10,11, 2, 8, 8, 2,10, 9);
+  //adam - unused
+  //font01 - damaged
+  //minimum - unused (looks just like mini with even smaller digits)
+
+  //Note: Fonts with palette 0 are using custom coloring,
+  //since no existing palette matches them well and they are monochrome
+  FontPal:array[TKMFont]of byte =
+  ( 2, 1,10, 2,12,12,12,12,12, 8,
+   10,11, 2,10, 2,10, 9);
 
 //Which MapEditor page is being shown. Add more as they are needed.
 type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
@@ -1027,7 +1032,7 @@ var
     PxWidth,PxHeight:word;
   end;
 
-  FontData:array[1..FONT_COUNT]of record
+  FontData:array[TKMFont]of record
     Title:TKMFont;
     TexID:GLUint;
     Unk1,WordSpacing,CharOffset,Unk3:smallint; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
