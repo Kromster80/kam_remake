@@ -862,7 +862,7 @@ begin
   //This should make units response a bit delayed.
 
 
-  //Walk out of barracks
+  //Walk out of barracks //WT is it doing here?
   if (fOrder=wo_WalkOut) and GetUnitAction.StepDone and CanInterruptAction then
   begin
     SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(GetPosition.X,GetPosition.Y));
@@ -871,13 +871,17 @@ begin
     fAutoLinkState := wl_LeavingBarracks; //So we know to link to nearby groups once we've finished this action
   end;
 
+
   //Dispatch new order when warrior finished previous action part
   if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and //If we are already walking then change the walk to the new location
     TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
   begin
     fAutoLinkState := wl_None;
+    if GetUnitTask <> nil then begin
+      GetUnitTask.Abandon;
+      FreeAndNil(fUnitTask);
+    end;
     //If we are not the commander then walk to near
-    if GetUnitTask <> nil then FreeAndNil(fUnitTask);
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), fCommander <> nil);
     fOrder := wo_None;
     if not (fState = ws_InitalLinkReposition) then
@@ -885,9 +889,13 @@ begin
     fState := ws_Walking;
   end;
 
+
   if (fOrder=wo_Walk) and GetUnitAction.StepDone and CanInterruptAction then
   begin
-    if GetUnitTask <> nil then FreeAndNil(fUnitTask);
+    if GetUnitTask <> nil then begin
+      GetUnitTask.Abandon;
+      FreeAndNil(fUnitTask);
+    end;
     //If we are not the commander then walk to near
     SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk, true, false, fCommander <> nil);
     fOrder := wo_None;
@@ -895,6 +903,7 @@ begin
       fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     fState := ws_Walking;
   end;
+
 
   //Make sure attack order is still valid
   if (fOrder=wo_Attack) and (GetOrderTarget = nil) then fOrder := wo_None;
