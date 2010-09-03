@@ -1874,7 +1874,7 @@ end;
 procedure TKMGamePlayInterface.RightClickCancel;
 begin
   //This function will be called if the user right clicks on the screen. We should close certain things. (like build menu)
-  if Panel_Build.Visible = true then
+  if Panel_Build.Visible then
     SwitchPage(Button_Main[5]);
   if JoiningGroups then
   begin

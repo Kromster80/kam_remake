@@ -45,11 +45,11 @@ type
   end;
 
 implementation
-uses KM_Unit1, KM_UnitActionWalkTo;
 
 
 constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean; aIsInteractionAvoid:boolean=false);
 begin
+  Inherited Create;
   LocA := aLocA;
   LocB := aLocB;
   Avoid := aAvoid;
@@ -69,6 +69,7 @@ end;
 
 constructor TPathFinding.Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; fPass:TPassability; aLocB:TKMPoint);
 begin
+  Inherited Create;
   LocA := aLocA;
   LocB := aLocB; //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
   Avoid := KMPoint(0,0); //erase just in case

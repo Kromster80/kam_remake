@@ -36,7 +36,7 @@ type
     procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
 
-    function GenTexture(mx, my:word; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint; //This should belong to TRender?
+    function GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint; //This should belong to TRender?
   public
     constructor Create;
     function LoadMenuResources(aLocale:string):boolean;
@@ -529,21 +529,21 @@ begin
   //for i:=1 to 10 do
   if WriteFontToBMP then begin
     MyBitMap:=TBitMap.Create;
-    MyBitmap.PixelFormat:=pf24bit;
-    MyBitmap.Width:=TexWidth;
-    MyBitmap.Height:=TexWidth;
+    MyBitMap.PixelFormat:=pf24bit;
+    MyBitMap.Width:=TexWidth;
+    MyBitMap.Height:=TexWidth;
 
     for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
       p:=FontPal[aFont];
       //p:=i;
       t:=TD[ci*TexWidth+ck]+1;
-      MyBitmap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
+      MyBitMap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
     end;
 
     CreateDir(ExeDir+'Export\');
     CreateDir(ExeDir+'Export\Fonts\');
-    MyBitmap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
-    MyBitmap.Free;
+    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
+    MyBitMap.Free;
   end;
 
   setlength(TD,0);
@@ -581,7 +581,7 @@ if not DirectoryExists(ExeDir + 'Sprites\') then exit;
   for i:=0 to FileList.Count-1 do begin
     RX := strtoint(FileList.Strings[i][1]);
     ID := strtoint(Copy(FileList.Strings[i], 3, 4));
-    if (RX=aID) and InRange(ID,1,RxData[RX].Qty) then begin //Replace only certain sprites
+    if (RX=aID) and InRange(ID,1,RXData[RX].Qty) then begin //Replace only certain sprites
       if FileList.Strings[i][7] = '.' then
         LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[i], GFXData[RX,ID].TexID, 0)
       else
@@ -641,7 +641,7 @@ end;
 //=============================================
 //Make texture
 //=============================================
-function TResource.GenTexture(mx, my:word; Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint;
+function TResource.GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint;
 var
   MyBitMap:TBitMap;
   i,k:word;
@@ -708,14 +708,14 @@ begin
   if WriteAllTexturesToBMP then begin
     CreateDir(ExeDir+'Export\GenTextures\');
     MyBitMap:=TBitMap.Create;
-    MyBitmap.PixelFormat:=pf32bit;
-    MyBitmap.Width:=DestX;
-    MyBitmap.Height:=DestY;
+    MyBitMap.PixelFormat:=pf32bit;
+    MyBitMap.Width:=DestX;
+    MyBitMap.Height:=DestY;
 
     for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-      MyBitmap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
+      MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
 
-    MyBitmap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
+    MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
     MyBitMap.Free;
   end;
 
@@ -915,7 +915,7 @@ begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\'+RXData[RXid].Title+'.rx\');
   MyBitMap:=TBitMap.Create;
-  MyBitmap.PixelFormat:=pf24bit;
+  MyBitMap.PixelFormat:=pf24bit;
 
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
 
@@ -923,8 +923,8 @@ begin
 
     sx:=RXData[RXid].Size[id,1];
     sy:=RXData[RXid].Size[id,2];
-    MyBitmap.Width:=sx;
-    MyBitmap.Height:=sy;
+    MyBitMap.Width:=sx;
+    MyBitMap.Height:=sy;
 
     UsePal:=DEF_PAL;
     if RXid=5 then UsePal:=RX5Pal[id];
@@ -933,9 +933,9 @@ begin
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[RXid].Data[id,y*sx+x]+1;
-      MyBitmap.Canvas.Pixels[x,y]:=Pal[UsePal,t,1]+Pal[UsePal,t,2]*256+Pal[UsePal,t,3]*65536;
+      MyBitMap.Canvas.Pixels[x,y]:=Pal[UsePal,t,1]+Pal[UsePal,t,2]*256+Pal[UsePal,t,3]*65536;
     end;
-    if sy>0 then MyBitmap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
+    if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
 
     setlength(RXData[RXid].Data[id],0);
   end;
@@ -953,7 +953,7 @@ begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\UnitAnim\');
   MyBitMap:=TBitMap.Create;
-  MyBitmap.PixelFormat:=pf24bit;
+  MyBitMap.PixelFormat:=pf24bit;
 
   fResource.LoadUnitDAT(ExeDir+'data\defines\unit.dat');
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
@@ -970,14 +970,14 @@ begin
 
           sx:=RXData[3].Size[ci,1];
           sy:=RXData[3].Size[ci,2];
-          MyBitmap.Width:=sx;
-          MyBitmap.Height:=sy;
+          MyBitMap.Width:=sx;
+          MyBitMap.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
             t:=RXData[3].Data[ci,y*sx+x]+1;
-            MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+            MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
           end;
-          if sy>0 then MyBitmap.SaveToFile(
+          if sy>0 then MyBitMap.SaveToFile(
           ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
         end;
       end;
@@ -1003,18 +1003,18 @@ begin
   if Used[ci]=0 then begin
     sx:=RXData[3].Size[ci,1];
     sy:=RXData[3].Size[ci,2];
-    MyBitmap.Width:=sx;
-    MyBitmap.Height:=sy;
+    MyBitMap.Width:=sx;
+    MyBitMap.Height:=sy;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[3].Data[ci,y*sx+x]+1;
-      MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+      MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
     end;
-    if sy>0 then MyBitmap.SaveToFile(
+    if sy>0 then MyBitMap.SaveToFile(
     ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
   end;
 
-  MyBitmap.Free;
+  MyBitMap.Free;
 end;
 
 
@@ -1028,7 +1028,7 @@ begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\HouseAnim\');
   MyBitMap:=TBitMap.Create;
-  MyBitmap.PixelFormat:=pf24bit;
+  MyBitMap.PixelFormat:=pf24bit;
 
   fResource.LoadHouseDAT(ExeDir+'data\defines\houses.dat');
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
@@ -1044,14 +1044,14 @@ begin
 
         sx:=RXData[2].Size[ci,1];
         sy:=RXData[2].Size[ci,2];
-        MyBitmap.Width:=sx;
-        MyBitmap.Height:=sy;
+        MyBitMap.Width:=sx;
+        MyBitMap.Height:=sy;
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do begin
           t:=RXData[2].Data[ci,y*sx+x]+1;
-          MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+          MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
         end;
-        if sy>0 then MyBitmap.SaveToFile(
+        if sy>0 then MyBitMap.SaveToFile(
         ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
       end;
     end;
@@ -1071,20 +1071,20 @@ begin
 
           sx:=RXData[2].Size[ci,1];
           sy:=RXData[2].Size[ci,2];
-          MyBitmap.Width:=sx;
-          MyBitmap.Height:=sy;
+          MyBitMap.Width:=sx;
+          MyBitMap.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
             t:=RXData[2].Data[ci,y*sx+x]+1;
-            MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+            MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
           end;
-          if sy>0 then MyBitmap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
+          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
       end;
     end;
   end;
 
-  MyBitmap.Free;
+  MyBitMap.Free;
 end;
 
 
@@ -1097,7 +1097,7 @@ begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\TreeAnim\');
   MyBitMap:=TBitMap.Create;
-  MyBitmap.PixelFormat:=pf24bit;
+  MyBitMap.PixelFormat:=pf24bit;
 
   fResource.LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat');
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[1].Title+'.rx',1);
@@ -1110,21 +1110,21 @@ begin
 
       sx:=RXData[1].Size[ci,1];
       sy:=RXData[1].Size[ci,2];
-      MyBitmap.Width:=sx;
-      MyBitmap.Height:=sy;
+      MyBitMap.Width:=sx;
+      MyBitMap.Height:=sy;
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do begin
         t:=RXData[1].Data[ci,y*sx+x]+1;
-        MyBitmap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+        MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
       end;
-      if sy>0 then MyBitmap.SaveToFile(
+      if sy>0 then MyBitMap.SaveToFile(
       //@Lewin: insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
       ExeDir+'Export\TreeAnim\'+{inttostr(word(MapElem[ID].DiagonalBlocked))+'_'+}int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
     end;
   end;
 
-  MyBitmap.Free;
+  MyBitMap.Free;
 end;
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
@@ -1222,11 +1222,11 @@ end;
 procedure TResource.MakeCursors(RXid:integer);
 var
   i,sx,sy,x,y,t:integer;
-  bm,bm2:TBitmap;
+  bm,bm2:TBitMap;
   IconInfo:TIconInfo;
 begin
-  bm:=TBitmap.Create;  bm.PixelFormat:=pf32bit;
-  bm2:=TBitmap.Create; bm2.PixelFormat:=pf32bit;
+  bm:=TBitMap.Create;  bm.PixelFormat:=pf32bit;
+  bm2:=TBitMap.Create; bm2.PixelFormat:=pf32bit;
 
   for i:=1 to length(Cursors) do begin
 

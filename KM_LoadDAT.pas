@@ -73,7 +73,7 @@ type
     LastTroop: TKMUnitWarrior;
     function GetUnitScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
-    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
+    procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
     procedure DebugScriptError(ErrorMsg:string);
     procedure UnloadMission;
     function ReadMissionFile(aFileName:string):string;
@@ -255,7 +255,7 @@ begin
   );
 end;
 
-procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
+procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
 begin
   case CommandType of
   ct_SetMap:         MissionDetails.MapPath     := RemoveQuotes(TextParam);
@@ -401,7 +401,7 @@ begin
                          fPlayers.Player[CurrentPlayerIndex].PlayerType:=pt_Computer;
                      end;
   ct_CenterScreen:   begin
-                       fViewPort.SetCenter(ParamList[0],ParamList[1]);
+                       fViewport.SetCenter(ParamList[0],ParamList[1]);
                      end;
   ct_ClearUp:        begin
                      if ParamList[0] = 255 then

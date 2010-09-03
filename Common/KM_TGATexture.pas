@@ -26,7 +26,7 @@ uses
   {$IFDEF FPC}, paszlib {$ENDIF}
   ;
 
-function LoadTexture(Filename: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
+function LoadTexture(FileName: String; var Texture : GLuint; NewVersionCheckFlip:byte): Boolean;
 function CreateTexture(Width, Height, Format : Word; pData : Pointer) : Integer;
 function GenerateTextureCommon():GLuint;
 

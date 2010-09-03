@@ -2,7 +2,7 @@ unit KM_Sound;
 {$I KaM_Remake.inc}
 interface
 uses Forms, Windows,
-  {$IFDEF WDC} MMSystem,  MPlayer, {$ENDIF}
+  {$IFDEF WDC} MMSystem,  {$ENDIF}
   Classes, SysUtils, KromUtils, OpenAL, KM_Defaults, KM_CommonTypes, KM_Utils;
 
 const MaxWaves = 200;
@@ -17,23 +17,6 @@ const WarriorSFXFolder: array[15..24] of string = (
 const WarriorSFX: array[TSoundToPlay] of string = (
   'SELECT','EAT','LEFT','RIGHT','HALVE','JOIN','HALT','SEND', 'ATTACK',
   'FORMAT','DEATH','BATTLE','STORM');
-
-type
-  TWAVHeaderEx = record
-    RIFFHeader: array [1..4] of Char;
-    FileSize: Integer;
-    WAVEHeader: array [1..4] of Char;
-    FormatHeader: array [1..4] of Char;
-    FormatHeaderSize: Integer;
-    FormatCode: Word;
-    ChannelNumber: Word;
-    SampleRate: Integer;
-    BytesPerSecond: Integer;
-    BytesPerSample: Word;
-    BitsPerSample: Word;
-    DATAHeader: array [1..4] of Char; //Extension
-    DataSize: Integer; //Extension
-  end;
 
 type
   TSoundLib = class(TObject)
@@ -53,7 +36,7 @@ type
       Vel: array [1..3] of TALfloat; //Velocity, used in doppler effect calculation
       Ori: array [1..6] of TALfloat; //Orientation LookingAt and UpVector
     end;
-    IsOpenALInitialized:boolean;
+    IsSoundInitialized:boolean;
     //Buffer used to store the wave data, Source is sound position in space
     ALSource,ALBuffer: array [1..64] of TALuint;
     SoundGain:single;
@@ -90,11 +73,11 @@ var
 begin
   Inherited Create;
 
-  IsOpenALInitialized := InitOpenAL;
-  if not IsOpenALInitialized then begin
+  IsSoundInitialized := InitOpenAL;
+  if not IsSoundInitialized then begin
     fLog.AddToLog('OpenAL warning. OpenAL could not be initialized.');
     Application.MessageBox('OpenAL could not be initialized. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
-    IsOpenALInitialized := false;
+    IsSoundInitialized := false;
     exit;
   end;
 
@@ -103,7 +86,7 @@ begin
   if Device = nil then begin
     fLog.AddToLog('OpenAL warning. Device could not be opened.');
     Application.MessageBox('Device could not be opened. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
-    IsOpenALInitialized := false;
+    IsSoundInitialized := false;
     exit;
   end;
 
@@ -112,7 +95,7 @@ begin
   if Context = nil then begin
     fLog.AddToLog('OpenAL warning. Context could not be created.');
     Application.MessageBox('Context could not be created. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
-    IsOpenALInitialized := false;
+    IsSoundInitialized := false;
     exit;
   end;
 
@@ -120,7 +103,7 @@ begin
   if alcMakeContextCurrent(Context) > 1 then begin //valid returns are AL_NO_ERROR=0 and AL_TRUE=1
     fLog.AddToLog('OpenAL warning. Context could not be made current.');
     Application.MessageBox('Context could not be made current. Please refer to Readme.txt for solution','OpenAL warning', MB_OK + MB_ICONEXCLAMATION);
-    IsOpenALInitialized := false;
+    IsSoundInitialized := false;
     exit;
   end;
 
@@ -128,7 +111,7 @@ begin
   if ErrCode <> ALC_NO_ERROR then begin
     fLog.AddToLog('OpenAL warning. There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.');
     Application.MessageBox(@(String('There is OpenAL error '+inttostr(ErrCode)+' raised. Sound will be disabled.'))[1],'OpenAL error', MB_OK + MB_ICONEXCLAMATION);
-    IsOpenALInitialized := false;
+    IsSoundInitialized := false;
     exit;
   end;
 
@@ -136,8 +119,6 @@ begin
   alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
   fLog.AppendLog('Pre-LoadSFX init',true);
   
-  LoadSoundsDAT();
-  fLog.AppendLog('Load Sounds.dat',true);
   AlGenBuffers(MaxSourceCount, @ALBuffer); //64 looks like the limit, depends on hardware
   AlGenSources(MaxSourceCount, @ALSource);
   //Set default Listener orientation
@@ -146,6 +127,9 @@ begin
   AlListenerfv ( AL_ORIENTATION, @Listener.Ori);
 
   fLog.AppendLog('OpenAL init done');
+
+  LoadSoundsDAT();
+  fLog.AppendLog('Load Sounds.dat',true);
 
   //Scan and count the number of warrior sounds
   for i:=15 to 24 do
@@ -161,7 +145,7 @@ end;
 
 destructor TSoundLib.Destroy();
 begin
-  if IsOpenALInitialized then
+  if IsSoundInitialized then
   begin
     AlDeleteBuffers(MaxSourceCount, @ALBuffer);
     AlDeleteSources(MaxSourceCount, @ALSource);
@@ -180,7 +164,7 @@ var
   i,Tmp:integer;
   c: array[1..20] of char;
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsSoundInitialized then exit;
   if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then exit;
   AssignFile(f, ExeDir+'data\sfx\sounds.dat'); Reset(f,1);
 
@@ -210,7 +194,7 @@ end;
 procedure TSoundLib.ExportSounds();
 var f:file; i:integer;
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsSoundInitialized then exit;
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\Sounds.dat\');
   for i:=1 to MaxWaves do if length(Waves[i].Data)>0 then begin
@@ -227,7 +211,7 @@ end;
 {Update listener position in 3D space}
 procedure TSoundLib.UpdateListener(X,Y:single);
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsSoundInitialized then exit;
   Listener.Pos[1] := X;
   Listener.Pos[2] := Y;
   Listener.Pos[3] := 12; //Place Listener above the surface
@@ -235,10 +219,10 @@ begin
 end;
 
 
-{Update sound gain (global volume for all sounds/music)}
+{ Update sound gain (global volume for all sounds) }
 procedure TSoundLib.UpdateSoundVolume(Value:single);
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsSoundInitialized then exit;
   SoundGain := Value;
 //  alListenerf ( AL_GAIN, SoundGain );
 end;
@@ -247,7 +231,7 @@ end;
 {Wrapper with fewer options for non-attenuated sounds}
 procedure TSoundLib.Play(SoundID:TSoundFX; const Volume:single=1.0);
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsSoundInitialized then exit;
   Play(SoundID, KMPoint(0,0), false, Volume);
 end;
 
@@ -259,7 +243,7 @@ procedure TSoundLib.Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolea
 var Dif:array[1..3]of single; FreeBuf,ID:integer; i:integer; ALState:TALint;
 const MAX_DISTANCE = 35.0;
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsSoundInitialized then exit;
 
   //fLog.AddToLog('SoundPlay ID'+inttostr(byte(SoundID))+' at '+TypeToString(Loc));
 
@@ -321,7 +305,7 @@ end;
 
 function TSoundLib.GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsSoundInitialized then exit;
   if (aLocale = '') and (fGame <> nil) and (fGame.fGlobalSettings <> nil) then
     aLocale := fGame.fGlobalSettings.GetLocale;
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
@@ -336,7 +320,7 @@ end;
 procedure TSoundLib.PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay);
 var wave:string;
 begin
-  if not IsOpenALInitialized then exit;
+  if not IsSoundInitialized then exit;
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then exit;
   //File extension must be .wav as well as the file contents itself
   wave := GetWarriorSoundFile(aUnitType, aSound, PseudoRandom(WarriorSoundCount[byte(aUnitType),aSound]));

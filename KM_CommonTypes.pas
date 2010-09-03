@@ -11,6 +11,7 @@ type
 
 
 type
+  { Extended with custom Read/Write commands which accept various types without asking for their length}
   TKMemoryStream = class(TMemoryStream)
   public
     procedure Write(const Value:string); reintroduce; overload;
@@ -32,6 +33,24 @@ type
     function Read(out Value:word): Longint; reintroduce; overload;
     function Read(out Value:shortint): Longint; reintroduce; overload;
   end;
+
+
+type
+  TWAVHeaderEx = record
+    RIFFHeader: array [1..4] of Char;
+    FileSize: Integer;
+    WAVEHeader: array [1..4] of Char;
+    FormatHeader: array [1..4] of Char;
+    FormatHeaderSize: Integer;
+    FormatCode: Word;
+    ChannelNumber: Word;
+    SampleRate: Integer;
+    BytesPerSecond: Integer;
+    BytesPerSample: Word;
+    BitsPerSample: Word;
+    DATAHeader: array [1..4] of Char; //Extension
+    DataSize: Integer; //Extension
+  end;  
 
 
 type
@@ -77,7 +96,7 @@ type TKMPointList = class
     Count:integer;
     List:array of TKMPoint; //1..Count
     procedure Clearup; virtual;
-    procedure AddEntry(aLoc:TKMPoint); dynamic;
+    procedure AddEntry(aLoc:TKMPoint);
     function RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
     procedure InjectEntry(ID:integer; aLoc:TKMPoint);
     function GetRandom():TKMPoint;
@@ -103,8 +122,8 @@ type TKMPointDirList = class //Used for finding fishing places, fighting positio
     Count:integer;
     List:array of TKMPointDir; //1..Count
     procedure Clearup; virtual;
-    procedure AddEntry(aLoc:TKMPointDir); dynamic;
-    function RemoveEntry(aLoc:TKMPointDir):cardinal; virtual;
+    procedure AddEntry(aLoc:TKMPointDir);
+    function RemoveEntry(aLoc:TKMPointDir):cardinal;
     procedure InjectEntry(ID:integer; aLoc:TKMPointDir);
     function GetRandom():TKMPointDir;
     procedure Save(SaveStream:TKMemoryStream);
@@ -147,6 +166,7 @@ uses KM_Utils;
 {Reset log file}
 constructor TKMLog.Create(path:string);
 begin
+  Inherited Create;
   logfile:=path;
   assignfile(fl,logfile);
   rewrite(fl);

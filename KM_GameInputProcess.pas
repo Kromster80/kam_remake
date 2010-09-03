@@ -107,7 +107,7 @@ end;
 
 
 implementation
-uses KM_Terrain, KM_Unit1, KM_Sound, KM_Game, KM_PlayersCollection;
+uses KM_Sound, KM_Game, KM_PlayersCollection;
 
 
 constructor TGameInputProcess.Create(aState:TGIPState);

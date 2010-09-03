@@ -1101,7 +1101,7 @@ begin
 
    if (TileIsWalkable(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
+      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
       CheckHeightPass(Loc,canWalk)then
      AddPassability(Loc, [canWalk]);
 
@@ -1153,7 +1153,7 @@ begin
      AddPassability(Loc, [canBuildGold]);
 
    if (TileIsRoadable(Loc))and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked = false)and
+      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
@@ -1161,7 +1161,7 @@ begin
      AddPassability(Loc, [canMakeRoads]);
 
    if (TileIsSoil(Loc))and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked = false)and
+      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
@@ -1183,7 +1183,7 @@ begin
      AddPassability(Loc, [canFish]);
 
    if (TileIsSand(Loc))and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
+      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
       (Land[Loc.Y,Loc.X].Markup<>mu_HouseFenceNoWalk)and
       (Land[Loc.Y,Loc.X].Markup<>mu_House)and
       (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction)and
@@ -1195,7 +1195,7 @@ begin
      AddPassability(Loc, [canCrab]);
 
    if (TileIsSoil(Loc))and
-      (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
+      (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
       (not TileIsCornField(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (not TileIsWineField(Loc))and
@@ -1205,7 +1205,7 @@ begin
   end;
   if (TileIsWalkable(Loc))and
     (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
-    (MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked=false)and
+    (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
     CheckHeightPass(Loc,canWalk)and
     not(Land[Loc.Y,Loc.X].Markup = mu_House) then
     AddPassability(Loc, [canWorker]);

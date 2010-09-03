@@ -94,7 +94,7 @@ begin
       //This string is unused, meaning we must store it as blank, but also for some extreamly
       //annoying reason they also change the order of bytes around them (don't ask...)
       aArray[i3] := ''; //Make it blank
-      if LastWasFF = false then
+      if not LastWasFF then
         LastFirstFFIndex := i3;
       LastWasFF := true;
     end

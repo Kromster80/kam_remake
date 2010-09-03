@@ -105,7 +105,7 @@ FillDefaults;
 AfterWorkIdle := HouseDAT[byte(aHome)].WorkerRest*10;
 
 //Now we need to fill only specific properties
-if (aUnitType=ut_LamberJack)and(aHome=ht_SawMill) then begin
+if (aUnitType=ut_LamberJack)and(aHome=ht_Sawmill) then begin
   ResourcePlan(rt_Trunk,1,rt_None,0,rt_Wood);
   SubActAdd(ha_Work1,1);
   SubActAdd(ha_Work2,25);

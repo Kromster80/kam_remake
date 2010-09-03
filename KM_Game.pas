@@ -39,7 +39,7 @@ type
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
     fMainMenuInterface: TKMMainMenuInterface;
-    fGamePlayInterface: TKMGamePlayInterface;
+    fGameplayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
     destructor Destroy; override;
@@ -95,6 +95,7 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
 constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
 begin
+  Inherited Create;
   ID_Tracker := 0;
   SelectingTroopDirection := false;
   SelectingDirPosition := Point(0,0);

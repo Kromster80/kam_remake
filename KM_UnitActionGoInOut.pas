@@ -148,7 +148,7 @@ begin
     end;
 
     //Attempt to find a tile bellow the door we can walk to. Otherwise we can push idle units away.
-    if fDirection=gd_GoOutSide then begin
+    if fDirection=gd_GoOutside then begin
 
       if ValidTileToGo(fStreet.X, fStreet.Y, KMUnit) then begin
         fStreet.X := fStreet.X;

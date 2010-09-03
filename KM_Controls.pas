@@ -1,7 +1,7 @@
 unit KM_Controls;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Controls, Graphics, MMSystem, Windows, KromUtils, Math, KromOGLUtils, KM_Defaults, SysUtils, KM_CommonTypes, KM_Utils;
+uses Classes, Controls, Graphics, MMSystem, Windows, KromUtils, Math, KromOGLUtils, KM_Defaults, SysUtils, KM_CommonTypes;
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
@@ -386,7 +386,7 @@ end;
 
 
 implementation
-uses KM_RenderUI;
+uses KM_RenderUI, KM_Utils;
 
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin

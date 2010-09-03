@@ -1,7 +1,7 @@
 unit KM_DeliverQueue;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_Utils, KM_UnitTaskDelivery;
+uses Classes, SysUtils, KromUtils, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KM_UnitTaskDelivery;
 
   type TJobStatus = (js_Empty, js_Open, js_Taken);
   //Empty - empty spot for a new job
@@ -38,7 +38,7 @@ type
       JobStatus:TJobStatus; //Open slot, resource Taken, job Done
     end;
   public
-    constructor Create();
+    constructor Create;
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemoveOffer(aHouse:TKMHouse);
     procedure RemoveDemand(aHouse:TKMHouse);
@@ -85,7 +85,7 @@ type
       //No need to have JobStatus since many workers can repair same house
     end;
   public
-    constructor Create();
+    constructor Create;
     procedure CloseRoad(aID:integer);
     procedure CloseHouse(aID:integer);
     procedure CloseHousePlan(aID:integer);
@@ -114,15 +114,16 @@ type
   end;
 
 implementation
-uses KM_Game, KM_Unit1, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild;
+uses KM_Game, KM_Utils, KM_Units_Warrior, KM_Terrain, KM_PlayersCollection, KM_UnitTaskBuild;
 
 
 { TKMDeliverQueue }
-constructor TKMDeliverQueue.Create();
+constructor TKMDeliverQueue.Create;
 var i:integer;
 begin
-for i:=1 to length(fQueue) do
-  CloseDelivery(i);
+  Inherited;
+  for i:=1 to length(fQueue) do
+    CloseDelivery(i);
 end;
 
 
@@ -211,9 +212,9 @@ begin
       Importance:=aImp;
       BeingPerformed:=false;
       if GOLD_TO_SCHOOLS_IMPORTANT then
-        if (Resource=rt_gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
+        if (Resource=rt_Gold)and(Loc_House<>nil)and(Loc_House.GetHouseType=ht_School) then Importance:=di_High;
       if FOOD_TO_INN_IMPORTANT then
-        if (Resource in [rt_bread,rt_Sausages,rt_Wine,rt_Fish])and
+        if (Resource in [rt_Bread,rt_Sausages,rt_Wine,rt_Fish])and
         (Loc_House<>nil)and(Loc_House.GetHouseType=ht_Inn) then Importance:=di_High;
     end;
   end;
@@ -586,12 +587,13 @@ end;
 {==================================================================================================}
 {TKMBuildingQueue}
 {==================================================================================================}
-constructor TKMBuildingQueue.Create();
+constructor TKMBuildingQueue.Create;
 var i:integer;
 begin
-for i:=1 to length(fFieldsQueue) do CloseRoad(i);
-for i:=1 to length(fHousesQueue) do CloseHouse(i);
-for i:=1 to length(fHousePlansQueue) do CloseHousePlan(i);
+  Inherited;
+  for i:=1 to length(fFieldsQueue) do CloseRoad(i);
+  for i:=1 to length(fHousesQueue) do CloseHouse(i);
+  for i:=1 to length(fHousePlansQueue) do CloseHousePlan(i);
 end;
 
 

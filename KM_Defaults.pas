@@ -592,7 +592,7 @@ const
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_Mill,ht_Swine,ht_Stables,ht_None,ht_None,ht_None,ht_None,ht_None), //Farm
-  (ht_SawMill,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Woodcutters
+  (ht_Sawmill,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Woodcutters
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_School,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Store
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
@@ -608,7 +608,7 @@ const
   (ht_Bakery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Mill
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_ArmorWorkShop,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //Tannery
+  (ht_ArmorWorkshop,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //Tannery
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
   (ht_Quary,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Inn
   (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
@@ -863,7 +863,7 @@ ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
 const UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
 type
-  TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_8=8, play_animals=9);
+  TPlayerID = (play_None=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_8=8, play_animals=9);
 
 
   TSoundFX = (

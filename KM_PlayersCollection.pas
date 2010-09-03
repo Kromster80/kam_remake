@@ -55,6 +55,7 @@ uses KM_Terrain;
 {TKMAllPlayers}
 constructor TKMAllPlayers.Create(aPlayerCount:integer);
 begin
+  Inherited Create;
   SetPlayerCount(aPlayerCount);
   PlayerAnimals := TKMPlayerAnimals.Create;
 end;

@@ -84,7 +84,7 @@ public
   procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
   procedure RenderHouseStone(Index:integer; Step:single; pX,pY:integer);
   procedure RenderHouseWork(Index,AnimType,AnimStep,Owner,pX,pY:integer);
-  procedure RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
+  procedure RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
   procedure RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
   procedure RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
   procedure RenderUnitCarry(CarryID,DirID,StepID,Owner:integer; pX,pY:single);
@@ -706,10 +706,11 @@ begin
 end;
 
 
-procedure TRender.RenderHouseSupply(Index:integer; R1,R2:array of byte; pX,pY:integer);
-var ShiftX,ShiftY:single; ID,i,k:integer;
+procedure TRender.RenderHouseSupply(Index:integer; const R1,R2:array of byte; pX,pY:integer);
+var ID,i,k:integer;
 
   procedure AddHouseSupplySprite(aID:integer);
+  var ShiftX,ShiftY:single;
   begin
     if aID>0 then
     begin

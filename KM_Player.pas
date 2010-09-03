@@ -103,6 +103,7 @@ uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection;
 constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 var i: integer;
 begin
+  Inherited Create;
   PlayerID      := aPlayerID;
   PlayerType    := pt_Computer;
   fMissionSettings := TMissionSettings.Create;
@@ -506,6 +507,7 @@ end;
 
 constructor TKMPlayerAnimals.Create;
 begin
+  Inherited;
   fUnits := TKMUnitsCollection.Create;
 end;
 

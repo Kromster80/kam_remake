@@ -37,6 +37,7 @@ uses KM_Defaults, KM_Terrain, KM_Unit1, KM_Sound, KM_Game;
 
 constructor TViewport.Create;
 begin
+  Inherited;
   FillChar(PrevScrollAdv, SizeOf(PrevScrollAdv), #0);
   PrevScrollPos := 0;
   Zoom := 1;
@@ -166,14 +167,12 @@ begin
   if Mouse.CursorPos.Y >= Screen.Height-1-SCROLLFLEX then begin inc(Temp,8); YCoord := YCoord + ScrollAdv*(1-(Screen.Height-1-Mouse.CursorPos.Y)/SCROLLFLEX); end;
 
   //Now do actual the scrolling, if needed
-  if Temp<>0 then begin
-    Screen.Cursor :=DirectionsBitfield[Temp]; //Sample cursor type from bitfield value
-    Scrolling := true; //Stop OnMouseOver from overriding my cursor changes
-  end else begin
-    Scrolling := false; //Allow cursor changes to be overriden and reset if still on a scrolling cursor
+  Scrolling := Temp<>0;
+  if Scrolling then
+    Screen.Cursor :=DirectionsBitfield[Temp] //Sample cursor type from bitfield value
+  else
     if (Screen.Cursor in [c_Scroll6..c_Scroll5]) then //Which is 2..8, since directions are not incremental
       Screen.Cursor := c_Default;
-  end;
 
   SetCenter(XCoord,YCoord); //EnsureRanges
 end;
