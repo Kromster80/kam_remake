@@ -9,19 +9,20 @@ type
   TMusicLib = class(TObject)
   private
     {$IFDEF WDC} fMediaPlayer: TMediaPlayer; {$ENDIF}
-    MusicCount,MusicIndex:integer;
+    MusicCount:integer;
+    MusicIndex:integer;
     MusicTracks:array[1..256]of string;
     //MIDICount,MIDIIndex:integer;
     //MIDITracks:array[1..256]of string;
     IsMusicInitialized:boolean;
     MusicGain:single;
-    function CheckMusicError():boolean;
-    function PlayMusicFile(FileName:string):boolean;
+    function  CheckMusicError():boolean;
+    function  PlayMusicFile(FileName:string):boolean;
+    procedure ScanMusicTracks(Path:string);
   public
     constructor Create(aMediaPlayer:TMediaPlayer);
     destructor Destroy(); override;
     procedure UpdateMusicVolume(Value:single);
-    procedure ScanMusicTracks(Path:string);
     procedure PlayMenuTrack(JustInit:boolean);
     procedure PlayNextTrack();
     procedure PlayPreviousTrack();
@@ -106,12 +107,12 @@ const
   MCI_DGV_SETAUDIO_VALUE = $01000000;
 var
   P:record
-  dwCallback: DWORD;
-  dwItem: DWORD;
-  dwValue: DWORD;
-  dwOver: DWORD;
-  lpstrAlgorithm: PChar;
-  lpstrQuality: PChar;
+    dwCallback: DWORD;
+    dwItem: DWORD;
+    dwValue: DWORD;
+    dwOver: DWORD;
+    lpstrAlgorithm: PChar;
+    lpstrQuality: PChar;
   end;
 {$ENDIF}
 begin
@@ -157,7 +158,7 @@ end;
 procedure TMusicLib.PlayMenuTrack(JustInit:boolean);
 begin
   if not IsMusicInitialized then exit;
-  if MusicIndex = 1 then exit; //Don't change unless needed
+  if MusicIndex = 1 then exit; //It's already playing
   MusicIndex := 1; //First track (Spirit) is always menu music
   PlayMusicFile(MusicTracks[MusicIndex]);
   if JustInit then StopMusic; //This way music gets initialized irregardless of On/Off

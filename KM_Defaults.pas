@@ -243,9 +243,6 @@ const
  1,1,1,1,1,1,10,10,0,0);
 
 {Fonts}
-const
-  FONT_COUNT = 17;
-
 type //Indexing should start from 1.
   TKMFont = (fnt_Antiqua=1,fnt_Briefing, fnt_Game,     fnt_Grey,
              fnt_KMLobby0, fnt_KMLobby1, fnt_KMLobby2, fnt_KMLobby3,

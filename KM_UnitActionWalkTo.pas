@@ -4,9 +4,9 @@ interface
 uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Units, SysUtils, Math;
 
 type
-  TObstacleCheck = (oc_NoObstacle,
-                    oc_ReRouteMade,
-                    oc_NoRoute);
+  TDestinationCheck = (dc_NoChanges, dc_RouteChanged, dc_NoRoute);
+  TTargetDiedCheck = (tc_NoChanges, tc_TargetUpdated, tc_Died);
+  TObstacleCheck = (oc_NoObstacle, oc_ReRouteMade, oc_NoRoute);
 
 //INTERACTION CONSTANTS: (may need to be tweaked for optimal performance)
 //TIMEOUT is the time after which each solution things will be checked.
@@ -36,6 +36,8 @@ type
       fInteractionCount, fLastSideStepNodePos: integer;
       fInteractionStatus: TInteractionStatus;
       function AssembleTheRoute():boolean;
+      function CheckForNewDestination():TDestinationCheck;
+      function CheckTargetHasDied():TTargetDiedCheck;
       function CheckForObstacle():TObstacleCheck;
       function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
       function DoUnitInteraction():boolean;
@@ -229,8 +231,9 @@ end;
 
 function TUnitActionWalkTo.CanAbandon: boolean;
 begin
-  Result := (fInteractionStatus <> kis_Pushed) and (not DoExchange) and
-  KMSamePointF(KMPointF(fWalker.GetPosition),fWalker.PositionF);
+  Result := (fInteractionStatus <> kis_Pushed)
+            and (not DoExchange) //Other unit could have set this
+            and KMSamePointF(KMPointF(fWalker.GetPosition),fWalker.PositionF);
 end;
 
 
@@ -307,6 +310,43 @@ begin
 end;
 
 
+function TUnitActionWalkTo.CheckForNewDestination():TDestinationCheck;
+begin
+  if KMSamePoint(fNewWalkTo,KMPoint(0,0)) then
+    Result := dc_NoChanges
+  else begin
+    Result := dc_RouteChanged;
+    fWalkTo := fNewWalkTo;
+    fWalkFrom := NodeList.List[NodePos];
+    fNewWalkTo := KMPoint(0,0);
+    //Delete everything past NodePos and add new route from there
+    NodeList.Count := NodePos;
+    if not AssembleTheRoute() then begin
+      Result := dc_NoRoute;
+    end;
+  end;
+end;
+
+
+function TUnitActionWalkTo.CheckTargetHasDied():TTargetDiedCheck;
+begin
+  if (fTargetUnit=nil) or (fTargetUnit.IsDead) or (fTargetUnit.GetUnitTask is TTaskDie) then
+    Result := tc_NoChanges
+  else begin
+    if (fWalker is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).GetWarriorState <> ws_Engage) then
+    begin
+      //If a warrior is following a unit it means we are attacking it. (for now anyway)
+      //So if this unit dies we must now follow it's commander
+      fTargetUnit := TKMUnitWarrior(fTargetUnit).GetCommander.GetUnitPointer;
+      //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
+      TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).OrderLocDir.Dir);
+      Result := tc_TargetUpdated;
+    end else
+      Result := tc_Died;
+  end;
+end;
+
+
 function TUnitActionWalkTo.CheckForObstacle():TObstacleCheck;
 begin
   Result := oc_NoObstacle;
@@ -327,7 +367,7 @@ begin
     else
     begin
       if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon; //Else stop and abandon the task (if we have one)
-      Result:=oc_NoRoute;
+      Result := oc_NoRoute;
     end;
 end;
 
@@ -787,31 +827,19 @@ begin
         TKMUnitWarrior(fWalker).PlaceOrder(wo_Attack,fTargetUnit,true); //Give members new position
     end;
 
-    //See if we have a request to change our route from ChangeWalkTo
-    if CanAbandon and not KMSamePoint(fNewWalkTo,KMPoint(0,0)) then
-    begin
-      fWalkTo := fNewWalkTo;
-      fWalkFrom := NodeList.List[NodePos];
-      fNewWalkTo := KMPoint(0,0);
-      //Don't clear NodeList, just delete everything past NodePos and continue to add new route from there
-      NodeList.Count := NodePos; //This leaves the item at NodePos but nothing past that (because TKMPoints are records we can simply reduce the count, no freeing is needed)
-      //If NodeList.Count > 0 (which it is in this case) then this function will append to it rather than overriding
-      if not AssembleTheRoute() then begin
-        if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon;
-        fWalker.SetActionStay(20, ua_Walk);
-        exit;
-      end;
+    //Check if we need to walk to a new destination
+    if CanAbandon and (CheckForNewDestination=dc_NoRoute) then begin
+      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon;
+      fWalker.SetActionStay(20, ua_Walk);
+      exit;
     end;
-
 
     //Check for units nearby to fight
     if CanAbandon and (fWalker is TKMUnitWarrior) then
       if TKMUnitWarrior(fWalker).CheckForEnemy then
-      begin
         //If we've picked a fight it means this action no longer exists,
         //so we must exit out (don't set DoEnd as that will now apply to fight action)
         exit;
-      end;
 
     //Walk complete
     if ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
@@ -825,22 +853,11 @@ begin
     end;
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
-    if CanAbandon and (fTargetUnit <> nil) and ((fTargetUnit.IsDead) or (fTargetUnit.GetUnitTask is TTaskDie)) then
-    begin
-      if (fWalker is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).GetWarriorState <> ws_Engage) then
-      begin
-        //If a warrior is following a unit it means we are attacking it. (for now anyway)
-        //So if this unit dies we must now follow it's commander
-        fTargetUnit := TKMUnitWarrior(fTargetUnit).GetCommander.GetUnitPointer;
-        //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
-        TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).OrderLocDir.Dir);
-      end
-      else
-      begin
-        DoEnd:=true;
-        exit;
+    if CanAbandon then
+      case CheckTargetHasDied of
+        tc_NoChanges, tc_TargetUpdated:;
+        tc_Died: begin DoEnd:=true; exit; end;
       end;
-    end;
 
     //This is sometimes caused by unit interaction changing the route so simply ignore it
     if KMSamePoint(NodeList.List[NodePos],NodeList.List[NodePos+1]) then

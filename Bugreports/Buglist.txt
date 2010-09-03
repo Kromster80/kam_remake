@@ -23,8 +23,10 @@ KaM Remake Economy Demo 100813 (r970)
  -	Menu buttons in replay don't work, no way to exit other than F11
  -	Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
  -	Dots and lines displaying on tile edges
+ -	Serfs should take wares back or to suitable house if destination is destroyed
  
-	Colored rectangle below cursor	Citizen will try to walk home when it has no road tile below entrance
+	Colored rectangle below cursor	
+	Citizen will try to walk home when it has no road tile below entrance
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	Sometimes the taskbar stays on top in fullscreen mode
@@ -36,7 +38,6 @@ KaM Remake Economy Demo 100813 (r970)
  ?	I got a access violation when I was deleting my fisherman.
  ?	when starting the game first time after system boot-up Explorer stops responding for a minute (Win7x64) ?	Houses/units from the mission file should not place on forbidden terrain (height, proximity for houses)
  ?	in background there is a rustle, I can hear it very good, if I set music down to "0". deactivating music is the same. (I use a creative x-fi sound card) But it's only in main menu, not in in-game! In in-game you hear a whir like from a bee.
--	Serfs shouldn't drop wares if the destination is destroyed, they should be taken back to the storehouse (or any other suitable destination)
 
 
 
