@@ -824,39 +824,33 @@ end;
 
 
 function TKMUnitWarrior.UpdateState():boolean;
+  procedure UpdateFoe; //If noone is fighting - Halt
+  var i:integer;
+  begin
+    if (fCommander <> nil) or (Foe = nil) or (GetUnitAction is TUnitActionFight) then exit;
+    if fMembers <> nil then for i:=0 to fMembers.Count-1 do
+      if TKMUnit(fMembers.Items[i]).GetUnitAction is TUnitActionFight then exit;
+    Foe := nil; //Nil foe because no one is fighting
+    Halt; //Reposition because the fight has just finished
+  end;
+
 var
   i: integer;
-  PositioningDone, FoundFight: boolean;
+  PositioningDone:boolean;
   LinkUnit: TKMUnitWarrior;
 begin
   inc(fFlagAnim);
+  if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
+  if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
-  //See if a member is still in combat and if not set Foe to nil
-  if (fCommander = nil) and (Foe <> nil) then
-  begin
-    FoundFight := (GetUnitAction is TUnitActionFight);
-    if (not FoundFight) and (fMembers <> nil) then
-      for i:=0 to fMembers.Count-1 do
-        if TKMUnit(fMembers.Items[i]).GetUnitAction is TUnitActionFight then
-        begin
-          FoundFight := true;
-          break;
-        end;
-    if not FoundFight then
-    begin
-      Foe := nil; //Nil foe because no one is fighting
-      Halt; //Reposition because the fight has just finished
-    end;
-  end;
+  UpdateFoe;
+
   if (fState = ws_Engage) and ((GetCommander.Foe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
     fState := ws_None; //As soon as combat is over set the state back
 
-  //Help out our fellow group memebers in combat if we are not fighting and someone else is
+  //Help out our fellow group members in combat if we are not fighting and someone else is
   if (not (GetUnitAction is TUnitActionFight)) and (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
   begin
-    //Join fight (engage)
-    //todo: Higher weighting for tiles with units when we are in Engage state. (this could be a parameter in PathFinding used by Walk Action if we are warrior in Engage state)
-    //note: This should not interfere with Pathfinding in any way, TTerrain has no idea of ws_Engage and should not
     fOrder := wo_Attack;
     fState := ws_Engage; //Special state so we don't issue this order continuously
     SetOrderTarget(GetCommander.Foe);
@@ -867,10 +861,6 @@ begin
   //As well let the unit finish it's curent Attack action before taking a new order
   //This should make units response a bit delayed.
 
-  //Death thought is checked in parent UpdateState
-  if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat;
-
-  if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
   //Walk out of barracks
   if (fOrder=wo_WalkOut) and GetUnitAction.StepDone and CanInterruptAction then
