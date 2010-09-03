@@ -1,23 +1,5 @@
-KaM Remake Economy Demo 100813 (r970)
+EXE-only r1005:
 <===================================================================================>
-
- +	Viewport scrolling should be smooth
- +	If you destroy a house, odd things happen to the occupant(s). (not appearing, jittering)
- + 	Rock throwing uses wrong alliance setting
- + 	Map editor won't let you place citizens off roads
- + 	Map editor main menu labels 'Width' x 'Height'
- + 	Masked edit allows for unlimited size
- + 	Scroll wheel now functions correctly on filelist and updates the scrollbar position
- + 	Zooming with the scroll wheel now only works when over the map (not a control)
- + 	Briefings: on fullscreen (1366*768) the message jumps over the right edge of the screen
- + 	"Unit walk not fRouteBuilt" error. (Issue 28)
- + 	Clicking on anything during gameplay will shift viewport a little
- + 	StoneMines mission in r977 crashes on 39min for some delivery being performed twice 
- + 	Multiple units added by ct_SetUnitByStock will stack on one tile after autoplacement fails (~80+ units)
- + 	Occupied tile has no unit on it (Issue 27) (same as above)
- + 	Finished delivery will abandon twice and crash if unit dies while waiting to exit from destination house
- +	Word "Condition" in house menu is unreadable, bad colour, it should be white
-
  - 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  - 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
  -	Menu buttons in replay don't work, no way to exit other than F11
@@ -41,9 +23,29 @@ KaM Remake Economy Demo 100813 (r970)
 
 
 
+Fixed in KaM Remake Economy Demo 100813 (r970):
+<===================================================================================>
+ +	Viewport scrolling should be smooth
+ +	If you destroy a house, odd things happen to the occupant(s). (not appearing, jittering)
+ + 	Rock throwing uses wrong alliance setting
+ + 	Map editor won't let you place citizens off roads
+ + 	Map editor main menu labels 'Width' x 'Height'
+ + 	Masked edit allows for unlimited size
+ + 	Scroll wheel now functions correctly on filelist and updates the scrollbar position
+ + 	Zooming with the scroll wheel now only works when over the map (not a control)
+ + 	Briefings: on fullscreen (1366*768) the message jumps over the right edge of the screen
+ + 	"Unit walk not fRouteBuilt" error. (Issue 28)
+ + 	Clicking on anything during gameplay will shift viewport a little
+ + 	StoneMines mission in r977 crashes on 39min for some delivery being performed twice 
+ + 	Multiple units added by ct_SetUnitByStock will stack on one tile after autoplacement fails (~80+ units)
+ + 	Occupied tile has no unit on it (Issue 27) (same as above)
+ + 	Finished delivery will abandon twice and crash if unit dies while waiting to exit from destination house
+ +	Word "Condition" in house menu is unreadable, bad colour, it should be white
+
+
+
 Fixed in r734:
 <===================================================================================>
-
 +	The woodcutters planting animation is not visible, he simply disappears and reappears when he is done planting.
 +	The woodcutter doesn't cut down trees, until all the available spots have been planted. In the original KaM a woodcutter would always cut down fullgrown trees in the first place, and only plant trees when there is nothing to cut down. (TRB 2010-02-19 Wood and Swine save01.sav) (trees appeared to be fully grown a few minutes before they can be cut)
 +	Troop/house buttons not working after clicking on terrain with them selected
@@ -62,9 +64,10 @@ Fixed in r734:
 ?	(Can't reproduce, probably caused by worker-construction site issues that have been fixed now) Walk failed in TPR7 "Unit Laborer unable to walk a route from (97;29) to (98;30) during task Idle since the route is unbuilt" (TRB 2010-02-19 Walk Failed.rar)
 
 
+
+
 Fixed in r698:
 <===================================================================================>
-
 +	Confusing fish run-out messages
 +	"Unknown unit type in Savegame" due to dead but not yet destroyed units not saving unit type [Lewin]
 +	Weapons producing houses did not show produced weapons correctly, only one weapon of each type was displayed
@@ -78,9 +81,9 @@ Fixed in r698:
 +	Returning to road did not use A* efficiently and so would fail over long distances [Lewin]
 
 
+
 KaM Remake r565
 <===================================================================================>
-
 Gameplay bugs:
 +	Flags are always visible
 ?	Citizen will try to walk home when it has no road tile below entrance
@@ -94,9 +97,9 @@ Suggested improvements:
 -	make button in load menu "restore/restart last saved game"
 
 
+
 KaM Remake Economy Demo 090901 (r428)
 <===================================================================================>
-
 Gameplay bugs:
 +	Alt-tabbing with School/Barracks selected causes a crash
 +	Error on exit if there's no OpenAL found
@@ -106,9 +109,9 @@ Gameplay bugs:
 +	Units get stuck on unwalkable tiles
 
 
+
 KaM Remake Economy Demo 090728 (r363)
 <===================================================================================>
-
 Gameplay bugs:
 +	Tree (cut by woodcutter?) will fall down repeatedly forever
 +	Mainmenu is not shown on F11 toggle
