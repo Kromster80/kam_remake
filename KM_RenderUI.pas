@@ -393,10 +393,10 @@ end;
 function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint;
 var
   i:integer;
-  InterLetter,LineCount,AdvX,PrevX,LastSpace:integer;
+  CharSpacing,LineCount,AdvX,PrevX,LastSpace:integer;
   LineWidth:array[1..256] of word; //Lets hope 256 lines will be enough
 begin
-  InterLetter := FontData[Fnt].CharOffset;// CharSpacing[Fnt]; //Spacing between letters, this varies between fonts
+  CharSpacing := FontData[Fnt].CharSpacing;// CharSpacing[Fnt]; //Spacing between letters, this varies between fonts
   Result.X := 0;
   Result.Y := 0;
 
@@ -417,12 +417,12 @@ begin
       if Text[i]=#32 then
         inc(AdvX, FontData[Fnt].WordSpacing)
       else
-        inc(AdvX, FontData[Fnt].Letters[ord(Text[i])].Width + InterLetter);
+        inc(AdvX, FontData[Fnt].Letters[ord(Text[i])].Width + CharSpacing);
 
       //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
       if ((AdvX>SizeX)and(LastSpace<>-1))or(Text[i]=#124) then
       begin
-        Text[LastSpace] := #124; //Place EOL instead of last whitespace
+        Text[LastSpace] := #124; //Replace last whitespace with EOL
         dec(AdvX, PrevX); //Should subtract replaced whitespace
       end;
     end;
@@ -434,13 +434,13 @@ begin
       if Text[i]=#32 then
         Result.X := Result.X+FontData[Fnt].WordSpacing
       else
-        Result.X := Result.X+FontData[Fnt].Letters[ord(Text[i])].Width+InterLetter;
+        Result.X := Result.X+FontData[Fnt].Letters[ord(Text[i])].Width+CharSpacing;
       Result.Y := Math.max(Result.Y,FontData[Fnt].Letters[ord(Text[i])].Height);
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
       inc(LineCount);
       Assert(LineCount <= Length(LineWidth), 'Line count exceeded');
-      LineWidth[LineCount]:=Math.max(0,Result.X-InterLetter); //Remove last interletter space and negate double EOLs
+      LineWidth[LineCount]:=Math.max(0,Result.X-CharSpacing); //Remove last interletter space and negate double EOLs
       Result.X := 0;
     end;
   end;
@@ -483,7 +483,7 @@ begin
           glTexCoord2f(u2,v2); glVertex2f(AdvX+Width ,0+Height+FontData[Fnt].Letters[ord(Text[i])].YOffset);
           glTexCoord2f(u1,v2); glVertex2f(AdvX       ,0+Height+FontData[Fnt].Letters[ord(Text[i])].YOffset);
         end;
-        inc(AdvX, FontData[Fnt].Letters[ord(Text[i])].Width + InterLetter);
+        inc(AdvX, FontData[Fnt].Letters[ord(Text[i])].Width + CharSpacing);
       end;
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);

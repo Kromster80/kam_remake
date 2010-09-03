@@ -1032,7 +1032,7 @@ var
   FontData:array[TKMFont]of record
     Title:TKMFont;
     TexID:GLUint;
-    Unk1,WordSpacing,CharOffset,Unk3:smallint; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
+    Unk1,WordSpacing,CharSpacing,Unk3:smallint; //BaseCharHeight?, Unknown, CharSpacingX, LineOffset?
     Pal:array[0..255]of byte;
     Letters:array[0..255]of record
       Width,Height:word;
@@ -1072,7 +1072,8 @@ var
     ResProductionX:shortint;
     MaxHealth,Sight:smallint;
     OwnerType:shortint;
-    Foot:array[1..36]of shortint; //Sound indices vs sprite ID
+    Foot1:array[1..12]of shortint; //Sound indices
+    Foot2:array[1..12]of smallint; //vs sprite ID
   end;
 
   //Resource types serf carries around

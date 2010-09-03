@@ -308,28 +308,28 @@ end;
 function TResource.LoadHouseDAT(filename:string):boolean;
 var ii,kk,h:integer; ft:textfile; f:file;
 begin
-Result:=false;
-if not CheckFileExists(filename) then exit;
-assignfile(f,filename); reset(f,1);
-blockread(f,HouseDATs,30*70);
-for h:=1 to 29 do begin
-blockread(f,HouseDAT[h],88+19*70+270);
-end;
-//Append info for new houses
-{for ii:=30 to HOUSE_COUNT do begin
-fillChar(HouseDAT[ii],SizeOf(HouseDAT[ii]),#0);
-HouseDAT[ii].StonePic:=129-1;
-HouseDAT[ii].WoodPic:=130-1;
-HouseDAT[ii].WoodPal:=132-1;
-HouseDAT[ii].StonePal:=131-1;
-HouseDAT[ii].WoodPicSteps:=7;
-HouseDAT[ii].StonePicSteps:=8;
-HouseDAT[ii].WoodCost:=1;
-HouseDAT[ii].StoneCost:=1;
-HouseDAT[ii].OwnerType:=0;
-HouseDAT[ii].MaxHealth:=100;
-end;}
-closefile(f);
+  Result:=false;
+  if not CheckFileExists(filename) then exit;
+  assignfile(f,filename); reset(f,1);
+  blockread(f,HouseDATs,30*70);
+  for h:=1 to 29 do begin
+  blockread(f,HouseDAT[h],88+19*70+270);
+  end;
+  //Append info for new houses
+  {for ii:=30 to HOUSE_COUNT do begin
+  fillChar(HouseDAT[ii],SizeOf(HouseDAT[ii]),#0);
+  HouseDAT[ii].StonePic:=129-1;
+  HouseDAT[ii].WoodPic:=130-1;
+  HouseDAT[ii].WoodPal:=132-1;
+  HouseDAT[ii].StonePal:=131-1;
+  HouseDAT[ii].WoodPicSteps:=7;
+  HouseDAT[ii].StonePicSteps:=8;
+  HouseDAT[ii].WoodCost:=1;
+  HouseDAT[ii].StoneCost:=1;
+  HouseDAT[ii].OwnerType:=0;
+  HouseDAT[ii].MaxHealth:=100;
+  end;}
+  closefile(f);
 
   if WriteResourceInfoToTXT then begin
     assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
@@ -358,7 +358,7 @@ closefile(f);
         for h:=1 to 10 do
           write(ft,inttostr(HouseDAT[ii].BuildArea[kk,h])+';');
         writeln(ft,';');
-      end; }
+      end;}
       //write(ft,inttostr(HouseDAT[ii].WoodCost)+';');
       //write(ft,inttostr(HouseDAT[ii].StoneCost)+';');
       //for kk:=1 to 12 do write(ft,'dx '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveX)+' dy '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveY)+';');
@@ -374,15 +374,16 @@ closefile(f);
       //write(ft,inttostr(HouseDAT[ii].MaxHealth)+'hp;');
       //write(ft,'Sight '+inttostr(HouseDAT[ii].Sight)+';');
       //write(ft,TypeToString(TUnitType(HouseDAT[ii].OwnerType+1))+';');
-      for kk:=1 to 36 do write(ft,inttostr(HouseDAT[ii].Foot[kk])+';');
+      for kk:=1 to 12 do write(ft,inttostr(HouseDAT[ii].Foot1[kk])+';');
+      for kk:=1 to 12 do write(ft,inttostr(HouseDAT[ii].Foot2[kk])+';');
       writeln(ft);
     end;
     closefile(ft);
-end;
+  end;
 
-//Form1.Close;
+  //Form1.Close;
 
-Result:=true;
+  Result:=true;
 end;
 
 //=============================================
