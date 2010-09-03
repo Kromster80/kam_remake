@@ -1367,7 +1367,7 @@ begin
   then
     ItemIndex := TopIndex + (Y-Top) div ItemHeight;
 
-  if ItemIndex > fFiles.Count then ItemIndex := -1;
+  if ItemIndex > fFiles.Count-1 then ItemIndex := -1;
 
   if Assigned(OnChange) and (ssLeft in AShift) then
     OnChange(Self);
@@ -1386,6 +1386,7 @@ begin
   for i:=0 to min(fFiles.Count-1, (fHeight div ItemHeight)-1) do
     fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, TruncateExt(fFiles.Strings[TopIndex+i]) , fnt_Metal, kaLeft, false, $FFFFFFFF);
 
+  if (ItemIndex <> -1) then
   fRenderUI.WriteText(Left+8, Top+Height+4, Width, '\'+fPaths.Strings[ItemIndex] + fFiles.Strings[ItemIndex], fnt_Grey, kaLeft, false, $FFFFFFFF);
 end;
 

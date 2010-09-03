@@ -1,5 +1,7 @@
-EXE-only r1005:
+EXE-only r1006:
 <===================================================================================>
+ +	Fixed clicking on empty space in file list in Main Menu
+ +	Fixed error when displaying file lists without any files in them
  - 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  - 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
  -	Menu buttons in replay don't work, no way to exit other than F11
