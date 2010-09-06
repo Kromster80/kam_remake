@@ -255,7 +255,7 @@ begin
     TObject(Items[I]).Free;
     Items[I]:=nil;
   end;
-  inherited;
+  Inherited;
 end;
 
 

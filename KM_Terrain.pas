@@ -1445,12 +1445,16 @@ function TTerrain.Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability
 var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot, true); //True means we are using Interaction Avoid mode (go around busy units)
-  Result := fPath.RouteSuccessfullyBuilt;
-  if not Result then exit;
-  if NodeList <> nil then NodeList.Clearup;
-  fPath.ReturnRoute(NodeList);
-  fPath.Free;
+  try
+    Result := fPath.RouteSuccessfullyBuilt;
+    if not Result then exit;
+    if NodeList <> nil then NodeList.Clearup;
+    fPath.ReturnRoute(NodeList);
+  finally
+    FreeAndNil(fPath);
+  end;
 end;
+
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
@@ -1460,7 +1464,7 @@ var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot);
   fPath.ReturnRoute(NodeList);
-  fPath.Free;
+  FreeAndNil(fPath);
 end;
 
 
@@ -1469,7 +1473,7 @@ var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, TargetRoadNetworkID, canWalk, LocB);
   fPath.ReturnRoute(NodeList);
-  fPath.Free;
+  FreeAndNil(fPath);
 end;
 
 
@@ -1478,7 +1482,7 @@ var fPath:TPathFinding;
 begin
   fPath := TPathFinding.Create(LocA, TargetWalkNetworkID, canWorker, LocB);
   fPath.ReturnRoute(NodeList);
-  fPath.Free;
+  FreeAndNil(fPath);
 end;
 
 
@@ -1783,7 +1787,7 @@ begin
     end;
 
   if ToFlatten<>nil then FlattenTerrain(ToFlatten);
-  if ToFlatten<>nil then ToFlatten.Free;
+  if ToFlatten<>nil then FreeAndNil(ToFlatten);
   //Recalculate Passability for tiles around the house so that they can't be built on too
   L:=EnsureTileInMapCoords(Loc.X-3,Loc.Y-4);
   H:=EnsureTileInMapCoords(Loc.X+2,Loc.Y+1);
@@ -1798,8 +1802,8 @@ var i,k:integer;
 begin
   if aHouseType<>ht_None then //If this is a house make a change for whole place
     for i:=1 to 4 do for k:=1 to 4 do
-      if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
-        if HousePlanYX[byte(aHouseType),i,k]<>0 then
+      if HousePlanYX[byte(aHouseType),i,k]<>0 then
+        if TileInMapCoords(Loc.X+k-3,Loc.Y+i-4) then
           Land[Loc.Y+i-4,Loc.X+k-3].TileOwner:=aOwner;
 
   if aHouseType=ht_None then

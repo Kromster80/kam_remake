@@ -345,7 +345,7 @@ begin
       aNewCommander.AddMember(TKMUnitWarrior(fMembers.Items[i]));
       TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
     end;
-    fMembers := nil; //We are not a commander now so nil our memebers list (they have been moved to new commander)
+    FreeAndNil(fMembers); //We are not a commander now so nil our memebers list (they have been moved to new commander)
   end;
   //
   if not AddedSelf then
@@ -396,6 +396,8 @@ begin
       inc(DeletedCount);
     end; //Else stay with this commander
   end;
+
+  if GetMemberCount = 0 then FreeAndNil(fMembers); //If we had a group of only 2 units
 
   //Make sure units per row is still valid for both groups
   fUnitsPerRow := min(fUnitsPerRow, GetMemberCount+1);

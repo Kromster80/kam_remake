@@ -1418,7 +1418,7 @@ end;
 
 function TKMControlsCollection.GetControl(Index: Integer): TKMControl;
 begin
-  Result := TKMControl(Items[Index])
+  Result := TKMControl(Items[Index]);
 end;
 
 

@@ -149,6 +149,11 @@ Set the default options for FastMM here.
    care.}
   {.$define LoadDebugDLLDynamically}
 
+    {.$define DoNotInstallIfDLLMissing}
+    {If the FastMM_FullDebugMode.dll file is not available then FastMM will not
+     install itself. No effect unless FullDebugMode and LoadDebugDLLDynamically
+     are also defined.}
+
   {FastMM usually allocates large blocks from the topmost available address and
    medium and small blocks from the lowest available address (This reduces
    fragmentation somewhat). With this option set all blocks are always
@@ -160,6 +165,15 @@ Set the default options for FastMM here.
   {Disables the logging of memory dumps together with the other detail for
    memory errors.}
   {$define DisableLoggingOfMemoryDumps}
+
+  {If FastMM encounters a problem with a memory block inside the FullDebugMode
+   FreeMem handler then an "invalid pointer operation" exception will usually
+   be raised. If the FreeMem occurs while another exception is being handled
+   (perhaps in the try.. finally code) then the original exception will be
+   lost. With this option set FastMM will ignore errors inside FreeMem when an
+   exception is being handled, thus allowing the original exception to
+   propagate.}
+  {$define SuppressFreeMemErrorsInsideException}
 
 {---------------------------Memory Leak Reporting-----------------------------}
 
@@ -264,6 +278,13 @@ Set the default options for FastMM here.
  Otherwise the default Delphi memory manager will be used (which is equivalent
  to the non-FullDebugMode FastMM since Delphi 2006.)}
 {.$define FullDebugModeInIDE}
+
+{Combines the FullDebugMode, LoadDebugDLLDynamically and
+ DoNotInstallIfDLLMissing options. Consequently FastMM will only be installed
+ (In FullDebugMode) when the FastMM_FullDebugMode.dll file is available. This
+ is useful when the same executable will be distributed for both debugging as
+ well as deployment.}
+{.$define FullDebugModeWhenDLLAvailable}
 
 {Group the options you use for release and debug versions below}
 {$ifdef Release}

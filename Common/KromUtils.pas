@@ -249,25 +249,28 @@ begin
   Result := ss;
 end;
 
+
 function float2fix(Number:single; Digits:integer):string;
 begin
   Result := FloatToStrF(Number, ffGeneral, Digits+1, Digits);
 end;
 
+
 function int2time(Time:integer):string;
 begin
-Result := int2fix(Time div 3600 mod 24,2)+':'+
-          int2fix(Time div 60 mod 60,2)+':'+
-          int2fix(Time mod 60,2);
+  Result := int2fix(Time div 3600 mod 24,2)+':'+
+            int2fix(Time div 60 mod 60,2)+':'+
+            int2fix(Time mod 60,2);
 end;
 
 
 procedure Color2RGB(Col:integer; out R,G,B:byte);
 begin
-R:=Col AND $FF;
-G:=Col AND $FF00 SHR 8;
-B:=Col AND $FF0000 SHR 16;
+  R := Col AND $FF;
+  G := Col AND $FF00 SHR 8;
+  B := Col AND $FF0000 SHR 16;
 end;
+
 
 function Ceil(const X: Extended): Integer;
 begin

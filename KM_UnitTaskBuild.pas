@@ -1,7 +1,7 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units;
+uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units;
 
 {Perform building}
 type
@@ -442,7 +442,7 @@ end;
 destructor TTaskBuildHouseArea.Destroy;
 begin
   if fHouse <> nil then fHouse.ReleaseHousePointer;
-  Inherited Destroy;
+  Inherited;
 end;
 
 
@@ -566,7 +566,8 @@ end;
 destructor TTaskBuildHouse.Destroy;
 begin
   if fHouse <> nil then fHouse.ReleaseHousePointer;
-  Inherited Destroy;
+  FreeAndNil(Cells);
+  Inherited;
 end;
 
 procedure TTaskBuildHouse.Abandon();
@@ -718,7 +719,8 @@ end;
 destructor TTaskBuildHouseRepair.Destroy;
 begin
   if fHouse <> nil then fHouse.ReleaseHousePointer;
-  Inherited Destroy;
+  FreeAndNil(Cells);
+  Inherited;
 end;
 
 function TTaskBuildHouseRepair.WalkShouldAbandon:boolean;

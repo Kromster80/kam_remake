@@ -260,7 +260,6 @@ type
 
   TKMUnitsCollection = class(TKMList)
   private
-    //Groups:array of integer;
     function GetUnit(Index: Integer): TKMUnit;
     procedure SetUnit(Index: Integer; Item: TKMUnit);
     property Units[Index: Integer]: TKMUnit read GetUnit write SetUnit; //Use instead of Items[.]
@@ -281,6 +280,7 @@ type
     procedure UpdateState;
     procedure Paint();
   end;
+
 
 implementation
 uses KM_Unit1, KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
@@ -1738,7 +1738,7 @@ end;
 destructor TUnitTask.Destroy;
 begin
   if fUnit <> nil then fUnit.ReleaseUnitPointer;
-  Inherited Destroy;
+  Inherited;
 end;
 
 
@@ -1751,8 +1751,7 @@ begin
   fPhase        := MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2       := MAXBYTE-1;
 
-{  Self.Free;
-  Self:=nil; }
+  {FreeAndNil(Self);}
 end;
 
 
@@ -1803,7 +1802,7 @@ end;
 destructor TTaskSelfTrain.Destroy;
 begin
   if fSchool <> nil then fSchool.ReleaseHousePointer;
-  Inherited Destroy;
+  Inherited;
 end;
 
 
@@ -1967,9 +1966,10 @@ end;
 
 procedure TTaskDie.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(SequenceLength);
 end;
+
 
 { TTaskGoOutShowHungry }
 constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
@@ -2023,8 +2023,7 @@ end;
 
 procedure TTaskGoOutShowHungry.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
-  //nothing more here yet
+  Inherited; //nothing more here yet
 end;
 
 
@@ -2057,7 +2056,7 @@ end;
 destructor TTaskGoEat.Destroy;
 begin
   if fInn <> nil then fInn.ReleaseHousePointer;
-  Inherited Destroy;
+  Inherited;
 end;
 
 
@@ -2139,7 +2138,7 @@ end;
 
 procedure TTaskGoEat.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fInn <> nil then
     SaveStream.Write(fInn.ID) //Store ID, then substitute it with reference on SyncLoad
   else
@@ -2437,6 +2436,7 @@ begin
   for I := ID-1 downto 0 do
   begin
     Units[IDsToDelete[I]].Free; //Because no one needs this anymore it must DIE!!!!! :D
+    Units[IDsToDelete[I]] := nil;
     Delete(IDsToDelete[I]);
   end;
 

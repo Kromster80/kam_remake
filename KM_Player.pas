@@ -220,7 +220,7 @@ begin
   fPath := TPathFinding.Create(LocA, LocB, KMPoint(0,0), canMakeRoads, true);
   NodeList:=TKMPointList.Create;
   fPath.ReturnRoute(NodeList);
-  fPath.Free;
+  FreeAndNil(fPath);
 
   for i:=1 to NodeList.Count do
     AddRoad(NodeList.List[i]);

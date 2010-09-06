@@ -1173,8 +1173,6 @@ begin
                   if GlobalTickCount mod 10 = 0 then //Once a sec
                   if fMusicLib.IsMusicEnded then
                     fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic); //Menu tune
-                  if DO_PERF_TEST and (GlobalTickCount >= 180) then
-                    Form1.Close;
                 end;
     gsRunning,
     gsReplay:   begin
@@ -1192,8 +1190,7 @@ begin
                     if GameState = gsReplay then
                       fGameInputProcess.Tick(fGameplayTickCount);
 
-                    if DO_PERF_TEST and (fGameplayTickCount >= 1800) then
-                      Form1.Close;
+                    if GameState = gsNoGame then exit; //Error due to consistency fail in replay commands
                   end;
 
                   fGamePlayInterface.UpdateState;

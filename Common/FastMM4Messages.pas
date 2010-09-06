@@ -16,7 +16,7 @@ const
   {The name of the debug info support DLL}
   FullDebugModeLibraryName = 'FastMM_FullDebugMode.dll';
   {Event log strings}
-  LogFileExtension = '_FastMM_Log.txt'#0;
+  LogFileExtension = '_MemoryManager_EventLog.txt'#0;
   CRLF = #13#10;
   EventSeparator = '--------------------------------';
   {Class name messages}
@@ -36,6 +36,7 @@ const
   FreeModifiedErrorMsg = 'FastMM detected that a block has been modified after being freed. ';
   FreeModifiedDetailMsg = #13#10#13#10'Modified byte offsets (and lengths): ';
   DoubleFreeErrorMsg = 'An attempt has been made to free/reallocate an unallocated block.';
+  WrongMMFreeErrorMsg = 'An attempt has been made to free/reallocate a block that was allocated through a different FastMM instance. Check your memory manager sharing settings.';
   PreviousBlockSizeMsg = #13#10#13#10'The previous block size was: ';
   CurrentBlockSizeMsg = #13#10#13#10'The block size is: ';
   PreviousObjectClassMsg = #13#10#13#10'The block was previously used for an object of class: ';

@@ -68,7 +68,7 @@ destructor TTaskAttackHouse.Destroy;
 begin
   if fHouse <> nil then fHouse.ReleaseHousePointer;
   FreeAndNil(Cells);
-  Inherited Destroy;
+  Inherited;
 end;
 
 
