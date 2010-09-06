@@ -90,6 +90,7 @@ begin
   //It is set to 0 when delivery is closed, but unit still exits Dest house (task not ended yet)
   if fDeliverID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
 
+  fLog.AppendLog('We abandoned carry 0');
   Inherited;
 end;
 
@@ -162,6 +163,7 @@ begin
           SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance))
         else begin
           TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          fLog.AppendLog('We dropped carry 1');
           Abandon;
           TaskDone:=true;
         end;
@@ -169,6 +171,7 @@ begin
           SetActionGoIn(ua_Walk,gd_GoInside,fToHouse)
         else begin
           TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          fLog.AppendLog('We dropped carry 2');
           Abandon;
           TaskDone:=true;
         end;
@@ -179,7 +182,6 @@ begin
           TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
 
           fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
-          if (fDeliverID=4) then fLog.AppendLog(Format ('Unit %d closed delivery 4', [fUnit.ID]));
           fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while trying to GoOut
 
@@ -196,6 +198,7 @@ begin
 
         end else begin
           TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          fLog.AppendLog('We dropped carry 3');
           Abandon;
           TaskDone:=true;
         end;
@@ -223,6 +226,7 @@ begin
     end;
   end else begin
     TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+    fLog.AppendLog('We dropped carry 4');
     Abandon;
     TaskDone:=true;
   end;
@@ -236,6 +240,7 @@ begin
           SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false, fToUnit) //Pass a pointer to the Target Unit to the walk action so it can track it
         else begin
           TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          fLog.AppendLog('We dropped carry 5');
           Abandon;
           TaskDone:=true;
         end;

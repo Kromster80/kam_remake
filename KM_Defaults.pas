@@ -49,6 +49,7 @@ var
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
+  CRASH_ON_REPLAY       :boolean=false; //Crash as soon as replay consistency fails (random numbers mismatch)
 
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not

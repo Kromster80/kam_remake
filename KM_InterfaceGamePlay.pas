@@ -28,6 +28,13 @@ type TKMGamePlayInterface = class
       Label_Clock:TKMLabel;
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
       Image_DirectionCursor:TKMImage;
+    Panel_Replay:TKMPanel;
+      PercentBar_Replay:TKMPercentBar;
+      Label_Replay:TKMLabel;
+      Button_ReplayRestart:TKMButton;
+      Button_ReplayPause:TKMButton;
+      Button_ReplayResume:TKMButton;
+      Button_ReplayExit:TKMButton;
     Panel_Message:TKMPanel;
       Image_MessageBG:TKMImage;
       Image_MessageBGTop:TKMImage;
@@ -351,7 +358,9 @@ begin
 
   //First thing - hide all existing pages, except for message page
     for i:=1 to Panel_Main.ChildCount do
-      if (Panel_Main.Childs[i] is TKMPanel) and (Panel_Main.Childs[i] <> Panel_Message) then
+      if (Panel_Main.Childs[i] is TKMPanel)
+      and (Panel_Main.Childs[i] <> Panel_Message)
+      and (Panel_Main.Childs[i] <> Panel_Replay) then
         Panel_Main.Childs[i].Hide;
   //First thing - hide all existing pages
     for i:=1 to Panel_House.ChildCount do
@@ -538,6 +547,18 @@ begin
     Image_Clock.Hide;
     Label_Clock:=MyControls.AddLabel(Panel_Main,265,80,0,0,'mm:ss',fnt_Outline,kaCenter);
     Label_Clock.Hide;
+
+    Panel_Replay := MyControls.AddPanel(Panel_Main, 320, 8, 160, 60);
+      PercentBar_Replay     := MyControls.AddPercentBar(Panel_Replay, 0, 0, 160, 20, 0);
+      Label_Replay          := MyControls.AddLabel(Panel_Replay, 80, 2, 100, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
+      Button_ReplayRestart  := MyControls.AddButton(Panel_Replay, 0, 24, 24, 24, 'I<', fnt_Metal);
+      Button_ReplayPause    := MyControls.AddButton(Panel_Replay,25, 24, 24, 24, 'II', fnt_Metal);
+      Button_ReplayResume   := MyControls.AddButton(Panel_Replay,50, 24, 24, 24, '>', fnt_Metal);
+      Button_ReplayExit     := MyControls.AddButton(Panel_Replay,75, 24, 24, 24, 'X', fnt_Metal);
+      Button_ReplayRestart.Disable;
+      Button_ReplayPause.Disable;
+      Button_ReplayResume.Disable;
+      Button_ReplayExit.Disable;
 
     Image_DirectionCursor := MyControls.AddImage(Panel_Main,0,0,35,36,519);
     Image_DirectionCursor.Hide;
@@ -2135,6 +2156,13 @@ begin
   if ShownHint<>nil then
     if (Mouse.CursorPos.X>ToolBarWidth) and (TKMControl(ShownHint).Parent<>Panel_Message) then
       DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar (Message panel is an exception)
+
+  if fGame.fGameInputProcess.State = gipReplaying then begin
+    Panel_Replay.Show;
+    PercentBar_Replay.Position := round(fGame.GetTickCount / fGame.fGameInputProcess.GetLastTick * 100);
+    Label_Replay.Caption := Format('%d / %d', [fGame.GetTickCount div 10, fGame.fGameInputProcess.GetLastTick div 10]);
+  end else
+    Panel_Replay.Hide;
 
   Minimap_Update(nil);
   if Image_Clock.Visible then begin

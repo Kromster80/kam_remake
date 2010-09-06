@@ -9,6 +9,7 @@ EXE-only r1006:
  -	Dots and lines displaying on tile edges
  -	Serfs should take wares back or to suitable house if destination is destroyed
 	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
+	Serfs will keep on taking stones to try to deliver them to died workers endlessly
  
 	Colored rectangle below cursor	
 	Citizen will try to walk home when it has no road tile below entrance

@@ -102,6 +102,7 @@ TGameInputProcess = class
 
     property Count:integer read fCount;
     property State:TGIPState read fState;
+    function GetLastTick:integer;
 end;
 
 
@@ -248,7 +249,10 @@ begin
     else Assert(false);
   end;
 
-  Assert(fQueue[aIndex].Rand = Random(maxint));
+  if CRASH_ON_REPLAY and (fQueue[aIndex].Rand <> Random(maxint)) then begin
+    //fGame.GameError(KMPoint(10,10),'Replay mismatch');
+    Assert(false);
+  end;
 end;
 
 
@@ -400,10 +404,17 @@ begin
 
   while (aTick = fQueue[fCursor].Tick) do begin
     ExecCommand(fCursor);
+    if fGame.GameState <> gsReplay then exit; //GameError during last command calls GIP.Free, exit immidiately
     inc(fCursor);
   end;
 end;
 
+
+{ Return last recorded tick }
+function TGameInputProcess.GetLastTick:integer;
+begin
+  Result := fQueue[fCount].Tick;
+end;
 
 
 end.

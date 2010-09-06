@@ -187,7 +187,6 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
-    function TakeResource(aResource:TResourceType):boolean;
     function CanEquip(aUnitType: TUnitType):boolean;
     procedure Equip(aUnitType: TUnitType);
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -1332,18 +1331,6 @@ begin
     Result:=ResourceCount[byte(aResource)-16]
   else
     Result:=0;
-end;
-
-
-function TKMHouseBarracks.TakeResource(aResource:TResourceType):boolean;
-begin
-  Result:=false;
-  if aResource in [rt_Shield..rt_Horse] then
-    if ResourceCount[byte(aResource)-16]>0 then begin
-      dec(ResourceCount[byte(aResource)-16]);
-      Result:=true;
-    end else
-      fGame.GameError(GetPosition, 'ResourceCount < 0');
 end;
 
 
