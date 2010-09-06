@@ -281,7 +281,7 @@ begin
   ResID   := TResourceType(Image_RatioPic0.TexID-350);
   HouseID := THouseType(Image_RatioPic[TKMRatioRow(Sender).Tag].TexID-300);
 
-  fGame.fGameInputProcess.RatioCommand(gic_RatioChange, ResID, HouseID, TKMRatioRow(Sender).Position);
+  fGame.fGameInputProcess.CmdRatio(gic_RatioChange, ResID, HouseID, TKMRatioRow(Sender).Position);
 end;
 
 
@@ -487,7 +487,7 @@ begin
   if (ShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
     if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, canWalk, true) then
     begin
-      fGame.fGameInputProcess.ArmyCommand(TKMUnitWarrior(GetShownUnit), gic_ArmyWalk, KMP);
+      fGame.fGameInputProcess.CmdArmy(TKMUnitWarrior(GetShownUnit), gic_ArmyWalk, KMP);
       fSoundLib.PlayWarrior(GetShownUnit.GetUnitType, sp_Move);
     end;
 end;
@@ -1496,7 +1496,7 @@ begin
   if not (fPlayers.Selected is TKMHouse) then exit;
 
   if Sender=Button_House_DemolishYes then begin
-    fGame.fGameInputProcess.BuildCommand(gic_BuildRemoveHouse, TKMHouse(fPlayers.Selected).GetPosition);
+    fGame.fGameInputProcess.CmdBuild(gic_BuildRemoveHouse, TKMHouse(fPlayers.Selected).GetPosition);
     ShowHouseInfo(nil, false); //Simpliest way to reset page and ShownHouse
     SwitchPage(Button_Main[1]); //Return to build menu after demolishing
   end else begin
@@ -1510,7 +1510,7 @@ procedure TKMGamePlayInterface.House_RepairToggle(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouse) then exit;
-  fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseRepairToggle);
+  fGame.fGameInputProcess.CmdHouse(TKMHouse(fPlayers.Selected), gic_HouseRepairToggle);
   case TKMHouse(fPlayers.Selected).BuildingRepair of
     true:   Button_House_Repair.TexID := 39;
     false:  Button_House_Repair.TexID := 40;
@@ -1522,7 +1522,7 @@ procedure TKMGamePlayInterface.House_WareDeliveryToggle(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouse) then exit;
-  fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseDeliveryToggle);
+  fGame.fGameInputProcess.CmdHouse(TKMHouse(fPlayers.Selected), gic_HouseDeliveryToggle);
   case TKMHouse(fPlayers.Selected).WareDelivery of
     true:   Button_House_Goods.TexID := 37;
     false:  Button_House_Goods.TexID := 38;
@@ -1542,9 +1542,9 @@ begin
 
   for i:=1 to 4 do begin
     if Sender = Row__Order[i].OrderRem then
-      fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseOrderProduct, i, -Amt);
+      fGame.fGameInputProcess.CmdHouse(TKMHouse(fPlayers.Selected), gic_HouseOrderProduct, i, -Amt);
     if Sender = Row__Order[i].OrderAdd then
-      fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseOrderProduct, i, Amt);
+      fGame.fGameInputProcess.CmdHouse(TKMHouse(fPlayers.Selected), gic_HouseOrderProduct, i, Amt);
   end;
 end;
 
@@ -1565,7 +1565,7 @@ begin
 
   if Sender=Button_Barracks_Train then //Equip unit
   begin
-    fGame.fGameInputProcess.HouseCommand(Barracks, gic_HouseTrain, TUnitType(14+LastBarracksUnit));
+    fGame.fGameInputProcess.CmdHouse(Barracks, gic_HouseTrain, TUnitType(14+LastBarracksUnit));
   end;
 
   CanEquip:=true;
@@ -1618,7 +1618,7 @@ begin
 
   if Sender=Button_School_Train then //Add unit to training queue
   begin
-    fGame.fGameInputProcess.HouseCommand(School, gic_HouseTrain, TUnitType(School_Order[LastSchoolUnit]));
+    fGame.fGameInputProcess.CmdHouse(School, gic_HouseTrain, TUnitType(School_Order[LastSchoolUnit]));
   end;
 
   if School.UnitQueue[1]<>ut_None then
@@ -1661,7 +1661,7 @@ end;
 procedure TKMGamePlayInterface.House_SchoolUnitRemove(Sender:TObject);
 begin
   if not (TKMControl(Sender).Tag in [1..6]) then exit;
-  fGame.fGameInputProcess.HouseCommand(TKMHouseSchool(fPlayers.Selected), gic_HouseRemoveTrain, TKMControl(Sender).Tag);
+  fGame.fGameInputProcess.CmdHouse(TKMHouseSchool(fPlayers.Selected), gic_HouseRemoveTrain, TKMControl(Sender).Tag);
   fSoundLib.Play(sfx_click); //todo: move click sound to flatbuttons property
   House_SchoolUnitChange(nil, mbLeft);
 end;
@@ -1673,7 +1673,7 @@ procedure TKMGamePlayInterface.House_StoreAcceptFlag(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
-  fGame.fGameInputProcess.HouseCommand(TKMHouse(fPlayers.Selected), gic_HouseStoreAcceptFlag, TResourceType((Sender as TKMControl).Tag));
+  fGame.fGameInputProcess.CmdHouse(TKMHouse(fPlayers.Selected), gic_HouseStoreAcceptFlag, TResourceType((Sender as TKMControl).Tag));
 end;
 
 
@@ -1792,34 +1792,34 @@ begin
   //if Sender = Button_Army_GoTo    then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_Stop    then
   begin
-    fGame.fGameInputProcess.ArmyCommand(Commander, gic_ArmyHalt, 0, 0);
+    fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, 0, 0);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Halt);
   end;
   //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then
   begin
-    fGame.fGameInputProcess.ArmyCommand(Commander, gic_ArmyHalt, -1, 0);
+    fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, -1, 0);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_RotLeft);
   end;
   //if Sender = Button_Army_Storm   then ;
   if Sender = Button_Army_RotCCW  then
   begin
-    fGame.fGameInputProcess.ArmyCommand(Commander, gic_ArmyHalt, 1, 0);
+    fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, 1, 0);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_RotRight);
   end;
   if Sender = Button_Army_ForDown then
   begin
-    fGame.fGameInputProcess.ArmyCommand(Commander, gic_ArmyHalt, 0, 1);
+    fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, 0, 1);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Formation);
   end;
   if Sender = Button_Army_ForUp   then
   begin
-    fGame.fGameInputProcess.ArmyCommand(Commander, gic_ArmyHalt, 0, -1);
+    fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, 0, -1);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Formation);
   end;
   if Sender = Button_Army_Split   then
   begin
-    fGame.fGameInputProcess.ArmyCommand(Commander, gic_ArmySplit);
+    fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmySplit);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Split);
   end;
   if Sender = Button_Army_Join    then
@@ -1830,7 +1830,7 @@ begin
   end;
   if Sender = Button_Army_Feed    then 
   begin
-    fGame.fGameInputProcess.ArmyCommand(Commander, gic_ArmyFeed);
+    fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyFeed);
     fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Eat);
   end;
 end;

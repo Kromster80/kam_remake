@@ -81,22 +81,22 @@ TGameInputProcess = class
     procedure SaveToFile(aFileName:string);
     procedure LoadFromFile(aFileName:string);
 
-    procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand); overload;
-    procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aUnit:TKMUnit); overload;
-    procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
-    procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint); overload;
-    procedure ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
+    procedure CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand); overload;
+    procedure CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aUnit:TKMUnit); overload;
+    procedure CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse); overload;
+    procedure CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint); overload;
+    procedure CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA); overload;
 
-    procedure BuildCommand(aCommand:TGameInputCommand; aLoc:TKMPoint); overload;
-    procedure BuildCommand(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType); overload;
+    procedure CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint); overload;
+    procedure CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType); overload;
 
-    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand); overload;
-    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem, aAmount:integer); overload;
-    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:TResourceType); overload;
-    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType); overload;
-    procedure HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer); overload;
+    procedure CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand); overload;
+    procedure CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem, aAmount:integer); overload;
+    procedure CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:TResourceType); overload;
+    procedure CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType); overload;
+    procedure CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer); overload;
 
-    procedure RatioCommand(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
+    procedure CmdRatio(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
 
     procedure Tick(aTick:cardinal);
 
@@ -252,7 +252,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand);
+procedure TGameInputProcess.CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand);
 begin
   Assert(aCommand in [gic_ArmyFeed, gic_ArmySplit]);
   case aCommand of
@@ -264,7 +264,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aUnit:TKMUnit);
+procedure TGameInputProcess.CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aUnit:TKMUnit);
 begin
   Assert(aCommand in [gic_ArmyLink, gic_ArmyAttackUnit]);
   case aCommand of
@@ -282,7 +282,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse);
+procedure TGameInputProcess.CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse);
 begin
   Assert(aCommand = gic_ArmyAttackHouse);
   aWarrior.GetCommander.PlaceOrder(wo_AttackHouse, aHouse);
@@ -291,7 +291,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint);
+procedure TGameInputProcess.CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint);
 begin
   Assert(aCommand = gic_ArmyHalt);
   aWarrior.Halt(aTurnAmount, aLineAmount);
@@ -299,7 +299,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.ArmyCommand(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
+procedure TGameInputProcess.CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
 begin
   Assert(aCommand = gic_ArmyWalk);
   aWarrior.GetCommander.PlaceOrder(wo_Walk, aLoc, aDirection);
@@ -308,7 +308,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.BuildCommand(aCommand:TGameInputCommand; aLoc:TKMPoint);
+procedure TGameInputProcess.CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint);
 begin
   case aCommand of
     gic_BuildRoadPlan:    MyPlayer.AddRoadPlan(aLoc, mu_RoadPlan,  false, MyPlayer.PlayerID);
@@ -317,14 +317,14 @@ begin
     gic_BuildWallPlan:    MyPlayer.AddRoadPlan(aLoc, mu_WallPlan,  false, MyPlayer.PlayerID);
     gic_BuildRemovePlan:  MyPlayer.RemPlan(aLoc);
     gic_BuildRemoveHouse: MyPlayer.RemHouse(aLoc, false);
-    else Assert(false, 'Unknown BuildCommand');
+    else Assert(false, 'Unknown CmdBuild');
   end;
 
   SaveCommand(aCommand, aLoc.X, aLoc.Y);
 end;
 
 
-procedure TGameInputProcess.BuildCommand(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType);
+procedure TGameInputProcess.CmdBuild(aCommand:TGameInputCommand; aLoc:TKMPoint; aHouse:THouseType);
 begin
   Assert(aCommand = gic_BuildHousePlan);
   MyPlayer.AddHousePlan(aHouse, aLoc, MyPlayer.PlayerID);
@@ -332,7 +332,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand);
+procedure TGameInputProcess.CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand);
 begin
   case aCommand of
     gic_HouseRepairToggle:  with aHouse do begin
@@ -340,13 +340,13 @@ begin
                               if BuildingRepair then EnableRepair else DisableRepair;
                             end;
     gic_HouseDeliveryToggle: aHouse.WareDelivery := not aHouse.WareDelivery;
-    else Assert(false, 'Unknown HouseCommand');
+    else Assert(false, 'Unknown CmdHouse');
   end;
   SaveCommand(aCommand, aHouse.ID);
 end;
 
 
-procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem, aAmount:integer);
+procedure TGameInputProcess.CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem, aAmount:integer);
 begin
   Assert(aCommand = gic_HouseOrderProduct);
   aHouse.ResEditOrder(aItem, aAmount);
@@ -354,7 +354,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:TResourceType);
+procedure TGameInputProcess.CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:TResourceType);
 begin
   Assert(aCommand = gic_HouseStoreAcceptFlag);
   TKMHouseStore(aHouse).ToggleAcceptFlag(aItem);
@@ -362,7 +362,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType);
+procedure TGameInputProcess.CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aUnitType:TUnitType);
 begin
   Assert(aCommand = gic_HouseTrain);
   //It might not be the best idea to rely on GetHouseType here,
@@ -376,7 +376,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.HouseCommand(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer);
+procedure TGameInputProcess.CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer);
 begin
   Assert(aCommand = gic_HouseRemoveTrain);
   Assert(aHouse is TKMHouseSchool);
@@ -385,7 +385,7 @@ begin
 end;
 
 
-procedure TGameInputProcess.RatioCommand(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
+procedure TGameInputProcess.CmdRatio(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
 begin
   Assert(aCommand = gic_RatioChange);
   MyPlayer.fMissionSettings.SetRatio(aRes, aHouse, aValue);

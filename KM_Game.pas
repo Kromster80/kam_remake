@@ -305,7 +305,7 @@ begin
                       (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
                     begin
                       //Place attack order here rather than in mouse up; why here??
-                      fGameInputProcess.ArmyCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
+                      fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
                     end
                     else
                     begin
@@ -313,7 +313,7 @@ begin
                       if (HitHouse <> nil) and (not (HitHouse.IsDestroyed)) and
                          (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy) then
                       begin
-                        fGameInputProcess.ArmyCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
+                        fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
                       end
                       else
                       if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
@@ -542,24 +542,24 @@ begin
                   end;
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
-                          fGameInputProcess.BuildCommand(gic_BuildRemovePlan, P)
+                          fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
                         else
-                          fGameInputProcess.BuildCommand(gic_BuildRoadPlan, P);
+                          fGameInputProcess.CmdBuild(gic_BuildRoadPlan, P);
 
               cm_Field: if fTerrain.Land[P.Y,P.X].Markup = mu_FieldPlan then
-                          fGameInputProcess.BuildCommand(gic_BuildRemovePlan, P)
+                          fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
                         else
-                          fGameInputProcess.BuildCommand(gic_BuildFieldPlan, P);
+                          fGameInputProcess.CmdBuild(gic_BuildFieldPlan, P);
               cm_Wine:  if fTerrain.Land[P.Y,P.X].Markup = mu_WinePlan then
-                          fGameInputProcess.BuildCommand(gic_BuildRemovePlan, P)
+                          fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
                         else
-                          fGameInputProcess.BuildCommand(gic_BuildWinePlan, P);
+                          fGameInputProcess.CmdBuild(gic_BuildWinePlan, P);
               cm_Wall:  if fTerrain.Land[P.Y,P.X].Markup = mu_WallPlan then
-                          fGameInputProcess.BuildCommand(gic_BuildRemovePlan, P)
+                          fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
                         else
-                          fGameInputProcess.BuildCommand(gic_BuildWallPlan, P);
+                          fGameInputProcess.CmdBuild(gic_BuildWallPlan, P);
               cm_Houses: if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Tag1)) then begin
-                           fGameInputProcess.BuildCommand(gic_BuildHousePlan, P, THouseType(CursorMode.Tag1));
+                           fGameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(CursorMode.Tag1));
                            fSoundLib.Play(sfx_placemarker);
                            fGamePlayInterface.Build_SelectRoad;
                          end else
@@ -581,7 +581,7 @@ begin
                   //Now remove houses that are not started
                   if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).GetBuildingState = hbs_Glyph) then
                   begin
-                    fGameInputProcess.BuildCommand(gic_BuildRemoveHouse, P);
+                    fGameInputProcess.CmdBuild(gic_BuildRemoveHouse, P);
                     fSoundLib.Play(sfx_click);
                   end;
                 end;
@@ -594,7 +594,7 @@ begin
               if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
                  (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
               begin
-                fGameInputProcess.ArmyCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyLink, HitUnit);
+                fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyLink, HitUnit);
                 fGamePlayInterface.JoiningGroups := false;
                 fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit); //Refresh unit display
                 Screen.Cursor:=c_Default; //Reset cursor when mouse released
@@ -617,7 +617,7 @@ begin
         then
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
-          fGameInputProcess.ArmyCommand(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyWalk, P, SelectedDirection);
+          fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyWalk, P, SelectedDirection);
         end;
 
         if (Button = mbRight) and (MOver = nil) then
