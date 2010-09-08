@@ -234,10 +234,7 @@ begin
     gic_BuildRemoveHouse: MyPlayer.RemHouse(KMPoint(Params[1],Params[2]), false);
     gic_BuildHousePlan:   MyPlayer.AddHousePlan(THouseType(Params[1]), KMPoint(Params[2],Params[3]), MyPlayer.PlayerID);
 
-    gic_HouseRepairToggle:      with MyPlayer.GetHouseByID(Params[1]) do begin
-                                  BuildingRepair := not BuildingRepair;
-                                  if BuildingRepair then EnableRepair else DisableRepair;
-                                end;
+    gic_HouseRepairToggle:      MyPlayer.GetHouseByID(Params[1]).RepairToggle;
     gic_HouseDeliveryToggle:    with MyPlayer.GetHouseByID(Params[1]) do WareDelivery := not WareDelivery;
     gic_HouseOrderProduct:      MyPlayer.GetHouseByID(Params[1]).ResEditOrder(Params[2], Params[3]);
     gic_HouseStoreAcceptFlag:   TKMHouseStore(MyPlayer.GetHouseByID(Params[1])).ToggleAcceptFlag(TResourceType(Params[2]));
@@ -349,10 +346,7 @@ end;
 procedure TGameInputProcess.CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand);
 begin
   case aCommand of
-    gic_HouseRepairToggle:  with aHouse do begin
-                              BuildingRepair := not BuildingRepair;
-                              if BuildingRepair then EnableRepair else DisableRepair;
-                            end;
+    gic_HouseRepairToggle:   aHouse.RepairToggle;
     gic_HouseDeliveryToggle: aHouse.WareDelivery := not aHouse.WareDelivery;
     else Assert(false, 'Unknown CmdHouse');
   end;

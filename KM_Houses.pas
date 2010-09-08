@@ -97,6 +97,7 @@ type
     procedure UpdateDamage();
     procedure EnableRepair();
     procedure DisableRepair();
+    procedure RepairToggle();
 
     function IsStarted:boolean;
     function IsStone:boolean;
@@ -554,7 +555,7 @@ end;
 {if house is damaged then add repair to buildlist}
 procedure TKMHouse.EnableRepair();
 begin
-  BuildingRepair:=true;
+  BuildingRepair := true;
   AddDamage(0); //Shortcut to refresh of damage
 end;
 
@@ -562,8 +563,14 @@ end;
 {if house is damaged then remove repair from buildlist and free up workers}
 procedure TKMHouse.DisableRepair();
 begin
-  BuildingRepair:=false;
+  BuildingRepair := false;
   AddRepair(0); //Shortcut to refresh of damage
+end;
+
+
+procedure TKMHouse.RepairToggle();
+begin
+  if BuildingRepair then DisableRepair else EnableRepair;
 end;
 
 
