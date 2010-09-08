@@ -58,8 +58,8 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     Label1: TLabel;
-    {$IFDEF WDC} MediaPlayer1: TMediaPlayer;
-    ExportMainMenu1: TMenuItem; {$ENDIF}
+    {$IFDEF WDC} MediaPlayer1: TMediaPlayer; {$ENDIF}
+    ExportMainMenu1: TMenuItem; 
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);

@@ -2159,7 +2159,7 @@ begin
 
   if fGame.fGameInputProcess.State = gipReplaying then begin
     Panel_Replay.Show;
-    PercentBar_Replay.Position := round(fGame.GetTickCount / fGame.fGameInputProcess.GetLastTick * 100);
+    PercentBar_Replay.Position := EnsureRange(round(fGame.GetTickCount / fGame.fGameInputProcess.GetLastTick * 100), 0, 100);
     Label_Replay.Caption := Format('%d / %d', [fGame.GetTickCount div 10, fGame.fGameInputProcess.GetLastTick div 10]);
   end else
     Panel_Replay.Hide;
@@ -2167,7 +2167,7 @@ begin
   Minimap_Update(nil);
   if Image_Clock.Visible then begin
     Image_Clock.TexID := ((Image_Clock.TexID-556)+1)mod 16 +556;
-    Label_Clock.Caption := int2time(fGame.GetMissionTime); 
+    Label_Clock.Caption := int2time(fGame.GetMissionTime);
   end;
 
   if Panel_Build.Visible then Build_Fill(nil);
