@@ -517,7 +517,7 @@ begin
         else begin
 
           if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
-            MyPlayer.AddUnit(ut_HorseScout, GameCursor.Cell); //Add only when cursor is over the map
+            fGameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
 
           if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
           begin

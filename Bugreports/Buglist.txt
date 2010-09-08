@@ -2,13 +2,15 @@ EXE-only r1006:
 <===================================================================================>
  +	Fixed clicking on empty space in file list in Main Menu
  +	Fixed error when displaying file lists without any files in them
+ +	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
+ +	Process KillUnit/AddScout commands through GIP, even if they are to be removed soon
+
  - 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  - 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
  -	Menu buttons in replay don't work, no way to exit other than F11
  -	Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
  -	Dots and lines displaying on tile edges
  -	Serfs should take wares back or to suitable house if destination is destroyed
-	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
 	Serfs will keep on taking stones to try to deliver them to died workers endlessly
  
 	Colored rectangle below cursor	

@@ -1507,7 +1507,7 @@ procedure TKMGamePlayInterface.Unit_Die(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
   if not (fPlayers.Selected is TKMUnit) then exit;
-  TKMUnit(fPlayers.Selected).KillUnit;
+  fGame.fGameInputProcess.CmdTemp(gic_TempKillUnit, TKMUnit(fPlayers.Selected));
 end;
 
 

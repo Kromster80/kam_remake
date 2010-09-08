@@ -570,17 +570,20 @@ begin
   Inherited;
 end;
 
+
 procedure TTaskBuildHouse.Abandon();
 begin
   fPlayers.Player[byte(fUnit.GetOwner)].BuildList.CloseHouse(buildID);
   Inherited;
 end;
 
+
 function TTaskBuildHouse.WalkShouldAbandon:boolean;
 begin
   //If we are walking to the house but the house is destroyed or has run out of resources we should abandon
   Result := (fHouse.IsDestroyed or (not fHouse.CheckResToBuild));
 end;
+
 
 {Build the house}
 procedure TTaskBuildHouse.Execute(out TaskDone:boolean);

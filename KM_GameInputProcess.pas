@@ -50,9 +50,13 @@ type TGameInputCommand = (
   gic_HouseRemoveTrain,     //Remove unit being trained from School
 
   //IV.     Delivery ratios changes (and other game-global settings)
-  gic_RatioChange
+  gic_RatioChange,
 
   //V.      Cheatcodes affecting gameplay (props)
+
+  //VI. Temporary and debug commands
+  gic_TempAddScout,
+  gic_TempKillUnit
 
   { Optional input }
   //VI.     Viewport settings for replay (location, zoom)
@@ -97,6 +101,9 @@ TGameInputProcess = class
     procedure CmdHouse(aHouse:TKMHouse; aCommand:TGameInputCommand; aItem:integer); overload;
 
     procedure CmdRatio(aCommand:TGameInputCommand; aRes:TResourceType; aHouse:THouseType; aValue:integer);
+
+    procedure CmdTemp(aCommand:TGameInputCommand; aUnit:TKMUnit); overload;
+    procedure CmdTemp(aCommand:TGameInputCommand; aLoc:TKMPoint); overload;
 
     procedure Tick(aTick:cardinal);
 
@@ -246,6 +253,9 @@ begin
 
     gic_RatioChange:            MyPlayer.fMissionSettings.SetRatio(TResourceType(Params[1]), THouseType(Params[2]), Params[3]);
 
+    gic_TempAddScout:           MyPlayer.AddUnit(ut_HorseScout, KMPoint(Params[1],Params[2]));
+    gic_TempKillUnit:           MyPlayer.GetUnitByID(Params[1]).KillUnit;
+
     else Assert(false);
   end;
 
@@ -394,6 +404,22 @@ begin
   Assert(aCommand = gic_RatioChange);
   MyPlayer.fMissionSettings.SetRatio(aRes, aHouse, aValue);
   SaveCommand(aCommand, integer(aRes), integer(aHouse), aValue);
+end;
+
+
+procedure TGameInputProcess.CmdTemp(aCommand:TGameInputCommand; aUnit:TKMUnit);
+begin
+  Assert(aCommand = gic_TempKillUnit);
+  aUnit.KillUnit;
+  SaveCommand(aCommand, aUnit.ID);
+end;
+
+
+procedure TGameInputProcess.CmdTemp(aCommand:TGameInputCommand; aLoc:TKMPoint);
+begin
+  Assert(aCommand = gic_TempAddScout);
+  MyPlayer.AddUnit(ut_HorseScout, aLoc);
+  SaveCommand(aCommand, aLoc.X, aLoc.Y);
 end;
 
 
