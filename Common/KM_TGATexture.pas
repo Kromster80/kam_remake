@@ -179,14 +179,15 @@ begin
     OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
   {$ENDIF}
   {$IFDEF FPC}
-    InStream := TMemoryStream.Create;
+    {InStream := TMemoryStream.Create;
     InStream.LoadFromFile(FileName);
 
     GetMem(Comp, InStream.Size);
     InStream.Read(Comp^, InStream.Size);
 
     DestSize := SizeOf(TGAHeader);
-    i := uncompress(@TGAHeader, DestSize, Comp, InStream.Size);
+    i := uncompress(@TGAHeader, DestSize, Comp, InStream.Size);}
+    exit;
   {$ENDIF}
   end;
 

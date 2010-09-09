@@ -1,7 +1,7 @@
 program KaM_Remake;
 {$I KaM_Remake.inc}
 {$IFDEF FPC}
-  {$Mode Delphi}
+  {$Mode Delphi} {$H+}
 {$ENDIF}
 
 uses

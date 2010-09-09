@@ -41,7 +41,7 @@ type
     fMainMenuInterface: TKMMainMenuInterface;
     fGameplayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale();
     procedure ResizeGameArea(X,Y:integer);
@@ -93,7 +93,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aMediaPlayer:TMediaPlayer; NoMusic:boolean=false);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
 begin
   Inherited Create;
   ID_Tracker := 0;
@@ -106,7 +106,7 @@ begin
   fRender         := TRender.Create(RenderHandle);
   fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
   fSoundLib       := TSoundLib.Create(fGlobalSettings.GetLocale); //Required for button click sounds
-  fMusicLib       := TMusicLib.Create(aMediaPlayer);
+  fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer {$ENDIF});
   //todo: @Krom: When I start the game with music disabled there is about 100ms of music
   //which then cuts off. I assume the INI file is read after starting playback or something?
   fGlobalSettings.UpdateSFXVolume;

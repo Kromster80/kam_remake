@@ -47,7 +47,11 @@ object Form1: TForm1
       end    
       item
         Text = 'Cursor: 46.1 47.2'
-        Width = 180
+        Width = 160
+      end    
+      item
+        Text = 'Time: 02:15'
+        Width = 90
       end    
       item
         Text = '50.0 fps (50)'
@@ -151,9 +155,9 @@ object Form1: TForm1
       TabOrder = 2
     end
     object Button_Stop: TButton
-      Left = 144
+      Left = 240
       Height = 17
-      Top = 14
+      Top = 16
       Width = 25
       Caption = 'Stop'
       OnClick = Button_StopClick
@@ -221,6 +225,10 @@ object Form1: TForm1
       object Debug_ShowUnits: TMenuItem
         Caption = 'Show Units'
         OnClick = Debug_ShowUnitClick
+      end
+      object ExportMainMenu1: TMenuItem
+        Caption = 'Export MainMenu'
+        OnClick = ExportMainMenu1Click
       end
     end
     object Export1: TMenuItem

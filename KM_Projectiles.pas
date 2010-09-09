@@ -36,7 +36,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Game, KM_Render, KM_PlayersCollection, KM_Units, KM_Terrain;
+uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Units, KM_Terrain;
 
 
 { TMissionSettings }

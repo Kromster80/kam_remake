@@ -473,7 +473,7 @@ begin
   //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
   FreeAndNil(fGame); //Saves all settings into ini file in midst
   //Now re-init fGame
-  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,MediaPlayer1);
+  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
