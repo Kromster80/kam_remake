@@ -48,7 +48,9 @@ uses
   KM_UnitTaskAttackHouse in 'KM_UnitTaskAttackHouse.pas',
   KM_UnitTaskBuild in 'KM_UnitTaskBuild.pas',
   KM_UnitTaskDelivery in 'KM_UnitTaskDelivery.pas',
+  KM_UnitTaskGoEat in 'KM_UnitTaskGoEat.pas',
   KM_UnitTaskMining in 'KM_UnitTaskMining.pas',
+  KM_UnitTaskSelfTrain in 'KM_UnitTaskSelfTrain.pas',
   KM_UnitTaskThrowRock in 'KM_UnitTaskThrowRock.pas',
   KM_Utils in 'KM_Utils.pas',
   KM_Viewport in 'KM_Viewport.pas';

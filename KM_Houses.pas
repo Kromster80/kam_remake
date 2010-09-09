@@ -232,7 +232,7 @@ type
   end;
 
 implementation
-uses KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_LoadLib, KM_UnitActionStay, KM_Player;
+uses KM_UnitTaskSelfTrain, KM_DeliverQueue, KM_Unit1, KM_Terrain, KM_Render, KM_Units, KM_Units_Warrior, KM_PlayersCollection, KM_Sound, KM_Viewport, KM_Game, KM_LoadLib, KM_UnitActionStay, KM_Player;
 
 
 { TKMHouse }
@@ -1188,7 +1188,7 @@ begin
   if CheckResIn(rt_Gold)=0 then exit;
   HideOneGold:=true;
   UnitWIP:=fPlayers.Player[byte(fOwner)].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
-  TKMUnit(UnitWIP).SetUnitTask:=TTaskSelfTrain.Create(UnitWIP,Self);
+  TKMUnit(UnitWIP).SetUnitTask := TTaskSelfTrain.Create(UnitWIP,Self);
 end;
 
 

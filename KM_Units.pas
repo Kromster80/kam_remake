@@ -48,36 +48,10 @@ type
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
-    TTaskSelfTrain = class(TUnitTask)
-    private
-      fSchool:TKMHouseSchool;
-    public
-      constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
-      destructor Destroy; override;
-      procedure Abandon(); override;
-      procedure Execute(out TaskDone:boolean); override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
-
     TTaskGoHome = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
       procedure Execute(out TaskDone:boolean); override;
-    end;
-
-    TTaskGoEat = class(TUnitTask)
-    private
-      fInn:TKMHouseInn;
-      PlaceID:byte; //Units place in Inn
-    public
-      constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure SyncLoad(); override;
-      destructor Destroy; override;
-      procedure Execute(out TaskDone:boolean); override;
-      procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
 
@@ -285,7 +259,9 @@ implementation
 uses KM_Unit1, KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_ResourceGFX,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
-KM_Units_Warrior, KM_UnitTaskBuild, KM_UnitTaskDelivery, KM_UnitTaskAttackHouse, KM_UnitTaskThrowRock, KM_UnitTaskMining;
+KM_Units_Warrior,
+
+KM_UnitTaskBuild, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 
 
 { TKMUnitCitizen }
@@ -1447,7 +1423,7 @@ end;
 procedure TKMUnit.UpdateHunger;
 begin
   if fCondition>0 then //Make unit hungry as long as they are not currently eating in the inn
-    if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).PlaceID<>0)) then
+    if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).Eating)) then
       dec(fCondition);
 
   //Feed the unit automatically. Don't align it with dec(fCondition) cos FOW uses it as a timer 
@@ -1734,108 +1710,6 @@ begin
 end;
 
 
-{ TTaskSelfTrain }
-{Train itself in school}
-constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
-begin
-  Inherited Create(aUnit);
-  fTaskName := utn_SelfTrain;
-  fSchool   := TKMHouseSchool(aSchool.GetHousePointer); //GetHouse returnes TKMHouse, not TKMHouseSchool
-  fUnit.fVisible := false;
-  fUnit.SetActionStay(0, ua_Walk);
-end;
-
-
-constructor TTaskSelfTrain.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
-  LoadStream.Read(fSchool, 4);
-end;
-
-
-procedure TTaskSelfTrain.SyncLoad();
-begin
-  Inherited;
-  fSchool := TKMHouseSchool(fPlayers.GetHouseByID(cardinal(fSchool)));
-end;
-
-
-destructor TTaskSelfTrain.Destroy;
-begin
-  if fSchool <> nil then fSchool.ReleaseHousePointer;
-  Inherited;
-end;
-
-
-//Abort if someone has destroyed our school
-procedure TTaskSelfTrain.Abandon();
-var TempUnit: TKMUnit;
-begin
-  TempUnit := fUnit; //Make local copy of the pointer because Inherited will set the pointer to nil
-  Inherited;
-  TempUnit.RemoveUntrainedFromSchool; //CloseUnit at last, cos it will FreeAndNil TTask
-end;
-
-
-procedure TTaskSelfTrain.Execute(out TaskDone:boolean);
-begin
-  TaskDone := false;
-
-  if fSchool.IsDestroyed then
-  begin
-    Abandon;
-    TaskDone:=true;
-    exit;
-  end;
-
-  with fUnit do
-    case fPhase of
-      0: begin
-          fSchool.SetState(hst_Work);
-          fSchool.fCurrentAction.SubActionWork(ha_Work1);
-          SetActionStay(29,ua_Walk);
-        end;
-      1: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work2);
-          SetActionStay(29,ua_Walk);
-        end;
-      2: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work3);
-          SetActionStay(29,ua_Walk);
-        end;
-      3: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work4);
-          SetActionStay(29,ua_Walk);
-        end;
-      4: begin
-          fSchool.fCurrentAction.SubActionWork(ha_Work5);
-          SetActionStay(29,ua_Walk);
-        end;
-      5: begin
-          fSchool.SetState(hst_Idle);
-          SetActionStay(9,ua_Walk);
-         end;
-      6: begin
-          SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
-          fSchool.UnitTrainingComplete;
-          fPlayers.Player[byte(fOwner)].CreatedUnit(fUnitType,true);
-         end;
-      else TaskDone:=true;
-    end;
-  inc(fPhase);
-end;
-
-
-procedure TTaskSelfTrain.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited;
-  if fSchool <> nil then
-    SaveStream.Write(fSchool.ID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Zero);
-end;
-
-
 { TTaskGoHome }
 constructor TTaskGoHome.Create(aUnit:TKMUnit);
 begin
@@ -1985,126 +1859,6 @@ end;
 procedure TTaskGoOutShowHungry.Save(SaveStream:TKMemoryStream);
 begin
   Inherited; //nothing more here yet
-end;
-
-
-{ TTaskGoEat }
-constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
-begin
-  Inherited Create(aUnit);
-  fTaskName := utn_GoEat;
-  fInn      := TKMHouseInn(aInn.GetHousePointer);
-  PlaceID   := 0;
-  fUnit.SetActionLockedStay(0,ua_Walk);
-end;
-
-
-constructor TTaskGoEat.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
-  LoadStream.Read(fInn, 4);
-  LoadStream.Read(PlaceID);
-end;
-
-
-procedure TTaskGoEat.SyncLoad();
-begin
-  Inherited;
-  fInn := TKMHouseInn(fPlayers.GetHouseByID(cardinal(fInn)));
-end;
-
-
-destructor TTaskGoEat.Destroy;
-begin
-  if fInn <> nil then fInn.ReleaseHousePointer;
-  Inherited;
-end;
-
-
-procedure TTaskGoEat.Execute(out TaskDone:boolean);
-begin
-TaskDone:=false;
-
-if fInn.IsDestroyed then
-begin
-  Abandon;
-  TaskDone:=true;
-  exit;
-end;
-
-with fUnit do
-case fPhase of
- 0: begin
-      fThought := th_Eat;
-      if fHome<>nil then fHome.SetState(hst_Empty);
-      if not fVisible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome) else
-                           SetActionLockedStay(0,ua_Walk); //Walk outside the house
-    end;
- 1: begin
-      SetActionWalk(fUnit,KMPointY1(fInn.GetEntrance));
-    end;
- 2: begin
-      SetActionGoIn(ua_Walk,gd_GoInside,fInn); //Enter Inn
-      PlaceID := fInn.EaterGetsInside(fUnitType);
-    end;
- 3: //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
-    //Bread    = +40%
-    //Sausages = +60%
-    //Wine     = +20%
-    //Fish     = +50%
-    if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Bread)>0)and(PlaceID<>0) then begin
-      fInn.ResTakeFromIn(rt_Bread);
-      SetActionStay(29*4,ua_Eat,false);
-      Feed(UNIT_MAX_CONDITION*0.4);
-      fInn.UpdateEater(PlaceID,2); //Order is Wine-Bread-Sausages-Fish
-    end else
-      SetActionLockedStay(0,ua_Walk);
- 4: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Sausages)>0)and(PlaceID<>0) then begin
-      fInn.ResTakeFromIn(rt_Sausages);
-      SetActionStay(29*4,ua_Eat,false);
-      Feed(UNIT_MAX_CONDITION*0.6);
-      fInn.UpdateEater(PlaceID,3);
-    end else
-      SetActionLockedStay(0,ua_Walk);
- 5: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Wine)>0)and(PlaceID<>0) then begin
-      fInn.ResTakeFromIn(rt_Wine);
-      SetActionStay(29*4,ua_Eat,false);
-      Feed(UNIT_MAX_CONDITION*0.2);
-      fInn.UpdateEater(PlaceID,1);
-    end else
-      SetActionLockedStay(0,ua_Walk);
- 6: if (fCondition<UNIT_MAX_CONDITION)and(fInn.CheckResIn(rt_Fish)>0)and(PlaceID<>0) then begin
-      fInn.ResTakeFromIn(rt_Fish);
-      SetActionStay(29*4,ua_Eat,false);
-      Feed(UNIT_MAX_CONDITION*0.5);
-      fInn.UpdateEater(PlaceID,4);
-    end else
-      SetActionLockedStay(0,ua_Walk);
- 7: begin
-      //Stop showing hungry if we no longer are, but if we are then walk out of the inn thinking hungry so that the player will know that we haven't been fed
-      if fCondition<UNIT_MAX_CONDITION then
-        fThought := th_Eat
-      else fThought := th_None;
-      SetActionGoIn(ua_Walk,gd_GoOutside,fInn); //Exit Inn
-      fInn.EatersGoesOut(PlaceID);
-      PlaceID:=0;
-    end;
- else TaskDone:=true;
-end;
-  inc(fPhase);
-  if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-    fGame.GameError(fUnit.GetPosition, 'GoEat No action, no TaskDone!');
-end;
-
-
-procedure TTaskGoEat.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited;
-  if fInn <> nil then
-    SaveStream.Write(fInn.ID) //Store ID, then substitute it with reference on SyncLoad
-  else
-    SaveStream.Write(Zero);
-  SaveStream.Write(PlaceID);
 end;
 
 
