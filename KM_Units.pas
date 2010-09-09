@@ -224,8 +224,8 @@ type
     Carry: TResourceType;
   public
     constructor Load(LoadStream:TKMemoryStream); override;
-    function GiveResource(Res:TResourceType):boolean;
-    function TakeResource(Res:TResourceType):boolean;
+    procedure CarryGive(Res:TResourceType);
+    procedure CarryTake(aAssertIfNoCarry:boolean=true);
     function GetActionFromQueue(aHouse:TKMHouse=nil):TUnitTask;
     procedure SetNewDelivery(aDelivery:TUnitTask);
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -237,7 +237,6 @@ type
   TKMUnitWorker = class(TKMUnit)
   public
     function GetActionFromQueue():TUnitTask;
-    procedure AbandonWork;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -761,23 +760,17 @@ begin
 end;
 
 
-function TKMUnitSerf.GiveResource(Res:TResourceType):boolean;
+procedure TKMUnitSerf.CarryGive(Res:TResourceType);
 begin
-  Result:=false;
-  if Carry<>rt_None then exit;
-  Carry:=Res;
-  Result:=true;
+  Assert(Carry=rt_None, 'Giving Serf another Carry');
+  Carry := Res;
 end;
 
 
-function TKMUnitSerf.TakeResource(Res:TResourceType):boolean;
+procedure TKMUnitSerf.CarryTake(aAssertIfNoCarry:boolean=true);
 begin
-  Result:=true;
-  Assert(Carry = Res, 'Taking wrong resource from Serf');
-  if Carry=rt_None then
-    Result:=false
-  else
-    Carry:=rt_None;
+  if aAssertIfNoCarry then Assert(Carry <> rt_None, 'Taking wrong resource from Serf');
+  Carry := rt_None;
 end;
 
 
@@ -851,37 +844,10 @@ end;
 
 function TKMUnitWorker.GetActionFromQueue():TUnitTask;
 begin
-                   Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouseRepair(Self);
-if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHousePlan(Self);
-if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForRoad(Self);
-if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouse(Self);
-end;
-
-
-procedure TKMUnitWorker.AbandonWork;
-begin
-  //This will be called when we die, and we should abandom our task (if any) and clean up stuff like temporary passability
-  if fUnitTask <> nil then
-  begin
-    //Road, wine and field: remove the markup that disallows all other building (mu_UnderConstruction) only if we have started digging
-    if (fUnitTask is TTaskBuildRoad)
-    or (fUnitTask is TTaskBuildWine)
-    or (fUnitTask is TTaskBuildField)
-    or (fUnitTask is TTaskBuildWall) then
-      if fUnitTask.fPhase > 1 then fTerrain.RemMarkup(TTaskBuildRoad(fUnitTask).fLoc)
-      else fPlayers.Player[byte(fOwner)].BuildList.ReOpenRoad(TTaskBuildRoad(fUnitTask).buildID); //Allow other workers to take this task
-
-    //House area: remove house, restoring terrain to normal
-    if fUnitTask is TTaskBuildHouseArea then
-    begin
-      if fUnitTask.fPhase <= 1 then
-        fPlayers.Player[byte(fOwner)].BuildList.ReOpenHousePlan(TTaskBuildHouseArea(fUnitTask).buildID) //Allow other workers to take this task
-      else //Otherwise we must destroy the house
-        if TTaskBuildHouseArea(fUnitTask).fHouse <> nil then
-          fPlayers.Player[Integer(fOwner)].RemHouse(TTaskBuildHouseArea(fUnitTask).fHouse.GetPosition,true);
-    end;
-    //Build House and Repair: No action necessary, another worker will finish it automatically
-  end;
+                     Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouseRepair(Self);
+  if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHousePlan(Self);
+  if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForRoad(Self);
+  if Result=nil then Result:=fPlayers.Player[byte(fOwner)].BuildList.AskForHouse(Self);
 end;
 
 
@@ -1179,13 +1145,8 @@ begin
   if fGame.fGamePlayInterface.GetShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
-  //Abandon delivery if any
-  if (Self is TKMUnitSerf) and (Self.fUnitTask is TTaskDeliver) then
-    TTaskDeliver(Self.fUnitTask).Abandon;
-
   //Abandon work if any
-  if Self is TKMUnitWorker then
-    TKMUnitWorker(Self).AbandonWork;
+  if fUnitTask<>nil then fUnitTask.Abandon;
 
   //todo: This is probably a source of some bugs in interaction, check this
   //Should we Abandon interaction things?

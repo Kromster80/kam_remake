@@ -562,17 +562,16 @@ var
   RX,ID:integer;
 begin
 
-if not DirectoryExists(ExeDir + 'Sprites\') then exit;
+  if not DirectoryExists(ExeDir + 'Sprites\') then exit;
 
   FileList := TStringList.Create;
   ChDir(ExeDir + 'Sprites\');
   FindFirst('*', faAnyFile, SearchRec);
   repeat
     if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
-      if SearchRec.Attr and faDirectory <> faDirectory then
-      if GetFileExt(SearchRec.Name) = 'TGA' then begin
-        FileList.Add(SearchRec.Name);
-      end;
+    if SearchRec.Attr and faDirectory <> faDirectory then
+    if GetFileExt(SearchRec.Name) = 'TGA' then
+      FileList.Add(SearchRec.Name);
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
 
@@ -585,10 +584,11 @@ if not DirectoryExists(ExeDir + 'Sprites\') then exit;
       if FileList.Strings[i][7] = '.' then
         LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[i], GFXData[RX,ID].TexID, 0)
       else
+      if FileList.Strings[i][7] = 'a' then
         LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[i], GFXData[RX,ID].AltID, 0);
 
-      GFXData[RX,ID].PxWidth := 144;  //
-      GFXData[RX,ID].PxHeight := 136;
+      //GFXData[RX,ID].PxWidth := 144;
+      //GFXData[RX,ID].PxHeight := 136;
 
       GFXData[RX,ID].u1 := 0;
       GFXData[RX,ID].u2 := 1;

@@ -4,6 +4,7 @@ EXE-only r1006:
  +	Fixed error when displaying file lists without any files in them
  +	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
  +	Process KillUnit/AddScout commands through GIP, even if they are to be removed soon
+ +	Serfs will keep on taking stones to try to deliver them to died workers endlessly
 
  - 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  - 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
@@ -11,7 +12,6 @@ EXE-only r1006:
  -	Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
  -	Dots and lines displaying on tile edges
  -	Serfs should take wares back or to suitable house if destination is destroyed
-	Serfs will keep on taking stones to try to deliver them to died workers endlessly
  
 	Colored rectangle below cursor	
 	MediaPlayer won't play mp3s and crash

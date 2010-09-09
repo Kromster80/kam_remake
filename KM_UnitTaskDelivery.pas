@@ -89,6 +89,7 @@ begin
 
   //It is set to 0 when delivery is closed, but unit still exits Dest house (task not ended yet)
   if fDeliverID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
+  TKMUnitSerf(fUnit).CarryTake(false); //empty hands
 
   fLog.AppendLog('We abandoned carry 0');
   Inherited;
@@ -131,7 +132,7 @@ begin
         begin
           if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
           if fFrom.ResTakeFromOut(fResourceType) then begin
-            TKMUnitSerf(fUnit).GiveResource(fResourceType);
+            TKMUnitSerf(fUnit).CarryGive(fResourceType);
             fPlayers.Player[byte(GetOwner)].DeliverList.TakenOffer(fDeliverID);
           end else begin
             fLog.AssertToLog(false,'Serf '+inttostr(fUnit.ID)+' resource''s gone..?');
@@ -162,7 +163,7 @@ begin
     5:  if not fToHouse.IsDestroyed then
           SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance))
         else begin
-          TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          TKMUnitSerf(fUnit).CarryTake();
           fLog.AppendLog('We dropped carry 1');
           Abandon;
           TaskDone:=true;
@@ -170,7 +171,7 @@ begin
     6:  if not fToHouse.IsDestroyed then
           SetActionGoIn(ua_Walk,gd_GoInside,fToHouse)
         else begin
-          TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          TKMUnitSerf(fUnit).CarryTake();
           fLog.AppendLog('We dropped carry 2');
           Abandon;
           TaskDone:=true;
@@ -179,7 +180,7 @@ begin
     8:  if not fToHouse.IsDestroyed then
         begin
           fToHouse.ResAddToIn(TKMUnitSerf(fUnit).Carry);
-          TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          TKMUnitSerf(fUnit).CarryTake();
 
           fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
           fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
@@ -197,7 +198,7 @@ begin
             SetActionGoIn(ua_walk,gd_GoOutside,fToHouse);
 
         end else begin
-          TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          TKMUnitSerf(fUnit).CarryTake();
           fLog.AppendLog('We dropped carry 3');
           Abandon;
           TaskDone:=true;
@@ -216,7 +217,7 @@ begin
       5:  SetActionWalk(fUnit,fToHouse.GetEntrance,ua_Walk,false); //Any tile next to entrance will do
       6:  begin
             fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
-            TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+            TKMUnitSerf(fUnit).CarryTake();
             fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
             fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
             fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
@@ -225,7 +226,7 @@ begin
       else TaskDone:=true;
     end;
   end else begin
-    TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+    TKMUnitSerf(fUnit).CarryTake();
     fLog.AppendLog('We dropped carry 4');
     Abandon;
     TaskDone:=true;
@@ -239,7 +240,7 @@ begin
     5:  if (fToUnit<>nil)and(not fToUnit.IsDead) then
           SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false, fToUnit) //Pass a pointer to the Target Unit to the walk action so it can track it
         else begin
-          TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          TKMUnitSerf(fUnit).CarryTake();
           fLog.AppendLog('We dropped carry 5');
           Abandon;
           TaskDone:=true;
@@ -267,7 +268,7 @@ begin
               TKMUnitWarrior(fToUnit).RequestedFood := false;
             end;
           end;
-          TKMUnitSerf(fUnit).TakeResource(TKMUnitSerf(fUnit).Carry);
+          TKMUnitSerf(fUnit).CarryTake();
           fPlayers.Player[byte(GetOwner)].DeliverList.GaveDemand(fDeliverID);
           fPlayers.Player[byte(GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying

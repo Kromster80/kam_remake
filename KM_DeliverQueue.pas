@@ -41,7 +41,8 @@ type
     constructor Create;
     procedure AddNewOffer(aHouse:TKMHouse; aResource:TResourceType; aCount:integer);
     procedure RemoveOffer(aHouse:TKMHouse);
-    procedure RemoveDemand(aHouse:TKMHouse);
+    procedure RemoveDemand(aHouse:TKMHouse); overload;
+    procedure RemoveDemand(aUnit:TKMUnit); overload;
     procedure AddNewDemand(aHouse:TKMHouse; aUnit:TKMUnit; aResource:TResourceType; aDemandCount:byte; aDemandType:TDemandType; aImp:TDemandImportance);
     function PermitDelivery(iO,iD:integer):boolean;
     function AskForDelivery(KMSerf:TKMUnitSerf; KMHouse:TKMHouse=nil):TTaskDeliver;
@@ -182,13 +183,27 @@ end;
 procedure TKMDeliverQueue.RemoveDemand(aHouse:TKMHouse);
 var i:integer;
 begin
-  //We need to parse whole list, never knowing how many demands the house had
   for i:=1 to MaxEntries do
   if fDemand[i].Loc_House=aHouse then
   begin
     if fDemand[i].Loc_House <> nil then fDemand[i].Loc_House.ReleaseHousePointer;
+    FillChar(fDemand[i],SizeOf(fDemand[i]),#0); //Clear up demand
+    //Keep on scanning cos House can have multiple demands entries
+  end;
+end;
+
+
+//Remove Demand from the list. List is stored without sorting
+//so we parse it to find all entries..
+procedure TKMDeliverQueue.RemoveDemand(aUnit:TKMUnit);
+var i:integer;
+begin
+  for i:=1 to MaxEntries do
+  if fDemand[i].Loc_Unit=aUnit then
+  begin
     if fDemand[i].Loc_Unit <> nil then fDemand[i].Loc_Unit.ReleaseUnitPointer;
     FillChar(fDemand[i],SizeOf(fDemand[i]),#0); //Clear up demand
+    //Keep on scanning cos Unit can have multiple demands entries (foreseeing Walls building)
   end;
 end;
 
@@ -416,7 +431,7 @@ end;
 procedure TKMDeliverQueue.AbandonDelivery(aID:integer);
 begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Abandoned delivery ID', aID);
-  //if (aID=4) then fLog.AppendLog('8Closed delivery ID', aID);
+
   //Remove reservations without removing items from lists
   if fQueue[aID].OfferID <> 0 then
   begin

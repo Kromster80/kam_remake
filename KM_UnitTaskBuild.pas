@@ -11,6 +11,7 @@ type
       buildID:integer;
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
+      procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -21,6 +22,7 @@ type
       buildID:integer;
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
+      procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -31,6 +33,7 @@ type
       buildID:integer;
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
+      procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -41,6 +44,7 @@ type
       buildID:integer;
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
+      procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -56,6 +60,7 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
+      procedure Abandon; override;
       procedure Execute(out TaskDone:boolean); override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -117,60 +122,73 @@ begin
 end;
 
 
+procedure TTaskBuildRoad.Abandon;
+begin
+  fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
+
+  if fPhase > 1 then
+    fTerrain.RemMarkup(fLoc)
+  else
+    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
+
+  Inherited;
+end;
+
+
 procedure TTaskBuildRoad.Execute(out TaskDone:boolean);
 begin
-TaskDone:=false;
-with fUnit do
-case fPhase of
-0: begin
-     SetActionWalk(fUnit,fLoc);
-     Thought := th_Build;
-   end;
-1: begin
-     Thought := th_None;
-     fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
-     fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
-     SetActionStay(11,ua_Work1,false);
-   end;
-2: begin
-     fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house) after first dig
-     fTerrain.IncDigState(fLoc);
-     SetActionStay(11,ua_Work1,false);
-   end;
-3: begin
-     fTerrain.IncDigState(fLoc);
-     SetActionStay(11,ua_Work1,false);
-     fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
-   end;
+  TaskDone:=false;
+  with fUnit do
+  case fPhase of
+    0: begin
+         SetActionWalk(fUnit,fLoc);
+         Thought := th_Build;
+       end;
+    1: begin
+         Thought := th_None;
+         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+         fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
+         SetActionStay(11,ua_Work1,false);
+       end;
+    2: begin
+         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house) after first dig
+         fTerrain.IncDigState(fLoc);
+         SetActionStay(11,ua_Work1,false);
+       end;
+    3: begin
+         fTerrain.IncDigState(fLoc);
+         SetActionStay(11,ua_Work1,false);
+         fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
+       end;
 
-4: begin
-     SetActionStay(30,ua_Work1);
-     Thought:=th_Stone;
-   end;
+    4: begin
+         SetActionStay(30,ua_Work1);
+         Thought:=th_Stone;
+       end;
 
-5: begin
-     SetActionStay(11,ua_Work2,false);
-     Thought:=th_None;
-   end;
-6: begin
-     fTerrain.IncDigState(fLoc);
-     SetActionStay(11,ua_Work2,false);
-   end;
-7: begin
-     fTerrain.IncDigState(fLoc);
-     fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
-     if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
-       fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields and other quads as they won't fit with road
-     SetActionStay(11,ua_Work2,false);
-   end;
-8: begin
-     fTerrain.SetRoad(fLoc,GetOwner);
-     SetActionStay(5,ua_Walk);
-     fTerrain.RemMarkup(fLoc);
-   end;
-else TaskDone:=true;
-end;
-if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
+    5: begin
+         SetActionStay(11,ua_Work2,false);
+         Thought:=th_None;
+       end;
+    6: begin
+         fTerrain.IncDigState(fLoc);
+         SetActionStay(11,ua_Work2,false);
+       end;
+    7: begin
+         fTerrain.IncDigState(fLoc);
+         fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
+         if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
+           fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields and other quads as they won't fit with road
+         SetActionStay(11,ua_Work2,false);
+       end;
+    8: begin
+         fTerrain.SetRoad(fLoc,GetOwner);
+         SetActionStay(5,ua_Walk);
+         fTerrain.RemMarkup(fLoc);
+       end;
+    else TaskDone:=true;
+  end;
+  if fPhase<>4 then inc(fPhase); //Phase=4 is when worker waits for rt_Stone
 end;
 
 
@@ -198,6 +216,17 @@ begin
   Inherited;
   LoadStream.Read(fLoc);
   LoadStream.Read(buildID);
+end;
+
+
+procedure TTaskBuildWine.Abandon;
+begin
+  fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
+  if fPhase > 1 then
+    fTerrain.RemMarkup(fLoc)
+  else
+    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
+  Inherited;
 end;
 
 
@@ -274,6 +303,16 @@ begin
 end;
 
 
+procedure TTaskBuildField.Abandon;
+begin
+  if fPhase > 1 then
+    fTerrain.RemMarkup(fLoc)
+  else
+    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
+  Inherited;
+end;
+
+
 procedure TTaskBuildField.Execute(out TaskDone:boolean);
 begin
 TaskDone:=false;
@@ -333,64 +372,75 @@ begin
 end;
 
 
+procedure TTaskBuildWall.Abandon;
+begin
+  fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
+  if fPhase > 1 then
+    fTerrain.RemMarkup(fLoc)
+  else
+    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
+  Inherited;
+end;
+
+
 //todo: Need an idea for how to make it work
 procedure TTaskBuildWall.Execute(out TaskDone:boolean);
 begin
-TaskDone:=false;
-with fUnit do
-case fPhase of
-  0: begin
-       SetActionWalk(fUnit,fLoc);
-       Thought := th_Build;
-     end;
-  1: begin
-      fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
-      fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-      fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
-      SetActionLockedStay(0,ua_Walk);
-     end;
-  2: begin
-      fTerrain.IncDigState(fLoc);
-      SetActionStay(22,ua_Work1,false);
-    end;
-  3: begin
-      fTerrain.IncDigState(fLoc);
-      SetActionStay(22,ua_Work1,false);
-      fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Wood, 1, dt_Once, di_High);
-    end;
-  4: begin
-      SetActionStay(30,ua_Work1);
-      Thought:=th_Wood;
-    end;
-  5: begin
-      Thought := th_None;
-      SetActionStay(22,ua_Work2,false);
-    end;
-  6: begin
-      fTerrain.ResetDigState(fLoc);
-      fTerrain.IncDigState(fLoc);
-      SetActionStay(22,ua_Work2,false);
-    end;
-    //Ask for 2 more wood now
-    //@Lewin: It's yet incomplete
-  7: begin
-      //Walk away from tile and continue building from the side
-      SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetDesiredPassability));
-    end;
-  8: begin
-      //fTerrain.IncWallState(fLoc);
-      SetActionStay(11,ua_Work,false);
-    end;
-  9: begin
-      fTerrain.SetWall(fLoc,GetOwner);
-      SetActionLockedStay(0,ua_Work);
-      fTerrain.RemMarkup(fLoc);
-     end;
-  else TaskDone:=true;
-end;
-if (fPhase<>4)and(fPhase<>8) then inc(fPhase); //Phase=4 is when worker waits for rt_Wood
-if fPhase=8 then inc(fPhase2);
-if fPhase2=5 then inc(fPhase); //wait 5 cycles
+  TaskDone:=false;
+  with fUnit do
+  case fPhase of
+    0: begin
+         SetActionWalk(fUnit,fLoc);
+         Thought := th_Build;
+       end;
+    1: begin
+        fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+        fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
+        fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
+        SetActionLockedStay(0,ua_Walk);
+       end;
+    2: begin
+        fTerrain.IncDigState(fLoc);
+        SetActionStay(22,ua_Work1,false);
+      end;
+    3: begin
+        fTerrain.IncDigState(fLoc);
+        SetActionStay(22,ua_Work1,false);
+        fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Wood, 1, dt_Once, di_High);
+      end;
+    4: begin
+        SetActionStay(30,ua_Work1);
+        Thought:=th_Wood;
+      end;
+    5: begin
+        Thought := th_None;
+        SetActionStay(22,ua_Work2,false);
+      end;
+    6: begin
+        fTerrain.ResetDigState(fLoc);
+        fTerrain.IncDigState(fLoc);
+        SetActionStay(22,ua_Work2,false);
+      end;
+      //Ask for 2 more wood now
+      //@Lewin: It's yet incomplete
+    7: begin
+        //Walk away from tile and continue building from the side
+        SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetDesiredPassability));
+      end;
+    8: begin
+        //fTerrain.IncWallState(fLoc);
+        SetActionStay(11,ua_Work,false);
+      end;
+    9: begin
+        fTerrain.SetWall(fLoc,GetOwner);
+        SetActionLockedStay(0,ua_Work);
+        fTerrain.RemMarkup(fLoc);
+       end;
+    else TaskDone:=true;
+  end;
+  if (fPhase<>4)and(fPhase<>8) then inc(fPhase); //Phase=4 is when worker waits for rt_Wood
+  if fPhase=8 then inc(fPhase2);
+  if fPhase2=5 then inc(fPhase); //wait 5 cycles
 end;
 
 
@@ -442,6 +492,17 @@ end;
 destructor TTaskBuildHouseArea.Destroy;
 begin
   if fHouse <> nil then fHouse.ReleaseHousePointer;
+  Inherited;
+end;
+
+
+procedure TTaskBuildHouseArea.Abandon;
+begin
+  if fPhase <= 1 then
+    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenHousePlan(buildID) //Allow other workers to take this task
+  else //Otherwise we must destroy the house
+  if fHouse <> nil then
+    fPlayers.Player[byte(fUnit.GetOwner)].RemHouse(fHouse.GetPosition,true);
   Inherited;
 end;
 
