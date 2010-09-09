@@ -28,7 +28,7 @@ type
     end;
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Units_Warrior, KM_UnitActionWalkTo;
+uses KM_Game, KM_PlayersCollection, KM_Units_Warrior;
 
 
 { TTaskDeliver }
