@@ -246,7 +246,7 @@ begin
           TaskDone:=true;
         end;
     6:  begin
-          if (fToUnit<>nil)and(not fToUnit.IsDead)and(not(fToUnit.GetUnitTask is TTaskDie)) then
+          if (fToUnit<>nil) and not fToUnit.IsDeadOrDying then
           begin
             //See if the unit has moved. If so we must try again
             if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then

@@ -85,9 +85,8 @@ procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
 
   function CheckDoEnd:boolean;
   begin
-    Result := (fOpponent.GetUnitTask is TTaskDie) or //Unit is Killed
-              (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) or //Unit walked away (i.e. Serf)
-               fOpponent.IsDead; //unlikely, since unit is already performed TTaskDie
+    Result := (fOpponent.IsDeadOrDying) or //Unit is Killed
+              (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5); //Unit walked away (i.e. Serf)
   end;
 
 var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;

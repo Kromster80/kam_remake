@@ -163,7 +163,7 @@ end;
 procedure TKMUnitWarrior.KillUnit;
 var i,NewCommanderID:integer; Test,Nearest:single; NewCommander:TKMUnitWarrior;
 begin
-  if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
+  if IsDeadOrDying then exit; //Don't kill unit if it's already dying
 
   //Kill group member
   if fCommander <> nil then
@@ -712,7 +712,7 @@ begin
     //todo: Maybe check IsUnit first and also avoid hittesting allies and group members somehow?
     U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
     //Must not dead/dying, not inside a house, not from our team and an enemy
-    if (U <> nil) and (U.IsVisible) and(not (U.GetUnitTask is TTaskDie)) and (not U.IsDead) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
+    if (U <> nil) and (U.IsVisible) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
     begin
       //We'd rather fight a warrior, so store them seperatly
       if U is TKMUnitWarrior then
@@ -781,8 +781,7 @@ begin
     //Must not dead/dying, not inside a house, not from our team and an enemy
     if (U <> nil)and
        (U.IsVisible)and
-       (not (U.GetUnitTask is TTaskDie))and
-       (not U.IsDead)and
+       (not U.IsDeadOrDying)and
        (fPlayers.CheckAlliance(GetOwner, U.GetOwner) = at_Enemy) then
     begin
       //We'd rather fight a warrior, so store them seperatly
@@ -1025,7 +1024,7 @@ Inherited;
 
   fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
-  if (fCommander=nil) and not (fUnitTask is TTaskDie) then begin
+  if (fCommander=nil) and not IsDeadOrDying then begin
     //todo: Fix flag offsets
     //XPaintPos := XPaintPos + FlagXOffset[UnitType]/CELL_SIZE_PX;
     YPaintPos := YPaintPos + FlagYOffset[UnitType]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)

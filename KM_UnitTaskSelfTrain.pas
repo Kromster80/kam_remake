@@ -62,7 +62,7 @@ var TempUnit: TKMUnit;
 begin
   TempUnit := fUnit; //Make local copy of the pointer because Inherited will set the pointer to nil
   Inherited;
-  TempUnit.RemoveUntrainedFromSchool; //CloseUnit at last, cos it will FreeAndNil TTask
+  TempUnit.CloseUnit; //CloseUnit at last, cos it will FreeAndNil TTask
 end;
 
 

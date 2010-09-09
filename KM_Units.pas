@@ -41,30 +41,15 @@ type
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad(); dynamic;
     destructor Destroy; override;
+
     procedure Abandon; virtual;
     function WalkShouldAbandon:boolean; dynamic;
     property Phase:byte read fPhase write fPhase;
+
     procedure Execute(out TaskDone:boolean); virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
-    TTaskGoHome = class(TUnitTask)
-    public
-      constructor Create(aUnit:TKMUnit);
-      procedure Execute(out TaskDone:boolean); override;
-    end;
-
-
-    {Yep, this is a Task}
-    TTaskDie = class(TUnitTask)
-    private
-      SequenceLength:integer;
-    public
-      constructor Create(aUnit:TKMUnit);
-      constructor Load(LoadStream:TKMemoryStream); override;
-      procedure Execute(out TaskDone:boolean); override;
-      procedure Save(SaveStream:TKMemoryStream); override;
-    end;
 
     TTaskGoOutShowHungry = class(TUnitTask)
     public
@@ -93,7 +78,6 @@ type
     fCurrPosition: TKMPoint; //Where we are now
     fPrevPosition: TKMPoint; //Where we were
     fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
-    procedure CloseUnit;
     procedure SetAction(aAction: TUnitAction; aStep:integer);
   public
     ID:integer; //unique unit ID, used for save/load to sync to
@@ -146,8 +130,9 @@ type
     procedure SetInHouse(aInHouse:TKMHouse);
     property GetInHouse:TKMHouse read fInHouse write SetInHouse;
     property IsDead:boolean read fIsDead;
+    function IsDeadOrDying:boolean;
     function IsArmyUnit():boolean;
-    procedure RemoveUntrainedFromSchool();
+    procedure CloseUnit;
     function CanGoEat:boolean;
     //property IsAtHome: boolean read UnitAtHome;
     function GetPosition:TKMPoint;
@@ -261,7 +246,7 @@ KM_ResourceGFX,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
 KM_Units_Warrior,
 
-KM_UnitTaskBuild, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
+KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 
 
 { TKMUnitCitizen }
@@ -1401,16 +1386,16 @@ begin
 end;
 
 
+function TKMUnit.IsDeadOrDying:boolean;
+begin
+  Result := fIsDead or (fUnitTask is TTaskDie);
+end;
+
+
 {Check wherever this unit is armed}
 function TKMUnit.IsArmyUnit():boolean;
 begin
   Result:= fUnitType in [ut_Militia .. ut_Barbarian];
-end;
-
-
-procedure TKMUnit.RemoveUntrainedFromSchool();
-begin
-  CloseUnit; //Provide this procedure as a pointer to the private procedure CloseUnit so that CloseUnit is not run by mistake
 end;
 
 
@@ -1707,102 +1692,6 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(fPhase);
   SaveStream.Write(fPhase2);
-end;
-
-
-{ TTaskGoHome }
-constructor TTaskGoHome.Create(aUnit:TKMUnit);
-begin
-  Inherited Create(aUnit);
-  fTaskName := utn_GoHome;
-  if fUnit <> nil then fUnit.SetActionLockedStay(0, ua_Walk);
-end;
-
-
-procedure TTaskGoHome.Execute(out TaskDone:boolean);
-begin
-  TaskDone:=false;
-  if fUnit.fHome.IsDestroyed then begin
-    Abandon;
-    TaskDone:=true;
-    exit;
-  end;
-  with fUnit do
-  case fPhase of
-    0: begin
-         fThought := th_Home;
-         SetActionWalk(fUnit,KMPointY1(fHome.GetEntrance));
-       end;
-    1: SetActionGoIn(ua_Walk, gd_GoInside, fHome);
-    2: begin
-        fThought := th_None; //Only stop thinking once we are right inside
-        fHome.SetState(hst_Idle);
-        SetActionStay(5,ua_Walk);
-       end;
-    else TaskDone:=true;
-  end;
-  inc(fPhase);
-  if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-    fGame.GameError(fUnit.GetPosition, 'Go home No action, no TaskDone!');
-end;
-
-
-{ TTaskDie }
-constructor TTaskDie.Create(aUnit:TKMUnit);
-begin
-  Inherited Create(aUnit);
-  fTaskName := utn_Die;
-  fUnit.SetActionLockedStay(0,ua_Walk);
-  SequenceLength := fResource.GetUnitSequenceLength(fUnit.fUnitType,ua_Die,fUnit.Direction);
-  if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
-end;
-
-
-constructor TTaskDie.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
-  LoadStream.Read(SequenceLength);
-end;
-
-
-procedure TTaskDie.Execute(out TaskDone:boolean);
-begin
-TaskDone := false;
-with fUnit do
-case fPhase of
-  0: if not fVisible then begin
-       if fHome<>nil then begin
-         fHome.SetState(hst_Idle);
-         fHome.SetState(hst_Empty);
-         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome);
-       end
-       else
-         SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(fUnit.NextPosition.X,fUnit.NextPosition.Y));
-                                         //Inn or Store or etc.. for units without home.
-                                         //Which means that our current approach to deduce housetype from
-                                         //fUnit.fHome is wrong
-     end else
-     SetActionLockedStay(0,ua_Walk);
-  1: if SequenceLength > 0 then
-     begin
-       SetActionLockedStay(SequenceLength,ua_Die,false);
-       if fUnit is TKMUnitWarrior then
-         fSoundLib.PlayWarrior(fUnit.GetUnitType, sp_Death);
-     end
-     else SetActionLockedStay(0,ua_Walk);
-  else begin
-      fUnit.CloseUnit;
-      exit;
-     end;
-end;
-inc(fPhase);
-end;
-
-
-procedure TTaskDie.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited;
-  SaveStream.Write(SequenceLength);
 end;
 
 

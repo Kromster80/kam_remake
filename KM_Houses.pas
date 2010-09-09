@@ -1167,7 +1167,7 @@ begin
   if aID = 1 then begin
     SetState(hst_Idle);
     if UnitWIP<>nil then begin
-      TKMUnit(UnitWIP).RemoveUntrainedFromSchool; //Make sure unit started training
+      TKMUnit(UnitWIP).CloseUnit; //Make sure unit started training
       HideOneGold:=false;
     end;
     UnitWIP:=nil;

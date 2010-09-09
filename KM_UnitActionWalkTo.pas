@@ -331,7 +331,7 @@ end;
 
 function TUnitActionWalkTo.CheckTargetHasDied():TTargetDiedCheck;
 begin
-  if (fTargetUnit=nil) or not ((fTargetUnit.IsDead) or (fTargetUnit.GetUnitTask is TTaskDie)) then
+  if (fTargetUnit=nil) or not fTargetUnit.IsDeadOrDying then
     Result := tc_NoChanges
   else begin
     if (fWalker is TKMUnitWarrior) and (fTargetUnit is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).GetWarriorState <> ws_Engage) then
