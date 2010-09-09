@@ -153,7 +153,7 @@ begin
 
   fGame.UpdateStateIdle(FrameTime);
   fRender.Render;
-  done := false; //repeats OnIdle event
+  Done := false; //repeats OnIdle event
 end;
 
 

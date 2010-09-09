@@ -14,13 +14,14 @@ EXE-only r1006:
 	Serfs will keep on taking stones to try to deliver them to died workers endlessly
  
 	Colored rectangle below cursor	
-	Citizen will try to walk home when it has no road tile below entrance
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
 	Sometimes the taskbar stays on top in fullscreen mode
 	See-through hills (lighting flaw)
 	Many texts will not change if I change the language in options menu
 	Two monitor config, scrolling works well only on 1st display
+
+ ?	Citizen will try to walk home when it has no road tile below entrance (I think thats not a bug)
  ? 	Music doesn't work
  ?	game in fullscreen mode flickers terrible! (TK, tested on TV and LCD, 50Hz?)
  ?	I got a access violation when I was deleting my fisherman.
