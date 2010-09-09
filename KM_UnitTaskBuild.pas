@@ -110,7 +110,6 @@ begin
   fTaskName := utn_BuildRoad;
   fLoc      := aLoc;
   buildID   := aID;
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 
@@ -207,7 +206,6 @@ begin
   fTaskName := utn_BuildWine;
   fLoc      := aLoc;
   buildID   := aID;
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 
@@ -291,7 +289,6 @@ begin
   fTaskName := utn_BuildField;
   fLoc      := aLoc;
   buildID   := aID;
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 
@@ -360,7 +357,6 @@ begin
   fTaskName := utn_BuildWall;
   fLoc      := aLoc;
   buildID   := aID;
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 
@@ -466,7 +462,6 @@ begin
     inc(Step);
     Cells[Step] := KMPoint(fHouse.GetPosition.X + k - 3,fHouse.GetPosition.Y + i - 4);
   end;
-  fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 
@@ -601,8 +596,6 @@ begin
 
   Cells := TKMPointDirList.Create;
   fHouse.GetListOfCellsAround(Cells, aWorker.GetDesiredPassability);
-
-  fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 
@@ -757,8 +750,6 @@ begin
 
   Cells := TKMPointDirList.Create;
   fHouse.GetListOfCellsAround(Cells, aWorker.GetDesiredPassability);
-
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 

@@ -30,7 +30,6 @@ begin
   fTaskName := utn_Mining;
   WorkPlan  := aWorkPlan;
   BeastID   := 0;
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 

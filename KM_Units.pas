@@ -1635,7 +1635,9 @@ constructor TUnitTask.Create(aUnit:TKMUnit);
 begin
   Inherited Create;
   fTaskName := utn_Unknown;
-  if aUnit <> nil then fUnit := aUnit.GetUnitPointer;
+  Assert(aUnit <> nil);
+  fUnit := aUnit.GetUnitPointer;
+  fUnit.SetActionLockedStay(0,ua_Walk);
   fPhase    := 0;
   fPhase2   := 0;
 end;
@@ -1700,7 +1702,6 @@ constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_GoOutShowHungry;
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 

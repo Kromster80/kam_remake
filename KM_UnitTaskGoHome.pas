@@ -20,7 +20,6 @@ constructor TTaskGoHome.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_GoHome;
-  if fUnit <> nil then fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 

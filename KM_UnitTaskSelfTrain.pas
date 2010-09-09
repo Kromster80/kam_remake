@@ -31,7 +31,6 @@ begin
   fTaskName := utn_SelfTrain;
   fSchool   := TKMHouseSchool(aSchool.GetHousePointer); //GetHouse returnes TKMHouse, not TKMHouseSchool
   fUnit.SetVisibility := false;
-  fUnit.SetActionStay(0, ua_Walk);
 end;
 
 

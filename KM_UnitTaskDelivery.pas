@@ -48,8 +48,6 @@ begin
 
   fResourceType := Res;
   fDeliverID    := aID;
-
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 

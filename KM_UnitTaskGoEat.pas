@@ -32,7 +32,6 @@ begin
   fTaskName := utn_GoEat;
   fInn      := TKMHouseInn(aInn.GetHousePointer);
   PlaceID   := 0;
-  fUnit.SetActionLockedStay(0,ua_Walk);
 end;
 
 

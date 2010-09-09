@@ -25,7 +25,6 @@ constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_Die;
-  fUnit.SetActionLockedStay(0,ua_Walk);
   SequenceLength := fResource.GetUnitSequenceLength(fUnit.GetUnitType,ua_Die,fUnit.Direction);
   if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
 end;

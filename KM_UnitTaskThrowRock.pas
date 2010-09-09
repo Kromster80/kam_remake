@@ -29,7 +29,6 @@ begin
   Inherited Create(aUnit);
   fTaskName := utn_ThrowRock;
   fTarget := aTarget;
-  if fUnit <> nil then fUnit.SetActionLockedStay(0, ua_Walk);
 end;
 
 
