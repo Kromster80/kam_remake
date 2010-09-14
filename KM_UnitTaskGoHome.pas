@@ -1,7 +1,7 @@
 unit KM_UnitTaskGoHome;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KM_Houses, KromUtils, SysUtils;
+uses Classes, KM_Defaults, KM_Units, KM_Houses, KromUtils, SysUtils;
 
 type
   TTaskGoHome = class(TUnitTask)
@@ -12,7 +12,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_UnitActionWalkTo, KM_Game, KM_Utils;
+uses KM_Game, KM_Utils;
 
 
 { TTaskGoHome }

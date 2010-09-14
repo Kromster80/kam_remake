@@ -21,7 +21,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_UnitActionWalkTo, KM_Game, KM_Utils;
+uses KM_PlayersCollection;
 
 
 { TTaskSelfTrain }

@@ -20,7 +20,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_UnitActionWalkTo, KM_Game, KM_Utils, KM_Projectiles;
+uses KM_PlayersCollection, KM_Game, KM_Projectiles;
 
 
 { TTaskThrowRock }

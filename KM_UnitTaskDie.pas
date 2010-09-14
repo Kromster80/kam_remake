@@ -1,7 +1,7 @@
 unit KM_UnitTaskDie;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KM_Houses, KromUtils, SysUtils;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KromUtils, SysUtils;
 
 type
   {Yep, this is a Task}
@@ -17,7 +17,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_PlayersCollection, KM_UnitActionWalkTo, KM_Game, KM_Utils, KM_ResourceGFX, KM_Units_Warrior;
+uses KM_Sound, KM_PlayersCollection, KM_ResourceGFX, KM_Units_Warrior;
 
 
 { TTaskDie }

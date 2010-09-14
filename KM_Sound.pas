@@ -60,8 +60,7 @@ var
 
 
 implementation
-uses
-  KM_Unit1, KM_Game, Dialogs;
+uses KM_Game, Dialogs;
 
 
 constructor TSoundLib.Create(aLocale:string);

@@ -9,7 +9,7 @@ uses
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, MMSystem,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
-  KM_Game, KM_Viewport, KM_PlayersCollection, ColorPicker,
+  KM_Game, KM_PlayersCollection, ColorPicker,
   KM_LoadLib, KM_Sound;
 
 type
