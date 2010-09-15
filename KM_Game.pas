@@ -280,13 +280,13 @@ procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Inte
 var P: TKMPoint; MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
   case GameState of
-    gsNoGame:   fMainMenuInterface.MyControls.MouseDown(X,Y,Button);
+    gsNoGame:   fMainMenuInterface.MyControls.MouseDown(X,Y,Shift,Button);
     gsPaused:   exit; //No clicking when paused
     gsOnHold:   exit; //No clicking when on hold
     gsReplay:   exit; //No clicking when replay goes .. ?
     gsRunning:  begin
-                  fGameplayInterface.MyControls.MouseDown(X,Y,Button);
-                  MOver := fGameplayInterface.MyControls.MouseOverControl;
+                  fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
+                  MOver := fGameplayInterface.MyControls.CtrlOver;
                   P := GameCursor.Cell; //Get cursor position tile-wise
 
                   //These are only for testing purposes, Later on it should be changed a lot
@@ -341,9 +341,8 @@ begin
                     fGamePlayInterface.ShowDirectionCursor(false);
                   end;
                 end;
-    gsEditor:   fMapEditorInterface.MyControls.MouseDown(X,Y,Button);
+    gsEditor:   fMapEditorInterface.MyControls.MouseDown(X,Y,Shift,Button);
   end;
-  MouseMove(Shift,X,Y);
 end;
 
 
@@ -355,7 +354,7 @@ begin
   case GameState of
     gsNoGame:   begin
                   fMainMenuInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fMainMenuInterface.MyControls.MouseOverControl is TKMTextEdit then // Show "CanEdit" cursor
+                  if fMainMenuInterface.MyControls.CtrlOver is TKMTextEdit then // Show "CanEdit" cursor
                     Screen.Cursor := c_Default  //@Lewin: Should be something else, any ideas?
                                                 //@Krom: We could make our own 'I' cursor using textures from other cursors, shouldn't be hard. Shall I?
                                                 //@Lewin: That would be great!
@@ -375,7 +374,7 @@ begin
                   //       We'll probably find a use for that later so we can force the player to only use certain controls.
                   //@Lewin: I'd like to solve the case with minimal changes in code, or no at all.
                   fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fGameplayInterface.MyControls.MouseOverControl()<>nil then
+                  if fGameplayInterface.MyControls.CtrlOver<>nil then
                     Screen.Cursor := c_Default
                 end;
     gsRunning:  begin
@@ -392,7 +391,7 @@ begin
                   else
                   begin
                   fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fGameplayInterface.MyControls.MouseOverControl()<>nil then
+                  if fGameplayInterface.MyControls.CtrlOver<>nil then
                     Screen.Cursor := c_Default
                   else begin
                     fTerrain.ComputeCursorPosition(X,Y,Shift);
@@ -436,7 +435,7 @@ begin
                 end;
     gsEditor:   begin
                   fMapEditorInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fMapEditorInterface.MyControls.MouseOverControl()<>nil then
+                  if fMapEditorInterface.MyControls.CtrlOver<>nil then
                     Screen.Cursor:=c_Default
                   else
                   begin
@@ -495,28 +494,28 @@ begin
   end;
 
   case GameState of //Remember clicked control
-    gsNoGame:   MOver := fMainMenuInterface.MyControls.MouseOverControl();
+    gsNoGame:   MOver := fMainMenuInterface.MyControls.CtrlOver;
     gsPaused:   MOver := nil;
-    gsOnHold:   MOver := fGameplayInterface.MyControls.MouseOverControl();
-    gsRunning:  MOver := fGameplayInterface.MyControls.MouseOverControl();
-    gsEditor:   MOver := fMapEditorInterface.MyControls.MouseOverControl();
+    gsOnHold:   MOver := fGameplayInterface.MyControls.CtrlOver;
+    gsRunning:  MOver := fGameplayInterface.MyControls.CtrlOver;
+    gsEditor:   MOver := fMapEditorInterface.MyControls.CtrlOver;
     else        MOver := nil; //MOver should always be initialized
   end;
 
   if (MOver <> nil) and (MOver is TKMButton) and MOver.Enabled and TKMButton(MOver).MakesSound then fSoundLib.Play(sfx_click);
 
   case GameState of
-    gsNoGame:   fMainMenuInterface.MyControls.MouseUp(X,Y,Button);
+    gsNoGame:   fMainMenuInterface.MyControls.MouseUp(X,Y,Shift,Button);
     gsPaused:   exit;
-    gsOnHold:   if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.MouseUp(X,Y,Button);
+    gsOnHold:   if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
     gsRunning:
       begin
         P := GameCursor.Cell; //Get cursor position tile-wise
         if MOver <> nil then
-          fGameplayInterface.MyControls.MouseUp(X,Y,Button)
+          fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button)
         else begin
 
-          if (Button = mbMiddle) and (fGameplayInterface.MyControls.MouseOverControl = nil) then
+          if (Button = mbMiddle) and (fGameplayInterface.MyControls.CtrlOver = nil) then
             fGameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
 
           if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
@@ -632,7 +631,7 @@ begin
                 fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
                 P := GameCursor.Cell; //Get cursor position tile-wise
                 if MOver <> nil then
-                  fMapEditorInterface.MyControls.MouseUp(X,Y,Button)
+                  fMapEditorInterface.MyControls.MouseUp(X,Y,Shift,Button)
                 else
                 if Button = mbRight then
                   fMapEditorInterface.RightClick_Cancel
@@ -697,12 +696,12 @@ begin
     gsOnHold:   ;
     gsRunning:  begin
                   fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
-                  AllowZoom := (fGameplayInterface.MyControls.MouseOverControl = nil);
+                  AllowZoom := (fGameplayInterface.MyControls.CtrlOver = nil);
                 end;
     gsReplay:   fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
     gsEditor:   begin
                   fMapEditorInterface.MyControls.MouseWheel(X, Y, WheelDelta);
-                  AllowZoom := (fMapEditorInterface.MyControls.MouseOverControl = nil);
+                  AllowZoom := (fMapEditorInterface.MyControls.CtrlOver = nil);
                 end;
   end;
 

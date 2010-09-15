@@ -7,6 +7,9 @@ type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
   TNotifyEventMW = procedure(Sender: TObject; AWheelDelta:integer) of object;
 
+  TControlState = (csDown, csFocus, csOver);
+  TControlStateSet = set of TControlState;
+
 
 {Base class for all TKM elements}
 type
@@ -26,26 +29,20 @@ TKMControl = class(TObject)
 
     Enabled: boolean;
     Visible: boolean;
-    HasFocus: boolean; //Occurs when cursor recieves focus and remains till new Ctrl HasFocus
+    State: TControlStateSet; //Each control has it localy to avoid quering Collection on each Render
 
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
 
-    CursorOver:boolean;
-
-    FOnChange:TNotifyEvent;
     FOnClick:TNotifyEvent;
     FOnClickEither:TNotifyEventMB;
     FOnClickRight:TNotifyEvent;
     FOnMouseWheel:TNotifyEventMW;
-    FOnMouseOver:TMouseMoveEvent;
-    FOnHint:TMouseMoveEvent;
+    FOnMouseOver:TNotifyEvent;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     procedure ParentTo (aParent:TKMControl);
     function HitTest(X, Y: Integer): Boolean; virtual;
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
-    procedure HintCheckCursorOver(X,Y:integer; AShift:TShiftState); virtual;
     procedure Paint(); virtual;
   public
     property Left: Integer read GetLeft write fLeft;
@@ -57,25 +54,32 @@ TKMControl = class(TObject)
     procedure Show;
     procedure Hide;
     function IsVisible():boolean;
+
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; virtual;
+    procedure MouseDown (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
+    procedure MouseMove (X,Y:integer; Shift:TShiftState); virtual;
+    procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
     procedure MouseWheel(X,Y:integer; WheelDelta:integer); virtual;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnClickEither: TNotifyEventMB read FOnClickEither write FOnClickEither;
     property OnClickRight: TNotifyEvent read FOnClickRight write FOnClickRight;
     property OnMouseWheel: TNotifyEventMW read FOnMouseWheel write FOnMouseWheel;
-    property OnMouseOver: TMouseMoveEvent read FOnMouseOver write FOnMouseOver;
-    property OnHint: TMouseMoveEvent read FOnHint write FOnHint;
+    property OnMouseOver: TNotifyEvent read FOnMouseOver write FOnMouseOver;
 end;
 
 
 {Panel which should have child items on it, it's virtual and invisible}
 TKMPanel = class(TKMControl)
+  private
+    GetCollection:Pointer;
   public
     ChildCount:word;             //Those two are actually used only for TKMPanel
     Childs: array of TKMControl; //No other elements needs to be parented
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
+    procedure MouseDown (X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure MouseMove (X,Y:integer; Shift:TShiftState); override;
+    procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseWheel(X,Y:integer; WheelDelta:integer); override;
     procedure Paint(); override;
 end;
@@ -151,7 +155,6 @@ end;
 {3DButton}
 TKMButton = class(TKMControl)
   public
-    Down:boolean; //Only 3DButton can be pressed down
     MakesSound:boolean;
     RXid: integer; //RX library
     TexID: integer;
@@ -162,7 +165,6 @@ TKMButton = class(TKMControl)
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle); overload;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle); overload;
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
 
@@ -187,16 +189,17 @@ end;
 
 {EditField}
 TKMTextEdit = class(TKMControl)
+  private
+    FOnChange:TNotifyEvent;
   public
     Text: string;
     Font: TKMFont;
     Masked:boolean;
     CursorPos:integer;
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
-    procedure Paint(); override;
-  public
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; override;
+    procedure Paint(); override;
 end;
 
 
@@ -264,13 +267,15 @@ end;
 
 {Ratio bar}
 TKMRatioRow = class(TKMControl)
+  private
+    FOnChange:TNotifyEvent;
   public
     Position:byte;
     MinValue:byte;
     MaxValue:byte;
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer);
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
+    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     procedure Paint(); override;
 end;
 
@@ -279,6 +284,8 @@ type TScrollAxis = (sa_Vertical, sa_Horizontal);
 
 {Scroll bar}
 TKMScrollBar = class(TKMControl)
+  private
+    FOnChange:TNotifyEvent;
   public
     Position:byte;
     MinValue:byte;
@@ -290,27 +297,28 @@ TKMScrollBar = class(TKMControl)
     Style:TButtonStyle;
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
+    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure RefreshItems();
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     procedure Paint(); override;
 end;
 
 
 { Minimap as stand-alone control }
 TKMMinimap = class(TKMControl)
+  private
+    FOnChange:TNotifyEvent;
   public
     MapSize:TKMPoint;
     BoundRectAt:TKMPoint;
     ViewArea:TRect;
-  protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
-    procedure Paint(); override;
-  public
     function GetMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
-    function  InMapCoords(X,Y:integer):boolean;
+    function InMapCoords(X,Y:integer):boolean;
+    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    procedure Paint(); override;
 end;
 
 
@@ -320,6 +328,7 @@ TKMFileList = class(TKMControl)
     ItemHeight:byte;
     fPath:string;
     ScrollBar:TKMScrollBar;
+    FOnChange:TNotifyEvent;
     procedure ChangeScrollPosition (Sender:TObject);
   public
     TopIndex:smallint; //up to 32k files
@@ -331,10 +340,11 @@ TKMFileList = class(TKMControl)
 
     procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
     function FileName:string;
+    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(X,Y:integer; WheelDelta:integer); override;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
   protected
 
-    procedure CheckCursorOver(X,Y:integer; AShift:TShiftState); override;
     procedure Paint(); override;
 end;
 
@@ -342,14 +352,27 @@ end;
 { TKMControlsCollection }
 TKMControlsCollection = class(TKMList) //Making list of true TKMControls involves much coding for no visible result
   private
-    fFocusedControl:TKMControl;
+    fCtrlDown:TKMControl; //Control that was pressed Down
+    fCtrlFocus:TKMControl; //Control which has input Focus
+    fCtrlOver:TKMControl; //Control which has cursor Over it
+    fCtrlUp:TKMControl; //Control above which cursor was released
     procedure AddToCollection(Sender:TKMControl);
-    function GetControl(Index: Integer): TKMControl;
+    function  GetControl(Index: Integer): TKMControl;
     procedure SetControl(Index: Integer; Item: TKMControl);
-    property Controls[Index: Integer]: TKMControl read GetControl write SetControl; //Use instead of Items[.]
+    property  Controls[Index: Integer]: TKMControl read GetControl write SetControl; //Use instead of Items[.]
+
+    procedure SetCtrlDown(aCtrl:TKMControl);
+    procedure SetCtrlFocus(aCtrl:TKMControl);
+    procedure SetCtrlOver(aCtrl:TKMControl);
+    procedure SetCtrlUp(aCtrl:TKMControl);
   public
     constructor Create;
     destructor Destroy; override;
+
+    property CtrlDown:TKMControl read fCtrlDown write SetCtrlDown;
+    property CtrlFocus:TKMControl read fCtrlFocus write SetCtrlFocus;
+    property CtrlOver:TKMControl read fCtrlOver write SetCtrlOver;
+    property CtrlUp:TKMControl read fCtrlUp write SetCtrlUp;
 
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddBevel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
@@ -371,12 +394,10 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     function AddFileList        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
 
-    property GetFocusedControl:TKMControl read fFocusedControl;
     function KeyUp              (Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
-    function MouseOverControl   ():TKMControl;
-    procedure MouseDown       (X,Y:integer; AButton:TMouseButton);
-    procedure MouseMove       (X,Y:integer; AShift:TShiftState);
-    procedure MouseUp         (X,Y:integer; AButton:TMouseButton);
+    procedure MouseDown       (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+    procedure MouseMove       (X,Y:integer; Shift:TShiftState);
+    procedure MouseUp         (X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
     procedure MouseWheel      (X,Y:integer; WheelDelta:integer);
 
     procedure Paint();
@@ -388,6 +409,8 @@ end;
 implementation
 uses KM_RenderUI, KM_Utils;
 
+
+{ TKMControl }
 constructor TKMControl.Create(aLeft,aTop,aWidth,aHeight:integer);
 begin
   Inherited Create;
@@ -395,7 +418,7 @@ begin
   Top       := aTop;
   Width     := aWidth;
   Height    := aHeight;
-  HasFocus  := false;
+  State     := [];
   Enabled   := true;
   Visible   := true;
   Tag       := 0;
@@ -422,29 +445,6 @@ begin
 end;
 
 
-procedure TKMControl.CheckCursorOver(X,Y:integer; AShift:TShiftState);
-begin
-  CursorOver:=InRange(X,Left,Left+Width) and InRange(Y,Top,Top+Height);
-  if (CursorOver)and(Assigned(Self.OnMouseOver)) then
-    Self.OnMouseOver(Self,AShift,X,Y);
-end;
-
-
-procedure TKMControl.HintCheckCursorOver(X,Y:integer; AShift:TShiftState);
-var i:integer;
-begin
-  CursorOver:=InRange(X,Left,Left+Width) and InRange(Y,Top,Top+Height);
-
-  if (CursorOver)and(Assigned(Self.OnHint))and(Hint<>'') then
-    Self.OnHint(Self,AShift,X,Y);
-
-  if Self is TKMPanel then //Only Panels have childs
-    for i:=1 to TKMPanel(Self).ChildCount do
-      if TKMPanel(Self).Childs[i].Visible then //No hints for invisible controls
-         TKMPanel(Self).Childs[i].HintCheckCursorOver(X,Y,AShift);
-end;
-
-
 function TKMControl.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
 var Amt:byte;
 begin
@@ -461,6 +461,27 @@ begin
   if Key = VK_UP then fTop := fTop - Amt;
   if Key = VK_DOWN then fTop := fTop + Amt;
 end;
+
+
+procedure TKMControl.MouseDown(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  //if Assigned(fOnMouseDown) then fOnMouseDown(Self); { Unused }
+end;
+
+
+procedure TKMControl.MouseMove(X,Y:integer; Shift:TShiftState);
+begin
+  if Assigned(fOnMouseOver) then fOnMouseOver(Self);
+end;
+
+
+procedure TKMControl.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
+  if (csDown in State) and (Button = TMouseButton(mbLeft)) and Assigned(fOnClick) then
+    OnClick(Self);
+end;
+
 
 
 procedure TKMControl.MouseWheel(X,Y:integer; WheelDelta:integer);
@@ -504,7 +525,7 @@ begin
   if Self is TKMScrollBar  then sColor := $20FFFF00;
   if Self is TKMFileList   then sColor := $200080FF;
 
-  if CursorOver then sColor := sColor OR $30000000; //Highlight on mouse over
+  if csOver in State then sColor := sColor OR $30000000; //Highlight on mouse over
 
   fRenderUI.WriteLayer(Left, Top, Width, Height, sColor);
   fRenderUI.WriteLayer(Left-3, Top-3, 6, 6, sColor or $FF000000);
@@ -561,13 +582,61 @@ end;
 
 
 { TKMPanel } //virtual panels to contain child items
-procedure TKMPanel.CheckCursorOver(X, Y: integer; AShift: TShiftState);
+constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+end;
+
+
+{ Send MouseDown to the last created control
+Function should quickly scan all Panels and set CtrlDown to be the last created control
+Panel can't become CtrlDown }
+procedure TKMPanel.MouseDown(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 var i:integer;
 begin
-  Inherited;
+  for i:=1 to ChildCount do //Scan in reverse will find Top control in some Panel, but will keep scanning other sibling Panels, thats why I chose simplier solution - scan everything
+  if Childs[i].Visible and Childs[i].Enabled then begin
+    if (Childs[i] is TKMPanel) then
+      Childs[i].MouseDown(X,Y,Shift,Button)
+    else
+    if Childs[i].HitTest(X,Y) then
+      TKMControlsCollection(GetCollection).CtrlDown := Childs[i];
+  end;
+end;
+
+
+{ Send MouseMove to the last created control
+Function should quickly scan all Panels and set CtrlOver to be the last created control
+Panel can't become CtrlOver }
+procedure TKMPanel.MouseMove(X,Y:Integer; Shift:TShiftState);
+var i:integer;
+begin
   for i:=1 to ChildCount do
-    if Childs[i].Visible and Childs[i].Enabled then
-       Childs[i].CheckCursorOver(X,Y,AShift);
+  if Childs[i].Visible and Childs[i].Enabled then begin
+    if (Childs[i] is TKMPanel) then
+      Childs[i].MouseMove(X,Y,Shift)
+    else
+    if Childs[i].HitTest(X,Y) then
+      TKMControlsCollection(GetCollection).CtrlOver := Childs[i];
+  end;
+end;
+
+
+{ Send MouseUp to the last created control
+Function should quickly scan all Panels and set CtrlUp to be the last created control
+Panel can't become CtrlUp }
+procedure TKMPanel.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+var i:integer;
+begin
+  for i:=1 to ChildCount do
+  if Childs[i].Visible and Childs[i].Enabled then begin
+    if (Childs[i] is TKMPanel) then
+      Childs[i].MouseUp(X,Y,Shift,Button)
+    else
+    if Childs[i].HitTest(X,Y) then
+      TKMControlsCollection(GetCollection).CtrlUp := Childs[i];
+  end;
 end;
 
 
@@ -578,13 +647,6 @@ begin
   for i:=1 to ChildCount do
     if Childs[i].Visible and Childs[i].HitTest(X,Y) and Childs[i].Enabled then
       Childs[i].MouseWheel(X,Y,WheelDelta);
-end;
-
-
-constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-begin
-  Inherited Create(aLeft,aTop,aWidth,aHeight);
-  ParentTo(aParent);
 end;
 
 
@@ -738,9 +800,9 @@ begin
     OffsetY := (Height - GFXData[RXid, TexID].PxHeight) div 2;
 
   if StretchDraw then
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, Enabled, (HighlightOnMouseOver AND CursorOver) OR Highlight)
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, DrawWidth, DrawHeight, RXid, TexID, Enabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight)
   else
-    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, Enabled, (HighlightOnMouseOver AND CursorOver) OR Highlight);
+    fRenderUI.WritePicture(Left + OffsetX, Top + OffsetY, RXid, TexID, Enabled, (HighlightOnMouseOver AND (csOver in State)) OR Highlight);
 end;
 
 
@@ -823,29 +885,18 @@ begin
 end;
 
 
-procedure TKMButton.CheckCursorOver(X,Y:integer; AShift:TShiftState);
-begin
-  Down:=Down and CursorOver;
-  //Now check to see if they moved their mouse back over with the button still depressed
-  if ((ssLeft in AShift) or (ssRight in AShift) or (ssMiddle in AShift)) and (CursorOver) then
-    Down := true;
-
-  Inherited CheckCursorOver(X,Y,AShift);
-end;
-
-
 procedure TKMButton.Paint();
-var State:T3DButtonStateSet;
+var StateSet:T3DButtonStateSet;
 begin
   Inherited;
-  State:=[];
-  if CursorOver and Enabled then State:=State+[bs_Highlight];
-  if Down then State:=State+[bs_Down];
-  if not Enabled then State:=State+[bs_Disabled];
-  fRenderUI.Write3DButton(Left,Top,Width,Height,RXid,TexID,State,Style);
+  StateSet:=[];
+  if (csOver in State) and Enabled then StateSet:=StateSet+[bs_Highlight];
+  if (csDown in State) then StateSet:=StateSet+[bs_Down];
+  if not Enabled then StateSet:=StateSet+[bs_Disabled];
+  fRenderUI.Write3DButton(Left,Top,Width,Height,RXid,TexID,StateSet,Style);
   if TexID=0 then
     if Enabled then //If disabled then text should be faded
-      fRenderUI.WriteText(Left + Width div 2 +byte(Down), (Top + Height div 2)-7+byte(Down), Width, Caption, Font, TextAlign, false, $FFFFFFFF)
+      fRenderUI.WriteText(Left + Width div 2 +byte(csDown in State), (Top + Height div 2)-7+byte(csDown in State), Width, Caption, Font, TextAlign, false, $FFFFFFFF)
     else
       fRenderUI.WriteText(Left + Width div 2, (Top + Height div 2)-7, Width, Caption, Font, TextAlign, false, $FF888888);
 end;
@@ -869,15 +920,15 @@ end;
 
 
 procedure TKMButtonFlat.Paint();
-var State:TFlatButtonStateSet;
+var StateSet:TFlatButtonStateSet;
 begin
   Inherited;
-  State:=[];
-  if CursorOver and Enabled and not HideHighlight then State:=State+[fbs_Highlight];
-  if Down then State:=State+[fbs_Selected];
-  //if not Enabled then State:=State+[fbs_Disabled];
+  StateSet:=[];
+  if (csOver in State) and Enabled and not HideHighlight then StateSet:=StateSet+[fbs_Highlight];
+  if (csDown in State) then StateSet:=StateSet+[fbs_Selected];
+  //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
-  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,State);
+  fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
 end;
 
 
@@ -899,7 +950,7 @@ begin
   Result := true;
   if Inherited KeyUp(Key, Shift, IsDown) then exit;
 
-  if (not IsDown) and (chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', 'A'..'Z']) then begin//Letters don't auto-repeat
+  if (not IsDown) and (chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z']) then begin//Letters don't auto-repeat
     s := GetCharFromVirtualKey(Key);
     Insert(s, Text, CursorPos+1);
     inc(CursorPos,length(s)); //GetCharFromVirtualKey might be 1 or 2 chars
@@ -930,7 +981,7 @@ begin
 
   fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col);
 
-  if HasFocus and ((TimeGetTime div 500) mod 2 = 0)then begin
+  if (csFocus in State) and ((TimeGetTime div 500) mod 2 = 0)then begin
     setlength(RText,CursorPos);
     OffX := Left + 3 + fRenderUI.WriteText(Left+4, Top+4, Width-8, RText, Font, kaLeft, false, Col).X;
     fRenderUI.WriteLayer(OffX-1, Top+2, 3, Height-4, Col, $FF000000);
@@ -1081,12 +1132,13 @@ begin
 end;
 
 
-procedure TKMRatioRow.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+procedure TKMRatioRow.MouseMove(X,Y:Integer; Shift:TShiftState);
 var NewPos: integer;
 begin
-  Inherited CheckCursorOver(X,Y,AShift);
+  Inherited;
+
   NewPos := Position;
-  if (CursorOver) and (ssLeft in AShift) then
+  if (ssLeft in Shift) then   
     NewPos:=EnsureRange(round(MinValue+((X-Left-12)/(Width-28))*(MaxValue-MinValue)),MinValue,MaxValue);
   if NewPos <> Position then
   begin
@@ -1094,7 +1146,8 @@ begin
     if Assigned(OnChange) then
       OnChange(Self);
   end
-  else Position := NewPos;
+  else
+    Position := NewPos;
 end;
 
 
@@ -1126,15 +1179,13 @@ begin
 end;
 
 
-procedure TKMScrollBar.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+procedure TKMScrollBar.MouseMove(X,Y:integer; Shift:TShiftState);
 var NewPos: integer;
 begin
-  Inherited CheckCursorOver(X,Y,AShift);
+  Inherited;
 
   NewPos := Position;
-
-  if (CursorOver) and (ssLeft in AShift) then
-  begin
+  if (ssLeft in Shift) then begin //todo: How to make it act more like WinControl, which has active area around it and regains csOver when cursor goes away and returns
     if fScrollAxis = sa_Vertical then
       if InRange(Y,Top+Width,Top+Height-Width) then
         NewPos := round( MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue) );
@@ -1227,15 +1278,14 @@ begin
 end;
 
 
-procedure TKMMinimap.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+procedure TKMMinimap.MouseMove(X,Y:integer; Shift:TShiftState);
 begin
-  Inherited CheckCursorOver(X,Y,AShift);
-  if ssLeft in AShift then
-    if CursorOver then begin
-      BoundRectAt := GetMapCoords(X,Y);
-      if Assigned(OnChange) then
-        OnChange(Self);
-    end;
+  Inherited;
+  if ssLeft in Shift then begin
+    BoundRectAt := GetMapCoords(X,Y);
+    if Assigned(OnChange) then
+      OnChange(Self); //todo: make specific
+  end;
 end;
 
 
@@ -1356,12 +1406,11 @@ begin
 end;
 
 
-procedure TKMFileList.CheckCursorOver(X,Y:integer; AShift:TShiftState);
+procedure TKMFileList.MouseMove(X,Y:integer; Shift:TShiftState);
 begin
-  Inherited CheckCursorOver(X,Y,AShift);
-  //if InRange(X,Left+Width - ScrollBar.Width, Left+Width) then exit;
+  Inherited;
 
-  if (CursorOver) and (ssLeft in AShift) and
+  if (ssLeft in Shift) and
      (InRange(X, Left, Left+Width-ScrollBar.Width)) and
      (InRange(Y, Top, Top+Height div ItemHeight * ItemHeight))
   then
@@ -1369,7 +1418,7 @@ begin
 
   if ItemIndex > fFiles.Count-1 then ItemIndex := -1;
 
-  if Assigned(OnChange) and (ssLeft in AShift) then
+  if Assigned(OnChange) and (ssLeft in Shift) then
     OnChange(Self);
 end;
 
@@ -1396,7 +1445,7 @@ constructor TKMControlsCollection.Create();
 begin
   Inherited;
   CtrlPaintCount := 0;
-  fFocusedControl := nil;
+  fCtrlFocus := nil;
   if fRenderUI <> nil then
     fRenderUI := TRenderUI.Create;
 end;
@@ -1407,6 +1456,36 @@ begin
   if fRenderUI <> nil then
     FreeAndNil(fRenderUI);
   Inherited;
+end;
+
+procedure TKMControlsCollection.SetCtrlDown(aCtrl:TKMControl);
+begin
+  if fCtrlDown <> nil then fCtrlDown.State := fCtrlDown.State - [csDown]; //Release previous
+  if aCtrl <> nil then aCtrl.State := aCtrl.State + [csDown];             //Press new
+  fCtrlDown := aCtrl;                                                     //Update info
+end;
+
+
+procedure TKMControlsCollection.SetCtrlFocus(aCtrl:TKMControl);
+begin
+  if fCtrlFocus <> nil then fCtrlFocus.State := fCtrlFocus.State - [csFocus];
+  if aCtrl <> nil then aCtrl.State := aCtrl.State + [csFocus];
+  fCtrlFocus := aCtrl;
+end;
+
+
+procedure TKMControlsCollection.SetCtrlOver(aCtrl:TKMControl);
+begin
+  if fCtrlOver <> nil then fCtrlOver.State := fCtrlOver.State - [csOver];
+  if aCtrl <> nil then aCtrl.State := aCtrl.State + [csOver];
+  fCtrlOver := aCtrl;
+end;
+
+
+procedure TKMControlsCollection.SetCtrlUp(aCtrl:TKMControl);
+begin
+  fCtrlUp := aCtrl;
+  if fCtrlDown = fCtrlUp then CtrlFocus := fCtrlUp else CtrlFocus := nil;
 end;
 
 
@@ -1432,6 +1511,7 @@ function TKMControlsCollection.AddPanel(aParent:TKMPanel; aLeft,aTop,aWidth,aHei
 begin
   Result:=TKMPanel.Create(aParent, aLeft,aTop,aWidth,aHeight);
   AddToCollection(Result);
+  Result.GetCollection := Self; 
 end;
 
 function TKMControlsCollection.AddBevel(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
@@ -1568,95 +1648,45 @@ end;
 
 function TKMControlsCollection.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
 begin
-  if fFocusedControl <> nil then
-    Result := fFocusedControl.KeyUp(Key, Shift, IsDown)
+  if CtrlFocus <> nil then
+    Result := CtrlFocus.KeyUp(Key, Shift, IsDown)
   else
     Result := false;
 end;
 
 
-function TKMControlsCollection.MouseOverControl():TKMControl;
-var i:integer;
+procedure TKMControlsCollection.MouseDown(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  Result:=nil;
+  CtrlDown := nil;
+  if MODE_DESIGN_CONTORLS then exit; //No functionality attached yet
 
-  for i:=Count-1 downto 1 do //This will return last created control
-    if not (Controls[I] is TKMPanel) then //Do not check Panels
-      if Controls[I].IsVisible then
-          if Controls[I].CursorOver then begin
-            Result := Controls[i];
-            break;
-          end;
+  Controls[0].MouseDown(X,Y,Shift,Button); //Pass to Panel and it will do all the Child stuff
+
+  if CtrlDown <> nil then CtrlDown.MouseDown(X,Y,Shift,Button);
 end;
 
 
-procedure TKMControlsCollection.MouseDown(X,Y:integer; AButton:TMouseButton);
-var i:integer;
+procedure TKMControlsCollection.MouseMove(X,Y:Integer; Shift:TShiftState);
 begin
+  CtrlOver := nil;
   if MODE_DESIGN_CONTORLS then exit; //Don't do
-  for i:=0 to Count-1 do
-    if Controls[i].HitTest(X,Y) then
-      if Controls[i].Enabled then
-        if Controls[i] is TKMButton then
-          TKMButton(Controls[i]).Down := true;
-end;
 
+  Controls[0].MouseMove(X,Y,Shift);
 
-procedure TKMControlsCollection.MouseMove(X,Y:integer; AShift:TShiftState);
-var i:integer;
-begin
-  if MODE_DESIGN_CONTORLS then exit; //Don't do
-  for i:=0 to Count-1 do
-    if Controls[i].Parent=nil then
-      if Controls[i].IsVisible then
-      begin
-        if Controls[i].Enabled then
-          Controls[i].CheckCursorOver(X,Y,AShift);
-        Controls[i].HintCheckCursorOver(X,Y,AShift);
-      end;
+  if CtrlOver <> nil then CtrlOver.MouseMove(X,Y,Shift);
+  if (CtrlDown <> nil) and (CtrlOver <> CtrlDown) then CtrlDown := nil;
 end;
 
 
 {Send OnClick event to control below}
-procedure TKMControlsCollection.MouseUp(X,Y:integer; AButton:TMouseButton);
-var i:integer;
+procedure TKMControlsCollection.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  if fFocusedControl <> nil then fFocusedControl.HasFocus := false; //Release focus in any case of OnMouseUp
-  for i:=0 to Count-1 do
-    if Controls[i].HitTest(X, Y) and (Controls[i].Enabled or MODE_DESIGN_CONTORLS) then //Allow selecting of disabled Controls
-    begin
-      if Controls[i] is TKMButton then
-        TKMButton(Controls[i]).Down := false;
+  CtrlUp := nil;
+  if MODE_DESIGN_CONTORLS then exit; //Don't do
 
-      if (AButton = mbLeft) then //Set focus irregardless of assigned OnClick events
-      begin
-        fFocusedControl := Controls[i]; //Only LMB can set focus
-        fFocusedControl.HasFocus := true; //Set Focus
-      end;
+  Controls[0].MouseUp(X,Y,Shift,Button);
 
-      if (AButton = mbLeft)
-      and Assigned(Controls[i].OnClick)
-      and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
-      begin
-        Controls[i].OnClick(Controls[i]);
-        exit; //Send OnClick only to one item
-      end;
-
-      if (AButton = mbRight)
-      and Assigned(Controls[i].OnClickRight)
-      and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
-      begin
-        Controls[i].OnClickRight(Controls[i]);
-        exit; //Send OnClickRight only to one item
-      end;
-
-      if Assigned(Controls[i].OnClickEither)
-      and not MODE_DESIGN_CONTORLS then //Don't do, but keep on scanning controls
-      begin
-        Controls[i].OnClickEither(Controls[i], AButton);
-        exit; //Send OnClickRight only to one item
-      end;
-    end;
+  if CtrlUp <> nil then CtrlUp.MouseUp(X,Y,Shift,Button);
 end;
 
 
@@ -1673,8 +1703,8 @@ begin
   CtrlPaintCount := 0;
   Controls[0].Paint;
 
-  if MODE_DESIGN_CONTORLS and (fFocusedControl<>nil) then
-    with fFocusedControl do
+  if MODE_DESIGN_CONTORLS and (CtrlFocus<>nil) then
+    with CtrlFocus do
       fRenderUI.WriteText(Left, Top-14, Width, inttostr(Left)+':'+inttostr(Top), fnt_Grey, kaLeft, false, $FFFFFFFF);
 end;
 

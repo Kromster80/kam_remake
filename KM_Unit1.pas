@@ -70,8 +70,8 @@ type
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
-    procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure AboutClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);

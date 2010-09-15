@@ -11,7 +11,7 @@ type TKMGamePlayInterface = class
   protected
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
-    ShownHint:TObject;
+    PrevHint:TObject;
     ShownMessage:integer;
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
@@ -170,7 +170,7 @@ type TKMGamePlayInterface = class
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPageRatios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
-    procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
+    procedure DisplayHint(Sender: TObject);
     procedure Minimap_Update(Sender: TObject);
     procedure Minimap_RightClick(Sender: TObject);
     procedure UpdateMessageStack;
@@ -451,19 +451,15 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
+procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
-  ShownHint:=Sender;
-  if((ShownHint<>nil) and ((not TKMControl(ShownHint).CursorOver) or (not TKMControl(ShownHint).Visible)) ) then ShownHint:=nil; //only set if cursor is over and control is visible
-  if ((ShownHint<>nil) and (TKMControl(ShownHint).Parent <> nil)) then //only set if parent is visible (e.g. panel)
-    if (ShownHint<>nil)and(not (ShownHint as TKMControl).Parent.Visible) then ShownHint:=nil;
+  Label_Hint.Top:=fRender.GetRenderAreaSize.Y-16;  //todo: move out of here to a plce where RenderAreaSize is changing
+  if (PrevHint = Sender) then exit; //Hint didn't changed
 
-  Label_Hint.Top:=fRender.GetRenderAreaSize.Y-16;
-  //If hint hasn't changed then don't refresh it
-  if ((ShownHint<>nil) and (Label_Hint.Caption = TKMControl(Sender).Hint)) then exit;
-  if ((ShownHint=nil) and (Label_Hint.Caption = '')) then exit;
-  if ShownHint=nil then Label_Hint.Caption:='' else
-    Label_Hint.Caption:=(Sender as TKMControl).Hint;
+  if Sender=nil then Label_Hint.Caption:=''
+                else Label_Hint.Caption:=TKMControl(Sender).Hint;
+
+  PrevHint := Sender;
 end;
 
 
@@ -608,7 +604,7 @@ begin
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
     if MyControls.Items[i] <> nil then
-      TKMControl(MyControls.Items[i]).OnHint := DisplayHint;
+      TKMControl(MyControls.Items[i]).OnMouseOver := DisplayHint;
 
   if SHOW_1024_768_OVERLAY then begin
     MyControls.AddShape(Panel_Main, 1024, 0, 0, 768, $FF00FF00);
@@ -924,21 +920,21 @@ begin
     Ratio_Settings_Mouse:=MyControls.AddRatioRow(Panel_Settings,18,150,160,20,fGame.fGlobalSettings.GetSlidersMin,fGame.fGlobalSettings.GetSlidersMax);
     Ratio_Settings_Mouse.Disable;
     Ratio_Settings_Mouse.Hint:=fTextLibrary.GetTextString(193);
+    Ratio_Settings_Mouse.OnChange := Menu_Settings_Change;
     Label_Settings_SFX:=MyControls.AddLabel(Panel_Settings,24,178,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
     Ratio_Settings_SFX:=MyControls.AddRatioRow(Panel_Settings,18,198,160,20,fGame.fGlobalSettings.GetSlidersMin,fGame.fGlobalSettings.GetSlidersMax);
     Ratio_Settings_SFX.Hint:=fTextLibrary.GetTextString(195);
+    Ratio_Settings_SFX.OnChange := Menu_Settings_Change;
     Label_Settings_Music:=MyControls.AddLabel(Panel_Settings,24,226,100,30,fTextLibrary.GetTextString(196),fnt_Metal,kaLeft);
     Ratio_Settings_Music:=MyControls.AddRatioRow(Panel_Settings,18,246,160,20,fGame.fGlobalSettings.GetSlidersMin,fGame.fGlobalSettings.GetSlidersMax);
     Ratio_Settings_Music.Hint:=fTextLibrary.GetTextString(195);
+    Ratio_Settings_Music.OnChange := Menu_Settings_Change;
     Label_Settings_Music2:=MyControls.AddLabel(Panel_Settings,100,280,100,30,fTextLibrary.GetTextString(197),fnt_Metal,kaCenter);
     Button_Settings_Music:=MyControls.AddButton(Panel_Settings,8,300,180,30,'',fnt_Metal);
     Button_Settings_Music.Hint:=fTextLibrary.GetTextString(198);
     //There are many clickable controls, so let them all be handled in one procedure to save dozens of lines of code
     for i:=1 to Panel_Settings.ChildCount do
-    begin
       TKMControl(Panel_Settings.Childs[i]).OnClick:=Menu_Settings_Change;
-      TKMControl(Panel_Settings.Childs[i]).OnChange:=Menu_Settings_Change;
-    end;
 end;
 
 
@@ -1094,9 +1090,9 @@ begin
         Button_Store[i].Tag:=i;
         Button_Store[i].Hint:=TypeToString(TResourceType(i));
         Button_Store[i].FontColor := $FFE0E0E0;
-        Image_Store_Accept[i]:=MyControls.AddImage(Panel_HouseStore, 8+((i-1)mod 5)*36+9,18+((i-1)div 5)*42-11,32,36,49);
-        Image_Store_Accept[i].Center;
-        Image_Store_Accept[i].FOnClick:=House_StoreAcceptFlag;
+        Image_Store_Accept[i]:=MyControls.AddImage(Panel_HouseStore, 8+((i-1)mod 5)*36+20,18+((i-1)div 5)*42+1,12,12,49);
+        Image_Store_Accept[i].Tag:=i;
+        Image_Store_Accept[i].OnClick:=House_StoreAcceptFlag;
         Image_Store_Accept[i].Hint:=TypeToString(TResourceType(i));
       end;
 end;
@@ -2062,14 +2058,14 @@ begin
   //1-4 game menu shortcuts
   if Key in [49..52] then
   begin
-    Button_Main[Key-48].Down := IsDown;
+    if Button_Main[Key-48].Visible then MyControls.CtrlDown := Button_Main[Key-48];
     if (not IsDown) and (not Button_Main[5].Visible) then SwitchPage(Button_Main[Key-48]);
   end;
   if Key=VK_ESCAPE then
   begin
-    Button_Main[5].Down := IsDown;
-    Button_MessageClose.Down := IsDown;
-    Button_Army_Join_Cancel.Down := IsDown;
+    if Button_Main[5].Visible then MyControls.CtrlDown := Button_Main[5];
+    if Button_MessageClose.Visible then MyControls.CtrlDown := Button_MessageClose;
+    if Button_Army_Join_Cancel.Visible then MyControls.CtrlDown := Button_Army_Join_Cancel;
     if (not IsDown) and (Button_Main[5].Visible) then SwitchPage(Button_Main[5]);
     if (not IsDown) then CloseMessage(Button_MessageClose);
     if (not IsDown) then Army_CancelJoin(Button_Army_Join_Cancel);
@@ -2077,38 +2073,38 @@ begin
   //Messages
   if (Key=VK_SPACE) and (Button_MessageGoTo.Enabled) then //In KaM spacebar centers you on the message
   begin
-    Button_MessageGoTo.Down := IsDown;
+    if Button_MessageGoTo.Visible then MyControls.CtrlDown := Button_MessageGoTo;
     if (not IsDown) then GoToMessage(Button_MessageGoTo);
   end;
   if (Key=VK_DELETE) and (ShownMessage <> 0) then
   begin
-    Button_MessageDelete.Down := IsDown;
+    if Button_MessageDelete.Visible then MyControls.CtrlDown := Button_MessageDelete;
     if (not IsDown) then DeleteMessage(Image_Message[ShownMessage]); //Deletes the open message
   end;
   //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
   if (Key=65) and (Panel_Army.Visible) then //65 = A
   begin
-    Button_Army_Attack.Down := IsDown;
+    if Button_Army_Attack.Visible then MyControls.CtrlDown := Button_Army_Attack;
     if (not IsDown) then Army_Issue_Order(Button_Army_Attack);
   end;
   if (Key=68) and (Panel_Army.Visible) then //68 = D
   begin
-    Button_Army_GoTo.Down := IsDown;
+    if Button_Army_GoTo.Visible then MyControls.CtrlDown := Button_Army_GoTo;
     if (not IsDown) then Army_Issue_Order(Button_Army_GoTo);
   end;
   if (Key=72) and (Panel_Army.Visible) then //72 = H
   begin
-    Button_Army_Stop.Down := IsDown;
+    if Button_Army_Stop.Visible then MyControls.CtrlDown := Button_Army_Stop;
     if (not IsDown) then Army_Issue_Order(Button_Army_Stop);
   end;
   if (Key=76) and (Panel_Army.Visible) then //76 = L
   begin
-    Button_Army_Join.Down := IsDown;
+    if Button_Army_Join.Visible then MyControls.CtrlDown := Button_Army_Join;
     if (not IsDown) then Army_Issue_Order(Button_Army_Join);
   end;
   if (Key=83) and (Panel_Army.Visible) then //83 = S
   begin
-    Button_Army_Split.Down := IsDown;
+    if Button_Army_Split.Visible then MyControls.CtrlDown := Button_Army_Split;
     if (not IsDown) then Army_Issue_Order(Button_Army_Split);
   end;
 end;
@@ -2151,11 +2147,6 @@ begin
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse,AskDemolish);
 
   if ShownUnit=nil then JoiningGroups := false;
-
-  if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
-  if ShownHint<>nil then
-    if (Mouse.CursorPos.X>ToolBarWidth) and (TKMControl(ShownHint).Parent<>Panel_Message) then
-      DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar (Message panel is an exception)
 
   if fGame.fGameInputProcess.State = gipReplaying then begin
     Panel_Replay.Show;

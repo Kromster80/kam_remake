@@ -10,7 +10,7 @@ type TKMapEdInterface = class
   protected
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
-    ShownHint:TObject;
+    PrevHint:TObject;
     StorehouseItem:byte; //Selected ware in storehouse
 
     Panel_Main:TKMPanel;
@@ -113,7 +113,7 @@ type TKMapEdInterface = class
     procedure Create_Barracks_Page;
 
     procedure SwitchPage(Sender: TObject);
-    procedure DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
+    procedure DisplayHint(Sender: TObject);
     procedure Minimap_Update(Sender: TObject);
     procedure Global_PlayerSelect(Sender: TObject);
     procedure TerrainHeight_Change(Sender: TObject);
@@ -279,19 +279,15 @@ begin
 end;
 
 
-procedure TKMapEdInterface.DisplayHint(Sender: TObject; AShift:TShiftState; X,Y:integer);
+procedure TKMapEdInterface.DisplayHint(Sender: TObject);
 begin
-  ShownHint:=Sender;
-  if((ShownHint<>nil) and ((not TKMControl(ShownHint).CursorOver) or (not TKMControl(ShownHint).Visible)) ) then ShownHint:=nil; //only set if cursor is over and control is visible
-  if ((ShownHint<>nil) and (TKMControl(ShownHint).Parent <> nil)) then //only set if parent is visible (e.g. panel)
-    if (ShownHint<>nil)and(not (ShownHint as TKMControl).Parent.Visible) then ShownHint:=nil;
+  Label_Hint.Top:=fRender.GetRenderAreaSize.Y-16;  //todo: move out of here to a plce where RenderAreaSize is changing
+  if (PrevHint = Sender) then exit; //Hint didn't changed
 
-  Label_Hint.Top:=fRender.GetRenderAreaSize.Y-16;
-  //If hint hasn't changed then don't refresh it
-  if ((ShownHint<>nil) and (Label_Hint.Caption = TKMControl(Sender).Hint)) then exit;
-  if ((ShownHint=nil) and (Label_Hint.Caption = '')) then exit;
-  if ShownHint=nil then Label_Hint.Caption:='' else
-    Label_Hint.Caption:=(Sender as TKMControl).Hint;
+  if Sender=nil then Label_Hint.Caption:=''
+                else Label_Hint.Caption:=TKMControl(Sender).Hint;
+
+  PrevHint := Sender;
 end;
 
 
@@ -386,7 +382,7 @@ begin
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
     if MyControls.Items[i] <> nil then
-      TKMControl(MyControls.Items[i]).OnHint := DisplayHint;
+      TKMControl(MyControls.Items[i]).OnMouseOver := DisplayHint;
 
   SwitchPage(nil); //Update
 end;
@@ -707,9 +703,6 @@ procedure TKMapEdInterface.UpdateState;
 begin
   if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
   if ShownHouse<>nil then ShowHouseInfo(ShownHouse);
-
-  if ShownHint<>nil then DisplayHint(ShownHint,[],0,0);
-  if Mouse.CursorPos.X>ToolBarWidth then DisplayHint(nil,[],0,0); //Don't display hints if not over ToolBar
 
   Minimap_Update(nil);
 end;
@@ -1111,7 +1104,7 @@ begin
   //1-5 game menu shortcuts
   if Key in [49..53] then
   begin
-    Button_Main[Key-48].Down := IsDown;
+    if Button_Main[Key-48].Visible then MyControls.CtrlDown := Button_Main[Key-48];
     if not IsDown then SwitchPage(Button_Main[Key-48]);
   end;
 end;

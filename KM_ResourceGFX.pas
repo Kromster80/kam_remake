@@ -73,6 +73,9 @@ begin
 end;
 
 
+//todo: Add destroy with "DestroyIcon" and move cursor creation to Create here
+
+
 procedure TResource.StepRefresh();
 begin
   if not FormLoading.Visible then exit;
@@ -1251,6 +1254,7 @@ begin
       for y:=0 to sy-1 do for x:=0 to sx-1 do
       begin
         t:=RXData[RXid].Data[Cursors[i],y*sx+x]+1;
+        //todo: Find a PC which doesn't shows transparency and try to change 4th byte in bm.Canvas.Pixels
         bm.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2] shl 8 + Pal[DEF_PAL,t,3] shl 16;
         if t=1 then
           bm2.Canvas.Pixels[x,y]:=clWhite
@@ -1261,7 +1265,7 @@ begin
       IconInfo.xHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i],0);
       IconInfo.yHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i],0);
     end;
-  IconInfo.fIcon:=false;
+  IconInfo.fIcon:=false; //true=Icon, false=Cursor      
   IconInfo.hbmColor:=bm.Handle;
   IconInfo.hbmMask:=bm2.Handle;
 
