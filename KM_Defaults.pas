@@ -192,7 +192,7 @@ const DirCursorSqrSize  = 33; //Length of square sides
 
 {Controls}
 type
-  TButtonStyle = (bsMenu, bsGame);
+  TButtonStyle = (bsMenu, bsGame); //Menu buttons are metal, game buttons are stone
   T3DButtonStateSet = set of (bs_Highlight, bs_Down, bs_Disabled);
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 

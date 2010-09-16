@@ -187,7 +187,6 @@ begin
     end;
 
   glPopMatrix;
-
 end;
 
 
@@ -504,7 +503,7 @@ begin
 
     glBegin(GL_POINTS);
       for i:=1 to fTerrain.MapY-1 do for k:=1 to fTerrain.MapX-1 do begin
-        glColor3ubv(@fTerrain.MM[i,k].RGB);
+        glColor3ubv(@fTerrain.MiniMapRGB[i,k]);
         glVertex2f(k,i);
       end;
     glEnd;

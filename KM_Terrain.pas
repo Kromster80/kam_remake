@@ -58,7 +58,7 @@ public
 
   FallingTrees: TKMPointTagList;
 
-  MM:array[1..MaxMapSize,1..MaxMapSize]of record RGB:cardinal; end;
+  MiniMapRGB:array[1..MaxMapSize,1..MaxMapSize]of cardinal;
   CursorPos:TKMPoint;
 private
   AnimStep:integer;
@@ -2138,16 +2138,16 @@ begin
   for i:=1 to fTerrain.MapY do for k:=1 to fTerrain.MapX do begin
     FOW := fTerrain.CheckTileRevelation(k,i,MyPlayer.PlayerID);
     if FOW = 0 then
-      MM[i,k].RGB := 0
+      MiniMapRGB[i,k] := 0
     else
       if fTerrain.Land[i,k].TileOwner = play_none then begin
         ID := fTerrain.Land[i,k].Terrain+1;
         Light := round(fTerrain.Land[i,k].Light*64)-(255-FOW); //it's -255..255 range now
-        MM[i,k].RGB :=  EnsureRange(TileMMColor[ID].R+Light,0,255) +
+        MiniMapRGB[i,k] :=  EnsureRange(TileMMColor[ID].R+Light,0,255) +
                         EnsureRange(TileMMColor[ID].G+Light,0,255) shl 8 +
                         EnsureRange(TileMMColor[ID].B+Light,0,255) shl 16;
       end else
-        MM[i,k].RGB :=  TeamColors[byte(fTerrain.Land[i,k].TileOwner)];
+        MiniMapRGB[i,k] :=  TeamColors[byte(fTerrain.Land[i,k].TileOwner)];
   end;
 
   Loc := TKMPointList.Create;
@@ -2155,13 +2155,13 @@ begin
     fPlayers.Player[i].GetUnitLocations(Loc);
     for k:=1 to Loc.Count do
     if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
-      MM[Loc.List[k].Y,Loc.List[k].X].RGB := TeamColors[i];
+      MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := TeamColors[i];
   end;
 
   fPlayers.PlayerAnimals.GetFishLocations(Loc);
   for k:=1 to Loc.Count do
   if (fTerrain.CheckTileRevelation(Loc.List[k].X, Loc.List[k].Y, MyPlayer.PlayerID)=255) then
-    MM[Loc.List[k].Y,Loc.List[k].X].RGB := $FF4444;
+    MiniMapRGB[Loc.List[k].Y,Loc.List[k].X] := $FF4444;
 
   Loc.Free;
 end;
