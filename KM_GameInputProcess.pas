@@ -256,7 +256,7 @@ begin
     else Assert(false);
   end;
 
-  if CRASH_ON_REPLAY and (fQueue[aIndex].Rand <> Random(maxint)) then begin
+  if CRASH_ON_REPLAY and (fQueue[aIndex].Rand <> Cardinal(Random(maxint))) then begin
     //fGame.GameError(KMPoint(10,10),'Replay mismatch');
     Assert(false);
   end;

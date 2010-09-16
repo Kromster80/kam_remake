@@ -71,7 +71,7 @@ function MakePOT(num:integer):integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
 function RandomS(Range_Both_Directions:integer):integer; overload;
 function RandomS(Range_Both_Directions:single):single; overload;
-function PseudoRandom(aMax:integer):integer;
+function PseudoRandom(aMax:cardinal):cardinal;
 function RunOpenDialog(Sender:TOpenDialog; Name,Path,Filter:string):boolean;
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 
@@ -474,7 +474,7 @@ end;
 //we need to use it in case where Random should return repeating series of numbers
 //from time to time with the same RandSeed, e.g. when AI logic depends on Randoms
 //and some of player input needs Random too, but it should not affect AI
-function PseudoRandom(aMax:integer):integer;
+function PseudoRandom(aMax:cardinal):cardinal;
 begin
   if aMax <=0 then
     Result := 0
