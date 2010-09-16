@@ -453,7 +453,6 @@ end;
 
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
-  Label_Hint.Top:=fRender.GetRenderAreaSize.Y-16;  //todo: move out of here to a plce where RenderAreaSize is changing
   if (PrevHint = Sender) then exit; //Hint didn't changed
 
   if Sender=nil then Label_Hint.Caption:=''
@@ -626,6 +625,8 @@ end;
 procedure TKMGamePlayInterface.SetScreenSize(X,Y:word);
 var i: integer;
 begin
+  Label_Hint.Top := Y - 16;
+
   Bevel_Pause.Width := X + 2;
   Image_Pause.Left  := X div 2;
   Label_Pause1.Left := X div 2;

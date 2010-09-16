@@ -198,7 +198,7 @@ TKMTextEdit = class(TKMControl)
     CursorPos:integer;
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; override;
+    function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean):boolean; override;
     procedure Paint(); override;
 end;
 
@@ -944,13 +944,17 @@ begin
 end;
 
 
-function TKMTextEdit.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
+function TKMTextEdit.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean):boolean;
+  function ValidKey():boolean;
+  begin //Utility, Numbers, NumPad numbers, Letters
+    Result := chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z'];
+  end;
 var s:string;
 begin
   Result := true;
   if Inherited KeyUp(Key, Shift, IsDown) then exit;
 
-  if (not IsDown) and (chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z']) then begin//Letters don't auto-repeat
+  if (not IsDown) and ValidKey then begin//Letters don't auto-repeat
     s := GetCharFromVirtualKey(Key);
     Insert(s, Text, CursorPos+1);
     inc(CursorPos,length(s)); //GetCharFromVirtualKey might be 1 or 2 chars

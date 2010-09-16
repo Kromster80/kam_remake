@@ -281,7 +281,6 @@ end;
 
 procedure TKMapEdInterface.DisplayHint(Sender: TObject);
 begin
-  Label_Hint.Top:=fRender.GetRenderAreaSize.Y-16;  //todo: move out of here to a plce where RenderAreaSize is changing
   if (PrevHint = Sender) then exit; //Hint didn't changed
 
   if Sender=nil then Label_Hint.Caption:=''
@@ -395,10 +394,10 @@ begin
 end;
 
 
+//Update Hint position and etc..
 procedure TKMapEdInterface.SetScreenSize(X,Y:word);
 begin
-  //Update Hint position and etc..
-  Label_Hint.Top:=Y-16;
+  Label_Hint.Top := Y - 16;
 end;
 
 
