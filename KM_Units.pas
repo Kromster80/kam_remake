@@ -1222,10 +1222,10 @@ begin
 end;
 
 
-function TKMUnit.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
+function TKMUnit.HitTest(X,Y:Integer; const UT:TUnitType = ut_Any): Boolean;
 begin
-  Result := (X = GetPosition.X) and //Keep comparing X,Y to GetPosition incase input is negative numbers
-            (Y = GetPosition.Y) and
+  Result := (X = fCurrPosition.X) and //Comparing X,Y to CurrentPosition separately, cos they  is negative numbers
+            (Y = fCurrPosition.Y) and
             ((fUnitType=UT)or(UT=ut_Any));
 end;
 
@@ -1908,15 +1908,14 @@ end;
 
 
 function TKMUnitsCollection.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
-var
-  I: Integer;
+var I:Integer;
 begin
   Result:= nil;
-  for I := 0 to Count - 1 do
-    if Units[I].HitTest(X, Y, UT) and (not Units[I].IsDead) then
+  for I:=0 to Count-1 do
+    if Units[I].HitTest(X,Y,UT) and (not Units[I].IsDead) then
     begin
-      Result:= Units[I];
-      Break;
+      Result := Units[I];
+      exit;
     end;
 end;
 
@@ -2062,15 +2061,15 @@ end;
 
 
 procedure TKMUnitsCollection.Paint();
-var i:integer; x1,x2,y1,y2,Margin:integer;
+var i:integer; x1,x2,y1,y2:smallint; Margin:shortint;
 begin
-  if TEST_VIEW_CLIP_INSET then Margin:=-3 else Margin:=3;
+  if TEST_VIEW_CLIP_INSET then Margin:=-1 else Margin:=1;
   x1 := fViewport.GetClip.Left - Margin;
   x2 := fViewport.GetClip.Right + Margin;
   y1 := fViewport.GetClip.Top - Margin;
-  y2 := fViewport.GetClip.Bottom + Margin;
+  y2 := fViewport.GetClip.Bottom + Margin*3; //There might be units standing on tall hills below
 
-  for I := 0 to Count - 1 do
+  for I:=0 to Count-1 do
   if (Items[I] <> nil) and (not Units[i].IsDead) then
   if (InRange(Units[i].fPosition.X,x1,x2) and InRange(Units[i].fPosition.Y,y1,y2)) then
     Units[i].Paint();

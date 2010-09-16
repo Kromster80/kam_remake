@@ -150,7 +150,7 @@ type
     procedure AppendLog(text:string; Res:boolean); overload;
     procedure AppendLog(a,b:integer); overload;
     //Add line if TestValue=false
-    procedure AssertToLog(TestValue:boolean; MessageText:string);
+    procedure AssertToLog(TestValue:boolean; const MessageText:string);
     //AddToLog simply adds the text
     procedure AddToLog(text:string);
   end;
@@ -232,11 +232,11 @@ begin
 end;
 
 
-procedure TKMLog.AssertToLog(TestValue:boolean; MessageText:string);
+procedure TKMLog.AssertToLog(TestValue:boolean; const MessageText:string);
 begin
-  if not TestValue then
+  if TestValue then exit;
   AddLine('ASSERTION FAILED! Msg: ' + MessageText);
-  Assert(TestValue, 'ASSERTION FAILED! Msg: ' + MessageText);
+  Assert(false, 'ASSERTION FAILED! Msg: ' + MessageText);
 end;
 
 

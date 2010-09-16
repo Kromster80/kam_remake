@@ -3,19 +3,19 @@ unit KM_Utils;
 interface
 uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
-  function KMPoint(X, Y: word): TKMPoint; overload;
-  function KMPoint(P: TKMPointDir): TKMPoint; overload;
-  function KMPointF(X, Y: single): TKMPointF; overload;
-  function KMPointF(P: TKMPoint):  TKMPointF; overload;
-  function KMPointDir(X, Y, Dir: word): TKMPointDir; overload;
+  function KMPoint(X,Y:word): TKMPoint; overload;
+  function KMPoint(P:TKMPointDir): TKMPoint; overload;
+  function KMPointF(X,Y:single): TKMPointF; overload;
+  function KMPointF(P:TKMPoint):  TKMPointF; overload;
+  function KMPointDir(X,Y,Dir:word): TKMPointDir; overload;
   function KMPointDir(P:TKMPoint; Dir: word): TKMPointDir; overload;
   function KMPointX1(P:TKMPoint): TKMPoint;
-  function KMPointX1Y1(X, Y: word): TKMPoint; overload;
+  function KMPointX1Y1(X,Y:word): TKMPoint; overload;
   function KMPointX1Y1(P:TKMPoint): TKMPoint; overload;
   function KMPointY1(P:TKMPoint): TKMPoint; overload;
   function KMPointY1(P:TKMPointF): TKMPoint; overload;
 
-  function KMPointRound(P:TKMPointf): TKMPoint;
+  function KMPointRound(const P:TKMPointf): TKMPoint;
   function KMSamePoint(P1,P2:TKMPoint): boolean;
   function KMSamePointF(P1,P2:TKMPointF): boolean; overload;
   function KMSamePointF(P1,P2:TKMPointF; Epsilon:single): boolean; overload;
@@ -44,8 +44,8 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
   function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
   function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer):TKMPoint;
 
-  function KMMapNameToPath(aMapName, aExtension:string):string;
-  function KMSlotToSaveName(aSlot:integer; aExtension:string):string;
+  function KMMapNameToPath(const aMapName, aExtension:string):string;
+  function KMSlotToSaveName(aSlot:integer; const aExtension:string):string;
 
   function MapSizeToString(X,Y:integer):string;
 
@@ -59,11 +59,18 @@ implementation
 uses KM_LoadLib;
 
 
-function KMPoint(X, Y: word): TKMPoint;
+function KMPoint(X,Y:word): TKMPoint;
 begin
   Result.X := X;
   Result.Y := Y;
 end;
+
+
+function KMPoint(P: TKMPointDir): TKMPoint;
+begin
+  Result := P.Loc;
+end;
+
 
 function KMPointF(P:TKMPoint): TKMPointF;
 begin
@@ -71,16 +78,13 @@ begin
   Result.Y := P.Y;
 end;
 
-function KMPoint(P: TKMPointDir): TKMPoint;
-begin
-  Result := P.Loc;
-end;
 
 function KMPointF(X, Y: single): TKMPointF;
 begin
   Result.X := X;
   Result.Y := Y;
 end;
+
 
 function KMPointDir(X, Y, Dir: word): TKMPointDir;
 begin
@@ -126,10 +130,8 @@ begin
 end;
 
 
-function KMPointRound(P:TKMPointF): TKMPoint;
+function KMPointRound(const P:TKMPointF):TKMPoint;
 begin
-  Assert((P.X >= 0) and (P.Y>=0));
-
   Result.X := round(P.X);
   Result.Y := round(P.Y);
 end;
@@ -339,13 +341,13 @@ begin
 end;
 
 
-function KMMapNameToPath(aMapName, aExtension:string):string;
+function KMMapNameToPath(const aMapName, aExtension:string):string;
 begin
   Result := ExeDir+'Maps\'+aMapName+'\'+aMapName+'.'+aExtension;
 end;
 
 
-function KMSlotToSaveName(aSlot:integer; aExtension:string):string;
+function KMSlotToSaveName(aSlot:integer; const aExtension:string):string;
 begin
   Result := ExeDir+'Saves\save'+int2fix(aSlot,2)+'.'+aExtension;
 end;

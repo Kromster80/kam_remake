@@ -23,8 +23,8 @@ EXE-only r1006:
 
  ?	Citizen will try to walk home when it has no road tile below entrance (I think thats not a bug)
  ? 	Music doesn't work
- ?	game in fullscreen mode flickers terrible! (TK, tested on TV and LCD, 50Hz?)
- ?	I got a access violation when I was deleting my fisherman.
+ ?	game in fullscreen mode flickers terrible! (TK, tested on TV and LCD, 50Hz?) (Gone in r970 ?)
+ ?	I got a access violation when I was deleting my fisherman. (Probably fixed in r1006)
  ?	when starting the game first time after system boot-up Explorer stops responding for a minute (Win7x64) ?	Houses/units from the mission file should not place on forbidden terrain (height, proximity for houses)
  ?	in background there is a rustle, I can hear it very good, if I set music down to "0". deactivating music is the same. (I use a creative x-fi sound card) But it's only in main menu, not in in-game! In in-game you hear a whir like from a bee.
 

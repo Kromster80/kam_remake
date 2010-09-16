@@ -1284,7 +1284,7 @@ begin
   if ssLeft in Shift then begin
     BoundRectAt := GetMapCoords(X,Y);
     if Assigned(OnChange) then
-      OnChange(Self); //todo: make specific
+      OnChange(Self);
   end;
 end;
 
@@ -1658,7 +1658,7 @@ end;
 procedure TKMControlsCollection.MouseDown(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
   CtrlDown := nil;
-  if MODE_DESIGN_CONTORLS then exit; //No functionality attached yet
+  if MODE_DESIGN_CONTORLS then exit; //todo: No functionality attached yet
 
   Controls[0].MouseDown(X,Y,Shift,Button); //Pass to Panel and it will do all the Child stuff
 

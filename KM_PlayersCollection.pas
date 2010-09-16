@@ -24,13 +24,13 @@ type
   public
     procedure SetPlayerCount(aPlayerCount:integer);
     property PlayerCount:integer read fPlayerCount;
-    function HousesHitTest(X, Y: Integer): TKMHouse;
-    function UnitsHitTest(X, Y: Integer): TKMUnit;
+    function HousesHitTest(X,Y:Integer):TKMHouse;
+    function UnitsHitTest(X,Y:Integer):TKMUnit;
     function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
     function UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
-    function HitTest(X, Y: Integer):boolean;
+    function HitTest(X,Y:Integer):boolean;
     function GetUnitCount():integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
     function CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
@@ -99,18 +99,18 @@ begin
   Result:=nil;
   for i:=1 to fPlayerCount do begin
     Result := Player[i].HousesHitTest(X,Y);
-    if Result<>nil then Break; //else keep on testing
+    if Result<>nil then exit; //Assuming that there can't be 2 houses on one tile
   end;
 end;
 
 
-function TKMAllPlayers.UnitsHitTest(X, Y: Integer): TKMUnit;
+function TKMAllPlayers.UnitsHitTest(X,Y:Integer):TKMUnit;
 var i:integer;
 begin
   Result := nil;
   for i:=1 to fPlayerCount do begin
     Result := Player[i].UnitsHitTest(X,Y);
-    if Result<>nil then Break; //Assuming that there can't be 2 units on one tile
+    if Result<>nil then exit; //Assuming that there can't be 2 units on one tile
   end;
   if Result = nil then
     Result := PlayerAnimals.UnitsHitTest(X,Y);
