@@ -11,182 +11,177 @@ const MaxMapSize=192;
 type
 {Class to store all terrain data, aswell terrain routines}
 TTerrain = class
+  private
+    AnimStep:integer;
+  public
+    MapX,MapY:integer; //Terrain width and height
 
-public
-  MapX,MapY:integer; //Terrain width and height
+    Land:array[1..MaxMapSize,1..MaxMapSize]of record
+      Terrain:byte;
+      Height:byte;
+      Rotation:byte;
+      Obj:byte;
 
-  Land:array[1..MaxMapSize,1..MaxMapSize]of record
-    Terrain:byte;
-    Height:byte;
-    Rotation:byte;
-    Obj:byte;
+      //Age of tree, another independent variable since trees can grow on fields
+      TreeAge:word;  //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
 
-    //Age of tree, another independent variable since trees can grow on fields
-    TreeAge:word;  //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
+      //Age of field/wine, another independent variable
+      FieldAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
 
-    //Age of field/wine, another independent variable
-    FieldAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
+      //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
+      Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
 
-    //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
-    Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
+      //Used to display half-dug road
+      TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
-    //Used to display half-dug road
-    TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
-
-    TileOwner:TPlayerID; //Name says it all, should simplify player related issues
-    IsUnit:byte; //Whenever there's a unit on that tile mark the tile as occupied and count the number
-    IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
-
-
-    //MAPEDITOR
-    OldTerrain, OldRotation:byte; //Only used for map editor
-    HeightAdd:byte;
+      TileOwner:TPlayerID; //Name says it all, should simplify player related issues
+      IsUnit:byte; //Whenever there's a unit on that tile mark the tile as occupied and count the number
+      IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
 
 
-    //DEDUCTED
-    Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
-    Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
+      //MAPEDITOR
+      OldTerrain, OldRotation:byte; //Only used for map editor
+      HeightAdd:byte;
 
-    WalkConnect:array[1..4]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad, 3=canFish, 4=canWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
 
-    Border: TBorderType; //Borders (ropes, planks, stones)
-    BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
+      //DEDUCTED
+      Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
+      Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-    //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
-    FogOfWar:array[1..8]of byte;
+      WalkConnect:array[1..4]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad, 3=canFish, 4=canWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
+
+      Border: TBorderType; //Borders (ropes, planks, stones)
+      BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
+
+      //Lies within range 0, TERRAIN_FOG_OF_WAR_MIN..TERRAIN_FOG_OF_WAR_MAX.
+      FogOfWar:array[1..8]of byte;
+    end;
+
+    FallingTrees: TKMPointTagList;
+    MiniMapRGB:array[1..MaxMapSize,1..MaxMapSize]of cardinal;
+
+    constructor Create;
+    destructor Destroy; override;
+    procedure MakeNewMap(Width,Height:integer);
+    function OpenMapFromFile(filename:string):boolean;
+
+    procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
+    procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerID);
+    procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
+    procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; const aFlattenTerrain:boolean=false);
+    procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
+
+    procedure RemMarkup(Loc:TKMPoint);
+    procedure RemRoad(Loc:TKMPoint);
+    procedure RemField(Loc:TKMPoint);
+    procedure SetWall(Loc:TKMPoint; aOwner:TPlayerID);
+    procedure IncDigState(Loc:TKMPoint);
+    procedure ResetDigState(Loc:TKMPoint);
+
+    function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizensOffRoad:boolean=true):boolean;
+    function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
+    function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+    function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+    function CanRemoveUnit(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
+    function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
+    function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
+    procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
+
+    function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
+    function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+    function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+    function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
+    function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+    function FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+    function CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
+    function ChooseTreeToPlant(aPosition:TKMPoint):integer;
+
+    function WaterHasFish(aPosition:TKMPoint):boolean;
+    function CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boolean;
+
+    procedure SetTree(Loc:TKMPoint; ID:integer);
+    procedure FallTree(Loc:TKMPoint);
+    procedure ChopTree(Loc:TKMPoint);
+
+    procedure SowCorn(Loc:TKMPoint);
+    procedure CutCorn(Loc:TKMPoint);
+    procedure CutGrapes(Loc:TKMPoint);
+
+    procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
+    procedure DecStoneDeposit(Loc:TKMPoint);
+    procedure DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
+
+    procedure RecalculatePassability(Loc:TKMPoint);
+    procedure RecalculatePassabilityAround(Loc:TKMPoint);
+    function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
+    function HasUnit(Loc:TKMPoint):boolean;
+    function HasVertexUnit(Loc:TKMPoint):boolean;
+    function GetRoadConnectID(Loc:TKMPoint):byte;
+    function GetWalkConnectID(Loc:TKMPoint):byte;
+
+    function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
+    function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
+    function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
+    function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
+    function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
+    function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
+    procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
+    procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
+    procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
+    function GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoint;
+
+    procedure UnitAdd(LocTo:TKMPoint);
+    procedure UnitRem(LocFrom:TKMPoint);
+    procedure UnitWalk(LocFrom,LocTo:TKMPoint);
+    procedure UnitVertexAdd(LocTo:TKMPoint);
+    procedure UnitVertexRem(LocFrom:TKMPoint);
+
+    function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+    function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
+    function EnsureTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
+
+    function TileIsWater(Loc:TKMPoint):boolean;
+    function TileIsSand(Loc:TKMPoint):boolean;
+    function TileIsStone(Loc:TKMPoint):byte;
+    function TileIsSoil(Loc:TKMPoint):boolean;
+    function TileIsWalkable(Loc:TKMPoint):boolean;
+    function TileIsRoadable(Loc:TKMPoint):boolean;
+    function TileIsCornField(Loc:TKMPoint):boolean;
+    function TileIsWineField(Loc:TKMPoint):boolean;
+
+    function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
+    function CanWalkDiagonaly(A,B:TKMPoint):boolean;
+    function FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
+
+    procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
+    procedure RevealWholeMap(PlayerID:TPlayerID);
+    function CheckVerticeRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
+    function CheckTileRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
+    procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
+    procedure FlattenTerrain(Loc:TKMPoint); overload;
+    procedure FlattenTerrain(LocList:TKMPointList); overload;
+    procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
+    procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
+    procedure RebuildWalkConnect(aPass:TPassability);
+
+    procedure ComputeCursorPosition(X,Y:word; Shift: TShiftState);
+    function GetVertexCursorPosition:TKMPoint;
+    function ConvertCursorToMapCoord(inX,inY:single):single;
+    function InterpolateLandHeight(inX,inY:single):single;
+    function MixLandHeight(inX,inY:byte):byte;
+
+    procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
+    procedure MapEdTile(aLoc:TKMPoint; aTile:byte);
+
+    procedure RefreshMinimapData();
+
+    procedure IncAnimStep();
+    procedure SaveToMapFile(aFile:string);
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
+    procedure UpdateState;
+    procedure Paint;
   end;
-
-  FallingTrees: TKMPointTagList;
-
-  MiniMapRGB:array[1..MaxMapSize,1..MaxMapSize]of cardinal;
-  CursorPos:TKMPoint;
-private
-  AnimStep:integer;
-
-public
-  constructor Create;
-  destructor Destroy; override;
-  procedure MakeNewMap(Width,Height:integer);
-  function OpenMapFromFile(filename:string):boolean;
-
-  procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
-  procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerID);
-  procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
-  procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; const aFlattenTerrain:boolean=false);
-  procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
-
-  procedure RemMarkup(Loc:TKMPoint);
-  procedure RemRoad(Loc:TKMPoint);
-  procedure RemField(Loc:TKMPoint);
-  procedure SetWall(Loc:TKMPoint; aOwner:TPlayerID);
-  procedure IncDigState(Loc:TKMPoint);
-  procedure ResetDigState(Loc:TKMPoint);
-
-  function CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizensOffRoad:boolean=true):boolean;
-  function CanPlaceHouse(Loc:TKMPoint; aHouseType: THouseType; PlayerRevealID:TPlayerID=play_none):boolean;
-  function CanRemovePlan(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
-  function CanRemoveHouse(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
-  function CanRemoveUnit(Loc:TKMPoint; PlayerID:TPlayerID):boolean;
-  function CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TPlayerID=play_none):boolean;
-  function CheckHeightPass(aLoc:TKMPoint; aPass:TPassability):boolean;
-  procedure AddHouseRemainder(Loc:TKMPoint; aHouseType:THouseType; aBuildState:THouseBuildState);
-
-  function FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
-  function FindTree(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
-  function FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-  function FindOre(aPosition:TKMPoint; Rt:TResourceType):TKMPoint;
-  function FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
-  function FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
-  function CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
-  function ChooseTreeToPlant(aPosition:TKMPoint):integer;
-
-  function WaterHasFish(aPosition:TKMPoint):boolean;
-  function CatchFish(aPosition:TKMPointDir; TestOnly:boolean=false):boolean;
-
-  procedure SetTree(Loc:TKMPoint; ID:integer);
-  procedure FallTree(Loc:TKMPoint);
-  procedure ChopTree(Loc:TKMPoint);
-
-  procedure SowCorn(Loc:TKMPoint);
-  procedure CutCorn(Loc:TKMPoint);
-  procedure CutGrapes(Loc:TKMPoint);
-
-  procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
-  procedure DecStoneDeposit(Loc:TKMPoint);
-  procedure DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
-
-  procedure RecalculatePassability(Loc:TKMPoint);
-  procedure RecalculatePassabilityAround(Loc:TKMPoint);
-  function CheckPassability(Loc:TKMPoint; aPass:TPassability):boolean;
-  function HasUnit(Loc:TKMPoint):boolean;
-  function HasVertexUnit(Loc:TKMPoint):boolean;
-  function GetRoadConnectID(Loc:TKMPoint):byte;
-  function GetWalkConnectID(Loc:TKMPoint):byte;
-
-  function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
-  function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
-  function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
-  function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
-  function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:boolean):boolean;
-  function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList):boolean;
-  procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:boolean; out NodeList:TKMPointList);
-  procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
-  procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
-  function GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoint;
-
-  procedure UnitAdd(LocTo:TKMPoint);
-  procedure UnitRem(LocFrom:TKMPoint);
-  procedure UnitWalk(LocFrom,LocTo:TKMPoint);
-  procedure UnitVertexAdd(LocTo:TKMPoint);
-  procedure UnitVertexRem(LocFrom:TKMPoint);
-
-  function TileInMapCoords(X,Y:integer; Inset:byte=0):boolean;
-  function VerticeInMapCoords(X,Y:integer; Inset:byte=0):boolean;
-  function EnsureTileInMapCoords(X,Y:integer; Inset:byte=0):TKMPoint;
-
-  function TileIsWater(Loc:TKMPoint):boolean;
-  function TileIsSand(Loc:TKMPoint):boolean;
-  function TileIsStone(Loc:TKMPoint):byte;
-  function TileIsSoil(Loc:TKMPoint):boolean;
-  function TileIsWalkable(Loc:TKMPoint):boolean;
-  function TileIsRoadable(Loc:TKMPoint):boolean;
-  function TileIsCornField(Loc:TKMPoint):boolean;
-  function TileIsWineField(Loc:TKMPoint):boolean;
-
-  function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
-  function CanWalkDiagonaly(A,B:TKMPoint):boolean;
-  function FindNewNode(A,B:TKMPoint; aPass:TPassability):TKMPoint;
-
-  procedure RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
-  procedure RevealWholeMap(PlayerID:TPlayerID);
-  function CheckVerticeRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
-  function CheckTileRevelation(const X,Y:word; const PlayerID:TPlayerID):byte;
-  procedure UpdateBorders(Loc:TKMPoint; CheckSurrounding:boolean=true);
-  procedure FlattenTerrain(Loc:TKMPoint); overload;
-  procedure FlattenTerrain(LocList:TKMPointList); overload;
-  procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
-  procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
-  procedure RebuildWalkConnect(aPass:TPassability);
-
-  procedure ComputeCursorPosition(X,Y:word; Shift: TShiftState);
-  function GetVertexCursorPosition:TKMPoint;
-  function ConvertCursorToMapCoord(inX,inY:single):single;
-  function InterpolateLandHeight(inX,inY:single):single;
-  function MixLandHeight(inX,inY:byte):byte;
-
-  procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
-  procedure MapEdTile(aLoc:TKMPoint; aTile:byte);
-
-  procedure RefreshMinimapData();
-
-  procedure IncAnimStep();
-  procedure SaveToMapFile(aFile:string);
-  procedure Save(SaveStream:TKMemoryStream);
-  procedure Load(LoadStream:TKMemoryStream);
-  procedure UpdateState;
-  procedure UpdateCursor(aCursor:TCursorMode; Loc:TKMPoint);
-  procedure Paint;
-end;
 
 var
   fTerrain: TTerrain;
@@ -2306,13 +2301,6 @@ begin
       end;
 
     end;
-end;
-
-
-procedure TTerrain.UpdateCursor(aCursor:TCursorMode; Loc:TKMPoint);
-begin
-  CursorMode.Mode:=aCursor;
-  CursorPos:=Loc;
 end;
 
 

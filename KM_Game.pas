@@ -424,14 +424,12 @@ begin
                         end
                         else if not fViewport.Scrolling then
                           Screen.Cursor := c_Default;
-                    fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                   end;
                   end;
                 end;
     gsReplay:   begin
                   fGameplayInterface.MyControls.MouseMove(X,Y,Shift); //To control minimap                  
                   fTerrain.ComputeCursorPosition(X,Y,Shift); //To show coords in status bar
-                  fTerrain.UpdateCursor(CursorMode.Mode, GameCursor.Cell);
                 end;
     gsEditor:   begin
                   fMapEditorInterface.MyControls.MouseMove(X,Y,Shift);
@@ -446,7 +444,6 @@ begin
                         Screen.Cursor:=c_Info
                       else if not fViewport.Scrolling then
                         Screen.Cursor:=c_Default;
-                    fTerrain.UpdateCursor(CursorMode.Mode,GameCursor.Cell);
 
                     if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
                     begin
