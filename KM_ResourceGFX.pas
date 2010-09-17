@@ -39,6 +39,7 @@ type
     function GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint; //This should belong to TRender?
   public
     constructor Create;
+    destructor Destroy; override;
     function LoadMenuResources(aLocale:string):boolean;
     function LoadGameResources():boolean;
 
@@ -73,7 +74,11 @@ begin
 end;
 
 
-//todo: Add destroy with "DestroyIcon" and move cursor creation to Create here
+destructor TResource.Destroy;
+begin
+  //todo: Add destroy with "DestroyIcon" and move cursor creation to Create here
+  Inherited;
+end;
 
 
 procedure TResource.StepRefresh();
