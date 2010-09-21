@@ -119,12 +119,12 @@ end;
 
 destructor TKMPlayerAssets.Destroy;
 begin
-  FreeAndNil(fMissionSettings);
-  FreeAndNil(fUnits);
-  FreeAndNil(fHouses);
-  FreeAndNil(fDeliverList);
-  FreeAndNil(fBuildList);
-  inherited;
+  FreeThenNil(fMissionSettings);
+  FreeThenNil(fUnits);
+  FreeThenNil(fHouses);
+  FreeThenNil(fDeliverList);
+  FreeThenNil(fBuildList);
+  Inherited;
 end;
 
 
@@ -220,7 +220,7 @@ begin
   fPath := TPathFinding.Create(LocA, LocB, KMPoint(0,0), canMakeRoads, true);
   NodeList:=TKMPointList.Create;
   fPath.ReturnRoute(NodeList);
-  FreeAndNil(fPath);
+  fPath.Free;
 
   for i:=1 to NodeList.Count do
     AddRoad(NodeList.List[i]);
@@ -514,7 +514,7 @@ end;
 
 destructor TKMPlayerAnimals.Destroy;
 begin
-  FreeAndNil(fUnits);
+  FreeThenNil(fUnits);
   inherited;
 end;
 

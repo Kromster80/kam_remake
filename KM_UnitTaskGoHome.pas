@@ -7,7 +7,7 @@ type
   TTaskGoHome = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
-      procedure Execute(out TaskDone:boolean); override;
+      function Execute():TTaskResult; override;
     end;
 
 
@@ -23,12 +23,11 @@ begin
 end;
 
 
-procedure TTaskGoHome.Execute(out TaskDone:boolean);
+function TTaskGoHome.Execute():TTaskResult;
 begin
-  TaskDone:=false;
+  Result := TaskContinues;
   if fUnit.GetHome.IsDestroyed then begin
-    Abandon;
-    TaskDone:=true;
+    Result := TaskDone;
     exit;
   end;
   with fUnit do
@@ -43,11 +42,10 @@ begin
         GetHome.SetState(hst_Idle);
         SetActionStay(5,ua_Walk);
        end;
-    else TaskDone:=true;
+    else Result := TaskDone;
   end;
+
   inc(fPhase);
-  if (fUnit.GetUnitAction=nil)and(not TaskDone) then
-    fGame.GameError(fUnit.GetPosition, 'Go home No action, no TaskDone!');
 end;
 
 

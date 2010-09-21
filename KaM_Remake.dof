@@ -15,7 +15,7 @@ K=0
 L=1
 M=0
 N=1
-O=0
+O=1
 P=1
 Q=1
 R=1
@@ -23,7 +23,7 @@ S=0
 T=0
 U=0
 V=1
-W=0
+W=1
 X=1
 Y=1
 Z=1
@@ -129,6 +129,9 @@ Locale=1049
 CodePage=1251
 [Version Info Keys]
 FileVersion=1.0.0.0
+[Excluded Packages]
+C:\Program Files\Borland\Delphi7\Projects\Bpl\JvCtrlsD7D.bpl=JVCL Visual Controls
+C:\Program Files\Borland\Delphi7\Projects\Bpl\JvMMD7D.bpl=JVCL Multimedia and Image Components
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;

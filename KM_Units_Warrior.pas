@@ -879,7 +879,7 @@ begin
   begin
     fAutoLinkState := wl_None;
     if GetUnitTask <> nil then begin
-      GetUnitTask.Abandon;
+      GetUnitTask.Free;
       FreeAndNil(fUnitTask);
     end;
     //If we are not the commander then walk to near
@@ -894,7 +894,7 @@ begin
   if (fOrder=wo_Walk) and GetUnitAction.StepDone and CanInterruptAction then
   begin
     if GetUnitTask <> nil then begin
-      GetUnitTask.Abandon;
+      GetUnitTask.Free;
       FreeAndNil(fUnitTask);
     end;
     //If we are not the commander then walk to near

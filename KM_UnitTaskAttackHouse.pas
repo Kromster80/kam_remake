@@ -17,9 +17,8 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
-      procedure Abandon; override;
       function WalkShouldAbandon:boolean; override;
-      procedure Execute(out TaskDone:boolean); override;
+      function Execute():TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -71,12 +70,6 @@ begin
 end;
 
 
-procedure TTaskAttackHouse.Abandon();
-begin
-  Inherited;
-end;
-
-
 {Position is [used] when there's another warrior attacking the same house from queried spot?}
 function TTaskAttackHouse.PosUsed(aPos: TKMPoint):boolean;
 var HitUnit: TKMUnit;
@@ -110,7 +103,7 @@ begin
 end;
 
 
-procedure TTaskAttackHouse.Execute(out TaskDone:boolean);
+function TTaskAttackHouse.Execute():TTaskResult;
 
     function PickRandomSpot(): byte;
     var i, MyCount: integer; Spots: array[1..16] of byte;
@@ -136,13 +129,12 @@ procedure TTaskAttackHouse.Execute(out TaskDone:boolean);
     end;
 
 begin
-  TaskDone := false;
+  Result := TaskContinues;
 
   //If the house is destroyed drop the task
   if fHouse.IsDestroyed then
   begin
-    Abandon;
-    TaskDone := true; //Drop the task
+    Result := TaskDone;
     exit;
   end;
 
@@ -154,8 +146,7 @@ begin
        if LocID = 0 then
        begin
          //All cells are taken/inaccessable
-         Abandon;
-         TaskDone := true; //Drop the task
+         Result := TaskDone;
          exit;
        end;
        SetActionWalk(fUnit,Cells.List[LocID].Loc);
@@ -171,10 +162,7 @@ begin
      end;
   end;
 
-  if TaskDone then exit;
   inc(fPhase);
-
-  if fUnit.GetUnitAction=nil then fGame.GameError(fUnit.GetPosition, 'fWarrior.fCurrentAction=nil)and(not TaskDone)');
 end;
 
 

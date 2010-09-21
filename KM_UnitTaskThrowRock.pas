@@ -14,7 +14,7 @@ type
       constructor Create(aUnit,aTarget:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
-      procedure Execute(out TaskDone:boolean); override;
+      function Execute():TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -46,13 +46,12 @@ begin
 end;
 
 
-procedure TTaskThrowRock.Execute(out TaskDone:boolean);
+function TTaskThrowRock.Execute():TTaskResult;
 begin
-  TaskDone := false;
+  Result := TaskContinues;
 
   if fUnit.GetHome.IsDestroyed then begin
-    Abandon;
-    TaskDone := true;
+    Result := TaskDone;
     exit;
   end;
 
@@ -69,11 +68,9 @@ begin
          GetHome.SetState(hst_Idle);
          SetActionStay(fFlightTime + 5,ua_Walk); //look how it goes
        end;
-    else TaskDone := true;
+    else Result := TaskDone;
   end;
   inc(fPhase);
-  if (fUnit.GetUnitAction=nil)and(not TaskDone) then
-    fGame.GameError(fUnit.GetPosition, 'ThrowRock No action, no TaskDone!');
 end;
 
 

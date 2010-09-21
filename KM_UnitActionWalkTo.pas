@@ -322,7 +322,7 @@ begin
     //Delete everything past NodePos and add new route from there
     NodeList.Count := NodePos;
     if not AssembleTheRoute() then begin
-      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon; //Else stop and abandon the task (if we have one)
+      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Free; //Else stop and abandon the task (if we have one)
       Result := dc_NoRoute;
     end;
   end;
@@ -343,7 +343,7 @@ begin
       TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).OrderLocDir.Dir);
       Result := tc_TargetUpdated;
     end else begin
-      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon; //Else stop and abandon the task (if we have one)
+      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Free; //Else stop and abandon the task (if we have one)
       Result := tc_Died;
     end;
   end;
@@ -367,7 +367,7 @@ begin
       fWalker.SetActionWalk(fWalker,fWalkTo,GetActionType,fWalkToSpot);
       Result:= oc_ReRouteMade;
     end else begin
-      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon; //Else stop and abandon the task (if we have one)
+      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Free; //Else stop and abandon the task (if we have one)
       Result := oc_NoRoute;
     end;
 end;
@@ -785,7 +785,7 @@ begin
 
   //Route was not built
   if NodeList.Count = 0 then begin
-    if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Abandon;
+    if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Free;
     fWalker.SetActionStay(20, ua_Walk);
     exit;
   end;

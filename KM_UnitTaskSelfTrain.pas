@@ -14,8 +14,7 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
-      procedure Abandon(); override;
-      procedure Execute(out TaskDone:boolean); override;
+      function Execute():TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -48,31 +47,24 @@ begin
 end;
 
 
-destructor TTaskSelfTrain.Destroy;
-begin
-  if fSchool <> nil then fSchool.ReleaseHousePointer;
-  Inherited;
-end;
-
-
 //Abort if someone has destroyed our school
-procedure TTaskSelfTrain.Abandon;
+destructor TTaskSelfTrain.Destroy;
 var TempUnit: TKMUnit;
 begin
   TempUnit := fUnit; //Make local copy of the pointer because Inherited will set the pointer to nil
+  if fSchool <> nil then fSchool.ReleaseHousePointer;
   Inherited;
   TempUnit.CloseUnit; //CloseUnit at last, cos it will FreeAndNil TTask
 end;
 
 
-procedure TTaskSelfTrain.Execute(out TaskDone:boolean);
+function TTaskSelfTrain.Execute():TTaskResult;
 begin
-  TaskDone := false;
+  Result := TaskContinues;
 
   if fSchool.IsDestroyed then
   begin
-    Abandon;
-    TaskDone:=true;
+    Result := TaskDone;
     exit;
   end;
 
@@ -108,7 +100,7 @@ begin
           fSchool.UnitTrainingComplete;
           fPlayers.Player[byte(GetOwner)].CreatedUnit(GetUnitType,true);
          end;
-      else TaskDone:=true;
+      else Result := TaskDone;
     end;
   inc(fPhase);
 end;

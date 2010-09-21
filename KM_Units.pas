@@ -29,6 +29,7 @@ type
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
+  TTaskResult = (TaskContinues, TaskDone); //
 
   TUnitTask = class(TObject)
   protected
@@ -42,11 +43,10 @@ type
     procedure SyncLoad(); dynamic;
     destructor Destroy; override;
 
-    procedure Abandon; virtual;
     function WalkShouldAbandon:boolean; dynamic;
     property Phase:byte read fPhase write fPhase;
 
-    procedure Execute(out TaskDone:boolean); virtual; abstract;
+    function Execute():TTaskResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
@@ -55,7 +55,7 @@ type
     public
       constructor Create(aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure Execute(out TaskDone:boolean); override;
+      function Execute():TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -858,14 +858,13 @@ end;
 
 function TKMUnitAnimal.UpdateState():boolean;
 var
-  ActDone,TaskDone: Boolean;
+  ActDone:Boolean;
   Spot:TKMPoint; //Target spot where unit will go
-  SpotJit:byte; 
+  SpotJit:byte;
 begin
   Result:=true; //Required for override compatibility
 
   ActDone:=true;
-  TaskDone:=true;
 
   fCurrPosition := KMPointRound(fPosition);
   if fCurrentAction <> nil then
@@ -875,9 +874,7 @@ begin
   if ActDone then FreeAndNil(fCurrentAction) else exit;
 
   if fUnitTask <> nil then
-    fUnitTask.Execute(TaskDone);
-
-  if TaskDone then FreeAndNil(fUnitTask) else exit;
+    if (fUnitTask.Execute() = TaskDone) then FreeAndNil(fUnitTask) else exit;
 
   //First make sure the animal isn't stuck (check passibility of our position)
   if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(GetUnitType)]) then
@@ -1106,7 +1103,7 @@ begin
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
   //Abandon work if any
-  if fUnitTask<>nil then fUnitTask.Abandon;
+  if fUnitTask<>nil then fUnitTask.Free;
 
   //todo: This is probably a source of some bugs in interaction, check this
   //Should we Abandon interaction things?
@@ -1546,7 +1543,7 @@ end;
 {Here are common Unit.UpdateState routines}
 function TKMUnit.UpdateState():boolean;
 var
-  ActDone,TaskDone: Boolean;
+  ActDone:Boolean;
 begin
   //There are layers of unit activity (bottom to top):
   // - Action (Atom creating layer (walk 1frame, etc..))
@@ -1561,13 +1558,6 @@ begin
   UpdateHitPoints();
   UpdateVisibility(); //incase units home was destroyed
 
-  //
-  //Performing Tasks and Actions now
-  //------------------------------------------------------------------------------------------------
-
-  ActDone         := true;
-  TaskDone        := true;
-
   //Shortcut to freeze unit in place if it's on an unwalkable tile
   if fCurrentAction is TUnitActionWalkTo then
     if GetDesiredPassability = canWalkRoad then
@@ -1578,35 +1568,31 @@ begin
     if not fTerrain.CheckPassability(GetPosition, GetDesiredPassability) then
       exit;
 
-//todo: new task handling pattern
-{
-  if fCurrentAction<>nil then
-  case fCurrentAction.Execute(Self) of
+  //
+  //Performing Tasks and Actions now
+  //------------------------------------------------------------------------------------------------
+
+  ActDone         := true;
+
+  if fCurrentAction=nil then
+    Assert(fCurrentAction<>nil);
+  fCurrPosition := KMPointRound(fPosition);
+  {case fCurrentAction.Execute(Self) of
     ActContinues: exit;
-    ActAborted: fUnitTask.Abandon; //abandon the task properly, move along to unit task-specific UpdateState
-    ActDone: ; move along to unit task
-  end;
+    ActAborted:   FreeAndNil(fUnitTask.Free);
+    ActDone:      ;
+  end;}
+  if fCurrentAction <> nil then fCurrentAction.Execute(Self, ActDone);
+  if ActDone then FreeAndNil(fCurrentAction) else exit;
+  fCurrPosition := KMPointRound(fPosition);
+
 
   if fUnitTask <> nil then
   case fUnitTask.Execute() of
-    TaskContinues: exit;
-    TaskAbandoned,
-    TaskDone: ; //move along to unit-specific UpdateState
+    TaskContinues:  exit;
+    TaskDone:       FreeAndNil(fUnitTask);
   end;
-}
-  fCurrPosition := KMPointRound(fPosition);
 
-  if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, ActDone);
-
-  fCurrPosition := KMPointRound(fPosition);
-
-  if ActDone then FreeAndNil(fCurrentAction) else exit;
-
-  if (fUnitTask <> nil) and (fUnitTask.fUnit <> nil) then
-    fUnitTask.Execute(TaskDone);
-
-  if TaskDone then FreeAndNil(fUnitTask) else exit;
 
   //If we get to this point then it means that common part is done and now
   //we can perform unit-specific activities (ask for job, etc..)
@@ -1660,21 +1646,12 @@ end;
 
 destructor TUnitTask.Destroy;
 begin
-  if fUnit <> nil then fUnit.ReleaseUnitPointer;
-  Inherited;
-end;
-
-
-procedure TUnitTask.Abandon;
-begin
-  //Shortcut to abandon and declare task done
   fUnit.Thought := th_None; //Stop any thoughts
   if fUnit <> nil then fUnit.ReleaseUnitPointer;
   fUnit         := nil;
   fPhase        := MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2       := MAXBYTE-1;
-
-  {FreeAndNil(Self);}
+  Inherited;
 end;
 
 
@@ -1710,14 +1687,14 @@ begin
 end;
 
 
-procedure TTaskGoOutShowHungry.Execute(out TaskDone:boolean);
+function TTaskGoOutShowHungry.Execute():TTaskResult;
 begin
-  TaskDone:=false;
+  Result := TaskContinues;
   if fUnit.fHome.IsDestroyed then begin
-    Abandon;
-    TaskDone:=true;
+    Result := TaskDone;
     exit;
   end;
+  
   with fUnit do
   case fPhase of
     0: begin
@@ -1736,12 +1713,10 @@ begin
        end;
     else begin
          fThought := th_None;
-         TaskDone := true;
+         Result := TaskDone;
        end;
   end;
   inc(fPhase);
-  if (fUnit.fCurrentAction=nil)and(not TaskDone) then
-    fGame.GameError(fUnit.GetPosition, 'Show hungry No action, no TaskDone!');
 end;
 
 

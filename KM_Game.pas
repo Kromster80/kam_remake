@@ -128,18 +128,17 @@ end;
 { Destroy what was created }
 destructor TKMGame.Destroy;
 begin
-  //Stop music imediently, so it doesn't keep playing and jerk while things closes
-  fMusicLib.StopMusic;
+  fMusicLib.StopMusic; //Stop music imediently, so it doesn't keep playing and jerk while things closes
 
-  FreeAndNil(fCampaignSettings);
-  FreeAndNil(fGlobalSettings);
-  FreeAndNil(fMainMenuInterface);
-  FreeAndNil(fResource);
-  FreeAndNil(fSoundLib);
-  FreeAndNil(fMusicLib);
-  FreeAndNil(fTextLibrary);
-  FreeAndNil(fRender);
-  inherited;
+  FreeThenNil(fCampaignSettings);
+  FreeThenNil(fGlobalSettings);
+  FreeThenNil(fMainMenuInterface);
+  FreeThenNil(fResource);
+  FreeThenNil(fSoundLib);
+  FreeThenNil(fMusicLib);
+  FreeThenNil(fTextLibrary);
+  FreeThenNil(fRender);
+  Inherited;
 end;
 
 
@@ -852,14 +851,14 @@ begin
   if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
     fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl'));
     
-  FreeAndNil(fGameInputProcess);
-  FreeAndNil(fPlayers);
-  FreeAndNil(fProjectiles);
-  FreeAndNil(fTerrain);
+  FreeThenNil(fGameInputProcess);
+  FreeThenNil(fPlayers);
+  FreeThenNil(fProjectiles);
+  FreeThenNil(fTerrain);
 
-  FreeAndNil(fGamePlayInterface);  //Free both interfaces
-  FreeAndNil(fMapEditorInterface); //Free both interfaces
-  FreeAndNil(fViewport);
+  FreeThenNil(fGamePlayInterface);  //Free both interfaces
+  FreeThenNil(fMapEditorInterface); //Free both interfaces
+  FreeThenNil(fViewport);
   ID_Tracker := 0; //Reset ID tracker
 
   case Msg of

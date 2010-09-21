@@ -27,6 +27,8 @@ function TruncateExt(FileName:string): string;
 function GetFileSize(const FileName: string): LongInt;
 function CheckFileExists(const FileName: string; const IsSilent:boolean = false):boolean;
 
+procedure FreeThenNil(var Obj);
+
 function ReverseString(s1:string):string;
 
 function int2fix(Number,Len:integer):string;
@@ -224,6 +226,13 @@ else begin
   if not IsSilent then ShowMessage('Unable to locate '+#13+'"'+FileName+'" file');
   Result:=false;
 end;
+end;
+
+
+procedure FreeThenNil(var Obj);
+begin
+  TObject(Obj).Free;
+  Pointer(Obj) := nil;
 end;
 
 

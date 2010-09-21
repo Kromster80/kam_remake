@@ -21,9 +21,8 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
-      procedure Abandon; override;
       function WalkShouldAbandon:boolean; override;
-      procedure Execute(out TaskDone:boolean); override;
+      function Execute():TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -74,22 +73,15 @@ end;
 
 destructor TTaskDeliver.Destroy;
 begin
-  if fFrom    <> nil then fFrom.ReleaseHousePointer;
-  if fToHouse <> nil then fToHouse.ReleaseHousePointer;
-  if fToUnit  <> nil then fToUnit.ReleaseUnitPointer;
-  Inherited;
-end;
-
-
-procedure TTaskDeliver.Abandon();
-begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   //It is set to 0 when delivery is closed, but unit still exits Dest house (task not ended yet)
   if fDeliverID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
   TKMUnitSerf(fUnit).CarryTake(false); //empty hands
 
-  fLog.AppendLog('We abandoned carry 0');
+  if fFrom    <> nil then fFrom.ReleaseHousePointer;
+  if fToHouse <> nil then fToHouse.ReleaseHousePointer;
+  if fToUnit  <> nil then fToUnit.ReleaseUnitPointer;
   Inherited;
 end;
 
@@ -105,10 +97,10 @@ begin
 end;
 
 
-procedure TTaskDeliver.Execute(out TaskDone:boolean);
+function TTaskDeliver.Execute():TTaskResult;
 var NewDelivery: TUnitTask;
 begin
-  TaskDone:=false;
+  Result := TaskContinues;
 
   with fUnit do
   case fPhase of
@@ -116,15 +108,15 @@ begin
           if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going to take '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
           SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance));
         end else begin
-          Abandon;
-          TaskDone:=true;
+          Result := TaskDone;
+          exit;
         end;
     1:  if not fFrom.IsDestroyed then begin
           if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
           SetActionGoIn(ua_Walk,gd_GoInside,fFrom)
         end else begin
-          Abandon;
-          TaskDone:=true;
+          Result := TaskDone;
+          exit;
         end;
     2:  if not fFrom.IsDestroyed then
         begin
@@ -134,21 +126,22 @@ begin
             fPlayers.Player[byte(GetOwner)].DeliverList.TakenOffer(fDeliverID);
           end else begin
             fLog.AssertToLog(false,'Serf '+inttostr(fUnit.ID)+' resource''s gone..?');
-            Abandon;
-            TaskDone := true;
+            Result := TaskDone;
+            exit;
           end;
           SetActionStay(5,ua_Walk); //Wait a moment inside
         end else begin
-          Abandon;
-          TaskDone:=true;
+          Result := TaskDone;
+          exit;
         end;
     3:  if not fFrom.IsDestroyed then
           SetActionGoIn(ua_Walk,gd_GoOutside,fFrom)
         else
           SetActionLockedStay(0,ua_Walk);
-    4:  if TKMUnitSerf(fUnit).Carry=rt_None then
-          TaskDone:=true
-        else
+    4:  if TKMUnitSerf(fUnit).Carry=rt_None then begin
+          Result := TaskDone;
+          //exit;
+        end else
           SetActionLockedStay(0,ua_Walk);
   end;
 
@@ -161,18 +154,16 @@ begin
     5:  if not fToHouse.IsDestroyed then
           SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance))
         else begin
-          TKMUnitSerf(fUnit).CarryTake();
           fLog.AppendLog('We dropped carry 1');
-          Abandon;
-          TaskDone:=true;
+          Result := TaskDone;
+          exit;
         end;
     6:  if not fToHouse.IsDestroyed then
           SetActionGoIn(ua_Walk,gd_GoInside,fToHouse)
         else begin
-          TKMUnitSerf(fUnit).CarryTake();
           fLog.AppendLog('We dropped carry 2');
-          Abandon;
-          TaskDone:=true;
+          Result := TaskDone;
+          exit;
         end;
     7:  SetActionStay(5,ua_Walk); //wait a bit inside
     8:  if not fToHouse.IsDestroyed then
@@ -196,12 +187,11 @@ begin
             SetActionGoIn(ua_walk,gd_GoOutside,fToHouse);
 
         end else begin
-          TKMUnitSerf(fUnit).CarryTake();
           fLog.AppendLog('We dropped carry 3');
-          Abandon;
-          TaskDone:=true;
+          Result := TaskDone;
+          exit;
         end;
-    else TaskDone:=true;
+    else Result := TaskDone;
   end;
 
   //Deliver into wip house
@@ -221,13 +211,12 @@ begin
             fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
             SetActionStay(1,ua_Walk);
           end;
-      else TaskDone:=true;
+      else Result := TaskDone;
     end;
   end else begin
-    TKMUnitSerf(fUnit).CarryTake();
     fLog.AppendLog('We dropped carry 4');
-    Abandon;
-    TaskDone:=true;
+    Result := TaskDone;
+    exit;
   end;
 
   //Deliver to builder or soldier
@@ -238,10 +227,9 @@ begin
     5:  if (fToUnit<>nil)and(not fToUnit.IsDead) then
           SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false, fToUnit) //Pass a pointer to the Target Unit to the walk action so it can track it
         else begin
-          TKMUnitSerf(fUnit).CarryTake();
           fLog.AppendLog('We dropped carry 5');
-          Abandon;
-          TaskDone:=true;
+          Result := TaskDone;
+          exit;
         end;
     6:  begin
           if (fToUnit<>nil) and not fToUnit.IsDeadOrDying then
@@ -286,12 +274,10 @@ begin
           end else
             SetActionStay(0,ua_Walk); //If we're not feeding a warrior then ignore this step
         end;
-    else TaskDone:=true;
+    else Result := TaskDone;
   end;
 
-  if TaskDone then exit;
   inc(fPhase);
-  if fUnit.GetUnitAction=nil then fGame.GameError(fUnit.GetPosition, 'Task not done an Delivery Action=nil');
 end;
 
 

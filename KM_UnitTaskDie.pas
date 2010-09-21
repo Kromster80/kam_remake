@@ -11,7 +11,7 @@ type
     public
       constructor Create(aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
-      procedure Execute(out TaskDone:boolean); override;
+      function Execute():TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -37,9 +37,9 @@ begin
 end;
 
 
-procedure TTaskDie.Execute(out TaskDone:boolean);
+function TTaskDie.Execute():TTaskResult;
 begin
-TaskDone := false;
+  Result := TaskContinues;
 with fUnit do
 case fPhase of
   0: if not IsVisible then begin

@@ -205,8 +205,8 @@ begin
   //Reset the resolution
   ResetResolution;
   fGame.GameStop(gr_Silent);
-  FreeAndNil(fGame);
-  FreeAndNil(fLog);
+  FreeThenNil(fGame);
+  FreeThenNil(fLog);
   TimeEndPeriod(1);
   ClipCursor(nil); //Release the cursor restriction
 end;
@@ -471,7 +471,7 @@ begin
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   //Don't know how lame it is, but it works well
   //It wastes a bit of RAM (1.5mb) and takes few seconds to re-init
-  FreeAndNil(fGame); //Saves all settings into ini file in midst
+  FreeThenNil(fGame); //Saves all settings into ini file in midst
   //Now re-init fGame
   fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
   fGame.ResizeGameArea(Panel5.Width,Panel5.Height);

@@ -6,17 +6,17 @@ uses Math, KromUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units
 {Perform resource mining}
 type
   TTaskMining = class(TUnitTask)
-  private
-    BeastID:byte;
-    function ResourceExists():boolean;
-  public
-    WorkPlan:TUnitWorkPlan;
-    constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
-    constructor Load(LoadStream:TKMemoryStream); override;
-    procedure SyncLoad(); override;
-    procedure Execute(out TaskDone:boolean); override;
-    procedure Save(SaveStream:TKMemoryStream); override;
-  end;
+    private
+      BeastID:byte;
+      function ResourceExists():boolean;
+    public
+      WorkPlan:TUnitWorkPlan;
+      constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
+      constructor Load(LoadStream:TKMemoryStream); override;
+      procedure SyncLoad(); override;
+      function Execute():TTaskResult; override;
+      procedure Save(SaveStream:TKMemoryStream); override;
+    end;
 
 
 implementation
@@ -79,15 +79,15 @@ end;
 
 
 {This is execution of Resource mining}
-procedure TTaskMining.Execute(out TaskDone:boolean);
+function TTaskMining.Execute():TTaskResult;
 const SkipWalk=8; SkipWork=30; //Skip to certain Phases
 var Dir:integer; TimeToWork, StillFrame:integer;
 begin
-  TaskDone := false;
+  Result := TaskContinues;
   if fUnit.GetHome <> nil then if fUnit.GetHome.IsDestroyed then
   begin
     //Make sure we always exit if our home is destroyed
-    TaskDone := true;
+    Result := TaskDone;
     exit;
   end;
 with fUnit do
@@ -105,7 +105,7 @@ with fUnit do
          SetActionWalk(fUnit, WorkPlan.Loc, WorkPlan.WalkTo)
        else
        begin
-         TaskDone := true;
+         Result := TaskDone;
          exit;
        end;
     2: begin //Before work tasks for specific mining jobs
@@ -136,7 +136,7 @@ with fUnit do
        end
        else
        begin
-         TaskDone := true;
+         Result := TaskDone;
          exit;
        end;
     4: begin //After work tasks for specific mining jobs
@@ -234,11 +234,9 @@ with fUnit do
           GetHome.SetState(hst_Idle);
           SetActionStay(WorkPlan.AfterWorkIdle-1,ua_Walk);
         end;
-    else TaskDone:=true;
+    else Result := TaskDone;
   end;
   inc(fPhase);
-  if (fUnit.GetUnitAction=nil)and(not TaskDone) then
-    fGame.GameError(fUnit.GetPosition, 'Mining No action, no TaskDone!');
 end;
 
 

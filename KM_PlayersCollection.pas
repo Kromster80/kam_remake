@@ -65,10 +65,10 @@ destructor TKMAllPlayers.Destroy;
 var i:integer;
 begin
   for i:=1 to MAX_PLAYERS do begin //Free all just in case
-    FreeAndNil(Player[i]);
-    FreeAndNil(PlayerAI[i]);
+    FreeThenNil(Player[i]);
+    FreeThenNil(PlayerAI[i]);
   end;
-  FreeAndNil(PlayerAnimals);
+  FreeThenNil(PlayerAnimals);
 
   MyPlayer := nil;
   Selected := nil;
@@ -87,8 +87,8 @@ begin
     if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
   end;
   for i:=fPlayerCount+1 to MAX_PLAYERS do begin
-    FreeAndNil(Player[i]);
-    FreeAndNil(PlayerAI[i]);
+    FreeThenNil(Player[i]);
+    FreeThenNil(PlayerAI[i]);
   end;
 end;
 
