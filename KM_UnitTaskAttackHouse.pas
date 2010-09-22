@@ -12,7 +12,6 @@ type
       LocID:byte; //Current attack location
       Cells:TKMPointDirList; //List of surrounding cells and directions
       function PosUsed(aPos: TKMPoint):boolean;
-      //todo: not abandoned properly yet
     public
       constructor Create(aWarrior: TKMUnit; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -34,11 +33,7 @@ begin
   Inherited Create(aWarrior);
   fTaskName := utn_AttackHouse;
 
-  if aHouse=nil then begin //This is unacceptable
-    fLog.AssertToLog(aHouse<>nil, 'Trying to attack NIL house?');
-    exit;
-  end;
-
+  fLog.AssertToLog(aHouse<>nil, 'Trying to attack NIL house?');
   fHouse := aHouse.GetHousePointer;
   LocID  := 0;
   Cells  := TKMPointDirList.Create; //Pass pre-made list to make sure we Free it in the same unit
@@ -86,16 +81,11 @@ end;
 
 function TTaskAttackHouse.WalkShouldAbandon:boolean;
 begin
-  Result := false;
-
-  //Stop walking if the house has been destroyed already
-  if fHouse.IsDestroyed then
-  begin
+  if fHouse.IsDestroyed then begin
     Result := true;
     exit;
   end;
 
-  //See if someone beat us to this location
   if PosUsed(Cells.List[LocID].Loc) then
   begin
     Result := true;
