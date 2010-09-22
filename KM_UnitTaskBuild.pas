@@ -34,7 +34,8 @@ type
   TTaskBuildField = class(TUnitTask)
     public
       fLoc:TKMPoint;
-      buildID:integer;
+      BuildID:integer;
+      MarkupSet:boolean;
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
@@ -198,7 +199,7 @@ end;
 
 procedure TTaskBuildRoad.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(fLoc);
   SaveStream.Write(BuildID);
   SaveStream.Write(DemandSet);
@@ -290,7 +291,7 @@ end;
 
 procedure TTaskBuildWine.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(fLoc);
   SaveStream.Write(BuildID);
   SaveStream.Write(DemandSet);
@@ -304,7 +305,8 @@ begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildField;
   fLoc      := aLoc;
-  buildID   := aID;
+  BuildID   := aID;
+  MarkupSet := false;
 end;
 
 
@@ -312,16 +314,15 @@ constructor TTaskBuildField.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fLoc);
-  LoadStream.Read(buildID);
+  LoadStream.Read(BuildID);
+  LoadStream.Read(MarkupSet);
 end;
 
 
 destructor TTaskBuildField.Destroy;
 begin
-  if fPhase > 1 then
-    fTerrain.RemMarkup(fLoc)
-  else
-    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
+  if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
 
@@ -337,6 +338,7 @@ begin
        end;
     1: begin
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+        MarkupSet := true;
         fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
         SetActionLockedStay(0,ua_Walk);
        end;
@@ -351,6 +353,7 @@ begin
         fTerrain.SetField(fLoc,GetOwner,ft_Corn);
         SetActionStay(5,ua_Walk);
         fTerrain.RemMarkup(fLoc);
+        MarkupSet := false;
        end;
     else Result := TaskDone;
   end;
@@ -360,9 +363,10 @@ end;
 
 procedure TTaskBuildField.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(fLoc);
-  SaveStream.Write(buildID);
+  SaveStream.Write(BuildID);
+  SaveStream.Write(MarkupSet);
 end;
 
 
@@ -458,7 +462,7 @@ end;
 
 procedure TTaskBuildWall.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(fLoc);
   SaveStream.Write(buildID);
 end;
