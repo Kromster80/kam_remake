@@ -15,6 +15,8 @@ type
   TKMUnit = class;
   TKMUnitWorker = class;
 
+  TActionResult = (ActContinues, ActDone, ActAborted); //
+
   TUnitAction = class(TObject)
   protected
     fActionName: TUnitActionName;
@@ -24,7 +26,7 @@ type
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad(); virtual; abstract;
-    procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); virtual; abstract;
+    function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
     property GetActionType: TUnitActionType read fActionType;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
@@ -59,7 +61,7 @@ type
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
-  TKMUnit = class(TObject) //todo: actions should return enum result
+  TKMUnit = class(TObject)
   protected
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
@@ -858,49 +860,40 @@ end;
 
 function TKMUnitAnimal.UpdateState():boolean;
 var
-  ActDone:Boolean;
   Spot:TKMPoint; //Target spot where unit will go
   SpotJit:byte;
 begin
   Result:=true; //Required for override compatibility
 
-  ActDone:=true;
-
   fCurrPosition := KMPointRound(fPosition);
+
   if fCurrentAction <> nil then
-    fCurrentAction.Execute(Self, ActDone);
+  case fCurrentAction.Execute(Self) of
+    ActContinues: exit;
+    ActDone:      FreeAndNil(fCurrentAction);
+    ActAborted:   FreeAndNil(fCurrentAction);
+  end;
   fCurrPosition := KMPointRound(fPosition);
-
-  if ActDone then FreeAndNil(fCurrentAction) else exit;
-
-  if fUnitTask <> nil then
-    if (fUnitTask.Execute() = TaskDone) then FreeAndNil(fUnitTask) else exit;
 
   //First make sure the animal isn't stuck (check passibility of our position)
   if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(GetUnitType)]) then
   begin
-    //Animal is stuck so it dies
-    KillUnit;
+    KillUnit; //Animal is stuck so it dies
     exit;
   end;
 
   SpotJit:=16; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
-
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot:=fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
   until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)],true)));
 
-  if KMSamePoint(GetPosition,Spot) then begin
-    SetActionStay(20, ua_Walk);
-    exit;
-  end;
+  if KMSamePoint(GetPosition,Spot) then
+    SetActionStay(20, ua_Walk)
+  else
+    SetActionWalk(Self, Spot, KMPoint(0,0));
 
-  SetActionWalk(Self, Spot, KMPoint(0,0));
-  //if not TUnitActionWalkTo(fCurrentAction).fRouteBuilt then SetActionStay(5, ua_Walk);
-
-  if fCurrentAction=nil then
-    fGame.GameError(GetPosition, 'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
 
 
@@ -1539,8 +1532,6 @@ end;
 
 {Here are common Unit.UpdateState routines}
 function TKMUnit.UpdateState():boolean;
-var
-  ActDone:Boolean;
 begin
   //There are layers of unit activity (bottom to top):
   // - Action (Atom creating layer (walk 1frame, etc..))
@@ -1568,19 +1559,15 @@ begin
   //
   //Performing Tasks and Actions now
   //------------------------------------------------------------------------------------------------
-
-  ActDone         := true;
-
   if fCurrentAction=nil then
     Assert(fCurrentAction<>nil);
+
   fCurrPosition := KMPointRound(fPosition);
-  {case fCurrentAction.Execute(Self) of
-    ActContinues: exit;
-    ActAborted:   FreeAndNil(fUnitTask.Free);
+  case fCurrentAction.Execute(Self) of
+    ActContinues: begin fCurrPosition := KMPointRound(fPosition); exit; end;
+    ActAborted:   FreeAndNil(fUnitTask);
     ActDone:      ;
-  end;}
-  if fCurrentAction <> nil then fCurrentAction.Execute(Self, ActDone);
-  if ActDone then FreeAndNil(fCurrentAction) else exit;
+  end;
   fCurrPosition := KMPointRound(fPosition);
 
 
@@ -1691,7 +1678,7 @@ begin
     Result := TaskDone;
     exit;
   end;
-  
+
   with fUnit do
   case fPhase of
     0: begin

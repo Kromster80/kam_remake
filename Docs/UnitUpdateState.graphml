@@ -82,7 +82,7 @@
     <node id="n5">
       <data key="d3">
         <y:GenericNode configuration="ShinyPlateNode">
-          <y:Geometry height="43.0" width="129.0" x="412.5" y="265.0"/>
+          <y:Geometry height="43.0" width="129.0" x="359.75" y="265.0"/>
           <y:Fill color="#CC99FF" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="82.0390625" x="23.48046875" y="4.1494140625">ActionDone</y:NodeLabel>
@@ -96,10 +96,10 @@
     <node id="n6">
       <data key="d3">
         <y:GenericNode configuration="ShinyPlateNode">
-          <y:Geometry height="43.0" width="447.0" x="253.5" y="328.0"/>
+          <y:Geometry height="43.0" width="337.0" x="255.75" y="328.0"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="204.060546875" x="121.4697265625" y="4.1494140625">Check if Task exists and perform it</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="204.060546875" x="66.4697265625" y="4.1494140625">Check if Task exists and perform it</y:NodeLabel>
           <y:StyleProperties>
             <y:Property class="java.lang.Boolean" name="ModernNodeShadow" value="false"/>
             <y:Property class="java.lang.Double" name="ModernNodeRadius" value="3.0"/>
@@ -110,10 +110,12 @@
     <node id="n7">
       <data key="d3">
         <y:GenericNode configuration="ShinyPlateNode">
-          <y:Geometry height="43.0" width="129.0" x="206.25" y="474.0"/>
+          <y:Geometry height="73.0" width="337.0" x="125.5" y="474.0"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="78.01953125" x="25.490234375" y="4.1494140625">Abort Task</y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="64.103515625" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="174.7578125" x="81.12109375" y="4.4482421875">Abort Task
+ - release used items
+ - release unit/house pointers</y:NodeLabel>
           <y:StyleProperties>
             <y:Property class="java.lang.Boolean" name="ModernNodeShadow" value="false"/>
             <y:Property class="java.lang.Double" name="ModernNodeRadius" value="3.0"/>
@@ -124,7 +126,7 @@
     <node id="n8">
       <data key="d3">
         <y:GenericNode configuration="ShinyPlateNode">
-          <y:Geometry height="43.0" width="129.0" x="524.25" y="401.0"/>
+          <y:Geometry height="43.0" width="129.0" x="444.0" y="401.0"/>
           <y:Fill color="#CC99FF" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="100.0390625" x="14.48046875" y="4.1494140625">TaskContinues</y:NodeLabel>
@@ -138,7 +140,7 @@
     <node id="n9">
       <data key="d3">
         <y:GenericNode configuration="ShinyPlateNode">
-          <y:Geometry height="43.0" width="129.0" x="253.5" y="401.0"/>
+          <y:Geometry height="43.0" width="129.0" x="280.25" y="401.0"/>
           <y:Fill color="#CC99FF" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="74.69140625" x="27.154296875" y="4.1494140625">TaskDone</y:NodeLabel>
@@ -152,7 +154,7 @@
     <node id="n10">
       <data key="d3">
         <y:GenericNode configuration="ShinyPlateNode">
-          <y:Geometry height="43.0" width="129.0" x="151.875" y="610.0"/>
+          <y:Geometry height="43.0" width="129.0" x="129.75" y="630.0"/>
           <y:Fill color="#CC99FF" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="99.3828125" x="14.80859375" y="4.1494140625">Task not found</y:NodeLabel>
@@ -166,7 +168,7 @@
     <node id="n11">
       <data key="d3">
         <y:GenericNode configuration="ShinyPlateNode">
-          <y:Geometry height="43.0" width="129.0" x="351.375" y="610.0"/>
+          <y:Geometry height="43.0" width="129.0" x="329.25" y="630.0"/>
           <y:Fill color="#CC99FF" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="79.3671875" x="24.81640625" y="4.1494140625">Task found</y:NodeLabel>
@@ -180,7 +182,7 @@
     <node id="n12">
       <data key="d3">
         <y:GenericNode configuration="ShinyPlateNode">
-          <y:Geometry height="43.0" width="129.0" x="151.875" y="673.0"/>
+          <y:Geometry height="43.0" width="129.0" x="129.75" y="693.0"/>
           <y:Fill color="#FF9900" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" bottomInset="10" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="34.701171875" leftInset="10" modelName="internal" modelPosition="c" rightInset="10" textColor="#000000" topInset="10" visible="true" width="97.37890625" x="15.810546875" y="4.1494140625">Set Idle Action</y:NodeLabel>
@@ -194,7 +196,7 @@
     <node id="n13">
       <data key="d3">
         <y:GenericNode configuration="BevelNode">
-          <y:Geometry height="43.0" width="399.0" x="166.5" y="761.0"/>
+          <y:Geometry height="43.0" width="399.0" x="144.375" y="781.0"/>
           <y:Fill color="#C0C0C0" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="24.00390625" x="187.498046875" y="12.1494140625">Exit</y:NodeLabel>
@@ -204,7 +206,7 @@
     <node id="n14">
       <data key="d3">
         <y:GenericNode configuration="BevelNode">
-          <y:Geometry height="43.0" width="399.0" x="116.625" y="547.0"/>
+          <y:Geometry height="43.0" width="399.0" x="94.5" y="567.0"/>
           <y:Fill color="#C0C0C0" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="250.814453125" x="74.0927734375" y="12.1494140625">Go to unit specific UpdateState and find a task</y:NodeLabel>
@@ -249,7 +251,7 @@
         <y:PolyLineEdge>
           <y:Path sx="112.33333333333334" sy="21.5" tx="0.0" ty="-21.5">
             <y:Point x="350.83333333333337" y="250.0"/>
-            <y:Point x="477.0" y="250.0"/>
+            <y:Point x="424.25" y="250.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -260,7 +262,7 @@
     <edge id="e4" source="n6" target="n8">
       <data key="d7">
         <y:PolyLineEdge>
-          <y:Path sx="111.75" sy="21.5" tx="0.0" ty="-21.5"/>
+          <y:Path sx="84.25" sy="21.5" tx="0.0" ty="-21.5"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:BendStyle smoothed="false"/>
@@ -270,9 +272,9 @@
     <edge id="e5" source="n6" target="n9">
       <data key="d7">
         <y:PolyLineEdge>
-          <y:Path sx="-111.75" sy="21.5" tx="0.0" ty="-21.5">
-            <y:Point x="365.25" y="386.0"/>
-            <y:Point x="318.0" y="386.0"/>
+          <y:Path sx="-84.25" sy="21.5" tx="0.0" ty="-21.5">
+            <y:Point x="340.0" y="386.0"/>
+            <y:Point x="344.75" y="386.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -294,8 +296,8 @@
       <data key="d7">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="21.5" tx="-49.875" ty="-21.5">
-            <y:Point x="216.375" y="731.0"/>
-            <y:Point x="316.125" y="731.0"/>
+            <y:Point x="194.25" y="751.0"/>
+            <y:Point x="294.0" y="751.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -317,8 +319,8 @@
       <data key="d7">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="21.5" tx="149.625" ty="-21.5">
-            <y:Point x="588.75" y="709.5"/>
-            <y:Point x="515.625" y="709.5"/>
+            <y:Point x="508.5" y="729.5"/>
+            <y:Point x="493.5" y="729.5"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -330,8 +332,8 @@
       <data key="d7">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="21.5" tx="-149.625" ty="-21.5">
-            <y:Point x="79.5" y="746.0"/>
-            <y:Point x="216.375" y="746.0"/>
+            <y:Point x="79.5" y="766.0"/>
+            <y:Point x="194.25" y="766.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -342,7 +344,10 @@
     <edge id="e11" source="n4" target="n7">
       <data key="d7">
         <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="21.5" tx="-32.25" ty="-21.5"/>
+          <y:Path sx="0.0" sy="21.5" tx="-84.25" ty="-36.5">
+            <y:Point x="238.5" y="437.5"/>
+            <y:Point x="209.75" y="437.5"/>
+          </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:BendStyle smoothed="false"/>
@@ -369,20 +374,7 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e14" source="n7" target="n14">
-      <data key="d7">
-        <y:PolyLineEdge>
-          <y:Path sx="-32.25" sy="21.5" tx="-99.75" ty="-21.5">
-            <y:Point x="238.5" y="532.0"/>
-            <y:Point x="216.375" y="532.0"/>
-          </y:Path>
-          <y:LineStyle color="#000000" type="line" width="1.0"/>
-          <y:Arrows source="none" target="standard"/>
-          <y:BendStyle smoothed="false"/>
-        </y:PolyLineEdge>
-      </data>
-    </edge>
-    <edge id="e15" source="n14" target="n10">
+    <edge id="e14" source="n14" target="n10">
       <data key="d7">
         <y:PolyLineEdge>
           <y:Path sx="-99.75" sy="21.5" tx="0.0" ty="-21.5"/>
@@ -392,7 +384,7 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e16" source="n14" target="n11">
+    <edge id="e15" source="n14" target="n11">
       <data key="d7">
         <y:PolyLineEdge>
           <y:Path sx="99.75" sy="21.5" tx="0.0" ty="-21.5"/>
@@ -402,12 +394,12 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e17" source="n9" target="n7">
+    <edge id="e16" source="n9" target="n7">
       <data key="d7">
         <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="21.5" tx="32.25" ty="-21.5">
-            <y:Point x="318.0" y="459.0"/>
-            <y:Point x="303.0" y="459.0"/>
+          <y:Path sx="0.0" sy="21.5" tx="84.25" ty="-36.5">
+            <y:Point x="344.75" y="459.0"/>
+            <y:Point x="378.25" y="459.0"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -415,13 +407,10 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e18" source="n7" target="n14">
+    <edge id="e17" source="n7" target="n14">
       <data key="d7">
         <y:PolyLineEdge>
-          <y:Path sx="32.25" sy="21.5" tx="99.75" ty="-21.5">
-            <y:Point x="303.0" y="532.0"/>
-            <y:Point x="415.875" y="532.0"/>
-          </y:Path>
+          <y:Path sx="0.0" sy="36.5" tx="0.0" ty="-21.5"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:BendStyle smoothed="false"/>

@@ -72,7 +72,7 @@ type
       function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
       property GetInteractionStatus:TInteractionStatus read fInteractionStatus;
       procedure ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aResetTargetUnit:boolean=true; aNewTargetUnit: TKMUnit=nil); //Modify route to go to this destination instead
-      procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
+      function Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -767,19 +767,19 @@ begin
 end;
 
 
-procedure TUnitActionWalkTo.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
+function TUnitActionWalkTo.Execute(KMUnit: TKMUnit):TActionResult;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
   AllowToWalk:boolean;
 begin
-  DoEnd := false;
+  Result := ActContinues;
   StepDone := false;
   DoesWalking := false; //Set it to false at start of update
 
   //Happens whe e.g. Serf stays in front of Store and gets Deliver task
   if KMSamePoint(fWalkFrom,fWalkTo) then begin
-    DoEnd := true;
+    Result := ActDone;
     exit;
   end;
 
@@ -794,7 +794,7 @@ begin
   if NodePos > NodeList.Count then begin
     if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then DecVertex; //Unoccupy vertex
     fWalker.IsExchanging := false; //Disable sliding (in case it was set in previous step)
-    DoEnd:=true;
+    Result := ActDone;
     exit;
   end;
 
@@ -848,7 +848,7 @@ begin
     begin
       if (not fWalkToSpot) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon)) then //Don't update direction if we are abandoning because of task request
         fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
-      DoEnd:=true;
+      Result := ActDone;
       exit;
     end;
 
@@ -856,7 +856,7 @@ begin
     if CanAbandon then
       case CheckTargetHasDied of
         tc_NoChanges, tc_TargetUpdated:;
-        tc_Died: begin DoEnd:=true; exit; end;
+        tc_Died: begin Result := ActAborted; exit; end;
       end;
 
     //This is sometimes caused by unit interaction changing the route so simply ignore it
@@ -878,7 +878,7 @@ begin
     case CheckForObstacle of
       oc_NoObstacle:;
       oc_ReRouteMade: exit; //New route will pick-up
-      oc_NoRoute: begin DoEnd:=true; exit; end; //
+      oc_NoRoute: begin Result := ActAborted; exit; end; //
     end;
 
 
@@ -903,8 +903,9 @@ begin
 
       if not AllowToWalk then
       begin
-        DoEnd := (KMUnit.GetUnitType in [ut_Wolf..ut_Duck]) and  //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
-                  not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass);
+        if (KMUnit.GetUnitType in [ut_Wolf..ut_Duck]) and  //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
+                  not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
+                  Result := ActDone;
         exit; //Do no further walking until unit interaction is solved
       end else fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 

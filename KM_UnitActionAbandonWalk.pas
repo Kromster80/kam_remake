@@ -16,7 +16,7 @@ type
     constructor Load(LoadStream: TKMemoryStream); override;
     procedure SyncLoad(); override;
     destructor Destroy; override;
-    procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
+    function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -62,11 +62,11 @@ begin
 end;
 
 
-procedure TUnitActionAbandonWalk.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
+function TUnitActionAbandonWalk.Execute(KMUnit: TKMUnit):TActionResult;
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single;
 begin
-  DoEnd := false;
+  Result := ActContinues;
 
   //Execute the route in series of moves
   Distance := ACTION_TIME_DELTA * KMUnit.GetSpeed;
@@ -82,8 +82,8 @@ begin
       fTerrain.UnitVertexRem(fVertexOccupied); //Unoccupy vertex
       fVertexOccupied := KMPoint(0,0);
     end;
-    DoEnd := true; //We are finished
     StepDone := true;
+    Result := ActDone;
     exit;
   end;
 

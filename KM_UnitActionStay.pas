@@ -17,7 +17,7 @@ TUnitActionStay = class(TUnitAction)
     procedure SyncLoad(); override;
     function HowLongLeftToStay():integer;
     procedure MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
-    procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
+    function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -87,7 +87,7 @@ begin
 end;
 
 
-procedure TUnitActionStay.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
+function TUnitActionStay.Execute(KMUnit: TKMUnit):TActionResult;
 var Cycle,Step:byte;
 begin
   if not StayStill then
@@ -108,7 +108,10 @@ begin
   end;
 
   dec(TimeToStay);
-  DoEnd := TimeToStay<=0;
+  if TimeToStay<=0 then
+    Result := ActDone
+  else
+    Result := ActContinues;
 end;
 
 

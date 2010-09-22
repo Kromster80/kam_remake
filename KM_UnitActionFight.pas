@@ -16,7 +16,7 @@ TUnitActionFight = class(TUnitAction)
     destructor Destroy; override;
     procedure SyncLoad(); override;
     procedure MakeSound(KMUnit: TKMUnit; IsHit:boolean);
-    procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
+    function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -81,19 +81,14 @@ begin
 end;
 
 
-procedure TUnitActionFight.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
-
-  function CheckDoEnd:boolean;
-  begin
-    Result := (fOpponent.IsDeadOrDying) or //Unit is Killed
-              (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5); //Unit walked away (i.e. Serf)
-  end;
-
+function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
 var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
-  DoEnd := CheckDoEnd;
-  if DoEnd then
-    exit; //e.g. if other unit kills opponent, exit now
+
+  if (fOpponent.IsDeadOrDying) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) then //Unit walked away (i.e. Serf)
+    Result := ActDone
+  else
+    Result := ActContinues;
 
   Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
   Step  := KMUnit.AnimStep mod Cycle;
@@ -122,8 +117,10 @@ begin
   StepDone := KMUnit.AnimStep mod Cycle = 0;
   inc(KMUnit.AnimStep);
 
-  DoEnd := CheckDoEnd;
-  if (not DoEnd) and (fOpponent is TKMUnitWarrior) then
+
+  if (fOpponent is TKMUnitWarrior)
+     and not (fOpponent.IsDeadOrDying)
+     and (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) < 1.5) then
     TKMUnitWarrior(KMUnit).GetCommander.Foe := TKMUnitWarrior(fOpponent); //Set our group's foe to this enemy, thus making it constantly change in large fights so no specific unit will be targeted
     //todo: That isn't very efficient because pointer tracking is constantly changing... should only happen every second or something.
 end;

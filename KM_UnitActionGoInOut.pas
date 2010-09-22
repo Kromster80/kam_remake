@@ -23,7 +23,7 @@ type
       destructor Destroy; override;
       function ValidTileToGo(LocX, LocY:word; WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
       property GetHasStarted: boolean read fHasStarted;
-      procedure Execute(KMUnit: TKMUnit; out DoEnd: Boolean); override;
+      function Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -122,10 +122,10 @@ begin
 end;
 
 
-procedure TUnitActionGoInOut.Execute(KMUnit: TKMUnit; out DoEnd: Boolean);
+function TUnitActionGoInOut.Execute(KMUnit: TKMUnit):TActionResult;
 var Distance:single;
 begin
-  DoEnd := false;
+  Result := ActContinues;
 
   if not fHasStarted then //Set Door and Street locations
   begin
@@ -211,7 +211,7 @@ begin
 
   if (fStep<=0)or(fStep>=1) then
   begin
-    DoEnd:=true;
+    Result := ActDone;
     KMUnit.IsExchanging := false;
     if fUsedDoorway then DecDoorway;
     if fDirection = gd_GoInside then
