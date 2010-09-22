@@ -8,7 +8,9 @@ type
   TTaskBuildRoad = class(TUnitTask)
     public
       fLoc:TKMPoint;
-      buildID:integer;
+      BuildID:integer;
+      DemandSet:boolean;
+      MarkupSet:boolean;
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
@@ -19,7 +21,9 @@ type
   TTaskBuildWine = class(TUnitTask)
     public
       fLoc:TKMPoint;
-      buildID:integer;
+      BuildID:integer;
+      DemandSet:boolean;
+      MarkupSet:boolean;
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
@@ -107,7 +111,9 @@ begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildRoad;
   fLoc      := aLoc;
-  buildID   := aID;
+  BuildID   := aID;
+  DemandSet := false;
+  MarkupSet := false;
 end;
 
 
@@ -115,19 +121,17 @@ constructor TTaskBuildRoad.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fLoc);
-  LoadStream.Read(buildID);
+  LoadStream.Read(BuildID);
+  LoadStream.Read(DemandSet);
+  LoadStream.Read(MarkupSet);
 end;
 
 
 destructor TTaskBuildRoad.Destroy;
 begin
-  fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
-
-  if fPhase > 1 then
-    fTerrain.RemMarkup(fLoc)
-  else
-    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
-
+  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+  if DemandSet  then fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
+  if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
 
@@ -145,6 +149,7 @@ begin
     1: begin
          Thought := th_None;
          fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
+         MarkupSet := true;
          fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
          SetActionStay(11,ua_Work1,false);
        end;
@@ -157,15 +162,15 @@ begin
          fTerrain.IncDigState(fLoc);
          SetActionStay(11,ua_Work1,false);
          fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
+         DemandSet := true;
        end;
-
-    4: begin
+    4: begin //This step is repeated until Serf brings us some stone
          SetActionStay(30,ua_Work1);
          Thought:=th_Stone;
        end;
-
     5: begin
          SetActionStay(11,ua_Work2,false);
+         DemandSet := false;
          Thought:=th_None;
        end;
     6: begin
@@ -183,6 +188,7 @@ begin
          fTerrain.SetRoad(fLoc,GetOwner);
          SetActionStay(5,ua_Walk);
          fTerrain.RemMarkup(fLoc);
+         MarkupSet := false;
        end;
     else Result := TaskDone;
   end;
@@ -194,7 +200,9 @@ procedure TTaskBuildRoad.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fLoc);
-  SaveStream.Write(buildID);
+  SaveStream.Write(BuildID);
+  SaveStream.Write(DemandSet);
+  SaveStream.Write(MarkupSet);
 end;
 
 
@@ -204,7 +212,9 @@ begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildWine;
   fLoc      := aLoc;
-  buildID   := aID;
+  BuildID   := aID;
+  DemandSet := false;
+  MarkupSet := false;
 end;
 
 
@@ -212,17 +222,17 @@ constructor TTaskBuildWine.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fLoc);
-  LoadStream.Read(buildID);
+  LoadStream.Read(BuildID);
+  LoadStream.Read(DemandSet);
+  LoadStream.Read(MarkupSet);
 end;
 
 
 destructor TTaskBuildWine.Destroy;
 begin
-  fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
-  if fPhase > 1 then
-    fTerrain.RemMarkup(fLoc)
-  else
-    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(buildID); //Allow other workers to take this task
+  if DemandSet  then fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
+  if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
 
@@ -240,7 +250,9 @@ begin
         Thought := th_None;
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(buildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+        BuildID := 0; //it can't be cancelled now
+        MarkupSet := true;
         SetActionStay(12*4,ua_Work1,false);
       end;
    2: begin
@@ -251,14 +263,16 @@ begin
         fTerrain.IncDigState(fLoc);
         SetActionStay(24,ua_Work1,false);
         fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
+        DemandSet := true;
       end;
-   4: begin
+   4: begin //This step is repeated until Serf brings us some wood
         fTerrain.ResetDigState(fLoc);
         fTerrain.SetField(fLoc,GetOwner,ft_InitWine);
         SetActionStay(30,ua_Work1);
         Thought:=th_Wood;
       end;
    5: begin
+        DemandSet := false;
         SetActionStay(11*8,ua_Work2,false);
         Thought:=th_None;
       end;
@@ -266,6 +280,7 @@ begin
         fTerrain.SetField(fLoc,GetOwner,ft_Wine);
         SetActionStay(5,ua_Walk);
         fTerrain.RemMarkup(fLoc);
+        MarkupSet := false;
       end;
    else Result := TaskDone;
   end;
@@ -277,7 +292,9 @@ procedure TTaskBuildWine.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(fLoc);
-  SaveStream.Write(buildID);
+  SaveStream.Write(BuildID);
+  SaveStream.Write(DemandSet);
+  SaveStream.Write(MarkupSet);
 end;
 
 
