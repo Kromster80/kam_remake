@@ -12,6 +12,7 @@ type
       LocID:byte; //Current attack location
       Cells:TKMPointDirList; //List of surrounding cells and directions
       function PosUsed(aPos: TKMPoint):boolean;
+      //todo: not abandoned properly yet
     public
       constructor Create(aWarrior: TKMUnit; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;

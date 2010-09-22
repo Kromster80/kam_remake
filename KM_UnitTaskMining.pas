@@ -9,6 +9,7 @@ type
     private
       BeastID:byte;
       function ResourceExists():boolean;
+      //todo: not abandoned properly yet
     public
       WorkPlan:TUnitWorkPlan;
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);

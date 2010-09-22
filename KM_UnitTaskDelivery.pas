@@ -15,6 +15,7 @@ type
       fToUnit:TKMUnit;
       fResourceType:TResourceType;
       fDeliverID:integer;
+      //todo: not abandoned properly yet
     public
       DeliverKind:TDeliverKind;
       constructor Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);

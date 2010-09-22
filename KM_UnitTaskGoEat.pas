@@ -10,6 +10,7 @@ type
     private
       fInn:TKMHouseInn;
       PlaceID:byte; //Units place in Inn
+      //todo: not abandoned properly yet
     public
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;

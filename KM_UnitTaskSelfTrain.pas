@@ -9,6 +9,7 @@ type
   TTaskSelfTrain = class(TUnitTask)
     private
       fSchool:TKMHouseSchool;
+      //todo: not abandoned properly yet
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
       constructor Load(LoadStream:TKMemoryStream); override;

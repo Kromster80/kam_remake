@@ -6,11 +6,12 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_U
 {Perform building}
 type
   TTaskBuildRoad = class(TUnitTask)
-    public
+    private
       fLoc:TKMPoint;
       BuildID:integer;
       DemandSet:boolean;
       MarkupSet:boolean;
+    public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
@@ -19,11 +20,12 @@ type
     end;
 
   TTaskBuildWine = class(TUnitTask)
-    public
+    private
       fLoc:TKMPoint;
       BuildID:integer;
       DemandSet:boolean;
       MarkupSet:boolean;
+    public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
@@ -32,10 +34,11 @@ type
     end;
 
   TTaskBuildField = class(TUnitTask)
-    public
+    private
       fLoc:TKMPoint;
       BuildID:integer;
       MarkupSet:boolean;
+    public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
@@ -44,9 +47,11 @@ type
     end;
 
   TTaskBuildWall = class(TUnitTask)
-    public
+    private
       fLoc:TKMPoint;
-      buildID:integer;
+      BuildID:integer;
+      //todo: not abandoned properly yet
+    public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       destructor Destroy; override;
@@ -56,11 +61,13 @@ type
 
   TTaskBuildHouseArea = class(TUnitTask)
     private
+      fHouse:TKMHouse;
+      BuildID:integer;
+      HouseSet:boolean;
       Step:byte;
       Cells:array[1..4*4]of TKMPoint;
+      //todo: not abandoned properly yet
     public
-      fHouse:TKMHouse;
-      buildID:integer;
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
@@ -71,11 +78,11 @@ type
 
   TTaskBuildHouse = class(TUnitTask)
     private
+      fHouse:TKMHouse;
+      BuildID:integer;
       CurLoc:byte; //Current WIP location
       Cells:TKMPointDirList; //List of surrounding cells and directions
     public
-      fHouse:TKMHouse;
-      buildID:integer;
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
@@ -87,11 +94,11 @@ type
 
   TTaskBuildHouseRepair = class(TUnitTask)
     private
+      fHouse:TKMHouse;
+      BuildID:integer;
       CurLoc:byte; //Current WIP location
       Cells:TKMPointDirList; //List of surrounding cells and directions
     public
-      fHouse:TKMHouse;
-      buildID:integer;
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
@@ -376,7 +383,7 @@ begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildWall;
   fLoc      := aLoc;
-  buildID   := aID;
+  BuildID   := aID;
 end;
 
 
@@ -384,7 +391,7 @@ constructor TTaskBuildWall.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fLoc);
-  LoadStream.Read(buildID);
+  LoadStream.Read(BuildID);
 end;
 
 
@@ -475,7 +482,8 @@ begin
   Inherited Create(aWorker);
   fTaskName := utn_BuildHouseArea;
   fHouse    := aHouse.GetHousePointer;
-  buildID   := aID;
+  BuildID   := aID;
+  HouseSet  := false;
   Step      := 0;
   for i := 1 to 4 do for k := 1 to 4 do
   if HousePlanYX[byte(fHouse.GetHouseType),i,k] <> 0 then begin
@@ -490,7 +498,8 @@ var i:integer;
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(buildID);
+  LoadStream.Read(BuildID);
+  LoadStream.Read(HouseSet);
   LoadStream.Read(Step);
   for i:=1 to length(Cells) do
   LoadStream.Read(Cells[i]);
@@ -507,11 +516,10 @@ end;
 { We need to revert all changes made }
 destructor TTaskBuildHouseArea.Destroy;
 begin
-  if fPhase <= 1 then //Allow other workers to take this task
-    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenHousePlan(buildID);
+  //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenHousePlan(buildID);
 
-  if fPhase <= 8 then //Otherwise we must destroy the house
-  if fHouse <> nil then
+  if HouseSet and (fHouse<>nil) then
     fPlayers.Player[byte(fUnit.GetOwner)].RemHouse(fHouse.GetPosition,true);
 
   if fHouse <> nil then fHouse.ReleaseHousePointer;
@@ -538,8 +546,10 @@ begin
         Thought := th_Build;
       end;
   1:  begin
-        fPlayers.Player[byte(GetOwner)].BuildList.CloseHousePlan(buildID);
+        fPlayers.Player[byte(GetOwner)].BuildList.CloseHousePlan(BuildID);
+        BuildID := 0;
         fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, GetOwner);
+        HouseSet := true;
         fHouse.SetBuildingState(hbs_NoGlyph);
         SetActionStay(5,ua_Walk);
         Thought := th_None;
@@ -576,6 +586,7 @@ begin
           fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, StoneCost, dt_Once, di_High);
         end;
         SetActionStay(1,ua_Walk);
+        HouseSet := false;
       end;
   else Result := TaskDone;
   end;
@@ -592,7 +603,8 @@ begin
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(buildID);
+  SaveStream.Write(BuildID);
+  SaveStream.Write(HouseSet);
   SaveStream.Write(Step);
   for i:=1 to length(Cells) do
   SaveStream.Write(Cells[i]);
@@ -616,7 +628,7 @@ constructor TTaskBuildHouse.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
-  LoadStream.Read(buildID);
+  LoadStream.Read(BuildID);
   LoadStream.Read(CurLoc);
   Cells := TKMPointDirList.Create;
   Cells.Load(LoadStream);
@@ -632,17 +644,21 @@ end;
 
 destructor TTaskBuildHouse.Destroy;
 begin
-  fPlayers.Player[byte(fUnit.GetOwner)].BuildList.CloseHouse(buildID);
+  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.CloseHouse(BuildID);
   if fHouse <> nil then fHouse.ReleaseHousePointer;
   FreeAndNil(Cells);
   Inherited;
 end;
 
 
+{ If we are walking to the house but the house is destroyed/canceled we should abandon immediately
+  If house has not enough resource to be built, consider building task is done and look for a new
+  task that has enough resouces. Once this house has building resources delivered it will be
+  available from build queue again
+  If house is already built by other workers}
 function TTaskBuildHouse.WalkShouldAbandon:boolean;
 begin
-  //If we are walking to the house but the house is destroyed or has run out of resources we should abandon
-  Result := (fHouse.IsDestroyed or (not fHouse.CheckResToBuild));
+  Result := fHouse.IsDestroyed or (not fHouse.CheckResToBuild) or fHouse.IsComplete;
 end;
 
 
@@ -666,35 +682,22 @@ function TTaskBuildHouse.Execute():TTaskResult;
   end;
 begin
   Result := TaskContinues;
-  //If the house has been destroyed during the building process then exit immediately
-  if fHouse.IsDestroyed then
+
+  if WalkShouldAbandon then
   begin
+    fUnit.Thought := th_None;
     Result := TaskDone;
     exit;
   end;
+
   with fUnit do
     case fPhase of
-      //Pick random location and go there
       0: begin
-           //If house has not enough resource to be built, consider building task is done
-           //and look for a new task that has enough resouces. Once this house has building resources
-           //delivered it will be available from build queue again.
-           if not fHouse.CheckResToBuild then begin
-             Result := TaskDone; //Drop the task
-             Thought := th_None;
-             exit;
-           end;
            Thought := th_Build;
            CurLoc := PickRandomSpot();
            SetActionWalk(fUnit,Cells.List[CurLoc].Loc);
          end;
       1: begin
-           //Remember that we could be here because the walk abandoned, so this is definatly needed
-           if not fHouse.CheckResToBuild then begin
-             Result := TaskDone; //Drop the task
-             Thought := th_None;
-             exit;
-           end;
            Direction:=TKMDirection(Cells.List[CurLoc].Dir);
            SetActionLockedStay(0,ua_Walk);
          end;
@@ -706,24 +709,22 @@ begin
              fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Built, GetOwner);
          end;
       3: begin
-           //Cancel building no matter progress if resource depleted or unit is hungry and is able to eat
-           if ((GetCondition<UNIT_MIN_CONDITION)and(CanGoEat))or(not fHouse.CheckResToBuild) then begin
-             Result := TaskDone; //Drop the task
-             Thought := th_None;
-             exit;
-           end;
            fHouse.IncBuildingProgress;
            SetActionLockedStay(6,ua_Work,false,0,5); //Do building and end animation
            inc(fPhase2);
          end;
       4: begin
-           fPlayers.Player[byte(GetOwner)].BuildList.CloseHouse(buildID);
+           fPlayers.Player[byte(GetOwner)].BuildList.CloseHouse(BuildID);
+           BuildID := 0;
            SetActionLockedStay(1,ua_Walk);
            Thought := th_None;
          end;
       else Result := TaskDone;
     end;
   inc(fPhase);
+
+  {Worker does 5 hits from any spot around the house and then goes to new spot,
+   but if the house is done worker should stop activity immediately}
   if (fPhase=4) and (not fHouse.IsComplete) then //If animation cycle is done
     if fPhase2 mod 5 = 0 then //if worker did [5] hits from same spot
       fPhase:=0 //Then goto new spot
@@ -784,10 +785,12 @@ begin
   Inherited;
 end;
 
+
 function TTaskBuildHouseRepair.WalkShouldAbandon:boolean;
 begin
   Result := (fHouse.IsDestroyed)or(not fHouse.IsDamaged)or(not fHouse.BuildingRepair);
 end;
+
 
 {Repair the house}
 function TTaskBuildHouseRepair.Execute():TTaskResult;
