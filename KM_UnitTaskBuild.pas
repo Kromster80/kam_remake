@@ -50,7 +50,7 @@ type
     private
       fLoc:TKMPoint;
       BuildID:integer;
-      //todo: not abandoned properly yet
+      //todo: not abandoned properly yet due
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -66,7 +66,6 @@ type
       HouseSet:boolean;
       Step:byte;
       Cells:array[1..4*4]of TKMPoint;
-      //todo: not abandoned properly yet
     public
       constructor Create(aWorker:TKMUnitWorker; aHouse:TKMHouse; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;

@@ -9,7 +9,6 @@ type
     private
       BeastID:byte;
       function ResourceExists():boolean;
-      //todo: not abandoned properly yet
     public
       WorkPlan:TUnitWorkPlan;
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
@@ -82,16 +81,18 @@ end;
 {This is execution of Resource mining}
 function TTaskMining.Execute():TTaskResult;
 const SkipWalk=8; SkipWork=30; //Skip to certain Phases
-var Dir:integer; TimeToWork, StillFrame:integer;
+var Dir:integer; TimeToWork, StillFrame:integer; ResAcquired:boolean;
 begin
   Result := TaskContinues;
+
+  //there's no point in doing a task if we can't return home
   if fUnit.GetHome <> nil then if fUnit.GetHome.IsDestroyed then
   begin
-    //Make sure we always exit if our home is destroyed
     Result := TaskDone;
     exit;
   end;
-with fUnit do
+
+  with fUnit do
   case fPhase of
     0: if WorkPlan.HasToWalk then begin
          GetHome.SetState(hst_Empty);
@@ -103,7 +104,7 @@ with fUnit do
        end;
        //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
     1: if fTerrain.Route_CanBeMade(fUnit.GetPosition, WorkPlan.Loc, canWalk, true) then
-         SetActionWalk(fUnit, WorkPlan.Loc, WorkPlan.WalkTo)
+         SetActionWalk(fUnit, WorkPlan.Loc, WorkPlan.WalkTo) //todo: it will abandon task for us, right?
        else
        begin
          Result := TaskDone;
@@ -178,10 +179,9 @@ with fUnit do
         GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
         GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
-        if WorkPlan.GatheringScript = gs_SwineBreeder then begin
+        if WorkPlan.GatheringScript = gs_SwineBreeder then begin //Swines get feed and taken immediately
           BeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
-          if BeastID <> 0 then
-            TKMHouseSwineStable(GetHome).TakeBeast(BeastID);
+          TKMHouseSwineStable(GetHome).TakeBeast(BeastID);
         end;
         if WorkPlan.ActCount >= fPhase2 then begin
            GetHome.fCurrentAction.SubActionWork(WorkPlan.HouseAct[fPhase2].Act);
@@ -211,25 +211,21 @@ with fUnit do
            end;
        end;
     30: begin
+          if WorkPlan.GatheringScript = gs_HorseBreeder then
+            TKMHouseSwineStable(GetHome).TakeBeast(BeastID); //Take the horse after feeding
+
           case WorkPlan.GatheringScript of
-            gs_CoalMiner: fTerrain.DecOreDeposit(WorkPlan.Loc, rt_Coal);
-            gs_GoldMiner: fTerrain.DecOreDeposit(WorkPlan.Loc, rt_GoldOre);
-            gs_IronMiner: fTerrain.DecOreDeposit(WorkPlan.Loc, rt_IronOre);
+            gs_CoalMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_Coal);
+            gs_GoldMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_GoldOre);
+            gs_IronMiner:    ResAcquired := fTerrain.DecOreDeposit(WorkPlan.Loc, rt_IronOre);
+            gs_SwineBreeder: ResAcquired := BeastID<>0;
+            gs_HorseBreeder: ResAcquired := BeastID<>0;
+            else             ResAcquired := true;
           end;
-          if WorkPlan.GatheringScript = gs_HorseBreeder then begin
-            if BeastID<>0 then begin
-              TKMHouseSwineStable(GetHome).TakeBeast(BeastID);
-              GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
-            end;
-          end else
-          if WorkPlan.GatheringScript = gs_SwineBreeder then begin
-            if BeastID<>0 then begin
-              GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
-              GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
-            end;
-          end else begin
+
+          if ResAcquired then begin
             GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
-            GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2); //This is unused tbh
+            GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
           end;
 
           GetHome.SetState(hst_Idle);

@@ -973,9 +973,8 @@ end;
 
 procedure TKMHouseSwineStable.TakeBeast(aID:byte);
 begin
-  if aID<>0 then
-    if BeastAge[aID]>3 then
-      BeastAge[aID] := 0;
+  if (aID<>0) and (BeastAge[aID]>3) then
+    BeastAge[aID] := 0;
 end;
 
 

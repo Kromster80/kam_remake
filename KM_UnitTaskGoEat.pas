@@ -10,7 +10,6 @@ type
     private
       fInn:TKMHouseInn;
       PlaceID:byte; //Units place in Inn
-      //todo: not abandoned properly yet
     public
       constructor Create(aInn:TKMHouseInn; aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -51,8 +50,10 @@ begin
 end;
 
 
+//May happen when we die while desperatley trying to get some food
 destructor TTaskGoEat.Destroy;
 begin
+  if PlaceID<>0 then fInn.EatersGoesOut(PlaceID);
   if fInn <> nil then fInn.ReleaseHousePointer;
   Inherited;
 end;

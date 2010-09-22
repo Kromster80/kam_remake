@@ -109,7 +109,7 @@ TTerrain = class
 
     procedure SetResourceDeposit(Loc:TKMPoint; rt:TResourceType);
     procedure DecStoneDeposit(Loc:TKMPoint);
-    procedure DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
+    function DecOreDeposit(Loc:TKMPoint; rt:TResourceType):boolean;
 
     procedure RecalculatePassability(Loc:TKMPoint);
     procedure RecalculatePassabilityAround(Loc:TKMPoint);
@@ -1026,12 +1026,14 @@ begin
 end;
 
 
-{Extract one unit of ore}
-procedure TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType);
+{ Try to extract one unit of ore
+  It may fail cos of two miners mining the same last piece of ore }
+function TTerrain.DecOreDeposit(Loc:TKMPoint; rt:TResourceType):boolean;
 begin
   if not (rt in [rt_IronOre,rt_GoldOre,rt_Coal]) then
     fGame.GameError(Loc, 'Wrong ore decrease');
 
+  Result := true;
   case Land[Loc.Y,Loc.X].Terrain of
     144: Land[Loc.Y,Loc.X].Terrain:=157+random(3); //Gold
     145: Land[Loc.Y,Loc.X].Terrain:=144;
@@ -1045,7 +1047,7 @@ begin
     153: Land[Loc.Y,Loc.X].Terrain:=152;
     154: Land[Loc.Y,Loc.X].Terrain:=153;
     155: Land[Loc.Y,Loc.X].Terrain:=154;
-    else; //Don't show error cos sometimes two miners gather same piece of ore
+    else Result := false;
   end;
   Land[Loc.Y,Loc.X].Rotation:=random(3);
   RecalculatePassability(Loc);

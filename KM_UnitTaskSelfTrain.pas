@@ -9,7 +9,6 @@ type
   TTaskSelfTrain = class(TUnitTask)
     private
       fSchool:TKMHouseSchool;
-      //todo: not abandoned properly yet
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -29,7 +28,7 @@ constructor TTaskSelfTrain.Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_SelfTrain;
-  fSchool   := TKMHouseSchool(aSchool.GetHousePointer); //GetHouse returnes TKMHouse, not TKMHouseSchool
+  fSchool   := TKMHouseSchool(aSchool.GetHousePointer);
   fUnit.SetVisibility := false;
 end;
 
@@ -48,7 +47,10 @@ begin
 end;
 
 
-//Abort if someone has destroyed our school
+{ Abort if someone has destroyed our school
+  Here's the trick, we need to dispose of task and unit altogether, but if we delete unit first,
+  it will try to delete this task and we'll enter an infinite loop!
+  So instead we must delete the task (it will become NIL) and only then delete the unit }
 destructor TTaskSelfTrain.Destroy;
 var TempUnit: TKMUnit;
 begin
