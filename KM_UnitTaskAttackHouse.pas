@@ -79,8 +79,11 @@ begin
 end;
 
 
+
 function TTaskAttackHouse.WalkShouldAbandon:boolean;
 begin
+  Result := false;
+
   if fHouse.IsDestroyed then begin
     Result := true;
     exit;

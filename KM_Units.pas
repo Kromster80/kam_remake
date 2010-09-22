@@ -1102,9 +1102,6 @@ begin
   if fGame.fGamePlayInterface.GetShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
-  //Abandon work if any
-  if fUnitTask<>nil then fUnitTask.Free;
-
   //todo: This is probably a source of some bugs in interaction, check this
   //Should we Abandon interaction things?
   {if (fCurrentAction is TUnitActionWalkTo) then
@@ -1112,7 +1109,7 @@ begin
       fGame.GameError(GetPosition, 'Unit killed in walk'); //}
 
   //Update statistics
-  if Assigned(fPlayers) and (fOwner <> play_animals) and Assigned(fPlayers.Player[byte(fOwner)]) then
+  if (fPlayers<>nil) and (fOwner <> play_animals) and (fPlayers.Player[byte(fOwner)]<>nil) then
     fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
 
   fThought := th_None; //Reset thought
