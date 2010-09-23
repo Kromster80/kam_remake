@@ -5,10 +5,12 @@ EXE-only r1006:
  +	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
  +	Process KillUnit/AddScout commands through GIP, even if they are to be removed soon
  +	Serfs will keep on taking stones to try to deliver them to died workers endlessly
+ +	I got a access violation when I was deleting my fisherman. (Must be fixed in r1006/r1036)
+ +	Access violations when closing the game window by Alt+F4 (Tasks were not freed properly)
+ +	Menu buttons in replay don't work, no way to exit other than F11 (added replay controls)
 
  - 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  - 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
- -	Menu buttons in replay don't work, no way to exit other than F11
  -	Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
  -	Dots and lines displaying on tile edges
  -	Serfs should take wares back or to suitable house if destination is destroyed
@@ -24,7 +26,6 @@ EXE-only r1006:
  ?	Citizen will try to walk home when it has no road tile below entrance (I think thats not a bug)
  ? 	Music doesn't work
  ?	game in fullscreen mode flickers terrible! (TK, tested on TV and LCD, 50Hz?) (Gone in r970 ?)
- ?	I got a access violation when I was deleting my fisherman. (Probably fixed in r1006)
  ?	when starting the game first time after system boot-up Explorer stops responding for a minute (Win7x64) ?	Houses/units from the mission file should not place on forbidden terrain (height, proximity for houses)
  ?	in background there is a rustle, I can hear it very good, if I set music down to "0". deactivating music is the same. (I use a creative x-fi sound card) But it's only in main menu, not in in-game! In in-game you hear a whir like from a bee.
 
