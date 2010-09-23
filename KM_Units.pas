@@ -438,9 +438,9 @@ begin
   begin
     //todo: Put these messages into LIB file (use one from original KaM once final has been decided on for SR3 which has changed this message)
     if not fTerrain.CanFindFishingWater(KMPointY1(fHome.GetEntrance),RANGE_FISHERMAN) then
-      fGame.fGamePlayInterface.IssueMessage(msgHouse,'Your fisherman''s hut is too far away from the water.', fHome.GetEntrance)
+      fGame.fGamePlayInterface.MessageIssue(msgHouse,'Your fisherman''s hut is too far away from the water.', fHome.GetEntrance)
     else
-      fGame.fGamePlayInterface.IssueMessage(msgHouse,'Your fisherman cannot catch any further fish in the nearby water bodies.', fHome.GetEntrance);
+      fGame.fGamePlayInterface.MessageIssue(msgHouse,'Your fisherman cannot catch any further fish in the nearby water bodies.', fHome.GetEntrance);
     fHome.ResourceDepletedMsgIssued := true;
   end
   else
@@ -453,7 +453,7 @@ begin
       else Tmp := 0;
     end;
     if Tmp <> 0 then
-      fGame.fGamePlayInterface.IssueMessage(msgHouse,fTextLibrary.GetTextString(Tmp), fHome.GetEntrance);
+      fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetTextString(Tmp), fHome.GetEntrance);
     fHome.ResourceDepletedMsgIssued := true;
   end;
 

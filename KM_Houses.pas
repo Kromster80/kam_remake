@@ -893,7 +893,7 @@ begin
     dec(fTimeSinceUnoccupiedReminder);
     if fTimeSinceUnoccupiedReminder = 0 then
     begin
-      fGame.fGamePlayInterface.IssueMessage(msgHouse,fTextLibrary.GetTextString(295),GetEntrance);
+      fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetTextString(295),GetEntrance);
       fTimeSinceUnoccupiedReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
     end;
   end

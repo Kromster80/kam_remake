@@ -56,7 +56,7 @@ type
     procedure GameInit();
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error ()
-    procedure GamePause(DoPause:boolean); //Set game on pause during gameplay
+    procedure GameSetState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean); //Hold the game to ask if player wants to play after Victory
     procedure GameStop(const Msg:gr_Message; TextMsg:string='');
 
@@ -203,7 +203,7 @@ begin
     gsNoGame:   if fMainMenuInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit; //Exit if handled
     gsPaused:   if Key=ord('P') then begin //Ignore all keys if game is on 'Pause'
                   if IsDown then exit;
-                  GamePause(false);
+                  GameSetState(gsRunning);
                   fGameplayInterface.ShowPause(false); //Hide pause overlay
                 end;
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
@@ -230,7 +230,7 @@ begin
                     fGameplayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
                   end;
                   if Key = ord('P') then begin
-                    GamePause(true); //if running then pause
+                    GameSetState(gsPaused);
                     fGameplayInterface.ShowPause(true); //Display pause overlay
                   end;
                   if Key=ord('W') then
@@ -239,12 +239,12 @@ begin
                     fGamePlayInterface.ShortcutPress(Key, IsDown);
 
                   {Thats my debug example}
-                  if Key=ord('5') then fGameplayInterface.IssueMessage(msgText,'123',KMPoint(0,0));
-                  if Key=ord('6') then fGameplayInterface.IssueMessage(msgHouse,'123',KMPointRound(fViewport.GetCenter));
-                  if Key=ord('7') then fGameplayInterface.IssueMessage(msgUnit,'123',KMPoint(0,0));
-                  if Key=ord('8') then fGameplayInterface.IssueMessage(msgHorn,'123',KMPoint(0,0));
-                  if Key=ord('9') then fGameplayInterface.IssueMessage(msgQuill,'123',KMPoint(0,0));
-                  if Key=ord('0') then fGameplayInterface.IssueMessage(msgScroll,'123',KMPoint(0,0));
+                  if Key=ord('5') then fGameplayInterface.MessageIssue(msgText,'123',KMPoint(0,0));
+                  if Key=ord('6') then fGameplayInterface.MessageIssue(msgHouse,'123',KMPointRound(fViewport.GetCenter));
+                  if Key=ord('7') then fGameplayInterface.MessageIssue(msgUnit,'123',KMPoint(0,0));
+                  if Key=ord('8') then fGameplayInterface.MessageIssue(msgHorn,'123',KMPoint(0,0));
+                  if Key=ord('9') then fGameplayInterface.MessageIssue(msgQuill,'123',KMPoint(0,0));
+                  if Key=ord('0') then fGameplayInterface.MessageIssue(msgScroll,'123',KMPoint(0,0));
 
                   if Key=ord('V') then begin fGame.GameHold(true); exit; end; //Instant victory
                 end;
@@ -262,6 +262,8 @@ begin
                     if not (GameSpeed in [1,fGlobalSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
                     fGameplayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
                   end;
+                  if Key=ord('W') then
+                    fTerrain.RevealWholeMap(MyPlayer.PlayerID);
                 end;
     gsEditor:   if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
   end;
@@ -280,9 +282,9 @@ var P: TKMPoint; MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TK
 begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.MouseDown(X,Y,Shift,Button);
-    gsPaused:   exit; //No clicking when paused
-    gsOnHold:   exit; //No clicking when on hold
-    gsReplay:   exit; //No clicking when replay goes .. ?
+    gsPaused:   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
+    gsOnHold:   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
+    gsReplay:   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
     gsRunning:  begin
                   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
                   MOver := fGameplayInterface.MyControls.CtrlOver;
@@ -361,17 +363,8 @@ begin
                     Screen.Cursor := c_Default;
                   fMainMenuInterface.MouseMove(X,Y);
                 end;
-    gsPaused:   exit;
+    gsPaused:   fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
     gsOnHold:   begin
-                  //@Lewin: any idea how do we send MouseOver to controls, but don't let them be pressed down
-                  //@Krom: Could we modify the shift state so it doesn't see it as being pressed? I'm not sure I understand what you mean though.
-                  //@Lewin: Here's the thing: in Victory state I want only 2 controls to be enabled, others should be disabled,
-                  //but.. every control recieves MouseOver event, just try to move mouse with pressed button over any button while having a Victory and you see my concern 
-                  //@Krom: Yeah, I see the difficulty. Looks like we'll have to add an exception for this case.
-                  //       Idea: Perhaps we could set some kind of focus panel (normally nil, in this case the victory panel)
-                  //       so events etc. will only be noticed for controls of that panel? (or all controls if it's nil) It could be a property of MyControls.
-                  //       We'll probably find a use for that later so we can force the player to only use certain controls.
-                  //@Lewin: I'd like to solve the case with minimal changes in code, or no at all.
                   fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
                   if fGameplayInterface.MyControls.CtrlOver<>nil then
                     Screen.Cursor := c_Default
@@ -491,9 +484,10 @@ begin
 
   case GameState of //Remember clicked control
     gsNoGame:   MOver := fMainMenuInterface.MyControls.CtrlOver;
-    gsPaused:   MOver := nil;
+    gsPaused:   MOver := fGameplayInterface.MyControls.CtrlOver;
     gsOnHold:   MOver := fGameplayInterface.MyControls.CtrlOver;
     gsRunning:  MOver := fGameplayInterface.MyControls.CtrlOver;
+    gsReplay:   MOver := fGameplayInterface.MyControls.CtrlOver;
     gsEditor:   MOver := fMapEditorInterface.MyControls.CtrlOver;
     else        MOver := nil; //MOver should always be initialized
   end;
@@ -502,8 +496,9 @@ begin
 
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.MouseUp(X,Y,Shift,Button);
-    gsPaused:   exit;
-    gsOnHold:   if fGamePlayInterface.ActiveWhenPause(MOver) then fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
+    gsPaused:   fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
+    gsOnHold:   fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
+    gsReplay:   fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
     gsRunning:
       begin
         P := GameCursor.Cell; //Get cursor position tile-wise
@@ -794,7 +789,7 @@ begin
   if GameState = gsNoGame then exit;
 
   fViewport.SetCenter(aLoc.X, aLoc.Y);
-  GamePause(true);
+  GameSetState(gsPaused);
   SHOW_UNIT_ROUTES := true;
   SHOW_UNIT_MOVEMENT := true;
   if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
@@ -813,13 +808,9 @@ begin
 end;
 
 
-procedure TKMGame.GamePause(DoPause:boolean);
+procedure TKMGame.GameSetState(aNewState:TGameState);
 begin
-  if GameState in [gsPaused, gsRunning, gsReplay] then
-  if DoPause then
-    GameState := gsPaused
-  else
-    GameState := gsRunning;
+  GameState := aNewState;
 end;
 
 
@@ -827,7 +818,7 @@ end;
 procedure TKMGame.GameHold(DoHold:boolean);
 begin
   if DoHold then begin
-    fGame.GamePause(false); //Unpause game just in case
+    fGame.GameSetState(gsRunning); //Unpause game just in case
     fGame.fGameplayInterface.ShowPause(false);
   end;
 
@@ -880,6 +871,10 @@ begin
                    fMainMenuInterface.ShowScreen_Error(TextMsg);
                  end;
     gr_Silent:   fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
+    gr_ReplayEnd:begin
+                   fLog.AppendLog('Replay canceled',true);
+                   fMainMenuInterface.ShowScreen_Main;
+                 end;
     gr_MapEdEnd: begin
                    fLog.AppendLog('MapEditor closed',true);
                    fMainMenuInterface.ShowScreen_Main;

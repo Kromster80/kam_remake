@@ -148,6 +148,7 @@ type TKMGamePlayInterface = class
       Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left:TKMImage;
       Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left:TKMButton;
   private
+    procedure Create_Replay_Page;
     procedure Create_Message_Page;
     procedure Create_Pause_Page;
     procedure Create_PlayMore_Page;
@@ -173,11 +174,12 @@ type TKMGamePlayInterface = class
     procedure DisplayHint(Sender: TObject);
     procedure Minimap_Update(Sender: TObject);
     procedure Minimap_RightClick(Sender: TObject);
-    procedure UpdateMessageStack;
-    procedure DisplayMessage(Sender: TObject);
-    procedure CloseMessage(Sender: TObject);
-    procedure DeleteMessage(Sender: TObject);
-    procedure GoToMessage(Sender: TObject);
+    procedure MessageUpdateStack;
+    procedure MessageDisplay(Sender: TObject);
+    procedure MessageClose(Sender: TObject);
+    procedure MessageDelete(Sender: TObject);
+    procedure MessageGoTo(Sender: TObject);
+    procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
     procedure Store_Fill(Sender:TObject);
@@ -212,13 +214,12 @@ type TKMGamePlayInterface = class
     procedure Save_PopulateSaveNamesFile();
     procedure Build_SelectRoad;
     procedure RightClickCancel;
-    procedure IssueMessage(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
+    procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow:boolean);
     procedure ShowPlayMore(DoShow:boolean);
     procedure PlayMore(Sender:TObject);
-    function ActiveWhenPause(aCheck:TKMControl):boolean;
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
@@ -444,13 +445,6 @@ begin
 end;
 
 
-//Special list of controls which can be interacted in gsPaused mode.
-function TKMGamePlayInterface.ActiveWhenPause(aCheck:TKMControl):boolean;
-begin
-  Result := (aCheck = Button_PlayMore) or (aCheck = Button_PlayWin);
-end;
-
-
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
   if (PrevHint = Sender) then exit; //Hint didn't changed
@@ -543,18 +537,6 @@ begin
     Label_Clock:=MyControls.AddLabel(Panel_Main,265,80,0,0,'mm:ss',fnt_Outline,kaCenter);
     Label_Clock.Hide;
 
-    Panel_Replay := MyControls.AddPanel(Panel_Main, 320, 8, 160, 60);
-      PercentBar_Replay     := MyControls.AddPercentBar(Panel_Replay, 0, 0, 160, 20, 0);
-      Label_Replay          := MyControls.AddLabel(Panel_Replay, 80, 2, 100, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
-      Button_ReplayRestart  := MyControls.AddButton(Panel_Replay, 0, 24, 24, 24, 'I<', fnt_Metal);
-      Button_ReplayPause    := MyControls.AddButton(Panel_Replay,25, 24, 24, 24, 'II', fnt_Metal);
-      Button_ReplayResume   := MyControls.AddButton(Panel_Replay,50, 24, 24, 24, '>', fnt_Metal);
-      Button_ReplayExit     := MyControls.AddButton(Panel_Replay,75, 24, 24, 24, 'X', fnt_Metal);
-      Button_ReplayRestart.Disable;
-      Button_ReplayPause.Disable;
-      Button_ReplayResume.Disable;
-      Button_ReplayExit.Disable;
-
     Image_DirectionCursor := MyControls.AddImage(Panel_Main,0,0,35,36,519);
     Image_DirectionCursor.Hide;
 
@@ -567,7 +549,7 @@ begin
       Image_Message[i].HighlightOnMouseOver := true;
       Image_Message[i].Disable;
       Image_Message[i].Hide;
-      Image_Message[i].OnClick := DisplayMessage;
+      Image_Message[i].OnClick := MessageDisplay;
     end;
 
     Label_Stat:=MyControls.AddLabel(Panel_Main,224+80,16,0,0,'',fnt_Outline,kaLeft);
@@ -597,8 +579,10 @@ begin
     Create_School_Page();
     Create_Barracks_Page();
     //Create_TownHall_Page(); //I don't want to make it at all yet
+
   Create_Pause_Page(); //Must go at the bottom so that all controls above are faded
   Create_PlayMore_Page(); //Must go at the bottom so that all controls above are faded
+  Create_Replay_Page();
 
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
@@ -663,16 +647,18 @@ begin
 end;
 
 
-{Play More overlay page}
+{ Play More overlay page,
+  It's backgrounded with a full-screen bevel area which not only fades image a bit,
+  but also blocks all mouse clicks - neat }
 procedure TKMGamePlayInterface.Create_PlayMore_Page;
-var sx,sy:integer;
+var s:TKMPoint;
 begin
-  sx := fRender.GetRenderAreaSize.X;
-  sy := fRender.GetRenderAreaSize.Y;
-  Panel_PlayMore := MyControls.AddPanel(Panel_Main,0,0,sx,sy);
-    Bevel_PlayMore := MyControls.AddBevel(Panel_PlayMore,-1,-1,sx+2,sy+2);
+  s := fRender.GetRenderAreaSize;
 
-    Panel_PlayMoreMsg := MyControls.AddPanel(Panel_PlayMore,(sx div 2)-100,(sy div 2)-100,200,200);
+  Panel_PlayMore := MyControls.AddPanel(Panel_Main,0,0,s.X,s.Y);
+    Bevel_PlayMore := MyControls.AddBevel(Panel_PlayMore,-1,-1,s.X+2,s.Y+2);
+
+    Panel_PlayMoreMsg := MyControls.AddPanel(Panel_PlayMore,(s.X div 2)-100,(s.Y div 2)-100,200,200);
     Image_PlayMore:=MyControls.AddImage(Panel_PlayMoreMsg,100,40,0,0,556);
     Image_PlayMore.Center;
 
@@ -682,6 +668,27 @@ begin
     Button_PlayMore.OnClick := PlayMore;
     Button_PlayWin.OnClick := PlayMore;
     Panel_PlayMore.Hide
+end;
+
+
+procedure TKMGamePlayInterface.Create_Replay_Page;
+var s:TKMPoint;
+begin
+  s := fRender.GetRenderAreaSize;
+
+  Panel_Replay := MyControls.AddPanel(Panel_Main, 320, 8, 160, 60);
+    MyControls.AddShape(Panel_Replay,-1-320,-1-8,s.X+2,s.Y+2,$808080FF); //Block all clicks
+    PercentBar_Replay     := MyControls.AddPercentBar(Panel_Replay, 0, 0, 160, 20, 0);
+    Label_Replay          := MyControls.AddLabel(Panel_Replay, 80, 2, 100, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
+    Button_ReplayRestart  := MyControls.AddButton(Panel_Replay, 0, 24, 24, 24, 'I<', fnt_Metal);
+    Button_ReplayPause    := MyControls.AddButton(Panel_Replay,25, 24, 24, 24, 'II', fnt_Metal);
+    Button_ReplayResume   := MyControls.AddButton(Panel_Replay,50, 24, 24, 24, 'I>', fnt_Metal);
+    Button_ReplayExit     := MyControls.AddButton(Panel_Replay,75, 24, 24, 24, 'X', fnt_Metal);
+    Button_ReplayRestart.OnClick := ReplayClick;
+    Button_ReplayPause.OnClick   := ReplayClick;
+    Button_ReplayResume.OnClick  := ReplayClick;
+    Button_ReplayExit.OnClick    := ReplayClick;
+    Button_ReplayResume.Disable; //Initial state
 end;
 
 
@@ -700,17 +707,17 @@ begin
 
     Button_MessageGoTo:=MyControls.AddButton(Panel_Message,490,74,100,24,fTextLibrary.GetTextString(280),fnt_Antiqua);
     Button_MessageGoTo.Hint := fTextLibrary.GetTextString(281);
-    Button_MessageGoTo.OnClick := GoToMessage;
+    Button_MessageGoTo.OnClick := MessageGoTo;
     Button_MessageGoTo.MakesSound := false;
 
     Button_MessageDelete:=MyControls.AddButton(Panel_Message,490,104,100,24,fTextLibrary.GetTextString(276),fnt_Antiqua);
     Button_MessageDelete.Hint := fTextLibrary.GetTextString(277);
-    Button_MessageDelete.OnClick := DeleteMessage;
+    Button_MessageDelete.OnClick := MessageDelete;
     Button_MessageDelete.MakesSound := false;
 
     Button_MessageClose:=MyControls.AddButton(Panel_Message,490,134,100,24,fTextLibrary.GetTextString(282),fnt_Antiqua);
     Button_MessageClose.Hint := fTextLibrary.GetTextString(283);
-    Button_MessageClose.OnClick := CloseMessage;
+    Button_MessageClose.OnClick := MessageClose;
     Button_MessageClose.MakesSound := false;
 
   Panel_Message.Hide; //Hide it now because it doesn't get hidden by SwitchPage
@@ -1173,7 +1180,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.DisplayMessage(Sender: TObject);
+procedure TKMGamePlayInterface.MessageDisplay(Sender: TObject);
 var i: integer;
 begin
   if not TKMImage(Sender).Visible then exit; //Exit if the message is not active
@@ -1196,9 +1203,9 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.CloseMessage(Sender: TObject);
+procedure TKMGamePlayInterface.MessageClose(Sender: TObject);
 begin
-  UpdateMessageStack;
+  MessageUpdateStack;
   if ShownMessage <> 0 then
   begin
     Image_Message[ShownMessage].Highlight := false;
@@ -1209,14 +1216,14 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.DeleteMessage(Sender: TObject);
+procedure TKMGamePlayInterface.MessageDelete(Sender: TObject);
 begin
   fMessageList.RemoveEntry(ShownMessage);
-  CloseMessage(Sender);
+  MessageClose(Sender);
 end;
 
 
-procedure TKMGamePlayInterface.GoToMessage(Sender: TObject);
+procedure TKMGamePlayInterface.MessageGoTo(Sender: TObject);
 begin
   if (fMessageList.GetLoc(ShownMessage).X <> 0) and (fMessageList.GetLoc(ShownMessage).Y <> 0) then
     fViewport.SetCenter(fMessageList.GetLoc(ShownMessage).X,fMessageList.GetLoc(ShownMessage).Y);
@@ -1903,16 +1910,40 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.IssueMessage(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
+procedure TKMGamePlayInterface.ReplayClick;
+  procedure SetButtons(aPaused:boolean);
+  begin
+    Button_ReplayPause.Enabled := aPaused;
+    Button_ReplayResume.Enabled := not aPaused;
+  end;
+begin
+  if (Sender = Button_ReplayRestart) then begin
+    fGame.GameStop(gr_Silent);
+    fGame.ReplayView(nil); //reload it once again
+  end;
+
+  if (Sender = Button_ReplayPause) or (Sender = Button_ReplayResume) then
+  case fGame.GameState of
+    gsReplay: begin fGame.GameSetState(gsPaused); SetButtons(false); end;
+    gsPaused: begin fGame.GameSetState(gsReplay); SetButtons(true); end;
+    else      Assert(false);
+  end;
+
+  if (Sender = Button_ReplayExit) then
+    fGame.GameStop(gr_MapEdEnd);
+end;
+
+
+procedure TKMGamePlayInterface.MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
 begin
   fMessageList.AddEntry(MsgTyp,Text,Loc);
-  UpdateMessageStack;
+  MessageUpdateStack;
   if fMessageList.GetPicID(fMessageList.Count)-400 in [91..93,95] then
     fSoundLib.Play(sfx_MessageNotice,4); //Play horn sound on new message if it is the right type
 end;
 
 
-procedure TKMGamePlayInterface.UpdateMessageStack;
+procedure TKMGamePlayInterface.MessageUpdateStack;
 var i:integer;
 begin
   //MassageList is unlimited, while Image_Message has fixed depth and samples data from the list on demand
@@ -2068,19 +2099,19 @@ begin
     if Button_MessageClose.Visible then MyControls.CtrlDown := Button_MessageClose;
     if Button_Army_Join_Cancel.Visible then MyControls.CtrlDown := Button_Army_Join_Cancel;
     if (not IsDown) and (Button_Main[5].Visible) then SwitchPage(Button_Main[5]);
-    if (not IsDown) then CloseMessage(Button_MessageClose);
+    if (not IsDown) then MessageClose(Button_MessageClose);
     if (not IsDown) then Army_CancelJoin(Button_Army_Join_Cancel);
   end;
   //Messages
   if (Key=VK_SPACE) and (Button_MessageGoTo.Enabled) then //In KaM spacebar centers you on the message
   begin
     if Button_MessageGoTo.Visible then MyControls.CtrlDown := Button_MessageGoTo;
-    if (not IsDown) then GoToMessage(Button_MessageGoTo);
+    if (not IsDown) then MessageGoTo(Button_MessageGoTo);
   end;
   if (Key=VK_DELETE) and (ShownMessage <> 0) then
   begin
     if Button_MessageDelete.Visible then MyControls.CtrlDown := Button_MessageDelete;
-    if (not IsDown) then DeleteMessage(Image_Message[ShownMessage]); //Deletes the open message
+    if (not IsDown) then MessageDelete(Image_Message[ShownMessage]); //Deletes the open message
   end;
   //Army shortcuts from KaM. (these are also in hints) Can be improved/changed later if we want to
   if (Key=65) and (Panel_Army.Visible) then //65 = A
@@ -2135,7 +2166,7 @@ begin
   LoadStream.Read(LastBarracksUnit);
   fMessageList.Load(LoadStream);
   //Everything else (e.g. ShownUnit or AskDemolish) can't be seen in Save_menu anyways
-  UpdateMessageStack;
+  MessageUpdateStack;
   fLog.AppendLog('Interface loaded');
 end;
 

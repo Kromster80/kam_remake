@@ -679,7 +679,7 @@ begin
       dec(fTimeSinceHungryReminder);
       if fTimeSinceHungryReminder < 1 then
       begin
-        fGame.fGamePlayInterface.IssueMessage(msgUnit,fTextLibrary.GetTextString(296),GetPosition);
+        fGame.fGamePlayInterface.MessageIssue(msgUnit,fTextLibrary.GetTextString(296),GetPosition);
         fTimeSinceHungryReminder := TIME_BETWEEN_MESSAGES; //Don't show one again until it is time
       end;
     end
