@@ -186,7 +186,7 @@ begin
   AssignFile(f, aFileName);
   Reset(f, 1);
   BlockRead(f, Version, 4);
-  Assert(Version=REPLAY_VERSION, 'Old or unexpected replay file');
+  Assert(Version=REPLAY_VERSION, 'Old or unexpected replay file. r'+inttostr(Version)+' is required.');
   BlockRead(f, fCount, 4, NumRead);
   for i:=1 to fCount do
     BlockRead(f, fQueue[i].Tick, SizeOf(fQueue[i]));
