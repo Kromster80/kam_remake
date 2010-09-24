@@ -960,17 +960,15 @@ begin
     inc(CursorPos,length(s)); //GetCharFromVirtualKey might be 1 or 2 chars
   end
   else
-    if IsDown then //Allow repeated delete if IsDown
+  if IsDown then //Allow repeated delete if IsDown
     case Key of
-      VK_BACK:  begin decs(Text); dec(CursorPos); end;
-      //VK_LEFT:  dec(CursorPos);
-      //VK_RIGHT: inc(CursorPos);
+      VK_BACK:    begin Delete(Text, CursorPos, 1); dec(CursorPos); end;
+      VK_DELETE:  Delete(Text, CursorPos+1, 1);
+      VK_LEFT:    dec(CursorPos);
+      VK_RIGHT:   inc(CursorPos);
     end;
-  //todo: allow cursor to move within TKMTextEdit
-  //Including delete of letters in words and setting cursor on clicked position
 
   CursorPos := EnsureRange(CursorPos, 0, length(Text));
-
   if Assigned(OnChange) then OnChange(Self);
 end;
 

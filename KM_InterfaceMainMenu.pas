@@ -210,7 +210,7 @@ inherited Create;
   Create_Results_Page;
 
     {for i:=1 to length(FontFiles) do L[i]:=MyControls.AddLabel(Panel_Main1,550,280+i*20,160,30,'This is a test string for KaM Remake ('+FontFiles[i],TKMFont(i),kaLeft);//}
-    //MyControls.AddTextEdit(Panel_Main1, 32, 32, 200, 20, fnt_Grey);
+    //MyControls.AddTextEdit(Panel_Main, 32, 32, 200, 20, fnt_Grey);
     //FL := MyControls.AddFileList(Panel_Main1, 550, 300, 320, 220);
     //FL.RefreshList(ExeDir+'Maps\','dat',true);
 
