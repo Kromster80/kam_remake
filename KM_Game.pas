@@ -194,10 +194,9 @@ begin
   //F9 is the default key in Fraps for video capture
   //others.. unknown
 
+  if not IsDown and (Key=VK_F5) then SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
   if not IsDown and ENABLE_DESIGN_CONTORLS and (Key = VK_F7) then
     MODE_DESIGN_CONTORLS := not MODE_DESIGN_CONTORLS;
-  if not IsDown and ENABLE_DESIGN_CONTORLS and (Key = VK_F6) then
-    SHOW_CONTROLS_OVERLAY := not SHOW_CONTROLS_OVERLAY;
 
   case GameState of
     gsNoGame:   if fMainMenuInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit; //Exit if handled

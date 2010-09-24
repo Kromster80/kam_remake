@@ -69,8 +69,8 @@ var
   //These are debug things, should be FALSE
   {User interface options}
   ShowDebugControls     :boolean=false; //Show debug panel / Form1 menu (F11)
+  SHOW_CONTROLS_OVERLAY :boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
-   SHOW_CONTROLS_OVERLAY:boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   {Gameplay display}
@@ -238,7 +238,7 @@ const
   1, 1, 1, 1, 1, 1,12,12,12,11,
  11,11,11,11,12, 1, 1, 1, 1, 1,
  12,12,12,12,12,12,12, 0, 0, 0);
- //todo: I couldn't find matching palettes for the 17th and 18th entries
+ //I couldn't find matching palettes for the 17th and 18th entries
  RX6Pal:array[1..20]of byte = (
  8,8,8,8,8,8,9,9,9,1,
  1,1,1,1,1,1,10,10,0,0);
@@ -314,15 +314,12 @@ const {Aligned to right to use them in GUI costs display as well}
   );
 
 { Terrain }
-type TPassability = (canAll=0,
-                     canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
+type TPassability = (canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
                      canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab,
-                     canWolf, canElevate, canWalkAvoid, canWorker); //16bits so far
+                     canWolf, canElevate, canWalkAvoid, canWorker); //14bits so far
      TPassabilitySet = set of TPassability;
 
-const PassabilityStr:array[0..15] of string = (
-    'None',
-    'canAll',       // Cart blanche, e.g. for workers building house are which is normaly unwalkable} //Fenced house area (tiles that have been leveled) are unwalkable. People aren't allowed on construction sites
+const PassabilityStr:array[TPassability] of string = (
     'canWalk',      // General passability of tile for any walking units
     'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
     'canBuild',     // Can we build a house on this tile?
@@ -335,10 +332,9 @@ const PassabilityStr:array[0..15] of string = (
     'canCrab',      // Sand tiles where crabs can move around
     'canWolf',      // Soil tiles where wolfs can move around
     'canElevate',   // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
-    'canWalkAvoid',
-    'canWorker'     //Like canWalk but allows walking on building sites
+    'canWalkAvoid', // Sets this flag when there's a laborer which is busy and can't WalkAvoid us (computed only on demand)
+    'canWorker'     // Like canWalk but allows walking on building sites
   );
-  //todo: needs revising for canAll-canWalkAvoid-canWorker items
 
 {Units}
 type

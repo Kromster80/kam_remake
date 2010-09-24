@@ -1091,7 +1091,6 @@ begin
   end;
 
   Land[Loc.Y,Loc.X].Passability := [];
-  AddPassability(Loc, [canAll]);
 
   //For all passability types other than canAll, houses and fenced houses are excluded
   if not(Land[Loc.Y,Loc.X].Markup in [mu_House, mu_HouseFenceNoWalk]) then begin
@@ -1703,14 +1702,13 @@ begin
 
     TestMode:=0;
     case aPass of
-      canWalk: TestMode:=1;
-      canWalkRoad: TestMode:=2;
-      canFish: TestMode:=3;
-      canWalkAvoid:
-      begin
-        TestMode:=4; aPass:=canWalk;
-      end; //Special case for unit interaction avoiding
-      else fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
+      canWalk:      TestMode:=1;
+      canWalkRoad:  TestMode:=2;
+      canFish:      TestMode:=3;
+      canWalkAvoid: begin
+                      TestMode:=4; aPass:=canWalk; //Special case for unit interaction avoiding
+                    end;
+      else          fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 
     //Reset everything

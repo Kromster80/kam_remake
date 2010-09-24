@@ -483,7 +483,7 @@ begin
   if Form1.Debug_PassabilityTrack.Position<>0 then
   begin
     glColor4f(0,1,0,0.25);
-    t:=Form1.Debug_PassabilityTrack.Position-1;
+    t := Form1.Debug_PassabilityTrack.Position;
     for i:=y1 to y2 do for k:=x1 to x2 do
       {$IFDEF WDC}
       if word(fTerrain.Land[i,k].Passability) AND Pow(2,t) = Pow(2,t) then

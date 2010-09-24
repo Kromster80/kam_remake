@@ -116,7 +116,7 @@ object Form1: TForm1
       Top = 14
       Width = 83
       Height = 17
-      Max = 9
+      Max = 14
       PageSize = 1
       TabOrder = 0
       ThumbLength = 14

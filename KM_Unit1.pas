@@ -331,9 +331,13 @@ begin GroupBox1.Visible := not GroupBox1.Visible; end;
 procedure TForm1.Debug_PassabilityTrackChange(Sender: TObject);
 begin
   SHOW_TERRAIN_WIRES:=Debug_PassabilityTrack.Position<>0;
-  Debug_PassabilityTrack.Max:=length(PassabilityStr)-1; //Reserve 0 as Off
-  Label2.Caption:= PassabilityStr[Debug_PassabilityTrack.Position];
+  Debug_PassabilityTrack.Max:=length(PassabilityStr);
+  if Debug_PassabilityTrack.Position <> 0 then
+    Label2.Caption := PassabilityStr[TPassability(Debug_PassabilityTrack.Position)]
+  else
+    Label2.Caption := '';
 end;
+
 
 //Exports
 procedure TForm1.Export_TreesRXClick(Sender: TObject);   begin ExportRX2BMP(1); end;

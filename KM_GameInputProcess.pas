@@ -121,7 +121,7 @@ uses KM_Sound, KM_Game, KM_PlayersCollection;
 constructor TGameInputProcess.Create(aState:TGIPState);
 begin
   Inherited Create;
-  setlength(fQueue, 1024);
+  setlength(fQueue, 128);
   fCount := 0;
   fCursor := 1;
   fState := aState;
