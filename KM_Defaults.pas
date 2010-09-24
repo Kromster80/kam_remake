@@ -1004,7 +1004,7 @@ var
     SState:TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
     Mode:TCursorMode;   //Modes used in game (building, unit, road, etc..)
     Tag1:byte;          //Tag to know building type, unit type, brush size
-    Tag2:byte;          //Additional tag for MapEd (brush direction)
+    Tag2:byte;          //Additional tag for MapEd (brush shape)
   end;
 
   RXData:array [1..6]of record

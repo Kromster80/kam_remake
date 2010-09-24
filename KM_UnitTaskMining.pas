@@ -103,13 +103,7 @@ begin
          exit;
        end;
        //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
-    1: if fTerrain.Route_CanBeMade(fUnit.GetPosition, WorkPlan.Loc, canWalk, true) then
-         SetActionWalk(fUnit, WorkPlan.Loc, WorkPlan.WalkTo) //todo: it will abandon task for us, right?
-       else
-       begin
-         Result := TaskDone;
-         exit;
-       end;
+    1: SetActionWalk(fUnit, WorkPlan.Loc, WorkPlan.WalkTo);
     2: begin //Before work tasks for specific mining jobs
          if WorkPlan.GatheringScript = gs_FisherCatch then
          begin

@@ -878,10 +878,7 @@ begin
     TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
   begin
     fAutoLinkState := wl_None;
-    if GetUnitTask <> nil then begin
-      GetUnitTask.Free;
-      FreeAndNil(fUnitTask);
-    end;
+    if GetUnitTask <> nil then FreeAndNil(fUnitTask);
     //If we are not the commander then walk to near
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), fCommander <> nil);
     fOrder := wo_None;
@@ -893,10 +890,7 @@ begin
 
   if (fOrder=wo_Walk) and GetUnitAction.StepDone and CanInterruptAction then
   begin
-    if GetUnitTask <> nil then begin
-      GetUnitTask.Free;
-      FreeAndNil(fUnitTask);
-    end;
+    if GetUnitTask <> nil then FreeAndNil(fUnitTask);
     //If we are not the commander then walk to near
     SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk, true, false, fCommander <> nil);
     fOrder := wo_None;

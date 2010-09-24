@@ -971,7 +971,6 @@ end;
 
 
 { Check if replay files exist at location }
-//todo: May as well check replays for version compatibility and other issues
 function TKMGame.ReplayExists():boolean;
 begin
   Result := FileExists(KMSlotToSaveName(99,'bas')) and

@@ -405,7 +405,7 @@ begin
 end;
 
 
-//todo: Need an idea for how to make it work
+//todo: Need an idea how to make it work
 function TTaskBuildWall.Execute():TTaskResult;
 begin
   Result := TaskContinues;

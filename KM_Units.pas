@@ -280,11 +280,12 @@ begin
 end;
 
 
+{ Find home for unit }
 function TKMUnitCitizen.FindHome():boolean;
 var KMHouse:TKMHouse;
 begin
   Result:=false;
-  KMHouse:=fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
+  KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
   if KMHouse<>nil then begin
     fHome  := KMHouse.GetHousePointer;
     Result := true;
@@ -342,13 +343,13 @@ end;
 
 
 function TKMUnitCitizen.UpdateState():boolean;
-var H:TKMHouseInn; RestTime: integer;
+var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
   if Self.IsDead then exit; //Caused by SelfTrain.Abandoned
 
-  fThought:=th_None;
+  fThought := th_None;
 
 {  if fUnitTask=nil then //Which is always nil if 'Inherited UpdateState' works properly
   if not TestHunger then
@@ -369,39 +370,30 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then
   begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self,not fVisible);
+    H := fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self,not fVisible);
     if H<>nil then
-      fUnitTask:=TTaskGoEat.Create(H,Self)
+      fUnitTask := TTaskGoEat.Create(H,Self)
     else
-      if fHome <> nil then
-        if not fVisible then
-          fUnitTask:=TTaskGoOutShowHungry.Create(Self)
-        else
-          fUnitTask:=TTaskGoHome.Create(Self);
+      if (fHome <> nil) and not fVisible then
+        fUnitTask:=TTaskGoOutShowHungry.Create(Self)
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
-    if (fHome=nil) then
+    if fHome=nil then
       if FindHome then
-        fUnitTask:=TTaskGoHome.Create(Self) //Home found - go there
+        fUnitTask := TTaskGoHome.Create(Self) //Home found - go there
       else begin
-        fThought:=th_Quest; //Always show quest when idle, unlike serfs who randomly show it
+        fThought := th_Quest; //Always show quest when idle, unlike serfs who randomly show it
         SetActionStay(120, ua_Walk) //There's no home
       end
     else
-      if fVisible then//Unit is not at home, still it has one
-        fUnitTask:=TTaskGoHome.Create(Self)
-      else
-        fUnitTask:=InitiateMining; //Unit is at home, so go get a job
-
-  if fHome <> nil then
-       RestTime := HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10
-  else RestTime := 120; //Unit may not have a home; if so, load a default value
-
-  if fUnitTask=nil then begin
-    if random(2) = 0 then fThought := th_Quest;
-    SetActionStay(RestTime, ua_Walk); //Absolutely nothing to do ...
-  end;
+      if fVisible then//Unit is not at home, but it has one
+        fUnitTask := TTaskGoHome.Create(Self)
+      else begin
+        fUnitTask := InitiateMining; //Unit is at home, so go get a job
+        if fUnitTask=nil then //We didn't find any job to do - rest at home
+          SetActionStay(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
+      end;
 
   if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
@@ -552,7 +544,7 @@ end;
 
 
 function TKMUnitRecruit.UpdateState():boolean;
-var H:TKMHouseInn; RestTime: integer;
+var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
@@ -576,36 +568,26 @@ begin
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self)
     else
-      if fHome <> nil then
-        if not fVisible then
-          fUnitTask:=TTaskGoOutShowHungry.Create(Self)
-        else
-          fUnitTask:=TTaskGoHome.Create(Self);
+      if (fHome <> nil) and not fVisible then
+        fUnitTask:=TTaskGoOutShowHungry.Create(Self)
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
-    if (fHome=nil) then
+    if fHome=nil then
       if FindHome then
-        fUnitTask:=TTaskGoHome.Create(Self) //Home found - go there
+        fUnitTask := TTaskGoHome.Create(Self) //Home found - go there
       else begin
-        fThought:=th_Quest; //Always show quest when idle, unlike serfs who randomly show it
+        fThought := th_Quest; //Always show quest when idle, unlike serfs who randomly show it
         SetActionStay(120, ua_Walk) //There's no home
       end
     else
-      if fVisible then//Unit is not at home, still it has one
-        fUnitTask:=TTaskGoHome.Create(Self)
-      else
-        fUnitTask:=InitiateActivity; //Unit is at home and ready to work
-
-  if fHome <> nil then
-    RestTime := HouseDAT[byte(fHome.GetHouseType)].WorkerRest*10 //Whats it for WatchTower?
-  else
-    RestTime := 120; //Unit may have no home; if so, load a default value
-
-  if fUnitTask=nil then begin
-    if random(2) = 0 then fThought := th_Quest;
-    SetActionStay(RestTime, ua_Walk); //Absolutely nothing to do ...
-  end;
+      if fVisible then//Unit is not at home, but it has one
+        fUnitTask := TTaskGoHome.Create(Self)
+      else begin
+        fUnitTask := InitiateActivity; //Unit is at home, so go get a job
+        if fUnitTask=nil then //We didn't find any job to do - rest at home
+          SetActionStay(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
+      end;
 
   if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
@@ -876,8 +858,7 @@ begin
   fCurrPosition := KMPointRound(fPosition);
 
   //First make sure the animal isn't stuck (check passibility of our position)
-  if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(GetUnitType)]) then
-  begin
+  if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(GetUnitType)]) then begin
     KillUnit; //Animal is stuck so it dies
     exit;
   end;
@@ -885,7 +866,7 @@ begin
   SpotJit:=16; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
-    Spot:=fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
+    Spot := fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
   until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)],true)));
 
   if KMSamePoint(GetPosition,Spot) then

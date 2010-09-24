@@ -630,7 +630,7 @@ begin
   Panel_Message.Top   := Y - 190;
   Panel_Message.Width := X - Panel_Message.Left;
 
-  //todo: scaling Panel should move/scale all child Controls inside of it depending on Anchors setup 
+  //todo: scaling Panel should move all child Controls inside of it depending on Anchors setup 
 end;
 
 

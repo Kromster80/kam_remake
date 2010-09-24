@@ -321,10 +321,8 @@ begin
     fNewWalkTo := KMPoint(0,0);
     //Delete everything past NodePos and add new route from there
     NodeList.Count := NodePos;
-    if not AssembleTheRoute() then begin
-      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Free; //Else stop and abandon the task (if we have one)
+    if not AssembleTheRoute() then
       Result := dc_NoRoute;
-    end;
   end;
 end;
 
@@ -342,10 +340,8 @@ begin
       //If unit becomes nil that is fine, we will simply walk to it's last known location. But update fOrderLoc to make sure this happens!
       TKMUnitWarrior(fWalker).OrderLocDir := KMPointDir(fWalkTo,TKMUnitWarrior(fWalker).OrderLocDir.Dir);
       Result := tc_TargetUpdated;
-    end else begin
-      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Free; //Else stop and abandon the task (if we have one)
+    end else
       Result := tc_Died;
-    end;
   end;
 end;
 
@@ -366,10 +362,8 @@ begin
       end;
       fWalker.SetActionWalk(fWalker,fWalkTo,GetActionType,fWalkToSpot);
       Result:= oc_ReRouteMade;
-    end else begin
-      if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Free; //Else stop and abandon the task (if we have one)
+    end else
       Result := oc_NoRoute;
-    end;
 end;
 
 
@@ -785,8 +779,7 @@ begin
 
   //Route was not built
   if NodeList.Count = 0 then begin
-    if fWalker.GetUnitTask <> nil then fWalker.GetUnitTask.Free;
-    fWalker.SetActionStay(20, ua_Walk);
+    Result := ActAborted;
     exit;
   end;
 
@@ -830,7 +823,7 @@ begin
 
     //Check if we need to walk to a new destination
     if CanAbandon and (CheckForNewDestination=dc_NoRoute) then begin
-      fWalker.SetActionStay(20, ua_Walk);
+      Result := ActAborted;
       exit;
     end;
 
