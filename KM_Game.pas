@@ -386,7 +386,7 @@ begin
                     Screen.Cursor := c_Default
                   else begin
                     fTerrain.ComputeCursorPosition(X,Y,Shift);
-                    if CursorMode.Mode=cm_None then
+                    if GameCursor.Mode=cm_None then
                       if fGamePlayInterface.JoiningGroups and
                         (fGamePlayInterface.GetShownUnit is TKMUnitWarrior) then
                       begin
@@ -429,7 +429,7 @@ begin
                   else
                   begin
                     fTerrain.ComputeCursorPosition(X,Y,Shift);
-                    if CursorMode.Mode=cm_None then
+                    if GameCursor.Mode=cm_None then
                       if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
                          (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
                         Screen.Cursor:=c_Info
@@ -439,7 +439,7 @@ begin
                     if ssLeft in Shift then //Only allow placing of roads etc. with the left mouse button
                     begin
                       P := GameCursor.Cell; //Get cursor position tile-wise
-                      case CursorMode.Mode of
+                      case GameCursor.Mode of
                         cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan)  then MyPlayer.AddRoad(P,false);
                         cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
                         cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan)  then MyPlayer.AddField(P,ft_Wine);
@@ -510,7 +510,7 @@ begin
 
           if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
           begin
-            case CursorMode.Mode of
+            case GameCursor.Mode of
               cm_None:
                 if not fGamePlayInterface.JoiningGroups then
                 begin
@@ -547,8 +547,8 @@ begin
                           fGameInputProcess.CmdBuild(gic_BuildRemovePlan, P)
                         else
                           fGameInputProcess.CmdBuild(gic_BuildWallPlan, P);
-              cm_Houses: if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Tag1)) then begin
-                           fGameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(CursorMode.Tag1));
+              cm_Houses: if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then begin
+                           fGameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
                            fSoundLib.Play(sfx_placemarker);
                            fGamePlayInterface.Build_SelectRoad;
                          end else
@@ -627,7 +627,7 @@ begin
                   fMapEditorInterface.RightClick_Cancel
                 else
                 if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
-                  case CursorMode.Mode of
+                  case GameCursor.Mode of
                     cm_None:  begin
                                 fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                                 if fPlayers.Selected is TKMHouse then
@@ -639,19 +639,19 @@ begin
                     cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
                     cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
                     //cm_Wall:
-                    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(CursorMode.Tag1)) then
+                    cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then
                               begin
-                                MyPlayer.AddHouse(THouseType(CursorMode.Tag1),P);
+                                MyPlayer.AddHouse(THouseType(GameCursor.Tag1),P);
                                 fMapEditorInterface.Build_SelectRoad;
                               end;
                     cm_Height:; //handled in UpdateStateIdle
-                    cm_Objects: fTerrain.SetTree(P, CursorMode.Tag1);
-                    cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(CursorMode.Tag1)) then
+                    cm_Objects: fTerrain.SetTree(P, GameCursor.Tag1);
+                    cm_Units: if fTerrain.CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then
                               begin //Check if we can really add a unit
-                                if TUnitType(CursorMode.Tag1) in [ut_Serf..ut_Barbarian] then
-                                  MyPlayer.AddUnit(TUnitType(CursorMode.Tag1), P, false)
+                                if TUnitType(GameCursor.Tag1) in [ut_Serf..ut_Barbarian] then
+                                  MyPlayer.AddUnit(TUnitType(GameCursor.Tag1), P, false)
                                 else
-                                  fPlayers.PlayerAnimals.AddUnit(TUnitType(CursorMode.Tag1), P, false);
+                                  fPlayers.PlayerAnimals.AddUnit(TUnitType(GameCursor.Tag1), P, false);
                               end;
                     cm_Erase:
                               case fMapEditorInterface.GetShownPage of
@@ -1216,13 +1216,13 @@ begin
                 end;
     gsEditor:   begin
                   fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
-                  case CursorMode.Mode of
+                  case GameCursor.Mode of
                     cm_Height:
                               if (ssLeft in GameCursor.SState) or (ssRight in GameCursor.SState) then
-                              fTerrain.MapEdHeight(GameCursor.Float, CursorMode.Tag1, CursorMode.Tag2, ssLeft in GameCursor.SState);
+                              fTerrain.MapEdHeight(GameCursor.Float, GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);
                     cm_Tiles:
                               if (ssLeft in GameCursor.SState) then
-                              fTerrain.MapEdTile(GameCursor.Cell, CursorMode.Tag1);
+                              fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1);
                   end;
                 end;
   end;

@@ -157,9 +157,9 @@ var i,k:integer;
 begin
 
   //Reset cursor mode
-  CursorMode.Mode := cm_None;
-  CursorMode.Tag1 := 0;
-  CursorMode.Tag2 := 0;
+  GameCursor.Mode := cm_None;
+  GameCursor.Tag1 := 0;
+  GameCursor.Tag2 := 0;
 
   //Reset shown item if user clicked on any of the main buttons
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
@@ -721,20 +721,20 @@ begin
   begin
     HeightCircle.Down := true;
     HeightSquare.Down := false;
-    CursorMode.Mode  := cm_Height;
-    CursorMode.Tag1 := HeightSize.Position;
-    CursorMode.Tag2 := MAPED_HEIGHT_CIRCLE;
+    GameCursor.Mode  := cm_Height;
+    GameCursor.Tag1 := HeightSize.Position;
+    GameCursor.Tag2 := MAPED_HEIGHT_CIRCLE;
   end;
   if Sender = HeightSquare then
   begin
     HeightSquare.Down := true;
     HeightCircle.Down := false;
-    CursorMode.Mode  := cm_Height;
-    CursorMode.Tag1 := HeightSize.Position;
-    CursorMode.Tag2 := MAPED_HEIGHT_SQUARE;
+    GameCursor.Mode  := cm_Height;
+    GameCursor.Tag1 := HeightSize.Position;
+    GameCursor.Tag2 := MAPED_HEIGHT_SQUARE;
   end;
   if Sender = HeightSize then
-    CursorMode.Tag1 := HeightSize.Position;
+    GameCursor.Tag1 := HeightSize.Position;
 end;
 
 
@@ -747,9 +747,9 @@ begin
       TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := (TilesScroll.Position*MAPED_TILES_ROWS+(i-1)*MAPED_TILES_ROWS+k)mod 8+2; //icons are in 2..9
   if Sender is TKMButtonFlat then
   begin
-    CursorMode.Mode := cm_Tiles;
-    CursorMode.Tag1 := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
-    CursorMode.Tag2 := 0;
+    GameCursor.Mode := cm_Tiles;
+    GameCursor.Tag1 := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
+    GameCursor.Tag2 := 0;
   end;
 end;
 
@@ -770,21 +770,21 @@ begin
         ObjectsTable[i].TexID := MapElem[ActualMapElem[ObjID]].Step[1] + 1
       else
         ObjectsTable[i].TexID := 0;
-      ObjectsTable[i].Down := ObjID = OriginalMapElem[CursorMode.Tag1+1]; //Mark the selected one using reverse lookup
+      ObjectsTable[i].Down := ObjID = OriginalMapElem[GameCursor.Tag1+1]; //Mark the selected one using reverse lookup
       ObjectsTable[i].Caption := inttostr(ObjID);
     end;
-    ObjectErase.Down := (CursorMode.Tag1 = 255); //or delete button
+    ObjectErase.Down := (GameCursor.Tag1 = 255); //or delete button
   end;
 
   if Sender is TKMButtonFlat then
   begin
-    CursorMode.Mode := cm_Objects;
+    GameCursor.Mode := cm_Objects;
     ObjID := ObjectsScroll.Position*2-1 + (TKMButtonFlat(Sender).Tag-1); //1..n
     if TKMButtonFlat(Sender).Tag = 255 then
-      CursorMode.Tag1 := 255 //erase object
+      GameCursor.Tag1 := 255 //erase object
     else
-      CursorMode.Tag1 := ActualMapElem[ObjID]-1; //0..n
-    CursorMode.Tag2 := 0;
+      GameCursor.Tag1 := ActualMapElem[ObjID]-1; //0..n
+    GameCursor.Tag2 := 0;
     for i:=1 to 4 do
       ObjectsTable[i].Down := (Sender = ObjectsTable[i]); //Mark the selected one
     ObjectErase.Down := (Sender = ObjectErase); //or delete button
@@ -804,29 +804,29 @@ begin
   TKMButtonFlat(Sender).Down := true;
 
   //Reset cursor and see if it needs to be changed
-  CursorMode.Mode:=cm_None;
-  CursorMode.Tag1:=0;
-  CursorMode.Tag2:=0;
+  GameCursor.Mode:=cm_None;
+  GameCursor.Tag1:=0;
+  GameCursor.Tag2:=0;
   Label_Build.Caption := '';
 
   if Button_BuildCancel.Down then begin
-    CursorMode.Mode:=cm_Erase;
+    GameCursor.Mode:=cm_Erase;
     Label_Build.Caption := fTextLibrary.GetTextString(210);
   end;
   if Button_BuildRoad.Down then begin
-    CursorMode.Mode:=cm_Road;
+    GameCursor.Mode:=cm_Road;
     Label_Build.Caption := fTextLibrary.GetTextString(212);
   end;
   if Button_BuildField.Down then begin
-    CursorMode.Mode:=cm_Field;
+    GameCursor.Mode:=cm_Field;
     Label_Build.Caption := fTextLibrary.GetTextString(214);
   end;
   if Button_BuildWine.Down then begin
-    CursorMode.Mode:=cm_Wine;
+    GameCursor.Mode:=cm_Wine;
     Label_Build.Caption := fTextLibrary.GetTextString(218);
   end;
 {  if Button_BuildWall.Down then begin
-    CursorMode.Mode:=cm_Wall;
+    GameCursor.Mode:=cm_Wall;
     Label_BuildCost_Wood.Caption:='1';
     //Label_Build.Caption := fTextLibrary.GetTextString(218);
   end;}
@@ -834,8 +834,8 @@ begin
   for i:=1 to HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
   if Button_Build[i].Down then begin
-     CursorMode.Mode:=cm_Houses;
-     CursorMode.Tag1:=byte(GUIHouseOrder[i]);
+     GameCursor.Mode:=cm_Houses;
+     GameCursor.Tag1:=byte(GUIHouseOrder[i]);
      Label_Build.Caption := TypeToString(THouseType(byte(GUIHouseOrder[i])));
   end;
 end;
@@ -844,7 +844,7 @@ end;
 procedure TKMapEdInterface.Unit_ButtonClick(Sender: TObject);
 var i:integer;
 begin
-  if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
+  if Sender=nil then begin GameCursor.Mode:=cm_None; exit; end;
 
   //Release all buttons
   for i:=1 to Panel_Units.ChildCount do
@@ -855,20 +855,20 @@ begin
   TKMButtonFlat(Sender).Down:=true;
 
   //Reset cursor and see if it needs to be changed
-  CursorMode.Mode:=cm_None;
-  CursorMode.Tag1:=0;
-  CursorMode.Tag2:=0;
+  GameCursor.Mode:=cm_None;
+  GameCursor.Tag1:=0;
+  GameCursor.Tag2:=0;
   //Label_Build.Caption := '';
 
   if Button_UnitCancel.Down then begin
-    CursorMode.Mode:=cm_Erase;
+    GameCursor.Mode:=cm_Erase;
     //Label_Build.Caption := fTextLibrary.GetTextString(210);
   end;
 
   if (TKMButtonFlat(Sender).Tag in [byte(ut_Serf)..byte(ut_Duck)]) then
   begin
-    CursorMode.Mode := cm_Units;
-    CursorMode.Tag1 := byte(TKMButtonFlat(Sender).Tag);
+    GameCursor.Mode := cm_Units;
+    GameCursor.Tag1 := byte(TKMButtonFlat(Sender).Tag);
     Label_Units.Caption := TypeToString(TUnitType(byte(TKMButtonFlat(Sender).Tag)));
   end;
 
@@ -1003,9 +1003,9 @@ procedure TKMapEdInterface.RightClick_Cancel;
 begin
   //We should drop the tool but don't close opened tab
   if GetShownPage = esp_Terrain then exit; //Terrain uses both buttons for relief changing
-  CursorMode.Mode:=cm_None;
-  CursorMode.Tag1:=0;
-  CursorMode.Tag2:=0;
+  GameCursor.Mode:=cm_None;
+  GameCursor.Tag1:=0;
+  GameCursor.Tag2:=0;
 end;
 
 

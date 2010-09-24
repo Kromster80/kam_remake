@@ -998,17 +998,13 @@ var
 
   ExeDir:string;
 
-  //todo: @Lewin: This could be adjoined with GameCursor, any thoughts against it?
-  CursorMode:record //It's easier to store it in record
-    Mode:TCursorMode;
-    Tag1:byte;
-    Tag2:byte;
-  end;
-
   GameCursor: record
-    Float:TKMPointF;    //Precise cursor position on map
+    Float:TKMPointF;    //Precise cursor position in map coords
     Cell:TKMPoint;      //Cursor position cell
     SState:TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
+    Mode:TCursorMode;   //Modes used in game (building, unit, road, etc..)
+    Tag1:byte;          //Tag to know building type, unit type, brush size
+    Tag2:byte;          //Additional tag for MapEd (brush direction)
   end;
 
   RXData:array [1..6]of record

@@ -1233,7 +1233,7 @@ end;
 procedure TKMGamePlayInterface.Build_ButtonClick(Sender: TObject);
 var i:integer;
 begin
-  if Sender=nil then begin CursorMode.Mode:=cm_None; exit; end;
+  if Sender=nil then begin GameCursor.Mode:=cm_None; exit; end;
 
   //Release all buttons
   for i:=1 to Panel_Build.ChildCount do
@@ -1244,32 +1244,32 @@ begin
   TKMButtonFlat(Sender).Down:=true;
 
   //Reset cursor and see if it needs to be changed
-  CursorMode.Mode:=cm_None;
-  CursorMode.Tag1:=0;
-  CursorMode.Tag2:=0;
+  GameCursor.Mode:=cm_None;
+  GameCursor.Tag1:=0;
+  GameCursor.Tag2:=0;
   Label_BuildCost_Wood.Caption:='-';
   Label_BuildCost_Stone.Caption:='-';
   Label_Build.Caption := '';
 
   
   if Button_BuildCancel.Down then begin
-    CursorMode.Mode:=cm_Erase;
+    GameCursor.Mode:=cm_Erase;
     Image_Build_Selected.TexID := 340;
     Label_Build.Caption := fTextLibrary.GetTextString(210);
   end;
   if Button_BuildRoad.Down then begin
-    CursorMode.Mode:=cm_Road;
+    GameCursor.Mode:=cm_Road;
     Image_Build_Selected.TexID := 335;
     Label_BuildCost_Stone.Caption:='1';
     Label_Build.Caption := fTextLibrary.GetTextString(212);
   end;
   if Button_BuildField.Down then begin
-    CursorMode.Mode:=cm_Field;
+    GameCursor.Mode:=cm_Field;
     Image_Build_Selected.TexID := 337;
     Label_Build.Caption := fTextLibrary.GetTextString(214);
   end;
   if Button_BuildWine.Down then begin
-    CursorMode.Mode:=cm_Wine;
+    GameCursor.Mode:=cm_Wine;
     Image_Build_Selected.TexID := 336;
     Label_BuildCost_Wood.Caption:='1';
     Label_Build.Caption := fTextLibrary.GetTextString(218);
@@ -1284,8 +1284,8 @@ begin
   for i:=1 to HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
   if Button_Build[i].Down then begin
-     CursorMode.Mode:=cm_Houses;
-     CursorMode.Tag1:=byte(GUIHouseOrder[i]);
+     GameCursor.Mode:=cm_Houses;
+     GameCursor.Tag1:=byte(GUIHouseOrder[i]);
      Image_Build_Selected.TexID := GUIBuildIcons[byte(GUIHouseOrder[i])]; //Now update the selected icon
      Label_BuildCost_Wood.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].WoodCost);
      Label_BuildCost_Stone.Caption:=inttostr(HouseDAT[byte(GUIHouseOrder[i])].StoneCost);

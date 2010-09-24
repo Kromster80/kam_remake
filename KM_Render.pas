@@ -1294,7 +1294,7 @@ procedure TRender.RenderCursorHighlights;
   end;
 begin
 with fTerrain do
-case CursorMode.Mode of
+case GameCursor.Mode of
   cm_None:   ;
   cm_Erase:  begin
                if fGame.GameState = gsEditor then
@@ -1336,10 +1336,10 @@ case CursorMode.Mode of
   cm_Wall:   if CanPlaceRoad(GameCursor.Cell, mu_WallPlan) and TileVisible then
                RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
              else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
-  cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(CursorMode.Tag1)); //Cyan quad
-  cm_Tiles:  RenderTile(CursorMode.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, CursorMode.Tag2);
-  cm_Objects:RenderObject(CursorMode.Tag1+1, 0, GameCursor.Cell.X, GameCursor.Cell.Y, true);
-  cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(CursorMode.Tag1)) then
+  cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
+  cm_Tiles:  RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2);
+  cm_Objects:RenderObject(GameCursor.Tag1+1, 0, GameCursor.Cell.X, GameCursor.Cell.Y, true);
+  cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
                RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //todo: render unit graphics here?
              else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
 end;
