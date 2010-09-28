@@ -445,16 +445,8 @@ type
     ws_None, //Warrior is idle
     ws_Walking, //Warrior is in the process of walking by player instruction (could have been ordered to attack too because there is no difference)
     ws_RepositionPause, //Warrior has just finished walking and is pausing breifly before repositioning (i.e. rotating to the final facing direction) Without this pause it looks too quick odd.
-    ws_InitalLinkReposition, //This warrior was just trained and has not had any orders issued, meaning he is available to link with other warriors in the barrack area
     ws_Engage //One or more of our group members are in combat and we are on our way to help them.
   );
-
-  TWarriorLinkState = (
-    wl_None,
-    wl_LeavingBarracks,
-    wl_Linkable
-  );
-
 
 {Walk to somewhere}
 type

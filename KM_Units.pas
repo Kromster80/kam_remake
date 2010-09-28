@@ -1550,8 +1550,8 @@ begin
   fCurrPosition := KMPointRound(fPosition);
   case fCurrentAction.Execute(Self) of
     ActContinues: begin fCurrPosition := KMPointRound(fPosition); exit; end;
-    ActAborted:   FreeAndNil(fUnitTask);
-    ActDone:      ;
+    ActAborted:   begin FreeAndNil(fCurrentAction); FreeAndNil(fUnitTask); end;
+    ActDone:      FreeAndNil(fCurrentAction);
   end;
   fCurrPosition := KMPointRound(fPosition);
 

@@ -966,11 +966,11 @@ begin
   Panel_Unit:=MyControls.AddPanel(Panel_Main,0,412,200,400);
     Label_UnitName        := MyControls.AddLabel(Panel_Unit,100,16,100,30,'',fnt_Outline,kaCenter);
     Image_UnitPic         := MyControls.AddImage(Panel_Unit,8,38,54,100,521);
+    Button_Die            := MyControls.AddButton(Panel_Unit,8,120,54,20,'Die',fnt_Grey);
     Label_UnitCondition   := MyControls.AddLabel(Panel_Unit,120,40,100,30,fTextLibrary.GetTextString(254),fnt_Grey,kaCenter);
     ConditionBar_Unit     := MyControls.AddPercentBar(Panel_Unit,73,55,116,15,80);
     Label_UnitTask        := MyControls.AddLabel(Panel_Unit,73,74,130,30,'',fnt_Grey,kaLeft);
     Label_UnitAct         := MyControls.AddLabel(Panel_Unit,73,94,130,30,'',fnt_Grey,kaLeft);
-    Button_Die            := MyControls.AddButton(Panel_Unit,73,112,54,20,'Die',fnt_Grey);
     Label_UnitDescription := MyControls.AddLabel(Panel_Unit,8,152,236,200,'',fnt_Grey,kaLeft); //Taken from LIB resource
     Label_UnitAct.AutoWrap:= true;
     Button_Die.OnClick    := Unit_Die;

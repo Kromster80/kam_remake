@@ -12,7 +12,6 @@ type //Possibly melee warrior class? with Archer class separate?
     fRequestedFood:boolean;
     fTimeSinceHungryReminder:integer;
     fState:TWarriorState; //This property is individual to each unit, including commander
-    fAutoLinkState:TWarriorLinkState;
     fOrder:TWarriorOrder;
     fOrderLoc:TKMPointDir; //Dir is the direction to face after order
     fOrderTargetUnit: TKMUnit; //Unit we are ordered to attack. This property should never be accessed, use public OrderTarget instead.
@@ -28,7 +27,6 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure SetFoe(aUnit:TKMUnitWarrior);
     function GetFoe:TKMUnitWarrior;
 
-    function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
     procedure ClearOrderTarget;
     procedure SetOrderTarget(aUnit:TKMUnit);
     function GetOrderTarget:TKMUnit;
@@ -47,7 +45,7 @@ type //Possibly melee warrior class? with Archer class separate?
     function GetCommander:TKMUnitWarrior;
     function GetMemberCount:integer;
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
-    procedure LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
+    procedure LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
     procedure Split; //Split group in half and assign another commander
 
     procedure SetGroupFullCondition;
@@ -63,6 +61,7 @@ type //Possibly melee warrior class? with Archer class separate?
     property OrderLocDir:TKMPointDir read fOrderLoc write fOrderLoc;
 
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
+    function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
 
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
@@ -97,7 +96,6 @@ begin
   fTimeSinceHungryReminder := 0;
   fOrder        := wo_None;
   fState        := ws_None;
-  fAutoLinkState:= wl_None;
   fOrderLoc     := KMPointDir(PosX,PosY,0);
   fUnitsPerRow  := 1;
   fMembers      := nil; //Only commander units will have it initialized
@@ -118,7 +116,6 @@ begin
   LoadStream.Read(fTimeSinceHungryReminder);
   LoadStream.Read(fOrder, SizeOf(fOrder));
   LoadStream.Read(fState, SizeOf(fState));
-  LoadStream.Read(fAutoLinkState, SizeOf(fAutoLinkState));
   LoadStream.Read(fOrderLoc,SizeOf(fOrderLoc));
   LoadStream.Read(fUnitsPerRow);
   LoadStream.Read(aCount);
@@ -313,7 +310,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.LinkTo(aNewCommander:TKMUnitWarrior; InitialLink:boolean=false); //Joins entire group to NewCommander
+procedure TKMUnitWarrior.LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
 var i:integer; AddedSelf: boolean;
 begin
   //Redirect command so that both units are Commanders
@@ -352,7 +349,6 @@ begin
     aNewCommander.AddMember(Self);
   //Tell commander to reposition
   fCommander.Halt;
-  if InitialLink then fState := ws_InitalLinkReposition;
 end;
 
 
@@ -515,7 +511,7 @@ begin
   if GetLength(i,k) <= LINK_RADIUS then //Check circle area
   begin
     FoundUnit := fPlayers.Player[byte(fOwner)].UnitsHitTest(aLoc.X+i, aLoc.Y+k);
-    if (FoundUnit is TKMUnitWarrior) and (TKMUnitWarrior(FoundUnit).fAutoLinkState = wl_Linkable) and
+    if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit.GetUnitType = GetUnitType) then //For initial linking they must be the same type, not just same group type
     begin
       Result := TKMUnitWarrior(FoundUnit);
@@ -643,7 +639,6 @@ begin
   SaveStream.Write(fTimeSinceHungryReminder);
   SaveStream.Write(fOrder, SizeOf(fOrder));
   SaveStream.Write(fState, SizeOf(fState));
-  SaveStream.Write(fAutoLinkState, SizeOf(fAutoLinkState));
   SaveStream.Write(fOrderLoc,SizeOf(fOrderLoc));
   SaveStream.Write(fUnitsPerRow);
   //Only save members if we are a commander
@@ -828,7 +823,7 @@ function TKMUnitWarrior.UpdateState():boolean;
   procedure UpdateFoe; //If noone is fighting - Halt
   var i:integer;
   begin
-    if (fCommander <> nil) or (Foe = nil) or (GetUnitAction is TUnitActionFight) then exit;
+    if (Foe = nil) or (GetUnitAction is TUnitActionFight) then exit;
     if fMembers <> nil then for i:=0 to fMembers.Count-1 do
       if TKMUnit(fMembers.Items[i]).GetUnitAction is TUnitActionFight then exit;
     Foe := nil; //Nil foe because no one is fighting
@@ -836,15 +831,15 @@ function TKMUnitWarrior.UpdateState():boolean;
   end;
 
 var
-  i: integer;
+  i:integer;
   PositioningDone:boolean;
-  LinkUnit: TKMUnitWarrior;
 begin
   inc(fFlagAnim);
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
-  UpdateFoe;
+  if fCommander=nil {IsCommander} then
+    UpdateFoe;
 
   if (fState = ws_Engage) and ((GetCommander.Foe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
     fState := ws_None; //As soon as combat is over set the state back
@@ -863,27 +858,15 @@ begin
   //This should make units response a bit delayed.
 
 
-  //Walk out of barracks //WT is it doing here?
-  if (fOrder=wo_WalkOut) and GetUnitAction.StepDone and CanInterruptAction then
-  begin
-    SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(GetPosition.X,GetPosition.Y));
-    fOrder := wo_None;
-    fState := ws_Walking; //Reposition after action
-    fAutoLinkState := wl_LeavingBarracks; //So we know to link to nearby groups once we've finished this action
-  end;
-
-
   //Dispatch new order when warrior finished previous action part
-  if (fOrder=wo_Walk) and (GetUnitAction is TUnitActionWalkTo) and //If we are already walking then change the walk to the new location
-    TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
-  begin
-    fAutoLinkState := wl_None;
+  if (fOrder=wo_Walk)
+    and (GetUnitAction is TUnitActionWalkTo)
+    and TUnitActionWalkTo(GetUnitAction).CanAbandon
+  then begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask);
     //If we are not the commander then walk to near
-    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(KMPoint(fOrderLoc), fCommander <> nil);
+    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, fCommander <> nil);
     fOrder := wo_None;
-    if not (fState = ws_InitalLinkReposition) then
-      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     fState := ws_Walking;
   end;
 
@@ -892,10 +875,8 @@ begin
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask);
     //If we are not the commander then walk to near
-    SetActionWalk(Self, KMPoint(fOrderLoc), ua_Walk, true, false, fCommander <> nil);
+    SetActionWalk(Self, fOrderLoc.Loc, ua_Walk, true, false, fCommander <> nil);
     fOrder := wo_None;
-    if not (fState = ws_InitalLinkReposition) then
-      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     fState := ws_Walking;
   end;
 
@@ -907,12 +888,9 @@ begin
   if (fOrder=wo_Attack) and (GetUnitAction is TUnitActionWalkTo) and //If we are already walking then change the walk to the new location
     TUnitActionWalkTo(GetUnitAction).CanAbandon then //Only abandon the walk if it is ok with that
   begin
-    fAutoLinkState := wl_None;
     //If we are not the commander then walk to near
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, fCommander <> nil, false, GetOrderTarget);
     fOrder := wo_None;
-    if not (fState = ws_InitalLinkReposition) then
-      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     if (fState <> ws_Engage) then fState := ws_Walking;
   end;
 
@@ -921,8 +899,6 @@ begin
   begin
     SetActionWalk(Self, GetOrderTarget.NextPosition, KMPoint(0,0), ua_Walk, true, GetOrderTarget);
     fOrder := wo_None;
-    if not (fState = ws_InitalLinkReposition) then
-      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
 
@@ -931,8 +907,6 @@ begin
   begin
     SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
     fOrder := wo_None;
-    if not (fState = ws_InitalLinkReposition) then
-      fAutoLinkState := wl_None; //After first order we can no longer link (unless this is a reposition after link not a order from player)
     fState := ws_Walking; //Reposition after task exits
   end;
 
@@ -941,16 +915,6 @@ begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
 
-  //Allow initial linking until player gives the group an order
-  if fAutoLinkState = wl_LeavingBarracks then
-  begin
-    //This means we've just left the barracks and should look for another group to link with
-    LinkUnit := FindLinkUnit(KMPoint(fOrderLoc));
-    if LinkUnit <> nil then LinkTo(LinkUnit,true);
-    //We are now ready to be linked with. Doesn't matter much as we are not commander,
-    //what's more important is that it's changed from wl_LeavingBarracks so we won't auto link anymore
-    fAutoLinkState := wl_Linkable;
-  end;
 
   //This means we are idle, so make sure our direction is right and if we are commander reposition our troops if needed
   PositioningDone := true;
@@ -971,15 +935,17 @@ begin
       for i:=0 to fMembers.Count-1 do
         //Must wait for unit(s) to get into position before we have truely finished walking
         PositioningDone := PositioningDone and TKMUnitWarrior(fMembers.Items[i]).RePosition;
+
   end;
 
-   //Make sure we didn't get given an action above
+  //Make sure we didn't get given an action above
   if GetUnitAction <> nil then exit;
+
 
   if fState = ws_Walking then
   begin
     fState := ws_RepositionPause; //Means we are in position and waiting until we turn
-    SetActionStay(4+Random(2),ua_Walk); //Pause 5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
+    SetActionStay(4+Random(2),ua_Walk); //Pause 0.5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
   end
   else
   begin
