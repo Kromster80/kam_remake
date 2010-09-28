@@ -123,7 +123,8 @@ type TKMapEdInterface = class
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Store_Fill(Sender:TObject);
     procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
-    procedure Unit_ArmyChange(Sender:TObject; AButton:TMouseButton);
+    procedure Unit_ArmyChange(Sender:TObject); overload;
+    procedure Unit_ArmyChange(Sender:TObject; AButton:TMouseButton); overload;
     procedure Store_SelectWare(Sender:TObject);
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
   public
@@ -607,10 +608,10 @@ begin
     Button_Army_ForUp   := MyControls.AddButton(Panel_Army,  8, 46, 56, 40, 33);
     ImageStack_Army     := MyControls.AddImageStack(Panel_Army, 70, 46, 56, 40, 43);
     Button_Army_ForDown := MyControls.AddButton(Panel_Army,132, 46, 56, 40, 32);
-    Button_Army_RotCW.OnClickEither   := Unit_ArmyChange;
-    Button_Army_RotCCW.OnClickEither  := Unit_ArmyChange;
-    Button_Army_ForUp.OnClickEither   := Unit_ArmyChange;
-    Button_Army_ForDown.OnClickEither := Unit_ArmyChange;
+    Button_Army_RotCW.OnClick   := Unit_ArmyChange;
+    Button_Army_RotCCW.OnClick  := Unit_ArmyChange;
+    Button_Army_ForUp.OnClick   := Unit_ArmyChange;
+    Button_Army_ForDown.OnClick := Unit_ArmyChange;
 
     Button_ArmyDec      := MyControls.AddButton(Panel_Army, 80,92,20,20,'-', fnt_Metal);
     Button_ArmyInc      := MyControls.AddButton(Panel_Army,160,92,20,20,'+', fnt_Metal);
@@ -677,22 +678,6 @@ begin
       end;
       Button_Barracks[12].TexID:=154;
       Button_Barracks[12].Hint:=TypeToString(ut_Recruit);
-
-      Label_Barracks_Unit:=MyControls.AddLabel(Panel_HouseBarracks,100,96,100,30,'',fnt_Outline,kaCenter);
-
-      Image_Barracks_Left :=MyControls.AddImage(Panel_HouseBarracks,  8,116,54,80,535);
-      Image_Barracks_Left.Enabled := false;
-      Image_Barracks_Train:=MyControls.AddImage(Panel_HouseBarracks, 70,116,54,80,536);
-      Image_Barracks_Right:=MyControls.AddImage(Panel_HouseBarracks,132,116,54,80,537);
-      Image_Barracks_Right.Enabled := false;
-
-      Button_Barracks_Left :=MyControls.AddButton(Panel_HouseBarracks,  8,226,54,40,35);
-      Button_Barracks_Train:=MyControls.AddButton(Panel_HouseBarracks, 70,226,54,40,42);
-      Button_Barracks_Right:=MyControls.AddButton(Panel_HouseBarracks,132,226,54,40,36);
-      Button_Barracks_Left.Hint :=fTextLibrary.GetTextString(237);
-      Button_Barracks_Train.Hint:=fTextLibrary.GetTextString(240);
-      Button_Barracks_Right.Hint:=fTextLibrary.GetTextString(238);
-      Button_Barracks_Train.Disable; //Unimplemented yet
 end;
 
 
@@ -1035,13 +1020,27 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Unit_ArmyChange(Sender:TObject; AButton:TMouseButton);
-var Amt:shortint; Commander:TKMUnitWarrior;
+procedure TKMapEdInterface.Unit_ArmyChange(Sender:TObject);
+var Commander:TKMUnitWarrior;
 begin
   if ShownUnit = nil then exit;
   if not (ShownUnit is TKMUnitWarrior) then exit;
 
   Commander := TKMUnitWarrior(ShownUnit).GetCommander;
+  if Sender = Button_Army_ForUp then Commander.UnitsPerRow := max(Commander.UnitsPerRow-1,1);
+  if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
+  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
+
+  if Sender = Button_Army_RotCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)-1);
+  if Sender = Button_Army_RotCCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)+1);
+end;
+
+
+procedure TKMapEdInterface.Unit_ArmyChange(Sender:TObject; AButton:TMouseButton);
+var Amt:shortint; Commander:TKMUnitWarrior;
+begin
+  if ShownUnit = nil then exit;
+  if not (ShownUnit is TKMUnitWarrior) then exit;
 
   Amt := 0;
   if Sender = Button_ArmyDec then Amt := -1; //Decrease
@@ -1049,17 +1048,8 @@ begin
   if AButton = mbLeft then Amt  := Amt * 1;
   if AButton = mbRight then Amt := Amt * 10;
 
+  Commander := TKMUnitWarrior(ShownUnit).GetCommander;
   Commander.fMapEdMembersCount := EnsureRange(Commander.fMapEdMembersCount + Amt, 0, 200); //max members
-
-  if Sender = Button_Army_ForUp then Commander.UnitsPerRow := max(Commander.UnitsPerRow-1,1);
-  if Sender = Button_Army_ForDown then Commander.UnitsPerRow := min(Commander.UnitsPerRow+1,Commander.fMapEdMembersCount+1);
-
-  ImageStack_Army.SetCount(Commander.fMapEdMembersCount + 1,Commander.UnitsPerRow);
-
-
-  if Sender = Button_Army_RotCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)-1);
-  if Sender = Button_Army_RotCCW then Commander.Direction := KMLoopDirection(byte(Commander.Direction)+1);
-
 end;
 
 

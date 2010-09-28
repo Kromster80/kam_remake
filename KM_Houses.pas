@@ -1374,9 +1374,6 @@ begin
   //Make new unit
   Soldier := fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true);
 
-  //Make him pause then walk out of the barracks
-  Soldier.SetActionLockedStay(10,ua_Walk);
-
   //Make him invisible as he is inside the barracks
   Soldier.SetVisibility := false;
   Soldier.SetCondition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time

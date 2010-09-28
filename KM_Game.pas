@@ -277,7 +277,7 @@ end;
 
 
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var P: TKMPoint; MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
+var MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
   case GameState of
     gsNoGame:   fMainMenuInterface.MyControls.MouseDown(X,Y,Shift,Button);
@@ -287,7 +287,6 @@ begin
     gsRunning:  begin
                   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
                   MOver := fGameplayInterface.MyControls.CtrlOver;
-                  P := GameCursor.Cell; //Get cursor position tile-wise
 
                   //These are only for testing purposes, Later on it should be changed a lot
                   if (Button = mbRight)
@@ -302,7 +301,7 @@ begin
                     HitUnit := fPlayers.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                     if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
                        (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) and
-                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
+                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, true)) then
                     begin
                       //Place attack order here rather than in mouse up; why here??
                       fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
@@ -316,7 +315,7 @@ begin
                         fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
                       end
                       else
-                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true)) then
+                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, true)) then
                       begin
                         SelectingTroopDirection := true; //MouseMove will take care of cursor changing
                         //Record current cursor position so we can stop it from moving while we are setting direction

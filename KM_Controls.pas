@@ -77,10 +77,6 @@ TKMPanel = class(TKMControl)
     ChildCount:word;             //Those two are actually used only for TKMPanel
     Childs: array of TKMControl; //No other elements needs to be parented
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
-    procedure MouseDown (X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-    procedure MouseMove (X,Y:integer; Shift:TShiftState); override;
-    procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
-    procedure MouseWheel(X,Y:integer; WheelDelta:integer); override;
     procedure Paint(); override;
 end;
 
@@ -369,6 +365,8 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     constructor Create;
     destructor Destroy; override;
 
+    function HitControl(X,Y:integer):TKMControl;
+
     property CtrlDown:TKMControl read fCtrlDown write SetCtrlDown;
     property CtrlFocus:TKMControl read fCtrlFocus write SetCtrlFocus;
     property CtrlOver:TKMControl read fCtrlOver write SetCtrlOver;
@@ -475,13 +473,18 @@ begin
 end;
 
 
+{ Send Click events }
 procedure TKMControl.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
-  if (csDown in State) and (Button = TMouseButton(mbLeft)) and Assigned(fOnClick) then
-    OnClick(Self);
+  if (csDown in State) then begin
+    if ((Button = mbLeft)or(Button = mbRight)) and Assigned(fOnClickEither) then OnClickEither(Self, Button)
+    else
+    if (Button = mbLeft) and Assigned(fOnClick) then OnClick(Self)
+    else
+    if (Button = mbRight) and Assigned(fOnClickRight) then OnClickRight(Self)
+  end;
 end;
-
 
 
 procedure TKMControl.MouseWheel(X,Y:integer; WheelDelta:integer);
@@ -586,67 +589,6 @@ constructor TKMPanel.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer)
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-end;
-
-
-{ Send MouseDown to the last created control
-Function should quickly scan all Panels and set CtrlDown to be the last created control
-Panel can't become CtrlDown }
-procedure TKMPanel.MouseDown(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
-var i:integer;
-begin
-  for i:=1 to ChildCount do //Scan in reverse will find Top control in some Panel, but will keep scanning other sibling Panels, thats why I chose simplier solution - scan everything
-  if Childs[i].Visible and Childs[i].Enabled then begin
-    if (Childs[i] is TKMPanel) then
-      Childs[i].MouseDown(X,Y,Shift,Button)
-    else
-    if Childs[i].HitTest(X,Y) then
-      TKMControlsCollection(GetCollection).CtrlDown := Childs[i];
-  end;
-end;
-
-
-{ Send MouseMove to the last created control
-Function should quickly scan all Panels and set CtrlOver to be the last created control
-Panel can't become CtrlOver }
-procedure TKMPanel.MouseMove(X,Y:Integer; Shift:TShiftState);
-var i:integer;
-begin
-  for i:=1 to ChildCount do
-  if Childs[i].Visible and Childs[i].Enabled then begin
-    if (Childs[i] is TKMPanel) then
-      Childs[i].MouseMove(X,Y,Shift)
-    else
-    if Childs[i].HitTest(X,Y) then
-      TKMControlsCollection(GetCollection).CtrlOver := Childs[i];
-  end;
-end;
-
-
-{ Send MouseUp to the last created control
-Function should quickly scan all Panels and set CtrlUp to be the last created control
-Panel can't become CtrlUp }
-procedure TKMPanel.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
-var i:integer;
-begin
-  for i:=1 to ChildCount do
-  if Childs[i].Visible and Childs[i].Enabled then begin
-    if (Childs[i] is TKMPanel) then
-      Childs[i].MouseUp(X,Y,Shift,Button)
-    else
-    if Childs[i].HitTest(X,Y) then
-      TKMControlsCollection(GetCollection).CtrlUp := Childs[i];
-  end;
-end;
-
-
-procedure TKMPanel.MouseWheel(X,Y:integer; WheelDelta:integer);
-var i:integer;
-begin
-  Inherited;
-  for i:=1 to ChildCount do
-    if Childs[i].Visible and Childs[i].HitTest(X,Y) and Childs[i].Enabled then
-      Childs[i].MouseWheel(X,Y,WheelDelta);
 end;
 
 
@@ -1648,6 +1590,27 @@ begin
 end;
 
 
+{ Recursing function to find topmost control (excl. Panels)}
+function TKMControlsCollection.HitControl(X,Y:integer):TKMControl;
+  function ScanChild(P:TKMPanel; X,Y:integer):TKMControl;
+  var i:integer;
+  begin
+    Result := nil;
+    for i:=P.ChildCount downto 1 do
+      if (P.Childs[i] is TKMPanel) then begin
+        Result := ScanChild(TKMPanel(P.Childs[i]),X,Y);
+        if Result <> nil then exit;
+      end else
+      if P.Childs[i].HitTest(X,Y) then begin
+        Result := P.Childs[i];
+        exit;
+      end;
+  end;
+begin
+  Result := ScanChild(TKMPanel(Controls[0]), X, Y);
+end;
+
+
 function TKMControlsCollection.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean;
 begin
   if CtrlFocus <> nil then
@@ -1659,42 +1622,32 @@ end;
 
 procedure TKMControlsCollection.MouseDown(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  CtrlDown := nil;
-  if MODE_DESIGN_CONTORLS then exit; //todo: No functionality attached yet
-
-  Controls[0].MouseDown(X,Y,Shift,Button); //Pass to Panel and it will do all the Child stuff
-
+  CtrlDown := HitControl(X,Y);
   if CtrlDown <> nil then CtrlDown.MouseDown(X,Y,Shift,Button);
 end;
 
 
 procedure TKMControlsCollection.MouseMove(X,Y:Integer; Shift:TShiftState);
 begin
-  CtrlOver := nil;
-  if MODE_DESIGN_CONTORLS then exit; //Don't do
-
-  Controls[0].MouseMove(X,Y,Shift);
-
+  CtrlOver := HitControl(X,Y);
   if CtrlOver <> nil then CtrlOver.MouseMove(X,Y,Shift);
   if (CtrlDown <> nil) and (CtrlOver <> CtrlDown) then CtrlDown := nil;
 end;
 
 
-{Send OnClick event to control below}
 procedure TKMControlsCollection.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  CtrlUp := nil;
-  if MODE_DESIGN_CONTORLS then exit; //Don't do
-
-  Controls[0].MouseUp(X,Y,Shift,Button);
-
+  CtrlUp := HitControl(X,Y);
   if CtrlUp <> nil then CtrlUp.MouseUp(X,Y,Shift,Button);
+  CtrlDown := nil; //Release iif it's still Down
 end;
 
 
 procedure TKMControlsCollection.MouseWheel(X,Y:integer; WheelDelta:integer);
+var C:TKMControl;
 begin
-  Controls[0].MouseWheel(X,Y,WheelDelta);
+  C := HitControl(X,Y);
+  if C <> nil then C.MouseWheel(X,Y,WheelDelta);
 end;
 
 
