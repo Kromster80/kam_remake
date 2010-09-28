@@ -218,12 +218,12 @@ begin
     begin
       KMUnit.PositionF := fDoor;
       if not fHouse.IsDestroyed then
-        KMUnit.GetInHouse := fHouse;
+        KMUnit.SetInHouse(fHouse);
     end
     else
     begin
       KMUnit.PositionF := KMPointF(fStreet.X,fStreet.Y);
-      KMUnit.GetInHouse := nil; //We are not in a house any longer
+      KMUnit.SetInHouse(nil); //We are not in a house any longer
     end;
   end
   else

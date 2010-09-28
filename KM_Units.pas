@@ -93,13 +93,18 @@ type
     constructor Load(LoadStream:TKMemoryStream); dynamic;
     procedure SyncLoad(); virtual;
     destructor Destroy; override;
+
     function GetUnitPointer:TKMUnit; //Returns self and adds one to the pointer counter
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
     property GetPointerCount:integer read fPointerCount;
-    procedure KillUnit; virtual;
+
+    procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
+    procedure CloseUnit;
+
     function GetSupportedActions: TUnitActionTypeSet; virtual;
-    function HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): Boolean;
+    function HitTest(X,Y:integer; const UT:TUnitType = ut_Any): Boolean;
     procedure UpdateNextPosition(aLoc:TKMPoint);
+
     procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
@@ -107,6 +112,7 @@ type
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil); overload;
     procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
     procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+
     procedure Feed(Amount:single);
     procedure AbandonWalk;
     function GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
@@ -130,13 +136,11 @@ type
     property IsVisible: boolean read fVisible;
     property SetVisibility:boolean write fVisible;
     procedure SetInHouse(aInHouse:TKMHouse);
-    property GetInHouse:TKMHouse read fInHouse write SetInHouse;
+    property GetInHouse:TKMHouse read fInHouse;
     property IsDead:boolean read fIsDead;
     function IsDeadOrDying:boolean;
     function IsArmyUnit():boolean;
-    procedure CloseUnit;
     function CanGoEat:boolean;
-    //property IsAtHome: boolean read UnitAtHome;
     function GetPosition:TKMPoint;
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
@@ -1426,7 +1430,7 @@ begin
         fNextPosition := fCurrPosition;
         if GetUnitAction is TUnitActionGoInOut then SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
       end;
-      GetInHouse := nil; //Can't be in a destroyed house
+      SetInHouse(nil); //Can't be in a destroyed house
     end;
 end;
 

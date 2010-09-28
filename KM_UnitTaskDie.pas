@@ -6,8 +6,6 @@ uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KromUtils, SysUtils;
 type
   {Yep, this is a Task}
   TTaskDie = class(TUnitTask)
-    private
-      SequenceLength:integer;
     public
       constructor Create(aUnit:TKMUnit);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -25,56 +23,52 @@ constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_Die;
-  SequenceLength := fResource.GetUnitSequenceLength(fUnit.GetUnitType,ua_Die,fUnit.Direction);
-  if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
 end;
 
 
 constructor TTaskDie.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
-  LoadStream.Read(SequenceLength);
 end;
 
 
 function TTaskDie.Execute():TTaskResult;
+var SequenceLength:smallint;
 begin
   Result := TaskContinues;
-with fUnit do
-case fPhase of
-  0: if not IsVisible then begin
-       if GetHome<>nil then begin
-         GetHome.SetState(hst_Idle);
-         GetHome.SetState(hst_Empty);
-         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome);
-       end
-       else
-         SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(fUnit.NextPosition.X,fUnit.NextPosition.Y));
-                                         //Inn or Store or etc.. for units without home.
-                                         //Which means that our current approach to deduce housetype from
-                                         //fUnit.fHome is wrong
-     end else
-     SetActionLockedStay(0,ua_Walk);
-  1: if SequenceLength > 0 then
-     begin
-       SetActionLockedStay(SequenceLength,ua_Die,false);
-       if fUnit is TKMUnitWarrior then
-         fSoundLib.PlayWarrior(fUnit.GetUnitType, sp_Death);
-     end
-     else SetActionLockedStay(0,ua_Walk);
-  else begin
-      fUnit.CloseUnit;
-      exit;
-     end;
-end;
-inc(fPhase);
+  with fUnit do
+  case fPhase of
+    0:  if IsVisible then
+          SetActionLockedStay(0,ua_Walk)
+        else begin
+          if GetHome<>nil then begin
+            GetHome.SetState(hst_Idle);
+            GetHome.SetState(hst_Empty);
+            SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome);
+          end
+          else //Inn or Store or etc.. for units without home.
+            SetActionGoIn(ua_Walk,gd_GoOutside,fPlayers.HousesHitTest(fUnit.NextPosition.X,fUnit.NextPosition.Y));
+        end;
+    1:  begin
+          SequenceLength := fResource.GetUnitSequenceLength(GetUnitType,ua_Die,Direction);
+          if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
+          SetActionLockedStay(SequenceLength,ua_Die,false);
+          if fUnit is TKMUnitWarrior then
+            fSoundLib.PlayWarrior(fUnit.GetUnitType, sp_Death);
+        end;
+    else begin
+          fUnit.CloseUnit;          //This will FreeAndNil the Task and mark unit as "closed"
+          Result := TaskContinues;  //Running UpdateState will exit without further changes
+          exit;                     //Next UpdateState won't happen cos unit is "closed"
+        end;
+  end;
+  inc(fPhase);
 end;
 
 
 procedure TTaskDie.Save(SaveStream:TKMemoryStream);
 begin
   Inherited;
-  SaveStream.Write(SequenceLength);
 end;
 
 

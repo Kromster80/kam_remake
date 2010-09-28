@@ -44,7 +44,7 @@ type
     function LoadGameResources():boolean;
 
     property GetDataState:TDataLoadingState read DataState;
-    function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):integer;
+    function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
 
     procedure LoadFonts(DoExport:boolean; aLocale:string);
     //procedure ExportRX2BMP(RXid:integer);
@@ -183,7 +183,7 @@ begin
 end;
 
 
-function TResource.GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):integer;
+function TResource.GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
 begin
   Result := UnitSprite[Integer(aUnitType)].Act[Integer(aAction)].Dir[Integer(aDir)].Count;
 end;
