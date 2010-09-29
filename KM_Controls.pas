@@ -294,6 +294,7 @@ TKMScrollBar = class(TKMControl)
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
+    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure RefreshItems();
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -336,6 +337,7 @@ TKMFileList = class(TKMControl)
 
     procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
     function FileName:string;
+    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     procedure MouseWheel(X,Y:integer; WheelDelta:integer); override;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -1124,6 +1126,13 @@ begin
 end;
 
 
+procedure TKMScrollBar.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  MouseMove(X,Y,Shift); //Will change Position and call OnChange event
+end;
+
+
 procedure TKMScrollBar.MouseMove(X,Y:integer; Shift:TShiftState);
 var NewPos: integer;
 begin
@@ -1131,19 +1140,22 @@ begin
 
   NewPos := Position;
   if (ssLeft in Shift) then begin //todo: How to make it act more like WinControl, which has active area around it and regains csOver when cursor goes away and returns
+
     if fScrollAxis = sa_Vertical then
       if InRange(Y,Top+Width,Top+Height-Width) then
         NewPos := round( MinValue+((Y-Top-Width-Thumb/2)/(Height-Width*2-Thumb))*(MaxValue-MinValue) );
+
     if fScrollAxis = sa_Horizontal then
       if InRange(X,Left+Height,Left+Width-Height) then
         NewPos := round( MinValue+((X-Left-Height-Thumb/2)/(Width-Height*2-Thumb))*(MaxValue-MinValue) );
-  end;
-  if NewPos <> Position then begin
-    Position := EnsureRange(NewPos, MinValue, MaxValue);
-    if Assigned(OnChange) then
-      OnChange(Self);
-  end;
 
+    if NewPos <> Position then begin
+      Position := EnsureRange(NewPos, MinValue, MaxValue);
+      if Assigned(OnChange) then
+        OnChange(Self);
+    end;
+
+  end;
 end;
 
 
@@ -1351,20 +1363,32 @@ begin
 end;
 
 
+procedure TKMFileList.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  MouseMove(X,Y,Shift); //Will change Position and call OnChange event
+end;
+
+
 procedure TKMFileList.MouseMove(X,Y:integer; Shift:TShiftState);
+var NewIndex:integer;
 begin
   Inherited;
 
   if (ssLeft in Shift) and
      (InRange(X, Left, Left+Width-ScrollBar.Width)) and
      (InRange(Y, Top, Top+Height div ItemHeight * ItemHeight))
-  then
-    ItemIndex := TopIndex + (Y-Top) div ItemHeight;
+  then begin
+    NewIndex := TopIndex + (Y-Top) div ItemHeight;
 
-  if ItemIndex > fFiles.Count-1 then ItemIndex := -1;
+    if NewIndex > fFiles.Count-1 then NewIndex := -1;
 
-  if Assigned(OnChange) and (ssLeft in Shift) then
-    OnChange(Self);
+    if (NewIndex<>ItemIndex) then begin
+      ItemIndex := NewIndex;
+      if Assigned(OnChange) and (ssLeft in Shift) then
+        OnChange(Self);
+    end;
+  end;
 end;
 
 
