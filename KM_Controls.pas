@@ -478,6 +478,7 @@ procedure TKMControl.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton
 begin
   //if Assigned(fOnMouseUp) then OnMouseUp(Self); { Unused }
   if (csDown in State) then begin
+    State := State - [csDown];
     if ((Button = mbLeft)or(Button = mbRight)) and Assigned(fOnClickEither) then OnClickEither(Self, Button)
     else
     if (Button = mbLeft) and Assigned(fOnClick) then OnClick(Self)
@@ -1389,7 +1390,10 @@ constructor TKMControlsCollection.Create();
 begin
   Inherited;
   CtrlPaintCount := 0;
+  fCtrlDown  := nil;
   fCtrlFocus := nil;
+  fCtrlOver  := nil;
+  fCtrlUp    := nil;
   if fRenderUI <> nil then
     fRenderUI := TRenderUI.Create;
 end;
@@ -1638,8 +1642,14 @@ end;
 procedure TKMControlsCollection.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
   CtrlUp := HitControl(X,Y);
+
+  //Here comes tricky part, we can't do anything after calling an event (it might Destroy everything,
+  //e.g. Exit button, or Resolution change). We need to release CtrlDown (otherwise it remains
+  //pressed), but we need to keep csDown state until it's registered by Control.MouseUp
+  //to call OnClick. So, we nil fCtrlDown here and Control.MouseUp will reset ControlState
+  fCtrlDown := nil;
+
   if CtrlUp <> nil then CtrlUp.MouseUp(X,Y,Shift,Button);
-  CtrlDown := nil; //Release iif it's still Down
 end;
 
 
