@@ -998,16 +998,13 @@ Inherited;
 
   //Paint members in MapEd mode
   if fMapEdMembersCount<>0 then
-  for i:=1 to fMapEdMembersCount+1 do begin //+1 for Commander gets skipped
-    px := (i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
-    py := (i-1) div fUnitsPerRow;
-    UnitPosition := GetPositionInGroup(GetPosition.X, GetPosition.Y, Direction, px, py);
-    if not KMSamePoint(UnitPosition, GetPosition) then begin
-      XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
-      YPaintPos := UnitPosition.Y + 1  ;
-      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
-    end;
+  for i:=1 to fMapEdMembersCount do begin
+    UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY);
+    XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
+    YPaintPos := UnitPosition.Y + 1  ;
+    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
   end;
+
 end;
 
 

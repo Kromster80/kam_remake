@@ -336,8 +336,8 @@ begin
   //Fit to bounds
   //If it is off map then GetClosestTile will correct it when walk action is created.
   //GetClosestTile needs to know if the position is not the actual position in the formation
-  Result.X := EnsureRange(ResultX, 0, MapX);
-  Result.Y := EnsureRange(ResultY, 0, MapY);
+  Result.X := EnsureRange(ResultX, 1, MapX-1);
+  Result.Y := EnsureRange(ResultY, 1, MapY-1);
 end;
 
 
