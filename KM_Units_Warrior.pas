@@ -532,7 +532,7 @@ end;
 
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
 procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false);
-var i,px,py:integer; NewLoc:TKMPoint; PassedCommander: boolean;
+var i:integer; NewLoc:TKMPoint;
 begin
   if (fCommander <> nil) or (not aOnlySetMemebers) then
   begin
@@ -540,24 +540,12 @@ begin
     fState    := ws_None; //Clear other states
     fOrderLoc := aLoc;
   end;
-  PassedCommander := false;
 
   if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
-  for i:=1 to fMembers.Count+1 do
-  begin
-    px := (i-1) mod fUnitsPerRow - fUnitsPerRow div 2;
-    py := (i-1) div fUnitsPerRow;
-
-    if (not PassedCommander) and (KMSamePoint(aLoc.Loc,GetPositionInGroup(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1), px, py))) then
-      PassedCommander := true //Skip commander
-    else
-    begin
-      NewLoc := GetPositionInGroup(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1), px, py);
-      if not PassedCommander then //Compensate for the fact that i will now be +1 due to commander being skipped
-        TKMUnitWarrior(fMembers.Items[i-1]).PlaceOrder(aWarriorOrder, KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir))
-      else
-        TKMUnitWarrior(fMembers.Items[i-2]).PlaceOrder(aWarriorOrder, KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir));
-    end;
+  for i:=1 to fMembers.Count do begin
+    NewLoc := GetPositionInGroup2(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1),
+                                  i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY);
+    TKMUnitWarrior(fMembers.Items[i-1]).PlaceOrder(aWarriorOrder, KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir))
   end;
 end;
 
@@ -970,7 +958,7 @@ procedure TKMUnitWarrior.Paint();
 var
   UnitType, AnimAct, AnimDir, TeamColor:byte;
   XPaintPos, YPaintPos: single;
-  i, px, py:integer;
+  i:integer;
   UnitPosition: TKMPoint;
 begin
 Inherited;
