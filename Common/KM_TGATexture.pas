@@ -136,7 +136,10 @@ var
   DestSize:cardinal;
   {$ENDIF}
 begin
-  result :=FALSE;
+  Result := false;
+
+  {$IFDEF WDC} OutputStream := nil; {$ENDIF} //This makes compiler happy
+
   if FileExists(Filename) then begin
     AssignFile(TGAFile, Filename);
     FileMode:=0; Reset(TGAFile,1); FileMode:=2; //Open ReadOnly
@@ -145,26 +148,22 @@ begin
     BlockRead(TGAFile, TGAHeader, SizeOf(TGAHeader), bytesRead);
 
     if SizeOf(TGAHeader) <> bytesRead then begin
-      Result := False;      
       CloseFile(TGAFile);
       Errs := 'Couldn''t read file header "'+ Filename +'".';
       MessageBox(HWND(nil),PChar(Errs), PChar('TGA File Error'), MB_OK);
       Exit;
     end;
 
-    result :=TRUE;
-  end else
-  begin
+  end else begin
     Errs := 'File not found  - ' + Filename;
     Application.MessageBox(PChar(Errs), PChar('TGA Texture'), MB_OK);
     Exit;
   end;
 
-  if Result <> TRUE then exit;
-
+  //TGA is compressed by ZLibEx, thats only KaM Remake custom option
   ZLibCompressed := TGAHeader.FileType=120;
 
-  //TGA is compressed by ZLibEx, thats only KaM Remake custom option
+  //Uncompress TGA header
   if ZLibCompressed then
   begin
     CloseFile(TGAFile);
@@ -194,7 +193,6 @@ begin
   // Only support 24, 32 bit uncompressed images
   if (TGAHeader.ImageType <> 2) then    { TGA_RGB }
   begin
-    Result := False;
     CloseFile(TGAFile);
     Errs := 'Couldn''t load "'+ Filename +'". Only 24 and 32bit TGA supported.';
     Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
@@ -204,7 +202,6 @@ begin
   // Don't support colormapped files
   if TGAHeader.ColorMapType <> 0 then
   begin
-    Result := False;
     CloseFile(TGAFile);
     Errs := 'Couldn''t load "'+ Filename +'". Colormapped TGA files not supported.';
     Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
@@ -219,7 +216,6 @@ begin
 
   if ColorDepth < 24 then
   begin
-    Result := False;
     CloseFile(TGAFile);
     Errs := 'Couldn''t load "'+ Filename +'". Only 24 and 32 bit TGA files supported.';
     Application.MessageBox(PChar(Errs), PChar('TGA File Error'), MB_OK);
