@@ -519,8 +519,9 @@ procedure TTerrain.RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlay
 var i,k:integer;
 begin
   if not InRange(byte(PlayerID),1,MAX_PLAYERS) then exit;
-  for i := Pos.Y-Radius to Pos.Y+Radius do for k:=Pos.X-Radius to Pos.X+Radius do
-  if (VerticeInMapCoords(k,i,1))and(GetLength(Pos,KMPoint(k,i))<=Radius) then
+  for i:=max(Pos.Y-Radius,2) to min(Pos.Y+Radius,MapY-1) do
+  for k:=max(Pos.X-Radius,2) to min(Pos.X+Radius,MapX-1) do
+  if GetLength(Pos,KMPoint(k,i)) <= Radius then
     Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,FOG_OF_WAR_MAX);
 end;
 
