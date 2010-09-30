@@ -28,7 +28,8 @@ type TKMGamePlayInterface = class
       Label_Clock:TKMLabel;
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
       Image_DirectionCursor:TKMImage;
-    Panel_Replay:TKMPanel;
+    Panel_Replay:TKMPanel; //Bigger Panel to contain Shapes to block all interface below
+    Panel_ReplayCtrl:TKMPanel; //Smaller Panel to contain replay controls
       PercentBar_Replay:TKMPercentBar;
       Label_Replay:TKMLabel;
       Button_ReplayRestart:TKMButton;
@@ -508,7 +509,7 @@ begin
   fMessageList:=TKMMessageList.Create;
 
 {Parent Page for whole toolbar in-game}
-  Panel_Main := MyControls.AddPanel(nil,0,0,224,768);
+  Panel_Main := MyControls.AddPanel(nil,0,0,1024,768);
 
     Image_Main1 := MyControls.AddImage(Panel_Main,0,   0,224,200,407);
     Image_Main2 := MyControls.AddImage(Panel_Main,0, 200,224,168,554);
@@ -560,6 +561,7 @@ begin
     Label_CmdQueueCount.Visible := SHOW_CMDQUEUE_COUNT;
 
     Label_Hint:=MyControls.AddLabel(Panel_Main,224+32,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint.Anchors := [akLeft, akBottom]; 
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -605,30 +607,9 @@ end;
 
 
 procedure TKMGamePlayInterface.SetScreenSize(X,Y:word);
-var i: integer;
 begin
-  Label_Hint.Top := Y - 16;
-
-  Bevel_Pause.Width := X + 2;
-  Image_Pause.Left  := X div 2;
-  Label_Pause1.Left := X div 2;
-  Label_Pause2.Left := X div 2;
-
-  Bevel_Pause.Height:= Y + 2;
-  Image_Pause.Top   := Y div 2 - 40;
-  Label_Pause1.Top  := Y div 2;
-  Label_Pause2.Top  := Y div 2 + 20;
-
-  //Update Hint position and all messages in queue
-  Label_Hint.Top:=Y-16;
-  for i:=low(Image_Message) to high(Image_Message) do
-  begin
-    Image_Message[i].Top := Y-i*48;
-  end;
-  Panel_Message.Top   := Y - 190;
-  Panel_Message.Width := X - Panel_Message.Left;
-
-  //todo: scaling Panel should move all child Controls inside of it depending on Anchors setup 
+  Panel_Main.Width := X;
+  Panel_Main.Height := Y;
 end;
 
 
@@ -636,11 +617,16 @@ end;
 procedure TKMGamePlayInterface.Create_Pause_Page;
 begin
   Panel_Pause:=MyControls.AddPanel(Panel_Main,0,0,fRender.GetRenderAreaSize.X,fRender.GetRenderAreaSize.Y);
+  Panel_Pause.Stretch;
     Bevel_Pause:=MyControls.AddBevel(Panel_Pause,-1,-1,fRender.GetRenderAreaSize.X+2,fRender.GetRenderAreaSize.Y+2);
+    Bevel_Pause.Stretch;
     Image_Pause:=MyControls.AddImage(Panel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)-40,0,0,556);
+    Image_Pause.ImageCenter;
     Image_Pause.Center;
     Label_Pause1:=MyControls.AddLabel(Panel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2),64,16,fTextLibrary.GetTextString(308),fnt_Antiqua,kaCenter);
+    Label_Pause1.Center;
     Label_Pause2:=MyControls.AddLabel(Panel_Pause,(fRender.GetRenderAreaSize.X div 2),(fRender.GetRenderAreaSize.Y div 2)+20,64,16,'Press ''P'' to resume the game',fnt_Grey,kaCenter);
+    Label_Pause2.Center;
     Panel_Pause.Hide
 end;
 
@@ -654,18 +640,21 @@ begin
   s := fRender.GetRenderAreaSize;
 
   Panel_PlayMore := MyControls.AddPanel(Panel_Main,0,0,s.X,s.Y);
-    Bevel_PlayMore := MyControls.AddBevel(Panel_PlayMore,-1,-1,s.X+2,s.Y+2);
-
+  Panel_PlayMore.Stretch;
+    Bevel_PlayMore := MyControls.AddBevel(Panel_PlayMore,-1,-1,s.X+2-100,s.Y+2-100);
+    Bevel_PlayMore.Stretch;
+    
     Panel_PlayMoreMsg := MyControls.AddPanel(Panel_PlayMore,(s.X div 2)-100,(s.Y div 2)-100,200,200);
-    Image_PlayMore:=MyControls.AddImage(Panel_PlayMoreMsg,100,40,0,0,556);
-    Image_PlayMore.Center;
+    Panel_PlayMoreMsg.Center;
+      Image_PlayMore:=MyControls.AddImage(Panel_PlayMoreMsg,100,40,0,0,556);
+      Image_PlayMore.ImageCenter;
 
-    Label_PlayMore1 := MyControls.AddLabel(Panel_PlayMoreMsg,100,80,64,16,'You''ve won!',fnt_Outline,kaCenter);
-    Button_PlayMore := MyControls.AddButton(Panel_PlayMoreMsg,0,100,200,30,'Continue playing',fnt_Metal);
-    Button_PlayWin  := MyControls.AddButton(Panel_PlayMoreMsg,0,140,200,30,'Victory!',fnt_Metal);
-    Button_PlayMore.OnClick := PlayMore;
-    Button_PlayWin.OnClick := PlayMore;
-    Panel_PlayMore.Hide
+      Label_PlayMore1 := MyControls.AddLabel(Panel_PlayMoreMsg,100,80,64,16,'You''ve won!',fnt_Outline,kaCenter);
+      Button_PlayMore := MyControls.AddButton(Panel_PlayMoreMsg,0,100,200,30,'Continue playing',fnt_Metal);
+      Button_PlayWin  := MyControls.AddButton(Panel_PlayMoreMsg,0,140,200,30,'Victory!',fnt_Metal);
+      Button_PlayMore.OnClick := PlayMore;
+      Button_PlayWin.OnClick := PlayMore;
+    Panel_PlayMore.Hide; //Initially hidden
 end;
 
 
@@ -674,21 +663,28 @@ var s:TKMPoint;
 begin
   s := fRender.GetRenderAreaSize;
 
-  Panel_Replay := MyControls.AddPanel(Panel_Main, 320, 8, 160, 60);
-    MyControls.AddShape(Panel_Replay,-1-320+196,-1-8,s.X+2-196,196+2, $00000000); //Block all clicks
-    MyControls.AddShape(Panel_Replay,-1-320,-1-8+196,s.X+2,s.Y+2-196, $00000000); //Block all clicks
+  Panel_Replay := MyControls.AddPanel(Panel_Main, 0, 0, 1024, 768);
+  Panel_Replay.Stretch;
 
-    PercentBar_Replay     := MyControls.AddPercentBar(Panel_Replay, 0, 0, 160, 20, 0);
-    Label_Replay          := MyControls.AddLabel(Panel_Replay, 80, 2, 100, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
-    Button_ReplayRestart  := MyControls.AddButton(Panel_Replay, 0, 24, 24, 24, 'I<', fnt_Metal);
-    Button_ReplayPause    := MyControls.AddButton(Panel_Replay,25, 24, 24, 24, 'II', fnt_Metal);
-    Button_ReplayResume   := MyControls.AddButton(Panel_Replay,50, 24, 24, 24, 'I>', fnt_Metal);
-    Button_ReplayExit     := MyControls.AddButton(Panel_Replay,75, 24, 24, 24, 'X', fnt_Metal);
-    Button_ReplayRestart.OnClick := ReplayClick;
-    Button_ReplayPause.OnClick   := ReplayClick;
-    Button_ReplayResume.OnClick  := ReplayClick;
-    Button_ReplayExit.OnClick    := ReplayClick;
-    Button_ReplayResume.Disable; //Initial state
+    //Block all clicks except MinimapArea
+    with MyControls.AddShape(Panel_Replay,-1+196,-1-8,s.X+2-196,196+2, $00000000) do
+      Anchors := [akLeft, akTop, akRight];
+    with MyControls.AddShape(Panel_Replay,-1,-1-8+196,s.X+2,s.Y+2-196, $00000000) do
+      Anchors := [akLeft, akTop, akRight, akBottom];
+
+    Panel_ReplayCtrl := MyControls.AddPanel(Panel_Replay, 320, 8, 160, 60);
+      PercentBar_Replay     := MyControls.AddPercentBar(Panel_ReplayCtrl, 0, 0, 160, 20, 0);
+      Label_Replay          := MyControls.AddLabel(Panel_ReplayCtrl, 80, 2, 100, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
+      Button_ReplayRestart  := MyControls.AddButton(Panel_ReplayCtrl, 0, 24, 24, 24, 'I<', fnt_Metal);
+      Button_ReplayPause    := MyControls.AddButton(Panel_ReplayCtrl,25, 24, 24, 24, 'II', fnt_Metal);
+      Button_ReplayResume   := MyControls.AddButton(Panel_ReplayCtrl,50, 24, 24, 24, 'I>', fnt_Metal);
+      Button_ReplayExit     := MyControls.AddButton(Panel_ReplayCtrl,75, 24, 24, 24, 'X', fnt_Metal);
+      Button_ReplayRestart.OnClick := ReplayClick;
+      Button_ReplayPause.OnClick   := ReplayClick;
+      Button_ReplayResume.OnClick  := ReplayClick;
+      Button_ReplayExit.OnClick    := ReplayClick;
+      Button_ReplayResume.Disable; //Initial state
+  Panel_Replay.Hide; //Initially hidden
 end;
 
 
@@ -696,11 +692,12 @@ end;
 procedure TKMGamePlayInterface.Create_Message_Page;
 begin
   Panel_Message:=MyControls.AddPanel(Panel_Main, TOOLBARWIDTH, fRender.GetRenderAreaSize.Y - 190, fRender.GetRenderAreaSize.X - TOOLBARWIDTH, 190);
+  Panel_Message.Anchors := [akLeft, akRight, akBottom];
 
     Image_MessageBG:=MyControls.AddImage(Panel_Message,0,20,600,170,409);
-    Image_MessageBG.Anchors := Image_MessageBG.Anchors + [akRight];
+    Image_MessageBG.ImageAnchors := Image_MessageBG.ImageAnchors + [akRight];
     Image_MessageBGTop:=MyControls.AddImage(Panel_Message,0,0,600,20,551);
-    Image_MessageBGTop.Anchors := Image_MessageBGTop.Anchors + [akRight];
+    Image_MessageBGTop.ImageAnchors := Image_MessageBGTop.ImageAnchors + [akRight];
 
     Label_MessageText:=MyControls.AddLabel(Panel_Message,47,67,432,122,'',fnt_Antiqua,kaLeft);
     Label_MessageText.AutoWrap := true;
@@ -730,11 +727,11 @@ begin
   Panel_Build:=MyControls.AddPanel(Panel_Main,0,412,196,400);
     Label_Build:=MyControls.AddLabel(Panel_Build,100,10,100,30,'',fnt_Outline,kaCenter);
     Image_Build_Selected:=MyControls.AddImage(Panel_Build,8,40,32,32,335);
-    Image_Build_Selected.Center;
+    Image_Build_Selected.ImageCenter;
     Image_BuildCost_WoodPic:=MyControls.AddImage(Panel_Build,75,40,32,32,353);
-    Image_BuildCost_WoodPic.Center;
+    Image_BuildCost_WoodPic.ImageCenter;
     Image_BuildCost_StonePic:=MyControls.AddImage(Panel_Build,130,40,32,32,352);
-    Image_BuildCost_StonePic.Center;
+    Image_BuildCost_StonePic.ImageCenter;
     Label_BuildCost_Wood:=MyControls.AddLabel(Panel_Build,105,50,10,30,'',fnt_Outline,kaLeft);
     Label_BuildCost_Stone:=MyControls.AddLabel(Panel_Build,160,50,10,30,'',fnt_Outline,kaLeft);
     Button_BuildRoad   := MyControls.AddButtonFlat(Panel_Build,  8,80,33,33,335);
@@ -842,7 +839,7 @@ begin
           Stat_HouseQty[hc]:=MyControls.AddLabel(Panel_Stats,off+House_Width-2,LineBase+16,37,30,'-',fnt_Grey,kaRight);
           Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
           Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
-          Stat_HousePic[hc].Center;
+          Stat_HousePic[hc].ImageCenter;
           inc(hc);
           inc(off,House_Width);
          end;
@@ -851,7 +848,7 @@ begin
           Stat_UnitQty[uc]:=MyControls.AddLabel(Panel_Stats,off+Unit_Width-2,LineBase+16,33,30,'-',fnt_Grey,kaRight);
           Stat_UnitPic[uc].Hint:=TypeToString(StatUnit[uc]);
           Stat_UnitQty[uc].Hint:=TypeToString(StatUnit[uc]);
-          Stat_UnitPic[uc].Center;
+          Stat_UnitPic[uc].ImageCenter;
           inc(uc);
           inc(off,Unit_Width);
          end;
@@ -1051,9 +1048,9 @@ begin
     Button_House_Repair.OnClick := House_RepairToggle;
     Button_House_Repair.Hint := fTextLibrary.GetTextString(250);
     Image_House_Logo:=MyControls.AddImage(Panel_House,68,41,32,32,338);
-    Image_House_Logo.Center;
+    Image_House_Logo.ImageCenter;
     Image_House_Worker:=MyControls.AddImage(Panel_House,98,41,32,32,141);
-    Image_House_Worker.Center;
+    Image_House_Worker.ImageCenter;
     Label_HouseHealth:=MyControls.AddLabel(Panel_House,156,45,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFE0E0E0);
     HealthBar_House:=MyControls.AddPercentBar(Panel_House,129,57,55,15,50);
     Label_House_UnderConstruction:=MyControls.AddLabel(Panel_House,100,170,100,30,fTextLibrary.GetTextString(230),fnt_Grey,kaCenter);

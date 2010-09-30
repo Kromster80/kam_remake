@@ -8,9 +8,9 @@ uses Windows,
   KM_Controls, KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Music;
 
-type TGameState = ( gsNoGame, //No game running at all, MainMenu
-                    gsPaused, //Game is paused and responds to 'P' key only
-                    gsOnHold, //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
+type TGameState = ( gsNoGame,  //No game running at all, MainMenu
+                    gsPaused,  //Game is paused and responds to 'P' key only
+                    gsOnHold,  //Game is paused, shows victory options (resume, win) and responds to mouse clicks only
                     gsRunning, //Game is running normally
                     gsReplay,  //Game is showing replay, no player input allowed
                     gsEditor); //Game is in MapEditor mode
@@ -155,21 +155,22 @@ end;
 
 procedure TKMGame.ResizeGameArea(X,Y:integer);
 begin
-  ScreenX:=X;
-  ScreenY:=Y;
+  ScreenX := X;
+  ScreenY := Y;
   fRender.RenderResize(X,Y,rm2D);
-  if GameState in [gsPaused, gsRunning, gsReplay, gsEditor] then begin //If game is running
-    fViewport.SetVisibleScreenArea(X,Y);
-    if GameState in [gsPaused, gsRunning, gsReplay] then fGamePlayInterface.SetScreenSize(X,Y);
-    if GameState in [gsEditor] then fMapEditorInterface.SetScreenSize(X,Y); 
-    ZoomInGameArea(1);
-  end else begin
-    //Should resize all Controls somehow...
+  if GameState = gsNoGame then begin
     //Remember last page and all relevant menu settings
-    FreeAndNil(fMainMenuInterface);
+    FreeAndNil(fMainMenuInterface); //@Lewin: I don't remember why do we need to recreate UI here?
     fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y, fGlobalSettings);
     GameSpeed:=1;
     fMainMenuInterface.SetScreenSize(X,Y);
+  end else begin //If game is running
+    fViewport.SetVisibleScreenArea(X,Y);
+    if GameState = gsEditor then
+      fMapEditorInterface.SetScreenSize(X,Y)
+    else
+      fGamePlayInterface.SetScreenSize(X,Y);
+    ZoomInGameArea(1);
   end;
 end;
 
@@ -717,7 +718,7 @@ begin
   fRender.Render;
 
   fViewport := TViewport.Create;
-  fGamePlayInterface := TKMGamePlayInterface.Create;
+  fGamePlayInterface := TKMGamePlayInterface.Create();
 
   //Here comes terrain/mission init
   fTerrain := TTerrain.Create;

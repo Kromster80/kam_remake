@@ -358,6 +358,7 @@ begin
 
     Label_Stat:=MyControls.AddLabel(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint:=MyControls.AddLabel(Panel_Main,224+8,fRender.GetRenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint.Anchors := [akLeft, akBottom]; 
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -398,7 +399,8 @@ end;
 //Update Hint position and etc..
 procedure TKMapEdInterface.SetScreenSize(X,Y:word);
 begin
-  Label_Hint.Top := Y - 16;
+  Panel_Main.Width := X;
+  Panel_Main.Height := Y;
 end;
 
 
@@ -627,9 +629,9 @@ begin
     //Thats common things
     Label_House:=MyControls.AddLabel(Panel_House,100,14,100,30,'',fnt_Outline,kaCenter);
     Image_House_Logo:=MyControls.AddImage(Panel_House,8,41,32,32,338);
-    Image_House_Logo.Center;
+    Image_House_Logo.ImageCenter;
     Image_House_Worker:=MyControls.AddImage(Panel_House,38,41,32,32,141);
-    Image_House_Worker.Center;
+    Image_House_Worker.ImageCenter;
     Label_HouseHealth:=MyControls.AddLabel(Panel_House,130,41,30,50,fTextLibrary.GetTextString(228),fnt_Mini,kaCenter,$FFFFFFFF);
     KMHealthBar_House:=MyControls.AddPercentBar(Panel_House,100,53,60,20,50);
     Button_HouseHealthDec := MyControls.AddButton(Panel_House,80,53,20,20,'-', fnt_Metal);

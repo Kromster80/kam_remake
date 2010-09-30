@@ -15,18 +15,21 @@ type
 type
 TKMControl = class(TObject)
   private
+
     fLeft: Integer;
     fTop: Integer;
     fWidth: Integer;
     fHeight: Integer;
-    fScale: Single;
-    function GetHeight: Integer;
     function GetLeft: Integer;
     function GetTop: Integer;
+    function GetHeight: Integer;
     function GetWidth: Integer;
+    procedure SetHeight(aValue:Integer); virtual;
+    procedure SetWidth(aValue:Integer); virtual;
   public
     Parent: TKMControl;
 
+    Anchors: TAnchors;
     Enabled: boolean;
     Visible: boolean;
     State: TControlStateSet; //Each control has it localy to avoid quering Collection on each Render
@@ -47,12 +50,14 @@ TKMControl = class(TObject)
   public
     property Left: Integer read GetLeft write fLeft;
     property Top: Integer read GetTop write fTop;
-    property Width: Integer read GetWidth write fWidth;
-    property Height: Integer read GetHeight write fHeight;
+    property Width: Integer read GetWidth write SetWidth;
+    property Height: Integer read GetHeight write SetHeight;
     procedure Enable;
     procedure Disable;
     procedure Show;
     procedure Hide;
+    procedure Center;
+    procedure Stretch;
     function IsVisible():boolean;
 
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean=false):boolean; virtual;
@@ -69,10 +74,12 @@ TKMControl = class(TObject)
 end;
 
 
-{Panel which should have child items on it, it's virtual and invisible}
+{ Panel which should have child items on it, it's virtual and invisible }
 TKMPanel = class(TKMControl)
   private
     GetCollection:Pointer;
+    procedure SetHeight(aValue:Integer); override;
+    procedure SetWidth(aValue:Integer); override;
   public
     ChildCount:word;             //Those two are actually used only for TKMPanel
     Childs: array of TKMControl; //No other elements needs to be parented
@@ -81,7 +88,7 @@ TKMPanel = class(TKMControl)
 end;
 
 
-{Panel which is visible, beveled area}
+{ Beveled area }
 TKMBevel = class(TKMControl)
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
@@ -123,11 +130,11 @@ TKMImage = class(TKMControl)
   public
     RXid: integer; //RX library
     TexID: integer;
-    Anchors: TAnchors;
+    ImageAnchors: TAnchors;
     Highlight:boolean;
     HighlightOnMouseOver:boolean;
-    procedure Stretch;
-    procedure Center;
+    procedure ImageStretch;
+    procedure ImageCenter;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
     procedure Paint(); override;
@@ -421,12 +428,12 @@ begin
   Top       := aTop;
   Width     := aWidth;
   Height    := aHeight;
+  Anchors   := [akLeft, akTop];
   State     := [];
   Enabled   := true;
   Visible   := true;
   Tag       := 0;
   Hint      := '';
-  fScale    := CONTROLS_SCALE;
 end;
 
 
@@ -542,32 +549,42 @@ end;
 
 
 {Shortcuts to Controls properties}
-function TKMControl.GetHeight: Integer;
-begin
-  Result := Round(fHeight * fScale);
-end;
-
 function TKMControl.GetLeft: Integer;
 begin
-  Result := Round(fLeft * fScale);
+  Result := fLeft;
   if Parent <> nil then Result := Result + Parent.GetLeft;
 end;
 
 function TKMControl.GetTop: Integer;
 begin
-  Result := Round(fTop * fScale);
+  Result := fTop;
   if Parent <> nil then Result := Result + Parent.GetTop;
+end;
+
+function TKMControl.GetHeight: Integer;
+begin
+  Result := fHeight;
 end;
 
 function TKMControl.GetWidth: Integer;
 begin
-  Result := Round(fWidth * fScale);
+  Result := fWidth;
+end;
+
+procedure TKMControl.SetHeight(aValue:Integer);
+begin
+  fHeight := aValue;
+end;
+
+procedure TKMControl.SetWidth(aValue:Integer);
+begin
+  fWidth := aValue;
 end;
 
 procedure TKMControl.Enable;  begin Enabled := true;  end;
 procedure TKMControl.Disable; begin Enabled := false; end;
 
-{Will show up entire branch in which control resodes}
+{Will show up entire branch in which control resides}
 procedure TKMControl.Show;
 begin
   if Self.Parent<>nil then Self.Parent.Show;
@@ -575,6 +592,8 @@ begin
 end;
 
 procedure TKMControl.Hide;    begin Visible := false; end;
+procedure TKMControl.Center;  begin Anchors := []; end;
+procedure TKMControl.Stretch; begin Anchors := [akLeft, akTop, akRight, akBottom]; end;
 
 
 {Check Control including all its Parents to see if Control is actually displayed/visible}
@@ -596,6 +615,39 @@ begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
 end;
+
+
+procedure TKMPanel.SetHeight(aValue:Integer);
+var i:integer;
+begin
+  for i:=1 to ChildCount do
+    if (akTop in TKMControl(Childs[i]).Anchors)and(akBottom in TKMControl(Childs[i]).Anchors) then
+      TKMControl(Childs[i]).Height := TKMControl(Childs[i]).Height + (aValue-fHeight)
+    else
+    if akBottom in TKMControl(Childs[i]).Anchors then
+      TKMControl(Childs[i]).Top := TKMControl(Childs[i]).Top + (aValue-fHeight)
+    else
+    if not (akTop in TKMControl(Childs[i]).Anchors)and not(akBottom in TKMControl(Childs[i]).Anchors) then
+      TKMControl(Childs[i]).Top := TKMControl(Childs[i]).Top + (aValue-fHeight) div 2;
+
+  Inherited;
+end;
+
+procedure TKMPanel.SetWidth(aValue:Integer);
+var i:integer;
+begin
+  for i:=1 to ChildCount do
+    if (akLeft in TKMControl(Childs[i]).Anchors)and(akRight in TKMControl(Childs[i]).Anchors) then
+      TKMControl(Childs[i]).Width := TKMControl(Childs[i]).Width + (aValue-fWidth)
+    else
+    if akRight in TKMControl(Childs[i]).Anchors then
+      TKMControl(Childs[i]).Left := TKMControl(Childs[i]).Left + (aValue-fWidth)
+    else
+    if not (akLeft in TKMControl(Childs[i]).Anchors)and not(akRight in TKMControl(Childs[i]).Anchors) then
+      TKMControl(Childs[i]).Left := TKMControl(Childs[i]).Left + (aValue-fWidth) div 2;
+  Inherited;
+end;
+
 
 
 {Panel Paint means to Paint all its childs}
@@ -703,7 +755,7 @@ constructor TKMImage.Create(aParent:TKMPanel; aLeft, aTop, aWidth, aHeight, aTex
 begin
   RXid := aRXid;
   TexID := aTexID;
-  Anchors := [akLeft, akTop];
+  ImageAnchors := [akLeft, akTop];
   Highlight := false;
   HighlightOnMouseOver := false;
   Inherited Create(aLeft, aTop, aWidth, aHeight);
@@ -711,15 +763,15 @@ begin
 end;
 
 
-procedure TKMImage.Stretch;
+procedure TKMImage.ImageStretch;
 begin
-  Anchors := [akLeft, akRight, akTop, akBottom]; //Stretch image to fit
+  ImageAnchors := [akLeft, akRight, akTop, akBottom]; //Stretch image to fit
 end;
 
 
-procedure TKMImage.Center; //Render image from center
+procedure TKMImage.ImageCenter; //Render image from center
 begin
-  Anchors := [];
+  ImageAnchors := [];
 end;
 
 
@@ -738,24 +790,24 @@ begin
   OffsetX     := 0;
   OffsetY     := 0;
 
-  if akRight in Anchors then OffsetX := Width - GFXData[RXid, TexID].PxWidth; //First check "non-zero offset" anchor incase both anchors are set
-  if akLeft in Anchors then OffsetX := 0;
-  if (akLeft in Anchors) and (akRight in Anchors) then //Both anchors means: stretch the image
+  if akRight in ImageAnchors then OffsetX := Width - GFXData[RXid, TexID].PxWidth; //First check "non-zero offset" anchor incase both ImageAnchors are set
+  if akLeft in ImageAnchors then OffsetX := 0;
+  if (akLeft in ImageAnchors) and (akRight in ImageAnchors) then //Both ImageAnchors means: stretch the image
   begin
     StretchDraw := true;
     DrawWidth := Width;
   end;
-  if not ((akLeft in Anchors) or (akRight in Anchors)) then //No anchors means: draw the image in center
+  if not ((akLeft in ImageAnchors) or (akRight in ImageAnchors)) then //No ImageAnchors means: draw the image in center
     OffsetX := (Width - GFXData[RXid, TexID].PxWidth) div 2;
 
-  if akBottom in Anchors then OffsetY := Width - GFXData[RXid, TexID].PxHeight;
-  if akTop in Anchors then OffsetY := 0;
-  if (akTop in Anchors) and (akBottom in Anchors) then
+  if akBottom in ImageAnchors then OffsetY := Width - GFXData[RXid, TexID].PxHeight;
+  if akTop in ImageAnchors then OffsetY := 0;
+  if (akTop in ImageAnchors) and (akBottom in ImageAnchors) then
   begin
     StretchDraw := true;
     DrawHeight := Height;
   end;
-  if not ((akTop in Anchors) or (akBottom in Anchors)) then
+  if not ((akTop in ImageAnchors) or (akBottom in ImageAnchors)) then
     OffsetY := (Height - GFXData[RXid, TexID].PxHeight) div 2;
 
   if StretchDraw then

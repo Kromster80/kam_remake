@@ -179,7 +179,7 @@ uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTy
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
 {var i:integer;}
 begin
-inherited Create;
+  Inherited Create;
 
   fLog.AssertToLog(fTextLibrary<>nil, 'fTextLibrary should be initialized before MainMenuInterface');
 
@@ -305,11 +305,11 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     MyControls.AddImage(Panel_MainMenu,300,60,423,164,4,5);
     MyControls.AddLabel(Panel_MainMenu, 512, 240, 100, 20, 'Remake', fnt_Metal, kaCenter);
-    with MyControls.AddImage(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do Stretch;
-    with MyControls.AddImage(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
+    with MyControls.AddImage(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
+    with MyControls.AddImage(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,337,290,350,400);
       Button_MainMenuSinglePlayer := MyControls.AddButton(Panel_MainButtons,0,  0,350,30,'Single Player',fnt_Metal,bsMenu);
@@ -333,11 +333,11 @@ end;
 procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
   Panel_SinglePlayer:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_SinglePlayer,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_SinglePlayer,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     MyControls.AddImage(Panel_SinglePlayer,300,60,423,164,4,5);
     MyControls.AddLabel(Panel_SinglePlayer, 512, 240, 100, 20, 'Remake', fnt_Metal, kaCenter);
-    with MyControls.AddImage(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,6) do Stretch;
-    with MyControls.AddImage(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
+    with MyControls.AddImage(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
+    with MyControls.AddImage(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_SinglePlayerButtons:=MyControls.AddPanel(Panel_SinglePlayer,337,290,350,400);
       Button_SinglePlayerTutor  :=MyControls.AddButton(Panel_SinglePlayerButtons,0,  0,350,30,'Town Tutorial',fnt_Metal,bsMenu);
@@ -363,8 +363,8 @@ end;
 procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
 begin
   Panel_MultiPlayer := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_MultiPlayer,0,0,ScreenX,ScreenY,2,6) do Stretch;
-    with MyControls.AddImage(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
+    with MyControls.AddImage(Panel_MultiPlayer,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
+    with MyControls.AddImage(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_MultiPlayerButtons:=MyControls.AddPanel(Panel_MultiPlayer,155,280,350,400);
       Button_MultiPlayerLAN  :=MyControls.AddButton(Panel_MultiPlayerButtons,0,  0,350,30,'Play over LAN',fnt_Metal,bsMenu);
@@ -381,7 +381,7 @@ end;
 procedure TKMMainMenuInterface.Create_WWWLogin_Page;
 begin
   Panel_WWWLogin := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_WWWLogin,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_WWWLogin,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
 
     Panel_WWWLogin2 := MyControls.AddPanel(Panel_WWWLogin,312,280,400,400);
       MyControls.AddLabel(Panel_WWWLogin2, 108, 0, 100, 20, 'Login', fnt_Outline, kaLeft);
@@ -405,11 +405,11 @@ var i:integer;
 begin
   Panel_Campaign:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     Image_CampaignBG:=MyControls.AddImage(Panel_Campaign,0,0,ScreenX,ScreenY,12,5);
-    Image_CampaignBG.Stretch;
+    Image_CampaignBG.ImageStretch;
 
     for i:=1 to length(Campaign_Nodes) do begin
       Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23*2,29*2,10,5);
-      Campaign_Nodes[i].Center; //I guess it's easier to position them this way
+      Campaign_Nodes[i].ImageCenter; //I guess it's easier to position them this way
       Campaign_Nodes[i].OnClick := Campaign_SelectMap;
       Campaign_Nodes[i].Tag := i;
     end;
@@ -417,7 +417,7 @@ begin
   Panel_CampScroll:=MyControls.AddPanel(Panel_Campaign,ScreenX-360,ScreenY-397,360,397);
 
     Image_Scroll := MyControls.AddImage(Panel_CampScroll, 0, 0,360,397,{15}2,6);
-    Image_Scroll.Stretch;
+    Image_Scroll.ImageStretch;
     Label_CampaignTitle := MyControls.AddLabel(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, kaCenter);
 
     Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 20, 65, 320, 310, '', fnt_Briefing, kaLeft);
@@ -438,7 +438,7 @@ begin
 
   Panel_Single:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
 
-    with MyControls.AddImage(Panel_Single,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_Single,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
 
     Panel_SingleList:=MyControls.AddPanel(Panel_Single,512+22,84,445,600);
 
@@ -456,7 +456,7 @@ begin
         Bevel_SingleBG[i,4] := MyControls.AddBevel(Panel_SingleList,380,40+(i-1)*40,40,40);
 
         Image_SingleMode[i]    := MyControls.AddImage(Panel_SingleList,  0   ,40+(i-1)*40,40,40,28);
-        Image_SingleMode[i].Center;
+        Image_SingleMode[i].ImageCenter;
         Label_SinglePlayers[i] := MyControls.AddLabel(Panel_SingleList, 40+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
         Label_SingleTitle1[i]  := MyControls.AddLabel(Panel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
         Label_SingleTitle2[i]  := MyControls.AddLabel(Panel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,'<<<LEER>>>',fnt_Game, kaLeft, $FFD0D0D0);
@@ -511,9 +511,9 @@ procedure TKMMainMenuInterface.Create_Load_Page;
 var i:integer;
 begin
   Panel_Load:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Load,0,0,ScreenX,ScreenY,2,6) do Stretch;
-    with MyControls.AddImage(Panel_Load,50,220,round(218*1.3),round(291*1.3),5,6) do Stretch;
-    with MyControls.AddImage(Panel_Load,705,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
+    with MyControls.AddImage(Panel_Load,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
+    with MyControls.AddImage(Panel_Load,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
+    with MyControls.AddImage(Panel_Load,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     for i:=1 to SAVEGAME_COUNT do
     begin
@@ -531,7 +531,7 @@ procedure TKMMainMenuInterface.Create_MapEditor_Page;
 var i:integer;
 begin
   Panel_MapEd:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_MapEd,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_MapEd,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
 
     //Should contain options to make a map from scratch, load map from file, generate new one
 
@@ -565,8 +565,8 @@ procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings
 var i:integer;
 begin
   Panel_Options:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Options,0,0,ScreenX,ScreenY,2,6) do Stretch;
-    with MyControls.AddImage(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do Stretch;
+    with MyControls.AddImage(Panel_Options,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
+    with MyControls.AddImage(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,120,130,200,80);
       MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,'Controls:',fnt_Outline,kaLeft);
@@ -654,7 +654,7 @@ end;
 procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Credits,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_Credits,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
 
     MyControls.AddLabel(Panel_Credits,200,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
     MyControls.AddLabel(Panel_Credits,200,140,100,30,
@@ -675,7 +675,7 @@ end;
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   Panel_Loading:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Loading,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_Loading,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
     Label_Loading:=MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
 end;
@@ -684,7 +684,7 @@ end;
 procedure TKMMainMenuInterface.Create_Error_Page;
 begin
   Panel_Error := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6) do Stretch;
+    with MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'An Error Has Occured!',fnt_Antiqua,kaCenter);
     Label_Error := MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack := MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
@@ -696,7 +696,7 @@ procedure TKMMainMenuInterface.Create_Results_Page;
 var i:integer; Adv:integer;
 begin
   Panel_Results:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Results,0,0,ScreenX,ScreenY,7,5) do Stretch;
+    with MyControls.AddImage(Panel_Results,0,0,ScreenX,ScreenY,7,5) do ImageStretch;
 
     Label_Results_Result:=MyControls.AddLabel(Panel_Results,512,200,100,30,'<<<LEER>>>',fnt_Metal,kaCenter);
 
@@ -904,11 +904,11 @@ begin
    //Place highlight
   for i:=1 to length(Campaign_Nodes) do begin
     Campaign_Nodes[i].Highlight := false;
-    Campaign_Nodes[i].Center;
+    Campaign_Nodes[i].ImageCenter;
   end;
 
   TKMImage(Sender).Highlight := true;
-  TKMImage(Sender).Stretch;
+  TKMImage(Sender).ImageStretch;
 
   Label_CampaignTitle.Caption := 'Mission '+inttostr(TKMImage(Sender).Tag);
 

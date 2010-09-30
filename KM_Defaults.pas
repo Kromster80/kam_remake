@@ -30,7 +30,6 @@ const
   SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
-  CONTROLS_SCALE        = 1;            //Scale controls to this size, highly experimental and imperfect
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
   GAME_VERSION          = 'Fighting Demo r1037';       //Game version string displayed in menu corner
