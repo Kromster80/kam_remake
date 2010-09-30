@@ -357,24 +357,22 @@ end;
 
 //todo: it looks a bit wrong on corners and with AA turned On
 procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
-var i:single;
 begin
   if LineWidth=0 then exit;
-  glGetFloatv(GL_LINE_WIDTH,@i); //Memorize
+  glPushAttrib(GL_LINE_BIT);
   glLineWidth(LineWidth);
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
     glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
-  glLineWidth(i); //Restore
+  glPopAttrib();
 end;
 
 
 {Renders plane with given color}
 procedure TRenderUI.WriteLayer(PosX,PosY,SizeX,SizeY:smallint; Col:TColor4; Outline:TColor4=$FFFFFFFF);
-var i:single;
 begin
-  glGetFloatv(GL_LINE_WIDTH,@i); //Memorize
+  glPushAttrib(GL_LINE_BIT);
   glLineWidth(1);
   glColor4ubv(@Col);
   glBegin(GL_QUADS);
@@ -384,7 +382,7 @@ begin
   glBegin(GL_LINE_LOOP);
     glkRect(PosX,PosY,PosX+SizeX-1,PosY+SizeY-1);
   glEnd;
-  glLineWidth(i); //Restore
+  glPopAttrib();
 end;
 
 
