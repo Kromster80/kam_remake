@@ -313,6 +313,7 @@ TKMMinimap = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     function GetMapCoords(X,Y:integer; const Inset:shortint=0):TKMPoint;
     function InMapCoords(X,Y:integer):boolean;
+    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     procedure Paint(); override;
@@ -1232,6 +1233,13 @@ begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
   BoundRectAt := KMPoint(0,0);
+end;
+
+
+procedure TKMMinimap.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  MouseMove(X,Y,Shift);
 end;
 
 
