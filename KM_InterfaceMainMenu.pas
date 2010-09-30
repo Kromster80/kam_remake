@@ -218,7 +218,7 @@ inherited Create;
   //Show version info on every page
   Label_Version := MyControls.AddLabel(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
 
-  if SHOW_1024_768_OVERLAY then MyControls.AddShape(Panel_Main, 0, 0, 1024, 768, $FF00FF00);
+  if SHOW_1024_768_OVERLAY then with MyControls.AddShape(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
   SwitchMenuPage(nil);
   //ShowScreen_Results(); //Put here page you would like to debug
@@ -432,7 +432,7 @@ end;
 
 
 procedure TKMMainMenuInterface.Create_Single_Page;
-var i,k:integer;
+var i:integer;
 begin
   SingleMapsInfo:=TKMMapsInfo.Create;
 
@@ -471,7 +471,7 @@ begin
       ScrollBar_SingleMaps := MyControls.AddScrollBar(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
       ScrollBar_SingleMaps.OnChange := SingleMap_ScrollChange;
 
-      Shape_SingleMap:=MyControls.AddShape(Panel_SingleList,0,40,420,40,$FFFFFF00);
+      Shape_SingleMap:=MyControls.AddShape(Panel_SingleList,0,40,420,40, $FFFFFF00);
 
     Panel_SingleDesc:=MyControls.AddPanel(Panel_Single,45,84,445,600);
 

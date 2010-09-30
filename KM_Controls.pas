@@ -92,10 +92,12 @@ end;
 {Rectangle}
 TKMShape = class(TKMControl)
   public
-    Color:TColor4; //color of rectangle
+    Hitable:boolean;
+    LineColor:TColor4; //color of rectangle
     LineWidth:byte;
   protected
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4);
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
+    function HitTest(X, Y: Integer): Boolean; override;
     procedure Paint(); override;
 end;
 
@@ -377,7 +379,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
 
     function AddPanel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMPanel;
     function AddBevel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMBevel;
-    function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
+    function AddShape           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4):TKMShape;
     function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
     function AddImageStack      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImageStack;
@@ -512,8 +514,8 @@ begin
   sColor := $FFFFFFFF;
 
   if Self is TKMPanel then exit;//sColor := $000000FF;
-  if Self is TKMBevel then ;
-  if Self is TKMShape then ;
+  if Self is TKMBevel then sColor := $20FFFFFF;
+  if Self is TKMShape then sColor := $20FFFFFF;
 
   if Self is TKMLabel then begin //Special case for aligned text
     case TKMLabel(Self).TextAlign of
@@ -623,19 +625,30 @@ end;
 
 
 { TKMShape }
-constructor TKMShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4);
+constructor TKMShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   ParentTo(aParent);
-  Color:=aColor;
+  Hitable:=true;
+  LineColor:=aLineColor;
   LineWidth:=2;
+end;
+
+
+{If Fill color alpha is transparent, then treat the thing as non-hitable}
+function TKMShape.HitTest(X,Y:Integer): Boolean;
+begin
+  if Hitable then
+    Result := Inherited HitTest(X,Y)
+  else
+    Result := false;
 end;
 
 
 procedure TKMShape.Paint();
 begin
   Inherited;
-  fRenderUI.WriteRect(Left,Top,Width,Height,LineWidth,Color);
+  fRenderUI.WriteRect(Left,Top,Width,Height,LineWidth,LineColor);
 end;
 
 
@@ -1500,9 +1513,9 @@ begin
   AddToCollection(Result);
 end;
 
-function TKMControlsCollection.AddShape(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aColor:TColor4):TKMShape;
+function TKMControlsCollection.AddShape(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4):TKMShape;
 begin
-  Result:=TKMShape.Create(aParent, aLeft,aTop,aWidth,aHeight,aColor);
+  Result:=TKMShape.Create(aParent, aLeft,aTop,aWidth,aHeight,aLineColor);
   AddToCollection(Result);
 end;
 

@@ -589,10 +589,8 @@ begin
     if MyControls.Items[i] <> nil then
       TKMControl(MyControls.Items[i]).OnMouseOver := DisplayHint;
 
-  if SHOW_1024_768_OVERLAY then begin
-    MyControls.AddShape(Panel_Main, 1024, 0, 0, 768, $FF00FF00);
-    MyControls.AddShape(Panel_Main, 0, 768, 1024, 0, $FF00FF00);
-  end;
+  if SHOW_1024_768_OVERLAY then
+    with MyControls.AddShape(Panel_Main, 0, 0, 1024, 768, $FF00FF00) do Hitable:=false;
 
   SwitchPage(nil); //Update
 end;
@@ -677,7 +675,9 @@ begin
   s := fRender.GetRenderAreaSize;
 
   Panel_Replay := MyControls.AddPanel(Panel_Main, 320, 8, 160, 60);
-    MyControls.AddShape(Panel_Replay,-1-320,-1-8,s.X+2,s.Y+2,$808080FF); //Block all clicks
+    MyControls.AddShape(Panel_Replay,-1-320+196,-1-8,s.X+2-196,196+2, $00000000); //Block all clicks
+    MyControls.AddShape(Panel_Replay,-1-320,-1-8+196,s.X+2,s.Y+2-196, $00000000); //Block all clicks
+
     PercentBar_Replay     := MyControls.AddPercentBar(Panel_Replay, 0, 0, 160, 20, 0);
     Label_Replay          := MyControls.AddLabel(Panel_Replay, 80, 2, 100, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
     Button_ReplayRestart  := MyControls.AddButton(Panel_Replay, 0, 24, 24, 24, 'I<', fnt_Metal);
