@@ -359,6 +359,7 @@ end;
 procedure TRenderUI.WriteRect(PosX,PosY,SizeX,SizeY,LineWidth:smallint; Col:TColor4);
 var i:single;
 begin
+  if LineWidth=0 then exit;
   glGetFloatv(GL_LINE_WIDTH,@i); //Memorize
   glLineWidth(LineWidth);
   glColor4ubv(@Col);

@@ -68,11 +68,12 @@ type TKMMainMenuInterface = class
       Button_CampaignStart,Button_CampaignBack:TKMButton;
     Panel_Single:TKMPanel;
       Panel_SingleList,Panel_SingleDesc:TKMPanel;
-      Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize,Button_SingleHeadNix:TKMButton;
+      Button_SingleHeadMode,Button_SingleHeadTeams,Button_SingleHeadTitle,Button_SingleHeadSize:TKMButton;
       Bevel_SingleBG:array[1..MENU_SP_MAPS_COUNT,1..4]of TKMBevel;
-      Button_SingleMode:array[1..MENU_SP_MAPS_COUNT]of TKMImage;
-      Button_SinglePlayers,Button_SingleSize:array[1..MENU_SP_MAPS_COUNT]of TKMLabel;
+      Image_SingleMode:array[1..MENU_SP_MAPS_COUNT]of TKMImage;
+      Label_SinglePlayers,Label_SingleSize,
       Label_SingleTitle1,Label_SingleTitle2:array[1..MENU_SP_MAPS_COUNT]of TKMLabel;
+      Shape_SingleOverlay:array[1..MENU_SP_MAPS_COUNT]of TKMShape;
       ScrollBar_SingleMaps:TKMScrollBar;
       Shape_SingleMap:TKMShape;
       Image_SingleScroll1:TKMImage;
@@ -417,9 +418,9 @@ begin
 
     Image_Scroll := MyControls.AddImage(Panel_CampScroll, 0, 0,360,397,{15}2,6);
     Image_Scroll.Stretch;
-    Label_CampaignTitle := MyControls.AddLabel(Panel_CampScroll, 170, 18,100,20, '', fnt_Outline, kaCenter);
+    Label_CampaignTitle := MyControls.AddLabel(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, kaCenter);
 
-    Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 15, 65, 320, 310, '', fnt_Briefing, kaLeft);
+    Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 20, 65, 320, 310, '', fnt_Briefing, kaLeft);
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := MyControls.AddButton(Panel_Campaign, ScreenX-220-20, ScreenY-50, 220, 30, 'Start mission', fnt_Metal, bsMenu);
@@ -441,32 +442,34 @@ begin
 
     Panel_SingleList:=MyControls.AddPanel(Panel_Single,512+22,84,445,600);
 
-      Button_SingleHeadMode :=MyControls.AddButton(Panel_SingleList,  0,0, 40,40,42,4,bsMenu);
-      Button_SingleHeadTeams:=MyControls.AddButton(Panel_SingleList, 40,0, 40,40,31,4,bsMenu);
-      Button_SingleHeadTitle:=MyControls.AddButton(Panel_SingleList, 80,0,300,40,'Title',fnt_Metal,bsMenu);
-      Button_SingleHeadSize :=MyControls.AddButton(Panel_SingleList,380,0, 40,40,'Size',fnt_Metal,bsMenu);
-      Button_SingleHeadNix  :=MyControls.AddButton(Panel_SingleList,420,0, 25,40,'',fnt_Metal,bsMenu);
-      Button_SingleHeadNix.Disable;
+      Button_SingleHeadMode  := MyControls.AddButton(Panel_SingleList,  0,0, 40,40,42,4,bsMenu);
+      Button_SingleHeadTeams := MyControls.AddButton(Panel_SingleList, 40,0, 40,40,31,4,bsMenu);
+      Button_SingleHeadTitle := MyControls.AddButton(Panel_SingleList, 80,0,300,40,'Title',fnt_Metal,bsMenu);
+      Button_SingleHeadSize  := MyControls.AddButton(Panel_SingleList,380,0, 40,40,'Size',fnt_Metal,bsMenu);
+      with MyControls.AddButton(Panel_SingleList,420,0, 25,40,'',fnt_Metal,bsMenu) do Disable;
+
       for i:=1 to MENU_SP_MAPS_COUNT do
       begin
-        Bevel_SingleBG[i,1]:=MyControls.AddBevel(Panel_SingleList,0,  40+(i-1)*40,40,40);
-        Bevel_SingleBG[i,2]:=MyControls.AddBevel(Panel_SingleList,40, 40+(i-1)*40,40,40);
-        Bevel_SingleBG[i,3]:=MyControls.AddBevel(Panel_SingleList,80, 40+(i-1)*40,300,40);
-        Bevel_SingleBG[i,4]:=MyControls.AddBevel(Panel_SingleList,380,40+(i-1)*40,40,40);
-        for k:=1 to length(Bevel_SingleBG[i]) do
-        begin
-          Bevel_SingleBG[i,k].Tag:=i;
-          Bevel_SingleBG[i,k].OnClick:=SingleMap_SelectMap;
-        end;
-        Button_SingleMode[i]   :=MyControls.AddImage(Panel_SingleList,  0   ,40+(i-1)*40,40,40,28);
-        Button_SinglePlayers[i]:=MyControls.AddLabel(Panel_SingleList, 40+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
-        Label_SingleTitle1[i]  :=MyControls.AddLabel(Panel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
-        Label_SingleTitle2[i]  :=MyControls.AddLabel(Panel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,'<<<LEER>>>',fnt_Game, kaLeft, $FFD0D0D0);
-        Button_SingleSize[i]   :=MyControls.AddLabel(Panel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
+        Bevel_SingleBG[i,1] := MyControls.AddBevel(Panel_SingleList,0,  40+(i-1)*40,40,40);
+        Bevel_SingleBG[i,2] := MyControls.AddBevel(Panel_SingleList,40, 40+(i-1)*40,40,40);
+        Bevel_SingleBG[i,3] := MyControls.AddBevel(Panel_SingleList,80, 40+(i-1)*40,300,40);
+        Bevel_SingleBG[i,4] := MyControls.AddBevel(Panel_SingleList,380,40+(i-1)*40,40,40);
+
+        Image_SingleMode[i]    := MyControls.AddImage(Panel_SingleList,  0   ,40+(i-1)*40,40,40,28);
+        Image_SingleMode[i].Center;
+        Label_SinglePlayers[i] := MyControls.AddLabel(Panel_SingleList, 40+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
+        Label_SingleTitle1[i]  := MyControls.AddLabel(Panel_SingleList, 80+6 ,40+5+(i-1)*40,40,40,'<<<LEER>>>',fnt_Metal, kaLeft);
+        Label_SingleTitle2[i]  := MyControls.AddLabel(Panel_SingleList, 80+6 ,40+22+(i-1)*40,40,40,'<<<LEER>>>',fnt_Game, kaLeft, $FFD0D0D0);
+        Label_SingleSize[i]    := MyControls.AddLabel(Panel_SingleList,380+20,40+(i-1)*40+14,40,40,'0',fnt_Metal, kaCenter);
+
+        Shape_SingleOverlay[i] := MyControls.AddShape(Panel_SingleList, 0, 40+(i-1)*40, 420, 40, $00000000);
+        Shape_SingleOverlay[i].LineWidth := 0;
+        Shape_SingleOverlay[i].Tag := i;
+        Shape_SingleOverlay[i].OnClick := SingleMap_SelectMap;
       end;
 
-      ScrollBar_SingleMaps:=MyControls.AddScrollBar(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
-      ScrollBar_SingleMaps.OnChange:=SingleMap_ScrollChange;
+      ScrollBar_SingleMaps := MyControls.AddScrollBar(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
+      ScrollBar_SingleMaps.OnChange := SingleMap_ScrollChange;
 
       Shape_SingleMap:=MyControls.AddShape(Panel_SingleList,0,40,420,40,$FFFFFF00);
 
@@ -945,17 +948,17 @@ begin
   for i:=1 to MENU_SP_MAPS_COUNT do begin
     ci:=SingleMap_Top+i-1;
     if ci>SingleMapsInfo.GetMapCount then begin
-      Button_SingleMode[i].TexID        := 0;
-      Button_SinglePlayers[i].Caption   := '';
-      Label_SingleTitle1[i].Caption     := '';
-      Label_SingleTitle2[i].Caption     := '';
-      Button_SingleSize[i].Caption      := '';
+      Image_SingleMode[i].TexID       := 0;
+      Label_SinglePlayers[i].Caption  := '';
+      Label_SingleTitle1[i].Caption   := '';
+      Label_SingleTitle2[i].Caption   := '';
+      Label_SingleSize[i].Caption     := '';
     end else begin
-      Button_SingleMode[i].TexID        := 28+byte(not SingleMapsInfo.IsFight(ci))*14;  //28 or 42
-      Button_SinglePlayers[i].Caption   := inttostr(SingleMapsInfo.GetPlayerCount(ci));
-      Label_SingleTitle1[i].Caption     := SingleMapsInfo.GetFolder(ci);
-      Label_SingleTitle2[i].Caption     := SingleMapsInfo.GetSmallDesc(ci);
-      Button_SingleSize[i].Caption      := SingleMapsInfo.GetMapSize(ci);
+      Image_SingleMode[i].TexID       := 28+byte(not SingleMapsInfo.IsFight(ci))*14;  //28 or 42
+      Label_SinglePlayers[i].Caption  := inttostr(SingleMapsInfo.GetPlayerCount(ci));
+      Label_SingleTitle1[i].Caption   := SingleMapsInfo.GetFolder(ci);
+      Label_SingleTitle2[i].Caption   := SingleMapsInfo.GetSmallDesc(ci);
+      Label_SingleSize[i].Caption     := SingleMapsInfo.GetMapSize(ci);
     end;
   end;
 
@@ -963,7 +966,7 @@ begin
   ScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.GetMapCount - MENU_SP_MAPS_COUNT + 1);
   ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
 
-  SingleMap_SelectMap(Bevel_SingleBG[1,3]); //Select first map
+  SingleMap_SelectMap(Shape_SingleOverlay[1]); //Select first map
 end;
 
 
@@ -976,7 +979,7 @@ end;
 
 procedure TKMMainMenuInterface.SingleMap_SelectMap(Sender: TObject);
 var i:integer;
-begin           
+begin
   i := TKMControl(Sender).Tag;
 
   Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * i; // All heights are equal in fact..
