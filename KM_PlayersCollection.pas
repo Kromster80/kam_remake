@@ -190,20 +190,23 @@ begin
 end;
 
 
-{HitTest for houses/units altogether}
-function TKMAllPlayers.HitTest(X, Y: Integer):boolean;
-var H:TKMHouse;
+{ HitTest for houses/units altogether
+  Houses have priority over units, so you can't select an occupant.
+  (however, this is only true if the house is built)
+  Player should not be able to select dying units either }
+function TKMAllPlayers.HitTest(X,Y: Integer):boolean;
+var H:TKMHouse; U:TKMUnit;
 begin
-  //Houses have priority over units, so you can't select an occupant.
-  //However, this is only true if the house is built
-  H := MyPlayer.HousesHitTest(X, Y);
-
-  if (H<>nil)and(H.GetBuildingState in [hbs_Stone,hbs_Done]) then
+  H := MyPlayer.HousesHitTest(X,Y);
+  if (H<>nil) and (H.GetBuildingState in [hbs_Stone,hbs_Done]) then
     fPlayers.Selected := H
-  else
-    fPlayers.Selected := MyPlayer.UnitsHitTest(X, Y);
-  if fPlayers.Selected = nil then
-    fPlayers.Selected := H;
+  else begin
+    U := MyPlayer.UnitsHitTest(X,Y);
+    if (U<>nil) and (not U.IsDeadOrDying) then
+      fPlayers.Selected := U
+    else
+      fPlayers.Selected := H;
+  end;
 
   Result := fPlayers.Selected <> nil;
 end;
