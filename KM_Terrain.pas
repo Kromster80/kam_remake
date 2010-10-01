@@ -67,6 +67,7 @@ TTerrain = class
 
     procedure SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
     procedure SetRoad(Loc:TKMPoint; aOwner:TPlayerID);
+    procedure SetRoads(aList:TKMPointList; aOwner:TPlayerID);
     procedure SetField(Loc:TKMPoint; aOwner:TPlayerID; aFieldType:TFieldType);
     procedure SetHouse(Loc:TKMPoint; aHouseType: THouseType; aHouseStage:THouseStage; aOwner:TPlayerID; const aFlattenTerrain:boolean=false);
     procedure SetHouseAreaOwner(Loc:TKMPoint; aHouseType: THouseType; aOwner:TPlayerID);
@@ -597,6 +598,20 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
+  RebuildWalkConnect(canWalkRoad);
+end;
+
+
+procedure TTerrain.SetRoads(aList:TKMPointList; aOwner:TPlayerID);
+var i:integer;
+begin
+  for i:=1 to aList.Count do begin
+    Land[aList.List[i].Y,aList.List[i].X].TileOwner:=aOwner;
+    Land[aList.List[i].Y,aList.List[i].X].TileOverlay:=to_Road;
+    Land[aList.List[i].Y,aList.List[i].X].FieldAge:=0;
+    UpdateBorders(aList.List[i]);
+  end;
+  RebuildPassability(aList.GetTopLeft.X-1, aList.GetTopLeft.Y-1, aList.GetBottomRight.X+1, aList.GetBottomRight.Y+1);
   RebuildWalkConnect(canWalkRoad);
 end;
 
@@ -1657,9 +1672,8 @@ var i,k:integer;
 begin
   //todo: During load this should only run once if possible to save time
   //if fGame.GameState = gsNoGame then exit; //Only calculate once during load (not everytime a tile of road is placed, etc.)
-  for i:=LowY to HighY do for k:=LowX to HighX do
-    if TileInMapCoords(k,i) then
-      RecalculatePassability(KMPoint(k,i));
+  for i:=max(LowY,1) to min(HighY,MapY-1) do for k:=max(LowX,1) to min(HighX,MapX-1) do
+    RecalculatePassability(KMPoint(k,i));
 end;
 
 

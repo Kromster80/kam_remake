@@ -765,6 +765,9 @@ begin
     fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
     MyPlayer := fPlayers.Player[1];
   end;
+
+  fPlayers.AfterMissionInit(true);
+
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic));
 
@@ -932,6 +935,8 @@ begin
     MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
     fGameName := 'New Mission';
   end;
+
+  fPlayers.AfterMissionInit(false);
 
   for i:=1 to MAX_PLAYERS do //Reveal all players since we'll swap between them in MapEd
     fTerrain.RevealWholeMap(TPlayerID(i));

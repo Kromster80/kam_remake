@@ -97,10 +97,12 @@ type TKMPointList = class
     List:array of TKMPoint; //1..Count
     procedure Clearup; virtual;
     procedure AddEntry(aLoc:TKMPoint);
-    function RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
+    function  RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
     procedure InjectEntry(ID:integer; aLoc:TKMPoint);
-    function GetRandom():TKMPoint;
+    function  GetRandom():TKMPoint;
     procedure Inverse();
+    function  GetTopLeft():TKMPoint;
+    function  GetBottomRight():TKMPoint;
     procedure Save(SaveStream:TKMemoryStream); virtual;
     procedure Load(LoadStream:TKMemoryStream); virtual;
   end;
@@ -478,6 +480,30 @@ var i:integer;
 begin
   for i:=1 to Count div 2 do
     KMSwapPoints(List[i],List[Count-i+1]); //Do +1 since i starts from 1
+end;
+
+
+function TKMPointList.GetTopLeft():TKMPoint;
+var i:integer;
+begin
+  if Count=0 then exit;
+  Result := List[1]; //Something to start with
+  for i:=2 to Count do begin
+    if List[i].X < Result.X then Result.X := List[i].X;
+    if List[i].Y < Result.Y then Result.Y := List[i].Y;
+  end;
+end;
+
+
+function TKMPointList.GetBottomRight():TKMPoint;
+var i:integer;
+begin
+  if Count=0 then exit;
+  Result := List[1]; //Something to start with
+  for i:=2 to Count do begin
+    if List[i].X > Result.X then Result.X := List[i].X;
+    if List[i].Y > Result.Y then Result.Y := List[i].Y;
+  end;
 end;
 
 

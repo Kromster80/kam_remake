@@ -22,6 +22,7 @@ type
     constructor Create(aPlayerCount:integer);
     destructor Destroy; override;
   public
+    procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure SetPlayerCount(aPlayerCount:integer);
     property PlayerCount:integer read fPlayerCount;
     function HousesHitTest(X,Y:Integer):TKMHouse;
@@ -73,6 +74,14 @@ begin
   MyPlayer := nil;
   Selected := nil;
   Inherited;
+end;
+
+
+procedure TKMAllPlayers.AfterMissionInit(aFlattenRoads:boolean);
+var i:integer;
+begin
+  for i:=1 to fPlayerCount do
+    Player[i].AfterMissionInit(aFlattenRoads);
 end;
 
 

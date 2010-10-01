@@ -430,7 +430,7 @@ begin
                      end;
                      end;
   ct_SetRoad:        begin
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]), true);
+                       fPlayers.Player[CurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0],ParamList[1]));
                      end;
   ct_SetField:       begin
                        fPlayers.Player[CurrentPlayerIndex].AddField(KMPointX1Y1(ParamList[0],ParamList[1]),ft_Corn);
@@ -440,9 +440,9 @@ begin
                      end;
   ct_SetStock:       begin //This command basically means: Put a storehouse here with road bellow it
                        LastHouse := fPlayers.Player[CurrentPlayerIndex].AddHouse(ht_Store, KMPointX1Y1(ParamList[0]-1,ParamList[1]));
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0],ParamList[1]+1), true);
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1), true);
-                       fPlayers.Player[CurrentPlayerIndex].AddRoad(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1), true);
+                       fPlayers.Player[CurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0],ParamList[1]+1));
+                       fPlayers.Player[CurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0]-1,ParamList[1]+1));
+                       fPlayers.Player[CurrentPlayerIndex].AddRoadsToList(KMPointX1Y1(ParamList[0]-2,ParamList[1]+1));
                      end;
   ct_AddWare:        begin
                        MyInt:=ParamList[1];
@@ -599,7 +599,7 @@ const
   COMMANDLAYERS = 4;
 var
   f:textfile;
-  i: longint; //lonint because it is used for encoding entire output, which will limit the file size
+  i: longint; //longint because it is used for encoding entire output, which will limit the file size
   k,j,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
   Group: TGroupType;
   CurUnit: TKMUnit;

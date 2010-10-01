@@ -11,6 +11,7 @@ type
 type
   TKMPlayerAssets = class
   private
+    fRoadsList:TKMPointList;
     fUnits: TKMUnitsCollection;
     fHouses: TKMHousesCollection;
     fDeliverList: TKMDeliverQueue;
@@ -29,6 +30,8 @@ type
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint; DoFlatten:boolean=true);
+    procedure AddRoadsToList(aLoc: TKMPoint);
+    procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; PlayerRevealID:TPlayerID=play_none);
@@ -107,6 +110,7 @@ begin
   PlayerID      := aPlayerID;
   PlayerType    := pt_Computer;
   fMissionSettings := TMissionSettings.Create;
+  fRoadsList    := TKMPointList.Create; //Used only once on mission loading, then freed
   fUnits        := TKMUnitsCollection.Create;
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
@@ -120,6 +124,7 @@ end;
 destructor TKMPlayerAssets.Destroy;
 begin
   FreeThenNil(fMissionSettings);
+  FreeThenNil(fRoadsList);
   FreeThenNil(fUnits);
   FreeThenNil(fHouses);
   FreeThenNil(fDeliverList);
@@ -174,6 +179,23 @@ begin
   fTerrain.SetRoad(aLoc,PlayerID);
   if DoFlatten then
     fTerrain.FlattenTerrain(aLoc); //Flatten the terrain for road
+end;
+
+
+procedure TKMPlayerAssets.AddRoadsToList(aLoc: TKMPoint);
+begin
+  if fRoadsList=nil then exit;
+  fRoadsList.AddEntry(aLoc);
+end;
+
+
+procedure TKMPlayerAssets.AfterMissionInit(aFlattenRoads:boolean);
+begin
+  if fRoadsList<>nil then begin
+    fTerrain.SetRoads(fRoadsList,PlayerID);
+    if aFlattenRoads then fTerrain.FlattenTerrain(fRoadsList);
+    FreeAndNil(fRoadsList);
+  end;
 end;
 
 
