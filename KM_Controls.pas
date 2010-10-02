@@ -936,7 +936,7 @@ begin
   Inherited;
   StateSet:=[];
   if (csOver in State) and Enabled and not HideHighlight then StateSet:=StateSet+[fbs_Highlight];
-  if (csDown in State) then StateSet:=StateSet+[fbs_Selected];
+  if (csDown in State) or Down then StateSet:=StateSet+[fbs_Selected];
   //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
   fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
