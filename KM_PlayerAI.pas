@@ -198,7 +198,7 @@ begin
   SaveStream.Write(ReqWorkers);
   SaveStream.Write(ReqSerfFactor);
   SaveStream.Write(ReqRecruits);
-  SaveStream.Write(RecruitTrainTimeout,4);
+  SaveStream.Write(RecruitTrainTimeout);
   SaveStream.Write(TownDefence);
   SaveStream.Write(MaxSoldiers);
   SaveStream.Write(Aggressiveness);
@@ -213,7 +213,7 @@ begin
   LoadStream.Read(ReqWorkers);
   LoadStream.Read(ReqSerfFactor);
   LoadStream.Read(ReqRecruits);
-  LoadStream.Read(RecruitTrainTimeout,4);
+  LoadStream.Read(RecruitTrainTimeout);
   LoadStream.Read(TownDefence);
   LoadStream.Read(MaxSoldiers);
   LoadStream.Read(Aggressiveness);
