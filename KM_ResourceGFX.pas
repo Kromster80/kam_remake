@@ -629,7 +629,7 @@ begin
 
   blockread(f, RXData[ID].Pal[1], RXData[ID].Qty);
 
-  if (not FullyLoadUnitsRX)and(RXData[ID].Title = 'Units') then RXData[ID].Qty:=7885;
+  if (not LOAD_UNIT_RX_FULL)and(RXData[ID].Title = 'Units') then RXData[ID].Qty:=7885;
 
   for i:=1 to RXData[ID].Qty do
     if RXData[ID].Pal[i] = 1 then

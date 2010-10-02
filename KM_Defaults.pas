@@ -9,7 +9,6 @@ const
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   ToolBarWidth          = 224;          //Toolbar width in game
-  Overlap               = 0.0;          //UV position overlap (to avoid edge artefacts in render), GL_CLAMP made it obsolete
   DEF_PAL               = 2;            //Default palette to use when generating full-color RGB textures
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
@@ -22,9 +21,7 @@ const
   FOG_OF_WAR_INC        = 128;            //Increment for FOW
   FOG_OF_WAR_DEC        = 12;            //Decrement for FOW
 
-  //@Krom: After playing for a minute on my laptop the graphics card is at about 65 degrees and the fans are going really loudly because it's rendering at minimum 130 FPS and 1920x1080 resolution. (300+ FPS with not much on the screen)
-  //       This is okay because the fans stop it getting hotter but it's not necessary and very noisy while playing. Is it standard to impose a limit in games or should we make it a setting? Or maybe it doesn't matter much...
-  FPS_LAG               = 1;            //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
+  FPS_LAG               = 40;            //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
   SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
@@ -32,10 +29,10 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1037';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1037';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = 'Fighting Demo r1065';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1065';       //Should be updated for every release (each time save format is changed)
 var
-  REPLAY_VERSION:integer= 1037;          //Used in replay file format
+  REPLAY_VERSION:integer= 1065;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -48,7 +45,8 @@ var
   FORCE_RESOLUTION      :boolean=true;  //Whether to change resolution on start up
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
-  CRASH_ON_REPLAY       :boolean=false; //Crash as soon as replay consistency fails (random numbers mismatch)
+  CAP_MAX_FPS           :boolean=false;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CRASH_ON_REPLAY       :boolean=false;  //Crash as soon as replay consistency fails (random numbers mismatch)
 
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
@@ -60,14 +58,14 @@ var
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   //Not fully implemented yet
   CHECK_WIN_CONDITIONS  :boolean=false; //Disable for debug missions where enemies aren't properly set
-  FullyLoadUnitsRX      :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
+  LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
   ENABLE_MP_IN_MENU     :boolean=false; //Keep it disable until it's rigged
 
   //These are debug things, should be FALSE
   {User interface options}
-  ShowDebugControls     :boolean=false; //Show debug panel / Form1 menu (F11)
+  SHOW_DEBUG_CONTROLS   :boolean=false; //Show debug panel / Form1 menu (F11)
   SHOW_CONTROLS_OVERLAY :boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here

@@ -282,10 +282,10 @@ for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% 
       end else
         Lay2:=false;
 
-      TexC[1,1]:=(xt mod 16  )/16+Overlap; TexC[1,2]:=(xt div 16  )/16+Overlap;
-      TexC[2,1]:=(xt mod 16  )/16+Overlap; TexC[2,2]:=(xt div 16+1)/16-Overlap;
-      TexC[3,1]:=(xt mod 16+1)/16-Overlap; TexC[3,2]:=(xt div 16+1)/16-Overlap;
-      TexC[4,1]:=(xt mod 16+1)/16-Overlap; TexC[4,2]:=(xt div 16  )/16+Overlap;
+      TexC[1,1]:=(xt mod 16  )/16; TexC[1,2]:=(xt div 16  )/16;
+      TexC[2,1]:=(xt mod 16  )/16; TexC[2,2]:=(xt div 16+1)/16;
+      TexC[3,1]:=(xt mod 16+1)/16; TexC[3,2]:=(xt div 16+1)/16;
+      TexC[4,1]:=(xt mod 16+1)/16; TexC[4,2]:=(xt div 16  )/16;
 
       TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
@@ -896,10 +896,10 @@ if not InRange(Index,0,255) then fLog.AssertToLog(false,'Wrong tile index, shoul
 glColor4f(1,1,1,1);
 glBindTexture(GL_TEXTURE_2D, TextT);
 
-TexC[1,1]:=(Index mod 16  )/16+Overlap; TexC[1,2]:=(Index div 16  )/16+Overlap;
-TexC[2,1]:=(Index mod 16  )/16+Overlap; TexC[2,2]:=(Index div 16+1)/16-Overlap;
-TexC[3,1]:=(Index mod 16+1)/16-Overlap; TexC[3,2]:=(Index div 16+1)/16-Overlap;
-TexC[4,1]:=(Index mod 16+1)/16-Overlap; TexC[4,2]:=(Index div 16  )/16+Overlap;
+TexC[1,1]:=(Index mod 16  )/16; TexC[1,2]:=(Index div 16  )/16;
+TexC[2,1]:=(Index mod 16  )/16; TexC[2,2]:=(Index div 16+1)/16;
+TexC[3,1]:=(Index mod 16+1)/16; TexC[3,2]:=(Index div 16+1)/16;
+TexC[4,1]:=(Index mod 16+1)/16; TexC[4,2]:=(Index div 16  )/16;
 TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
 
 if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1

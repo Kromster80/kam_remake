@@ -128,16 +128,16 @@ uses KM_Settings, KM_CommonTypes, KM_TGATexture;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
-var FrameTime:cardinal;
+var FrameTime:cardinal; s:string;
 begin
   //if not Form1.Active then exit;
 
   //Counting FPS
   begin
-    FrameTime:=TimeGetTime-OldTimeFPS;
-    OldTimeFPS:=TimeGetTime;
+    FrameTime  := TimeGetTime - OldTimeFPS;
+    OldTimeFPS := TimeGetTime;
 
-    if (FPS_LAG<>1)and(FrameTime<FPS_LAG) then begin
+    if CAP_MAX_FPS and (FPS_LAG<>1)and(FrameTime<FPS_LAG) then begin
       sleep(FPS_LAG-FrameTime);
       FrameTime:=FPS_LAG;
     end;
@@ -145,11 +145,14 @@ begin
     inc(OldFrameTimes,FrameTime);
     inc(FrameCount);
     if OldFrameTimes>=FPS_INTERVAL then begin
-      StatusBar1.Panels[3].Text:=floattostr(round((1000/(OldFrameTimes/FrameCount))*10)/10)+' fps ('+inttostr(1000 div FPS_LAG)+')';
+      s := Format('%.1f fps',[1000/(OldFrameTimes/FrameCount)]);
+      if CAP_MAX_FPS then s := s + ' (' + inttostr(FPS_LAG) + ')';
+      StatusBar1.Panels[3].Text:=s;
       OldFrameTimes:=0;
       FrameCount:=0;
     end;
-  end; //FPS calculation complete
+  end;
+  //FPS calculation complete
 
   fGame.UpdateStateIdle(FrameTime);
   fRender.Render;
@@ -167,7 +170,7 @@ begin
   FormLoading.Show; //This is our splash screen
   FormLoading.Refresh;
   Panel5.Color := clBlack;
-  ToggleControlsVisibility(ShowDebugControls);
+  ToggleControlsVisibility(SHOW_DEBUG_CONTROLS);
 
   //Randomize; //Randomize the random seed to ensure that we don't get repeditive patterns,
   //but we need this to be Off to reproduce bugs

@@ -5,6 +5,7 @@ Single-Player
 	Campaign TPR
 	Single map
 	Load game
+	View replay
 
 Multi-Player
 	Single-map

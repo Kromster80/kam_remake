@@ -1659,9 +1659,9 @@ begin
       x0:=EnsureRange(k-1,1,MapX);
       y2:=EnsureRange(i+1,1,MapY);
       if VerticeInMapCoords(x0,y2) then
-        Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1)*(1-Overlap); //  1.33*16 ~=22
+        Land[i,k].Light:=EnsureRange((Land[i,k].Height-(Land[y2,k].Height+Land[i,x0].Height)/2)/22,-1,1); //  1.33*16 ~=22
     if (i=1)or(i=MapY)or(k=1)or(k=MapX) then //Map borders fade to black
-      Land[i,k].Light:=-1+Overlap;
+      Land[i,k].Light:=-1;
     end;
 end;
 
