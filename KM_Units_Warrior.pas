@@ -63,6 +63,8 @@ type //Possibly melee warrior class? with Archer class separate?
     function IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
     function FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
 
+    procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
+
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
@@ -521,6 +523,14 @@ begin
 end;
 
 
+procedure TKMUnitWarrior.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
+begin
+  Assert(aGoDir = gd_GoOutside, 'Walking inside is not implemented yet');
+  Inherited;
+  fOrder := wo_WalkOut;
+end;
+
+
 procedure TKMUnitWarrior.SetUnitsPerRow(aVal:integer);
 begin
   if (fCommander = nil) and (fMembers <> nil) then
@@ -595,7 +605,7 @@ begin
   fState := ws_None; //Clear other states
   SetOrderHouseTarget(aTargetHouse);
 
-  //Transmit order to all memmber if we have any
+  //Transmit order to all members if we have any
   if (fCommander = nil) and (fMembers <> nil) then
     for i:=0 to fMembers.Count-1 do
       TKMUnitWarrior(fMembers.Items[i]).PlaceOrder(aWarriorOrder, aTargetHouse);
@@ -826,14 +836,14 @@ begin
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage();
 
-  if fCommander=nil {IsCommander} then
+  if fCommander=nil then
     UpdateFoe;
 
   if (fState = ws_Engage) and ((GetCommander.Foe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
     fState := ws_None; //As soon as combat is over set the state back
 
   //Help out our fellow group members in combat if we are not fighting and someone else is
-  if (not (GetUnitAction is TUnitActionFight)) and (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
+  if CanInterruptAction and (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
   begin
     fOrder := wo_Attack;
     fState := ws_Engage; //Special state so we don't issue this order continuously
@@ -846,26 +856,25 @@ begin
   //This should make units response a bit delayed.
 
 
-  //Dispatch new order when warrior finished previous action part
-  if (fOrder=wo_Walk)
-    and (GetUnitAction is TUnitActionWalkTo)
-    and TUnitActionWalkTo(GetUnitAction).CanAbandon
-  then begin
-    if GetUnitTask <> nil then FreeAndNil(fUnitTask);
-    //If we are not the commander then walk to near
-    TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, fCommander <> nil);
-    fOrder := wo_None;
-    fState := ws_Walking;
-  end;
-
-
-  if (fOrder=wo_Walk) and GetUnitAction.StepDone and CanInterruptAction then
-  begin
-    if GetUnitTask <> nil then FreeAndNil(fUnitTask);
-    //If we are not the commander then walk to near
-    SetActionWalk(Self, fOrderLoc.Loc, ua_Walk, true, false, fCommander <> nil);
-    fOrder := wo_None;
-    fState := ws_Walking;
+  //New walking order
+  if (fOrder=wo_Walk) then begin
+    //Change WalkTo
+    if (GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).CanAbandon
+    then begin
+      if GetUnitTask <> nil then FreeAndNil(fUnitTask);
+      TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, fCommander <> nil);
+      fOrder := wo_None;
+      fState := ws_Walking;
+    end;
+    //Set WalkTo
+    if GetUnitAction.StepDone and CanInterruptAction then
+    begin
+      if GetUnitTask <> nil then FreeAndNil(fUnitTask);
+      //If we are not the commander then walk to near
+      SetActionWalk(Self, fOrderLoc.Loc, ua_Walk, true, false, fCommander <> nil);
+      fOrder := wo_None;
+      fState := ws_Walking;
+    end;
   end;
 
 

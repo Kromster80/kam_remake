@@ -1357,8 +1357,8 @@ end;
 
 procedure TKMHouseBarracks.Equip(aUnitType: TUnitType);
 var i,k: integer;
-    Soldier: TKMUnit;
-    LinkUnit:TKMUnit;
+    Soldier: TKMUnitWarrior;
+    LinkUnit:TKMUnitWarrior;
 begin
   //Equip a new soldier and make him walk out of the house
   //First make sure unit is valid and we have resources to equip him
@@ -1372,15 +1372,14 @@ begin
   dec(RecruitsInside); //All units take a recruit
 
   //Make new unit
-  Soldier := fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true);
-
-  //Make him invisible as he is inside the barracks
-  Soldier.SetVisibility := false;
+  Soldier := TKMUnitWarrior(fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true));
+  Soldier.SetVisibility := false; //Make him invisible as he is inside the barracks
   Soldier.SetCondition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
 
-  TKMUnitWarrior(Soldier).SetActionGoIn(ua_Walk, gd_GoOutside, Self);
-  LinkUnit := TKMUnitWarrior(Soldier).FindLinkUnit(GetEntrance);
-  TKMUnitWarrior(Soldier).LinkTo(TKMUnitWarrior(LinkUnit));
+  Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
+
+  LinkUnit := Soldier.FindLinkUnit(GetEntrance);
+  Soldier.LinkTo(LinkUnit);
   //todo: Try to Link ourselves to some group
 end;
 
