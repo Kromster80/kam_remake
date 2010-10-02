@@ -1130,16 +1130,13 @@ end;
 //Do something related to mouse movement in menu
 procedure TKMMainMenuInterface.MouseMove(X,Y:integer);
 begin
-  if Panel_Campaign.Visible then begin
-    if X < ScreenX / 2 then
-      Panel_CampScroll.Left := Panel_Campaign.Width - Panel_CampScroll.Width
-    else
-      Panel_CampScroll.Left := 0;
-    if Y < ScreenY / 2 then
-      Panel_CampScroll.Top := Panel_Campaign.Height - Panel_CampScroll.Height
-    else
-      Panel_CampScroll.Top := 0;
-  end;
+  if (Panel_Campaign.Visible)
+ and (Y > Panel_Campaign.Height - Panel_CampScroll.Height) then
+      if X < Panel_CampScroll.Width then
+        Panel_CampScroll.Left := Panel_Campaign.Width - Panel_CampScroll.Width
+      else
+      if X > Panel_Campaign.Width - Panel_CampScroll.Width then
+        Panel_CampScroll.Left := 0;
 end;
 
 
