@@ -665,7 +665,7 @@ begin
     TKMHouseStore(Self).AddMultiResource(aResource, aCount)
   else
   if HouseInput[byte(fHouseType),1]=rt_Warfare then
-    TKMHouseBarracks(Self).AddMultiResource(aResource)
+    TKMHouseBarracks(Self).AddMultiResource(aResource, aCount)
   else
     for i:=1 to 4 do
     if aResource = HouseInput[byte(fHouseType),i] then

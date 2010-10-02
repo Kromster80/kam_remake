@@ -12,6 +12,7 @@ type TKMapEdInterface = class
     ShownHouse:TKMHouse;
     PrevHint:TObject;
     StorehouseItem:byte; //Selected ware in storehouse
+    BarracksItem:byte; //Selected ware in barracks
 
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
@@ -96,10 +97,10 @@ type TKMapEdInterface = class
       Button_StoreDec100,Button_StoreDec:TKMButton;
       Button_StoreInc100,Button_StoreInc:TKMButton;
     Panel_HouseBarracks:TKMPanel;
-      Button_Barracks:array[1..12]of TKMButtonFlat;
-      Label_Barracks_Unit:TKMLabel;
-      Image_Barracks_Right,Image_Barracks_Train,Image_Barracks_Left:TKMImage;
-      Button_Barracks_Right,Button_Barracks_Train,Button_Barracks_Left:TKMButton;
+      Button_Barracks:array[1..11]of TKMButtonFlat;
+      Label_Barracks_WareCount:TKMLabel;
+      Button_BarracksDec100,Button_BarracksDec:TKMButton;
+      Button_BarracksInc100,Button_BarracksInc:TKMButton;
   private
     procedure Create_Terrain_Page;
     procedure Create_Village_Page;
@@ -121,10 +122,13 @@ type TKMapEdInterface = class
     procedure TerrainObjects_Change(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Unit_ButtonClick(Sender: TObject);
+    procedure Barracks_Fill(Sender:TObject);
     procedure Store_Fill(Sender:TObject);
     procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
     procedure Unit_ArmyChange(Sender:TObject); overload;
     procedure Unit_ArmyChange(Sender:TObject; AButton:TMouseButton); overload;
+    procedure Barracks_SelectWare(Sender:TObject);
+    procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
     procedure Store_SelectWare(Sender:TObject);
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
   public
@@ -315,8 +319,9 @@ begin
 
   MyControls := TKMControlsCollection.Create;
 
-  ShownUnit:=nil;
-  ShownHouse:=nil;
+  ShownUnit  := nil;
+  ShownHouse := nil;
+  BarracksItem   := 1; //First ware selected by default
   StorehouseItem := 1; //First ware selected by default
 
 {Parent Page for whole toolbar in-game}
@@ -669,17 +674,25 @@ procedure TKMapEdInterface.Create_Barracks_Page;
 var i:integer;
 begin
     Panel_HouseBarracks:=MyControls.AddPanel(Panel_House,0,76,200,400);
-      for i:=1 to 12 do
+      for i:=1 to 11 do
       begin
         Button_Barracks[i]:=MyControls.AddButtonFlat(Panel_HouseBarracks, 8+((i-1)mod 6)*31,8+((i-1)div 6)*42,28,38,366+i);
+        Button_Barracks[i].Tag := i;
         Button_Barracks[i].TexOffsetX:=1;
         Button_Barracks[i].TexOffsetY:=1;
         Button_Barracks[i].CapOffsetY:=2;
-        Button_Barracks[i].HideHighlight:=true;
         Button_Barracks[i].Hint:=TypeToString(TResourceType(16+i));
+        Button_Barracks[i].OnClick := Barracks_SelectWare;
       end;
-      Button_Barracks[12].TexID:=154;
-      Button_Barracks[12].Hint:=TypeToString(ut_Recruit);
+    Button_BarracksDec100   := MyControls.AddButton(Panel_HouseBarracks,116,218,20,20,'<', fnt_Metal);
+    Button_BarracksDec      := MyControls.AddButton(Panel_HouseBarracks,116,238,20,20,'-', fnt_Metal);
+    Label_Barracks_WareCount:= MyControls.AddLabel (Panel_HouseBarracks,156,230,100,30,'',fnt_Metal,kaCenter);
+    Button_BarracksInc100   := MyControls.AddButton(Panel_HouseBarracks,176,218,20,20,'>', fnt_Metal);
+    Button_BarracksInc      := MyControls.AddButton(Panel_HouseBarracks,176,238,20,20,'+', fnt_Metal);
+    Button_BarracksDec100.OnClickEither := Barracks_EditWareCount;
+    Button_BarracksDec.OnClickEither    := Barracks_EditWareCount;
+    Button_BarracksInc100.OnClickEither := Barracks_EditWareCount;
+    Button_BarracksInc.OnClickEither    := Barracks_EditWareCount;
 end;
 
 
@@ -896,6 +909,7 @@ begin
         end;
 
     ht_Barracks: begin
+          Barracks_Fill(nil);
           Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
           SwitchPage(Panel_HouseBarracks);
           end;
@@ -1010,6 +1024,20 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Barracks_Fill(Sender:TObject);
+var i,Tmp:integer;
+begin
+  if fPlayers.Selected=nil then exit;
+  if not (fPlayers.Selected is TKMHouseBarracks) then exit;
+  for i:=1 to 11 do begin
+    Tmp:=TKMHouseBarracks(fPlayers.Selected).ResourceCount[i];
+    if Tmp=0 then Button_Barracks[i].Caption:='-' else
+    //if Tmp>999 then Button_Barracks[i].Caption:=float2fix(round(Tmp/10)/100,2)+'k' else
+                  Button_Barracks[i].Caption:=inttostr(Tmp);
+  end;
+end;
+
+
 procedure TKMapEdInterface.House_HealthChange(Sender:TObject; AButton:TMouseButton);
 var Amt:byte;
 begin
@@ -1055,6 +1083,20 @@ begin
 end;
 
 
+procedure TKMapEdInterface.Barracks_SelectWare(Sender:TObject);
+var i:integer;
+begin
+  if not Panel_HouseBarracks.Visible then exit;
+  if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
+  if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
+  for i:=1 to length(Button_Barracks) do
+    Button_Barracks[i].Down := false;
+  TKMButtonFlat(Sender).Down := true;
+  BarracksItem := TKMButtonFlat(Sender).Tag;
+  Barracks_EditWareCount(Sender, mbLeft);
+end;
+
+
 procedure TKMapEdInterface.Store_SelectWare(Sender:TObject);
 var i:integer;
 begin
@@ -1062,10 +1104,31 @@ begin
   if not (Sender is TKMButtonFlat) then exit; //Only FlatButtons
   if TKMButtonFlat(Sender).Tag = 0 then exit; //with set Tag
   for i:=1 to length(Button_Store) do
-    Button_Store[i].Down:=false;
+    Button_Store[i].Down := false;
   TKMButtonFlat(Sender).Down := true;
   StorehouseItem := TKMButtonFlat(Sender).Tag;
   Store_EditWareCount(Sender, mbLeft);
+end;
+
+
+procedure TKMapEdInterface.Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
+var Res:TResourceType; Barracks:TKMHouseBarracks; Amt:byte;
+begin
+  if not Panel_HouseBarracks.Visible then exit;
+
+  Res := TResourceType(BarracksItem+16);
+  Barracks := TKMHouseBarracks(ShownHouse);
+
+  Amt := 0;
+  if AButton = mbLeft then Amt := 1;
+  if AButton = mbRight then Amt := 10;
+
+  if Sender = Button_BarracksDec100 then Barracks.ResTakeFromOut(Res, Amt*100);
+  if Sender = Button_BarracksDec    then Barracks.ResTakeFromOut(Res, Amt*1);
+  if Sender = Button_BarracksInc    then Barracks.ResAddToIn(Res, Amt*1);
+  if Sender = Button_BarracksInc100 then Barracks.ResAddToIn(Res, Amt*100);
+
+  Label_Barracks_WareCount.Caption := inttostr(Barracks.CheckResIn(Res));
 end;
 
 
