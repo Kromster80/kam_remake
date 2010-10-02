@@ -601,6 +601,7 @@ var
   f:textfile;
   i: longint; //longint because it is used for encoding entire output, which will limit the file size
   k,j,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
+  Res:TResourceType;
   Group: TGroupType;
   CurUnit: TKMUnit;
   CurHouse: TKMHouse;
@@ -733,20 +734,20 @@ begin
         begin
           inc(StoreCount);
           if StoreCount <= 2 then //For now only handle 2 storehouses, we can add a new command later
-            for j := 1 to 28 do
-              if TKMHouseStore(CurHouse).ResourceCount[j] > 0 then
+            for Res:=rt_Trunk to rt_Fish do
+              if TKMHouseStore(CurHouse).CheckResIn(Res) > 0 then
                 if StoreCount = 1 then
-                  AddCommand(ct_AddWare,2,j-1,TKMHouseStore(CurHouse).ResourceCount[j]) //Ware, Count
+                  AddCommand(ct_AddWare,2,byte(Res)-1,TKMHouseStore(CurHouse).CheckResIn(Res)) //Ware, Count
                 else
-                  AddCommand(ct_AddWareToSecond,2,j-1,TKMHouseStore(CurHouse).ResourceCount[j]); //Ware, Count
+                  AddCommand(ct_AddWareToSecond,2,byte(Res)-1,TKMHouseStore(CurHouse).CheckResIn(Res)); //Ware, Count
         end;
         if CurHouse is TKMHouseBarracks then
         begin
           inc(BarracksCount);
           if BarracksCount <= 1 then //For now only handle 1 barracks, we can add a new command later
-            for j := 1 to 11 do
-              if TKMHouseBarracks(CurHouse).ResourceCount[j] > 0 then
-                AddCommand(ct_AddWeapon,2,j+15,TKMHouseBarracks(CurHouse).ResourceCount[j]); //Ware, Count
+            for Res:=rt_Shield to rt_Horse do
+              if TKMHouseBarracks(CurHouse).CheckResIn(Res) > 0 then
+                AddCommand(ct_AddWeapon,2,byte(Res)-1,TKMHouseBarracks(CurHouse).CheckResIn(Res)); //Ware, Count
         end;
       end;
     end;

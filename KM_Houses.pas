@@ -181,8 +181,9 @@ type
 
   {Barracks has 11 resources and Recruits}
   TKMHouseBarracks = class(TKMHouse)
-  public
+  private
     ResourceCount:array[1..11]of word;
+  public
     RecruitsInside:integer;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
@@ -195,13 +196,15 @@ type
 
   {Storehouse keeps all the resources and flags for them}
   TKMHouseStore = class(TKMHouse)
-  public
+  private
     ResourceCount:array[1..28]of word;
+  public
     NotAcceptFlag:array[1..28]of boolean;
     constructor Create(aHouseType:THouseType; PosX,PosY:integer; aOwner:TPlayerID; aBuildState:THouseBuildState);
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
+    function CheckResIn(aResource:TResourceType):word; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -1265,6 +1268,15 @@ begin
                 end;
     else        fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
   end;
+end;
+
+
+function TKMHouseStore.CheckResIn(aResource:TResourceType):word;
+begin
+  if aResource in [rt_Trunk..rt_Fish] then
+    Result := ResourceCount[byte(aResource)]
+  else
+    Result := 0;
 end;
 
 

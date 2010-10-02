@@ -700,10 +700,7 @@ end;
 {If it ever gets a bottleneck then some static Controls may be excluded from update}
 procedure TKMapEdInterface.UpdateState;
 begin
-  if ShownUnit<>nil then ShowUnitInfo(ShownUnit) else
-  if ShownHouse<>nil then ShowHouseInfo(ShownHouse);
-
-  Minimap_Update(nil);
+  Minimap_Update(nil); //Even this Update could be excluded from MapEd interface
 end;
 
 
@@ -894,26 +891,24 @@ begin
   KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(HouseDAT[byte(Sender.GetHouseType)].MaxHealth);
   KMHealthBar_House.Position:=round( Sender.GetHealth / HouseDAT[byte(Sender.GetHouseType)].MaxHealth * 100 );
 
-  for i:=1 to Panel_House.ChildCount do
-    Panel_House.Childs[i].Show; //show all
   Image_House_Worker.Visible := TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1) <> ut_None;
-  SwitchPage(Panel_House);
+  
 
   case Sender.GetHouseType of
     ht_Store: begin
           Store_Fill(nil);
-          WasShown := Panel_HouseStore.Visible;
           SwitchPage(Panel_HouseStore);
-          if not WasShown then
-            Store_SelectWare(Button_Store[StorehouseItem]); //Reselect the ware so the display is updated
+          Store_SelectWare(Button_Store[StorehouseItem]); //Reselect the ware so the display is updated
         end;
 
     ht_Barracks: begin
           Barracks_Fill(nil);
           Image_House_Worker.Enable; //In the barrack the recruit icon is always enabled
           SwitchPage(Panel_HouseBarracks);
+          Barracks_SelectWare(Button_Barracks[BarracksItem]); //Reselect the ware so the display is updated
           end;
     ht_TownHall:;
+    else SwitchPage(Panel_House);
   end;
 end;
 
@@ -1016,7 +1011,7 @@ begin
   if fPlayers.Selected=nil then exit;
   if not (fPlayers.Selected is TKMHouseStore) then exit;
   for i:=1 to 28 do begin
-    Tmp:=TKMHouseStore(fPlayers.Selected).ResourceCount[i];
+    Tmp:=TKMHouseStore(fPlayers.Selected).CheckResIn(TResourceType(i));
     if Tmp=0 then Button_Store[i].Caption:='-' else
     //if Tmp>999 then Button_Store[i].Caption:=float2fix(round(Tmp/10)/100,2)+'k' else
                   Button_Store[i].Caption:=inttostr(Tmp);
@@ -1030,7 +1025,7 @@ begin
   if fPlayers.Selected=nil then exit;
   if not (fPlayers.Selected is TKMHouseBarracks) then exit;
   for i:=1 to 11 do begin
-    Tmp:=TKMHouseBarracks(fPlayers.Selected).ResourceCount[i];
+    Tmp:=TKMHouseBarracks(fPlayers.Selected).CheckResIn(TResourceType(i+16));
     if Tmp=0 then Button_Barracks[i].Caption:='-' else
     //if Tmp>999 then Button_Barracks[i].Caption:=float2fix(round(Tmp/10)/100,2)+'k' else
                   Button_Barracks[i].Caption:=inttostr(Tmp);
@@ -1047,6 +1042,7 @@ begin
   if AButton = mbRight then Amt:=50;
   if Sender = Button_HouseHealthDec then ShownHouse.AddDamage(Amt);
   if Sender = Button_HouseHealthInc then ShownHouse.AddRepair(Amt);
+  ShowHouseInfo(ShownHouse);
 end;
 
 
@@ -1129,6 +1125,7 @@ begin
   if Sender = Button_BarracksInc100 then Barracks.ResAddToIn(Res, Amt*100);
 
   Label_Barracks_WareCount.Caption := inttostr(Barracks.CheckResIn(Res));
+  Barracks_Fill(nil);
 end;
 
 
@@ -1149,7 +1146,8 @@ begin
   if Sender = Button_StoreInc    then Store.ResAddToIn(Res, Amt*1);
   if Sender = Button_StoreInc100 then Store.ResAddToIn(Res, Amt*100);
 
-  Label_Store_WareCount.Caption := inttostr(Store.ResourceCount[byte(Res)]);
+  Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
+  Store_Fill(nil);
 end;
 
 

@@ -1579,8 +1579,8 @@ begin
 
   Barracks:=TKMHouseBarracks(fPlayers.Selected);
 
-  if (AButton = mbRight) and (Sender=Button_Barracks_Left) then LastBarracksUnit := 1;
-  if (AButton = mbRight) and (Sender=Button_Barracks_Right) then LastBarracksUnit := Length(Barracks_Order);
+  if (Sender=Button_Barracks_Left) and (AButton = mbRight) then LastBarracksUnit := 1;
+  if (Sender=Button_Barracks_Right) and (AButton = mbRight) then LastBarracksUnit := Length(Barracks_Order);
 
   if (Sender=Button_Barracks_Left)and(LastBarracksUnit > 1) then dec(LastBarracksUnit);
   if (Sender=Button_Barracks_Right)and(LastBarracksUnit < length(Barracks_Order)) then inc(LastBarracksUnit);
@@ -1592,7 +1592,7 @@ begin
 
   CanEquip:=true;
   for i:=1 to 12 do begin
-    if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.Selected).ResourceCount[i]
+    if i in [1..11] then Tmp:=TKMHouseBarracks(fPlayers.Selected).CheckResIn(TResourceType(i+16))
                     else Tmp:=TKMHouseBarracks(fPlayers.Selected).RecruitsInside;
     if Tmp=0 then Button_Barracks[i].Caption:='-'
              else Button_Barracks[i].Caption:=inttostr(Tmp);
@@ -1960,7 +1960,7 @@ begin
   if not (fPlayers.Selected is TKMHouseStore) then exit;
 
   for i:=1 to 28 do begin
-    Tmp:=TKMHouseStore(fPlayers.Selected).ResourceCount[i];
+    Tmp:=TKMHouseStore(fPlayers.Selected).CheckResIn(TResourceType(i));
     if Tmp=0 then Button_Store[i].Caption:='-' else
     //if Tmp>999 then Button_Store[i].Caption:=float2fix(round(Tmp/10)/100,2)+'k' else
                   Button_Store[i].Caption:=inttostr(Tmp);
