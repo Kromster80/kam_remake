@@ -458,12 +458,14 @@ begin
     Form1.BorderStyle  := bsSizeable; //if we don't set Form1 sizeable it won't expand to fullscreen
     Form1.WindowState  := wsMaximized;
     Form1.BorderStyle  := bsNone;     //and now we can make it borderless again
+    Form1.FormStyle    := fsStayOnTop;//Should overlay TaskBar
     Form1.Refresh;
   end else begin
     ResetResolution;
     Form1.Refresh;
     Form1.WindowState  := wsNormal;
     Form1.BorderStyle  := bsSizeable;
+    Form1.FormStyle    := fsNormal;
     Form1.ClientWidth  := MENU_DESIGN_X;
     Form1.ClientHeight := MENU_DESIGN_Y;
     Form1.Refresh;
@@ -551,7 +553,8 @@ begin
     Rect := BoundsRect;
     ClipCursor(@Rect); //Restrict the cursor movement to inside our form
   end
-  else ClipCursor(nil); //Otherwise have no restriction
+  else
+    ClipCursor(nil); //Otherwise have no restriction
 end;
 
 

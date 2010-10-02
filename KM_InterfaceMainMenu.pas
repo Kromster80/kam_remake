@@ -860,7 +860,7 @@ var i,Top,Revealed:integer;
 begin
   Campaign_Selected := aCampaign;
   Top := fGame.fCampaignSettings.GetMapsCount(Campaign_Selected);
-  Revealed := fGame.fCampaignSettings.GetUnlockedMaps(Campaign_Selected);
+  Revealed := min(fGame.fCampaignSettings.GetUnlockedMaps(Campaign_Selected), Top); //INI could be wrong
 
   //Choose background
   case Campaign_Selected of

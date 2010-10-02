@@ -67,6 +67,7 @@ type
     fUnlockedMapsTPR:byte;
   public
     constructor Create;
+    destructor Destroy; override;
     procedure RevealMap(aCamp:TCampaign; aMap:byte);
     function GetMapsCount(aCamp:TCampaign):byte;
     function GetUnlockedMaps(aCamp:TCampaign):byte;
@@ -284,9 +285,16 @@ end;
 constructor TCampaignSettings.Create;
 begin
   Inherited;
-  fUnlockedMapsTSK := 1; //Reveal first map
-  fUnlockedMapsTPR := 1;
-  fLog.AppendLog('Campaign init done');
+  LoadINI(EXEDir+'Saves\KaM_Remake_Campaigns.ini');
+  fLog.AppendLog('Campaign.ini loaded');
+end;
+
+
+destructor TCampaignSettings.Destroy;
+begin
+  SaveINI(EXEDir+'Saves\KaM_Remake_Campaigns.ini');
+  fLog.AppendLog('Campaign.ini saved');
+  Inherited;
 end;
 
 
