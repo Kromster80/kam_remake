@@ -89,16 +89,16 @@ end;
 function TTaskDeliver.WalkShouldAbandon:boolean;
 begin
   Result := false;
-  if (Phase-1 in [0,1,2]) then Result := fFrom.IsDestroyed;
+  if (fPhase in [0,1,2]) then Result := fFrom.IsDestroyed;
 
   if (DeliverKind = dk_ToHouse) and fToHouse.IsComplete then
-  if (Phase-1 in [5,6,7,8]) then Result := fToHouse.IsDestroyed;
+  if (fPhase in [5,6,7,8]) then Result := fToHouse.IsDestroyed;
 
   if (DeliverKind = dk_ToHouse) and not fToHouse.IsComplete then
-  if (Phase-1 in [5,6]) then Result := fToHouse.IsDestroyed;
+  if (fPhase in [5,6]) then Result := fToHouse.IsDestroyed;
 
   if (DeliverKind = dk_ToUnit) then
-  if (Phase-1 in [5,6]) then Result := (fToUnit=nil) or fToUnit.IsDeadOrDying;
+  if (fPhase in [5,6]) then Result := (fToUnit=nil) or fToUnit.IsDeadOrDying;
 end;
 
 
