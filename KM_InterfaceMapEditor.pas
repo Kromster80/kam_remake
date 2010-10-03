@@ -873,7 +873,6 @@ end;
 
 
 procedure TKMapEdInterface.ShowHouseInfo(Sender:TKMHouse);
-var i:integer; WasShown: boolean;
 begin
   ShownUnit:=nil;
   ShownHouse:=Sender;

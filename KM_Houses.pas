@@ -725,21 +725,25 @@ end;
 function TKMHouse.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
 var i:integer;
 begin
-Result:=false;
-if aResource=rt_None then exit;
-case fHouseType of
-ht_Store: if TKMHouseStore(Self).ResourceCount[byte(aResource)]>0 then begin
-            TKMHouseStore(Self).ResourceCount[byte(aResource)] := Math.max(TKMHouseStore(Self).ResourceCount[byte(aResource)] - aCount, 0);
-            Result:=true;
-          end;
-else
-          for i:=1 to 4 do
-          if aResource = HouseOutput[byte(fHouseType),i] then begin
-            fResourceOut[i] := Math.max(fResourceOut[i] - aCount, 0);
-            Result:=true;
-            exit;
-          end;
-end;
+  Result:=false;
+  if aResource=rt_None then exit;
+  case fHouseType of
+    ht_Store: if TKMHouseStore(Self).ResourceCount[byte(aResource)]>0 then begin
+                TKMHouseStore(Self).ResourceCount[byte(aResource)] := Math.max(TKMHouseStore(Self).ResourceCount[byte(aResource)] - aCount, 0);
+                Result:=true;
+              end;
+    ht_Barracks: if TKMHouseBarracks(Self).ResourceCount[byte(aResource)-16]>0 then begin
+                TKMHouseBarracks(Self).ResourceCount[byte(aResource)-16] := Math.max(TKMHouseBarracks(Self).ResourceCount[byte(aResource)-16] - aCount, 0);
+                Result:=true;
+              end;
+    else
+              for i:=1 to 4 do
+              if aResource = HouseOutput[byte(fHouseType),i] then begin
+                fResourceOut[i] := Math.max(fResourceOut[i] - aCount, 0);
+                Result:=true;
+                exit;
+              end;
+    end;
 end;
 
 
@@ -1258,7 +1262,7 @@ var i:integer;
 begin
   case aResource of
     rt_All:     for i:=1 to length(ResourceCount) do begin
-                  ResourceCount[i]:=EnsureRange(ResourceCount[i]+aCount,0,MAXWORD);
+                  ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,MAXWORD);
                   fPlayers.Player[byte(fOwner)].DeliverList.AddNewOffer(Self,TResourceType(i),aCount);
                 end;
     rt_Trunk..
@@ -1332,14 +1336,13 @@ end;
 procedure TKMHouseBarracks.AddMultiResource(aResource:TResourceType; const aCount:word=1);
 var i:integer;
 begin
-if aResource=rt_Warfare then
-  for i:=1 to length(ResourceCount) do
-    ResourceCount[i]:=EnsureRange(ResourceCount[i]+aCount,0,MAXWORD)
-else
-if aResource in [rt_Shield..rt_Horse] then
-  ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,MAXWORD)
-else
-  fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
+  case aResource of
+    rt_Warfare: for i:=1 to length(ResourceCount) do
+                ResourceCount[i] := EnsureRange(ResourceCount[i]+aCount,0,MAXWORD);
+    rt_Shield..
+    rt_Horse:   ResourceCount[byte(aResource)-16]:=EnsureRange(ResourceCount[byte(aResource)-16]+aCount,0,MAXWORD)
+    else        fGame.GameError(GetPosition, 'Cant''t add '+TypeToString(aResource));
+  end;
 end;
 
 
