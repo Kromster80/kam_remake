@@ -256,10 +256,11 @@ begin
     else Assert(false);
   end;
 
-  if CRASH_ON_REPLAY and (fQueue[aIndex].Rand <> Cardinal(Random(maxint))) then begin
-    //fGame.GameError(KMPoint(10,10),'Replay mismatch');
-    Assert(false);
-  end;
+  if (fQueue[aIndex].Rand <> Cardinal(Random(maxint))) then //This line should always be called to maintain randoms flow
+    if CRASH_ON_REPLAY then begin
+      //fGame.GameError(KMPoint(10,10),'Replay mismatch');
+      Assert(false);
+    end;
 end;
 
 

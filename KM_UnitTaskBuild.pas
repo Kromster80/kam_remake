@@ -643,7 +643,8 @@ end;
 
 destructor TTaskBuildHouse.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.CloseHouse(BuildID);
+  if fHouse.IsComplete and (BuildID<>0) then //Allow others to finish incomplete house
+    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.CloseHouse(BuildID);
   if fHouse <> nil then fHouse.ReleaseHousePointer;
   FreeAndNil(Cells);
   Inherited;
