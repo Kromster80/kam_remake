@@ -117,7 +117,7 @@ type
     procedure ResAddToOut(aResource:TResourceType; const aCount:integer=1);
     procedure ResAddToBuild(aResource:TResourceType);
     function ResTakeFromIn(aResource:TResourceType; aCount:byte=1):boolean;
-    function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
+    function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; virtual;
     procedure ResEditOrder(aID:byte; Amount:integer);
 
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -189,6 +189,7 @@ type
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
+    function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; override;
     function CanEquip(aUnitType: TUnitType):boolean;
     procedure Equip(aUnitType: TUnitType);
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -205,6 +206,7 @@ type
     procedure ToggleAcceptFlag(aRes:TResourceType);
     procedure AddMultiResource(aResource:TResourceType; const aCount:word=1);
     function CheckResIn(aResource:TResourceType):word; override;
+    function ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
@@ -727,23 +729,13 @@ var i:integer;
 begin
   Result:=false;
   if aResource=rt_None then exit;
-  case fHouseType of
-    ht_Store: if TKMHouseStore(Self).ResourceCount[byte(aResource)]>0 then begin
-                TKMHouseStore(Self).ResourceCount[byte(aResource)] := Math.max(TKMHouseStore(Self).ResourceCount[byte(aResource)] - aCount, 0);
-                Result:=true;
-              end;
-    ht_Barracks: if TKMHouseBarracks(Self).ResourceCount[byte(aResource)-16]>0 then begin
-                TKMHouseBarracks(Self).ResourceCount[byte(aResource)-16] := Math.max(TKMHouseBarracks(Self).ResourceCount[byte(aResource)-16] - aCount, 0);
-                Result:=true;
-              end;
-    else
-              for i:=1 to 4 do
-              if aResource = HouseOutput[byte(fHouseType),i] then begin
-                fResourceOut[i] := Math.max(fResourceOut[i] - aCount, 0);
-                Result:=true;
-                exit;
-              end;
-    end;
+  Assert(not(fHouseType in [ht_Store,ht_Barracks]));
+  for i:=1 to 4 do
+  if aResource = HouseOutput[byte(fHouseType),i] then begin
+    fResourceOut[i] := Math.max(fResourceOut[i] - aCount, 0);
+    Result:=true;
+    exit;
+  end;
 end;
 
 
@@ -1284,6 +1276,16 @@ begin
 end;
 
 
+function TKMHouseStore.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
+begin
+  if ResourceCount[byte(aResource)]>0 then begin
+    ResourceCount[byte(aResource)] := Math.max(ResourceCount[byte(aResource)] - aCount, 0);
+    Result:=true;
+  end else
+    Result:=false;
+end;
+
+
 procedure TKMHouseStore.ToggleAcceptFlag(aRes:TResourceType);
 var i:integer; ApplyCheat:boolean;
 begin
@@ -1352,6 +1354,17 @@ begin
     Result:=ResourceCount[byte(aResource)-16]
   else
     Result:=0;
+end;
+
+
+function TKMHouseBarracks.ResTakeFromOut(aResource:TResourceType; const aCount:integer=1):boolean;
+begin
+  Assert(aResource in [rt_Shield..rt_Horse]);
+  if ResourceCount[byte(aResource)-16]>0 then begin
+    ResourceCount[byte(aResource)-16] := Math.max(ResourceCount[byte(aResource)-16] - aCount, 0);
+    Result:=true;
+  end else
+    Result:=false;
 end;
 
 

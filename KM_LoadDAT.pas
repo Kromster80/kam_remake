@@ -600,7 +600,7 @@ const
 var
   f:textfile;
   i: longint; //longint because it is used for encoding entire output, which will limit the file size
-  k,j,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
+  k,iX,iY,CommandLayerCount,StoreCount,BarracksCount: integer;
   Res:TResourceType;
   Group: TGroupType;
   CurUnit: TKMUnit;
