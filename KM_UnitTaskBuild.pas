@@ -800,7 +800,7 @@ function TTaskBuildHouseRepair.Execute():TTaskResult;
 begin
   Result := TaskContinues;
 
-  if (fHouse.IsDestroyed)or(not fHouse.IsDamaged)or(not fHouse.BuildingRepair) then begin
+  if WalkShouldAbandon then begin
     Result := TaskDone;
     exit;
   end;
@@ -858,5 +858,6 @@ begin
   SaveStream.Write(CurLoc);
   Cells.Save(SaveStream);
 end;
+
 
 end.
