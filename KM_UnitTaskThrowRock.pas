@@ -58,15 +58,18 @@ begin
   with fUnit do
   case fPhase of
     0: begin
-         if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
          GetHome.SetState(hst_Work); //Set house to Work state
          GetHome.fCurrentAction.SubActionWork(ha_Work2); //show Recruits back
-         fFlightTime := fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);
          SetActionStay(5,ua_Walk); //take the stone
        end;
     1: begin
+         if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
+         fFlightTime := fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);
+         SetActionStay(1,ua_Walk);
+       end;
+    2: begin
          GetHome.SetState(hst_Idle);
-         SetActionStay(fFlightTime + 5,ua_Walk); //look how it goes
+         SetActionStay(fFlightTime,ua_Walk); //look how it goes
        end;
     else Result := TaskDone;
   end;

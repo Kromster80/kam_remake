@@ -27,6 +27,8 @@ type
     constructor Create;
     function AddItem(aStart,aEnd:TKMPointF; aProjType:TProjectileType):word;
 
+    function ProjectileVisible(aIndex:integer):boolean;
+
     procedure UpdateState;
     procedure Paint;
 
@@ -70,12 +72,12 @@ begin
   //Converting tile-coords into screen coords
   case aProjType of
     pt_Arrow, pt_Bolt: begin
-                    fItems[i].fScreenStart.X := aStart.X + 0.5; //Recruit stands in entrance, Tower middleline is X-0.75
-                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.5; //Recruit stands in entrance, Tower middleline is X-0.5
+                    fItems[i].fScreenStart.X := aStart.X + 0.5; //
+                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.5; //
                   end;
     pt_TowerRock: begin
                     fItems[i].fScreenStart.X := aStart.X - 0.25; //Recruit stands in entrance, Tower middleline is X-0.75
-                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 1.75; //Recruit stands in entrance, Tower middleline is X-0.5
+                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 1.75; //Add towers height
                   end;
   end;
   fItems[i].fScreenEnd.X    := fItems[i].fTargetJ.X + 0.5;
@@ -110,14 +112,25 @@ begin
 end;
 
 
+//Test wherever projectile is visible (used by rocks thrown from Towers mostly)
+function TKMProjectiles.ProjectileVisible(aIndex:integer):boolean;
+begin
+  case fItems[aIndex].fProjType of
+    pt_Arrow:      Result := true;
+    pt_Bolt:       Result := true;
+    pt_TowerRock:  Result := fItems[aIndex].fPosition >= 0.2; //fly off Tower a bit
+    else           Result := true;
+  end;
+end;
+
+
 procedure TKMProjectiles.Paint;
 var
   i:integer;
   MixValue:single;
 begin
   for i:=1 to length(fItems)-1 do
-    if fItems[i].fSpeed <> 0 then
-    if fItems[i].fPosition >= 0.2 then //fly off Tower a bit
+    if (fItems[i].fSpeed<>0) and ProjectileVisible(i) then
     begin
       MixValue := 1 - fItems[i].fPosition / fItems[i].fLength;
       fRender.RenderProjectile(
@@ -131,7 +144,11 @@ begin
                                     fItems[i].fScreenStart.Y,
                                     fItems[i].fScreenEnd.X,
                                     fItems[i].fScreenEnd.Y);
-      fRender.RenderDebugProjectile(fItems[i].fTarget.X,fItems[i].fTarget.Y,fItems[i].fTargetJ.X,fItems[i].fTargetJ.Y);
+      fRender.RenderDebugProjectile(
+                                    fItems[i].fTarget.X,
+                                    fItems[i].fTarget.Y,
+                                    fItems[i].fTargetJ.X,
+                                    fItems[i].fTargetJ.Y);
     end;
 end;
 

@@ -2105,7 +2105,7 @@ begin
     if Button_MessageGoTo.Visible then MyControls.CtrlDown := Button_MessageGoTo;
     if (not IsDown) then MessageGoTo(Button_MessageGoTo);
   end;
-  if (Key=VK_DELETE) and (ShownMessage <> 0) then
+  if (Key=VK_DELETE) and (ShownMessage <> 0) then //Delete the opened message
   begin
     if Button_MessageDelete.Visible then MyControls.CtrlDown := Button_MessageDelete;
     if (not IsDown) then MessageDelete(Image_Message[ShownMessage]); //Deletes the open message
