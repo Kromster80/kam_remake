@@ -168,31 +168,32 @@ end;
 
 
 procedure TGameInputProcess.SaveToFile(aFileName:string);
-var f:file; i:integer;
+var i:integer; S:TKMemoryStream;
 begin
-  AssignFile(f, aFileName);
-  Rewrite(f, 1);
-  BlockWrite(f, REPLAY_VERSION, 4);
-  BlockWrite(f, fCount, 4);
+  S := TKMemoryStream.Create;
+  S.Write(integer(REPLAY_VERSION)); //
+  S.Write(fCount);
   for i:=1 to fCount do
-    BlockWrite(f, fQueue[i].Tick, SizeOf(fQueue[i]));
-  CloseFile(f);
+    S.Write(fQueue[i].Tick, SizeOf(fQueue[i]));
+
+  S.SaveToFile(aFileName);
+  S.Free;
 end;
 
 
 procedure TGameInputProcess.LoadFromFile(aFileName:string);
-var f:file; Version,i,NumRead:integer;
+var FileVersion,i:integer; S:TKMemoryStream;
 begin
-  if not FileExists(aFileName) then exit;
-  AssignFile(f, aFileName);
-  Reset(f, 1);
-  BlockRead(f, Version, 4);
-  Assert(Version=REPLAY_VERSION, 'Old or unexpected replay file. r'+inttostr(Version)+' is required.');
-  BlockRead(f, fCount, 4, NumRead);
+  if not FileExists(aFileName) then exit;   
+  S := TKMemoryStream.Create;
+  S.LoadFromFile(aFileName);
+  S.Read(FileVersion);
+  Assert(FileVersion=REPLAY_VERSION, 'Old or unexpected replay file. r'+inttostr(FileVersion)+' is required.');
+  S.Read(fCount);
   setlength(fQueue, fCount+1);
   for i:=1 to fCount do
-    BlockRead(f, fQueue[i].Tick, SizeOf(fQueue[i]));
-  CloseFile(f);
+    S.Read(fQueue[i].Tick, SizeOf(fQueue[i]));
+  S.Free;
 end;
 
 

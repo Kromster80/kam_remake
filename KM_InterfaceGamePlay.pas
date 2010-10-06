@@ -1928,7 +1928,7 @@ begin
   end;
 
   if (Sender = Button_ReplayExit) then
-    ShowPlayMore(true, gr_ReplayEnd);
+    fGame.GameHold(true, gr_ReplayEnd);
 end;
 
 
@@ -2094,7 +2094,7 @@ begin
     case PlayMoreMsg of
       gr_Win:       begin MyPlayer.SkipWinConditionCheck := true; fGame.GameHold(false, gr_Win); end;
       gr_Defeat:    begin MyPlayer.SkipDefeatConditionCheck := true; fGame.GameHold(false, gr_Defeat); end;
-      gr_ReplayEnd: fGame.GameHold(false, gr_ReplayEnd);
+      gr_ReplayEnd: begin fGame.SkipReplayEndCheck := true; fGame.GameHold(false, gr_ReplayEnd); end;
     end;
     
 end;

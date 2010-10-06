@@ -15,13 +15,13 @@ const
   //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
   ACTION_TIME_DELTA     = 0.1;          //Multiplied with units speed gives distance unit walks per frame
 
-  FOG_OF_WAR_MIN        = 80;            //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
-  FOG_OF_WAR_ACT        = 160;           //Until this value FOW is not rendered at all
-  FOG_OF_WAR_MAX        = 255;           //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
-  FOG_OF_WAR_INC        = 128;            //Increment for FOW
-  FOG_OF_WAR_DEC        = 12;            //Decrement for FOW
+  FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
+  FOG_OF_WAR_ACT        = 160;          //Until this value FOW is not rendered at all
+  FOG_OF_WAR_MAX        = 255;          //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+  FOG_OF_WAR_INC        = 128;          //Increment for FOW
+  FOG_OF_WAR_DEC        = 12;           //Decrement for FOW
 
-  FPS_LAG               = 40;            //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
+  FPS_LAG               = 40;           //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
   FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
   SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
   SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
@@ -29,10 +29,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1077';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1077';       //Should be updated for every release (each time save format is changed)
-var
-  REPLAY_VERSION:integer= 1077;          //Used in replay file format
+  GAME_VERSION          = 'Fighting Demo r1079';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1079';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1079;          //Used in replay file format
 
 var
   //These should be TRUE

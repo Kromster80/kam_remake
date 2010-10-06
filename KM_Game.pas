@@ -33,6 +33,7 @@ type
   public
     GameSpeed:integer;
     GameState:TGameState;
+    SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
     fProjectiles:TKMProjectiles;
     fMusicLib: TMusicLib;
@@ -120,6 +121,7 @@ begin
   fCampaignSettings := TCampaignSettings.Create; //todo: Init from INI
   GameSpeed := 1;
   GameState := gsNoGame;
+  SkipReplayEndCheck := false;
   FormControlsVisible:=true;
   fLog.AppendLog('<== Game creation is done ==>');
 end;
@@ -1185,10 +1187,10 @@ begin
 
                     if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.IsAutosave then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
-                        
+
                     if GameState = gsReplay then begin
                       fGameInputProcess.Tick(fGameplayTickCount);
-                      if fGameInputProcess.Ended then
+                      if not SkipReplayEndCheck and fGameInputProcess.Ended then
                         GameHold(true, gr_ReplayEnd);
                     end;
 
