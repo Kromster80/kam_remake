@@ -118,7 +118,10 @@ begin
   case fItems[aIndex].fProjType of
     pt_Arrow:      Result := true;
     pt_Bolt:       Result := true;
-    pt_TowerRock:  Result := fItems[aIndex].fPosition >= 0.2; //fly off Tower a bit
+    pt_TowerRock:  if (fItems[aIndex].fScreenEnd.Y - fItems[aIndex].fScreenStart.Y) < 0 then
+                     Result := fItems[aIndex].fPosition >= 0.2 //fly behind a Tower
+                   else
+                     Result := true;
     else           Result := true;
   end;
 end;

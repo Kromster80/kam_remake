@@ -57,7 +57,7 @@ type
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error ()
     procedure GameSetState(aNewState:TGameState);
-    procedure GameHold(DoHold:boolean); //Hold the game to ask if player wants to play after Victory
+    procedure GameHold(DoHold:boolean; Msg:gr_Message); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure GameStop(const Msg:gr_Message; TextMsg:string='');
 
     procedure MapEditorStart(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
@@ -246,7 +246,8 @@ begin
                   if Key=ord('9') then fGameplayInterface.MessageIssue(msgQuill,'123',KMPoint(0,0));
                   if Key=ord('0') then fGameplayInterface.MessageIssue(msgScroll,'123',KMPoint(0,0));
 
-                  if Key=ord('V') then begin fGame.GameHold(true); exit; end; //Instant victory
+                  if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
+                  if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
                 end;
     gsReplay:   begin
                   if IsDown then exit;
@@ -817,19 +818,24 @@ end;
 
 
 //Put the game on Hold for Victory screen
-procedure TKMGame.GameHold(DoHold:boolean);
-begin
-  if DoHold then begin
-    fGame.GameSetState(gsRunning); //Unpause game just in case
-    fGame.fGameplayInterface.ShowPause(false);
+procedure TKMGame.GameHold(DoHold:boolean; Msg:gr_Message);
+begin     
+  case Msg of
+    gr_ReplayEnd:     begin
+                        if DoHold then begin
+                          GameSetState(gsOnHold);
+                          fGame.fGamePlayInterface.ShowPlayMore(true, Msg);
+                        end else
+                          GameSetState(gsReplay);
+                      end;
+    gr_Win,gr_Defeat: begin
+                        if DoHold then begin
+                          GameSetState(gsOnHold);
+                          fGame.fGamePlayInterface.ShowPlayMore(true, Msg);
+                        end else
+                          GameSetState(gsRunning);
+                      end;
   end;
-
-  if GameState in [gsOnHold, gsRunning] then
-  if DoHold then begin
-    GameState := gsOnHold;
-    fGame.fGamePlayInterface.ShowPlayMore(true);
-  end else
-    GameState := gsRunning;
 end;
 
 
@@ -1180,8 +1186,11 @@ begin
                     if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.IsAutosave then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
                         
-                    if GameState = gsReplay then
+                    if GameState = gsReplay then begin
                       fGameInputProcess.Tick(fGameplayTickCount);
+                      if fGameInputProcess.Ended then
+                        GameHold(true, gr_ReplayEnd);
+                    end;
 
                     if GameState = gsNoGame then exit; //Error due to consistency fail in replay commands
                   end;

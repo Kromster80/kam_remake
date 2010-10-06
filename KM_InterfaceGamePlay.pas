@@ -13,6 +13,7 @@ type TKMGamePlayInterface = class
     ShownHouse:TKMHouse;
     PrevHint:TObject;
     ShownMessage:integer;
+    PlayMoreMsg:gr_Message; //Remember which message we are showing
     LastSchoolUnit:integer;  //Last unit that was selected in School, global for all schools player owns
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
@@ -53,8 +54,8 @@ type TKMGamePlayInterface = class
       Bevel_PlayMore:TKMBevel;
       Panel_PlayMoreMsg:TKMPanel;
         Image_PlayMore:TKMImage;
-        Label_PlayMore1:TKMLabel;
-        Button_PlayMore,Button_PlayWin:TKMButton;
+        Label_PlayMore:TKMLabel;
+        Button_PlayMore,Button_PlayQuit:TKMButton;
     Panel_Ratios:TKMPanel;
       Button_Ratios:array[1..4]of TKMButton;
       Image_RatioPic0:TKMImage;
@@ -180,6 +181,7 @@ type TKMGamePlayInterface = class
     procedure MessageClose(Sender: TObject);
     procedure MessageDelete(Sender: TObject);
     procedure MessageGoTo(Sender: TObject);
+    procedure PlayMoreClick(Sender:TObject);
     procedure ReplayClick(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Build_Fill(Sender:TObject);
@@ -219,8 +221,7 @@ type TKMGamePlayInterface = class
     procedure EnableOrDisableMenuIcons(NewValue:boolean);
     procedure ShowClock(DoShow:boolean);
     procedure ShowPause(DoShow:boolean);
-    procedure ShowPlayMore(DoShow:boolean);
-    procedure PlayMore(Sender:TObject);
+    procedure ShowPlayMore(DoShow:boolean; Msg:gr_Message);
     procedure ShowDirectionCursor(Show:boolean; const aX: integer = 0; const aY: integer = 0; const Dir: TKMDirection = dir_NA);
     procedure ShortcutPress(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
@@ -582,9 +583,9 @@ begin
     Create_Barracks_Page();
     //Create_TownHall_Page(); //I don't want to make it at all yet
 
-  Create_Pause_Page(); //Must go at the bottom so that all controls above are faded
-  Create_PlayMore_Page(); //Must go at the bottom so that all controls above are faded
+  Create_Pause_Page(); 
   Create_Replay_Page();
+  Create_PlayMore_Page(); //Must be created last, so that all controls behind are blocked
 
   //Here we must go through every control and set the hint event to be the parameter
   for i := 0 to MyControls.Count - 1 do
@@ -641,7 +642,7 @@ begin
 
   Panel_PlayMore := MyControls.AddPanel(Panel_Main,0,0,s.X,s.Y);
   Panel_PlayMore.Stretch;
-    Bevel_PlayMore := MyControls.AddBevel(Panel_PlayMore,-1,-1,s.X+2-100,s.Y+2-100);
+    Bevel_PlayMore := MyControls.AddBevel(Panel_PlayMore,-1,-1,s.X+2,s.Y+2);
     Bevel_PlayMore.Stretch;
     
     Panel_PlayMoreMsg := MyControls.AddPanel(Panel_PlayMore,(s.X div 2)-100,(s.Y div 2)-100,200,200);
@@ -649,11 +650,11 @@ begin
       Image_PlayMore:=MyControls.AddImage(Panel_PlayMoreMsg,100,40,0,0,556);
       Image_PlayMore.ImageCenter;
 
-      Label_PlayMore1 := MyControls.AddLabel(Panel_PlayMoreMsg,100,80,64,16,'You''ve won!',fnt_Outline,kaCenter);
-      Button_PlayMore := MyControls.AddButton(Panel_PlayMoreMsg,0,100,200,30,'Continue playing',fnt_Metal);
-      Button_PlayWin  := MyControls.AddButton(Panel_PlayMoreMsg,0,140,200,30,'Victory!',fnt_Metal);
-      Button_PlayMore.OnClick := PlayMore;
-      Button_PlayWin.OnClick := PlayMore;
+      Label_PlayMore  := MyControls.AddLabel(Panel_PlayMoreMsg,100,80,64,16,'<<<LEER>>>',fnt_Outline,kaCenter);
+      Button_PlayMore := MyControls.AddButton(Panel_PlayMoreMsg,0,100,200,30,'<<<LEER>>>',fnt_Metal);
+      Button_PlayQuit := MyControls.AddButton(Panel_PlayMoreMsg,0,140,200,30,'<<<LEER>>>',fnt_Metal);
+      Button_PlayMore.OnClick := PlayMoreClick;
+      Button_PlayQuit.OnClick := PlayMoreClick;
     Panel_PlayMore.Hide; //Initially hidden
 end;
 
@@ -1927,7 +1928,7 @@ begin
   end;
 
   if (Sender = Button_ReplayExit) then
-    fGame.GameStop(gr_MapEdEnd);
+    ShowPlayMore(true, gr_ReplayEnd);
 end;
 
 
@@ -2053,22 +2054,49 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean);
+procedure TKMGamePlayInterface.ShowPlayMore(DoShow:boolean; Msg:gr_Message);
 begin
+  PlayMoreMsg := Msg;
+  case Msg of
+    gr_Win:       begin
+                    Label_PlayMore.Caption := 'You''ve won!';
+                    Button_PlayMore.Caption := 'Continue playing';
+                    Button_PlayQuit.Caption := 'Victory!';
+                  end;
+    gr_Defeat:    begin
+                    Label_PlayMore.Caption := 'You''ve lost!';
+                    Button_PlayMore.Caption := 'Continue watching';
+                    Button_PlayQuit.Caption := 'Defeat';
+                  end;
+    gr_ReplayEnd: begin
+                    Label_PlayMore.Caption := 'Replay has ended';
+                    Button_PlayMore.Caption := 'Continue watching';
+                    Button_PlayQuit.Caption := 'Quit to menu';
+                  end;
+    else if DoShow then Assert(false,'Wrong message in ShowPlayMore'); //Can become hidden with any message
+  end;
   Panel_PlayMore.Visible := DoShow;
 end;
 
 
-procedure TKMGamePlayInterface.PlayMore(Sender:TObject);
+procedure TKMGamePlayInterface.PlayMoreClick(Sender:TObject);
 begin
-  ShowPlayMore(false); //Hide anyways
-  if Sender = Button_PlayWin then
-    fGame.GameStop(gr_Win);
+  ShowPlayMore(false,PlayMoreMsg); //Hide anyways
+
+  if Sender = Button_PlayQuit then
+    case PlayMoreMsg of
+      gr_Win: fGame.GameStop(gr_Win);
+      gr_Defeat:fGame.GameStop(gr_Defeat);
+      gr_ReplayEnd:fGame.GameStop(gr_ReplayEnd);
+    end;
+
   if Sender = Button_PlayMore then
-  begin
-    MyPlayer.SkipWinConditionCheck := true;
-    fGame.GameHold(false); //Release Hold
-  end;
+    case PlayMoreMsg of
+      gr_Win:       begin MyPlayer.SkipWinConditionCheck := true; fGame.GameHold(false, gr_Win); end;
+      gr_Defeat:    begin MyPlayer.SkipDefeatConditionCheck := true; fGame.GameHold(false, gr_Defeat); end;
+      gr_ReplayEnd: fGame.GameHold(false, gr_ReplayEnd);
+    end;
+    
 end;
 
 

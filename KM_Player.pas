@@ -19,6 +19,7 @@ type
   public
     fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
     SkipWinConditionCheck: boolean;
+    SkipDefeatConditionCheck: boolean;
     constructor Create(aPlayerID:TPlayerID);
     destructor Destroy; override;
   public
@@ -118,6 +119,7 @@ begin
   for i:=1 to MAX_PLAYERS do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
   SkipWinConditionCheck := false;
+  SkipDefeatConditionCheck := false;
 end;
 
 
@@ -441,6 +443,7 @@ begin
   SaveStream.Write(PlayerType, SizeOf(PlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(SkipWinConditionCheck);
+  SaveStream.Write(SkipDefeatConditionCheck);
 end;
 
 
@@ -455,6 +458,7 @@ begin
   LoadStream.Read(PlayerType, SizeOf(PlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(SkipWinConditionCheck);
+  LoadStream.Read(SkipDefeatConditionCheck);
 end;
 
 

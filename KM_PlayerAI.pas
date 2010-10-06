@@ -52,6 +52,14 @@ end;
 
 function TKMPlayerAI.CheckDefeatConditions():boolean;
 begin
+  //FullCheck is called when quitting the mission and actual game result is important, unlike as in usual UpdateState loop
+  //if not DoFullCheck then
+  begin
+    Result := false;
+    if not CHECK_WIN_CONDITIONS then exit;
+    if Assets.SkipDefeatConditionCheck then exit;
+  end;
+
   Result :=
      (Assets.fMissionSettings.GetHouseQty(ht_Store)=0)
   and(Assets.fMissionSettings.GetHouseQty(ht_School)=0)
@@ -235,9 +243,10 @@ begin
   //Check defeat only for MyPlayer
   if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
   begin
-    if CheckDefeatConditions then fGame.GameStop(gr_Defeat); //Store+Barracks+School+Armies = 0
+    if CheckDefeatConditions then //Store+Barracks+School+Armies = 0
+      fGame.GameHold(true, gr_Defeat);
     if CheckWinConditions then
-      fGame.GameHold(true); //Enemies Store+Barracks+School+Armies = 0
+      fGame.GameHold(true, gr_Win); //Enemies Store+Barracks+School+Armies = 0
   end else
   
   if Assets.PlayerType=pt_Computer then begin

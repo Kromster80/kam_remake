@@ -109,7 +109,8 @@ TGameInputProcess = class
 
     property Count:integer read fCount;
     property State:TGIPState read fState;
-    function GetLastTick:integer;
+    function GetLastTick():integer;
+    function Ended():boolean;
 end;
 
 
@@ -436,6 +437,13 @@ end;
 function TGameInputProcess.GetLastTick:integer;
 begin
   Result := fQueue[fCount].Tick;
+end;
+
+
+{ See if replay has ended (no more commands in queue) }
+function TGameInputProcess.Ended():boolean;
+begin
+  Result := fCursor > fCount;
 end;
 
 
