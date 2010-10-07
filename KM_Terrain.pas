@@ -23,28 +23,28 @@ TTerrain = class
       Obj:byte;
 
       //Age of tree, another independent variable since trees can grow on fields
-      TreeAge:word;  //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
+      TreeAge:word; //Not init=0 .. Full=TreeAgeFull Depending on this tree gets older and thus could be chopped
 
       //Age of field/wine, another independent variable
-      FieldAge:word;  //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
+      FieldAge:word; //Empty=0, 1, 2, 3, 4, Full=65535  Depending on this special object maybe rendered (straw, grapes)
 
       //Visible for all players, HouseWIP is not a markup in fact, but it fits well in here, so let it be here
       Markup:TMarkup; //Markup (ropes) used on-top of tiles for roads/fields/houseplan/housearea
 
       //Used to display half-dug road
-      TileOverlay:TTileOverlay;  //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
+      TileOverlay:TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
-      TileOwner:TPlayerID; //Name says it all, should simplify player related issues
+      TileOwner:TPlayerID; //Who owns the tile by having a house/road/field on it
       IsUnit:byte; //Whenever there's a unit on that tile mark the tile as occupied and count the number
       IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
 
 
       //MAPEDITOR
       OldTerrain, OldRotation:byte; //Only used for map editor
-      HeightAdd:byte;
+      HeightAdd:byte; //Fraction part of height, for smooth height editing
 
 
-      //DEDUCTED
+      //DEDUCTED 
       Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
       Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 

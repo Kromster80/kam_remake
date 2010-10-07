@@ -71,7 +71,7 @@ type
       function GetNextNextPosition():TKMPoint;
       function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
       property GetInteractionStatus:TInteractionStatus read fInteractionStatus;
-      procedure ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aResetTargetUnit:boolean=true; aNewTargetUnit: TKMUnit=nil); //Modify route to go to this destination instead
+      procedure ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
       function Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
@@ -727,7 +727,7 @@ end;
 
 
 //Modify route to go to this destination instead. Kind of like starting the walk over again but without recreating the action
-procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aResetTargetUnit:boolean=true; aNewTargetUnit: TKMUnit=nil);
+procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil);
 begin
   if fWalkTo.X*fWalkTo.Y = 0 then
    fGame.GameError(fWalkTo, 'ChangeWalkTo 0:0');
@@ -737,17 +737,11 @@ begin
   else
     fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass);
 
-  if aResetTargetUnit then begin
-    if fTargetUnit <> nil then
-      fTargetUnit.ReleaseUnitPointer;
-    fTargetUnit := nil;
-  end;
-
-  if aNewTargetUnit <> nil then begin
-    if fTargetUnit <> nil then
-      fTargetUnit.ReleaseUnitPointer; //release the unit
+  //Change target if we need to
+  if fTargetUnit <> nil then
+    fTargetUnit.ReleaseUnitPointer;
+  if aNewTargetUnit <> nil then
     fTargetUnit := aNewTargetUnit.GetUnitPointer; //Change target
-  end;
 end;
 
 
@@ -815,7 +809,7 @@ begin
     //Make changes to our route if we are supposed to be tracking a unit
     if CanAbandon and (fTargetUnit <> nil) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
     begin
-      ChangeWalkTo(fTargetUnit.GetPosition,false,false); //If target unit has moved then change course and follow it (don't reset target unit)
+      ChangeWalkTo(fTargetUnit.GetPosition,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
       if (fWalker is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).fCommander = nil) then
         TKMUnitWarrior(fWalker).PlaceOrder(wo_Attack,fTargetUnit,true); //Give members new position

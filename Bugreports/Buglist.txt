@@ -9,10 +9,10 @@ EXE-only r1006:
  +	Access violations when closing the game window by Alt+F4 (Tasks were not freed properly)
  +	Menu buttons in replay don't work, no way to exit other than F11 (added replay controls)
  +	Sometimes the taskbar stays on top in fullscreen mode
+ +	Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
 
  - 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  - 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
- -	Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
  -	Dots and lines displaying on tile edges
  
 	Colored rectangle below cursor	
