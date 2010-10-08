@@ -22,6 +22,7 @@ uses
   KM_InterfaceMapEditor in 'KM_InterfaceMapEditor.pas',
   KM_Game in 'KM_Game.pas',
   KM_GameInputProcess in 'KM_GameInputProcess.pas',
+  KM_MapInfo in 'KM_MapInfo.pas',
   KM_MissionScript in 'KM_MissionScript.pas',
   KM_LoadLib in 'KM_LoadLib.pas',
   KM_Music in 'KM_Music.pas',
@@ -55,8 +56,7 @@ uses
   KM_UnitTaskSelfTrain in 'KM_UnitTaskSelfTrain.pas',
   KM_UnitTaskThrowRock in 'KM_UnitTaskThrowRock.pas',
   KM_Utils in 'KM_Utils.pas',
-  KM_Viewport in 'KM_Viewport.pas',
-  KM_MapInfo in 'KM_MapInfo.pas';
+  KM_Viewport in 'KM_Viewport.pas';
 
 
 {$IFDEF WDC}
