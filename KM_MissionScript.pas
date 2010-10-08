@@ -1,4 +1,4 @@
-unit KM_LoadDAT;
+unit KM_MissionScript;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -26,6 +26,11 @@ type
   end;
   TKMMapDetails = record
     MapSize: TKMPoint;
+  end;
+
+  TKMAttackPosition = record
+    Warrior: TKMUnitWarrior;
+    Target: TKMPoint;
   end;
 
   TKMCommandTypeSet = set of TKMCommandType;
@@ -71,10 +76,13 @@ type
     CurrentPlayerIndex: integer;
     LastHouse: TKMHouse;
     LastTroop: TKMUnitWarrior;
+    AttackPositions: array of TKMAttackPosition;
+    AttackPositionsCount: integer;
     function GetUnitScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
     procedure DebugScriptError(ErrorMsg:string);
+    procedure ProcessAttackPositions;
     procedure UnloadMission;
     function ReadMissionFile(aFileName:string):string;
   public      { Public declarations }
@@ -84,32 +92,6 @@ type
     function GetMissionDetails(aFileName:string):TKMMissionDetails;
     function GetMapDetails(aFileName:string):TKMMapDetails;
 end;
-
-type
-  TKMMapsInfo = class(TObject)
-  private
-    MapCount:byte;
-    Maps:array[1..255]of record
-      Folder:string; //Map folder
-      IsFight:boolean; //Fight or Build map
-      PlayerCount:byte;
-      SmallDesc,BigDesc:string;
-      MapSize:string; //S,M,L,XL
-    end;
-  public
-    procedure ScanSingleMapsFolder();
-    property GetMapCount:byte read MapCount;
-    function IsFight(ID:integer):boolean;
-    function GetPlayerCount(ID:integer):byte;
-    function GetSmallDesc(ID:integer):string;
-    function GetBigDesc(ID:integer):string;
-    function GetMapSize(ID:integer):string;
-    function GetFolder(ID:integer):string;
-    function GetMissionFile(ID:integer):string;
-    function GetTyp(ID:integer):string;
-    function GetWin(ID:integer):string;
-    function GetDefeat(ID:integer):string;
-  end;
 
 
 implementation
@@ -138,6 +120,7 @@ begin
   Inherited Create;
   fParserMode := aMode;
   ErrorMessage:='';
+  AttackPositionsCount := 0;
 end;
 
 
@@ -339,6 +322,9 @@ begin
     else
       inc(k);
   until (k>=length(FileText));
+  
+  //Post-processing of ct_Attack_Position commands which must be done after mission has been loaded
+  ProcessAttackPositions;
 
   if MyPlayer = nil then
     DebugScriptError('No human player detected - ''ct_SetHumanPlayer''');
@@ -534,6 +520,19 @@ begin
                        else
                          fPlayers.Player[CurrentPlayerIndex].fAlliances[ParamList[0]+1] := at_Enemy;
                      end;
+  ct_AttackPosition: begin
+                       //If target is building: Attack building
+                       //If target is unit: Chase/attack unit
+                       //If target is nothing: move to position
+                       //However, because the unit/house target may not have been created yet, this must be processed after everything else
+                       if LastTroop <> nil then
+                       begin
+                         inc(AttackPositionsCount);
+                         SetLength(AttackPositions,AttackPositionsCount+1);
+                         AttackPositions[AttackPositionsCount-1].Warrior := LastTroop;
+                         AttackPositions[AttackPositionsCount-1].Target := KMPointX1Y1(ParamList[0],ParamList[1]);
+                       end;
+                     end;
   //todo: To add:
   ct_AIDefence:      begin
 
@@ -559,14 +558,6 @@ begin
   ct_SetMapColor:    begin
 
                      end;
-  ct_AttackPosition: begin
-                       //If target is building: Attack building
-                       //If target is unit: Chase/attack unit
-                       //If target is nothing: move to position
-
-                       //@Krom: At the time this command is processed target building/unit may not exist as team won't have loaded.
-                       //       How do you suggest we get around this? Some way of executing generic "attack" on first tick that decides if it's a house or unit or location?
-                     end;
   end;
   Result := true; //Must have worked if we haven't exited by now
 end;
@@ -578,6 +569,34 @@ begin
     ErrorMessage:=ErrorMessage+OpenedMissionName+'|';
   ErrorMessage:=ErrorMessage+ErrorMsg+'|';
   //todo 1: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
+end;
+
+
+procedure TMissionParser.ProcessAttackPositions;
+var
+  i: integer;
+  h: TKMHouse;
+  u: TKMUnit;
+begin
+  for i := 0 to AttackPositionsCount-1 do
+    with AttackPositions[i] do
+    begin
+      //Deterimin what we are attacking
+      //If target is building: Attack building
+      h := fPlayers.HousesHitTest(Target.X,Target.Y); //Check for a house
+      if (h <> nil) and (not h.IsDestroyed) and (fPlayers.CheckAlliance(Warrior.GetOwner,h.GetOwner) = at_Enemy) then
+        AttackPositions[i].Warrior.PlaceOrder(wo_AttackHouse,h)
+      else
+      begin
+        //If target is unit: Chase/attack unit
+        u := fPlayers.UnitsHitTest(Target.X,Target.Y);
+        if (u <> nil) and (not u.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.GetOwner,u.GetOwner) = at_Enemy) then
+          AttackPositions[i].Warrior.PlaceOrder(wo_Attack,u)
+        else
+          //If target is nothing: move to position
+          AttackPositions[i].Warrior.PlaceOrder(wo_Walk,Target);
+      end;
+    end;
 end;
 
 
@@ -821,98 +840,6 @@ begin
 
   Result := true; //Success
 end;
-
-
-{ TKMMapInfo }
-procedure TKMMapsInfo.ScanSingleMapsFolder();
-var
-  i,k:integer;
-  SearchRec:TSearchRec;
-  ft:textfile;
-  s:string;
-  MissionDetails: TKMMissionDetails;
-  MapDetails: TKMMapDetails;
-  fMissionParser:TMissionParser;
-begin
-  MapCount:=0;
-  if not DirectoryExists(ExeDir+'Maps\') then exit;
-
-  ChDir(ExeDir+'Maps\');
-  FindFirst('*', faDirectory, SearchRec);
-  repeat
-    if (SearchRec.Attr and faDirectory = faDirectory)
-    and(SearchRec.Name<>'.')
-    and(SearchRec.Name<>'..')
-    and fileexists(KMMapNameToPath(SearchRec.Name,'dat'))
-    and fileexists(KMMapNameToPath(SearchRec.Name,'map')) then
-    begin
-      inc(MapCount);
-      Maps[MapCount].Folder := SearchRec.Name;
-    end;
-  until (FindNext(SearchRec)<>0);
-  FindClose(SearchRec);
-
-  fMissionParser := TMissionParser.Create(mpm_Game);
-
-  for k:=1 to 1 do
-  for i:=1 to MapCount do with Maps[i] do begin
-
-    MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(Maps[i].Folder,'dat'));
-    MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(Maps[i].Folder,'map'));
-    IsFight        := MissionDetails.IsFight;
-    PlayerCount    := MissionDetails.TeamCount;
-    MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
-    SmallDesc      := '-';
-    BigDesc        := '-';
-
-    if fileexists(KMMapNameToPath(Maps[i].Folder,'txt')) then
-    begin
-      assignfile(ft,KMMapNameToPath(Maps[i].Folder,'txt'));
-      reset(ft);
-      repeat
-        readln(ft,s);
-        if UpperCase(s)=UpperCase('SmallDesc') then readln(ft,SmallDesc);
-        if UpperCase(s)=UpperCase('BigDesc') then readln(ft,BigDesc);
-      until(eof(ft));
-      closefile(ft);
-    end;
-  end;
-
-  FreeAndNil(fMissionParser);
-end;
-
-
-{ Get map properties}
-function TKMMapsInfo.IsFight(ID:integer):boolean;        begin Result:=Maps[ID].IsFight;         end;
-function TKMMapsInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].PlayerCount;     end;
-
-//Remove any EOLs and limit length
-function TKMMapsInfo.GetSmallDesc(ID:integer):string;
-begin
-  Result:=StringReplace(Maps[ID].SmallDesc,#124,' ',[rfReplaceAll]);
-  if length(Result)>36 then begin
-    setlength(Result,36);
-    Result:=Result+' ...';
-  end;
-end;
-
-
-function TKMMapsInfo.GetBigDesc(ID:integer):string;      begin Result:=Maps[ID].BigDesc;         end;
-function TKMMapsInfo.GetMapSize(ID:integer):string;      begin Result:=Maps[ID].MapSize;         end;
-function TKMMapsInfo.GetFolder(ID:integer):string;       begin Result:=Maps[ID].Folder;          end;
-function TKMMapsInfo.GetMissionFile(ID:integer):string;  begin Result:=Maps[ID].Folder+'.dat';   end;
-
-function TKMMapsInfo.GetTyp(ID:integer):string;
-begin
-  if Maps[ID].IsFight then
-    Result := 'Fighting'
-  else
-    Result := 'Town building & fighting';
-end;
-
-function TKMMapsInfo.GetWin(ID:integer):string;          begin Result:='No win condition';       end;
-function TKMMapsInfo.GetDefeat(ID:integer):string;       begin Result:='No defeat condition';    end;
-
 
 end.
 

@@ -367,22 +367,22 @@ end;
     with fTerrain do
     for i:=y1 to y2 do for k:=x1 to x2 do
     if RENDER_3D then begin
-      glTexCoord1f(max(0,-Land[i  ,k  ].Light,1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
       glvertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,-Land[i+1,k  ].Light,1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i+1,k  ].Light,1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
       glvertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,-Land[i+1,k+1].Light,1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i+1,k+1].Light,1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
       glvertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0,-Land[i  ,k+1].Light,1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0,-Land[i  ,k+1].Light,1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
       glvertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end else begin
-      glTexCoord1f(max(0, -Land[i  ,k  ].Light, 1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0, -Land[i  ,k  ].Light, 1-CheckVerticeRevelation(k,i,MyPlayer.PlayerID)/255));
       glvertex2f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0, -Land[i+1,k  ].Light, 1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0, -Land[i+1,k  ].Light, 1-CheckVerticeRevelation(k,i+1,MyPlayer.PlayerID)/255));
       glvertex2f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0, -Land[i+1,k+1].Light, 1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0, -Land[i+1,k+1].Light, 1-CheckVerticeRevelation(k+1,i+1,MyPlayer.PlayerID)/255));
       glvertex2f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
-      glTexCoord1f(max(0, -Land[i  ,k+1].Light, 1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
+      glTexCoord1f(kromutils.max(0, -Land[i  ,k+1].Light, 1-CheckVerticeRevelation(k+1,i,MyPlayer.PlayerID)/255));
       glvertex2f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;

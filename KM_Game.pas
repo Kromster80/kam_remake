@@ -6,7 +6,7 @@ uses Windows,
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
   KM_CommonTypes, KM_Defaults, KM_Utils, 
   KM_Controls, KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
-  KM_ResourceGFX, KM_Terrain, KM_LoadDAT, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Music;
+  KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Music;
 
 type TGameState = ( gsNoGame,  //No game running at all, MainMenu
                     gsPaused,  //Game is paused and responds to 'P' key only

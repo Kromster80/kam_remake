@@ -4,7 +4,7 @@ interface
 uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  KM_Controls, KM_Defaults, KM_LoadDAT, Windows, KM_Settings;
+  KM_Controls, KM_Defaults, Windows, KM_Settings, KM_MapInfo;
 
 
 type TKMMainMenuInterface = class

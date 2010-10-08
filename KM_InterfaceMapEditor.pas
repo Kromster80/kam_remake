@@ -125,8 +125,8 @@ type TKMapEdInterface = class
     procedure Barracks_Fill(Sender:TObject);
     procedure Store_Fill(Sender:TObject);
     procedure House_HealthChange(Sender:TObject; AButton:TMouseButton);
-    procedure Unit_ArmyChange(Sender:TObject); overload;
-    procedure Unit_ArmyChange(Sender:TObject; AButton:TMouseButton); overload;
+    procedure Unit_ArmyChange1(Sender:TObject); overload;
+    procedure Unit_ArmyChange2(Sender:TObject; AButton:TMouseButton); overload;
     procedure Barracks_SelectWare(Sender:TObject);
     procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
     procedure Store_SelectWare(Sender:TObject);
@@ -615,15 +615,15 @@ begin
     Button_Army_ForUp   := MyControls.AddButton(Panel_Army,  8, 46, 56, 40, 33);
     ImageStack_Army     := MyControls.AddImageStack(Panel_Army, 70, 46, 56, 40, 43);
     Button_Army_ForDown := MyControls.AddButton(Panel_Army,132, 46, 56, 40, 32);
-    Button_Army_RotCW.OnClick   := Unit_ArmyChange;
-    Button_Army_RotCCW.OnClick  := Unit_ArmyChange;
-    Button_Army_ForUp.OnClick   := Unit_ArmyChange;
-    Button_Army_ForDown.OnClick := Unit_ArmyChange;
+    Button_Army_RotCW.OnClick   := Unit_ArmyChange1;
+    Button_Army_RotCCW.OnClick  := Unit_ArmyChange1;
+    Button_Army_ForUp.OnClick   := Unit_ArmyChange1;
+    Button_Army_ForDown.OnClick := Unit_ArmyChange1;
 
     Button_ArmyDec      := MyControls.AddButton(Panel_Army, 80,92,20,20,'-', fnt_Metal);
     Button_ArmyInc      := MyControls.AddButton(Panel_Army,160,92,20,20,'+', fnt_Metal);
-    Button_ArmyDec.OnClickEither := Unit_ArmyChange;
-    Button_ArmyInc.OnClickEither := Unit_ArmyChange;
+    Button_ArmyDec.OnClickEither := Unit_ArmyChange2;
+    Button_ArmyInc.OnClickEither := Unit_ArmyChange2;
 end;
 
 
@@ -1045,7 +1045,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Unit_ArmyChange(Sender:TObject);
+procedure TKMapEdInterface.Unit_ArmyChange1(Sender:TObject);
 var Commander:TKMUnitWarrior;
 begin
   if ShownUnit = nil then exit;
@@ -1061,7 +1061,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.Unit_ArmyChange(Sender:TObject; AButton:TMouseButton);
+procedure TKMapEdInterface.Unit_ArmyChange2(Sender:TObject; AButton:TMouseButton);
 var Amt:shortint; Commander:TKMUnitWarrior;
 begin
   if ShownUnit = nil then exit;
