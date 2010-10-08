@@ -572,29 +572,30 @@ begin
 end;
 
 
+{ Determine what we are attacking; House, Unit or just walking to some place}
 procedure TMissionParser.ProcessAttackPositions;
 var
   i: integer;
   h: TKMHouse;
   u: TKMUnit;
 begin
-  for i := 0 to AttackPositionsCount-1 do
+  for i:=0 to AttackPositionsCount-1 do
     with AttackPositions[i] do
     begin
-      //Deterimin what we are attacking
-      //If target is building: Attack building
-      h := fPlayers.HousesHitTest(Target.X,Target.Y); //Check for a house
+
+      h := fPlayers.HousesHitTest(Target.X,Target.Y); //Attack house
       if (h <> nil) and (not h.IsDestroyed) and (fPlayers.CheckAlliance(Warrior.GetOwner,h.GetOwner) = at_Enemy) then
-        AttackPositions[i].Warrior.PlaceOrder(wo_AttackHouse,h)
+        Warrior.PlaceOrder(wo_AttackHouse,h)
       else
       begin
-        //If target is unit: Chase/attack unit
-        u := fPlayers.UnitsHitTest(Target.X,Target.Y);
+
+        u := fPlayers.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
         if (u <> nil) and (not u.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.GetOwner,u.GetOwner) = at_Enemy) then
-          AttackPositions[i].Warrior.PlaceOrder(wo_Attack,u)
+          Warrior.PlaceOrder(wo_Attack,u)
         else
-          //If target is nothing: move to position
-          AttackPositions[i].Warrior.PlaceOrder(wo_Walk,Target);
+
+          Warrior.PlaceOrder(wo_Walk,Target); //Just move to position
+          
       end;
     end;
 end;
