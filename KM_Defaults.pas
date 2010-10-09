@@ -933,6 +933,68 @@ type TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Jo
                      sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
 
 
+
+type
+  //@Krom: Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
+  //       Please let me know your thoughts. This is very similar to that used in KaM and is quite flexable/expandable. (we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)
+  //       Somethings are probably named unclearly, please give me suggestions or change them. Goals are the one part
+  //       of scripting that seems to confuse everyone at first, mainly because of the TGoalStatus. In 99% of cases gs_True and gt_Defeat
+  //       go together, because the if the defeat conditions is NOT true you lose, not the other way around. I guess it should be called a
+  //       "survival" conditions rather than defeat.
+  //       I put some examples below to give you an idea of how it works. Remember this is basically a copy of the goal scripting system in KaM,
+  //       not something I designed. It can change, this is just easiest to implement from script compatability point of view.
+  //       Talk to me about it on Skype/ICQ sometime :)
+
+  TGoalType = (gt_None=0,  //Means: It is not required for victory or defeat (e.g. simply display a message)
+               gt_Victory, //Means: "The following condition must be true for you to win"
+               gt_Defeat); //Means: "The following condition must be true or else you lose"
+  TGoalCondition = (gc_Time, gc_Buildings, gc_Troops); //gc_Time means a certain time must pass
+  TGoalStatus = (gs_True=0, gs_False=1);
+
+
+  TPlayerGoal = record
+    GoalType: TGoalType; //Victory, defeat, neither
+    GoalCondition: TGoalCondition; //Buildings, troops, time passing
+    GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/defeat to occour?
+    GoalTime: cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
+    MessageToShow: integer; //Message to be shown when the goal is completed
+    Player: TPlayerID; //Player who's buildings or troops must be destroyed
+  end;
+  //Because the goal system is hard to understand, here are some examples:
+  {Destroy troops of player 2 in order to win
+  Script command: !ADD_GOAL 4 1 0 2
+  GoalType=gt_Victory
+  GoalCondition=gc_Troops
+  GoalStatus=gs_False         //Troops must be dead, non-existant. i.e. the condition that player 2 has troops must be FALSE.
+  Player=play_2
+  }
+
+  {Save (protect) troops of player 1 or else you will lose the game
+  Script command: !ADD_LOST_GOAL 4 0 0 1
+  GoalType=gt_Defeat
+  GoalCondition=gc_Troops
+  GoalStatus=gs_True         //Troops must be alive. i.e. the condition that player 1 has troops must be TRUE otherwise you lose.
+  Player=play_1
+  }
+
+  {Display message 500 after 10 minutes (no goal, just message)
+  Script command: !ADD_GOAL 2 0 500 600
+  GoalType=gt_None
+  GoalCondition=gc_Time
+  GoalStatus=gs_True      //Time must have passed
+  GoalTime=600
+  MessageToShow=500
+  }
+
+  {Display message 510 upon buildings of player 4 being destroyed
+  Script command: !ADD_GOAL 3 1 510 4 (in this case the script command would also require the buildings to be destroyed for a victory condition, as mentioned bellow)
+  GoalType=gt_None            //If this was set to victory or defeat not only would the message be displayed, but it would also be a condition for winning/losing
+  GoalCondition=gc_Buildings
+  GoalStatus=gs_False         //Buildings must be destroyed
+  MessageToShow=500
+  }
+
+
 //Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
 //Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
 //I tweaked it by hand to look similar to KaM.
