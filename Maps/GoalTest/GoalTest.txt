@@ -1,0 +1,8 @@
+Title
+Goal Test
+
+SmallDesc
+Test map for goals
+
+BigDesc
+A message will be displayed when the mission starts. If you destroy the storehouse you will win. If you kill the militia you will lose.
