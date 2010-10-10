@@ -476,13 +476,13 @@ end;
 //Set fFoe to nil, removing pointer if it's still valid
 procedure TKMUnitWarrior.SetFoe(aUnit:TKMUnitWarrior);
 begin
-  if fFoe <> nil then
+  if fFoe <> nil then begin
     fFoe.ReleaseUnitPointer;
+    fFoe := nil;
+  end;
 
   if aUnit <> nil then
     fFoe := TKMUnitWarrior(aUnit.GetUnitPointer) //Else it will be nil from ClearFoe
-  else
-    fFoe := nil;
 end;
 
 

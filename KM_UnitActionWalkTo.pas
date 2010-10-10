@@ -738,8 +738,10 @@ begin
     fNewWalkTo := fTerrain.GetClosestTile(aLoc, fWalker.GetPosition, fPass);
 
   //Change target if we need to
-  if fTargetUnit <> nil then
+  if fTargetUnit <> nil then begin
     fTargetUnit.ReleaseUnitPointer;
+    fTargetUnit := nil;
+  end;
   if aNewTargetUnit <> nil then
     fTargetUnit := aNewTargetUnit.GetUnitPointer; //Change target
 end;

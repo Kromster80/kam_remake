@@ -360,11 +360,14 @@ begin
       fGame.fGlobalSettings.SaveSettings;
 
   //First thing - hide all existing pages, except for message page
-    for i:=1 to Panel_Main.ChildCount do
-      if (Panel_Main.Childs[i] is TKMPanel)
-      and (Panel_Main.Childs[i] <> Panel_Message)
-      and (Panel_Main.Childs[i] <> Panel_Replay) then
-        Panel_Main.Childs[i].Hide;
+  for i:=1 to Panel_Main.ChildCount do
+    if (Panel_Main.Childs[i] is TKMPanel)
+    and (Panel_Main.Childs[i] <> Panel_Message)
+    and (Panel_Main.Childs[i] <> Panel_Replay)
+    and (Panel_Main.Childs[i] <> Panel_Pause)
+    and (Panel_Main.Childs[i] <> Panel_PlayMore) then
+      Panel_Main.Childs[i].Hide;
+
   //First thing - hide all existing pages
     for i:=1 to Panel_House.ChildCount do
       if Panel_House.Childs[i] is TKMPanel then
