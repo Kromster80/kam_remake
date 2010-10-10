@@ -77,6 +77,8 @@ procedure TKMPlayerAI.CheckGoals;
 var i: integer; VictorySatisfied, SurvivalSatisfied: boolean;
 begin
   if not CHECK_WIN_CONDITIONS then exit;
+  //If player has elected to play on past victory or defeat then do not check for any further goals
+  if fGame.PlayOnState <> gr_Cancel then exit;
   //Assume they will win/survive, then prove it with goals
   VictorySatisfied := true;
   SurvivalSatisfied := true;

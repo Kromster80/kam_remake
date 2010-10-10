@@ -865,7 +865,8 @@ begin
       TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(fOrderLoc.Loc, fCommander <> nil);
       fOrder := wo_None;
       fState := ws_Walking;
-    end;
+    end
+    else
     //Set WalkTo
     if GetUnitAction.StepDone and CanInterruptAction then
     begin
@@ -880,6 +881,7 @@ begin
 
   //Make sure attack order is still valid
   if (fOrder=wo_Attack) and (GetOrderTarget = nil) then fOrder := wo_None;
+  if (fOrder=wo_AttackHouse) and (GetOrderHouseTarget = nil) then fOrder := wo_None;
 
   //Change walk in order to attack
   if (fOrder=wo_Attack) and (GetUnitAction is TUnitActionWalkTo) and //If we are already walking then change the walk to the new location

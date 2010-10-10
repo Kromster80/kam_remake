@@ -809,7 +809,7 @@ begin
     { Update destination point }
 
     //Make changes to our route if we are supposed to be tracking a unit
-    if CanAbandon and (fTargetUnit <> nil) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
+    if CanAbandon and (fTargetUnit <> nil) and (not fTargetUnit.IsDeadOrDying) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
     begin
       ChangeWalkTo(fTargetUnit.GetPosition,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
