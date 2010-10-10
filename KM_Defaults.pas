@@ -56,7 +56,7 @@ var
   SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   //Not fully implemented yet
-  CHECK_WIN_CONDITIONS  :boolean=false; //Disable for debug missions where enemies aren't properly set
+  CHECK_WIN_CONDITIONS  :boolean=true; //Disable for debug missions where enemies aren't properly set
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
@@ -945,25 +945,37 @@ type
   //       not something I designed. It can change, this is just easiest to implement from script compatability point of view.
   //       Talk to me about it on Skype/ICQ sometime :)
 
-  TGoalType = (gt_None=0,  //Means: It is not required for victory or defeat (e.g. simply display a message)
-               gt_Victory, //Means: "The following condition must be true for you to win"
-               gt_Defeat); //Means: "The following condition must be true or else you lose"
-  TGoalCondition = (gc_Time, gc_Buildings, gc_Troops); //gc_Time means a certain time must pass
+  TGoalType = (glt_None=0,  //Means: It is not required for victory or defeat (e.g. simply display a message)
+               glt_Victory, //Means: "The following condition must be true for you to win"
+               glt_Survive);//Means: "The following condition must be true or else you lose"
+  //Conditions are the same numbers as in KaM script
+  TGoalCondition = (//gc_Unknown0=0,                 //Not used/unknown
+                    gc_BuildTutorial=1,              //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
+                    gc_Time=2,                       //A certain time must pass
+                    gc_Buildings=3,                  //Storehouse, school, barracks
+                    gc_Troops=4,                     //All troops
+                    //gc_Unknown5=5,                 //Not used/unknown
+                    gc_MilitaryBuildingsAndTroops=6, //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
+                    gc_SerfsAndSchools=7,            //Serfs (possibly all citizens?) and schoolhouses
+                    gc_EconomyBuildings=8            //School, Inn and Storehouse
+                    //We can come up with our own
+                    );
   TGoalStatus = (gs_True=0, gs_False=1);
 
 
   TPlayerGoal = record
-    GoalType: TGoalType; //Victory, defeat, neither
+    GoalType: TGoalType; //Victory, survive, neither
     GoalCondition: TGoalCondition; //Buildings, troops, time passing
-    GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/defeat to occour?
+    GoalStatus: TGoalStatus; //Must this condition be true or false (same as alive or dead) for victory/surival to occour?
     GoalTime: cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
     MessageToShow: integer; //Message to be shown when the goal is completed
-    Player: TPlayerID; //Player who's buildings or troops must be destroyed
+    MessageHasShown: boolean; //Whether we have shown this message yet
+    Player: TPlayerID; //Player whose buildings or troops must be destroyed
   end;
   //Because the goal system is hard to understand, here are some examples:
   {Destroy troops of player 2 in order to win
   Script command: !ADD_GOAL 4 1 0 2
-  GoalType=gt_Victory
+  GoalType=glt_Victory
   GoalCondition=gc_Troops
   GoalStatus=gs_False         //Troops must be dead, non-existant. i.e. the condition that player 2 has troops must be FALSE.
   Player=play_2
@@ -971,7 +983,7 @@ type
 
   {Save (protect) troops of player 1 or else you will lose the game
   Script command: !ADD_LOST_GOAL 4 0 0 1
-  GoalType=gt_Defeat
+  GoalType=glt_Survive
   GoalCondition=gc_Troops
   GoalStatus=gs_True         //Troops must be alive. i.e. the condition that player 1 has troops must be TRUE otherwise you lose.
   Player=play_1
@@ -979,7 +991,7 @@ type
 
   {Display message 500 after 10 minutes (no goal, just message)
   Script command: !ADD_GOAL 2 0 500 600
-  GoalType=gt_None
+  GoalType=glt_None
   GoalCondition=gc_Time
   GoalStatus=gs_True      //Time must have passed
   GoalTime=600
@@ -988,7 +1000,7 @@ type
 
   {Display message 510 upon buildings of player 4 being destroyed
   Script command: !ADD_GOAL 3 1 510 4 (in this case the script command would also require the buildings to be destroyed for a victory condition, as mentioned bellow)
-  GoalType=gt_None            //If this was set to victory or defeat not only would the message be displayed, but it would also be a condition for winning/losing
+  GoalType=glt_None            //If this was set to victory or survive not only would the message be displayed, but it would also be a condition for winning/losing
   GoalCondition=gc_Buildings
   GoalStatus=gs_False         //Buildings must be destroyed
   MessageToShow=500

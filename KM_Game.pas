@@ -33,6 +33,7 @@ type
   public
     GameSpeed:integer;
     GameState:TGameState;
+    PlayOnState:gr_Message;
     SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
     fProjectiles:TKMProjectiles;
@@ -98,6 +99,7 @@ constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:i
 begin
   Inherited Create;
   ID_Tracker := 0;
+  PlayOnState := gr_Cancel;
   SelectingTroopDirection := false;
   SelectingDirPosition := Point(0,0);
   ScreenX := aScreenX;
@@ -821,7 +823,8 @@ end;
 
 //Put the game on Hold for Victory screen
 procedure TKMGame.GameHold(DoHold:boolean; Msg:gr_Message);
-begin     
+begin
+  PlayOnState := Msg;
   case Msg of
     gr_ReplayEnd:     begin
                         if DoHold then begin
@@ -1049,6 +1052,7 @@ begin
       SaveStream.Write(fGameName); //Save game title
       SaveStream.Write(fGameplayTickCount); //Required to be saved, e.g. messages being shown after a time
       SaveStream.Write(ID_Tracker); //Units-Houses ID tracker
+      SaveStream.Write(PlayOnState, SizeOf(PlayOnState));
 
       fTerrain.Save(SaveStream); //Saves the map
       fPlayers.Save(SaveStream); //Saves all players properties individually
@@ -1121,6 +1125,7 @@ begin
         LoadStream.Read(fGameName); //Savegame title
         LoadStream.Read(fGameplayTickCount);
         LoadStream.Read(ID_Tracker);
+        LoadStream.Read(PlayOnState, SizeOf(PlayOnState));
 
         fPlayers := TKMAllPlayers.Create(MAX_PLAYERS);
         MyPlayer := fPlayers.Player[1];

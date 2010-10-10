@@ -18,6 +18,8 @@ type
     fBuildList: TKMBuildingQueue;
   public
     fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
+    fGoals: array of TPlayerGoal;
+    fGoalCount: integer;
     SkipWinConditionCheck: boolean;
     SkipDefeatConditionCheck: boolean;
     constructor Create(aPlayerID:TPlayerID);
@@ -57,6 +59,7 @@ type
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
     procedure UpdateReqDone(aType:THouseType);
+    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
 
     function GetCanBuild(aType:THouseType):boolean;
     function GetHouseQty(aType:THouseType):integer;
@@ -118,6 +121,7 @@ begin
   fBuildList    := TKMBuildingQueue.Create;
   for i:=1 to MAX_PLAYERS do
     fAlliances[i] := at_Enemy; //Everyone is enemy by default
+  fGoalCount := 0;
   SkipWinConditionCheck := false;
   SkipDefeatConditionCheck := false;
 end;
@@ -397,6 +401,19 @@ begin
   fMissionSettings.UpdateReqDone(aType);
 end;
 
+procedure TKMPlayerAssets.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+begin
+  setlength(fGoals,fGoalCount+1);
+  fGoals[fGoalCount].GoalType := aGoalType;
+  fGoals[fGoalCount].GoalCondition := aGoalCondition;
+  fGoals[fGoalCount].GoalStatus := aGoalStatus;
+  fGoals[fGoalCount].GoalTime := aGoalTime;
+  fGoals[fGoalCount].MessageToShow := aMessageToShow;
+  fGoals[fGoalCount].Player := aPlayer;
+  fGoals[fGoalCount].MessageHasShown := false;
+  inc(fGoalCount);
+end;
+
 function TKMPlayerAssets.GetCanBuild(aType:THouseType):boolean;
 begin
   Result:=fMissionSettings.GetCanBuild(aType);
@@ -433,6 +450,7 @@ end;
 
 
 procedure TKMPlayerAssets.Save(SaveStream:TKMemoryStream);
+var i: integer;
 begin
   fUnits.Save(SaveStream);
   fHouses.Save(SaveStream);
@@ -442,12 +460,17 @@ begin
   SaveStream.Write(PlayerID, SizeOf(PlayerID));
   SaveStream.Write(PlayerType, SizeOf(PlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
+  SaveStream.Write(fGoalCount);
+  for i:=0 to fGoalCount-1 do
+    SaveStream.Write(fGoals[i], SizeOf(fGoals[i]));
+
   SaveStream.Write(SkipWinConditionCheck);
   SaveStream.Write(SkipDefeatConditionCheck);
 end;
 
 
 procedure TKMPlayerAssets.Load(LoadStream:TKMemoryStream);
+var i: integer;
 begin
   fUnits.Load(LoadStream);
   fHouses.Load(LoadStream);
@@ -457,6 +480,11 @@ begin
   LoadStream.Read(PlayerID, SizeOf(PlayerID));
   LoadStream.Read(PlayerType, SizeOf(PlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
+  LoadStream.Read(fGoalCount);
+  SetLength(fGoals, fGoalCount);
+  for i:=0 to fGoalCount-1 do
+    LoadStream.Read(fGoals[i], SizeOf(fGoals[i]));
+
   LoadStream.Read(SkipWinConditionCheck);
   LoadStream.Read(SkipDefeatConditionCheck);
 end;

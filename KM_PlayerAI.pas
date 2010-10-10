@@ -17,8 +17,7 @@ type
                                             NumUnits, NumRows:integer;
                                           end;
     constructor Create(aAssets:TKMPlayerAssets);
-    function CheckDefeatConditions():boolean;
-    function CheckWinConditions(DoFullCheck:boolean = false):boolean;
+    procedure CheckGoals;
     procedure CheckUnitCount();
     procedure CheckArmy();
   public
@@ -30,7 +29,7 @@ type
   end;
 
 implementation
-uses KM_Houses, KM_Units, KM_Units_Warrior, KM_Game, KM_PlayersCollection;
+uses KM_Houses, KM_Units, KM_Units_Warrior, KM_Game, KM_PlayersCollection, KM_Settings, KM_LoadLib;
 
 constructor TKMPlayerAI.Create(aAssets:TKMPlayerAssets);
 begin
@@ -50,39 +49,61 @@ begin
 end;
 
 
-function TKMPlayerAI.CheckDefeatConditions():boolean;
-begin
-  //FullCheck is called when quitting the mission and actual game result is important, unlike as in usual UpdateState loop
-  //if not DoFullCheck then
+procedure TKMPlayerAI.CheckGoals;
+
+  function GoalConditionSatisfied(aGoal: TPlayerGoal):boolean;
+  var MisSets: TMissionSettings;
   begin
-    Result := false;
-    if not CHECK_WIN_CONDITIONS then exit;
-    if Assets.SkipDefeatConditionCheck then exit;
+    if aGoal.Player <> play_None then MisSets := fPlayers.Player[byte(aGoal.Player)].fMissionSettings;
+    case aGoal.GoalCondition of
+      //todo: add all goal condition checks properly and confirm unknowns with tests in KaM
+      gc_BuildTutorial: ;
+      gc_Time: Result := fGame.CheckTime(aGoal.GoalTime);
+      gc_Buildings: Result := ((MisSets.GetHouseQty(ht_Store)>0)or(MisSets.GetHouseQty(ht_School)>0)or(MisSets.GetHouseQty(ht_Barracks)>0));
+      gc_Troops: Result := (MisSets.GetArmyCount>0);
+      gc_MilitaryBuildingsAndTroops: Result := (MisSets.GetArmyCount>0);
+      gc_SerfsAndSchools: Result := (MisSets.GetHouseQty(ht_School)>0)or(MisSets.GetUnitQty(ut_Serf)>0);
+      gc_EconomyBuildings: Result := ((MisSets.GetHouseQty(ht_Store)>0)or(MisSets.GetHouseQty(ht_School)>0)or(MisSets.GetHouseQty(ht_Inn)>0));
+      else
+      begin
+        Result := false;
+        exit;
+      end;
+    end;
+    if aGoal.GoalStatus = gs_False then
+      Result := not Result; //Reverse condition
   end;
 
-  Result :=
-     (Assets.fMissionSettings.GetHouseQty(ht_Store)=0)
-  and(Assets.fMissionSettings.GetHouseQty(ht_School)=0)
-  and(Assets.fMissionSettings.GetHouseQty(ht_Barracks)=0)
-  and(Assets.fMissionSettings.GetArmyCount=0);
-end;
-
-
-function TKMPlayerAI.CheckWinConditions(DoFullCheck:boolean = false):boolean;
-var i:integer;
+var i: integer; VictorySatisfied, SurvivalSatisfied: boolean;
 begin
-  //FullCheck is called when quitting the mission and actual game result is important, unlike as in usual UpdateState loop
-  if not DoFullCheck then
-  begin
-    Result := false;
-    if not CHECK_WIN_CONDITIONS then exit;
-    if Assets.SkipWinConditionCheck then exit;
-  end;
+  if not CHECK_WIN_CONDITIONS then exit;
+  //Assume they will win/survive, then prove it with goals
+  VictorySatisfied := true;
+  SurvivalSatisfied := true;
+  //Test each goal to see if it has occoured
+  with Assets do //Makes it easier to access goals
+  for i:=0 to fGoalCount-1 do
+    if GoalConditionSatisfied(fGoals[i]) then
+    begin
+      //Display message if set and not already shown and not a blank text
+      if (fGoals[i].MessageToShow <> 0) and (not fGoals[i].MessageHasShown) and (fTextLibrary.GetTextString(fGoals[i].MessageToShow) <> '') then
+      begin
+        fGame.fGameplayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(fGoals[i].MessageToShow),KMPoint(0,0));
+        fGoals[i].MessageHasShown := true;
+      end;
+    end
+    else
+    begin
+      if fGoals[i].GoalType = glt_Victory then
+        VictorySatisfied := false;
+      if fGoals[i].GoalType = glt_Survive then
+        SurvivalSatisfied := false;
+    end;
+  if VictorySatisfied then
+    fGame.GameHold(true, gr_Win); //They win
 
-  Result := true; //No players = we won
-  for i:=1 to fPlayers.PlayerCount do //if Player in question is our Enemy
-  if (fPlayers.Player[i] <> MyPlayer)and(fPlayers.CheckAlliance(Assets.PlayerID, fPlayers.Player[i].PlayerID) = at_Enemy) then
-    Result := Result and fPlayers.PlayerAI[i].CheckDefeatConditions;
+  if not SurvivalSatisfied then
+    fGame.GameHold(true, gr_Defeat); //They lose
 end;
 
 
@@ -240,24 +261,22 @@ end;
 
 procedure TKMPlayerAI.UpdateState;
 begin
-  //Check defeat only for MyPlayer
+  //Check goals only for MyPlayer
   if (MyPlayer=Assets)and(Assets.PlayerType=pt_Human) then
   begin
-    if CheckDefeatConditions then //Store+Barracks+School+Armies = 0
-      fGame.GameHold(true, gr_Defeat);
-    if CheckWinConditions then
-      fGame.GameHold(true, gr_Win); //Enemies Store+Barracks+School+Armies = 0
-  end else
-  
-  if Assets.PlayerType=pt_Computer then begin
+    CheckGoals; //This procedure manages victory, loss and messages all in one
+  end
+  else
+  if Assets.PlayerType=pt_Computer then
+  begin
     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
 
-  CheckArmy; //todo: Should not run every update state, it takes too long and doesn't need to anyway
-  //CheckHouseCount; //Build new houses if needed
-  //CheckArmiesCount; //Train new soldiers if needed
-  //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
-  //CheckAndIssueAttack; //Attack enemy
-  //Anything Else?
+    CheckArmy; //todo: Should not run every update state, it takes too long and doesn't need to anyway
+    //CheckHouseCount; //Build new houses if needed
+    //CheckArmiesCount; //Train new soldiers if needed
+    //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
+    //CheckAndIssueAttack; //Attack enemy
+    //Anything Else?
   end;
 end;
 

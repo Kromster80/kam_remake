@@ -552,6 +552,7 @@ begin
       Image_Message[i].Disable;
       Image_Message[i].Hide;
       Image_Message[i].OnClick := MessageDisplay;
+      Image_Message[i].Anchors := [akLeft, akBottom];
     end;
 
     Label_Stat:=MyControls.AddLabel(Panel_Main,224+80,16,0,0,'',fnt_Outline,kaLeft);
@@ -1792,11 +1793,8 @@ begin
     if Panel_Main.Childs[i] is TKMPanel then
       Panel_Main.Childs[i].Hide;
 
-  //Show outcome depending on actual situation
-  if fPlayers.PlayerAI[byte(MyPlayer.PlayerID)].CheckWinConditions(true) then
-    fGame.GameStop(gr_Win)
-  else
-    fGame.GameStop(gr_Cancel);
+  //Show outcome depending on actual situation. By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
+  fGame.GameStop(fGame.PlayOnState);
 end;
 
 

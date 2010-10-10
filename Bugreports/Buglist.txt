@@ -11,6 +11,8 @@ EXE-only r1006:
  +	Sometimes the taskbar stays on top in fullscreen mode
  +	Message should be displayed when replay reaches end (e.g. replay complete, would you like it to continue?)
  +	ct_Attack_Position (!ATTACK_POSITION command in script) has been implemented
+ +	Goals and messages from mission script have been implemented
+ +	Message stack controls do not anchor to the bottom when resizing the screen
 
  - 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  - 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers

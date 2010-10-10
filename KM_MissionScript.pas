@@ -533,6 +533,20 @@ begin
                          AttackPositions[AttackPositionsCount-1].Target := KMPointX1Y1(ParamList[0],ParamList[1]);
                        end;
                      end;
+  ct_AddGoal:        begin
+                       //If the condition is time then ParamList[3] is the time, else it is player ID
+                       if TGoalCondition(ParamList[0]) = gc_Time then
+                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_None)
+                       else
+                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                     end;
+  ct_AddLostGoal:    begin
+                       //If the condition is time then ParamList[3] is the time, else it is player ID
+                       if TGoalCondition(ParamList[0]) = gc_Time then
+                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_None)
+                       else
+                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                     end;
   //todo: To add:
   ct_AIDefence:      begin
 
@@ -544,12 +558,6 @@ begin
 
                      end;
   ct_EnablePlayer:   begin
-
-                     end;
-  ct_AddGoal:        begin
-
-                     end;
-  ct_AddLostGoal:    begin
 
                      end;
   ct_SetNewRemap:    begin
