@@ -69,6 +69,7 @@ begin
 
     MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(Maps[i].Folder,'dat'));
     MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(Maps[i].Folder,'map'));
+
     IsFight        := MissionDetails.IsFight;
     PlayerCount    := MissionDetails.TeamCount;
     MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);

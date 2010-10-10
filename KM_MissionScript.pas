@@ -238,13 +238,14 @@ begin
   );
 end;
 
+
 procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
 begin
   case CommandType of
-  ct_SetMap:         MissionDetails.MapPath     := RemoveQuotes(TextParam);
-  ct_SetMaxPlayer:   MissionDetails.TeamCount   := ParamList[0];
-  ct_SetTactic:      MissionDetails.IsFight     := true;
-  ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
+    ct_SetMap:         MissionDetails.MapPath       := RemoveQuotes(TextParam);
+    ct_SetMaxPlayer:   MissionDetails.TeamCount     := ParamList[0];
+    ct_SetTactic:      MissionDetails.IsFight       := true;
+    ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
   end;
 end;
 
