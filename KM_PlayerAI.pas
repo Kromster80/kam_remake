@@ -52,23 +52,24 @@ end;
 procedure TKMPlayerAI.CheckGoals;
 
   function GoalConditionSatisfied(aGoal: TPlayerGoal):boolean;
-  var MisSets: TMissionSettings;
+  var MS: TMissionSettings;
   begin
-    if aGoal.Player <> play_None then MisSets := fPlayers.Player[byte(aGoal.Player)].fMissionSettings;
-    case aGoal.GoalCondition of
-      //todo: add all goal condition checks properly and confirm unknowns with tests in KaM
-      gc_BuildTutorial: ;
-      gc_Time: Result := fGame.CheckTime(aGoal.GoalTime);
-      gc_Buildings: Result := ((MisSets.GetHouseQty(ht_Store)>0)or(MisSets.GetHouseQty(ht_School)>0)or(MisSets.GetHouseQty(ht_Barracks)>0));
-      gc_Troops: Result := (MisSets.GetArmyCount>0);
-      gc_MilitaryBuildingsAndTroops: Result := (MisSets.GetArmyCount>0);
-      gc_SerfsAndSchools: Result := (MisSets.GetHouseQty(ht_School)>0)or(MisSets.GetUnitQty(ut_Serf)>0);
-      gc_EconomyBuildings: Result := ((MisSets.GetHouseQty(ht_Store)>0)or(MisSets.GetHouseQty(ht_School)>0)or(MisSets.GetHouseQty(ht_Inn)>0));
-      else
-      begin
-        Result := false;
-        exit;
-      end;
+    Result := false;
+
+    if aGoal.Player <> play_None then
+      MS := fPlayers.Player[byte(aGoal.Player)].fMissionSettings
+    else
+      MS := nil; //Will trigger an error unless it's not gc_Time
+
+    case aGoal.GoalCondition of //todo: add all goal condition checks properly and confirm unknowns with tests in KaM
+      gc_BuildTutorial:     Result := MS.GetHouseQty(ht_Tannery)>0;
+      gc_Time:              Result := fGame.CheckTime(aGoal.GoalTime);
+      gc_Buildings:         Result := (MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Barracks)>0);
+      gc_Troops:            Result := (MS.GetArmyCount>0);
+      gc_MilitaryAssets:    Result := (MS.GetArmyCount>0);
+      gc_SerfsAndSchools:   Result := (MS.GetHouseQty(ht_School)>0)or(MS.GetUnitQty(ut_Serf)>0);
+      gc_EconomyBuildings:  Result := ((MS.GetHouseQty(ht_Store)>0)or(MS.GetHouseQty(ht_School)>0)or(MS.GetHouseQty(ht_Inn)>0));
+      else                  Assert(false, 'Unknown goal');
     end;
     if aGoal.GoalStatus = gs_False then
       Result := not Result; //Reverse condition
@@ -77,14 +78,14 @@ procedure TKMPlayerAI.CheckGoals;
 var i: integer; VictorySatisfied, SurvivalSatisfied: boolean;
 begin
   if not CHECK_WIN_CONDITIONS then exit;
-  //If player has elected to play on past victory or defeat then do not check for any further goals
-  if fGame.PlayOnState <> gr_Cancel then exit;
-  //Assume they will win/survive, then prove it with goals
-  VictorySatisfied := true;
+
+  if fGame.PlayOnState <> gr_Cancel then exit; //If player has elected to play on past victory or defeat then do not check for any further goals
+  
+  VictorySatisfied  := true; //Assume they will win/survive, then prove it with goals
   SurvivalSatisfied := true;
-  //Test each goal to see if it has occoured
-  with Assets do //Makes it easier to access goals
-  for i:=0 to fGoalCount-1 do
+
+  with Assets do
+  for i:=0 to fGoalCount-1 do //Test each goal to see if it has occured
     if GoalConditionSatisfied(fGoals[i]) then
     begin
       //Display message if set and not already shown and not a blank text
@@ -101,6 +102,7 @@ begin
       if fGoals[i].GoalType = glt_Survive then
         SurvivalSatisfied := false;
     end;
+
   if VictorySatisfied then
     fGame.GameHold(true, gr_Win); //They win
 
@@ -215,11 +217,11 @@ begin
 end;
 
 
+//Do we automatically repair all houses?
+//For now use Autobuild, which is what KaM does. Later we can add a script command to turn this on and off
+//Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
 function TKMPlayerAI.GetHouseRepair:boolean;
 begin
-  //Do we automatically repair all houses?
-  //For now use Autobuild, which is what KaM does. Later we can add a script command to turn this on and off
-  //Also could be changed later to disable repairing when under attack? (only repair if the enemy goes away?)
   Result := Autobuild;
 end;
 

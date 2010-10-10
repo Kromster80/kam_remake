@@ -949,18 +949,18 @@ type
                glt_Victory, //Means: "The following condition must be true for you to win"
                glt_Survive);//Means: "The following condition must be true or else you lose"
   //Conditions are the same numbers as in KaM script
-  TGoalCondition = (//gc_Unknown0=0,                 //Not used/unknown
-                    gc_BuildTutorial=1,              //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
-                    gc_Time=2,                       //A certain time must pass
-                    gc_Buildings=3,                  //Storehouse, school, barracks
-                    gc_Troops=4,                     //All troops
-                    //gc_Unknown5=5,                 //Not used/unknown
-                    gc_MilitaryBuildingsAndTroops=6, //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
-                    gc_SerfsAndSchools=7,            //Serfs (possibly all citizens?) and schoolhouses
-                    gc_EconomyBuildings=8            //School, Inn and Storehouse
+  TGoalCondition = (//gc_Unknown0=0,      //Not used/unknown
+                    gc_BuildTutorial=1,   //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
+                    gc_Time=2,            //A certain time must pass
+                    gc_Buildings=3,       //Storehouse, school, barracks
+                    gc_Troops=4,          //All troops
+                    //gc_Unknown5=5,        //Not used/unknown
+                    gc_MilitaryAssets=6,  //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
+                    gc_SerfsAndSchools=7, //Serfs (possibly all citizens?) and schoolhouses
+                    gc_EconomyBuildings=8 //School, Inn and Storehouse
                     //We can come up with our own
                     );
-  TGoalStatus = (gs_True=0, gs_False=1);
+  TGoalStatus = (gs_True=0, gs_False=1); //Weird that it's inverted, but KaM uses it that way
 
 
   TPlayerGoal = record

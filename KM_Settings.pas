@@ -448,11 +448,11 @@ end;
 
 
 function TMissionSettings.GetArmyCount():integer;
-var i:byte;
+var ut:TUnitType;
 begin
-  Result:=0;
-  for i:=byte(ut_Militia) to byte(ut_Barbarian) do
-    Result := Result + GetUnitQty(TUnitType(i));
+  Result := 0;
+  for ut:=ut_Militia to ut_Barbarian do
+    Result := Result + GetUnitQty(ut);
 end;
 
 
