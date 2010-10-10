@@ -709,6 +709,7 @@ procedure TKMGame.GameInit();
 begin
   RandSeed := 4; //Sets right from the start since it affects TKMAllPlayers.Create and other Types
   GameSpeed := 1; //In case it was set in last run mission
+  PlayOnState := gr_Cancel;
 
   if fResource.GetDataState<>dls_All then begin
     fMainMenuInterface.ShowScreen_Loading('units and houses');

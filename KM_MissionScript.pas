@@ -692,6 +692,22 @@ begin
       AddCommand(ct_AIPlayer);
     AddData(''); //NL
     //Human specific, e.g. goals, center screen
+    for k:=0 to fPlayers.Player[i].fGoalCount-1 do
+      with fPlayers.Player[i].fGoals[k] do
+      begin
+        if (GoalType = glt_Victory) or (GoalType = glt_None) then //For now treat none same as normal goal, we can add new command for it later
+          if GoalCondition = gc_Time then
+            AddCommand(ct_AddGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,integer(GoalTime))
+          else
+            AddCommand(ct_AddGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)-1);
+
+        if GoalType = glt_Survive then
+          if GoalCondition = gc_Time then
+            AddCommand(ct_AddLostGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,integer(GoalTime))
+          else
+            AddCommand(ct_AddLostGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)-1);
+      end;
+    AddData(''); //NL
 
     //Computer specific, e.g. AI commands
     if fPlayers.Player[i].PlayerType = pt_Computer then
