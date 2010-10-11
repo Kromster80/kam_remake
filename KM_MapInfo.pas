@@ -14,6 +14,8 @@ type
       PlayerCount:byte;
       SmallDesc,BigDesc:string;
       MapSize:string; //S,M,L,XL
+      VictoryCond:string;
+      DefeatCond:string;
     end;
   public
     procedure ScanSingleMapsFolder();
@@ -51,8 +53,7 @@ begin
   FindFirst('*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Attr and faDirectory = faDirectory)
-    and(SearchRec.Name<>'.')
-    and(SearchRec.Name<>'..')
+    and(SearchRec.Name<>'.')and(SearchRec.Name<>'..')
     and fileexists(KMMapNameToPath(SearchRec.Name,'dat'))
     and fileexists(KMMapNameToPath(SearchRec.Name,'map')) then
     begin
@@ -75,6 +76,8 @@ begin
     MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
     SmallDesc      := '-';
     BigDesc        := '-';
+    VictoryCond    := MissionDetails.VictoryCond;
+    DefeatCond     := MissionDetails.DefeatCond;
 
     if fileexists(KMMapNameToPath(Maps[i].Folder,'txt')) then
     begin
@@ -100,11 +103,8 @@ function TKMMapsInfo.GetPlayerCount(ID:integer):byte;    begin Result:=Maps[ID].
 //Remove any EOLs and limit length
 function TKMMapsInfo.GetSmallDesc(ID:integer):string;
 begin
-  Result:=StringReplace(Maps[ID].SmallDesc,#124,' ',[rfReplaceAll]);
-  if length(Result)>36 then begin
-    setlength(Result,36);
-    Result:=Result+' ...';
-  end;
+  Result := StringReplace(Maps[ID].SmallDesc, #124, ' ', [rfReplaceAll]);
+  if length(Result)>36 then Result := Copy(Result,0,36)+' ...';
 end;
 
 
@@ -121,8 +121,8 @@ begin
     Result := 'Town building & fighting';
 end;
 
-function TKMMapsInfo.GetWin(ID:integer):string;          begin Result:='No win condition';       end;
-function TKMMapsInfo.GetDefeat(ID:integer):string;       begin Result:='No defeat condition';    end;
+function TKMMapsInfo.GetWin(ID:integer):string;          begin Result:=Maps[ID].VictoryCond;     end;
+function TKMMapsInfo.GetDefeat(ID:integer):string;       begin Result:=Maps[ID].DefeatCond;      end;
 
 end.
- 
+

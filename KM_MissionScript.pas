@@ -19,22 +19,6 @@ type
   TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
                          cpt_MaxSoldier,cpt_AttackFactor,cpt_TroopParam);
 
-  TKMMissionDetails = record
-    MapPath: string;
-    IsFight: boolean;
-    TeamCount, HumanPlayerID: shortint;
-  end;
-  TKMMapDetails = record
-    MapSize: TKMPoint;
-  end;
-
-  TKMAttackPosition = record
-    Warrior: TKMUnitWarrior;
-    Target: TKMPoint;
-  end;
-
-  TKMCommandTypeSet = set of TKMCommandType;
-
 const
   COMMANDVALUES: array[TKMCommandType] of shortstring = (
     '','SET_MAP','SET_MAX_PLAYER','SET_CURR_PLAYER','SET_HUMAN_PLAYER','SET_HOUSE',
@@ -51,6 +35,7 @@ const
     'MAX_SOLDIER','ATTACK_FACTOR','TROUP_PARAM');
 
   MAXPARAMS = 8;
+
   //This is a map of the valid values for !SET_UNIT, and the corrisponing unit that will be created (matches KaM behavior)
   UnitsRemap: array[0..31] of TUnitType = (ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,
     ut_Farmer,ut_Lamberjack,ut_Baker,ut_Butcher,ut_Fisher,ut_Worker,ut_StoneCutter,
@@ -65,7 +50,22 @@ const
   {ut_Peasant,ut_Slingshot,ut_MetalBarbarian,ut_Horseman,ut_Catapult,ut_Ballista);} //TPR Troops, which are not yet enabled
   ut_None,ut_None,ut_None,ut_None,ut_None,ut_None); //Temp replacement for TPR Troops
 
-  CommandsUsedInGetMissionDetails: TKMCommandTypeSet = [ct_SetMap,ct_SetMaxPlayer,ct_SetHumanPlayer,ct_SetTactic];
+type
+  TKMMissionDetails = record
+    MapPath: string;
+    IsFight: boolean;
+    TeamCount, HumanPlayerID: shortint;
+    VictoryCond:string;
+    DefeatCond:string;
+  end;
+  TKMMapDetails = record
+    MapSize: TKMPoint;
+  end;
+
+  TKMAttackPosition = record
+    Warrior: TKMUnitWarrior;
+    Target: TKMPoint;
+  end;
 
 type
   TMissionParser = class(TObject)
@@ -171,7 +171,7 @@ end;
 {Acquire specific map details in a fast way}
 function TMissionParser.GetMissionDetails(aFileName:string):TKMMissionDetails;
 const
-  Max_Cmd=1;
+  Max_Cmd=2;
 var
   FileText, CommandText, Param, TextParam: string;
   ParamList: array[1..Max_Cmd] of integer;
@@ -183,12 +183,14 @@ begin
   Result.IsFight := false;
   Result.TeamCount := 0;
   Result.HumanPlayerID := 0;
+  Result.VictoryCond := '';
+  Result.DefeatCond := '';
 
   FileText := ReadMissionFile(aFileName);
   if FileText = '' then exit;
 
-  //We need only these 4 commands
-  //!SET_MAP, !SET_MAX_PLAYER, !SET_TACTIC, !SET_HUMAN_PLAYER
+  //We need only these 6 commands
+  //!SET_MAP, !SET_MAX_PLAYER, !SET_TACTIC, !SET_HUMAN_PLAYER, !ADD_GOAL, !ADD_LOST_GOAL
 
   //FileText should now be formatted nicely with 1 space between each parameter/command
   k := 1;
@@ -207,7 +209,8 @@ begin
 
       //Try to make it faster by only processing commands used
       if (CommandText='!SET_MAP')or(CommandText='!SET_MAX_PLAYER')or
-         (CommandText='!SET_TACTIC')or(CommandText='!SET_HUMAN_PLAYER') then
+         (CommandText='!SET_TACTIC')or(CommandText='!SET_HUMAN_PLAYER')or
+         (CommandText='!ADD_GOAL')or(CommandText='!ADD_LOST_GOAL') then
       begin
         //Now convert command into type
         CommandType := GetCommandTypeFromText(CommandText);
@@ -241,11 +244,23 @@ end;
 
 procedure TMissionParser.GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
 begin
+  with MissionDetails do
   case CommandType of
-    ct_SetMap:         MissionDetails.MapPath       := RemoveQuotes(TextParam);
-    ct_SetMaxPlayer:   MissionDetails.TeamCount     := ParamList[0];
-    ct_SetTactic:      MissionDetails.IsFight       := true;
-    ct_SetHumanPlayer: MissionDetails.HumanPlayerID := ParamList[0]+1;
+    ct_SetMap:         MapPath       := RemoveQuotes(TextParam);
+    ct_SetMaxPlayer:   TeamCount     := ParamList[0];
+    ct_SetTactic:      IsFight       := true;
+    ct_SetHumanPlayer: HumanPlayerID := ParamList[0]+1;
+{                       if TGoalCondition(ParamList[0]) = gc_Time then
+                         VictoryCond := VictoryCond + fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_None)
+                       else
+                         fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+}
+    ct_AddGoal:        VictoryCond   := VictoryCond
+                                        + GoalConditionStr[TGoalCondition(ParamList[0])]
+                                        + GoalStatusStr[TGoalStatus(ParamList[1])]+'|';
+    ct_AddLostGoal:    DefeatCond    := DefeatCond
+                                        + GoalConditionStr[TGoalCondition(ParamList[0])]
+                                        + GoalStatusStr[TGoalStatus(ParamList[1])]+'|';
   end;
 end;
 
@@ -691,19 +706,20 @@ begin
     if fPlayers.Player[i].PlayerType = pt_Computer then
       AddCommand(ct_AIPlayer);
     AddData(''); //NL
-    //Human specific, e.g. goals, center screen
+
+    //Human specific, e.g. goals, center screen (though all players can have it, only human can use it)
     for k:=0 to fPlayers.Player[i].fGoalCount-1 do
       with fPlayers.Player[i].fGoals[k] do
       begin
         if (GoalType = glt_Victory) or (GoalType = glt_None) then //For now treat none same as normal goal, we can add new command for it later
           if GoalCondition = gc_Time then
-            AddCommand(ct_AddGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,integer(GoalTime))
+            AddCommand(ct_AddGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,GoalTime)
           else
             AddCommand(ct_AddGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)-1);
 
         if GoalType = glt_Survive then
           if GoalCondition = gc_Time then
-            AddCommand(ct_AddLostGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,integer(GoalTime))
+            AddCommand(ct_AddLostGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,GoalTime)
           else
             AddCommand(ct_AddLostGoal,4,byte(GoalCondition),byte(GoalStatus),MessageToShow,byte(Player)-1);
       end;

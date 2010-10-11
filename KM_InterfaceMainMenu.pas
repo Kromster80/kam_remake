@@ -148,7 +148,7 @@ type TKMMainMenuInterface = class
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
-    procedure MultiPlayerLoginQuerry(Sender: TObject);
+    procedure MultiPlayerLoginQuery(Sender: TObject);
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList();
     procedure MapEditor_Start(Sender: TObject);
@@ -391,7 +391,7 @@ begin
       Edit_Pass  := MyControls.AddTextEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey,true);
       Edit_Pass.Text := '';
       Button_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, 'Login', fnt_Metal, bsMenu);
-      Button_Login.OnClick := MultiPlayerLoginQuerry;
+      Button_Login.OnClick := MultiPlayerLoginQuery;
 
       Label_Status := MyControls.AddLabel(Panel_WWWLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
 
@@ -989,8 +989,8 @@ begin
   Label_SingleDesc.Caption  := SingleMapsInfo.GetBigDesc(SingleMap_Selected);
 
   Label_SingleCondTyp.Caption := 'Mission type: '+SingleMapsInfo.GetTyp(SingleMap_Selected);
-  Label_SingleCondWin.Caption := 'Win condition: '+SingleMapsInfo.GetWin(SingleMap_Selected);
-  Label_SingleCondDef.Caption := 'Defeat condition: '+SingleMapsInfo.GetDefeat(SingleMap_Selected);
+  Label_SingleCondWin.Caption := 'Win condition: ';//+SingleMapsInfo.GetWin(SingleMap_Selected);
+  Label_SingleCondDef.Caption := 'Defeat condition: ';//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
 end;
 
 
@@ -1002,9 +1002,9 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayerLoginQuerry(Sender: TObject);
+procedure TKMMainMenuInterface.MultiPlayerLoginQuery(Sender: TObject);
 begin
-  //Construct server querry
+  //Construct server query
 
   //Wait
 

@@ -768,7 +768,7 @@ const
 
 {Terrain}
 type
-  TFieldType = (ft_None=0, ft_Road, ft_Corn, ft_Wine, ft_InitWine, ft_Wall); //This is used only for querrying
+  TFieldType = (ft_None=0, ft_Road, ft_Corn, ft_Wine, ft_InitWine, ft_Wall); //This is used only for querying
   THouseStage = (hs_None, hs_Plan, hs_Fence, hs_Built);
 
   TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall );
@@ -963,6 +963,15 @@ type
 
   TGoalStatus = (gs_True=0, gs_False=1); //Weird that it's inverted, but KaM uses it that way
 
+const
+  GoalConditionStr: array [TGoalCondition] of string =
+  ({'Unknown',} 'Build Tannery', 'Time', 'StoreSchoolBarracks', 'Troops', 'Unknown',
+   'Military assets', 'Serfs&Schools', 'School Inn Store');
+
+  GoalStatusStr: array [TGoalStatus] of string =
+  ('True', 'False');
+
+type
   TPlayerGoal = record
     GoalType: TGoalType; //Victory, survive, neither
     GoalCondition: TGoalCondition; //Buildings, troops, time passing
