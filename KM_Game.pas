@@ -335,6 +335,8 @@ begin
                         //Now record it as Client XY
                         SelectingDirPosition := Point(X,Y);
                         SelectedDirection := dir_NA;
+                        fGamePlayInterface.ShowDirectionCursor(true,X,Y,SelectedDirection);
+                        Screen.Cursor := c_Invisible;
                       end;
                     end;
                   end
@@ -382,7 +384,7 @@ begin
                     SelectedDirection := KMGetCursorDirection(DeltaX, DeltaY);
                     //Update the cursor based on this direction and negate the offset
                     fGamePlayInterface.ShowDirectionCursor(true,X+DeltaX,Y+DeltaY,SelectedDirection);
-                    Screen.Cursor := c_Invisible;
+                    Screen.Cursor := c_Invisible; //Keep it invisible, just in case
                   end
                   else
                   begin

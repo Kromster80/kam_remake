@@ -15,9 +15,9 @@ EXE-only r1006:
  +	Message stack controls do not anchor to the bottom when resizing the screen
  + 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  + 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
+ +	When using right click to move warriors the direction indicator doesn't appear until the mouse is moved
 
  -	Dots and lines displaying on tile edges
- -	When using right click to move warriors the direction indicator doesn't appear until the mouse is moved
  
 	Colored rectangle below cursor	
 	MediaPlayer won't play mp3s and crash
