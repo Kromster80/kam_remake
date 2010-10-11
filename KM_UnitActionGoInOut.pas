@@ -117,7 +117,7 @@ begin
                              and (aUnit.GetUnitActionType = ua_Walk)
                              and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
     if Result then
-      aUnit.SetActionWalk(aUnit, fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk), ua_Walk, true, true);
+      aUnit.SetActionWalk(fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk), ua_Walk, true, true);
   end;
 end;
 

@@ -143,7 +143,7 @@ begin
          Result := TaskDone;
          exit;
        end;
-       SetActionWalk(fUnit,Cells.List[LocID].Loc);
+       SetActionWalk(Cells.List[LocID].Loc);
      end;
   1: begin
        SetActionStay(6,ua_Work,false,0,0); //Start animation

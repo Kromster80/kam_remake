@@ -116,7 +116,7 @@ begin
   case fPhase of
     0:  begin
           if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' going to take '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
-          SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance));
+          SetActionWalk(KMPointY1(fFrom.GetEntrance));
         end;
     1:  begin
           if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' taking '+TypeToString(fResourceType)+' from '+TypeToString(GetPosition));
@@ -143,7 +143,7 @@ begin
   with fUnit do
   case fPhase of
     0..4:;
-    5:  SetActionWalk(fUnit,KMPointY1(fToHouse.GetEntrance));
+    5:  SetActionWalk(KMPointY1(fToHouse.GetEntrance));
     6:  SetActionGoIn(ua_Walk,gd_GoInside,fToHouse);
     7:  SetActionStay(5,ua_Walk); //wait a bit inside
     8:  begin
@@ -173,7 +173,7 @@ begin
   with fUnit do
   case fPhase of
     0..4:;
-    5:  SetActionWalk(fUnit,fToHouse.GetEntrance,ua_Walk,false); //Any tile next to entrance will do
+    5:  SetActionWalk(fToHouse.GetEntrance,ua_Walk,false); //Any tile next to entrance will do
     6:  begin
           fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
           TKMUnitSerf(fUnit).CarryTake();
@@ -190,7 +190,7 @@ begin
   with fUnit do
   case fPhase of
     0..4:;
-    5:  SetActionWalk(fUnit, fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false, fToUnit);
+    5:  SetActionWalk(fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false, fToUnit);
     6:  begin
           //See if the unit has moved. If so we must try again
           if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then
@@ -227,7 +227,7 @@ begin
               Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
               exit;
             end else //No delivery found then just walk back to our from house
-              SetActionWalk(fUnit,KMPointY1(fFrom.GetEntrance),KMPoint(0,0),ua_Walk,false); //Don't walk to spot as it doesn't really matter
+              SetActionWalk(KMPointY1(fFrom.GetEntrance),KMPoint(0,0),ua_Walk,false); //Don't walk to spot as it doesn't really matter
           end else
             SetActionStay(0,ua_Walk); //If we're not feeding a warrior then ignore this step
         end;

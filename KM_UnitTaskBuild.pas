@@ -150,7 +150,7 @@ begin
   with fUnit do
   case fPhase of
     0: begin
-         SetActionWalk(fUnit,fLoc);
+         SetActionWalk(fLoc);
          Thought := th_Build;
        end;
     1: begin
@@ -251,7 +251,7 @@ begin
   with fUnit do
   case fPhase of
    0: begin
-        SetActionWalk(fUnit,fLoc);
+        SetActionWalk(fLoc);
         Thought := th_Build;
       end;
    1: begin
@@ -340,7 +340,7 @@ begin
   with fUnit do
   case fPhase of
     0: begin
-         SetActionWalk(fUnit,fLoc);
+         SetActionWalk(fLoc);
          Thought := th_Build;
        end;
     1: begin
@@ -414,7 +414,7 @@ begin
   with fUnit do
   case fPhase of
     0: begin
-         SetActionWalk(fUnit,fLoc);
+         SetActionWalk(fLoc);
          Thought := th_Build;
        end;
     1: begin
@@ -450,7 +450,7 @@ begin
       //@Lewin: It's yet incomplete
     7: begin
         //Walk away from tile and continue building from the side
-        SetActionWalk(fUnit,fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetDesiredPassability));
+        SetActionWalk(fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetDesiredPassability));
       end;
     8: begin
         //fTerrain.IncWallState(fLoc);
@@ -544,7 +544,7 @@ begin
   with fUnit do
   case fPhase of
   0:  begin
-        SetActionWalk(fUnit,fHouse.GetEntrance);
+        SetActionWalk(fHouse.GetEntrance);
         Thought := th_Build;
       end;
   1:  begin
@@ -556,7 +556,7 @@ begin
         SetActionStay(5,ua_Walk);
         Thought := th_None;
       end;
-  2:  SetActionWalk(fUnit,Cells[Step]);
+  2:  SetActionWalk(Cells[Step]);
   3:  begin
         SetActionStay(11,ua_Work1,false); //Don't flatten terrain here as we haven't started digging yet
       end;
@@ -698,7 +698,7 @@ begin
       0: begin
            Thought := th_Build;
            CurLoc := PickRandomSpot();
-           SetActionWalk(fUnit,Cells.List[CurLoc].Loc);
+           SetActionWalk(Cells.List[CurLoc].Loc);
          end;
       1: begin
            Direction:=TKMDirection(Cells.List[CurLoc].Dir);
@@ -811,7 +811,7 @@ begin
       0: begin
            Thought := th_Build;
            CurLoc := Random(Cells.Count)+1;
-           SetActionWalk(fUnit,Cells.List[CurLoc].Loc);
+           SetActionWalk(Cells.List[CurLoc].Loc);
          end;
       1: begin
            Direction:=TKMDirection(Cells.List[CurLoc].Dir);

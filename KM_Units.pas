@@ -109,9 +109,9 @@ type
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
-    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil); overload;
-    procedure SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
-    procedure SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+    procedure SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil); overload;
+    procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
+    procedure SetActionAbandonWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 
     procedure Feed(Amount:single);
     procedure AbandonWalk;
@@ -876,7 +876,7 @@ begin
   if KMSamePoint(GetPosition,Spot) then
     SetActionStay(20, ua_Walk)
   else
-    SetActionWalk(Self, Spot, KMPoint(0,0));
+    SetActionWalk(Spot, KMPoint(0,0));
 
   if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
@@ -1238,7 +1238,7 @@ end;
 
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
-  if (Self.GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(Self.GetUnitAction).CanAbandon then begin
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then begin
     fGame.GameError(GetPosition, 'Unit fight overrides walk');
     exit;
   end;
@@ -1276,23 +1276,23 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil);
+procedure TKMUnit.SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil);
 begin
-  if (aKMUnit.GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(aKMUnit.GetUnitAction).CanAbandon then
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);
-  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, aAvoid, aActionType, aWalkToSpot, false, false, aTargetUnit),0);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aAvoid, aActionType, aWalkToSpot, false, false, aTargetUnit),0);
 end;
 
 
-procedure TKMUnit.SetActionWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false);
+procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false);
 begin
-  if (aKMUnit.GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(aKMUnit.GetUnitAction).CanAbandon then
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);
-  SetAction(TUnitActionWalkTo.Create(aKMUnit, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed, aWalkToNear),0);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed, aWalkToNear),0);
 end;
 
 
-procedure TKMUnit.SetActionAbandonWalk(aKMUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+procedure TKMUnit.SetActionAbandonWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 var TempVertexOccupied: TKMPoint;
 begin
   if GetUnitAction is TUnitActionWalkTo then
@@ -1301,14 +1301,14 @@ begin
     TUnitActionWalkTo(GetUnitAction).fVertexOccupied := KMPoint(0,0); //So it doesn't try to DecVertex on destroy (now it's AbandonWalk's responsibility)
   end
   else TempVertexOccupied := KMPoint(0,0);
-  SetAction(TUnitActionAbandonWalk.Create(aLocB,TempVertexOccupied, aActionType),aKMUnit.AnimStep); //Use the current animation step, to ensure smooth transition
+  SetAction(TUnitActionAbandonWalk.Create(aLocB,TempVertexOccupied, aActionType),AnimStep); //Use the current animation step, to ensure smooth transition
 end;
 
 
 procedure TKMUnit.AbandonWalk;
 begin
   if GetUnitAction is TUnitActionWalkTo then
-    SetActionAbandonWalk(Self, NextPosition, ua_Walk)
+    SetActionAbandonWalk(NextPosition, ua_Walk)
   else
     SetActionStay(0, ua_Walk); //Error
 end;

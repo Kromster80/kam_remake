@@ -66,7 +66,8 @@ type
       procedure SyncLoad(); override;
       destructor Destroy; override;
       procedure ExplanationLogAdd;
-      function CanAbandon: boolean;
+      function CanAbandonInternal: boolean;
+      function CanAbandonExternal: boolean;
       function GetNextPosition():TKMPoint;
       function GetNextNextPosition():TKMPoint;
       function GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
@@ -229,7 +230,16 @@ begin
 end;
 
 
-function TUnitActionWalkTo.CanAbandon: boolean;
+function TUnitActionWalkTo.CanAbandonInternal: boolean;
+begin
+  Result := (fInteractionStatus<>kis_Pushed) and (not DoExchange); //Other unit could have set this
+  //and KMSamePointF(KMPointF(fWalker.GetPosition),fWalker.PositionF); Always true since called from
+  //within Execute.OnNewTile
+end;
+
+
+{ Returns true only when unit is stuck for some reason }
+function TUnitActionWalkTo.CanAbandonExternal: boolean;
 begin
   Result := (fInteractionStatus <> kis_Pushed)
             and (not DoExchange) //Other unit could have set this
@@ -356,11 +366,7 @@ begin
     //Try to find a walkaround
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
     begin
-      if not CanAbandon then begin
-        fGame.GameError(fWalker.GetPosition, 'Unit walk check for obstacle');
-        exit;
-      end;
-      fWalker.SetActionWalk(fWalker,fWalkTo,GetActionType,fWalkToSpot);
+      fWalker.SetActionWalk(fWalkTo,GetActionType,fWalkToSpot);
       Result:= oc_ReRouteMade;
     end else
       Result := oc_NoRoute;
@@ -431,11 +437,11 @@ begin
       OpponentPassability := canWalk
     else
       OpponentPassability := fOpponent.GetDesiredPassability;
-    if not CanAbandon then begin
+    if not CanAbandonInternal then begin
       fGame.GameError(fWalker.GetPosition, 'Unit walk IntSolutionPush');
       exit;
     end;
-    fOpponent.SetActionWalk(fOpponent, fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability), ua_Walk, true, true);
+    fOpponent.SetActionWalk(fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability), ua_Walk, true, true);
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     ExplanationLogAdd;
     //Next frame tile will be free and unit will walk there
@@ -500,12 +506,12 @@ begin
 
       fInteractionStatus := kis_None;
 
-      if not CanAbandon then begin
+      if not CanAbandonInternal then begin
         fGame.GameError(fWalker.GetPosition, 'Unit walk IntCheckIfPushed');
         exit;
       end;
 
-      fWalker.SetActionWalk(fWalker, fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability),ua_Walk,true,true);
+      fWalker.SetActionWalk(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability),ua_Walk,true,true);
       Result := true; //Means exit DoUnitInteraction
       exit;
     end;
@@ -730,7 +736,7 @@ end;
 procedure TUnitActionWalkTo.ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil);
 begin
   if fWalkTo.X*fWalkTo.Y = 0 then
-   fGame.GameError(fWalkTo, 'ChangeWalkTo 0:0');
+   fGame.GameError(fWalkTo, 'Change Walk To 0:0');
 
   if not aWalkToNear then
     fNewWalkTo := aLoc
@@ -809,7 +815,7 @@ begin
     { Update destination point }
 
     //Make changes to our route if we are supposed to be tracking a unit
-    if CanAbandon and (fTargetUnit <> nil) and (not fTargetUnit.IsDeadOrDying) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
+    if CanAbandonInternal and (fTargetUnit <> nil) and (not fTargetUnit.IsDeadOrDying) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
     begin
       ChangeWalkTo(fTargetUnit.GetPosition,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
@@ -818,13 +824,13 @@ begin
     end;
 
     //Check if we need to walk to a new destination
-    if CanAbandon and (CheckForNewDestination=dc_NoRoute) then begin
+    if CanAbandonInternal and (CheckForNewDestination=dc_NoRoute) then begin
       Result := ActAborted;
       exit;
     end;
 
     //Check for units nearby to fight
-    if CanAbandon and (fWalker is TKMUnitWarrior) then
+    if CanAbandonInternal and (fWalker is TKMUnitWarrior) then
       if TKMUnitWarrior(fWalker).CheckForEnemy then
         //If we've picked a fight it means this action no longer exists,
         //so we must exit out (don't set DoEnd as that will now apply to fight action)
@@ -842,7 +848,7 @@ begin
     end;
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
-    if CanAbandon then
+    if CanAbandonInternal then
       case CheckTargetHasDied of
         tc_NoChanges, tc_TargetUpdated:;
         tc_Died: begin Result := ActAborted; exit; end;
@@ -864,6 +870,7 @@ begin
     fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
 
     //Check if we can walk to next tile in the route
+    if CanAbandonInternal then
     case CheckForObstacle of
       oc_NoObstacle:;
       oc_ReRouteMade: exit; //New route will pick-up
