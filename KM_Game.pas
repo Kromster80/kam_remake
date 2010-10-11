@@ -250,8 +250,8 @@ begin
                   if Key=ord('9') then fGameplayInterface.MessageIssue(msgQuill,'123',KMPoint(0,0));
                   if Key=ord('0') then fGameplayInterface.MessageIssue(msgScroll,'123',KMPoint(0,0));
 
-                  if Key=ord('V') then begin fGame.GameHold(true, gr_Win); exit; end; //Instant victory
-                  if Key=ord('D') then begin fGame.GameHold(true, gr_Defeat); exit; end; //Instant defeat
+                  if Key=ord('V') then begin GameHold(true, gr_Win); exit; end; //Instant victory
+                  if Key=ord('D') then begin GameHold(true, gr_Defeat); exit; end; //Instant defeat
                 end;
     gsReplay:   begin
                   if IsDown then exit;
@@ -700,7 +700,7 @@ begin
                 end;
   end;
 
-  if (MOUSEWHEEL_ZOOM_ENABLE) and (fGame.GameState in [gsRunning,gsEditor]) and (AllowZoom) then
+  if (MOUSEWHEEL_ZOOM_ENABLE) and (GameState in [gsRunning,gsEditor]) and (AllowZoom) then
     fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
 end;
 
@@ -809,7 +809,7 @@ begin
   'Contact details can be found in the Readme file. Thank you very much for your kind help!'+eol+eol+
   '  WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
   , mtWarning, [mbYes, mbNo], 0) <> mrYes then
-    fGame.GameStop(gr_Error,'') //Exit to main menu will save the Replay data
+    GameStop(gr_Error,'') //Exit to main menu will save the Replay data
   else
     if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
       fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl')); //Save replay data ourselves
@@ -830,14 +830,14 @@ begin
     gr_ReplayEnd:     begin
                         if DoHold then begin
                           GameSetState(gsOnHold);
-                          fGame.fGamePlayInterface.ShowPlayMore(true, Msg);
+                          fGamePlayInterface.ShowPlayMore(true, Msg);
                         end else
                           GameSetState(gsReplay);
                       end;
     gr_Win,gr_Defeat: begin
                         if DoHold then begin
                           GameSetState(gsOnHold);
-                          fGame.fGamePlayInterface.ShowPlayMore(true, Msg);
+                          fGamePlayInterface.ShowPlayMore(true, Msg);
                         end else
                           GameSetState(gsRunning);
                       end;
