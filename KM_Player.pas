@@ -18,7 +18,7 @@ type
     fBuildList: TKMBuildingQueue;
   public
     fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
-    fGoals: array of TPlayerGoal;
+    fGoals: array of TPlayerGoal; //0..n-1
     fGoalCount: integer;
     SkipWinConditionCheck: boolean;
     SkipDefeatConditionCheck: boolean;

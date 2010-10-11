@@ -1124,21 +1124,21 @@ end;
 function TKMUnit.GetUnitTaskText():string;
 begin
   Result:='Idle';                                      {----------} //Thats allowed width
-  if fUnitTask is TTaskSelfTrain        then Result := 'Self-training';
-  if fUnitTask is TTaskDeliver          then Result := 'Delivering';
-  if fUnitTask is TTaskBuildRoad        then Result := 'Building road';
-  if fUnitTask is TTaskBuildWine        then Result := 'Building wine field';
-  if fUnitTask is TTaskBuildField       then Result := 'Building corn field';
-  if fUnitTask is TTaskBuildWall        then Result := 'Building a wall';
-  if fUnitTask is TTaskBuildHouseArea   then Result := 'Preparing house area';
-  if fUnitTask is TTaskBuildHouse       then Result := 'Building house';
-  if fUnitTask is TTaskBuildHouseRepair then Result := 'Repairing house';
-  if fUnitTask is TTaskGoHome           then Result := 'Going home';
-  if fUnitTask is TTaskGoEat            then Result := 'Going to eat';
-  if fUnitTask is TTaskMining           then Result := 'Mining resources';
-  if fUnitTask is TTaskDie              then Result := 'Dying';
-  if fUnitTask is TTaskAttackHouse      then Result := 'Attacking House';
-  if fUnitTask is TTaskGoOutShowHungry  then Result := 'Showing hunger';
+  if fUnitTask is TTaskSelfTrain        then Result := 'Train';
+  if fUnitTask is TTaskDeliver          then Result := 'Deliver';
+  if fUnitTask is TTaskBuildRoad        then Result := 'Build road';
+  if fUnitTask is TTaskBuildWine        then Result := 'Build wine field';
+  if fUnitTask is TTaskBuildField       then Result := 'Build corn field';
+  if fUnitTask is TTaskBuildWall        then Result := 'Build wall';
+  if fUnitTask is TTaskBuildHouseArea   then Result := 'Prepare house area';
+  if fUnitTask is TTaskBuildHouse       then Result := 'Build house';
+  if fUnitTask is TTaskBuildHouseRepair then Result := 'Repair house';
+  if fUnitTask is TTaskGoHome           then Result := 'Go home';
+  if fUnitTask is TTaskGoEat            then Result := 'Go to eat';
+  if fUnitTask is TTaskMining           then Result := 'Mine resources';
+  if fUnitTask is TTaskDie              then Result := 'Die';
+  if fUnitTask is TTaskAttackHouse      then Result := 'Attack House';
+  if fUnitTask is TTaskGoOutShowHungry  then Result := 'Show hunger';
 end;
 
 

@@ -960,8 +960,8 @@ type
                     gc_EconomyBuildings=8 //School, Inn and Storehouse
                     //We can come up with our own
                     );
-  TGoalStatus = (gs_True=0, gs_False=1); //Weird that it's inverted, but KaM uses it that way
 
+  TGoalStatus = (gs_True=0, gs_False=1); //Weird that it's inverted, but KaM uses it that way
 
   TPlayerGoal = record
     GoalType: TGoalType; //Victory, survive, neither

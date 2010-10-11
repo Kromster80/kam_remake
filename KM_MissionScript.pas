@@ -259,8 +259,8 @@ begin
   blockread(f,i,4);
   fLog.AssertToLog((k<=MaxMapSize)and(i<=MaxMapSize),'TMissionParser.GetMapDetails - Can''t open the map cos it''s too big.');
   closefile(f);
-  Result.MapSize.X:=k;
-  Result.MapSize.Y:=i;
+  Result.MapSize.X := k;
+  Result.MapSize.Y := i;
 end;
 
 
