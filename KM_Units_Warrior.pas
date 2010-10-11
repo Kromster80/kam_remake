@@ -69,8 +69,7 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse); reintroduce; overload;
-    function CheckForEnemy:boolean;
-    function CheckForEnemyAround: TKMUnit;
+    function CheckForEnemy():boolean;
 
     function CanInterruptAction:boolean;
 
@@ -682,7 +681,7 @@ begin
 end;
 
 
-function TKMUnitWarrior.CheckForEnemy: boolean;
+function TKMUnitWarrior.CheckForEnemy():boolean;
 var i,k,WCount,OCount:shortint;
     U, BestU: TKMUnit;
     Warriors,Others: array[1..8] of TKMUnit;
@@ -702,7 +701,6 @@ begin
   if fTerrain.TileInMapCoords(GetPosition.X+i, GetPosition.Y+k) then
   if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through tree trunks
   begin
-    //todo: Maybe check IsUnit first and also avoid hittesting allies and group members somehow?
     U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
     //Must not dead/dying, not inside a house, not from our team and an enemy
     if (U <> nil) and (U.IsVisible) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
@@ -726,82 +724,20 @@ begin
     end;
   end;
 
-  //Choose random unit, prefering warriors to e.g. serfs
-  U := nil;
-  if BestU <> nil then
-    U := BestU //Warrior directly in front is first preference
-  else
+  //Preferance goes: Unit in front of us > Random warrior > Random citizen
+  if BestU = nil then
     if WCount > 0 then
-      U := Warriors[Random(WCount)+1]
+      BestU := Warriors[Random(WCount)+1]
     else
-      if OCount > 0 then
-        U := Others[Random(OCount)+1];
+    if OCount > 0 then
+      BestU := Others[Random(OCount)+1]
+    else
+      exit; //noone found
 
-  if U <> nil then
-  begin
-    SetActionFight(ua_Work, U);
-    //Change our OrderLoc so that after the fight we stay where we are
-    fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir);
-    //Let the opponent know they are being attacked so they can attack back if necessary
-    if U is TKMUnitWarrior then TKMUnitWarrior(U).CheckForEnemy;
-    Result := true; //We found someone to fight
-  end;
-end;
-
-
-//@Krom: What purpose does this function serve? It is never used and is almost the same as above....
-//This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
-function TKMUnitWarrior.CheckForEnemyAround: TKMUnit;
-var
-  i,k:shortint;
-  U: TKMUnit;
-  WarCount,CivCount:byte;
-  Warriors,Civil: array[1..8] of TKMUnit;
-begin
-  Result := nil;
-  if not ENABLE_FIGHTING then exit; //Nobody to fight
-
-  WarCount := 0;
-  CivCount := 0;
-  for i := -1 to 1 do
-  for k := -1 to 1 do
-  if (i<>0) or (k<>0) then
-  if fTerrain.TileInMapCoords(GetPosition.X+i, GetPosition.Y+k) then
-  if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i, GetPosition.Y+k)) then //Don't fight through a tree trunk
-  begin
-    //todo: Maybe check IsUnit first and also avoid hittesting allies and group members somehow?
-    U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
-    //Must not dead/dying, not inside a house, not from our team and an enemy
-    if (U <> nil)and
-       (U.IsVisible)and
-       (not U.IsDeadOrDying)and
-       (fPlayers.CheckAlliance(GetOwner, U.GetOwner) = at_Enemy) then
-    begin
-      //We'd rather fight a warrior, so store them seperatly
-      if U is TKMUnitWarrior then
-      begin
-        inc(WarCount);
-        Warriors[WarCount] := U;
-        //If they is a warrior right in front of us then choose him to fight rather than turning
-        if KMSamePoint(KMGetPointInDir(GetPosition,Direction),U.GetPosition) then begin
-          Result := U;
-          exit;
-        end;
-      end
-      else
-      begin
-          inc(CivCount);
-          Civil[CivCount] := U;
-      end
-    end;
-  end;
-
-  //Choose random unit, prefering warriors to e.g. serfs
-  if WarCount > 0 then
-    Result := Warriors[Random(WarCount)+1]
-  else
-  if CivCount > 0 then
-    Result := Civil[Random(CivCount)+1];
+  SetActionFight(ua_Work, BestU);
+  fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //so that after the fight we stay where we are
+  if BestU is TKMUnitWarrior then TKMUnitWarrior(BestU).CheckForEnemy; //Let opponent know he is attacked
+  Result := true; //We found someone to fight
 end;
 
 
