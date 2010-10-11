@@ -9,6 +9,7 @@ type
     TTaskAttackHouse = class(TUnitTask)
     private
       fHouse:TKMHouse;
+      fDestroyingHouse:boolean;
       LocID:byte; //Current attack location
       Cells:TKMPointDirList; //List of surrounding cells and directions
       function PosUsed(aPos: TKMPoint):boolean;
@@ -17,6 +18,7 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
+      function DestroyingHouse():boolean;
       function WalkShouldAbandon:boolean; override;
       function Execute():TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
@@ -35,6 +37,7 @@ begin
 
   fLog.AssertToLog(aHouse<>nil, 'Trying to attack NIL house?');
   fHouse := aHouse.GetHousePointer;
+  fDestroyingHouse := false;
   LocID  := 0;
   Cells  := TKMPointDirList.Create; //Pass pre-made list to make sure we Free it in the same unit
   fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability);
@@ -45,6 +48,7 @@ constructor TTaskAttackHouse.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fHouse, 4);
+  LoadStream.Read(fDestroyingHouse);
   LoadStream.Read(LocID);
   Cells := TKMPointDirList.Create;
   Cells.Load(LoadStream);
@@ -97,6 +101,12 @@ begin
 end;
 
 
+function TTaskAttackHouse.DestroyingHouse():boolean;
+begin
+  Result := fDestroyingHouse;
+end;
+
+
 function TTaskAttackHouse.Execute():TTaskResult;
 
     function PickRandomSpot(): byte;
@@ -144,10 +154,12 @@ begin
          exit;
        end;
        SetActionWalk(Cells.List[LocID].Loc);
+       fDestroyingHouse := false;
      end;
   1: begin
        SetActionStay(6,ua_Work,false,0,0); //Start animation
        Direction := TKMDirection(Cells.List[LocID].Dir); //Face target
+       fDestroyingHouse := true;
      end;
   2: begin
        SetActionStay(6,ua_Work,false,0,6); //Pause for next attack
@@ -167,6 +179,7 @@ begin
     SaveStream.Write(fHouse.ID) //Store ID
   else
     SaveStream.Write(Zero);
+  SaveStream.Write(fDestroyingHouse);
   SaveStream.Write(LocID);
   Cells.Save(SaveStream);
 end;

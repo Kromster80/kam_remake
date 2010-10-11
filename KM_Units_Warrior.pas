@@ -724,12 +724,12 @@ begin
     end;
   end;
 
-  //Preferance goes: Unit in front of us > Random warrior > Random citizen
+  //Preferance goes: Unit in front of us > Random warrior > Random citizen (if we are not busy)
   if BestU = nil then
     if WCount > 0 then
       BestU := Warriors[Random(WCount)+1]
     else
-    if OCount > 0 then
+    if (OCount > 0) and not((GetUnitTask is TTaskAttackHouse) and TTaskAttackHouse(GetUnitTask).DestroyingHouse) then
       BestU := Others[Random(OCount)+1]
     else
       exit; //noone found
