@@ -29,9 +29,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1079';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1079';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1079;          //Used in replay file format
+  GAME_VERSION          = 'Fighting Demo r1101';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1101';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1101;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -76,18 +76,14 @@ var
   SHOW_POINTER_DOTS     :boolean=false; //Show pointer count as small dots below unit
   SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
-
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
-
   TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
   SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
   RENDER_3D             :boolean=false; //Experimental 3D render
-
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
-
   {Data output}
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :boolean=false; //Write even more output into log + slows down game noticably

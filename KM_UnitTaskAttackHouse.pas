@@ -18,7 +18,7 @@ type
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
-      function DestroyingHouse():boolean;
+      property DestroyingHouse:boolean read fDestroyingHouse;
       function WalkShouldAbandon:boolean; override;
       function Execute():TTaskResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
@@ -98,12 +98,6 @@ begin
     Result := true;
     fPhase := 0; //Try to start again with a new spot
   end;
-end;
-
-
-function TTaskAttackHouse.DestroyingHouse():boolean;
-begin
-  Result := fDestroyingHouse;
 end;
 
 
