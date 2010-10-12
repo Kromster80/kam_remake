@@ -1408,7 +1408,6 @@ begin
 
   LinkUnit := Soldier.FindLinkUnit(GetEntrance);
   Soldier.LinkTo(LinkUnit);
-  //todo: Try to Link ourselves to some group
 end;
 
 
