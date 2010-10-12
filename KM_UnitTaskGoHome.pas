@@ -12,7 +12,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Utils;
+uses KM_Utils;
 
 
 { TTaskGoHome }

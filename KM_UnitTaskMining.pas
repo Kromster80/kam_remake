@@ -20,7 +20,7 @@ type
 
 
 implementation
-uses KM_Game, KM_Terrain;
+uses KM_Terrain;
 
 
 { TTaskMining }

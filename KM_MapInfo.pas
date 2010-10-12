@@ -2,7 +2,7 @@ unit KM_MapInfo;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, KromUtils, SysUtils, Dialogs, KM_Defaults, KM_Utils, KM_MissionScript;
+  Classes, KromUtils, SysUtils, Dialogs;
 
 type
   TKMMapsInfo = class(TObject)
@@ -33,6 +33,7 @@ type
   end;
 
 implementation
+uses KM_Defaults, KM_Utils, KM_MissionScript;
 
 
 { TKMMapInfo }

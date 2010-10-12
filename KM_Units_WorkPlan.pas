@@ -1,7 +1,7 @@
 unit KM_Units_WorkPlan;
 {$I KaM_Remake.inc}
 interface
-uses KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
+uses KromUtils, KM_Defaults, KM_CommonTypes;
 
 type
   TUnitWorkPlan = class
@@ -38,7 +38,7 @@ type
 
 implementation
 
-uses KM_Game;
+uses KM_Game, KM_Terrain, KM_Utils;
 
 {Houses are only a place on map, they should not issue or perform tasks (except Training)
 Everything should be issued by units
