@@ -300,12 +300,11 @@ TKMScrollBar = class(TKMControl)
     ScrollDec:TKMButton;
     ScrollInc:TKMButton;
     Style:TButtonStyle;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
-    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    procedure RefreshItems();
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     procedure Paint(); override;
 end;
@@ -1241,14 +1240,14 @@ end;
 procedure TKMScrollBar.IncPosition(Sender:TObject);
 begin
   Position := EnsureRange(Position+1, MinValue, MaxValue);
-  OnChange(Self);
+  if Assigned(OnChange) then OnChange(Self);
 end;
 
 
 procedure TKMScrollBar.DecPosition(Sender:TObject);
 begin
   Position := EnsureRange(Position-1, MinValue, MaxValue);
-  OnChange(Self);
+  if Assigned(OnChange) then OnChange(Self);
 end;
 
 
