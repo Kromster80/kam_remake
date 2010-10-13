@@ -221,7 +221,7 @@ end;
 
 
 {$IFDEF WDC}
-procedure TRender.DoPrintScreen(filename:string);
+procedure TRender.DoPrintScreen(FileName:string);
  var sh,sw,i,k:integer; jpg: TJpegImage; mkbmp:TBitmap; bmp:array of cardinal;
 begin
   sw:=RenderAreaSize.X;
@@ -244,7 +244,7 @@ begin
   jpg.Performance:=jpBestQuality;
   jpg.CompressionQuality:=90;
   jpg.Compress;
-  jpg.SaveToFile(filename);
+  jpg.SaveToFile(FileName);
 
   jpg.Free;
   mkbmp.Free;

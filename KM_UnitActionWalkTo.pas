@@ -55,6 +55,7 @@ type
       procedure IncVertex;
       procedure DecVertex;
       procedure SetInitValues;
+      function CanAbandonInternal: boolean;
     public
       NodeList:TKMPointList;
       fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
@@ -66,7 +67,6 @@ type
       procedure SyncLoad(); override;
       destructor Destroy; override;
       procedure ExplanationLogAdd;
-      function CanAbandonInternal: boolean;
       function CanAbandonExternal: boolean;
       function GetNextPosition():TKMPoint;
       function GetNextNextPosition():TKMPoint;
@@ -232,17 +232,15 @@ end;
 
 function TUnitActionWalkTo.CanAbandonInternal: boolean;
 begin
-  Result := (fInteractionStatus<>kis_Pushed) and (not DoExchange); //Other unit could have set this
-  //and KMSamePointF(KMPointF(fWalker.GetPosition),fWalker.PositionF); Always true since called from
-  //within Execute.OnNewTile
+  Result := (fInteractionStatus<>kis_Pushed) //Can be removed, but decreases effectiveness
+            and (not DoExchange); //Other unit could have set this
 end;
 
 
 { Returns true only when unit is stuck for some reason }
 function TUnitActionWalkTo.CanAbandonExternal: boolean;
 begin
-  Result := (fInteractionStatus <> kis_Pushed)
-            and (not DoExchange) //Other unit could have set this
+  Result := (not DoExchange) //Other unit could have set this
             and KMSamePointF(KMPointF(fWalker.GetPosition),fWalker.PositionF);
 end;
 
@@ -837,6 +835,7 @@ begin
         exit;
 
     //Walk complete
+    if not DoExchange then
     if ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
       ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5)) or //If we are walking to a unit check to see if we've met the unit early
       ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon)) then //See if task wants us to abandon

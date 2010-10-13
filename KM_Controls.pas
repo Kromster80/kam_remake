@@ -291,6 +291,7 @@ type TScrollAxis = (sa_Vertical, sa_Horizontal);
 TKMScrollBar = class(TKMControl)
   private
     FOnChange:TNotifyEvent;
+    procedure RefreshItems();
   public
     Position:byte;
     MinValue:byte;
