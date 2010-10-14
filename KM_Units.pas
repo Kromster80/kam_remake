@@ -31,7 +31,7 @@ type
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
-  TTaskResult = (TaskContinues, TaskDone); //
+  TTaskResult = (TaskContinues, TaskDone); //There's no difference between Done and Aborted
 
   TUnitTask = class(TObject)
   protected

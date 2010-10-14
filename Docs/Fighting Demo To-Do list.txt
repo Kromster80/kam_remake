@@ -11,7 +11,7 @@ Demo #4 should include:
 +	Map editor saving simple maps [Krom/Lewin]
 +	UI for saving maps from MapEd [Krom]
 	Tutorial missions and texts from KaM
-	Scalable ingame menu
+-	Scalable ingame menu
 	Lookout tower [Krom]
 +	Brightness settings as 0..20 range [Krom]
-	Working mission result (win/defeat) conditions [Krom]
++	Working mission result (win/defeat) conditions [Krom]

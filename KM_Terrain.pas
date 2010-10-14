@@ -709,34 +709,35 @@ end;
 function TTerrain.FindField(aPosition:TKMPoint; aRadius:integer; aFieldType:TFieldType; aAgeFull:boolean):TKMPoint;
 var i,k:integer; List:TKMPointList;
 begin
-  List:=TKMPointList.Create;
-  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      if (TileInMapCoords(k,i))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
-           ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
-          if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
-             ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
-            if Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,true) then
-              List.AddEntry(KMPoint(k,i));
+  List := TKMPointList.Create;
+  for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do
+  for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,MapX-1) do
+    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+      if ((aFieldType=ft_Corn) and TileIsCornField(KMPoint(k,i)))or
+         ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
+        if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
+           ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
+          if Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,true) then
+            List.AddEntry(KMPoint(k,i));
 
-  Result:=List.GetRandom;
+  Result := List.GetRandom;
   List.Free;
 end;
 
 
 {Find closest chopable Tree around}
 function TTerrain.FindTree(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+const Ins=2; //2..Map-2
 var i,k,Best:integer; List:TKMPointList; TreeLoc: TKMPoint;
 begin
   //List1 is all trees within radius
   List:=TKMPointList.Create;
-  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
-          if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),canWalk,true) then
-            List.AddEntry(KMPoint(k,i));
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins) do
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
+    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+      if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
+        if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),canWalk,true) then
+          List.AddEntry(KMPoint(k,i));
 
   TreeLoc := List.GetRandom; //Choose our tree
 
@@ -769,18 +770,19 @@ end;
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
 function TTerrain.FindStone(aPosition:TKMPoint; aRadius:integer):TKMPoint;
+const Ins=2; //2..Map-2
 var i,k:integer; List:TKMPointList;
 begin
   List := TKMPointList.Create;
-  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      if (TileInMapCoords(k,i,1))and(TileInMapCoords(k,i+1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-        if (TileIsStone(KMPoint(k,i))>0) then
-          //if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins-1) do //Leave one more tile below, where Stoncutter will stand
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
+    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+      if (TileIsStone(KMPoint(k,i))>0) then
+        if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
           if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,true) then
             List.AddEntry(KMPoint(k,i+1));
 
-  Result:=List.GetRandom;
+  Result := List.GetRandom;
   List.Free;
 end;
 
@@ -800,19 +802,18 @@ begin
     else        begin RadLeft:=0; RadRight:=0; RadTop:= 0; RadBottom:=0; R1:=  0; R2:=  0; R3:=  0; R4:=  0; end;
   end;
 
-  for i:=aPosition.Y-RadTop to aPosition.Y+RadBottom do
-    for k:=aPosition.X-RadLeft to aPosition.X+RadRight do
-      if TileInMapCoords(k,i) then
-      begin
-        if Land[i,k].Terrain = R1 then begin if InRange(i,aPosition.Y-RadTop +2,aPosition.Y+RadBottom-2) then
-                                             if InRange(k,aPosition.X-RadLeft+2,aPosition.X+RadRight -2) then
-                                             L[1].AddEntry(KMPoint(k,i)) end else
-        if Land[i,k].Terrain = R2 then begin if InRange(i,aPosition.Y-RadTop +1,aPosition.Y+RadBottom-1) then
-                                             if InRange(k,aPosition.X-RadLeft+1,aPosition.X+RadRight -1) then
-                                             L[2].AddEntry(KMPoint(k,i)) end else
-        if Land[i,k].Terrain = R3 then L[3].AddEntry(KMPoint(k,i)) else //Always mine second richest ore, it is never left in KaM
-        if Land[i,k].Terrain = R4 then L[4].AddEntry(KMPoint(k,i));     //Always mine richest ore
-      end;
+  for i:=max(aPosition.Y-RadTop,1) to min(aPosition.Y+RadBottom,MapY-1) do
+  for k:=max(aPosition.X-RadLeft,1) to min(aPosition.X+RadRight,MapX-1) do
+  begin
+    if Land[i,k].Terrain = R1 then begin if InRange(i,aPosition.Y-RadTop +2,aPosition.Y+RadBottom-2) then
+                                         if InRange(k,aPosition.X-RadLeft+2,aPosition.X+RadRight -2) then
+                                         L[1].AddEntry(KMPoint(k,i)) end else
+    if Land[i,k].Terrain = R2 then begin if InRange(i,aPosition.Y-RadTop +1,aPosition.Y+RadBottom-1) then
+                                         if InRange(k,aPosition.X-RadLeft+1,aPosition.X+RadRight -1) then
+                                         L[2].AddEntry(KMPoint(k,i)) end else
+    if Land[i,k].Terrain = R3 then L[3].AddEntry(KMPoint(k,i)) else //Always mine second richest ore, it is never left in KaM
+    if Land[i,k].Terrain = R4 then L[4].AddEntry(KMPoint(k,i));     //Always mine richest ore
+  end;
 
   if L[4].Count<>0 then Result:=L[4].GetRandom else
   if L[3].Count<>0 then Result:=L[3].GetRandom else
@@ -829,11 +830,11 @@ Prefer ex-trees locations}
 function TTerrain.FindPlaceForTree(aPosition:TKMPoint; aRadius:integer):TKMPoint;
 var i,k:integer; List1,List2:TKMPointList;
 begin
-List1:=TKMPointList.Create;
-List2:=TKMPointList.Create;
-for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-  for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-    if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i))<=aRadius) then
+  List1:=TKMPointList.Create;
+  List2:=TKMPointList.Create;
+  for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do
+  for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,MapX-1) do
+    if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,true) then begin
 
         if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
@@ -854,6 +855,7 @@ end;
 {Find seaside}
 {Return walkable tile nearby}
 function TTerrain.FindFishWater(aPosition:TKMPoint; aRadius:integer):TKMPointDir;
+const Ins=2; //2..Map-2
 var i,k,j,l:integer; List:TKMPointDirList;
 begin
   //Check is in stages:
@@ -863,18 +865,18 @@ begin
   // D) Final checks, route can be made, etc.
 
   List:=TKMPointDirList.Create;
-  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      // A) Inital checks, inside map and radius, etc.
-      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
-        if TileIsWater(KMPoint(k,i)) and WaterHasFish(KMPoint(k,i)) then //Limit to only tiles which are water and have fish
-          //Now find a tile around this one that can be fished from
-          for j:=-1 to 1 do
-            for l:=-1 to 1 do
-              if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) then
-                // D) Final check: route can be made
-                if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, true) then
-                  List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1));
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins) do
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
+    // A) Inital checks, inside map and radius, etc.
+    if (KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
+      if TileIsWater(KMPoint(k,i)) and WaterHasFish(KMPoint(k,i)) then //Limit to only tiles which are water and have fish
+        //Now find a tile around this one that can be fished from
+        for j:=-1 to 1 do
+          for l:=-1 to 1 do
+            if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) then
+              // D) Final check: route can be made
+              if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, true) then
+                List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1));
 
   Result:=List.GetRandom;
   List.Free;
@@ -882,17 +884,18 @@ end;
 
 
 function TTerrain.CanFindFishingWater(aPosition:TKMPoint; aRadius:integer):boolean;
+const Ins=2; //2..Map-2
 var i,k:integer;
 begin
   Result := false;
-  for i:=aPosition.Y-aRadius to aPosition.Y+aRadius do
-    for k:=aPosition.X-aRadius to aPosition.X+aRadius do
-      if (TileInMapCoords(k,i,1))and(KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
-        if TileIsWater(KMPoint(k,i)) then
-        begin
-          Result := true;
-          exit;
-        end;
+  for i:=max(aPosition.Y-aRadius,Ins) to min(aPosition.Y+aRadius,MapY-Ins) do
+  for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
+    if (KMLength(aPosition,KMPoint(k,i)) <= aRadius) then
+      if TileIsWater(KMPoint(k,i)) then
+      begin
+        Result := true;
+        exit;
+      end;
 end;
 
 
