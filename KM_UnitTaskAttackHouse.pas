@@ -157,7 +157,8 @@ begin
      end;
   2: begin
        SetActionStay(6,ua_Work,false,0,6); //Pause for next attack
-       fHouse.AddDamage(2); //All melee units do 1 damage per strike
+       fHouse.AddDamage(2); //All melee units do 2 damage per strike
+       //Bowmen/crossbowmen do 1 damage per shot and occasionally miss altogether
        fPhase := 0; //Do another hit (will be 1 after inc below)
      end;
   end;

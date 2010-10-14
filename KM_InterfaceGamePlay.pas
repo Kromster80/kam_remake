@@ -1644,9 +1644,8 @@ begin
   if (Sender=Button_School_Right)and(LastSchoolUnit < length(School_Order)) then inc(LastSchoolUnit);
 
   if Sender=Button_School_Train then //Add unit to training queue
-  begin
-    fGame.fGameInputProcess.CmdHouse(School, gic_HouseTrain, TUnitType(School_Order[LastSchoolUnit]));
-  end;
+    for i:=0 to byte(AButton = mbRight)*5 do //If they right click fill the entire queue
+      fGame.fGameInputProcess.CmdHouse(School, gic_HouseTrain, TUnitType(School_Order[LastSchoolUnit]));
 
   if School.UnitQueue[1]<>ut_None then
     Button_School_UnitWIP.TexID :=140+byte(School.UnitQueue[1])

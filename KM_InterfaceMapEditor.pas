@@ -449,6 +449,12 @@ begin
       TilesScroll.OnChange := TerrainTiles_Change;
 
     Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
+      ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 268, 180, 20, sa_Horizontal);
+      ObjectsScroll.MinValue := 1;
+      ObjectsScroll.MaxValue := ActualMapElemQty div 2;
+      ObjectsScroll.Position := 1;
+      ObjectsScroll.OnChange := TerrainObjects_Change;
+      ObjectsScroll.OnMouseWheel := ObjectsScroll.CallMouseWheelEvent;
       ObjectErase := MyControls.AddButtonFlat(Panel_Objects, 8, 8,32,32,340);
       ObjectsTable[1] := MyControls.AddButtonFlat(Panel_Objects, 8, 40,90,110,1,1); //RXid=1  // 1 2
       ObjectsTable[2] := MyControls.AddButtonFlat(Panel_Objects, 8,150,90,110,1,1); //RXid=1  // 3 4
@@ -457,14 +463,10 @@ begin
       for i:=1 to 4 do begin
         ObjectsTable[i].Tag := i; //Store ID
         ObjectsTable[i].OnClick := TerrainObjects_Change;
+        ObjectsTable[i].OnMouseWheel := ObjectsScroll.CallMouseWheelEvent;
       end;
       ObjectErase.Tag := 255; //no object
       ObjectErase.OnClick := TerrainObjects_Change;
-      ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 268, 180, 20, sa_Horizontal);
-      ObjectsScroll.MinValue := 1;
-      ObjectsScroll.MaxValue := ActualMapElemQty div 2;
-      ObjectsScroll.Position := 1;
-      ObjectsScroll.OnChange := TerrainObjects_Change;
 end;
 
 {Build page}

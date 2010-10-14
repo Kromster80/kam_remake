@@ -78,6 +78,7 @@ type
     procedure DemolishHouse(DoSilent:boolean; NoRubble:boolean=false);
 
     property GetPosition:TKMPoint read fPosition;
+    procedure SetPosition(aPos:TKMPoint); //Used by map editor
     function GetEntrance:TKMPoint;
     procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
     function HitTest(X, Y: Integer): Boolean;
@@ -415,6 +416,21 @@ begin
     fPlayers.Player[byte(fOwner)].DestroyedHouse(fHouseType);
 
   CloseHouse(NoRubble);
+end;
+
+
+procedure TKMHouse.SetPosition(aPos:TKMPoint);
+begin
+  //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
+  fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
+  fTerrain.RemRoad(Self.GetEntrance);
+  if fTerrain.CanPlaceHouse(aPos, GetHouseType) then
+  begin
+    fPosition.X := aPos.X - HouseDAT[byte(fHouseType)].EntranceOffsetX;
+    fPosition.Y := aPos.Y;
+  end;
+  fTerrain.SetHouse(fPosition,fHouseType,hs_Built,fOwner);
+  fTerrain.SetRoad(Self.GetEntrance,fOwner);
 end;
 
 

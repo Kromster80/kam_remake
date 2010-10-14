@@ -142,6 +142,7 @@ type
     function IsArmyUnit():boolean;
     function CanGoEat:boolean;
     function GetPosition:TKMPoint;
+    procedure SetPosition(aPos:TKMPoint);
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
   protected
@@ -1106,6 +1107,18 @@ end;
 function TKMUnit.GetPosition():TKMPoint;
 begin
   Result := fCurrPosition;//KMPointRound(fPosition);
+end;
+
+
+procedure TKMUnit.SetPosition(aPos:TKMPoint);
+begin
+  //This is only used by the map editor, set all positions to aPos
+  fTerrain.UnitRem(fCurrPosition);
+  fCurrPosition := aPos;
+  fNextPosition := aPos;
+  fPrevPosition := aPos;
+  fPosition := KMPointF(aPos);
+  fTerrain.UnitAdd(fCurrPosition);
 end;
 
 

@@ -631,7 +631,17 @@ begin
                   fMapEditorInterface.MyControls.MouseUp(X,Y,Shift,Button)
                 else
                 if Button = mbRight then
-                  fMapEditorInterface.RightClick_Cancel
+                begin
+                  fMapEditorInterface.RightClick_Cancel;
+                  //Move the selected object to the cursor location
+                  if fPlayers.Selected is TKMHouse then
+                    TKMHouse(fPlayers.Selected).SetPosition(P); //Can place is checked in SetPosition
+
+                  if fPlayers.Selected is TKMUnit then
+                    if fTerrain.CanPlaceUnit(P, TKMUnit(fPlayers.Selected).GetUnitType) then
+                      TKMUnit(fPlayers.Selected).SetPosition(P);
+
+                end
                 else
                 if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
                   case GameCursor.Mode of

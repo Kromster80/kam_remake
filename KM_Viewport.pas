@@ -45,6 +45,9 @@ begin
   ScrollKeyRight := false;
   ScrollKeyUp    := false;
   ScrollKeyDown  := false;
+  XCoord := 0;
+  YCoord := 0;
+  fSoundLib.UpdateListener(XCoord, YCoord);
 end;
 
 
@@ -194,6 +197,7 @@ begin
   LoadStream.Read(XCoord);
   LoadStream.Read(YCoord);
   LoadStream.Read(Zoom);
+  fSoundLib.UpdateListener(XCoord, YCoord);
   fLog.AppendLog('Viewport loaded');
 end;
 

@@ -304,6 +304,7 @@ TKMScrollBar = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
+    procedure CallMouseWheelEvent(Sender: TObject; AWheelDelta:integer);
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -508,7 +509,7 @@ end;
 
 function TKMControl.HitTest(X, Y: Integer): Boolean;
 begin
-  Result := IsVisible and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
+  Result := IsVisible and Enabled and InRange(X, Left, Left + Width) and InRange(Y, Top, Top + Height);
 end;
 
 {One common thing - draw childs for self}
@@ -1222,6 +1223,13 @@ begin
     end;
 
   end;
+end;
+
+
+procedure TKMScrollBar.CallMouseWheelEvent(Sender: TObject; AWheelDelta:integer);
+begin
+  if AWheelDelta < 0 then IncPosition(Self);
+  if AWheelDelta > 0 then DecPosition(Self);
 end;
 
 

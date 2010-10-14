@@ -16,6 +16,10 @@ EXE-only r1006:
  + 	Troops walking from A to B. If send them to C, they will walk to B and only then to C
  + 	When destroying a building, soldier will attack a citizen walking nearby - he should do that only with soldiers
  +	When using right click to move warriors the direction indicator doesn't appear until the mouse is moved
+ +	Occasional crash when loading due to listener not being initialised
+ +	Mouse wheel for scrollbars now works much better and in more places
+ +	Added repositioning of units and houses in the map editor by right clicking with them selected
+ +	Right clicking on the train button in the school now fills the queue with the unit (I always wished I had this for recruits)
 
  -	Dots and lines displaying on tile edges
  
