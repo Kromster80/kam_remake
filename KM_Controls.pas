@@ -5,7 +5,7 @@ uses Classes, Controls, Graphics, MMSystem, Windows, KromUtils, Math, KromOGLUti
 
 type
   TNotifyEventMB = procedure(Sender: TObject; AButton:TMouseButton) of object;
-  TNotifyEventMW = procedure(Sender: TObject; AWheelDelta:integer) of object;
+  TNotifyEventMW = procedure(Sender: TObject; WheelDelta:integer) of object;
 
   TControlState = (csDown, csFocus, csOver);
   TControlStateSet = set of TControlState;
@@ -64,7 +64,7 @@ TKMControl = class(TObject)
     procedure MouseDown (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
     procedure MouseMove (X,Y:integer; Shift:TShiftState); virtual;
     procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
-    procedure MouseWheel(X,Y:integer; WheelDelta:integer); virtual;
+    procedure MouseWheel(Sender: TObject; WheelDelta:integer); virtual;
 
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnClickEither: TNotifyEventMB read FOnClickEither write FOnClickEither;
@@ -304,7 +304,7 @@ TKMScrollBar = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle);
     procedure IncPosition(Sender:TObject);
     procedure DecPosition(Sender:TObject);
-    procedure CallMouseWheelEvent(Sender: TObject; AWheelDelta:integer);
+    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -350,7 +350,7 @@ TKMFileList = class(TKMControl)
     function FileName:string;
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
-    procedure MouseWheel(X,Y:integer; WheelDelta:integer); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   protected
 
@@ -501,7 +501,7 @@ begin
 end;
 
 
-procedure TKMControl.MouseWheel(X,Y:integer; WheelDelta:integer);
+procedure TKMControl.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   if Assigned(OnMouseWheel) then OnMouseWheel(Self, WheelDelta);
 end;
@@ -1226,10 +1226,11 @@ begin
 end;
 
 
-procedure TKMScrollBar.CallMouseWheelEvent(Sender: TObject; AWheelDelta:integer);
+procedure TKMScrollBar.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
-  if AWheelDelta < 0 then IncPosition(Self);
-  if AWheelDelta > 0 then DecPosition(Self);
+  Inherited;
+  if WheelDelta < 0 then IncPosition(Self);
+  if WheelDelta > 0 then DecPosition(Self);
 end;
 
 
@@ -1427,7 +1428,7 @@ begin
 end;
 
 
-procedure TKMFileList.MouseWheel(X,Y:integer; WheelDelta:integer);
+procedure TKMFileList.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
   TopIndex := EnsureRange(TopIndex - WheelDelta div 120, 0, ScrollBar.MaxValue);
@@ -1762,7 +1763,7 @@ procedure TKMControlsCollection.MouseWheel(X,Y:integer; WheelDelta:integer);
 var C:TKMControl;
 begin
   C := HitControl(X,Y);
-  if C <> nil then C.MouseWheel(X,Y,WheelDelta);
+  if C <> nil then C.MouseWheel(C,WheelDelta);
 end;
 
 

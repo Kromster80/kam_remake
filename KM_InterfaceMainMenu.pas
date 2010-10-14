@@ -144,7 +144,7 @@ type TKMMainMenuInterface = class
     procedure Campaign_SelectMap(Sender: TObject);
     procedure Campaign_StartMap(Sender: TObject);
     procedure SingleMap_PopulateList();
-    procedure SingleMap_RefreshList(aSelectFirstMap: boolean=true);
+    procedure SingleMap_RefreshList();
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
@@ -444,7 +444,6 @@ begin
 
       ScrollBar_SingleMaps := MyControls.AddScrollBar(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
       ScrollBar_SingleMaps.OnChange := SingleMap_ScrollChange;
-      ScrollBar_SingleMaps.OnMouseWheel := ScrollBar_SingleMaps.CallMouseWheelEvent;
 
       Button_SingleHeadMode  := MyControls.AddButton(Panel_SingleList,  0,0, 40,40,42,4,bsMenu);
       Button_SingleHeadTeams := MyControls.AddButton(Panel_SingleList, 40,0, 40,40,31,4,bsMenu);
@@ -470,11 +469,11 @@ begin
         Shape_SingleOverlay[i].LineWidth := 0;
         Shape_SingleOverlay[i].Tag := i;
         Shape_SingleOverlay[i].OnClick := SingleMap_SelectMap;
-        Shape_SingleOverlay[i].OnMouseWheel := ScrollBar_SingleMaps.CallMouseWheelEvent;
+        Shape_SingleOverlay[i].OnMouseWheel := ScrollBar_SingleMaps.MouseWheel;
       end;
 
       Shape_SingleMap:=MyControls.AddShape(Panel_SingleList,0,40,420,40, $FFFFFF00);
-      Shape_SingleMap.OnMouseWheel := ScrollBar_SingleMaps.CallMouseWheelEvent;
+      Shape_SingleMap.OnMouseWheel := ScrollBar_SingleMaps.MouseWheel;
 
     Panel_SingleDesc:=MyControls.AddPanel(Panel_Single,45,84,445,600);
 
@@ -779,6 +778,7 @@ begin
   if Sender=Button_SinglePlayerSingle then begin
     SingleMap_PopulateList();
     SingleMap_RefreshList();
+    SingleMap_SelectMap(Shape_SingleOverlay[1]);
     Panel_Single.Show;
   end;
 
@@ -945,7 +945,7 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.SingleMap_RefreshList(aSelectFirstMap: boolean=true);
+procedure TKMMainMenuInterface.SingleMap_RefreshList();
 var i,ci:integer;
 begin
   for i:=1 to MENU_SP_MAPS_COUNT do begin
@@ -968,11 +968,6 @@ begin
   ScrollBar_SingleMaps.MinValue := 1;
   ScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.GetMapCount - MENU_SP_MAPS_COUNT + 1);
   ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
-
-  if aSelectFirstMap then
-    SingleMap_SelectMap(Shape_SingleOverlay[1]); //Select first map. @Krom: Why? Just because the list has scrolled doesn't mean we should select the first one.
-                                                 //                         I made it remember what is selected with this switch. If it is not used under other circumstances can you please remove it?
-                                                 //                         If it's an initialisation thing it should be done somewhere else. I left it with a switch because I didn't want to break your code.
 end;
 
 
@@ -980,7 +975,7 @@ procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
 begin
   SingleMap_Top := ScrollBar_SingleMaps.Position;
   SingleMap_SelectMap(Shape_SingleOverlay[EnsureRange(1+SingleMap_Selected-SingleMap_Top,1,MENU_SP_MAPS_COUNT)]); //Reselect the map ensuring it is on screen
-  SingleMap_RefreshList(false);
+  SingleMap_RefreshList();
 end;
 
 
