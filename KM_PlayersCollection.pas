@@ -221,7 +221,7 @@ begin
 end;
 
 
-//Get total unit count
+//Get total unit count for statistics display
 function TKMAllPlayers.GetUnitCount():integer;
 var i:integer;
 begin

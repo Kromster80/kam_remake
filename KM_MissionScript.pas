@@ -683,12 +683,38 @@ var
 
   procedure AddCommandParam(aCommand:TKMCommandType; aComParam:TKMCommandParamType=cpt_Unknown; ParamCount:byte=0; aParam1:integer = 0; aParam2:integer = 0; aParam3:integer = 0);
   begin AddCommand(aCommand,ParamCount,aParam1,aParam2,aParam3,0,0,0,aComParam); end;
+
+var
+  ExistingPlayers:integer; //
+  PlayerExists:array[1..MAX_PLAYERS]of boolean;
 begin
   //Write out a KaM format mission file to aFileName
 
   //Put data into stream
   SaveString := '';
   CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
+
+  if MAPED_STACK_PLAYERS then begin
+    //Count existing players
+    ExistingPlayers := 0;
+    for i:=1 to fPlayers.PlayerCount do begin
+      PlayerExists[i] := (fPlayers.Player[i].GetHouseCount + fPlayers.Player[i].GetUnitCount + fPlayers.Player[i].GetFieldsCount > 0);
+      if PlayerExists[i] then inc(ExistingPlayers);
+    end;
+
+    //StackPlayers (drop empty ones)
+    for i:=1 to fPlayers.PlayerCount do
+    if not PlayerExists[i] then
+      for k:=i+1 to fPlayers.PlayerCount do
+      if PlayerExists[k] then begin
+        //todo: Swap two players (incl. Alliances, PlayerID, PlayerType)
+        //fPlayers.Player[i] <-> fPlayers.Player[k];
+        //PlayerExists[i] := true;
+        //PlayerExists[k] := false;
+      end;
+
+    fPlayers.SetPlayerCount(ExistingPlayers);
+  end;
 
   //Main header, use same filename for MAP
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + ExtractFileName(TruncateExt(aFileName)) + '.map"');

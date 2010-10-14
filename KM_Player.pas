@@ -63,8 +63,8 @@ type
 
     function GetCanBuild(aType:THouseType):boolean;
     function GetHouseQty(aType:THouseType):integer;
-    function GetTotalHouseQty():integer;
     function GetUnitQty(aType:TUnitType):integer;
+    function GetFieldsCount():integer;
     function GetHouseCount():integer;
     function GetUnitCount():integer;
     property GetHouses:TKMHousesCollection read fHouses;
@@ -425,24 +425,37 @@ begin
 end;
 
 
-function TKMPlayerAssets.GetTotalHouseQty():integer;
-begin
-  Result:=fMissionSettings.GetTotalHouseQty;
-end;
-
-
 function TKMPlayerAssets.GetUnitQty(aType:TUnitType):integer;
 begin
   Result := fMissionSettings.GetUnitQty(aType);
 end;
 
 
+{ See if player owns any Fields/Roads/Walls (has any assets on Terrain)
+  Queried by MapEditor>SaveDAT;
+  Might also be used to show Players strength (or builder/warrior balance) in Tavern
+  If Player has none and no Units/Houses we can assume it's empty and does not needs to be saved }
+function TKMPlayerAssets.GetFieldsCount():integer;
+var i,k:integer;
+begin
+  Result := 0;
+  for i:=1 to fTerrain.MapY do
+  for k:=1 to fTerrain.MapX do
+    if fTerrain.Land[i,k].TileOwner = PlayerID then
+      inc(Result);
+end;
+
+
+{ Unlike GetHouseQty, it returns full count (icnluding destroyed but still referenced) houses
+  Which is used for statistics display and MapEditor check }
 function TKMPlayerAssets.GetHouseCount():integer;
 begin
   Result := fHouses.Count;
 end;
 
 
+{ Unlike GetUnitQty, it returns full count (icnluding dying but still referenced) units
+  Which is used for statistics display and MapEditor check }
 function TKMPlayerAssets.GetUnitCount():integer;
 begin
   Result := fUnits.Count;
@@ -630,7 +643,7 @@ end;
 
 function TKMPlayerAnimals.GetUnitCount: integer;
 begin
-  Result := fUnits.GetUnitCount;
+  Result := fUnits.Count;
 end;
 
 

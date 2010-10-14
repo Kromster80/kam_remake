@@ -237,7 +237,6 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(out Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
     function GetTotalPointers: integer;
-    function GetUnitCount: integer;
     function GetUnitByIndex(aIndex:integer): TKMUnit;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -1907,12 +1906,6 @@ begin
   Result := 0;
   for I := 0 to Count - 1 do
     inc(Result, Units[i].GetPointerCount);
-end;
-
-
-function TKMUnitsCollection.GetUnitCount: integer;
-begin
-  Result := Count;
 end;
 
 

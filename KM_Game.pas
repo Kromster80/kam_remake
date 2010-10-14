@@ -950,6 +950,7 @@ begin
       exit;
     end;
     FreeAndNil(fMissionParser);
+    fPlayers.SetPlayerCount(MAX_PLAYERS); //Enable them all for editing
     fLog.AppendLog('DAT Loaded');
     fGameName := TruncateExt(ExtractFileName(aMissionPath));
   end else begin

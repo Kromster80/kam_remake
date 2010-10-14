@@ -98,7 +98,6 @@ type
     procedure IncreaseMissionTime(aSeconds:cardinal);
   public
     function GetHouseQty(aType:THouseType):integer;
-    function GetTotalHouseQty():integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetArmyCount():integer;
     function GetCanBuild(aType:THouseType):boolean;
@@ -427,17 +426,15 @@ end;
 
 
 function TMissionSettings.GetHouseQty(aType:THouseType):integer;
-begin
-  Result := HouseTotalCount[byte(aType)] - HouseLostCount[byte(aType)];
-end;
-
-
-function TMissionSettings.GetTotalHouseQty():integer;
 var i:integer;
 begin
-  Result := 0;
-  for i:=1 to HOUSE_COUNT do
-    inc(Result, HouseTotalCount[i] - HouseLostCount[i]);
+  if aType <> ht_None then
+    Result := HouseTotalCount[byte(aType)] - HouseLostCount[byte(aType)]
+  else begin
+    Result := 0;
+    for i:=1 to HOUSE_COUNT do
+      inc(Result, HouseTotalCount[i] - HouseLostCount[i]);
+  end;
 end;
 
 
