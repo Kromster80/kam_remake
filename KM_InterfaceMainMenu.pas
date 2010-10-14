@@ -974,7 +974,10 @@ end;
 procedure TKMMainMenuInterface.SingleMap_ScrollChange(Sender: TObject);
 begin
   SingleMap_Top := ScrollBar_SingleMaps.Position;
-  SingleMap_SelectMap(Shape_SingleOverlay[EnsureRange(1+SingleMap_Selected-SingleMap_Top,1,MENU_SP_MAPS_COUNT)]); //Reselect the map ensuring it is on screen
+  if InRange(1+SingleMap_Selected-SingleMap_Top,1,MENU_SP_MAPS_COUNT) then
+    SingleMap_SelectMap(Shape_SingleOverlay[1+SingleMap_Selected-SingleMap_Top])
+  else
+    SingleMap_SelectMap(nil); //Means it is off visible area
   SingleMap_RefreshList();
 end;
 
@@ -982,17 +985,23 @@ end;
 procedure TKMMainMenuInterface.SingleMap_SelectMap(Sender: TObject);
 var i:integer;
 begin
-  i := TKMControl(Sender).Tag;
+  if Sender = nil then
+    Shape_SingleMap.Visible := false //Off visible list
+  else
+  begin
+    Shape_SingleMap.Visible := true;
+    i := TKMControl(Sender).Tag;
 
-  Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * i; // All heights are equal in fact..
+    Shape_SingleMap.Top := Bevel_SingleBG[i,3].Height * i; // All heights are equal in fact..
 
-  SingleMap_Selected        := SingleMap_Top+i-1;
-  Label_SingleTitle.Caption := SingleMapsInfo.GetFolder(SingleMap_Selected);
-  Label_SingleDesc.Caption  := SingleMapsInfo.GetBigDesc(SingleMap_Selected);
+    SingleMap_Selected        := SingleMap_Top+i-1;
+    Label_SingleTitle.Caption := SingleMapsInfo.GetFolder(SingleMap_Selected);
+    Label_SingleDesc.Caption  := SingleMapsInfo.GetBigDesc(SingleMap_Selected);
 
-  Label_SingleCondTyp.Caption := 'Mission type: '+SingleMapsInfo.GetTyp(SingleMap_Selected);
-  Label_SingleCondWin.Caption := 'Win condition: ';//+SingleMapsInfo.GetWin(SingleMap_Selected);
-  Label_SingleCondDef.Caption := 'Defeat condition: ';//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
+    Label_SingleCondTyp.Caption := 'Mission type: '+SingleMapsInfo.GetTyp(SingleMap_Selected);
+    Label_SingleCondWin.Caption := 'Win condition: ';//+SingleMapsInfo.GetWin(SingleMap_Selected);
+    Label_SingleCondDef.Caption := 'Defeat condition: ';//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
+  end;
 end;
 
 
