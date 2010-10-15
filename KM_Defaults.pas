@@ -611,9 +611,17 @@ const
     ut_Militia, ut_AxeFighter, ut_Swordsman, ut_Bowman, ut_Arbaletman,
     ut_Pikeman, ut_Hallebardman, ut_HorseScout, ut_Cavalry, ut_Barbarian);
 
+  MapEd_Icon:array[1..10] of word = (
+    371, 369, 370, 375, 376,
+    373, 374, 377, 377, 166);
+
   Animal_Order:array[1..8] of TUnitType = (
     ut_Wolf, ut_Fish,        ut_Watersnake, ut_Seastar,
     ut_Crab, ut_Waterflower, ut_Waterleaf,  ut_Duck);
+
+  Animal_Icon:array[1..8] of word = (
+    377, 377, 377, 377,
+    377, 377, 377, 377);
 
   //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
   TroopCost:array[ut_Militia..ut_Cavalry,1..4] of byte = (

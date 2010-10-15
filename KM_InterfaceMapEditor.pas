@@ -53,6 +53,16 @@ type TKMapEdInterface = class
         Button_Animals:array[1..8]of TKMButtonFlat;
       Panel_Script:TKMPanel;
 
+    Panel_Player:TKMPanel;
+      Button_Player:array[1..3]of TKMButton;
+      Panel_Goals:TKMPanel;
+        Label_Goals:TKMLabel;
+      Panel_Alliances:TKMPanel;
+        Label_Alliances:TKMLabel;
+        CheckBox_Alliances: array[1..MAX_PLAYERS,1..MAX_PLAYERS] of TKMCheckBox;
+      Panel_Colors:TKMPanel;
+        Label_Colors:TKMLabel;
+
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
 
@@ -104,6 +114,7 @@ type TKMapEdInterface = class
   private
     procedure Create_Terrain_Page;
     procedure Create_Village_Page;
+    procedure Create_Player_Page;
     procedure Create_Menu_Page;
     procedure Create_Save_Page;
     procedure Create_Load_Page;
@@ -131,6 +142,7 @@ type TKMapEdInterface = class
     procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
     procedure Store_SelectWare(Sender:TObject);
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
+    procedure AlliancesChange(Sender:TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create;
@@ -235,6 +247,25 @@ begin
 
   if Sender=Button_Main[3] then begin
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
+  end else
+
+  if (Sender = Button_Main[4])or(Sender = Button_Player[1]) then begin
+    Panel_Player.Show;
+    Panel_Goals.Show;
+    Label_MenuTitle.Caption:='Player - Goals';
+  end else
+
+  if (Sender = Button_Main[4])or(Sender = Button_Player[2]) then begin
+    Panel_Player.Show;
+    Panel_Alliances.Show;
+    Label_MenuTitle.Caption:='Player - Alliances';
+    AlliancesChange(nil);
+  end else
+
+  if (Sender = Button_Main[4])or(Sender = Button_Player[3]) then begin
+    Panel_Player.Show;
+    Panel_Colors.Show;
+    Label_MenuTitle.Caption:='Player - Colors';
   end else
 
   if (Sender=Button_Main[5]) or
@@ -349,7 +380,7 @@ begin
     Button_Main[1] := MyControls.AddButton(Panel_Main,   8, 372, 36, 36, 381);
     Button_Main[2] := MyControls.AddButton(Panel_Main,  48, 372, 36, 36, 368);
     Button_Main[3] := MyControls.AddButton(Panel_Main,  88, 372, 36, 36,  41);
-    Button_Main[4] := MyControls.AddButton(Panel_Main, 128, 372, 36, 36,  41);
+    Button_Main[4] := MyControls.AddButton(Panel_Main, 128, 372, 36, 36, 441);
     Button_Main[5] := MyControls.AddButton(Panel_Main, 168, 372, 36, 36, 389);
     Button_Main[1].Hint := 'Terrain editing';
     Button_Main[2].Hint := 'Village planning';
@@ -370,7 +401,7 @@ begin
   Create_Terrain_Page();
   Create_Village_Page();
 
-  //Create_Stats_Page();
+  Create_Player_Page();
 
   Create_Menu_Page();
     Create_Save_Page();
@@ -508,7 +539,7 @@ begin
 
       for i:=1 to length(Button_Citizen) do
       begin
-        Button_Citizen[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,30+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 32x8
+        Button_Citizen[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,30+((i-1) div 5)*37,33,33,byte(School_Order[i])+140); //List of tiles 5x5
         Button_Citizen[i].Hint := TypeToString(School_Order[i]);
         Button_Citizen[i].Tag := byte(School_Order[i]); //Returns unit ID
         Button_Citizen[i].OnClick := Unit_ButtonClick;
@@ -519,7 +550,7 @@ begin
 
       for i:=1 to length(Button_Warriors) do
       begin
-        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,160+((i-1) div 5)*37,33,33,370+i);
+        Button_Warriors[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,160+((i-1) div 5)*37,33,33, MapEd_Icon[i]);
         Button_Warriors[i].Hint := TypeToString(MapEd_Order[i]);
         Button_Warriors[i].Tag := byte(MapEd_Order[i]); //Returns unit ID
         Button_Warriors[i].OnClick := Unit_ButtonClick;
@@ -527,13 +558,45 @@ begin
 
       for i:=1 to length(Button_Animals) do
       begin
-        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,250+((i-1) div 5)*37,33,33,370+i);
+        Button_Animals[i] := MyControls.AddButtonFlat(Panel_Units,8+((i-1) mod 5)*37,250+((i-1) div 5)*37,33,33,Animal_Icon[i]);
         Button_Animals[i].Hint := TypeToString(Animal_Order[i]);
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;
       end;
 
     Panel_Script := MyControls.AddPanel(Panel_Village,0,28,196,400);
+end;
+
+
+procedure TKMapEdInterface.Create_Player_Page;
+var i,k:integer;
+begin
+  Panel_Player := MyControls.AddPanel(Panel_Main,0,428,196,28);
+    Button_Player[1] := MyControls.AddButton(Panel_Player,   8, 4, 36, 24, 41);
+    Button_Player[2] := MyControls.AddButton(Panel_Player,  48, 4, 36, 24, 460);
+    Button_Player[3] := MyControls.AddButton(Panel_Player,  88, 4, 36, 24, 41);
+    for i:=1 to 3 do Button_Player[i].OnClick := SwitchPage;
+
+    Panel_Goals := MyControls.AddPanel(Panel_Player,0,28,196,400);
+      Label_Goals := MyControls.AddLabel(Panel_Goals,100,10,100,30,'Goals',fnt_Outline,kaCenter);
+
+    Panel_Alliances := MyControls.AddPanel(Panel_Player,0,28,196,400);
+      Label_Alliances := MyControls.AddLabel(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
+      for i:=1 to MAX_PLAYERS do begin
+        MyControls.AddLabel(Panel_Alliances,12,10+i*20,100,20,inttostr(i),fnt_Metal,kaLeft);
+        for k:=1 to MAX_PLAYERS do begin
+          //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
+          CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 12+k*20, 10+i*20, 20, 20, '', fnt_Metal);
+          CheckBox_Alliances[i,k].Tag := (i-1)*MAX_PLAYERS + (k-1);
+          CheckBox_Alliances[i,k].OnClick := AlliancesChange;
+        end;
+      end;
+
+
+    Panel_Colors := MyControls.AddPanel(Panel_Player,0,28,196,400);
+      Label_Colors := MyControls.AddLabel(Panel_Colors,100,10,100,30,'Colors',fnt_Outline,kaCenter);
+
+
 end;
 
 
@@ -1150,6 +1213,30 @@ begin
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
   Store_Fill(nil);
+end;
+
+
+procedure TKMapEdInterface.AlliancesChange(Sender:TObject);
+var i,k:integer;
+begin
+  if Sender = nil then begin
+    for i:=1 to MAX_PLAYERS do
+    for k:=1 to MAX_PLAYERS do
+      if (fPlayers.Player[i]<>nil)and(fPlayers.Player[k]<>nil) then
+        CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerID, fPlayers.Player[k].PlayerID)=at_Ally)
+      else
+        CheckBox_Alliances[i,k].Enabled := false;
+    exit;
+  end;
+
+  i := TKMCheckBox(Sender).Tag div MAX_PLAYERS + 1;
+  k := TKMCheckBox(Sender).Tag mod MAX_PLAYERS + 1;
+  CheckBox_Alliances[i,k].Checked := not CheckBox_Alliances[i,k].Checked;
+
+  if CheckBox_Alliances[i,k].Checked then
+    fPlayers.Player[i].fAlliances[k] := at_Ally
+  else
+    fPlayers.Player[i].fAlliances[k] := at_Enemy;
 end;
 
 

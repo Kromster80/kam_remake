@@ -157,6 +157,22 @@ TKMImageStack = class(TKMControl)
 end;
 
 
+{ Color swatch - to select a color from given samples/palette }
+TKMColorSwatch = class(TKMControl)
+  private
+    CellSize:byte; //in pixels
+    SelectedColor:byte; //Index 0..255
+    Columns:byte;
+    Rows:byte;
+    Colors:array of TColor4; //Range is 0..255
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer);
+    procedure Paint(); override;
+  public
+    procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
+end;
+
+
 {3DButton}
 TKMButton = class(TKMControl)
   public
@@ -391,6 +407,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddLabel           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aTextAlign: KAlign; const aColor:TColor4=$FFFFFFFF):TKMLabel;
     function AddImage           (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImage;
     function AddImageStack      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMImageStack;
+    function AddColorSwatch     (aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer):TKMColorSwatch;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
@@ -870,6 +887,50 @@ begin
 end;
 
 
+{ TKMColorSwatch }
+constructor TKMColorSwatch.Create(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer);
+var i,k:integer;
+begin
+  Inherited Create(aLeft, aTop, 0, 0);
+
+  Columns := aColumns;
+  Rows := aRows;
+  CellSize := 12;
+
+  Width := Columns*CellSize;
+  Height := Rows*CellSize;
+
+  setlength(Colors, Columns*Rows);
+  for i:=0 to Columns-1 do
+  for k:=0 to Rows-1 do
+    Colors[i*Columns+k] := $FF000000 OR (
+                            Pal[2, i*Columns+k+1, 1] +
+                            Pal[2, i*Columns+k+1, 2] shl 8 +
+                            Pal[2, i*Columns+k+1, 3] shl 16);
+  ParentTo(aParent);
+end;
+
+
+procedure TKMColorSwatch.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  SelectedColor := EnsureRange((Y-Top)div CellSize,0,Rows-1)*Columns +
+                   EnsureRange((X-Left)div CellSize,0,Columns-1);
+  Inherited;
+end;
+
+
+procedure TKMColorSwatch.Paint();
+var i,k:integer;
+begin
+  Inherited;
+  for i:=0 to Columns-1 do
+  for k:=0 to Rows-1 do
+    fRenderUI.WriteLayer(Left+k*CellSize, Top+i*CellSize, CellSize, CellSize, Colors[i*Columns+k], $00);
+
+  //fRenderUI.WriteLayer(Left, Top+Rows*CellSize, CellSize, CellSize, Colors[SelectedColor], $00);
+end; 
+
+
 { TKMButton }
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer; aStyle:TButtonStyle);
 begin
@@ -881,6 +942,7 @@ begin
   Style:=aStyle;
   MakesSound:=true;
 end;
+
 
 {Different version of button, with caption on it instead of image}
 constructor TKMButton.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle);
@@ -1017,20 +1079,22 @@ end;
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMCheckBox.Paint();
-const BoxWidth=25;
-var Tmp:TKMPoint; Col:TColor4;
+var Box,Tmp:TKMPoint; Col:TColor4;
 begin
   Inherited;
   if Enabled then Col:=$FFFFFFFF else Col:=$FF888888;
 
-  fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
+  Box := fRenderUI.WriteText(Left, Top, Width, '[ ]', Font, kaLeft, false, Col);
   if Checked then
     fRenderUI.WriteText(Left+3, Top-1, Width, 'x', Font, kaLeft, false, Col);
 
-  Tmp:=fRenderUI.WriteText(Left+BoxWidth, Top, Width, Caption, Font, kaLeft, false, Col);
-  
-  Width:=Tmp.X+BoxWidth;
-  Height:=Tmp.Y;
+  if Caption <> '' then
+    Tmp := fRenderUI.WriteText(Left+Box.X, Top, Width, ' '+Caption, Font, kaLeft, false, Col)
+  else
+    Tmp := KMPoint(0,0);
+
+  Width  := Tmp.X + Box.X;
+  Height := max(Tmp.Y, Box.Y);
 end;
 
 
@@ -1598,6 +1662,13 @@ begin
   Result:=TKMImageStack.Create(aParent, aLeft, aTop, aWidth, aHeight, aTexID, aRXid);
   AddToCollection(Result);
 end;
+
+function TKMControlsCollection.AddColorSwatch(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer):TKMColorSwatch;
+begin
+  Result:=TKMColorSwatch.Create(aParent,aLeft,aTop,aColumns,aRows);
+  AddToCollection(Result);
+end;
+
 
 function TKMControlsCollection.AddButton(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton;
 begin

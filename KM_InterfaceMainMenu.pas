@@ -215,6 +215,8 @@ begin
     //FL := MyControls.AddFileList(Panel_Main1, 550, 300, 320, 220);
     //FL.RefreshList(ExeDir+'Maps\','dat',true);
 
+  MyControls.AddColorSwatch(Panel_Main, 100, 100, 16, 16);
+
   //Show version info on every page
   Label_Version := MyControls.AddLabel(Panel_Main,8,8,100,30,GAME_VERSION+' / OpenGL '+fRender.GetRendererVersion,fnt_Antiqua,kaLeft);
 
