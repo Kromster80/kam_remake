@@ -563,10 +563,10 @@ begin
                        else
                          fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
                      end;
-  //todo: To add:
   ct_AIDefence:      begin
-
+                       fPlayers.PlayerAI[CurrentPlayerIndex].AddDefencePosition(KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
                      end;
+  //todo: To add:
   ct_AIAttack:       begin
 
                      end;
@@ -769,6 +769,10 @@ begin
       for Group:=low(TGroupType) to high(TGroupType) do
         if (Group <> gt_None) and (fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits <> 0) then //Must be valid and used
           AddCommandParam(ct_AICharacter,cpt_TroopParam,3,byte(Group)-1,fPlayers.PlayerAI[i].TroopFormations[Group].NumUnits,fPlayers.PlayerAI[i].TroopFormations[Group].NumRows);
+      AddData(''); //NL
+      for k:=0 to fPlayers.PlayerAI[i].DefencePositionsCount-1 do
+        with fPlayers.PlayerAI[i].DefencePositions[k] do
+          AddCommand(ct_AIDefence,6,Position.Loc.X-1,Position.Loc.Y-1,Position.Dir,byte(GroupType)-1,DefenceRadius,byte(DefenceType));
       AddData(''); //NL
     end;
 

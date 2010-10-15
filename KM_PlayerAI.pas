@@ -4,6 +4,10 @@ interface
 uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils;
 
 type
+  TAIDefencePosType = (adt_FrontLine, //Top priority to defend, will be replaced by back line troops when they die
+                       adt_BackLine); //Lower priority defence, can go on AI attacks
+
+type
   TKMPlayerAI = class
   private
     Assets:TKMPlayerAssets; //This is just alias for Players assets
@@ -16,12 +20,20 @@ type
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
                                             NumUnits, NumRows:integer;
                                           end;
+    DefencePositions: array of record
+                                 Position: TKMPointDir;
+                                 GroupType: TGroupType;
+                                 DefenceRadius: integer;
+                                 DefenceType: TAIDefencePosType;
+                               end;
+    DefencePositionsCount: integer;
     constructor Create(aAssets:TKMPlayerAssets);
     procedure CheckGoals;
     procedure CheckUnitCount();
     procedure CheckArmy();
   public
     function GetHouseRepair:boolean; //Do we automatically repair all houses?
+    procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
@@ -35,6 +47,7 @@ constructor TKMPlayerAI.Create(aAssets:TKMPlayerAssets);
 begin
   Inherited Create;
   Assets := aAssets;
+  DefencePositionsCount := 0;
   //Set some defaults (these are not measured from KaM)
   ReqWorkers := 3;
   ReqRecruits := 5; //This means the number in the barracks, watchtowers are counted seperately
@@ -226,7 +239,19 @@ begin
 end;
 
 
+procedure TKMPlayerAI.AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
+begin
+  setlength(DefencePositions,DefencePositionsCount+1);
+  DefencePositions[DefencePositionsCount].Position := aPos;
+  DefencePositions[DefencePositionsCount].GroupType := aGroupType;
+  DefencePositions[DefencePositionsCount].DefenceRadius := aDefenceRadius;
+  DefencePositions[DefencePositionsCount].DefenceType := aDefenceType;
+  inc(DefencePositionsCount);
+end;
+
+
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
+var i: integer;
 begin
   SaveStream.Write(ReqWorkers);
   SaveStream.Write(ReqSerfFactor);
@@ -238,10 +263,14 @@ begin
   SaveStream.Write(StartPosition);
   SaveStream.Write(Autobuild);
   SaveStream.Write(TroopFormations,SizeOf(TroopFormations));
+  SaveStream.Write(DefencePositionsCount);
+  for i:=0 to DefencePositionsCount-1 do
+    SaveStream.Write(DefencePositions[i], SizeOf(DefencePositions[i]));
 end;
 
 
 procedure TKMPlayerAI.Load(LoadStream:TKMemoryStream);
+var i: integer;
 begin
   LoadStream.Read(ReqWorkers);
   LoadStream.Read(ReqSerfFactor);
@@ -253,6 +282,10 @@ begin
   LoadStream.Read(StartPosition);
   LoadStream.Read(Autobuild);
   LoadStream.Read(TroopFormations,SizeOf(TroopFormations));
+  LoadStream.Read(DefencePositionsCount);
+  SetLength(DefencePositions, DefencePositionsCount);
+  for i:=0 to DefencePositionsCount-1 do
+    LoadStream.Read(DefencePositions[i], SizeOf(DefencePositions[i]));
 end;
 
 
