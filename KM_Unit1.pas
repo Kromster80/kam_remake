@@ -373,13 +373,15 @@ end;
 
 procedure TForm1.TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  DefineInputColor(TeamColors[1] and $FFFFFF,Sender);
+  if MyPlayer=nil then exit;
+  DefineInputColor(MyPlayer.PlayerColor and $FFFFFF,Sender);
 end;
 
 
 procedure TForm1.TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-  TeamColors[1]:=cardinal(TeamColorPicker.Brush.Color) or $FF000000;
+  if MyPlayer=nil then exit;
+  MyPlayer.PlayerColor := cardinal(TeamColorPicker.Brush.Color) or $FF000000;
   fRender.Render;
 end;
 
@@ -388,7 +390,7 @@ procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
   if fPlayers=nil then exit;
   if fPlayers.Player[RGPlayer.ItemIndex+1] <> nil then
-    MyPlayer:=fPlayers.Player[RGPlayer.ItemIndex+1];
+    MyPlayer := fPlayers.Player[RGPlayer.ItemIndex+1];
 end;
 
 

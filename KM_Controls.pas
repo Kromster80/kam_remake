@@ -469,7 +469,7 @@ begin
   {Hereby I still try to make a rule to count starting from 1, not from zero}
   setlength(ParentPanel.Childs,ParentPanel.ChildCount+1);
   ParentPanel.Childs[ParentPanel.ChildCount] := Self;
-  Self.Parent := ParentPanel;
+  Parent := ParentPanel;
 end;
 
 
@@ -605,7 +605,7 @@ procedure TKMControl.Disable; begin Enabled := false; end;
 {Will show up entire branch in which control resides}
 procedure TKMControl.Show;
 begin
-  if Self.Parent<>nil then Self.Parent.Show;
+  if Parent<>nil then Parent.Show;
   Visible := true;
 end;
 
@@ -619,7 +619,7 @@ function TKMControl.IsVisible():boolean;
 var C:TKMControl;
 begin
   Result := Visible;
-  C := Self.Parent;
+  C := Parent;
   while C<>nil do begin
     Result := Result and C.Visible;
     C := C.Parent;

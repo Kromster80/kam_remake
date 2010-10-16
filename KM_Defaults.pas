@@ -1057,7 +1057,7 @@ var
   SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
 
   //Players colors
-  TeamColors:array[1..MAX_PLAYERS+1]of cardinal = (
+  DefaultTeamColors:array[1..MAX_PLAYERS+1]of cardinal = (
   $FF3040FF, //Red
   $FF00C0FF, //Orange
   $FF00DDFF, //Yellow

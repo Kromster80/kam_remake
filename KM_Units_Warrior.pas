@@ -499,7 +499,7 @@ end;
 //See if we are in the same group as aWarrior by comparing commanders
 function TKMUnitWarrior.IsSameGroup(aWarrior:TKMUnitWarrior):boolean;
 begin
-  Result := (aWarrior.GetCommander = Self.GetCommander);
+  Result := (GetCommander = aWarrior.GetCommander);
 end;
 
 

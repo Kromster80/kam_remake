@@ -11,11 +11,12 @@ type
 type
   TKMPlayerAssets = class
   private
-    fRoadsList:TKMPointList;
-    fUnits: TKMUnitsCollection;
-    fHouses: TKMHousesCollection;
-    fDeliverList: TKMDeliverQueue;
+    fPlayerID:TPlayerID; //Which ID this player is
     fBuildList: TKMBuildingQueue;
+    fDeliverList: TKMDeliverQueue;
+    fHouses: TKMHousesCollection;
+    fUnits: TKMUnitsCollection;
+    fRoadsList:TKMPointList;
   public
     fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
     fGoals: array of TPlayerGoal; //0..n-1
@@ -26,19 +27,22 @@ type
     destructor Destroy; override;
   public
     fMissionSettings: TMissionSettings; //Required to be public so it can be accessed from LoadDAT
-    PlayerID:TPlayerID; //Which ID this player is
     PlayerType: TPlayerType; //Is it Human or AI or Animals
+    PlayerColor:cardinal;
+
+    procedure AfterMissionInit(aFlattenRoads:boolean);
+    procedure AutoRoadConnect(LocA,LocB:TKMPoint);
+    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
     function AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
     function AddHouse(aHouseType: THouseType; Position: TKMPoint):TKMHouse;
     procedure AddRoad(aLoc: TKMPoint; DoFlatten:boolean=true);
     procedure AddRoadsToList(aLoc: TKMPoint);
-    procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure AddField(aLoc: TKMPoint; aFieldType:TFieldType);
     procedure AddRoadPlan(aLoc: TKMPoint; aMarkup:TMarkup; DoSilent:boolean; PlayerRevealID:TPlayerID=play_none);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; PlayerRevealID:TPlayerID=play_none);
-    procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     function RemHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
     function RemUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
     function RemPlan(Position: TKMPoint; Simulated:boolean=false):boolean;
@@ -46,29 +50,28 @@ type
     function FindInn(Loc:TKMPoint; aUnit:TKMUnit; UnitIsAtHome:boolean=false): TKMHouseInn;
     function FindHouse(aType:THouseType; aPosition: TKMPoint; const Index:byte=1): TKMHouse; overload;
     function FindHouse(aType:THouseType; const Index:byte=1): TKMHouse; overload;
+    function HousesHitTest(X, Y: Integer): TKMHouse;
     function UnitsHitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetUnitLocations(out Loc:TKMPointList);
-    function HousesHitTest(X, Y: Integer): TKMHouse;
-    property DeliverList:TKMDeliverQueue read fDeliverList;
+
+    property PlayerID:TPlayerID read fPlayerID;
     property BuildList:TKMBuildingQueue read fBuildList;
+    property DeliverList:TKMDeliverQueue read fDeliverList;
+    property GetHouses:TKMHousesCollection read fHouses;
+    property GetUnits:TKMUnitsCollection read fUnits;
 
     procedure CreatedHouse(aType:THouseType; aWasBuilt:boolean);
     procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
     procedure UpdateReqDone(aType:THouseType);
-    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
 
     function GetCanBuild(aType:THouseType):boolean;
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetFieldsCount():integer;
-    function GetHouseCount():integer;
-    function GetUnitCount():integer;
-    property GetHouses:TKMHousesCollection read fHouses;
-    property GetUnits:TKMUnitsCollection read fUnits;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -91,8 +94,7 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     function GetFishInWaterBody(aWaterID:byte; FindHighestCount:boolean=true): TKMUnitAnimal;
     procedure GetFishLocations(out Loc:TKMPointList);
-    function GetUnitCount: integer;
-    function GetUnitByIndex(aIndex:integer): TKMUnit;
+    property GetUnits:TKMUnitsCollection read fUnits;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -111,7 +113,7 @@ constructor TKMPlayerAssets.Create(aPlayerID:TPlayerID);
 var i: integer;
 begin
   Inherited Create;
-  PlayerID      := aPlayerID;
+  fPlayerID     := aPlayerID;
   PlayerType    := pt_Computer;
   fMissionSettings := TMissionSettings.Create;
   fRoadsList    := TKMPointList.Create; //Used only once on mission loading, then freed
@@ -124,6 +126,7 @@ begin
   fGoalCount := 0;
   SkipWinConditionCheck := false;
   SkipDefeatConditionCheck := false;
+  PlayerColor := DefaultTeamColors[byte(aPlayerID)]; //Init with default color, later replaced by Script
 end;
 
 
@@ -148,7 +151,7 @@ begin
     exit;
   end;
 
-  Result := fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
+  Result := fUnits.Add(fPlayerID, aUnitType, Position.X, Position.Y, AutoPlace);
   if Result <> nil then
     CreatedUnit(aUnitType, WasTrained);
 end;
@@ -156,14 +159,14 @@ end;
 
 function TKMPlayerAssets.TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
 begin
-  Result := fUnits.Add(PlayerID, aUnitType, Position.X, Position.Y, false);
+  Result := fUnits.Add(fPlayerID, aUnitType, Position.X, Position.Y, false);
   //Do not add unit to statistic just yet, wait till it's training complete
 end;
 
 
 function TKMPlayerAssets.AddGroup(aUnitType:TUnitType; Position: TKMPoint; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
 begin
-  Result := fUnits.AddGroup(PlayerID, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
+  Result := fUnits.AddGroup(fPlayerID, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
   //Add unit to statistic inside the function for some units may not fit on map
 end;
 
@@ -172,7 +175,7 @@ function TKMPlayerAssets.AddHouse(aHouseType: THouseType; Position: TKMPoint):TK
 var xo:integer;
 begin
   xo:=HouseDAT[byte(aHouseType)].EntranceOffsetX;
-  Result:=fHouses.AddHouse(aHouseType, Position.X-xo, Position.Y, PlayerID);
+  Result:=fHouses.AddHouse(aHouseType, Position.X-xo, Position.Y, fPlayerID);
 end;
 
 
@@ -182,7 +185,7 @@ begin
   //The AddPlan function should do the check, but if we enforce it here then it will create lots of problems
   //with the original missions. (I've also seem some fan missions where they have road over wrong tiles)
 
-  fTerrain.SetRoad(aLoc,PlayerID);
+  fTerrain.SetRoad(aLoc,fPlayerID);
   if DoFlatten then
     fTerrain.FlattenTerrain(aLoc); //Flatten the terrain for road
 end;
@@ -198,7 +201,7 @@ end;
 procedure TKMPlayerAssets.AfterMissionInit(aFlattenRoads:boolean);
 begin
   if fRoadsList<>nil then begin
-    fTerrain.SetRoads(fRoadsList,PlayerID);
+    fTerrain.SetRoads(fRoadsList,fPlayerID);
     if aFlattenRoads then fTerrain.FlattenTerrain(fRoadsList);
     FreeAndNil(fRoadsList);
   end;
@@ -207,7 +210,7 @@ end;
 
 procedure TKMPlayerAssets.AddField(aLoc: TKMPoint; aFieldType:TFieldType);
 begin
-  fTerrain.SetField(aLoc,PlayerID,aFieldType);
+  fTerrain.SetField(aLoc,fPlayerID,aFieldType);
 end;
 
 
@@ -236,8 +239,8 @@ procedure TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; P
 var KMHouse:TKMHouse;
 begin
   aLoc.X:=aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
-  KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, PlayerID);
-  fTerrain.SetHouse(aLoc, aHouseType, hs_Plan, PlayerID);
+  KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, fPlayerID);
+  fTerrain.SetHouse(aLoc, aHouseType, hs_Plan, fPlayerID);
   BuildList.AddNewHousePlan(KMHouse);
 end;
 
@@ -441,24 +444,8 @@ begin
   Result := 0;
   for i:=1 to fTerrain.MapY do
   for k:=1 to fTerrain.MapX do
-    if fTerrain.Land[i,k].TileOwner = PlayerID then
+    if fTerrain.Land[i,k].TileOwner = fPlayerID then
       inc(Result);
-end;
-
-
-{ Unlike GetHouseQty, it returns full count (icnluding destroyed but still referenced) houses
-  Which is used for statistics display and MapEditor check }
-function TKMPlayerAssets.GetHouseCount():integer;
-begin
-  Result := fHouses.Count;
-end;
-
-
-{ Unlike GetUnitQty, it returns full count (icnluding dying but still referenced) units
-  Which is used for statistics display and MapEditor check }
-function TKMPlayerAssets.GetUnitCount():integer;
-begin
-  Result := fUnits.Count;
 end;
 
 
@@ -470,7 +457,7 @@ begin
   fDeliverList.Save(SaveStream);
   fBuildList.Save(SaveStream);
   fMissionSettings.Save(SaveStream);
-  SaveStream.Write(PlayerID, SizeOf(PlayerID));
+  SaveStream.Write(fPlayerID, SizeOf(fPlayerID));
   SaveStream.Write(PlayerType, SizeOf(PlayerType));
   SaveStream.Write(fAlliances, SizeOf(fAlliances));
   SaveStream.Write(fGoalCount);
@@ -490,7 +477,7 @@ begin
   fDeliverList.Load(LoadStream);
   fBuildList.Load(LoadStream);
   fMissionSettings.Load(LoadStream);
-  LoadStream.Read(PlayerID, SizeOf(PlayerID));
+  LoadStream.Read(fPlayerID, SizeOf(fPlayerID));
   LoadStream.Read(PlayerType, SizeOf(PlayerType));
   LoadStream.Read(fAlliances, SizeOf(fAlliances));
   LoadStream.Read(fGoalCount);
@@ -621,14 +608,14 @@ begin
   with fUnits do
   begin
     for i:=0 to Count-1 do
-    if (fUnits.List[i] <> nil) and (TKMUnit(fUnits.List[i]).GetUnitType = ut_Fish) then
+    if (fUnits.Items[i] <> nil) and (TKMUnit(fUnits.Items[i]).GetUnitType = ut_Fish) then
     begin
-      if fTerrain.Land[TKMUnit(fUnits.List[i]).GetPosition.Y,TKMUnit(fUnits.List[i]).GetPosition.X].WalkConnect[3] = aWaterID then
-        if TKMUnitAnimal(fUnits.List[i]).fFishCount > HighestGroupCount then
+      if fTerrain.Land[TKMUnit(fUnits.Items[i]).GetPosition.Y,TKMUnit(fUnits.Items[i]).GetPosition.X].WalkConnect[3] = aWaterID then
+        if TKMUnitAnimal(fUnits.Items[i]).fFishCount > HighestGroupCount then
         begin
-          Result := TKMUnitAnimal(fUnits.List[i]);
+          Result := TKMUnitAnimal(fUnits.Items[i]);
           if not FindHighestCount then exit; //This is for time saving when we don't actually care which group is returned
-          HighestGroupCount := TKMUnitAnimal(fUnits.List[i]).fFishCount;
+          HighestGroupCount := TKMUnitAnimal(fUnits.Items[i]).fFishCount;
         end;
     end;
   end;
@@ -638,18 +625,6 @@ end;
 procedure TKMPlayerAnimals.GetFishLocations(out Loc:TKMPointList);
 begin
   fUnits.GetLocations(Loc, ut_Fish);
-end;
-
-
-function TKMPlayerAnimals.GetUnitCount: integer;
-begin
-  Result := fUnits.Count;
-end;
-
-
-function TKMPlayerAnimals.GetUnitByIndex(aIndex:integer): TKMUnit;
-begin
-  Result := fUnits.GetUnitByIndex(aIndex);
 end;
 
 

@@ -282,7 +282,7 @@ begin
 
   if aBuildState = hbs_Done then //House was placed on map already Built e.g. in mission maker
   begin 
-    Self.Activate(false);
+    Activate(false);
     fBuildingProgress := HouseDAT[byte(fHouseType)].MaxHealth;
     fTerrain.SetHouse(fPosition, fHouseType, hs_Built, fOwner, fGame.GameState <> gsEditor); //Sets passability and flattens terrain if we're not in the map editor
   end else
@@ -358,7 +358,7 @@ begin
   begin
     if fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay = to_Road then
     begin
-      fTerrain.RemRoad(Self.GetEntrance);
+      fTerrain.RemRoad(GetEntrance);
       if not IsEditor then
         fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay := to_Dig3; //Remove road and leave dug earth behind
     end;
@@ -424,14 +424,14 @@ begin
   Assert(fGame.GameState=gsEditor);
   //We have to remove the house THEN check to see if we can place it again so we can put it on the old position
   fTerrain.SetHouse(fPosition,fHouseType,hs_None,play_none);
-  fTerrain.RemRoad(Self.GetEntrance);
+  fTerrain.RemRoad(GetEntrance);
   if fTerrain.CanPlaceHouse(aPos, GetHouseType) then
   begin
     fPosition.X := aPos.X - HouseDAT[byte(fHouseType)].EntranceOffsetX;
     fPosition.Y := aPos.Y;
   end;
   fTerrain.SetHouse(fPosition,fHouseType,hs_Built,fOwner);
-  fTerrain.SetRoad(Self.GetEntrance,fOwner);
+  fTerrain.SetRoad(GetEntrance,fOwner);
 end;
 
 

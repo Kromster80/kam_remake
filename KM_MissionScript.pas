@@ -698,7 +698,7 @@ begin
     //Count existing players
     ExistingPlayers := 0;
     for i:=1 to fPlayers.PlayerCount do begin
-      PlayerExists[i] := (fPlayers.Player[i].GetHouseCount + fPlayers.Player[i].GetUnitCount + fPlayers.Player[i].GetFieldsCount > 0);
+      PlayerExists[i] := (fPlayers.Player[i].GetHouses.Count + fPlayers.Player[i].GetUnits.Count + fPlayers.Player[i].GetFieldsCount > 0);
       if PlayerExists[i] then inc(ExistingPlayers);
     end;
 
@@ -887,9 +887,9 @@ begin
 
   //Animals, wares to all, etc. go here
   AddData('//Animals');
-  for i:=0 to fPlayers.PlayerAnimals.GetUnitCount-1 do
+  for i:=0 to fPlayers.PlayerAnimals.GetUnits.Count-1 do
   begin
-    CurUnit := fPlayers.PlayerAnimals.GetUnitByIndex(i);
+    CurUnit := fPlayers.PlayerAnimals.GetUnits.Items[i];
     AddCommand(ct_SetUnit,3,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1);
   end;
   AddData(''); //NL

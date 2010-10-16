@@ -237,7 +237,6 @@ type
     function GetUnitByID(aID: Integer): TKMUnit;
     procedure GetLocations(out Loc:TKMPointList; aUnitType:TUnitType=ut_Any);
     function GetTotalPointers: integer;
-    function GetUnitByIndex(aIndex:integer): TKMUnit;
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
@@ -351,7 +350,7 @@ var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
-  if Self.IsDead then exit; //Caused by SelfTrain.Abandoned
+  if IsDead then exit; //Caused by SelfTrain.Abandoned
 
   fThought := th_None;
 
@@ -552,7 +551,7 @@ var H:TKMHouseInn;
 begin
   Result:=true; //Required for override compatibility
   if Inherited UpdateState then exit;
-  if Self.IsDead then exit; //Caused by SelfTrain.Abandoned
+  if IsDead then exit; //Caused by SelfTrain.Abandoned
 
   fThought := th_None;
 
@@ -603,7 +602,7 @@ var
   FoundEnemy, BestEnemy:TKMUnit;
 begin
   Result := nil;
-  if (not FREE_ROCK_THROWING) and (Self.GetHome.CheckResIn(rt_Stone)<=0) then exit; //Nothing to throw
+  if (not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone)<=0) then exit; //Nothing to throw
   BestEnemy := nil;
 
   //Look for an enemy within some radius
@@ -611,14 +610,14 @@ begin
   for i:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
   for k:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
   if GetLength(i,k)<=RANGE_WATCHTOWER then begin
-    FoundEnemy := fPlayers.UnitsHitTest(Self.GetPosition.X+k,Self.GetPosition.Y+i);
+    FoundEnemy := fPlayers.UnitsHitTest(GetPosition.X+k,GetPosition.Y+i);
     if (FoundEnemy<>nil)and //Found someone
        not(FoundEnemy.GetUnitTask is TTaskDie)and //not being killed already
-       (fPlayers.CheckAlliance(Self.GetOwner, FoundEnemy.GetOwner) = at_Enemy) //How do WE feel about enemy, not how they feel about us
+       (fPlayers.CheckAlliance(fOwner, FoundEnemy.GetOwner) = at_Enemy) //How do WE feel about enemy, not how they feel about us
        then
       begin
         if BestEnemy=nil then BestEnemy := FoundEnemy; //Make sure we have in filled before further comparison
-        if GetLength(FoundEnemy.GetPosition,Self.GetPosition) < GetLength(BestEnemy.GetPosition,Self.GetPosition) then
+        if GetLength(FoundEnemy.GetPosition,GetPosition) < GetLength(BestEnemy.GetPosition,GetPosition) then
           BestEnemy := FoundEnemy;
       end;
   end;
@@ -891,7 +890,7 @@ inherited;
   else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction
 
   AnimDir:=byte(Direction);
-  fRender.RenderUnit(byte(Self.GetUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y),true);
+  fRender.RenderUnit(byte(fUnitType), AnimAct, AnimDir, AnimStep, 0, fPosition.X+0.5+GetSlide(ax_X), fPosition.Y+1+GetSlide(ax_Y),true);
 end;
 
 
@@ -1906,12 +1905,6 @@ begin
   Result := 0;
   for I := 0 to Count - 1 do
     inc(Result, Units[i].GetPointerCount);
-end;
-
-
-function TKMUnitsCollection.GetUnitByIndex(aIndex:integer): TKMUnit;
-begin
-  Result := Units[aIndex];
 end;
 
 

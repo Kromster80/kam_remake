@@ -227,7 +227,7 @@ var i:integer;
 begin
   Result:=0;
   for i:=1 to fPlayerCount do
-    inc(Result,Player[i].GetUnitCount);
+    inc(Result,Player[i].GetUnits.Count);
 end;
 
 

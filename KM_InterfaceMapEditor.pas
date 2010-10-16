@@ -61,6 +61,7 @@ type TKMapEdInterface = class
       Panel_Alliances:TKMPanel;
         Label_Alliances:TKMLabel;
         CheckBox_Alliances: array[1..MAX_PLAYERS,1..MAX_PLAYERS] of TKMCheckBox;
+        CheckBox_AlliancesSym:TKMCheckBox;
       Panel_Colors:TKMPanel;
         Label_Colors:TKMLabel;
 
@@ -593,7 +594,7 @@ begin
     Panel_Alliances := MyControls.AddPanel(Panel_Player,0,28,196,400);
       Label_Alliances := MyControls.AddLabel(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
       for i:=1 to MAX_PLAYERS do begin
-        MyControls.AddLabel(Panel_Alliances,12,10+i*20,100,20,inttostr(i),fnt_Metal,kaLeft);
+        MyControls.AddLabel(Panel_Alliances,12,10+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
         for k:=1 to MAX_PLAYERS do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
           CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 12+k*20, 10+i*20, 20, 20, '', fnt_Metal);
@@ -601,7 +602,9 @@ begin
           CheckBox_Alliances[i,k].OnClick := AlliancesChange;
         end;
       end;
-
+      CheckBox_AlliancesSym := MyControls.AddCheckBox(Panel_Alliances, 32, 10+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym.Checked := true;
+      CheckBox_AlliancesSym.OnClick := AlliancesChange;
 
     Panel_Colors := MyControls.AddPanel(Panel_Player,0,28,196,400);
       Label_Colors := MyControls.AddLabel(Panel_Colors,100,10,100,30,'Colors',fnt_Outline,kaCenter);
@@ -1241,6 +1244,11 @@ end;
 procedure TKMapEdInterface.AlliancesChange(Sender:TObject);
 var i,k:integer;
 begin
+  if Sender = CheckBox_AlliancesSym then begin
+    CheckBox_AlliancesSym.Checked := not CheckBox_AlliancesSym.Checked;
+    exit;
+  end;
+
   if Sender = nil then begin
     for i:=1 to MAX_PLAYERS do
     for k:=1 to MAX_PLAYERS do
@@ -1255,10 +1263,14 @@ begin
   k := TKMCheckBox(Sender).Tag mod MAX_PLAYERS + 1;
   CheckBox_Alliances[i,k].Checked := not CheckBox_Alliances[i,k].Checked;
 
-  if CheckBox_Alliances[i,k].Checked then
-    fPlayers.Player[i].fAlliances[k] := at_Ally
-  else
-    fPlayers.Player[i].fAlliances[k] := at_Enemy;
+  if CheckBox_Alliances[i,k].Checked then fPlayers.Player[i].fAlliances[k] := at_Ally
+                                     else fPlayers.Player[i].fAlliances[k] := at_Enemy;
+
+  //Copy status to symmetrical item
+  if CheckBox_AlliancesSym.Checked then begin
+    CheckBox_Alliances[k,i].Checked := CheckBox_Alliances[i,k].Checked;
+    fPlayers.Player[k].fAlliances[i] := fPlayers.Player[i].fAlliances[k];
+  end;
 end;
 
 
