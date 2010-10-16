@@ -10,7 +10,6 @@ uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
 type TKMMainMenuInterface = class
   private
     ScreenX,ScreenY:word;
-    OffX,OffY:integer;
 
     Campaign_Selected:TCampaign;
     Campaign_Mission_Choice:integer;
@@ -165,7 +164,7 @@ type TKMMainMenuInterface = class
     procedure ShowScreen_Options();
     procedure ShowScreen_Results(Msg:gr_Message);
     procedure Fill_Results();
-  public
+
     procedure MouseMove(X,Y:integer);
     procedure UpdateState;
     procedure Paint;
@@ -177,7 +176,8 @@ uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTy
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
-{var i:integer;}
+var //i:integer;
+  OffX,OffY:integer;
 begin
   Inherited Create;
 

@@ -5,15 +5,13 @@ uses Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils,
      KM_Controls, KM_Defaults, KM_Houses, KM_Units;
 
 type TKMapEdInterface = class
-  protected
-    ToolBarX:word;
-  protected
+  private
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
     PrevHint:TObject;
     StorehouseItem:byte; //Selected ware in storehouse
     BarracksItem:byte; //Selected ware in barracks
-
+  protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMButton; //Animals are common for all
@@ -160,7 +158,6 @@ type TKMapEdInterface = class
     procedure OnKeyUp(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     function GetShownPage:TKMMapEdShownPage;
-    procedure ClearShownUnit;
     procedure UpdateState;
     procedure Paint;
   end;
@@ -1282,13 +1279,6 @@ begin
     if Button_Main[Key-48].Visible then MyControls.CtrlDown := Button_Main[Key-48];
     if not IsDown then SwitchPage(Button_Main[Key-48]);
   end;
-end;
-
-
-procedure TKMapEdInterface.ClearShownUnit;
-begin
-  ShownUnit := nil;
-  SwitchPage(nil);
 end;
 
 

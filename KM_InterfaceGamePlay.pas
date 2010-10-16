@@ -6,9 +6,7 @@ uses SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls, Windows,
 
 
 type TKMGamePlayInterface = class
-  protected
-    ToolBarX:integer;
-  protected
+  private
     ShownUnit:TKMUnit;
     ShownHouse:TKMHouse;
     PrevHint:TObject;
@@ -18,7 +16,7 @@ type TKMGamePlayInterface = class
     LastBarracksUnit:integer;//Last unit that was selected in Barracks, global for all barracks player owns
     fMessageList:TKMMessageList;
     AskDemolish:boolean;
-
+  protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
       KMMinimap:TKMMinimap;
@@ -2176,7 +2174,6 @@ end;
 
 procedure TKMGamePlayInterface.Save(SaveStream:TKMemoryStream);
 begin
-  SaveStream.Write(ToolBarX);
   SaveStream.Write(LastSchoolUnit);
   SaveStream.Write(LastBarracksUnit);
   fMessageList.Save(SaveStream);
@@ -2186,7 +2183,6 @@ end;
 
 procedure TKMGamePlayInterface.Load(LoadStream:TKMemoryStream);
 begin
-  LoadStream.Read(ToolBarX);
   LoadStream.Read(LastSchoolUnit);
   LoadStream.Read(LastBarracksUnit);
   fMessageList.Load(LoadStream);
