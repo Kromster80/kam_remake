@@ -114,7 +114,7 @@ begin
   if not fTerrain.Land[LocY,LocX].IsUnit = 0 then begin
     aUnit := fPlayers.UnitsHitTest(LocX, LocY); //Let's see who is standing there
     Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
-                             and (aUnit.GetUnitActionType = ua_Walk)
+                             and (aUnit.GetUnitAction.GetActionType = ua_Walk)
                              and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
     if Result then
       aUnit.SetActionWalk(fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk), ua_Walk, true, true);

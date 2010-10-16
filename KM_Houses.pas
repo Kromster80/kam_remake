@@ -1729,12 +1729,12 @@ end;
 
 
 procedure TKMHousesCollection.IncAnimStep;
-var
-  i:integer;
+var i:integer;
 begin
   for i := 0 to Count - 1 do
     Houses[i].IncAnimStep;
 end;
+
 
 function TKMHousesCollection.GetTotalPointers: integer;
 var i:integer;

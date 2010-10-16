@@ -427,7 +427,7 @@ begin
   Result := false;
   if HighestInteractionCount < PUSH_TIMEOUT then exit;
   //Ask the other unit to step aside, only if they are idle!
-  if (fOpponent.GetUnitAction is TUnitActionStay) and (fOpponent.GetUnitActionType = ua_Walk)
+  if (fOpponent.GetUnitAction is TUnitActionStay) and (fOpponent.GetUnitAction.GetActionType = ua_Walk)
     and (not TUnitActionStay(fOpponent.GetUnitAction).Locked) then //Unit is idle, (not working or something) and not locked
   begin //Force Unit to go away
     fInteractionStatus := kis_Pushing;

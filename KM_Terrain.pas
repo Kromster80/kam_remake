@@ -1328,7 +1328,7 @@ begin
       if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
       TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
-        if (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitActionType = ua_Walk) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
+        if (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitAction.GetActionType = ua_Walk) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
           L3.AddEntry(L1.List[i]);
     end;
 

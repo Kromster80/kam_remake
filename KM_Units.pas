@@ -26,8 +26,8 @@ type
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure SyncLoad(); virtual; abstract;
-    function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
     property GetActionType: TUnitActionType read fActionType;
+    function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
   end;
 
@@ -120,7 +120,6 @@ type
     function GetSpeed():single;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
-    function GetUnitActionType():TUnitActionType;
     property GetUnitTask: TUnitTask read fUnitTask;
     property SetUnitTask: TUnitTask write fUnitTask;
     property GetUnitType: TUnitType read fUnitType;
@@ -160,6 +159,7 @@ type
 
   //This is a common class for units going out of their homes for resources
   TKMUnitCitizen = class(TKMUnit)
+  private
   public
     WorkPlan:TUnitWorkPlan;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -185,10 +185,10 @@ type
     procedure Paint(); override;
   end;
 
-  //Serf class - transports all goods ingame between houses
+  //Serf class - transports all goods in game between houses
   TKMUnitSerf = class(TKMUnit)
-    Carry: TResourceType;
   public
+    Carry: TResourceType;
     constructor Load(LoadStream:TKMemoryStream); override;
     procedure CarryGive(Res:TResourceType);
     procedure CarryTake(aAssertIfNoCarry:boolean=true);
@@ -199,7 +199,7 @@ type
     procedure Paint(); override;
   end;
 
-  //Worker class - builds everything ingame
+  //Worker class - builds everything in game
   TKMUnitWorker = class(TKMUnit)
   public
     function GetActionFromQueue():TUnitTask;
@@ -1123,12 +1123,6 @@ end;
 function TKMUnit.GetSpeed():single;
 begin
   Result := UnitStat[byte(fUnitType)].Speed/24;
-end;
-
-
-function TKMUnit.GetUnitActionType():TUnitActionType;
-begin
-  Result := GetUnitAction.fActionType;
 end;
 
 
