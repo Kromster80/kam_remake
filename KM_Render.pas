@@ -42,7 +42,7 @@ private
   procedure RenderLine(x1,y1,x2,y2:single);
   procedure RenderQuad(pX,pY:integer);
   procedure RenderTile(Index,pX,pY,Rot:integer);
-  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte);
+  procedure RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
   procedure RenderSpriteAlphaTest(RX:byte; ID:word; Param:single; pX,pY:single; aFOW:byte);
   procedure AddSpriteToList(aRX:byte; aID:word; pX,pY,oX,oY:single; aNew:boolean; const aTeam:byte=0; const Step:single=-1; aIsUnit:boolean=false);
   procedure ClipRenderList();
@@ -77,8 +77,9 @@ public
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
   procedure RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
-  procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false);
-  procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean);
+  procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+  procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+  procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
   procedure RenderHouseBuild(Index,pX,pY:integer);
   procedure RenderHouseBuildSupply(Index:integer; Wood,Stone:byte; pX,pY:integer);
   procedure RenderHouseWood(Index:integer; Step:single; pX,pY:integer);
@@ -434,10 +435,7 @@ begin
 for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain do begin
     if Land[i,k].Obj<>255 then
-    if MapElem[Land[i,k].Obj+1].WineOrCorn then
-      RenderObjectQuad(Land[i,k].Obj+1,AnimStep,k,i,TileIsWineField(KMPoint(k,i)))
-    else
-      RenderObject(Land[i,k].Obj+1,AnimStep,k,i);
+      RenderObjectOrQuad(Land[i,k].Obj+1,AnimStep,k,i);
   end;
 
   with fTerrain do
@@ -574,7 +572,17 @@ begin
 end;
 
 
-procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false);
+procedure TRender.RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
+begin
+  //Render either normal object or quad depending on what it is
+  if MapElem[Index].WineOrCorn then
+    RenderObjectQuad(Index,AnimStep,pX,pY,(Index-1 in [54..57]),DoImmediateRender,Deleting) //54..57 are grapes, all others are doubles
+  else
+    RenderObject(Index,AnimStep,pX,pY,DoImmediateRender,Deleting);
+end;
+
+
+procedure TRender.RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var ShiftX,ShiftY:single; ID:integer; FOW:byte;
 begin
   if MapElem[Index].Count=0 then exit;
@@ -601,13 +609,13 @@ begin
     glPrint(inttostr(Index)+':'+inttostr(ID));}
   end;
 
-  if DoImmediateRender then RenderSprite(1,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255);
+  if DoImmediateRender then RenderSprite(1,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
 
 end;
 
 
 { 4 objects packed on 1 tile for Corn and Grapes }
-procedure TRender.RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean);
+procedure TRender.RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
 var FOW:byte;
   procedure AddSpriteToListBy(ID:integer; AnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
   begin
@@ -615,6 +623,7 @@ var FOW:byte;
     ShiftY := ShiftY + (RXData[1].Size[ID,2]) / CELL_SIZE_PX;
     ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX+ShiftX, pY+ShiftY)/CELL_HEIGHT_DIV;
     AddSpriteToList(1, ID, pX+ShiftX, pY+ShiftY, pX, pY, true);
+    if DoImmediateRender then RenderSprite(1,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
   end;
 begin
   FOW := fTerrain.CheckTileRevelation(pX,pY,MyPlayer.PlayerID);
@@ -924,7 +933,7 @@ glBindTexture(GL_TEXTURE_2D, 0);
 end;
 
 
-procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte);
+procedure TRender.RenderSprite(RX:byte; ID:word; pX,pY:single; Col:TColor4; aFOW:byte; HighlightRed: boolean=false);
 var h:integer;
 begin
   for h:=1 to 2 do
@@ -938,6 +947,8 @@ begin
       glBindTexture(GL_TEXTURE_2D, AltID);
       //glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR); //Alternative coloring mode
     end;
+
+    if HighlightRed then glColor4f(1,0,0,1);
 
     if (h=1)or( (h=2)and(RXData[RX].NeedTeamColors)and(AltID<>0)) then begin
       glBegin (GL_QUADS);
@@ -1338,7 +1349,10 @@ case GameCursor.Mode of
              else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
   cm_Tiles:  RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2);
-  cm_Objects:RenderObject(GameCursor.Tag1+1, 0, GameCursor.Cell.X, GameCursor.Cell.Y, true);
+  cm_Objects:begin
+               RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.GetAnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
+               RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.GetAnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
+             end;
   cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
                RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //todo: render unit graphics here?
              else RenderCursorBuildIcon(GameCursor.Cell);       //Red X

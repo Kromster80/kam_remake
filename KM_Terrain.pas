@@ -172,11 +172,12 @@ TTerrain = class
     function MixLandHeight(inX,inY:byte):byte;
 
     procedure MapEdHeight(aLoc:TKMPointF; aSize, aShape:byte; aRaise:boolean);
-    procedure MapEdTile(aLoc:TKMPoint; aTile:byte);
+    procedure MapEdTile(aLoc:TKMPoint; aTile,aRotation:byte);
 
     procedure RefreshMinimapData();
 
     procedure IncAnimStep();
+    property GetAnimStep: integer read AnimStep;
     procedure SaveToMapFile(aFile:string);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -664,6 +665,7 @@ begin
     Land[Loc.Y,Loc.X].Terrain:=62;
     Land[Loc.Y,Loc.X].Rotation:=0;
     //If object is already corn then set the field age (some maps start with corn placed)
+    if fGame.GameState <> gsEditor then //Don't do this in editor mode
     case Land[Loc.Y,Loc.X].Obj of
       58: begin  //Corn 1
             Land[Loc.Y,Loc.X].FieldAge := 435;
@@ -2134,10 +2136,13 @@ begin
 end;
 
 
-procedure TTerrain.MapEdTile(aLoc:TKMPoint; aTile:byte);
+procedure TTerrain.MapEdTile(aLoc:TKMPoint; aTile, aRotation:byte);
 begin
   if TileInMapCoords(aLoc.X, aLoc.Y) then
-  Land[aLoc.Y, aLoc.X].Terrain := aTile;
+  begin
+    Land[aLoc.Y, aLoc.X].Terrain := aTile;
+    Land[aLoc.Y, aLoc.X].Rotation := aRotation;
+  end;
 end;
 
 

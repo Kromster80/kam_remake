@@ -34,6 +34,7 @@ type TKMapEdInterface = class
       Panel_Tiles:TKMPanel;
         TilesTable:array[1..MAPED_TILES_COLS*MAPED_TILES_ROWS] of TKMButtonFlat; //how many are visible?
         TilesScroll:TKMScrollBar;
+        TilesRandom:TKMCheckBox;
       Panel_Objects:TKMPanel;
         ObjectErase:TKMButtonFlat;
         ObjectsTable:array[1..4] of TKMButtonFlat;
@@ -215,12 +216,14 @@ begin
     Panel_Terrain.Show;
     Panel_Tiles.Show;
     Label_MenuTitle.Caption:='Terrain - Tiles';
+    TerrainTiles_Change(TilesScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
+    TerrainTiles_Change(TilesTable[1]);
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[4]) then begin
     Panel_Terrain.Show;
     Panel_Objects.Show;
-    Label_MenuTitle.Caption:='Terrain - Objects'; 
+    Label_MenuTitle.Caption:='Terrain - Objects';
     TerrainObjects_Change(ObjectsScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
     TerrainObjects_Change(ObjectsTable[1]);
   end else
@@ -468,16 +471,23 @@ begin
       HeightSquare.OnClick  := TerrainHeight_Change;
 
     Panel_Tiles := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
-      for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := MyControls.AddButtonFlat(Panel_Tiles,8+(i-1)*32,4+(k-1)*32,32,32,((i-1)*MAPED_TILES_ROWS+k)mod 8+2); //2..9
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (i-1)*MAPED_TILES_ROWS+k; //Store ID
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := TerrainTiles_Change;
-      end;
-      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 4 + 4 + MAPED_TILES_ROWS * 32, 180, 20, sa_Horizontal);
+      TilesRandom := MyControls.AddCheckBox(Panel_Tiles, 8, 4, 100, 20, 'Random Direction', fnt_Metal);
+      TilesRandom.Checked := true;
+      TilesRandom.OnClick := TerrainTiles_Change;
+      //todo: Allow user to select exact direction
+      TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 30 + 4 + MAPED_TILES_ROWS * 32, 180, 20, sa_Horizontal);
       TilesScroll.MinValue := 0;
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
       TilesScroll.Position := 0;
       TilesScroll.OnChange := TerrainTiles_Change;
+      for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
+        //@Krom: I have an idea: Lets make the terrain tiles be an RX number, so say RX=10 means load the ID as a terrain tile ID.
+        //       Even though it's not an RX, this special case method would involve less changes to the code. (buttons have no reason to render tiles in other situations)
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k] := MyControls.AddButtonFlat(Panel_Tiles,8+(i-1)*32,30+(k-1)*32,32,32,((i-1)*MAPED_TILES_ROWS+k)mod 8+2); //2..9
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (i-1)*MAPED_TILES_ROWS+k; //Store ID
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := TerrainTiles_Change;
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
+      end;
 
     Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
       ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 268, 180, 20, sa_Horizontal);
@@ -802,15 +812,27 @@ end;
 procedure TKMapEdInterface.TerrainTiles_Change(Sender: TObject);
 var i,k:integer;
 begin
+  if Sender = TilesRandom then
+  begin
+    TilesRandom.Checked := not TilesRandom.Checked;
+    if GameCursor.Mode = cm_Tiles then
+      GameCursor.Tag2 := byte(TilesRandom.Checked);
+  end;
   if Sender = TilesScroll then //Shift tiles
     for i:=1 to MAPED_TILES_COLS do
     for k:=1 to MAPED_TILES_ROWS do
+    begin
       TilesTable[(i-1)*MAPED_TILES_ROWS+k].TexID := (TilesScroll.Position*MAPED_TILES_ROWS+(i-1)*MAPED_TILES_ROWS+k)mod 8+2; //icons are in 2..9
+      TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (GameCursor.Tag1 = TilesScroll.Position*MAPED_TILES_ROWS + TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag);
+    end;
   if Sender is TKMButtonFlat then
   begin
     GameCursor.Mode := cm_Tiles;
     GameCursor.Tag1 := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
-    GameCursor.Tag2 := 0;
+    GameCursor.Tag2 := byte(TilesRandom.Checked);
+    for i:=1 to MAPED_TILES_COLS do
+    for k:=1 to MAPED_TILES_ROWS do
+      TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (Sender = TilesTable[(i-1)*MAPED_TILES_ROWS+k]);
   end;
 end;
 

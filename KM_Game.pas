@@ -165,6 +165,7 @@ begin
   if GameState = gsNoGame then begin
     //Remember last page and all relevant menu settings
     FreeAndNil(fMainMenuInterface); //@Lewin: I don't remember why do we need to recreate UI here?
+                                    //@Krom: I don't remember either, but it's rather annoying. Maybe dynamic resizing was never implemented? This shouldn't be necessary, we should try to find an alternative. (if it's needed)
     fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y, fGlobalSettings);
     GameSpeed:=1;
     fMainMenuInterface.SetScreenSize(X,Y);
@@ -270,7 +271,24 @@ begin
                   if Key=ord('W') then
                     fTerrain.RevealWholeMap(MyPlayer.PlayerID);
                 end;
-    gsEditor:   if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
+    gsEditor:   begin
+                  if fMapEditorInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
+                  
+                  //Scrolling
+                  if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
+                  if Key = VK_RIGHT then fViewport.ScrollKeyRight := IsDown;
+                  if Key = VK_UP    then fViewport.ScrollKeyUp    := IsDown;
+                  if Key = VK_DOWN  then fViewport.ScrollKeyDown  := IsDown;
+
+                  if IsDown then exit;
+                  if Key = VK_BACK then begin
+                    //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
+                    //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
+                    fViewport.SetZoom(1);
+                    Form1.TB_Angle.Position := 0;
+                    Form1.TB_Angle_Change(Form1.TB_Angle);
+                  end;
+                end;
   end;
 
   {Global hotkey for menu}
@@ -348,7 +366,13 @@ begin
                     fGamePlayInterface.ShowDirectionCursor(false);
                   end;
                 end;
-    gsEditor:   fMapEditorInterface.MyControls.MouseDown(X,Y,Shift,Button);
+    gsEditor:   begin
+                  fMapEditorInterface.MyControls.MouseDown(X,Y,Shift,Button);
+                  if fMapEditorInterface.MyControls.CtrlOver<>nil then
+                    Screen.Cursor:=c_Default
+                  else
+                    fTerrain.ComputeCursorPosition(X,Y,Shift); //So terrain brushes start on mouse down not mouse move
+                end;
   end;
 end;
 
@@ -362,9 +386,7 @@ begin
     gsNoGame:   begin
                   fMainMenuInterface.MyControls.MouseMove(X,Y,Shift);
                   if fMainMenuInterface.MyControls.CtrlOver is TKMTextEdit then // Show "CanEdit" cursor
-                    Screen.Cursor := c_Default  //@Lewin: Should be something else, any ideas?
-                                                //@Krom: We could make our own 'I' cursor using textures from other cursors, shouldn't be hard. Shall I?
-                                                //@Lewin: That would be great!
+                    Screen.Cursor := c_Default  //todo: [Lewin] Make our own 'I' cursor using textures from other cursors
                   else
                     Screen.Cursor := c_Default;
                   fMainMenuInterface.MouseMove(X,Y);
@@ -625,11 +647,12 @@ begin
 
       end; //gsRunning
     gsEditor: begin
-                fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
-                P := GameCursor.Cell; //Get cursor position tile-wise
                 if MOver <> nil then
                   fMapEditorInterface.MyControls.MouseUp(X,Y,Shift,Button)
                 else
+                begin
+                fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
+                P := GameCursor.Cell; //Get cursor position tile-wise
                 if Button = mbRight then
                 begin
                   fMapEditorInterface.RightClick_Cancel;
@@ -685,6 +708,7 @@ begin
                                                     fTerrain.RemField(P);
                                                 end;
                               end;
+                  end;
                   end;
               end;
   end;
@@ -1256,7 +1280,7 @@ begin
                               fTerrain.MapEdHeight(GameCursor.Float, GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);
                     cm_Tiles:
                               if (ssLeft in GameCursor.SState) then
-                              fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1);
+                              fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.Tag2*RandomRange(0,3));
                   end;
                 end;
   end;
