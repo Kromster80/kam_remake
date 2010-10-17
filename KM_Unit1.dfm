@@ -73,14 +73,6 @@ object Form1: TForm1
       '  Additional controls   ..   Press F11 to swap controls visibili' +
       'ty'
     TabOrder = 2
-    object TeamColorPicker: TShape
-      Left = 144
-      Top = 40
-      Width = 22
-      Height = 22
-      OnDragDrop = TeamColorPickerDragDrop
-      OnMouseUp = TeamColorPickerMouseUp
-    end
     object Label2: TLabel
       Left = 85
       Top = 15
@@ -94,13 +86,6 @@ object Form1: TForm1
       Width = 6
       Height = 13
       Caption = '0'
-    end
-    object Label1: TLabel
-      Left = 169
-      Top = 47
-      Width = 61
-      Height = 13
-      Caption = 'Player1 color'
     end
     object CheckBox2: TCheckBox
       Left = 8

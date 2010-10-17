@@ -791,7 +791,6 @@ begin
 end;
                   
 
-{ Anything we should do after mission is loaded }
 procedure TKMapEdInterface.Player_UpdateColors;
 var i:integer;
 begin

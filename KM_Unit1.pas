@@ -9,7 +9,7 @@ uses
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL, MMSystem,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
-  KM_Game, KM_PlayersCollection, ColorPicker,
+  KM_Game, KM_PlayersCollection, 
   KM_LoadLib, KM_Sound;
 
 type
@@ -37,7 +37,6 @@ type
     Export_GUIMainRX: TMenuItem;
     Export_Fonts1: TMenuItem;
     GroupBox1: TGroupBox;
-    TeamColorPicker: TShape;
     CheckBox2: TCheckBox;
     Export_Text: TMenuItem;
     Export_Deliverlists1: TMenuItem;
@@ -57,7 +56,6 @@ type
     Export_GUIMainHRX: TMenuItem;
     TB_Angle: TTrackBar;
     Label3: TLabel;
-    Label1: TLabel;
     {$IFDEF WDC} MediaPlayer1: TMediaPlayer; {$ENDIF}
     ExportMainMenu1: TMenuItem; 
     procedure Export_TreeAnim1Click(Sender: TObject);
@@ -91,8 +89,6 @@ type
     procedure Export_TextClick(Sender: TObject);
     procedure Export_Fonts1Click(Sender: TObject);
     procedure Export_DeliverLists1Click(Sender: TObject);
-    procedure TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure Debug_PassabilityTrackChange(Sender: TObject);
     procedure Debug_ShowOverlayClick(Sender: TObject);
     procedure Button_StopClick(Sender: TObject);
@@ -262,7 +258,7 @@ begin
     FormLoading.Hide;
     Form1.SetFocus;
   end;
-  fGame.UpdateState;
+  if fGame<>nil then fGame.UpdateState;
 end;
 
 
@@ -368,21 +364,6 @@ begin
   if fPlayers=nil then exit;
   for i:=1 to fPlayers.PlayerCount do
     fPlayers.Player[i].DeliverList.SaveToFile('Player_'+inttostr(i)+'_Deliver_List.txt');
-end;
-
-
-procedure TForm1.TeamColorPickerMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  if MyPlayer=nil then exit;
-  DefineInputColor(MyPlayer.PlayerColor and $FFFFFF,Sender);
-end;
-
-
-procedure TForm1.TeamColorPickerDragDrop(Sender, Source: TObject; X, Y: Integer);
-begin
-  if MyPlayer=nil then exit;
-  MyPlayer.PlayerColor := cardinal(TeamColorPicker.Brush.Color) or $FF000000;
-  fRender.Render;
 end;
 
 

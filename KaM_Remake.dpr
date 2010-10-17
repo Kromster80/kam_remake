@@ -10,7 +10,6 @@ uses
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_Unit1 in 'KM_Unit1.pas' {Form1},
   KM_Form_Loading in 'KM_Form_Loading.pas' {FormLoading},
-  ColorPicker in 'Common\ColorPicker.pas' {Form_ColorPicker},
 
   KM_CommonTypes in 'KM_CommonTypes.pas',
   KM_Controls in 'KM_Controls.pas',
@@ -68,7 +67,6 @@ begin
   Application.HelpFile := '';
   Application.CreateForm(TForm1, Form1);
   Application.CreateForm(TFormLoading, FormLoading);
-  Application.CreateForm(TForm_ColorPicker, Form_ColorPicker);
   Form1.OnCreate(nil);
 
   Application.Run;
