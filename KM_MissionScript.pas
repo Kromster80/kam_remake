@@ -580,7 +580,7 @@ begin
 
                      end;
   ct_SetMapColor:    begin
-
+                       fPlayers.Player[CurrentPlayerIndex].PlayerColor := Pal[2,ParamList[0]+1,1] + Pal[2,ParamList[0]+1,2] shl 8 + Pal[2,ParamList[0]+1,3] shl 16 or $FF000000;
                      end;
   end;
   Result := true; //Must have worked if we haven't exited by now
@@ -731,6 +731,9 @@ begin
     AddCommand(ct_EnablePlayer,1,i-1);
     if fPlayers.Player[i].PlayerType = pt_Computer then
       AddCommand(ct_AIPlayer);
+
+    AddCommand(ct_SetMapcolor, 1, fPlayers.Player[i].GetColorIndex-1);
+
     AddData(''); //NL
 
     //Human specific, e.g. goals, center screen (though all players can have it, only human can use it)

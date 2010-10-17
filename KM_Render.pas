@@ -1095,10 +1095,13 @@ if RO[i]<>0 then begin
       repeat //Render child sprites only after their parent
         with RenderList[h] do begin
           if AlphaStep=-1 then
-            if Team<>0 then
-              RenderSprite(RX,ID,Loc.X,Loc.Y,fPlayers.Player[Team].PlayerColor,FOWvalue)
-            else
+            if Team=0 then
               RenderSprite(RX,ID,Loc.X,Loc.Y,$FF0000FF,FOWvalue)
+            else
+              if Team > MAX_PLAYERS then
+                RenderSprite(RX,ID,Loc.X,Loc.Y,$FFFFFFFF,FOWvalue)
+              else
+                RenderSprite(RX,ID,Loc.X,Loc.Y,fPlayers.Player[Team].PlayerColor,FOWvalue)
           else
             RenderSpriteAlphaTest(RX,ID,AlphaStep,Loc.X,Loc.Y,FOWvalue)
         end;

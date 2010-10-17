@@ -33,6 +33,7 @@ type
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+    function GetColorIndex():word;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
@@ -417,10 +418,22 @@ begin
   inc(fGoalCount);
 end;
 
+
+function TKMPlayerAssets.GetColorIndex():word;
+var i:integer;
+begin
+  Result := 1;
+  for i:=1 to 256 do
+    if Pal[2,i,1] + Pal[2,i,2] shl 8 + Pal[2,i,3] shl 16 or $FF000000 = PlayerColor then
+      Result := i;
+end;
+
+
 function TKMPlayerAssets.GetCanBuild(aType:THouseType):boolean;
 begin
   Result:=fMissionSettings.GetCanBuild(aType);
 end;
+
 
 function TKMPlayerAssets.GetHouseQty(aType:THouseType):integer;
 begin

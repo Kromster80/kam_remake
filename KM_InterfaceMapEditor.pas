@@ -14,7 +14,7 @@ type TKMapEdInterface = class
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
-      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMButton; //Animals are common for all
+      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMFlatButtonShape; //Animals are common for all
       KMMinimap:TKMMinimap;
       Label_Stat,Label_Hint:TKMLabel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
@@ -53,15 +53,19 @@ type TKMapEdInterface = class
       Panel_Script:TKMPanel;
 
     Panel_Player:TKMPanel;
-      Button_Player:array[1..3]of TKMButton;
+      Button_Player:array[1..2]of TKMButton;
       Panel_Goals:TKMPanel;
         Label_Goals:TKMLabel;
+      Panel_Color:TKMPanel;
+        Label_Color:TKMLabel;
+        ColorSwatch_Color:TKMColorSwatch;
+
+    Panel_Mission:TKMPanel;
+      Button_Mission:array[1..1]of TKMButton;
       Panel_Alliances:TKMPanel;
         Label_Alliances:TKMLabel;
         CheckBox_Alliances: array[1..MAX_PLAYERS,1..MAX_PLAYERS] of TKMCheckBox;
         CheckBox_AlliancesSym:TKMCheckBox;
-      Panel_Colors:TKMPanel;
-        Label_Colors:TKMLabel;
 
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
@@ -115,6 +119,7 @@ type TKMapEdInterface = class
     procedure Create_Terrain_Page;
     procedure Create_Village_Page;
     procedure Create_Player_Page;
+    procedure Create_Mission_Page;
     procedure Create_Menu_Page;
     procedure Create_Save_Page;
     procedure Create_Load_Page;
@@ -142,6 +147,7 @@ type TKMapEdInterface = class
     procedure Barracks_EditWareCount(Sender:TObject; AButton:TMouseButton);
     procedure Store_SelectWare(Sender:TObject);
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
+    procedure Player_ColorClick(Sender:TObject);
     procedure AlliancesChange(Sender:TObject);
   public
     MyControls: TKMControlsCollection;
@@ -246,27 +252,23 @@ begin
     Label_MenuTitle.Caption:='Village - Script';
   end else
 
-  if Sender=Button_Main[3] then begin
-    Label_MenuTitle.Caption:=fTextLibrary.GetTextString(168);
-  end else
-
-  if (Sender = Button_Main[4])or(Sender = Button_Player[1]) then begin
+  if (Sender = Button_Main[3])or(Sender = Button_Player[1]) then begin
     Panel_Player.Show;
     Panel_Goals.Show;
     Label_MenuTitle.Caption:='Player - Goals';
   end else
 
-  if (Sender = Button_Main[4])or(Sender = Button_Player[2]) then begin
+  if (Sender = Button_Main[3])or(Sender = Button_Player[2]) then begin
+    Panel_Player.Show;
+    Panel_Color.Show;
+    Label_MenuTitle.Caption:='Player - Color';
+  end else
+
+  if (Sender = Button_Main[4])or(Sender = Button_Player[1]) then begin
     Panel_Player.Show;
     Panel_Alliances.Show;
     Label_MenuTitle.Caption:='Player - Alliances';
     AlliancesChange(nil);
-  end else
-
-  if (Sender = Button_Main[4])or(Sender = Button_Player[3]) then begin
-    Panel_Player.Show;
-    Panel_Colors.Show;
-    Label_MenuTitle.Caption:='Player - Colors';
   end else
 
   if (Sender=Button_Main[5]) or
@@ -369,7 +371,8 @@ begin
 
     MyControls.AddLabel(Panel_Main,8,200,100,30,'Player',fnt_Metal,kaLeft);
     for i:=1 to MAX_PLAYERS do begin
-      Button_PlayerSelect[i]         := MyControls.AddButton(Panel_Main, 8 + (i-1)*23, 220, 21, 21, inttostr(i), fnt_Metal);
+      Button_PlayerSelect[i]         := MyControls.AddFlatButtonShape(Panel_Main, 8 + (i-1)*23, 220, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
+      Button_PlayerSelect[i].CapOffsetY := -3;
       Button_PlayerSelect[i].Tag     := i;
       Button_PlayerSelect[i].OnClick := Global_PlayerSelect;
     end;
@@ -401,8 +404,8 @@ begin
 {==========================================================================================}
   Create_Terrain_Page();
   Create_Village_Page();
-
   Create_Player_Page();
+  Create_Mission_Page();
 
   Create_Menu_Page();
     Create_Save_Page();
@@ -577,18 +580,31 @@ end;
 
 
 procedure TKMapEdInterface.Create_Player_Page;
-var i,k:integer;
+var i:integer;
 begin
   Panel_Player := MyControls.AddPanel(Panel_Main,0,428,196,28);
     Button_Player[1] := MyControls.AddButton(Panel_Player,   8, 4, 36, 24, 41);
     Button_Player[2] := MyControls.AddButton(Panel_Player,  48, 4, 36, 24, 460);
-    Button_Player[3] := MyControls.AddButton(Panel_Player,  88, 4, 36, 24, 41);
-    for i:=1 to 3 do Button_Player[i].OnClick := SwitchPage;
+    for i:=1 to 2 do Button_Player[i].OnClick := SwitchPage;
 
     Panel_Goals := MyControls.AddPanel(Panel_Player,0,28,196,400);
       Label_Goals := MyControls.AddLabel(Panel_Goals,100,10,100,30,'Goals',fnt_Outline,kaCenter);
 
-    Panel_Alliances := MyControls.AddPanel(Panel_Player,0,28,196,400);
+    Panel_Color := MyControls.AddPanel(Panel_Player,0,28,196,400);
+      Label_Color := MyControls.AddLabel(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
+      ColorSwatch_Color := MyControls.AddColorSwatch(Panel_Color, 8, 30, 16, 16);
+      ColorSwatch_Color.OnClick := Player_ColorClick;
+end;
+
+
+procedure TKMapEdInterface.Create_Mission_Page;
+var i,k:integer;
+begin
+  Panel_Mission := MyControls.AddPanel(Panel_Main,0,428,196,28);
+    Button_Player[1] := MyControls.AddButton(Panel_Mission,   8, 4, 36, 24, 41);
+    for i:=1 to 1 do Button_Player[i].OnClick := SwitchPage;
+
+    Panel_Alliances := MyControls.AddPanel(Panel_Mission,0,28,196,400);
       Label_Alliances := MyControls.AddLabel(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
       for i:=1 to MAX_PLAYERS do begin
         MyControls.AddLabel(Panel_Alliances,12,10+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
@@ -602,11 +618,6 @@ begin
       CheckBox_AlliancesSym := MyControls.AddCheckBox(Panel_Alliances, 32, 10+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
       CheckBox_AlliancesSym.OnClick := AlliancesChange;
-
-    Panel_Colors := MyControls.AddPanel(Panel_Player,0,28,196,400);
-      Label_Colors := MyControls.AddLabel(Panel_Colors,100,10,100,30,'Colors',fnt_Outline,kaCenter);
-
-
 end;
 
 
@@ -780,9 +791,15 @@ end;
 
 
 procedure TKMapEdInterface.Global_PlayerSelect(Sender: TObject);
+var i:integer;
 begin
-  if (TKMControl(Sender).Tag in [1..MAX_PLAYERS]) and (fPlayers.Player[TKMControl(Sender).Tag] <> nil) then
+  for i:=1 to MAX_PLAYERS do
+    Button_PlayerSelect[i].Down := false;
+
+  if (TKMControl(Sender).Tag in [1..MAX_PLAYERS]) and (fPlayers.Player[TKMControl(Sender).Tag] <> nil) then begin
     MyPlayer := fPlayers.Player[TKMControl(Sender).Tag];
+    Button_PlayerSelect[TKMControl(Sender).Tag].Down := true;
+  end;
 end;
 
 
@@ -1235,6 +1252,13 @@ begin
 
   Label_Store_WareCount.Caption := inttostr(Store.CheckResIn(Res));
   Store_Fill(nil);
+end;
+
+
+procedure TKMapEdInterface.Player_ColorClick(Sender:TObject);
+begin
+  if not (Sender = ColorSwatch_Color) then exit;
+  MyPlayer.PlayerColor := ColorSwatch_Color.GetColor;
 end;
 
 

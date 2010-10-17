@@ -100,7 +100,8 @@ end;
 TKMShape = class(TKMControl)
   public
     Hitable:boolean;
-    LineColor:TColor4; //color of rectangle
+    FillColor:TColor4; 
+    LineColor:TColor4; //color of outline
     LineWidth:byte;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aLineColor:TColor4);
@@ -169,6 +170,7 @@ TKMColorSwatch = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aColumns,aRows:integer);
     procedure Paint(); override;
   public
+    function GetColor():TColor4;
     procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
 end;
 
@@ -204,6 +206,20 @@ TKMButtonFlat = class(TKMControl)
     HideHighlight:boolean;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID,aRXid:integer);
+    procedure Paint(); override;
+end;
+
+
+{FlatButton with Shape on it}
+TKMFlatButtonShape = class(TKMControl)
+  public
+    CapOffsetY:shortint;
+    Caption: string;
+    Font: TKMFont;
+    ShapeColor:TColor4;
+    Down:boolean;
+  protected
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4);
     procedure Paint(); override;
 end;
 
@@ -411,6 +427,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
+    function AddFlatButtonShape (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4):TKMFlatButtonShape;
     function AddTextEdit        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMTextEdit;
     function AddCheckBox        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
     function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini):TKMPercentBar;
@@ -718,6 +735,7 @@ end;
 procedure TKMShape.Paint();
 begin
   Inherited;
+  fRenderUI.WriteLayer(Left,Top,Width,Height,FillColor,$00000000);
   fRenderUI.WriteRect(Left,Top,Width,Height,LineWidth,LineColor);
 end;
 
@@ -911,6 +929,15 @@ begin
 end;
 
 
+function TKMColorSwatch.GetColor():TColor4;
+begin
+  Result := $FF000000 OR (
+            Pal[2, SelectedColor+1, 1] +
+            Pal[2, SelectedColor+1, 2] shl 8 +
+            Pal[2, SelectedColor+1, 3] shl 16);
+end;
+
+
 procedure TKMColorSwatch.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
   SelectedColor := EnsureRange((Y-Top)div CellSize,0,Rows-1)*Columns +
@@ -988,6 +1015,7 @@ begin
   Caption:='';
   Font:=fnt_Grey;
   TextAlign:=kaLeft;
+  Down:=false;
   HideHighlight:=false;
   ParentTo(aParent);
 end;
@@ -1003,6 +1031,29 @@ begin
   //if not Enabled then StateSet:=StateSet+[fbs_Disabled];
 
   fRenderUI.WriteFlatButton(Left,Top,Width,Height,RXid,TexID,TexOffsetX,TexOffsetY,CapOffsetY,Caption,StateSet);
+end;
+
+
+constructor TKMFlatButtonShape.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  Caption     := aCaption;
+  CapOffsetY  := 0;
+  ShapeColor  := aShapeColor;
+  Font        := aFont;
+  Down        := false;
+  ParentTo(aParent);
+end;
+
+
+procedure TKMFlatButtonShape.Paint();
+begin
+  Inherited;  
+  fRenderUI.WriteBevel(Left,Top,Width,Height);
+  fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
+  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY,Width, Caption, Font, kaCenter, false, $FFFFFFFF);
+  if (csOver in State) and Enabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00);
+  if (csDown in State) or Down then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $00000000, $FFFFFFFF);
 end;
 
 
@@ -1687,6 +1738,13 @@ begin
   Result:=TKMButtonFlat.Create(aParent, aLeft,aTop,aWidth,aHeight,aTexID,aRXid);
   AddToCollection(Result);
 end;
+
+function TKMControlsCollection.AddFlatButtonShape(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4):TKMFlatButtonShape;
+begin
+  Result:=TKMFlatButtonShape.Create(aParent, aLeft,aTop,aWidth,aHeight,aCaption,aFont,aShapeColor);
+  AddToCollection(Result);
+end;
+
 
 function TKMControlsCollection.AddTextEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMTextEdit;
 begin
