@@ -593,7 +593,8 @@ begin
 
     Panel_Color := MyControls.AddPanel(Panel_Player,0,28,196,400);
       Label_Color := MyControls.AddLabel(Panel_Color,100,10,100,30,'Colors',fnt_Outline,kaCenter);
-      ColorSwatch_Color := MyControls.AddColorSwatch(Panel_Color, 8, 30, 16, 16);
+      MyControls.AddBevel(Panel_Color,8,30,180,210);
+      ColorSwatch_Color := MyControls.AddColorSwatch(Panel_Color, 10, 32, 16, 16);
       ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
 
@@ -797,6 +798,9 @@ begin
   //Set player colors
   for i:=1 to MAX_PLAYERS do
     Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].PlayerColor;
+
+  if MyPlayer <> nil then
+    Button_PlayerSelect[byte(MyPlayer.PlayerID)].Down := true;
 end;
                   
 

@@ -913,14 +913,15 @@ begin
 
   Columns := aColumns;
   Rows := aRows;
-  CellSize := 12;
+  CellSize := 11;
 
   Width := Columns*CellSize;
   Height := Rows*CellSize;
 
   setlength(Colors, Columns*Rows);
-  for i:=0 to Columns-1 do
-  for k:=0 to Rows-1 do
+  for i:=0 to Rows-1 do
+  for k:=0 to Columns-1 do
+  if i*Columns+k<=255 then
     Colors[i*Columns+k] := $FF000000 OR (
                             Pal[2, i*Columns+k+1, 1] +
                             Pal[2, i*Columns+k+1, 2] shl 8 +
@@ -950,8 +951,9 @@ procedure TKMColorSwatch.Paint();
 var i,k:integer;
 begin
   Inherited;
-  for i:=0 to Columns-1 do
-  for k:=0 to Rows-1 do
+  for i:=0 to Rows-1 do
+  for k:=0 to Columns-1 do
+  if i*Columns+k<=255 then
     fRenderUI.WriteLayer(Left+k*CellSize, Top+i*CellSize, CellSize, CellSize, Colors[i*Columns+k], $00);
 
   //fRenderUI.WriteLayer(Left, Top+Rows*CellSize, CellSize, CellSize, Colors[SelectedColor], $00);
