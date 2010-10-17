@@ -132,10 +132,10 @@ type TKMapEdInterface = class
     procedure SwitchPage(Sender: TObject);
     procedure DisplayHint(Sender: TObject);
     procedure Minimap_Update(Sender: TObject);
-    procedure Global_PlayerSelect(Sender: TObject);
-    procedure TerrainHeight_Change(Sender: TObject);
-    procedure TerrainTiles_Change(Sender: TObject);
-    procedure TerrainObjects_Change(Sender: TObject);
+    procedure Player_ChangeActive(Sender: TObject);
+    procedure Terrain_HeightChange(Sender: TObject);
+    procedure Terrain_TilesChange(Sender: TObject);
+    procedure Terrain_ObjectsChange(Sender: TObject);
     procedure Build_ButtonClick(Sender: TObject);
     procedure Unit_ButtonClick(Sender: TObject);
     procedure Barracks_Fill(Sender:TObject);
@@ -148,11 +148,12 @@ type TKMapEdInterface = class
     procedure Store_SelectWare(Sender:TObject);
     procedure Store_EditWareCount(Sender:TObject; AButton:TMouseButton);
     procedure Player_ColorClick(Sender:TObject);
-    procedure AlliancesChange(Sender:TObject);
+    procedure Mission_AlliancesChange(Sender:TObject);
   public
     MyControls: TKMControlsCollection;
     constructor Create;
     destructor Destroy; override;
+    procedure Player_UpdateColors;
     procedure SetScreenSize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
@@ -213,23 +214,23 @@ begin
     Panel_Terrain.Show;
     Panel_Heights.Show;
     Label_MenuTitle.Caption:='Terrain - Heights';
-    TerrainHeight_Change(HeightCircle); //Select the default mode
+    Terrain_HeightChange(HeightCircle); //Select the default mode
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[3]) then begin
     Panel_Terrain.Show;
     Panel_Tiles.Show;
     Label_MenuTitle.Caption:='Terrain - Tiles';
-    TerrainTiles_Change(TilesScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
-    TerrainTiles_Change(TilesTable[1]);
+    Terrain_TilesChange(TilesScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
+    Terrain_TilesChange(TilesTable[1]);
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[4]) then begin
     Panel_Terrain.Show;
     Panel_Objects.Show;
     Label_MenuTitle.Caption:='Terrain - Objects';
-    TerrainObjects_Change(ObjectsScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
-    TerrainObjects_Change(ObjectsTable[1]);
+    Terrain_ObjectsChange(ObjectsScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
+    Terrain_ObjectsChange(ObjectsTable[1]);
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[1]) then begin
@@ -264,11 +265,11 @@ begin
     Label_MenuTitle.Caption:='Player - Color';
   end else
 
-  if (Sender = Button_Main[4])or(Sender = Button_Player[1]) then begin
-    Panel_Player.Show;
+  if (Sender = Button_Main[4])or(Sender = Button_Mission[1]) then begin
+    Panel_Mission.Show;
     Panel_Alliances.Show;
-    Label_MenuTitle.Caption:='Player - Alliances';
-    AlliancesChange(nil);
+    Label_MenuTitle.Caption:='Mission - Alliances';
+    Mission_AlliancesChange(nil);
   end else
 
   if (Sender=Button_Main[5]) or
@@ -374,7 +375,7 @@ begin
       Button_PlayerSelect[i]         := MyControls.AddFlatButtonShape(Panel_Main, 8 + (i-1)*23, 220, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[i].CapOffsetY := -3;
       Button_PlayerSelect[i].Tag     := i;
-      Button_PlayerSelect[i].OnClick := Global_PlayerSelect;
+      Button_PlayerSelect[i].OnClick := Player_ChangeActive;
     end;
 
     KMMinimap:=MyControls.AddMinimap(Panel_Main,10,10,176,176);
@@ -467,26 +468,26 @@ begin
       HeightSize   := MyControls.AddRatioRow(Panel_Heights, 8, 10, 100, 20, 1, 12);
       HeightCircle := MyControls.AddButtonFlat(Panel_Heights, 114, 8, 24, 24, 359);
       HeightSquare := MyControls.AddButtonFlat(Panel_Heights, 142, 8, 24, 24, 352);
-      HeightSize.OnChange   := TerrainHeight_Change;
-      HeightCircle.OnClick  := TerrainHeight_Change;
-      HeightSquare.OnClick  := TerrainHeight_Change;
+      HeightSize.OnChange   := Terrain_HeightChange;
+      HeightCircle.OnClick  := Terrain_HeightChange;
+      HeightSquare.OnClick  := Terrain_HeightChange;
 
     Panel_Tiles := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
       TilesRandom := MyControls.AddCheckBox(Panel_Tiles, 8, 4, 100, 20, 'Random Direction', fnt_Metal);
       TilesRandom.Checked := true;
-      TilesRandom.OnClick := TerrainTiles_Change;
+      TilesRandom.OnClick := Terrain_TilesChange;
       //todo: Allow user to select exact direction
       TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 30 + 4 + MAPED_TILES_ROWS * 32, 180, 20, sa_Horizontal);
       TilesScroll.MinValue := 0;
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
       TilesScroll.Position := 0;
-      TilesScroll.OnChange := TerrainTiles_Change;
+      TilesScroll.OnChange := Terrain_TilesChange;
       for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
         //@Krom: I have an idea: Lets make the terrain tiles be an RX number, so say RX=10 means load the ID as a terrain tile ID.
         //       Even though it's not an RX, this special case method would involve less changes to the code. (buttons have no reason to render tiles in other situations)
         TilesTable[(i-1)*MAPED_TILES_ROWS+k] := MyControls.AddButtonFlat(Panel_Tiles,8+(i-1)*32,30+(k-1)*32,32,32,((i-1)*MAPED_TILES_ROWS+k)mod 8+2); //2..9
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (i-1)*MAPED_TILES_ROWS+k; //Store ID
-        TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := TerrainTiles_Change;
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
       end;
 
@@ -495,7 +496,7 @@ begin
       ObjectsScroll.MinValue := 1;
       ObjectsScroll.MaxValue := ActualMapElemQty div 2;
       ObjectsScroll.Position := 1;
-      ObjectsScroll.OnChange := TerrainObjects_Change;
+      ObjectsScroll.OnChange := Terrain_ObjectsChange;
       ObjectErase := MyControls.AddButtonFlat(Panel_Objects, 8, 8,32,32,340);
       ObjectsTable[1] := MyControls.AddButtonFlat(Panel_Objects, 8, 40,90,110,1,1); //RXid=1  // 1 2
       ObjectsTable[2] := MyControls.AddButtonFlat(Panel_Objects, 8,150,90,110,1,1); //RXid=1  // 3 4
@@ -503,11 +504,11 @@ begin
       ObjectsTable[4] := MyControls.AddButtonFlat(Panel_Objects,98,150,90,110,1,1); //RXid=1
       for i:=1 to 4 do begin
         ObjectsTable[i].Tag := i; //Store ID
-        ObjectsTable[i].OnClick := TerrainObjects_Change;
+        ObjectsTable[i].OnClick := Terrain_ObjectsChange;
         ObjectsTable[i].OnMouseWheel := ObjectsScroll.MouseWheel;
       end;
       ObjectErase.Tag := 255; //no object
-      ObjectErase.OnClick := TerrainObjects_Change;
+      ObjectErase.OnClick := Terrain_ObjectsChange;
 end;
 
 {Build page}
@@ -584,7 +585,7 @@ var i:integer;
 begin
   Panel_Player := MyControls.AddPanel(Panel_Main,0,428,196,28);
     Button_Player[1] := MyControls.AddButton(Panel_Player,   8, 4, 36, 24, 41);
-    Button_Player[2] := MyControls.AddButton(Panel_Player,  48, 4, 36, 24, 460);
+    Button_Player[2] := MyControls.AddButton(Panel_Player,  48, 4, 36, 24, 382);
     for i:=1 to 2 do Button_Player[i].OnClick := SwitchPage;
 
     Panel_Goals := MyControls.AddPanel(Panel_Player,0,28,196,400);
@@ -601,8 +602,8 @@ procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:integer;
 begin
   Panel_Mission := MyControls.AddPanel(Panel_Main,0,428,196,28);
-    Button_Player[1] := MyControls.AddButton(Panel_Mission,   8, 4, 36, 24, 41);
-    for i:=1 to 1 do Button_Player[i].OnClick := SwitchPage;
+    Button_Mission[1] := MyControls.AddButton(Panel_Mission,   8, 4, 36, 24, 41);
+    for i:=1 to 1 do Button_Mission[i].OnClick := SwitchPage;
 
     Panel_Alliances := MyControls.AddPanel(Panel_Mission,0,28,196,400);
       Label_Alliances := MyControls.AddLabel(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
@@ -612,12 +613,12 @@ begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
           CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 12+k*20, 10+i*20, 20, 20, '', fnt_Metal);
           CheckBox_Alliances[i,k].Tag := (i-1)*MAX_PLAYERS + (k-1);
-          CheckBox_Alliances[i,k].OnClick := AlliancesChange;
+          CheckBox_Alliances[i,k].OnClick := Mission_AlliancesChange;
         end;
       end;
       CheckBox_AlliancesSym := MyControls.AddCheckBox(Panel_Alliances, 32, 10+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
-      CheckBox_AlliancesSym.OnClick := AlliancesChange;
+      CheckBox_AlliancesSym.OnClick := Mission_AlliancesChange;
 end;
 
 
@@ -787,10 +788,19 @@ procedure TKMapEdInterface.UpdateState;
 begin
   Minimap_Update(nil); //Even this Update could be excluded from MapEd interface
 end;
+                  
 
+{ Anything we should do after mission is loaded }
+procedure TKMapEdInterface.Player_UpdateColors;
+var i:integer;
+begin
+  //Set player colors
+  for i:=1 to MAX_PLAYERS do
+    Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].PlayerColor;
+end;
+                  
 
-
-procedure TKMapEdInterface.Global_PlayerSelect(Sender: TObject);
+procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 var i:integer;
 begin
   for i:=1 to MAX_PLAYERS do
@@ -800,10 +810,13 @@ begin
     MyPlayer := fPlayers.Player[TKMControl(Sender).Tag];
     Button_PlayerSelect[TKMControl(Sender).Tag].Down := true;
   end;
+
+  ShownHouse := nil; //Drop selection
+  ShownUnit := nil;
 end;
 
 
-procedure TKMapEdInterface.TerrainHeight_Change(Sender: TObject);
+procedure TKMapEdInterface.Terrain_HeightChange(Sender: TObject);
 begin
   if Sender = HeightCircle then
   begin
@@ -826,7 +839,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.TerrainTiles_Change(Sender: TObject);
+procedure TKMapEdInterface.Terrain_TilesChange(Sender: TObject);
 var i,k:integer;
 begin
   if Sender = TilesRandom then
@@ -854,7 +867,7 @@ begin
 end;
 
 
-procedure TKMapEdInterface.TerrainObjects_Change(Sender: TObject);
+procedure TKMapEdInterface.Terrain_ObjectsChange(Sender: TObject);
 var i,ObjID:integer;
 begin
   for i:=1 to 4 do
@@ -1259,10 +1272,11 @@ procedure TKMapEdInterface.Player_ColorClick(Sender:TObject);
 begin
   if not (Sender = ColorSwatch_Color) then exit;
   MyPlayer.PlayerColor := ColorSwatch_Color.GetColor;
+  Player_UpdateColors;
 end;
 
 
-procedure TKMapEdInterface.AlliancesChange(Sender:TObject);
+procedure TKMapEdInterface.Mission_AlliancesChange(Sender:TObject);
 var i,k:integer;
 begin
   if Sender = CheckBox_AlliancesSym then begin

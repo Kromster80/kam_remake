@@ -985,6 +985,7 @@ begin
     fGameName := 'New Mission';
   end;
 
+  fMapEditorInterface.Player_UpdateColors();
   fPlayers.AfterMissionInit(false);
 
   for i:=1 to MAX_PLAYERS do //Reveal all players since we'll swap between them in MapEd
