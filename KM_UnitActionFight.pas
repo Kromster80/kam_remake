@@ -3,7 +3,7 @@ unit KM_UnitActionFight;
 interface
 uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, KM_Units;
 
-type TFightType = (ft_Melee, ft_Ranged); //Dunno if we really need it?
+
 
 {Fight until we die or the opponent dies}
 type

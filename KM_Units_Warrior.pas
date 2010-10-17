@@ -55,6 +55,7 @@ type //Possibly melee warrior class? with Archer class separate?
 
     property RequestedFood:boolean write fRequestedFood; //Cleared by Serf delivering food
     property GetWarriorState: TWarriorState read fState;
+    function GetFightType():TFightType;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property Foe:TKMUnitWarrior read GetFoe write SetFoe;
@@ -493,6 +494,12 @@ begin
     fFoe := nil;
   end;
   Result := fFoe;
+end;
+
+
+function TKMUnitWarrior.GetFightType():TFightType;
+begin
+  Result := WarriorFightType[fUnitType];
 end;
 
 

@@ -348,6 +348,24 @@ type
     ut_Crab=35,         ut_Waterflower=36,  ut_Waterleaf=37,    ut_Duck=38);
 
 
+//Used to separate close-combat units from archers (they use different fighting logic)
+type TFightType = (ft_Melee=0, ft_Ranged);
+
+const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
+    ft_Melee,ft_Melee,ft_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
+    ft_Ranged,ft_Ranged,        //ut_Bowman, ut_Arbaletman
+    ft_Melee,ft_Melee,  //ut_Pikeman, ut_Hallebardman,
+    ft_Melee,ft_Melee,      //ut_HorseScout, ut_Cavalry,
+    ft_Melee                    //ut_Barbarian
+    //TPR Army
+    {ft_Melee,        //ut_Peasant
+    ft_Ranged,           //ut_Slingshot
+    ft_Melee,            //ut_MetalBarbarian
+    ft_Melee,          //ut_Horseman
+    ft_Ranged,ft_Ranged, //ut_Catapult, ut_Ballista,}
+    );
+
+
 //Used for AI defence and linking troops
 type TGroupType = (gt_None=0,gt_Melee,gt_AntiHorse,gt_Ranged,gt_Mounted);
 
@@ -405,7 +423,7 @@ type TProjectileType = (pt_Arrow=1, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
 
 const //Corresponding indices in units.rx
   ProjectileBounds:array[TProjectileType,1..2] of word = (
-  (1,1),(1,1),(4186,4190)
+  (4186,4190),(4186,4190),(4186,4190)
   );
 
 type

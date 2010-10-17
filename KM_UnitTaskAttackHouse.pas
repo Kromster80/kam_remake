@@ -1,20 +1,20 @@
 unit KM_UnitTaskAttackHouse;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KromUtils, SysUtils;
-
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units, KM_Units_Warrior, KromUtils, SysUtils;
 
 {Attack a house}
 type
-    TTaskAttackHouse = class(TUnitTask)
+  TTaskAttackHouse = class(TUnitTask)
     private
       fHouse:TKMHouse;
       fDestroyingHouse:boolean;
+      fFightType:TFightType;
       LocID:byte; //Current attack location
       Cells:TKMPointDirList; //List of surrounding cells and directions
       function PosUsed(aPos: TKMPoint):boolean;
     public
-      constructor Create(aWarrior: TKMUnit; aHouse:TKMHouse);
+      constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
@@ -26,21 +26,24 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain;
+uses KM_Game, KM_PlayersCollection, KM_Terrain;
 
 
 { TTaskAttackHouse }
-constructor TTaskAttackHouse.Create(aWarrior: TKMUnit; aHouse:TKMHouse);
+constructor TTaskAttackHouse.Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
 begin
   Inherited Create(aWarrior);
   fTaskName := utn_AttackHouse;
-
-  fLog.AssertToLog(aHouse<>nil, 'Trying to attack NIL house?');
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;
+  fFightType := aWarrior.GetFightType;
   LocID  := 0;
   Cells  := TKMPointDirList.Create; //Pass pre-made list to make sure we Free it in the same unit
-  fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability);
+  case fFightType of
+    ft_Melee: fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability)
+    ft_Ranged: fHouse.GetListOfCellsWithin(Cells);
+    else Assert(false, 'Unknown FightType');
+  end;
 end;
 
 
@@ -139,27 +142,45 @@ begin
   with fUnit do
   case fPhase of
   0: begin
-       //Choose location and walk to it (will be different if we are a ranged unit)
-       LocID := PickRandomSpot();
-       if LocID = 0 then
-       begin
-         //All cells are taken/inaccessable
-         Result := TaskDone;
-         exit;
+       if GetUnitType in [ut_Bowman, ut_Arbaletman] then begin
+         //todo: approach house
+         SetActionStay(0,ua_Walk);
+       end else begin
+         //Choose location and walk to it (will be different if we are a ranged unit)
+         LocID := PickRandomSpot();
+         if LocID = 0 then
+         begin
+           //All cells are taken/inaccessable
+           Result := TaskDone;
+           exit;
+         end;
+         SetActionWalk(Cells.List[LocID].Loc);
+         fDestroyingHouse := false;
        end;
-       SetActionWalk(Cells.List[LocID].Loc);
-       fDestroyingHouse := false;
      end;
   1: begin
-       SetActionStay(6,ua_Work,false,0,0); //Start animation
-       Direction := TKMDirection(Cells.List[LocID].Dir); //Face target
-       fDestroyingHouse := true;
+       if GetUnitType in [ut_Bowman, ut_Arbaletman] then begin
+         SetActionStay(6,ua_Work,false,0,0); //Start animation
+         Direction := KMGetDirection(fHouse.GetEntrance, GetPosition); //Look at house
+         fDestroyingHouse := true;
+       end else begin
+         SetActionStay(6,ua_Work,false,0,0); //Start animation
+         Direction := TKMDirection(Cells.List[LocID].Dir); //Face target
+         fDestroyingHouse := true;
+       end;
      end;
   2: begin
-       SetActionStay(6,ua_Work,false,0,6); //Pause for next attack
-       fHouse.AddDamage(2); //All melee units do 2 damage per strike
-       //Bowmen/crossbowmen do 1 damage per shot and occasionally miss altogether
-       fPhase := 0; //Do another hit (will be 1 after inc below)
+       if GetUnitType in [ut_Bowman, ut_Arbaletman] then begin
+         SetActionStay(6,ua_Work,false,0,12); //Pause for next attack
+         fGame.fProjectiles.AddItem(PositionF, KMPointF(fHouse.GetEntrance), pt_Arrow);   //Release arrow/bolt
+         fHouse.AddDamage(1); //All melee units do 2 damage per strike
+         fPhase := 0; //Do another hit (will be 1 after inc below)
+       end else begin
+         SetActionStay(6,ua_Work,false,0,6); //Pause for next attack
+         fHouse.AddDamage(2); //All melee units do 2 damage per strike
+         //Bowmen/crossbowmen do 1 damage per shot and occasionally miss altogether
+         fPhase := 0; //Do another hit (will be 1 after inc below)
+       end;
      end;
   end;
 
