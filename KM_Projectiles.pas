@@ -38,7 +38,7 @@ type
 
 
 implementation
-uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Units, KM_Terrain;
+uses KM_Sound, KM_Render, KM_PlayersCollection, KM_Houses, KM_Units, KM_Terrain;
 
 
 { TMissionSettings }
@@ -95,7 +95,7 @@ end;
 
 //Update all items positions and kill some targets
 procedure TKMProjectiles.UpdateState;
-var i:integer; U:TKMUnit;
+var i:integer; U:TKMUnit; H:TKMHouse;
 begin
   for i:=1 to length(fItems)-1 do
     if fItems[i].fSpeed <> 0 then
@@ -104,9 +104,23 @@ begin
 
       if fItems[i].fPosition >= fItems[i].fLength then begin
         fItems[i].fSpeed := 0; //remove projectile
+
         U := fPlayers.UnitsHitTestF(fItems[i].fTargetJ);
-        if U <> nil then
-          U.KillUnit;
+
+        case fItems[i].fProjType of
+          pt_Arrow,
+          pt_Bolt:      begin
+                          if U <> nil then
+                            U.HitPointsDecrease(1)
+                          else begin
+                            H := fPlayers.HousesHitTest(round(fItems[i].fTargetJ.X), round(fItems[i].fTargetJ.Y));
+                            if H <> nil then H.AddDamage(1);
+                          end;
+                        end;
+
+          pt_TowerRock: if U <> nil then U.KillUnit;
+        end;
+
       end;
     end;
 end;

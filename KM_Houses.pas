@@ -480,9 +480,14 @@ end;
 
 //todo: Make this function to return list of cells within a house (used by archers) Dir is not important?
 procedure TKMHouse.GetListOfCellsWithin(Cells:TKMPointDirList);
+var i,k:integer; Loc:TKMPoint;
 begin
   Cells.Clearup;
-  Cells.AddEntry(KMPointDir(GetEntrance,byte(dir_N)));
+  Loc := fPosition;
+
+  for i:=max(Loc.Y-3,1) to Loc.Y do for k:=max(Loc.X-2,1) to min(Loc.X+1,fTerrain.MapX) do
+  if HousePlanYX[byte(fHouseType),i-Loc.Y+4,k-Loc.X+3]<>0 then
+    Cells.AddEntry(KMPointDir(k,i,0));
 end;
 
 

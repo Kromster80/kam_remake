@@ -111,7 +111,7 @@ function TTaskAttackHouse.Execute():TTaskResult;
     begin
       MyCount := 0;
       for i:=1 to Cells.Count do
-      if fTerrain.TileInMapCoords(Cells.List[i].Loc.X,Cells.List[i].Loc.Y) and (not PosUsed(Cells.List[i].Loc)) then //Is someone else is using it
+      if not PosUsed(Cells.List[i].Loc) then //Is someone else is using it
       if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc ,fUnit.GetDesiredPassability, true) then
       begin
         inc(MyCount);
@@ -158,28 +158,31 @@ begin
          fDestroyingHouse := false;
        end;
      end;
-  1: begin
+  1: if fFightType=ft_Ranged then begin
+       SetActionStay(Random(8),ua_Work,true); //Pretend to aim
+       Direction := KMGetDirection(fHouse.GetEntrance, GetPosition); //Look at house
+     end else
+       SetActionStay(0,ua_Work,false);
+  2: begin
        if fFightType=ft_Ranged then begin
-         SetActionStay(6,ua_Work,false,0,0); //Start animation
-         Direction := KMGetDirection(fHouse.GetEntrance, GetPosition); //Look at house
+         SetActionStay(4,ua_Work,false,0,0); //Start shooting
          fDestroyingHouse := true;
        end else begin
-         SetActionStay(6,ua_Work,false,0,0); //Start animation
+         SetActionStay(6,ua_Work,false,0,0); //Start the hit
          Direction := TKMDirection(Cells.List[LocID].Dir); //Face target
          fDestroyingHouse := true;
        end;
      end;
-  2: begin
-       if fFightType=ft_Ranged then begin
-         SetActionStay(6,ua_Work,false,0,12); //Pause for next attack
-         fGame.fProjectiles.AddItem(PositionF, KMPointF(Cells.List[1].Loc), pt_Arrow);   //Release arrow/bolt
-         fHouse.AddDamage(1); //All melee units do 2 damage per strike
-         fPhase := 0; //Do another hit (will be 1 after inc below)
+  3: begin
+       if fFightType=ft_Ranged then begin //Launch the missile and forget about it
+         fGame.fProjectiles.AddItem(PositionF, KMPointF(Cells.GetRandom.Loc), pt_Arrow); //Release arrow/bolt
+         SetActionStay(24,ua_Work,false,0,4); //Reload for next attack
+         //Bowmen/crossbowmen do 1 damage per shot and occasionally miss altogether
+         fPhase := 0; //Go for another hit (will be 1 after inc below)
        end else begin
          SetActionStay(6,ua_Work,false,0,6); //Pause for next attack
          fHouse.AddDamage(2); //All melee units do 2 damage per strike
-         //Bowmen/crossbowmen do 1 damage per shot and occasionally miss altogether
-         fPhase := 0; //Do another hit (will be 1 after inc below)
+         fPhase := 1; //Go for another hit (will be 2 after inc below)
        end;
      end;
   end;
