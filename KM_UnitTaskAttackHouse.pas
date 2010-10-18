@@ -40,7 +40,7 @@ begin
   LocID  := 0;
   Cells  := TKMPointDirList.Create; //Pass pre-made list to make sure we Free it in the same unit
   case fFightType of
-    ft_Melee: fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability)
+    ft_Melee: fHouse.GetListOfCellsAround(Cells, aWarrior.GetDesiredPassability);
     ft_Ranged: fHouse.GetListOfCellsWithin(Cells);
     else Assert(false, 'Unknown FightType');
   end;
@@ -142,7 +142,7 @@ begin
   with fUnit do
   case fPhase of
   0: begin
-       if GetUnitType in [ut_Bowman, ut_Arbaletman] then begin
+       if fFightType=ft_Ranged then begin
          //todo: approach house
          SetActionStay(0,ua_Walk);
        end else begin
@@ -159,7 +159,7 @@ begin
        end;
      end;
   1: begin
-       if GetUnitType in [ut_Bowman, ut_Arbaletman] then begin
+       if fFightType=ft_Ranged then begin
          SetActionStay(6,ua_Work,false,0,0); //Start animation
          Direction := KMGetDirection(fHouse.GetEntrance, GetPosition); //Look at house
          fDestroyingHouse := true;
@@ -170,9 +170,9 @@ begin
        end;
      end;
   2: begin
-       if GetUnitType in [ut_Bowman, ut_Arbaletman] then begin
+       if fFightType=ft_Ranged then begin
          SetActionStay(6,ua_Work,false,0,12); //Pause for next attack
-         fGame.fProjectiles.AddItem(PositionF, KMPointF(fHouse.GetEntrance), pt_Arrow);   //Release arrow/bolt
+         fGame.fProjectiles.AddItem(PositionF, KMPointF(Cells.List[1].Loc), pt_Arrow);   //Release arrow/bolt
          fHouse.AddDamage(1); //All melee units do 2 damage per strike
          fPhase := 0; //Do another hit (will be 1 after inc below)
        end else begin

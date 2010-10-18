@@ -81,6 +81,7 @@ type
     procedure SetPosition(aPos:TKMPoint); //Used by map editor
     function GetEntrance:TKMPoint;
     procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
+    procedure GetListOfCellsWithin(Cells:TKMPointDirList);
     function HitTest(X, Y: Integer): Boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
@@ -453,7 +454,7 @@ var
   begin
     //First check that the passabilty is correct, as the house may be placed against blocked terrain
     if not fTerrain.CheckPassability(KMPoint(X,Y),aPassability) then exit;
-    Cells.AddEntry(KMPointDir(KMPoint(X,Y),word(Dir)));
+    Cells.AddEntry(KMPointDir(KMPoint(X,Y),byte(Dir)));
   end;
 
 begin
@@ -474,6 +475,14 @@ begin
     if (k=1)or(HousePlanYX[ht,i,k-1]=0) then
       AddLoc(Loc.X + k - 3 - 1, Loc.Y + i - 4, dir_E); //FromLeft
   end;
+end;
+
+
+//todo: Make this function to return list of cells within a house (used by archers) Dir is not important?
+procedure TKMHouse.GetListOfCellsWithin(Cells:TKMPointDirList);
+begin
+  Cells.Clearup;
+  Cells.AddEntry(KMPointDir(GetEntrance,byte(dir_N)));
 end;
 
 

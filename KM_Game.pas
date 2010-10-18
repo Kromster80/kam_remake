@@ -1281,7 +1281,7 @@ begin
                               fTerrain.MapEdHeight(GameCursor.Float, GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);
                     cm_Tiles:
                               if (ssLeft in GameCursor.SState) then
-                              fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.Tag2*RandomRange(0,3));
+                              fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.Tag2*Random(4));
                   end;
                 end;
   end;
