@@ -125,6 +125,8 @@ const //Here we store options that are hidden somewhere in code
   RANGE_STONECUTTER = 14;
   RANGE_FISHERMAN   = 12;
 
+  RANGE_ARBALETMAN  = 8; //+1 to Tower range
+  RANGE_BOWMAN      = 8;
   RANGE_WATCHTOWER  = 7;
 
 type
