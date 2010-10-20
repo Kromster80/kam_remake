@@ -2,7 +2,7 @@ unit KM_LoadLib;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, SysUtils, KromUtils;
+  Classes, SysUtils, StrUtils, KromUtils;
 
 const
   MaxStrings = 610; //Text.lib has the most entries - 590, but Russian font file has StrCount=609
