@@ -126,12 +126,15 @@ begin
   end;
 end;
 
+
+{LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
 procedure TTextLibrary.LoadLIBXFile(FilePath:string; var aArray:array of string);
 var
   aStringList:TStringList;
-  i:integer; s:string;
+  i:integer;
+  s:string;
   firstDelimiter:integer;
-  stringIdentifier:integer;
+  ID:integer;
 begin
   if not CheckFileExists(FilePath) then exit;
 
@@ -144,21 +147,22 @@ begin
 
     firstDelimiter := Pos(':',s);
     if firstDelimiter=0 then continue;
+    
+    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), ID) then continue;
 
-    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), stringIdentifier) then continue;
-
-    if stringIdentifier <= MaxStrings then
+    if ID <= MaxStrings then
     begin
       s := RightStr(s, Length(s)-firstDelimiter);
-      s := StringReplace(s, '\b', #8, [rfReplaceAll, rfIgnoreCase]);
-      s := StringReplace(s, '\t', #9, [rfReplaceAll, rfIgnoreCase]);
-      s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]);
-      s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]);
-
-      aArray[stringIdentifier] := s;
+      //Required characters that can't be stored in plain text
+      s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
+      s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
+      aArray[ID] := s;
     end;
   end;
+
+  aStringList.Free; //Must free at last to avoid memory-leaks
 end;
+
 
 function TTextLibrary.GetTextString(aIndex:word):string;
 begin
@@ -171,10 +175,12 @@ begin
   if aIndex <= MaxStrings then Result := SetupStrings[aIndex] else Result := '~~~SetupString out of range!~~~';
 end;
 
+
 function TTextLibrary.GetRemakeString(aIndex:word):string;
 begin
   if aIndex <= MaxStrings then Result := RemakeStrings[aIndex] else Result := '~~~RemakeString out of range!~~~';
 end;
+
 
 procedure TTextLibrary.ExportTextLibrary(var aLibrary: array of string; aFileName:string);
 var
