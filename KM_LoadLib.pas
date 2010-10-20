@@ -17,14 +17,14 @@ const
 
 type
   TTextLibrary = class(TObject)
-  private     { Private declarations }
+  private
     TextStrings: array[0..MaxStrings] of string;
     SetupStrings: array[0..MaxStrings] of string;
     RemakeStrings: array[0..MaxStrings] of string;
     procedure LoadLIBFile(FilePath:string; var aArray:array of string);
     procedure LoadLIBXFile(FilePath:string; var aArray:array of string);
     procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
-  public      { Public declarations } 
+  public
     constructor Create(aLibPath, aLocale: string);
     function GetTextString(aIndex:word):string;
     function GetSetupString(aIndex:word):string;
@@ -134,7 +134,7 @@ var
   i:integer;
   s:string;
   firstDelimiter:integer;
-  ID:integer;
+  id:integer;
 begin
   if not CheckFileExists(FilePath) then exit;
 
@@ -145,10 +145,10 @@ begin
   begin
     s := aStringList[i];
 
-    firstDelimiter := Pos(':',s);
+    firstDelimiter := Pos(':', s);
     if firstDelimiter=0 then continue;
     
-    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), ID) then continue;
+    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), id) then continue;
 
     if ID <= MaxStrings then
     begin
@@ -156,7 +156,7 @@ begin
       //Required characters that can't be stored in plain text
       s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
       s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
-      aArray[ID] := s;
+      aArray[id] := s;
     end;
   end;
 
