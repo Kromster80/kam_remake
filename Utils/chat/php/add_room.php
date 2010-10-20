@@ -1,15 +1,12 @@
 ﻿<?php
-    include "clean_users.php";
-
-    echo "Add user";
+    echo "Add room ";
     $mysqli = new mysqli("localhost", "assoft_user", "assoft_user0", "assoft");
     
-     if($stmt = $mysqli ->prepare("CALL add_user(?, ?, ?)"))
+     if($stmt = $mysqli ->prepare("CALL add_room(?, ?)"))
      {
-        $u1 = $_POST['name'];
-        $u2 = $_POST['password'];
-        $u3 = $_POST['ip'];
-        $stmt->bind_param('sss', $u1, $u2, $u3);
+        $u1 = $_POST['host_name'];
+        $u2 = $_POST['room_name'];
+        $stmt->bind_param('ss', $u1, $u2);
         if (!$stmt->execute())
         {
           echo "  fail:   ";
