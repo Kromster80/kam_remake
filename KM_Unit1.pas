@@ -189,9 +189,7 @@ begin
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then
   begin
-    Application.MessageBox(PChar(
-        'Old OpenGL version detected, game may run slowly and/or with graphic flaws'+eol+
-        'Please update your graphic drivers to get better performance'),
+    Application.MessageBox(PChar(fTextLibrary.GetRemakeString(53)),
         'Warning', MB_OK or MB_ICONWARNING);
   end;
   Timer100ms.Interval := fGame.fGlobalSettings.GetPace; //FormLoading gets hidden OnTimer event

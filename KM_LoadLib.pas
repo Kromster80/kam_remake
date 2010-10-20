@@ -19,13 +19,16 @@ type
   TTextLibrary = class(TObject)
   private     { Private declarations }
     TextStrings: array[0..MaxStrings] of string;
-    SetupStrings: array[0..MaxStrings] of string;  
+    SetupStrings: array[0..MaxStrings] of string;
+    RemakeStrings: array[0..MaxStrings] of string;
     procedure LoadLIBFile(FilePath:string; var aArray:array of string);
+    procedure LoadLIBXFile(FilePath:string; var aArray:array of string);
     procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
   public      { Public declarations } 
     constructor Create(aLibPath, aLocale: string);
     function GetTextString(aIndex:word):string;
     function GetSetupString(aIndex:word):string;
+    function GetRemakeString(aIndex:word):string;
     procedure ExportTextLibraries;
 end;
 
@@ -40,6 +43,7 @@ uses KM_Defaults, KM_CommonTypes;
 constructor TTextLibrary.Create(aLibPath,aLocale: string);
 begin
   inherited Create;
+
   if FileExists(aLibPath+'text.'+aLocale+'.lib') then
     LoadLIBFile(aLibPath+'text.'+aLocale+'.lib', TextStrings)
   else
@@ -48,6 +52,10 @@ begin
     LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib', SetupStrings)
   else
     LoadLIBFile(aLibPath+'setup.lib', SetupStrings);
+  if FileExists(aLibPath+'remake.'+aLocale+'.libx') then
+    LoadLIBXFile(aLibPath+'remake.'+aLocale+'.libx', RemakeStrings)
+  else
+    LoadLIBXFile(aLibPath+'remake.eng.libx', RemakeStrings);
 
   fLog.AppendLog('TextLib init done');
 end;
@@ -116,15 +124,41 @@ begin
       LastWasFF := false;
     end;
   end;
-
-  //todo: remake.lib with new Remake's strings.
-  //Use it for things that are likely to become perminate. (not just debugging stuff)
-  //Maybe it will be hardcoded until we export it to LIB.
-  //fTextLibrary.GetRemakeString(*)
-  //RemakeStrings[1]:='Activity';
-  //etc.. use longer gaps between groups to allow to add new entries into appropriate groups like KaM does
 end;
 
+procedure TTextLibrary.LoadLIBXFile(FilePath:string; var aArray:array of string);
+var
+  aStringList:TStringList;
+  i:integer; s:string;
+  firstDelimiter:integer;
+  stringIdentifier:integer;
+begin
+  if not CheckFileExists(FilePath) then exit;
+
+  aStringList := TStringList.Create;
+  aStringList.LoadFromFile(FilePath);
+
+  for i:=0 to aStringList.Count-1 do
+  begin
+    s := aStringList[i];
+
+    firstDelimiter := Pos(':',s);
+    if firstDelimiter=0 then continue;
+
+    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), stringIdentifier) then continue;
+
+    if stringIdentifier <= MaxStrings then
+    begin
+      s := RightStr(s, Length(s)-firstDelimiter);
+      s := StringReplace(s, '\b', #8, [rfReplaceAll, rfIgnoreCase]);
+      s := StringReplace(s, '\t', #9, [rfReplaceAll, rfIgnoreCase]);
+      s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]);
+      s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]);
+
+      aArray[stringIdentifier] := s;
+    end;
+  end;
+end;
 
 function TTextLibrary.GetTextString(aIndex:word):string;
 begin
@@ -137,6 +171,10 @@ begin
   if aIndex <= MaxStrings then Result := SetupStrings[aIndex] else Result := '~~~SetupString out of range!~~~';
 end;
 
+function TTextLibrary.GetRemakeString(aIndex:word):string;
+begin
+  if aIndex <= MaxStrings then Result := RemakeStrings[aIndex] else Result := '~~~RemakeString out of range!~~~';
+end;
 
 procedure TTextLibrary.ExportTextLibrary(var aLibrary: array of string; aFileName:string);
 var

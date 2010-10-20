@@ -2057,19 +2057,19 @@ begin
   PlayMoreMsg := Msg;
   case Msg of
     gr_Win:       begin
-                    Label_PlayMore.Caption := 'You''ve won!';
-                    Button_PlayMore.Caption := 'Continue playing';
-                    Button_PlayQuit.Caption := 'Victory!';
+                    Label_PlayMore.Caption := fTextLibrary.GetRemakeString(39);
+                    Button_PlayMore.Caption := fTextLibrary.GetRemakeString(40);
+                    Button_PlayQuit.Caption := fTextLibrary.GetRemakeString(41);
                   end;
     gr_Defeat:    begin
-                    Label_PlayMore.Caption := 'You''ve lost!';
-                    Button_PlayMore.Caption := 'Continue watching';
-                    Button_PlayQuit.Caption := 'Defeat';
+                    Label_PlayMore.Caption := fTextLibrary.GetRemakeString(42);
+                    Button_PlayMore.Caption := fTextLibrary.GetRemakeString(43);
+                    Button_PlayQuit.Caption := fTextLibrary.GetRemakeString(44);
                   end;
     gr_ReplayEnd: begin
-                    Label_PlayMore.Caption := 'Replay has ended';
-                    Button_PlayMore.Caption := 'Continue watching';
-                    Button_PlayQuit.Caption := 'Quit to menu';
+                    Label_PlayMore.Caption := fTextLibrary.GetRemakeString(45);
+                    Button_PlayMore.Caption := fTextLibrary.GetRemakeString(46);
+                    Button_PlayQuit.Caption := fTextLibrary.GetRemakeString(47);
                   end;
     else if DoShow then Assert(false,'Wrong message in ShowPlayMore'); //Can become hidden with any message
   end;

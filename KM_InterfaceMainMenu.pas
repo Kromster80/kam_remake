@@ -273,7 +273,7 @@ begin
   case Msg of
     gr_Win:    Label_Results_Result.Caption := fTextLibrary.GetSetupString(111);
     gr_Defeat: Label_Results_Result.Caption := fTextLibrary.GetSetupString(112);
-    gr_Cancel: Label_Results_Result.Caption := 'Mission canceled';
+    gr_Cancel: Label_Results_Result.Caption := fTextLibrary.GetRemakeString(1);
     else       Label_Results_Result.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
   end;
 
@@ -313,9 +313,9 @@ begin
     with MyControls.AddImage(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,337,290,350,400);
-      Button_MainMenuSinglePlayer := MyControls.AddButton(Panel_MainButtons,0,  0,350,30,'Single Player',fnt_Metal,bsMenu);
+      Button_MainMenuSinglePlayer := MyControls.AddButton(Panel_MainButtons,0,  0,350,30,fTextLibrary.GetRemakeString(4),fnt_Metal,bsMenu);
       Button_MainMenuMultiPlayer  := MyControls.AddButton(Panel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
-      Button_MainMenuMapEd        := MyControls.AddButton(Panel_MainButtons,0, 80,350,30,'Map Editor',fnt_Metal,bsMenu);
+      Button_MainMenuMapEd        := MyControls.AddButton(Panel_MainButtons,0, 80,350,30,fTextLibrary.GetRemakeString(5),fnt_Metal,bsMenu);
       Button_MainMenuOptions      := MyControls.AddButton(Panel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
       Button_MainMenuCredits      := MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
       Button_MainMenuQuit         := MyControls.AddButton(Panel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
@@ -341,13 +341,13 @@ begin
     with MyControls.AddImage(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_SinglePlayerButtons:=MyControls.AddPanel(Panel_SinglePlayer,337,290,350,400);
-      Button_SinglePlayerTutor  :=MyControls.AddButton(Panel_SinglePlayerButtons,0,  0,350,30,'Town Tutorial',fnt_Metal,bsMenu);
-      Button_SinglePlayerFight  :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 40,350,30,'Battle Tutorial',fnt_Metal,bsMenu);
+      Button_SinglePlayerTutor  :=MyControls.AddButton(Panel_SinglePlayerButtons,0,  0,350,30,fTextLibrary.GetRemakeString(2),fnt_Metal,bsMenu);
+      Button_SinglePlayerFight  :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 40,350,30,fTextLibrary.GetRemakeString(3),fnt_Metal,bsMenu);
       Button_SinglePlayerTSK    :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
       Button_SinglePlayerTPR    :=MyControls.AddButton(Panel_SinglePlayerButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
       Button_SinglePlayerSingle :=MyControls.AddButton(Panel_SinglePlayerButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
       Button_SinglePlayerLoad   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
-      Button_SinglePlayerReplay :=MyControls.AddButton(Panel_SinglePlayerButtons,0,240,350,30,'View last replay',fnt_Metal,bsMenu);
+      Button_SinglePlayerReplay :=MyControls.AddButton(Panel_SinglePlayerButtons,0,240,350,30,fTextLibrary.GetRemakeString(13),fnt_Metal,bsMenu);
       Button_SinglePlayerBack   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,320,350,30,fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
 
       Button_SinglePlayerTutor.OnClick    := MainMenu_PlayTutorial;
@@ -368,8 +368,8 @@ begin
     with MyControls.AddImage(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_MultiPlayerButtons:=MyControls.AddPanel(Panel_MultiPlayer,155,280,350,400);
-      Button_MultiPlayerLAN  :=MyControls.AddButton(Panel_MultiPlayerButtons,0,  0,350,30,'Play over LAN',fnt_Metal,bsMenu);
-      Button_MultiPlayerWWW  :=MyControls.AddButton(Panel_MultiPlayerButtons,0, 40,350,30,'Play over Internet',fnt_Metal,bsMenu);
+      Button_MultiPlayerLAN  :=MyControls.AddButton(Panel_MultiPlayerButtons,0,  0,350,30,fTextLibrary.GetRemakeString(7),fnt_Metal,bsMenu);
+      Button_MultiPlayerWWW  :=MyControls.AddButton(Panel_MultiPlayerButtons,0, 40,350,30,fTextLibrary.GetRemakeString(8),fnt_Metal,bsMenu);
       Button_MultiPlayerLAN.Disable;
       Button_MultiPlayerLAN.OnClick      := SwitchMenuPage;
       Button_MultiPlayerWWW.OnClick      := SwitchMenuPage;
@@ -385,13 +385,13 @@ begin
     with MyControls.AddImage(Panel_WWWLogin,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
 
     Panel_WWWLogin2 := MyControls.AddPanel(Panel_WWWLogin,312,280,400,400);
-      MyControls.AddLabel(Panel_WWWLogin2, 108, 0, 100, 20, 'Login', fnt_Outline, kaLeft);
+      MyControls.AddLabel(Panel_WWWLogin2, 108, 0, 100, 20, fTextLibrary.GetRemakeString(9), fnt_Outline, kaLeft);
       Edit_Login := MyControls.AddTextEdit(Panel_WWWLogin2,100,20,200,20,fnt_Grey);
       Edit_Login.Text := '';
-      MyControls.AddLabel(Panel_WWWLogin2, 108, 50, 100, 20, 'Password', fnt_Outline, kaLeft);
+      MyControls.AddLabel(Panel_WWWLogin2, 108, 50, 100, 20, fTextLibrary.GetRemakeString(10), fnt_Outline, kaLeft);
       Edit_Pass  := MyControls.AddTextEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey,true);
       Edit_Pass.Text := '';
-      Button_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, 'Login', fnt_Metal, bsMenu);
+      Button_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, fTextLibrary.GetRemakeString(11), fnt_Metal, bsMenu);
       Button_Login.OnClick := MultiPlayerLoginQuery;
 
       Label_Status := MyControls.AddLabel(Panel_WWWLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
@@ -424,7 +424,7 @@ begin
     Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 20, 65, 320, 310, '', fnt_Briefing, kaLeft);
     Label_CampaignText.AutoWrap := true;
 
-  Button_CampaignStart := MyControls.AddButton(Panel_Campaign, ScreenX-220-20, ScreenY-50, 220, 30, 'Start mission', fnt_Metal, bsMenu);
+  Button_CampaignStart := MyControls.AddButton(Panel_Campaign, ScreenX-220-20, ScreenY-50, 220, 30, fTextLibrary.GetRemakeString(11), fnt_Metal, bsMenu);
   Button_CampaignStart.OnClick := Campaign_StartMap;
 
   Button_CampaignBack := MyControls.AddButton(Panel_Campaign, 20, ScreenY-50, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
@@ -448,8 +448,8 @@ begin
 
       Button_SingleHeadMode  := MyControls.AddButton(Panel_SingleList,  0,0, 40,40,42,4,bsMenu);
       Button_SingleHeadTeams := MyControls.AddButton(Panel_SingleList, 40,0, 40,40,31,4,bsMenu);
-      Button_SingleHeadTitle := MyControls.AddButton(Panel_SingleList, 80,0,300,40,'Title',fnt_Metal,bsMenu);
-      Button_SingleHeadSize  := MyControls.AddButton(Panel_SingleList,380,0, 40,40,'Size',fnt_Metal,bsMenu);
+      Button_SingleHeadTitle := MyControls.AddButton(Panel_SingleList, 80,0,300,40,fTextLibrary.GetRemakeString(12),fnt_Metal,bsMenu);
+      Button_SingleHeadSize  := MyControls.AddButton(Panel_SingleList,380,0, 40,40,fTextLibrary.GetRemakeString(13),fnt_Metal,bsMenu);
       with MyControls.AddButton(Panel_SingleList,420,0, 25,40,'',fnt_Metal,bsMenu) do Disable;
 
       for i:=1 to MENU_SP_MAPS_COUNT do
@@ -493,15 +493,15 @@ begin
       MyControls.AddBevel(Panel_SingleDesc,125,230,192,192);
 
       MyControls.AddBevel(Panel_SingleDesc,0,428,445,20);
-      Label_SingleCondTyp:=MyControls.AddLabel(Panel_SingleDesc,8,431,445,20,'Mission type: ',fnt_Metal, kaLeft);
+      Label_SingleCondTyp:=MyControls.AddLabel(Panel_SingleDesc,8,431,445,20,fTextLibrary.GetRemakeString(14),fnt_Metal, kaLeft);
       MyControls.AddBevel(Panel_SingleDesc,0,450,445,20);
-      Label_SingleCondWin:=MyControls.AddLabel(Panel_SingleDesc,8,453,445,20,'Win condition: ',fnt_Metal, kaLeft);
+      Label_SingleCondWin:=MyControls.AddLabel(Panel_SingleDesc,8,453,445,20,fTextLibrary.GetRemakeString(15),fnt_Metal, kaLeft);
       MyControls.AddBevel(Panel_SingleDesc,0,472,445,20);
-      Label_SingleCondDef:=MyControls.AddLabel(Panel_SingleDesc,8,475,445,20,'Defeat condition: ',fnt_Metal, kaLeft);
+      Label_SingleCondDef:=MyControls.AddLabel(Panel_SingleDesc,8,475,445,20,fTextLibrary.GetRemakeString(16),fnt_Metal, kaLeft);
       MyControls.AddBevel(Panel_SingleDesc,0,494,445,20);
-      Label_SingleAllies:=MyControls.AddLabel(Panel_SingleDesc,8,497,445,20,'Allies: ',fnt_Metal, kaLeft);
+      Label_SingleAllies:=MyControls.AddLabel(Panel_SingleDesc,8,497,445,20,fTextLibrary.GetRemakeString(17),fnt_Metal, kaLeft);
       MyControls.AddBevel(Panel_SingleDesc,0,516,445,20);
-      Label_SingleEnemies:=MyControls.AddLabel(Panel_SingleDesc,8,519,445,20,'Enemies: ',fnt_Metal, kaLeft);
+      Label_SingleEnemies:=MyControls.AddLabel(Panel_SingleDesc,8,519,445,20,fTextLibrary.GetRemakeString(18),fnt_Metal, kaLeft);
 
     Button_SingleBack := MyControls.AddButton(Panel_Single, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_SingleBack.OnClick := SwitchMenuPage;
@@ -520,7 +520,7 @@ begin
 
     for i:=1 to SAVEGAME_COUNT do
     begin
-      Button_Load[i] := MyControls.AddButton(Panel_Load,337,110+i*40,350,30,'Slot '+inttostr(i),fnt_Metal, bsMenu);
+      Button_Load[i] := MyControls.AddButton(Panel_Load,337,110+i*40,350,30,fTextLibrary.GetRemakeString(19)+inttostr(i),fnt_Metal, bsMenu);
       Button_Load[i].Tag := i; //To simplify usage
       Button_Load[i].OnClick := Load_Click;
     end;
@@ -539,10 +539,10 @@ begin
     //Should contain options to make a map from scratch, load map from file, generate new one
 
     Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 462-210, 200, 200, 300);
-      MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, 'New map size', fnt_Outline, kaLeft);
+      MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, fTextLibrary.GetRemakeString(20), fnt_Outline, kaLeft);
       MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 40 + MAPSIZES_COUNT*20);
-      MyControls.AddLabel(Panel_MapEd_SizeXY, 8, 27, 100, 30, 'Width', fnt_Outline, kaLeft);
-      MyControls.AddLabel(Panel_MapEd_SizeXY, 108, 27, 100, 30, 'Height', fnt_Outline, kaLeft);
+      MyControls.AddLabel(Panel_MapEd_SizeXY, 8, 27, 100, 30, fTextLibrary.GetRemakeString(21), fnt_Outline, kaLeft);
+      MyControls.AddLabel(Panel_MapEd_SizeXY, 108, 27, 100, 30, fTextLibrary.GetRemakeString(22), fnt_Outline, kaLeft);
       for i:=1 to MAPSIZES_COUNT do
       begin
         CheckBox_MapEd_SizeX[i] := MyControls.AddCheckBox(Panel_MapEd_SizeXY, 8, 52+(i-1)*20, 100, 30, inttostr(MapSize[i]),fnt_Metal);
@@ -550,13 +550,13 @@ begin
         CheckBox_MapEd_SizeX[i].OnClick := MapEditor_Change;
         CheckBox_MapEd_SizeY[i].OnClick := MapEditor_Change;
       end;
-      Button_MapEd_Create := MyControls.AddButton(Panel_MapEd_SizeXY, 0, 285, 200, 30, 'Create New Map', fnt_Metal, bsMenu);
+      Button_MapEd_Create := MyControls.AddButton(Panel_MapEd_SizeXY, 0, 285, 200, 30, fTextLibrary.GetRemakeString(23), fnt_Metal, bsMenu);
       Button_MapEd_Create.OnClick := MapEditor_Start;
 
     Panel_MapEd_Load := MyControls.AddPanel(Panel_MapEd, 462+10, 200, 300, 300);
-      MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, 'Available maps', fnt_Outline, kaLeft);
+      MyControls.AddLabel(Panel_MapEd_Load, 6, 0, 100, 30, fTextLibrary.GetRemakeString(24), fnt_Outline, kaLeft);
       FileList_MapEd := MyControls.AddFileList(Panel_MapEd_Load, 0, 20, 300, 240);
-      Button_MapEd_Load := MyControls.AddButton(Panel_MapEd_Load, 0, 285, 300, 30, 'Load Existing Map', fnt_Metal, bsMenu);
+      Button_MapEd_Load := MyControls.AddButton(Panel_MapEd_Load, 0, 285, 300, 30, fTextLibrary.GetRemakeString(25), fnt_Metal, bsMenu);
       Button_MapEd_Load.OnClick := MapEditor_Start;
 
     Button_MapEdBack := MyControls.AddButton(Panel_MapEd, 120, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
@@ -572,7 +572,7 @@ begin
     with MyControls.AddImage(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,120,130,200,80);
-      MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,'Controls:',fnt_Outline,kaLeft);
+      MyControls.AddLabel(Panel_Options_Ctrl,6,0,100,30,fTextLibrary.GetRemakeString(26),fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Ctrl,0,20,200,60);
 
       Label_Options_MouseSpeed:=MyControls.AddLabel(Panel_Options_Ctrl,18,27,100,30,fTextLibrary.GetTextString(192),fnt_Metal,kaLeft);
@@ -581,14 +581,14 @@ begin
       Ratio_Options_Mouse.Disable;
 
     Panel_Options_Game:=MyControls.AddPanel(Panel_Options,120,230,200,50);
-      MyControls.AddLabel(Panel_Options_Game,6,0,100,30,'Gameplay:',fnt_Outline,kaLeft);
+      MyControls.AddLabel(Panel_Options_Game,6,0,100,30,fTextLibrary.GetRemakeString(27),fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Game,0,20,200,30);
 
       CheckBox_Options_Autosave := MyControls.AddCheckBox(Panel_Options_Game,12,27,100,30,fTextLibrary.GetTextString(203), fnt_Metal);
       CheckBox_Options_Autosave.OnClick := Options_Change;
 
     Panel_Options_Sound:=MyControls.AddPanel(Panel_Options,120,300,200,130);
-      MyControls.AddLabel(Panel_Options_Sound,6,0,100,30,'Sound:',fnt_Outline,kaLeft);
+      MyControls.AddLabel(Panel_Options_Sound,6,0,100,30,fTextLibrary.GetRemakeString(28),fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Sound,0,20,200,110);
 
       Label_Options_SFX:=MyControls.AddLabel(Panel_Options_Sound,18,27,100,30,fTextLibrary.GetTextString(194),fnt_Metal,kaLeft);
@@ -604,9 +604,9 @@ begin
 
 
     Panel_Options_GFX:=MyControls.AddPanel(Panel_Options,340,130,200,80);
-      MyControls.AddLabel(Panel_Options_GFX,6,0,100,30,'Graphics:',fnt_Outline,kaLeft);
+      MyControls.AddLabel(Panel_Options_GFX,6,0,100,30,fTextLibrary.GetRemakeString(29),fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_GFX,0,20,200,60);
-      MyControls.AddLabel(Panel_Options_GFX,18,27,100,30,'Brightness',fnt_Metal,kaLeft);
+      MyControls.AddLabel(Panel_Options_GFX,18,27,100,30,fTextLibrary.GetRemakeString(30),fnt_Metal,kaLeft);
       Ratio_Options_Brightness:=MyControls.AddRatioRow(Panel_Options_GFX,10,47,180,20,aGameSettings.GetSlidersMin,aGameSettings.GetSlidersMax);
       Ratio_Options_Brightness.OnChange:=Options_Change;
 
@@ -621,16 +621,16 @@ begin
         CheckBox_Options_Resolution[i].OnClick:=Options_Change;
       end;
 
-      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,100,30,'Fullscreen',fnt_Metal);
+      CheckBox_Options_FullScreen:=MyControls.AddCheckBox(Panel_Options_Res,12,38+RESOLUTION_COUNT*20,100,30,fTextLibrary.GetRemakeString(31),fnt_Metal);
       CheckBox_Options_FullScreen.OnClick:=Options_Change;
 
-      Button_Options_ResApply:=MyControls.AddButton(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,'Apply',fnt_Metal, bsMenu);
+      Button_Options_ResApply:=MyControls.AddButton(Panel_Options_Res,10,58+RESOLUTION_COUNT*20,180,30,fTextLibrary.GetRemakeString(32),fnt_Metal, bsMenu);
       Button_Options_ResApply.OnClick:=Options_Change;
       Button_Options_ResApply.Disable;
 
 
     Panel_Options_Lang:=MyControls.AddPanel(Panel_Options,560,130,200,30+LOCALES_COUNT*20);
-      MyControls.AddLabel(Panel_Options_Lang,6,0,100,30,'Language:',fnt_Outline,kaLeft);
+      MyControls.AddLabel(Panel_Options_Lang,6,0,100,30,fTextLibrary.GetRemakeString(33),fnt_Outline,kaLeft);
       MyControls.AddBevel(Panel_Options_Lang,0,20,200,10+LOCALES_COUNT*20);
 
       for i:=1 to LOCALES_COUNT do
@@ -679,7 +679,7 @@ procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   Panel_Loading:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     with MyControls.AddImage(Panel_Loading,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
-    MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,'Loading... Please wait',fnt_Outline,kaCenter);
+    MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,fTextLibrary.GetRemakeString(34),fnt_Outline,kaCenter);
     Label_Loading:=MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
 end;
 
@@ -688,7 +688,7 @@ procedure TKMMainMenuInterface.Create_Error_Page;
 begin
   Panel_Error := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     with MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
-    MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,'An Error Has Occured!',fnt_Antiqua,kaCenter);
+    MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,fTextLibrary.GetRemakeString(35),fnt_Antiqua,kaCenter);
     Label_Error := MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack := MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_ErrorBack.OnClick := SwitchMenuPage;
@@ -999,9 +999,9 @@ begin
     Label_SingleTitle.Caption := SingleMapsInfo.GetFolder(SingleMap_Selected);
     Label_SingleDesc.Caption  := SingleMapsInfo.GetBigDesc(SingleMap_Selected);
 
-    Label_SingleCondTyp.Caption := 'Mission type: '+SingleMapsInfo.GetTyp(SingleMap_Selected);
-    Label_SingleCondWin.Caption := 'Win condition: ';//+SingleMapsInfo.GetWin(SingleMap_Selected);
-    Label_SingleCondDef.Caption := 'Defeat condition: ';//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
+    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(36)+SingleMapsInfo.GetTyp(SingleMap_Selected);
+    Label_SingleCondWin.Caption := fTextLibrary.GetRemakeString(37);//+SingleMapsInfo.GetWin(SingleMap_Selected);
+    Label_SingleCondDef.Caption := fTextLibrary.GetRemakeString(38);//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
   end;
 end;
 

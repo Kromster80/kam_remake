@@ -1,0 +1,69 @@
+KM_InterfaceMainMenu
+ 1:Mission canceled
+ 2:Town Tutorial
+ 3:Battle Tutorial
+ 4:Single Player
+ 5:Map Editor
+ 6:View last replay
+ 7:Play over LAN
+ 8:Play over Internet
+ 9:Login
+10:Password
+11:Start Mission
+12:Title
+13:Size
+14:Mission Type: 
+15:Win condition: 
+16:Defeat condition: 
+17:Allies: 
+18:Enemies: 
+19:Slot 
+20:New map size
+21:Width
+22:Height
+23:Create New Map
+24:Available maps
+25:Load Existing Map
+26:Controls:
+27:Gameplay:
+28:Sound:
+29:Graphics:
+30:Brightness
+31:Fullscreen
+32:Applay
+33:Language
+34:Loading... Please wait
+35:An Error Has Occured!
+36:Mission type: 
+37:Win condition: 
+38:Defeat condition:
+
+KM_InterfaceGamePlay
+39:You've won!
+40:Continue playing
+41:Victory!
+42:You've lost!
+43:Continue watching
+44:Defeat
+45:Replay has ended
+46:Continue watching
+47:Quit to menu
+
+KM_Game
+48:An error has occoured during gameplay. 
+49:Please send the files save99.bas, save99.sav and save99.rpl from your KaM Remake\\Save folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing? 
+
+KM_Units
+50:Mining from wrong spot
+51:Your fisherman's hut is too far away from the water.
+52:Your fisherman cannot catch any further fish in the nearby water bodies.
+
+KM_Unit1
+53:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
+
+KM_InterfaceMapEditor
+54:Terrain editing
+55:Village planning
+56:Visual scripts
+57:Global scripting
+58:Menu

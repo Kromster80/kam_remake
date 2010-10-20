@@ -840,11 +840,9 @@ begin
     fTerrain.Land[aLoc.Y, aLoc.X].IsUnit := 128;
 
   if MessageDlg(
-  '  An error has occoured during gameplay. '+UpperCase(aText)+eol+
-  '  Please send the files save99.bas, save99.sav and save99.rpl from your KaM Remake\Save folder to the developers. '+
-  'Contact details can be found in the Readme file. Thank you very much for your kind help!'+eol+eol+
-  '  WARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?'
-  , mtWarning, [mbYes, mbNo], 0) <> mrYes then
+    fTextLibrary.GetRemakeString(48)+UpperCase(aText)+eol+fTextLibrary.GetRemakeString(49)
+    , mtWarning, [mbYes, mbNo], 0) <> mrYes then
+
     GameStop(gr_Error,'') //Exit to main menu will save the Replay data
   else
     if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then

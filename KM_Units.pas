@@ -422,7 +422,7 @@ begin
   end;
 
   if not KMSamePoint(GetPosition, fHome.GetEntrance) then
-    fGame.GameError(GetPosition, 'Mining from wrong spot');
+    fGame.GameError(GetPosition, fTextLibrary.GetRemakeString(50));
 
   WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
@@ -433,9 +433,9 @@ begin
   begin
     //todo: Put these messages into LIB file (use one from original KaM once final has been decided on for SR3 which has changed this message)
     if not fTerrain.CanFindFishingWater(KMPointY1(fHome.GetEntrance),RANGE_FISHERMAN) then
-      fGame.fGamePlayInterface.MessageIssue(msgHouse,'Your fisherman''s hut is too far away from the water.', fHome.GetEntrance)
+      fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetRemakeString(51), fHome.GetEntrance)
     else
-      fGame.fGamePlayInterface.MessageIssue(msgHouse,'Your fisherman cannot catch any further fish in the nearby water bodies.', fHome.GetEntrance);
+      fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetRemakeString(52), fHome.GetEntrance);
     fHome.ResourceDepletedMsgIssued := true;
   end
   else

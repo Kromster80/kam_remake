@@ -387,11 +387,11 @@ begin
     Button_Main[3] := MyControls.AddButton(Panel_Main,  88, 372, 36, 36,  41);
     Button_Main[4] := MyControls.AddButton(Panel_Main, 128, 372, 36, 36, 441);
     Button_Main[5] := MyControls.AddButton(Panel_Main, 168, 372, 36, 36, 389);
-    Button_Main[1].Hint := 'Terrain editing';
-    Button_Main[2].Hint := 'Village planning';
-    Button_Main[3].Hint := 'Visual scripts';
-    Button_Main[4].Hint := 'Global scripting';
-    Button_Main[5].Hint := 'Menu';
+    Button_Main[1].Hint := fTextLibrary.GetRemakeString(54);
+    Button_Main[2].Hint := fTextLibrary.GetRemakeString(55);
+    Button_Main[3].Hint := fTextLibrary.GetRemakeString(56);
+    Button_Main[4].Hint := fTextLibrary.GetRemakeString(57);
+    Button_Main[5].Hint := fTextLibrary.GetRemakeString(58);
     //Button_Main[i].Hint := fTextLibrary.GetTextString(160+i);
     for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
 
