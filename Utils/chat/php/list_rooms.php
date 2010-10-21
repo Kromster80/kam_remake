@@ -1,4 +1,4 @@
-<?php
+﻿<?php
     echo "Get rooms list  ";
     $mysqli = new mysqli("localhost", "assoft_user", "assoft_user0", "assoft");
     
@@ -11,12 +11,12 @@
          echo '<br>ErrorCode = '.$mysqli->errno; 
         }
                     
-    	$stmt->bind_result($col1, $col2); 
+        $stmt->bind_result($col1, $col2); 
 
-	echo '<p>';
-        printf("%s %s\n", 'host name', 'root_name');                             	
+        echo '<p>';
+        printf("%s %s\n", 'host name', 'root_name');                                    
         echo '</p>';        
-    	while ($stmt->fetch()) {            
+        while ($stmt->fetch()) {            
           echo  $col1.','. $col2.'<br>';
        }                            
         
