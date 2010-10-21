@@ -4,11 +4,12 @@ interface
 uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  KM_Controls, KM_Defaults, Windows, KM_Settings, KM_MapInfo;
+  KM_Controls, KM_Defaults, Windows, KM_Settings, KM_MapInfo, KM_Lobby;
 
 
 type TKMMainMenuInterface = class
   private
+    fLobby:TKMLobby;
     ScreenX,ScreenY:word;
 
     Campaign_Selected:TCampaign;
@@ -22,45 +23,44 @@ type TKMMainMenuInterface = class
     OldResolution:word;
   protected
     Panel_Main:TKMPanel;
-      L:array[1..20]of TKMLabel;
-      FL:TKMFileList;
-    Panel_MainMenu:TKMPanel;
-      Panel_MainButtons:TKMPanel;
-      Button_MainMenuSinglePlayer,
-      Button_MainMenuMultiPlayer,
-      Button_MainMenuMapEd,
-      Button_MainMenuOptions,
-      Button_MainMenuCredits,
-      Button_MainMenuQuit:TKMButton;
       Label_Version:TKMLabel;
+    Panel_MainMenu:TKMPanel;
+      Panel_MMButtons:TKMPanel;
+      Button_MM_SinglePlayer,
+      Button_MM_MultiPlayer,
+      Button_MM_MapEd,
+      Button_MM_Options,
+      Button_MM_Credits,
+      Button_MM_Quit:TKMButton;
     Panel_SinglePlayer:TKMPanel;
-      Panel_SinglePlayerButtons:TKMPanel;
-      Button_SinglePlayerTutor,
-      Button_SinglePlayerFight,
-      Button_SinglePlayerTSK,
-      Button_SinglePlayerTPR,
-      Button_SinglePlayerSingle,
-      Button_SinglePlayerLoad,
-      Button_SinglePlayerReplay:TKMButton;
-      Button_SinglePlayerBack:TKMButton;
+      Panel_SPButtons:TKMPanel;
+      Button_SP_Tutor,
+      Button_SP_Fight,
+      Button_SP_TSK,
+      Button_SP_TPR,
+      Button_SP_Single,
+      Button_SP_Load,
+      Button_SP_Replay:TKMButton;
+      Button_SP_Back:TKMButton;
     Panel_MultiPlayer:TKMPanel;
-      Panel_MultiPlayerButtons:TKMPanel;
-      Button_MultiPlayerLAN,
-      Button_MultiPlayerWWW,
-      Button_MultiPlayerBack:TKMButton;
+      Panel_MPButtons:TKMPanel;
+      Button_MP_LAN,
+      Button_MP_WWW,
+      Button_MP_Back:TKMButton;
 
     Panel_WWWLogin:TKMPanel;
       Panel_WWWLogin2:TKMPanel;
-        Edit_Login:TKMTextEdit;
-        Edit_Pass:TKMTextEdit;
-        Button_Login:TKMButton;
-        Label_Status:TKMLabel;
+        Edit_WWW_Login:TKMTextEdit;
+        Edit_WWW_Pass:TKMTextEdit;
+        Label_WWW_IP:TKMLabel;
+        Button_WWW_Login:TKMButton;
+        Label_WWW_Status:TKMLabel;
 
-      Button_WWWLoginBack:TKMButton;
+      Button_WWW_LoginBack:TKMButton;
 
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
-      Campaign_Nodes:array[1..MAX_MAPS] of TKMImage;
+      Image_CampaignNodes:array[1..MAX_MAPS] of TKMImage;
       Panel_CampScroll:TKMPanel;
         Image_ScrollTop,Image_Scroll:TKMImage;
         Label_CampaignTitle,Label_CampaignText:TKMLabel;
@@ -147,7 +147,8 @@ type TKMMainMenuInterface = class
     procedure SingleMap_ScrollChange(Sender: TObject);
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
-    procedure MultiPlayerLoginQuery(Sender: TObject);
+    procedure MultiPlayer_ShowLogin();
+    procedure MultiPlayer_LoginQuery(Sender: TObject);
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList();
     procedure MapEditor_Start(Sender: TObject);
@@ -264,7 +265,7 @@ end;
 
 procedure TKMMainMenuInterface.ShowScreen_Options();
 begin
-  SwitchMenuPage(Button_MainMenuOptions);
+  SwitchMenuPage(Button_MM_Options);
 end;
 
 
@@ -312,22 +313,22 @@ begin
     with MyControls.AddImage(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with MyControls.AddImage(Panel_MainMenu,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    Panel_MainButtons:=MyControls.AddPanel(Panel_MainMenu,337,290,350,400);
-      Button_MainMenuSinglePlayer := MyControls.AddButton(Panel_MainButtons,0,  0,350,30,fTextLibrary.GetRemakeString(4),fnt_Metal,bsMenu);
-      Button_MainMenuMultiPlayer  := MyControls.AddButton(Panel_MainButtons,0, 40,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
-      Button_MainMenuMapEd        := MyControls.AddButton(Panel_MainButtons,0, 80,350,30,fTextLibrary.GetRemakeString(5),fnt_Metal,bsMenu);
-      Button_MainMenuOptions      := MyControls.AddButton(Panel_MainButtons,0,120,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
-      Button_MainMenuCredits      := MyControls.AddButton(Panel_MainButtons,0,160,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
-      Button_MainMenuQuit         := MyControls.AddButton(Panel_MainButtons,0,320,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
-      Button_MainMenuSinglePlayer.OnClick    := SwitchMenuPage;
-      Button_MainMenuMultiPlayer.OnClick     := SwitchMenuPage;
-      Button_MainMenuMapEd.OnClick    := SwitchMenuPage;
-      Button_MainMenuOptions.OnClick  := SwitchMenuPage;
-      Button_MainMenuCredits.OnClick  := SwitchMenuPage;
-      Button_MainMenuQuit.OnClick     := Form1.Exit1.OnClick;
+    Panel_MMButtons:=MyControls.AddPanel(Panel_MainMenu,337,290,350,400);
+      Button_MM_SinglePlayer := MyControls.AddButton(Panel_MMButtons,0,  0,350,30,fTextLibrary.GetRemakeString(4),fnt_Metal,bsMenu);
+      Button_MM_MultiPlayer  := MyControls.AddButton(Panel_MMButtons,0, 40,350,30,fTextLibrary.GetSetupString(11),fnt_Metal,bsMenu);
+      Button_MM_MapEd        := MyControls.AddButton(Panel_MMButtons,0, 80,350,30,fTextLibrary.GetRemakeString(5),fnt_Metal,bsMenu);
+      Button_MM_Options      := MyControls.AddButton(Panel_MMButtons,0,120,350,30,fTextLibrary.GetSetupString(12),fnt_Metal,bsMenu);
+      Button_MM_Credits      := MyControls.AddButton(Panel_MMButtons,0,160,350,30,fTextLibrary.GetSetupString(13),fnt_Metal,bsMenu);
+      Button_MM_Quit         := MyControls.AddButton(Panel_MMButtons,0,320,350,30,fTextLibrary.GetSetupString(14),fnt_Metal,bsMenu);
+      Button_MM_SinglePlayer.OnClick := SwitchMenuPage;
+      Button_MM_MultiPlayer.OnClick  := SwitchMenuPage;
+      Button_MM_MapEd.OnClick        := SwitchMenuPage;
+      Button_MM_Options.OnClick      := SwitchMenuPage;
+      Button_MM_Credits.OnClick      := SwitchMenuPage;
+      Button_MM_Quit.OnClick         := Form1.Exit1.OnClick;
 
-      Button_MainMenuMapEd.Visible := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
-      Button_MainMenuMultiPlayer.Enabled :=  ENABLE_MP_IN_MENU
+      Button_MM_MapEd.Visible := SHOW_MAPED_IN_MENU; //Let it be created, but hidden, I guess there's no need to seriously block it
+      Button_MM_MultiPlayer.Enabled :=  ENABLE_MP_IN_MENU
 end;
 
 
@@ -340,24 +341,24 @@ begin
     with MyControls.AddImage(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
     with MyControls.AddImage(Panel_SinglePlayer,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    Panel_SinglePlayerButtons:=MyControls.AddPanel(Panel_SinglePlayer,337,290,350,400);
-      Button_SinglePlayerTutor  :=MyControls.AddButton(Panel_SinglePlayerButtons,0,  0,350,30,fTextLibrary.GetRemakeString(2),fnt_Metal,bsMenu);
-      Button_SinglePlayerFight  :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 40,350,30,fTextLibrary.GetRemakeString(3),fnt_Metal,bsMenu);
-      Button_SinglePlayerTSK    :=MyControls.AddButton(Panel_SinglePlayerButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
-      Button_SinglePlayerTPR    :=MyControls.AddButton(Panel_SinglePlayerButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
-      Button_SinglePlayerSingle :=MyControls.AddButton(Panel_SinglePlayerButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
-      Button_SinglePlayerLoad   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
-      Button_SinglePlayerReplay :=MyControls.AddButton(Panel_SinglePlayerButtons,0,240,350,30,fTextLibrary.GetRemakeString(13),fnt_Metal,bsMenu);
-      Button_SinglePlayerBack   :=MyControls.AddButton(Panel_SinglePlayerButtons,0,320,350,30,fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Panel_SPButtons:=MyControls.AddPanel(Panel_SinglePlayer,337,290,350,400);
+      Button_SP_Tutor  :=MyControls.AddButton(Panel_SPButtons,0,  0,350,30,fTextLibrary.GetRemakeString(2),fnt_Metal,bsMenu);
+      Button_SP_Fight  :=MyControls.AddButton(Panel_SPButtons,0, 40,350,30,fTextLibrary.GetRemakeString(3),fnt_Metal,bsMenu);
+      Button_SP_TSK    :=MyControls.AddButton(Panel_SPButtons,0, 80,350,30,fTextLibrary.GetSetupString( 1),fnt_Metal,bsMenu);
+      Button_SP_TPR    :=MyControls.AddButton(Panel_SPButtons,0,120,350,30,fTextLibrary.GetSetupString( 2),fnt_Metal,bsMenu);
+      Button_SP_Single :=MyControls.AddButton(Panel_SPButtons,0,160,350,30,fTextLibrary.GetSetupString( 4),fnt_Metal,bsMenu);
+      Button_SP_Load   :=MyControls.AddButton(Panel_SPButtons,0,200,350,30,fTextLibrary.GetSetupString(10),fnt_Metal,bsMenu);
+      Button_SP_Replay :=MyControls.AddButton(Panel_SPButtons,0,240,350,30,fTextLibrary.GetRemakeString(6),fnt_Metal,bsMenu);
+      Button_SP_Back   :=MyControls.AddButton(Panel_SPButtons,0,320,350,30,fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
 
-      Button_SinglePlayerTutor.OnClick    := MainMenu_PlayTutorial;
-      Button_SinglePlayerFight.OnClick    := MainMenu_PlayBattle;
-      Button_SinglePlayerTSK.OnClick      := SwitchMenuPage;
-      Button_SinglePlayerTPR.OnClick      := SwitchMenuPage;
-      Button_SinglePlayerSingle.OnClick   := SwitchMenuPage;
-      Button_SinglePlayerLoad.OnClick     := SwitchMenuPage;
-      Button_SinglePlayerReplay.OnClick   := fGame.ReplayView;
-      Button_SinglePlayerBack.OnClick     := SwitchMenuPage;
+      Button_SP_Tutor.OnClick    := MainMenu_PlayTutorial;
+      Button_SP_Fight.OnClick    := MainMenu_PlayBattle;
+      Button_SP_TSK.OnClick      := SwitchMenuPage;
+      Button_SP_TPR.OnClick      := SwitchMenuPage;
+      Button_SP_Single.OnClick   := SwitchMenuPage;
+      Button_SP_Load.OnClick     := SwitchMenuPage;
+      Button_SP_Replay.OnClick   := fGame.ReplayView;
+      Button_SP_Back.OnClick     := SwitchMenuPage;
 end;
 
 
@@ -367,15 +368,15 @@ begin
     with MyControls.AddImage(Panel_MultiPlayer,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     with MyControls.AddImage(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
-    Panel_MultiPlayerButtons:=MyControls.AddPanel(Panel_MultiPlayer,155,280,350,400);
-      Button_MultiPlayerLAN  :=MyControls.AddButton(Panel_MultiPlayerButtons,0,  0,350,30,fTextLibrary.GetRemakeString(7),fnt_Metal,bsMenu);
-      Button_MultiPlayerWWW  :=MyControls.AddButton(Panel_MultiPlayerButtons,0, 40,350,30,fTextLibrary.GetRemakeString(8),fnt_Metal,bsMenu);
-      Button_MultiPlayerLAN.Disable;
-      Button_MultiPlayerLAN.OnClick      := SwitchMenuPage;
-      Button_MultiPlayerWWW.OnClick      := SwitchMenuPage;
+    Panel_MPButtons:=MyControls.AddPanel(Panel_MultiPlayer,155,280,350,400);
+      Button_MP_LAN  :=MyControls.AddButton(Panel_MPButtons,0,  0,350,30,fTextLibrary.GetRemakeString(7),fnt_Metal,bsMenu);
+      Button_MP_WWW  :=MyControls.AddButton(Panel_MPButtons,0, 40,350,30,fTextLibrary.GetRemakeString(8),fnt_Metal,bsMenu);
+      Button_MP_LAN.Disable;
+      Button_MP_LAN.OnClick      := SwitchMenuPage;
+      Button_MP_WWW.OnClick      := SwitchMenuPage;
 
-    Button_MultiPlayerBack := MyControls.AddButton(Panel_MultiPlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_MultiPlayerBack.OnClick := SwitchMenuPage;
+    Button_MP_Back := MyControls.AddButton(Panel_MultiPlayer, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_MP_Back.OnClick := SwitchMenuPage;
 end;
 
 
@@ -385,19 +386,23 @@ begin
     with MyControls.AddImage(Panel_WWWLogin,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
 
     Panel_WWWLogin2 := MyControls.AddPanel(Panel_WWWLogin,312,280,400,400);
-      MyControls.AddLabel(Panel_WWWLogin2, 108, 0, 100, 20, fTextLibrary.GetRemakeString(9), fnt_Outline, kaLeft);
-      Edit_Login := MyControls.AddTextEdit(Panel_WWWLogin2,100,20,200,20,fnt_Grey);
-      Edit_Login.Text := '';
-      MyControls.AddLabel(Panel_WWWLogin2, 108, 50, 100, 20, fTextLibrary.GetRemakeString(10), fnt_Outline, kaLeft);
-      Edit_Pass  := MyControls.AddTextEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey,true);
-      Edit_Pass.Text := '';
-      Button_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, fTextLibrary.GetRemakeString(11), fnt_Metal, bsMenu);
-      Button_Login.OnClick := MultiPlayerLoginQuery;
 
-      Label_Status := MyControls.AddLabel(Panel_WWWLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
+      MyControls.AddLabel(Panel_WWWLogin2, 200, -50, 100, 20, 'Your IP address is:', fnt_Metal, kaCenter);
+      Label_WWW_IP := MyControls.AddLabel(Panel_WWWLogin2, 200, -25, 100, 20, '0.0.0.0', fnt_Outline, kaCenter);
 
-    Button_WWWLoginBack := MyControls.AddButton(Panel_WWWLogin, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
-    Button_WWWLoginBack.OnClick := SwitchMenuPage;
+      MyControls.AddLabel(Panel_WWWLogin2, 108, 0, 100, 20, fTextLibrary.GetRemakeString(9), fnt_Metal, kaLeft);
+      Edit_WWW_Login := MyControls.AddTextEdit(Panel_WWWLogin2,100,20,200,20,fnt_Grey);
+      Edit_WWW_Login.Text := '';
+      MyControls.AddLabel(Panel_WWWLogin2, 108, 50, 100, 20, fTextLibrary.GetRemakeString(10), fnt_Metal, kaLeft);
+      Edit_WWW_Pass  := MyControls.AddTextEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey,true);
+      Edit_WWW_Pass.Text := '';
+      Button_WWW_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, 'Login', fnt_Metal, bsMenu);
+      Button_WWW_Login.OnClick := MultiPlayer_LoginQuery;
+
+      Label_WWW_Status := MyControls.AddLabel(Panel_WWWLogin2, 200, 140, 100, 20, ' ... ', fnt_Outline, kaCenter);
+
+    Button_WWW_LoginBack := MyControls.AddButton(Panel_WWWLogin, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
+    Button_WWW_LoginBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -408,11 +413,11 @@ begin
     Image_CampaignBG:=MyControls.AddImage(Panel_Campaign,0,0,ScreenX,ScreenY,12,5);
     Image_CampaignBG.ImageStretch;
 
-    for i:=1 to length(Campaign_Nodes) do begin
-      Campaign_Nodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23*2,29*2,10,5);
-      Campaign_Nodes[i].ImageCenter; //I guess it's easier to position them this way
-      Campaign_Nodes[i].OnClick := Campaign_SelectMap;
-      Campaign_Nodes[i].Tag := i;
+    for i:=1 to length(Image_CampaignNodes) do begin
+      Image_CampaignNodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23*2,29*2,10,5);
+      Image_CampaignNodes[i].ImageCenter; //I guess it's easier to position them this way
+      Image_CampaignNodes[i].OnClick := Campaign_SelectMap;
+      Image_CampaignNodes[i].Tag := i;
     end;
 
   Panel_CampScroll:=MyControls.AddPanel(Panel_Campaign,ScreenX-360,ScreenY-397,360,397);
@@ -734,8 +739,8 @@ begin
   if Sender=nil then Panel_MainMenu.Show;
 
   {Return to MainMenu}
-  if (Sender=Button_SinglePlayerBack)or
-     (Sender=Button_MultiPlayerBack)or
+  if (Sender=Button_SP_Back)or
+     (Sender=Button_MP_Back)or
      (Sender=Button_CreditsBack)or
      (Sender=Button_MapEdBack)or
      (Sender=Button_ErrorBack)or
@@ -743,7 +748,7 @@ begin
     Panel_MainMenu.Show;
 
   {Return to MultiPlayerMenu}
-  if (Sender=Button_WWWLoginBack) then
+  if (Sender=Button_WWW_LoginBack) then
     Panel_MultiPlayer.Show;
 
   {Return to MainMenu and restore resolution changes}
@@ -755,28 +760,28 @@ begin
 
   {Show SinglePlayer menu}
   {Return to SinglePlayerMenu}
-  if (Sender=Button_MainMenuSinglePlayer)or
+  if (Sender=Button_MM_SinglePlayer)or
      (Sender=Button_CampaignBack)or
      (Sender=Button_SingleBack)or
      (Sender=Button_LoadBack) then begin
     Panel_SinglePlayer.Show;
-    Button_SinglePlayerReplay.Enabled := fGame.ReplayExists;
+    Button_SP_Replay.Enabled := fGame.ReplayExists;
   end;
 
   {Show TSK campaign menu}
-  if (Sender=Button_SinglePlayerTSK) or ((Sender=Button_ResultsContinue) and (fGame.GetCampaign=cmp_TSK)) then begin
+  if (Sender=Button_SP_TSK) or ((Sender=Button_ResultsContinue) and (fGame.GetCampaign=cmp_TSK)) then begin
     Campaign_Set(cmp_TSK);
     Panel_Campaign.Show;
   end;
 
   {Show TSK campaign menu}
-  if (Sender=Button_SinglePlayerTPR) or ((Sender=Button_ResultsContinue) and (fGame.GetCampaign=cmp_TPR)) then begin
+  if (Sender=Button_SP_TPR) or ((Sender=Button_ResultsContinue) and (fGame.GetCampaign=cmp_TPR)) then begin
     Campaign_Set(cmp_TPR);
     Panel_Campaign.Show;
   end;
 
   {Show SingleMap menu}
-  if Sender=Button_SinglePlayerSingle then begin
+  if Sender=Button_SP_Single then begin
     SingleMap_PopulateList();
     SingleMap_RefreshList();
     SingleMap_SelectMap(Shape_SingleOverlay[1]);
@@ -784,23 +789,24 @@ begin
   end;
 
   {Show Load menu}
-  if Sender=Button_SinglePlayerLoad then begin
+  if Sender=Button_SP_Load then begin
     Load_PopulateList();
     Panel_Load.Show;
   end;
 
   {Show MultiPlayer menu}
-  if Sender=Button_MainMenuMultiPlayer then begin
+  if Sender=Button_MM_MultiPlayer then begin
     Panel_MultiPlayer.Show;
   end;
 
   {Show MultiPlayer menu}
-  if Sender=Button_MultiPlayerWWW then begin
+  if Sender=Button_MP_WWW then begin
+    MultiPlayer_ShowLogin();
     Panel_WWWLogin.Show;
   end;
 
   {Show MapEditor menu}
-  if Sender=Button_MainMenuMapEd then begin
+  if Sender=Button_MM_MapEd then begin
     FileList_MapEd.RefreshList(ExeDir+'Maps\', 'dat', true); //Refresh each time we go here
     if FileList_MapEd.fFiles.Count > 0 then
       FileList_MapEd.ItemIndex := 0; //Select first map by default
@@ -809,7 +815,7 @@ begin
   end;
 
   {Show Options menu}
-  if Sender=Button_MainMenuOptions then begin
+  if Sender=Button_MM_Options then begin
     OldFullScreen := fGame.fGlobalSettings.IsFullScreen;
     OldResolution := fGame.fGlobalSettings.GetResolutionID;
     Options_Change(nil);
@@ -817,7 +823,7 @@ begin
   end;
 
   {Show Credits}
-  if Sender=Button_MainMenuCredits then begin
+  if Sender=Button_MM_Credits then begin
     Panel_Credits.Show;
     Label_Credits.SmoothScrollToTop := TimeGetTime; //Set initial position
   end;
@@ -873,29 +879,29 @@ begin
   end;
 
   //Setup sites
-  for i:=1 to length(Campaign_Nodes) do begin
-    Campaign_Nodes[i].Visible   := i <= Top;
-    Campaign_Nodes[i].TexID     := 10 + byte(i<=Revealed);
-    Campaign_Nodes[i].HighlightOnMouseOver := i <= Revealed;
+  for i:=1 to length(Image_CampaignNodes) do begin
+    Image_CampaignNodes[i].Visible   := i <= Top;
+    Image_CampaignNodes[i].TexID     := 10 + byte(i<=Revealed);
+    Image_CampaignNodes[i].HighlightOnMouseOver := i <= Revealed;
   end;
 
   //Place sites
   for i:=1 to Top do
   case Campaign_Selected of
     cmp_TSK:  begin
-                Campaign_Nodes[i].Left := TSK_Campaign_Maps[i,1];
-                Campaign_Nodes[i].Top  := TSK_Campaign_Maps[i,2];
+                Image_CampaignNodes[i].Left := TSK_Campaign_Maps[i,1];
+                Image_CampaignNodes[i].Top  := TSK_Campaign_Maps[i,2];
               end;
     cmp_TPR:  begin
-                Campaign_Nodes[i].Left := TPR_Campaign_Maps[i,1];
-                Campaign_Nodes[i].Top  := TPR_Campaign_Maps[i,2];
+                Image_CampaignNodes[i].Left := TPR_Campaign_Maps[i,1];
+                Image_CampaignNodes[i].Top  := TPR_Campaign_Maps[i,2];
               end;
   end;
 
   //todo: Place intermediate nodes between previous and selected mission nodes
 
   //Select last map to play by 'clicking' last node
-  Campaign_SelectMap(Campaign_Nodes[Revealed]);
+  Campaign_SelectMap(Image_CampaignNodes[Revealed]);
 end;
 
 
@@ -906,9 +912,9 @@ begin
   if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
 
    //Place highlight
-  for i:=1 to length(Campaign_Nodes) do begin
-    Campaign_Nodes[i].Highlight := false;
-    Campaign_Nodes[i].ImageCenter;
+  for i:=1 to length(Image_CampaignNodes) do begin
+    Image_CampaignNodes[i].Highlight := false;
+    Image_CampaignNodes[i].ImageCenter;
   end;
 
   TKMImage(Sender).Highlight := true;
@@ -1014,7 +1020,13 @@ begin
 end;
 
 
-procedure TKMMainMenuInterface.MultiPlayerLoginQuery(Sender: TObject);
+procedure TKMMainMenuInterface.MultiPlayer_ShowLogin();
+begin
+  fLobby.GetIPAsync(Label_WWW_IP); //Will get our IP address asynchronously
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_LoginQuery(Sender: TObject);
 begin
   //Construct server query
 
