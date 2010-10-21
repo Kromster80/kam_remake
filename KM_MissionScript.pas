@@ -17,7 +17,8 @@ type
                     ct_AINoBuild,ct_AIStartPosition,ct_AIDefence,ct_AIAttack,ct_CopyAIAttack);
 
   TKMCommandParamType = (cpt_Unknown=0,cpt_Recruits,cpt_Constructors,cpt_WorkerFactor,cpt_RecruitCount,cpt_TownDefence,
-                         cpt_MaxSoldier,cpt_AttackFactor,cpt_TroopParam);
+                         cpt_MaxSoldier,cpt_AttackFactor,cpt_TroopParam,cpt_Type,cpt_TotalAmount,cpt_Counter,cpt_Range,
+                         cpt_TroopAmount,cpt_Target,cpt_Position,cpt_TakeAll);
 
 const
   COMMANDVALUES: array[TKMCommandType] of shortstring = (
@@ -32,7 +33,8 @@ const
 
   PARAMVALUES: array[TKMCommandParamType] of shortstring = (
     '','RECRUTS','CONSTRUCTORS','WORKER_FACTOR','RECRUT_COUNT','TOWN_DEFENSE',
-    'MAX_SOLDIER','ATTACK_FACTOR','TROUP_PARAM');
+    'MAX_SOLDIER','ATTACK_FACTOR','TROUP_PARAM','TYPE','TOTAL_AMOUNT','COUNTER','RANGE',
+    'TROUP_AMOUNT','TARGET','POSITION','TAKEALL');
 
   MAXPARAMS = 8;
 
@@ -76,6 +78,7 @@ type
     CurrentPlayerIndex: integer;
     LastHouse: TKMHouse;
     LastTroop: TKMUnitWarrior;
+    AIAttack: TAIAttack;
     AttackPositions: array of TKMAttackPosition;
     AttackPositionsCount: integer;
     function GetUnitScriptID(aUnitType:TUnitType):integer;
@@ -121,6 +124,15 @@ begin
   fParserMode := aMode;
   ErrorMessage:='';
   AttackPositionsCount := 0;
+  //Set up default values for AI attack
+  AIAttack.AttackType := aat_Once;
+  AIAttack.Delay := 0;
+  AIAttack.TotalMen := 0;
+  FillChar(AIAttack.GroupAmounts,SizeOf(AIAttack.GroupAmounts),0);
+  AIAttack.TakeAll := false;
+  AIAttack.Target := att_ClosestUnit;
+  AIAttack.Range := 0;
+  AIAttack.CustomPosition := KMPoint(0,0);
 end;
 
 
@@ -566,21 +578,43 @@ begin
   ct_AIDefence:      begin
                        fPlayers.PlayerAI[CurrentPlayerIndex].AddDefencePosition(KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
                      end;
-  //todo: To add:
+  ct_SetMapColor:    begin
+                       //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
+                       fPlayers.Player[CurrentPlayerIndex].PlayerColor := Pal[2,ParamList[0]+1,1] + Pal[2,ParamList[0]+1,2] shl 8 + Pal[2,ParamList[0]+1,3] shl 16 or $FF000000;
+                     end;
   ct_AIAttack:       begin
-
+                       //Set up the attack command
+                       if TextParam = PARAMVALUES[cpt_Type] then
+                         if (ParamList[1] = 0) or (ParamList[1] = 2) then //0 is like 2 but it works in TSK and does not support some extra options
+                           AIAttack.AttackType := aat_Repeating
+                         else
+                           if ParamList[1] = 2 then
+                             AIAttack.AttackType := aat_Once;
+                       if TextParam = PARAMVALUES[cpt_TotalAmount] then
+                         AIAttack.TotalMen := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_Counter] then
+                         AIAttack.Delay := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_Range] then
+                         AIAttack.Range := ParamList[1];
+                       if TextParam = PARAMVALUES[cpt_TroopAmount] then
+                         AIAttack.GroupAmounts[TGroupType(ParamList[1]+1)] := ParamList[2];
+                       if TextParam = PARAMVALUES[cpt_Target] then
+                         AIAttack.Target := TAIAttackTarget(ParamList[1]);
+                       if TextParam = PARAMVALUES[cpt_Position] then
+                         AIAttack.CustomPosition := KMPointX1Y1(ParamList[1],ParamList[2]);
+                       if TextParam = PARAMVALUES[cpt_TakeAll] then
+                         AIAttack.TakeAll := true;
                      end;
   ct_CopyAIAttack:   begin
-
+                       //Save the attack to the AI assets
+                       fPlayers.PlayerAI[CurrentPlayerIndex].AddAttack(AIAttack);
                      end;
+  //todo: To add: (are they used?)
   ct_EnablePlayer:   begin
-
+                       //Serves no real purpose, all players have this command anyway
                      end;
   ct_SetNewRemap:    begin
-
-                     end;
-  ct_SetMapColor:    begin
-                       fPlayers.Player[CurrentPlayerIndex].PlayerColor := Pal[2,ParamList[0]+1,1] + Pal[2,ParamList[0]+1,2] shl 8 + Pal[2,ParamList[0]+1,3] shl 16 or $FF000000;
+                       //Disused. Minimap color is used for all colors now. However it might be better to use these values in the long run as sometimes the minimap colors do not match well
                      end;
   end;
   Result := true; //Must have worked if we haven't exited by now
@@ -776,6 +810,33 @@ begin
       for k:=0 to fPlayers.PlayerAI[i].DefencePositionsCount-1 do
         with fPlayers.PlayerAI[i].DefencePositions[k] do
           AddCommand(ct_AIDefence,6,Position.Loc.X-1,Position.Loc.Y-1,Position.Dir,byte(GroupType)-1,DefenceRadius,byte(DefenceType));
+      AddData(''); //NL
+      AddData(''); //NL
+      for k:=0 to fPlayers.PlayerAI[i].ScriptedAttacksCount-1 do
+        with fPlayers.PlayerAI[i].ScriptedAttacks[k] do
+        begin
+          AddCommandParam(ct_AIAttack,cpt_Type,1,byte(AttackType));
+          AddCommandParam(ct_AIAttack,cpt_TotalAmount,1,TotalMen);
+          if TakeAll then
+            AddCommandParam(ct_AIAttack,cpt_TakeAll)
+          else
+            for Group:=low(TGroupType) to high(TGroupType) do
+              if Group <> gt_None then
+                AddCommandParam(ct_AIAttack,cpt_TroopAmount,2,byte(Group)-1,GroupAmounts[Group]);
+
+          if (Delay > 0) or (AttackType = aat_Once) then //Type once must always have counter because it uses the delay
+            AddCommandParam(ct_AIAttack,cpt_Counter,1,Delay);
+
+          AddCommandParam(ct_AIAttack,cpt_Target,1,Byte(Target));
+          if Target = att_CustomPosition then
+            AddCommandParam(ct_AIAttack,cpt_Position,1,CustomPosition.X-1,CustomPosition.Y-1);
+
+          if Range > 0 then
+            AddCommandParam(ct_AIAttack,cpt_Range,1,Range);
+
+          AddCommand(ct_CopyAIAttack,1,k); //Store attack with ID number
+          AddData(''); //NL
+        end;
       AddData(''); //NL
     end;
 

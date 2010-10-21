@@ -960,6 +960,26 @@ type TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Jo
 
 
 type
+  TAIAttackType = (                  //0 is an old repeating TSK attack that does not support new TPR features, so we always replace it with 1
+                   aat_Once=1,       //Attack will occur once (after the set time has passed and if they have enough troops
+                   aat_Repeating=2); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
+
+  TAIAttackTarget = (att_ClosestUnit=0, //Closest enemy unit (untested as to whether this is relative to army or start position)
+                     att_ClostestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
+                     att_ClostestBuildingFromStartPos=2, //Closest building from the AI's start position
+                     att_CustomPosition=3); //Custom point defined with CustomPosition
+
+  TAIAttack = record
+    AttackType: TAIAttackType; //Once or repeating
+    Delay: cardinal; //The attack will not occur before this time has passed
+    TotalMen: integer; //Number of idle (i.e. back line) warriors required in the AI army before the attack will launch
+    GroupAmounts: array[TGroupType] of byte; //How many squads of each group type will be taken
+    TakeAll: boolean; //Used instead of GroupAmounts, chooses groups randomly taking at most TotalMen warriors
+    Target: TAIAttackTarget;
+    Range: integer; //Will only occur when target is within this tile range (not properly tested yet)
+    CustomPosition: TKMPoint; //Used when Target = att_CustomPosition
+  end;
+
   //@Krom: Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
   //       Please let me know your thoughts. This is very similar to that used in KaM and is quite flexable/expandable. (we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)
   //       Somethings are probably named unclearly, please give me suggestions or change them. Goals are the one part
@@ -1076,16 +1096,29 @@ var
   //Indexes are the same as above. Contains the highest refresh rate for each resolution. If 0 then not supported.
   SupportedRefreshRates: array[1..RESOLUTION_COUNT] of word;
 
-  //Players colors
+  //Players colors (as they appear in KaM when the color is not specified in the script, copied from pallete values)
+  //@Krom: These new IDs should be used as defaults when loading a script because some missions may not include a color ID and rely on
+  //       the defaults. The first 5 are good but I dislike that the last 3 are fairly similar, so maybe for the map editor we should have
+  //       different defaults? Give me your thoughts.
+  //Default IDs from KaM:
+  {229, //Red
+  36,  //Cyan
+  106, //Green
+  20,  //Magenta
+  233, //Yellow
+  213, //Grey
+  3,   //Black
+  3,   //Black
+  255  //White}
   DefaultTeamColors:array[1..MAX_PLAYERS+1]of cardinal = (
-  $FF3040FF, //Red
-  $FF00C0FF, //Orange
-  $FF00DDFF, //Yellow
-  $FF28C840, //Green
-  $FFC0C040, //Cyan
-  $FFC00000, //Blue
-  $FFFF00FF, //Violet
-  $FF282828, //Black
+  $FF0707FF, //Red
+  $FFE3BB5B, //Cyan
+  $FF27A700, //Green
+  $FFFF67FF, //Magenta
+  $FF07FFFF, //Yellow
+  $FF577B7B, //Grey
+  $FF000000, //Black
+  $FF000000, //Black
   $FFFFFFFF //White, used for highlighting army flag on selection, team_animals
   );
 

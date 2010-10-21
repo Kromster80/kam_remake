@@ -179,12 +179,15 @@ begin
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
     end;
 
-    if fUsingDoorway then IncDoorway;
+    if fUsingDoorway then
+    begin
+      IncDoorway;
+      KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
+    end;
+    
     fHasStarted:=true;
   end;
 
-  if fUsingDoorway then
-    KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
 
   if fWaitingForPush then
   begin

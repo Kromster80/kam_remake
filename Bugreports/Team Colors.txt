@@ -1,0 +1,21 @@
+See image: Team Colors.gif
+
+These are screenshots from KaM and our Remake of a serf using the default color for player 1. The Remake will not be using exactly the same starting color but that is not the point.
+
+If you look at the KaM image, you'll notice that the colors range from a very light red to a very dark (almost blue) red. If you look at the true size image you'll see that the very light red gives the appearance of light reflecting off the serf making part of it brighter.
+
+If you look at the Remake image, you'll notice that the colors range from a very vivid true red to a dark (almost brown) red.
+
+My problem is not with the lighter shades that give the appearance of reflection. Rather than using lighter (as in more white) colors for this, the Remake uses redder (vivid, true red) colors.
+
+The darker shades are a bit different (KaM dark-red=blue, Remake dark-red=brown) but it's not such a problem as the lighter shades which don't exist at all in the Remake.
+
+Here is what I think the Remake does: (what it appears to do)
+Take the original color, and make the lightest shade on the sprite be that color. We then darken this color for the darker shades of the sprite.
+
+Here is what it should do:
+Take the original color, and set the MIDDLE shade to be that color. Then make it lighter for the lighter shades and darker for the darker shades, rather than only making it darker as it does now.
+
+
+I tried to find the code that does this but I don't really understand the OpenGL functions very well. Maybe what I want isn't possible.
+I hope this makes sense to you and you can see what I am talking about. If not talk to me some time :)

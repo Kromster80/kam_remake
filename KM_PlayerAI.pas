@@ -27,6 +27,8 @@ type
                                  DefenceType: TAIDefencePosType;
                                end;
     DefencePositionsCount: integer;
+    ScriptedAttacks: array of TAIAttack;
+    ScriptedAttacksCount: integer;
     constructor Create(aAssets:TKMPlayerAssets);
     procedure CheckGoals;
     procedure CheckUnitCount();
@@ -34,6 +36,7 @@ type
   public
     function GetHouseRepair:boolean; //Do we automatically repair all houses?
     procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
+    procedure AddAttack(aAttack: TAIAttack);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
@@ -48,6 +51,7 @@ begin
   Inherited Create;
   Assets := aAssets;
   DefencePositionsCount := 0;
+  ScriptedAttacksCount := 0;
   //Set some defaults (these are not measured from KaM)
   ReqWorkers := 3;
   ReqRecruits := 5; //This means the number in the barracks, watchtowers are counted seperately
@@ -250,6 +254,13 @@ begin
 end;
 
 
+procedure TKMPlayerAI.AddAttack(aAttack: TAIAttack);
+begin
+  setlength(ScriptedAttacks,ScriptedAttacksCount+1);
+  ScriptedAttacks[ScriptedAttacksCount] := aAttack;
+  inc(ScriptedAttacksCount);
+end;
+
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 var i: integer;
 begin
@@ -266,6 +277,9 @@ begin
   SaveStream.Write(DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
     SaveStream.Write(DefencePositions[i], SizeOf(DefencePositions[i]));
+  SaveStream.Write(ScriptedAttacksCount);
+  for i:=0 to ScriptedAttacksCount-1 do
+    SaveStream.Write(ScriptedAttacks[i], SizeOf(ScriptedAttacks[i]));
 end;
 
 
@@ -286,6 +300,10 @@ begin
   SetLength(DefencePositions, DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
     LoadStream.Read(DefencePositions[i], SizeOf(DefencePositions[i]));
+  LoadStream.Read(ScriptedAttacksCount);
+  SetLength(ScriptedAttacks, ScriptedAttacksCount);
+  for i:=0 to ScriptedAttacksCount-1 do
+    LoadStream.Read(ScriptedAttacks[i], SizeOf(ScriptedAttacks[i]));
 end;
 
 
