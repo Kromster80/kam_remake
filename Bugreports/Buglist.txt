@@ -23,6 +23,8 @@ EXE-only r1006:
 
  -	Display WIP houses/units in statistics menu
  -	Make units/houses highlight red when about to erase them as trees do (in MapEd)
+ -	Allow to use replacement sprites for cursors [Krom]
+ -	Show correct number of players in SingleMap by scanning MapInfo
  -	Dots and lines displaying on tile edges
  
 	Colored rectangle below cursor	
