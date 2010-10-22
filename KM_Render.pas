@@ -565,7 +565,7 @@ begin
   //ID := ( + AnimStep) mod ;
   ID := ProjectileBounds[aProj,1]+1;
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
+  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
 end;
@@ -601,7 +601,7 @@ begin
     RenderCursorWireQuad(KMPoint(pX,pY),$FF0000FF);
   end else begin
     ShiftX:=RXData[1].Pivot[ID].x/CELL_SIZE_PX;
-    ShiftY:=(RXData[1].Pivot[ID].y+RXData[1].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV;
+    ShiftY:=(RXData[1].Pivot[ID].y+RXData[1].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY,pX].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(1,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
     {RenderDot(pX,pY);
     glRasterPos2f(pX-1+0.1,pY-1+0.1);
@@ -619,7 +619,7 @@ var FOW:byte;
   procedure AddSpriteToListBy(ID:integer; AnimStep:integer; pX,pY:integer; ShiftX,ShiftY:single);
   begin
     ID := MapElem[ID].Step[ AnimStep mod MapElem[ID].Count +1 ] +1;
-    ShiftY := ShiftY + (RXData[1].Size[ID,2]) / CELL_SIZE_PX;
+    ShiftY := ShiftY + (RXData[1].Size[ID].Y) / CELL_SIZE_PX;
     ShiftY := ShiftY - fTerrain.InterpolateLandHeight(pX+ShiftX, pY+ShiftY)/CELL_HEIGHT_DIV;
     AddSpriteToList(1, ID, pX+ShiftX, pY+ShiftY, pX, pY, true);
     if DoImmediateRender then RenderSprite(1,ID,pX+ShiftX,pY+ShiftY,$FFFFFFFF,255,Deleting);
@@ -643,7 +643,7 @@ begin
   pX:=pX+HouseDAT[Index].EntranceOffsetX;
   ID:=Index+250;
   ShiftX:=RXData[4].Pivot[ID].x/CELL_SIZE_PX+0.5;
-  ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID,2])/CELL_SIZE_PX+0.5-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+  ShiftY:=(RXData[4].Pivot[ID].y+RXData[4].Size[ID].Y)/CELL_SIZE_PX+0.5-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(4,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
 end;
 
@@ -655,13 +655,13 @@ begin
   if Wood<>0 then begin
     ID:=260+Wood-1;
     ShiftX:=HouseDAT[Index].BuildSupply[Wood].MoveX/CELL_SIZE_PX;
-    ShiftY:=(HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+    ShiftY:=(HouseDAT[Index].BuildSupply[Wood].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
   end;
   if Stone<>0 then begin
     ID:=267+Stone-1;
     ShiftX:=HouseDAT[Index].BuildSupply[6+Stone].MoveX/CELL_SIZE_PX;
-    ShiftY:=(HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+    ShiftY:=(HouseDAT[Index].BuildSupply[6+Stone].MoveY+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
     AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
   end;
 end;
@@ -673,7 +673,7 @@ var ShiftX,ShiftY:single; ID:integer;
 begin
   ID:=HouseDAT[Index].WoodPic+1;
   ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,true,0,Step);
 end;
 
@@ -685,7 +685,7 @@ begin
   RenderHouseWood(Index,1,pX,pY); //Render Wood part of it, opaque
   ID:=HouseDAT[Index].StonePic+1;
   ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+  ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,0,Step);
 end;
 
@@ -704,7 +704,7 @@ begin
         begin
           ID:=HouseDAT[Index].Anim[AnimType].Step[AnimStep mod AnimCount + 1]+1;
           ShiftX:=RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-          ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+          ShiftY:=(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
           ShiftX:=ShiftX+HouseDAT[Index].Anim[AnimType].MoveX/CELL_SIZE_PX;
           ShiftY:=ShiftY+HouseDAT[Index].Anim[AnimType].MoveY/CELL_SIZE_PX;
           AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false,Owner);
@@ -723,7 +723,7 @@ var ID,i,k:integer;
     if aID>0 then
     begin
       ShiftX:=RXData[2].Pivot[aID].x/CELL_SIZE_PX;
-      ShiftY:=(RXData[2].Pivot[aID].y+RXData[2].Size[aID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+      ShiftY:=(RXData[2].Pivot[aID].y+RXData[2].Size[aID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
       AddSpriteToList(2,aID,pX+ShiftX,pY+ShiftY,pX,pY,false);
     end;
   end;
@@ -772,7 +772,7 @@ begin
   ShiftY:=HouseDATs[Q,BeastID,BeastAge].MoveY/CELL_SIZE_PX;
 
   ShiftX:=ShiftX+RXData[2].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=ShiftY+(RXData[2].Pivot[ID].y+RXData[2].Size[ID,2])/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
+  ShiftY:=ShiftY+(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
   AddSpriteToList(2,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
 end;
 
@@ -784,7 +784,7 @@ AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
 ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
+  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner,-1,true);
@@ -806,7 +806,7 @@ AnimSteps:=SerfCarry[CarryID].Dir[DirID].Count;
 ID:=SerfCarry[CarryID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
+  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4;
   ShiftX:=ShiftX+SerfCarry[CarryID].Dir[DirID].MoveX/CELL_SIZE_PX;
   ShiftY:=ShiftY+SerfCarry[CarryID].Dir[DirID].MoveY/CELL_SIZE_PX;
@@ -821,7 +821,7 @@ begin
   ID:=ThoughtBounds[byte(Thought),2]+1 -
      (fGame.GetTickCount mod word(ThoughtBounds[byte(Thought),2]-ThoughtBounds[byte(Thought),1]));
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
+  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 - 1.5;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,false);
 end;
@@ -834,7 +834,7 @@ AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
 ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
 if ID<=0 then exit;
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX -0.5;
-  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID,2])/CELL_SIZE_PX;
+  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
   ShiftY:=ShiftY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV-0.4 -2.25;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);

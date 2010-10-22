@@ -1140,9 +1140,11 @@ var
     Title:string;
     Qty:integer;
     Pal:array of byte;
-    Size:array of array[1..2] of word;
+    Size:array of record X,Y:word; end;
     Pivot:array of record x,y:integer; end;
     Data:array of array of byte;
+    RGBA:array of array of cardinal; //Expanded image
+    Mask:array of array of byte;     //Mask for team colors
     NeedTeamColors:boolean;
   end;
 

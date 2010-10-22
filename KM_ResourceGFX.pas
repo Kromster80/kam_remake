@@ -30,6 +30,7 @@ type
 
     procedure LoadRX7(aID:integer);
     function LoadRX(filename:string; ID:integer):boolean;
+    procedure ExpandRX(ID:integer);
     procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
     procedure MakeGFX(Sender: TObject; RXid:integer);
 
@@ -634,15 +635,40 @@ begin
   for i:=1 to RXData[ID].Qty do
     if RXData[ID].Pal[i] = 1 then
     begin
-      blockread(f, RXData[ID].Size[i,1], 4);
+      blockread(f, RXData[ID].Size[i].X, 4);
       blockread(f, RXData[ID].Pivot[i].x, 8);
-      setlength(RXData[ID].Data[i], RXData[ID].Size[i,1] * RXData[ID].Size[i,2] );
-      blockread(f, RXData[ID].Data[i,0], RXData[ID].Size[i,1] * RXData[ID].Size[i,2] );
+      setlength(RXData[ID].Data[i], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
+      blockread(f, RXData[ID].Data[i,0], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
     end;
 
   closefile(f);
   fLog.AppendLog(RXData[ID].Title+' -',RXData[ID].Qty);
   Result:=true;
+end;
+
+
+//=============================================
+// Expand RX Data
+//Convert paletted data into RGBA and select Team color layer from it
+//=============================================
+procedure TResource.ExpandRX(ID:integer);
+var i:integer; x,y:integer; T:word;
+begin
+  with RXData[ID] do
+  for i:=1 to Qty do
+  if Pal[i] = 1 then begin
+//    setlength(RGBA[i], Size[i].X*Size[i].Y*4); //Append mem
+
+    for y:=0 to Size[i].Y-1 do for x:=0 to Size[i].X-1 do
+    begin
+      T := Data[i, y*Size[i].X+x] + 1; //1..256
+      if T = 1 then
+//        RGBA := $00000000 //Transparent
+      else
+//        RGBA := Pal[DEF_PAL,t,1] + Pal[DEF_PAL,t,2] shl 8 + Pal[DEF_PAL,t,3] shl 16 OR $FF000000;
+    end;
+
+  end;
 end;
 
 
@@ -761,30 +787,30 @@ begin
           StepCount:=HouseDAT[ID].StonePicSteps;
         end;
 
-        WidthPOT  := MakePOT(RXData[RXid].Size[ID1,1]);
-        HeightPOT := MakePOT(RXData[RXid].Size[ID1,2]);
+        WidthPOT  := MakePOT(RXData[RXid].Size[ID1].X);
+        HeightPOT := MakePOT(RXData[RXid].Size[ID1].Y);
         setlength(TD, WidthPOT*HeightPOT*4+1);
 
         for i := 1 to HeightPOT do begin
           ci := -1;
 
-          for k := 1 to RXData[RXid].Size[ID1,1] do begin
+          for k := 1 to RXData[RXid].Size[ID1].X do begin
             inc(ci);
-            if i <= RXData[RXid].Size[ID1,2] then begin
+            if i <= RXData[RXid].Size[ID1].Y then begin
 
               t   := ((i-1)*WidthPOT+ci)*4;
-              ColorID := RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1,1]+k-1]; //0..255
+              ColorID := RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1].X+k-1]; //0..255
               TD[t+0] := Pal[DEF_PAL, ColorID+1, 1];
               TD[t+1] := Pal[DEF_PAL, ColorID+1, 2];
               TD[t+2] := Pal[DEF_PAL, ColorID+1, 3];
               if ColorID = 0 then
                 TD[t+3] := 0
               else
-                if i<=RXData[RXid].Size[ID2,2] then
-                if k<=RXData[RXid].Size[ID2,1] then begin//Cos someimes ID2 is smaller by few pixels
+                if i<=RXData[RXid].Size[ID2].Y then
+                if k<=RXData[RXid].Size[ID2].X then begin//Cos someimes ID2 is smaller by few pixels
                   t2 := t  + (RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x)*4; //Shift by pivot, always positive
                   t2 := t2 + (RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT*4; //Shift by pivot, always positive
-                  TD[t2+3] := 255 - round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2,1]+k-1]*(255/StepCount));
+                  TD[t2+3] := 255 - round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2].X+k-1]*(255/StepCount));
                 end;
             end;
           end;
@@ -795,10 +821,10 @@ begin
         GFXData[RXid,ID1].AltID := 0;
         GFXData[RXid,ID1].u1    := 0;
         GFXData[RXid,ID1].v1    := 0;
-        GFXData[RXid,ID1].u2    := RXData[RXid].Size[ID1,1]/WidthPOT;
-        GFXData[RXid,ID1].v2    := RXData[RXid].Size[ID1,2]/HeightPOT;
-        GFXData[RXid,ID1].PxWidth:=RXData[RXid].Size[ID1,1];
-        GFXData[RXid,ID1].PxHeight:=RXData[RXid].Size[ID1,2];
+        GFXData[RXid,ID1].u2    := RXData[RXid].Size[ID1].X/WidthPOT;
+        GFXData[RXid,ID1].v2    := RXData[RXid].Size[ID1].Y/HeightPOT;
+        GFXData[RXid,ID1].PxWidth:=RXData[RXid].Size[ID1].X;
+        GFXData[RXid,ID1].PxHeight:=RXData[RXid].Size[ID1].Y;
       end;
 
   //Now we can safely dispose of RXData[RXid].Data to save us some more RAM
@@ -824,20 +850,20 @@ begin
   repeat
     inc(LeftIndex);
 
-    WidthPOT  := RXData[RXid].Size[LeftIndex,1];
-    HeightPOT := MakePOT(RXData[RXid].Size[LeftIndex,2]);
+    WidthPOT  := RXData[RXid].Size[LeftIndex].X;
+    HeightPOT := MakePOT(RXData[RXid].Size[LeftIndex].Y);
     SpanCount := 1;
 
     //Pack textures with same POT height into rows to save memory
     //This also means fewer textures for GPU RAM == better performance
     while((LeftIndex+SpanCount<RXData[RXid].Qty)and //Keep packing until end of sprites
           (
-            (HeightPOT=MakePOT(RXData[RXid].Size[LeftIndex+SpanCount,2])) //Pack if HeightPOT matches
-        or((HeightPOT>=MakePOT(RXData[RXid].Size[LeftIndex+SpanCount,2]))AND(WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount,1]<MakePOT(WidthPOT)))
+            (HeightPOT=MakePOT(RXData[RXid].Size[LeftIndex+SpanCount].Y)) //Pack if HeightPOT matches
+        or((HeightPOT>=MakePOT(RXData[RXid].Size[LeftIndex+SpanCount].Y))AND(WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount].X<MakePOT(WidthPOT)))
           )and
-          (WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount,1]<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
+          (WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount].X<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
     do begin
-      inc(WidthPOT,RXData[RXid].Size[LeftIndex+SpanCount,1]);
+      inc(WidthPOT,RXData[RXid].Size[LeftIndex+SpanCount].X);
       if (RXid=5)and(RX5pal[LeftIndex]<>RX5pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
       if (RXid=6)and(RX6pal[LeftIndex]<>RX6pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
       inc(SpanCount);
@@ -850,10 +876,10 @@ begin
     for i:=1 to HeightPOT do begin
       ci:=0;
       for j:=LeftIndex to RightIndex do
-        for k:=1 to RXData[RXid].Size[j,1] do begin
+        for k:=1 to RXData[RXid].Size[j].X do begin
           inc(ci);
-          if i<=RXData[RXid].Size[j,2] then
-            TD[(i-1)*WidthPOT+ci-1]:=RXData[RXid].Data[j,(i-1)*RXData[RXid].Size[j,1]+k-1]
+          if i<=RXData[RXid].Size[j].Y then
+            TD[(i-1)*WidthPOT+ci-1]:=RXData[RXid].Data[j,(i-1)*RXData[RXid].Size[j].X+k-1]
           else
             TD[(i-1)*WidthPOT+ci-1]:=0;
         end;
@@ -888,14 +914,14 @@ begin
       GFXData[RXid,j].AltID:=GFXData[RXid,LeftIndex].AltID;
       GFXData[RXid,j].u1:=k/WidthPOT;
       GFXData[RXid,j].v1:=0;
-      inc(k,RXData[RXid].Size[j,1]);
+      inc(k,RXData[RXid].Size[j].X);
       GFXData[RXid,j].u2:=k/WidthPOT;
-      GFXData[RXid,j].v2:=RXData[RXid].Size[j,2]/HeightPOT;
-      GFXData[RXid,j].PxWidth:=RXData[RXid].Size[j,1];
-      GFXData[RXid,j].PxHeight:=RXData[RXid].Size[j,2];
+      GFXData[RXid,j].v2:=RXData[RXid].Size[j].Y/HeightPOT;
+      GFXData[RXid,j].PxWidth:=RXData[RXid].Size[j].X;
+      GFXData[RXid,j].PxHeight:=RXData[RXid].Size[j].Y;
 
       //setlength(RXData[RXid].Data[j],0); //Do not erase since we need it for AlphaTest
-      inc(RequiredRAM,RXData[RXid].Size[j,1]*RXData[RXid].Size[j,2]*4);
+      inc(RequiredRAM,RXData[RXid].Size[j].X*RXData[RXid].Size[j].Y*4);
     end;
 
     inc(AllocatedRAM,WidthPOT*HeightPOT*4);
@@ -929,8 +955,8 @@ begin
 
   for id:=1 to RXData[RXid].Qty do begin
 
-    sx:=RXData[RXid].Size[id,1];
-    sy:=RXData[RXid].Size[id,2];
+    sx:=RXData[RXid].Size[id].X;
+    sy:=RXData[RXid].Size[id].Y;
     MyBitMap.Width:=sx;
     MyBitMap.Height:=sy;
 
@@ -976,8 +1002,8 @@ begin
           if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
           ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
 
-          sx:=RXData[3].Size[ci,1];
-          sy:=RXData[3].Size[ci,2];
+          sx:=RXData[3].Size[ci].X;
+          sy:=RXData[3].Size[ci].Y;
           MyBitMap.Width:=sx;
           MyBitMap.Height:=sy;
 
@@ -1009,8 +1035,8 @@ begin
 
   for ci:=1 to length(Used)-1 do
   if Used[ci]=0 then begin
-    sx:=RXData[3].Size[ci,1];
-    sy:=RXData[3].Size[ci,2];
+    sx:=RXData[3].Size[ci].X;
+    sy:=RXData[3].Size[ci].Y;
     MyBitMap.Width:=sx;
     MyBitMap.Height:=sy;
 
@@ -1050,8 +1076,8 @@ begin
         if HouseDAT[ID].Anim[Ac].Step[k]+1<>0 then
         ci:=HouseDAT[ID].Anim[Ac].Step[k]+1;
 
-        sx:=RXData[2].Size[ci,1];
-        sy:=RXData[2].Size[ci,2];
+        sx:=RXData[2].Size[ci].X;
+        sy:=RXData[2].Size[ci].Y;
         MyBitMap.Width:=sx;
         MyBitMap.Height:=sy;
 
@@ -1077,8 +1103,8 @@ begin
           if HouseDATs[Q,ID,Ac].Step[k]+1<>0 then
           ci:=HouseDATs[Q,ID,Ac].Step[k]+1;
 
-          sx:=RXData[2].Size[ci,1];
-          sy:=RXData[2].Size[ci,2];
+          sx:=RXData[2].Size[ci].X;
+          sy:=RXData[2].Size[ci].Y;
           MyBitMap.Width:=sx;
           MyBitMap.Height:=sy;
 
@@ -1116,8 +1142,8 @@ begin
       if MapElem[ID].Step[k]+1<>0 then
       ci:=MapElem[ID].Step[k]+1;
 
-      sx:=RXData[1].Size[ci,1];
-      sy:=RXData[1].Size[ci,2];
+      sx:=RXData[1].Size[ci].X;
+      sy:=RXData[1].Size[ci].Y;
       MyBitMap.Width:=sx;
       MyBitMap.Height:=sy;
 
@@ -1251,8 +1277,8 @@ begin
     end
     else
     begin
-      sx:=RXData[RXid].Size[Cursors[i],1];
-      sy:=RXData[RXid].Size[Cursors[i],2];
+      sx:=RXData[RXid].Size[Cursors[i]].X;
+      sy:=RXData[RXid].Size[Cursors[i]].Y;
       bm.Width:=sx; bm.Height:=sy;
       bm2.Width:=sx; bm2.Height:=sy;
 
