@@ -3011,9 +3011,9 @@ object Form1: TForm1
       object CBRandomizeTiling: TCheckBox
         Left = 4
         Top = 52
-        Width = 101
+        Width = 93
         Height = 17
-        Caption = 'Randomize Tiles'
+        Caption = 'Auto Decorate'
         Checked = True
         State = cbChecked
         TabOrder = 0
@@ -11330,6 +11330,15 @@ object Form1: TForm1
           '270'
           'Random')
         TabOrder = 2
+      end
+      object MagicWater: TBitBtn
+        Left = 124
+        Top = 34
+        Width = 77
+        Height = 25
+        Caption = 'Magic water'
+        TabOrder = 3
+        OnClick = MagicWaterClick
       end
     end
     object TabSheet4: TTabSheet

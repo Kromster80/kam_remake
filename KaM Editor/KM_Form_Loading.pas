@@ -42,11 +42,15 @@ uses KM_Unit1, KM_ReadGFX1, KM_Form_NewMap, KM_LoadDAT;
 procedure TFormLoading.FormCreate(Sender: TObject);
 var InputParam:string;
 begin
-Form1.Hide;
-ExeDir:=ExtractFilePath(Application.ExeName);
-FormLoading.Show; FormLoading.Refresh;
-FormLoading.Label1.Caption:='Initializing 3D';
-FormLoading.Bar1.Position:=0; FormLoading.Refresh;
+  Form1.Hide;
+  ExeDir := ExtractFilePath(Application.ExeName);
+
+  Show;
+  Refresh;
+  Label1.Caption:='Initializing 3D';
+  Bar1.Position:=0;
+  Refresh;
+
   InitOpenGL;
   h_DC := GetDC(Form1.Panel1.Handle);
   if h_DC=0 then begin MessageBox(Form1.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR); exit; end;
@@ -54,45 +58,46 @@ FormLoading.Bar1.Position:=0; FormLoading.Refresh;
   h_RC := wglCreateContext(h_DC);
   if h_RC=0 then begin MessageBox(Form1.Handle, 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR); exit; end;
   if not wglMakeCurrent(h_DC, h_RC) then begin
-  MessageBox(Form1.Handle, 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-  exit; end;
+    MessageBox(Form1.Handle, 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
+    exit;
+  end;
+
   ReadExtensions;
   ReadImplementationProperties;
   Form1.RenderInit();
   BuildFont(h_DC,16);
   DecimalSeparator:='.';
+  
   if ReadGFX(ExeDir) then begin
-  MakeObjectsGFX(nil);
-  MakeHousesGFX(nil);
-  end
-  else begin
-  MessageBox(FormLoading.Handle, 'Objects tab is disabled', 'Warning', MB_OK or MB_ICONWARNING);
-  Form1.ObjBlock.Enabled:=false;
-  Form1.ObjErase.Enabled:=false;
-  Form1.ObjPallete.Enabled:=false;
-  Form1.ObjPalleteScroll.Enabled:=false;
+    MakeObjectsGFX(nil);
+    MakeHousesGFX(nil);
+  end else begin
+    MessageBox(FormLoading.Handle, 'Objects tab is disabled', 'Warning', MB_OK or MB_ICONWARNING);
+    Form1.ObjBlock.Enabled:=false;
+    Form1.ObjErase.Enabled:=false;
+    Form1.ObjPallete.Enabled:=false;
+    Form1.ObjPalleteScroll.Enabled:=false;
   end;
-FormLoading.Hide;
-DoClientAreaResize(Form1);
-Form1.Show;
-Form1.WindowState:=wsMaximized;
 
-InputParam:=ExtractOpenedFileName(cmdline);
-if FileExists(InputParam) then
-  if GetFileExt(InputParam)='MAP' then
-    Form1.OpenMap(InputParam)
-  else
-    if GetFileExt(InputParam)='PRO' then
-      Form1.OpenPro(InputParam)
+  Hide;
+  DoClientAreaResize(Form1);
+  Form1.Show;
+  Form1.WindowState:=wsMaximized;
+
+  InputParam:=ExtractOpenedFileName(cmdline);
+  if FileExists(InputParam) then
+    if GetFileExt(InputParam)='MAP' then
+      Form1.OpenMap(InputParam)
     else
-      FormNewMap.InitializeNewMap(96,96)
-else
-  FormNewMap.InitializeNewMap(96,96);
+      if GetFileExt(InputParam)='PRO' then
+        Form1.OpenPro(InputParam)
+      else
+        FormNewMap.InitializeNewMap(96,96)
+  else
+    FormNewMap.InitializeNewMap(96,96);
 
-
-
-//Form1.OpenMap('save01.map');
-//LoadDAT('mission1.dat');
+  //Form1.OpenMap('save01.map');
+  //LoadDAT('mission1.dat');
 end;
 
 

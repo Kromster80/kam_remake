@@ -56,7 +56,7 @@ Map.Y:=MapY;
 
 for i:=1 to Map.Y do for k:=1 to Map.X do with Land[i,k] do begin
   Land2[i,k].TerType:=1;
-  Terrain:=0;
+  Terrain:=35;
   Light:=16;
   Height1:=random(4); //small variation in height
   Rot:=random(4);
@@ -67,7 +67,7 @@ for i:=1 to Map.Y do for k:=1 to Map.X do with Land[i,k] do begin
   y1:=0; y2:=0; y3:=0;
   Border:=255;//
   y5:=255; y6:=205;
-  y7:=0;y8:=0; y9:=0; y10:=0; y11:=0; y12:=0;
+  y7:=0; y8:=0; y9:=0; y10:=0; y11:=0; y12:=0;
 end;
 
 for k:=1 to Map.X do Land[Map.Y,k].Height1:=0;

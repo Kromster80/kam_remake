@@ -165,6 +165,7 @@ type
     GroupBox4: TGroupBox;
     Label2: TLabel;
     RG_Angle: TRadioGroup;
+    MagicWater: TBitBtn;
     procedure OpenDATClick(Sender: TObject);
     procedure OpenMap(filename:string);
     procedure FormCreate(Sender: TObject);
@@ -224,8 +225,9 @@ type
     procedure ShowFlowClick(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure UpdateLight(X,Y:integer);
-  private     { Private declarations }
-      procedure OnIdle(Sender: TObject; var Done: Boolean);
+    procedure MagicWaterClick(Sender: TObject);
+    procedure DoMagicWater(X,Y:integer);
+    procedure OnIdle(Sender: TObject; var Done: Boolean);
   end;
 
   procedure BuildMiniMap();
@@ -689,12 +691,12 @@ end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-MakeUndoPoint(nil); //Make whenever user uses any brushes
-if Button=mbLeft  then MouseButton:=1;
-if Button=mbRight then MouseButton:=-1;
-//MapXn2:=MapXn; MapYn2:=MapYn;
-//MapXc2:=MapXc; MapYc2:=MapYc;
-Panel1MouseMove(Panel1,Shift,X,Y);
+  MakeUndoPoint(nil); //Make whenever user uses any brushes
+  if Button=mbLeft  then MouseButton:=1;
+  if Button=mbRight then MouseButton:=-1;
+  //MapXn2:=MapXn; MapYn2:=MapYn;
+  //MapXc2:=MapXc; MapYc2:=MapYc;
+  Panel1MouseMove(Panel1,Shift,X,Y);
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,Y: Integer);
@@ -818,6 +820,10 @@ if LandBrush<>0  then Land[MapYc,MapXc].Obj:=ObjIndex[LandBrush];
 if (BrushMode=bmTileRotate) then begin
   if MouseButton= 1 then Land[MapYc,MapXc].Rot:=(Land[MapYc,MapXc].Rot + 1) mod 4;
   if MouseButton=-1 then if Land[MapYc,MapXc].Rot<1 then Land[MapYc,MapXc].Rot:=3 else dec(Land[MapYc,MapXc].Rot);
+end;
+
+if (BrushMode=bmMagicWater) then begin
+  DoMagicWater(MapXc,MapYc);
 end;
 
 if BrushMode=bmCopy then
@@ -1033,12 +1039,22 @@ BrushMode:=bmTiles;
 StatusBar1.Panels[3].Text:='Brush: '+inttostr(LandBrush);
 end;
 
+
 procedure TForm1.TileRotateButtonClick(Sender: TObject);
 begin
-LandBrush:=1;
-BrushMode:=bmTileRotate;
-StatusBar1.Panels[3].Text:='Brush: Rotate Tile';
+  LandBrush := 1;
+  BrushMode := bmTileRotate;
+  StatusBar1.Panels[3].Text := 'Brush: Rotate Tile';
 end;
+
+
+procedure TForm1.MagicWaterClick(Sender: TObject);
+begin
+  LandBrush := 1;
+  BrushMode := bmMagicWater;
+  StatusBar1.Panels[3].Text := 'Brush: Magic Water';
+end;
+
 
 procedure TForm1.ResetZoomClick(Sender: TObject);
 begin TBZoomControl.Position:=20; end;
@@ -1430,6 +1446,73 @@ end else begin
   x1:=EnsureRange(X-1,1,Map.X);
   Land2[Y,X].Light:=round(EnsureRange((Land2[Y,X].Height-(Land2[y2,X].Height+Land2[Y,x1].Height)/2)/1.33+16,0,32));
 end;
+end;
+
+
+procedure TForm1.DoMagicWater(X,Y:integer);
+var tiles:array of array of byte; i,k:integer;
+
+  procedure FillArea(x,y:word; ID:byte); //Mode = 1canWalk or 2canWalkRoad
+  begin
+    if (Land[y,x].Terrain in [126, 127])and(tiles[y,x]=0) then //Shores
+      tiles[y,x] := ID+1; //Filled
+
+    if (Land[y,x].Terrain in [192, 196])and(tiles[y,x]=0) then //Water, weeds
+    begin
+      tiles[y,x] := ID; //Filled
+
+      if x-1>=1 then begin
+        if y-1>=1 then     FillArea(x-1,y-1,ID);
+                           FillArea(x-1,y  ,ID);
+        if y+1<=Map.Y then FillArea(x-1,y+1,ID);
+      end;
+
+      if y-1>=1 then     FillArea(x,y-1,ID);
+      if y+1<=Map.Y then FillArea(x,y+1,ID);
+
+      if x+1<=Map.X then begin
+        if y-1>=1 then     FillArea(x+1,y-1,ID);
+                           FillArea(x+1,y  ,ID);
+        if y+1<=Map.Y then FillArea(x+1,y+1,ID);
+      end;
+    end;
+  end;
+begin
+  if MouseButton= 1 then Land[Y,X].Rot:=(Land[Y,X].Rot + 1) mod 4;
+  if MouseButton=-1 then if Land[Y,X].Rot<1 then Land[Y,X].Rot:=3 else dec(Land[Y,X].Rot);
+
+
+  setlength(tiles, map.Y+1);
+  for i:=1 to Map.Y do
+    setlength(tiles[i], map.X+1);
+
+
+  if Land[Y,X].Terrain in [192, 196] then begin
+    FillArea(x,y,1);
+
+    for i:=1 to Map.Y do for k:=1 to Map.X do begin
+      if tiles[i,k] = 1 then
+        Land[i,k].Rot := Land[Y,X].Rot;
+
+      //Match direction, else ignore
+      if tiles[i,k] = 1+1 then //Shores
+        case Land[i,k].Rot of
+          0: if Land[Y,X].Rot = 3 then Land[i,k].Terrain := 126 else
+             if Land[Y,X].Rot = 1 then Land[i,k].Terrain := 127;
+
+          1: if Land[Y,X].Rot = 0 then Land[i,k].Terrain := 126 else
+             if Land[Y,X].Rot = 2 then Land[i,k].Terrain := 127;
+
+          2: if Land[Y,X].Rot = 1 then Land[i,k].Terrain := 126 else
+             if Land[Y,X].Rot = 3 then Land[i,k].Terrain := 127;
+
+          3: if Land[Y,X].Rot = 2 then Land[i,k].Terrain := 126 else
+             if Land[Y,X].Rot = 0 then Land[i,k].Terrain := 127;
+        end;
+
+    end;
+  end;
+
 end;
 
 
