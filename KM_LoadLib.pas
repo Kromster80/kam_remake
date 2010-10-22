@@ -16,13 +16,15 @@ const
   siCampTPRTexts = 350;
 
 type
+  TStringArray = array of string;
+
   TTextLibrary = class(TObject)
   private
     TextStrings: array[0..MaxStrings] of string;
     SetupStrings: array[0..MaxStrings] of string;
-    RemakeStrings: array[0..MaxStrings] of string;
+    RemakeStrings: TStringArray;
     procedure LoadLIBFile(FilePath:string; var aArray:array of string);
-    procedure LoadLIBXFile(FilePath:string; var aArray:array of string);
+    procedure LoadLIBXFile(FilePath:string; var aArray:TStringArray);
     procedure ExportTextLibrary(var aLibrary: array of string; aFileName:string);
   public
     constructor Create(aLibPath, aLocale: string);
@@ -128,18 +130,26 @@ end;
 
 
 {LIBX files consist of lines. Each line has an index and a text. Lines without index are skipped}
-procedure TTextLibrary.LoadLIBXFile(FilePath:string; var aArray:array of string);
+procedure TTextLibrary.LoadLIBXFile(FilePath:string; var aArray:TStringArray);
 var
   aStringList:TStringList;
   i:integer;
   s:string;
   firstDelimiter:integer;
-  id:integer;
+  ID, MaxID:integer;
 begin
   if not CheckFileExists(FilePath) then exit;
 
   aStringList := TStringList.Create;
   aStringList.LoadFromFile(FilePath);
+
+  s := aStringList[0];
+  if TrimLeft(LeftStr(s, 6)) <> 'MaxID:' then exit;
+
+  firstDelimiter := Pos(':', s);
+  if not TryStrToInt(RightStr(s, Length(s)-firstDelimiter), MaxID) then exit;
+
+  SetLength(aArray, MaxID+1);
 
   for i:=0 to aStringList.Count-1 do
   begin
@@ -148,15 +158,15 @@ begin
     firstDelimiter := Pos(':', s);
     if firstDelimiter=0 then continue;
     
-    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), id) then continue;
+    if not TryStrToInt(TrimLeft(LeftStr(s, firstDelimiter-1)), ID) then continue;
 
-    if ID <= MaxStrings then
+    if ID <= MaxID then
     begin
       s := RightStr(s, Length(s)-firstDelimiter);
       //Required characters that can't be stored in plain text
       s := StringReplace(s, '\n', eol, [rfReplaceAll, rfIgnoreCase]); //EOL
       s := StringReplace(s, '\\', '\', [rfReplaceAll, rfIgnoreCase]); //Slash
-      aArray[id] := s;
+      aArray[ID] := s;
     end;
   end;
 
