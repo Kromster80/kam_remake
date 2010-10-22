@@ -13,6 +13,8 @@ type
   TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
 
+
+
 type
   TResource = class
   private
@@ -21,7 +23,7 @@ type
     procedure StepRefresh();
     procedure StepCaption(aCaption:string);
 
-    function LoadPalette(filename:string; PalID:byte):boolean;
+    function LoadPalettes():boolean;
     function LoadMapElemDAT(filename:string):boolean;
     function LoadPatternDAT(filename:string):boolean;
     function LoadHouseDAT(filename:string):boolean;
@@ -37,7 +39,7 @@ type
     procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
 
-    function GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint; //This should belong to TRender?
+    function GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:TKMPal=DEF_PAL):gluint; //This should belong to TRender?
   public
     constructor Create;
     destructor Destroy; override;
@@ -106,8 +108,7 @@ begin
   fLog.AssertToLog(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
-  for i:=1 to PAL_COUNT do
-   LoadPalette(ExeDir+'data\gfx\'+PalFiles[i],i);
+  LoadPalettes();
   fLog.AppendLog('Reading palettes',true);
 
   RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
@@ -194,26 +195,30 @@ end;
 //=============================================
 //Reading Palette for trees/objects
 //=============================================
-function TResource.LoadPalette(filename:string; PalID:byte):boolean;
-var f:file; i:integer;
+function TResource.LoadPalettes():boolean;
+var f:file; i:TKMPal; k:integer; FileName:string;
 begin
-  Result:=false;
-  if not CheckFileExists(filename,true) then exit;
+  Result := true;
 
-  assignfile(f,filename);
-  reset(f,1);
-  blockread(f,Pal[PalID],48); //Unknown and/or unimportant
-  blockread(f,Pal[PalID],768); //256*3
-  closefile(f);
+  for i:=low(TKMPal) to high(TKMPal) do begin
 
-  if PalID = pal_lin then //Make greyscale linear Pal
-    for i:=0 to 255 do begin
-      Pal[pal_lin,i+1,1] := i;
-      Pal[pal_lin,i+1,2] := i;
-      Pal[pal_lin,i+1,3] := i;
-    end;
+    FileName := ExeDir+'data\gfx\'+PalFiles[i];
+    if FileExists(FileName) then begin
+      assignfile(f,FileName);
+      reset(f,1);
+      blockread(f,Pal[i],48); //Unknown and/or not important
+      blockread(f,Pal[i],768); //256*3
+      closefile(f);
 
-Result:=true;
+      if i = pal_lin then //Make greyscale linear Pal
+        for k:=0 to 255 do begin
+          Pal[pal_lin,k+1,1] := k;
+          Pal[pal_lin,k+1,2] := k;
+          Pal[pal_lin,k+1,3] := k;
+        end;
+    end else
+      Result := false;
+  end;
 end;
 
 
@@ -470,7 +475,8 @@ const
   TexWidth=256; //Connected to TexData, don't change
 var
   f:file;
-  p,t:byte;
+  p:TKMPal;
+  t:byte;
   i,k,ci,ck:integer;
   MaxHeight:integer;
   AdvX,AdvY:integer;
@@ -498,7 +504,7 @@ begin
   closefile(f);
 
   //Special fixes: for monochrome fonts
-  if FontPal[aFont]=10 then
+  if FontPal[aFont]=pal_lin then
   for i:=0 to 255 do
     if FontData[aFont].Pal[i]<>0 then //see if letterspace is used
       for k:=1 to 4096 do
@@ -551,7 +557,7 @@ begin
 
     CreateDir(ExeDir+'Export\');
     CreateDir(ExeDir+'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+inttostr(p)+'.bmp');
+    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+PalFiles[p]+'.bmp');
     MyBitMap.Free;
   end;
 
@@ -675,7 +681,7 @@ end;
 //=============================================
 //Make texture
 //=============================================
-function TResource.GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:byte=DEF_PAL):gluint;
+function TResource.GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:TKMPal=DEF_PAL):gluint;
 var
   MyBitMap:TBitMap;
   i,k:word;
@@ -944,7 +950,7 @@ procedure ExportRX2BMP(RXid:integer);
 var MyBitMap:TBitMap;
     id,t:integer;
     sy,sx,y,x:integer;
-    UsePal:integer;
+    UsePal:TKMPal;
 begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\'+RXData[RXid].Title+'.rx\');
@@ -963,7 +969,6 @@ begin
     UsePal:=DEF_PAL;
     if RXid=5 then UsePal:=RX5Pal[id];
     if RXid=6 then UsePal:=RX6Pal[id];
-    if UsePal=0 then UsePal:=10;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[RXid].Data[id,y*sx+x]+1;

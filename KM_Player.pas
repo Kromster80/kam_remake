@@ -424,7 +424,7 @@ var i:integer;
 begin
   Result := 4; //4 = Black which can be the default when a non-pallete 32 bit color value is used
   for i:=1 to 256 do
-    if Pal[2,i,1] + Pal[2,i,2] shl 8 + Pal[2,i,3] shl 16 or $FF000000 = PlayerColor then
+    if Pal[DEF_PAL,i,1] + Pal[DEF_PAL,i,2] shl 8 + Pal[DEF_PAL,i,3] shl 16 or $FF000000 = PlayerColor then
       Result := i;
 end;
 

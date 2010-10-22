@@ -923,9 +923,9 @@ begin
   for k:=0 to Columns-1 do
   if i*Columns+k<=255 then
     Colors[i*Columns+k] := $FF000000 OR (
-                            Pal[2, i*Columns+k+1, 1] +
-                            Pal[2, i*Columns+k+1, 2] shl 8 +
-                            Pal[2, i*Columns+k+1, 3] shl 16);
+                            Pal[DEF_PAL, i*Columns+k+1, 1] +
+                            Pal[DEF_PAL, i*Columns+k+1, 2] shl 8 +
+                            Pal[DEF_PAL, i*Columns+k+1, 3] shl 16);
   ParentTo(aParent);
 end;
 
@@ -933,9 +933,9 @@ end;
 function TKMColorSwatch.GetColor():TColor4;
 begin
   Result := $FF000000 OR (
-            Pal[2, SelectedColor+1, 1] +
-            Pal[2, SelectedColor+1, 2] shl 8 +
-            Pal[2, SelectedColor+1, 3] shl 16);
+            Pal[DEF_PAL, SelectedColor+1, 1] +
+            Pal[DEF_PAL, SelectedColor+1, 2] shl 8 +
+            Pal[DEF_PAL, SelectedColor+1, 3] shl 16);
 end;
 
 

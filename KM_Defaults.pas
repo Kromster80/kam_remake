@@ -9,7 +9,6 @@ const
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   ToolBarWidth          = 224;          //Toolbar width in game
-  DEF_PAL               = 2;            //Default palette to use when generating full-color RGB textures
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
   //SPEEDUP_MULTIPLIER    = 10;           //Increase of game pace on F8
@@ -214,29 +213,29 @@ type gr_Message = (     //Game result
 
                
 {Palettes}
+type TKMPal = (pal_map=1, pal_0=2, pal_1=3, pal_2=4, pal_3=5, pal_4=6, pal_5=7, pal_set=8, pal_set2=9, pal_lin=10,
+               pal2_mapgold=11, pal2_setup=12);
 const
-  PAL_COUNT=12;
+  DEF_PAL = pal_0;            //Default palette to use when generating full-color RGB textures
 
 var //There are 9 palette files Map, Pal0-5, Setup and Setup2 +1 linear +2lbm
-  Pal:array[1..PAL_COUNT,1..256,1..3]of byte;
+  Pal:array[TKMPal,1..256,1..3]of byte;
 
 const
  //Palette filename corresponds with pal_**** constant, except pal_lin which is generated proceduraly (filename doesn't matter for it)
- PalFiles:array[1..PAL_COUNT]of string = (
+ PalFiles:array[TKMPal]of string = (
  'map.bbm', 'pal0.bbm', 'pal1.bbm', 'pal2.bbm', 'pal3.bbm', 'pal4.bbm', 'pal5.bbm', 'setup.bbm', 'setup2.bbm', 'map.bbm',
  'mapgold.lbm', 'setup.lbm');
- pal_map=1; pal_0=2; pal_1=3; pal_2=4; pal_3=5; pal_4=6; pal_5=7; pal_set=8; pal_set2=9; pal_lin=10;
- pal2_mapgold=11; pal2_setup=12;
 
- RX5Pal:array[1..40]of byte = (
- 12,12,12,12,12,12, 9, 9, 9, 1,
-  1, 1, 1, 1, 1, 1,12,12,12,11,
- 11,11,11,11,12, 1, 1, 1, 1, 1,
- 12,12,12,12,12,12,12, 0, 0, 0);
+ RX5Pal:array[1..40]of TKMPal = (
+ pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_set2, pal_set2, pal_set2, pal_map,
+  pal_map, pal_map, pal_map, pal_map, pal_map, pal_map,pal2_setup,pal2_setup,pal2_setup,pal2_mapgold,
+ pal2_mapgold,pal2_mapgold,pal2_mapgold,pal2_mapgold,pal2_setup, pal_map, pal_map, pal_map, pal_map, pal_map,
+ pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_lin, pal_lin, pal_lin);
  //I couldn't find matching palettes for the 17th and 18th entries
- RX6Pal:array[1..20]of byte = (
- 8,8,8,8,8,8,9,9,9,1,
- 1,1,1,1,1,1,10,10,0,0);
+ RX6Pal:array[1..20]of TKMPal = (
+ pal_set,pal_set,pal_set,pal_set,pal_set,pal_set,pal_set2,pal_set2,pal_set2,pal_map,
+ pal_map,pal_map,pal_map,pal_map,pal_map,pal_map,pal_lin,pal_lin,pal_lin,pal_lin);
 
 {Fonts}
 type //Indexing should start from 1.
@@ -257,9 +256,9 @@ const //Font01.fnt seems to be damaged..
 
   //Note: Fonts with palette 0 are using custom coloring,
   //since no existing palette matches them well and they are monochrome
-  FontPal:array[TKMFont]of byte =
-  ( 2, 1,10, 2,12,12,12,12,12, 8,
-   10,11, 2,10, 2,10, 9);
+  FontPal:array[TKMFont]of TKMPal =
+  (pal_0, pal_map,pal_lin, pal_0,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_set,
+   pal_lin,pal2_mapgold, pal_0,pal_lin, pal_0,pal_lin, pal_set2);
 
 //Which MapEditor page is being shown. Add more as they are needed.
 type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
