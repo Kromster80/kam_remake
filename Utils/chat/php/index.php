@@ -2,102 +2,61 @@
 <HEAD>
 <TITLE></TITLE>
 </HEAD>
-<BODY>     
-    <form action="index.php?f=1" method=POST>  
+<BODY>  
     <?php
-         if (( count( $_POST ) ) && ($_GET['f'] == 1))        
-         {
-           include 'add_user.php';
-    ?>         
+      function AddForm($FileName, $ParamsNames, $Params, $BtnName, $Index)
+      {
+        echo "<form action='index.php?f=".$Index."' method=POST>";
+        if (( count( $_POST ) ) && ($_GET['f'] == $Index))        
+        {
+           include $FileName;
+        }
+        else if (!($_GET['f']))
+        { 
+          if ($Params)
+          {                                                                    
+            for ($i = 0; $i < count($Params); $i++)
+            {
+            	echo "<p>".$ParamsNames[$i]."</p><input name='".$Params[$i]."' value='' type='text' />";
+            }
+          }
+         echo "<p><input name='op' id='add' value='".$BtnName."' class='form-submit' type='submit' /></p>";
+        }  
+        echo "</form>";
+      }
+    ?>
+<Table Border=1>
+<tr>
+<td valign=Top>
     <?php
-         } else if (!($_GET['f']))
-         {
-    ?> 
-         <p>User Name</p><input name='name' value='' type='text' />
-         <p>PassWord</p><input name='password' value='' type='text' />
-         <p>IP</p><input name='ip' value='' type='text' />    
-         <p><input name='op' id='add' value='Add User' class='form-submit' type='submit' /></p>
+      AddForm('add_user.php', array('User Name', 'PassWord', 'IP'), 
+              array('name', 'password', 'ip'), 'Add User', 1);
+      AddForm('list_users.php', array(), array(), 'Get Users', 2);   
+      AddForm('clean_users.php', array(), array(), 'Clean Users', 3);           
+      AddForm('update_last_visit.php', array('User Name'), array('name'), 'Update last visit', 4); 
+      AddForm('add_room.php', array('Host Name', 'Room Name'), 
+              array('host_name', 'room_name'), 'Add Room', 5);        
+      AddForm('list_rooms.php', array(), array(), 'Get Rooms', 6);     
+    ?>
+</td>
+<td valign=Top>
     <?php
-         }
-    ?> 
-    </form>    
-    <form action="index.php?f=2" method=POST>  
+      AddForm('add_user_to_room.php', array('User Name', 'Room Name'),
+              array('user_name', 'room_name'), 'Add User To Room', 7);
+      AddForm('leave_room.php', array('User Name', 'Room Name'),
+              array('user_name', 'room_name'), 'Leave Room', 8);
+      AddForm('clean_users_in_room.php', array(), array(), 'Clean Users in Room', 9);
+      AddForm('clean_rooms.php', array(), array(), 'Clean Rooms', 10);
+      AddForm('list_users_in_room.php', array('Room Name'), array('room_name'), 'Get Users in Room', 11);
+    ?>
+</td>
+<td valign=Top>
     <?php
-         if (( count( $_POST ) ) && ($_GET['f'] == 2))        
-         {
-           include 'list_users.php';
-    ?>         
-    <?php
-         } else if (!($_GET['f']))
-         {
-    ?> 
-         <p><input name='op' id='add' value='Get Users' class='form-submit' type='submit' /></p>
-    <?php
-         }
-    ?> 
-    </form>  
-    <form action="index.php?f=3" method=POST>  
-    <?php
-         if (( count( $_POST ) ) && ($_GET['f'] == 3))        
-         {
-           include 'clean_users.php';
-    ?>         
-    <?php
-         } else if (!($_GET['f']))
-         {
-    ?> 
-         <p><input name='op' id='add' value='Clean Users' class='form-submit' type='submit' /></p>
-    <?php
-         }
-    ?> 
-    </form>  
-    <form action="index.php?f=4" method=POST>  
-    <?php
-         if (( count( $_POST ) ) && ($_GET['f'] == 4))        
-         {
-           include 'update_last_visit.php';
-    ?>         
-    <?php
-         } else if (!($_GET['f']))
-         {
-    ?> 
-         <p>User Name</p><input name='name' value='' type='text' />
-         <p><input name='op' id='add' value='Update last visit' class='form-submit' type='submit' /></p>
-    <?php
-         }
-    ?> 
-    </form>  
-    <form action="index.php?f=5" method=POST>  
-    <?php
-         if (( count( $_POST ) ) && ($_GET['f'] == 5))        
-         {
-           include 'add_room.php';
-    ?>         
-    <?php
-         } else if (!($_GET['f']))
-         {
-    ?> 
-         <p>Host Name</p><input name='host_name' value='' type='text' />
-         <p>Room Name</p><input name='room_name' value='' type='text' />
-         <p><input name='op' id='add' value='Add Room' class='form-submit' type='submit' /></p>
-    <?php
-         }
-    ?> 
-    </form>    
-    <form action="index.php?f=6" method=POST>  
-    <?php
-         if (( count( $_POST ) ) && ($_GET['f'] == 6))        
-         {
-           include 'list_rooms.php';
-    ?>         
-    <?php
-         } else if (!($_GET['f']))
-         {
-    ?> 
-         <p><input name='op' id='add' value='Get Rooms' class='form-submit' type='submit' /></p>
-    <?php
-         }
-    ?> 
-    </form>  
+        AddForm('add_post.php', array('User Name', 'Room Name', 'Text'), 
+                array('user_name', 'room_name', 'text'), 'Add Post', 12);
+    ?>
+</td>
+</tr>
+</Table>
 </BODY>
 </HTML>
