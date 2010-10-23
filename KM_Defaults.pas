@@ -229,7 +229,7 @@ const
 
  RX5Pal:array[1..40]of TKMPal = (
  pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_set2, pal_set2, pal_set2, pal_map,
-  pal_map, pal_map, pal_map, pal_map, pal_map, pal_map,pal2_setup,pal2_setup,pal2_setup,pal2_mapgold,
+ pal_map, pal_map, pal_map, pal_map, pal_map, pal_map,pal2_setup,pal2_setup,pal2_setup,pal2_mapgold,
  pal2_mapgold,pal2_mapgold,pal2_mapgold,pal2_mapgold,pal2_setup, pal_map, pal_map, pal_map, pal_map, pal_map,
  pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_lin, pal_lin, pal_lin);
  //I couldn't find matching palettes for the 17th and 18th entries
@@ -1138,12 +1138,12 @@ var
   RXData:array [1..6]of record
     Title:string;
     Qty:integer;
-    Pal:array of byte;
+    Flag:array of byte;
     Size:array of record X,Y:word; end;
     Pivot:array of record x,y:integer; end;
     Data:array of array of byte;
     RGBA:array of array of cardinal; //Expanded image
-    Mask:array of array of byte;     //Mask for team colors
+    Mask:array of array of cardinal; //Mask for team colors
     NeedTeamColors:boolean;
   end;
 

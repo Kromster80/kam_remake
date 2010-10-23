@@ -4,13 +4,14 @@ interface
 uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
+  PNGImage,
   Windows, Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_LoadLib, Classes
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, PasZLib {$ENDIF};
 
 type
-  TByteArray2 = array of Byte;
-  TexMode = (tm_NoCol, tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
+  TCardinalArray2 = array of Cardinal;
+  TexMode = (tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
 
 
@@ -39,12 +40,14 @@ type
     procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
 
-    function GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:TKMPal=DEF_PAL):gluint; //This should belong to TRender?
+    function GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint; //This should belong to TRender?
   public
     constructor Create;
     destructor Destroy; override;
     function LoadMenuResources(aLocale:string):boolean;
     function LoadGameResources():boolean;
+
+    function GetColor32(aIndex:word; aPal:TKMPal=DEF_PAL):cardinal;
 
     property GetDataState:TDataLoadingState read DataState;
     function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
@@ -122,9 +125,11 @@ begin
   begin
     StepCaption('Reading '+RXData[i].Title+' GFX ...');
     fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
+
+    LoadRX7(i); //Something fancy to Load RX7 data (custom bitmaps and overrides)
+
     if i=4 then MakeCursors(4); //Make GUI items before they are flushed in MakeGFX
     MakeGFX(nil,i);
-    LoadRX7(i); //Something fancy to Load RX7 data (custom bitmaps and overrides)
     StepRefresh();
   end;
 
@@ -182,6 +187,12 @@ begin
     LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt', TKMFont(i), DoExport)
   else
     LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt', TKMFont(i), DoExport);
+end;
+
+
+function TResource.GetColor32(aIndex:word; aPal:TKMPal=DEF_PAL):cardinal;
+begin
+  Result := Pal[aPal,aIndex,1] + Pal[aPal,aIndex,2] shl 8 + Pal[aPal,aIndex,3] shl 16 OR $FF000000;
 end;
 
 
@@ -475,12 +486,11 @@ const
   TexWidth=256; //Connected to TexData, don't change
 var
   f:file;
-  p:TKMPal;
-  t:byte;
+  L:byte;
   i,k,ci,ck:integer;
   MaxHeight:integer;
   AdvX,AdvY:integer;
-  TD:array of byte;
+  TD:array of cardinal;
   MyBitMap:TBitMap;
 begin
   Result:=false;
@@ -514,8 +524,7 @@ begin
 
   //Compile texture
   AdvX:=0; AdvY:=0;
-  setlength(TD,TexWidth*TexWidth+1);
-  FillChar(TD[0],TexWidth*TexWidth+1,$80); //Make some background
+  setlength(TD,TexWidth*TexWidth);
 
   for i:=0 to 255 do
     if FontData[aFont].Pal[i]<>0 then
@@ -528,8 +537,11 @@ begin
           inc(AdvY,MaxHeight);
         end;
 
-        for ci:=1 to Height do for ck:=1 to Width do
-          TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=Data[(ci-1)*Width+ck];
+        for ci:=1 to Height do for ck:=1 to Width do begin
+          L := Data[(ci-1)*Width+ck]; //0..255
+          if L<>0 then
+            TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=GetColor32(L+1,FontPal[aFont]);
+        end;
 
         u1:=(AdvX+1)/TexWidth;
         v1:=AdvY/TexWidth;
@@ -539,7 +551,7 @@ begin
         inc(AdvX,1+Width+1);
       end;
 
-    FontData[aFont].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_NoCol,FontPal[aFont]);
+    FontData[aFont].TexID := GenTexture(TexWidth,TexWidth,@TD[0],tm_TexID);
 
   //for i:=1 to 10 do
   if WriteFontToBMP then begin
@@ -549,15 +561,12 @@ begin
     MyBitMap.Height:=TexWidth;
 
     for ci:=0 to TexWidth-1 do for ck:=0 to TexWidth-1 do begin
-      p:=FontPal[aFont];
-      //p:=i;
-      t:=TD[ci*TexWidth+ck]+1;
-      MyBitMap.Canvas.Pixels[ck,ci]:=Pal[p,t,1]+Pal[p,t,2]*256+Pal[p,t,3]*65536;
+      MyBitMap.Canvas.Pixels[ck,ci]:= TD[ci*TexWidth+ck] AND $FFFFFF;
     end;
 
     CreateDir(ExeDir+'Export\');
     CreateDir(ExeDir+'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+PalFiles[p]+'.bmp');
+    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(filename)+PalFiles[FontPal[aFont]]+'.bmp');
     MyBitMap.Free;
   end;
 
@@ -573,8 +582,9 @@ procedure TResource.LoadRX7(aID:integer);
 var
   FileList:TStringList;
   SearchRec:TSearchRec;
-  i:integer;
-  RX,ID:integer;
+  i:integer; x,y:integer;
+  RX,ID:integer; p:cardinal;
+  po:TPNGObject;
 begin
 
   if not DirectoryExists(ExeDir + 'Sprites\') then exit;
@@ -585,30 +595,39 @@ begin
   repeat
     if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
     if SearchRec.Attr and faDirectory <> faDirectory then
-    if GetFileExt(SearchRec.Name) = 'TGA' then
+    if GetFileExt(SearchRec.Name) = 'PNG' then
       FileList.Add(SearchRec.Name);
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
 
-  //#-####.tga - default texture
-  //#-####a.tga - alternative texture
+  //#-####.png - default texture
+  //#-####a.png - alternative texture
   for i:=0 to FileList.Count-1 do begin
     RX := strtoint(FileList.Strings[i][1]);
     ID := strtoint(Copy(FileList.Strings[i], 3, 4));
     if (RX=aID) and InRange(ID,1,RXData[RX].Qty) then begin //Replace only certain sprites
-      if FileList.Strings[i][7] = '.' then
-        LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[i], GFXData[RX,ID].TexID, 0)
-      else
-      if FileList.Strings[i][7] = 'a' then
-        LoadTexture(ExeDir + 'Sprites\' + FileList.Strings[i], GFXData[RX,ID].AltID, 0);
 
-      //GFXData[RX,ID].PxWidth := 144;
-      //GFXData[RX,ID].PxHeight := 136;
+      po := TPNGObject.Create;
+      po.LoadFromFile(ExeDir + 'Sprites\' + FileList.Strings[i]);
 
-      GFXData[RX,ID].u1 := 0;
-      GFXData[RX,ID].u2 := 1;
-      GFXData[RX,ID].v1 := 0;
-      GFXData[RX,ID].v2 := 1;
+      RXData[RX].Size[ID].X := po.Width;
+      RXData[RX].Size[ID].Y := po.Height;
+
+      setlength(RXData[RX].RGBA[ID], po.Width*po.Height);
+      setlength(RXData[RX].Mask[ID], po.Width*po.Height);
+
+      for y:=0 to po.Height-1 do begin
+        //todo: check for rgbalpha
+        //todo: handle Alt textures
+        //if po.Header.ColorType = COLOR_RGBALPHA then
+        //  po.CreateAlpha;
+
+        for x:=0 to po.Width-1 do begin
+          p := (po.AlphaScanline[y]^[x]) shl 24;
+          RXData[RX].RGBA[ID, y*po.Width+x] := (po.Pixels[x,y] AND $FFFFFF) + p;
+        end;
+      end;
+      po.Free;
     end;
   end;
 
@@ -629,17 +648,19 @@ begin
   blockread(f, RXData[ID].Qty, 4);
 
   setlength(GFXData[ID],      RXData[ID].Qty + 1);
-  setlength(RXData[ID].Pal,   RXData[ID].Qty + 1);
+  setlength(RXData[ID].Flag,  RXData[ID].Qty + 1);
   setlength(RXData[ID].Size,  RXData[ID].Qty + 1);
   setlength(RXData[ID].Pivot, RXData[ID].Qty + 1);
   setlength(RXData[ID].Data,  RXData[ID].Qty + 1);
+  setlength(RXData[ID].RGBA,  RXData[ID].Qty + 1);
+  setlength(RXData[ID].Mask,  RXData[ID].Qty + 1);
 
-  blockread(f, RXData[ID].Pal[1], RXData[ID].Qty);
+  blockread(f, RXData[ID].Flag[1], RXData[ID].Qty);
 
   if (not LOAD_UNIT_RX_FULL)and(RXData[ID].Title = 'Units') then RXData[ID].Qty:=7885;
 
   for i:=1 to RXData[ID].Qty do
-    if RXData[ID].Pal[i] = 1 then
+    if RXData[ID].Flag[i] = 1 then
     begin
       blockread(f, RXData[ID].Size[i].X, 4);
       blockread(f, RXData[ID].Pivot[i].x, 8);
@@ -650,6 +671,8 @@ begin
   closefile(f);
   fLog.AppendLog(RXData[ID].Title+' -',RXData[ID].Qty);
   Result:=true;
+
+  ExpandRX(ID);
 end;
 
 
@@ -658,22 +681,36 @@ end;
 //Convert paletted data into RGBA and select Team color layer from it
 //=============================================
 procedure TResource.ExpandRX(ID:integer);
-var i:integer; x,y:integer; T:word;
+var i:integer; x,y:integer; Palette:TKMPal; L:byte; Pixel:integer;
 begin
   with RXData[ID] do
-  for i:=1 to Qty do
-  if Pal[i] = 1 then begin
-//    setlength(RGBA[i], Size[i].X*Size[i].Y*4); //Append mem
+  for i:=1 to Qty do begin
 
-    for y:=0 to Size[i].Y-1 do for x:=0 to Size[i].X-1 do
-    begin
-      T := Data[i, y*Size[i].X+x] + 1; //1..256
-      if T = 1 then
-//        RGBA := $00000000 //Transparent
-      else
-//        RGBA := Pal[DEF_PAL,t,1] + Pal[DEF_PAL,t,2] shl 8 + Pal[DEF_PAL,t,3] shl 16 OR $FF000000;
+    case ID of
+      5: Palette := RX5Pal[i];
+      6: Palette := RX6Pal[i];
+      else Palette := DEF_PAL;
     end;
 
+    if Flag[i] = 1 then begin
+      setlength(RGBA[i], Size[i].X*Size[i].Y);
+      setlength(Mask[i], Size[i].X*Size[i].Y);
+
+      for y:=0 to Size[i].Y-1 do for x:=0 to Size[i].X-1 do
+      begin
+        Pixel := y*Size[i].X+x;
+        L := Data[i, Pixel]; //0..255
+        if L <> 0 then
+          RGBA[i,Pixel] := GetColor32(L+1, Palette);
+
+        case L of //todo: convert to 8bit
+          24,30: Mask[i,Pixel] := $70FFFFFF;   //7
+          25,29: Mask[i,Pixel] := $B0FFFFFF;   //11
+          26,28: Mask[i,Pixel] := $E0FFFFFF;   //14
+          27:    Mask[i,Pixel] := $FFFFFFFF;   //16
+        end;
+      end;
+   end;
   end;
 end;
 
@@ -681,85 +718,44 @@ end;
 //=============================================
 //Make texture
 //=============================================
-function TResource.GenTexture(mx, my:word; const Data:TByteArray2; Mode:TexMode; const UsePal:TKMPal=DEF_PAL):gluint;
+function TResource.GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint;
 var
   MyBitMap:TBitMap;
   i,k:word;
-  x:byte;
-  by:^cardinal;
-  DestX, DestY:word;
-  TD:Pointer;
 begin
 
   Result := 0;
 
-  DestX := MakePOT(mx);
-  DestY := MakePOT(my);
-
+  DestX := MakePOT(DestX);
+  DestY := MakePOT(DestY);
   if DestX*DestY = 0 then exit; //Do not generate zeroed textures
 
-  if Mode=tm_AlphaTest then begin
-    Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
-    exit;
-  end;
-
-
-  TD:=AllocMem(DestX*DestY*4); //same as GetMem+FillChar(0)
-  //Convert palette bitmap data to 32bit RGBA texture data
-  for i:=0 to my-1{(DestY-1)} do for k:=0 to mx-1{(DestX-1)} do begin
-    x := Data[i*mx+k];
-    if (x<>0) then begin
-      by := pointer(cardinal(TD)+cardinal((i+DestY-my)*DestX+k)*4); //Get pointer
-
-      case Mode of
-        tm_NoCol: by^ := Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000;
-        tm_TexID: begin
-                    if InRange(x,24,30) then
-                      by^ := cardinal((byte(x-27)*42+128)*65793) OR $FF000000 //convert to greyscale B>>>>>W
-                      //Alternative method
-                      //by^:=$FF000000
-                    else
-                      by^ := Pal[UsePal,x+1,1]+Pal[UsePal,x+1,2] SHL 8 +Pal[UsePal,x+1,3] SHL 16 OR $FF000000;
-                  end;
-        tm_AltID: case x of
-                    24,30: by^ := $70FFFFFF;   //7
-                    25,29: by^ := $B0FFFFFF;   //11
-                    26,28: by^ := $E0FFFFFF;   //14
-                    27:    by^ := $FFFFFFFF;   //16
-                    else   by^ := 0;
-                  end;
-        //Alternative method
-        //if InRange(x,24,30) then by^ := ((x-24)*21+128) + ((x-24)*21+128) SHL 8 + ((x-24)*21+128) SHL 16 OR $FF000000;
-      end;
-    end;
-  end;
-
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
+
   case Mode of
-    //Has no team color info at all
-    tm_NoCol: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
-    //Base layer with greyscale color
-    tm_TexID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+    tm_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    //Base layer
+    tm_TexID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Team color layer
-    tm_AltID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, TD);
+    tm_AltID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
 
   if WriteAllTexturesToBMP then begin
     CreateDir(ExeDir+'Export\GenTextures\');
     MyBitMap:=TBitMap.Create;
-    MyBitMap.PixelFormat:=pf32bit;
+    MyBitMap.PixelFormat:=pf24bit;
     MyBitMap.Width:=DestX;
     MyBitMap.Height:=DestY;
 
     for i:=0 to DestY-1 do for k:=0 to DestX-1 do
-      MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(TD)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
+      MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(Data)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
 
     MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
     MyBitMap.Free;
   end;
 
-  FreeMem(TD);
+  //FreeMem(TD);
+//todo: FreeMEM!!
 end;
 
 
@@ -849,7 +845,8 @@ var
   ci,j,i,k,LeftIndex,RightIndex,TexCount,SpanCount:integer;
   AllocatedRAM,RequiredRAM,ColorsRAM:integer;
   WidthPOT,HeightPOT:integer;
-  TD:array of byte;
+  TD:array of cardinal;
+  TA:array of cardinal;
 begin
 
   LeftIndex:=0; AllocatedRAM:=0; RequiredRAM:=0; ColorsRAM:=0; TexCount:=0;
@@ -875,44 +872,38 @@ begin
       inc(SpanCount);
     end;
 
-    RightIndex:=LeftIndex+SpanCount-1;
-    WidthPOT:=MakePOT(WidthPOT);
+    RightIndex := LeftIndex+SpanCount-1;
+    WidthPOT := MakePOT(WidthPOT);
     setlength(TD,WidthPOT*HeightPOT+1);
+    setlength(TA,WidthPOT*HeightPOT+1);
 
     for i:=1 to HeightPOT do begin
       ci:=0;
       for j:=LeftIndex to RightIndex do
         for k:=1 to RXData[RXid].Size[j].X do begin
           inc(ci);
-          if i<=RXData[RXid].Size[j].Y then
-            TD[(i-1)*WidthPOT+ci-1]:=RXData[RXid].Data[j,(i-1)*RXData[RXid].Size[j].X+k-1]
-          else
-            TD[(i-1)*WidthPOT+ci-1]:=0;
+          if i<=RXData[RXid].Size[j].Y then begin
+            TD[(i-1)*WidthPOT+ci-1] := RXData[RXid].RGBA[j,(i-1)*RXData[RXid].Size[j].X+k-1];
+            TA[(i-1)*WidthPOT+ci-1] := RXData[RXid].Mask[j,(i-1)*RXData[RXid].Size[j].X+k-1];
+          end else begin
+            //TD[(i-1)*WidthPOT+ci-1]:=0;
+          end;
         end;
     end;
 
-    //If we need to prepare textures for TeamColors                              //special fix fol iron mine logo
+    //If we need to prepare textures for TeamColors                           //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
     begin
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
       //TeamColors are done through alternative plain colored texture
-      for i:=0 to length(TD)-1 do
-        if TD[i] in [24..30] then begin //Determine if TD needs alt color
-          GFXData[RXid,LeftIndex].AltID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_AltID);
-          inc(ColorsRAM,WidthPOT*HeightPOT*4);
-          break;
-        end;
+      GFXData[RXid,LeftIndex].AltID := GenTexture(WidthPOT,HeightPOT,@TA[0],tm_AltID);
+      inc(ColorsRAM,WidthPOT*HeightPOT*4);
     end
     else
-      if RXid=5 then //Use individual palettes for each image in GUIMain.rx
-        GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX5Pal[LeftIndex])
-      else
-      if RXid=6 then //Use individual palettes for each image in GUIMainH.rx
-        GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol,RX6Pal[LeftIndex])
-      else
-        GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_NoCol);
+      GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
 
     setlength(TD,0);
+    setlength(TA,0);
 
     k:=0;
     for j:=LeftIndex to RightIndex do begin //Hack to test AlphaTest
@@ -972,7 +963,7 @@ begin
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[RXid].Data[id,y*sx+x]+1;
-      MyBitMap.Canvas.Pixels[x,y]:=Pal[UsePal,t,1]+Pal[UsePal,t,2]*256+Pal[UsePal,t,3]*65536;
+      MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,UsePal);
     end;
     if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
 
@@ -1014,7 +1005,7 @@ begin
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
             t:=RXData[3].Data[ci,y*sx+x]+1;
-            MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+            MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
           end;
           if sy>0 then MyBitMap.SaveToFile(
           ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
@@ -1047,7 +1038,7 @@ begin
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[3].Data[ci,y*sx+x]+1;
-      MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+      MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
     end;
     if sy>0 then MyBitMap.SaveToFile(
     ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
@@ -1088,7 +1079,7 @@ begin
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do begin
           t:=RXData[2].Data[ci,y*sx+x]+1;
-          MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+          MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
         end;
         if sy>0 then MyBitMap.SaveToFile(
         ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
@@ -1115,7 +1106,7 @@ begin
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
             t:=RXData[2].Data[ci,y*sx+x]+1;
-            MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+            MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
           end;
           if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
@@ -1154,7 +1145,7 @@ begin
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do begin
         t:=RXData[1].Data[ci,y*sx+x]+1;
-        MyBitMap.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2]*256+Pal[DEF_PAL,t,3]*65536;
+        MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
       end;
       if sy>0 then MyBitMap.SaveToFile(
       //@Lewin: insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
@@ -1260,57 +1251,57 @@ end;
 
 procedure TResource.MakeCursors(RXid:integer);
 var
-  i,sx,sy,x,y,t:integer;
+  i,sx,sy,x,y:integer;
   bm,bm2:TBitMap;
   IconInfo:TIconInfo;
 begin
-  bm:=TBitMap.Create;  bm.PixelFormat:=pf32bit;
-  bm2:=TBitMap.Create; bm2.PixelFormat:=pf32bit;
+  bm:=TBitMap.Create;  bm.PixelFormat:=pf24bit;
+  bm2:=TBitMap.Create; bm2.PixelFormat:=pf24bit;
 
   for i:=1 to length(Cursors) do begin
 
     //Special case for invisible cursor
     if Cursors[i] = 999 then
     begin
-      sx:=1;
-      sy:=1;
-      bm.Width:=sx; bm.Height:=sy;
-      bm2.Width:=sx; bm2.Height:=sy;
-      bm2.Canvas.Pixels[0,0]:=clWhite; //invisible mask
-      IconInfo.xHotspot:=0;
-      IconInfo.yHotspot:=0;
+      bm.Width  := 1; bm.Height  := 1;
+      bm2.Width := 1; bm2.Height := 1;
+      bm2.Canvas.Pixels[0,0] := clWhite; //Invisible mask, we don't care for Image color
+      IconInfo.xHotspot := 0;
+      IconInfo.yHotspot := 0;
     end
     else
     begin
-      sx:=RXData[RXid].Size[Cursors[i]].X;
-      sy:=RXData[RXid].Size[Cursors[i]].Y;
-      bm.Width:=sx; bm.Height:=sy;
-      bm2.Width:=sx; bm2.Height:=sy;
+      sx := RXData[RXid].Size[Cursors[i]].X;
+      sy := RXData[RXid].Size[Cursors[i]].Y;
+      bm.Width  := sx; bm.Height  := sy;
+      bm2.Width := sx; bm2.Height := sy;
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do
       begin
-        t:=RXData[RXid].Data[Cursors[i],y*sx+x]+1;
         //todo: Find a PC which doesn't shows transparency and try to change 4th byte in bm.Canvas.Pixels
-        bm.Canvas.Pixels[x,y]:=Pal[DEF_PAL,t,1]+Pal[DEF_PAL,t,2] shl 8 + Pal[DEF_PAL,t,3] shl 16;
-        if t=1 then
-          bm2.Canvas.Pixels[x,y]:=clWhite
-        else
-          bm2.Canvas.Pixels[x,y]:=clBlack;
+        if RXData[RXid].RGBA[Cursors[i],y*sx+x] and $FF000000 = 0 then begin
+          bm.Canvas.Pixels[x,y] := 0; //If not reset will invert background color
+          bm2.Canvas.Pixels[x,y] := clWhite;
+        end else begin
+          bm.Canvas.Pixels[x,y] := (RXData[RXid].RGBA[Cursors[i],y*sx+x] AND $FFFFFF);
+          bm2.Canvas.Pixels[x,y] := clBlack;
+        end;
+        //bm2.Canvas.Pixels[x,y] := byte((RXData[RXid].RGBA[Cursors[i],y*sx+x] shr 24) and $FF)*65793;
       end;
       //Load hotspot offsets from RX file, adding the manual offsets (normally 0)
       IconInfo.xHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].x+CursorOffsetsX[i],0);
       IconInfo.yHotspot := Math.max(-RXData[RXid].Pivot[Cursors[i]].y+CursorOffsetsY[i],0);
     end;
-  IconInfo.fIcon:=false; //true=Icon, false=Cursor      
-  IconInfo.hbmColor:=bm.Handle;
-  IconInfo.hbmMask:=bm2.Handle;
+    IconInfo.fIcon := false; //true=Icon, false=Cursor
+    IconInfo.hbmColor:=bm.Handle;
+    IconInfo.hbmMask:=bm2.Handle;
 
-  Screen.Cursors[Cursors[i]]:=CreateIconIndirect(iconInfo);
+    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(iconInfo);
   end;
 
   bm.Free;
   bm2.Free;
-  Screen.Cursor:=c_Default;
+  Screen.Cursor := c_Default;
 end;
 
 
