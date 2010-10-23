@@ -170,16 +170,16 @@ const
   SETTINGS_FILE = 'KaM_Remake_Settings.ini';
 
   //Cursor names and GUI sprite index
-  c_Default=1; c_Info=452; c_Attack=457; c_JoinYes=460; c_JoinNo=450;
+  c_Default=1; c_Info=452; c_Attack=457; c_JoinYes=460; c_JoinNo=450; c_Edit=453;
   c_Dir0=511; c_Dir1=512; c_Dir2=513; c_Dir3=514; c_Dir4=515; c_Dir5=516; c_Dir6=517; c_Dir7=518; c_DirN=519;
   c_Scroll0=4; c_Scroll1=7; c_Scroll2=3; c_Scroll3=9; c_Scroll4=5; c_Scroll5=8; c_Scroll6=2; c_Scroll7=6;
   c_Invisible=999;
 
-  Cursors:array[1..23]of integer = (1,452,457,460,450,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9,999);
+  Cursors:array[1..24]of integer = (1,452,457,460,450,453,511,512,513,514,515,516,517,518,519,2,3,4,5,6,7,8,9,999);
 
   ScrollCursorOffset = 17;
-  CursorOffsetsX:array[1..23] of integer = (0,0, 0, 0, 0, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
-  CursorOffsetsY:array[1..23] of integer = (0,9,10,18,20,-1,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
+  CursorOffsetsX:array[1..24] of integer = (0,0, 0, 0, 0, 0, 0, 1,1,1,0,-1,-1,-1,0,0,ScrollCursorOffset,0,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0);
+  CursorOffsetsY:array[1..24] of integer = (0,9,10,18,20,-1, 0,-1,0,1,1, 1, 0,-1,0,0,ScrollCursorOffset,0,ScrollCursorOffset,0,0,ScrollCursorOffset,ScrollCursorOffset,0);
 
 const DirCursorSqrSize  = 33; //Length of square sides
       DirCursorNARadius = 14;  //Radius of centeral part that is dir_NA

@@ -111,7 +111,7 @@ begin
 
   if not Result then exit;
 
-  if not fTerrain.Land[LocY,LocX].IsUnit = 0 then begin
+  if not (fTerrain.Land[LocY,LocX].IsUnit = 0) then begin
     aUnit := fPlayers.UnitsHitTest(LocX, LocY); //Let's see who is standing there
     Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
                              and (aUnit.GetUnitAction.GetActionType = ua_Walk)

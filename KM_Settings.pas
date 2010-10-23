@@ -83,6 +83,7 @@ type
   private
     HouseTotalCount,HouseBuiltCount,HouseLostCount:array[1..HOUSE_COUNT]of integer;
     UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of integer;
+    SoldiersTrained: integer;
     ResourceRatios:array[1..4,1..4]of byte;
     fMissionTimeInSec:cardinal;
   public
@@ -93,6 +94,7 @@ type
     procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
+    procedure TrainedSoldier(aType:TUnitType); //Used for equiping in barracks
   public
     procedure UpdateReqDone(aType:THouseType);
     procedure IncreaseMissionTime(aSeconds:cardinal);
@@ -425,6 +427,12 @@ begin
 end;
 
 
+procedure TMissionSettings.TrainedSoldier(aType:TUnitType); //Used for equiping in barracks
+begin
+  inc(SoldiersTrained);
+end;
+
+
 function TMissionSettings.GetHouseQty(aType:THouseType):integer;
 var i:integer;
 begin
@@ -441,6 +449,8 @@ end;
 function TMissionSettings.GetUnitQty(aType:TUnitType):integer;
 begin
   Result := UnitTotalCount[byte(aType)] - UnitLostCount[byte(aType)];
+  if aType = ut_Recruit then
+    dec(Result,SoldiersTrained); //Trained soldiers use a recruit
 end;
 
 

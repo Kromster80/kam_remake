@@ -46,7 +46,8 @@ type //Possibly melee warrior class? with Archer class separate?
     function GetMemberCount:integer;
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
-    procedure Split; //Split group in half and assign another commander
+    procedure Split(aNumToSplit:integer=0); //Split group in half and assign another commander
+    procedure SplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
 
     procedure SetGroupFullCondition;
     procedure OrderFood;
@@ -346,7 +347,7 @@ begin
     end;
     FreeAndNil(fMembers); //We are not a commander now so nil our memebers list (they have been moved to new commander)
   end;
-  //
+
   if not AddedSelf then
     aNewCommander.AddMember(Self);
   //Tell commander to reposition
@@ -354,7 +355,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.Split; //Split group in half and assign another commander
+procedure TKMUnitWarrior.Split(aNumToSplit:integer=0); //Split group in half and assign another commander
 var i, DeletedCount: integer; NewCommander:TKMUnitWarrior; MultipleTypes: boolean;
 begin
   if GetMemberCount = 0 then exit; //Only commanders have members
@@ -362,6 +363,7 @@ begin
   //If there are different unit types in the group, split should just split them first
   MultipleTypes := false;
   NewCommander  := nil; //init
+  if aNumToSplit = 0 then //Only when splitting evenly
   for i := 0 to fMembers.Count-1 do
     if TKMUnitWarrior(fMembers.Items[i]).GetUnitType <> fUnitType then
     begin
@@ -404,6 +406,33 @@ begin
   //Tell both commanders to reposition
   Halt;
   NewCommander.Halt;
+end;
+
+//Splits X number of men from the group and adds them to the new commander
+procedure TKMUnitWarrior.SplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer);
+var i, DeletedCount: integer;
+begin
+  Assert(aNumberOfMen < GetMemberCount+1); //Not allowed to take the commander, only members (if you want the command too use normal LinkTo)
+    
+  //Take units from the end of fMembers
+  DeletedCount := 0;
+  for i := fMembers.Count-1 downto 0 do
+    if DeletedCount < aNumberOfMen then
+    begin
+      aNewCommander.AddMember(fMembers.Items[i]);
+      TKMUnitWarrior(fMembers.Items[i]).fCommander := aNewCommander;
+      fMembers.Delete(i);
+      inc(DeletedCount);
+    end;
+
+  if GetMemberCount = 0 then FreeAndNil(fMembers); //All members taken
+
+  //Make sure units per row is still valid
+  fUnitsPerRow := min(fUnitsPerRow, GetMemberCount+1);
+
+  //Tell both commanders to reposition
+  Halt;
+  aNewCommander.Halt;
 end;
 
 
@@ -862,7 +891,7 @@ begin
   begin
     //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
     if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
-       (not KMSamePoint(GetPosition,fOrderLoc.Loc)) then
+       (not KMSamePoint(GetPosition,fOrderLoc.Loc)) and fTerrain.Route_CanBeMade(GetPosition,fOrderLoc.Loc,GetDesiredPassability,true) then
     begin
       SetActionWalk(KMPoint(fOrderLoc)); //Walk to correct position
       fState := ws_Walking;

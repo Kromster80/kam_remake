@@ -386,7 +386,7 @@ begin
     gsNoGame:   begin
                   fMainMenuInterface.MyControls.MouseMove(X,Y,Shift);
                   if fMainMenuInterface.MyControls.CtrlOver is TKMTextEdit then // Show "CanEdit" cursor
-                    Screen.Cursor := c_Default  //todo: [Lewin] Make our own 'I' cursor using textures from other cursors
+                    Screen.Cursor := c_Edit  //todo: [Lewin] Make our own 'I' cursor using textures from other cursors
                   else
                     Screen.Cursor := c_Default;
                   fMainMenuInterface.MouseMove(X,Y);

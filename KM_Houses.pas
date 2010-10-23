@@ -1429,6 +1429,7 @@ begin
       if i = TroopCost[aUnitType,k] then
         if i in [1..11] then dec(ResourceCount[i]);
   dec(RecruitsInside); //All units take a recruit
+  fPlayers.Player[byte(fOwner)].fMissionSettings.TrainedSoldier(aUnitType);
 
   //Make new unit
   Soldier := TKMUnitWarrior(fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true));
@@ -1437,8 +1438,12 @@ begin
 
   Soldier.SetActionGoIn(ua_Walk, gd_GoOutside, Self);
 
-  LinkUnit := Soldier.FindLinkUnit(GetEntrance);
-  Soldier.LinkTo(LinkUnit);
+  //AI do not need auto linking, they manage linking themselves
+  if fPlayers.Player[byte(fOwner)].PlayerType = pt_Human then
+    LinkUnit := Soldier.FindLinkUnit(GetEntrance)
+  else LinkUnit := nil;
+  if LinkUnit <> nil then
+    Soldier.LinkTo(LinkUnit);
 end;
 
 
