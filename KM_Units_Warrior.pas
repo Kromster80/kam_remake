@@ -46,7 +46,7 @@ type //Possibly melee warrior class? with Archer class separate?
     function GetMemberCount:integer;
     procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
     procedure LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
-    procedure Split(aNumToSplit:integer=0); //Split group in half and assign another commander
+    procedure Split; //Split group in half and assign another commander
     procedure SplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
 
     procedure SetGroupFullCondition;
@@ -355,7 +355,7 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.Split(aNumToSplit:integer=0); //Split group in half and assign another commander
+procedure TKMUnitWarrior.Split; //Split group in half and assign another commander
 var i, DeletedCount: integer; NewCommander:TKMUnitWarrior; MultipleTypes: boolean;
 begin
   if GetMemberCount = 0 then exit; //Only commanders have members
@@ -363,7 +363,6 @@ begin
   //If there are different unit types in the group, split should just split them first
   MultipleTypes := false;
   NewCommander  := nil; //init
-  if aNumToSplit = 0 then //Only when splitting evenly
   for i := 0 to fMembers.Count-1 do
     if TKMUnitWarrior(fMembers.Items[i]).GetUnitType <> fUnitType then
     begin

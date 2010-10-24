@@ -51,6 +51,7 @@ implementation
 uses KM_Houses, KM_Units, KM_Game, KM_PlayersCollection, KM_Settings, KM_LoadLib;
 
 constructor TKMPlayerAI.Create(aAssets:TKMPlayerAssets);
+var i: TGroupType;
 begin
   Inherited Create;
   Assets := aAssets;
@@ -66,7 +67,11 @@ begin
   MaxSoldiers := high(MaxSoldiers); //No limit by default
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
   Aggressiveness := 100; //No idea what the default for this is, it's barely used
-  FillChar(TroopFormations,SizeOf(TroopFormations),#0); //Leave format unchanged unless set by the mission file
+  for i:=low(TGroupType) to high(TGroupType) do
+  begin
+    TroopFormations[i].NumUnits := 12;
+    TroopFormations[i].NumRows := 4;
+  end;
 end;
 
 
@@ -205,26 +210,22 @@ end;
 
 procedure TKMPlayerAI.CheckArmy();
 
-  procedure RestockPositionWith(aDefencePos:TAIDefencePosition; aCommander:TKMUnitWarrior);
+  procedure RestockPositionWith(aDefenceGroup, aCommander:TKMUnitWarrior);
   var Needed: integer;
   begin
-    Needed := TroopFormations[aDefencePos.GroupType].NumUnits - (aDefencePos.CurrentCommander.GetMemberCount+1);
+    Needed := TroopFormations[UnitGroups[byte(aDefenceGroup.GetUnitType)]].NumUnits - (aDefenceGroup.GetMemberCount+1);
     if aCommander.GetMemberCount+1 <= Needed then
-      aCommander.LinkTo(aDefencePos.CurrentCommander) //Link entire group
+      aCommander.LinkTo(aDefenceGroup) //Link entire group
     else
-      aCommander.SplitLinkTo(aDefencePos.CurrentCommander,Needed); //Link only as many units as are needed
+      aCommander.SplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
   end;
 
 var i, k, Matched: integer;
     Distance, Best: single;
-    NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
-    Commanders: array of TKMUnitWarrior;
-    CommandersCount: integer;
     Positioned: boolean;
+    NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
 begin
-  //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
-  CommandersCount := 0;
-  //Cleanup when commander dies
+  //Cleanup when commander of a defence position dies
   for i:=0 to DefencePositionsCount-1 do
     if (DefencePositions[i].CurrentCommander <> nil) and DefencePositions[i].CurrentCommander.IsDeadOrDying then
       if DefencePositions[i].CurrentCommander.fCommander <> nil then
@@ -234,6 +235,8 @@ begin
 
   for i:=byte(low(TGroupType)) to byte(high(TGroupType)) do
     NeedsLinkingTo[TGroupType(i)] := nil;
+
+  //Iterate units list in search of warrior commanders, and then check the following: Hunger, (feed) formation, (units per row) position (from defence positions)
   for i:=0 to Assets.GetUnits.Count-1 do
   begin
     if TKMUnit(Assets.GetUnits.Items[i]) is TKMUnitWarrior then
@@ -244,37 +247,37 @@ begin
           if (GetCondition < UNIT_MIN_CONDITION) then
             OrderFood;
 
-          //If we are newly trained then link us up to a group which doesn't have enough members
-          //...
-          SetLength(Commanders,CommandersCount+1);
-          Commanders[CommandersCount] := TKMUnitWarrior(Assets.GetUnits.Items[i]);
-          inc(CommandersCount);
-
           //Check formation
           if UnitGroups[byte(GetUnitType)] <> gt_None then
             if TroopFormations[UnitGroups[byte(GetUnitType)]].NumRows > 1 then
               UnitsPerRow := TroopFormations[UnitGroups[byte(GetUnitType)]].NumRows;
-
-          //Position this group to defend
+          
+          //todo: only do this if the unit is not attacking/in combat
+          //Position this group to defend if they already belong to a defence position
+          //todo: Restock defence positions listed first with ones listed later (in script order = priority)
           Positioned := false;
           for k:=0 to DefencePositionsCount-1 do
             if DefencePositions[k].CurrentCommander = GetCommander then
             begin
+              //todo: Note: KaM does NOT split groups that are too full (as this can only occur if the person who made the mission designed it that way)
+              //      Perhaps we shouldn't either?
+              if GetMemberCount+1 > TroopFormations[DefencePositions[k].GroupType].NumUnits then
+                Split; //If there are too many troops, split group in half and the right number will automatically rejoin us
               PlaceOrder(wo_Walk,DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
               break;
             end;
 
-          //Look for group that needs additional members
-          //Frontline restock
+          //Look for group that needs additional members, or a new position to defend
           Matched := -1;  Best := 9999;
           if not Positioned then
             for k:=0 to DefencePositionsCount-1 do
-              if (DefencePositions[k].DefenceType = adt_FrontLine) and (DefencePositions[k].CurrentCommander <> nil)
-              and (DefencePositions[k].GroupType = UnitGroups[byte(GetUnitType)])
-              and (DefencePositions[k].CurrentCommander.GetMemberCount+1 < TroopFormations[DefencePositions[k].GroupType].NumUnits) then
+              if (DefencePositions[k].GroupType = UnitGroups[byte(GetUnitType)]) and (((DefencePositions[k].CurrentCommander <> nil)
+              and (DefencePositions[k].CurrentCommander.GetMemberCount+1 < TroopFormations[DefencePositions[k].GroupType].NumUnits))
+              or  (DefencePositions[k].CurrentCommander = nil)) then
               begin
-                Distance := GetLength(GetPosition,DefencePositions[k].Position.Loc);
+                //Front line always higher priority than backline
+                Distance := (byte(DefencePositions[k].DefenceType = adt_BackLine)*1000) + GetLength(GetPosition,DefencePositions[k].Position.Loc);
                 if Distance < Best then
                 begin
                   Matched := k;
@@ -283,124 +286,31 @@ begin
               end;
           if Matched <> -1 then
           begin
-            RestockPositionWith(DefencePositions[Matched],GetCommander);
             Positioned := true;
-          end;
-
-          //Backline restock
-          Matched := -1;  Best := 9999;
-          if not Positioned then
-            for k:=0 to DefencePositionsCount-1 do
-              if (DefencePositions[k].DefenceType = adt_BackLine) and (DefencePositions[k].CurrentCommander <> nil)
-              and (DefencePositions[k].GroupType = UnitGroups[byte(GetUnitType)])
-              and (DefencePositions[k].CurrentCommander.GetMemberCount+1 < TroopFormations[DefencePositions[k].GroupType].NumUnits) then
-              begin
-                Distance := GetLength(GetPosition,DefencePositions[k].Position.Loc);
-                if Distance < Best then
-                begin
-                  Matched := k;
-                  Best := Distance;
-                end;
-              end;
-          if Matched <> -1 then
-          begin
-            RestockPositionWith(DefencePositions[Matched],GetCommander);
-            Positioned := true;
-          end;
-
-          //Frontline new
-          Matched := -1;  Best := 9999;
-          if not Positioned then
-            for k:=0 to DefencePositionsCount-1 do
-              if (DefencePositions[k].DefenceType = adt_FrontLine) and (DefencePositions[k].CurrentCommander = nil)
-              and (DefencePositions[k].GroupType = UnitGroups[byte(GetUnitType)]) then
-              begin
-                Distance := GetLength(GetPosition,DefencePositions[k].Position.Loc);
-                if Distance < Best then
-                begin
-                  Matched := k;
-                  Best := Distance;
-                end;
-              end;
-          if Matched <> -1 then
-          begin
-            DefencePositions[Matched].CurrentCommander := GetCommander;
-            PlaceOrder(wo_Walk,DefencePositions[Matched].Position);
-            Positioned := true;
-          end;
-
-          //Backline new
-          Matched := -1;  Best := 9999;
-          if not Positioned then
-            for k:=0 to DefencePositionsCount-1 do
-              if (DefencePositions[k].DefenceType = adt_FrontLine) and (DefencePositions[k].CurrentCommander = nil)
-              and (DefencePositions[k].GroupType = UnitGroups[byte(GetUnitType)]) then
-              begin
-                Distance := GetLength(GetPosition,DefencePositions[k].Position.Loc);
-                if Distance < Best then
-                begin
-                  Matched := k;
-                  Best := Distance;
-                end;
-              end;
-          if Matched <> -1 then
-          begin
-            DefencePositions[Matched].CurrentCommander := GetCommander;
-            PlaceOrder(wo_Walk,DefencePositions[Matched].Position);
-            Positioned := true;
+            if DefencePositions[Matched].CurrentCommander = nil then
+            begin //New position
+              DefencePositions[Matched].CurrentCommander := GetCommander;
+              PlaceOrder(wo_Walk,DefencePositions[Matched].Position);
+            end
+            else //Restock existing position
+              RestockPositionWith(DefencePositions[Matched].CurrentCommander,GetCommander);
           end;
 
           //Just chill and link with other idle groups
-          {if not Positioned then
-            //If this group doesn't have enough members, flag us as needing to be added to (this should not happen if we are attacking though)
-            if (TKMUnitWarrior(Assets.GetUnits.Items[i]).GetMemberCount+1 < TroopFormations[UnitGroups[byte(TKMUnitWarrior(Assets.GetUnits.Items[i]).GetUnitType)]].NumUnits) and
-              (NeedsLinkingTo[UnitGroups[byte(GetUnitType)]] = nil) then
-              NeedsLinkingTo[UnitGroups[byte(GetUnitType)]] := TKMUnitWarrior(Assets.GetUnits.Items[i]);}
+          if not Positioned then
+            //If this group doesn't have enough members
+            if (GetMemberCount+1 < TroopFormations[UnitGroups[byte(GetUnitType)]].NumUnits) then
+              if NeedsLinkingTo[UnitGroups[byte(GetUnitType)]] = nil then
+                NeedsLinkingTo[UnitGroups[byte(GetUnitType)]] := GetCommander //Flag us as needing to be added to
+              else
+              begin
+                RestockPositionWith(NeedsLinkingTo[UnitGroups[byte(GetUnitType)]],GetCommander);
+                if NeedsLinkingTo[UnitGroups[byte(GetUnitType)]].GetMemberCount+1 >= TroopFormations[UnitGroups[byte(GetUnitType)]].NumUnits then
+                  NeedsLinkingTo[UnitGroups[byte(GetUnitType)]] := nil; //Group is now full
+              end;
 
         end;
   end;
-  {for i:=0 to DefencePositionsCount-1 do
-  begin
-    if (DefencePositions[i].CurrentCommander = nil) or (DefencePositions[i].CurrentCommander.fCommander = nil) or (DefencePositions[i].CurrentCommander.IsDeadOrDying) then
-    begin
-      DefencePositions[i].CurrentCommander := nil; //If group is dying
-      //Find closest group
-      Matched := -1;
-      Best := 9999;
-      for k:=0 to CommandersCount-1 do
-        if (Commanders[k] <> nil) and (DefencePositions[i].GroupType = UnitGroups[byte(Commanders[k].GetUnitType)]) then
-        begin
-          Distance := GetLength(Commanders[k].GetPosition,DefencePositions[i].Position.Loc);
-          if Distance < Best then
-          begin
-            Matched := k;
-            Best := Distance;
-          end;
-        end;
-      if Matched <> -1 then
-      begin
-        DefencePositions[i].CurrentCommander := Commanders[Matched];
-        Commanders[Matched] := nil; //So no one else takes this group
-      end;
-    end;
-    if DefencePositions[i].CurrentCommander <> nil then
-    begin
-      //Position the group
-      DefencePositions[i].CurrentCommander.PlaceOrder(wo_Walk,DefencePositions[i].Position);
-    end;
-  end;
-  //todo: Link into full groups first, THEN start filling new positions (at the moment you end up with 1 soldier in every position rather than 1 postion with a full group)
-  //By this point anything left in Commanders array is considered to be excess, so link them with other groups if they do not already have enough
-  for k:=0 to CommandersCount-1 do
-    if  (Commanders[k] <> nil) and (Commanders[k] <> NeedsLinkingTo[UnitGroups[byte(Commanders[k].GetUnitType)]])
-    and (NeedsLinkingTo[UnitGroups[byte(Commanders[k].GetUnitType)]] <> nil)
-    and (Commanders[k].GetMemberCount+1 < TroopFormations[UnitGroups[byte(Commanders[k].GetUnitType)]].NumUnits) then
-    begin
-      Commanders[k].LinkTo(NeedsLinkingTo[UnitGroups[byte(Commanders[k].GetUnitType)]]); //todo: causes unit lock up bug if this occurs when leaving the barracks
-      NeedsLinkingTo[UnitGroups[byte(Commanders[k].GetUnitType)]] := nil;
-      Commanders[k] := nil;
-    end;
-  //todo: split groups that are too big }
 end;
 
 
