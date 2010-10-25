@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Oct 22, 2010 at 09:20 PM
+-- Generation Time: Oct 25, 2010 at 09:58 PM
 -- Server version: 5.0.41
 -- PHP Version: 5.2.5
 
@@ -36,12 +36,6 @@ CREATE TABLE IF NOT EXISTS `as_chat_room` (
   UNIQUE KEY `room_name` (`room_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=cp1251 AUTO_INCREMENT=13 ;
 
---
--- Dumping data for table `as_chat_room`
---
-
-INSERT INTO `as_chat_room` VALUES(12, 6, '111', '111', 0);
-
 -- --------------------------------------------------------
 
 --
@@ -58,14 +52,7 @@ CREATE TABLE IF NOT EXISTS `as_posts` (
   `text` text character set utf8 NOT NULL,
   `time` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=cp1251 AUTO_INCREMENT=3 ;
-
---
--- Dumping data for table `as_posts`
---
-
-INSERT INTO `as_posts` VALUES(1, 12, 6, '111', '111', 'we go away', '2010-10-22 19:50:30');
-INSERT INTO `as_posts` VALUES(2, 12, 6, '111', '111', 'qqq', '2010-10-22 21:19:02');
+) ENGINE=InnoDB DEFAULT CHARSET=cp1251 AUTO_INCREMENT=9 ;
 
 -- --------------------------------------------------------
 
@@ -83,13 +70,7 @@ CREATE TABLE IF NOT EXISTS `as_users` (
   `tag` int(11) NOT NULL default '0',
   PRIMARY KEY  (`user_id`),
   UNIQUE KEY `user_name` (`user_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=cp1251 AUTO_INCREMENT=7 ;
-
---
--- Dumping data for table `as_users`
---
-
-INSERT INTO `as_users` VALUES(6, '111', '111', '111', '2010-10-22 19:15:51', 0);
+) ENGINE=InnoDB DEFAULT CHARSET=cp1251 AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 
@@ -108,12 +89,6 @@ CREATE TABLE IF NOT EXISTS `as_user_in_room` (
   UNIQUE KEY `user_name` (`user_name`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=cp1251 AUTO_INCREMENT=2 ;
-
---
--- Dumping data for table `as_user_in_room`
---
-
-INSERT INTO `as_user_in_room` VALUES(1, 6, 12, '111', '111');
 
 DELIMITER $$
 --
@@ -166,6 +141,14 @@ INSERT INTO
     tag)
   VALUES (NULL, name, pass, _ip, CURRENT_TIMESTAMP, 0)$$
 
+DROP PROCEDURE IF EXISTS `clean_last_posts`$$
+CREATE DEFINER=`assoft_user`@`%` PROCEDURE `clean_last_posts`()
+BEGIN
+DECLARE N int(63);
+SELECT ID INTO N FROM as_posts ORDER BY ID DESC LIMIT 1000,1;
+DELETE FROM as_posts WHERE N > ID;
+END$$
+
 DROP PROCEDURE IF EXISTS `clean_rooms`$$
 CREATE DEFINER=`assoft_user`@`%` PROCEDURE `clean_rooms`()
 BEGIN
@@ -187,6 +170,12 @@ BEGIN
 delete from as_user_in_room
 where
 user_id not in (select user_id from as_users);
+END$$
+
+DROP PROCEDURE IF EXISTS `get_posts_list`$$
+CREATE DEFINER=`assoft_user`@`%` PROCEDURE `get_posts_list`(_room_name varchar(255))
+BEGIN
+  SELECT user_name, text, time FROM as_posts where room_name = _room_name;
 END$$
 
 DROP PROCEDURE IF EXISTS `get_rooms_list`$$

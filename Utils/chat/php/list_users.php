@@ -13,12 +13,12 @@
          echo '<br>ErrorCode = '.$mysqli->errno; 
         }
                     
-    	$stmt->bind_result($col1, $col2, $col3, $col4); 
+        $stmt->bind_result($col1, $col2, $col3, $col4); 
 
-	echo '<p>';
-        printf("%s %s %s %s\n", 'name', 'ip', 'last visit', 'outTime');                             	
+        echo '<p>';
+        printf("%s %s %s %s\n", 'name', 'ip', 'last visit', 'outTime');                                 
         echo '</p>';        
-    	while ($stmt->fetch()) {            
+        while ($stmt->fetch()) {            
           echo  $col1.','. $col2.','. $col3.','.$col4.'<br>';
        }                            
         

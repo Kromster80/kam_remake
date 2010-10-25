@@ -54,6 +54,8 @@
     <?php
         AddForm('add_post.php', array('User Name', 'Room Name', 'Text'), 
                 array('user_name', 'room_name', 'text'), 'Add Post', 12);
+        AddForm('list_posts.php', array('Room Name'), array('room_name'), 'List Posts', 13);
+        AddForm('clean_posts.php', array(), array(), 'Clean posts', 14);
     ?>
 </td>
 </tr>
