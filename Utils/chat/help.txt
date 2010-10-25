@@ -1,0 +1,58 @@
+This is php api for access to chat database
+For use it - send post request to specific php file with declare post params.
+As result you will retrieve text description for function and error message and code if fail.
+For functions with result you also will take table with result data.
+
+Now availible next functions:
+
+file: "add_user.php"
+params: "name", "password", "ip"
+result: -
+
+file: "list_users.php"
+params: -
+result: list of users
+
+file: "clean_users.php"
+params: -
+result: -
+
+file: "update_last_visit.php"
+params: "name"
+result: -
+
+file: "add_room.php"
+params: "host_name", "room_name"
+result: -
+
+file: "list_rooms.php"
+params: -
+result: list of rooms
+
+file: "add_user_to_room.php"
+params: "user_name", "room_name"
+result: -
+
+file: "clean_users_in_room.php"
+params: -
+result: -
+
+file: "clean_rooms.php"
+params: -
+result: -
+
+file: "list_users_in_room.php"
+params: "room_name"
+result: list of users in room
+
+file: "add_post.php"
+params: "user_name", "room_name", "text"
+result: -
+
+file: "list_posts.php"
+params: "room_name"
+result: list of posts in room
+
+file: "clean_posts.php"
+params: -
+result: -
