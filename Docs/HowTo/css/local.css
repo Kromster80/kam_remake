@@ -1,0 +1,9 @@
+#screenshot
+{
+	position:absolute;
+	border:1px solid #ccc;
+	background:#333;
+	padding:0px;
+	display:none;
+	color:#fff;
+}
