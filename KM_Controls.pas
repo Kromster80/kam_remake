@@ -452,7 +452,7 @@ end;
 
 
 implementation
-uses KM_RenderUI, KM_Utils;
+uses KM_RenderUI, KM_Utils, KM_ResourceGFX;
 
 
 { TKMControl }
@@ -921,28 +921,24 @@ begin
   setlength(Colors, Columns*Rows);
   for i:=0 to Rows-1 do
   for k:=0 to Columns-1 do
-  if i*Columns+k<=255 then
-    Colors[i*Columns+k] := $FF000000 OR (
-                            Pal[DEF_PAL, i*Columns+k+1, 1] +
-                            Pal[DEF_PAL, i*Columns+k+1, 2] shl 8 +
-                            Pal[DEF_PAL, i*Columns+k+1, 3] shl 16);
+  if i*Columns+k<=255 then //Rows*Columns could be >255
+    Colors[i*Columns+k] := fResource.GetColor32(i*Columns+k, DEF_PAL);
   ParentTo(aParent);
 end;
 
 
 function TKMColorSwatch.GetColor():TColor4;
 begin
-  Result := $FF000000 OR (
-            Pal[DEF_PAL, SelectedColor+1, 1] +
-            Pal[DEF_PAL, SelectedColor+1, 2] shl 8 +
-            Pal[DEF_PAL, SelectedColor+1, 3] shl 16);
+  Result := fResource.GetColor32(SelectedColor, DEF_PAL);
 end;
 
 
 procedure TKMColorSwatch.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
 begin
-  SelectedColor := EnsureRange((Y-Top)div CellSize,0,Rows-1)*Columns +
-                   EnsureRange((X-Left)div CellSize,0,Columns-1);
+  SelectedColor := EnsureRange(
+                     EnsureRange((Y-Top)div CellSize,0,Rows-1)*Columns +
+                     EnsureRange((X-Left)div CellSize,0,Columns-1),
+                     0,255);
   Inherited;
 end;
 

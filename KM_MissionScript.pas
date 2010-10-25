@@ -98,7 +98,7 @@ end;
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI;
+uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
 
 
 function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
@@ -580,7 +580,7 @@ begin
                      end;
   ct_SetMapColor:    begin
                        //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
-                       fPlayers.Player[CurrentPlayerIndex].PlayerColor := Pal[DEF_PAL,ParamList[0]+1,1] + Pal[DEF_PAL,ParamList[0]+1,2] shl 8 + Pal[DEF_PAL,ParamList[0]+1,3] shl 16 or $FF000000;
+                       fPlayers.Player[CurrentPlayerIndex].PlayerColor := fResource.GetColor32(ParamList[0], DEF_PAL);
                      end;
   ct_AIAttack:       begin
                        //Set up the attack command

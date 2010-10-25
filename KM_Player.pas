@@ -33,7 +33,7 @@ type
     procedure AfterMissionInit(aFlattenRoads:boolean);
     procedure AutoRoadConnect(LocA,LocB:TKMPoint);
     procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
-    function GetColorIndex():word;
+    function GetColorIndex():byte;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace:boolean=true; WasTrained:boolean=false): TKMUnit;
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint):TKMUnit;
@@ -106,7 +106,7 @@ type
   end;
 
 implementation
-uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection;
+uses KM_Terrain, KM_Sound, KM_PathFinding, KM_PlayersCollection, KM_ResourceGFX;
 
 
 { TKMPlayerAssets }
@@ -419,12 +419,12 @@ begin
 end;
 
 
-function TKMPlayerAssets.GetColorIndex():word;
+function TKMPlayerAssets.GetColorIndex():byte;
 var i:integer;
 begin
-  Result := 4; //4 = Black which can be the default when a non-pallete 32 bit color value is used
-  for i:=1 to 256 do
-    if Pal[DEF_PAL,i,1] + Pal[DEF_PAL,i,2] shl 8 + Pal[DEF_PAL,i,3] shl 16 or $FF000000 = PlayerColor then
+  Result := 3; //4 = Black which can be the default when a non-pallete 32 bit color value is used
+  for i:=0 to 255 do
+    if fResource.GetColor32(i, DEF_PAL) = PlayerColor then
       Result := i;
 end;
 

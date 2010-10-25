@@ -87,7 +87,7 @@ var
   {Data output}
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :boolean=false; //Write even more output into log + slows down game noticably
-  WriteResourceInfoToTXT:boolean=true; //Whenever to write txt files with defines data properties on loading
+  WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
   WriteAllTexturesToBMP :boolean=false; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
 
   //Statistic
@@ -219,7 +219,7 @@ const
   DEF_PAL = pal_0;            //Default palette to use when generating full-color RGB textures
 
 var //There are 9 palette files Map, Pal0-5, Setup and Setup2 +1 linear +2lbm
-  Pal:array[TKMPal,1..256,1..3]of byte;
+  Pal:array[TKMPal,0..255,1..3]of byte;
 
 const
  //Palette filename corresponds with pal_**** constant, except pal_lin which is generated proceduraly (filename doesn't matter for it)

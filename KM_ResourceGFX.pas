@@ -47,7 +47,7 @@ type
     function LoadMenuResources(aLocale:string):boolean;
     function LoadGameResources():boolean;
 
-    function GetColor32(aIndex:word; aPal:TKMPal=DEF_PAL):cardinal;
+    function GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
 
     property GetDataState:TDataLoadingState read DataState;
     function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
@@ -190,7 +190,7 @@ begin
 end;
 
 
-function TResource.GetColor32(aIndex:word; aPal:TKMPal=DEF_PAL):cardinal;
+function TResource.GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
 begin
   Result := Pal[aPal,aIndex,1] + Pal[aPal,aIndex,2] shl 8 + Pal[aPal,aIndex,3] shl 16 OR $FF000000;
 end;
@@ -223,9 +223,9 @@ begin
 
       if i = pal_lin then //Make greyscale linear Pal
         for k:=0 to 255 do begin
-          Pal[pal_lin,k+1,1] := k;
-          Pal[pal_lin,k+1,2] := k;
-          Pal[pal_lin,k+1,3] := k;
+          Pal[pal_lin,k,1] := k;
+          Pal[pal_lin,k,2] := k;
+          Pal[pal_lin,k,3] := k;
         end;
     end else
       Result := false;
@@ -539,8 +539,8 @@ begin
 
         for ci:=1 to Height do for ck:=1 to Width do begin
           L := Data[(ci-1)*Width+ck]; //0..255
-          if L<>0 then
-            TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=GetColor32(L+1,FontPal[aFont]);
+          if L<>0 then //Transparent
+            TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=GetColor32(L,FontPal[aFont]);
         end;
 
         u1:=(AdvX+1)/TexWidth;
@@ -602,9 +602,11 @@ begin
 
   //#-####.png - default texture
   //#-####a.png - alternative texture
+  //todo:  Support alternative textures
   for i:=0 to FileList.Count-1 do begin
-    RX := strtoint(FileList.Strings[i][1]);
-    ID := strtoint(Copy(FileList.Strings[i], 3, 4));
+
+    RX := StrToIntDef(FileList.Strings[i][1],0); //wrong file will return 0
+    ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
     if (RX=aID) and InRange(ID,1,RXData[RX].Qty) then begin //Replace only certain sprites
 
       po := TPNGObject.Create;
@@ -614,17 +616,14 @@ begin
       RXData[RX].Size[ID].Y := po.Height;
 
       setlength(RXData[RX].RGBA[ID], po.Width*po.Height);
-      setlength(RXData[RX].Mask[ID], po.Width*po.Height);
+      setlength(RXData[RX].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
 
       for y:=0 to po.Height-1 do begin
-        //todo: check for rgbalpha
-        //todo: handle Alt textures
-        //if po.Header.ColorType = COLOR_RGBALPHA then
-        //  po.CreateAlpha;
+        po.CreateAlpha; //Will create white Alpha if it does not exists
 
         for x:=0 to po.Width-1 do begin
-          p := (po.AlphaScanline[y]^[x]) shl 24;
-          RXData[RX].RGBA[ID, y*po.Width+x] := (po.Pixels[x,y] AND $FFFFFF) + p;
+          p := (po.AlphaScanline[y]^[x]) shl 24; //it's slow, I know, but we don't care yet
+          RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y] AND $FFFFFF) + p;
         end;
       end;
       po.Free;
@@ -701,13 +700,13 @@ begin
         Pixel := y*Size[i].X+x;
         L := Data[i, Pixel]; //0..255
         if L <> 0 then
-          RGBA[i,Pixel] := GetColor32(L+1, Palette);
+          RGBA[i,Pixel] := GetColor32(L, Palette);
 
         case L of //todo: convert to 8bit
-          24,30: Mask[i,Pixel] := $70FFFFFF;   //7
-          25,29: Mask[i,Pixel] := $B0FFFFFF;   //11
-          26,28: Mask[i,Pixel] := $E0FFFFFF;   //14
-          27:    Mask[i,Pixel] := $FFFFFFFF;   //16
+          23,29: Mask[i,Pixel] := $70FFFFFF;   //7
+          24,28: Mask[i,Pixel] := $B0FFFFFF;   //11
+          25,27: Mask[i,Pixel] := $E0FFFFFF;   //14
+          26:    Mask[i,Pixel] := $FFFFFFFF;   //16
         end;
       end;
    end;
@@ -802,9 +801,9 @@ begin
 
               t   := ((i-1)*WidthPOT+ci)*4;
               ColorID := RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1].X+k-1]; //0..255
-              TD[t+0] := Pal[DEF_PAL, ColorID+1, 1];
-              TD[t+1] := Pal[DEF_PAL, ColorID+1, 2];
-              TD[t+2] := Pal[DEF_PAL, ColorID+1, 3];
+              TD[t+0] := Pal[DEF_PAL, ColorID, 1];
+              TD[t+1] := Pal[DEF_PAL, ColorID, 2];
+              TD[t+2] := Pal[DEF_PAL, ColorID, 3];
               if ColorID = 0 then
                 TD[t+3] := 0
               else
@@ -939,7 +938,7 @@ end;
 {That is when we want to export RX to Bitmaps without need to have GraphicsEditor, also this way we preserve image indexes}
 procedure ExportRX2BMP(RXid:integer);
 var MyBitMap:TBitMap;
-    id,t:integer;
+    id:integer; t:byte;
     sy,sx,y,x:integer;
     UsePal:TKMPal;
 begin
@@ -962,7 +961,7 @@ begin
     if RXid=6 then UsePal:=RX6Pal[id];
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-      t:=RXData[RXid].Data[id,y*sx+x]+1;
+      t:=RXData[RXid].Data[id,y*sx+x];
       MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,UsePal);
     end;
     if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
@@ -976,7 +975,7 @@ end;
 {Export Units graphics categorized by Unit and Action}
 procedure ExportUnitAnim2BMP();
 var MyBitMap:TBitMap;
-    iUnit,iAct,iDir,iFrame,ci,t:integer;
+    iUnit,iAct,iDir,iFrame,ci:integer; t:byte;
     sy,sx,y,x:integer;
     Used:array of integer;
 begin
@@ -1004,7 +1003,7 @@ begin
           MyBitMap.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-            t:=RXData[3].Data[ci,y*sx+x]+1;
+            t:=RXData[3].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
           end;
           if sy>0 then MyBitMap.SaveToFile(
@@ -1037,7 +1036,7 @@ begin
     MyBitMap.Height:=sy;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-      t:=RXData[3].Data[ci,y*sx+x]+1;
+      t:=RXData[3].Data[ci,y*sx+x];
       MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
     end;
     if sy>0 then MyBitMap.SaveToFile(
@@ -1051,7 +1050,7 @@ end;
 {Export Houses graphics categorized by House and Action}
 procedure ExportHouseAnim2BMP();
 var MyBitMap:TBitMap;
-    Q,ID,Ac,k,ci,t:integer;
+    Q,ID,Ac,k,ci:integer; t:byte;
     sy,sx,y,x:integer;
     s:string;
 begin
@@ -1078,7 +1077,7 @@ begin
         MyBitMap.Height:=sy;
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-          t:=RXData[2].Data[ci,y*sx+x]+1;
+          t:=RXData[2].Data[ci,y*sx+x];
           MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
         end;
         if sy>0 then MyBitMap.SaveToFile(
@@ -1105,7 +1104,7 @@ begin
           MyBitMap.Height:=sy;
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-            t:=RXData[2].Data[ci,y*sx+x]+1;
+            t:=RXData[2].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
           end;
           if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
@@ -1121,7 +1120,7 @@ end;
 {Export Trees graphics categorized by ID}
 procedure ExportTreeAnim2BMP();
 var MyBitMap:TBitMap;
-    ID,k,ci,t:integer;
+    ID,k,ci:integer; t:byte;
     sy,sx,y,x:integer;
 begin
   CreateDir(ExeDir+'Export\');
@@ -1144,7 +1143,7 @@ begin
       MyBitMap.Height:=sy;
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-        t:=RXData[1].Data[ci,y*sx+x]+1;
+        t:=RXData[1].Data[ci,y*sx+x];
         MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
       end;
       if sy>0 then MyBitMap.SaveToFile(

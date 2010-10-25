@@ -94,7 +94,7 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=.\Common
+SearchPath=.\Common;.\Common\pngimage
 Packages=vcl;rtl;dbrtl;adortl;vcldb;vclx;bdertl;vcldbx;ibxpress;dsnap;cds;bdecds;qrpt;teeui;teedb;tee;dss;teeqr;visualclx;visualdbclx;dsnapcrba;dsnapcon;VclSmp;vclshlctrls;vclie;xmlrtl;inet;inetdbbde;inetdbxpress;inetdb;nmfast;webdsnap;websnap;dbexpress;dbxcds;indy;dclOffice2k;Krom
 Conditionals=
 DebugSourceDirs=
@@ -136,6 +136,7 @@ C:\Program Files\Borland\Delphi7\Projects\Bpl\JvMMD7D.bpl=JVCL Multimedia and Im
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=2
-Item0=.\Common
-Item1=$(DELPHI)\Lib\Debug;C:\Dist\COMPON~1\jcl\jcl\lib\d7\debug;.\Common
+Count=3
+Item0=.\Common;.\Common\pngimage
+Item1=.\Common
+Item2=$(DELPHI)\Lib\Debug;C:\Dist\COMPON~1\jcl\jcl\lib\d7\debug;.\Common
