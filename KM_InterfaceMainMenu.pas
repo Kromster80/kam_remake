@@ -50,8 +50,8 @@ type TKMMainMenuInterface = class
 
     Panel_WWWLogin:TKMPanel;
       Panel_WWWLogin2:TKMPanel;
-        Edit_WWW_Login:TKMTextEdit;
-        Edit_WWW_Pass:TKMTextEdit;
+        Edit_WWW_Login:TKMEdit;
+        Edit_WWW_Pass:TKMEdit;
         Label_WWW_IP:TKMLabel;
         Button_WWW_Login:TKMButton;
         Label_WWW_Status:TKMLabel;
@@ -394,10 +394,10 @@ begin
       Label_WWW_IP := MyControls.AddLabel(Panel_WWWLogin2, 200, -25, 100, 20, '0.0.0.0', fnt_Outline, kaCenter);
 
       MyControls.AddLabel(Panel_WWWLogin2, 108, 0, 100, 20, fTextLibrary.GetRemakeString(9), fnt_Metal, kaLeft);
-      Edit_WWW_Login := MyControls.AddTextEdit(Panel_WWWLogin2,100,20,200,20,fnt_Grey);
+      Edit_WWW_Login := MyControls.AddEdit(Panel_WWWLogin2,100,20,200,20,fnt_Grey);
       Edit_WWW_Login.Text := '';
       MyControls.AddLabel(Panel_WWWLogin2, 108, 50, 100, 20, fTextLibrary.GetRemakeString(10), fnt_Metal, kaLeft);
-      Edit_WWW_Pass  := MyControls.AddTextEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey,true);
+      Edit_WWW_Pass  := MyControls.AddEdit(Panel_WWWLogin2,100,70,200,20,fnt_Grey,true);
       Edit_WWW_Pass.Text := '';
       Button_WWW_Login := MyControls.AddButton(Panel_WWWLogin2, 100, 100, 200, 30, 'Login', fnt_Metal, bsMenu);
       Button_WWW_Login.OnClick := MultiPlayer_LoginQuery;

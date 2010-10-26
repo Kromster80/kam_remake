@@ -225,7 +225,7 @@ end;
 
 
 {EditField}
-TKMTextEdit = class(TKMControl)
+TKMEdit = class(TKMControl)
   private
     FOnChange:TNotifyEvent;
   public
@@ -428,7 +428,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddButton          (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aStyle:TButtonStyle=bsGame):TKMButton; overload;
     function AddButtonFlat      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aTexID:integer; const aRXid:integer=4):TKMButtonFlat;
     function AddFlatButtonShape (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont; aShapeColor:TColor4):TKMFlatButtonShape;
-    function AddTextEdit        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMTextEdit;
+    function AddEdit            (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMEdit;
     function AddCheckBox        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aCaption:string; aFont:TKMFont):TKMCheckBox;
     function AddPercentBar      (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aPos:integer; aCaption:string=''; aFont:TKMFont=fnt_Mini):TKMPercentBar;
     function AddResourceRow     (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aRes:TResourceType; aCount:integer):TKMResourceRow;
@@ -1055,8 +1055,8 @@ begin
 end;
 
 
-{TKMTextEdit}
-constructor TKMTextEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
+{TKMEdit}
+constructor TKMEdit.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
 begin
   Inherited Create(aLeft,aTop,aWidth,aHeight);
   Text := '<<<LEER>>>';
@@ -1067,7 +1067,7 @@ begin
 end;
 
 
-function TKMTextEdit.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean):boolean;
+function TKMEdit.KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean):boolean;
   function ValidKey():boolean;
   begin //Utility, Numbers, NumPad numbers, Letters
     Result := chr(Key) in [' ', '_', '!', '(', ')', '0'..'9', #96..#105, 'A'..'Z'];
@@ -1096,7 +1096,7 @@ begin
 end;
 
 
-procedure TKMTextEdit.Paint();
+procedure TKMEdit.Paint();
 var Col:TColor4; RText:String; OffX:integer;
 begin
   Inherited;
@@ -1744,9 +1744,9 @@ begin
 end;
 
 
-function TKMControlsCollection.AddTextEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMTextEdit;
+function TKMControlsCollection.AddEdit(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean=false):TKMEdit;
 begin
-  Result:=TKMTextEdit.Create(aParent, aLeft,aTop,aWidth,aHeight,aFont,aMasked);
+  Result:=TKMEdit.Create(aParent, aLeft,aTop,aWidth,aHeight,aFont,aMasked);
   AddToCollection(Result);
 end;
 

@@ -71,7 +71,7 @@ type TKMapEdInterface = class
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
 
       Panel_Save:TKMPanel;
-        TextEdit_SaveName:TKMTextEdit;
+        Edit_SaveName:TKMEdit;
         Label_SaveExists:TKMLabel;
         CheckBox_SaveExists:TKMCheckBox;
         Button_SaveSave:TKMButton;
@@ -285,8 +285,8 @@ begin
   end;
 
   if Sender = Button_Menu_Save then begin
-    TextEdit_SaveName.Text := fGame.GetGameName;
-    Menu_Save(TextEdit_SaveName);
+    Edit_SaveName.Text := fGame.GetGameName;
+    Menu_Save(Edit_SaveName);
     Panel_Save.Show;
   end;
 
@@ -647,12 +647,12 @@ procedure TKMapEdInterface.Create_Save_Page;
 begin
   Panel_Save := MyControls.AddPanel(Panel_Main,0,412,196,400);
     MyControls.AddLabel(Panel_Save,100,30,100,30,'Save map',fnt_Outline,kaCenter);
-    TextEdit_SaveName   := MyControls.AddTextEdit(Panel_Save,8,50,180,20, fnt_Grey);
+    Edit_SaveName       := MyControls.AddEdit(Panel_Save,8,50,180,20, fnt_Grey);
     Label_SaveExists    := MyControls.AddLabel(Panel_Save,100,80,100,30,'Map already exists',fnt_Outline,kaCenter);
     CheckBox_SaveExists := MyControls.AddCheckBox(Panel_Save,12,100,100,20,'Overwrite', fnt_Metal);
     Button_SaveSave     := MyControls.AddButton(Panel_Save,8,120,180,30,'Save',fnt_Metal);
     Button_SaveCancel   := MyControls.AddButton(Panel_Save,8,160,180,30,'Cancel',fnt_Metal);
-    TextEdit_SaveName.OnChange  := Menu_Save;
+    Edit_SaveName.OnChange      := Menu_Save;
     CheckBox_SaveExists.OnClick := Menu_Save;
     Button_SaveSave.OnClick     := Menu_Save;
     Button_SaveCancel.OnClick   := SwitchPage;
@@ -1065,8 +1065,8 @@ end;
 
 procedure TKMapEdInterface.Menu_Save(Sender:TObject);
 begin
-  if Sender = TextEdit_SaveName then begin
-    CheckBox_SaveExists.Enabled := CheckFileExists(KMMapNameToPath(TextEdit_SaveName.Text,'dat'), true);
+  if Sender = Edit_SaveName then begin
+    CheckBox_SaveExists.Enabled := CheckFileExists(KMMapNameToPath(Edit_SaveName.Text,'dat'), true);
     Label_SaveExists.Visible := CheckBox_SaveExists.Enabled;
     CheckBox_SaveExists.Checked := false;
     Button_SaveSave.Enabled := not CheckBox_SaveExists.Enabled;
@@ -1079,7 +1079,7 @@ begin
 
   if Sender = Button_SaveSave then begin
     //Should we expand the path here?
-    fGame.MapEditorSave(TextEdit_SaveName.Text, true);
+    fGame.MapEditorSave(Edit_SaveName.Text, true);
     SwitchPage(Button_SaveCancel); //return to previous menu
   end;
 end;
