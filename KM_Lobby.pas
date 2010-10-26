@@ -1,7 +1,7 @@
 unit KM_Lobby;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Controls, KM_Defaults, KromUtils, SysUtils, Math,
+uses Classes, KM_Controls, KM_Defaults, KM_CommonTypes, KromUtils, SysUtils, Math,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP;
 
 type
@@ -10,10 +10,10 @@ type
       fHTTP:TIdHTTP;
       fPost:string;
       fParams:TStringList;
-      fCarryObject:TObject;
+      fCarryObject:TNotifyString;
     public
       ResultMsg:string;
-      constructor Create(aPost:string);
+      constructor Create(aPost:string; aParams:string);
       procedure Execute; override;
     end;
 
@@ -28,9 +28,9 @@ type
     public
       constructor Create(aAddress:string);
       destructor Destroy; override;
-      procedure GetIPAsync(aLabel:TKMLabel);
+      procedure GetIPAsync(aLabel:TNotifyString);
       procedure GetIPAsyncDone(Sender:TObject);
-      procedure AskServerForUsername(aLogin, aPass:string);
+      procedure AskServerForUsername(aLogin, aPass, aIP:string; aLabel:TNotifyString);
       procedure AskServerForUsernameDone(Sender:TObject);
       procedure UpdateState();
     end;
@@ -39,18 +39,22 @@ type
 implementation
 
 
-constructor THTTPPostThread.Create(aPost:string);
+constructor THTTPPostThread.Create(aPost:string; aParams:string);
 begin
   fHTTP := TIdHTTP.Create(nil);
   fPost := aPost;
   fParams := TStringList.Create; //Empty for now
+  fParams.Text := aParams;
   Inherited Create(false);
 end;
 
 
+{ For some reason returned string begins with Unicode Byte-Order Mark (BOM) $EFBBBF
+  I googled for it and all solutions suggest to simply ignore/remove it }
 procedure THTTPPostThread.Execute;
 begin
   ResultMsg := fHTTP.Post(fPost, fParams);
+  ResultMsg := StringReplace(ResultMsg,#$EF+#$BB+#$BF,'',[rfReplaceAll]); //Remove BOM
   fParams.Free;
   fHTTP.Free;
 end;
@@ -72,9 +76,9 @@ begin
 end;
 
 
-procedure TKMLobby.GetIPAsync(aLabel:TKMLabel);
+procedure TKMLobby.GetIPAsync(aLabel:TNotifyString);
 begin
-  with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp') do
+  with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','') do
   begin
     fCarryObject := aLabel;
     OnTerminate := GetIPAsyncDone;
@@ -84,26 +88,32 @@ end;
 
 procedure TKMLobby.GetIPAsyncDone(Sender:TObject);
 begin
-  TKMLabel(THTTPPostThread(Sender).fCarryObject).Caption := THTTPPostThread(Sender).ResultMsg;
+  THTTPPostThread(Sender).fCarryObject(Self, THTTPPostThread(Sender).ResultMsg);
   THTTPPostThread(Sender).Terminate;
 end;
 
 
-procedure TKMLobby.AskServerForUsername(aLogin, aPass:string);
-//var ParamList:TStringList;
+procedure TKMLobby.AskServerForUsername(aLogin, aPass, aIP:string; aLabel:TNotifyString);
+var ParamList:TStringList;
 begin
-  //Fill parameters (login, pass)
-  with THTTPPostThread.Create(fServerAddress+'AddUser.php') do
+  ParamList := TStringList.Create;
+  ParamList.Add('name='+aLogin);
+  ParamList.Add('password='+aPass);
+  ParamList.Add('ip='+aIP);
+
+  with THTTPPostThread.Create(fServerAddress+'add_user.php', ParamList.Text) do
   begin
-    //fCarryObject := aLabel;
+    fCarryObject := aLabel;
     OnTerminate := AskServerForUsernameDone;
   end;
+
+  ParamList.Free;
 end;
 
 
 procedure TKMLobby.AskServerForUsernameDone(Sender:TObject);
 begin
-  //TKMLabel(THTTPPostThread(Sender).fCarryObject).Caption := THTTPPostThread(Sender).ResultMsg;
+  THTTPPostThread(Sender).fCarryObject(Self, THTTPPostThread(Sender).ResultMsg);
   THTTPPostThread(Sender).Terminate;
 end;
 

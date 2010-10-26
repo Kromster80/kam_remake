@@ -4,7 +4,7 @@ interface
 uses MMSystem, SysUtils, KromUtils, KromOGLUtils, Math, Classes, Controls,
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, {$ENDIF}
-  KM_Controls, KM_Defaults, Windows, KM_Settings, KM_MapInfo, KM_Lobby;
+  KM_Controls, KM_Defaults, KM_CommonTypes, Windows, KM_Settings, KM_MapInfo, KM_Lobby;
 
 
 type TKMMainMenuInterface = class
@@ -148,7 +148,9 @@ type TKMMainMenuInterface = class
     procedure SingleMap_SelectMap(Sender: TObject);
     procedure SingleMap_Start(Sender: TObject);
     procedure MultiPlayer_ShowLogin();
+    procedure MultiPlayer_ShowLoginResult(Sender: TObject; aText:string);
     procedure MultiPlayer_LoginQuery(Sender: TObject);
+    procedure MultiPlayer_LoginResult(Sender: TObject; aText:string);
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList();
     procedure MapEditor_Start(Sender: TObject);
@@ -173,7 +175,7 @@ end;
 
 
 implementation
-uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, KM_CommonTypes, Forms, KM_Utils;
+uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, Forms, KM_Utils;
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
@@ -230,6 +232,7 @@ end;
 
 destructor TKMMainMenuInterface.Destroy;
 begin
+  if fLobby<>nil then FreeAndNil(fLobby); //If user never went to MP area it will be NIL
   FreeAndNil(SingleMapsInfo);
   FreeAndNil(MyControls);
   inherited;
@@ -1020,19 +1023,35 @@ begin
 end;
 
 
+{ First page actually related to LobbyChat - create fLobby here}
 procedure TKMMainMenuInterface.MultiPlayer_ShowLogin();
 begin
-  fLobby.GetIPAsync(Label_WWW_IP); //Will get our IP address asynchronously
+  fLobby := TKMLobby.Create('http://www.assoft.ru/chat/');
+  fLobby.GetIPAsync(MultiPlayer_ShowLoginResult); //Will get our IP address asynchronously
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_ShowLoginResult(Sender: TObject; aText:string);
+begin
+  Label_WWW_IP.Caption := aText;
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_LoginQuery(Sender: TObject);
 begin
-  //Construct server query
+  fLobby.AskServerForUsername(Edit_WWW_Login.Text, Edit_WWW_Pass.Text, Label_WWW_IP.Caption, MultiPlayer_LoginResult);
+  Button_WWW_Login.Disable; //Should block duplicate clicks
+end;
 
-  //Wait
 
-  //Write response to Label_Status
+procedure TKMMainMenuInterface.MultiPlayer_LoginResult(Sender: TObject; aText:string);
+begin
+  if aText = 'no error' then
+    SwitchMenuPage(Button_WWW_Login)
+  else
+    Label_WWW_Status.Caption := aText;
+
+  Button_WWW_Login.Enable;
 end;
 
 

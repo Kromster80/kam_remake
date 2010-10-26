@@ -9,6 +9,9 @@ type
   TKMPointDir = record Loc:TKMPoint; Dir:word; end;
   TKMPointF = record X,Y:single; end;
 
+type
+  TNotifyString = procedure(Sender: TObject; aText:string) of object;
+
 
 type
   { Extended with custom Read/Write commands which accept various types without asking for their length}

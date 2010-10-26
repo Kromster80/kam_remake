@@ -24,6 +24,7 @@ uses
   KM_MapInfo in 'KM_MapInfo.pas',
   KM_MissionScript in 'KM_MissionScript.pas',
   KM_LoadLib in 'KM_LoadLib.pas',
+  KM_Lobby in 'KM_Lobby.pas',
   KM_Music in 'KM_Music.pas',
   KM_PathFinding in 'KM_PathFinding.pas',
   KM_Player in 'KM_Player.pas',

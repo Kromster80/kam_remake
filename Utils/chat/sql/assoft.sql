@@ -95,7 +95,7 @@ DELIMITER $$
 -- Procedures
 --
 DROP PROCEDURE IF EXISTS `add_post`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `add_post`(_user_name varchar(255), _room_name varchar(255), _text text)
+CREATE PROCEDURE `add_post`(_user_name varchar(255), _room_name varchar(255), _text text)
 BEGIN
 DECLARE _user_id int(63);
 DECLARE _room_id int(63);
@@ -115,7 +115,7 @@ INSERT INTO
 END$$
 
 DROP PROCEDURE IF EXISTS `add_room`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `add_room`(_host_name varchar(255), _name varchar(255))
+CREATE PROCEDURE `add_room`(_host_name varchar(255), _name varchar(255))
 BEGIN
 DECLARE _host_id int(63);
 SELECT user_id INTO _host_id FROM as_users WHERE user_name  = _host_name LIMIT 1;  
@@ -130,7 +130,7 @@ INSERT INTO
 END$$
 
 DROP PROCEDURE IF EXISTS `add_user`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `add_user`(name varchar(255), pass varchar(255), _ip varchar(16))
+CREATE PROCEDURE `add_user`(name varchar(255), pass varchar(255), _ip varchar(16))
 INSERT INTO
     as_users (
     user_id, 
@@ -142,7 +142,7 @@ INSERT INTO
   VALUES (NULL, name, pass, _ip, CURRENT_TIMESTAMP, 0)$$
 
 DROP PROCEDURE IF EXISTS `clean_last_posts`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `clean_last_posts`()
+CREATE PROCEDURE `clean_last_posts`()
 BEGIN
 DECLARE N int(63);
 SELECT ID INTO N FROM as_posts ORDER BY ID DESC LIMIT 1000,1;
@@ -150,7 +150,7 @@ DELETE FROM as_posts WHERE N > ID;
 END$$
 
 DROP PROCEDURE IF EXISTS `clean_rooms`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `clean_rooms`()
+CREATE PROCEDURE `clean_rooms`()
 BEGIN
 delete from as_chat_room
 where
@@ -158,14 +158,14 @@ room_id not in (select room_id from as_user_in_room );
 END$$
 
 DROP PROCEDURE IF EXISTS `clean_users`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `clean_users`()
+CREATE PROCEDURE `clean_users`()
 BEGIN
 DELETE FROM as_users
         WHERE TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP, last_visit)) > 60;
 END$$
 
 DROP PROCEDURE IF EXISTS `clean_users_in_room`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `clean_users_in_room`()
+CREATE PROCEDURE `clean_users_in_room`()
 BEGIN
 delete from as_user_in_room
 where
@@ -173,31 +173,31 @@ user_id not in (select user_id from as_users);
 END$$
 
 DROP PROCEDURE IF EXISTS `get_posts_list`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `get_posts_list`(_room_name varchar(255))
+CREATE PROCEDURE `get_posts_list`(_room_name varchar(255))
 BEGIN
   SELECT user_name, text, time FROM as_posts where room_name = _room_name;
 END$$
 
 DROP PROCEDURE IF EXISTS `get_rooms_list`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `get_rooms_list`()
+CREATE PROCEDURE `get_rooms_list`()
 BEGIN
   SELECT host_name, room_name FROM as_chat_room;
 END$$
 
 DROP PROCEDURE IF EXISTS `get_room_users_list`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `get_room_users_list`(_room_name varchar(255))
+CREATE PROCEDURE `get_room_users_list`(_room_name varchar(255))
 BEGIN
   SELECT user_name FROM as_user_in_room WHERE room_name = _room_name;
 END$$
 
 DROP PROCEDURE IF EXISTS `get_users_list`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `get_users_list`()
+CREATE PROCEDURE `get_users_list`()
 BEGIN
   SELECT user_name, ip, last_visit, TIMEDIFF(CURRENT_TIMESTAMP, last_visit) FROM as_users;
 END$$
 
 DROP PROCEDURE IF EXISTS `go_to_room`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `go_to_room`(_user_name varchar(255), _room_name varchar(255))
+CREATE PROCEDURE `go_to_room`(_user_name varchar(255), _room_name varchar(255))
 BEGIN
 DECLARE _user_id int(63);
 DECLARE _room_id int(63);
@@ -214,14 +214,14 @@ INSERT INTO
 END$$
 
 DROP PROCEDURE IF EXISTS `leave_room`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `leave_room`(_user_name varchar(255), _room_name varchar(255))
+CREATE PROCEDURE `leave_room`(_user_name varchar(255), _room_name varchar(255))
 BEGIN
 DELETE FROM as_user_in_room
         WHERE (_user_name = user_name) AND (_room_name = room_name);
 END$$
 
 DROP PROCEDURE IF EXISTS `update_last_visit`$$
-CREATE DEFINER=`assoft_user`@`%` PROCEDURE `update_last_visit`(name VARCHAR(255))
+CREATE PROCEDURE `update_last_visit`(name VARCHAR(255))
 BEGIN
   UPDATE as_users SET last_visit=CURRENT_TIMESTAMP WHERE user_name=name;
 END$$
