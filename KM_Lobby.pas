@@ -1,8 +1,8 @@
 unit KM_Lobby;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Controls, KM_Defaults, KM_CommonTypes, KromUtils, SysUtils, Math,
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP;
+uses Classes, KM_Controls, KM_Defaults, KM_CommonTypes, KromUtils, SysUtils, StrUtils, Math,
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, Windows;
 
 type
   THTTPPostThread = class(TThread)
@@ -25,6 +25,14 @@ type
   TKMLobby = class
     private
       fServerAddress:string;
+
+      fUserName:string;
+      fRoomName:string;
+
+      fPlayersList:string;
+      fRoomsList:string;
+      fPostsList:string;
+      function ReplyToString(s:string):string;
     public
       constructor Create(aAddress:string);
       destructor Destroy; override;
@@ -32,6 +40,17 @@ type
       procedure GetIPAsyncDone(Sender:TObject);
       procedure AskServerForUsername(aLogin, aPass, aIP:string; aLabel:TNotifyString);
       procedure AskServerForUsernameDone(Sender:TObject);
+      procedure AskServerForUserList();
+      procedure AskServerForUserListDone(Sender:TObject);
+      procedure AskServerForRoomList();
+      procedure AskServerForRoomListDone(Sender:TObject);
+      procedure AskServerForPostList();
+      procedure AskServerForPostListDone(Sender:TObject);
+      procedure AskServerToPostMessage(aMsg:string);
+
+      property PlayersList:string read fPlayersList;
+      property RoomsList:string read fRoomsList;
+      property PostsList:string read fPostsList;
       procedure UpdateState();
     end;
 
@@ -73,6 +92,13 @@ begin
   //Logout;
   //Disconnect;
   Inherited;
+end;
+
+
+function TKMLobby.ReplyToString(s:string):string;
+begin
+  s := RightStr(s, Length(s)-Pos('</p>',s)-3);
+  Result := StringReplace(s,'<br>','|',[rfReplaceAll, rfIgnoreCase]);
 end;
 
 
@@ -118,9 +144,65 @@ begin
 end;
 
 
+procedure TKMLobby.AskServerForUserList();
+begin
+  with THTTPPostThread.Create(fServerAddress+'list_users.php', '') do
+    OnTerminate := AskServerForUserListDone;
+end;
+
+
+procedure TKMLobby.AskServerForUserListDone(Sender:TObject);
+begin
+  fPlayersList := ReplyToString(THTTPPostThread(Sender).ResultMsg);
+  THTTPPostThread(Sender).Terminate;
+end;
+
+
+procedure TKMLobby.AskServerForRoomList();
+begin
+  with THTTPPostThread.Create(fServerAddress+'list_rooms.php', '') do
+    OnTerminate := AskServerForRoomListDone;
+end;
+
+
+procedure TKMLobby.AskServerForRoomListDone(Sender:TObject);
+begin
+  fRoomsList := ReplyToString(THTTPPostThread(Sender).ResultMsg);
+  THTTPPostThread(Sender).Terminate;
+end;
+
+
+procedure TKMLobby.AskServerForPostList();
+begin
+  with THTTPPostThread.Create(fServerAddress+'list_posts.php', '') do
+    OnTerminate := AskServerForPostListDone;
+end;
+
+
+procedure TKMLobby.AskServerForPostListDone(Sender:TObject);
+begin
+  fPostsList := ReplyToString(THTTPPostThread(Sender).ResultMsg);
+  THTTPPostThread(Sender).Terminate;
+end;
+
+
+procedure TKMLobby.AskServerToPostMessage(aMsg:string);
+var ParamList:TStringList;
+begin
+  ParamList := TStringList.Create;
+  ParamList.Add('user_name='+fUserName);
+  ParamList.Add('room_name='+fRoomName);
+  ParamList.Add('text='+aMsg);
+  THTTPPostThread.Create(fServerAddress+'add_post.php', ParamList.Text);
+  ParamList.Free;
+end;
+
+
 procedure TKMLobby.UpdateState();
 begin
-  //
+  if GetTickCount mod 30 = 0 then AskServerForUserList;
+  if GetTickCount mod 50 = 0 then AskServerForRoomList;
+  if GetTickCount mod 20 = 0 then AskServerForPostList;
 end;
 
 

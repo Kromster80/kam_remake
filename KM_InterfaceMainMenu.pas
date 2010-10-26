@@ -49,6 +49,7 @@ type TKMMainMenuInterface = class
       Button_MP_Back:TKMButton;
 
     Panel_WWWLogin:TKMPanel;
+      Button_WWW_LoginBack:TKMButton;
       Panel_WWWLogin2:TKMPanel;
         Edit_WWW_Login:TKMEdit;
         Edit_WWW_Pass:TKMEdit;
@@ -56,7 +57,14 @@ type TKMMainMenuInterface = class
         Button_WWW_Login:TKMButton;
         Label_WWW_Status:TKMLabel;
 
-      Button_WWW_LoginBack:TKMButton;
+    Panel_Lobby:TKMPanel;
+      Button_LobbyBack:TKMButton;
+      Label_LobbyPlayers:TKMLabel;
+      Label_LobbyRooms:TKMLabel;
+      Label_LobbyPosts:TKMLabel;
+      Edit_LobbyPost:TKMEdit;
+      Button_LobbyPost:TKMButton;
+
 
     Panel_Campaign:TKMPanel;
       Image_CampaignBG:TKMImage;
@@ -129,6 +137,7 @@ type TKMMainMenuInterface = class
     procedure Create_Load_Page;
     procedure Create_MultiPlayer_Page;
     procedure Create_WWWLogin_Page;
+    procedure Create_Lobby_Page;
     procedure Create_MapEditor_Page;
     procedure Create_Options_Page(aGameSettings:TGlobalSettings);
     procedure Create_Credits_Page;
@@ -151,6 +160,8 @@ type TKMMainMenuInterface = class
     procedure MultiPlayer_ShowLoginResult(Sender: TObject; aText:string);
     procedure MultiPlayer_LoginQuery(Sender: TObject);
     procedure MultiPlayer_LoginResult(Sender: TObject; aText:string);
+    procedure MultiPlayer_LobbyPost(Sender: TObject);
+    procedure MultiPlayer_RefreshLobby();
     procedure Load_Click(Sender: TObject);
     procedure Load_PopulateList();
     procedure MapEditor_Start(Sender: TObject);
@@ -206,6 +217,7 @@ begin
     Create_Load_Page;
   Create_MultiPlayer_Page;
     Create_WWWLogin_Page;
+    Create_Lobby_Page;
   Create_MapEditor_Page;
   Create_Options_Page(aGameSettings);
   Create_Credits_Page;
@@ -406,6 +418,30 @@ begin
 
     Button_WWW_LoginBack := MyControls.AddButton(Panel_WWWLogin, 45, 650, 220, 30, fTextLibrary.GetSetupString(9), fnt_Metal, bsMenu);
     Button_WWW_LoginBack.OnClick := SwitchMenuPage;
+end;
+
+
+procedure TKMMainMenuInterface.Create_Lobby_Page;
+begin
+  Panel_Lobby := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
+    with MyControls.AddImage(Panel_Lobby,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
+
+    MyControls.AddLabel(Panel_Lobby, 100, 200, 100, 20, 'Players list:', fnt_Outline, kaLeft);
+    Label_LobbyPlayers := MyControls.AddLabel(Panel_Lobby, 100, 220, 100, 20, '', fnt_Metal, kaLeft);
+
+    MyControls.AddLabel(Panel_Lobby, 100, 300, 100, 20, 'Rooms list:', fnt_Outline, kaLeft);
+    Label_LobbyRooms := MyControls.AddLabel(Panel_Lobby, 100, 320, 100, 20, '', fnt_Metal, kaLeft);
+
+    MyControls.AddLabel(Panel_Lobby, 600, 200, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
+    Label_LobbyPosts := MyControls.AddLabel(Panel_Lobby, 600, 220, 100, 20, '', fnt_Metal, kaLeft);
+
+    MyControls.AddLabel(Panel_Lobby, 600, 400, 100, 20, 'Post message:', fnt_Outline, kaLeft);
+    Edit_LobbyPost := MyControls.AddEdit(Panel_Lobby, 600, 420, 300, 20, fnt_Metal);
+    Button_LobbyPost := MyControls.AddButton(Panel_Lobby, 570, 420, 30, 20, '>>', fnt_Metal);
+    Button_LobbyPost.OnClick := MultiPlayer_LobbyPost;
+
+    Button_LobbyBack := MyControls.AddButton(Panel_Lobby, 45, 650, 220, 30, 'Quit lobby', fnt_Metal, bsMenu);
+    Button_LobbyBack.OnClick := SwitchMenuPage;
 end;
 
 
@@ -751,8 +787,14 @@ begin
     Panel_MainMenu.Show;
 
   {Return to MultiPlayerMenu}
-  if (Sender=Button_WWW_LoginBack) then
+  if (Sender=Button_WWW_LoginBack)or
+     (Sender=Button_LobbyBack) then
     Panel_MultiPlayer.Show;
+
+  if (Sender=Button_WWW_Login) then begin
+    MultiPlayer_RefreshLobby();
+    Panel_Lobby.Show;
+  end;
 
   {Return to MainMenu and restore resolution changes}
   if Sender=Button_Options_Back then begin
@@ -1046,12 +1088,27 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LoginResult(Sender: TObject; aText:string);
 begin
-  if aText = 'no error' then
-    SwitchMenuPage(Button_WWW_Login)
-  else
-    Label_WWW_Status.Caption := aText;
+  //if aText = 'no error' then
+  //  SwitchMenuPage(Button_WWW_Login)
+  //else
+  //  Label_WWW_Status.Caption := aText;
+  SwitchMenuPage(Button_WWW_Login);
 
   Button_WWW_Login.Enable;
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_LobbyPost(Sender: TObject);
+begin
+  fLobby.AskServerToPostMessage(Edit_LobbyPost.Text);
+end;
+
+
+procedure TKMMainMenuInterface.MultiPlayer_RefreshLobby();
+begin
+  Label_LobbyPlayers.Caption := fLobby.PlayersList;
+  Label_LobbyRooms.Caption := fLobby.RoomsList;
+  Label_LobbyPosts.Caption := fLobby.PostsList;
 end;
 
 
@@ -1186,7 +1243,10 @@ end;
 {Should update anything we want to be updated, obviously}
 procedure TKMMainMenuInterface.UpdateState;
 begin
-  //
+  if fLobby<>nil then begin
+    fLobby.UpdateState;
+    Multiplayer_RefreshLobby;
+  end;
 end;
 
 
