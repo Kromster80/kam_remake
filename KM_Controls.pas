@@ -236,6 +236,7 @@ TKMEdit = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aMasked:boolean);
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     function KeyUp(Key: Word; Shift: TShiftState; IsDown:boolean):boolean; override;
+    procedure MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton); override;
     procedure Paint(); override;
 end;
 
@@ -1093,6 +1094,13 @@ begin
 
   CursorPos := EnsureRange(CursorPos, 0, length(Text));
   if Assigned(OnChange) then OnChange(Self);
+end;
+
+
+procedure TKMEdit.MouseUp(X,Y:Integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  CursorPos := length(Text);
 end;
 
 
