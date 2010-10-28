@@ -345,6 +345,32 @@ TKMScrollBar = class(TKMControl)
 end;
 
 
+TKMListBox = class(TKMControl)
+  private
+    ItemHeight:byte;
+    fItems:TStringList;
+    ScrollBar:TKMScrollBar;
+    FOnChange:TNotifyEvent;
+    procedure ChangeScrollPosition (Sender:TObject);
+  public
+    TopIndex:smallint; //up to 32k files
+    ItemIndex:smallint;
+    constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+    destructor Destroy; override;
+
+    procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+    property Items:TStringList read fItems;
+
+    procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
+    procedure MouseMove(X,Y:Integer; Shift:TShiftState); override;
+    procedure MouseWheel(Sender: TObject; WheelDelta:integer); override;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  protected
+
+    procedure Paint(); override;
+end;
+
+
 { Minimap as stand-alone control }
 TKMMinimap = class(TKMControl)
   private
@@ -437,6 +463,7 @@ TKMControlsCollection = class(TKMList) //Making list of true TKMControls involve
     function AddCostsRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aProductionCostID:byte):TKMCostsRow;
     function AddRatioRow        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight,aMin,aMax:integer):TKMRatioRow;
     function AddScrollBar       (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aScrollAxis:TScrollAxis; aStyle:TButtonStyle=bsGame):TKMScrollBar;
+    function AddListBox         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMListBox;
     function AddMinimap         (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMMinimap;
     function AddFileList        (aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMFileList;
 
@@ -1422,6 +1449,91 @@ begin
 end;
 
 
+{ List }
+constructor TKMListBox.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
+begin
+  Inherited Create(aLeft,aTop,aWidth,aHeight);
+  ParentTo(aParent);
+  ItemHeight := 20;
+  TopIndex := 0;
+  ItemIndex := -1;
+  fItems := TStringList.Create;
+end;
+
+
+destructor TKMListBox.Destroy();
+begin
+  FreeAndNil(fItems);
+  Inherited;
+end;
+
+
+procedure TKMListBox.ChangeScrollPosition(Sender:TObject);
+begin
+  TopIndex := TKMScrollBar(Sender).Position;
+end;
+
+
+procedure TKMListBox.RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+begin
+  ScrollBar.MinValue := 0;
+  ScrollBar.MaxValue := max(fItems.Count - (fHeight div ItemHeight),0);
+  ScrollBar.Position := 0;
+  ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
+end;
+
+
+procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
+begin
+  Inherited;
+  TopIndex := EnsureRange(TopIndex - WheelDelta div 120, 0, ScrollBar.MaxValue);
+  ScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
+end;
+
+
+procedure TKMListBox.MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton);
+begin
+  Inherited;
+  MouseMove(X,Y,Shift); //Will change Position and call OnChange event
+end;
+
+
+procedure TKMListBox.MouseMove(X,Y:integer; Shift:TShiftState);
+var NewIndex:integer;
+begin
+  Inherited;
+
+  if (ssLeft in Shift) and
+     (InRange(X, Left, Left+Width-ScrollBar.Width)) and
+     (InRange(Y, Top, Top+Height div ItemHeight * ItemHeight))
+  then begin
+    NewIndex := TopIndex + (Y-Top) div ItemHeight;
+
+    if NewIndex > fItems.Count-1 then NewIndex := -1;
+
+    if (NewIndex<>ItemIndex) then begin
+      ItemIndex := NewIndex;
+      if Assigned(OnChange) and (ssLeft in Shift) then
+        OnChange(Self);
+    end;
+  end;
+end;
+
+
+procedure TKMListBox.Paint();
+var i:integer;
+begin
+  Inherited;
+  fRenderUI.WriteBevel(Left, Top, Width-ScrollBar.Width, Height);
+
+  if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then
+    fRenderUI.WriteLayer(Left, Top+ItemHeight*(ItemIndex-TopIndex), Width-ScrollBar.Width, ItemHeight, $88888888);
+
+  for i:=0 to min(fItems.Count-1, (fHeight div ItemHeight)-1) do
+    fRenderUI.WriteText(Left+8, Top+i*ItemHeight+3, Width, fItems.Strings[TopIndex+i] , fnt_Metal, kaLeft, false, $FFFFFFFF);
+end;
+
+
 { TKMMinimap }
 constructor TKMMinimap.Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
 begin
@@ -1814,6 +1926,17 @@ begin
   Result.ScrollDec.OnClick := Result.DecPosition;
   Result.ScrollInc.OnClick := Result.IncPosition;
   Result.RefreshItems();
+end;
+
+
+function TKMControlsCollection.AddListBox(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer):TKMListBox;
+const ScrollWidth = 20;
+begin
+  Result := TKMListBox.Create(aParent, aLeft,aTop,aWidth,aHeight);
+  AddToCollection(Result);
+
+  Result.ScrollBar := AddScrollBar(aParent, aLeft+aWidth-ScrollWidth, aTop, ScrollWidth, aHeight, sa_Vertical);
+  Result.ScrollBar.OnChange := Result.ChangeScrollPosition;
 end;
 
 

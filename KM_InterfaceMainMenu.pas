@@ -59,9 +59,9 @@ type TKMMainMenuInterface = class
 
     Panel_Lobby:TKMPanel;
       Button_LobbyBack:TKMButton;
-      Label_LobbyPlayers:TKMLabel;
-      Label_LobbyRooms:TKMLabel;
-      Label_LobbyPosts:TKMLabel;
+      ListBox_LobbyPlayers:TKMListBox;
+      ListBox_LobbyRooms:TKMListBox;
+      ListBox_LobbyPosts:TKMListBox;
       Edit_LobbyPost:TKMEdit;
       Button_LobbyPost:TKMButton;
 
@@ -426,18 +426,18 @@ begin
   Panel_Lobby := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
     with MyControls.AddImage(Panel_Lobby,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
 
-    MyControls.AddLabel(Panel_Lobby, 100, 200, 100, 20, 'Players list:', fnt_Outline, kaLeft);
-    Label_LobbyPlayers := MyControls.AddLabel(Panel_Lobby, 100, 220, 100, 20, '', fnt_Metal, kaLeft);
+    MyControls.AddLabel(Panel_Lobby, 100, 200, 100, 20, 'Rooms list:', fnt_Outline, kaLeft);
+    ListBox_LobbyRooms := MyControls.AddListBox(Panel_Lobby, 100, 220, 200, 150);
 
-    MyControls.AddLabel(Panel_Lobby, 100, 300, 100, 20, 'Rooms list:', fnt_Outline, kaLeft);
-    Label_LobbyRooms := MyControls.AddLabel(Panel_Lobby, 100, 320, 100, 20, '', fnt_Metal, kaLeft);
+    MyControls.AddLabel(Panel_Lobby, 100, 400, 100, 20, 'Players list:', fnt_Outline, kaLeft);
+    ListBox_LobbyPlayers := MyControls.AddListBox(Panel_Lobby, 100, 420, 200, 150);
 
-    MyControls.AddLabel(Panel_Lobby, 600, 200, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
-    Label_LobbyPosts := MyControls.AddLabel(Panel_Lobby, 600, 220, 100, 20, '', fnt_Metal, kaLeft);
+    MyControls.AddLabel(Panel_Lobby, 350, 200, 100, 20, 'Posts list:', fnt_Outline, kaLeft);
+    ListBox_LobbyPosts := MyControls.AddListBox(Panel_Lobby, 350, 220, 600, 300);
 
-    MyControls.AddLabel(Panel_Lobby, 600, 400, 100, 20, 'Post message:', fnt_Outline, kaLeft);
-    Edit_LobbyPost := MyControls.AddEdit(Panel_Lobby, 600, 420, 300, 20, fnt_Metal);
-    Button_LobbyPost := MyControls.AddButton(Panel_Lobby, 570, 420, 30, 20, '>>', fnt_Metal);
+    MyControls.AddLabel(Panel_Lobby, 350, 550, 100, 20, 'Post message:', fnt_Outline, kaLeft);
+    Edit_LobbyPost := MyControls.AddEdit(Panel_Lobby, 380, 570, 570, 20, fnt_Metal);
+    Button_LobbyPost := MyControls.AddButton(Panel_Lobby, 350, 570, 30, 20, '>>', fnt_Metal);
     Button_LobbyPost.OnClick := MultiPlayer_LobbyPost;
 
     Button_LobbyBack := MyControls.AddButton(Panel_Lobby, 45, 650, 220, 30, 'Quit lobby', fnt_Metal, bsMenu);
@@ -1070,18 +1070,24 @@ procedure TKMMainMenuInterface.MultiPlayer_ShowLogin();
 begin
   fLobby := TKMLobby.Create('http://www.assoft.ru/chat/');
   fLobby.GetIPAsync(MultiPlayer_ShowLoginResult); //Will get our IP address asynchronously
+  Button_WWW_Login.Disable; //Until we resolve our IP
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_ShowLoginResult(Sender: TObject; aText:string);
 begin
   Label_WWW_IP.Caption := aText;
+  Edit_WWW_Login.Text := 'Player';
+  Button_WWW_Login.Enable;
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_LoginQuery(Sender: TObject);
 begin
-  fLobby.AskServerForUsername(Edit_WWW_Login.Text, Edit_WWW_Pass.Text, Label_WWW_IP.Caption, MultiPlayer_LoginResult);
+  fLobby.AskServerForUsername(Edit_WWW_Login.Text,
+                              Edit_WWW_Pass.Text,
+                              Label_WWW_IP.Caption,
+                              MultiPlayer_LoginResult);
   Button_WWW_Login.Disable; //Should block duplicate clicks
 end;
 
@@ -1100,15 +1106,15 @@ end;
 
 procedure TKMMainMenuInterface.MultiPlayer_LobbyPost(Sender: TObject);
 begin
-  fLobby.AskServerToPostMessage(Edit_LobbyPost.Text);
+  //fLobby.AskServerToPostMessage(Edit_LobbyPost.Text);
 end;
 
 
 procedure TKMMainMenuInterface.MultiPlayer_RefreshLobby();
 begin
-  Label_LobbyPlayers.Caption := fLobby.PlayersList;
-  Label_LobbyRooms.Caption := fLobby.RoomsList;
-  Label_LobbyPosts.Caption := fLobby.PostsList;
+  ListBox_LobbyPlayers.Items.Text := fLobby.PlayersList;
+  ListBox_LobbyRooms.Items.Text := fLobby.RoomsList;
+  ListBox_LobbyPosts.Items.Text := fLobby.PostsList;
 end;
 
 

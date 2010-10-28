@@ -11,9 +11,11 @@ type
       fPost:string;
       fParams:TStringList;
       fCarryObject:TNotifyString;
+      fReturn:PString;
+      function ReplyToString(s:string):string;
     public
       ResultMsg:string;
-      constructor Create(aPost:string; aParams:string);
+      constructor Create(aPost, aParams:string; aReturn:PString);
       procedure Execute; override;
     end;
 
@@ -32,7 +34,7 @@ type
       fPlayersList:string;
       fRoomsList:string;
       fPostsList:string;
-      function ReplyToString(s:string):string;
+
     public
       constructor Create(aAddress:string);
       destructor Destroy; override;
@@ -40,13 +42,15 @@ type
       procedure GetIPAsyncDone(Sender:TObject);
       procedure AskServerForUsername(aLogin, aPass, aIP:string; aLabel:TNotifyString);
       procedure AskServerForUsernameDone(Sender:TObject);
-      procedure AskServerForUserList();
-      procedure AskServerForUserListDone(Sender:TObject);
-      procedure AskServerForRoomList();
+
+      procedure AskServerFor(aQuery,aParams:string; aReturn:PString);
+//      procedure AskServerForDone(Sender:TObject);
+
+{      procedure AskServerForRoomList();
       procedure AskServerForRoomListDone(Sender:TObject);
       procedure AskServerForPostList();
       procedure AskServerForPostListDone(Sender:TObject);
-      procedure AskServerToPostMessage(aMsg:string);
+      procedure AskServerToPostMessage(aMsg:string);}
 
       property PlayersList:string read fPlayersList;
       property RoomsList:string read fRoomsList;
@@ -58,15 +62,22 @@ type
 implementation
 
 
-constructor THTTPPostThread.Create(aPost:string; aParams:string);
+constructor THTTPPostThread.Create(aPost, aParams:string; aReturn:PString);
 begin
   fHTTP := TIdHTTP.Create(nil);
   fPost := aPost;
   fParams := TStringList.Create; //Empty for now
   fParams.Text := aParams;
+  fReturn := aReturn;
   Inherited Create(false);
 end;
 
+
+function THTTPPostThread.ReplyToString(s:string):string;
+begin
+  s := RightStr(s, Length(s)-Pos('</p>',s)-3);
+  Result := StringReplace(s,'<br>','|',[rfReplaceAll, rfIgnoreCase]);
+end;
 
 { For some reason returned string begins with Unicode Byte-Order Mark (BOM) $EFBBBF
   I googled for it and all solutions suggest to simply ignore/remove it }
@@ -74,6 +85,7 @@ procedure THTTPPostThread.Execute;
 begin
   ResultMsg := fHTTP.Post(fPost, fParams);
   ResultMsg := StringReplace(ResultMsg,#$EF+#$BB+#$BF,'',[rfReplaceAll]); //Remove BOM
+  if fReturn<>nil then fReturn^ := ReplyToString(ResultMsg);
   fParams.Free;
   fHTTP.Free;
 end;
@@ -95,16 +107,9 @@ begin
 end;
 
 
-function TKMLobby.ReplyToString(s:string):string;
-begin
-  s := RightStr(s, Length(s)-Pos('</p>',s)-3);
-  Result := StringReplace(s,'<br>','|',[rfReplaceAll, rfIgnoreCase]);
-end;
-
-
 procedure TKMLobby.GetIPAsync(aLabel:TNotifyString);
 begin
-  with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','') do
+  with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','',nil) do
   begin
     fCarryObject := aLabel;
     OnTerminate := GetIPAsyncDone;
@@ -123,13 +128,17 @@ procedure TKMLobby.AskServerForUsername(aLogin, aPass, aIP:string; aLabel:TNotif
 var ParamList:TStringList;
 begin
   ParamList := TStringList.Create;
+
+  fUserName := aLogin;
+
   ParamList.Add('name='+aLogin);
   ParamList.Add('password='+aPass);
   ParamList.Add('ip='+aIP);
 
-  with THTTPPostThread.Create(fServerAddress+'add_user.php', ParamList.Text) do
+  with THTTPPostThread.Create(fServerAddress+'add_user.php', ParamList.Text, nil) do
   begin
     fCarryObject := aLabel;
+    FreeOnTerminate := true;
     OnTerminate := AskServerForUsernameDone;
   end;
 
@@ -144,65 +153,22 @@ begin
 end;
 
 
-procedure TKMLobby.AskServerForUserList();
+procedure TKMLobby.AskServerFor(aQuery,aParams:string; aReturn:PString);
 begin
-  with THTTPPostThread.Create(fServerAddress+'list_users.php', '') do
-    OnTerminate := AskServerForUserListDone;
-end;
-
-
-procedure TKMLobby.AskServerForUserListDone(Sender:TObject);
-begin
-  fPlayersList := ReplyToString(THTTPPostThread(Sender).ResultMsg);
-  THTTPPostThread(Sender).Terminate;
-end;
-
-
-procedure TKMLobby.AskServerForRoomList();
-begin
-  with THTTPPostThread.Create(fServerAddress+'list_rooms.php', '') do
-    OnTerminate := AskServerForRoomListDone;
-end;
-
-
-procedure TKMLobby.AskServerForRoomListDone(Sender:TObject);
-begin
-  fRoomsList := ReplyToString(THTTPPostThread(Sender).ResultMsg);
-  THTTPPostThread(Sender).Terminate;
-end;
-
-
-procedure TKMLobby.AskServerForPostList();
-begin
-  with THTTPPostThread.Create(fServerAddress+'list_posts.php', '') do
-    OnTerminate := AskServerForPostListDone;
-end;
-
-
-procedure TKMLobby.AskServerForPostListDone(Sender:TObject);
-begin
-  fPostsList := ReplyToString(THTTPPostThread(Sender).ResultMsg);
-  THTTPPostThread(Sender).Terminate;
-end;
-
-
-procedure TKMLobby.AskServerToPostMessage(aMsg:string);
-var ParamList:TStringList;
-begin
-  ParamList := TStringList.Create;
-  ParamList.Add('user_name='+fUserName);
-  ParamList.Add('room_name='+fRoomName);
-  ParamList.Add('text='+aMsg);
-  THTTPPostThread.Create(fServerAddress+'add_post.php', ParamList.Text);
-  ParamList.Free;
+  with THTTPPostThread.Create(fServerAddress+aQuery, aParams, aReturn) do
+    FreeOnTerminate := true;
 end;
 
 
 procedure TKMLobby.UpdateState();
 begin
-  if GetTickCount mod 30 = 0 then AskServerForUserList;
-  if GetTickCount mod 50 = 0 then AskServerForRoomList;
-  if GetTickCount mod 20 = 0 then AskServerForPostList;
+  if GetTickCount mod 30 = 0 then AskServerFor('list_users.php', '', @fPlayersList);
+  if GetTickCount mod 50 = 0 then AskServerFor('list_rooms.php', '', @fRoomsList);
+  if GetTickCount mod 20 = 0 then AskServerFor('list_posts.php', '', @fPostsList);
+
+  if GetTickCount mod 100 = 0 then
+    AskServerFor('update_last_visit.php', fUserName, nil); //once a minute
+
 end;
 
 
