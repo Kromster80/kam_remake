@@ -5,7 +5,7 @@ program KaM_Remake;
 {$ENDIF}
 
 uses
-  FastMM4, //Can be used only in Delphi, not Lazarus
+  //FastMM4, //Can be used only in Delphi, not Lazarus
   Forms,
   {$IFDEF FPC} Interfaces, {$ENDIF}
   KM_Unit1 in 'KM_Unit1.pas' {Form1},

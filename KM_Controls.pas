@@ -358,7 +358,7 @@ TKMListBox = class(TKMControl)
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer);
     destructor Destroy; override;
 
-    procedure RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+    procedure RefreshList();
     property Items:TStringList read fItems;
 
     procedure MouseDown(X,Y:integer; Shift:TShiftState; Button:TMouseButton); override;
@@ -1474,12 +1474,14 @@ begin
 end;
 
 
-procedure TKMListBox.RefreshList(aPath,aExtension:string; ScanSubFolders:boolean=false);
+procedure TKMListBox.RefreshList();
 begin
-  ScrollBar.MinValue := 0;
-  ScrollBar.MaxValue := max(fItems.Count - (fHeight div ItemHeight),0);
-  ScrollBar.Position := 0;
-  ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
+  with ScrollBar do begin
+    MinValue := 0;
+    MaxValue := max(fItems.Count - (fHeight div ItemHeight),0);
+    Position := EnsureRange(TopIndex, MinValue, MaxValue);
+    Enabled := MaxValue > MinValue;
+  end;
 end;
 
 
@@ -1524,6 +1526,9 @@ procedure TKMListBox.Paint();
 var i:integer;
 begin
   Inherited;
+
+  RefreshList();
+
   fRenderUI.WriteBevel(Left, Top, Width-ScrollBar.Width, Height);
 
   if (ItemIndex <> -1) and (ItemIndex >= TopIndex) and (ItemIndex <= TopIndex+(fHeight div ItemHeight)-1) then

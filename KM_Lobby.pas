@@ -10,8 +10,8 @@ type
       fHTTP:TIdHTTP;
       fPost:string;
       fParams:TStringList;
-      fCarryObject:TNotifyString;
       fReturn:PString;
+      fReturnObject:TNotifyEvent;
       function ReplyToString(s:string):string;
     public
       ResultMsg:string;
@@ -35,24 +35,20 @@ type
       fRoomsList:string;
       fPostsList:string;
 
+      fUserTT:THTTPPostThread;
+      fTT:array[1..16]of THTTPPostThread;
+
+      function GetPlayersList():string;
+      procedure AskServerFor(i:byte; aQuery,aParams:string; aReturn:PString);
     public
-      constructor Create(aAddress:string);
+      constructor Create(aAddress:string; aLogin,aPass,aIP:string; aReturn:TNotifyEvent);
       destructor Destroy; override;
-      procedure GetIPAsync(aLabel:TNotifyString);
-      procedure GetIPAsyncDone(Sender:TObject);
-      procedure AskServerForUsername(aLogin, aPass, aIP:string; aLabel:TNotifyString);
+      procedure AskServerForUsername(aLogin, aPass, aIP:string; aReturn:TNotifyEvent);
       procedure AskServerForUsernameDone(Sender:TObject);
 
-      procedure AskServerFor(aQuery,aParams:string; aReturn:PString);
-//      procedure AskServerForDone(Sender:TObject);
+      procedure PostMessage(aText:string);
 
-{      procedure AskServerForRoomList();
-      procedure AskServerForRoomListDone(Sender:TObject);
-      procedure AskServerForPostList();
-      procedure AskServerForPostListDone(Sender:TObject);
-      procedure AskServerToPostMessage(aMsg:string);}
-
-      property PlayersList:string read fPlayersList;
+      property PlayersList:string read GetPlayersList;
       property RoomsList:string read fRoomsList;
       property PostsList:string read fPostsList;
       procedure UpdateState();
@@ -76,7 +72,7 @@ end;
 function THTTPPostThread.ReplyToString(s:string):string;
 begin
   s := RightStr(s, Length(s)-Pos('</p>',s)-3);
-  Result := StringReplace(s,'<br>','|',[rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(s,'<br>',#13#10,[rfReplaceAll, rfIgnoreCase]);
 end;
 
 { For some reason returned string begins with Unicode Byte-Order Mark (BOM) $EFBBBF
@@ -92,55 +88,57 @@ end;
 
 
 { TKMLobby }
-constructor TKMLobby.Create(aAddress:string);
+constructor TKMLobby.Create(aAddress:string; aLogin,aPass,aIP:string; aReturn:TNotifyEvent);
 begin
   Inherited Create;
   fServerAddress := aAddress;
+  fUserName := aLogin;
+  fRoomName := ''; //no room specified, means Main lobby
+
+  AskServerForUsername(aLogin, aPass, aIP, aReturn);
 end;
 
 
 destructor TKMLobby.Destroy;
 begin
+  if fUserTT<>nil then fUserTT.Free;
   //Logout;
   //Disconnect;
   Inherited;
 end;
 
 
-procedure TKMLobby.GetIPAsync(aLabel:TNotifyString);
+{ Returns player list as: PLAYER - (last_seen) }
+function TKMLobby.GetPlayersList():string;
+var s:TStringList; i:integer;
 begin
-  with THTTPPostThread.Create('http://www.whatismyip.com/automation/n09230945.asp','',nil) do
-  begin
-    fCarryObject := aLabel;
-    OnTerminate := GetIPAsyncDone;
-  end;
+  s := TStringList.Create;
+
+  if RightStr(fPlayersList,3)=#13#10+' ' then  //Remove last EOL
+    fPlayersList := Copy(fPlayersList, 0, length(fPlayersList)-3);
+
+  s.Text := fPlayersList;
+
+  for i:=0 to s.Count-1 do
+    s[i] := Copy(s[i],0,Pos(',',s[i])-1) + ' - ' + Copy(s[i],length(s[i])-4,length(s[i]));
+
+  Result := s.Text;
+  s.Free;
 end;
 
 
-procedure TKMLobby.GetIPAsyncDone(Sender:TObject);
-begin
-  THTTPPostThread(Sender).fCarryObject(Self, THTTPPostThread(Sender).ResultMsg);
-  THTTPPostThread(Sender).Terminate;
-end;
-
-
-procedure TKMLobby.AskServerForUsername(aLogin, aPass, aIP:string; aLabel:TNotifyString);
+procedure TKMLobby.AskServerForUsername(aLogin, aPass, aIP:string; aReturn:TNotifyEvent);
 var ParamList:TStringList;
 begin
   ParamList := TStringList.Create;
-
-  fUserName := aLogin;
-
   ParamList.Add('name='+aLogin);
   ParamList.Add('password='+aPass);
   ParamList.Add('ip='+aIP);
 
-  with THTTPPostThread.Create(fServerAddress+'add_user.php', ParamList.Text, nil) do
-  begin
-    fCarryObject := aLabel;
-    FreeOnTerminate := true;
-    OnTerminate := AskServerForUsernameDone;
-  end;
+  fUserTT := THTTPPostThread.Create(fServerAddress+'add_user.php', ParamList.Text, nil);
+  fUserTT.fReturnObject := aReturn;
+  fUserTT.FreeOnTerminate := true;
+  fUserTT.OnTerminate := AskServerForUsernameDone;
 
   ParamList.Free;
 end;
@@ -148,27 +146,47 @@ end;
 
 procedure TKMLobby.AskServerForUsernameDone(Sender:TObject);
 begin
-  THTTPPostThread(Sender).fCarryObject(Self, THTTPPostThread(Sender).ResultMsg);
+  if THTTPPostThread(Sender).ResultMsg = 'allow to enter' then
+    THTTPPostThread(Sender).fReturnObject(Self)
+  else
+    THTTPPostThread(Sender).fReturnObject(nil);
+
   THTTPPostThread(Sender).Terminate;
+  fUserTT := nil;
 end;
 
 
-procedure TKMLobby.AskServerFor(aQuery,aParams:string; aReturn:PString);
+procedure TKMLobby.AskServerFor(i:byte; aQuery,aParams:string; aReturn:PString);
 begin
-  with THTTPPostThread.Create(fServerAddress+aQuery, aParams, aReturn) do
-    FreeOnTerminate := true;
+  if fTT[i]<>nil then
+    if fTT[i].Terminated then fTT[i] := nil;
+
+  if fTT[i]<>nil then exit; //
+
+
+  fTT[i] := THTTPPostThread.Create(fServerAddress+aQuery, aParams, aReturn);
+  fTT[i].FreeOnTerminate := true;
+end;
+
+
+procedure TKMLobby.PostMessage(aText:string);
+var ParamList:TStringList;
+begin
+  ParamList := TStringList.Create;
+  ParamList.Add('user_name='+fUserName);
+  ParamList.Add('room_name='+fRoomName);
+  ParamList.Add('text='+aText);
+  AskServerFor(5, 'add_post.php', ParamList.Text, nil);
+  ParamList.Free;
 end;
 
 
 procedure TKMLobby.UpdateState();
 begin
-  if GetTickCount mod 30 = 0 then AskServerFor('list_users.php', '', @fPlayersList);
-  if GetTickCount mod 50 = 0 then AskServerFor('list_rooms.php', '', @fRoomsList);
-  if GetTickCount mod 20 = 0 then AskServerFor('list_posts.php', '', @fPostsList);
-
-  if GetTickCount mod 100 = 0 then
-    AskServerFor('update_last_visit.php', fUserName, nil); //once a minute
-
+  if GetTickCount mod  50 = 0 then AskServerFor(1, 'list_users.php', '', @fPlayersList);
+  //if GetTickCount mod  50 = 0 then AskServerFor(2, 'list_rooms.php', '', @fRoomsList);
+  if GetTickCount mod  10 = 0 then AskServerFor(3, 'list_posts.php', '', @fPostsList);
+  if GetTickCount mod 100 = 0 then AskServerFor(4, 'update_last_visit.php', 'name='+fUserName, nil); //once a minute
 end;
 
 
