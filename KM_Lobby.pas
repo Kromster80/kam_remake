@@ -39,6 +39,7 @@ type
       //fTT:array[1..16]of THTTPPostThread;
 
       function GetPlayersList():string;
+      function GetPostsList():string;
       procedure AskServerFor(i:byte; aQuery,aParams:string; aReturn:PString);
     public
       constructor Create(aAddress:string; aLogin,aPass,aIP:string; aReturn:TNotifyEvent);
@@ -50,7 +51,7 @@ type
 
       property PlayersList:string read GetPlayersList;
       property RoomsList:string read fRoomsList;
-      property PostsList:string read fPostsList;
+      property PostsList:string read GetPostsList;
       procedure UpdateState();
     end;
 
@@ -83,6 +84,9 @@ begin
   ResultMsg := fHTTP.Post(fPost, fParams);
   ResultMsg := StringReplace(ResultMsg,#$EF+#$BB+#$BF,'',[rfReplaceAll]); //Remove BOM
   if fReturn<>nil then fReturn^ := ReplyToString(ResultMsg) +' /'+ inttostr(random(9));
+
+  if fHTTP.Connected then fHTTP.DisconnectSocket;
+
   fParams.Free;
   fHTTP.Free;
 end;
@@ -117,22 +121,22 @@ begin
   s.Text := fPlayersList;
 
   for i:=0 to s.Count-1 do
-    s[i] := Copy(s[i],0,Pos(',',s[i])-1) + ' - ' + Copy(s[i],length(s[i])-4,length(s[i]));
+    s[i] := Copy(s[i],0,Pos(',',s[i])-1) + ' - ' + Copy(s[i],length(s[i])-6,length(s[i]));
 
   Result := s.Text;
   s.Free;
 end;
 
 
-{ Returns player list as: PLAYER - (last_seen) }
+{  }
 function TKMLobby.GetPostsList():string;
 var s:TStringList; i:integer;
 begin
   s := TStringList.Create;
-  s.Text := fPlayersList;
+  s.Text := fPostsList;
 
-  for i:=0 to s.Count-1 do
-    s[i] := Copy(s[i],0,Pos(',',s[i])-1) + ' - ' + Copy(s[i],length(s[i])-4,length(s[i]));
+//  for i:=0 to s.Count-1 do
+//    s[i] := Copy(s[i],0,Pos(',',s[i])-1) + ' - ' + Copy(s[i],length(s[i])-4,length(s[i]));
 
   Result := s.Text;
   s.Free;
