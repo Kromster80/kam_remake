@@ -4,16 +4,15 @@ interface
 uses Classes, KM_CommonTypes, KM_Defaults, KromUtils, KM_Player, KM_Utils, KM_Units_Warrior;
 
 type
-  TAIDefencePosType = (adt_FrontLine, //Top priority to defend, will be replaced by back line troops when they die
-                       adt_BackLine); //Lower priority defence, can go on AI attacks
+  TAIDefencePosType = (adt_FrontLine, //Top priority to defend, will be replaced by back line troops when they die, and troops will not go on attacks as they are defending an important position
+                       adt_BackLine); //Lower priority defence, can go on AI attacks (these are often placed behind the main defence line as replacement/attacking troops)
 
   TAIDefencePosition = record
-                         Position: TKMPointDir;
-                         GroupType: TGroupType;
-                         DefenceRadius: integer;
-                         DefenceType: TAIDefencePosType;
-                         //todo: Pointer tracking
-                         CurrentCommander: TKMUnitWarrior; //Commander of group occupying position
+                         Position: TKMPointDir; //Position and direction the group defending will stand
+                         GroupType: TGroupType; //Type of group to defend this position (e.g. melee)
+                         DefenceRadius: integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
+                         DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
+                         CurrentCommander: TKMUnitWarrior; //Commander of group currently occupying position
                        end;
 
 type
@@ -229,9 +228,12 @@ begin
   for i:=0 to DefencePositionsCount-1 do
     if (DefencePositions[i].CurrentCommander <> nil) and DefencePositions[i].CurrentCommander.IsDeadOrDying then
       if DefencePositions[i].CurrentCommander.fCommander <> nil then
-        DefencePositions[i].CurrentCommander := DefencePositions[i].CurrentCommander.fCommander
+        DefencePositions[i].CurrentCommander := TKMUnitWarrior(DefencePositions[i].CurrentCommander.fCommander.GetUnitPointer)
       else
+      begin
+        DefencePositions[i].CurrentCommander.ReleaseUnitPointer;
         DefencePositions[i].CurrentCommander := nil;
+      end;
 
   for i:=byte(low(TGroupType)) to byte(high(TGroupType)) do
     NeedsLinkingTo[TGroupType(i)] := nil;
@@ -289,7 +291,7 @@ begin
             Positioned := true;
             if DefencePositions[Matched].CurrentCommander = nil then
             begin //New position
-              DefencePositions[Matched].CurrentCommander := GetCommander;
+              DefencePositions[Matched].CurrentCommander := TKMUnitWarrior(GetCommander.GetUnitPointer);
               PlaceOrder(wo_Walk,DefencePositions[Matched].Position);
             end
             else //Restock existing position
