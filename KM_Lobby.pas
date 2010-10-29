@@ -36,7 +36,7 @@ type
       fPostsList:string;
 
       fUserTT:THTTPPostThread;
-      fTT:array[1..16]of THTTPPostThread;
+      //fTT:array[1..16]of THTTPPostThread;
 
       function GetPlayersList():string;
       procedure AskServerFor(i:byte; aQuery,aParams:string; aReturn:PString);
@@ -72,7 +72,8 @@ end;
 function THTTPPostThread.ReplyToString(s:string):string;
 begin
   s := RightStr(s, Length(s)-Pos('</p>',s)-3);
-  Result := StringReplace(s,'<br>',#13#10,[rfReplaceAll, rfIgnoreCase]);
+  s := StringReplace(s,'<br>',#13#10,[rfReplaceAll, rfIgnoreCase]);
+  Result := Copy(s, 0, length(s)-3);
 end;
 
 { For some reason returned string begins with Unicode Byte-Order Mark (BOM) $EFBBBF
@@ -81,7 +82,7 @@ procedure THTTPPostThread.Execute;
 begin
   ResultMsg := fHTTP.Post(fPost, fParams);
   ResultMsg := StringReplace(ResultMsg,#$EF+#$BB+#$BF,'',[rfReplaceAll]); //Remove BOM
-  if fReturn<>nil then fReturn^ := ReplyToString(ResultMsg);
+  if fReturn<>nil then fReturn^ := ReplyToString(ResultMsg) +' /'+ inttostr(random(9));
   fParams.Free;
   fHTTP.Free;
 end;
@@ -113,10 +114,21 @@ function TKMLobby.GetPlayersList():string;
 var s:TStringList; i:integer;
 begin
   s := TStringList.Create;
+  s.Text := fPlayersList;
 
-  if RightStr(fPlayersList,3)=#13#10+' ' then  //Remove last EOL
-    fPlayersList := Copy(fPlayersList, 0, length(fPlayersList)-3);
+  for i:=0 to s.Count-1 do
+    s[i] := Copy(s[i],0,Pos(',',s[i])-1) + ' - ' + Copy(s[i],length(s[i])-4,length(s[i]));
 
+  Result := s.Text;
+  s.Free;
+end;
+
+
+{ Returns player list as: PLAYER - (last_seen) }
+function TKMLobby.GetPostsList():string;
+var s:TStringList; i:integer;
+begin
+  s := TStringList.Create;
   s.Text := fPlayersList;
 
   for i:=0 to s.Count-1 do
@@ -158,14 +170,8 @@ end;
 
 procedure TKMLobby.AskServerFor(i:byte; aQuery,aParams:string; aReturn:PString);
 begin
-  if fTT[i]<>nil then
-    if fTT[i].Terminated then fTT[i] := nil;
-
-  if fTT[i]<>nil then exit; //
-
-
-  fTT[i] := THTTPPostThread.Create(fServerAddress+aQuery, aParams, aReturn);
-  fTT[i].FreeOnTerminate := true;
+  with THTTPPostThread.Create(fServerAddress+aQuery, aParams, aReturn) do
+    FreeOnTerminate := true;
 end;
 
 
