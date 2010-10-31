@@ -1314,16 +1314,16 @@ end;
 
 
 procedure TKMRatioRow.Paint();
-var Pos:word;
+var ThumbPos:word;
 begin
   Inherited;
   fRenderUI.WriteBevel(Left+2,Top+2,Width-4,Height-4);
-  Pos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
-  fRenderUI.WritePicture(Left+Pos+2, Top, 4,132);
+  ThumbPos:= round(mix (0,Width-4-24,1-(Position-MinValue) / (MaxValue-MinValue)));
+  fRenderUI.WritePicture(Left+ThumbPos+2, Top, 4,132);
   if Enabled then
-    fRenderUI.WriteText(Left+12+2+Pos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FFFFFFFF)
+    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FFFFFFFF)
   else
-    fRenderUI.WriteText(Left+12+2+Pos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FF888888);
+    fRenderUI.WriteText(Left+12+2+ThumbPos, Top+3, Width, inttostr(Position), fnt_Metal, kaCenter, false, $FF888888);
 end;
 
 
@@ -1410,14 +1410,14 @@ end;
 
 
 procedure TKMScrollBar.Paint();
-var Pos:word; State:T3DButtonStateSet;
+var ThumbPos:word; State:T3DButtonStateSet;
 begin
   Inherited;
   //Copy property to child buttons. Otherwise they won't be rendered
   ScrollDec.Visible := Visible;
   ScrollInc.Visible := Visible;
 
-  Pos := 0;
+  ThumbPos := 0;
 
   case fScrollAxis of
     sa_Vertical:   fRenderUI.WriteBevel(Left, Top+Width, Width, Height - Width*2);
@@ -1426,16 +1426,16 @@ begin
 
   if MinValue = MaxValue then begin
     case fScrollAxis of
-      sa_Vertical:   Pos := (Height-Width*2-Thumb) div 2;
-      sa_Horizontal: Pos := (Width-Height*2-Thumb) div 2;
+      sa_Vertical:   ThumbPos := (Height-Width*2-Thumb) div 2;
+      sa_Horizontal: ThumbPos := (Width-Height*2-Thumb) div 2;
     end;
     State := [bs_Disabled];
     ScrollDec.Disable;
     ScrollInc.Disable;
   end else begin
     case fScrollAxis of
-      sa_Vertical:   Pos := (Position-MinValue)*(Height-Width*2-Thumb) div (MaxValue-MinValue);
-      sa_Horizontal: Pos := (Position-MinValue)*(Width-Height*2-Thumb) div (MaxValue-MinValue);
+      sa_Vertical:   ThumbPos := (Position-MinValue)*(Height-Width*2-Thumb) div (MaxValue-MinValue);
+      sa_Horizontal: ThumbPos := (Position-MinValue)*(Width-Height*2-Thumb) div (MaxValue-MinValue);
     end;
     State := [];
     ScrollDec.Enable;
@@ -1443,8 +1443,8 @@ begin
   end;
 
   case fScrollAxis of
-    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+Pos,Width,Thumb,0,0,State,Style);
-    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+Pos,Top,Thumb,Height,0,0,State,Style);
+    sa_Vertical:   fRenderUI.Write3DButton(Left,Top+Width+ThumbPos,Width,Thumb,0,0,State,Style);
+    sa_Horizontal: fRenderUI.Write3DButton(Left+Height+ThumbPos,Top,Thumb,Height,0,0,State,Style);
   end;
 end;
 

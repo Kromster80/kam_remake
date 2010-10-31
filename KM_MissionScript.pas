@@ -147,7 +147,7 @@ function TMissionParser.ReadMissionFile(aFileName:string):string;
 const ENCODED = true; //If false then files will be opened as text
 var
   FileText: string;
-  i, k, FileSize: integer;
+  i, k, NumRead: integer;
   f: file;
   c:array of char;
 begin
@@ -156,9 +156,9 @@ begin
   //Load and decode .DAT file into FileText
   SetLength(c,1024000);
   assignfile(f,aFileName); reset(f,1);
-  blockread(f,c[1],length(c),FileSize);
-  fLog.AssertToLog(FileSize<>length(c),'DAT file size is too big, can''t fit into buffer');
-  setlength(FileText,FileSize);
+  blockread(f,c[1],length(c),NumRead);
+  fLog.AssertToLog(NumRead<>length(c),'DAT file size is too big, can''t fit into buffer');
+  setlength(FileText,NumRead);
   closefile(f);
 
   //todo: Detect whether mission is encoded so we can support decoded/encoded .DAT files
@@ -173,7 +173,7 @@ begin
     inc(i);
     if (k>1)and(((FileText[k-1]=#32)and(FileText[k]=#32))or((FileText[k-1]='!')and(FileText[k]='!'))) then else
     inc(k);
-  until(i>FileSize);
+  until(i>NumRead);
   setlength(FileText,k); //Because some extra characters are removed
   SetLength(c,0); //Clear the buffer to save RAM
   Result := FileText;
@@ -341,7 +341,7 @@ begin
         end;
       //We now have command text and parameters, so process them
 
-      if ProcessCommand(CommandType,ParamList,TextParam) = false then //A returned value of false indicates an error has occoured and we should exit
+      if not ProcessCommand(CommandType,ParamList,TextParam) then //A returned value of false indicates an error has occoured and we should exit
       begin
         //Result:=false;
         exit;

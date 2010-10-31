@@ -126,7 +126,7 @@ type TKMPointDirList = class //Used for finding fishing places, fighting positio
   public
     Count:integer;
     List:array of TKMPointDir; //1..Count
-    procedure Clearup; virtual;
+    procedure Clearup;
     procedure AddEntry(aLoc:TKMPointDir);
     function RemoveEntry(aLoc:TKMPointDir):cardinal;
     procedure InjectEntry(ID:integer; aLoc:TKMPointDir);
