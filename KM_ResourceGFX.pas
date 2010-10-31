@@ -130,6 +130,7 @@ begin
 
     if i=4 then MakeCursors(4); //Make GUI items before they are flushed in MakeGFX
     MakeGFX(nil,i);
+
     StepRefresh();
   end;
 
@@ -163,9 +164,9 @@ begin
     begin
       StepCaption('Reading '+RXData[i].Title+' GFX ...');
       fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-      MakeGFX(nil,i);
-      if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
       LoadRX7(i);
+      if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
+      MakeGFX(nil,i); //Call it last cos it will clear RGBA data
       StepRefresh();
     end;
 
@@ -827,9 +828,6 @@ begin
         GFXData[RXid,ID1].PxWidth:=RXData[RXid].Size[ID1].X;
         GFXData[RXid,ID1].PxHeight:=RXData[RXid].Size[ID1].Y;
       end;
-
-  //Now we can safely dispose of RXData[RXid].Data to save us some more RAM
-  for i:=1 to RXData[RXid].Qty do setlength(RXData[RXid].Data[i],0);
 end;
 
 
@@ -925,6 +923,14 @@ begin
     inc(TexCount);
 
   until(LeftIndex>=RXData[RXid].Qty); // >= in case data wasn't loaded and Qty=0
+
+  //Now we can safely dispose of RXData[RXid].Data to save us some more RAM
+  for i:=1 to RXData[RXid].Qty do begin
+    setlength(RXData[RXid].Data[i],0);
+    setlength(RXData[RXid].RGBA[i],0);
+    setlength(RXData[RXid].Mask[i],0);
+  end;
+
 
   fLog.AppendLog(inttostr(TexCount)+' Textures created');
   fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
