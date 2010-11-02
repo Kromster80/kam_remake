@@ -109,8 +109,8 @@ type
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
-    procedure SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil); overload;
-    procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
+    procedure SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aTargetUnit:TKMUnit=nil); overload;
+    procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
     procedure SetActionAbandonWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 
     procedure Feed(Amount:single);
@@ -870,7 +870,7 @@ begin
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot := fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
-  until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)],true)));
+  until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)],0)));
 
   if KMSamePoint(GetPosition,Spot) then
     SetActionStay(20, ua_Walk)
@@ -1281,7 +1281,7 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aTargetUnit:TKMUnit=nil);
+procedure TKMUnit.SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aTargetUnit:TKMUnit=nil);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);
@@ -1289,7 +1289,7 @@ begin
 end;
 
 
-procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false);
+procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);

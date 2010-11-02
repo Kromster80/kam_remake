@@ -173,7 +173,7 @@ begin
   with fUnit do
   case fPhase of
     0..4:;
-    5:  SetActionWalk(fToHouse.GetEntrance,ua_Walk,false); //Any tile next to entrance will do
+    5:  SetActionWalk(fToHouse.GetEntrance,ua_Walk,1); //Any tile next to entrance will do
     6:  begin
           fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
           TKMUnitSerf(fUnit).CarryTake();
@@ -190,7 +190,7 @@ begin
   with fUnit do
   case fPhase of
     0..4:;
-    5:  SetActionWalk(fToUnit.GetPosition, KMPoint(0,0), ua_Walk, false, fToUnit);
+    5:  SetActionWalk(fToUnit.GetPosition, KMPoint(0,0), ua_Walk, 1, fToUnit);
     6:  begin
           //See if the unit has moved. If so we must try again
           if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then
@@ -227,7 +227,7 @@ begin
               Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
               exit;
             end else //No delivery found then just walk back to our from house
-              SetActionWalk(KMPointY1(fFrom.GetEntrance),KMPoint(0,0),ua_Walk,false); //Don't walk to spot as it doesn't really matter
+              SetActionWalk(KMPointY1(fFrom.GetEntrance),KMPoint(0,0),ua_Walk,5); //Don't walk to spot as it doesn't really matter
           end else
             SetActionStay(0,ua_Walk); //If we're not feeding a warrior then ignore this step
         end;

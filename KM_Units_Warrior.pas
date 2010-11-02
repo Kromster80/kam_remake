@@ -841,7 +841,7 @@ begin
     if GetUnitAction.StepDone and CanInterruptAction then
     begin
       if GetUnitTask <> nil then FreeAndNil(fUnitTask);
-      SetActionWalk(fOrderLoc.Loc, ua_Walk, true, false, fCommander <> nil);
+      SetActionWalk(fOrderLoc.Loc, ua_Walk, 0, false, fCommander <> nil);
       fOrder := wo_None;
       fState := ws_Walking;
     end;
@@ -864,7 +864,7 @@ begin
   //Take attack order
   if (fOrder=wo_Attack) and GetUnitAction.StepDone and CanInterruptAction then
   begin
-    SetActionWalk(GetOrderTarget.NextPosition, KMPoint(0,0), ua_Walk, true, GetOrderTarget);
+    SetActionWalk(GetOrderTarget.NextPosition, KMPoint(0,0), ua_Walk, 0, GetOrderTarget);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
@@ -890,7 +890,7 @@ begin
   begin
     //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
     if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
-       (not KMSamePoint(GetPosition,fOrderLoc.Loc)) and fTerrain.Route_CanBeMade(GetPosition,fOrderLoc.Loc,GetDesiredPassability,true) then
+       (not KMSamePoint(GetPosition,fOrderLoc.Loc)) and fTerrain.Route_CanBeMade(GetPosition,fOrderLoc.Loc,GetDesiredPassability,0) then
     begin
       SetActionWalk(KMPoint(fOrderLoc)); //Walk to correct position
       fState := ws_Walking;

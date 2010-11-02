@@ -26,10 +26,10 @@ const
 type
   TUnitActionWalkTo = class(TUnitAction)
     private
-      fWalker:TKMUnit;
-      fTargetUnit:TKMUnit;
+      fWalker:TKMUnit; //Who's walking
+      fTargetUnit:TKMUnit; //Folow that unit
       fWalkFrom, fWalkTo, fAvoid, fNewWalkTo:TKMPoint;
-      fWalkToSpot:boolean;
+      fWalkToSpot:byte; //How close we need to get to our aim
       fPass:TPassability; //Desired passability set once on Create
       DoesWalking, WaitingOnStep, fDestBlocked:boolean;
       DoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
@@ -62,7 +62,7 @@ type
       NodePos:integer;
       Explanation:string; //Debug only, explanation what unit is doing
       ExplanationLog:TStringList;
-      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false; aTargetUnit:TKMUnit=nil);
+      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false; aTargetUnit:TKMUnit=nil);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
@@ -83,7 +83,7 @@ uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitAct
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; const aWalkToSpot:boolean=true; aSetPushed:boolean=false; aWalkToNear:boolean=false; aTargetUnit:TKMUnit=nil);
+constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false; aTargetUnit:TKMUnit=nil);
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
@@ -289,7 +289,7 @@ var i:integer; NodeList2:TKMPointList; TmpPass: TPassability;
 begin
   TmpPass := fPass;
   //Build a piece of route to return to nearest road piece connected to destination road network
-  if (fPass = canWalkRoad) and (fWalkToSpot) then //That is Citizens walking to spot
+  if (fPass = canWalkRoad) and (fWalkToSpot=0) then //That is Citizens walking to spot
     if (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
       (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
       fTerrain.Route_ReturnToRoad(fWalkFrom, fWalkTo, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
@@ -439,7 +439,7 @@ begin
       fGame.GameError(fWalker.GetPosition, 'Unit walk IntSolutionPush');
       exit;
     end;
-    fOpponent.SetActionWalk(fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability), ua_Walk, true, true);
+    fOpponent.SetActionWalk(fTerrain.GetOutOfTheWay(fOpponent.GetPosition,fWalker.GetPosition,OpponentPassability), ua_Walk, 0, true);
     Explanation := 'Unit was blocking the way but it has been forced to go away now';
     ExplanationLogAdd;
     //Next frame tile will be free and unit will walk there
@@ -509,7 +509,7 @@ begin
         exit;
       end;
 
-      fWalker.SetActionWalk(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability),ua_Walk,true,true);
+      fWalker.SetActionWalk(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability),ua_Walk,0,true);
       Result := true; //Means exit DoUnitInteraction
       exit;
     end;
@@ -836,11 +836,11 @@ begin
 
     //Walk complete
     if not DoExchange then
-    if ((NodePos=NodeList.Count) or ((not fWalkToSpot) and (KMLength(fWalker.GetPosition,fWalkTo) < 1.5)) or
+    if ((NodePos=NodeList.Count) or (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fWalkToSpot) or
       ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5)) or //If we are walking to a unit check to see if we've met the unit early
       ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon)) then //See if task wants us to abandon
     begin
-      if (not fWalkToSpot) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon)) then //Don't update direction if we are abandoning because of task request
+      if (fWalkToSpot>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon)) then //Don't update direction if we are abandoning because of task request
         fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
       exit;

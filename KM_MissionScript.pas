@@ -766,7 +766,7 @@ begin
     if fPlayers.Player[i].PlayerType = pt_Computer then
       AddCommand(ct_AIPlayer);
 
-    AddCommand(ct_SetMapcolor, 1, fPlayers.Player[i].GetColorIndex-1);
+    AddCommand(ct_SetMapcolor, 1, fPlayers.Player[i].GetColorIndex);
 
     AddData(''); //NL
 

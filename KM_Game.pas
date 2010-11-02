@@ -325,7 +325,7 @@ begin
                     HitUnit := fPlayers.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                     if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
                        (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) and
-                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, true)) then
+                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, 0)) then
                     begin
                       //Place attack order here rather than in mouse up; why here??
                       fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
@@ -339,7 +339,7 @@ begin
                         fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
                       end
                       else
-                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, true)) then
+                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, 0)) then
                       begin
                         SelectingTroopDirection := true; //MouseMove will take care of cursor changing
                         //Record current cursor position so we can stop it from moving while we are setting direction
@@ -631,7 +631,7 @@ begin
         and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
         and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
         and(not fGamePlayInterface.JoiningGroups)
-        and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, true))
+        and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, 0))
         then
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released

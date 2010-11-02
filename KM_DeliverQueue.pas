@@ -281,12 +281,12 @@ begin
   Result := Result and (
             ( //House-House delivery should be performed only if there's a connecting road
             (fDemand[iD].Loc_House<>nil)and
-            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,true))
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),KMPointY1(fDemand[iD].Loc_House.GetEntrance),canWalkRoad,0))
             )
             or
             ( //House-Unit delivery can be performed without connecting road
             (fDemand[iD].Loc_Unit<>nil)and
-            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk,false))
+            (fTerrain.Route_CanBeMade(KMPointY1(fOffer[iO].Loc_House.GetEntrance),fDemand[iD].Loc_Unit.GetPosition,canWalk,1))
             )
             or
             ( //Or maybe serfs can walk anywhere?
@@ -781,7 +781,7 @@ begin
   while
     (i<=MaxEntries)and
     ((fFieldsQueue[i].JobStatus<>js_Open)or
-    (not fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, aWorker.GetDesiredPassability, true))) do
+    (not fTerrain.Route_CanBeMade(aWorker.GetPosition, fFieldsQueue[i].Loc, aWorker.GetDesiredPassability, 0))) do
       inc(i);
 
   if i>MaxEntries then exit;

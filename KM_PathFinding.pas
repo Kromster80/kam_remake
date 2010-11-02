@@ -29,7 +29,7 @@ type
     Avoid:TKMPoint;
     Pass:TPassability;
     TargetRoadNetworkID:byte;
-    WalkToSpot:boolean;
+    WalkToSpot:byte;
     IsInteractionAvoid:boolean;
     fDestination:TDestinationPoint;
     fRouteSuccessfullyBuilt:boolean;
@@ -38,7 +38,7 @@ type
     function IsDestinationReached():boolean;
     function MakeRoute():boolean;
   public
-    constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean; aIsInteractionAvoid:boolean=false); overload;
+    constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; fPass:TPassability; aLocB:TKMPoint); overload;
     procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
@@ -47,7 +47,7 @@ type
 implementation
 
 
-constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:boolean; aIsInteractionAvoid:boolean=false);
+constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aIsInteractionAvoid:boolean=false);
 begin
   Inherited Create;
   LocA := aLocA;
@@ -75,7 +75,7 @@ begin
   Avoid := KMPoint(0,0); //erase just in case
   Pass := fPass; //Should be unused here
   TargetRoadNetworkID := aTargetRoadNetworkID;
-  WalkToSpot := false;
+  WalkToSpot := 0;
   fRouteSuccessfullyBuilt := false;
   fDestination:=dp_Passability;
 
@@ -114,8 +114,8 @@ end;
 function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
-    dp_Location:    Result := KMSamePoint(MinCost.Pos,LocB) or ((not WalkToSpot) and (KMLength(MinCost.Pos,LocB)<1.5));
-    dp_Passability: if Pass = canWorker then
+    dp_Location:    Result := KMSamePoint(MinCost.Pos,LocB) or (round(KMLength(MinCost.Pos,LocB))<=WalkToSpot);
+    dp_Passability: if Pass = canWorker then                                                                  
                       Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID
                     else
                       Result := fTerrain.GetRoadConnectID(MinCost.Pos) = TargetRoadNetworkID;

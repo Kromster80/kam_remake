@@ -780,9 +780,10 @@ end;
 procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
-AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
-ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
-if ID<=0 then exit;
+  AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
+  ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
+  if ID<=0 then exit;
+
   ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 

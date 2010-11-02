@@ -249,7 +249,7 @@ end;
 procedure TKMPlayerAssets.AutoRoadConnect(LocA,LocB:TKMPoint);
 var fPath:TPathFinding; i:integer; NodeList:TKMPointList;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, KMPoint(0,0), canMakeRoads, true);
+  fPath := TPathFinding.Create(LocA, LocB, KMPoint(0,0), canMakeRoads, 0);
   NodeList:=TKMPointList.Create;
   fPath.ReturnRoute(NodeList);
   fPath.Free;
@@ -334,7 +334,7 @@ begin
    H := TKMHouseInn(FindHouse(ht_Inn));
    repeat
      //First make sure that it is valid
-     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance),aUnit.GetDesiredPassability(true),true)) then
+     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance),aUnit.GetDesiredPassability(true),0)) then
      begin
         //Take the closest inn out of the ones that are suitable
         Dist := GetLength(H.GetPosition,Loc);
@@ -422,7 +422,7 @@ end;
 function TKMPlayerAssets.GetColorIndex():byte;
 var i:integer;
 begin
-  Result := 3; //4 = Black which can be the default when a non-pallete 32 bit color value is used
+  Result := 3; //3 = Black which can be the default when a non-pallete 32 bit color value is used
   for i:=0 to 255 do
     if fResource.GetColor32(i, DEF_PAL) = PlayerColor then
       Result := i;

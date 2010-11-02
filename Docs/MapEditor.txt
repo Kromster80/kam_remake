@@ -18,10 +18,11 @@ MainMenu
 		AI mode (NoBuild, unit count restrictions, town defence mode)
 		House restrictions
 		Messages
+		Player color
+		Goals (AI can ignore them, but it's required for multiplayer maps)
 
 	Mission settings (PerMission)
-		Players, player colors, alliances, team modes
-		Goals
+		Alliances, team modes		
 
 	Menu (PerMission)
 		Save/Load
