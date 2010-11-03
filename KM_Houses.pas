@@ -1400,23 +1400,19 @@ end;
 
 
 function TKMHouseBarracks.CanEquip(aUnitType: TUnitType):boolean;
-var i, k, Tmp: integer;
+var i:integer;
 begin
   Result := RecruitsInside > 0; //Can't equip anything without recruits
-  for i:=1 to 12 do
-  begin
-    if i in [1..11] then Tmp:=ResourceCount[i]
-                    else Tmp:=RecruitsInside;
-    for k:=1 to 4 do
-      if i = TroopCost[aUnitType,k] then
-        if Tmp=0 then CanEquip := false; //Can't equip if we don't have a required resource
-  end;
+
+  for i:=1 to 4 do
+  if TroopCost[aUnitType,i]<>0 then //Can't equip if we don't have a required resource
+    Result := Result and (ResourceCount[TroopCost[aUnitType,i]] > 0);
 end;
 
 
 procedure TKMHouseBarracks.Equip(aUnitType: TUnitType);
-var i,k: integer;
-    Soldier: TKMUnitWarrior;
+var i:integer;
+    Soldier:TKMUnitWarrior;
     LinkUnit:TKMUnitWarrior;
 begin
   //Equip a new soldier and make him walk out of the house
@@ -1424,10 +1420,10 @@ begin
   if (not (aUnitType in [ut_Militia..ut_Barbarian])) or (not CanEquip(aUnitType)) then exit;
 
   //Take resources
-  for i:=1 to 12 do
-    for k:=1 to 4 do
-      if i = TroopCost[aUnitType,k] then
-        if i in [1..11] then dec(ResourceCount[i]);
+  for i:=1 to 4 do
+    if TroopCost[aUnitType,i]<>0 then
+      dec(ResourceCount[TroopCost[aUnitType,i]]);
+
   dec(RecruitsInside); //All units take a recruit
   fPlayers.Player[byte(fOwner)].fMissionSettings.TrainedSoldier(aUnitType);
 
