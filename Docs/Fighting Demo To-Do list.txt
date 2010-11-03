@@ -10,6 +10,7 @@ Demo #4 should include:
 +	House attacks
 +	Map editor saving simple maps [Krom/Lewin]
 +	UI for saving maps from MapEd [Krom]
++	Replays [Krom]
 	Tutorial missions and texts from KaM
 -	Scalable ingame menu
 	Lookout tower [Krom]
