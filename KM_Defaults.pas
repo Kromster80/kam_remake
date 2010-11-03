@@ -384,6 +384,14 @@ const UnitGroups: array[15..24] of TGroupType = (
     gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,}
     );
 
+//AI's prefences for training troops
+const AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
+  (ut_None,         ut_None,       ut_None),
+  (ut_Swordsman,    ut_AxeFighter, ut_Militia),
+  (ut_Hallebardman, ut_Pikeman,    ut_None),
+  (ut_Arbaletman,   ut_Bowman,     ut_None),
+  (ut_Cavalry,      ut_HorseScout, ut_None));
+
 const FlagXOffset: array[15..24] of shortint = (
     10,10,10,  //ut_Militia, ut_AxeFighter, ut_Swordsman
     8,8,       //ut_Bowman, ut_Arbaletman

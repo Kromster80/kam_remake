@@ -1402,7 +1402,7 @@ end;
 function TKMHouseBarracks.CanEquip(aUnitType: TUnitType):boolean;
 var i, k, Tmp: integer;
 begin
-  Result := true;
+  Result := RecruitsInside > 0; //Can't equip anything without recruits
   for i:=1 to 12 do
   begin
     if i in [1..11] then Tmp:=ResourceCount[i]

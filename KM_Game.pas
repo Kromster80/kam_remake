@@ -775,7 +775,7 @@ end;
 
 
 procedure TKMGame.GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
-var ResultMsg:string; fMissionParser: TMissionParser;
+var ResultMsg, LoadError:string; fMissionParser: TMissionParser;
 begin
   GameInit;
 
@@ -790,16 +790,24 @@ begin
   fLog.AppendLog('Loading DAT...');
   if CheckFileExists(fMissionFile,true) then
   begin
-    //todo: Use exception trapping and raising system here similar to that used for load
-    fMissionParser := TMissionParser.Create(mpm_Game);
-    ResultMsg := fMissionParser.LoadDATFile(fMissionFile);
-    FreeAndNil(fMissionParser);
-    if ResultMsg<>'' then begin
-      GameStop(gr_Error, ResultMsg);
-      //Show all required error messages here
-      exit;
+    try //Catch exceptions
+      fMissionParser := TMissionParser.Create(mpm_Game);
+      ResultMsg := fMissionParser.LoadDATFile(fMissionFile);
+      FreeAndNil(fMissionParser);
+      if ResultMsg<>'' then Raise Exception.Create(ResultMsg);
+      fLog.AppendLog('DAT Loaded');
+    except
+      on E : Exception do
+      begin
+        //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+        LoadError := 'An error was encountered while parsing the file '+fMissionFile+'.|Details of the error:|'+
+                      E.ClassName+' error raised with message: '+E.Message;
+        if GameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
+        fMainMenuInterface.ShowScreen_Error(LoadError);
+        fLog.AppendLog('DAT Load Exception: '+LoadError);
+        exit;
+      end;
     end;
-    fLog.AppendLog('DAT Loaded');
   end
   else
   begin

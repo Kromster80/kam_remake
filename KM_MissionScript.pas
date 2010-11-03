@@ -343,7 +343,7 @@ begin
 
       if not ProcessCommand(CommandType,ParamList,TextParam) then //A returned value of false indicates an error has occoured and we should exit
       begin
-        //Result:=false;
+        Result:=ErrorMessage;
         exit;
       end;
     end
@@ -623,8 +623,6 @@ end;
 
 procedure TMissionParser.DebugScriptError(ErrorMsg:string);
 begin
-  if ErrorMessage='' then
-    ErrorMessage:=ErrorMessage+OpenedMissionName+'|';
   ErrorMessage:=ErrorMessage+ErrorMsg+'|';
   //todo 1: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
 end;

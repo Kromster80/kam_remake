@@ -35,6 +35,7 @@ type
     constructor Create(aAssets:TKMPlayerAssets);
     procedure CheckGoals;
     procedure CheckUnitCount();
+    procedure CheckArmiesCount();
     procedure CheckArmy();
   public
     function GetHouseRepair:boolean; //Do we automatically repair all houses?
@@ -203,6 +204,50 @@ begin
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
               CheckUnitRequirements(ReqRecruits, ut_Recruit);
     end;
+  end;
+end;
+
+
+procedure TKMPlayerAI.CheckArmiesCount();
+var
+  Barracks:array of TKMHouseBarracks;
+  HB:TKMHouseBarracks;
+  GType: TGroupType;
+  i,k:integer;
+  GroupReq: array[TGroupType] of integer;
+begin
+  //Create a list of troops that need to be trained based on defence position requirements
+  FillChar(GroupReq,SizeOf(GroupReq),#0); //Clear up
+  for k:=0 to DefencePositionsCount-1 do
+    with DefencePositions[k] do
+    if CurrentCommander = nil then
+      inc(GroupReq[GroupType], TroopFormations[GroupType].NumUnits)
+    else
+      inc(GroupReq[GroupType], TroopFormations[GroupType].NumUnits - (TKMUnitWarrior(CurrentCommander).GetMemberCount+1));
+
+  //Find barracks
+  SetLength(Barracks,Assets.GetHouseQty(ht_Barracks));
+  k := 1;
+  HB := TKMHouseBarracks(Assets.FindHouse(ht_Barracks,k));
+  while HB <> nil do
+  begin
+    Barracks[k-1] := HB;
+    inc(k);
+    HB := TKMHouseBarracks(Assets.FindHouse(ht_Barracks,k));
+  end;
+
+  //Train troops where possible in each barracks
+  for k:=1 to Length(Barracks) do
+  begin  
+    HB := Barracks[k-1];
+    for GType:=gt_Melee to gt_Mounted do
+      for i:=1 to 3 do
+        if AITroopTrainOrder[GType,i] <> ut_None then
+        while HB.CanEquip(AITroopTrainOrder[GType,i]) and (GroupReq[GType] > 0) do
+        begin
+          HB.Equip(AITroopTrainOrder[GType,i]);
+          dec(GroupReq[GType]);
+        end;
   end;
 end;
 
@@ -409,9 +454,10 @@ begin
   begin
     CheckUnitCount; //Train new units (citizens, serfs, workers and recruits) if needed
 
-    CheckArmy; //todo: Should not run every update state, it takes too long and doesn't need to anyway
+    //todo: Should not run every update state, it takes too long and doesn't need to anyway
+    CheckArmy; //Feed army, position defence, arrange/organise groups
+    CheckArmiesCount; //Train new soldiers if needed
     //CheckHouseCount; //Build new houses if needed
-    //CheckArmiesCount; //Train new soldiers if needed
     //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
     //CheckAndIssueAttack; //Attack enemy
     //Anything Else?

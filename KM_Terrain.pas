@@ -1742,7 +1742,7 @@ begin
     for i:=1 to MapY do for k:=1 to MapX do
     if ((Land[i,k].WalkConnect[TestMode]=0)and(aPass in Land[i,k].Passability)and
      ((TestMode <> 4)or
-     ((TestMode = 4)and(Land[i,k].Markup <> mu_UnderConstruction)))) then
+     ((TestMode = 4)and(Land[i,k].Markup <> mu_UnderConstruction)))) then //todo: Exclude fighting units in canWalkAvoid (requires IsUnit to be made TKMUnit first)
     begin
       inc(AreaID);
       Count:=0;
