@@ -670,6 +670,7 @@ const
   (5,3,0,0),
   (5,3,2,0)
   );
+
 const
 //1-building area //2-entrance
 HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (
@@ -872,10 +873,6 @@ RoadsConnectivity:array [0..15,1..2]of byte = (
 type
   TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
 
-{Utility}
-const //Render scale
-ZoomLevels:array[1..7]of single = (0.25,0.5,0.75,1,1.5,2,4);
-
 //The frame shown when a unit is standing still in ua_walk. Same for all units!
 const UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
@@ -965,15 +962,14 @@ type TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Jo
                      sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
 
 
-
 type
   TAIAttackType = (                  //0 is an old repeating TSK attack that does not support new TPR features, so we always replace it with 1
                    aat_Once=1,       //Attack will occur once (after the set time has passed and if they have enough troops
                    aat_Repeating=2); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
 
   TAIAttackTarget = (att_ClosestUnit=0, //Closest enemy unit (untested as to whether this is relative to army or start position)
-                     att_ClostestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
-                     att_ClostestBuildingFromStartPos=2, //Closest building from the AI's start position
+                     att_ClosestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
+                     att_ClosestBuildingFromStartPos=2, //Closest building from the AI's start position
                      att_CustomPosition=3); //Custom point defined with CustomPosition
 
   TAIAttack = record
