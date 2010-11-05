@@ -162,20 +162,16 @@ begin
   ScreenX := X;
   ScreenY := Y;
   fRender.RenderResize(X,Y,rm2D);
-  if GameState = gsNoGame then begin
-    //Remember last page and all relevant menu settings
-    FreeAndNil(fMainMenuInterface); //@Lewin: I don't remember why do we need to recreate UI here?
-                                    //@Krom: I don't remember either, but it's rather annoying. Maybe dynamic resizing was never implemented? This shouldn't be necessary, we should try to find an alternative. (if it's needed)
-    fMainMenuInterface:= TKMMainMenuInterface.Create(X,Y, fGlobalSettings);
-    GameSpeed:=1;
-    fMainMenuInterface.SetScreenSize(X,Y);
-  end else begin //If game is running
+
+  if GameState = gsNoGame then
+    fMainMenuInterface.SetScreenSize(X,Y)
+  else begin //If game is running
     fViewport.SetVisibleScreenArea(X,Y);
     if GameState = gsEditor then
       fMapEditorInterface.SetScreenSize(X,Y)
     else
       fGamePlayInterface.SetScreenSize(X,Y);
-    ZoomInGameArea(1);
+    ZoomInGameArea(1); //Reset zoom to default
   end;
 end;
 

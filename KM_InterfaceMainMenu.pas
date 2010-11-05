@@ -190,8 +190,6 @@ uses KM_Unit1, KM_Render, KM_LoadLib, KM_Game, KM_PlayersCollection, Forms, KM_U
 
 
 constructor TKMMainMenuInterface.Create(X,Y:word; aGameSettings:TGlobalSettings);
-var //i:integer;
-  OffX,OffY:integer;
 begin
   Inherited Create;
 
@@ -200,15 +198,15 @@ begin
   MyControls := TKMControlsCollection.Create;
   ScreenX := min(X,MENU_DESIGN_X);
   ScreenY := min(Y,MENU_DESIGN_Y);
-  OffX := (X-MENU_DESIGN_X) div 2;
-  OffY := (Y-MENU_DESIGN_Y) div 2;
   Campaign_Mission_Choice := 1;
   SingleMap_Top := 1;
   SingleMap_Selected := 1;
   MapEdSizeX := 64;
   MapEdSizeY := 64;
 
-  Panel_Main := MyControls.AddPanel(nil, OffX, OffY, ScreenX, ScreenY); //Parent Panel for whole menu
+  Panel_Main := MyControls.AddPanel(nil, (X-MENU_DESIGN_X) div 2,
+                                         (Y-MENU_DESIGN_Y) div 2,
+                                         ScreenX, ScreenY); //Parent Panel for whole menu
 
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
@@ -253,8 +251,10 @@ end;
 
 procedure TKMMainMenuInterface.SetScreenSize(X, Y:word);
 begin
-  ScreenX := X;
-  ScreenY := Y;
+  ScreenX := min(X,MENU_DESIGN_X);
+  ScreenY := min(Y,MENU_DESIGN_Y);
+  Panel_Main.Left := (X-MENU_DESIGN_X) div 2;
+  Panel_Main.Top  := (Y-MENU_DESIGN_Y) div 2;
 end;
 
 
