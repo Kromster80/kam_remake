@@ -1,4 +1,4 @@
-EXE-only r1006:
+EXE-only r1007+:
 <===================================================================================>
  +	Terrain should flatten under roads/houses on mission start. Discussed with Lewin
  +	Process KillUnit/AddScout commands through GIP, even if they are to be removed soon
@@ -19,6 +19,7 @@ EXE-only r1006:
  +	Added repositioning of units and houses in the map editor by right clicking with them selected
  +	Right clicking on the train button in the school now fills the queue with the unit (I always wished I had this for recruits)
  +	Allow to use replacement sprites for cursors [Krom]
+ +	Main menu would reset on resize
 
 	Display WIP houses/units in statistics menu
 	Make units/houses highlight red when about to erase them as trees do (in MapEd)

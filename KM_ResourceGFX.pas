@@ -700,14 +700,18 @@ begin
       begin
         Pixel := y*Size[i].X+x;
         L := Data[i, Pixel]; //0..255
-        if L <> 0 then
-          RGBA[i,Pixel] := GetColor32(L, Palette);
 
-        case L of //todo: convert to 8bit
-          23,29: Mask[i,Pixel] := $70FFFFFF;   //7
-          24,28: Mask[i,Pixel] := $B0FFFFFF;   //11
-          25,27: Mask[i,Pixel] := $E0FFFFFF;   //14
-          26:    Mask[i,Pixel] := $FFFFFFFF;   //16
+        if L<>0 then
+          if NeedTeamColors and (L in[23..29]) then
+            RGBA[i,Pixel] := cardinal((byte(L-26)*42+128)*65793) OR $FF000000
+          else
+            RGBA[i,Pixel] := GetColor32(L, Palette);
+
+        case L of //Maybe it makes sense to convert to 8bit?
+          23,29:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
+          24,28:  Mask[i,Pixel] := $90FFFFFF;   //11 //9
+          25,27:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
+          26:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
         end;
       end;
    end;
@@ -888,7 +892,7 @@ begin
         end;
     end;
 
-    //If we need to prepare textures for TeamColors                           //special fix for iron mine logo
+    //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
     begin
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
