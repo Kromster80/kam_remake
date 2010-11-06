@@ -34,8 +34,10 @@ type
     procedure LoadRX7(aID:integer);
     function LoadRX(filename:string; ID:integer):boolean;
     procedure ExpandRX(ID:integer);
-    procedure MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
-    procedure MakeGFX(Sender: TObject; RXid:integer);
+    procedure MakeGFX(RXid:integer);
+    procedure MakeGFX_AlphaTest(RXid:integer);
+
+    procedure ClearUnusedGFX(RXid:integer);
 
     procedure MakeMiniMapColors(FileName:string);
     procedure MakeCursors(RXid:integer);
@@ -128,9 +130,10 @@ begin
 
     LoadRX7(i); //Something fancy to Load RX7 data (custom bitmaps and overrides)
 
-    if i=4 then MakeCursors(4); //Make GUI items before they are flushed in MakeGFX
-    MakeGFX(nil,i);
-
+    if i=4 then MakeCursors(4);
+    MakeGFX(i);
+    ClearUnusedGFX(i);
+    
     StepRefresh();
   end;
 
@@ -164,9 +167,12 @@ begin
     begin
       StepCaption('Reading '+RXData[i].Title+' GFX ...');
       fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-      LoadRX7(i);
-      if i=2 then MakeGFX_AlphaTest(nil,i); //Make alphas for house building
-      MakeGFX(nil,i); //Call it last cos it will clear RGBA data
+      LoadRX7(i); //Updated sprites
+      MakeGFX(i);
+      //Alpha_tested sprites for houses. They come after MakeGFX cos they will
+      //replace above data. 
+      if i=2 then MakeGFX_AlphaTest(i);
+      ClearUnusedGFX(i);
       StepRefresh();
     end;
 
@@ -737,11 +743,11 @@ begin
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
   case Mode of
-    tm_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tm_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Base layer
-    tm_TexID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tm_TexID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Team color layer
-    tm_AltID: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+    tm_AltID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA2,   DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
   end;
 
   if WriteAllTexturesToBMP then begin
@@ -753,13 +759,17 @@ begin
 
     for i:=0 to DestY-1 do for k:=0 to DestX-1 do
       MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(Data)+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
-
     MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
+
+    if Mode=tm_AlphaTest then begin //these Alphas are worth looking at
+      for i:=0 to DestY-1 do for k:=0 to DestX-1 do
+        MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(Data)+(i*DestX+k)*4))^) SHR 24 *65793;
+      MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'a.bmp');
+    end;
+
     MyBitMap.Free;
   end;
 
-  //FreeMem(TD);
-//todo: FreeMEM!!
 end;
 
 
@@ -769,7 +779,7 @@ end;
 {Take RX data and make nice textures out of it.
 Textures should be POT to improve performance and avoid drivers bugs
 In result we have GFXData filled.}
-procedure TResource.MakeGFX_AlphaTest(Sender: TObject; RXid:integer);
+procedure TResource.MakeGFX_AlphaTest(RXid:integer);
 var
   ID,ID1,ID2:integer; //RGB and A index
   ci,i,k,h,StepCount:integer;
@@ -841,7 +851,7 @@ end;
 {Take RX data and make nice textures out of it.
 Textures should be POT to improve performance and avoid driver bugs
 In result we have GFXData filled.}
-procedure TResource.MakeGFX(Sender: TObject; RXid:integer);
+procedure TResource.MakeGFX(RXid:integer);
 var
   ci,j,i,k,LeftIndex,RightIndex,TexCount,SpanCount:integer;
   AllocatedRAM,RequiredRAM,ColorsRAM:integer;
@@ -918,7 +928,6 @@ begin
       GFXData[RXid,j].PxWidth:=RXData[RXid].Size[j].X;
       GFXData[RXid,j].PxHeight:=RXData[RXid].Size[j].Y;
 
-      //setlength(RXData[RXid].Data[j],0); //Do not erase since we need it for AlphaTest
       inc(RequiredRAM,RXData[RXid].Size[j].X*RXData[RXid].Size[j].Y*4);
     end;
 
@@ -928,17 +937,21 @@ begin
 
   until(LeftIndex>=RXData[RXid].Qty); // >= in case data wasn't loaded and Qty=0
 
-  //Now we can safely dispose of RXData[RXid].Data to save us some more RAM
+  fLog.AppendLog(inttostr(TexCount)+' Textures created');
+  fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
+  fLog.AddToLog(inttostr(ColorsRAM div 1024)+' KBytes for team colors');
+end;
+
+
+//Now we can safely dispose of RXData[RXid].Data to save us some more RAM
+procedure TResource.ClearUnusedGFX(RXid:integer);
+var i:integer;
+begin
   for i:=1 to RXData[RXid].Qty do begin
     setlength(RXData[RXid].Data[i],0);
     setlength(RXData[RXid].RGBA[i],0);
     setlength(RXData[RXid].Mask[i],0);
   end;
-
-
-  fLog.AppendLog(inttostr(TexCount)+' Textures created');
-  fLog.AddToLog(inttostr(AllocatedRAM div 1024)+'/'+inttostr((AllocatedRAM-RequiredRAM) div 1024)+' Kbytes allocated/wasted for units GFX when using Packing');
-  fLog.AddToLog(inttostr(ColorsRAM div 1024)+' KBytes for team colors');
 end;
 
 
@@ -954,25 +967,27 @@ var MyBitMap:TBitMap;
 begin
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\'+RXData[RXid].Title+'.rx\');
-  MyBitMap:=TBitMap.Create;
-  MyBitMap.PixelFormat:=pf24bit;
+  MyBitMap := TBitMap.Create;
+  MyBitMap.PixelFormat := pf24bit;
 
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
 
   for id:=1 to RXData[RXid].Qty do begin
 
-    sx:=RXData[RXid].Size[id].X;
-    sy:=RXData[RXid].Size[id].Y;
-    MyBitMap.Width:=sx;
-    MyBitMap.Height:=sy;
+    sx := RXData[RXid].Size[id].X;
+    sy := RXData[RXid].Size[id].Y;
+    MyBitMap.Width  := sx;
+    MyBitMap.Height := sy;
 
-    UsePal:=DEF_PAL;
-    if RXid=5 then UsePal:=RX5Pal[id];
-    if RXid=6 then UsePal:=RX6Pal[id];
+    case RXid of
+      5:   UsePal := RX5Pal[id];
+      6:   UsePal := RX6Pal[id];
+      else UsePal := DEF_PAL;
+    end;
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
-      t:=RXData[RXid].Data[id,y*sx+x];
-      MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,UsePal);
+      t := RXData[RXid].Data[id,y*sx+x];
+      MyBitMap.Canvas.Pixels[x,y] := fResource.GetColor32(t,UsePal) AND $FFFFFF;
     end;
     if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
 
