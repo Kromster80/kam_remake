@@ -130,7 +130,7 @@ end;
 
 {  }
 function TKMLobby.GetPostsList():string;
-var s:TStringList; i:integer;
+var s:TStringList; //i:integer;
 begin
   s := TStringList.Create;
   s.Text := fPostsList;

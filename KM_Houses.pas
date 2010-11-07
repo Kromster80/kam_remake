@@ -212,6 +212,12 @@ type
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
 
+  {SwineStable has unique property - it needs to accumulate some resource before production begins, also special animation}
+  TKMHouseTower = class(TKMHouse)
+  public
+    procedure Paint; override;
+  end;
+
 
   TKMHousesCollection = class(TKMList)
   private
@@ -938,30 +944,30 @@ end;
 
 procedure TKMHouse.Paint();
 begin
-case fBuildState of
-  hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),fPosition.X, fPosition.Y);
-  hbs_NoGlyph:; //Nothing
-  hbs_Wood:
-    begin
-      fRender.RenderHouseWood(byte(fHouseType),
-      fBuildingProgress/50/HouseDAT[byte(fHouseType)].WoodCost, //0...1 range
-      fPosition.X, fPosition.Y);
-      fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
+  case fBuildState of
+    hbs_Glyph: fRender.RenderHouseBuild(byte(fHouseType),fPosition.X, fPosition.Y);
+    hbs_NoGlyph:; //Nothing
+    hbs_Wood:
+      begin
+        fRender.RenderHouseWood(byte(fHouseType),
+        fBuildingProgress/50/HouseDAT[byte(fHouseType)].WoodCost, //0...1 range
+        fPosition.X, fPosition.Y);
+        fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
+      end;
+    hbs_Stone:
+      begin
+        fRender.RenderHouseStone(byte(fHouseType),
+        (fBuildingProgress/50-HouseDAT[byte(fHouseType)].WoodCost)/HouseDAT[byte(fHouseType)].StoneCost, //0...1 range
+        fPosition.X, fPosition.Y);
+        fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
+      end;
+    else begin
+      fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
+      fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
+      if fCurrentAction=nil then exit;
+      fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,byte(fOwner),fPosition.X, fPosition.Y);
     end;
-  hbs_Stone:
-    begin
-      fRender.RenderHouseStone(byte(fHouseType),
-      (fBuildingProgress/50-HouseDAT[byte(fHouseType)].WoodCost)/HouseDAT[byte(fHouseType)].StoneCost, //0...1 range
-      fPosition.X, fPosition.Y);
-      fRender.RenderHouseBuildSupply(byte(fHouseType), fBuildSupplyWood, fBuildSupplyStone, fPosition.X, fPosition.Y);
-    end;
-  else begin
-    fRender.RenderHouseStone(byte(fHouseType),1,fPosition.X, fPosition.Y);
-    fRender.RenderHouseSupply(byte(fHouseType),fResourceIn,fResourceOut,fPosition.X, fPosition.Y);
-    if fCurrentAction=nil then exit;
-    fRender.RenderHouseWork(byte(fHouseType),integer(fCurrentAction.fSubAction),WorkAnimStep,byte(fOwner),fPosition.X, fPosition.Y);
   end;
-end;
 end;
 
 procedure TKMHouse.SetWareDelivery(AVal:boolean);
@@ -1119,7 +1125,7 @@ const
   offY:array[1..3]of single = ( 0.35, 0.4, 0.45);
 var i:integer; UnitType,AnimAct,AnimDir:byte; AnimStep:cardinal;
 begin
-  inherited;
+  Inherited;
   if (fBuildState<>hbs_Done) then exit;
 
   for i:=1 to 6 do
@@ -1527,6 +1533,21 @@ begin
 end;
 
 
+procedure TKMHouseTower.Paint;
+var i,k:integer;
+begin
+  Inherited;
+
+  if SHOW_ATTACK_RADIUS then
+    for i:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
+    for k:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
+    if GetLength(i,k)<=RANGE_WATCHTOWER then
+    if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
+      fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i);
+
+end;
+
+
 { TKMHousesCollection }
 function TKMHousesCollection.AddToCollection(aHouseType: THouseType; PosX,PosY:integer; aOwner: TPlayerID; aHBS:THouseBuildState):TKMHouse;
 var T:integer;
@@ -1538,6 +1559,7 @@ begin
     ht_School:   T := Inherited Add(TKMHouseSchool.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_Barracks: T := Inherited Add(TKMHouseBarracks.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     ht_Store:    T := Inherited Add(TKMHouseStore.Create(aHouseType,PosX,PosY,aOwner,aHBS));
+    ht_WatchTower: T := Inherited Add(TKMHouseTower.Create(aHouseType,PosX,PosY,aOwner,aHBS));
     else         T := Inherited Add(TKMHouse.Create(aHouseType,PosX,PosY,aOwner,aHBS));
   end;
     if T=-1 then Result := nil else Result := Items[T];

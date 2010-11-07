@@ -76,6 +76,7 @@ public
   procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
+  procedure RenderDebugQuad(pX,pY:integer);
   procedure RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
   procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
   procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
@@ -502,6 +503,13 @@ begin
 end;
 
 
+procedure TRender.RenderDebugQuad(pX,pY:integer);
+begin
+  glColor4f(1,1,1,0.15);
+  RenderQuad(pX,pY);
+end;
+
+
 procedure TRender.RenderDebugUnitPointers(pX,pY:single; Count:integer);
 var i:integer;
 begin
@@ -881,14 +889,15 @@ end;
 {Used for internal things like overlays, etc..}
 procedure TRender.RenderQuad(pX,pY:integer);
 begin
-glbegin (GL_QUADS);
-  if fTerrain.TileInMapCoords(pX,pY) then
-  with fTerrain do
+  if not fTerrain.TileInMapCoords(pX,pY) then exit;
+
+  glBegin (GL_QUADS);
+    with fTerrain do
     glkQuad(pX-1,pY-1-Land[pY  ,pX  ].Height/CELL_HEIGHT_DIV,
             pX  ,pY-1-Land[pY  ,pX+1].Height/CELL_HEIGHT_DIV,
             pX  ,pY-  Land[pY+1,pX+1].Height/CELL_HEIGHT_DIV,
             pX-1,pY-  Land[pY+1,pX  ].Height/CELL_HEIGHT_DIV);
-glEnd;
+  glEnd;
 end;
 
 {Render one terrian cell}
@@ -945,7 +954,6 @@ begin
     if (h=2) and (aFOW<>0) then begin //Don't render colorflags if they aren't visible cos of FOW
       glColor4ubv(@Col);
       glBindTexture(GL_TEXTURE_2D, AltID);
-      //glBlendFunc(GL_DST_COLOR,GL_SRC_COLOR); //Alternative coloring mode
     end;
 
     if HighlightRed then glColor4f(1,0,0,1);
@@ -958,7 +966,6 @@ begin
         glTexCoord2f(u1,v1); glvertex2f(pX-1                   ,pY-1-pxHeight/CELL_SIZE_PX);
       glEnd;
     end;
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   end;
 
   glBindTexture(GL_TEXTURE_2D, 0);

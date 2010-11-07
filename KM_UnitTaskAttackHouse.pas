@@ -144,8 +144,8 @@ begin
     0: begin
          if fFightType=ft_Ranged then begin
            case GetUnitType of
-             ut_Bowman: SetActionWalk(Cells.GetRandom.Loc, ua_Walk, RANGE_BOWMAN);
-             ut_Arbaletman: SetActionWalk(Cells.GetRandom.Loc, ua_Walk, RANGE_ARBALETMAN);
+             ut_Bowman: SetActionWalk(Cells.GetNearest(GetPosition).Loc, ua_Walk, RANGE_BOWMAN);
+             ut_Arbaletman: SetActionWalk(Cells.GetNearest(GetPosition).Loc, ua_Walk, RANGE_ARBALETMAN);
              else Assert(false, 'New ranged unit');
            end;
          end else begin

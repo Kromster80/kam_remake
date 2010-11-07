@@ -19,7 +19,7 @@ type
 type
   TResource = class
   private
-    DataState:TDataLoadingState;
+    fDataState:TDataLoadingState;
 
     procedure StepRefresh();
     procedure StepCaption(aCaption:string);
@@ -31,8 +31,8 @@ type
     function LoadUnitDAT(filename:string):boolean;
     function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
-    procedure LoadRX7(aID:integer);
     function LoadRX(filename:string; ID:integer):boolean;
+    procedure LoadRX7(aID:integer);
     procedure ExpandRX(ID:integer);
     procedure MakeGFX(RXid:integer);
     procedure MakeGFX_AlphaTest(RXid:integer);
@@ -51,7 +51,7 @@ type
 
     function GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
 
-    property GetDataState:TDataLoadingState read DataState;
+    property GetDataState:TDataLoadingState read fDataState;
     function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
 
     procedure LoadFonts(DoExport:boolean; aLocale:string);
@@ -77,7 +77,7 @@ uses KromUtils, KM_Unit1, KM_Render, KM_CommonTypes, KM_Utils, KM_TGATexture;
 constructor TResource.Create;
 begin
   Inherited;
-  DataState := dls_None;
+  fDataState := dls_None;
   fLog.AppendLog('Resource loading state - None');
 end;
 
@@ -143,7 +143,7 @@ begin
 
   StepRefresh();
   fLog.AppendLog('ReadGFX is done');
-  DataState:=dls_Menu;
+  fDataState:=dls_Menu;
   fLog.AppendLog('Resource loading state - Menu');
   Result:=true;
 end;
@@ -180,7 +180,7 @@ begin
   MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
   fLog.AppendLog('Prepared MiniMap colors...');
   StepRefresh();
-  DataState:=dls_All;
+  fDataState:=dls_All;
   fLog.AppendLog('Resource loading state - Game');
   Result:=true;
 end;

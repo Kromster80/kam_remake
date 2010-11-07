@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1101';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1101';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1101;          //Used in replay file format
+  GAME_VERSION          = 'Fighting Demo r1178';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1178';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1178;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -81,6 +81,7 @@ var
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
   TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
   SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
+  SHOW_ATTACK_RADIUS    :boolean=true; //Render towers/archers attack radius
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm

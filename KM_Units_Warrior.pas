@@ -67,9 +67,9 @@ type //Possibly melee warrior class? with Archer class separate?
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
 
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false); reintroduce; overload;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMembers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false); reintroduce; overload;
+    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false); reintroduce; overload;
     procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse); reintroduce; overload;
     function CheckForEnemy():boolean;
 
@@ -575,10 +575,10 @@ end;
 
 
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMemebers:boolean=false);
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMembers:boolean=false);
 var i:integer; NewLoc:TKMPoint;
 begin
-  if (fCommander <> nil) or (not aOnlySetMemebers) then
+  if (fCommander <> nil) or (not aOnlySetMembers) then
   begin
     fOrder    := aWarriorOrder;
     fState    := ws_None; //Clear other states
@@ -610,20 +610,20 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMemebers:boolean=false);
+procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
 begin
   if (aWarriorOrder <> wo_Attack) or (aTargetUnit = nil) then exit; //Only allow house attacks with target unit for now
 
   //Attack works like this: Commander tracks target unit in walk action. Members are ordered to walk to formation with commaner at target unit's location.
-  //If target moves in WalkAction, commander will reissue PlaceOrder with aOnlySetMemebers = true, so memebers will walk to new location.
+  //If target moves in WalkAction, commander will reissue PlaceOrder with aOnlySetMembers = true, so members will walk to new location.
 
-  if (fCommander <> nil) or (not aOnlySetMemebers) then
+  if (fCommander <> nil) or (not aOnlySetMembers) then
   begin
     fOrder := aWarriorOrder; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
     fState := ws_None; //Clear other states
     SetOrderTarget(aTargetUnit);
   end;
-  PlaceOrder(wo_Walk,KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give memebers order to walk to approperiate positions
+  PlaceOrder(wo_Walk,KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give members order to walk to approperiate positions
 end;
 
 
@@ -937,7 +937,7 @@ procedure TKMUnitWarrior.Paint();
 var
   UnitType, AnimAct, AnimDir, TeamColor:byte;
   XPaintPos, YPaintPos: single;
-  i:integer;
+  i,k:integer;
   UnitPosition: TKMPoint;
 begin
 Inherited;
@@ -972,6 +972,17 @@ Inherited;
     fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
   end;
 
+  if SHOW_ATTACK_RADIUS then begin
+
+    for i:=-RANGE_BOWMAN-1 to RANGE_BOWMAN do
+    for k:=-RANGE_BOWMAN-1 to RANGE_BOWMAN do
+    if GetLength(i,k)<=RANGE_BOWMAN then
+    if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
+      fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i);
+
+    if fFoe<>nil then
+      fRender.RenderDebugLine(PositionF.X, PositionF.Y, fFoe.PositionF.X, fFoe.PositionF.Y);
+  end;
 end;
 
 
