@@ -108,7 +108,7 @@ begin
          if WorkPlan.GatheringScript = gs_FisherCatch then
          begin
            Direction := TKMDirection(WorkPlan.WorkDir+1);
-           SetActionStay(13, ua_Work1, false); //Throw the line out
+           SetActionLockedStay(13, ua_Work1, false); //Throw the line out
          end
          else
            SetActionLockedStay(0, WorkPlan.WalkTo);
@@ -128,7 +128,7 @@ begin
          end
          else Dir := byte(Direction); //Use direction from walk
          TimeToWork:=WorkPlan.WorkCyc*Math.max(UnitSprite[byte(GetUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
-         SetActionStay(TimeToWork, WorkPlan.WorkType, false);
+         SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
        end
        else
        begin
@@ -137,8 +137,8 @@ begin
        end;
     4: begin //After work tasks for specific mining jobs
          case WorkPlan.GatheringScript of
-           gs_WoodCutterCut: SetActionStay(10, WorkPlan.WorkType, true, 5, 5); //Wait for the tree to start falling down
-           gs_FisherCatch: SetActionStay(15, ua_Work, false); //Pull the line in
+           gs_WoodCutterCut: SetActionLockedStay(10, WorkPlan.WorkType, true, 5, 5); //Wait for the tree to start falling down
+           gs_FisherCatch: SetActionLockedStay(15, ua_Work, false); //Pull the line in
            else SetActionLockedStay(0, WorkPlan.WorkType);
          end;
        end;
@@ -155,7 +155,7 @@ begin
            fTerrain.FallTree(KMGetVertexTile(WorkPlan.Loc, TKMDirection(WorkPlan.WorkDir+1))); StillFrame := 5;
            end;
          end;
-         SetActionStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);
+         SetActionLockedStay(WorkPlan.AfterWorkDelay, WorkPlan.WorkType, true, StillFrame, StillFrame);
        end;
     6: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then

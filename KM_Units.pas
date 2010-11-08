@@ -105,13 +105,14 @@ type
     function HitTest(X,Y:integer; const UT:TUnitType = ut_Any): Boolean;
     procedure UpdateNextPosition(aLoc:TKMPoint);
 
+    procedure SetActionAbandonWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
     procedure SetActionFight(aAction: TUnitActionType; aOpponent:TKMUnit);
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
+    procedure SetActionWalk(aLocB:TKMPoint; aTargetHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk); overload;
     procedure SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aTargetUnit:TKMUnit=nil); overload;
     procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
-    procedure SetActionAbandonWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 
     procedure Feed(Amount:single);
     procedure AbandonWalk;
@@ -1281,11 +1282,19 @@ begin
 end;
 
 
+procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aTargetHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk);
+begin
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
+    Assert(false);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, false, true, nil, aTargetHouse),0);
+end;
+
+
 procedure TKMUnit.SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aTargetUnit:TKMUnit=nil);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aAvoid, aActionType, aWalkToSpot, false, false, aTargetUnit),0);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aAvoid, aActionType, aWalkToSpot, false, false, aTargetUnit, nil),0);
 end;
 
 
@@ -1293,7 +1302,7 @@ procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_W
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed, aWalkToNear),0);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed, aWalkToNear, nil, nil),0);
 end;
 
 
@@ -1679,7 +1688,7 @@ begin
          SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome);
          fHome.SetState(hst_Empty);
        end;
-    2: SetActionStay(4,ua_Walk);
+    2: SetActionLockedStay(4,ua_Walk);
     3: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.fHome);
     4: begin
          SetActionStay(20,ua_Walk);

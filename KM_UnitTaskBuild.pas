@@ -159,38 +159,38 @@ begin
          MarkupSet := true;
          fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
          BuildID := 0;
-         SetActionStay(11,ua_Work1,false);
+         SetActionLockedStay(11,ua_Work1,false);
        end;
     2: begin
          fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house) after first dig
          fTerrain.IncDigState(fLoc);
-         SetActionStay(11,ua_Work1,false);
+         SetActionLockedStay(11,ua_Work1,false);
        end;
     3: begin
          fTerrain.IncDigState(fLoc);
-         SetActionStay(11,ua_Work1,false);
+         SetActionLockedStay(11,ua_Work1,false);
          fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
          DemandSet := true;
        end;
     4: begin //This step is repeated until Serf brings us some stone
-         SetActionStay(30,ua_Work1);
+         SetActionLockedStay(30,ua_Work1);
          Thought:=th_Stone;
        end;
     5: begin
-         SetActionStay(11,ua_Work2,false);
+         SetActionLockedStay(11,ua_Work2,false);
          DemandSet := false;
          Thought:=th_None;
        end;
     6: begin
          fTerrain.IncDigState(fLoc);
-         SetActionStay(11,ua_Work2,false);
+         SetActionLockedStay(11,ua_Work2,false);
        end;
     7: begin
          fTerrain.IncDigState(fLoc);
          fTerrain.FlattenTerrain(fLoc); //Flatten the terrain slightly on and around the road
          if MapElem[fTerrain.Land[fLoc.Y,fLoc.X].Obj+1].WineOrCorn then
            fTerrain.Land[fLoc.Y,fLoc.X].Obj:=255; //Remove fields and other quads as they won't fit with road
-         SetActionStay(11,ua_Work2,false);
+         SetActionLockedStay(11,ua_Work2,false);
        end;
     8: begin
          fTerrain.SetRoad(fLoc,GetOwner);
@@ -261,27 +261,27 @@ begin
         fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0; //it can't be cancelled now
         MarkupSet := true;
-        SetActionStay(12*4,ua_Work1,false);
+        SetActionLockedStay(12*4,ua_Work1,false);
       end;
    2: begin
         fTerrain.IncDigState(fLoc);
-        SetActionStay(24,ua_Work1,false);
+        SetActionLockedStay(24,ua_Work1,false);
       end;
    3: begin
         fTerrain.IncDigState(fLoc);
-        SetActionStay(24,ua_Work1,false);
+        SetActionLockedStay(24,ua_Work1,false);
         fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
         DemandSet := true;
       end;
    4: begin //This step is repeated until Serf brings us some wood
         fTerrain.ResetDigState(fLoc);
         fTerrain.SetField(fLoc,GetOwner,ft_InitWine);
-        SetActionStay(30,ua_Work1);
+        SetActionLockedStay(30,ua_Work1);
         Thought:=th_Wood;
       end;
    5: begin
         DemandSet := false;
-        SetActionStay(11*8,ua_Work2,false);
+        SetActionLockedStay(11*8,ua_Work2,false);
         Thought:=th_None;
       end;
    6: begin
@@ -351,7 +351,7 @@ begin
         SetActionLockedStay(0,ua_Walk);
        end;
     2: begin
-        SetActionStay(11,ua_Work1,false);
+        SetActionLockedStay(11,ua_Work1,false);
         inc(fPhase2);
         if fPhase2 = 2 then fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
         if fPhase2 in [6,8] then fTerrain.IncDigState(fLoc);
@@ -426,25 +426,25 @@ begin
        end;
     2: begin
         fTerrain.IncDigState(fLoc);
-        SetActionStay(22,ua_Work1,false);
+        SetActionLockedStay(22,ua_Work1,false);
       end;
     3: begin
         fTerrain.IncDigState(fLoc);
-        SetActionStay(22,ua_Work1,false);
+        SetActionLockedStay(22,ua_Work1,false);
         fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Wood, 1, dt_Once, di_High);
       end;
     4: begin
-        SetActionStay(30,ua_Work1);
+        SetActionLockedStay(30,ua_Work1);
         Thought:=th_Wood;
       end;
     5: begin
         Thought := th_None;
-        SetActionStay(22,ua_Work2,false);
+        SetActionLockedStay(22,ua_Work2,false);
       end;
     6: begin
         fTerrain.ResetDigState(fLoc);
         fTerrain.IncDigState(fLoc);
-        SetActionStay(22,ua_Work2,false);
+        SetActionLockedStay(22,ua_Work2,false);
       end;
       //Ask for 2 more wood now
       //@Lewin: It's yet incomplete
@@ -454,11 +454,11 @@ begin
       end;
     8: begin
         //fTerrain.IncWallState(fLoc);
-        SetActionStay(11,ua_Work,false);
+        SetActionLockedStay(11,ua_Work,false);
       end;
     9: begin
         fTerrain.SetWall(fLoc,GetOwner);
-        SetActionLockedStay(0,ua_Work);
+        SetActionStay(1,ua_Work);
         fTerrain.RemMarkup(fLoc);
        end;
     else Result := TaskDone;
@@ -553,23 +553,23 @@ begin
         fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, GetOwner);
         HouseSet := true;
         fHouse.SetBuildingState(hbs_NoGlyph);
-        SetActionStay(5,ua_Walk);
+        SetActionLockedStay(5,ua_Walk);
         Thought := th_None;
       end;
   2:  SetActionWalk(Cells[Step]);
   3:  begin
-        SetActionStay(11,ua_Work1,false); //Don't flatten terrain here as we haven't started digging yet
+        SetActionLockedStay(11,ua_Work1,false); //Don't flatten terrain here as we haven't started digging yet
       end;
   4:  begin
-        SetActionStay(11,ua_Work1,false);
+        SetActionLockedStay(11,ua_Work1,false);
         fTerrain.FlattenTerrain(Cells[Step]);
       end;
   5:  begin
-        SetActionStay(11,ua_Work1,false);
+        SetActionLockedStay(11,ua_Work1,false);
         fTerrain.FlattenTerrain(Cells[Step]);
       end;
   6:  begin
-        SetActionStay(11,ua_Work1,false);
+        SetActionLockedStay(11,ua_Work1,false);
         fTerrain.FlattenTerrain(Cells[Step]);
         fTerrain.FlattenTerrain(Cells[Step]); //Flatten the terrain twice now to ensure it really is flat
         if not fHouse.IsDestroyed then
@@ -719,7 +719,7 @@ begin
       4: begin
            fPlayers.Player[byte(GetOwner)].BuildList.CloseHouse(BuildID);
            BuildID := 0;
-           SetActionLockedStay(1,ua_Walk);
+           SetActionStay(1,ua_Walk);
            Thought := th_None;
          end;
       else Result := TaskDone;
@@ -818,7 +818,7 @@ begin
            SetActionLockedStay(0,ua_Walk);
          end;
       2: begin
-           SetActionStay(5,ua_Work,false,0,0); //Start animation
+           SetActionLockedStay(5,ua_Work,false,0,0); //Start animation
            Direction:=TKMDirection(Cells.List[CurLoc].Dir);
          end;
       3: begin
@@ -827,7 +827,7 @@ begin
              exit;
            end;
            fHouse.AddRepair;
-           SetActionStay(6,ua_Work,false,0,5); //Do building and end animation
+           SetActionLockedStay(6,ua_Work,false,0,5); //Do building and end animation
            inc(fPhase2);
          end;
       4: begin

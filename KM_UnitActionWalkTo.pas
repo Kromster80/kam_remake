@@ -1,7 +1,7 @@
 unit KM_UnitActionWalkTo;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Units, SysUtils, Math;
+uses Classes, KM_Defaults, KromUtils, KM_Utils, KM_CommonTypes, KM_Houses, KM_Units, SysUtils, Math;
 
 type
   TDestinationCheck = (dc_NoChanges, dc_RouteChanged, dc_NoRoute);
@@ -27,7 +27,8 @@ type
   TUnitActionWalkTo = class(TUnitAction)
     private
       fWalker:TKMUnit; //Who's walking
-      fTargetUnit:TKMUnit; //Folow that unit
+      fTargetUnit:TKMUnit; //Folow this unit
+      fTargetHouse:TKMHouse; //Go to this House
       fWalkFrom, fWalkTo, fAvoid, fNewWalkTo:TKMPoint;
       fWalkToSpot:byte; //How close we need to get to our aim
       fPass:TPassability; //Desired passability set once on Create
@@ -62,7 +63,7 @@ type
       NodePos:integer;
       Explanation:string; //Debug only, explanation what unit is doing
       ExplanationLog:TStringList;
-      constructor Create(KMUnit: TKMUnit; LocB,Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false; aTargetUnit:TKMUnit=nil);
+      constructor Create(aUnit: TKMUnit; aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType; aWalkToSpot:byte; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure SyncLoad(); override;
       destructor Destroy; override;
@@ -83,22 +84,23 @@ uses KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut, KM_UnitAct
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(KMUnit: TKMUnit; LocB, Avoid:TKMPoint; const aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false; aTargetUnit:TKMUnit=nil);
+constructor TUnitActionWalkTo.Create(aUnit: TKMUnit; aLocB, aAvoid:TKMPoint; aActionType:TUnitActionType; aWalkToSpot:byte; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
   fActionName   := uan_WalkTo;
-  fWalker       := KMUnit;
+  fWalker       := aUnit;
   if aTargetUnit <> nil then fTargetUnit := aTargetUnit.GetUnitPointer;
+  if aTargetHouse <> nil then fTargetHouse := aTargetHouse.GetHousePointer;
   fWalkFrom     := fWalker.GetPosition;
-  fAvoid        := Avoid;
+  fAvoid        := aAvoid;
   fWalkToSpot   := aWalkToSpot;
   fNewWalkTo    := KMPoint(0,0);
   fPass         := fWalker.GetDesiredPassability;
-  if not aWalkToNear then
-    fWalkTo     := LocB
+  if aWalkToNear then
+    fWalkTo     := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass)
   else
-    fWalkTo     := fTerrain.GetClosestTile(LocB,KMUnit.GetPosition,fPass);
+    fWalkTo     := aLocB;
 
   if WRITE_WALKTO_LOG then begin
     ExplanationLog := TStringList.Create;
@@ -214,7 +216,7 @@ end;
 destructor TUnitActionWalkTo.Destroy;
 begin
   if WRITE_WALKTO_LOG then begin
-    Explanation := 'Walkto destroyed at'+floattostr(fWalker.PositionF.X)+':'+floattostr(fWalker.PositionF.Y);
+    Explanation := 'WalkTo destroyed at'+floattostr(fWalker.PositionF.X)+':'+floattostr(fWalker.PositionF.Y);
     ExplanationLogAdd;
     ExplanationLog.SaveToFile(ExeDir+'ExpLog'+inttostr(fWalker.ID)+'.txt');
   end;
@@ -226,6 +228,7 @@ begin
   fWalker.IsExchanging := false;
 
   if fTargetUnit <> nil then fTargetUnit.ReleaseUnitPointer;
+  if fTargetHouse <> nil then fTargetHouse.ReleaseHousePointer;
   Inherited;
 end;
 
@@ -578,7 +581,11 @@ begin
   begin
     //If the blockage won't go away because it's busy (not walking) then try going around it by re-routing our route and avoiding that tile
     if not KMSamePoint(fOpponent.GetPosition,fWalkTo) then // Not the target position (can't go around if it is)
-    if fDestBlocked or (not (fOpponent.GetUnitAction is TUnitActionWalkTo)) or ((fOpponent.GetUnitAction is TUnitActionStay) and ((TUnitActionStay(fOpponent.GetUnitAction).Locked) or (not (TUnitActionStay(fOpponent.GetUnitAction).GetActionType = ua_Walk)))) then
+    if fDestBlocked
+      or (not (fOpponent.GetUnitAction is TUnitActionWalkTo))
+      or ((fOpponent.GetUnitAction is TUnitActionStay) and ((TUnitActionStay(fOpponent.GetUnitAction).Locked)
+      or (not (TUnitActionStay(fOpponent.GetUnitAction).GetActionType = ua_Walk))))
+    then
       if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,fOpponent.GetPosition,GetEffectivePassability,fWalkToSpot,NodeList) then //Make sure the route can be made, if not, we must simply wait
       begin
         //NodeList has now been re-routed, so we need to re-init everything else and start walk again
@@ -836,15 +843,18 @@ begin
 
     //Walk complete
     if not DoExchange then
-    if ((NodePos=NodeList.Count) or (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fWalkToSpot) or
-      ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5)) or //If we are walking to a unit check to see if we've met the unit early
-      ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon)) then //See if task wants us to abandon
-    begin
+    if (NodePos=NodeList.Count)
+      or (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fWalkToSpot)
+      //todo: add proximity test for Houses, cos distance from the other side will be much smaller 
+      or ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5)) //If we are walking to a unit check to see if we've met the unit early
+      or ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon) //See if task wants us to abandon
+    then begin
       if (fWalkToSpot>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon)) then //Don't update direction if we are abandoning because of task request
         fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
       exit;
     end;
+
 
     //Check if target unit (warrior) has died and if so abandon our walk and so delivery task can exit itself
     if CanAbandonInternal then

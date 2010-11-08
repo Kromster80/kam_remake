@@ -143,11 +143,7 @@ begin
   case fPhase of
     0: begin
          if fFightType=ft_Ranged then begin
-           case GetUnitType of
-             ut_Bowman: SetActionWalk(Cells.GetNearest(GetPosition).Loc, ua_Walk, RANGE_BOWMAN);
-             ut_Arbaletman: SetActionWalk(Cells.GetNearest(GetPosition).Loc, ua_Walk, RANGE_ARBALETMAN);
-             else Assert(false, 'New ranged unit');
-           end;
+           SetActionWalk(fHouse.GetPosition, fHouse, 8);
          end else begin
            LocID := PickRandomSpot(); //Choose random location around the house and walk to it
            if LocID = 0 then
@@ -161,16 +157,17 @@ begin
          end;
        end;
     1: if fFightType=ft_Ranged then begin
+         
          SetActionStay(Random(8),ua_Work,true); //Pretend to aim
          Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
        end else
-         SetActionStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
+         SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
     2: begin
          if fFightType=ft_Ranged then begin
-           SetActionStay(4,ua_Work,false,0,0); //Start shooting
+           SetActionLockedStay(4,ua_Work,false,0,0); //Start shooting
            fDestroyingHouse := true;
          end else begin
-           SetActionStay(6,ua_Work,false,0,0); //Start the hit
+           SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
            Direction := TKMDirection(Cells.List[LocID].Dir); //Face target
            fDestroyingHouse := true;
          end;
@@ -179,11 +176,11 @@ begin
          if fFightType=ft_Ranged then begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
            fGame.fProjectiles.AddItem(PositionF, KMPointF(Cells.GetRandom.Loc), pt_Arrow); //Release arrow/bolt
-           SetActionStay(24,ua_Work,false,0,4); //Reload for next attack
+           SetActionLockedStay(24,ua_Work,false,0,4); //Reload for next attack
            //Bowmen/crossbowmen do 1 damage per shot and occasionally miss altogether
            fPhase := 0; //Go for another shot (will be 1 after inc below)
          end else begin
-           SetActionStay(6,ua_Work,false,0,6); //Pause for next attack
+           SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack
            fHouse.AddDamage(2); //All melee units do 2 damage per strike
            fPhase := 1; //Go for another hit (will be 2 after inc below)
          end;

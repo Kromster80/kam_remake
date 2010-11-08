@@ -937,7 +937,7 @@ procedure TKMUnitWarrior.Paint();
 var
   UnitType, AnimAct, AnimDir, TeamColor:byte;
   XPaintPos, YPaintPos: single;
-  i,k:integer;
+  i:integer;
   UnitPosition: TKMPoint;
 begin
 Inherited;
@@ -972,17 +972,11 @@ Inherited;
     fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
   end;
 
-  if SHOW_ATTACK_RADIUS then begin
-
-    for i:=-RANGE_BOWMAN-1 to RANGE_BOWMAN do
-    for k:=-RANGE_BOWMAN-1 to RANGE_BOWMAN do
-    if GetLength(i,k)<=RANGE_BOWMAN then
-    if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
-      fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i);
-
-    if fFoe<>nil then
-      fRender.RenderDebugLine(PositionF.X, PositionF.Y, fFoe.PositionF.X, fFoe.PositionF.Y);
-  end;
+  if SHOW_UNIT_ROUTES then
+    if fCurrentAction is TUnitActionWalkTo then
+      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
+                                   TUnitActionWalkTo(fCurrentAction).NodePos,
+                                   $FF00FFFF);
 end;
 
 

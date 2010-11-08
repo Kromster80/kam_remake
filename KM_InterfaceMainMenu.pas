@@ -147,6 +147,7 @@ type TKMMainMenuInterface = class
     procedure SwitchMenuPage(Sender: TObject);
     procedure MainMenu_PlayTutorial(Sender: TObject);
     procedure MainMenu_PlayBattle(Sender: TObject);
+    procedure MainMenu_ReplayView(Sender: TObject);
     procedure MainMenu_ReplayLastMap(Sender: TObject);
     procedure Campaign_Set(aCampaign:TCampaign);
     procedure Campaign_SelectMap(Sender: TObject);
@@ -372,7 +373,7 @@ begin
       Button_SP_TPR.OnClick      := SwitchMenuPage;
       Button_SP_Single.OnClick   := SwitchMenuPage;
       Button_SP_Load.OnClick     := SwitchMenuPage;
-      Button_SP_Replay.OnClick   := fGame.ReplayView;
+      Button_SP_Replay.OnClick   := MainMenu_ReplayView; //Should be done this way since fGame is NIL yet
       Button_SP_Back.OnClick     := SwitchMenuPage;
 end;
 
@@ -901,6 +902,13 @@ end;
 procedure TKMMainMenuInterface.MainMenu_PlayBattle(Sender: TObject);
 begin
   fGame.GameStart(ExeDir+'data\mission\mission99.dat', 'Battle Tutorial');
+end;
+
+
+//Should be done this way since fGame is NIL on UI creation
+procedure TKMMainMenuInterface.MainMenu_ReplayView(Sender: TObject);
+begin
+  fGame.ReplayView(nil);
 end;
 
 

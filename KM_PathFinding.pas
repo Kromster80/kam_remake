@@ -58,7 +58,7 @@ begin
   WalkToSpot := aWalkToSpot;
   IsInteractionAvoid := aIsInteractionAvoid;
   fRouteSuccessfullyBuilt := false;
-  fDestination:=dp_Location;
+  fDestination := dp_Location;
 
   if not CheckRouteCanExist then exit;
 
@@ -77,7 +77,7 @@ begin
   TargetRoadNetworkID := aTargetRoadNetworkID;
   WalkToSpot := 0;
   fRouteSuccessfullyBuilt := false;
-  fDestination:=dp_Passability;
+  fDestination := dp_Passability;
 
   InitRoute();
   fRouteSuccessfullyBuilt := MakeRoute(); //
@@ -153,6 +153,7 @@ begin
       if fTerrain.TileInMapCoords(x,y) then //Ignore those outside of MapCoords
       if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
       if (not IsInteractionAvoid) or (fTerrain.Land[y,x].Markup <> mu_UnderConstruction) then //If we are in InteractionAvoid mode then don't use tiles with workers on them (under contstruction)
+      //todo: add check for Locked units (TUnitActionStay.Locked=true) and walk around them if we don't want to disturb them. But e.g. melee warriors might ignore this and fight their way through enemies
       if not KMSamePoint(KMPoint(x,y),Avoid) then //If there are any cells in Avoid list then avoid them
 
         if ORef[y,x]=0 then begin //Cell is new

@@ -71,7 +71,7 @@ var
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   {Gameplay display}
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
-  SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
+  SHOW_UNIT_ROUTES      :boolean=true; //Draw unit routes when they are chosen
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
   SHOW_POINTER_DOTS     :boolean=false; //Show pointer count as small dots below unit
   SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled

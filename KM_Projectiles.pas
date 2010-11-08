@@ -178,15 +178,17 @@ begin
       //todo: Also give the inclination and heading angles
       fRender.RenderProjectile(fItems[i].fProjType, 0, P.X, P.Y);
 
-      fRender.RenderDebugProjectile(fItems[i].fScreenStart.X,
-                                    fItems[i].fScreenStart.Y,
-                                    fItems[i].fScreenEnd.X,
-                                    fItems[i].fScreenEnd.Y);
+      if SHOW_PROJECTILES then begin
+        fRender.RenderDebugProjectile(fItems[i].fScreenStart.X,
+                                      fItems[i].fScreenStart.Y,
+                                      fItems[i].fScreenEnd.X,
+                                      fItems[i].fScreenEnd.Y);
 
-      fRender.RenderDebugProjectile(fItems[i].fTarget.X,
-                                    fItems[i].fTarget.Y,
-                                    fItems[i].fTargetJ.X,
-                                    fItems[i].fTargetJ.Y);
+        fRender.RenderDebugProjectile(fItems[i].fTarget.X,
+                                      fItems[i].fTarget.Y,
+                                      fItems[i].fTargetJ.X,
+                                      fItems[i].fTargetJ.Y);
+      end;
     end;
 end;
 
