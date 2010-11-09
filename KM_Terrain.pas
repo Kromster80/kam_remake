@@ -124,7 +124,7 @@ TTerrain = class
     function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
     function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte):boolean;
-    function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte):boolean;
+    function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList):boolean;
     procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList);
     procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
@@ -738,7 +738,7 @@ begin
   for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
-        if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),canWalk,0) then
+        if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),canWalk) then
           List.AddEntry(KMPoint(k,i));
 
   TreeLoc := List.GetRandom; //Choose our tree
@@ -1385,13 +1385,15 @@ begin
 end;
 
 
-//Test wherever the route is possible to make
+//Test wherever it is possible to make the route without actually making it to save performance
 function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte):boolean;
-var i,k:integer; aHouse:TKMHouse;
+var i,k:integer; aHouse:TKMHouse; TestRadius:boolean;
 begin
   Result := true;
+
   //target has to be different point than source
   //Result:=not (KMSamePoint(LocA,LocB)); //Or maybe we don't care
+
   //If we are in worker mode then use the house entrance passability if we are still standing in a house
   if aPass=canWorker then
   begin
@@ -1407,52 +1409,51 @@ begin
   if aPass <> canWalkAvoid then //As canWalkAvoid is never set as a passability there is no need to check it
   begin
     Result := Result and CheckPassability(LocA,aPass);
-    if aWalkToSpot=0 then
-      Result := Result and CheckPassability(LocB,aPass)
-    else
-      for i:=LocB.Y-aWalkToSpot to LocB.Y+aWalkToSpot do for k:=LocB.X-aWalkToSpot to LocB.X+aWalkToSpot do
-        if fTerrain.TileInMapCoords(k,i) then
-        if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
-          Result := Result or CheckPassability(KMPoint(k,i),aPass);
+    TestRadius := false;
+    for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
+    for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
+    if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+      TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
+    Result := Result and TestRadius;
   end;
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
   if aPass=canWalk then
   begin
-    if aWalkToSpot=0 then //Check WalkConnect for surrounding tiles if we are not walking to spot
-      Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[LocB.Y,LocB.X].WalkConnect[1])
-    else
-      for i:=LocB.Y-aWalkToSpot to LocB.Y+aWalkToSpot do for k:=LocB.X-aWalkToSpot to LocB.X+aWalkToSpot do
-        if fTerrain.TileInMapCoords(k,i) then
-        if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
-          Result := Result or (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[i,k].WalkConnect[1]);
+    TestRadius := false;
+    for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
+    for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
+    if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[i,k].WalkConnect[1]);
+    Result := Result and TestRadius;
   end;
 
   if aPass=canWalkRoad then
-    if aWalkToSpot=0 then //Check WalkConnect for surrounding tiles if we are not walking to spot
-      Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[LocB.Y,LocB.X].WalkConnect[2])
-    else
-      for i:=LocB.Y-aWalkToSpot to LocB.Y+aWalkToSpot do for k:=LocB.X-aWalkToSpot to LocB.X+aWalkToSpot do
-        if fTerrain.TileInMapCoords(k,i) then
-        if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
-          Result := Result or (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[i,k].WalkConnect[2]);
+  begin
+    TestRadius := false;
+    for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
+    for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
+    if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[i,k].WalkConnect[2]);
+    Result := Result and TestRadius;
+  end;
 
   if aPass=canFish then
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[3] = Land[LocB.Y,LocB.X].WalkConnect[3]);
 
   if aPass=canWalkAvoid then
   begin
-    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[4] = Land[LocB.Y,LocB.X].WalkConnect[4]);
-    if aWalkToSpot>0 then //Check WalkConnect for surrounding tiles if we are not walking to spot
-      for i:=LocB.Y-aWalkToSpot to LocB.Y+aWalkToSpot do for k:=LocB.X-aWalkToSpot to LocB.X+aWalkToSpot do
-        if fTerrain.TileInMapCoords(k,i) then
-        if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
-          Result := Result or (Land[LocA.Y,LocA.X].WalkConnect[4] = Land[i,k].WalkConnect[4]);
+    TestRadius := false;
+    for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
+    for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
+    if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[4] = Land[i,k].WalkConnect[4]);
+    Result := Result and TestRadius;
   end;
 end;
 
 
-function TTerrain.Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte):boolean;
+function TTerrain.Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
 var i,k:integer;
 begin
   //Check if a route can be made to this vertex, from any direction (used for woodcutter cutting trees)
@@ -1460,7 +1461,7 @@ begin
   //Check from top-left of vertex to vertex tile itself
   for i := -1 to 0 do
     for k := -1 to 0 do
-      Result := Result or Route_CanBeMade(LocA,KMPoint(LocB.X+i,LocB.Y+k),aPass,aWalkToSpot);
+      Result := Result or Route_CanBeMade(LocA,KMPoint(LocB.X+i,LocB.Y+k),aPass,0);
 end;
 
 
