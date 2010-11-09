@@ -158,7 +158,7 @@ begin
        end;
     1: if fFightType=ft_Ranged then begin
          
-         SetActionStay(Random(8),ua_Work,true); //Pretend to aim
+         SetActionLockedStay(Random(8),ua_Work,true); //Pretend to aim
          Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
        end else
          SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
