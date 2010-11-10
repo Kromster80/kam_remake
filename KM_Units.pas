@@ -22,6 +22,7 @@ type
     fActionName: TUnitActionName;
     fActionType: TUnitActionType;
   public
+    Locked: boolean; //Means that unit can't take part in interaction, must stay on its tile
     StepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
@@ -110,9 +111,10 @@ type
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
-    procedure SetActionWalk(aLocB:TKMPoint; aTargetHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk); overload;
-    procedure SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aTargetUnit:TKMUnit=nil); overload;
-    procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false); overload;
+    procedure SetActionWalkToHouse(aHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk); overload;
+    procedure SetActionWalkToUnit(aUnit:TKMUnit; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk); overload;
+    procedure SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aWalkToNear:boolean=false); overload;
+    procedure SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 
     procedure Feed(Amount:single);
     procedure AbandonWalk;
@@ -876,7 +878,7 @@ begin
   if KMSamePoint(GetPosition,Spot) then
     SetActionStay(20, ua_Walk)
   else
-    SetActionWalk(Spot, KMPoint(0,0));
+    SetActionWalkToSpot(Spot);
 
   if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
 end;
@@ -1266,43 +1268,74 @@ begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
   end;
-  SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame), aStep);
+  SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame, false), aStep);
 end;
 
 
+//Same as above but we will ignore get-out-of-the-way (push) requests from interaction system
 procedure TKMUnit.SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 begin
-  //Same as above but we will ignore get-out-of-the-way (push) requests from interaction system
+  //When standing still in walk, use default frame
   if (aAction = ua_Walk)and(aStayStill) then
   begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
   end;
-  SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame, true),aStep);
+  SetAction(TUnitActionStay.Create(aTimeToStay, aAction, aStayStill, aStillFrame, true), aStep);
 end;
 
 
-procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aTargetHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk);
+//Approach house
+// Route will be made to House.Entrance, but will be Done as soon as we are at required range
+procedure TKMUnit.SetActionWalkToHouse(aHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk);
 begin
-  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, false, true, nil, aTargetHouse),0);
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+
+  SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
+                                      aHouse.GetPosition, //Target position
+                                      aActionType,        //
+                                      aWalkToSpot,        //Proximity
+                                      false,              //If we were pushed
+                                      true,               //WalkToNear
+                                      nil,                //Unit
+                                      aHouse              //House
+                                      ),0);
 end;
 
 
-procedure TKMUnit.SetActionWalk(aLocB,aAvoid:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aTargetUnit:TKMUnit=nil);
+//Approach unit
+procedure TKMUnit.SetActionWalkToUnit(aUnit:TKMUnit; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk);
 begin
-  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
-    Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aAvoid, aActionType, aWalkToSpot, false, false, aTargetUnit, nil),0);
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+
+  Assert(aWalkToSpot>=1,'Should not walk to units place');
+  SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
+                                      aUnit.GetPosition,  //Target position
+                                      aActionType,        //
+                                      aWalkToSpot,        //Proximity
+                                      false,              //If we were pushed
+                                      false,              //WalkToNear
+                                      aUnit,              //Unit
+                                      nil                 //House
+                                      ),0);
 end;
 
 
-procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aSetPushed:boolean=false; aWalkToNear:boolean=false);
+//Walk to spot
+procedure TKMUnit.SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aWalkToNear:boolean=false);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, KMPoint(0,0), aActionType, aWalkToSpot, aSetPushed, aWalkToNear, nil, nil),0);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aWalkToSpot, false, aWalkToNear, nil, nil),0);
+end;
+
+
+//We were pushed (walk to spot with wider Passability)
+procedure TKMUnit.SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+begin
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, true, false, nil, nil),0);
 end;
 
 
@@ -1605,7 +1638,7 @@ begin
   fTaskName := utn_Unknown;
   Assert(aUnit <> nil);
   fUnit := aUnit.GetUnitPointer;
-  fUnit.SetActionLockedStay(0,ua_Walk);
+  fUnit.SetActionStay(0,ua_Walk);
   fPhase    := 0;
   fPhase2   := 0;
 end;
@@ -1724,6 +1757,7 @@ begin
   Inherited Create;
   LoadStream.Read(fActionName, SizeOf(fActionName));
   LoadStream.Read(fActionType, SizeOf(fActionType));
+  LoadStream.Read(Locked);
   LoadStream.Read(StepDone);
 end;
 
@@ -1732,6 +1766,7 @@ procedure TUnitAction.Save(SaveStream:TKMemoryStream);
 begin
   SaveStream.Write(fActionName, SizeOf(fActionName));
   SaveStream.Write(fActionType, SizeOf(fActionType));
+  SaveStream.Write(Locked);
   SaveStream.Write(StepDone);
 end;
 

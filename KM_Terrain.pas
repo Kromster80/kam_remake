@@ -125,8 +125,8 @@ TTerrain = class
     function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
     function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
-    function Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList):boolean;
-    procedure Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList);
+    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList):boolean;
+    procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList);
     procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
     procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
     function GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoint;
@@ -1328,7 +1328,7 @@ begin
       if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
       TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
-        if (TempUnit.GetUnitAction is TUnitActionStay) and (TempUnit.GetUnitAction.GetActionType = ua_Walk) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
+        if (TempUnit.GetUnitAction is TUnitActionStay) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
           L3.AddEntry(L1.List[i]);
     end;
 
@@ -1466,10 +1466,10 @@ end;
 
 
 //Tests weather route can be made
-function TTerrain.Route_MakeAvoid(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList):boolean;
+function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList):boolean;
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot, true); //True means we are using Interaction Avoid mode (go around busy units)
+  fPath := TPathFinding.Create(LocA, LocB, aPass, WalkToSpot, true); //True means we are using Interaction Avoid mode (go around busy units)
   try
     Result := fPath.RouteSuccessfullyBuilt;
     if not Result then exit;
@@ -1483,11 +1483,10 @@ end;
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
-{Simplification1 - ajoin nodes that don't require direction change}
-procedure TTerrain.Route_Make(LocA, LocB, Avoid:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList);
+procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, Avoid, aPass, WalkToSpot);
+  fPath := TPathFinding.Create(LocA, LocB, aPass, WalkToSpot);
   fPath.ReturnRoute(NodeList);
   FreeAndNil(fPath);
 end;

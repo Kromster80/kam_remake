@@ -143,7 +143,7 @@ begin
   case fPhase of
     0: begin
          if fFightType=ft_Ranged then begin
-           SetActionWalk(fHouse.GetPosition, fHouse, 8);
+           SetActionWalkToHouse(fHouse, RANGE_BOWMAN);
          end else begin
            LocID := PickRandomSpot(); //Choose random location around the house and walk to it
            if LocID = 0 then
@@ -152,7 +152,7 @@ begin
              Result := TaskDone;
              exit;
            end;
-           SetActionWalk(Cells.List[LocID].Loc);
+           SetActionWalkToSpot(Cells.List[LocID].Loc);
            fDestroyingHouse := false;
          end;
        end;

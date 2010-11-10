@@ -36,6 +36,7 @@ constructor TUnitActionGoInOut.Create(aAction: TUnitActionType; aDirection:TGoIn
 begin
   Inherited Create(aAction);
   fActionName     := uan_GoInOut;
+  Locked          := true;
   fHouse          := aHouse;
   fDirection      := aDirection;
   fHasStarted     := false;
@@ -114,10 +115,9 @@ begin
   if not (fTerrain.Land[LocY,LocX].IsUnit = 0) then begin
     aUnit := fPlayers.UnitsHitTest(LocX, LocY); //Let's see who is standing there
     Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
-                             and (aUnit.GetUnitAction.GetActionType = ua_Walk)
                              and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
     if Result then
-      aUnit.SetActionWalk(fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk), ua_Walk, 0, true);
+      aUnit.SetActionWalkPushed( fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk) );
   end;
 end;
 

@@ -9,12 +9,12 @@ uses
   {$IFDEF WDC}, ZLibEx {$ENDIF}
   {$IFDEF FPC}, PasZLib {$ENDIF};
 
+
 type
   TCardinalArray2 = array of Cardinal;
   TexMode = (tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
-
-
+    
 
 type
   TResource = class
@@ -424,7 +424,7 @@ end;
 function TResource.LoadUnitDAT(filename:string):boolean;
 var ii,kk,jj,hh:integer; ft:textfile; f:file;
 begin
-  Result:=false;
+  Result := false;
 
   if not CheckFileExists(filename) then exit;
   assignfile(f,filename); reset(f,1);
@@ -1029,7 +1029,7 @@ begin
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
             t:=RXData[3].Data[ci,y*sx+x];
-            MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
+            MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
           if sy>0 then MyBitMap.SaveToFile(
           ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
@@ -1062,7 +1062,7 @@ begin
 
     for y:=0 to sy-1 do for x:=0 to sx-1 do begin
       t:=RXData[3].Data[ci,y*sx+x];
-      MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
+      MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
     end;
     if sy>0 then MyBitMap.SaveToFile(
     ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
@@ -1103,7 +1103,7 @@ begin
 
         for y:=0 to sy-1 do for x:=0 to sx-1 do begin
           t:=RXData[2].Data[ci,y*sx+x];
-          MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
+          MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
         end;
         if sy>0 then MyBitMap.SaveToFile(
         ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
@@ -1130,7 +1130,7 @@ begin
 
           for y:=0 to sy-1 do for x:=0 to sx-1 do begin
             t:=RXData[2].Data[ci,y*sx+x];
-            MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
+            MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
           if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
@@ -1169,7 +1169,7 @@ begin
 
       for y:=0 to sy-1 do for x:=0 to sx-1 do begin
         t:=RXData[1].Data[ci,y*sx+x];
-        MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL);
+        MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
       end;
       if sy>0 then MyBitMap.SaveToFile(
       //@Lewin: insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',

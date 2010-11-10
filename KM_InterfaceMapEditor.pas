@@ -483,8 +483,13 @@ begin
       TilesScroll.Position := 0;
       TilesScroll.OnChange := Terrain_TilesChange;
       for i:=1 to MAPED_TILES_COLS do for k:=1 to MAPED_TILES_ROWS do begin
-        //@Krom: I have an idea: Lets make the terrain tiles be an RX number, so say RX=10 means load the ID as a terrain tile ID.
-        //       Even though it's not an RX, this special case method would involve less changes to the code. (buttons have no reason to render tiles in other situations)
+        //@Krom: I have an idea: Lets make the terrain tiles be an RX number, so say RX=10 means
+        //       load the ID as a terrain tile ID. Even though it's not an RX, this special case
+        //       method would involve less changes to the code. (buttons have no reason to render
+        //       tiles in other situations)
+        //@Lewin: Good idea. In fact we might just create GFXData[7] entries which will reference
+        //        to tiles atlas with proper UV values.
+        //todo: implement this
         TilesTable[(i-1)*MAPED_TILES_ROWS+k] := MyControls.AddButtonFlat(Panel_Tiles,8+(i-1)*32,30+(k-1)*32,32,32,((i-1)*MAPED_TILES_ROWS+k)mod 8+2); //2..9
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (i-1)*MAPED_TILES_ROWS+k; //Store ID
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;

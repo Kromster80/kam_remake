@@ -83,7 +83,7 @@ begin
         if not IsVisible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome) else
                               SetActionLockedStay(0,ua_Walk); //Walk outside the house
       end;
-   1: SetActionWalk(KMPointY1(fInn.GetEntrance));
+   1: SetActionWalkToSpot(KMPointY1(fInn.GetEntrance));
    2: begin
         SetActionGoIn(ua_Walk,gd_GoInside,fInn); //Enter Inn
         PlaceID := fInn.EaterGetsInside(GetUnitType);

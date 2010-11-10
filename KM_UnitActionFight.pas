@@ -29,8 +29,9 @@ uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior;
 constructor TUnitActionFight.Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
 begin
   Inherited Create(aActionType);
-  fActionName := uan_Fight;
-  fOpponent := aOpponent.GetUnitPointer; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
+  fActionName     := uan_Fight;
+  Locked          := true;
+  fOpponent       := aOpponent.GetUnitPointer; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
 

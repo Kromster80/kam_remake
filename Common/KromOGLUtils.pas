@@ -26,6 +26,7 @@ procedure glkScale(x:single);
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
 procedure glkRect(Ax,Ay,Bx,By:single);
 procedure glkMoveAALines(DoShift:boolean);
+procedure SetupVSync(aVSync:boolean);
 procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
 procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
 
@@ -250,6 +251,13 @@ const Value=0.5;
 begin
 if DoShift then glTranslatef(Value,Value,0)
            else glTranslatef(-Value,-Value,0);
+end;
+
+
+procedure SetupVSync(aVSync:boolean);
+begin
+  if WGL_EXT_swap_control then
+    wglSwapIntervalEXT(byte(aVSync));
 end;
 
 

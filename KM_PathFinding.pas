@@ -1,7 +1,7 @@
 unit KM_PathFinding;
 {$I KaM_Remake.inc}
 interface            
-uses ExtCtrls, SysUtils, Controls, Forms, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
+uses SysUtils, Math, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes;
 
 type TDestinationPoint = (dp_Location, dp_Passability);
 
@@ -26,7 +26,6 @@ type
   private
     LocA:TKMPoint;
     LocB:TKMPoint;
-    Avoid:TKMPoint;
     Pass:TPassability;
     TargetRoadNetworkID:byte;
     WalkToSpot:byte;
@@ -38,7 +37,7 @@ type
     function IsDestinationReached():boolean;
     function MakeRoute():boolean;
   public
-    constructor Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aIsInteractionAvoid:boolean=false); overload;
+    constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; fPass:TPassability; aLocB:TKMPoint); overload;
     procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
@@ -47,12 +46,11 @@ type
 implementation
 
 
-constructor TPathFinding.Create(aLocA, aLocB, aAvoid:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aIsInteractionAvoid:boolean=false);
+constructor TPathFinding.Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aIsInteractionAvoid:boolean=false);
 begin
   Inherited Create;
   LocA := aLocA;
   LocB := aLocB;
-  Avoid := aAvoid;
   Pass := aPass;
   TargetRoadNetworkID := 0; //erase just in case
   WalkToSpot := aWalkToSpot;
@@ -72,7 +70,6 @@ begin
   Inherited Create;
   LocA := aLocA;
   LocB := aLocB; //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
-  Avoid := KMPoint(0,0); //erase just in case
   Pass := fPass; //Should be unused here
   TargetRoadNetworkID := aTargetRoadNetworkID;
   WalkToSpot := 0;
@@ -104,17 +101,17 @@ begin
   OCount:=1;
   ORef[LocA.Y,LocA.X]:=OCount;
   setlength(OList,OCount+1);
-  OList[OCount].Pos:=LocA;
-  OList[OCount].CostTo:=0;
-  OList[OCount].Estim:=(abs(LocB.X-LocA.X) + abs(LocB.Y-LocA.Y))*10;
-  OList[OCount].Parent:=0;
+  OList[OCount].Pos     := LocA;
+  OList[OCount].CostTo  := 0;
+  OList[OCount].Estim   := (abs(LocB.X-LocA.X) + abs(LocB.Y-LocA.Y)) * 10;
+  OList[OCount].Parent  := 0;
 end;
 
 
 function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
-    dp_Location:    Result := KMSamePoint(MinCost.Pos,LocB) or (round(KMLength(MinCost.Pos,LocB))<=WalkToSpot);
+    dp_Location:    Result := KMSamePoint(MinCost.Pos,LocB) {or (round(KMLength(MinCost.Pos,LocB))<=WalkToSpot)};
     dp_Passability: if Pass = canWorker then                                                                  
                       Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID
                     else
@@ -133,8 +130,8 @@ begin
 
     //Find cell with least (Estim+CostTo)
     MinCost.Cost:=65535;
-    //for i:=1 to OCount do //'downto' works faster here
-    for i:=OCount downto 1 do
+
+    for i:=OCount downto 1 do //'downto' works faster here
     if OList[i].Estim<>c_closed then
     if (OList[i].Estim+OList[i].CostTo) < MinCost.Cost then begin
       MinCost.Cost:=OList[i].Estim+OList[i].CostTo;
@@ -148,15 +145,15 @@ begin
       OList[MinCost.ID].Estim:=c_closed;
 
       //Check all surrounding cells and issue costs to them
-      for y:=MinCost.Pos.Y-1 to MinCost.Pos.Y+1 do for x:=MinCost.Pos.X-1 to MinCost.Pos.X+1 do
+      for y:=max(MinCost.Pos.Y-1,1) to min(MinCost.Pos.Y+1, fTerrain.MapY-1) do
+      for x:=max(MinCost.Pos.X-1,1) to min(MinCost.Pos.X+1, fTerrain.MapX-1) do
+        if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
+        if (not IsInteractionAvoid) or (fTerrain.Land[y,x].Markup <> mu_UnderConstruction) then //If we are in InteractionAvoid mode then don't use tiles with workers on them (under contstruction)
+        //todo 1: Check for Locked units instead (TUnitActionStay.Locked=true) and walk around them if we don't want to disturb them. But e.g. melee warriors might ignore this and fight their way through enemies
+        //if (not IsInteractionAvoid) or (not (fTerrain.Land[y,x].IsUnit<>0)) then
 
-      if fTerrain.TileInMapCoords(x,y) then //Ignore those outside of MapCoords
-      if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
-      if (not IsInteractionAvoid) or (fTerrain.Land[y,x].Markup <> mu_UnderConstruction) then //If we are in InteractionAvoid mode then don't use tiles with workers on them (under contstruction)
-      //todo: add check for Locked units (TUnitActionStay.Locked=true) and walk around them if we don't want to disturb them. But e.g. melee warriors might ignore this and fight their way through enemies
-      if not KMSamePoint(KMPoint(x,y),Avoid) then //If there are any cells in Avoid list then avoid them
-
-        if ORef[y,x]=0 then begin //Cell is new
+        if ORef[y,x]=0 then
+        begin //Cell is new
 
           inc(OCount);
           if (length(OList)-1)<OCount then setlength(OList, OCount+128); //Allocate slightly more space
@@ -190,8 +187,7 @@ begin
         end;
     end;
 
-  until( //List can't hold any more cells? removed
-         IsDestinationReached or // Destination point is reached
+  until( IsDestinationReached or // Destination point is reached
          (MinCost.Cost=65535)); // There's no more open cells available
 
   Result := IsDestinationReached;

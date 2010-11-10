@@ -624,7 +624,7 @@ end;
 procedure TMissionParser.DebugScriptError(ErrorMsg:string);
 begin
   ErrorMessage:=ErrorMessage+ErrorMsg+'|';
-  //todo 1: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
+  //todo: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
 end;
 
 

@@ -847,7 +847,10 @@ begin
     ht_Butchers:      if (WorkID = 2)and(Step in [8,16,24]) then fSoundLib.Play(sfx_ButcherCut,GetPosition)
                       else if (WorkID = 3)and(Step in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
     ht_Swine:         if ((WorkID = 2)and(Step in [10,20]))or((WorkID = 3)and(Step = 1)) then fSoundLib.Play(sfx_ButcherCut,GetPosition);
-    ht_WatchTower:    if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_RockThrow,GetPosition); //@Krom: This occours 5 times because the animation does not change unlike other actions. Can I move this to TTaskThrowRock or do you have a better idea?
+    ht_WatchTower:    if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_RockThrow,GetPosition);
+    //@Krom: This occours 5 times because the animation does not change unlike other actions.
+    //Can I move this to TTaskThrowRock or do you have a better idea?
+    //@Lewin: Perhaps we can replace WorkID=2 with something else, but keep it here?
   end;
 end;
 

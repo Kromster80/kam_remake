@@ -192,6 +192,7 @@ begin
     Application.MessageBox(PChar(fTextLibrary.GetRemakeString(53)),
         'Warning', MB_OK or MB_ICONWARNING);
   end;
+
   Timer100ms.Interval := fGame.fGlobalSettings.GetPace; //FormLoading gets hidden OnTimer event
   Form1.Caption := 'KaM Remake - ' + GAME_VERSION;
 end;
@@ -228,8 +229,8 @@ end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
- fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them fo fGame');
- fGame.KeyUp(Key, Shift, true);
+  fLog.AssertToLog(Form1.KeyPreview, 'Form1 should recieve all keys to pass them fo fGame');
+  fGame.KeyUp(Key, Shift, true);
 end;
 
 

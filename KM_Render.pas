@@ -114,6 +114,8 @@ begin
   OpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer:  '+OpenGL_Renderer);
   OpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version:  ' +OpenGL_Version);
 
+  SetupVSync(false); //todo: test if it works, my PC ignores it 
+
   setlength(RenderList,512);
 end;
 

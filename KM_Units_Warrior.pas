@@ -279,7 +279,7 @@ begin
   Result := false;
   if (fState = ws_None) and (not (GetUnitAction is TUnitActionWalkTo)) then
   begin
-    SetActionWalk(ClosestTile);
+    SetActionWalkToSpot(ClosestTile);
     fState := ws_Walking;
   end;
 end;
@@ -780,10 +780,10 @@ end;
 function TKMUnitWarrior.CanInterruptAction:boolean;
 begin
   if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal else //Only when unit is idling during Interaction pauses
-  if GetUnitAction is TUnitActionStay        then Result := not TUnitActionStay(GetUnitAction).Locked else //Initial pause before leaving barracks is locked
-  if GetUnitAction is TUnitActionAbandonWalk then Result := false else //Abandon walk should never be abandoned, it will exit within 1 step anyway
-  if GetUnitAction is TUnitActionGoInOut     then Result := false else //Never interupt leaving barracks
-  if GetUnitAction is TUnitActionFight       then Result := false //Never interupt a fight
+  if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
+  if GetUnitAction is TUnitActionAbandonWalk then Result := not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
+  if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
+  if GetUnitAction is TUnitActionFight       then Result := not GetUnitAction.Locked //Never interupt a fight
   else Result := true;
 end;
 
@@ -841,7 +841,7 @@ begin
     if GetUnitAction.StepDone and CanInterruptAction then
     begin
       if GetUnitTask <> nil then FreeAndNil(fUnitTask);
-      SetActionWalk(fOrderLoc.Loc, ua_Walk, 0, false, fCommander <> nil);
+      SetActionWalkToSpot(fOrderLoc.Loc, ua_Walk, 0, fCommander <> nil);
       fOrder := wo_None;
       fState := ws_Walking;
     end;
@@ -864,7 +864,7 @@ begin
   //Take attack order
   if (fOrder=wo_Attack) and GetUnitAction.StepDone and CanInterruptAction then
   begin
-    SetActionWalk(GetOrderTarget.NextPosition, KMPoint(0,0), ua_Walk, 0, GetOrderTarget);
+    SetActionWalkToUnit(GetOrderTarget, 1, ua_Walk);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
@@ -892,7 +892,7 @@ begin
     if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
        (not KMSamePoint(GetPosition,fOrderLoc.Loc)) and fTerrain.Route_CanBeMade(GetPosition,fOrderLoc.Loc,GetDesiredPassability,0) then
     begin
-      SetActionWalk(KMPoint(fOrderLoc)); //Walk to correct position
+      SetActionWalkToSpot(KMPoint(fOrderLoc)); //Walk to correct position
       fState := ws_Walking;
     end;
 
