@@ -99,7 +99,7 @@ begin
   fNewWalkTo    := KMPoint(0,0);
   fPass         := fWalker.GetDesiredPassability;
   if aWalkToNear then
-    fWalkTo     := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass)
+    fWalkTo     := fTerrain.GetClosestTile(aLocB,aUnit.GetPosition,fPass) 
   else
     fWalkTo     := aLocB;
 
@@ -376,7 +376,7 @@ begin
       Result:= oc_NoObstacle
     else}
 
-    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot) then
+    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot, false) then
     begin
       fWalker.SetActionWalkToSpot(fWalkTo,GetActionType,fWalkToSpot);
       //todo 1: replace with regard to TargetUnit/TargetHouse!

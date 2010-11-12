@@ -7,6 +7,8 @@ uses Classes, KromUtils, Math, SysUtils,
 
 const MaxMapSize=192;
 
+type TWalkConnect = (wcWalk, wcRoad, wcFish, wcAvoid);
+
 
 type
 {Class to store all terrain data, aswell terrain routines}
@@ -48,7 +50,7 @@ TTerrain = class
       Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
       Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-      WalkConnect:array[1..4]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad, 3=canFish, 4=canWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
+      WalkConnect:array[TWalkConnect]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad, 3=canFish, 4=canWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
 
       Border: TBorderType; //Borders (ropes, planks, stones)
       BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
@@ -123,13 +125,13 @@ TTerrain = class
     function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
     function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
     function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
-    function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte):boolean;
+    function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
     function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList):boolean;
     procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList);
     procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
     procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
-    function GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoint;
+    function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
 
     procedure UnitAdd(LocTo:TKMPoint);
     procedure UnitRem(LocFrom:TKMPoint);
@@ -163,7 +165,7 @@ TTerrain = class
     procedure FlattenTerrain(LocList:TKMPointList); overload;
     procedure RebuildLighting(LowX,HighX,LowY,HighY:integer);
     procedure RebuildPassability(LowX,HighX,LowY,HighY:integer);
-    procedure RebuildWalkConnect(aPass:TPassability);
+    procedure RebuildWalkConnect(wcType:TWalkConnect);
 
     procedure ComputeCursorPosition(X,Y:word; Shift: TShiftState);
     function GetVertexCursorPosition:TKMPoint;
@@ -239,8 +241,8 @@ begin
 
   RebuildLighting(1,MapX,1,MapY);
   RebuildPassability(1,MapX,1,MapY);
-  RebuildWalkConnect(canWalk);
-  RebuildWalkConnect(canFish);
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcFish);
 end;
 
 
@@ -279,8 +281,8 @@ begin
 closefile(f);
 RebuildLighting(1,MapX,1,MapY);
 RebuildPassability(1,MapX,1,MapY);
-RebuildWalkConnect(canWalk);
-RebuildWalkConnect(canFish);
+RebuildWalkConnect(wcWalk);
+RebuildWalkConnect(wcFish);
 fLog.AppendLog('Map file loaded');
 Result:=true;
 end;
@@ -579,7 +581,7 @@ procedure TTerrain.SetMarkup(Loc:TKMPoint; aMarkup:TMarkup);
 begin
   Land[Loc.Y,Loc.X].Markup:=aMarkup;
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(canWalk); //Markups affect passability so therefore also floodfill
+  RebuildWalkConnect(wcWalk); //Markups affect passability so therefore also floodfill
 end;
 
 
@@ -588,7 +590,7 @@ procedure TTerrain.RemMarkup(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].Markup:=mu_None;
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(canWalk); //Markups affect passability so therefore also floodfill
+  RebuildWalkConnect(wcWalk); //Markups affect passability so therefore also floodfill
 end;
 
 
@@ -599,7 +601,7 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(canWalkRoad);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -613,7 +615,7 @@ begin
     UpdateBorders(aList.List[i]);
   end;
   RebuildPassability(aList.GetTopLeft.X-1, aList.GetTopLeft.Y-1, aList.GetBottomRight.X+1, aList.GetBottomRight.Y+1);
-  RebuildWalkConnect(canWalkRoad);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -624,7 +626,7 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(canWalkRoad);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -648,7 +650,7 @@ begin
   Land[Loc.Y,Loc.X].FieldAge:=0;
   UpdateBorders(Loc);
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(canWalkRoad);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -719,7 +721,7 @@ begin
          ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
         if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
            ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
-          if Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,0) then
+          if Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,0,false) then
             List.AddEntry(KMPoint(k,i));
 
   Result := List.GetRandom;
@@ -757,7 +759,7 @@ begin
   if not KMSamePoint(TreeLoc,KMPoint(0,0)) then
   for i:=-1 to 0 do
     for k:=-1 to 0 do
-      if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),canWalk,0) then
+      if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),canWalk,0,false) then
         if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
           ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
         begin
@@ -781,7 +783,7 @@ begin
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if (TileIsStone(KMPoint(k,i))>0) then
         if (CanWalk in Land[i+1,k].Passability) then //Now check the tile right below
-          if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,0) then
+          if Route_CanBeMade(aPosition,KMPoint(k,i+1),CanWalk,0,false) then
             List.AddEntry(KMPoint(k,i+1));
 
   Result := List.GetRandom;
@@ -837,7 +839,7 @@ begin
   for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do
   for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,MapX-1) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,0) then begin
+      if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,0,false) then begin
 
         if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
             List1.AddEntry(KMPoint(k,i))
@@ -877,7 +879,7 @@ begin
           for l:=-1 to 1 do
             if TileInMapCoords(k+j,i+l) and ((l <> 0) or (j <> 0)) then
               // D) Final check: route can be made
-              if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, 0) then
+              if Route_CanBeMade(aPosition, KMPoint(k+j, i+l), CanWalk, 0,false) then
                 List.AddEntry(KMPointDir(k+j, i+l, byte(KMGetDirection(j,l))-1));
 
   Result:=List.GetRandom;
@@ -915,7 +917,7 @@ end;
 
 function TTerrain.WaterHasFish(aPosition:TKMPoint):boolean;
 begin
-  Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[3],false) <> nil);
+  Result := (fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Y,aPosition.X].WalkConnect[wcFish],false) <> nil);
 end;
 
 
@@ -924,7 +926,7 @@ var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
   aPosition := KMGetCoord(aPosition);
-  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Loc.Y,aPosition.Loc.X].WalkConnect[3],not TestOnly);
+  MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aPosition.Loc.Y,aPosition.Loc.X].WalkConnect[wcFish],not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
 end;
@@ -1043,7 +1045,7 @@ begin
   if not CheckHeightPass(KMPointY1(Loc),canWalk) then
     FlattenTerrain(KMPointY1(Loc));
   RecalculatePassabilityAround(Loc);
-  RebuildWalkConnect(canWalk);
+  RebuildWalkConnect(wcWalk);
 end;
 
 
@@ -1265,7 +1267,7 @@ end;
 function TTerrain.GetRoadConnectID(Loc:TKMPoint):byte;
 begin
   if TileInMapCoords(Loc.X,Loc.Y) then
-    Result := Land[Loc.Y,Loc.X].WalkConnect[2]
+    Result := Land[Loc.Y,Loc.X].WalkConnect[wcRoad]
   else
     Result:=0; //No network
 end;
@@ -1275,7 +1277,7 @@ end;
 function TTerrain.GetWalkConnectID(Loc:TKMPoint):byte;
 begin
   if TileInMapCoords(Loc.X,Loc.Y) then
-    Result := Land[Loc.Y,Loc.X].WalkConnect[1]
+    Result := Land[Loc.Y,Loc.X].WalkConnect[wcWalk]
   else
     Result:=0; //No network
 end;
@@ -1386,7 +1388,7 @@ end;
 
 
 //Test wherever it is possible to make the route without actually making it to save performance
-function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte):boolean;
+function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aInteractionAvoid:boolean):boolean;
 var i,k:integer; aHouse:TKMHouse; TestRadius:boolean;
 begin
   Result := true;
@@ -1406,16 +1408,13 @@ begin
   end;
 
   //target point has to be walkable
-  if aPass <> canWalkAvoid then //As canWalkAvoid is never set as a passability there is no need to check it
-  begin
-    Result := Result and CheckPassability(LocA,aPass);
-    TestRadius := false;
-    for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
-    for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
-    if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
-      TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
-    Result := Result and TestRadius;
-  end;
+  Result := Result and CheckPassability(LocA,aPass);
+  TestRadius := false;
+  for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
+  for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
+  if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+    TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
+  Result := Result and TestRadius;
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
   if aPass=canWalk then
@@ -1424,7 +1423,7 @@ begin
     for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
     for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
     if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
-      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[1] = Land[i,k].WalkConnect[1]);
+      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcWalk] = Land[i,k].WalkConnect[wcWalk]);
     Result := Result and TestRadius;
   end;
 
@@ -1434,20 +1433,20 @@ begin
     for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
     for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
     if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
-      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[2] = Land[i,k].WalkConnect[2]);
+      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcRoad] = Land[i,k].WalkConnect[wcRoad]);
     Result := Result and TestRadius;
   end;
 
   if aPass=canFish then
-    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[3] = Land[LocB.Y,LocB.X].WalkConnect[3]);
+    Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[wcFish] = Land[LocB.Y,LocB.X].WalkConnect[wcFish]);
 
-  if aPass=canWalkAvoid then
+  if aInteractionAvoid then
   begin
     TestRadius := false;
     for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
     for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
     if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
-      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[4] = Land[i,k].WalkConnect[4]);
+      TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcAvoid] = Land[i,k].WalkConnect[wcAvoid]);
     Result := Result and TestRadius;
   end;
 end;
@@ -1461,7 +1460,7 @@ begin
   //Check from top-left of vertex to vertex tile itself
   for i := -1 to 0 do
     for k := -1 to 0 do
-      Result := Result or Route_CanBeMade(LocA,KMPoint(LocB.X+i,LocB.Y+k),aPass,0);
+      Result := Result or Route_CanBeMade(LocA,KMPoint(LocB.X+i,LocB.Y+k),aPass,0,false);
 end;
 
 
@@ -1511,47 +1510,55 @@ end;
 
 
 //Returns the closest tile to LocA with aPass and walk connect to LocB
-function TTerrain.GetClosestTile(LocA, LocB:TKMPoint; aPass:TPassability):TKMPoint;
+//todo 1: This function is faulty! (1st it should not check for IsUnit, second it should not break when
+//        Serf stands off-road and wants to go to a building site on-road (walkconnect mismatch!))
+function TTerrain.GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
 
   function GetPointInDir(aDir:byte; aDist:integer):TKMPoint;
     const XBitField: array[0..7] of smallint = (0,  1,1,1,0,-1,-1,-1);
           YBitField: array[0..7] of smallint = (-1,-1,0,1,1, 1, 0,-1);
   begin
     //If it is < 0 set it to 0 so that TileInMapCoords will disallow it
-    Result.X := max(LocA.X+(aDist*XBitField[aDir]),0);
-    Result.Y := max(LocA.Y+(aDist*YBitField[aDir]),0);
+    Result.X := max(TargetLoc.X+(aDist*XBitField[aDir]),0);
+    Result.Y := max(TargetLoc.Y+(aDist*YBitField[aDir]),0);
   end;
 
 var
   Dist, WalkConnectID: integer;
-  Dir, WalkConnectType: byte;
+  Dir:byte;
+  wcType: TWalkConnect;
   IsMapEdge: boolean;
 begin
-  WalkConnectType := 1; //canWalk is default
-  if aPass = canWalkRoad then WalkConnectType := 2;
-  if aPass = canFish     then WalkConnectType := 3;
+  case aPass of
+    canWalkRoad: wcType := wcRoad;
+    canFish:     wcType := wcFish;
+    else         wcType := wcWalk; //canWalk is default
+  end;
 
   //Special case for edge of map. If it is passed the edge of the map coordinates will be 0.
   //It is used to decide whether to allow the position they were going to use anyway, (LocA) because it is not the originally requested position.
   IsMapEdge := false;
-  if (LocA.X = 0) then
+  if (TargetLoc.X = 0) then
   begin
-    LocA.X := 1;
+    TargetLoc.X := 1;
     IsMapEdge := true;
   end;
-  if (LocA.Y = 0) then
+  if (TargetLoc.Y = 0) then
   begin
-    LocA.Y := 1;
+    TargetLoc.Y := 1;
     IsMapEdge := true;
   end;
 
-  WalkConnectID := Land[LocB.Y,LocB.X].WalkConnect[WalkConnectType]; //Store WalkConnect ID of target
-  if CheckPassability(LocA,aPass) and (WalkConnectID = Land[LocA.Y,LocA.X].WalkConnect[WalkConnectType]) and
-    ((not IsMapEdge) or (IsMapEdge and ((not HasUnit(LocA)) or KMSamePoint(LocA,LocB)))) then
+  WalkConnectID := Land[OriginLoc.Y,OriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
+
+  if CheckPassability(TargetLoc,aPass)
+     and (WalkConnectID = Land[TargetLoc.Y,TargetLoc.X].WalkConnect[wcType])
+     and ((not IsMapEdge) or (IsMapEdge and ((not HasUnit(TargetLoc)) or KMSamePoint(TargetLoc,OriginLoc)))) then
   begin
-    Result := LocA; //Target is ok
+    Result := TargetLoc; //Target is ok
     exit;
   end;
+
   for Dist := 1 to 255 do //Do a circular check with a 255 radius
     for Dir := 0 to 7 do
     begin
@@ -1559,8 +1566,8 @@ begin
       Result := GetPointInDir(Dir,Dist);
       if TileInMapCoords(Result.X,Result.Y) then
         if CheckPassability(Result,aPass) and
-          (WalkConnectID = Land[Result.Y,Result.X].WalkConnect[WalkConnectType]) and
-          ((not HasUnit(Result)) or KMSamePoint(Result,LocB)) then //Allow position we are currently on
+          (WalkConnectID = Land[Result.Y,Result.X].WalkConnect[wcType]) and
+          ((not HasUnit(Result)) or KMSamePoint(Result,OriginLoc)) then //Allow position we are currently on
           exit; //We have found it so exit
     end;
   Result := KMPoint(0,0); //If we don't find one, set to invalid (error)
@@ -1627,8 +1634,8 @@ begin
 
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
   RecalculatePassability(Loc);
-  RebuildWalkConnect(canWalk);
-  RebuildWalkConnect(canWalkRoad);
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -1656,8 +1663,8 @@ begin
     RecalculatePassability(Loc);
   end;
 
-  RebuildWalkConnect(canWalk);
-  RebuildWalkConnect(canWalkRoad);
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -1688,17 +1695,17 @@ end;
 
 
 { Rebuilds connected areas using flood fill algorithm }
-procedure TTerrain.RebuildWalkConnect(aPass:TPassability);
+procedure TTerrain.RebuildWalkConnect(wcType:TWalkConnect);
 const MinSize=9; //Minimum size that is treated as new area
-var i,k{,h}:integer; AreaID:byte; Count:integer; TestMode:byte;
+var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
 
   procedure FillArea(x,y:word; ID:byte; out Count:integer); //Mode = 1canWalk or 2canWalkRoad
   begin
-    if ((Land[y,x].WalkConnect[TestMode]=0)and(aPass in Land[y,x].Passability)and //Untested area
-     ((TestMode <> 4)or
-     ((TestMode = 4)and(Land[y,x].Markup <> mu_UnderConstruction)))) then //Untested area
+    if ((Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
+     ((wcType <> wcAvoid)or
+     ((wcType = wcAvoid)and(Land[y,x].Markup <> mu_UnderConstruction)))) then //Untested area
     begin
-      Land[y,x].WalkConnect[TestMode]:=ID;
+      Land[y,x].WalkConnect[wcType]:=ID;
       inc(Count);
       //Using custom TileInMapCoords replacement gives ~40% speed improvement
       if x-1>=1 then begin
@@ -1723,26 +1730,23 @@ begin
   for h:=1 to 200 do
   begin}
 
-    TestMode:=0;
-    case aPass of
-      canWalk:      TestMode:=1;
-      canWalkRoad:  TestMode:=2;
-      canFish:      TestMode:=3;
-      canWalkAvoid: begin
-                      TestMode:=4; aPass:=canWalk; //Special case for unit interaction avoiding
-                    end;
-      else          fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
+    case wcType of
+      wcWalk:  Pass := canWalk;
+      wcRoad:  Pass := canWalkRoad;
+      wcFish:  Pass := canFish;
+      wcAvoid: Pass := canWalk; //Special case for unit interaction avoiding
+      else     fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 
     //Reset everything
     for i:=1 to MapY do for k:=1 to MapX do
-      Land[i,k].WalkConnect[TestMode]:=0;
+      Land[i,k].WalkConnect[wcType]:=0;
 
     AreaID:=0;
     for i:=1 to MapY do for k:=1 to MapX do
-    if ((Land[i,k].WalkConnect[TestMode]=0)and(aPass in Land[i,k].Passability)and
-     ((TestMode <> 4)or
-     ((TestMode = 4)and(Land[i,k].Markup <> mu_UnderConstruction)))) then //todo: Exclude fighting units in canWalkAvoid (requires IsUnit to be made TKMUnit first)
+    if ((Land[i,k].WalkConnect[wcType]=0)and(Pass in Land[i,k].Passability)and
+     ((wcType <> wcAvoid)or
+     ((wcType = wcAvoid)and(Land[i,k].Markup <> mu_UnderConstruction)))) then //todo: Exclude fighting units in canWalkAvoid (requires IsUnit to be made TKMUnit first)
     begin
       inc(AreaID);
       Count:=0;
@@ -1752,7 +1756,7 @@ begin
       begin
         dec(AreaID);
         Count:=0;
-        Land[i,k].WalkConnect[TestMode]:=0;
+        Land[i,k].WalkConnect[wcType]:=0;
       end;
       
       //if (Count<>0) then
@@ -1810,7 +1814,7 @@ begin
   L:=EnsureTileInMapCoords(Loc.X-3,Loc.Y-4);
   H:=EnsureTileInMapCoords(Loc.X+2,Loc.Y+1);
   RebuildPassability(L.X,H.X,L.Y,H.Y);
-  RebuildWalkConnect(canWalkRoad);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -1988,8 +1992,8 @@ begin
       end;
   end;
   RebuildPassability(Loc.X-3,Loc.X+2,Loc.Y-4,Loc.Y+1);
-  RebuildWalkConnect(canWalk);
-  RebuildWalkConnect(canWalkRoad);
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcRoad);
 end;
 
 
@@ -2255,9 +2259,9 @@ begin
 
   RebuildLighting(1, MapX, 1, MapY);
   RebuildPassability(1, MapX, 1, MapY);
-  RebuildWalkConnect(canWalk);
-  RebuildWalkConnect(canWalkRoad);
-  RebuildWalkConnect(canFish);
+  RebuildWalkConnect(wcWalk);
+  RebuildWalkConnect(wcRoad);
+  RebuildWalkConnect(wcFish);
   fLog.AppendLog('Terrain loaded');
 end;
 

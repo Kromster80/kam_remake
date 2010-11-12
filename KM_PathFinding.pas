@@ -81,16 +81,11 @@ begin
 end;
 
 
+//Don't try to make a route if it's obviously impossible
 function TPathFinding.CheckRouteCanExist():boolean;
 begin
-  //Don't try to make a route if it's obviously impossible
-  if IsInteractionAvoid then
-  begin
-    fTerrain.RebuildWalkConnect(canWalkAvoid);
-    Result := fTerrain.Route_CanBeMade(LocA,LocB,canWalkAvoid,WalkToSpot);
-  end
-  else
-    Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,WalkToSpot);
+  if IsInteractionAvoid then fTerrain.RebuildWalkConnect(wcAvoid); //Rebuild on demand
+  Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,WalkToSpot, IsInteractionAvoid);
 end;
 
 

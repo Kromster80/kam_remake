@@ -269,7 +269,7 @@ begin
   if fOrderLoc.Loc.X = 0 then exit;
 
   if fState = ws_None then
-    ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc,GetPosition,canWalk);
+    ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc, GetPosition, canWalk);
 
   //See if we are in position or if we can't reach position, because we don't retry for that case.
   if (fState = ws_None) and (KMSamePoint(GetPosition,ClosestTile) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
@@ -890,7 +890,7 @@ begin
   begin
     //Wait for self and all team members to be in position before we set fState to None (means we no longer worry about group position)
     if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
-       (not KMSamePoint(GetPosition,fOrderLoc.Loc)) and fTerrain.Route_CanBeMade(GetPosition,fOrderLoc.Loc,GetDesiredPassability,0) then
+       (not KMSamePoint(GetPosition,fOrderLoc.Loc)) and fTerrain.Route_CanBeMade(GetPosition,fOrderLoc.Loc,GetDesiredPassability,0, false) then
     begin
       SetActionWalkToSpot(KMPoint(fOrderLoc)); //Walk to correct position
       fState := ws_Walking;

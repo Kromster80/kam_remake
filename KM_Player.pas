@@ -334,7 +334,7 @@ begin
    H := TKMHouseInn(FindHouse(ht_Inn));
    repeat
      //First make sure that it is valid
-     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance),aUnit.GetDesiredPassability(true),0)) then
+     if (H<>nil)and(H.HasFood)and(H.HasSpace)and(fTerrain.Route_CanBeMade(Loc,KMPointY1(H.GetEntrance),aUnit.GetDesiredPassability(true),0, false)) then
      begin
         //Take the closest inn out of the ones that are suitable
         Dist := GetLength(H.GetPosition,Loc);
@@ -623,7 +623,7 @@ begin
     for i:=0 to Count-1 do
     if (fUnits.Items[i] <> nil) and (TKMUnit(fUnits.Items[i]).GetUnitType = ut_Fish) then
     begin
-      if fTerrain.Land[TKMUnit(fUnits.Items[i]).GetPosition.Y,TKMUnit(fUnits.Items[i]).GetPosition.X].WalkConnect[3] = aWaterID then
+      if fTerrain.Land[TKMUnit(fUnits.Items[i]).GetPosition.Y,TKMUnit(fUnits.Items[i]).GetPosition.X].WalkConnect[wcFish] = aWaterID then
         if TKMUnitAnimal(fUnits.Items[i]).fFishCount > HighestGroupCount then
         begin
           Result := TKMUnitAnimal(fUnits.Items[i]);

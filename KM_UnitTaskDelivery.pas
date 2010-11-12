@@ -173,7 +173,7 @@ begin
   with fUnit do
   case fPhase of
     0..4:;
-    5:  SetActionWalkToSpot(fToHouse.GetEntrance,ua_Walk,1); //Any tile next to entrance will do
+    5:  SetActionWalkToSpot(KMPointY1(fToHouse.GetEntrance)); //todo: Any tile next to entrance will do
     6:  begin
           fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
           TKMUnitSerf(fUnit).CarryTake();

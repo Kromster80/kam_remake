@@ -674,7 +674,7 @@ function TTaskBuildHouse.Execute():TTaskResult;
     for i:=1 to Cells.Count do
       if not KMSamePoint(Cells.List[i].Loc,fUnit.GetPosition) then
         if fTerrain.TileInMapCoords(Cells.List[i].Loc.X,Cells.List[i].Loc.Y) then
-          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc ,fUnit.GetDesiredPassability, 0) then
+          if fTerrain.Route_CanBeMade(fUnit.GetPosition, Cells.List[i].Loc ,fUnit.GetDesiredPassability, 0, false) then
           begin
             inc(MyCount);
             Spots[MyCount] := i;

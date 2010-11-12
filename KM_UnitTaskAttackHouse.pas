@@ -118,7 +118,7 @@ function TTaskAttackHouse.Execute():TTaskResult;
       MyCount := 0;
       for i:=1 to CellsA.Count do
       if not PosUsed(CellsA.List[i].Loc) then //Is someone else is using it
-      if fTerrain.Route_CanBeMade(fUnit.GetPosition, CellsA.List[i].Loc ,fUnit.GetDesiredPassability, 0) then
+      if fTerrain.Route_CanBeMade(fUnit.GetPosition, CellsA.List[i].Loc ,fUnit.GetDesiredPassability, 0, false) then
       begin
         inc(MyCount);
         Spots[MyCount] := i;

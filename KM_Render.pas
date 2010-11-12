@@ -398,7 +398,7 @@ end;
   for i:=y1 to y2 do for k:=x1 to x2 do
   with fTerrain do
   begin
-    glColor4f(Land[i,k].WalkConnect[1]/8,Land[i,k].WalkConnect[2]/8,0,0.5);
+    glColor4f(Land[i,k].WalkConnect[wcWalk]/8,Land[i,k].WalkConnect[wcRoad]/8,0,0.5);
     RenderQuad(k,i)
   end;
 

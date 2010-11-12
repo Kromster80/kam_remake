@@ -311,7 +311,7 @@ const {Aligned to right to use them in GUI costs display as well}
 { Terrain }
 type TPassability = (canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
                      canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab,
-                     canWolf, canElevate, canWalkAvoid, canWorker); //14bits so far
+                     canWolf, canElevate, canWorker); //14bits so far
      TPassabilitySet = set of TPassability;
 
 const PassabilityStr:array[TPassability] of string = (
@@ -327,7 +327,6 @@ const PassabilityStr:array[TPassability] of string = (
     'canCrab',      // Sand tiles where crabs can move around
     'canWolf',      // Soil tiles where wolfs can move around
     'canElevate',   // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
-    'canWalkAvoid', // Sets this flag when there's a laborer which is busy and can't WalkAvoid us (computed only on demand)
     'canWorker'     // Like canWalk but allows walking on building sites
   );
 
