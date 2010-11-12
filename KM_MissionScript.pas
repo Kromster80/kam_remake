@@ -588,7 +588,7 @@ begin
                          if (ParamList[1] = 0) or (ParamList[1] = 2) then //0 is like 2 but it works in TSK and does not support some extra options
                            AIAttack.AttackType := aat_Repeating
                          else
-                           if ParamList[1] = 2 then
+                           if ParamList[1] = 2 then //@Lewin: I have problem understanding if this code is ever called!
                              AIAttack.AttackType := aat_Once;
                        if TextParam = PARAMVALUES[cpt_TotalAmount] then
                          AIAttack.TotalMen := ParamList[1];

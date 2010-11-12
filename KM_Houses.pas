@@ -499,7 +499,6 @@ begin
 end;
 
 
-//todo: Make this function to return list of cells within a house (used by archers) Dir is not important?
 procedure TKMHouse.GetListOfCellsWithin(Cells:TKMPointList);
 var i,k:integer; Loc:TKMPoint;
 begin
