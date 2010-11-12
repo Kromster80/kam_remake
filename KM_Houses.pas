@@ -79,9 +79,10 @@ type
 
     property GetPosition:TKMPoint read fPosition;
     procedure SetPosition(aPos:TKMPoint); //Used by map editor
-    function GetEntrance:TKMPoint;
+    function GetEntrance():TKMPoint;
+    function GetDistance(aPos:TKMPoint):single;
     procedure GetListOfCellsAround(Cells:TKMPointDirList; aPassability:TPassability);
-    procedure GetListOfCellsWithin(Cells:TKMPointDirList);
+    procedure GetListOfCellsWithin(Cells:TKMPointList);
     function HitTest(X, Y: Integer): Boolean;
     property GetHouseType:THouseType read fHouseType;
     property BuildingRepair:boolean read fBuildingRepair write fBuildingRepair;
@@ -445,8 +446,22 @@ end;
 {Return Entrance of the house, which is different than house position sometimes}
 function TKMHouse.GetEntrance():TKMPoint;
 begin
-  Result.X:=GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
-  Result.Y:=GetPosition.Y;
+  Result.X := GetPosition.X + HouseDAT[byte(fHouseType)].EntranceOffsetX;
+  Result.Y := GetPosition.Y;
+end;
+
+
+{Return distance from aPos to the closest house tile}
+function TKMHouse.GetDistance(aPos:TKMPoint):single;
+var C:TKMPointList; i:integer;
+begin
+  C := TKMPointList.Create;
+  GetListOfCellsWithin(C);
+
+  Result := KMLength(C.List[1], aPos);
+  for i:=2 to C.Count do
+    Result := min(Result, KMLength(C.List[i], aPos));
+  C.Free;
 end;
 
 
@@ -485,7 +500,7 @@ end;
 
 
 //todo: Make this function to return list of cells within a house (used by archers) Dir is not important?
-procedure TKMHouse.GetListOfCellsWithin(Cells:TKMPointDirList);
+procedure TKMHouse.GetListOfCellsWithin(Cells:TKMPointList);
 var i,k:integer; Loc:TKMPoint;
 begin
   Cells.Clearup;
@@ -493,7 +508,7 @@ begin
 
   for i:=max(Loc.Y-3,1) to Loc.Y do for k:=max(Loc.X-2,1) to min(Loc.X+1,fTerrain.MapX) do
   if HousePlanYX[byte(fHouseType),i-Loc.Y+4,k-Loc.X+3]<>0 then
-    Cells.AddEntry(KMPointDir(k,i,0));
+    Cells.AddEntry(KMPoint(k,i));
 end;
 
 

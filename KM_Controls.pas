@@ -1488,7 +1488,7 @@ end;
 procedure TKMListBox.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
-  TopIndex := EnsureRange(TopIndex - WheelDelta div 120, 0, ScrollBar.MaxValue);
+  TopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, ScrollBar.MaxValue);
   ScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 
@@ -1669,7 +1669,7 @@ end;
 procedure TKMFileList.MouseWheel(Sender: TObject; WheelDelta:integer);
 begin
   Inherited;
-  TopIndex := EnsureRange(TopIndex - WheelDelta div 120, 0, ScrollBar.MaxValue);
+  TopIndex := EnsureRange(TopIndex - sign(WheelDelta), 0, ScrollBar.MaxValue);
   ScrollBar.Position := TopIndex; //Make the scrollbar move too when using the wheel
 end;
 

@@ -68,7 +68,7 @@ begin
 
   case aProjType of
     pt_Arrow:     begin
-                    fItems[i].fSpeed    := 0.5 + randomS(0.05);
+                    fItems[i].fSpeed    := 0.45 + randomS(0.05);
                     fItems[i].fArc      := 1.5 + randomS(0.3);
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_BOWMAN / 2;
                   end;

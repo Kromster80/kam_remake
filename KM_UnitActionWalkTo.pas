@@ -40,6 +40,7 @@ type
       function CheckForNewDestination():TDestinationCheck;
       function CheckTargetHasDied():TTargetDiedCheck;
       function CheckForObstacle():TObstacleCheck;
+      function CheckWalkComplete():boolean;
       function CheckInteractionFreq(aIntCount,aTimeout,aFreq:integer):boolean;
       function DoUnitInteraction():boolean;
         //Sub functions split out of DoUnitInteraction (these are the solutions)
@@ -68,12 +69,12 @@ type
       ExplanationLog:TStringList;
       constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aWalkToSpot:byte; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
       constructor Load(LoadStream: TKMemoryStream); override;
-      procedure SyncLoad(); override;
+      procedure  SyncLoad(); override;
       destructor Destroy; override;
-      function CanAbandonExternal: boolean;
-      property GetInteractionStatus:TInteractionStatus read fInteractionStatus;
+      function  CanAbandonExternal: boolean;
+      property  GetInteractionStatus:TInteractionStatus read fInteractionStatus;
       procedure ChangeWalkTo(aLoc:TKMPoint; const aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
-      function Execute(KMUnit: TKMUnit):TActionResult; override;
+      function  Execute(KMUnit: TKMUnit):TActionResult; override;
       procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
@@ -89,6 +90,7 @@ begin
   Inherited Create(aActionType);
   fActionName   := uan_WalkTo;
   Locked        := false; //Eqiuvalent to Can AbandonExternal?
+
   fWalker       := aUnit;
   if aTargetUnit <> nil then fTargetUnit := aTargetUnit.GetUnitPointer;
   if aTargetHouse <> nil then fTargetHouse := aTargetHouse.GetHousePointer;
@@ -381,6 +383,22 @@ begin
       Result:= oc_ReRouteMade;
     end else
       Result := oc_NoRoute;
+end;
+
+
+{ Walk is complete when one of the following is true:
+  - We reached last node en route irregardless of walkTarget (position, house, unit)
+  - We were walking to spot and required range is reached
+  - We were walking to house and required range to house is reached
+  - We were walking to unit and met it early
+  - The Task wants us to abandon }
+function TUnitActionWalkTo.CheckWalkComplete():boolean;
+begin
+  Result := (NodePos=NodeList.Count)
+            or ((fTargetHouse = nil) and (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fWalkToSpot))
+            or ((fTargetHouse <> nil) and (round(fTargetHouse.GetDistance(fWalker.GetPosition)) <= fWalkToSpot))
+            or ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5))
+            or ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon);
 end;
 
 
@@ -822,7 +840,10 @@ begin
     { Update destination point }
 
     //Make changes to our route if we are supposed to be tracking a unit
-    if CanAbandonInternal and (fTargetUnit <> nil) and (not fTargetUnit.IsDeadOrDying) and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
+    if CanAbandonInternal
+      and (fTargetUnit <> nil)
+      and (not fTargetUnit.IsDeadOrDying)
+      and not KMSamePoint(fTargetUnit.GetPosition,fWalkTo) then
     begin
       ChangeWalkTo(fTargetUnit.GetPosition,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
@@ -844,15 +865,9 @@ begin
         exit;
 
     //Walk complete
-    if not DoExchange then
-    if (NodePos=NodeList.Count)
-      or (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fWalkToSpot)
-      //todo: add proximity test for Houses, cos distance from the other side will be much smaller
-      or ((fTargetHouse <> nil) and (KMLength(fWalker.GetPosition,fTargetHouse.GetPosition) < fWalkToSpot)) //
-      or ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5)) //If we are walking to a unit check to see if we've met the unit early
-      or ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon) //See if task wants us to abandon
-    then begin
-      if (fWalkToSpot>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon)) then //Don't update direction if we are abandoning because of task request
+    if not DoExchange and CheckWalkComplete then
+    begin
+      if (fWalkToSpot>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon)) then
         fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
       exit;
