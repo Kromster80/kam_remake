@@ -1509,7 +1509,7 @@ begin
 end;
 
 
-//Returns the closest tile to LocA with aPass and walk connect to LocB
+//Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
 //todo 1: This function is faulty! (1st it should not check for IsUnit, second it should not break when
 //        Serf stands off-road and wants to go to a building site on-road (walkconnect mismatch!))
 function TTerrain.GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
