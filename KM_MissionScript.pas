@@ -585,10 +585,12 @@ begin
   ct_AIAttack:       begin
                        //Set up the attack command
                        if TextParam = PARAMVALUES[cpt_Type] then
-                         if (ParamList[1] = 0) or (ParamList[1] = 2) then //0 is like 2 but it works in TSK and does not support some extra options
+                         if (ParamList[1] = 0) or (ParamList[1] = 2) then //Type 0 is like type 2 but it works in TSK and does not support some extra options. We handle them the same
                            AIAttack.AttackType := aat_Repeating
                          else
-                           if ParamList[1] = 2 then //@Lewin: I have problem understanding if this code is ever called!
+                           if ParamList[1] = 1 then //Type 1 is a once off attack, it happens after a time and does not repeat
+                                                    //@Lewin: I have problem understanding if this code is ever called!
+                                                    //@Krom: Thanks for pointing that out, it was supposed to be 1 not 2. To be deleted.
                              AIAttack.AttackType := aat_Once;
                        if TextParam = PARAMVALUES[cpt_TotalAmount] then
                          AIAttack.TotalMen := ParamList[1];
