@@ -371,11 +371,13 @@ begin
   if (not fTerrain.CheckPassability(NodeList.List[NodePos+1],GetEffectivePassability)) or
      (not fTerrain.CanWalkDiagonaly(fWalker.GetPosition,NodeList.List[NodePos+1])) then
 
-    {//Try to find a walkaround @Lewin: Please check me on this one, is it a valid solution?
-    if IntSolutionSideStep(NodeList.List[NodePos+1],fInteractionCount) then
+    //Try to find a walkaround @Lewin: Please check me on this one, is it a valid solution?
+    //                         @Krom: Nice idea, I've tested it and it seems to work well. Note small change. To be deleted.
+    //Try side stepping the obsticle. By making HighestInteractionCount be the required timeout, we assure the solution is always checked
+    if IntSolutionSideStep(NodeList.List[NodePos+1],SIDESTEP_TIMEOUT) then
       Result:= oc_NoObstacle
-    else}
-
+    else
+    //Completely re-route if no simple side step solution is available
     if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot, false) then
     begin
       fWalker.SetActionWalkToSpot(fWalkTo,GetActionType,fWalkToSpot);

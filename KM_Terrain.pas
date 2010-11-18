@@ -1530,6 +1530,12 @@ begin
   //See if the tile in the direction matches pass and walk connect and has no units on it
   //(stops low-priority troops that can't reach destination from pushing troops that can)
   //@Lewin: Could you please clarify the purpose and use of that "no pushing" rule?
+  //@Krom: The reason why we do not accept tiles with ANY unit on it is because this function is only
+  //       used for warriors in a group which are unable to stand on their target. (e.g. it's a mountain)
+  //       As these troops are low priority (KaM does not make them walk at all) we don't really mind
+  //       where they get put, and they shouldn't bump group members that can reach their target every
+  //       time they are told to reposition. They should get as close as possible without pushing other units.
+  //       Can you please make sure this is what the code does and tidy this up into a comment for future reference?
   for i:=0 to 255 do begin
     P := GetPositionFromIndex(TargetLoc, i);
     if not fTerrain.TileInMapCoords(P.X,P.Y) then continue;

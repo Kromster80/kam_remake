@@ -865,6 +865,7 @@ begin
     //@Krom: This occours 5 times because the animation does not change unlike other actions.
     //Can I move this to TTaskThrowRock or do you have a better idea?
     //@Lewin: Perhaps we can replace WorkID=2 with something else, but keep it here?
+    //@Krom: Sounds good to me, better to keep all house sounds in one place.
   end;
 end;
 
