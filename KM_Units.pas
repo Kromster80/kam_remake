@@ -1286,7 +1286,7 @@ end;
 
 
 //Approach house
-// Route will be made to House.Entrance, but will be Done as soon as we are at required range
+// Route will be made to House.Entrance, but will be Done as soon as we are at required range to any(!) side of the house
 procedure TKMUnit.SetActionWalkToHouse(aHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);

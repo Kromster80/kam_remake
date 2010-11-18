@@ -43,6 +43,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function GetPositionInGroup(OriginX, OriginY:integer; aDir:TKMDirection; PlaceX,PlaceY:integer):TKMPoint;
   function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer):TKMPoint;
+  function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
 
   function KMMapNameToPath(const aMapName, aExtension:string):string;
   function KMSlotToSaveName(aSlot:integer; const aExtension:string):string;
@@ -338,6 +339,45 @@ begin
   //GetClosestTile needs to know if the position is not the actual position in the formation
   Result.X := EnsureRange(ResultX, 1, MapX-1);
   Result.Y := EnsureRange(ResultY, 1, MapY-1);
+end;
+
+
+//See Docs\GetPositionFromIndex.xls for explanation
+function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
+const Rings:array[1..10] of word = (0, 1, 9, 25, 49, 81, 121, 169, 225, 289);
+var                        //Ring#  1  2  3  4   5   6   7    8    9    10
+  Ring, Span, Span2, Orig:byte;
+  Off1,Off2,Off3,Off4,Off5:byte;
+begin
+  //Quick solution
+  if aIndex=0 then begin
+    Result.X := aOrigin.X;
+    Result.Y := aOrigin.Y;
+    exit;
+  end;
+
+  //Find ring in which Index is located
+  Ring := 0;
+  repeat inc(Ring); until(Rings[Ring]>aIndex);
+  dec(Ring);
+
+  //Remember Ring span and half-span
+  Span := Ring*2-1;
+  Span2 := Ring;
+
+  //Find offset from Rings 1st item
+  Orig := aIndex - Rings[Ring];
+
+  //Find Offset values in each span
+  Off1 := min(Orig,Span2); dec(Orig,Off1);
+  Off2 := min(Orig,Span);  dec(Orig,Off2);
+  Off3 := min(Orig,Span);  dec(Orig,Off3);
+  Off4 := min(Orig,Span);  dec(Orig,Off4);
+  Off5 := min(Orig,Span2-1); //dec(Orig,Off5);
+
+  //Compute result
+  Result.X := aOrigin.X + Off1 - Off3 + Off5;
+  Result.Y := aOrigin.Y - Span2 + Off2 - Off4;
 end;
 
 

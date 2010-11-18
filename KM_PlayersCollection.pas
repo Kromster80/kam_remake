@@ -234,43 +234,26 @@ end;
 {Should return closest position where unit can be placed}
 function TKMAllPlayers.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
 var
-  aPass:TPassability; //temp for required passability
-  Span:integer; //Span length
-  X,Y:integer; //Temp position
-  mDir:TMoveDirection; //Direction to test
   i:integer;
-  function TryOut(aX,aY:integer):boolean;
-  begin
-    Result:= fTerrain.TileInMapCoords(aX,aY) and fTerrain.CheckPassability(KMPoint(aX,aY),aPass) and (not fTerrain.HasUnit(KMPoint(aX,aY)));
-  end;
+  P:TKMPointI;
+  T:TKMPoint;
+  aPass:TPassability; //temp for required passability
 begin
   if aUnitType in [ut_Wolf..ut_Duck] then
-    aPass:=AnimalTerrain[byte(aUnitType)]
+    aPass := AnimalTerrain[byte(aUnitType)]
   else
-    aPass:=canWalk;
+    aPass := canWalk;
 
-  if TryOut(PosX,PosY) then begin
-    Result:=KMPoint(PosX,PosY);
+  for i:=0 to 255 do begin
+    P := GetPositionFromIndex(KMPoint(PosX,PosY), i);
+    if not fTerrain.TileInMapCoords(P.X,P.Y) then continue;
+    T := KMPoint(P.X,P.Y);
+    if not fTerrain.CheckPassability(T, aPass) or fTerrain.HasUnit(T) then continue;
+    Result := T; //Assign if all test are passed
     exit;
   end;
 
-  //Should swirl around input point
-  Span:=1; X:=PosX; Y:=PosY; mDir:=TMoveDirection(3);
-  repeat
-    mDir:=TMoveDirection((byte(mDir)+1)mod 4); //wrap around
-    case mDir of
-      mdPosX: for i:=X+1 to     X+Span do begin inc(X); if TryOut(X,Y) then break; end;
-      mdPosY: for i:=Y+1 to     Y+Span do begin inc(Y); if TryOut(X,Y) then break; end;
-      mdNegX: for i:=X-1 downto X-Span do begin dec(X); if TryOut(X,Y) then break; end;
-      mdNegY: for i:=Y-1 downto Y-Span do begin dec(Y); if TryOut(X,Y) then break; end;
-    end;
-    if mDir in [mdPosY,mdNegY] then inc(Span); //increase span every second turn
-  until(TryOut(X,Y) or (Span=SWIRL_AROUND_MAX)); //Catch the end
-
-  if TryOut(X,Y) then //Catch the case with Span=SWIRL_AROUND_MAX and TryOut(X,Y)
-    Result:=KMPoint(X,Y)
-  else
-    Result:=KMPoint(0,0);
+  Result := KMPoint(0,0); //if function fails to find valid position
 end;
 
 

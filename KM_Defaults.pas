@@ -414,10 +414,6 @@ const FlagYOffset: array[15..24] of shortint = (
 const AnimalTerrain: array[31..38] of TPassability = (
     canWolf, canFish, canFish, canFish, canCrab, canFish, canFish, canFish);
 
-//Direction order used in unit placement, makes swirl around input point
-type TMoveDirection = (mdPosX=0, mdPosY=1, mdNegX=2, mdNegY=3);
-const SWIRL_AROUND_MAX = 12; //How many turns we can make before giving up
-
 type TGoInDirection = (gd_GoInside=1, gd_GoOutside=-1); //Switch to set if unit goes into house or out of it
 
 type //Army_Flag=4962,

@@ -104,11 +104,13 @@ end;
 
 
 //Check that tile is walkable and there's no unit blocking it or that unit can be pushed away
+//Serfs should not walk out of the house on to offroad tiles, cos then they will have trouble
+//building their route to destination via GetClosestTile which will compare WalkConnect
 function TUnitActionGoInOut.ValidTileToGo(LocX, LocY:word; WalkUnit:TKMUnit):boolean; //using X,Y looks more clear
 var aUnit:TKMUnit;
 begin
   Result := fTerrain.TileInMapCoords(LocX, LocY)
-        and (fTerrain.CheckPassability(KMPoint(LocX, LocY), WalkUnit.GetDesiredPassability(true)));
+        and (fTerrain.CheckPassability(KMPoint(LocX, LocY), WalkUnit.GetDesiredPassability));
 
   if not Result then exit;
 

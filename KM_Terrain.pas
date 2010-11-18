@@ -1510,24 +1510,14 @@ end;
 
 
 //Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
-//todo 1: This function is faulty! (1st it should not check for IsUnit, second it should not break when
-//        Serf stands off-road and wants to go to a building site on-road (walkconnect mismatch!))
+//todo 1: Serf stands off-road and wants to go to a building site on-road (walkconnect mismatch!))
 function TTerrain.GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
-
-  function GetPointInDir(aDir:byte; aDist:integer):TKMPoint;
-    const XBitField: array[0..7] of smallint = (0,  1,1,1,0,-1,-1,-1);
-          YBitField: array[0..7] of smallint = (-1,-1,0,1,1, 1, 0,-1);
-  begin
-    //If it is < 0 set it to 0 so that TileInMapCoords will disallow it
-    Result.X := max(TargetLoc.X+(aDist*XBitField[aDir]),0);
-    Result.Y := max(TargetLoc.Y+(aDist*YBitField[aDir]),0);
-  end;
-
 var
-  Dist, WalkConnectID: integer;
-  Dir:byte;
+  i:integer;
+  P:TKMPointI;
+  T:TKMPoint;
+  WalkConnectID: integer;
   wcType: TWalkConnect;
-  IsMapEdge: boolean;
 begin
   case aPass of
     canWalkRoad: wcType := wcRoad;
@@ -1535,41 +1525,24 @@ begin
     else         wcType := wcWalk; //canWalk is default
   end;
 
-  //Special case for edge of map. If it is passed the edge of the map coordinates will be 0.
-  //It is used to decide whether to allow the position they were going to use anyway, (LocA) because it is not the originally requested position.
-  IsMapEdge := false;
-  if (TargetLoc.X = 0) then
-  begin
-    TargetLoc.X := 1;
-    IsMapEdge := true;
-  end;
-  if (TargetLoc.Y = 0) then
-  begin
-    TargetLoc.Y := 1;
-    IsMapEdge := true;
-  end;
-
   WalkConnectID := Land[OriginLoc.Y,OriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
 
-  if CheckPassability(TargetLoc,aPass)
-     and (WalkConnectID = Land[TargetLoc.Y,TargetLoc.X].WalkConnect[wcType])
-     and ((not IsMapEdge) or (IsMapEdge and ((not HasUnit(TargetLoc)) or KMSamePoint(TargetLoc,OriginLoc)))) then
-  begin
-    Result := TargetLoc; //Target is ok
-    exit;
+  //See if the tile in the direction matches pass and walk connect and has no units on it
+  //(stops low-priority troops that can't reach destination from pushing troops that can)
+  //@Lewin: Could you please clarify the purpose and use of that "no pushing" rule?
+  for i:=0 to 255 do begin
+    P := GetPositionFromIndex(TargetLoc, i);
+    if not fTerrain.TileInMapCoords(P.X,P.Y) then continue;
+    T := KMPoint(P.X,P.Y);
+    if fTerrain.CheckPassability(T, aPass)
+      and (WalkConnectID = Land[T.Y,T.X].WalkConnect[wcType])
+      //and (not fTerrain.HasUnit(T) or KMSamePoint(T,OriginLoc)) //Allow position we are currently on
+    then begin
+      Result := T; //Assign if all test are passed
+      exit;
+    end;
   end;
 
-  for Dist := 1 to 255 do //Do a circular check with a 255 radius
-    for Dir := 0 to 7 do
-    begin
-      //See if the tile in the direction matches pass and walk connect and has no units on it (stops low-priority troops that can't reach destination from pushing troops that can)
-      Result := GetPointInDir(Dir,Dist);
-      if TileInMapCoords(Result.X,Result.Y) then
-        if CheckPassability(Result,aPass) and
-          (WalkConnectID = Land[Result.Y,Result.X].WalkConnect[wcType]) and
-          ((not HasUnit(Result)) or KMSamePoint(Result,OriginLoc)) then //Allow position we are currently on
-          exit; //We have found it so exit
-    end;
   Result := KMPoint(0,0); //If we don't find one, set to invalid (error)
 end;
 

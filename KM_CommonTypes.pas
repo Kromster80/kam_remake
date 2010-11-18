@@ -8,6 +8,7 @@ type
   TKMPoint = record X,Y:word; end;
   TKMPointDir = record Loc:TKMPoint; Dir:word; end;
   TKMPointF = record X,Y:single; end;
+  TKMPointI = record X,Y:integer; end; //Allows negative values
 
 type
   TNotifyString = procedure(Sender: TObject; aText:string) of object;
