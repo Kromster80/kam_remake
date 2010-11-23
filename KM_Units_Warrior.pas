@@ -20,7 +20,7 @@ type //Possibly melee warrior class? with Archer class separate?
     fFoe:TKMUnitWarrior; //An enemy unit which is currently in combat with one of our memebers (commander use only!) Use only public Foe property!
     fUnitsPerRow:integer;
     fMembers:TList;
-    function RePosition: boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
+    function RePosition():boolean; //Used by commander to check if troops are standing in the correct position. If not this will tell them to move and return false
     procedure SetUnitsPerRow(aVal:integer);
     procedure UpdateHungerMessage();
 
@@ -259,7 +259,7 @@ begin
 end;
 
 
-function TKMUnitWarrior.RePosition: boolean;
+function TKMUnitWarrior.RePosition():boolean;
 var ClosestTile:TKMPoint;
 begin
   Result := true;
@@ -364,7 +364,7 @@ begin
   MultipleTypes := false;
   NewCommander  := nil; //init
   for i := 0 to fMembers.Count-1 do
-    if TKMUnitWarrior(fMembers.Items[i]).GetUnitType <> fUnitType then
+    if TKMUnitWarrior(fMembers.Items[i]).UnitType <> fUnitType then
     begin
       MultipleTypes := true;
       NewCommander := TKMUnitWarrior(fMembers.Items[i]); //New commander is first unit of different type, for simplicity
@@ -386,7 +386,7 @@ begin
   for i := 0 to fMembers.Count-1 do
   begin
     //Either split evenly, or when there are multiple types, split if they are different to the commander (us)
-    if (MultipleTypes and(TKMUnitWarrior(fMembers.Items[i-DeletedCount]).GetUnitType <> fUnitType)) or
+    if (MultipleTypes and(TKMUnitWarrior(fMembers.Items[i-DeletedCount]).UnitType <> fUnitType)) or
       ((not MultipleTypes)and(i-DeletedCount >= fMembers.Count div 2)) then
     begin
       NewCommander.AddMember(fMembers.Items[i-DeletedCount]); //Join new commander
@@ -548,7 +548,7 @@ begin
   begin
     FoundUnit := fPlayers.Player[byte(fOwner)].UnitsHitTest(aLoc.X+i, aLoc.Y+k);
     if (FoundUnit is TKMUnitWarrior) and
-       (FoundUnit.GetUnitType = GetUnitType) then //For initial linking they must be the same type, not just same group type
+       (FoundUnit.UnitType = UnitType) then //For initial linking they must be the same type, not just same group type
     begin
       Result := TKMUnitWarrior(FoundUnit);
       exit;
@@ -841,7 +841,10 @@ begin
     if GetUnitAction.StepDone and CanInterruptAction then
     begin
       if GetUnitTask <> nil then FreeAndNil(fUnitTask);
-      SetActionWalkToSpot(fOrderLoc.Loc, ua_Walk, 0, fCommander <> nil);
+      if fCommander = nil then
+        SetActionWalkToSpot(fOrderLoc.Loc)
+      else
+        SetActionWalkToNear(fOrderLoc.Loc);
       fOrder := wo_None;
       fState := ws_Walking;
     end;
@@ -935,29 +938,29 @@ end;
 
 procedure TKMUnitWarrior.Paint();
 var
-  UnitType, AnimAct, AnimDir, TeamColor:byte;
+  UnitTyp, AnimAct, AnimDir, TeamColor:byte;
   XPaintPos, YPaintPos: single;
   i:integer;
   UnitPosition: TKMPoint;
 begin
 Inherited;
   if not fVisible then exit;
-  UnitType := byte(fUnitType);
+  UnitTyp  := byte(fUnitType);
   AnimAct  := byte(fCurrentAction.GetActionType); //should correspond with UnitAction
   AnimDir  := byte(Direction);
 
   XPaintPos := fPosition.X + 0.5 + GetSlide(ax_X);
   YPaintPos := fPosition.Y + 1   + GetSlide(ax_Y);
 
-  fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
+  fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
   if (fCommander=nil) and not IsDeadOrDying then begin
     //todo: Fix flag offsets
     //XPaintPos := XPaintPos + FlagXOffset[UnitType]/CELL_SIZE_PX;
-    YPaintPos := YPaintPos + FlagYOffset[UnitType]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)
+    YPaintPos := YPaintPos + FlagYOffset[UnitTyp]/CELL_SIZE_PX; //@Lewin: Feel free to tweak FlagHeight, needs also Xoffset depending on direction (E/W)
     TeamColor := byte(fOwner);
     if (fPlayers.Selected is TKMUnitWarrior) and (TKMUnitWarrior(fPlayers.Selected).GetCommander = Self) then TeamColor := byte(play_animals); //Highlight with White color
-    fRender.RenderUnitFlag(UnitType,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);
+    fRender.RenderUnitFlag(UnitTyp,   9, AnimDir, fFlagAnim, TeamColor, XPaintPos, YPaintPos, false);
   end;
 
   if fThought<>th_None then
@@ -969,14 +972,8 @@ Inherited;
     UnitPosition := GetPositionInGroup2(GetPosition.X, GetPosition.Y, Direction, i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY);
     XPaintPos := UnitPosition.X + 0.5; //MapEd units don't have sliding anyway
     YPaintPos := UnitPosition.Y + 1  ;
-    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
+    fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
   end;
-
-  if SHOW_UNIT_ROUTES then
-    if fCurrentAction is TUnitActionWalkTo then
-      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
-                                   TUnitActionWalkTo(fCurrentAction).NodePos,
-                                   $FF00FFFF);
 end;
 
 

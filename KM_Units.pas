@@ -64,6 +64,7 @@ type
 
   TKMUnit = class(TObject)
   protected
+    fID:integer; //unique unit ID, used for save/load to sync to
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
@@ -81,12 +82,12 @@ type
     fCurrPosition: TKMPoint; //Where we are now
     fPrevPosition: TKMPoint; //Where we were
     fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
-    procedure SetAction(aAction: TUnitAction; aStep:integer);
+    procedure SetAction(aAction: TUnitAction; aStep:integer=0);
   public
-    ID:integer; //unique unit ID, used for save/load to sync to
     AnimStep: integer;
     Direction: TKMDirection;
     IsExchanging:boolean; //Current walk is an exchange, used for sliding
+    property ID:integer read fID;
     property PrevPosition: TKMPoint read fPrevPosition;
     property NextPosition: TKMPoint read fNextPosition;
   public
@@ -111,10 +112,13 @@ type
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); virtual;
     procedure SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
     procedure SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
+
+    procedure SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aWalkToSpot:byte; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
     procedure SetActionWalkToHouse(aHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk); overload;
     procedure SetActionWalkToUnit(aUnit:TKMUnit; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk); overload;
-    procedure SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aWalkToNear:boolean=false); overload;
+    procedure SetActionWalkToSpot(aLocB:TKMPoint; aWalkToSpot:byte=0; aActionType:TUnitActionType=ua_Walk); overload;
     procedure SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+    procedure SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 
     procedure Feed(Amount:single);
     procedure AbandonWalk;
@@ -125,7 +129,7 @@ type
     property GetUnitAction: TUnitAction read fCurrentAction;
     property GetUnitTask: TUnitTask read fUnitTask;
     property SetUnitTask: TUnitTask write fUnitTask;
-    property GetUnitType: TUnitType read fUnitType;
+    property UnitType: TUnitType read fUnitType;
     function GetUnitTaskText():string;
     function GetUnitActText():string;
     property GetCondition: integer read fCondition;
@@ -300,36 +304,30 @@ end;
 
 
 procedure TKMUnitCitizen.Paint();
-var UnitType:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+var UnitTyp:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
-  inherited;
+  Inherited;
   if not fVisible then exit;
-  UnitType:=byte(fUnitType);
+  UnitTyp:=byte(fUnitType);
   AnimAct:=byte(fCurrentAction.fActionType);
   AnimDir:=byte(Direction);
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  if SHOW_UNIT_ROUTES then
-    if fCurrentAction is TUnitActionWalkTo then
-      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
-                                   TUnitActionWalkTo(fCurrentAction).NodePos,
-                                   $FF00FFFF);
-
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+        fRender.RenderUnit(UnitTyp,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
     end;
   end;
 
@@ -504,36 +502,30 @@ end;
 
 
 procedure TKMUnitRecruit.Paint();
-var UnitType:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+var UnitTyp:integer; AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
-  inherited;
+  Inherited;
   if not fVisible then exit;
-  UnitType:=byte(fUnitType);
+  UnitTyp:=byte(fUnitType);
   AnimAct:=byte(fCurrentAction.fActionType);
   AnimDir:=byte(Direction);
 
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  if SHOW_UNIT_ROUTES then
-    if fCurrentAction is TUnitActionWalkTo then
-      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,
-                                   TUnitActionWalkTo(fCurrentAction).NodePos,
-                                   $FF00FFFF);
-
   case fCurrentAction.fActionType of
   ua_Walk:
     begin
-      fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
       if ua_WalkArm in UnitSupportedActions[fUnitType] then
-        fRender.RenderUnit(UnitType,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+        fRender.RenderUnit(UnitTyp,       9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
     end;
   ua_Work..ua_Eat:
-      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
   ua_WalkArm .. ua_WalkBooty2:
     begin
-      fRender.RenderUnit(UnitType,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
-      fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+      fRender.RenderUnit(UnitTyp,       1, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+      fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
     end;
   end;
 
@@ -647,7 +639,7 @@ end;
 procedure TKMUnitSerf.Paint();
 var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
-  inherited;
+  Inherited;
   if not fVisible then exit;
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
@@ -655,18 +647,14 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  if SHOW_UNIT_ROUTES then
-    if fCurrentAction is TUnitActionWalkTo then
-      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFF00FF);
-
-  fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
+  fRender.RenderUnit(byte(UnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry<>rt_None then
     fRender.RenderUnitCarry(integer(Carry), AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos)
   else
-    fRender.RenderUnit(byte(GetUnitType), 9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
+    fRender.RenderUnit(byte(UnitType), 9, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos,false);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -740,12 +728,8 @@ end;
 procedure TKMUnitWorker.Paint();
 var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
 begin
-  inherited;
+  Inherited;
   if not fVisible then exit;
-
-  if SHOW_UNIT_ROUTES then
-    if fCurrentAction is TUnitActionWalkTo then
-      fRender.RenderDebugUnitRoute(TUnitActionWalkTo(fCurrentAction).NodeList,TUnitActionWalkTo(fCurrentAction).NodePos,$FFFFFFFF);
 
   AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
   AnimDir:=integer(Direction);
@@ -753,7 +737,7 @@ begin
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(byte(GetUnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
+  fRender.RenderUnit(byte(UnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -864,7 +848,7 @@ begin
   fCurrPosition := KMPointRound(fPosition);
 
   //First make sure the animal isn't stuck (check passibility of our position)
-  if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(GetUnitType)]) then begin
+  if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(UnitType)]) then begin
     KillUnit; //Animal is stuck so it dies
     exit;
   end;
@@ -873,7 +857,7 @@ begin
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot := fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
-  until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(GetUnitType)],0, false)));
+  until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(UnitType)],0, false)));
 
   if KMSamePoint(GetPosition,Spot) then
     SetActionStay(20, ua_Walk)
@@ -901,6 +885,7 @@ end;
 constructor TKMUnit.Create(const aOwner:TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited Create;
+  fID           := fGame.GetNewID;
   fPointerCount := 0;
   fIsDead       := false;
   fThought      := th_None;
@@ -916,7 +901,6 @@ begin
   Direction     := dir_S;
   fVisible      := true;
   IsExchanging  := false;
-  ID            := fGame.GetNewID;
   AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 3/4 to full.
   //This means that they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
@@ -1002,7 +986,7 @@ begin
   LoadStream.Read(fIsDead);
   LoadStream.Read(IsExchanging);
   LoadStream.Read(fPointerCount);
-  LoadStream.Read(ID);
+  LoadStream.Read(fID);
   LoadStream.Read(AnimStep);
   LoadStream.Read(Direction, SizeOf(Direction));
   LoadStream.Read(fCurrPosition);
@@ -1093,7 +1077,7 @@ begin
     fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
 
   fThought := th_None; //Reset thought
-  SetAction(nil, 0); //Dispose of current action
+  SetAction(nil); //Dispose of current action
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
   fUnitTask := TTaskDie.Create(Self);
 end;
@@ -1154,8 +1138,7 @@ function TKMUnit.GetUnitActText():string;
 begin
   Result:=' - ';
   if fCurrentAction is TUnitActionWalkTo then
-    Result := TInteractionStatusNames[TUnitActionWalkTo(fCurrentAction).GetInteractionStatus]+': '
-             +TUnitActionWalkTo(fCurrentAction).Explanation;
+    Result := TUnitActionWalkTo(fCurrentAction).GetExplanation;
 end;
 
 
@@ -1176,7 +1159,7 @@ end;
 
 function TKMUnit.GetMaxHitPoints:byte;
 begin
-  if not (byte(GetUnitType) in [1..length(UnitStat)]) then
+  if not (byte(UnitType) in [1..length(UnitStat)]) then
     fGame.GameError(GetPosition, 'GetMaxHitPoints for wrong unit');
 
   Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints,0,255);
@@ -1219,25 +1202,23 @@ begin
 end;
 
 
-procedure TKMUnit.SetAction(aAction: TUnitAction; aStep:integer);
+//Assign the following Action to unit and set AnimStep
+procedure TKMUnit.SetAction(aAction: TUnitAction; aStep:integer=0);
 begin
   AnimStep := aStep;
   if aAction = nil then
   begin
     FreeAndNil(fCurrentAction);
-    Exit;
+    exit;
   end;
   if not (aAction.GetActionType in GetSupportedActions) then
   begin
-    Assert(false, 'Unit '+TypeToString(GetUnitType)+' was asked to do unsupported action');
+    Assert(false, 'Unit '+TypeToString(UnitType)+' was asked to do unsupported action');
     FreeAndNil(aAction);
     exit;
   end;
   if fCurrentAction <> aAction then
   begin
-{    if fCurrentAction.fActionType is TUnitActionWalkTo then begin
-      TUnitActionWalkTo(fCurrentAction).Explanation := 'Destroying'
-    end;}
     fCurrentAction.Free;
     fCurrentAction := aAction;
   end;
@@ -1250,13 +1231,13 @@ begin
     fGame.GameError(GetPosition, 'Unit fight overrides walk');
     exit;
   end;
-  SetAction(TUnitActionFight.Create(aAction, aOpponent, Self),0);
+  SetAction(TUnitActionFight.Create(aAction, aOpponent, Self));
 end;
 
 
 procedure TKMUnit.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse);
 begin
-  SetAction(TUnitActionGoInOut.Create(aAction, aGoDir, aHouse),0);
+  SetAction(TUnitActionGoInOut.Create(aAction, aGoDir, aHouse));
 end;
 
 
@@ -1285,6 +1266,14 @@ begin
 end;
 
 
+//WalkTo action with exact options (retranslated from WalkTo if Obstcale met)
+procedure TKMUnit.SetActionWalk(aLocB:TKMPoint; aActionType:TUnitActionType; aWalkToSpot:byte; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
+begin
+  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aWalkToSpot, false, aWalkToNear, aTargetUnit, aTargetHouse));
+end;
+
+
 //Approach house
 // Route will be made to House.Entrance, but will be Done as soon as we are at required range to any(!) side of the house
 procedure TKMUnit.SetActionWalkToHouse(aHouse:TKMHouse; aWalkToSpot:byte; aActionType:TUnitActionType=ua_Walk);
@@ -1299,7 +1288,7 @@ begin
                                       true,               //WalkToNear
                                       nil,                //Unit
                                       aHouse              //House
-                                      ),0);
+                                      ));
 end;
 
 
@@ -1317,25 +1306,38 @@ begin
                                       false,              //WalkToNear
                                       aUnit,              //Unit
                                       nil                 //House
-                                      ),0);
+                                      ));
 end;
 
 
 //Walk to spot
-procedure TKMUnit.SetActionWalkToSpot(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk; aWalkToSpot:byte=0; aWalkToNear:boolean=false);
+procedure TKMUnit.SetActionWalkToSpot(aLocB:TKMPoint; aWalkToSpot:byte=0; aActionType:TUnitActionType=ua_Walk);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then
     Assert(false);
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aWalkToSpot, false, aWalkToNear, nil, nil),0);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, aWalkToSpot, false, false, nil, nil));
 end;
 
 
 //We were pushed (walk to spot with wider Passability)
 procedure TKMUnit.SetActionWalkPushed(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
 begin
-  if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
+  //1. Only idle units can be pushed, for they are low priority to busy units
+  //2. If unit can't get away it will re-push itself once again 
+  Assert(((GetUnitAction is TUnitActionStay) and (not GetUnitAction.Locked)) or
+         ((GetUnitAction is TUnitActionWalkTo) and TUnitActionWalkTo(GetUnitAction).CanAbandonExternal));
 
-  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, true, false, nil, nil),0);
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, true, false, nil, nil));
+  //Once pushed, unit will try to walk away, if he bumps into more units he will
+  //
+end;
+
+
+//Walk to spot neighbourhood
+procedure TKMUnit.SetActionWalkToNear(aLocB:TKMPoint; aActionType:TUnitActionType=ua_Walk);
+begin
+  Assert(Self is TKMUnitWarrior, 'True warriors don''t care ''bout exact location on reposition');
+  SetAction(TUnitActionWalkTo.Create(Self, aLocB, aActionType, 0, false, true, nil, nil));
 end;
 
 
@@ -1468,7 +1470,7 @@ begin
       begin
         //Position in a spiral nearest to center of house, updating IsUnit.
         fTerrain.UnitRem(GetPosition);
-        fPosition := KMPointF(fPlayers.FindPlaceForUnit(GetInHouse.GetPosition.X,GetInHouse.GetPosition.Y,GetUnitType));
+        fPosition := KMPointF(fPlayers.FindPlaceForUnit(GetInHouse.GetPosition.X,GetInHouse.GetPosition.Y,UnitType));
         fTerrain.UnitAdd(GetPosition);
         //Make sure these are reset properly
         IsExchanging := false;
@@ -1553,7 +1555,7 @@ begin
   SaveStream.Write(IsExchanging);
   SaveStream.Write(fPointerCount);
 
-  SaveStream.Write(ID);
+  SaveStream.Write(fID);
   SaveStream.Write(AnimStep);
   SaveStream.Write(Direction, SizeOf(Direction));
   SaveStream.Write(fCurrPosition);
@@ -1625,6 +1627,10 @@ begin
   end;
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
   //Unit always meant to have some Action performed.
+
+  if SHOW_UNIT_ROUTES then
+    if fCurrentAction is TUnitActionWalkTo then
+      TUnitActionWalkTo(fCurrentAction).Paint;
 
   if SHOW_POINTER_DOTS then
     fRender.RenderDebugUnitPointers(fPosition.X + 0.5 + GetSlide(ax_X), fPosition.Y + 1   + GetSlide(ax_Y), GetPointerCount);
@@ -1748,7 +1754,7 @@ begin
   Inherited Create;
   fActionName := uan_Unknown;
   fActionType := aActionType;
-  StepDone  := false;
+  StepDone    := false;
 end;
 
 
@@ -1832,16 +1838,14 @@ end;
 
 
 function TKMUnitsCollection.AddGroup(aOwner:TPlayerID;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
-var U:TKMUnit; Commander,W:TKMUnitWarrior; i,px,py:integer; UnitPosition:TKMPoint;
+var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint;
 begin
   aUnitPerRow := min(aUnitPerRow,aUnitCount); //Can have more rows than units
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
   begin
     for i:=1 to aUnitCount do
     begin
-      px := (i-1) mod aUnitPerRow - aUnitPerRow div 2;
-      py := (i-1) div aUnitPerRow;
-      UnitPosition := GetPositionInGroup(PosX, PosY, aDir, px, py);
+      UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY);
       U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
       if U<>nil then
       begin
@@ -1870,22 +1874,16 @@ begin
     exit;
   end;
 
-  for i:=1 to aUnitCount do begin
-    px := (i-1) mod aUnitPerRow - aUnitPerRow div 2;
-    py := (i-1) div aUnitPerRow;
-    UnitPosition := GetPositionInGroup(PosX, PosY, aDir, px, py);
-
-    if not ((UnitPosition.X = PosX)and(UnitPosition.Y = PosY)) then //Skip commander
+  for i:=2 to aUnitCount do begin //Commander already placed
+    UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY);
+    W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y)); //W will be _nil_ if unit didn't fit on map
+    if W<>nil then
     begin
-      W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y)); //W will be _nil_ if unit didn't fit on map
-      if W<>nil then
-      begin
-        fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
-        W.Direction := aDir;
-        W.fCommander := Commander;
-        W.fCondition := Commander.fCondition; //Whole group will have same condition
-        Commander.AddMember(W);
-      end;
+      fPlayers.Player[byte(aOwner)].CreatedUnit(aUnitType, false);
+      W.Direction := aDir;
+      W.fCommander := Commander;
+      W.fCondition := Commander.fCondition; //Whole group will have same condition
+      Commander.AddMember(W);
     end;
   end;
   Commander.UnitsPerRow := aUnitPerRow; //Must be set at the end AFTER adding members

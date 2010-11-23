@@ -1047,8 +1047,8 @@ begin
     exit;
   end;
   SwitchPage(Panel_Unit);
-  Label_UnitName.Caption:=TypeToString(Sender.GetUnitType);
-  Image_UnitPic.TexID:=520+byte(Sender.GetUnitType);
+  Label_UnitName.Caption:=TypeToString(Sender.UnitType);
+  Image_UnitPic.TexID:=520+byte(Sender.UnitType);
   KMConditionBar_Unit.Position:=EnsureRange(round(Sender.GetCondition / UNIT_MAX_CONDITION * 100),-10,110);
   if Sender is TKMUnitWarrior then
   begin
@@ -1062,7 +1062,7 @@ begin
   else
   begin
     //Citizen specific
-    Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType));
+    Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.UnitType));
     Label_UnitDescription.Show;
   end;
 end;

@@ -417,7 +417,7 @@ begin
                       begin
                         HitUnit  := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                         if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
-                           (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
+                           (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.UnitType)]) then
                           Screen.Cursor := c_JoinYes
                         else
                           Screen.Cursor := c_JoinNo;
@@ -552,7 +552,7 @@ begin
                   if (fPlayers.Selected is TKMUnit) then begin
                     fGamePlayInterface.ShowUnitInfo(TKMUnit(fPlayers.Selected));
                     if (fPlayers.Selected is TKMUnitWarrior) and (OldSelected <> fPlayers.Selected) then
-                      fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).GetUnitType, sp_Select);
+                      fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
                   end;
                 end;
               cm_Road:  if fTerrain.Land[P.Y,P.X].Markup = mu_RoadPlan then
@@ -606,7 +606,7 @@ begin
             begin
               HitUnit  := MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
               if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
-                 (UnitGroups[byte(HitUnit.GetUnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.GetUnitType)]) then
+                 (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.UnitType)]) then
               begin
                 fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyLink, HitUnit);
                 fGamePlayInterface.JoiningGroups := false;
@@ -657,7 +657,7 @@ begin
                     TKMHouse(fPlayers.Selected).SetPosition(P); //Can place is checked in SetPosition
 
                   if fPlayers.Selected is TKMUnit then
-                    if fTerrain.CanPlaceUnit(P, TKMUnit(fPlayers.Selected).GetUnitType) then
+                    if fTerrain.CanPlaceUnit(P, TKMUnit(fPlayers.Selected).UnitType) then
                       TKMUnit(fPlayers.Selected).SetPosition(P);
 
                 end

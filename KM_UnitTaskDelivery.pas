@@ -200,7 +200,7 @@ begin
             exit;
           end;
           //Worker
-          if (fToUnit.GetUnitType = ut_Worker)and(fToUnit.GetUnitTask<>nil) then
+          if (fToUnit.UnitType = ut_Worker)and(fToUnit.GetUnitTask<>nil) then
           begin
             fToUnit.GetUnitTask.Phase := fToUnit.GetUnitTask.Phase + 1;
             fToUnit.SetActionStay(0,ua_Work1); //Tell the worker to resume work
@@ -227,7 +227,7 @@ begin
               Self.Free; //After setting new unit task we should free self. Note do not set TaskDone:=true as this will affect the new task
               exit;
             end else //No delivery found then just walk back to our from house
-              SetActionWalkToSpot(KMPointY1(fFrom.GetEntrance),ua_Walk,5); //Don't walk to spot as it doesn't really matter
+              SetActionWalkToSpot(KMPointY1(fFrom.GetEntrance),5); //Don't walk to spot as it doesn't really matter
           end else
             SetActionStay(0,ua_Walk); //If we're not feeding a warrior then ignore this step
         end;

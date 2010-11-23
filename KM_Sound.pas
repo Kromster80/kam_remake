@@ -52,6 +52,7 @@ type
     procedure PlayWarrior(aUnitType:TUnitType; aSound:TSoundToPlay); overload;
     procedure Play(SoundID:TSoundFX; const Volume:single=1.0); overload;
     procedure Play(SoundID:TSoundFX; Loc:TKMPoint; const Attenuated:boolean=true; const Volume:single=1.0); overload;
+    procedure Paint();
 end;
 
 
@@ -330,6 +331,13 @@ begin
     fLog.AppendLog('Speech file not found for '+TypeToString(aUnitType)+' sound ID '+IntToStr(byte(aSound))+': '+wave);
   {$ENDIF}
 end;
+
+
+procedure TSoundLib.Paint();
+begin
+  //todo: Render sounds (names/positions/radiuses)
+end;
+
 
 
 end.

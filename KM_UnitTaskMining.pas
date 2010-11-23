@@ -103,7 +103,7 @@ begin
          exit;
        end;
        //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
-    1: SetActionWalkToSpot(WorkPlan.Loc, WorkPlan.WalkTo);
+    1: SetActionWalkToSpot(WorkPlan.Loc, 0, WorkPlan.WalkTo);
     2: begin //Before work tasks for specific mining jobs
          if WorkPlan.GatheringScript = gs_FisherCatch then
          begin
@@ -120,14 +120,14 @@ begin
          if WorkPlan.WorkDir <> -1 then
          begin
            Dir:=integer(WorkPlan.WorkDir+1);
-           if UnitSprite[byte(GetUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
+           if UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
              for Dir:=1 to 8 do
-               if UnitSprite[byte(GetUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
+               if UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
            Dir:=Math.min(Dir,8);
            Direction:=TKMDirection(Dir);
          end
          else Dir := byte(Direction); //Use direction from walk
-         TimeToWork:=WorkPlan.WorkCyc*Math.max(UnitSprite[byte(GetUnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
+         TimeToWork:=WorkPlan.WorkCyc*Math.max(UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
          SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
        end
        else
@@ -160,7 +160,7 @@ begin
     6: begin
          if WorkPlan.GatheringScript = gs_WoodCutterCut then
            fTerrain.ChopTree(WorkPlan.Loc); //Make the tree turn into a stump
-         SetActionWalkToSpot(KMPointY1(GetHome.GetEntrance), WorkPlan.WalkFrom); //Go home
+         SetActionWalkToSpot(KMPointY1(GetHome.GetEntrance), 0, WorkPlan.WalkFrom); //Go home
          Thought := th_Home;
        end;
     7: SetActionGoIn(WorkPlan.WalkFrom, gd_GoInside, GetHome); //Go inside

@@ -36,7 +36,7 @@ private
     AlphaStep:single; //Only appliable to HouseBuild
     FOWvalue:byte; // Fog of War thickness
   end;
-  
+
   procedure RenderDot(pX,pY:single; Size:single = 0.05);
   procedure RenderDotOnTile(pX,pY:single);
   procedure RenderLine(x1,y1,x2,y2:single);
@@ -75,7 +75,7 @@ public
   procedure RenderDebugWires(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitPointers(pX,pY:single; Count:integer);
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
-  procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
+  procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
   procedure RenderDebugQuad(pX,pY:integer);
   procedure RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
   procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
@@ -99,8 +99,8 @@ end;
 var
   fRender: TRender;
 
-implementation 
-uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game;
+implementation
+uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound;
 
 
 constructor TRender.Create(RenderFrame:HWND);
@@ -207,6 +207,9 @@ begin
     RenderRenderList();
 
     RenderCursorHighlights(); //Will be on-top
+
+    if DISPLAY_SOUNDS then
+      fSoundLib.Paint;
 
     RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm2D);
   end;
@@ -536,12 +539,19 @@ begin
 end;
 
 
-procedure TRender.RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; Col:TColor4);
+procedure TRender.RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
 var i,k:integer; x,y:single;
 begin
   if NodeList.Count = 0 then exit;
 
-  glColor4ubv(@Col);
+  case aUnitType of
+    1: glColor3f(1,0,0); //Serf
+    10: glColor3f(1,0,1); //Worker
+    15..30: glColor3f(0,1,0); //Army
+    31..38: glColor3f(0,0.5,0); //Animals
+    else glColor3f(1,1,0); //Citizens
+  end;
+  
   for i:=1 to NodeList.Count do
     RenderDotOnTile(NodeList.List[i].X+0.5,NodeList.List[i].Y+0.5);
 

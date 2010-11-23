@@ -562,7 +562,7 @@ begin
   for i:=1 to length(fDemand) do if fDemand[i].Resource<>rt_None then begin
     s:=s+#9;
     if fDemand[i].Loc_House<>nil then s:=s+TypeToString(fDemand[i].Loc_House.GetHouseType)+#9+#9;
-    if fDemand[i].Loc_Unit<>nil then s:=s+TypeToString(fDemand[i].Loc_Unit.GetUnitType)+#9+#9;
+    if fDemand[i].Loc_Unit<>nil then s:=s+TypeToString(fDemand[i].Loc_Unit.UnitType)+#9+#9;
     s:=s+TypeToString(fDemand[i].Resource);
     if fDemand[i].Importance=di_High then s:=s+'^';
     s:=s+eol;

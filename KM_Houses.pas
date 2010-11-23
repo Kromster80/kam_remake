@@ -811,12 +811,17 @@ begin
   if fCurrentAction = nil then exit; //no action means no sound ;)
 
   WorkID := fCurrentAction.GetWorkID;
-
   if WorkID=0 then exit;
 
-  Step:=HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
+  Step := HouseDAT[byte(fHouseType)].Anim[WorkID].Count;
   if Step=0 then exit;
-  Step:=WorkAnimStep mod Step;
+
+  //WatchTower has only 1 anim frame at Work2, hence it repeats the sound each frame
+  //any value MOD 1 = 0
+  //We override it by localy setting AnimCount to 100, so only first frame gets sound
+  if fHouseType = ht_WatchTower then Step := 100;
+
+  Step := WorkAnimStep mod Step;
 
   case fHouseType of //Various buildings and HouseActions producing sounds
     ht_School:        if (WorkID = 5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
@@ -862,10 +867,6 @@ begin
                       else if (WorkID = 3)and(Step in [9,21]) then fSoundLib.Play(sfx_SausageString,GetPosition);
     ht_Swine:         if ((WorkID = 2)and(Step in [10,20]))or((WorkID = 3)and(Step = 1)) then fSoundLib.Play(sfx_ButcherCut,GetPosition);
     ht_WatchTower:    if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_RockThrow,GetPosition);
-    //@Krom: This occours 5 times because the animation does not change unlike other actions.
-    //Can I move this to TTaskThrowRock or do you have a better idea?
-    //@Lewin: Perhaps we can replace WorkID=2 with something else, but keep it here?
-    //@Krom: Sounds good to me, better to keep all house sounds in one place.
   end;
 end;
 

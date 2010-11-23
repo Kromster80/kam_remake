@@ -143,8 +143,13 @@ begin
       for y:=max(MinCost.Pos.Y-1,1) to min(MinCost.Pos.Y+1, fTerrain.MapY-1) do
       for x:=max(MinCost.Pos.X-1,1) to min(MinCost.Pos.X+1, fTerrain.MapX-1) do
         if fTerrain.CanWalkDiagonaly(MinCost.Pos,KMPoint(x,y)) then
-        if (not IsInteractionAvoid) or (fTerrain.Land[y,x].Markup <> mu_UnderConstruction) then //If we are in InteractionAvoid mode then don't use tiles with workers on them (under contstruction)
-        //todo 1: Check for Locked units instead (TUnitActionStay.Locked=true) and walk around them if we don't want to disturb them. But e.g. melee warriors might ignore this and fight their way through enemies
+        //If we are in InteractionAvoid mode then don't use tiles with workers on them (under contstruction)
+        //also would be good to avoid other tiles with Locked units, but that requires reworking
+        //Unit HitTest methods (they are really slow atm)
+        if (not IsInteractionAvoid) or (fTerrain.Land[y,x].Markup <> mu_UnderConstruction) then
+        //todo: Check for Locked units instead (TUnitActionStay.Locked=true) and walk around them
+        //if we don't want to disturb them. But e.g. melee warriors might ignore this and fight
+        //their way through enemies
         //if (not IsInteractionAvoid) or (not (fTerrain.Land[y,x].IsUnit<>0)) then
 
         if ORef[y,x]=0 then

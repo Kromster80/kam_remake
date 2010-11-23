@@ -155,10 +155,6 @@ begin
   //    9 8 12
 
   //Keys
-  //@Krom: Smooth scrolling isn't actually that smooth, it sort of hurts my eyes. Do we need vsync or something?
-  //@Lewin: I did smoothed it by averaging from previous frames times. It's LCD display problem, they can't move contrast data without flickering :(
-  //@Krom: In most games turning VSync on fixes most flickering because the frames are in sync with the LCD. (we can leave it as an option for people)
-  //       Worth trying in case that is the problem. I don't know if that's hard to implement though... if so don't worry it's pretty good :)
   if ScrollKeyLeft  then XCoord := XCoord - ScrollAdv;
   if ScrollKeyUp    then YCoord := YCoord - ScrollAdv;
   if ScrollKeyRight then XCoord := XCoord + ScrollAdv;

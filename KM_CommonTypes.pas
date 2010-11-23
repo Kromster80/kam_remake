@@ -27,6 +27,7 @@ type
     function Write(const Value:boolean): Longint; reintroduce; overload;
     function Write(const Value:word): Longint; reintroduce; overload;
     function Write(const Value:shortint): Longint; reintroduce; overload;
+
     procedure Read(out Value:string); reintroduce; overload;
     function Read(out Value:TKMPoint): Longint; reintroduce; overload;
     function Read(out Value:single): Longint; reintroduce; overload;
@@ -274,7 +275,6 @@ begin
   Inherited Write(i, SizeOf(i));
   Inherited Write(Value[1], i);
 end;
-
 
 function TKMemoryStream.Write(const Value:TKMPoint): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;

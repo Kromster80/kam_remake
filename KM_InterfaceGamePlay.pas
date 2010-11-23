@@ -489,7 +489,7 @@ begin
     if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, canWalk, 0, false) then
     begin
       fGame.fGameInputProcess.CmdArmy(TKMUnitWarrior(GetShownUnit), gic_ArmyWalk, KMP);
-      fSoundLib.PlayWarrior(GetShownUnit.GetUnitType, sp_Move);
+      fSoundLib.PlayWarrior(GetShownUnit.UnitType, sp_Move);
     end;
 end;
 
@@ -1467,8 +1467,8 @@ begin
     exit;
   end;
   SwitchPage(Panel_Unit);
-  Label_UnitName.Caption:=TypeToString(Sender.GetUnitType);
-  Image_UnitPic.TexID:=520+byte(Sender.GetUnitType);
+  Label_UnitName.Caption:=TypeToString(Sender.UnitType);
+  Image_UnitPic.TexID:=520+byte(Sender.UnitType);
   ConditionBar_Unit.Position:=EnsureRange(round(Sender.GetCondition / UNIT_MAX_CONDITION * 100),-10,110);
   if Sender.GetHome<>nil then
     Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText
@@ -1494,12 +1494,12 @@ begin
       SetArmyControlsActive(Commander.Foe = nil);
       Button_Army_Split.Enabled := (Commander.GetMemberCount > 0)and(Commander.Foe = nil);
     end;
-    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.GetUnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
+    Button_Army_Storm.Enabled := (UnitGroups[integer(Sender.UnitType)] = gt_Melee)and(Commander.Foe = nil); //Only melee groups may charge
   end
   else
   begin
     //Citizen specific
-    Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.GetUnitType));
+    Label_UnitDescription.Caption := fTextLibrary.GetTextString(siUnitDescriptions+byte(Sender.UnitType));
     Label_UnitDescription.Show;
     Panel_Army.Hide;
     Panel_Army_JoinGroups.Hide;
@@ -1814,34 +1814,34 @@ begin
   if Sender = Button_Army_Stop    then
   begin
     fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, 0, 0);
-    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Halt);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_Halt);
   end;
   //if Sender = Button_Army_Attack  then ; //This command makes no sense unless player has no right-mouse-button
   if Sender = Button_Army_RotCW   then
   begin
     fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, -1, 0);
-    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_RotLeft);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_RotLeft);
   end;
   //if Sender = Button_Army_Storm   then ;
   if Sender = Button_Army_RotCCW  then
   begin
     fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, 1, 0);
-    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_RotRight);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_RotRight);
   end;
   if Sender = Button_Army_ForDown then
   begin
     fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, 0, 1);
-    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Formation);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_ForUp   then
   begin
     fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyHalt, 0, -1);
-    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Formation);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_Formation);
   end;
   if Sender = Button_Army_Split   then
   begin
     fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmySplit);
-    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Split);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_Split);
   end;
   if Sender = Button_Army_Join    then
   begin
@@ -1852,7 +1852,7 @@ begin
   if Sender = Button_Army_Feed    then 
   begin
     fGame.fGameInputProcess.CmdArmy(Commander, gic_ArmyFeed);
-    fSoundLib.PlayWarrior(Commander.GetUnitType, sp_Eat);
+    fSoundLib.PlayWarrior(Commander.UnitType, sp_Eat);
   end;
 end;
 

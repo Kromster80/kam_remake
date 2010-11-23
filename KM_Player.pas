@@ -621,7 +621,7 @@ begin
   with fUnits do
   begin
     for i:=0 to Count-1 do
-    if (fUnits.Items[i] <> nil) and (TKMUnit(fUnits.Items[i]).GetUnitType = ut_Fish) then
+    if (fUnits.Items[i] <> nil) and (TKMUnit(fUnits.Items[i]).UnitType = ut_Fish) then
     begin
       if fTerrain.Land[TKMUnit(fUnits.Items[i]).GetPosition.Y,TKMUnit(fUnits.Items[i]).GetPosition.X].WalkConnect[wcFish] = aWaterID then
         if TKMUnitAnimal(fUnits.Items[i]).fFishCount > HighestGroupCount then

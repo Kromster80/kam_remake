@@ -62,7 +62,7 @@ begin
   //Do not play sounds if unit is invisible to MyPlayer
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
 
-{  case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
+{  case KMUnit.UnitType of //Various UnitTypes and ActionTypes
     ut_Worker: case GetActionType of
                  ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
@@ -91,7 +91,7 @@ begin
   else
     Result := ActContinues;
 
-  Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+  Cycle := max(UnitSprite[byte(KMUnit.UnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
   Step  := KMUnit.AnimStep mod Cycle;
 
   KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Since opponent can walk
@@ -99,8 +99,8 @@ begin
   //Only hit unit on step 5
   if Step = 5 then
   begin
-    ut := byte(KMUnit.GetUnitType);
-    ot := byte(fOpponent.GetUnitType);
+    ut := byte(KMUnit.UnitType);
+    ot := byte(fOpponent.UnitType);
     Damage := UnitStat[ut].Attack; //Base damage
     if InRange(ot, low(UnitGroups), high(UnitGroups)) then
       Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus

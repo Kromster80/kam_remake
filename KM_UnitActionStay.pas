@@ -65,7 +65,7 @@ begin
   //Do not play sounds if unit is invisible to MyPlayer
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
 
-  case KMUnit.GetUnitType of //Various UnitTypes and ActionTypes
+  case KMUnit.UnitType of //Various UnitTypes and ActionTypes
     ut_Worker: case GetActionType of
                  ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
                  ua_Work1: if Step = 0 then fSoundLib.Play(sfx_Dig,KMUnit.GetPosition,true);
@@ -90,7 +90,7 @@ var Cycle,Step:byte;
 begin
   if not StayStill then
   begin
-    Cycle := max(UnitSprite[byte(KMUnit.GetUnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
+    Cycle := max(UnitSprite[byte(KMUnit.UnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
     Step  := KMUnit.AnimStep mod Cycle;
 
     StepDone := KMUnit.AnimStep mod Cycle = 0;

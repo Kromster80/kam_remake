@@ -82,6 +82,7 @@ var
   TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
   SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :boolean=true; //Render towers/archers attack radius
+  DISPLAY_SOUNDS        :boolean=true; //Display sounds on map
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm

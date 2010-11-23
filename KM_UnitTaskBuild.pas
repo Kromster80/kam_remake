@@ -447,10 +447,9 @@ begin
         SetActionLockedStay(22,ua_Work2,false);
       end;
       //Ask for 2 more wood now
-      //@Lewin: It's yet incomplete
     7: begin
         //Walk away from tile and continue building from the side
-        SetActionWalkToSpot(fTerrain.GetOutOfTheWay(fUnit.GetPosition,KMPoint(0,0),GetDesiredPassability));
+        SetActionLockedStay(11,ua_Work,false);
       end;
     8: begin
         //fTerrain.IncWallState(fLoc);

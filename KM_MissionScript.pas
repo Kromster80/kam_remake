@@ -932,13 +932,13 @@ begin
       begin
         if TKMUnitWarrior(CurUnit).fCommander = nil then //Parse only Commanders
         begin
-          AddCommand(ct_SetGroup,6,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1);
+          AddCommand(ct_SetGroup,6,GetUnitScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1,byte(CurUnit.Direction)-1,TKMUnitWarrior(CurUnit).UnitsPerRow,TKMUnitWarrior(CurUnit).fMapEdMembersCount+1);
           if CurUnit.GetCondition = UNIT_MAX_CONDITION then
             AddCommand(ct_SetGroupFood);
         end;
       end
       else
-        AddCommand(ct_SetUnit,3,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1);
+        AddCommand(ct_SetUnit,3,GetUnitScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1);
     end;
 
     AddData(''); //NL
@@ -952,7 +952,7 @@ begin
   for i:=0 to fPlayers.PlayerAnimals.GetUnits.Count-1 do
   begin
     CurUnit := fPlayers.PlayerAnimals.GetUnits.Items[i];
-    AddCommand(ct_SetUnit,3,GetUnitScriptID(CurUnit.GetUnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1);
+    AddCommand(ct_SetUnit,3,GetUnitScriptID(CurUnit.UnitType),CurUnit.GetPosition.X-1,CurUnit.GetPosition.Y-1);
   end;
   AddData(''); //NL
 

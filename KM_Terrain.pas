@@ -1300,7 +1300,7 @@ begin
 end;
 
 
-{Return random tile surrounding given one with aPass property except Loc2}
+{Return random tile surrounding Loc with aPass property except Loc2}
 {The command is used for unit interaction}
 function TTerrain.GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
 var i,k:integer; L1,L2,L3:TKMPointList; TempUnit: TKMUnit; Loc2IsOk: boolean;
@@ -1337,7 +1337,7 @@ begin
   if L2.Count<>0 then
     Result:=L2.GetRandom
   else
-  if Loc2IsOk then //If there are no free tiles then the unit that pushed us is a good option
+  if Loc2IsOk then //If there are no free tiles then the unit that pushed us is a good option (exchange?)
     Result:=Loc2
   else
   if L3.Count<>0 then
@@ -1352,6 +1352,7 @@ begin
   L2.Free;
   L3.Free;
 end;
+
 
 function TTerrain.FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
 var i,k:integer; L1,L2:TKMPointList;
@@ -1510,7 +1511,6 @@ end;
 
 
 //Returns the closest tile to TargetLoc with aPass and walk connect to OriginLoc
-//todo 1: Serf stands off-road and wants to go to a building site on-road (walkconnect mismatch!))
 function TTerrain.GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
 var
   i:integer;
@@ -1536,6 +1536,7 @@ begin
   //       where they get put, and they shouldn't bump group members that can reach their target every
   //       time they are told to reposition. They should get as close as possible without pushing other units.
   //       Can you please make sure this is what the code does and tidy this up into a comment for future reference?
+  //todo 1: Implement this, also tweak to return nearest reasonable position
   for i:=0 to 255 do begin
     P := GetPositionFromIndex(TargetLoc, i);
     if not fTerrain.TileInMapCoords(P.X,P.Y) then continue;

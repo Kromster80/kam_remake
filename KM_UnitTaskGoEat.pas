@@ -86,7 +86,7 @@ begin
    1: SetActionWalkToSpot(KMPointY1(fInn.GetEntrance));
    2: begin
         SetActionGoIn(ua_Walk,gd_GoInside,fInn); //Enter Inn
-        PlaceID := fInn.EaterGetsInside(GetUnitType);
+        PlaceID := fInn.EaterGetsInside(UnitType);
       end;
    3: //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
       //Bread    = +40%
