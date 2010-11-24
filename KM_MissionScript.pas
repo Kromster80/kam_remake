@@ -144,39 +144,41 @@ begin
 end;
 
 function TMissionParser.ReadMissionFile(aFileName:string):string;
-const ENCODED = true; //If false then files will be opened as text
 var
-  FileText: string;
-  i, k, NumRead: integer;
-  f: file;
-  c:array of char;
+  Encoded:boolean; //If false then files will be opened as text
+  i,k,Num,NumRead:integer;
+  f:file;
 begin
   if not CheckFileExists(aFileName) then exit;
 
   //Load and decode .DAT file into FileText
-  SetLength(c,1024000);
-  assignfile(f,aFileName); reset(f,1);
-  blockread(f,c[1],length(c),NumRead);
-  fLog.AssertToLog(NumRead<>length(c),'DAT file size is too big, can''t fit into buffer');
-  setlength(FileText,NumRead);
-  closefile(f);
+  AssignFile(f,aFileName); Reset(f,1);
+  NumRead := FileSize(f);
+  SetLength(Result,NumRead+1);
+  BlockRead(f,Result[1],NumRead);
+  CloseFile(f);
 
-  //todo: Detect whether mission is encoded so we can support decoded/encoded .DAT files
+  //Detect whether mission is encoded so we can support decoded/encoded .DAT files
+  //See how often certain chracters meet, take most common ones
+  Num := 0;
+  for i:=1 to NumRead do if Result[i] in [#9,#10,#13,'0'..'9',' ','!'] then inc(Num);
 
-  i:=1; k:=1;
-  repeat
-    if ENCODED then
-      FileText[k]:=chr(ord(c[i]) xor 239)
-    else
-      FileText[k]:=c[i];
-    if (FileText[k]=#9)or(FileText[k]=#10)or(FileText[k]=#13) then FileText[k]:=' ';
-    inc(i);
-    if (k>1)and(((FileText[k-1]=#32)and(FileText[k]=#32))or((FileText[k-1]='!')and(FileText[k]='!'))) then else
+  //Usually 30-50% of file is numerals/spaces, tested on KaM maps
+  Encoded := (Num/NumRead < 0.15); //so we take half of that as landmark
+
+  for i:=1 to NumRead do begin
+    if Encoded then Result[i] := chr(ord(Result[i]) xor 239);
+    if (Result[i] in [#9,#10,#13]) then Result[i] := #32;
+  end;
+
+  k:=1;
+  for i:=1 to NumRead do begin
+    Result[k] := Result[i];
+    if (k>1)and(((Result[k-1]+Result[k]=#32#32))or((Result[k-1]+Result[k]='!!'))) then else
     inc(k);
-  until(i>NumRead);
-  setlength(FileText,k); //Because some extra characters are removed
-  SetLength(c,0); //Clear the buffer to save RAM
-  Result := FileText;
+  end;
+
+  setlength(Result,k); //Because some extra characters were removed
 end;
 
 
@@ -251,6 +253,14 @@ begin
   until ((k>=length(FileText))
   //or((Result.MapPath<>'')and(Result.IsFight>=0)and(Result.TeamCount>=0)and(Result.HumanPlayerID>=0)) //Appeared it's more of a slowdown or no effect
   );
+
+  //todo: Count existing players
+  {ExistingPlayers := 0;
+  for i:=1 to fPlayers.PlayerCount do begin
+    with fPlayers.Player[i] do
+    if (GetHouses.Count + GetUnits.Count + GetFieldsCount > 0) then
+      inc(ExistingPlayers);
+  end;}
 end;
 
 
@@ -609,7 +619,6 @@ begin
                        //Save the attack to the AI assets
                        fPlayers.PlayerAI[CurrentPlayerIndex].AddAttack(AIAttack);
                      end;
-  //todo: To add: (are they used?)
   ct_EnablePlayer:   begin
                        //Serves no real purpose, all players have this command anyway
                      end;
@@ -715,38 +724,12 @@ var
 
   procedure AddCommandParam(aCommand:TKMCommandType; aComParam:TKMCommandParamType=cpt_Unknown; ParamCount:byte=0; aParam1:integer = 0; aParam2:integer = 0; aParam3:integer = 0);
   begin AddCommand(aCommand,ParamCount,aParam1,aParam2,aParam3,0,0,0,aComParam); end;
-
-var
-  ExistingPlayers:integer; //
-  PlayerExists:array[1..MAX_PLAYERS]of boolean;
 begin
   //Write out a KaM format mission file to aFileName
 
   //Put data into stream
   SaveString := '';
   CommandLayerCount := -1; //Some commands (road/fields) are layered so the file is easier to read (not so many lines)
-
-  if MAPED_STACK_PLAYERS then begin
-    //Count existing players
-    ExistingPlayers := 0;
-    for i:=1 to fPlayers.PlayerCount do begin
-      PlayerExists[i] := (fPlayers.Player[i].GetHouses.Count + fPlayers.Player[i].GetUnits.Count + fPlayers.Player[i].GetFieldsCount > 0);
-      if PlayerExists[i] then inc(ExistingPlayers);
-    end;
-
-    //StackPlayers (drop empty ones)
-    for i:=1 to fPlayers.PlayerCount do
-    if not PlayerExists[i] then
-      for k:=i+1 to fPlayers.PlayerCount do
-      if PlayerExists[k] then begin
-        //todo: Swap two players (incl. Alliances, PlayerID, PlayerType)
-        //fPlayers.Player[i] <-> fPlayers.Player[k];
-        //PlayerExists[i] := true;
-        //PlayerExists[k] := false;
-      end;
-
-    fPlayers.SetPlayerCount(ExistingPlayers);
-  end;
 
   //Main header, use same filename for MAP
   AddData('!'+COMMANDVALUES[ct_SetMap] + ' "data\mission\smaps\' + ExtractFileName(TruncateExt(aFileName)) + '.map"');

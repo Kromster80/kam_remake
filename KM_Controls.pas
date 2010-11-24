@@ -1159,7 +1159,7 @@ begin
 end;
 
 
-//todo: We can replace it with something better later on. For now [x] fits just fine
+//We can replace it with something better later on. For now [x] fits just fine
 //Might need additional graphics to be added to gui.rx
 //Some kind of box with an outline, darkened background and shadow maybe, similar to other controls.
 procedure TKMCheckBox.Paint();
