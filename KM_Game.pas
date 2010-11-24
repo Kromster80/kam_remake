@@ -120,7 +120,7 @@ begin
 
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic);
 
-  fCampaignSettings := TCampaignSettings.Create; //todo: Init from INI
+  fCampaignSettings := TCampaignSettings.Create;
   GameSpeed := 1;
   GameState := gsNoGame;
   SkipReplayEndCheck := false;

@@ -200,7 +200,7 @@ begin
       //If we are here then a citizen to train wasn't found, so try other unit types (citizens get top priority)
       //Serf factor is like this: Serfs = (10/FACTOR)*Total_Building_Count) (from: http://atfreeforum.com/knights/viewtopic.php?t=465)
       if (HS.UnitQueue[1] = ut_None) then //Still haven't found a match...
-        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.GetHouseQty(ht_None)), ut_Serf) then //todo: consider replacing with GetHouseCount
+        if not CheckUnitRequirements(Round((10/ReqSerfFactor)*Assets.GetHouseQty(ht_None)), ut_Serf) then
           if not CheckUnitRequirements(ReqWorkers, ut_Worker) then
             if fGame.CheckTime(RecruitTrainTimeout) then //Recruits can only be trained after this time
               CheckUnitRequirements(ReqRecruits, ut_Recruit);

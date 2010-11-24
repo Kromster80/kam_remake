@@ -250,9 +250,8 @@ begin
     end
     else
       inc(k);
-  until ((k>=length(FileText))
-  //or((Result.MapPath<>'')and(Result.IsFight>=0)and(Result.TeamCount>=0)and(Result.HumanPlayerID>=0)) //Appeared it's more of a slowdown or no effect
-  );
+  until (k>=length(FileText));
+  //Apparently it's faster to parse till file end than check if all details are filled
 
   //todo: Count existing players
   {ExistingPlayers := 0;

@@ -593,38 +593,20 @@ end;
 
 function TKMUnitRecruit.InitiateActivity():TUnitTask;
 var
-  i,k:integer;
-  FoundEnemy, BestEnemy:TKMUnit;
+  Enemy:TKMUnit;
 begin
   Result := nil;
   if (not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone)<=0) then exit; //Nothing to throw
-  BestEnemy := nil;
 
-  //Look for an enemy within some radius
-  //todo: optimize scanning procedure cos scanning 2pR tiles with UnitHitTest is very inefficient
-  for i:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
-  for k:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
-  if GetLength(i,k)<=RANGE_WATCHTOWER then begin
-    FoundEnemy := fPlayers.UnitsHitTest(GetPosition.X+k,GetPosition.Y+i);
-    if (FoundEnemy<>nil)and //Found someone
-       not(FoundEnemy.GetUnitTask is TTaskDie)and //not being killed already
-       (fPlayers.CheckAlliance(fOwner, FoundEnemy.GetOwner) = at_Enemy) //How do WE feel about enemy, not how they feel about us
-       then
-      begin
-        if BestEnemy=nil then BestEnemy := FoundEnemy; //Make sure we have in filled before further comparison
-        if GetLength(FoundEnemy.GetPosition,GetPosition) < GetLength(BestEnemy.GetPosition,GetPosition) then
-          BestEnemy := FoundEnemy;
-      end;
-  end;
-  //Choose closest one, to get best accuracy
+  Enemy := fPlayers.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, RANGE_WATCHTOWER, fOwner, at_Enemy);
 
-  //Notice: In actual game there might be two Towers nearby, both throwing a stone into the same enemy.
+  //Note: In actual game there might be two Towers nearby, both throwing a stone into the same enemy.
   //We should not negate that fact, thats real-life situation.
 
-  if BestEnemy = nil then
+  if Enemy = nil then
     Result := nil
   else
-    Result := TTaskThrowRock.Create(Self, BestEnemy);
+    Result := TTaskThrowRock.Create(Self, Enemy);
 end;
 
 
