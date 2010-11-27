@@ -43,7 +43,7 @@ type
     fMainMenuInterface: TKMMainMenuInterface;
     fGameplayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
-    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
+    constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
     destructor Destroy; override;
     procedure ToggleLocale();
     procedure ResizeGameArea(X,Y:integer);
@@ -95,7 +95,7 @@ uses
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
-constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
+constructor TKMGame.Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
 begin
   Inherited Create;
   ID_Tracker := 0;
@@ -106,7 +106,7 @@ begin
   ScreenY := aScreenY;
 
   fGlobalSettings := TGlobalSettings.Create;
-  fRender         := TRender.Create(RenderHandle);
+  fRender         := TRender.Create(RenderHandle, aVSync);
   fTextLibrary    := TTextLibrary.Create(ExeDir+'data\misc\', fGlobalSettings.GetLocale);
   fSoundLib       := TSoundLib.Create(fGlobalSettings.GetLocale); //Required for button click sounds
   fMusicLib       := TMusicLib.Create({$IFDEF WDC} aMediaPlayer {$ENDIF});
@@ -184,7 +184,7 @@ end;
 
 procedure TKMGame.ToggleFullScreen(aToggle:boolean; ReturnToOptions:boolean);
 begin
-  Form1.ToggleFullScreen(aToggle, fGlobalSettings.GetResolutionID, ReturnToOptions);
+  Form1.ToggleFullScreen(aToggle, fGlobalSettings.GetResolutionID, fGlobalSettings.IsVSync, ReturnToOptions);
 end;
 
 
@@ -469,16 +469,18 @@ begin
                         cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
                         cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan)  then MyPlayer.AddField(P,ft_Wine);
                         //cm_Wall: if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+                        cm_Objects: if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
                         cm_Erase: begin
-                                    if fMapEditorInterface.GetShownPage = esp_Units then
-                                      MyPlayer.RemUnit(P);
-                                    if fMapEditorInterface.GetShownPage = esp_Buildings then
-                                    begin
-                                      MyPlayer.RemHouse(P,true,false,true);
-                                      if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
-                                        fTerrain.RemRoad(P);
-                                      if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
-                                        fTerrain.RemField(P);
+                                    case fMapEditorInterface.GetShownPage of
+                                      esp_Terrain:    fTerrain.Land[P.Y,P.X].Obj := 255;
+                                      esp_Units:      MyPlayer.RemUnit(P);
+                                      esp_Buildings:  begin
+                                                        MyPlayer.RemHouse(P,true,false,true);
+                                                        if fTerrain.Land[P.Y,P.X].TileOverlay = to_Road then
+                                                          fTerrain.RemRoad(P);
+                                                        if fTerrain.TileIsCornField(P) or fTerrain.TileIsWineField(P) then
+                                                          fTerrain.RemField(P);
+                                                      end;
                                     end;
                                   end;
                       end;
@@ -652,6 +654,12 @@ begin
                 if Button = mbRight then
                 begin
                   fMapEditorInterface.RightClick_Cancel;
+
+                  //Right click performs some special functions and shortcuts
+                  case GameCursor.Mode of
+                    cm_Tiles:   fMapEditorInterface.SetTileDirection(GameCursor.Tag2+1); //Rotate tile direction
+                    cm_Objects: fTerrain.Land[P.Y,P.X].Obj := 255; //Delete object
+                  end;
                   //Move the selected object to the cursor location
                   if fPlayers.Selected is TKMHouse then
                     TKMHouse(fPlayers.Selected).SetPosition(P); //Can place is checked in SetPosition
@@ -1283,7 +1291,10 @@ begin
                               fTerrain.MapEdHeight(GameCursor.Float, GameCursor.Tag1, GameCursor.Tag2, ssLeft in GameCursor.SState);
                     cm_Tiles:
                               if (ssLeft in GameCursor.SState) then
-                              fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.Tag2*Random(4));
+                                if fMapEditorInterface.GetTilesRandomized then
+                                  fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1, Random(4))
+                                else
+                                  fTerrain.MapEdTile(GameCursor.Cell, GameCursor.Tag1, GameCursor.Tag2)
                   end;
                 end;
   end;

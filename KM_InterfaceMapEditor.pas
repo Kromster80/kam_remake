@@ -11,6 +11,7 @@ type TKMapEdInterface = class
     PrevHint:TObject;
     StorehouseItem:byte; //Selected ware in storehouse
     BarracksItem:byte; //Selected ware in barracks
+    TileDirection: byte;
   protected
     Panel_Main:TKMPanel;
       Image_Main1,Image_Main2,Image_Main3,Image_Main4,Image_Main5:TKMImage; //Toolbar background
@@ -162,6 +163,11 @@ type TKMapEdInterface = class
     procedure Menu_QuitMission(Sender:TObject);
     procedure Build_SelectRoad;
     procedure RightClick_Cancel;
+    function GetTilesRandomized: boolean;
+    procedure SetTileDirection(aTileDirection: byte);
+    function GetSelectedTile(): TObject;
+    function GetSelectedObject(): TObject;
+    function GetSelectedUnit(): TObject;
     procedure OnKeyUp(Key:Word; IsDown:boolean=false);
     property GetShownUnit: TKMUnit read ShownUnit;
     function GetShownPage:TKMMapEdShownPage;
@@ -184,6 +190,14 @@ begin
   GameCursor.Tag1 := 0;
   GameCursor.Tag2 := 0;
 
+  //If the user clicks on the tab that is open, it closes it (main buttons only)
+  if ((Sender = Button_Main[1]) and Panel_Terrain.Visible) or
+     ((Sender = Button_Main[2]) and Panel_Village.Visible) or
+     ((Sender = Button_Main[3]) and Panel_Player.Visible) or
+     ((Sender = Button_Main[4]) and Panel_Mission.Visible) or
+     ((Sender = Button_Main[5]) and Panel_Menu.Visible) then
+     Sender := nil;
+
   //Reset shown item if user clicked on any of the main buttons
   if (Sender=Button_Main[1])or(Sender=Button_Main[2])or
      (Sender=Button_Main[3])or(Sender=Button_Main[4])or
@@ -194,6 +208,7 @@ begin
     fPlayers.Selected:=nil;
   end;
 
+  Label_MenuTitle.Caption := '';
   //Now hide all existing pages
     for i:=1 to Panel_Main.ChildCount do
       if Panel_Main.Childs[i] is TKMPanel then
@@ -221,16 +236,15 @@ begin
     Panel_Terrain.Show;
     Panel_Tiles.Show;
     Label_MenuTitle.Caption:='Terrain - Tiles';
-    Terrain_TilesChange(TilesScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
-    Terrain_TilesChange(TilesTable[1]);
+    Terrain_TilesChange(GetSelectedTile());
+    SetTileDirection(TileDirection);
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[4]) then begin
     Panel_Terrain.Show;
     Panel_Objects.Show;
     Label_MenuTitle.Caption:='Terrain - Objects';
-    Terrain_ObjectsChange(ObjectsScroll); //This ensures that the displayed images get updated (i.e. if it's the first time)
-    Terrain_ObjectsChange(ObjectsTable[1]);
+    Terrain_ObjectsChange(GetSelectedObject());
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[1]) then begin
@@ -244,7 +258,7 @@ begin
     Panel_Village.Show;
     Panel_Units.Show;
     Label_MenuTitle.Caption:='Village - Units';
-    Unit_ButtonClick(Button_Citizen[1]);
+    Unit_ButtonClick(GetSelectedUnit);
   end else
 
   if (Sender = Button_Main[2])or(Sender = Button_Village[3]) then begin
@@ -358,6 +372,7 @@ begin
   ShownHouse := nil;
   BarracksItem   := 1; //First ware selected by default
   StorehouseItem := 1; //First ware selected by default
+  TileDirection := 0;
 
 {Parent Page for whole toolbar in-game}
   Panel_Main := MyControls.AddPanel(nil,0,0,224,768);
@@ -476,7 +491,6 @@ begin
       TilesRandom := MyControls.AddCheckBox(Panel_Tiles, 8, 4, 100, 20, 'Random Direction', fnt_Metal);
       TilesRandom.Checked := true;
       TilesRandom.OnClick := Terrain_TilesChange;
-      //todo: Allow user to select exact direction
       TilesScroll := MyControls.AddScrollBar(Panel_Tiles, 8, 30 + 4 + MAPED_TILES_ROWS * 32, 180, 20, sa_Horizontal);
       TilesScroll.MinValue := 0;
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
@@ -495,6 +509,8 @@ begin
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
       end;
+      Terrain_TilesChange(TilesScroll); //This ensures that the displayed images get updated the first time
+      Terrain_TilesChange(TilesTable[1]);
 
     Panel_Objects := MyControls.AddPanel(Panel_Terrain,0,28,196,400);
       ObjectsScroll := MyControls.AddScrollBar(Panel_Objects, 8, 268, 180, 20, sa_Horizontal);
@@ -514,6 +530,8 @@ begin
       end;
       ObjectErase.Tag := 255; //no object
       ObjectErase.OnClick := Terrain_ObjectsChange;
+    Terrain_ObjectsChange(ObjectsScroll); //This ensures that the displayed images get updated the first time
+    Terrain_ObjectsChange(ObjectsTable[1]);
 end;
 
 {Build page}
@@ -580,6 +598,7 @@ begin
         Button_Animals[i].Tag := byte(Animal_Order[i]); //Returns animal ID
         Button_Animals[i].OnClick := Unit_ButtonClick;
       end;
+      Unit_ButtonClick(Button_Citizen[1]); //Select serf as default
 
     Panel_Script := MyControls.AddPanel(Panel_Village,0,28,196,400);
 end;
@@ -853,8 +872,6 @@ begin
   if Sender = TilesRandom then
   begin
     TilesRandom.Checked := not TilesRandom.Checked;
-    if GameCursor.Mode = cm_Tiles then
-      GameCursor.Tag2 := byte(TilesRandom.Checked);
   end;
   if Sender = TilesScroll then //Shift tiles
     for i:=1 to MAPED_TILES_COLS do
@@ -867,7 +884,6 @@ begin
   begin
     GameCursor.Mode := cm_Tiles;
     GameCursor.Tag1 := EnsureRange(TilesScroll.Position*MAPED_TILES_ROWS + TKMButtonFlat(Sender).Tag, 0, 247); //Offset+Tag without road overlays?
-    GameCursor.Tag2 := byte(TilesRandom.Checked);
     for i:=1 to MAPED_TILES_COLS do
     for k:=1 to MAPED_TILES_ROWS do
       TilesTable[(i-1)*MAPED_TILES_ROWS+k].Down := (Sender = TilesTable[(i-1)*MAPED_TILES_ROWS+k]);
@@ -1125,6 +1141,49 @@ begin
   GameCursor.Mode:=cm_None;
   GameCursor.Tag1:=0;
   GameCursor.Tag2:=0;
+  SwitchPage(nil);
+end;
+
+
+function TKMapEdInterface.GetTilesRandomized: boolean;
+begin
+  Result := TilesRandom.Checked;
+end;
+
+
+procedure TKMapEdInterface.SetTileDirection(aTileDirection: byte);
+begin
+  TileDirection := aTileDirection;
+  if TileDirection > 3 then TileDirection := 0;
+  GameCursor.Tag2 := TileDirection;
+end;
+
+
+function TKMapEdInterface.GetSelectedTile(): TObject;
+var i: byte;
+begin
+  for i:=1 to MAPED_TILES_COLS*MAPED_TILES_ROWS do
+    if TilesTable[i].Down then Result := TilesTable[i];
+end;
+
+
+function TKMapEdInterface.GetSelectedObject(): TObject;
+var i: byte;
+begin
+  for i:=1 to 4 do
+    if ObjectsTable[i].Down then Result := ObjectsTable[i];
+end;  
+
+
+function TKMapEdInterface.GetSelectedUnit(): TObject;
+var i: byte;
+begin
+  for i:=1 to 14 do
+    if Button_Citizen[i].Down then Result := Button_Citizen[i];
+  for i:=1 to 10 do
+    if Button_Warriors[i].Down then Result := Button_Warriors[i];
+  for i:=1 to 8 do
+    if Button_Animals[i].Down then Result := Button_Animals[i];
 end;
 
 

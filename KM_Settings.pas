@@ -15,6 +15,7 @@ type
     fMusicVolume:byte;
     fMusicOnOff:boolean;
     fFullScreen:boolean;
+    fVSync:boolean;
     fLocale:shortstring;
     fPace:word;
     fSpeedup:word;
@@ -41,6 +42,7 @@ type
     procedure SetIsAutosave(val:boolean);
     procedure SetIsFastScroll(val:boolean);
     procedure SetIsFullScreen(val:boolean);
+    procedure SetIsVSync(val:boolean);
     property IsAutosave:boolean read fAutosave write SetIsAutosave default true;
     property IsFastScroll:boolean read fFastScroll write SetIsFastScroll default false;
     property GetSlidersMin:byte read SlidersMin;
@@ -56,6 +58,7 @@ type
     property GetMusicVolume:byte read fMusicVolume;
     property IsMusic:boolean read fMusicOnOff write SetMusicOnOff default true;
     property IsFullScreen:boolean read fFullScreen write SetIsFullScreen default true;
+    property IsVSync:boolean read fVSync write SetIsVSync default true;
   end;
 
 
@@ -159,6 +162,7 @@ begin
 
   fBrightness    := f.ReadInteger('GFX','Brightness',1);
   fFullScreen    := f.ReadBool   ('GFX','FullScreen',false);
+  fVSync         := f.ReadBool   ('GFX','VSync',false);
   fResolutionID  := f.ReadInteger('GFX','ResolutionID',1);
 
   fAutosave      := f.ReadBool   ('Game','Autosave',true); //Should be ON by default
@@ -187,6 +191,7 @@ begin
 
   f.WriteInteger('GFX','Brightness',  fBrightness);
   f.WriteBool   ('GFX','FullScreen',  fFullScreen);
+  f.WriteBool   ('GFX','VSync',  fVSync);
   f.WriteInteger('GFX','ResolutionID',fResolutionID);
 
   f.WriteBool   ('Game','Autosave',   fAutosave);
@@ -232,6 +237,13 @@ end;
 procedure TGlobalSettings.SetIsFullScreen(val:boolean);
 begin
   fFullScreen:=val;
+  fNeedsSave:=true;
+end;
+
+
+procedure TGlobalSettings.SetIsVSync(val:boolean);
+begin
+  fVSync:=val;
   fNeedsSave:=true;
 end;
 

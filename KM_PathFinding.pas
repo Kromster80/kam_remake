@@ -106,7 +106,7 @@ end;
 function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
-    dp_Location:    Result := KMSamePoint(MinCost.Pos,LocB) {or (round(KMLength(MinCost.Pos,LocB))<=WalkToSpot)};
+    dp_Location:    Result := {KMSamePoint(MinCost.Pos,LocB) or }(round(KMLength(MinCost.Pos,LocB))<=WalkToSpot); //@Krom: This is required given the new system. Without it there are lock ups delivering stone to workers. Is there a reason why it was disabled? Too much CPU time..?
     dp_Passability: if Pass = canWorker then                                                                  
                       Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID
                     else
@@ -164,7 +164,7 @@ begin
             ORef[y,x]:=OCount;
             OList[OCount].Parent:=ORef[MinCost.Pos.Y,MinCost.Pos.X];
             OList[OCount].CostTo:=OList[OList[OCount].Parent].CostTo+round(GetLength(KMPoint(x,y),MinCost.Pos)*10); //
-            if DO_WEIGHT_ROUTES then
+            if DO_WEIGHT_ROUTES and not KMSamePoint(LocB, KMPoint(x,y)) then //Do not add extra cost if the tile is the target, as it can cause a longer route to be chosen
               inc(OList[OCount].CostTo, fTerrain.Land[y,x].IsUnit*10); //Unit=1tile
             OList[OCount].Estim:=(abs(x-LocB.X) + abs(y-LocB.Y)) *10; //Use Estim even if destination is Passability, as it will make it faster. Target should be in the right direction even though it's not our destination.
           end else //If cell doen't meets Passability then mark it as Closed

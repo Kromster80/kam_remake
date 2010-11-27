@@ -1390,6 +1390,8 @@ end;
 
 function TKMUnit.IsDeadOrDying:boolean;
 begin
+  //@Krom: Almost all save games are causing a crash soon after loading, I think there is an inconsistency between save/load.
+  //       e.g. Load the town tutorial, click save then load the save in-game and it gets an access violation on this line.
   Result := fIsDead or (fUnitTask is TTaskDie);
 end;
 

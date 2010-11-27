@@ -58,7 +58,7 @@ private
 public
   Stat_Sprites:integer; //Total sprites in queue
   Stat_Sprites2:integer;//Rendered sprites
-  constructor Create(RenderFrame:HWND);
+  constructor Create(RenderFrame:HWND; aVSync:boolean);
   destructor Destroy; override;
   procedure LoadTileSet();
   procedure SetRotation(aH,aP,aB:integer);
@@ -103,7 +103,7 @@ implementation
 uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound;
 
 
-constructor TRender.Create(RenderFrame:HWND);
+constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
 begin
   Inherited Create;
   SetRenderFrame(RenderFrame, h_DC, h_RC);
@@ -114,7 +114,9 @@ begin
   OpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer:  '+OpenGL_Renderer);
   OpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version:  ' +OpenGL_Version);
 
-  SetupVSync(false); //todo: test if it works, my PC ignores it 
+  SetupVSync(aVSync); //todo: test if it works, my PC ignores it
+                      //@Krom: This works very well on my PC. When I change it to 'true' I get a constant 60 FPS (my refresh rate) and scrolling is a lot smoother. (less flickering on the screen) Also my GPU only gets to 40% usage, rather than previous 100% and it is generating a lot less heat.
+                      //       When 'false' frame rate is ~125 and scrolling isn't so smooth. I added an option for this in the menu, let me know if you have any comments or objections, otherwise to be deleted.
 
   setlength(RenderList,512);
 end;
@@ -1326,6 +1328,7 @@ procedure TRender.RenderCursorHighlights;
     Result := fTerrain.CheckTileRevelation(GameCursor.Cell.X,GameCursor.Cell.Y,MyPlayer.PlayerID) > 0;
   end;
 begin
+if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then exit; //Caused a rare crash
 with fTerrain do
 case GameCursor.Mode of
   cm_None:   ;
@@ -1370,7 +1373,10 @@ case GameCursor.Mode of
                RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //Cyan quad
              else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
   cm_Houses: RenderCursorWireHousePlan(GameCursor.Cell, THouseType(GameCursor.Tag1)); //Cyan quad
-  cm_Tiles:  RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2);
+  cm_Tiles:  if fGame.fMapEditorInterface.GetTilesRandomized then
+               RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, (fTerrain.GetAnimStep div 10) mod 4) //Spin it slowly so player remembers it is on randomized
+             else
+               RenderTile(GameCursor.Tag1, GameCursor.Cell.X, GameCursor.Cell.Y, GameCursor.Tag2);
   cm_Objects:begin
                RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.GetAnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
                RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.GetAnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
