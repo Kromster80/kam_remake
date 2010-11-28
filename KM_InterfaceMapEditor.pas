@@ -915,8 +915,9 @@ begin
 
   if Sender is TKMButtonFlat then
   begin
-    GameCursor.Mode := cm_Objects;
     ObjID := ObjectsScroll.Position*2-1 + (TKMButtonFlat(Sender).Tag-1); //1..n
+    if not InRange(ObjID,1,ActualMapElemQty) then exit; //Don't let them click if it is out of range
+    GameCursor.Mode := cm_Objects;
     if TKMButtonFlat(Sender).Tag = 255 then
       GameCursor.Tag1 := 255 //erase object
     else

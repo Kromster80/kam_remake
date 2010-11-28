@@ -1381,6 +1381,10 @@ case GameCursor.Mode of
                RenderObjectOrQuad(fTerrain.Land[GameCursor.Cell.Y,GameCursor.Cell.X].Obj+1, fTerrain.GetAnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true, true); //Make entire object red
                RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.GetAnimStep, GameCursor.Cell.X, GameCursor.Cell.Y, true);
              end;
+  cm_Height: begin
+               //todo: Render dots on tiles with brightness showing how much they will be elevated
+               RenderDotOnTile(GameCursor.Float.X+1,GameCursor.Float.Y+1);
+             end;
   cm_Units:  if CanPlaceUnit(GameCursor.Cell, TUnitType(GameCursor.Tag1)) then
                RenderCursorWireQuad(GameCursor.Cell, $FFFFFF00) //todo: render unit graphics here?
              else RenderCursorBuildIcon(GameCursor.Cell);       //Red X
