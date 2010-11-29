@@ -583,6 +583,7 @@ begin
     fOrder    := aWarriorOrder;
     fState    := ws_None; //Clear other states
     fOrderLoc := aLoc;
+    SetOrderTarget(nil);
   end;
 
   if (fCommander=nil)and(fMembers <> nil) then //Don't give group orders if unit has no crew
@@ -769,10 +770,30 @@ begin
     else
       exit; //noone found
 
-  if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+  //Free the task or set it up to be resumed afterwards
+  if GetUnitTask <> nil then
+  begin
+    if (GetUnitTask is TTaskAttackHouse) and not (BestU is TKMUnitWarrior) then
+      TTaskAttackHouse(GetUnitTask).Phase := 0 //Reset task so it will resume after the fight
+    else
+      FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
+  end;
+
+  //Attempt to resume walks/attacks after interuption
+  if (GetUnitAction is TUnitActionWalkTo) and (fState = ws_Walking) and not (BestU is TKMUnitWarrior) then
+  begin
+    if GetOrderTarget <> nil then
+      fOrder := wo_Attack
+    else
+      fOrder := wo_Walk;
+  end;
+
   SetActionFight(ua_Work, BestU);
-  fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //so that after the fight we stay where we are
-  if BestU is TKMUnitWarrior then TKMUnitWarrior(BestU).CheckForEnemy; //Let opponent know he is attacked
+  if BestU is TKMUnitWarrior then
+  begin
+    TKMUnitWarrior(BestU).CheckForEnemy; //Let opponent know he is attacked
+    fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //so that after the fight we stay where we are
+  end;
   Result := true; //We found someone to fight
 end;
 
@@ -799,7 +820,7 @@ function TKMUnitWarrior.UpdateState():boolean;
     if fMembers <> nil then for i:=0 to fMembers.Count-1 do
       if TKMUnit(fMembers.Items[i]).GetUnitAction is TUnitActionFight then exit;
     Foe := nil; //Nil foe because no one is fighting
-    Halt; //Reposition because the fight has just finished
+    PlaceOrder(wo_Walk,GetPosition); //Reposition because the fight has just finished (don't use halt because that returns us to fOrderLoc)
   end;
 
 var
@@ -817,7 +838,7 @@ begin
     fState := ws_None; //As soon as combat is over set the state back
 
   //Help out our fellow group members in combat if we are not fighting and someone else is
-  if CanInterruptAction and (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
+  if (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
   begin
     fOrder := wo_Attack;
     fState := ws_Engage; //Special state so we don't issue this order continuously
@@ -887,7 +908,6 @@ begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
     fOrder := wo_None;
-    fState := ws_Walking; //Reposition after task exits
   end;
 
   if fFlagAnim mod 10 = 0 then CheckForEnemy; //Split into seperate procedure so it can be called from other places

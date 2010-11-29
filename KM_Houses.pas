@@ -594,16 +594,18 @@ end;
 
 {Update house damage animation}
 procedure TKMHouse.UpdateDamage();
+var Dmg: integer;
 begin
+  Dmg := GetMaxHealth div 8; //There are 8 fire places for each house, so the increment for each fire level is Max_Health / 8
   fCurrentAction.SubActionRem([ha_Fire1,ha_Fire2,ha_Fire3,ha_Fire4,ha_Fire5,ha_Fire6,ha_Fire7,ha_Fire8]);
-  if fDamage >   0 then fCurrentAction.SubActionAdd([ha_Fire1]);
-  if fDamage >  50 then fCurrentAction.SubActionAdd([ha_Fire2]);
-  if fDamage > 100 then fCurrentAction.SubActionAdd([ha_Fire3]);
-  if fDamage > 150 then fCurrentAction.SubActionAdd([ha_Fire4]);
-  if fDamage > 200 then fCurrentAction.SubActionAdd([ha_Fire5]);
-  if fDamage > 250 then fCurrentAction.SubActionAdd([ha_Fire6]);
-  if fDamage > 300 then fCurrentAction.SubActionAdd([ha_Fire7]);
-  if fDamage > 350 then fCurrentAction.SubActionAdd([ha_Fire8]);
+  if fDamage > 0*Dmg then fCurrentAction.SubActionAdd([ha_Fire1]);
+  if fDamage > 1*Dmg then fCurrentAction.SubActionAdd([ha_Fire2]);
+  if fDamage > 2*Dmg then fCurrentAction.SubActionAdd([ha_Fire3]);
+  if fDamage > 3*Dmg then fCurrentAction.SubActionAdd([ha_Fire4]);
+  if fDamage > 4*Dmg then fCurrentAction.SubActionAdd([ha_Fire5]);
+  if fDamage > 5*Dmg then fCurrentAction.SubActionAdd([ha_Fire6]);
+  if fDamage > 6*Dmg then fCurrentAction.SubActionAdd([ha_Fire7]);
+  if fDamage > 7*Dmg then fCurrentAction.SubActionAdd([ha_Fire8]);
   {House gets destroyed in UpdateState loop}
 end;
 

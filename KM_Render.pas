@@ -802,6 +802,7 @@ end;
 procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
+  //@Krom: Occasional crashes here when a unit dies, probably a bug somewhere else though...
   AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
   ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
   if ID<=0 then exit;

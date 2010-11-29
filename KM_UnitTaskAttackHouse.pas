@@ -144,7 +144,7 @@ begin
     Result := TaskDone;
     //Commander should reposition his men after destroying the house
     if TKMUnitWarrior(fUnit).fCommander = nil then
-      TKMUnitWarrior(fUnit).PlaceOrder(wo_Walk,fUnit.GetPosition);
+      TKMUnitWarrior(fUnit).PlaceOrder(wo_Walk,fUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
     exit;
   end;
 
