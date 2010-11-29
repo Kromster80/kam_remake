@@ -142,6 +142,9 @@ begin
   if fHouse.IsDestroyed then
   begin
     Result := TaskDone;
+    //Commander should reposition his men after destroying the house
+    if TKMUnitWarrior(fUnit).fCommander = nil then
+      TKMUnitWarrior(fUnit).PlaceOrder(wo_Walk,fUnit.GetPosition);
     exit;
   end;
 

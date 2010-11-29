@@ -821,6 +821,7 @@ begin
   end;
 
   fPlayers.AfterMissionInit(true);
+  fViewPort.SetZoom(1); //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic));

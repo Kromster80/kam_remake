@@ -271,15 +271,15 @@ begin
   if fState = ws_None then
     ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc, GetPosition, canWalk);
 
-  //See if we are in position or if we can't reach position, because we don't retry for that case.
-  if (fState = ws_None) and (KMSamePoint(GetPosition,ClosestTile) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
+  //See if we are in position already or if we can't reach the position, (closest tile differs from target tile) because we don't retry for that case.
+  if (fState = ws_None) and (KMSamePoint(GetPosition,fOrderLoc.Loc) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then
     exit;
 
   //This means we are not in position, return false and move into position (unless we are currently walking)
   Result := false;
   if (fState = ws_None) and (not (GetUnitAction is TUnitActionWalkTo)) then
   begin
-    SetActionWalkToSpot(ClosestTile);
+    SetActionWalkToSpot(fOrderLoc.Loc);
     fState := ws_Walking;
   end;
 end;
@@ -759,7 +759,7 @@ begin
     end;
   end;
 
-  //Preferance goes: Unit in front of us > Random warrior > Random citizen (if we are not busy)
+  //Preferance goes: Warrior in front of us > Random warrior > Random citizen (if we are not busy)
   if BestU = nil then
     if WCount > 0 then
       BestU := Warriors[Random(WCount)+1]
@@ -769,6 +769,7 @@ begin
     else
       exit; //noone found
 
+  if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
   SetActionFight(ua_Work, BestU);
   fOrderLoc := KMPointDir(GetPosition,fOrderLoc.Dir); //so that after the fight we stay where we are
   if BestU is TKMUnitWarrior then TKMUnitWarrior(BestU).CheckForEnemy; //Let opponent know he is attacked
@@ -780,6 +781,8 @@ end;
 function TKMUnitWarrior.CanInterruptAction:boolean;
 begin
   if GetUnitAction is TUnitActionWalkTo      then Result := TUnitActionWalkTo(GetUnitAction).CanAbandonExternal else //Only when unit is idling during Interaction pauses
+  if(GetUnitAction is TUnitActionStay) and
+    (GetUnitTask   is TTaskAttackHouse)      then Result := true else //We can abandon attack house if the action is stay
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
   if GetUnitAction is TUnitActionAbandonWalk then Result := not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
@@ -858,6 +861,7 @@ begin
   //Change walk in order to attack
   if (fOrder=wo_Attack) and (GetUnitAction is TUnitActionWalkTo) //If we are already walking then change the walk to the new location
   then begin
+    if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
     TUnitActionWalkTo(GetUnitAction).ChangeWalkTo(GetOrderTarget.NextPosition, fCommander <> nil, GetOrderTarget);
     fOrder := wo_None;
@@ -867,14 +871,20 @@ begin
   //Take attack order
   if (fOrder=wo_Attack) and GetUnitAction.StepDone and CanInterruptAction then
   begin
+    if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetActionWalkToUnit(GetOrderTarget, 1, ua_Walk);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
 
+  //Abandon walk so we can take attack house order
+  if (fOrder=wo_AttackHouse) and (GetUnitAction is TUnitActionWalkTo) then
+    AbandonWalk;
+
   //Take attack house order
   if (fOrder=wo_AttackHouse) and GetUnitAction.StepDone and CanInterruptAction then
   begin
+    if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetUnitTask := TTaskAttackHouse.Create(Self,GetOrderHouseTarget);
     fOrder := wo_None;
     fState := ws_Walking; //Reposition after task exits
@@ -904,7 +914,7 @@ begin
       //Tell everyone to reposition
       for i:=0 to fMembers.Count-1 do
         //Must wait for unit(s) to get into position before we have truely finished walking
-        PositioningDone := PositioningDone and TKMUnitWarrior(fMembers.Items[i]).RePosition;
+        PositioningDone := TKMUnitWarrior(fMembers.Items[i]).RePosition and PositioningDone; //NOTE: RePosition function MUST go before PositioningDone variable otherwise it won't check the second value if the first is true!!!
 
   end;
 

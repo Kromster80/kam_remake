@@ -1007,7 +1007,6 @@ begin
     Button_Army_GoTo.Disable;
     Button_Army_Attack.Disable;
     Button_Army_Storm.Disable;
-    //Button_Army_Join.Disable;
 
     //Hints
     Button_Army_GoTo.Hint   := fTextLibrary.GetTextString(259);
@@ -1860,7 +1859,8 @@ end;
 procedure TKMGamePlayInterface.Army_CancelJoin(Sender:TObject);
 begin
   JoiningGroups := false;
-  Screen.Cursor := c_Default; //In case this is run with keyboard shortcut, mouse move won't happen
+  if (Screen.Cursor = c_JoinYes) or (Screen.Cursor = c_JoinNo) then //Do not override non-joining cursors
+    Screen.Cursor := c_Default; //In case this is run with keyboard shortcut, mouse move won't happen
   Panel_Army_JoinGroups.Hide;
   if ShownUnit <> nil then
     Panel_Army.Show;

@@ -103,7 +103,7 @@ begin
   //               aActionType Set in parent class
   fWalkToSpot   := aWalkToSpot;
   //               aSetPushed Don't need to be rememberred
-  fWalkToNear   := fWalkToNear;
+  fWalkToNear   := aWalkToNear;
   if aTargetUnit  <> nil then fTargetUnit  := aTargetUnit.GetUnitPointer;
   if aTargetHouse <> nil then fTargetHouse := aTargetHouse.GetHousePointer;
 

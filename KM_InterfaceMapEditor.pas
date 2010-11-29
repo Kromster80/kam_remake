@@ -916,7 +916,7 @@ begin
   if Sender is TKMButtonFlat then
   begin
     ObjID := ObjectsScroll.Position*2-1 + (TKMButtonFlat(Sender).Tag-1); //1..n
-    if not InRange(ObjID,1,ActualMapElemQty) then exit; //Don't let them click if it is out of range
+    if (not InRange(ObjID,1,ActualMapElemQty)) and not (TKMButtonFlat(Sender).Tag = 255) then exit; //Don't let them click if it is out of range
     GameCursor.Mode := cm_Objects;
     if TKMButtonFlat(Sender).Tag = 255 then
       GameCursor.Tag1 := 255 //erase object
@@ -1137,12 +1137,12 @@ end;
 //This function will be called if the user right clicks on the screen.
 procedure TKMapEdInterface.RightClick_Cancel;
 begin
-  //We should drop the tool but don't close opened tab
-  if GetShownPage = esp_Terrain then exit; //Terrain uses both buttons for relief changing
+  //We should drop the tool but don't close opened tab. This allows eg: Place a warrior, right click so you are not placing more warriors, select the placed warrior.
+  //Before you would have had to close the tab to do this.
+  if GetShownPage = esp_Terrain then exit; //Terrain uses both buttons for relief changing, tile rotation etc.
   GameCursor.Mode:=cm_None;
   GameCursor.Tag1:=0;
   GameCursor.Tag2:=0;
-  SwitchPage(nil);
 end;
 
 
@@ -1163,6 +1163,7 @@ end;
 function TKMapEdInterface.GetSelectedTile(): TObject;
 var i: byte;
 begin
+  Result := nil;
   for i:=1 to MAPED_TILES_COLS*MAPED_TILES_ROWS do
     if TilesTable[i].Down then Result := TilesTable[i];
 end;
@@ -1171,6 +1172,7 @@ end;
 function TKMapEdInterface.GetSelectedObject(): TObject;
 var i: byte;
 begin
+  Result := nil;
   for i:=1 to 4 do
     if ObjectsTable[i].Down then Result := ObjectsTable[i];
 end;  
@@ -1179,6 +1181,7 @@ end;
 function TKMapEdInterface.GetSelectedUnit(): TObject;
 var i: byte;
 begin
+  Result := nil;
   for i:=1 to 14 do
     if Button_Citizen[i].Down then Result := Button_Citizen[i];
   for i:=1 to 10 do
