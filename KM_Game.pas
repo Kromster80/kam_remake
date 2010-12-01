@@ -770,7 +770,6 @@ begin
   fTerrain := TTerrain.Create;
   fProjectiles := TKMProjectiles.Create;
 
-  fViewport.SetZoom(1);
   fRender.RenderResize(ScreenX,ScreenY,rm2D);
   fViewport.SetVisibleScreenArea(ScreenX,ScreenY);
 
@@ -1197,6 +1196,7 @@ begin
 
         fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
+        fViewPort.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
         Result := ''; //Loading has now completed successfully :)
         Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
       except
