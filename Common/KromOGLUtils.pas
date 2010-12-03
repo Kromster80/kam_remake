@@ -5,11 +5,10 @@ interface
 uses
   {$IFDEF WDC} OpenGL, {$ENDIF}  dglOpenGL,
   {$IFDEF FPC} GL, {$ENDIF}
-  sysutils, windows, Forms;
+  sysutils, windows, Forms, KromUtils;
 
 type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
 kPoly=5,kSurface=6,kObject=7,kButton=8);  //1..31 are ok
-type Vector = record x,y,z:single; end;
 
 KAlign = (kaLeft, kaCenter, kaRight);
 
@@ -19,9 +18,9 @@ procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC)
 procedure SetRenderDefaults();
 function SetDCPixelFormat(h_DC:HDC):boolean;
 procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
-procedure BuildFont(h_DC:HDC;FontSize:integer);
+    procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
 procedure glPrint(text: string);
-function ReadClick(X, Y: word): Vector;
+    function ReadClick(X, Y: word): Vector3f;
 procedure glkScale(x:single);
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
 procedure glkRect(Ax,Ay,Bx,By:single);
@@ -47,7 +46,9 @@ MatModeDefaultF:string=
 'gl_FragColor = vec4(kColor.rgb,1);'+#10+#13+
 '}';
 
+
 implementation
+
 
 procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
 begin
@@ -129,10 +130,13 @@ PixelDepth:=32;
   nPixelFormat:=ChoosePixelFormat(h_DC, @pfd);
   if nPixelFormat=0 then begin
   MessageBox(0, 'Unable to find a suitable pixel format', 'Error', MB_OK or MB_ICONERROR);
-  Result:=false; exit; end;
+    Result:=false;
+    exit;
+  end;
   if not SetPixelFormat(h_DC, nPixelFormat, @pfd) then begin
   MessageBox(0, 'Unable to set the pixel format', 'Error', MB_OK or MB_ICONERROR);
-  Result:=false; exit;
+    Result:=false;
+    exit;
   end;
 Result:=true;
 end;
@@ -141,7 +145,7 @@ procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; Sh
 var l,glsl_ok:GLint; s:PChar; i:integer; ShowMessage:boolean;
 begin
   glGetObjectParameterivARB(Handle, Param, @glsl_ok);
-  s := StrAlloc(1000);
+  s := StrAlloc(1000); //Allocate space
   glGetInfoLogARB(Handle, StrBufSize(s), l, PGLcharARB(s));
 //Intent to hide all Warning messages
   ShowMessage:=ShowWarnings;
@@ -153,13 +157,14 @@ begin
     s := StrPCopy(s,Text + StrPas(s));
     MessageBox(HWND(nil), s,'GLSL Log', MB_OK);
   end;
+  StrDispose(s); //Free-up space
 end;
 
-procedure BuildFont(h_DC:HDC;FontSize:integer);
+procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
 var Font: HFONT;
 begin
 //New parameter FontSize=16
-  font:=CreateFont(-abs(FontSize),0,0,0,FW_NORMAL,0,0,0,ANSI_CHARSET,
+  font:=CreateFont(-abs(FontSize),0,0,0,FontWeight,0,0,0,ANSI_CHARSET,
   OUT_TT_PRECIS,CLIP_DEFAULT_PRECIS,
   ANTIALIASED_QUALITY,FF_DONTCARE or DEFAULT_PITCH,
   'Terminal');
@@ -176,7 +181,7 @@ begin
   glPopAttrib;
 end;
 
-function ReadClick(X, Y: word): Vector;
+function ReadClick(X, Y: word): Vector3f;
 var viewport:TVector4i;
     projection:TMatrix4d;
     modelview:TMatrix4d;

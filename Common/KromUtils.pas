@@ -11,6 +11,7 @@ type
   PStringArray = ^TStringArray;
   TStringArray = array[1..256] of String;
   Vector4f = record X,Y,Z,W:single; end;
+  Vector3i = record X,Y,Z:integer; end;
   Vector3f = record X,Y,Z:single; end;
   Vector2f = record U,V:single; end;
   PVector3f = ^Vector3f;
@@ -31,6 +32,7 @@ procedure FreeThenNil(var Obj);
 
 function ReverseString(s1:string):string;
 
+function hextoint(st: char): integer;
 function int2fix(Number,Len:integer):string;
 function float2fix(Number:single; Digits:integer):string;
 function int2time(Time:integer):string;
@@ -46,10 +48,14 @@ function Max(const A,B,C: integer):integer; overload;
 function Max(const A,B,C: single):single; overload;
 
 function Ceil(const X: Extended):Integer;
+function ArcCos(const X: Extended): Extended;
+function ArcSin(const X: Extended): Extended;
+function ArcTan2(const Y, X: Extended): Extended;
 function Pow(const Base, Exponent: integer): integer;
 
   function GetLengthSQR(ix,iy,iz:integer): integer; //Length without SQRT
   function GetLength(ix,iy,iz:single): single; overload;
+  function GetLength(ix:Vector3f): single; overload;
   function GetLength(ix,iy:single): single; overload;
 
   function Mix(x1,x2,MixValue:single):single; overload;
@@ -61,14 +67,17 @@ function  decs(AText:string; Len,RunAsFunction:integer):string; overload;
 function RemoveQuotes(Input:string):string;
 function GetCharFromVirtualKey(Key:word):string;
 procedure SwapStr(var A,B:string);
+procedure SwapInt(var A,B:byte); overload;
 procedure SwapInt(var A,B:word); overload;
 procedure SwapInt(var A,B:integer); overload;
 procedure SwapInt(var A,B:cardinal); overload;
 procedure SwapFloat(var A,B:single);
 function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 
+function Abs2X(AbsoluteValue,SizeX:integer):integer;
+function Abs2Z(AbsoluteValue,SizeX:integer):integer;
+
 procedure ConvertSetToArray(iSet:integer; Ar:pointer);
-//function WriteLWO(fname:string; PQty,VQty,SQty:integer; xyz:PSingleArray; uv:PSingleArray; v:PIntegerArray; Surf:PStringArray): boolean;
 function MakePOT(num:integer):integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:integer):integer;
 function RandomS(Range_Both_Directions:integer):integer; overload;
@@ -93,6 +102,7 @@ begin
 Result.U:=A;
 Result.V:=B;
 end;
+
 
 function Vectorize(A,B,C:single):Vector3f; overload;
 begin
@@ -128,6 +138,13 @@ result:=' '+inttostr(GetTickCount-i1^)+'ms'; //get time passed
 i1^:=GetTickCount;                           //assign new value to source
 end;
 
+
+function hextoint(st: char): integer;
+begin st:=uppercase(st)[1];
+if (ord(st)>=48)and(ord(st)<=57) then hextoint:=ord(st)-48 else
+if (ord(st)>=65)and(ord(st)<=70) then hextoint:=ord(st)-55 else
+hextoint:=0;
+end;
 
 function ExtractOpenedFileName(in_s: string):string;
 var k:word; out_s:string; QMarks:boolean;
@@ -165,19 +182,15 @@ end else out_s:='';
 Result:=out_s;
 end;
 
+
 //Returns file extension without dot
 function GetFileExt(const FileName: string): string;
-var k:integer; s:string;
 begin
-  s:=''; k:=0;
-  repeat
-      s:=FileName[length(FileName)-k]+s;
-      inc(k);
-    until((length(FileName)-k=0)or(FileName[length(FileName)-k]='.'));
-    if length(FileName)-k=0 then
-      Result:=''
-    else
-  Result:=uppercase(s);
+  Result := ExtractFileExt(FileName);
+  if length(Result)>0 then
+    Result := UpperCase(Copy(Result, 2, length(Result)-1))
+  else
+    Result := '';
 end;
 
 
@@ -288,6 +301,23 @@ begin
     Inc(Result);
 end;
 
+function ArcCos(const X: Extended): Extended;
+begin
+  Result := ArcTan2(Sqrt(1 - X * X), X);
+end;
+
+function ArcSin(const X: Extended): Extended;
+begin
+  Result := ArcTan2(X, Sqrt(1 - X * X))
+end;
+
+function ArcTan2(const Y, X: Extended): Extended;
+asm
+        FLD     Y
+        FLD     X
+        FPATAN
+        FWAIT
+end;
 
 function Pow(const Base, Exponent: integer): integer;
 begin
@@ -340,6 +370,10 @@ begin
   Result:=sqrt(sqr(ix)+sqr(iy)+sqr(iz));
 end;
 
+function GetLength(ix:Vector3f): single; overload;
+begin
+  Result:=sqrt(sqr(ix.x)+sqr(ix.y)+sqr(ix.z));
+end;
 
 function GetLength(ix,iy:single): single; overload;
 begin
@@ -422,6 +456,13 @@ begin
   s:=A; A:=B; B:=s;
 end;
 
+procedure SwapInt(var A,B:byte);
+var s:byte;
+begin
+  s:=A; A:=B; B:=s;
+end;
+
+
 procedure SwapInt(var A,B:word);
 var s:word;
 begin
@@ -446,9 +487,22 @@ begin
   s:=A; A:=B; B:=s;
 end;
 
+
 function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 begin
   Result := abs(A-B) <= Epsilon;
+end;
+
+
+function Abs2X(AbsoluteValue,SizeX:integer):integer;
+begin
+  Result:=((AbsoluteValue-1) mod SizeX+1); //X
+end;
+
+
+function Abs2Z(AbsoluteValue,SizeX:integer):integer;
+begin
+  Result:=((AbsoluteValue-1) div SizeX+1); //Z
 end;
 
 
