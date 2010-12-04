@@ -11,13 +11,26 @@ type
   //I suggest you make it a new class TAIDefencePositions with proper
   //Create/Save/SyncLoad/Load procedures
   //
-  TAIDefencePosition = record
-                         Position: TKMPointDir; //Position and direction the group defending will stand
-                         GroupType: TGroupType; //Type of group to defend this position (e.g. melee)
-                         DefenceRadius: integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
-                         DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
-                         CurrentCommander: TKMUnitWarrior; //Commander of group currently occupying position
-                       end;
+  //@Krom: Thank you, I have done as you suggested. When I do more work on the AI I might add some more procedures to the class, but for now everything
+  //       is managed by TKMPlayerAI. Does it need to be moved to a new file? If you have any comments or suggestions let me know.
+  //       Loading still crashes but I'm pretty sure it's not because of this new code. Thanks again for finding this and sorry for such an obvious oversight in my code.
+  TAIDefencePosition = class
+  private
+    fCurrentCommander: TKMUnitWarrior; //Commander of group currently occupying position
+    procedure SetCurrentCommander(aCommander: TKMUnitWarrior);
+    procedure ClearCurrentCommander;
+  public
+    Position: TKMPointDir; //Position and direction the group defending will stand
+    GroupType: TGroupType; //Type of group to defend this position (e.g. melee)
+    DefenceRadius: integer; //If fighting (or houses being attacked) occurs within this radius from this defence position, this group will get involved
+    DefenceType: TAIDefencePosType; //Whether this is a front or back line defence position. See comments on TAIDefencePosType above
+    constructor Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
+    constructor Load(LoadStream:TKMemoryStream);
+    destructor Destroy; override;
+    property CurrentCommander: TKMUnitWarrior read fCurrentCommander write SetCurrentCommander;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure SyncLoad();
+  end;
 
 type
   TKMPlayerAI = class
@@ -53,6 +66,72 @@ type
 
 implementation
 uses KM_Houses, KM_Units, KM_Game, KM_PlayersCollection, KM_Settings, KM_LoadLib;
+
+constructor TAIDefencePosition.Create(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
+begin
+  Inherited Create;
+  Position := aPos;
+  GroupType := aGroupType;
+  DefenceRadius := aDefenceRadius;
+  DefenceType := aDefenceType;
+  CurrentCommander := nil; //Unoccupied
+end;
+
+
+destructor TAIDefencePosition.Destroy;
+begin
+  ClearCurrentCommander; //Ensure pointer is removed
+  Inherited;
+end;
+
+
+procedure TAIDefencePosition.ClearCurrentCommander;
+begin
+  if fCurrentCommander <> nil then
+  begin
+    fCurrentCommander.ReleaseUnitPointer;
+    fCurrentCommander := nil;
+  end;
+end;
+
+
+procedure TAIDefencePosition.SetCurrentCommander(aCommander: TKMUnitWarrior);
+begin
+  ClearCurrentCommander;
+  if aCommander <> nil then
+    fCurrentCommander := TKMUnitWarrior(aCommander.GetUnitPointer);
+end;
+
+
+procedure TAIDefencePosition.Save(SaveStream:TKMemoryStream);
+begin
+  SaveStream.Write(Position, SizeOf(Position));
+  SaveStream.Write(GroupType, SizeOf(GroupType));
+  SaveStream.Write(DefenceRadius);
+  SaveStream.Write(DefenceType, SizeOf(DefenceType));
+  if fCurrentCommander <> nil then
+    SaveStream.Write(fCurrentCommander.ID) //Store ID
+  else
+    SaveStream.Write(Zero);
+end;
+
+
+constructor TAIDefencePosition.Load(LoadStream:TKMemoryStream);
+begin
+  Inherited Create;
+  LoadStream.Read(Position, SizeOf(Position));
+  LoadStream.Read(GroupType, SizeOf(GroupType));
+  LoadStream.Read(DefenceRadius);
+  LoadStream.Read(DefenceType, SizeOf(DefenceType));
+  LoadStream.Read(fCurrentCommander, 4); //subst on syncload
+end;
+
+
+procedure TAIDefencePosition.SyncLoad();
+begin
+  fCurrentCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCurrentCommander)));
+end;
+
 
 constructor TKMPlayerAI.Create(aAssets:TKMPlayerAssets);
 var i: TGroupType;
@@ -278,12 +357,9 @@ begin
   for i:=0 to DefencePositionsCount-1 do
     if (DefencePositions[i].CurrentCommander <> nil) and DefencePositions[i].CurrentCommander.IsDeadOrDying then
       if DefencePositions[i].CurrentCommander.fCommander <> nil then
-        DefencePositions[i].CurrentCommander := TKMUnitWarrior(DefencePositions[i].CurrentCommander.fCommander.GetUnitPointer)
+        DefencePositions[i].CurrentCommander := DefencePositions[i].CurrentCommander.fCommander
       else
-      begin
-        DefencePositions[i].CurrentCommander.ReleaseUnitPointer;
         DefencePositions[i].CurrentCommander := nil;
-      end;
 
   for i:=byte(low(TGroupType)) to byte(high(TGroupType)) do
     NeedsLinkingTo[TGroupType(i)] := nil;
@@ -341,7 +417,7 @@ begin
             Positioned := true;
             if DefencePositions[Matched].CurrentCommander = nil then
             begin //New position
-              DefencePositions[Matched].CurrentCommander := TKMUnitWarrior(GetCommander.GetUnitPointer);
+              DefencePositions[Matched].CurrentCommander := GetCommander;
               PlaceOrder(wo_Walk,DefencePositions[Matched].Position);
             end
             else //Restock existing position
@@ -378,11 +454,7 @@ end;
 procedure TKMPlayerAI.AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
 begin
   setlength(DefencePositions,DefencePositionsCount+1);
-  DefencePositions[DefencePositionsCount].Position := aPos;
-  DefencePositions[DefencePositionsCount].GroupType := aGroupType;
-  DefencePositions[DefencePositionsCount].DefenceRadius := aDefenceRadius;
-  DefencePositions[DefencePositionsCount].DefenceType := aDefenceType;
-  DefencePositions[DefencePositionsCount].CurrentCommander := nil; //Unoccupied
+  DefencePositions[DefencePositionsCount] := TAIDefencePosition.Create(aPos,aGroupType,aDefenceRadius,aDefenceType);
   inc(DefencePositionsCount);
 end;
 
@@ -410,7 +482,7 @@ begin
   SaveStream.Write(TroopFormations,SizeOf(TroopFormations));
   SaveStream.Write(DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
-    SaveStream.Write(DefencePositions[i], SizeOf(DefencePositions[i]));
+    DefencePositions[i].Save(SaveStream);
   SaveStream.Write(ScriptedAttacksCount);
   for i:=0 to ScriptedAttacksCount-1 do
     SaveStream.Write(ScriptedAttacks[i], SizeOf(ScriptedAttacks[i]));
@@ -433,7 +505,7 @@ begin
   LoadStream.Read(DefencePositionsCount);
   SetLength(DefencePositions, DefencePositionsCount);
   for i:=0 to DefencePositionsCount-1 do
-    LoadStream.Read(DefencePositions[i], SizeOf(DefencePositions[i]));
+    DefencePositions[i] := TAIDefencePosition.Load(LoadStream);
   LoadStream.Read(ScriptedAttacksCount);
   SetLength(ScriptedAttacks, ScriptedAttacksCount);
   for i:=0 to ScriptedAttacksCount-1 do
@@ -443,9 +515,11 @@ end;
 
 //So far this whole procedure is a placeholder
 procedure TKMPlayerAI.SyncLoad();
+var i: integer;
 begin
-  //
-end;                      
+  for i:=0 to DefencePositionsCount-1 do
+    DefencePositions[i].SyncLoad;
+end;
 
 
 procedure TKMPlayerAI.UpdateState;

@@ -2185,8 +2185,8 @@ begin
   SaveStream.Write(MapX);
   SaveStream.Write(MapY);
 
-  FallingTrees.Save(SaveStream);
   SaveStream.Write(AnimStep);
+  FallingTrees.Save(SaveStream);
 
   for i:=1 to MapY do for k:=1 to MapX do
   begin
