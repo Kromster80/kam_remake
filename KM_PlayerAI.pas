@@ -7,6 +7,10 @@ type
   TAIDefencePosType = (adt_FrontLine, //Top priority to defend, will be replaced by back line troops when they die, and troops will not go on attacks as they are defending an important position
                        adt_BackLine); //Lower priority defence, can go on AI attacks (these are often placed behind the main defence line as replacement/attacking troops)
 
+  //@Lewin: Your loading bug is here. CurrentCommander pointer gets trashed on load
+  //I suggest you make it a new class TAIDefencePositions with proper
+  //Create/Save/SyncLoad/Load procedures
+  //
   TAIDefencePosition = record
                          Position: TKMPointDir; //Position and direction the group defending will stand
                          GroupType: TGroupType; //Type of group to defend this position (e.g. melee)
@@ -389,6 +393,7 @@ begin
   ScriptedAttacks[ScriptedAttacksCount] := aAttack;
   inc(ScriptedAttacksCount);
 end;
+
 
 procedure TKMPlayerAI.Save(SaveStream:TKMemoryStream);
 var i: integer;
