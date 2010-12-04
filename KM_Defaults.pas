@@ -192,12 +192,13 @@ type
   TFlatButtonStateSet = set of (fbs_Highlight, fbs_Selected, fbs_Disabled);
 
 const
-  LOCALES_COUNT = 7;
+  LOCALES_COUNT = 8;
   Locales:array[1..LOCALES_COUNT, 1..2]of shortstring = (
   ('eng', 'English'),
   ('ger', 'German'),
   ('pol', 'Polish'),
   ('svk', 'Slovak'), //New one
+  ('fr',  'French'), //New one
   ('hun', 'Hungarian'),
   ('dut', 'Dutch'),
   ('rus', 'Russian'));

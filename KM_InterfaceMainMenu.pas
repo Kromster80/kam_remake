@@ -709,10 +709,11 @@ begin
 
     MyControls.AddLabel(Panel_Credits,200,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
     MyControls.AddLabel(Panel_Credits,200,140,100,30,
-    'PROGRAMMING|Krom|Lewin||'+
-    'ADDITIONAL PROGRAMMING|Alex||'+
-    'SLOVAK TRANSLATION|Robert Marko||'+
-    'SPECIAL THANKS|KaM Community members'
+    'PROGRAMMING:|Krom|Lewin||'+
+    'ADDITIONAL PROGRAMMING:|Alex||'+
+    'FRENCH TRANSLATION:|Sylvain Domange||'+
+    'SLOVAK TRANSLATION:|Robert Marko||'+
+    'SPECIAL THANKS:|KaM Community members'
     ,fnt_Grey,kaCenter);
 
     MyControls.AddLabel(Panel_Credits,ScreenX div 2+150,100,100,30,'Knights & Merchants Credits',fnt_Outline,kaCenter);

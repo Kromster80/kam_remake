@@ -1,55 +1,55 @@
 MaxID:58
 
 KM_InterfaceMainMenu
- 1:Mission canceled
+ 1:Миссия отменена
  2:Town Tutorial
  3:Battle Tutorial
- 4:Single Player
- 5:Map Editor
- 6:View last replay
- 7:Play over LAN
- 8:Play over Internet
- 9:Login
-10:Password
+ 4:Одиночная игра
+ 5:Редактор Карт
+ 6:Посмотреть последний replay
+ 7:Играть по локальной сети
+ 8:Играть через Интернет
+ 9:Логин
+10:Пароль
 11:Start Mission
-12:Title
-13:Size
-14:Mission Type: 
-15:Win condition: 
-16:Defeat condition: 
-17:Allies: 
-18:Enemies: 
-19:Slot 
-20:New map size
-21:Width
-22:Height
-23:Create New Map
-24:Available maps
-25:Load Existing Map
-26:Controls:
-27:Gameplay:
-28:Sound:
-29:Graphics:
-30:Brightness
-31:Fullscreen
-32:Apply
-33:Language:
-34:Loading... Please wait
-35:An Error Has Occured!
-36:Mission type: 
-37:Win condition: 
-38:Defeat condition:
+12:Название
+13:Размер
+14:Тип миссии:
+15:Условия победы:
+16:Условия поражения:
+17:Союзники:
+18:Враги:
+19:Слот
+20:Размер карты
+21:Ширина
+22:Высота
+23:Создать новую карту
+24:Доступные карты
+25:Загрузить карту
+26:Управление:
+27:Игра:
+28:Звук:
+29:Графика:
+30:Яркость
+31:Полный экран
+32:Применить
+33:Язык:
+34:Загрузка... Пожалуйста ждите
+35:Произошла ошибка!
+36:Тип миссии: 
+37:Условия победы: 
+38:Условия поражения:
 
 KM_InterfaceGamePlay
-39:You've won!
-40:Continue playing
-41:Victory!
-42:You've lost!
-43:Continue watching
-44:Defeat
-45:Replay has ended
-46:Continue watching
-47:Quit to menu
+39:Вы победили!
+40:Продолжать играть
+41:Победа!
+42:Вы проиграли!
+43:Продолжать смотреть
+44:Поражение
+45:Replay закончился
+46:Продолжать смотреть
+47:Выйти в меню
 
 KM_Game
 48:An error has occoured during gameplay. 
@@ -64,8 +64,8 @@ KM_Unit1
 53:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
 
 KM_InterfaceMapEditor
-54:Terrain editing
-55:Village planning
-56:Visual scripts
-57:Global scripting
-58:Menu
+54:Ландшафт
+55:Поселение
+56:Визуальные скрипты
+57:Глобальные настройки
+58:Меню

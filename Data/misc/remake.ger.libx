@@ -1,4 +1,4 @@
-MaxID:58
+﻿MaxID:58
 
 KM_InterfaceMainMenu
  1:Mission abgebrochen
@@ -33,7 +33,7 @@ KM_InterfaceMainMenu
 30:Helligkeit
 31:Vollbild
 32:Übernehmen
-33:Sprache
+33:Sprache:
 34:Lade... Bitte warten
 35:Ein Fehler ist aufgetreten!
 36:Missions Typ: 
