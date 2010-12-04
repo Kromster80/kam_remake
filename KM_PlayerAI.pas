@@ -28,10 +28,10 @@ type
     TroopFormations: array[TGroupType] of record //Defines how defending troops will be formatted. 0 means leave unchanged.
                                             NumUnits, NumRows:integer;
                                           end;
-    DefencePositions: array of TAIDefencePosition;
     DefencePositionsCount: integer;
-    ScriptedAttacks: array of TAIAttack;
+    DefencePositions: array of TAIDefencePosition;
     ScriptedAttacksCount: integer;
+    ScriptedAttacks: array of TAIAttack;
     constructor Create(aAssets:TKMPlayerAssets);
     procedure CheckGoals;
     procedure CheckUnitCount();

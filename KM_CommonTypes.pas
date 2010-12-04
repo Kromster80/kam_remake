@@ -19,24 +19,26 @@ type
   TKMemoryStream = class(TMemoryStream)
   public
     procedure Write(const Value:string); reintroduce; overload;
-    function Write(const Value:TKMPoint): Longint; reintroduce; overload;
-    function Write(const Value:single): Longint; reintroduce; overload;
-    function Write(const Value:integer): Longint; reintroduce; overload;
-    function Write(const Value:cardinal): Longint; reintroduce; overload;
-    function Write(const Value:byte): Longint; reintroduce; overload;
-    function Write(const Value:boolean): Longint; reintroduce; overload;
-    function Write(const Value:word): Longint; reintroduce; overload;
-    function Write(const Value:shortint): Longint; reintroduce; overload;
+    function Write(const Value:TKMPoint ): Longint; reintroduce; overload;
+    function Write(const Value:TKMPointF): Longint; reintroduce; overload;
+    function Write(const Value:single   ): Longint; reintroduce; overload;
+    function Write(const Value:integer  ): Longint; reintroduce; overload;
+    function Write(const Value:cardinal ): Longint; reintroduce; overload;
+    function Write(const Value:byte     ): Longint; reintroduce; overload;
+    function Write(const Value:boolean  ): Longint; reintroduce; overload;
+    function Write(const Value:word     ): Longint; reintroduce; overload;
+    function Write(const Value:shortint ): Longint; reintroduce; overload;
 
     procedure Read(out Value:string); reintroduce; overload;
-    function Read(out Value:TKMPoint): Longint; reintroduce; overload;
-    function Read(out Value:single): Longint; reintroduce; overload;
-    function Read(out Value:integer): Longint; reintroduce; overload;
-    function Read(out Value:cardinal): Longint; reintroduce; overload;
-    function Read(out Value:byte): Longint; reintroduce; overload;
-    function Read(out Value:boolean): Longint; reintroduce; overload;
-    function Read(out Value:word): Longint; reintroduce; overload;
-    function Read(out Value:shortint): Longint; reintroduce; overload;
+    function Read(out Value:TKMPoint    ): Longint; reintroduce; overload;
+    function Read(out Value:TKMPointF   ): Longint; reintroduce; overload;
+    function Read(out Value:single      ): Longint; reintroduce; overload;
+    function Read(out Value:integer     ): Longint; reintroduce; overload;
+    function Read(out Value:cardinal    ): Longint; reintroduce; overload;
+    function Read(out Value:byte        ): Longint; reintroduce; overload;
+    function Read(out Value:boolean     ): Longint; reintroduce; overload;
+    function Read(out Value:word        ): Longint; reintroduce; overload;
+    function Read(out Value:shortint    ): Longint; reintroduce; overload;
   end;
 
 
@@ -278,6 +280,8 @@ end;
 
 function TKMemoryStream.Write(const Value:TKMPoint): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
+function TKMemoryStream.Write(const Value:TKMPointF): Longint;
+begin Result := Inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:single): Longint;
 begin Result := Inherited Write(Value, SizeOf(Value)); end;
 function TKMemoryStream.Write(const Value:integer): Longint;
@@ -303,6 +307,8 @@ begin
 end;
 
 function TKMemoryStream.Read(out Value:TKMPoint): Longint;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
+function TKMemoryStream.Read(out Value:TKMPointF): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:single): Longint;
 begin Result := Inherited Read(Value, SizeOf(Value)); end;

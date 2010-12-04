@@ -54,6 +54,7 @@ begin
   Inherited;
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDestroyingHouse);
+  LoadStream.Read(fFightType, SizeOf(fFightType));
   LoadStream.Read(LocID);
   CellsA := TKMPointDirList.Create;
   CellsW := TKMPointList.Create;
@@ -209,6 +210,7 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(fDestroyingHouse);
+  SaveStream.Write(fFightType, SizeOf(fFightType));
   SaveStream.Write(LocID);
   CellsA.Save(SaveStream);
   CellsW.Save(SaveStream);

@@ -56,7 +56,7 @@ begin
   LoadStream.Read(fStep);
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(fDirection, SizeOf(fDirection));
-  LoadStream.Read(fDoor, SizeOf(fDoor));
+  LoadStream.Read(fDoor);
   LoadStream.Read(fStreet);
   LoadStream.Read(fHasStarted);
   LoadStream.Read(fWaitingForPush);
@@ -243,7 +243,7 @@ begin
   else
     SaveStream.Write(Zero);
   SaveStream.Write(fDirection, SizeOf(fDirection));
-  SaveStream.Write(fDoor, SizeOf(fDoor));
+  SaveStream.Write(fDoor);
   SaveStream.Write(fStreet);
   SaveStream.Write(fHasStarted);
   SaveStream.Write(fWaitingForPush);

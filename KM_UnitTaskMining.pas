@@ -37,6 +37,7 @@ constructor TTaskMining.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(BeastID);
+  //Don't load WorkPlan
 end;
 
 
@@ -235,6 +236,7 @@ procedure TTaskMining.Save(SaveStream:TKMemoryStream);
 begin
   inherited;
   SaveStream.Write(BeastID);
+  //Don't save WorkPlan, we'll use link to TKMUnitCitizen.WorkPlan.
 end;
 
 end.

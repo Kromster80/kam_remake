@@ -1920,8 +1920,8 @@ begin
 
   if (Sender = Button_ReplayPause) or (Sender = Button_ReplayResume) then
   case fGame.GameState of
-    gsReplay: begin fGame.GameSetState(gsPaused); SetButtons(false); end;
-    gsPaused: begin fGame.GameSetState(gsReplay); SetButtons(true); end;
+    gsReplay: begin fGame.SetGameState(gsPaused); SetButtons(false); end;
+    gsPaused: begin fGame.SetGameState(gsReplay); SetButtons(true); end;
     else      Assert(false);
   end;
 

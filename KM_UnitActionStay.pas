@@ -14,7 +14,6 @@ TUnitActionStay = class(TUnitAction)
   public
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
     constructor Load(LoadStream:TKMemoryStream); override;
-    procedure SyncLoad(); override;
     function HowLongLeftToStay():integer;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -42,14 +41,7 @@ begin
   Inherited;
   LoadStream.Read(StayStill);
   LoadStream.Read(TimeToStay);
-  LoadStream.Read(StillFrame,SizeOf(StillFrame));
-end;
-
-
-procedure TUnitActionStay.SyncLoad();
-begin
-  Inherited;
-  //nothing, FPC doesn't likes it missing for some reason
+  LoadStream.Read(StillFrame);
 end;
 
 
@@ -115,10 +107,10 @@ end;
 
 procedure TUnitActionStay.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(StayStill);
   SaveStream.Write(TimeToStay);
-  SaveStream.Write(StillFrame,SizeOf(StillFrame));
+  SaveStream.Write(StillFrame);
 end;
 
 

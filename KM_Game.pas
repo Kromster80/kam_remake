@@ -4,7 +4,7 @@ interface
 uses Windows,
   {$IFDEF WDC} MPlayer, {$ENDIF}
   Forms, Controls, Classes, Dialogs, SysUtils, KromUtils, Math,
-  KM_CommonTypes, KM_Defaults, KM_Utils, 
+  KM_CommonTypes, KM_Defaults, KM_Utils,
   KM_Controls, KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_LoadLib, KM_InterfaceMapEditor, KM_InterfaceGamePlay, KM_InterfaceMainMenu,
   KM_ResourceGFX, KM_Terrain, KM_MissionScript, KM_Projectiles, KM_Sound, KM_Viewport, KM_Units, KM_Settings, KM_Music;
 
@@ -17,22 +17,23 @@ type TGameState = ( gsNoGame,  //No game running at all, MainMenu
 
 type
   TKMGame = class
-  private
+  private //Irrelevant to savegame
     ScreenX,ScreenY:word;
     FormControlsVisible:boolean;
     SelectingTroopDirection:boolean;
     SelectingDirPosition: TPoint;
     SelectedDirection: TKMDirection;
     GlobalTickCount:cardinal; //Not affected by Pause and anything
+  private //Should be saved
     fGameplayTickCount:cardinal;
     fGameName:string;
     fMissionFile:string; //Remember what we are playing incase we might want to replay
     ID_Tracker:cardinal; //Mainly Units-Houses tracker, to issue unique numbers on demand
     ActiveCampaign:TCampaign; //Campaign we are playing
     ActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
+    fGameState:TGameState;
   public
     GameSpeed:integer;
-    GameState:TGameState;
     PlayOnState:gr_Message;
     SkipReplayEndCheck:boolean;
     fGameInputProcess:TGameInputProcess;
@@ -58,14 +59,13 @@ type
     procedure GameInit();
     procedure GameStart(aMissionFile, aGameName:string; aCamp:TCampaign=cmp_Nil; aCampMap:byte=1);
     procedure GameError(aLoc:TKMPoint; aText:string); //Stop the game because of an error ()
-    procedure GameSetState(aNewState:TGameState);
+    procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:gr_Message); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure GameStop(const Msg:gr_Message; TextMsg:string='');
 
     procedure MapEditorStart(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
     procedure MapEditorSave(aMissionName:string; DoExpandPath:boolean);
-
-
+                               
     function  ReplayExists():boolean;
     procedure ReplayView(Sender:TObject);
 
@@ -77,6 +77,7 @@ type
     property GetCampaign:TCampaign read ActiveCampaign;
     property GetCampaignMap:byte read ActiveCampaignMap;
     function GetNewID():cardinal;
+    property GameState:TGameState read fGameState;
 
     function Save(SlotID:shortint):string;
     function Load(SlotID:shortint):string;
@@ -122,7 +123,7 @@ begin
 
   fCampaignSettings := TCampaignSettings.Create;
   GameSpeed := 1;
-  GameState := gsNoGame;
+  fGameState := gsNoGame;
   SkipReplayEndCheck := false;
   FormControlsVisible:=true;
   fLog.AppendLog('<== Game creation is done ==>');
@@ -163,11 +164,11 @@ begin
   ScreenY := Y;
   fRender.RenderResize(X,Y,rm2D);
 
-  if GameState = gsNoGame then
+  if fGameState = gsNoGame then
     fMainMenuInterface.SetScreenSize(X,Y)
   else begin //If game is running
     fViewport.SetVisibleScreenArea(X,Y);
-    if GameState = gsEditor then
+    if fGameState = gsEditor then
       fMapEditorInterface.SetScreenSize(X,Y)
     else
       fGamePlayInterface.SetScreenSize(X,Y);
@@ -178,7 +179,7 @@ end;
 
 procedure TKMGame.ZoomInGameArea(X:single);
 begin
-  if GameState in [gsRunning, gsReplay, gsEditor] then fViewport.SetZoom(X);
+  if fGameState in [gsRunning, gsReplay, gsEditor] then fViewport.SetZoom(X);
 end;
 
 
@@ -200,11 +201,11 @@ begin
   if not IsDown and ENABLE_DESIGN_CONTORLS and (Key = VK_F7) then
     MODE_DESIGN_CONTORLS := not MODE_DESIGN_CONTORLS;
 
-  case GameState of
+  case fGameState of
     gsNoGame:   if fMainMenuInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit; //Exit if handled
     gsPaused:   if Key=ord('P') then begin //Ignore all keys if game is on 'Pause'
                   if IsDown then exit;
-                  GameSetState(gsRunning);
+                  SetGameState(gsRunning);
                   fGameplayInterface.ShowPause(false); //Hide pause overlay
                 end;
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
@@ -231,7 +232,7 @@ begin
                     fGameplayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
                   end;
                   if Key = ord('P') then begin
-                    GameSetState(gsPaused);
+                    SetGameState(gsPaused);
                     fGameplayInterface.ShowPause(true); //Display pause overlay
                   end;
                   if Key=ord('W') then
@@ -299,7 +300,7 @@ end;
 procedure TKMGame.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
-  case GameState of
+  case fGameState of
     gsNoGame:   fMainMenuInterface.MyControls.MouseDown(X,Y,Shift,Button);
     gsPaused:   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
     gsOnHold:   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
@@ -378,7 +379,7 @@ var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse; DeltaX,DeltaY:shortint;
 begin
   if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
 
-  case GameState of
+  case fGameState of
     gsNoGame:   begin
                   fMainMenuInterface.MyControls.MouseMove(X,Y,Shift);
                   if fMainMenuInterface.MyControls.CtrlOver is TKMEdit then // Show "CanEdit" cursor
@@ -508,7 +509,7 @@ begin
     fGamePlayInterface.ShowDirectionCursor(false);
   end;
 
-  case GameState of //Remember clicked control
+  case fGameState of //Remember clicked control
     gsNoGame:   MOver := fMainMenuInterface.MyControls.CtrlOver;
     gsPaused:   MOver := fGameplayInterface.MyControls.CtrlOver;
     gsOnHold:   MOver := fGameplayInterface.MyControls.CtrlOver;
@@ -520,7 +521,7 @@ begin
 
   if (MOver <> nil) and (MOver is TKMButton) and MOver.Enabled and TKMButton(MOver).MakesSound then fSoundLib.Play(sfx_click);
 
-  case GameState of
+  case fGameState of
     gsNoGame:   fMainMenuInterface.MyControls.MouseUp(X,Y,Shift,Button);
     gsPaused:   fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
     gsOnHold:   fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
@@ -725,7 +726,7 @@ var AllowZoom: boolean;
 begin
   //e.g. if we're over a scrollbar it shouldn't zoom map, but this can apply for all controls (i.e. only zoom when over the map not controls)
   AllowZoom := true;
-  case GameState of //Remember clicked control
+  case fGameState of //Remember clicked control
     gsNoGame:   fMainMenuInterface.MyControls.MouseWheel(X, Y, WheelDelta);
     gsPaused:   ;
     gsOnHold:   ;
@@ -740,7 +741,7 @@ begin
                 end;
   end;
 
-  if (MOUSEWHEEL_ZOOM_ENABLE) and (GameState in [gsRunning,gsEditor]) and (AllowZoom) then
+  if (MOUSEWHEEL_ZOOM_ENABLE) and (fGameState in [gsRunning,gsEditor]) and (AllowZoom) then
     fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
 end;
 
@@ -805,7 +806,7 @@ begin
         //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
         LoadError := 'An error was encountered while parsing the file '+fMissionFile+'.|Details of the error:|'+
                       E.ClassName+' error raised with message: '+E.Message;
-        if GameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
+        if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
         fMainMenuInterface.ShowScreen_Error(LoadError);
         fLog.AppendLog('DAT Load Exception: '+LoadError);
         exit;
@@ -827,7 +828,7 @@ begin
 
   fLog.AppendLog('Gameplay initialized',true);
 
-  GameState := gsRunning;
+  fGameState := gsRunning;
 
   fGameInputProcess := TGameInputProcess.Create(gipRecording);
   Save(99); //Thats our base for a game record
@@ -842,10 +843,10 @@ end;
 procedure TKMGame.GameError(aLoc:TKMPoint; aText:string);
 begin
   //Negotiate duplicate calls for GameError
-  if GameState = gsNoGame then exit;
+  if fGameState = gsNoGame then exit;
 
   fViewport.SetCenter(aLoc.X, aLoc.Y);
-  GameSetState(gsPaused);
+  SetGameState(gsPaused);
   SHOW_UNIT_ROUTES := true;
   SHOW_UNIT_MOVEMENT := true;
   if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
@@ -862,9 +863,9 @@ begin
 end;
 
 
-procedure TKMGame.GameSetState(aNewState:TGameState);
+procedure TKMGame.SetGameState(aNewState:TGameState);
 begin
-  GameState := aNewState;
+  fGameState := aNewState;
 end;
 
 
@@ -875,17 +876,17 @@ begin
   case Msg of
     gr_ReplayEnd:     begin
                         if DoHold then begin
-                          GameSetState(gsOnHold);
+                          SetGameState(gsOnHold);
                           fGamePlayInterface.ShowPlayMore(true, Msg);
                         end else
-                          GameSetState(gsReplay);
+                          SetGameState(gsReplay);
                       end;
     gr_Win,gr_Defeat: begin
                         if DoHold then begin
-                          GameSetState(gsOnHold);
+                          SetGameState(gsOnHold);
                           fGamePlayInterface.ShowPlayMore(true, Msg);
                         end else
-                          GameSetState(gsRunning);
+                          SetGameState(gsRunning);
                       end;
   end;
 end;
@@ -893,7 +894,7 @@ end;
 
 procedure TKMGame.GameStop(const Msg:gr_Message; TextMsg:string='');
 begin
-  GameState := gsNoGame;
+  fGameState := gsNoGame;
 
   //Take results from MyPlayer before data is flushed
   if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
@@ -1011,7 +1012,7 @@ begin
 
   fGameplayTickCount := 0; //Restart counter
 
-  GameState := gsEditor;
+  fGameState := gsEditor;
 end;
 
 
@@ -1053,7 +1054,7 @@ begin
   fGameInputProcess.LoadFromFile(KMSlotToSaveName(99,'rpl'));
 
   RandSeed := 4; //Random after StartGame and ViewReplay should match
-  GameState := gsReplay;
+  fGameState := gsReplay;
 end;
 
 
@@ -1087,7 +1088,7 @@ var
   i:integer;
 begin
   fLog.AppendLog('Saving game');
-  case GameState of
+  case fGameState of
     gsNoGame:   exit; //Don't need to save the game if we are in menu. Never call Save from menu anyhow
     gsEditor:   exit; //MapEd gets saved differently from SaveMapEd
     gsOnHold:   exit; //No sense to save from victory?
@@ -1152,10 +1153,10 @@ begin
     exit;
   end;
 
-  if GameState in [gsRunning, gsPaused] then GameStop(gr_Silent);
+  if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent);
 
   LoadStream := TKMemoryStream.Create; //Read data from file into stream
-  case GameState of
+  case fGameState of
     gsEditor, gsPaused, gsOnHold, gsRunning, gsReplay:   exit;
     gsNoGame: begin  //Load only from menu or stopped game
       try //Catch exceptions
@@ -1205,14 +1206,14 @@ begin
           //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
           Result := 'An error was encountered while parsing the file '+FileName+'.|Details of the error:|'+
                         E.ClassName+' error raised with message: '+E.Message;
-          if GameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
+          if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
           exit;
         end;
       end;
     end;
   end;
 
-  GameState := gsRunning;
+  fGameState := gsRunning;
   fLog.AppendLog('Loading game',true);
 end;
 
@@ -1221,7 +1222,7 @@ procedure TKMGame.UpdateState;
 var i:integer;
 begin
   inc(GlobalTickCount);
-  case GameState of
+  case fGameState of
     gsPaused:   exit;
     gsOnHold:   exit;
     gsNoGame:   begin
@@ -1237,19 +1238,19 @@ begin
                     inc(fGameplayTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
                     fPlayers.UpdateState(fGameplayTickCount); //Quite slow
-                    if GameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
+                    if fGameState = gsNoGame then exit; //Quit the update if game was stopped by MyPlayer defeat
                     fProjectiles.UpdateState; //If game has stopped it's NIL
 
                     if (fGameplayTickCount mod 600 = 0) and fGlobalSettings.IsAutosave then //Each 1min of gameplay time
                       Save(AUTOSAVE_SLOT); //Autosave slot
 
-                    if GameState = gsReplay then begin
+                    if fGameState = gsReplay then begin
                       fGameInputProcess.Tick(fGameplayTickCount);
                       if not SkipReplayEndCheck and fGameInputProcess.Ended then
                         GameHold(true, gr_ReplayEnd);
                     end;
 
-                    if GameState = gsNoGame then exit; //Error due to consistency fail in replay commands
+                    if fGameState = gsNoGame then exit; //Error due to consistency fail in replay commands
                   end;
 
                   fGamePlayInterface.UpdateState;
@@ -1279,7 +1280,7 @@ end;
 {This is our real-time thread, use it wisely}
 procedure TKMGame.UpdateStateIdle(aFrameTime:cardinal);
 begin
-  case GameState of
+  case fGameState of
     gsRunning,
     gsReplay:   begin
                   fViewport.DoScrolling(aFrameTime); //Check to see if we need to scroll
@@ -1304,7 +1305,7 @@ end;
 
 procedure TKMGame.PaintInterface;
 begin
-  case GameState of
+  case fGameState of
     gsNoGame:  fMainMenuInterface.Paint;
     gsPaused:  fGameplayInterface.Paint;
     gsOnHold:  fGameplayInterface.Paint;

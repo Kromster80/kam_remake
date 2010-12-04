@@ -469,6 +469,7 @@ begin
   fHouses.Save(SaveStream);
   fDeliverList.Save(SaveStream);
   fBuildList.Save(SaveStream);
+
   fMissionSettings.Save(SaveStream);
   SaveStream.Write(fPlayerID, SizeOf(fPlayerID));
   SaveStream.Write(PlayerType, SizeOf(PlayerType));
@@ -489,6 +490,7 @@ begin
   fHouses.Load(LoadStream);
   fDeliverList.Load(LoadStream);
   fBuildList.Load(LoadStream);
+
   fMissionSettings.Load(LoadStream);
   LoadStream.Read(fPlayerID, SizeOf(fPlayerID));
   LoadStream.Read(PlayerType, SizeOf(PlayerType));

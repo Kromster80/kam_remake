@@ -26,7 +26,7 @@ type
     StepDone: boolean; //True when single action element is done (unit walked to new tile, single attack loop done)
     constructor Create(aActionType: TUnitActionType);
     constructor Load(LoadStream:TKMemoryStream); virtual;
-    procedure SyncLoad(); virtual; abstract;
+    procedure SyncLoad(); virtual;
     property GetActionType: TUnitActionType read fActionType;
     function Execute(KMUnit: TKMUnit):TActionResult; virtual; abstract;
     procedure Save(SaveStream:TKMemoryStream); virtual;
@@ -57,9 +57,7 @@ type
     TTaskGoOutShowHungry = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
-      constructor Load(LoadStream:TKMemoryStream); override;
       function Execute():TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
   TKMUnit = class(TObject)
@@ -182,12 +180,8 @@ type
 
   TKMUnitRecruit = class(TKMUnit)
   public
-    constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
-    constructor Load(LoadStream:TKMemoryStream); override;
-    destructor Destroy; override;
     function FindHome():boolean;
     function InitiateActivity():TUnitTask;
-    procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
@@ -210,7 +204,6 @@ type
   TKMUnitWorker = class(TKMUnit)
   public
     function GetActionFromQueue():TUnitTask;
-    procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
@@ -468,27 +461,6 @@ end;
 
 
 { TKMUnitRecruit }
-constructor TKMUnitRecruit.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
-begin
-  Inherited;
-  //Nothing
-end;
-
-
-constructor TKMUnitRecruit.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
-  //Nothing means nothing
-end;
-
-
-destructor TKMUnitRecruit.Destroy;
-begin
-  //Nothing-nothing
-  Inherited;
-end;
-
-
 function TKMUnitRecruit.FindHome():boolean;
 var KMHouse:TKMHouse;
 begin
@@ -531,13 +503,6 @@ begin
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, fPosition.Y+1);
-end;
-
-
-procedure TKMUnitRecruit.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited;
-  //Nothing yet
 end;
 
 
@@ -645,7 +610,7 @@ end;
 
 procedure TKMUnitSerf.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(Carry, SizeOf(Carry));
 end;
 
@@ -726,13 +691,6 @@ begin
 end;
 
 
-procedure TKMUnitWorker.Save(SaveStream:TKMemoryStream);
-begin
-  inherited;
-  //Nothing to save yet
-end;
-
-
 function TKMUnitWorker.UpdateState():boolean;
 var
   H:TKMHouseInn;
@@ -801,13 +759,13 @@ end;
 
 function TKMUnitAnimal.GetSupportedActions: TUnitActionTypeSet;
 begin
-  Result:= [ua_Walk];
+  Result := [ua_Walk];
 end;
 
 
 procedure TKMUnitAnimal.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(fFishCount);
 end;
 
@@ -963,7 +921,7 @@ begin
   LoadStream.Read(fInHouse, 4);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
-  LoadStream.Read(fPosition, 8); //2 floats
+  LoadStream.Read(fPosition); 
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
   LoadStream.Read(IsExchanging);
@@ -1519,7 +1477,7 @@ begin
   SaveStream.Write(fThought, SizeOf(fThought));
   SaveStream.Write(fCondition);
   SaveStream.Write(fHitPoints);
-  SaveStream.Write(fHitPointCounter, 4);
+  SaveStream.Write(fHitPointCounter);
 
   if fInHouse <> nil then
     SaveStream.Write(fInHouse.ID) //Store ID, then substitute it with reference on SyncLoad
@@ -1533,7 +1491,7 @@ begin
   else
     SaveStream.Write(Zero);
 
-  SaveStream.Write(fPosition, 8); //2floats
+  SaveStream.Write(fPosition);
   SaveStream.Write(fVisible);
   SaveStream.Write(fIsDead);
   SaveStream.Write(IsExchanging);
@@ -1687,12 +1645,6 @@ begin
 end;
 
 
-constructor TTaskGoOutShowHungry.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
-end;
-
-
 function TTaskGoOutShowHungry.Execute():TTaskResult;
 begin
   Result := TaskContinues;
@@ -1726,12 +1678,6 @@ begin
 end;
 
 
-procedure TTaskGoOutShowHungry.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited; //nothing more here yet
-end;
-
-
 { TUnitAction }
 constructor TUnitAction.Create(aActionType: TUnitActionType);
 begin
@@ -1749,6 +1695,12 @@ begin
   LoadStream.Read(fActionType, SizeOf(fActionType));
   LoadStream.Read(Locked);
   LoadStream.Read(StepDone);
+end;
+
+
+procedure TUnitAction.SyncLoad();
+begin
+  //Should be virtual
 end;
 
 

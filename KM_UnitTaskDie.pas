@@ -8,9 +8,7 @@ type
   TTaskDie = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
-      constructor Load(LoadStream:TKMemoryStream); override;
       function Execute():TTaskResult; override;
-      procedure Save(SaveStream:TKMemoryStream); override;
     end;
 
 
@@ -23,12 +21,6 @@ constructor TTaskDie.Create(aUnit:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_Die;
-end;
-
-
-constructor TTaskDie.Load(LoadStream:TKMemoryStream);
-begin
-  Inherited;
 end;
 
 
@@ -64,13 +56,6 @@ begin
   end;
   inc(fPhase);
 end;
-
-
-procedure TTaskDie.Save(SaveStream:TKMemoryStream);
-begin
-  Inherited;
-end;
-
 
 
 end.

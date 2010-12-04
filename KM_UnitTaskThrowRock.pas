@@ -36,6 +36,7 @@ constructor TTaskThrowRock.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fTarget, 4);
+  LoadStream.Read(fFlightTime);
 end;
 
 
@@ -84,6 +85,7 @@ begin
     SaveStream.Write(fTarget.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
+  SaveStream.Write(fFlightTime);
 end;
 
 
