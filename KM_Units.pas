@@ -811,7 +811,7 @@ end;
 procedure TKMUnitAnimal.Paint();
 var AnimAct,AnimDir:integer;
 begin
-inherited;
+  Inherited;
   if fUnitType = ut_Fish then
        AnimAct:=byte(fFishCount) //For fish the action is the number of fish in the group
   else AnimAct:=byte(fCurrentAction.fActionType); //should correspond with UnitAction

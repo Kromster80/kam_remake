@@ -102,6 +102,7 @@ type TKMPointList = class
   public
     Count:integer;
     List:array of TKMPoint; //1..Count
+    constructor Load(LoadStream:TKMemoryStream); virtual;
     procedure Clearup; virtual;
     procedure AddEntry(aLoc:TKMPoint);
     function  RemoveEntry(aLoc:TKMPoint):cardinal; virtual;
@@ -111,18 +112,17 @@ type TKMPointList = class
     function  GetTopLeft():TKMPoint;
     function  GetBottomRight():TKMPoint;
     procedure Save(SaveStream:TKMemoryStream); virtual;
-    procedure Load(LoadStream:TKMemoryStream); virtual;
   end;
 
 
 type TKMPointTagList = class (TKMPointList)
   public
     Tag,Tag2:array of integer; //1..Count
+    constructor Load(LoadStream:TKMemoryStream); override;
     procedure Clearup; override;
     procedure AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal); reintroduce;
     function RemoveEntry(aLoc:TKMPoint):cardinal; override;
     procedure Save(SaveStream:TKMemoryStream); override;
-    procedure Load(LoadStream:TKMemoryStream); override;
   end;
 
 
@@ -130,6 +130,7 @@ type TKMPointDirList = class //Used for finding fishing places, fighting positio
   public
     Count:integer;
     List:array of TKMPointDir; //1..Count
+    constructor Load(LoadStream:TKMemoryStream);
     procedure Clearup;
     procedure AddEntry(aLoc:TKMPointDir);
     function RemoveEntry(aLoc:TKMPointDir):cardinal;
@@ -137,7 +138,6 @@ type TKMPointDirList = class //Used for finding fishing places, fighting positio
     function GetRandom():TKMPointDir;
     function GetNearest(aLoc:TKMPoint):TKMPointDir;
     procedure Save(SaveStream:TKMemoryStream);
-    procedure Load(LoadStream:TKMemoryStream);
   end;
 
 
@@ -429,6 +429,17 @@ end;
 
 
 { TKMPointList }
+constructor TKMPointList.Load(LoadStream:TKMemoryStream);
+var i:integer;
+begin
+  Inherited Create;
+  LoadStream.Read(Count);
+  setlength(List,Count+32);
+  for i:=1 to Count do
+  LoadStream.Read(List[i]);
+end;
+
+
 procedure TKMPointList.Clearup;
 begin
   Count := 0;
@@ -527,19 +538,25 @@ begin
 end;
 
 
-procedure TKMPointList.Load(LoadStream:TKMemoryStream);
+{ TKMPointTagList }
+constructor TKMPointTagList.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
-  LoadStream.Read(Count);
-  setlength(List,Count+32);
+  Inherited; //Reads Count
+
+  setlength(Tag,Count+32); //Make space in lists to write data to, otherwise we get "Range Check Error"
+  setlength(Tag2,Count+32);
   for i:=1 to Count do
-  LoadStream.Read(List[i]);
+  begin
+    LoadStream.Read(Tag[i]);
+    LoadStream.Read(Tag2[i]);
+  end;
 end;
 
 
 procedure TKMPointTagList.Clearup;
 begin
-  inherited;
+  Inherited;
   setlength(Tag,0);
   setlength(Tag2,0);
 end;
@@ -547,7 +564,7 @@ end;
 
 procedure TKMPointTagList.AddEntry(aLoc:TKMPoint; aTag,aTag2:cardinal);
 begin
-  inherited AddEntry(aLoc);
+  Inherited AddEntry(aLoc);
   if Count>length(Tag)-1 then setlength(Tag,Count+32); //Expand the list
   if Count>length(Tag2)-1 then setlength(Tag2,Count+32); //+32 is just a way to avoid further expansions
   Tag[Count]:=aTag;
@@ -558,7 +575,7 @@ end;
 function TKMPointTagList.RemoveEntry(aLoc:TKMPoint):cardinal;
 var i: integer;
 begin
-  Result:= inherited RemoveEntry(aLoc);
+  Result := Inherited RemoveEntry(aLoc);
 
   for i:=Result to Count-1 do
   begin
@@ -571,7 +588,7 @@ end;
 procedure TKMPointTagList.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  inherited; //Writes Count
+  Inherited; //Writes Count
 
   for i:=1 to Count do
   begin
@@ -581,22 +598,21 @@ begin
 end;
 
 
-procedure TKMPointTagList.Load(LoadStream:TKMemoryStream);
+{ TKMPointList }
+constructor TKMPointDirList.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
-  inherited; //Reads Count
-
-  setlength(Tag,Count+32); //Make space in lists to write data to, otherwise we get "Range Check Error"
-  setlength(Tag2,Count+32);
+  Inherited Create;
+  LoadStream.Read(Count);
+  setlength(List,Count+32); //Make space in lists to write data to, otherwise we get "Range Check Error"
   for i:=1 to Count do
   begin
-    LoadStream.Read(Tag[i]);
-    LoadStream.Read(Tag2[i]);
+    LoadStream.Read(List[i].Loc);
+    LoadStream.Read(List[i].Dir);
   end;
 end;
 
 
-{ TKMPointList }
 procedure TKMPointDirList.Clearup;
 begin
   Count:=0;
@@ -629,6 +645,7 @@ begin
     if (Found) and (i < Count) then List[i] := List[i+1];
   end;
 end;
+
 
 {Add an entry at given place an shift everything }
 procedure TKMPointDirList.InjectEntry(ID:integer; aLoc:TKMPointDir);
@@ -673,19 +690,6 @@ begin
   begin
     SaveStream.Write(List[i].Loc);
     SaveStream.Write(List[i].Dir);
-  end;
-end;
-
-
-procedure TKMPointDirList.Load(LoadStream:TKMemoryStream);
-var i:integer;
-begin
-  LoadStream.Read(Count);
-  setlength(List,Count+32); //Make space in lists to write data to, otherwise we get "Range Check Error"
-  for i:=1 to Count do
-  begin
-    LoadStream.Read(List[i].Loc);
-    LoadStream.Read(List[i].Dir);
   end;
 end;
 

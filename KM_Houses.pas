@@ -1047,7 +1047,7 @@ end;
 procedure TKMHouseSwineStable.Paint;
 var i:integer;
 begin
-  inherited;
+  Inherited;
   if (fBuildState<>hbs_Done) then exit;
   for i:=1 to 5 do
     if BeastAge[i]>0 then
@@ -1129,7 +1129,7 @@ end;
 procedure TKMHouseInn.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  inherited;
+  Inherited;
   for i:=1 to 6 do
   with Eater[i] do
   begin
@@ -1276,7 +1276,7 @@ end;
 procedure TKMHouseSchool.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  inherited;
+  Inherited;
   if TKMUnit(UnitWIP) <> nil then
     SaveStream.Write(TKMUnit(UnitWIP).ID) //Store ID, then substitute it with reference on SyncLoad
   else

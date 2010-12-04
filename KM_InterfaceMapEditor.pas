@@ -448,7 +448,7 @@ end;
 destructor TKMapEdInterface.Destroy;
 begin
   FreeAndNil(MyControls);
-  inherited;
+  Inherited;
 end;
 
 

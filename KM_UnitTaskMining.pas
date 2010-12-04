@@ -234,7 +234,7 @@ end;
 
 procedure TTaskMining.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(BeastID);
   //Don't save WorkPlan, we'll use link to TKMUnitCitizen.WorkPlan.
 end;

@@ -201,11 +201,13 @@ begin
   FallingTrees := TKMPointTagList.Create;
 end;
 
+
 destructor TTerrain.Destroy;
 begin
   FreeAndNil(FallingTrees);
-  inherited;
+  Inherited;
 end;
+
 
 //Reset whole map with default values
 procedure TTerrain.MakeNewMap(Width,Height:integer);
@@ -2183,6 +2185,9 @@ begin
   SaveStream.Write(MapX);
   SaveStream.Write(MapY);
 
+  FallingTrees.Save(SaveStream);
+  SaveStream.Write(AnimStep);
+
   for i:=1 to MapY do for k:=1 to MapX do
   begin
     //Only save fields that cannot be recalculated after loading
@@ -2198,11 +2203,7 @@ begin
     SaveStream.Write(Land[i,k].IsUnit);
     SaveStream.Write(Land[i,k].IsVertexUnit);
     SaveStream.Write(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
-  end;
-
-  FallingTrees.Save(SaveStream);
-
-  SaveStream.Write(AnimStep);
+  end;       
 end;
 
 
@@ -2212,6 +2213,9 @@ begin
   LoadStream.Read(s); if s<>'Terrain' then exit;
   LoadStream.Read(MapX);
   LoadStream.Read(MapY);
+
+  LoadStream.Read(AnimStep);
+  FallingTrees.Load(LoadStream);
 
   for i:=1 to MapY do for k:=1 to MapX do
   begin
@@ -2231,10 +2235,7 @@ begin
 
   for i:=1 to MapY do for k:=1 to MapX do
     UpdateBorders(KMPoint(k,i),false);
-
-  FallingTrees.Load(LoadStream);
-  LoadStream.Read(AnimStep);
-
+     
   RebuildLighting(1, MapX, 1, MapY);
   RebuildPassability(1, MapX, 1, MapY);
   RebuildWalkConnect(wcWalk);

@@ -44,7 +44,7 @@ uses KM_Defaults, KM_CommonTypes;
 
 constructor TTextLibrary.Create(aLibPath,aLocale: string);
 begin
-  inherited Create;
+  Inherited Create;
 
   if FileExists(aLibPath+'text.'+aLocale+'.lib') then
     LoadLIBFile(aLibPath+'text.'+aLocale+'.lib', TextStrings)

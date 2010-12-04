@@ -56,8 +56,6 @@ begin
   LoadStream.Read(fDestroyingHouse);
   LoadStream.Read(fFightType, SizeOf(fFightType));
   LoadStream.Read(LocID);
-  CellsA := TKMPointDirList.Create;
-  CellsW := TKMPointList.Create;
   CellsA.Load(LoadStream);
   CellsW.Load(LoadStream);
 end;
@@ -90,7 +88,6 @@ begin
     (TTaskAttackHouse(HitUnit.GetUnitTask).LocID <> 0)and //Attack is in progress
     TTaskAttackHouse(HitUnit.GetUnitTask).fDestroyingHouse; //Attack on the house began
 end;
-
 
 
 function TTaskAttackHouse.WalkShouldAbandon:boolean;

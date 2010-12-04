@@ -16,7 +16,7 @@ type
     fDeliverList: TKMDeliverQueue;
     fHouses: TKMHousesCollection;
     fUnits: TKMUnitsCollection;
-    fRoadsList:TKMPointList;
+    fRoadsList:TKMPointList; //Used only once to speedup mission loading, then freed
   public
     fAlliances: array[1..MAX_PLAYERS] of TAllianceType;
     fGoals: array of TPlayerGoal; //0..n-1
@@ -117,7 +117,7 @@ begin
   fPlayerID     := aPlayerID;
   PlayerType    := pt_Computer;
   fMissionSettings := TMissionSettings.Create;
-  fRoadsList    := TKMPointList.Create; //Used only once on mission loading, then freed
+  fRoadsList    := TKMPointList.Create;
   fUnits        := TKMUnitsCollection.Create;
   fHouses       := TKMHousesCollection.Create;
   fDeliverList  := TKMDeliverQueue.Create;
@@ -584,7 +584,7 @@ end;
 destructor TKMPlayerAnimals.Destroy;
 begin
   FreeThenNil(fUnits);
-  inherited;
+  Inherited;
 end;
 
 

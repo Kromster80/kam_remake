@@ -246,7 +246,7 @@ begin
   if fLobby<>nil then FreeAndNil(fLobby); //If user never went to MP area it will be NIL
   FreeAndNil(SingleMapsInfo);
   FreeAndNil(MyControls);
-  inherited;
+  Inherited;
 end;
 
 

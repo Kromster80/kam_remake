@@ -605,7 +605,7 @@ destructor TKMGamePlayInterface.Destroy;
 begin
   FreeAndNil(fMessageList);
   FreeAndNil(MyControls);
-  inherited;
+  Inherited;
 end;
 
 

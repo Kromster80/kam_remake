@@ -737,7 +737,7 @@ end;
 
 procedure TTaskBuildHouse.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
@@ -848,7 +848,7 @@ end;
 
 procedure TTaskBuildHouseRepair.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else

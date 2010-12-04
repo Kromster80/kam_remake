@@ -222,7 +222,6 @@ begin
   LoadStream.Read(fInteractionStatus, SizeOf(fInteractionStatus));
 
   LoadStream.Read(fVertexOccupied);
-  NodeList := TKMPointList.Create; //Freed on destroy
   NodeList.Load(LoadStream);
   LoadStream.Read(NodePos);
 end;
