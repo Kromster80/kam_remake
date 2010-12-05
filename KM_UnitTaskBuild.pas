@@ -631,8 +631,7 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(BuildID);
   LoadStream.Read(CurLoc);
-  Cells := TKMPointDirList.Create;
-  Cells.Load(LoadStream);
+  Cells := TKMPointDirList.Load(LoadStream);
 end;
 
 
@@ -768,8 +767,7 @@ begin
   LoadStream.Read(fHouse, 4);
   LoadStream.Read(BuildID);
   LoadStream.Read(CurLoc);
-  Cells := TKMPointDirList.Create;
-  Cells.Load(LoadStream);
+  Cells := TKMPointDirList.Load(LoadStream);
 end;
 
 
