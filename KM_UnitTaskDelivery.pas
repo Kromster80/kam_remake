@@ -173,7 +173,7 @@ begin
   with fUnit do
   case fPhase of
     0..4:;
-    5:  SetActionWalkToSpot(fToHouse.GetEntrance,1); //todo: Any tile next to entrance will do. @Krom: Fixed? (it now matches KaM, any tile 1 tile from the entrance will do)
+    5:  SetActionWalkToSpot(fToHouse.GetEntrance,1); 
     6:  begin
           fToHouse.ResAddToBuild(TKMUnitSerf(fUnit).Carry);
           TKMUnitSerf(fUnit).CarryTake();

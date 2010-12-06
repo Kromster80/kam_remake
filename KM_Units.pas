@@ -425,7 +425,6 @@ begin
   if WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
   if fHome.GetHouseType = ht_FisherHut then
   begin
-    //todo: Put these messages into LIB file (use one from original KaM once final has been decided on for SR3 which has changed this message)
     if not fTerrain.CanFindFishingWater(KMPointY1(fHome.GetEntrance),RANGE_FISHERMAN) then
       fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetRemakeString(51), fHome.GetEntrance)
     else

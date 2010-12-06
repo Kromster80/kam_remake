@@ -262,7 +262,7 @@ end;
 procedure SetupVSync(aVSync:boolean);
 begin
   if WGL_EXT_swap_control then
-    wglSwapIntervalEXT(byte(aVSync));
+    wglSwapIntervalEXT(byte(aVSync)); //1 or 0
 end;
 
 

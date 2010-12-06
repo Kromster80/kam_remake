@@ -114,9 +114,7 @@ begin
   OpenGL_Renderer := glGetString(GL_RENDERER); fLog.AddToLog('OpenGL Renderer:  '+OpenGL_Renderer);
   OpenGL_Version  := glGetString(GL_VERSION);  fLog.AddToLog('OpenGL Version:  ' +OpenGL_Version);
 
-  SetupVSync(aVSync); //todo: test if it works, my PC ignores it
-                      //@Krom: This works very well on my PC. When I change it to 'true' I get a constant 60 FPS (my refresh rate) and scrolling is a lot smoother. (less flickering on the screen) Also my GPU only gets to 40% usage, rather than previous 100% and it is generating a lot less heat.
-                      //       When 'false' frame rate is ~125 and scrolling isn't so smooth. I added an option for this in the menu, let me know if you have any comments or objections, otherwise to be deleted.
+  SetupVSync(aVSync);
 
   setlength(RenderList,512);
 end;

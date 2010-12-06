@@ -1100,6 +1100,8 @@ var
   //@Krom: These new IDs should be used as defaults when loading a script because some missions may not include a color ID and rely on
   //       the defaults. The first 5 are good but I dislike that the last 3 are fairly similar, so maybe for the map editor we should have
   //       different defaults? Give me your thoughts.
+  //@Lewin: I guess dark-blue and orange-brown will be noticably different from existing colors
+  //        tbh I don't like default colors that much, they are quite dull (greyish).  
   //Default IDs from KaM:
   {229, //Red
   36,  //Cyan
