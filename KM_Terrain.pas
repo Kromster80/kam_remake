@@ -134,7 +134,7 @@ TTerrain = class
     function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
 
     procedure UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
-    procedure UnitRem(LocFrom:TKMPoint; aUnit:TKMUnit);
+    procedure UnitRem(LocFrom:TKMPoint);
     procedure UnitWalk(LocFrom,LocTo:TKMPoint; aUnit:TKMUnit);
     procedure UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
     procedure UnitVertexAdd(LocTo:TKMPoint);
@@ -1564,17 +1564,19 @@ begin
   Land[LocTo.Y,LocTo.X].IsUnit := aUnit
 end;
 
-{Mark tile as empty}
-procedure TTerrain.UnitRem(LocFrom:TKMPoint; aUnit:TKMUnit);
+
+{ Mark tile as empty }
+// We have no way of knowing whether a unit is inside a house, or several units exit a house at once
+// when exiting the game and destroying all units this will cause asserts.
+procedure TTerrain.UnitRem(LocFrom:TKMPoint);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  //todo: As we have no way of knowing whether a unit is inside a house, when exiting the game and destroying all units this will cause asserts.
-  //Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = aUnit, 'Trying to remove wrong unit at '+TypeToString(LocFrom));
   Land[LocFrom.Y,LocFrom.X].IsUnit := nil;
 end;
 
 
 {Mark previous tile as empty and next one as occupied}
+//We need to check both tiles since UnitWalk is called only by WalkTo where both tiles aren't houses
 procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint; aUnit:TKMUnit);
 begin
   if not DO_UNIT_INTERACTION then exit;
@@ -1586,12 +1588,10 @@ end;
 
 
 procedure TTerrain.UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
-var TempUnit: TKMUnit;
 begin
   Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = UnitFrom, 'Trying to swap wrong unit at '+TypeToString(LocFrom));
-  TempUnit := Land[LocFrom.Y,LocFrom.X].IsUnit;
   Land[LocFrom.Y,LocFrom.X].IsUnit := Land[LocTo.Y,LocTo.X].IsUnit;
-  Land[LocTo.Y,LocTo.X].IsUnit := TempUnit;
+  Land[LocTo.Y,LocTo.X].IsUnit := UnitFrom;
 end;
 
 
@@ -1601,6 +1601,7 @@ begin
   if not DO_UNIT_INTERACTION then exit;
   inc(Land[LocTo.Y,LocTo.X].IsVertexUnit);
 end;
+
 
 {Mark vertex as empty}
 procedure TTerrain.UnitVertexRem(LocFrom:TKMPoint);
@@ -2353,7 +2354,7 @@ begin
 
   if SHOW_TERRAIN_WIRES then fRender.RenderDebugWires(x1,x2,y1,y2);
   if SHOW_UNIT_MOVEMENT then fRender.RenderDebugUnitMoves(x1,x2,y1,y2);
-
 end;
+
 
 end.

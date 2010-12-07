@@ -1244,7 +1244,7 @@ begin
   if CheckResIn(rt_Gold)=0 then exit;
   HideOneGold:=true;
   UnitWIP:=fPlayers.Player[byte(fOwner)].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
-  fTerrain.UnitRem(GetEntrance,UnitWIP); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
+  fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
   TKMUnit(UnitWIP).SetUnitTask := TTaskSelfTrain.Create(UnitWIP,Self);
 end;
 
@@ -1457,7 +1457,7 @@ begin
 
   //Make new unit
   Soldier := TKMUnitWarrior(fPlayers.Player[byte(fOwner)].AddUnit(aUnitType,GetEntrance,false,true));
-  fTerrain.UnitRem(GetEntrance,Soldier); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
+  fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
   Soldier.SetVisibility := false; //Make him invisible as he is inside the barracks
   Soldier.SetCondition := Round(TROOPS_TRAINED_CONDITION*UNIT_MAX_CONDITION); //All soldiers start with 3/4, so groups get hungry at the same time
 

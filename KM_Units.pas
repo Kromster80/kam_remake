@@ -969,7 +969,7 @@ begin
     fHome.ReleaseHousePointer;
   end;
 
-  fTerrain.UnitRem(NextPosition, Self); //Must happen before we nil NextPosition
+  fTerrain.UnitRem(NextPosition); //Must happen before we nil NextPosition
 
   fIsDead       := true;
   fThought      := th_None;
@@ -1037,7 +1037,7 @@ end;
 procedure TKMUnit.SetPosition(aPos:TKMPoint);
 begin
   Assert(fGame.GameState=gsEditor); //This is only used by the map editor, set all positions to aPos
-  fTerrain.UnitRem(fCurrPosition, Self);
+  fTerrain.UnitRem(fCurrPosition);
   fCurrPosition := aPos;
   fNextPosition := aPos;
   fPrevPosition := aPos;

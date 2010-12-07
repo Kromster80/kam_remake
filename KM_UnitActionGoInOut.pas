@@ -142,7 +142,7 @@ begin
       KMUnit.Direction := dir_N;  //one cell up
       KMUnit.Thought := th_None;
       KMUnit.UpdateNextPosition(KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1));
-      fTerrain.UnitRem(KMUnit.GetPosition, KMUnit); //Unit does not occupy a tile while inside
+      fTerrain.UnitRem(KMUnit.GetPosition); //Unit does not occupy a tile while inside
       if (KMUnit.GetHome<>nil) and (KMUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside := TKMHouseBarracks(KMUnit.GetHome).RecruitsInside + 1;
     end;

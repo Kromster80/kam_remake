@@ -532,7 +532,7 @@ begin
       RenderDot(k,i-fTerrain.InterpolateLandHeight(k,i)/CELL_HEIGHT_DIV,0.3);
     end;
     if fTerrain.Land[i,k].IsUnit<>nil then begin
-      glColor4f(0.17,0.83,-0.17,0.8);
+      glColor4f(0.17,0.83,0,0.8);
       RenderQuad(k,i);
     end;
   end;
@@ -862,10 +862,8 @@ if ID<=0 then exit;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
 
   if SHOW_UNIT_MOVEMENT then begin
-    if Owner > MAX_PLAYERS then
-      Color := $FFFFFFFF
-    else
-      Color := fPlayers.Player[Owner].PlayerColor;
+    if Owner > MAX_PLAYERS then Color := $FFFFFFFF
+                           else Color := fPlayers.Player[Owner].PlayerColor;
     glColor3ubv(@Color);
     RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV); //Render dot where unit is
   end;

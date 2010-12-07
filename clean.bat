@@ -1,0 +1,1 @@
+erase /F /Q /S *.~* *.ddp *.log *.tmp *.drc *.dcp *.dcu
