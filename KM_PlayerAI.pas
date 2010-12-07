@@ -74,6 +74,7 @@ end;
 
 destructor TAIDefencePosition.Destroy;
 begin
+  //@Lewin: it still causes occasional errors here, on mission abort, commander.pointercount becomes <0
   ClearCurrentCommander; //Ensure pointer is removed
   Inherited;
 end;

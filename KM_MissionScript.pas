@@ -352,11 +352,12 @@ begin
             Param:=Param+FileText[k];
             inc(k);
           until((k>=length(FileText))or(FileText[k]='!')or(FileText[k]=#32)); //Until we find another ! OR we run out of data
+
           //Convert to an integer, if possible
           if StrToIntDef(Param,-999) <> -999 then ParamList[l] := StrToInt(Param)
           else if l=1 then TextParam:=Param; //Accept text for first parameter
 
-          if FileText[k]=#32 then inc(k);
+          if (k<=length(FileText)) and (FileText[k]=#32) then inc(k);
         end;
       //We now have command text and parameters, so process them
 
