@@ -900,7 +900,8 @@ begin
     //Walk complete
     if not DoExchange and CheckWalkComplete then
     begin
-      if (fWalkToSpot>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon)) then
+      if (fWalkToSpot>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon))
+      and not KMSamePoint(NodeList.List[NodePos],fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
         fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
       exit;

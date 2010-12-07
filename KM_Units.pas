@@ -80,14 +80,16 @@ type
     fCurrPosition: TKMPoint; //Where we are now
     fPrevPosition: TKMPoint; //Where we were
     fNextPosition: TKMPoint; //Where we will be. Next tile in route or same tile if stay on place
+    fDirection: TKMDirection; //
+    procedure SetDirection(aValue:TKMDirection);
     procedure SetAction(aAction: TUnitAction; aStep:integer=0);
   public
     AnimStep: integer;
-    Direction: TKMDirection;
     IsExchanging:boolean; //Current walk is an exchange, used for sliding
     property ID:integer read fID;
     property PrevPosition: TKMPoint read fPrevPosition;
     property NextPosition: TKMPoint read fNextPosition;
+    property Direction:TKMDirection read fDirection write SetDirection;
   public
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); dynamic;
@@ -920,14 +922,14 @@ begin
   LoadStream.Read(fInHouse, 4);
   LoadStream.Read(fOwner, SizeOf(fOwner));
   LoadStream.Read(fHome, 4); //Substitute it with reference on SyncLoad
-  LoadStream.Read(fPosition); 
+  LoadStream.Read(fPosition);
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
   LoadStream.Read(IsExchanging);
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fID);
   LoadStream.Read(AnimStep);
-  LoadStream.Read(Direction, SizeOf(Direction));
+  LoadStream.Read(fDirection, SizeOf(fDirection));
   LoadStream.Read(fCurrPosition);
   LoadStream.Read(fPrevPosition);
   LoadStream.Read(fNextPosition);
@@ -981,7 +983,7 @@ begin
   fOwner        := play_none;
   //Do not reset the unit type when they die as we still need to know during Load
   //fUnitType     := ut_None;
-  Direction     := dir_NA;
+  fDirection     := dir_NA;
   fVisible      := false;
   fCondition    := 0;
   AnimStep      := 0;
@@ -1138,6 +1140,14 @@ begin
   //This procedure ensures that these values always get updated correctly so we don't get a problem where GetLength(PrevPosition,NextPosition) > sqrt(2)
   fPrevPosition := NextPosition;
   fNextPosition := aLoc;
+end;
+
+
+//Only ClearUnit can set fDirection to NA, no other circumstances it is allowed
+procedure TKMUnit.SetDirection(aValue:TKMDirection);
+begin
+  Assert(aValue<>dir_NA);
+  fDirection := aValue;
 end;
 
 
@@ -1495,7 +1505,7 @@ begin
 
   SaveStream.Write(fID);
   SaveStream.Write(AnimStep);
-  SaveStream.Write(Direction, SizeOf(Direction));
+  SaveStream.Write(fDirection, SizeOf(fDirection));
   SaveStream.Write(fCurrPosition);
   SaveStream.Write(fPrevPosition);
   SaveStream.Write(fNextPosition);

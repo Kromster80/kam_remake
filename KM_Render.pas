@@ -798,6 +798,7 @@ procedure TRender.RenderUnit(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:sing
 var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
 begin
   //@Krom: Occasional crashes here when a unit dies, probably a bug somewhere else though...
+  //@Lewin: That should be fixed now (see my addition to WalkTo.pas) to be deleted..
   AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
   ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
   if ID<=0 then exit;

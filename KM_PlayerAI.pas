@@ -356,12 +356,14 @@ var i, k, Matched: integer;
     NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
 begin
   //Cleanup when commander of a defence position dies
+  //@Lewin: I get bugs from here, when commander is dead
   for i:=0 to DefencePositionsCount-1 do
-    if (DefencePositions[i].CurrentCommander <> nil) and DefencePositions[i].CurrentCommander.IsDeadOrDying then
-      if DefencePositions[i].CurrentCommander.fCommander <> nil then
-        DefencePositions[i].CurrentCommander := DefencePositions[i].CurrentCommander.fCommander
+  with DefencePositions[i] do
+    if (CurrentCommander <> nil) and CurrentCommander.IsDeadOrDying then
+      if CurrentCommander.fCommander <> nil then //@Lewin: How can commander have another commander above him?
+        CurrentCommander := CurrentCommander.fCommander //@Lewin: I especially doubt about this assignment
       else
-        DefencePositions[i].CurrentCommander := nil;
+        CurrentCommander := nil;
 
   for i:=byte(low(TGroupType)) to byte(high(TGroupType)) do
     NeedsLinkingTo[TGroupType(i)] := nil;

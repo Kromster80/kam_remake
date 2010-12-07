@@ -45,7 +45,7 @@ type
     function GetWarriorSoundFile(aUnitType:TUnitType; aSound:TSoundToPlay; aNumber:byte; aLocale:string=''):string;
   public
     constructor Create(aLocale:string);
-    destructor Destroy(); override;
+    destructor Destroy; override;
     procedure ExportSounds();
     procedure UpdateListener(X,Y:single);
     procedure UpdateSoundVolume(Value:single);

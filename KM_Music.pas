@@ -21,7 +21,7 @@ type
     procedure ScanMusicTracks(Path:string);
   public
     constructor Create({$IFDEF WDC}aMediaPlayer:TMediaPlayer{$ENDIF});
-    destructor Destroy(); override;
+    destructor Destroy; override;
     procedure UpdateMusicVolume(Value:single);
     procedure PlayMenuTrack(JustInit:boolean);
     procedure PlayNextTrack();
