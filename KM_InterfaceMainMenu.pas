@@ -1064,9 +1064,9 @@ begin
     Label_SingleTitle.Caption := SingleMapsInfo.GetFolder(SingleMap_Selected);
     Label_SingleDesc.Caption  := SingleMapsInfo.GetBigDesc(SingleMap_Selected);
 
-    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(36)+SingleMapsInfo.GetTyp(SingleMap_Selected);
-    Label_SingleCondWin.Caption := fTextLibrary.GetRemakeString(37);//+SingleMapsInfo.GetWin(SingleMap_Selected);
-    Label_SingleCondDef.Caption := fTextLibrary.GetRemakeString(38);//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
+    Label_SingleCondTyp.Caption := fTextLibrary.GetRemakeString(14)+SingleMapsInfo.GetTyp(SingleMap_Selected);
+    Label_SingleCondWin.Caption := fTextLibrary.GetRemakeString(15);//+SingleMapsInfo.GetWin(SingleMap_Selected);
+    Label_SingleCondDef.Caption := fTextLibrary.GetRemakeString(16);//+SingleMapsInfo.GetDefeat(SingleMap_Selected);
   end;
 end;
 

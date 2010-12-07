@@ -176,19 +176,28 @@ end;
 
 function TTextLibrary.GetTextString(aIndex:word):string;
 begin
-  if aIndex <= MaxStrings then Result := TextStrings[aIndex] else Result := '~~~TextString out of range!~~~';
+  if aIndex <= MaxStrings then
+    Result := TextStrings[aIndex]
+  else
+    Result := '~~~TextString out of range!~~~';
 end;
 
 
 function TTextLibrary.GetSetupString(aIndex:word):string;
 begin
-  if aIndex <= MaxStrings then Result := SetupStrings[aIndex] else Result := '~~~SetupString out of range!~~~';
+  if aIndex <= MaxStrings then
+    Result := SetupStrings[aIndex]
+  else
+    Result := '~~~SetupString out of range!~~~';
 end;
 
 
 function TTextLibrary.GetRemakeString(aIndex:word):string;
 begin
-  if aIndex <= MaxStrings then Result := RemakeStrings[aIndex] else Result := '~~~RemakeString out of range!~~~';
+  if aIndex <= MaxStrings then
+    Result := RemakeStrings[aIndex]
+  else
+    Result := '~~~RemakeString out of range!~~~';
 end;
 
 
