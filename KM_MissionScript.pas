@@ -335,6 +335,7 @@ begin
       inc(k);
       //Extract parameters
       for l:=1 to 8 do
+        //todo 1: bug in loading mission19.dat
         if (FileText[k]<>'!') and (k<length(FileText)) then
         begin
           Param := '';

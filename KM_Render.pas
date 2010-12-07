@@ -190,6 +190,7 @@ begin
       glRotatef(rBank   ,0,0,1);
       glTranslatef(-fViewport.GetCenter.X+ToolBarWidth/CELL_SIZE_PX/fViewport.Zoom,-fViewport.GetCenter.Y-8,10);
       glkScale(fViewport.Zoom);
+      RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm2D);
     end;
 
     glLineWidth(fViewport.Zoom*2);
@@ -208,10 +209,7 @@ begin
 
     RenderCursorHighlights(); //Will be on-top
 
-    if DISPLAY_SOUNDS then
-      fSoundLib.Paint;
-
-    RenderResize(RenderAreaSize.X,RenderAreaSize.Y,rm2D);
+    if DISPLAY_SOUNDS then fSoundLib.Paint;
   end;
 
   glLoadIdentity();             // Reset The View
@@ -615,7 +613,6 @@ begin
   if Index=61 then begin //Invisible wall
     ShiftX := 0; //Required if DoImmediateRender = true
     ShiftY := 0;
-    glBindTexture(GL_TEXTURE_2D,0);
     glColor4f(1,0,0,0.33);
     RenderQuad(pX,pY);
     RenderCursorWireQuad(KMPoint(pX,pY),$FF0000FF);
@@ -874,7 +871,6 @@ end;
 {Simple dot to know where it actualy is}
 procedure TRender.RenderDot(pX,pY:single; Size:single = 0.05);
 begin
-  glBindTexture(GL_TEXTURE_2D, 0);
   glBegin (GL_QUADS);
     glkRect(pX-1-Size,pY-1+Size,pX-1+Size,pY-1-Size);
   glEnd;
@@ -884,7 +880,6 @@ end;
 procedure TRender.RenderDotOnTile(pX,pY:single);
 begin
   pY:=pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV;
-  glBindTexture(GL_TEXTURE_2D, 0);
   glBegin (GL_QUADS);
     glkRect(pX-1,pY-1,pX-1+0.1,pY-1-0.1);
   glEnd;
@@ -893,7 +888,6 @@ end;
 
 procedure TRender.RenderLine(x1,y1,x2,y2:single);
 begin
-  glBindTexture(GL_TEXTURE_2D, 0);
   glBegin (GL_LINES);
     glVertex2f(x1-1, y1-1 - fTerrain.InterpolateLandHeight(x1,y1)/CELL_HEIGHT_DIV);
     glVertex2f(x2-1, y2-1 - fTerrain.InterpolateLandHeight(x2,y2)/CELL_HEIGHT_DIV);
@@ -974,11 +968,11 @@ begin
     if HighlightRed then glColor4f(1,0,0,1);
 
     if (h=1)or( (h=2)and(RXData[RX].NeedTeamColors)and(AltID<>0)) then begin
-      glBegin (GL_QUADS);
-        glTexCoord2f(u1,v2); glvertex2f(pX-1                   ,pY-1                     );
-        glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                     );
+      glBegin(GL_QUADS);
+        glTexCoord2f(u1,v2); glvertex2f(pX-1                     ,pY-1                      );
+        glTexCoord2f(u2,v2); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1                      );
         glTexCoord2f(u2,v1); glvertex2f(pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
-        glTexCoord2f(u1,v1); glvertex2f(pX-1                   ,pY-1-pxHeight/CELL_SIZE_PX);
+        glTexCoord2f(u1,v1); glvertex2f(pX-1                     ,pY-1-pxHeight/CELL_SIZE_PX);
       glEnd;
     end;
   end;
@@ -986,12 +980,11 @@ begin
   glBindTexture(GL_TEXTURE_2D, 0);
 
   if not SHOW_SPRITES_RECT then exit;
-  glColor3f(1,1,1);
-  glBegin (GL_LINE_LOOP);
+  glColor4f(1,1,1,0.5);
+  glBegin(GL_LINE_LOOP);
     with GFXData[RX,ID] do
     glkRect(pX-1,pY-1,pX-1+pxWidth/CELL_SIZE_PX,pY-1-pxHeight/CELL_SIZE_PX);
   glEnd;
-
 end;
 
 
@@ -1220,13 +1213,6 @@ begin
       glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
       glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV);
     glEnd;
-{    glBindTexture(GL_TEXTURE_2D, 0);
-    glBegin(GL_LINE_LOOP);
-      glTexCoord2f(a.x,a.y); glvertex2f(pX-1-t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-      glTexCoord2f(b.x,a.y); glvertex2f(pX-1+t/2, pY-1 - fTerrain.Land[pY,pX].Height/xh);
-      glTexCoord2f(b.x,b.y); glvertex2f(pX-1+t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-      glTexCoord2f(a.x,b.y); glvertex2f(pX-1-t/2, pY   - fTerrain.Land[pY+1,pX].Height/xh);
-    glEnd;}
   end;
   glBindTexture(GL_TEXTURE_2D, 0);
 end;
@@ -1250,7 +1236,7 @@ end;
 procedure TRender.RenderCursorBuildIcon(P:TKMPoint; id:integer=479);
 begin
   if fTerrain.TileInMapCoords(P.X,P.Y) then
-    RenderSprite(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,$FFFFFFFF,$FF);
+    RenderSprite(4,id,P.X+0.2,P.Y+1-0.2-fTerrain.InterpolateLandHeight(P.X+0.5,P.Y+0.5)/CELL_HEIGHT_DIV,$FFFFFFFF,255);
 end;
 
 
@@ -1269,6 +1255,7 @@ var i,k,s,t:integer; P2:TKMPoint; AllowBuild:boolean;
   end;
 begin
   MarkCount := 0;
+  FillChar(MarkedLocations, SizeOf(MarkedLocations), #0); //It's filled with garbage if not initialized
 
   for i:=1 to 4 do for k:=1 to 4 do
   if HousePlanYX[byte(aHouseType),i,k]<>0 then
@@ -1277,7 +1264,7 @@ begin
     if fTerrain.TileInMapCoords(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4,1) then
     begin
       //This can't be done earlier since values can be off-map
-      P2:=KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
+      P2 := KMPoint(P.X+k-3-HouseDAT[byte(aHouseType)].EntranceOffsetX,P.Y+i-4);
 
       //Check house-specific conditions, e.g. allow shipyards only near water and etc..
       case aHouseType of

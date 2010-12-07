@@ -449,6 +449,7 @@ begin
   setlength(DefencePositions,DefencePositionsCount+1);
   DefencePositions[DefencePositionsCount] := TAIDefencePosition.Create(aPos,aGroupType,aDefenceRadius,aDefenceType);
   inc(DefencePositionsCount);
+  //@Lewin: There's memory leak here - defence positions are not freed on Destroy 
 end;
 
 

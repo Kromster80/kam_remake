@@ -2103,7 +2103,7 @@ begin
   Yc := trunc(inY);
   Result := 0;
   if not VerticeInMapCoords(Xc,Yc) then exit;
-  fLog.AssertToLog(VerticeInMapCoords(Xc,Yc),'InterpolateLandHeight accessed wrong '+inttostr(Xc)+':'+inttostr(Yc));
+
   Tmp1 := mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
   if Yc >= MaxMapSize then
     Tmp2 := 0
