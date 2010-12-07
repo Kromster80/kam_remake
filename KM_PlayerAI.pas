@@ -43,6 +43,7 @@ type
     ScriptedAttacksCount: integer;
     ScriptedAttacks: array of TAIAttack;
     constructor Create(aAssets:TKMPlayerAssets);
+    destructor Destroy; override;
     procedure CheckGoals;
     procedure CheckUnitCount();
     procedure CheckArmiesCount();
@@ -148,6 +149,14 @@ begin
     TroopFormations[i].NumUnits := 12;
     TroopFormations[i].NumRows := 4;
   end;
+end;
+
+
+destructor TKMPlayerAI.Destroy;
+var i: integer;
+begin
+  for i:=0 to DefencePositionsCount-1 do DefencePositions[i].Free;
+  Inherited;
 end;
 
 
@@ -449,7 +458,6 @@ begin
   setlength(DefencePositions,DefencePositionsCount+1);
   DefencePositions[DefencePositionsCount] := TAIDefencePosition.Create(aPos,aGroupType,aDefenceRadius,aDefenceType);
   inc(DefencePositionsCount);
-  //@Lewin: There's memory leak here - defence positions are not freed on Destroy 
 end;
 
 
