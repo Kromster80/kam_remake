@@ -54,12 +54,6 @@ type
   end;
 
 
-    TTaskGoOutShowHungry = class(TUnitTask)
-    public
-      constructor Create(aUnit:TKMUnit);
-      function Execute():TTaskResult; override;
-    end;
-
   TKMUnit = class(TObject)
   protected
     fID:integer; //unique unit ID, used for save/load to sync to
@@ -252,7 +246,7 @@ uses KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
 KM_Units_Warrior, KM_Terrain, 
 
-KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
+KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 
 
 { TKMUnitCitizen }
@@ -1640,47 +1634,6 @@ begin
     SaveStream.Write(Zero);
   SaveStream.Write(fPhase);
   SaveStream.Write(fPhase2);
-end;
-
-
-{ TTaskGoOutShowHungry }
-constructor TTaskGoOutShowHungry.Create(aUnit:TKMUnit);
-begin
-  Inherited Create(aUnit);
-  fTaskName := utn_GoOutShowHungry;
-end;
-
-
-function TTaskGoOutShowHungry.Execute():TTaskResult;
-begin
-  Result := TaskContinues;
-  if fUnit.fHome.IsDestroyed then begin
-    Result := TaskDone;
-    exit;
-  end;
-
-  with fUnit do
-  case fPhase of
-    0: begin
-         fThought := th_Eat;
-         SetActionStay(20,ua_Walk);
-       end;
-    1: begin
-         SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.fHome);
-         fHome.SetState(hst_Empty);
-       end;
-    2: SetActionLockedStay(4,ua_Walk);
-    3: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.fHome);
-    4: begin
-         SetActionStay(20,ua_Walk);
-         fHome.SetState(hst_Idle);
-       end;
-    else begin
-         fThought := th_None;
-         Result := TaskDone;
-       end;
-  end;
-  inc(fPhase);
 end;
 
 
