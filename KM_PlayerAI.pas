@@ -7,15 +7,6 @@ type
   TAIDefencePosType = (adt_FrontLine, //Top priority to defend, will be replaced by back line troops when they die, and troops will not go on attacks as they are defending an important position
                        adt_BackLine); //Lower priority defence, can go on AI attacks (these are often placed behind the main defence line as replacement/attacking troops)
 
-  //@Lewin: Your loading bug is here. CurrentCommander pointer gets trashed on load
-  //I suggest you make it a new class TAIDefencePositions with proper
-  //Create/Save/SyncLoad/Load procedures
-  //
-  //@Krom: Thank you, I have done as you suggested. When I do more work on the AI I might add some more procedures to the class, but for now everything
-  //       is managed by TKMPlayerAI. Does it need to be moved to a new file? If you have any comments or suggestions let me know.
-  //       Loading still crashes but I'm pretty sure it's not because of this new code. Thanks again for finding this and sorry for such an obvious oversight in my code.
-  //@Lewin: Thats ok, I did few mistakes myself
-  //        I think it could stay in this file till it gets much bigger (I giess it won't be so big though)
   TAIDefencePosition = class
   private
     fCurrentCommander: TKMUnitWarrior; //Commander of group currently occupying position

@@ -3,7 +3,7 @@ unit KM_Units;
 interface
 uses
   Classes, Math, SysUtils, KromUtils, Windows,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Terrain, KM_Units_WorkPlan, KM_Sound;
+  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units_WorkPlan, KM_Sound;
 
 //Memo on directives:
 //Dynamic - declared and used (overriden) occasionally
@@ -248,7 +248,7 @@ type
 implementation
 uses KM_Render, KM_LoadLib, KM_PlayersCollection, KM_Viewport, KM_Game,
 KM_UnitActionAbandonWalk, KM_UnitActionFight, KM_UnitActionGoInOut, KM_UnitActionStay, KM_UnitActionWalkTo,
-KM_Units_Warrior,
+KM_Units_Warrior, KM_Terrain, 
 
 KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome, KM_UnitTaskDelivery, KM_UnitTaskGoEat, KM_UnitTaskAttackHouse, KM_UnitTaskSelfTrain, KM_UnitTaskThrowRock, KM_UnitTaskMining;
 
@@ -848,7 +848,7 @@ begin
   fHitPointCounter := 1;
 
   SetActionStay(10, ua_Walk);
-  fTerrain.UnitAdd(NextPosition);
+  fTerrain.UnitAdd(NextPosition,Self);
 end;
 
 
@@ -969,7 +969,7 @@ begin
     fHome.ReleaseHousePointer;
   end;
 
-  fTerrain.UnitRem(NextPosition); //Must happen before we nil NextPosition
+  fTerrain.UnitRem(NextPosition, Self); //Must happen before we nil NextPosition
 
   fIsDead       := true;
   fThought      := th_None;
@@ -1037,12 +1037,12 @@ end;
 procedure TKMUnit.SetPosition(aPos:TKMPoint);
 begin
   Assert(fGame.GameState=gsEditor); //This is only used by the map editor, set all positions to aPos
-  fTerrain.UnitRem(fCurrPosition);
+  fTerrain.UnitRem(fCurrPosition, Self);
   fCurrPosition := aPos;
   fNextPosition := aPos;
   fPrevPosition := aPos;
   fPosition := KMPointF(aPos);
-  fTerrain.UnitAdd(fCurrPosition);
+  fTerrain.UnitAdd(fCurrPosition, Self);
 end;
 
 
@@ -1408,9 +1408,8 @@ begin
       if (not (GetUnitAction is TUnitActionGoInOut)) or (not TUnitActionGoInOut(GetUnitAction).GetHasStarted) then
       begin
         //Position in a spiral nearest to center of house, updating IsUnit.
-        fTerrain.UnitRem(GetPosition);
         fPosition := KMPointF(fPlayers.FindPlaceForUnit(GetInHouse.GetPosition.X,GetInHouse.GetPosition.Y,UnitType));
-        fTerrain.UnitAdd(GetPosition);
+        fTerrain.UnitAdd(GetPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
         //Make sure these are reset properly
         IsExchanging := false;
         fCurrPosition := KMPointRound(fPosition);

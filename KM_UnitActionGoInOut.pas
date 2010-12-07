@@ -112,7 +112,7 @@ begin
 
   if not Result then exit;
 
-  if not (fTerrain.Land[LocY,LocX].IsUnit = 0) then begin
+  if not (fTerrain.Land[LocY,LocX].IsUnit = nil) then begin
     aUnit := fPlayers.UnitsHitTest(LocX, LocY); //Let's see who is standing there
     Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
                              and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
@@ -142,7 +142,7 @@ begin
       KMUnit.Direction := dir_N;  //one cell up
       KMUnit.Thought := th_None;
       KMUnit.UpdateNextPosition(KMPoint(KMUnit.GetPosition.X,KMUnit.GetPosition.Y-1));
-      fTerrain.UnitWalk(KMUnit.GetPosition, KMUnit.NextPosition);
+      fTerrain.UnitRem(KMUnit.GetPosition, KMUnit); //Unit does not occupy a tile while inside
       if (KMUnit.GetHome<>nil) and (KMUnit.GetHome.GetHouseType=ht_Barracks) then //Units home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside := TKMHouseBarracks(KMUnit.GetHome).RecruitsInside + 1;
     end;
@@ -164,7 +164,7 @@ begin
       end else
         exit; //Do not exit the house if all street tiles are blocked by non-idle units, just wait
 
-      if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit <> 0) then
+      if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit <> nil) then
       begin
         fWaitingForPush := true;
         fHasStarted:=true;
@@ -174,7 +174,7 @@ begin
       //All checks done so unit can walk out now
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
       KMUnit.UpdateNextPosition(fStreet);
-      fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
+      fTerrain.UnitAdd(KMUnit.NextPosition, KMUnit); //Unit was not occupying tile while inside
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
     end;
@@ -191,12 +191,12 @@ begin
 
   if fWaitingForPush then
   begin
-    if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit = 0) then
+    if (fTerrain.Land[fStreet.Y,fStreet.X].IsUnit = nil) then
     begin
       fWaitingForPush := false;
       KMUnit.Direction := KMGetDirection(KMPointRound(fDoor) ,fStreet);
       KMUnit.UpdateNextPosition(fStreet);
-      fTerrain.UnitWalk(KMUnit.GetPosition,KMUnit.NextPosition);
+      fTerrain.UnitAdd(KMUnit.NextPosition, KMUnit); //Unit was not occupying tile while inside
       if (KMUnit.GetHome<>nil)and(KMUnit.GetHome.GetHouseType=ht_Barracks) then //Unit home is barracks
         TKMHouseBarracks(KMUnit.GetHome).RecruitsInside:=TKMHouseBarracks(KMUnit.GetHome).RecruitsInside - 1;
     end

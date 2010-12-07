@@ -946,8 +946,9 @@ begin
 
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
-      //We don't need to perform UnitWalk since exchange means the same tiles will be occupied,
-      //and without UnitWalk there's a guarantee no other unit will step on this tile!
+      //Check if we are the first or second unit (has the swap already been performed?)
+      if fWalker = fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit then
+        fTerrain.UnitSwap(fWalker.PrevPosition,fWalker.NextPosition,fWalker); //We have not been swapped yet so we will perform it
       fInteractionStatus := kis_None;
       DoExchange := false;
       fWalker.IsExchanging := true; //So unit knows that it must slide
@@ -973,12 +974,12 @@ begin
         exit;
       end;
 
-      if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = 0 then begin
-        fGame.GameError(fWalker.PrevPosition, 'Unit walk Prev position IsUnit = 0');
+      if fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit = nil then begin
+        fGame.GameError(fWalker.PrevPosition, 'Unit walk Prev position IsUnit = nil');
         exit;
       end;
 
-      fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition); //Pre-occupy next tile
+      fTerrain.UnitWalk(fWalker.PrevPosition,fWalker.NextPosition,fWalker); //Pre-occupy next tile
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
     end;
 

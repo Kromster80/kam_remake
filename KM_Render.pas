@@ -531,8 +531,8 @@ begin
       glColor4f(1-fTerrain.Land[i,k].IsVertexUnit/6,fTerrain.Land[i,k].IsVertexUnit/6,1-fTerrain.Land[i,k].IsVertexUnit/6,0.8);
       RenderDot(k,i-fTerrain.InterpolateLandHeight(k,i)/CELL_HEIGHT_DIV,0.3);
     end;
-    if fTerrain.Land[i,k].IsUnit>0 then begin
-      glColor4f(fTerrain.Land[i,k].IsUnit/6,1-fTerrain.Land[i,k].IsUnit/6,-fTerrain.Land[i,k].IsUnit/6,0.8);
+    if fTerrain.Land[i,k].IsUnit<>nil then begin
+      glColor4f(0.17,0.83,-0.17,0.8);
       RenderQuad(k,i);
     end;
   end;
@@ -850,7 +850,7 @@ end;
 
 
 procedure TRender.RenderUnitFlag(UnitID,ActID,DirID,StepID,Owner:integer; pX,pY:single; NewInst:boolean);
-var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer;
+var ShiftX,ShiftY:single; ID:integer; AnimSteps:integer; Color: TColor4;
 begin
 AnimSteps:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Count;
 ID:=UnitSprite[UnitID].Act[ActID].Dir[DirID].Step[StepID mod AnimSteps + 1]+1;
@@ -862,8 +862,12 @@ if ID<=0 then exit;
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,NewInst,Owner);
 
   if SHOW_UNIT_MOVEMENT then begin
-    glColor3ubv(@fPlayers.Player[Owner].PlayerColor);  //Render dot where unit is
-    RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV);
+    if Owner > MAX_PLAYERS then
+      Color := $FFFFFFFF
+    else
+      Color := fPlayers.Player[Owner].PlayerColor;
+    glColor3ubv(@Color);
+    RenderDot(pX,pY-fTerrain.InterpolateLandHeight(pX,pY)/CELL_HEIGHT_DIV); //Render dot where unit is
   end;
 end;
 

@@ -849,8 +849,6 @@ begin
   SetGameState(gsPaused);
   SHOW_UNIT_ROUTES := true;
   SHOW_UNIT_MOVEMENT := true;
-  if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
-    fTerrain.Land[aLoc.Y, aLoc.X].IsUnit := 128;
 
   if MessageDlg(
     fTextLibrary.GetRemakeString(48)+UpperCase(aText)+eol+fTextLibrary.GetRemakeString(49)
@@ -1197,6 +1195,7 @@ begin
 
         fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
+        fTerrain.SyncLoad(); //IsUnit values should be replaced with actual pointers
         fViewPort.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
         Result := ''; //Loading has now completed successfully :)
         Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);

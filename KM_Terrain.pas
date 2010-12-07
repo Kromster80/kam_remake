@@ -2,7 +2,7 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
-     KM_Defaults, KM_CommonTypes, KM_Utils;
+     KM_Defaults, KM_CommonTypes, KM_Units, KM_Utils;
 
 
 const MaxMapSize=192;
@@ -37,7 +37,7 @@ TTerrain = class
       TileOverlay:TTileOverlay; //fs_None fs_Dig1, fs_Dig2, fs_Dig3, fs_Dig4 +Roads
 
       TileOwner:TPlayerID; //Who owns the tile by having a house/road/field on it
-      IsUnit:byte; //Whenever there's a unit on that tile mark the tile as occupied and count the number
+      IsUnit:TKMUnit; //Whenever there's a unit on that tile mark the tile as occupied and count the number
       IsVertexUnit:shortint; //Whether there are units blocking the vertex. (passing) Should be boolean?
 
 
@@ -133,9 +133,10 @@ TTerrain = class
     procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
     function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
 
-    procedure UnitAdd(LocTo:TKMPoint);
-    procedure UnitRem(LocFrom:TKMPoint);
-    procedure UnitWalk(LocFrom,LocTo:TKMPoint);
+    procedure UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
+    procedure UnitRem(LocFrom:TKMPoint; aUnit:TKMUnit);
+    procedure UnitWalk(LocFrom,LocTo:TKMPoint; aUnit:TKMUnit);
+    procedure UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
     procedure UnitVertexAdd(LocTo:TKMPoint);
     procedure UnitVertexRem(LocFrom:TKMPoint);
 
@@ -183,6 +184,7 @@ TTerrain = class
     procedure SaveToMapFile(aFile:string);
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
+    procedure SyncLoad();
     procedure UpdateState;
     procedure Paint;
   end;
@@ -192,7 +194,7 @@ var
 
 implementation
 
-uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_Units, KM_UnitActionStay, KM_Houses, KM_Game;
+uses KM_Viewport, KM_Render, KM_PlayersCollection, KM_Sound, KM_PathFinding, KM_UnitActionStay, KM_Houses, KM_Game;
 
 constructor TTerrain.Create;
 begin
@@ -228,7 +230,7 @@ begin
     Markup       := mu_None;
     Passability  := []; //Gets recalculated later
     TileOwner    := play_none;
-    IsUnit       := 0;
+    IsUnit       := nil;
     IsVertexUnit := 0;
     FieldAge     := 0;
     TreeAge      := 0;
@@ -1255,7 +1257,7 @@ end;
 
 function TTerrain.HasUnit(Loc:TKMPoint):boolean;
 begin
-  Result := TileInMapCoords(Loc.X,Loc.Y) and (Land[Loc.Y,Loc.X].IsUnit <> 0); //Second condition won't get checked if first is false
+  Result := TileInMapCoords(Loc.X,Loc.Y) and (Land[Loc.Y,Loc.X].IsUnit <> nil); //Second condition won't get checked if first is false
 end;
 
 
@@ -1293,7 +1295,7 @@ begin
     if TileInMapCoords(Loc.X+k,Loc.Y+i) then
       if (i<>0)or(k<>0) then
         if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then
-          if Land[Loc.Y+i,Loc.X+k].IsUnit = 0 then
+          if Land[Loc.Y+i,Loc.X+k].IsUnit = nil then
             if aPass in Land[Loc.Y+i,Loc.X+k].Passability then
             begin
               Result := false; //at least one tile is empty, so unit is not stuck
@@ -1320,14 +1322,14 @@ begin
   //List 2 holds the best positions, ones which are not occupied
   L2:=TKMPointList.Create;
   for i:=1 to L1.Count do
-    if Land[L1.List[i].Y,L1.List[i].X].IsUnit = 0 then
+    if Land[L1.List[i].Y,L1.List[i].X].IsUnit = nil then
       L2.AddEntry(L1.List[i]);
 
   Loc2IsOk := false;
   //List 3 holds the second best positions, ones which are occupied with an idle unit
   L3:=TKMPointList.Create;
   for i:=1 to L1.Count do
-    if Land[L1.List[i].Y,L1.List[i].X].IsUnit > 0 then
+    if Land[L1.List[i].Y,L1.List[i].X].IsUnit <> nil then
     begin
       if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
       TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
@@ -1555,26 +1557,41 @@ end;
 
 
 {Mark tile as occupied}
-procedure TTerrain.UnitAdd(LocTo:TKMPoint);
+procedure TTerrain.UnitAdd(LocTo:TKMPoint; aUnit:TKMUnit);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  inc(Land[LocTo.Y,LocTo.X].IsUnit);
+  Assert(Land[LocTo.Y,LocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(LocTo));
+  Land[LocTo.Y,LocTo.X].IsUnit := aUnit
 end;
 
 {Mark tile as empty}
-procedure TTerrain.UnitRem(LocFrom:TKMPoint);
+procedure TTerrain.UnitRem(LocFrom:TKMPoint; aUnit:TKMUnit);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
+  //todo: As we have no way of knowing whether a unit is inside a house, when exiting the game and destroying all units this will cause asserts.
+  //Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = aUnit, 'Trying to remove wrong unit at '+TypeToString(LocFrom));
+  Land[LocFrom.Y,LocFrom.X].IsUnit := nil;
 end;
 
 
 {Mark previous tile as empty and next one as occupied}
-procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint);
+procedure TTerrain.UnitWalk(LocFrom,LocTo:TKMPoint; aUnit:TKMUnit);
 begin
   if not DO_UNIT_INTERACTION then exit;
-  dec(Land[LocFrom.Y,LocFrom.X].IsUnit);
-  inc(Land[LocTo.Y,LocTo.X].IsUnit);
+  Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = aUnit, 'Trying to remove wrong unit at '+TypeToString(LocFrom));
+  Land[LocFrom.Y,LocFrom.X].IsUnit := nil;
+  Assert(Land[LocTo.Y,LocTo.X].IsUnit = nil, 'Tile already occupied at '+TypeToString(LocTo));
+  Land[LocTo.Y,LocTo.X].IsUnit := aUnit
+end;
+
+
+procedure TTerrain.UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
+var TempUnit: TKMUnit;
+begin
+  Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = UnitFrom, 'Trying to swap wrong unit at '+TypeToString(LocFrom));
+  TempUnit := Land[LocFrom.Y,LocFrom.X].IsUnit;
+  Land[LocFrom.Y,LocFrom.X].IsUnit := Land[LocTo.Y,LocTo.X].IsUnit;
+  Land[LocTo.Y,LocTo.X].IsUnit := TempUnit;
 end;
 
 
@@ -1819,7 +1836,7 @@ function TTerrain.CanPlaceUnit(Loc:TKMPoint; aUnitType: TUnitType; aAllowCitizen
 var DesiredPass:TPassability;
 begin
   Result := TileInMapCoords(Loc.X, Loc.Y); //Only within map coords
-  Result := Result and (Land[Loc.Y, Loc.X].IsUnit = 0); //Check for no unit below
+  Result := Result and (Land[Loc.Y, Loc.X].IsUnit = nil); //Check for no unit below
 
   case aUnitType of
     ut_Woodcutter..ut_Fisher,ut_StoneCutter..ut_Recruit: DesiredPass := canWalkRoad; //Citizens except Worker
@@ -2200,7 +2217,10 @@ begin
     SaveStream.Write(Land[i,k].Markup,SizeOf(Land[i,k].Markup));
     SaveStream.Write(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
     SaveStream.Write(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
-    SaveStream.Write(Land[i,k].IsUnit);
+    if Land[i,k].IsUnit <> nil then
+      SaveStream.Write(Land[i,k].IsUnit.ID) //Store ID, then substitute it with reference on SyncLoad
+    else
+      SaveStream.Write(Zero);
     SaveStream.Write(Land[i,k].IsVertexUnit);
     SaveStream.Write(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
   end;       
@@ -2228,7 +2248,7 @@ begin
     LoadStream.Read(Land[i,k].Markup,SizeOf(Land[i,k].Markup));
     LoadStream.Read(Land[i,k].TileOverlay,SizeOf(Land[i,k].TileOverlay));
     LoadStream.Read(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
-    LoadStream.Read(Land[i,k].IsUnit);
+    LoadStream.Read(Land[i,k].IsUnit, 4);
     LoadStream.Read(Land[i,k].IsVertexUnit);
     LoadStream.Read(Land[i,k].FogOfWar,SizeOf(Land[i,k].FogOfWar));
   end;
@@ -2242,6 +2262,14 @@ begin
   RebuildWalkConnect(wcRoad);
   RebuildWalkConnect(wcFish);
   fLog.AppendLog('Terrain loaded');
+end;
+
+
+procedure TTerrain.SyncLoad();
+var i,k:integer;
+begin
+  for i:=1 to MapY do for k:=1 to MapX do
+    Land[i,k].IsUnit := fPlayers.GetUnitByID(cardinal(Land[i,k].IsUnit));
 end;
 
 
