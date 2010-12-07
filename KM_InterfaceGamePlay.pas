@@ -166,7 +166,7 @@ type TKMGamePlayInterface = class
     procedure Create_School_Page;
     procedure Create_Barracks_Page;
 
-    procedure SaveGame(Sender: TObject);
+    procedure Save_Click(Sender: TObject);
     procedure Load_Click(Sender: TObject);
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPageRatios(Sender: TObject);
@@ -212,7 +212,6 @@ type TKMGamePlayInterface = class
     procedure Menu_PreviousTrack(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
     procedure Army_CancelJoin(Sender:TObject);
-    procedure Save_PopulateSaveNamesFile();
     procedure Build_SelectRoad;
     procedure RightClickCancel;
     procedure MessageIssue(MsgTyp:TKMMessageType; Text:string; Loc:TKMPoint);
@@ -293,22 +292,12 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.SaveGame(Sender: TObject);
-var savename:string;
+procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
   if not (Sender is TKMButton) then exit; //Just in case
   //Don't allow saving over autosave (AUTOSAVE_SLOT)
   if (TKMControl(Sender).Tag = AUTOSAVE_SLOT) and fGame.fGlobalSettings.IsAutosave then exit;
-
-  savename := fGame.Save(TKMControl(Sender).Tag);
-
-  if savename <> '' then
-    TKMButton(Sender).Caption := savename
-  else
-    TKMButton(Sender).Caption := 'Savegame #'+inttostr(TKMControl(Sender).Tag);
-
-  Save_PopulateSaveNamesFile;
-  
+  fGame.Save(TKMControl(Sender).Tag);
   SwitchPage(nil); //Close save menu after saving
 end;
 
@@ -402,11 +391,13 @@ begin
   end else
 
   if Sender=Button_Menu_Save then begin
+    Menu_ShowLoad(Sender); //Update savegames names
     Panel_Save.Show;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(173);
   end else
 
   if Sender=Button_Menu_Load then begin
+    Menu_ShowLoad(Sender); //Update savegames names
     Panel_Load.Show;
     Label_MenuTitle.Caption:=fTextLibrary.GetTextString(172);
   end else
@@ -865,10 +856,10 @@ procedure TKMGamePlayInterface.Create_Menu_Page;
 begin
   Panel_Menu:=MyControls.AddPanel(Panel_Main,0,412,196,400);
     Button_Menu_Load:=MyControls.AddButton(Panel_Menu,8,20,180,30,fTextLibrary.GetTextString(174),fnt_Metal);
-    Button_Menu_Load.OnClick:=Menu_ShowLoad;
+    Button_Menu_Load.OnClick:=SwitchPage;
     Button_Menu_Load.Hint:=fTextLibrary.GetTextString(174);
     Button_Menu_Save:=MyControls.AddButton(Panel_Menu,8,60,180,30,fTextLibrary.GetTextString(175),fnt_Metal);
-    Button_Menu_Save.OnClick:=Menu_ShowLoad;
+    Button_Menu_Save.OnClick:=SwitchPage;
     Button_Menu_Save.Hint:=fTextLibrary.GetTextString(175);
     Button_Menu_Settings:=MyControls.AddButton(Panel_Menu,8,100,180,30,fTextLibrary.GetTextString(179),fnt_Metal);
     Button_Menu_Settings.OnClick:=Menu_ShowSettings;
@@ -894,7 +885,7 @@ begin
   Panel_Save:=MyControls.AddPanel(Panel_Main,0,412,200,400);
     for i:=1 to SAVEGAME_COUNT do begin
       Button_Save[i]:=MyControls.AddButton(Panel_Save,12,10+(i-1)*28,170,24,'Savegame #'+inttostr(i),fnt_Grey);
-      Button_Save[i].OnClick:=SaveGame;
+      Button_Save[i].OnClick:=Save_Click;
       Button_Save[i].Tag:=i; //Simplify usage
     end;
 end;
@@ -1733,52 +1724,11 @@ end;
 
 {Show list of savegames and act depending on Sender (Save or Load)}
 procedure TKMGamePlayInterface.Menu_ShowLoad(Sender: TObject);
-var i:integer; SaveTitles: TStringList;
+var i:integer;
 begin
-  SaveTitles := TStringList.Create;
-  try
-    if FileExists(ExeDir+'Saves\savenames.dat') then
-      SaveTitles.LoadFromFile(ExeDir+'Saves\savenames.dat');
-
-    for i:=1 to SAVEGAME_COUNT do
-      if i <= SaveTitles.Count then
-      begin
-        if Sender = Button_Menu_Save then
-          Button_Save[i].Caption := SaveTitles.Strings[i-1]
-        else
-          Button_Load[i].Caption := SaveTitles.Strings[i-1];
-      end
-      else
-        if Sender = Button_Menu_Save then
-          Button_Save[i].Caption := fTextLibrary.GetTextString(202)
-        else
-          Button_Load[i].Caption := fTextLibrary.GetTextString(202);
-
-    if fGame.fGlobalSettings.IsAutosave then
-      if Sender = Button_Menu_Save then
-        Button_Save[AUTOSAVE_SLOT].Caption := fTextLibrary.GetTextString(203)
-      else
-        Button_Load[AUTOSAVE_SLOT].Caption := fTextLibrary.GetTextString(203);
-  finally
-    FreeAndNil(SaveTitles);
-    SwitchPage(Sender);
-  end;
-end;
-
-
-procedure TKMGamePlayInterface.Save_PopulateSaveNamesFile();
-var i:integer; SaveTitles: TStringList;
-begin
-  SaveTitles := TStringList.Create;
-  try
-    for i:=1 to SAVEGAME_COUNT do
-      SaveTitles.Add(Button_Save[i].Caption); //Just write the caption of the button as they are updated
-
-    if FileExists(ExeDir+'Saves\savenames.dat') then
-      SysUtils.DeleteFile(ExeDir+'Saves\savenames.dat');
-    SaveTitles.SaveToFile(ExeDir+'Saves\savenames.dat');
-  finally
-    FreeAndNil(SaveTitles); 
+  for i:=1 to SAVEGAME_COUNT do begin //We can update both for simplicity
+    Button_Save[i].Caption := fGame.LoadName(i);
+    Button_Load[i].Caption := Button_Save[i].Caption;
   end;
 end;
 

@@ -88,7 +88,6 @@ type
     UnitTotalCount,UnitTrainedCount,UnitLostCount:array[1..40]of integer;
     SoldiersTrained: integer;
     ResourceRatios:array[1..4,1..4]of byte;
-    fMissionTimeInSec:cardinal;
   public
     AllowToBuild:array[1..HOUSE_COUNT]of boolean; //Allowance derived from mission script
     BuildReqDone:array[1..HOUSE_COUNT]of boolean; //If building requirements performed or assigned from script
@@ -100,7 +99,6 @@ type
     procedure TrainedSoldier(aType:TUnitType); //Used for equiping in barracks
   public
     procedure UpdateReqDone(aType:THouseType);
-    procedure IncreaseMissionTime(aSeconds:cardinal);
   public
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
@@ -118,7 +116,6 @@ type
     function GetUnitsTrained:cardinal;
     function GetWeaponsProduced:cardinal;
     function GetSoldiersTrained:cardinal;
-    property GetMissionTime:cardinal read fMissionTimeInSec;
 
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -391,7 +388,6 @@ begin
   for i:=1 to 4 do
     for k:=1 to 4 do
       ResourceRatios[i,k] := DistributionDefaults[i,k];
-  fMissionTimeInSec:=0; //Init mission timer
 end;
 
 
@@ -418,12 +414,6 @@ begin
   for i:=1 to length(BuildingAllowed[1]) do
     if BuildingAllowed[byte(aType),i]<>ht_None then
       BuildReqDone[byte(BuildingAllowed[byte(aType),i])]:=true;
-end;
-
-
-procedure TMissionSettings.IncreaseMissionTime(aSeconds:cardinal);
-begin
-  inc(fMissionTimeInSec,aSeconds);
 end;
 
 
@@ -592,7 +582,6 @@ begin
   for i:=1 to 40 do SaveStream.Write(UnitTrainedCount[i]);
   for i:=1 to 40 do SaveStream.Write(UnitLostCount[i]);
   for i:=1 to 4 do for k:=1 to 4 do SaveStream.Write(ResourceRatios[i,k]);
-  SaveStream.Write(fMissionTimeInSec);
   for i:=1 to HOUSE_COUNT do SaveStream.Write(AllowToBuild[i]);
   for i:=1 to HOUSE_COUNT do SaveStream.Write(BuildReqDone[i]);
 end;
@@ -608,7 +597,6 @@ begin
   for i:=1 to 40 do LoadStream.Read(UnitTrainedCount[i]);
   for i:=1 to 40 do LoadStream.Read(UnitLostCount[i]);
   for i:=1 to 4 do for k:=1 to 4 do LoadStream.Read(ResourceRatios[i,k]);
-  LoadStream.Read(fMissionTimeInSec);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(AllowToBuild[i]);
   for i:=1 to HOUSE_COUNT do LoadStream.Read(BuildReqDone[i]);
 end;

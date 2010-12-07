@@ -81,7 +81,7 @@ var
   TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
   SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :boolean=true; //Render towers/archers attack radius
-  DISPLAY_SOUNDS        :boolean=true; //Display sounds on map
+  DISPLAY_SOUNDS        :boolean=false; //Display sounds on map
   RENDER_3D             :boolean=false; //Experimental 3D render
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
@@ -107,6 +107,7 @@ const
   MAX_PLAYERS = 8;        //Maximum players per map
   SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
   AUTOSAVE_SLOT = 10;     //Slot ID used for autosaving
+  AUTOSAVE_COUNT = 3;
 
 const //Here we store options that are hidden somewhere in code
   MAX_WARFARE_IN_BARRACKS = 255;          //Maximum number of weapons in the barracks from producers. Not a big problem as they are not from the store.

@@ -907,6 +907,7 @@ begin
   SaveStream.Write(DoorwayUse);
 end;
 
+//todo 1: house entrance in planing, blocked tiles
 
 procedure TKMHouse.IncAnimStep;
 begin

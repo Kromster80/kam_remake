@@ -1143,23 +1143,10 @@ end;
 
 
 procedure TKMMainMenuInterface.Load_PopulateList();
-var i:integer; SaveTitles: TStringList;
+var i:integer;
 begin
-  SaveTitles := TStringList.Create;
-  try
-    if FileExists(ExeDir+'Saves\savenames.dat') then
-      SaveTitles.LoadFromFile(ExeDir+'Saves\savenames.dat');
-
-    for i:=1 to SAVEGAME_COUNT do
-      if i <= SaveTitles.Count then
-        Button_Load[i].Caption := SaveTitles.Strings[i-1]
-      else Button_Load[i].Caption := fTextLibrary.GetTextString(202);
-
-    if fGame.fGlobalSettings.IsAutosave then
-      Button_Load[AUTOSAVE_SLOT].Caption := fTextLibrary.GetTextString(203);
-  finally
-    FreeAndNil(SaveTitles);
-  end;
+  for i:=1 to SAVEGAME_COUNT do
+    Button_Load[i].Caption := fGame.LoadName(i);
 end;
 
 

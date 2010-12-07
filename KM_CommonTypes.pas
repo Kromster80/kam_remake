@@ -10,9 +10,6 @@ type
   TKMPointF = record X,Y:single; end;
   TKMPointI = record X,Y:integer; end; //Allows negative values
 
-type
-  TNotifyString = procedure(Sender: TObject; aText:string) of object;
-
 
 type
   { Extended with custom Read/Write commands which accept various types without asking for their length}

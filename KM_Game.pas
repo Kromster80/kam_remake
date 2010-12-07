@@ -79,8 +79,9 @@ type
     function GetNewID():cardinal;
     property GameState:TGameState read fGameState;
 
-    function Save(SlotID:shortint):string;
+    procedure Save(SlotID:shortint);
     function Load(SlotID:shortint):string;
+    function LoadName(SlotID:shortint):string;
 
     procedure UpdateState;
     procedure UpdateStateIdle(aFrameTime:cardinal);
@@ -1056,10 +1057,10 @@ begin
 end;
 
 
+//Treat 10 ticks as 1 sec irregardless of user-set pace
 function TKMGame.GetMissionTime:cardinal;
 begin
-  //Treat 10 ticks as 1 sec irregardless of user-set pace
-  Result := MyPlayer.fMissionSettings.GetMissionTime + (GetTickCount div 10);
+  Result := GetTickCount div 10;
 end;
 
 
@@ -1077,10 +1078,10 @@ begin
 end;
 
 
-//Saves the game and returns string for savegame name OR empty if save failed
+//Saves the game in all its glory
 //Base savegame gets copied from save99.bas
 //Saves command log to RPL file
-function TKMGame.Save(SlotID:shortint):string;
+procedure TKMGame.Save(SlotID:shortint);
 var
   SaveStream:TKMemoryStream;
   i:integer;
@@ -1113,8 +1114,8 @@ begin
       CreateDir(ExeDir+'Saves\'); //Makes the folder incase it was deleted
 
       if SlotID = AUTOSAVE_SLOT then begin //Backup earlier autosaves
-        DeleteFile(KMSlotToSaveName(AUTOSAVE_SLOT+5,'sav'));
-        for i:=AUTOSAVE_SLOT+5 downto AUTOSAVE_SLOT+1 do //15 to 11
+        DeleteFile(KMSlotToSaveName(AUTOSAVE_SLOT+AUTOSAVE_COUNT,'sav'));
+        for i:=AUTOSAVE_SLOT+AUTOSAVE_COUNT downto AUTOSAVE_SLOT+1 do //13 to 11
           RenameFile(KMSlotToSaveName(i-1,'sav'), KMSlotToSaveName(i,'sav'));
       end;
 
@@ -1126,12 +1127,43 @@ begin
         fGameInputProcess.SaveToFile(KMSlotToSaveName(SlotID,'rpl')); //Adds command queue to savegame
       end;//
 
-      Result := GetGameName + ' ' + int2time(GetMissionTime);
-      if (fGlobalSettings.IsAutosave) and (SlotID = AUTOSAVE_SLOT) then
-        Result := fTextLibrary.GetTextString(203); //Autosave
     end;
   end;
   fLog.AppendLog('Saving game',true);
+end;
+
+
+function TKMGame.LoadName(SlotID:shortint):string;
+var
+  FileName,s:string;
+  LoadStream:TKMemoryStream;
+  i:cardinal;
+begin
+  Result := '';
+  FileName := KMSlotToSaveName(SlotID,'sav'); //Full path
+  if not FileExists(FileName) then begin
+    Result := fTextLibrary.GetTextString(202); //Empty
+    exit;
+  end;
+
+  LoadStream := TKMemoryStream.Create; //Read data from file into stream
+  LoadStream.LoadFromFile(FileName);
+  LoadStream.Seek(0, soFromBeginning);
+
+  LoadStream.Read(s);
+  if s = 'KaM_Savegame' then begin
+    LoadStream.Read(s);
+    if s = SAVE_VERSION then begin
+      LoadStream.Read(s); //Savegame mission file
+      LoadStream.Read(s); //GameName
+      LoadStream.Read(i);
+      Result := s + ' ' + int2time(i div 10);
+      if SlotID = AUTOSAVE_SLOT then Result := fTextLibrary.GetTextString(203) + ' ' + Result;
+    end else
+      Result := 'Unsupported save ' + SAVE_VERSION;
+  end else
+    Result := 'Unsupported format';
+  LoadStream.Free;
 end;
 
 
