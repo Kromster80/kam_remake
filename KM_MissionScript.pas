@@ -147,6 +147,7 @@ function TMissionParser.ReadMissionFile(aFileName:string):string;
 var
   Encoded:boolean; //If false then files will be opened as text
   i,k,Num,NumRead:integer;
+  s:TStringList;
   f:file;
 begin
   if not CheckFileExists(aFileName) then exit;
@@ -164,12 +165,21 @@ begin
   for i:=1 to NumRead do if Result[i] in [#9,#10,#13,'0'..'9',' ','!'] then inc(Num);
 
   //Usually 30-50% of file is numerals/spaces, tested on KaM maps
-  Encoded := (Num/NumRead < 0.15); //so we take half of that as landmark
+  Encoded := (Num/NumRead < 0.20); //so we take half of that as landmark
 
-  for i:=1 to NumRead do begin
+  for i:=1 to NumRead do
     if Encoded then Result[i] := chr(ord(Result[i]) xor 239);
-    if (Result[i] in [#9,#10,#13]) then Result[i] := #32;
+
+  //Save text after decoding but before cleaning
+  if WRITE_DECODED_MISSION then begin
+    s := TStringList.Create;
+    s.Text := Result;
+    s.SaveToFile(aFileName+'.txt');
+    s.Free;
   end;
+
+  for i:=1 to NumRead do
+    if (Result[i] in [#9,#10,#13]) then Result[i] := #32;
 
   k:=1;
   for i:=1 to NumRead do begin
@@ -335,8 +345,7 @@ begin
       inc(k);
       //Extract parameters
       for l:=1 to 8 do
-        //todo 1: bug in loading mission19.dat
-        if (FileText[k]<>'!') and (k<length(FileText)) then
+        if (k<=length(FileText)) and (FileText[k]<>'!') then
         begin
           Param := '';
           repeat

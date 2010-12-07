@@ -1135,7 +1135,7 @@ end;
 
 function TKMGame.LoadName(SlotID:shortint):string;
 var
-  FileName,s:string;
+  FileName,s,ver:string;
   LoadStream:TKMemoryStream;
   i:cardinal;
 begin
@@ -1152,15 +1152,15 @@ begin
 
   LoadStream.Read(s);
   if s = 'KaM_Savegame' then begin
-    LoadStream.Read(s);
-    if s = SAVE_VERSION then begin
+    LoadStream.Read(ver);
+    if ver = SAVE_VERSION then begin
       LoadStream.Read(s); //Savegame mission file
       LoadStream.Read(s); //GameName
       LoadStream.Read(i);
       Result := s + ' ' + int2time(i div 10);
       if SlotID = AUTOSAVE_SLOT then Result := fTextLibrary.GetTextString(203) + ' ' + Result;
     end else
-      Result := 'Unsupported save ' + SAVE_VERSION;
+      Result := 'Unsupported save ' + ver;
   end else
     Result := 'Unsupported format';
   LoadStream.Free;
