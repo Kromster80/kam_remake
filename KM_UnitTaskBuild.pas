@@ -551,7 +551,7 @@ begin
         BuildID := 0;
         fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, GetOwner);
         HouseSet := true;
-        fHouse.SetBuildingState(hbs_NoGlyph);
+        fHouse.BuildingState := hbs_NoGlyph;
         SetActionLockedStay(5,ua_Walk);
         Thought := th_None;
       end;
@@ -580,7 +580,7 @@ begin
         dec(Step);
       end;
   7:  begin
-        fHouse.SetBuildingState(hbs_Wood);
+        fHouse.BuildingState := hbs_Wood;
         fPlayers.Player[byte(GetOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
         with HouseDAT[byte(fHouse.GetHouseType)] do begin
           fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, WoodCost, dt_Once, di_High);

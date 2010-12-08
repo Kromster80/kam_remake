@@ -422,7 +422,7 @@ function TUnitActionWalkTo.CheckWalkComplete():boolean;
 begin
   Result := (NodePos=NodeList.Count)
             or ((fTargetHouse = nil) and (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fWalkToSpot))
-            or ((fTargetHouse <> nil) and (round(fTargetHouse.GetDistance(fWalker.GetPosition)) <= fWalkToSpot))
+            or ((fTargetHouse <> nil) and (fTargetHouse.GetDistance(fWalker.GetPosition) <= fWalkToSpot))
             or ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5))
             or ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon);
 end;
@@ -606,7 +606,7 @@ begin
       if fTerrain.HasUnit(TempPos) then //Now see if it has a unit
       begin
         //There is a unit here, first find our alternate opponent
-        fAltOpponent := fPlayers.UnitsHitTest(TempPos.X, TempPos.Y);
+        fAltOpponent := fTerrain.UnitsHitTest(TempPos.X, TempPos.Y);
 
         //Make sure unit really exists, is walking and has arrived on tile
         if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and
@@ -729,7 +729,7 @@ begin
   Result := false;
 
   //Find the unit that is in our path
-  fOpponent := fPlayers.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
+  fOpponent := fTerrain.UnitsHitTest(NodeList.List[NodePos+1].X, NodeList.List[NodePos+1].Y);
   //If there's currently no unit in the way but tile is pre-occupied
   if fOpponent = nil then begin
     //Do nothing and wait till unit is actually there so we can interact with it

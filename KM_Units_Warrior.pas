@@ -737,7 +737,7 @@ begin
   if fTerrain.TileInMapCoords(GetPosition.X+i, GetPosition.Y+k) then
   if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through tree trunks
   begin
-    U := fPlayers.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
+    U := fTerrain.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
     //Must not dead/dying, not inside a house, not from our team and an enemy
     if (U <> nil) and (U.IsVisible) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
     begin

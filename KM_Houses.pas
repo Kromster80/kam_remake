@@ -91,8 +91,7 @@ type
     property GetOwner:TPlayerID read fOwner;
     function GetHealth():word;
 
-    procedure SetBuildingState(aState: THouseBuildState);
-    property GetBuildingState: THouseBuildState read fBuildState;
+    property BuildingState: THouseBuildState read fBuildState write fBuildState;
     procedure IncBuildingProgress;
     function GetMaxHealth():word;
     procedure AddDamage(aAmount:word);
@@ -362,7 +361,7 @@ procedure TKMHouse.CloseHouse(IsEditor:boolean=false);
 begin
   fIsDestroyed := true;
   BuildingRepair := false; //Otherwise labourers will take task to repair when the house is destroyed
-  if (RemoveRoadWhenDemolish) and (not (GetBuildingState in [hbs_Stone, hbs_Done]) or IsEditor) then
+  if (RemoveRoadWhenDemolish) and (not (BuildingState in [hbs_Stone, hbs_Done]) or IsEditor) then
   begin
     if fTerrain.Land[GetEntrance.Y,GetEntrance.X].TileOverlay = to_Road then
     begin
@@ -410,7 +409,7 @@ begin
   if (fGame.fGamePlayInterface <> nil) and (fGame.fGamePlayInterface.GetShownHouse = Self) then fGame.fGamePlayInterface.ShowHouseInfo(nil);
 
   if not DoSilent then
-    if (GetBuildingState = hbs_Glyph)or(NoRubble) then fSoundLib.Play(sfx_click)
+    if (BuildingState = hbs_Glyph)or(NoRubble) then fSoundLib.Play(sfx_click)
     else fSoundLib.Play(sfx_HouseDestroy,GetPosition);
   //Dispose of delivery tasks performed in DeliverQueue unit
   fPlayers.Player[byte(fOwner)].DeliverList.RemoveOffer(Self);
@@ -458,9 +457,9 @@ begin
   C := TKMPointList.Create;
   GetListOfCellsWithin(C);
 
-  Result := KMLength(C.List[1], aPos);
+  Result := GetLength(C.List[1], aPos);
   for i:=2 to C.Count do
-    Result := min(Result, KMLength(C.List[i], aPos));
+    Result := min(Result, GetLength(C.List[i], aPos));
   C.Free;
 end;
 
@@ -524,13 +523,7 @@ end;
 
 function TKMHouse.GetHealth():word;
 begin
-  Result:=EnsureRange(fBuildingProgress-fDamage,0,maxword);
-end;
-
-
-procedure TKMHouse.SetBuildingState(aState: THouseBuildState);
-begin
-  fBuildState:=aState;
+  Result := EnsureRange(fBuildingProgress-fDamage,0,maxword);
 end;
 
 
@@ -1694,7 +1687,7 @@ begin
 
   for I := 0 to Count - 1 do
   if Items[I] <> nil then
-  if (Houses[i].fHouseType=aType) and (Houses[i].IsComplete) then
+  if (Houses[i].fHouseType=aType) and Houses[i].IsComplete and not Houses[i].fIsDestroyed then
   begin
       inc(id);
       if UsePosition then

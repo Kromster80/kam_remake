@@ -30,7 +30,7 @@ begin
   fLog.AssertToLog(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
   Inherited Create(aActionType);
   fActionName     := uan_AbandonWalk;
-  Locked          := true;
+  Locked          := false;
   fWalkTo         := LocB;
   fVertexOccupied := aVertexOccupied;
 end;

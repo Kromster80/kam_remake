@@ -28,7 +28,7 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1201';       //Game version string displayed in menu corner
+  GAME_VERSION          = 'Fighting Demo r1218';       //Game version string displayed in menu corner
   SAVE_VERSION          = 'r1201';       //Should be updated for every release (each time save format is changed)
   REPLAY_VERSION        = 1201;          //Used in replay file format
 
@@ -70,21 +70,23 @@ var
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   {Gameplay display}
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
-  SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes when they are chosen
+  SHOW_UNIT_ROUTES      :boolean=true; //Draw unit routes
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
   SHOW_POINTER_DOTS     :boolean=false; //Show pointer count as small dots below unit
-  SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay, Only if unit interaction enabled
+  SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :boolean=false; //Show floodfill areas of interconnected areas
+  TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
+  SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
+  SHOW_ATTACK_RADIUS    :boolean=false; //Render towers/archers attack radius
+  DISPLAY_SOUNDS        :boolean=false; //Display sounds on map
+  RENDER_3D             :boolean=false; //Experimental 3D render
+  {Stats}
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
-  TEST_VIEW_CLIP_INSET  :boolean=false; //Renders smaller area to see if everything gets clipped well
-  SHOW_SPRITES_RECT     :boolean=false; //Render outline around every sprite
-  SHOW_ATTACK_RADIUS    :boolean=true; //Render towers/archers attack radius
-  DISPLAY_SOUNDS        :boolean=false; //Display sounds on map
-  RENDER_3D             :boolean=false; //Experimental 3D render
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
+  REDUCE_SHOOTING_RANGE :boolean=true; //Reduce shooting range for debug
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file 
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably

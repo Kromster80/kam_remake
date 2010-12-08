@@ -320,7 +320,7 @@ begin
                     then
                   begin
                     //See if we are moving or attacking
-                    HitUnit := fPlayers.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
+                    HitUnit := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                     if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
                        (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) and
                       (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, 0, false)) then
@@ -431,7 +431,7 @@ begin
                         else
                         if fGamePlayInterface.GetShownUnit is TKMUnitWarrior then
                         begin
-                          HitUnit  := fPlayers.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
+                          HitUnit  := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
                           HitHouse := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                           if (fTerrain.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, MyPlayer.PlayerID)>0) and
                              (((HitUnit<>nil) and (not (HitUnit is TKMUnitAnimal)) and (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy))or
@@ -588,7 +588,7 @@ begin
                   if MyPlayer.RemHouse(P,false,true) then //Ask wherever player wants to destroy own house
                   begin
                     //don't ask about houses that are not started, they are removed bellow
-                    if TKMHouse(fPlayers.Selected).GetBuildingState <> hbs_Glyph then
+                    if TKMHouse(fPlayers.Selected).BuildingState <> hbs_Glyph then
                     begin
                       fGamePlayInterface.ShowHouseInfo(TKMHouse(fPlayers.Selected),true);
                       fSoundLib.Play(sfx_click);
@@ -597,7 +597,7 @@ begin
                   if (not MyPlayer.RemPlan(P)) and (not MyPlayer.RemHouse(P,false,true)) then
                     fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
                   //Now remove houses that are not started
-                  if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).GetBuildingState = hbs_Glyph) then
+                  if MyPlayer.RemHouse(P,false,true) and (TKMHouse(fPlayers.Selected).BuildingState = hbs_Glyph) then
                   begin
                     fGameInputProcess.CmdBuild(gic_BuildRemoveHouse, P);
                     fSoundLib.Play(sfx_click);

@@ -8,12 +8,10 @@ type
   TTaskAttackHouse = class(TUnitTask)
     private
       fHouse:TKMHouse;
-      fDestroyingHouse:boolean;
+      fDestroyingHouse:boolean; //House destruction in progress
       fFightType:TFightType;
       LocID:byte; //Current attack location
-      CellsA:TKMPointDirList; //List of surrounding cells
       CellsW:TKMPointList; //List of cells within
-      function PosUsed(aPos: TKMPoint):boolean;
     public
       constructor Create(aWarrior: TKMUnitWarrior; aHouse:TKMHouse);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -39,13 +37,8 @@ begin
   fDestroyingHouse := false;
   fFightType := aWarrior.GetFightType;
   LocID  := 0;
-  CellsA  := TKMPointDirList.Create; //Pass pre-made list to make sure we Free it in the same unit
   CellsW  := TKMPointList.Create; //Pass pre-made list to make sure we Free it in the same unit
-  case fFightType of
-    ft_Melee: fHouse.GetListOfCellsAround(CellsA, aWarrior.GetDesiredPassability);
-    ft_Ranged: fHouse.GetListOfCellsWithin(CellsW);
-    else Assert(false, 'Unknown FightType');
-  end;
+  if fFightType = ft_Ranged then fHouse.GetListOfCellsWithin(CellsW);
 end;
 
 
@@ -56,7 +49,6 @@ begin
   LoadStream.Read(fDestroyingHouse);
   LoadStream.Read(fFightType, SizeOf(fFightType));
   LoadStream.Read(LocID);
-  CellsA := TKMPointDirList.Load(LoadStream);
   CellsW := TKMPointList.Load(LoadStream);
 end;
 
@@ -71,68 +63,18 @@ end;
 destructor TTaskAttackHouse.Destroy;
 begin
   if fHouse <> nil then fHouse.ReleaseHousePointer;
-  FreeAndNil(CellsA);
   FreeAndNil(CellsW);
   Inherited;
 end;
 
 
-{Position is [used] when there's another warrior attacking the same house from queried spot?}
-function TTaskAttackHouse.PosUsed(aPos: TKMPoint):boolean;
-var HitUnit: TKMUnit;
-begin
-  HitUnit := fPlayers.UnitsHitTest(aPos.X,aPos.Y);
-  Result :=
-    (HitUnit <> nil)and //Unit below
-    (HitUnit.GetUnitTask is TTaskAttackHouse)and //Attacking the same house
-    (TTaskAttackHouse(HitUnit.GetUnitTask).LocID <> 0)and //Attack is in progress
-    TTaskAttackHouse(HitUnit.GetUnitTask).fDestroyingHouse; //Attack on the house began
-end;
-
-
 function TTaskAttackHouse.WalkShouldAbandon:boolean;
 begin
-  Result := false;
-
-  if fHouse.IsDestroyed then begin
-    Result := true;
-    exit;
-  end;
-
-  if fFightType<>ft_Ranged then
-  if PosUsed(CellsA.List[LocID].Loc) then
-  begin
-    Result := true;
-    fPhase := 0; //Try to start again with a new spot
-  end;
+  Result := fHouse.IsDestroyed;
 end;
 
 
 function TTaskAttackHouse.Execute():TTaskResult;
-
-    function PickRandomSpot(): byte;
-    var i, MyCount: integer; Spots: array[1..16] of byte;
-    begin
-      MyCount := 0;
-      for i:=1 to CellsA.Count do
-      if not PosUsed(CellsA.List[i].Loc) then //Is someone else is using it
-      if fTerrain.Route_CanBeMade(fUnit.GetPosition, CellsA.List[i].Loc ,fUnit.GetDesiredPassability, 0, false) then
-      begin
-        inc(MyCount);
-        Spots[MyCount] := i;
-        //ALWAYS choose our current location if it is available to save walking
-        if KMSamePoint(CellsA.List[i].Loc,fUnit.GetPosition) then
-        begin
-          Result := i;
-          exit;
-        end;
-      end;
-      if MyCount > 0 then
-        Result := Spots[Random(MyCount)+1]
-      else
-        Result := 0;
-    end;
-
 begin
   Result := TaskContinues;
 
@@ -149,27 +91,17 @@ begin
   with fUnit do
   case fPhase of
     0: begin
-         if fFightType=ft_Ranged then begin
-           SetActionWalkToHouse(fHouse, RANGE_BOWMAN);
-         end else begin
-           LocID := PickRandomSpot(); //Choose random location around the house and walk to it
-           if LocID = 0 then
-           begin
-             //All cells are taken/inaccessable
-             Result := TaskDone;
-             exit;
-           end;
-           SetActionWalkToSpot(CellsA.List[LocID].Loc);
-           fDestroyingHouse := false;
-         end;
+         if fFightType=ft_Ranged then
+           SetActionWalkToHouse(fHouse, RANGE_BOWMAN div (byte(REDUCE_SHOOTING_RANGE)*2))
+         else
+           SetActionWalkToHouse(fHouse, 1)
        end;
     1: if fFightType=ft_Ranged then begin
-
          SetActionLockedStay(Random(8),ua_Work,true); //Pretend to aim
          Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
        end else begin
          SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
-         Direction := TKMDirection(CellsA.List[LocID].Dir); //Face target
+         Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
        end;
     2: begin
          if fFightType=ft_Ranged then begin
@@ -209,7 +141,6 @@ begin
   SaveStream.Write(fDestroyingHouse);
   SaveStream.Write(fFightType, SizeOf(fFightType));
   SaveStream.Write(LocID);
-  CellsA.Save(SaveStream);
   CellsW.Save(SaveStream);
 end;
 

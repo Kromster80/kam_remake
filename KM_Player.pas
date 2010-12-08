@@ -431,13 +431,13 @@ end;
 
 function TKMPlayerAssets.GetCanBuild(aType:THouseType):boolean;
 begin
-  Result:=fMissionSettings.GetCanBuild(aType);
+  Result := fMissionSettings.GetCanBuild(aType);
 end;
 
 
 function TKMPlayerAssets.GetHouseQty(aType:THouseType):integer;
 begin
-  Result:=fMissionSettings.GetHouseQty(aType);
+  Result := fMissionSettings.GetHouseQty(aType);
 end;
 
 

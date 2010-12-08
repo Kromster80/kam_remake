@@ -26,7 +26,6 @@ type
     procedure SetPlayerCount(aPlayerCount:integer);
     property PlayerCount:integer read fPlayerCount;
     function HousesHitTest(X,Y:Integer):TKMHouse;
-    function UnitsHitTest(X,Y:Integer):TKMUnit;
     function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
     function UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
     function GetHouseByID(aID: Integer): TKMHouse;
@@ -110,19 +109,6 @@ begin
     Result := Player[i].HousesHitTest(X,Y);
     if Result<>nil then exit; //Assuming that there can't be 2 houses on one tile
   end;
-end;
-
-
-function TKMAllPlayers.UnitsHitTest(X,Y:Integer):TKMUnit;
-var i:integer;
-begin
-  Result := nil;
-  for i:=1 to fPlayerCount do begin
-    Result := Player[i].UnitsHitTest(X,Y);
-    if Result<>nil then exit; //Assuming that there can't be 2 units on one tile
-  end;
-  if Result = nil then
-    Result := PlayerAnimals.UnitsHitTest(X,Y);
 end;
 
 
@@ -223,7 +209,7 @@ function TKMAllPlayers.HitTest(X,Y: Integer):boolean;
 var H:TKMHouse; U:TKMUnit;
 begin
   H := MyPlayer.HousesHitTest(X,Y);
-  if (H<>nil) and (H.GetBuildingState in [hbs_Stone,hbs_Done]) then
+  if (H<>nil) and (H.BuildingState in [hbs_Stone,hbs_Done]) then
     fPlayers.Selected := H
   else begin
     U := MyPlayer.UnitsHitTest(X,Y);

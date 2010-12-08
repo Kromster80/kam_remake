@@ -664,7 +664,7 @@ begin
       else
       begin
 
-        u := fPlayers.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
+        u := fTerrain.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
         if (u <> nil) and (not u.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.GetOwner,u.GetOwner) = at_Enemy) then
           Warrior.PlaceOrder(wo_Attack,u)
         else

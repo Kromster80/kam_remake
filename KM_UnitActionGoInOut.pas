@@ -113,7 +113,7 @@ begin
   if not Result then exit;
 
   if not (fTerrain.Land[LocY,LocX].IsUnit = nil) then begin
-    aUnit := fPlayers.UnitsHitTest(LocX, LocY); //Let's see who is standing there
+    aUnit := fTerrain.UnitsHitTest(LocX, LocY); //Let's see who is standing there
     Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
                              and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
     if Result then

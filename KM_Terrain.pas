@@ -152,6 +152,8 @@ TTerrain = class
     function TileIsRoadable(Loc:TKMPoint):boolean;
     function TileIsCornField(Loc:TKMPoint):boolean;
     function TileIsWineField(Loc:TKMPoint):boolean;
+    function TileIsLocked(aLoc:TKMPoint):boolean;
+    function UnitsHitTest(X,Y:word):TKMUnit;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
@@ -444,6 +446,25 @@ begin
 end;
 
 
+function TTerrain.TileIsLocked(aLoc:TKMPoint):boolean;
+begin
+  Result := (Land[aLoc.Y,aLoc.X].IsUnit <> nil) and (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction.Locked);
+end;
+
+
+//Check if there's unit on the tile
+//Note that IsUnit refers to where unit started wlaking to, not the actual unit position
+//(which is what we used in unit interaction), so check all 9 tiles to get accurate result
+function TTerrain.UnitsHitTest(X,Y:word):TKMUnit;
+var i,k:integer;
+begin
+  Result := nil;
+  for i:=max(Y-1,1) to min(Y+1, MapY) do for k:=max(X-1,1) to min(X+1,MapX) do
+  if (Land[i,k].IsUnit <> nil) and (Land[i,k].IsUnit.HitTest(X,Y)) then
+    Result := Land[i,k].IsUnit;
+end;
+
+
 function TTerrain.ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
 var h,i:byte;
 begin
@@ -526,10 +547,9 @@ end;
 procedure TTerrain.RevealCircle(Pos:TKMPoint; Radius,Amount:word; PlayerID:TPlayerID);
 var i,k:integer;
 begin
-  if not InRange(byte(PlayerID),1,MAX_PLAYERS) then exit;
-  for i:=max(Pos.Y-Radius,2) to min(Pos.Y+Radius,MapY-1) do
+  for i:=max(Pos.Y-Radius,2) to min(Pos.Y+Radius,MapY-1) do //Keep map edges unrevealed
   for k:=max(Pos.X-Radius,2) to min(Pos.X+Radius,MapX-1) do
-  if GetLength(Pos,KMPoint(k,i)) <= Radius then
+  if sqrt(sqr(Pos.x-k) + sqr(Pos.y-i)) <= Radius then
     Land[i,k].FogOfWar[byte(PlayerID)] := min(Land[i,k].FogOfWar[byte(PlayerID)] + Amount,FOG_OF_WAR_MAX);
 end;
 
@@ -1332,7 +1352,7 @@ begin
     if Land[L1.List[i].Y,L1.List[i].X].IsUnit <> nil then
     begin
       if KMSamePoint(L1.List[i],Loc2) then Loc2IsOk := true; //Make sure unit that pushed us is a valid tile
-      TempUnit := fPlayers.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
+      TempUnit := fTerrain.UnitsHitTest(L1.List[i].X, L1.List[i].Y);
       if TempUnit <> nil then
         if (TempUnit.GetUnitAction is TUnitActionStay) and (not TUnitActionStay(TempUnit.GetUnitAction).Locked) then
           L3.AddEntry(L1.List[i]);
@@ -1370,7 +1390,7 @@ begin
   if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
   if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
   if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
-  if fPlayers.UnitsHitTest(Loc.X+k,Loc.Y+i) = nil then //Doesn't have unit
+  if fTerrain.UnitsHitTest(Loc.X+k,Loc.Y+i) = nil then //Doesn't have unit
     L1.AddEntry(KMPoint(Loc.X+k,Loc.Y+i));
 
   //List 2 holds the best positions, ones which are also next to Loc3 (next position)
@@ -2300,7 +2320,7 @@ begin
   begin
 
     if FOG_OF_WAR_ENABLE then
-    for h:=1 to 1 do //More can be added
+    for h:=1 to 1 do //Decrease FOW only for these players?
       if Land[i,k].FogOfWar[h] > FOG_OF_WAR_MIN then dec(Land[i,k].FogOfWar[h], FOG_OF_WAR_DEC);
 
       if InRange(Land[i,k].FieldAge,1,65534) then
