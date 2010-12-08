@@ -627,21 +627,23 @@ procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:integer;
 begin
   Panel_Mission := MyControls.AddPanel(Panel_Main,0,428,196,28);
-    Button_Mission[1] := MyControls.AddButton(Panel_Mission,   8, 4, 36, 24, 41);
+    Button_Mission[1] := MyControls.AddButton(Panel_Mission, 8, 4, 36, 24, 41);
     for i:=1 to 1 do Button_Mission[i].OnClick := SwitchPage;
 
     Panel_Alliances := MyControls.AddPanel(Panel_Mission,0,28,196,400);
       Label_Alliances := MyControls.AddLabel(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
+      MyControls.AddBevel(Panel_Alliances, 9, 28, 180, 180);
       for i:=1 to MAX_PLAYERS do begin
-        MyControls.AddLabel(Panel_Alliances,12,10+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
+        MyControls.AddLabel(Panel_Alliances,12+i*20+2,30,100,20,inttostr(i),fnt_Outline,kaLeft);
+        MyControls.AddLabel(Panel_Alliances,12,30+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
         for k:=1 to MAX_PLAYERS do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
-          CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 12+k*20, 10+i*20, 20, 20, '', fnt_Metal);
+          CheckBox_Alliances[i,k] := MyControls.AddCheckBox(Panel_Alliances, 12+k*20, 30+i*20, 20, 20, '', fnt_Metal);
           CheckBox_Alliances[i,k].Tag := (i-1)*MAX_PLAYERS + (k-1);
           CheckBox_Alliances[i,k].OnClick := Mission_AlliancesChange;
         end;
       end;
-      CheckBox_AlliancesSym := MyControls.AddCheckBox(Panel_Alliances, 32, 10+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym := MyControls.AddCheckBox(Panel_Alliances, 12, 30+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
       CheckBox_AlliancesSym.OnClick := Mission_AlliancesChange;
 end;

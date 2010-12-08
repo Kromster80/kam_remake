@@ -12,6 +12,7 @@ type
       fFlightTime:word; //Thats how long it will take a stone to hit it's target
     public
       constructor Create(aUnit,aTarget:TKMUnit);
+      destructor Destroy; override;
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad(); override;
       function Execute():TTaskResult; override;
@@ -28,7 +29,14 @@ constructor TTaskThrowRock.Create(aUnit,aTarget:TKMUnit);
 begin
   Inherited Create(aUnit);
   fTaskName := utn_ThrowRock;
-  fTarget := aTarget;
+  fTarget := aTarget.GetUnitPointer;
+end;
+
+
+destructor TTaskThrowRock.Destroy;
+begin
+  if fTarget <> nil then fTarget.ReleaseUnitPointer;
+  Inherited;
 end;
 
 
@@ -51,7 +59,8 @@ function TTaskThrowRock.Execute():TTaskResult;
 begin
   Result := TaskContinues;
 
-  if fUnit.GetHome.IsDestroyed then begin
+  //our target could be killed by another Tower or in a fight
+  if fUnit.GetHome.IsDestroyed or fTarget.IsDeadOrDying then begin
     Result := TaskDone;
     exit;
   end;
@@ -61,11 +70,12 @@ begin
     0: begin
          GetHome.SetState(hst_Work); //Set house to Work state
          GetHome.fCurrentAction.SubActionWork(ha_Work2); //show Recruits back
-         SetActionStay(5,ua_Walk); //take the stone
+         SetActionStay(5,ua_Walk); //pretend taking the stone
        end;
     1: begin
          if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
          fFlightTime := fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);
+         fTarget.ReleaseUnitPointer; //We don't need it anymore
          SetActionStay(1,ua_Walk);
        end;
     2: begin

@@ -1902,7 +1902,7 @@ begin
   if not Units[i].IsDead then
     Units[i].UpdateState
   else //Else try to destroy the unit object if all pointers are freed
-    if (Items[I] <> nil) and FREE_POINTERS and (Units[i].GetPointerCount = 0) then
+    if (Items[I] <> nil) and FREE_POINTERS and (Units[i].fPointerCount = 0) then
     begin
       SetLength(IDsToDelete,ID+1);
       IDsToDelete[ID] := I;
@@ -1918,18 +1918,22 @@ begin
   end;
 
   //   --     POINTER FREEING SYSTEM - DESCRIPTION     --   //
-  //  This system was implemented because unit and house objects cannot be freed until all pointers to them
-  //  (in tasks, delivery queue, etc.) have been freed, otherwise we have pointer integrity issues.
+  //  This system was implemented because unit and house objects cannot be freed until all pointers
+  //  to them (in tasks, delivery queue, etc.) have been freed, otherwise we have pointer integrity
+  //  issues.
 
   //   --     ROUGH OUTLINE     --   //
-  // - Units and houses have fPointerCount, which is the number of pointers to them. (e.g. tasks, deliveries)
-  //   This is kept up to date by the thing that is using the pointer. On create it uses GetSelf to increase
-  //   the pointer count and on destroy it decreases it. (this will be a source of errors and will need to be checked when changing pointers)
-  // - When a unit dies, the object is not destroyed. Instead a flag (boolean) is set to say that we want to
-  //   destroy but can't because there are still pointers to the unit. From then on every update state it checks
-  //   to see if the pointer count is 0 yet. If it is then the unit is destroyed.
-  // - For each place that contains a pointer, it should check everytime the pointer is used to see if it has been
-  //   destroy. If it has then we free the pointer and reduce the count. (and do any other action nececary due to the unit/house dying)
+  // - Units and houses have fPointerCount, which is the number of pointers to them. (e.g. tasks,
+  //   deliveries) This is kept up to date by the thing that is using the pointer. On create it uses
+  //   GetUnitPointer to get the pointer and increase the pointer count and on destroy it decreases
+  //   it with ReleaseUnitPointer.
+  // - When a unit dies, the object is not destroyed. Instead a flag (boolean) is set to say that we
+  //   want to destroy but can't because there still might be pointers to the unit. From then on
+  //   every update state it checks to see if the pointer count is 0 yet. If it is then the unit is
+  //   destroyed.
+  // - For each place that contains a pointer, it should check everytime the pointer is used to see
+  //   if it has been destroy. If it has then we free the pointer and reduce the count.
+  //   (and do any other action nececary due to the unit/house dying)
 
 end;
 

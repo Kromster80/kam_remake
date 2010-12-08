@@ -70,7 +70,7 @@ var
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
   {Gameplay display}
   SHOW_TERRAIN_WIRES    :boolean=false; //Makes terrain height visible
-  SHOW_UNIT_ROUTES      :boolean=true; //Draw unit routes
+  SHOW_UNIT_ROUTES      :boolean=false; //Draw unit routes
   SHOW_PROJECTILES      :boolean=false; //Shows projectiles trajectory
   SHOW_POINTER_DOTS     :boolean=false; //Show pointer count as small dots below unit
   SHOW_UNIT_MOVEMENT    :boolean=false; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
@@ -86,7 +86,7 @@ var
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
-  REDUCE_SHOOTING_RANGE :boolean=true; //Reduce shooting range for debug
+  REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file 
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
