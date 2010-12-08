@@ -5,7 +5,7 @@ uses
   Classes, KromUtils, SysUtils, Dialogs;
 
 type
-  TKMMapsInfo = class(TObject)
+  TKMMapsInfo = class
   private
     MapCount:byte;
     Maps:array[1..255]of record

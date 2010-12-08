@@ -60,7 +60,7 @@ var
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
   ENABLE_MP_IN_MENU     :boolean=false; //Keep it disable until it's rigged
-
+                       
   //These are debug things, should be FALSE
   {User interface options}
   SHOW_DEBUG_CONTROLS   :boolean=false; //Show debug panel / Form1 menu (F11)

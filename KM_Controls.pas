@@ -13,7 +13,7 @@ type
 
 {Base class for all TKM elements}
 type
-TKMControl = class(TObject)
+TKMControl = class
   private
 
     fLeft: Integer;

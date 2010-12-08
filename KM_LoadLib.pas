@@ -18,7 +18,7 @@ const
 type
   TStringArray = array of string;
 
-  TTextLibrary = class(TObject)
+  TTextLibrary = class
   private
     TextStrings: array[0..MaxStrings] of string;
     SetupStrings: array[0..MaxStrings] of string;

@@ -8,7 +8,7 @@ uses Classes, KromUtils, Math, SysUtils, Windows,
 type
   TKMHouse = class;
 
-  THouseAction = class(TObject)
+  THouseAction = class
   private
     fHouse:TKMHouse;
     fHouseState: THouseState;
@@ -26,7 +26,7 @@ type
   end;
 
 
-  TKMHouse = class(TObject)
+  TKMHouse = class
   private
     fHouseType: THouseType; //House type
     fPosition: TKMPoint; //House position on map, kinda virtual thing cos it doesn't match with entrance

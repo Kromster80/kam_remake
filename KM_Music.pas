@@ -6,7 +6,7 @@ uses Forms,
   Classes, SysUtils, KromUtils, Math, KM_Defaults, KM_CommonTypes;
 
 type
-  TMusicLib = class(TObject)
+  TMusicLib = class
   private
     {$IFDEF WDC} fMediaPlayer: TMediaPlayer; {$ENDIF}
     MusicCount:integer;

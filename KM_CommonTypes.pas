@@ -79,7 +79,7 @@ type
   end;
 
 
-type TKMMessageList = class(TObject)
+type TKMMessageList = class
   public
     Count:integer;
     List:array of TKMMessage; //1..Count
@@ -112,7 +112,7 @@ type TKMPointList = class
   end;
 
 
-type TKMPointTagList = class (TKMPointList)
+type TKMPointTagList = class(TKMPointList)
   public
     Tag,Tag2:array of integer; //1..Count
     constructor Load(LoadStream:TKMemoryStream); override;

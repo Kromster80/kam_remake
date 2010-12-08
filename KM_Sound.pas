@@ -19,7 +19,7 @@ const WarriorSFX: array[TSoundToPlay] of string = (
   'FORMAT','DEATH','BATTLE','STORM');
 
 type
-  TSoundLib = class(TObject)
+  TSoundLib = class
   private
     Waves: array[1..MaxWaves] of record
       Head: TWAVHeaderEx;

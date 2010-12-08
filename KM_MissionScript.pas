@@ -70,7 +70,7 @@ type
   end;
 
 type
-  TMissionParser = class(TObject)
+  TMissionParser = class
   private     { Private declarations }
     fParserMode:TMissionParserMode; //Data gets sent to Game differently depending on Game/Editor mode
     ErrorMessage:string; //Should be blank

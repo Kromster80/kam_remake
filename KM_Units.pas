@@ -17,7 +17,7 @@ type
 
   TActionResult = (ActContinues, ActDone, ActAborted); //
 
-  TUnitAction = class(TObject)
+  TUnitAction = class
   protected
     fActionName: TUnitActionName;
     fActionType: TUnitActionType;
@@ -34,7 +34,7 @@ type
 
   TTaskResult = (TaskContinues, TaskDone); //There's no difference between Done and Aborted
 
-  TUnitTask = class(TObject)
+  TUnitTask = class
   protected
     fTaskName:TUnitTaskName;
     fUnit:TKMUnit; //Unit who's performing the Task
@@ -54,7 +54,7 @@ type
   end;
 
 
-  TKMUnit = class(TObject)
+  TKMUnit = class
   protected
     fID:integer; //unique unit ID, used for save/load to sync to
     fUnitType: TUnitType;
