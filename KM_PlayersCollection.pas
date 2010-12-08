@@ -27,7 +27,6 @@ type
     property PlayerCount:integer read fPlayerCount;
     function HousesHitTest(X,Y:Integer):TKMHouse;
     function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
-    function UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
     function HitTest(X,Y:Integer):boolean;
@@ -133,42 +132,7 @@ begin
   for X:=trunc(aLoc.X) to ceil(aLoc.X) do
     Result := PlayerAnimals.UnitsHitTest(X,Y);
 end;
-
-
-//Function to use with WatchTowers/Archers/AutoLinking/
-{ Should scan withing given radius and return closest unit with given Alliance status
-  Should be optimized versus usual UnitsHitTest
-  1. Excluding animals
-  2. Early exclude Alliances
-  3. Exclude farther-than-best ranges  }
-function TKMAllPlayers.UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
-var i,k,m:integer; U:TKMUnit;
-begin
-  U := nil; //incase all players are in alliance
-  Result := nil;
-
-  for i:=-Rad to Rad do
-  for k:=-Rad to Rad do
-  if GetLength(i,k)<=Rad then begin
-
-    //Don't check tiles farther than Result
-    if (Result<>nil) and (GetLength(i,k)>=GetLength(KMPoint(X,Y),Result.GetPosition)) then
-      Continue; //Since we check left-to-right we can't exit yet
-
-    //Check players only with certain Alliance type
-    //How do WE feel about enemy, not how they feel about us
-    for m:=1 to fPlayerCount do
-    if CheckAlliance(aPlay, Player[m].PlayerID) = aAlliance then
-    begin
-      U := Player[m].UnitsHitTest(X+k,Y+i); //We need U incase UnitsHitTest returns nil
-      if U<>nil then break;
-    end;
-
-    if (U<>nil) and not(U.GetUnitTask is TTaskDie) then //not being killed already
-      Result := U;
-  end;
-end;
-
+    
 
 function TKMAllPlayers.GetHouseByID(aID: Integer): TKMHouse;
 var i:integer;

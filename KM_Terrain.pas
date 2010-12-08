@@ -154,6 +154,7 @@ TTerrain = class
     function TileIsWineField(Loc:TKMPoint):boolean;
     function TileIsLocked(aLoc:TKMPoint):boolean;
     function UnitsHitTest(X,Y:word):TKMUnit;
+    function UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
@@ -448,7 +449,12 @@ end;
 
 function TTerrain.TileIsLocked(aLoc:TKMPoint):boolean;
 begin
-  Result := (Land[aLoc.Y,aLoc.X].IsUnit <> nil) and (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction.Locked);
+  Result := false;
+  if (Land[aLoc.Y,aLoc.X].IsUnit <> nil) then begin
+    if Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction=nil then
+    Assert(Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction<>nil); //Got a random bug here, due to Fish UnitAction=nil
+    Result := (Land[aLoc.Y,aLoc.X].IsUnit.GetUnitAction.Locked);
+  end;
 end;
 
 
@@ -459,9 +465,38 @@ function TTerrain.UnitsHitTest(X,Y:word):TKMUnit;
 var i,k:integer;
 begin
   Result := nil;
-  for i:=max(Y-1,1) to min(Y+1, MapY) do for k:=max(X-1,1) to min(X+1,MapX) do
+  for i:=max(Y-1,1) to min(Y+1,MapY) do for k:=max(X-1,1) to min(X+1,MapX) do
   if (Land[i,k].IsUnit <> nil) and (Land[i,k].IsUnit.HitTest(X,Y)) then
     Result := Land[i,k].IsUnit;
+end;
+
+
+//Function to use with WatchTowers/Archers/AutoLinking/
+{ Should scan withing given radius and return closest unit with given Alliance status
+  Should be optimized versus usual UnitsHitTest }
+function TTerrain.UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
+var i,k:integer; U:TKMUnit;
+begin
+  Result := nil;
+
+  for i:=max(Y-Rad-1,1) to min(Y+Rad+1,MapY) do
+  for k:=max(X-Rad-1,1) to min(X+Rad+1,MapX) do
+  if GetLength(i,k) <= (Rad+1) then begin //Add 1tile margin to cover all units
+
+    //Don't check tiles farther than Result
+    if (Result<>nil) and (GetLength(i,k)>=GetLength(KMPoint(X,Y),Result.GetPosition)) then
+      Continue; //Since we check left-to-right we can't exit yet
+
+    U := Land[Y+i,X+k].IsUnit;
+
+    if (U = nil) or
+       (fPlayers.CheckAlliance(aPlay, U.GetOwner) <> aAlliance) or //How do WE feel about enemy, not how they feel about us
+       (U.IsDeadOrDying)
+    then
+      Continue;
+
+    Result := U;
+  end;
 end;
 
 

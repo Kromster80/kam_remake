@@ -558,7 +558,7 @@ begin
   Result := nil;
   if (not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone)<=0) then exit; //Nothing to throw
 
-  Enemy := fPlayers.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, RANGE_WATCHTOWER, fOwner, at_Enemy);
+  Enemy := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, RANGE_WATCHTOWER, fOwner, at_Enemy);
 
   //Note: In actual game there might be two Towers nearby, both throwing a stone into the same enemy.
   //We should not negate that fact, thats real-life situation.
@@ -774,7 +774,9 @@ begin
 
   fCurrPosition := KMPointRound(fPosition);
 
-  if fCurrentAction <> nil then
+  if fCurrentAction = nil then
+    fGame.GameError(GetPosition, 'Unit has no action!'); //Someone has nilled our action!
+
   case fCurrentAction.Execute(Self) of
     ActContinues: exit;
     ActDone:      FreeAndNil(fCurrentAction);
@@ -791,7 +793,7 @@ begin
   SpotJit:=16; //Initial Spot jitter, it limits number of Spot guessing attempts reducing the range to 0
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
-    Spot := fTerrain.EnsureTileInMapCoords(GetPosition.X+RandomS(SpotJit),GetPosition.Y+RandomS(SpotJit));
+    Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X+RandomS(SpotJit),fCurrPosition.Y+RandomS(SpotJit));
   until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(UnitType)],0, false)));
 
   if KMSamePoint(GetPosition,Spot) then
