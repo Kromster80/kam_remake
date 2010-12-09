@@ -43,8 +43,10 @@ begin
         end;
     1:  begin
           SequenceLength := fResource.GetUnitSequenceLength(UnitType,ua_Die,Direction);
-          if fUnit is TKMUnitAnimal then SequenceLength := 0; //Animals don't have a dying sequence. Can be changed later.
-          SetActionLockedStay(SequenceLength,ua_Die,false);
+          if fUnit is TKMUnitAnimal then //Animals don't have a dying sequence. Can be changed later.
+            SetActionLockedStay(SequenceLength,ua_Walk,false)
+          else
+            SetActionLockedStay(SequenceLength,ua_Die,false);
           if fUnit is TKMUnitWarrior then
             fSoundLib.PlayWarrior(fUnit.UnitType, sp_Death);
         end;

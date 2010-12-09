@@ -784,6 +784,15 @@ begin
   end;
   fCurrPosition := KMPointRound(fPosition);
 
+
+  Assert((fUnitTask = nil) or (fUnitTask is TTaskDie));
+  if fUnitTask is TTaskDie then
+  case fUnitTask.Execute() of
+    TaskContinues:  exit;
+    TaskDone:       Assert(false); //TTaskDie never returns TaskDone yet 
+  end;
+
+
   //First make sure the animal isn't stuck (check passibility of our position)
   if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(UnitType)]) then begin
     KillUnit; //Animal is stuck so it dies
@@ -961,6 +970,9 @@ end;
 {Erase everything related to unit status to exclude it from being accessed by anything but the old pointers}
 procedure TKMUnit.CloseUnit;
 begin
+  if not KMSamePoint(fCurrPosition,NextPosition) then
+    Assert(false, 'Not sure where to die?');
+
   if fHome<>nil then
   begin
     fHome.GetHasOwner := false;
@@ -1014,7 +1026,7 @@ begin
     fPlayers.Player[byte(fOwner)].DestroyedUnit(fUnitType);
 
   fThought := th_None; //Reset thought
-  SetAction(nil); //Dispose of current action
+  SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
   fUnitTask := TTaskDie.Create(Self);
 end;
@@ -1588,7 +1600,7 @@ begin
   fTaskName := utn_Unknown;
   Assert(aUnit <> nil);
   fUnit := aUnit.GetUnitPointer;
-  fUnit.SetActionStay(0,ua_Walk);
+  fUnit.SetActionLockedStay(0,ua_Walk);
   fPhase    := 0;
   fPhase2   := 0;
 end;

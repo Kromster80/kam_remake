@@ -20,6 +20,14 @@ EXE-only r1007+:
  +	Right clicking on the train button in the school now fills the queue with the unit (I always wished I had this for recruits)
  +	Allow to use replacement sprites for cursors [Krom]
  +	Main menu would reset on resize
+ +	Default team colors are not like in KaM [Lewin]
+ +	Added V-Sync option
+ +	Some houses would not show all fire animations [Lewin]
+ +	Added French translation by Sylvain Domange
+ +	Savegames names would not initialize properly sometimes
+ +	Crash when loading mission scripts with a space on end (TSK19)
+ +      Crash when animals die
+
 
 	Display WIP houses/units in statistics menu
 	Make units/houses highlight red when about to erase them as trees do (in MapEd)
