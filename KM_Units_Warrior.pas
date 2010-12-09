@@ -827,6 +827,12 @@ var
   i:integer;
   PositioningDone:boolean;
 begin
+  if (fCommander <> nil) and not IsDeadOrDying then
+  begin
+    Assert(not fCommander.IsDeadOrDying);
+    Assert(fCommander.fCommander = nil);
+  end;
+
   inc(fFlagAnim);
   if fCondition < UNIT_MIN_CONDITION then fThought := th_Eat; //th_Death checked in parent UpdateState
   if fFlagAnim mod 10 = 0 then UpdateHungerMessage();

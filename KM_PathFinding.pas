@@ -106,10 +106,7 @@ end;
 function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
-    dp_Location:    Result := {KMSamePoint(MinCost.Pos,LocB) or }(round(KMLength(MinCost.Pos,LocB))<=WalkToSpot);
-    //@Krom: This is required given the new system. Without it there are lock ups delivering stone
-    //to workers. Is there a reason why it was disabled? Too much CPU time..?
-    //@Lewin: I don't remember the reason. if it works fine this way - leave it. to be deleted..
+    dp_Location:    Result := round(KMLength(MinCost.Pos,LocB))<=WalkToSpot;
     dp_Passability: if Pass = canWorker then                                                                  
                       Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID
                     else

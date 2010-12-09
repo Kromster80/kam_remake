@@ -480,6 +480,7 @@ begin
 
   SaveStream.Write(SkipWinConditionCheck);
   SaveStream.Write(SkipDefeatConditionCheck);
+  SaveStream.Write(PlayerColor);
 end;
 
 
@@ -502,6 +503,7 @@ begin
 
   LoadStream.Read(SkipWinConditionCheck);
   LoadStream.Read(SkipDefeatConditionCheck);
+  LoadStream.Read(PlayerColor);
 end;
 
 
