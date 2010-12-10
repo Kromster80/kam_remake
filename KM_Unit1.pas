@@ -395,7 +395,7 @@ end;
 
 
 procedure TForm1.ToggleControlsVisibility(ShowCtrls:boolean);
-  var i:integer;
+var i:integer;
 begin
   Form1.Refresh;
 

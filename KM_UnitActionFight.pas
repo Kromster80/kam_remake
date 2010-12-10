@@ -22,7 +22,7 @@ TUnitActionFight = class(TUnitAction)
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior;
+uses KM_PlayersCollection, KM_Terrain, KM_Sound, KM_Units_Warrior, KM_Game;
 
 
 { TUnitActionFight }
@@ -85,8 +85,8 @@ end;
 function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
 var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
-
-  if (fOpponent.IsDeadOrDying) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > TKMUnitWarrior(KMUnit).GetFightRange) then //Unit walked away (i.e. Serf)
+  //See if Opponent has walked away (i.e. Serf) or died
+  if (fOpponent.IsDeadOrDying) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > TKMUnitWarrior(KMUnit).GetFightRange) then
     Result := ActDone
   else
     Result := ActContinues;
@@ -94,25 +94,33 @@ begin
   Cycle := max(UnitSprite[byte(KMUnit.UnitType)].Act[byte(GetActionType)].Dir[byte(KMUnit.Direction)].Count,1);
   Step  := KMUnit.AnimStep mod Cycle;
 
-  KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition); //Since opponent can walk
+  //Opponent can walk next to us, keep facing him
+  KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
 
-  //Only hit unit on step 5
-  if Step = 5 then
-  begin
-    ut := byte(KMUnit.UnitType);
-    ot := byte(fOpponent.UnitType);
-    Damage := UnitStat[ut].Attack; //Base damage
-    if InRange(ot, low(UnitGroups), high(UnitGroups)) then
-      Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
-    Damage := Damage * GetDirModifier(KMUnit.Direction,fOpponent.Direction); //Direction modifier
-    Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
+  if TKMUnitWarrior(KMUnit).GetFightRange >= 2 then begin
+    if Step = 5 then
+    begin
+      fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow); //Release arrow/bolt
+    end;
+  end else begin
+    //Melee units place hit on step 5
+    if Step = 5 then
+    begin
+      ut := byte(KMUnit.UnitType);
+      ot := byte(fOpponent.UnitType);
+      Damage := UnitStat[ut].Attack; //Base damage
+      if InRange(ot, low(UnitGroups), high(UnitGroups)) then
+        Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
+      Damage := Damage * GetDirModifier(KMUnit.Direction,fOpponent.Direction); //Direction modifier
+      Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
 
-    IsHit := (Damage >= Random(101)); //0..100
+      IsHit := (Damage >= Random(101)); //0..100
 
-    if IsHit then
-      fOpponent.HitPointsDecrease;
+      if IsHit then
+        fOpponent.HitPointsDecrease;
 
-    MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
+      MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
+    end;
   end;
 
   StepDone := KMUnit.AnimStep mod Cycle = 0;
