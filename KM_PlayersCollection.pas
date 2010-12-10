@@ -53,7 +53,7 @@ var
 
   
 implementation
-uses KM_Terrain, KM_UnitTaskDie, KM_Game;
+uses KM_Terrain, KM_Game;
 
 
 {TKMAllPlayers}

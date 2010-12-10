@@ -1,7 +1,7 @@
 unit KM_Lobby;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Controls, KM_Defaults, KM_CommonTypes, KromUtils, SysUtils, StrUtils, Math,
+uses Classes, KM_Defaults, KromUtils, SysUtils, StrUtils, Math,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, Windows;
 
 type

@@ -25,7 +25,7 @@ type
 
 
 implementation
-uses KM_Game, KM_PlayersCollection, KM_Terrain;
+uses KM_Game, KM_PlayersCollection;
 
 
 { TTaskAttackHouse }

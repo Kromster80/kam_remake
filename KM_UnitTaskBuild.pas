@@ -1,7 +1,7 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, KM_Utils, KM_Houses, KM_Units;
+uses KromUtils, SysUtils, KM_CommonTypes, KM_Houses, KM_Units;
 
 {Perform building}
 type
@@ -109,7 +109,7 @@ type
 
 
 implementation
-uses KM_DeliverQueue, KM_PlayersCollection, KM_Terrain;
+uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain;
 
 
 { TTaskBuildRoad }
