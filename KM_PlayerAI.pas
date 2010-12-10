@@ -75,6 +75,8 @@ end;
 destructor TAIDefencePosition.Destroy;
 begin
   //@Lewin: it still causes occasional errors here, on mission abort, commander.pointercount becomes <0
+  //@Krom: I think this was caused by the memory access issue I fixed through adding CleanUpUnitPointer. This code looks failsafe.
+  //       If it happens again please let me know, otherwise to be deleted.
   ClearCurrentCommander; //Ensure pointer is removed
   Inherited;
 end;
@@ -82,11 +84,7 @@ end;
 
 procedure TAIDefencePosition.ClearCurrentCommander;
 begin
-  if fCurrentCommander <> nil then
-  begin
-    fCurrentCommander.ReleaseUnitPointer;
-    fCurrentCommander := nil;
-  end;
+  fPlayers.CleanUpUnitPointer(fCurrentCommander);
 end;
 
 

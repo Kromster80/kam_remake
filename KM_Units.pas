@@ -356,8 +356,7 @@ begin
   begin
     if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
-    fHome.ReleaseHousePointer;
-    fHome := nil;
+    fPlayers.CleanUpHousePointer(fHome);
   end;
 
 
@@ -515,8 +514,7 @@ begin
   begin
     if fCurrentAction is TUnitActionWalkTo then AbandonWalk;
     FreeAndNil(fUnitTask);
-    fHome.ReleaseHousePointer;
-    fHome := nil;
+    fPlayers.CleanUpHousePointer(fHome);
   end;
 
 
@@ -976,14 +974,13 @@ begin
   if fHome<>nil then
   begin
     fHome.GetHasOwner := false;
-    fHome.ReleaseHousePointer;
+    fPlayers.CleanUpHousePointer(fHome);
   end;
 
   fTerrain.UnitRem(NextPosition); //Must happen before we nil NextPosition
 
   fIsDead       := true;
   fThought      := th_None;
-  fHome         := nil;
   fPosition     := KMPointF(0,0);
   fCurrPosition := KMPoint(0,0);
   fPrevPosition := fCurrPosition;
@@ -1125,12 +1122,9 @@ end;
 
 procedure TKMUnit.SetInHouse(aInHouse:TKMHouse);
 begin
-  if fInHouse <> nil then
-    fInHouse.ReleaseHousePointer;
+  fPlayers.CleanUpHousePointer(fInHouse);
   if aInHouse <> nil then
-    fInHouse := aInHouse.GetHousePointer
-  else
-    fInHouse := nil;
+    fInHouse := aInHouse.GetHousePointer;
 end;
 
 
@@ -1625,8 +1619,7 @@ end;
 destructor TUnitTask.Destroy;
 begin
   fUnit.Thought := th_None; //Stop any thoughts
-  if fUnit <> nil then fUnit.ReleaseUnitPointer;
-  fUnit         := nil;
+  fPlayers.CleanUpUnitPointer(fUnit);
   fPhase        := MAXBYTE-1; //-1 so that if it is increased on the next run it won't overrun before exiting
   fPhase2       := MAXBYTE-1;
   Inherited;

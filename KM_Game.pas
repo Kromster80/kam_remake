@@ -21,6 +21,7 @@ type
     ScreenX,ScreenY:word;
     FormControlsVisible:boolean;
     SelectingTroopDirection:boolean;
+    fIsExiting: boolean;
     SelectingDirPosition: TPoint;
     SelectedDirection: TKMDirection;
     GlobalTickCount:cardinal; //Not affected by Pause and anything
@@ -76,6 +77,7 @@ type
     property GetGameName:string read fGameName;
     property GetCampaign:TCampaign read ActiveCampaign;
     property GetCampaignMap:byte read ActiveCampaignMap;
+    property IsExiting:boolean read fIsExiting;
     function GetNewID():cardinal;
     property GameState:TGameState read fGameState;
 
@@ -893,52 +895,57 @@ end;
 
 procedure TKMGame.GameStop(const Msg:gr_Message; TextMsg:string='');
 begin
-  fGameState := gsNoGame;
+  fIsExiting := true;
+  try
+    fGameState := gsNoGame;
 
-  //Take results from MyPlayer before data is flushed
-  if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
-    fMainMenuInterface.Fill_Results;
+    //Take results from MyPlayer before data is flushed
+    if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
+      fMainMenuInterface.Fill_Results;
 
-  if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
-    fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl'));
-    
-  FreeThenNil(fGameInputProcess);
-  FreeThenNil(fPlayers);
-  FreeThenNil(fProjectiles);
-  FreeThenNil(fTerrain);
+    if (fGameInputProcess <> nil) and (fGameInputProcess.State = gipRecording) then
+      fGameInputProcess.SaveToFile(KMSlotToSaveName(99,'rpl'));
 
-  FreeThenNil(fGamePlayInterface);  //Free both interfaces
-  FreeThenNil(fMapEditorInterface); //Free both interfaces
-  FreeThenNil(fViewport);
-  ID_Tracker := 0; //Reset ID tracker
+    FreeThenNil(fGameInputProcess);
+    FreeThenNil(fPlayers);
+    FreeThenNil(fProjectiles);
+    FreeThenNil(fTerrain);
 
-  case Msg of
-    gr_Win    :  begin
-                   fLog.AppendLog('Gameplay ended - Win',true);
-                   fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
-                   fCampaignSettings.RevealMap(ActiveCampaign, ActiveCampaignMap+1);
-                 end;
-    gr_Defeat:   begin
-                   fLog.AppendLog('Gameplay ended - Defeat',true);
-                   fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
-                 end;
-    gr_Cancel:   begin
-                   fLog.AppendLog('Gameplay canceled',true);
-                   fMainMenuInterface.ShowScreen_Results(Msg); //show the results so the user can see how they are going so far
-                 end;
-    gr_Error:    begin
-                   fLog.AppendLog('Gameplay error',true);
-                   fMainMenuInterface.ShowScreen_Error(TextMsg);
-                 end;
-    gr_Silent:   fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
-    gr_ReplayEnd:begin
-                   fLog.AppendLog('Replay canceled',true);
-                   fMainMenuInterface.ShowScreen_Main;
-                 end;
-    gr_MapEdEnd: begin
-                   fLog.AppendLog('MapEditor closed',true);
-                   fMainMenuInterface.ShowScreen_Main;
-                 end;
+    FreeThenNil(fGamePlayInterface);  //Free both interfaces
+    FreeThenNil(fMapEditorInterface); //Free both interfaces
+    FreeThenNil(fViewport);
+    ID_Tracker := 0; //Reset ID tracker
+
+    case Msg of
+      gr_Win    :  begin
+                     fLog.AppendLog('Gameplay ended - Win',true);
+                     fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
+                     fCampaignSettings.RevealMap(ActiveCampaign, ActiveCampaignMap+1);
+                   end;
+      gr_Defeat:   begin
+                     fLog.AppendLog('Gameplay ended - Defeat',true);
+                     fMainMenuInterface.ShowScreen_Results(Msg); //Mission results screen
+                   end;
+      gr_Cancel:   begin
+                     fLog.AppendLog('Gameplay canceled',true);
+                     fMainMenuInterface.ShowScreen_Results(Msg); //show the results so the user can see how they are going so far
+                   end;
+      gr_Error:    begin
+                     fLog.AppendLog('Gameplay error',true);
+                     fMainMenuInterface.ShowScreen_Error(TextMsg);
+                   end;
+      gr_Silent:   fLog.AppendLog('Gameplay stopped silently',true); //Used when loading new savegame from gameplay UI
+      gr_ReplayEnd:begin
+                     fLog.AppendLog('Replay canceled',true);
+                     fMainMenuInterface.ShowScreen_Main;
+                   end;
+      gr_MapEdEnd: begin
+                     fLog.AppendLog('MapEditor closed',true);
+                     fMainMenuInterface.ShowScreen_Main;
+                   end;
+    end;
+  finally
+    fIsExiting := false;
   end;
 end;
 

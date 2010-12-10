@@ -98,7 +98,7 @@ begin
   fActionName   := uan_WalkTo;
   Locked        := false; //Equivalent to Can AbandonExternal?
 
-  fWalker       := aUnit;
+  fWalker       := aUnit; //Does not require pointer tracking because action should always be destroyed before the unit that owns it
   fTargetLoc    := aLocB; //Remember it incase we need to change our route around obstacle and WalkToNear=true
   //               aActionType Set in parent class
   fWalkToSpot   := aWalkToSpot;
@@ -251,8 +251,8 @@ begin
 
   fWalker.IsExchanging := false;
 
-  if fTargetUnit <> nil then fTargetUnit.ReleaseUnitPointer;
-  if fTargetHouse <> nil then fTargetHouse.ReleaseHousePointer;
+  fPlayers.CleanUpUnitPointer(fTargetUnit);
+  fPlayers.CleanUpHousePointer(fTargetHouse);
   Inherited;
 end;
 
@@ -802,10 +802,7 @@ begin
     fNewWalkTo := aLoc;
 
   //Change target if we need to
-  if fTargetUnit <> nil then begin
-    fTargetUnit.ReleaseUnitPointer;
-    fTargetUnit := nil;
-  end;
+  fPlayers.CleanUpUnitPointer(fTargetUnit);
   if aNewTargetUnit <> nil then
     fTargetUnit := aNewTargetUnit.GetUnitPointer; //Change target
 end;

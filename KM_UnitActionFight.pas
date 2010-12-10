@@ -38,7 +38,7 @@ end;
 
 destructor TUnitActionFight.Destroy;
 begin
-  if fOpponent<>nil then fOpponent.ReleaseUnitPointer;
+  fPlayers.CleanUpUnitPointer(fOpponent);
   Inherited;
 end;
 

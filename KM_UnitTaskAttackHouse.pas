@@ -62,7 +62,7 @@ end;
 
 destructor TTaskAttackHouse.Destroy;
 begin
-  if fHouse <> nil then fHouse.ReleaseHousePointer;
+  fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(CellsW);
   Inherited;
 end;

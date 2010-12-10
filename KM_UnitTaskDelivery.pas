@@ -78,9 +78,9 @@ begin
   if fDeliverID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.AbandonDelivery(fDeliverID);
   TKMUnitSerf(fUnit).CarryTake(false); //empty hands
 
-  if fFrom    <> nil then fFrom.ReleaseHousePointer;
-  if fToHouse <> nil then fToHouse.ReleaseHousePointer;
-  if fToUnit  <> nil then fToUnit.ReleaseUnitPointer;
+  fPlayers.CleanUpHousePointer(fFrom);
+  fPlayers.CleanUpHousePointer(fToHouse);
+  fPlayers.CleanUpUnitPointer(fToUnit);
   Inherited;
 end;
 

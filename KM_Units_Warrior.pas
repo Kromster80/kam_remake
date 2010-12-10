@@ -151,9 +151,9 @@ end;
 
 destructor TKMUnitWarrior.Destroy;
 begin
-  if fOrderTargetUnit<>nil then fOrderTargetUnit.ReleaseUnitPointer;
-  if fOrderTargetHouse<>nil then fOrderTargetHouse.ReleaseHousePointer;
-  if fFoe<>nil then fFoe.ReleaseUnitPointer;
+  fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
+  fPlayers.CleanUpHousePointer(fOrderTargetHouse);
+  fPlayers.CleanUpUnitPointer(fFoe);
 
   FreeAndNil(fMembers);
   Inherited;
@@ -453,17 +453,9 @@ end;
 
 procedure TKMUnitWarrior.ClearOrderTarget;
 begin
-  //Set fOrderTarget to nil, removing pointer if it's still valid
-  if fOrderTargetUnit <> nil then
-  begin
-    fOrderTargetUnit.ReleaseUnitPointer;
-    fOrderTargetUnit := nil;
-  end;
-  if fOrderTargetHouse <> nil then
-  begin
-    fOrderTargetHouse.ReleaseHousePointer;
-    fOrderTargetHouse := nil;
-  end;
+  //Set fOrderTargets to nil, removing pointer if it's still valid
+  fPlayers.CleanUpUnitPointer(fOrderTargetUnit);
+  fPlayers.CleanUpHousePointer(fOrderTargetHouse);
 end;
 
 
@@ -504,23 +496,17 @@ end;
 //Set fFoe to nil, removing pointer if it's still valid
 procedure TKMUnitWarrior.SetFoe(aUnit:TKMUnitWarrior);
 begin
-  if fFoe <> nil then begin
-    fFoe.ReleaseUnitPointer;
-    fFoe := nil;
-  end;
-
+  fPlayers.CleanUpUnitPointer(fFoe);
   if aUnit <> nil then
-    fFoe := TKMUnitWarrior(aUnit.GetUnitPointer) //Else it will be nil from ClearFoe
+    fFoe := TKMUnitWarrior(aUnit.GetUnitPointer) //Else it will be nil from CleanUpUnitPointer
 end;
 
 
 //If the target unit has died then clear it
 function TKMUnitWarrior.GetFoe:TKMUnitWarrior;
 begin
-  if (fFoe <> nil) and (fFoe.IsDead) then begin
-    fFoe.ReleaseUnitPointer;
-    fFoe := nil;
-  end;
+  if (fFoe <> nil) and (fFoe.IsDead) then
+    fPlayers.CleanUpUnitPointer(fFoe);
   Result := fFoe;
 end;
 

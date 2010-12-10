@@ -58,7 +58,7 @@ destructor TTaskSelfTrain.Destroy;
 var TempUnit: TKMUnit;
 begin
   TempUnit := fUnit; //Make local copy of the pointer because Inherited will set the pointer to nil
-  if fSchool <> nil then fSchool.ReleaseHousePointer;
+  fPlayers.CleanUpHousePointer(fSchool);
   Inherited;
   if not fUnitTrained then TempUnit.CloseUnit; //CloseUnit at last, cos it will FreeAndNil TTask
 end;

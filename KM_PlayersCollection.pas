@@ -3,7 +3,7 @@ unit KM_PlayersCollection;
 interface
 uses
   Classes, KromUtils, Math, SysUtils,
-  KM_Units, KM_Houses, KM_CommonTypes, KM_Defaults, KM_Player, KM_PlayerAI, KM_Utils;
+  KM_Units, KM_Units_Warrior, KM_Houses, KM_CommonTypes, KM_Defaults, KM_Player, KM_PlayerAI, KM_Utils;
 
 type
   TMissionMode = (mm_Normal, mm_Tactic);
@@ -33,6 +33,11 @@ type
     function GetUnitCount():integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
     function CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
+    procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
+    procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
+    procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
+    procedure CleanUpHousePointer(var aHouse: TKMHouseInn); overload;
+    procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
   public
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
@@ -48,7 +53,7 @@ var
 
   
 implementation
-uses KM_Terrain, KM_UnitTaskDie;
+uses KM_Terrain, KM_UnitTaskDie, KM_Game;
 
 
 {TKMAllPlayers}
@@ -233,6 +238,39 @@ begin
     Result := at_Ally
   else
     Result := Player[byte(aPlay1)].fAlliances[byte(aPlay2)];
+end;
+
+
+procedure TKMAllPlayers.CleanUpUnitPointer(var aUnit: TKMUnit);
+begin
+  if (aUnit <> nil) and not fGame.IsExiting then
+    aUnit.ReleaseUnitPointer;
+  aUnit := nil;
+end;
+
+procedure TKMAllPlayers.CleanUpUnitPointer(var aUnit: TKMUnitWarrior);
+begin
+  CleanUpUnitPointer(TKMUnit(aUnit));
+end;
+
+
+procedure TKMAllPlayers.CleanUpHousePointer(var aHouse: TKMHouse);
+begin
+  if (aHouse <> nil) and not fGame.IsExiting then
+    aHouse.ReleaseHousePointer;
+  aHouse := nil;
+end;
+
+
+procedure TKMAllPlayers.CleanUpHousePointer(var aHouse: TKMHouseInn);
+begin
+  CleanUpHousePointer(TKMHouse(aHouse));
+end;
+
+
+procedure TKMAllPlayers.CleanUpHousePointer(var aHouse: TKMHouseSchool);
+begin
+  CleanUpHousePointer(TKMHouse(aHouse));
 end;
 
 

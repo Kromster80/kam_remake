@@ -35,7 +35,7 @@ end;
 
 destructor TTaskThrowRock.Destroy;
 begin
-  if fTarget <> nil then fTarget.ReleaseUnitPointer;
+  fPlayers.CleanUpUnitPointer(fTarget);
   Inherited;
 end;
 
@@ -75,8 +75,7 @@ begin
     1: begin
          if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
          fFlightTime := fGame.fProjectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock);
-         fTarget.ReleaseUnitPointer; //We don't need it anymore
-         fTarget := nil; //So it doesn't release the pointer again in Destroy
+         fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
          SetActionStay(1,ua_Walk);
        end;
     2: begin

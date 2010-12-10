@@ -54,7 +54,7 @@ end;
 destructor TTaskGoEat.Destroy;
 begin
   if PlaceID<>0 then fInn.EatersGoesOut(PlaceID);
-  if fInn <> nil then fInn.ReleaseHousePointer;
+  fPlayers.CleanUpHousePointer(fInn);
   Inherited;
 end;
 

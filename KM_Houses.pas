@@ -353,6 +353,8 @@ end;
 {Decreases the pointer counter}
 procedure TKMHouse.ReleaseHousePointer;
 begin
+  if fPointerCount < 1 then
+    fGame.GameError(fPosition, 'House remove pointer');
   dec(fPointerCount);
 end;
 
