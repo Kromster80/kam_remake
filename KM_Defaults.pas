@@ -314,9 +314,9 @@ const {Aligned to right to use them in GUI costs display as well}
   );
 
 { Terrain }
-type TPassability = (canWalk=1, canWalkRoad, canBuild, canBuildIron, canBuildGold,
-                     canMakeRoads, canMakeFields, canPlantTrees, canFish, canCrab,
-                     canWolf, canElevate, canWorker); //14bits so far
+type TPassability = (CanWalk=1, CanWalkRoad, CanBuild, CanBuildIron, CanBuildGold,
+                     CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish, CanCrab,
+                     CanWolf, CanElevate, CanWorker); //14bits so far
      TPassabilitySet = set of TPassability;
 
 const PassabilityStr:array[TPassability] of string = (
@@ -417,7 +417,7 @@ const FlagYOffset: array[15..24] of shortint = (
 
 //Defines which animal prefers which terrain
 const AnimalTerrain: array[31..38] of TPassability = (
-    canWolf, canFish, canFish, canFish, canCrab, canFish, canFish, canFish);
+    CanWolf, CanFish, CanFish, CanFish, CanCrab, CanFish, CanFish, CanFish);
 
 type TGoInDirection = (gd_GoInside=1, gd_GoOutside=-1); //Switch to set if unit goes into house or out of it
 
@@ -878,7 +878,7 @@ type
 const UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
 type
-  TPlayerID = (play_None=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_8=8, play_animals=9);
+  TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_8=8, play_animals=9);
 
 
   TSoundFX = (

@@ -117,7 +117,7 @@ begin
     Result := (aUnit <> nil) and (aUnit.GetUnitAction is TUnitActionStay)
                              and (not TUnitActionStay(aUnit.GetUnitAction).Locked);
     if Result then
-      aUnit.SetActionWalkPushed( fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),canWalk) );
+      aUnit.SetActionWalkPushed( fTerrain.GetOutOfTheWay(aUnit.GetPosition,KMPoint(0,0),CanWalk) );
   end;
 end;
 

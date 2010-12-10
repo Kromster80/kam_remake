@@ -128,7 +128,7 @@ var
   {$IFDEF WDC}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
-  DeCompressionStream: TZDecompressionStream;
+  DecompressionStream: TZDecompressionStream;
   {$ENDIF}
   {$IFDEF FPC}
   InStream: TMemoryStream;
@@ -173,7 +173,7 @@ begin
     DecompressionStream := TZDecompressionStream.Create(InputStream);
     OutputStream.CopyFrom(DecompressionStream, 0);
     InputStream.Free;
-    DeCompressionStream.Free;
+    DecompressionStream.Free;
     OutputStream.Position:=0;
     OutputStream.ReadBuffer(TGAHeader, SizeOf(TGAHeader));
   {$ENDIF}
@@ -243,7 +243,7 @@ begin
   else
   begin
     GetMem(Image, ImageSize);
-    BlockRead(TGAFile, image^, ImageSize, bytesRead);
+    BlockRead(TGAFile, Image^, ImageSize, bytesRead);
     CloseFile(TGAFile);
   end;
 

@@ -37,11 +37,11 @@ TKMControl = class
     Tag: integer; //Some tag which can be used for various needs
     Hint: string; //Text that shows up when cursor is over that control, mainly for Buttons
 
-    FOnClick:TNotifyEvent;
-    FOnClickEither:TNotifyEventMB;
-    FOnClickRight:TNotifyEvent;
-    FOnMouseWheel:TNotifyEventMW;
-    FOnMouseOver:TNotifyEvent;
+    fOnClick:TNotifyEvent;
+    fOnClickEither:TNotifyEventMB;
+    fOnClickRight:TNotifyEvent;
+    fOnMouseWheel:TNotifyEventMW;
+    fOnMouseOver:TNotifyEvent;
   protected //We don't want these to be accessed outside of this unit, all externals should access TKMControlsCollection instead
     constructor Create(aLeft,aTop,aWidth,aHeight:integer);
     procedure ParentTo (aParent:TKMControl);
@@ -66,11 +66,11 @@ TKMControl = class
     procedure MouseUp   (X,Y:integer; Shift:TShiftState; Button:TMouseButton); virtual;
     procedure MouseWheel(Sender: TObject; WheelDelta:integer); virtual;
 
-    property OnClick: TNotifyEvent read FOnClick write FOnClick;
-    property OnClickEither: TNotifyEventMB read FOnClickEither write FOnClickEither;
-    property OnClickRight: TNotifyEvent read FOnClickRight write FOnClickRight;
-    property OnMouseWheel: TNotifyEventMW read FOnMouseWheel write FOnMouseWheel;
-    property OnMouseOver: TNotifyEvent read FOnMouseOver write FOnMouseOver;
+    property OnClick: TNotifyEvent read fOnClick write fOnClick;
+    property OnClickEither: TNotifyEventMB read fOnClickEither write fOnClickEither;
+    property OnClickRight: TNotifyEvent read fOnClickRight write fOnClickRight;
+    property OnMouseWheel: TNotifyEventMW read fOnMouseWheel write fOnMouseWheel;
+    property OnMouseOver: TNotifyEvent read fOnMouseOver write fOnMouseOver;
 end;
 
 
@@ -1476,12 +1476,10 @@ end;
 
 procedure TKMListBox.RefreshList();
 begin
-  with ScrollBar do begin
-    MinValue := 0;
-    MaxValue := max(fItems.Count - (fHeight div ItemHeight),0);
-    Position := EnsureRange(TopIndex, MinValue, MaxValue);
-    Enabled := MaxValue > MinValue;
-  end;
+  ScrollBar.MinValue := 0;
+  ScrollBar.MaxValue := max(fItems.Count - (fHeight div ItemHeight),0);
+  ScrollBar.Position := EnsureRange(TopIndex, ScrollBar.MinValue, ScrollBar.MaxValue);
+  ScrollBar.Enabled := ScrollBar.MaxValue > ScrollBar.MinValue;
 end;
 
 

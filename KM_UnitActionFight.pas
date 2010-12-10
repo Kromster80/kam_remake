@@ -100,6 +100,7 @@ begin
   if TKMUnitWarrior(KMUnit).GetFightRange >= 2 then begin
     if Step = 5 then
     begin
+      MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
       fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow); //Release arrow/bolt
     end;
   end else begin

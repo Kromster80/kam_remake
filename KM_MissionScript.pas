@@ -84,16 +84,16 @@ type
     function GetUnitScriptID(aUnitType:TUnitType):integer;
     function ProcessCommand(CommandType: TKMCommandType; ParamList: array of integer; TextParam:string):boolean;
     procedure GetDetailsProcessCommand(CommandType: TKMCommandType; const ParamList: array of integer; TextParam:string; var MissionDetails: TKMMissionDetails);
-    procedure DebugScriptError(ErrorMsg:string);
+    procedure DebugScriptError(const ErrorMsg:string);
     procedure ProcessAttackPositions;
     procedure UnloadMission;
-    function ReadMissionFile(aFileName:string):string;
+    function ReadMissionFile(const aFileName:string):string;
   public      { Public declarations }
     constructor Create(aMode:TMissionParserMode);
-    function LoadDATFile(aFileName:string):string;
-    function SaveDATFile(aFileName:string):boolean;
-    function GetMissionDetails(aFileName:string):TKMMissionDetails;
-    function GetMapDetails(aFileName:string):TKMMapDetails;
+    function LoadDATFile(const aFileName:string):string;
+    function SaveDATFile(const aFileName:string):boolean;
+    function GetMissionDetails(const aFileName:string):TKMMissionDetails;
+    function GetMapDetails(const aFileName:string):TKMMapDetails;
 end;
 
 
@@ -101,7 +101,7 @@ implementation
 uses KM_PlayersCollection, KM_Terrain, KM_Viewport, KM_Player, KM_PlayerAI, KM_ResourceGFX;
 
 
-function GetCommandTypeFromText(ACommandText: string): TKMCommandType;
+function GetCommandTypeFromText(const ACommandText: string): TKMCommandType;
 var
   i: TKMCommandType;
 begin
@@ -143,7 +143,7 @@ begin
   //fPlayers.fMissionMode := mm_Normal; //by Default
 end;
 
-function TMissionParser.ReadMissionFile(aFileName:string):string;
+function TMissionParser.ReadMissionFile(const aFileName:string):string;
 var
   Encoded:boolean; //If false then files will be opened as text
   i,k,Num,NumRead:integer;
@@ -193,7 +193,7 @@ end;
 
 
 {Acquire specific map details in a fast way}
-function TMissionParser.GetMissionDetails(aFileName:string):TKMMissionDetails;
+function TMissionParser.GetMissionDetails(const aFileName:string):TKMMissionDetails;
 const
   Max_Cmd=2;
 var
@@ -297,7 +297,7 @@ end;
 
 
 {Acquire specific map details in a fast way}
-function TMissionParser.GetMapDetails(aFileName:string):TKMMapDetails;
+function TMissionParser.GetMapDetails(const aFileName:string):TKMMapDetails;
 var f:file; i,k:integer;
 begin
   assignfile(f,aFileName); reset(f,1);
@@ -310,7 +310,7 @@ begin
 end;
 
 
-function TMissionParser.LoadDATFile(aFileName:string):string;
+function TMissionParser.LoadDATFile(const aFileName:string):string;
 var
   FileText, CommandText, Param, TextParam: string;
   ParamList: array[1..8] of integer;
@@ -640,7 +640,7 @@ begin
 end;
 
 
-procedure TMissionParser.DebugScriptError(ErrorMsg:string);
+procedure TMissionParser.DebugScriptError(const ErrorMsg:string);
 begin
   ErrorMessage:=ErrorMessage+ErrorMsg+'|';
   //todo: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
@@ -689,7 +689,7 @@ begin
 end;
 
 
-function TMissionParser.SaveDATFile(aFileName:string):boolean;
+function TMissionParser.SaveDATFile(const aFileName:string):boolean;
 const
   COMMANDLAYERS = 4;
 var
@@ -757,7 +757,7 @@ begin
     if fPlayers.Player[i].PlayerType = pt_Computer then
       AddCommand(ct_AIPlayer);
 
-    AddCommand(ct_SetMapcolor, 1, fPlayers.Player[i].GetColorIndex);
+    AddCommand(ct_SetMapColor, 1, fPlayers.Player[i].GetColorIndex);
 
     AddData(''); //NL
 

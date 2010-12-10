@@ -43,7 +43,7 @@ type
     fGlobalSettings: TGlobalSettings;
     fCampaignSettings: TCampaignSettings;
     fMainMenuInterface: TKMMainMenuInterface;
-    fGameplayInterface: TKMGamePlayInterface;
+    fGamePlayInterface: TKMGamePlayInterface;
     fMapEditorInterface: TKMapEdInterface;
     constructor Create(ExeDir:string; RenderHandle:HWND; aScreenX,aScreenY:integer; aVSync:boolean; {$IFDEF WDC} aMediaPlayer:TMediaPlayer; {$ENDIF} NoMusic:boolean=false);
     destructor Destroy; override;
@@ -64,8 +64,8 @@ type
     procedure GameHold(DoHold:boolean; Msg:gr_Message); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure GameStop(const Msg:gr_Message; TextMsg:string='');
 
-    procedure MapEditorStart(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
-    procedure MapEditorSave(aMissionName:string; DoExpandPath:boolean);
+    procedure MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+    procedure MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
                                
     function  ReplayExists():boolean;
     procedure ReplayView(Sender:TObject);
@@ -209,11 +209,11 @@ begin
     gsPaused:   if Key=ord('P') then begin //Ignore all keys if game is on 'Pause'
                   if IsDown then exit;
                   SetGameState(gsRunning);
-                  fGameplayInterface.ShowPause(false); //Hide pause overlay
+                  fGamePlayInterface.ShowPause(false); //Hide pause overlay
                 end;
     gsOnHold:   ; //Ignore all keys if game is on victory 'Hold', only accept mouse clicks
     gsRunning:  begin //Game is running normally
-                  if fGameplayInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
+                  if fGamePlayInterface.MyControls.KeyUp(Key, Shift, IsDown) then exit;
 
                   //Scrolling
                   if Key = VK_LEFT  then fViewport.ScrollKeyLeft  := IsDown;
@@ -232,11 +232,11 @@ begin
                   if Key = VK_F8 then begin
                     GameSpeed := fGlobalSettings.GetSpeedup+1-GameSpeed; //1 or 11
                     if not (GameSpeed in [1,fGlobalSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
-                    fGameplayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
+                    fGamePlayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
                   end;
                   if Key = ord('P') then begin
                     SetGameState(gsPaused);
-                    fGameplayInterface.ShowPause(true); //Display pause overlay
+                    fGamePlayInterface.ShowPause(true); //Display pause overlay
                   end;
                   if Key=ord('W') then
                     fTerrain.RevealWholeMap(MyPlayer.PlayerID);
@@ -244,12 +244,12 @@ begin
                     fGamePlayInterface.ShortcutPress(Key, IsDown);
 
                   {Thats my debug example}
-                  if Key=ord('5') then fGameplayInterface.MessageIssue(msgText,'123',KMPoint(0,0));
-                  if Key=ord('6') then fGameplayInterface.MessageIssue(msgHouse,'123',KMPointRound(fViewport.GetCenter));
-                  if Key=ord('7') then fGameplayInterface.MessageIssue(msgUnit,'123',KMPoint(0,0));
-                  if Key=ord('8') then fGameplayInterface.MessageIssue(msgHorn,'123',KMPoint(0,0));
-                  if Key=ord('9') then fGameplayInterface.MessageIssue(msgQuill,'123',KMPoint(0,0));
-                  if Key=ord('0') then fGameplayInterface.MessageIssue(msgScroll,'123',KMPoint(0,0));
+                  if Key=ord('5') then fGamePlayInterface.MessageIssue(msgText,'123',KMPoint(0,0));
+                  if Key=ord('6') then fGamePlayInterface.MessageIssue(msgHouse,'123',KMPointRound(fViewport.GetCenter));
+                  if Key=ord('7') then fGamePlayInterface.MessageIssue(msgUnit,'123',KMPoint(0,0));
+                  if Key=ord('8') then fGamePlayInterface.MessageIssue(msgHorn,'123',KMPoint(0,0));
+                  if Key=ord('9') then fGamePlayInterface.MessageIssue(msgQuill,'123',KMPoint(0,0));
+                  if Key=ord('0') then fGamePlayInterface.MessageIssue(msgScroll,'123',KMPoint(0,0));
 
                   if Key=ord('V') then begin GameHold(true, gr_Win); exit; end; //Instant victory
                   if Key=ord('D') then begin GameHold(true, gr_Defeat); exit; end; //Instant defeat
@@ -266,7 +266,7 @@ begin
                   if Key = VK_F8 then begin
                     GameSpeed := fGlobalSettings.GetSpeedup+1-GameSpeed; //1 or 11
                     if not (GameSpeed in [1,fGlobalSettings.GetSpeedup]) then GameSpeed:=1; //Reset just in case
-                    fGameplayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
+                    fGamePlayInterface.ShowClock(GameSpeed = fGlobalSettings.GetSpeedup);
                   end;
                   if Key=ord('W') then
                     fTerrain.RevealWholeMap(MyPlayer.PlayerID);
@@ -305,12 +305,12 @@ var MyRect: TRect; MOver:TKMControl; HitUnit: TKMUnit; HitHouse: TKMHouse;
 begin
   case fGameState of
     gsNoGame:   fMainMenuInterface.MyControls.MouseDown(X,Y,Shift,Button);
-    gsPaused:   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
-    gsOnHold:   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
-    gsReplay:   fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
+    gsPaused:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
+    gsOnHold:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
+    gsReplay:   fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
     gsRunning:  begin
-                  fGameplayInterface.MyControls.MouseDown(X,Y,Shift,Button);
-                  MOver := fGameplayInterface.MyControls.CtrlOver;
+                  fGamePlayInterface.MyControls.MouseDown(X,Y,Shift,Button);
+                  MOver := fGamePlayInterface.MyControls.CtrlOver;
 
                   //These are only for testing purposes, Later on it should be changed a lot
                   if (Button = mbRight)
@@ -325,7 +325,7 @@ begin
                     HitUnit := fTerrain.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
                     if (HitUnit <> nil) and (not (HitUnit is TKMUnitAnimal)) and
                        (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitUnit.GetOwner) = at_Enemy) and
-                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, 0, false)) then
+                      (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
                     begin
                       //Place attack order here rather than in mouse up; why here??
                       fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
@@ -339,7 +339,7 @@ begin
                         fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
                       end
                       else
-                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, canWalk, 0, false)) then
+                      if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
                       begin
                         SelectingTroopDirection := true; //MouseMove will take care of cursor changing
                         //Record current cursor position so we can stop it from moving while we are setting direction
@@ -380,7 +380,7 @@ end;
 procedure TKMGame.MouseMove(Shift: TShiftState; X,Y: Integer);
 var P:TKMPoint; HitUnit: TKMUnit; HitHouse: TKMHouse; DeltaX,DeltaY:shortint;
 begin
-  if InRange(X,1,ScreenX-1) and InRange(Y,1,ScreenY-1) then else exit; //Exit if Cursor is outside of frame
+  if not InRange(X,1,ScreenX-1) or not InRange(Y,1,ScreenY-1) then exit; //Exit if Cursor is outside of frame
 
   case fGameState of
     gsNoGame:   begin
@@ -391,10 +391,10 @@ begin
                     Screen.Cursor := c_Default;
                   fMainMenuInterface.MouseMove(X,Y);
                 end;
-    gsPaused:   fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
+    gsPaused:   fGamePlayInterface.MyControls.MouseMove(X,Y,Shift);
     gsOnHold:   begin
-                  fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fGameplayInterface.MyControls.CtrlOver<>nil then
+                  fGamePlayInterface.MyControls.MouseMove(X,Y,Shift);
+                  if fGamePlayInterface.MyControls.CtrlOver<>nil then
                     Screen.Cursor := c_Default
                 end;
     gsRunning:  begin
@@ -410,8 +410,8 @@ begin
                   end
                   else
                   begin
-                  fGameplayInterface.MyControls.MouseMove(X,Y,Shift);
-                  if fGameplayInterface.MyControls.CtrlOver<>nil then
+                  fGamePlayInterface.MyControls.MouseMove(X,Y,Shift);
+                  if fGamePlayInterface.MyControls.CtrlOver<>nil then
                     Screen.Cursor := c_Default
                   else begin
                     fTerrain.ComputeCursorPosition(X,Y,Shift);
@@ -448,7 +448,7 @@ begin
                   end;
                 end;
     gsReplay:   begin
-                  fGameplayInterface.MyControls.MouseMove(X,Y,Shift); //To control minimap                  
+                  fGamePlayInterface.MyControls.MouseMove(X,Y,Shift); //To control minimap                  
                   fTerrain.ComputeCursorPosition(X,Y,Shift); //To show coords in status bar
                 end;
     gsEditor:   begin
@@ -514,10 +514,10 @@ begin
 
   case fGameState of //Remember clicked control
     gsNoGame:   MOver := fMainMenuInterface.MyControls.CtrlOver;
-    gsPaused:   MOver := fGameplayInterface.MyControls.CtrlOver;
-    gsOnHold:   MOver := fGameplayInterface.MyControls.CtrlOver;
-    gsRunning:  MOver := fGameplayInterface.MyControls.CtrlOver;
-    gsReplay:   MOver := fGameplayInterface.MyControls.CtrlOver;
+    gsPaused:   MOver := fGamePlayInterface.MyControls.CtrlOver;
+    gsOnHold:   MOver := fGamePlayInterface.MyControls.CtrlOver;
+    gsRunning:  MOver := fGamePlayInterface.MyControls.CtrlOver;
+    gsReplay:   MOver := fGamePlayInterface.MyControls.CtrlOver;
     gsEditor:   MOver := fMapEditorInterface.MyControls.CtrlOver;
     else        MOver := nil; //MOver should always be initialized
   end;
@@ -526,17 +526,17 @@ begin
 
   case fGameState of
     gsNoGame:   fMainMenuInterface.MyControls.MouseUp(X,Y,Shift,Button);
-    gsPaused:   fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
-    gsOnHold:   fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
-    gsReplay:   fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button);
+    gsPaused:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
+    gsOnHold:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
+    gsReplay:   fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button);
     gsRunning:
       begin
         P := GameCursor.Cell; //Get cursor position tile-wise
         if MOver <> nil then
-          fGameplayInterface.MyControls.MouseUp(X,Y,Shift,Button)
+          fGamePlayInterface.MyControls.MouseUp(X,Y,Shift,Button)
         else begin
 
-          if (Button = mbMiddle) and (fGameplayInterface.MyControls.CtrlOver = nil) then
+          if (Button = mbMiddle) and (fGamePlayInterface.MyControls.CtrlOver = nil) then
             fGameInputProcess.CmdTemp(gic_TempAddScout, GameCursor.Cell);
 
           if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
@@ -633,7 +633,7 @@ begin
         and(fGamePlayInterface.GetShownUnit is TKMUnitWarrior)
         and(TKMUnit(fGamePlayInterface.GetShownUnit).GetOwner = MyPlayer.PlayerID)
         and(not fGamePlayInterface.JoiningGroups)
-        and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, canWalk, 0, false))
+        and(fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, P, CanWalk, 0, false))
         then
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
@@ -642,7 +642,7 @@ begin
 
         if (Button = mbRight) and (MOver = nil) then
         begin
-          fGameplayInterface.RightClickCancel; //Right clicking closes some menus
+          fGamePlayInterface.RightClickCancel; //Right clicking closes some menus
           if (Screen.Cursor = c_JoinYes) or (Screen.Cursor = c_JoinNo) then
             Screen.Cursor:=c_Default; //Reset cursor if it was joining
         end;
@@ -734,10 +734,10 @@ begin
     gsPaused:   ;
     gsOnHold:   ;
     gsRunning:  begin
-                  fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
-                  AllowZoom := (fGameplayInterface.MyControls.CtrlOver = nil);
+                  fGamePlayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
+                  AllowZoom := (fGamePlayInterface.MyControls.CtrlOver = nil);
                 end;
-    gsReplay:   fGameplayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
+    gsReplay:   fGamePlayInterface.MyControls.MouseWheel(X, Y, WheelDelta);
     gsEditor:   begin
                   fMapEditorInterface.MyControls.MouseWheel(X, Y, WheelDelta);
                   AllowZoom := (fMapEditorInterface.MyControls.CtrlOver = nil);
@@ -824,7 +824,7 @@ begin
   end;
 
   fPlayers.AfterMissionInit(true);
-  fViewPort.SetZoom(1); //This ensures the viewport is centered on the map
+  fViewport.SetZoom(1); //This ensures the viewport is centered on the map
 
   Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
   fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic));
@@ -953,7 +953,7 @@ end;
 {Mission name accepted in 2 formats:
 - absolute path, when opening a map from Form1.Menu
 - relative, from Maps folder}
-procedure TKMGame.MapEditorStart(aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
+procedure TKMGame.MapEditorStart(const aMissionPath:string; aSizeX:integer=64; aSizeY:integer=64);
 var ResultMsg:string; fMissionParser:TMissionParser; i: integer;
 begin
   if not FileExists(aMissionPath) and (aSizeX*aSizeY=0) then exit; //Erroneous call
@@ -1025,7 +1025,7 @@ end;
 //DoExpandPath means that input is a mission name which should be expanded into:
 //ExeDir+'Maps\'+MissionName+'\'+MissionName.dat
 //ExeDir+'Maps\'+MissionName+'\'+MissionName.map
-procedure TKMGame.MapEditorSave(aMissionName:string; DoExpandPath:boolean);
+procedure TKMGame.MapEditorSave(const aMissionName:string; DoExpandPath:boolean);
 var fMissionParser: TMissionParser;
 begin
   if aMissionName = '' then exit;
@@ -1235,7 +1235,7 @@ begin
         fGamePlayInterface.EnableOrDisableMenuIcons(not (fPlayers.fMissionMode = mm_Tactic)); //Preserve disabled icons
         fPlayers.SyncLoad(); //Should parse all Unit-House ID references and replace them with actual pointers
         fTerrain.SyncLoad(); //IsUnit values should be replaced with actual pointers
-        fViewPort.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
+        fViewport.SetZoom(1); //This ensures the viewport is centered on the map (game could have been saved with a different resolution/zoom)
         Result := ''; //Loading has now completed successfully :)
         Form1.StatusBar1.Panels[0].Text:='Map size: '+inttostr(fTerrain.MapX)+' x '+inttostr(fTerrain.MapY);
       except
@@ -1345,10 +1345,10 @@ procedure TKMGame.PaintInterface;
 begin
   case fGameState of
     gsNoGame:  fMainMenuInterface.Paint;
-    gsPaused:  fGameplayInterface.Paint;
-    gsOnHold:  fGameplayInterface.Paint;
-    gsRunning: fGameplayInterface.Paint;
-    gsReplay:  fGameplayInterface.Paint;
+    gsPaused:  fGamePlayInterface.Paint;
+    gsOnHold:  fGamePlayInterface.Paint;
+    gsRunning: fGamePlayInterface.Paint;
+    gsReplay:  fGamePlayInterface.Paint;
     gsEditor:  fMapEditorInterface.Paint;
   end;
 end;

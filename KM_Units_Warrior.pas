@@ -270,7 +270,7 @@ begin
   if fOrderLoc.Loc.X = 0 then exit;
 
   if fState = ws_None then
-    ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc, GetPosition, canWalk);
+    ClosestTile := fTerrain.GetClosestTile(fOrderLoc.Loc, GetPosition, CanWalk);
 
   //See if we are in position already or if we can't reach the position, (closest tile differs from target tile) because we don't retry for that case.
   if (fState = ws_None) and (KMSamePoint(GetPosition,fOrderLoc.Loc) or (not KMSamePoint(ClosestTile,fOrderLoc.Loc))) then

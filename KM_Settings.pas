@@ -295,14 +295,14 @@ end;
 constructor TCampaignSettings.Create;
 begin
   Inherited;
-  LoadINI(EXEDir+'Saves\KaM_Remake_Campaigns.ini');
+  LoadINI(ExeDir+'Saves\KaM_Remake_Campaigns.ini');
   fLog.AppendLog('Campaign.ini loaded');
 end;
 
 
 destructor TCampaignSettings.Destroy;
 begin
-  SaveINI(EXEDir+'Saves\KaM_Remake_Campaigns.ini');
+  SaveINI(ExeDir+'Saves\KaM_Remake_Campaigns.ini');
   fLog.AppendLog('Campaign.ini saved');
   Inherited;
 end;

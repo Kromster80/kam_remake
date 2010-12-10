@@ -134,11 +134,11 @@ begin
   RouteBuilt := AssembleTheRoute();
   //Due to rare circumstances (e.g. floodfill doesn't take notice of CanWalkDiagonally i.e. trees on road corners)
   // there are times when trying to build a route along roads will fail.
-  // To reduce crash errors, try rebuilding it with just canWalk. This will normally fix the problem and
+  // To reduce crash errors, try rebuilding it with just CanWalk. This will normally fix the problem and
   // It's not a big deal if occasionally units walk off the road.
-  if (not RouteBuilt) and (fPass = canWalkRoad) then
+  if (not RouteBuilt) and (fPass = CanWalkRoad) then
   begin
-    fPass := canWalk;
+    fPass := CanWalk;
     RouteBuilt := AssembleTheRoute();
   end;
 
@@ -322,18 +322,18 @@ var i:integer; NodeList2:TKMPointList; TmpPass: TPassability;
 begin
   TmpPass := fPass;
   //Build a piece of route to return to nearest road piece connected to destination road network
-  if (fPass = canWalkRoad) and (fDistance=0) then //That is Citizens walking to spot
+  if (fPass = CanWalkRoad) and (fDistance=0) then //That is Citizens walking to spot
     if (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
       (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
       fTerrain.Route_ReturnToRoad(fWalkFrom, fWalkTo, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
 
   //If we are a worker on a construction site, build a piece of route to return to nearest walkable tile on the
-  if fPass = canWorker then //That is Workers on a construction site
+  if fPass = CanWorker then //That is Workers on a construction site
     if (fTerrain.GetWalkConnectID(fWalkFrom) <> fTerrain.GetWalkConnectID(fWalkTo)) and  //Not walkable returns 0
       (fTerrain.GetWalkConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is not walkable
     begin
       fTerrain.Route_ReturnToWalkable(fWalkFrom, fWalkTo, fTerrain.GetWalkConnectID(fWalkTo), NodeList);
-      TmpPass := canWalk; //After this piece of route we are in walk mode
+      TmpPass := CanWalk; //After this piece of route we are in walk mode
     end;
 
   //Build a route A*
@@ -491,7 +491,7 @@ begin
   begin
     fInteractionStatus := kis_Pushing;
     OpponentPassability := fOpponent.GetDesiredPassability;
-    if OpponentPassability = canWalkRoad then OpponentPassability := canWalk;
+    if OpponentPassability = CanWalkRoad then OpponentPassability := CanWalk;
 
     if not CanAbandonInternal then begin
       fGame.GameError(fWalker.GetPosition, 'Unit walk IntSolutionPush');
@@ -812,8 +812,8 @@ end;
 function TUnitActionWalkTo.GetEffectivePassability:TPassability; //Returns passability that unit is allowed to walk on
 begin
   //Road walking is only recomended. (i.e. for route building) We are allowed to step off the road sometimes.
-  if fPass = canWalkRoad then
-    Result := canWalk
+  if fPass = CanWalkRoad then
+    Result := CanWalk
   else
     Result := fPass;
 end;
@@ -823,7 +823,6 @@ function TUnitActionWalkTo.Execute(KMUnit: TKMUnit):TActionResult;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
-  AllowToWalk:boolean;
 begin
   Result := ActContinues;
   StepDone := false;
@@ -920,10 +919,10 @@ begin
       exit; //Will take next step during next execute
     end;
 
-    //If we were in Worker mode but have now reached the walk network of our destination switch to canWalk mode to avoid walking on other building sites
-    if (fPass = canWorker) and (fTerrain.GetWalkConnectID(fWalkTo) <> 0) and
+    //If we were in Worker mode but have now reached the walk network of our destination switch to CanWalk mode to avoid walking on other building sites
+    if (fPass = CanWorker) and (fTerrain.GetWalkConnectID(fWalkTo) <> 0) and
       (fTerrain.GetWalkConnectID(fWalkTo) = fTerrain.GetWalkConnectID(NodeList.List[NodePos])) then
-      fPass := canWalk;
+      fPass := CanWalk;
 
     //Update unit direction according to next Node
     fWalker.Direction := KMGetDirection(NodeList.List[NodePos],NodeList.List[NodePos+1]);
@@ -955,9 +954,8 @@ begin
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
-      AllowToWalk := DoUnitInteraction();
 
-      if not AllowToWalk then
+      if not DoUnitInteraction then
       begin
         if (KMUnit.UnitType in [ut_Wolf..ut_Duck]) and  //Animals have no tasks hence they can choose new WalkTo spot no problem, unless they are stuck
                   not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then

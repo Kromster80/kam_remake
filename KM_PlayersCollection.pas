@@ -213,7 +213,7 @@ begin
   if aUnitType in [ut_Wolf..ut_Duck] then
     aPass := AnimalTerrain[byte(aUnitType)]
   else
-    aPass := canWalk;
+    aPass := CanWalk;
 
   for i:=0 to 255 do begin
     P := GetPositionFromIndex(KMPoint(PosX,PosY), i);

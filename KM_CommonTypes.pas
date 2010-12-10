@@ -145,21 +145,21 @@ type
     fl:textfile;
     logfile:string;
     PreviousTick:cardinal;
-    procedure AddLine(text:string);
-    procedure AddLineNoTime(text:string);
+    procedure AddLine(const aText:string);
+    procedure AddLineNoTime(const aText:string);
   public
     constructor Create(path:string);
     //AppendLog adds the line to Log along with time passed since previous line added
-    procedure AppendLog(text:string); overload;
-    procedure AppendLog(text:string; num:integer); overload;
-    procedure AppendLog(text:string; num:single ); overload;
-    procedure AppendLog(num:integer; text:string); overload;
-    procedure AppendLog(text:string; Res:boolean); overload;
+    procedure AppendLog(const aText:string); overload;
+    procedure AppendLog(const aText:string; num:integer); overload;
+    procedure AppendLog(const aText:string; num:single ); overload;
+    procedure AppendLog(num:integer; const aText:string); overload;
+    procedure AppendLog(const aText:string; Res:boolean); overload;
     procedure AppendLog(a,b:integer); overload;
     //Add line if TestValue=false
-    procedure AssertToLog(TestValue:boolean; const MessageText:string);
+    procedure AssertToLog(TestValue:boolean; const aMessageText:string);
     //AddToLog simply adds the text
-    procedure AddToLog(text:string);
+    procedure AddToLog(const aText:string);
   end;
 
   var
@@ -185,7 +185,7 @@ end;
 
 {Lines are timestamped, each line invokes file open/close for writing,
 meaning no lines will be lost if Remake crashes}
-procedure TKMLog.AddLine(text:string);
+procedure TKMLog.AddLine(const aText:string);
 var Delta:cardinal;
 begin
   Delta:=TimeGetTime - PreviousTick;
@@ -193,44 +193,44 @@ begin
   if Delta>100000 then Delta:=0; //ommit first usage
   assignfile(fl,logfile);
   append(fl);
-  writeln(fl,#9+inttostr(Delta)+'ms'+#9+text);
+  writeln(fl,#9+inttostr(Delta)+'ms'+#9+aText);
   closefile(fl);
 end;
 
 {Same line but without timestamp}
-procedure TKMLog.AddLineNoTime(text:string);
+procedure TKMLog.AddLineNoTime(const aText:string);
 begin
   assignfile(fl,logfile);
   append(fl);
-  writeln(fl,#9+#9+text);
+  writeln(fl,#9+#9+aText);
   closefile(fl);
 end;
 
-procedure TKMLog.AppendLog(text:string);
+procedure TKMLog.AppendLog(const aText:string);
 begin
-  AddLine(text);
+  AddLine(aText);
 end;
 
-procedure TKMLog.AppendLog(text:string; num:integer);
+procedure TKMLog.AppendLog(const aText:string; num:integer);
 begin
-  AddLine(text+' '+inttostr(num));
+  AddLine(aText+' '+inttostr(num));
 end;
 
-procedure TKMLog.AppendLog(text:string; num:single);
+procedure TKMLog.AppendLog(const aText:string; num:single);
 begin
-  AddLine(text+' '+FloatToStr(num));
+  AddLine(aText+' '+FloatToStr(num));
 end;
 
-procedure TKMLog.AppendLog(num:integer; text:string);
+procedure TKMLog.AppendLog(num:integer; const aText:string);
 begin
-  AddLine(inttostr(num)+' '+text);
+  AddLine(inttostr(num)+' '+aText);
 end;
 
-procedure TKMLog.AppendLog(text:string; Res:boolean);
+procedure TKMLog.AppendLog(const aText:string; Res:boolean);
 var s:string;
 begin
   if Res then s:='done' else s:='fail';
-  AddLine(text+' ... '+s);
+  AddLine(aText+' ... '+s);
 end;
 
 procedure TKMLog.AppendLog(a,b:integer);
@@ -239,28 +239,27 @@ begin
 end;
 
 
-procedure TKMLog.AssertToLog(TestValue:boolean; const MessageText:string);
+procedure TKMLog.AssertToLog(TestValue:boolean; const aMessageText:string);
 begin
   if TestValue then exit;
-  AddLine('ASSERTION FAILED! Msg: ' + MessageText);
-  Assert(false, 'ASSERTION FAILED! Msg: ' + MessageText);
+  AddLine('ASSERTION FAILED! Msg: ' + aMessageText);
+  Assert(false, 'ASSERTION FAILED! Msg: ' + aMessageText);
 end;
 
 
-procedure TKMLog.AddToLog(text:string);
+procedure TKMLog.AddToLog(const aText:string);
 begin
-  AddLineNoTime(text);
+  AddLineNoTime(aText);
 end;
 
 
 { TKMList }
 procedure TKMList.Clear;
-var
-  I: Integer;
+var i:integer;
 begin
-  for I := 0 to Count - 1 do begin
-    TObject(Items[I]).Free;
-    Items[I]:=nil;
+  for i:=0 to Count-1 do begin
+    TObject(Items[i]).Free;
+    Items[i]:=nil;
   end;
   Inherited;
 end;

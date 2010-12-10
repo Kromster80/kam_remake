@@ -141,7 +141,7 @@ type
     function IsDeadOrDying:boolean;
     function IsArmyUnit():boolean;
     function CanGoEat:boolean;
-    function GetPosition:TKMPoint;
+    property GetPosition:TKMPoint read fCurrPosition;
     procedure SetPosition(aPos:TKMPoint);
     property PositionF:TKMPointF read fPosition write fPosition;
     property Thought:TUnitThought read fThought write fThought;
@@ -284,7 +284,7 @@ function TKMUnitCitizen.FindHome():boolean;
 var KMHouse:TKMHouse;
 begin
   Result:=false;
-  KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
+  KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,fCurrPosition);
   if KMHouse<>nil then begin
     fHome  := KMHouse.GetHousePointer;
     Result := true;
@@ -362,7 +362,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then
   begin
-    H := fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self,not fVisible);
+    H := fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self,not fVisible);
     if H<>nil then
       fUnitTask := TTaskGoEat.Create(H,Self)
     else
@@ -387,7 +387,7 @@ begin
           SetActionStay(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
 end;
 
 
@@ -410,8 +410,8 @@ begin
     end;
   end;
 
-  if not KMSamePoint(GetPosition, fHome.GetEntrance) then
-    fGame.GameError(GetPosition, fTextLibrary.GetRemakeString(50));
+  if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
+    fGame.GameError(fCurrPosition, fTextLibrary.GetRemakeString(50));
 
   WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
@@ -459,7 +459,7 @@ function TKMUnitRecruit.FindHome():boolean;
 var KMHouse:TKMHouse;
 begin
   Result  := false;
-  KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,GetPosition);
+  KMHouse := fPlayers.Player[byte(fOwner)].FindEmptyHouse(fUnitType,fCurrPosition);
   if KMHouse<>nil then begin
     fHome  := KMHouse.GetHousePointer;
     Result := true;
@@ -520,7 +520,7 @@ begin
 
   if fCondition<UNIT_MIN_CONDITION then
   begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self,not fVisible);
+    H:=fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self,not fVisible);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self)
     else
@@ -545,7 +545,7 @@ begin
           SetActionStay(HouseDAT[integer(fHome.GetHouseType)].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
 end;
 
 
@@ -556,7 +556,7 @@ begin
   Result := nil;
   if (not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone)<=0) then exit; //Nothing to throw
 
-  Enemy := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, RANGE_WATCHTOWER, fOwner, at_Enemy);
+  Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition.X, fCurrPosition.Y, RANGE_WATCHTOWER, fOwner, at_Enemy);
 
   //Note: In actual game there might be two Towers nearby, both throwing a stone into the same enemy.
   //We should not negate that fact, thats real-life situation.
@@ -620,7 +620,7 @@ begin
   fThought:=th_None;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self);
+    H:=fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
@@ -634,7 +634,7 @@ begin
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
-  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
 end;
 
 
@@ -666,18 +666,15 @@ end;
 
 { TKMWorker }
 procedure TKMUnitWorker.Paint();
-var AnimAct,AnimDir:integer; XPaintPos, YPaintPos: single;
+var XPaintPos, YPaintPos: single;
 begin
   Inherited;
   if not fVisible then exit;
 
-  AnimAct:=integer(fCurrentAction.fActionType); //should correspond with UnitAction
-  AnimDir:=integer(Direction);
-
   XPaintPos := fPosition.X+0.5+GetSlide(ax_X);
   YPaintPos := fPosition.Y+ 1 +GetSlide(ax_Y);
 
-  fRender.RenderUnit(byte(UnitType), AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
+  fRender.RenderUnit(byte(UnitType), byte(fCurrentAction.fActionType), byte(Direction), AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
   if fThought<>th_None then
     fRender.RenderUnitThought(fThought, XPaintPos, YPaintPos);
@@ -692,7 +689,7 @@ begin
   if Inherited UpdateState then exit;
 
   if fCondition<UNIT_MIN_CONDITION then begin
-    H:=fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self);
+    H:=fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self);
     if H<>nil then
       fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
@@ -705,7 +702,7 @@ begin
 
   if fUnitTask=nil then SetActionStay(20,ua_Walk);
 
-  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
 end;
 
 
@@ -773,7 +770,7 @@ begin
   fCurrPosition := KMPointRound(fPosition);
 
   if fCurrentAction = nil then
-    fGame.GameError(GetPosition, 'Unit has no action!'); //Someone has nilled our action!
+    fGame.GameError(fCurrPosition, 'Unit has no action!'); //Someone has nilled our action!
 
   case fCurrentAction.Execute(Self) of
     ActContinues: exit;
@@ -792,7 +789,7 @@ begin
 
 
   //First make sure the animal isn't stuck (check passibility of our position)
-  if not fTerrain.CheckPassability(GetPosition,AnimalTerrain[byte(UnitType)]) then begin
+  if not fTerrain.CheckPassability(fCurrPosition,AnimalTerrain[byte(UnitType)]) then begin
     KillUnit; //Animal is stuck so it dies
     exit;
   end;
@@ -801,14 +798,14 @@ begin
   repeat //Where unit should go, keep picking until target is walkable for the unit
     dec(SpotJit,1);
     Spot := fTerrain.EnsureTileInMapCoords(fCurrPosition.X+RandomS(SpotJit),fCurrPosition.Y+RandomS(SpotJit));
-  until((SpotJit=0)or(fTerrain.Route_CanBeMade(GetPosition,Spot,AnimalTerrain[byte(UnitType)],0, false)));
+  until((SpotJit=0)or(fTerrain.Route_CanBeMade(fCurrPosition,Spot,AnimalTerrain[byte(UnitType)],0, false)));
 
-  if KMSamePoint(GetPosition,Spot) then
+  if KMSamePoint(fCurrPosition,Spot) then
     SetActionStay(20, ua_Walk)
   else
     SetActionWalkToSpot(Spot);
 
-  if fCurrentAction=nil then fGame.GameError(GetPosition, 'Unit has no action!');
+  if fCurrentAction=nil then fGame.GameError(fCurrPosition, 'Unit has no action!');
 end;
 
 
@@ -1016,7 +1013,7 @@ begin
   //Should we Abandon interaction things?
   {if (fCurrentAction is TUnitActionWalkTo) then
     if not TUnitActionWalkTo(fCurrentAction).CanAbandon then
-      fGame.GameError(GetPosition, 'Unit killed in walk'); //}
+      fGame.GameError(fCurrPosition, 'Unit killed in walk'); //}
 
   //Update statistics
   if (fPlayers<>nil) and (fOwner <> play_animals) and (fPlayers.Player[byte(fOwner)]<>nil) then
@@ -1032,12 +1029,6 @@ end;
 function TKMUnit.GetSupportedActions: TUnitActionTypeSet;
 begin
   Result := UnitSupportedActions[fUnitType];
-end;
-
-
-function TKMUnit.GetPosition():TKMPoint;
-begin
-  Result := fCurrPosition;//KMPointRound(fPosition);
 end;
 
 
@@ -1106,7 +1097,7 @@ end;
 function TKMUnit.GetMaxHitPoints:byte;
 begin
   if not (byte(UnitType) in [1..length(UnitStat)]) then
-    fGame.GameError(GetPosition, 'GetMaxHitPoints for wrong unit');
+    fGame.GameError(fCurrPosition, 'GetMaxHitPoints for wrong unit');
 
   Result := EnsureRange(UnitStat[byte(fUnitType)].HitPoints,0,255);
 end;
@@ -1179,7 +1170,7 @@ end;
 procedure TKMUnit.SetActionFight(aAction: TUnitActionType; aOpponent: TKMUnit);
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then begin
-    fGame.GameError(GetPosition, 'Unit fight overrides walk');
+    fGame.GameError(fCurrPosition, 'Unit fight overrides walk');
     exit;
   end;
   SetAction(TUnitActionFight.Create(aAction, aOpponent, Self));
@@ -1250,7 +1241,7 @@ begin
 
   Assert(aDistance>=1,'Should not walk to units place');
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
-                                      aUnit.GetPosition,  //Target position
+                                      aUnit.fCurrPosition,  //Target position
                                       aActionType,        //
                                       aDistance,          //Proximity
                                       false,              //If we were pushed
@@ -1317,37 +1308,37 @@ end;
 function TKMUnit.GetDesiredPassability(aUseCanWalk:boolean=false):TPassability;
 begin
   case fUnitType of //Select desired passability depending on unit type
-    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result := canWalkRoad; //Citizens except Worker
+    ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit: Result := CanWalkRoad; //Citizens except Worker
     ut_Wolf..ut_Duck:                              Result := AnimalTerrain[byte(fUnitType)] //Animals
-    else                                           Result := canWalk; //Worker, Warriors
+    else                                           Result := CanWalk; //Worker, Warriors
   end;
 
-  if (not DO_SERFS_WALK_ROADS) and (fUnitType in [ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit]) then Result := canWalk; //Reset villagers to canWalk for debug (not animals!)
+  if (not DO_SERFS_WALK_ROADS) and (fUnitType in [ut_Serf..ut_Fisher,ut_StoneCutter..ut_Recruit]) then Result := CanWalk; //Reset villagers to CanWalk for debug (not animals!)
 
   //Delivery to unit
   if (fUnitType = ut_Serf)
   and(fUnitTask is TTaskDeliver)
   and(TTaskDeliver(fUnitTask).DeliverKind = dk_ToUnit)
   then
-    Result := canWalk;
+    Result := CanWalk;
 
   //Preparing house area
   if (fUnitType = ut_Worker)
   and(((fUnitTask is TTaskBuildHouseArea)
   and(TTaskBuildHouseArea(fUnitTask).fPhase > 1)) //Worker has arrived on site
-  or (mu_HouseFenceNoWalk = fTerrain.Land[GetPosition.Y,GetPosition.X].Markup)) //If we are standing on site after building
+  or (mu_HouseFenceNoWalk = fTerrain.Land[fCurrPosition.Y,fCurrPosition.X].Markup)) //If we are standing on site after building
   then
-    Result := canWorker; //Special mode that allows us to walk on building sites
+    Result := CanWorker; //Special mode that allows us to walk on building sites
 
   //Thats for 'miners' at work
   if (fUnitType in [ut_Woodcutter, ut_Farmer, ut_Fisher, ut_StoneCutter])
   and(fUnitTask is TTaskMining)
   then
-    Result := canWalk;
+    Result := CanWalk;
 
-  //aUseCanWalk means use canWalk unless we are a worker on a building site
-  if aUseCanWalk and (Result <> canWorker) then
-    Result := canWalk;
+  //aUseCanWalk means use CanWalk unless we are a worker on a building site
+  if aUseCanWalk and (Result <> CanWorker) then
+    Result := CanWalk;
 end;
 
 
@@ -1372,7 +1363,7 @@ end;
 
 function TKMUnit.CanGoEat:boolean;
 begin
-  Result := fPlayers.Player[byte(fOwner)].FindInn(GetPosition,Self) <> nil;
+  Result := fPlayers.Player[byte(fOwner)].FindInn(fCurrPosition,Self) <> nil;
 end;
 
 
@@ -1393,7 +1384,7 @@ end;
 procedure TKMUnit.UpdateFOW;
 begin
   //Can use fCondition as a sort of counter to reveal terrain X times a sec
-  if fCondition mod 10 = 0 then fTerrain.RevealCircle(GetPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC, fOwner);
+  if fCondition mod 10 = 0 then fTerrain.RevealCircle(fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC, fOwner);
 end;
 
 
@@ -1421,7 +1412,7 @@ begin
       begin
         //Position in a spiral nearest to center of house, updating IsUnit.
         fPosition := KMPointF(fPlayers.FindPlaceForUnit(GetInHouse.GetPosition.X,GetInHouse.GetPosition.Y,UnitType));
-        fTerrain.UnitAdd(GetPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
+        fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
         //Make sure these are reset properly
         IsExchanging := false;
         fCurrPosition := KMPointRound(fPosition);
@@ -1532,12 +1523,12 @@ begin
 
   //Shortcut to freeze unit in place if it's on an unwalkable tile
   if fCurrentAction is TUnitActionWalkTo then
-    if GetDesiredPassability = canWalkRoad then
+    if GetDesiredPassability = CanWalkRoad then
     begin
-      if not fTerrain.CheckPassability(GetPosition, canWalk) then
+      if not fTerrain.CheckPassability(fCurrPosition, CanWalk) then
         exit;
     end else
-    if not fTerrain.CheckPassability(GetPosition, GetDesiredPassability) then
+    if not fTerrain.CheckPassability(fCurrPosition, GetDesiredPassability) then
       exit;
 
   //
@@ -1572,7 +1563,7 @@ procedure TKMUnit.Paint();
 begin
   if fCurrentAction=nil then
   begin
-    fGame.GameError(GetPosition, TypeToString(fUnitType)+' has no action!');
+    fGame.GameError(fCurrPosition, TypeToString(fUnitType)+' has no action!');
     exit;
   end;
   //Here should be catched any cases where unit has no current action - this is a flaw in TTasks somewhere
@@ -1830,10 +1821,10 @@ procedure TKMUnitsCollection.GetLocations(out Loc:TKMPointList; aUnitType:TUnitT
 var i:integer;
 begin
   Loc.Clearup;
-  for I := 0 to Count - 1 do
+  for i:=0 to Count-1 do
     if aUnitType in [ut_Any, Units[i].fUnitType] then
     if Units[i].fVisible then //Excludes units inside of houses and recently died ones
-      Loc.AddEntry(Units[i].GetPosition)
+      Loc.AddEntry(Units[i].fCurrPosition)
 end;
 
 
@@ -1841,7 +1832,7 @@ function TKMUnitsCollection.GetTotalPointers: integer;
 var i:integer;
 begin
   Result := 0;
-  for I := 0 to Count - 1 do
+  for i:=0 to Count-1 do
     inc(Result, Units[i].GetPointerCount);
 end;
 
@@ -1886,14 +1877,14 @@ begin
   for i:=0 to Count-1 do
   begin
     case Units[i].fUnitType of
-      ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;
-      ut_Worker:                TKMUnitWorker(Items[I]).SyncLoad;
+      ut_Serf:                  TKMUnitSerf(Items[i]).SyncLoad;
+      ut_Worker:                TKMUnitWorker(Items[i]).SyncLoad;
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                                TKMUnitCitizen(Items[I]).SyncLoad;
-      ut_Recruit:               TKMUnitCitizen(Items[I]).SyncLoad;
-      ut_Militia..ut_Barbarian: TKMUnitWarrior(Items[I]).SyncLoad;
-      //ut_Bowman:              TKMUnitArcher(Items[I]).SyncLoad; //I guess it will be stand-alone
-      ut_Wolf..ut_Duck:         TKMUnitAnimal(Items[I]).SyncLoad;
+                                TKMUnitCitizen(Items[i]).SyncLoad;
+      ut_Recruit:               TKMUnitCitizen(Items[i]).SyncLoad;
+      ut_Militia..ut_Barbarian: TKMUnitWarrior(Items[i]).SyncLoad;
+      //ut_Bowman:              TKMUnitArcher(Items[i]).SyncLoad; //I guess it will be stand-alone
+      ut_Wolf..ut_Duck:         TKMUnitAnimal(Items[i]).SyncLoad;
     end;
   end;
 end;
@@ -1901,27 +1892,27 @@ end;
 
 procedure TKMUnitsCollection.UpdateState;
 var
-  I, ID: Integer;
+  i, ID: integer;
   IDsToDelete: array of integer;
 begin
   ID := 0;
-  for I := 0 to Count - 1 do
+  for i:=0 to Count-1 do
   if not Units[i].IsDead then
     Units[i].UpdateState
   else //Else try to destroy the unit object if all pointers are freed
-    if (Items[I] <> nil) and FREE_POINTERS and (Units[i].fPointerCount = 0) then
+    if (Items[i] <> nil) and FREE_POINTERS and (Units[i].fPointerCount = 0) then
     begin
       SetLength(IDsToDelete,ID+1);
-      IDsToDelete[ID] := I;
+      IDsToDelete[ID] := i;
       inc(ID);
     end;
 
   //Must remove list entry after for loop is complete otherwise the indexes change
-  for I := ID-1 downto 0 do
+  for i:=ID-1 downto 0 do
   begin
-    Units[IDsToDelete[I]].Free; //Because no one needs this anymore it must DIE!!!!! :D
-    Units[IDsToDelete[I]] := nil;
-    Delete(IDsToDelete[I]);
+    Units[IDsToDelete[i]].Free; //Because no one needs this anymore it must DIE!!!!! :D
+    Units[IDsToDelete[i]] := nil;
+    Delete(IDsToDelete[i]);
   end;
 
   //   --     POINTER FREEING SYSTEM - DESCRIPTION     --   //
@@ -1954,8 +1945,8 @@ begin
   y1 := fViewport.GetClip.Top - Margin;
   y2 := fViewport.GetClip.Bottom + Margin*3; //There might be units standing on tall hills below
 
-  for I:=0 to Count-1 do
-  if (Items[I] <> nil) and (not Units[i].IsDead) then
+  for i:=0 to Count-1 do
+  if (Items[i] <> nil) and (not Units[i].IsDead) then
   if (InRange(Units[i].fPosition.X,x1,x2) and InRange(Units[i].fPosition.Y,y1,y2)) then
     Units[i].Paint();
 end;

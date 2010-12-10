@@ -477,7 +477,7 @@ begin
 
   //Send move order, if applicable
   if (ShownUnit is TKMUnitWarrior) and (not JoiningGroups) then
-    if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, canWalk, 0, false) then
+    if fTerrain.Route_CanBeMade(ShownUnit.GetPosition, KMP, CanWalk, 0, false) then
     begin
       fGame.fGameInputProcess.CmdArmy(TKMUnitWarrior(GetShownUnit), gic_ArmyWalk, KMP);
       fSoundLib.PlayWarrior(GetShownUnit.UnitType, sp_Move);

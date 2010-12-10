@@ -878,8 +878,8 @@ begin
           (WidthPOT+RXData[RXid].Size[LeftIndex+SpanCount].X<=MAX_TEX_RESOLUTION)) //Pack until max Tex_Resolution approached
     do begin
       inc(WidthPOT,RXData[RXid].Size[LeftIndex+SpanCount].X);
-      if (RXid=5)and(RX5pal[LeftIndex]<>RX5pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
-      if (RXid=6)and(RX6pal[LeftIndex]<>RX6pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
+      if (RXid=5)and(RX5Pal[LeftIndex]<>RX5pal[LeftIndex+SpanCount]) then break; //Don't align RX5 images for they use all different palettes
+      if (RXid=6)and(RX6Pal[LeftIndex]<>RX6pal[LeftIndex+SpanCount]) then break; //Don't align RX6 images for they use all different palettes
       inc(SpanCount);
     end;
 
@@ -1188,7 +1188,7 @@ var ii,kk,h,j,px:integer; c:array of byte; R,G,B,SizeX,SizeY:integer; f:file; {f
   {$IFDEF WDC}
   InputStream: TFileStream;
   OutputStream: TMemoryStream;
-  DeCompressionStream: TZDecompressionStream;
+  DecompressionStream: TZDecompressionStream;
   {$ENDIF}
   {$IFDEF FPC}
   {InStream: TMemoryStream;
@@ -1221,7 +1221,7 @@ begin
     OutputStream.ReadBuffer(c[1], SizeX*SizeY*4);
     InputStream.Free;
     OutputStream.Free;
-    DeCompressionStream.Free;
+    DecompressionStream.Free;
     {$ENDIF};
     {$IFDEF FPC}
     //todo: Read zlib packed texture to minimap color
@@ -1320,7 +1320,7 @@ begin
     IconInfo.hbmColor:=bm.Handle;
     IconInfo.hbmMask:=bm2.Handle;
 
-    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(iconInfo);
+    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfo);
   end;
 
   bm.Free;

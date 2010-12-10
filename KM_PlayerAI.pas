@@ -202,7 +202,7 @@ begin
       //Display message if set and not already shown and not a blank text
       if (fGoals[i].MessageToShow <> 0) and (not fGoals[i].MessageHasShown) and (fTextLibrary.GetTextString(fGoals[i].MessageToShow) <> '') then
       begin
-        fGame.fGameplayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(fGoals[i].MessageToShow),KMPoint(0,0));
+        fGame.fGamePlayInterface.MessageIssue(msgText,fTextLibrary.GetTextString(fGoals[i].MessageToShow),KMPoint(0,0));
         fGoals[i].MessageHasShown := true;
       end;
     end

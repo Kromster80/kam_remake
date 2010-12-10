@@ -1260,7 +1260,7 @@ procedure TKMMainMenuInterface.UpdateState;
 begin
   if fLobby<>nil then begin
     fLobby.UpdateState;
-    Multiplayer_RefreshLobby;
+    MultiPlayer_RefreshLobby;
   end;
 end;
 

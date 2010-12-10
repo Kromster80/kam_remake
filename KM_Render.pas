@@ -436,16 +436,14 @@ end;
 procedure TRender.RenderTerrainObjects(x1,x2,y1,y2,AnimStep:integer);
 var i,k:integer;
 begin
-for i:=y1 to y2 do for k:=x1 to x2 do
-  with fTerrain do begin
-    if Land[i,k].Obj<>255 then
-      RenderObjectOrQuad(Land[i,k].Obj+1,AnimStep,k,i);
-  end;
+  for i:=y1 to y2 do for k:=x1 to x2 do
+  if fTerrain.Land[i,k].Obj<>255 then
+    RenderObjectOrQuad(fTerrain.Land[i,k].Obj+1,AnimStep,k,i);
 
-  with fTerrain do
-  for i:=1 to FallingTrees.Count do begin
-    RenderObject(FallingTrees.Tag[i]+1,AnimStep-FallingTrees.Tag2[i],FallingTrees.List[i].X,FallingTrees.List[i].Y);
-    fLog.AssertToLog(AnimStep-FallingTrees.Tag2[i] <= 100,'Falling tree overrun?');
+  with fTerrain.FallingTrees do
+  for i:=1 to Count do begin
+    RenderObject(Tag[i]+1,AnimStep-Tag2[i],List[i].X,List[i].Y);
+    fLog.AssertToLog(AnimStep-Tag2[i] <= 100,'Falling tree overrun?');
   end;                   
 end;
 
@@ -772,7 +770,7 @@ end;
 
 
 procedure TRender.RenderHouseStableBeasts(Index,BeastID,BeastAge,AnimStep:integer; pX,pY:word);
-var ShiftX,ShiftY:single; Q,ID,AnimCount:integer;
+var ShiftX,ShiftY:single; Q,ID:integer;
 begin
   case Index of
     13: Q:=2; //Stables
@@ -783,10 +781,11 @@ begin
   fLog.AssertToLog(InRange(BeastID,1,5),'Wrong ID for RenderHouseStableBeasts');
   fLog.AssertToLog(InRange(BeastAge,1,3),'Wrong Age for RenderHouseStableBeasts');
 
-  AnimCount:=HouseDATs[Q,BeastID,BeastAge].Count;
-  ID:=HouseDATs[Q,BeastID,BeastAge].Step[AnimStep mod AnimCount + 1]+1;
-  ShiftX:=HouseDATs[Q,BeastID,BeastAge].MoveX/CELL_SIZE_PX;
-  ShiftY:=HouseDATs[Q,BeastID,BeastAge].MoveY/CELL_SIZE_PX;
+  with HouseDATs[Q,BeastID,BeastAge] do begin
+    ID := Step[AnimStep mod Count + 1]+1;
+    ShiftX := MoveX/CELL_SIZE_PX;
+    ShiftY := MoveY/CELL_SIZE_PX;
+  end;
 
   ShiftX:=ShiftX+RXData[2].Pivot[ID].x/CELL_SIZE_PX;
   ShiftY:=ShiftY+(RXData[2].Pivot[ID].y+RXData[2].Size[ID].Y)/CELL_SIZE_PX-fTerrain.Land[pY+1,pX].Height/CELL_HEIGHT_DIV;
@@ -1223,10 +1222,10 @@ begin
   glColor4ubv(@Col);
   glBegin(GL_LINE_LOOP);
     with fTerrain do begin
-      glvertex2f(p.X-1,p.Y-1-Land[p.Y  ,p.X  ].Height/CELL_HEIGHT_DIV);
-      glvertex2f(p.X  ,p.Y-1-Land[p.Y  ,p.X+1].Height/CELL_HEIGHT_DIV);
-      glvertex2f(p.X  ,p.Y-  Land[p.Y+1,p.X+1].Height/CELL_HEIGHT_DIV);
-      glvertex2f(p.X-1,p.Y-  Land[p.Y+1,p.X  ].Height/CELL_HEIGHT_DIV);
+      glvertex2f(P.X-1,P.Y-1-Land[P.Y  ,P.X  ].Height/CELL_HEIGHT_DIV);
+      glvertex2f(P.X  ,P.Y-1-Land[P.Y  ,P.X+1].Height/CELL_HEIGHT_DIV);
+      glvertex2f(P.X  ,P.Y-  Land[P.Y+1,P.X+1].Height/CELL_HEIGHT_DIV);
+      glvertex2f(P.X-1,P.Y-  Land[P.Y+1,P.X  ].Height/CELL_HEIGHT_DIV);
     end;
   glEnd;
 end;

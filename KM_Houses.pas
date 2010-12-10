@@ -823,11 +823,11 @@ begin
   case fHouseType of //Various buildings and HouseActions producing sounds
     ht_School:        if (WorkID = 5)and(Step = 28) then fSoundLib.Play(sfx_SchoolDing,GetPosition); //Ding as the clock strikes 12
     ht_Mill:          if (WorkID = 2)and(Step = 0) then fSoundLib.Play(sfx_mill,GetPosition);
-    ht_CoalMine:      if (WorkID = 1)and(Step = 5) then fSoundLib.Play(sfx_coaldown,GetPosition)
+    ht_CoalMine:      if (WorkID = 1)and(Step = 5) then fSoundLib.Play(sfx_coalDown,GetPosition)
                       else if (WorkID = 1)and(Step = 24) then fSoundLib.Play(sfx_CoalMineThud,GetPosition,true,0.8)
                       else if (WorkID = 2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
                       else if (WorkID = 2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4) //echo
-                      else if (WorkID = 5)and(Step = 1) then fSoundLib.Play(sfx_coaldown,GetPosition);
+                      else if (WorkID = 5)and(Step = 1) then fSoundLib.Play(sfx_coalDown,GetPosition);
     ht_IronMine:      if (WorkID = 2)and(Step = 7) then fSoundLib.Play(sfx_mine,GetPosition)
                       else if (WorkID = 2)and(Step = 8) then fSoundLib.Play(sfx_mine,GetPosition,true,0.4); //echo
     ht_GoldMine:      if (WorkID = 2)and(Step = 5) then fSoundLib.Play(sfx_mine,GetPosition)
@@ -1139,7 +1139,7 @@ procedure TKMHouseInn.Paint;
 const
   offX:array[1..3]of single = (-0.5, 0.0, 0.5);
   offY:array[1..3]of single = ( 0.35, 0.4, 0.45);
-var i:integer; UnitType,AnimAct,AnimDir:byte; AnimStep:cardinal;
+var i:integer; UnitType,AnimDir:byte; AnimStep:cardinal;
 begin
   Inherited;
   if (fBuildState<>hbs_Done) then exit;
@@ -1148,11 +1148,10 @@ begin
   if (Eater[i].UnitType<>ut_None)and(Eater[i].FoodKind<>0) then
   begin
     UnitType:=byte(Eater[i].UnitType);
-    AnimAct:=byte(ua_Eat);
     AnimDir:=Eater[i].FoodKind*2 - 1 + ((i-1) div 3);
     fLog.AssertToLog(InRange(AnimDir,1,8),'InRange(AnimDir,1,8)');
     AnimStep:=FlagAnimStep-Eater[i].AnimStep; //Delta is our AnimStep
-    fRender.RenderUnit(UnitType, AnimAct, AnimDir, AnimStep, byte(fOwner),
+    fRender.RenderUnit(UnitType, byte(ua_Eat), AnimDir, AnimStep, byte(fOwner),
       fPosition.X+offX[(i-1) mod 3 +1],
       fPosition.Y+offY[(i-1) mod 3 +1], false);
   end;
@@ -1620,10 +1619,10 @@ function TKMHousesCollection.HitTest(X, Y: Integer): TKMHouse;
 var i:integer;
 begin
   Result:= nil;
-  for I := 0 to Count - 1 do
+  for I:=0 to Count-1 do
     if Houses[i].HitTest(X, Y) and (not Houses[i].IsDestroyed) then
     begin
-      Result:= TKMHouse(Items[I]);
+      Result := TKMHouse(Items[i]);
       Break;
     end;
 end;
@@ -1650,7 +1649,7 @@ begin
   Result:= nil;
   Bid:=0;
 
-  for I := 0 to Count - 1 do
+  for i:=0 to Count-1 do
     if (TUnitType(HouseDAT[byte(Houses[i].fHouseType)].OwnerType+1)=aUnitType)and //If Unit can work in here
        (not Houses[i].fHasOwner)and                              //If there's yet no owner
        (not Houses[i].IsDestroyed)and
@@ -1687,8 +1686,8 @@ begin
   UsePosition := X*Y<>0; //Calculate this once to save computing lots of multiplications
   fLog.AssertToLog((not UsePosition)or(Index=1), 'Can''t find house basing both on Position and Index');
 
-  for I := 0 to Count - 1 do
-  if Items[I] <> nil then
+  for i:=0 to Count-1 do
+  if Items[i] <> nil then
   if (Houses[i].fHouseType=aType) and Houses[i].IsComplete and not Houses[i].fIsDestroyed then
   begin
       inc(id);
@@ -1759,26 +1758,26 @@ end;
 
 procedure TKMHousesCollection.UpdateState;
 var
-  I, ID: Integer;
+  i,ID:integer;
   IDsToDelete: array of integer;
 begin
   ID := 0;
-  for I := 0 to Count - 1 do
+  for i:=0 to Count-1 do
   if not Houses[i].IsDestroyed then
     Houses[i].UpdateState
   else //Else try to destroy the house object if all pointers are freed
     if FREE_POINTERS and (Houses[i].GetPointerCount = 0) then
     begin
       SetLength(IDsToDelete,ID+1);
-      IDsToDelete[ID] := I;
+      IDsToDelete[ID] := i;
       inc(ID);
     end;
   //Must remove list entry after for loop is complete otherwise the indexes change
   if ID <> 0 then
-    for I := ID-1 downto 0 do
+    for i:=ID-1 downto 0 do
     begin
-      TKMHouse(Items[IDsToDelete[I]]).Free; //Because no one needs this anymore it must DIE!!!!! :D
-      Delete(IDsToDelete[I]);
+      TKMHouse(Items[IDsToDelete[i]]).Free; //Because no one needs this anymore it must DIE!!!!! :D
+      Delete(IDsToDelete[i]);
     end;
 end;
 
@@ -1795,7 +1794,7 @@ function TKMHousesCollection.GetTotalPointers: integer;
 var i:integer;
 begin
   Result:=0;
-  for I := 0 to Count - 1 do
+  for i:=0 to Count-1 do
     Result:=Result+Houses[i].GetPointerCount;
 end;
 
@@ -1807,7 +1806,7 @@ begin
   x1:=fViewport.GetClip.Left-Margin;  x2:=fViewport.GetClip.Right+Margin;
   y1:=fViewport.GetClip.Top -Margin;  y2:=fViewport.GetClip.Bottom+Margin;
 
-  for I := 0 to Count - 1 do
+  for i := 0 to Count - 1 do
   if not Houses[i].IsDestroyed then
   if (InRange(Houses[i].fPosition.X,x1,x2) and InRange(Houses[i].fPosition.Y,y1,y2)) then
     Houses[i].Paint();

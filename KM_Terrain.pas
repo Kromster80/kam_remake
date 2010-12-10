@@ -50,7 +50,7 @@ TTerrain = class
       Light:single; //KaM stores node lighting in 0..32 range (-16..16), but I want to use -1..1 range
       Passability:TPassabilitySet; //Meant to be set of allowed actions on the tile
 
-      WalkConnect:array[TWalkConnect]of byte; //Whole map is painted into interconnected areas 1=canWalk, 2=canWalkRoad, 3=canFish, 4=canWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
+      WalkConnect:array[TWalkConnect]of byte; //Whole map is painted into interconnected areas 1=CanWalk, 2=CanWalkRoad, 3=CanFish, 4=CanWalkAvoid: walk avoiding tiles under construction, only recalculated when needed
 
       Border: TBorderType; //Borders (ropes, planks, stones)
       BorderTop, BorderLeft, BorderBottom, BorderRight:boolean; //Whether the borders are enabled
@@ -799,7 +799,7 @@ begin
          ((aFieldType=ft_Wine) and TileIsWineField(KMPoint(k,i))) then
         if ((aAgeFull)and(Land[i,k].FieldAge=65535))or
            ((not aAgeFull)and(Land[i,k].FieldAge=0)) then
-          if Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,0,false) then
+          if Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,0,false) then
             List.AddEntry(KMPoint(k,i));
 
   Result := List.GetRandom;
@@ -818,7 +818,7 @@ begin
   for k:=max(aPosition.X-aRadius,Ins) to min(aPosition.X+aRadius,MapX-Ins) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
       if ObjectIsChopableTree(KMPoint(k,i),4)and(Land[i,k].TreeAge>=TreeAgeFull) then //Grownup tree
-        if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),canWalk) then
+        if Route_CanBeMadeToVertex(aPosition,KMPoint(k,i),CanWalk) then
           List.AddEntry(KMPoint(k,i));
 
   TreeLoc := List.GetRandom; //Choose our tree
@@ -837,7 +837,7 @@ begin
   if not KMSamePoint(TreeLoc,KMPoint(0,0)) then
   for i:=-1 to 0 do
     for k:=-1 to 0 do
-      if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),canWalk,0,false) then
+      if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
         if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
           ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
         begin
@@ -917,7 +917,7 @@ begin
   for i:=max(aPosition.Y-aRadius,1) to min(aPosition.Y+aRadius,MapY-1) do
   for k:=max(aPosition.X-aRadius,1) to min(aPosition.X+aRadius,MapX-1) do
     if (KMLength(aPosition,KMPoint(k,i))<=aRadius) then
-      if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),canWalk,0,false) then begin
+      if (CanPlantTrees in Land[i,k].Passability) and Route_CanBeMade(aPosition,KMPoint(k,i),CanWalk,0,false) then begin
 
         if ObjectIsChopableTree(KMPoint(k,i),6) then //Stump
             List1.AddEntry(KMPoint(k,i))
@@ -1014,7 +1014,7 @@ procedure TTerrain.SetTree(Loc:TKMPoint; ID:integer);
 begin
   Land[Loc.Y,Loc.X].Obj:=ID;
   Land[Loc.Y,Loc.X].TreeAge:=1;
-  RebuildPassability(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Because surrounding tiles will be affected (canPlantTrees)
+  RebuildPassability(Loc.X-1,Loc.X+1,Loc.Y-1,Loc.Y+1); //Because surrounding tiles will be affected (CanPlantTrees)
 end;
 
 
@@ -1038,7 +1038,7 @@ procedure TTerrain.ChopTree(Loc:TKMPoint);
 begin
   Land[Loc.Y,Loc.X].TreeAge:=0;
   FallingTrees.RemoveEntry(Loc);
-  RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (canPlantTrees)
+  RecalculatePassabilityAround(Loc); //Because surrounding tiles will be affected (CanPlantTrees)
 end;
 
 
@@ -1120,7 +1120,7 @@ begin
   UpdateTransition(Loc.X-1,Loc.Y);
   FlattenTerrain(Loc);
   //If tile stonemason is standing on becomes unwalkable, flatten it too so he doesn't get stuck all the time
-  if not CheckHeightPass(KMPointY1(Loc),canWalk) then
+  if not CheckHeightPass(KMPointY1(Loc),CanWalk) then
     FlattenTerrain(KMPointY1(Loc));
   RecalculatePassabilityAround(Loc);
   RebuildWalkConnect(wcWalk);
@@ -1193,18 +1193,18 @@ begin
 
   Land[Loc.Y,Loc.X].Passability := [];
 
-  //For all passability types other than canAll, houses and fenced houses are excluded
+  //For all passability types other than CanAll, houses and fenced houses are excluded
   if not(Land[Loc.Y,Loc.X].Markup in [mu_House, mu_HouseFenceNoWalk]) then begin
 
    if (TileIsWalkable(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-      CheckHeightPass(Loc,canWalk)then
-     AddPassability(Loc, [canWalk]);
+      CheckHeightPass(Loc,CanWalk)then
+     AddPassability(Loc, [CanWalk]);
 
    if (Land[Loc.Y,Loc.X].TileOverlay=to_Road)and
-      CheckPassability(Loc,canWalk) then //Not all roads are walkable, they must also have canWalk passability
-     AddPassability(Loc, [canWalkRoad]);
+      CheckPassability(Loc,CanWalk) then //Not all roads are walkable, they must also have CanWalk passability
+     AddPassability(Loc, [CanWalkRoad]);
 
    //Check for houses around this tile
    HousesNearBy := false;
@@ -1222,8 +1222,8 @@ begin
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
       (not HousesNearBy)and
-      CheckHeightPass(Loc,canBuild) then //No houses nearby
-      AddPassability(Loc, [canBuild]);
+      CheckHeightPass(Loc,CanBuild) then //No houses nearby
+      AddPassability(Loc, [CanBuild]);
 
    if (Land[Loc.Y,Loc.X].Terrain in [109,166..170])and
       (Land[Loc.Y,Loc.X].Rotation = 0)and //only horizontal mountain edges allowed
@@ -1234,8 +1234,8 @@ begin
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
       (not HousesNearBy)and //No houses nearby
-      CheckHeightPass(Loc,canBuildIron) then
-     AddPassability(Loc, [canBuildIron]);
+      CheckHeightPass(Loc,CanBuildIron) then
+     AddPassability(Loc, [CanBuildIron]);
 
    if (Land[Loc.Y,Loc.X].Terrain in [171..175])and
       (Land[Loc.Y,Loc.X].Rotation = 0)and
@@ -1246,24 +1246,24 @@ begin
       (not TileIsWineField(Loc))and //Can't build houses on fields
       (TileInMapCoords(Loc.X,Loc.Y,1))and
       (not HousesNearBy)and //No houses nearby
-      CheckHeightPass(Loc,canBuildGold) then
-     AddPassability(Loc, [canBuildGold]);
+      CheckHeightPass(Loc,CanBuildGold) then
+     AddPassability(Loc, [CanBuildGold]);
 
    if (TileIsRoadable(Loc))and
       (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
-      CheckHeightPass(Loc,canMakeRoads) then
-     AddPassability(Loc, [canMakeRoads]);
+      CheckHeightPass(Loc,CanMakeRoads) then
+     AddPassability(Loc, [CanMakeRoads]);
 
    if (TileIsSoil(Loc))and
       (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
       (Land[Loc.Y,Loc.X].Markup=mu_None)and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
-      CheckHeightPass(Loc,canMakeFields) then
-     AddPassability(Loc, [canMakeFields]);
+      CheckHeightPass(Loc,CanMakeFields) then
+     AddPassability(Loc, [CanMakeFields]);
 
    if (TileIsSoil(Loc))and
       (not IsObjectsNearby(Loc.X,Loc.Y))and //This function checks surrounding tiles
@@ -1273,11 +1273,11 @@ begin
       (Land[Loc.Y,Loc.X].TileOverlay <> to_Road)and
       (not HousesNearBy)and
       ((Land[Loc.Y,Loc.X].Obj=255) or ObjectIsChopableTree(KMPoint(Loc.X,Loc.Y),6))and
-      CheckHeightPass(Loc,canPlantTrees) then
-     AddPassability(Loc, [canPlantTrees]);
+      CheckHeightPass(Loc,CanPlantTrees) then
+     AddPassability(Loc, [CanPlantTrees]);
 
    if TileIsWater(Loc) then
-     AddPassability(Loc, [canFish]);
+     AddPassability(Loc, [CanFish]);
 
    if (TileIsSand(Loc))and
       (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
@@ -1288,26 +1288,26 @@ begin
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Road)and
       (not TileIsCornField(Loc))and
       (not TileIsWineField(Loc))and
-      CheckHeightPass(Loc,canCrab) then //Can't crab on houses, fields and roads (can walk on markups so you can't kill them by placing a house on top of them)
-     AddPassability(Loc, [canCrab]);
+      CheckHeightPass(Loc,CanCrab) then //Can't crab on houses, fields and roads (can walk on markups so you can't kill them by placing a house on top of them)
+     AddPassability(Loc, [CanCrab]);
 
    if (TileIsSoil(Loc))and
       (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
       (not TileIsCornField(Loc))and
       (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
       (not TileIsWineField(Loc))and
-      CheckHeightPass(Loc,canWolf) then
-     AddPassability(Loc, [canWolf]);
+      CheckHeightPass(Loc,CanWolf) then
+     AddPassability(Loc, [CanWolf]);
 
   end;
   if (TileIsWalkable(Loc))and
     (Land[Loc.Y,Loc.X].TileOverlay<>to_Wall)and
     (not MapElem[Land[Loc.Y,Loc.X].Obj+1].AllBlocked)and
-    CheckHeightPass(Loc,canWalk)and
+    CheckHeightPass(Loc,CanWalk)and
     not(Land[Loc.Y,Loc.X].Markup = mu_House) then
-    AddPassability(Loc, [canWorker]);
+    AddPassability(Loc, [CanWorker]);
 
- //Check for houses around this vertice(!) Use only with canElevate since it's vertice-based!
+ //Check for houses around this vertice(!) Use only with CanElevate since it's vertice-based!
  HousesNearBy := false;
  for i:=-1 to 0 do
    for k:=-1 to 0 do
@@ -1318,7 +1318,7 @@ begin
 
  if (VerticeInMapCoords(Loc.X,Loc.Y))and
     (not HousesNearBy) then
-   AddPassability(Loc, [canElevate]);
+   AddPassability(Loc, [CanElevate]);
 
 end;
 
@@ -1440,7 +1440,7 @@ begin
   for i:=-1 to 1 do for k:=-1 to 1 do
   if ((i<>0)or(k<>0)) and TileInMapCoords(Loc.X+k,Loc.Y+i) then //Valid tile for test
   if not KMSamePoint(KMPoint(Loc.X+k,Loc.Y+i),Loc2) then
-  if canWalk in Land[Loc.Y+i,Loc.X+k].Passability then //This uses canWalk because we can step off roads for side steps
+  if CanWalk in Land[Loc.Y+i,Loc.X+k].Passability then //This uses CanWalk because we can step off roads for side steps
   if CanWalkDiagonaly(Loc,KMPoint(Loc.X+k,Loc.Y+i)) then //Check for trees that stop us walking on the diagonals!
   if Land[Loc.Y+i,Loc.X+k].Markup <> mu_UnderConstruction then
   if KMLength(KMPoint(Loc.X+k,Loc.Y+i),Loc2) <= 1 then //Right next to Loc2 (not diagonal)
@@ -1476,13 +1476,13 @@ begin
   //Result:=not (KMSamePoint(LocA,LocB)); //Or maybe we don't care
 
   //If we are in worker mode then use the house entrance passability if we are still standing in a house
-  if aPass=canWorker then
+  if aPass=CanWorker then
   begin
     aHouse := fPlayers.HousesHitTest(LocA.X,LocA.Y);
     if aHouse <> nil then
     begin
       LocA := KMPointY1(aHouse.GetEntrance);
-      aPass := canWalk;
+      aPass := CanWalk;
     end;
   end;
 
@@ -1496,7 +1496,7 @@ begin
   Result := Result and TestRadius;
 
   //There's a walkable way between A and B (which is proved by FloodFill test on map init)
-  if aPass=canWalk then
+  if aPass=CanWalk then
   begin
     TestRadius := false;
     for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
@@ -1506,7 +1506,7 @@ begin
     Result := Result and TestRadius;
   end;
 
-  if aPass=canWalkRoad then
+  if aPass=CanWalkRoad then
   begin
     TestRadius := false;
     for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
@@ -1516,7 +1516,7 @@ begin
     Result := Result and TestRadius;
   end;
 
-  if aPass=canFish then
+  if aPass=CanFish then
     Result := Result and (Land[LocA.Y,LocA.X].WalkConnect[wcFish] = Land[LocB.Y,LocB.X].WalkConnect[wcFish]);
 
   if aInteractionAvoid then
@@ -1573,7 +1573,7 @@ end;
 procedure TTerrain.Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, TargetRoadNetworkID, canWalk, LocB);
+  fPath := TPathFinding.Create(LocA, TargetRoadNetworkID, CanWalk, LocB);
   fPath.ReturnRoute(NodeList);
   FreeAndNil(fPath);
 end;
@@ -1582,7 +1582,7 @@ end;
 procedure TTerrain.Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, TargetWalkNetworkID, canWorker, LocB);
+  fPath := TPathFinding.Create(LocA, TargetWalkNetworkID, CanWorker, LocB);
   fPath.ReturnRoute(NodeList);
   FreeAndNil(fPath);
 end;
@@ -1598,9 +1598,9 @@ var
   wcType: TWalkConnect;
 begin
   case aPass of
-    canWalkRoad: wcType := wcRoad;
-    canFish:     wcType := wcFish;
-    else         wcType := wcWalk; //canWalk is default
+    CanWalkRoad: wcType := wcRoad;
+    CanFish:     wcType := wcFish;
+    else         wcType := wcWalk; //CanWalk is default
   end;
 
   WalkConnectID := Land[OriginLoc.Y,OriginLoc.X].WalkConnect[wcType]; //Store WalkConnect ID of origin
@@ -1612,7 +1612,7 @@ begin
     exit;
   end;
   //If target is not accessable then choose a tile near to the target that is accessable
-  //As we cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
+  //As we Cannot reach our destination we are "low priority" so do not choose a tile with another unit on it (don't bump important units)
   for i:=0 to 255 do begin
     P := GetPositionFromIndex(TargetLoc, i);
     if not fTerrain.TileInMapCoords(P.X,P.Y) then continue;
@@ -1695,13 +1695,13 @@ begin
     Land[Loc.Y,Loc.X+1].Height+
     Land[Loc.Y+1,Loc.X+1].Height
   )div 4;
-  if CheckPassability(KMPoint(Loc.X,Loc.Y),canElevate) then
+  if CheckPassability(KMPoint(Loc.X,Loc.Y),CanElevate) then
   Land[Loc.Y,Loc.X].Height:=mix(Land[Loc.Y,Loc.X].Height,TempH,0.5);
-  if CheckPassability(KMPoint(Loc.X,Loc.Y+1),canElevate) then
+  if CheckPassability(KMPoint(Loc.X,Loc.Y+1),CanElevate) then
   Land[Loc.Y+1,Loc.X].Height:=mix(Land[Loc.Y+1,Loc.X].Height,TempH,0.5);
-  if CheckPassability(KMPoint(Loc.X+1,Loc.Y),canElevate) then
+  if CheckPassability(KMPoint(Loc.X+1,Loc.Y),CanElevate) then
   Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
-  if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),canElevate) then
+  if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),CanElevate) then
   Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
 
   RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
@@ -1723,13 +1723,13 @@ begin
       Land[Loc.Y,Loc.X+1].Height+
       Land[Loc.Y+1,Loc.X+1].Height
     )div 4;
-    if CheckPassability(KMPoint(Loc.X,Loc.Y),canElevate) then
+    if CheckPassability(KMPoint(Loc.X,Loc.Y),CanElevate) then
     Land[Loc.Y,Loc.X].Height:=mix(Land[Loc.Y,Loc.X].Height,TempH,0.5);
-    if CheckPassability(KMPoint(Loc.X,Loc.Y+1),canElevate) then
+    if CheckPassability(KMPoint(Loc.X,Loc.Y+1),CanElevate) then
     Land[Loc.Y+1,Loc.X].Height:=mix(Land[Loc.Y+1,Loc.X].Height,TempH,0.5);
-    if CheckPassability(KMPoint(Loc.X+1,Loc.Y),canElevate) then
+    if CheckPassability(KMPoint(Loc.X+1,Loc.Y),CanElevate) then
     Land[Loc.Y,Loc.X+1].Height:=mix(Land[Loc.Y,Loc.X+1].Height,TempH,0.5);
-    if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),canElevate) then
+    if CheckPassability(KMPoint(Loc.X+1,Loc.Y+1),CanElevate) then
     Land[Loc.Y+1,Loc.X+1].Height:=mix(Land[Loc.Y+1,Loc.X+1].Height,TempH,0.5);
     RebuildLighting(Loc.X-2,Loc.X+3,Loc.Y-2,Loc.Y+3);
     RecalculatePassability(Loc);
@@ -1771,7 +1771,7 @@ procedure TTerrain.RebuildWalkConnect(wcType:TWalkConnect);
 const MinSize=9; //Minimum size that is treated as new area
 var i,k{,h}:integer; AreaID:byte; Count:integer; Pass:TPassability;
 
-  procedure FillArea(x,y:word; ID:byte; out Count:integer); //Mode = 1canWalk or 2canWalkRoad
+  procedure FillArea(x,y:word; ID:byte; out Count:integer); //Mode = 1CanWalk or 2CanWalkRoad
   begin
     if ((Land[y,x].WalkConnect[wcType]=0)and(Pass in Land[y,x].Passability)and //Untested area
      ((wcType <> wcAvoid)or
@@ -1803,10 +1803,10 @@ begin
   begin}
 
     case wcType of
-      wcWalk:  Pass := canWalk;
-      wcRoad:  Pass := canWalkRoad;
-      wcFish:  Pass := canFish;
-      wcAvoid: Pass := canWalk; //Special case for unit interaction avoiding
+      wcWalk:  Pass := CanWalk;
+      wcRoad:  Pass := CanWalkRoad;
+      wcFish:  Pass := CanFish;
+      wcAvoid: Pass := CanWalk; //Special case for unit interaction avoiding
       else     fLog.AssertToLog(false, 'Unexpected aPass in RebuildWalkConnect function');
     end;
 
@@ -1818,7 +1818,7 @@ begin
     for i:=1 to MapY do for k:=1 to MapX do
     if ((Land[i,k].WalkConnect[wcType]=0)and(Pass in Land[i,k].Passability)and
      ((wcType <> wcAvoid)or
-     ((wcType = wcAvoid)and(Land[i,k].Markup <> mu_UnderConstruction)))) then //todo: Exclude fighting units in canWalkAvoid (requires IsUnit to be made TKMUnit first)
+     ((wcType = wcAvoid)and(Land[i,k].Markup <> mu_UnderConstruction)))) then //todo: Exclude fighting units in CanWalkAvoid (requires IsUnit to be made TKMUnit first)
     begin
       inc(AreaID);
       Count:=0;
@@ -1914,14 +1914,14 @@ begin
   Result := Result and (Land[Loc.Y, Loc.X].IsUnit = nil); //Check for no unit below
 
   case aUnitType of
-    ut_Woodcutter..ut_Fisher,ut_StoneCutter..ut_Recruit: DesiredPass := canWalkRoad; //Citizens except Worker
+    ut_Woodcutter..ut_Fisher,ut_StoneCutter..ut_Recruit: DesiredPass := CanWalkRoad; //Citizens except Worker
     ut_Wolf..ut_Duck:                              DesiredPass := AnimalTerrain[byte(aUnitType)] //Animals
-    else                                           DesiredPass := canWalk; //Serf, Worker, Warriors
+    else                                           DesiredPass := CanWalk; //Serf, Worker, Warriors
   end;
 
   //In e.g. map editor mode we are allowed to place citizens off roads
-  if aAllowCitizensOffRoad and (DesiredPass = canWalkRoad) then
-    DesiredPass := canWalk;
+  if aAllowCitizensOffRoad and (DesiredPass = CanWalkRoad) then
+    DesiredPass := CanWalk;
 
   Result := Result and (DesiredPass in Land[Loc.Y, Loc.X].Passability);
 end;
@@ -1975,10 +1975,10 @@ function TTerrain.CanPlaceRoad(Loc:TKMPoint; aMarkup: TMarkup; PlayerRevealID:TP
 begin
   Result := TileInMapCoords(Loc.X,Loc.Y); //Make sure it is inside map, roads can be built on edge
   case aMarkup of
-    mu_RoadPlan:  Result := Result AND (canMakeRoads  in Land[Loc.Y,Loc.X].Passability);
-    mu_FieldPlan: Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
-    mu_WinePlan:  Result := Result AND (canMakeFields in Land[Loc.Y,Loc.X].Passability);
-    mu_WallPlan:  Result := Result AND (canMakeRoads  in Land[Loc.Y,Loc.X].Passability);
+    mu_RoadPlan:  Result := Result AND (CanMakeRoads  in Land[Loc.Y,Loc.X].Passability);
+    mu_FieldPlan: Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
+    mu_WinePlan:  Result := Result AND (CanMakeFields in Land[Loc.Y,Loc.X].Passability);
+    mu_WallPlan:  Result := Result AND (CanMakeRoads  in Land[Loc.Y,Loc.X].Passability);
     else          Result := false;
   end;
   Result := Result AND (Land[Loc.Y,Loc.X].Markup<>mu_UnderConstruction);
@@ -2031,8 +2031,8 @@ begin
   Result := true;
   if not TileInMapCoords(aLoc.X,aLoc.Y) then exit;
   case aPass of
-    canWalk,canWalkRoad,canMakeRoads,canMakeFields,canPlantTrees,canCrab,canWolf: Result := TestHeight(25);
-    canBuild,canBuildGold,canBuildIron: Result := TestHeight(18);
+    CanWalk,CanWalkRoad,CanMakeRoads,CanMakeFields,CanPlantTrees,CanCrab,CanWolf: Result := TestHeight(25);
+    CanBuild,CanBuildGold,CanBuildIron: Result := TestHeight(18);
   end; //For other passabilities we ignore height (return default true)
 end;
 
@@ -2178,11 +2178,11 @@ begin
   Result := 0;
   if not VerticeInMapCoords(Xc,Yc) then exit;
 
-  Tmp1 := mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(InX));
+  Tmp1 := mix(fTerrain.Land[Yc  ,Xc+1].Height, fTerrain.Land[Yc  ,Xc].Height, frac(inX));
   if Yc >= MaxMapSize then
     Tmp2 := 0
   else
-    Tmp2 := mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(InX));
+    Tmp2 := mix(fTerrain.Land[Yc+1,Xc+1].Height, fTerrain.Land[Yc+1,Xc].Height, frac(inX));
   Result:=mix(Tmp2, Tmp1, frac(InY));
 end;
 
@@ -2310,7 +2310,7 @@ begin
   LoadStream.Read(MapY);
 
   LoadStream.Read(AnimStep);
-  FallingTrees.Load(LoadStream);
+  FallingTrees := TKMPointTagList.Load(LoadStream);
 
   for i:=1 to MapY do for k:=1 to MapX do
   begin

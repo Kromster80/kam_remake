@@ -107,7 +107,7 @@ function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
     dp_Location:    Result := KMLength(MinCost.Pos,LocB) <= fDistance;
-    dp_Passability: if Pass = canWorker then                                                                  
+    dp_Passability: if Pass = CanWorker then                                                                  
                       Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID
                     else
                       Result := fTerrain.GetRoadConnectID(MinCost.Pos) = TargetRoadNetworkID;
