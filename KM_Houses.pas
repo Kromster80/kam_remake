@@ -1463,7 +1463,7 @@ begin
     LinkUnit := Soldier.FindLinkUnit(GetEntrance)
   else LinkUnit := nil;
   if LinkUnit <> nil then
-    Soldier.LinkTo(LinkUnit);
+    Soldier.OrderLinkTo(LinkUnit);
 end;
 
 

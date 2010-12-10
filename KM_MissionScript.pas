@@ -534,7 +534,7 @@ begin
                      end;
   ct_SendGroup:      begin
                        if LastTroop <> nil then
-                         LastTroop.PlaceOrder(wo_Walk,KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]));
+                         LastTroop.OrderWalk(KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]));
                      end;
   ct_SetGroupFood:   begin
                        if LastTroop <> nil then
@@ -660,16 +660,16 @@ begin
 
       h := fPlayers.HousesHitTest(Target.X,Target.Y); //Attack house
       if (h <> nil) and (not h.IsDestroyed) and (fPlayers.CheckAlliance(Warrior.GetOwner,h.GetOwner) = at_Enemy) then
-        Warrior.PlaceOrder(wo_AttackHouse,h)
+        Warrior.OrderAttackHouse(h)
       else
       begin
 
         u := fTerrain.UnitsHitTest(Target.X,Target.Y); //Chase/attack unit
         if (u <> nil) and (not u.IsDeadOrDying) and (fPlayers.CheckAlliance(Warrior.GetOwner,u.GetOwner) = at_Enemy) then
-          Warrior.PlaceOrder(wo_Attack,u)
+          Warrior.OrderAttackUnit(u)
         else
 
-          Warrior.PlaceOrder(wo_Walk,Target); //Just move to position
+          Warrior.OrderWalk(Target); //Just move to position
           
       end;
     end;

@@ -40,23 +40,28 @@ type //Possibly melee warrior class? with Archer class separate?
     destructor Destroy; override;
 
     procedure KillUnit; override;
-  //Commands
+
     procedure AddMember(aWarrior:TKMUnitWarrior);
     function GetCommander:TKMUnitWarrior;
     function GetMemberCount:integer;
-    procedure Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
-    procedure LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
-    procedure Split; //Split group in half and assign another commander
-    procedure SplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
-
+    property RequestedFood:boolean write fRequestedFood; //Cleared by Serf delivering food
     procedure SetGroupFullCondition;
-    procedure OrderFood;
     procedure SetOrderHouseTarget(aHouse:TKMHouse);
     function GetOrderHouseTarget:TKMHouse;
-
-    property RequestedFood:boolean write fRequestedFood; //Cleared by Serf delivering food
     property GetWarriorState: TWarriorState read fState;
-    function GetFightType():TFightType;
+
+  //Commands from player
+    procedure OrderHalt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
+    procedure OrderLinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
+    procedure OrderSplit; //Split group in half and assign another commander
+    procedure OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer); //Splits X number of men from the group and adds them to the new commander
+    procedure OrderFood;
+    procedure OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false); reintroduce; overload;
+    procedure OrderWalk(aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
+    procedure OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
+    procedure OrderAttackHouse(aTargetHouse:TKMHouse);
+
+    function GetFightRange():single;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property Foe:TKMUnitWarrior read GetFoe write SetFoe;
@@ -67,10 +72,6 @@ type //Possibly melee warrior class? with Archer class separate?
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
 
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMembers:boolean=false); reintroduce; overload;
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA); reintroduce; overload;
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false); reintroduce; overload;
-    procedure PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse); reintroduce; overload;
     function CheckForEnemy():boolean;
 
     function CanInterruptAction:boolean;
@@ -170,7 +171,7 @@ begin
   begin
     fCommander.fMembers.Remove((Self));
     //Now make the group reposition (halt has IsDead check in case commander is dead too)
-    fCommander.Halt;
+    fCommander.OrderHalt;
   end;
 
   //Kill group commander
@@ -206,9 +207,9 @@ begin
     //Now make the new commander reposition or keep walking where we are going (don't stop group walking because leader dies, we could be in danger)
     //Use OrderLoc if possible
     if fOrderLoc.Loc.X <> 0 then
-      NewCommander.PlaceOrder(wo_Walk,fOrderLoc)
+      NewCommander.OrderWalk(fOrderLoc)
     else
-      NewCommander.PlaceOrder(wo_Walk,NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
+      NewCommander.OrderWalk(NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
 
     //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
     fCommander := NewCommander;
@@ -285,14 +286,14 @@ begin
 end;
 
 
-procedure TKMUnitWarrior.Halt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
+procedure TKMUnitWarrior.OrderHalt(aTurnAmount:shortint=0; aLineAmount:shortint=0);
 var HaltPoint: TKMPointDir;
 begin
   if IsDead then exit; //Can happen e.g. when entire group dies at once due to hunger
   //Pass command to Commander unit, but avoid recursively passing command to Self
   if (fCommander <> nil) and (fCommander <> Self) then
   begin
-    fCommander.Halt(aTurnAmount,aLineAmount);
+    fCommander.OrderHalt(aTurnAmount,aLineAmount);
     exit;
   end;
 
@@ -309,16 +310,16 @@ begin
   if fMembers <> nil then
     SetUnitsPerRow(fUnitsPerRow+aLineAmount);
 
-  PlaceOrder(wo_Walk, HaltPoint);
+  OrderWalk(HaltPoint);
 end;
 
 
-procedure TKMUnitWarrior.LinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
+procedure TKMUnitWarrior.OrderLinkTo(aNewCommander:TKMUnitWarrior); //Joins entire group to NewCommander
 var i:integer; AddedSelf: boolean;
 begin
   //Redirect command so that both units are Commanders
   if (GetCommander<>Self) or (aNewCommander.GetCommander<>aNewCommander) then begin
-    GetCommander.LinkTo(aNewCommander.GetCommander);
+    GetCommander.OrderLinkTo(aNewCommander.GetCommander);
     exit;
   end;
 
@@ -351,11 +352,11 @@ begin
   if not AddedSelf then
     aNewCommander.AddMember(Self);
   //Tell commander to reposition
-  fCommander.Halt;
+  fCommander.OrderHalt;
 end;
 
 
-procedure TKMUnitWarrior.Split; //Split group in half and assign another commander
+procedure TKMUnitWarrior.OrderSplit; //Split group in half and assign another commander
 var i, DeletedCount: integer; NewCommander:TKMUnitWarrior; MultipleTypes: boolean;
 begin
   if GetMemberCount = 0 then exit; //Only commanders have members
@@ -403,12 +404,13 @@ begin
   NewCommander.fUnitsPerRow := min(fUnitsPerRow, NewCommander.GetMemberCount+1);
 
   //Tell both commanders to reposition
-  Halt;
-  NewCommander.Halt;
+  OrderHalt;
+  NewCommander.OrderHalt;
 end;
 
+
 //Splits X number of men from the group and adds them to the new commander
-procedure TKMUnitWarrior.SplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer);
+procedure TKMUnitWarrior.OrderSplitLinkTo(aNewCommander:TKMUnitWarrior; aNumberOfMen:integer);
 var i, DeletedCount: integer;
 begin
   Assert(aNumberOfMen < GetMemberCount+1); //Not allowed to take the commander, only members (if you want the command too use normal LinkTo)
@@ -430,8 +432,8 @@ begin
   fUnitsPerRow := min(fUnitsPerRow, GetMemberCount+1);
 
   //Tell both commanders to reposition
-  Halt;
-  aNewCommander.Halt;
+  OrderHalt;
+  aNewCommander.OrderHalt;
 end;
 
 
@@ -447,7 +449,7 @@ begin
   if (fCommander = nil) and (fMembers <> nil) then
     for i := 0 to fMembers.Count-1 do
       TKMUnitWarrior(fMembers.Items[i]).OrderFood;
-  Halt;
+  OrderHalt;
 end;
 
 
@@ -511,9 +513,14 @@ begin
 end;
 
 
-function TKMUnitWarrior.GetFightType():TFightType;
+//At which range we can fight
+function TKMUnitWarrior.GetFightRange():single;
 begin
-  Result := WarriorFightType[fUnitType];
+  case fUnitType of
+    ut_Bowman:      Result := RANGE_BOWMAN;
+    ut_Arbaletman:  Result := RANGE_ARBALETMAN;
+    else            Result := 1.42; //slightly bigger than sqrt(2) for diagonal fights
+  end;
 end;
 
 
@@ -561,12 +568,12 @@ end;
 
 
 //Notice: any warrior can get Order (from its commander), but only commander should get Orders from Player
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPointDir; aOnlySetMembers:boolean=false);
+procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPointDir; aOnlySetMembers:boolean=false);
 var i:integer; NewLoc:TKMPoint;
 begin
   if (fCommander <> nil) or (not aOnlySetMembers) then
   begin
-    fOrder    := aWarriorOrder;
+    fOrder    := wo_Walk;
     fState    := ws_None; //Clear other states
     fOrderLoc := aLoc;
     SetOrderTarget(nil);
@@ -576,12 +583,12 @@ begin
   for i:=1 to fMembers.Count do begin
     NewLoc := GetPositionInGroup2(aLoc.Loc.X, aLoc.Loc.Y, TKMDirection(aLoc.Dir+1),
                                   i+1, fUnitsPerRow, fTerrain.MapX, fTerrain.MapY);
-    TKMUnitWarrior(fMembers.Items[i-1]).PlaceOrder(aWarriorOrder, KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir))
+    TKMUnitWarrior(fMembers.Items[i-1]).OrderWalk(KMPointDir(NewLoc.X,NewLoc.Y,aLoc.Dir))
   end;
 end;
 
 
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA);
+procedure TKMUnitWarrior.OrderWalk(aLoc:TKMPoint; aNewDir:TKMDirection=dir_NA);
 var NewP:TKMPointDir;
 begin
   //keep old direction if group had an order to walk somewhere
@@ -593,43 +600,40 @@ begin
   else
     NewP := KMPointDir(aLoc.X, aLoc.Y, byte(Direction)-1);
 
-  PlaceOrder(aWarriorOrder, NewP);
+  OrderWalk(NewP);
 end;
 
 
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
+//Attack works like this: Commander tracks target unit in walk action. Members are ordered to walk to formation with commaner at target unit's location.
+//If target moves in WalkAction, commander will reissue PlaceOrder with aOnlySetMembers = true, so members will walk to new location.
+procedure TKMUnitWarrior.OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
 begin
-  if (aWarriorOrder <> wo_Attack) or (aTargetUnit = nil) then exit; //Only allow house attacks with target unit for now
-
-  //Attack works like this: Commander tracks target unit in walk action. Members are ordered to walk to formation with commaner at target unit's location.
-  //If target moves in WalkAction, commander will reissue PlaceOrder with aOnlySetMembers = true, so members will walk to new location.
-
   if (fCommander <> nil) or (not aOnlySetMembers) then
   begin
-    fOrder := aWarriorOrder; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
+    fOrder := wo_AttackUnit; //Only commander has order Attack, other units have walk to (this means they walk in formation and not in a straight line meeting the enemy one at a time
     fState := ws_None; //Clear other states
     SetOrderTarget(aTargetUnit);
   end;
-  PlaceOrder(wo_Walk,KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give members order to walk to approperiate positions
+  //@Lewin: This looks wrong now. WIP
+  //PlaceOrder(wo_Walk,KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give members order to walk to approperiate positions
+  OrderWalk(KMPointDir(aTargetUnit.GetPosition,fOrderLoc.Dir),true); //Give members order to walk to approperiate positions
 end;
 
 
 { Attack House works like this:
 All units are assigned TTaskAttackHouse which does everything for us
 (move to position, hit house, abandon, etc.) }
-procedure TKMUnitWarrior.PlaceOrder(aWarriorOrder:TWarriorOrder; aTargetHouse:TKMHouse);
+procedure TKMUnitWarrior.OrderAttackHouse(aTargetHouse:TKMHouse);
 var i: integer;
 begin
-  Assert((aWarriorOrder=wo_AttackHouse)and(aTargetHouse<>nil));
-
-  fOrder := aWarriorOrder;
+  fOrder := wo_AttackHouse;
   fState := ws_None; //Clear other states
   SetOrderHouseTarget(aTargetHouse);
 
   //Transmit order to all members if we have any
   if (fCommander = nil) and (fMembers <> nil) then
     for i:=0 to fMembers.Count-1 do
-      TKMUnitWarrior(fMembers.Items[i]).PlaceOrder(aWarriorOrder, aTargetHouse);
+      TKMUnitWarrior(fMembers.Items[i]).OrderAttackHouse(aTargetHouse);
 end;
 
 
@@ -704,57 +708,16 @@ end;
 
 
 function TKMUnitWarrior.CheckForEnemy():boolean;
-var i,k,WCount,OCount:shortint;
-    U, BestU: TKMUnit;
-    Warriors,Others: array[1..8] of TKMUnit;
+var BestU: TKMUnit;
 begin
   Result := false; //Did we pick a fight?
   if not ENABLE_FIGHTING then exit;
   if not CanInterruptAction then exit;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
-  WCount := 0;
-  OCount := 0;
-  BestU := nil;
+  BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightRange, GetOwner, at_Enemy);
 
-  for i := -1 to 1 do
-  for k := -1 to 1 do
-  if (i<>0) or (k<>0) then
-  if fTerrain.TileInMapCoords(GetPosition.X+i, GetPosition.Y+k) then
-  if fTerrain.CanWalkDiagonaly(GetPosition,KMPoint(GetPosition.X+i,GetPosition.Y+k)) then //Don't fight through tree trunks
-  begin
-    U := fTerrain.UnitsHitTest(GetPosition.X+i,GetPosition.Y+k);
-    //Must not dead/dying, not inside a house, not from our team and an enemy
-    if (U <> nil) and (U.IsVisible) and (not U.IsDeadOrDying) and (fPlayers.CheckAlliance(GetOwner,U.GetOwner) = at_Enemy) then
-    begin
-      //We'd rather fight a warrior, so store them seperatly
-      if U is TKMUnitWarrior then
-      begin
-        inc(WCount);
-        Warriors[WCount] := U;
-        //If they is a warrior right in front of us then choose him to fight rather than turning
-        if KMSamePoint(KMGetPointInDir(GetPosition,Direction),U.GetPosition) then begin
-          BestU := U;
-          break;
-        end;
-      end
-      else
-      begin
-        inc(OCount);
-        Others[OCount] := U;
-      end;
-    end;
-  end;
-
-  //Preferance goes: Warrior in front of us > Random warrior > Random citizen (if we are not busy)
-  if BestU = nil then
-    if WCount > 0 then
-      BestU := Warriors[Random(WCount)+1]
-    else
-    if (OCount > 0) and not((GetUnitTask is TTaskAttackHouse) and TTaskAttackHouse(GetUnitTask).DestroyingHouse) then
-      BestU := Others[Random(OCount)+1]
-    else
-      exit; //noone found
+  if BestU = nil then exit;
 
   //Free the task or set it up to be resumed afterwards
   if GetUnitTask <> nil then
@@ -769,7 +732,7 @@ begin
   if (GetUnitAction is TUnitActionWalkTo) and (fState = ws_Walking) and not (BestU is TKMUnitWarrior) then
   begin
     if GetOrderTarget <> nil then
-      fOrder := wo_Attack
+      fOrder := wo_AttackUnit
     else
       fOrder := wo_Walk;
   end;
@@ -806,7 +769,7 @@ function TKMUnitWarrior.UpdateState():boolean;
     if fMembers <> nil then for i:=0 to fMembers.Count-1 do
       if TKMUnit(fMembers.Items[i]).GetUnitAction is TUnitActionFight then exit;
     Foe := nil; //Nil foe because no one is fighting
-    PlaceOrder(wo_Walk,GetPosition); //Reposition because the fight has just finished (don't use halt because that returns us to fOrderLoc)
+    OrderWalk(GetPosition); //Reposition because the fight has just finished (don't use halt because that returns us to fOrderLoc)
   end;
 
 var
@@ -832,7 +795,7 @@ begin
   //Help out our fellow group members in combat if we are not fighting and someone else is
   if (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
   begin
-    fOrder := wo_Attack;
+    fOrder := wo_AttackUnit;
     fState := ws_Engage; //Special state so we don't issue this order continuously
     SetOrderTarget(GetCommander.Foe);
   end;
@@ -868,11 +831,11 @@ begin
 
 
   //Make sure attack order is still valid
-  if (fOrder=wo_Attack) and (GetOrderTarget = nil) then fOrder := wo_None;
+  if (fOrder=wo_AttackUnit) and (GetOrderTarget = nil) then fOrder := wo_None;
   if (fOrder=wo_AttackHouse) and (GetOrderHouseTarget = nil) then fOrder := wo_None;
 
   //Change walk in order to attack
-  if (fOrder=wo_Attack) and (GetUnitAction is TUnitActionWalkTo) //If we are already walking then change the walk to the new location
+  if (fOrder=wo_AttackUnit) and (GetUnitAction is TUnitActionWalkTo) //If we are already walking then change the walk to the new location
   then begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     //If we are not the commander then walk to near
@@ -882,10 +845,10 @@ begin
   end;
 
   //Take attack order
-  if (fOrder=wo_Attack) and GetUnitAction.StepDone and CanInterruptAction then
+  if (fOrder=wo_AttackUnit) and GetUnitAction.StepDone and CanInterruptAction then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-    SetActionWalkToUnit(GetOrderTarget, 1, ua_Walk);
+    SetActionWalkToUnit(GetOrderTarget, GetFightRange, ua_Walk);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;
@@ -927,13 +890,11 @@ begin
       for i:=0 to fMembers.Count-1 do
         //Must wait for unit(s) to get into position before we have truely finished walking
         PositioningDone := TKMUnitWarrior(fMembers.Items[i]).RePosition and PositioningDone; //NOTE: RePosition function MUST go before PositioningDone variable otherwise it won't check the second value if the first is true!!!
-
   end;
 
   //Make sure we didn't get given an action above
   if GetUnitAction <> nil then exit;
-
-
+    
   if fState = ws_Walking then
   begin
     fState := ws_RepositionPause; //Means we are in position and waiting until we turn
@@ -965,7 +926,7 @@ var
   i:integer;
   UnitPosition: TKMPoint;
 begin
-Inherited;
+  Inherited;
   if not fVisible then exit;
   UnitTyp  := byte(fUnitType);
   AnimAct  := byte(fCurrentAction.GetActionType); //should correspond with UnitAction
@@ -976,6 +937,7 @@ Inherited;
 
   fRender.RenderUnit(UnitTyp, AnimAct, AnimDir, AnimStep, byte(fOwner), XPaintPos, YPaintPos, true);
 
+  //Paint flag
   if (fCommander=nil) and not IsDeadOrDying then begin
     //todo: Fix flag offsets
     //XPaintPos := XPaintPos + FlagXOffset[UnitType]/CELL_SIZE_PX;

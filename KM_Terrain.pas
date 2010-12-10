@@ -2,7 +2,7 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils,
-     KM_Defaults, KM_CommonTypes, KM_Units, KM_Utils;
+     KM_Defaults, KM_CommonTypes, KM_Units, KM_Units_Warrior, KM_Utils;
 
 
 const MaxMapSize=192;
@@ -125,10 +125,10 @@ TTerrain = class
     function CheckAnimalIsStuck(Loc:TKMPoint; aPass:TPassability):boolean;
     function GetOutOfTheWay(Loc, Loc2:TKMPoint; aPass:TPassability):TKMPoint;
     function FindSideStepPosition(Loc,Loc2,Loc3:TKMPoint; OnlyTakeBest: boolean=false):TKMPoint;
-    function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aInteractionAvoid:boolean):boolean;
+    function Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
     function Route_CanBeMadeToVertex(LocA, LocB:TKMPoint; aPass:TPassability):boolean;
-    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList):boolean;
-    procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList);
+    function Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; out NodeList:TKMPointList):boolean;
+    procedure Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; out NodeList:TKMPointList);
     procedure Route_ReturnToRoad(LocA, LocB:TKMPoint; TargetRoadNetworkID:byte; out NodeList:TKMPointList);
     procedure Route_ReturnToWalkable(LocA, LocB:TKMPoint; TargetWalkNetworkID:byte; out NodeList:TKMPointList);
     function GetClosestTile(TargetLoc, OriginLoc:TKMPoint; aPass:TPassability):TKMPoint;
@@ -154,7 +154,7 @@ TTerrain = class
     function TileIsWineField(Loc:TKMPoint):boolean;
     function TileIsLocked(aLoc:TKMPoint):boolean;
     function UnitsHitTest(X,Y:word):TKMUnit;
-    function UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
+    function UnitsHitTestWithinRad(X,Y:integer; Rad:single; aPlay:TPlayerID; aAlliance:TAllianceType{; aPreferWarriors:boolean}): TKMUnit;
 
     function ObjectIsChopableTree(Loc:TKMPoint; Stage:byte):boolean;
     function CanWalkDiagonaly(A,B:TKMPoint):boolean;
@@ -473,30 +473,49 @@ end;
 
 //Function to use with WatchTowers/Archers/AutoLinking/
 { Should scan withing given radius and return closest unit with given Alliance status
-  Should be optimized versus usual UnitsHitTest }
-function TTerrain.UnitsHitTestWithinRad(X,Y,Rad:Integer; aPlay:TPlayerID; aAlliance:TAllianceType): TKMUnit;
-var i,k:integer; U:TKMUnit;
+  Should be optimized versus usual UnitsHitTest
+  Prefer Warriors over citizens}
+function TTerrain.UnitsHitTestWithinRad(X,Y:integer; Rad:single; aPlay:TPlayerID; aAlliance:TAllianceType{; aPreferWarriors:boolean}): TKMUnit;
+var
+  i,k:integer; //Counters
+  lx,ly,hx,hy:integer; //Ranges
+  U,C,W:TKMUnit;
 begin
-  Result := nil;
+  W := nil;
+  C := nil;
 
-  for i:=max(Y-Rad-1,1) to min(Y+Rad+1,MapY) do
-  for k:=max(X-Rad-1,1) to min(X+Rad+1,MapX) do
-  if GetLength(i,k) <= (Rad+1) then begin //Add 1tile margin to cover all units
+  lx := max(round(X-Rad),1); //1.42 gets rounded to 1
+  ly := max(round(Y-Rad),1); //1.42 gets rounded to 1
+  hx := min(round(X+Rad),MapX); //1.42 gets rounded to 1
+  hy := min(round(Y+Rad),MapY); //1.42 gets rounded to 1
 
-    //Don't check tiles farther than Result
-    if (Result<>nil) and (GetLength(i,k)>=GetLength(KMPoint(X,Y),Result.GetPosition)) then
+  for i:=ly to hy do for k:=lx to hx do
+  if GetLength(KMPoint(X,Y), KMPoint(k,i)) <= Rad then //Add 1tile margin to cover all units
+  if (Land[i,k].IsUnit <> nil) and (Land[i,k].IsUnit.HitTest(k,i)) then //Unit is actually on the tile
+  begin
+
+    //Don't check tiles farther than closest Warrior
+    if (W<>nil) and (GetLength(i,k)>=GetLength(KMPoint(X,Y),W.GetPosition)) then
       Continue; //Since we check left-to-right we can't exit yet
 
-    U := Land[Y+i,X+k].IsUnit;
+    U := Land[i,k].IsUnit;
 
-    if (U = nil) or
-       (fPlayers.CheckAlliance(aPlay, U.GetOwner) <> aAlliance) or //How do WE feel about enemy, not how they feel about us
-       (U.IsDeadOrDying)
+    if (U <> nil) and
+       U.IsVisible and //Inside of house
+       CanWalkDiagonaly(KMPoint(X,Y),KMPoint(k,i)) and
+       (fPlayers.CheckAlliance(aPlay, U.GetOwner) = aAlliance) and //How do WE feel about enemy, not how they feel about us
+       (not U.IsDeadOrDying)
     then
-      Continue;
-
-    Result := U;
+      if U is TKMUnitWarrior then
+        W := U
+      else
+        C := U;
   end;
+
+  if W<>nil then
+    Result := W
+  else
+    Result := C; //It's ok for C to be nil
 end;
 
 
@@ -1448,7 +1467,7 @@ end;
 
 
 //Test wherever it is possible to make the route without actually making it to save performance
-function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aInteractionAvoid:boolean):boolean;
+function TTerrain.Route_CanBeMade(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; aInteractionAvoid:boolean):boolean;
 var i,k:integer; aHouse:TKMHouse; TestRadius:boolean;
 begin
   Result := true;
@@ -1470,9 +1489,9 @@ begin
   //target point has to be walkable
   Result := Result and CheckPassability(LocA,aPass);
   TestRadius := false;
-  for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
-  for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
-  if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+  for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
+  for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),MapX-1) do
+  if GetLength(LocB,KMPoint(k,i))<=aDistance then
     TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
   Result := Result and TestRadius;
 
@@ -1480,9 +1499,9 @@ begin
   if aPass=canWalk then
   begin
     TestRadius := false;
-    for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
-    for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
-    if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
+    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),MapX-1) do
+    if GetLength(LocB,KMPoint(k,i))<=aDistance then
       TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcWalk] = Land[i,k].WalkConnect[wcWalk]);
     Result := Result and TestRadius;
   end;
@@ -1490,9 +1509,9 @@ begin
   if aPass=canWalkRoad then
   begin
     TestRadius := false;
-    for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
-    for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
-    if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
+    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),MapX-1) do
+    if GetLength(LocB,KMPoint(k,i))<=aDistance then
       TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcRoad] = Land[i,k].WalkConnect[wcRoad]);
     Result := Result and TestRadius;
   end;
@@ -1503,9 +1522,9 @@ begin
   if aInteractionAvoid then
   begin
     TestRadius := false;
-    for i:=max(LocB.Y-aWalkToSpot,1) to min(LocB.Y+aWalkToSpot,MapY-1) do
-    for k:=max(LocB.X-aWalkToSpot,1) to min(LocB.X+aWalkToSpot,MapX-1) do
-    if GetLength(LocB,KMPoint(k,i))<=aWalkToSpot then
+    for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),MapY-1) do
+    for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),MapX-1) do
+    if GetLength(LocB,KMPoint(k,i))<=aDistance then
       TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[wcAvoid] = Land[i,k].WalkConnect[wcAvoid]);
     Result := Result and TestRadius;
   end;
@@ -1525,10 +1544,10 @@ end;
 
 
 //Tests weather route can be made
-function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList):boolean;
+function TTerrain.Route_MakeAvoid(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; out NodeList:TKMPointList):boolean;
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, aPass, WalkToSpot, true); //True means we are using Interaction Avoid mode (go around busy units)
+  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance, true); //True means we are using Interaction Avoid mode (go around busy units)
   try
     Result := fPath.RouteSuccessfullyBuilt;
     if not Result then exit;
@@ -1542,10 +1561,10 @@ end;
 
 {Find a route from A to B which meets aPass Passability}
 {Results should be written as NodeCount of waypoint nodes to Nodes}
-procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; WalkToSpot:byte; out NodeList:TKMPointList);
+procedure TTerrain.Route_Make(LocA, LocB:TKMPoint; aPass:TPassability; aDistance:single; out NodeList:TKMPointList);
 var fPath:TPathFinding;
 begin
-  fPath := TPathFinding.Create(LocA, LocB, aPass, WalkToSpot);
+  fPath := TPathFinding.Create(LocA, LocB, aPass, aDistance);
   fPath.ReturnRoute(NodeList);
   FreeAndNil(fPath);
 end;

@@ -86,7 +86,7 @@ function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
 var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
 
-  if (fOpponent.IsDeadOrDying) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > 1.5) then //Unit walked away (i.e. Serf)
+  if (fOpponent.IsDeadOrDying) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > TKMUnitWarrior(KMUnit).GetFightRange) then //Unit walked away (i.e. Serf)
     Result := ActDone
   else
     Result := ActContinues;

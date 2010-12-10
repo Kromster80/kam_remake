@@ -31,7 +31,7 @@ type
       fTargetLoc:TKMPoint; //Our best-case scenario target location (if WalkToNear=true)
       fWalkTo:TKMPoint; //Where are we going to with regard to WalkToNear
       fNewWalkTo:TKMPoint; //If we recieve a new TargetLoc it will be stored here
-      fWalkToSpot:byte; //How close we need to get to our aim
+      fDistance:single; //How close we need to get to our aim
       fWalkToNear:boolean; //If we don't care about exact position
       fTargetUnit:TKMUnit; //Folow this unit
       fTargetHouse:TKMHouse; //Go to this House
@@ -73,7 +73,7 @@ type
       ExplanationLog:TStringList;
     public
       fVertexOccupied: TKMPoint; //Public because it needs to be used by AbandonWalk
-      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aWalkToSpot:byte; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
+      constructor Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
       constructor Load(LoadStream: TKMemoryStream); override;
       procedure  SyncLoad(); override;
       destructor Destroy; override;
@@ -91,7 +91,7 @@ uses KM_Render, KM_Game, KM_PlayersCollection, KM_Terrain, KM_UnitActionGoInOut,
 
 
 { TUnitActionWalkTo }
-constructor TUnitActionWalkTo.Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aWalkToSpot:byte; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
+constructor TUnitActionWalkTo.Create(aUnit: TKMUnit; aLocB:TKMPoint; aActionType:TUnitActionType; aDistance:single; aSetPushed:boolean; aWalkToNear:boolean; aTargetUnit:TKMUnit; aTargetHouse:TKMHouse);
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
   Inherited Create(aActionType);
@@ -101,7 +101,7 @@ begin
   fWalker       := aUnit; //Does not require pointer tracking because action should always be destroyed before the unit that owns it
   fTargetLoc    := aLocB; //Remember it incase we need to change our route around obstacle and WalkToNear=true
   //               aActionType Set in parent class
-  fWalkToSpot   := aWalkToSpot;
+  fDistance     := aDistance;
   //               aSetPushed Don't need to be rememberred
   fWalkToNear   := aWalkToNear;
   if aTargetUnit  <> nil then fTargetUnit  := aTargetUnit.GetUnitPointer;
@@ -208,7 +208,7 @@ begin
   LoadStream.Read(fTargetLoc);
   LoadStream.Read(fWalkTo);
   LoadStream.Read(fNewWalkTo);
-  LoadStream.Read(fWalkToSpot);
+  LoadStream.Read(fDistance);
   LoadStream.Read(fWalkToNear);
   LoadStream.Read(fTargetUnit, 4); //substitute it with reference on SyncLoad
   LoadStream.Read(fTargetHouse, 4); //substitute it with reference on SyncLoad
@@ -322,7 +322,7 @@ var i:integer; NodeList2:TKMPointList; TmpPass: TPassability;
 begin
   TmpPass := fPass;
   //Build a piece of route to return to nearest road piece connected to destination road network
-  if (fPass = canWalkRoad) and (fWalkToSpot=0) then //That is Citizens walking to spot
+  if (fPass = canWalkRoad) and (fDistance=0) then //That is Citizens walking to spot
     if (fTerrain.GetRoadConnectID(fWalkFrom) <> fTerrain.GetRoadConnectID(fWalkTo)) and  //NoRoad returns 0
       (fTerrain.GetRoadConnectID(fWalkTo) <> 0) then //Don't bother returning to the road if our target is off road anyway
       fTerrain.Route_ReturnToRoad(fWalkFrom, fWalkTo, fTerrain.GetRoadConnectID(fWalkTo), NodeList);
@@ -338,10 +338,10 @@ begin
 
   //Build a route A*
   if NodeList.Count=0 then //Build a route from scratch
-    fTerrain.Route_Make(fWalkFrom, fWalkTo, fPass, fWalkToSpot, NodeList) //Try to make the route with fPass
+    fTerrain.Route_Make(fWalkFrom, fWalkTo, fPass, fDistance, NodeList) //Try to make the route with fPass
   else begin //Append route to existing part
     NodeList2 := TKMPointList.Create;
-    fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fWalkToSpot, NodeList2); //Try to make the route with fPass
+    fTerrain.Route_Make(NodeList.List[NodeList.Count], fWalkTo, TmpPass, fDistance, NodeList2); //Try to make the route with fPass
     for i:=2 to NodeList2.Count do
       NodeList.AddEntry(NodeList2.List[i]);
     FreeAndNil(NodeList2);
@@ -403,9 +403,9 @@ begin
       Result := oc_NoObstacle
     else
     //Completely re-route if no simple side step solution is available
-    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot, false) then
+    if fTerrain.Route_CanBeMade(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance, false) then
     begin
-      fWalker.SetActionWalk(fTargetLoc, fActionType, fWalkToSpot, fWalkToNear, fTargetUnit, fTargetHouse);
+      fWalker.SetActionWalk(fTargetLoc, fActionType, fDistance, fWalkToNear, fTargetUnit, fTargetHouse);
       Result := oc_ReRouteMade;
     end else
       Result := oc_NoRoute;
@@ -417,13 +417,14 @@ end;
   - We were walking to spot and required range is reached
   - We were walking to house and required range to house is reached
   - We were walking to unit and met it early
-  - The Task wants us to abandon }
+  - The Task wants us to abandon
+}
 function TUnitActionWalkTo.CheckWalkComplete():boolean;
 begin
   Result := (NodePos=NodeList.Count)
-            or ((fTargetHouse = nil) and (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fWalkToSpot))
-            or ((fTargetHouse <> nil) and (fTargetHouse.GetDistance(fWalker.GetPosition) <= fWalkToSpot))
-            or ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) < 1.5))
+            or ((fTargetHouse = nil) and (round(KMLength(fWalker.GetPosition,fWalkTo)) <= fDistance))
+            or ((fTargetHouse <> nil) and (fTargetHouse.GetDistance(fWalker.GetPosition) <= fDistance))
+            or ((fTargetUnit <> nil) and (KMLength(fWalker.GetPosition,fTargetUnit.GetPosition) <= fDistance))
             or ((fWalker.GetUnitTask <> nil) and fWalker.GetUnitTask.WalkShouldAbandon);
 end;
 
@@ -645,7 +646,7 @@ begin
     if not KMSamePoint(fOpponent.GetPosition,fWalkTo) then //Can't go around our target position
     if fDestBlocked or fOpponent.GetUnitAction.Locked
     then
-      if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fWalkToSpot,NodeList) then //Make sure the route can be made, if not, we must simply wait
+      if fTerrain.Route_MakeAvoid(fWalker.GetPosition,fWalkTo,GetEffectivePassability,fDistance,NodeList) then //Make sure the route can be made, if not, we must simply wait
       begin
         //NodeList has now been re-routed, so we need to re-init everything else and start walk again
         SetInitValues;
@@ -878,7 +879,7 @@ begin
       ChangeWalkTo(fTargetUnit.GetPosition,false,fTargetUnit); //If target unit has moved then change course and follow it (don't reset target unit)
       //If we are a warrior commander tell our memebers to use this new position
       if (fWalker is TKMUnitWarrior) and (TKMUnitWarrior(fWalker).fCommander = nil) then
-        TKMUnitWarrior(fWalker).PlaceOrder(wo_Attack,fTargetUnit,true); //Give members new position
+        TKMUnitWarrior(fWalker).OrderAttackUnit(fTargetUnit,true); //Give members new position
     end;
 
     //Check if we need to walk to a new destination
@@ -897,7 +898,7 @@ begin
     //Walk complete
     if not DoExchange and CheckWalkComplete then
     begin
-      if (fWalkToSpot>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon))
+      if (fDistance>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon))
       and not KMSamePoint(NodeList.List[NodePos],fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
         fWalker.Direction := KMGetDirection(NodeList.List[NodePos],fWalkTo); //Face tile (e.g. worker)
       Result := ActDone;
@@ -1015,7 +1016,7 @@ begin
   SaveStream.Write(fTargetLoc);
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fNewWalkTo);
-  SaveStream.Write(fWalkToSpot);
+  SaveStream.Write(fDistance);
   SaveStream.Write(fWalkToNear);
   if fTargetUnit <> nil then
     SaveStream.Write(fTargetUnit.ID) //Store ID, then substitute it with reference on SyncLoad

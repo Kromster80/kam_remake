@@ -28,7 +28,7 @@ type
     LocB:TKMPoint;
     Pass:TPassability;
     TargetRoadNetworkID:byte;
-    WalkToSpot:byte;
+    fDistance:single;
     IsInteractionAvoid:boolean;
     fDestination:TDestinationPoint;
     fRouteSuccessfullyBuilt:boolean;
@@ -37,7 +37,7 @@ type
     function IsDestinationReached():boolean;
     function MakeRoute():boolean;
   public
-    constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aIsInteractionAvoid:boolean=false); overload;
+    constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetRoadNetworkID:byte; fPass:TPassability; aLocB:TKMPoint); overload;
     procedure ReturnRoute(out NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
@@ -46,14 +46,14 @@ type
 implementation
 
 
-constructor TPathFinding.Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aWalkToSpot:byte; aIsInteractionAvoid:boolean=false);
+constructor TPathFinding.Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aIsInteractionAvoid:boolean=false);
 begin
   Inherited Create;
   LocA := aLocA;
   LocB := aLocB;
   Pass := aPass;
   TargetRoadNetworkID := 0; //erase just in case
-  WalkToSpot := aWalkToSpot;
+  fDistance := aDistance;
   IsInteractionAvoid := aIsInteractionAvoid;
   fRouteSuccessfullyBuilt := false;
   fDestination := dp_Location;
@@ -72,7 +72,7 @@ begin
   LocB := aLocB; //Even though we are only going to a road network it is useful to know where our target is so we start off in the right direction (makes algorithm faster/work over long distances)
   Pass := fPass; //Should be unused here
   TargetRoadNetworkID := aTargetRoadNetworkID;
-  WalkToSpot := 0;
+  fDistance := 0;
   fRouteSuccessfullyBuilt := false;
   fDestination := dp_Passability;
 
@@ -85,7 +85,7 @@ end;
 function TPathFinding.CheckRouteCanExist():boolean;
 begin
   if IsInteractionAvoid then fTerrain.RebuildWalkConnect(wcAvoid); //Rebuild on demand
-  Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,WalkToSpot, IsInteractionAvoid);
+  Result := fTerrain.Route_CanBeMade(LocA,LocB,Pass,fDistance, IsInteractionAvoid);
 end;
 
 
@@ -106,7 +106,7 @@ end;
 function TPathFinding.IsDestinationReached():boolean;
 begin
   case fDestination of
-    dp_Location:    Result := round(KMLength(MinCost.Pos,LocB))<=WalkToSpot;
+    dp_Location:    Result := KMLength(MinCost.Pos,LocB) <= fDistance;
     dp_Passability: if Pass = canWorker then                                                                  
                       Result := fTerrain.GetWalkConnectID(MinCost.Pos) = TargetRoadNetworkID
                     else

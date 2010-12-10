@@ -35,7 +35,7 @@ begin
   fTaskName := utn_AttackHouse;
   fHouse := aHouse.GetHousePointer;
   fDestroyingHouse := false;
-  fFightType := aWarrior.GetFightType;
+  fFightType := WarriorFightType[aWarrior.UnitType];
   LocID  := 0;
   CellsW  := TKMPointList.Create; //Pass pre-made list to make sure we Free it in the same unit
   if fFightType = ft_Ranged then fHouse.GetListOfCellsWithin(CellsW);
@@ -84,7 +84,7 @@ begin
     Result := TaskDone;
     //Commander should reposition his men after destroying the house
     if TKMUnitWarrior(fUnit).fCommander = nil then
-      TKMUnitWarrior(fUnit).PlaceOrder(wo_Walk,fUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
+      TKMUnitWarrior(fUnit).OrderWalk(fUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
     exit;
   end;
 

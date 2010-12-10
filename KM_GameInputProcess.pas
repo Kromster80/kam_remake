@@ -221,13 +221,13 @@ begin
   Assert(fState=gipReplaying);
   with fQueue[aIndex] do
   case Command of
-    gic_ArmyFeed:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).Split;
+    gic_ArmyFeed:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderSplit;
     gic_ArmySplit:        TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderFood;
-    gic_ArmyLink:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).LinkTo(TKMUnitWarrior(fPlayers.GetUnitByID(Params[2])));
-    gic_ArmyAttackUnit:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.PlaceOrder(wo_Attack, fPlayers.GetUnitByID(Params[2]));
-    gic_ArmyAttackHouse:  TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.PlaceOrder(wo_AttackHouse, fPlayers.GetHouseByID(Params[2]));
-    gic_ArmyHalt:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).Halt(Params[2],Params[3]);
-    gic_ArmyWalk:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.PlaceOrder(wo_Walk, KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
+    gic_ArmyLink:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderLinkTo(TKMUnitWarrior(fPlayers.GetUnitByID(Params[2])));
+    gic_ArmyAttackUnit:   TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.OrderAttackUnit(fPlayers.GetUnitByID(Params[2]));
+    gic_ArmyAttackHouse:  TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.OrderAttackHouse(fPlayers.GetHouseByID(Params[2]));
+    gic_ArmyHalt:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).OrderHalt(Params[2],Params[3]);
+    gic_ArmyWalk:         TKMUnitWarrior(MyPlayer.GetUnitByID(Params[1])).GetCommander.OrderWalk(KMPoint(Params[2],Params[3]), TKMDirection(Params[4]));
 
     gic_BuildRoadPlan:    MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_RoadPlan,  false, MyPlayer.PlayerID);
     gic_BuildFieldPlan:   MyPlayer.AddRoadPlan(KMPoint(Params[1],Params[2]), mu_FieldPlan,  false, MyPlayer.PlayerID);
@@ -272,7 +272,7 @@ begin
   Assert(aCommand in [gic_ArmyFeed, gic_ArmySplit]);
   case aCommand of
     gic_ArmyFeed:  aWarrior.OrderFood;
-    gic_ArmySplit: aWarrior.Split;
+    gic_ArmySplit: aWarrior.OrderSplit;
   end;
 
   SaveCommand(aCommand, aWarrior.ID);
@@ -284,11 +284,11 @@ begin
   Assert(aCommand in [gic_ArmyLink, gic_ArmyAttackUnit]);
   case aCommand of
     gic_ArmyLink:       begin
-                          aWarrior.LinkTo(TKMUnitWarrior(aUnit));
+                          aWarrior.OrderLinkTo(TKMUnitWarrior(aUnit));
                           fSoundLib.PlayWarrior(aWarrior.UnitType, sp_Join);
                         end;
     gic_ArmyAttackUnit: begin
-                          aWarrior.GetCommander.PlaceOrder(wo_Attack, aUnit);
+                          aWarrior.GetCommander.OrderAttackUnit(aUnit);
                           fSoundLib.PlayWarrior(aWarrior.UnitType, sp_Attack);
                         end;
   end;
@@ -300,7 +300,7 @@ end;
 procedure TGameInputProcess.CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aHouse:TKMHouse);
 begin
   Assert(aCommand = gic_ArmyAttackHouse);
-  aWarrior.GetCommander.PlaceOrder(wo_AttackHouse, aHouse);
+  aWarrior.GetCommander.OrderAttackHouse(aHouse);
   fSoundLib.PlayWarrior(aWarrior.UnitType, sp_Attack);
   SaveCommand(aCommand, aWarrior.ID, aHouse.ID);
 end;
@@ -309,7 +309,7 @@ end;
 procedure TGameInputProcess.CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aTurnAmount:shortint; aLineAmount:shortint);
 begin
   Assert(aCommand = gic_ArmyHalt);
-  aWarrior.Halt(aTurnAmount, aLineAmount);
+  aWarrior.OrderHalt(aTurnAmount, aLineAmount);
   SaveCommand(aCommand, aWarrior.ID, aTurnAmount, aLineAmount);
 end;
 
@@ -317,7 +317,7 @@ end;
 procedure TGameInputProcess.CmdArmy(aWarrior:TKMUnitWarrior; aCommand:TGameInputCommand; aLoc:TKMPoint; aDirection:TKMDirection=dir_NA);
 begin
   Assert(aCommand = gic_ArmyWalk);
-  aWarrior.GetCommander.PlaceOrder(wo_Walk, aLoc, aDirection);
+  aWarrior.GetCommander.OrderWalk(aLoc, aDirection);
   fSoundLib.PlayWarrior(aWarrior.UnitType, sp_Move);
   SaveCommand(aCommand, aWarrior.ID, aLoc.X, aLoc.Y, integer(aDirection));
 end;

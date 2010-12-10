@@ -344,9 +344,9 @@ procedure TKMPlayerAI.CheckArmy();
   begin
     Needed := TroopFormations[UnitGroups[byte(aDefenceGroup.UnitType)]].NumUnits - (aDefenceGroup.GetMemberCount+1);
     if aCommander.GetMemberCount+1 <= Needed then
-      aCommander.LinkTo(aDefenceGroup) //Link entire group
+      aCommander.OrderLinkTo(aDefenceGroup) //Link entire group
     else
-      aCommander.SplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
+      aCommander.OrderSplitLinkTo(aDefenceGroup,Needed); //Link only as many units as are needed
   end;
 
 var i, k, Matched: integer;
@@ -393,8 +393,8 @@ begin
               //todo: Note: KaM does NOT split groups that are too full (as this can only occur if the person who made the mission designed it that way)
               //      Perhaps we shouldn't either?
               if GetMemberCount+1 > TroopFormations[DefencePositions[k].GroupType].NumUnits then
-                Split; //If there are too many troops, split group in half and the right number will automatically rejoin us
-              PlaceOrder(wo_Walk,DefencePositions[k].Position);
+                OrderSplit; //If there are too many troops, split group in half and the right number will automatically rejoin us
+              OrderWalk(DefencePositions[k].Position);
               Positioned := true; //We already have a position, finished with this group
               break;
             end;
@@ -421,7 +421,7 @@ begin
             if DefencePositions[Matched].CurrentCommander = nil then
             begin //New position
               DefencePositions[Matched].CurrentCommander := GetCommander;
-              PlaceOrder(wo_Walk,DefencePositions[Matched].Position);
+              OrderWalk(DefencePositions[Matched].Position);
             end
             else //Restock existing position
               RestockPositionWith(DefencePositions[Matched].CurrentCommander,GetCommander);
