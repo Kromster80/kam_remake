@@ -33,6 +33,7 @@ type TKMGamePlayInterface = class
       Label_Replay:TKMLabel;
       Button_ReplayRestart:TKMButton;
       Button_ReplayPause:TKMButton;
+      Button_ReplayStep:TKMButton;
       Button_ReplayResume:TKMButton;
       Button_ReplayExit:TKMButton;
     Panel_Message:TKMPanel;
@@ -668,15 +669,18 @@ begin
 
     Panel_ReplayCtrl := MyControls.AddPanel(Panel_Replay, 320, 8, 160, 60);
       PercentBar_Replay     := MyControls.AddPercentBar(Panel_ReplayCtrl, 0, 0, 160, 20, 0);
-      Label_Replay          := MyControls.AddLabel(Panel_ReplayCtrl, 80, 2, 100, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
+      Label_Replay          := MyControls.AddLabel(Panel_ReplayCtrl, 80, 2, 125, 10, '<<<LEER>>>', fnt_Grey, kaCenter);
       Button_ReplayRestart  := MyControls.AddButton(Panel_ReplayCtrl, 0, 24, 24, 24, 'I<', fnt_Metal);
       Button_ReplayPause    := MyControls.AddButton(Panel_ReplayCtrl,25, 24, 24, 24, 'II', fnt_Metal);
-      Button_ReplayResume   := MyControls.AddButton(Panel_ReplayCtrl,50, 24, 24, 24, 'I>', fnt_Metal);
-      Button_ReplayExit     := MyControls.AddButton(Panel_ReplayCtrl,75, 24, 24, 24, 'X', fnt_Metal);
+      Button_ReplayStep     := MyControls.AddButton(Panel_ReplayCtrl,50, 24, 24, 24, '\\', fnt_Metal);
+      Button_ReplayResume   := MyControls.AddButton(Panel_ReplayCtrl,75, 24, 24, 24, 'I>', fnt_Metal);
+      Button_ReplayExit     := MyControls.AddButton(Panel_ReplayCtrl,100, 24, 24, 24, 'X', fnt_Metal);
       Button_ReplayRestart.OnClick := ReplayClick;
       Button_ReplayPause.OnClick   := ReplayClick;
+      Button_ReplayStep.OnClick    := ReplayClick;
       Button_ReplayResume.OnClick  := ReplayClick;
       Button_ReplayExit.OnClick    := ReplayClick;
+      Button_ReplayStep.Disable; //Initial state
       Button_ReplayResume.Disable; //Initial state
   Panel_Replay.Hide; //Initially hidden
 end;
@@ -689,9 +693,9 @@ begin
   Panel_Message.Anchors := [akLeft, akRight, akBottom];
 
     Image_MessageBG:=MyControls.AddImage(Panel_Message,0,20,600,170,409);
-    Image_MessageBG.ImageAnchors := Image_MessageBG.ImageAnchors + [akRight];
+    Image_MessageBG.ImageAnchors := Image_MessageBG.ImageAnchors{ + [akRight]}; //When stretched to 1920 screen it looks very bad
     Image_MessageBGTop:=MyControls.AddImage(Panel_Message,0,0,600,20,551);
-    Image_MessageBGTop.ImageAnchors := Image_MessageBGTop.ImageAnchors + [akRight];
+    Image_MessageBGTop.ImageAnchors := Image_MessageBGTop.ImageAnchors{ + [akRight]};
 
     Label_MessageText:=MyControls.AddLabel(Panel_Message,47,67,432,122,'',fnt_Antiqua,kaLeft);
     Label_MessageText.AutoWrap := true;
@@ -1860,6 +1864,7 @@ procedure TKMGamePlayInterface.ReplayClick;
   procedure SetButtons(aPaused:boolean);
   begin
     Button_ReplayPause.Enabled := aPaused;
+    Button_ReplayStep.Enabled := not aPaused;
     Button_ReplayResume.Enabled := not aPaused;
   end;
 begin
@@ -1868,11 +1873,21 @@ begin
     fGame.ReplayView(nil); //reload it once again
   end;
 
-  if (Sender = Button_ReplayPause) or (Sender = Button_ReplayResume) then
-  case fGame.GameState of
-    gsReplay: begin fGame.SetGameState(gsPaused); SetButtons(false); end;
-    gsPaused: begin fGame.SetGameState(gsReplay); SetButtons(true); end;
-    else      Assert(false);
+  if (Sender = Button_ReplayPause) then begin
+    fGame.SetGameState(gsPaused);
+    SetButtons(false);
+  end;
+
+  if (Sender = Button_ReplayStep) then begin
+    fGame.GameSpeed := 1; //Do not allow multiple updates in fGame.UpdateState loop
+    fGame.AdvanceFrame := true;
+    fGame.SetGameState(gsReplay);
+    SetButtons(false);
+  end;
+
+  if (Sender = Button_ReplayResume) then begin
+    fGame.SetGameState(gsReplay);
+    SetButtons(true);
   end;
 
   if (Sender = Button_ReplayExit) then

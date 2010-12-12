@@ -1661,6 +1661,8 @@ begin
 end;
 
 
+//todo: there's a bug when 2 units exchange only one has proper fNextPosition at the moment
+//and if second dies - IsUnit data becomes corrupt
 procedure TTerrain.UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
 begin
   Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = UnitFrom, 'Trying to swap wrong unit at '+TypeToString(LocFrom));

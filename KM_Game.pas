@@ -34,6 +34,7 @@ type
     ActiveCampaignMap:byte; //Map of campaign we are playing, could be different than MaxRevealedMap
     fGameState:TGameState;
   public
+    AdvanceFrame:boolean; //Replay variable to advance 1 frame, afterwards set to false
     GameSpeed:integer;
     PlayOnState:gr_Message;
     SkipReplayEndCheck:boolean;
@@ -125,6 +126,7 @@ begin
   if not NoMusic then fMusicLib.PlayMenuTrack(not fGlobalSettings.IsMusic);
 
   fCampaignSettings := TCampaignSettings.Create;
+  AdvanceFrame := false;
   GameSpeed := 1;
   fGameState := gsNoGame;
   SkipReplayEndCheck := false;
@@ -1286,6 +1288,11 @@ begin
                       fGameInputProcess.Tick(fGameplayTickCount);
                       if not SkipReplayEndCheck and fGameInputProcess.Ended then
                         GameHold(true, gr_ReplayEnd);
+                    end;
+
+                    if AdvanceFrame then begin
+                      AdvanceFrame := false;
+                      SetGameState(gsPaused);
                     end;
 
                     if fGameState = gsNoGame then exit; //Error due to consistency fail in replay commands

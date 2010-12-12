@@ -28,7 +28,6 @@ EXE-only r1007+:
  +	Crash when loading mission scripts with a space on end (TSK19)
  +      Crash when animals die
  +	Game crashes by using german language (all other languages runs good)
-	The ingame briefing texture is too short, see attached picture
 	Game crashes in battle tutorial, during i fight and choin  the axemen to the militia troop.
 	In window mode, the taskbar is over the game windoww.
 	Restart game, start tsk map 1, i get 2 strange error messages.
@@ -46,6 +45,7 @@ EXE-only r1007+:
 	Many texts will not change if I change the language in options menu
 	Two monitor config, scrolling works well only on 1st display
 
+ -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
 
  ?	Citizen will try to walk home when it has no road tile below entrance (I think thats not a bug)

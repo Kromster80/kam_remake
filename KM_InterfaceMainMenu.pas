@@ -460,13 +460,13 @@ begin
       Image_CampaignNodes[i].Tag := i;
     end;
 
-  Panel_CampScroll:=MyControls.AddPanel(Panel_Campaign,ScreenX-360,ScreenY-397,360,397);
+  Panel_CampScroll:=MyControls.AddPanel(Panel_Campaign,ScreenX-360,ScreenY-430,360,430);
 
-    Image_Scroll := MyControls.AddImage(Panel_CampScroll, 0, 0,360,397,{15}2,6);
+    Image_Scroll := MyControls.AddImage(Panel_CampScroll, 0, 0,360,430,{15}2,6);
     Image_Scroll.ImageStretch;
     Label_CampaignTitle := MyControls.AddLabel(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, kaCenter);
 
-    Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 20, 65, 320, 310, '', fnt_Briefing, kaLeft);
+    Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 20, 50, 320, 310, '', fnt_Briefing, kaLeft);
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := MyControls.AddButton(Panel_Campaign, ScreenX-220-20, ScreenY-50, 220, 30, fTextLibrary.GetRemakeString(11), fnt_Metal, bsMenu);

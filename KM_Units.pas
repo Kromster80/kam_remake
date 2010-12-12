@@ -1127,10 +1127,12 @@ begin
 end;
 
 
+//As long as we only ever set PrevPos to NextPos and do so everytime before NextPos changes,
+//there can be no problems (as were occurring in GetSlide)
+//This procedure ensures that these values always get updated correctly so we don't get a problem
+//where GetLength(PrevPosition,NextPosition) > sqrt(2)
 procedure TKMUnit.UpdateNextPosition(aLoc:TKMPoint);
 begin
-  //As long as we only ever set PrevPos to NextPos and do so everytime before NextPos changes, there can be no problems (as were occouring in GetSlide)
-  //This procedure ensures that these values always get updated correctly so we don't get a problem where GetLength(PrevPosition,NextPosition) > sqrt(2)
   fPrevPosition := NextPosition;
   fNextPosition := aLoc;
 end;

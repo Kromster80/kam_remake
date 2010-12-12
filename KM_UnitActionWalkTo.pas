@@ -284,7 +284,7 @@ begin
   //  then return to the tile we are currently on, then continue the route
   if not KMSamePoint(ForcedExchangePos,KMPoint(0,0)) then
   begin
-    Explanation:='We were forced to exchange places';
+    Explanation := 'We were forced to exchange places';
     ExplanationLogAdd;
     DoExchange := true;
     if KMLength(ForcedExchangePos,NodeList.List[NodePos+1]) >= 1.5 then
@@ -293,7 +293,7 @@ begin
     if KMSamePoint(fWalker.GetPosition, ForcedExchangePos) then
       fGame.GameError(fWalker.GetPosition, 'Exchange to same place');
     fWalker.Direction := KMGetDirection(fWalker.GetPosition,ForcedExchangePos);
-    DoesWalking:=true;
+    DoesWalking := true;
   end
   else
   begin
@@ -527,7 +527,7 @@ begin
         //Graphically both units are walking side-by-side, but logically they simply walk through each-other.
         TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
 
-        Explanation:='Unit in the way is walking in the opposite direction. Performing an exchange';
+        Explanation := 'Unit in the way is walking in the opposite direction. Performing an exchange';
         ExplanationLogAdd;
         DoExchange := true;
         //They both will exchange next tick
@@ -539,7 +539,7 @@ begin
         //Because we are forcing this exchange we must inject into the other unit's nodelist by passing our current position
         TUnitActionWalkTo(fOpponent.GetUnitAction).PerformExchange(fWalker.GetPosition);
 
-        Explanation:='Unit in the way is in waiting phase. Forcing an exchange';
+        Explanation := 'Unit in the way is in waiting phase. Forcing an exchange';
         ExplanationLogAdd;
         DoExchange := true;
         //They both will exchange next tick
@@ -935,8 +935,6 @@ begin
       oc_NoRoute: begin Result := ActAborted; exit; end; //
     end;
 
-
-
     //Perform exchange
     //Both exchanging units have DoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
     if DoExchange then begin
@@ -945,8 +943,13 @@ begin
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
       //Check if we are the first or second unit (has the swap already been performed?)
-      if fWalker = fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit then
-        fTerrain.UnitSwap(fWalker.PrevPosition,fWalker.NextPosition,fWalker); //We have not been swapped yet so we will perform it
+      if fWalker = fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit then begin
+        //We have not been swapped yet so we will perform it
+        fTerrain.UnitSwap(fWalker.PrevPosition,fWalker.NextPosition,fWalker);
+        //and update fNextPos incase unit dies before being able to do his UpdateNextPosition
+        fTerrain.Land[fWalker.PrevPosition.Y, fWalker.PrevPosition.X].IsUnit.UpdateNextPosition(fWalker.PrevPosition);
+      end;
+
       fInteractionStatus := kis_None;
       DoExchange := false;
       fWalker.IsExchanging := true; //So unit knows that it must slide
@@ -961,7 +964,8 @@ begin
                   not fTerrain.CheckAnimalIsStuck(fWalker.GetPosition,fPass) then
                   Result := ActDone;
         exit; //Do no further walking until unit interaction is solved
-      end else fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
+      end else
+        fInteractionCount := 0; //Reset the counter when there is no blockage and we can walk
 
       inc(NodePos);
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
