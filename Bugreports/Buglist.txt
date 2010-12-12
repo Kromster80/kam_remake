@@ -27,6 +27,11 @@ EXE-only r1007+:
  +	Savegames names would not initialize properly sometimes
  +	Crash when loading mission scripts with a space on end (TSK19)
  +      Crash when animals die
+ +	Game crashes by using german language (all other languages runs good)
+	The ingame briefing texture is too short, see attached picture
+	Game crashes in battle tutorial, during i fight and choin  the axemen to the militia troop.
+	In window mode, the taskbar is over the game windoww.
+	Restart game, start tsk map 1, i get 2 strange error messages.
 
 
 	Display WIP houses/units in statistics menu

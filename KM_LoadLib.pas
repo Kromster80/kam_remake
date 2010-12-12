@@ -46,18 +46,17 @@ constructor TTextLibrary.Create(aLibPath,aLocale: string);
 begin
   Inherited Create;
 
-  if FileExists(aLibPath+'text.'+aLocale+'.lib') then
-    LoadLIBFile(aLibPath+'text.'+aLocale+'.lib', TextStrings)
-  else
-    LoadLIBFile(aLibPath+'text.lib', TextStrings);
-  if FileExists(aLibPath+'setup.'+aLocale+'.lib') then
-    LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib', SetupStrings)
-  else
-    LoadLIBFile(aLibPath+'setup.lib', SetupStrings);
-  if FileExists(aLibPath+'remake.'+aLocale+'.libx') then
-    LoadLIBXFile(aLibPath+'remake.'+aLocale+'.libx', RemakeStrings)
-  else
-    LoadLIBXFile(aLibPath+'remake.eng.libx', RemakeStrings);
+  if FileExists(aLibPath+'text.'+aLocale+'.lib')
+  then LoadLIBFile(aLibPath+'text.'+aLocale+'.lib', TextStrings)
+  else LoadLIBFile(aLibPath+'text.lib', TextStrings);
+
+  if FileExists(aLibPath+'setup.'+aLocale+'.lib')
+  then LoadLIBFile(aLibPath+'setup.'+aLocale+'.lib', SetupStrings)
+  else LoadLIBFile(aLibPath+'setup.lib', SetupStrings);
+
+  if FileExists(aLibPath+'remake.'+aLocale+'.libx')
+  then LoadLIBXFile(aLibPath+'remake.'+aLocale+'.libx', RemakeStrings)
+  else LoadLIBXFile(aLibPath+'remake.eng.libx', RemakeStrings);
 
   fLog.AppendLog('TextLib init done');
 end;
@@ -143,8 +142,9 @@ begin
   aStringList := TStringList.Create;
   aStringList.LoadFromFile(FilePath);
 
-  s := aStringList[0];
-  if TrimLeft(LeftStr(s, 6)) <> 'MaxID:' then exit;
+  //First line is empty or comment and could have first 3 bytes Unicode Byte-Order Mark (BOM)
+  s := aStringList[1];
+  if Copy(s,1,6) <> 'MaxID:' then exit;
 
   firstDelimiter := Pos(':', s);
   if not TryStrToInt(RightStr(s, Length(s)-firstDelimiter), MaxID) then exit;
