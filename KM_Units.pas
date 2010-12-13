@@ -69,6 +69,7 @@ type
     fPosition: TKMPointF;
     fVisible:boolean;
     fIsDead:boolean;
+    fKillASAP:boolean;
     fPointerCount:integer;
     fInHouse: TKMHouse; //House we are currently in //todo: This is WIP and is causing weird errors. To fix.
     fCurrPosition: TKMPoint; //Where we are now
@@ -829,6 +830,7 @@ begin
   fID           := fGame.GetNewID;
   fPointerCount := 0;
   fIsDead       := false;
+  fKillASAP     := false;
   fThought      := th_None;
   fHome         := nil;
   fInHouse      := nil;
@@ -925,6 +927,7 @@ begin
   LoadStream.Read(fPosition);
   LoadStream.Read(fVisible);
   LoadStream.Read(fIsDead);
+  LoadStream.Read(fKillASAP);
   LoadStream.Read(IsExchanging);
   LoadStream.Read(fPointerCount);
   LoadStream.Read(fID);
@@ -1009,11 +1012,12 @@ begin
   if fGame.fGamePlayInterface.GetShownUnit = Self then fGame.fGamePlayInterface.ShowUnitInfo(nil);
   if (fUnitTask is TTaskDie) then exit; //Don't kill unit if it's already dying
 
-  //todo: This is probably a source of some bugs in interaction, check this
-  //Should we Abandon interaction things?
-  {if (fCurrentAction is TUnitActionWalkTo) then
-    if not TUnitActionWalkTo(fCurrentAction).CanAbandon then
-      fGame.GameError(fCurrPosition, 'Unit killed in walk'); //}
+  //Wait till units exchange (1 tick) and then do the killing
+  if (fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange then
+  begin
+    fKillASAP := true; //Unit will be killed ASAP
+    exit;
+  end;
 
   //Update statistics
   if (fPlayers<>nil) and (fOwner <> play_animals) and (fPlayers.Player[byte(fOwner)]<>nil) then
@@ -1350,9 +1354,10 @@ begin
 end;
 
 
+//It's better not start doing anything with dying units
 function TKMUnit.IsDeadOrDying:boolean;
 begin
-  Result := fIsDead or (fUnitTask is TTaskDie);
+  Result := fIsDead or (fUnitTask is TTaskDie) or fKillASAP;
 end;
 
 
@@ -1378,15 +1383,17 @@ begin
   //Feed the unit automatically. Don't align it with dec(fCondition) cos FOW uses it as a timer 
   if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition := UNIT_MAX_CONDITION;
 
-  if fCondition = 0 then
+  //Unit killing could be postponed by few ticks, hence fCondition could be <0
+  if fCondition <= 0 then
     KillUnit;
 end;
 
 
+//Can use fCondition as a sort of counter to reveal terrain X times a sec
 procedure TKMUnit.UpdateFOW;
 begin
-  //Can use fCondition as a sort of counter to reveal terrain X times a sec
-  if fCondition mod 10 = 0 then fTerrain.RevealCircle(fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC, fOwner);
+  if fCondition mod 10 = 0 then
+    fTerrain.RevealCircle(fCurrPosition, UnitStat[byte(fUnitType)].Sight, FOG_OF_WAR_INC, fOwner);
 end;
 
 
@@ -1495,6 +1502,7 @@ begin
   SaveStream.Write(fPosition);
   SaveStream.Write(fVisible);
   SaveStream.Write(fIsDead);
+  SaveStream.Write(fKillASAP);
   SaveStream.Write(IsExchanging);
   SaveStream.Write(fPointerCount);
 
@@ -1516,6 +1524,8 @@ begin
   // - specific UpdateState (Task creating layer)
 
   Result := true;
+
+  if fKillASAP then KillUnit;
 
   UpdateHunger();
   UpdateFOW();

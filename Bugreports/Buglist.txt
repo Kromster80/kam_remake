@@ -28,16 +28,14 @@ EXE-only r1007+:
  +	Crash when loading mission scripts with a space on end (TSK19)
  +      Crash when animals die
  +	Game crashes by using german language (all other languages runs good)
-	Game crashes in battle tutorial, during i fight and choin  the axemen to the militia troop.
-	In window mode, the taskbar is over the game windoww.
-	Restart game, start tsk map 1, i get 2 strange error messages.
-
+ +	Crash when unit gets killed during exchanging places with another unit
 
 	Display WIP houses/units in statistics menu
 	Make units/houses highlight red when about to erase them as trees do (in MapEd)
 	Show correct number of players in SingleMap by scaning MapInfo
 	Dots and lines displaying on tile edges
  
+	In window mode, the taskbar is over the game windoww.
 	Colored rectangle below cursor	
 	MediaPlayer won't play mp3s and crash
 	Some texts don't fit in the left panel (e.g. "Preparing house area")
@@ -48,6 +46,8 @@ EXE-only r1007+:
  -	The ingame briefing texture is too short, see attached picture
  -	Serfs should take wares back or to suitable house if destination is destroyed
 
+ ?	Game crashes in battle tutorial, during i fight and choin  the axemen to the militia troop.
+ ?	Restart game, start tsk map 1, i get 2 strange error messages.
  ?	Citizen will try to walk home when it has no road tile below entrance (I think thats not a bug)
  ? 	Music doesn't work
  ?	game in fullscreen mode flickers terrible! (TK, tested on TV and LCD, 50Hz?) (Gone in r970 ?)

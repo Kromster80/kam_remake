@@ -37,7 +37,7 @@ type
       fTargetHouse:TKMHouse; //Go to this House
       fPass:TPassability; //Desired passability set once on Create
       DoesWalking, WaitingOnStep, fDestBlocked:boolean;
-      DoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
+      fDoExchange:boolean; //Command to make exchange maneuver with other unit, should use MakeExchange when vertex use needs to be set
       fInteractionCount, fLastSideStepNodePos: integer;
       fInteractionStatus: TInteractionStatus;
       function AssembleTheRoute():boolean;
@@ -78,6 +78,7 @@ type
       procedure  SyncLoad(); override;
       destructor Destroy; override;
       function  CanAbandonExternal: boolean;
+      property DoingExchange:boolean read fDoExchange; //Critical piece, must not be abandoned
       function  GetExplanation():string;
       procedure ChangeWalkTo(aLoc:TKMPoint; aWalkToNear:boolean=false; aNewTargetUnit:TKMUnit=nil); //Modify route to go to this destination instead
       function  Execute(KMUnit: TKMUnit):TActionResult; override;
@@ -189,7 +190,7 @@ end;
 procedure TUnitActionWalkTo.SetInitValues;
 begin
   NodePos       := 1;
-  DoExchange    := false;
+  fDoExchange    := false;
   DoesWalking   := false;
   WaitingOnStep := false;
   fDestBlocked  := false;
@@ -216,7 +217,7 @@ begin
   LoadStream.Read(DoesWalking);
   LoadStream.Read(WaitingOnStep);
   LoadStream.Read(fDestBlocked);
-  LoadStream.Read(DoExchange);
+  LoadStream.Read(fDoExchange);
   LoadStream.Read(fInteractionCount);
   LoadStream.Read(fLastSideStepNodePos);
   LoadStream.Read(fInteractionStatus, SizeOf(fInteractionStatus));
@@ -238,6 +239,9 @@ end;
 
 destructor TUnitActionWalkTo.Destroy;
 begin
+  if fDoExchange then
+    Assert(not fDoExchange, 'Oops, thats a very bad situation');
+
   if WRITE_WALKTO_LOG then begin
     Explanation := 'WalkTo destroyed at'+floattostr(fWalker.PositionF.X)+':'+floattostr(fWalker.PositionF.Y);
     ExplanationLogAdd;
@@ -260,14 +264,14 @@ end;
 function TUnitActionWalkTo.CanAbandonInternal: boolean;
 begin
   Result := (fInteractionStatus<>kis_Pushed) //Can be removed, but decreases effectiveness
-            and (not DoExchange); //Other unit could have set this
+            and (not fDoExchange); //Other unit could have set this
 end;
 
 
 { Returns true only when unit is stuck for some reason }
 function TUnitActionWalkTo.CanAbandonExternal: boolean;
 begin
-  Result := (not DoExchange) //Other unit could have set this
+  Result := (not fDoExchange) //Other unit could have set this
             and KMSamePointF(KMPointF(fWalker.GetPosition),fWalker.PositionF);
 end;
 
@@ -286,7 +290,7 @@ begin
   begin
     Explanation := 'We were forced to exchange places';
     ExplanationLogAdd;
-    DoExchange := true;
+    fDoExchange := true;
     if KMLength(ForcedExchangePos,NodeList.List[NodePos+1]) >= 1.5 then
       NodeList.InjectEntry(NodePos+1,fWalker.GetPosition); //We must back-track if we cannot continue our route from the new tile
     NodeList.InjectEntry(NodePos+1,ForcedExchangePos);
@@ -300,7 +304,7 @@ begin
     //Unforced exchanging
     Explanation:='We were asked to exchange places';
     ExplanationLogAdd;
-    DoExchange := true;
+    fDoExchange := true;
   end;
 end;
 
@@ -515,7 +519,7 @@ begin
      (fInteractionStatus = kis_Pushed)) then //If we get pushed then always try exchanging (if we are here then there is no free tile)
   begin //Try to exchange with the other unit if they are willing
     //If Unit on the way is walking somewhere and not exchanging with someone else
-    if (fOpponent.GetUnitAction is TUnitActionWalkTo) and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoExchange)
+    if (fOpponent.GetUnitAction is TUnitActionWalkTo) and (not TUnitActionWalkTo(fOpponent.GetUnitAction).fDoExchange)
       //Unit not yet arrived on tile, wait till it does, otherwise there might be 2 units on one tile
       and (not TUnitActionWalkTo(fOpponent.GetUnitAction).DoesWalking) then
     //Check that our tile is walkable for the opponent! (we could be a worker on a building site)
@@ -529,7 +533,7 @@ begin
 
         Explanation := 'Unit in the way is walking in the opposite direction. Performing an exchange';
         ExplanationLogAdd;
-        DoExchange := true;
+        fDoExchange := true;
         //They both will exchange next tick
         Result := true; //Means exit DoUnitInteraction
       end;
@@ -541,7 +545,7 @@ begin
 
         Explanation := 'Unit in the way is in waiting phase. Forcing an exchange';
         ExplanationLogAdd;
-        DoExchange := true;
+        fDoExchange := true;
         //They both will exchange next tick
         Result := true; //Means exit DoUnitInteraction
       end;
@@ -564,7 +568,7 @@ begin
     begin
 
       fInteractionStatus := kis_None;
-      if not CanAbandonInternal then begin //in fact tests only for DoExchange
+      if not CanAbandonInternal then begin //in fact tests only for fDoExchange
         fGame.GameError(fWalker.GetPosition, 'Unit walk IntCheckIfPushed');
         exit;
       end;
@@ -611,7 +615,7 @@ begin
 
         //Make sure unit really exists, is walking and has arrived on tile
         if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and
-          (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).DoExchange)
+          (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoExchange)
           and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).DoesWalking)
           and ((not KMStepIsDiag(fWalker.NextPosition,NodeList.List[NodePos+1])) //Isn't diagonal
           or ((KMStepIsDiag(fWalker.NextPosition,NodeList.List[NodePos+1])       //...or is diagonal and...
@@ -623,7 +627,7 @@ begin
 
             Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
             ExplanationLogAdd;
-            DoExchange := true;
+            fDoExchange := true;
             ChangeStepTo(TempPos);
             //They both will exchange next tick
             Result := true; //Means exit DoUnitInteraction
@@ -672,7 +676,7 @@ function TUnitActionWalkTo.IntSolutionSideStep(aPosition:TKMPoint; HighestIntera
 var SideStepTest:TKMPoint;
 begin
   Result := false;
-  if (HighestInteractionCount < SIDESTEP_TIMEOUT) or DoExchange then exit;
+  if (HighestInteractionCount < SIDESTEP_TIMEOUT) or fDoExchange then exit;
   if KMSamePoint(aPosition, fWalkTo) then exit; //Someone stays right on target, no point in side-stepping
   if not CheckInteractionFreq(HighestInteractionCount, SIDESTEP_TIMEOUT, SIDESTEP_FREQ) then exit; //FindSideStepPosition is CPU intensive, so don't run it every time
 
@@ -895,7 +899,7 @@ begin
         exit;
 
     //Walk complete
-    if not DoExchange and CheckWalkComplete then
+    if not fDoExchange and CheckWalkComplete then
     begin
       if (fDistance>0) and ((fWalker.GetUnitTask = nil) or (not fWalker.GetUnitTask.WalkShouldAbandon))
       and not KMSamePoint(NodeList.List[NodePos],fWalkTo) then //Happens rarely when we asked to sidestep towards our not locked target (Warrior)
@@ -936,22 +940,18 @@ begin
     end;
 
     //Perform exchange
-    //Both exchanging units have DoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
-    if DoExchange then begin
+    //Both exchanging units have fDoExchange:=true assigned by 1st unit, hence 2nd should not try doing UnitInteraction!
+    if fDoExchange then begin
       inc(NodePos);
 
       fWalker.UpdateNextPosition(NodeList.List[NodePos]);
 
       //Check if we are the first or second unit (has the swap already been performed?)
-      if fWalker = fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit then begin
-        //We have not been swapped yet so we will perform it
+      if fWalker = fTerrain.Land[fWalker.PrevPosition.Y,fWalker.PrevPosition.X].IsUnit then
         fTerrain.UnitSwap(fWalker.PrevPosition,fWalker.NextPosition,fWalker);
-        //and update fNextPos incase unit dies before being able to do his UpdateNextPosition
-        fTerrain.Land[fWalker.PrevPosition.Y, fWalker.PrevPosition.X].IsUnit.UpdateNextPosition(fWalker.PrevPosition);
-      end;
 
       fInteractionStatus := kis_None;
-      DoExchange := false;
+      fDoExchange := false;
       fWalker.IsExchanging := true; //So unit knows that it must slide
       fInteractionCount := 0;
       if KMStepIsDiag(fWalker.PrevPosition,fWalker.NextPosition) then IncVertex; //Occupy the vertex
@@ -1033,7 +1033,7 @@ begin
   SaveStream.Write(DoesWalking);
   SaveStream.Write(WaitingOnStep);
   SaveStream.Write(fDestBlocked);
-  SaveStream.Write(DoExchange);
+  SaveStream.Write(fDoExchange);
   SaveStream.Write(fInteractionCount);
   SaveStream.Write(fLastSideStepNodePos);
   SaveStream.Write(fInteractionStatus,SizeOf(fInteractionStatus));
