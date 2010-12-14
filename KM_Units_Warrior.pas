@@ -532,16 +532,19 @@ end;
 
 
 function TKMUnitWarrior.FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
-var i,k:integer; FoundUnit: TKMUnit;
+var i,k:integer; FoundUnit:TKMUnit;
 begin
   Result := nil;
+
+  //todo: replace with U := fTerrain.UnitsHitTestWithinRad()
   for i:=-LINK_RADIUS to LINK_RADIUS do
   for k:=-LINK_RADIUS to LINK_RADIUS do
   if GetLength(i,k) <= LINK_RADIUS then //Check circle area
   begin
-    FoundUnit := fPlayers.Player[byte(fOwner)].UnitsHitTest(aLoc.X+i, aLoc.Y+k);
+    FoundUnit := fTerrain.UnitsHitTest(aLoc.X+i, aLoc.Y+k); //off-map coords will be skipped
     if (FoundUnit is TKMUnitWarrior) and
-       (FoundUnit.UnitType = UnitType) then //For initial linking they must be the same type, not just same group type
+       (FoundUnit.GetOwner = fOwner) and
+       (FoundUnit.UnitType = fUnitType) then //For initial linking they must be the same type, not just same group type
     begin
       Result := TKMUnitWarrior(FoundUnit);
       exit;

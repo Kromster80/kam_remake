@@ -135,5 +135,5 @@ Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
 Count=3
 Item0=.\Common;.\Common\pngimage
-Item1=.\Common
-Item2=$(DELPHI)\Lib\Debug;C:\Dist\COMPON~1\jcl\jcl\lib\d7\debug;.\Common
+Item1=.\Common; .\Common\pngimage
+Item2=.\Common

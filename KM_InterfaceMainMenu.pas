@@ -762,11 +762,11 @@ begin
       Label_Stat[i]:=MyControls.AddLabel(Panel_Stats,340,Adv,100,30,'00',fnt_Metal,kaRight);
     end;
 
-    Button_ResultsBack:=MyControls.AddButton(Panel_Results,100,640,200,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
+    Button_ResultsBack:=MyControls.AddButton(Panel_Results,100,640,220,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);
     Button_ResultsBack.OnClick:=SwitchMenuPage;
-    Button_ResultsRepeat:=MyControls.AddButton(Panel_Results,320,640,200,30,fTextLibrary.GetSetupString(18),fnt_Metal,bsMenu);
+    Button_ResultsRepeat:=MyControls.AddButton(Panel_Results,340,640,220,30,fTextLibrary.GetSetupString(18),fnt_Metal,bsMenu);
     Button_ResultsRepeat.OnClick:=MainMenu_ReplayLastMap;
-    Button_ResultsContinue:=MyControls.AddButton(Panel_Results,540,640,200,30,fTextLibrary.GetSetupString(17),fnt_Metal,bsMenu);
+    Button_ResultsContinue:=MyControls.AddButton(Panel_Results,580,640,220,30,fTextLibrary.GetSetupString(17),fnt_Metal,bsMenu);
     Button_ResultsContinue.OnClick:=SwitchMenuPage;
 end;
 

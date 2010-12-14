@@ -239,7 +239,7 @@ end;
 
 destructor TUnitActionWalkTo.Destroy;
 begin
-  if fDoExchange then
+  if fDoExchange and not fGame.IsExiting then
     Assert(not fDoExchange, 'Oops, thats a very bad situation');
 
   if WRITE_WALKTO_LOG then begin
