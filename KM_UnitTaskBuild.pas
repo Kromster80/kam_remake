@@ -50,7 +50,7 @@ type
     private
       fLoc:TKMPoint;
       BuildID:integer;
-      //todo: not abandoned properly yet due to global unfinished conception of wall-building
+      //not abandoned properly yet due to global unfinished conception of wall-building
     public
       constructor Create(aWorker:TKMUnitWorker; aLoc:TKMPoint; aID:integer);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -407,7 +407,7 @@ begin
 end;
 
 
-//todo: Need an idea how to make it work
+//Need an idea how to make it work
 function TTaskBuildWall.Execute():TTaskResult;
 begin
   Result := TaskContinues;

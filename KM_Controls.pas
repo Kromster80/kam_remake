@@ -1354,7 +1354,7 @@ begin
   Inherited;
 
   NewPos := Position;
-  if (ssLeft in Shift) then begin //todo: How to make it act more like WinControl, which has active area around it and regains csOver when cursor goes away and returns
+  if (ssLeft in Shift) then begin
 
     if fScrollAxis = sa_Vertical then
       if InRange(Y,Top+Width,Top+Height-Width) then
@@ -2000,7 +2000,8 @@ end;
 
 procedure TKMControlsCollection.MouseMove(X,Y:Integer; Shift:TShiftState);
 begin
-  CtrlOver := HitControl(X,Y);
+  if CtrlDown=nil then //User is dragging some Ctrl (e.g. scrollbar) and went away from Strl bounds
+    CtrlOver := HitControl(X,Y);
   if CtrlOver <> nil then CtrlOver.MouseMove(X,Y,Shift);
   if (CtrlDown <> nil) and (CtrlOver <> CtrlDown) then CtrlDown := nil;
 end;

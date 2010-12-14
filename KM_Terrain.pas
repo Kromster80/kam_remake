@@ -1661,8 +1661,6 @@ begin
 end;
 
 
-//todo: there's a bug when 2 units exchange only one has proper fNextPosition at the moment
-//and if second dies - IsUnit data becomes corrupt
 procedure TTerrain.UnitSwap(LocFrom,LocTo:TKMPoint; UnitFrom:TKMUnit);
 begin
   Assert(Land[LocFrom.Y,LocFrom.X].IsUnit = UnitFrom, 'Trying to swap wrong unit at '+TypeToString(LocFrom));
@@ -1818,9 +1816,9 @@ begin
 
     AreaID:=0;
     for i:=1 to MapY do for k:=1 to MapX do
-    if ((Land[i,k].WalkConnect[wcType]=0)and(Pass in Land[i,k].Passability)and
+    if (Land[i,k].WalkConnect[wcType]=0) and (Pass in Land[i,k].Passability) and
      ((wcType <> wcAvoid)or
-     ((wcType = wcAvoid)and(Land[i,k].Markup <> mu_UnderConstruction)))) then //todo: Exclude fighting units in CanWalkAvoid (requires IsUnit to be made TKMUnit first)
+     ( (wcType=wcAvoid) and not fTerrain.TileIsLocked(KMPoint(k,i)) )) then
     begin
       inc(AreaID);
       Count:=0;

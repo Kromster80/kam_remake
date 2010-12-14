@@ -1525,7 +1525,10 @@ begin
 
   Result := true;
 
-  if fKillASAP then KillUnit;
+  if fKillASAP then begin
+    KillUnit;
+    fKillASAP := false;
+  end;
 
   UpdateHunger();
   UpdateFOW();
