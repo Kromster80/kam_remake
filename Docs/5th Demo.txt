@@ -1,0 +1,10 @@
+Demo #5 should include:
+
++	Lots of bugfixes [Krom/Lewin]
+	Ranged attacks [Krom]
++	Improved unit-interaction performance [Krom/Lewin]
++	Replaceable in-game sprites [Krom]
++	Replay controls [Krom]
+	Improved AI scripting [Lewin]
+	Tutorial missions and texts from KaM
+	Lookout tower [Krom]
