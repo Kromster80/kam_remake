@@ -4,15 +4,11 @@ Demo #4 should include:
 +	Army movements [Lewin]
 +	Units fighting [Lewin]
 +	Unit interaction bugfixes [Krom]
-	Unit voices
++	Unit voices
 +	Tower throwing rocks at enemies [Krom]
-	Ranged attacks
 +	House attacks
 +	Map editor saving simple maps [Krom/Lewin]
 +	UI for saving maps from MapEd [Krom]
 +	Replays [Krom]
-	Tutorial missions and texts from KaM
--	Scalable ingame menu
-	Lookout tower [Krom]
 +	Brightness settings as 0..20 range [Krom]
 +	Working mission result (win/defeat) conditions [Krom]
