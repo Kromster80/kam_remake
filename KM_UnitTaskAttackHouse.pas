@@ -75,6 +75,7 @@ end;
 
 
 function TTaskAttackHouse.Execute():TTaskResult;
+var AnimLength:integer;
 begin
   Result := TaskContinues;
 
@@ -90,34 +91,34 @@ begin
 
   with fUnit do
   case fPhase of
-    0: begin
-         if fFightType=ft_Ranged then
-           SetActionWalkToHouse(fHouse, RANGE_BOWMAN div (byte(REDUCE_SHOOTING_RANGE)*2))
-         else
-           SetActionWalkToHouse(fHouse, 1)
-       end;
+    0: if fFightType=ft_Ranged then
+         SetActionWalkToHouse(fHouse, RANGE_BOWMAN div (byte(REDUCE_SHOOTING_RANGE)*2))
+       else
+         SetActionWalkToHouse(fHouse, 1);
     1: if fFightType=ft_Ranged then begin
-         SetActionLockedStay(Random(8),ua_Work,true); //Pretend to aim
+         SetActionLockedStay(AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD),ua_Work,true); //Pretend to aim
          Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
        end else begin
          SetActionLockedStay(0,ua_Work,false); //@Lewin: Maybe melee units can randomly pause for 1-2 frames as well?
          Direction := KMGetDirection(GetPosition, fHouse.GetEntrance); //Look at house
        end;
-    2: begin
-         if fFightType=ft_Ranged then begin
-           SetActionLockedStay(4,ua_Work,false,0,0); //Start shooting
-           fDestroyingHouse := true;
-         end else begin
-           SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
-           fDestroyingHouse := true;
-         end;
+    2: if fFightType=ft_Ranged then begin
+         SetActionLockedStay(FIRING_DELAY,ua_Work,false,0,0); //Start shooting
+         fDestroyingHouse := true;
+       end else begin
+         SetActionLockedStay(6,ua_Work,false,0,0); //Start the hit
+         fDestroyingHouse := true;
        end;
     3: begin
          if fFightType=ft_Ranged then begin //Launch the missile and forget about it
            //Shooting range is not important now, houses don't walk (except Howl's Moving Castle perhaps)
-           fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow); //Release arrow/bolt
-           SetActionLockedStay(24,ua_Work,false,0,4); //Reload for next attack
-           //Bowmen/crossbowmen do 1 damage per shot and occasionally miss altogether
+           case UnitType of
+             ut_Arbaletman: fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Bolt);
+             ut_Bowman:     fGame.fProjectiles.AddItem(PositionF, KMPointF(CellsW.GetRandom), pt_Arrow);
+             else Assert(false, 'Unknown shooter');
+           end;
+           AnimLength := UnitSprite[byte(UnitType)].Act[byte(ua_Work)].Dir[byte(Direction)].Count;
+           SetActionLockedStay(AnimLength-FIRING_DELAY-1,ua_Work,false,0,FIRING_DELAY); //Reload for next attack
            fPhase := 0; //Go for another shot (will be 1 after inc below)
          end else begin
            SetActionLockedStay(6,ua_Work,false,0,6); //Pause for next attack

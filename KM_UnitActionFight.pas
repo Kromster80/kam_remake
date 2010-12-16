@@ -98,10 +98,17 @@ begin
   KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
 
   if TKMUnitWarrior(KMUnit).GetFightRange >= 2 then begin
-    if Step = 5 then
+    if Step = 2 then //Archers fire on step 2 ?
     begin
+
+      //todo: Add archer delay here
+
       MakeSound(KMUnit, true); //2 sounds for hit and for miss
-      fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow); //Release arrow/bolt
+      case KMUnit.UnitType of
+        ut_Arbaletman: fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Bolt);
+        ut_Bowman:     fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow);
+        else Assert(false, 'Unknown shooter');
+      end;
     end;
   end else begin
     //Melee units place hit on step 5

@@ -22,6 +22,7 @@ uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function KMGetDirection(X,Y: integer): TKMDirection; overload;
   function KMGetDirection(FromPos,ToPos: TKMPoint):TKMDirection; overload;
+  function KMGetDirection(FromPos,ToPos: TKMPointF):TKMDirection; overload;
   function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
   function KMGetVertexDir(X,Y: integer):TKMDirection;
@@ -169,6 +170,18 @@ function KMGetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
 const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
         ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
 var Scale:integer; a,b:shortint;
+begin
+  Scale := max(abs(ToPos.X-FromPos.X),abs(ToPos.Y-FromPos.Y));
+  a := round((ToPos.X-FromPos.X)/Scale);
+  b := round((ToPos.Y-FromPos.Y)/Scale);
+  Result := DirectionsBitfield[a,b]; //-1,0,1
+end;
+
+
+function KMGetDirection(FromPos,ToPos: TKMPointF): TKMDirection;
+const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
+        ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+var Scale:single; a,b:shortint;
 begin
   Scale := max(abs(ToPos.X-FromPos.X),abs(ToPos.Y-FromPos.Y));
   a := round((ToPos.X-FromPos.X)/Scale);

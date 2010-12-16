@@ -60,21 +60,17 @@ begin
     if i>=length(fItems) then setlength(fItems,i+10); //Add new
   until(fItems[i].fSpeed=0);
 
-  //todo: Speed, Arc, Target jitter depends on projectile type
-  //Route for Arrow is parabola of some kind
-  //Route for TowerRock is 2nd half of that parabola
-
   fItems[i].fProjType := aProjType;
 
   case aProjType of
     pt_Arrow:     begin
                     fItems[i].fSpeed    := 0.45 + randomS(0.05);
-                    fItems[i].fArc      := 1.5 + randomS(0.3);
+                    fItems[i].fArc      := 1.5 + randomS(0.25);
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_BOWMAN / 2;
                   end;
     pt_Bolt:      begin
-                    fItems[i].fSpeed    := 0.6 + randomS(0.05);
-                    fItems[i].fArc      := 1 + randomS(0.25);
+                    fItems[i].fSpeed    := 0.5 + randomS(0.05);
+                    fItems[i].fArc      := 1 + randomS(0.2);
                     Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_ARBALETMAN / 2.5;
                   end;
     pt_TowerRock: begin
@@ -95,7 +91,7 @@ begin
     pt_Arrow,
     pt_Bolt:      begin
                     fItems[i].fScreenStart.X := aStart.X + 0.5; //
-                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.5; //
+                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.25;
                   end;
     pt_TowerRock: begin
                     fItems[i].fScreenStart.X := aStart.X - 0.25; //Recruit stands in entrance, Tower middleline is X-0.75
@@ -129,7 +125,8 @@ begin
                           U.HitPointsDecrease(1)
                         else begin
                           H := fPlayers.HousesHitTest(round(fItems[i].fTargetJ.X), round(fItems[i].fTargetJ.Y));
-                          if H <> nil then H.AddDamage(1);
+                          if (H <> nil) and (not REDUCE_SHOOTING_RANGE) then
+                            H.AddDamage(1);
                         end;
           pt_TowerRock: if U <> nil then U.KillUnit;
         end;
@@ -158,7 +155,8 @@ var
   i:integer;
   MixValue:single;
   MixArc:single; //mix Arc shape
-  P:TKMPointF;
+  P1,P2:TKMPointF; //Arrows and bolts send 2 points for head and tail
+  Dir:TKMDirection;
 begin
   for i:=1 to length(fItems)-1 do
     if (fItems[i].fSpeed<>0) and ProjectileVisible(i) then
@@ -166,17 +164,26 @@ begin
 
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
       case fItems[i].fProjType of
-        pt_Arrow:     MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
-        pt_Bolt:      MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
-        pt_TowerRock: MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
-        else          MixArc := 0;
+        pt_Arrow, pt_Bolt:
+        begin
+          MixArc := sin(MixValue*pi);   // 0 >> 1 >> 0 Parabola
+          P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
+          P1.Y := P1.Y - fItems[i].fArc * MixArc;
+          P2.X := P1.X+3; P2.Y := P2.Y+1;
+          Dir := KMGetDirection(fItems[i].fScreenStart, fItems[i].fScreenEnd);
+          fRender.RenderProjectile(fItems[i].fProjType, P1.X, P1.Y, MixValue, Dir);
+        end;
+
+        pt_TowerRock:
+        begin
+          MixArc := cos(MixValue*pi/2); // 1 >> 0      Half-parabola
+          P1 := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
+          P1.Y := P1.Y - fItems[i].fArc * MixArc;
+          P2.X := 0; P2.Y := 0;
+          fRender.RenderProjectile(fItems[i].fProjType, P1.X, P1.Y, MixValue);
+        end;
+        else
       end;
-
-      P := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
-      P.Y := P.Y - fItems[i].fArc * MixArc;
-
-      //todo: Also give the inclination and heading angles
-      fRender.RenderProjectile(fItems[i].fProjType, 0, P.X, P.Y);
 
       if SHOW_PROJECTILES then begin
         fRender.RenderDebugProjectile(fItems[i].fScreenStart.X,

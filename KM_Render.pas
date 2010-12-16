@@ -77,7 +77,7 @@ public
   procedure RenderDebugUnitMoves(x1,x2,y1,y2:integer);
   procedure RenderDebugUnitRoute(NodeList:TKMPointList; Pos:integer; aUnitType:byte);
   procedure RenderDebugQuad(pX,pY:integer);
-  procedure RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
+  procedure RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection=dir_NA);
   procedure RenderObjectOrQuad(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
   procedure RenderObject(Index,AnimStep,pX,pY:integer; DoImmediateRender:boolean=false; Deleting:boolean=false);
   procedure RenderObjectQuad(Index:integer; AnimStep,pX,pY:integer; IsDouble:boolean; DoImmediateRender:boolean=false; Deleting:boolean=false);
@@ -569,7 +569,7 @@ begin
 end;
 
 
-procedure TRender.RenderProjectile(aProj:TProjectileType; AnimStep:integer; pX,pY:single);
+procedure TRender.RenderProjectile(aProj:TProjectileType; pX,pY:single; Flight:single; Dir:TKMDirection=dir_NA);
 var
   FOW:byte;
   ID:integer;
@@ -578,10 +578,17 @@ begin
   FOW:=fTerrain.CheckTileRevelation(round(pX),round(pY),MyPlayer.PlayerID);
   if FOW <= 128 then exit; //Don't render objects which are behind FOW
 
-  //ID := ( + AnimStep) mod ;
-  ID := ProjectileBounds[aProj,1]+1;
-  ShiftX:=RXData[3].Pivot[ID].x/CELL_SIZE_PX;
-  ShiftY:=(RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
+  case aProj of
+    pt_Arrow: with UnitSprite[byte(ut_Bowman)].Act[byte(ua_Spec)].Dir[byte(Dir)] do
+                ID := Step[round(Flight*Count)+1]+1;
+    pt_Bolt:  with UnitSprite[byte(ut_Arbaletman)].Act[byte(ua_Spec)].Dir[byte(Dir)] do
+                ID := Step[round(Flight*Count)+1]+1;
+    pt_TowerRock: ID := ProjectileBounds[aProj,1]+1;
+    else ID := 1; //Nothing?
+  end;
+
+  ShiftX := RXData[3].Pivot[ID].x/CELL_SIZE_PX;
+  ShiftY := (RXData[3].Pivot[ID].y+RXData[3].Size[ID].Y)/CELL_SIZE_PX;
 
   AddSpriteToList(3,ID,pX+ShiftX,pY+ShiftY,pX,pY,true);
 end;

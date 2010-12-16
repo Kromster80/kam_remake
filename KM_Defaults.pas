@@ -128,9 +128,15 @@ const //Here we store options that are hidden somewhere in code
   RANGE_STONECUTTER = 14;
   RANGE_FISHERMAN   = 12;
 
+  //Archer properties
   RANGE_ARBALETMAN  = 10; //+1 to Tower range
   RANGE_BOWMAN      = 10;
   RANGE_WATCHTOWER  = 9;
+
+  FIRING_DELAY = 2; //on which frame archer fires his arrow/bolt
+  AIMING_DELAY_MIN = 7; //minimum time for archer to aim
+  AIMING_DELAY_ADD = 8; //random component
+
 
 type
   TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
