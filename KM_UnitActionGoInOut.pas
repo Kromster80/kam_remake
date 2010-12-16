@@ -37,7 +37,10 @@ begin
   Inherited Create(aAction);
   fActionName     := uan_GoInOut;
   Locked          := true;
-  fHouse          := aHouse;
+  //We might stuck trying to exit when house gets destroyed (1)
+  //and we might be dying in destroyed house (2)
+  if aHouse<>nil then fHouse := aHouse.GetHousePointer
+                 else fHouse := nil;
   fDirection      := aDirection;
   fHasStarted     := false;
   fWaitingForPush := false;
@@ -75,6 +78,7 @@ end;
 destructor TUnitActionGoInOut.Destroy;
 begin
   if fUsedDoorway then DecDoorway;
+  if fHouse<>nil then fPlayers.CleanUpHousePointer(fHouse);
   Inherited;
 end;
 
@@ -86,7 +90,7 @@ begin
     fLog.AssertToLog(false,'Inc doorway when already in use?');
     exit;
   end;
-  inc(fHouse.DoorwayUse);
+  if fHouse<>nil then inc(fHouse.DoorwayUse);
   fUsedDoorway := true;
 end;
 
@@ -98,7 +102,7 @@ begin
     fLog.AssertToLog(false,'Dec doorway when not in use?');
     exit;
   end;
-  dec(fHouse.DoorwayUse);
+  if fHouse<>nil then dec(fHouse.DoorwayUse);
   fUsedDoorway := false;
 end;
 
@@ -133,7 +137,7 @@ begin
 
     fDoor := KMPointF(KMUnit.GetPosition.X, KMUnit.GetPosition.Y - fStep);
     fStreet := KMPoint(KMUnit.GetPosition.X, KMUnit.GetPosition.Y + 1 - round(fStep));
-    if byte(fHouse.GetHouseType) in [1..length(HouseDAT)] then
+    if (fHouse<>nil) and (byte(fHouse.GetHouseType) in [1..length(HouseDAT)]) then
       fDoor.X := fDoor.X + (HouseDAT[byte(fHouse.GetHouseType)].EntranceOffsetXpx/4)/CELL_SIZE_PX;
 
 
@@ -182,7 +186,8 @@ begin
     if fUsingDoorway then
     begin
       IncDoorway;
-      KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
+      if fHouse<>nil then
+        KMUnit.IsExchanging := (fHouse.DoorwayUse > 1);
     end;
     
     fHasStarted:=true;
@@ -210,7 +215,7 @@ begin
 
   fStep := fStep - Distance * shortint(fDirection);
   KMUnit.PositionF := KMPointF(Mix(fStreet.X,fDoor.X,fStep),Mix(fStreet.Y,fDoor.Y,fStep));
-  KMUnit.SetVisibility := (fHouse.IsDestroyed) or (fStep >= 0.3); //Make unit invisible when it's inside of House
+  KMUnit.SetVisibility := (fHouse=nil) or (fHouse.IsDestroyed) or (fStep >= 0.3); //Make unit invisible when it's inside of House
 
   if (fStep<=0)or(fStep>=1) then
   begin
@@ -220,7 +225,7 @@ begin
     if fDirection = gd_GoInside then
     begin
       KMUnit.PositionF := fDoor;
-      if not fHouse.IsDestroyed then
+      if (fHouse<>nil) and not fHouse.IsDestroyed then
         KMUnit.SetInHouse(fHouse);
     end
     else
