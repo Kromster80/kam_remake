@@ -156,16 +156,24 @@ end;
 function KMGetDirection(X,Y: integer): TKMDirection;
 const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
         ((dir_SE,dir_E,dir_NE),(dir_S,dir_NA,dir_N),(dir_SW,dir_W,dir_NW));
+var Scale:integer; a,b:shortint;
 begin
-  Result := DirectionsBitfield[sign(X), sign(Y)]; //-1,0,1
+  Scale := max(abs(X),abs(Y));
+  a := round(X/Scale);
+  b := round(Y/Scale);
+  Result := DirectionsBitfield[a, b]; //-1,0,1
 end;
 
 
 function KMGetDirection(FromPos,ToPos: TKMPoint): TKMDirection;
 const DirectionsBitfield:array[-1..1,-1..1]of TKMDirection =
         ((dir_NW,dir_W,dir_SW),(dir_N,dir_NA,dir_S),(dir_NE,dir_E,dir_SE));
+var Scale:integer; a,b:shortint;
 begin
-  Result := DirectionsBitfield[sign(ToPos.X - FromPos.X), sign(ToPos.Y - FromPos.Y)]; //-1,0,1
+  Scale := max(abs(ToPos.X-FromPos.X),abs(ToPos.Y-FromPos.Y));
+  a := round((ToPos.X-FromPos.X)/Scale);
+  b := round((ToPos.Y-FromPos.Y)/Scale);
+  Result := DirectionsBitfield[a,b]; //-1,0,1
 end;
 
 
