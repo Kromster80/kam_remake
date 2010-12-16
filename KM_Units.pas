@@ -1421,12 +1421,12 @@ begin
       begin
         //Position in a spiral nearest to center of house, updating IsUnit.
         fPosition := KMPointF(fPlayers.FindPlaceForUnit(GetInHouse.GetPosition.X,GetInHouse.GetPosition.Y,UnitType));
-        fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
         //Make sure these are reset properly
         IsExchanging := false;
         fCurrPosition := KMPointRound(fPosition);
         fPrevPosition := fCurrPosition;
         fNextPosition := fCurrPosition;
+        fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
         if GetUnitAction is TUnitActionGoInOut then SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
       end;
       SetInHouse(nil); //Can't be in a destroyed house
