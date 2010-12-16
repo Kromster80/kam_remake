@@ -883,7 +883,7 @@ begin
     if (not (GetUnitTask is TTaskAttackHouse)) and (not (GetUnitAction is TUnitActionWalkTo)) and
        (not KMSamePoint(GetPosition,fOrderLoc.Loc)) and fTerrain.Route_CanBeMade(GetPosition,fOrderLoc.Loc,GetDesiredPassability,0, false) then
     begin
-      SetActionWalkToSpot(KMPoint(fOrderLoc)); //Walk to correct position
+      SetActionWalkToSpot(fOrderLoc.Loc); //Walk to correct position
       fState := ws_Walking;
     end;
 

@@ -105,30 +105,27 @@ begin
        end;
        //We cannot assume that the walk is still valid because the terrain could have changed while we were walking out of the house.
     1: SetActionWalkToSpot(WorkPlan.Loc, 0, WorkPlan.WalkTo);
-    2: begin //Before work tasks for specific mining jobs
-         if WorkPlan.GatheringScript = gs_FisherCatch then
-         begin
-           Direction := TKMDirection(WorkPlan.WorkDir+1);
-           SetActionLockedStay(13, ua_Work1, false); //Throw the line out
-         end
-         else
-           SetActionLockedStay(0, WorkPlan.WalkTo);
-       end;
+    2: //Before work tasks for specific mining jobs
+       if WorkPlan.GatheringScript = gs_FisherCatch then begin
+         Direction := TKMDirection(WorkPlan.WorkDir+1);
+         SetActionLockedStay(13, ua_Work1, false); //Throw the line out
+       end else
+         SetActionLockedStay(0, WorkPlan.WalkTo);
     3: //IF resource still exists on location
        if ResourceExists then
        begin //Choose direction and time to work
          //If WorkDir is -1 it means keep direction from walk (i.e. it doesn't matter)
          if WorkPlan.WorkDir <> -1 then
          begin
-           Dir:=integer(WorkPlan.WorkDir+1);
+           Dir := integer(WorkPlan.WorkDir+1);
            if UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count<=1 then
              for Dir:=1 to 8 do
                if UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count>1 then break;
-           Dir:=Math.min(Dir,8);
-           Direction:=TKMDirection(Dir);
-         end
-         else Dir := byte(Direction); //Use direction from walk
-         TimeToWork:=WorkPlan.WorkCyc*Math.max(UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
+           Dir := Math.min(Dir,8);
+           Direction := TKMDirection(Dir);
+         end else
+           Dir := byte(Direction); //Use direction from walk
+         TimeToWork := WorkPlan.WorkCyc*Math.max(UnitSprite[byte(UnitType)].Act[byte(WorkPlan.WorkType)].Dir[Dir].Count,1);
          SetActionLockedStay(TimeToWork, WorkPlan.WorkType, false);
        end
        else
@@ -136,12 +133,11 @@ begin
          Result := TaskDone;
          exit;
        end;
-    4: begin //After work tasks for specific mining jobs
-         case WorkPlan.GatheringScript of
-           gs_WoodCutterCut: SetActionLockedStay(10, WorkPlan.WorkType, true, 5, 5); //Wait for the tree to start falling down
-           gs_FisherCatch: SetActionLockedStay(15, ua_Work, false); //Pull the line in
-           else SetActionLockedStay(0, WorkPlan.WorkType);
-         end;
+    4: //After work tasks for specific mining jobs
+       case WorkPlan.GatheringScript of
+         gs_WoodCutterCut:  SetActionLockedStay(10, WorkPlan.WorkType, true, 5, 5); //Wait for the tree to start falling down
+         gs_FisherCatch:    SetActionLockedStay(15, ua_Work, false); //Pull the line in
+         else               SetActionLockedStay(0, WorkPlan.WorkType);
        end;
     5: begin
          StillFrame := 0;

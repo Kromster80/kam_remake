@@ -4,7 +4,6 @@ interface
 uses KromUtils, SysUtils, KM_CommonTypes, KM_Defaults, Math;
 
   function KMPoint(X,Y:word): TKMPoint; overload;
-  function KMPoint(P:TKMPointDir): TKMPoint; overload;
   function KMPointF(X,Y:single): TKMPointF; overload;
   function KMPointF(P:TKMPoint):  TKMPointF; overload;
   function KMPointDir(X,Y,Dir:word): TKMPointDir; overload;
@@ -63,12 +62,6 @@ function KMPoint(X,Y:word): TKMPoint;
 begin
   Result.X := X;
   Result.Y := Y;
-end;
-
-
-function KMPoint(P: TKMPointDir): TKMPoint;
-begin
-  Result := P.Loc;
 end;
 
 

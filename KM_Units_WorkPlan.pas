@@ -320,7 +320,7 @@ if (aUnitType=ut_WoodCutter)and(aHome=ht_Woodcutters) then begin
   if TempLocDir.Loc.X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
     //Cutting uses diagonals (DirNW,DirSW,DirSE,DirNE or 1,3,5,7 in 0 base) of ua_Work
-    WalkStyle(KMPoint(TempLocDir),ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,TempLocDir.Dir);
+    WalkStyle(TempLocDir.Loc,ua_WalkBooty,ua_Work,15,20,ua_WalkTool2,gs_WoodCutterCut,TempLocDir.Dir);
   end else
   if fTerrain.FindPlaceForTree(aLoc,RANGE_WOODCUTTER).X<>0 then
     //Planting uses DirN (0) of ua_Work, thus not interfering with the diagonals used by the cutting action
@@ -369,7 +369,7 @@ if (aUnitType=ut_Fisher)and(aHome=ht_FisherHut) then begin
   TempLocDir := fTerrain.FindFishWater(aLoc,RANGE_FISHERMAN);
   if TempLocDir.Loc.X<>0 then begin
     ResourcePlan(rt_None,0,rt_None,0,rt_Fish);
-    WalkStyle(KMPoint(TempLocDir),ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch,TempLocDir.Dir);
+    WalkStyle(TempLocDir.Loc,ua_Walk,ua_Work2,12,0,ua_WalkTool,gs_FisherCatch,TempLocDir.Dir);
   end else
   begin
     fIssued:=false;
