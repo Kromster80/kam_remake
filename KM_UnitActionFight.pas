@@ -112,7 +112,7 @@ begin
       Damage := UnitStat[ut].Attack; //Base damage
       if InRange(ot, low(UnitGroups), high(UnitGroups)) then
         Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
-      Damage := Damage * GetDirModifier(KMUnit.Direction,fOpponent.Direction); //Direction modifier
+      Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
       Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
 
       IsHit := (Damage >= Random(101)); //0..100

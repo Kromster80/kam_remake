@@ -169,11 +169,16 @@ begin
 end;
 
 
+//How big is the difference between directions (in fights hit from behind is 5 times harder)
+//  1 0 1
+//  2   2
+//  3 4 3
 function GetDirModifier(Dir1,Dir2:TKMDirection): byte;
 begin
-  Result := abs(byte(Dir1)-byte(KMLoopDirection(byte(Dir2)+4)))+1;
-  if Result > 5 then
-    Result := 10 - Result; //Inverse it, as the range must always be 1..5
+  Result := abs(byte(Dir1)-1 - (byte(Dir2)+4) mod 8);
+
+  if Result > 4 then
+    Result := 8 - Result; //Mirror it, as the difference must always be 0..4
 end;
 
 
@@ -225,6 +230,7 @@ begin
 end;
 
 
+//@Lewin: isn't it the same as previous function?
 function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
 const
   XBitField: array[TKMDirection] of smallint = (0, 0, 1,1,1,0,-1,-1,-1);
@@ -234,7 +240,8 @@ begin
 end;
 
 
-function KMLoopDirection(aDir: byte): TKMDirection; //Used after added or subtracting from direction so it is still 1..8
+//Used after added or subtracting from direction so it is still 1..8
+function KMLoopDirection(aDir: byte): TKMDirection;
 begin
   Result := TKMDirection(((aDir+7) mod 8)+1);
 end;
