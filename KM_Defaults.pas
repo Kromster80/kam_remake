@@ -49,7 +49,6 @@ var
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
   DO_UNIT_INTERACTION   :boolean=true; //Debug for unit interaction
-  CUT_TREES_FROM_ANYSIDE:boolean=true; //Allow wodcutter to cut trees from any side rther than bottom-right
   SMOOTH_SCROLLING      :boolean=true; //Smooth viewport scrolling
   ENABLE_FIGHTING       :boolean=true; //Allow fighting
   SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu

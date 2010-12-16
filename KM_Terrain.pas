@@ -822,30 +822,22 @@ begin
           List.AddEntry(KMPoint(k,i));
 
   TreeLoc := List.GetRandom; //Choose our tree
+  List.Free;
 
-  //That will restore it to always cutting from bottom-left.
-  if not CUT_TREES_FROM_ANYSIDE then
-  begin
-    Result := KMPointDir(TreeLoc.X,TreeLoc.Y,7);
-    exit;
-  end;
-
-  //Now choose our direction of approch based on which on is the flatest (animation looks odd if not flat)
+  //Now choose our direction of approch based on which one is the flatest (animation looks odd if not flat)
   Best := 255;
   Result := KMPointDir(0,0,0);
+
   //Only bother choosing direction if tree is valid, otherwise just exit with invalid
   if not KMSamePoint(TreeLoc,KMPoint(0,0)) then
-  for i:=-1 to 0 do
-    for k:=-1 to 0 do
-      if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
-        if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
-          ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
-        begin
-          Result := KMPointDir(TreeLoc.X+k,TreeLoc.Y+i,byte(KMGetVertexDir(k,i))-1);
-          Best := abs(Round(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i))-Land[TreeLoc.Y,TreeLoc.X].Height);
-        end;
-
-  List.Free;
+  for i:=-1 to 0 do for k:=-1 to 0 do
+    if ((i=0)and(k=0)) or Route_CanBeMade(aPosition,KMPoint(TreeLoc.X+k,TreeLoc.Y+i),CanWalk,0,false) then
+      if (abs(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height) < Best) and
+        ((i<>0)or(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i)-Land[TreeLoc.Y,TreeLoc.X].Height >= 0)) then
+      begin
+        Result := KMPointDir(TreeLoc.X+k,TreeLoc.Y+i,byte(KMGetVertexDir(k,i))-1);
+        Best := abs(Round(MixLandHeight(TreeLoc.X+k,TreeLoc.Y+i))-Land[TreeLoc.Y,TreeLoc.X].Height);
+      end;
 end;
 
 
