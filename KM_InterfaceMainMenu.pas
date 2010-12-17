@@ -454,8 +454,7 @@ begin
     Image_CampaignBG.ImageStretch;
 
     for i:=1 to length(Image_CampaignNodes) do begin
-      Image_CampaignNodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX div 2, ScreenY div 2,23*2,29*2,10,5);
-      Image_CampaignNodes[i].ImageCenter; //I guess it's easier to position them this way
+      Image_CampaignNodes[i] := MyControls.AddImage(Panel_Campaign, ScreenX, ScreenY, 23, 29, 10, 5);
       Image_CampaignNodes[i].OnClick := Campaign_SelectMap;
       Image_CampaignNodes[i].Tag := i;
     end;
@@ -973,11 +972,11 @@ begin
    //Place highlight
   for i:=1 to length(Image_CampaignNodes) do begin
     Image_CampaignNodes[i].Highlight := false;
-    Image_CampaignNodes[i].ImageCenter;
+    //Image_CampaignNodes[i].ImageCenter;
   end;
 
   TKMImage(Sender).Highlight := true;
-  TKMImage(Sender).ImageStretch;
+  //TKMImage(Sender).ImageStretch;
 
   Label_CampaignTitle.Caption := 'Mission '+inttostr(TKMImage(Sender).Tag);
 
