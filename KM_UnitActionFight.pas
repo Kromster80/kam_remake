@@ -9,6 +9,7 @@ uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, 
 type
 TUnitActionFight = class(TUnitAction)
   private
+    AimingDelay:integer;
     fOpponent:TKMUnit; //Who we are fighting with
   public
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
@@ -31,6 +32,7 @@ begin
   Inherited Create(aActionType);
   fActionName     := uan_Fight;
   Locked          := true;
+  AimingDelay        := -1;
   fOpponent       := aOpponent.GetUnitPointer; //Mark as a used pointer in case the unit dies without us noticing. Remove pointer on destroy
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
 end;
@@ -100,8 +102,13 @@ begin
   if TKMUnitWarrior(KMUnit).GetFightRange >= 2 then begin
     if Step = 2 then //Archers fire on step 2 ?
     begin
+      if AimingDelay=-1 then //Initialize
+        AimingDelay := AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD);
 
-      //todo: Add archer delay here
+      if AimingDelay>0 then begin
+        dec(AimingDelay);
+        exit; //do not increment AnimStep, just exit;
+      end;
 
       MakeSound(KMUnit, true); //2 sounds for hit and for miss
       case KMUnit.UnitType of
@@ -109,6 +116,9 @@ begin
         ut_Bowman:     fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow);
         else Assert(false, 'Unknown shooter');
       end;
+
+      AimingDelay := -1; //Reset
+
     end;
   end else begin
     //Melee units place hit on step 5
@@ -131,9 +141,10 @@ begin
     end;
   end;
 
+  //Aiming Archers may miss few ticks, so don't put anything critical below!
+
   StepDone := KMUnit.AnimStep mod Cycle = 0;
   inc(KMUnit.AnimStep);
-
 
   if (fOpponent is TKMUnitWarrior)
      and not (fOpponent.IsDeadOrDying)
