@@ -122,12 +122,11 @@ begin
   RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and stat icons
   RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
   RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
+  RXData[7].Title:='Remake';      RXData[7].NeedTeamColors:=false;
 
-  for i:=4 to 6 do
+  for i:=4 to 7 do
   begin
-    StepCaption('Reading '+RXData[i].Title+' GFX ...');
-    fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-
+    LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i);
     LoadRX7(i); //Something fancy to Load RX7 data (custom bitmaps and overrides)
 
     if i=4 then MakeCursors(4);
@@ -625,14 +624,24 @@ begin
       setlength(RXData[RX].RGBA[ID], po.Width*po.Height);
       setlength(RXData[RX].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
 
-      for y:=0 to po.Height-1 do begin
-        po.CreateAlpha; //Will create white Alpha if it does not exists
-
-        for x:=0 to po.Width-1 do begin
-          p := (po.AlphaScanline[y]^[x]) shl 24; //it's slow, I know, but we don't care yet
-          RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y] AND $FFFFFF) + p;
-        end;
+      case po.TransparencyMode of //There are ways to process PNG transparency
+        ptmNone:
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+            RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+        ptmBit:
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+            if po.Pixels[x,y] = po.TransparentColor then
+              RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) AND $FFFFFF //avoid black edging
+            else
+              RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+        ptmPartial:
+          for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
+            p := (po.AlphaScanline[y]^[x]) shl 24; //semitransparency is killed by render later-on
+            RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR p;
+          end;
+        else Assert(false, 'Unknown PNG transparency mode')
       end;
+
       po.Free;
     end;
   end;
@@ -645,22 +654,31 @@ end;
 //Reading RX Data
 //=============================================
 function TResource.LoadRX(filename:string; ID:integer):boolean;
+  procedure AllocateData(A,Q:integer);
+  begin
+    setlength(GFXData[A],      Q);
+    setlength(RXData[A].Flag,  Q);
+    setlength(RXData[A].Size,  Q);
+    setlength(RXData[A].Pivot, Q);
+    setlength(RXData[A].Data,  Q);
+    setlength(RXData[A].RGBA,  Q);
+    setlength(RXData[A].Mask,  Q);
+  end;
 var i:integer; f:file;
 begin
   Result:=false;
+
+  if ID=7 then begin
+    RXData[ID].Qty := 4; //Custom number
+    AllocateData(ID, RXData[ID].Qty+1);
+    exit; //
+  end;
+
   if not CheckFileExists(filename) then exit;
 
   assignfile(f,filename); reset(f,1);
   blockread(f, RXData[ID].Qty, 4);
-
-  setlength(GFXData[ID],      RXData[ID].Qty + 1);
-  setlength(RXData[ID].Flag,  RXData[ID].Qty + 1);
-  setlength(RXData[ID].Size,  RXData[ID].Qty + 1);
-  setlength(RXData[ID].Pivot, RXData[ID].Qty + 1);
-  setlength(RXData[ID].Data,  RXData[ID].Qty + 1);
-  setlength(RXData[ID].RGBA,  RXData[ID].Qty + 1);
-  setlength(RXData[ID].Mask,  RXData[ID].Qty + 1);
-
+  AllocateData(ID, RXData[ID].Qty+1);
   blockread(f, RXData[ID].Flag[1], RXData[ID].Qty);
 
   if (not LOAD_UNIT_RX_FULL)and(RXData[ID].Title = 'Units') then RXData[ID].Qty:=7885;

@@ -209,6 +209,12 @@ begin
                                          (Y-MENU_DESIGN_Y) div 2,
                                          ScreenX, ScreenY); //Parent Panel for whole menu
 
+  //Background is the same for all pages, except Results/Campaign, which will render ontop
+  MyControls.AddImage(Panel_Main,-448,-216,960,600,1,7);
+  MyControls.AddImage(Panel_Main, 512,-216,960,600,2,7);
+  MyControls.AddImage(Panel_Main,-448, 384,960,600,3,7);
+  MyControls.AddImage(Panel_Main, 512, 384,960,600,4,7);
+
   Create_MainMenu_Page;
   Create_SinglePlayer_Page;
     Create_Campaign_Page;
@@ -323,7 +329,6 @@ end;
 procedure TKMMainMenuInterface.Create_MainMenu_Page;
 begin
   Panel_MainMenu:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_MainMenu,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     MyControls.AddImage(Panel_MainMenu,300,60,423,164,4,5);
     MyControls.AddLabel(Panel_MainMenu, 512, 240, 100, 20, 'Remake', fnt_Metal, kaCenter);
     with MyControls.AddImage(Panel_MainMenu,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
@@ -351,7 +356,6 @@ end;
 procedure TKMMainMenuInterface.Create_SinglePlayer_Page;
 begin
   Panel_SinglePlayer:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_SinglePlayer,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     MyControls.AddImage(Panel_SinglePlayer,300,60,423,164,4,5);
     MyControls.AddLabel(Panel_SinglePlayer, 512, 240, 100, 20, 'Remake', fnt_Metal, kaCenter);
     with MyControls.AddImage(Panel_SinglePlayer,50,220,round(218*1.3),round(291*1.3),5,6) do ImageStretch;
@@ -381,7 +385,6 @@ end;
 procedure TKMMainMenuInterface.Create_MultiPlayer_Page;
 begin
   Panel_MultiPlayer := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_MultiPlayer,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     with MyControls.AddImage(Panel_MultiPlayer,635,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_MPButtons:=MyControls.AddPanel(Panel_MultiPlayer,155,280,350,400);
@@ -399,8 +402,6 @@ end;
 procedure TKMMainMenuInterface.Create_WWWLogin_Page;
 begin
   Panel_WWWLogin := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_WWWLogin,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
-
     Panel_WWWLogin2 := MyControls.AddPanel(Panel_WWWLogin,312,280,400,400);
 
       MyControls.AddLabel(Panel_WWWLogin2, 200, -50, 100, 20, 'Your IP address is:', fnt_Metal, kaCenter);
@@ -425,8 +426,6 @@ end;
 procedure TKMMainMenuInterface.Create_Lobby_Page;
 begin
   Panel_Lobby := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Lobby,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
-
     //MyControls.AddLabel(Panel_Lobby, 100, 200, 100, 20, 'Rooms list:', fnt_Outline, kaLeft);
     //ListBox_LobbyRooms := MyControls.AddListBox(Panel_Lobby, 100, 220, 200, 150);
 
@@ -450,7 +449,7 @@ procedure TKMMainMenuInterface.Create_Campaign_Page;
 var i:integer;
 begin
   Panel_Campaign:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    Image_CampaignBG:=MyControls.AddImage(Panel_Campaign,0,0,ScreenX,ScreenY,12,5);
+    Image_CampaignBG := MyControls.AddImage(Panel_Campaign,0,0,ScreenX,ScreenY,12,5);
     Image_CampaignBG.ImageStretch;
 
     for i:=1 to length(Image_CampaignNodes) do begin
@@ -482,9 +481,6 @@ begin
   SingleMapsInfo:=TKMMapsInfo.Create;
 
   Panel_Single:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-
-    with MyControls.AddImage(Panel_Single,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
-
     Panel_SingleList:=MyControls.AddPanel(Panel_Single,512+22,84,445,600);
 
       ScrollBar_SingleMaps := MyControls.AddScrollBar(Panel_SingleList,420,40,25,MENU_SP_MAPS_COUNT*40, sa_Vertical, bsMenu);
@@ -574,14 +570,11 @@ begin
 end;
 
 
+//Should contain options to make a map from scratch, load map from file, generate new one
 procedure TKMMainMenuInterface.Create_MapEditor_Page;
 var i:integer;
 begin
   Panel_MapEd:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_MapEd,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
-
-    //Should contain options to make a map from scratch, load map from file, generate new one
-
     Panel_MapEd_SizeXY := MyControls.AddPanel(Panel_MapEd, 462-210, 200, 200, 300);
       MyControls.AddLabel(Panel_MapEd_SizeXY, 6, 0, 100, 30, fTextLibrary.GetRemakeString(20), fnt_Outline, kaLeft);
       MyControls.AddBevel(Panel_MapEd_SizeXY, 0, 20, 200, 40 + MAPSIZES_COUNT*20);
@@ -612,7 +605,6 @@ procedure TKMMainMenuInterface.Create_Options_Page(aGameSettings:TGlobalSettings
 var i:integer;
 begin
   Panel_Options:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Options,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     with MyControls.AddImage(Panel_Options,705,220,round(207*1.3),round(295*1.3),6,6) do ImageStretch;
 
     Panel_Options_Ctrl:=MyControls.AddPanel(Panel_Options,120,130,200,80);
@@ -704,7 +696,6 @@ end;
 procedure TKMMainMenuInterface.Create_Credits_Page;
 begin
   Panel_Credits:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Credits,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
 
     MyControls.AddLabel(Panel_Credits,200,100,100,30,'KaM Remake Credits',fnt_Outline,kaCenter);
     MyControls.AddLabel(Panel_Credits,200,140,100,30,
@@ -726,7 +717,6 @@ end;
 procedure TKMMainMenuInterface.Create_Loading_Page;
 begin
   Panel_Loading:=MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Loading,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2 - 20,100,30,fTextLibrary.GetRemakeString(34),fnt_Outline,kaCenter);
     Label_Loading:=MyControls.AddLabel(Panel_Loading,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
 end;
@@ -735,7 +725,6 @@ end;
 procedure TKMMainMenuInterface.Create_Error_Page;
 begin
   Panel_Error := MyControls.AddPanel(Panel_Main,0,0,ScreenX,ScreenY);
-    with MyControls.AddImage(Panel_Error,0,0,ScreenX,ScreenY,2,6) do ImageStretch;
     MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2 - 20,100,30,fTextLibrary.GetRemakeString(35),fnt_Antiqua,kaCenter);
     Label_Error := MyControls.AddLabel(Panel_Error,ScreenX div 2,ScreenY div 2+10,100,30,'...',fnt_Grey,kaCenter);
     Button_ErrorBack := MyControls.AddButton(Panel_Error,100,640,224,30,fTextLibrary.GetSetupString(9),fnt_Metal,bsMenu);

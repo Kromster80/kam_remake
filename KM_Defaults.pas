@@ -1146,7 +1146,7 @@ var
     Tag2:byte;          //Additional tag for MapEd (brush shape)
   end;
 
-  RXData:array [1..6]of record
+  RXData:array [1..7]of record
     Title:string;
     Qty:integer;
     Flag:array of byte;
@@ -1158,7 +1158,7 @@ var
     NeedTeamColors:boolean;
   end;
 
-  GFXData: array [1..6] of array of record
+  GFXData: array [1..7] of array of record
     TexID,AltID: GLUint; //AltID used for team colors
     u1,v1,u2,v2: single;
     PxWidth,PxHeight:word;
