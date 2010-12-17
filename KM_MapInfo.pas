@@ -87,9 +87,9 @@ begin
   for i:=1 to fCount do with Maps[i] do begin
 
     //Take data from existing Info file if it exists and DAT size matches
-    if TakeDataFromINI(KMMapNameToPath(Maps[i].Folder,'inf'), Maps[i].DatSize) then begin
+    if TakeDataFromINI(KMMapNameToPath(Maps[i].Folder,'tmp'), Maps[i].DatSize) then begin
       S := TKMemoryStream.Create;
-      S.LoadFromFile(KMMapNameToPath(Maps[i].Folder,'inf'));
+      S.LoadFromFile(KMMapNameToPath(Maps[i].Folder,'tmp'));
       S.Seek(0, soFromBeginning);
       S.Read(ii);
       S.Read(st);
@@ -115,7 +115,7 @@ begin
       S.Write(VictoryCond);
       S.Write(DefeatCond);
       S.Write(MapSize);
-      S.SaveToFile(KMMapNameToPath(Maps[i].Folder,'inf'));
+      S.SaveToFile(KMMapNameToPath(Maps[i].Folder,'tmp'));
       S.Free;
     end;
 

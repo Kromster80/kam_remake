@@ -330,7 +330,7 @@ begin
                       (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
                     begin
                       //Place attack order here rather than in mouse up; why here??
-                      fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackUnit, HitUnit);
+                      fGameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, HitUnit);
                     end
                     else
                     begin
@@ -338,7 +338,7 @@ begin
                       if (HitHouse <> nil) and (not (HitHouse.IsDestroyed)) and
                          (fPlayers.CheckAlliance(MyPlayer.PlayerID, HitHouse.GetOwner) = at_Enemy) then
                       begin
-                        fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, gic_ArmyAttackHouse, HitHouse);
+                        fGameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fGamePlayInterface.GetShownUnit).GetCommander, HitHouse);
                       end
                       else
                       if (fTerrain.Route_CanBeMade(TKMUnit(fGamePlayInterface.GetShownUnit).GetPosition, GameCursor.Cell, CanWalk, 0, false)) then
@@ -616,7 +616,7 @@ begin
               if (HitUnit <> nil) and (not TKMUnitWarrior(HitUnit).IsSameGroup(TKMUnitWarrior(fGamePlayInterface.GetShownUnit))) and
                  (UnitGroups[byte(HitUnit.UnitType)] = UnitGroups[byte(fGamePlayInterface.GetShownUnit.UnitType)]) then
               begin
-                fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyLink, HitUnit);
+                fGameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fGamePlayInterface.GetShownUnit), HitUnit);
                 fGamePlayInterface.JoiningGroups := false;
                 fGamePlayInterface.ShowUnitInfo(fGamePlayInterface.GetShownUnit); //Refresh unit display
                 Screen.Cursor:=c_Default; //Reset cursor when mouse released
@@ -639,7 +639,7 @@ begin
         then
         begin
           Screen.Cursor:=c_Default; //Reset cursor when mouse released
-          fGameInputProcess.CmdArmy(TKMUnitWarrior(fGamePlayInterface.GetShownUnit), gic_ArmyWalk, P, SelectedDirection);
+          fGameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fGamePlayInterface.GetShownUnit), P, SelectedDirection);
         end;
 
         if (Button = mbRight) and (MOver = nil) then
