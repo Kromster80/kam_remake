@@ -1,7 +1,7 @@
 unit KM_Settings;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, Math, KM_Defaults, inifiles, KM_CommonTypes;
+uses Classes, SysUtils, KromUtils, Math, KM_Defaults, INIfiles, KM_CommonTypes;
 
 {Global game settings}
 type

@@ -271,6 +271,7 @@ var i:word;
 begin
   i := length(Value);
   Inherited Write(i, SizeOf(i));
+  if i=0 then exit;
   Inherited Write(Value[1], i);
 end;
 
@@ -299,6 +300,7 @@ var i:word;
 begin
   Read(i, SizeOf(i));
   setlength(Value, i);
+  if i=0 then exit;
   Read(Value[1], i);
 end;
 

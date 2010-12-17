@@ -1016,7 +1016,7 @@ var i,ci:integer;
 begin
   for i:=1 to MENU_SP_MAPS_COUNT do begin
     ci:=SingleMap_Top+i-1;
-    if ci>SingleMapsInfo.GetMapCount then begin
+    if ci>SingleMapsInfo.Count then begin
       Image_SingleMode[i].TexID       := 0;
       Label_SinglePlayers[i].Caption  := '';
       Label_SingleTitle1[i].Caption   := '';
@@ -1032,7 +1032,7 @@ begin
   end;
 
   ScrollBar_SingleMaps.MinValue := 1;
-  ScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.GetMapCount - MENU_SP_MAPS_COUNT + 1);
+  ScrollBar_SingleMaps.MaxValue := max(1, SingleMapsInfo.Count - MENU_SP_MAPS_COUNT + 1);
   ScrollBar_SingleMaps.Position := EnsureRange(ScrollBar_SingleMaps.Position,ScrollBar_SingleMaps.MinValue,ScrollBar_SingleMaps.MaxValue);
 end;
 
@@ -1074,7 +1074,7 @@ end;
 procedure TKMMainMenuInterface.SingleMap_Start(Sender: TObject);
 begin
   fLog.AssertToLog(Sender=Button_SingleStart,'not Button_SingleStart');
-  if not InRange(SingleMap_Selected, 1, SingleMapsInfo.GetMapCount) then exit;
+  if not InRange(SingleMap_Selected, 1, SingleMapsInfo.Count) then exit;
   fGame.GameStart(KMMapNameToPath(SingleMapsInfo.GetFolder(SingleMap_Selected),'dat'),SingleMapsInfo.GetFolder(SingleMap_Selected)); //Provide mission filename mask and title here
 end;
 

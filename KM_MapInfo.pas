@@ -7,9 +7,10 @@ uses
 type
   TKMMapsInfo = class
   private
-    MapCount:byte;
+    fCount:byte;
     Maps:array[1..255]of record
       Folder:string; //Map folder
+      DatSize:integer;
       IsFight:boolean; //Fight or Build map
       PlayerCount:byte;
       SmallDesc,BigDesc:string;
@@ -19,7 +20,7 @@ type
     end;
   public
     procedure ScanSingleMapsFolder();
-    property GetMapCount:byte read MapCount;
+    property Count:byte read fCount;
     function IsFight(ID:integer):boolean;
     function GetPlayerCount(ID:integer):byte;
     function GetSmallDesc(ID:integer):string;
@@ -33,21 +34,36 @@ type
   end;
 
 implementation
-uses KM_Defaults, KM_Utils, KM_MissionScript;
+uses KM_Defaults, KM_Utils, KM_MissionScript, KM_CommonTypes;
 
 
 { TKMMapInfo }
 procedure TKMMapsInfo.ScanSingleMapsFolder();
+  function TakeDataFromINI(aFile:string; aSize:integer):boolean;
+  var S:TKMemoryStream; I:integer; Vers:string;
+  begin
+    Result := false;
+    if FileExists(aFile) then begin
+      S := TKMemoryStream.Create;
+      S.LoadFromFile(aFile);
+      S.Seek(0, soFromBeginning);
+      S.Read(I);
+      S.Read(Vers);
+      Result := (I = aSize) and (Vers = SAVE_VERSION);
+      S.Free;
+    end;
+  end;
 var
-  i,k:integer;
+  i,ii,k:integer;
   SearchRec:TSearchRec;
+  S:TKMemoryStream;
+  st:string;
   ft:textfile;
-  s:string;
   MissionDetails: TKMMissionDetails;
   MapDetails: TKMMapDetails;
   fMissionParser:TMissionParser;
 begin
-  MapCount:=0;
+  fCount := 0;
   if not DirectoryExists(ExeDir+'Maps\') then exit;
 
   ChDir(ExeDir+'Maps\');
@@ -58,8 +74,9 @@ begin
     and fileexists(KMMapNameToPath(SearchRec.Name,'dat'))
     and fileexists(KMMapNameToPath(SearchRec.Name,'map')) then
     begin
-      inc(MapCount);
-      Maps[MapCount].Folder := SearchRec.Name;
+      inc(fCount);
+      Maps[fCount].Folder := SearchRec.Name;
+      Maps[fCount].DatSize := SearchRec.Size;
     end;
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
@@ -67,27 +84,52 @@ begin
   fMissionParser := TMissionParser.Create(mpm_Game);
 
   for k:=1 to 1 do
-  for i:=1 to MapCount do with Maps[i] do begin
+  for i:=1 to fCount do with Maps[i] do begin
 
-    MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(Maps[i].Folder,'dat'));
-    MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(Maps[i].Folder,'map'));
+    //Take data from existing Info file if it exists and DAT size matches
+    if TakeDataFromINI(KMMapNameToPath(Maps[i].Folder,'inf'), Maps[i].DatSize) then begin
+      S := TKMemoryStream.Create;
+      S.LoadFromFile(KMMapNameToPath(Maps[i].Folder,'inf'));
+      S.Seek(0, soFromBeginning);
+      S.Read(ii);
+      S.Read(st);
+      S.Read(IsFight);
+      S.Read(PlayerCount);
+      S.Read(VictoryCond);
+      S.Read(DefeatCond);
+      S.Read(MapSize);
+      S.Free;
+    end else begin
+      MissionDetails := fMissionParser.GetMissionDetails(KMMapNameToPath(Maps[i].Folder,'dat'));
+      MapDetails     := fMissionParser.GetMapDetails(KMMapNameToPath(Maps[i].Folder,'map'));
+      IsFight        := MissionDetails.IsFight;
+      PlayerCount    := MissionDetails.TeamCount;
+      VictoryCond    := MissionDetails.VictoryCond;
+      DefeatCond     := MissionDetails.DefeatCond;
+      MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
+      S := TKMemoryStream.Create;
+      S.Write(DatSize);
+      S.Write(SAVE_VERSION);
+      S.Write(IsFight);
+      S.Write(PlayerCount);
+      S.Write(VictoryCond);
+      S.Write(DefeatCond);
+      S.Write(MapSize);
+      S.SaveToFile(KMMapNameToPath(Maps[i].Folder,'inf'));
+      S.Free;
+    end;
 
-    IsFight        := MissionDetails.IsFight;
-    PlayerCount    := MissionDetails.TeamCount;
-    MapSize        := MapSizeToString(MapDetails.MapSize.X, MapDetails.MapSize.Y);
     SmallDesc      := '-';
     BigDesc        := '-';
-    VictoryCond    := MissionDetails.VictoryCond;
-    DefeatCond     := MissionDetails.DefeatCond;
 
-    if fileexists(KMMapNameToPath(Maps[i].Folder,'txt')) then
+    if FileExists(KMMapNameToPath(Maps[i].Folder,'txt')) then
     begin
       assignfile(ft,KMMapNameToPath(Maps[i].Folder,'txt'));
       reset(ft);
       repeat
-        readln(ft,s);
-        if UpperCase(s)=UpperCase('SmallDesc') then readln(ft,SmallDesc);
-        if UpperCase(s)=UpperCase('BigDesc') then readln(ft,BigDesc);
+        readln(ft,st);
+        if UpperCase(st)=UpperCase('SmallDesc') then readln(ft,SmallDesc);
+        if UpperCase(st)=UpperCase('BigDesc') then readln(ft,BigDesc);
       until(eof(ft));
       closefile(ft);
     end;
