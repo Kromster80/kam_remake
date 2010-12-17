@@ -49,6 +49,7 @@ constructor TUnitActionFight.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fOpponent, 4);
+  LoadStream.Read(AimingDelay);
 end;
 
 
@@ -161,6 +162,7 @@ begin
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
+  SaveStream.Write(AimingDelay);
 end;
 
 

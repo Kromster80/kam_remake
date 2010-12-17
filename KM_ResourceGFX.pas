@@ -1224,7 +1224,7 @@ begin
     DecompressionStream.Free;
     {$ENDIF};
     {$IFDEF FPC}
-    //todo: Read zlib packed texture to minimap color
+    //todo: Read zlib packed texture to minimap color in FPC
     {InStream := TMemoryStream.Create;
     InStream.LoadFromFile(FileName);
     GetMem(Comp, InStream.Size);

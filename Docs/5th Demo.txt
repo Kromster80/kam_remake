@@ -1,7 +1,7 @@
 Demo #5 should include:
 
 +	Lots of bugfixes [Krom/Lewin]
-	Ranged attacks [Krom]
++	Ranged attacks [Krom]
 +	Improved unit-interaction performance [Krom/Lewin]
 +	Replaceable in-game sprites [Krom]
 +	Replay controls [Krom]

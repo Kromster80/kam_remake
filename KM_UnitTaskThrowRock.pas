@@ -60,7 +60,7 @@ begin
   Result := TaskContinues;
 
   //our target could be killed by another Tower or in a fight
-  if fUnit.GetHome.IsDestroyed or fTarget.IsDeadOrDying then begin
+  if fUnit.GetHome.IsDestroyed or ((fTarget<>nil) and fTarget.IsDeadOrDying) then begin
     Result := TaskDone;
     exit;
   end;
