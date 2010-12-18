@@ -110,34 +110,37 @@ end;
 
 //Update all items positions and kill some targets
 procedure TKMProjectiles.UpdateState;
-var i:integer; U:TKMUnit; H:TKMHouse;
 const HTicks = 6; //The number of ticks before hitting that an arrow will make the hit noise
+var i:integer; U:TKMUnit; H:TKMHouse;
 begin
   for i:=1 to length(fItems)-1 do
-    if fItems[i].fSpeed <> 0 then begin
+    with fItems[i] do
+      if fSpeed <> 0 then
+      begin
+        fPosition := fPosition + fSpeed;
 
-      fItems[i].fPosition := fItems[i].fPosition + fItems[i].fSpeed;
-      if (fItems[i].fPosition+(HTicks * fItems[i].fSpeed) >= fItems[i].fLength) //It will hit within X ticks
-      and (fItems[i].fPosition+((HTicks-1) * fItems[i].fSpeed) < fItems[i].fLength) //...but not less than X-1 ticks (this ensures it only happens once)
-      and (fItems[i].fProjType in [pt_Arrow, pt_Bolt]) then //These projectiles make the sound
-        fSoundLib.Play(sfx_ArrowHit,KMPointRound(fItems[i].fTargetJ),true);
+        //Will hit the target in X..X-1 ticks (this ensures it only happens once)
+        //Can't use InRange cos it might get called twice due to <= X <= comparison
+        if (fLength - HTicks*fSpeed <= fPosition) and (fPosition < fLength - (HTicks-1)*fSpeed)
+        and (fProjType in [pt_Arrow, pt_Bolt]) then //These projectiles make the sound
+          fSoundLib.Play(sfx_ArrowHit, KMPointRound(fTargetJ));
 
-      if fItems[i].fPosition >= fItems[i].fLength then begin
-        fItems[i].fSpeed := 0; //remove projectile
-        U := fPlayers.UnitsHitTestF(fItems[i].fTargetJ);
-        case fItems[i].fProjType of
-          pt_Arrow,
-          pt_Bolt:      if U <> nil then
-                          U.HitPointsDecrease(1)
-                        else begin
-                          H := fPlayers.HousesHitTest(round(fItems[i].fTargetJ.X), round(fItems[i].fTargetJ.Y));
-                          if (H <> nil) and (not REDUCE_SHOOTING_RANGE) then
-                            H.AddDamage(1);
-                        end;
-          pt_TowerRock: if U <> nil then U.KillUnit;
+        if fPosition >= fLength then begin
+          fSpeed := 0; //remove projectile
+          U := fPlayers.UnitsHitTestF(fTargetJ);
+          case fProjType of
+            pt_Arrow,
+            pt_Bolt:      if U <> nil then
+                            U.HitPointsDecrease(1)
+                          else begin
+                            H := fPlayers.HousesHitTest(round(fTargetJ.X), round(fTargetJ.Y));
+                            if (H <> nil) then
+                              H.AddDamage(1);
+                          end;
+            pt_TowerRock: if U <> nil then U.HitPointsDecrease(10); //Instant death
+          end;
         end;
       end;
-    end;
 end;
 
 

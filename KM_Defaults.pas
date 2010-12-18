@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1252';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1252';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1252;          //Used in replay file format
+  GAME_VERSION          = 'Fighting Demo r1255';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1255';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1255;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -133,7 +133,7 @@ const //Here we store options that are hidden somewhere in code
   RANGE_BOWMAN      = 10;
   RANGE_WATCHTOWER  = 9;
 
-  FIRING_DELAY = 2; //on which frame archer fires his arrow/bolt
+  FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim
   AIMING_DELAY_ADD = 8; //random component
 
