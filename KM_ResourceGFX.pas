@@ -726,17 +726,16 @@ begin
         L := Data[i, Pixel]; //0..255
 
         if L<>0 then
-          if NeedTeamColors and (L in[23..29]) then
-            RGBA[i,Pixel] := cardinal((byte(L-26)*42+128)*65793) OR $FF000000
-          else
+          if NeedTeamColors and (L in[23..29]) then begin
+            RGBA[i,Pixel] := cardinal(((L-26)*42+128)*65793) OR $FF000000;
+            case L of //Maybe it makes sense to convert to 8bit?
+              23,29:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
+              24,28:  Mask[i,Pixel] := $90FFFFFF;   //11 //9
+              25,27:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
+              26:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
+            end;
+          end else
             RGBA[i,Pixel] := GetColor32(L, Palette);
-
-        case L of //Maybe it makes sense to convert to 8bit?
-          23,29:  Mask[i,Pixel] := $60FFFFFF;   //7  //6
-          24,28:  Mask[i,Pixel] := $90FFFFFF;   //11 //9
-          25,27:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
-          26:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
-        end;
       end;
    end;
   end;
@@ -876,7 +875,18 @@ var
   WidthPOT,HeightPOT:integer;
   TD:array of cardinal;
   TA:array of cardinal;
+  HasMask:array of boolean;
 begin
+
+  setlength(HasMask, RXData[RXid].Qty+1);
+  if MAKE_TEAM_COLORS and RXData[RXid].NeedTeamColors then //Otherwise Masks ignored 
+  for i:=1 to RXData[RXid].Qty do begin
+    k:=0;
+    while (k<=(length(RXData[RXid].RGBA[i])-1)) and not HasMask[i] do begin
+      HasMask[i] := RXData[RXid].RGBA[i,k]<>0;
+      inc(k);
+    end;
+  end;
 
   LeftIndex:=0; AllocatedRAM:=0; RequiredRAM:=0; ColorsRAM:=0; TexCount:=0;
   repeat
@@ -906,17 +916,16 @@ begin
     setlength(TD,WidthPOT*HeightPOT+1);
     setlength(TA,WidthPOT*HeightPOT+1);
 
-    for i:=1 to HeightPOT do begin
+    for i:=0 to HeightPOT-1 do begin
       ci:=0;
       for j:=LeftIndex to RightIndex do
-        for k:=1 to RXData[RXid].Size[j].X do begin
-          inc(ci);
-          if i<=RXData[RXid].Size[j].Y then begin
-            TD[(i-1)*WidthPOT+ci-1] := RXData[RXid].RGBA[j,(i-1)*RXData[RXid].Size[j].X+k-1];
-            TA[(i-1)*WidthPOT+ci-1] := RXData[RXid].Mask[j,(i-1)*RXData[RXid].Size[j].X+k-1];
-          end else begin
-            //TD[(i-1)*WidthPOT+ci-1]:=0;
+        for k:=0 to RXData[RXid].Size[j].X-1 do begin
+          if i<RXData[RXid].Size[j].Y then begin
+            //CopyMemory(TD[(i-1)*WidthPOT+ci-1], RXData[RXid].RGBA[j,(i-1)*RXData[RXid].Size[j].X+k-1], )
+            TD[i*WidthPOT+ci] := RXData[RXid].RGBA[j,i*RXData[RXid].Size[j].X+k];
+            TA[i*WidthPOT+ci] := RXData[RXid].Mask[j,i*RXData[RXid].Size[j].X+k];
           end;
+          inc(ci);
         end;
     end;
 
@@ -925,8 +934,12 @@ begin
     begin
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
       //TeamColors are done through alternative plain colored texture
-      GFXData[RXid,LeftIndex].AltID := GenTexture(WidthPOT,HeightPOT,@TA[0],tm_AltID);
-      inc(ColorsRAM,WidthPOT*HeightPOT*4);
+      for j := 0 to WidthPOT*HeightPOT-1 do
+        if TA[j]<>0 then begin
+          GFXData[RXid,LeftIndex].AltID := GenTexture(WidthPOT,HeightPOT,@TA[0],tm_AltID);
+          inc(ColorsRAM,WidthPOT*HeightPOT*4);
+          break;
+        end;
     end
     else
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
