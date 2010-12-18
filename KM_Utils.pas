@@ -252,6 +252,7 @@ end;
 
 
 //@Lewin: isn't it the same as previous function?
+//@Krom: Yes, please feel free to merge them
 function KMGetPointInDir(aPoint:TKMPoint; aDir: TKMDirection): TKMPoint;
 const
   XBitField: array[TKMDirection] of smallint = (0, 0, 1,1,1,0,-1,-1,-1);

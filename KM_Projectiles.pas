@@ -91,7 +91,7 @@ begin
     pt_Arrow,
     pt_Bolt:      begin
                     fItems[i].fScreenStart.X := aStart.X + 0.5; //
-                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV - 0.25;
+                    fItems[i].fScreenStart.Y := aStart.Y - fTerrain.InterpolateLandHeight(aStart.X,aStart.Y)/CELL_HEIGHT_DIV + 0.2;
                   end;
     pt_TowerRock: begin
                     fItems[i].fScreenStart.X := aStart.X - 0.25; //Recruit stands in entrance, Tower middleline is X-0.75
@@ -111,11 +111,17 @@ end;
 //Update all items positions and kill some targets
 procedure TKMProjectiles.UpdateState;
 var i:integer; U:TKMUnit; H:TKMHouse;
+const HTicks = 6; //The number of ticks before hitting that an arrow will make the hit noise
 begin
   for i:=1 to length(fItems)-1 do
     if fItems[i].fSpeed <> 0 then begin
 
       fItems[i].fPosition := fItems[i].fPosition + fItems[i].fSpeed;
+      if (fItems[i].fPosition+(HTicks * fItems[i].fSpeed) >= fItems[i].fLength) //It will hit within X ticks
+      and (fItems[i].fPosition+((HTicks-1) * fItems[i].fSpeed) < fItems[i].fLength) //...but not less than X-1 ticks (this ensures it only happens once)
+      and (fItems[i].fProjType in [pt_Arrow, pt_Bolt]) then //These projectiles make the sound
+        fSoundLib.Play(sfx_ArrowHit,KMPointRound(fItems[i].fTargetJ),true);
+
       if fItems[i].fPosition >= fItems[i].fLength then begin
         fItems[i].fSpeed := 0; //remove projectile
         U := fPlayers.UnitsHitTestF(fItems[i].fTargetJ);

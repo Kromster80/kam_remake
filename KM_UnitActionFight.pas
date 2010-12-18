@@ -64,7 +64,27 @@ procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
   if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
-
+  
+  case KMUnit.UnitType of
+    ut_Arbaletman: begin
+                     if IsHit then
+                       fSoundLib.Play(sfx_CrossbowShoot,KMUnit.GetPosition,true)
+                     else
+                       fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition,true); //Aiming
+                   end;
+    ut_Bowman:     begin
+                     if IsHit then
+                       fSoundLib.Play(sfx_BowShoot,KMUnit.GetPosition,true)
+                     else
+                       fSoundLib.Play(sfx_BowDraw,KMUnit.GetPosition,true); //Aiming
+                   end;
+    else           begin
+                     {if IsHit then
+                       fSoundLib.Play(sfx_BowShoot,KMUnit.GetPosition,true)
+                     else
+                       fSoundLib.Play(sfx_BowShoot,KMUnit.GetPosition,true);}
+                   end;
+  end;
 {  case KMUnit.UnitType of //Various UnitTypes and ActionTypes
     ut_Worker: case GetActionType of
                  ua_Work:  if Step = 3 then fSoundLib.Play(sfx_housebuild,KMUnit.GetPosition,true);
@@ -101,17 +121,20 @@ begin
   KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
 
   if TKMUnitWarrior(KMUnit).GetFightRange >= 2 then begin
-    if Step = 2 then //Archers fire on step 2 ?
+    if Step = 0 then //Archers fire on step 2 ?
     begin
       if AimingDelay=-1 then //Initialize
+      begin
+        MakeSound(KMUnit, false); //IsHit means IsShoot for bowmen (false means aiming)
         AimingDelay := AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD);
+      end;
 
       if AimingDelay>0 then begin
         dec(AimingDelay);
         exit; //do not increment AnimStep, just exit;
       end;
 
-      MakeSound(KMUnit, true); //2 sounds for hit and for miss
+      MakeSound(KMUnit, true); //IsHit means IsShoot for bowmen (true means shooting)
       case KMUnit.UnitType of
         ut_Arbaletman: fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Bolt);
         ut_Bowman:     fGame.fProjectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow);

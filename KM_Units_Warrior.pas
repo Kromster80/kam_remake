@@ -718,6 +718,7 @@ begin
   if not CanInterruptAction then exit;
 
   //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
+  //todo: Improve to only look within archer's viewing angle and chooses target randomly so they don't all shoot the same enemy
   BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightRange, GetOwner, at_Enemy);
 
   if BestU = nil then exit;
@@ -795,8 +796,8 @@ begin
   if (fState = ws_Engage) and ((GetCommander.Foe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
     fState := ws_None; //As soon as combat is over set the state back
 
-  //Help out our fellow group members in combat if we are not fighting and someone else is
-  if (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
+  //Help out our fellow group members in combat if we are not fighting and someone else is (doesn't apply to archers, they find thier own targets)
+  if (fState <> ws_Engage) and (GetCommander.Foe <> nil) and (GetFightRange < 2) then
   begin
     fOrder := wo_AttackUnit;
     fState := ws_Engage; //Special state so we don't issue this order continuously
