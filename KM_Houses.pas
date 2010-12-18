@@ -1180,10 +1180,11 @@ begin
 end;
 
 
+//Remove all queued units first, to avoid unnecessary shifts in queue
 procedure TKMHouseSchool.CloseHouse(IsEditor:boolean=false);
 var i:integer;
 begin
-  for i:=2 to length(UnitQueue) do UnitQueue[i]:=ut_None; //Remove all queue units
+  for i:=2 to length(UnitQueue) do UnitQueue[i]:=ut_None;
   RemUnitFromQueue(1); //Remove WIP unit
   Inherited;
 end;
@@ -1201,7 +1202,7 @@ var i:integer;
 begin
   for i:=1 to length(UnitQueue) do
   if UnitQueue[i]=ut_None then begin
-    UnitQueue[i]:=aUnit;
+    UnitQueue[i] := aUnit;
     if i=1 then StartTrainingUnit; //If thats the first unit then start training it
     break;
   end;
@@ -1212,15 +1213,16 @@ end;
 procedure TKMHouseSchool.RemUnitFromQueue(aID:integer);
 var i:integer;
 begin
-  if UnitQueue[aID]=ut_None then exit; //Ignore clicks on empty queue items
+  if UnitQueue[aID] = ut_None then exit; //Ignore clicks on empty queue items
 
   if aID = 1 then begin
     SetState(hst_Idle);
     if UnitWIP<>nil then begin
+      fTerrain.UnitAdd(GetEntrance, UnitWIP); //We removed it on StartTraining and must restore so CloseUnit properly removes it
       TKMUnit(UnitWIP).CloseUnit; //Make sure unit started training
-      HideOneGold:=false;
+      HideOneGold := false;
     end;
-    UnitWIP:=nil;
+    UnitWIP := nil;
   end;
 
   for i:=aID to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one
@@ -1234,10 +1236,10 @@ end;
 procedure TKMHouseSchool.StartTrainingUnit;
 begin
   //If there's yet no unit in training
-  if UnitQueue[1]=ut_None then exit;
-  if CheckResIn(rt_Gold)=0 then exit;
-  HideOneGold:=true;
-  UnitWIP:=fPlayers.Player[byte(fOwner)].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
+  if UnitQueue[1] = ut_None then exit;
+  if CheckResIn(rt_Gold) = 0 then exit;
+  HideOneGold := true;
+  UnitWIP := fPlayers.Player[byte(fOwner)].TrainUnit(UnitQueue[1],GetEntrance);//Create Unit
   fTerrain.UnitRem(GetEntrance); //Adding a unit automatically sets IsUnit, but as the unit is inside for this case we don't want that
   TKMUnit(UnitWIP).SetUnitTask := TTaskSelfTrain.Create(UnitWIP,Self);
 end;
@@ -1247,7 +1249,7 @@ end;
 procedure TKMHouseSchool.UnitTrainingComplete;
 var i:integer;
 begin
-  UnitWIP:=nil;
+  UnitWIP := nil;
   ResTakeFromIn(rt_Gold); //Do the goldtaking
   HideOneGold:=false;
   for i:=1 to length(UnitQueue)-1 do UnitQueue[i]:=UnitQueue[i+1]; //Shift by one

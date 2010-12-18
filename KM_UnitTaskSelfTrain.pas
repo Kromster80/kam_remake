@@ -9,7 +9,6 @@ type
   TTaskSelfTrain = class(TUnitTask)
     private
       fSchool:TKMHouseSchool;
-      fUnitTrained:boolean;
     public
       constructor Create(aUnit:TKMUnit; aSchool:TKMHouseSchool);
       constructor Load(LoadStream:TKMemoryStream); override;
@@ -30,7 +29,6 @@ begin
   Inherited Create(aUnit);
   fTaskName := utn_SelfTrain;
   fSchool   := TKMHouseSchool(aSchool.GetHousePointer);
-  fUnitTrained := false;
   fUnit.SetVisibility := false;
 end;
 
@@ -39,7 +37,6 @@ constructor TTaskSelfTrain.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(fSchool, 4);
-  LoadStream.Read(fUnitTrained);
 end;
 
 
@@ -50,17 +47,10 @@ begin
 end;
 
 
-{ Abort if someone has destroyed our school
-  Here's the trick, we need to dispose of task and unit altogether, but if we delete unit first,
-  it will try to delete this task and we'll enter an infinite loop!
-  So instead we must delete the task (it will become NIL) and only then delete the unit }
 destructor TTaskSelfTrain.Destroy;
-var TempUnit: TKMUnit;
 begin
-  TempUnit := fUnit; //Make local copy of the pointer because Inherited will set the pointer to nil
   fPlayers.CleanUpHousePointer(fSchool);
   Inherited;
-  if not fUnitTrained then TempUnit.CloseUnit; //CloseUnit at last, cos it will FreeAndNil TTask
 end;
 
 
@@ -69,7 +59,8 @@ begin
   Result := TaskContinues;
 
   if fSchool.IsDestroyed then
-  begin
+  begin //School will cancel the training on own destruction
+    Assert(false, 'Unexpected error. Destoyed school erases the task');
     Result := TaskDone;
     exit;
   end;
@@ -105,7 +96,6 @@ begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
           fSchool.UnitTrainingComplete;
           fPlayers.Player[byte(GetOwner)].CreatedUnit(UnitType,true);
-          fUnitTrained := true;
          end;
       else Result := TaskDone;
     end;
@@ -120,7 +110,6 @@ begin
     SaveStream.Write(fSchool.ID) //Store ID, then substitute it with reference on SyncLoad
   else
     SaveStream.Write(Zero);
-  SaveStream.Write(fUnitTrained);
 end;
 
 

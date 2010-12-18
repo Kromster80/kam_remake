@@ -30,9 +30,11 @@ EXE-only r1007+:
  +	Game crashes by using german language (all other languages runs good)
  +	Crash when unit gets killed during exchanging places with another unit
  +	"back to main menu" button: german text (zuruck zum hauptmenu) is too lang for the button in game finale
+ +	Canceling unit training (also destroying school while training is in progress) in school causes a crash in recent builds
 	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
 	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
+	Sawmill is rendered wrong
 
 	Display WIP houses/units in statistics menu
 	Make units/houses highlight red when about to erase them as trees do (in MapEd)
