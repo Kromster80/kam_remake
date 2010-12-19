@@ -460,6 +460,7 @@ begin
 
   Panel_CampScroll:=MyControls.AddPanel(Panel_Campaign,ScreenX-360,ScreenY-430,360,430);
 
+    //todo: make it 21 lines! (for Spanish translation)
     Image_Scroll := MyControls.AddImage(Panel_CampScroll, 0, 0,360,430,{15}2,6);
     Image_Scroll.ImageStretch;
     Label_CampaignTitle := MyControls.AddLabel(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, kaCenter);

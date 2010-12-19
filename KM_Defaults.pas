@@ -1155,6 +1155,7 @@ var
     Data:array of array of byte;
     RGBA:array of array of cardinal; //Expanded image
     Mask:array of array of cardinal; //Mask for team colors
+    HasMask:array of boolean; //Mask for team colors
     NeedTeamColors:boolean;
   end;
 

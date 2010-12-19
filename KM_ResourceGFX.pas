@@ -31,8 +31,9 @@ type
     function LoadUnitDAT(filename:string):boolean;
     function LoadFont(filename:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
-    function LoadRX(filename:string; ID:integer):boolean;
-    procedure LoadRX7(aID:integer);
+    procedure AllocateRX(ID:integer; Count:integer=0);
+    function  LoadRX(filename:string; ID:integer):boolean;
+    procedure LoadRX7(RX:integer);
     procedure ExpandRX(ID:integer);
     procedure MakeGFX(RXid:integer);
     procedure MakeGFX_AlphaTest(RXid:integer);
@@ -79,6 +80,14 @@ begin
   Inherited;
   fDataState := dls_None;
   fLog.AppendLog('Resource loading state - None');
+
+  RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
+  RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
+  RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
+  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and icons
+  RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
+  RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
+  RXData[7].Title:='Remake';      RXData[7].NeedTeamColors:=false;
 end;
 
 
@@ -108,7 +117,6 @@ end;
 function TResource.LoadMenuResources(aLocale:string):boolean;
 var i:integer;
 begin
-//  Result:=false;
   fLog.AssertToLog(fTextLibrary <> nil, 'fTextLibrary should be init before ReadGFX');
   fLog.AssertToLog(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
@@ -116,25 +124,22 @@ begin
   LoadPalettes();
   fLog.AppendLog('Reading palettes',true);
 
-  RXData[1].Title:='Trees';       RXData[1].NeedTeamColors:=false;
-  RXData[2].Title:='Houses';      RXData[2].NeedTeamColors:=true;
-  RXData[3].Title:='Units';       RXData[3].NeedTeamColors:=true;
-  RXData[4].Title:='GUI';         RXData[4].NeedTeamColors:=true; //Required for unit scrolls and stat icons
-  RXData[5].Title:='GUIMain';     RXData[5].NeedTeamColors:=false;
-  RXData[6].Title:='GUIMainH';    RXData[6].NeedTeamColors:=false;
-  RXData[7].Title:='Remake';      RXData[7].NeedTeamColors:=false;
-
-  for i:=4 to 7 do
+  for i:=4 to 6 do
   begin
     LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i);
-    LoadRX7(i); //Something fancy to Load RX7 data (custom bitmaps and overrides)
+    LoadRX7(i); //Load RX data overrides
 
     if i=4 then MakeCursors(4);
     MakeGFX(i);
     ClearUnusedGFX(i);
-    
+
     StepRefresh();
   end;
+
+  AllocateRX(7,4); //4 pics for start
+  LoadRX7(7); //Load RX7 data (custom bitmaps)
+  MakeGFX(7);
+  ClearUnusedGFX(7);
 
   StepCaption('Reading fonts ...');
   LoadFonts(false, aLocale);
@@ -151,15 +156,14 @@ end;
 function TResource.LoadGameResources():boolean;
 var i:integer;
 begin
-//  Result:=false;
   fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
   fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
-  fLog.AppendLog('Reading mapelem.dat',LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat')); StepRefresh();
-  fLog.AppendLog('Reading pattern.dat',LoadPatternDAT(ExeDir+'data\defines\pattern.dat')); StepRefresh();
-  fLog.AppendLog('Reading houses.dat', LoadHouseDAT(ExeDir+'data\defines\houses.dat'));    StepRefresh();
-  fLog.AppendLog('Reading unit.dat',   LoadUnitDAT(ExeDir+'data\defines\unit.dat'));       StepRefresh();
+  LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat'); StepRefresh();
+  LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh();
+  LoadHouseDAT(ExeDir+'data\defines\houses.dat');    StepRefresh();
+  LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh();
 
   for i:=1 to 3 do
     if (i=1) or ((i=2) and MAKE_HOUSE_SPRITES) or ((i=3) and MAKE_UNIT_SPRITES) then
@@ -584,15 +588,14 @@ end;
 
 { This function should parse all valid files in Sprites folder and load them
   additionaly to or replacing original sprites }
-procedure TResource.LoadRX7(aID:integer);
+procedure TResource.LoadRX7(RX:integer);
 var
   FileList:TStringList;
   SearchRec:TSearchRec;
   i:integer; x,y:integer;
-  RX,ID:integer; p:cardinal;
+  ID:integer; p:cardinal;
   po:TPNGObject;
 begin
-
   if not DirectoryExists(ExeDir + 'Sprites\') then exit;
 
   FileList := TStringList.Create;
@@ -602,19 +605,19 @@ begin
     if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
     if SearchRec.Attr and faDirectory <> faDirectory then
     if GetFileExt(SearchRec.Name) = 'PNG' then
+    if StrToIntDef(SearchRec.Name[1],0) = RX then
       FileList.Add(SearchRec.Name);
   until (FindNext(SearchRec)<>0);
   FindClose(SearchRec);
 
   //#-####.png - default texture
   //#-####a.png - alternative texture
-  //todo:  Support alternative textures
+  
   for i:=0 to FileList.Count-1 do begin
 
-    RX := StrToIntDef(FileList.Strings[i][1],0); //wrong file will return 0
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
-    if (RX=aID) and InRange(ID,1,RXData[RX].Qty) then begin //Replace only certain sprites
-
+    if InRange(ID,1,RXData[RX].Qty) then begin //Replace only certain sprites
+      RXData[RX].HasMask[i] := false; //todo:  Support alternative textures
       po := TPNGObject.Create;
       po.LoadFromFile(ExeDir + 'Sprites\' + FileList.Strings[i]);
 
@@ -650,53 +653,52 @@ begin
 end;
 
 
+procedure TResource.AllocateRX(ID:integer; Count:integer=0);
+begin
+  if Count>0 then
+    RXData[ID].Qty := Count;
+
+  Count := RXData[ID].Qty+1;
+  setlength(GFXData[ID],      Count);
+  setlength(RXData[ID].Flag,  Count);
+  setlength(RXData[ID].Size,  Count);
+  setlength(RXData[ID].Pivot, Count);
+  setlength(RXData[ID].Data,  Count);
+  setlength(RXData[ID].RGBA,  Count);
+  setlength(RXData[ID].Mask,  Count);
+  setlength(RXData[ID].HasMask,  Count);
+end;
+
+
 //=============================================
 //Reading RX Data
 //=============================================
 function TResource.LoadRX(filename:string; ID:integer):boolean;
-  procedure AllocateData(A,Q:integer);
-  begin
-    setlength(GFXData[A],      Q);
-    setlength(RXData[A].Flag,  Q);
-    setlength(RXData[A].Size,  Q);
-    setlength(RXData[A].Pivot, Q);
-    setlength(RXData[A].Data,  Q);
-    setlength(RXData[A].RGBA,  Q);
-    setlength(RXData[A].Mask,  Q);
-  end;
 var i:integer; f:file;
 begin
   Result:=false;
-
-  if ID=7 then begin
-    RXData[ID].Qty := 4; //Custom number
-    AllocateData(ID, RXData[ID].Qty+1);
-    exit; //
-  end;
-
   if not CheckFileExists(filename) then exit;
 
   assignfile(f,filename); reset(f,1);
   blockread(f, RXData[ID].Qty, 4);
-  AllocateData(ID, RXData[ID].Qty+1);
+  AllocateRX(ID);
   blockread(f, RXData[ID].Flag[1], RXData[ID].Qty);
 
   if (not LOAD_UNIT_RX_FULL)and(RXData[ID].Title = 'Units') then RXData[ID].Qty:=7885;
 
   for i:=1 to RXData[ID].Qty do
-    if RXData[ID].Flag[i] = 1 then
-    begin
-      blockread(f, RXData[ID].Size[i].X, 4);
-      blockread(f, RXData[ID].Pivot[i].x, 8);
-      setlength(RXData[ID].Data[i], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
-      blockread(f, RXData[ID].Data[i,0], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
-    end;
-
+  if RXData[ID].Flag[i] = 1 then
+  begin
+    blockread(f, RXData[ID].Size[i].X, 4);
+    blockread(f, RXData[ID].Pivot[i].x, 8);
+    setlength(RXData[ID].Data[i], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
+    blockread(f, RXData[ID].Data[i,0], RXData[ID].Size[i].X * RXData[ID].Size[i].Y);
+  end;
   closefile(f);
   fLog.AppendLog(RXData[ID].Title+' -',RXData[ID].Qty);
-  Result:=true;
 
-  ExpandRX(ID);
+  ExpandRX(ID);   
+  Result:=true;
 end;
 
 
@@ -722,7 +724,7 @@ begin
 
       for y:=0 to Size[i].Y-1 do for x:=0 to Size[i].X-1 do
       begin
-        Pixel := y*Size[i].X+x;
+        Pixel := y*Size[i].X + x;
         L := Data[i, Pixel]; //0..255
 
         if L<>0 then
@@ -734,6 +736,7 @@ begin
               25,27:  Mask[i,Pixel] := $C0FFFFFF;   //14 //12
               26:     Mask[i,Pixel] := $FFFFFFFF;   //16 //16
             end;
+            HasMask[i] := true;
           end else
             RGBA[i,Pixel] := GetColor32(L, Palette);
       end;
@@ -875,19 +878,8 @@ var
   WidthPOT,HeightPOT:integer;
   TD:array of cardinal;
   TA:array of cardinal;
-  HasMask:array of boolean;
+  hm:boolean;
 begin
-
-  setlength(HasMask, RXData[RXid].Qty+1);
-  if MAKE_TEAM_COLORS and RXData[RXid].NeedTeamColors then //Otherwise Masks ignored 
-  for i:=1 to RXData[RXid].Qty do begin
-    k:=0;
-    while (k<=(length(RXData[RXid].RGBA[i])-1)) and not HasMask[i] do begin
-      HasMask[i] := RXData[RXid].RGBA[i,k]<>0;
-      inc(k);
-    end;
-  end;
-
   LeftIndex:=0; AllocatedRAM:=0; RequiredRAM:=0; ColorsRAM:=0; TexCount:=0;
   repeat
     inc(LeftIndex);
@@ -929,17 +921,19 @@ begin
         end;
     end;
 
+    hm:=false;
+    for j:=LeftIndex to RightIndex do
+      hm := hm or RXData[RXid].HasMask[j];
+
     //If we need to prepare textures for TeamColors          //special fix for iron mine logo
     if MAKE_TEAM_COLORS and RXData[RXid].NeedTeamColors and (not ((RXid=4)and InRange(49,LeftIndex,RightIndex))) then
     begin
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
       //TeamColors are done through alternative plain colored texture
-      for j := 0 to WidthPOT*HeightPOT-1 do
-        if TA[j]<>0 then begin
-          GFXData[RXid,LeftIndex].AltID := GenTexture(WidthPOT,HeightPOT,@TA[0],tm_AltID);
-          inc(ColorsRAM,WidthPOT*HeightPOT*4);
-          break;
-        end;
+      if hm then begin
+        GFXData[RXid,LeftIndex].AltID := GenTexture(WidthPOT,HeightPOT,@TA[0],tm_AltID);
+        inc(ColorsRAM,WidthPOT*HeightPOT*4);
+      end;
     end
     else
       GFXData[RXid,LeftIndex].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_TexID);
