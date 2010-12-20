@@ -763,6 +763,7 @@ begin
   Result := GenerateTextureCommon; //Should be called prior to glTexImage2D or gluBuild2DMipmaps
 
   case Mode of
+    //Houses under construction
     tm_AlphaTest: glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,    DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
     //Base layer
     tm_TexID:     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, DestX, DestY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
@@ -802,54 +803,47 @@ In result we have GFXData filled.}
 procedure TResource.MakeGFX_AlphaTest(RXid:integer);
 var
   ID,ID1,ID2:integer; //RGB and A index
-  ci,i,k,h,StepCount:integer;
-  t,t2:integer;
+  i,k,h,StepCount:integer;
+  t,tx,ty:integer;
   ColorID:byte;
   WidthPOT,HeightPOT:integer;
-  TD:array of byte;
+  TD:array of cardinal;
 begin
-
   for ID:=1 to HOUSE_COUNT do
     if HouseDAT[ID].StonePic<>-1 then //Exlude House27 which is unused
-      for h:=1 to 2 do begin
 
+      for h:=1 to 2 do begin
         if h=1 then begin
           ID1 := HouseDAT[ID].WoodPic+1;
           ID2 := HouseDAT[ID].WoodPal+1;
-          StepCount:=HouseDAT[ID].WoodPicSteps;
+          StepCount := HouseDAT[ID].WoodPicSteps;
         end else begin
           ID1 := HouseDAT[ID].StonePic+1;
           ID2 := HouseDAT[ID].StonePal+1;
-          StepCount:=HouseDAT[ID].StonePicSteps;
+          StepCount := HouseDAT[ID].StonePicSteps;
         end;
 
         WidthPOT  := MakePOT(RXData[RXid].Size[ID1].X);
         HeightPOT := MakePOT(RXData[RXid].Size[ID1].Y);
-        setlength(TD, WidthPOT*HeightPOT*4+1);
+        setlength(TD, WidthPOT*HeightPOT);
 
-        for i := 1 to HeightPOT do begin
-          ci := -1;
+        //Fill in colors data
+        for i := 0 to RXData[RXid].Size[ID1].Y-1 do
+        for k := 0 to RXData[RXid].Size[ID1].X-1 do begin
+          ColorID := RXData[RXid].Data[ID1,i*RXData[RXid].Size[ID1].X+k]; //0..255
+          if ColorID<>0 then
+            TD[i*WidthPOT+k] := GetColor32(ColorID, DEF_PAL);
+        end;
 
-          for k := 1 to RXData[RXid].Size[ID1].X do begin
-            inc(ci);
-            if i <= RXData[RXid].Size[ID1].Y then begin
-
-              t   := ((i-1)*WidthPOT+ci)*4;
-              ColorID := RXData[RXid].Data[ID1,(i-1)*RXData[RXid].Size[ID1].X+k-1]; //0..255
-              TD[t+0] := Pal[DEF_PAL, ColorID, 1];
-              TD[t+1] := Pal[DEF_PAL, ColorID, 2];
-              TD[t+2] := Pal[DEF_PAL, ColorID, 3];
-              if ColorID = 0 then
-                TD[t+3] := 0
-              else
-                if i<=RXData[RXid].Size[ID2].Y then
-                if k<=RXData[RXid].Size[ID2].X then begin//Cos someimes ID2 is smaller by few pixels
-                  t2 := t  + (RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x)*4; //Shift by pivot, always positive
-                  t2 := t2 + (RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT*4; //Shift by pivot, always positive
-                  TD[t2+3] := 255 - round(RXData[RXid].Data[ID2,(i-1)*RXData[RXid].Size[ID2].X+k-1]*(255/StepCount));
-                end;
-            end;
-          end;
+        //Apply mask to where colors are (yes, it needs to be done in 2 steps, since offsets mismatch)
+        tx := RXData[RXid].Pivot[ID2].x-RXData[RXid].Pivot[ID1].x;
+        ty := (RXData[RXid].Pivot[ID2].y-RXData[RXid].Pivot[ID1].y)*WidthPOT;
+        for i := 0 to RXData[RXid].Size[ID2].Y-1 do
+        for k := 0 to RXData[RXid].Size[ID2].X-1 do begin
+          t := i*WidthPOT+k + tx + ty; //Shift by pivot, always positive
+          ColorID := RXData[RXid].Data[ID2,i*RXData[RXid].Size[ID2].X+k];
+          if (ColorID<>0) and (TD[t]<>0) then
+            TD[t] := TD[t] AND ($FFFFFF OR (255-round(ColorID*(255/StepCount))) shl 24);
         end;
 
         GFXData[RXid,ID1].TexID := GenTexture(WidthPOT,HeightPOT,@TD[0],tm_AlphaTest);
