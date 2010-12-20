@@ -389,7 +389,7 @@ var
   Barracks: TKMHouseBarracks;
   iPlayerAI: TKMPlayerAI;
 begin
-  Result:=false; //Set it right from the start
+  Result := false; //Set it right from the start
   case CommandType of
   ct_SetMap:         begin
                        MyStr := RemoveQuotes(TextParam);
@@ -585,15 +585,25 @@ begin
                        //If the condition is time then ParamList[3] is the time, else it is player ID
                        if TGoalCondition(ParamList[0]) = gc_Time then
                          fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_None)
-                       else
+                       else begin
+                         if fPlayers.Player[ParamList[3]+1] = nil then begin
+                           DebugScriptError('Add_Goal for non existing player');
+                           exit;
+                         end;
                          fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Victory,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                       end;
                      end;
   ct_AddLostGoal:    begin
                        //If the condition is time then ParamList[3] is the time, else it is player ID
                        if TGoalCondition(ParamList[0]) = gc_Time then
                          fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),ParamList[3],ParamList[2],play_None)
-                       else
+                       else begin
+                         if fPlayers.Player[ParamList[3]+1] = nil then begin
+                           DebugScriptError('Add_LostGoal for non existing player');
+                           exit;
+                         end;
                          fPlayers.Player[CurrentPlayerIndex].AddGoal(glt_Survive,TGoalCondition(ParamList[0]),TGoalStatus(ParamList[1]),0,ParamList[2],TPlayerID(ParamList[3]+1));
+                       end;
                      end;
   ct_AIDefence:      begin
                        fPlayers.PlayerAI[CurrentPlayerIndex].AddDefencePosition(KMPointDir(KMPointX1Y1(ParamList[0],ParamList[1]),ParamList[2]),TGroupType(ParamList[3]+1),ParamList[4],TAIDefencePosType(ParamList[5]));
@@ -640,10 +650,11 @@ begin
 end;
 
 
+//A nice way of debugging script errors.
+//Shows the error to the user so they know exactly what they did wrong.
 procedure TMissionParser.DebugScriptError(const ErrorMsg:string);
 begin
-  ErrorMessage:=ErrorMessage+ErrorMsg+'|';
-  //todo: Just an idea, a nice way of debugging script errors. Shows the error to the user so they know exactly what they did wrong.
+  ErrorMessage := ErrorMessage + ErrorMsg + '|';
 end;
 
 

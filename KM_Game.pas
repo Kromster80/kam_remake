@@ -809,8 +809,8 @@ begin
       on E : Exception do
       begin
         //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-        LoadError := 'An error was encountered while parsing the file '+fMissionFile+'.|Details of the error:|'+
-                      E.ClassName+' error raised with message: '+E.Message;
+        LoadError := 'An error has occured while parsing the file '+fMissionFile+'||'+
+                      E.ClassName+': '+E.Message;
         if fGameState in [gsRunning, gsPaused] then GameStop(gr_Silent); //Stop the game so that the main menu error can be shown
         fMainMenuInterface.ShowScreen_Error(LoadError);
         fLog.AppendLog('DAT Load Exception: '+LoadError);

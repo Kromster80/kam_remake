@@ -31,6 +31,7 @@ EXE-only r1007+:
  +	Crash when unit gets killed during exchanging places with another unit
  +	"back to main menu" button: german text (zuruck zum hauptmenu) is too lang for the button in game finale
  +	Canceling unit training (also destroying school while training is in progress) in school causes a crash in recent builds
+ +	Crash in Vortamic mission after few seconds of play (there's a bug in mission script, it is reported now)
 	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
 	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
