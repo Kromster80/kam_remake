@@ -390,23 +390,28 @@ function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont;
 var
   i:integer;
   CharSpacing,LineCount,AdvX,LineHeight:integer;
-  LineWidth:array[1..256] of word; //Lets hope 256 lines will be enough
+  LineWidth:array of word; //Lets hope 256 lines will be enough
 begin
-  CharSpacing := FontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
+  if Text='' then exit;
+
+  LineCount := 1;
+  for i:=1 to length(Text) do
+    if Text[i]=#124 then inc(LineCount);
+
+  setlength(LineWidth, LineCount+2); //1..n+1 (for last line)
 
   LineCount := 1;
   LineHeight := 0;
-  LineWidth[LineCount] := 0;
+  CharSpacing := FontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
   for i:=1 to length(Text) do begin
     if Text[i]<>#124 then begin
       if Text[i]=#32 then inc(LineWidth[LineCount], FontData[Fnt].WordSpacing)
-                     else inc(LineWidth[LineCount], FontData[Fnt].Letters[ord(Text[i])].Width+CharSpacing);
+                     else inc(LineWidth[LineCount], FontData[Fnt].Letters[byte(Text[i])].Width+CharSpacing);
       LineHeight := Math.max(LineHeight, FontData[Fnt].Letters[ord(Text[i])].Height);
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
       LineWidth[LineCount] := Math.max(0,LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
       inc(LineCount);
-      LineWidth[LineCount] := 0;
     end;
   end;
 
