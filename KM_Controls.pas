@@ -112,13 +112,19 @@ end;
 
 {Text Label}
 TKMLabel = class(TKMControl)
+  private
+    fCaption: string;
+    fText:string;
+    procedure SetCaption(aCaption:string);
+    procedure ReformatText();
   public
     Font: TKMFont;
     FontColor: TColor4;
     TextAlign: KAlign;
     AutoWrap: boolean; //Wherever to automatically wrap text within given text area width
     SmoothScrollToTop: integer; //Delta between this and TimeGetTime affects vertical position
-    Caption: string;
+    property Caption:string read fCaption write SetCaption;
+    function TextHeight():integer;
   protected
     constructor Create(aParent:TKMPanel; aLeft,aTop,aWidth,aHeight:integer; aFont:TKMFont; aTextAlign: KAlign; aCaption:string; aColor:TColor4=$FFFFFFFF);
     function HitTest(X, Y: Integer): Boolean; override;
@@ -777,7 +783,14 @@ begin
   TextAlign:=aTextAlign;
   AutoWrap:=false;
   SmoothScrollToTop:=0; //means disabled
-  Caption:=aCaption;
+  SetCaption(aCaption);
+end;
+
+
+procedure TKMLabel.SetCaption(aCaption:string);
+begin
+  fCaption := aCaption;
+  ReformatText()
 end;
 
 
@@ -788,6 +801,45 @@ begin
     kaCenter: Result := InRange(X, Left - Width div 2, Left + Width div 2) and InRange(Y, Top, Top + Height) and IsVisible;
     kaRight: Result := InRange(X, Left - Width, Left) and InRange(Y, Top, Top + Height) and IsVisible;
     else Result := false;
+  end;
+end;
+
+
+function TKMLabel.TextHeight():integer;
+begin
+  ReformatText();
+  Result := fRenderUI.WriteText(0, 0, Width, fText, Font, TextAlign, AutoWrap, $00000000).Y;
+end;
+
+
+//Existing EOLs should be preserved, and new ones added where needed.
+procedure TKMLabel.ReformatText();
+var i,CharSpacing,AdvX,PrevX,LastSpace:integer;
+begin
+  fText := fCaption; //Keep original intact incase we need to Reformat text again
+  if not AutoWrap then exit;
+
+  AdvX := 0;
+  PrevX := 0;
+  LastSpace := -1;
+  CharSpacing := FontData[Font].CharSpacing; //Spacing between letters, this varies between fonts
+
+  for i:=1 to length(fText) do
+  begin
+    if (fText[i]=#32) or (fText[i]=#124) then begin
+      LastSpace := i;
+      PrevX := AdvX;
+    end;
+
+    if fText[i]=#32 then inc(AdvX, FontData[Font].WordSpacing)
+                    else inc(AdvX, FontData[Font].Letters[ord(fText[i])].Width + CharSpacing);
+
+    //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
+    if ((AdvX>Width)and(LastSpace<>-1))or(fText[i]=#124) then
+    begin
+      fText[LastSpace] := #124; //Replace last whitespace with EOL
+      dec(AdvX, PrevX); //Subtract width since replaced whitespace
+    end;
   end;
 end;
 
@@ -803,15 +855,12 @@ begin
     NewTop := Top;
 
   if Enabled then
-    Tmp := fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, FontColor)
+    Tmp := fRenderUI.WriteText(Left, NewTop, Width, fText, Font, TextAlign, AutoWrap, FontColor)
   else
-    Tmp := fRenderUI.WriteText(Left, NewTop, Width, Caption, Font, TextAlign, AutoWrap, $FF888888);
+    Tmp := fRenderUI.WriteText(Left, NewTop, Width, fText, Font, TextAlign, AutoWrap, $FF888888);
 
-  if not AutoWrap then
-    Width:=Tmp.X;
-
-  if SmoothScrollToTop=0 then
-    Height:=Tmp.Y;
+  if not AutoWrap then Width := Tmp.X;
+  if SmoothScrollToTop=0 then Height := Tmp.Y;
 end;
 
 

@@ -460,12 +460,11 @@ begin
 
   Panel_CampScroll:=MyControls.AddPanel(Panel_Campaign,ScreenX-360,ScreenY-430,360,430);
 
-    //todo: make it 21 lines! (for Spanish translation)
     Image_Scroll := MyControls.AddImage(Panel_CampScroll, 0, 0,360,430,{15}2,6);
     Image_Scroll.ImageStretch;
     Label_CampaignTitle := MyControls.AddLabel(Panel_CampScroll, 180, 18,100,20, '', fnt_Outline, kaCenter);
 
-    Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 20, 50, 320, 310, '', fnt_Briefing, kaLeft);
+    Label_CampaignText := MyControls.AddLabel(Panel_CampScroll, 20, 50, 325, 310, '', fnt_Briefing, kaLeft);
     Label_CampaignText.AutoWrap := true;
 
   Button_CampaignStart := MyControls.AddButton(Panel_Campaign, ScreenX-220-20, ScreenY-50, 220, 30, fTextLibrary.GetRemakeString(11), fnt_Metal, bsMenu);
@@ -960,17 +959,18 @@ begin
   if not TKMImage(Sender).HighlightOnMouseOver then exit; //Skip closed maps
 
    //Place highlight
-  for i:=1 to length(Image_CampaignNodes) do begin
+  for i:=1 to length(Image_CampaignNodes) do
     Image_CampaignNodes[i].Highlight := false;
-    //Image_CampaignNodes[i].ImageCenter;
-  end;
 
   TKMImage(Sender).Highlight := true;
-  //TKMImage(Sender).ImageStretch;
 
   Label_CampaignTitle.Caption := 'Mission '+inttostr(TKMImage(Sender).Tag);
-
   Label_CampaignText.Caption := fGame.fCampaignSettings.GetMapText(Campaign_Selected, TKMImage(Sender).Tag);
+
+  Panel_CampScroll.Height := 50 + Label_CampaignText.TextHeight + 70; //Add offset from top and space on bottom
+  Panel_CampScroll.Top := ScreenY - Panel_CampScroll.Height;
+  Image_Scroll.Height := Panel_CampScroll.Height;
+
   Campaign_Mission_Choice := TKMImage(Sender).Tag;
 end;
 

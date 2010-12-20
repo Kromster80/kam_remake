@@ -389,60 +389,34 @@ end;
 function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont; Align:KAlign; Wrap:boolean; Color:TColor4):TKMPoint;
 var
   i:integer;
-  CharSpacing,LineCount,AdvX,PrevX,LastSpace:integer;
+  CharSpacing,LineCount,AdvX,LineHeight:integer;
   LineWidth:array[1..256] of word; //Lets hope 256 lines will be enough
 begin
-  CharSpacing := FontData[Fnt].CharSpacing;// CharSpacing[Fnt]; //Spacing between letters, this varies between fonts
-  Result.X := 0;
-  Result.Y := 0;
+  CharSpacing := FontData[Fnt].CharSpacing; //Spacing between letters, this varies between fonts
 
-  if Wrap then //Reposition EOLs
-  begin
-
-    AdvX := 0;
-    PrevX := 0;
-    LastSpace := -1; //Used as line width
-
-    for i:=1 to length(Text) do //Existing EOLs should be preserved, and new ones added where needed.
-      begin
-      if (Text[i]=#32) or (Text[i]=#124) then begin
-        LastSpace := i;
-        PrevX := AdvX;
-      end;
-
-      if Text[i]=#32 then
-        inc(AdvX, FontData[Fnt].WordSpacing)
-      else
-        inc(AdvX, FontData[Fnt].Letters[ord(Text[i])].Width + CharSpacing);
-
-      //This algorithm is not perfect, somehow line width is not within SizeX, but very rare
-      if ((AdvX>SizeX)and(LastSpace<>-1))or(Text[i]=#124) then
-      begin
-        Text[LastSpace] := #124; //Replace last whitespace with EOL
-        dec(AdvX, PrevX); //Should subtract replaced whitespace
-      end;
-    end;
-  end;
-
-  LineCount := 0;
+  LineCount := 1;
+  LineHeight := 0;
+  LineWidth[LineCount] := 0;
   for i:=1 to length(Text) do begin
     if Text[i]<>#124 then begin
-      if Text[i]=#32 then
-        Result.X := Result.X+FontData[Fnt].WordSpacing
-      else
-        Result.X := Result.X+FontData[Fnt].Letters[ord(Text[i])].Width+CharSpacing;
-      Result.Y := Math.max(Result.Y,FontData[Fnt].Letters[ord(Text[i])].Height);
+      if Text[i]=#32 then inc(LineWidth[LineCount], FontData[Fnt].WordSpacing)
+                     else inc(LineWidth[LineCount], FontData[Fnt].Letters[ord(Text[i])].Width+CharSpacing);
+      LineHeight := Math.max(LineHeight, FontData[Fnt].Letters[ord(Text[i])].Height);
     end;
     if (Text[i]=#124)or(i=length(Text)) then begin //If EOL or text end
+      LineWidth[LineCount] := Math.max(0,LineWidth[LineCount]-CharSpacing); //Remove last interletter space and negate double EOLs
       inc(LineCount);
-      Assert(LineCount <= Length(LineWidth), 'Line count exceeded');
-      LineWidth[LineCount]:=Math.max(0,Result.X-CharSpacing); //Remove last interletter space and negate double EOLs
-      Result.X := 0;
+      LineWidth[LineCount] := 0;
     end;
   end;
 
+  dec(LineCount);
+  Result.X := 0;
+  Result.Y := LineHeight*LineCount;
   for i:=1 to LineCount do
-    Result.X := Math.max(Result.X,LineWidth[i]);
+    Result.X := Math.max(Result.X,LineWidth[i]); 
+
+  if Color = $00000000 then exit; //Just compute dimensions and exit
 
   AdvX := 0;
   LineCount := 1;
@@ -464,9 +438,9 @@ begin
       if Text[i]=#124 then begin
         glEnd;
         inc(LineCount);
-        if Align=kaLeft   then glTranslatef(0, Result.Y, 0); //Negate previous line length
-        if Align=kaCenter then glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, Result.Y, 0);
-        if Align=kaRight  then glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], Result.Y, 0);
+        if Align=kaLeft   then glTranslatef(0, LineHeight, 0); //Negate previous line length
+        if Align=kaCenter then glTranslatef(-(LineWidth[LineCount]-LineWidth[LineCount-1])div 2, LineHeight, 0);
+        if Align=kaRight  then glTranslatef(-LineWidth[LineCount]+LineWidth[LineCount-1], LineHeight, 0);
         AdvX:=0;
         glBegin(GL_QUADS);
       end else
@@ -484,7 +458,6 @@ begin
     glEnd;
     glBindTexture(GL_TEXTURE_2D,0);
   glPopMatrix;
-  Result.Y := Result.Y*LineCount;
 end;
 
 
