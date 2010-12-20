@@ -173,6 +173,7 @@ begin
     fMainMenuInterface.SetScreenSize(X,Y)
   else begin //If game is running
     fViewport.SetVisibleScreenArea(X,Y);
+    fMainMenuInterface.SetScreenSize(X,Y); //It's not visible but exists
     if fGameState = gsEditor then
       fMapEditorInterface.SetScreenSize(X,Y)
     else
