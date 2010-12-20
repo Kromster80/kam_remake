@@ -1173,7 +1173,7 @@ var
     Letters:array[0..255]of record
       Width,Height:word;
       Add1,Add2,YOffset,Add4:word; //Add1-4 always 0
-      Data:array[1..4096] of byte;
+      Data:array of byte;
       u1,v1,u2,v2:single;
     end;
   end;

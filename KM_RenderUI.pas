@@ -390,7 +390,7 @@ function TRenderUI.WriteText(PosX,PosY,SizeX:smallint; Text:string; Fnt:TKMFont;
 var
   i:integer;
   CharSpacing,LineCount,AdvX,LineHeight:integer;
-  LineWidth:array of word; //Lets hope 256 lines will be enough
+  LineWidth:array of integer; //Some fonts may have negative CharSpacing
 begin
   if Text='' then exit;
 

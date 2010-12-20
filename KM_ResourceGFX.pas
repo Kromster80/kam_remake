@@ -519,7 +519,8 @@ begin
         blockread(f,Add1,8);
         MaxHeight:=Math.max(MaxHeight,Height);
         fLog.AssertToLog(Width*Height<>0,'Font data Width*Height <> 0'); //Font01.fnt seems to be damaged..
-        blockread(f,Data[1],Width*Height);
+        setlength(Data, Width*Height);
+        blockread(f,Data[0],Width*Height);
       end;
   closefile(f);
 
@@ -527,7 +528,7 @@ begin
   if FontPal[aFont]=pal_lin then
   for i:=0 to 255 do
     if FontData[aFont].Pal[i]<>0 then //see if letterspace is used
-      for k:=1 to 4096 do
+      for k:=0 to length(FontData[aFont].Letters[i].Data)-1 do
         if FontData[aFont].Letters[i].Data[k]<>0 then
           FontData[aFont].Letters[i].Data[k]:=255; //Full white
 
@@ -547,16 +548,16 @@ begin
           inc(AdvY,MaxHeight);
         end;
 
-        for ci:=1 to Height do for ck:=1 to Width do begin
-          L := Data[(ci-1)*Width+ck]; //0..255
+        for ci:=0 to Height-1 do for ck:=0 to Width-1 do begin
+          L := Data[ci*Width+ck]; //0..255
           if L<>0 then //Transparent
-            TD[(AdvY+ci-1)*TexWidth+AdvX+1+ck-1]:=GetColor32(L,FontPal[aFont]);
+            TD[(AdvY+ci)*TexWidth+AdvX+1+ck] := GetColor32(L,FontPal[aFont]);
         end;
 
-        u1:=(AdvX+1)/TexWidth;
-        v1:=AdvY/TexWidth;
-        u2:=(AdvX+1+Width)/TexWidth;
-        v2:=(AdvY+Height)/TexWidth;
+        u1 := (AdvX+1)/TexWidth;
+        v1 := AdvY/TexWidth;
+        u2 := (AdvX+1+Width)/TexWidth;
+        v2 := (AdvY+Height)/TexWidth;
 
         inc(AdvX,1+Width+1);
       end;
@@ -581,8 +582,7 @@ begin
   end;
 
   setlength(TD,0);
-  Result:=true;
-
+  Result := true;
 end;
 
 
