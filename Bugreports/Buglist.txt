@@ -34,6 +34,7 @@ EXE-only r1007+:
  +	Crash in Vortamic mission after few seconds of play (there's a bug in mission script, it is reported now)
  +	Main menu position will be wrong (shifted) if game was resized during gameplay and user returns to menu
  +	Sawmill is rendered wrong
+ +	Error message on program start (cannot focus on disabled or invisible window)
 	If 2 woodcutters want to fell a tree, one cutter fells, the other stays next to him and watches... all two go home
 	Yellow "knights and merchants credits" text will be overwritten by scrolling credits-text
 	German letter "u" is replaced bei "o" and "a" in replay. the missing "U" is in "replay mission" abort-dialog; i mean the two buttons under the clock, if i pressing abort-button
