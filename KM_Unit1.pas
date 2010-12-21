@@ -255,6 +255,7 @@ begin
   //if not (Form1.Active or FormLoading.Active) then exit;
   if FormLoading.Visible then begin
     FormLoading.Hide;
+    Form1.Show;
     Form1.SetFocus;
   end;
   if fGame<>nil then fGame.UpdateState;
