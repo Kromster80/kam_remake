@@ -177,9 +177,10 @@ type
 
 
   TKMUnitRecruit = class(TKMUnit)
-  public
+  private
     function FindHome():boolean;
     function InitiateActivity():TUnitTask;
+  public
     function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
@@ -200,8 +201,9 @@ type
 
   //Worker class - builds everything in game
   TKMUnitWorker = class(TKMUnit)
-  public
+  private
     function GetActionFromQueue():TUnitTask;
+  public
     function UpdateState():boolean; override;
     procedure Paint(); override;
   end;
