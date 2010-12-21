@@ -480,10 +480,12 @@ var
   i,k:integer; //Counters
   lx,ly,hx,hy:integer; //Ranges
   dX,dY:integer;
-  U,C,W:TKMUnit;
+  U:TKMUnit;
+  L1,L2: TKMPointList; //L1 is best option (warriors)
+  ChosenPos: TKMPoint;
 begin
-  W := nil;
-  C := nil;
+  L1 := TKMPointList.Create;
+  L2 := TKMPointList.Create;
 
   lx := max(round(X-MaxRad),1); //1.42 gets rounded to 1
   ly := max(round(Y-MaxRad),1); //1.42 gets rounded to 1
@@ -507,12 +509,8 @@ begin
       dir_W:  if not((dX<0)and(abs(dY)<=-dX)) then continue;
       dir_NW: if not((dX<0)        and(dY<0)) then continue;
     end;
-    //Don't check tiles farther than closest Warrior
-    if (W<>nil) and (GetLength(i,k)>=GetLength(KMPoint(X,Y),W.GetPosition)) then
-      Continue; //Since we check left-to-right we can't exit yet
 
     U := Land[i,k].IsUnit;
-
     if (U <> nil) and
        U.IsVisible and //Inside of house
        CanWalkDiagonaly(KMPoint(X,Y),KMPoint(k,i)) and
@@ -520,15 +518,24 @@ begin
        (not U.IsDeadOrDying)
     then
       if U is TKMUnitWarrior then
-        W := U
+        L1.AddEntry(KMPoint(k,i))
       else
-        C := U;
+        L2.AddEntry(KMPoint(k,i));
   end;
 
-  if W<>nil then
-    Result := W
+  if L1.Count <> 0 then
+    ChosenPos := L1.GetRandom
   else
-    Result := C; //It's ok for C to be nil
+    if L2.Count <> 0 then 
+      ChosenPos := L2.GetRandom
+    else
+      ChosenPos := KMPoint(0,0);
+  if not KMSamePoint(ChosenPos, KMPoint(0,0)) then
+    Result := Land[ChosenPos.Y,ChosenPos.X].IsUnit
+  else
+    Result := nil;
+  L1.Free;
+  L2.Free;
 end;
 
 

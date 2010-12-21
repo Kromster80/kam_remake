@@ -73,7 +73,7 @@ type //Possibly melee warrior class? with Archer class separate?
 
     procedure SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDirection; aHouse:TKMHouse); override;
 
-    function CheckForEnemy():boolean;
+    function CheckForEnemy(aDir:TKMDirection=dir_NA):boolean;
 
     function CanInterruptAction:boolean;
 
@@ -171,8 +171,9 @@ begin
   if fCommander <> nil then
   begin
     fCommander.fMembers.Remove((Self));
-    //Now make the group reposition (halt has IsDead check in case commander is dead too)
-    fCommander.OrderHalt;
+    //Now make the group reposition if they were idle (halt has IsDead check in case commander is dead too)
+    if fCommander.fState <> ws_Walking then
+      fCommander.OrderHalt;
   end;
 
   //Kill group commander
@@ -206,12 +207,21 @@ begin
 
       //Make sure units per row is still valid
       NewCommander.fUnitsPerRow := min(NewCommander.fUnitsPerRow,NewCommander.fMembers.Count+1);
-
       //Now make the new commander reposition or keep walking where we are going (don't stop group walking because leader dies, we could be in danger)
-      //Use OrderLoc if possible
-      if fOrderLoc.Loc.X <> 0 then
-        NewCommander.OrderWalk(fOrderLoc)
-      else
+      NewCommander.fOrderLoc := fOrderLoc;
+      NewCommander.SetOrderTarget(fOrderTargetUnit);
+
+      //Transfer walk/attack
+      if (GetUnitAction is TUnitActionWalkTo) and (fState = ws_Walking) then
+      begin
+        if GetOrderTarget <> nil then
+          NewCommander.fOrder := wo_AttackUnit
+        else
+          NewCommander.fOrder := wo_Walk;
+      end;
+
+      //If we were walking/attacking then it is handled above. Otherwise just reposition
+      if fState <> ws_Walking then
         NewCommander.OrderWalk(NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
 
       //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
@@ -726,19 +736,20 @@ begin
 end;
 
 
-function TKMUnitWarrior.CheckForEnemy():boolean;
+function TKMUnitWarrior.CheckForEnemy(aDir:TKMDirection=dir_NA):boolean;
 var BestU: TKMUnit;
 begin
   Result := false; //Did we pick a fight?
   if not ENABLE_FIGHTING then exit;
   if not CanInterruptAction then exit;
+  //Archers should only look for opponents when they are idle
+  if (GetFightMaxRange >= 2) and not (GetUnitAction is TUnitActionStay) then exit;
 
-  //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
-  //todo: Improve to only look within archer's viewing angle and chooses target randomly so they don't all shoot the same enemy
-  if GetFightMaxRange > 2 then
-    BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, Direction)
-  else
-    BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, dir_NA);
+  if (aDir = dir_NA) and (GetFightMaxRange >= 2) then
+    aDir := Direction; //Use direction for ranged attacks, if it was not already specified
+
+  //This function should not be run too often, as it will take some time to execute (e.g. with lots of warriors in the range area to check)
+  BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, aDir);
 
   if BestU = nil then exit;
 
@@ -779,7 +790,7 @@ begin
   if GetUnitAction is TUnitActionStay        then Result := not GetUnitAction.Locked else //Initial pause before leaving barracks is locked
   if GetUnitAction is TUnitActionAbandonWalk then Result := not GetUnitAction.Locked else //Abandon walk should never be abandoned, it will exit within 1 step anyway
   if GetUnitAction is TUnitActionGoInOut     then Result := not GetUnitAction.Locked else //Never interupt leaving barracks
-  if GetUnitAction is TUnitActionFight       then Result := not GetUnitAction.Locked //Never interupt a fight
+  if GetUnitAction is TUnitActionFight       then Result := (GetFightMaxRange >= 2) or not GetUnitAction.Locked //Only allowed to interupt ranged fights
   else Result := true;
 end;
 
@@ -792,7 +803,8 @@ function TKMUnitWarrior.UpdateState():boolean;
     if fMembers <> nil then for i:=0 to fMembers.Count-1 do
       if TKMUnit(fMembers.Items[i]).GetUnitAction is TUnitActionFight then exit;
     Foe := nil; //Nil foe because no one is fighting
-    OrderWalk(GetPosition); //Reposition because the fight has just finished (don't use halt because that returns us to fOrderLoc)
+    if fState <> ws_Walking then
+      OrderWalk(GetPosition); //Reposition because the fight has just finished (don't use halt because that returns us to fOrderLoc)
   end;
 
 var
@@ -815,13 +827,23 @@ begin
   if (fState = ws_Engage) and ((GetCommander.Foe = nil) or (not(GetUnitAction is TUnitActionWalkTo))) then
     fState := ws_None; //As soon as combat is over set the state back
 
-  //Help out our fellow group members in combat if we are not fighting and someone else is (doesn't apply to archers, they find thier own targets)
-  if (fState <> ws_Engage) and (GetCommander.Foe <> nil) and (GetFightMaxRange < 2) then
-  begin
-    fOrder := wo_AttackUnit;
-    fState := ws_Engage; //Special state so we don't issue this order continuously
-    SetOrderTarget(GetCommander.Foe);
-  end;
+  //Help out our fellow group members in combat if we are not fighting and someone else is
+  if (fState <> ws_Engage) and (GetCommander.Foe <> nil) then
+    if GetFightMaxRange < 2 then
+    begin
+      //Melee
+      fOrder := wo_AttackUnit;
+      fState := ws_Engage; //Special state so we don't issue this order continuously
+      SetOrderTarget(GetCommander.Foe);
+    end
+    else
+      if InRange(GetLength(GetPosition, GetCommander.Foe.GetPosition), GetFightMinRange, GetFightMaxRange)
+        and(GetUnitAction is TUnitActionStay) then
+      begin
+        //Archers - If foe is reachable then turn in that direction and CheckForEnemy
+        Direction := KMGetDirection(GetPosition, GetCommander.Foe.GetPosition);
+        CheckForEnemy;
+      end;
 
   //Override current action if there's an Order in queue paying attention
   //to unit WalkTo current position (let the unit arrive on next tile first!)
@@ -922,6 +944,7 @@ begin
   begin
     fState := ws_RepositionPause; //Means we are in position and waiting until we turn
     SetActionStay(4+Random(2),ua_Walk); //Pause 0.5 secs before facing right direction. Slight random amount so they don't look so much like robots ;) (actually they still do, we need to add more randoms)
+    CheckForEnemy(TKMDirection(fOrderLoc.Dir+1)); //Check for enemy once here, mainly important to make archers shoot as soon as they have finished walking
   end
   else
   begin

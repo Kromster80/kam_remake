@@ -92,6 +92,7 @@ function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
 var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
   //See if Opponent has walked away (i.e. Serf) or died
+  //todo: When the opponent dies look for a new one right away so there isn't a pause when warriors switch targets.
   if (fOpponent.IsDeadOrDying) or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange) then
     Result := ActDone
   else
@@ -150,12 +151,12 @@ begin
 
   //Aiming Archers may miss few ticks, so don't put anything critical below!
 
-  StepDone := KMUnit.AnimStep mod Cycle = 0;
+  StepDone := (KMUnit.AnimStep mod Cycle = 0) or (TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2); //Archers may abandon at any time as they need to walk off imediantly
   inc(KMUnit.AnimStep);
 
   if (fOpponent is TKMUnitWarrior)
      and not (fOpponent.IsDeadOrDying)
-     and (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) < 1.5) then
+     and((TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) < 1.5)) then
     TKMUnitWarrior(KMUnit).GetCommander.Foe := TKMUnitWarrior(fOpponent); //Set our group's foe to this enemy, thus making it constantly change in large fights so no specific unit will be targeted
     //todo: That isn't very efficient because pointer tracking is constantly changing... should only happen every second or something.
 end;
