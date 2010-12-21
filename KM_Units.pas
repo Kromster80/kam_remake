@@ -162,6 +162,7 @@ type
   //This is a common class for units going out of their homes for resources
   TKMUnitCitizen = class(TKMUnit)
   private
+    procedure IssueResourceDepletedMessage();
   public
     WorkPlan:TUnitWorkPlan;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
@@ -392,65 +393,65 @@ begin
 end;
 
 
+procedure TKMUnitCitizen.IssueResourceDepletedMessage();
+var Msg:string;
+begin
+  if (fOwner = MyPlayer.PlayerID) //Don't show for AI players
+    and not fHome.ResourceDepletedMsgIssued then
+  begin
+    case fHome.GetHouseType of
+      ht_Quary:    Msg := fTextLibrary.GetTextString(290);
+      ht_CoalMine: Msg := fTextLibrary.GetTextString(291);
+      ht_IronMine: Msg := fTextLibrary.GetTextString(292);
+      ht_GoldMine: Msg := fTextLibrary.GetTextString(293);
+      ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointY1(fHome.GetEntrance),RANGE_FISHERMAN) then
+                      Msg := fTextLibrary.GetRemakeString(51)
+                    else
+                      Msg := fTextLibrary.GetRemakeString(52);
+      else         begin Assert(false, TypeToString(fHome.GetHouseType)+' resource cant possibly deplet'); Msg := ''; end;
+    end;
+    if Msg <> '' then fGame.fGamePlayInterface.MessageIssue(msgHouse, Msg, fHome.GetEntrance);
+    fHome.ResourceDepletedMsgIssued := true;
+  end;
+end;
+
+
 function TKMUnitCitizen.InitiateMining():TUnitTask;
 var i,Tmp,Res:integer;
 begin
   Result:=nil;
 
-  Res:=1;
+  if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
+    fGame.GameError(fCurrPosition, fTextLibrary.GetRemakeString(50));
+
+  Res := 1;
   //Check if House has production orders
   //Random pick from whole amount
   if HousePlaceOrders[byte(fHome.GetHouseType)] then
   begin
     Tmp := fHome.CheckResOrder(1)+fHome.CheckResOrder(2)+fHome.CheckResOrder(3)+fHome.CheckResOrder(4);
     if Tmp=0 then exit; //No orders
-    Tmp:=Random(Tmp)+1; //Pick random from overall count
+    Tmp := Random(Tmp)+1; //Pick random from overall count
     for i:=1 to 4 do begin
-      if InRange(Tmp,1,fHome.CheckResOrder(i)) then Res:=i;
+      if InRange(Tmp,1,fHome.CheckResOrder(i)) then Res := i;
       dec(Tmp,fHome.CheckResOrder(i));
     end;
   end;
 
-  if not KMSamePoint(fCurrPosition, fHome.GetEntrance) then
-    fGame.GameError(fCurrPosition, fTextLibrary.GetRemakeString(50));
-
   WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
-  //Now issue a message if we failed because the resource is depleted
-  if fOwner=MyPlayer.PlayerID then //Don't show for AI players
-  if WorkPlan.ResourceDepleted and not fHome.ResourceDepletedMsgIssued then
-  if fHome.GetHouseType = ht_FisherHut then
-  begin
-    if not fTerrain.CanFindFishingWater(KMPointY1(fHome.GetEntrance),RANGE_FISHERMAN) then
-      fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetRemakeString(51), fHome.GetEntrance)
-    else
-      fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetRemakeString(52), fHome.GetEntrance);
-    fHome.ResourceDepletedMsgIssued := true;
-  end
-  else
-  begin
-    case fHome.GetHouseType of
-      ht_Quary:    Tmp := 290;
-      ht_CoalMine: Tmp := 291;
-      ht_IronMine: Tmp := 292;
-      ht_GoldMine: Tmp := 293;
-      else Tmp := 0;
-    end;
-    if Tmp <> 0 then
-      fGame.fGamePlayInterface.MessageIssue(msgHouse,fTextLibrary.GetTextString(Tmp), fHome.GetEntrance);
-    fHome.ResourceDepletedMsgIssued := true;
-  end;
+  if WorkPlan.ResourceDepleted then
+    IssueResourceDepletedMessage;
 
-  if (not WorkPlan.IsIssued) or
-     ((WorkPlan.Resource1<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource1)<WorkPlan.Count1)) or
-     ((WorkPlan.Resource2<>rt_None)and(fHome.CheckResIn(WorkPlan.Resource2)<WorkPlan.Count2)) or
-     (fHome.CheckResOut(WorkPlan.Product1)>=MAX_RES_IN_HOUSE) or
-     (fHome.CheckResOut(WorkPlan.Product2)>=MAX_RES_IN_HOUSE) then
-  else
+  if WorkPlan.IsIssued
+  and ((WorkPlan.Resource1=rt_None)or(fHome.CheckResIn(WorkPlan.Resource1)>=WorkPlan.Count1))
+  and ((WorkPlan.Resource2=rt_None)or(fHome.CheckResIn(WorkPlan.Resource2)>=WorkPlan.Count2))
+  and (fHome.CheckResOut(WorkPlan.Product1)<MAX_RES_IN_HOUSE)
+  and (fHome.CheckResOut(WorkPlan.Product2)<MAX_RES_IN_HOUSE) then
   begin
     if HousePlaceOrders[byte(fHome.GetHouseType)] then
       fHome.ResEditOrder(Res, -1); //Take order
-    Result := TTaskMining.Create(WorkPlan,Self);
+    Result := TTaskMining.Create(WorkPlan, Self);
   end;
 end;
 
