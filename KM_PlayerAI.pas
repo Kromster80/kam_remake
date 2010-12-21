@@ -444,7 +444,7 @@ begin
   for i:=0 to DefencePositionsCount-1 do
     with DefencePositions[i] do
       if CurrentCommander = DeadCommander then
-        CurrentCommander := NewCommander;
+        CurrentCommander := NewCommander; //Don't need to use GetPointer/ReleasePointer because setting CurrentCommander does that
 end;
 
 

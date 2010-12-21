@@ -1558,9 +1558,9 @@ begin
   Inherited;
 
   if SHOW_ATTACK_RADIUS then
-    for i:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
-    for k:=-RANGE_WATCHTOWER-1 to RANGE_WATCHTOWER do
-    if GetLength(i,k)<=RANGE_WATCHTOWER then
+    for i:=-RANGE_WATCHTOWER_MAX-1 to RANGE_WATCHTOWER_MAX do
+    for k:=-RANGE_WATCHTOWER_MAX-1 to RANGE_WATCHTOWER_MAX do
+    if InRange(GetLength(i,k),RANGE_WATCHTOWER_MAX,RANGE_WATCHTOWER_MIN) then
     if fTerrain.TileInMapCoords(GetPosition.X+k,GetPosition.Y+i) then
       fRender.RenderDebugQuad(GetPosition.X+k,GetPosition.Y+i);
 

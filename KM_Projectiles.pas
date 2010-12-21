@@ -66,17 +66,17 @@ begin
     pt_Arrow:     begin
                     fItems[i].fSpeed    := 0.45 + randomS(0.05);
                     fItems[i].fArc      := 1.5 + randomS(0.25);
-                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_BOWMAN / 2;
+                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_BOWMAN_MAX / 2;
                   end;
     pt_Bolt:      begin
                     fItems[i].fSpeed    := 0.5 + randomS(0.05);
                     fItems[i].fArc      := 1 + randomS(0.2);
-                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_ARBALETMAN / 2.5;
+                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_ARBALETMAN_MAX / 2.5;
                   end;
     pt_TowerRock: begin
                     fItems[i].fSpeed    := 0.3 + randomS(0.05);
                     fItems[i].fArc      := 1.25;
-                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_WATCHTOWER / 1.5;
+                    Jitter := GetLength(aStart.X - aEnd.X, aStart.Y - aEnd.Y) / RANGE_WATCHTOWER_MAX / 1.5;
                   end;
     else          Jitter := 0; //
   end;

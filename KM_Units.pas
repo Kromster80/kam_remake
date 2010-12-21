@@ -557,7 +557,7 @@ begin
   Result := nil;
   if (not FREE_ROCK_THROWING) and (fHome.CheckResIn(rt_Stone)<=0) then exit; //Nothing to throw
 
-  Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition.X, fCurrPosition.Y, RANGE_WATCHTOWER, fOwner, at_Enemy);
+  Enemy := fTerrain.UnitsHitTestWithinRad(fCurrPosition.X, fCurrPosition.Y, RANGE_WATCHTOWER_MIN, RANGE_WATCHTOWER_MAX, fOwner, at_Enemy, dir_NA);
 
   //Note: In actual game there might be two Towers nearby, both throwing a stone into the same enemy.
   //We should not negate that fact, thats real-life situation.

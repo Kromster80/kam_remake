@@ -61,7 +61,8 @@ type //Possibly melee warrior class? with Archer class separate?
     procedure OrderAttackUnit(aTargetUnit:TKMUnit; aOnlySetMembers:boolean=false);
     procedure OrderAttackHouse(aTargetHouse:TKMHouse);
 
-    function GetFightRange():single;
+    function GetFightMinRange():single;
+    function GetFightMaxRange():single;
     property UnitsPerRow:integer read fUnitsPerRow write SetUnitsPerRow;
     property OrderTarget:TKMUnit read GetOrderTarget write SetOrderTarget;
     property Foe:TKMUnitWarrior read GetFoe write SetFoe;
@@ -518,12 +519,23 @@ end;
 
 
 //At which range we can fight
-function TKMUnitWarrior.GetFightRange():single;
+function TKMUnitWarrior.GetFightMaxRange():single;
 begin
   case fUnitType of
-    ut_Bowman:      Result := RANGE_BOWMAN;
-    ut_Arbaletman:  Result := RANGE_ARBALETMAN;
+    ut_Bowman:      Result := RANGE_BOWMAN_MAX;
+    ut_Arbaletman:  Result := RANGE_ARBALETMAN_MAX;
     else            Result := 1.42; //slightly bigger than sqrt(2) for diagonal fights
+  end;
+end;
+
+
+//At which range we can fight
+function TKMUnitWarrior.GetFightMinRange():single;
+begin
+  case fUnitType of
+    ut_Bowman:      Result := RANGE_BOWMAN_MIN;
+    ut_Arbaletman:  Result := RANGE_ARBALETMAN_MIN;
+    else            Result := 1; //Any tile that is not our own
   end;
 end;
 
@@ -723,7 +735,10 @@ begin
 
   //This function should not be run too often, as it will take some time to execute (e.g. with 200 warriors it could take a while)
   //todo: Improve to only look within archer's viewing angle and chooses target randomly so they don't all shoot the same enemy
-  BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightRange, GetOwner, at_Enemy);
+  if GetFightMaxRange > 2 then
+    BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, Direction)
+  else
+    BestU := fTerrain.UnitsHitTestWithinRad(GetPosition.X, GetPosition.Y, GetFightMinRange, GetFightMaxRange, GetOwner, at_Enemy, dir_NA);
 
   if BestU = nil then exit;
 
@@ -801,7 +816,7 @@ begin
     fState := ws_None; //As soon as combat is over set the state back
 
   //Help out our fellow group members in combat if we are not fighting and someone else is (doesn't apply to archers, they find thier own targets)
-  if (fState <> ws_Engage) and (GetCommander.Foe <> nil) and (GetFightRange < 2) then
+  if (fState <> ws_Engage) and (GetCommander.Foe <> nil) and (GetFightMaxRange < 2) then
   begin
     fOrder := wo_AttackUnit;
     fState := ws_Engage; //Special state so we don't issue this order continuously
@@ -856,7 +871,7 @@ begin
   if (fOrder=wo_AttackUnit) and GetUnitAction.StepDone and CanInterruptAction then
   begin
     if GetUnitTask <> nil then FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
-    SetActionWalkToUnit(GetOrderTarget, GetFightRange, ua_Walk);
+    SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);
     fOrder := wo_None;
     if (fState <> ws_Engage) then fState := ws_Walking; //Difference between walking and attacking is not noticable, since when we reach the enemy we start fighting
   end;

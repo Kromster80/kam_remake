@@ -129,9 +129,14 @@ const //Here we store options that are hidden somewhere in code
   RANGE_FISHERMAN   = 12;
 
   //Archer properties
-  RANGE_ARBALETMAN  = 10; //+1 to Tower range
-  RANGE_BOWMAN      = 10;
-  RANGE_WATCHTOWER  = 9;
+  //todo: check these against KaM
+  RANGE_ARBALETMAN_MAX  = 10; //+1 to Tower range
+  RANGE_BOWMAN_MAX      = 10;
+  RANGE_WATCHTOWER_MAX  = 9;
+
+  RANGE_ARBALETMAN_MIN  = 4;
+  RANGE_BOWMAN_MIN      = 4;
+  RANGE_WATCHTOWER_MIN  = 3;
 
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim

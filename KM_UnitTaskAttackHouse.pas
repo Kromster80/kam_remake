@@ -92,7 +92,7 @@ begin
   with fUnit do
   case fPhase of
     0: if fFightType=ft_Ranged then
-         SetActionWalkToHouse(fHouse, RANGE_BOWMAN div (byte(REDUCE_SHOOTING_RANGE)*2))
+         SetActionWalkToHouse(fHouse, RANGE_BOWMAN_MAX div (byte(REDUCE_SHOOTING_RANGE)*2))
        else
          SetActionWalkToHouse(fHouse, 1);
     1: if fFightType=ft_Ranged then begin

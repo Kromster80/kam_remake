@@ -92,7 +92,7 @@ function TUnitActionFight.Execute(KMUnit: TKMUnit):TActionResult;
 var Cycle,Step:byte; IsHit: boolean; Damage: word; ut,ot:byte;
 begin
   //See if Opponent has walked away (i.e. Serf) or died
-  if (fOpponent.IsDeadOrDying) or (GetLength(KMUnit.GetPosition, fOpponent.GetPosition) > TKMUnitWarrior(KMUnit).GetFightRange) then
+  if (fOpponent.IsDeadOrDying) or not InRange(GetLength(KMUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(KMUnit).GetFightMinRange, TKMUnitWarrior(KMUnit).GetFightMaxRange) then
     Result := ActDone
   else
     Result := ActContinues;
@@ -103,7 +103,7 @@ begin
   //Opponent can walk next to us, keep facing him
   KMUnit.Direction := KMGetDirection(KMUnit.GetPosition, fOpponent.GetPosition);
 
-  if TKMUnitWarrior(KMUnit).GetFightRange >= 2 then begin
+  if TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2 then begin
     if Step = FIRING_DELAY then
     begin
       if AimingDelay=-1 then //Initialize
