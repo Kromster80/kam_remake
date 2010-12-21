@@ -162,14 +162,14 @@ type
   //This is a common class for units going out of their homes for resources
   TKMUnitCitizen = class(TKMUnit)
   private
+    fWorkPlan:TUnitWorkPlan;
+    function FindHome():boolean;
+    function InitiateMining():TUnitTask;
     procedure IssueResourceDepletedMessage();
   public
-    WorkPlan:TUnitWorkPlan;
     constructor Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
-    function FindHome():boolean;
-    function InitiateMining():TUnitTask;
     procedure Save(SaveStream:TKMemoryStream); override;
     function UpdateState():boolean; override;
     procedure Paint(); override;
@@ -255,7 +255,7 @@ KM_UnitTaskGoOutShowHungry, KM_UnitTaskBuild, KM_UnitTaskDie, KM_UnitTaskGoHome,
 constructor TKMUnitCitizen.Create(const aOwner: TPlayerID; PosX, PosY:integer; aUnitType:TUnitType);
 begin
   Inherited;
-  WorkPlan := TUnitWorkPlan.Create;
+  fWorkPlan := TUnitWorkPlan.Create;
 end;
 
 
@@ -263,20 +263,20 @@ constructor TKMUnitCitizen.Load(LoadStream:TKMemoryStream);
 var HasPlan:boolean;
 begin
   Inherited;
-  WorkPlan := TUnitWorkPlan.Create;
+  fWorkPlan := TUnitWorkPlan.Create;
   LoadStream.Read(HasPlan);
   if HasPlan then
   begin
-    WorkPlan.Load(LoadStream);
+    fWorkPlan.Load(LoadStream);
     if fUnitTask is TTaskMining then
-      TTaskMining(fUnitTask).WorkPlan := WorkPlan; //restore reference
+      TTaskMining(fUnitTask).WorkPlan := fWorkPlan; //restore reference
   end;
 end;
 
 
 destructor TKMUnitCitizen.Destroy;
 begin
-  FreeAndNil(WorkPlan);
+  FreeAndNil(fWorkPlan);
   Inherited;
 end;
 
@@ -331,9 +331,9 @@ procedure TKMUnitCitizen.Save(SaveStream:TKMemoryStream);
 var HasPlan:boolean;
 begin
   Inherited;
-  HasPlan := WorkPlan<>nil;
+  HasPlan := fWorkPlan<>nil;
   SaveStream.Write(HasPlan);
-  if HasPlan then WorkPlan.Save(SaveStream);
+  if HasPlan then fWorkPlan.Save(SaveStream);
 end;
 
 
@@ -397,7 +397,7 @@ procedure TKMUnitCitizen.IssueResourceDepletedMessage();
 var Msg:string;
 begin
   if (fOwner = MyPlayer.PlayerID) //Don't show for AI players
-    and not fHome.ResourceDepletedMsgIssued then
+  and not fHome.ResourceDepletedMsgIssued then
   begin
     case fHome.GetHouseType of
       ht_Quary:    Msg := fTextLibrary.GetTextString(290);
@@ -438,20 +438,20 @@ begin
     end;
   end;
 
-  WorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
+  fWorkPlan.FindPlan(fUnitType,fHome.GetHouseType,HouseOutput[byte(fHome.GetHouseType),Res],KMPointY1(fHome.GetEntrance));
 
-  if WorkPlan.ResourceDepleted then
+  if fWorkPlan.ResourceDepleted then
     IssueResourceDepletedMessage;
 
-  if WorkPlan.IsIssued
-  and ((WorkPlan.Resource1=rt_None)or(fHome.CheckResIn(WorkPlan.Resource1)>=WorkPlan.Count1))
-  and ((WorkPlan.Resource2=rt_None)or(fHome.CheckResIn(WorkPlan.Resource2)>=WorkPlan.Count2))
-  and (fHome.CheckResOut(WorkPlan.Product1)<MAX_RES_IN_HOUSE)
-  and (fHome.CheckResOut(WorkPlan.Product2)<MAX_RES_IN_HOUSE) then
+  if fWorkPlan.IsIssued
+  and ((fWorkPlan.Resource1=rt_None)or(fHome.CheckResIn(fWorkPlan.Resource1)>=fWorkPlan.Count1))
+  and ((fWorkPlan.Resource2=rt_None)or(fHome.CheckResIn(fWorkPlan.Resource2)>=fWorkPlan.Count2))
+  and (fHome.CheckResOut(fWorkPlan.Product1)<MAX_RES_IN_HOUSE)
+  and (fHome.CheckResOut(fWorkPlan.Product2)<MAX_RES_IN_HOUSE) then
   begin
     if HousePlaceOrders[byte(fHome.GetHouseType)] then
       fHome.ResEditOrder(Res, -1); //Take order
-    Result := TTaskMining.Create(WorkPlan, Self);
+    Result := TTaskMining.Create(fWorkPlan, Self);
   end;
 end;
 

@@ -37,14 +37,14 @@ constructor TTaskMining.Load(LoadStream:TKMemoryStream);
 begin
   Inherited;
   LoadStream.Read(BeastID);
-  //Don't load WorkPlan
+  //Don't load WorkPlan, it's linked by TKMUnitCitizen
 end;
 
 
 procedure TTaskMining.SyncLoad();
 begin
   Inherited;
-  WorkPlan := TKMUnitCitizen(fUnit).WorkPlan; //Relink instead of reading-finding
+  //nothing to sync, Workplan is assigned by unit
 end;
 
 
