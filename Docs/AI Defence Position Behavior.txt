@@ -1,0 +1,27 @@
+21/12/10 - Tested AI Defence Position behaviour in KaM and recorded facts (Lewin)
+
+
+Formation:
+1. If defence formation is not specified, AI will form warriors into groups that are 3x3 (9 men, 3 rows)
+2. AI will link excess warriors into groups of specified size but not position them anywhere
+3. AI will increase formation to 3 rows, but never decrease it (if group starts off as 10 rows when only 4 is recomended, it stays as 10)
+4. AI will not split groups that are larger than the specified amount (if group starts off as 20 men when only 12 are recomended, it stays as 20)
+
+
+Positioning:
+5. AI will put the biggest groups of each type in the first (script order) defence positions, (first in, best dressed) and if a group becomes larger, they get moved "forward" to the earlier positions
+
+
+=======================
+Suggestions for Remake:
+=======================
+1: To be used
+2: To be used
+3&4: Currently we force groups into fixed formation/size, splitting out excess warriors. This MIGHT be a "problem" in some missions (e.g. check the battle tutorial, groups are being split which is wrong. Either script must change or engine) Maybe we should not reduce groups with excess?
+5: We occupy first defined positions first, but will not rearrange the order just because one group becomes larger. I think this is fine. (there is too much shuffling otherwise)
+
+
+
+
+Todo:
+ - Test front/back line behavior

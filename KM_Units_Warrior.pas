@@ -175,44 +175,48 @@ begin
   end;
 
   //Kill group commander
-  if (fCommander = nil) and (fMembers <> nil) and (fMembers.Count <> 0) then
+  if fCommander = nil then
   begin
-
-    //Get nearest neighbour and give him the Flag
-    NewCommanderID := 0;
-    Nearest := maxSingle;
-    for i:=1 to fMembers.Count do begin
-      Test := GetLength(GetPosition, TKMUnitWarrior(fMembers.Items[i-1]).GetPosition);
-      if Test < Nearest then begin
-        Nearest := Test;
-        NewCommanderID := i-1;
+    NewCommander := nil;
+    if (fMembers <> nil) and (fMembers.Count <> 0) then
+    begin
+      //Get nearest neighbour and give him the Flag
+      NewCommanderID := 0;
+      Nearest := maxSingle;
+      for i:=1 to fMembers.Count do begin
+        Test := GetLength(GetPosition, TKMUnitWarrior(fMembers.Items[i-1]).GetPosition);
+        if Test < Nearest then begin
+          Nearest := Test;
+          NewCommanderID := i-1;
+        end;
       end;
+
+      NewCommander := TKMUnitWarrior(fMembers.Items[NewCommanderID]);
+      NewCommander.fCommander := nil; //Become a commander
+      NewCommander.fUnitsPerRow := fUnitsPerRow; //Transfer group properties
+      NewCommander.fMembers := TList.Create;
+
+      //Transfer all members to new commander
+      for i:=1 to fMembers.Count do
+        if i-1 <> NewCommanderID then begin
+          TKMUnitWarrior(fMembers.Items[i-1]).fCommander := NewCommander; //Reassign new Commander
+          NewCommander.fMembers.Add(fMembers.Items[i-1]); //Reassign membership
+        end;
+
+      //Make sure units per row is still valid
+      NewCommander.fUnitsPerRow := min(NewCommander.fUnitsPerRow,NewCommander.fMembers.Count+1);
+
+      //Now make the new commander reposition or keep walking where we are going (don't stop group walking because leader dies, we could be in danger)
+      //Use OrderLoc if possible
+      if fOrderLoc.Loc.X <> 0 then
+        NewCommander.OrderWalk(fOrderLoc)
+      else
+        NewCommander.OrderWalk(NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
+
+      //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
+      fCommander := NewCommander;
     end;
-
-    NewCommander := TKMUnitWarrior(fMembers.Items[NewCommanderID]);
-    NewCommander.fCommander := nil; //Become a commander
-    NewCommander.fUnitsPerRow := fUnitsPerRow; //Transfer group properties
-    NewCommander.fMembers := TList.Create;
-
-    //Transfer all members to new commander
-    for i:=1 to fMembers.Count do
-      if i-1 <> NewCommanderID then begin
-        TKMUnitWarrior(fMembers.Items[i-1]).fCommander := NewCommander; //Reassign new Commander
-        NewCommander.fMembers.Add(fMembers.Items[i-1]); //Reassign membership
-      end;
-
-    //Make sure units per row is still valid
-    NewCommander.fUnitsPerRow := min(NewCommander.fUnitsPerRow,NewCommander.fMembers.Count+1);
-
-    //Now make the new commander reposition or keep walking where we are going (don't stop group walking because leader dies, we could be in danger)
-    //Use OrderLoc if possible
-    if fOrderLoc.Loc.X <> 0 then
-      NewCommander.OrderWalk(fOrderLoc)
-    else
-      NewCommander.OrderWalk(NewCommander.GetPosition,NewCommander.Direction); //Else use position of new commander
-
-    //Now set ourself to new commander, so that we have some way of referencing units after they die(?)
-    fCommander := NewCommander;
+    fPlayers.PlayerAI[byte(fOwner)].CommanderDied(Self, NewCommander); //Tell our AI that we have died so it can update defence positions, etc.
   end;
 
   ClearOrderTarget; //This ensures that pointer usage tracking is reset

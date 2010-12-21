@@ -577,8 +577,12 @@ begin
       fWalker.SetActionWalkToSpot(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability));
 
       //@Lewin: This might not be a good idea to remain being Pushed?
-      //but if it is, then it could simplify the 
+      //but if it is, then it could simplify the
       //fWalker.SetActionWalkPushed(fTerrain.GetOutOfTheWay(fWalker.GetPosition,KMPoint(0,0),GetEffectivePassability));
+
+      //@Krom: We have to remain pushed, a unit is [almost certainly] depending on us to get out of the way and clear a path.
+      //       If we are unable to move with the way we first tried, (e.g. other unit is stuck) then try another. That's what this does I believe.
+      //       I'm not quite sure what you mean by your comment.
       Result := true; //Means exit DoUnitInteraction
       exit;
     end;

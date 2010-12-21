@@ -49,6 +49,7 @@ type
     procedure CheckArmiesCount();
     procedure CheckArmy();
   public
+    procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
     function GetHouseRepair:boolean; //Do we automatically repair all houses?
     procedure AddDefencePosition(aPos:TKMPointDir; aGroupType:TGroupType; aDefenceRadius:integer; aDefenceType:TAIDefencePosType);
     procedure AddAttack(aAttack: TAIAttack);
@@ -145,8 +146,8 @@ begin
   Aggressiveness := 100; //No idea what the default for this is, it's barely used
   for i:=low(TGroupType) to high(TGroupType) do
   begin
-    TroopFormations[i].NumUnits := 12;
-    TroopFormations[i].NumRows := 4;
+    TroopFormations[i].NumUnits := 9; //These are the defaults in KaM
+    TroopFormations[i].NumRows := 3;
   end;
 end;
 
@@ -354,16 +355,6 @@ var i, k, Matched: integer;
     Positioned: boolean;
     NeedsLinkingTo: array[TGroupType] of TKMUnitWarrior;
 begin
-  //Cleanup when commander of a defence position dies
-  //@Lewin: I get bugs from here, when commander is dead
-  for i:=0 to DefencePositionsCount-1 do
-  with DefencePositions[i] do
-    if (CurrentCommander <> nil) and CurrentCommander.IsDeadOrDying then
-      if CurrentCommander.fCommander <> nil then //@Lewin: How can commander have another commander above him?
-        CurrentCommander := CurrentCommander.fCommander //@Lewin: I especially doubt about this assignment
-      else
-        CurrentCommander := nil;
-
   for i:=byte(low(TGroupType)) to byte(high(TGroupType)) do
     NeedsLinkingTo[TGroupType(i)] := nil;
 
@@ -442,6 +433,18 @@ begin
 
         end;
   end;
+end;
+
+
+//This is run by commanders when they die. Dead commander is the one that died, NewCommander is the one that replaced them.
+//We need to update CurrentCommander for defence positions in this case.
+procedure TKMPlayerAI.CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
+var i: integer;
+begin
+  for i:=0 to DefencePositionsCount-1 do
+    with DefencePositions[i] do
+      if CurrentCommander = DeadCommander then
+        CurrentCommander := NewCommander;
 end;
 
 
