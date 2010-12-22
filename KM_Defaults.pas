@@ -28,9 +28,9 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = 'Fighting Demo r1256';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1256';       //Should be updated for every release (each time save format is changed)
-  REPLAY_VERSION        = 1256;          //Used in replay file format
+  GAME_VERSION          = 'Fighting Demo r1275';       //Game version string displayed in menu corner
+  SAVE_VERSION          = 'r1275';       //Should be updated for every release (each time save format is changed)
+  REPLAY_VERSION        = 1275;          //Used in replay file format
 
 var
   //These should be TRUE
@@ -44,7 +44,7 @@ var
   CHEATS_ENABLED        :boolean=true;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :boolean=true;  //If true, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :boolean=true;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
-  CRASH_ON_REPLAY       :boolean=false;  //Crash as soon as replay consistency fails (random numbers mismatch)
+  CRASH_ON_REPLAY       :boolean=true;  //Crash as soon as replay consistency fails (random numbers mismatch)
 
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:boolean=true; //Should we allow to zoom in game or not
@@ -85,7 +85,7 @@ var
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
-  REDUCE_SHOOTING_RANGE :boolean=true; //Reduce shooting range for debug
+  REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
   {Data output}
   WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file 
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
