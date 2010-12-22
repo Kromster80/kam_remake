@@ -97,9 +97,9 @@ type
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
     procedure TrainedSoldier(aType:TUnitType); //Used for equiping in barracks
-  public
+
     procedure UpdateReqDone(aType:THouseType);
-  public
+
     function GetHouseQty(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetArmyCount():integer;

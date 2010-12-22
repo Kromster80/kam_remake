@@ -209,6 +209,7 @@ begin
 end;
 
 
+//todo: ADD Save!
 procedure TKMProjectiles.Save(SaveStream:TKMemoryStream);
 //var i,Count:integer;
 begin
@@ -235,6 +236,7 @@ begin
 end;
 
 
+//todo: ADD Load!
 procedure TKMProjectiles.Load(LoadStream:TKMemoryStream);
 //var i:integer;
 begin

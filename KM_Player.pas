@@ -67,10 +67,10 @@ type
     procedure CreatedUnit(aType:TUnitType; aWasTrained:boolean);
     procedure DestroyedHouse(aType:THouseType);
     procedure DestroyedUnit(aType:TUnitType);
-    procedure UpdateReqDone(aType:THouseType);
 
     function GetCanBuild(aType:THouseType):boolean;
     function GetHouseQty(aType:THouseType):integer;
+    function GetHouseWip(aType:THouseType):integer;
     function GetUnitQty(aType:TUnitType):integer;
     function GetFieldsCount():integer;
   public
@@ -236,12 +236,14 @@ begin
     fSoundLib.Play(sfx_placemarker);
 end;
 
+
 procedure TKMPlayerAssets.AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint; PlayerRevealID:TPlayerID=play_none);
-var KMHouse:TKMHouse;
+var KMHouse:TKMHouse; Loc:TKMPoint;
 begin
-  aLoc.X:=aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
-  KMHouse:=fHouses.AddPlan(aHouseType, aLoc.X, aLoc.Y, fPlayerID);
-  fTerrain.SetHouse(aLoc, aHouseType, hs_Plan, fPlayerID);
+  Loc.X := aLoc.X-HouseDAT[byte(aHouseType)].EntranceOffsetX;
+  Loc.Y := aLoc.Y;
+  KMHouse := fHouses.AddPlan(aHouseType, Loc.X, Loc.Y, fPlayerID);
+  fTerrain.SetHouse(Loc, aHouseType, hs_Plan, fPlayerID);
   BuildList.AddNewHousePlan(KMHouse);
 end;
 
@@ -390,20 +392,18 @@ begin
   fMissionSettings.CreatedUnit(aType,aWasTrained);
 end;
 
+
 procedure TKMPlayerAssets.DestroyedHouse(aType:THouseType);
 begin
   fMissionSettings.DestroyedHouse(aType);
 end;
+
 
 procedure TKMPlayerAssets.DestroyedUnit(aType:TUnitType);
 begin
   if Assigned(fMissionSettings) then fMissionSettings.DestroyedUnit(aType);
 end;
 
-procedure TKMPlayerAssets.UpdateReqDone(aType:THouseType);
-begin
-  fMissionSettings.UpdateReqDone(aType);
-end;
 
 procedure TKMPlayerAssets.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
 begin
@@ -438,6 +438,12 @@ end;
 function TKMPlayerAssets.GetHouseQty(aType:THouseType):integer;
 begin
   Result := fMissionSettings.GetHouseQty(aType);
+end;
+
+
+function TKMPlayerAssets.GetHouseWip(aType:THouseType):integer;
+begin
+  Result := fBuildList.GetHouseWipCount(aType);
 end;
 
 

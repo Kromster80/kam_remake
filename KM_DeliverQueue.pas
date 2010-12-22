@@ -109,6 +109,9 @@ type
     function  AskForHouseRepair(aWorker:TKMUnitWorker):TUnitTask;
     procedure CloseHouseRepair(aID:integer);
     procedure RemoveHouseRepair(aHouse: TKMHouse);
+
+    function GetHouseWipCount(aHouseType: THouseType):integer;
+
     procedure Save(SaveStream:TKMemoryStream);
     procedure Load(LoadStream:TKMemoryStream);
     procedure SyncLoad();
@@ -667,6 +670,20 @@ begin
   begin
     fPlayers.CleanUpHousePointer(fHousesRepairQueue[i].House);
     FillChar(fHousesRepairQueue[i],SizeOf(fHousesRepairQueue[i]),#0); //Remove offer
+  end;
+end;
+
+
+function TKMBuildingQueue.GetHouseWipCount(aHouseType: THouseType):integer;
+var i:integer;
+begin
+  Result := 0;
+  Assert(aHouseType <> ht_None, 'Querrying wrong house type');
+  for i:=1 to MaxEntries do begin
+    if (fHousesQueue[i].House<>nil) and (fHousesQueue[i].House.GetHouseType = aHouseType) then
+      inc(Result);
+    if (fHousePlansQueue[i].House<>nil) and (fHousePlansQueue[i].House.GetHouseType = aHouseType) then
+      inc(Result);
   end;
 end;
 

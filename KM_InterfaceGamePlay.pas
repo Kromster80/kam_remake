@@ -64,7 +64,7 @@ type TKMGamePlayInterface = class
       Ratio_RatioRat:array[1..4]of TKMRatioRow;
     Panel_Stats:TKMPanel;
       Stat_HousePic,Stat_UnitPic:array[1..32]of TKMImage;
-      Stat_HouseQty,Stat_UnitQty:array[1..32]of TKMLabel;
+      Stat_HouseQty,Stat_HouseWip,Stat_UnitQty:array[1..32]of TKMLabel;
 
     Panel_Build:TKMPanel;
       Label_Build:TKMLabel;
@@ -833,9 +833,11 @@ begin
          else
            inc(off,Nil_Width);
       1: begin
-          Stat_HousePic[hc]:=MyControls.AddImage(Panel_Stats,off,LineBase,House_Width,30,41{byte(StatHouse[hc])+300});
+          Stat_HousePic[hc]:=MyControls.AddImage(Panel_Stats,off,LineBase,House_Width,30,41); //Filled with [?] at start
+          Stat_HouseWip[hc]:=MyControls.AddLabel(Panel_Stats,off+House_Width  ,LineBase   ,37,30,'',fnt_Grey,kaRight);
           Stat_HouseQty[hc]:=MyControls.AddLabel(Panel_Stats,off+House_Width-2,LineBase+16,37,30,'-',fnt_Grey,kaRight);
           Stat_HousePic[hc].Hint:=TypeToString(StatHouse[hc]);
+          Stat_HouseWip[hc].Hint:=TypeToString(StatHouse[hc]);
           Stat_HouseQty[hc].Hint:=TypeToString(StatHouse[hc]);
           Stat_HousePic[hc].ImageCenter;
           inc(hc);
@@ -1951,12 +1953,14 @@ begin
 end;
 
 procedure TKMGamePlayInterface.Stats_Fill(Sender:TObject);
-var i,Tmp:integer;
+var i,Tmp,Tmp2:integer;
 begin
   for i:=low(StatHouse) to high(StatHouse) do
   begin
-    Tmp:=MyPlayer.GetHouseQty(StatHouse[i]);
+    Tmp := MyPlayer.GetHouseQty(StatHouse[i]);
+    Tmp2 := MyPlayer.GetHouseWip(StatHouse[i]);
     if Tmp=0 then Stat_HouseQty[i].Caption:='-' else Stat_HouseQty[i].Caption:=inttostr(Tmp);
+    if Tmp2=0 then Stat_HouseWip[i].Caption:='' else Stat_HouseWip[i].Caption:='+'+inttostr(Tmp2);
     if MyPlayer.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
       Stat_HousePic[i].TexID:=byte(StatHouse[i])+300;
